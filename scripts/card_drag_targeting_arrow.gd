@@ -70,7 +70,11 @@ func targeting_end() -> Vector2:
 func _draw() -> void:
 	if not visible or _segment_texture == null or _head_texture == null:
 		return
-	var placements: Array[Dictionary] = segment_placements(_start, _end)
+	# One exact lookup per endpoint pair. The old path rebuilt it for the head
+	# and walked all 160 chords again for every placement and tangent sample.
+	var lookup: PackedVector2Array = curve_lookup(_start, _end)
+	var distances: PackedFloat64Array = _arc_distances(lookup)
+	var placements: Array[Dictionary] = _segment_placements(lookup, distances)
 	set_meta("last_segment_count", placements.size())
 	for placement: Dictionary in placements:
 		_draw_raster_piece(
@@ -78,7 +82,7 @@ func _draw() -> void:
 			placement.get("center", Vector2.ZERO),
 			float(placement.get("angle", 0.0))
 		)
-	var head: Dictionary = head_placement(_start, _end)
+	var head: Dictionary = _head_placement(_start, _end, lookup, distances)
 	_draw_raster_piece(
 		_head_texture,
 		head.get("center", _end),
@@ -106,9 +110,13 @@ static func sampled_curve(start: Vector2, finish: Vector2, spacing: float = SEGM
 
 
 static func segment_placements(start: Vector2, finish: Vector2) -> Array[Dictionary]:
-	var placements: Array[Dictionary]
 	var lookup: PackedVector2Array = curve_lookup(start, finish)
-	var total_length: float = curve_arc_length(lookup)
+	return _segment_placements(lookup, _arc_distances(lookup))
+
+
+static func _segment_placements(lookup: PackedVector2Array, distances: PackedFloat64Array) -> Array[Dictionary]:
+	var placements: Array[Dictionary]
+	var total_length: float = distances[-1]
 	var terminal_center_distance: float = (
 		total_length
 		- HEAD_DRAW_SIZE.x
@@ -125,9 +133,9 @@ static func segment_placements(start: Vector2, finish: Vector2) -> Array[Diction
 		actual_spacing = available_length / float(interval_count)
 	for index: int in range(interval_count + 1):
 		var distance: float = SEGMENT_START_DISTANCE + actual_spacing * float(index)
-		var tangent: Vector2 = tangent_at_arc_distance(lookup, distance)
+		var tangent: Vector2 = _tangent_on_curve(lookup, distances, distance)
 		placements.append({
-			"center": point_at_arc_distance(lookup, distance),
+			"center": _point_on_curve(lookup, distances, distance),
 			"angle": tangent.angle(),
 			"distance": distance,
 			"spacing": actual_spacing,
@@ -138,8 +146,12 @@ static func segment_placements(start: Vector2, finish: Vector2) -> Array[Diction
 
 static func head_placement(start: Vector2, finish: Vector2) -> Dictionary:
 	var lookup: PackedVector2Array = curve_lookup(start, finish)
-	var total_length: float = curve_arc_length(lookup)
-	var tangent: Vector2 = tangent_at_arc_distance(lookup, total_length)
+	return _head_placement(start, finish, lookup, _arc_distances(lookup))
+
+
+static func _head_placement(start: Vector2, finish: Vector2, lookup: PackedVector2Array, distances: PackedFloat64Array) -> Dictionary:
+	var total_length: float = distances[-1]
+	var tangent: Vector2 = _tangent_on_curve(lookup, distances, total_length)
 	if tangent.length_squared() <= 0.001:
 		tangent = (finish - start).normalized()
 	var center: Vector2 = finish - tangent * HEAD_DRAW_SIZE.x * 0.5
@@ -155,8 +167,9 @@ static func head_placement(start: Vector2, finish: Vector2) -> Dictionary:
 
 static func curve_lookup(start: Vector2, finish: Vector2) -> PackedVector2Array:
 	var points := PackedVector2Array()
+	var controls: PackedVector2Array = curve_controls(start, finish)
 	for index: int in range(ARC_LOOKUP_STEPS + 1):
-		points.append(curve_point(start, finish, float(index) / float(ARC_LOOKUP_STEPS)))
+		points.append(_curve_point(controls, float(index) / float(ARC_LOOKUP_STEPS)))
 	return points
 
 
@@ -202,7 +215,10 @@ static func curve_controls(start: Vector2, finish: Vector2) -> PackedVector2Arra
 
 
 static func curve_point(start: Vector2, finish: Vector2, progress: float) -> Vector2:
-	var controls: PackedVector2Array = curve_controls(start, finish)
+	return _curve_point(curve_controls(start, finish), progress)
+
+
+static func _curve_point(controls: PackedVector2Array, progress: float) -> Vector2:
 	var t: float = clampf(progress, 0.0, 1.0)
 	var inverse: float = 1.0 - t
 	return (
@@ -222,3 +238,40 @@ static func curve_tangent(start: Vector2, finish: Vector2, progress: float) -> V
 		+ (controls[2] - controls[1]) * 6.0 * inverse * t
 		+ (controls[3] - controls[2]) * 3.0 * t * t
 	)
+
+
+# Accumulate in the same order and precision as curve_arc_length and the old
+# linear point search. Float32 prefix sums would change segment positions.
+static func _arc_distances(points: PackedVector2Array) -> PackedFloat64Array:
+	var distances := PackedFloat64Array([0.0])
+	var traversed: float = 0.0
+	for index: int in range(1, points.size()):
+		traversed += points[index - 1].distance_to(points[index])
+		distances.append(traversed)
+	return distances
+
+
+static func _point_on_curve(points: PackedVector2Array, distances: PackedFloat64Array, requested_distance: float) -> Vector2:
+	if points.is_empty(): return Vector2.ZERO
+	var target: float = maxf(0.0, requested_distance)
+	var low: int = 1
+	var high: int = points.size() - 1
+	while low < high:
+		var middle: int = (low + high) / 2
+		if distances[middle] >= target: high = middle
+		else: low = middle + 1
+	if low >= points.size() or distances[low] < target: return points[-1]
+	# Recompute this chord rather than subtracting prefix sums: cancellation
+	# would change the lerp fraction and the raster pieces' final transforms.
+	var chord_length: float = points[low - 1].distance_to(points[low])
+	var progress: float = 0.0 if chord_length <= 0.001 else (target - distances[low - 1]) / chord_length
+	return points[low - 1].lerp(points[low], clampf(progress, 0.0, 1.0))
+
+
+static func _tangent_on_curve(points: PackedVector2Array, distances: PackedFloat64Array, requested_distance: float) -> Vector2:
+	var before: Vector2 = _point_on_curve(points, distances, maxf(0.0, requested_distance - ARC_TANGENT_EPSILON))
+	var after: Vector2 = _point_on_curve(points, distances, minf(distances[-1], requested_distance + ARC_TANGENT_EPSILON))
+	var tangent: Vector2 = (after - before).normalized()
+	if tangent.length_squared() <= 0.001 and points.size() >= 2:
+		tangent = (points[-1] - points[-2]).normalized()
+	return tangent

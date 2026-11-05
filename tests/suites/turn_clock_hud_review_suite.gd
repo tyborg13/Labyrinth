@@ -226,11 +226,16 @@ static func _test_long_order(tree: SceneTree, scene: Node, fixture: Dictionary, 
 	for child: Node in rail.get_children():
 		if child.has_meta("turn_order_actor_key"):
 			disclosed += 1
-	var rail_overflow: Label = rail.get_node_or_null("TurnOrderOverflowBadge") as Label
-	var overflow_count: int = rail_overflow.text.to_int() if rail_overflow != null else 0
-	expect.call(disclosed + overflow_count == 10, "The rail still discloses only ten entries while the strip sees the whole projection: %d slots plus %d overflow" % [disclosed, overflow_count])
+	# hud-02 replaces the ten-entry cap and separate label with a fitted rail
+	# and an in-rail portrait aggregate. Every projected fact must remain disclosed.
+	var rail_overflow: Control = rail.get_node_or_null("TurnOrderOverflowEntry") as Control
+	var overflow_count: int = int(rail_overflow.get_meta("turn_order_overflow_count", 0)) if rail_overflow != null else 0
+	expect.call(rail_overflow != null and rail_overflow.visible and overflow_count > 0, "The long order uses layout C's visible in-rail overflow portrait")
+	expect.call(disclosed > 0 and disclosed + overflow_count == all.size(), "The fitted rail and its overflow must disclose the complete projection: %d slots plus %d overflow for %d entries" % [disclosed, overflow_count, all.size()])
 	if rail_overflow != null:
-		expect.call(rail_overflow.tooltip_text.split("\n").size() == 1 + overflow_count, "Rail overflow tooltip retains the same disclosure cap")
+		expect.call(str(rail_overflow.get_meta("turn_order_badge_text", "")) == "+%d" % overflow_count, "The overflow portrait numeral must show the exact omitted count")
+		expect.call(rail_overflow.tooltip_text.split("\n").size() == 1 + overflow_count, "Rail overflow tooltip must disclose every omitted entry")
+		expect.call(rail.get_global_rect().encloses(rail_overflow.get_global_rect()), "The overflow portrait must fit within the compact rail")
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	expect.call(not strip.get_global_rect().intersects(stack.get_global_rect()), "Long strip still clears the focused tooltip stack")
 	await capture.call("beyond_rail_limit")

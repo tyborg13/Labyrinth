@@ -47,9 +47,18 @@ func _initialize() -> void:
 	await _capture("sword", "front", 0.42, "fire")
 	await _capture("thrust", "rear", 0.42, "ice")
 	await _capture("sword", "front", 0.42, "ice", true)
-	for progress: float in [0.14, 0.19, 0.20, 0.62, 0.63, 0.78]:
+	for progress: float in [0.14, 0.19, 0.20, 0.61, 0.62, 0.78]:
 		await _capture("thrust", "front", progress)
 	await _capture("sword", "front", 0.42, "none", false, true)
+	for motion: String in Fixture.LOADOUTS:
+		for view: String in ["front", "rear", "front_mirror", "rear_mirror"]:
+			for progress: float in PHASES:
+				await _capture(motion, view, progress, "none", false, false, true)
+	await _capture("sword", "rear", 0.42, "none", false, true, true)
+	var area_contact: float = preload("res://scripts/attack_fx_library.gd").feedback_start_progress({"kind":"aoe"})
+	var first_contact_pose: float = Trail.CONTACT + (1.0 - Trail.CONTACT) * (0.5 - area_contact) / (1.0 - area_contact)
+	await _capture("sword", "front", first_contact_pose, "none", false, false, true)
+	await _capture("heavy", "rear", first_contact_pose, "none", false, false, true)
 	var manifest := {"size": [1920, 1080], "ui_scale": 1.0, "captures": _captures, "errors": _errors}
 	var file := FileAccess.open(OUTPUT.path_join("manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(manifest, "\t"))
@@ -63,18 +72,20 @@ func _initialize() -> void:
 	quit(0 if _errors.is_empty() else 1)
 
 func _capture(motion: String, view: String, progress: float, element: String = "none",
-		echo: bool = false, reduced: bool = false) -> void:
+		echo: bool = false, reduced: bool = false, area: bool = false) -> void:
 	var direction: Vector2i = DIRECTIONS[view]
 	var state: Dictionary = Fixture.state(direction)
 	var from: Vector2i = state["player"]["pos"]
 	if echo:
 		from += Vector2i(-1, 0)
 		state["illusions"] = [{"id": 1, "pos": from, "hp": 1, "max_hp": 1, "block": 0}]
-	var effect: Dictionary = {"kind": "melee", "protagonist_melee": not echo, "illusion_echo": echo,
-		"protagonist_weapon_motion": motion, "from": from, "to": state["enemies"][0]["pos"], "element": element, "seed": 11}
-	var presentation: Dictionary = {"effect": effect, "effect_progress": progress, "reduced_motion": reduced,
+	var effect: Dictionary = {"kind": "aoe" if area else "melee", "protagonist_melee": not echo, "illusion_echo": echo,
+		"protagonist_weapon_motion": motion, "from": from, "to": from if area else state["enemies"][0]["pos"], "element": element, "seed": 11, "protagonist_melee_frames": 6 if area else 0}
+	var contact: float = preload("res://scripts/attack_fx_library.gd").feedback_start_progress(effect)
+	var effect_progress: float = contact * progress / Trail.CONTACT if progress <= Trail.CONTACT else contact + (1.0 - contact) * (progress - Trail.CONTACT) / (1.0 - Trail.CONTACT)
+	var presentation: Dictionary = {"effect": effect, "effect_progress": effect_progress, "reduced_motion": reduced,
 		"equipped_equipment": {"weapon": Fixture.LOADOUTS[motion]}, "board_backdrop_visible": true,
-		"protagonist_motion": {} if echo else {"clip": "attack", "phase": progress, "direction": direction}}
+		"protagonist_motion": {} if echo else {"clip": "attack", "phase": progress, "direction": direction, "hero_facing": {"facing":"rear" if view.begins_with("rear") else "front", "mirrored":view.ends_with("mirror")}}}
 	_board.set_combat_state(state, [], [], Vector2i(-1,-1), "", "", {}, {}, presentation)
 	# Let the retained effects child and cutout viewport complete their updates.
 	for frame: int in range(3):
@@ -87,7 +98,9 @@ func _capture(motion: String, view: String, progress: float, element: String = "
 		_expect((light.material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD, "Production trail uses additive material")
 		if reduced:
 			_expect(light.get("_batches").is_empty(), "Reduced motion has no light geometry")
-	var label: String = "%s_%s_%03d_%s%s%s" % [motion, view, roundi(progress * 100.0), element, "_echo" if echo else "", "_reduced" if reduced else ""]
+		elif not echo:
+			_expect(light.get("_batches").is_empty() == (Trail.envelope(progress, Trail.motion_settings(motion)["window"]) <= 0.0), "Trail obeys the approved strike/fade window")
+	var label: String = "%s_%s_%03d_%s%s%s%s" % [motion, view, roundi(progress * 100.0), element, "_echo" if echo else "", "_reduced" if reduced else "", "_area" if area else ""]
 	var pixels: Image = _surface.get_texture().get_image()
 	_expect(pixels.get_size() == SIZE, "Capture is exactly 1920x1080")
 	_expect(pixels.save_png(OUTPUT.path_join(label + ".png")) == OK, "Frame saves: " + label)
@@ -103,7 +116,7 @@ func _capture(motion: String, view: String, progress: float, element: String = "
 		var expected_phase: float = renderer.attack_pose_phase(progress) if motion in ["sword", "bow", "repeater"] else progress
 		_expect(is_equal_approx(renderer.phase, expected_phase), "Production clip and trail share effect progress")
 	_captures.append({"file": label + ".png", "crop": [crop.position.x, crop.position.y, crop.size.x, crop.size.y],
-		"motion": motion, "view": view, "progress": progress, "element": element, "echo": echo, "reduced": reduced,
+		"motion": motion, "view": view, "progress": progress, "element": element, "echo": echo, "reduced": reduced, "area": area,
 		"weapon_z": rig._gear_base_parts["weapon_r"]["node"].z_index,
 		"grip_visible": rig._gear_layers.grip.visible, "clip": renderer.clip, "clip_phase": renderer.phase})
 

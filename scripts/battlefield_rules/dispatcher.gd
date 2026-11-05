@@ -187,18 +187,21 @@ static func complete_source_turn(engine: RefCounted, state: Dictionary, steps: A
 	return state
 
 static var _forecast_memo := preload("res://scripts/combat_preview_memo.gd").new()
+static var _catalog_memo := preload("res://scripts/combat_preview_memo.gd").new()
 
 static func forecast_inputs(engine: RefCounted, state: Dictionary) -> Array:
-	# The real resolver can read catalogs via deaths, traps, statuses, relics and
-	# vision. Keep raw dependencies as well as the whole board, never hashes or
-	# only active rule dials. This also catches in-place definition edits.
+	# The resolver can read every catalog via deaths, traps, statuses, relics and
+	# vision. Intern their complete owned values once, independently of the board.
+	# The exact signature still validates in-place edits on every query; forecast
+	# misses no longer hash, compare and snapshot all catalogs a second time.
 	var data_source: GDScript = preload("res://scripts/game_data.gd")
 	var specials: GDScript = preload("res://scripts/special_encounter_library.gd")
 	if specials._data.is_empty(): specials.catalog()
-	return [engine.get_instance_id(), state, data_source.enemies(), data_source.cards(), data_source.relics(), data_source.equipment(), data_source.upgrades(), data_source.omens(), data_source.progression_levels(), preload("res://scripts/skill_tree_library.gd").definitions(), specials._data, preload("res://scripts/depth_rules.gd").data()]
+	var catalogs: Array = [data_source.enemies(), data_source.cards(), data_source.relics(), data_source.equipment(), data_source.upgrades(), data_source.omens(), data_source.progression_levels(), preload("res://scripts/skill_tree_library.gd").definitions(), specials._data, preload("res://scripts/depth_rules.gd").data()]
+	return [engine.get_instance_id(), state, _catalog_memo.exact_signature(catalogs)]
 
 static func forecast(engine: RefCounted, state: Dictionary) -> Dictionary:
-	return _forecast_memo.resolve(forecast_inputs(engine, state), func() -> Dictionary: return _compute_forecast(engine, state))
+	return _forecast_memo.resolve_repeated(forecast_inputs(engine, state), func() -> Dictionary: return _compute_forecast(engine, state))
 
 static func _compute_forecast(engine: RefCounted, state: Dictionary) -> Dictionary:
 	# Rebuild derived relic effects on a miss, including raw catalog invalidation.

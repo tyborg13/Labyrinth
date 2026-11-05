@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "tools/run_python_suite.py",
+    "--shards",
+    "4",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-43/python-default"
+  ],
+  "started": 1793841522.992573,
+  "wall_seconds": 31.024327993392944,
+  "returncode": 0,
+  "log": "/private/tmp/labyrinth_codex/qa-43/python-default.log"
+}

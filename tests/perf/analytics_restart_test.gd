@@ -69,10 +69,18 @@ func _write_interrupted_tail() -> void:
 	var prefix_file: FileAccess = FileAccess.open(directory.path_join("prefix.bin"), FileAccess.WRITE)
 	prefix_file.store_buffer(prefix)
 	prefix_file.close()
-	var marker: FileAccess = FileAccess.open(directory.path_join("ready.json"), FileAccess.WRITE)
+	# The parent polls for existence: publish only the complete, closed marker.
+	# Opening ready.json directly lets it read an empty/partial JSON document.
+	var ready_path: String = directory.path_join("ready.json")
+	var ready_staging_path: String = ready_path + ".tmp"
+	var marker: FileAccess = FileAccess.open(ready_staging_path, FileAccess.WRITE)
 	marker.store_string(JSON.stringify({"pid": OS.get_process_id(), "path": path}))
 	marker.flush()
 	marker.close()
+	if DirAccess.rename_absolute(ready_staging_path, ready_path) != OK:
+		push_error("Could not publish restart fixture readiness marker")
+		quit(1)
+		return
 	# Parent kills this process; no orderly shutdown or store flush can repair it.
 	set_auto_accept_quit(false)
 

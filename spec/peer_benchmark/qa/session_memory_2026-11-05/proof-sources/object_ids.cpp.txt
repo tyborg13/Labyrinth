@@ -1,0 +1,59 @@
+// Task-local diagnostic, never shipped. Stable GDExtension entry ABI from Godot
+// 4.4 core/extension/gdextension_interface.h (MIT, Godot contributors).
+// The three internal symbols are verified against the installed debug binary.
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <dlfcn.h>
+using Proc = void (*)();
+using GetProc = Proc (*)(const char *);
+struct Initialization {
+    int minimum_level;
+    void *userdata;
+    void (*initialize)(void *, int);
+    void (*deinitialize)(void *, int);
+};
+static uint64_t (*instance_id)(const void *);
+static const void *(*class_name)(const void *);
+static int (*reference_count)(const void *);
+static void (*string_from_name)(void *, const void *const *);
+static int64_t (*to_utf8)(const void *, char *, int64_t);
+static void (*destroy_string)(void *);
+static void visit(void *object, void *file) {
+    alignas(8) char string[8];
+    const void *args[] = {class_name(object)};
+    string_from_name(string, args);
+    char text[256] = {};
+    to_utf8(string, text, 255);
+    uint64_t id = instance_id(object);
+    int refs = (id >> 63) ? reference_count(object) : -1;
+    std::fprintf(static_cast<FILE *>(file), "%lld\t%s\t%d\n", (long long)id, text, refs);
+    destroy_string(string);
+}
+static void initialize(void *, int level) {
+    if (level != 2) return;
+    using Enumerate = void (*)(void (*)(void *, void *), void *);
+    auto enumerate = reinterpret_cast<Enumerate>(dlsym(RTLD_DEFAULT, "_ZN8ObjectDB13debug_objectsEPFvP6ObjectPvES2_"));
+    const char *path = std::getenv("QA53_OBJECT_IDS");
+    if (!enumerate || !instance_id || !path) std::abort();
+    FILE *file = std::fopen(path, "w");
+    if (!file) std::abort();
+    enumerate(visit, file);
+    std::fclose(file);
+}
+static void deinitialize(void *, int) {}
+extern "C" uint8_t qa53_ids_init(GetProc get_proc, void *lib, Initialization *init) {
+    instance_id = reinterpret_cast<uint64_t (*)(const void *)>(get_proc("object_get_instance_id"));
+    class_name = reinterpret_cast<const void *(*)(const void *)>(dlsym(RTLD_DEFAULT, "_ZNK6Object14get_class_nameEv"));
+    reference_count = reinterpret_cast<int (*)(const void *)>(dlsym(RTLD_DEFAULT, "_ZNK10RefCounted19get_reference_countEv"));
+    if (!class_name || !reference_count) return 0;
+    using Constructor = void (*)(void *, const void *const *);
+    auto get_constructor = reinterpret_cast<Constructor (*)(int, int32_t)>(get_proc("variant_get_ptr_constructor"));
+    string_from_name = get_constructor(4, 2);
+    to_utf8 = reinterpret_cast<int64_t (*)(const void *, char *, int64_t)>(get_proc("string_to_utf8_chars"));
+    using Destructor = void (*)(void *);
+    auto get_destructor = reinterpret_cast<Destructor (*)(int)>(get_proc("variant_get_ptr_destructor"));
+    destroy_string = get_destructor(4);
+    *init = {2, nullptr, initialize, deinitialize};
+    return 1;
+}

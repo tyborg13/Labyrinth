@@ -47,6 +47,8 @@ static func _append(tags: Array, seen: Dictionary, word: String, icon_key: Strin
 
 static func _word(action: Dictionary) -> String:
 	if str(action.get("type", "")) == "chain_discharge": return "Arc Burst"
+	if str(action.get("type", "")) == "surface" and action.has("guardian_shape"):
+		return ActionIcons.label(ActionIcons.action_icon_key(action))
 	if str(action.get("type", "")) not in ["upheaval_mark", "lob_mark", "lob_land", "melee", "ranged", "aoe", "lightning_strikes", "block", "guard_ally", "stoneskin", "heal", "heal_self", "heal_ally", "move_away", "pull", "push", "summon_minions", "raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "frost_armor", "umbra_eclipse", "split"]:
 		return ""
 	var icon_key: String = ActionIcons.action_icon_key(action)

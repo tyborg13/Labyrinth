@@ -1,0 +1,12 @@
+extends "res://spec/peer_benchmark/qa/polish_verify_2026-11-05/probes/observe.gd"
+const ScoreTitleQA = preload("res://scripts/run_score_rules.gd")
+const ChronicleTitleQA = preload("res://scripts/chronicle_rules.gd")
+const TITLE_SAMPLE_COUNT_QA: int = 10
+func qa_run() -> void:
+	for seed_value: int in range(1, TITLE_SAMPLE_COUNT_QA + 1):
+		var state: Dictionary = {"seed": seed_value, "run_index": 1}
+		var id: String = ScoreTitleQA.identity(state)
+		qa_record("defeat_titles", {"run_id": id, "recap": ScoreTitleQA.seeded_text(id, "defeat"), "chronicle": ChronicleTitleQA.result_word({"outcome": "defeat"})})
+	qa_log.close()
+	print("QA52 TITLE OBSERVER COMPLETE output=" + ProjectSettings.globalize_path(qa_output))
+	quit(0)

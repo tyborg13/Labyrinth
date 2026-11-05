@@ -561,14 +561,26 @@ static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, 
 	var target_tile: Vector2i = target.get("pos",state["player"]["pos"])
 	var best_score: int = -999999
 	var best: Dictionary = fallback.duplicate(true)
+	# These shapes ignore facing, so all four scores tie. Preserve the first
+	# authored direction while evaluating that identical candidate only once.
+	var pattern_shape: String = shape(pattern)
+	var directions: Array[Vector2i] = tiles(Paths.DIRS_4)
+	if pattern_shape in ["cross", "ring", "swept_path"]: directions.resize(1)
+	# Overlapping candidate routes share anchors on this unchanged board. Keep
+	# their radial footprints local to this plan, including its status range.
+	var radial_cache: Dictionary = {}
 	for record: Dictionary in engine._enemy_actual_path_records(state,enemy,move_range):
 		var arrival: Dictionary = engine._enemy_attack_route_prediction(state,enemy,record,move_range)
 		if not bool(arrival.get("survives",true)) or arrival.get("destination",record["tile"])!=record["tile"]: continue
 		var origin: Vector2i = record["tile"]
-		for direction: Vector2i in Paths.DIRS_4:
+		for direction: Vector2i in directions:
 			var geometry: Dictionary = status_range(enemy,pattern).duplicate(true)
 			geometry["_resolved_path"] = record["path"]
-			var shape: Array[Vector2i] = shape_tiles(engine,state,origin,direction,geometry)
+			var shape: Array[Vector2i]
+			if pattern_shape == "swept_path":
+				shape = Patterns.swept_shape(engine,state,origin,geometry,radial_cache)
+			else:
+				shape = shape_tiles(engine,state,origin,direction,geometry)
 			var nearest: int = 99
 			var score: int = -int(record.get("trap_cost",0))*60-int(record.get("steps",0))*3
 			for tile: Vector2i in shape:

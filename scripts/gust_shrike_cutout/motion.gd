@@ -22,8 +22,19 @@ static func design_errors() -> Array[String]:
 			result.append("Invalid contact phase/" + clip)
 	return result
 
+# Authored tracks are immutable during an engine run. Validate/assemble each
+# view and clip once; explicit sample_tracks callers still validate their input.
+static var _runtime_tracks: Dictionary = {}
+
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
-	return sample_tracks(clip, phase, layout, facing, tracks_for(clip, facing))
+	if clip == "rest": return {}
+	if not _runtime_tracks.has(facing): _runtime_tracks[facing] = {}
+	var clips: Dictionary = _runtime_tracks[facing]
+	if not clips.has(clip):
+		var tracks: Array = tracks_for(clip, facing)
+		clips[clip] = tracks if track_errors(tracks).is_empty() else []
+	var tracks: Array = clips[clip]
+	return {} if tracks.is_empty() else _sample_valid_tracks(clip, phase, layout, facing, tracks)
 
 static func tracks_for(clip: String, facing: String) -> Array:
 	var tracks: Array = (Data.TRACKS.get(clip, []) as Array).duplicate()
@@ -67,6 +78,9 @@ static func channel_values(tracks: Array, phase: float) -> Dictionary:
 
 static func sample_tracks(clip: String, phase: float, layout: Dictionary, facing: String, tracks: Array) -> Dictionary:
 	if clip == "rest" or tracks.is_empty() or not track_errors(tracks).is_empty(): return {}
+	return _sample_valid_tracks(clip, phase, layout, facing, tracks)
+
+static func _sample_valid_tracks(clip: String, phase: float, layout: Dictionary, facing: String, tracks: Array) -> Dictionary:
 	var values: Dictionary = channel_values(tracks, phase)
 	var joints: Dictionary = layout.get("joints", {})
 	if not joints.has("body") or not joints.has("root"): return {}

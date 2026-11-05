@@ -19,11 +19,16 @@ const ERUPT_CENTER := Vector2i(3, 3)
 const RETALIATE_TICK := Vector2i(3, 4)
 const RETALIATE_FIRE := Vector2i(2, 4)
 const PROJECTION_SAMPLE_FRAMES: int = 3
+const MOTION_PART_ALL: int = -1
+const MOTION_PART_NORMAL: int = 0
+const MOTION_PART_REDUCED: int = 1
+var _motion_part: int = MOTION_PART_ALL
 var failures: Array[String]
 var checks: int = 0
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	if OS.get_cmdline_user_args().has("--motion-part-0"): _motion_part = MOTION_PART_NORMAL
 	root.size = Vector2i(1920, 1080)
 	root.content_scale_size = root.size
 	_run.call_deferred()
@@ -36,9 +41,12 @@ func _run() -> void:
 	root.add_child(scene)
 	await Live.settle(self)
 	_configure_scene(scene)
-	_projection_cost_guard()
+	if _motion_part != MOTION_PART_REDUCED: _projection_cost_guard()
 	process_frame.connect(scene.sample_frame)
 	for reduced: bool in [false, true]:
+		# Every route installs its own combat. Each motion partition still uses
+		# the real pacing/playback clocks and samples every submitted state.
+		if _motion_part != MOTION_PART_ALL and int(reduced) != _motion_part: continue
 		Live.set_reduced_motion(scene, reduced)
 		if not OS.get_cmdline_user_args().has("--feedback-only"):
 			await _bleed(scene, reduced)

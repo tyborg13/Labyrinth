@@ -5,7 +5,8 @@ const Proof = preload("res://tests/helpers/short_card_tooltips_proof.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const DiscoverySync = preload("res://scripts/grimoire_discovery_sync.gd")
-const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry"] # sta-01/mrk-01/flu-01; protected copy stays intact.
+const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe"] # sta-01/mrk-01/flu-01; protected copy stays intact.
+const UMBRA_AREA_BODY: String = "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
 const COPY_PATH: String = "res://spec/peer_benchmark/staged/tt-01/tooltips.json"
 const EXPECTATIONS_PATH: String = "res://tests/fixtures/short_card_tooltips_expectations.json"
 var _failures: Array[String]
@@ -39,7 +40,7 @@ func _run() -> void:
 	(_expectations["triggers"] as Dictionary).erase("mirror")
 	(_expectations["encounters"]["hollow_mimic"]["unlocks"] as Array).erase("mirror")
 	var entry_map: Dictionary = Grimoire.entry_map()
-	_expect(Glossary.all_entries().size() == 140, "Final glossary contains all 140 live entries")
+	_expect(Glossary.all_entries().size() == 139, "Final glossary contains all 139 live entries")
 	_expect(Glossary.definition("marked") == "These tiles take the hit on this enemy's next turn.", "Marked retains its approved definition")
 	_expect(entry_map["keyword:marked"]["body"] == [Glossary.definition("marked")], "Marked owns the full definition replacing the four retired topics")
 	var changes: Dictionary = {}
@@ -68,7 +69,7 @@ func _run() -> void:
 			var approved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_feedback1_grimoire.json"))
 			_expect(entry.get("body", []) == approved["entries"][owner]["body"], "bos-02 approved full rules replace retired prose: " + id)
 		else:
-			_expect((entry.get("body", []) as Array).has(change["old"]), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
+			_expect((entry.get("body", []) as Array).has(UMBRA_AREA_BODY if id == "umbra" else change["old"]), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
 	_test_new_entry_schema(changes, entry_map)
 	_test_discovery()
 	var proof := Proof.new()

@@ -4,6 +4,12 @@ extends Control
 # and the hand/action dock a surface to rest on, so HUD elements read as part
 # of a frame instead of floating over the dungeon.
 
+const DrawBatch = preload("res://scripts/hud_draw_batch.gd")
+
+var _batch: RefCounted
+var _batch_size := Vector2(-1.0, -1.0)
+var _batch_bottom_band: bool = false
+
 const TOP_BAND_HEIGHT: float = 150.0
 const TOP_BAND_ALPHA: float = 0.78
 const TOP_BAND_CENTER_WEIGHT: float = 0.18
@@ -27,6 +33,15 @@ func _ready() -> void:
 func _draw() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
+	if _batch == null or _batch_size != size or _batch_bottom_band != show_bottom_band:
+		_batch = DrawBatch.new()
+		_build_batch()
+		_batch.seal()
+		_batch_size = size
+		_batch_bottom_band = show_bottom_band
+	_batch.draw_on(self)
+
+func _build_batch() -> void:
 	_draw_top_band(minf(TOP_BAND_HEIGHT, size.y * 0.2))
 	if show_bottom_band:
 		var height: float = minf(BOTTOM_BAND_HEIGHT, size.y * 0.38)
@@ -49,7 +64,7 @@ func _draw_top_band(height: float) -> void:
 			var alpha_b: float = TOP_BAND_ALPHA * (1.0 - _ease(t_b, true))
 			var y_a: float = height * t_a
 			var y_b: float = height * t_b
-			draw_polygon(
+			_batch.polygon(
 				PackedVector2Array([Vector2(x_a, y_a), Vector2(x_b, y_a), Vector2(x_b, y_b), Vector2(x_a, y_b)]),
 				PackedColorArray([Color(INK, alpha_a * weight_a), Color(INK, alpha_a * weight_b), Color(INK, alpha_b * weight_b), Color(INK, alpha_b * weight_a)])
 			)
@@ -67,7 +82,7 @@ func _draw_band(top: float, bottom: float, top_alpha: float, bottom_alpha: float
 		var alpha_b: float = lerpf(top_alpha, bottom_alpha, _ease(b, top_alpha > bottom_alpha))
 		var y_a: float = lerpf(top, bottom, a)
 		var y_b: float = lerpf(top, bottom, b)
-		draw_polygon(
+		_batch.polygon(
 			PackedVector2Array([Vector2(0.0, y_a), Vector2(size.x, y_a), Vector2(size.x, y_b), Vector2(0.0, y_b)]),
 			PackedColorArray([Color(INK, alpha_a), Color(INK, alpha_a), Color(INK, alpha_b), Color(INK, alpha_b)])
 		)

@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Keep native class counts, IDs, owners and strict integrity comparisons visible."""
+import argparse
+from collections import Counter
+import json
+from pathlib import Path
+import re
+
+METRICS = ['static_memory', 'video_memory', 'texture_memory', 'object_count', 'node_count', 'orphan_count', 'resource_count']
+
+def read(path):
+    return json.loads(path.read_text())
+
+def summarize(directory):
+    session = read(directory / 'session.json')
+    boundaries = session['boundaries']
+    menus = [b for b in boundaries if re.fullmatch(r'run-[1-5]-menu', b['label'])]
+    classes = sorted(set().union(*(b['classes'] for b in boundaries)))
+    growing = []
+    if menus:
+        for name in classes:
+            counts = [b['classes'].get(name, 0) for b in menus]
+            if max(counts) > counts[0]:
+                ids = []
+                for b in menus:
+                    objects = read(directory / (b['label'] + '-objects.json'))
+                    ids.append({o['id']: o for o in objects if o['class'] == name})
+                added = set(ids[-1]) - set(ids[0])
+                owners = []
+                last_objects = read(directory / (menus[-1]['label'] + '-objects.json'))
+                for o in last_objects:
+                    refs = {field: target for field, target in o.get('references', {}).items() if target in added}
+                    if refs: owners.append({'owner': o.get('path', o.get('script', o['class'])), 'references': refs})
+                growing.append({'class': name, 'menu_counts': counts, 'new_surviving_objects': [ids[-1][i] for i in sorted(added)], 'owners': owners, 'classification': 'NEEDS_ROOT_CAUSE_REVIEW'})
+    result = {'boundary_count': len(boundaries), 'runs': session['outcomes'], 'growing_menu_classes': growing,
+              'metrics': [{k: b[k] for k in ['label', *METRICS]} for b in boundaries],
+              'note': 'Headless GPU zeros are unavailable measurements, not a zero-memory GPU result. Native census includes two temporary bridge objects; monitor values precede their allocation.'}
+    (directory / 'growth.json').write_text(json.dumps(result, indent=2))
+    lines = ['| Boundary | Static bytes | Video bytes | Texture bytes | Objects | Nodes | Orphans | Resources |', '|---|---:|---:|---:|---:|---:|---:|---:|']
+    for b in boundaries:
+        lines.append('| ' + ' | '.join(str(b[k]) for k in ['label', *METRICS]) + ' |')
+    (directory / 'boundary-table.md').write_text('\n'.join(lines) + '\n')
+    print('\n'.join(lines))
+    print('QA53 GROWTH: ' + json.dumps({g['class']: g['menu_counts'] for g in growing}))
+    return session
+
+def compare(a, b):
+    left, right = read(a / 'session.json'), read(b / 'session.json')
+    diffs = []
+    for x, y in zip(left['boundaries'], right['boundaries']):
+        if x['label'] != y['label'] or x['integrity'] != y['integrity']:
+            diffs.append({'boundary': x['label'], 'before': x['integrity'], 'after': y['integrity']})
+    for name, x, y in [('boundaries', len(left['boundaries']), len(right['boundaries'])), ('outcomes', left['outcomes'], right['outcomes'])]:
+        if x != y: diffs.append({'field': name, 'before': x, 'after': y})
+    # Every policy RNG/state observation must agree in order. Never normalize
+    # away a changed gameplay action or replace a failed comparison.
+    traces = []
+    for directory in (a, b):
+        traces.append([r['data'] for line in (directory / 'trace.jsonl').read_text().splitlines()
+                       if (r := json.loads(line))['event'] == 'integrity'])
+    if traces[0] != traces[1]:
+        first = next((i for i, (x, y) in enumerate(zip(*traces)) if x != y), min(map(len, traces)))
+        diffs.append({'field': 'decision_integrity', 'first_difference': first, 'counts': list(map(len, traces))})
+    result = {'pass': not diffs, 'differences': diffs}
+    (b / 'integrity-comparison.json').write_text(json.dumps(result, indent=2))
+    print('QA53 INTEGRITY: ' + ('PASS' if not diffs else 'FAIL') + ' ' + json.dumps(result))
+
+if __name__ == '__main__':
+    p = argparse.ArgumentParser()
+    p.add_argument('directory', type=Path)
+    p.add_argument('--compare', type=Path)
+    args = p.parse_args()
+    summarize(args.directory)
+    if args.compare: compare(args.compare, args.directory)

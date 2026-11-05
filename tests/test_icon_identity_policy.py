@@ -92,7 +92,8 @@ EXPECTED_SELF_FLAG_ICONS = {
     "fire_immune_turn": "fireproof",
 }
 ALLOWED_EXACT_SELF_FLAG_ALIASES = {"no_move": "immobilize"}
-DYNAMIC_ACTION_TYPES = {"self_flag"}
+# Area geometry presents the existing Melee/Ranged identities dynamically.
+DYNAMIC_ACTION_TYPES = {"self_flag", "aoe"}
 
 EXPECTED_OBJECTIVE_ICONS = {
     "kill_all": "res://assets/art/icons/objectives/kill_all_enemies.png",
@@ -457,6 +458,8 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 "mirror_flash": "illusion",
                 "witchglass_double": "illusion",
                 "hall_of_mirrors": "illusion",
+                "searing_light": "attack_melee",
+                "stoke": "attack_melee",
                 "undertow_guard": "block",
                 "rimeplate_lock": "block",
                 "gale_ward": "block",

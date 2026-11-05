@@ -1,0 +1,101 @@
+extends RefCounted
+## Borrow ObjectDB IDs; never retain objects in the returned report.
+const EXTENSION: String = "/private/tmp/labyrinth_codex/qa-53/tools/object_ids.gdextension"
+const Assets = preload("res://scripts/asset_loader.gd")
+const CacheCensus = preload("/private/tmp/labyrinth_codex/qa-53/tools/orphan_cache_census.gd")
+
+static func snapshot(tree: SceneTree, directory: String, label: String) -> Dictionary:
+	var result: Dictionary = {
+		"label": label, "static_memory": int(Performance.get_monitor(Performance.MEMORY_STATIC)),
+		"video_memory": int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)),
+		"texture_memory": int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED)),
+		"object_count": int(Performance.get_monitor(Performance.OBJECT_COUNT)),
+		"node_count": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+		"orphan_count": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)),
+		"resource_count": int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
+		"renderer": DisplayServer.get_name(), "gpu_memory_available": DisplayServer.get_name() != "headless"}
+	var ids_path: String = directory.path_join(label + "-ids.txt")
+	OS.set_environment("QA53_OBJECT_IDS", ids_path)
+	assert(GDExtensionManager.load_extension(EXTENSION) == GDExtensionManager.LOAD_STATUS_OK)
+	var file := FileAccess.open(ids_path, FileAccess.READ)
+	assert(file != null)
+	var classes: Dictionary = {}
+	var scripts: Dictionary = {}
+	var objects: Array[Dictionary]
+	while not file.eof_reached():
+		var parts: PackedStringArray = file.get_line().split("\t")
+		if parts.size() != 3: continue
+		var id: int = parts[0].to_int()
+		var native_class: String = parts[1]
+		classes[native_class] = int(classes.get(native_class, 0)) + 1
+		var row: Dictionary = {"id": str(id), "class": native_class, "native_refcount": int(parts[2])}
+		# Borrow only game-owned families. Engine-managed RefCounteds can
+		# have uninitialized first-reference ownership, even with refcount 1.
+		if not is_instance_id_valid(id) or not _safe_to_inspect(native_class):
+			objects.append(row)
+			continue
+		var object: Object = instance_from_id(id)
+		var script: Script = object.get_script() as Script
+		if script != null:
+			row["script"] = script.resource_path
+			scripts[script.resource_path] = int(scripts.get(script.resource_path, 0)) + 1
+			var references: Dictionary = {}
+			for property: Dictionary in object.get_property_list():
+				if (int(property["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE) == 0: continue
+				_collect_references(object.get(property["name"]), str(property["name"]), references)
+			row["references"] = references
+		if object is Node:
+			row["name"] = str(object.name)
+			row["parent"] = str(object.get_parent().get_instance_id()) if object.get_parent() != null else ""
+			row["path"] = str(object.get_path()) if object.is_inside_tree() else "<orphan>"
+		if object is Resource: row["resource_path"] = object.resource_path
+		if object is RefCounted: row["refcount"] = object.get_reference_count()
+		objects.append(row)
+	file.close()
+
+	result["classes"] = classes
+	result["scripts"] = scripts
+	result["enumerated_objects"] = objects.size()
+	result["cache_census"] = CacheCensus.snapshot(tree)
+	result["asset_cache_owners"] = _asset_caches()
+	var ranked: Array = classes.keys()
+	ranked.sort_custom(func(a: String, b: String) -> bool: return int(classes[a]) > int(classes[b]) if classes[a] != classes[b] else a < b)
+	var top: Array[Dictionary]
+	for index: int in range(mini(20, ranked.size())): top.append({"class": ranked[index], "count": classes[ranked[index]]})
+	result["top_20"] = top
+	FileAccess.open(directory.path_join(label + "-objects.json"), FileAccess.WRITE).store_string(JSON.stringify(objects))
+	assert(GDExtensionManager.unload_extension(EXTENSION) == GDExtensionManager.LOAD_STATUS_OK)
+	return result
+
+static func _asset_caches() -> Dictionary:
+	var result: Dictionary = {}
+	var caches: Dictionary = {"_alpha_polygon_cache": Assets._alpha_polygon_cache, "_castle_control_texture_cache": Assets._castle_control_texture_cache, "_flipped_texture_cache": Assets._flipped_texture_cache, "_outline_clean_texture_cache": Assets._outline_clean_texture_cache, "_scaled_texture_cache": Assets._scaled_texture_cache, "_texture_used_rect_cache": Assets._texture_used_rect_cache, "_audio_cache": Assets._audio_cache, "_looping_audio_cache": Assets._looping_audio_cache, "_font_cache": Assets._font_cache, "_texture_cache": Assets._texture_cache}
+	for field: String in caches:
+		var cache: Dictionary = caches[field]
+		var references: Dictionary = {}
+		_collect_references(cache, field, references)
+		result[field] = {"entries": cache.size(), "references": references, "owner": "asset_loader.gd static " + field}
+	return result
+
+static func _safe_to_inspect(native_class: String) -> bool:
+	# Native singletons can own RefCounteds before init_ref; even refcount=1
+	# is insufficient to safely wrap them in a Variant (notably X509Certificate).
+	# Counts include every native object; inspect only game-owned families.
+	if native_class in ["RefCounted", "GDScript", "PackedScene"]: return true
+	if not ClassDB.class_exists(native_class): return false
+	for family: String in ["Node", "Texture2D", "StyleBox", "Font", "Theme", "Material", "AudioStream"]:
+		if ClassDB.is_parent_class(native_class, family): return true
+	return false
+
+static func _collect_references(value: Variant, path: String, found: Dictionary, depth: int = 0) -> void:
+	if depth > 8: return
+	if value is Object:
+		if is_instance_valid(value): found[path] = str(value.get_instance_id())
+	elif value is Callable:
+		if value.is_valid(): found[path] = str(value.get_object_id())
+	elif value is Array:
+		for index: int in range(value.size()): _collect_references(value[index], path + "[%d]" % index, found, depth + 1)
+	elif value is Dictionary:
+		for key: Variant in value:
+			if key is Object: _collect_references(key, path + "[key:" + str(key) + "]", found, depth + 1)
+			_collect_references(value[key], path + "[" + str(key) + "]", found, depth + 1)

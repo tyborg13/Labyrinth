@@ -129,10 +129,15 @@ static func _test_facing_aim_lines_and_surface_rider(expect: Callable) -> void:
 
 static func _test_zero_damage_area_row(expect: Callable) -> void:
 	var caltrops: Dictionary = (GameData.card_def("caltrops")["actions"] as Array)[0]
-	var icons: Array[String] = []
-	for token: Dictionary in ActionIcons.tokens_for_action(caltrops):
+	var tokens: Array = ActionIcons.tokens_for_action(caltrops)
+	var icons: Array[String]
+	for token: Dictionary in tokens:
 		icons.append(str(token.get("icon", "")))
-	expect.call(not icons.has("ranged") and not icons.has("melee") and icons.has("range") and icons.has("bleed"), "Zero-damage areas show placement and statuses without a 0 damage chip: %s" % str(icons))
+	# txt-02 keeps the delivery icon on status-only areas, without a damage value.
+	expect.call(icons == ["ranged", "range", "aoe_pattern", "bleed", "surface_rubble"], "Zero-damage areas show Ranged delivery, placement, red tiles and statuses: %s" % str(icons))
+	for token: Dictionary in tokens:
+		if str(token.get("icon", "")) == "ranged":
+			expect.call(not token.has("value"), "A zero-damage area's Ranged delivery chip has no damage value: %s" % str(token))
 	var net: Dictionary = (GameData.card_def("throwing_net")["actions"] as Array)[0]
 	var net_icons: Array[String]
 	for token: Dictionary in ActionIcons.tokens_for_action(net):
@@ -687,7 +692,7 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 # The role emblem of every card definition card_defs.py authors for wave 4.
 # Hall of Mirrors and Gale Ward author theirs (spec/card_mechanics_*.md).
 const WAVE4_ROLE_EMBLEMS: Dictionary = {
-	"stoke": "attack_ranged", "ember_ward": "block", "flashsteam": "attack_ranged", "magma_vent": "attack_ranged",
+	"stoke": "attack_melee", "ember_ward": "block", "flashsteam": "attack_ranged", "magma_vent": "attack_ranged",
 	"immolation": "attack_melee", "pyroclasm": "attack_ranged", "meteorfall": "attack_ranged", "skate": "mobility",
 	"hoarfrost_ward": "block", "hush_of_winter": "attack_ranged", "frost_circuit": "attack_ranged", "sleet_squall": "attack_ranged",
 	"ice_sculpture": "illusion", "shatter": "attack_ranged", "white_silence": "attack_ranged", "crystal_mantle": "block",
@@ -696,7 +701,7 @@ const WAVE4_ROLE_EMBLEMS: Dictionary = {
 	"fan_the_flames": "attack_ranged", "dust_devil": "attack_ranged", "vortex": "attack_ranged", "cyclone_seal": "attack_ranged",
 	"stone_ward": "block", "rockburst": "attack_ranged", "rooted_stance": "block", "frost_heave": "attack_ranged",
 	"grounding": "block", "petrify": "attack_ranged", "worldspine": "attack_ranged", "revealing_glare": "attack_ranged",
-	"refraction": "attack_ranged", "shattered_reflection": "attack_ranged", "hall_of_mirrors": "illusion", "searing_light": "attack_ranged",
+	"refraction": "attack_ranged", "shattered_reflection": "attack_ranged", "hall_of_mirrors": "illusion", "searing_light": "attack_melee",
 	"doppelganger": "illusion", "joust": "attack_melee", "frozen_bite": "attack_melee", "shatter_swing": "attack_melee",
 	"fault_strike": "attack_melee", "worldbreak": "attack_melee", "mirror_feint": "illusion", "reflected_threat": "illusion",
 	"shield_wall": "block", "grapple": "mobility", "threadbare_guard": "block", "voidsilk_molt": "mobility",
@@ -777,7 +782,7 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	# chip and the printed rules text to agree with it.
 	var skybolt_damage: int = int(((GameData.card_def("skybolt").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))
 	expect.call(skybolt_damage > 0 and str(GameData.card_def("skybolt").get("description", "")).begins_with("Exhaust. Deal %d " % skybolt_damage), "Skybolt's rules text prints Exhaust and its data damage %d (bal-01)" % skybolt_damage)
-	for pair: Array in [["vortex", "pull=2"], ["discharge", "aoe=5"], ["skybolt", "ranged=%d" % skybolt_damage]]:
+	for pair: Array in [["vortex", "pull=2"], ["discharge", "ranged=5"], ["skybolt", "ranged=%d" % skybolt_damage]]:
 		expect.call(_row_values(str(pair[0])).has(str(pair[1])), "%s shows its tuned %s chip: %s" % [str(pair[0]), str(pair[1]), str(_row_values(str(pair[0])))])
 	var keg: Dictionary = (GameData.card_def("powder_keg").get("actions", []) as Array)[0]
 	expect.call(int(keg.get("burst_damage", 0)) == 6 and str(GameData.card_def("powder_keg").get("description", "")).contains("deals 6"), "Powder Keg bursts for 6, as printed")

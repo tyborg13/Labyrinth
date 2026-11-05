@@ -6,6 +6,10 @@ const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const BoardFixture = preload("res://tests/suites/en01_enemies_suite.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const BUFF_FIXTURE_QUICKEN_POOL: int = 7
+const BUFF_FIXTURE_TILES_MOVED: int = 7
+const BUFF_FIXTURE_NEXT_ATTACK_POOL: int = 9
+const BUFF_FIXTURE_RETALIATE_POOL: int = 6
 
 
 static func run(expect: Callable) -> void:
@@ -24,6 +28,110 @@ static func run(expect: Callable) -> void:
 	_test_damage_entries_are_explicit(expect)
 	_test_attack_feedback_begins_at_contact(expect)
 	_test_impact_synchronizes_traps_and_terrain_destruction(expect)
+
+
+## Exercise the actual card-step dispatcher, not just a float factory. Existing
+## Block/Heal entries are the reference for placement and animation defaults.
+static func run_card_playback(expect: Callable) -> void:
+	var data = preload("res://scripts/game_data.gd")
+	var engine := preload("res://scripts/combat_engine.gd").new()
+	var scene := preload("res://tests/helpers/card_buff_playback_scene.gd").new()
+	var state: Dictionary = BoardFixture.fixture(["crawler"])
+	for case: Dictionary in [
+		{"card": "whetstone", "type": "next_attack", "text": "+4", "color": Color("ffb08a")},
+		{"card": "undertaker_stand", "type": "retaliate", "text": "+5", "color": Color("f0c27a")},
+		{"card": "eye_of_the_storm", "type": "retaliate", "text": "Retaliate", "color": Color("f0c27a")},
+		{"card": "static_mantle", "type": "retaliate", "text": "Retaliate", "color": Color("f0c27a")},
+		{"card": "hourglass_sand", "type": "quicken", "text": "+4", "color": Color("a8e4ff")},
+	]:
+		var action: Dictionary = (data.card_def(case["card"])["actions"] as Array).filter(func(entry: Dictionary) -> bool: return entry["type"] == case["type"])[0]
+		var before: Dictionary = state.duplicate(true)
+		# A pre-existing pool proves the float reports this gain, not the total.
+		preload("res://scripts/tempo_rules.gd").gain_quicken(before, {"amount": BUFF_FIXTURE_QUICKEN_POOL})
+		var after: Dictionary = engine.apply_player_action(before, action)
+		var snapshot: Dictionary = after.duplicate(true)
+		scene.submissions.clear()
+		await scene._animate_player_action_step(before, after, case["card"], action, Vector2i(-1, -1))
+		expect.call(after == snapshot, case["card"] + " playback preserves resolved combat state")
+		expect.call(scene.submissions.size() == 1, case["card"] + " dispatches exactly one buff float")
+		if scene.submissions.size() != 1: continue
+		var submitted: Dictionary = scene.submissions[0]
+		var entries: Array = submitted["presentation"].get("floating_texts", [])
+		expect.call(entries.size() == 1, case["card"] + " has exactly one entry")
+		if entries.size() != 1: continue
+		var entry: Dictionary = entries[0]
+		expect.call(entry.get("text") == case["text"] and entry.get("icon") == case["type"] and entry.get("color") == case["color"], case["card"] + " uses its exact gain, own icon and existing keyword colour")
+		expect.call(entry.get("tile") == state["player"]["pos"] and entry.get("offset") == -6.0, case["card"] + " shares Block's hero placement")
+		expect.call(submitted["initial_elapsed"] == 0.0 and submitted["overlap"], case["card"] + " shares Block's timeline dispatch")
+		var block: Dictionary = scene._floating_texts_for_step({"kind": "block", "amount": 4, "tile": state["player"]["pos"]})[0]
+		for reduced: bool in [false, true]:
+			for progress: float in [0.0, 0.3, 0.64, 1.0]:
+				var animated: Dictionary = FloatingCombatText.animate_entry(entry, progress, reduced)
+				var reference: Dictionary = FloatingCombatText.animate_entry(block, progress, reduced)
+				for field: String in ["kind", "font_size", "font_scale", "outline_size", "motion_offset", "alpha", "automatic_anchor"]:
+					expect.call(animated.get(field) == reference.get(field), case["card"] + " shares Block's " + field)
+	# Both steps are new buffs, in the exact order printed on Charged Orb.
+	scene.submissions.clear()
+	for action: Dictionary in data.card_def("charged_orb")["actions"]:
+		var after: Dictionary = engine.apply_player_action(state, action)
+		await scene._animate_player_action_step(state, after, "charged_orb", action, Vector2i(-1, -1))
+		state = after
+	var icons: Array[String]
+	for submitted: Dictionary in scene.submissions:
+		for entry: Dictionary in submitted["presentation"].get("floating_texts", []): icons.append(str(entry.get("icon", "")))
+	expect.call(icons == ["quicken", "next_attack"], "Charged Orb floats follow card text: Quicken, then next attack")
+	await _test_card_buff_pool(scene, expect)
+	scene.free()
+
+
+static func _test_card_buff_pool(scene: Control, expect: Callable) -> void:
+	var data = preload("res://scripts/game_data.gd")
+	var engine := preload("res://scripts/combat_engine.gd").new()
+	var affected: Array[String]
+	for card_id: String in data.cards():
+		for action: Dictionary in data.card_def(card_id).get("actions", []):
+			var kind: String = str(action.get("type", ""))
+			if kind not in ["retaliate", "quicken", "next_attack"]: continue
+			if not affected.has(card_id): affected.append(card_id)
+			var before: Dictionary = BoardFixture.fixture(["crawler"])
+			# Existing buffs cannot inflate the gained amount. Headlong's live
+			# movement count deliberately exceeds its printed cap.
+			preload("res://scripts/tempo_rules.gd").add_tiles_moved(before, BUFF_FIXTURE_TILES_MOVED)
+			preload("res://scripts/tempo_rules.gd").gain_next_attack(before, {"damage": BUFF_FIXTURE_NEXT_ATTACK_POOL})
+			preload("res://scripts/retaliate_rules.gd").gain(before, {"amount": BUFF_FIXTURE_RETALIATE_POOL})
+			var after: Dictionary = engine.apply_player_action(before, action)
+			var before_snapshot: Dictionary = before.duplicate(true)
+			var after_snapshot: Dictionary = after.duplicate(true)
+			scene.submissions.clear()
+			await scene._animate_player_action_step(before, after, card_id, action, Vector2i(-1, -1))
+			expect.call(before == before_snapshot and after == after_snapshot, card_id + " playback changes neither state, RNG nor analytics")
+			expect.call(scene.submissions.size() == 1 and scene.submissions[0]["presentation"]["floating_texts"].size() == 1, card_id + " submits one float for its " + kind + " step")
+			if scene.submissions.size() != 1 or scene.submissions[0]["presentation"]["floating_texts"].size() != 1: continue
+			var entry: Dictionary = scene.submissions[0]["presentation"]["floating_texts"][0]
+			expect.call(entry["icon"] == kind, card_id + " uses its central card-row icon")
+			if card_id == "headlong": expect.call(entry["text"] == "+4", "Headlong float obeys the existing movement bonus cap")
+			elif card_id in ["capacitor", "charged_orb"] and kind == "next_attack": expect.call(entry["text"] == "+%d" % int(action["chain"]), card_id + " shows the printed Chain bonus")
+			elif kind == "retaliate" and int(action.get("amount", 0)) == 0: expect.call(entry["text"] == "Retaliate", card_id + " shows the approved rider-only keyword name without a number")
+			else: expect.call(entry["text"] == "+%d" % int(action.get("amount", action.get("damage", 0))), card_id + " shows only this step's numeric gain")
+	expect.call(affected.size() == 21, "Card pool audit covers all 21 Retaliate, Quicken and next-attack cards")
+	# Block and Retaliate must retain the same dispatch order as their card rows.
+	var ordered_state: Dictionary = BoardFixture.fixture(["crawler"])
+	scene.submissions.clear()
+	for action: Dictionary in data.card_def("undertaker_stand")["actions"]:
+		var after: Dictionary = engine.apply_player_action(ordered_state, action)
+		await scene._animate_player_action_step(ordered_state, after, "undertaker_stand", action, Vector2i(-1, -1))
+		ordered_state = after
+	var texts: Array[String]
+	for submitted: Dictionary in scene.submissions:
+		for entry: Dictionary in submitted["presentation"]["floating_texts"]: texts.append(str(entry["text"]))
+	expect.call(texts == ["+8", "+5"], "Undertaker Stand floats follow card text: Block, then Retaliate")
+	for kind: String in ["retaliate", "quicken", "next_attack"]:
+		var unchanged: Dictionary = BoardFixture.fixture(["crawler"])
+		preload("res://scripts/tempo_rules.gd").gain_quicken(unchanged, {"amount": BUFF_FIXTURE_QUICKEN_POOL})
+		preload("res://scripts/tempo_rules.gd").gain_next_attack(unchanged, {"damage": BUFF_FIXTURE_NEXT_ATTACK_POOL})
+		preload("res://scripts/retaliate_rules.gd").gain(unchanged, {"amount": BUFF_FIXTURE_RETALIATE_POOL})
+		var feedback: Dictionary = preload("res://scripts/card_buff_playback.gd").presentation(unchanged, unchanged.duplicate(true), {"type": kind}, Color.WHITE)
+		expect.call((feedback["floating_texts"] as Array).is_empty(), "Interrupted " + kind + " step does not announce an old buff")
 
 
 static func _test_damage_motion_curve(expect: Callable) -> void:

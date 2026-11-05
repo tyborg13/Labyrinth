@@ -16,6 +16,9 @@ const TEST_PLAYER_HP: int = 100
 const LEGACY_GOLDEN_SEEDS: int = 64
 const FALLBACK_PROOF_SEED: int = 123456
 const OPENING_DAMAGE_THRESHOLD: int = 6
+# Enabled only within run(); standalone fixture consumers retain fresh builds.
+static var _reuse_battles: bool = false
+static var _battle_templates: Dictionary = {}
 
 class FallbackGenerator extends "res://scripts/room_generator.gd":
 	var template_attempts: int = 0
@@ -39,6 +42,8 @@ class NarrowFallbackGenerator extends FallbackGenerator:
 		template_attempts += 1
 
 static func run(expect: Callable, measure_opening_damage: bool = false) -> Dictionary:
+	_battle_templates.clear()
+	_reuse_battles = true
 	var report: Dictionary = _matrix(expect, measure_opening_damage)
 	_golden(expect)
 	_command(expect)
@@ -49,6 +54,8 @@ static func run(expect: Callable, measure_opening_damage: bool = false) -> Dicti
 	_save_load(expect)
 	_native_fixture_semantics(expect)
 	_fixture_case_typing(expect)
+	_reuse_battles = false
+	_battle_templates.clear()
 	return report
 
 static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionary:
@@ -228,6 +235,13 @@ static func _golden(expect: Callable) -> void:
 	print("Warband legacy golden seeds: 192 full layouts (revisions 3–5)")
 
 static func battle(biome: String = "air", tier: int = 2) -> Dictionary:
+	if _reuse_battles:
+		var key: String = "%s/%d" % [biome, tier]
+		if not _battle_templates.has(key): _battle_templates[key] = _fresh_battle(biome, tier)
+		return _battle_templates[key].duplicate(true)
+	return _fresh_battle(biome, tier)
+
+static func _fresh_battle(biome: String, tier: int) -> Dictionary:
 	var run := Run.new()
 	return Fixture.build(run, Combat.new(), run.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()), {"warband_biome": biome, "warband_tier": tier})["combat_state"]
 
@@ -446,10 +460,12 @@ static func _command_composite_movement(expect: Callable) -> void:
 	print("Warband composite Command: Dive, Erupt and Ambush enter/leave aura checked")
 
 static func _native_fixture_semantics(expect: Callable) -> void:
+	var engine := Run.new()
+	# Each build receives the complete, untouched topology and progression.
+	var run_template: Dictionary = engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data())
 	for biome: String in Library.definition("warband")["variants"]:
 		for tier: int in [1, 2, 3]:
-			var engine := Run.new()
-			var run: Dictionary = Fixture.build(engine, Combat.new(), engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()), {"warband_biome": biome, "warband_tier": tier})
+			var run: Dictionary = Fixture.build(engine, Combat.new(), run_template.duplicate(true), {"warband_biome": biome, "warband_tier": tier})
 			var room: Dictionary = engine.room_metadata(run, run["current_room"])
 			expect.call(room["type"] == "special" and room["special_variant"] == biome and posmod(int(room["depth"]) - 1, 4) + 1 == tier, "Fixture preserves real map topology and requested biome/tier")
 	for biome: String in ["air", "lightning"]:

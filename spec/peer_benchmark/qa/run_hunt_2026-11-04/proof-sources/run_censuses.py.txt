@@ -1,0 +1,52 @@
+"""Run bounded read-only censuses after the campaigns, retaining every attempt."""
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import json,os,subprocess,sys,time
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-43')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-43')
+LAUNCHER=EVIDENCE/'run_hunt_task.py'
+CENSUS=EVIDENCE/'run_hunt_census.gd'
+FULL_CENSUS=EVIDENCE/'run_hunt_census_full.gd'
+VERBOSE_LAUNCHER=EVIDENCE/'run_hunt_task_verbose.py'
+REQUIRED_REPLAYS=2
+CENSUS_PROCESSES=2
+
+def execute(case):
+    seed=case['seed']; name='census-'+case['campaign']+'-'+str(seed)
+    directory=EVIDENCE/name
+    launcher=VERBOSE_LAUNCHER if case['verbose_shutdown'] else LAUNCHER
+    driver=FULL_CENSUS if case['verbose_shutdown'] else CENSUS
+    command=[sys.executable,str(launcher),'--seed',str(seed),'--runs','1','--processes','1','--script',str(driver),'--output-dir',str(directory)]
+    if case['campaign']=='no-embrace':command.append('--no-embrace')
+    started=time.time()
+    print('QA43 CENSUS START:',name,flush=True)
+    with (EVIDENCE/(name+'.log')).open('w') as log:
+        result=subprocess.run(command,cwd=PROJECT,env=dict(os.environ,LABYRINTH_CEL_LOOK='off'),stdout=log,stderr=subprocess.STDOUT)
+    summary=directory/f'seed-{seed:06d}'/'summary.json'
+    data=json.loads(summary.read_text()) if summary.exists() else {}
+    record=dict(name=name,seed=seed,verbose_shutdown=case['verbose_shutdown'],argv=command,output_dir=str(directory),started=started,wall_seconds=time.time()-started,returncode=result.returncode,outcome=data.get('outcome'),sections=data.get('sections',[]))
+    print('QA43 CENSUS END:',name,'exit='+str(result.returncode),'outcome='+str(data.get('outcome')),flush=True)
+    return record
+
+def main():
+    by_campaign={}
+    # Start with one section-5 case per campaign, then retain fallbacks in seed order.
+    for name in ('default','no-embrace'):
+        by_campaign[name]=[]
+        campaign=json.loads((EVIDENCE/('campaign-'+name)/'campaign.json').read_text())
+        for run in sorted(campaign['runs'],key=lambda row:row['seed']):
+            if any(room['section']==5 for room in run['rooms']):by_campaign[name].append(dict(seed=run['seed'],campaign=name,verbose_shutdown=any('ObjectDB instances leaked' in finding['error'] for finding in run['findings'])))
+    cases=[rows.pop(0) for rows in by_campaign.values() if rows]
+    for rows in by_campaign.values():cases.extend(rows)
+    records=[]; passed=0
+    while cases and passed<REQUIRED_REPLAYS:
+        batch=cases[:min(CENSUS_PROCESSES,REQUIRED_REPLAYS-passed)]
+        del cases[:len(batch)]
+        with ThreadPoolExecutor(max_workers=CENSUS_PROCESSES) as pool:
+            records.extend(pool.map(execute,batch))
+        (EVIDENCE/'census-executions.json').write_text(json.dumps(records,indent=2)+'\n')
+        passed=sum({'0','5'}.issubset(set(row['sections'])) for row in records)
+    if not records:(EVIDENCE/'census-executions.json').write_text('[]\n')
+    return subprocess.run([sys.executable,str(EVIDENCE/'collect_census.py')],cwd=PROJECT).returncode
+
+if __name__=='__main__':raise SystemExit(main())

@@ -48,7 +48,6 @@ const CHARACTER_BODIES := {
 const ACTION_TYPE_ENTRY_IDS := {
 	"melee": "keyword:melee",
 	"ranged": "keyword:ranged",
-	"aoe": "keyword:aoe",
 	"move": "keyword:move",
 	"move_toward": "keyword:move",
 	"move_away": "keyword:move",

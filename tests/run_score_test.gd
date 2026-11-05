@@ -42,6 +42,7 @@ func _run() -> void:
 		panel.call("close")
 		_assert(chronicle.is_visible_in_tree() and chronicle.has_focus(), "Closing returns to the recap on Chronicle")
 		_assert_recap_presentation(overlay, outcome)
+		_assert_caption_floor(overlay)
 		overlay.reset()
 		overlay.set_motion_enabled(false)
 		overlay.present(Overlay.build_model(state, {}, outcome, 214))
@@ -154,9 +155,13 @@ func _test_ledger_layout(overlay: Control) -> void:
 	_assert(bases.get_child_count() == 5 and feats.get_child_count() == 10 and feats.position.x == 400, "Overflow puts base rows left and feats right with a 20 px gap")
 	for column: Control in [bases, feats]:
 		for row: Control in column.get_children():
-			_assert(row.custom_minimum_size == Vector2(380, 38) and row.size == Vector2(380, 38), "Overflow preserves approved column width and row type sizes")
 			var detail: Label = row.get_node("ScoreDetail")
-			_assert(detail.clip_text and detail.text_overrun_behavior == TextServer.OVERRUN_TRIM_ELLIPSIS and detail.tooltip_text == detail.text and detail.mouse_filter == Control.MOUSE_FILTER_PASS, "Overflow details truncate with ellipsis and retain full tooltip")
+			if detail.has_node("DragonName0"):
+				preload("res://tests/ui10/fixture.gd").assert_dragons(overlay, _assert)
+				_assert(row.size.x == 380 and row.size.y == row.custom_minimum_size.y, "Dragon names retain column width and fit their expanded row")
+			else:
+				_assert(row.custom_minimum_size == Vector2(380, 38) and row.size == Vector2(380, 38), "Overflow preserves approved column width and row type sizes")
+				_assert(detail.clip_text and detail.text_overrun_behavior == TextServer.OVERRUN_TRIM_ELLIPSIS and detail.tooltip_text == detail.text and detail.mouse_filter == Control.MOUSE_FILTER_PASS, "Overflow details truncate with ellipsis and retain full tooltip")
 			_assert_row_bounds(row)
 	state["run_stats"].erase("events_resolved")
 	state["run_stats"].erase("mystery_rooms_entered")
@@ -175,6 +180,9 @@ func _assert_row_bounds(row: Control) -> void:
 	var label: Label = row.get_node("ScoreLabel")
 	var detail: Label = row.get_node("ScoreDetail")
 	var points: Label = row.get_node("ScorePoints")
+	if detail.has_node("DragonName0") and detail.position.y >= Overlay.ROW_MIN_HEIGHT:
+		_assert(detail.position.x >= 0 and detail.position.x + detail.size.x <= row.size.x and detail.position.y + detail.size.y <= row.size.y, "Full-width dragon names fit below their heading and points")
+		return
 	_assert(detail.position.x >= label.position.x + label.size.x and detail.position.x + detail.size.x <= points.position.x and points.position.x + points.size.x <= row.size.x, "Actual detail and value geometry cannot overlap labels, points or the other column")
 	var expected_width: float = row.size.x - label.position.x - label.size.x - points.size.x - Overlay.SCORE_DETAIL_GAPS
 	_assert(is_equal_approx(detail.size.x, maxf(0, expected_width)), "Detail width reserves the approved 12 px combined gap")
@@ -209,3 +217,12 @@ func _assert_recap_presentation(overlay: Control, outcome: String) -> void:
 func _assert(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+func _assert_caption_floor(overlay: Control) -> void:
+	var typography = preload("res://scripts/ui_typography.gd")
+	var best: Label = overlay.find_child("NewBestTag", true, false)
+	var diamond: Label = overlay.find_child("FeatDiamond", true, false)
+	_assert(best.get_theme_font_size("font_size") == typography.role_size(typography.ROLE_CAPTION), "NEW BEST uses the 14 px caption role")
+	_assert(diamond != null and diamond.get_theme_font_size("font_size") == typography.role_size(typography.ROLE_CAPTION), "Feat diamond uses the 14 px caption role")
+	_assert(best.get_rect() == Rect2(454, 28, 106, 24), "NEW BEST keeps its authored rectangle")
+	_assert(diamond != null and diamond.get_rect() == Rect2(0, 9, 14, 20), "Feat diamond keeps its authored rectangle")

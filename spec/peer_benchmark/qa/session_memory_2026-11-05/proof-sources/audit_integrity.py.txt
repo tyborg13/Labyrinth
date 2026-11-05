@@ -1,0 +1,93 @@
+"""Independent field audit; retain the stricter hash-comparison failure unchanged."""
+from pathlib import Path
+import json
+import re
+import argparse
+
+TASK = Path('/private/tmp/labyrinth_codex/qa-53')
+CLOCK_FIELDS = {'run_seconds', 'timestamp_utc', 'timestamp_unix', 'created_at', 'updated_at'}
+TRANSPORT_FIELDS = {'session_id', 'analytics_session_id', 'install_id', 'event_id'}
+TRANSPORT = re.compile(r'(run|session|install|evt)_[0-9]+_[0-9a-f]+')
+SWIFT_DETAIL = re.compile(r'Escaped in [0-9]+ minutes?\Z')
+
+def events(directory):
+    rows = []
+    for path in sorted((directory / 'analytics').glob('*.jsonl')):
+        rows += [json.loads(line) for line in path.read_text().splitlines() if line]
+    return rows
+
+def normalizer(records):
+    ids = {}
+    counters = {}
+    def token(match):
+        raw, kind = match.group(0), match.group(1)
+        if raw not in ids:
+            counters[kind] = counters.get(kind, 0) + 1
+            ids[raw] = kind + '_<%d>' % counters[kind]
+        return ids[raw]
+    def visit(value):
+        if isinstance(value, dict):
+            result = {visit(k): visit(v) for k, v in value.items() if k not in CLOCK_FIELDS | TRANSPORT_FIELDS}
+            # run_score_rules.gd:128 derives this text from floor(run_seconds/60).
+            # Keep the feat ID, eligibility, points, label and subject exact.
+            if (value.get('id') == 'swift' or (set(value) == {'title', 'detail'} and value.get('title') == 'Swift')) and SWIFT_DETAIL.fullmatch(str(value.get('detail', ''))):
+                result['detail'] = '<derived run_seconds minute label>'
+            return result
+        if isinstance(value, list): return [visit(x) for x in value]
+        if isinstance(value, str): return TRANSPORT.sub(token, value)
+        return value
+    # Seed stable, one-to-one run mappings from their order in the event log.
+    for record in records:
+        run_id = record.get('run_id', '')
+        if run_id: TRANSPORT.sub(token, run_id)
+    return visit
+
+def trace(directory, event):
+    return [r['data'] for line in (directory / 'trace.jsonl').read_text().splitlines()
+            if (r := json.loads(line))['event'] == event]
+
+def comparable_action(value):
+    if isinstance(value, dict): return {k: comparable_action(v) for k, v in value.items()}
+    if isinstance(value, list): return [comparable_action(v) for v in value]
+    if isinstance(value, str): return re.sub(r'@\d+', '@<node-ordinal>', value)
+    return value
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--before', type=Path, default=TASK / 'before')
+    parser.add_argument('--after', type=Path, default=TASK / 'after-clean')
+    args = parser.parse_args()
+    left, right = args.before, args.after
+    logs = [events(x) for x in [left, right]]
+    normalize = [normalizer(x) for x in logs]
+    event_equal = normalize[0](logs[0]) == normalize[1](logs[1])
+    profiles = [normalize[i](json.loads((p / 'progression.json').read_text())) for i,p in enumerate([left,right])]
+    decisions = [trace(x, 'integrity') for x in [left,right]]
+    actions = [[comparable_action(r) for r in trace(x,'decision')] for x in [left,right]]
+    sessions = [json.loads((x / 'session.json').read_text()) for x in [left,right]]
+    matching_hashes = sum(a['state'] == b['state'] for a,b in zip(*decisions))
+    result = {
+        'actions_equal': actions[0] == actions[1],
+        'policy_rng_equal': [x['rng_state'] for x in decisions[0]] == [x['rng_state'] for x in decisions[1]],
+        'decision_counts': list(map(len, decisions)),
+        'exact_committed_state_hashes_equal': matching_hashes,
+        'exact_state_prefix': next((i for i,(a,b) in enumerate(zip(*decisions)) if a['state'] != b['state']), min(map(len, decisions))),
+        'saved_run_boundary_hashes_equal': [b['integrity']['saved_run'] for b in sessions[0]['boundaries']] == [b['integrity']['saved_run'] for b in sessions[1]['boundaries']],
+        'post_seed_boundary_policy_rng_equal': [b['integrity']['rng_state'] for b in sessions[0]['boundaries'][1:]] == [b['integrity']['rng_state'] for b in sessions[1]['boundaries'][1:]],
+        'profile_equal_except_documented_clock_transport': profiles[0] == profiles[1],
+        'analytics_equal_except_documented_clock_transport': event_equal,
+        'analytics_counts': list(map(len,logs)),
+        'census_nonmutation_checks': [sum(b['census_integrity']['equal'] for b in s['boundaries']) for s in sessions],
+        'clock_difference': 'Swift feat detail is Escaped in 20 minutes versus Escaped in 21 minutes. Same swift feat/50 points; run_seconds and its derived label are clock observations.',
+        'initial_rng_difference': 'Initial menu samples precede seeding the diagnostic policy RNG; all post-seed policy RNG observations match.',
+        'limitation': 'The 138 post-win committed-state hashes remain strictly unequal after carrying the clock-derived feat detail into progression. Full transient states were not dumped, so their hashes are not recomputed or claimed equal. Game sources are unchanged; all actions, observed policy RNG states, final profile fields and analytics agree under the stated normalization.',
+        'strict_report': str(right / 'integrity-comparison.json'),
+        'normalization': {'removed_fields': sorted(CLOCK_FIELDS | TRANSPORT_FIELDS), 'transport_ids': 'bijective mapping preserving distinct run relationships', 'derived_clock': 'only swift feat detail matching Escaped in N minute(s)', 'action_paths': 'autogenerated Godot node ordinals only'}
+    }
+    checks = ['actions_equal','policy_rng_equal','saved_run_boundary_hashes_equal','post_seed_boundary_policy_rng_equal','profile_equal_except_documented_clock_transport','analytics_equal_except_documented_clock_transport']
+    result['semantic_checks_pass'] = all(result[x] for x in checks) and len(sessions[0]['outcomes']) == len(sessions[1]['outcomes']) == 5 and len(decisions[0]) == len(decisions[1]) > 0 and len(logs[0]) == len(logs[1]) > 0
+    (right / 'semantic-integrity.json').write_text(json.dumps(result,indent=2))
+    print('QA53 SEMANTIC INTEGRITY: ' + ('PASS' if result['semantic_checks_pass'] else 'FAIL'))
+    print(json.dumps(result,indent=2))
+
+if __name__ == '__main__': main()

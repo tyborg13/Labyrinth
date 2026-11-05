@@ -1,6 +1,6 @@
 extends RefCounted
 ## pol-28: a status landing on a unit pops in the beat it lands. A new pill, or
-## a higher count on one already shown, swells and sends out a fading ring.
+## a higher count on one already shown, swells once without a separate outline.
 ## Innate traits, hover forecasts, losses and the statuses already on a unit
 ## when it is first drawn in a fight never pop. A status that leaves and comes
 ## back within a moment (a card's result shown, then replayed) pops only once.
@@ -33,7 +33,7 @@ func observe(actor_key: String, entries: Array) -> void:
 		return
 	var current: Dictionary = {}
 	for entry: Dictionary in entries:
-		if bool(entry.get("predicted", false)) or str(entry.get("status_class", "")) == "trait":
+		if bool(entry.get("predicted", false)) or bool(entry.get("hud_forecast", false)) or str(entry.get("status_class", "")) == "trait":
 			continue
 		current[str(entry.get("icon", ""))] = _count(entry)
 	if _seen.has(actor_key):

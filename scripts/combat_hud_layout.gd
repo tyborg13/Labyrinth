@@ -5,6 +5,8 @@ extends RefCounted
 const HandFan = preload("res://scripts/hand_fan_container.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
+var right_column := preload("res://scripts/combat_hud_right_column.gd").new()
+
 var _turn_key: String = ""
 var _dealt_count: int = 0
 var _awaiting_deal: bool = false
@@ -15,6 +17,7 @@ var _placed: bool = false
 var _placing: bool = false
 
 func clear() -> void:
+	right_column.clear()
 	_turn_key = ""
 	_dealt_count = 0
 	_awaiting_deal = false

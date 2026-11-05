@@ -1,0 +1,8 @@
+ISOLATION AUDIT: 55 modules; /private/tmp/labyrinth_codex/qa-43/python-default/isolation-audit.md
+SELECTED MODULES: 19 of 55
+Ran 178 tests in 28.735s
+OK
+INPUT GROUP TIME default: 19 modules; 83.068 module-seconds; 28.529s maximum attributed shard work
+Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmp2ox6jzig'
+PYTHON SUITE WALL: 28.735s; results: /private/tmp/labyrinth_codex/qa-43/python-default
+QA43 PYTHON DEFAULT EXIT: 0

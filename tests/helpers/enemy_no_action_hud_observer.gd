@@ -4,14 +4,49 @@ extends "res://scripts/combat_board_view.gd"
 var redraw_requests: Array[String]
 var draw_events: Array[Dictionary]
 
-func _queue_render_layer_redraw(layer: Control) -> void:
+func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> void:
 	if is_instance_valid(layer): redraw_requests.append(str(layer.get("_render_layer_kind")))
-	super._queue_render_layer_redraw(layer)
+	super._queue_render_layer_redraw(layer, clock_only)
 
 func _record_render_section_time(section: String, started_usec: int) -> void:
 	if section in ["unit_huds", "damage_preview_overlays"]:
-		draw_events.append({"kind": section, "layer": self, "frame": Engine.get_process_frames()})
+		_record_hud_draw(section)
 	super._record_render_section_time(section, started_usec)
+
+func _record_hud_draw(kind: String) -> void:
+	# A retained slice paints inside its original logical HUD layer.
+	var owner: Control = get_parent() as Control if _is_layer_slice_canvas else self
+	draw_events.append({"kind": kind, "layer": owner, "frame": Engine.get_process_frames()})
+
+# perf-35's sliced HUD bypasses the monolithic section-timing callbacks.
+# Observe the real paint calls, including every overlay/badge after the bars.
+func _draw_unit_huds(units: Array[Dictionary]) -> void:
+	super._draw_unit_huds(units)
+	_record_hud_draw("unit_huds")
+
+func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
+	super._draw_health_damage_preview(unit, rect, preview)
+	_record_hud_draw("damage_preview_overlays")
+
+func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
+	super._draw_health_bar_text(unit, rect, preview, font)
+	_record_hud_draw("damage_preview_overlays")
+
+func _draw_slice_hud_chips() -> void:
+	super._draw_slice_hud_chips()
+	_record_hud_draw("damage_preview_overlays")
+
+func _draw_slice_intent_orders(badges: Array[Dictionary]) -> void:
+	super._draw_slice_intent_orders(badges)
+	_record_hud_draw("damage_preview_overlays")
+
+func _draw_slice_intent_halo(badge: Dictionary) -> void:
+	super._draw_slice_intent_halo(badge)
+	_record_hud_draw("damage_preview_overlays")
+
+func _draw_slice_intent_chip(badge: Dictionary) -> void:
+	super._draw_slice_intent_chip(badge)
+	_record_hud_draw("damage_preview_overlays")
 
 func observe_callout(_layout: Dictionary, layer: Control) -> void:
 	draw_events.append({"kind": "callout", "layer": layer, "frame": Engine.get_process_frames()})
@@ -24,9 +59,6 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 	for _frame: int in range(settle_frames): await canvas.get_tree().process_frame
 	var hud: Control = board.get("_hud_render_layer")
 	var effects: Control = board.get("_effects_render_layer")
-	for layer: Control in board.call("_retained_render_layers"):
-		layer.set("draw_events", board.get("draw_events"))
-		layer.connect("intent_callout_drawn", Callable(board, "observe_callout").bind(layer))
 	var shown: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
 	shown["intent_callouts"] = [{"actor_key": "enemy_1", "text": "Redirected"}]
 	(board.get("redraw_requests") as Array).clear()
@@ -35,6 +67,11 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 	# exact request by independently redrawing the HUD on a later process frame.
 	expect.call(board.get("redraw_requests") == ["hud"], "Callout-only addition requests exactly the HUD redraw")
 	(board.get("draw_events") as Array).clear()
+	for layer: Control in board.call("_retained_render_layers"):
+		layer.set("draw_events", board.get("draw_events"))
+		# Slices forward this signal to their base layer; observe it once there.
+		if not bool(layer.get("_is_layer_slice_canvas")):
+			layer.connect("intent_callout_drawn", Callable(board, "observe_callout").bind(layer))
 	# Exercise every possible draw owner after observing the isolated request.
 	# A misplaced draw must identify its wrong layer, even if it was retained.
 	for layer: Control in board.call("_retained_render_layers"): layer.queue_redraw()
@@ -50,8 +87,11 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 		owner_correct = owner_correct and event["layer"] == hud
 		for section: String in ["unit_huds", "damage_preview_overlays"]:
 			var prior: bool = false
-			for earlier: Dictionary in events.slice(0, index):
-				if earlier["kind"] == section and earlier["layer"] == hud and earlier["frame"] == event["frame"]: prior = true
+			for other_index: int in range(events.size()):
+				var other: Dictionary = events[other_index]
+				if other["kind"] != section or other["layer"] != hud or other["frame"] != event["frame"]: continue
+				if other_index < index: prior = true
+				else: order_correct = false
 			order_correct = order_correct and prior
 	expect.call(callouts > 0, "Actual callout text draw submissions were observed")
 	expect.call(owner_correct and hud.z_index >= effects.z_index and hud.get_index() > effects.get_index(), "Actual callout text is owned by the HUD layer above effects")

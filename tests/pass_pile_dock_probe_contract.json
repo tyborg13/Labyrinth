@@ -1,0 +1,144 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*dock_3_card_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*dock_5_card_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*dock_6_card_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*dock_7_card_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*dock_8_card_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*dock_8_card_worst_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*hovered_hand_size_change.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*controller_last_card.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1500,
+            720,
+            408,
+            348
+          ],
+          "min_luma_range": 40,
+          "min_luma_stdev": 5
+        }
+      ]
+    }
+  ]
+}

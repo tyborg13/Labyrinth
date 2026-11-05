@@ -1,0 +1,37 @@
+[
+  {
+    "severity": "script error",
+    "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "context": {
+      "seed": 4,
+      "section": -1,
+      "room_kind": "startup",
+      "decision": 0
+    },
+    "last_20_decisions": [],
+    "log_line": 11,
+    "log_lines": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)"
+    ],
+    "location": "platform/macos/os_macos.mm:1014",
+    "replay_script": "/private/tmp/labyrinth_codex/qa-45/run_hunt_replay.gd",
+    "count": 1,
+    "seeds": [
+      4
+    ],
+    "occurrences": [
+      {
+        "seed": 4,
+        "context": {
+          "seed": 4,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-45/observer-confirm-default-4/seed-000004/godot.log",
+        "log_line": 11
+      }
+    ]
+  }
+]

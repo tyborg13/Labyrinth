@@ -1966,6 +1966,7 @@
     "actions": [
       {
         "type": "push",
+        "glossary_key": "ranged",
         "damage": 3,
         "range": 4,
         "amount": 2,
@@ -4787,6 +4788,7 @@
     "actions": [
       {
         "type": "push",
+        "glossary_key": "ranged",
         "damage": 3,
         "range": 3,
         "amount": 2,
@@ -8344,6 +8346,7 @@
     "time": 5,
     "description": "Deal 5 to each enemy standing in Light.",
     "accent": "#e6c56c",
+    "role_emblem": "attack_melee",
     "art_path": "res://assets/art/cards/searing_light.png",
     "radiance": true,
     "actions": [
@@ -8605,6 +8608,7 @@
     "time": 4,
     "description": "Each enemy you can see that stands on Fire takes 3.",
     "accent": "#d9623f",
+    "role_emblem": "attack_melee",
     "art_path": "res://assets/art/cards/stoke.png",
     "actions": [
       {

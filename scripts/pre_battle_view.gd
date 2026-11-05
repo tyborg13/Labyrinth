@@ -89,6 +89,9 @@ static func refresh_sections(host: Node, panel: PanelContainer, room: Dictionary
 	if _foes_key(previous) != _foes_key(current):
 		_replace_component(host, body, 0, build_foes(host, combat, state))
 	if _kit_key(previous) != _kit_key(current):
+		var equip: Button = panel.find_child("PreBattleEquipButton", true, false) as Button
+		if equip == null: return false
+		equip.icon = _equipped_weapon_icon(state)
 		if not _refresh_kit(host, body.get_child(2) as Control, state, previous, current):
 			_replace_component(host, body, 2, build_kit(host, state))
 	return true
@@ -416,13 +419,17 @@ static func build_actions(host: Node, future_state: Dictionary = {}) -> Control:
 		row.add_child(position_button)
 	var equip := action(host, "PreBattleEquipButton", "Equip", "_on_pre_battle_equip_pressed", 132.0)
 	equip.tooltip_text = "Character"
-	equip.icon = AssetLoader.load_texture("res://assets/art/equipment/training_sword.png")
+	equip.icon = _equipped_weapon_icon(state)
 	equip.expand_icon = true
 	row.add_child(equip)
 	var start := action(host, "PreBattleStartButton", "Start", "_on_pre_battle_start_pressed", 170.0, true)
 	start.tooltip_text = "Start combat"
 	row.add_child(start)
 	return row
+
+static func _equipped_weapon_icon(state: Dictionary) -> Texture2D:
+	var weapon_id: String = str((state.get("equipped_equipment", {}) as Dictionary).get("weapon", ""))
+	return AssetLoader.load_texture(str(GameData.equipment_def(weapon_id).get("icon_path", "")))
 
 static func action(host: Node, node_name: String, text: String, callback: String, width: float, primary: bool = false) -> Button:
 	var button := TooltipButton.new()

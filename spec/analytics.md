@@ -579,6 +579,11 @@ cascade losses. `enemy_status_tick` adds `trigger: "deferred_death"`,
 `target_losses`, `enemy_losses`, and `terrain_losses`; aggregate those arrays
 alongside arrival, action and reaction events for whole-turn totals. The new trace
 snapshots and engine-local capture cursor never enter saves or analytics.
+Fire damage in traced arrival and cascade status steps carries the existing
+`label: "Fire"`, including death bursts. The label also routes the ordinary
+Fire sound. Owner-local surface-event slices used to identify Fire remain
+transient; event boundaries, realized loss arrays and append-only history are
+unchanged.
 Each Bleed payment in these traced turns owns its immediate board and realized
 losses: the move payment precedes movement, and the attack payment follows all
 arrival/cascade/resumed-movement steps immediately before the attack. The

@@ -55,7 +55,9 @@ func _sync_visibility() -> void:
 	if next_scope == null or next_scope == _scope: return
 	_scope = next_scope
 	var previous: Variant = _page_focus.get(_scope)
-	if is_instance_valid(previous): call_deferred("_restore_page_focus", previous, _scope)
+	# Descendant visibility propagates after the scrim's notification. Seed
+	# focus in the same idle queue, before drawing or the next input dispatch.
+	call_deferred("_restore_page_focus", previous, _scope)
 
 func _restore_focus(control: Variant) -> void:
 	# Native pointer release can clear focus while hiding its Button. Recover
@@ -63,7 +65,9 @@ func _restore_focus(control: Variant) -> void:
 	if not _active and get_viewport().gui_get_focus_owner() == null and _usable(control): control.grab_focus()
 
 func _restore_page_focus(control: Variant, scope: Control) -> void:
-	if _active and _scope == scope and _usable(control): control.grab_focus()
+	if not _active or _scope != scope: return
+	if _usable(control): control.grab_focus()
+	else: _focus_first()
 
 func _suspend_background(node: Node) -> void:
 	if node == _scrim: return

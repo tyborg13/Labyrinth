@@ -105,6 +105,9 @@ func _capture_round_proof(round_index: int) -> void:
 	await RenderingServer.frame_post_draw
 	var path: String = output.path_join("round_%02d.png" % round_index)
 	var image: Image = root.get_texture().get_image()
+	# Readback can use Retina backing pixels; keep normalization outside samples.
+	if image.get_size() != VIEWPORT:
+		image.resize(VIEWPORT.x, VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	assert(image.get_size() == VIEWPORT)
 	assert(image.save_png(path) == OK)
 	print(ProjectSettings.globalize_path(path))

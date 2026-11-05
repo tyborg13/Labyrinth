@@ -8,6 +8,8 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
+const PreviewPulse = preload("res://scripts/combat_preview_pulse.gd")
+const Forecast = preload("res://scripts/combat_hud_forecast.gd")
 const PopTracker = preload("res://scripts/status_pop_tracker.gd")
 const CLASS_ORDER: PackedStringArray = ["control", "vulnerable", "buff", "trait"]
 const PLATE_HEIGHT: float = 24.0
@@ -25,7 +27,6 @@ const ICON_BORDER_CLEARANCE: float = 1.0
 # Kept exhaustive by the independent live-producer inventory test.
 const BOARD_ICON_KEYS: PackedStringArray = ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "ranged", "block", "stoneskin"]
 static var _styles: Dictionary = {}
-static var _ring_styles: Dictionary = {}
 static var _icon_visible_bounds: Dictionary = {}
 static var icon_bounds_computations: int = 0
 static var _skin := UiSkin.new()
@@ -78,7 +79,7 @@ static func defense_entries(unit: Dictionary, frame: Rect2, preview: Dictionary 
 		var rect := Rect2(Vector2(x, frame.get_center().y - PLATE_HEIGHT * 0.5), Vector2(width, PLATE_HEIGHT))
 		result.append({"rect": rect, "icon": key, "label": label, "label_font_size": 17,
 			"presentation_border": Palette.DANGER if spent else Palette.STEEL if key == "block" else Elements.accent(Elements.EARTH),
-			"presentation_alpha": 1.0, "defense_plate": true, "tooltip": Icons.tooltip(key)})
+			"presentation_alpha": 1.0, "hud_forecast": Forecast.field_is_preview(unit, key, preview), "defense_plate": true, "tooltip": Icons.tooltip(key)})
 		x = rect.end.x + PLATE_GAP
 	return result
 
@@ -105,20 +106,21 @@ static func rects(entries: Array[Dictionary]) -> Array[Rect2]:
 	for entry: Dictionary in entries: result.append(entry["rect"] as Rect2)
 	return result
 
-# pop is a landing pop's progress (0 to 1, below 0 for none); still keeps it to a ring flash for Reduced Motion.
-static func draw_entry(view: Object, entry: Dictionary, texture: Texture2D, number_scale: float = 1.0, pop: float = -1.0, still: bool = false) -> void:
+# A landing pop scales the badge itself once. Reduced Motion keeps it still.
+static func draw_entry(view: Object, entry: Dictionary, texture: Texture2D, number_scale: float = 1.0, pop: float = -1.0, still: bool = false, forecast_presentation: Dictionary = {}) -> void:
 	var rect: Rect2 = entry["rect"]
 	var plate: bool = bool(entry.get("defense_plate", false))
-	var alpha: float = float(entry["presentation_alpha"])
+	var forecast: bool = bool(entry.get("predicted", false)) or bool(entry.get("hud_forecast", false))
+	var alpha: float = PreviewPulse.alpha(forecast_presentation) if forecast else float(entry["presentation_alpha"])
 	var border: Color = entry["presentation_border"]
 	var outer := Transform2D.IDENTITY
-	if pop >= 0.0:
+	if pop >= 0.0 and not forecast:
 		if not still:
 			var swell: float = PopTracker.pill_scale(pop)
 			var center: Vector2 = rect.get_center()
 			outer = Transform2D(0.0, Vector2(swell, swell), 0.0, center - center * swell)
 			view.draw_set_transform_matrix(outer)
-	view.draw_style_box(_style(border, 5 if plate else 11, alpha), rect)
+	view.draw_style_box(_style(border, 5 if plate else 11, alpha, forecast), rect)
 	if plate:
 		view.draw_line(rect.position + Vector2(3.0, 3.0), Vector2(rect.end.x - 3.0, rect.position.y + 3.0), Color(border, 0.35 * alpha), 1.0, true)
 	if texture != null:
@@ -139,10 +141,6 @@ static func draw_entry(view: Object, entry: Dictionary, texture: Texture2D, numb
 		view.draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(Palette.TEXT, alpha))
 		if not is_equal_approx(number_scale, 1.0): view.draw_set_transform_matrix(outer)
 	if outer != Transform2D.IDENTITY: view.draw_set_transform_matrix(Transform2D.IDENTITY)
-	if pop >= 0.0:
-		# Over the pill: it starts as a bright edge on the pill and spreads out.
-		var ring: Rect2 = rect.grow(2.0 if still else 1.0 + PopTracker.ring_growth(pop))
-		view.draw_style_box(_ring_style(border.lightened(0.5), 5 if plate else 11, PopTracker.ring_alpha(pop)), ring)
 	view._register_tooltip(rect, str(entry["tooltip"]))
 
 static func icon_fit_box(entry: Dictionary) -> Rect2:
@@ -200,25 +198,17 @@ static func icon_geometry(entry: Dictionary, texture: Texture2D) -> Dictionary:
 	var destination := Rect2(origin - (visible.position - source.position) * scale, source.size * scale)
 	return {"rect": destination, "source": source}
 
-# A border-only outline for the landing ring; alpha is stepped so the cache stays small.
-static func _ring_style(border: Color, radius: int, alpha: float) -> StyleBoxFlat:
-	var step: int = roundi(clampf(alpha, 0.0, 1.0) * 24.0)
-	var key: Array = [border, radius, step]
-	if not _ring_styles.has(key):
-		var style: StyleBoxFlat = _skin.make_flat_panel_style(Color(Palette.INK_1, 0.0), 0.0)
-		style.draw_center = false
-		style.border_color = Color(border, float(step) / 24.0)
-		style.set_border_width_all(BORDER_WIDTH)
-		style.set_corner_radius_all(radius + 2)
-		_ring_styles[key] = style
-	return _ring_styles[key] as StyleBoxFlat
-
-static func _style(border: Color, radius: int, alpha: float) -> StyleBoxFlat:
-	var key: Array = [border, radius, alpha]
+static func _style(border: Color, radius: int, alpha: float, animated: bool = false) -> StyleBoxFlat:
+	# A continuous alpha must not allocate a distinct cached style every frame.
+	var key: Array = [border, radius, "preview" if animated else alpha]
 	if not _styles.has(key):
 		var style: StyleBoxFlat = _skin.make_flat_panel_style(Color(Palette.INK_1, 0.93 * alpha), 0.0)
 		style.border_color = Color(border, alpha)
 		style.set_border_width_all(BORDER_WIDTH)
 		style.set_corner_radius_all(radius)
 		_styles[key] = style
-	return _styles[key] as StyleBoxFlat
+	var result: StyleBoxFlat = _styles[key]
+	if animated:
+		result.bg_color.a = 0.93 * alpha
+		result.border_color.a = alpha
+	return result

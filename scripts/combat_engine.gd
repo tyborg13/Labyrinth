@@ -2,6 +2,7 @@ extends RefCounted
 class_name CombatEngine
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const EnemyPlanningQueries = preload("res://scripts/enemy_planning_queries.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
 const MarkedRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -176,6 +177,7 @@ var _relic_effect_cache_ids: Array = []
 var _relic_effect_cache_rites: String = ""
 var _relic_effect_cache_valid: bool = false
 var _relic_effect_cache: Array[Dictionary]
+var _enemy_future_queries := EnemyPlanningQueries.new()
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
@@ -2757,8 +2759,9 @@ var _threat_preview_cache: Array[Dictionary]
 
 func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# Scaling is pure: compare raw definitions without copying scaled public data.
 	var definitions: Array
-	for enemy: Dictionary in state.get("enemies", []): definitions.append(GameData.enemy_def(str(enemy.get("type", ""))))
+	for enemy: Dictionary in state.get("enemies", []): definitions.append(GameData.enemies().get(str(enemy.get("type", "")), {}))
 	var key: int = hash([state, definitions])
 	var entry: Dictionary = {}
 	for cached: Dictionary in _threat_preview_cache:
@@ -3443,9 +3446,9 @@ func combat_outcome(state: Dictionary) -> String:
 	var opaque_enemies: bool = bool(state.get("_preview_opaque_enemies", false))
 	if str(state.get("room_type", "")) == "boss":
 		for enemy: Dictionary in _live_enemies(state):
-			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+			if bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false)):
 				return ""
-		if opaque_enemies and not (state.get("enemies", []) as Array).any(func(enemy: Dictionary) -> bool: return bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false))):
+		if opaque_enemies and not (state.get("enemies", []) as Array).any(func(enemy: Dictionary) -> bool: return bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false))):
 			return ""
 		return "victory"
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
@@ -3597,7 +3600,7 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 	if acting_enemy_index >= 0:
 		var acting_enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[acting_enemy_index] as Dictionary)
 		var enemy_type: String = str(acting_enemy.get("type", ""))
-		var ai_profile: Dictionary = GameData.enemy_def(enemy_type).get("ai_profile", {}) as Dictionary
+		var ai_profile: Dictionary = GameData.enemy_property(enemy_type, "ai_profile", {}) as Dictionary
 		presented["enemy_type"] = enemy_type
 		presented["ai_role"] = str(ai_profile.get("role", ""))
 		presented["intent_id"] = str((acting_enemy.get("intent", {}) as Dictionary).get("id", ""))
@@ -4320,8 +4323,8 @@ func _enemy_support_candidate_precedes(action_type: String, source_enemy: Dictio
 				return candidate_guard_distance < incumbent_guard_distance
 	return int(candidate.get("id", 0)) < int(incumbent.get("id", 0))
 
-func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary) -> bool:
-	if _enemy_lightning_component_impact(state, enemy, action, target.get("pos", INVALID_TILE)) != INVALID_TILE:
+func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary, planning_queries: EnemyPlanningQueries = null) -> bool:
+	if _enemy_lightning_component_impact(state, enemy, action, target.get("pos", INVALID_TILE), planning_queries) != INVALID_TILE:
 		return true
 	var action_type: String = str(action.get("type", ""))
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
@@ -4850,7 +4853,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		if bool((next_state.get("run_stats", {}) as Dictionary).get("card_resolution_active", false)):
 			_record_run_stat(next_state, "card_resolution_kills", 1)
 			_record_run_max(next_state, "max_kills_one_card", int((next_state["run_stats"] as Dictionary).get("card_resolution_kills", 0)))
-		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) or (WarbandRules.active(next_state) and not bool(enemy.get("is_leader", false))) else int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
+		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) or (WarbandRules.active(next_state) and not bool(enemy.get("is_leader", false))) else int(GameData.enemy_property(str(enemy.get("type", "")), "reward_embers", 0))
 		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
 		SnareRules.binder_killed(next_state, enemy)
 		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
@@ -5422,7 +5425,7 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	if not enemy.has("element"):
 		enemy["element"] = ElementData.NONE
 	if not enemy.has("footprint"):
-		var footprint_value: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("footprint", [])
+		var footprint_value: Variant = GameData.enemy_property(str(enemy.get("type", "")), "footprint", [])
 		if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
 			enemy["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
@@ -5464,7 +5467,7 @@ func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
 		var first_delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(next_state, enemy) + maxi(0, intent_time_cost))
 		# Setup bosses can bring their first warning to life sooner without
 		# accelerating the whole cycle. The queued time remains fully visible.
-		var opening_delay: int = int(GameData.enemy_def(str(enemy.get("type", ""))).get("opening_delay", first_delay))
+		var opening_delay: int = int(GameData.enemy_property(str(enemy.get("type", "")), "opening_delay", first_delay))
 		first_delay = clampi(opening_delay, ENEMY_MIN_INITIATIVE, first_delay)
 		var entry: Dictionary = _enemy_actor_entry(next_state, enemy, first_delay + enemy_index, _claim_activation_seq(next_state))
 		entry["intent_time_cost"] = intent_time_cost
@@ -6634,7 +6637,7 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 	if rng == null:
 		next_state["rng_state"] = intent_rng.state
 	if not spawn_tiles.is_empty():
-		_log(next_state, "%s summons %s." % [_enemy_display_name(enemy), str(GameData.enemy_def(minion_type).get("name", minion_type))])
+		_log(next_state, "%s summons %s." % [_enemy_display_name(enemy), str(GameData.enemy_property(minion_type, "name", minion_type))])
 	return next_state
 
 func _mark_dragon_mechanic_opened(state: Dictionary, enemy_index: int) -> void:
@@ -7829,7 +7832,9 @@ func _threat_attack_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vect
 	# initiative. Cache the actual geometry dependencies, not the hovered tile.
 	if str(action.get("type", "")) in ["melee", "ranged", "push", "pull"]:
 		var inputs: Array = [state.get("grid", []), state.get("terrain", []), state.get("traps", []), start_tile, enemy.get("footprint", Vector2i.ONE), action]
-		return _vector2i_values(_threat_geometry_memo.resolve(inputs, func() -> Array[Vector2i]: return _compute_threat_attack_tiles(state, enemy, start_tile, action)))
+		# The typed helper copies Vector2i values before publication, so no caller
+		# can mutate the borrowed memo array. Avoid duplicating it twice on hits.
+		return _vector2i_values(_threat_geometry_memo.resolve(inputs, func() -> Array[Vector2i]: return _compute_threat_attack_tiles(state, enemy, start_tile, action), null, false))
 	return _compute_threat_attack_tiles(state, enemy, start_tile, action)
 
 func _compute_threat_attack_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vector2i, action: Dictionary) -> Array[Vector2i]:
@@ -8338,12 +8343,12 @@ func _lightning_tile_score(state: Dictionary, enemy: Dictionary, action: Diction
 
 func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
-	var death_surface: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("death_surface", ""))
+	var death_surface: String = str(GameData.enemy_property(str(enemy.get("type", "")), "death_surface", ""))
 	if not death_surface.is_empty():
 		BoardSurfaceRules.place(next_state, enemy.get("pos", INVALID_TILE), death_surface, {"actor_kind":"enemy","actor_id":enemy.get("id",-1)})
 	if bool(enemy.get("summoned", false)):
 		return next_state
-	var spawn_def_value: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("death_spawn", {})
+	var spawn_def_value: Variant = GameData.enemy_property(str(enemy.get("type", "")), "death_spawn", {})
 	if typeof(spawn_def_value) != TYPE_DICTIONARY:
 		return next_state
 	var spawn_def: Dictionary = (spawn_def_value as Dictionary).duplicate(true)
@@ -9255,7 +9260,7 @@ func _depth_sequence_index(room_depth: int) -> int:
 	return int((maxi(1, room_depth) - 1) / DEPTHS_PER_SEQUENCE)
 
 func _scaled_enemy_max_hp(enemy_type: String, room_depth: int) -> int:
-	var base_hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+	var base_hp: int = int(GameData.enemy_property(enemy_type, "max_hp", 1))
 	var local_scale: float = _local_enemy_hp_scale(room_depth)
 	var scaled_hp: int = ceili(float(base_hp) * local_scale)
 	var sequence_index: int = _depth_sequence_index(room_depth)
@@ -9390,8 +9395,9 @@ func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_overrid
 		intent = GuardianCombatRules.commit(self, state, enemy_index, intent)
 	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		return GuardianCombatRules.current_plan(self, state, enemy, intent, movement_disabled, attack_disabled)
+	# Raw definitions completely identify the pure scaling dependency.
 	var definitions: Array
-	for value: Dictionary in state.get("enemies", []): definitions.append(GameData.enemy_def(str(value.get("type", ""))))
+	for value: Dictionary in state.get("enemies", []): definitions.append(GameData.enemies().get(str(value.get("type", "")), {}))
 	return _standard_plan_memo.resolve([state, definitions, enemy_index, intent, movement_disabled, attack_disabled], func() -> Dictionary:
 		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled))
 
@@ -9442,7 +9448,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
-		var profile: Dictionary = GameData.enemy_def(str(enemy.get("type", ""))).get("ai_profile", {}) as Dictionary
+		var profile: Dictionary = GameData.enemy_property(str(enemy.get("type", "")), "ai_profile", {}) as Dictionary
 		var preferred_range: int = maxi(1, int(profile.get("preferred_range", 1)))
 		planning_attack = {"type": "ranged" if preferred_range > 1 else "melee", "range": preferred_range, "damage": 0}
 	var move_range: int = 0 if movement_disabled else int(movement_action.get("range", 0))
@@ -9459,6 +9465,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	if support_holds_position:
 		move_range = 0
 	var performance_phase_started: int = _record_runtime_performance_phase("enemy_plan_setup", performance_total_started)
+	var planning_queries := EnemyPlanningQueries.new()
 	var actual_records: Array[Dictionary] = _enemy_actual_path_records(state, enemy, move_range)
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_actual_paths", performance_phase_started)
 	var pure_retreat: bool = movement_type == "move_away" and movement_index >= 0 and attack_index < 0
@@ -9475,7 +9482,8 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 		actual_records,
 		movement_type,
 		move_range,
-		protector_screening_context
+		protector_screening_context,
+		planning_queries
 	)
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_direct_candidate", performance_phase_started)
 	var protector_screening_candidate: Dictionary = (
@@ -9513,7 +9521,7 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 		# resolution uses its first reachable terrain blocker; replacing it with a
 		# player-only tile path changes which obstacle redirected and large enemies
 		# strike. Preserve that plan and optimize its implementation, not its rules.
-		var future_candidate: Dictionary = {} if pure_retreat else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
+		var future_candidate: Dictionary = {} if pure_retreat else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range, planning_queries)
 		performance_phase_started = _record_runtime_performance_phase("enemy_plan_future_candidate_total", performance_phase_started)
 		if not future_candidate.is_empty():
 			target = (future_candidate.get("target", {}) as Dictionary).duplicate(true)
@@ -9528,9 +9536,9 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	var destination: Vector2i = actual_path[actual_path.size() - 1] if not actual_path.is_empty() else enemy.get("pos", Vector2i.ZERO)
 	var preview_enemy: Dictionary = enemy.duplicate(true)
 	preview_enemy["pos"] = destination
-	var preview_state: Dictionary = _state_with_enemy_anchor(state, preview_enemy, destination)
+	var preview_state: Dictionary = EnemyPlanningQueries.state_at_anchor(state, preview_enemy, destination)
 	finalize_phase_started = _record_runtime_performance_phase("enemy_plan_preview_state", finalize_phase_started)
-	var target_reachable: bool = not target.is_empty() and _enemy_action_reaches_target(preview_state, preview_enemy, planning_attack, target)
+	var target_reachable: bool = not target.is_empty() and _enemy_action_reaches_target(preview_state, preview_enemy, planning_attack, target, planning_queries)
 	finalize_phase_started = _record_runtime_performance_phase("enemy_plan_target_reachable", finalize_phase_started)
 	var terrain_index: int = -1
 	var trap_index: int = -1
@@ -9654,7 +9662,7 @@ func _enemy_actual_record_precedes(candidate: Dictionary, incumbent: Dictionary)
 	var incumbent_cost: int = int(incumbent.get("trap_cost", 0))
 	if candidate_cost != incumbent_cost:
 		return candidate_cost < incumbent_cost
-	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+	return _enemy_path_precedes(TypedArrays.vector2i(candidate.get("path", [])), TypedArrays.vector2i(incumbent.get("path", [])))
 
 func _best_enemy_retreat_candidate(state: Dictionary, enemy: Dictionary, path_records: Array[Dictionary]) -> Dictionary:
 	var target: Dictionary = _closest_enemy_target(state, enemy)
@@ -9705,10 +9713,10 @@ func _enemy_retreat_candidate_precedes(candidate: Dictionary, incumbent: Diction
 	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
 	if candidate_destination != incumbent_destination:
 		return _tile_precedes(candidate_destination, incumbent_destination)
-	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+	return _enemy_path_precedes(TypedArrays.vector2i(candidate.get("path", [])), TypedArrays.vector2i(incumbent.get("path", [])))
 
 func _enemy_protector_screening_context(state: Dictionary, enemy: Dictionary) -> Dictionary:
-	var profile: Dictionary = GameData.enemy_def(str(enemy.get("type", ""))).get("ai_profile", {}) as Dictionary
+	var profile: Dictionary = GameData.enemy_property(str(enemy.get("type", "")), "ai_profile", {}) as Dictionary
 	if str(profile.get("role", "")) != "protector":
 		return {}
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
@@ -9723,7 +9731,7 @@ func _enemy_protector_screening_context(state: Dictionary, enemy: Dictionary) ->
 		var ally: Dictionary = _normalized_enemy(enemies[ally_index] as Dictionary)
 		if int(ally.get("id", -1)) == source_id or int(ally.get("hp", 0)) <= 0:
 			continue
-		var ally_profile: Dictionary = GameData.enemy_def(str(ally.get("type", ""))).get("ai_profile", {}) as Dictionary
+		var ally_profile: Dictionary = GameData.enemy_property(str(ally.get("type", "")), "ai_profile", {}) as Dictionary
 		var ally_role: String = str(ally_profile.get("role", ""))
 		if ally_role not in ["support", "artillery", "skirmisher"]:
 			continue
@@ -9827,18 +9835,21 @@ func _best_enemy_direct_attack_candidate(
 	path_records: Array[Dictionary],
 	movement_type: String,
 	movement_allowance: int,
-	protector_screening_context: Dictionary = {}
+	protector_screening_context: Dictionary = {},
+	planning_queries: EnemyPlanningQueries = null
 ) -> Dictionary:
 	var best: Dictionary = {}
 	var route_predictions: Dictionary = {}
+	# Reach/scoring queries only read nested actor data. Reuse the private outer
+	# dictionary while varying its anchor, instead of copying its full intent.
+	var candidate_enemy: Dictionary = enemy.duplicate(false)
 	for target: Dictionary in _actor_targets(state):
 		for record: Dictionary in path_records:
 			var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
-			var candidate_enemy: Dictionary = enemy.duplicate(true)
 			candidate_enemy["pos"] = destination
 			# Reach checks read the moved enemy plus the unchanged grid/actor targets.
 			# They do not need a deep copy of the combat state at every anchor.
-			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
+			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target, planning_queries):
 				continue
 			if not route_predictions.has(destination):
 				route_predictions[destination] = _enemy_attack_route_prediction(state, enemy, record, movement_allowance)
@@ -9962,20 +9973,26 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
 	if candidate_destination != incumbent_destination:
 		return _tile_precedes(candidate_destination, incumbent_destination)
-	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+	return _enemy_path_precedes(TypedArrays.vector2i(candidate.get("path", [])), TypedArrays.vector2i(incumbent.get("path", [])))
 
-func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, move_range: int) -> Dictionary:
+func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, move_range: int, planning_queries: EnemyPlanningQueries = null) -> Dictionary:
 	var best: Dictionary = {}
 	# Each route to a possible target explores the same board anchors. Cache the
 	# target-independent occupancy facts once for this planning call rather than
 	# rescanning terrain, enemies, traps, and actor targets for every neighboring
 	# edge in the search.
 	var context_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var planning_context: Dictionary = _enemy_future_planning_context(state, enemy)
+	var actor_targets: Array[Dictionary] = _actor_targets(state)
+	_enemy_future_queries.prepare_future_board(state, actor_targets)
+	var context_key: Array = [int(enemy.get("id", -1)), enemy.get("footprint", Vector2i.ONE)]
+	var planning_context: Dictionary = _enemy_future_queries.future_contexts.get(context_key, {})
+	if planning_context.is_empty():
+		planning_context = _enemy_future_planning_context(state, enemy)
+		_enemy_future_queries.future_contexts[context_key] = planning_context
 	_record_runtime_performance_phase("enemy_future_context", context_started)
 	for target: Dictionary in planning_context.get("actor_targets", []):
 		var search_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range, planning_context)
+		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range, planning_context, planning_queries)
 		_record_runtime_performance_phase("enemy_future_search", search_started)
 		if route_record.is_empty():
 			continue
@@ -10017,7 +10034,7 @@ func _enemy_future_route_candidate_precedes(candidate: Dictionary, incumbent: Di
 	var incumbent_exit_block_score: int = int(incumbent.get("exit_block_score", 9999))
 	if candidate_exit_block_score != incumbent_exit_block_score:
 		return candidate_exit_block_score < incumbent_exit_block_score
-	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
+	return _enemy_path_precedes(TypedArrays.vector2i(candidate.get("route", [])), TypedArrays.vector2i(incumbent.get("route", [])))
 
 func _objective_exit_block_score(state: Dictionary, destination: Vector2i) -> int:
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
@@ -10033,77 +10050,93 @@ func _objective_exit_block_score(state: Dictionary, destination: Vector2i) -> in
 		best_score = mini(best_score, score)
 	return best_score
 
-func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int, planning_context: Dictionary) -> Dictionary:
+func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int, planning_context: Dictionary, planning_queries: EnemyPlanningQueries = null) -> Dictionary:
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
-	var start_path: Array[Vector2i] = _vector2i_values([start])
-	var open := preload("res://scripts/enemy_route_heap.gd").new(_enemy_route_record_precedes)
-	var initial: Dictionary = {"tile": start, "cost": 0, "steps": 0, "route": start_path, "open_prefix_steps": 0, "prefix_blocked": false, "regression_cost": 0, "prefix_distance_cost": 0}
+	var queries: EnemyPlanningQueries = _enemy_future_queries
+	queries.begin_routes(_enemy_route_record_order)
+	var open = queries.route_heap
+	var initial: Dictionary = queries.route_record()
+	var start_path: Array[Vector2i] = TypedArrays.vector2i(initial["route"])
+	start_path.append(start)
+	queries.set_route_record(initial, start, 0, 0, 0, false, 0, 0)
+	queries.keep_route_record()
 	open.push(initial)
-	var best_by_tile: Dictionary = {start: initial}
-	var closed: Dictionary = {}
-	# Reach checks only read the hypothetical actor. Own its outer dictionary
-	# once, and move that anchor without copying statuses/intent at every edge.
+	var best_by_tile: Dictionary = queries.best_by_tile
+	best_by_tile[start] = initial
+	var closed: Dictionary = queries.closed_tiles
 	var candidate_enemy: Dictionary = enemy.duplicate(false)
 	var target_tile: Vector2i = target.get("pos", Vector2i.ZERO)
-	# Distances depend only on this actor footprint, anchor and fixed target.
-	var target_distances: Dictionary = {start: _enemy_distance_from_anchor(enemy, start, target_tile)}
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var target_distances: Dictionary = queries.distance_field(footprint, target_tile)
+	if not target_distances.has(start): target_distances[start] = _enemy_distance_from_anchor(enemy, start, target_tile)
+	# Reach depends on geometry, footprint, action and target, not actor identity.
+	# AOE pattern selection also reads actor targets, included in the board key.
+	var reach: Dictionary = queries.reach_field(footprint, attack_action, target)
+	var step_costs: Dictionary = planning_context.get("step_costs", {})
+	var step_key: Array = [int(attack_action.get("damage", 0)), move_range]
+	var anchor_costs: Dictionary = step_costs.get(step_key, {})
+	step_costs[step_key] = anchor_costs
+	planning_context["step_costs"] = step_costs
+	var movement_costs: Dictionary = queries.movement_field(enemy)
+	# For ordinary non-conducting attacks Manhattan distance minus range is a
+	# consistent lower bound: a cardinal step reduces footprint distance by at
+	# most one and costs at least one. Keep the Dijkstra ordering (including all
+	# equal-cost arrivals); only discard costs strictly above a known valid goal.
+	var bound_range: int = -1
+	if str(attack_action.get("type", "")) in ["melee", "ranged", "push", "pull"] and _action_element(attack_action) != "lightning":
+		bound_range = int(attack_action.get("range", 1))
+	var goal_cost: int = 0x7FFFFFFFFFFFFFFF
 	while not open.is_empty():
 		var current: Dictionary = open.pop()
 		var current_tile: Vector2i = current.get("tile", start)
-		if closed.has(current_tile):
-			continue
+		if closed.has(current_tile): continue
 		closed[current_tile] = true
+		var current_target_distance: int = int(target_distances[current_tile])
+		if bound_range >= 0 and int(current["cost"]) + maxi(0, current_target_distance - bound_range) > goal_cost: continue
 		candidate_enemy["pos"] = current_tile
 		var anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, current_tile, planning_context)
-		if bool(anchor_details.get("dynamically_open", false)) and _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
-			return current
-		var current_target_distance: int = int(target_distances[current_tile])
+		if bool(anchor_details.get("dynamically_open", false)):
+			if not reach.has(current_tile): reach[current_tile] = _enemy_action_reaches_target(state, candidate_enemy, attack_action, target, planning_queries)
+			if bool(reach[current_tile]): return current
 		var route: Array[Vector2i] = TypedArrays.vector2i(current["route"])
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current_tile + direction
-			if closed.has(next_tile):
-				continue
+			if closed.has(next_tile): continue
 			var next_anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, next_tile, planning_context)
-			if not bool(next_anchor_details.get("in_grid", false)):
-				continue
-			var step_cost: int = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range, BoardSurfaceRules.movement_step_cost(state, enemy, current_tile, next_tile))
-			if step_cost < 0:
-				continue
-			if route.has(next_tile):
-				continue
-			var next_route: Array[Vector2i] = TypedArrays.vector2i(route.duplicate())
-			next_route.append(next_tile)
-			if not target_distances.has(next_tile):
-				target_distances[next_tile] = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
+			if not bool(next_anchor_details.get("in_grid", false)): continue
+			if not anchor_costs.has(next_tile): anchor_costs[next_tile] = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range, 0)
+			var anchor_cost: int = int(anchor_costs[next_tile])
+			if anchor_cost < 0: continue
+			var movement_key := Vector3i(current_tile.x, current_tile.y, PathUtils.DIRS_4.find(direction))
+			if not movement_costs.has(movement_key): movement_costs[movement_key] = BoardSurfaceRules.movement_step_cost(state, enemy, current_tile, next_tile)
+			var next_cost: int = int(current["cost"]) + anchor_cost + int(movement_costs[movement_key])
+			if best_by_tile.has(next_tile) and next_cost > int((best_by_tile[next_tile] as Dictionary)["cost"]): continue
+			if not target_distances.has(next_tile): target_distances[next_tile] = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
 			var next_target_distance: int = int(target_distances[next_tile])
-			var regression_cost: int = int(current.get("regression_cost", 0)) + maxi(0, next_target_distance - current_target_distance)
-			var next_steps: int = int(current.get("steps", 0)) + 1
-			var prefix_distance_cost: int = int(current.get("prefix_distance_cost", 0))
-			if next_steps <= move_range:
-				# Weight earlier steps more heavily so equal-cost routes postpone a
-				# necessary detour until the obstacle is actually near. Previously a
-				# distant blocker could make the first activation move away, sideways,
-				# and back even though direct progress remained open for several tiles.
-				prefix_distance_cost += next_target_distance * (move_range - next_steps + 1)
-			var prefix_blocked: bool = bool(current.get("prefix_blocked", false))
-			var open_prefix_steps: int = int(current.get("open_prefix_steps", 0))
+			if bound_range >= 0 and next_cost + maxi(0, next_target_distance - bound_range) > goal_cost: continue
+			if route.has(next_tile): continue
+			# Discover a feasible upper bound without changing queue order. Restrict
+			# eager reach queries to the geometric attack envelope.
+			if bound_range >= 0 and next_target_distance <= bound_range and bool(next_anchor_details.get("dynamically_open", false)):
+				candidate_enemy["pos"] = next_tile
+				if not reach.has(next_tile): reach[next_tile] = _enemy_action_reaches_target(state, candidate_enemy, attack_action, target, planning_queries)
+				if bool(reach[next_tile]): goal_cost = mini(goal_cost, next_cost)
+			var next_record: Dictionary = queries.route_record()
+			var next_route: Array[Vector2i] = TypedArrays.vector2i(next_record["route"])
+			next_route.append_array(route)
+			next_route.append(next_tile)
+			var next_steps: int = int(current["steps"]) + 1
+			var prefix_distance_cost: int = int(current["prefix_distance_cost"])
+			# Earlier steps retain their original heavier distance weighting.
+			if next_steps <= move_range: prefix_distance_cost += next_target_distance * (move_range - next_steps + 1)
+			var prefix_blocked: bool = bool(current["prefix_blocked"])
+			var open_prefix_steps: int = int(current["open_prefix_steps"])
 			if not prefix_blocked and open_prefix_steps < move_range:
-				if bool(next_anchor_details.get("dynamically_open", false)):
-					open_prefix_steps += 1
-				else:
-					prefix_blocked = true
-			var next_record: Dictionary = {
-				"tile": next_tile,
-				"cost": int(current.get("cost", 0)) + step_cost,
-				"steps": next_steps,
-				"route": next_route,
-				"open_prefix_steps": open_prefix_steps,
-				"prefix_blocked": prefix_blocked,
-				"regression_cost": regression_cost,
-				"prefix_distance_cost": prefix_distance_cost
-			}
-			if best_by_tile.has(next_tile) and not _enemy_route_record_precedes(next_record, best_by_tile[next_tile] as Dictionary):
-				continue
+				if bool(next_anchor_details.get("dynamically_open", false)): open_prefix_steps += 1
+				else: prefix_blocked = true
+			queries.set_route_record(next_record, next_tile, next_cost, next_steps, open_prefix_steps, prefix_blocked, int(current["regression_cost"]) + maxi(0, next_target_distance - current_target_distance), prefix_distance_cost)
+			if best_by_tile.has(next_tile) and not _enemy_route_record_precedes(next_record, best_by_tile[next_tile] as Dictionary): continue
+			queries.keep_route_record()
 			best_by_tile[next_tile] = next_record
 			open.push(next_record)
 	return {}
@@ -10116,31 +10149,38 @@ func _enemy_best_open_route_index(open: Array[Dictionary]) -> int:
 	return best_index
 
 func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	return _enemy_route_record_order(candidate, incumbent) < 0
+
+func _enemy_route_record_order(candidate: Dictionary, incumbent: Dictionary) -> int:
 	var candidate_cost: int = int(candidate.get("cost", 999999))
 	var incumbent_cost: int = int(incumbent.get("cost", 999999))
 	var candidate_open_prefix: int = int(candidate.get("open_prefix_steps", 0))
 	var incumbent_open_prefix: int = int(incumbent.get("open_prefix_steps", 0))
 	if candidate_cost != incumbent_cost:
-		return candidate_cost < incumbent_cost
+		return -1 if candidate_cost < incumbent_cost else 1
 	if candidate_open_prefix != incumbent_open_prefix:
-		return candidate_open_prefix > incumbent_open_prefix
+		return -1 if candidate_open_prefix > incumbent_open_prefix else 1
 	var candidate_prefix_distance: int = int(candidate.get("prefix_distance_cost", 0))
 	var incumbent_prefix_distance: int = int(incumbent.get("prefix_distance_cost", 0))
 	if candidate_prefix_distance != incumbent_prefix_distance:
-		return candidate_prefix_distance < incumbent_prefix_distance
+		return -1 if candidate_prefix_distance < incumbent_prefix_distance else 1
 	var candidate_steps: int = int(candidate.get("steps", 9999))
 	var incumbent_steps: int = int(incumbent.get("steps", 9999))
 	if candidate_steps != incumbent_steps:
-		return candidate_steps < incumbent_steps
+		return -1 if candidate_steps < incumbent_steps else 1
 	var candidate_regression: int = int(candidate.get("regression_cost", 0))
 	var incumbent_regression: int = int(incumbent.get("regression_cost", 0))
 	if candidate_regression != incumbent_regression:
-		return candidate_regression < incumbent_regression
+		return -1 if candidate_regression < incumbent_regression else 1
 	var candidate_tile: Vector2i = candidate.get("tile", INVALID_TILE)
 	var incumbent_tile: Vector2i = incumbent.get("tile", INVALID_TILE)
 	if candidate_tile != incumbent_tile:
-		return _tile_precedes(candidate_tile, incumbent_tile)
-	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
+		return -1 if _tile_precedes(candidate_tile, incumbent_tile) else 1
+	var candidate_route: Array[Vector2i] = TypedArrays.vector2i(candidate.get("route", []))
+	var incumbent_route: Array[Vector2i] = TypedArrays.vector2i(incumbent.get("route", []))
+	if _enemy_path_precedes(candidate_route, incumbent_route): return -1
+	if _enemy_path_precedes(incumbent_route, candidate_route): return 1
+	return 0
 
 func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionary, attack_action: Dictionary, move_range: int, movement_cost: int = 1) -> int:
 	if bool(anchor_details.get("actor_target_overlap", false)):
@@ -10390,14 +10430,10 @@ func _enemy_path_precedes(first: Array[Vector2i], second: Array[Vector2i]) -> bo
 func _enemy_path_regression_cost(enemy: Dictionary, path: Array[Vector2i], target: Vector2i, toward: bool) -> int:
 	if path.size() <= 1:
 		return 0
-	var previous_enemy: Dictionary = enemy.duplicate(true)
-	previous_enemy["pos"] = path[0]
-	var previous_distance: int = _enemy_distance_to_tile(previous_enemy, target)
+	var previous_distance: int = _enemy_distance_from_anchor(enemy, path[0], target)
 	var regression: int = 0
 	for index: int in range(1, path.size()):
-		var step_enemy: Dictionary = enemy.duplicate(true)
-		step_enemy["pos"] = path[index]
-		var distance: int = _enemy_distance_to_tile(step_enemy, target)
+		var distance: int = _enemy_distance_from_anchor(enemy, path[index], target)
 		regression += maxi(0, distance - previous_distance) if toward else maxi(0, previous_distance - distance)
 		previous_distance = distance
 	return regression
@@ -12206,7 +12242,7 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 
 func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
 	intent = WindRules.commit(self, state, enemy, intent)
-	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(GameData.enemy_def(str(enemy["type"])).get("dragon_cycle", false)) and not bool(GameData.enemy_def(str(enemy["type"])).get("intent_cycle", false)):
+	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(GameData.enemy_property(str(enemy["type"]), "dragon_cycle", false)) and not bool(GameData.enemy_property(str(enemy["type"]), "intent_cycle", false)):
 		intent = GuardianCombatRules.commit(self, state, _enemy_index_for_id(state, int(enemy["id"])), intent)
 	var prepared: Dictionary = intent.duplicate(true)
 	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
@@ -12259,7 +12295,7 @@ func refresh_surface_enemy_definitions(state: Dictionary) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
 		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		var intents: Array = _scaled_enemy_intents(GameData.enemy_def(str(enemy.get("type", ""))).get("intents", []), int(state.get("room_depth", 1)), state, enemy)
+		var intents: Array = _scaled_enemy_intents(GameData.enemy_property(str(enemy.get("type", "")), "intents", []), int(state.get("room_depth", 1)), state, enemy)
 		var refreshed: Dictionary = _intent_by_id(intents, str((enemy.get("intent", {}) as Dictionary).get("id", "")))
 		if refreshed.is_empty() and not intents.is_empty():
 			refreshed = intents[0]
@@ -12296,12 +12332,17 @@ func _surface_component_paths(origin: Vector2i, component: Array[Vector2i]) -> D
 			queue.append(next)
 	return paths
 
-func _enemy_lightning_component_impact(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Vector2i) -> Vector2i:
+func _enemy_lightning_component_impact(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Vector2i, planning_queries: EnemyPlanningQueries = null) -> Vector2i:
 	if str(action.get("type", "")) not in ["melee", "ranged"] or _action_element(action) != "lightning" or int(action.get("damage", 0)) <= 0 or not BoardSurfaceRules.is_conductive(state, target):
 		return INVALID_TILE
 	var closest: Vector2i = INVALID_TILE
 	var distance: int = 9999
-	for tile: Vector2i in BoardSurfaceRules.connected_component(state, target):
+	var component: Array[Vector2i]
+	if planning_queries == null:
+		component = BoardSurfaceRules.connected_component(state, target)
+	else:
+		component = planning_queries.lightning_component(state, target)
+	for tile: Vector2i in component:
 		if not _enemy_action_reaches_tile(state, enemy, action, tile):
 			continue
 		var candidate_distance: int = _enemy_distance_to_tile(enemy, tile)

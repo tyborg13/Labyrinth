@@ -1,0 +1,14 @@
+extends "/private/tmp/labyrinth_codex/qa-51/tools/controller_hunt.gd"
+const CardView = preload("res://scripts/card_widget.gd")
+var sampled_reward: bool = false
+func _record(action: Dictionary) -> void:
+	if not sampled_reward and str(scene.get("_run_state").get("mode")) == "reward":
+		sampled_reward = true
+		var rows: Array = []
+		_reward_nodes(scene.get("_relic_choice_bar"), rows)
+		_emit("reward_inventory", {"nodes": rows, "pending": scene.get("_run_state").get("pending_reward"), "offers": policy._controls(scene.get("_relic_choice_bar"))})
+	super._record(action)
+func _reward_nodes(node: Node, rows: Array) -> void:
+	if node is CardView:
+		rows.append({"path":str(node.get_path()), "visible":node.visible, "visible_in_tree":node.is_visible_in_tree(), "interactive":node.get("_interactive"), "focus_mode":node.focus_mode, "activated_connections":node.get_signal_connection_list("activated").size()})
+	for child: Node in node.get_children(): _reward_nodes(child, rows)

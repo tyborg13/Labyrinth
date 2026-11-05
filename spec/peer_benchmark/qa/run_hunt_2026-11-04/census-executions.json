@@ -1,0 +1,67 @@
+[
+  {
+    "name": "census-default-5",
+    "seed": 5,
+    "verbose_shutdown": false,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_task.py",
+      "--seed",
+      "5",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-43/census-default-5"
+    ],
+    "output_dir": "/private/tmp/labyrinth_codex/qa-43/census-default-5",
+    "started": 1793840096.02746,
+    "wall_seconds": 1267.7391538619995,
+    "returncode": 0,
+    "outcome": "census_complete",
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ]
+  },
+  {
+    "name": "census-no-embrace-3",
+    "seed": 3,
+    "verbose_shutdown": true,
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_task_verbose.py",
+      "--seed",
+      "3",
+      "--runs",
+      "1",
+      "--processes",
+      "1",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_census_full.gd",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3",
+      "--no-embrace"
+    ],
+    "output_dir": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3",
+    "started": 1793840096.0275269,
+    "wall_seconds": 1380.9659230709076,
+    "returncode": 0,
+    "outcome": "victory",
+    "sections": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ]
+  }
+]

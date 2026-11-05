@@ -201,7 +201,7 @@ static func _test_card_tooltip_entries(expect: Callable) -> void:
 	for entry: Dictionary in entries:
 		keys.append(str(entry.get("icon", "")))
 		expect.call(entry.get("texture", null) is Texture2D, "Every card tooltip entry should carry its matching icon texture")
-	expect.call(keys == ["time", "time", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, map area patterns, and ignore text-only tokens")
+	expect.call(keys == ["time", "time", "ranged", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, ignore geometry patterns and text-only tokens")
 	expect.call(entries[1]["title"] == "Turns" and entries[1]["description"] == ActionIcons.description("turns"), "A repeated Time icon should retain its duration-specific explanation")
 	expect.call(str(entries[2].get("description", "")).contains("Modified by") and str(entries[2].get("description", "")).contains("Stormstring Bow"), "The single Ranged entry should retain its modifier explanation")
 

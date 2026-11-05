@@ -1,0 +1,9 @@
+{
+  "returncode": 0,
+  "result_line": "[ DONE ] loading_editor_layout",
+  "log": "/private/tmp/labyrinth-godot-home/qa-43-1793833027778992000-14591/godot.log",
+  "markers": {
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"": 1,
+    "WARNING: UID duplicate detected between res://assets/placeholders/units/player_reaver_idle.png and res://assets/placeholders/units/player_reaver_anime_idle.png.": 1
+  }
+}

@@ -12,13 +12,13 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 5
 const FIXTURE_SEEDS := {"mouse": 60301, "drag": 60302, "blocked": 60303, "multi": 60304, "rotation": 60305, "survivor": 60306}
 
-static func run_live(tree: SceneTree, expect: Callable) -> void:
+static func run_live(tree: SceneTree, expect: Callable, include_feedback: bool = true) -> void:
 	var fixtures: Script = load("res://tests/suites/card_keywords_suite.gd")
 	var original_size: Vector2i = tree.root.size
 	tree.root.size = PROOF_SIZE
 	_test_instances(expect)
-	await preload("res://tests/suites/empower_sfx_suite.gd").run_live(tree, expect)
-	await preload("res://tests/suites/empower_seal_tooltip_suite.gd").run_live(tree, expect, fixtures)
+	if include_feedback:
+		await run_feedback(tree, expect, fixtures)
 	await _mouse_and_persistence(tree, expect, fixtures)
 	await _drag(tree, expect, fixtures)
 	await _uncharged_drag(tree, expect, fixtures)
@@ -30,6 +30,13 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _blocked_and_lock(tree, expect, fixtures)
 	await _rotation_and_precedence(tree, expect, fixtures)
 	_expect_toggle_domains(expect)
+	tree.root.size = original_size
+
+static func run_feedback(tree: SceneTree, expect: Callable, fixtures: Script) -> void:
+	var original_size: Vector2i = tree.root.size
+	tree.root.size = PROOF_SIZE
+	await preload("res://tests/suites/empower_sfx_suite.gd").run_live(tree, expect)
+	await preload("res://tests/suites/empower_seal_tooltip_suite.gd").run_live(tree, expect, fixtures)
 	tree.root.size = original_size
 
 static func _settle(tree: SceneTree) -> void:

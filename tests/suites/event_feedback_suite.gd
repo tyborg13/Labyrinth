@@ -62,11 +62,13 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 	var view := View.new()
 	viewport.add_child(view)
 	var engine := Run.new()
+	# Receipts and previews own deep copies; no case writes the base run.
+	var fixture_base: Dictionary = engine.create_new_run(Fixtures.FIXTURE_SEED, Store.default_data())
 	var cases: int = 0
 	var kinds: Dictionary = {}
 	# Check every authored concrete line against resolver output without new rolls.
 	for id: String in Data.events():
-		var state: Dictionary = Fixtures.fixture(id, true)
+		var state: Dictionary = _fixture(fixture_base, id, true)
 		for choice: Dictionary in Data.event_def(id)["choices"]:
 			var cid: String = str(choice["id"])
 			if not Events.choice_available(state, id, cid): continue
@@ -81,7 +83,7 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 			cases += 1
 	print("Event feedback content: %d authored choices match preview_choice" % cases)
 	for fixture: Array in CASES:
-		var state: Dictionary = Fixtures.fixture(fixture[0], true)
+		var state: Dictionary = _fixture(fixture_base, fixture[0], true)
 		view.present(state, true)
 		view.finish_animation_for_test()
 		expect.call(view.hover_preview.cache.is_empty(), "Opening builds no preview widgets: " + fixture[2])
@@ -128,28 +130,28 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 		await tree.process_frame
 	expect.call(kinds.size() == CASES.size(), "Every concrete preview kind is exercised")
 	# Disabled and plain choices never build widgets.
-	var blocked: Dictionary = Fixtures.fixture("bloodletters_basin")
+	var blocked: Dictionary = _fixture(fixture_base, "bloodletters_basin")
 	blocked["player_hp"] = 1
 	view.present(blocked, true)
 	view.finish_animation_for_test()
 	view.preview_choice(0)
 	expect.call(view.hover_preview.current_line.is_empty() and view.hover_preview.cache.is_empty(), "Disabled choice has no preview")
-	view.present(Fixtures.fixture("lost_cartographer"), true)
+	view.present(_fixture(fixture_base, "lost_cartographer"), true)
 	view.finish_animation_for_test()
 	view.preview_choice(0)
 	expect.call(view.hover_preview.cache.is_empty(), "Plain gain has no preview")
-	await _lifecycle(view, tree, expect)
-	await _all_beats(view, tree, expect)
-	await _feedback1_ui(view, tree, expect)
+	await _lifecycle(view, tree, expect, fixture_base)
+	await _all_beats(view, tree, expect, fixture_base)
+	await _feedback1_ui(view, tree, expect, fixture_base)
 	_omen_application_checks(expect)
 	view.queue_free()
 	await tree.process_frame
-	await _integration(viewport, tree, expect)
+	await _integration(viewport, tree, expect, fixture_base)
 	viewport.queue_free()
 	await tree.process_frame
 
-static func _lifecycle(view: Control, tree: SceneTree, expect: Callable) -> void:
-	var before: Dictionary = Fixtures.fixture("hanged_knight", true)
+static func _lifecycle(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
+	var before: Dictionary = _fixture(fixture_base, "hanged_knight", true)
 	var after: Dictionary = Run.new().resolve_map_event(before, "cut")
 	for reduced: bool in [false, true]:
 		# Unique debug-only seed per independent receipt.
@@ -206,13 +208,13 @@ static func _lifecycle(view: Control, tree: SceneTree, expect: Callable) -> void
 		expect.call(view.result_beats == null and view.health._popups.is_empty(), "Pressed %s finishes all beats and floating numbers" % input_kind)
 		await tree.process_frame
 
-static func _integration(viewport: SubViewport, tree: SceneTree, expect: Callable) -> void:
+static func _integration(viewport: SubViewport, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	viewport.add_child(scene)
 	for frame: int in range(FIXTURE_READY_FRAMES):
 		if scene.call("initial_presentation_is_ready"): break
 		await tree.process_frame
-	var before: Dictionary = Fixtures.fixture("hanged_knight", true)
+	var before: Dictionary = _fixture(fixture_base, "hanged_knight", true)
 	scene.call("_load_run_state", before)
 	var view: Control = scene.get("_event_view")
 	view.finish_animation_for_test()
@@ -247,7 +249,7 @@ static func _integration(viewport: SubViewport, tree: SceneTree, expect: Callabl
 	scene.queue_free()
 	await tree.process_frame
 
-static func _all_beats(view: Control, tree: SceneTree, expect: Callable) -> void:
+static func _all_beats(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
 	var seed_value: int = BEAT_FIXTURE_SEED
 	var exercised: Dictionary = {}
 	var counter := Label.new()
@@ -256,7 +258,7 @@ static func _all_beats(view: Control, tree: SceneTree, expect: Callable) -> void
 	var target: Dictionary = {"control": counter, "position": DEBUG_COUNTER_TARGET, "update": func(value: int) -> void: counts.append(value)}
 	for reduced: bool in [false, true]:
 		for fixture: Array in BEAT_CASES:
-			var before: Dictionary = Fixtures.fixture(fixture[0], true)
+			var before: Dictionary = _fixture(fixture_base, fixture[0], true)
 			before["seed"] = seed_value
 			seed_value += 1
 			before["player_hp"] = 24
@@ -301,8 +303,8 @@ static func _expect_ignores_input(node: Node, expect: Callable) -> void:
 	if node is Control: expect.call(node.mouse_filter == Control.MOUSE_FILTER_IGNORE and node.focus_mode == Control.FOCUS_NONE and node.tooltip_text.is_empty(), "Preview is input transparent: " + str(node.name))
 	for child: Node in node.get_children(): _expect_ignores_input(child, expect)
 
-static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable) -> void:
-	var before: Dictionary = Fixtures.fixture("bloodletters_basin", true)
+static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
+	var before: Dictionary = _fixture(fixture_base, "bloodletters_basin", true)
 	view.present(before, false)
 	view.finish_animation_for_test()
 	var strip: Control = view.health
@@ -331,14 +333,18 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable) -> v
 			Floating._animate_damage_entry(entry, progress, false)
 			strip._pose_number(label, entry, strip._bar.position, progress, false)
 			var rect := Rect2(label.position, label.get_combined_minimum_size() * label.scale)
-			expect.call(strip.panel_bounds.encloses(rect), "Health popup stays inside the panel: " + label.text)
+			# ui-12 (director): a big number may rise past the panel's top edge
+			# over the backdrop; it stays within the panel's sides and above its bottom.
+			var bounds: Rect2 = strip.panel_bounds
+			expect.call(rect.position.x >= bounds.position.x - 0.01 and rect.end.x <= bounds.end.x + 0.01 and rect.end.y <= bounds.end.y + 0.01, "Health popup stays within the panel's sides: " + label.text)
 			expect.call(label.scale.x < 0.8 or is_equal_approx(label.scale.x, 0.8), "Health popup uses at most 0.8 of its previous size")
 			expect.call(is_equal_approx(rect.get_center().x, strip._bar.position.x), "Health popup is anchored at the bar's left end")
-			expect.call(strip._bar.position.y - label.position.y <= 34, "Health popup rises no more than 34 pixels")
+			var bottom_rise: float = strip._bar.position.y - strip.NUMBER_BAR_GAP - rect.end.y
+			expect.call(bottom_rise >= -0.01 and bottom_rise <= strip.NUMBER_MAX_RISE + 0.01, "Health popup rises no more than 34 pixels from its bottom anchor")
 		strip.finish(24, 30)
 	for fixture: Array in CASES:
 		if fixture[2] not in ["relic", "equipment", "omen"]: continue
-		var state: Dictionary = Fixtures.fixture(fixture[0], true)
+		var state: Dictionary = _fixture(fixture_base, fixture[0], true)
 		view.present(state, true)
 		view.finish_animation_for_test()
 		view.preview_choice(_choice_index(view, fixture[1]))
@@ -385,7 +391,7 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable) -> v
 	opening.queue_free()
 	await tree.process_frame
 	for fixture: Array in [["lost_cartographer", "embers"], ["starving_pilgrim", "item"]]:
-		var state: Dictionary = Fixtures.fixture(fixture[0], true)
+		var state: Dictionary = _fixture(fixture_base, fixture[0], true)
 		var resolved: Dictionary = Run.new().resolve_map_event(state, fixture[1])
 		view.present(state, false)
 		view.finish_animation_for_test()
@@ -477,3 +483,6 @@ static func _choice_index(view: Control, cid: String) -> int:
 	for index: int in range(view.choices.size()):
 		if view.choices[index].choice_id == cid: return index
 	return -1
+
+static func _fixture(template: Dictionary, id: String, rich: bool = false) -> Dictionary:
+	return Fixtures.fixture(id, rich, template)

@@ -15,7 +15,7 @@ const NUMBER_TOKENS: Dictionary = {
 	"smoke_bomb": ["blink", "block"],
 	"jaw_trap": ["range", "ranged"],
 	"bone_ward_charm": ["stoneskin", "block"],
-	"grave_dust_satchel": ["pierce", "range"],
+	"grave_dust_satchel": ["ranged", "range"],
 	"bitter_tonic": ["draw", "card_play"],
 	"caltrops": ["range", "bleed"],
 	"glacier_salts": ["range"],

@@ -6,6 +6,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/card_drag_overlay"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const SHORT_TARGET_TILE := Vector2i(3, 6)
 
 var _fixture_room_variant: int = 0
 
@@ -23,6 +24,8 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_card_drag_probe.save")
 	ProgressionStore.clear_saved_run()
 	await _capture_drag_overlay_frames()
+	if DisplayServer.get_name() == "headless":
+		print("CARD DRAG PROOF: HEADLESS ASSERTIONS ONLY; NO SCREENSHOTS")
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit()
 
@@ -87,7 +90,9 @@ func _capture_drag_overlay_frames() -> void:
 	_assert_targeting_drag(instance, "hard-right targeting", right_target_position, hover_bounds)
 	await _save_root_screenshot("%s/drag_arrow_hard_right_v4.png" % OUTPUT_DIR)
 
-	var short_target_position := Vector2(board_rect.get_center().x + 72.0, board_rect.end.y - 92.0)
+	# Sample a rendered floor tile. The board's rectangular control extends under
+	# the current hand, so its lower edge is no longer an unobscured target oracle.
+	var short_target_position: Vector2 = _tile_global_position(instance, SHORT_TARGET_TILE)
 	await _position_card_drag(instance, short_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "short targeting", short_target_position, hover_bounds)
@@ -213,7 +218,7 @@ func _capture_drag_overlay_frames() -> void:
 	if bool(instance.get_meta("targeting_cursor_suppressed", false)):
 		push_error("The menu should release targeting cursor suppression while it owns the pointer")
 	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
-	if cursor_feedback != null and cursor_feedback.has_method("glyph_for_test"):
+	if DisplayServer.get_name() != "headless" and cursor_feedback != null and cursor_feedback.has_method("glyph_for_test"):
 		var modal_cursor_glyph: Control = cursor_feedback.call("glyph_for_test") as Control
 		if modal_cursor_glyph == null or not modal_cursor_glyph.visible:
 			push_error("The menu should visibly restore the forged pointer during suspended card targeting")
@@ -735,6 +740,10 @@ func _simple_grid() -> Array:
 	return grid
 
 func _save_root_screenshot(output_path: String) -> void:
+	# The dummy renderer never emits frame_post_draw. Keep the semantic drag
+	# checks runnable headless; native capture remains required for visual proof.
+	if DisplayServer.get_name() == "headless":
+		return
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image != null and image.get_pixel(image.get_width() / 2, image.get_height() / 2).get_luminance() <= 0.01:

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "python3",
+    "tools/godot_task_runner.py",
+    "--task-id",
+    "qa-45",
+    "--timeout",
+    "900",
+    "--stream",
+    "--",
+    "godot",
+    "--headless",
+    "--path",
+    ".",
+    "--import"
+  ],
+  "returncode": 0,
+  "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853410607670000-33861/godot.log",
+  "sha256": "9035813e2a8e875f62f005ae343f56f648e28bd1ad3ad6c651ad9d0beb78e00d",
+  "markers": [
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"\n   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)",
+    "WARNING: UID duplicate detected between res://assets/placeholders/units/player_reaver_idle.png and res://assets/placeholders/units/player_reaver_anime_idle.png.\n   at: _process_file_system (editor/file_system/editor_file_system.cpp:1377)"
+  ]
+}

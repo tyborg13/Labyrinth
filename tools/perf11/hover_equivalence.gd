@@ -119,7 +119,7 @@ func _motion_probe() -> void:
 		await RenderingServer.frame_post_draw
 		for index: int in range(views.size()):
 			var path: String = output.path_join("motion_" + ("before" if index == 0 else "after") + ".png")
-			_check(views[index].get_texture().get_image().save_png(path) == OK, "save " + path)
+			_save_proof_image(views[index].get_texture().get_image(), path)
 			print(path)
 	for view: SubViewport in views: view.queue_free()
 	motion_scenes.clear()
@@ -210,7 +210,7 @@ func _case(scene: Node, side: String, case: String) -> void:
 	if capture and case in CAPTURE_CASES:
 		await RenderingServer.frame_post_draw
 		var path: String = output.path_join(case + "_" + side + ".png")
-		_check(root.get_texture().get_image().save_png(path) == OK, "save " + path)
+		_save_proof_image(root.get_texture().get_image(), path)
 		print(path)
 	# Allow real Pass to finish; its rules/analytics/save paths remain intact.
 	if case == "pass":
@@ -234,6 +234,14 @@ func _observe() -> void:
 		count += frame_count
 	observed = {"emphasis_strength": (observed_scene.get("hand_box") as Node).call("emphasis_strength"), "strip_alpha": (observed_scene.get("_turn_order_landing_strip") as Control).modulate.a, "state": _snapshot(observed_scene), "input_frame": input_frame, "boundary_frame": Engine.get_process_frames(), "same_frame": input_frame == Engine.get_process_frames(), "refresh_count": count, "refresh_counts_per_frame": per_frame}
 	boundary_seen = true
+
+func _save_proof_image(image: Image, path: String) -> void:
+	# Preserve the oracle's root viewport and draw boundaries; only normalize
+	# proof readback when macOS returns Retina backing pixels.
+	if image.get_size() != SIZE:
+		image.resize(SIZE.x, SIZE.y, Image.INTERPOLATE_LANCZOS)
+	_check(image.get_size() == SIZE, "Capture must be 1920x1080")
+	_check(image.save_png(path) == OK, "save " + path)
 
 func _snapshot(scene: Node) -> Dictionary:
 	var board: Node = scene.get("board_view")

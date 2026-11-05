@@ -10,8 +10,11 @@ const MotionFixture = preload("res://tests/suites/combat_motion_timing_suite.gd"
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const SyncClock = preload("res://tests/sfx_sync_clock.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
+const ARRIVAL_FIXTURE_ID: int = 9101
+const ARRIVAL_FIXTURE_TILE := Vector2i(4, 4)
 
 static func run(h: SceneTree) -> void:
+	_arrivals(h)
 	_projectiles(h)
 	_state_changes(h)
 	_ground(h)
@@ -22,6 +25,36 @@ static func run(h: SceneTree) -> void:
 	_ambience(h)
 	_branches(h)
 	_composite_relays(h)
+
+static func _arrivals(h: SceneTree) -> void:
+	var previous: Dictionary = h._state()
+	var locked: bool = bool(h.scene.get("_animation_lock"))
+	var preview: Dictionary = h.scene.get("_preview_combat_state")
+	for path: String in ["snapshot", "refresh"]:
+		h._begin("arrival/" + path)
+		var before: Dictionary = previous.duplicate(true)
+		before["umbra"]["stage"] = "clear"
+		var after: Dictionary = before.duplicate(true)
+		var newborn: Dictionary = before["enemies"][0].duplicate(true)
+		newborn["id"] = ARRIVAL_FIXTURE_ID
+		newborn["pos"] = ARRIVAL_FIXTURE_TILE
+		after["enemies"].append(newborn)
+		h.router.baseline(before)
+		h.scene.set("_animation_lock", true)
+		h.scene.set("_preview_combat_state", {})
+		if path == "snapshot": h.scene.call("_render_board_state", after, {})
+		else:
+			h.scene.set("_combat_state", after)
+			h.scene.call("_refresh_stage_view")
+		if h.supplied_sources.is_empty():
+			var plays: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "spell.shadow" and event["result"] == "played")
+			if plays.size() != 1: h.failures.append("Arrival sync fixture plays exactly one shadow cue: " + path)
+			elif not is_equal_approx(float(plays[0]["gain_db"]), float(h.bank.data["cues"]["spell.shadow"]["volume_db"]) - 4.0): h.failures.append("Arrival sync fixture retains the authored -4 dB gain: " + path)
+		h._finish(before)
+	h.scene.set("_combat_state", previous)
+	h.scene.set("_animation_lock", locked)
+	h.scene.set("_preview_combat_state", preview)
+	h.router.baseline(previous)
 
 static func _composite_relays(h: SceneTree) -> void:
 	for variant: String in ["walk_then_blink", "blink_then_walk", "walk_blink_walk"]:
@@ -92,6 +125,7 @@ static func _projectiles(h: SceneTree) -> void:
 		before = h._state()
 		before["enemies"][0]["type"] = type
 		before["enemies"][0]["intent"] = {"id": "sync_fixture", "actions": []}
+		h.router.baseline(before)
 		var step: Dictionary = {"kind": "intent", "actor_key": "enemy_1", "actor_name": type, "intent_name": "Fixture"}
 		h.scene.get("_combat_pacing").begin_enemies()
 		h.scene.get("_intent_callouts").set("_announced", {})

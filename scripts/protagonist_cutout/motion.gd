@@ -17,8 +17,7 @@ const GearCarry = preload("res://scripts/protagonist_cutout/gear_carry.gd")
 static var _boot_geometry: Dictionary = {}
 
 
-static func clip_specs() -> Dictionary:
-	return {
+const CLIP_SPECS: Dictionary = {
 		"idle": {"frames": 21, "fps": 25, "loop": true, "duration": 0.84},
 		"walk": {"frames": 24, "fps": 36, "loop": true, "duration": 2.0 / 3.0},
 		"hit": {"frames": 25, "duration": 0.36, "loop": false},
@@ -35,6 +34,9 @@ static func clip_specs() -> Dictionary:
 		"shoot_repeater": {"frames": 36, "duration": 0.44, "loop": false},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
 	}
+
+static func clip_specs() -> Dictionary:
+	return CLIP_SPECS.duplicate(true)
 
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
@@ -64,7 +66,7 @@ static func _sample_pose(clip: String, phase: float, layout: Dictionary, facing:
 		pose["crossbow_r"]["visible"] = crossbow_visible
 		if clip == "shoot":
 			pose["weapon_r"]["visible"] = not crossbow_visible
-	var specs := clip_specs()
+	var specs: Dictionary = CLIP_SPECS
 	if not specs.has(clip):
 		return _separate_grip(pose)
 	var looped: bool = bool(specs[clip]["loop"])
@@ -234,7 +236,20 @@ static func _separate_grip(pose: Dictionary) -> Dictionary:
 	return pose
 
 
+# Rig layouts and gear revisions prepare these immutable bind values once.
+# Sample results remain privately owned: every curve still receives a fresh pose.
+static func prepare_layout(source: Dictionary) -> Dictionary:
+	var layout: Dictionary = source.duplicate(false)
+	var positions: Dictionary = {}
+	for name: String in source.get("joints", {}):
+		positions[name] = _joint_position(source, name)
+	layout["_motion_joint_positions"] = positions
+	layout["_motion_rest_pose"] = _rest_pose(source)
+	return layout
+
 static func _rest_pose(layout: Dictionary) -> Dictionary:
+	if layout.has("_motion_rest_pose"):
+		return (layout["_motion_rest_pose"] as Dictionary).duplicate(true)
 	var pose: Dictionary = {}
 	var joints: Dictionary = layout.get("joints", {})
 	for joint_name in joints:
@@ -244,6 +259,8 @@ static func _rest_pose(layout: Dictionary) -> Dictionary:
 
 
 static func _joint_position(layout: Dictionary, name: String) -> Vector2:
+	if layout.has("_motion_joint_positions"):
+		return layout["_motion_joint_positions"].get(name, Vector2.ZERO)
 	var joints: Dictionary = layout.get("joints", {})
 	var definition: Dictionary = joints.get(name, {})
 	var value: Variant = definition.get("position", Vector2.ZERO)

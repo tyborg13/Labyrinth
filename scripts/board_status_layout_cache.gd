@@ -228,7 +228,7 @@ func _source_inputs(view: Control, unit: Dictionary, frame: Rect2) -> Array:
 	return [frame, unit.get("role"), unit.get("type"), unit.get("hp"), unit.get("death_animation", false),
 		unit.get("block", 0), unit.get("stoneskin", 0), unit.get("bleed", 0), unit.get("expose", 0), unit.get("chilled", false),
 		unit.get("freeze", 0), unit.get("petrify", 0), unit.get("shock", 0), unit.get("immobilize", false), unit.get("frost_armor", 0),
-		unit.get("charge", 0), unit.get("burrowed", false), unit.get("kindled_bonus", 0), unit.get("keyword_badges", []),
+		unit.get("charge", 0), unit.get("burrowed", false), unit.get("kindled_bonus", 0), unit.get("keyword_badges", []), unit.get("hud_forecast_fields", {}), unit.get("hud_forecast_icons", {}),
 		preview.get("block", unit.get("block", 0)), preview.get("stoneskin", unit.get("stoneskin", 0)), preview.get("block_loss", 0), preview.get("stoneskin_loss", 0),
 		presentation.get("umbra_truesight_activations", 0), presentation.get("umbra_truesight_conditional", false),
 		(presentation.get("surface_status_preview", {}) as Dictionary).get(key, {}), unit.get("is_leader", false)]

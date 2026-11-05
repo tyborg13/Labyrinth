@@ -42,15 +42,23 @@ func _run() -> void:
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.size = Vector2i(1920, 1080)
 	await process_frame
+	var profile_was_visible: bool = menu.get_node("ProfileBlock").visible
 	await Probe.click_button(button, canvas)
 	await process_frame
 	var panel: Control = menu.get_node("ChroniclePanel")
 	_check(panel.visible and panel.get_node("ChronicleFrame").position == Vector2(60, 110) and panel.get_node("ChronicleFrame").size == Vector2(1800, 860), "Chronicle panel opens at approved geometry")
 	_check(panel.get_node("ChronicleFrame/DescentList").size.x == 520, "Chronicle list has approved width")
 	_check(button.position.y - menu.get_node("MenuColumn/StartButton").position.y == 92 and menu.get_node("MenuColumn/SettingsButton").position.y - button.position.y == 92, "Chronicle keeps 92 px menu spacing")
-	_check(panel.find_child("DescentDetail", true, false).get_child(0).text == "Your first descent will be written here.", "Chronicle empty detail copy")
+	_check(panel.find_child("ChronicleEmpty", true, false).text == "Your runs will be written here.", "Chronicle empty body copy")
+	for node_name: String in ["Title", "TitleShadow", "TitleRim", "TitleFaceBlend", "ProfileBlock"]:
+		_check(not menu.get_node(node_name).visible, "Chronicle hides menu heading: " + node_name)
+	menu.call("_update_layout")
+	_check(not menu.get_node("ProfileBlock").visible, "Menu layout keeps the profile hidden while Chronicle is open")
 	panel.close()
 	_check(button.has_focus() and not panel.visible, "Chronicle close restores menu focus")
+	for node_name: String in ["Title", "TitleShadow", "TitleRim", "TitleFaceBlend"]:
+		_check(menu.get_node(node_name).visible, "Chronicle close restores menu title: " + node_name)
+	_check(menu.get_node("ProfileBlock").visible == profile_was_visible, "Chronicle close restores the responsive profile visibility")
 	var opened: Array[Dictionary] = Analytics.load_all_events()
 	_check(opened.size() == 1 and opened[0]["event_type"] == "chronicle_opened" and opened[0]["payload"]["records"] == 0, "Chronicle emits one additive local open event")
 	# Validate both navigation steps through the added Chronicle slot.

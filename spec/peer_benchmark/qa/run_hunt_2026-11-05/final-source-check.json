@@ -1,0 +1,32 @@
+{
+  "base_head": "c0c8aefd5a41a7b36bf7ed7c715f4a831ed33d91",
+  "current_head": "c0c8aefd5a41a7b36bf7ed7c715f4a831ed33d91",
+  "files": {
+    "tools/run_hunt.gd": {
+      "before": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0",
+      "after": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0",
+      "unchanged": true
+    },
+    "tools/run_hunt_policy.gd": {
+      "before": "7dd59a63638068bb9fe654a742a40a56dead07b957e8dc9ec3cdb88f98aa08b1",
+      "after": "7dd59a63638068bb9fe654a742a40a56dead07b957e8dc9ec3cdb88f98aa08b1",
+      "unchanged": true
+    },
+    "tools/run_hunt.py": {
+      "before": "88d9bc9443053b947784aa43e0507d590c0e079b3ae180a914ef7fd539af01c8",
+      "after": "88d9bc9443053b947784aa43e0507d590c0e079b3ae180a914ef7fd539af01c8",
+      "unchanged": true
+    },
+    "scripts/run_scene.gd": {
+      "before": "6b92fdb9173ddb869bffb5c183de66d09f6be766b25732cbcecdb8e9fde131b0",
+      "after": "6b92fdb9173ddb869bffb5c183de66d09f6be766b25732cbcecdb8e9fde131b0",
+      "unchanged": true
+    },
+    "scripts/combat_engine.gd": {
+      "before": "da20b029956fb9d090fb68a4f7e802b53d8d2230c338b2d2bb14e32e6656bd24",
+      "after": "da20b029956fb9d090fb68a4f7e802b53d8d2230c338b2d2bb14e32e6656bd24",
+      "unchanged": true
+    }
+  },
+  "status": "?? spec/peer_benchmark/qa/run_hunt_2026-11-05/"
+}

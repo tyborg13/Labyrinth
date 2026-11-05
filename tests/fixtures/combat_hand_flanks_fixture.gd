@@ -5,6 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
+const PassPileDockChecks = preload("res://tests/helpers/pass_pile_dock_checks.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v5"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
@@ -132,9 +133,9 @@ func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
 	var hand_bounds: Rect2 = instance.call("_combat_dock_hand_bounds")
 	_assert(absf(meter.get_global_rect().get_center().x - movement_rect.get_center().x) <= 1.0 and movement_rect.position.y >= meter.get_global_rect().end.y + 3.0, "%s movement should stack directly beneath card plays" % state_kind)
 	_assert(resource_rect.end.x < hand_bounds.position.x and chip_rect.position.x > hand_bounds.end.x, "%s resources and Pass should flank opposite sides of the hand" % state_kind)
-	_assert(hand_bounds.position.x - resource_rect.end.x <= 64.0 and chip_rect.position.x - hand_bounds.end.x <= 64.0, "%s controls should sit close to the resting fan" % state_kind)
-	_assert(absf(resource_rect.get_center().y - chip_rect.get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % state_kind)
-	_assert(absf(hand_bounds.get_center().x - resource_rect.get_center().x - (chip_rect.get_center().x - hand_bounds.get_center().x)) <= 1.0, "%s controls should mirror around the resting hand" % state_kind)
+	_assert(hand_bounds.position.x - resource_rect.end.x <= 64.0, "%s resources should sit close to the resting fan" % state_kind)
+	PassPileDockChecks.assert_layout(instance, _assert, state_kind)
+	PassPileDockChecks.assert_hand_clearance(instance, _assert, state_kind, hand_bounds)
 	_assert(_rect_is_onscreen(resource_rect) and _rect_is_onscreen(chip_rect), "%s hand controls should remain wholly on screen" % state_kind)
 	var tooltips: Control = instance.get("_card_focus_tooltip_stack") as Control
 	if tooltips != null and tooltips.visible:
@@ -167,6 +168,7 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		if card == null or not card.visible:
 			continue
 		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card)
+		PassPileDockChecks.assert_hand_clearance(instance, _assert, "%s card %d" % [state_kind, index + 1], card_rect)
 		for dock_rect: Rect2 in dock_rects:
 			_assert(not dock_rect.intersects(card_rect), "%s hand controls should stay clear of card %d" % [state_kind, index + 1])
 	if not hand.is_empty():
@@ -179,7 +181,10 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		if rightmost_card != null and rightmost_card.visible:
 			var rightmost_rect: Rect2 = instance.call("_control_visual_global_rect", rightmost_card)
 			var minimum_gap: float = 4.0 if hand.size() >= 8 else 12.0
-			_assert(pass_rect.position.x >= rightmost_rect.end.x + minimum_gap, "%s Pass should keep a visible gap after the rightmost card" % state_kind)
+			# pol-46: the lifted seven-card hover may reach Pass. Moving to Pass
+			# dismisses that hover; the dealt, at-rest clearance still applies.
+			if hand.size() != 7 or int(instance.get("_hovered_card_index")) < 0:
+				_assert(pass_rect.position.x >= rightmost_rect.end.x + minimum_gap, "%s Pass should keep a visible gap after the rightmost card" % state_kind)
 func _capture_hand_dock_resilience(instance: Node) -> void:
 	var hand_sets: Array = [
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
@@ -190,6 +195,7 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	]
 	var stable_seven_meter := Rect2()
 	var stable_seven_pass := Rect2()
+	var pile_dock_home := Rect2()
 	for cards_var: Variant in hand_sets:
 		var cards: Array = cards_var as Array
 		instance.set("_hovered_card_index", -1)
@@ -207,6 +213,11 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 			continue
 		var resting_meter: Rect2 = meter.get_global_rect()
 		var resting_pass: Rect2 = pass_chip.get_global_rect()
+		if not pile_dock_home.has_area():
+			pile_dock_home = resting_pass
+		_assert(_rect_approximately_equal(resting_pass, pile_dock_home), "%d-card hand must preserve Pass's pile-docked home (expected=%s actual=%s)" % [cards.size(), pile_dock_home, resting_pass])
+		var resting_hand: Rect2 = instance.call("_combat_hand_visual_bounds")
+		print("HAND REST %s %d-CARD hand_right=%.2f pass_left=%.2f gap=%.2f" % [PROBE_VIEWPORT, cards.size(), resting_hand.end.x, resting_pass.position.x, resting_pass.position.x - resting_hand.end.x])
 		if cards.size() == 7:
 			stable_seven_meter = resting_meter
 			stable_seven_pass = resting_pass
@@ -231,9 +242,8 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 				await _save_root_screenshot("%s/dock_%d_card_worst_hover.png" % [OUTPUT_DIR, cards.size()])
 			instance.call("_on_card_hover_ended", index)
 			await _settle_ui()
-	# A real draw can change hand size before a hover animation clears. The final
-	# dock must become the known seven-card resting geometry, not retain a stale
-	# five-card position while the HandFanContainer settles its minimum size/sort.
+	# A real draw can change hand size before a hover animation clears. Resources
+	# must reach the seven-card geometry; Pass stays at the same pile dock.
 	_assert(stable_seven_meter.size != Vector2.ZERO and stable_seven_pass.size != Vector2.ZERO, "Seven-card idle proof must establish the final dock baseline")
 	var five_cards: Array = hand_sets[0] as Array
 	await _load_combat_fixture(instance, five_cards, Vector2i(2, 4), [Vector2i(5, 4)], 9921)
@@ -249,8 +259,8 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	instance.set("_run_state", changing_run)
 	instance.call("_mark_combat_preview_state_changed")
 	instance.call("_refresh_ui")
-	# Refresh emphasis before the new fan settles. Whether the retained hand is
-	# reused or rebuilt, the pending guard must not reveal five-card geometry.
+	# Refresh emphasis before the new fan settles. Pass retains its pile-docked
+	# home even while the hand's layout revision is pending.
 	await process_frame
 	var pending_revision_before: int = int(instance.get("_hand_layout_revision"))
 	instance.call("_on_card_hover_started", 1)
@@ -261,7 +271,11 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	_assert(int(instance.get("_hand_layout_pending_revision")) == pending_revision_after, "Hover refresh must preserve the pending fan layout at its current revision")
 	var pending_meter: Control = instance.get("_play_meter") as Control
 	var pending_pass_overlay: Control = instance.get("_pass_preview_overlay") as Control
-	_assert(pending_meter != null and pending_pass_overlay != null and not pending_meter.visible and not pending_pass_overlay.visible, "Hovering during a pending 5-to-7 draw must keep the stale dock hidden until the seven-card fan settles")
+	_assert(pending_meter != null and pending_pass_overlay != null and pending_meter.visible and pending_pass_overlay.visible, "Hovering during a pending 5-to-7 draw must retain the visible resource and Pass docks")
+	var pending_pass: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_assert(pending_pass != null and _rect_approximately_equal(pending_pass.get_global_rect(), pile_dock_home), "Pending hand layout must never displace Pass from the piles")
+	PassPileDockChecks.assert_layout(instance, _assert, "Pending 5-to-7 draw")
+	PassPileDockChecks.assert_hand_clearance(instance, _assert, "Pending 5-to-7 draw", instance.call("_combat_hand_resting_visual_bounds"))
 	await _settle_hand_dock_transition()
 	var changed_meter: Control = instance.get("_play_meter") as Control
 	var changed_pass: Control = instance.find_child("PassPreviewChip", true, false) as Control
@@ -269,7 +283,7 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	if changed_meter != null and changed_pass != null:
 		print("HAND DOCK 5-TO-7 FINAL meter=%s pass=%s" % [changed_meter.get_global_rect(), changed_pass.get_global_rect()])
 		_assert(_rect_approximately_equal(changed_meter.get_global_rect(), stable_seven_meter), "Hovering 5-to-7-card change must settle the card-play meter at the stable seven-card dock (expected=%s actual=%s)" % [stable_seven_meter, changed_meter.get_global_rect()])
-		_assert(_rect_approximately_equal(changed_pass.get_global_rect(), stable_seven_pass), "Hovering 5-to-7-card change must settle Pass at the stable seven-card dock (expected=%s actual=%s)" % [stable_seven_pass, changed_pass.get_global_rect()])
+		_assert(_rect_approximately_equal(changed_pass.get_global_rect(), stable_seven_pass), "Hovering 5-to-7-card change must preserve Pass's pile dock (expected=%s actual=%s)" % [stable_seven_pass, changed_pass.get_global_rect()])
 		_assert_pass_meter_layout(instance, "hovered 5-to-7-card change")
 		await _save_root_screenshot("%s/hovered_hand_size_change.png" % OUTPUT_DIR)
 		for hover_index: int in [0, 6]:

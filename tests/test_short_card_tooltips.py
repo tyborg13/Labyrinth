@@ -14,8 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 COPY = ROOT / "spec/peer_benchmark/staged/tt-01/tooltips.json"
 EXPECTATIONS = ROOT / "tests/fixtures/short_card_tooltips_expectations.json"
 UNCHANGED_SHA256 = "17be644b843ba6c56d6fed1fef19d4c98b339b70edf0a8fae91f3f72b2051cd0"
-RETIRED_TERMS = {"dive", "veil", "flurry"}  # sta-01/flu-01: keep protected historical copy untouched.
+RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"}  # sta-01/flu-01: keep protected historical copy untouched.
 METADATA_SHA256 = "452541bfabda9d9a177a13e383c14c147a78746c0492e0eace190b58caf3bab2"
+
+UMBRA_AREA_BODY = "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
@@ -49,7 +51,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertEqual(by_id[change["id"]]["definition"], self.superseding.get(change["id"], change["tooltip"]))
         self.assertEqual(by_id["marked"]["definition"], MARKED_DEFINITION)
         expected = json.loads((ROOT / 'tests/goldens/glossary_metadata.json').read_text())
-        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry'}]
+        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe'}]
         metadata = [{key: value for key, value in entry.items() if key != "definition"}
                     for entry in self.glossary]
         self.assertEqual(metadata, marked_metadata_supersession(expected['metadata']))
@@ -75,7 +77,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     approved = json.loads((ROOT / "tests/fixtures/bos02_feedback1_grimoire.json").read_text())
                     self.assertEqual(entries[owner]["body"], approved["entries"][owner]["body"])
                 else:
-                    self.assertIn(change["old"], entries[owner]["body"],
+                    self.assertIn(UMBRA_AREA_BODY if change["id"] == "umbra" else change["old"], entries[owner]["body"],
                                   "Former full definition must remain in its owning topic")
 
     def test_every_new_entry_schema(self):

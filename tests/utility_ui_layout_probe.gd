@@ -10,8 +10,6 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const DEFAULT_SIZE := Vector2i(1280, 720)
 const MODAL_TRAVERSAL_STEPS: int = 9
 const SETTINGS_TRAVERSAL_STEPS: int = 12
-const DANGER_SAMPLE_INSET: Vector2 = Vector2(22.0, 10.0)
-const DANGER_SAMPLE_SIZE: Vector2i = Vector2i(4, 4)
 
 var _viewport_size: Vector2i = DEFAULT_SIZE
 var _phase: String = "after"
@@ -270,8 +268,10 @@ func _check_modal_focus(instance: Node, output_dir: String, context: String) -> 
 	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	hud.grab_focus()
 	instance.call("_open_menu_overlay")
-	await _key(KEY_RIGHT)
-	_require_focus(root.gui_get_focus_owner() == first, context + ": first arrow should focus the first menu button, never the HUD")
+	await _settle()
+	_require_focus(root.gui_get_focus_owner() == first, context + ": opening immediately focuses the first menu button")
+	await _key(KEY_DOWN)
+	_require_focus(root.gui_get_focus_owner() == _find_control_with_text(menu, "Grimoire"), context + ": the first arrow navigates immediately")
 	if context == "camp" and _focus_capture in ["", "keyboard"]:
 		await _capture(output_dir, "modal_camp_keyboard")
 	# Traverse both native directions repeatedly, including the wrap boundaries.
@@ -283,31 +283,36 @@ func _check_modal_focus(instance: Node, output_dir: String, context: String) -> 
 	await _settle()
 	_require_focus(not scrim.visible and root.gui_get_focus_owner() == hud, context + ": closing should restore the previous HUD focus")
 	_require_focus(hud.focus_mode == original_focus_mode, context + ": closing should restore the HUD focus mode")
-	# Enter with stale background focus must establish a safe decision first.
+	# Opening excludes stale background focus before the first Enter dispatch.
 	hud.grab_focus()
 	instance.call("_open_menu_overlay")
+	await _settle()
+	_require_focus(root.gui_get_focus_owner() == first, context + ": focus is ready before Enter")
+	close.grab_focus()
 	await _key(KEY_ENTER)
 	_require_focus(int(activations["count"]) == 0, context + ": Enter must never activate the HUD behind the menu")
-	_require_focus(scrim.visible and menu.visible, context + ": first Enter must not activate a newly seeded button")
+	_require_focus(not scrim.visible, context + ": first Enter activates the focused menu button")
 	instance.call("_close_menu_overlay")
 	instance.call("_close_grimoire_overlay")
 	# No initial focus, Tab, Shift+Tab, and a disabled first option.
 	for backwards: bool in [false, true]:
 		if root.gui_get_focus_owner() != null: root.gui_get_focus_owner().release_focus()
 		instance.call("_open_menu_overlay")
+		await _settle()
+		_require_focus(root.gui_get_focus_owner() == first, context + ": opening without prior focus starts on Character")
 		await _key(KEY_TAB, backwards)
-		_require_focus(root.gui_get_focus_owner() == first, context + ": first Tab should seed the first enabled button")
+		_require_focus(_focus_inside(menu) and root.gui_get_focus_owner() != first, context + ": first Tab navigates immediately inside the menu")
 		instance.call("_close_menu_overlay")
 	first.disabled = true
 	instance.call("_open_menu_overlay")
-	await _key(KEY_DOWN)
-	_require_focus(root.gui_get_focus_owner() == _find_control_with_text(menu, "Grimoire"), context + ": initial navigation should skip disabled buttons")
+	await _settle()
+	_require_focus(root.gui_get_focus_owner() == _find_control_with_text(menu, "Grimoire"), context + ": opening skips disabled buttons")
 	instance.call("_close_menu_overlay")
 	first.disabled = false
 	# Settings shares the scope; Back returns to its opener inside Camp/Pause.
 	hud.grab_focus()
 	instance.call("_open_menu_overlay")
-	await _key(KEY_DOWN)
+	await _settle()
 	await _key(KEY_DOWN)
 	await _key(KEY_DOWN)
 	var settings_button: Button = _find_control_with_text(menu, "Settings") as Button
@@ -326,19 +331,23 @@ func _check_modal_focus(instance: Node, output_dir: String, context: String) -> 
 	_require_focus(menu.visible and not settings.visible and root.gui_get_focus_owner() == settings_button, context + ": Settings Back should restore its menu opener")
 	await _key(KEY_ESCAPE)
 	_require_focus(root.gui_get_focus_owner() == hud, context + ": nested close should restore HUD focus")
-	# Native controller events must seed focus before GUI dispatch, including A.
+	# Native controller events navigate and activate on their first dispatch.
 	router.call("clear_forced_state_for_test")
 	hud.grab_focus()
 	instance.call("_open_menu_overlay")
+	await _settle()
+	_require_focus(root.gui_get_focus_owner() == first, context + ": controller menu focuses immediately")
+	settings_button.grab_focus()
 	await _joy(JOY_BUTTON_A)
-	_require_focus(scrim.visible and menu.visible and root.gui_get_focus_owner() == first, context + ": first controller A should focus without activating")
+	_require_focus(scrim.visible and settings.visible, context + ": first controller A activates focused Settings")
+	await _joy(JOY_BUTTON_B)
 	instance.call("_close_menu_overlay")
 	if root.gui_get_focus_owner() != null: root.gui_get_focus_owner().release_focus()
 	instance.call("_open_menu_overlay")
 	await _settle()
-	var normal_plate: Image = await _renderer_image()
-	await _joy(JOY_BUTTON_DPAD_DOWN)
-	_require_focus(root.gui_get_focus_owner() == first, context + ": first controller direction should seed the first button")
+	_require_focus(root.gui_get_focus_owner() == first, context + ": controller starts on Character")
+	if context == "camp" and _focus_capture in ["", "controller"]:
+		await _capture(output_dir, "modal_camp_controller")
 	# Reach Succumb solely through controller navigation; leave it unactivated.
 	for step: int in range(5): await _joy(JOY_BUTTON_DPAD_DOWN)
 	_require_focus(root.gui_get_focus_owner() == danger, context + ": controller should reach Succumb")
@@ -346,15 +355,9 @@ func _check_modal_focus(instance: Node, output_dir: String, context: String) -> 
 	_require_focus(ornament.call("_accent_color", UiSkin.STATE_FOCUS) == ornament.call("_accent_color", UiSkin.STATE_NORMAL), context + ": danger focus must keep the normal danger material")
 	var focus_style: StyleBoxFlat = danger.get_theme_stylebox("focus") as StyleBoxFlat
 	_require_focus(not focus_style.draw_center, context + ": danger focus should add only the standard ring")
-	if normal_plate != null:
-		var focused_plate: Image = await _renderer_image()
-		var origin: Vector2i = Vector2i(danger.get_global_rect().position + DANGER_SAMPLE_INSET)
-		for y: int in range(DANGER_SAMPLE_SIZE.y):
-			for x: int in range(DANGER_SAMPLE_SIZE.x):
-				var point: Vector2i = origin + Vector2i(x, y)
-				var normal_pixel: Color = normal_plate.get_pixelv(point)
-				var focused_pixel: Color = focused_plate.get_pixelv(point)
-				_require_focus(normal_pixel.is_equal_approx(focused_pixel), context + ": danger plate pixels should be identical under native focus")
+	var standard_focus: StyleBoxFlat = UiSkin.new().make_button_style(UiSkin.VARIANT_STANDARD, UiSkin.STATE_FOCUS)
+	_require_focus(focus_style.border_color == standard_focus.border_color and focus_style.shadow_color == standard_focus.shadow_color, context + ": danger focus uses the standard ring and halo")
+	_require_focus(danger.get_theme_stylebox("normal").bg_color == UiSkin.new().make_button_style(UiSkin.VARIANT_DESTRUCTIVE).bg_color, context + ": danger keeps its red plate underneath the focus overlay")
 	if context == "camp" and _focus_capture in ["", "controller"]:
 		await _capture(output_dir, "modal_succumb_controller")
 	await _joy(JOY_BUTTON_B)

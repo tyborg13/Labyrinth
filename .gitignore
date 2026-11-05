@@ -91,3 +91,6 @@ spec/art_identity/jobs/**/refs/
 
 # Proof captures and reels are local artifacts; never tracked (release 2026-11-03).
 /output/
+
+# Temporary window override written by tools/visual_probe_runner.py during windowed probes
+/override.cfg

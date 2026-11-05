@@ -1,8 +1,18 @@
 extends RefCounted
 ## Warm additive light, sampled in effect progress. No clocks or mutable RNG.
 ## Board-space points; every width, reach and drift uses attacker source pixels.
-const TAIL: float = 0.10
-const FADE: float = 0.06
+const TAIL: float = 0.14
+const FADE: float = 0.08
+const SWEEP_CORE_ALPHA: float = 1.0
+const SWEEP_GLOW_ALPHA: float = 0.26
+const SWEEP_TAIL_RIM_BLEND: float = 0.45
+const TIP_RIBBON_WIDTH: float = 2.4
+const RIBBON_GLOW_ALPHA: float = 0.28
+const CONTACT_GLINT_RADIUS: float = 14.0
+const CONTACT_GLINT_GLOW_ALPHA: float = 0.26
+# Spark life and rake ribbons retain their existing treatment.
+const SPARK_LIFETIME: float = 0.10
+const RAKE_RIBBON_GLOW_ALPHA: float = 0.18
 const CONTACT: float = 0.42
 const SAMPLE_STEP: float = 1.0 / 240.0
 const ARC_RADIUS: float = 44.0
@@ -49,9 +59,9 @@ static func sample_at(samples: Array[Dictionary], progress: float) -> Dictionary
 				"inner": (a["inner"] as Vector2).lerp(b["inner"], t)}
 	return samples[-1]
 
-static func visible_samples(samples: Array[Dictionary], progress: float, window: Vector2) -> Array[Dictionary]:
+static func visible_samples(samples: Array[Dictionary], progress: float, window: Vector2, exposure_start: float = -1.0) -> Array[Dictionary]:
 	var visible: Array[Dictionary]
-	var start: float = maxf(window.x, progress - TAIL)
+	var start: float = maxf(window.x, minf(progress - TAIL, exposure_start) if exposure_start >= 0.0 else progress - TAIL)
 	var end: float = minf(progress, window.y)
 	if samples.is_empty() or end <= start:
 		return visible
@@ -86,13 +96,13 @@ static func sparks(samples: Array[Dictionary], progress: float, window: Vector2,
 	for index: int in range(0, samples.size(), 4):
 		var sample: Dictionary = samples[index]
 		var age: float = progress - float(sample["progress"])
-		if age < 0.0 or age >= TAIL or _noise(seed, index, 0) > 0.55:
+		if age < 0.0 or age >= SPARK_LIFETIME or _noise(seed, index, 0) > 0.55:
 			continue
 		var drift := Vector2(_noise(seed, index, 1) * 2.0 - 1.0, 0.6) * age * 90.0
 		var jitter := Vector2(_noise(seed, index, 2), _noise(seed, index, 3)) * 8.0 - Vector2(4, 4)
 		result.append({"point": (sample["tip"] as Vector2) + (drift + jitter) * scale,
 			"radius": lerpf(0.7, 1.3, _noise(seed, index, 4)) * scale,
-			"alpha": (1.0 - age / TAIL) * envelope(progress, window)})
+			"alpha": (1.0 - age / SPARK_LIFETIME) * envelope(progress, window)})
 	return result
 
 static func _noise(seed: int, index: int, lane: int) -> float:
@@ -102,12 +112,20 @@ static func _noise(seed: int, index: int, lane: int) -> float:
 
 static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 		contact: float, window: Vector2, element: String, scale: float, seed: int,
-		streak_length: float = 48.0) -> Array[Dictionary]:
+		streak_length: float = 48.0, previous_progress: float = -1.0) -> Array[Dictionary]:
 	var batches: Array[Dictionary]
 	var alpha: float = envelope(progress, window, contact)
 	if alpha <= 0.0 or scale <= 0.0:
 		return batches
-	var visible: Array[Dictionary] = visible_samples(samples, progress, window)
+	# A coarse body step can jump over contact and over most of the rolling
+	# tail. Retain that crossed exposure at its peak, including the contact
+	# glint, and bridge to the actual current tip. No body/feedback retiming.
+	var crossed_contact: bool = previous_progress >= 0.0 and progress - previous_progress > TAIL and previous_progress < contact and progress >= contact
+	var exposure_start: float = minf(previous_progress, contact - TAIL) if crossed_contact else -1.0
+	var visible: Array[Dictionary] = visible_samples(samples, progress, window, exposure_start)
+	if crossed_contact:
+		alpha = maxf(alpha, envelope(contact, window, contact))
+		visible = _distance_samples(visible)
 	if visible.size() < 2:
 		return batches
 	var colors: Array = palette(element)
@@ -142,16 +160,34 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 			var edge := PackedVector2Array()
 			for sample: Dictionary in visible:
 				edge.append(sample["tip"])
-			pass_batches.append(_ribbon(edge, colors, alpha, 1.6 * scale, glow))
+			pass_batches.append(_ribbon(edge, colors, alpha, TIP_RIBBON_WIDTH * scale, glow, RIBBON_GLOW_ALPHA))
 		for spark: Dictionary in sparks(samples, progress, window, scale, seed):
 			pass_batches.append(_diamond(spark["point"], spark["radius"] * (2.8 if glow else 1.0), colors[1], spark["alpha"] * (0.16 if glow else 0.8)))
-		if progress >= contact and progress < contact + 0.10:
+		if progress >= contact and (progress < contact + 0.10 or crossed_contact):
 			var point: Vector2 = sample_at(samples, contact)["tip"]
-			var life: float = 1.0 - (progress - contact) / 0.10
+			var life: float = 1.0 if crossed_contact else 1.0 - (progress - contact) / 0.10
 			# One four-point contact glint; vertices feather to clear at the tips.
-			pass_batches.append(_diamond(point, 11.0 * scale * (0.6 + 0.6 * life) * (1.45 if glow else 1.0), colors[0], life * (0.18 if glow else 1.0), 1.2 * scale))
+			pass_batches.append(_diamond(point, CONTACT_GLINT_RADIUS * scale * (0.6 + 0.6 * life) * (1.45 if glow else 1.0), colors[0], life * (CONTACT_GLINT_GLOW_ALPHA if glow else 1.0), 1.2 * scale))
 		batches.append(_combine(pass_batches))
 	return batches
+
+static func _distance_samples(samples: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	if samples.size() < 2: return samples
+	var lengths := PackedFloat32Array([0.0])
+	for index: int in range(1, samples.size()):
+		lengths.append(lengths[-1] + (samples[index]["tip"] as Vector2).distance_to(samples[index-1]["tip"]))
+	if is_zero_approx(lengths[-1]): return samples
+	var segment: int = 1
+	for index: int in range(samples.size()):
+		var distance: float = lengths[-1] * float(index) / float(samples.size()-1)
+		while segment < samples.size()-1 and lengths[segment] < distance: segment += 1
+		var t: float = inverse_lerp(lengths[segment-1], lengths[segment], distance) if lengths[segment] > lengths[segment-1] else 0.0
+		var a: Dictionary = samples[segment-1]
+		var b: Dictionary = samples[segment]
+		result.append({"progress":lerpf(a["progress"],b["progress"],t), "tip":(a["tip"] as Vector2).lerp(b["tip"],t),
+			"inner":(a["inner"] as Vector2).lerp(b["inner"],t)})
+	return result
 
 static func _combine(batches: Array[Dictionary]) -> Dictionary:
 	# One submission per light pass even when sparks and streak lanes add
@@ -184,14 +220,14 @@ static func _sweep(samples: Array[Dictionary], palette_colors: Array, alpha: flo
 			var f: float = rows[row]
 			vertices.append(tip.lerp(inner, f) + axis * (f - 0.5) * (5.0 * scale if glow else 0.0))
 			var color: Color = (palette_colors[0] as Color).lerp(palette_colors[1], minf(1.0, maxf(0.0, f) / 0.12)).lerp(palette_colors[2], maxf(0.0, f))
-			color = color.lerp(palette_colors[2], (1.0 - u) * 0.65)
-			color.a = alpha * pow(u, 1.3) * pow(1.0 - maxf(0.0, f), 1.4) * (0.18 if glow else 0.8)
+			color = color.lerp(palette_colors[2], (1.0 - u) * SWEEP_TAIL_RIM_BLEND)
+			color.a = alpha * pow(u, 1.3) * pow(1.0 - maxf(0.0, f), 1.4) * (SWEEP_GLOW_ALPHA if glow else SWEEP_CORE_ALPHA)
 			if row == 0 or row == rows.size() - 1:
 				color.a = 0.0
 			colors.append(color)
 	return _strip(vertices, colors, rows.size())
 
-static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: float, width: float, glow: bool) -> Dictionary:
+static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: float, width: float, glow: bool, glow_alpha: float = RAKE_RIBBON_GLOW_ALPHA) -> Dictionary:
 	var vertices := PackedVector2Array()
 	var colors := PackedColorArray()
 	for index: int in range(points.size()):
@@ -200,7 +236,7 @@ static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: fl
 		var normal := Vector2(-tangent.y, tangent.x)
 		var half_width: float = width * (0.4 + 0.6 * u) * (2.8 if glow else 0.5)
 		var color: Color = (palette_colors[2] as Color).lerp(palette_colors[1], u).lerp(palette_colors[0], u * u)
-		color.a = alpha * pow(u, 1.8) * (0.18 if glow else 0.95)
+		color.a = alpha * pow(u, 1.8) * (glow_alpha if glow else 0.95)
 		var clear := Color(color, 0.0)
 		vertices.append_array(PackedVector2Array([points[index] + normal * half_width, points[index], points[index] - normal * half_width]))
 		colors.append_array(PackedColorArray([clear, color, clear]))
@@ -208,7 +244,7 @@ static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: fl
 
 static func _streak_envelope(progress: float, window: Vector2, contact: float = CONTACT) -> float:
 	# The thrust must already read at full strength during the drive, before
-	# the .42 contact glint. Follow-through keeps the shared .06 fade.
+	# the .42 contact glint. Follow-through keeps the shared fade.
 	if progress <= contact:
 		return smoothstep(window.x, minf(0.40, contact), progress)
 	return envelope(progress, window, contact)

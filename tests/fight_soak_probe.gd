@@ -20,8 +20,15 @@ func _capture_round_proof(round_index: int) -> void:
 	await RenderingServer.frame_post_draw
 	var path: String = output.path_join("round_%02d.png" % round_index)
 	var image: Image = root.get_texture().get_image()
-	assert(image.get_size() == VIEWPORT, "Native soak proof must be 1920x1080")
-	assert(image.save_png(path) == OK)
+	_save_proof_image(image, path)
 	print(ProjectSettings.globalize_path(path))
 	for frame: int in range(SETTLE_FRAMES): await RenderingServer.frame_post_draw
 	previous_frame_usec = 0
+
+func _save_proof_image(image: Image, path: String) -> void:
+	# Native root readbacks can use the Retina backing size. Normalize only
+	# proof I/O, outside sampling, without changing the live soak viewport.
+	if image.get_size() != VIEWPORT:
+		image.resize(VIEWPORT.x, VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
+	assert(image.get_size() == VIEWPORT, "Native soak proof must be 1920x1080")
+	assert(image.save_png(path) == OK)

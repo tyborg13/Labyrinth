@@ -66,7 +66,13 @@ func _run() -> void:
 	await _capture("02_intents_off")
 	await _click(intents)
 	_expect(intents.button_pressed and bool(instance.get("_show_all_enemy_intents")), "Pointer toggles all enemy intents")
-	_expect(intents.tooltip_text == "Hide full plans [I]" and (intents.get_theme_stylebox("normal") as StyleBoxFlat).border_color == Palette.GOLD_BRIGHT, "ON retains semantic text and brightens the plate")
+	# hud-02 uses a brush and slash edge, with empty native styleboxes. Inspect
+	# the live ON treatment safely so missing controls report failures, not Nil.
+	var details_brush: TextureRect = intents.get_node_or_null("DetailsRailBrush") as TextureRect
+	var details_edge: Control = intents.get_node_or_null("DetailsRailEdge") as Control
+	_expect(intents.tooltip_text == "Hide full plans [I]" and intents.get_theme_stylebox("normal") is StyleBoxEmpty, "ON retains semantic text and layout C's empty native background")
+	_expect(details_brush != null and details_brush.visible and details_brush.texture != null, "ON retains the authored Details rail brush")
+	_expect(details_edge != null and details_edge.visible and details_edge.get("color") == Palette.GOLD_BRIGHT, "ON brightens layout C's slash edge to GOLD_BRIGHT")
 	await _pointer(Vector2(960, 500))
 	await _capture("03_intents_on")
 	await _key(KEY_I)

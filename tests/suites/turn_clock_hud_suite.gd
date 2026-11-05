@@ -317,7 +317,9 @@ static func _assert_state(scene: Node, expect: Callable, wait_time: int, pill: S
 		var style: StyleBoxFlat = badge.get_theme_stylebox("panel") as StyleBoxFlat
 		var expected_style: StyleBoxFlat = Ink.projection_style(delta)
 		expect.call(label.text == pill and style.bg_color.is_equal_approx(expected_style.bg_color) and style.border_color.is_equal_approx(expected_style.border_color), "%s: exact pill copy and sign style: %s" % [phase, label.text])
-		expect.call(label.get_theme_font_size("font_size") == 9 and label.get_theme_color("font_color") == Color("fff6ce") and label.get_theme_color("font_outline_color") == Color("120b07") and label.get_theme_constant("outline_size") == 1, "%s: pill typography stays unchanged" % phase)
+		# hud-02 (6e2db7a8a): the approved projection exception is 12px; ink and
+		# outline stay exactly as authored before layout C.
+		expect.call(label.get_theme_font_size("font_size") == 12 and label.get_theme_color("font_color") == Color("fff6ce") and label.get_theme_color("font_outline_color") == Color("120b07") and label.get_theme_constant("outline_size") == 1, "%s: pill retains layout C's 12px typography and original ink" % phase)
 	var roles: Dictionary = strip.role_entries()
 	var keys: Array = []
 	for before: Dictionary in roles.get("before", []):

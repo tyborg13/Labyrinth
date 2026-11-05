@@ -1,0 +1,24 @@
+{
+  "name": "census-no-embrace-4",
+  "seed": 4,
+  "no_embrace": true,
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_task.py",
+    "--seed",
+    "4",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_replay.gd",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-45/census-no-embrace-4",
+    "--no-embrace"
+  ],
+  "output_dir": "/private/tmp/labyrinth_codex/qa-45/census-no-embrace-4",
+  "returncode": 0,
+  "started": 1793861019.607681,
+  "wall_seconds": 1389.353858947754
+}

@@ -105,7 +105,7 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - The Scavenger's painting in the shop has far coarser pixels than the shelves and cards beside it.
 - Unmerged branch `codex/meteorfall-card-falling-meteor-impact-effect` (2026-10-01) has staggered meteors and a fuller comet shared with Vyraketh. No verdict on record.
 - A kill's returned Card Play has no sound, only a meter pulse. The old Ember pickup sound was removed on purpose in July, so this is a taste question.
-- Weak by the heuristic: Tempest Form (legendary, 1.61 against a median of 4.81); epics Rites of the Pyre, Tailwinds and the Storm (1.52-1.61), Vortex 1.69. Possibly a scorer blind spot for lasting effects; check first. Rares Dust Devil 1.27 and Grounding 1.35 are narrow by design.
+- ~~Weak by the heuristic: Tempest Form, Rites of the Pyre, Tailwinds and the Storm, Vortex.~~ Closed by bal-02 (2026-11-04): none is weak in play; the scorer underrates lasting effects (Tempest Form, Tailwinds). No numbers changed.
 - While a card is hovered, the turn-order strip slides over the right edge of the Objective panel and butts against "DEFEAT ALL ENEMIES".
 - Searing Light and Stoke carry a faint bow watermark though neither aims at anything.
 - With Retaliate up, the striker's Bleed reaches the hero about 0.4 s after its hit, arriving with the Retaliate. The chip and its sound lag the blow.
@@ -127,7 +127,7 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - Windowed probes fail on the base: `campfire_choice_probe`, `section_map_flow_probe`, `scavenger_shop_probe`, `dragon_reward_feedback_probe`. Stale or real regressions: not checked. They give no protection for those flows today.
 - During the Purge beat the bottom-right message box still shows the previous notice. Check it in a real run.
 - The same dissolve could soften other hard cuts, such as closing a pop-up back to the shop after buying a Purge. Not looked at.
-- Scored, not applied: Cinder Fusillade 6 damage 3.26 to 3.77, or 7 to 4.30; Eye of the Storm 9 Block 1.90 to 2.65 (epic median 2.70). Updraft at range 4 is a real trade (3.07 to 3.36); push 3 would make Hurricane Palm strictly worse.
+- ~~Scored, not applied: Cinder Fusillade 6, Eye of the Storm 9 Block, Updraft range 4.~~ All three already on release (bal-03 checked 2026-11-05; bot check found no outlier).
 - The turn-order preview chip reads "Tempest Form +0" in very small text. Accurate, but it reads as if the card is free.
 - Tooling: a failed capture leaves its frames folder behind and the retry refuses to run until it's deleted. The first capture in a new worktree can time out in the Continue transition under load; the retry passes.
 - The card-play swish has the highest peak of any everyday sound (-1.1 in the file), and now sits level with the light hit. A question on pol-12.
@@ -202,10 +202,10 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - Tooling: every native soak round capture fails its 1920x1080 assert (looks like the Retina backing size), so every soak manifest reports ok=false though the report is valid. `_save_root_screenshot`'s normalization would fix it.
 - Tooling: pol-40's clip probe logs at `frame_pre_draw` (movie frame = log frame) and adds a `sweep:A:B:S` pointer glide; copy in `output/polish/pol-40/clip_tool/pol40_clip_probe.gd.txt`.
 - In a quick sweep (3-5 frames per card) each card's keyword box still flashes for 1-2 frames, since the 2-frame rest completes on every card. A rest counted from pointer stillness, or a short fade-in on the box, would calm it; that changes the rest rule (a question on pol-41).
-- Leaving the hand: the lifted card stays raised about 7 frames after hover clears while its box hides at once (likely the lowering ease).
+- Leaving the hand: the lifted card stays raised about 7 frames after hover clears while its box hides at once (likely the lowering ease). **Already fixed on release (ui-16 traces, 2026-11-05).**
 - Tooling: hover_equivalence's native --capture saves PNGs at the Retina backing size (3024x1898), so `tools/perf11/hover_proof.json`'s 1920x1080 contract fails though the oracle passes. pol-41's per-frame keyword-box log (TIPLOG, tiplog.py) is in `output/polish/pol-41/clip_tool/`.
-- Razor Gale (rare, 4 Time, 4 damage, range 3, push 2) scores 3.51, below the common Crosswind (3.52): the weakest push card for its rarity. Push 3 is one option; score first.
-- Updraft and Crosswind show a sword "Melee" icon and pop-up on cards that hit at range 3 to 4; "Melee" beside "Range 4" reads as a contradiction.
+- Razor Gale (rare, 4 Time, 4 damage, range 3, push 2) scores 3.51, below the common Crosswind (3.52): the weakest push card for its rarity. Push 3 is one option; score first. **No change (director, 2026-11-05):** 3.51 is above the rare median (3.12; p25 2.73, p75 4.07); rarity bands overlap (common p75 3.58, Threaded Path 3.99). Scored options for later: push 3 -> 4.22, damage 5 -> 3.98, Time 3 -> 3.96, range 4 -> 3.85.
+- Updraft and Crosswind show a sword "Melee" icon and pop-up on cards that hit at range 3 to 4; "Melee" beside "Range 4" reads as a contradiction. **Fixed (checked 2026-11-05):** Updraft, Crosswind and Razor Gale show the Ranged icon and tooltip.
 - Old Updraft numbers remain in `spec/card_targeting.md` (generated from an audit fixture) and the historical `spec/card_pool_overhaul/` proposals.
 - Tooling: `tooltip_consistency_suite.gd` (2 Petrify focus-stack checks), `card_summary_fit_test` and `card_summary_fit_unit_test` fail on the base. pol-42's hover/aim/play probe (CLIP_HOVER, CLIP_AIM, CLIP_CLEAR) is in `output/polish/pol-42/clip_tool/`.
 - After pol-38..40 merge, pol-43's pointer re-check stands aside while the hand's close slide runs and re-checks when it rests, so a plain play under a resting pointer lifts its card when the slide ends. Verify after those merges.
@@ -218,13 +218,13 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - When the taken reward card ghosts to 18%, the board shows through; after pol-45's lift the ghost's edge shows below the popped card. The reward screen has no scrim behind its cards.
 - The take label sits where the player clicked, so the pointer covers part of it. Its fade outlasts the take, so it leaves at 67% opacity on the frame the screen closes (reads fine today).
 - Tooling: pol-45's probe logs the take proxy's centre and scale, the label's box, its gap to the title and title visibility per frame; align before/after clips on the reward screen's closing frame (`align.py`). In `output/polish/pol-45/clip_tool/`.
-- Under controller focus a card's keyword box appears at the start of its lift (no 2-frame rest) and travels about 20 px right and 50 px up as the card rises; pointer hover shows it nearly settled. The two paths feel different.
+- Under controller focus a card's keyword box appears at the start of its lift (no 2-frame rest) and travels about 20 px right and 50 px up as the card rises; pointer hover shows it nearly settled. The two paths feel different. **Already fixed on release (ui-16 traces, 2026-11-05).**
 - Tooling: a fresh polish worktree has no class cache; `cp -cR` of integration's .godot then a headless `--import` takes about 70 s. pol-46's box/side/overlap logger (`tipcheck.py`) is in `output/polish/pol-46/clip_tool/`.
-- With a controller, focusing Succumb to the Darkness turns its red plate bronze-brown, so the danger colour disappears just before the press (before and after pol-47).
-- Camp with mouse and keyboard: arrows and Tab do nothing until something has focus; if a HUD control kept focus, the arrows walk the dimmed HUD behind the menu (DETAILS, the draw pile) and Enter can activate it.
-- Run-end recap: the feat diamond (12 px) and NEW BEST (13 px) are under the 14 px caption floor. Camp says "Camp" in title case while the Settings panel it opens says "SETTINGS".
+- With a controller, focusing Succumb to the Darkness turns its red plate bronze-brown, so the danger colour disappears just before the press (before and after pol-47). **In ui-15.**
+- Camp with mouse and keyboard: arrows and Tab do nothing until something has focus; if a HUD control kept focus, the arrows walk the dimmed HUD behind the menu (DETAILS, the draw pile) and Enter can activate it. **In ui-15.**
+- Run-end recap: the feat diamond (12 px) and NEW BEST (13 px) are under the 14 px caption floor. Camp says "Camp" in title case while the Settings panel it opens says "SETTINGS". **In ui-15.**
 - Tooling: `pause_overlay_probe`, `utility_ui_layout_probe`, `selective_ui_salvage_probe`, `contextual_combat_tutorial_probe` fail on the base on unrelated stale checks, so they can't gate camp/pause UI. pol-47's camp walk-through tools (CAMP_MOVIE=1, CAMP_DESKTOP=1) are in `output/polish/pol-47/clip_tool/`.
 - At pol-45-r2's size the ring's rune ticks (5-6 px) nearly vanish on a 690 px ring, and its bright inner arc, not the outer ring, is the most visible part. Keeping the inner arc outside the card would frame it more cleanly (a question on pol-45-r2).
-- At turn start, Pass and the counters vanish for about 3 frames (50 ms) as the cards land, then reappear in their new place (pol-43-fix strip, before and after).
+- At turn start, Pass and the counters vanish for about 3 frames (50 ms) as the cards land, then reappear in their new place (pol-43-fix strip, before and after). **In ui-15.**
 - Untested gap: after a deferred hover check, the slide's rest relies on Godot noticing a different card under the pointer. If the same card was under it at landing and at rest, it would stay down until the pointer moves. Never reproduced; a one-line fix would have the slide's rest call pol-43's resolve helper.
 - Tooling: the movie writer's frame index can be off from the logged frame (31 frames in pol-43-fix's play clip); match clips by motion.

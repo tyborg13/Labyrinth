@@ -78,12 +78,12 @@ static func run(expect: Callable) -> void:
 	_test_hand_display_rows(expect)
 	remove_fixtures()
 
-static func run_live(tree: SceneTree, expect: Callable) -> void:
+static func run_live(tree: SceneTree, expect: Callable, include_empower_feedback: bool = true) -> void:
 	install_fixtures()
 	await _test_live_time_badge_surcharge(tree, expect)
 	await _test_live_targetless_empower_confirmation(tree, expect)
 	await _test_live_targeted_empower_and_stagger_preview(tree, expect)
-	await preload("res://tests/suites/empower_seal_suite.gd").run_live(tree, expect)
+	await preload("res://tests/suites/empower_seal_suite.gd").run_live(tree, expect, include_empower_feedback)
 	remove_fixtures()
 	# Live plays checkpoint the run; never leave fixture card ids in a saved run.
 	ProgressionStore.clear_saved_run()

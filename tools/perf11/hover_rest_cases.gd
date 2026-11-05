@@ -197,7 +197,7 @@ static func _render(probe: SceneTree) -> void:
 static func _capture(probe: SceneTree, name: String) -> void:
 	await RenderingServer.frame_post_draw
 	var path: String = probe.output.path_join(name + ".png")
-	probe._check(probe.root.get_texture().get_image().save_png(path) == OK, "save " + path)
+	probe._save_proof_image(probe.root.get_texture().get_image(), path)
 	print(path)
 
 static func _presentation(snapshot: Dictionary) -> Dictionary:

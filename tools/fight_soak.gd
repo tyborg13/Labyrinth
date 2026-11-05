@@ -2,7 +2,7 @@ extends "res://tools/inspection_fixture.gd"
 ## Live scene lifetime soak. Bot decisions are unchanged; presentation uses the
 ## production card commit and pass paths. Terminal fights restart from the exact
 ## same fixture, never inflate HP or change combat rules to prolong a fight.
-const Policy = preload("res://scripts/battlefield_rules/bot_policy.gd")
+const Policy = preload("res://tools/bot_policy.gd")
 const Metrics = preload("res://tools/fight_soak_metrics.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")

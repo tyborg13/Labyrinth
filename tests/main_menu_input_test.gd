@@ -3,6 +3,7 @@ extends SceneTree
 const PerfGroup = preload("res://tests/helpers/perf_group.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
+const ObservedStartup = preload("res://tests/helpers/observed_startup.gd")
 
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -11,6 +12,9 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_input_test_progression.json"
 const RUN_PATH: String = "user://main_menu_input_test_run.save"
+const LOAD_COMPLETION_TIMEOUT_MS: int = 60000
+const FADE_ELAPSED_TOLERANCE: float = 0.0001
+const COARSE_STARTUP_FPS: int = 10
 
 var _failures: Array[String] = []
 
@@ -23,9 +27,13 @@ func _initialize() -> void:
 	await _test_empty_space_pointer_motion_preserves_navigation_focus()
 	await _test_disabled_pointer_target_preserves_navigation_focus()
 	SettingsStore.set_storage_path("user://startup_input_test_settings.json")
+	var previous_fps: int = Engine.max_fps
+	if OS.get_cmdline_user_args().has("--qa42-coarse-startup"):
+		Engine.max_fps = COARSE_STARTUP_FPS
 	await _test_startup_sequence(false)
 	await _test_startup_sequence(true)
 	await _test_startup_interruption_restores_input()
+	Engine.max_fps = previous_fps
 	await _test_run_entry("new", false)
 	await _test_run_entry("continue", false)
 	await _test_run_entry("replace", false)
@@ -279,9 +287,16 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 	_expect(SettingsStore.save_settings(settings), "Startup test settings should save")
 	var packed: PackedScene = load("res://scenes/startup.tscn")
 	var startup = packed.instantiate()
+	startup.set_script(ObservedStartup)
+	# Keep the record array before finished queues the startup node for deletion.
+	var fades: Array = startup.get("fade_records")
 	var phase_times: Dictionary = {}
 	var result: Array[Control] = []
-	startup.phase_changed.connect(func(value: StringName): phase_times[str(value)] = Time.get_ticks_msec())
+	startup.phase_changed.connect(func(value: StringName):
+		phase_times[str(value)] = Time.get_ticks_msec()
+		if value == &"menu_fade_in" and not reduced_motion:
+			_assert_fading_menu_blocks_input(startup.menu)
+	)
 	startup.finished.connect(func(value: Control): result.append(value))
 	var cursor := root.get_node_or_null("CursorFeedback") as CanvasLayer
 	var cursor_was_visible: bool = cursor.visible if cursor != null else false
@@ -294,25 +309,26 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 	_expect(is_equal_approx(startup.seal.modulate.a, 1.0), "The one-second hold should be fully opaque")
 	while result.is_empty() and startup.phase != &"menu_fade_in":
 		await process_frame
-	if not reduced_motion:
-		var gated_menu: Control = startup.menu
-		var button: Button = gated_menu.get_node("MenuColumn/SettingsButton")
-		button.grab_focus()
-		await _click_after_hover(gated_menu, button)
-		await _send_accept(KEY_ENTER)
-		await _send_accept(0, JOY_BUTTON_A)
-		_expect(not gated_menu.get_node("SettingsPanel").visible, "Pointer, keyboard and controller must not activate the fading menu")
 	while result.is_empty():
+		_expect(root.gui_disable_input, "Startup must retain its GUI gate on every unfinished fade frame")
 		await process_frame
 	var menu: Control = result[0]
 	var hold_ms: int = phase_times["fade_out"] - phase_times["hold"]
 	_expect(hold_ms >= 1000, "The ready-menu seal retains its full one-second hold")
 	if PerfGroup.enabled(): _expect(hold_ms < 1500, "The ready-menu hold finishes within scheduling slack")
-	if not reduced_motion:
-		_expect(phase_times["hold"] - phase_times["fade_in"] >= 350, "Normal startup should fade the seal in")
-		_expect(phase_times["menu_black"] - phase_times["fade_out"] >= 300, "Normal startup should fade the seal out")
-		_expect(phase_times["complete"] - phase_times["menu_fade_in"] >= 350, "Normal startup should fade the menu in")
-	elif PerfGroup.enabled():
+	# The real production tweens own fade time. A phase timestamp taken partway
+	# through a loaded frame omits that frame's first tween step.
+	_expect(fades.size() == 3, "Startup must execute all three production fades")
+	var approved_seconds: Array[float]
+	approved_seconds.assign([0.4, 0.35, 0.4])
+	for index: int in range(mini(fades.size(), approved_seconds.size())):
+		var fade: Dictionary = fades[index]
+		_expect(is_equal_approx(float(fade["seconds"]), approved_seconds[index]), "Startup fade %d keeps its authored duration" % index)
+		_expect(is_equal_approx(float(fade["from"]), 1.0 if index == 1 else 0.0) and is_equal_approx(float(fade["to"]), 0.0 if index == 1 else 1.0), "Startup fade %d retains its opacity endpoints" % index)
+		_expect(int(fade["tweens"]) == (0 if reduced_motion else 1), "Startup fade %d uses a production tween only with normal motion" % index)
+		if not reduced_motion:
+			_expect(float(fade["elapsed"]) + FADE_ELAPSED_TOLERANCE >= approved_seconds[index], "Startup fade %d must actually run its authored tween duration" % index)
+	if reduced_motion and PerfGroup.enabled():
 		_expect(phase_times["menu_black"] - phase_times["fade_out"] < 50, "Reduced motion should omit the seal fade-out")
 		_expect(phase_times["complete"] - phase_times["menu_fade_in"] < 50, "Reduced motion should omit the menu fade")
 	_expect(not root.gui_disable_input, "Finished startup should restore GUI input")
@@ -334,6 +350,7 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 	await _send_accept(0, JOY_BUTTON_A)
 	_expect(settings_panel.visible, "Controller activation should work after startup")
 	print("Startup timing reduced_motion=%s: %s" % [reduced_motion, JSON.stringify(phase_times)])
+	print("STARTUP PRODUCTION FADES reduced_motion=%s: %s" % [reduced_motion, JSON.stringify(fades)])
 	_stop_menu_music(menu)
 	menu.queue_free()
 	await process_frame
@@ -345,6 +362,33 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 	_stop_menu_music(returning_menu)
 	returning_menu.queue_free()
 	await process_frame
+
+func _assert_fading_menu_blocks_input(menu: Control) -> void:
+	var button: Button = menu.get_node("MenuColumn/SettingsButton")
+	button.grab_focus()
+	var point: Vector2 = button.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	root.push_input(motion, true)
+	# Route each complete input gesture synchronously while the production fade
+	# owns input. Six awaited frames can outlast a fade under scheduler pressure.
+	for pressed: bool in [true, false]:
+		var mouse := InputEventMouseButton.new()
+		mouse.button_index = MOUSE_BUTTON_LEFT
+		mouse.pressed = pressed
+		mouse.position = point
+		mouse.global_position = point
+		root.push_input(mouse, true)
+		var keyboard := InputEventKey.new()
+		keyboard.keycode = KEY_ENTER
+		keyboard.pressed = pressed
+		root.push_input(keyboard, true)
+		var joy := InputEventJoypadButton.new()
+		joy.button_index = JOY_BUTTON_A
+		joy.pressed = pressed
+		root.push_input(joy, true)
+	_expect(not menu.get_node("SettingsPanel").visible, "Pointer, keyboard and controller must not activate the fading menu")
 
 func _test_startup_interruption_restores_input() -> void:
 	var startup = load("res://scenes/startup.tscn").instantiate()
@@ -383,6 +427,14 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	var music_kept_playing := true
 	var room_music_waited := true
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	var phase_times: Dictionary = {}
+	var result: Array[Node]
+	var observation: Dictionary = {"started": false, "transition": null, "phase_times": phase_times, "result": result}
+	# The loading label enters after begin() locks input and before loading is
+	# deferred. This catches pointer, keyboard and direct controller activation
+	# without yielding a frame that may already finish a reduced-motion load.
+	var observe: Callable = _observe_run_entry_node.bind(menu, mode, reduced_motion, observation)
+	node_added.connect(observe)
 	if mode == "continue":
 		var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
 		continue_button.grab_focus()
@@ -395,53 +447,18 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 		await _send_accept(KEY_ENTER)
 	else:
 		await _click_after_hover(menu, start_button)
-	var transition = root.get_node_or_null("MenuRunTransition")
-	_expect(transition != null, "%s should enter the shared loading flow" % mode)
-	if transition == null:
+	node_added.disconnect(observe)
+	_expect(bool(observation["started"]), "%s should enter the shared loading flow" % mode)
+	var transition: CanvasLayer = observation["transition"] as CanvasLayer
+	if not bool(observation["started"]):
+		_stop_menu_music(menu)
+		menu.queue_free()
+		current_scene = null
+		await process_frame
 		return
-	_expect(music.playing and not music.stream_paused, "Locking the menu must not pause its music")
-	_expect(menu.is_inside_tree() and menu.is_visible_in_tree(), "The actual main menu must remain visible while loading")
-	_expect(root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_DISABLED, "Loading must block GUI, keyboard and controller input")
-	_expect(start_button.disabled and menu.replacement_confirm_button.disabled, "Loading must also guard repeated semantic button activation")
-	menu.call("_on_start_button_pressed")
-	menu.call("_on_continue_button_pressed")
-	menu.call("_on_replacement_confirm_button_pressed")
-	menu.call("_on_settings_button_pressed")
-	menu.call("_on_replacement_cancel_button_pressed")
-	_expect(not menu.settings_panel.visible and current_scene == transition, "Repeated activation and cancel must neither reopen the menu nor create another run")
-	_expect(not menu._replacement_confirmation_open, "The replacement prompt must be dismissed under loading")
-	transition.set_process(false)
-	var counts: Array[int] = []
-	var message_size: Vector2 = transition.message_label.get_minimum_size()
-	for index: int in range(5):
-		transition._elapsed = float(index) * MenuRunTransition.DOT_SECONDS + 0.001
-		transition._update_dots()
-		counts.append(transition.message_label.visible_characters)
-		_expect(transition.message_label.get_minimum_size() == message_size, "Cycling dots must not resize or recenter the message")
-	if reduced_motion:
-		_expect(counts == [-1, -1, -1, -1, -1], "Reduced motion must keep the complete static loading message")
-	else:
-		var base: int = MenuRunTransition.MESSAGE.length()
-		_expect(counts == [base + 1, base + 2, base + 3, base, base + 1], "Loading dots must cycle 1, 2, 3, none, 1 without rewriting the label")
-	var phase_times: Dictionary = {}
-	var result: Array[Node] = []
-	transition.phase_changed.connect(func(value: StringName):
-		phase_times[str(value)] = Time.get_ticks_msec()
-		if value == &"complete":
-			_expect(music.playing and not music.stream_paused and music.get_parent() == transition.destination, "Menu fade-out must not delay room activation")
-		if value == &"revealing":
-			_expect(music.playing and not music.stream_paused, "Menu music must continue through the visual reveal")
-			_expect(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the complete hand/dock layout, even without a fade")
-			if mode == "continue":
-				_expect(int(transition.destination.get("_hand_layout_pending_revision")) == -1, "Combat Continue must settle the card hand before revealing")
-			_expect(transition.destination.is_node_ready(), "Reveal must wait for the real destination ready lifecycle")
-			_expect(not transition.destination.get("_run_state").is_empty(), "Reveal must wait for the room state to exist")
-			_expect(transition.destination.process_mode == Node.PROCESS_MODE_DISABLED, "Hidden room input must stay disabled through reveal")
-	)
-	transition.finished.connect(func(node: Node): result.append(node))
-	var deadline := Time.get_ticks_msec() + 15000
+	var deadline: int = Time.get_ticks_msec() + LOAD_COMPLETION_TIMEOUT_MS
 	while result.is_empty() and Time.get_ticks_msec() < deadline:
-		if transition.phase in [&"loading", &"preparing", &"revealing"]:
+		if is_instance_valid(transition) and transition.phase in [&"loading", &"preparing", &"revealing"]:
 			var position := music.get_playback_position()
 			music_kept_playing = music_kept_playing and music.playing and not music.stream_paused and music.has_stream_playback() and music.get_stream_playback() == original_playback and position >= previous_music_position
 			previous_music_position = position
@@ -451,8 +468,15 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 		await process_frame
 	_expect(music_kept_playing and previous_music_position > 20.06, "Menu music must advance without pausing, stopping or restarting during loading and room preparation")
 	_expect(room_music_waited, "Room music must wait for the ready-to-reveal handoff")
-	_expect(not result.is_empty(), "%s loading should finish" % mode)
+	_expect(not result.is_empty(), "%s loading should finish (last phase=%s)" % [mode, str(transition.phase) if is_instance_valid(transition) else "freed"])
 	if result.is_empty():
+		# A failed fixture must not keep loading into the next test's save/profile.
+		var pending: Node = transition.destination if is_instance_valid(transition) else null
+		if is_instance_valid(menu): _stop_menu_music(menu)
+		if is_instance_valid(transition): transition.free()
+		if is_instance_valid(pending): pending.free()
+		if is_instance_valid(menu): menu.free()
+		current_scene = null
 		return
 	var room: Node = result[0]
 	var room_music := room.get_node_or_null("MusicPlayer") as AudioStreamPlayer
@@ -522,6 +546,60 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	room.queue_free()
 	await process_frame
 	await process_frame
+
+func _observe_run_entry_node(node: Node, menu: Control, mode: String, reduced_motion: bool, observation: Dictionary) -> void:
+	var transition: CanvasLayer = root.get_node_or_null("MenuRunTransition") as CanvasLayer
+	if transition != null and node == transition.message_label:
+		_observe_run_entry_start(menu, mode, reduced_motion, observation)
+
+func _observe_run_entry_start(menu: Control, mode: String, reduced_motion: bool, observation: Dictionary) -> void:
+	if bool(observation["started"]): return
+	var transition: CanvasLayer = root.get_node_or_null("MenuRunTransition") as CanvasLayer
+	if transition == null: return # New Run may first open replacement confirmation.
+	observation["started"] = true
+	observation["transition"] = transition
+	var music: AudioStreamPlayer = menu.get_node("MusicPlayer")
+	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	_expect(music.playing and not music.stream_paused, "Locking the menu must not pause its music")
+	_expect(menu.is_inside_tree() and menu.is_visible_in_tree(), "The actual main menu must remain visible while loading")
+	_expect(root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_DISABLED, "Loading must block GUI, keyboard and controller input")
+	_expect(start_button.disabled and menu.replacement_confirm_button.disabled, "Loading must also guard repeated semantic button activation")
+	menu.call("_on_start_button_pressed")
+	menu.call("_on_continue_button_pressed")
+	menu.call("_on_replacement_confirm_button_pressed")
+	menu.call("_on_settings_button_pressed")
+	menu.call("_on_replacement_cancel_button_pressed")
+	_expect(not menu.settings_panel.visible and current_scene == transition, "Repeated activation and cancel must neither reopen the menu nor create another run")
+	_expect(not menu._replacement_confirmation_open, "The replacement prompt must be dismissed under loading")
+	transition.set_process(false)
+	var counts: Array[int]
+	var message_size: Vector2 = transition.message_label.get_minimum_size()
+	for index: int in range(5):
+		transition._elapsed = float(index) * MenuRunTransition.DOT_SECONDS + 0.001
+		transition._update_dots()
+		counts.append(transition.message_label.visible_characters)
+		_expect(transition.message_label.get_minimum_size() == message_size, "Cycling dots must not resize or recenter the message")
+	if reduced_motion:
+		_expect(counts == [-1, -1, -1, -1, -1], "Reduced motion must keep the complete static loading message")
+	else:
+		var base: int = MenuRunTransition.MESSAGE.length()
+		_expect(counts == [base + 1, base + 2, base + 3, base, base + 1], "Loading dots must cycle 1, 2, 3, none, 1 without rewriting the label")
+	var phase_times: Dictionary = observation["phase_times"]
+	var result: Array = observation["result"]
+	transition.phase_changed.connect(func(value: StringName):
+		phase_times[str(value)] = Time.get_ticks_msec()
+		if value == &"complete":
+			_expect(music.playing and not music.stream_paused and music.get_parent() == transition.destination, "Menu fade-out must not delay room activation")
+		if value == &"revealing":
+			_expect(music.playing and not music.stream_paused, "Menu music must continue through the visual reveal")
+			_expect(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the complete hand/dock layout, even without a fade")
+			if mode == "continue":
+				_expect(int(transition.destination.get("_hand_layout_pending_revision")) == -1, "Combat Continue must settle the card hand before revealing")
+			_expect(transition.destination.is_node_ready(), "Reveal must wait for the real destination ready lifecycle")
+			_expect(not transition.destination.get("_run_state").is_empty(), "Reveal must wait for the room state to exist")
+			_expect(transition.destination.process_mode == Node.PROCESS_MODE_DISABLED, "Hidden room input must stay disabled through reveal")
+	)
+	transition.finished.connect(func(node: Node): result.append(node))
 
 func _test_loading_failure_preserves_save_and_recovers_focus() -> void:
 	var saved := RunEngine.new().create_new_run(82272, ProgressionStore.default_data())

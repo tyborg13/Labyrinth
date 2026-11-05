@@ -183,6 +183,9 @@ func _capture_states() -> void:
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
+	if DisplayServer.get_name() == "headless":
+		print("RUN END RECAP PROOF: HEADLESS ASSERTIONS ONLY; NO SCREENSHOTS")
+	print("RUN END RECAP: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
 func _capture_player_death_transition(instance: Node, terminal_state: Dictionary) -> void:
@@ -244,6 +247,7 @@ func _capture_player_death_transition(instance: Node, terminal_state: Dictionary
 			await process_frame
 			var cutout: Dictionary = board.call("protagonist_animation_snapshot") as Dictionary
 			var expected_phase: float = clampf(float(frame_spec["progress"]) / CutoutContext.DEATH_SETTLE_PROGRESS, 0, 1)
+			print("RECAP PLAYER DEATH progress=%.2f expected_phase=%.4f snapshot=%s" % [float(frame_spec["progress"]), expected_phase, cutout])
 			if str(cutout.get("clip", "")) != "death" or not is_equal_approx(float(cutout.get("phase", -1)), expected_phase) or int(cutout.get("texture_id", 0)) == 0:
 				_fail("Player cutout should render its death clip at the requested phase with approved art")
 			var rendered_death_units: Array = board.call("_death_animation_units_from_presentation") as Array
@@ -410,6 +414,8 @@ func _capture(filename: String) -> void:
 	var recap: Control = instance.get("_run_end_recap") as Control if instance != null else null
 	if recap != null and recap.visible:
 		_validate_score_geometry(recap)
+	if DisplayServer.get_name() == "headless":
+		return
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image.get_width() != _resolution.x or image.get_height() != _resolution.y:
 		# macOS exposes the Retina backing texture even though content_scale_size is
@@ -430,10 +436,16 @@ func _validate_score_geometry(recap: Control) -> void:
 			var label: Label = row.get_node("ScoreLabel")
 			var detail: Label = row.get_node("ScoreDetail")
 			var value: Label = row.get_node("ScorePoints")
+			if detail.has_node("DragonName0"):
+				preload("res://tests/ui10/fixture.gd").assert_dragons(recap, _assert_dragon_geometry)
+				continue
 			if detail.get_global_rect().position.x < label.get_global_rect().end.x or detail.get_global_rect().end.x > value.get_global_rect().position.x or value.get_global_rect().end.x > row.get_global_rect().end.x:
 				_fail("Score detail overlaps a label, value or next column: %s" % label.text)
-			if not detail.clip_text or detail.text_overrun_behavior != TextServer.OVERRUN_TRIM_ELLIPSIS or detail.tooltip_text != detail.text:
+			if not detail.has_node("DragonName0") and (not detail.clip_text or detail.text_overrun_behavior != TextServer.OVERRUN_TRIM_ELLIPSIS or detail.tooltip_text != detail.text):
 				_fail("Score details must truncate with ellipsis and a full tooltip: %s" % label.text)
+
+func _assert_dragon_geometry(condition: bool, message: String) -> void:
+	if not condition: _fail(message)
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]

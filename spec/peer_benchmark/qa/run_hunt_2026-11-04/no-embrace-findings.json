@@ -1,0 +1,6718 @@
+[
+  {
+    "severity": "script error",
+    "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "context": {
+      "seed": 3,
+      "section": -1,
+      "room_kind": "startup",
+      "decision": 0
+    },
+    "last_20_decisions": [],
+    "log_line": 11,
+    "log_lines": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)"
+    ],
+    "location": "platform/macos/os_macos.mm:1014",
+    "replay_script": "tools/run_hunt.gd",
+    "count": 4,
+    "seeds": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "seed": 3,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/godot.log",
+        "log_line": 11
+      },
+      {
+        "seed": 4,
+        "context": {
+          "seed": 4,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/godot.log",
+        "log_line": 11
+      },
+      {
+        "seed": 5,
+        "context": {
+          "seed": 5,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/godot.log",
+        "log_line": 11
+      },
+      {
+        "seed": 6,
+        "context": {
+          "seed": 6,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/godot.log",
+        "log_line": 11
+      }
+    ]
+  },
+  {
+    "severity": "warning",
+    "error": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+    "context": {
+      "decision": 2950,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "omen_combat_finished": true,
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 3
+    },
+    "last_20_decisions": [
+      {
+        "args": [
+          "(3, 4)"
+        ],
+        "context": {
+          "decision": 2931,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2931,
+        "kind": "blink",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2932,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2932,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(4, 4)"
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "waning_pulse",
+        "context": {
+          "decision": 2933,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2933,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2934,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2934,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 2935,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2935,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 5)"
+        ],
+        "context": {
+          "decision": 2936,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2936,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2937,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2937,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 4)"
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2938,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2938,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2939,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2939,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 2940,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2940,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(6, 4)"
+        ],
+        "context": {
+          "decision": 2941,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2941,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2942,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2942,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 2943,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2943,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 5)"
+        ],
+        "context": {
+          "decision": 2944,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2944,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "guarded_step",
+        "context": {
+          "decision": 2945,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2945,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "args": [
+          "(5, 5)"
+        ],
+        "context": {
+          "decision": 2946,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2946,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2947,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2947,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 3)"
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2948,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2948,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 4)"
+        ],
+        "context": {
+          "decision": 2949,
+          "mode": "combat",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": false,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2949,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2950,
+          "mode": "reward",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": true,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "omen_combat_finished": true,
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "decision": 2950,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@269808/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "COMPLETE ASCENT"
+      }
+    ],
+    "log_line": 3056,
+    "log_lines": [
+      "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+      "     at: cleanup (core/object/object.cpp:2641)"
+    ],
+    "location": "core/object/object.cpp:2641",
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      3
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "decision": 2950,
+          "mode": "victory",
+          "room": "(24, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "noctyrax",
+            "cleared": true,
+            "connections": [],
+            "coord": "(24, 0)",
+            "depth": 24,
+            "element": "shadow",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 12,
+            "merchant_kind": "",
+            "npcs": [],
+            "omen_combat_finished": true,
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/godot.log",
+        "log_line": 3056
+      }
+    ]
+  },
+  {
+    "severity": "warning",
+    "error": "WARNING: Relic glossary above-row overflow: RelicChoice_ember_siphon, viewport=(1920.0, 1920.0), block=(942.0, 88.0), top=1864.0, row_top=1964.0",
+    "context": {
+      "decision": 540,
+      "mode": "room",
+      "room": "(6, 3)",
+      "room_kind": "scavenger",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(5, 6)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, 3)",
+        "depth": 6,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 5,
+        "merchant_kind": "scavenger",
+        "merchant_purchased_items": [],
+        "merchant_refill_count": 0,
+        "merchant_sold_items": [],
+        "merchant_stock": [
+          "rite_of_the_pyre",
+          "sunlance",
+          "dawnstep",
+          "pilgrim_vestments",
+          "chain_guard",
+          "sawtooth_knife",
+          "flash_powder",
+          "throwing_net",
+          "bitter_tonic"
+        ],
+        "npcs": [
+          {
+            "id": "scavenger",
+            "pos": "(3, 4)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "scavenger",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 6
+    },
+    "last_20_decisions": [
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 521,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 521,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 522,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 522,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(4, 3)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 523,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 523,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 5)"
+        ],
+        "context": {
+          "decision": 524,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 524,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "brace",
+        "context": {
+          "decision": 525,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 525,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 526,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 526,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 527,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 527,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(3, 3)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 528,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 528,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(3, 1)"
+        ],
+        "context": {
+          "decision": 529,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 529,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 530,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 530,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(3, 1)"
+        ],
+        "context": {
+          "decision": 531,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 531,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "sidestep_slash",
+        "context": {
+          "decision": 532,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 532,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(3, 2)"
+        ],
+        "context": {
+          "decision": 533,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 533,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 534,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 534,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(3, 1)"
+        ],
+        "context": {
+          "decision": 535,
+          "mode": "combat",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 535,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 536,
+          "mode": "reward",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 536,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@36774/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "signal": "pressed",
+        "text": "SKIP & RECOVER  +3 HP   9888 → 9891"
+      },
+      {
+        "args": [
+          "(6, 3)"
+        ],
+        "context": {
+          "decision": 537,
+          "mode": "room",
+          "room": "(6, -3)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "air",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -3)",
+            "depth": 6,
+            "element": "earth",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 537,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      {
+        "context": {
+          "decision": 538,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "rite_of_the_pyre",
+              "sunlance",
+              "dawnstep",
+              "pilgrim_vestments",
+              "chain_guard",
+              "sawtooth_knife",
+              "flash_powder",
+              "throwing_net",
+              "bitter_tonic"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 538,
+        "kind": "side_escape"
+      },
+      {
+        "context": {
+          "decision": 539,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "rite_of_the_pyre",
+              "sunlance",
+              "dawnstep",
+              "pilgrim_vestments",
+              "chain_guard",
+              "sawtooth_knife",
+              "flash_powder",
+              "throwing_net",
+              "bitter_tonic"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 539,
+        "kind": "side_reduced_motion"
+      },
+      {
+        "args": [
+          "(5, 6)"
+        ],
+        "context": {
+          "decision": 540,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "rite_of_the_pyre",
+              "sunlance",
+              "dawnstep",
+              "pilgrim_vestments",
+              "chain_guard",
+              "sawtooth_knife",
+              "flash_powder",
+              "throwing_net",
+              "bitter_tonic"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "decision": 540,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      }
+    ],
+    "log_line": 572,
+    "log_lines": [
+      "WARNING: Relic glossary above-row overflow: RelicChoice_ember_siphon, viewport=(1920.0, 1920.0), block=(942.0, 88.0), top=1864.0, row_top=1964.0",
+      "     at: push_warning (core/variant/variant_utility.cpp:1034)",
+      "     GDScript backtrace (most recent call first):",
+      "         [0] _layout_choice (res://scripts/card_focus_tooltip_stack.gd:325)",
+      "         [1] _follow_target_now (res://scripts/card_focus_tooltip_stack.gd:241)",
+      "         [2] show_for (res://scripts/card_focus_tooltip_stack.gd:184)",
+      "         [3] show_relic (res://scripts/card_focus_tooltip_stack.gd:120)",
+      "         [4] _owner_interaction (res://scripts/card_focus_tooltip_stack.gd:59)",
+      "         [5] _play_treasure_room_reveal (res://scripts/run_scene.gd:27772)",
+      "         [6] _await_treasure_tween (res://scripts/run_scene.gd:27792)"
+    ],
+    "location": "res://scripts/card_focus_tooltip_stack.gd:325",
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      6
+    ],
+    "occurrences": [
+      {
+        "seed": 6,
+        "context": {
+          "decision": 540,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "rite_of_the_pyre",
+              "sunlance",
+              "dawnstep",
+              "pilgrim_vestments",
+              "chain_guard",
+              "sawtooth_knife",
+              "flash_powder",
+              "throwing_net",
+              "bitter_tonic"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 6
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/godot.log",
+        "log_line": 572
+      }
+    ]
+  },
+  {
+    "severity": "warning",
+    "error": "WARNING: Relic glossary above-row overflow: RelicChoice_hourglass_awl, viewport=(1920.0, 1920.0), block=(624.0, 88.0), top=1864.0, row_top=1964.0",
+    "context": {
+      "decision": 767,
+      "mode": "room",
+      "room": "(6, 3)",
+      "room_kind": "scavenger",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(5, 6)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, 3)",
+        "depth": 6,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 5,
+        "merchant_kind": "scavenger",
+        "merchant_purchased_items": [
+          "smoke_bomb"
+        ],
+        "merchant_refill_count": 1,
+        "merchant_sold_items": [],
+        "merchant_stock": [
+          "revealing_glare",
+          "volt_surge",
+          "molten_reach",
+          "lodestone_buckler",
+          "dust_tabi",
+          "quarrymail",
+          "pitch_firebomb",
+          "crimson_draught",
+          "frost_snare"
+        ],
+        "npcs": [
+          {
+            "id": "scavenger",
+            "pos": "(3, 4)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "scavenger",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 3
+    },
+    "last_20_decisions": [
+      {
+        "context": {
+          "decision": 748,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 748,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(1, 3)"
+      },
+      {
+        "context": {
+          "decision": 749,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 749,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(1, 4)"
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "patch_up",
+        "context": {
+          "decision": 750,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 750,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 751,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 751,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "shadow_step",
+        "context": {
+          "decision": 752,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 752,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "args": [
+          "(1, 2)"
+        ],
+        "context": {
+          "decision": 753,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 753,
+        "kind": "blink",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "waning_pulse",
+        "context": {
+          "decision": 754,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 754,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 755,
+          "mode": "combat",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 755,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 756,
+          "mode": "reward",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 756,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@47084/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "signal": "pressed",
+        "text": "SKIP & RECOVER  +3 HP   9770 → 9773"
+      },
+      {
+        "args": [
+          "(6, 3)"
+        ],
+        "context": {
+          "decision": 757,
+          "mode": "room",
+          "room": "(6, -2)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "biome": "fire",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(6, 3)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 4)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -2)",
+            "depth": 6,
+            "element": "fire",
+            "encounter_id": "t2_biome_element",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 757,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      {
+        "context": {
+          "decision": 758,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 758,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_dust_tabi/GearOffer_dust_tabi",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 759,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 759,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/MagicShelf/OfferRow/ShelfCubby_molten_reach/MagicOffer_molten_reach",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 760,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 760,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/MagicShelf/OfferRow/ShelfCubby_revealing_glare/MagicOffer_revealing_glare",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 761,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 761,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_smoke_bomb/ItemOffer_smoke_bomb",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 762,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 762,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_pitch_firebomb/ItemOffer_pitch_firebomb",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 763,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 763,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_lodestone_buckler/GearOffer_lodestone_buckler",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 764,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 764,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_smoke_bomb/ItemOffer_smoke_bomb",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 765,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "smoke_bomb",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 765,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ScavengerDetailPanel/ScavengerTradeActionButton",
+        "signal": "pressed",
+        "text": "Buy · 25 Embers"
+      },
+      {
+        "context": {
+          "decision": 766,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [
+              "smoke_bomb"
+            ],
+            "merchant_refill_count": 1,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "crimson_draught",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 766,
+        "kind": "leave_browse",
+        "method": "_on_merchant_hide_pressed"
+      },
+      {
+        "args": [
+          "(5, 6)"
+        ],
+        "context": {
+          "decision": 767,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [
+              "smoke_bomb"
+            ],
+            "merchant_refill_count": 1,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "crimson_draught",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "decision": 767,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      }
+    ],
+    "log_line": 799,
+    "log_lines": [
+      "WARNING: Relic glossary above-row overflow: RelicChoice_hourglass_awl, viewport=(1920.0, 1920.0), block=(624.0, 88.0), top=1864.0, row_top=1964.0",
+      "     at: push_warning (core/variant/variant_utility.cpp:1034)",
+      "     GDScript backtrace (most recent call first):",
+      "         [0] _layout_choice (res://scripts/card_focus_tooltip_stack.gd:325)",
+      "         [1] _follow_target_now (res://scripts/card_focus_tooltip_stack.gd:241)",
+      "         [2] show_for (res://scripts/card_focus_tooltip_stack.gd:184)",
+      "         [3] show_relic (res://scripts/card_focus_tooltip_stack.gd:120)",
+      "         [4] _owner_interaction (res://scripts/card_focus_tooltip_stack.gd:59)",
+      "         [5] _play_treasure_room_reveal (res://scripts/run_scene.gd:27772)",
+      "         [6] _await_treasure_tween (res://scripts/run_scene.gd:27792)"
+    ],
+    "location": "res://scripts/card_focus_tooltip_stack.gd:325",
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      3
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "decision": 767,
+          "mode": "room",
+          "room": "(6, 3)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(5, 6)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, 3)",
+            "depth": 6,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [
+              "smoke_bomb"
+            ],
+            "merchant_refill_count": 1,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "revealing_glare",
+              "volt_surge",
+              "molten_reach",
+              "lodestone_buckler",
+              "dust_tabi",
+              "quarrymail",
+              "pitch_firebomb",
+              "crimson_draught",
+              "frost_snare"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 3
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/godot.log",
+        "log_line": 799
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 2318,
+      "mode": "room",
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 5
+    },
+    "error": "tree_nodes grew more than 25% from section 0 to section 5 (1555 -> 2427)",
+    "last_20_decisions": [
+      {
+        "context": {
+          "decision": 2299,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2299,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2300,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2300,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(4, 4)"
+      },
+      {
+        "context": {
+          "decision": 2301,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2301,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(3, 4)"
+      },
+      {
+        "context": {
+          "decision": 2302,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2302,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 4)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2303,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2303,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 5)"
+        ],
+        "context": {
+          "decision": 2304,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2304,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "lantern_shot",
+        "context": {
+          "decision": 2305,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2305,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(7, 5)"
+        ],
+        "context": {
+          "decision": 2306,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2306,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2307,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2307,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(4, 4)"
+      },
+      {
+        "context": {
+          "decision": 2308,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2308,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 5)"
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "brace",
+        "context": {
+          "decision": 2309,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2309,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2310,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2310,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2311,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2311,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2312,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2312,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2313,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2313,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(3, 3)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "bloody_lunge",
+        "context": {
+          "decision": 2314,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2314,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 4)"
+        ],
+        "context": {
+          "decision": 2315,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2315,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "thorn_skewer",
+        "context": {
+          "decision": 2316,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2316,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 5)"
+        ],
+        "context": {
+          "decision": 2317,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2317,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2318,
+          "mode": "reward",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 5
+        },
+        "decision": 2318,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@279851/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "CONTINUE"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:258",
+    "severity": "leak",
+    "log_line": 2397,
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      5
+    ],
+    "occurrences": [
+      {
+        "seed": 5,
+        "context": {
+          "decision": 2318,
+          "mode": "room",
+          "room": "(-20, 0)",
+          "room_kind": "start",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(21, -21)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -20)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -19)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-20, 0)",
+            "depth": 20,
+            "element": "none",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 0,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "start",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 5
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/godot.log",
+        "log_line": 2397
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 2146,
+      "mode": "room",
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 4
+    },
+    "error": "tree_nodes grew more than 25% from section 0 to section 5 (1555 -> 2802)",
+    "last_20_decisions": [
+      {
+        "args": [
+          2
+        ],
+        "card_id": "patch_up",
+        "context": {
+          "decision": 2127,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2127,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2128,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2128,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2129,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2129,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "sidestep_slash",
+        "context": {
+          "decision": 2130,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2130,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(2, 1)"
+        ],
+        "context": {
+          "decision": 2131,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2131,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2132,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2132,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(4, 1)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2133,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2133,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2134,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2134,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2135,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2135,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(3, 5)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "waning_pulse",
+        "context": {
+          "decision": 2136,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2136,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2137,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2137,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "lantern_shot",
+        "context": {
+          "decision": 2138,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2138,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 5)"
+        ],
+        "context": {
+          "decision": 2139,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2139,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2140,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2140,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(4, 5)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "hamstring_shot",
+        "context": {
+          "decision": 2141,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2141,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 2142,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2142,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2143,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2143,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(5, 4)"
+      },
+      {
+        "args": [
+          5
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 2144,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2144,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(3, 4)"
+        ],
+        "context": {
+          "decision": 2145,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2145,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2146,
+          "mode": "reward",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "vaeloryx",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "air",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 4
+        },
+        "decision": 2146,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@156694/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "CONTINUE"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:258",
+    "severity": "leak",
+    "log_line": 2223,
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      4
+    ],
+    "occurrences": [
+      {
+        "seed": 4,
+        "context": {
+          "decision": 2146,
+          "mode": "room",
+          "room": "(-20, 0)",
+          "room_kind": "start",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(21, -21)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -20)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -19)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-20, 0)",
+            "depth": 20,
+            "element": "none",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 0,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "start",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 4
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/godot.log",
+        "log_line": 2223
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 2368,
+      "mode": "room",
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 3
+    },
+    "error": "tree_nodes grew more than 25% from section 0 to section 5 (1556 -> 2852)",
+    "last_20_decisions": [
+      {
+        "args": [
+          "(3, 4)"
+        ],
+        "context": {
+          "decision": 2349,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2349,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2350,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2350,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "shadow_step",
+        "context": {
+          "decision": 2351,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2351,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2352,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2352,
+        "kind": "blink",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "pale_spark",
+        "context": {
+          "decision": 2353,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2353,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 2354,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2354,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2355,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2355,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2356,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2356,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2357,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2357,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 2358,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2358,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          6
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 2359,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2359,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 3)"
+        ],
+        "context": {
+          "decision": 2360,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2360,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "bloody_lunge",
+        "context": {
+          "decision": 2361,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2361,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2362,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2362,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2363,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2363,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 4)"
+        ],
+        "context": {
+          "decision": 2364,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2364,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2365,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2365,
+        "kind": "move",
+        "preferred": false,
+        "tile": "(2, 2)"
+      },
+      {
+        "args": [
+          4
+        ],
+        "card_id": "updraft",
+        "context": {
+          "decision": 2366,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2366,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 2)"
+        ],
+        "context": {
+          "decision": 2367,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2367,
+        "kind": "push",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2368,
+          "mode": "reward",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "iskaldra",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "ice",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 3
+        },
+        "decision": 2368,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@269808/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "CONTINUE"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:258",
+    "severity": "leak",
+    "log_line": 2459,
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      3
+    ],
+    "occurrences": [
+      {
+        "seed": 3,
+        "context": {
+          "decision": 2368,
+          "mode": "room",
+          "room": "(-20, 0)",
+          "room_kind": "start",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(21, -21)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -20)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -19)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-20, 0)",
+            "depth": 20,
+            "element": "none",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 0,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "start",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 3
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/godot.log",
+        "log_line": 2459
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 2291,
+      "mode": "room",
+      "room": "(-20, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(21, -21)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -20)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(21, -19)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-20, 0)",
+        "depth": 20,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "start",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 6
+    },
+    "error": "tree_nodes grew more than 25% from section 0 to section 5 (1559 -> 2174)",
+    "last_20_decisions": [
+      {
+        "args": [
+          2
+        ],
+        "card_id": "whirlwind_slash",
+        "context": {
+          "decision": 2272,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2272,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2273,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2273,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          0
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2274,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2274,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 4)"
+        ],
+        "context": {
+          "decision": 2275,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2275,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2276,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2276,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(3, 3)"
+      },
+      {
+        "args": [
+          2
+        ],
+        "card_id": "hamstring_shot",
+        "context": {
+          "decision": 2277,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2277,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(2, 2)"
+        ],
+        "context": {
+          "decision": 2278,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2278,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2279,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2279,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "lantern_shot",
+        "context": {
+          "decision": 2280,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2280,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 4)"
+        ],
+        "context": {
+          "decision": 2281,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2281,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2282,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2282,
+        "kind": "move",
+        "preferred": true,
+        "tile": "(3, 3)"
+      },
+      {
+        "args": [
+          3
+        ],
+        "card_id": "dull_bolt",
+        "context": {
+          "decision": 2283,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2283,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(4, 4)"
+        ],
+        "context": {
+          "decision": 2284,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2284,
+        "kind": "ranged",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "patch_up",
+        "context": {
+          "decision": 2285,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2285,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "context": {
+          "decision": 2286,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2286,
+        "kind": "confirm_card",
+        "method": "_on_confirm_card_play_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "guarded_step",
+        "context": {
+          "decision": 2287,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2287,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": false
+      },
+      {
+        "args": [
+          "(3, 4)"
+        ],
+        "context": {
+          "decision": 2288,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2288,
+        "kind": "move",
+        "method": "_on_board_tile_clicked",
+        "preferred": false
+      },
+      {
+        "args": [
+          1
+        ],
+        "card_id": "quick_stab",
+        "context": {
+          "decision": 2289,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2289,
+        "kind": "card",
+        "method": "_on_card_pressed",
+        "preferred": true
+      },
+      {
+        "args": [
+          "(5, 4)"
+        ],
+        "context": {
+          "decision": 2290,
+          "mode": "combat",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2290,
+        "kind": "melee",
+        "method": "_on_board_tile_clicked",
+        "preferred": true
+      },
+      {
+        "context": {
+          "decision": 2291,
+          "mode": "reward",
+          "room": "(20, 0)",
+          "room_kind": "boss",
+          "room_metadata": {
+            "boss_id": "zekarion",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(-20, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(20, 0)",
+            "depth": 20,
+            "element": "lightning",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 11,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 4,
+            "type": "boss",
+            "visited": true
+          },
+          "section": 4,
+          "seed": 6
+        },
+        "decision": 2291,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@259334/RewardSecondaryActions/DragonRewardContinue",
+        "signal": "pressed",
+        "text": "CONTINUE"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:258",
+    "severity": "leak",
+    "log_line": 2381,
+    "replay_script": "tools/run_hunt.gd",
+    "count": 1,
+    "seeds": [
+      6
+    ],
+    "occurrences": [
+      {
+        "seed": 6,
+        "context": {
+          "decision": 2291,
+          "mode": "room",
+          "room": "(-20, 0)",
+          "room_kind": "start",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(21, -21)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -20)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(21, -19)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-20, 0)",
+            "depth": 20,
+            "element": "none",
+            "map_lane": 3.0,
+            "map_outline": true,
+            "map_step": 0,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 5,
+            "type": "start",
+            "visited": true
+          },
+          "section": 5,
+          "seed": 6
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/godot.log",
+        "log_line": 2381
+      }
+    ]
+  }
+]

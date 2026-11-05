@@ -1,0 +1,324 @@
+extends "res://tools/inspection_fixture.gd"
+# Read-only QA observer. Fixture/save writes are confined to runner-isolated user://.
+const SettingsQA = preload("res://scripts/settings_store.gd")
+const TutorialQA = preload("res://scripts/contextual_combat_tutorial.gd")
+const StripQA = preload("res://scripts/ui_card_strip.gd")
+const HealthQA = preload("res://scripts/event_health_strip.gd")
+const SIZE_QA := Vector2i(1920, 1080)
+const SETTLE_FRAMES_QA: int = 12
+const BOOT_SETTLE_FRAMES_QA: int = 30
+const STATE_SETTLE_FRAMES_QA: int = 20
+const SHORT_SETTLE_FRAMES_QA: int = 3
+const FRAME_PAIR_QA: int = 2
+const HOVER_REST_SAMPLE_FRAMES_QA: int = 4
+const HAND_COUNTS_QA: Array = [5, 3, 1, 0]
+const LAUNCH_LIMIT_SECONDS_QA: float = 60.0
+const INTRO_SETTLE_SECONDS_QA: float = 3.5
+const TERMINAL_SETTLE_SECONDS_QA: float = 6.0
+var qa_log: FileAccess
+var qa_output: String
+var qa_scene: Node
+var qa_surface: String
+
+func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
+	_options = _parse_args()
+	if not OS.get_cmdline_user_args().has("--seed"): _options["seed"] = 83
+	qa_surface = OS.get_environment("QA52_SURFACE")
+	if qa_surface.is_empty(): qa_surface = "all"
+	qa_output = OS.get_environment("QA52_OUTPUT")
+	if qa_output.is_empty(): qa_output = "res://spec/peer_benchmark/qa/polish_verify_2026-11-05/evidence/" + qa_surface
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(qa_output))
+	qa_log = FileAccess.open(qa_output.path_join("state.jsonl"), FileAccess.WRITE)
+	ProgressionStore.set_storage_path("user://qa52-profile.json")
+	ProgressionStore.set_run_storage_path("user://qa52-run.save")
+	SettingsQA.set_storage_path("user://qa52-settings.json")
+	var settings: Dictionary = SettingsQA.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["display_mode"] = SettingsQA.DISPLAY_WINDOWED
+	SettingsQA.save_settings(settings)
+	SettingsQA.apply_settings(settings, root, false)
+	root.size = SIZE_QA
+	root.content_scale_size = SIZE_QA
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_factor = 1.0
+	call_deferred("qa_run")
+
+func qa_run() -> void:
+	qa_record("environment", {"renderer": DisplayServer.get_name(), "viewport": root.get_visible_rect(), "ui_scale": 1.0})
+	if qa_surface == "continue":
+		await qa_continue()
+		qa_log.close()
+		print("QA52 CONTINUE OBSERVER COMPLETE output=" + ProjectSettings.globalize_path(qa_output))
+		quit(0)
+		return
+	if qa_surface in ["all", "data"]: await qa_data()
+	if qa_surface in ["all", "settings", "chronicle"]: await qa_menu()
+	var surfaces: Array = ["combat", "character", "pre_battle", "reward", "event", "scavenger", "purge", "start", "map", "treasure", "defeat", "victory", "guardian", "dragon", "graftwright"] if qa_surface in ["all", "scenes"] else [qa_surface]
+	for surface: String in surfaces:
+		if surface in ["settings", "chronicle", "data"]: continue
+		await qa_run_surface(surface)
+	qa_log.close()
+	print("QA52 OBSERVER COMPLETE surface=%s renderer=%s output=%s" % [qa_surface, DisplayServer.get_name(), ProjectSettings.globalize_path(qa_output)])
+	quit(0)
+
+func qa_record(kind: String, value: Variant) -> void:
+	qa_log.store_line(JSON.stringify({"kind": kind, "frame": Engine.get_process_frames(), "usec": Time.get_ticks_usec(), "value": value}))
+	qa_log.flush()
+
+func qa_settle(frames: int = SETTLE_FRAMES_QA) -> void:
+	for frame: int in range(frames):
+		await process_frame
+		# Semantic boundary only: dummy renderer does not emit completed draws.
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+
+func qa_capture(name: String, node: Node, settle_frames: int = SETTLE_FRAMES_QA) -> void:
+	await qa_settle(settle_frames)
+	qa_record(name, qa_tree(node))
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		var picture: Image = root.get_texture().get_image()
+		# Same normalization as production root screenshot helpers.
+		if picture.get_size() != SIZE_QA: picture.resize(SIZE_QA.x, SIZE_QA.y, Image.INTERPOLATE_LANCZOS)
+		var path: String = qa_output.path_join(name + ".png")
+		picture.save_png(path)
+		print("QA52 CAPTURE=" + ProjectSettings.globalize_path(path))
+
+func qa_tree(node: Node) -> Array:
+	var rows: Array = []
+	qa_walk(node, rows)
+	return rows
+
+func qa_walk(node: Node, rows: Array) -> void:
+	if node is Control:
+		var control := node as Control
+		var row: Dictionary = {"path": str(node.get_path()), "class": node.get_class(), "rect": control.get_global_rect(), "visible": control.is_visible_in_tree(), "local_visible": control.visible, "modulate": control.modulate, "self_modulate": control.self_modulate, "z": control.z_index, "mouse_filter": control.mouse_filter, "focus": control.has_focus(), "clip": control.clip_contents}
+		if node is Label or node is Button:
+			row["text"] = node.text
+			row["font_size"] = control.get_theme_font_size("font_size")
+			row["text_width"] = control.get_theme_font("font").get_string_size(node.text, HORIZONTAL_ALIGNMENT_LEFT, -1, row["font_size"]).x
+			row["font_color"] = control.get_theme_color("font_color")
+		if node is Label:
+			row["lines"] = node.get_line_count()
+			row["overrun"] = node.text_overrun_behavior
+		if node is Button:
+			row["disabled"] = node.disabled
+			row["icon"] = node.icon.resource_path if node.icon != null else ""
+			row["tooltip"] = node.tooltip_text
+		if node is RichTextLabel:
+			row["text"] = node.text
+			row["parsed_text"] = node.get_parsed_text()
+			row["lines"] = node.get_line_count()
+		if node is TextureRect and node.texture != null:
+			row["texture"] = node.texture.resource_path
+			row["texture_size"] = node.texture.get_size()
+		if node is Range: row["value"] = node.value
+		rows.append(row)
+	for child: Node in node.get_children(): qa_walk(child, rows)
+
+func qa_data() -> void:
+	for id: String in ["updraft", "crosswind", "razor_gale", "eye_of_the_storm", "cinder_fusillade", "firebrand_volley", "quick_stab", "volt_surge", "searing_light", "stoke", "tempest_form"]:
+		qa_record("card:" + id, GameData.card_def(id))
+	for path: String in ["res://fonts/LabyrinthCrumble-UI.tres", "res://fonts/LabyrinthCrumble-Text.tres", "res://fonts/LabyrinthCrumble-Display.tres"]:
+		var font: Font = load(path)
+		qa_record("font", {"path": path, "space_at_1000": font.get_string_size(" ", HORIZONTAL_ALIGNMENT_LEFT, -1, 1000).x, "n_at_1000": font.get_string_size("n", HORIZONTAL_ALIGNMENT_LEFT, -1, 1000).x})
+	for text: String in ["Crimson Draught", "Rite of the Mountain", "Shattered Reflection", "Cinderweave Guard", "Lodestone Reversal"]:
+		var strip := StripQA.new()
+		root.add_child(strip)
+		strip.size = Vector2(190, 30)
+		strip.setup("quick_stab", text)
+		await qa_capture("strip_" + text.to_snake_case(), strip)
+		strip.free()
+	var health := HealthQA.new()
+	root.add_child(health)
+	health.set_health(24, 24)
+	await qa_capture("event_health", health)
+	for amount: int in [-1, -12]:
+		health.beat("health", amount, false)
+		qa_record("event_damage:" + str(amount), qa_tree(health))
+		health.finish(24, 24)
+	health.free()
+
+func qa_menu() -> void:
+	ProgressionStore.clear_saved_run()
+	ProgressionStore.save_data(ProgressionStore.default_data())
+	var menu: Node = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	current_scene = menu
+	await qa_settle()
+	if qa_surface != "chronicle":
+		menu.call("_on_settings_button_pressed")
+		await qa_capture("settings", menu)
+		var panel: Node = menu.get("settings_panel")
+		panel.call("_show_restore_confirmation")
+		await qa_capture("restore", menu)
+		panel.call("_dismiss_restore_confirmation")
+		var outside: Vector2 = (menu.get("chronicle_button") as Control).get_global_rect().get_center()
+		for pressed: bool in [true, false]:
+			var click := InputEventMouseButton.new()
+			click.button_index = MOUSE_BUTTON_LEFT
+			click.pressed = pressed
+			click.position = menu.get_viewport().get_screen_transform() * outside
+			click.global_position = click.position
+			Input.parse_input_event(click)
+			Input.flush_buffered_events()
+			await qa_settle(FRAME_PAIR_QA)
+		qa_record("outside_settings_click", {"settings_visible": (menu.get("settings_panel") as Control).visible, "chronicle_opened": (menu.get("_chronicle") as Control).visible, "point": outside})
+		(menu.get("_chronicle") as Node).call("close")
+		menu.call("_on_settings_back_button_pressed")
+	if qa_surface != "settings":
+		menu.call("_on_chronicle_button_pressed")
+		await qa_capture("chronicle_empty", menu)
+	menu.queue_free()
+	await qa_settle(FRAME_PAIR_QA)
+
+func qa_run_surface(surface: String) -> void:
+	var scenario: String = surface
+	if surface == "purge": scenario = "scavenger"
+	if surface == "map": scenario = "start"
+	if surface == "boon": scenario = "start"
+	var profile: Dictionary = TutorialQA.complete_tutorial(ProgressionStore.default_data())
+	_options["held_embers"] = 1000
+	_options["embers"] = 1000
+	_options["attuned_magic"] = "updraft,crosswind,razor_gale,eye_of_the_storm,cinder_fusillade,volt_surge,molten_reach"
+	_options["item_inventory"] = "crimson_draught,mossglass_elixir"
+	_options["equipment_inventory"] = "iron_cleaver,duelist_rapier"
+	_options["equip"] = "iron_cleaver"
+	if surface == "combat": _options["hand"] = "quick_stab,volt_surge,whetstone,tempest_form,updraft"
+	else: _options["hand"] = ""
+	var state: Dictionary = _build_run_state(scenario, profile)
+	if surface == "boon": state = preload("res://tests/helpers/opening_boon_fixture.gd").force_boon("elemental_gift")
+	if state.is_empty() or _failed:
+		qa_record("fixture_failed:" + surface, state)
+		return
+	if surface == "victory": state["run_stats"]["dragons_slain"] = ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]
+	if surface in ["defeat", "victory"]:
+		# Inspect the recap after the existing optional heirloom decision.
+		state = preload("res://scripts/opening_boon_rules.gd").leave_heirloom(state, "")
+	ProgressionStore.save_data(profile)
+	ProgressionStore.save_run_state(state)
+	qa_scene = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(qa_scene)
+	current_scene = qa_scene
+	await qa_settle(BOOT_SETTLE_FRAMES_QA)
+	# Direct scene construction follows the test-fixture path. Unlike Continue,
+	# it does not install the resume intent, so explicitly load the built state.
+	qa_scene.call("_load_run_state", state)
+	await qa_settle(STATE_SETTLE_FRAMES_QA)
+	if surface in ["reward", "treasure"]: await create_timer(INTRO_SETTLE_SECONDS_QA).timeout
+	if surface in ["defeat", "victory"]:
+		await create_timer(TERMINAL_SETTLE_SECONDS_QA).timeout
+		var recap: Node = qa_scene.get("_run_end_recap")
+		if recap != null: recap.call("seek_presentation", recap.call("presentation_duration"))
+	qa_scene.call("_close_dialogue")
+	if surface not in ["start", "map"]: qa_scene.call("_close_large_map")
+	if surface == "character": qa_scene.call("_open_character_overlay", "equipment")
+	if surface == "purge": qa_scene.call("_open_magic_purge", "scavenger")
+	if surface == "map": qa_scene.call("_open_large_map")
+	if surface == "boon": qa_scene.get("_opening_boon_flow").call("show_offers", qa_scene)
+	if surface == "graftwright": qa_record("graftwright_room_layout", state.get("current_room_layout", {}))
+	qa_record("fixture_mode:" + surface, {"expected": state["mode"], "actual": (qa_scene.get("_run_state") as Dictionary).get("mode")})
+	await qa_capture(surface, qa_scene)
+	if surface == "combat": await qa_combat()
+	if surface == "reward":
+		qa_record("reward_notice", state.get("notice"))
+		qa_scene.call("_finish_reward_intro")
+		await qa_capture("reward_settled", qa_scene)
+		var live: Dictionary = qa_scene.get("_run_state")
+		live["notice"] = ""
+		live[preload("res://scripts/grimoire_library.gd").NOTICE_KEY] = ""
+		qa_scene.call("_refresh_ui")
+		await qa_capture("reward_empty_notice", qa_scene)
+		live["notice"] = "Added 9 entries to the Grimoire."
+		qa_scene.call("_refresh_ui")
+		await qa_capture("reward_notice", qa_scene)
+	if surface == "character":
+		qa_scene.call("_open_character_overlay", "magic")
+		await qa_capture("character_magic", qa_scene)
+	if surface == "purge":
+		var overlay: Node = qa_scene.get("_magic_purge_overlay")
+		if overlay != null:
+			overlay.call("select_card", "updraft")
+			await qa_capture("purge_confirmation", qa_scene)
+	if surface == "map":
+		var panel: Node = qa_scene.get("_large_map_view")
+		panel.set("scout_targeting", true)
+		for room: Dictionary in (state["rooms"] as Dictionary).values():
+			if str(room.get("type", "")) == "mystery":
+				qa_record("scout_mystery", {"room": room, "description": panel.call("room_description", room["coord"]), "can_activate": panel.call("can_activate_room", room["coord"])})
+	qa_scene.queue_free()
+	await qa_settle(SHORT_SETTLE_FRAMES_QA)
+
+func qa_combat() -> void:
+	for step: Dictionary in [{"kind": "status_damage", "label": "Fire", "amount": 3, "tile": Vector2i.ZERO, "actor_key": "player"}, {"kind": "retaliate", "amount": 3}, {"kind": "quicken", "amount": 1}, {"kind": "next_attack", "amount": 3}, {"kind": "block", "amount": 3, "tile": Vector2i.ZERO}]:
+		qa_record("step_popup", {"step": step, "popups": qa_scene.call("_floating_texts_for_step", step)})
+	qa_scene.call("_set_action_banner", "Stonewake")
+	await qa_capture("action_caption", qa_scene.get("action_banner"))
+	var hand: Control = qa_scene.get("hand_box")
+	var widget: Control = qa_scene.call("_hand_card_control", 0)
+	if widget == null:
+		qa_record("combat_hand_unavailable", {"mode": (qa_scene.get("_run_state") as Dictionary).get("mode"), "child_count": hand.get_child_count()})
+		return
+	var point: Vector2 = widget.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = qa_scene.get_viewport().get_screen_transform() * point
+	motion.global_position = motion.position
+	Input.parse_input_event(motion)
+	Input.flush_buffered_events()
+	await qa_settle(STATE_SETTLE_FRAMES_QA)
+	qa_record("pointer_hover", qa_hover(hand))
+	qa_scene.call("_on_card_pressed", 0)
+	await qa_settle(SHORT_SETTLE_FRAMES_QA)
+	qa_scene.call("_cancel_card_selection", true)
+	for frame: int in range(STATE_SETTLE_FRAMES_QA):
+		await process_frame
+		qa_record("deselect", qa_hover(hand))
+	qa_scene.call("_on_card_hover_started", 0)
+	await qa_settle(HOVER_REST_SAMPLE_FRAMES_QA)
+	qa_scene.call("_on_card_hover_started", 1)
+	qa_record("hover_rest", qa_hover(hand))
+	await qa_capture("hover", qa_scene)
+	var combat: Dictionary = qa_scene.get("_combat_state")
+	for count: int in HAND_COUNTS_QA:
+		var copy: Dictionary = combat.duplicate(true)
+		copy["deck"]["hand"] = (combat["deck"]["hand"] as Array).slice(0, count)
+		qa_scene.set("_combat_state", copy)
+		qa_scene.call("_refresh_hand_panel")
+		await qa_settle(STATE_SETTLE_FRAMES_QA)
+		qa_record("hand_count:" + str(count), qa_tree(qa_scene))
+
+func qa_hover(hand: Control) -> Dictionary:
+	return {"hovered": qa_scene.get("_hovered_card_index"), "selected": qa_scene.get("_selected_card_index"), "emphasized": hand.call("emphasized_index"), "strength": hand.call("emphasis_strength"), "sliding": hand.call("is_sliding"), "under_pointer": qa_scene.call("_hand_index_under_pointer"), "rest_pending": qa_scene.get("_hand_hover_rest_pending"), "pointer": root.get_mouse_position()}
+
+func qa_continue() -> void:
+	var fresh: bool = OS.get_environment("QA52_FRESH") == "1"
+	var profile: Dictionary = ProgressionStore.default_data() if fresh else TutorialQA.complete_tutorial(ProgressionStore.default_data())
+	if not fresh:
+		# Apply the explicit debug fixture flags, including skill-gated dialogs.
+		var requested: Dictionary = _build_progression()
+		profile.merge(requested, true)
+		profile = TutorialQA.complete_tutorial(profile)
+	ProgressionStore.save_data(profile)
+	if fresh: ProgressionStore.clear_saved_run()
+	else: ProgressionStore.save_run_state(_build_run_state(str(_options.get("scenario", "combat")), profile))
+	var menu: Node = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	current_scene = menu
+	await qa_settle()
+	var started: int = Time.get_ticks_msec()
+	var next_sample: int = started
+	qa_record("launch_kind", "new_run" if fresh else "continue")
+	menu.call("_on_start_button_pressed" if fresh else "_on_continue_button_pressed")
+	while Time.get_ticks_msec() - started < int(LAUNCH_LIMIT_SECONDS_QA * 1000):
+		await process_frame
+		if Time.get_ticks_msec() >= next_sample:
+			next_sample += 1000
+			var transition: Node = root.find_child("MenuRunTransition", true, false)
+			if transition != null:
+				qa_record("continue_phase", {"elapsed_ms": Time.get_ticks_msec() - started, "phase": transition.get("phase"), "performance": transition.call("performance_snapshot")})
+		if current_scene != null and current_scene.has_method("initial_presentation_is_ready") and bool(current_scene.call("initial_presentation_is_ready")):
+			qa_record("continue_ready", {"elapsed_ms": Time.get_ticks_msec() - started})
+			await qa_capture("continue_ready", current_scene)
+			return
+	qa_record("continue_timeout", {"elapsed_ms": Time.get_ticks_msec() - started, "tree": qa_tree(root)})

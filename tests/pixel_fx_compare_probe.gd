@@ -5,6 +5,7 @@ extends "res://tests/elemental_spell_effects_probe.gd"
 ## director data or changing gameplay timing. Crops and sheets are debug proof.
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
+const ProofStrip = preload("res://tests/helpers/proof_strip.gd")
 const COMPARE_OUTPUT: String = "user://probes/pixel_fx_compare"
 const CROP_SIZE := Vector2i(640, 360)
 const CROP_LIFT := Vector2(0, -110)
@@ -27,15 +28,7 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(COMPARE_OUTPUT)
 	await _capture_elemental_states()
 	for element: String in _requested_elements():
-		var sheet := Image.create(CROP_SIZE.x * 2, CROP_SIZE.y * SHEET_PHASES.size(), false, Image.FORMAT_RGBA8)
-		for row: int in range(SHEET_PHASES.size()):
-			for column: int in range(2):
-				var variant: String = "off" if column == 0 else "on"
-				var key: String = "%s_%s_%s" % [element, SHEET_PHASES[row], variant]
-				_expect(_sheet_crops.has(key), "Contact sheet must include " + key)
-				if _sheet_crops.has(key):
-					sheet.blit_rect(_sheet_crops[key], Rect2i(Vector2i.ZERO, CROP_SIZE), Vector2i(column * CROP_SIZE.x, row * CROP_SIZE.y))
-		_expect(sheet.save_png(COMPARE_OUTPUT.path_join(element + "_contact_sheet_off_on.png")) == OK, "Save contact sheet")
+		_save_comparison_sheet(element)
 	var manifest := FileAccess.open(COMPARE_OUTPUT.path_join("comparison.json"), FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"captures": _captures, "sheet_rows": SHEET_PHASES, "sheet_columns": ["off", "on"], "crop_scale": 3}, "\t"))
 	Pixel.review_enabled_override = null
@@ -44,6 +37,17 @@ func _initialize() -> void:
 		push_error(failure)
 	print("PIXEL FX COMPARE PROBE: " + ("PASS" if _failures.is_empty() else "FAIL"))
 	quit(0 if _failures.is_empty() else 1)
+
+func _save_comparison_sheet(element: String) -> void:
+	var frames: Array[Image]
+	for row: int in range(SHEET_PHASES.size()):
+		for column: int in range(2):
+			var variant: String = "off" if column == 0 else "on"
+			var key: String = "%s_%s_%s" % [element, SHEET_PHASES[row], variant]
+			_expect(_sheet_crops.has(key), "Contact sheet must include " + key)
+			if _sheet_crops.has(key):
+				frames.append(_sheet_crops[key])
+	_expect(ProofStrip.save_png(frames, 2, COMPARE_OUTPUT.path_join(element + "_contact_sheet_off_on.png"), CROP_SIZE) == OK, "Save contact sheet")
 
 func _render_and_capture(instance: Node, combat_state: Dictionary, presentation: Dictionary, file_name: String) -> void:
 	_subject = instance

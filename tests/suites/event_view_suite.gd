@@ -29,9 +29,13 @@ const PAINTING_CENTRAL_FRACTION: float = 0.4
 const MOTION_SWITCH_PROOF_SECONDS: float = 0.2
 const MOTION_RECHECK_PROOF_SECONDS: float = 0.12
 
-static func fixture(id: String, rich: bool = false) -> Dictionary:
-	var engine := Run.new()
-	var state: Dictionary = engine.create_new_run(FIXTURE_SEED, Store.default_data())
+static func fixture(id: String, rich: bool = false, template: Dictionary = {}) -> Dictionary:
+	var state: Dictionary
+	if template.is_empty():
+		var engine := Run.new()
+		state = engine.create_new_run(FIXTURE_SEED, Store.default_data())
+	else:
+		state = template.duplicate(true)
 	for room: Dictionary in state["rooms"].values():
 		if str(room.get("type", "")) != "event": continue
 		state["current_room"] = room["coord"]
@@ -75,9 +79,12 @@ static func _run_scoped(_globals: TestClock.GlobalScope, expect: Callable) -> vo
 	viewport.add_child(view)
 	var fitted_pages: int = 0
 	var engine := Run.new()
+	# Fit cases vary only event id and inventory richness, and never write
+	# history. Each receives its own complete production run, including graph.
+	var fixture_base: Dictionary = engine.create_new_run(FIXTURE_SEED, Store.default_data())
 	for rich: bool in [false, true]:
 		for id: String in Data.events():
-			var state: Dictionary = fixture(id, rich)
+			var state: Dictionary = fixture(id, rich, fixture_base)
 			view.present(state, true)
 			view.finish_animation_for_test()
 			for frame: int in range(FIXTURE_FRAMES): await tree.process_frame

@@ -1,0 +1,6 @@
+ISOLATION AUDIT: 55 modules
+SELECTED MODULES: 19 of 55
+Ran 182 tests in 37.347s
+OK
+Exit 0
+Optional untracked timing-cache write denied by read-only Git metadata.

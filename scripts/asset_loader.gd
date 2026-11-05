@@ -27,7 +27,22 @@ static var _looping_audio_cache: Dictionary = {}
 static var _font_cache: Dictionary = {}
 static var _texture_cache: Dictionary = {}
 
-# The worker owns only its newly decoded CPU Image. Texture creation, source
+# The source texture owns this guard; the cache holds rectangles only. Atlas
+# keys use the source's instance ID, so keep them until that source is freed,
+# even if the particular AtlasTexture that first populated a key dies sooner.
+class TextureBoundsLifetime extends RefCounted:
+	var cache: Dictionary
+	var keys: Dictionary = {}
+
+	func _init(bounds_cache: Dictionary) -> void:
+		cache = bounds_cache
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_PREDELETE:
+			for key: String in keys:
+				cache.erase(key)
+
+# Each worker owns only its newly decoded CPU Image. Texture creation, source
 # tagging and the shared caches stay on the main thread. The drain joins the
 # outstanding task on tree shutdown; cancellation never publishes into a freed
 # scene and every pool task is reclaimed, including interrupted transitions.
@@ -51,12 +66,28 @@ class SourceImageResult extends RefCounted:
 
 class SourceImageDrain extends Node:
 	var task_id: int = -1
+	var group_id: int = -1
 	var result: SourceImageResult
+	var imports: PackedStringArray
+	var resources: Array[Resource]
+
+	func decode_completed() -> bool:
+		return group_id < 0 or WorkerThreadPool.is_group_task_completed(group_id)
 
 	func join() -> void:
+		if group_id >= 0:
+			WorkerThreadPool.wait_for_group_task_completion(group_id)
+			group_id = -1
 		if task_id >= 0:
 			WorkerThreadPool.wait_for_task_completion(task_id)
 			task_id = -1
+
+		# Requests retain their resources until the ordinary cache publishes
+		# them. Even a removed owner must join every accepted engine request.
+		for path: String in imports:
+			var resource: Resource = ResourceLoader.load_threaded_get(path)
+			if resource != null: resources.append(resource)
+		imports.clear()
 
 	func _exit_tree() -> void:
 		if result != null: result.cancel()
@@ -76,10 +107,24 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 			source_paths[path] = drain.result.paths.size()
 			drain.result.paths.append(path)
 	if not drain.result.paths.is_empty():
-		# One worker decodes the batch continuously instead of charging a whole
-		# display interval per small asset. Inputs remain immutable; the result
-		# array transfers to the main thread only after the pool task is joined.
-		drain.task_id = WorkerThreadPool.add_task(_decode_owned_source_images.bind(drain.result), false, "Decode initial source images")
+		# Allocate once on the main thread. Each group element owns one slot;
+		# workers never resize the array or publish textures/shared cache entries.
+		drain.result.images.resize(drain.result.paths.size())
+		var worker_count: int = maxi(1, mini(OS.get_processor_count(), drain.result.paths.size()))
+		drain.group_id = WorkerThreadPool.add_group_task(_decode_owned_source_image.bind(drain.result), drain.result.paths.size(), worker_count, false, "Decode initial source images")
+	# Imported lossless textures otherwise decode synchronously, one per main
+	# thread load(). Independent requests let the engine decode them in parallel;
+	# publication below still follows the original manifest order and loader.
+	for path: String in manifest:
+		if _texture_cache.has(path) or source_paths.has(path) or not ResourceLoader.exists(path): continue
+		if ResourceLoader.load_threaded_request(path, "Texture2D") == OK: drain.imports.append(path)
+	while _imports_in_progress(drain.imports) or not drain.decode_completed():
+		await present_frame.call()
+		if not is_instance_valid(drain) or not drain.is_inside_tree(): return
+		if still_active.is_valid() and not bool(still_active.call()): drain.result.cancel()
+	# Retain completed imports before calling load_texture, so ResourceLoader
+	# returns exactly the imported resource and its original import settings.
+	drain.join()
 	var slice_started: int = Time.get_ticks_usec()
 	for path: String in manifest:
 		if still_active.is_valid() and not bool(still_active.call()):
@@ -91,12 +136,6 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 			await present_frame.call()
 			if not is_instance_valid(drain) or not drain.is_inside_tree(): return
 			slice_started = Time.get_ticks_usec()
-	if drain.task_id >= 0:
-		while not WorkerThreadPool.is_task_completed(drain.task_id):
-			await present_frame.call()
-			if not is_instance_valid(drain) or not drain.is_inside_tree(): return
-			if still_active.is_valid() and not bool(still_active.call()): drain.result.cancel()
-		drain.join()
 	if not drain.result.is_cancelled():
 		slice_started = Time.get_ticks_usec()
 		for path: String in source_paths:
@@ -114,6 +153,11 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 				if not is_instance_valid(drain) or not drain.is_inside_tree(): return
 				slice_started = Time.get_ticks_usec()
 	drain.queue_free()
+
+static func _imports_in_progress(paths: PackedStringArray) -> bool:
+	for path: String in paths:
+		if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS: return true
+	return false
 
 # Producers must create private CPU data only: no scene nodes, GPU objects or
 # shared-cache mutation. The main-thread caller owns publication after the join.
@@ -176,10 +220,8 @@ static func _new_looping_audio_copy(resource: AudioStream) -> AudioStream:
 		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
 	return looped
 
-static func _decode_owned_source_images(result: SourceImageResult) -> void:
-	for path: String in result.paths:
-		if result.is_cancelled(): return
-		result.images.append(_load_source_image(path))
+static func _decode_owned_source_image(index: int, result: SourceImageResult) -> void:
+	if not result.is_cancelled(): result.images[index] = _load_source_image(result.paths[index])
 
 static func add_texture_constants(manifest: Dictionary, script: Script) -> void:
 	# Constants are the owning loader's asset manifest. Do not walk preloaded
@@ -609,13 +651,23 @@ static func texture_used_rect(texture: Texture2D) -> Rect2i:
 	var used_rect := Rect2i()
 	if image != null and not image.is_empty():
 		used_rect = image.get_used_rect()
-	_texture_used_rect_cache[cache_key] = used_rect
+	cache_texture_used_rect(texture, used_rect)
 	return used_rect
 
 static func cache_texture_used_rect(texture: Texture2D, used_rect: Rect2i) -> void:
 	if texture == null:
 		return
-	_texture_used_rect_cache[_texture_processing_cache_key(texture)] = used_rect
+	var cache_key: String = _texture_processing_cache_key(texture)
+	_texture_used_rect_cache[cache_key] = used_rect
+	var source: Texture2D = texture
+	while source is AtlasTexture:
+		source = (source as AtlasTexture).atlas
+	if source == null or not source.resource_path.is_empty():
+		return
+	if not source.has_meta("asset_bounds_lifetime"):
+		source.set_meta("asset_bounds_lifetime", TextureBoundsLifetime.new(_texture_used_rect_cache))
+	var lifetime: TextureBoundsLifetime = source.get_meta("asset_bounds_lifetime")
+	lifetime.keys[cache_key] = true
 
 static func texture_source_image(texture: Texture2D) -> Image:
 	if texture == null:

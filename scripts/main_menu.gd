@@ -174,6 +174,9 @@ var _loading_error: AcceptDialog
 var _umbra_primary_button: Button
 var _umbra_normal_style: StyleBoxFlat
 var _umbra_selected_style: StyleBoxFlat
+var _settings_input_blocker: Control
+var _settings_menu_input: Dictionary = {}
+var _settings_menu_selection: Button
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -188,9 +191,19 @@ func _ready() -> void:
 	_chronicle.name = "ChroniclePanel"
 	add_child(_chronicle)
 	_chronicle.closed.connect(_on_chronicle_closed)
+	_chronicle.visibility_changed.connect(_on_chronicle_visibility_changed)
 	_initialize_title_arrays()
 	_connect_steam_service()
 	settings_back_button = settings_panel.call("back_button") as Button
+	_settings_input_blocker = Control.new()
+	_settings_input_blocker.name = "SettingsModalInputBlocker"
+	_settings_input_blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	_settings_input_blocker.visible = false
+	add_child(_settings_input_blocker)
+	_settings_input_blocker.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	move_child(_settings_input_blocker, settings_panel.get_index())
+	settings_panel.visibility_changed.connect(_sync_settings_modality)
+	get_viewport().gui_focus_changed.connect(_keep_settings_focus)
 	if settings_panel.has_signal("back_requested"):
 		settings_panel.connect("back_requested", Callable(self, "_on_settings_back_button_pressed"))
 	resized.connect(_update_layout)
@@ -237,7 +250,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_instance_valid(_new_descent_panel): return
 	if _loading_run or (_chronicle != null and _chronicle.visible):
 		return
-	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _replacement_confirmation_open:
 			_on_replacement_cancel_button_pressed()
 			get_viewport().set_input_as_handled()
@@ -516,6 +529,9 @@ func _on_umbra_button_departed() -> void:
 	call_deferred("_restore_umbra_selection")
 
 func _restore_umbra_selection() -> void:
+	if settings_panel.visible:
+		_set_umbra_selected_button(null)
+		return
 	# Explicit activation and navigation focus outrank a stale pointer hover.
 	# Keep these as full passes so menu order cannot let an earlier hovered
 	# action override a later focused action during deferred restoration.
@@ -791,7 +807,7 @@ func _update_layout() -> void:
 	var profile_width: float = minf(menu_width + 72.0, viewport_size.x - margin_x * 2.0)
 	var profile_height: float = 86.0
 	var profile_y: float = viewport_size.y - profile_height - clampf(viewport_size.y * 0.055, 34.0, 64.0)
-	profile_block.visible = profile_y > menu_y + _menu_column_height(button_height) + 16.0
+	profile_block.visible = not _chronicle.visible and profile_y > menu_y + _menu_column_height(button_height) + 16.0
 	profile_block.position = Vector2(margin_x, profile_y)
 	profile_block.size = Vector2(profile_width, profile_height)
 
@@ -985,6 +1001,8 @@ func _is_keyboard_navigation_event(event: InputEvent) -> bool:
 
 func _menu_or_settings_has_focus() -> bool:
 	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if settings_panel.visible:
+		return focus_owner != null and (focus_owner == settings_panel or settings_panel.is_ancestor_of(focus_owner))
 	return focus_owner != null and (is_ancestor_of(focus_owner) or settings_panel == focus_owner or settings_panel.is_ancestor_of(focus_owner))
 
 func _clear_menu_keyboard_focus() -> void:
@@ -1109,6 +1127,37 @@ func _on_chronicle_closed() -> void:
 		_controller_prompt_bar.modulate.a = 1
 	_using_keyboard_navigation = true
 	chronicle_button.grab_focus()
+
+func _sync_settings_modality() -> void:
+	# Block the backdrop without changing the menu's enabled/disabled artwork.
+	_settings_input_blocker.visible = settings_panel.visible
+	if settings_panel.visible:
+		for button: Button in _umbra_menu_buttons():
+			if _settings_menu_input.has(button): continue
+			_settings_menu_input[button] = {"mouse_filter": button.mouse_filter, "focus_mode": button.focus_mode}
+			if bool(button.get_meta(UMBRA_SELECTION_META, false)): _settings_menu_selection = button
+			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			button.focus_mode = Control.FOCUS_NONE
+		_set_umbra_selected_button(null)
+	else:
+		for button: Button in _settings_menu_input:
+			if not is_instance_valid(button): continue
+			button.mouse_filter = int(_settings_menu_input[button]["mouse_filter"])
+			button.focus_mode = int(_settings_menu_input[button]["focus_mode"])
+		_settings_menu_input.clear()
+		if is_instance_valid(_settings_menu_selection): _set_umbra_selected_button(_settings_menu_selection)
+		_settings_menu_selection = null
+		call_deferred("_restore_umbra_selection")
+
+func _keep_settings_focus(control: Control) -> void:
+	if settings_panel.visible and control != null and control != settings_panel and not settings_panel.is_ancestor_of(control):
+		settings_back_button.grab_focus()
+
+func _on_chronicle_visibility_changed() -> void:
+	# The panel's existing ScreenCrossfade covers this same-frame heading swap.
+	for control: Control in [title_label, title_shadow_label, title_rim_label, title_face_blend]:
+		control.visible = not _chronicle.visible
+	_update_layout()
 
 func _on_settings_button_pressed() -> void:
 	if _loading_run:

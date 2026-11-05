@@ -8,6 +8,11 @@ const SETTINGS_SCHEMA: int = 1
 
 const DISPLAY_FULLSCREEN: String = "fullscreen"
 const DISPLAY_WINDOWED: String = "windowed"
+const EDGE_SMOOTHING_HIGH: String = "high"
+const EDGE_SMOOTHING_LOW: String = "low"
+const EDGE_SMOOTHING_OFF: String = "off"
+const STEAM_DECK_EDGE_SMOOTHING_DEFAULT: String = EDGE_SMOOTHING_OFF
+const EDGE_SMOOTHING_VIEWPORT_GROUP: StringName = &"settings_edge_smoothing_viewports"
 const DIALOGUE_STANDARD: String = "standard"
 const DIALOGUE_FAST: String = "fast"
 const DIALOGUE_INSTANT: String = "instant"
@@ -86,6 +91,7 @@ static func default_settings() -> Dictionary:
 		"sfx_volume": 0.80,
 		"display_mode": DISPLAY_FULLSCREEN,
 		"ui_scale": default_ui_scale(),
+		"edge_smoothing": default_edge_smoothing(),
 		"dialogue_speed": DIALOGUE_STANDARD,
 		"combat_speed": COMBAT_NORMAL,
 		"hero_facing": "persist",
@@ -94,6 +100,9 @@ static func default_settings() -> Dictionary:
 
 static func default_ui_scale(deck_platform: bool = InputRouterScript.platform_is_steam_deck()) -> float:
 	return 1.15 if deck_platform else 1.00
+
+static func default_edge_smoothing() -> String:
+	return STEAM_DECK_EDGE_SMOOTHING_DEFAULT if OS.get_environment("SteamDeck") == "1" else EDGE_SMOOTHING_HIGH
 
 static func normalize_settings(data: Variant) -> Dictionary:
 	var defaults: Dictionary = default_settings()
@@ -109,6 +118,8 @@ static func normalize_settings(data: Variant) -> Dictionary:
 		display_mode = str(defaults["display_mode"])
 	normalized["display_mode"] = display_mode
 	normalized["ui_scale"] = nearest_supported_ui_scale(_number_or_default(source.get("ui_scale"), float(defaults["ui_scale"])))
+	var edge_smoothing: String = str(source.get("edge_smoothing", defaults["edge_smoothing"]))
+	normalized["edge_smoothing"] = edge_smoothing if edge_smoothing in [EDGE_SMOOTHING_HIGH, EDGE_SMOOTHING_LOW, EDGE_SMOOTHING_OFF] else defaults["edge_smoothing"]
 	var dialogue_speed: String = str(source.get("dialogue_speed", defaults["dialogue_speed"]))
 	if dialogue_speed not in [DIALOGUE_STANDARD, DIALOGUE_FAST, DIALOGUE_INSTANT]:
 		dialogue_speed = str(defaults["dialogue_speed"])
@@ -133,15 +144,33 @@ static func load_settings() -> Dictionary:
 	return normalize_settings(json.data)
 
 static func save_settings(settings: Dictionary) -> bool:
-	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.WRITE)
+	var normalized: Dictionary = normalize_settings(settings)
+	var payload: String = JSON.stringify(normalized, "\t")
+	var temp_path: String = "%s.tmp" % _storage_path
+	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify(normalize_settings(settings), "\t"))
+	file.store_string(payload)
+	file.flush()
+	var write_error: Error = file.get_error()
+	file.close()
+	# Validate before replacing the live file. An interrupted temp file is never
+	# loaded; malformed live settings retain the existing defaults fallback.
+	var written: String = FileAccess.get_file_as_string(temp_path)
+	if write_error != OK or written != payload or typeof(JSON.parse_string(written)) != TYPE_DICTIONARY:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
+		return false
+	# Same-directory rename replaces the destination without exposing a partial
+	# settings file or a gap where an existing valid profile is missing.
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), ProjectSettings.globalize_path(_storage_path)) != OK:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
+		return false
 	return true
 
 static func clear_storage() -> void:
-	if FileAccess.file_exists(_storage_path):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(_storage_path))
+	for path: String in [_storage_path, "%s.tmp" % _storage_path]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 static func restore_defaults(window: Window = null) -> Dictionary:
 	var settings: Dictionary = default_settings()
@@ -153,11 +182,37 @@ static func apply_settings(settings: Dictionary, window: Window = null, apply_di
 	var normalized: Dictionary = normalize_settings(settings)
 	_applied_reduced_motion = bool(normalized["reduced_motion"])
 	apply_audio_settings(normalized)
+	_apply_edge_smoothing(str(normalized["edge_smoothing"]))
 	if window != null:
 		window.content_scale_factor = float(normalized["ui_scale"])
 		if apply_display_mode:
 			_apply_display_mode(str(normalized["display_mode"]))
 	return normalized
+
+static func inherit_edge_smoothing(viewport: SubViewport, source: Viewport) -> void:
+	# Only these caches follow the scene viewport. Pixel FX deliberately retain
+	# their own disabled MSAA and never join this group.
+	viewport.msaa_2d = source.msaa_2d
+	viewport.add_to_group(EDGE_SMOOTHING_VIEWPORT_GROUP)
+
+static func _apply_edge_smoothing(value: String) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	var samples: Viewport.MSAA = Viewport.MSAA_4X
+	match value:
+		EDGE_SMOOTHING_LOW: samples = Viewport.MSAA_2X
+		EDGE_SMOOTHING_OFF: samples = Viewport.MSAA_DISABLED
+	tree.root.msaa_2d = samples
+	for node: Node in tree.get_nodes_in_group(EDGE_SMOOTHING_VIEWPORT_GROUP):
+		var viewport := node as SubViewport
+		if viewport == null or viewport.msaa_2d == samples:
+			continue
+		viewport.msaa_2d = samples
+		# Both caches retain a raster with updates disabled. Re-render their
+		# retained commands so the new edge quality is visible this frame.
+		viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
+		viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 static func ensure_audio_buses() -> void:
 	for bus_name: String in [MUSIC_BUS, SFX_BUS, WORLD_SFX_BUS, UI_SFX_BUS]:
@@ -293,6 +348,10 @@ static func safe_windowed_size(requested: Vector2i, usable_screen_size: Vector2i
 
 static func _apply_display_mode(display_mode: String) -> void:
 	if DisplayServer.get_name().to_lower() == "headless":
+		return
+	# Windowed test probes park in a screen corner and must never go fullscreen
+	# (tools/visual_probe_runner.py sets this; shipped builds never do).
+	if OS.has_environment("LABYRINTH_PROBE_WINDOW"):
 		return
 	var current_mode: int = DisplayServer.window_get_mode()
 	if display_mode == DISPLAY_FULLSCREEN:

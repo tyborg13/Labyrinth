@@ -1,0 +1,7 @@
+"""Extra complete runs while the long campaigns investigate the final dragon."""
+import concurrent.futures
+import run_acceptance
+COMPLETION_SEEDS = (12, 13)
+COMPLETION_WORKERS = 2
+with concurrent.futures.ThreadPoolExecutor(max_workers=COMPLETION_WORKERS) as pool:
+    list(pool.map(run_acceptance.run, COMPLETION_SEEDS))

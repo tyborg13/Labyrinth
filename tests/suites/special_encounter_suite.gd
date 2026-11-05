@@ -12,6 +12,7 @@ const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const PlacementRegressions = preload("res://tests/helpers/special_placement_regressions.gd")
 const SEED_COUNT: int = 64
+const SEED_PARTS: int = 2
 const REWARD_SEED_COUNT: int = 64
 const RARITY_FLOOR_TEST_SEED: int = 7
 const DOOR_TEST_TILE: Vector2i = Vector2i(1, 1)
@@ -21,23 +22,25 @@ const DEFERRED_TEST_SEED: int = 1
 const WARBAND_ENTRY_SEED: int = 4
 const DEFERRED_TEST_CARD: String = "guiding_flare"
 
-static func run(expect: Callable) -> void:
-	PlacementRegressions.run(expect)
-	_test_golden(expect)
-	for seed_value: int in range(SEED_COUNT):
+static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUNT, include_cases: bool = true) -> void:
+	if include_cases:
+		PlacementRegressions.run(expect)
+		_test_golden(expect)
+	for seed_value: int in range(seed_begin, seed_end):
 		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
 		Graph.initialize(state)
 		var again: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
 		Graph.initialize(again)
 		expect.call(state == again and state["section_map_layout_revision"] == Graph.LAYOUT_REVISION, "The current map revision is deterministic")
 		for index: int in range(6): _test_section(state, index, expect)
-	_test_future_placement(expect)
-	_test_rewards_and_resume(expect)
-	_test_deferred_special_rewards(expect)
-	_test_reward_floor(expect)
-	_test_names(expect)
-	_test_door_names(expect)
-	print("SPX revision 6 maps: checked 64 seeds x 6 sections, exhaustive routes")
+	if include_cases:
+		_test_future_placement(expect)
+		_test_rewards_and_resume(expect)
+		_test_deferred_special_rewards(expect)
+		_test_reward_floor(expect)
+		_test_names(expect)
+		_test_door_names(expect)
+	print("SPX revision 6 maps: checked %d seeds x 6 sections, exhaustive routes" % [seed_end - seed_begin])
 
 static func _test_golden(expect: Callable) -> void:
 	var hashes: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/spx_legacy_graphs.json"))

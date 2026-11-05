@@ -1,41 +1,481 @@
 [
   {
-    "path": "tests/en06_enemies_test.gd"
+    "path": "tests/suites/event_preview_matrix_program.gd"
   },
   {
-    "path": "tests/combat_feel_test.gd",
-    "group": "timing",
-    "on_demand": true
+    "path": "tests/brs02_test.gd",
+    "args": [
+      "--motion-part-0"
+    ]
   },
   {
-    "path": "tests/event_view_test.gd"
+    "path": "tests/suites/full_scene_controls_program.gd",
+    "args": [
+      "--controls-core-only"
+    ]
   },
   {
-    "path": "tests/event_rules_test.gd"
+    "path": "tests/suites/full_scene_card_drag_program.gd"
   },
   {
-    "path": "tests/movement_undo_test.gd"
+    "path": "tests/suites/brs02_reduced_program.gd"
   },
   {
-    "path": "tests/suites/encounter_rules_program.gd"
+    "path": "tests/suites/full_scene_interaction_followup_program.gd"
   },
   {
-    "path": "tests/suites/encounter_placement_0_program.gd"
+    "path": "tests/threats_at_rest_test.gd",
+    "perf_checks": true
+  },
+  {
+    "path": "tests/special_encounter_test.gd",
+    "args": [
+      "--special-part-0"
+    ]
+  },
+  {
+    "path": "tests/suites/full_scene_interaction_program.gd",
+    "args": [
+      "--interaction-part-0"
+    ]
+  },
+  {
+    "path": "tests/suites/section_map_legacy_hashes_0_program.gd"
+  },
+  {
+    "path": "tests/warband_test.gd"
+  },
+  {
+    "path": "tests/suites/full_scene_choices_program.gd"
+  },
+  {
+    "path": "tests/section_transition_test.gd"
+  },
+  {
+    "path": "tests/suites/section_map_legacy_hashes_1_program.gd"
+  },
+  {
+    "path": "tests/event_rules_test.gd",
+    "args": [
+      "--rules-only"
+    ]
+  },
+  {
+    "path": "tests/suites/full_scene_empower_feedback_program.gd"
   },
   {
     "path": "tests/suites/encounter_placement_1_program.gd"
   },
   {
-    "path": "tests/suites/encounter_placement_summary_program.gd"
+    "path": "tests/suites/encounter_placement_0_followup_program.gd"
   },
   {
-    "path": "tests/run_score_test.gd"
+    "path": "tests/suites/encounter_placement_1_followup_program.gd"
+  },
+  {
+    "path": "tests/suites/full_scene_clock_program.gd"
+  },
+  {
+    "path": "tests/card_draw_hand_flow_test.gd"
+  },
+  {
+    "path": "tests/suites/encounter_rules_program.gd"
+  },
+  {
+    "path": "tests/opening_boon_test.gd"
+  },
+  {
+    "path": "tests/magic_deck_input_test.gd"
+  },
+  {
+    "path": "tests/music_continuity_test.gd"
+  },
+  {
+    "path": "tests/suites/encounter_placement_0_program.gd"
+  },
+  {
+    "path": "tests/en03_enemies_test.gd"
+  },
+  {
+    "path": "tests/card_display_overrides_test.gd"
+  },
+  {
+    "path": "tests/card_summary_fit_test.gd",
+    "args": [
+      "--regressions-only"
+    ]
+  },
+  {
+    "path": "tests/suites/section_map_v2_followup_program.gd"
+  },
+  {
+    "path": "tests/player_defeat_continuity_test.gd"
+  },
+  {
+    "path": "tests/brs01_test.gd"
+  },
+  {
+    "path": "tests/board_tile_tooltip_route_test.gd"
+  },
+  {
+    "path": "tests/snare_test.gd"
+  },
+  {
+    "path": "tests/warband_orders_test.gd"
+  },
+  {
+    "path": "tests/event_feedback_test.gd"
+  },
+  {
+    "path": "tests/section_map_v2_test.gd",
+    "args": [
+      "--map-part-0"
+    ]
+  },
+  {
+    "path": "tests/suites/special_encounter_followup_program.gd"
+  },
+  {
+    "path": "tests/event_view_test.gd"
+  },
+  {
+    "path": "tests/enemy_no_action_test.gd"
+  },
+  {
+    "path": "tests/save_resume_boundary_test.gd"
+  },
+  {
+    "path": "tests/hoarder_test.gd"
+  },
+  {
+    "path": "tests/main_menu_input_test.gd",
+    "perf_checks": true
+  },
+  {
+    "path": "tests/warband_ui_test.gd"
+  },
+  {
+    "path": "tests/last_light_test.gd"
+  },
+  {
+    "path": "tests/suites/section_map_performance_program.gd"
+  },
+  {
+    "path": "tests/el04_rule_views_test.gd"
+  },
+  {
+    "path": "tests/suites/full_scene_navigation_program.gd"
+  },
+  {
+    "path": "tests/short_card_tooltips_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_semantics_test.gd"
+  },
+  {
+    "path": "tests/card_legibility_test.gd",
+    "args": [
+      "--regressions-only"
+    ]
+  },
+  {
+    "path": "tests/suites/full_scene_audio_program.gd"
+  },
+  {
+    "path": "tests/flurry_retirement_test.gd"
+  },
+  {
+    "path": "tests/encounter_analytics_test.gd"
+  },
+  {
+    "path": "tests/element_retrofit_test.gd"
+  },
+  {
+    "path": "tests/movement_undo_test.gd"
+  },
+  {
+    "path": "tests/hero_facing_gameplay_test.gd"
+  },
+  {
+    "path": "tests/opening_boon_recovery_test.gd"
+  },
+  {
+    "path": "tests/suites/section_map_v5_program.gd"
+  },
+  {
+    "path": "tests/heirloom_notification_test.gd"
+  },
+  {
+    "path": "tests/fix_14_test.gd"
+  },
+  {
+    "path": "tests/bos01_rule_scene_test.gd"
+  },
+  {
+    "path": "tests/combat_hud_buttons_test.gd"
+  },
+  {
+    "path": "tests/combat_hud_badges_test.gd"
+  },
+  {
+    "path": "tests/int11_integration_test.gd"
+  },
+  {
+    "path": "tests/player_movement_outcome_test.gd"
+  },
+  {
+    "path": "tests/mim01_test.gd"
+  },
+  {
+    "path": "tests/dragon_rewards_test.gd"
+  },
+  {
+    "path": "tests/fix18/draw_origin_test.gd",
+    "args": [
+      "--validate-only",
+      "--label",
+      "four-rigs",
+      "--enemy-types",
+      "hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer",
+      "--biome",
+      "iskaldra",
+      "--seed",
+      "7262026"
+    ]
+  },
+  {
+    "path": "tests/rr46/depth_check.gd"
+  },
+  {
+    "path": "tests/fix18/entry_paths_test.gd",
+    "args": [
+      "--validate-only",
+      "--label",
+      "pre_battle",
+      "--enemy-types",
+      "hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer",
+      "--biome",
+      "iskaldra",
+      "--seed",
+      "7262031"
+    ]
+  },
+  {
+    "path": "tests/dragon_wallet_ack_test.gd"
+  },
+  {
+    "path": "tests/cache_switch_regression_test.gd"
+  },
+  {
+    "path": "tests/original_music_test.gd"
+  },
+  {
+    "path": "tests/dragon_committed_patterns_test.gd"
+  },
+  {
+    "path": "tests/chronicle_test.gd"
   },
   {
     "path": "tests/sfx_bank_test.gd"
   },
   {
+    "path": "tests/enc04_forecast_test.gd"
+  },
+  {
+    "path": "tests/run_end_recap_tests.gd"
+  },
+  {
+    "path": "tests/board_tile_tooltip_live_test.gd"
+  },
+  {
+    "path": "tests/en06_enemies_test.gd"
+  },
+  {
+    "path": "tests/departed_run_cleanup_test.gd"
+  },
+  {
+    "path": "tests/surface_feedback_ui_test.gd"
+  },
+  {
+    "path": "tests/en05_live_integration_test.gd"
+  },
+  {
+    "path": "tests/fix_12_arrival_test.gd"
+  },
+  {
+    "path": "tests/main_menu_resume_test.gd"
+  },
+  {
+    "path": "tests/glossary_test.gd"
+  },
+  {
+    "path": "tests/dragon_feedback_mechanics_test.gd"
+  },
+  {
+    "path": "tests/combat_hud_dialogue_input_test.gd"
+  },
+  {
+    "path": "tests/boss_health_preview_test.gd"
+  },
+  {
+    "path": "tests/fix_12_feedback_test.gd"
+  },
+  {
+    "path": "tests/guided_combat_tutorial_integration_test.gd"
+  },
+  {
+    "path": "tests/combat_music_integration_test.gd"
+  },
+  {
+    "path": "tests/hero_facing_snap_golden_test.gd"
+  },
+  {
+    "path": "tests/fix_12_cascades_test.gd"
+  },
+  {
+    "path": "tests/fix_12_reactions_0_test.gd"
+  },
+  {
+    "path": "tests/fix_12_bleed_test.gd"
+  },
+  {
+    "path": "tests/board_surface_presentation_test.gd"
+  },
+  {
+    "path": "tests/fix_12_reactions_1_test.gd"
+  },
+  {
+    "path": "tests/magic_deck_test.gd"
+  },
+  {
+    "path": "tests/board_tile_tooltip_test.gd"
+  },
+  {
+    "path": "tests/battlefield_fuel_test.gd"
+  },
+  {
+    "path": "tests/warband_wind_lock_test.gd"
+  },
+  {
+    "path": "tests/en01_enemies_test.gd"
+  },
+  {
+    "path": "tests/bos01_rules_test.gd"
+  },
+  {
+    "path": "tests/snare_ui_test.gd"
+  },
+  {
+    "path": "tests/suites/encounter_placement_summary_program.gd"
+  },
+  {
+    "path": "tests/fix_14_matrix_test.gd",
+    "args": [
+      "--check-only"
+    ]
+  },
+  {
+    "path": "tests/surface_analytics_batch_test.gd"
+  },
+  {
+    "path": "tests/mrk01_marked_test.gd"
+  },
+  {
+    "path": "tests/en05_elemental_test.gd"
+  },
+  {
+    "path": "tests/enc03_slag_test.gd"
+  },
+  {
+    "path": "tests/summon_card_play_test.gd"
+  },
+  {
+    "path": "tests/guardian_rules_test.gd"
+  },
+  {
+    "path": "tests/card_summary_fit_unit_test.gd"
+  },
+  {
+    "path": "tests/skill_progression_analytics_test.gd"
+  },
+  {
+    "path": "tests/cel_look_test.gd"
+  },
+  {
+    "path": "tests/bos01_aimed_switch_test.gd"
+  },
+  {
+    "path": "tests/pt15_01_owner_feet_check.gd"
+  },
+  {
+    "path": "tests/run_score_test.gd"
+  },
+  {
+    "path": "tests/surface_parent_review_test.gd"
+  },
+  {
+    "path": "tests/petrify_tooltip_test.gd"
+  },
+  {
+    "path": "tests/hero_facing_test.gd"
+  },
+  {
+    "path": "tests/combat_board_navigation_test.gd"
+  },
+  {
+    "path": "tests/card_panel_text_test.gd"
+  },
+  {
+    "path": "tests/bos01_route_cases.gd"
+  },
+  {
+    "path": "tests/board_surface_content_smoke_test.gd"
+  },
+  {
+    "path": "tests/graftwright_console_test.gd"
+  },
+  {
+    "path": "tests/perf/deferred_deadline_test.gd",
+    "perf_checks": true
+  },
+  {
+    "path": "tests/dragon_reward_feedback_test.gd"
+  },
+  {
+    "path": "tests/perf/analytics_restart_test.gd"
+  },
+  {
+    "path": "tests/board_surface_data_test.gd"
+  },
+  {
+    "path": "tests/sta01_mechanics_test.gd"
+  },
+  {
+    "path": "tests/dragon_trophy_feedback_test.gd"
+  },
+  {
+    "path": "tests/surface_save_migration_test.gd"
+  },
+  {
+    "path": "tests/board_status_plates_test.gd"
+  },
+  {
     "path": "tests/sfx_sync_bank_test.gd"
+  },
+  {
+    "path": "tests/perf/background_persistence_test.gd",
+    "perf_checks": true
+  },
+  {
+    "path": "tests/contextual_combat_tutorial_test.gd"
+  },
+  {
+    "path": "tests/performance_telemetry_test.gd"
+  },
+  {
+    "path": "tests/combat_feel_test.gd",
+    "group": "timing",
+    "on_demand": true
   },
   {
     "path": "tests/suites/sfx_sync_0_program.gd",
@@ -53,126 +493,15 @@
     "on_demand": true
   },
   {
-    "path": "tests/section_map_v2_test.gd"
-  },
-  {
-    "path": "tests/en01_enemies_test.gd"
-  },
-  {
-    "path": "tests/en03_enemies_test.gd"
-  },
-  {
-    "path": "tests/magic_deck_input_test.gd"
-  },
-  {
-    "path": "tests/opening_boon_test.gd"
-  },
-  {
-    "path": "tests/run_end_recap_tests.gd"
-  },
-  {
-    "path": "tests/main_menu_resume_test.gd"
-  },
-  {
-    "path": "tests/section_transition_test.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_audio_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_navigation_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_card_drag_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_controls_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_clock_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_choices_program.gd"
-  },
-  {
-    "path": "tests/suites/full_scene_interaction_program.gd"
-  },
-  {
-    "path": "tests/opening_boon_recovery_test.gd"
-  },
-  {
-    "path": "tests/suites/section_map_v5_program.gd"
-  },
-  {
-    "path": "tests/suites/section_map_legacy_hashes_0_program.gd"
-  },
-  {
-    "path": "tests/suites/section_map_legacy_hashes_1_program.gd"
-  },
-  {
-    "path": "tests/suites/section_map_performance_program.gd"
-  },
-  {
-    "path": "tests/event_feedback_test.gd"
-  },
-  {
-    "path": "tests/card_summary_fit_unit_test.gd"
-  },
-  {
-    "path": "tests/card_summary_fit_test.gd",
-    "args": [
-      "--regressions-only"
-    ]
-  },
-  {
-    "path": "tests/board_surface_content_smoke_test.gd"
-  },
-  {
-    "path": "tests/board_surface_data_test.gd"
-  },
-  {
-    "path": "tests/board_surface_presentation_test.gd"
-  },
-  {
-    "path": "tests/boss_health_preview_test.gd"
-  },
-  {
-    "path": "tests/card_display_overrides_test.gd"
-  },
-  {
     "path": "tests/card_display_performance_test.gd",
     "perf_checks": true,
     "group": "timing",
     "on_demand": true
   },
   {
-    "path": "tests/card_draw_hand_flow_test.gd"
-  },
-  {
-    "path": "tests/card_legibility_test.gd",
-    "args": [
-      "--regressions-only"
-    ]
-  },
-  {
-    "path": "tests/chronicle_test.gd"
-  },
-  {
-    "path": "tests/combat_hud_buttons_test.gd"
-  },
-  {
-    "path": "tests/combat_hud_dialogue_input_test.gd"
-  },
-  {
     "path": "tests/combat_motion_timing_test.gd",
     "group": "timing",
     "on_demand": true
-  },
-  {
-    "path": "tests/combat_music_integration_test.gd"
-  },
-  {
-    "path": "tests/contextual_combat_tutorial_test.gd"
   },
   {
     "path": "tests/demo_capture_settings_test.gd",
@@ -191,42 +520,9 @@
     "on_demand": true
   },
   {
-    "path": "tests/departed_run_cleanup_test.gd"
-  },
-  {
-    "path": "tests/dragon_committed_patterns_test.gd"
-  },
-  {
-    "path": "tests/dragon_feedback_mechanics_test.gd"
-  },
-  {
-    "path": "tests/dragon_reward_feedback_test.gd"
-  },
-  {
-    "path": "tests/dragon_trophy_feedback_test.gd"
-  },
-  {
-    "path": "tests/dragon_wallet_ack_test.gd"
-  },
-  {
-    "path": "tests/en05_elemental_test.gd"
-  },
-  {
-    "path": "tests/en05_live_integration_test.gd"
-  },
-  {
-    "path": "tests/glossary_test.gd"
-  },
-  {
-    "path": "tests/graftwright_console_test.gd"
-  },
-  {
     "path": "tests/grimoire_performance_test.gd",
     "group": "timing",
     "on_demand": true
-  },
-  {
-    "path": "tests/guided_combat_tutorial_integration_test.gd"
   },
   {
     "path": "tests/headless_playtest_progression_test.gd",
@@ -234,113 +530,14 @@
     "on_demand": true
   },
   {
-    "path": "tests/magic_deck_test.gd"
-  },
-  {
-    "path": "tests/main_menu_input_test.gd",
-    "perf_checks": true
-  },
-  {
-    "path": "tests/music_continuity_test.gd"
-  },
-  {
-    "path": "tests/original_music_test.gd"
-  },
-  {
-    "path": "tests/performance_telemetry_test.gd"
-  },
-  {
-    "path": "tests/player_defeat_continuity_test.gd"
-  },
-  {
-    "path": "tests/player_movement_outcome_test.gd"
-  },
-  {
-    "path": "tests/pre_battle_semantics_test.gd"
-  },
-  {
     "path": "tests/save_pipeline_performance_test.gd",
     "group": "timing",
     "on_demand": true
   },
   {
-    "path": "tests/save_resume_boundary_test.gd"
-  },
-  {
-    "path": "tests/skill_progression_analytics_test.gd"
-  },
-  {
-    "path": "tests/surface_analytics_batch_test.gd"
-  },
-  {
-    "path": "tests/surface_parent_review_test.gd"
-  },
-  {
-    "path": "tests/surface_save_migration_test.gd"
-  },
-  {
-    "path": "tests/encounter_analytics_test.gd"
-  },
-  {
     "path": "tests/encounter_measurement_test.gd",
     "group": "tools",
     "on_demand": true
-  },
-  {
-    "path": "tests/special_encounter_test.gd"
-  },
-  {
-    "path": "tests/warband_orders_test.gd"
-  },
-  {
-    "path": "tests/warband_wind_lock_test.gd"
-  },
-  {
-    "path": "tests/warband_test.gd"
-  },
-  {
-    "path": "tests/warband_ui_test.gd"
-  },
-  {
-    "path": "tests/snare_test.gd"
-  },
-  {
-    "path": "tests/snare_ui_test.gd"
-  },
-  {
-    "path": "tests/hoarder_test.gd"
-  },
-  {
-    "path": "tests/summon_card_play_test.gd"
-  },
-  {
-    "path": "tests/pt15_01_owner_feet_check.gd"
-  },
-  {
-    "path": "tests/bos01_aimed_switch_test.gd"
-  },
-  {
-    "path": "tests/enc03_slag_test.gd"
-  },
-  {
-    "path": "tests/enc04_forecast_test.gd"
-  },
-  {
-    "path": "tests/guardian_rules_test.gd"
-  },
-  {
-    "path": "tests/petrify_tooltip_test.gd"
-  },
-  {
-    "path": "tests/perf/analytics_restart_test.gd"
-  },
-  {
-    "path": "tests/perf/background_persistence_test.gd",
-    "perf_checks": true
-  },
-  {
-    "path": "tests/perf/deferred_deadline_test.gd",
-    "perf_checks": true
   },
   {
     "path": "tests/perf/combat_frame_scenarios.gd",
@@ -352,57 +549,9 @@
     "on_demand": true
   },
   {
-    "path": "tests/cache_switch_regression_test.gd"
-  },
-  {
     "path": "tests/engine_cache_directories_test.gd",
     "group": "tools",
     "on_demand": true
-  },
-  {
-    "path": "tests/element_retrofit_test.gd"
-  },
-  {
-    "path": "tests/el04_rule_views_test.gd"
-  },
-  {
-    "path": "tests/enemy_no_action_test.gd"
-  },
-  {
-    "path": "tests/fix_14_test.gd"
-  },
-  {
-    "path": "tests/fix_14_matrix_test.gd",
-    "args": [
-      "--check-only"
-    ]
-  },
-  {
-    "path": "tests/fix_12_arrival_test.gd"
-  },
-  {
-    "path": "tests/fix_12_reactions_0_test.gd"
-  },
-  {
-    "path": "tests/fix_12_reactions_1_test.gd"
-  },
-  {
-    "path": "tests/fix_12_cascades_test.gd"
-  },
-  {
-    "path": "tests/fix_12_feedback_test.gd"
-  },
-  {
-    "path": "tests/fix_12_bleed_test.gd"
-  },
-  {
-    "path": "tests/short_card_tooltips_test.gd"
-  },
-  {
-    "path": "tests/card_panel_text_test.gd"
-  },
-  {
-    "path": "tests/board_status_plates_test.gd"
   },
   {
     "path": "tests/status_plates_performance_probe.gd",
@@ -411,52 +560,9 @@
     "on_demand": true
   },
   {
-    "path": "tests/heirloom_notification_test.gd"
-  },
-  {
-    "path": "tests/fix18/draw_origin_test.gd",
-    "args": [
-      "--validate-only",
-      "--label",
-      "four-rigs",
-      "--enemy-types",
-      "hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer",
-      "--biome",
-      "iskaldra",
-      "--seed",
-      "7262026"
-    ]
-  },
-  {
-    "path": "tests/fix18/entry_paths_test.gd",
-    "args": [
-      "--validate-only",
-      "--label",
-      "pre_battle",
-      "--enemy-types",
-      "hoarfrost_seer,glacial_mirror,chainbound_gaoler,frostglass_lancer",
-      "--biome",
-      "iskaldra",
-      "--seed",
-      "7262031"
-    ]
-  },
-  {
-    "path": "tests/bos01_route_cases.gd"
-  },
-  {
-    "path": "tests/bos01_rules_test.gd"
-  },
-  {
-    "path": "tests/bos01_rule_scene_test.gd"
-  },
-  {
     "path": "tests/rr46/timing.gd",
     "group": "timing",
     "on_demand": true
-  },
-  {
-    "path": "tests/rr46/depth_check.gd"
   },
   {
     "path": "tests/rr46/death_clocks.gd",
@@ -464,41 +570,10 @@
     "on_demand": true
   },
   {
-    "path": "tests/battlefield_fuel_test.gd"
-  },
-  {
-    "path": "tests/last_light_test.gd"
-  },
-  {
-    "path": "tests/hero_facing_test.gd"
-  },
-  {
-    "path": "tests/hero_facing_snap_golden_test.gd"
-  },
-  {
-    "path": "tests/hero_facing_gameplay_test.gd"
-  },
-  {
-    "path": "tests/threats_at_rest_test.gd",
-    "perf_checks": true
-  },
-  {
-    "path": "tests/combat_board_navigation_test.gd"
-  },
-  {
-    "path": "tests/combat_hud_badges_test.gd"
-  },
-  {
     "path": "tests/dragon_pressure_escape_probe.gd",
     "timeout_seconds": 600,
     "group": "tools",
     "on_demand": true
-  },
-  {
-    "path": "tests/dragon_rewards_test.gd"
-  },
-  {
-    "path": "tests/surface_feedback_ui_test.gd"
   },
   {
     "path": "tests/relic_u7_test.gd",
@@ -529,47 +604,14 @@
     "on_demand": true
   },
   {
-    "path": "tests/cel_look_test.gd"
-  },
-  {
-    "path": "tests/sta01_mechanics_test.gd"
-  },
-  {
     "path": "tests/sta01_presentation_test.gd",
     "group": "timing",
     "on_demand": true
   },
   {
-    "path": "tests/mrk01_marked_test.gd"
-  },
-  {
-    "path": "tests/mim01_test.gd"
-  },
-  {
-    "path": "tests/int11_integration_test.gd"
-  },
-  {
     "path": "tests/mv01/path_movement_test.gd",
     "group": "timing",
     "on_demand": true
-  },
-  {
-    "path": "tests/flurry_retirement_test.gd"
-  },
-  {
-    "path": "tests/board_tile_tooltip_test.gd"
-  },
-  {
-    "path": "tests/board_tile_tooltip_route_test.gd"
-  },
-  {
-    "path": "tests/board_tile_tooltip_live_test.gd"
-  },
-  {
-    "path": "tests/brs01_test.gd"
-  },
-  {
-    "path": "tests/brs02_test.gd"
   },
   {
     "path": "tests/rr48/strike_test.gd",

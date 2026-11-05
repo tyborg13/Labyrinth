@@ -5,15 +5,18 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const FIXTURE_SEED: int = 83
 const PRESENTATION_FIXTURE_COORD_RADIUS: int = 24
+const SEED_COUNT: int = 64
+const SEED_PARTS: int = 2
 # Capture pristine production outputs for the revision-5 compatibility checks.
 # Reusing hashes avoids regenerating the same legacy seeds in the timed suite.
 static var revision4_graph_hashes: Dictionary = {}
 
-static func run(expect: Callable) -> void:
+static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUNT, include_cases: bool = true) -> void:
 	revision4_graph_hashes.clear()
-	expect.call(Graph._walk_moves(0, Graph._coords([])) == [0, 0, 1] and Graph._walk_moves(3, Graph._coords([])) == [2, 3, 3], "Uniform clamped deltas retain both outer-lane stay rolls")
-	expect.call(Graph._walk_moves(1, Graph._coords([Vector2i(2, 1)])) == [0, 1], "Walk choices exclude only crossing moves")
-	for seed: int in range(64):
+	if include_cases:
+		expect.call(Graph._walk_moves(0, Graph._coords([])) == [0, 0, 1] and Graph._walk_moves(3, Graph._coords([])) == [2, 3, 3], "Uniform clamped deltas retain both outer-lane stay rolls")
+		expect.call(Graph._walk_moves(1, Graph._coords([Vector2i(2, 1)])) == [0, 1], "Walk choices exclude only crossing moves")
+	for seed: int in range(seed_begin, seed_end):
 		var state: Dictionary = {"seed": seed, "current_room": Vector2i.ZERO, "mode": "room"}
 		Graph._initialize_revision_4(state)
 		revision4_graph_hashes[str(seed)] = var_to_str(state).sha256_text()
@@ -26,11 +29,12 @@ static func run(expect: Callable) -> void:
 			expect.call(not ids.has(node["coord"]), "Every persistent coordinate is unique")
 			ids[node["coord"]] = true
 		for index: int in range(6): _test_section(state, index, expect)
-	_test_mysteries(expect)
-	_test_knowledge(expect)
-	_test_older_layouts(expect)
-	_test_fallback(expect)
-	_test_probe_fixture(expect)
+	if include_cases:
+		_test_mysteries(expect)
+		_test_knowledge(expect)
+		_test_older_layouts(expect)
+		_test_fallback(expect)
+		_test_probe_fixture(expect)
 
 static func _test_section(state: Dictionary, index: int, expect: Callable) -> void:
 	var info: Dictionary = Graph.section(state, index)

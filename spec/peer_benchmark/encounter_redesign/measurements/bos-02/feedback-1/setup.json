@@ -25,7 +25,7 @@
     "data/grimoire.json": "65e6bc57a8b2f018e3223bfb2ed88ab01a3d5ba51ab5c2b4af675175a4c2f2a7",
     "data/battlefield_rules.json": "05204f60e192dea20eab76424c92741bab97e14233ad4a1b4e5cd3b4eb463445",
     "tools/encounter_bot.gd": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
-    "scripts/battlefield_rules/bot_policy.gd": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
+    "tools/bot_policy.gd": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
     "scripts/combat_engine.gd": "4d42a9b2d89a0de8a8b6307dfd3bb1e7e69cf11ed2825eef4a7cb9fb1be23be4",
     "scripts/room_generator.gd": "cf0cfc0c42f3f5938bb63b41ffa29abcf852fab46e90372401883b386a640fab",
     "tools/dragon_rule_measurement.py": "01709e35dbc5019c54e8451b25d7529876ba436fbb7634155dd509b456e9f1c0",

@@ -1,4 +1,5 @@
 """One approved-asset inventory and production-only resource/rig smoke."""
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import math
@@ -14,6 +15,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "tests/approved_asset_pins.json"
 MANIFEST_HELPER_TIMEOUT_SECONDS = 30
+RUNTIME_FIXTURE_WORKERS = 1
 
 
 def check_animated_sheets(test, manifest):
@@ -72,29 +74,39 @@ def check_pins(test, manifest, root=ROOT):
                                row["painted_rest_top"][view], places=2)
 
 
+def check_runtime(test):
+    with tempfile.TemporaryDirectory(prefix="approved-content-") as temporary:
+        command = [sys.executable, str(ROOT / "tools/godot_task_runner.py"),
+                   "--task-id", os.environ.get("LABYRINTH_TASK_ID", "approved-content"),
+                   "--timeout", str(MANIFEST_HELPER_TIMEOUT_SECONDS), "--stream", "--", "godot",
+                   "--headless", "--path", str(ROOT), "--script",
+                   "tests/helpers/approved_content_smoke.gd", "--", "--pack", str(Path(temporary) / "approved.pck")]
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+        test.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        test.assertIn("APPROVED CONTENT SMOKE: PASS", result.stdout)
+        (Path(temporary) / "project.godot").write_text("config_version=5\n")
+        runtime = subprocess.run([sys.executable, str(ROOT / "tools/godot_task_runner.py"),
+                   "--project", temporary, "--task-id", os.environ.get("LABYRINTH_TASK_ID", "approved-content"),
+                   "--timeout", str(MANIFEST_HELPER_TIMEOUT_SECONDS), "--stream", "--", "godot",
+                   "--headless", "--path", temporary, "--main-pack", str(Path(temporary) / "approved.pck"),
+                   "--script", "res://tests/helpers/approved_content_smoke.gd"],
+                   cwd=ROOT, capture_output=True, text=True)
+        test.assertEqual(runtime.returncode, 0, runtime.stdout + runtime.stderr)
+        test.assertIn("APPROVED CONTENT SMOKE: PASS", runtime.stdout)
+
+
 class ApprovedContentManifestTests(unittest.TestCase):
     def test_approved_content(self):
         manifest = json.loads(MANIFEST.read_text())
-        check_pins(self, manifest)
-        check_animated_sheets(self, manifest)
-        with tempfile.TemporaryDirectory(prefix="approved-content-") as temporary:
-            command = [sys.executable, str(ROOT / "tools/godot_task_runner.py"),
-                       "--task-id", os.environ.get("LABYRINTH_TASK_ID", "approved-content"),
-                       "--timeout", str(MANIFEST_HELPER_TIMEOUT_SECONDS), "--stream", "--", "godot",
-                       "--headless", "--path", str(ROOT), "--script",
-                       "tests/helpers/approved_content_smoke.gd", "--", "--pack", str(Path(temporary) / "approved.pck")]
-            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("APPROVED CONTENT SMOKE: PASS", result.stdout)
-            (Path(temporary) / "project.godot").write_text("config_version=5\n")
-            runtime = subprocess.run([sys.executable, str(ROOT / "tools/godot_task_runner.py"),
-                       "--project", temporary, "--task-id", os.environ.get("LABYRINTH_TASK_ID", "approved-content"),
-                       "--timeout", str(MANIFEST_HELPER_TIMEOUT_SECONDS), "--stream", "--", "godot",
-                       "--headless", "--path", temporary, "--main-pack", str(Path(temporary) / "approved.pck"),
-                       "--script", "res://tests/helpers/approved_content_smoke.gd"],
-                       cwd=ROOT, capture_output=True, text=True)
-            self.assertEqual(runtime.returncode, 0, runtime.stdout + runtime.stderr)
-            self.assertIn("APPROVED CONTENT SMOKE: PASS", runtime.stdout)
+        # Both branches only read production inputs. The pack/runtime branch
+        # writes one unique TemporaryDirectory and its runner-owned HOME; it
+        # never changes the manifest or files inspected by the Python branch.
+        # Keep every assertion and surface background exceptions on this test.
+        with ThreadPoolExecutor(max_workers=RUNTIME_FIXTURE_WORKERS) as pool:
+            runtime = pool.submit(check_runtime, self)
+            check_pins(self, manifest)
+            check_animated_sheets(self, manifest)
+            runtime.result()
 
 
 if __name__ == "__main__":

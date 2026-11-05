@@ -69,7 +69,7 @@ func load_rig() -> bool:
 	_gear_weapon_motion = "sword"
 	_gear_layers = null
 	_source_data = prepared
-	layout = prepared.layout
+	layout = Motion.prepare_layout(prepared.layout)
 	# Enemy subclasses share this loader, but retain their authored layers.
 	var protagonist_layers: bool = _layout_path(facing).get_base_dir() == BASE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -247,6 +247,7 @@ func apply_gear(ops: Dictionary) -> void:
 		_gear_mounts.append({"sprite": sprite, "bone": bones[bone_name],
 			"offset": sprite.position, "centre": sprite.position + texture.get_size() * 0.5,
 			"shield": bone_name == "forearm_l" and str(sprite.name) == "GearOffhand"})
+	layout = Motion.prepare_layout(layout)
 	if _gear_layers != null:
 		_gear_layers.refresh(self)
 	_update_gear_pose(_gear_clip, _gear_phase)

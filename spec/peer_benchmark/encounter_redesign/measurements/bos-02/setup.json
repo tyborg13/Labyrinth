@@ -37,7 +37,7 @@
       "after_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
       "final_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82"
     },
-    "scripts/battlefield_rules/bot_policy.gd": {
+    "tools/bot_policy.gd": {
       "before_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
       "after_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
       "final_sha256": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b"

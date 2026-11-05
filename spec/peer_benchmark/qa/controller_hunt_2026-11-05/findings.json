@@ -1,0 +1,132 @@
+{
+  "evidence_root": "/private/tmp/labyrinth_codex/qa-51/evidence",
+  "findings": [
+    {
+      "id": "F01",
+      "status": "fixed_here",
+      "screen": "opening guided combat",
+      "seed": 4,
+      "reproduce": "Enter the first fight, use stick/D-pad navigation toward Skip Tutorial, press A. The old header candidate set omitted it.",
+      "cause": "scripts/run_scene.gd:3143 (prompt controls omitted before the guided header filter)",
+      "regression": "tests/controller_screen_sweep.gd --tutorial-navigation-only",
+      "evidence": [
+        "tutorial-fix/sweep_tutorial_navigation.json",
+        "smoke2/controller.json"
+      ]
+    },
+    {
+      "id": "F02",
+      "status": "fixed_here",
+      "screen": "Draw/Discard pile",
+      "seed": 4,
+      "reproduce": "After Skip Tutorial, focus Draw and press A; repeat for Discard and reopen each unchanged pile. Focus previously remained on the HUD opener.",
+      "cause": "scripts/run_scene.gd:29119 and 29171 (fresh/cache pile opens lacked modal refresh)",
+      "regression": "tests/controller_screen_sweep.gd --combat-only",
+      "evidence": [
+        "aux-final/controller.json",
+        "aux-after-fixes/controller.json",
+        "combat-fixes/sweep_combat.json"
+      ]
+    },
+    {
+      "id": "F03",
+      "status": "fixed_here",
+      "screen": "combat Details",
+      "seed": 4,
+      "reproduce": "Focus DETAILS with the controller and press A. Previously the pressed signal fired without changing the toggle.",
+      "cause": "scripts/run_scene.gd:3308; toggled connection at scripts/run_scene.gd:12243",
+      "regression": "tests/controller_screen_sweep.gd --combat-only",
+      "evidence": [
+        "aux-final/controller.json",
+        "aux-after-fixes/controller.json"
+      ]
+    },
+    {
+      "id": "F04",
+      "status": "fixed_here",
+      "screen": "post-combat card reward",
+      "seed": 4,
+      "reproduce": "Finish the first fight and allow the reward reveal to settle without another navigation input. Recover is enabled but focus was absent.",
+      "cause": "scripts/run_scene.gd:15585 (_finish_reward_intro omitted controller modal refresh)",
+      "regression": "tests/controller_screen_sweep.gd --reward-focus-only",
+      "evidence": [
+        "reward-audit/controller.json",
+        "reward-after/controller.json",
+        "reward-fix/sweep_reward_focus.json"
+      ]
+    },
+    {
+      "id": "F05",
+      "status": "fixed_here",
+      "screen": "Scavenger unaffordable multi-card gear",
+      "seed": 4,
+      "decision": 292,
+      "reproduce": "Select Witchglass Aegis without enough Embers and press A; try to reach its granted-card arrow. Moving across other wares replaced the selection and hid the navigator.",
+      "cause": "scripts/scavenger_shop_view.gd:1204 (controller A only entered an enabled Buy action)",
+      "regression": "tests/controller_screen_sweep.gd --scavenger-links-only",
+      "evidence": [
+        "campaign-acceptance/4/inputs.jsonl",
+        "shop-fix-final/sweep_after_scavenger.json"
+      ]
+    },
+    {
+      "id": "F06",
+      "status": "needs_unit",
+      "screen": "Noctyrax shadow targeting",
+      "seed": 4,
+      "decision": 2375,
+      "reproduce": "Use the portable fixture; select hamstring_shot, choose play, steer to (4,2), press A: player stays (3,3) and the card remains. The separate real mouse click hits (4,2), consumes the card and commits movement to (3,2).",
+      "cause": "scripts/combat_board_view.gd:4316 filters hidden tiles from controller candidates; :16576 pointer hit-testing accepts the polygon; scripts/run_scene.gd accepts the pending target.",
+      "unit": "Restore pointer/controller targeting parity while retaining the Umbra information boundary. This crosses renderer/navigation policy and is beyond the small local focus fixes. Other strategies can progress: seed 10 defeated Noctyrax.",
+      "evidence": [
+        "campaign-acceptance/4/summary.json",
+        "dragon-parity-controller-a/parity.json"
+      ],
+      "fixture": "dragon-target.variant",
+      "native_contract": "dragon-target-proof-contract.json"
+    },
+    {
+      "id": "F07",
+      "status": "needs_unit",
+      "screen": "Camp/Pause initial focus",
+      "seed": 4,
+      "reproduce": "After the opening narration, close the map with B and press Start. The menu has enabled actions but no focus; its next navigation/accept input only establishes focus.",
+      "cause": "scripts/modal_menu_focus.gd:58 and handle_input; tests/utility_ui_layout_probe.gd:334 explicitly preserves first-A focus-only behavior.",
+      "unit": "Reconcile initial controller focus with the existing first-press contract, covering Camp, Pause, Settings and return focus together.",
+      "evidence": [
+        "campaign-acceptance/4/controller.json"
+      ]
+    },
+    {
+      "id": "F08",
+      "status": "needs_unit",
+      "screen": "Details controller tooltip",
+      "seed": 4,
+      "reproduce": "Focus Details with the controller. Its visible button correctly hides I, but controller cursor detail still advertises Show every enemy's full plan [I].",
+      "cause": "scripts/run_scene.gd:21888\u201321890 supply the tooltip; controller_focus_candidates.gd forwards it; controller_analog_cursor.gd:112 renders it. combat_hud_intents.gd correctly hides the separate button glyph.",
+      "unit": "Use owner-approved controller label/glyph copy and preserve the keyboard shortcut path; text changes are outside this unit.",
+      "native_contract": "combat_details-proof-contract.json",
+      "evidence": [
+        "dragon-parity-controller-a/parity.json"
+      ]
+    },
+    {
+      "id": "V01",
+      "status": "needs_unit",
+      "screen": "existing portrait rebuild test fixture",
+      "seed": "fixture 73491",
+      "reproduce": "Run the baseline controller screen sweep. The portrait rebuild case takes .back() from turn-order controller controls, which includes Details last.",
+      "cause": "scripts/turn_order_slots.gd:18; tests/controller_screen_sweep.gd _hud_rebuild_regression .back() picks Details rather than a portrait.",
+      "unit": "Select an actor-bearing portrait in the fixture, then investigate any remaining real portrait focus loss. The existing assertion is unchanged.",
+      "evidence": [
+        "screen-sweep/sweep_after.json"
+      ]
+    }
+  ],
+  "oracle_artifacts": [
+    "Covered purge-list actions were offered while confirmation owned focus; containment was correct.",
+    "Early card-movement routing was corrected and those development campaigns excluded.",
+    "BaseButton-first offer enumeration omitted CardWidget.activated; repaired for seed 11."
+  ],
+  "runtime_diagnostics": "Full counted-run markers are preserved in campaign.json; retained reveal/transition focus warnings and seed 6 ObjectDB shutdown warning are described in README.md."
+}

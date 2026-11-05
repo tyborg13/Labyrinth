@@ -14,6 +14,9 @@ var _failures: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if OS.get_cmdline_user_args().has("--ui15-proof"):
+		call_deferred("_run_ui15_proof")
+		return
 	ProgressionStore.set_storage_path("user://pause_overlay_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://pause_overlay_probe_run.save")
 	SettingsStore.set_storage_path("user://pause_overlay_probe_settings.json")
@@ -208,3 +211,181 @@ func _clear_probe_output() -> void:
 func _require(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+# ui-15: native exact-size SubViewport proof. The desktop window is parked by
+# visual_probe_runner; no root-window capture, resize or synthetic focus state.
+const UI15_OUTPUT: String = "user://ui15"
+const UI15_SETTLE_FRAMES: int = 8
+const UI15_NAVIGATION_STEPS: int = 12
+var _ui15_viewport: SubViewport
+var _ui15_output: String
+var _ui15_baseline: bool = false
+
+func _run_ui15_proof() -> void:
+	_ui15_baseline = OS.get_cmdline_user_args().has("--before")
+	ProgressionStore.set_storage_path("user://ui15_profile.json")
+	ProgressionStore.set_run_storage_path("user://ui15_run.save")
+	SettingsStore.set_storage_path("user://ui15_settings.json")
+	ProgressionStore.clear_saved_run()
+	var profile: Dictionary = ProgressionStore.default_data()
+	profile = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(profile)
+	ProgressionStore.save_data(profile)
+	for configuration: Dictionary in [{"size": Vector2i(1920, 1080), "scale": 1.0}, {"size": Vector2i(1280, 800), "scale": 1.15}]:
+		var physical: Vector2i = configuration["size"]
+		var ui_scale: float = configuration["scale"]
+		var settings: Dictionary = SettingsStore.default_settings()
+		settings["ui_scale"] = ui_scale
+		settings["reduced_motion"] = false
+		SettingsStore.save_settings(settings)
+		SettingsStore.apply_settings(settings, root, false)
+		_ui15_viewport = SubViewport.new()
+		_ui15_viewport.size = physical
+		_ui15_viewport.size_2d_override = Vector2i(Vector2(physical) / ui_scale)
+		_ui15_viewport.size_2d_override_stretch = true
+		_ui15_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		root.add_child(_ui15_viewport)
+		_ui15_viewport.notify_mouse_entered()
+		_ui15_output = "%s/%s/%dx%d_ui%d" % [UI15_OUTPUT, "before" if _ui15_baseline else "after", physical.x, physical.y, roundi(ui_scale * 100)]
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_ui15_output))
+		var instance: Control = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+		_ui15_viewport.add_child(instance)
+		await _ui15_settle()
+		instance.call("_close_dialogue")
+		await _ui15_camp(instance)
+		if physical == VIEWPORT_SIZE:
+			await _ui15_danger(instance)
+			await _ui15_recap(instance)
+		instance.queue_free()
+		await _ui15_settle()
+		_ui15_viewport.queue_free()
+		await process_frame
+	root.get_node("InputRouter").call("clear_forced_state_for_test")
+	for failure: String in _failures: push_error(failure)
+	print(ProjectSettings.globalize_path(UI15_OUTPUT))
+	print("UI15 MENU/CAPTION TEST RESULT: %s" % ("PASS" if _failures.is_empty() else "FAIL"))
+	quit(0 if _failures.is_empty() else 1)
+
+func _ui15_camp(instance: Control) -> void:
+	var router: Node = root.get_node("InputRouter")
+	var menu: Control = instance.get("_menu_dialog")
+	var hud: Control = instance.get("grimoire_button")
+	var first: Button = _ui15_button(menu, "Character")
+	var activations := {"count": 0}
+	var observe := func() -> void: activations["count"] += 1
+	hud.pressed.connect(observe)
+	for device: String in ["keyboard", "controller"]:
+		router.call("set_forced_state_for_test", "controller" if device == "controller" else "pointer", "xbox")
+		hud.grab_focus()
+		instance.call("_open_menu_overlay")
+		await _ui15_settle()
+		if not _ui15_baseline:
+			_require(_ui15_viewport.gui_get_focus_owner() == first, device + " Camp focuses Character at open (actual=%s first=%s scope=%s)" % [_ui15_viewport.gui_get_focus_owner(), first, instance.get("_menu_focus").get("_scope")])
+		await _ui15_capture("camp_" + device + ".png")
+		if not _ui15_baseline:
+			for action: String in ["ui_down", "ui_up", "ui_left", "ui_right", "ui_focus_next", "ui_focus_prev"]:
+				for step: int in range(UI15_NAVIGATION_STEPS):
+					await _ui15_action(action)
+					var focus: Control = _ui15_viewport.gui_get_focus_owner()
+					_require(focus != null and menu.is_ancestor_of(focus), device + " Camp traps " + action)
+			# A programmatic background grab is rejected before native confirmation.
+			hud.grab_focus()
+			_require(menu.is_ancestor_of(_ui15_viewport.gui_get_focus_owner()), "Stale HUD focus is rejected")
+			_ui15_button(menu, "Settings").grab_focus()
+			await _ui15_action("ui_accept")
+			_require((instance.get("_settings_panel") as Control).visible, "Confirm opens focused Settings immediately")
+			await _ui15_action("ui_cancel")
+			_require(menu.visible, "Cancel returns from Settings to Camp")
+		instance.call("_close_menu_overlay")
+		await _ui15_settle()
+		_require(_ui15_viewport.gui_get_focus_owner() == hud, "Camp restores previous HUD focus")
+		_require(int(activations["count"]) == 0, "Camp never activates the background HUD")
+	# Closing with no previous focus returns to no focus.
+	if _ui15_viewport.gui_get_focus_owner() != null: _ui15_viewport.gui_get_focus_owner().release_focus()
+	instance.call("_open_menu_overlay")
+	instance.call("_close_menu_overlay")
+	await _ui15_settle()
+	_require(_ui15_viewport.gui_get_focus_owner() == null, "Camp preserves absent return focus")
+	hud.pressed.disconnect(observe)
+
+func _ui15_danger(instance: Control) -> void:
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "xbox")
+	instance.call("_open_menu_overlay")
+	var danger: Button = _ui15_button(instance.get("_menu_dialog"), "Succumb to the Darkness")
+	var first: Button = _ui15_button(instance.get("_menu_dialog"), "Character")
+	first.grab_focus()
+	await _ui15_capture("succumb_unfocused.png")
+	danger.grab_focus()
+	await _ui15_capture("succumb_focused.png")
+	var focus: StyleBoxFlat = danger.get_theme_stylebox("focus")
+	var normal: StyleBoxFlat = danger.get_theme_stylebox("normal")
+	var skin := UiSkin.new()
+	var standard: StyleBoxFlat = skin.make_button_style(UiSkin.VARIANT_STANDARD, UiSkin.STATE_FOCUS)
+	_require(not focus.draw_center and focus.bg_color.a == 0, "Destructive focus leaves the red normal plate exposed")
+	_require(focus.border_color == standard.border_color and focus.shadow_color == standard.shadow_color and focus.border_width_left == standard.border_width_left, "Destructive focus adds the standard ring")
+	_require(normal.bg_color == skin.make_button_style(UiSkin.VARIANT_DESTRUCTIVE).bg_color, "Succumb retains its destructive style")
+	danger.release_focus()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
+	var motion := InputEventMouseMotion.new()
+	motion.position = danger.get_global_rect().get_center()
+	_ui15_viewport.push_input(motion, true)
+	await _ui15_capture("succumb_hovered.png")
+	_require(DisplayServer.get_name() == "headless" or danger.is_hovered(), "Hover proof uses native pointer hover")
+	instance.call("_close_menu_overlay")
+
+func _ui15_recap(instance: Control) -> void:
+	var recap: Control = instance.get("_run_end_recap")
+	var state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	state["run_stats"] = {"rooms_explored": 29, "enemies_slain": 61, "max_single_hit": 22}
+	state.erase("run_result")
+	var overlay = preload("res://scripts/run_end_recap_overlay.gd")
+	recap.call("present", overlay.build_model(state, ProgressionStore.default_data(), "defeat", 214))
+	recap.call("skip_presentation")
+	await _ui15_capture("recap_feat_new_best.png")
+	var best: Label = recap.find_child("NewBestTag", true, false)
+	var diamond: Label = recap.find_child("FeatDiamond", true, false)
+	var caption: int = preload("res://scripts/ui_typography.gd").role_size("caption")
+	_require(best != null and best.is_visible_in_tree() and best.get_theme_font_size("font_size") == caption, "NEW BEST uses the caption floor")
+	_require(diamond != null and diamond.is_visible_in_tree() and diamond.get_theme_font_size("font_size") == caption, "Feat diamond uses the caption floor")
+
+func _ui15_button(scope: Node, text: String) -> Button:
+	for child: Node in scope.get_children():
+		if child is Button and child.text == text: return child
+		var found: Button = _ui15_button(child, text)
+		if found != null: return found
+	return null
+
+func _ui15_action(action: String) -> void:
+	var event: InputEvent
+	var controller: bool = bool(root.get_node("InputRouter").call("using_controller"))
+	var buttons: Dictionary = {"ui_up": JOY_BUTTON_DPAD_UP, "ui_down": JOY_BUTTON_DPAD_DOWN, "ui_left": JOY_BUTTON_DPAD_LEFT, "ui_right": JOY_BUTTON_DPAD_RIGHT, "ui_accept": JOY_BUTTON_A, "ui_cancel": JOY_BUTTON_B}
+	var keys: Dictionary = {"ui_up": KEY_UP, "ui_down": KEY_DOWN, "ui_left": KEY_LEFT, "ui_right": KEY_RIGHT, "ui_accept": KEY_ENTER, "ui_cancel": KEY_ESCAPE, "ui_focus_next": KEY_TAB, "ui_focus_prev": KEY_TAB}
+	if controller and buttons.has(action):
+		var joy := InputEventJoypadButton.new()
+		joy.button_index = buttons[action]
+		joy.pressed = true
+		event = joy
+	else:
+		var key := InputEventKey.new()
+		key.keycode = keys[action]
+		key.physical_keycode = key.keycode
+		key.shift_pressed = action == "ui_focus_prev"
+		key.pressed = true
+		event = key
+	_ui15_viewport.push_input(event, true)
+	await process_frame
+	event = event.duplicate()
+	event.pressed = false
+	_ui15_viewport.push_input(event, true)
+	await process_frame
+
+func _ui15_settle() -> void:
+	for frame: int in range(UI15_SETTLE_FRAMES): await process_frame
+
+func _ui15_capture(filename: String) -> void:
+	await _ui15_settle()
+	if DisplayServer.get_name() == "headless": return
+	await RenderingServer.frame_post_draw
+	var image: Image = _ui15_viewport.get_texture().get_image()
+	_require(image != null and image.get_size() == _ui15_viewport.size, "Native SubViewport size matches proof")
+	if image != null:
+		_require(image.save_png(_ui15_output.path_join(filename)) == OK, "Saved " + filename)

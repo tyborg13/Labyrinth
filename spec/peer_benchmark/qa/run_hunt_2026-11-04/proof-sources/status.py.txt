@@ -1,0 +1,41 @@
+from pathlib import Path
+from collections import Counter
+import json,time
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-43')
+TRACE_TAIL_BYTES=65536
+print(time.strftime('%Y-%m-%d %H:%M:%S %Z'))
+roots=[(name,EVIDENCE/('campaign-'+name)) for name in ('default','no-embrace')]
+roots.extend((path.name,path) for path in sorted(EVIDENCE.glob('census-*')) if path.is_dir())
+for campaign,root in roots:
+    if not root.exists():continue
+    active=[]; ended=[]; markers=Counter()
+    for directory in sorted(root.glob('seed-*')):
+        summary=directory/'summary.json'
+        if summary.exists():
+            data=json.loads(summary.read_text());ended.append((data['seed'],data['outcome'],data['decisions']))
+        else:
+            trace=directory/'trace.jsonl';latest={}
+            if trace.exists():
+                with trace.open('rb') as handle:
+                    handle.seek(max(0,trace.stat().st_size-TRACE_TAIL_BYTES))
+                    rows=handle.read().decode(errors='replace').splitlines()
+                for line in reversed(rows):
+                    try:row=json.loads(line)
+                    except ValueError:continue
+                    data=row.get('data',{})
+                    if row['event']=='decision':latest=data['context'];break
+                    if row['event']=='room':latest=data;break
+            active.append(dict(seed=int(directory.name.split('-')[-1]),section=latest.get('section'),decision=latest.get('decision'),room=latest.get('room_kind'),coordinate=latest.get('room')))
+        log=directory/'godot.log'
+        if log.exists():
+            for line in log.read_text(errors='replace').splitlines():
+                if line.startswith('WARNING: Relic glossary above-row overflow:'):
+                    markers['WARNING: Relic glossary above-row overflow (all relics)']+=1
+                elif line.startswith(('SCRIPT ERROR:','ERROR:','WARNING:')):markers[line.strip()]+=1
+                if line.startswith('RUN_HUNT_EVENT ') and '"event":"finding"' in line:
+                    row=json.loads(line.split(' ',1)[1]);markers[row['data']['error']]+=1
+    print(campaign,'ended=',ended,'active=',active)
+    print('markers=',dict(markers))
+for name in ('census-executions.json','python-default/summary.json'):
+    path=EVIDENCE/name
+    if path.exists():print(name,'present',path.stat().st_size,'bytes')

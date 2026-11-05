@@ -1,0 +1,11 @@
+{
+  "returncode": 124,
+  "timeout_seconds": 900,
+  "last_progress": "10% reimport",
+  "log": "/private/tmp/labyrinth_codex/qa-53/cold-import.log",
+  "known_markers": [
+    "macOS system CA lookup condition ret != noErr",
+    "existing duplicate Reaver idle placeholder UID"
+  ],
+  "retry_reason": "Observed scan and resource conversion exceeded borrowed qa-45 cap; use documented project cold-import cap 1800."
+}

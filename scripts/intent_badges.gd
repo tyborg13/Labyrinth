@@ -418,7 +418,7 @@ static func needs_pulse(presentation: Dictionary) -> bool:
 static func details_discloses_compass(presentation: Dictionary, actor_key: String) -> bool:
 	return bool(presentation.get("show_all_enemy_intents", false)) or (presentation.get("expanded_enemy_actor_keys", []) as Array).has(actor_key)
 
-static func draw(board: Control, badges: Array) -> void:
+static func draw(board: Control, badges: Array, triangle_batch: RefCounted = null) -> void:
 	var font: Font = Typography.ui_font()
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	# A debug-only fixed clock makes peak-pulse renderer proof deterministic.
@@ -430,7 +430,7 @@ static func draw(board: Control, badges: Array) -> void:
 	for on_top: bool in [false, true]:
 		for badge: Dictionary in measured:
 			if bool(badge["above_everything"]) == on_top:
-				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)))
+				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)), triangle_batch)
 
 static func draw_order_disc(board: Control, rect: Rect2, order: String, alpha: float, font: Font) -> void:
 	var style := StyleBoxFlat.new()
@@ -442,7 +442,7 @@ static func draw_order_disc(board: Control, rect: Rect2, order: String, alpha: f
 	board.draw_style_box(style, rect)
 	_draw_centered_text(board, font, order, rect, ORDER_FONT_SIZE, Color(Palette.GOLD_BRIGHT, alpha))
 
-static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: float, reduced_motion: bool) -> void:
+static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: float, reduced_motion: bool, triangle_batch: RefCounted = null) -> void:
 	var center: Vector2 = badge["center"]
 	var alpha: float = float(badge.get("alpha", 1.0))
 	var ring: Color = ring_color(badge)
@@ -462,7 +462,11 @@ static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: f
 			x += SECONDARY_GAP
 			_draw_icon(board, str(badge["secondary_icon"]), Rect2(Vector2(x, center.y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
 			_draw_number(board, font, str(badge.get("secondary_number", "")), x + SECONDARY_ICON_SIZE, center.y + 1.0, SECONDARY_FONT_SIZE, alpha)
-	board.draw_circle(center, MEDALLION_DIAMETER * 0.5, Color(MEDALLION_FILL, alpha), true, -1.0, true)
+	if triangle_batch != null:
+		triangle_batch.circle(center, MEDALLION_DIAMETER * 0.5, Color(MEDALLION_FILL, alpha), true)
+		triangle_batch.flush(board)
+	else:
+		board.draw_circle(center, MEDALLION_DIAMETER * 0.5, Color(MEDALLION_FILL, alpha), true, -1.0, true)
 	board.draw_arc(center, MEDALLION_DIAMETER * 0.5 - 1.0, 0.0, TAU, CIRCLE_SEGMENTS, Color(ring, alpha), 2.0, true)
 	board.draw_arc(center, MEDALLION_DIAMETER * 0.5 - 4.0, 0.0, TAU, CIRCLE_SEGMENTS, Color(ring.r * 0.5, ring.g * 0.5, ring.b * 0.5, alpha), 1.0, true)
 	var icon_rect := Rect2(center - Vector2.ONE * PRIMARY_ICON_SIZE * 0.5, Vector2.ONE * PRIMARY_ICON_SIZE)

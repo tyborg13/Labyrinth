@@ -267,7 +267,7 @@ static func _animate_effect_entry(entry: Dictionary, t: float, reduced_motion: b
 	var exit_font_size: int = mini(base_font_size, int(entry.get("exit_font_size", default_exit_size)))
 	_prepare_effect_composition(entry, text_length, base_font_size)
 	if reduced_motion:
-		entry["font_size"] = maxi(base_font_size, EFFECT_REDUCED_MOTION_FONT_SIZE if text_length <= 7 else base_font_size)
+		entry["font_size"] = maxi(base_font_size, int(entry.get("reduced_motion_font_size", EFFECT_REDUCED_MOTION_FONT_SIZE if text_length <= 7 else base_font_size)))
 		entry["font_scale"] = 1.0
 		entry["outline_size"] = maxi(int(entry.get("outline_size", EFFECT_OUTLINE_SIZE)), EFFECT_OUTLINE_SIZE)
 		entry["alpha"] = _alpha_for_progress(t, DAMAGE_REDUCED_FADE_START)

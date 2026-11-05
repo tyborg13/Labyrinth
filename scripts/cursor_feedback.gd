@@ -49,6 +49,7 @@ var _transparent_native_cursor: ImageTexture
 var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
 var _native_cursor_refresh_elapsed: float = 0.0
 var _glyph_visibility_suppressors: Dictionary = {}
+var _input_router: Node
 
 func _ready() -> void:
 	layer = 120
@@ -83,7 +84,7 @@ func _process(delta: float) -> void:
 	var viewport: Viewport = get_viewport()
 	var pointer_position: Vector2 = viewport.get_mouse_position()
 	_glyph.position = pointer_position - CustomCursorGlyphScript.HOTSPOT
-	_refresh_glyph_visibility()
+	_update_glyph_visibility(viewport, pointer_position)
 	_glyph.set_cursor_state(_resolved_cursor_state(viewport.gui_get_hovered_control(), pointer_position))
 
 func _input(event: InputEvent) -> void:
@@ -159,6 +160,9 @@ func _refresh_glyph_visibility() -> void:
 		return
 	var viewport: Viewport = get_viewport()
 	var pointer_position: Vector2 = viewport.get_mouse_position()
+	_update_glyph_visibility(viewport, pointer_position)
+
+func _update_glyph_visibility(viewport: Viewport, pointer_position: Vector2) -> void:
 	var window: Window = get_window()
 	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
 	_glyph.visible = glyph_should_be_visible(
@@ -169,8 +173,8 @@ func _refresh_glyph_visibility() -> void:
 	)
 
 func _controller_modality_active() -> bool:
-	var router: Node = get_node_or_null("/root/InputRouter")
-	return router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
+	if not is_instance_valid(_input_router): _input_router = get_node_or_null("/root/InputRouter")
+	return _input_router != null and _input_router.has_method("using_controller") and bool(_input_router.call("using_controller"))
 
 static func glyph_should_be_visible(
 	pointer_inside: bool,

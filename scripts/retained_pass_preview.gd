@@ -6,6 +6,11 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
+static func forecast_unchanged(label: Label, row: Control, entries: Array[Dictionary], wait_time: int) -> bool:
+	# Both owners keep private copies already. Comparing their exact values also
+	# detects a caller's in-place edit; a hash or the combat revision cannot.
+	return row.get_meta("pass_preview_wait_time", -1) == wait_time and label.get_meta("pass_preview_wait_time", -1) == wait_time and row.get_meta("pass_preview_values", null) == entries and label.get_meta("pass_preview_values", null) == entries
+
 # Keep the authored control and its signal/focus identity; only its values change.
 static func build(scene: Control) -> Button:
 	var summary: Dictionary = scene._pass_preview_summary()
@@ -16,13 +21,14 @@ static func build(scene: Control) -> Button:
 	# with mouse input ignored, so keyboard and pointer activation share one focus stop.
 	var chip := UiTooltipButton.new()
 	chip.name = "PassPreviewChip"
+	chip.dismiss_tooltip_when_disabled = true
 	var chip_size: Vector2 = scene.PASS_PREVIEW_CHIP_SIZE
 	chip.custom_minimum_size = chip_size
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.mouse_filter = Control.MOUSE_FILTER_STOP
 	chip.flat = true
-	chip.disabled = not scene._pass_preview_action_available()
+	chip.set_disabled_with_tooltip(not scene._pass_preview_action_available())
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
 	var tooltip_text: String = scene._pass_preview_tooltip(summary)
 	if card_defiance_spent > 0:
@@ -146,7 +152,7 @@ static func refresh(scene: Control) -> void:
 		chip.hide()
 		return
 	chip.show()
-	chip.disabled = not scene._pass_preview_action_available()
+	chip.set_disabled_with_tooltip(not scene._pass_preview_action_available())
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
 	var spent: int = scene._pending_card_defiance_spent()
 	var tooltip: String = scene._pass_preview_tooltip(summary)

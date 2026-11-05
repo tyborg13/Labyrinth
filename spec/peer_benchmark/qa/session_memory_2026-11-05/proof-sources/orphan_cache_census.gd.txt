@@ -1,0 +1,64 @@
+extends RefCounted
+## Debug-only ownership census. Reports contain IDs/strings, never Node references.
+## No blanket orphan-count allowance: only live card owners' exact cache members
+## qualify, with the production limit of four inactive fitted layouts per card.
+## Introduced by e70716b64 (perf-44); absent at 9c73a04eb. Roots are made by
+## the existing summary builders and held in each card's _summary_layout_cache.
+
+const CARD_SCRIPT: String = "res://scripts/card_widget.gd"
+const SUMMARY_LAYOUT_BOUND: int = 4
+const FAMILY: String = "card_summary_layout"
+const CREATED_BY: String = "card_widget.gd::_rebuild_summary_icon_rows -> _add_summary_action_group/_add_summary_segment/_add_token_to_summary_row"
+
+static func snapshot(tree: SceneTree) -> Dictionary:
+	var retained: Dictionary = {}
+	var owners: Array[Dictionary]
+	var errors: Array[String]
+	var pending: Array[Node]
+	pending.append(tree.root)
+	while not pending.is_empty():
+		var owner: Node = pending.pop_back()
+		pending.append_array(owner.get_children(true))
+		var script: Script = owner.get_script() as Script
+		if script == null or script.resource_path != CARD_SCRIPT: continue
+		# Historical baseline predates this cache. Do not invent an allowance.
+		if not "_summary_layout_cache" in owner: continue
+		var cache: Dictionary = owner.get("_summary_layout_cache")
+		if cache.size() > SUMMARY_LAYOUT_BOUND:
+			errors.append("%s has %d cached summary layouts (bound %d)" % [owner.get_path(), cache.size(), SUMMARY_LAYOUT_BOUND])
+		var count: int = 0
+		for key: Variant in cache:
+			var roots: Array = cache[key]["children"]
+			for index: int in range(roots.size()):
+				var node: Node = roots[index]
+				if not is_instance_valid(node) or node.get_parent() != null or node.is_inside_tree():
+					errors.append("Summary cache must own detached, valid roots: " + str(owner.get_path()))
+					continue
+				var reference: String = "%s::_summary_layout_cache[%s].children[%d]" % [owner.get_path(), str(key), index]
+				var members: Array[Node]
+				members.append(node)
+				while not members.is_empty():
+					var member: Node = members.pop_back()
+					var id: int = member.get_instance_id()
+					if retained.has(id): errors.append("Retained node has multiple cache owners: " + str(id))
+					retained[id] = {"family": FAMILY, "reference": reference, "owner_id": owner.get_instance_id(), "created_by": CREATED_BY}
+					members.append_array(member.get_children(true))
+					count += 1
+		if not cache.is_empty():
+			owners.append({"owner_id": owner.get_instance_id(), "owner": str(owner.get_path()), "family": FAMILY, "layouts": cache.size(), "layout_bound": SUMMARY_LAYOUT_BOUND, "nodes": count})
+	var nodes: Array[Dictionary]
+	var families: Dictionary = {}
+	for id: int in Node.get_orphan_node_ids():
+		var node: Node = instance_from_id(id) as Node
+		if node == null: continue
+		var script: Script = node.get_script() as Script
+		while script != null and script.resource_path.is_empty(): script = script.get_base_script()
+		var top: Node = node
+		while top.get_parent() != null: top = top.get_parent()
+		var row: Dictionary = {"id": id, "name": str(node.name), "class": node.get_class(), "script": script.resource_path if script != null else "<native>", "root_id": top.get_instance_id(), "root_name": str(top.name), "relative": str(top.get_path_to(node))}
+		row.merge(retained.get(id, {"family": "unknown", "reference": "unaccounted", "created_by": "unknown"}))
+		var family: String = row["family"]
+		families[family] = int(families.get(family, 0)) + 1
+		if family == "unknown": errors.append("Unaccounted orphan: %s %s %s" % [id, row["class"], row["name"]])
+		nodes.append(row)
+	return {"nodes": nodes, "families": families, "owners": owners, "errors": errors, "orphan_nodes": nodes.size(), "allowed_cache_nodes": retained.size(), "bounds": {FAMILY: "%d inactive layouts per live card; exact membership required" % SUMMARY_LAYOUT_BOUND}}

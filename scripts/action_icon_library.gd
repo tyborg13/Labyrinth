@@ -5,6 +5,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const PanelText = preload("res://scripts/card_panel_text.gd")
 const Glossary = preload("res://scripts/glossary.gd")
+const CardArea = preload("res://scripts/card_area_presentation.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
@@ -198,10 +199,6 @@ const KEYWORDS: Dictionary = {
 		"label": "Health Cost",
 		"path": "%s/health_cost.png" % ICON_ROOT
 	},
-	"aoe": {
-		"label": "Area Attack",
-		"path": "%s/aoe.png" % ICON_ROOT
-	},
 	"lightning_strikes": {
 		"label": "Lightning Strikes",
 		"path": "%s/lightning_strikes.png" % ICON_ROOT
@@ -372,7 +369,7 @@ const SKILL_ICONS: Dictionary = {
 const MARKED_MOVE_DESCRIPTIONS: Dictionary = {
 	"icefall": "Marks 3 tiles across yours. Next turn they take the hit and turn to Ice.",
 	"lob": "Marks your tile and the 4 around it. Next turn they take the hit and become Fire.",
-	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved, but Area Attacks hit it.",
+	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved. Attacks that hit an area still hit buried enemies.",
 	"erupt": "Emerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2.",
 }
 
@@ -390,7 +387,6 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"burrow": "burrow",
 	"erupt": "erupt",
 	"kindle": "burst",
-	"aoe": "aoe",
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md). Wards are the
 	# Shape Ground action placed under each adjacent enemy.
 	"all_enemies": "all_enemies",
@@ -486,6 +482,8 @@ static func all_icon_keys() -> Array:
 static func action_icon_key(action: Dictionary) -> String:
 	if action.has("glossary_key"): return str(action["glossary_key"])
 	var action_type: String = str(action.get("type", ""))
+	if action_type == "aoe" or (action_type == "surface" and action.has("guardian_shape")):
+		return CardArea.attack_type(action)
 	if action_type == "force_area" and int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0:
 		return "pull"
 	if action_type == "self_flag":
@@ -638,6 +636,8 @@ static func tooltip_entries_for_rows(
 			if typeof(token_var) != TYPE_DICTIONARY:
 				continue
 			var token: Dictionary = (token_var as Dictionary).duplicate()
+			if not bool(token.get("card_keyword", true)): continue
+			if str(token.get("kind", "")) == "aoe_pattern": continue
 			var term: String = str(token.get("card_term", ""))
 			if term.is_empty():
 				term = str(token.get("glossary_key", token.get("icon", "")))
@@ -651,10 +651,6 @@ static func tooltip_entries_for_rows(
 			if str(token.get("kind", "")) in ["text", "rules_text"]:
 				continue
 			var icon_key: String = str(token.get("icon", ""))
-			if str(token.get("kind", "")) == "aoe_pattern":
-				icon_key = "aoe"
-				if not token.has("card_term"):
-					term = "aoe"
 			# Placement detail stays available to shared intent tokens. Card ground
 			# panels use the glossary, except the authored conversion sentence.
 			var card_tip: String = token_tooltip(token, true)
@@ -735,7 +731,8 @@ static func _tooltip_entry_copy(icon_key: String, tooltip_text: String, title_ov
 	}
 
 static func token_tooltip(token: Dictionary, card_panel: bool = false) -> String:
-	var icon_key: String = "aoe" if str(token.get("kind", "")) == "aoe_pattern" else str(token.get("icon", ""))
+	if str(token.get("kind", "")) == "aoe_pattern": return ""
+	var icon_key: String = str(token.get("icon", ""))
 	var text: String = ""
 	if card_panel and token.has("card_tooltip"):
 		text = str(token["card_tooltip"])
@@ -880,7 +877,7 @@ static func _modifier_tooltip_lines(token: Dictionary) -> PackedStringArray:
 		lines.append(line)
 	return lines
 
-static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Array:
+static func rows_for_actions(actions: Array, options_by_index: Array = [], card: Dictionary = {}) -> Array:
 	var rows: Array = []
 	var previous_action_row_index: int = -1
 	for index: int in range(actions.size()):
@@ -891,13 +888,18 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 		if index < options_by_index.size() and typeof(options_by_index[index]) == TYPE_DICTIONARY:
 			options = options_by_index[index]
 		var row: Array = tokens_for_action(action, options)
+		if not card.is_empty(): row = CardArea.tokens(row, action, actions, true)
 		previous_action_row_index = append_action_row(rows, action, row, previous_action_row_index)
 		var guardian_row: Array = tokens_for_guardian_rule(action)
 		if not guardian_row.is_empty(): rows.append(guardian_row)
 		var bonus_row: Array = tokens_for_surface_bonus(action)
+		if not card.is_empty(): bonus_row = CardArea.tokens(bonus_row, action, actions)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
-		rows.append_array(keyword_rider_rows(action))
+		var riders: Array = keyword_rider_rows(action)
+		if not card.is_empty():
+			for rider_index: int in range(riders.size()): riders[rider_index] = CardArea.tokens(riders[rider_index], action, actions)
+		rows.append_array(riders)
 	return rows
 
 static func append_action_row(rows: Array, action: Dictionary, row: Array, previous_action_row_index: int = -1) -> int:
@@ -941,10 +943,10 @@ static func _same_pattern(left: Array, right: Array) -> bool:
 
 static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
 	var rows: Array = cost_rows_for_card(card)
-	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index))
+	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index, card))
 	rows.append_array(keyword_rows_for_card(card))
 	rows.append_array(rules_text_rows_for_card(card))
-	return rows
+	return CardArea.patterns(rows)
 
 # Card-level Follow-up / Empower segments: keyword icon, Empower cost, then the
 # bonus. `state` marks a segment active when its bonus is already in the rows.
@@ -980,7 +982,7 @@ static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, t
 	var tokens: Array = []
 	if bool(spec.get("repeat_first", false)) and not printed_actions.is_empty() and typeof(printed_actions[0]) == TYPE_DICTIONARY:
 		# Show the repeat as the first action's own tokens, as appended actions are.
-		for token_var: Variant in tokens_for_action(printed_actions[0] as Dictionary):
+		for token_var: Variant in CardArea.tokens(tokens_for_action(printed_actions[0] as Dictionary), printed_actions[0], printed_actions, true):
 			var token: Dictionary = (token_var as Dictionary).duplicate(true)
 			if str(token.get("tone", "neutral")) == "neutral":
 				token["tone"] = tone
@@ -1019,7 +1021,7 @@ static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, t
 	for appended_var: Variant in spec.get("append", []):
 		if typeof(appended_var) != TYPE_DICTIONARY:
 			continue
-		for token_var: Variant in tokens_for_action(appended_var as Dictionary):
+		for token_var: Variant in CardArea.tokens(tokens_for_action(appended_var as Dictionary), appended_var, printed_actions, true):
 			var token: Dictionary = (token_var as Dictionary).duplicate(true)
 			if str(token.get("tone", "neutral")) == "neutral":
 				token["tone"] = tone
@@ -1029,6 +1031,8 @@ static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, t
 static func _keyword_field_icon(action: Dictionary, field: String) -> String:
 	match field:
 		"damage":
+			if str(action.get("type", "")) in ["aoe", "convert_surface", "discharge", "meteor_marks", "destroy_illusion", "burst_terrain"]:
+				return CardArea.attack_type(action)
 			return _damage_icon_for_action(action, _damage_bonus_fallback_icon(action))
 		"amount":
 			var action_key: String = action_icon_key(action)
@@ -1057,6 +1061,7 @@ static func keyword_rider_rows(action: Dictionary) -> Array:
 	if typeof(scale) == TYPE_DICTIONARY and not (scale as Dictionary).is_empty():
 		rows.append([scale_bonus_token(action)])
 	rows.append_array(surface_family_rider_rows(action))
+	for index: int in range(rows.size()): rows[index] = CardArea.tokens(rows[index], action)
 	return rows
 
 ## Wave-4 surface-family riders (spec/card_mechanics_surfaces.md): consume,
@@ -1296,7 +1301,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			# A zero-damage area (Caltrops) is a status/ground placement, like a
 			# zero-damage push: it shows no damage chip unless something adds damage.
 			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
-				_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 and not aims_facing else "melee"), action, options)
+				# The aim tile needs range/LOS; the area hit also reaches unseen foes.
+				_append_damage_token(tokens, _damage_icon_for_action(action, "aoe"), action, options)
 			if int(action.get("range", 0)) > 0 and not aims_facing:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			if str(action.get("committed_shape", action.get("guardian_shape", ""))).is_empty(): tokens.append(_aoe_pattern_token(action))
@@ -1525,7 +1531,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var requirement: Dictionary = action.get("requires_surface", {}) as Dictionary
 	if not requirement.is_empty():
 		tokens.push_front(surface_condition_token(requirement))
-	return tokens
+	return CardArea.tokens(tokens, action, [], true)
 
 const SELECTOR_COPY: Dictionary = {
 	"on_fire": {"icon": "surface_fire", "prefix": "Each on", "panel": "only_fire"},
@@ -1536,11 +1542,11 @@ const SELECTOR_COPY: Dictionary = {
 
 ## all_enemies selector: "Each on [Fire]:" etc. Rendered like a surface condition.
 static func selector_token(selector: String) -> Dictionary:
-	var copy: Dictionary = SELECTOR_COPY.get(selector, {"icon": "aoe", "prefix": "Each", "tooltip": "Each matching enemy you can see."}) as Dictionary
-	var text: String = "%s %s:" % [str(copy.get("prefix", "Each")), label(str(copy.get("icon", "aoe")))]
+	var copy: Dictionary = SELECTOR_COPY.get(selector, {"icon": "all_enemies", "prefix": "Each", "tooltip": "Each matching enemy you can see."}) as Dictionary
+	var text: String = "%s %s:" % [str(copy.get("prefix", "Each")), label(str(copy.get("icon", "all_enemies")))]
 	var token: Dictionary = text_token(text, "neutral", PanelText.copy(str(copy["panel"])) if copy.has("panel") else str(copy.get("tooltip", "")))
 	token["kind"] = "surface_condition"
-	token["icon"] = str(copy.get("icon", "aoe"))
+	token["icon"] = str(copy.get("icon", "all_enemies"))
 	token["prefix"] = str(copy.get("prefix", "Each"))
 	token["suffix"] = ":"
 	token["state_condition"] = selector
@@ -1764,7 +1770,7 @@ static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
 		"convert_surface", "discharge", "meteor_marks":
 			return "aoe"
 		"aoe":
-			return "ranged" if int(action.get("range", 0)) > 0 and str(action.get("aim", "")) != "facing" else "melee"
+			return "aoe"
 		"detonate":
 			return "detonate"
 		_:
@@ -1849,13 +1855,15 @@ static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 			"icon": "aoe_pattern",
 			"pattern": from_hero,
 			"show_origin": true,
-		}.merged(PanelText.copy("aoe_facing"))
+			"card_keyword": false, "tooltip": "", "card_tooltip": "",
+		}
 	return {
 		"kind": "aoe_pattern",
 		"icon": "aoe_pattern",
 		"pattern": action.get("pattern", []),
 		"show_origin": int(action.get("range", 0)) <= 0,
-	}.merged(PanelText.copy("aoe_plain", {"relative": " relative to you" if int(action.get("range", 0)) <= 0 else ""}))
+		"card_keyword": false, "tooltip": "", "card_tooltip": "",
+	}
 
 static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 	if int(action.get("bleed", 0)) > 0:
@@ -1964,7 +1972,7 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 		# The bonus chip repeats the attack's own damage icon (melee, ranged, Pierce).
 		var icon: String = _damage_icon_for_action(action, _damage_bonus_fallback_icon(action)) if key == "damage" else action_icon_key(action) if key == "amount" else key
 		tokens.append(token_for(icon, "%+d" % amount, "condition"))
-	return tokens
+	return CardArea.tokens(tokens, action)
 
 static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 	var row: Array = []

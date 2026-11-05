@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""Restore the archived qa-53 diagnostics and build the local macOS ID bridge."""
+from pathlib import Path
+import shutil
+import subprocess
+ROOT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-53')
+TOOLS = Path('/private/tmp/labyrinth_codex/qa-53/tools')
+SOURCE = ROOT / 'spec/peer_benchmark/qa/session_memory_2026-11-05/proof-sources'
+TOOLS.mkdir(parents=True, exist_ok=True)
+for path in SOURCE.glob('*.txt'):
+    shutil.copyfile(path, TOOLS / path.name.removesuffix('.txt'))
+subprocess.run(['clang++', '-std=c++17', '-dynamiclib', str(TOOLS / 'object_ids.cpp'), '-o', str(TOOLS / 'object_ids.dylib')], check=True)
+print('QA53 RESTORE: diagnostic sources restored; macOS native bridge built')

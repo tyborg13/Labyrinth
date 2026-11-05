@@ -7,6 +7,82 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const OUTPUT_DIR: String = "user://settings_foundation_v1"
 const SAMPLE_DIALOGUE: String = "The sealed corridor remembers every footstep, but yields to those who move without fear."
+const SUSPEND_CHECKPOINT_SEED: int = 73491
+const SUSPEND_TRANSIENT_SEED: int = 73492
+const ATOMIC_WRITE_TEST_MUSIC_VOLUME: float = 0.25
+
+static func verify_atomic_writes(expect: Callable, previous: Dictionary) -> void:
+	var temp_path: String = "%s.tmp" % SettingsStore.storage_path()
+	var interrupted := FileAccess.open(temp_path, FileAccess.WRITE)
+	expect.call(interrupted != null, "Atomic settings guard can create an interrupted temp file")
+	if interrupted == null: return
+	interrupted.store_string("{partial settings")
+	interrupted.close()
+	expect.call(SettingsStore.load_settings() == previous, "An interrupted temp write preserves the last settings profile")
+	var next: Dictionary = previous.duplicate(true)
+	next["music_volume"] = ATOMIC_WRITE_TEST_MUSIC_VOLUME
+	expect.call(SettingsStore.save_settings(next), "Atomic settings replacement overwrites an interrupted temp file")
+	expect.call(SettingsStore.load_settings() == next and not FileAccess.file_exists(temp_path), "Atomic swap publishes the complete new settings and consumes temp")
+	DirAccess.make_dir_absolute(ProjectSettings.globalize_path(temp_path))
+	expect.call(not SettingsStore.save_settings(previous), "An unwritable settings temp path reports failure")
+	expect.call(SettingsStore.load_settings() == next, "Failed temp writes preserve the complete live settings file")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
+	expect.call(SettingsStore.save_settings(previous), "Settings can be saved again after a failed temp write")
+	var original_path: String = SettingsStore.storage_path()
+	var blocked_path: String = "%s.directory" % original_path
+	DirAccess.make_dir_absolute(ProjectSettings.globalize_path(blocked_path))
+	SettingsStore.set_storage_path(blocked_path)
+	expect.call(not SettingsStore.save_settings(next), "Failed settings rename reports failure")
+	expect.call(DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(blocked_path)) and not FileAccess.file_exists(blocked_path + ".tmp"), "Failed rename preserves its destination and cleans temp")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(blocked_path))
+	SettingsStore.set_storage_path(original_path)
+	expect.call(SettingsStore.load_settings() == previous, "Failure guards leave the original settings intact")
+
+static func verify_suspend(scene: Node, expect: Callable) -> void:
+	var master: int = AudioServer.get_bus_index(SettingsStore.MASTER_BUS)
+	var initial_volume: float = AudioServer.get_bus_volume_linear(master)
+	var initial_mute: bool = AudioServer.is_bus_mute(master)
+	var original_run: Dictionary = scene.get("_run_state")
+	var original_combat: Dictionary = scene.get("_combat_state")
+	var original_lock: bool = bool(scene.get("_animation_lock"))
+	var committed: Dictionary = RunEngine.new().create_new_run(SUSPEND_CHECKPOINT_SEED, ProgressionStore.default_data())
+	ProgressionStore.queue_run_state(committed)
+	var transient: Dictionary = committed.duplicate(true)
+	transient["seed"] = SUSPEND_TRANSIENT_SEED
+	scene.set("_run_state", transient)
+	scene.set("_animation_lock", true)
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	expect.call(ProgressionStore._run_writer.busy() and is_equal_approx(AudioServer.get_bus_volume_linear(master), initial_volume), "Desktop focus-out preserves audio and pending-checkpoint behavior")
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	var suspend: RefCounted = scene.get("_application_suspend")
+	expect.call(not ProgressionStore._run_writer.busy() and int(ProgressionStore.load_saved_run().get("seed", 0)) == SUSPEND_CHECKPOINT_SEED, "Suspend flushes the queued committed checkpoint, never the transient action")
+	var fade: Tween = suspend.get("_fade")
+	fade.custom_step(0.075)
+	expect.call(is_equal_approx(AudioServer.get_bus_volume_linear(master), initial_volume * 0.5), "Master fade reaches half volume at 0.075 s")
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	expect.call(suspend.get("_fade") == fade, "Repeated pause does not restart the fade or overwrite its resume target")
+	fade.custom_step(0.075)
+	expect.call(is_zero_approx(AudioServer.get_bus_volume_linear(master)), "Master becomes silent at 0.15 s")
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	fade = suspend.get("_fade")
+	fade.custom_step(0.15)
+	expect.call(is_equal_approx(AudioServer.get_bus_volume_linear(master), initial_volume * 0.5), "Master resume fade reaches half volume at 0.15 s")
+	fade.custom_step(0.15)
+	expect.call(is_equal_approx(AudioServer.get_bus_volume_linear(master), initial_volume), "Master restores the player's volume at 0.3 s")
+	expect.call(not scene.get_tree().paused and scene.get("_run_state") == transient and scene.get("_combat_state") == original_combat and bool(scene.get("_animation_lock")), "Suspend notifications preserve the tree, action lock and live gameplay state")
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	(suspend.get("_fade") as Tween).custom_step(0.075)
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	(suspend.get("_fade") as Tween).custom_step(0.075)
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	(suspend.get("_fade") as Tween).custom_step(0.15)
+	scene.propagate_notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	(suspend.get("_fade") as Tween).custom_step(0.3)
+	expect.call(is_equal_approx(AudioServer.get_bus_volume_linear(master), initial_volume) and AudioServer.is_bus_mute(master) == initial_mute, "Interrupted fades preserve the original volume and mute preference")
+	suspend.call("dispose")
+	scene.set("_run_state", original_run)
+	scene.set("_combat_state", original_combat)
+	scene.set("_animation_lock", original_lock)
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()

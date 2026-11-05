@@ -1,0 +1,23 @@
+{
+  "name": "shutdown-matched-default-9",
+  "seed": 9,
+  "no_embrace": false,
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_task.py",
+    "--seed",
+    "9",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-45/shutdown-matched-default-9"
+  ],
+  "output_dir": "/private/tmp/labyrinth_codex/qa-45/shutdown-matched-default-9",
+  "returncode": 0,
+  "started": 1793863662.795079,
+  "wall_seconds": 1168.479197025299
+}

@@ -29,7 +29,14 @@ SUPPLEMENTAL_BY_NAME = {program["path"].removeprefix("tests/").removesuffix(".gd
 SUITES = tuple(path.removeprefix("tests/").removesuffix(".gd")
                for name in BASE_SUITES + tuple(SUPPLEMENTAL_BY_NAME)
                for path in program_paths("tests/" + name + ".gd"))
-MAX_CHILDREN = min(6, max(1, (os.cpu_count() or 1) // 3))
+# Headless children have isolated storage and no GUI lease. This is a measured
+# scheduling default, not a CPU-count or shared-resource correctness limit.
+# Recalibrate with tests/helpers/loaded_suite_benchmark.py: three consecutive
+# loaded full runs must pass below 13 GB for the complete suite process tree.
+# qa-50: deterministic draw-motion samples qualified eight in all three runs
+# (peak footprint 10.919 GB); test-06's eleven-slot memory guard remains.
+DEFAULT_TEST_POOL = 8
+TEST_POOL_ENV = "LABYRINTH_TEST_POOL"
 SUITE_TIMEOUT_SECONDS = 300.0
 POLL_SECONDS = 0.02
 WRAPPER_CLEANUP_SECONDS = 5.0
@@ -114,7 +121,8 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event, *, clock=ti
     logs = args.result_file.with_suffix(".logs")
     logs.mkdir(parents=True, exist_ok=True)
     args.placement_report_directory = Path(tempfile.mkdtemp(prefix="placement-", dir=logs))
-    report = {"complete": False, "results": results, "retries": [], "seconds": 0.0, "failed": False}
+    report = {"complete": False, "results": results, "retries": [], "seconds": 0.0,
+              "failed": False, "jobs": args.jobs}
 
     def finish(index: int, code: int, elapsed: float, log_path: Path, reason: str = "") -> None:
         # A timeout cannot conceal an assertion or script failure printed first.
@@ -224,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--godot", default="godot")
     parser.add_argument("--task-id", default=os.environ.get("LABYRINTH_TASK_ID", "program-suites"))
     parser.add_argument("--result-file", type=Path, required=True)
-    parser.add_argument("--jobs", type=int, default=MAX_CHILDREN)
+    parser.add_argument("--jobs", type=int, help="Concurrent programs; overrides %s (default: %d)." % (TEST_POOL_ENV, DEFAULT_TEST_POOL))
     parser.add_argument("--timeout", type=float, default=SUITE_TIMEOUT_SECONDS)
     parser.add_argument("--perf", action="store_true", help="Run the opt-in speed guards and their functional fixtures.")
     parser.add_argument("--on-demand", nargs="+", metavar="GROUP",
@@ -233,8 +241,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--suite", action="append", help="Run a focused child (repeatable); default: all children.")
     parser.add_argument("--watch-parent-stdin", action="store_true")
     args = parser.parse_args(argv)
-    if not 1 <= args.jobs <= MAX_CHILDREN or args.timeout <= 0:
-        parser.error("jobs must be 1..%d; timeout must be positive" % MAX_CHILDREN)
+    if args.jobs is None:
+        try:
+            args.jobs = int(os.environ.get(TEST_POOL_ENV, str(DEFAULT_TEST_POOL)))
+        except ValueError:
+            parser.error(TEST_POOL_ENV + " must be a positive integer")
+    if args.jobs < 1 or args.timeout <= 0:
+        parser.error("jobs must be positive; timeout must be positive")
     args.project = args.project.resolve()
     args.result_file = args.result_file.resolve()
     args.result_file.parent.mkdir(parents=True, exist_ok=True)

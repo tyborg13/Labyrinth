@@ -50,7 +50,7 @@
     "scripts/battlefield_rule_hud.gd": "4b0abe34ce1bcf9f9266f00d5cbc3d91d3df36488a554547ebb9e2f0b18218e6",
     "scripts/battlefield_rule_view.gd": "68303f1f1a36d29c4d7e5aaf1868f38753bdfa3765a77302cb42da86545cc415",
     "scripts/battlefield_rules/analytics.gd": "e583774d064d21c6a7bf746f0906b2a1a426d374f51ae18a8da5c2450bab38f4",
-    "scripts/battlefield_rules/bot_policy.gd": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
+    "tools/bot_policy.gd": "71affbd6893ac94304169aae393be9e4865f13247ded42d7416f46ade04f836b",
     "scripts/battlefield_rules/committed.gd": "7bde14a3bab0bb3d3a862106a70895594666dcb51e698642e19b7f833401e171",
     "scripts/battlefield_rules/dispatcher.gd": "5740d6d2183e8fa6711b28b5b2ec4200c191b05e61f040aa2bdc1e9fb9b14aed",
     "scripts/battlefield_rules/frostbite.gd": "973f6f284f6495af6b61e364682bf0fc8801f138be6c781ec45d56b7c7bb29ba",

@@ -133,6 +133,13 @@ func _press_controller_button(button: int) -> void:
 	await _settle_controls()
 
 func _hover(board: Control, tile: Vector2i, count: int) -> void:
+	# Eight uncapped headless frames do not finish the scene's wall-clock
+	# centering tween. Aim only once the board has reached its final transform;
+	# otherwise the recorded point can move off the intended tile during hover.
+	var centering: Tween = scene.get("_board_centering_tween")
+	while centering != null and centering.is_valid() and centering.is_running():
+		await process_frame
+		centering = scene.get("_board_centering_tween")
 	var motion := InputEventMouseMotion.new()
 	motion.position = board.get_global_transform_with_canvas() * board.call("_tile_center", tile) if tile.x >= 0 else PROOF_CLEAR_POINTER
 	motion.global_position = motion.position
@@ -141,6 +148,8 @@ func _hover(board: Control, tile: Vector2i, count: int) -> void:
 	if count == 0: return
 	assert(view.gui_get_hovered_control() == board, "Native hover reaches the real board")
 	var popup: Window = _popup(board)
+	if popup == null:
+		print("TILE TOOLTIP MISSING: ", {"tile": tile, "position": board.position, "target": scene.get("_board_centering_target"), "pointer": board.get("_last_pointer_position"), "enabled": board.get("_tooltips_enabled"), "text": board.call("_get_tooltip", board.get("_last_pointer_position")), "other_popup": _popup(view)})
 	assert(popup != null, "Native tile tooltip opens")
 	assert(Rect2(Vector2.ZERO, Vector2(view.size)).encloses(Rect2(Vector2(popup.position), Vector2(popup.size))), "Native stack stays on-screen")
 	var stack: Control = _stack(popup)

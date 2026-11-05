@@ -1,0 +1,178 @@
+extends "res://tools/run_hunt.gd"
+## Task-local, read-only observation; inherited inputs and RNG remain unchanged.
+const MapGraph = preload("res://scripts/section_map_graph.gd")
+var observation_counts: Dictionary = {}
+var observation_mismatches: Dictionary = {}
+var census_sections: Dictionary = {}
+
+func _record(action: Dictionary) -> void:
+	_observe()
+	super._record(action)
+
+func _check_room_leaks(sample: Dictionary) -> void:
+	var section: int = int(sample["section"])
+	if section in [0, 5] and not census_sections.has(section):
+		census_sections[section] = true
+		_qa45_census(sample)
+	super._check_room_leaks(sample)
+
+func _finish(outcome: String) -> void:
+	_emit("qa45_observation_summary", {"context": _context(), "counts": observation_counts, "mismatches": observation_mismatches})
+	_emit("qa45_terminal_state", {"context": _context(), "outcome": outcome, "combat": scene.get("_combat_state")})
+	super._finish(outcome)
+
+func _compare(kind: String, expected: Variant, actual: Variant, owner: String) -> void:
+	observation_counts[kind] = int(observation_counts.get(kind, 0)) + 1
+	if expected == actual: return
+	var key: String = kind + ":" + owner
+	observation_mismatches[key] = int(observation_mismatches.get(key, 0)) + 1
+	if int(observation_mismatches[key]) > 1: return
+	_emit("qa45_observation_mismatch", {"context": _context(), "kind": kind, "owner": owner, "expected": expected, "actual": actual})
+
+func _observe() -> void:
+	var run: Dictionary = scene.get("_run_state")
+	var committed: Dictionary = scene.get("_combat_state")
+	var board: Node = scene.get("board_view")
+	var shown: Dictionary = board.get("combat_state")
+	if bool(board.get("_submission_cache_valid")):
+		_compare("board_units", board.call("_build_visible_units"), board.get("_visible_units_cache"), "board")
+		_compare("board_submission", board.call("_combat_submission_cache_source", shown), (board.get("_submission_cache_source_snapshot") as Dictionary).get("combat", {}), "board")
+	for layer: Node in board.get("_retained_state_layers"):
+		if is_instance_valid(layer):
+			_compare("board_layer_state", shown, layer.get("combat_state"), str(layer.name))
+	if str(run.get("mode", "")) == "combat":
+		_observe_hand(committed)
+		_observe_boss(committed)
+		_observe_forecast()
+	var map: Control = scene.get("_large_map_view") as Control
+	if is_instance_valid(map) and map.is_visible_in_tree(): _observe_map(map, run)
+
+func _observe_hand(committed: Dictionary) -> void:
+	var hand: Array = (committed.get("deck", {}) as Dictionary).get("hand", [])
+	for index: int in range(hand.size()):
+		var widget: Control = scene.call("_hand_card_control", index) as Control
+		if widget == null or not widget.is_visible_in_tree(): continue
+		var owner: String = "hand_%d" % index
+		_compare("hand_identity", str(hand[index]), widget.get("card_id"), owner)
+		var card: Dictionary = widget.call("_display_card_def")
+		var badge: Control = widget.get("_time_badge") as Control
+		if badge != null:
+			var expected_cost: int = maxi(1, int(card.get("time", 5))) + maxi(int(widget.get("_time_surcharge")), int(card.get("_item_time_surcharge", 0)) + int(card.get("_tempo_time_surcharge", 0)))
+			_compare("time_badge", expected_cost, badge.get("value"), owner)
+		var inputs: Array = widget.get("_summary_display_inputs")
+		if not inputs.is_empty(): _compare("summary_card", card, inputs[0], owner)
+
+func _observe_boss(committed: Dictionary) -> void:
+	var overlay: Control = scene.get("_boss_health_overlay") as Control
+	if overlay == null or not overlay.is_visible_in_tree(): return
+	var bar: Control = scene.get("_boss_health_bar") as Control
+	if bar == null: return
+	var id: int = int(scene.get("_boss_health_candidate_id"))
+	for enemy: Dictionary in committed.get("enemies", []):
+		if int(enemy.get("id", -1)) != id: continue
+		var maximum: int = maxi(1, int(enemy.get("max_hp", 1)))
+		_compare("boss_health", Vector2(clampi(int(enemy.get("hp", 0)), 0, maximum), maximum), Vector2(float(bar.get("value")), float(bar.get("max_value"))), "boss_%d" % id)
+
+func _observe_forecast() -> void:
+	var cache: RefCounted = scene.get("_combat_forecast_cache")
+	if not bool(cache.get("_ready")): return
+	var source: Dictionary = cache.get("_state")
+	var summary: Dictionary = cache.get("_summary")
+	if summary.is_empty(): return
+	var engine: RefCounted = scene.get("_combat_engine")
+	_compare("forecast_wait", engine.call("pending_wait_time", source), summary.get("wait_time"), "memo")
+	if not bool(summary.get("umbra_unknown_before_player", false)):
+		_compare("forecast_source_hp", maxi(0, int((source.get("player", {}) as Dictionary).get("hp", 0))), summary.get("source_hp"), "memo")
+
+func _observe_map(map: Control, run: Dictionary) -> void:
+	var state: Dictionary = map.get("run_state")
+	_compare("map_current", run.get("current_room"), state.get("current_room"), "map")
+	var available: Array[Vector2i] = map.call("available_destinations")
+	var future: Dictionary = MapGraph.descendants(state, state.get("current_room", MapGraph.INVALID))
+	var buttons: Dictionary = map.get("node_buttons")
+	for coord: Vector2i in buttons:
+		var button: Control = buttons[coord]
+		var data: Dictionary = MapGraph.room(state, coord)
+		_compare("map_node_data", data, button.get("room_data"), str(coord))
+		_compare("map_route", map.call("_node_route_state", data, available, future), button.get("route_state"), str(coord))
+		_compare("map_actionable", map.call("can_activate_room", coord), button.get("actionable"), str(coord))
+
+# Read-only replay diagnostics. No inputs, state, policy or limits are changed.
+func _qa45_census(sample: Dictionary) -> void:
+	var hosts: Dictionary = {}
+	for child: Node in scene.get_children(true):
+		hosts[str(child.name)] = _tree_count(child)
+	var scripts: Dictionary = {}
+	_qa45_count_scripts(scene, scripts)
+	var pools: Dictionary = {}
+	for field: String in ["_hand_card_pool", "_pile_dialog_card_pool", "_card_proxy_pool"]:
+		var entries: Variant = scene.get(field)
+		pools[field] = entries.size() if entries is Array else -1
+	_emit("qa45_census", {"context": sample, "hosts": hosts, "scripts": scripts, "pools": pools, "lifetimes": _qa45_lifetimes()})
+
+func _qa45_count_scripts(node: Node, counts: Dictionary) -> void:
+	var script: Script = node.get_script() as Script
+	var key: String = script.resource_path if script != null else node.get_class()
+	counts[key] = int(counts.get(key, 0)) + 1
+	for child: Node in node.get_children(true): _qa45_count_scripts(child, counts)
+
+# Read only current production owners; counts are disjoint within each group.
+func _qa45_collect(node: Variant, ids: Dictionary) -> void:
+	if not is_instance_valid(node) or not node is Node or not node.is_inside_tree(): return
+	ids[node.get_instance_id()] = true
+	for child: Node in node.get_children(true): _qa45_collect(child, ids)
+
+func _qa45_lifetimes() -> Dictionary:
+	var result: Dictionary = {}
+	var named: Dictionary = {}
+	for spec: Array in [["hand", "_hand_card_pool", "slot"], ["pile", "_pile_dialog_card_pool", "button"], ["proxy", "_card_proxy_pool", ""]]:
+		var ids: Dictionary = {}
+		var entries: Array = scene.get(spec[1])
+		for entry: Variant in entries:
+			_qa45_collect(entry.get(spec[2]) if entry is Dictionary else entry, ids)
+		named[spec[0]] = ids
+		result[spec[0]] = {"entries": entries.size(), "nodes": ids.size()}
+	result["hand"]["limit"] = preload("res://scripts/combat_engine.gd").MAX_HAND_SIZE
+	result["pile"]["limit"] = preload("res://scripts/run_card_pool_lifetime.gd").pile_limit(scene)
+	result["proxy"]["limit"] = scene.CARD_PROXY_POOL_LIMIT
+	var grimoire_ids: Dictionary = {}
+	for entry: Dictionary in scene._grimoire_search_retained_rows.values(): _qa45_collect(entry.get("node"), grimoire_ids)
+	named["grimoire"] = grimoire_ids
+	var grimoire_height: float = 0.0
+	for entry: Dictionary in scene._grimoire_search_retained_rows.values():
+		var row: Variant = entry.get("node")
+		if is_instance_valid(row): grimoire_height += row.get_combined_minimum_size().y + scene._grimoire_section_list.get_theme_constant("separation")
+	result["grimoire"] = {"entries": scene._grimoire_search_retained_rows.size(), "nodes": grimoire_ids.size(), "height": grimoire_height, "height_limit": preload("res://scripts/retained_view_geometry.gd").scroll_height(scene._grimoire_entry_scroll, scene._grimoire_dialog)}
+	var character_ids: Dictionary = {}
+	var character: RefCounted = scene._character_inventory_rows
+	_qa45_collect(character._hidden_host, character_ids)
+	_qa45_collect(scene._upgrade_dialog, character_ids)
+	_qa45_collect(scene._retained_skill_tree_host, character_ids)
+	for entry: Dictionary in character._views.values(): _qa45_collect(entry.get("node"), character_ids)
+	named["character"] = character_ids
+	var view_fits: Dictionary = {}
+	for mode: String in character._views:
+		var dialog: Variant = character._views[mode].get("node")
+		if is_instance_valid(dialog): view_fits[mode] = preload("res://scripts/character_inventory_rows.gd")._fits_one_screen(dialog)
+	result["character"] = {"views": character._views.size(), "entries": character._entries.size(), "panels": character._panels.size(), "nodes": character_ids.size(), "cached_views_fit_screen": view_fits, "live_view_fits_screen": preload("res://scripts/character_inventory_rows.gd")._fits_one_screen(scene._upgrade_dialog), "hidden_children": character._hidden_host.get_child_count() if is_instance_valid(character._hidden_host) else 0}
+	var pre_battle_ids: Dictionary = {}
+	for child: Node in scene._pre_battle_panel.get_children(true): _qa45_collect(child, pre_battle_ids)
+	named["pre_battle"] = pre_battle_ids
+	result["pre_battle"] = {"nodes": pre_battle_ids.size()}
+	var total: Dictionary = {}
+	for group: Dictionary in named.values(): total.merge(group)
+	result["named_pool_nodes"] = total.size()
+	var board: Node = scene.board_view
+	var tiles: Dictionary = {}
+	for field: String in ["_scene_render_layers_by_tile", "_scene_back_effect_render_layers_by_tile", "_scene_front_effect_render_layers_by_tile"]:
+		var mapping: Dictionary = board.get(field)
+		tiles[field] = mapping.size()
+	var state: Dictionary = board.get("combat_state")
+	var grid: Array = state.get("grid", [])
+	var cells: int = 0
+	for row: Array in grid: cells += row.size()
+	tiles["grid_cells"] = cells
+	tiles["rendered_tiles"] = board._rendered_tiles_in_draw_order().size()
+	result["tile_canvases"] = tiles
+	return result
+

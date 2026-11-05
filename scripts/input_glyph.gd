@@ -3,6 +3,8 @@ class_name InputGlyph
 
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const STICK_LABEL_SIZE: int = 12
+const PREVIOUS_STICK_LABEL_SIZE: int = 11
 
 const FACE_ACTIONS: Array[StringName] = Array([
 	InputRouterScript.ACTION_ACCEPT,
@@ -82,7 +84,7 @@ func _draw_stick(rect: Rect2, glyph_text: String) -> void:
 	var ink: Color = Color("fff7e4") if family == InputRouterScript.FAMILY_XBOX else Color("242126")
 	draw_circle(center, radius, fill)
 	draw_arc(center, radius, 0.0, TAU, 32, Color("d3a85f"), 2.0, true)
-	_draw_centered_text(glyph_text, rect, ink, UiTypography.scaled_size(self, 11))
+	_draw_centered_text(glyph_text, rect, ink, UiTypography.scaled_size(self, STICK_LABEL_SIZE))
 
 func _draw_centered_text(text: String, rect: Rect2, color: Color, font_size: int) -> void:
 	var font: Font = UiTypography.ui_font()
@@ -117,7 +119,10 @@ static func preferred_size(next_action_name: StringName) -> Vector2:
 		return Vector2(30.0, 30.0)
 	if next_action_name in SHOULDER_ACTIONS:
 		return Vector2(68.0, 27.0) if next_action_name == InputRouterScript.ACTION_HAND_BUMPERS else Vector2(42.0, 27.0)
-	if next_action_name in [&"controller_move", &"controller_dpad", InputRouterScript.ACTION_EMPOWER]:
+	if next_action_name in [&"controller_move", InputRouterScript.ACTION_EMPOWER]:
+		# Grow the stick's box with its label so the two-letter glyph keeps its fit.
+		return Vector2(34.0, 30.0) * float(STICK_LABEL_SIZE) / float(PREVIOUS_STICK_LABEL_SIZE)
+	if next_action_name == &"controller_dpad":
 		return Vector2(34.0, 30.0)
 	return Vector2(36.0, 27.0)
 

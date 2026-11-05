@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "child_returncode": 0,
+  "matching_prefix": 90,
+  "decisions": 90,
+  "model_mismatches": 0,
+  "script_errors": 0,
+  "source_sha256": {
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_replay.gd": "115c71d7d5b4b5304fbbf8a07a4d1ebe887a181dae7db4e3362d121e9a68de11",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd": "48b8da192f04844053359137e9767d3561999f86a523fd2545f11b8638da5374",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/qa-45/tools/run_hunt.gd": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0"
+  }
+}

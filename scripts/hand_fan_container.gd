@@ -323,6 +323,26 @@ func _apply_layout() -> void:
 			_emphasized_index,
 			_emphasis_strength
 		)
+	_update_title_occluders(children)
+
+func _update_title_occluders(children: Array[Control]) -> void:
+	for index: int in range(children.size()):
+		var card: Control = _title_card(children[index])
+		if card == null: continue
+		var badge: Control
+		if index + 1 < children.size():
+			var next: Control = _title_card(children[index + 1])
+			if next != null and children[index + 1].z_index > children[index].z_index:
+				badge = next.get_node_or_null("TimeCostBadge") as Control
+		card.call("set_title_occluder", badge)
+
+func _title_card(node: Control) -> Control:
+	if node.has_method("set_title_occluder"): return node
+	for child: Node in node.get_children():
+		if child is Control:
+			var card: Control = _title_card(child)
+			if card != null: return card
+	return null
 
 func _get_minimum_size() -> Vector2:
 	var children: Array[Control] = _layout_children()
@@ -364,6 +384,18 @@ static func content_size_for_layout(total: int, card_size: Vector2, card_gap: fl
 	var full_height: float = card_size.y + (arch_height if fan_enabled and total > 1 else 0.0)
 	var height: float = maxf(card_size.y, full_height - bottom_overflow_allowance_for_layout(total, fan_enabled, arch_height, bottom_overflow_allowance))
 	return Vector2(width, height)
+
+## Resting geometry only: no hover, emphasis, drag or close-slide transforms.
+static func resting_vertical_bounds(total: int, card_size: Vector2, watch_overhang: float) -> Vector2:
+	var extent := Vector2(INF, -INF)
+	for index: int in range(total):
+		var rotation: float = card_rotation_for_layout(index, total, true)
+		var centered := Rect2(-card_size * 0.5 - Vector2(0.0, watch_overhang), card_size + Vector2(0.0, watch_overhang))
+		var bounds: Rect2 = Transform2D(rotation, Vector2.ZERO) * centered
+		var center_y: float = card_size.y * 0.5 + fan_offset_y_for_layout(index, total, true)
+		extent.x = minf(extent.x, center_y + bounds.position.y)
+		extent.y = maxf(extent.y, center_y + bounds.end.y)
+	return extent
 
 static func card_rect_for_layout(index: int, total: int, card_size: Vector2, card_gap: float, fan_enabled: bool, arch_height: float = DEFAULT_ARCH_HEIGHT) -> Rect2:
 	if total <= 0:

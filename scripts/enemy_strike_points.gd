@@ -17,7 +17,7 @@ const MODELS: Dictionary = {
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
 const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
 const REGISTRY: Dictionary = {
-	"gust_shrike": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	"gust_shrike": {"area_strike_intents":["dive"], "kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
 	"briar_weaver": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Existing static sprite fallback; Lob/Grow use their own effects."},
 	"slag_mortar": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Existing static sprite fallback; Lob/Grow use their own effects."},
 	"hoarfrost_seer": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
@@ -37,7 +37,7 @@ const REGISTRY: Dictionary = {
 	"noctyrax": {"kind":"rake", "bone":"claw_fore_near", "point":[Vector2(107,205),Vector2(228,208)], "inner_bone":"lower_fore_near", "window":Vector2(0.336,0.66)},
 	"zekarion": {"kind":"rake", "bone":"claw_near", "landmark":"strike", "inner_bone":"lower_near", "window":Vector2(0.3696,0.66)},
 	"tharokh": {"kind":"rake", "bone":"claw_fore_near", "landmark":"sole_fore_near", "inner_bone":"lower_fore_near", "window":Vector2(0.3696,0.66)},
-	"vaeloryx": {"kind":"rake", "bone":"claw_near", "point":[Vector2(120,191),Vector2(188,170)], "inner_bone":"arm_near", "window":Vector2(0.34,0.66)},
+	"vaeloryx": {"area_strike_intents":["razor_dive"], "kind":"rake", "bone":"claw_near", "point":[Vector2(120,191),Vector2(188,170)], "inner_bone":"arm_near", "window":Vector2(0.34,0.66)},
 	"iskaldra": {"kind":"rake", "bone":"talon_near", "point":[Vector2(116,207),Vector2(66,205)], "inner_bone":"arm_near", "window":Vector2(0.30,0.60)},
 	"lightning_wisp": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"acolyte": {"kind":"arc", "window":Vector2(0.33,0.56)},

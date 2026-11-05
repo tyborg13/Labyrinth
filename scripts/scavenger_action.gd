@@ -23,6 +23,7 @@ var _keyboard: bool = false
 var _last_text: String = ""
 var _last_size: Vector2
 var _last_font: int = 0
+var _draw_state: Array = []
 func _ready() -> void:
 	ButtonFeedback.bind_button(self)
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
@@ -40,6 +41,11 @@ func _ready() -> void:
 	add_child(_label)
 	button_down.connect(func() -> void: _held = true)
 	button_up.connect(func() -> void: _held = false)
+	visibility_changed.connect(_refresh_processing)
+	_refresh_processing()
+
+func _refresh_processing() -> void:
+	set_process(is_visible_in_tree())
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey: _keyboard = true
@@ -61,7 +67,10 @@ func _process(delta: float) -> void:
 	if is_instance_valid(trailing):
 		trailing.position = Vector2(size.x - _label.position.x - trailing.size.x, (size.y - trailing.size.y) * 0.5 - _lift)
 		trailing.modulate = _label.modulate
-	queue_redraw()
+	var drawn: Array = [_lift, active, toggle_mode and button_pressed, surface, _held, disabled, size]
+	if drawn != _draw_state:
+		_draw_state = drawn
+		queue_redraw()
 
 # The hidden shop prepares the same label that its visible process uses.
 func prepare_label() -> void:

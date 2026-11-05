@@ -24,8 +24,8 @@ const ZONE_PREVIEW_OFFSET := Vector2i.UP
 const WAVE_E2_ROSTER: Array = [
 	{"type": "briar_weaver", "offset": Vector2i.RIGHT, "intent": "thornwall", "icon": "upheaval"},
 	{"type": "slag_mortar", "offset": Vector2i(-3, 0), "intent": "lob_slag", "icon": "lob"},
-	{"type": "glacial_mirror", "offset": Vector2i(0, -3), "intent": "refraction", "icon": "aoe"},
-	{"type": "gust_shrike", "offset": Vector2i(3, 0), "intent": "dive", "icon": "aoe"},
+	{"type": "glacial_mirror", "offset": Vector2i(0, -3), "intent": "refraction", "icon": "melee"},
+	{"type": "gust_shrike", "offset": Vector2i(3, 0), "intent": "dive", "icon": "melee"},
 ]
 
 static func run(expect: Callable) -> void:

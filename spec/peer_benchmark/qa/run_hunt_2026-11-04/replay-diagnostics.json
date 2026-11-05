@@ -1,0 +1,211 @@
+[
+  {
+    "name": "census-default-5",
+    "seed": 5,
+    "log": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/godot.log",
+    "child_returncode": 0,
+    "outcome": "census_complete",
+    "glossary": {
+      "samples": 3,
+      "warnings": [
+        {
+          "owner": "RelicChoice_ashen_phylactery",
+          "decision": 1623,
+          "log_line": 1702,
+          "warning": "WARNING: Relic glossary above-row overflow: RelicChoice_ashen_phylactery, viewport=(1920.0, 1920.0), block=(1326.0, 88.0), top=1864.0, row_top=1964.0",
+          "samples": [
+            {
+              "context": {
+                "decision": 1623,
+                "mode": "treasure",
+                "room": "(15, -9)",
+                "room_kind": "treasure",
+                "room_metadata": {
+                  "cleared": true,
+                  "connections": [
+                    {
+                      "coord": "(15, -4)",
+                      "door_dir": "(0, 1)",
+                      "kind": "outward"
+                    }
+                  ],
+                  "coord": "(15, -9)",
+                  "depth": 15,
+                  "element": "none",
+                  "map_lane": 3,
+                  "map_outline": true,
+                  "map_step": 8,
+                  "merchant_kind": "",
+                  "mystery_element": "air",
+                  "mystery_type": "treasure",
+                  "npcs": [],
+                  "revealed": true,
+                  "sealed": false,
+                  "section_index": 3,
+                  "type": "treasure",
+                  "visited": true,
+                  "was_mystery": true
+                },
+                "section": 3,
+                "seed": 5
+              },
+              "frame": 62156,
+              "geometry": {
+                "above": false,
+                "flow_size": "(372.0, 364.0)",
+                "overflow": false,
+                "owner": "RelicChoice_ashen_phylactery",
+                "owner_rect": "[P: (476.0, 842.0), S: (304.0, 284.0)]",
+                "position": "(92.0, 842.0)",
+                "row_rect": "[P: (476.0, 842.0), S: (968.0, 284.0)]",
+                "viewport": "[P: (0.0, 0.0), S: (1920.0, 1920.0)]",
+                "window_size": "(64, 64)"
+              }
+            }
+          ],
+          "cleared_before_next_decision": true
+        },
+        {
+          "owner": "RelicChoice_copper_shod_staff",
+          "decision": 1971,
+          "log_line": 2073,
+          "warning": "WARNING: Relic glossary above-row overflow: RelicChoice_copper_shod_staff, viewport=(1920.0, 1920.0), block=(1326.0, 109.0), top=1843.0, row_top=1964.0",
+          "samples": [
+            {
+              "context": {
+                "decision": 1971,
+                "mode": "treasure",
+                "room": "(18, -9)",
+                "room_kind": "treasure",
+                "room_metadata": {
+                  "cleared": true,
+                  "connections": [
+                    {
+                      "coord": "(19, -17)",
+                      "door_dir": "(1, 0)",
+                      "kind": "outward"
+                    }
+                  ],
+                  "coord": "(18, -9)",
+                  "depth": 18,
+                  "element": "none",
+                  "map_lane": 4,
+                  "map_outline": true,
+                  "map_step": 6,
+                  "merchant_kind": "",
+                  "npcs": [],
+                  "revealed": true,
+                  "sealed": false,
+                  "section_index": 4,
+                  "type": "treasure",
+                  "visited": true
+                },
+                "section": 4,
+                "seed": 5
+              },
+              "frame": 74451,
+              "geometry": {
+                "above": false,
+                "flow_size": "(372.0, 406.0)",
+                "overflow": false,
+                "owner": "RelicChoice_copper_shod_staff",
+                "owner_rect": "[P: (476.0, 842.0), S: (304.0, 284.0)]",
+                "position": "(92.0, 842.0)",
+                "row_rect": "[P: (476.0, 842.0), S: (968.0, 284.0)]",
+                "viewport": "[P: (0.0, 0.0), S: (1920.0, 1920.0)]",
+                "window_size": "(64, 64)"
+              }
+            }
+          ],
+          "cleared_before_next_decision": true
+        }
+      ]
+    },
+    "verbose_shutdown": false,
+    "objectdb_warning_reproduced": false,
+    "shutdown_tail": [],
+    "literal_script_error_count": 0
+  },
+  {
+    "name": "census-no-embrace-3",
+    "seed": 3,
+    "log": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/godot.log",
+    "child_returncode": 0,
+    "outcome": "victory",
+    "glossary": {
+      "samples": 3,
+      "warnings": [
+        {
+          "owner": "RelicChoice_hourglass_awl",
+          "decision": 767,
+          "log_line": 1963,
+          "warning": "WARNING: Relic glossary above-row overflow: RelicChoice_hourglass_awl, viewport=(1920.0, 1920.0), block=(624.0, 88.0), top=1864.0, row_top=1964.0",
+          "samples": [
+            {
+              "context": {
+                "decision": 767,
+                "mode": "treasure",
+                "room": "(5, 6)",
+                "room_kind": "treasure",
+                "room_metadata": {
+                  "cleared": true,
+                  "connections": [
+                    {
+                      "coord": "(7, -5)",
+                      "door_dir": "(0, -1)",
+                      "kind": "outward"
+                    },
+                    {
+                      "coord": "(7, -4)",
+                      "door_dir": "(1, 0)",
+                      "kind": "outward"
+                    }
+                  ],
+                  "coord": "(5, 6)",
+                  "depth": 6,
+                  "element": "none",
+                  "map_lane": 3,
+                  "map_outline": true,
+                  "map_step": 6,
+                  "merchant_kind": "",
+                  "npcs": [],
+                  "revealed": true,
+                  "sealed": false,
+                  "section_index": 1,
+                  "type": "treasure",
+                  "visited": true
+                },
+                "section": 1,
+                "seed": 3
+              },
+              "frame": 26676,
+              "geometry": {
+                "above": false,
+                "flow_size": "(306.0, 162.0)",
+                "overflow": false,
+                "owner": "RelicChoice_hourglass_awl",
+                "owner_rect": "[P: (476.0, 842.0), S: (304.0, 284.0)]",
+                "position": "(158.0, 842.0)",
+                "row_rect": "[P: (476.0, 842.0), S: (968.0, 284.0)]",
+                "viewport": "[P: (0.0, 0.0), S: (1920.0, 1920.0)]",
+                "window_size": "(64, 64)"
+              }
+            }
+          ],
+          "cleared_before_next_decision": true
+        }
+      ]
+    },
+    "verbose_shutdown": true,
+    "objectdb_warning_reproduced": false,
+    "shutdown_tail": [
+      "XR: Clearing primary interface",
+      "XR: Removed interface \"Native mobile\"",
+      "XR: Removed interface \"OpenXR\"",
+      "Orphan StringName: process_frame (static: 1, total: 2)",
+      "Orphan StringName: BAYER (static: 0, total: 2)",
+      "StringName: 2 unclaimed string names at exit."
+    ],
+    "literal_script_error_count": 0
+  }
+]

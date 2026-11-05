@@ -1,0 +1,33 @@
+extends SceneTree
+const Assets = preload("res://scripts/asset_loader.gd")
+const REPEATS: int = 20
+const CHECKPOINTS: Array = [1, 5, 20]
+func _initialize() -> void: call_deferred("_run")
+func _populate(kind: String) -> Dictionary:
+	# A separate call frame releases all constructor temporaries before the
+	# caller checks lifetime. No generated or imported artwork is involved.
+	var texture: Texture2D = ImageTexture.new()
+	if kind == "atlas":
+		var atlas := AtlasTexture.new()
+		atlas.atlas = texture
+		texture = atlas
+	var id: int = texture.get_instance_id()
+	var key: String = Assets._texture_processing_cache_key(texture)
+	Assets.cache_texture_used_rect(texture, Rect2i())
+	return {"id": id, "key": key}
+func _run() -> void:
+	var rows: Array[Dictionary]
+	for kind: String in ["texture", "atlas"]:
+		var baseline: int = Assets._texture_used_rect_cache.size()
+		for visit: int in range(1, REPEATS + 1):
+			var created: Dictionary = _populate(kind)
+			var alive: bool = is_instance_id_valid(created["id"])
+			if alive or not Assets._texture_used_rect_cache.has(created["key"]):
+				print("QA53 TEXTURE BOUNDS REPRO: FAIL " + str(created) + " alive=" + str(alive))
+				quit(1)
+				return
+			if visit in CHECKPOINTS:
+				rows.append({"kind": kind, "visits": visit, "cache_growth": Assets._texture_used_rect_cache.size() - baseline, "last_texture_alive": alive, "last_key": created["key"]})
+	FileAccess.open("/private/tmp/labyrinth_codex/qa-53/texture-bounds-repro.json", FileAccess.WRITE).store_string(JSON.stringify(rows, "\t"))
+	print("QA53 TEXTURE BOUNDS REPRO: PASS " + JSON.stringify(rows))
+	quit()

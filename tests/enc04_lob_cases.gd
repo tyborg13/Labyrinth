@@ -8,8 +8,8 @@ const DECLARATION_SEED: int = 1
 const REVIEW_BLOCK_OFFSETS: PackedInt32Array = [-1, 3]
 const ADJACENT_DIRECTIONS = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
 
-static func revealed_adjacent(engine: RefCounted, direction: Vector2i, side: int, blockers: String = "") -> Dictionary:
-	var state: Dictionary = Fixture.battle("fire")
+static func revealed_adjacent(engine: RefCounted, direction: Vector2i, side: int, blockers: String = "", template: Dictionary = {}) -> Dictionary:
+	var state: Dictionary = Fixture.battle("fire") if template.is_empty() else template.duplicate(true)
 	state["enemies"].resize(1)
 	state["enemies"][0]["pos"] = CAPTAIN
 	state["player"]["pos"] = CAPTAIN + direction * DECLARATION_DISTANCE

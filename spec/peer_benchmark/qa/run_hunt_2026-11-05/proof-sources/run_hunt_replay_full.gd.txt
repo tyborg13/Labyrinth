@@ -1,0 +1,5 @@
+extends "/private/tmp/labyrinth_codex/qa-45/run_hunt_replay.gd"
+## Full lifecycle variant for the observed ObjectDB shutdown warning.
+func _initialize() -> void:
+	census_stop_enabled = false
+	super._initialize()

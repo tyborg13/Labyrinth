@@ -10,6 +10,7 @@ const TempoRules = preload("res://scripts/tempo_rules.gd")
 const State = preload("res://scripts/card_display_state.gd")
 const Bindings = preload("res://scripts/card_display_bindings.gd")
 const ItemText = preload("res://scripts/item_rules_text.gd")
+const CardArea = preload("res://scripts/card_area_presentation.gd")
 static var _engine := preload("res://scripts/combat_engine.gd").new()
 
 static func apply_projection(widget: Control, card: Dictionary, display: Dictionary) -> void:
@@ -123,15 +124,19 @@ static func for_card(card_id: String, state: Dictionary, definition: Dictionary 
 			_:
 				row = ActionIcons.tokens_for_action(action)
 		var annotated_row: Array = row
+		annotated_row = CardArea.tokens(annotated_row, action, card.get("actions", []), true)
 		previous_action_row_index = ActionIcons.append_action_row(summary_rows, action, annotated_row, previous_action_row_index)
 		var guardian_row: Array = ActionIcons.tokens_for_guardian_rule(action)
 		if not guardian_row.is_empty(): summary_rows.append(guardian_row)
 		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
+		bonus_row = CardArea.tokens(bonus_row, action, card.get("actions", []))
 		if not bonus_row.is_empty():
 			summary_rows.append(bonus_row)
-		summary_rows.append_array(ActionIcons.keyword_rider_rows(action))
+		for rider: Array in ActionIcons.keyword_rider_rows(action):
+			summary_rows.append(CardArea.tokens(rider, action, card.get("actions", [])))
 	summary_rows.append_array(ActionIcons.keyword_rows_for_card(card, keyword_state))
 	summary_rows.append_array(ActionIcons.rules_text_rows_for_card(card))
+	summary_rows = CardArea.patterns(summary_rows)
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = ActionIcons.card_rules_text(card)

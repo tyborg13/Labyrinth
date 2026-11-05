@@ -1,0 +1,433 @@
+extends "res://tools/run_hunt.gd"
+## qa-51: read production policy, dispatch physical controller events only.
+const Router = preload("res://scripts/input_router.gd")
+const Navigation = preload("res://scripts/controller_navigation.gd")
+const INPUT_SETTLE: int = 3
+const HUNT_MAX_FPS: int = 240
+const NAV_LIMIT: int = 160
+const ANALOG_SAMPLE_LIMIT: int = 640
+const ANALOG_MAX_STRENGTH: float = 0.9
+const ANALOG_MIN_STRENGTH: float = 0.4
+const ANALOG_APPROACH_DISTANCE: float = 160.0
+const INPUT_HISTORY_LIMIT: int = 40
+const ANIMATION_WAIT_FRAMES: int = 2400
+const HAND_CYCLE_LIMIT: int = 20
+const CARD_MODE_LIMIT: int = 6
+const CHRONICLE_SCAN_STEPS: int = 4
+const ANALOG_NAV_TIME_SCALE: float = 1.0
+const EDGES: Array = [[SIDE_LEFT, JOY_BUTTON_DPAD_LEFT, Vector2.LEFT], [SIDE_TOP, JOY_BUTTON_DPAD_UP, Vector2.UP], [SIDE_RIGHT, JOY_BUTTON_DPAD_RIGHT, Vector2.RIGHT], [SIDE_BOTTOM, JOY_BUTTON_DPAD_DOWN, Vector2.DOWN]]
+class ControllerPolicy extends "res://tools/run_hunt_policy.gd":
+	var driver: SceneTree
+	func offers(host: Node) -> Array:
+		if str(host.get("_controller_region")) == "card_mode": return [{"kind": "card_mode"}]
+		var offered: Array = super.offers(host)
+		if offered.size() == 1 and str(offered[0].get("kind", "")) == "leave_browse": return offered
+		var purge: Variant = host.get("_magic_purge_overlay")
+		if is_instance_valid(purge): return _controls(purge.focus_scope())
+		return offered
+	func _collect(node: Node, result: Array) -> void:
+		# CardWidget is a Button whose production reward action uses activated.
+		# The inherited BaseButton early-return otherwise omits every card offer.
+		if node is CardWidget and node.is_visible_in_tree() and not node.disabled and bool(node.get("_interactive")):
+			if not node.get_signal_connection_list("activated").is_empty():
+				result.append({"kind": "ui", "control": node, "signal": "activated", "path": str(node.get_path()), "card_id": str(node.get("card_id"))})
+				return
+		super._collect(node, result)
+	func dispatch(_host: Node, action: Dictionary) -> void:
+		if not browse_key.is_empty(): browse_decisions += 1
+		driver.dispatch_controller(action)
+var inputs: int = 0
+var input_tail: Array[Dictionary]
+var coverage: Dictionary = {}
+var auxiliary_done: bool = false
+var combat_aux_done: bool = false
+var last_scope: String = ""
+var blocked_actions: Dictionary = {}
+var inputs_file: FileAccess
+
+func _initialize() -> void:
+	super._initialize()
+	root.mode = Window.MODE_WINDOWED
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_factor = 1.0
+	root.size = Vector2i(1920, 1080)
+	Engine.max_fps = HUNT_MAX_FPS
+
+func _enter_scene(resume: bool) -> void:
+	Router.ensure_input_map()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	super._enter_scene(resume)
+
+func _start() -> void:
+	super._start()
+	var adapter := ControllerPolicy.new()
+	adapter.driver = self
+	adapter.rng = rng
+	adapter.no_embrace = no_embrace
+	policy = adapter
+	inputs_file = FileAccess.open(output.path_join("inputs.jsonl"), FileAccess.WRITE)
+
+func _side_action() -> bool:
+	if not auxiliary_done and policy.side_actions_available(scene) and str(scene.get("_run_state").get("mode")) == "room":
+		auxiliary_done = true
+		busy = true
+		_auxiliary()
+		return true
+	if not combat_aux_done and policy.side_actions_available(scene) and str(scene.get("_run_state").get("mode")) == "combat" and not bool(scene.call("_guided_tutorial_is_active")):
+		combat_aux_done = true
+		busy = true
+		_combat_auxiliary()
+		return true
+	return false
+
+func _check_room_leaks(_sample: Dictionary) -> void:
+	pass # Owned by qa-45, unrelated to this controller hunt.
+
+func _tick() -> void:
+	if not busy and not finished and is_instance_valid(scene) and not bool(scene.get("_animation_lock")) and settle_frames <= 0:
+		_audit_focus()
+	super._tick()
+
+func _audit_focus() -> void:
+	var scope: Control = scene.call("_controller_focus_scope")
+	if scope == null: return
+	var label: String = str(scope.name)
+	coverage[label] = int(coverage.get(label, 0)) + 1
+	var current: Control = root.gui_get_focus_owner()
+	if not bool(scene.call("_controller_uses_gui_focus")): return
+	# Dialogue without choices uses A/B directly and intentionally owns no control.
+	if bool(scene.get("_dialogue_active")) and not bool(scene.call("_has_current_dialogue_options")): return
+	if current == null:
+		var actions: Array = policy._controls(scope)
+		if actions.is_empty(): return # No controller decision is available during a reveal.
+		_issue("no_focus", "No focused control on " + label)
+	elif not current.is_visible_in_tree() or current.modulate.a <= 0.0 or (current is BaseButton and current.disabled):
+		_issue("invalid_focus", "Hidden or disabled focus: " + str(current.get_path()))
+	elif not _inside(scope, current):
+		_issue("focus_leak", "Focus behind " + label + ": " + str(current.get_path()))
+
+func _inside(scope: Control, control: Control) -> bool:
+	return is_instance_valid(scope) and is_instance_valid(control) and (scope == control or scope.is_ancestor_of(control))
+
+func _issue(kind: String, message: String) -> void:
+	var key: String = kind + ":" + message
+	if blocked_actions.has(key): return
+	blocked_actions[key] = true
+	var row: Dictionary = {"kind": kind, "message": message, "context": _context(), "inputs": input_tail.duplicate(true), "input_number": inputs, "focus_state": _focus_state()}
+	findings.append(row)
+	_emit("controller_finding", row)
+
+func _focus_state() -> Dictionary:
+	var scope: Control = scene.call("_controller_focus_scope")
+	var actions: Array = policy._controls(scope)
+	var names: Array = []
+	for action: Dictionary in actions:
+		names.append({"path": str(action.get("path", "")), "text": str(action.get("text", "")), "focus_mode": action["control"].focus_mode})
+	return {"scope": str(scope.get_path()), "actions": names, "reward_reveal_pending": scene.get("_reward_reveal_pending"), "treasure_busy": scene.call("_treasure_presentation_busy")}
+
+func _joy(button: int) -> void:
+	inputs += 1
+	var row: Dictionary = {"n": inputs, "button": button, "context": _context(), "focus_before": str(root.gui_get_focus_owner().get_path()) if root.gui_get_focus_owner() != null else "", "region": str(scene.get("_controller_region")), "candidate": str(scene.get("_controller_focus_candidate").get("key", ""))}
+	input_tail.append(row)
+	if input_tail.size() > INPUT_HISTORY_LIMIT: input_tail.pop_front()
+	inputs_file.store_line(JSON.stringify(row))
+	inputs_file.flush()
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = button
+	event.pressed = true
+	Input.parse_input_event(event)
+	for frame: int in range(INPUT_SETTLE): await process_frame
+	event = event.duplicate()
+	event.pressed = false
+	Input.parse_input_event(event)
+	await process_frame
+
+func _wait() -> void:
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	for frame: int in range(ANIMATION_WAIT_FRAMES):
+		if not bool(scene.get("_animation_lock")) and not bool(scene.call("_treasure_presentation_busy")): return
+		await process_frame
+	_issue("softlock", "Animation/presentation lock exceeded 2400 frames")
+	_finish("presentation_softlock")
+
+func _route(scope: Control, start: Control, target: Control) -> Array:
+	var pending: Array[Control]
+	pending.append(start)
+	var paths: Dictionary = {start.get_instance_id(): []}
+	while not pending.is_empty():
+		var current: Control = pending.pop_front()
+		for edge: Array in EDGES:
+			var next: Control = current.find_valid_focus_neighbor(edge[0])
+			if not _inside(scope, next) or paths.has(next.get_instance_id()): continue
+			var path: Array = paths[current.get_instance_id()].duplicate()
+			path.append(edge[1])
+			if next == target: return path
+			paths[next.get_instance_id()] = path
+			pending.append(next)
+	return []
+
+func _navigate(target: Control) -> bool:
+	if not is_instance_valid(target):
+		_issue("missing_control", "Policy control missing")
+		return false
+	if not bool(scene.call("_controller_uses_gui_focus")):
+		return await _cursor("control:%d" % target.get_instance_id())
+	var scope: Control = scene.call("_controller_focus_scope")
+	for step: int in range(NAV_LIMIT):
+		var current: Control = root.gui_get_focus_owner()
+		if current == target: return true
+		if not _inside(scope, current):
+			_audit_focus()
+			# A real initial navigation press may establish default focus.
+			await _joy(JOY_BUTTON_DPAD_DOWN)
+			current = root.gui_get_focus_owner()
+			if current == target: return true
+			if not _inside(scope, current): return false
+		var route: Array = _route(scope, current, target)
+		if route.is_empty():
+			_issue("unreachable", "Cannot reach " + str(target.get_path()) + " from " + str(current.get_path()))
+			return false
+		await _joy(route[0])
+		if root.gui_get_focus_owner() == current:
+			_issue("trapped_input", "D-pad trapped at " + str(current.get_path()) + " toward " + str(target.get_path()))
+			return false
+	_issue("softlock", "Navigation exceeded 160 inputs for " + str(target.get_path()))
+	return false
+
+func _cursor(key: String) -> bool:
+	if str(scene.get("_controller_region")) == "hand": await _joy(JOY_BUTTON_DPAD_UP)
+	for step: int in range(NAV_LIMIT):
+		var candidates: Array = scene.call("_controller_navigation_candidates")
+		var current: Dictionary = scene.get("_controller_focus_candidate")
+		if str(current.get("key", "")) == key: return true
+		if current.is_empty():
+			return await _analog_cursor(key)
+		var pending: Array = [current]
+		var paths: Dictionary = {str(current.get("key")): []}
+		var route: Array = []
+		while not pending.is_empty() and route.is_empty():
+			var from: Dictionary = pending.pop_front()
+			for edge: Array in EDGES:
+				var next: Dictionary = Navigation.best_candidate_in_direction(from["point"], edge[2], candidates, str(from["key"]))
+				if next.is_empty() or paths.has(str(next["key"])): continue
+				var path: Array = paths[str(from["key"])].duplicate()
+				path.append(edge[1])
+				if str(next["key"]) == key:
+					route = path
+					break
+				paths[str(next["key"])] = path
+				pending.append(next)
+		if route.is_empty():
+			return await _analog_cursor(key)
+		await _joy(route[0])
+	_emit("dpad_limit", {"key": key, "fallback": "left stick"})
+	return await _analog_cursor(key)
+
+func _motion(axis: int, value: float) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.device = 0
+	event.axis = axis
+	event.axis_value = value
+	inputs += 1
+	var row: Dictionary = {"n": inputs, "axis": axis, "value": value, "context": _context()}
+	inputs_file.store_line(JSON.stringify(row))
+	input_tail.append(row)
+	if input_tail.size() > INPUT_HISTORY_LIMIT: input_tail.pop_front()
+	Input.parse_input_event(event)
+
+func _analog_cursor(key: String) -> bool:
+	var old_scale: float = Engine.time_scale
+	Engine.time_scale = ANALOG_NAV_TIME_SCALE
+	var reached: bool = false
+	for step: int in range(ANALOG_SAMPLE_LIMIT):
+		var candidates: Array = scene.call("_controller_navigation_candidates")
+		var matching: Array = candidates.filter(func(c: Dictionary) -> bool: return str(c.get("key")) == key)
+		if matching.is_empty(): break
+		if str(scene.get("_controller_focus_candidate").get("key", "")) == key:
+			reached = true
+			break
+		var origin: Vector2 = scene.get("_controller_virtual_board_position")
+		var delta: Vector2 = matching[0]["point"] - origin
+		var direction: Vector2 = delta.normalized() * minf(ANALOG_MAX_STRENGTH, maxf(ANALOG_MIN_STRENGTH, delta.length() / ANALOG_APPROACH_DISTANCE))
+		_motion(JOY_AXIS_LEFT_X, direction.x)
+		_motion(JOY_AXIS_LEFT_Y, direction.y)
+		await physics_frame
+		await process_frame
+	_motion(JOY_AXIS_LEFT_X, 0.0)
+	_motion(JOY_AXIS_LEFT_Y, 0.0)
+	await physics_frame
+	await process_frame
+	Engine.time_scale = old_scale
+	if not reached: _issue("cursor_unreachable", "Stick cannot reach " + key)
+	return reached
+
+func _activate(target: Control) -> bool:
+	if not await _navigate(target): return false
+	await _joy(JOY_BUTTON_A)
+	await _wait()
+	return true
+
+func _find_method(node: Node, method: String) -> Control:
+	if node is Control and not node.is_visible_in_tree(): return null
+	for signal_name: String in ["pressed", "activated", "gui_input"]:
+		if not node.has_signal(signal_name): continue
+		for connection: Dictionary in node.get_signal_connection_list(signal_name):
+			if str(connection["callable"].get_method()) == method: return node as Control
+	for child: Node in node.get_children():
+		var found: Control = _find_method(child, method)
+		if found != null: return found
+	return null
+
+func dispatch_controller(action: Dictionary) -> void:
+	busy = true
+	var kind: String = str(action.get("kind", ""))
+	match kind:
+		"card":
+			if str(scene.get("_controller_region")) != "hand": await _joy(JOY_BUTTON_X)
+			for step: int in range(HAND_CYCLE_LIMIT):
+				if int(scene.get("_controller_hand_index")) == int(action["args"][0]): break
+				await _joy(JOY_BUTTON_RIGHT_SHOULDER)
+			await _joy(JOY_BUTTON_A)
+		"card_mode":
+			for step: int in range(CARD_MODE_LIMIT):
+				if str(scene.get("_controller_card_mode")) == "play": break
+				await _joy(JOY_BUTTON_DPAD_RIGHT)
+			await _joy(JOY_BUTTON_A)
+		"map_room":
+			if not bool(scene.get("_large_map_scrim").visible): await _joy(JOY_BUTTON_BACK)
+			await _wait()
+			var panel: Control = scene.get("_large_map_view")
+			var buttons: Dictionary = panel.get("node_buttons")
+			await _activate(buttons.get(action["args"][0]))
+		"move":
+			if action.has("method"):
+				# Card movement and already-selected ordinary movement each expose
+				# their wanted target directly. Selecting the player here would
+				# replace the policy's card target with its origin.
+				var tile: Vector2i = action["args"][0]
+				if await _cursor("tile:%d:%d" % [tile.x, tile.y]): await _joy(JOY_BUTTON_A)
+			else:
+				var pos: Vector2i = scene.get("_combat_state").get("player", {}).get("pos")
+				if await _cursor("tile:%d:%d" % [pos.x, pos.y]): await _joy(JOY_BUTTON_A)
+				if bool(scene.get("_player_movement_selected")):
+					var tile: Vector2i = action["tile"]
+					if await _cursor("tile:%d:%d" % [tile.x, tile.y]): await _joy(JOY_BUTTON_A)
+		"confirm_card":
+			var pos: Vector2i = scene.get("_preview_combat_state").get("player", {}).get("pos")
+			if await _cursor("tile:%d:%d" % [pos.x, pos.y]): await _joy(JOY_BUTTON_A)
+		"dialogue": await _joy(JOY_BUTTON_A)
+		"pass": await _joy(JOY_BUTTON_Y)
+		"cancel_card":
+			await _joy(JOY_BUTTON_B)
+			if str(scene.get("_controller_region")) == "card_mode": await _joy(JOY_BUTTON_B)
+		"leave_browse": await _joy(JOY_BUTTON_B)
+		_:
+			if action.has("control"): await _activate(action["control"])
+			elif str(action.get("method", "")) == "_on_board_tile_clicked":
+				var tile: Vector2i = action["args"][0]
+				if await _cursor("tile:%d:%d" % [tile.x, tile.y]): await _joy(JOY_BUTTON_A)
+			else:
+				var target: Control = _find_method(scene, str(action.get("method", "")))
+				await _activate(target)
+	await _wait()
+	busy = false
+	settle_frames = SETTLE_FRAMES
+
+func _auxiliary() -> void:
+	if bool(scene.get("_large_map_scrim").visible): await _joy(JOY_BUTTON_B)
+	await _joy(JOY_BUTTON_START)
+	await _wait()
+	_audit_focus()
+	var settings_button: Control = _find_method(scene, "_open_settings_overlay")
+	if settings_button != null:
+		await _activate(settings_button)
+		var panel: Control = scene.get("_settings_panel")
+		var controls: Dictionary = panel.get("_controls")
+		for key: Variant in controls:
+			var value: Variant = controls[key]
+			var control: Control = value.get("slider") if value is Dictionary else value
+			if not control.is_visible_in_tree() or (control is BaseButton and control.disabled): continue
+			if await _navigate(control):
+				coverage["settings_row:" + str(key)] = true
+				if control is HSlider:
+					await _joy(JOY_BUTTON_DPAD_RIGHT)
+					await _joy(JOY_BUTTON_DPAD_LEFT)
+		await _joy(JOY_BUTTON_B)
+	await _joy(JOY_BUTTON_B)
+	await _wait()
+	var grimoire: Control = scene.get("grimoire_button")
+	if await _activate(grimoire):
+		_audit_focus()
+		var search: LineEdit = scene.get("_grimoire_search_input")
+		if await _navigate(search):
+			# Steam+X is owned by Steam's compositor. Mock only delivered text,
+			# never claim that a game-side keyboard-launch hook exists.
+			search.insert_text_at_caret("fatigue")
+			search.text_changed.emit(search.text)
+			_emit("steam_keyboard_mock", {"query": "fatigue", "focused": search.has_focus(), "launch": "external Steam+X overlay"})
+			coverage["grimoire_search_mock"] = true
+			await _wait()
+			await _joy(JOY_BUTTON_DPAD_DOWN)
+			await _joy(JOY_BUTTON_A)
+		await _joy(JOY_BUTTON_B)
+	await _wait()
+	if await _activate(scene.get("loadout_button")):
+		for tab: int in range(3):
+			_audit_focus()
+			coverage["character:" + str(scene.get("_progression_overlay_mode"))] = true
+			await _joy(JOY_BUTTON_RIGHT_SHOULDER)
+		await _joy(JOY_BUTTON_B)
+	await _wait()
+	busy = false
+
+func _combat_auxiliary() -> void:
+	# Header candidates are read-only geometry; every visit uses controller input.
+	for property: String in ["draw_pile", "discard_pile"]:
+		if await _activate(scene.get(property)):
+			_audit_focus()
+			coverage[property] = true
+			await _joy(JOY_BUTTON_B)
+	var details: Control = scene.get("_enemy_intent_toggle_button")
+	var was_details: bool = bool(scene.get("_show_all_enemy_intents"))
+	if await _activate(details):
+		coverage["Details"] = bool(scene.get("_show_all_enemy_intents")) != was_details
+		await _activate(details)
+	var slots: Control = scene.get("_turn_order_bar")
+	var portraits: Array = scene.call("_controller_header_focus_controls")
+	for control: Control in portraits:
+		if control.has_meta("turn_order_actor_key"):
+			if await _navigate(control):
+				coverage["turn_order"] = true
+			break
+	await _joy(JOY_BUTTON_START)
+	await _wait()
+	_audit_focus()
+	coverage["pause"] = bool(scene.get("_menu_scrim").visible)
+	await _joy(JOY_BUTTON_DPAD_DOWN)
+	await _joy(JOY_BUTTON_B)
+	await _wait()
+	busy = false
+
+func _finish(outcome: String) -> void:
+	busy = true
+	if outcome in ["victory", "defeat", "embrace"]:
+		await _wait()
+		var recap: Control = scene.get("_run_end_recap")
+		if recap != null and recap.is_visible_in_tree():
+			if float(recap.get("_elapsed")) < float(recap.call("presentation_duration")):
+				await _joy(JOY_BUTTON_A) # Existing presentation-skip input, consumed by recap.
+			_audit_focus()
+			coverage["run_end"] = true
+			if await _activate(recap.get("_chronicle_button")):
+				var chronicle: Control = recap.get("_chronicle")
+				coverage["Chronicle"] = chronicle != null and chronicle.visible
+				if chronicle != null and chronicle.visible:
+					for step: int in range(CHRONICLE_SCAN_STEPS): await _joy(JOY_BUTTON_DPAD_DOWN)
+					await _joy(JOY_BUTTON_B)
+	var f := FileAccess.open(output.path_join("controller.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify({"seed": hunt_seed, "inputs": inputs, "coverage": coverage, "findings": findings}, "\t"))
+	f.close()
+	print("CONTROLLER HUNT: seed=%d outcome=%s inputs=%d findings=%d" % [hunt_seed, outcome, inputs, findings.size()])
+	super._finish(outcome)

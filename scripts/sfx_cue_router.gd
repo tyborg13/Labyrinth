@@ -8,6 +8,7 @@ const Fx = preload("res://scripts/attack_fx_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
 const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
+const EnemyArrivals = preload("res://scripts/enemy_arrival_sfx.gd")
 const ENEMY_ATTACK_FAMILIES: Dictionary = {
 	"crawler": "claw", "acolyte": "blunt", "harrier": "pierce", "warden": "blunt",
 	"cinder_ooze": "blunt", "cinder_droplet": "blunt", "bile_bloomer": "blunt",
@@ -55,6 +56,7 @@ const RETORT_FAMILIES: Dictionary = {"retaliate": "pierce", "illusion_retort": "
 const GROUND_BURN_KINDS: Array[String] = Array(["move", "blink", "turn_start"], TYPE_STRING, "", null)
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
+const ARRIVAL_GAIN_DB: float = -4.0
 const BEAST_VOCAL_CHANCE: float = 0.30
 
 var bank: Node
@@ -77,6 +79,7 @@ var _impact_frame: int = -1
 var _impact_cues: Dictionary = {}
 var _action_serial: int = 0
 var _fight_key: String = ""
+var _combat_active: bool = false
 var _deck: Dictionary = {}
 var _omen_ids: Dictionary = {}
 var _relic_logs: Array = []
@@ -91,6 +94,7 @@ var _radiance_played: bool = false
 var _run_baselined: bool = false
 var _vocal_rng := RandomNumberGenerator.new()
 var _warned_families: Dictionary = {}
+var _enemy_arrivals := EnemyArrivals.new()
 
 func _init(cue_bank: Node = null) -> void:
 	bank = cue_bank
@@ -191,7 +195,7 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_released = false
 	_trap_impact_pending = false
 	_radiance_played = false
-	baseline(before)
+	baseline(before, false)
 	_blink_origin = null
 	_blink_origin_world = null
 	_blink_effect.clear()
@@ -323,7 +327,8 @@ func shop_buy() -> void: request("shop.buy")
 func shop_sell() -> void: request("shop.sell")
 func ambience(biome: String = "stone") -> void: request("ambience." + biome)
 
-func baseline(state: Dictionary) -> void:
+func baseline(state: Dictionary, reset_arrivals: bool = true) -> void:
+	if reset_arrivals or not _enemy_arrivals.initialized: _enemy_arrivals.reset(state)
 	_units = _unit_snapshot(state)
 	_surface_sequence = int(state.get("surface_event_sequence", 0))
 	_terrain = _indexed(state.get("terrain", []), "id")
@@ -334,6 +339,12 @@ func baseline(state: Dictionary) -> void:
 	for id: String in state.get("relics", []):
 		var name: String = str(GameData.relic_def(id).get("name", ""))
 		if not name.is_empty(): _relic_names.append(name)
+
+func enemy_arrivals(state: Dictionary, shown: Dictionary) -> void:
+	if _enemy_arrivals.observe(state, shown):
+		# The cohort owns deduplication. Allow its layer even if a shadow attack
+		# used this same cue on the birth frame; retain the bank's voice limit.
+		request("spell.shadow", {"gain_db": ARRIVAL_GAIN_DB, "area_instance": true})
 
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
@@ -402,7 +413,9 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		_resolved = true
 	if next_units != _units: _trap_impact_pending = false
 	_units = next_units
-	for unit: Dictionary in shown.get("death_animation_units", []): death(unit)
+	for unit: Dictionary in shown.get("death_animation_units", []):
+		# Survive arrivals reuse the death animation in reverse, without dying.
+		if not bool(unit.get("arrival_animation", false)): death(unit)
 	var next_terrain: Dictionary = _indexed(state.get("terrain", []), "id")
 	for key: Variant in _terrain:
 		var before: Dictionary = _terrain[key]
@@ -455,11 +468,15 @@ func outcomes(events: Array) -> void:
 
 func run_context(state: Dictionary) -> void:
 	var key: String = "%s:%s" % [state.get("seed", 0), state.get("current_room", "")]
-	if key != _fight_key:
+	var combat_active: bool = str(state.get("mode", "")) == "combat"
+	# Pre-battle already owns this room key, but its roster is empty. Baseline
+	# again at Start so opening enemies never become mid-fight arrival cohorts.
+	if key != _fight_key or (combat_active and not _combat_active):
 		_fight_key = key
 		_dragons.clear()
 		_deaths.clear()
 		baseline(state.get("combat_state", {}))
+	_combat_active = combat_active
 	var hp: int = int(state.get("player_hp", -1))
 	if _run_hp >= 0 and hp > _run_hp and str(state.get("mode", "")) not in ["combat", "event"]: heal()
 	_run_hp = hp

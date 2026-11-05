@@ -6,10 +6,13 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const PassPileDockChecks = preload("res://tests/helpers/pass_pile_dock_checks.gd")
+const FixedTweenClock = preload("res://tests/helpers/fixed_tween_clock.gd")
 
 var _failed: bool = false
 const HUD_TAIL_FRAMES: int = 30
 const HUD_TURN_TIMEOUT_MS: int = 25000
+const DRAW_MOTION_TIMEOUT_USEC: int = 2000000
 const HUD_FIXTURE_SIZE := Vector2i(1920, 1080)
 const HUD_SETTLE_FRAMES: int = 8
 const HUD_MIN_OPACITY: float = 0.999
@@ -26,6 +29,12 @@ const TODO_DESIGN_POINTER_SETTLE_PARITY: String = "Pointer timing is protected b
 var _keyword_proof_input: String = ""
 var _keyword_capture_host: Node
 var _keyword_viewport: Viewport
+var _hud_proof_viewport: SubViewport
+var _hud_proof_dir: String
+const HUD_PROOF_FPS: int = 60
+const HUD_PROOF_STRIP_FRAMES: int = 6
+const HUD_PROOF_PREROLL: int = 2
+const HUD_PROOF_CROP_MARGIN: float = 16.0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -34,6 +43,17 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://card_draw_hand_flow_test/current_run.save")
 	SettingsStore.set_storage_path("user://card_draw_hand_flow_test/settings.json")
 	ProgressionStore.clear_saved_run()
+	if OS.get_cmdline_user_args().has("--turn-start-hud-proof"):
+		await _run_hud_proof()
+		print("TURN START HUD PROOF RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
+	if OS.get_cmdline_user_args().has("--turn-start-hud-only"):
+		await _run_turn_start_hud_regression()
+		await _run_turn_start_hud_regression(true)
+		print("TURN START HUD TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
 	_keyword_proof_input = OS.get_environment("LABYRINTH_KB02_PROOF_INPUT")
 	if not _keyword_proof_input.is_empty() or OS.get_cmdline_user_args().has("--keyword-focus-only"):
 		await _run_keyword_focus_regression(_keyword_proof_input == "pointer" or OS.get_cmdline_user_args().has("--keyword-pointer"))
@@ -419,6 +439,7 @@ func _run_transition_regression() -> void:
 	instance.call("_refresh_animation_lock_ui")
 	await process_frame
 	var completion: Dictionary = {"done": false}
+	var motion_clock := FixedTweenClock.new()
 	instance.call(
 		"_animate_draw_cards_fx_and_complete",
 		draw_entries,
@@ -427,6 +448,11 @@ func _run_transition_regression() -> void:
 		transition,
 		completion
 	)
+	# Capture synchronously: an awaited engine frame can already consume motion
+	# under load. The old 70 ms timer could then expire without another tween
+	# tick, or overshoot the 160 ms launch delay, depending on frame scheduling.
+	for proxy: Control in instance.get("_draw_hand_transition_proxies") as Array:
+		motion_clock.track(proxy.get_meta("active_card_proxy_tween") as Tween)
 	await process_frame
 	var hand_box: Control = instance.get("hand_box") as Control
 	var initial_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
@@ -437,7 +463,7 @@ func _run_transition_regression() -> void:
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).size() == target_hand.size(), "An incidental locked hand refresh must not retire running staged proxies")
 	var initial_centers: Array[Vector2] = _proxy_centers(instance, initial_proxies)
 
-	await create_timer(0.07).timeout
+	motion_clock.advance(0.07)
 	var early_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 	var early_centers: Array[Vector2] = _proxy_centers(instance, early_proxies)
 	_expect(_moved(initial_centers, early_centers, 0), "First retained card should begin reflowing immediately")
@@ -445,7 +471,7 @@ func _run_transition_regression() -> void:
 	_expect(_moved(initial_centers, early_centers, 2), "First incoming card should begin its arc immediately")
 	_expect(not _moved(initial_centers, early_centers, 3, 2.0), "Second incoming card should preserve the authored readable launch stagger")
 
-	await create_timer(0.16).timeout
+	motion_clock.advance(0.16)
 	var stream_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 	var stream_centers: Array[Vector2] = _proxy_centers(instance, stream_proxies)
 	_expect(_moved(early_centers, stream_centers, 0), "Retained card reflow should continue while the draw stream advances")
@@ -453,9 +479,8 @@ func _run_transition_regression() -> void:
 	_expect(_moved(early_centers, stream_centers, 3), "Second incoming card should launch after its stagger")
 	_expect(stream_proxies.size() == target_hand.size(), "No transition frame should drop a hand identity")
 
-	var deadline: int = Time.get_ticks_msec() + 2000
-	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
-		await process_frame
+	while not bool(completion.get("done", false)) and motion_clock.elapsed_usec < DRAW_MOTION_TIMEOUT_USEC:
+		motion_clock.advance(float(FixedTweenClock.STEP_USEC) / 1000000.0)
 	_expect(bool(completion.get("done", false)), "Multi-card draw transition should complete")
 	var settled_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 	_expect(settled_proxies.size() == target_hand.size(), "Settled staged hand should retain every proxy until authoritative refresh")
@@ -688,8 +713,11 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	instance.call("_refresh_ui")
 	for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
 	await _park_pointer(instance, _hand_card_center(instance, 2))
+	PassPileDockChecks.assert_layout(instance, _expect, "Before turn-start deal")
+	PassPileDockChecks.assert_presented_hand_clearance(instance, _expect, "Before turn-start deal")
 	var controls: Dictionary = {
 		"pass": instance.find_child("PassPreviewChip", true, false),
+		"forecast": instance.find_child("PassPreviewForecastLine", true, false),
 		"card_plays": instance.get("_play_meter"),
 		"movement": instance.get("_movement_meter"),
 		"objective": instance.get("_combat_objective_hud"),
@@ -704,6 +732,9 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	var landing_frame: int = -1
 	var tail: int = 0
 	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	var pass_home_before_handoff: Rect2 = (controls["pass"] as Control).get_global_rect()
+	var hand_before_handoff: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var draw_entries: Array = []
 	instance.call("_on_pass_turn_pressed")
 	while Time.get_ticks_msec() < deadline:
 		await process_frame
@@ -716,13 +747,19 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 			if tween != null and tween.is_valid() and tween.is_running(): dealing = true
 		if not proxies.is_empty() and not saw_deal:
 			saw_deal = true
+			draw_entries = (instance.call("_draw_hand_transition_between_states", hand_before_handoff, instance.get("_combat_state")) as Dictionary).get("draw_entries", [])
 			# The production Pass widget can be rebuilt during refresh; resolve it per frame.
 			controls["pass"] = instance.find_child("PassPreviewChip", true, false)
 			for key: String in controls:
 				target_rects[key] = (controls[key] as Control).get_global_rect()
 		if saw_deal and not dealing and landing_frame < 0: landing_frame = rows.size()
 		controls["pass"] = instance.find_child("PassPreviewChip", true, false)
+		controls["forecast"] = instance.find_child("PassPreviewForecastLine", true, false)
 		var row: Dictionary = {"frame": rows.size(), "dealing": dealing, "landing_frame": landing_frame, "locked": instance.get("_animation_lock"), "controls": {}}
+		var context: String = "Turn-start %s frame %d" % ["exhausted" if exhausted else "normal", rows.size()]
+		PassPileDockChecks.assert_layout(instance, _expect, context)
+		PassPileDockChecks.assert_hand_clearance(instance, _expect, context + " resting fan", instance.call("_combat_hand_resting_visual_bounds"))
+		PassPileDockChecks.assert_presented_hand_clearance(instance, _expect, context, draw_entries)
 		for key: String in controls:
 			var control: Control = controls[key] as Control
 			var rect: Rect2 = control.get_global_rect() if control != null else Rect2()
@@ -751,8 +788,9 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	_expect(moved.is_empty(), "Turn-start HUD must occupy its deal-start rect through landing and pointer hover: %s" % str(moved.keys()))
 	_expect(moved_before_deal.is_empty(), "Turn-start HUD must retain its previous home until the deal begins: %s" % str(moved_before_deal.keys()))
 	if saw_deal:
-		var old_pass_rect: Array = rows[0]["controls"]["pass"]["rect"]
-		_expect(not is_equal_approx((target_rects["pass"] as Rect2).position.x, float(old_pass_rect[0])), "A wider new hand must move Pass to its new destination when the deal begins")
+		# Layout C docks Pass to the piles; a wider deal may reflow the resources,
+		# but must preserve Pass's whole painted/native target, including its size.
+		_expect((target_rects["pass"] as Rect2).is_equal_approx(pass_home_before_handoff), "A wider new hand must leave Pass at its pile-docked home when the deal begins")
 		var live_envelope: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
 		var dock_envelope: Rect2 = instance.call("_combat_dock_hand_bounds")
 		# The director-approved reservation includes every remaining hand size and
@@ -762,7 +800,7 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	_expect(pass_button != null and not pass_button.disabled and pass_button.focus_mode == Control.FOCUS_ALL, "Pass keeps its live click target and keyboard/gamepad focus after the deal")
 	if pass_button != null:
 		pass_button.grab_focus()
-		_expect(pass_button.has_focus(), "The real Pass button must accept keyboard/gamepad focus at its new home")
+		_expect(pass_button.has_focus(), "The real Pass button must accept keyboard/gamepad focus at its pile-docked home")
 		await _park_pointer(instance, pass_button.get_global_rect().get_center())
 		var owner: Control = instance.get_viewport().gui_get_hovered_control()
 		_expect(owner == pass_button or (owner != null and pass_button.is_ancestor_of(owner)), "Native pointer hit testing must use Pass's painted destination")
@@ -773,6 +811,7 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	for key: String in controls:
 		var control: Control = instance.find_child("PassPreviewChip", true, false) as Control if key == "pass" else controls[key] as Control
 		_expect(control != null and control.is_visible_in_tree() and control.get_global_rect().is_equal_approx(target_rects[key]), "Playing a dealt card must preserve %s's home" % key)
+	PassPileDockChecks.assert_presented_hand_clearance(instance, _expect, "After playing a dealt card")
 	instance.queue_free()
 	await process_frame
 
@@ -818,6 +857,8 @@ func _run_hud_new_combat_regression() -> void:
 	_expect(cleared, "HUD NEW COMBAT: ending combat must clear the preceding encounter's held layout")
 	_expect(count_at_launch == 5, "HUD NEW COMBAT: the opening deal must own the new five-card hand before launch (got %d)" % count_at_launch)
 	_expect(not bool(scene.get("_animation_lock")) and opening_rect.is_equal_approx(settled_rect), "HUD NEW COMBAT: opening Pass placement must survive input unlock")
+	PassPileDockChecks.assert_layout(scene, _expect, "HUD NEW COMBAT")
+	PassPileDockChecks.assert_presented_hand_clearance(scene, _expect, "HUD NEW COMBAT")
 	print("HUD REVIEW NEW COMBAT: cleared=%s launch_count=%d stable=%s" % [cleared, count_at_launch, opening_rect.is_equal_approx(settled_rect)])
 	scene.queue_free()
 	await process_frame
@@ -844,9 +885,12 @@ func _run_hud_shrinking_fan_regression() -> void:
 			for _frame: int in range(HUD_SETTLE_FRAMES): await process_frame
 			widest = maxf(widest, (scene.call("_combat_hand_resting_visual_bounds") as Rect2).size.x)
 			stable = stable and _hud_review_rects_match(homes, _hud_review_rects(scene))
+			PassPileDockChecks.assert_layout(scene, _expect, "HUD SHRINKING FAN %d cards, controller=%s" % [count, controller])
+			PassPileDockChecks.assert_presented_hand_clearance(scene, _expect, "HUD SHRINKING FAN %d cards, controller=%s" % [count, controller])
 	_expect(held.size.x + HUD_RECT_TOLERANCE >= widest, "HUD SHRINKING FAN: deal-start envelope must cover every smaller desktop/controller-focused fan (held %.2f, widest %.2f)" % [held.size.x, widest])
 	_expect(stable, "HUD SHRINKING FAN: plays and controller focus must never move Pass, counters or Objective")
-	# A mid-turn draw exceeding the original deal is the one allowed new home.
+	# A larger mid-turn draw updates the reserved fan/resource home; layout C's
+	# Pass must remain on the piles throughout that reflow and the animated deal.
 	var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
 	var after: Dictionary = before.duplicate(true)
 	after["deck"]["hand"] = _hud_review_cards(9)
@@ -858,7 +902,11 @@ func _run_hud_shrinking_fan_regression() -> void:
 	scene.call("_animate_draw_cards_fx_and_complete", transition["draw_entries"], Rect2(), 0, transition, completion)
 	_expect(int(helper.get("_dealt_count")) == 9, "HUD SHRINKING FAN: an above-cap mid-turn draw must recompute placement when that draw launches")
 	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
-	while not bool(completion["done"]) and Time.get_ticks_msec() < deadline: await process_frame
+	while not bool(completion["done"]) and Time.get_ticks_msec() < deadline:
+		await process_frame
+		PassPileDockChecks.assert_layout(scene, _expect, "HUD MID-TURN DRAW")
+		_expect((scene.get("_pass_preview_overlay") as Control).get_global_rect().is_equal_approx(homes["_pass_preview_overlay"]), "A larger mid-turn draw must preserve Pass's pile-docked home")
+		PassPileDockChecks.assert_presented_hand_clearance(scene, _expect, "HUD MID-TURN DRAW", transition["draw_entries"])
 	scene.set("_animation_lock", false)
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	print("HUD REVIEW SHRINKING FAN: held=%.2f widest=%.2f stable=%s draw_cap=%d" % [held.size.x, widest, stable, int(helper.get("_dealt_count"))])
@@ -1034,4 +1082,101 @@ func _run_retained_content_regression(instance: Node, source: Dictionary) -> voi
 	instance.call("_mark_combat_preview_state_changed")
 	instance.call("_refresh_hand_panel")
 	await process_frame
+	await process_frame
+
+func _run_hud_proof() -> void:
+	Engine.max_fps = HUD_PROOF_FPS
+	var before: bool = OS.get_cmdline_user_args().has("--before")
+	for configuration: Dictionary in [{"size": Vector2i(1920, 1080), "scale": 1.0}, {"size": Vector2i(1280, 800), "scale": 1.15}]:
+		var physical: Vector2i = configuration["size"]
+		var ui_scale: float = configuration["scale"]
+		var settings: Dictionary = SettingsStore.default_settings()
+		settings["ui_scale"] = ui_scale
+		settings["reduced_motion"] = false
+		SettingsStore.save_settings(settings)
+		SettingsStore.apply_settings(settings, root, false)
+		_hud_proof_viewport = SubViewport.new()
+		_hud_proof_viewport.size = physical
+		_hud_proof_viewport.size_2d_override = Vector2i(Vector2(physical) / ui_scale)
+		_hud_proof_viewport.size_2d_override_stretch = true
+		_hud_proof_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		root.add_child(_hud_proof_viewport)
+		_hud_proof_viewport.notify_mouse_entered()
+		_hud_proof_dir = "user://ui15/%s/%dx%d_ui%d" % ["before" if before else "after", physical.x, physical.y, roundi(ui_scale * 100)]
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_hud_proof_dir))
+		await _capture_turn_start_hud()
+		_hud_proof_viewport.queue_free()
+		await process_frame
+	print(ProjectSettings.globalize_path("user://ui15"))
+
+# The requested handheld proof checks visibility and atomic layout, independently
+# of the older 1920px regression's wider hand-clearance policy.
+func _capture_turn_start_hud() -> void:
+	var instance: Control = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_hud_proof_viewport.add_child(instance)
+	for frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	instance.call("_close_dialogue")
+	var state: Dictionary = await _load_combat_fixture(instance)
+	state["hand_size"] = 3
+	state["draw_per_turn"] = 2
+	state["objective"] = {"type": "kill_all"}
+	instance.set("_combat_state", state)
+	(instance.get("_run_state") as Dictionary)["combat_state"] = state.duplicate(true)
+	instance.call("_refresh_ui")
+	for frame: int in range(HUD_SETTLE_FRAMES): await process_frame
+	var frames: Array[Image]
+	var rows: Array[Dictionary]
+	var landing: int = -1
+	var tail: int = 0
+	var saw_deal: bool = false
+	var crop := Rect2()
+	var deadline: int = Time.get_ticks_msec() + HUD_TURN_TIMEOUT_MS
+	instance.call("_on_pass_turn_pressed")
+	while Time.get_ticks_msec() < deadline:
+		await process_frame
+		if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+		else: await RenderingServer.frame_post_draw
+		var proxies: Array = instance.get("_draw_hand_transition_proxies")
+		var dealing: bool = false
+		for proxy: Control in proxies:
+			var tween: Tween = proxy.get_meta("active_card_proxy_tween", null)
+			if tween != null and tween.is_valid() and tween.is_running(): dealing = true
+		saw_deal = saw_deal or not proxies.is_empty()
+		var controls: Array[Control]
+		controls.assign([instance.find_child("PassPreviewChip", true, false), instance.find_child("PassPreviewForecastLine", true, false), instance.get("_play_meter"), instance.get("_movement_meter")])
+		var row := {"frame": rows.size(), "dealing": dealing, "pending": instance.get("_hand_layout_pending_revision"), "controls": {}}
+		for control: Control in controls:
+			var shown: bool = control != null and control.is_visible_in_tree() and _hud_effective_alpha(control) >= HUD_MIN_OPACITY
+			_expect(shown, "Landing frame %d: %s remains visible and opaque" % [rows.size(), control.name if control != null else "missing HUD"])
+			if control == null: continue
+			var rect: Rect2 = control.get_global_rect()
+			crop = crop.merge(rect) if crop.has_area() else rect
+			row["controls"][control.name] = {"visible": shown, "rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y]}
+		rows.append(row)
+		if saw_deal and DisplayServer.get_name() != "headless":
+			frames.append(_hud_proof_viewport.get_texture().get_image())
+			if landing < 0 and not dealing: landing = frames.size() - 1
+			if landing < 0 and frames.size() > HUD_PROOF_PREROLL + 1: frames.pop_front()
+		if saw_deal and not dealing:
+			tail += 1
+			if tail >= HUD_PROOF_STRIP_FRAMES and not bool(instance.get("_animation_lock")): break
+	_expect(saw_deal and tail >= HUD_PROOF_STRIP_FRAMES, "Proof observes the production deal and authoritative landing")
+	if DisplayServer.get_name() != "headless":
+		_expect(landing >= HUD_PROOF_PREROLL and frames.size() > landing + HUD_PROOF_STRIP_FRAMES - HUD_PROOF_PREROLL - 1, "Proof contains six consecutive rendered landing frames")
+		var pixel_scale: Vector2 = Vector2(_hud_proof_viewport.size) / _hud_proof_viewport.get_visible_rect().size
+		crop = Rect2(crop.position * pixel_scale, crop.size * pixel_scale).grow(HUD_PROOF_CROP_MARGIN).intersection(Rect2(Vector2.ZERO, Vector2(_hud_proof_viewport.size)))
+		var region := Rect2i(crop)
+		var strip: Image = Image.create(region.size.x * HUD_PROOF_STRIP_FRAMES, region.size.y, false, Image.FORMAT_RGBA8)
+		for index: int in range(HUD_PROOF_STRIP_FRAMES):
+			var frame_index: int = landing - HUD_PROOF_PREROLL + index
+			if frame_index < 0 or frame_index >= frames.size(): continue
+			var frame: Image = frames[frame_index]
+			_expect(frame.get_size() == _hud_proof_viewport.size, "Native landing capture has exact dimensions")
+			_expect(frame.save_png(_hud_proof_dir.path_join("landing_%02d.png" % index)) == OK, "Saved native landing frame")
+			strip.blit_rect(frame, region, Vector2i(index * region.size.x, 0))
+		_expect(strip.save_png(_hud_proof_dir.path_join("landing_strip.png")) == OK, "Saved unscaled six-frame HUD strip")
+	var trace := FileAccess.open(_hud_proof_dir.path_join("landing_trace.json"), FileAccess.WRITE)
+	if trace != null: trace.store_string(JSON.stringify(rows, "  "))
+	print("UI15 LANDING TRACE: %s frames=%d deal=%s tail=%d" % [ProjectSettings.globalize_path(_hud_proof_dir), rows.size(), saw_deal, tail])
+	instance.queue_free()
 	await process_frame

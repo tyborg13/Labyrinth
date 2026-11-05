@@ -1,6 +1,10 @@
 extends RefCounted
 
+# Owner-approved round-1 area-card sets supersede the protected historical capture.
+static var _txt02_panels: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt02_approved_card_panels.json"))["panels"]
+
 static func entries(id: String, historical: Dictionary) -> Array:
+	if _txt02_panels.has(id): return (_txt02_panels[id] as Array).duplicate(true)
 	var expected: Array = (historical[id] as Array).duplicate(true)
 	if id == "petrify":
 		# fix-07: the keyword owns its Block; the card prints only Petrify + range.
@@ -19,6 +23,11 @@ static func entries(id: String, historical: Dictionary) -> Array:
 	# historical card changes above. Duration tokens still keep their own panel.
 	if not expected.is_empty() and expected[0]["icon"] == "time":
 		expected.pop_front()
+	# qa-35 (owner-approved 2026-11-04): Updraft and Crosswind hit at range, so
+	# their hit shows the Ranged keyword instead of Melee.
+	if id in ["updraft", "crosswind"]:
+		for entry: Dictionary in expected:
+			if entry["icon"] == "melee": entry["icon"] = "ranged"
 	# tt-02 R1 gives every panel a nonempty, single-line body. R3/R7
 	# collapse repeated ground/area meanings; R5 suppresses Cleanse statuses.
 	var removed_indexes: Dictionary = {

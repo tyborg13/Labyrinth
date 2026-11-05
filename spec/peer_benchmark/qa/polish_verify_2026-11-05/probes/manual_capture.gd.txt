@@ -1,0 +1,49 @@
+extends "res://spec/peer_benchmark/qa/polish_verify_2026-11-05/probes/observe.gd"
+# Native follow-up: resume the fixture through production Continue, then allow
+# real input. F9 captures an extra checkpoint; automatic checkpoints every 5 s.
+const QA_MANUAL_SECONDS: float = 60.0
+const QA_CHECKPOINT_SECONDS: float = 5.0
+const QA_TRACE_FPS: int = 60
+const QA_BURST_FRAMES: int = 30
+var qa_last_f9: bool = false
+
+func qa_run() -> void:
+	Engine.max_fps = QA_TRACE_FPS
+	qa_record("manual_environment", {"renderer": DisplayServer.get_name(), "viewport": root.get_visible_rect(), "ui_scale": 1.0, "scenario": _options["scenario"]})
+	await qa_continue()
+	if current_scene == null or not current_scene.has_method("initial_presentation_is_ready"):
+		qa_log.close()
+		print("QA52 MANUAL LAUNCH FAILED output=" + ProjectSettings.globalize_path(qa_output))
+		quit(1)
+		return
+	qa_scene = current_scene
+	print("QA52 MANUAL READY: real input enabled; F9 captures; 60 seconds")
+	var began: int = Time.get_ticks_msec()
+	var next_capture: float = 0.0
+	var checkpoint: int = 0
+	var burst: int = 0
+	var old_hover: int = -1
+	var was_pressed: bool = false
+	while Time.get_ticks_msec() - began < int(QA_MANUAL_SECONDS * 1000):
+		await process_frame
+		var elapsed: float = (Time.get_ticks_msec() - began) / 1000.0
+		var state: Dictionary = qa_scene.get("_run_state")
+		var hand: Control = qa_scene.get("hand_box")
+		var trace: Dictionary = {"elapsed": elapsed, "mode": state.get("mode"), "lock": qa_scene.get("_animation_lock"), "music": qa_scene.get("_active_music_id"), "notice": state.get("notice"), "hover": qa_hover(hand)}
+		qa_record("manual_frame", trace)
+		var f9: bool = Input.is_physical_key_pressed(KEY_F9)
+		var pressed: bool = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		var hovered: int = int(qa_scene.get("_hovered_card_index"))
+		if OS.get_environment("QA52_BURST") == "1" and (hovered != old_hover or (was_pressed and not pressed)): burst = QA_BURST_FRAMES
+		if elapsed >= next_capture or (f9 and not qa_last_f9) or burst > 0:
+			checkpoint += 1
+			await qa_capture("manual_%03d" % checkpoint, qa_scene, 0)
+			next_capture = elapsed + QA_CHECKPOINT_SECONDS
+			burst = maxi(0, burst - 1)
+		qa_last_f9 = f9
+		old_hover = hovered
+		was_pressed = pressed
+		if DisplayServer.get_name() == "headless": break
+	qa_log.close()
+	print("QA52 MANUAL COMPLETE output=" + ProjectSettings.globalize_path(qa_output))
+	quit(0)

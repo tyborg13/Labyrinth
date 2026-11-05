@@ -7965,7 +7965,13 @@ func _test_run_scene_line_aoe_push_preserves_orientation() -> void:
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	instance.call("_on_board_tile_hovered", target_tile)
 	await process_frame # Hover presentation coalesces before the next draw.
-	instance.call("_rotate_aoe_aim", -1)
+	# Opening aim maximizes hits instead of always starting east. Exercise
+	# rotation at least once, then reach north from whichever direction opened.
+	const CARDINAL_ROTATION_STEPS: int = 4
+	for _turn: int in range(CARDINAL_ROTATION_STEPS):
+		instance.call("_rotate_aoe_aim", -1)
+		if instance.get("_aoe_aim_orientation") == Vector2i.UP:
+			break
 	instance.call("_on_board_tile_hovered", target_tile)
 	await process_frame # Hover presentation coalesces before the next draw.
 	var presentation: Dictionary = board_view.get("presentation")
@@ -9870,6 +9876,60 @@ func _test_run_scene_logs_local_analytics() -> void:
 
 func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	SettingsStore.clear_storage()
+	var had_deck_environment: bool = OS.has_environment("SteamDeck")
+	var original_deck_environment: String = OS.get_environment("SteamDeck")
+	# Fake Steam's environment, including non-Deck truthy-looking values. Old
+	# profiles must adopt the platform default without losing other preferences.
+	for deck_environment: String in ["", "0", "true", "1"]:
+		if deck_environment.is_empty():
+			OS.unset_environment("SteamDeck")
+		else:
+			OS.set_environment("SteamDeck", deck_environment)
+		var expected: String = SettingsStore.STEAM_DECK_EDGE_SMOOTHING_DEFAULT if deck_environment == "1" else SettingsStore.EDGE_SMOOTHING_HIGH
+		_assert(SettingsStore.default_settings()["edge_smoothing"] == expected, "Edge smoothing platform default should use only SteamDeck=1 (%s)" % deck_environment)
+		_assert(SettingsStore.load_settings()["edge_smoothing"] == expected, "A missing settings profile should use the platform edge default")
+		_assert(SettingsStore.normalize_settings({"edge_smoothing": "invalid"})["edge_smoothing"] == expected, "Invalid edge quality should use the platform default")
+		var legacy_file := FileAccess.open(SettingsStore.storage_path(), FileAccess.WRITE)
+		legacy_file.store_string(JSON.stringify({"music_volume": 0.35}))
+		legacy_file.close()
+		var legacy: Dictionary = SettingsStore.load_settings()
+		_assert(legacy["edge_smoothing"] == expected and is_equal_approx(legacy["music_volume"], 0.35), "Old profiles should gain the platform edge default and preserve other settings")
+		for value: String in [SettingsStore.EDGE_SMOOTHING_HIGH, SettingsStore.EDGE_SMOOTHING_LOW, SettingsStore.EDGE_SMOOTHING_OFF]:
+			legacy["edge_smoothing"] = value
+			_assert(SettingsStore.save_settings(legacy) and SettingsStore.load_settings()["edge_smoothing"] == value, "Explicit edge quality should survive reload on either platform: %s" % value)
+		var reset: Dictionary = SettingsStore.restore_defaults(root)
+		_assert(reset["edge_smoothing"] == expected and SettingsStore.load_settings() == reset, "Reset should persist the platform edge default")
+		_assert(root.msaa_2d == (Viewport.MSAA_DISABLED if expected == SettingsStore.EDGE_SMOOTHING_OFF else Viewport.MSAA_4X), "Reset should immediately apply the platform edge default")
+		SettingsStore.clear_storage()
+	if had_deck_environment:
+		OS.set_environment("SteamDeck", original_deck_environment)
+	else:
+		OS.unset_environment("SteamDeck")
+
+	var pixel_fx_viewport := SubViewport.new()
+	pixel_fx_viewport.msaa_2d = Viewport.MSAA_DISABLED
+	root.add_child(pixel_fx_viewport)
+	var cache_viewport := SubViewport.new()
+	root.add_child(cache_viewport)
+	SettingsStore.inherit_edge_smoothing(cache_viewport, root)
+	await process_frame
+	for quality: Dictionary in [
+		{"value": SettingsStore.EDGE_SMOOTHING_LOW, "samples": Viewport.MSAA_2X},
+		{"value": SettingsStore.EDGE_SMOOTHING_OFF, "samples": Viewport.MSAA_DISABLED},
+		{"value": SettingsStore.EDGE_SMOOTHING_HIGH, "samples": Viewport.MSAA_4X}
+	]:
+		cache_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		SettingsStore.apply_settings({"edge_smoothing": quality["value"]}, root, false)
+		_assert(root.msaa_2d == quality["samples"] and cache_viewport.msaa_2d == root.msaa_2d, "Root and existing cache must apply edge quality immediately: %s" % quality["value"])
+		_assert(cache_viewport.render_target_update_mode == SubViewport.UPDATE_ONCE, "Changing edge quality should refresh retained cache pixels")
+		_assert(pixel_fx_viewport.msaa_2d == Viewport.MSAA_DISABLED, "Pixel FX should retain disabled MSAA")
+		var later_cache := SubViewport.new()
+		root.add_child(later_cache)
+		SettingsStore.inherit_edge_smoothing(later_cache, root)
+		_assert(later_cache.msaa_2d == quality["samples"], "Caches created later must inherit the applied root quality")
+		later_cache.free()
+	cache_viewport.free()
+	pixel_fx_viewport.free()
 	var defaults: Dictionary = SettingsStore.default_settings()
 	_assert(SettingsStore.load_settings() == defaults, "Settings should use phase-one defaults when no profile exists")
 	_assert(SettingsStore.storage_path() != ProgressionStore.DEFAULT_STORAGE_PATH, "Settings should persist separately from progression")
@@ -9880,11 +9940,13 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	custom["sfx_volume"] = 0.55
 	custom["display_mode"] = SettingsStore.DISPLAY_WINDOWED
 	custom["ui_scale"] = 1.15
+	custom["edge_smoothing"] = SettingsStore.EDGE_SMOOTHING_LOW
 	custom["dialogue_speed"] = SettingsStore.DIALOGUE_FAST
 	custom["reduced_motion"] = true
 	_assert(SettingsStore.save_settings(custom), "Settings should save to their own persistent profile")
 	var loaded: Dictionary = SettingsStore.load_settings()
 	_assert(loaded == SettingsStore.normalize_settings(custom), "All settings should survive a disk reload")
+	preload("res://tests/settings_probe.gd").verify_atomic_writes(Callable(self, "_assert"), loaded)
 
 	var malformed_file: FileAccess = FileAccess.open(SettingsStore.storage_path(), FileAccess.WRITE)
 	_assert(malformed_file != null, "Settings malformed-data test should open its isolated file")
@@ -9955,13 +10017,24 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	root.add_child(menu_instance)
 	await process_frame
 	var menu_settings_panel: Node = menu_instance.get_node("SettingsPanel")
+	menu_instance.call("_on_settings_button_pressed")
 	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Main-menu settings should read the shared persistent profile")
 	var settings_controls: Dictionary = menu_settings_panel.get("_controls") as Dictionary
-	for key: String in ["display_mode", "ui_scale", "dialogue_speed", "reduced_motion"]:
+	for key: String in ["display_mode", "ui_scale", "edge_smoothing", "dialogue_speed", "reduced_motion"]:
 		var settings_control: Variant = settings_controls.get(key)
 		_assert(settings_control is Button, "Settings %s should expose a button-derived centered control" % key)
 		if settings_control is Button:
 			_assert_button_text_centered(settings_control as Button, "Settings %s" % key)
+	var smoothing_option := settings_controls.get("edge_smoothing") as OptionButton
+	_assert(smoothing_option != null and smoothing_option.item_count == 3, "Edge smoothing should expose exactly High, Low, Off")
+	if smoothing_option != null:
+		_assert(smoothing_option.get_item_text(0) == "High" and smoothing_option.get_item_text(1) == "Low" and smoothing_option.get_item_text(2) == "Off", "Edge quality labels should follow the authored order")
+		_assert(smoothing_option.selected == 1, "Edge smoothing should display the saved Low preference")
+		var scale_option := settings_controls.get("ui_scale") as OptionButton
+		var dialogue_option := settings_controls.get("dialogue_speed") as OptionButton
+		_assert(scale_option.find_next_valid_focus() == smoothing_option and smoothing_option.find_next_valid_focus() == dialogue_option, "Keyboard/controller focus should place Edge smoothing after Interface scale")
+		smoothing_option.item_selected.emit(2)
+		_assert(SettingsStore.load_settings()["edge_smoothing"] == SettingsStore.EDGE_SMOOTHING_OFF and root.msaa_2d == Viewport.MSAA_DISABLED, "Selecting Off should save and apply without restarting")
 	var menu_music: AudioStreamPlayer = menu_instance.get_node("MusicPlayer")
 	_assert(menu_music.bus == SettingsStore.MUSIC_BUS, "Main-menu music should route through the Music bus")
 	var restore_button: Button = _button_with_text(menu_settings_panel, "Restore defaults")
@@ -9973,8 +10046,8 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	var confirmation_panel: PanelContainer = menu_settings_panel.get("_confirmation_panel") as PanelContainer
 	_assert(confirmation_panel != null and confirmation_panel.visible, "Restore defaults should require a deliberate confirmation step")
 	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Opening restore confirmation should not change settings")
-	var confirm_restore: Button = _button_with_text(confirmation_panel, "Restore")
-	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Restore action")
+	var confirm_restore: Button = _button_with_text(confirmation_panel, "Reset all")
+	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Reset all action")
 	if confirm_restore != null:
 		_assert_button_text_centered(confirm_restore, "Settings restore confirmation")
 		confirm_restore.pressed.emit()
@@ -9987,6 +10060,11 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	var run_instance: Node = run_scene.instantiate()
 	root.add_child(run_instance)
 	await process_frame
+	var board: Control = run_instance.get("board_view") as Control
+	var board_cache: SubViewport = board.get("_static_render_cache_viewport") as SubViewport
+	_assert(board_cache != null and board_cache.is_in_group(SettingsStore.EDGE_SMOOTHING_VIEWPORT_GROUP) and board_cache.msaa_2d == Viewport.MSAA_2X, "The real fight board cache should inherit saved Low and register for immediate updates")
+	SettingsStore.apply_settings({"edge_smoothing": SettingsStore.EDGE_SMOOTHING_OFF}, root, false)
+	_assert(board_cache != null and board_cache.msaa_2d == Viewport.MSAA_DISABLED, "The existing real board cache should change quality immediately")
 	_assert(is_equal_approx(float((run_instance.get("_settings") as Dictionary)["music_volume"]), 0.35), "In-run settings should read the same persistent profile as the main menu")
 	run_instance.call("_ensure_music_player")
 	var run_music: AudioStreamPlayer = run_instance.get("_music_player") as AudioStreamPlayer
@@ -9998,11 +10076,12 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 			routed_sfx_found = true
 			break
 	_assert(routed_sfx_found, "In-run effects should route through the reverberant World SFX bus")
+	preload("res://tests/settings_probe.gd").verify_suspend(run_instance, Callable(self, "_assert"))
 	run_instance.queue_free()
 	await process_frame
 
 	SettingsStore.save_settings(defaults)
-	SettingsStore.apply_audio_settings(defaults)
+	SettingsStore.apply_settings(defaults, root, false)
 
 func _test_main_menu_shows_continue_for_saved_run() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
@@ -11333,10 +11412,11 @@ func _assert_current_combat_dock_geometry(instance: Node, context: String) -> vo
 	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
 	_assert(viewport_rect.encloses(play_rect) and viewport_rect.encloses(movement_rect) and viewport_rect.encloses(pass_rect), "%s dock should remain fully inside the viewport" % context)
 	_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack directly below card plays" % context)
-	_assert(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % context)
+	preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_layout(instance, _assert, context)
 	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 	if hand_bounds.size.x > 0.0:
 		_assert(play_rect.end.x <= hand_bounds.position.x - 20.0 and pass_rect.position.x >= hand_bounds.end.x + 20.0, "%s resources and Pass should clear opposite ends of the resting hand" % context)
+	preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_hand_clearance(instance, _assert, context, hand_bounds)
 	for pile_property: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_property) as Control
 		if pile != null and pile.visible:
@@ -11366,11 +11446,12 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 				var play_rect: Rect2 = play_meter.get_global_rect()
 				var movement_rect: Rect2 = movement_meter.get_global_rect()
 				_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack beneath card plays" % context)
-				_assert(absf(chip_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s pass forecast should align vertically with the resource stack" % context)
+			preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_layout(instance, _assert, context)
 			_assert(not chip_rect.intersects(piles_rect), "%s Pass dock should remain independent of the pile icons" % context)
 			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 			if hand_bounds.size.x > 0.0:
 				_assert(chip_rect.position.x >= hand_bounds.end.x + 20.0, "%s Pass should clear the right edge of the resting hand" % context)
+			preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_hand_clearance(instance, _assert, context, hand_bounds)
 			_assert(chip_rect.position.x >= -1.0 and chip_rect.end.x <= viewport_width + 1.0, "%s Pass dock should stay inside the viewport" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()

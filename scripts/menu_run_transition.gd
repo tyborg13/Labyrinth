@@ -9,6 +9,7 @@ const Assets = preload("res://scripts/asset_loader.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunPreload = preload("res://scripts/menu_run_preload.gd")
+const InitialCpuAssets = preload("res://scripts/run_initial_cpu_assets.gd")
 const MESSAGE := "Entering the Labyrinth"
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
@@ -122,6 +123,9 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	if error != OK:
 		transition._fail()
 		return
+	var cpu_assets: Node
+	if transition._path == RunPreload.RUN_SCENE_PATH:
+		cpu_assets = InitialCpuAssets.start_for(transition, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
 	while _threaded_load_status(transition) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await tree.process_frame
 		if not _loading_is_active(transition): return
@@ -149,7 +153,10 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		var target: Control = transition.destination.call("initial_asset_preparation_target")
 		await target.get_script().call("prepare_initial_assets_for", target, _present_frame_for.bind(tree), tree.root.has_meta("labyrinth_performance_probe_seed"), tree.root)
 		if not _loading_is_active(transition): return
-	if transition.destination.has_method("prepare_initial_cpu_assets_for"):
+	if cpu_assets != null:
+		await InitialCpuAssets.finish_for(cpu_assets, transition.destination, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
+		if not _loading_is_active(transition): return
+	elif transition.destination.has_method("prepare_initial_cpu_assets_for"):
 		await transition.destination.get_script().call("prepare_initial_cpu_assets_for", transition.destination, tree.root, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
 		if not _loading_is_active(transition): return
 	performance_started = transition._record_performance_phase("initial_asset_preparation", performance_started)

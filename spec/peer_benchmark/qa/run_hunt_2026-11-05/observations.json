@@ -1,0 +1,739 @@
+[
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 787,
+      "mode": "embrace",
+      "room": "(6, 7)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(8, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, 7)",
+        "depth": 7,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 4
+    },
+    "counts": {
+      "board_layer_state": 128996,
+      "board_submission": 787,
+      "board_units": 787,
+      "boss_health": 51,
+      "forecast_source_hp": 540,
+      "forecast_wait": 626,
+      "hand_identity": 2908,
+      "map_actionable": 900,
+      "map_current": 20,
+      "map_node_data": 900,
+      "map_route": 900,
+      "summary_card": 2908,
+      "time_badge": 2908
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 306,
+      "mode": "embrace",
+      "room": "(-2, -3)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(4, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-2, -3)",
+        "depth": 3,
+        "element": "none",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "counts": {
+      "board_layer_state": 50313,
+      "board_submission": 306,
+      "board_units": 306,
+      "forecast_source_hp": 138,
+      "forecast_wait": 230,
+      "hand_identity": 1001,
+      "map_actionable": 352,
+      "map_current": 8,
+      "map_node_data": 352,
+      "map_route": 352,
+      "summary_card": 1001,
+      "time_badge": 1001
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 476,
+      "mode": "embrace",
+      "room": "(-2, -3)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(4, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-2, -3)",
+        "depth": 3,
+        "element": "none",
+        "map_lane": 5,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "counts": {
+      "board_layer_state": 80131,
+      "board_submission": 476,
+      "board_units": 476,
+      "forecast_source_hp": 397,
+      "forecast_wait": 428,
+      "hand_identity": 2286,
+      "map_actionable": 376,
+      "map_current": 8,
+      "map_node_data": 376,
+      "map_route": 376,
+      "summary_card": 2286,
+      "time_badge": 2286
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 1860,
+      "mode": "embrace",
+      "room": "(15, 3)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(16, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(15, 3)",
+        "depth": 15,
+        "element": "none",
+        "map_lane": 3,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 3,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 3,
+      "seed": 8
+    },
+    "counts": {
+      "board_layer_state": 306012,
+      "board_submission": 1860,
+      "board_units": 1860,
+      "boss_health": 335,
+      "forecast_source_hp": 1207,
+      "forecast_wait": 1443,
+      "hand_identity": 7350,
+      "map_actionable": 2024,
+      "map_current": 43,
+      "map_node_data": 2024,
+      "map_route": 2024,
+      "summary_card": 7350,
+      "time_badge": 7350
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2989,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 5
+    },
+    "counts": {
+      "board_layer_state": 491954,
+      "board_submission": 2989,
+      "board_units": 2989,
+      "boss_health": 394,
+      "forecast_source_hp": 1667,
+      "forecast_wait": 2466,
+      "hand_identity": 13087,
+      "map_actionable": 2825,
+      "map_current": 65,
+      "map_node_data": 2825,
+      "map_route": 2825,
+      "summary_card": 13087,
+      "time_badge": 13087
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 814,
+      "mode": "embrace",
+      "room": "(6, 7)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(8, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, 7)",
+        "depth": 7,
+        "element": "none",
+        "map_lane": 2,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 10
+    },
+    "counts": {
+      "board_layer_state": 133501,
+      "board_submission": 814,
+      "board_units": 814,
+      "boss_health": 120,
+      "forecast_source_hp": 542,
+      "forecast_wait": 618,
+      "hand_identity": 3220,
+      "map_actionable": 842,
+      "map_current": 19,
+      "map_node_data": 842,
+      "map_route": 842,
+      "summary_card": 3220,
+      "time_badge": 3220
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 158,
+      "mode": "embrace",
+      "room": "(-3, -3)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(4, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(-3, -3)",
+        "depth": 3,
+        "element": "none",
+        "map_lane": 0,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "counts": {
+      "board_layer_state": 26217,
+      "board_submission": 158,
+      "board_units": 158,
+      "forecast_source_hp": 66,
+      "forecast_wait": 82,
+      "hand_identity": 380,
+      "map_actionable": 450,
+      "map_current": 10,
+      "map_node_data": 450,
+      "map_route": 450,
+      "summary_card": 380,
+      "time_badge": 380
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 929,
+      "mode": "embrace",
+      "room": "(11, 8)",
+      "room_kind": "campfire",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(12, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(11, 8)",
+        "depth": 11,
+        "element": "none",
+        "map_lane": 2,
+        "map_outline": true,
+        "map_step": 10,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 2,
+        "type": "campfire",
+        "visited": true
+      },
+      "section": 2,
+      "seed": 12
+    },
+    "counts": {
+      "board_layer_state": 153060,
+      "board_submission": 929,
+      "board_units": 929,
+      "boss_health": 118,
+      "forecast_source_hp": 648,
+      "forecast_wait": 710,
+      "hand_identity": 3440,
+      "map_actionable": 1538,
+      "map_current": 33,
+      "map_node_data": 1538,
+      "map_route": 1538,
+      "summary_card": 3440,
+      "time_badge": 3440
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 3484,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 9
+    },
+    "counts": {
+      "board_layer_state": 572363,
+      "board_submission": 3484,
+      "board_units": 3484,
+      "boss_health": 510,
+      "forecast_source_hp": 2349,
+      "forecast_wait": 3006,
+      "hand_identity": 11097,
+      "map_actionable": 2830,
+      "map_current": 66,
+      "map_node_data": 2830,
+      "map_route": 2830,
+      "summary_card": 11097,
+      "time_badge": 11097
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "default",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2116,
+      "mode": "combat",
+      "room": "(15, 0)",
+      "room_kind": "combat",
+      "room_metadata": {
+        "biome": "fire",
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(15, 5)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(15, 0)",
+        "depth": 15,
+        "element": "earth",
+        "encounter_id": "t3_full_line",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 3,
+        "type": "combat",
+        "visited": true
+      },
+      "section": 3,
+      "seed": 13
+    },
+    "counts": {
+      "board_layer_state": 349377,
+      "board_submission": 2116,
+      "board_units": 2116,
+      "boss_health": 264,
+      "forecast_source_hp": 1444,
+      "forecast_wait": 1787,
+      "hand_identity": 9261,
+      "map_actionable": 1855,
+      "map_current": 40,
+      "map_node_data": 1855,
+      "map_route": 1855,
+      "summary_card": 9261,
+      "time_badge": 9261
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "no-embrace",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2697,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 4
+    },
+    "counts": {
+      "board_layer_state": 443642,
+      "board_submission": 2697,
+      "board_units": 2697,
+      "boss_health": 344,
+      "forecast_source_hp": 1409,
+      "forecast_wait": 2163,
+      "hand_identity": 10707,
+      "map_actionable": 3048,
+      "map_current": 68,
+      "map_node_data": 3048,
+      "map_route": 3048,
+      "summary_card": 10707,
+      "time_badge": 10707
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "no-embrace",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2843,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 5
+    },
+    "counts": {
+      "board_layer_state": 470785,
+      "board_submission": 2843,
+      "board_units": 2843,
+      "boss_health": 397,
+      "forecast_source_hp": 1610,
+      "forecast_wait": 2224,
+      "hand_identity": 11682,
+      "map_actionable": 2546,
+      "map_current": 59,
+      "map_node_data": 2546,
+      "map_route": 2546,
+      "summary_card": 11682,
+      "time_badge": 11682
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "no-embrace",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 1884,
+      "mode": "combat",
+      "room": "(11, 6)",
+      "room_kind": "combat",
+      "room_metadata": {
+        "biome": "fire",
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(11, 10)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(11, 6)",
+        "depth": 11,
+        "element": "fire",
+        "encounter_id": "t3_full_line",
+        "map_lane": 6,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 2,
+        "type": "combat",
+        "visited": true
+      },
+      "section": 2,
+      "seed": 7
+    },
+    "counts": {
+      "board_layer_state": 311100,
+      "board_submission": 1884,
+      "board_units": 1884,
+      "boss_health": 147,
+      "forecast_source_hp": 1359,
+      "forecast_wait": 1603,
+      "hand_identity": 8544,
+      "map_actionable": 1403,
+      "map_current": 29,
+      "map_node_data": 1403,
+      "map_route": 1403,
+      "summary_card": 8544,
+      "time_badge": 8544
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "no-embrace",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2993,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "omen_combat_finished": true,
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 6
+    },
+    "counts": {
+      "board_layer_state": 492460,
+      "board_submission": 2993,
+      "board_units": 2993,
+      "boss_health": 344,
+      "forecast_source_hp": 1489,
+      "forecast_wait": 2481,
+      "hand_identity": 10268,
+      "map_actionable": 2922,
+      "map_current": 67,
+      "map_node_data": 2922,
+      "map_route": 2922,
+      "summary_card": 10268,
+      "time_badge": 10268
+    },
+    "mismatches": {}
+  },
+  {
+    "campaign": "no-embrace",
+    "event": "qa45_observation_summary",
+    "context": {
+      "decision": 2795,
+      "mode": "victory",
+      "room": "(24, 0)",
+      "room_kind": "boss",
+      "room_metadata": {
+        "boss_id": "noctyrax",
+        "cleared": true,
+        "connections": [],
+        "coord": "(24, 0)",
+        "depth": 24,
+        "element": "shadow",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 12,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 5,
+        "type": "boss",
+        "visited": true
+      },
+      "section": 5,
+      "seed": 8
+    },
+    "counts": {
+      "board_layer_state": 461073,
+      "board_submission": 2795,
+      "board_units": 2795,
+      "boss_health": 453,
+      "forecast_source_hp": 1589,
+      "forecast_wait": 2182,
+      "hand_identity": 10950,
+      "map_actionable": 2856,
+      "map_current": 63,
+      "map_node_data": 2856,
+      "map_route": 2856,
+      "summary_card": 10950,
+      "time_badge": 10950
+    },
+    "mismatches": {}
+  }
+]

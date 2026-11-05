@@ -1,0 +1,104 @@
+[
+  {
+    "case": "empty",
+    "returncode": 0,
+    "markers": [
+      "QA53 SHADER EXIT: empty"
+    ],
+    "argv": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-53",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--verbose",
+      "--path",
+      ".",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-53/tools/shader_exit_repro.gd",
+      "--",
+      "--case=empty"
+    ]
+  },
+  {
+    "case": "quantize",
+    "returncode": 0,
+    "markers": [
+      "QA53 SHADER EXIT: quantize",
+      "Orphan StringName: BAYER (static: 0, total: 1)",
+      "StringName: 1 unclaimed string names at exit."
+    ],
+    "argv": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-53",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--verbose",
+      "--path",
+      ".",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-53/tools/shader_exit_repro.gd",
+      "--",
+      "--case=quantize"
+    ]
+  },
+  {
+    "case": "lines",
+    "returncode": 0,
+    "markers": [
+      "QA53 SHADER EXIT: lines",
+      "Orphan StringName: BAYER (static: 0, total: 1)",
+      "StringName: 1 unclaimed string names at exit."
+    ],
+    "argv": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-53",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--verbose",
+      "--path",
+      ".",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-53/tools/shader_exit_repro.gd",
+      "--",
+      "--case=lines"
+    ]
+  },
+  {
+    "case": "both",
+    "returncode": 0,
+    "markers": [
+      "QA53 SHADER EXIT: both",
+      "Orphan StringName: BAYER (static: 0, total: 2)",
+      "StringName: 1 unclaimed string names at exit."
+    ],
+    "argv": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-53",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--verbose",
+      "--path",
+      ".",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-53/tools/shader_exit_repro.gd",
+      "--",
+      "--case=both"
+    ]
+  }
+]

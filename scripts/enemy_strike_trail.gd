@@ -39,7 +39,9 @@ static func _context(board: Control, effect: Dictionary) -> Dictionary:
 		if from.x < 0 or to.x < 0 or absi(to.x-from.x)+absi(to.y-from.y) > 1 or Wind.handles(effect): return {}
 	var source: Dictionary = actor(board,effect)
 	var settings: Dictionary = Points.settings(str(source["type"]),effect)
-	if str(settings["kind"]) == "bespoke" or (kind == "aoe" and (kind not in settings["actions"] or physical_area(effect))): return {}
+	# Registry opt-ins add an attacker path without changing per-tile rakes.
+	var area_strike: bool = str(effect.get("intent_id", "")) in settings.get("area_strike_intents", [])
+	if str(settings["kind"]) == "bespoke" or (kind == "aoe" and not area_strike and (kind not in settings["actions"] or physical_area(effect))): return {}
 	return {"actor":source,"settings":settings}
 
 static func physical_area(effect: Dictionary) -> bool:

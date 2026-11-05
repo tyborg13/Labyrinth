@@ -1,0 +1,81 @@
+{
+  "observer_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853637626406000-34672/godot.log"
+  },
+  "observer_v2_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853751043326000-35229/godot.log"
+  },
+  "native_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853826207732000-35502/godot.log"
+  },
+  "replay_v1_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853879619107000-35667/godot.log"
+  },
+  "replay_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793853974014881000-35929/godot.log"
+  },
+  "replay_final_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793856254729134000-46115/godot.log"
+  },
+  "native_final_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793855101519583000-40739/godot.log"
+  },
+  "python_proof_source_parse": {
+    "returncode": 0,
+    "files": [
+      "run_hunt_task.py",
+      "run_campaigns.py",
+      "status.py",
+      "collect_reports.py",
+      "collect_census.py",
+      "run_replays.py",
+      "compare_replays.py"
+    ],
+    "result_line": "QA45 PYTHON PROOF SOURCES: 7 parsed; no syntax errors"
+  },
+  "replay_lifetime_check_only": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth-godot-home/qa-45-1793856957259199000-49651/godot.log"
+  },
+  "python_default": {
+    "returncode": 0,
+    "result_lines": [
+      "ISOLATION AUDIT: 55 modules; /private/tmp/labyrinth_codex/qa-45/python-default/isolation-audit.md",
+      "SELECTED MODULES: 19 of 55",
+      "OK",
+      "Ran 178 tests in 32.273s",
+      "OK",
+      "Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmpqy59e9da'",
+      "PYTHON SUITE WALL: 32.273s; results: /private/tmp/labyrinth_codex/qa-45/python-default"
+    ],
+    "log": "/private/tmp/labyrinth_codex/qa-45/python-default.log",
+    "summary": "/private/tmp/labyrinth_codex/qa-45/python-default/summary.json"
+  },
+  "final_python_proof_sources": {
+    "returncode": 0,
+    "files": [
+      "collect_census.py",
+      "collect_reports.py",
+      "compare_replays.py",
+      "finalize_report.py",
+      "run_campaigns.py",
+      "run_hunt_task.py",
+      "run_hunt_task_verbose.py",
+      "run_replays.py",
+      "status.py"
+    ],
+    "result_line": "QA45 FINAL PYTHON PROOF SOURCES: 9 parsed; no syntax errors"
+  },
+  "census_result_lines": [
+    "QA45 CENSUS: census-default-5 PASS; tree 1562 -> 2872; named_pool_delta=1113; bound=3065.5; orphans 0 -> 0",
+    "QA45 CENSUS: census-no-embrace-4 PASS; tree 1562 -> 2862; named_pool_delta=1088; bound=3040.5; orphans 0 -> 0",
+    "QA45 CENSUS OVERALL: PASS 2/2 required comparisons; 2 attempts retained"
+  ]
+}

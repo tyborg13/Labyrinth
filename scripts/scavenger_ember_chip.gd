@@ -1,6 +1,7 @@
 extends "res://scripts/ui_stat_chip.gd"
 
 func _layout() -> void:
+	caption_size = 14
 	super._layout()
 	Typography.set_label_size(_value, 26)
 	_value.size = _value.get_minimum_size()

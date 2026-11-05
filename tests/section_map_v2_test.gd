@@ -8,11 +8,15 @@ func _initialize() -> void:
 	if OS.get_cmdline_user_args().has("--proof-contract-only"):
 		quit(0)
 		return
-	Suite.run(func(ok: bool, message: String) -> void:
+	var seed_end: int = Suite.SEED_COUNT / Suite.SEED_PARTS if OS.get_cmdline_user_args().has("--map-part-0") else Suite.SEED_COUNT
+	_run_seed_range(0, seed_end, true)
+
+func _run_seed_range(seed_begin: int, seed_end: int, include_cases: bool) -> void:
+	var expect: Callable = func(ok: bool, message: String) -> void:
 		if not ok and not failures.has(message): failures.append(message)
-	)
+	Suite.run(expect, seed_begin, seed_end, include_cases)
 	for failure: String in failures: push_error(failure)
-	print("Section map v2 suite: %d failures (64 seeds x 6 sections)" % failures.size())
+	print("Section map v2 suite: %d failures (seeds %d..%d x 6 sections)" % [failures.size(), seed_begin, seed_end])
 	quit(0 if failures.is_empty() else 1)
 
 func _write_visual_contract() -> void:

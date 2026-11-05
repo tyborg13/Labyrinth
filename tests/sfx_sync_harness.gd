@@ -107,6 +107,7 @@ func _run_scale() -> void:
 	instrumented = instrumented.replace('const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")', 'var SfxCueRouterScript: Script')
 	instrumented = instrumented.replace("get_tree().create_timer(", "_sfx_sync_clock.create_timer(")
 	instrumented = instrumented.replace("\tboard_view.present_sound_snapshot(display_state, presentation)", "\t_sfx_sync_clock.render(display_state, presentation, get_stack()); board_view.present_sound_snapshot(display_state, presentation)")
+	instrumented = instrumented.replace("\t\t_sfx_router.enemy_arrivals(display_state, presentation)", "\t\t_sfx_sync_clock.render(display_state, presentation, get_stack()); _sfx_router.enemy_arrivals(display_state, presentation)")
 	instrumented += "\nvar _sfx_sync_clock: RefCounted\n"
 	var instrumented_lines: PackedStringArray = instrumented.split("\n")
 	var input_method: String = ""
@@ -318,9 +319,14 @@ func _drive_presentations() -> void:
 	for type: String in ["player", "crawler", "acolyte", "harrier", "warden", "cinder_ooze", "lightning_wisp", "gallows_roc", "tharokh"]:
 		_begin("death/" + type)
 		var before: Dictionary = _state()
-		router.begin_player_action(before, {"type": "fixture"})
 		var unit: Dictionary = {"type": type, "hp": 0, "pos": Vector2i(3, 3), "death_animation": true, "death_frame": 0, "key": "player" if type == "player" else "enemy_99"}
 		if type != "player": unit["id"] = type
+		# This synthetic corpse belongs to the opening fixture roster; it was
+		# already present before dying, rather than being a newborn on this frame.
+		var opening: Dictionary = before.duplicate(true)
+		if type != "player": opening["enemies"].append(unit)
+		router.baseline(opening)
+		router.begin_player_action(before, {"type": "fixture"})
 		scene.call("_render_board_state", before, {"death_animation_units": [unit]})
 		_finish(before)
 
@@ -339,6 +345,9 @@ func _present_hit(label: String, action: Dictionary, weapon: String, count: int 
 	for unit: Dictionary in after["enemies"]:
 		unit["hp"] -= int(action.get("damage", 0))
 		unit["block"] = 0
+	# Each synthetic target roster is a fresh fight, not arrivals in the prior
+	# scenario. Production loads establish this baseline through _load_run_state.
+	router.baseline(before)
 	if actor.is_empty(): router.begin_player_action(before, action, weapon)
 	else: router.begin_enemy_action(before, action, actor)
 	var effect: Dictionary = action.duplicate(true)
@@ -461,6 +470,7 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 			if bool(shown.get("maquette_explicit_clip", false)) and shown.has("effect"): return frame
 			continue
 		if cue == "move.blink" and scenario == "player/swap" and state.get("player", {}).get("pos") != before["player"]["pos"]: return frame
+		if cue == "spell.shadow" and scenario.begins_with("arrival/"): return frame
 		if cue == "move.blink" and str(shown.get("effect", {}).get("kind", "")) == "blink": return frame
 		if scenario == "enemy/eclipse" and cue == "spell.shadow" and shown.has("effect"): return frame
 		if cue.begins_with("swing.") and not (shown.get("effect", {}) as Dictionary).is_empty(): return frame

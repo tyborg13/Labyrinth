@@ -22,13 +22,16 @@ const SELECTION_SEEDS: int = 50
 const EVENTS_PER_SECTION: int = 2
 const SURVEY_FIXTURE_HOPS: int = 4
 const SURVEY_FIXTURE_TARGET_COUNT: int = 2
+static var _event_fixture_engine: RefCounted
+static var _event_fixture_base: Dictionary = {}
 
-static func run(expect: Callable) -> void:
+static func run(expect: Callable, include_preview_matrix: bool = true) -> void:
+	_clear_event_fixture()
 	var engine := Run.new()
 	expect.call(Events.validate_data().is_empty(), "Authored event data validates: %s" % str(Events.validate_data()))
 	expect.call(Data.events().size() == 45 and Data.omens().size() == 11, "All 45 events and 11 omens load")
 	expect.call(Events.art_path("bloodletters_basin") == "res://assets/art/events/bloodletters_basin.png", "Art has one derived accessor and may be missing")
-	preload("res://tests/helpers/event_preview_checks.gd").run(engine, expect)
+	preload("res://tests/helpers/event_preview_checks.gd").run(engine, expect, include_preview_matrix)
 	_validation(expect)
 	_selection(engine, expect)
 	_requirements(engine, expect)
@@ -42,9 +45,20 @@ static func run(expect: Callable) -> void:
 	_persistence_and_rewards(engine, expect)
 	_edges(engine, expect)
 	_ui(engine, expect)
+	_clear_event_fixture()
+
+static func _clear_event_fixture() -> void:
+	_event_fixture_engine = null
+	_event_fixture_base = {}
 
 static func _event_state(engine: RefCounted, id: String = "lost_cartographer", legacy: bool = false) -> Dictionary:
-	var state: Dictionary = engine.create_new_run(TEST_SEED, Store.default_data())
+	# These cases all use the same seed/profile and restore catalog mutations.
+	# Own one pristine run per engine and give every case a deep copy. History
+	# snapshot/new-run contracts still call the real constructor independently.
+	if _event_fixture_base.is_empty() or not is_same(engine, _event_fixture_engine):
+		_event_fixture_engine = engine
+		_event_fixture_base = engine.create_new_run(TEST_SEED, Store.default_data())
+	var state: Dictionary = _event_fixture_base.duplicate(true)
 	if legacy: Graph._initialize_revision_3(state)
 	for room: Dictionary in state["rooms"].values():
 		if str(room.get("type", "")) != "event": continue

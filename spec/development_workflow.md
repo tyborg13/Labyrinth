@@ -82,8 +82,11 @@ Godot writes sidecars after artifacts, so sidecar timestamps alone cannot mean
 stale. The one-time import has a separate 1,800-second cap for fresh asset trees.
 This bootstrap is not an editor parser check. Fresh worktrees need no manual import.
 
-The main Godot body runs alongside `tools/program_suite_runner.py`. Its pool has
-`min(6, max(1, logical_cpus // 3))` slots. Each program receives its own 300-second
+The main Godot body runs alongside `tools/program_suite_runner.py`. Its pool uses
+the measured `DEFAULT_TEST_POOL` in that file. `LABYRINTH_TEST_POOL` overrides it;
+an explicit scheduler `--jobs` overrides the environment. Widths must be positive
+integers. This is a scheduling setting, not a GUI lease or shared-resource limit.
+Each program receives its own 300-second
 timeout; `timeout_seconds` in `tests/headless_test_programs.json` can override it
 for measured long workloads. The complete suite has no shared runtime budget or
 wall-time assertion. The task runner disables its implicit outer timeout for

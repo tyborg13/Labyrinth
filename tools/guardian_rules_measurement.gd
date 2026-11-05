@@ -1,6 +1,6 @@
 extends "res://tools/encounter_bot.gd"
 ## meas-02 policy v2, revision-7 selection, stratified by Guardian and natural tier.
-const GuardianPolicy = preload("res://scripts/battlefield_rules/bot_policy.gd")
+const GuardianPolicy = preload("res://tools/bot_policy.gd")
 const Adapter = preload("res://tools/guardian_rules_measurement_engine.gd")
 const RUNS_PER_TIER: int = 30
 const FIRST_SEED: int = 1

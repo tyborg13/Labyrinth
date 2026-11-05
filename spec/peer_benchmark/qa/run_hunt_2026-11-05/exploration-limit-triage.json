@@ -1,0 +1,4305 @@
+[
+  {
+    "campaign": "default",
+    "seed": 13,
+    "classification": "Bot exploration limit, not a demonstrated softlock",
+    "reason": "400 fight decisions reached while the acolyte continued taking turns and healing; player moves, card resolutions and fatigue still progressed. The separate 50-unchanged-decision detector did not fire.",
+    "trace": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000013/trace.jsonl",
+    "terminal": {
+      "combat": {
+        "_surface_damage_batch": false,
+        "activation_seq": 474,
+        "activation_start": {
+          "surfaces": [],
+          "tile": "(4, 5)",
+          "turn": 72
+        },
+        "analytics": {
+          "combat_defiance_event_revision_staged": 0,
+          "combat_id": "run_7958559_9bffa35a_c020",
+          "combat_skill_event_revision_staged": 0
+        },
+        "balance_revision": "dragon_pressure_v3",
+        "banked_play_active": 0,
+        "banked_play_spent_this_activation": 0,
+        "banked_plays": 0,
+        "boss_id": "",
+        "card_play_bonus_this_turn": 0,
+        "card_stay_sequence": 5,
+        "cards_per_turn": 2,
+        "cards_played_this_turn": 0,
+        "collected_equipment": [
+          "quarrymail"
+        ],
+        "current_actor": {
+          "actor_key": "player",
+          "kind": "player",
+          "name": "Reaver",
+          "seq": 474,
+          "team": "player",
+          "time": 1202,
+          "type": "player"
+        },
+        "damage_context": {
+          "action_type": "move",
+          "actor_id": -1,
+          "actor_kind": "player",
+          "card_id": "",
+          "player_card": false,
+          "source_kind": "direct_attack"
+        },
+        "death_bonus_card_plays_this_turn": 0,
+        "death_rewards": [
+          {
+            "actor_key": "enemy_4",
+            "card_plays": 1,
+            "embers": 8,
+            "enemy_id": 4,
+            "summoned": false,
+            "tile": "(3, 5)",
+            "type": "crawler"
+          },
+          {
+            "actor_key": "enemy_5",
+            "card_plays": 1,
+            "embers": 11,
+            "enemy_id": 5,
+            "summoned": false,
+            "tile": "(3, 5)",
+            "type": "grave_surgeon"
+          },
+          {
+            "actor_key": "enemy_1",
+            "card_plays": 1,
+            "embers": 14,
+            "enemy_id": 1,
+            "summoned": false,
+            "tile": "(5, 6)",
+            "type": "warden"
+          },
+          {
+            "actor_key": "enemy_2",
+            "card_plays": 1,
+            "embers": 9,
+            "enemy_id": 2,
+            "summoned": false,
+            "tile": "(2, 4)",
+            "type": "harrier"
+          }
+        ],
+        "deck": {
+          "burned": [
+            "patch_up"
+          ],
+          "consumed": [],
+          "cycles": 14,
+          "discard": [],
+          "draw": [
+            "lantern_shot",
+            "brace",
+            "hamstring_shot",
+            "bloody_lunge",
+            "waning_pulse",
+            "waning_pulse",
+            "pale_spark",
+            "dull_bolt",
+            "guarded_step",
+            "pale_spark",
+            "sidestep_slash"
+          ],
+          "draw_revision": 152,
+          "fatigue_base": 2,
+          "hand": [
+            "shadow_step",
+            "quick_stab",
+            "plasma_arc",
+            "whirlwind_slash"
+          ]
+        },
+        "defiance_capacity": 0,
+        "defiance_event_revision": 0,
+        "defiance_events": [],
+        "defiance_remaining": 0,
+        "draw_per_turn": 2,
+        "enemies": [
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "earth",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 1,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "amount": 7,
+                  "target_mode": "all_other_enemies",
+                  "type": "guard_ally"
+                }
+              ],
+              "id": "bulwark",
+              "name": "Bulwark",
+              "time": 5.0,
+              "weight": 2.0
+            },
+            "max_hp": 27,
+            "pos": "(5, 6)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "warden"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "earth",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 2,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 2.0,
+                  "type": "move_away"
+                },
+                {
+                  "amount": 4,
+                  "type": "block"
+                }
+              ],
+              "id": "retreat_step",
+              "name": "Retreat Step",
+              "time": 4.0,
+              "weight": 2.0
+            },
+            "max_hp": 15,
+            "pos": "(2, 4)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "harrier"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "earth",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 10,
+            "id": 3,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 1.0,
+                  "type": "move_toward"
+                },
+                {
+                  "damage": 6,
+                  "element": "none",
+                  "range": 2.0,
+                  "type": "ranged"
+                },
+                {
+                  "amount": 3,
+                  "type": "heal_self"
+                }
+              ],
+              "id": "siphon",
+              "name": "Siphon",
+              "time": 5.0,
+              "weight": 2.0
+            },
+            "max_hp": 18,
+            "pos": "(5, 4)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "acolyte"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "earth",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 4,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 2.0,
+                  "type": "move_toward"
+                },
+                {
+                  "bleed": 1,
+                  "damage": 6,
+                  "element": "none",
+                  "range": 1.0,
+                  "type": "melee"
+                }
+              ],
+              "id": "skitter_strike",
+              "name": "Skitter Strike",
+              "time": 5.0,
+              "weight": 4.0
+            },
+            "max_hp": 20,
+            "pos": "(3, 5)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "crawler"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "earth",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 5,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 1.0,
+                  "type": "move_toward"
+                },
+                {
+                  "amount": 3,
+                  "range": 3.0,
+                  "type": "heal_ally"
+                }
+              ],
+              "id": "triage_suture",
+              "name": "Triage Suture",
+              "time": 4.0,
+              "weight": 4.0
+            },
+            "max_hp": 15,
+            "pos": "(3, 5)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "grave_surgeon"
+          }
+        ],
+        "equipment_grafts": {},
+        "equipped_equipment": {
+          "armor": "patched_cloak",
+          "boots": "skirmisher_boots",
+          "offhand": "splintered_shield",
+          "trinket": "cracked_lantern",
+          "weapon": "training_sword"
+        },
+        "equipped_items": [],
+        "grid": [
+          [
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "pillar",
+            "stone",
+            "stone",
+            "pillar",
+            "stone",
+            "door"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall"
+          ]
+        ],
+        "guardian_braziers": [],
+        "guardian_id": "",
+        "hand_size": 5,
+        "heal_bonus": 0,
+        "hero_facing": {
+          "facing": "rear",
+          "mirrored": true
+        },
+        "hero_last_move": {
+          "direction": "(-1, 0)",
+          "turn": 72
+        },
+        "illusions": [],
+        "initiative_clock": 1202,
+        "item_inventory": [
+          "storm_jar",
+          "glacier_salts"
+        ],
+        "last_action_target": "(2, 5)",
+        "last_card_destination": "discard",
+        "last_card_tempo": {
+          "card_id": "brace",
+          "next_attack_bonus_used": null,
+          "quicken_spent": 0,
+          "rite_started": null
+        },
+        "last_card_used_banked_play": false,
+        "last_exhausted_card": {
+          "card_id": "patch_up",
+          "pile_index": 0,
+          "returned": false
+        },
+        "last_player_movement": {
+          "action_type": "move",
+          "capacity": 2,
+          "destination": "(2, 5)",
+          "light_refunds": 0,
+          "origin": "(4, 5)",
+          "remaining_after": 0,
+          "remaining_before": 2,
+          "resolved": true,
+          "spent": 2,
+          "target": "(2, 5)",
+          "undo_report": {
+            "changed_fields": [
+              "damage_context.enemy_type",
+              "damage_context.intent_id",
+              "derived.umbra_visible_tiles"
+            ],
+            "reversible": false,
+            "tiles": 2
+          }
+        },
+        "level": 1,
+        "log": [
+          "Moved to (5, 5).",
+          "Moved to (5, 6).",
+          "Dust Acolyte fires.",
+          "Dust Acolyte recovers 3 health.",
+          "Moved to (5, 5).",
+          "Moved to (4, 5).",
+          "Gained 6 block.",
+          "Worldheart carries 2 block forward as stoneskin.",
+          "Dust Acolyte fires.",
+          "Dust Acolyte recovers 3 health.",
+          "Fatigue costs 15 health.",
+          "Moved to (2, 5)."
+        ],
+        "loot": [
+          {
+            "claimed": true,
+            "equipment_id": "quarrymail",
+            "id": "loot_equipment_quarrymail_5_4",
+            "kind": "equipment",
+            "pos": "(5, 4)"
+          },
+          {
+            "card_id": "crimson_draught",
+            "id": "loot_item_0_7_1",
+            "kind": "item",
+            "pos": "(7, 1)"
+          }
+        ],
+        "moss": {
+          "floor": [
+            "(1, 1)",
+            "(3, 1)",
+            "(5, 1)",
+            "(7, 1)",
+            "(1, 3)",
+            "(3, 3)",
+            "(5, 3)",
+            "(1, 5)",
+            "(3, 5)",
+            "(1, 7)"
+          ],
+          "pillar": [
+            "(3, 4)"
+          ],
+          "wall": [
+            "(2, 0)",
+            "(0, 1)",
+            "(0, 3)"
+          ]
+        },
+        "next_illusion_id": 1,
+        "objective": {
+          "description": "Defeat every enemy.",
+          "icon_path": "res://assets/art/icons/objectives/kill_all_enemies.png",
+          "initial_enemy_count": 5,
+          "name": "Defeat All Enemies",
+          "type": "kill_all"
+        },
+        "pending_relic_card_plays": 0,
+        "pending_summon_card_plays": 0,
+        "player": {
+          "bleed": 0,
+          "block": 0,
+          "chilled": false,
+          "expose": 0,
+          "freeze": 0,
+          "hp": 8315,
+          "immobilize": false,
+          "max_hp": 9999,
+          "pos": "(2, 5)",
+          "shock": 0,
+          "stoneskin": 0
+        },
+        "player_movement_capacity": 2,
+        "player_movement_remaining": 0,
+        "player_turn_ending": false,
+        "player_turn_restrictions": {
+          "frozen": false,
+          "immobilized": false,
+          "shocked": false
+        },
+        "player_turn_time_spent": 0,
+        "plays_forfeited_this_turn": 0,
+        "recovered_embers_total": 0,
+        "relic_flags": {
+          "relic_sequence:combat_elements": [
+            "lightning"
+          ]
+        },
+        "relic_time_reserve": {
+          "winters_hour": 0
+        },
+        "relics": [
+          "pendulum_weight",
+          "worldheart",
+          "tailwind_fletching",
+          "stormroad_coil",
+          "liturgy_of_ash",
+          "feint_ribbon",
+          "winters_hour",
+          "ashen_brand",
+          "rubblewalker_greaves"
+        ],
+        "rng_state": -8652124014651885356,
+        "room_coord": "(15, 0)",
+        "room_depth": 15,
+        "room_element": "earth",
+        "room_embers": 42,
+        "room_name": "Shuttered Vault",
+        "room_type": "combat",
+        "rules_version": 5,
+        "run_stats": {
+          "card_resolution_active": false,
+          "card_resolution_kills": 0,
+          "damage_dealt": 1649,
+          "damage_received": 3416,
+          "defiance_spent": 0,
+          "dragons_flawless": [],
+          "dragons_slain": [
+            "tharokh",
+            "zekarion",
+            "iskaldra"
+          ],
+          "enemies_killed": 85,
+          "enemies_slain": 76,
+          "events_resolved": 9,
+          "guardians_slain": 1,
+          "guardians_unscathed": [],
+          "killer": {},
+          "max_held_embers": 698,
+          "max_kills_one_card": 2,
+          "max_single_hit": 12,
+          "mystery_rooms_entered": 7,
+          "rooms_explored": 44
+        },
+        "score_health_loss_at_start": 2264,
+        "score_wallet_base": 656,
+        "skill_events": [],
+        "skill_flags": {},
+        "skill_ids": [],
+        "surface_event_sequence": 21,
+        "surface_events": [
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 1,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            },
+            "surface": "rubble",
+            "tile": "(2, 5)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 2,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            },
+            "surface": "rubble",
+            "tile": "(3, 6)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 3,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            },
+            "surface": "rubble",
+            "tile": "(2, 7)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 4,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            },
+            "surface": "rubble",
+            "tile": "(1, 6)"
+          },
+          {
+            "damage": 10,
+            "element": "earth",
+            "kind": "trap_triggered",
+            "rules_version": 5,
+            "sequence": 5,
+            "tile": "(2, 6)",
+            "wake_tiles": [
+              "(2, 5)",
+              "(3, 6)",
+              "(2, 7)",
+              "(1, 6)"
+            ]
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(2, 5)",
+            "blocked_tile": "(3, 5)",
+            "blocker_damage": 2,
+            "blocker_key": "enemy_2",
+            "blocker_kind": "enemy",
+            "blockers": [
+              {
+                "damage": 2,
+                "id": 2,
+                "key": "enemy_2",
+                "kind": "enemy",
+                "tile": "(3, 5)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(1, 0)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 6,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(2, 5)",
+            "total_damage": 4
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 7,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            },
+            "surface": "rubble",
+            "tile": "(2, 2)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 8,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            },
+            "surface": "rubble",
+            "tile": "(3, 3)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 9,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            },
+            "surface": "rubble",
+            "tile": "(2, 4)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 10,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            },
+            "surface": "rubble",
+            "tile": "(1, 3)"
+          },
+          {
+            "damage": 10,
+            "element": "earth",
+            "kind": "trap_triggered",
+            "rules_version": 5,
+            "sequence": 11,
+            "tile": "(2, 3)",
+            "wake_tiles": [
+              "(2, 2)",
+              "(3, 3)",
+              "(2, 4)",
+              "(1, 3)"
+            ]
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 12,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "earth",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 4,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "range": 2.0,
+                    "type": "move_toward"
+                  },
+                  {
+                    "bleed": 1,
+                    "damage": 6,
+                    "element": "none",
+                    "range": 1.0,
+                    "type": "melee"
+                  }
+                ],
+                "id": "skitter_strike",
+                "name": "Skitter Strike",
+                "time": 5.0,
+                "weight": 4.0
+              },
+              "max_hp": 20,
+              "pos": "(3, 5)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "crawler"
+            }
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "anchor": "(4, 4)",
+            "blocked_tile": "(3, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(-1, 0)",
+            "force": "push",
+            "id": 1,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 13,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 4)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "anchor": "(4, 4)",
+            "blocked_tile": "(4, 5)",
+            "blocker_damage": 2,
+            "blocker_key": "enemy_3",
+            "blocker_kind": "enemy",
+            "blockers": [
+              {
+                "damage": 2,
+                "id": 3,
+                "key": "enemy_3",
+                "kind": "enemy",
+                "tile": "(4, 5)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 1,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 14,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 4)",
+            "total_damage": 4
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "anchor": "(2, 4)",
+            "blocked_tile": "(2, 3)",
+            "blocker_damage": 2,
+            "blocker_key": "enemy_3",
+            "blocker_kind": "enemy",
+            "blockers": [
+              {
+                "damage": 2,
+                "id": 3,
+                "key": "enemy_3",
+                "kind": "enemy",
+                "tile": "(2, 3)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, -1)",
+            "force": "push",
+            "id": 5,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 15,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(2, 4)",
+            "total_damage": 4
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "anchor": "(4, 4)",
+            "blocked_tile": "(3, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(-1, 0)",
+            "force": "push",
+            "id": 1,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 16,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 4)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "anchor": "(4, 4)",
+            "blocked_tile": "(3, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(-1, 0)",
+            "force": "push",
+            "id": 1,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 17,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 4)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "anchor": "(3, 5)",
+            "blocked_tile": "(3, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, -1)",
+            "force": "push",
+            "id": 5,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 18,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(3, 5)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "id": 5,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 19,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "earth",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 5,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "range": 1.0,
+                    "type": "move_toward"
+                  },
+                  {
+                    "amount": 3,
+                    "range": 3.0,
+                    "type": "heal_ally"
+                  }
+                ],
+                "id": "triage_suture",
+                "name": "Triage Suture",
+                "time": 4.0,
+                "weight": 4.0
+              },
+              "max_hp": 15,
+              "pos": "(3, 5)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "grave_surgeon"
+            }
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "id": 1,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 20,
+            "source": {
+              "action_type": "ranged",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "lantern_shot",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "earth",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 1,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "amount": 7,
+                    "target_mode": "all_other_enemies",
+                    "type": "guard_ally"
+                  }
+                ],
+                "id": "bulwark",
+                "name": "Bulwark",
+                "time": 5.0,
+                "weight": 2.0
+              },
+              "max_hp": 27,
+              "pos": "(5, 6)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "warden"
+            }
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 21,
+            "source": {
+              "action_type": "ranged",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "lantern_shot",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "earth",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 2,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "range": 2.0,
+                    "type": "move_away"
+                  },
+                  {
+                    "amount": 4,
+                    "type": "block"
+                  }
+                ],
+                "id": "retreat_step",
+                "name": "Retreat Step",
+                "time": 4.0,
+                "weight": 2.0
+              },
+              "max_hp": 15,
+              "pos": "(2, 4)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "harrier"
+            }
+          }
+        ],
+        "surface_revision": 8,
+        "surface_rule_overrides": {
+          "conductive_fire": false,
+          "elemental_overwrite_spread": false,
+          "player_ignores_rubble": true
+        },
+        "surfaces": {
+          "1,3": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            }
+          },
+          "1,6": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            }
+          },
+          "2,2": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            }
+          },
+          "2,4": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            }
+          },
+          "2,5": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            }
+          },
+          "2,7": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            }
+          },
+          "3,3": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 6,
+              "tile": "(2, 3)"
+            }
+          },
+          "3,6": {
+            "rubble": true,
+            "rubble_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 1,
+              "tile": "(2, 6)"
+            }
+          }
+        },
+        "terrain": [
+          {
+            "hp": 0,
+            "id": "terrain_3_7",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(3, 7)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_4_7",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(4, 7)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_4_6",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(4, 6)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_5_3",
+            "kind": "wooden_crate",
+            "max_hp": 3,
+            "pos": "(5, 3)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_5_6",
+            "kind": "wooden_crate",
+            "max_hp": 3,
+            "pos": "(5, 6)"
+          }
+        ],
+        "traps": [],
+        "turn": 72,
+        "turn_flags": {
+          "first_attack_bonus_used": false,
+          "first_move_bonus_used": true,
+          "tiles_moved": 2
+        },
+        "turn_queue": [
+          {
+            "actor_key": "enemy_3",
+            "enemy_id": 3,
+            "kind": "enemy",
+            "name": "Dust Acolyte",
+            "pos": "(5, 4)",
+            "seq": 474,
+            "team": "enemy",
+            "time": 1205,
+            "type": "acolyte"
+          }
+        ],
+        "umbra": {
+          "boss_eclipse_activations": 0,
+          "boss_eclipse_stage": "",
+          "enemies_revealed_total": 0,
+          "hidden_attack_damage_received_total": 0,
+          "light_sources": [],
+          "movement_interrupted_total": 0,
+          "next_light_source_id": 12,
+          "stage": "pressing",
+          "stage_reduction": 0,
+          "tiles_illuminated_total": 11,
+          "truesight_activations": 0,
+          "vision_bonus": 0,
+          "vision_bonus_activations": 0
+        },
+        "zekarion_summon_waves": 0
+      },
+      "context": {
+        "decision": 2116,
+        "mode": "combat",
+        "room": "(15, 0)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "biome": "fire",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(15, 5)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, 0)",
+          "depth": 15,
+          "element": "earth",
+          "encounter_id": "t3_full_line",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 13
+      },
+      "outcome": "fight_limit"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "classification": "Bot exploration limit, not a demonstrated softlock",
+    "reason": "400 fight decisions reached; the terminal log still records enemy attacks, healing, player moves and fatigue. No 50-unchanged-decision softlock was flagged.",
+    "trace": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000007/trace.jsonl",
+    "terminal": {
+      "combat": {
+        "_surface_damage_batch": false,
+        "activation_seq": 489,
+        "activation_start": {
+          "surfaces": [],
+          "tile": "(3, 5)",
+          "turn": 75
+        },
+        "analytics": {
+          "combat_defiance_event_revision_staged": 0,
+          "combat_id": "run_5622428_c49baa84_c017",
+          "combat_skill_event_revision_staged": 0
+        },
+        "balance_revision": "dragon_pressure_v3",
+        "banked_play_active": 0,
+        "banked_play_spent_this_activation": 0,
+        "banked_plays": 0,
+        "boss_id": "",
+        "card_play_bonus_this_turn": 0,
+        "card_stay_sequence": 16,
+        "cards_per_turn": 2,
+        "cards_played_this_turn": 1,
+        "collected_equipment": [
+          "headsmans_coin"
+        ],
+        "current_actor": {
+          "actor_key": "player",
+          "kind": "player",
+          "name": "Reaver",
+          "seq": 489,
+          "team": "player",
+          "time": 1265,
+          "type": "player"
+        },
+        "damage_context": {
+          "action_type": "move",
+          "actor_id": -1,
+          "actor_kind": "player",
+          "card_id": "hamstring_shot",
+          "player_card": true,
+          "source_kind": "direct_attack"
+        },
+        "death_bonus_card_plays_this_turn": 0,
+        "death_rewards": [
+          {
+            "actor_key": "enemy_2",
+            "card_plays": 1,
+            "embers": 9,
+            "enemy_id": 2,
+            "summoned": false,
+            "tile": "(3, 5)",
+            "type": "harrier"
+          },
+          {
+            "actor_key": "enemy_4",
+            "card_plays": 1,
+            "embers": 8,
+            "enemy_id": 4,
+            "summoned": false,
+            "tile": "(1, 3)",
+            "type": "crawler"
+          },
+          {
+            "actor_key": "enemy_3",
+            "card_plays": 1,
+            "embers": 10,
+            "enemy_id": 3,
+            "summoned": false,
+            "tile": "(3, 3)",
+            "type": "acolyte"
+          }
+        ],
+        "deck": {
+          "burned": [
+            "patch_up"
+          ],
+          "consumed": [
+            "bottled_gale"
+          ],
+          "cycles": 14,
+          "discard": [
+            "waning_pulse",
+            "whirlwind_slash",
+            "hamstring_shot"
+          ],
+          "draw": [
+            "dull_bolt",
+            "quick_stab",
+            "bloody_lunge",
+            "pale_spark",
+            "lantern_shot",
+            "dull_bolt"
+          ],
+          "draw_revision": 155,
+          "fatigue_base": 2,
+          "hand": [
+            "brace",
+            "shadow_step",
+            "guarded_step",
+            "sidestep_slash",
+            "glacier_pin",
+            "waning_pulse"
+          ]
+        },
+        "defiance_capacity": 0,
+        "defiance_event_revision": 0,
+        "defiance_events": [],
+        "defiance_remaining": 0,
+        "draw_per_turn": 2,
+        "enemies": [
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "fire",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 6,
+            "id": 1,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 2.0,
+                  "type": "move_toward"
+                },
+                {
+                  "damage": 7,
+                  "element": "none",
+                  "pattern": [
+                    [
+                      0.0,
+                      -1.0
+                    ],
+                    [
+                      1.0,
+                      0.0
+                    ],
+                    [
+                      0.0,
+                      1.0
+                    ],
+                    [
+                      -1.0,
+                      0.0
+                    ]
+                  ],
+                  "range": 0.0,
+                  "rotate": false,
+                  "type": "aoe"
+                }
+              ],
+              "id": "crushing_step",
+              "name": "Crushing Step",
+              "time": 6.0,
+              "weight": 2.0
+            },
+            "max_hp": 25,
+            "pos": "(6, 5)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "warden"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "fire",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 2,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "bleed": 1,
+                  "damage": 5,
+                  "element": "none",
+                  "pierce": true,
+                  "range": 3.0,
+                  "type": "ranged"
+                }
+              ],
+              "id": "pelt",
+              "name": "Pelt",
+              "time": 4.0,
+              "weight": 4.0
+            },
+            "max_hp": 14,
+            "pos": "(3, 5)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "harrier"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": false,
+            "element": "fire",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 3,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 1.0,
+                  "type": "move_toward"
+                },
+                {
+                  "damage": 5,
+                  "element": "none",
+                  "range": 2.0,
+                  "type": "ranged"
+                },
+                {
+                  "amount": 3,
+                  "type": "heal_self"
+                }
+              ],
+              "id": "siphon",
+              "name": "Siphon",
+              "time": 5.0,
+              "weight": 2.0
+            },
+            "max_hp": 17,
+            "pos": "(3, 3)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "acolyte"
+          },
+          {
+            "bleed": 0,
+            "block": 0,
+            "chilled": true,
+            "element": "fire",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 0,
+            "id": 4,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 2.0,
+                  "type": "move_toward"
+                },
+                {
+                  "bleed": 1,
+                  "damage": 5,
+                  "element": "none",
+                  "range": 1.0,
+                  "type": "melee"
+                }
+              ],
+              "id": "skitter_strike",
+              "name": "Skitter Strike",
+              "time": 5.0,
+              "weight": 4.0
+            },
+            "max_hp": 19,
+            "pos": "(1, 3)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "crawler"
+          },
+          {
+            "bleed": 0,
+            "block": 7,
+            "chilled": false,
+            "element": "fire",
+            "expose": 0,
+            "footprint": "(1, 1)",
+            "freeze": 0,
+            "frost_armor": 0,
+            "hp": 6,
+            "id": 5,
+            "immobilize": false,
+            "intent": {
+              "actions": [
+                {
+                  "range": 1.0,
+                  "type": "move_toward"
+                },
+                {
+                  "amount": 3,
+                  "range": 3.0,
+                  "type": "heal_ally"
+                }
+              ],
+              "id": "triage_suture",
+              "name": "Triage Suture",
+              "time": 4.0,
+              "weight": 4.0
+            },
+            "max_hp": 14,
+            "pos": "(7, 5)",
+            "shock": 0,
+            "stoneskin": 0,
+            "type": "grave_surgeon"
+          }
+        ],
+        "equipment_grafts": {},
+        "equipped_equipment": {
+          "armor": "patched_cloak",
+          "boots": "skirmisher_boots",
+          "offhand": "splintered_shield",
+          "trinket": "cracked_lantern",
+          "weapon": "training_sword"
+        },
+        "equipped_items": [],
+        "grid": [
+          [
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "pillar",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "pillar",
+            "stone",
+            "stone",
+            "stone",
+            "pillar",
+            "stone",
+            "door"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "pillar",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "stone",
+            "wall"
+          ],
+          [
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall",
+            "wall"
+          ]
+        ],
+        "guardian_braziers": [],
+        "guardian_id": "",
+        "hand_size": 5,
+        "heal_bonus": 0,
+        "hero_facing": {
+          "facing": "front",
+          "mirrored": true
+        },
+        "hero_last_move": {
+          "direction": "(1, 0)",
+          "turn": 75
+        },
+        "illusions": [],
+        "initiative_clock": 1265,
+        "item_inventory": [],
+        "last_action_target": "(4, 5)",
+        "last_card_destination": "discard",
+        "last_card_tempo": {
+          "card_id": "hamstring_shot",
+          "next_attack_bonus_used": null,
+          "quicken_spent": 0,
+          "rite_started": null
+        },
+        "last_card_used_banked_play": false,
+        "last_exhausted_card": {
+          "card_id": "patch_up",
+          "pile_index": 0,
+          "returned": false
+        },
+        "last_player_movement": {
+          "action_type": "move",
+          "capacity": 2,
+          "destination": "(3, 5)",
+          "light_refunds": 0,
+          "origin": "(5, 5)",
+          "remaining_after": 0,
+          "remaining_before": 2,
+          "resolved": true,
+          "spent": 2,
+          "target": "(3, 5)",
+          "undo_report": {
+            "changed_fields": [
+              "player.chilled",
+              "derived.umbra_visible_tiles"
+            ],
+            "reversible": false,
+            "tiles": 2
+          }
+        },
+        "level": 1,
+        "log": [
+          "Moved to (4, 5).",
+          "Moved to (5, 5).",
+          "Grave Surgeon stitches Stone Warden for 3 health.",
+          "Stone Warden sweeps the area.",
+          "Fatigue costs 15 health.",
+          "Collision: 2 damage.",
+          "Unbound Pinion triggers.",
+          "Unbound Pinion triggers.",
+          "Moved to (3, 5).",
+          "Grave Surgeon stitches Stone Warden for 3 health.",
+          "Stone Warden guards all other enemies for 7 block.",
+          "Moved to (4, 5)."
+        ],
+        "loot": [
+          {
+            "claimed": true,
+            "equipment_id": "headsmans_coin",
+            "id": "loot_equipment_headsmans_coin_4_7",
+            "kind": "equipment",
+            "pos": "(4, 7)"
+          },
+          {
+            "card_id": "hourglass_sand",
+            "id": "loot_item_0_7_4",
+            "kind": "item",
+            "pos": "(7, 4)"
+          }
+        ],
+        "moss": {
+          "floor": [
+            "(1, 1)",
+            "(3, 1)",
+            "(5, 1)",
+            "(1, 3)",
+            "(3, 3)",
+            "(5, 3)",
+            "(1, 5)",
+            "(3, 5)",
+            "(1, 7)"
+          ],
+          "pillar": [
+            "(4, 2)",
+            "(2, 4)"
+          ],
+          "wall": [
+            "(2, 0)",
+            "(0, 1)",
+            "(0, 3)"
+          ]
+        },
+        "next_illusion_id": 1,
+        "objective": {
+          "description": "Defeat every enemy.",
+          "icon_path": "res://assets/art/icons/objectives/kill_all_enemies.png",
+          "initial_enemy_count": 5,
+          "name": "Defeat All Enemies",
+          "type": "kill_all"
+        },
+        "pending_relic_card_plays": 0,
+        "pending_summon_card_plays": 0,
+        "player": {
+          "bleed": 0,
+          "block": 0,
+          "chilled": true,
+          "expose": 0,
+          "freeze": 0,
+          "hp": 8320,
+          "immobilize": false,
+          "max_hp": 9997,
+          "pos": "(4, 5)",
+          "shock": 0,
+          "stoneskin": 0
+        },
+        "player_movement_capacity": 2,
+        "player_movement_remaining": 2,
+        "player_turn_ending": false,
+        "player_turn_restrictions": {
+          "frozen": false,
+          "immobilized": false,
+          "shocked": false
+        },
+        "player_turn_time_spent": 4,
+        "plays_forfeited_this_turn": 0,
+        "recovered_embers_total": 0,
+        "relic_flags": {
+          "relic_sequence:combat_elements": [
+            "ice",
+            "air"
+          ]
+        },
+        "relic_time_reserve": {},
+        "relics": [
+          "thunder_relay",
+          "worldheart",
+          "galehook_talon",
+          "toll_late_bell",
+          "unbound_pinion",
+          "reliquary_box",
+          "ashen_brand",
+          "pyre_keepers_urn"
+        ],
+        "rng_state": 1785438741539653198,
+        "room_coord": "(11, 6)",
+        "room_depth": 11,
+        "room_element": "fire",
+        "room_embers": 27,
+        "room_name": "Sealed Antechamber",
+        "room_type": "combat",
+        "rules_version": 5,
+        "run_stats": {
+          "card_resolution_active": false,
+          "card_resolution_kills": 0,
+          "damage_dealt": 1362,
+          "damage_received": 2547,
+          "defiance_spent": 0,
+          "dragons_flawless": [],
+          "dragons_slain": [
+            "tharokh",
+            "vaeloryx"
+          ],
+          "enemies_killed": 63,
+          "enemies_slain": 61,
+          "events_resolved": 3,
+          "guardians_slain": 2,
+          "guardians_unscathed": [],
+          "killer": {},
+          "max_held_embers": 615,
+          "max_kills_one_card": 2,
+          "max_single_hit": 12,
+          "mystery_rooms_entered": 6,
+          "rooms_explored": 32
+        },
+        "score_health_loss_at_start": 1198,
+        "score_wallet_base": 522,
+        "skill_events": [],
+        "skill_flags": {},
+        "skill_ids": [],
+        "surface_event_sequence": 119,
+        "surface_events": [
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 1,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 1,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(2, 7)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 2,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 1,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "id": 5,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 3,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(2, 7)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(3, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 4,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(3, 4)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 5,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "anchor": "(3, 7)",
+            "blocked_tile": "(3, 8)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 8)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 3,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 6,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(3, 7)",
+            "total_damage": 2
+          },
+          {
+            "enemy_id": 4,
+            "from": "(3, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 7,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(3, 4)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(2, 6)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 8,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(1, 6)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(1, 6)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 9,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(1, 5)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(1, 6)",
+            "blocked_tile": "(0, 6)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(0, 6)"
+              }
+            ],
+            "damage": 6,
+            "direction": "(-1, 0)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 3,
+            "rules_version": 5,
+            "sequence": 10,
+            "source": {
+              "action_type": "force_area",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "bottled_gale",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 6,
+            "tile": "(1, 6)",
+            "total_damage": 6
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "anchor": "(2, 5)",
+            "blocked_tile": "(2, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(2, 4)"
+              }
+            ],
+            "damage": 6,
+            "direction": "(0, -1)",
+            "force": "push",
+            "id": 5,
+            "kind": "force_collision",
+            "lost_tiles": 3,
+            "rules_version": 5,
+            "sequence": 11,
+            "source": {
+              "action_type": "force_area",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "bottled_gale",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 6,
+            "tile": "(2, 5)",
+            "total_damage": 6
+          },
+          {
+            "amount": 3,
+            "center": "(2, 6)",
+            "consumed": "",
+            "enemies": [
+              {
+                "enemy_id": 4,
+                "from": "(1, 6)",
+                "to": "(1, 6)"
+              },
+              {
+                "enemy_id": 5,
+                "from": "(2, 5)",
+                "to": "(2, 5)"
+              }
+            ],
+            "expose": 0,
+            "force": "push",
+            "kind": "force_area",
+            "radius": 1,
+            "rules_version": 5,
+            "sequence": 12,
+            "source": {
+              "action_type": "force_area",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "bottled_gale",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            }
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 13,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 11,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 14,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 11,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "anchor": "(3, 7)",
+            "blocked_tile": "(3, 8)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(3, 8)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 3,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 15,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(3, 7)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "anchor": "(1, 5)",
+            "blocked_tile": "(0, 5)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(0, 5)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(-1, 0)",
+            "force": "push",
+            "id": 2,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 16,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(1, 5)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 17,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 18,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 19,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(3, 3)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 20,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(4, 3)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 21,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 16,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(2, 2)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 22,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 16,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(3, 2)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 23,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 24,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 2)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 25,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "anchor": "(4, 3)",
+            "blocked_tile": "(4, 2)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(4, 2)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, -1)",
+            "force": "push",
+            "id": 2,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 26,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 3)",
+            "total_damage": 2
+          },
+          {
+            "enemy_id": 3,
+            "from": "(2, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 27,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(1, 5)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(3, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 28,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(2, 5)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 29,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 30,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 22,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 31,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 22,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 32,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "id": 1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 33,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 34,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(4, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 35,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 5)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 36,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 37,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 38,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "enemy_id": 3,
+            "from": "(3, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 39,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(2, 5)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(4, 4)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 40,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(4, 3)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(5, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 41,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 5)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 42,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 43,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 44,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 28,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(5, 4)"
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "id": 1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 45,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 4)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 46,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "enemy_id": 1,
+            "from": "(5, 4)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 47,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 3)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(4, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 48,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(3, 5)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(6, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 49,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 5)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 50,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 51,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 52,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 53,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "enemy_id": 3,
+            "from": "(5, 6)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 54,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 5)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(6, 7)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 55,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 7)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 56,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 57,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 58,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 59,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "actor_key": "enemy_2",
+            "actor_kind": "enemy",
+            "id": 2,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 60,
+            "source": {
+              "action_type": "ranged",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "dull_bolt",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "fire",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 2,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "bleed": 1,
+                    "damage": 5,
+                    "element": "none",
+                    "pierce": true,
+                    "range": 3.0,
+                    "type": "ranged"
+                  }
+                ],
+                "id": "pelt",
+                "name": "Pelt",
+                "time": 4.0,
+                "weight": 4.0
+              },
+              "max_hp": 14,
+              "pos": "(3, 5)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "harrier"
+            }
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 61,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 7)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(5, 7)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 62,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 7)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 63,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(5, 7)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 64,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 7)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 65,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "kind": "surface_removed",
+            "reason": "freeze",
+            "rubble_underlay": false,
+            "rules_version": 5,
+            "sequence": 66,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "consumed_ice": [
+              "(5, 6)"
+            ],
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 67,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "player_card": true
+            },
+            "status": "freeze",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 68,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 39,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 69,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 39,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(6, 6)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 70,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 71,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 6)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 72,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 7)"
+          },
+          {
+            "enemy_id": 4,
+            "from": "(6, 7)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 73,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 7)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(7, 6)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 74,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 5)"
+          },
+          {
+            "enemy_id": 3,
+            "from": "(6, 6)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 75,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 6)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(7, 7)",
+            "blocked_tile": "(7, 8)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(7, 8)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 76,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(7, 7)",
+            "total_damage": 2
+          },
+          {
+            "enemy_id": 5,
+            "from": "(7, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 77,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 4)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(7, 7)",
+            "blocked_tile": "(7, 8)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(7, 8)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 78,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(7, 7)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 79,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(6, 6)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(7, 4)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 80,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 3)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 81,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 53,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(7, 6)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 82,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "enemy_id": 1,
+            "from": "(5, 3)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 83,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 3)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 84,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(6, 6)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 85,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 4)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 86,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 4)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 87,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 4)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "anchor": "(4, 3)",
+            "blocked_tile": "(4, 2)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(4, 2)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, -1)",
+            "force": "push",
+            "id": 3,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 88,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(4, 3)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(5, 4)",
+            "blocked_tile": "(6, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(6, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(1, 0)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 89,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(5, 4)",
+            "total_damage": 2
+          },
+          {
+            "kind": "surface_replaced",
+            "previous_surface": "ice",
+            "rules_version": 5,
+            "sequence": 90,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 59,
+              "tile": "(1, 2)"
+            },
+            "surface": "fire",
+            "tile": "(2, 2)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 91,
+            "source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 59,
+              "tile": "(1, 2)"
+            },
+            "surface": "fire",
+            "tile": "(1, 3)"
+          },
+          {
+            "damage": 9,
+            "element": "fire",
+            "kind": "trap_triggered",
+            "rules_version": 5,
+            "sequence": 92,
+            "tile": "(1, 2)",
+            "wake_tiles": [
+              "(2, 2)",
+              "(1, 3)"
+            ]
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "amount": 2,
+            "health_lost": 2,
+            "id": -1,
+            "kind": "surface_damage",
+            "rules_version": 5,
+            "sequence": 93,
+            "source": {
+              "action_type": "move",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "",
+              "causal_owner": "trap",
+              "player_card": false,
+              "source_kind": "surface_fire",
+              "surface_source": {
+                "actor_kind": "trap",
+                "laid_player_activation": 59,
+                "tile": "(1, 2)"
+              }
+            },
+            "surface": "fire",
+            "tile": "(2, 2)",
+            "trigger": "entry"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "amount": 3,
+            "health_lost": 3,
+            "id": -1,
+            "kind": "surface_damage",
+            "rules_version": 5,
+            "sequence": 94,
+            "source": {
+              "card_id": "",
+              "causal_owner": "trap",
+              "phase": "activation_start",
+              "player_card": false,
+              "source_kind": "surface_fire",
+              "surface_source": {
+                "actor_kind": "trap",
+                "laid_player_activation": 59,
+                "tile": "(1, 2)"
+              }
+            },
+            "surface": "fire",
+            "tile": "(2, 2)",
+            "trigger": "start"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "anchor": "(2, 3)",
+            "blocked_tile": "(2, 4)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(2, 4)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(0, 1)",
+            "force": "push",
+            "id": 4,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 95,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(2, 3)",
+            "total_damage": 2
+          },
+          {
+            "kind": "surface_replaced",
+            "previous_surface": "fire",
+            "rules_version": 5,
+            "sequence": 96,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 60,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(1, 3)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 97,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 60,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(2, 3)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 98,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(3, 2)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 99,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(2, 3)"
+          },
+          {
+            "actor_key": "enemy_4",
+            "actor_kind": "enemy",
+            "id": 4,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 100,
+            "source": {
+              "action_type": "melee",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "quick_stab",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": true,
+              "element": "fire",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 4,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "range": 2.0,
+                    "type": "move_toward"
+                  },
+                  {
+                    "bleed": 1,
+                    "damage": 5,
+                    "element": "none",
+                    "range": 1.0,
+                    "type": "melee"
+                  }
+                ],
+                "id": "skitter_strike",
+                "name": "Skitter Strike",
+                "time": 5.0,
+                "weight": 4.0
+              },
+              "max_hp": 19,
+              "pos": "(1, 3)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "crawler"
+            }
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 101,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(1, 3)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 102,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(1, 3)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "amount": 2,
+            "health_lost": 0,
+            "id": -1,
+            "kind": "surface_damage",
+            "rules_version": 5,
+            "sequence": 103,
+            "source": {
+              "action_type": "move",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "",
+              "causal_owner": "trap",
+              "player_card": false,
+              "source_kind": "surface_fire",
+              "surface_source": {
+                "actor_kind": "trap",
+                "laid_player_activation": 59,
+                "tile": "(1, 2)"
+              }
+            },
+            "surface": "fire",
+            "tile": "(2, 2)",
+            "trigger": "entry"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "amount": 3,
+            "health_lost": 3,
+            "id": -1,
+            "kind": "surface_damage",
+            "rules_version": 5,
+            "sequence": 104,
+            "source": {
+              "card_id": "",
+              "causal_owner": "trap",
+              "phase": "activation_start",
+              "player_card": false,
+              "source_kind": "surface_fire",
+              "surface_source": {
+                "actor_kind": "trap",
+                "laid_player_activation": 59,
+                "tile": "(1, 2)"
+              }
+            },
+            "surface": "fire",
+            "tile": "(2, 2)",
+            "trigger": "start"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 105,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(1, 3)"
+          },
+          {
+            "actor_key": "enemy_3",
+            "actor_kind": "enemy",
+            "id": 3,
+            "kind": "actor_death",
+            "player_card": true,
+            "rules_version": 5,
+            "sequence": 106,
+            "source": {
+              "action_type": "ranged",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "dull_bolt",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "source_kind": "direct_attack",
+            "unit": {
+              "bleed": 0,
+              "block": 0,
+              "chilled": false,
+              "element": "fire",
+              "expose": 0,
+              "footprint": "(1, 1)",
+              "freeze": 0,
+              "frost_armor": 0,
+              "hp": 0,
+              "id": 3,
+              "immobilize": false,
+              "intent": {
+                "actions": [
+                  {
+                    "range": 1.0,
+                    "type": "move_toward"
+                  },
+                  {
+                    "damage": 5,
+                    "element": "none",
+                    "range": 2.0,
+                    "type": "ranged"
+                  },
+                  {
+                    "amount": 3,
+                    "type": "heal_self"
+                  }
+                ],
+                "id": "siphon",
+                "name": "Siphon",
+                "time": 5.0,
+                "weight": 2.0
+              },
+              "max_hp": 17,
+              "pos": "(3, 3)",
+              "shock": 0,
+              "stoneskin": 0,
+              "type": "acolyte"
+            }
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 107,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "id": 1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 108,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 4)"
+          },
+          {
+            "enemy_id": 1,
+            "from": "(4, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 109,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(5, 5)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(5, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 110,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 5)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 111,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 69,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(4, 5)"
+          },
+          {
+            "kind": "surface_created",
+            "previous_surface": "",
+            "rules_version": 5,
+            "sequence": 112,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 69,
+              "player_card": true
+            },
+            "surface": "ice",
+            "tile": "(5, 5)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 113,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 5)"
+          },
+          {
+            "actor_key": "enemy_1",
+            "actor_kind": "enemy",
+            "id": 1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 114,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(5, 5)"
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 115,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 5)"
+          },
+          {
+            "enemy_id": 1,
+            "from": "(5, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 116,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(6, 5)"
+          },
+          {
+            "enemy_id": 5,
+            "from": "(6, 5)",
+            "kind": "guardian_line_step",
+            "rules_version": 5,
+            "sequence": 117,
+            "source": {
+              "actor_kind": "player",
+              "relic_id": "galehook_talon"
+            },
+            "to": "(7, 5)"
+          },
+          {
+            "actor_key": "enemy_5",
+            "actor_kind": "enemy",
+            "anchor": "(7, 5)",
+            "blocked_tile": "(8, 5)",
+            "blocker_damage": 0,
+            "blocker_key": "wall",
+            "blocker_kind": "wall",
+            "blockers": [
+              {
+                "damage": 0,
+                "id": -1,
+                "key": "wall",
+                "kind": "wall",
+                "tile": "(8, 5)"
+              }
+            ],
+            "damage": 2,
+            "direction": "(1, 0)",
+            "force": "push",
+            "id": 5,
+            "kind": "force_collision",
+            "lost_tiles": 1,
+            "rules_version": 5,
+            "sequence": 118,
+            "source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "waning_pulse",
+              "player_card": true,
+              "source_kind": "direct_attack"
+            },
+            "target_damage": 2,
+            "tile": "(7, 5)",
+            "total_damage": 2
+          },
+          {
+            "actor_key": "player",
+            "actor_kind": "player",
+            "id": -1,
+            "kind": "status_applied",
+            "rules_version": 5,
+            "sequence": 119,
+            "status": "chilled",
+            "surface": "ice",
+            "tile": "(4, 5)"
+          }
+        ],
+        "surface_relic_flags": {
+          "unbound_pinion:displacement_reward": 74
+        },
+        "surface_revision": 19,
+        "surface_rule_overrides": {
+          "conductive_fire": false,
+          "elemental_overwrite_spread": false,
+          "player_ignores_rubble": false
+        },
+        "surfaces": {
+          "1,3": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 60,
+              "player_card": true
+            }
+          },
+          "2,2": {
+            "elemental": "fire",
+            "elemental_source": {
+              "actor_kind": "trap",
+              "laid_player_activation": 59,
+              "tile": "(1, 2)"
+            }
+          },
+          "2,3": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 60,
+              "player_card": true
+            }
+          },
+          "2,7": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 1,
+              "player_card": true
+            }
+          },
+          "3,2": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 16,
+              "player_card": true
+            }
+          },
+          "3,4": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 11,
+              "player_card": true
+            }
+          },
+          "3,7": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 1,
+              "player_card": true
+            }
+          },
+          "4,4": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 11,
+              "player_card": true
+            }
+          },
+          "4,5": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 69,
+              "player_card": true
+            }
+          },
+          "5,4": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 28,
+              "player_card": true
+            }
+          },
+          "5,5": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 69,
+              "player_card": true
+            }
+          },
+          "5,6": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 39,
+              "player_card": true
+            }
+          },
+          "5,7": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 22,
+              "player_card": true
+            }
+          },
+          "6,6": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 39,
+              "player_card": true
+            }
+          },
+          "7,6": {
+            "elemental": "ice",
+            "elemental_source": {
+              "action_type": "aoe",
+              "actor_id": -1,
+              "actor_kind": "player",
+              "card_id": "glacier_pin",
+              "laid_player_activation": 53,
+              "player_card": true
+            }
+          }
+        },
+        "terrain": [
+          {
+            "hp": 0,
+            "id": "terrain_4_3",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(4, 3)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_4_4",
+            "kind": "wooden_crate",
+            "max_hp": 3,
+            "pos": "(4, 4)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_3_4",
+            "kind": "wooden_crate",
+            "max_hp": 3,
+            "pos": "(3, 4)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_5_4",
+            "kind": "wooden_crate",
+            "max_hp": 3,
+            "pos": "(5, 4)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_2_1",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(2, 1)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_1_1",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(1, 1)"
+          },
+          {
+            "hp": 0,
+            "id": "terrain_5_5",
+            "kind": "wooden_box",
+            "max_hp": 3,
+            "pos": "(5, 5)"
+          }
+        ],
+        "traps": [
+          {
+            "base_damage": 9,
+            "damage": 9,
+            "element": "fire",
+            "id": "trap_3_1",
+            "pos": "(3, 1)"
+          },
+          {
+            "base_damage": 9,
+            "damage": 9,
+            "element": "fire",
+            "id": "trap_6_1",
+            "pos": "(6, 1)"
+          }
+        ],
+        "turn": 75,
+        "turn_flags": {
+          "cards_finished": 1,
+          "first_attack_bonus_used": false,
+          "first_move_bonus_used": true,
+          "pyre_keepers_urn::return_exhaust:0": true,
+          "relic_sequence:turn_action_types": [
+            "move",
+            "melee"
+          ],
+          "tiles_moved": 1,
+          "variety_last_card_element": "none"
+        },
+        "turn_queue": [
+          {
+            "actor_key": "enemy_5",
+            "enemy_id": 5,
+            "kind": "enemy",
+            "name": "Grave Surgeon",
+            "pos": "(7, 5)",
+            "seq": 488,
+            "team": "enemy",
+            "time": 1265,
+            "type": "grave_surgeon"
+          },
+          {
+            "actor_key": "enemy_1",
+            "enemy_id": 1,
+            "kind": "enemy",
+            "name": "Stone Warden",
+            "pos": "(6, 5)",
+            "seq": 489,
+            "team": "enemy",
+            "time": 1280,
+            "type": "warden"
+          }
+        ],
+        "umbra": {
+          "boss_eclipse_activations": 0,
+          "boss_eclipse_stage": "",
+          "enemies_revealed_total": 0,
+          "hidden_attack_damage_received_total": 0,
+          "light_sources": [],
+          "movement_interrupted_total": 0,
+          "next_light_source_id": 11,
+          "stage": "advancing",
+          "stage_reduction": 0,
+          "tiles_illuminated_total": 0,
+          "truesight_activations": 0,
+          "vision_bonus": 0,
+          "vision_bonus_activations": 0
+        },
+        "zekarion_summon_waves": 0
+      },
+      "context": {
+        "decision": 1884,
+        "mode": "combat",
+        "room": "(11, 6)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "biome": "fire",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(11, 10)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 6)",
+          "depth": 11,
+          "element": "fire",
+          "encounter_id": "t3_full_line",
+          "map_lane": 6,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 7
+      },
+      "outcome": "fight_limit"
+    }
+  }
+]

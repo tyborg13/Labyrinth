@@ -7,7 +7,7 @@ UNIT=$1; MSG=$2
 S=/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad
 I=/Users/borgerding/workspace/Labyrinth.worktrees/peer-benchmark
 WT=${WT:-/Users/borgerding/workspace/Labyrinth.worktrees/$UNIT}; BRANCH=${BRANCH:-codex/$UNIT}
-sh $S/drop_shadow_sidecars.sh $WT
+sh $I/spec/peer_benchmark/director_tools/drop_shadow_sidecars.sh $WT
 cd $I || exit 9
 [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "integration dirty"; exit 8; }
 echo "=== merge $UNIT $(date +%T)"

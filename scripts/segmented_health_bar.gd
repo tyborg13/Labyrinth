@@ -2,7 +2,12 @@ extends Control
 class_name SegmentedHealthBar
 
 const HP_PER_SEGMENT: int = 2
+const WidgetBatch = preload("res://scripts/widget_triangle_batch.gd")
 const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
+
+var _triangle_batch := WidgetBatch.new()
+var _separator_batch := WidgetBatch.new()
+var _draw_inputs: Array = []
 
 var ghost_tracker: RefCounted
 var ghost_key: String = ""
@@ -63,7 +68,30 @@ static func segment_count_for_max_hp(bar_max_value: float, hp_per_segment: int =
 	return maxi(1, int(ceili(bar_max_value / float(hp_per_segment))))
 
 func _draw() -> void:
+	if size.x <= 0.0 or size.y <= 0.0: return
 	var ghost: Dictionary = ghost_sample()
+	var ghost_range: Vector2 = ghost.get("ghost_range", Vector2.ZERO)
+	var batch_faces: bool = ghost_range.y <= ghost_range.x and float(ghost.get("heal_flash", 0.0)) <= 0.0
+	# Animated ghost/heal faces stay native: rebuilding their triangles each
+	# sample costs more CPU than the original commands. Stable bars retain the
+	# complete faces and separators without per-segment work or vertex hashing.
+	if batch_faces:
+		var inputs: Array = [size, value, max_value, segment_count, background_color,
+			fill_color, fill_highlight_color, border_color, separator_color,
+			separator_width, border_width, ghost_color, ghost]
+		if inputs == _draw_inputs:
+			_triangle_batch.replay(self)
+			_separator_batch.replay(self)
+			_draw_border(self, Rect2(Vector2.ZERO, size), border_color, border_width)
+			return
+		_draw_inputs = inputs.duplicate(true)
+		_triangle_batch.health_faces(Rect2(Vector2.ZERO, size), float(ghost.get("hp", value)), float(ghost.get("max_hp", max_value)), background_color, fill_color, fill_highlight_color)
+		_triangle_batch.flush(self)
+		_separator_batch.draw_separators(self, Rect2(Vector2.ZERO, size), maxi(1, segment_count), separator_width, separator_color)
+		_draw_border(self, Rect2(Vector2.ZERO, size), border_color, border_width)
+		return
+	else:
+		_draw_inputs.clear()
 	draw_bar(
 		self,
 		Rect2(Vector2.ZERO, size),
@@ -99,27 +127,31 @@ static func draw_bar(
 	ghost_range: Vector2 = Vector2.ZERO,
 	bar_ghost_color: Color = Color.TRANSPARENT,
 	heal_range: Vector2 = Vector2.ZERO,
-	heal_flash: float = 0.0
+	heal_flash: float = 0.0,
+	triangle_batch: RefCounted = null
 ) -> void:
 	if canvas == null or rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
 	var ratio: float = clamp(bar_value / maxf(bar_max_value, 1.0), 0.0, 1.0)
 	# The well and fill share the authored bounds: depth must never suggest
 	# extra health or change where a projected-damage band starts.
-	_draw_vertical_shade(canvas, rect, bar_background_color.darkened(0.24), bar_background_color)
+	_draw_vertical_shade(canvas, rect, bar_background_color.darkened(0.24), bar_background_color, triangle_batch)
 	var ghost_rect: Rect2 = range_rect(rect, ghost_range, bar_max_value)
 	if ghost_rect.size.x > 0.0:
+		if triangle_batch != null: triangle_batch.flush(canvas)
 		canvas.draw_rect(ghost_rect, bar_ghost_color, true)
 	if ratio > 0.0:
 		var fill_rect := Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y))
 		var shoulder: float = fill_rect.size.y * 0.35
 		var lit_color: Color = bar_fill_color.lerp(bar_fill_highlight_color, 0.56)
-		_draw_vertical_shade(canvas, Rect2(fill_rect.position, Vector2(fill_rect.size.x, shoulder)), bar_fill_color, lit_color)
-		_draw_vertical_shade(canvas, Rect2(fill_rect.position + Vector2(0.0, shoulder), Vector2(fill_rect.size.x, fill_rect.size.y - shoulder)), lit_color, bar_fill_color.darkened(0.32))
+		_draw_vertical_shade(canvas, Rect2(fill_rect.position, Vector2(fill_rect.size.x, shoulder)), bar_fill_color, lit_color, triangle_batch)
+		_draw_vertical_shade(canvas, Rect2(fill_rect.position + Vector2(0.0, shoulder), Vector2(fill_rect.size.x, fill_rect.size.y - shoulder)), lit_color, bar_fill_color.darkened(0.32), triangle_batch)
+		if triangle_batch != null: triangle_batch.flush(canvas)
 		canvas.draw_rect(Rect2(fill_rect.position, Vector2(fill_rect.size.x, minf(fill_rect.size.y, 1.0))), bar_fill_highlight_color, true)
 		if ratio < 1.0:
 			var cap_width: float = minf(1.0, fill_rect.size.x)
 			canvas.draw_rect(Rect2(Vector2(fill_rect.end.x - cap_width, fill_rect.position.y), Vector2(cap_width, fill_rect.size.y)), bar_fill_highlight_color.lerp(bar_fill_color, 0.38), true)
+	if triangle_batch != null: triangle_batch.flush(canvas)
 	var heal_rect: Rect2 = range_rect(rect, Vector2(heal_range.x, minf(heal_range.y, bar_value)), bar_max_value)
 	if heal_flash > 0.0 and heal_rect.size.x > 0.0:
 		var flash_color: Color = bar_fill_color.lightened(HealthGhostTracker.HEAL_LIGHTEN_AMOUNT)
@@ -136,7 +168,7 @@ static func draw_bar(
 			bar_separator_color,
 			true
 		)
-	canvas.draw_rect(rect, bar_border_color, false, bar_border_width)
+	_draw_border(canvas, rect, bar_border_color, bar_border_width)
 
 static func range_rect(rect: Rect2, hp_range: Vector2, bar_max_value: float) -> Rect2:
 	var start: float = clampf(hp_range.x / maxf(bar_max_value, 1.0), 0.0, 1.0)
@@ -145,8 +177,17 @@ static func range_rect(rect: Rect2, hp_range: Vector2, bar_max_value: float) -> 
 
 # A pair of vertically shaded faces gives the small meter an inset, enamel
 # finish without textures, animation, extra nodes or new layout.
-static func _draw_vertical_shade(canvas: CanvasItem, rect: Rect2, top: Color, bottom: Color) -> void:
+static func _draw_vertical_shade(canvas: CanvasItem, rect: Rect2, top: Color, bottom: Color, triangle_batch: RefCounted = null) -> void:
+	if triangle_batch != null:
+		triangle_batch.polygon(
+			PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]),
+			PackedColorArray([top, top, bottom, bottom])
+		)
+		return
 	canvas.draw_polygon(
 		PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]),
 		PackedColorArray([top, top, bottom, bottom])
 	)
+
+static func _draw_border(canvas: CanvasItem, rect: Rect2, color: Color, width: float) -> void:
+	canvas.draw_rect(rect, color, false, width)

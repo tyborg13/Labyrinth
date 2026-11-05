@@ -397,3 +397,20 @@ mechanical indicator gusts ... maybe we just disable them for now and bring them
 - A foot drawn under the floor (draw order), slow movement against the other enemies, and a slow death. Fix in
   **rr-46**: rig-v2 move and death timing match the older enemies at every combat speed; draw-order sweep and check.
 - Owner: "Directionally, I think it's largely right ... we need to keep making this really, really high level."
+- 2026-11-05 00:21 txt-4 APPROVED ("Area Attack is gone everywhere"): codex/txt-02 cc188142d merging into release.
+
+## 2026-11-05 settings-1: APPROVED (inbox)
+- Owner: "[settings-1] APPROVED — Settings in plain words, styled sliders, and Edge smoothing: the likely cause of the Deck stutter". Merges ui-10 (Settings copy, reset confirmation), gfx-01 (Edge smoothing High/Low/Off; Steam Deck default Off, desktop High) and ui-13 (skinned sliders, modal Settings over the main menu, Sell without MAGIC). Deck stutter still to be confirmed by the owner on hardware.
+
+## 2026-11-05 purge-1: APPROVED (inbox)
+- Owner: "[purge-1] APPROVED — Purge keeps its spells inside the frame; Sell's page arrows read". Merges ui-11.
+
+## 2026-11-05 sd-4: NEEDS CHANGES (inbox)
+- Owner: "In the 7 card hand I don't see what got fixed, but I do see the card play widget over top of the hand in both before and after. That seems like an issue to fix." The overlap is sd-05's fix (chips under the objective panel); sd-4's 7-card change was only title fitting, and its shots came from the controller sweep fixture (not real game). Action: sd-08 builds real-fight before/after captures of sd-04 + sd-05 together at Deck size; repost as one item.
+- Owner in chat (same day): "I hadn't seen sd 5 when I reviewed sd 4. I agree it addresses the problem." Then chose "Merge both now": sd-4 + sd-5 APPROVED; sd-08's real-fight captures still go to the inbox for a final look.
+
+## 2026-11-05 inbox verdicts (page, 12:38-12:57)
+- APPROVED: fx-4 ("Much better!"), hud-2b (clip of landed hud-02), fx-6, fx-7, ui-12, au-1, ui-14, sd-7, ui-15, qa-51.
+- hud-3: "No changes needed, but I do want to see this in motion. Frame by frame stills doesn't give me a great feel of how it looks in action." -> real-game true-speed clip.
+- hud-4 (acting-enemy tile marker): "Not a fan of this change. It's too busy imo. Let's shelve it." -> shelved, not merged (branch codex/hud-04 kept).
+

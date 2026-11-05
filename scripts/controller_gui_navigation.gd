@@ -21,6 +21,7 @@ static func install(host: Control, available: Callable = Callable()) -> Node:
 
 func _ready() -> void:
 	_repeat.stepped.connect(_step)
+	set_process(false)
 
 func _owns_focus() -> bool:
 	if not _host.is_visible_in_tree() or (_available.is_valid() and not bool(_available.call())):
@@ -43,11 +44,13 @@ func _input(event: InputEvent) -> void:
 	_device = event.device
 	var action: StringName = &"ui_right" if event.axis == JOY_AXIS_LEFT_X else &"ui_down"
 	_repeat.sample(event.axis, event.axis_value, InputMap.action_get_deadzone(action))
+	set_process(not _repeat._axes.is_empty())
 	get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
 	if not _owns_focus():
 		_repeat.reset()
+		set_process(false)
 		return
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router == null or bool(router.call("using_controller")):

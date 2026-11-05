@@ -1,4 +1,4 @@
-extends "res://scripts/battlefield_rules/bot_policy.gd"
+extends "res://tools/bot_policy.gd"
 ## Passive observer for ten replays. The inherited policy chooses and commits
 ## every transition unchanged; diagnostics run only on copies after each choice.
 const HandQuery = preload("res://scripts/run_scene.gd")

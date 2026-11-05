@@ -16,6 +16,7 @@ import time
 import unittest
 import threading
 from unittest import mock
+from types import SimpleNamespace
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,17 +24,22 @@ RUNNER = ROOT / "tools/program_suite_runner.py"
 CASE_SLEEP_SECONDS = 0.25
 TEST_TIMEOUT_SECONDS = 15
 STARTUP_TIMEOUT_SECONDS = 5
-HUNG_CHILD_TIMEOUT_SECONDS = STARTUP_TIMEOUT_SECONDS + 0.2
+# This fixture only boots a tiny Python executable, not a native Godot project.
+# Both attempts must still record their PID and be reaped (asserted below).
+HUNG_CHILD_TIMEOUT_SECONDS = 1.2
 POLL_SECONDS = 0.02
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 # Independent of the manifest: recognized but incorrect modes must fail too.
 REQUIRED_FIXTURE_MODES = {"demo_capture_settings_test": "capture_settings"}
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "tests/helpers"))
 
 import program_suite_runner as runner
 import program_suite_fixture as fixture
 import godot_import_cache as import_cache
 import godot_task_runner as task_runner
+import pool_width_benchmark as pool_benchmark
+import loaded_suite_benchmark as loaded_benchmark
 
 FAKE_GODOT = '''#!/usr/bin/env python3
 import json, os, sys, time
@@ -106,8 +112,10 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.report = self.directory / "report.json"
 
     def environment(self, cases):
-        return dict(os.environ, RUNNER_TEST_CASES=json.dumps(cases), RUNNER_TEST_EVENTS=str(self.events),
-                    LABYRINTH_PROGRAM_MANIFEST=str(self.fixture_manifest))
+        environment = dict(os.environ, RUNNER_TEST_CASES=json.dumps(cases), RUNNER_TEST_EVENTS=str(self.events),
+                           LABYRINTH_PROGRAM_MANIFEST=str(self.fixture_manifest))
+        environment.pop(runner.TEST_POOL_ENV, None)
+        return environment
 
     def command(self, suites, *extra):
         command = [sys.executable, str(RUNNER), "--project", str(ROOT), "--godot", str(self.godot),
@@ -276,8 +284,9 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                     self.assertTrue(awaited, name + " must complete before assertion counts and final reporting")
 
     def test_children_overlap_but_never_exceed_limit_and_keep_namespaces_separate(self):
-        cases = {"child_%d" % index: {"sleep": CASE_SLEEP_SECONDS, "barrier": runner.MAX_CHILDREN,
-                 "barrier_timeout": STARTUP_TIMEOUT_SECONDS, "poll": POLL_SECONDS} for index in range(7)}
+        cases = {"child_%d" % index: {"sleep": CASE_SLEEP_SECONDS, "barrier": runner.DEFAULT_TEST_POOL,
+                 "barrier_timeout": STARTUP_TIMEOUT_SECONDS, "poll": POLL_SECONDS}
+                 for index in range(runner.DEFAULT_TEST_POOL + 2)}
         result, report = self.run_scheduler(cases)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         active = peak = 0
@@ -286,7 +295,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
             active += 1 if event["kind"] == "start" else -1
             peak = max(peak, active)
         self.assertEqual(active, 0)
-        self.assertEqual(peak, runner.MAX_CHILDREN)
+        self.assertEqual(peak, runner.DEFAULT_TEST_POOL)
+        self.assertEqual(report["jobs"], runner.DEFAULT_TEST_POOL)
         starts = [event for event in events if event["kind"] == "start"]
         for field in ("home", "task", "user", "appdata", "localappdata", "xdg_data", "xdg_config", "xdg_cache", "xdg_state"):
             self.assertEqual(len({event[field] for event in starts}), len(cases))
@@ -530,15 +540,118 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.assertEqual(len(set(directories)), 2)
         self.assertTrue(all(path.is_dir() and path.parent == self.report.with_suffix(".logs").resolve() for path in directories))
 
-    def test_worker_limit_follows_requested_logical_cpu_formula(self):
-        self.assertEqual(runner.MAX_CHILDREN, min(6, max(1, (os.cpu_count() or 1) // 3)))
+    def test_environment_sets_pool_and_explicit_jobs_takes_precedence(self):
+        cases = {"first": {"sleep": CASE_SLEEP_SECONDS}, "second": {"sleep": CASE_SLEEP_SECONDS}}
+        for environment_value, extra, expected in (("2", (), 2), ("invalid", ("--jobs", "1"), 1)):
+            with self.subTest(environment_value=environment_value, extra=extra):
+                self.events.unlink(missing_ok=True)
+                result = subprocess.run(self.command(cases, *extra),
+                                        env=dict(self.environment(cases), LABYRINTH_TEST_POOL=environment_value),
+                                        text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                report = json.loads(self.report.read_text())
+                self.assertEqual(report["jobs"], expected)
+                active = peak = 0
+                for event in self.read_events():
+                    active += 1 if event["kind"] == "start" else -1
+                    peak = max(peak, active)
+                self.assertEqual(peak, expected)
 
-    def test_slots_above_worker_limit_are_rejected(self):
-        result = subprocess.run(self.command(["unused"], "--jobs", str(runner.MAX_CHILDREN + 1)),
-                                text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("jobs must be 1..%d" % runner.MAX_CHILDREN, result.stderr)
+    def test_explicit_wide_pools_are_not_capped_by_logical_cpu_formula(self):
+        for width in (8, 11):
+            with self.subTest(width=width):
+                result, report = self.run_scheduler({"wide": {}}, "--jobs", str(width))
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(report["jobs"], width)
 
+    def test_invalid_pool_widths_fail_before_launch(self):
+        for value in ("", "0", "-1", "invalid", "1.5"):
+            with self.subTest(environment_value=value):
+                result = subprocess.run(self.command(["unused"]),
+                                        env=dict(self.environment({}), LABYRINTH_TEST_POOL=value),
+                                        text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(self.events.exists())
+        for value in ("0", "-1"):
+            with self.subTest(jobs=value):
+                result = subprocess.run(self.command(["unused"], "--jobs", value),
+                                        env=self.environment({}), text=True, capture_output=True,
+                                        timeout=TEST_TIMEOUT_SECONDS)
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(self.events.exists())
+
+    def test_memory_accounting_retains_orphans_and_rejects_reused_pids(self):
+        memory = object.__new__(pool_benchmark.MacSuiteMemory)
+        memory.owned = {}
+        usage = {pid: SimpleNamespace(start=pid, resident=pid * 100, footprint=pid * 200)
+                 for pid in (1, 2, 3, 99)}
+        children = {1: [2], 2: [3]}
+        memory.usage = usage.get
+        memory.children = lambda pid: children.get(pid, [])
+        self.assertEqual(memory.sample(1), {"rss_bytes": 600, "footprint_bytes": 1200, "processes": 3})
+        children.clear()  # Owned children can briefly outlive their wrappers.
+        del usage[3]
+        self.assertEqual(memory.sample(1), {"rss_bytes": 300, "footprint_bytes": 600, "processes": 2})
+        usage[2] = SimpleNamespace(start=200, resident=5000, footprint=9000)
+        self.assertEqual(memory.sample(1), {"rss_bytes": 100, "footprint_bytes": 200, "processes": 1})
+
+    def test_pool_selection_excludes_a_faster_width_with_a_failed_confirmation(self):
+        for width, seconds in ((5, 10), (8, 7)):
+            for repeat in range(2):
+                row = {"requested_width": width, "actual_width": width, "passed": True,
+                       "wall_seconds": seconds, "suite_seconds": seconds,
+                       "peak_rss_bytes": 1000, "peak_footprint_bytes": 2000}
+                (self.directory / ("trial-%d-%d.json" % (width, repeat))).write_text(json.dumps(row))
+        failed = dict(row, requested_width=None, actual_width=8, passed=False, peak_footprint_bytes=3000)
+        (self.directory / "confirm-default-8.json").write_text(json.dumps(failed))
+        result = pool_benchmark.summarize(self.directory)
+        self.assertEqual(result["chosen_width"], 5)
+        self.assertFalse(result["groups"]["8"]["eligible"])
+        self.assertEqual(result["groups"]["8"]["peak_footprint_bytes"], 3000)
+
+    def test_loaded_pool_requires_three_complete_passes_below_memory_bound(self):
+        passed = dict(passed=True, complete=True, actual_width=8, guard_reason="",
+                      peak_rss_bytes=1000, peak_footprint_bytes=2000)
+        self.assertTrue(loaded_benchmark.qualifies([passed] * 3))
+        self.assertFalse(loaded_benchmark.qualifies([passed] * 2))
+        for change in (dict(passed=False), dict(complete=False), dict(actual_width=5),
+                       dict(guard_reason="memory accounting failed"),
+                       dict(peak_rss_bytes=loaded_benchmark.MEMORY_BOUND_BYTES),
+                       dict(peak_footprint_bytes=loaded_benchmark.MEMORY_BOUND_BYTES)):
+            with self.subTest(change=change):
+                self.assertFalse(loaded_benchmark.qualifies([passed, passed, dict(passed, **change)]))
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS suite memory monitor")
+    def test_memory_guard_interrupts_owned_command_before_it_can_run_unbounded(self):
+        class MemoryAtLimit:
+            def __init__(self):
+                self.owned = {}
+
+            def sample(self, _pid):
+                return {"rss_bytes": 1024, "footprint_bytes": pool_benchmark.ABORT_MEMORY_BYTES,
+                        "processes": 1}
+
+        native_popen = subprocess.Popen
+        processes = []
+
+        def launch(_command, **kwargs):
+            process = native_popen([sys.executable, "-c", "import time; time.sleep(60)"], **kwargs)
+            processes.append(process)
+            return process
+
+        with mock.patch.object(pool_benchmark, "MacSuiteMemory", MemoryAtLimit), \
+                mock.patch.object(pool_benchmark.subprocess, "Popen", side_effect=launch):
+            result = pool_benchmark.run_trial(self.directory / "guard", 11, "guard-test")
+        self.assertFalse(result["passed"])
+        self.assertIn("memory guard", result["guard_reason"])
+        self.assertLess(result["wall_seconds"], TEST_TIMEOUT_SECONDS)
+        self.assertIsNotNone(processes[0].returncode)
+        samples = [json.loads(line) for line in
+                   (self.directory / "guard/guard-test-memory.jsonl").read_text().splitlines()]
+        self.assertTrue(samples)
+        self.assertEqual(samples[0]["footprint_bytes"], pool_benchmark.ABORT_MEMORY_BYTES)
+        self.assertIn("seconds", samples[0])
+        self.assertIn("load", samples[0])
     @unittest.skipUnless(shutil.which("godot"), "Needs native headless Godot to resolve storage paths")
     def test_children_resolve_distinct_user_storage_and_explicit_engine_logs(self):
         project = self.directory / "project"

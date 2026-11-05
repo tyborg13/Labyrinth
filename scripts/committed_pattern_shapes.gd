@@ -74,11 +74,15 @@ static func radial_shape(engine: RefCounted, state: Dictionary, origin: Vector2i
 		if distance>=minimum and distance<=maximum and engine.combat_line_of_sight(state,nearest,tile): result.append(tile)
 	return result
 
-static func swept_shape(engine: RefCounted, state: Dictionary, origin: Vector2i, action: Dictionary) -> Array[Vector2i]:
+static func swept_shape(engine: RefCounted, state: Dictionary, origin: Vector2i, action: Dictionary, radial_cache: Variant = null) -> Array[Vector2i]:
+	# A planner may share this private cache across its candidate paths. Ordinary
+	# calls own a fresh cache; nothing survives a board/action/status change.
+	var footprints: Dictionary = radial_cache if radial_cache is Dictionary else {}
 	var result: Array[Vector2i]
 	var route: Array[Vector2i]
 	route.assign(action.get("_resolved_path",[origin]))
 	for anchor: Vector2i in route:
-		for tile: Vector2i in radial_shape(engine,state,anchor,action):
+		if not footprints.has(anchor): footprints[anchor] = radial_shape(engine,state,anchor,action)
+		for tile: Vector2i in footprints[anchor]:
 			if not result.has(tile): result.append(tile)
 	return result

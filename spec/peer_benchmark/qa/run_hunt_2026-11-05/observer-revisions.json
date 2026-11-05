@@ -1,0 +1,12 @@
+{
+  "rolled_out_at": 1793853750.928033,
+  "campaign_v1_seeds": {
+    "default": [
+      4,
+      5
+    ]
+  },
+  "v1_sha256": "00fd1484050274099f5d6a505a9353f95fb7827b933059d567e03cdf629b498b",
+  "v2_sha256": "48b8da192f04844053359137e9767d3561999f86a523fd2545f11b8638da5374",
+  "change": "Guard freed retained-layer references before assigning Node type. V1 observer assignment failed on inert old entries; product frames and dispatch still continued. Finding seeds need clean observer replays."
+}

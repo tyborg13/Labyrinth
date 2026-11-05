@@ -7,6 +7,8 @@ signal settings_changed(settings: Dictionary)
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
@@ -15,7 +17,7 @@ const PANEL_MINIMUM_SIZE := Vector2(820.0, 836.0)
 const CONTROL_WIDTH: float = 276.0
 const ROW_HEIGHT: float = 56.0
 # The brief supplies the label/options, but no secondary row copy.
-const COMBAT_SPEED_DETAIL: String = "How quickly enemy turns and card effects play out."
+const COMBAT_SPEED_DETAIL: String = "How quickly enemy turns and card effects play out"
 const GOLD := Color("d8a356")
 const PALE_GOLD := Color("f5dfae")
 const MUTED_TEXT := Color("b9a98c")
@@ -28,10 +30,65 @@ var _controls: Dictionary = {}
 var _syncing: bool = false
 var _status_label: Label
 var _confirmation_panel: PanelContainer
+var _footer_actions: HBoxContainer
 var _back_button: Button
 var _confirmation_cancel: Button
 var _confirmation_return_focus: Control
 var _confirmation_focus_modes: Dictionary = {}
+
+# Keep HSlider's native hit testing, drag, wheel and keyboard behaviour. Only
+# its drawing changes; the transparent native grabber reserves its travel size.
+class VolumeSlider extends HSlider:
+	const TRACK_HEIGHT: float = 8.0
+	const FILL_INSET: float = 1.0
+	const GRABBER_SIZE: int = 14
+	const ENGAGED_GRABBER_SIZE: int = 18
+	const OUTLINE_WIDTH: float = 1.0
+	var _track: StyleBoxFlat
+	var _focus_ring: StyleBoxFlat
+	var _hovered: bool = false
+
+	func _init(skin: UiSkin) -> void:
+		_track = skin.make_button_style(UiSkin.VARIANT_STANDARD)
+		_focus_ring = skin.make_button_style(UiSkin.VARIANT_STANDARD, UiSkin.STATE_FOCUS)
+		var empty := StyleBoxEmpty.new()
+		for style: String in ["slider", "grabber_area", "grabber_area_highlight"]:
+			add_theme_stylebox_override(style, empty)
+		var gradient := Gradient.new()
+		gradient.colors = PackedColorArray([Color.TRANSPARENT, Color.TRANSPARENT])
+		var native_grabber := GradientTexture2D.new()
+		native_grabber.gradient = gradient
+		native_grabber.width = GRABBER_SIZE
+		native_grabber.height = GRABBER_SIZE
+		for icon: String in ["grabber", "grabber_highlight", "grabber_disabled"]:
+			add_theme_icon_override(icon, native_grabber)
+		mouse_entered.connect(_set_hovered.bind(true))
+		mouse_exited.connect(_set_hovered.bind(false))
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
+		value_changed.connect(func(_value: float) -> void: queue_redraw())
+
+	func _set_hovered(hovered: bool) -> void:
+		_hovered = hovered
+		queue_redraw()
+
+	func _draw() -> void:
+		var track := Rect2(0.0, (size.y - TRACK_HEIGHT) * 0.5, size.x, TRACK_HEIGHT)
+		draw_style_box(_track, track)
+		GildedFrame.draw_sheen(self, track)
+		var center := Vector2(GRABBER_SIZE * 0.5 + get_as_ratio() * (size.x - GRABBER_SIZE), size.y * 0.5)
+		var fill := Rect2(track.position + Vector2.ONE * FILL_INSET, Vector2(maxf(0.0, center.x - FILL_INSET), TRACK_HEIGHT - FILL_INSET * 2.0))
+		draw_rect(fill, Palette.GOLD)
+		var diameter: float = ENGAGED_GRABBER_SIZE if _hovered or has_focus() else GRABBER_SIZE
+		var radius: float = (diameter - OUTLINE_WIDTH) * 0.5
+		var diamond := PackedVector2Array([
+			center + Vector2(0.0, -radius), center + Vector2(radius, 0.0),
+			center + Vector2(0.0, radius), center + Vector2(-radius, 0.0),
+		])
+		draw_colored_polygon(diamond, Palette.GOLD_BRIGHT)
+		diamond.append(diamond[0])
+		draw_polyline(diamond, Palette.INK_0, OUTLINE_WIDTH, true)
+		if has_focus(): draw_style_box(_focus_ring, Rect2(Vector2.ZERO, size))
 
 func _ready() -> void:
 	_update_responsive_minimum_size()
@@ -117,15 +174,15 @@ func _build_header() -> Control:
 	return header
 
 func _build_audio_section() -> Control:
-	var section := _section_shell("AUDIO", "Mix each layer without muting the world.")
+	var section := _section_shell("AUDIO", "How loud each part of the game plays.")
 	var rows: VBoxContainer = section.get_meta("rows")
-	_add_volume_row(rows, "Master", "Overall output", "master_volume")
-	_add_volume_row(rows, "Music", "Exploration and combat score", "music_volume")
+	_add_volume_row(rows, "Master", "Everything at once", "master_volume")
+	_add_volume_row(rows, "Music", "Exploration and combat music", "music_volume")
 	_add_volume_row(rows, "Sound effects", "Cards, impacts, and interface", "sfx_volume")
 	return section
 
 func _build_display_section() -> Control:
-	var section := _section_shell("DISPLAY", "Safe choices for the current screen.")
+	var section := _section_shell("DISPLAY", "How the game fills your screen.")
 	var rows: VBoxContainer = section.get_meta("rows")
 	var display_option := _option_control()
 	display_option.add_item("Fullscreen")
@@ -134,7 +191,7 @@ func _build_display_section() -> Control:
 	display_option.set_item_metadata(1, SettingsStore.DISPLAY_WINDOWED)
 	display_option.item_selected.connect(_on_option_selected.bind("display_mode", display_option))
 	_controls["display_mode"] = display_option
-	rows.add_child(_setting_row("Display mode", "Window changes stay bounded and centered", display_option))
+	rows.add_child(_setting_row("Display mode", "Fullscreen, or a window you can move", display_option))
 
 	var scale_option := _option_control()
 	for scale_var: Variant in SettingsStore.SUPPORTED_UI_SCALES:
@@ -143,7 +200,20 @@ func _build_display_section() -> Control:
 		scale_option.set_item_metadata(scale_option.item_count - 1, scale)
 	scale_option.item_selected.connect(_on_option_selected.bind("ui_scale", scale_option))
 	_controls["ui_scale"] = scale_option
-	rows.add_child(_setting_row("Interface scale", "Menus, dialogue, and combat HUD", scale_option))
+	rows.add_child(_setting_row("Interface scale", "Size of menus, dialogue and the combat HUD", scale_option))
+
+	var smoothing_option := _option_control()
+	smoothing_option.name = "EdgeSmoothingOption"
+	for item: Dictionary in [
+		{"label": "High", "value": SettingsStore.EDGE_SMOOTHING_HIGH},
+		{"label": "Low", "value": SettingsStore.EDGE_SMOOTHING_LOW},
+		{"label": "Off", "value": SettingsStore.EDGE_SMOOTHING_OFF}
+	]:
+		smoothing_option.add_item(str(item["label"]))
+		smoothing_option.set_item_metadata(smoothing_option.item_count - 1, item["value"])
+	smoothing_option.item_selected.connect(_on_option_selected.bind("edge_smoothing", smoothing_option))
+	_controls["edge_smoothing"] = smoothing_option
+	rows.add_child(_setting_row("Edge smoothing", "Smoother tile and HUD edges. Lower runs faster.", smoothing_option))
 	return section
 
 func _build_accessibility_section() -> Control:
@@ -159,7 +229,7 @@ func _build_accessibility_section() -> Control:
 		dialogue_option.set_item_metadata(dialogue_option.item_count - 1, item["value"])
 	dialogue_option.item_selected.connect(_on_option_selected.bind("dialogue_speed", dialogue_option))
 	_controls["dialogue_speed"] = dialogue_option
-	rows.add_child(_setting_row("Dialogue speed", "Instant reveals each line at once", dialogue_option))
+	rows.add_child(_setting_row("Dialogue speed", "How fast dialogue appears", dialogue_option))
 
 	var combat_option := _option_control()
 	combat_option.name = "CombatSpeedOption"
@@ -181,7 +251,7 @@ func _build_accessibility_section() -> Control:
 	_style_button(reduced_button, CONTROL_WIDTH)
 	reduced_button.toggled.connect(_on_reduced_motion_toggled)
 	_controls["reduced_motion"] = reduced_button
-	rows.add_child(_setting_row("Reduced motion", "Skips supported entrance and travel flourishes", reduced_button))
+	rows.add_child(_setting_row("Reduced motion", "Fewer entrance, travel and effect animations", reduced_button))
 	return section
 
 func _reveal_combat_speed(option: Control) -> void:
@@ -192,18 +262,22 @@ func _reveal_combat_speed(option: Control) -> void:
 		parent.ensure_control_visible(option)
 
 func _build_footer() -> Control:
-	var footer := VBoxContainer.new()
+	# Both states occupy the existing actions row's height. Confirmation must
+	# never take space from the settings scroll area.
+	var footer := MarginContainer.new()
 	footer.size_flags_vertical = Control.SIZE_SHRINK_END
-	footer.add_theme_constant_override("separation", 10)
 
 	_confirmation_panel = PanelContainer.new()
 	_confirmation_panel.visible = false
-	_confirmation_panel.add_theme_stylebox_override("panel", _confirmation_style())
+	var confirmation_style := _confirmation_style()
+	confirmation_style.content_margin_top = 0
+	confirmation_style.content_margin_bottom = 0
+	_confirmation_panel.add_theme_stylebox_override("panel", confirmation_style)
 	var confirm_margin := MarginContainer.new()
 	confirm_margin.add_theme_constant_override("margin_left", 14)
-	confirm_margin.add_theme_constant_override("margin_top", 10)
+	confirm_margin.add_theme_constant_override("margin_top", 0)
 	confirm_margin.add_theme_constant_override("margin_right", 14)
-	confirm_margin.add_theme_constant_override("margin_bottom", 10)
+	confirm_margin.add_theme_constant_override("margin_bottom", 0)
 	_confirmation_panel.add_child(confirm_margin)
 	var confirm_row := HBoxContainer.new()
 	confirm_row.add_theme_constant_override("separation", 10)
@@ -223,7 +297,7 @@ func _build_footer() -> Control:
 	cancel.pressed.connect(_cancel_restore_confirmation)
 	confirm_row.add_child(cancel)
 	var confirm := Button.new()
-	confirm.text = "Restore"
+	confirm.text = "Reset all"
 	_style_button(confirm, 138.0, Color("ffcabd"), UiSkin.VARIANT_DESTRUCTIVE)
 	confirm.pressed.connect(_confirm_restore_defaults)
 	confirm_row.add_child(confirm)
@@ -236,6 +310,7 @@ func _build_footer() -> Control:
 	footer.add_child(_confirmation_panel)
 
 	var actions := HBoxContainer.new()
+	_footer_actions = actions
 	actions.add_theme_constant_override("separation", 12)
 	footer.add_child(actions)
 	_status_label = Label.new()
@@ -256,6 +331,7 @@ func _build_footer() -> Control:
 	_style_button(_back_button, 152.0)
 	_back_button.pressed.connect(_on_back_pressed)
 	actions.add_child(_back_button)
+	footer.custom_minimum_size.y = actions.get_combined_minimum_size().y
 	return footer
 
 func _section_shell(title_text: String, subtitle_text: String) -> PanelContainer:
@@ -300,7 +376,7 @@ func _add_volume_row(rows: VBoxContainer, title: String, detail: String, key: St
 	var control := HBoxContainer.new()
 	control.custom_minimum_size = Vector2(CONTROL_WIDTH, 38.0)
 	control.add_theme_constant_override("separation", 10)
-	var slider := HSlider.new()
+	var slider := VolumeSlider.new(_ui_skin)
 	slider.focus_neighbor_left = NodePath(".")
 	slider.focus_neighbor_right = NodePath(".")
 	slider.min_value = 0.0
@@ -396,6 +472,7 @@ func _sync_controls_from_settings() -> void:
 			value_label.text = _percent_text(float(_settings.get(key, 1.0)))
 	_select_option_value(_controls.get("display_mode") as OptionButton, _settings.get("display_mode"))
 	_select_option_value(_controls.get("ui_scale") as OptionButton, _settings.get("ui_scale"))
+	_select_option_value(_controls.get("edge_smoothing") as OptionButton, _settings.get("edge_smoothing"))
 	_select_option_value(_controls.get("dialogue_speed") as OptionButton, _settings.get("dialogue_speed"))
 	_select_option_value(_controls.get("combat_speed") as OptionButton, _settings.get("combat_speed"))
 	var reduced_button: Button = _controls.get("reduced_motion") as Button
@@ -423,7 +500,7 @@ func _on_option_selected(index: int, key: String, option: OptionButton) -> void:
 	if _syncing or index < 0:
 		return
 	_settings[key] = option.get_item_metadata(index)
-	var status: String = "Display updated" if key in ["display_mode", "ui_scale"] else "Dialogue updated"
+	var status: String = "Display updated" if key in ["display_mode", "ui_scale", "edge_smoothing"] else "Dialogue updated"
 	_commit_change("Saved automatically" if key == "combat_speed" else status)
 
 func _on_reduced_motion_toggled(enabled: bool) -> void:
@@ -450,8 +527,8 @@ func _commit_change(status: String) -> void:
 
 func _show_restore_confirmation() -> void:
 	_confirmation_panel.visible = true
-	var router: Node = get_node_or_null("/root/InputRouter")
-	if router != null and bool(router.call("using_controller")): _focus_restore_confirmation()
+	_focus_restore_confirmation()
+	_footer_actions.visible = false
 	_set_status("Confirmation required", true)
 
 func _focus_restore_confirmation() -> void:
@@ -466,6 +543,8 @@ func _focus_restore_confirmation() -> void:
 func _dismiss_restore_confirmation() -> void:
 	if _confirmation_panel != null:
 		_confirmation_panel.visible = false
+	if _footer_actions != null:
+		_footer_actions.visible = true
 	var router: Node = get_node_or_null("/root/InputRouter")
 	_release_confirmation_focus(router != null and bool(router.call("using_controller")))
 

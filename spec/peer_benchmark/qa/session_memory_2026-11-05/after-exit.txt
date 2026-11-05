@@ -1,0 +1,2 @@
+Orphan StringName: BAYER (static: 0, total: 2)
+StringName: 1 unclaimed string names at exit.

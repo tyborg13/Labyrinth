@@ -245,7 +245,8 @@ func _assert_movement_hud(instance: Node, expected_remaining: int, expected_capa
 			var pass_rect: Rect2 = pass_chip.get_global_rect()
 			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
 			_assert(play_rect.end.x < hand_bounds.position.x and pass_rect.position.x > hand_bounds.end.x, "%s Pass should flank the hand opposite the resource meters" % label)
-			_assert(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % label)
+			preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_layout(instance, _assert, label)
+			preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_hand_clearance(instance, _assert, label, hand_bounds)
 
 func _assert_board_path(instance: Node, destination: Vector2i, label: String) -> void:
 	var board: Node = instance.get_node(BOARD_PATH)

@@ -1,0 +1,19 @@
+{
+  "counts": {
+    "board_layer_state": 4470984,
+    "board_submission": 27131,
+    "board_units": 27131,
+    "boss_health": 3477,
+    "forecast_source_hp": 16454,
+    "forecast_wait": 22049,
+    "hand_identity": 106181,
+    "map_actionable": 26767,
+    "map_current": 598,
+    "map_node_data": 26767,
+    "map_route": 26767,
+    "summary_card": 106181,
+    "time_badge": 106181
+  },
+  "mismatch_events": 0,
+  "completed_run_summaries": 15
+}

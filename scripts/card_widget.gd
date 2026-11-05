@@ -15,6 +15,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const SummaryMeasurements = preload("res://scripts/card_summary_measurements.gd")
 
 const FRAME_REFLECTION_SECONDS: float = 0.28
 # The authored frame supplies both its alpha and its metal detail. Masking the
@@ -81,6 +82,7 @@ const SUMMARY_COMFORT_INSET: float = 6.0
 const SUMMARY_EDGE_INSET_PX: float = 2.0
 const SUMMARY_MIN_ITEM_GAP: int = 4
 const SUMMARY_TRANSFORM_EPSILON: float = 0.001
+const SUMMARY_LAYOUT_CACHE_CAPACITY: int = 4
 const RULES_FACE_MAX_ICON: float = 24.0
 const RULES_FACE_ART_RELIEF: float = 18.0
 const RULES_TEXT_INSET: float = 10.0
@@ -88,7 +90,8 @@ const SUMMARY_VALUE_TO_ICON_RATIO: float = 0.62
 const SUMMARY_SEGMENT_VALUE_RATIO: float = 0.58
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
-const TITLE_MIN_SIZE: int = 10
+const TITLE_MIN_SIZE: int = 14
+const TITLE_BADGE_GAP: float = 4.0
 const ART_SHADOW_OFFSET := Vector2(1.5, 3.0)
 const ART_SHADOW_COLOR := Color(0.16, 0.08, 0.03, 0.42)
 const RARITY_GEM_GLOW := {
@@ -127,6 +130,8 @@ class CardFrameReflection:
 class AoePatternView:
 	extends Control
 
+	var _triangles := preload("res://scripts/card_triangle_batch.gd").new()
+
 	const TILE_WIDTH: float = 16.0
 	const TILE_HEIGHT: float = 10.0
 	const TILE_PADDING: float = 5.0
@@ -158,6 +163,8 @@ class AoePatternView:
 			var fill: Color = Color("e9dcc6") if is_origin else Color("d95f4a")
 			var border: Color = Color("5a493b") if is_origin else Color("7b2f25")
 			_draw_tile(_iso_center(offset) + shift, fill, border)
+
+		_triangles.flush(self)
 
 	func _desired_size() -> Vector2:
 		return measured_size(pattern_offsets, show_origin, tile_scale)
@@ -215,7 +222,8 @@ class AoePatternView:
 			center + Vector2(-tile_width * 0.5, 0.0),
 			center + Vector2(0.0, -tile_height * 0.5)
 		])
-		draw_colored_polygon(points, fill)
+		_triangles.colored_polygon(points, fill)
+		_triangles.flush(self)
 		draw_polyline(points, border, 1.0, true)
 
 	func _tile_width() -> float:
@@ -250,6 +258,9 @@ class AoePatternView:
 class TimeCostBadge:
 	extends Control
 
+	var _triangles := preload("res://scripts/card_triangle_batch.gd").new()
+	var _dial_triangles := preload("res://scripts/card_triangle_batch.gd").new()
+
 	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
 	const Palette = preload("res://scripts/ui_palette.gd")
 	const CLOCK_HOVER_SECONDS_PER_SECOND: float = 24.0
@@ -262,6 +273,12 @@ class TimeCostBadge:
 	const WATCH_CASE_RADIUS: float = 72.24
 	# The dark enamel inside the hour markers, as a share of the case radius.
 	const WATCH_DIAL_RATIO: float = 0.66
+	const VALUE_OUTLINE_OFFSETS: Array = [
+		Vector2(-1.0, 0.0), Vector2(1.0, 0.0),
+		Vector2(0.0, -1.0), Vector2(0.0, 1.0),
+		Vector2(-1.0, -1.0), Vector2(1.0, 1.0),
+		Vector2(-1.0, 1.0), Vector2(1.0, -1.0)
+	]
 	static var _watch_mipmapped: Texture2D
 	static var _watch_missing: bool = false
 
@@ -270,6 +287,10 @@ class TimeCostBadge:
 	var _cost_shift: int = 0
 	var _clock_seconds: float = 0.0
 	var _hovered: bool = false
+	var _value_fit_inputs: Array = []
+	var _value_fit_size: int = 0
+	var _value_text_width: float = 0.0
+	var _value_baseline_offset: float = 0.0
 
 	func _ready() -> void:
 		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -283,6 +304,7 @@ class TimeCostBadge:
 		set_process(_hovered and is_visible_in_tree() and not MotionSettings.applied_reduced_motion_enabled())
 
 	func setup(next_value: int, next_tooltip: String, own_cost: int = -1) -> void:
+		_value_fit_inputs.clear()
 		value = maxi(0, next_value)
 		_cost_shift = signi(value - own_cost) if own_cost > 0 else 0
 		_clock_seconds = float(posmod(value, 12)) * 3600.0 + float(posmod(value * 5, 60)) * 60.0 + float(posmod(value * 11, 60))
@@ -315,36 +337,36 @@ class TimeCostBadge:
 			return
 		var font_size: int = value_font_size()
 		var text: String = str(value)
-		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		var baseline: Vector2 = Vector2(center.x - text_size.x * 0.5, center.y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5)
+		var baseline: Vector2 = Vector2(center.x - _value_text_width * 0.5, center.y + _value_baseline_offset)
 		var outline_color: Color = Color("120804")
 		outline_color.a = 0.96
-		var outline_offsets: Array = [
-			Vector2(-1.0, 0.0),
-			Vector2(1.0, 0.0),
-			Vector2(0.0, -1.0),
-			Vector2(0.0, 1.0),
-			Vector2(-1.0, -1.0),
-			Vector2(1.0, 1.0),
-			Vector2(-1.0, 1.0),
-			Vector2(1.0, -1.0)
-		]
+
+		_triangles.flush(self)
 		draw_string(font, baseline + Vector2(0.0, 1.6), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(0.0, 0.0, 0.0, 0.55))
-		for offset_var: Variant in outline_offsets:
+		for offset_var: Variant in VALUE_OUTLINE_OFFSETS:
+			_triangles.flush(self)
 			draw_string(font, baseline + (offset_var as Vector2), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, outline_color)
+		_triangles.flush(self)
 		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff1c8") if _cost_shift == 0 else _shift_color())
 
 	func _shift_color() -> Color:
 		return Palette.ALLY.lightened(0.18) if _cost_shift < 0 else Palette.EMBER.lightened(0.14)
 
 	func value_font_size() -> int:
-		var font_size: int = UiTypographyScript.scaled_size(self, 21 if size.x <= 42.0 else 24)
 		var font: Font = UiTypographyScript.ui_font()
+		var inputs: Array = [font, SummaryMeasurements.font_revision(font), size, value, get_viewport_rect().size]
+		if inputs == _value_fit_inputs:
+			return _value_fit_size
+		var font_size: int = UiTypographyScript.scaled_size(self, 21 if size.x <= 42.0 else 24)
 		if font == null:
 			return font_size
 		var minimum: int = UiTypographyScript.scaled_size(self, get_parent().call("_rules_text_font_size")) if get_parent() != null and get_parent().has_method("_rules_text_font_size") else UiTypographyScript.SIZE_CAPTION
-		while font_size > minimum and font.get_string_size(str(value), HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size).x > size.x * 0.58:
+		while font_size > minimum and SummaryMeasurements.text_width(font, font_size, str(value), HORIZONTAL_ALIGNMENT_CENTER) > size.x * 0.58:
 			font_size -= 1
+		_value_fit_inputs = inputs
+		_value_fit_size = font_size
+		_value_text_width = SummaryMeasurements.text_width(font, font_size, str(value), HORIZONTAL_ALIGNMENT_CENTER)
+		_value_baseline_offset = (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
 		return font_size
 
 	# The case, bezel, markers and enamel dial are one painted brass pocket watch
@@ -353,13 +375,15 @@ class TimeCostBadge:
 	func _draw_watch(center: Vector2, case_radius: float) -> void:
 		var watch: Texture2D = _watch_texture()
 		if watch == null:
-			draw_circle(center, case_radius, Color("6a3e18"))
-			draw_circle(center, case_radius * 0.72, Color("1c0f0d"))
+			_triangles.circle(center, case_radius, Color("6a3e18"))
+			_triangles.circle(center, case_radius * 0.72, Color("1c0f0d"))
 		else:
 			var scale_factor: float = case_radius / WATCH_CASE_RADIUS
 			var origin: Vector2 = center - WATCH_DIAL_CENTER * scale_factor
 			var rect := Rect2(origin, WATCH_TEXTURE_SIZE * scale_factor)
+			_triangles.flush(self)
 			draw_texture_rect(watch, Rect2(rect.position + Vector2(case_radius * 0.06, case_radius * 0.10), rect.size), false, Color(0.02, 0.01, 0.005, 0.55))
+			_triangles.flush(self)
 			draw_texture_rect(watch, rect, false)
 		var dial_radius: float = case_radius * WATCH_DIAL_RATIO
 		var second_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds, 60.0) / 60.0
@@ -368,20 +392,27 @@ class TimeCostBadge:
 		_draw_clock_hand(center, hour_angle, dial_radius * 0.56, dial_radius * 0.085, Color("a8742f"), Color("f3d48a"))
 		_draw_clock_hand(center, minute_angle, dial_radius * 0.86, dial_radius * 0.060, Color("c8953f"), Color("fde3a0"))
 		_draw_second_hand(center, second_angle, dial_radius * 0.90)
+		# Moving second-hand circles must not invalidate the fixed dial rings'
+		# triangle cache. Flush in the same paint order, using a separate batch.
+		_triangles.flush(self)
 		# Under the cost numeral the hands meet a dark pivot well, so the digits
 		# never sit on top of bright brass.
 		for ring: int in range(4):
 			var t: float = float(ring) / 3.0
-			draw_circle(center, dial_radius * lerpf(0.50, 0.30, t), Color(0.05, 0.02, 0.015, lerpf(0.10, 0.34, t)))
+			_dial_triangles.circle(center, dial_radius * lerpf(0.50, 0.30, t), Color(0.05, 0.02, 0.015, lerpf(0.10, 0.34, t)))
 		# A changed cost lights the enamel behind its numeral, so it reads at hand size.
 		if _cost_shift != 0:
 			var glow: Color = _shift_color()
 			for ring: int in range(4):
 				glow.a = lerpf(0.05, 0.13, float(ring) / 3.0)
-				draw_circle(center, dial_radius * lerpf(0.92, 0.50, float(ring) / 3.0), glow)
+				_dial_triangles.circle(center, dial_radius * lerpf(0.92, 0.50, float(ring) / 3.0), glow)
 		# Domed crystal: a soft sheen across the upper-left of the glass.
+		_dial_triangles.flush(self)
 		draw_arc(center, dial_radius * 0.80, -PI * 0.96, -PI * 0.60, 18, Color(1.0, 0.96, 0.86, 0.20), maxf(1.0, dial_radius * 0.11), true)
+		_triangles.flush(self)
 		draw_arc(center, dial_radius * 0.80, -PI * 0.90, -PI * 0.68, 12, Color(1.0, 0.98, 0.92, 0.22), maxf(0.6, dial_radius * 0.04), true)
+
+		_triangles.flush(self)
 
 	static func _watch_texture() -> Texture2D:
 		if _watch_mipmapped != null or _watch_missing:
@@ -417,19 +448,23 @@ class TimeCostBadge:
 			center - perpendicular * width,
 			tail - perpendicular * width * 0.8
 		])
-		draw_colored_polygon(_offset_polygon(points, Vector2(0.7, 1.0)), Color(0.02, 0.01, 0.004, 0.62))
-		draw_colored_polygon(points, color)
+		_triangles.colored_polygon(_offset_polygon(points, Vector2(0.7, 1.0)), Color(0.02, 0.01, 0.004, 0.62))
+		_triangles.colored_polygon(points, color)
+		_triangles.flush(self)
 		draw_polyline(_closed_polygon(points), Color(0.16, 0.08, 0.02, 0.70), 0.6, true)
+		_triangles.flush(self)
 		draw_line(tail + perpendicular * width * 0.25, tip, highlight, 0.7, true)
 
 	func _draw_second_hand(center: Vector2, angle: float, length: float) -> void:
 		var direction: Vector2 = Vector2(cos(angle), sin(angle))
 		var tip: Vector2 = center + direction * length
 		var tail: Vector2 = center - direction * length * 0.26
+		_triangles.flush(self)
 		draw_line(tail + Vector2(0.6, 0.9), tip + Vector2(0.6, 0.9), Color(0.02, 0.01, 0.004, 0.60), 1.6, true)
+		_triangles.flush(self)
 		draw_line(tail, tip, Color("e2b65a"), 1.0, true)
-		draw_circle(tail, length * 0.07, Color("c08a3a"))
-		draw_circle(tip - direction * length * 0.18, length * 0.045, Color("f6d98d"))
+		_triangles.circle(tail, length * 0.07, Color("c08a3a"))
+		_triangles.circle(tip - direction * length * 0.18, length * 0.045, Color("f6d98d"))
 
 	func _offset_polygon(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
 		var shifted := PackedVector2Array()
@@ -693,6 +728,14 @@ var _ready_wave_glow: PanelContainer
 var _summary_icon_box: VBoxContainer
 var _summary_fit_inset: float = -1.0
 var _summary_scale_refit_queued: bool = false
+var _summary_display_inputs: Array = []
+var _summary_layout_inputs: Array = []
+# Only inactive row trees are held here. Active rows remain ordinary children,
+# preserving all scene paths, container sorting and draw order.
+var _summary_layout_cache: Dictionary = {}
+var _summary_active_layout: float = -1.0
+var _summary_active_art_height: float = 0.0
+var _summary_active_details_height: float = 0.0
 var _role_emblem: DebossedRoleEmblem
 var _empower_seal: Button
 var _empower_rim: Control
@@ -700,6 +743,8 @@ var _empower_raised: bool = false
 var _empower_offered: bool = false
 var _empower_charged: bool = false
 var _time_badge: TimeCostBadge
+var _title_right_limit: float = INF
+var _title_inset: StyleBoxEmpty
 var _elevation_shadow: Panel
 var _elevation_shadow_style: StyleBoxFlat
 var _frame_reflection: CardFrameReflection
@@ -730,7 +775,7 @@ func _ready() -> void:
 	title_label.add_theme_constant_override("outline_size", 2)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_label.clip_text = true
 	var text_font: Font = UiTypography.text_font()
@@ -760,6 +805,8 @@ func _ready() -> void:
 	_queue_title_refit()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_clear_summary_layout_cache()
 	if what == NOTIFICATION_TRANSFORM_CHANGED and is_node_ready() and _summary_icon_box != null and _summary_icon_box.visible:
 		if not is_equal_approx(_summary_fit_inset, _summary_screen_inset()) and not _summary_scale_refit_queued:
 			_summary_scale_refit_queued = true
@@ -1491,6 +1538,15 @@ func _position_time_badge() -> void:
 	_position_empower_seal()
 
 func _refresh_summary_display(card: Dictionary) -> void:
+	# Frame style overrides emit theme_changed too. Compare the actual font
+	# resources/revisions rather than invalidating fitted rows for frame paint.
+	var inputs: Array = [card, _summary_rows, _summary_bbcode, size, custom_minimum_size,
+		UiTypography.ui_scale(self), UiTypography.default_font(self), UiTypography.text_font(),
+		SummaryMeasurements.font_revision(UiTypography.default_font(self)),
+		SummaryMeasurements.font_revision(UiTypography.text_font()), _summary_screen_inset()]
+	if inputs == _summary_display_inputs:
+		return
+	_summary_display_inputs = inputs.duplicate(true)
 	# Reconfiguration of a pooled card returns the art loan before measuring the
 	# next face. The result must not depend on which card used this widget first.
 	_update_layout_metrics()
@@ -1510,6 +1566,9 @@ func _refresh_summary_display(card: Dictionary) -> void:
 		_lend_art_height_to_rules(_rules_text_height(rules_text))
 		if _summary_icon_box != null:
 			_summary_icon_box.visible = false
+			_clear_summary_layout_cache()
+			_summary_layout_inputs.clear()
+			_summary_active_layout = -1.0
 			_clear_children(_summary_icon_box)
 		return
 	desc_label.visible = false
@@ -1529,8 +1588,40 @@ func _render_summary_icon_rows(rows: Array) -> void:
 func _rebuild_summary_icon_rows(rows: Array) -> void:
 	if _summary_icon_box == null:
 		return
-	_clear_children(_summary_icon_box)
-	_summary_fit_inset = _summary_screen_inset()
+	# Reset metrics above returned the previous art loan. Cache that loan with
+	# the fitted tree, so returning to a hand scale restores the same geometry.
+	var layout_inputs: Array = [rows, size, custom_minimum_size, UiTypography.ui_scale(self),
+		UiTypography.default_font(self), UiTypography.text_font(),
+		SummaryMeasurements.font_revision(UiTypography.default_font(self)),
+		SummaryMeasurements.font_revision(UiTypography.text_font()),
+		art_frame.custom_minimum_size, details_panel.custom_minimum_size]
+	var inset: float = _summary_screen_inset()
+	if layout_inputs != _summary_layout_inputs:
+		_clear_summary_layout_cache()
+		_summary_layout_inputs = layout_inputs.duplicate(true)
+		_summary_active_layout = -1.0
+	if _summary_active_layout >= 0.0:
+		if _summary_layout_cache.size() >= SUMMARY_LAYOUT_CACHE_CAPACITY:
+			var oldest: Variant = _summary_layout_cache.keys()[0]
+			for child: Node in _summary_layout_cache[oldest]["children"]:
+				child.free()
+			_summary_layout_cache.erase(oldest)
+		var children: Array[Node] = _summary_icon_box.get_children()
+		for child: Node in children:
+			_summary_icon_box.remove_child(child)
+		_summary_layout_cache[_summary_active_layout] = {"children": children,
+			"art_height": _summary_active_art_height, "details_height": _summary_active_details_height}
+	else:
+		_clear_children(_summary_icon_box)
+	_summary_fit_inset = inset
+	_summary_active_layout = inset
+	if _summary_layout_cache.has(inset):
+		var cached: Dictionary = _summary_layout_cache[inset]
+		_summary_layout_cache.erase(inset)
+		for child: Node in cached["children"]:
+			_summary_icon_box.add_child(child)
+		_remember_summary_layout(float(cached["art_height"]), float(cached["details_height"]))
+		return
 	var row_groups: Array = []
 	var rendered_rows: Array = []
 	for row_var: Variant in rows:
@@ -1546,6 +1637,7 @@ func _rebuild_summary_icon_rows(rows: Array) -> void:
 				"segments": segments
 			})
 	if rendered_rows.is_empty():
+		_remember_summary_layout(art_frame.custom_minimum_size.y, details_panel.custom_minimum_size.y)
 		return
 	var metrics: Dictionary = _summary_layout_metrics(rendered_rows, row_groups)
 	var icon_size: float = float(metrics.get("icon_size", _summary_icon_size()))
@@ -1561,6 +1653,21 @@ func _rebuild_summary_icon_rows(rows: Array) -> void:
 	if _summary_icon_box.has_meta("summary_wrapped"):
 		_lend_art_height_to_rules(_summary_icon_box.get_minimum_size().y + _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 		_summary_icon_box.remove_meta("summary_wrapped")
+	_remember_summary_layout(art_frame.custom_minimum_size.y, details_panel.custom_minimum_size.y)
+
+func _remember_summary_layout(art_height: float, details_height: float) -> void:
+	_summary_active_art_height = art_height
+	_summary_active_details_height = details_height
+	art_frame.custom_minimum_size.y = art_height
+	details_panel.custom_minimum_size.y = details_height
+	desc_label.custom_minimum_size.y = details_height
+	_summary_icon_box.custom_minimum_size.y = details_height
+
+func _clear_summary_layout_cache() -> void:
+	for cached: Dictionary in _summary_layout_cache.values():
+		for child: Node in cached["children"]:
+			child.free()
+	_summary_layout_cache.clear()
 
 func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
 	if segments.is_empty():
@@ -1850,7 +1957,7 @@ func _rules_text_height(text: String) -> float:
 	var font_size: int = UiTypography.scaled_size(self, _rules_text_font_size())
 	if font == null:
 		return float(font_size) * 1.3 * ceilf(float(text.length()) * float(font_size) * 0.5 / maxf(1.0, _rules_text_width()))
-	return font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, _rules_text_width(), font_size).y
+	return SummaryMeasurements.multiline_height(font, font_size, text, _rules_text_width())
 
 func _add_token_modifier_marker(token_group: Control, tooltip: String, label_size: int, conditional: bool, layout: Dictionary) -> void:
 	var marker := Label.new()
@@ -2097,14 +2204,14 @@ func _summary_text_width(text: String, label_size: int) -> float:
 	var font: Font = UiTypography.default_font(self)
 	if font == null:
 		return float(text.length()) * float(scaled_label_size) * 0.62
-	return font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, scaled_label_size).x
+	return SummaryMeasurements.text_width(font, scaled_label_size, text)
 
 func _summary_text_height(label_size: int) -> float:
 	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)
 	var font: Font = UiTypography.default_font(self)
 	if font == null:
 		return float(scaled_label_size)
-	return font.get_height(scaled_label_size)
+	return SummaryMeasurements.text_height(font, scaled_label_size)
 
 func _card_visual_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
@@ -2198,6 +2305,7 @@ func _queue_title_refit() -> void:
 func _fit_title_label(base_size: int) -> void:
 	if title_label == null:
 		return
+	_update_title_inset()
 	var font: Font = UiTypography.ui_font()
 	if font == null:
 		UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
@@ -2218,10 +2326,10 @@ func _relieved_title_size(candidate: int) -> int:
 	return mini(_title_max_render_size(), maxi(_title_min_size(), candidate - relief))
 
 func _title_min_size() -> int:
-	return _scaled_card_font_size(TITLE_MIN_SIZE, 7)
+	return maxi(TITLE_MIN_SIZE, _scaled_card_font_size(TITLE_MIN_SIZE, 7))
 
 func _title_max_render_size() -> int:
-	return _scaled_card_font_size(TITLE_MAX_RENDER_SIZE, 8)
+	return maxi(_title_min_size(), _scaled_card_font_size(TITLE_MAX_RENDER_SIZE, 8))
 
 func _title_available_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
@@ -2231,7 +2339,36 @@ func _title_available_width() -> float:
 	# a reveal back: Godot can report a transient sliver before its container sorts,
 	# which permanently refits the title to the minimum size. Use the authored
 	# geometry so hidden, pooled, and visible cards all choose the same title size.
-	return card_inner_width
+	var title_left: float = _title_nameplate_left()
+	return minf(card_inner_width, maxf(0.0, _title_right_limit - title_left))
+
+func _title_nameplate_left() -> float:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	return (width - maxf(72.0, width * TITLE_NAMEPLATE_WIDTH_RATIO)) * 0.5
+
+## The fan supplies the next card's watch, whose left edge can cover this name.
+## Keeping the limit in card coordinates preserves the inset through hover scale.
+func set_title_occluder(badge: Control) -> void:
+	var limit: float = INF
+	if badge != null and badge.visible:
+		var transform: Transform2D = get_global_transform().affine_inverse() * badge.get_global_transform()
+		var badge_rect: Rect2 = transform * Rect2(Vector2.ZERO, badge.size)
+		limit = badge_rect.position.x - TITLE_BADGE_GAP
+	if is_equal_approx(limit, _title_right_limit) or (is_inf(limit) and is_inf(_title_right_limit)):
+		return
+	_title_right_limit = limit
+	_queue_title_refit()
+
+func _update_title_inset() -> void:
+	if _title_inset == null:
+		_title_inset = StyleBoxEmpty.new()
+		title_label.add_theme_stylebox_override("normal", _title_inset)
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var margin: float = _scaled_card_value(16.0, 6.0)
+	var left: float = _title_nameplate_left()
+	var right: float = maxf(left, minf(width - left, _title_right_limit))
+	_title_inset.content_margin_left = maxf(0.0, left - margin)
+	_title_inset.content_margin_right = maxf(0.0, width - margin - right)
 
 func _title_nameplate_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x

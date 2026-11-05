@@ -19,9 +19,9 @@ func _initialize() -> void:
 		_run.call_deferred()
 
 func _run() -> void:
-	Suite.run(func(ok: bool, message: String) -> void:
+	var expect: Callable = func(ok: bool, message: String) -> void:
 		if not ok and not failures.has(message): failures.append(message)
-	)
+	Suite.run(expect, not OS.get_cmdline_user_args().has("--rules-only"))
 	for failure: String in failures: push_error(failure)
 	print("Event rules suite: %d failures" % failures.size())
 	quit(0 if failures.is_empty() else 1)

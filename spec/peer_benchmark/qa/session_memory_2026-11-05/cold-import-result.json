@@ -1,0 +1,16 @@
+{
+  "returncode": 0,
+  "timeout_seconds": 1800,
+  "command": "python3 tools/godot_task_runner.py --task-id qa-53 --timeout 1800 --stream -- godot --headless --verbose --path . --import",
+  "log": "/private/tmp/labyrinth_codex/qa-53/cold-import-1800.log",
+  "markers": [
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "Socket error: 1.",
+    "Failed to bind socket. Error: 6.",
+    "WARNING: UID duplicate detected between res://assets/placeholders/units/player_reaver_idle.png and res://assets/placeholders/units/player_reaver_anime_idle.png.",
+    "Socket error: 1.",
+    "Failed to bind socket. Error: 6.",
+    "Orphan StringName: Node (static: 6, total: 7)",
+    "StringName: 1 unclaimed string names at exit."
+  ]
+}

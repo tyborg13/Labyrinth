@@ -1,0 +1,23 @@
+{
+  "base_head": "7cfeb04551ef236ba2426bdc17edbd89f36628ba",
+  "uncommitted": true,
+  "sources": {
+    "scripts/scavenger_shop_view.gd": "6891808939595845a51383fff6d6f19cf9a7bbd5d61490aac90fc16d3d351cf3",
+    "scripts/run_scene.gd": "5bdd2bf1788b7dae8109ebc699cffc160839b56ff9a196171eea46cbdc8653cd",
+    "tests/controller_screen_sweep.gd": "44b85cbbcd703ab294d49e976ae5eda4d66a174da5d52b144092f7da7d4181c2",
+    "tools/run_hunt.gd": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0",
+    "tools/run_hunt_policy.gd": "7dd59a63638068bb9fe654a742a40a56dead07b957e8dc9ec3cdb88f98aa08b1",
+    "/private/tmp/labyrinth_codex/qa-51/tools/controller_hunt.gd": "b21090f118df58673684d81f6dfec402e3a61572d0de0e1786c309765fd3bd33",
+    "/private/tmp/labyrinth_codex/qa-51/tools/run_acceptance.py": "110cbad1c96df6eaaafd6d57060582484da35e8e2fe3f871e290af91b57c16ac",
+    "/private/tmp/labyrinth_codex/qa-51/tools/run_supplemental.py": "bb9d7f35830babfd48256fa5696750ddd89de864d351d05b25f3f8f6b64f7e80",
+    "/private/tmp/labyrinth_codex/qa-51/tools/run_card_coverage.py": "dca78e8b4da40d72a1f1a51f6e5ac42b6f1a1b9b64d537e783167ff8adcce83f",
+    "/private/tmp/labyrinth_codex/qa-51/tools/run_completion_seeds.py": "b9692740bbf921d49af899ef4eac59e058665faaf89d94996944e65aa7bdd614",
+    "/private/tmp/labyrinth_codex/qa-51/tools/reward_inventory.gd": "12bb84638564022a8f5b623fc26ed276482dcf26a2624bccfdc237d42779c7de",
+    "/private/tmp/labyrinth_codex/qa-51/tools/dragon_target_parity.gd": "338d4d125dad6defbb1c22c8d3e2f4b05912fb046a8c4fa0405070164ec30cf1",
+    "/private/tmp/labyrinth_codex/qa-51/tools/collect_report.py": "1ec8bcb81a44ec4dab88a177a4ebcff86e45c2e5f8ffd388d50e479e9728b451",
+    "/private/tmp/labyrinth_codex/qa-51/tools/status.py": "c7030092fd0f3f151a0a8b3f56c3cb99f4a223b94b1120845e232f01b8bfee4c"
+  },
+  "fixtures": {
+    "dragon-target.variant": "b55748c8066328cad485bdfb03e3d141b7a87a519a804da7f2bc9a068c66519b"
+  }
+}

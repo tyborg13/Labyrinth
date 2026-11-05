@@ -3,6 +3,7 @@ extends "res://tests/combat_hud_badges_test.gd"
 const Typography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const TooltipButton = preload("res://scripts/ui_tooltip_button.gd")
+const BADGE_RECT_TOLERANCE: float = 0.01
 
 var _header_instance: Node
 
@@ -160,7 +161,19 @@ func _assert_header() -> void:
 	_expect((_header_instance.get("loadout_button") as Button).tooltip_text == "Character" and (_header_instance.get("grimoire_button") as Button).tooltip_text == "Grimoire" and (_header_instance.get("menu_button") as Button).tooltip_text == "Menu" and (_header_instance.get("_section_map_hud_button") as Button).tooltip_text == "Map [M]", "Header actions retain exact tooltips and map binding")
 	for key: String in ["_grimoire_badge", "_loadout_badge"]:
 		var badge := _header_instance.get(key) as PanelContainer
-		_expect(badge != null and badge.custom_minimum_size == Vector2(18, 18) and badge.offset_left == -18.0 and badge.offset_top == -3.0 and badge.offset_right == 0.0 and badge.offset_bottom == 15.0, "Notification badges retain master's exact size and offsets")
+		_expect(badge != null and badge.get_child_count() == 1 and badge.get_child(0) is Label, "Notification badges retain their count label")
+		if badge == null or badge.get_child_count() != 1 or not badge.get_child(0) is Label:
+			continue
+		var label: Label = badge.get_child(0) as Label
+		var font: Font = label.get_theme_font("font")
+		var old_font: int = Typography.scaled_size(label, 8)
+		var approved_font: int = Typography.scaled_size(label, 12)
+		# sd-02 (33ecad294): grow the old 18px badge by the 8→12px text-metric
+		# difference, keeping its padding and top-right anchor exactly intact.
+		var expected_size: Vector2 = Vector2(18, 18) + Vector2(font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, approved_font).x - font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, old_font).x, font.get_height(approved_font) - font.get_height(old_font))
+		_expect(label.get_theme_font_size("font_size") == approved_font, "Notification counts use sd-02's approved 12px text")
+		_expect(badge.custom_minimum_size.is_equal_approx(expected_size) and badge.size.is_equal_approx(expected_size), "Notification badges preserve their original padding around the larger text (expected=%s actual=%s)" % [expected_size, badge.size])
+		_expect(badge.anchor_left == 1.0 and badge.anchor_right == 1.0 and absf(badge.offset_left + expected_size.x) <= BADGE_RECT_TOLERANCE and absf(badge.offset_top + 3.0) <= BADGE_RECT_TOLERANCE and absf(badge.offset_right) <= BADGE_RECT_TOLERANCE and absf(badge.offset_bottom - (expected_size.y - 3.0)) <= BADGE_RECT_TOLERANCE, "Notification badges grow left/down from the original top-right anchor")
 
 func _finish() -> void:
 	print("COMBAT HUD BUTTONS TEST: %s" % ("FAIL" if _failed else "PASS"))

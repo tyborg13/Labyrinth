@@ -9,6 +9,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const CharacterMenuView = preload("res://scripts/character_menu_view.gd")
 const MotionSettings = preload("res://scripts/settings_store.gd")
+const LinkRouting = preload("res://scripts/skill_tree_link_routing.gd")
 
 signal skill_focused(skill_id: String)
 signal learn_requested(skill_id: String)
@@ -25,22 +26,7 @@ const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
 const DETAIL_WIDTH: float = 320.0
 const COMPACT_DETAIL_WIDTH: float = 370.0
 const COMPACT_LAYOUT_WIDTH: float = 1300.0
-const LINK_NODE_CLEARANCE: float = 8.0
-const LINK_ENDPOINT_EXPOSURE: float = 10.0
-const LINK_CHANNEL_SPACING: float = 10.0
 const LINK_BRIDGE_HALF_GAP: float = 10.0
-const LINK_TARGET_STUB_OFFSETS: Dictionary = {
-	"quick_wits>curators_patience": -12.0,
-}
-const LINK_SOURCE_STUB_OFFSETS: Dictionary = {
-	# Leave the root row before the enlarged Salvager face begins.
-	"discerning_eye>true_bearing": -12.0,
-}
-const LINK_CHANNEL_NUDGES: Dictionary = {
-	# The larger medallions move both routes onto x=440 unless this long link
-	# claims the adjacent clear channel. Keeping separate rails preserves topology.
-	"quick_wits>curators_patience": 4.0,
-}
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -54,6 +40,7 @@ const BRANCH_COLORS: Dictionary = {
 static var _shared_empty_node_style: StyleBoxEmpty = null
 static var _shared_static_links: Array[Dictionary]
 static var _shared_bridge_records: Array[Dictionary]
+static var _shared_link_fit_scale: float = -1.0
 
 class SkillLinkLayer:
 	extends Control
@@ -938,10 +925,16 @@ func _layout_graph_canvas() -> void:
 	var available_size: Vector2 = _graph_viewport.size
 	if available_size.x <= 1.0 or available_size.y <= 1.0:
 		return
+	var previous_scale: float = _graph_fit_scale
 	_graph_fit_scale = minf(1.0, minf(available_size.x / GRAPH_SIZE.x, available_size.y / GRAPH_SIZE.y))
 	var scaled_size: Vector2 = GRAPH_SIZE * _graph_fit_scale
 	_graph_canvas.scale = Vector2(_graph_fit_scale, _graph_fit_scale)
 	_graph_canvas.position = (available_size - scaled_size) * 0.5
+	# The 6px gutter spacing is measured in native viewport pixels. Rebuild
+	# routes when the graph fit changes; node layout and styling stay fixed.
+	if not is_equal_approx(previous_scale, _graph_fit_scale) and not _static_links.is_empty():
+		_static_links.clear()
+		_refresh_links()
 
 func _refresh_responsive_layout() -> void:
 	var compact: bool = size.x < COMPACT_LAYOUT_WIDTH
@@ -1201,12 +1194,13 @@ func _refresh_nodes() -> void:
 
 func _rebuild_link_geometry() -> void:
 	var started_usec: int = Time.get_ticks_usec()
-	if not _shared_static_links.is_empty():
+	if not _shared_static_links.is_empty() and is_equal_approx(_shared_link_fit_scale, _graph_fit_scale):
 		_static_links.assign(_shared_static_links)
 		_bridge_records.assign(_shared_bridge_records)
 		_link_geometry_rebuild_count += 1
 		_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 		return
+	var routes: Dictionary = LinkRouting.new(self, _graph_fit_scale).gutter_routes()
 	var links: Array[Dictionary]
 	for skill_id: String in SkillTreeLibrary.visible_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
@@ -1215,13 +1209,14 @@ func _rebuild_link_geometry() -> void:
 				"from_id": prerequisite_id,
 				"to_id": skill_id,
 				"sort_key": sort_key,
-				"points": _link_points(prerequisite_id, skill_id),
+				"points": routes[sort_key],
 				"bridge_gaps": [],
 			})
 	_bridge_records = _annotate_connection_bridges(links)
 	_static_links = links
 	_shared_static_links.assign(_static_links)
 	_shared_bridge_records.assign(_bridge_records)
+	_shared_link_fit_scale = _graph_fit_scale
 	_link_geometry_rebuild_count += 1
 	_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 
@@ -1748,37 +1743,6 @@ func _point_is_on_axis_segment(point: Vector2, start: Vector2, finish: Vector2) 
 		and point.y <= maxf(start.y, finish.y) + EPSILON
 	)
 
-func _link_points(source_id: String, target_id: String) -> PackedVector2Array:
-	var source_port: Vector2 = _output_port(source_id, target_id)
-	var target_port: Vector2 = _input_port(target_id, source_id)
-	var output_lane: int = _output_lane_index(source_id, target_id)
-	var input_lane: int = _input_lane_index(target_id, source_id)
-	var source_stub := Vector2(
-		source_port.x,
-		_row_visual_edge(source_id, true) + LINK_ENDPOINT_EXPOSURE + float(maxi(0, output_lane)) * LINK_CHANNEL_SPACING
-	)
-	var target_stub := Vector2(
-		target_port.x,
-		_row_visual_edge(target_id, false) - LINK_ENDPOINT_EXPOSURE - float(maxi(0, input_lane)) * LINK_CHANNEL_SPACING
-	)
-	var link_key: String = "%s>%s" % [source_id, target_id]
-	source_stub.y += float(LINK_SOURCE_STUB_OFFSETS.get(link_key, 0.0))
-	target_stub.y += float(LINK_TARGET_STUB_OFFSETS.get(link_key, 0.0))
-	if source_stub.y > target_stub.y:
-		var midpoint_y: float = (source_port.y + target_port.y) * 0.5
-		source_stub.y = midpoint_y
-		target_stub.y = midpoint_y
-	var channel_x: float = _best_route_channel_x(source_id, target_id, source_stub, target_stub)
-	channel_x += float(LINK_CHANNEL_NUDGES.get(link_key, 0.0))
-	return _simplified_points(PackedVector2Array([
-		source_port,
-		source_stub,
-		Vector2(channel_x, source_stub.y),
-		Vector2(channel_x, target_stub.y),
-		target_stub,
-		target_port,
-	]))
-
 func _row_visual_edge(skill_id: String, bottom: bool) -> float:
 	var row_y: float = _node_center(skill_id).y
 	var edge: float = _node_visual_rect(skill_id).end.y if bottom else _node_visual_rect(skill_id).position.y
@@ -1802,16 +1766,6 @@ func _output_port(source_id: String, target_id: String) -> Vector2:
 	var index: int = dependents.find(target_id)
 	var offset_x: float = _distributed_port_offset(index, dependents.size(), 14.0)
 	return _node_boundary_port(source_id, offset_x, true)
-
-func _input_lane_index(target_id: String, source_id: String) -> int:
-	var prerequisites: Array[String] = SkillTreeLibrary.prerequisites(target_id)
-	_sort_ids_by_visual_x(prerequisites)
-	return prerequisites.find(source_id)
-
-func _output_lane_index(source_id: String, target_id: String) -> int:
-	var dependents: Array[String] = _direct_dependent_ids(source_id)
-	_sort_ids_by_visual_x(dependents)
-	return dependents.find(target_id)
 
 func _sort_ids_by_visual_x(skill_ids: Array[String]) -> void:
 	skill_ids.sort_custom(func(left: String, right: String) -> bool:
@@ -1837,56 +1791,6 @@ func _node_boundary_port(skill_id: String, offset_x: float, bottom: bool) -> Vec
 		_:
 			vertical_extent = radius
 	return center + Vector2(offset_x, vertical_extent if bottom else -vertical_extent)
-
-func _best_route_channel_x(source_id: String, target_id: String, source_stub: Vector2, target_stub: Vector2) -> float:
-	var preferred_x: float = (source_stub.x + target_stub.x) * 0.5
-	var obstacle_ranges: Array[Vector2] = _vertical_route_obstacle_ranges(source_stub.y, target_stub.y, source_id, target_id)
-	# The original score increases away from the midpoint. On its exact 4px
-	# lattice, the best clear point is next to the midpoint or a blocked interval
-	# edge. Keep ascending evaluation and strict score comparison for identical
-	# ties, including fully blocked graphs' original midpoint fallback.
-	var last_index: int = floori((GRAPH_SIZE.x - 24.0) / 4.0)
-	var candidates: Array[int]
-	for index: int in [0, last_index, floori((preferred_x - 12.0) / 4.0), ceili((preferred_x - 12.0) / 4.0)]:
-		if index >= 0 and index <= last_index and not candidates.has(index): candidates.append(index)
-	for obstacle: Vector2 in obstacle_ranges:
-		for index: int in [ceili((obstacle.x - 12.0) / 4.0) - 1, floori((obstacle.y - 12.0) / 4.0) + 1]:
-			if index >= 0 and index <= last_index and not candidates.has(index): candidates.append(index)
-	candidates.sort()
-	var best_x: float = preferred_x
-	var best_score: float = INF
-	for index: int in candidates:
-		var candidate_x: float = 12.0 + float(index) * 4.0
-		if _route_channel_is_clear(candidate_x, obstacle_ranges):
-			var score: float = absf(candidate_x - preferred_x) + 0.18 * (absf(candidate_x - source_stub.x) + absf(candidate_x - target_stub.x))
-			if score < best_score:
-				best_score = score
-				best_x = candidate_x
-	return best_x
-
-func _vertical_route_obstacle_ranges(
-	start_y: float,
-	end_y: float,
-	source_id: String,
-	target_id: String
-) -> Array[Vector2]:
-	var result: Array[Vector2]
-	var segment_start: float = minf(start_y, end_y)
-	var segment_end: float = maxf(start_y, end_y)
-	for skill_id: String in SkillTreeLibrary.visible_ids():
-		if skill_id in [source_id, target_id]:
-			continue
-		var obstacle: Rect2 = _node_visual_rect(skill_id).grow(LINK_NODE_CLEARANCE)
-		if segment_start > obstacle.end.y or segment_end < obstacle.position.y:
-			continue
-		result.append(Vector2(obstacle.position.x, obstacle.end.x))
-	return result
-
-func _route_channel_is_clear(x: float, obstacle_ranges: Array[Vector2]) -> bool:
-	for obstacle_range: Vector2 in obstacle_ranges:
-		if x >= obstacle_range.x and x <= obstacle_range.y:
-			return false
-	return true
 
 func _simplified_points(points: PackedVector2Array) -> PackedVector2Array:
 	var result := PackedVector2Array()

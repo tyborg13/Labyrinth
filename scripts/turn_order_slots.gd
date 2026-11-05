@@ -13,6 +13,8 @@ static func controller_controls(scene: Node) -> Array[Control]:
 	var result: Array[Control]
 	for slot: Control in scene._turn_order_bar.get_children():
 		if slot.is_visible_in_tree() and not slot.tooltip_text.is_empty(): result.append(slot)
+	var details: Control = scene._enemy_intent_toggle_button
+	if details != null and details.is_visible_in_tree() and not details.disabled: result.append(details)
 	return result
 
 # Reconcile in place instead of rebuilding all six portrait subtrees whenever
@@ -55,7 +57,7 @@ static func _shape(scene: Node, entry: Dictionary) -> Array:
 		entry.get("late_relic_id", ""), entry.has("hp") and entry.has("max_hp"), scene._turn_order_is_card_preview_projection(entry), entry.get("petrified", false), scene._reduced_motion_enabled(), scene._turn_order_portrait_path(entry)]
 
 static func _inputs(scene: Node, entry: Dictionary, index: int) -> Array:
-	return [entry, index, scene._reduced_motion_enabled(), scene._turn_order_relative_time(entry), scene._turn_order_portrait_path(entry)]
+	return [entry, index, scene._reduced_motion_enabled(), scene._turn_order_relative_time(entry), scene._turn_order_portrait_path(entry), scene._turn_order_slot_size(index, bool(entry.get("active", false)))]
 
 static func _part(parts: Dictionary, key: String, factory: Callable) -> Node:
 	if not parts.has(key): parts[key] = factory.call()
@@ -289,4 +291,55 @@ static func _update_beat(scene: Node, entry: Dictionary, index: int, frame: Cont
 	var numeral: Label = scene._turn_order_number_badge(badge_text, entry, false, slot_size, parts.get("numeral"))
 	parts["numeral"] = numeral
 	_attach(frame, numeral)
+	return frame
+
+# Reuse the exact portrait masks, brush family, health-free frame and numeral.
+# No separate chip and no invented overflow art or wording.
+const OVERFLOW_PORTRAIT_OFFSET: Vector2 = preload("res://scripts/turn_order_layout.gd").OVERFLOW_PORTRAIT_OFFSET
+
+static func overflow(scene: Node, entries: Array[Dictionary], index: int) -> Control:
+	var representative: Dictionary = entries[0].duplicate(true)
+	representative.erase("hp")
+	representative.erase("max_hp")
+	representative.erase("projected_time_delta")
+	representative.erase("projected_card_name")
+	representative.erase("stagger_preview")
+	representative.erase("petrified")
+	representative.erase("late_relic_id")
+	representative["projected"] = false
+	representative["active"] = false
+	var frame: Control = update(scene, representative, index)
+	frame.name = "TurnOrderOverflowEntry"
+	frame.position = scene._turn_order_slot_position(index)
+	frame.set_meta("turn_order_overflow_count", entries.size())
+	frame.remove_meta("turn_order_actor_key")
+	# The aggregate discloses scheduled turns through its tooltip. It is not a
+	# hover target for whichever actor happened to supply its front portrait.
+	for connection: Dictionary in frame.mouse_entered.get_connections(): frame.mouse_entered.disconnect(connection.callable)
+	for connection: Dictionary in frame.mouse_exited.get_connections(): frame.mouse_exited.disconnect(connection.callable)
+	frame.tooltip_text = scene._turn_order_overflow_tooltip(entries)
+	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
+	var numeral: Label = frame.get_meta("perf03_retained_parts")["numeral"]
+	numeral.text = "+%d" % entries.size()
+	frame.set_meta("turn_order_badge_text", numeral.text)
+	# Up to two offset portraits sit behind the front portrait. Reuse the
+	# rail's inactive tint once more to dim each successive background layer.
+	for layer: int in range(1, mini(3, entries.size())):
+		var mask := TurnOrderInk.PortraitMask.new()
+		mask.name = "OverflowPortraitEdge%d" % layer
+		mask.skew = TurnOrderInk.SKEW_RATIO
+		mask.size = frame.size
+		mask.position = OVERFLOW_PORTRAIT_OFFSET * layer
+		var portrait := TextureRect.new()
+		portrait.texture = AssetLoader.load_texture(scene._turn_order_portrait_path(entries[layer]))
+		var inactive_tint: Color = scene._turn_order_portrait_modulate(representative, false)
+		portrait.modulate = scene._turn_order_portrait_modulate(entries[layer], false)
+		for tint_layer: int in range(layer): portrait.modulate *= inactive_tint
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.size = frame.size
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mask.add_child(portrait)
+		frame.add_child(mask)
+		frame.move_child(mask, 0)
 	return frame

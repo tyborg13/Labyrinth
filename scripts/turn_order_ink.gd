@@ -68,14 +68,14 @@ static func delta_text(delta: int) -> String:
 	return "±0" if delta == 0 else "+%d" % delta
 
 # Reserve the delta first: Label's usual end ellipsis would hide the decision.
-static func projection_text(entry: Dictionary, font: Font = null, width: float = INF) -> String:
+static func projection_text(entry: Dictionary, font: Font = null, width: float = INF, font_size: int = 9) -> String:
 	var delta: String = delta_text(int(entry.get("projected_time_delta", 0)))
 	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 	if card_name.is_empty():
 		return "%s Time" % delta
 	if font != null:
 		var original: String = card_name
-		while not card_name.is_empty() and font.get_string_size("%s %s" % [card_name, delta], HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x > width:
+		while not card_name.is_empty() and font.get_string_size("%s %s" % [card_name, delta], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > width:
 			original = original.left(maxi(0, original.length() - 1)).strip_edges()
 			card_name = original + "…" if not original.is_empty() else ""
 	return delta if card_name.is_empty() else "%s %s" % [card_name, delta]

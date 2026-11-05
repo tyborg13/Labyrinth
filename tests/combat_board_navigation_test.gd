@@ -3,6 +3,12 @@ extends SceneTree
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
+# Same wide, height-limited fit as the 1920x1080 navigation scene probe.
+const EDGE_ZOOM_TEST_BOARD_SIZE: Vector2 = Vector2(1920.0, 1080.0)
+const EDGE_ZOOM_TEST_FIT_RECT: Rect2 = Rect2(36.0, 62.0, 1848.0, 676.0)
+const EDGE_ZOOM_TEST_STEPS: Array = [1.30, 1.40, 1.0, 0.80]
+const ZOOM_AXIS_FLOAT_TOLERANCE: float = 0.01
+
 var _errors: Array[String] = []
 var _click_count: int = 0
 var _tile_drag_count: int = 0
@@ -29,6 +35,7 @@ func _initialize() -> void:
 	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_backdrop_visibility_invalidates_static_layout(board, state)
 	_test_bounded_zoom_and_hit_testing(board)
+	_test_wide_board_edge_zoom_anchor(board, state)
 	_test_controller_hand_focus_preserves_board_framing(board, state)
 	_test_pickup_zoom_geometry_matches_actor(board)
 	_test_wheel_zoom(board)
@@ -156,7 +163,7 @@ func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	var snapshot: Dictionary = board.call("navigation_snapshot")
 	_expect(is_equal_approx(float(snapshot.get("zoom", 0.0)), 1.30), "Explicit zoom should use the requested in-range scale")
 	var anchored_position: Vector2 = board.call("world_position_for_tile", focus_tile)
-	_expect(anchored_position.distance_to(focus_position) <= 1.0, "Zoom should keep the focused tile anchored beneath the pointer")
+	expect_zoom_axes(board, focus_position, anchored_position, "bounded zoom=1.30", _expect)
 	_expect(board.call("_tile_at_point", anchored_position) == focus_tile, "Zoomed board hit testing should still resolve the visible tile")
 
 	board.call("set_navigation_zoom", 99.0, focus_position)
@@ -173,6 +180,61 @@ func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	_expect(pan.x <= limits.end.x + 0.01 and pan.x >= limits.position.x - 0.01, "Horizontal panning should stay inside its board-aware bounds")
 	_expect(pan.y <= limits.end.y + 0.01 and pan.y >= limits.position.y - 0.01, "Vertical panning should stay inside its board-aware bounds")
 	board.call("reset_navigation")
+
+func _test_wide_board_edge_zoom_anchor(board: Control, original_state: Dictionary) -> void:
+	var original_size: Vector2 = board.size
+	var original_viewport_size: Vector2i = root.size
+	root.size = Vector2i(EDGE_ZOOM_TEST_BOARD_SIZE)
+	board.size = EDGE_ZOOM_TEST_BOARD_SIZE
+	var state: Dictionary = original_state.duplicate(true)
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array = []
+		for x: int in range(13):
+			row.append("wall" if x == 0 or x == 12 or y == 0 or y == 8 else "stone")
+		grid.append(row)
+	state["grid"] = grid
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {
+		"board_framing_mode": "combat", "board_fit_rect": EDGE_ZOOM_TEST_FIT_RECT,
+	})
+	for focus_tile: Vector2i in [Vector2i(10, 2), Vector2i(2, 6)]:
+		board.call("reset_navigation")
+		board.call("set_controller_focus_tile", focus_tile)
+		for zoom: float in EDGE_ZOOM_TEST_STEPS:
+			var focus_before: Vector2 = board.call("world_position_for_tile", focus_tile)
+			board.call("set_navigation_zoom", zoom, focus_before)
+			var focus_after: Vector2 = board.call("world_position_for_tile", focus_tile)
+			expect_zoom_axes(board, focus_before, focus_after, "edge tile=%s zoom=%.2f" % [focus_tile, zoom], _expect)
+			_expect(board.call("_tile_at_point", focus_after) == focus_tile, "Anchored edge tile should retain accurate hit testing")
+	board.call("set_controller_focus_tile", Vector2i(-1, -1))
+	root.size = original_viewport_size
+	board.size = original_size
+	board.set_combat_state(original_state)
+	board.call("reset_navigation")
+
+# Shared with the real-renderer probe: fitting axes retain the centred framing,
+# while overflowing axes preserve the focused tile's screen point on each step.
+static func expect_zoom_axes(board: Control, focus_before: Vector2, focus_after: Vector2, case_label: String, expect: Callable) -> void:
+	var snapshot: Dictionary = board.call("navigation_snapshot")
+	var content: Rect2 = snapshot.get("content_rect", Rect2())
+	var available: Rect2 = board.call("_board_layout_available_rect")
+	var screen_point: Vector2 = board.get_global_transform_with_canvas() * focus_after
+	var screen_rect: Rect2 = board.get_viewport_rect()
+	var drift: Vector2 = (focus_after - focus_before).abs()
+	var axis_details: Array[String]
+	for axis: int in range(2):
+		var axis_name: String = "x" if axis == 0 else "y"
+		var overflowing: bool = content.size[axis] > available.size[axis]
+		var overscroll: float = minf(CombatBoardView.BOARD_PAN_OVERSCROLL_MAX, available.size[axis] * CombatBoardView.BOARD_PAN_OVERSCROLL_FRACTION)
+		var center_offset: float = absf(content.get_center()[axis] - available.get_center()[axis])
+		var on_screen: bool = screen_point[axis] >= screen_rect.position[axis] and screen_point[axis] < screen_rect.end[axis]
+		if overflowing:
+			expect.call(drift[axis] <= 1.0, "%s: overflowing %s axis should preserve focus within one pixel (drift %.6f px)" % [case_label, axis_name, drift[axis]])
+		else:
+			expect.call(center_offset <= overscroll + ZOOM_AXIS_FLOAT_TOLERANCE, "%s: fitting %s axis should stay centred within overscroll (offset %.6f, bound %.6f px)" % [case_label, axis_name, center_offset, overscroll])
+			expect.call(on_screen, "%s: focused tile should stay on screen on fitting %s axis" % [case_label, axis_name])
+		axis_details.append("%s=%s drift=%.6f old_1px=%s centre=%.6f/%.6f on_screen=%s" % [axis_name, "overflowing" if overflowing else "fitting", drift[axis], "PASS" if drift[axis] <= 1.0 else "FAIL", center_offset, overscroll, on_screen])
+	print("ZOOM AXIS CASE %s: old_1px=%s; %s" % [case_label, "PASS" if focus_after.distance_to(focus_before) <= 1.0 else "FAIL", "; ".join(axis_details)])
 
 func _test_controller_hand_focus_preserves_board_framing(board: Control, state: Dictionary) -> void:
 	var focused_presentation := {

@@ -56,7 +56,7 @@ func _coverage() -> void:
 		for row: Array in ActionIcons.rows_for_card(card):
 			for token: Dictionary in row:
 				var key: String = str(token.get("icon", ""))
-				if key == "aoe_pattern": key = "aoe"
+				if key == "aoe_pattern": continue # Geometry has no keyword identity.
 				if not key.is_empty():
 					_expect(not _raw_definition(key).strip_edges().is_empty(), card_id + " rendered token definition: " + key)
 				_check_text(str(token.get("tooltip", "")))

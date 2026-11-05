@@ -384,7 +384,7 @@ func _assert_hud_safe(instance: Node) -> void:
 	if play_meter != null and play_meter.visible:
 		var dock_gap: float = play_meter.get_global_rect().position.y - hud.get_global_rect().end.y
 		if dock_gap < 8.0 or dock_gap > 20.0:
-			_fail("Combat objective HUD should sit immediately above the Pass/card-play dock")
+			_fail("Combat objective HUD should sit immediately above the card-play resource dock")
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 	if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0 and hud.get_global_rect().intersects(board_bounds):
 		_fail("Combat objective HUD should remain in the side utility lane instead of covering the board")

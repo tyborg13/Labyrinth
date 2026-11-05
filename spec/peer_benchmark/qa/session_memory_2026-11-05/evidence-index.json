@@ -1,0 +1,143 @@
+{
+  "raw_population_files": [
+    {
+      "phase": "before",
+      "boundary": "initial-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/initial-menu-objects.json",
+      "sha256": "0c48a2c5675debc77163b87301552eb8c3b9baa9ad6b5b84fd5c5c793fd699e8"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-1-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-1-end-objects.json",
+      "sha256": "ca217f68a171163a58e87fdf0a36fb6867166d28e71a741310062aa20614a81a"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-1-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-1-menu-objects.json",
+      "sha256": "dc16c0e6b2529e715851b2e872813bda21b01569351c6e8251f88738ac6b7adf"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-2-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-2-end-objects.json",
+      "sha256": "35c532a45cfb0f9d003d11083e040d7b8432255a702e10a7710c076751064876"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-2-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-2-menu-objects.json",
+      "sha256": "9b7878f8130f0605eaa905c302357747992ba6ab07e0619ee3f2bb0eb23d5b7b"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-3-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-3-end-objects.json",
+      "sha256": "d9678f967ff0a5806571aef740b23d71892bff2ca952a10efb06ef60452e3fdd"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-3-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-3-menu-objects.json",
+      "sha256": "f8cb2f6d7a2a009a8e34adc646239e35d53005198d45c07ec14d6f3f868bd297"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-4-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-4-end-objects.json",
+      "sha256": "e0886ca62201238d4acc6c7a28e003f6fef6e9a43e8352f12298664b326d71ac"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-4-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-4-menu-objects.json",
+      "sha256": "8071c0151000e5ee19bca2fc27cbd4cacd095299932e54f18834a10d5b142939"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-5-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-5-end-objects.json",
+      "sha256": "eb7a1d5008395b994fad7182df8691c5986392cef13895f9a7526ecf0116750f"
+    },
+    {
+      "phase": "before",
+      "boundary": "run-5-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/before/run-5-menu-objects.json",
+      "sha256": "1fe295cf99fb6fa4e827bea3cd45e39fce3aac332fb0e7a7457fbf5255b83ef5"
+    },
+    {
+      "phase": "after",
+      "boundary": "initial-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/initial-menu-objects.json",
+      "sha256": "657676ea465b6edbe5f7abf7ea8fe2e6dd5f3ef1b60950bbe9cb4f40b90a7cf7"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-1-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-1-end-objects.json",
+      "sha256": "fe937010c248ea63054aea61fae7259a00e46b1349bf2e67f749ccfd37967eb0"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-1-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-1-menu-objects.json",
+      "sha256": "2d84bab998c263bfd4ebccb656da55a54173676895c83e95011a75d2470db430"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-2-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-2-end-objects.json",
+      "sha256": "fa0347fb3d30e6d7f8737ccc556a72e9d78b4290905c1d62007958b199ed22a2"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-2-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-2-menu-objects.json",
+      "sha256": "ee34e18f39de2024464489a854a520d74acfaa39569fde909d0e7fc455345a9b"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-3-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-3-end-objects.json",
+      "sha256": "ca58984d6c74f6b5f85953055f1a9b991ab0b3f3ef969b23c0509ea2bbc32ed1"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-3-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-3-menu-objects.json",
+      "sha256": "bc5c67f7b8f904a88db719f294312c702ad7c49a67b7a80c175599f8c803fa7b"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-4-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-4-end-objects.json",
+      "sha256": "04c9438db7610d541a78a9aea5f2376d5e38c772ecb68af7789b2fd2af70fff5"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-4-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-4-menu-objects.json",
+      "sha256": "20e4e31ab4384b6c73cb177f45b994b62d28699fa4645b65fc902d0664875a83"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-5-end",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-5-end-objects.json",
+      "sha256": "08d9dbfd1dd2852c1d7e49acfad123e12e45fa390981ead09ac7898401d91aac"
+    },
+    {
+      "phase": "after",
+      "boundary": "run-5-menu",
+      "objects": "/private/tmp/labyrinth_codex/qa-53/after-clean/run-5-menu-objects.json",
+      "sha256": "54f1b3a89b72547b669ff31d0111ebeefe844be28b9b21cd5f495beba19723c0"
+    }
+  ],
+  "raw_logs": [
+    "/private/tmp/labyrinth_codex/qa-53/before/engine.log",
+    "/private/tmp/labyrinth_codex/qa-53/after/engine.log",
+    "/private/tmp/labyrinth_codex/qa-53/after-clean/engine.log"
+  ],
+  "tools": "/private/tmp/labyrinth_codex/qa-53/tools",
+  "native_captures": []
+}

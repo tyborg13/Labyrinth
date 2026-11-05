@@ -22,6 +22,8 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
 const CardTile = preload("res://scripts/chronicle_card_tile.gd")
 const PreviewBuilders = preload("res://scripts/item_preview_builders.gd")
+const ScreenCrossfade = preload("res://scripts/screen_crossfade.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const PANEL_SIZE := Vector2(1800, 860)
 const ROW_HEIGHT: float = 68.0
 const DETAIL_WIDTH: float = 1142.0
@@ -106,6 +108,7 @@ var _list: ScrollContainer
 var _rows: VBoxContainer
 var _detail_scroll: ScrollContainer
 var _detail: VBoxContainer
+var _empty: Label
 var _chips: HBoxContainer
 var _close: Button
 var _focus_tooltip: Control
@@ -172,6 +175,13 @@ func _ready() -> void:
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail.add_theme_constant_override("separation", 0)
 	_detail_scroll.add_child(_detail)
+	_empty = _label("Your runs will be written here.", 21, Palette.TEXT_2)
+	_empty.name = "ChronicleEmpty"
+	_empty.position = _list.position
+	_empty.size = _detail_scroll.position + _detail_scroll.size - _list.position
+	_empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_panel.add_child(_empty)
 	_detail.resized.connect(_refresh_spell_tiles)
 	_detail_scroll.get_v_scroll_bar().value_changed.connect(func(_value: float) -> void: _position_focus_tooltip())
 	_prompt_bar = PromptBar.new()
@@ -203,6 +213,9 @@ func _draw_frame() -> void:
 func open(profile: Dictionary = {}, log_event: bool = true) -> void:
 	var data: Dictionary = Store.load_data() if profile.is_empty() else profile
 	records = Store.chronicle_records(data)
+	# Both menu and recap enter here; capture their last drawn frame before showing.
+	if not visible:
+		ScreenCrossfade.play(self, 0.12 if Settings.applied_reduced_motion_enabled() else 0.20)
 	visible = true
 	_clear(_rows)
 	_clear(_chips)
@@ -233,14 +246,11 @@ func open(profile: Dictionary = {}, log_event: bool = true) -> void:
 	for index: int in range(records.size()):
 		_add_row(index)
 	selected_index = -1
+	_empty.visible = records.is_empty()
+	_list.visible = not records.is_empty()
+	_detail_scroll.visible = not records.is_empty()
 	if records.is_empty():
-		var empty := _label("No descents yet.", 18, Palette.TEXT_3)
-		empty.custom_minimum_size = _list.size
-		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_rows.add_child(empty)
 		_clear(_detail)
-		_detail.add_child(_label("Your first descent will be written here.", 21, Palette.TEXT_2))
 		_close.grab_focus()
 	else:
 		select_record(0, true)
@@ -250,6 +260,7 @@ func open(profile: Dictionary = {}, log_event: bool = true) -> void:
 	_layout()
 
 func close() -> void:
+	ScreenCrossfade.play(self, 0.12 if Settings.applied_reduced_motion_enabled() else 0.20)
 	_clear_focus_tooltip()
 	_play_page_sound(RunSfx.MENU_CLOSE_ID)
 	visible = false

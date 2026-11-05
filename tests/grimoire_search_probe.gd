@@ -11,8 +11,15 @@ const OUTPUT_DIR: String = "user://grimoire_search_probe"
 var _failures: Array[String] = []
 var _capture_viewport: SubViewport
 
+class KeyboardRouter extends "res://scripts/input_router.gd":
+	# Mock singleton tests must not initialize the host's real Steam Input API.
+	func _family_from_steam_input(_device_id: int) -> String:
+		return FAMILY_STEAM_DECK
+
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if DisplayServer.get_name() == "headless":
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	ProgressionStore.set_storage_path("user://labyrinth_progression_grimoire_search_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_grimoire_search_probe.save")
 	ProgressionStore.clear_saved_run()
@@ -76,6 +83,7 @@ func _run_probe() -> void:
 	_expect(input != null and input.is_visible_in_tree(), "Grimoire should expose a visible search field")
 	_expect(dialog != null and _inside_viewport(dialog), "Grimoire dialog should remain inside the 1920x1080 viewport")
 	_expect(_capture_viewport.gui_get_focus_owner() == input, "Opening the Grimoire should focus search for immediate typing")
+	await _verify_steam_keyboard(instance, input)
 	instance.call("_on_grimoire_entry_pressed", "combat:fatigue")
 	await _settle()
 	var browse_scroll: ScrollContainer = instance.get("_grimoire_entry_scroll") as ScrollContainer
@@ -155,6 +163,86 @@ func _set_query(instance: Node, input: LineEdit, query: String) -> void:
 	input.set_block_signals(false)
 	instance.call("_on_grimoire_search_text_changed", query)
 	await _settle()
+
+func _verify_steam_keyboard(instance: Node, field: LineEdit) -> void:
+	var service: Node = root.get_node("SteamService")
+	var original_router: Node = root.get_node("InputRouter")
+	var router_processing: bool = original_router.is_processing_input()
+	var modality: String = str(original_router.call("modality"))
+	original_router.set_process_input(false)
+	original_router.name = "KeyboardProofOriginalRouter"
+	var router := KeyboardRouter.new()
+	router.name = "InputRouter"
+	root.add_child(router)
+	var properties: Array[String] = ["_steam", "_initialized", "_logged_on", "_steam_id", "_floating_keyboard_open"]
+	var original: Dictionary = {}
+	for property: String in properties: original[property] = service.get(property)
+	var processing: bool = service.is_processing()
+	var fake := preload("res://tests/suites/steam_service_suite.gd").FakeSteam.new()
+	service.set_process(false)
+	service.set("_steam", fake)
+	service.set("_initialized", true)
+	service.set("_logged_on", true)
+	service.set("_steam_id", fake.steam_id)
+	service.set("_floating_keyboard_open", false)
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	field.release_focus()
+	field.grab_focus()
+	_expect(fake.keyboard_calls.is_empty(), "Mouse/keyboard focus never opens Steam's floating keyboard")
+	field.release_focus()
+	router.call("set_forced_state_for_test", "controller", "steam_deck")
+	service.set("_initialized", false)
+	field.grab_focus()
+	_expect(fake.keyboard_calls.is_empty(), "Controller focus without initialized Steam is a no-op")
+	field.release_focus()
+	service.set("_initialized", true)
+	fake.steam_running = false
+	field.grab_focus()
+	_expect(fake.keyboard_calls.is_empty(), "Controller focus with a stopped Steam client is a no-op")
+	field.release_focus()
+	fake.steam_running = true
+	field.grab_focus()
+	_expect(fake.keyboard_calls.size() == 1, "Controller focus opens the floating keyboard exactly once")
+	if not fake.keyboard_calls.is_empty():
+		var call: Dictionary = fake.keyboard_calls.back()
+		var transform: Transform2D = field.get_viewport().get_final_transform() * field.get_global_transform_with_canvas()
+		var rect: Rect2 = transform * Rect2(Vector2.ZERO, field.size)
+		_expect(int(call["mode"]) == 0 and call["rect"] == Rect2i(rect.position.floor(), rect.end.ceil() - rect.position.floor()), "Floating keyboard uses single-line mode and the actual field in window pixels")
+	var confirm := InputEventJoypadButton.new()
+	confirm.button_index = JOY_BUTTON_A
+	confirm.pressed = true
+	_capture_viewport.push_input(confirm, true)
+	_expect(fake.keyboard_calls.size() == 1, "Confirm while the floating keyboard is open does not reopen it")
+	fake.floating_gamepad_text_input_dismissed.emit()
+	_capture_viewport.push_input(confirm, true)
+	_expect(fake.keyboard_calls.size() == 2, "Controller confirm reopens a dismissed keyboard on the focused field")
+	# The floating API sends OS keys; exercise actual viewport input rather than
+	# setting LineEdit.text or invoking its text_changed handler.
+	for character: String in "reshuffle":
+		var key := InputEventKey.new()
+		key.pressed = true
+		key.unicode = character.unicode_at(0)
+		_capture_viewport.push_input(key, true)
+	await _settle()
+	_expect(field.text == "reshuffle" and str(instance.get("_grimoire_search_query")) == "reshuffle", "Floating keyboard keystrokes update the field and live search as typed text")
+	for index: int in range(64):
+		var key := InputEventKey.new()
+		key.pressed = true
+		key.unicode = "x".unicode_at(0)
+		_capture_viewport.push_input(key, true)
+	_expect(field.text.length() == 64 and field.max_length == 64, "Floating keyboard typing obeys the existing 64-character limit")
+	field.release_focus()
+	_expect(fake.keyboard_dismissals > 0, "Leaving the field dismisses its floating keyboard")
+	for property: String in properties: service.set(property, original[property])
+	service.set_process(processing)
+	router.free()
+	original_router.name = "InputRouter"
+	original_router.set_process_input(router_processing)
+	original_router.call("set_modality", modality)
+	fake.free()
+	await _set_query(instance, field, "")
+	field.grab_focus()
+	print("GRIMOIRE STEAM KEYBOARD: %s" % ("PASS" if _failures.is_empty() else "FAIL"))
 
 func _activate_focused_control() -> void:
 	var pressed := InputEventAction.new()

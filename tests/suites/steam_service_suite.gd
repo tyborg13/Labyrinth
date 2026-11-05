@@ -6,6 +6,7 @@ class FakeSteam:
 	extends Object
 	signal user_stats_received(game_id: int, result: int, user_id: int)
 	signal user_stats_stored(game_id: int, result: int)
+	signal floating_gamepad_text_input_dismissed
 
 	var logged_on: bool = true
 	var app_id: int = 4530510
@@ -18,6 +19,22 @@ class FakeSteam:
 	var request_current_stats_succeeds: bool = true
 	var auto_complete_stats_request: bool = true
 	var request_current_stats_calls: int = 0
+	var steam_running: bool = true
+	var keyboard_succeeds: bool = true
+	var keyboard_calls: Array[Dictionary]
+	var keyboard_dismissals: int = 0
+
+	func isSteamRunning() -> bool:
+		return steam_running
+
+	func showFloatingGamepadTextInput(mode: int, x: int, y: int, width: int, height: int) -> bool:
+		keyboard_calls.append({"mode": mode, "rect": Rect2i(x, y, width, height)})
+		return keyboard_succeeds
+
+	func dismissFloatingGamepadTextInput() -> bool:
+		keyboard_dismissals += 1
+		floating_gamepad_text_input_dismissed.emit()
+		return true
 
 	func loggedOn() -> bool:
 		return logged_on

@@ -1,7 +1,7 @@
 extends "res://tools/encounter_bot.gd"
 ## Measurement selection only. The policy file remains byte-identical to revision 6.
 const MeasurementEngine = preload("res://tools/encounter_measurement_engine.gd")
-const CommittedPolicy = preload("res://scripts/battlefield_rules/bot_policy.gd")
+const CommittedPolicy = preload("res://tools/bot_policy.gd")
 const MetricRepair = preload("res://tools/encounter_metric_repair.gd")
 const LastLightEngine = preload("res://tools/last_light_measurement_engine.gd")
 const HoarderObserver = preload("res://tools/hoarder_measurement_engine.gd")

@@ -1,0 +1,48 @@
+{
+  "shards": [
+    [
+      "test_program_suite_runner"
+    ],
+    [
+      "test_python_suite_runner_feedback"
+    ],
+    [
+      "test_approved_content_manifest"
+    ],
+    [
+      "test_card_heuristic_illusions_terrain",
+      "test_card_heuristic_keywords",
+      "test_card_heuristic_maneuver",
+      "test_card_heuristic_progression_context",
+      "test_card_heuristic_surfaces",
+      "test_card_heuristic_wave4_surfaces",
+      "test_card_panel_text",
+      "test_element_rule_contract",
+      "test_godot_sidecars",
+      "test_godot_task_runner",
+      "test_icon_identity_policy",
+      "test_python_suite_runner",
+      "test_relic_pt13_01",
+      "test_runner_cancellation",
+      "test_short_card_tooltips",
+      "test_text_budget"
+    ]
+  ],
+  "estimated_seconds": [
+    32.33861575,
+    22.1289385,
+    21.420996584,
+    17.319231205999994
+  ],
+  "selection": {
+    "selected_groups": [
+      "default"
+    ],
+    "reasons": {
+      "default": "no change filter; run everything"
+    },
+    "changed_since": null,
+    "changed_files": null,
+    "fallback": null
+  }
+}

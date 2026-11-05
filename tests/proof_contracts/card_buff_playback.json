@@ -1,0 +1,12 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*whetstone.png", "width": 1920, "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}]},
+    {"pattern": "*undertaker_stand.png", "width": 1920, "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}]},
+    {"pattern": "*hourglass_sand.png", "width": 1920, "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}]}
+  ]
+}

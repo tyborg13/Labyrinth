@@ -18,13 +18,14 @@ const Data = preload("res://scripts/game_data.gd")
 # Invisible fixture values and watchdogs; never applied to production runs.
 const FIXTURE_SEED: int = 410
 const SETTLE_FRAMES: int = 8
+const CLEANUP_CALLBACK_FRAMES: int = 1
 const WAIT_TIMEOUT_MSEC: int = 12000
 const BOUNDARY_EPSILON_SECONDS: float = 0.01
-const AUDIO_SETTLE_SECONDS: float = 1.0
 const FRAME_SECONDS: float = 1.0 / 60.0
 const FRAMING_EPSILON_PX: float = 0.1
 const COLOR_EPSILON: float = 0.0001
 const SCALE_EPSILON: float = 0.001
+static var _fixture_cache: Dictionary = {}
 
 class MoveObserver extends Run:
 	var move_calls: int = 0
@@ -33,6 +34,7 @@ class MoveObserver extends Run:
 		return super.move_to_room(state, target)
 
 static func prepare_storage() -> void:
+	_fixture_cache.clear()
 	Store.set_storage_path("user://section_transition_profile.json")
 	Store.set_run_storage_path("user://section_transition_run.save")
 	Settings.set_storage_path("user://section_transition_settings.json")
@@ -47,6 +49,13 @@ static func prepare_storage() -> void:
 	Store.clear_saved_run()
 
 static func fixture(section_index: int = 0, study: String = "reward") -> Dictionary:
+	# Recovery cases vary only their copies (run id, legacy fields and motion).
+	# Keep the expensive production-built boss result pristine between cases.
+	var key: String = "%d/%s" % [section_index, study]
+	if not _fixture_cache.has(key): _fixture_cache[key] = _fresh_fixture(section_index, study)
+	return _fixture_cache[key].duplicate(true)
+
+static func _fresh_fixture(section_index: int = 0, study: String = "reward") -> Dictionary:
 	var depth: int = (section_index + 1) * 4
 	var profile: Dictionary = Store.default_data()
 	profile[Tutorial.PROGRESSION_KEY] = {"version": Tutorial.VERSION, "status": "dismissed", "completed_steps": []}
@@ -59,8 +68,23 @@ static func fixture(section_index: int = 0, study: String = "reward") -> Diction
 static func settle(tree: SceneTree) -> void:
 	for frame: int in range(SETTLE_FRAMES): await tree.process_frame
 
-static func settle_audio(tree: SceneTree) -> void:
-	await tree.create_timer(AUDIO_SETTLE_SECONDS, true, false, true).timeout
+static func free_host(tree: SceneTree, host: Node) -> void:
+	host.queue_free()
+	await host.tree_exited
+	# Drain deferred callbacks before creating the next host/restoring globals.
+	for frame: int in range(CLEANUP_CALLBACK_FRAMES): await tree.process_frame
+
+static func settle_audio(tree: SceneTree, host: Node, starts_before: int) -> void:
+	# Arrival refreshes music through deferred/context-settled callbacks, not a
+	# one-second timer. Drain those actual callbacks before checking play counts.
+	# Keep the existing frame drain so duplicate requests queued by the handoff
+	# still execute and are caught by the unchanged exactly-once assertions.
+	var deadline: int = Time.get_ticks_msec() + WAIT_TIMEOUT_MSEC
+	while int(host.get("_section_test_music_starts")) <= starts_before or bool(host.get("_music_context_refresh_queued")) or tree.process_frame.is_connected(Callable(host, "_retry_music_after_context_settles")):
+		if Time.get_ticks_msec() >= deadline:
+			push_error("Timeout draining section-transition music callbacks")
+			return
+		await tree.process_frame
 	await settle(tree)
 
 static func install(tree: SceneTree, host: Node, state: Dictionary) -> void:
@@ -87,6 +111,7 @@ static func payout(state: Dictionary) -> Dictionary:
 	return {"hp": state["player_hp"], "embers": Run.new().held_embers(state), "relics": state["relics"].duplicate(), "shards": state["progression"]["moltshards"]}
 
 static func run(expect: Callable) -> void:
+	_fixture_cache.clear()
 	var probe := RichTextLabel.new()
 	probe.name = "PlaceholderProbe"
 	probe.add_text("TODO_DESIGN_LEGACY_REWARD_RULES")
@@ -137,6 +162,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
 		await _run_live_scoped(scope, tree, expect)
 	)
+	_fixture_cache.clear()
 
 static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	prepare_storage()
@@ -194,7 +220,7 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	transition.advance(0.31)
 	var map_backdrop: TextureRect = host.get("_large_map_view").call("transition_backdrop")
 	expect.call(transition.get("_painting").get_global_rect().is_equal_approx(map_backdrop.get_global_rect()) and transition.get("_painting").scale == Vector2.ONE and transition.get("_painting").modulate == Color(0.56, 0.54, 0.59), "The completion frame exactly matches map cover-fit framing, scale and brightness")
-	await settle_audio(tree)
+	await settle_audio(tree, host, starts_before)
 	expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After the map cross-fade and deferred callbacks there is exactly one arrival and one music playback start")
 	expect.call(not cursor.call("glyph_visibility_suppressed"), "Completion restores the cursor glyph")
 	expect.call(not tree.root.gui_disable_input and not host.get("_animation_lock"), "Map arrival releases input only after the cross-fade")
@@ -277,8 +303,7 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	var deadline: int = Time.get_ticks_msec() + WAIT_TIMEOUT_MSEC
 	while bool(host.call("_treasure_presentation_busy")) and Time.get_ticks_msec() < deadline: await tree.process_frame
 	expect.call(not bool(host.call("_treasure_presentation_busy")), "Timeout waiting for terminal treasure presentation")
-	host.queue_free()
-	await settle(tree)
+	await free_host(tree, host)
 
 # Advance the real scene one displayed frame at a time, including the exact
 # frame that persists/opens the destination and the frame that frees the overlay.
@@ -308,7 +333,7 @@ static func _frame_handoffs(tree: SceneTree, host: Node, claimed: Dictionary, ex
 		var scrim: ColorRect = host.get("_large_map_scrim")
 		var painting: TextureRect = host.get("_large_map_view").call("transition_backdrop")
 		expect.call(scrim.is_visible_in_tree() and scrim.modulate == Color.WHITE and painting.visible and scrim.get_parent() == host.get("ui_root") and scrim.mouse_behavior_recursive == Control.MOUSE_BEHAVIOR_INHERITED and scrim.focus_behavior_recursive == Control.FOCUS_BEHAVIOR_INHERITED, "Completion atomically returns the fully open map to its ordinary host")
-		await settle_audio(tree)
+		await settle_audio(tree, host, starts)
 		expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts == 1, "Frame-driven arrival starts planning music exactly once after all callbacks")
 		# Inspect the last cross-fade sample without freeing it yet, so exact
 		# image framing can be compared with the live map's cover-fit rectangle.
@@ -426,8 +451,7 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 			# Exercise the ordinary quit save, then discard/reload all scene state.
 			host.call("_persist_committed_boundary", "section_transition_test_quit")
 			var quit_save: Dictionary = Store.load_saved_run()
-			host.queue_free()
-			await settle(tree)
+			await free_host(tree, host)
 			host = Observer.host()
 			tree.root.add_child(host)
 			await settle(tree)
@@ -445,7 +469,7 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 			expect.call(transition.get("elapsed") == 0.0, "Retry starts from descent at zero")
 			transition.advance(Transition.arrival_at(reduced) + Transition.ARRIVAL_FADE_SECONDS + BOUNDARY_EPSILON_SECONDS)
 			if transition.get("active"): transition.advance(Transition.duration(reduced) - float(transition.get("elapsed")) + BOUNDARY_EPSILON_SECONDS)
-		await settle_audio(tree)
+		await settle_audio(tree, host, starts_before)
 		expect.call(int(host.get("_section_test_claim_calls")) == claim_calls_before, "Claimed-reward retry and resume bypass the claim transaction entirely")
 		expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After completion and deferred callbacks, recovery has exactly one arrival and music playback start")
 		expect.call(host.get("_run_state")["current_room"] == Graph.section(reward, 1)["entry"] and not Store.load_saved_run().has(Transition.CLAIMED_REWARD_KEY), "Successful retry saves Section II and removes recovery metadata")

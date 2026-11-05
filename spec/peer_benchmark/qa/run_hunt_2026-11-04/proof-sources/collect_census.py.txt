@@ -1,0 +1,69 @@
+"""Evaluate first section-0/5 censuses against the brief and production bounds."""
+from pathlib import Path
+import argparse,json
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-43')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-43')
+REPORT = PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-04'
+TREE_FACTOR = 1.25  # Brief requirement.
+REQUIRED_COMPLETE_REPLAYS = 2  # Brief requirement; incomplete attempts remain reported.
+
+def deltas(before,after):
+    return sorted([(key,after.get(key,0)-before.get(key,0)) for key in before.keys()|after.keys()],key=lambda item:(-item[1],item[0]))
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--executions',type=Path,default=EVIDENCE/'census-executions.json')
+    parser.add_argument('--result-prefix',default='node-census')
+    args=parser.parse_args()
+    results = []
+    for execution in json.loads(args.executions.read_text()):
+        command = execution.get('argv',[])
+        directory = Path(execution['output_dir']) if 'output_dir' in execution else Path(command[command.index('--output-dir')+1])
+        try:
+            campaign = json.loads((directory/'campaign.json').read_text())
+            run = campaign['runs'][0]
+        except (FileNotFoundError,json.JSONDecodeError):
+            run = {'seed':execution['seed'],'returncode':None,'finish':None,'log':str(directory/f"seed-{execution['seed']:06d}"/'godot.log')}
+        trace = Path(run['log']).parent/'trace.jsonl'
+        samples = []
+        for line in trace.read_text().splitlines():
+            try:row=json.loads(line)
+            except ValueError:continue
+            if row['event']=='qa43_census':samples.append(row['data'])
+        first = {section:next((sample for sample in samples if sample['context']['section']==section),None) for section in (0,5)}
+        result = dict(replay=execution['name'],seed=run['seed'],outcome=(run.get('finish') or {}).get('outcome'),returncode=run['returncode'],trace=str(trace),samples=len(samples),baseline=first[0],section_5=first[5])
+        if first[0] is None or first[5] is None:
+            result.update(status='INCOMPLETE',reason=execution.get('infrastructure_interruption','Replay did not retain both section-0 and section-5 samples'))
+            results.append(result)
+            print('QA43 CENSUS:',execution['name'],'INCOMPLETE',flush=True)
+            continue
+        before,after=first[0],first[5]
+        pool_delta=max(0,after['lifetimes']['named_pool_nodes']-before['lifetimes']['named_pool_nodes'])
+        bound=TREE_FACTOR*before['context']['tree_nodes']+pool_delta
+        checks={}
+        for label,sample in [('section_0',before),('section_5',after)]:
+            pools=sample['lifetimes']
+            for key in ('hand','pile','proxy'):checks[label+'_'+key]=pools[key]['entries']<=pools[key]['limit']
+            checks[label+'_grimoire']=pools['grimoire']['height']<=pools['grimoire']['height_limit']
+            checks[label+'_character_views']=all(pools['character']['cached_views_fit_screen'].values()) and pools['character']['live_view_fits_screen']
+            checks[label+'_character_hidden_rows']=pools['character']['hidden_children']==0
+            checks[label+'_pre_battle_released']=pools['pre_battle']['nodes']==0
+            tiles=pools['tile_canvases']
+            checks[label+'_tile_canvases']=all(tiles[key]<=tiles['rendered_tiles'] for key in ('_scene_render_layers_by_tile','_scene_back_effect_render_layers_by_tile','_scene_front_effect_render_layers_by_tile'))
+        checks['tree_bound']=after['context']['tree_nodes']<=bound
+        checks['no_orphan_growth']=after['context']['orphans']<=before['context']['orphans']
+        status='PASS' if all(checks.values()) else 'FAIL'
+        result.update(status=status,checks=checks,named_pool_node_delta=pool_delta,tree_bound=bound,largest_host_deltas=deltas(before['hosts'],after['hosts']),largest_script_deltas=deltas(before['scripts'],after['scripts']))
+        results.append(result)
+        print(f"QA43 CENSUS: {execution['name']} {status}; tree {before['context']['tree_nodes']} -> {after['context']['tree_nodes']}; named_pool_delta={pool_delta}; bound={bound:g}; orphans {before['context']['orphans']} -> {after['context']['orphans']}",flush=True)
+    (REPORT/(args.result_prefix+'-triage.json')).write_text(json.dumps(results,indent=2)+'\n')
+    passed = sum(result['status']=='PASS' for result in results)
+    failed = any(result['status']=='FAIL' for result in results)
+    complete = passed >= REQUIRED_COMPLETE_REPLAYS and not failed
+    summary = {'required_complete_replays':REQUIRED_COMPLETE_REPLAYS,'passed':passed,'attempts':len(results),'failed_complete_replay':failed,'status':'PASS' if complete else 'INCOMPLETE' if not failed else 'FAIL'}
+    (REPORT/(args.result_prefix+'-summary.json')).write_text(json.dumps(summary,indent=2)+'\n')
+    print('QA43 CENSUS OVERALL:',summary['status'],f"{passed}/{REQUIRED_COMPLETE_REPLAYS} required comparisons; {len(results)} attempts retained",flush=True)
+    return int(not complete)
+
+if __name__=='__main__':raise SystemExit(main())

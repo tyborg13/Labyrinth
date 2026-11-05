@@ -1,0 +1,320 @@
+{
+  "default": {
+    "runs_started": 10,
+    "runs_ended": 10,
+    "completions": 10,
+    "outcomes": {
+      "embrace": 7,
+      "victory": 3
+    },
+    "rooms": {
+      "start": 29,
+      "combat": 109,
+      "scavenger": 29,
+      "treasure": 33,
+      "campfire": 29,
+      "graftwright": 6,
+      "event": 54,
+      "boss": 22,
+      "warband": 1,
+      "guardian": 9,
+      "ember_hoarder": 4,
+      "last_light": 4,
+      "umbral_snare": 5
+    },
+    "sections": {
+      "0": 10,
+      "1": 5,
+      "2": 4,
+      "3": 4,
+      "4": 3,
+      "5": 3
+    },
+    "room_entries": 334,
+    "bosses": {
+      "iskaldra": 4,
+      "tharokh": 5,
+      "zekarion": 4,
+      "vyraketh": 3,
+      "vaeloryx": 3,
+      "noctyrax": 3
+    },
+    "final_dragon_ids": {
+      "noctyrax": 3
+    },
+    "final_dragon_room_entries": 3,
+    "final_dragon_victories": 3,
+    "decisions": 13890,
+    "wall_seconds": 3695.6525714590002,
+    "options": {
+      "no_embrace": false,
+      "seed": 3,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "tools/run_hunt.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-43/campaign-default",
+      "report_only": false,
+      "include_evidence": []
+    },
+    "seeds": [
+      {
+        "seed": 3,
+        "outcome": "embrace",
+        "decisions": 469,
+        "returncode": 0,
+        "sections": [
+          0
+        ],
+        "rooms": 10,
+        "wall_seconds": 176.72632070799997
+      },
+      {
+        "seed": 4,
+        "outcome": "embrace",
+        "decisions": 327,
+        "returncode": 0,
+        "sections": [
+          0
+        ],
+        "rooms": 10,
+        "wall_seconds": 138.51228262499998
+      },
+      {
+        "seed": 5,
+        "outcome": "victory",
+        "decisions": 2989,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1484.049833416
+      },
+      {
+        "seed": 6,
+        "outcome": "embrace",
+        "decisions": 306,
+        "returncode": 0,
+        "sections": [
+          0
+        ],
+        "rooms": 10,
+        "wall_seconds": 102.65651441600002
+      },
+      {
+        "seed": 7,
+        "outcome": "embrace",
+        "decisions": 476,
+        "returncode": 0,
+        "sections": [
+          0
+        ],
+        "rooms": 10,
+        "wall_seconds": 171.378789709
+      },
+      {
+        "seed": 8,
+        "outcome": "embrace",
+        "decisions": 1860,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "rooms": 46,
+        "wall_seconds": 766.455629584
+      },
+      {
+        "seed": 9,
+        "outcome": "victory",
+        "decisions": 3485,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1626.596311459
+      },
+      {
+        "seed": 10,
+        "outcome": "embrace",
+        "decisions": 646,
+        "returncode": 0,
+        "sections": [
+          0,
+          1
+        ],
+        "rooms": 22,
+        "wall_seconds": 281.15448808299993
+      },
+      {
+        "seed": 11,
+        "outcome": "embrace",
+        "decisions": 158,
+        "returncode": 0,
+        "sections": [
+          0
+        ],
+        "rooms": 10,
+        "wall_seconds": 53.732892125000035
+      },
+      {
+        "seed": 12,
+        "outcome": "victory",
+        "decisions": 3174,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1738.103191375
+      }
+    ]
+  },
+  "no-embrace": {
+    "runs_started": 4,
+    "runs_ended": 4,
+    "completions": 4,
+    "outcomes": {
+      "victory": 4
+    },
+    "rooms": {
+      "start": 24,
+      "combat": 99,
+      "scavenger": 25,
+      "treasure": 27,
+      "campfire": 24,
+      "boss": 24,
+      "event": 43,
+      "guardian": 9,
+      "ember_hoarder": 4,
+      "umbral_snare": 2,
+      "graftwright": 3,
+      "last_light": 2,
+      "warband": 2
+    },
+    "sections": {
+      "0": 4,
+      "1": 4,
+      "2": 4,
+      "3": 4,
+      "4": 4,
+      "5": 4
+    },
+    "room_entries": 288,
+    "bosses": {
+      "vaeloryx": 4,
+      "vyraketh": 4,
+      "tharokh": 4,
+      "zekarion": 4,
+      "iskaldra": 4,
+      "noctyrax": 4
+    },
+    "final_dragon_ids": {
+      "noctyrax": 4
+    },
+    "final_dragon_room_entries": 4,
+    "final_dragon_victories": 4,
+    "decisions": 11338,
+    "wall_seconds": 3075.2479095410004,
+    "options": {
+      "no_embrace": true,
+      "seed": 3,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "tools/run_hunt.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace",
+      "report_only": false,
+      "include_evidence": []
+    },
+    "seeds": [
+      {
+        "seed": 3,
+        "outcome": "victory",
+        "decisions": 2950,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1498.386140333
+      },
+      {
+        "seed": 4,
+        "outcome": "victory",
+        "decisions": 2697,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1363.516500166
+      },
+      {
+        "seed": 5,
+        "outcome": "victory",
+        "decisions": 2698,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1651.4353556249998
+      },
+      {
+        "seed": 6,
+        "outcome": "victory",
+        "decisions": 2993,
+        "returncode": 0,
+        "sections": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rooms": 72,
+        "wall_seconds": 1576.823668208
+      }
+    ]
+  }
+}

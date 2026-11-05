@@ -4,13 +4,8 @@ extends RefCounted
 # ready. Static continuations can check cancellation after each rendered frame
 # without resuming a freed RunScene. Normal direct scene loading remains sync.
 const Assets = preload("res://scripts/asset_loader.gd")
-const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
-const ComponentSurface = preload("res://scripts/ui_component_surface.gd")
 const StateAssets = preload("res://scripts/encounter_asset_preparation.gd")
-const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
-const MapSkin = preload("res://scripts/section_map_skin.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
-const RunSfx = preload("res://scripts/run_sfx_library.gd")
 const SLICE_USEC: int = 4000
 
 static func owner_is_active(scene: Variant, still_active: Callable) -> bool:
@@ -93,25 +88,4 @@ static func _run_jobs(scene: Node, jobs: Array[Callable], present_frame: Callabl
 			slice_started = Time.get_ticks_usec()
 
 static func prepare_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
-	var texture_manifest: Dictionary = {}
-	for path: String in ["res://assets/units/protagonist_cutout/front.json", "res://assets/units/protagonist_cutout/rear.json", "res://assets/units/scavenger_cutout/front.json"]:
-		var prepared: RefCounted = (await Assets.prepare_cpu_value_for(root, RigData.prepare_owned_source.bind(path), present_frame, still_active)) as RefCounted
-		if not owner_is_active(scene, still_active): return
-		var published: RefCounted = RigData.publish_owned_source(path, prepared)
-		if published != null:
-			scene._initial_cpu_asset_holds.append(published)
-			texture_manifest.merge(RigData.source_texture_manifest(published, path))
-	await Assets.prepare_textures_for(root, texture_manifest, present_frame, still_active)
-	if not owner_is_active(scene, still_active): return
-	await ComponentSurface.prepare_initial_assets_for(root, present_frame, still_active)
-	if not owner_is_active(scene, still_active): return
-	await SurfaceFinish.prepare_initial_assets_for(root, present_frame, still_active)
-	if not owner_is_active(scene, still_active): return
-	await MapSkin.prepare_initial_assets_for(root, present_frame, still_active)
-	if not owner_is_active(scene, still_active): return
-	var paths := PackedStringArray()
-	for mode: String in ["room", "campfire"]:
-		var ambient: Dictionary = RunSfx.ambient_entry_for_mode(mode)
-		var path: String = str(ambient.get("path", ""))
-		if not path.is_empty() and not paths.has(path): paths.append(path)
-	await Assets.prepare_audio_for(root, paths, present_frame, still_active, true)
+	await preload("res://scripts/run_initial_cpu_assets.gd").prepare_cpu_assets_for(scene, root, present_frame, still_active)

@@ -263,7 +263,7 @@
       "body": [
         "The Umbra hides board tiles beyond your current vision. Enemies concealed within it cannot be directly targeted, and their identities, intents, and threat previews remain hidden.",
         "Umbra stages grow more severe deeper in the labyrinth. Radiance effects create light, extend your vision, reveal hidden enemies, or reduce the room's Umbra stage.",
-        "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted, but Area Attacks still hit them."
+        "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
       ]
     },
     {
@@ -286,17 +286,6 @@
       "body": [
         "Attacks distant targets within range and line of sight.",
         "Deal that much damage to a target within Range and line of sight."
-      ]
-    },
-    {
-      "id": "keyword:aoe",
-      "section": "keywords",
-      "title": "Area Attack",
-      "default": true,
-      "icon": "aoe",
-      "body": [
-        "Attacks targets in the displayed pattern. Some patterns can be rotated before attacking.",
-        "Hits each foe on the pattern's red tiles, seen or unseen."
       ]
     },
     {

@@ -13,7 +13,7 @@ const FIXTURE_HP: int = 99
 const FIXTURE_EMBERS: int = 999
 const FIXTURE_SPELLS: Array = ["guiding_flare", "cinder_bloom", "pale_spark"]
 
-static func run(engine: RefCounted, expect: Callable) -> void:
+static func run(engine: RefCounted, expect: Callable, include_matrix: bool = true) -> void:
 	for id: String in Data.events():
 		for choice: Dictionary in Data.event_def(id)["choices"]:
 			expect.call(not JSON.stringify(choice).to_lower().contains("random"), "Director catalog has no dice or random text: " + id)
@@ -25,7 +25,7 @@ static func run(engine: RefCounted, expect: Callable) -> void:
 	_legacy_pages(engine, expect)
 	_named_lines(engine, expect)
 	empty_card_pools(engine, expect)
-	_exhaustive(engine, expect)
+	if include_matrix: _exhaustive(engine, expect)
 
 static func fixture(engine: RefCounted) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(421, Store.default_data())
@@ -62,10 +62,12 @@ static func _exhaustive(engine: RefCounted, expect: Callable) -> void:
 				Graph.room(state, FIXTURE_COORD)["section_index"] = depth / 2
 				for id: String in Data.events():
 					set_event(state, id)
+					# Every choice starts from this same input. Keeping its original
+					# bytes also catches a leak into a later choice of the event.
+					var before: PackedByteArray = var_to_bytes(state)
 					for choice: Dictionary in Data.event_def(id)["choices"]:
 						var cid: String = str(choice["id"])
 						if not Events.choice_available(state, id, cid): continue
-						var before: PackedByteArray = var_to_bytes(state)
 						var preview: Array[Dictionary] = Events.preview_choice(state, cid)
 						expect.call(var_to_bytes(state) == before, "Preview never mutates state, including inventories, progression, map outbox or RNG inputs")
 						var result: Dictionary = engine.resolve_map_event(state, cid)

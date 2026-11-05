@@ -1732,7 +1732,7 @@
   "cragbound_gauntlet": {
     "name": "Cragbound Gauntlet",
     "rarity": "legendary",
-    "description": "Your @kw(element_earth) @kw(ranged) attacks and @kw(aoe|Area Attacks) also raise a 3-@term(health) @kw(outcrop) on an empty floor target.",
+    "description": "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target.",
     "icon_path": "res://assets/art/relics/cragbound_gauntlet.png",
     "accent": "#d9862f",
     "design_version": 4,

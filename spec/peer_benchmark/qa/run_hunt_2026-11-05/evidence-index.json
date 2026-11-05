@@ -1,0 +1,197 @@
+[
+  {
+    "campaign": "default",
+    "seed": 4,
+    "returncode": 1,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000004",
+    "sha256": {
+      "evidence.json": "2364a5db364b17ef1983c8021ed6d9333993c90e7af3f56dff61924fad8a952d",
+      "summary.json": "eb714560c2de9ddd96ca63c5a7a16ea3fc928c033d19990840a00745596a0866",
+      "godot.log": "d89e1753c12691b28667747d00b522fac8ac3f5fb04b6881b080e5e29638335d",
+      "command.json": "14d406f57f4c453c9bddfb83326c14efe27963a8a88dd9bc5215e45561813cfb",
+      "trace.jsonl": "58fda0b2418c9b52ecb75c8a1b764f3a2cb08af6861cbeff1e1f634467107769"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000006",
+    "sha256": {
+      "evidence.json": "063f8a5e9110ff7aa1d9f94d296ae592b01a4ec142b80cd000ae187fc879eb34",
+      "summary.json": "f8508e0586fa296b71634ac36a1908081675755491e285438ed7c82e20100514",
+      "godot.log": "7c2dc7976b5990f26cbe750ed1bbd162e9b94be4cebc49259bb072767225034b",
+      "command.json": "8b009eacccbca674f79b2c4c330be4d0fd6cfd00caf22869ae0d4aa49150b8bb",
+      "trace.jsonl": "076e4e46bad3e4868b07ba962d6a0945487634351377c4c8ec1d774950d4bef7"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000007",
+    "sha256": {
+      "evidence.json": "618b53ccdddf134e06d40337891a3dae6beeb5aaa291c332394129b736f95540",
+      "summary.json": "4374824af358c3384664ebbea1c783a437c15441ad22cc144ad5fb481cfcacbb",
+      "godot.log": "77416869ece35bde836005cb6e95e51a3d9ecfc60ea6e8107fed41bfdcb7e64e",
+      "command.json": "6e4445845606517eaaa3686fdf6fa26912bcad210422c5290ef100264d1f2edb",
+      "trace.jsonl": "9136f82b4772fdfea01e7a685c6dec489dc9fa777632ca392f364b266af16578"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000008",
+    "sha256": {
+      "evidence.json": "b72b4cb914de1e98db7cfdd08ea5ead0cc451616d6f750e803377e148f01a19c",
+      "summary.json": "b35d74354fa1ab8c5b9e8e75ca69d0cea80f62b8ed631a86ce5af0279c591229",
+      "godot.log": "478ac9dbb34ea917f4fef182bfdcb2ffb0e78537801a0d57b090e58dd3280ab5",
+      "command.json": "55be282d340e38fa74af50d4dfc765ed4ccf7aeacd7d0135003920a2d29a6860",
+      "trace.jsonl": "c8ba2a29866614bf845f539b7711b68e8d08f82cea3c0faec808c024cedc321b"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "returncode": 1,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000005",
+    "sha256": {
+      "evidence.json": "dd23c0e4183bf4ee2be29e1f45cda73d49a65253dc852eabb2a8d9f819583587",
+      "summary.json": "79b3fad97c0d852c7619f3a4131ee3662647260610b79d4c49e9a3b666ab6730",
+      "godot.log": "a8418d47e8691e3e182f68d1437c3e8c2cae2ca4fc5b8706674138c3f31b29b0",
+      "command.json": "b2e57b03ffa5451c4935df718811b323a312a1e3b3c5a8f2bbd35995c9f3a511",
+      "trace.jsonl": "271976803ca45ab8239b5fdd1920a661ce4f0db284b9af69c97e9c5c9715382b"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000010",
+    "sha256": {
+      "evidence.json": "38ab96d4420731995b61ebc762998294d5cfde2f05f0c59556e410fd0dbe0068",
+      "summary.json": "5ff38183a4aac5a339ee7504731f4571a99e218eef2fe7f9443745fb17bf5815",
+      "godot.log": "7619be61d2ceb1fc50103539429d19ce13551b35ff1459367f0f458a5232fbfe",
+      "command.json": "aae8fc9b3891dafcf58011792acedefddade5365b7967317eca234412ac2e7f7",
+      "trace.jsonl": "3516e9148ba5a8560c8a4d782b2e406faaba2a0f32a6e319a3fdeb442c673ed4"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000011",
+    "sha256": {
+      "evidence.json": "ae2ddbd565e9548846826d10a804bfecfe94e4e90ae63c8efb65024752b52538",
+      "summary.json": "9f58e5d847685f30803c54ba4f7db3846859089c0386b4ad6c9c19e68b8826b5",
+      "godot.log": "facbdd172690ed873bb22e7eca25f8ea36c0b93e976eda231307fd6aaa1325e3",
+      "command.json": "bf3c263cdc1cab4f6106bcf29623194961fcbdbf7f4782880f5074f3ac3c17db",
+      "trace.jsonl": "acdb2a333b47a724d8363ada6703b060599ce9c7a8a8d72d0762c751cbec5b0e"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000012",
+    "sha256": {
+      "evidence.json": "0ae6d3d59ab96582182638970f5a5a0e20d39341d3f2fc2d27837d2fbe81401f",
+      "summary.json": "538f3e4f163d3124e15cfa6b53a5e9f06df89051c7e6f893369349182b1442bd",
+      "godot.log": "1c662a9a7bea9b41c733e2428af6473cb4ef28f4841cb390b44448f22677c388",
+      "command.json": "455e85a006943d394b5e92955e144f104b1b424deb450558cf724ad9a84c74ca",
+      "trace.jsonl": "6e32de9588fd9de7db720dd6f68c2c946cddd8263608712cb9e8fb15001998cb"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000009",
+    "sha256": {
+      "evidence.json": "7a091ef9ce56c68690bdc21dac39d7479624b01d78d3bb1612556b8bb7e87726",
+      "summary.json": "c7a9ef67a31910465960dbbe36699a2f3b32946af57307dc69a1ce7231ccfce6",
+      "godot.log": "41d340812422b1db558521b23a274b8607ade39641ef5c8096aadae821f4f855",
+      "command.json": "4a8c6e05d7bb8c7ceb532bac49c1c10486cda1813dcaa8d114800a626fa93c99",
+      "trace.jsonl": "bd9f9692c5407397b98c2a7ea455d6b464c381a9819feee71884083f96896b3e"
+    }
+  },
+  {
+    "campaign": "default",
+    "seed": 13,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-default/seed-000013",
+    "sha256": {
+      "evidence.json": "fdee2a98236a57c71b94db930789e42f77c5f22219fdd6d037e0e64284323810",
+      "summary.json": "6ed4d625cc98b211aba0ba5e266fcd54cac716a53a2baf84dad2f29187b80ca9",
+      "godot.log": "156a2f49f85b1801ae495179f77f1de38a163a45807cb5f8745da57cd54397a8",
+      "command.json": "c15f5af9d10241bbbfaef0ec645919c2f9ac9c9b56f0c5d1dce3eebef7388043",
+      "trace.jsonl": "2d3642b08df8a5364881768dadd06882f76839e3fbe7deb5a8ceaa519e354829"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000004",
+    "sha256": {
+      "evidence.json": "76db6ee43db245ece1007b3f3c113d7a0ab189c5addf921df3e5ab9b01d2a80b",
+      "summary.json": "68fb7c22c0459916ad1472fa435e3f5963fbd3e6bf21343558a8f813116d8f1e",
+      "godot.log": "b43955f354611f0dae12ee3dc79910e480b8d69304667d1d9f29b71312a91f77",
+      "command.json": "89ab8045449fb8d0837519135ef6517c20ca37de45eadf51f32454c23544917b",
+      "trace.jsonl": "08c2c7665c118d220228c596de5d366802e6d88e43d7c80029c132d9e829e123"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000005",
+    "sha256": {
+      "evidence.json": "0258a55378d50d44b719fe6072239e1800169730fc776d7f107bbe5b40ed9faa",
+      "summary.json": "66bdb607fc5d7f537e087bf3758cf45c9564bb2d66a09c534f78d41bd73a4ac2",
+      "godot.log": "d4a6781a36aead9286d23cf616068c5e090b787d727ea4eca79ee97301198156",
+      "command.json": "bd9a8350994a960ba5fc17ad3bf969063f71b010345ab07d3d1e04325f59bb90",
+      "trace.jsonl": "1daf407253b35cdc92633ec9d380b305389c329d23872e3d8b7abb10e28bdaad"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000007",
+    "sha256": {
+      "evidence.json": "ebc217caf85d7873e95b5c53ac56da3a88bd0265c39ea40cfa9de35b63459858",
+      "summary.json": "13927b42034629cf1d3616468d5f2c906271d743a5e80add565a169a40d2b713",
+      "godot.log": "97d58510bf66afb6a4a5f69106f085330c094a6e31e61ce064d843e71a28e1a2",
+      "command.json": "8cc2a226a44f21c3be63562abfaf005c61d0c598b409283caa56dece5d03770f",
+      "trace.jsonl": "6672bb2c563f65eac7885c42fabf2d2dcf8ef32bc57db58a17e7b04f61ba4bb7"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000006",
+    "sha256": {
+      "evidence.json": "d16e9c24a9af4eddfdf06ca2746b6fc15238c0c272b255f4dc4bd7a7172d2d61",
+      "summary.json": "c8d6d387cc35e254ceed23b8c519a05b8d293865f10787445d4051ac7955a4fa",
+      "godot.log": "92da0c7525dbbb7504f9565ce1d88057e5579384ffd5ad8f277eb653b2a57059",
+      "command.json": "336d74e7110dba26a0bff366e623613bb3c4e2ed68362107cde3a291ae841564",
+      "trace.jsonl": "1fde1bd4c82a75d25f77ada6c1b01ff09617aea3373e7b5f168fbe6aa4f5c863"
+    }
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 8,
+    "returncode": 0,
+    "directory": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace/seed-000008",
+    "sha256": {
+      "evidence.json": "5bee483ab1a746690812eeeac7fff6f86096b3448e2e83b7624779b56e888478",
+      "summary.json": "46bb3a1c0f7d0c515467584aad23911e2748f4201336d5ec882cdebc7073f1a5",
+      "godot.log": "84775dd71a55782835c7ed8fde1abfe3727bcd0df07c3099415e4c50c170bb46",
+      "command.json": "ca52cd7ac8d681ef8fe7b27d837e8449ca3f68147258e46e2453f11cefe21836",
+      "trace.jsonl": "1dba5308c8d11781927f00f26eaf67a7a7a54dbf94bb5edb25315fa25ab8a92a"
+    }
+  }
+]

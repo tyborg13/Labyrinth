@@ -1,0 +1,135 @@
+{
+  "checks": [
+    {
+      "check": "cold import",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/cold-import.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "completed; baseline macOS CA and duplicate UID diagnostics retained"
+      ],
+      "sha256": "b4a6452bc8adb328d78a38d2246fa6fd4d4cb4df1f98879632594e9c7fb21148"
+    },
+    {
+      "check": "baseline controller sweep",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/screen-sweep.log",
+      "exit_code_observed": 1,
+      "result_lines": [
+        "CONTROLLER SCREEN SWEEP: FAIL (1 findings)",
+        "330/330 controls reached across 35 fixture screens"
+      ],
+      "sha256": "8bd0af2ce1a88fb43d8ae59de5bf6a495c5ba87f6cea85d615e165ee3a56bbcb"
+    },
+    {
+      "check": "tutorial controller regression",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/tutorial-fix.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+      ],
+      "sha256": "ff0b16d8249b30d04f7df7ab13d63360fc5166aaeb173767ef46280f5940a850"
+    },
+    {
+      "check": "tutorial affected integration",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/tutorial-integration.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "GUIDED COMBAT TUTORIAL INTEGRATION TEST: PASS"
+      ],
+      "sha256": "44e01ec61809283892b1280ec30663ca1d592acf6ae367c9827fab57de1603e5"
+    },
+    {
+      "check": "pile and Details controller regressions",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/combat-fixes.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+      ],
+      "sha256": "666d443819fddd4369ebf2ef3b39af8a98119632f37de129e1d8fb29d6ce9d6a"
+    },
+    {
+      "check": "reward focus regression",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/reward-fix.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+      ],
+      "sha256": "aeadcca0e1ccc7072292dd5da8c071bf0bfc149c19b9599a9a11bf2eb2df4126"
+    },
+    {
+      "check": "physical replay after pile/Details fixes",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/aux-after-fixes.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER HUNT: seed=4 outcome=replay_point inputs=290 findings=1"
+      ],
+      "sha256": "ca6695b6e8b14f52c6cefd506ec76d0a5f022f1413b5c2d13149d8f0b4599e40"
+    },
+    {
+      "check": "physical replay after reward fix",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/reward-after.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER HUNT: seed=4 outcome=replay_point inputs=374 findings=1"
+      ],
+      "sha256": "36ecfa2b324906a68a00380a92d473d8078b190168c0395aa6ba5a83f0505ed7"
+    },
+    {
+      "check": "Python default group, final production source",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/python-default-final-five.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "Ran 182 tests in 37.483s",
+        "OK"
+      ],
+      "sha256": "a5c3aa0825545b4c70e776bc72aad3ae4e099adf162c6636f5afcc1f5aa9cb0d"
+    },
+    {
+      "check": "UI identity gate, final production source",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/ui-identity-final-five.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "Ran 25 tests in 5.976s",
+        "OK"
+      ],
+      "sha256": "d323dc161b30062d871a7748874af15cb0e289085f4299525b4eeec0f5905fe6"
+    },
+    {
+      "check": "Python isolation audit",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/python-audit.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "ISOLATION AUDIT: 55 modules"
+      ],
+      "sha256": "c731ea4bbcf86fba7d754c6fda9f008008879b18fd9a9eb8f3a8b38d4af81b99"
+    },
+    {
+      "check": "external driver parser",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/parser-final-tool.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "--check-only: exit 0; no script error markers"
+      ],
+      "sha256": "b42a4feb91500890db2c63c497dff457c343b13b941a6d961fc130d700dd5a04"
+    },
+    {
+      "check": "unaffordable shop navigator regression",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/shop-fix-final.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+      ],
+      "sha256": "768d3e75368ec62f038037a57bb2a1170f3e1922ae3af51a1a8d85ab1facc667"
+    },
+    {
+      "check": "portable Noctyrax parity reproduction (open finding)",
+      "log": "/private/tmp/labyrinth_codex/qa-51/evidence/dragon-parity-controller-a.log",
+      "exit_code_observed": 0,
+      "result_lines": [
+        "DRAGON TARGET PARITY: target=(4, 2) controller=false visible=false controller_card_retained=true mouse_hit=(4, 2) committed_player=(3, 2)"
+      ],
+      "sha256": "5a9cfb1bf0826da46c0e4ae72ab6b47348814453238b954a988c1de83c125f54"
+    }
+  ],
+  "full_suites_run": false,
+  "windowed_runs_attempted": false
+}

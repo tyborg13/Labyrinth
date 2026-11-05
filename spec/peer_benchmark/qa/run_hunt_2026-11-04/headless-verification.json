@@ -1,0 +1,76 @@
+{
+  "census_parse": {
+    "returncode": 0,
+    "command": "python3 tools/godot_task_runner.py --task-id qa-43 --stream -- godot --headless --path . --check-only --script /private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd",
+    "log": "/private/tmp/labyrinth-godot-home/qa-43-1793833300259823000-15527/godot.log"
+  },
+  "census_parse_after_glossary_observer": {
+    "argv": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "qa-43",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--check-only",
+      "--script",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd"
+    ],
+    "returncode": 0,
+    "started": 1793836210.6757388,
+    "wall_seconds": 1.6221580505371094,
+    "log": "/private/tmp/labyrinth_codex/qa-43/census-parse-final.log"
+  },
+  "final_census_parsers": [
+    {
+      "script": "run_hunt_census.gd",
+      "sha256": "f880bc10d5965642d3af9f87c44d5b7136fd26505e7ae4d155b0c915bd275109",
+      "argv": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "qa-43",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--check-only",
+        "--script",
+        "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd"
+      ],
+      "returncode": 0,
+      "started": 1793840078.941083,
+      "wall_seconds": 1.835515022277832,
+      "log": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd-parse.log"
+    },
+    {
+      "script": "run_hunt_census_full.gd",
+      "sha256": "d91985b9850fe872e72b4c7fee03c90b383a258af874128afdcf2bfeefb44d6c",
+      "argv": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "qa-43",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--check-only",
+        "--script",
+        "/private/tmp/labyrinth_codex/qa-43/run_hunt_census_full.gd"
+      ],
+      "returncode": 0,
+      "started": 1793840080.776638,
+      "wall_seconds": 1.7030649185180664,
+      "log": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census_full.gd-parse.log"
+    }
+  ]
+}

@@ -32,6 +32,7 @@ static func _step_cues(step: Dictionary, unit: Dictionary, changes: Dictionary) 
 	return recorder.cues
 
 static func run(expect: Callable) -> void:
+	_test_opening_arrival_baseline(expect)
 	var router := preload("res://scripts/sfx_cue_router.gd").new()
 	expect.call(router.impact_cue({"type": "melee", "damage": 5}, {}, "training_sword") == "hit.blade.light", "Light weapon contact should request the blade cue")
 	expect.call(router.impact_cue({"type": "melee", "damage": 6}, {}, "war_maul") == "hit.blunt.heavy", "Heavy weapon contact should request the blunt cue")
@@ -136,6 +137,34 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await TestClock.run_scoped(tree, func(scope: TestClock.GlobalScope) -> void:
 		await _run_live_scoped(scope, tree, expect)
 	)
+
+static func _test_opening_arrival_baseline(expect: Callable) -> void:
+	var recorder := CueRecorder.new()
+	var run: Dictionary = {"seed": 410, "current_room": Vector2i(1, 0), "mode": "pre_battle", "combat_state": {}}
+	recorder.run_context(run)
+	run["mode"] = "combat"
+	run["combat_state"] = {"enemies": [{"id": 1, "hp": 10}]}
+	recorder.run_context(run)
+	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1]})
+	expect.call(recorder.cues.is_empty(), "Start baselines opening enemies even though pre-battle already owns the room key")
+	run["combat_state"]["enemies"].append({"id": 2, "hp": 10})
+	recorder.run_context(run)
+	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1]})
+	expect.call(recorder.cues.is_empty(), "A real mid-fight birth still waits until its first visible presentation")
+	recorder.begin_enemy_action(run["combat_state"], {}, {})
+	recorder.run_context(run)
+	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1, 2]})
+	expect.call(recorder.cues == ["spell.shadow"], "A pending mid-fight cohort survives action baselines and plays once when visible")
+	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1, 2]})
+	expect.call(recorder.cues == ["spell.shadow"], "Repeated presentation never replays a real arrival cohort")
+	run["mode"] = "pre_battle"
+	run["combat_state"] = {}
+	recorder.run_context(run)
+	run["mode"] = "combat"
+	run["combat_state"] = {"enemies": [{"id": 3, "hp": 10}]}
+	recorder.run_context(run)
+	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [3]})
+	expect.call(recorder.cues == ["spell.shadow"], "A later combat entry resets its opening roster even if the room key is reused")
 
 static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

@@ -1,0 +1,20 @@
+import json
+from pathlib import Path
+TASK = Path('/private/tmp/labyrinth_codex/qa-53')
+for label in ['before', 'after']:
+    directory = TASK / label
+    path = directory / 'session.json'
+    if not path.exists(): continue
+    session = json.loads(path.read_text())
+    print(label, 'completed', [(r['run'], r['outcome'], r['decisions']) for r in session['outcomes']], 'boundaries', len(session['boundaries']))
+    trace = directory / 'trace.jsonl'
+    with trace.open('rb') as file:
+        file.seek(max(0, trace.stat().st_size - 40000))
+        lines = file.read().decode().splitlines()[1:]
+    for line in reversed(lines):
+        row = json.loads(line)
+        if row['event'] == 'decision':
+            c = row['data']['context']
+            print('latest', {k: c[k] for k in ['decision', 'section', 'room_kind', 'room', 'mode']})
+            break
+    print('boundary metrics', [{k: b[k] for k in ['label','static_memory','object_count','node_count','orphan_count','resource_count']} for b in session['boundaries'][-2:]])

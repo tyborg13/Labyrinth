@@ -17,6 +17,18 @@ const Assets = preload("res://scripts/asset_loader.gd")
 const RowScroll = preload("res://scripts/magic_purge_row_scroll.gd")
 const ScavengerAction = preload("res://scripts/scavenger_action.gd")
 const ScavengerMaterials = preload("res://scripts/scavenger_materials.gd")
+const StrikeLight = preload("res://scripts/strike_trail_fx.gd")
+const BurnShader = preload("res://shaders/card_burn.gdshader")
+const BURN_SECONDS: float = 0.70
+const REDUCED_BURN_SECONDS: float = 0.25
+const BURN_EASE_POWER: float = 1.4
+const EMBER_COUNT: int = 12
+const EMBER_SECONDS: float = 0.5
+const EMBER_RISE := Vector2(40.0, 80.0)
+const EMBER_DIAMETER := Vector2(2.0, 3.0)
+const BURN_CHAR_RGBA: int = 0x281810ff
+# The brief calls for "slight" drift but supplies no distance. Owner fills this.
+const EMBER_SIDEWAYS_DRIFT_PX: float = 10.0
 const MAX_COLUMNS: int = 7
 const GRID_LAYOUT_CARD_WIDTH: float = 196.0
 const CARD_GAP := Vector2(16.0, 20.0)
@@ -48,13 +60,137 @@ var _price: int = 0
 var _held: int = 0
 var _panel: PanelContainer
 var _grid: Control
-var _scroll: RowScroll
+var _scroll: ScrollContainer
 var _header: HBoxContainer
 var _grid_panel_style: StyleBoxFlat
 var _confirm_panel_style: StyleBoxFlat
 var _columns: int = 1
 var _return_card_id: String = ""
 var _committing: bool = false
+
+# A private, seekable presentation. Render the actual card subtree on its own
+# canvas rather than flattening its z levels or rebuilding a similar-looking
+# card proxy. The full-size target preserves subpixel placement and overhang.
+class PurgeBurn extends Control:
+	var elapsed: float = 0.0
+	var card_rect: Rect2
+	var burn_material: ShaderMaterial
+	var sparks: Array[Dictionary]
+	var _canvas: SubViewport
+	var _paint: TextureRect
+	var _seed: Vector2
+	var _tail: bool = false
+	var _last_ember: float = 0.0
+
+	func configure(slot: Control, card_id: String, reduced_motion: bool = false) -> void:
+		name = "CardProxy"
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		z_index = 1
+		card_rect = slot.get_global_rect()
+		size = Vector2(get_viewport_rect().size)
+		_canvas = SubViewport.new()
+		_canvas.name = "PurgeCardCanvas"
+		_canvas.size = Vector2i(size)
+		_canvas.transparent_bg = true
+		_canvas.msaa_2d = get_viewport().msaa_2d
+		_canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		add_child(_canvas)
+		var card_transform: Transform2D = slot.get_global_transform()
+		slot.reparent(_canvas, false)
+		slot.position = card_transform.origin
+		slot.scale = card_transform.get_scale()
+		_paint = TextureRect.new()
+		_paint.name = "PurgeCardComposite"
+		_paint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_paint.show_behind_parent = true
+		_paint.texture = _canvas.get_texture()
+		_paint.size = size
+		add_child(_paint)
+		burn_material = ShaderMaterial.new()
+		burn_material.shader = BurnShader
+		burn_material.set_shader_parameter("card_origin", card_rect.position)
+		burn_material.set_shader_parameter("card_size", card_rect.size)
+		var card_hash: int = card_id.hash()
+		_seed = Vector2(card_hash & 65535, (card_hash >> 16) & 65535)
+		burn_material.set_shader_parameter("seed", _seed)
+		var light: Array = StrikeLight.palette("none")
+		burn_material.set_shader_parameter("warm_white", light[0])
+		burn_material.set_shader_parameter("amber", light[1])
+		burn_material.set_shader_parameter("ember_red", light[2])
+		burn_material.set_shader_parameter("char_color", Color.hex(BURN_CHAR_RGBA))
+		_paint.material = burn_material
+		set_process(false)
+		seek(0.0)
+		if reduced_motion: return
+		for index: int in range(EMBER_COUNT):
+			var uv := Vector2((index + 0.5) / EMBER_COUNT, _lattice(index, card_hash))
+			# Each birth is the exact threshold crossing at its origin, so even
+			# the irregular parts of the burn shed sparks from the actual front.
+			var birth: float = BURN_SECONDS * pow(burn_field(uv), 1.0 / BURN_EASE_POWER)
+			sparks.append({"birth": birth, "origin": card_rect.position + uv * card_rect.size,
+				"rise": lerpf(EMBER_RISE.x, EMBER_RISE.y, _lattice(index + EMBER_COUNT, card_hash)),
+				"drift": lerpf(-EMBER_SIDEWAYS_DRIFT_PX, EMBER_SIDEWAYS_DRIFT_PX, _lattice(index + EMBER_COUNT * 2, card_hash)),
+				"diameter": lerpf(EMBER_DIAMETER.x, EMBER_DIAMETER.y, _lattice(index + EMBER_COUNT * 3, card_hash))})
+			_last_ember = maxf(_last_ember, birth + EMBER_SECONDS)
+
+	func fade(opacity: float) -> void:
+		burn_material.set_shader_parameter("opacity", opacity)
+
+	func seek(seconds: float) -> void:
+		elapsed = maxf(0.0, seconds)
+		burn_material.set_shader_parameter("threshold", pow(clampf(elapsed / BURN_SECONDS, 0.0, 1.0), BURN_EASE_POWER))
+		_paint.visible = elapsed < BURN_SECONDS
+		queue_redraw()
+
+	func release_embers(parent: Node) -> void:
+		# Card removal completes at .70s. Let already-born sparks finish their
+		# .5s lives without delaying the existing dialog/Hearth continuation.
+		_canvas.queue_free()
+		_paint.hide()
+		var depth: int = z_index
+		var ancestor: Node = get_parent()
+		while ancestor is CanvasItem:
+			depth += (ancestor as CanvasItem).z_index
+			if not (ancestor as CanvasItem).z_as_relative: break
+			ancestor = ancestor.get_parent()
+		reparent(parent, true)
+		z_as_relative = false
+		z_index = depth
+		_tail = true
+		set_process(true)
+
+	func _process(delta: float) -> void:
+		if not _tail: return
+		seek(elapsed + delta)
+		if elapsed >= _last_ember: queue_free()
+
+	func _draw() -> void:
+		var light: Array = StrikeLight.palette("none")
+		for spark: Dictionary in sparks:
+			var age: float = elapsed - float(spark["birth"])
+			if age < 0.0 or age >= EMBER_SECONDS: continue
+			var t: float = age / EMBER_SECONDS
+			var point: Vector2 = spark["origin"] + Vector2(float(spark["drift"]), -float(spark["rise"])) * t
+			var radius: float = float(spark["diameter"]) * 0.5
+			draw_colored_polygon(_diamond(point, radius), Color(light[2], 1.0 - t))
+			draw_colored_polygon(_diamond(point, radius * 0.5), Color(light[1], 1.0 - t))
+
+	static func _diamond(point: Vector2, radius: float) -> PackedVector2Array:
+		return PackedVector2Array([point + Vector2(0, -radius), point + Vector2(radius, 0), point + Vector2(0, radius), point + Vector2(-radius, 0)])
+
+	func burn_field(uv: Vector2) -> float:
+		var point: Vector2 = uv * 6.0 + _seed
+		var cell := Vector2i(floori(point.x), floori(point.y))
+		var f: Vector2 = point - Vector2(cell)
+		f = f * f * (Vector2.ONE * 3.0 - f * 2.0)
+		var noise: float = lerpf(lerpf(_lattice(cell.x, cell.y), _lattice(cell.x + 1, cell.y), f.x), lerpf(_lattice(cell.x, cell.y + 1), _lattice(cell.x + 1, cell.y + 1), f.x), f.y)
+		return 0.65 * (1.0 - uv.y) + 0.35 * noise
+
+	static func _lattice(x: int, y: int) -> float:
+		var h: int = (x * 374761393 + y * 668265263) & 0xffffffff
+		h = ((h ^ (h >> 13)) * 1274126177) & 0xffffffff
+		h = h ^ (h >> 16)
+		return float(h & 65535) / 65535.0
 
 # Purge owns this larger treatment; other section eyebrows keep their sizing.
 class PurgeHeading extends Section:
@@ -116,6 +252,10 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	content.add_child(header)
 	var entries: Array[Dictionary] = List.entries(state.get("attuned_magic_cards", []) as Array)
 	_columns = columns_for(entries.size())
+	var frame_size: Vector2 = Typography.modal_size(self, dialog_size_for(entries.size()))
+	var available_width: float = frame_size.x - SIDE_MARGIN * 2.0 - BADGE_OVERFLOW_PADDING.x
+	_columns = maxi(1, mini(_columns, floori((available_width + CARD_GAP.x) / (PileView.CARD_SIZE.x + CARD_GAP.x))))
+	var bounded_grid: bool = frame_size != dialog_size_for(entries.size()) or _columns != columns_for(entries.size())
 	var heading := PurgeHeading.new()
 	heading.name = "MagicPurgeHeading"
 	heading.setup("PURGE A SPELL", "%d spells" % (state.get("attuned_magic_cards", []) as Array).size())
@@ -144,10 +284,11 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	scroll_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(scroll_host)
-	_scroll = RowScroll.new()
+	_scroll = ScrollContainer.new() if bounded_grid else RowScroll.new()
 	_scroll.name = "MagicPurgeScroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if entries.size() > _columns * RowScroll.VISIBLE_ROWS else ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if bounded_grid or entries.size() > _columns * RowScroll.VISIBLE_ROWS else ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.follow_focus = bounded_grid
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var padding := StyleBoxEmpty.new()
 	padding.content_margin_top = CROWN_HEADROOM
@@ -169,9 +310,10 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 		empty.name = "MagicPurgeEmpty"
 		_grid.add_child(empty)
 		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	if not entries.is_empty(): _scroll.configure(_grid, _columns, ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
+	if not entries.is_empty() and _scroll is RowScroll:
+		(_scroll as RowScroll).configure(_grid, _columns, ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
 	_grid.resized.connect(_layout_grid)
-	_panel.custom_minimum_size = dialog_size_for(entries.size()) if not entries.is_empty() else _dialog_size
+	_panel.custom_minimum_size = frame_size if not entries.is_empty() else Typography.modal_size(self, _dialog_size)
 	# Reserve the scrollbar in the existing right margin, keeping the
 	# card spacing and the outer dialog width exact as columns reflow.
 	if entries.size() > _columns * RowScroll.VISIBLE_ROWS:
@@ -184,6 +326,10 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	_confirmation = Confirmation.new()
 	add_child(_confirmation)
 	_confirmation.configure(host)
+	_confirmation.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_confirmation.clip_contents = true
+	_panel.item_rect_changed.connect(_layout_confirmation_frame)
+	_layout_confirmation_frame()
 	_confirm = _confirmation.confirm_button
 	_confirm.disabled = true
 	_confirmation.accepted.connect(func() -> void:
@@ -194,6 +340,11 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	)
 	_confirmation.cancelled.connect(cancel)
 	call_deferred("focus_default")
+
+func _layout_confirmation_frame() -> void:
+	if _confirmation == null: return
+	_confirmation.global_position = _panel.global_position
+	_confirmation.size = _panel.size
 
 static func dialog_size_for(identities: int) -> Vector2:
 	var cols: int = columns_for(identities)
@@ -233,6 +384,9 @@ func select_card(card_id: String) -> void:
 	# Keep the dialog/frame opaque; only its contents dim behind the card.
 	_panel.add_theme_stylebox_override("panel", _confirm_panel_style)
 	_scroll.modulate = Color(1, 1, 1, GRID_CONFIRM_MODULATE)
+	# The selected card replaces the list inside the same frame. Keep its layout
+	# and scroll position, without dimmed rows showing through the halo/buttons.
+	_grid.modulate = Color(1, 1, 1, 0)
 	_header.modulate = Color(1, 1, 1, HEADER_CONFIRM_MODULATE)
 	for row: Control in _rows.values(): row.focus_mode = Control.FOCUS_NONE
 	_list_cancel.focus_mode = Control.FOCUS_NONE
@@ -245,6 +399,7 @@ func cancel() -> void:
 		_confirmation.hide()
 		_panel.add_theme_stylebox_override("panel", _grid_panel_style)
 		_scroll.modulate = Color.WHITE
+		_grid.modulate = Color.WHITE
 		_header.modulate = Color.WHITE
 		for row: Control in _rows.values(): row.focus_mode = Control.FOCUS_ALL
 		_list_cancel.focus_mode = Control.FOCUS_ALL
@@ -254,7 +409,18 @@ func cancel() -> void:
 
 func play_exhaust() -> void:
 	_committing = true
-	await _confirmation.play_exhaust()
+	_confirm.disabled = true
+	_confirmation.cancel_button.disabled = true
+	var slot: Control = _confirmation.get("_card_slot")
+	var reduced_motion: bool = bool(_host.call("_reduced_motion_enabled"))
+	var burn := PurgeBurn.new()
+	_confirmation.add_child(burn)
+	burn.configure(slot, pending_card_id, reduced_motion)
+	var tween: Tween = create_tween()
+	if reduced_motion: tween.tween_method(burn.fade, 1.0, 0.0, REDUCED_BURN_SECONDS)
+	else: tween.tween_method(burn.seek, 0.0, BURN_SECONDS, BURN_SECONDS)
+	await tween.finished
+	if not reduced_motion: burn.release_embers(get_parent())
 
 func retry_confirmation() -> void:
 	_committing = false

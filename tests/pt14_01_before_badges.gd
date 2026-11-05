@@ -67,7 +67,7 @@ static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	return result
 
 
-static func draw(board: Control, badges: Array) -> void:
+static func draw(board: Control, badges: Array, triangle_batch: RefCounted = null) -> void:
 	var font: Font = Typography.ui_font()
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	# A debug-only fixed clock makes peak-pulse renderer proof deterministic.
@@ -79,4 +79,4 @@ static func draw(board: Control, badges: Array) -> void:
 	for on_top: bool in [false, true]:
 		for badge: Dictionary in measured:
 			if bool(badge["above_everything"]) == on_top:
-				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)))
+				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)), triangle_batch)

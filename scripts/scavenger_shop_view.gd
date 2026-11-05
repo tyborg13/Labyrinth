@@ -29,6 +29,7 @@ const Signage = preload("res://scripts/scavenger_signage.gd")
 const Banner = preload("res://scripts/scavenger_banner.gd")
 const EmberChip = preload("res://scripts/scavenger_ember_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
+const ShelfNameSlot = preload("res://scripts/scavenger_shelf_name_slot.gd")
 const Atmosphere = preload("res://scripts/scavenger_atmosphere.gd")
 const ScavengerTradeEffect = preload("res://scripts/scavenger_trade_effect.gd")
 
@@ -51,6 +52,45 @@ const SHELF_WIDTH: float = 840.0
 const SHELF_SLOT_WIDTH: float = 260.0
 const MODE_TAB_GAP: float = 8.0
 const PORTRAIT_BASE_POSITION := Vector2(-82.0, 8.0)
+
+class PageAction extends ShopAction:
+	func _process(delta: float) -> void:
+		if not is_visible_in_tree(): return
+		super._process(delta)
+		if not is_instance_valid(_label): return
+		# The shaded caption plus alpha dimming erased these small glyphs.
+		# Use the shared button's disabled ink at full opacity instead.
+		_label.modulate = Color.WHITE if disabled else _label.modulate
+		_label.add_theme_color_override("font_color", preload("res://scripts/ui_skin.gd").BUTTON_FONT_DISABLED_COLOR if disabled else _page_label_color)
+		_label.material = null if disabled else _page_label_material
+
+	var _page_label_material: Material
+	var _page_label_color: Color
+
+	func prepare_label() -> void:
+		super.prepare_label()
+		if is_instance_valid(_label) and _label.material != null:
+			_page_label_material = _label.material
+			_page_label_color = _label.get_theme_color("font_color")
+
+# Keep the native Button, focus and paint geometry. Only pointer picking is
+# clipped to the authored shelf row and its horizontal cubby; content may bleed.
+class ShelfWare:
+	extends Ware
+	var cubby_row: Control
+	var shelf_bottom: Control
+	func hit_rect() -> Rect2:
+		var bounds := Rect2(Vector2.ZERO, size)
+		if cubby_row == null: return bounds
+		var inverse: Transform2D = get_global_transform().affine_inverse()
+		var slot: Control = get_parent() as Control
+		var cubby: Rect2 = slot.get_global_transform() * Rect2(Vector2.ZERO, slot.size)
+		cubby = cubby.intersection(cubby_row.get_global_transform() * Rect2(Vector2.ZERO, cubby_row.size))
+		if shelf_bottom != null:
+			cubby.size.y = minf(cubby.end.y, shelf_bottom.global_position.y) - cubby.position.y
+		return bounds.intersection(inverse * cubby)
+	func _has_point(point: Vector2) -> bool:
+		return hit_rect().has_point(point)
 
 var _run_state: Dictionary = {}
 var _run_engine: RefCounted
@@ -118,6 +158,7 @@ var _receipt_tween: Tween
 var _intro_open: bool = true
 var _hidden_inventory_owner: Callable
 var _inventory_released: bool = false
+var _configuration_cache := preload("res://scripts/scavenger_configuration_cache.gd").new()
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -133,6 +174,11 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 	var started: int = Time.get_ticks_usec() if performance_checkpoint.is_valid() else 0
 	_configure_context(run_state, run_engine, reduced_motion)
 	started = _performance_checkpoint(performance_checkpoint, "state", started)
+	if _configuration_cache.matches(self):
+		CardDisplay.refresh(self, _run_state)
+		if visible and not _entry_played_for_room: call_deferred("_play_entry")
+		_performance_checkpoint(performance_checkpoint, "retained_configuration", started)
+		return
 	_rebuild_inventory(performance_checkpoint)
 	started = _performance_checkpoint(performance_checkpoint, "inventory", started)
 	_complete_configuration(performance_checkpoint, started)
@@ -177,6 +223,7 @@ func _complete_configuration(performance_checkpoint: Callable = Callable(), star
 	if _portrait != null and _reduced_motion: _portrait.call("apply_pose", "rest", 0.0)
 	if visible and not _entry_played_for_room:
 		call_deferred("_play_entry")
+	_configuration_cache.remember(self)
 
 # The hidden destination can construct its exact offers during existing travel.
 # Each suspension resumes into this static owner check. Arrival keeps the same
@@ -204,6 +251,7 @@ static func prepare_hidden_for(shop: Control, state: Dictionary, engine: RefCoun
 	# exact bitmap caches while travel is already presenting; showing or replacing
 	# this shop cancels immediately and retains the ordinary arrival fallback.
 	await Glyphs.prepare_controls_for(shop, shop, present_frame, _hidden_preparation_active.bind(shop, still_active))
+	if _hidden_preparation_active(shop, still_active): shop._configuration_cache.finish_hidden_layout(shop)
 
 func _action_will_be_visible(action: Control) -> bool:
 	var node: Node = action
@@ -585,7 +633,8 @@ func _build_sell_content() -> void:
 	var content := Control.new()
 	_sell_panel.add_child(content)
 	_sell_heading = _label_at(content, "Sell from pack", Rect2(14, 0, 480, 48), 30)
-	var categories: Array = ["all", MAGIC, GEAR, ITEM]
+	# Magic belongs to the deck (legacy reserves migrate there) and uses Purge.
+	var categories: Array = ["all", GEAR, ITEM]
 	for index: int in range(categories.size()):
 		var category: String = categories[index]
 		var button := _action("ALL" if category == "all" else "ITEMS" if category == ITEM else category.to_upper())
@@ -604,12 +653,16 @@ func _build_sell_content() -> void:
 	_sell_row.add_theme_constant_override("v_separation", 10)
 	_place(_sell_row, Rect2(12, 120, 748, 602))
 	content.add_child(_sell_row)
-	_sell_previous = _action("‹")
+	_sell_previous = PageAction.new()
+	_sell_previous.text = "‹"
+	_sell_previous.set("reduced_motion", _reduced_motion)
 	_sell_previous.name = "SellPreviousPage"
 	_place(_sell_previous, Rect2(564, 3, 78, 45))
 	_sell_previous.pressed.connect(_turn_sell_page.bind(-1))
 	content.add_child(_sell_previous)
-	_sell_next = _action("›")
+	_sell_next = PageAction.new()
+	_sell_next.text = "›"
+	_sell_next.set("reduced_motion", _reduced_motion)
 	_sell_next.name = "SellNextPage"
 	_place(_sell_next, Rect2(662, 3, 78, 45))
 	_sell_next.pressed.connect(_turn_sell_page.bind(1))
@@ -792,6 +845,9 @@ func _add_shelf_offer(kind: String, item_id: String) -> void:
 	offer.set_meta("shop_content_input", _offer_content_input(item_id, kind, false))
 	slot.add_child(offer)
 	row.add_child(slot)
+	var ware: ShelfWare = offer as ShelfWare
+	ware.cubby_row = row
+	ware.shelf_bottom = _shelf_row(GEAR) if kind == MAGIC else _shelf_row(ITEM) if kind == GEAR else null
 
 # Reconcile in the existing final parents. A sale removes one pack tile; it
 # does not invalidate the native card compositions of the remaining wares.
@@ -899,6 +955,8 @@ func _populate_sell_page() -> void:
 	_sell_heading.text = "YOUR PACK" if page_count == 1 else "YOUR PACK  ·  %d / %d" % [_sell_page + 1, page_count]
 	_sell_previous.disabled = _sell_page <= 0
 	_sell_next.disabled = _sell_page >= page_count - 1
+	_sell_previous.visible = page_count > 1
+	_sell_next.visible = page_count > 1
 	var count: int = mini(SELL_PAGE_SIZE, maxi(0, _sellable_ids.size() - _sell_page * SELL_PAGE_SIZE))
 	var rows: int = ceili(float(count) / 3.0)
 	var grid_height: float = 180.0 if count == 0 else rows * SELL_TILE_SIZE.y + maxi(0, rows - 1) * 10.0
@@ -1045,13 +1103,17 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	name_label.name = "WareName"
 	name_label.text = _item_name(item_id)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.max_lines_visible = 2
+	name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	name_label.custom_minimum_size = Vector2((SELL_TILE_SIZE.x if selling else OFFER_TILE_SIZE.x) - 18.0, 24.0)
 	name_label.add_theme_font_override("font", UiTypography.ui_font())
 	UiTypography.set_label_size(name_label, 17)
 	name_label.add_theme_color_override("font_color", UiPalette.TEXT)
 	_scene_label(name_label, 2)
-	stack.add_child(name_label)
+	var name_slot := ShelfNameSlot.new()
+	name_slot.configure(name_label, icon_center)
+	stack.add_child(name_slot)
 	stack.add_child(_price_tag(item_id, selling))
 	_make_mouse_passive(stack)
 	var key: String = "%s:%s" % ["sell" if selling else "buy", item_id]
@@ -1117,6 +1179,8 @@ func _build_native_scaled_card(
 	visual_root.add_child(composition_root)
 	var card := CardWidgetScene.instantiate() as CardWidget
 	card.name = "%s_%s" % [name_prefix, item_id]
+	if name_prefix == "MagicCard" and visual_size.x < NATIVE_CARD_SIZE.x:
+		card.set_script(preload("res://scripts/scavenger_miniature_card.gd"))
 	_place(card, Rect2(Vector2.ZERO, NATIVE_CARD_SIZE))
 	card.configure(item_id, false, false, true, false, interactive, true, GameData.card_def(item_id))
 	CardDisplay.bind(card, _run_state)
@@ -1191,11 +1255,12 @@ func _select_item(item_id: String, selling: bool, source: Control) -> void:
 
 func _activate_item(item_id: String, selling: bool, source: Control) -> void:
 	_select_item(item_id, selling, source)
-	# Accept explicitly enters the selected ware's trade action. Directional
-	# browsing can keep previewing other wares without silently changing a trade.
+	# Enter the trade action, or the existing card navigator when Buy is disabled.
+	# Directional browsing can still preview other wares without changing a trade.
 	var router: Node = get_node_or_null("/root/InputRouter")
-	if router != null and bool(router.call("using_controller")) and not _detail_action.disabled:
-		_detail_action.grab_focus()
+	if router != null and bool(router.call("using_controller")):
+		if not _detail_action.disabled: _detail_action.grab_focus()
+		elif _detail_card_nav.visible: _detail_card_previous.grab_focus()
 
 func _on_gui_focus_changed(control: Control) -> void:
 	if visible and control != null and is_ancestor_of(control):
@@ -1404,19 +1469,19 @@ func _configure_focus_neighbors() -> void:
 			var source: Control = pack[index]
 			_set_focus_neighbor(source, SIDE_LEFT, pack[index - 1] if index % 3 > 0 else _mode_buy)
 			_set_focus_neighbor(source, SIDE_RIGHT, pack[index + 1] if index % 3 < 2 and index + 1 < pack.size() else entry)
-			_set_focus_neighbor(source, SIDE_TOP, pack[index - 3] if index >= 3 else _filter_buttons[mini(index, 3)])
+			_set_focus_neighbor(source, SIDE_TOP, pack[index - 3] if index >= 3 else _filter_buttons[mini(index, _filter_buttons.size() - 1)])
 			_set_focus_neighbor(source, SIDE_BOTTOM, pack[index + 3] if index + 3 < pack.size() else _mode_sell)
 		if not pack.is_empty(): last = pack.back()
 		for index: int in range(_filter_buttons.size()):
 			var button: Button = _filter_buttons[index]
 			_set_focus_neighbor(button, SIDE_LEFT, _filter_buttons[index - 1] if index > 0 else _mode_buy)
-			_set_focus_neighbor(button, SIDE_RIGHT, _filter_buttons[index + 1] if index < 3 else entry)
+			_set_focus_neighbor(button, SIDE_RIGHT, _filter_buttons[index + 1] if index + 1 < _filter_buttons.size() else entry)
 			_set_focus_neighbor(button, SIDE_BOTTOM, pack[mini(index, pack.size() - 1)] if not pack.is_empty() else _mode_sell)
 			_set_focus_neighbor(button, SIDE_TOP, _sell_next if not _sell_next.disabled else _sell_previous if not _sell_previous.disabled else button)
 		_set_focus_neighbor(_sell_previous, SIDE_RIGHT, _sell_next if not _sell_next.disabled else _filter_buttons[0])
-		_set_focus_neighbor(_sell_next, SIDE_LEFT, _sell_previous if not _sell_previous.disabled else _filter_buttons[3])
+		_set_focus_neighbor(_sell_next, SIDE_LEFT, _sell_previous if not _sell_previous.disabled else _filter_buttons.back())
 		_set_focus_neighbor(_sell_previous, SIDE_BOTTOM, _filter_buttons[0])
-		_set_focus_neighbor(_sell_next, SIDE_BOTTOM, _filter_buttons[3])
+		_set_focus_neighbor(_sell_next, SIDE_BOTTOM, _filter_buttons.back())
 	else:
 		_configure_offer_row(magic, [], gear, _mode_buy, entry)
 		_configure_offer_row(gear, magic, items, _mode_buy, entry)
@@ -1526,7 +1591,7 @@ func _action(text_value: String) -> Button:
 	return button
 
 func _shelf_offer_button() -> Button:
-	return Ware.new()
+	return ShelfWare.new()
 
 func _panel_insets() -> StyleBoxEmpty:
 	var style := StyleBoxEmpty.new()

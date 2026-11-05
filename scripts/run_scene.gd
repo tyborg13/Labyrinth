@@ -1142,7 +1142,6 @@ const SELECTION_BANNER_MAX_WIDTH: float = 1040.0
 const SELECTION_TITLE_FONT_SIZE: int = 40
 const SELECTION_TITLE_HEIGHT: float = 138.0
 const SELECTION_TITLE_TO_OFFERS_GAP: float = 14.0
-const SELECTION_GROUP_TOP_BIAS: float = 0.44
 const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
 const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
@@ -1218,7 +1217,8 @@ const TURN_ORDER_SLOT_GAP: float = 3.0
 const ENEMY_INTENT_TOGGLE_HEIGHT: float = 36.0
 const ENEMY_INTENT_TOGGLE_TOP_GAP: float = 8.0
 const TURN_ORDER_QUEUED_MIN_WIDTH: float = 76.0
-const TURN_ORDER_RAIL_TOP_GAP: float = 14.0
+# Owner-authored 12px projection exception (caption minus 2), increased from 9.
+const TURN_ORDER_PROJECTION_FONT_SIZE: int = UiTypography.SIZE_CAPTION - 2
 const TURN_ORDER_RAIL_EDGE_GAP: float = 18.0
 const TURN_ORDER_MAX_SLOTS: int = 10
 const TURN_ORDER_DISCLOSURE_LIMIT: int = 10
@@ -1244,6 +1244,7 @@ const PASS_FORECAST_TITLE_COLOR := Color("d9cdb4")
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
 const RESOURCE_METER_STACK_GAP: float = 4.0
+const RESOURCE_CHIP_DOCK_GAP: float = 8.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
 const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(60.0, 38.0)
 const COMBAT_LOG_TRANSIENT_SECONDS: float = 3.0
@@ -1324,6 +1325,7 @@ var _skill_analytics_flushing: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
 var _intent_path_geometry_revision: int = -1
+var _stage_hover_refresh := preload("res://scripts/stage_hover_refresh.gd").new()
 var _board_encounter_key: String = ""
 var _board_encounter_roster: Array[String]
 var _board_encounter_started: bool = false
@@ -1372,10 +1374,8 @@ var _hover_resolved_preview_key: String = ""
 var _intent_badges := IntentBadges.new()
 var _intent_callouts := IntentCallouts.new()
 var _hover_resolved_preview_state: Dictionary = {}
-var _stage_visibility_cache_key: String = ""
+var _stage_visibility_retention := preload("res://scripts/stage_visibility_retention.gd").new()
 var _stage_visibility_cache: Dictionary = {}
-var _enemy_intent_compass_cache_key: String = ""
-var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
 var _frame_sliced_ui_refresh_active: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
@@ -1463,6 +1463,7 @@ var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _escape_transition_in_progress: bool = false
 var _board_presentation: Dictionary = {}
+var _hud_forecast := preload("res://scripts/combat_hud_forecast.gd").new()
 var _player_popup_timeline_active: bool = false
 var _player_popup_timeline_started_usec: int = 0
 var _player_popup_timeline_groups: Array[Dictionary]
@@ -1527,6 +1528,7 @@ var _pile_badges: Dictionary = {}
 var _pile_state_overlays: Dictionary = {}
 var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
+var _pile_visual_refresh := preload("res://scripts/pile_visual_refresh.gd").new()
 var _pile_dialog_content_source: Dictionary = {}
 var _event_view: Control
 var _omen_badges = preload("res://scripts/omen_badges.gd").new()
@@ -1588,6 +1590,7 @@ var _draw_hand_transition_cards: Array[String]
 var _draw_hand_transition_proxies: Array[Control]
 var _opening_hand_draw_in_progress: bool = false
 var _locked_hand_render_cache := LockedHandRenderCache.new()
+var _hand_lock_tint := preload("res://scripts/hand_lock_tint.gd").new()
 var _locked_hand_cache_generation: int = 0
 var _locked_hand_cache_active: bool:
 	get:
@@ -1721,6 +1724,7 @@ var _pinned_tooltip_source_text: String = ""
 var _pinned_pre_battle_tooltip_sources: Dictionary = {}
 var _card_focus_tooltip_stack: CardFocusTooltipStack
 var _selected_card_label_override: String = ""
+var _pass_preview_forecast_chip: WeakRef
 var _drag_overlay: Control
 var _drag_target_arrow: CardDragTargetingArrow
 var _drag_zone_panels: Dictionary = {}
@@ -1904,8 +1908,11 @@ var _choice_refresh := preload("res://scripts/choice_refresh.gd").new()
 var _hud_refresh_layout := preload("res://scripts/hud_refresh_layout.gd").new()
 var _victory_reward_preparation := preload("res://scripts/prepared_victory_reward.gd").new()
 var _reward_reroll_preparation := preload("res://scripts/prepared_reward_choices.gd").new()
+var _opening_query_preparation := preload("res://scripts/opening_query_preparation.gd").new()
+var _application_suspend := preload("res://scripts/application_suspend.gd").new()
 
 func _schedule_encounter_assets(state: Dictionary) -> void:
+	_opening_query_preparation.cancel(self)
 	_cancel_equipment_factory_preparation()
 	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
 	_encounter_preparation_generation += 1
@@ -3139,6 +3146,8 @@ func _controller_equipment_pickup_detail(equipment_id: String) -> String:
 
 func _controller_header_focus_controls() -> Array[Control]:
 	var result: Array[Control]
+	if _contextual_combat_prompt != null and _contextual_combat_prompt.is_visible_in_tree():
+		_controller_collect_focusable_controls(_contextual_combat_prompt, result)
 	if _guided_tutorial_hard_gate_active():
 		if menu_button != null and menu_button.visible and not menu_button.disabled:
 			result.append(menu_button)
@@ -3300,6 +3309,8 @@ func _controller_activate_current() -> void:
 		var focused_control: Control = preload("res://scripts/controller_focus_candidates.gd").live_control(_controller_focus_candidate)
 		if focused_control is BaseButton and not (focused_control as BaseButton).disabled:
 			_clear_focused_enemy_intent()
+			if focused_control.toggle_mode and (not focused_control.button_pressed or focused_control.button_group == null or focused_control.button_group.allow_unpress):
+				focused_control.button_pressed = not focused_control.button_pressed
 			(focused_control as BaseButton).pressed.emit()
 		elif focused_control != null:
 			preload("res://scripts/pile_dialog_view.gd").activate_controller_control(focused_control)
@@ -3827,13 +3838,15 @@ func _board_fit_rect() -> Rect2:
 	# Only an encounter that can contain a boss reserves the central boss header.
 	var header_bottom: float = 62.0
 	for unit_type: String in _board_encounter_types():
-		if bool(GameData.enemy_def(unit_type).get("boss_bar", false)):
+		if bool(GameData.enemy_property(unit_type, "boss_bar", false)):
 			header_bottom = BOSS_HEALTH_OVERLAY_TOP + BOSS_HEALTH_OVERLAY_HEIGHT + 4.0
 			break
 	return Rect2(Vector2(36, header_bottom), Vector2(maxf(1.0, viewport_size.x - 72.0),
 		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
 func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_RESUMED] and is_inside_tree():
+		_application_suspend.handle(self, what)
 	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED] and is_inside_tree():
 		_run_play_clock.sample_scene_play_time(self)
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -3863,6 +3876,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_application_suspend.dispose()
 	_pass_preview_warm_generation += 1
 	_pass_preview_prewarm.cancel()
 	_combat_pacing.end_scope()
@@ -4136,7 +4150,7 @@ func _ensure_grimoire_badge() -> void:
 	_grimoire_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_grimoire_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_grimoire_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_grimoire_badge_label, 8)
+	UiTypography.set_label_size(_grimoire_badge_label, 12)
 	_grimoire_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
 	_grimoire_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
 	_grimoire_badge_label.add_theme_constant_override("outline_size", 1)
@@ -4168,7 +4182,7 @@ func _ensure_loadout_badge() -> void:
 	_loadout_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_loadout_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_loadout_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_loadout_badge_label, 8)
+	UiTypography.set_label_size(_loadout_badge_label, 12)
 	_loadout_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
 	_loadout_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
 	_loadout_badge_label.add_theme_constant_override("outline_size", 1)
@@ -5053,6 +5067,7 @@ func _layout_choice_button_overlay_content() -> void:
 			button_overlay_position.y - preview_size.y - PASS_PREVIEW_STACK_GAP
 		)
 	_pass_preview_overlay.size = preview_size
+	_combat_hud_layout.right_column.layout(self)
 	_layout_action_step_tracker()
 	_queue_contextual_combat_prompt_layout()
 
@@ -5123,7 +5138,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_large_map_scrim.z_index = 940
 	_large_map_scrim.z_as_relative = false
-	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 0.98)
+	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 1.0) # Opaque: nothing of the room shows through the map.
 	_large_map_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui_root.add_child(_large_map_scrim)
 	var margin := MarginContainer.new()
@@ -5819,8 +5834,15 @@ func _layout_relic_choice_overlay() -> void:
 	var host_top: float = stage_size.y - host_height - RELIC_CHOICE_BOTTOM_MARGIN
 	if selection_mode and _relic_choice_title != null and _relic_choice_title.visible:
 		var group_height: float = title_height + SELECTION_TITLE_TO_OFFERS_GAP + host_height
-		var available_slack: float = maxf(0.0, stage_size.y - group_height)
-		title_top = maxf(18.0, available_slack * SELECTION_GROUP_TOP_BIAS)
+		# Centre against the screen's existing margins, independent of StageRoot's
+		# height (notices and the bottom stack can change it).
+		var area_top: float = top_bar.get_global_rect().end.y
+		var area_bottom: float = (stage_root.get_parent() as Control).get_global_rect().end.y
+		if _controller_prompt_bar != null and _controller_prompt_bar.is_visible_in_tree():
+			var hint_rect: Rect2 = _controller_prompt_bar.get_global_rect()
+			if hint_rect.position.y >= area_top:
+				area_bottom = minf(area_bottom, hint_rect.position.y)
+		title_top = (area_top + area_bottom - group_height) * 0.5 - stage_root.global_position.y
 		host_top = title_top + title_height + SELECTION_TITLE_TO_OFFERS_GAP
 	_relic_choice_overlay.anchor_left = 0.0
 	_relic_choice_overlay.anchor_top = 0.0
@@ -6120,6 +6142,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_search_input.text_submitted.connect(_on_grimoire_search_submitted)
 	_grimoire_search_input.gui_input.connect(_on_grimoire_search_gui_input)
 	search_row.add_child(_grimoire_search_input)
+	preload("res://scripts/grimoire_search_keyboard.gd").attach(_grimoire_search_input)
 	_grimoire_search_input.focus_neighbor_top = _grimoire_search_input.get_path_to(close_button)
 	close_button.focus_neighbor_bottom = close_button.get_path_to(_grimoire_search_input)
 
@@ -7113,6 +7136,7 @@ func _refresh_grimoire_badge() -> void:
 	_grimoire_badge.visible = not unread.is_empty()
 	if _grimoire_badge_label != null:
 		_grimoire_badge_label.text = str(mini(9, unread.size()))
+		preload("res://scripts/header_count_badge_sizing.gd").fit(_grimoire_badge, _grimoire_badge_label, GRIMOIRE_BADGE_SIZE, 8)
 
 func _refresh_loadout_badge() -> void:
 	if _loadout_badge == null:
@@ -7121,6 +7145,7 @@ func _refresh_loadout_badge() -> void:
 	_loadout_badge.visible = unread_count > 0
 	if _loadout_badge_label != null:
 		_loadout_badge_label.text = str(mini(9, unread_count))
+		preload("res://scripts/header_count_badge_sizing.gd").fit(_loadout_badge, _loadout_badge_label, GRIMOIRE_BADGE_SIZE, 8)
 
 func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
 	for section_var: Variant in GrimoireLibrary.sections():
@@ -10148,24 +10173,7 @@ func _layout_turn_order_anchor() -> void:
 func _layout_turn_order_anchor_content() -> void:
 	if _turn_order_anchor == null:
 		return
-	var header_bottom: float = TURN_ORDER_RAIL_TOP_GAP
-	# The live header can grow independently of the compact utility buttons (and
-	# their unread badges). Anchor beneath their rendered bottom edge instead of
-	# reconstructing it from TopBar minimum sizes: expanded-aspect production
-	# windows otherwise let the active portrait collide with the first button.
-	var utility_bottom: float = _utility_stack_visible_bottom()
-	if utility_bottom > -INF and ui_root != null:
-		header_bottom = utility_bottom - ui_root.get_global_rect().position.y + TURN_ORDER_RAIL_TOP_GAP
-	elif top_bar != null:
-		var top_bar_rect: Rect2 = top_bar.get_global_rect()
-		header_bottom = top_bar_rect.end.y - ui_root.get_global_rect().position.y + TURN_ORDER_RAIL_TOP_GAP
-	var rail_size: Vector2 = _turn_order_panel.get_combined_minimum_size() if _turn_order_panel != null else TURN_ORDER_PANEL_MIN_SIZE
-	_turn_order_anchor.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_turn_order_anchor.offset_left = -rail_size.x - TURN_ORDER_RAIL_EDGE_GAP
-	_turn_order_anchor.offset_top = header_bottom
-	_turn_order_anchor.offset_right = -TURN_ORDER_RAIL_EDGE_GAP
-	_turn_order_anchor.offset_bottom = header_bottom + rail_size.y
-	_turn_order_anchor.size = rail_size
+	_combat_hud_layout.right_column.layout(self)
 	_layout_boss_health_overlay()
 	_layout_combat_action_dock()
 
@@ -10239,6 +10247,26 @@ func _layout_combat_action_dock_content() -> void:
 	_movement_meter.visible = in_combat
 	if not in_combat:
 		return
+	_layout_combat_objective_hud()
+	_layout_combat_resource_chips()
+
+func _layout_combat_resource_chips() -> void:
+	if _play_meter == null or _movement_meter == null:
+		return
+	if _combat_objective_hud != null and _combat_objective_hud.visible:
+		var objective: Rect2 = _combat_objective_hud.get_global_rect()
+		_play_meter.global_position = Vector2(objective.position.x, objective.end.y + RESOURCE_CHIP_DOCK_GAP)
+		_movement_meter.global_position = Vector2(objective.position.x, _play_meter.get_global_rect().end.y + RESOURCE_CHIP_DOCK_GAP)
+	else:
+		# Preserve the existing placement for combat fixtures without an objective.
+		var anchor: Rect2 = _combat_objective_resource_anchor_rect()
+		_play_meter.global_position = anchor.position
+		_movement_meter.global_position = anchor.position + Vector2(0.0, anchor.size.y + RESOURCE_METER_STACK_GAP)
+	if _movement_undo_button != null: _movement_undo_button.refresh()
+
+func _combat_objective_resource_anchor_rect() -> Rect2:
+	# Keep the objective's existing hand-relative home independent of the chips
+	# that now follow it. Reading their new position here would feed back into it.
 	var viewport_size: Vector2 = get_viewport_rect().size
 	# These positions share the canvas coordinate space used by the rendered hand
 	# bounds. Window backing scale is intentionally not applied a second time.
@@ -10273,15 +10301,11 @@ func _layout_combat_action_dock_content() -> void:
 		top_limit = maxf(top_limit, board_bounds.end.y + 12.0)
 	var bottom_limit: float = maxf(8.0, viewport_size.y - dock_height - 8.0)
 	dock_top = clampf(dock_top, minf(top_limit, bottom_limit), bottom_limit)
-	_play_meter.global_position = Vector2(
+	var meter_position := Vector2(
 		clampf(meter_left, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
 		dock_top
 	)
-	_movement_meter.global_position = Vector2(
-		clampf(pass_left + (pass_size.x - movement_size.x) * 0.5, 8.0, maxf(8.0, viewport_size.x - movement_size.x - 8.0)),
-		dock_top + meter_size.y + RESOURCE_METER_STACK_GAP
-	)
-	_layout_combat_objective_hud()
+	return Rect2(meter_position, meter_size)
 
 func _combat_hand_visual_bounds() -> Rect2:
 	var bounds := Rect2()
@@ -10515,17 +10539,7 @@ func _populate_discard_pile(host: Control, cards: Array, card_size: Vector2) -> 
 	_populate_pile_icon(host, DISCARD_PILE_ICON_TEXTURE_PATH, cards.is_empty(), "DiscardPileIcon")
 
 func _populate_pile_icon(host: Control, icon_path: String, empty: bool, icon_name: String) -> void:
-	_clear_children_now(host)
-	var icon := TextureRect.new()
-	icon.name = icon_name
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.position = Vector2.ZERO
-	icon.size = PILE_ICON_SIZE
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(icon_path)
-	icon.modulate = Color(1.0, 1.0, 1.0, 0.42) if empty else Color.WHITE
-	host.add_child(icon)
+	_pile_visual_refresh.populate_icon(self, host, icon_path, empty, icon_name)
 
 func _add_card_back_layer(host: Control, card_size: Vector2, stack_index: int, alpha: float) -> void:
 	var card_back := TextureRect.new()
@@ -11005,7 +11019,7 @@ func _lock_existing_pass_preview() -> void:
 		chip = choice_bar.get_node_or_null("PassPreviewChip") as Button
 	if chip == null:
 		return
-	chip.disabled = true
+	(chip as UiTooltipButton).set_disabled_with_tooltip(true)
 	chip.focus_mode = Control.FOCUS_NONE
 	chip.set_meta("pass_pressed", false)
 	chip.set_meta("pass_keyboard_focus", false)
@@ -11016,6 +11030,7 @@ func _lock_existing_pass_preview() -> void:
 	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
 func _begin_locked_hand_render_cache() -> void:
+	if _hand_lock_tint.is_running(): return
 	hand_box.apply_layout_immediately()
 	if hand_box.is_sliding():
 		# The neighbours are easing into the held gap: freeze the hand once they
@@ -12273,6 +12288,8 @@ func _setup_combat_objective_hud() -> void:
 	_battlefield_rule_hud.z_index = 34
 	ui_root.add_child(_battlefield_rule_hud)
 	_combat_objective_hud.item_rect_changed.connect(_place_battlefield_rule_hud)
+	_combat_objective_hud.item_rect_changed.connect(_layout_combat_resource_chips)
+	_combat_objective_hud.visibility_changed.connect(_layout_combat_resource_chips)
 	_combat_objective_hud.visibility_changed.connect(_place_battlefield_rule_hud)
 	_layout_combat_objective_hud()
 
@@ -12352,11 +12369,10 @@ func _combat_objective_hud_target_rect() -> Rect2:
 	if top_bar != null and top_bar.is_inside_tree() and ui_root != null:
 		minimum_top = maxf(minimum_top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
 	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
-		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
+		var play_meter_rect: Rect2 = _combat_objective_resource_anchor_rect()
 		if play_meter_rect.size.y > 0.0:
-			# One aligned left dock: the objective sits directly above the
-			# card-play and movement meters and shares their right edge, so the
-			# column reads as one flush stack beside the hand.
+			# Retain the objective's established dock home. Its original resource
+			# anchor stays independent of the chips now stacked below the panel.
 			var root_origin: Vector2 = ui_root.get_global_rect().position
 			top = play_meter_rect.position.y - root_origin.y - hud_height - COMBAT_OBJECTIVE_DOCK_GAP
 			var right_edge: float = play_meter_rect.end.x - root_origin.x
@@ -12555,15 +12571,9 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 	# active actor and its next turn. Project once, then cap only the rail.
 	var strip_limit: int = maxi(TURN_ORDER_DISCLOSURE_LIMIT, (display_state.get("turn_queue", []) as Array).size() * 2 + 2)
 	var all_entries: Array[Dictionary] = _combat_engine.current_turn_order(display_state, strip_limit)
-	var entries: Array[Dictionary]
 	_turn_order_all_entries = all_entries
 	_refresh_turn_order_landing_strip()
-	for index: int in range(mini(TURN_ORDER_MAX_SLOTS, all_entries.size())):
-		entries.append(all_entries[index])
-	var overflow_entries: Array[Dictionary]
-	for index: int in range(entries.size(), mini(TURN_ORDER_DISCLOSURE_LIMIT, all_entries.size())):
-		overflow_entries.append(all_entries[index])
-	_set_turn_order_bar_entries(entries, overflow_entries.size(), _turn_order_overflow_tooltip(overflow_entries), _turn_order_signature(overflow_entries))
+	_set_turn_order_bar_entries(all_entries)
 
 func _turn_order_landing_strip_allowed(focused_index: int = -1) -> bool:
 	# Called while following the hand every frame: never build a card preview
@@ -12628,46 +12638,8 @@ func _turn_order_card_time_preview() -> Dictionary:
 		"name": str(card.get("name", card_id))
 	}
 
-func _set_turn_order_bar_entries(entries: Array[Dictionary], overflow_count: int = 0, overflow_tooltip: String = "", overflow_signature: String = "") -> void:
-	if _turn_order_bar == null:
-		return
-	var signature: String = "%s|overflow:%s" % [_turn_order_signature(entries), overflow_signature]
-	if not _turn_order_animating and signature == _turn_order_render_signature:
-		return
-	_turn_order_render_signature = signature
-	_turn_order_rendered_entries = _turn_order_array(entries)
-	var entries_height: float = _turn_order_entries_height(entries.size())
-	var disclosure_height: float = 22.0 if overflow_count > 0 else 0.0
-	_turn_order_bar.custom_minimum_size = Vector2(TURN_ORDER_ACTIVE_SIZE.x, entries_height + disclosure_height)
-	_turn_order_bar.size = _turn_order_bar.custom_minimum_size
-	if _turn_order_panel != null:
-		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
-		var header_height: float = _turn_order_header_host.get_combined_minimum_size().y if _turn_order_header_host != null else 0.0
-		var panel_height: float = maxf(
-			TURN_ORDER_PANEL_MIN_SIZE.y,
-			header_height + entries_height + disclosure_height + ENEMY_INTENT_TOGGLE_TOP_GAP + ENEMY_INTENT_TOGGLE_HEIGHT + 30.0
-		)
-		_turn_order_panel.custom_minimum_size = Vector2(panel_width, panel_height)
-		_set_turn_order_visible(not entries.is_empty())
-	preload("res://scripts/turn_order_slots.gd").reconcile(self, entries)
-	if overflow_count > 0:
-		_turn_order_bar.add_child(_turn_order_overflow_badge(entries_height, overflow_count, overflow_tooltip))
-
-func _turn_order_overflow_badge(entries_height: float, overflow_count: int, overflow_tooltip: String) -> Label:
-	var badge := Label.new()
-	badge.name = "TurnOrderOverflowBadge"
-	badge.text = "+%d" % overflow_count
-	badge.position = Vector2(TURN_ORDER_ACTIVE_SIZE.x - 34.0, entries_height + 2.0)
-	badge.size = Vector2(30.0, 18.0)
-	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	badge.tooltip_text = overflow_tooltip
-	badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-	UiTypography.set_label_size(badge, UiTypography.SIZE_SMALL)
-	badge.add_theme_color_override("font_color", Color("cdbca2"))
-	badge.add_theme_color_override("font_outline_color", Color("150d08"))
-	badge.add_theme_constant_override("outline_size", 1)
-	return badge
+func _set_turn_order_bar_entries(entries: Array[Dictionary]) -> void:
+	if _turn_order_bar != null: _combat_hud_layout.right_column.present(self, entries)
 
 func _turn_order_overflow_tooltip(entries: Array[Dictionary]) -> String:
 	if entries.is_empty():
@@ -12688,26 +12660,8 @@ func _set_turn_order_visible(visible: bool) -> void:
 		_layout_turn_order_anchor()
 		call_deferred("_layout_combat_action_dock")
 
-func _turn_order_entries_width(count: int) -> float:
-	if count <= 0:
-		return 0.0
-	return TURN_ORDER_ACTIVE_SIZE.x
-
-func _turn_order_entries_height(count: int) -> float:
-	if count <= 0:
-		return 0.0
-	var height: float = 0.0
-	for index: int in range(count):
-		height += _turn_order_slot_size(index, false).y
-		if index < count - 1:
-			height += TURN_ORDER_SLOT_GAP
-	return height
-
-func _turn_order_panel_width_for_count(count: int) -> float:
-	return maxf(TURN_ORDER_PANEL_MIN_WIDTH, _turn_order_header_width() + 20.0)
-
-func _turn_order_header_width() -> float:
-	return TURN_ORDER_LABEL_WIDTH
+func _turn_order_panel_width_for_count(_count: int) -> float:
+	return preload("res://scripts/turn_order_layout.gd").column_width(self)
 
 func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation: Dictionary) -> void:
 	if _boss_health_overlay == null or _turn_order_header_host == null:
@@ -12715,11 +12669,12 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 	var boss: Dictionary = _boss_unit_for_health_overlay(display_state)
 	var death_alpha: float = 1.0
 	for unit: Dictionary in source_presentation.get("death_animation_units", []):
-		if bool(GameData.enemy_def(str(unit.get("type", ""))).get("boss_bar", false)) and (boss.is_empty() or int(unit.get("id", -1)) == int(boss.get("id", -2))):
+		if bool(GameData.enemy_property(str(unit.get("type", "")), "boss_bar", false)) and (boss.is_empty() or int(unit.get("id", -1)) == int(boss.get("id", -2))):
 			boss = unit.duplicate(false)
 			boss["hp"] = 0
 			death_alpha = board_view.call("_death_animation_tint", unit).a if board_view != null else 1.0
 			break
+	boss = _hud_forecast.boss(self, boss, source_presentation)
 	_boss_health_overlay.modulate = Color(1.0, 1.0, 1.0, death_alpha)
 	var visible: bool = not boss.is_empty()
 	var preview: Dictionary = _boss_health_damage_preview.preview_for_overlay(boss, source_presentation, _animation_lock, _combat_engine.is_player_turn(_combat_state)) if visible else {}
@@ -12746,8 +12701,7 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 		if _boss_health_damage_preview != null:
 			_boss_health_damage_preview.visible = false
 		return
-	var boss_def: Dictionary = GameData.enemy_def(str(boss.get("type", "")))
-	var boss_name: String = str(boss_def.get("name", boss.get("name", "Boss")))
+	var boss_name: String = str(GameData.enemy_property(str(boss.get("type", "")), "name", boss.get("name", "Boss")))
 	var current_boss: Dictionary = boss
 	if not preview.is_empty():
 		var boss_id: int = int(boss.get("id", -1))
@@ -12802,7 +12756,7 @@ func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
 			if typeof(enemy_var) != TYPE_DICTIONARY:
 				continue
 			var enemy: Dictionary = enemy_var as Dictionary
-			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+			if bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false)):
 				_boss_health_candidate_id = int(enemy.get("id", -1))
 				break
 	if _boss_health_candidate_id < 0:
@@ -12819,20 +12773,10 @@ func _boss_health_segment_count(max_hp: int) -> int:
 	return mini(BOSS_HEALTH_MAX_SEGMENTS, SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp))))
 
 func _turn_order_slot_position(index: int) -> Vector2:
-	var y: float = 0.0
-	for previous_index: int in range(index):
-		y += _turn_order_slot_size(previous_index, false).y + TURN_ORDER_SLOT_GAP
-	var slot_size: Vector2 = _turn_order_slot_size(index, false)
-	return Vector2(TURN_ORDER_ACTIVE_SIZE.x - slot_size.x, y)
+	return _combat_hud_layout.right_column.slot_position(index)
 
-func _turn_order_slot_size(index: int, active: bool) -> Vector2:
-	if active or index == 0:
-		return TURN_ORDER_ACTIVE_SIZE
-	# Keep the entire forecast readable as portraits instead of tapering it into
-	# horizontal slivers. The lower entries are smaller, never thinner.
-	var scale: float = maxf(TURN_ORDER_QUEUED_MIN_WIDTH / TURN_ORDER_ACTIVE_SIZE.x, 0.88 - float(index - 1) * 0.04)
-	var width: float = roundf(TURN_ORDER_ACTIVE_SIZE.x * scale)
-	return Vector2(width, roundf(width * TURN_ORDER_PORTRAIT_SIZE.y / TURN_ORDER_PORTRAIT_SIZE.x))
+func _turn_order_slot_size(index: int, _active: bool) -> Vector2:
+	return _combat_hud_layout.right_column.slot_size(self, index)
 
 func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	return preload("res://scripts/turn_order_slots.gd").update(self, entry, index)
@@ -12897,8 +12841,9 @@ func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 
 func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2, retained: Control = null) -> Control:
 	var badge: Control = retained if retained != null else PanelContainer.new()
+	var badge_font: int = TURN_ORDER_PROJECTION_FONT_SIZE
 	badge.name = "ProjectionPreviewBadge"
-	badge.custom_minimum_size = Vector2(maxf(28.0, slot_size.x - 8.0), 20.0)
+	badge.custom_minimum_size = Vector2(preload("res://scripts/turn_order_layout.gd").PROJECTION_WIDTH, 20.0)
 	badge.size = badge.custom_minimum_size
 	badge.position = Vector2(4.0, slot_size.y - 24.0 - TURN_ORDER_HEALTH_BAR_HEIGHT - TURN_ORDER_HEALTH_BAR_BOTTOM_INSET)
 	badge.tooltip_text = _turn_order_tooltip(entry, 0)
@@ -12909,17 +12854,14 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2, retaine
 	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	label.text = _turn_order_projection_badge_text(entry)
 	if entry.has("projected_time_delta"):
-		var width: float = clampf(UiTypography.ui_font().get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x + 10.0, badge.size.x, maxf(badge.size.x, 132.0))
-		badge.custom_minimum_size.x = width
-		badge.size.x = width
-		label.text = TurnOrderInk.projection_text(entry, UiTypography.ui_font(), width - 10.0)
+		label.text = TurnOrderInk.projection_text(entry, UiTypography.ui_font(), badge.size.x - 10.0, badge_font)
 	else:
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.clip_text = true
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, 9)
+	UiTypography.set_label_size(label, badge_font)
 	label.add_theme_color_override("font_color", Color("fff6ce"))
 	label.add_theme_color_override("font_outline_color", Color("120b07"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -12984,9 +12926,7 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
 	if team == "enemy":
 		var enemy_type: String = str(entry.get("type", ""))
-		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-		if not enemy_def.is_empty():
-			accent = Color(str(enemy_def.get("accent", "#d36a55")))
+		accent = Color(str(GameData.enemy_property(enemy_type, "accent", "#d36a55")))
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color.TRANSPARENT
 	style.border_color = Color(0.0, 0.0, 0.0, 0.0)
@@ -13069,7 +13009,7 @@ func _turn_order_portrait_path(entry: Dictionary) -> String:
 	if not portrait_path.is_empty():
 		return portrait_path
 	if str(entry.get("kind", "")) == "enemy":
-		var enemy_art_path: String = str(GameData.enemy_def(key).get("art_path", ""))
+		var enemy_art_path: String = str(GameData.enemy_property(key, "art_path", ""))
 		if not enemy_art_path.is_empty():
 			return enemy_art_path
 	return str(TURN_ORDER_PORTRAITS.get("player", ""))
@@ -13101,7 +13041,8 @@ func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
 		_refresh_stage_view()
 
 func _turn_order_entries_from_state(state: Dictionary) -> Array[Dictionary]:
-	return _combat_engine.current_turn_order(state, TURN_ORDER_MAX_SLOTS)
+	var limit: int = maxi(TURN_ORDER_MAX_SLOTS, (state.get("turn_queue", []) as Array).size() * 2 + 2)
+	return _combat_engine.current_turn_order(state, limit)
 
 func _turn_order_array(value: Variant) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -13531,20 +13472,11 @@ func _animate_turn_order_alongside_defeats(
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
 	var card_size: Vector2 = _pile_display_card_size()
-	var signature: String = "%d|%d|%d|%d|%.2f,%.2f" % [
-		_combat_preview_revision,
-		hash(piles.get("draw", [])),
-		hash(piles.get("discard", [])),
-		hash(piles.get("burn", [])),
-		card_size.x,
-		card_size.y
-	]
-	if signature == _pile_visual_signature:
+	if _pile_visual_refresh.unchanged(self, piles, card_size):
 		_refresh_pile_interaction_states()
 		_sync_hand_side_widths()
 		call_deferred("_sync_hand_side_widths")
 		return
-	_pile_visual_signature = signature
 	for kind: String in ["draw", "discard"]:
 		var host: Control = _pile_visual_hosts.get(kind, null)
 		if host == null:
@@ -13559,6 +13491,7 @@ func _refresh_pile_visuals() -> void:
 			_populate_draw_pile(host, cards, card_size)
 			continue
 		_populate_discard_pile(host, cards, card_size)
+	_pile_visual_refresh.remember_children(self)
 	_refresh_pile_interaction_states()
 	_sync_hand_side_widths()
 	call_deferred("_sync_hand_side_widths")
@@ -14807,7 +14740,12 @@ func _add_pass_preview_chip() -> void:
 	preload("res://scripts/retained_pass_preview.gd").refresh(self)
 
 func _refresh_selected_card_forecast() -> void:
-	var chip: Button = find_child("PassPreviewChip", true, false) as Button
+	# Keep the same recursive discovery/child contract, but reuse its live owner
+	# instead of walking every board rig and inventory node on targeting motion.
+	var chip: Button = _pass_preview_forecast_chip.get_ref() as Button if _pass_preview_forecast_chip != null else null
+	if chip == null or not is_ancestor_of(chip):
+		chip = find_child("PassPreviewChip", true, false) as Button
+		_pass_preview_forecast_chip = weakref(chip) if chip != null else null
 	if chip == null:
 		return
 	var label: Label = chip.find_child("PassPreviewForecastLine", true, false) as Label
@@ -14821,6 +14759,7 @@ func _refresh_selected_card_forecast() -> void:
 	label.tooltip_text = chip.tooltip_text
 
 func _refresh_pass_forecast_line(label: Label, row: Control, entries: Array[Dictionary], wait_time: int) -> void:
+	if preload("res://scripts/retained_pass_preview.gd").forecast_unchanged(label, row, entries, wait_time): return
 	label.configure(wait_time, entries)
 	row.set_meta("pass_preview_values", entries.duplicate(true))
 	row.set_meta("pass_preview_wait_time", wait_time)
@@ -15676,6 +15615,7 @@ func _finish_reward_intro() -> void:
 	reward_state["intro_pending"] = false
 	_run_state["pending_reward"] = reward_state
 	_persist_committed_boundary("reward_intro_complete")
+	if _controller_is_active(): _schedule_controller_modal_refresh()
 	call_deferred("_prepare_reward_reroll_choices")
 
 func _add_dragon_reward_stack() -> void:
@@ -15968,7 +15908,7 @@ func _finish_reward_choice_stack(stack: VBoxContainer, heal_amount: int, focusab
 		action_row.add_child(reroll_button)
 		action_buttons.append(reroll_button)
 	if event_reward:
-		var skip_button: UiTooltipButton = _reward_secondary_button("RewardSkipButton", "Skip", _on_skip_reward_pressed, "", REWARD_REROLL_BUTTON_MIN_WIDTH)
+		var skip_button: UiTooltipButton = _reward_secondary_button("RewardSkipButton", "SKIP", _on_skip_reward_pressed, "", REWARD_REROLL_BUTTON_MIN_WIDTH)
 		action_row.add_child(skip_button)
 		action_buttons.append(skip_button)
 	if heal_amount > 0:
@@ -16845,6 +16785,11 @@ func _consume_hand_ready_wave() -> void:
 	_hand_ready_wave_reason = ""
 
 func _refresh_hand_panel() -> void:
+	var tint_transition: Dictionary = _hand_lock_tint.before_refresh(self)
+	_refresh_hand_panel_content()
+	_hand_lock_tint.after_refresh(self, tint_transition)
+
+func _refresh_hand_panel_content() -> void:
 	_card_proxy_preparation.request(self)
 	# Any real hand refresh (draw, resource change, resize, or unlock) invalidates
 	# the frozen image. Restore the controls before their normal update path runs.
@@ -16951,7 +16896,7 @@ func _refresh_hand_panel() -> void:
 	if hovered_widget != null:
 		_hovered_card_index = -1
 		for retained_index: int in retained_entries:
-			if retained_entries[retained_index]["widget"] == hovered_widget:
+			if retained_entries[retained_index]["widget"] == hovered_widget and hovered_widget.card_id == str(signature_hand[retained_index]):
 				_hovered_card_index = retained_index
 				break
 	var retained_slots: Dictionary = {}
@@ -16977,7 +16922,7 @@ func _refresh_hand_panel() -> void:
 			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var card_id: String = str(hand[index])
 			var pool_entry: Dictionary = retained_entries.get(index, {}) as Dictionary
-			var retain_hand_transform: bool = not pool_entry.is_empty()
+			var retain_hand_transform: bool = not pool_entry.is_empty() and not bool(pool_entry.get("rebound", false))
 			if pool_entry.is_empty(): pool_entry = _acquire_hand_card_pool_entry(card_id, card_size)
 			var widget: CardWidget = pool_entry.get("widget", null) as CardWidget
 			var card_slot: Control = pool_entry.get("slot", null) as Control
@@ -17274,19 +17219,7 @@ func _ensure_hand_card_pool_host() -> void:
 	add_child(_hand_card_pool_host)
 
 func _retained_hand_entries(next_hand: Array) -> Dictionary:
-	var result: Dictionary = {}
-	var used: Dictionary = {}
-	for index: int in range(next_hand.size()):
-		for child: Node in hand_box.get_children():
-			if used.has(child): continue
-			var widget: CardWidget = _card_widget_descendant(child)
-			if widget == null or widget.card_id != str(next_hand[index]): continue
-			var scaler: Node = widget.get_parent()
-			if scaler == null or scaler.get_parent() != child: continue
-			used[child] = true
-			result[index] = {"card_id": widget.card_id, "widget": widget, "slot": child, "definition_signature": int(widget.get_meta("hand_card_definition_signature", -1))}
-			break
-	return result
+	return preload("res://scripts/retained_hand_refresh.gd").entries(self, next_hand)
 
 func _release_hand_card_slots_to_pool(retained_slots: Dictionary = {}) -> void:
 	if hand_box == null or hand_box.get_child_count() == 0:
@@ -17993,7 +17926,7 @@ func _refresh_stage_view() -> void:
 			presentation["focus_actor_color"] = Color("f2ddb2")
 		var rest_preview: Dictionary = _enemy_intent_preview_state(display_state)
 		var rest_focus: String = preload("res://scripts/board_hover_actor.gd").key_at_tile(self, display_state, intent_focus_tile, _turn_order_hovered_enemy_key) if enemy_hover_active else _turn_order_hovered_enemy_key
-		presentation["threats_at_rest"] = _intent_badges.presentation_for_state(_combat_engine, _combat_state, rest_preview, rest_focus, _surface_preview_information_state.bind(rest_preview))
+		presentation["threats_at_rest"] = _stage_hover_refresh.rest_badges(self, rest_preview, rest_focus)
 		_intent_callouts.observe(_combat_engine, _combat_state)
 		presentation["show_all_enemy_intents"] = render_all_enemy_intents
 	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
@@ -18034,6 +17967,12 @@ func _refresh_stage_view() -> void:
 	call_deferred("_sync_board_view_rect")
 	if board_view.has_method("set_health_ghost_source_state"):
 		board_view.call("set_health_ghost_source_state", _combat_state if run_mode == "combat" else display_state)
+	presentation = _hud_forecast.decorate(self, display_state, presentation)
+	# Forecasts can contain hypothetical Ooze splits. Only committed refreshes
+	# may register a birth; animated snapshots have their own submission hook.
+	if run_mode == "combat" and (_animation_lock or _preview_combat_state.is_empty()):
+		_ensure_sfx_bank()
+		_sfx_router.enemy_arrivals(display_state, presentation)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -18135,42 +18074,11 @@ func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_combat_engine.set_runtime_performance_instrumentation_enabled(enabled)
 
 func _stage_visibility_presentation(visibility_state: Dictionary) -> Dictionary:
-	# Most pointer hovers change damage/path presentation while their information
-	# boundary remains the committed combat state. Recomputing the full Umbra
-	# flood fill, visible enemy list, and light-source list on each hover added a
-	# fixed multi-millisecond tax that grew with board density.
-	var cache_key: String = "%d|%d" % [_combat_preview_revision, hash(visibility_state)]
-	if cache_key == _stage_visibility_cache_key:
-		return _stage_visibility_cache
-	var umbra_visible_tiles: Array[Vector2i] = _combat_engine.umbra_visible_tiles(visibility_state)
-	var umbra_visible_lookup: Dictionary = {}
-	for visible_tile: Vector2i in umbra_visible_tiles:
-		umbra_visible_lookup[visible_tile] = true
-	var umbra_state: Dictionary = visibility_state.get("umbra", {}) as Dictionary
-	_stage_visibility_cache = {
-		"umbra_stage": _combat_engine.effective_umbra_stage(visibility_state),
-		"umbra_radius": _combat_engine.effective_umbra_radius(visibility_state),
-		"umbra_visible_tiles": umbra_visible_tiles,
-		"visible_enemy_ids": _combat_engine.visible_enemy_ids(visibility_state, umbra_visible_lookup),
-		"umbra_light_sources": _combat_engine.effective_light_sources(visibility_state),
-		"umbra_truesight_activations": int(umbra_state.get("truesight_activations", 0)),
-		"umbra_truesight": _combat_engine.player_has_truesight(visibility_state),
-		"umbra_vision_bonus_activations": int(umbra_state.get("vision_bonus_activations", 0)),
-	}
-	_stage_visibility_cache["umbra_truesight_conditional"] = (
-		bool(_stage_visibility_cache["umbra_truesight"])
-		and int(_stage_visibility_cache["umbra_truesight_activations"]) == 0
-	)
-	_stage_visibility_cache_key = cache_key
+	_stage_visibility_cache = _stage_visibility_retention.resolve(_combat_engine, visibility_state)
 	return _stage_visibility_cache
 
 func _enemy_intent_compass_descriptors(display_state: Dictionary, visible_enemy_ids: Array) -> Dictionary:
-	var cache_key: String = "%d|%d|%d" % [_combat_preview_revision, hash(display_state), hash(visible_enemy_ids)]
-	if cache_key == _enemy_intent_compass_cache_key:
-		return _enemy_intent_compass_cache
-	_enemy_intent_compass_cache = EnemyIntentCompass.descriptors_for_state(display_state, visible_enemy_ids)
-	_enemy_intent_compass_cache_key = cache_key
-	return _enemy_intent_compass_cache
+	return _stage_hover_refresh.compasses(self, display_state, visible_enemy_ids)
 
 func runtime_performance_instrumentation_snapshot() -> Dictionary:
 	_commit_runtime_performance_frame()
@@ -18933,6 +18841,7 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	var state: Dictionary = _combat_engine.normalize_player_movement_pool(source)
 	_record_runtime_performance_phase("committed_hand_query_normalize", normalize_started)
 	_committed_hand_query_state = state
+	_stage_hover_refresh.prepare(self, state, generation)
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		await get_tree().process_frame
@@ -19171,7 +19080,7 @@ func _mark_combat_preview_state_changed() -> void:
 	_boss_health_overlay_signature = ""
 	_stage_chrome_cache_key = ""
 	_stage_chrome_cache.clear()
-	_stage_visibility_cache_key = ""
+	_stage_visibility_retention.clear()
 	_stage_visibility_cache.clear()
 	_card_preview_cache.clear()
 	_card_full_preview_summary_cache.clear()
@@ -20024,9 +19933,9 @@ func _surface_resolution_for_preview(state: Dictionary, action: Dictionary, targ
 		_surface_resolution_cache_key = cache_key
 	return _surface_resolution_cache
 
-func _surface_preview_information_state(state: Dictionary) -> Dictionary:
-	if not _preview_umbra_is_limited(state): return state
-	var information: Dictionary = _preview_information_state(state)
+func _surface_preview_information_state(state: Dictionary, information_override: Variant = null) -> Dictionary:
+	if not _preview_umbra_is_limited(state, information_override): return state
+	var information: Dictionary = _preview_information_state(state) if information_override == null else information_override as Dictionary
 	var visible: Dictionary = _combat_engine.umbra_visible_tile_lookup(information)
 	var known: Dictionary = state.duplicate(true)
 	known["_preview_opaque_enemies"] = true
@@ -21004,6 +20913,7 @@ func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
 func _reset_aoe_aim_orientation_for_action(action: Dictionary) -> void:
 	var direction: Vector2i = _cardinal_direction(action.get("orientation", Vector2i(1, 0)))
 	_aoe_aim_orientation = direction if direction != Vector2i.ZERO else Vector2i(1, 0)
+	_aoe_aim_orientation = preload("res://scripts/line_opening_aim.gd").direction(_combat_engine, _surface_preview_information_state(_preview_combat_state), action, _aoe_aim_orientation)
 
 func _refresh_pending_aoe_target_tiles() -> void:
 	if not _current_action_is_aimed_aoe():
@@ -21435,10 +21345,13 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 			_reset_force_aim()
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
-		_refresh_card_preview_ui()
-		_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 		if complete_play_confirmed:
+			# A released play already owns confirmation. Let the commit lock submit
+			# the pre-effect board instead of first submitting its finished forecast.
 			await _on_confirm_card_play_pressed()
+		else:
+			_refresh_card_preview_ui()
+			_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 		return
 	_selected_card_index = index
 	_preview_combat_state = (preview.get("state", {}) as Dictionary).duplicate(true)
@@ -22307,7 +22220,9 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		or not _combat_engine.is_player_turn(_combat_state)
 	):
 		return
-	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	# The transition observer reads only the previous mode; no run-sized copy
+	# needs to survive the movement animation for that scalar input.
+	var previous_run_state: Dictionary = {"mode": _run_state.get("mode", "room")}
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var action: Dictionary = _player_movement_action.duplicate(true)
@@ -22328,6 +22243,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_refresh_animation_lock_ui()
 	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_movement")
+	_schedule_committed_hand_queries(committed_run_state.get("combat_state", {}) as Dictionary)
 	if action.has("_illusion_id"):
 		var movement_path: Array[Vector2i] = _vector2i_array((committed_combat_state.get("last_illusion_movement",{}) as Dictionary).get("path",[]))
 		await _animate_actor_along_path(previous_combat_state,"illusion_%d" % int(action["_illusion_id"]),movement_path,{"path_tiles":movement_path,"path_color":ENEMY_PATH_PREVIEW_COLOR})
@@ -22356,6 +22272,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_set_action_banner("")
 	_run_state = committed_run_state
 	_sync_combat_state_from_run()
+	_adopt_committed_hand_queries()
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
@@ -22410,6 +22327,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	# the first render boundary. Avoid constructing it twice; dialogue is the
 	# choice-bar early-return case and retains the immediate refresh.
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets, _dialogue_active and _dialogue_suppresses_choices)
+	_hud_forecast.begin(self, resolved_state)
 	_animation_lock = true
 	_invalidate_preview_derived_caches(true)
 	_combat_pacing.begin_card()
@@ -22421,6 +22339,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var committed_combat_state: Dictionary = CommittedBattlefieldRules.player_card(
 		_combat_engine, previous_combat_state, resolved_state, hand_index, actions, selected_targets, {"play_mode": "play"}
 	)
+	if _hud_forecast.confirm(committed_combat_state): _refresh_stage_view()
 	_log_item_pickups(previous_combat_state, committed_combat_state)
 	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	# The checkpoint builder owns its input copy before changing any fields.
@@ -23573,6 +23492,7 @@ func _animate_turn_start_fire(display_state: Dictionary, burn: Dictionary) -> vo
 		"screen_layout_id": FloatingCombatText.ensure_screen_layout_id(burn) + "/damage",
 		"reaction_actor_key": "player", "reaction": "hit"
 	}))
+	_decorate_bleed_damage_float(texts[0], "surface_fire")
 	var duration_seconds: float = FloatingCombatText.total_duration(texts)
 	var started_usec: int = _combat_pacing.presentation_usec()
 	var validated: bool = false
@@ -24044,6 +23964,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			else:
 				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
 				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				if action_type == "aoe" and bool(effect.get("protagonist_melee", false)):
+					effect["protagonist_melee_frames"] = attack_frame_count
 				effect["triggered_traps"] = triggered_traps
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(effect)
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
@@ -24154,6 +24076,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}), 0.0, true)
+		"retaliate", "quicken", "next_attack":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var buff_presentation: Dictionary = preload("res://scripts/card_buff_playback.gd").presentation(before_state, after_state, action, PLAYER_PREVIEW_FOCUS)
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, buff_presentation), 0.0, true)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -24296,7 +24222,9 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	_record_runtime_performance_phase("enemy_round_lock_post_draw_wall_total", performance_lock_started)
 	_record_runtime_performance_phase("enemy_round_lock_and_cache_wall_total", performance_total_started)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	# Staging/checkpoint builders copy before writing, synchronously before the
+	# next await. Avoid a redundant run-sized copy in front of those owners.
+	var previous_run_state: Dictionary = _run_state
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_snapshots", performance_phase_started)
@@ -24305,7 +24233,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	# The initial checkpoint owns the analytics outbox and staged revision cursors
 	# for the whole deterministic phase. Reuse that base for later boundaries so
 	# unchanged event streams do not rebuild and remerge the same outbox.
-	var checkpoint_base_run_state: Dictionary = initial_checkpoint_state.duplicate(true)
+	var checkpoint_base_run_state: Dictionary = initial_checkpoint_state
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_checkpoint_state_total", performance_phase_started)
 	var queued_checkpoint_state: Dictionary = _run_state_with_combat_checkpoints(
 		initial_checkpoint_state,
@@ -24365,6 +24293,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 			slice_player_turn_before_state = (slice_player_before as Dictionary).duplicate(true)
 			player_turn_before_state = slice_player_turn_before_state
 		phase_complete = bool(slice_result.get("complete", false))
+		if phase_complete: _schedule_committed_hand_queries(slice_result.get("state", phase_state) as Dictionary)
 		# The durable pre-phase state owns a deterministic continuation marker. A
 		# crash may replay this locked enemy turn, but live animation must not rewrite
 		# the complete run at every internal commit boundary.
@@ -24413,6 +24342,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		final_run_state = _committed_run_state_override.duplicate(true)
 	_run_state = final_run_state
 	_sync_combat_state_from_run()
+	_adopt_committed_hand_queries()
 	_release_committed_run_state()
 	_record_runtime_performance_phase("enemy_round_final_commit_and_sync_total", finalization_phase_started)
 	var enemy_analytics_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -24897,6 +24827,7 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 			var enemy: Dictionary = (enemy_var as Dictionary).duplicate(true)
 			var enemy_frame_count: int = _enemy_death_frame_count_for_unit(enemy)
 			enemy["key"] = _enemy_key(enemy)
+			enemy["arrival_animation"] = true
 			enemy["death_frame"] = clampi(int(round((1.0 - progress) * float(maxi(1, enemy_frame_count) - 1))), 0, maxi(0, enemy_frame_count - 1))
 			enemy["death_progress"] = 1.0 - progress
 			animated_units.append(enemy)
@@ -26027,6 +25958,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 				"amount": _defeat_lost_amount,
 			}
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
+	_sfx_router.enemy_arrivals(display_state, rendered_presentation)
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
 	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
@@ -26063,6 +25995,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	MaquetteAction.decorate(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
+	rendered_presentation = _hud_forecast.decorate(self, display_state, rendered_presentation)
 	board_view.set_combat_state(
 		display_state,
 		[],
@@ -26102,10 +26035,10 @@ func _board_backdrop_visible_for_board() -> bool:
 func _apply_umbra_board_presentation(display_state: Dictionary, target_presentation: Dictionary) -> void:
 	if display_state.is_empty() or not display_state.has("umbra"):
 		return
-	target_presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
-	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
-	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
-	var visible_enemy_ids: Array = _combat_engine.visible_enemy_ids(display_state)
+	var visibility: Dictionary = _stage_visibility_retention.resolve(_combat_engine, display_state)
+	for key: String in visibility:
+		target_presentation[key] = visibility[key]
+	var visible_enemy_ids: Array = target_presentation["visible_enemy_ids"] as Array
 	for actor_key_var: Variant in target_presentation.get("umbra_action_visible_actor_keys", []):
 		var actor_key: String = str(actor_key_var)
 		for enemy_var: Variant in display_state.get("enemies", []):
@@ -26117,12 +26050,6 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 				visible_enemy_ids.append(enemy_id)
 				break
 	target_presentation["visible_enemy_ids"] = visible_enemy_ids
-	target_presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(display_state)
-	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
-	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
-	target_presentation["umbra_truesight"] = _combat_engine.player_has_truesight(display_state)
-	target_presentation["umbra_truesight_conditional"] = bool(target_presentation["umbra_truesight"]) and int(target_presentation["umbra_truesight_activations"]) == 0
-	target_presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
 	if target_presentation.has("terrain_destruction_units"):
 		var visible_terrain_destruction: Array = []
 		for terrain_var: Variant in target_presentation.get("terrain_destruction_units", []):
@@ -26430,8 +26357,8 @@ func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 		break
 	return floats
 
-func _decorate_bleed_damage_float(float_entry: Dictionary) -> void:
-	float_entry["icon"] = "bleed"
+func _decorate_bleed_damage_float(float_entry: Dictionary, cause_icon: String = "bleed") -> void:
+	float_entry["icon"] = cause_icon
 	float_entry["icon_tint"] = Color("ffe9df")
 	float_entry["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
 	float_entry["icon_border"] = Color("ff8a76")
@@ -27011,7 +26938,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "treasure":
 		return "Relic"
 	if mode == "victory":
-		return "Victory"
+		return "" # ESCAPED in the recap is the victory screen's only title.
 	if mode == "defeat":
 		return ""
 	return ""
@@ -27368,6 +27295,7 @@ func _sync_pre_battle_preview_after_refresh() -> void:
 			_refresh_pre_battle_preview_if_visible()
 		else:
 			_show_pre_battle_preview()
+		_opening_query_preparation.schedule(self)
 	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		_close_pre_battle_preview()
 
@@ -29209,6 +29137,7 @@ func _open_pile_view(pile_kind: String) -> void:
 		_pile_dialog_empty.visible = pile_empty
 		_pile_scrim.visible = true
 		_update_performance_telemetry_context()
+		_schedule_controller_modal_refresh()
 		_record_runtime_performance_phase("pile_cache_hit", performance_phase_started)
 		return
 	_pile_dialog.custom_minimum_size = _pile_dialog_size_for_count(cards.size())
@@ -29260,6 +29189,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	_pile_dialog_content_source = content_source.duplicate(true)
 	_pile_scrim.visible = true
 	_update_performance_telemetry_context()
+	_schedule_controller_modal_refresh()
 	_configure_discard_selection_focus(selection_buttons)
 	_record_runtime_performance_phase("pile_finish", performance_phase_started)
 	if first_selection_button != null:
@@ -29379,6 +29309,7 @@ func _stop_character_menu_arrival() -> void:
 	_character_menu_arrival_target = null
 
 func _on_character_menu_visibility_changed() -> void:
+	_choice_refresh.sync_context_visibility(self)
 	if _upgrade_scrim != null and not _upgrade_scrim.is_visible_in_tree():
 		_cancel_equipment_factory_preparation()
 		_stop_character_menu_arrival()
@@ -32114,6 +32045,20 @@ func _hand_card_size(card_count: int, reward_mode: bool, force_controller_focus:
 
 func _hand_layout_gap(card_count: int, card_size: Vector2) -> float:
 	var available_width: float = _hand_available_width()
+	if _combat_objective_hud != null and _combat_objective_hud.visible and hand_scroll != null:
+		# Reserve horizontal room only when the resting fan reaches the objective's
+		# vertical range. Card sizes, hover and the existing overlap rule stay intact.
+		var card: Control = _hand_card_control(0)
+		var badge: Control = card.get_node_or_null("TimeCostBadge") as Control if card != null else null
+		var overhang: float = -minf(0.0, badge.position.y) * card_size.x / card.size.x if badge != null and card.size.x > 0.0 else 0.0
+		var extent: Vector2 = HandFanContainer.resting_vertical_bounds(card_count, card_size, overhang)
+		var fan_height: float = HandFanContainer.content_size_for_layout(card_count, card_size, 0.0, true).y
+		var fan_top: float = hand_scroll.get_global_rect().get_center().y - fan_height * 0.5
+		var objective: Rect2 = _combat_objective_hud.get_global_rect()
+		if fan_top + extent.x < objective.end.y and fan_top + extent.y > objective.position.y:
+			var objective_right: float = maxf(objective.end.x, ui_root.global_position.x + UiTypography.SAFE_MARGIN + _combat_objective_hud.preferred_width())
+			var center: float = hand_scroll.get_global_rect().get_center().x
+			available_width = minf(available_width, maxf(0.0, (center - objective_right) * 2.0))
 	var preferred_gap: float = HandFanContainer.overlap_gap_for_card_width(
 		card_size.x,
 		HandFanContainer.overlap_ratio_for_hand_size(card_count)
@@ -32165,6 +32110,7 @@ func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 	return GameData.card_def(card_id)
 
 func _reset_card_resolution() -> void:
+	_hud_forecast.clear()
 	_clear_action_step_resolution_tracker()
 	_clear_active_card_preview_state()
 	_clear_card_action_choice_state()
@@ -32863,6 +32809,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_combat_state["analytics"] = combat_analytics
 		_run_state["combat_state"] = _combat_state.duplicate(true)
 		_analytics_initialize_combat_tracker(_combat_state)
+		_opening_query_preparation.adopt(self)
 		_analytics_log_combat_started(reason)
 		return
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
@@ -34505,6 +34452,8 @@ func _confirm_magic_purge(card_id: String, source: String) -> void:
 		push_error("Could not persist magic purge; ownership and Embers are unchanged.")
 		return
 	_run_state = next
+	log_label.text = ""
+	log_overlay.hide()
 	_ensure_sfx_bank()
 	_sfx_router.card_exhaust()
 	# Exhaust now awaits its card animation before the final UI refresh. Publish

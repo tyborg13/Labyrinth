@@ -28,6 +28,7 @@ const COLUMN_WIDTH: float = 780.0
 const ACTION_GAP: float = 16.0
 const DEFEAT_ACTION_GAP: float = 44.0 # The selected stone slab's arrows stand 38 px outside it.
 const SCORE_WIDTH: float = 560.0
+const SCORE_VALUE_WITH_BEST_X: float = 250.0
 const ROW_MIN_HEIGHT: float = 38.0
 const ROWS_TOP: float = 246.0
 const TITLE_FADE_SECONDS: float = 0.3
@@ -48,6 +49,7 @@ const CHRONICLE_LINK_TEXT: String = "VIEW IN THE CHRONICLE ›"
 const CHRONICLE_LINK_GAP: float = 48.0 # Summary baseline to the link's capitals.
 const CHRONICLE_LINK_HIT_PAD: float = 10.0 # Taller pointer target; the ink is unchanged.
 const EYEBROW_SIZE: int = 18 # The SCORE heading's size; the link shares its style.
+const TITLE_CAUSE_GAP_PX: float = 8.0
 
 # The Chronicle opens over this screen instead of leaving it, so it is a quiet
 # link in the recap column rather than a third plate beside the exits.
@@ -436,10 +438,10 @@ func _build_children() -> void:
 	_column.add_child(_total)
 	var eyebrow_font: FontVariation = _spaced_font(4)
 	_total.add_child(_label("ScoreHeading", "SCORE", eyebrow_font, EYEBROW_SIZE, Palette.GOLD, Rect2(0, 30, 150, 28)))
-	_total_value = _label("ScoreValue", "0", DISPLAY_FONT, 52, Palette.GOLD_BRIGHT, Rect2(250, 0, 190, 66))
+	_total_value = _label("ScoreValue", "0", DISPLAY_FONT, 52, Palette.GOLD_BRIGHT, Rect2(SCORE_VALUE_WITH_BEST_X, 0, 190, 66))
 	_total_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_total.add_child(_total_value)
-	_best = _label("NewBestTag", "NEW BEST", _spaced_font(3), 14, Color("1b0f06"), Rect2(454, 28, 106, 24))
+	_best = _label("NewBestTag", "NEW BEST", _spaced_font(3), UiTypography.role_size(UiTypography.ROLE_CAPTION), Color("1b0f06"), Rect2(454, 28, 106, 24))
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_best.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var tag_style := StyleBoxFlat.new()
@@ -539,7 +541,7 @@ func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> vo
 	row.custom_minimum_size = Vector2(width, ROW_MIN_HEIGHT)
 	parent.add_child(row)
 	if feat:
-		row.add_child(_label("FeatDiamond", "◆", UI_FONT, 14, Palette.GOLD, Rect2(0, 9, 14, 20)))
+		row.add_child(_label("FeatDiamond", "◆", UI_FONT, UiTypography.role_size(UiTypography.ROLE_CAPTION), Palette.GOLD, Rect2(0, 9, 14, 20)))
 	row.add_child(_label("ScoreLabel", label_text, UI_FONT, 20, Palette.GOLD_BRIGHT if feat else Palette.TEXT_2, Rect2(label_x, 4, label_width, 30)))
 	var value := TabularValue.new()
 	value.name = "ScorePoints"
@@ -558,7 +560,12 @@ func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> vo
 	# Reapply the final bounds after clipping, so long text cannot retain that size.
 	detail.size = Vector2(detail_width, 24)
 	row.add_child(detail)
-	detail.set_deferred("size", Vector2(detail_width, 24))
+	if str(data.get("id", "")) == "dragons_slain" and not detail_text.is_empty():
+		var names_height: float = _add_dragon_names(detail, detail_width, width)
+		detail.size.y = names_height
+		row.custom_minimum_size.y = maxf(ROW_MIN_HEIGHT, detail.position.y + names_height)
+	else:
+		detail.set_deferred("size", Vector2(detail_width, 24))
 	value.position = Vector2(width - value_width, 3)
 	value.clip_text = true
 	value.size = Vector2(value_width, 30)
@@ -573,6 +580,46 @@ func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> vo
 	hairline.size = Vector2(width, 1)
 	row.add_child(hairline)
 	_row_controls.append(row)
+
+func _add_dragon_names(detail: Label, width: float, row_width: float) -> float:
+	var names: PackedStringArray = detail.text.split(", ", false)
+	for index: int in range(names.size() - 1):
+		names[index] += ","
+	var gap: float = UiTypography.SPACE_SMALL
+	var line_height: float = detail.size.y
+	var total_width: float = maxf(0.0, names.size() - 1) * gap
+	for dragon: String in names:
+		total_width += TEXT_FONT.get_string_size(dragon, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+	var per_line: int = names.size() if total_width <= width else 3
+	var line_count: int = ceili(float(names.size()) / per_line)
+	# In the narrow split ledger, three names can exceed the space between the
+	# heading and points. Use the same row's full width below that heading.
+	for line_index: int in range(line_count):
+		var start: int = line_index * per_line
+		var finish: int = mini(start + per_line, names.size())
+		var line_width: float = (finish - start - 1) * gap
+		for index: int in range(start, finish):
+			line_width += TEXT_FONT.get_string_size(names[index], HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		if line_width > width:
+			detail.position = Vector2(0, ROW_MIN_HEIGHT)
+			detail.size.x = row_width
+			width = row_width
+	# Keep the ScoreDetail node and full tooltip; its child labels draw each
+	# complete name with the shared small gap, never an ellipsis.
+	detail.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	detail.add_theme_color_override("font_color", Color.TRANSPARENT)
+	for line_index: int in range(line_count):
+		var start: int = line_index * per_line
+		var finish: int = mini(start + per_line, names.size())
+		var line_width: float = (finish - start - 1) * gap
+		for index: int in range(start, finish):
+			line_width += TEXT_FONT.get_string_size(names[index], HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		var x: float = (width - line_width) * 0.5
+		for index: int in range(start, finish):
+			var name_width: float = TEXT_FONT.get_string_size(names[index], HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			detail.add_child(_label("DragonName%d" % index, names[index], TEXT_FONT, 16, Palette.TEXT_3, Rect2(x, line_index * (line_height + gap), name_width, line_height)))
+			x += name_width + gap
+	return line_count * line_height + (line_count - 1) * gap
 
 func _apply_model() -> void:
 	_kicker.text = str(_model.get("eyebrow", "" )).to_upper()
@@ -612,8 +659,10 @@ func _apply_model() -> void:
 		_add_score_row(line, _rows, ledger_width)
 	for feat: Dictionary in scored.get("feats", []):
 		_add_score_row(feat, _feat_rows if split else _rows, ledger_width)
-	var row_count: int = maxi(_rows.get_child_count(), _feat_rows.get_child_count()) if split else _rows.get_child_count()
-	_ledger.size = Vector2(COLUMN_WIDTH if split else SCORE_WIDTH, row_count * ROW_MIN_HEIGHT)
+	var ledger_height: float = _rows.get_combined_minimum_size().y
+	if split:
+		ledger_height = maxf(ledger_height, _feat_rows.get_combined_minimum_size().y)
+	_ledger.size = Vector2(COLUMN_WIDTH if split else SCORE_WIDTH, ledger_height)
 	_total.position = Vector2(0, ROWS_TOP + _ledger.size.y + 14)
 	_embers.position = Vector2(0, _total.position.y + 82)
 	var embers_copy: String = str(_model.get("embers_text", ""))
@@ -638,6 +687,12 @@ func _layout() -> void:
 	_column.position = COLUMN_ORIGIN * factor
 	_column.size = Vector2(COLUMN_WIDTH, 900)
 	_column.scale = Vector2.ONE * factor
+	# The title's font line is taller than its authored 112 px box. Keep the
+	# cause below that line, including at the Deck's stretched canvas scale.
+	var canvas_scale: float = get_viewport().get_stretch_transform().y.length()
+	var title_height: float = DISPLAY_FONT.get_height(_title.get_theme_font_size("font_size"))
+	if factor > 0.0 and canvas_scale > 0.0:
+		_cause.position.y = maxf(148.0, _title.position.y + title_height + TITLE_CAUSE_GAP_PX / (factor * canvas_scale))
 	# The two exits keep their plate size and gap, centred where three plates stood.
 	var gap: float = DEFEAT_ACTION_GAP if _is_defeat() else ACTION_GAP
 	var plate: float = _new_run_button.size.x
@@ -723,6 +778,7 @@ func _update_presentation() -> void:
 	_total.modulate.a = 1.0 if _elapsed >= _total_start() else 0.0
 	var score: int = int((_model.get("score", {}) as Dictionary).get("total", 0))
 	_total_value.text = str(roundi(score * (1.0 - pow(1.0 - count, 3.0))))
+	_total_value.position.x = SCORE_VALUE_WITH_BEST_X if bool(_model.get("new_best_score", false)) else SCORE_WIDTH - _total_value.size.x
 	_best.visible = bool(_model.get("new_best_score", false)) and count >= 1.0
 	var pop: float = clampf((_elapsed - _total_start() - TOTAL_COUNT_SECONDS) / BEST_POP_SECONDS, 0, 1)
 	_best.pivot_offset = _best.size * 0.5

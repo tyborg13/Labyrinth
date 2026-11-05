@@ -141,6 +141,7 @@ static func arrival_steps(engine: RefCounted, context: Dictionary) -> Array[Dict
 		_probe_boundary(step, entry)
 		step.merge(entry["losses"].duplicate(true), true)
 		step["traced_arrival"] = true
+		_label_fire_damage(step, entry)
 		result.append(step)
 	return result
 
@@ -158,7 +159,21 @@ static func _cascade_step(engine: RefCounted, cascade: Dictionary) -> Dictionary
 	victims.append_array(step["target_losses"])
 	victims.append_array(step["enemy_losses"])
 	step["impact_actor_keys"] = engine._target_loss_keys(victims)
+	_label_fire_damage(step, cascade)
 	return step
+
+static func _label_fire_damage(step: Dictionary, owner: Dictionary) -> void:
+	if str(step.get("kind", "")) != "status_damage": return
+	# These status-damage constructors bypass the ordinary Fire tick header.
+	# Preserve the immediate owner's cause, never infer it from painted ground
+	# or an older event in the fight's append-only surface journal.
+	if str(step.get("action_type", "")) == "death_burst":
+		step["label"] = "Fire"
+		return
+	for event: Dictionary in owner.get("surface_events", []):
+		if str(event.get("kind", "")) == "surface_damage" and str(event.get("surface", "")) == "fire":
+			step["label"] = "Fire"
+			return
 
 static func _event(step: Dictionary) -> Dictionary:
 	return step.get("retaliate", step.get("illusion_retort", {}))

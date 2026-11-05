@@ -1,0 +1,49 @@
+from pathlib import Path
+from collections import Counter
+import hashlib,json,shutil
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-45')
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-45')
+REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-05'
+
+def read_trace(path):
+ for line in path.read_text().splitlines():
+  try:yield json.loads(line)
+  except ValueError:continue
+
+def main():
+ coverage={}; observations=[]; markers=[]; indexes=[]
+ for name in ['default','no-embrace']:
+  root=EVIDENCE/('campaign-'+name)
+  if not (root/'campaign.json').exists():continue
+  campaign=json.loads((root/'campaign.json').read_text())
+  rooms=Counter();sections=Counter();outcomes=Counter();final_dragons=0;final_dragon_types=Counter();decisions=0
+  for run in campaign['runs']:
+   finish=run.get('finish') or {};outcomes[finish.get('outcome','process_failure')]+=1;decisions+=finish.get('decisions',0)
+   for room in run['rooms']:
+    rooms[room['room_kind']]+=1
+    if room['room_kind']=='boss' and room['section']==5:
+     final_dragons+=1;final_dragon_types[room.get('room_metadata',{}).get('boss_id','unknown')]+=1
+   sections.update(set(room['section'] for room in run['rooms']))
+   markers.extend(dict(campaign=name,seed=run['seed'],**finding) for finding in run['findings'])
+   trace=Path(run['log']).parent/'trace.jsonl'
+   if trace.exists():
+    for row in read_trace(trace):
+     if row['event'] in ['qa45_observation_mismatch','qa45_observation_summary','qa45_replay_checks']:
+      observations.append(dict(campaign=name,event=row['event'],**row['data']))
+   directory=Path(run['log']).parent
+   indexes.append(dict(campaign=name,seed=run['seed'],returncode=run['returncode'],directory=str(directory),sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in directory.iterdir() if p.is_file() and p.name in ['godot.log','trace.jsonl','summary.json','command.json','evidence.json']}))
+  coverage[name]=dict(runs_started=campaign['runs_started'],runs_ended=len(campaign['runs']),outcomes=dict(outcomes),decisions=decisions,sections=dict(sorted(sections.items())),room_kinds=dict(sorted(rooms.items())),final_dragon_entries=final_dragons,final_dragon_types=dict(final_dragon_types),wall_seconds=campaign['wall_seconds'],options=campaign['options'])
+  for original,dest in [('report.md',name+'-report.md'),('findings.json',name+'-findings.json'),('provenance.json',name+'-provenance.json')]:
+   if (root/original).exists():shutil.copyfile(root/original,REPORT/dest)
+  execution=EVIDENCE/('campaign-'+name+'-execution.json')
+  if execution.exists():shutil.copyfile(execution,REPORT/execution.name)
+ totals=Counter()
+ for row in observations:
+  if row['event']=='qa45_observation_summary':totals.update(row['counts'])
+ observation_summary=dict(counts=dict(totals),mismatch_events=sum(row['event']=='qa45_observation_mismatch' for row in observations),completed_run_summaries=sum(row['event']=='qa45_observation_summary' for row in observations))
+ for name,data in [('observation-summary.json',observation_summary),('coverage.json',coverage),('observations.json',observations),('runtime-markers.json',markers),('evidence-index.json',indexes)]:
+  (REPORT/name).write_text(json.dumps(data,indent=2)+'\n')
+ print('QA45 REPORT COLLECTION:',', '.join(name+'='+str(data['runs_ended'])+' ended' for name,data in coverage.items()))
+ print('QA45 RAW MARKERS:',len(markers),'OBSERVATION MISMATCHES:',sum(row['event']=='qa45_observation_mismatch' for row in observations))
+
+if __name__=='__main__':main()

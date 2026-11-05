@@ -3,6 +3,7 @@ extends "res://tests/pre_battle_fixture.gd"
 const Boons = preload("res://scripts/opening_boon_rules.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Proof = preload("res://tests/helpers/opening_boon_proof.gd")
+const ProofStrip = preload("res://tests/helpers/proof_strip.gd")
 const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
 const HeirloomChecks = preload("res://tests/helpers/heirloom_checks.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
@@ -190,16 +191,12 @@ func _heirloom(scene: Node) -> void:
 func _heirloom_contact_sheet() -> void:
 	if _verify_only: return
 	# Proof-only 3x3 contact sheet; all source captures remain native.
-	var sheet := Image.create(1920, 1080, false, Image.FORMAT_RGBA8)
-	sheet.fill(Palette.INK_0)
 	var names := PackedStringArray(["heirloom_choice_4", "heirloom_choice_5", "heirloom_choice_1", "heirloom_ceremony_burn", "heirloom_ceremony_mid", "heirloom_reduced_motion", "heirloom_starter_only_skipped"])
+	var frames: Array[String]
 	for index: int in range(names.size()):
-		var frame: Image = Image.load_from_file(OUTPUT_ROOT + "/" + names[index] + ".png")
-		frame.convert(Image.FORMAT_RGBA8)
-		frame.resize(640, 360, Image.INTERPOLATE_LANCZOS)
-		sheet.blit_rect(frame, Rect2i(0, 0, 640, 360), Vector2i((index % 3) * 640, (index / 3) * 360))
+		frames.append(OUTPUT_ROOT + "/" + names[index] + ".png")
 	var path: String = OUTPUT_ROOT + "/heirloom_contact_sheet.png"
-	_expect(sheet.save_png(path) == OK, "Heirloom contact sheet saves")
+	_expect(ProofStrip.save_png(frames, 3, path, Vector2i(640, 360), Palette.INK_0) == OK, "Heirloom contact sheet saves")
 	print("HEIRLOOM CONTACT SHEET: " + ProjectSettings.globalize_path(path))
 
 func _save(name: String) -> void:

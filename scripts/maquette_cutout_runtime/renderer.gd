@@ -9,6 +9,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 const NATIVE_FPS: float = 60.0
 var character_id: String = "shale_bloomer"
+var _render_gate: RefCounted
 var viewport: SubViewport
 var rigs: Dictionary = {}
 var facing: String = "front"
@@ -38,6 +39,7 @@ func _ready() -> void:
 	viewport.world_2d = World2D.new()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(viewport)
+	_render_gate = preload("res://scripts/cutout_render_gate.gd").new(viewport)
 	for view: String in _rig_views():
 		var rig: Node2D = _new_rig()
 		rig.name = view.capitalize()
@@ -168,7 +170,7 @@ func _apply_pose() -> void:
 		var rig: Node2D = rigs[view]
 		rig.visible = view == facing
 		if not rig.visible: continue
-		rig.transform = Pixels.canvas_transform(canvas_geometry()["offset"], SOURCE_SIZE, mirrored)
+		rig.transform = Pixels.canvas_transform(borrow_canvas_geometry()["offset"], SOURCE_SIZE, mirrored)
 		rig.layout["screen_pixel_scale"] = screen_pixel_scale
 		rig.layout["step_distance_px"] = step_distance_px
 		var override: Dictionary = root_forward_override.duplicate(false)
@@ -185,7 +187,7 @@ func texture() -> Texture2D:
 func source_socket() -> Vector2:
 	var rig: Node2D = rigs.get(facing)
 	var bone: Bone2D = rig.bones.get("core")
-	return bone.global_position - (canvas_geometry()["offset"] as Vector2) if bone != null else SOURCE_SIZE / 2.0
+	return bone.global_position - (borrow_canvas_geometry()["offset"] as Vector2) if bone != null else SOURCE_SIZE / 2.0
 
 func snapshot() -> Dictionary:
 	return {"art": character_id + "_maquette", "clip": clip, "shown_clip": _shown_clip(), "phase": _shown_phase(),

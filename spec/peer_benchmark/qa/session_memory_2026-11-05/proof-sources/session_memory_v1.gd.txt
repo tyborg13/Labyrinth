@@ -1,0 +1,220 @@
+extends "res://tools/run_hunt.gd"
+## Five production runs, with persistent profile and real title-menu transitions.
+const Census = preload("/private/tmp/labyrinth_codex/qa-53/tools/session_census.gd")
+const RUN_SEEDS: Array = [4, 4, 4, 4, 4]
+const WIN_RUN_INDEX: int = 0
+const MENU_SETTLE_FRAMES: int = 120
+const TRANSITION_TIMEOUT_SECONDS: int = 180
+var run_index: int = 0
+var boundaries: Array[Dictionary]
+var outcomes: Array[Dictionary]
+var errors: Array[String]
+var ending: bool = false
+var native: bool = false
+var start_usec: int = 0
+var transport_pattern := RegEx.new()
+
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	transport_pattern.compile("(run|session|install|evt)_[0-9]+_[0-9a-f]+")
+	output = "/private/tmp/labyrinth_codex/qa-53/before"
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	for index: int in range(0, args.size(), 2):
+		match args[index]:
+			"--output-dir": output = args[index + 1]
+			"--stop-after": stop_after = int(args[index + 1])
+			_: assert(false, "Unknown session-memory option")
+	native = DisplayServer.get_name() != "headless"
+	DirAccess.make_dir_recursive_absolute(output)
+	transcript = FileAccess.open(output.path_join("trace.jsonl"), FileAccess.WRITE)
+	Store.set_storage_path(output.path_join("progression.json"))
+	Store.set_run_storage_path(output.path_join("run.save"))
+	Settings.set_storage_path(output.path_join("settings.json"))
+	Analytics.set_storage_dir(output.path_join("analytics"))
+	RecentEvents.set_storage_path(output.path_join("recent_events.json"))
+	var settings: Dictionary = Settings.default_settings()
+	settings["combat_speed"] = Settings.COMBAT_FASTEST
+	settings["ui_scale"] = 1.0
+	settings["display_mode"] = "windowed"
+	Settings.save_settings(settings)
+	root.size = Vector2i(1920, 1080)
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.content_scale_factor = 1.0
+	Engine.max_fps = SAMPLE_FPS
+	Engine.time_scale = HEADLESS_TIME_SCALE
+	OS.low_processor_usage_mode = false
+	if not native: process_frame.connect(_headless_draw_boundary)
+	call_deferred("_session")
+
+func _session() -> void:
+	start_usec = Time.get_ticks_usec()
+	assert(change_scene_to_file("res://scenes/main_menu.tscn") == OK)
+	await scene_changed
+	await _settle_menu()
+	await _boundary("initial-menu")
+	for index: int in range(RUN_SEEDS.size()):
+		run_index = index
+		hunt_seed = RUN_SEEDS[index]
+		rng.seed = hunt_seed
+		root.set_meta("labyrinth_performance_probe_seed", hunt_seed)
+		_reset_hunt()
+		var menu: Node = current_scene
+		menu.get_node("MenuColumn/StartButton").pressed.emit()
+		if is_instance_valid(menu) and is_instance_valid(menu.get("_new_descent_panel")):
+			menu.call("_on_depth_begin", Store.session_umbra_depth(Store.load_data()))
+		await _wait_for_scene("res://scenes/run_scene.tscn")
+		scene = current_scene
+		assert(is_instance_valid(scene) and scene.scene_file_path == "res://scenes/run_scene.tscn")
+		# Inherited qa-45 diagnostic HP allows one full six-dragon traversal.
+		# The remaining runs use production health and can die naturally.
+		if index == WIN_RUN_INDEX:
+			var run: Dictionary = scene.get("_run_state")
+			run["player_max_hp"] = HUNT_HEALTH
+			run["player_hp"] = HUNT_HEALTH
+			scene.call("_save_run_progress")
+		policy = Policy.new()
+		policy.rng = rng
+		policy.no_embrace = true
+		while not finished:
+			await process_frame
+			_tick()
+		await _boundary("run-%d-end" % (index + 1))
+		if stop_after > 0: break
+		if outcomes.back()["outcome"] not in ["victory", "defeat", "embrace"]:
+			errors.append("Run did not reach an end screen: " + outcomes.back()["outcome"])
+			break
+		# Invoke the same recap action a player uses; no direct free/replacement.
+		scene.call("_on_back_to_menu_pressed")
+		scene = null
+		policy = null
+		await _wait_for_scene("res://scenes/main_menu.tscn")
+		await _settle_menu()
+		await _boundary("run-%d-menu" % (index + 1))
+	if stop_after == 0:
+		var wins: int = 0
+		var deaths: int = 0
+		for outcome: Dictionary in outcomes:
+			if outcome["outcome"] == "victory" and outcome["context"]["section"] == 5: wins += 1
+			if outcome["outcome"] == "defeat": deaths += 1
+		if outcomes.size() != 5 or wins < 1 or deaths < 1: errors.append("Required five runs / final-dragon victory / death coverage missing")
+	_write_report()
+	print("QA53 %s: %s runs=%d boundaries=%d errors=%s" % ["SMOKE" if stop_after > 0 else "SESSION", "PASS" if errors.is_empty() else "FAIL", outcomes.size(), boundaries.size(), errors])
+	# Leave via ordinary SceneTree teardown to preserve actual exit warnings.
+	quit(0 if errors.is_empty() else 1)
+
+func _reset_hunt() -> void:
+	finished = false
+	busy = false
+	ending = false
+	decision = 0
+	history.clear()
+	room_key = ""
+	screen_key = ""
+	fight_key = ""
+	screen_decisions = 0
+	fight_decisions = 0
+	unchanged_fight_decisions = 0
+	previous_fight_state.clear()
+	awaiting_fight_change = false
+	sides.clear()
+	room_samples.clear()
+	findings.clear()
+	visited.clear()
+	sections.clear()
+	action_counts.clear()
+	idle_seconds = 0.0
+	lock_seconds = 0.0
+	settle_frames = SETTLE_FRAMES
+	leak_checked = false
+
+func _side_action() -> bool:
+	# Resume is a separate scene-replacement workload; this probe tests New Run.
+	if not policy.side_actions_available(scene): return false
+	for kind: String in SIDE_ACTIONS:
+		if kind == "resume" or sides.has(kind) or not policy.side_available(scene, kind): continue
+		sides[kind] = true
+		if rng.randf() >= SIDE_CHANCE: continue
+		_record({"kind": "side_" + kind})
+		busy = true
+		_run_side(kind)
+		settle_frames = SETTLE_FRAMES
+		return true
+	return false
+
+func _finish(outcome: String) -> void:
+	finished = true
+	outcomes.append({"run": run_index + 1, "outcome": outcome, "decisions": decision, "context": _context(), "findings": findings.duplicate(true), "sections": sections.keys()})
+	_emit("run-finish", outcomes.back())
+	print("QA53 RUN: index=%d outcome=%s decisions=%d section=%d" % [run_index + 1, outcome, decision, _context()["section"]])
+
+func _record(action: Dictionary) -> void:
+	super._record(action)
+	_emit("integrity", {"run": run_index + 1, "decision": decision, "rng_state": str(rng.state), "state": _state_hash(scene.call("_committed_run_state"))})
+
+func _wait_for_scene(path: String) -> void:
+	var deadline: int = Time.get_ticks_usec() + TRANSITION_TIMEOUT_SECONDS * 1000000
+	while current_scene == null or current_scene.scene_file_path != path:
+		await process_frame
+		assert(Time.get_ticks_usec() < deadline, "Production scene transition timed out")
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+
+func _settle_menu() -> void:
+	for frame: int in range(MENU_SETTLE_FRAMES): await process_frame
+	var deadline: int = Time.get_ticks_usec() + TRANSITION_TIMEOUT_SECONDS * 1000000
+	while root.get_node_or_null("DepartedRunCleanup") != null:
+		await process_frame
+		assert(Time.get_ticks_usec() < deadline, "Departed-run cleanup did not finish")
+	# Don't compare a background resource request midway through publication.
+	var job: Node = root.get_node_or_null("MenuRunPreload")
+	while is_instance_valid(job) and bool(job.get("_requested")) and ResourceLoader.load_threaded_get_status("res://scenes/run_scene.tscn") == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await process_frame
+		assert(Time.get_ticks_usec() < deadline, "Title preload did not finish")
+
+func _boundary(label: String) -> void:
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	var before: Dictionary = _boundary_integrity()
+	var result: Dictionary = Census.snapshot(self, output, label)
+	var after: Dictionary = _boundary_integrity()
+	assert(before == after, "The census must preserve saves, state, RNG and analytics")
+	result["census_integrity"] = {"before": before, "after": after, "equal": before == after}
+	result["run"] = run_index + 1
+	result["elapsed_seconds"] = float(Time.get_ticks_usec() - start_usec) / 1000000.0
+	result["integrity"] = after
+	boundaries.append(result)
+	_write_report()
+	if native:
+		await RenderingServer.frame_post_draw
+		assert(root.size == Vector2i(1920,1080) and is_equal_approx(root.content_scale_factor, 1.0))
+		var capture := root.get_texture().get_image()
+		assert(capture.get_size() == Vector2i(1920,1080))
+		var path: String = output.path_join(label + ".png")
+		assert(capture.save_png(path) == OK)
+		print(path)
+	print("QA53 BOUNDARY: %s memory=%d objects=%d nodes=%d orphans=%d resources=%d census=%d" % [label, result["static_memory"], result["object_count"], result["node_count"], result["orphan_count"], result["resource_count"], result["enumerated_objects"]])
+
+func _boundary_integrity() -> Dictionary:
+	return {"progression": _state_hash(Store.load_data()), "saved_run": _state_hash(Store.load_saved_run()), "analytics": _state_hash(Analytics.load_all_events()), "rng_state": str(rng.state), "committed": _state_hash(scene.call("_committed_run_state")) if is_instance_valid(scene) else "menu"}
+
+func _write_report() -> void:
+	FileAccess.open(output.path_join("session.json"), FileAccess.WRITE).store_string(JSON.stringify({"boundaries": boundaries, "outcomes": outcomes, "errors": errors, "native": native, "seeds": RUN_SEEDS, "win_run_index": WIN_RUN_INDEX}, "\t"))
+
+func _state_hash(value: Variant) -> String:
+	return var_to_bytes(_canonical(value)).hex_encode().sha256_text()
+
+func _canonical(value: Variant) -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+		var keys: Array = value.keys()
+		keys.sort_custom(func(a: Variant, b: Variant) -> bool: return str(a) < str(b))
+		for key: Variant in keys:
+			if str(key) in ["run_seconds", "timestamp_utc", "timestamp_unix", "session_id", "analytics_session_id", "install_id", "event_id", "created_at", "updated_at"]: continue
+			result[_canonical(key)] = _canonical(value[key])
+		return result
+	if value is Array:
+		var result: Array = []
+		for item: Variant in value: result.append(_canonical(item))
+		return result
+	if value is String:
+		# Analytics run/combat IDs contain random transport IDs, not game RNG.
+		return transport_pattern.sub(value, "$1_<transport-id>", true)
+	return value

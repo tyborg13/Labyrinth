@@ -524,15 +524,6 @@
     "aliases": []
   },
   {
-    "id": "aoe",
-    "name": "Area Attack",
-    "icon": "aoe",
-    "definition": "Hits every foe on the red tiles, even unseen ones.",
-    "aliases": [
-      "Area Attacks"
-    ]
-  },
-  {
     "id": "lightning_strikes",
     "name": "Lightning Strikes",
     "icon": "lightning_strikes",

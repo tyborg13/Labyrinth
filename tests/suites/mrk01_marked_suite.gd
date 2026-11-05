@@ -14,7 +14,7 @@ const MARKED_DEFINITION: String = "These tiles take the hit on this enemy's next
 const MOVE_COPY: Dictionary = {
 	"icefall": "Marks 3 tiles across yours. Next turn they take the hit and turn to Ice.",
 	"lob": "Marks your tile and the 4 around it. Next turn they take the hit and become Fire.",
-	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved, but Area Attacks hit it.",
+	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved. Attacks that hit an area still hit buried enemies.",
 	"erupt": "Emerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2."
 }
 const MARK_IDS: Dictionary = {"hoarfrost_seer": "icefall", "slag_mortar": "lob_slag", "burrow_grub": "burrow"}

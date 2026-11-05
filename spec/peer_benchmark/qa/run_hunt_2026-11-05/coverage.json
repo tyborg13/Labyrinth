@@ -1,0 +1,103 @@
+{
+  "default": {
+    "runs_started": 10,
+    "runs_ended": 10,
+    "outcomes": {
+      "embrace": 7,
+      "victory": 2,
+      "fight_limit": 1
+    },
+    "decisions": 13919,
+    "sections": {
+      "0": 10,
+      "1": 7,
+      "2": 5,
+      "3": 4,
+      "4": 2,
+      "5": 2
+    },
+    "room_kinds": {
+      "boss": 22,
+      "campfire": 29,
+      "combat": 104,
+      "ember_hoarder": 4,
+      "event": 63,
+      "graftwright": 7,
+      "guardian": 11,
+      "last_light": 5,
+      "scavenger": 29,
+      "start": 30,
+      "treasure": 34,
+      "umbral_snare": 4,
+      "warband": 1
+    },
+    "final_dragon_entries": 2,
+    "final_dragon_types": {
+      "noctyrax": 2
+    },
+    "wall_seconds": 3297.56728575,
+    "options": {
+      "no_embrace": false,
+      "seed": 4,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-45/campaign-default",
+      "report_only": false,
+      "include_evidence": []
+    }
+  },
+  "no-embrace": {
+    "runs_started": 5,
+    "runs_ended": 5,
+    "outcomes": {
+      "victory": 4,
+      "fight_limit": 1
+    },
+    "decisions": 13212,
+    "sections": {
+      "0": 5,
+      "1": 5,
+      "2": 5,
+      "3": 4,
+      "4": 4,
+      "5": 4
+    },
+    "room_kinds": {
+      "boss": 26,
+      "campfire": 26,
+      "combat": 110,
+      "ember_hoarder": 4,
+      "event": 48,
+      "graftwright": 3,
+      "guardian": 10,
+      "last_light": 3,
+      "scavenger": 29,
+      "start": 27,
+      "treasure": 29,
+      "umbral_snare": 2,
+      "warband": 4
+    },
+    "final_dragon_entries": 4,
+    "final_dragon_types": {
+      "noctyrax": 4
+    },
+    "wall_seconds": 4008.4877775,
+    "options": {
+      "no_embrace": true,
+      "seed": 4,
+      "runs": 0,
+      "minutes": 45.0,
+      "processes": 2,
+      "seed_timeout": 4500.0,
+      "stop_after": 0,
+      "script": "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd",
+      "output_dir": "/private/tmp/labyrinth_codex/qa-45/campaign-no-embrace",
+      "report_only": false,
+      "include_evidence": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Task-local launcher; all engines go through the mandated task runner."""
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-53')
+TASK = Path('/private/tmp/labyrinth_codex/qa-53')
+SESSION_TIMEOUT_SECONDS = 7200
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('label')
+    parser.add_argument('--stop-after', type=int, default=0)
+    args = parser.parse_args()
+    output = TASK / args.label
+    if output.exists():
+        parser.error('Use a fresh output label; evidence is never overwritten')
+    output.mkdir(parents=True)
+    command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'qa-53',
+               '--timeout', str(SESSION_TIMEOUT_SECONDS), '--stream', '--', 'godot',
+               '--headless', '--verbose', '--path', '.', '--script',
+               str(TASK / 'tools/session_memory.gd'), '--', '--output-dir', str(output),
+               '--stop-after', str(args.stop_after)]
+    (output / 'command.json').write_text(json.dumps(command, indent=2))
+    start = time.monotonic()
+    with (output / 'engine.log').open('w') as log:
+        result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    execution = {'argv': command, 'returncode': result.returncode,
+                 'seconds': time.monotonic() - start, 'log': str(output / 'engine.log')}
+    (output / 'execution.json').write_text(json.dumps(execution, indent=2))
+    lines = (output / 'engine.log').read_text(errors='replace').splitlines()
+    for line in lines:
+        if line.startswith(('QA53 ', 'SCRIPT ERROR:', 'ERROR:', 'WARNING:', 'Leaked instance:', 'Resource still in use:')):
+            print(line)
+    print('QA53 EXECUTION: ' + json.dumps(execution))
+    return result.returncode
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -20,7 +20,7 @@ TOKEN = syntax_pattern("TOKEN_PATTERN")
 TOKEN_START = syntax_pattern("TOKEN_START_PATTERN")
 FLURRY_RETIREMENT = json.loads((ROOT / "tests/fixtures/flurry_retirement_copy.json").read_text())
 # sta-01 and flu-01 supersede these records; keep protected design sources verbatim.
-RETIRED_TERMS = {"dive", "veil", *FLURRY_RETIREMENT["retired_glossary_ids"]}
+RETIRED_TERMS = {"dive", "veil", "aoe", *FLURRY_RETIREMENT["retired_glossary_ids"]}
 TEXT_ONLY = {"wait", "turns", "movement", "item", "outcrop"}
 
 
@@ -86,14 +86,14 @@ class TextBudgetTest(unittest.TestCase):
         short_copy.pop("mirror")
         short_copy["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
         self.assertTrue(set(short_copy).issubset(live))
-        self.assertEqual(len(live), 143)
+        self.assertEqual(len(live), 142)
         # mrk-01 replaces four keywords with Marked, without rewriting the
         # historical director source or relaxing any other copy/word budget.
         live = marked_glossary_supersession(live)
         short_copy = {key: text for key, text in short_copy.items() if key not in MARKED_RETIRED}
         short_copy["marked"] = MARKED_DEFINITION
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 140)
+        self.assertEqual(len(live), 139)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]
@@ -117,6 +117,8 @@ class TextBudgetTest(unittest.TestCase):
                 self.assertEqual(actual["name"], source["name"])
                 # Flurry retirement explicitly supersedes Crown's exclusion copy.
                 description = FLURRY_RETIREMENT["relic_descriptions"].get(source["id"], source["description"])
+                if source["id"] == "cragbound_gauntlet":
+                    description = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
                 self.assertEqual(actual["description"], description)
                 if source.get("retired_redirect_to"):
                     retired += 1

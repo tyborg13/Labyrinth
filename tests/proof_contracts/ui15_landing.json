@@ -1,0 +1,69 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080",
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080_ui100/landing_00.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/landing_01.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/landing_02.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/landing_03.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/landing_04.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/landing_05.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_00.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_01.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_02.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_03.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_04.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/landing_05.png",
+      "width": 1280,
+      "height": 800
+    }
+  ]
+}

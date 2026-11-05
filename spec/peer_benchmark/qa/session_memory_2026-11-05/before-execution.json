@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "tools/godot_task_runner.py",
+    "--task-id",
+    "qa-53",
+    "--timeout",
+    "7200",
+    "--stream",
+    "--",
+    "godot",
+    "--headless",
+    "--verbose",
+    "--path",
+    ".",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-53/tools/session_memory.gd",
+    "--",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-53/before",
+    "--stop-after",
+    "0"
+  ],
+  "returncode": 1,
+  "seconds": 1368.152698833,
+  "log": "/private/tmp/labyrinth_codex/qa-53/before/engine.log"
+}

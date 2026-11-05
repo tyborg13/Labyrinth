@@ -1,0 +1,8 @@
+"""Whole physical-input seed with activated CardWidget offers enumerated."""
+import time
+import run_acceptance
+PROCESS_LIMIT = 4
+POLL_SECONDS = 1
+while sum(not (p.parent / 'execution.json').exists() for p in run_acceptance.EVIDENCE.glob('*/command.json')) >= PROCESS_LIMIT:
+    time.sleep(POLL_SECONDS)
+run_acceptance.run(11)

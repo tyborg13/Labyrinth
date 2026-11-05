@@ -60,7 +60,7 @@ func capture(hand_box: Control, host: Control) -> void:
 		_capture_parent.name = "LockedHandCaptureParent"
 		_viewport.add_child(_capture_parent)
 	_viewport.transparent_bg = true
-	_viewport.msaa_2d = host.get_viewport().msaa_2d
+	preload("res://scripts/settings_store.gd").inherit_edge_smoothing(_viewport, host.get_viewport())
 	_viewport.canvas_item_default_texture_filter = host.get_viewport().canvas_item_default_texture_filter
 	_viewport.canvas_item_default_texture_repeat = host.get_viewport().canvas_item_default_texture_repeat
 	_viewport.oversampling_override = host.get_viewport().get_oversampling()

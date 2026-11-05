@@ -1,0 +1,28 @@
+[
+  {
+    "campaign": "default",
+    "argv": [
+      "python3",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_task.py",
+      "--report-only",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-43/campaign-default"
+    ],
+    "returncode": 0,
+    "stdout": "RUN HUNT REPORT: /private/tmp/labyrinth_codex/qa-43/campaign-default/report.md\nRUN HUNT REPORT CHECK: seeds=10 finding_groups=9\n",
+    "stderr": ""
+  },
+  {
+    "campaign": "no-embrace",
+    "argv": [
+      "python3",
+      "/private/tmp/labyrinth_codex/qa-43/run_hunt_task.py",
+      "--report-only",
+      "--output-dir",
+      "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace"
+    ],
+    "returncode": 0,
+    "stdout": "RUN HUNT REPORT: /private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/report.md\nRUN HUNT REPORT CHECK: seeds=4 finding_groups=8\n",
+    "stderr": ""
+  }
+]

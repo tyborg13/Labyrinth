@@ -1,0 +1,12 @@
+extends SceneTree
+const Census = preload("/private/tmp/labyrinth_codex/qa-53/tools/session_census.gd")
+func _initialize() -> void: call_deferred("_run")
+func _run() -> void:
+	var first: Dictionary = Census.snapshot(self, "/private/tmp/labyrinth_codex/qa-53", "census-check-a")
+	var second: Dictionary = Census.snapshot(self, "/private/tmp/labyrinth_codex/qa-53", "census-check-b")
+	assert(first["classes"] == second["classes"], "Census must not create a growing population")
+	assert(first["enumerated_objects"] == first["object_count"] + 2, "Only two bridge objects may differ from the pre-census monitor")
+	assert(second["enumerated_objects"] == second["object_count"] + 2)
+	assert(first["cache_census"]["errors"].is_empty())
+	print("QA53 CENSUS CHECK: PASS full native population; repeat class counts identical; bridge overhead=2 objects")
+	quit()

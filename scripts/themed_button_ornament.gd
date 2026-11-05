@@ -1,5 +1,6 @@
 extends Control
 
+const WidgetBatch = preload("res://scripts/widget_triangle_batch.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
@@ -29,6 +30,9 @@ static var _umbra_button_idle_texture: Texture2D
 static var _umbra_button_focused_texture: Texture2D
 static var _umbra_focus_marker_left_texture: Texture2D
 static var _umbra_focus_marker_right_texture: Texture2D
+
+var _sheen_batch := WidgetBatch.new()
+var _sheen_inputs: Array = []
 
 var _button: BaseButton
 var _variant: String = "standard"
@@ -111,8 +115,8 @@ func _draw() -> void:
 		_draw_umbra_raster(state)
 		return
 	var focused: bool = state == STATE_FOCUS
-	# Danger is semantic. Focus adds brackets without warming the crimson plate.
-	if _variant == VARIANT_DESTRUCTIVE and focused: state = STATE_NORMAL
+	# Focus brightens the shared ornament and adds brackets. The native focus
+	# StyleBox is an overlay, so the variant keeps its own plate underneath.
 	var accent: Color = _accent_color(state)
 	var disabled: bool = state == STATE_DISABLED
 	var pressed: bool = _material_is_pressed(state)
@@ -125,7 +129,16 @@ func _draw() -> void:
 	elif state == STATE_HOVER and not disabled:
 		GildedFrame.draw_glow(self, face, Color(accent, 0.22), 7.0, 3.0)
 
-	GildedFrame.draw_sheen(self, face, 0.35 if disabled or pressed else (1.25 if engaged else 1.0), 2.0)
+	var sheen_strength: float = 0.35 if disabled or pressed else (1.25 if engaged else 1.0)
+	var sheen_inputs: Array = [face, sheen_strength]
+	if sheen_inputs == _sheen_inputs:
+		_sheen_batch.replay(self)
+	else:
+		_sheen_inputs = sheen_inputs
+		_sheen_batch.sheen(face, sheen_strength, 2.0)
+		_sheen_batch.flush(self)
+	# Flush above: native hairlines, AA highlights, studs and glints retain
+	# their exact Godot tessellation and original paint order.
 	# Inner hairline: a fine gilt edge one step inside the border.
 	var inner := face.grow(-3.0)
 	var inner_alpha: float = 0.10 if disabled else (0.42 if engaged else 0.22)

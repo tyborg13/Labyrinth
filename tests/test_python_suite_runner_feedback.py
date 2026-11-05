@@ -22,7 +22,21 @@ TREE_SHARD_TIMEOUT_SECONDS = 2
 CHILD_CLEANUP_GRACE_SECONDS = 3.5
 HEARTBEAT_INTERVAL_SECONDS = 0.05
 HEARTBEAT_OBSERVATION_SECONDS = 0.3
+CHILD_EXIT_POLL_SECONDS = 0.01
 PASS_SOURCE = 'import unittest\nclass Tests(unittest.TestCase):\n    def test_ok(self): pass\n'
+
+
+def wait_for_child_exit(pid):
+    """Observe cleanup completion instead of always sleeping its grace budget."""
+    deadline = time.monotonic() + CHILD_CLEANUP_GRACE_SECONDS
+    while True:
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return
+        if time.monotonic() >= deadline:
+            raise AssertionError(f'Timed-out heartbeat producer {pid} is still alive')
+        time.sleep(CHILD_EXIT_POLL_SECONDS)
 
 
 class RunnerFeedbackTests(unittest.TestCase):
@@ -211,7 +225,9 @@ class Tests(unittest.TestCase):
             with self.subTest(task_runner=task_runner):
                 root = self.project({'test_sleep.py': PASS_SOURCE}, declarations={'test_sleep': ['heartbeat']})
                 heartbeat = root / 'heartbeat'
-                program = ('import time\nfrom pathlib import Path\nwhile True:\n'
+                child_pid = root / 'heartbeat.pid'
+                program = ('import os, time\nfrom pathlib import Path\n'
+                           f'Path({str(child_pid)!r}).write_text(str(os.getpid()))\nwhile True:\n'
                            f'    Path({str(heartbeat)!r}).write_text(str(time.monotonic()))\n'
                            f'    time.sleep({HEARTBEAT_INTERVAL_SECONDS})\n')
                 command = [sys.executable, '-u', '-c', program]
@@ -227,7 +243,7 @@ class Tests(unittest.TestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn('timed out', result.stdout)
                 self.assertTrue(heartbeat.exists(), result.stdout)
-                time.sleep(CHILD_CLEANUP_GRACE_SECONDS)
+                wait_for_child_exit(int(child_pid.read_text()))
                 stopped = heartbeat.read_bytes()
                 time.sleep(HEARTBEAT_OBSERVATION_SECONDS)
                 self.assertEqual(heartbeat.read_bytes(), stopped, 'timed-out child is still running')

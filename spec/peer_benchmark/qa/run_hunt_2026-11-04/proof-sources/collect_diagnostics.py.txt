@@ -1,0 +1,70 @@
+"""Summarize read-only glossary samples and verbose shutdown evidence."""
+from pathlib import Path
+import json
+import re
+
+PROJECT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-43')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-43')
+REPORT = PROJECT / 'spec/peer_benchmark/qa/run_hunt_2026-11-04'
+EVENT_PREFIX = 'RUN_HUNT_EVENT '
+GLOSSARY_OWNER = re.compile(r'Relic glossary above-row overflow: ([^,]+),')
+
+
+def inspect_glossary(log):
+    warnings = []
+    samples = 0
+    decision = 0
+    for line_number, line in enumerate(log.read_text(errors='replace').splitlines(), 1):
+        owner = GLOSSARY_OWNER.search(line) if line.startswith('WARNING:') else None
+        if owner:
+            warnings.append(dict(owner=owner.group(1), decision=decision, log_line=line_number,
+                                 warning=line, samples=[], cleared_before_next_decision=False))
+        if not line.startswith(EVENT_PREFIX):
+            continue
+        try:
+            row = json.loads(line[len(EVENT_PREFIX):])
+        except ValueError:
+            continue
+        data = row['data']
+        if row['event'] == 'decision':
+            decision = data['decision']
+        elif row['event'] == 'qa43_glossary_geometry':
+            samples += 1
+            for finding in warnings:
+                if (finding['decision'] == data['context']['decision'] and
+                        finding['owner'] == data['geometry']['owner']):
+                    finding['samples'].append(data)
+                    if not data['geometry']['overflow']:
+                        finding['cleared_before_next_decision'] = True
+    return dict(samples=samples, warnings=warnings)
+
+
+def main():
+    results = []
+    for execution in json.loads((EVIDENCE / 'census-executions.json').read_text()):
+        directory = Path(execution['output_dir'])
+        campaign = json.loads((directory / 'campaign.json').read_text())
+        run = campaign['runs'][0]
+        log = Path(run['log'])
+        text = log.read_text(errors='replace')
+        glossary = inspect_glossary(log)
+        marker = text.rfind('\nRUN HUNT:')
+        shutdown = text[marker:].splitlines()[2:] if marker >= 0 else []
+        record = dict(name=execution['name'], seed=run['seed'], log=str(log),
+                      child_returncode=run['returncode'], outcome=(run.get('finish') or {}).get('outcome'),
+                      glossary=glossary, verbose_shutdown=execution.get('verbose_shutdown', False),
+                      objectdb_warning_reproduced='ObjectDB instances leaked at exit' in text,
+                      shutdown_tail=shutdown,
+                      literal_script_error_count=sum(line.startswith('SCRIPT ERROR:') for line in text.splitlines()))
+        results.append(record)
+        cleared = sum(item['cleared_before_next_decision'] for item in glossary['warnings'])
+        print(f"QA43 GLOSSARY: {record['name']} warnings={len(glossary['warnings'])}; settled_before_next_input={cleared}; geometry_samples={glossary['samples']}")
+        if record['verbose_shutdown']:
+            print(f"QA43 SHUTDOWN: {record['name']} objectdb_warning={record['objectdb_warning_reproduced']}; child_exit={record['child_returncode']}; outcome={record['outcome']}")
+            for line in shutdown:
+                print(line)
+    (REPORT / 'replay-diagnostics.json').write_text(json.dumps(results, indent=2) + '\n')
+
+
+if __name__ == '__main__':
+    main()

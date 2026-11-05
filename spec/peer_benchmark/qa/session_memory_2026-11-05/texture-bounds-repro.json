@@ -1,0 +1,44 @@
+[
+	{
+		"cache_growth": 1,
+		"kind": "texture",
+		"last_key": "instance|-9223372003954653714|0|0",
+		"last_texture_alive": false,
+		"visits": 1
+	},
+	{
+		"cache_growth": 5,
+		"kind": "texture",
+		"last_key": "instance|-9223372003887544850|0|0",
+		"last_texture_alive": false,
+		"visits": 5
+	},
+	{
+		"cache_growth": 20,
+		"kind": "texture",
+		"last_key": "instance|-9223372003635886610|0|0",
+		"last_texture_alive": false,
+		"visits": 20
+	},
+	{
+		"cache_growth": 1,
+		"kind": "atlas",
+		"last_key": "atlas|instance|-9223372003619109394|0|0|(0.0, 0.0)|(0.0, 0.0)",
+		"last_texture_alive": false,
+		"visits": 1
+	},
+	{
+		"cache_growth": 5,
+		"kind": "atlas",
+		"last_key": "atlas|instance|-9223372003484891666|0|0|(0.0, 0.0)|(0.0, 0.0)",
+		"last_texture_alive": false,
+		"visits": 5
+	},
+	{
+		"cache_growth": 20,
+		"kind": "atlas",
+		"last_key": "atlas|instance|-9223372002981575184|0|0|(0.0, 0.0)|(0.0, 0.0)",
+		"last_texture_alive": false,
+		"visits": 20
+	}
+]

@@ -7,7 +7,7 @@ func _initialize() -> void:
 	await process_frame
 	await preload("res://tests/suites/cbt_01_suite.gd").run_live(self, Callable(self, "_assert"))
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
-	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
+	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"), not OS.get_cmdline_user_args().has("--controls-core-only"))
 	print("MAIN DOMAIN ASSERTIONS full_scene_controls_program: %d" % _assertion_count)
 	print("MAIN DOMAIN RUNTIME full_scene_controls_program: %.3f seconds" % [float(Time.get_ticks_usec() - started) / 1000000.0])
 	_finish_test_result()

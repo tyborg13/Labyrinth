@@ -1,0 +1,1115 @@
+[
+  {
+    "severity": "warning",
+    "error": "WARNING: Relic glossary above-row overflow: RelicChoice_ashen_phylactery, viewport=(1920.0, 1920.0), block=(1326.0, 88.0), top=1864.0, row_top=1964.0",
+    "context": {
+      "decision": 1623,
+      "mode": "room",
+      "room": "(15, -15)",
+      "room_kind": "scavenger",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(15, -10)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(15, -9)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(15, -15)",
+        "depth": 15,
+        "element": "none",
+        "map_lane": 2,
+        "map_outline": true,
+        "map_step": 7,
+        "merchant_kind": "scavenger",
+        "merchant_purchased_items": [],
+        "merchant_refill_count": 0,
+        "merchant_sold_items": [],
+        "merchant_stock": [
+          "tempest_form",
+          "beacon",
+          "stone_ward",
+          "lodestone_buckler",
+          "frostwalkers",
+          "voidsilk_carapace",
+          "whetstone",
+          "bitter_tonic",
+          "storm_jar"
+        ],
+        "npcs": [
+          {
+            "id": "scavenger",
+            "pos": "(3, 4)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 3,
+        "type": "scavenger",
+        "visited": true
+      },
+      "section": 3,
+      "seed": 5
+    },
+    "last_20_decisions": [
+      {
+        "context": {
+          "decision": 1604,
+          "mode": "treasure",
+          "room": "(14, -13)",
+          "room_kind": "guardian",
+          "room_metadata": {
+            "boss_id": "vyraketh",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(14, -9)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -13)",
+            "depth": 14,
+            "element": "fire",
+            "guardian_id": "ashen_reaver",
+            "guardian_relic": "ashen_brand",
+            "map_landmark": true,
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "guardian",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1604,
+        "handler": "_on_relic_choice_gui_input",
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@107027/RelicChoice_ashen_brand",
+        "signal": "gui_input"
+      },
+      {
+        "args": [
+          "(14, -9)"
+        ],
+        "context": {
+          "decision": 1605,
+          "mode": "room",
+          "room": "(14, -13)",
+          "room_kind": "guardian",
+          "room_metadata": {
+            "boss_id": "vyraketh",
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(14, -9)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -13)",
+            "depth": 14,
+            "element": "fire",
+            "guardian_id": "ashen_reaver",
+            "guardian_relic": "ashen_brand",
+            "map_landmark": true,
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "guardian",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1605,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      {
+        "context": {
+          "decision": 1606,
+          "mode": "event",
+          "room": "(14, -9)",
+          "room_kind": "event",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(14, -5)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -9)",
+            "depth": 14,
+            "element": "none",
+            "event_id": "bloodletters_basin",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "mystery_element": "earth",
+            "mystery_type": "event",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "event",
+            "visited": true,
+            "was_mystery": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1606,
+        "kind": "side_reduced_motion"
+      },
+      {
+        "context": {
+          "decision": 1607,
+          "mode": "event",
+          "room": "(14, -9)",
+          "room_kind": "event",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(14, -5)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -9)",
+            "depth": 14,
+            "element": "none",
+            "event_id": "bloodletters_basin",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "mystery_element": "earth",
+            "mystery_type": "event",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "event",
+            "visited": true,
+            "was_mystery": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1607,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@107174/IllustratedEventPanel/@Control@107175/EventRightColumn/Choice3",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1608,
+          "mode": "event",
+          "room": "(14, -9)",
+          "room_kind": "event",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(14, -5)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -9)",
+            "depth": 14,
+            "element": "none",
+            "event_id": "bloodletters_basin",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "mystery_element": "earth",
+            "mystery_type": "event",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "event",
+            "visited": true,
+            "was_mystery": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1608,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@107174/IllustratedEventPanel/@Control@107175/@Control@246216/EventContinue",
+        "signal": "pressed",
+        "text": "Continue"
+      },
+      {
+        "args": [
+          "(14, -5)"
+        ],
+        "context": {
+          "decision": 1609,
+          "mode": "room",
+          "room": "(14, -9)",
+          "room_kind": "event",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(14, -5)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -9)",
+            "depth": 14,
+            "element": "none",
+            "event_id": "bloodletters_basin",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "mystery_element": "earth",
+            "mystery_type": "event",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "event",
+            "visited": true,
+            "was_mystery": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1609,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      {
+        "context": {
+          "decision": 1610,
+          "mode": "treasure",
+          "room": "(14, -5)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -15)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -14)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -5)",
+            "depth": 14,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 6,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1610,
+        "kind": "side_escape"
+      },
+      {
+        "context": {
+          "decision": 1611,
+          "mode": "treasure",
+          "room": "(14, -5)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -15)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -14)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -5)",
+            "depth": 14,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 6,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1611,
+        "kind": "side_reduced_motion"
+      },
+      {
+        "context": {
+          "decision": 1612,
+          "mode": "treasure",
+          "room": "(14, -5)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -15)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -14)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -5)",
+            "depth": 14,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 6,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1612,
+        "handler": "_on_relic_choice_gui_input",
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@107027/RelicChoice_pendulum_weight",
+        "signal": "gui_input"
+      },
+      {
+        "args": [
+          "(15, -15)"
+        ],
+        "context": {
+          "decision": 1613,
+          "mode": "room",
+          "room": "(14, -5)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -15)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -14)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(14, -5)",
+            "depth": 14,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 6,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1613,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      {
+        "context": {
+          "decision": 1614,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1614,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_frostwalkers/GearOffer_frostwalkers",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1615,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1615,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_voidsilk_carapace/GearOffer_voidsilk_carapace",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1616,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1616,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_storm_jar/ItemOffer_storm_jar",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1617,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1617,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_storm_jar/ItemOffer_storm_jar",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1618,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1618,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_bitter_tonic/ItemOffer_bitter_tonic",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1619,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1619,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ItemsShelf/OfferRow/ShelfCubby_storm_jar/ItemOffer_storm_jar",
+        "signal": "pressed",
+        "text": ""
+      },
+      {
+        "context": {
+          "decision": 1620,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1620,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/ScavengerModeToggle/@HBoxContainer@107053/ScavengerSellMode",
+        "signal": "pressed",
+        "text": "Sell from pack"
+      },
+      {
+        "context": {
+          "decision": 1621,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1621,
+        "kind": "ui",
+        "path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/SellFromPackPanel/@Control@107038/PackFilter_gear",
+        "signal": "pressed",
+        "text": "GEAR"
+      },
+      {
+        "context": {
+          "decision": 1622,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1622,
+        "kind": "leave_browse",
+        "method": "_on_merchant_hide_pressed"
+      },
+      {
+        "args": [
+          "(15, -9)"
+        ],
+        "context": {
+          "decision": 1623,
+          "mode": "room",
+          "room": "(15, -15)",
+          "room_kind": "scavenger",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(15, -10)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(15, -9)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(15, -15)",
+            "depth": 15,
+            "element": "none",
+            "map_lane": 2,
+            "map_outline": true,
+            "map_step": 7,
+            "merchant_kind": "scavenger",
+            "merchant_purchased_items": [],
+            "merchant_refill_count": 0,
+            "merchant_sold_items": [],
+            "merchant_stock": [
+              "tempest_form",
+              "beacon",
+              "stone_ward",
+              "lodestone_buckler",
+              "frostwalkers",
+              "voidsilk_carapace",
+              "whetstone",
+              "bitter_tonic",
+              "storm_jar"
+            ],
+            "npcs": [
+              {
+                "id": "scavenger",
+                "pos": "(3, 4)"
+              }
+            ],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 3,
+            "type": "scavenger",
+            "visited": true
+          },
+          "section": 3,
+          "seed": 5
+        },
+        "decision": 1623,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      }
+    ],
+    "log_line": 1683,
+    "log_lines": [
+      "WARNING: Relic glossary above-row overflow: RelicChoice_ashen_phylactery, viewport=(1920.0, 1920.0), block=(1326.0, 88.0), top=1864.0, row_top=1964.0",
+      "     at: push_warning (core/variant/variant_utility.cpp:1034)",
+      "     GDScript backtrace (most recent call first):",
+      "         [0] _layout_choice (res://scripts/card_focus_tooltip_stack.gd:325)",
+      "         [1] _follow_target_now (res://scripts/card_focus_tooltip_stack.gd:241)",
+      "         [2] show_for (res://scripts/card_focus_tooltip_stack.gd:184)",
+      "         [3] show_relic (res://scripts/card_focus_tooltip_stack.gd:120)",
+      "         [4] _owner_interaction (res://scripts/card_focus_tooltip_stack.gd:59)",
+      "         [5] _play_treasure_room_reveal (res://scripts/run_scene.gd:27772)",
+      "         [6] _await_treasure_tween (res://scripts/run_scene.gd:27792)"
+    ],
+    "location": "res://scripts/card_focus_tooltip_stack.gd:325",
+    "replay_script": "tools/run_hunt.gd"
+  }
+]

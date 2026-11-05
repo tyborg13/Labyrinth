@@ -18,6 +18,8 @@ signal cue_requested(cue_id: String, result: String)
 var data: Dictionary = {}
 var cues: Dictionary = {}
 var players: Array = []
+# Warm voices stay reusable; only voices with a scheduled stop need polling.
+var _active_voices: Array[AudioStreamPlayer]
 var active_loop_id: String = ""
 var _loops: Array = []
 var _loop_targets: Array[float]
@@ -33,6 +35,9 @@ var presentation_clock: Callable
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
 const EMPTY_OPTIONS: Dictionary = {}
+
+func _init() -> void:
+	set_process(false)
 
 func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -> void:
 	if not cues.is_empty(): return
@@ -160,6 +165,7 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		selected["alignment"] = PeakAlignment.plan(resource, pitch, 0.0)
 		selected["presentation_deadline_ms"] = float(opts["peak_deadline_ms"])
 		_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
+		set_process(true)
 		_dispatch_presentation_deadlines()
 		return float(selected.get("played_duration", resource.get_length() / pitch))
 	if opts.has("peak_climax_ms"):
@@ -170,6 +176,7 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		selected["last_advance_ms"] = _precise_ms()
 		if float(alignment["delay_ms"]) > 0.0:
 			_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
+			set_process(true)
 			return resource.get_length() / pitch + float(alignment["delay_ms"]) / 1000.0
 	return _start_selected(cue_id, selected, opts)
 
@@ -223,6 +230,8 @@ func _start_selected(cue_id: String, selected: Dictionary, opts: Dictionary) -> 
 		player.set_meta("until", now + int(stop_seconds * 1000.0))
 		player.set_meta("sfx_id", cue_id)
 		player.set_meta("play_generation", int(player.get_meta("play_generation", 0)) + 1)
+		if not _active_voices.has(player): _active_voices.append(player)
+		set_process(true)
 		if player.is_inside_tree(): player.play()
 	last_play = {"cue": cue_id, "selected": selected, "alignment": alignment, "stream": resource}
 	state["last_ms"] = now
@@ -286,7 +295,7 @@ func _process(delta: float) -> void:
 	advance(delta)
 
 func _dispatch_presentation_deadlines() -> void:
-	if not _presentation_active(): return
+	if _peak_pending.is_empty() or not _presentation_active(): return
 	var now: float = presentation_ms()
 	var due: Array[Dictionary]
 	for pending: Dictionary in _peak_pending:
@@ -299,39 +308,48 @@ func _dispatch_presentation_deadlines() -> void:
 		pending["selected"]["played_duration"] = _start_selected(pending["cue"], pending["selected"], pending["opts"])
 
 func advance(delta: float) -> void:
-	_dispatch_presentation_deadlines()
-	var due: Array[Dictionary]
-	# _process is paused with the scene. Hit-stop supplies zero visual delta;
-	# neither case consumes the active wall-time delay or catches up on resume.
-	var active: bool = Engine.time_scale > 0.0 and (not is_inside_tree() or not get_tree().paused)
-	var clock: float = _precise_ms()
-	for pending: Dictionary in _peak_pending:
-		var selected: Dictionary = pending["selected"]
-		if selected.has("presentation_deadline_ms"): continue
-		if active:
-			# A request can arrive before this node's process callback. Do not
-			# charge it time from the preceding frame. Clamp resumed wall time
-			# to the active delta so a paused interval cannot release the cue.
-			var elapsed: float = minf(maxf(0.0, clock - float(selected["last_advance_ms"])), delta * 1000.0 / Engine.time_scale)
-			selected["remaining_ms"] -= elapsed
-			if float(selected["remaining_ms"]) <= 0.0:
-				selected["late_ms"] = -float(selected["remaining_ms"])
-				due.append(pending)
-		selected["last_advance_ms"] = clock
-	for pending: Dictionary in due:
-		_peak_pending.erase(pending)
-		_start_selected(pending["cue"], pending["selected"], pending["opts"])
-	for player: AudioStreamPlayer in players:
-		if player.stream != null and now_ms() >= int(player.get_meta("until", 0)):
+	if not _peak_pending.is_empty():
+		_dispatch_presentation_deadlines()
+		var due: Array[Dictionary]
+		# _process is paused with the scene. Hit-stop supplies zero visual delta;
+		# neither case consumes the active wall-time delay or catches up on resume.
+		var active: bool = Engine.time_scale > 0.0 and (not is_inside_tree() or not get_tree().paused)
+		var clock: float = _precise_ms()
+		for pending: Dictionary in _peak_pending:
+			var selected: Dictionary = pending["selected"]
+			if selected.has("presentation_deadline_ms"): continue
+			if active:
+				# A request can arrive before this node's process callback. Do not
+				# charge it time from the preceding frame. Clamp resumed wall time
+				# to the active delta so a paused interval cannot release the cue.
+				var elapsed: float = minf(maxf(0.0, clock - float(selected["last_advance_ms"])), delta * 1000.0 / Engine.time_scale)
+				selected["remaining_ms"] -= elapsed
+				if float(selected["remaining_ms"]) <= 0.0:
+					selected["late_ms"] = -float(selected["remaining_ms"])
+					due.append(pending)
+			selected["last_advance_ms"] = clock
+		for pending: Dictionary in due:
+			_peak_pending.erase(pending)
+			_start_selected(pending["cue"], pending["selected"], pending["opts"])
+	var now: int = now_ms() if not _active_voices.is_empty() else 0
+	var voice_index: int = 0
+	while voice_index < _active_voices.size():
+		var player: AudioStreamPlayer = _active_voices[voice_index]
+		if player.stream == null or now >= int(player.get_meta("until", 0)):
 			player.stop()
 			player.stream = null
-	_fade_elapsed = minf(CROSSFADE_SECONDS, _fade_elapsed + delta)
-	for index: int in range(_loops.size()):
-		var player: AudioStreamPlayer = _loops[index]
-		player.volume_linear = lerpf(_loop_starts[index], _loop_targets[index], _fade_elapsed / CROSSFADE_SECONDS)
-		if _fade_elapsed >= CROSSFADE_SECONDS and _loop_targets[index] == 0.0:
-			player.stop()
-			player.stream = null
+			_active_voices.remove_at(voice_index)
+		else:
+			voice_index += 1
+	if _fade_elapsed < CROSSFADE_SECONDS:
+		_fade_elapsed = minf(CROSSFADE_SECONDS, _fade_elapsed + delta)
+		for index: int in range(_loops.size()):
+			var player: AudioStreamPlayer = _loops[index]
+			player.volume_linear = lerpf(_loop_starts[index], _loop_targets[index], _fade_elapsed / CROSSFADE_SECONDS)
+			if _fade_elapsed >= CROSSFADE_SECONDS and _loop_targets[index] == 0.0:
+				player.stop()
+				player.stream = null
+	set_process(not _peak_pending.is_empty() or not _active_voices.is_empty() or _fade_elapsed < CROSSFADE_SECONDS)
 
 func _start_loop(cue_id: String, resource: AudioStream, gain: float, pitch: float) -> void:
 	if cue_id == active_loop_id: return
@@ -349,6 +367,7 @@ func _start_loop(cue_id: String, resource: AudioStream, gain: float, pitch: floa
 	_loop_starts[_loop_cursor] = 0.0
 	if player.is_inside_tree(): player.play()
 	_fade_elapsed = 0.0
+	set_process(true)
 
 func stop_loop(immediate: bool = false) -> void:
 	active_loop_id = ""
@@ -356,6 +375,7 @@ func stop_loop(immediate: bool = false) -> void:
 		_loop_starts[index] = (_loops[index] as AudioStreamPlayer).volume_linear
 		_loop_targets[index] = 0.0
 	_fade_elapsed = 0.0
+	set_process(true)
 	if immediate: advance(CROSSFADE_SECONDS)
 
 func active_loop_player() -> AudioStreamPlayer:

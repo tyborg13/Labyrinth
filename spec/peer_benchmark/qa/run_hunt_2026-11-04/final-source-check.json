@@ -1,0 +1,15 @@
+{
+  "head": "8398f4680e98e2e91dba9e707271c6b53dde654e",
+  "branch": "codex/qa-43",
+  "tracked_changes": [],
+  "protected_unchanged": {
+    "scripts/combat_preview_memo.gd": true,
+    "scripts/combat_engine.gd": true,
+    "scripts/strike_trail_fx.gd": true,
+    "scripts/hero_strike_trail.gd": true,
+    "scripts/enemy_strike_trail.gd": true,
+    "scripts/settings_store.gd": true,
+    "scripts/settings_panel.gd": true,
+    "scripts/card_widget.gd": true
+  }
+}

@@ -87,8 +87,7 @@ Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_a
 The permanent Reflect badge uses only `reflect`;
 the permanent Flying badge uses only `flying`. Their unchanged approved raw
 paintings are verified against `peer_benchmark/staged/enemies/raw_sha256.txt`,
-keyed and fitted with the current Blink icon padding. Refraction retains
-`aoe`/`pierce`, and Talon Rake/Hover retain existing action identities.
+keyed and fitted with the current Blink icon padding. Refraction uses Melee/Pierce, and Talon Rake/Hover retain existing action identities.
 
 ## Section enemies E2 (en-04)
 
@@ -144,3 +143,11 @@ Flurry has no shipped card, glossary row or Grimoire topic and is excluded from
 original tooltip copy remain available only for synthetic engine/UI fixtures;
 no asset is added, removed or repainted. Sawtooth Rake retains the save ID and
 approved art path `sawtooth_flurry`.
+
+## txt-02: area geometry
+
+Area Attack has no glossary, keyword registry or Grimoire topic. The engine
+`aoe` action retains its rules and resolves to the existing Melee/Ranged
+identities for presentation, using aim/range and enemy-centered shapes. Red
+pattern previews draw their tiles directly. Historical `aoe.png` remains
+unregistered as provenance.

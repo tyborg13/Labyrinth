@@ -1,0 +1,49 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080",
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080_ui100/camp_keyboard.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/camp_controller.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/succumb_unfocused.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/succumb_focused.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/succumb_hovered.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/recap_feat_new_best.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1280x800_ui115/camp_keyboard.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/1280x800_ui115/camp_controller.png",
+      "width": 1280,
+      "height": 800
+    }
+  ]
+}

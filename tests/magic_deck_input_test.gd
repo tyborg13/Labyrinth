@@ -208,6 +208,8 @@ func _confirmation_navigation(instance: Node, modal: Control, source: String) ->
 	await _joy(JOY_BUTTON_DPAD_RIGHT)
 	_expect(confirm.has_focus(), source + " controller Right reaches Purge")
 	await _joy(JOY_BUTTON_A)
+	# fx-07: the purged card burns in place before the overlay closes.
+	await create_timer(preload("res://scripts/magic_purge_overlay.gd").BURN_SECONDS).timeout
 	await _settle()
 	_expect(not is_instance_valid(instance.get("_magic_purge_overlay")), source + " controller A confirms and closes Purge")
 	var after: Dictionary = instance.get("_run_state")

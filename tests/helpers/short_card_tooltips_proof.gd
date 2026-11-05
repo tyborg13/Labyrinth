@@ -29,7 +29,7 @@ func run(tree: SceneTree, expect: Callable, capture: bool) -> void:
 	_expect = expect
 	_copy = JSON.parse_string(FileAccess.get_file_as_string(COPY_PATH))
 	# Retired identities (including dormant Flurry) and new shared copy are outside the tt-01 comparison.
-	_copy["entries"] = (_copy["entries"] as Array).filter(func(entry: Dictionary) -> bool: return entry["id"] not in ["mirror", "retaliate", "flurry"])
+	_copy["entries"] = (_copy["entries"] as Array).filter(func(entry: Dictionary) -> bool: return entry["id"] not in ["mirror", "retaliate", "flurry", "aoe"])
 	if capture and DisplayServer.get_name().to_lower() == "headless":
 		_expect.call(false, "Captures require a real windowed renderer")
 		return

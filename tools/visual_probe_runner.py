@@ -166,6 +166,40 @@ def front_app() -> tuple[str, int]:
     return (bundle.group(1) if bundle else ""), (int(pid.group(1)) if pid else 0)
 
 
+PROBE_WINDOW_MARGIN = 24  # Pixels; macOS keeps the window below the menu bar.
+
+
+def probe_window_corner() -> tuple[int, int] | None:
+    """Top-left of the main display, where a windowed probe parks (owner 2026-11-04: test
+    runs must never take over the screen, and the review inbox stays clear on the right).
+    macOS only; None elsewhere."""
+    if sys.platform != "darwin":
+        return None
+    return (PROBE_WINDOW_MARGIN, PROBE_WINDOW_MARGIN)
+
+
+@contextmanager
+def probe_window_override(project: Path, active: bool):
+    """project.godot starts fullscreen and Godot's --windowed flag loses to it, so a
+    windowed probe gets a temporary override.cfg (read before the window opens) for
+    its run only. A killed run can't clean up, so the file carries a marker and a later
+    run replaces and removes a marked leftover; an unmarked override.cfg is left alone."""
+    path = project / "override.cfg"
+    marker = "; Temporary: tools/visual_probe_runner.py (windowed probe). Safe to delete."
+    if path.exists() and not path.read_text().startswith(marker):
+        yield
+        return
+    if not active:
+        path.unlink(missing_ok=True)
+        yield
+        return
+    path.write_text(marker + "\n[display]\n\nwindow/size/mode=0\nwindow/size/always_on_top=true\n")
+    try:
+        yield
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def run_process_with_watchdogs(
     cmd: list[str],
     *,
@@ -259,20 +293,25 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
     env["LABYRINTH_USER_DIR_NAME"] = "Escape the Umbra Visual Probe %s" % namespace
     env["LABYRINTH_DISABLE_STEAM"] = "1"
     cmd = build_command(args, rendering_driver, log_file)
+    corner = None if args.headless else probe_window_corner()
+    if corner is not None:
+        env["LABYRINTH_PROBE_WINDOW"] = "1"
+        cmd[1:1] = ["--position", "%d,%d" % corner]
     print("Running visual probe:")
     print("  namespace: %s" % namespace)
     if home_dir is not None:
         print("  HOME: %s" % home_dir)
     print("  command: %s" % " ".join(shell_quote(part) for part in cmd))
-    result = run_process_with_watchdogs(
-        cmd,
-        cwd=Path(args.project).resolve(),
-        env=env,
-        timeout=args.timeout,
-        startup_log=log_file,
-        startup_timeout=args.startup_timeout,
-        return_focus=not args.headless,
-    )
+    with probe_window_override(Path(args.project).resolve(), corner is not None):
+        result = run_process_with_watchdogs(
+            cmd,
+            cwd=Path(args.project).resolve(),
+            env=env,
+            timeout=args.timeout,
+            startup_log=log_file,
+            startup_timeout=args.startup_timeout,
+            return_focus=not args.headless,
+        )
     if result.stdout:
         print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
     if result.stderr:
@@ -383,8 +422,21 @@ def decode_png(path: Path) -> dict[str, Any]:
         raise ProbeError("%s uses unsupported PNG color type %s" % (path, color_type))
     bpp = channels
     row_bytes = width * channels
-    raw = zlib.decompress(bytes(idat))
     rows: list[bytearray] = []
+    # Pure-Python unfiltering takes seconds per 1080p capture; Pillow decodes the
+    # same lossless bytes (palette indices stay indices) when it is installed.
+    pil_mode = {0: "L", 2: "RGB", 3: "P", 4: "LA", 6: "RGBA"}[color_type]
+    try:
+        from PIL import Image
+        with Image.open(path) as image:
+            if image.mode == pil_mode and image.size == (width, height):
+                pixels = image.tobytes()
+                rows = [bytearray(pixels[y * row_bytes:(y + 1) * row_bytes]) for y in range(height)]
+    except ImportError:
+        pass
+    if rows:
+        return {"path": path, "width": width, "height": height, "color_type": color_type, "channels": channels, "rows": rows}
+    raw = zlib.decompress(bytes(idat))
     source = 0
     previous = bytearray(row_bytes)
     for _row_index in range(height):

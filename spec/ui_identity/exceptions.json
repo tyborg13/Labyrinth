@@ -1,1 +1,14 @@
-[]
+[
+ {
+  "file": "scripts/board_layer_slices.gd",
+  "rule": "R5",
+  "count": 1,
+  "reason": "Director 2026-11-05: perf-35 moved the board HUD's unit-label op here; it uses the board's own theme default font exactly as combat_board_view.gd (baselined) does, so the pixels stay identical. Not a new UI font."
+ },
+ {
+  "file": "scripts/board_layer_slices.gd",
+  "rule": "R2",
+  "count": 1,
+  "reason": "Director 2026-11-05: perf-35's objective slice repeats combat_board_view.gd's baselined Snare-threshold fill colour so the static/animated split draws the same pixels. Not a new colour."
+ }
+]

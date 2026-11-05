@@ -117,8 +117,7 @@ func refresh(scene: Control, reward_jobs: Variant = null) -> void:
 	if scene._choice_button_overlay != null or scene._pass_preview_overlay != null:
 		scene._queue_choice_button_overlay_layout()
 	scene._refresh_action_step_tracker()
-	if scene._context_choice_overlay != null:
-		scene._context_choice_overlay.visible = scene._context_choice_bar != null and scene._context_choice_bar.get_child_count() > 0
+	sync_context_visibility(scene)
 	if scene._relic_choice_overlay != null:
 		var has_relic_choices: bool = scene._relic_choice_bar != null and scene._relic_choice_bar.get_child_count() > 0
 		var has_selection_title: bool = scene._relic_choice_title != null and scene._relic_choice_title.visible
@@ -137,6 +136,11 @@ func refresh(scene: Control, reward_jobs: Variant = null) -> void:
 		scene._relic_choices_open_sfx_signature = ""
 	else:
 		scene._play_relic_choices_open_sfx_once(relic_offer_sfx_signature)
+
+func sync_context_visibility(scene: Control) -> void:
+	if scene._context_choice_overlay == null: return
+	var character_open: bool = scene._upgrade_scrim != null and scene._upgrade_scrim.visible
+	scene._context_choice_overlay.visible = not character_open and scene._context_choice_bar != null and scene._context_choice_bar.get_child_count() > 0
 
 
 func _retain_reward(scene: Control) -> bool:

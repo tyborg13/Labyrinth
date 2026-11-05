@@ -41,6 +41,8 @@ func _initialize() -> void:
 	await _capture_run_surfaces()
 	_cleanup_storage()
 	print(ProjectSettings.globalize_path(_output_dir))
+	if DisplayServer.get_name() == "headless":
+		print("STEAM DECK PROOF: HEADLESS ASSERTIONS ONLY; NO SCREENSHOTS")
 	print("TEST RESULT: PASS")
 	quit(0)
 
@@ -154,6 +156,10 @@ func _capture_run_surfaces() -> void:
 	await _save_screenshot("combat_hand_focus.png")
 	await _press_controller_button(JOY_BUTTON_X)
 	_require(str(instance.get("_controller_region")) == "board" and not bool(instance.get("_controller_hand_focused")), "X should be the sole hand-unfocus action and enter unobstructed board navigation")
+	await create_timer(preload("res://scripts/hand_fan_container.gd").EMPHASIS_TRANSITION_SECONDS).timeout
+	await _settle()
+	_assert_combat_resource_stack(instance, "Resting controller hand")
+	await _save_screenshot("combat_hand_rest.png")
 	await _press_controller_button(JOY_BUTTON_X)
 	_require(str(instance.get("_controller_region")) == "hand" and bool(instance.get("_controller_hand_focused")), "X from the board should focus the hand and immediately restore card selection")
 	_require(int(instance.get("_hovered_card_index")) == int(instance.get("_controller_hand_index")), "Focusing the hand with X should immediately emphasize its selected card")
@@ -966,10 +972,16 @@ func _assert_combat_resource_stack(instance: Node, label: String) -> void:
 	var pass_rect: Rect2 = pass_chip.get_global_rect()
 	_require(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0, "%s resources should share one column" % label)
 	_require(movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack immediately beneath card plays" % label)
-	# pol-37 / hud-01 reserve the dealt envelope across controller focus changes.
-	var hand_bounds: Rect2 = instance.call("_combat_dock_hand_bounds")
-	_require(play_rect.end.x < hand_bounds.position.x and pass_rect.position.x > hand_bounds.end.x, "%s resources and Pass should flank opposite sides of the hand" % label)
-	_require(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % label)
+	# pol-46 permits the lifted focus pose to cover Pass. Retain the dealt check.
+	if not bool(instance.get("_controller_hand_focused")):
+		# hud-01 reserves the larger focus envelope even when the hand is tucked.
+		# Measure the actual at-rest cards, rather than that invisible reservation.
+		var resting_hand: Rect2 = instance.call("_combat_hand_visual_bounds")
+		var physical_scale: float = float(_physical_size.x) / float(_logical_size.x)
+		print("HAND REST %s %s logical_hand_right=%.2f logical_pass_left=%.2f logical_gap=%.2f physical_hand_right=%.2f physical_pass_left=%.2f physical_gap=%.2f" % [_physical_size, label, resting_hand.end.x, pass_rect.position.x, pass_rect.position.x - resting_hand.end.x, resting_hand.end.x * physical_scale, pass_rect.position.x * physical_scale, (pass_rect.position.x - resting_hand.end.x) * physical_scale])
+		_require(play_rect.end.x < resting_hand.position.x and pass_rect.position.x > resting_hand.end.x, "%s resources and Pass should flank opposite sides of the hand" % label)
+	preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_layout(instance, _require, label)
+	preload("res://tests/helpers/pass_pile_dock_checks.gd").assert_hand_clearance(instance, _require, label, instance.call("_combat_hand_resting_visual_bounds"))
 	var play_icon: TextureRect = instance.get("_play_meter_icon") as TextureRect
 	var movement_icon: TextureRect = instance.get("_movement_meter_icon") as TextureRect
 	_require(play_icon != null and movement_icon != null and movement_icon.size == Vector2(30.0, 30.0) and movement_icon.size.x < play_icon.size.x, "%s movement icon should be reduced to fit comfortably inside its frame" % label)
@@ -1134,6 +1146,8 @@ func _assert_key_handheld_text_floor(instance: Node) -> void:
 
 func _save_screenshot(filename: String) -> void:
 	await _settle()
+	if DisplayServer.get_name() == "headless":
+		return
 	var image: Image = _viewport.get_texture().get_image()
 	_require(image != null and image.get_size() == _physical_size, "%s should render at exact target resolution" % filename)
 	if image != null:

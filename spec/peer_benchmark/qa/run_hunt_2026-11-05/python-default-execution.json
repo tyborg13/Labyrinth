@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "tools/run_python_suite.py",
+    "--shards",
+    "4",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-45/python-default"
+  ],
+  "cwd": "/Users/borgerding/workspace/Labyrinth.worktrees/qa-45",
+  "started": 1793859861.744003,
+  "wall_seconds": 35.22181510925293,
+  "returncode": 0
+}

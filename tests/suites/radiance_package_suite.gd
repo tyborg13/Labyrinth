@@ -76,7 +76,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 			var row_icons: Array[String]
 			for token_var: Variant in row_var as Array:
 				row_icons.append(str((token_var as Dictionary).get("icon", "")))
-			if row_icons.has("illuminate") and (row_icons.has("ranged") or row_icons.has("aoe")):
+			if row_icons.has("illuminate") and (row_icons.has("ranged") or row_icons.has("melee")):
 				rider_row_found = row_icons.find("illuminate") > row_icons.find("ranged")
 		expect.call(rider_row_found, "%s should present attack information before its Light rider on one rules line" % card_id)
 

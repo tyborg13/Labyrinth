@@ -2,6 +2,7 @@ extends SceneTree
 
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const ProofStrip = preload("res://tests/helpers/proof_strip.gd")
 
 const OUTPUT_ROOT: String = "user://enemy_shadow_dissolve_probe_v3"
 const RESOLUTION: Vector2i = Vector2i(1920, 1080)
@@ -257,22 +258,7 @@ func _save_contact_sheet(images: Array[Image], file_name: String) -> void:
 	var columns: int = 4
 	var rows: int = 3
 	var cell_size := Vector2i(RESOLUTION.x / columns, RESOLUTION.y / rows)
-	var sheet := Image.create_empty(RESOLUTION.x, RESOLUTION.y, false, Image.FORMAT_RGBA8)
-	sheet.fill(Color("120d18"))
-	for index: int in range(mini(images.size(), columns * rows)):
-		var frame: Image = images[index].duplicate()
-		# Metal can return the viewport in a packed RGB format while the contact
-		# sheet is RGBA8. Normalize before blitting so native proof stays portable.
-		if frame.get_format() != Image.FORMAT_RGBA8:
-			frame.convert(Image.FORMAT_RGBA8)
-		var fitted_size := Vector2i(cell_size.x, int(round(float(cell_size.x) / float(RESOLUTION.x) * float(RESOLUTION.y))))
-		if fitted_size.y > cell_size.y:
-			fitted_size = Vector2i(int(round(float(cell_size.y) / float(RESOLUTION.y) * float(RESOLUTION.x))), cell_size.y)
-		frame.resize(fitted_size.x, fitted_size.y, Image.INTERPOLATE_LANCZOS)
-		var cell_origin := Vector2i((index % columns) * cell_size.x, (index / columns) * cell_size.y)
-		var destination := cell_origin + (cell_size - fitted_size) / 2
-		sheet.blit_rect(frame, Rect2i(Vector2i.ZERO, fitted_size), destination)
-	var error: Error = sheet.save_png(ProjectSettings.globalize_path("%s/%s" % [_output_dir, file_name]))
+	var error: Error = ProofStrip.save_png(images, columns, ProjectSettings.globalize_path("%s/%s" % [_output_dir, file_name]), cell_size, Color("120d18"))
 	if error != OK:
 		_fail("Enemy death proof should save its contact sheet")
 

@@ -25,7 +25,7 @@ class CardPanelTextTest(unittest.TestCase):
             "next_attack_move", "stoneskin_scaling", "quicken", "shock_all_hits",
             "range_ice", "range_light", "range_illusion", "range_outcrop", "light_trail",
             "light_target", "light_land", "title_sentence_pull_area", "title_sentence_push_any",
-            "title_sentence_range_terrain", "title_sentence_range_illusion", "aoe_facing", "aoe_plain",
+            "title_sentence_range_terrain", "title_sentence_range_illusion",
         )
         rows = {row["id"]: row for row in director["rows"]}
         for key in straightforward:

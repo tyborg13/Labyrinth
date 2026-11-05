@@ -1,0 +1,13 @@
+"""Replace seed 6's inherited fight-budget stop without exceeding four engines."""
+import time
+import run_acceptance
+PROCESS_LIMIT = 4
+POLL_SECONDS = 1
+
+def active_count():
+    return sum(not (path.parent / 'execution.json').exists()
+               for path in run_acceptance.EVIDENCE.glob('*/command.json'))
+
+while active_count() >= PROCESS_LIMIT:
+    time.sleep(POLL_SECONDS)
+run_acceptance.run(10)

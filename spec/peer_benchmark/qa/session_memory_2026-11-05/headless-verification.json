@@ -1,0 +1,170 @@
+{
+  "census_check": {
+    "returncode": 0,
+    "result": "QA53 CENSUS CHECK: PASS full native population; repeat class counts identical; bridge overhead=2 objects",
+    "log": "/private/tmp/labyrinth_codex/qa-53/census-check-verified.log"
+  },
+  "parser": {
+    "returncode": 0,
+    "script": "/private/tmp/labyrinth_codex/qa-53/tools/session_memory.gd",
+    "log": "/private/tmp/labyrinth_codex/qa-53/parser-final-session.log"
+  },
+  "diagnostic_development_failures": {
+    "borrowed_engine_refcounted_wrappers": "Two early probes exited 246 and one exited 250 with CryptoMbedTLS::finalize_crypto stack. Pure native enumeration exits 0. Final census explicitly avoids engine-managed RefCounted wrappers and repeats without growth or crash. Original logs retained in task evidence.",
+    "python_bytecode_cache": "Initial py_compile could not write /Users/borgerding/Library/Caches/com.apple.python/private/tmp/labyrinth_codex; rerun with task-local PYTHONPYCACHEPREFIX exits 0.",
+    "asset_cache_probe": "A transient script used class.get() for static fields; parser rejected it. Corrected to explicit static-field reads; the repeated census passed. The failed runner timed out with exit 124 at its 300-second cap. External kill attempt returned Operation not permitted; no escalation or alternate signaling was attempted.",
+    "inline_texture_repro": "Early inline constructor versions kept a VM temporary alive and asserted. Their three runners were interrupted with their exec-session Ctrl-C (exit 130). Moving allocation to a separate call frame proves the released texture/atlas IDs are invalid while 1/5/20 bounds entries remain; final repro exits 0.",
+    "smoke_recap_check": "The first v2 smoke applied the terminal recap visibility gate to an intentional five-input replay point and exited 1. Gate now applies only to whole-run end screens; corrected full session verifies all five recaps visible."
+  },
+  "background_persistence": {
+    "returncode": 0,
+    "result": "PERF03 DEFERRED PERSISTENCE RESULT: PASS (0 failures)",
+    "other_results": [
+      "PERF03 CHECKPOINT ORDER/OWNERSHIP: PASS",
+      "PERF03 CHECKPOINT CRASH SAFETY: PASS (3 transaction boundaries)",
+      "PERF03 ANALYTICS ORDER/FIELDS/APPEND/IDEMPOTENCY: PASS",
+      "PERF03 EXIT/RUN-END FLUSH: PASS"
+    ],
+    "expected_errors": "Existing explicit blocked-path/append failure-injection cases; raw errors/stacks retained. No assertions changed.",
+    "log": "/private/tmp/labyrinth_codex/qa-53/background-persistence.log"
+  },
+  "departed_cleanup": {
+    "returncode": 0,
+    "result": "DEPARTED CLEANUP RESULT: {\"cases\":3,\"draining_at_menu\":true,\"errors\":[],\"native\":false,\"orphans\":0}",
+    "log": "/private/tmp/labyrinth_codex/qa-53/departed-cleanup.log"
+  },
+  "main_menu_resume": {
+    "returncode": 0,
+    "result": "TEST RESULT: PASS \u2014 main menu resume safety",
+    "log": "/private/tmp/labyrinth_codex/qa-53/main-menu-resume.log"
+  },
+  "smoke": {
+    "returncode": 0,
+    "result": "QA53 SMOKE: PASS runs=1 boundaries=2 errors=[]",
+    "scope": "Five inputs through the real title-menu transition; not a whole-run result. Census population exactly monitor+2; no state/save/RNG/analytics changes from either census.",
+    "log": "/private/tmp/labyrinth_codex/qa-53/smoke/engine.log"
+  },
+  "first_session": {
+    "returncode": 1,
+    "coverage_result": "QA53 SESSION: PASS runs=5 boundaries=11 errors=[]",
+    "status": "Raw monitor/class series complete; ownership observer has 59 freed-instance traversal errors, so runner correctly rejected the process. Corrected replay required.",
+    "outcomes": [
+      "victory",
+      "defeat",
+      "defeat",
+      "defeat",
+      "defeat"
+    ],
+    "decisions": [
+      2595,
+      39,
+      33,
+      33,
+      33
+    ],
+    "exit": "Only BAYER StringName warning; no ObjectDB or resources-in-use warning."
+  },
+  "texture_bounds_repro": {
+    "returncode": 0,
+    "result": "QA53 TEXTURE BOUNDS REPRO: PASS",
+    "observed_growth": [
+      1,
+      5,
+      20
+    ],
+    "texture_alive": false,
+    "protected_scope": "Asset preparation/cropping cache; leave perf-54 load path unchanged.",
+    "log": "/private/tmp/labyrinth_codex/qa-53/texture-bounds-repro-complete.log"
+  },
+  "failed_replay": {
+    "returncode": 120,
+    "last_decision": 470,
+    "cause": "No space left on device; failed enemy_round_complete checkpoint and task-runner stdout write. Not valid after-proof.",
+    "path": "/private/tmp/labyrinth_codex/qa-53/after",
+    "strict_prefix_before_failure": 352
+  },
+  "corrected_census": {
+    "returncode": 0,
+    "result": "QA53 CENSUS CHECK: PASS full native population; repeat class counts identical; bridge overhead=2 objects",
+    "log": "/private/tmp/labyrinth_codex/qa-53/census-check-v2.log"
+  },
+  "corrected_parser": {
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-53/parser-v2.log"
+  },
+  "corrected_session": {
+    "returncode": 0,
+    "result": "QA53 SESSION: PASS runs=5 boundaries=11 errors=[]",
+    "log": "/private/tmp/labyrinth_codex/qa-53/after-clean/engine.log",
+    "decisions": [
+      2595,
+      39,
+      33,
+      33,
+      33
+    ],
+    "script_errors": 0,
+    "recaps_visible": 5,
+    "nonmutation_checks": 11,
+    "native_population_residual_per_boundary": 2
+  },
+  "semantic_integrity": {
+    "actions_equal": true,
+    "policy_rng_equal": true,
+    "decision_counts": [
+      2733,
+      2733
+    ],
+    "exact_committed_state_hashes_equal": 2595,
+    "exact_state_prefix": 2595,
+    "saved_run_boundary_hashes_equal": true,
+    "post_seed_boundary_policy_rng_equal": true,
+    "profile_equal_except_documented_clock_transport": true,
+    "analytics_equal_except_documented_clock_transport": true,
+    "analytics_counts": [
+      7789,
+      7789
+    ],
+    "census_nonmutation_checks": [
+      11,
+      11
+    ],
+    "clock_difference": "Swift feat detail is Escaped in 20 minutes versus Escaped in 21 minutes. Same swift feat/50 points; run_seconds and its derived label are clock observations.",
+    "initial_rng_difference": "Initial menu samples precede seeding the diagnostic policy RNG; all post-seed policy RNG observations match.",
+    "limitation": "The 138 post-win committed-state hashes remain strictly unequal after carrying the clock-derived feat detail into progression. Full transient states were not dumped, so their hashes are not recomputed or claimed equal. Game sources are unchanged; all actions, observed policy RNG states, final profile fields and analytics agree under the stated normalization.",
+    "strict_report": "/private/tmp/labyrinth_codex/qa-53/after-clean/integrity-comparison.json",
+    "normalization": {
+      "removed_fields": [
+        "analytics_session_id",
+        "created_at",
+        "event_id",
+        "install_id",
+        "run_seconds",
+        "session_id",
+        "timestamp_unix",
+        "timestamp_utc",
+        "updated_at"
+      ],
+      "transport_ids": "bijective mapping preserving distinct run relationships",
+      "derived_clock": "only swift feat detail matching Escaped in N minute(s)",
+      "action_paths": "autogenerated Godot node ordinals only"
+    },
+    "semantic_checks_pass": true
+  },
+  "strict_integrity_status": "FAIL retained; initial unseeded diagnostic RNG and clock-derived Swift detail; 138 terminal/progression state hashes not recomputed",
+  "shader_controls": {
+    "returncodes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "bayer_references": [
+      0,
+      1,
+      1,
+      2
+    ],
+    "objectdb_warnings": 0
+  }
+}

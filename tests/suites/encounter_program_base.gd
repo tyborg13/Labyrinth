@@ -4,7 +4,9 @@ extends "res://tests/encounter_tables_test.gd"
 ## The scheduler supplies a fresh report directory shared only by this full run.
 const REPORT_ARGUMENT: String = "--placement-report-directory="
 const REPORT_POLL_SECONDS: float = 0.05
-const SEED_PARTS: int = 2
+# Four disjoint eight-seed ranges retain the original 0..32 sweep. Each old
+# sixteen-seed program is now a pair; the aggregate still checks all statistics.
+const SEED_PARTS: int = 4
 var _callback_count: int = 0
 
 func _expect(ok: bool, message: String) -> void:
@@ -48,7 +50,7 @@ func _finish_seed_parts() -> void:
 	var total: Dictionary = {"generated": 0, "skipped": 0, "largest": 0}
 	for index: int in range(SEED_PARTS):
 		var path: String = directory.path_join("encounter-placement-%d.json" % index)
-		# The unchanged 180-second child cap bounds a missing/failed producer.
+		# The child program timeout bounds a missing/failed producer.
 		while not FileAccess.file_exists(path):
 			await create_timer(REPORT_POLL_SECONDS).timeout
 		var statistics: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))

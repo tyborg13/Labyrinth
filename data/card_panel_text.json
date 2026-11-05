@@ -185,18 +185,6 @@
     "legacy": "Reflect\nEnemies that damage this illusion take that much damage too. Once per enemy attack.",
     "term": "retaliate"
   },
-  "aoe_facing": {
-    "title": "Area Attack",
-    "text": "Hits the red tiles, aimed at the adjacent tile you choose.",
-    "legacy": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose.",
-    "term": "aoe"
-  },
-  "aoe_plain": {
-    "title": "Area Attack",
-    "text": null,
-    "legacy": "Area pattern\nRed tiles are hit{relative}.",
-    "term": "aoe"
-  },
   "light_target": {
     "title": "Light",
     "text": "Creates Light of this radius at the target.",

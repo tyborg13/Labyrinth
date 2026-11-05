@@ -1,7 +1,7 @@
 extends RefCounted
 ## The frozen policy stays reproducible; the active adapter commits its choices.
 const Frozen = preload("res://tools/encounter_bot.gd")
-const Active = preload("res://scripts/battlefield_rules/bot_policy.gd")
+const Active = preload("res://tools/bot_policy.gd")
 const Fixtures = preload("res://tests/suites/bos01_feedback2_suite.gd")
 
 class Fight extends Frozen.CombatEngine:

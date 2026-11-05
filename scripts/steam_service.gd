@@ -17,6 +17,7 @@ const STATS_REQUEST_TIMEOUT_SECONDS: float = 15.0
 const STATS_QUEUE_PATH_TEMPLATE: String = "user://steam_stats_pending_%s.json"
 const MAX_STEAM_INT_STAT: int = 2147483647
 const STEAM_RESULT_OK: int = 1
+const FLOATING_TEXT_INPUT_SINGLE_LINE: int = 0
 
 var _steam: Object = null
 var _initialized: bool = false
@@ -41,6 +42,7 @@ var _submitted_stat_targets: Dictionary = {}
 var _last_stats_status: Dictionary = {}
 var _active_app_id: int = 0
 var _active_user_id: int = 0
+var _floating_keyboard_open: bool = false
 
 func _enter_tree() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -99,6 +101,29 @@ func is_steam_available() -> bool:
 
 func is_steam_active() -> bool:
 	return _initialized and _logged_on and not _steam_id.is_empty()
+
+func show_floating_gamepad_text_input(field_rect: Rect2i) -> bool:
+	if not _initialized or _steam == null or not _steam.has_method("showFloatingGamepadTextInput"):
+		return false
+	if _steam.has_method("isSteamRunning") and not bool(_steam.call("isSteamRunning")):
+		return false
+	if _floating_keyboard_open: return true
+	if field_rect.size.x <= 0 or field_rect.size.y <= 0: return false
+	if _steam.has_signal("floating_gamepad_text_input_dismissed"):
+		var dismissed: Callable = _on_floating_keyboard_dismissed
+		if not _steam.is_connected("floating_gamepad_text_input_dismissed", dismissed):
+			_steam.connect("floating_gamepad_text_input_dismissed", dismissed)
+	_floating_keyboard_open = bool(_steam.call("showFloatingGamepadTextInput", FLOATING_TEXT_INPUT_SINGLE_LINE,
+		field_rect.position.x, field_rect.position.y, field_rect.size.x, field_rect.size.y))
+	return _floating_keyboard_open
+
+func dismiss_floating_gamepad_text_input() -> void:
+	if _floating_keyboard_open and _steam != null and _steam.has_method("dismissFloatingGamepadTextInput"):
+		_steam.call("dismissFloatingGamepadTextInput")
+	_floating_keyboard_open = false
+
+func _on_floating_keyboard_dismissed() -> void:
+	_floating_keyboard_open = false
 
 func persona_name() -> String:
 	return _persona_name

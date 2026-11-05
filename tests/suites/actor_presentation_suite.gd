@@ -7,7 +7,10 @@ const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const MaquetteAction = preload("res://scripts/maquette_cutout_runtime/action.gd")
+const PlaybackTiming = preload("res://scripts/maquette_cutout_runtime/playback_timing.gd")
 const RR07_TRAVEL_QUERY_DISTANCES := [96.0, 131.52, 192.0] # Debug-only query fixtures.
+const HUMANOID_TRAVEL_QUERY_TILE_COUNTS := [1, 2, 3] # Debug-only path fixtures.
 
 static func run(expect: Callable) -> void:
 	var board := CombatBoardView.new()
@@ -27,6 +30,8 @@ static func run(expect: Callable) -> void:
 static func _test_travel_pace(board: Control, expect: Callable) -> void:
 	var player: Script = ActorPresentation.travel_renderer("player")
 	var baseline: float = float(player.call("walk_cycle_distance")) / float(player.get_script_constant_map()["WALK_CYCLE_SECONDS"]) * float(board.call("source_pixel_scale_for_type", "player"))
+	var pacing := preload("res://scripts/combat_pacing.gd").new()
+	pacing.enemies_active = true
 	var slow: Array[String]
 	slow.assign(["warden", "chainbound_gaoler", "cinder_ooze", "bile_bloomer", "tharokh", "vyraketh", "iskaldra", "noctyrax"])
 	var fast: Array[String]
@@ -40,17 +45,27 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		var frame_seconds: float = constants["WALK_FRAME_SECONDS"]
 		var maquette: Script = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 		if str(maquette.integration_for(actor).get("rig", "")) == "humanoid_v2":
-			# V2 steps use protected director clocks, independent of distance.
+			# walk-01 (96dd31ec7, owner APPROVED walk-1): RunScene replaces
+			# legacy renderer counts with Action.frames_for, then applies the
+			# authored enemy tile clock. Compare that schedule with director data,
+			# not the superseded constants. See spec/peer_benchmark/humanoid_cutout_rig.md.
 			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(maquette.asset_directory(actor).path_join("director_motion.json")))
 			var seconds: float = float(director[actor]["clips"]["move"]["seconds"])
+			var data: Dictionary = MaquetteAction.data_for(actor)
+			var counts: Array[int]
+			counts.assign([MaquetteAction.frames_for(actor, "move")])
+			cycle_seconds = counts[0] * PlaybackTiming.movement_frame_seconds(data, pacing, "enemy_1", counts, 1.0 / MaquetteAction.FPS)
 			var scale: float = board.call("source_pixel_scale_for_type", actor)
 			expect.call(scale > 0.0 and is_equal_approx(cycle_seconds, seconds), actor + " retains protected step duration")
 			if actor == "chainbound_gaoler":
 				var step: float = float(board.call("_tile_width")) * sqrt(0.3125)
 				var ratio: float = step / cycle_seconds / baseline
 				print("GAOLER TRAVEL PACE: %.6f x player (one resolved tile; legacy band 0.77-1.20; protected %.6fs step)" % [ratio, cycle_seconds])
-			for source_distance: float in RR07_TRAVEL_QUERY_DISTANCES:
-				expect.call(is_equal_approx(float(renderer.call("walk_segment_frames", source_distance)) * frame_seconds, seconds), actor + " resolved step retains authored clock")
+			for tile_count: int in HUMANOID_TRAVEL_QUERY_TILE_COUNTS:
+				counts.resize(tile_count)
+				counts.fill(MaquetteAction.frames_for(actor, "move"))
+				var scheduled_seconds: float = counts[0] * tile_count * PlaybackTiming.movement_frame_seconds(data, pacing, "enemy_1", counts, 1.0 / MaquetteAction.FPS)
+				expect.call(is_equal_approx(scheduled_seconds, seconds * tile_count), actor + " resolved path retains authored tile clock (%d tiles)" % tile_count)
 			continue
 		# int-09: the Hoarder aliases the Tick's authored step clock. This
 		# roster oracle must query the approved Tick track, never a legacy gait.
@@ -82,6 +97,7 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 			var actual_seconds: float = float(renderer.call("walk_segment_frames", length, actor) if guardian else renderer.call("walk_segment_frames", length)) * frame_seconds
 			var expected_seconds: float = length / cycle_distance * cycle_seconds
 			expect.call(absf(actual_seconds - expected_seconds) <= frame_seconds, actor + " travel time stays proportional to resolved distance")
+	pacing.free()
 
 static func _test_initial_fit_and_invariance(board: Control, state: Dictionary, presentation: Dictionary, expect: Callable) -> void:
 	var origin: Vector2 = board.call("_board_origin")

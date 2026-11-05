@@ -22,6 +22,7 @@ const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const MELEE_FRAMES: int = 30
 const MELEE_FRAME_SECONDS: float = 1.0 / 60.0
 
+var _render_gate: RefCounted
 var viewport: SubViewport
 var rigs: Dictionary = {}
 var facing: String = "front"
@@ -52,6 +53,7 @@ func _ready() -> void:
 	viewport.world_2d = World2D.new()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(viewport)
+	_render_gate = preload("res://scripts/cutout_render_gate.gd").new(viewport)
 	for view: String in ["front", "rear"]:
 		var rig := Rig.new()
 		rig.name = view.capitalize()
@@ -84,6 +86,7 @@ func set_gear(equipped: Dictionary) -> void:
 		rest_texture_changed.emit()
 
 func _apply_gear() -> void:
+	if _render_gate != null: _render_gate.invalidate_geometry()
 	for view: String in rigs:
 		rigs[view].apply_gear(GearVisuals.ops_for_facing(_equipped, view))
 	_pose_signature.clear()
@@ -244,10 +247,11 @@ func _apply_pose() -> void:
 		var rig: Node2D = rigs[view]
 		# Restore carry depth even when action recovery switches to the other
 		# facing and hides the previously extended rear weapon.
-		rig._update_weapon_depth(shown_clip if view == facing else "rest")
 		rig.visible = view == facing
 		if not rig.visible:
+			rig._update_weapon_depth("rest")
 			continue
+		# Applying the visible pose updates gear depth with its new phase.
 		rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 		rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
 		ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)

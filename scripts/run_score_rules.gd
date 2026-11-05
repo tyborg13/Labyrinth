@@ -97,7 +97,8 @@ static func score(run_state: Dictionary, outcome: String) -> Dictionary:
 	for id: String in dragons:
 		dragon_names.append(dragon_name(id))
 	var dragon_count: int = mini(6, dragons.size())
-	_append(lines, "dragons_slain", "Dragons slain", ", ".join(dragon_names), 25 * dragon_count * (dragon_count + 1))
+	# Six names overrun the recap row; the full set reads as one feat.
+	_append(lines, "dragons_slain", "Dragons slain", "All six" if dragon_count >= 6 else ", ".join(dragon_names), 25 * dragon_count * (dragon_count + 1))
 	var victory: bool = outcome == "victory"
 	if victory:
 		_append(lines, "escaped", "Escaped the Umbra", "", 250)

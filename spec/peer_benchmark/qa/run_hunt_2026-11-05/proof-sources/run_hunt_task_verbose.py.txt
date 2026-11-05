@@ -1,0 +1,21 @@
+from pathlib import Path
+import importlib.util,sys
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-45')
+spec=importlib.util.spec_from_file_location('qa45_task_launcher',EVIDENCE/'run_hunt_task.py')
+launcher=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launcher)
+hunt=launcher.hunt
+original_command=hunt.command_for
+original_replay=hunt.replay_command
+
+def command_for(seed,directory,args):
+ command=original_command(seed,directory,args)
+ command.insert(command.index('--headless'),'--verbose')
+ return command
+
+def replay_command(group,args):
+ return original_replay(group,args).replace('run_hunt_task.py','run_hunt_task_verbose.py')
+
+hunt.command_for=command_for
+hunt.replay_command=replay_command
+if __name__=='__main__':raise SystemExit(hunt.main())

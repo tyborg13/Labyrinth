@@ -169,14 +169,29 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	card = _tag_card_actions_for_combat(card)
 	return card
 
-static var _enemy_definition_memo := preload("res://scripts/combat_preview_memo.gd").new()
+static var _enemy_definitions: Dictionary = {}
 
 static func enemy_def(enemy_type: String) -> Dictionary:
-	# Scaling is pure catalog work, repeated throughout planning and rendering.
-	# Preserve private caller ownership and detect in-place catalog/test edits.
+	return _enemy_definition(enemy_type, true)
+
+# Scalar readers need no complete definition copy. Mutable fields still own
+# their nested data, so reading a field cannot expose the memo's private entry.
+static func enemy_property(enemy_type: String, field: String, fallback: Variant = null) -> Variant:
+	var value: Variant = _enemy_definition(enemy_type, false).get(field, fallback)
+	return value.duplicate(true) if value is Dictionary or value is Array else value
+
+static func _enemy_definition(enemy_type: String, copy_result: bool) -> Dictionary:
+	# One scaled value per definition revision. Unlike the general preview memo,
+	# this needs neither an input-array allocation, a closure nor a hashed bucket.
+	# Keep an owned source: catalogs are mutable, including nested test edits.
 	var raw: Variant = enemies().get(enemy_type, {})
 	var source: Dictionary = raw if raw is Dictionary else {}
-	return _enemy_definition_memo.resolve([enemy_type, source], func() -> Dictionary: return _scale_enemy_fixed_point(source))
+	var entry: Dictionary = _enemy_definitions.get(enemy_type, {})
+	if entry.is_empty() or entry["source"] != source:
+		entry = {"source": source.duplicate(true), "value": _scale_enemy_fixed_point(source)}
+		# Missing names must not grow the cache with arbitrary caller input.
+		if not source.is_empty(): _enemy_definitions[enemy_type] = entry
+	return entry["value"].duplicate(true) if copy_result else entry["value"]
 
 static func npc_def(npc_id: String) -> Dictionary:
 	return _duplicate_dict(npcs().get(npc_id, {}))

@@ -7,9 +7,11 @@ const Floating = preload("res://scripts/floating_combat_text.gd")
 const Ghost = preload("res://scripts/health_ghost_tracker.gd")
 const WIDTH: float = 240.0
 const BAR_HEIGHT: float = 12.0 # YOUR KIT Health.
+const NUMBER_GAP: float = 10.0 # Bar end to the "24 / 24" number.
 const GHOST_TINT: Color = Ghost.ENEMY_GHOST_COLOR # Existing pale-red combat ghost.
 const NUMBER_SCALE: float = 0.8
 const NUMBER_MAX_RISE: float = 34.0
+const NUMBER_BAR_GAP: float = 2.0
 var panel_bounds: Rect2
 var hp: float = 0
 var cap: float = 1
@@ -76,7 +78,7 @@ func _update() -> void:
 		_numbers.size = _numbers.get_combined_minimum_size()
 		_numbers.position = Vector2(WIDTH - _numbers.size.x, (size.y - _numbers.size.y) * 0.5)
 	var origin := Vector2(Typography.SIZE_BODY_LARGE, (size.y - BAR_HEIGHT) * 0.5)
-	var extent := Vector2(maxf(0, _numbers.position.x - origin.x), BAR_HEIGHT)
+	var extent := Vector2(maxf(0, _numbers.position.x - origin.x - NUMBER_GAP), BAR_HEIGHT)
 	for bar: ProgressBar in _bars:
 		bar.position = origin
 		bar.size = extent
@@ -130,7 +132,7 @@ func beat(kind: String, amount: int, reduced: bool, resolved_hp: float = -1, res
 	_spawn_number(("%+d max" if kind == "max_hp" else "%+d") % amount, Palette.GOLD if kind == "max_hp" and amount > 0 else Palette.DANGER if amount < 0 else Palette.ALLY, reduced)
 
 func _spawn_number(text: String, tint: Color, reduced: bool) -> void:
-	var entry: Dictionary = Floating.damage_entry(Vector2i.ZERO, text, tint, {"hit_scale": 1.0})
+	var entry: Dictionary = Floating.damage_entry(Vector2i.ZERO, text, tint)
 	Floating._animate_damage_entry(entry, 0, reduced)
 	var label := Label.new()
 	label.text = text
@@ -159,12 +161,11 @@ func _pose_number(label: Label, entry: Dictionary, origin: Vector2, progress: fl
 	label.scale = Vector2.ONE * float(entry["font_scale"]) * NUMBER_SCALE
 	label.modulate.a = float(entry["alpha"])
 	var rise: float = clampf(-Floating._motion_offset(entry, progress, reduced).y, 0, NUMBER_MAX_RISE)
-	var point: Vector2 = origin - Vector2(0, rise)
 	var extent: Vector2 = label.get_combined_minimum_size() * label.scale
-	point.x -= extent.x * 0.5
+	# Grow above the bar; clamping the top would push large numbers into the title.
+	var point: Vector2 = origin - Vector2(extent.x * 0.5, extent.y + NUMBER_BAR_GAP + rise)
 	if panel_bounds.has_area():
 		point.x = clampf(point.x, panel_bounds.position.x, panel_bounds.end.x - extent.x)
-		point.y = clampf(point.y, panel_bounds.position.y, panel_bounds.end.y - extent.y)
 	label.position = point
 
 func finish(value: int, maximum: int) -> void:

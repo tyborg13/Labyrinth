@@ -906,8 +906,10 @@ func room_description(coord: Vector2i) -> String:
 		detail = "Already visited"
 	elif not Graph.descendants(run_state, run_state.get("current_room", Graph.INVALID)).has(coord):
 		detail = "No longer reachable"
+	elif scout_targeting and can_activate_room(coord):
+		detail = "Scout to reveal"
 	elif not bool(node.get("revealed", false)):
-		detail = "Scout to reveal" if scout_targeting and can_activate_room(coord) else "Undiscovered"
+		detail = "Undiscovered"
 	if _has_recovery(node):
 		detail += " · %d lost Embers" % int(node.get("recovery_amount", 0))
 	if bool(node.get("revealed", false)) and str(node.get("type", "")) == "graftwright":

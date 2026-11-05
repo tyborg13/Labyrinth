@@ -1,0 +1,47 @@
+{
+  "task_id": "qa-43",
+  "base_head": "8398f4680e98e2e91dba9e707271c6b53dde654e",
+  "risk_tier": "standard",
+  "acceptance": [
+    "Two sequential 45-minute campaigns: default then no-embrace, two processes each, fresh seed 3.",
+    "Two read-only replays with section 0 and 5 node census; evaluate tree <= 1.25 * initial plus named pools.",
+    "Triage every runtime error/crash/softlock/freed-object/null access. Fix owned defects without changing design values, replay after fixes.",
+    "Report non-bugs, coverage including rooms/sections/final dragons, before/after evidence; run Python default group only.",
+    "Preserve combat state, RNG, saves and analytics; leave changes uncommitted; owner handles review/inspection/publication."
+  ],
+  "inspection": "Headless hunt. Any needed windowed proof is prepared for owner; no window-server attempts.",
+  "protected_sha256": {
+    "scripts/combat_preview_memo.gd": "f6dc06ff6122d91aa3489d65a154fd3a983ff760a1e35043ba38c150199cadc3",
+    "scripts/combat_engine.gd": "fddd33af940ad784147eadb4805fde1ed29cec34ab1ad72877113f18475da4db",
+    "scripts/strike_trail_fx.gd": "781d968beaf4a6c5e08c2e281010179ccb68252507f6443116195b8ea2a20331",
+    "scripts/hero_strike_trail.gd": "aa9a103497f68fefbbc6d77a02a0806c51c24f9a1c597c1f76fbb123dce33745",
+    "scripts/enemy_strike_trail.gd": "2a8be4a4dc5e641f5f4fdd148e85c1522dcf4a2a6e0864dd2259cbdc93a10bb4",
+    "scripts/settings_store.gd": "f8d93a803a51368ea061ff34f39ec5f55aaa2f804a30eab113edb0b46e62bc9d",
+    "scripts/settings_panel.gd": "88866a4f76e8fda71a73d14bbf1dd3db66ea2ea64cfca8a94365ece01d00425f",
+    "scripts/card_widget.gd": "6cca2995c358b2cafc9e62caca755ef597dafa6259f12fb6c52b900f11a80a84"
+  },
+  "chosen_defaults": {
+    "TASK_ID": "qa-43",
+    "evidence_root": "/private/tmp/labyrinth_codex/qa-43",
+    "TRACE_TAIL_BYTES": 65536,
+    "CENSUS_TERMINAL_SECTION": 5
+  },
+  "mandated_campaign": {
+    "seed": 3,
+    "minutes": 45,
+    "processes": 2
+  },
+  "proof_source_sha256": {
+    "run_hunt_task.py": "bde1a7444af4f29102aead8b4b46576fa61cf7491e563ccd5097ab667c66a82d",
+    "compare_replays.py": "445f4c0a111ffd119dc71f6041abcb7b14f6f62c3b8bbe06c083f1e3b2288a4a",
+    "run_hunt_census.gd": "f880bc10d5965642d3af9f87c44d5b7136fd26505e7ae4d155b0c915bd275109",
+    "run_hunt_census_full.gd": "d91985b9850fe872e72b4c7fee03c90b383a258af874128afdcf2bfeefb44d6c",
+    "run_campaigns.py": "62b4df468063e11a1056c29a0580b32a733075e3e7301ed8875ff959cede74cb",
+    "run_hunt_task_verbose.py": "6171d16371f0c29bc34d137502432dab7063c84d4a3bfb07f5c25184f18be374",
+    "collect_reports.py": "d3499c4276353239e0b3ef0fe65483dde49767898d490c74088e0d2211f357f1",
+    "collect_census.py": "b44f3db6b4cab12f1e7d4d65b0093e40006b3b78c3e53da88604bf7122186ff7",
+    "collect_diagnostics.py": "86c402f5b416049d8e53985a41fde7409cd2c243259b26eb8d7c043cc1dc377d",
+    "status.py": "25afcb8a94f7383d7becf9e419d8befa6f17ee11d1a38bd11d5f309150b8186f",
+    "run_censuses.py": "bc042e07a83189f86529ef17828c450fc991c279dbed739646af6755ab370eab"
+  }
+}

@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const NavigationTest = preload("res://tests/combat_board_navigation_test.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -132,7 +133,7 @@ func _capture_navigation_states() -> void:
 	var focus_before: Vector2 = board.call("world_position_for_tile", focus_tile)
 	board.call("set_navigation_zoom", PROOF_ANCHOR_ZOOM, focus_before)
 	var focus_after: Vector2 = board.call("world_position_for_tile", focus_tile)
-	_expect(focus_after.distance_to(focus_before) <= 1.0, "Zoom preserves the focused tile within one pixel")
+	NavigationTest.expect_zoom_axes(board, focus_before, focus_after, "scene tile=%s zoom=%.2f" % [focus_tile, PROOF_ANCHOR_ZOOM], _expect)
 	await _settle_ui()
 	await _save_root_screenshot("%s/01_pointer_anchor.png" % OUTPUT_DIR)
 	board.call("reset_navigation")

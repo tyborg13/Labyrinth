@@ -1,0 +1,71 @@
+from pathlib import Path
+import json,re
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-45')
+REPORT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-45/spec/peer_benchmark/qa/run_hunt_2026-11-05')
+ACTION_FIELDS=['kind','method','args','card_id','tile','signal','text','handler','path']
+CONTEXT_FIELDS=['mode','room','section']
+SHUTDOWN_TAIL_LINES=150
+MAP_HANDLER_ALIASES={'_on_large_map_room_selected','_on_map_view_room_selected'}
+
+def events(path):
+ for line in path.read_text().splitlines():
+  try:yield json.loads(line)
+  except ValueError:continue
+
+def actions(path):
+ result=[]
+ for row in events(path):
+  if row['event']!='decision':continue
+  data=row['data'];action={key:data[key] for key in ACTION_FIELDS if key in data}
+  if 'path' in action:action['path']=re.sub(r'(@[A-Za-z0-9_]+@)[0-9]+',r'\1#',action['path'])
+  action['context']={key:data['context'].get(key) for key in CONTEXT_FIELDS}
+  result.append(action)
+ return result
+
+def equivalent_map_owner(a,b):
+ if a==b:return True
+ if a.get('kind')!='map_room' or b.get('kind')!='map_room':return False
+ if a.get('method') not in MAP_HANDLER_ALIASES or b.get('method') not in MAP_HANDLER_ALIASES:return False
+ return {key:value for key,value in a.items() if key!='method'}=={key:value for key,value in b.items() if key!='method'}
+
+def main():
+ records=json.loads((EVIDENCE/'observer-confirm-executions.json').read_text())+json.loads((EVIDENCE/'census-executions.json').read_text())
+ if (EVIDENCE/'shutdown-executions.json').exists():records+=json.loads((EVIDENCE/'shutdown-executions.json').read_text())
+ comparisons=[];diagnostics=[]
+ for item in records:
+  seed=item['seed'];campaign='no-embrace' if item['no_embrace'] else 'default'
+  directory=Path(item['output_dir'])/f'seed-{seed:06d}'
+  source=EVIDENCE/('campaign-'+campaign)/f'seed-{seed:06d}'/'trace.jsonl'
+  baseline=actions(source);replay=actions(directory/'trace.jsonl')
+  common=min(len(baseline),len(replay));first=next((i for i in range(common) if baseline[i]!=replay[i]),None)
+  differences=[dict(decision=i+1,baseline=baseline[i],replay=replay[i],map_owner_alias=equivalent_map_owner(baseline[i],replay[i])) for i in range(common) if baseline[i]!=replay[i]]
+  semantic_first=next((i for i in range(common) if not equivalent_map_owner(baseline[i],replay[i])),None)
+  comparisons.append(dict(name=item['name'],seed=seed,campaign=campaign,baseline_decisions=len(baseline),replay_decisions=len(replay),matching_prefix=common if first is None else first,strict_differences=differences,map_owner_equivalent_prefix=common if semantic_first is None else semantic_first,first_divergence=None if first is None else dict(decision=first+1,baseline=baseline[first],replay=replay[first])))
+  rows=list(events(directory/'trace.jsonl'))
+  checks=[row['data'] for row in rows if row['event']=='qa45_observation_summary']
+  detailed=[row['data'] for row in rows if row['event']=='qa45_replay_checks']
+  mismatches=[row['data'] for row in rows if row['event']=='qa45_observation_mismatch']
+  glossary=[row['data'] for row in rows if row['event']=='qa45_glossary_geometry']
+  ownership=[row['data'] for row in rows if row['event']=='qa45_orphan_ownership']
+  cleanup=[row['data'] for row in rows if row['event']=='qa45_post_cleanup']
+  lines=(directory/'godot.log').read_text(errors='replace').splitlines()
+  warnings=[]
+  for i,line in enumerate(lines):
+   if 'Relic glossary above-row overflow:' not in line:continue
+   owner=line.split('overflow: ',1)[1].split(',',1)[0]
+   # The latest decision preceding this synchronous reveal is retained in log.
+   decision=0
+   for earlier in reversed(lines[:i]):
+    if earlier.startswith('RUN_HUNT_EVENT ') and '"event":"decision"' in earlier:
+     decision=json.loads(earlier.removeprefix('RUN_HUNT_EVENT '))['data']['decision'];break
+   samples=[sample for sample in glossary if sample['geometry']['owner']==owner and sample['context']['decision']==decision]
+   warnings.append(dict(owner=owner,decision=decision,log_line=i+1,warning=line,samples=samples,cleared_before_next_decision=bool(samples) and not samples[0]['geometry']['overflow']))
+  campaign_data=json.loads((Path(item['output_dir'])/'campaign.json').read_text());run=campaign_data['runs'][0]
+  diagnostics.append(dict(name=item['name'],seed=seed,returncode=run['returncode'],outcome=(run.get('finish') or {}).get('outcome'),observations=checks,replay_checks=detailed,mismatches=mismatches,orphan_ownership=ownership,post_cleanup=cleanup,shutdown_tail=lines[-SHUTDOWN_TAIL_LINES:] if item['name'].startswith('shutdown-') else [],glossary_warnings=warnings,literal_script_errors=sum(line.startswith('SCRIPT ERROR:') for line in lines),all_error_lines=[line for line in lines if line.startswith(('SCRIPT ERROR:','ERROR:','WARNING:'))]))
+ for name,data in [('replay-input-comparison.json',comparisons),('replay-diagnostics.json',diagnostics)]:
+  (REPORT/name).write_text(json.dumps(data,indent=2)+'\n')
+ for row in comparisons:print('QA45 REPLAY PREFIX:',row['name'],str(row['matching_prefix'])+'/'+str(min(row['baseline_decisions'],row['replay_decisions'])),'first_divergence='+str((row['first_divergence'] or {}).get('decision')))
+ for row in comparisons:print('QA45 REPLAY MAP-OWNER EQUIVALENCE:',row['name'],str(row['map_owner_equivalent_prefix'])+'/'+str(min(row['baseline_decisions'],row['replay_decisions'])),'strict_differences='+str(len(row['strict_differences'])))
+ for row in diagnostics:print('QA45 REPLAY CHECK:',row['name'],'script_errors='+str(row['literal_script_errors']),'model_mismatches='+str(len(row['mismatches'])),'glossary_warnings='+str(len(row['glossary_warnings'])))
+
+if __name__=='__main__':main()

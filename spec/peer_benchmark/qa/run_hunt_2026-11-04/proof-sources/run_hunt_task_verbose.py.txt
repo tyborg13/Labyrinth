@@ -1,0 +1,27 @@
+"""The task-local launcher, adding only Godot's verbose diagnostic output."""
+from pathlib import Path
+import importlib.util
+import sys
+
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-43')
+spec = importlib.util.spec_from_file_location('qa43_task_launcher', EVIDENCE / 'run_hunt_task.py')
+launcher = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launcher)
+original_command_for = launcher.hunt.command_for
+original_replay_command = launcher.hunt.replay_command
+
+
+def command_for(seed, directory, args):
+    command = original_command_for(seed, directory, args)
+    command.insert(command.index('--headless'), '--verbose')
+    return command
+
+
+def replay_command(group, args):
+    return original_replay_command(group, args).replace('run_hunt_task.py', 'run_hunt_task_verbose.py')
+
+
+launcher.hunt.command_for = command_for
+launcher.hunt.replay_command = replay_command
+if __name__ == '__main__':
+    sys.exit(launcher.hunt.main())

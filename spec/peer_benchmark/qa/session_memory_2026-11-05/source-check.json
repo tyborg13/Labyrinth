@@ -1,0 +1,6 @@
+{
+  "head": "ec119e9ae7e9fec59212bd541f5a982406e2a762",
+  "production_diff_exit": 0,
+  "production_diff": "",
+  "note": "Only the owned report directory is added to the worktree. No production source, permanent test, asset, data value or registry changed."
+}

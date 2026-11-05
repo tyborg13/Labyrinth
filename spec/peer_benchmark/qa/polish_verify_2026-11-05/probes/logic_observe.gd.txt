@@ -1,0 +1,68 @@
+extends "res://spec/peer_benchmark/qa/polish_verify_2026-11-05/probes/observe.gd"
+const RouterQA = preload("res://scripts/sfx_cue_router.gd")
+const DisplayQA = preload("res://scripts/card_display_overrides.gd")
+const ScoreQA = preload("res://scripts/run_score_rules.gd")
+class TraceBank extends Node:
+	var events: Array[Dictionary]
+	var data: Dictionary = {"rules": {"merge_window_ms": 60}}
+	func play(id: String, options: Dictionary = {}) -> void: events.append({"id": id, "options": options})
+	func now_ms() -> int: return 10000
+	func frame_id() -> int: return 1
+	func presentation_ms() -> int: return 10000
+
+func qa_run() -> void:
+	var bank := TraceBank.new()
+	root.add_child(bank)
+	var router := RouterQA.new(bank)
+	var before: Dictionary = {"player": {"hp": 24, "pos": Vector2i(3, 3)}, "enemies": []}
+	var after: Dictionary = before.duplicate(true)
+	after["player"]["hp"] = 21
+	for label: String in ["", "Fire"]:
+		bank.events.clear()
+		var step: Dictionary = {"kind": "status_damage", "action_type": "arrival", "label": label}
+		router.begin_player_action(before, step)
+		router.presentation(after, {})
+		qa_record("fire_label_routing", {"input_step": step, "hp_loss": 3, "cues": bank.events.duplicate(true)})
+	bank.events.clear()
+	router.baseline(before)
+	var new_unit: Dictionary = {"id": 1, "type": "crawler", "hp": 9, "pos": Vector2i(4, 4), "arrival_animation": true}
+	var arrived: Dictionary = before.duplicate(true)
+	arrived["enemies"].append(new_unit)
+	router.presentation(arrived, {"death_animation_units": [new_unit]})
+	qa_record("reinforcement_arrival", bank.events.duplicate(true))
+	bank.events.clear()
+	new_unit["arrival_animation"] = false
+	router.presentation(arrived, {"death_animation_units": [new_unit]})
+	qa_record("reinforcement_actual_death", bank.events.duplicate(true))
+	bank.events.clear()
+	router.baseline(before)
+	router.presentation(arrived, {})
+	qa_record("summon_arrival", bank.events.duplicate(true))
+	for id: String in ["volt_surge", "molten_reach", "thunderline", "searing_light", "stoke", "quick_stab"]:
+		qa_record("card_display:" + id, DisplayQA.for_card(id, {}))
+	var profile: Dictionary = TutorialQA.complete_tutorial(ProgressionStore.default_data())
+	var state: Dictionary = _build_run_state("combat", profile)
+	var combat: Dictionary = state["combat_state"]
+	for row: Array in combat["grid"]:
+		for index: int in range(row.size()): row[index] = "floor"
+	combat["player"]["pos"] = Vector2i(3, 3)
+	for positions: Array in [[Vector2i(4, 3), Vector2i(5, 3)], [Vector2i(3, 4), Vector2i(3, 5)]]:
+		var enemies: Array = []
+		for index: int in range(2):
+			var enemy: Dictionary = combat["enemies"][0].duplicate(true)
+			enemy["id"] = index + 1
+			enemy["pos"] = positions[index]
+			enemy["hp"] = 100
+			enemies.append(enemy)
+		combat["enemies"] = enemies
+		for id: String in ["volt_surge", "molten_reach", "thunderline"]:
+			var action: Dictionary = GameData.card_def(id)["actions"][0]
+			var direction: Vector2i = preload("res://scripts/line_opening_aim.gd").direction(_combat_engine, combat, action, Vector2i.RIGHT)
+			qa_record("line_opening_aim", {"card": id, "positions": positions, "fallback": Vector2i.RIGHT, "chosen": direction})
+	var terminal: Dictionary = _build_run_state("defeat", profile)
+	terminal["run_stats"]["dragons_slain"] = ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]
+	qa_record("all_six_score", ScoreQA.score(terminal, "victory"))
+	qa_log.close()
+	bank.free()
+	print("QA52 LOGIC OBSERVER COMPLETE output=" + ProjectSettings.globalize_path(qa_output))
+	quit(0)

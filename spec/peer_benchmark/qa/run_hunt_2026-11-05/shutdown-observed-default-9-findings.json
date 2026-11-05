@@ -1,0 +1,1037 @@
+[
+  {
+    "severity": "script error",
+    "error": "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+    "context": {
+      "seed": 9,
+      "section": -1,
+      "room_kind": "startup",
+      "decision": 0
+    },
+    "last_20_decisions": [],
+    "log_line": 36,
+    "log_lines": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)"
+    ],
+    "location": "platform/macos/os_macos.mm:1014",
+    "replay_script": "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd",
+    "count": 1,
+    "seeds": [
+      9
+    ],
+    "occurrences": [
+      {
+        "seed": 9,
+        "context": {
+          "seed": 9,
+          "section": -1,
+          "room_kind": "startup",
+          "decision": 0
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-45/shutdown-observed-default-9/seed-000009/godot.log",
+        "log_line": 36
+      }
+    ]
+  },
+  {
+    "context": {
+      "decision": 1133,
+      "mode": "combat",
+      "room": "(6, -6)",
+      "room_kind": "umbral_snare",
+      "room_metadata": {
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(6, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(6, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, -6)",
+        "depth": 6,
+        "element": "earth",
+        "map_landmark": true,
+        "map_lane": 0,
+        "map_outline": true,
+        "map_step": 4,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "special_starting_reward_embers": 12,
+        "special_type": "umbral_snare",
+        "special_variant": "lightning",
+        "type": "special",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 9
+    },
+    "error": "Fight exploration budget reached 400 decisions",
+    "last_20_decisions": [
+      {
+        "context": {
+          "decision": 1114,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1114,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1115,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1115,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1116,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1116,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1117,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1117,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1118,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1118,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1119,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1119,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1120,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1120,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1121,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1121,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1122,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1122,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1123,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1123,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1124,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1124,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1125,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1125,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1126,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1126,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1127,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1127,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1128,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1128,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1129,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1129,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1130,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1130,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1131,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1131,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1132,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1132,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      },
+      {
+        "context": {
+          "decision": 1133,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "decision": 1133,
+        "kind": "pass",
+        "method": "_on_pass_turn_pressed"
+      }
+    ],
+    "location": "res://tools/run_hunt.gd:258",
+    "severity": "warning",
+    "log_line": 2255,
+    "replay_script": "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd",
+    "count": 1,
+    "seeds": [
+      9
+    ],
+    "occurrences": [
+      {
+        "seed": 9,
+        "context": {
+          "decision": 1133,
+          "mode": "combat",
+          "room": "(6, -6)",
+          "room_kind": "umbral_snare",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(6, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(6, 1)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(6, -6)",
+            "depth": 6,
+            "element": "earth",
+            "map_landmark": true,
+            "map_lane": 0,
+            "map_outline": true,
+            "map_step": 4,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 1,
+            "special_starting_reward_embers": 12,
+            "special_type": "umbral_snare",
+            "special_variant": "lightning",
+            "type": "special",
+            "visited": true
+          },
+          "section": 1,
+          "seed": 9
+        },
+        "log": "/private/tmp/labyrinth_codex/qa-45/shutdown-observed-default-9/seed-000009/godot.log",
+        "log_line": 2255
+      }
+    ]
+  }
+]

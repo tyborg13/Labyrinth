@@ -23,12 +23,14 @@ var cross_counts: Dictionary = {}
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var engine := Combat.new()
+	# Geometry cases vary only their deep copies of this production-built battle.
+	var fixture_base: Dictionary = Fixture.battle("fire")
 	# The reviewer's 8 bearings x both saved barrage sides, then blocked,
 	# terrain-blocked, edge-clipped and movement-disabled variants of each.
 	for delta: Vector2i in REVIEW_DELTAS:
 		for side: int in [-1, 1]:
 			for variant: String in MATRIX_VARIANTS:
-				var state: Dictionary = Fixture.battle("fire")
+				var state: Dictionary = fixture_base.duplicate(true)
 				state["enemies"].resize(1)
 				var enemy: Dictionary = state["enemies"][0]
 				enemy["pos"] = TEST_CAPTAIN
@@ -56,7 +58,7 @@ func _initialize() -> void:
 	# only a subset of the four directions on an open board.
 	for direction: Vector2i in [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]:
 		for side: int in [-1, 1]:
-			var state: Dictionary = Fixture.battle("fire")
+			var state: Dictionary = fixture_base.duplicate(true)
 			state["enemies"].resize(1)
 			state["enemies"][0]["pos"] = TEST_CAPTAIN
 			state["player"]["pos"] = TEST_CAPTAIN - direction * FORCED_HERO_DISTANCE
@@ -70,7 +72,7 @@ func _initialize() -> void:
 	for direction: Vector2i in Cases.ADJACENT_DIRECTIONS:
 		for side: int in [-1, 1]:
 			for blockers: String in ["", "wall", "terrain"]:
-				var approach: Dictionary = Cases.revealed_adjacent(engine, direction, side, blockers)
+				var approach: Dictionary = Cases.revealed_adjacent(engine, direction, side, blockers, fixture_base)
 				_expect(approach["declared"]["enemies"][0]["intent"]["id"] == "lob_slag", "Adjacent case first reveals a legal Lob at distance 2")
 				_expect(approach["adjacent"]["player"]["pos"] == Cases.CAPTAIN + direction, "Hero legally walks adjacent after the Lob is revealed")
 				_expect(approach["adjacent"]["enemies"][0]["intent"] == approach["declared"]["enemies"][0]["intent"], "Approach preserves the revealed intent and barrage side")

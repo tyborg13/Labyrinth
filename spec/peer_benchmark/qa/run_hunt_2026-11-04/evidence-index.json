@@ -1,0 +1,1175 @@
+{
+  "evidence_root": "/private/tmp/labyrinth_codex/qa-43",
+  "files": [
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/campaign.json",
+      "bytes": 1386213,
+      "sha256": "eaeb9737cc33642902db2c196c0be54f59f7c94fbce5af68fcd15fa1c4f0e41c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/findings.json",
+      "bytes": 232590,
+      "sha256": "9babd463f5dfee894fc6262529effe513db92800e725f564f564b80fcf518384"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/provenance.json",
+      "bytes": 366,
+      "sha256": "efcb7d79379eee26da07c801c0fcdedd40ef5dd7c2df4ccded01fcd226685114"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/report.md",
+      "bytes": 14811,
+      "sha256": "f3cd791a1ffd3d239205e68ee9ad2d33a02abfcf15a81aaa30742fd39711b725"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/analytics/events-2026-11-04.jsonl",
+      "bytes": 1692558,
+      "sha256": "0f606a62c4c171ec07b7b9d8e132bbe55ba5ec7964dbf9837c6d61062ed33a66"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "1ebf48709cbd31d48697fb0f8dd0369c2a6b21aa8263b340404ad5f50b0dee4a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/command.json",
+      "bytes": 532,
+      "sha256": "7d239ff9e646858109df7c3b511fa4dca8532915da8e70a0f64c856c45b74f7a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/evidence.json",
+      "bytes": 43912,
+      "sha256": "a56ee8a5077e0854772c6f2877ff75037ee39c8d5bfdd1537f27b0531a63215d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/godot.log",
+      "bytes": 334095,
+      "sha256": "0c119143bc45efa221c2a514a9a02e8760fc70c55e9e3d3d272ffc9eb4c7a42f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/progression.json",
+      "bytes": 8342,
+      "sha256": "58ac8314f378154fced8e34a1b266f527b78b1f9cafb10a529e7961b43ad6b34"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/run.save.pre-surfaces-v5.33b38794a50848f5",
+      "bytes": 183000,
+      "sha256": "33b38794a50848f5a7162a6a706df4c98fa1504551824f95de3b54e2f8f02e06"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/summary.json",
+      "bytes": 25853,
+      "sha256": "a40c5398997b8c5dadfb52632278ad905b248c3859130751da5b61769d0543ad"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000003/trace.jsonl",
+      "bytes": 326189,
+      "sha256": "4e20e97a9fe09f40babcf87ce70f3d7e29c8ed2be09264a83374153802b87022"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/analytics/events-2026-11-04.jsonl",
+      "bytes": 1343657,
+      "sha256": "3c1c6fab7dcee685ca2a79b8656a1cfce43a1c7de2eb4ad6ed7feef4e296a2ad"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "548ab04f4d17d458e7dbbacd6d22013ffa86f5fe7fe574403490a0798e91a3cb"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/command.json",
+      "bytes": 532,
+      "sha256": "b874052e4492e45d8e94cb833193a6b101058321e6a2f5b9ae673a9efe051dde"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/evidence.json",
+      "bytes": 53230,
+      "sha256": "29bbcf266925b6b6e2c005129052dfa081ad16df6e5031f21cbe8eb73f80ba91"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/godot.log",
+      "bytes": 243578,
+      "sha256": "184e47da06296be51d2c0fc6834c863ca57428479f6300d41f09932ff5c22876"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/progression.json",
+      "bytes": 8094,
+      "sha256": "b26f9cf86c57c7ea4b90d094fca4ac688a8a0c1c62f12251bdd53208a2a88da9"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/run.save.pre-surfaces-v5.1c94c05f91debc24",
+      "bytes": 185252,
+      "sha256": "1c94c05f91debc24598e8c338bd6a6dd7b872811faf36558b6d913500f176166"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/summary.json",
+      "bytes": 32684,
+      "sha256": "0cc19016b97e07e63274538f43143b577aa961baa4af24c595bce32a461728db"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000004/trace.jsonl",
+      "bytes": 237787,
+      "sha256": "695758ea6a89458564c424f9cad17408d5fdd907cce851a3b10cdcf72d9dc323"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/analytics/events-2026-11-04.jsonl",
+      "bytes": 15722192,
+      "sha256": "bd09536694912d7f5d4f3215f1ae08fb2ac23b7dbe4a629c69496d4f90cd2d9f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "c3659dad51b3d6219895722668fd59ad73ab9069eff19a7bbbd7d6c373436521"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/command.json",
+      "bytes": 532,
+      "sha256": "aae61c77771075346cf0529240ba5cf749d99282c0b66ad701ae23fdaac462af"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/evidence.json",
+      "bytes": 272278,
+      "sha256": "582c1bc830e263b81b9a344ec2bb8356a254a1feaad5847143fa142aa9626959"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/godot.log",
+      "bytes": 2066895,
+      "sha256": "44e77458e08105d41486ebc1e0954aae937979d8b6b7c1cd8f1c8c9c599b1565"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/progression.json",
+      "bytes": 18287,
+      "sha256": "fcf20367660471a3bf4d386b2f91a2b341aa352a33db2c4e4332d4cfa01636f1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/recent_events.json",
+      "bytes": 278,
+      "sha256": "8a9121d62711ed1b52c0459c070a6faacf896d3b8001988573a90e8c53190612"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/run.save.pre-surfaces-v5.ec0e419104964727",
+      "bytes": 180432,
+      "sha256": "ec0e4191049647273f9fcef6970a90722e278edad8ab2b76f83954ea04e5383f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/summary.json",
+      "bytes": 87458,
+      "sha256": "551a3e444db2403cc2e026f3370fb3483a15b23ffdb879b2033d6d28e49f3e27"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000005/trace.jsonl",
+      "bytes": 2018568,
+      "sha256": "ce3258b8ca6a7eb1b7bb772885822e279cded724946a4fe8d6e837204e9dc001"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/analytics/events-2026-11-04.jsonl",
+      "bytes": 1077079,
+      "sha256": "19ce7c87c831802ad688ffb5ad62cac5acc37ab54f776a5a92fa2b851c954602"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "1ee3a57839b82396b03e12a8f7e64807c4a91e5a5374473159895f27920147a1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/command.json",
+      "bytes": 532,
+      "sha256": "38a8aec21d827fd5d6954e6d08149cf1e9cf32b8e1844841d530ece58f775f79"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/evidence.json",
+      "bytes": 48696,
+      "sha256": "6bb7b5141c4d852ee1ce0d357681c8de7fb9c5d60ce1f4a430400ad91e93779f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/godot.log",
+      "bytes": 223515,
+      "sha256": "0158abc7fb07fb37db0d616902b49a6f1c43f0f8fccb4c663e43bf804c194a34"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/progression.json",
+      "bytes": 7987,
+      "sha256": "128ca94167f4c0595f90204aedcb45bffe40de821037dc4d925ce1d91046c1dc"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/recent_events.json",
+      "bytes": 55,
+      "sha256": "3ce4d541b5edb4f9c15c1152334890dbe9f39a5278cbfa3750f729e1d8385cb3"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/run.save.pre-surfaces-v5.1da8f990623b41d8",
+      "bytes": 179464,
+      "sha256": "1da8f990623b41d8c74589f9d44e02a8e047307ea6786ac7d71c0b3cadab5778"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/summary.json",
+      "bytes": 29666,
+      "sha256": "5a20c3ef98977aa1e65ae2e57e250bcd6298652cef2d6f71d0af649b504e3cdf"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000006/trace.jsonl",
+      "bytes": 218054,
+      "sha256": "9fb4939c3572a3485286a85ab546a44da8d40ff3c13c75f630f5ac8df1748e02"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/analytics/events-2026-11-04.jsonl",
+      "bytes": 1909564,
+      "sha256": "cc027d1c41f6e17a05eeb10b3c0c93962f52bb7e1ba6be0c370aa2e7ad76bbea"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "c5652b464dfb45d8051a92cce9f757ba5eaa34034ca2f82d40a96718a19e7713"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/command.json",
+      "bytes": 532,
+      "sha256": "ab220bd943ec53b58dca5499fb14c1439e82f309bf07f14f4fe98a278aa27197"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/evidence.json",
+      "bytes": 45168,
+      "sha256": "2bf24578e1dd7e6b961c377c4b2e8367cd4dc4ea14b76113f5360e873cedc89e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/godot.log",
+      "bytes": 347364,
+      "sha256": "4cf2a9f8870a79d7e096614e86093ab345d8e265e8e3c0719b3b279ad9c8fb8f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/progression.json",
+      "bytes": 8184,
+      "sha256": "549da693d5cd9afc28ea503d142ac00996408cb2088bf6bed85bc2268f6234a5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/recent_events.json",
+      "bytes": 35,
+      "sha256": "ce71327b105b3d03fd85e12c2c56e63ce74c05d64947c29dd676a65c529200c5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/run.save.pre-surfaces-v5.5e19d2b75c5b6fcc",
+      "bytes": 182540,
+      "sha256": "5e19d2b75c5b6fcc09e28c65a2971a0723eca3aee2b9962ae9a174380371e2e5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/summary.json",
+      "bytes": 26705,
+      "sha256": "7d0a672ee511445393a40c547024491dcd83ddce751f3165c33085113cdf109c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000007/trace.jsonl",
+      "bytes": 339353,
+      "sha256": "c2fa9acb6a0fbd734137029adef5d2ee99a9f79dfbe2fd86f77d1e00a6bb26da"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/analytics/events-2026-11-04.jsonl",
+      "bytes": 8430946,
+      "sha256": "d020d7ef145cb571e4c19afb1a503e1a2e7f2668e22f5f4243ce94706a57bd36"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "fd16cfd94c6c2dfe541f40d916f5a6982e0b0cc3c44ff0ca49246d5f86a80403"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/command.json",
+      "bytes": 532,
+      "sha256": "4e567725b24d92c751251451851fb324efefa26ad74e11b906f91d5fc05492b2"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/evidence.json",
+      "bytes": 116227,
+      "sha256": "378132ba31d81107920e3377abe406ff66c8eae5bb99b37db230a3c9a6ee0305"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/godot.log",
+      "bytes": 1280486,
+      "sha256": "b50bbafbea9c077fc6ba12c1a5aa545776d3a2b8e2a1035244fdfb757b1e02b3"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/progression.json",
+      "bytes": 13519,
+      "sha256": "ea8d16af827fb0d47a5a9d28067eb97ad8be18f9577564f46f69521b5105b2d2"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/recent_events.json",
+      "bytes": 161,
+      "sha256": "dd8bee8d4211b22ae040bc55bbe7f950bde90cf42ba5d2653ada89a0f59080e8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/run.save.pre-surfaces-v5.10bc5006e7d48f4c",
+      "bytes": 187296,
+      "sha256": "10bc5006e7d48f4c9e61d311ace7503accaf586f3e43ab13a30969a00be338ea"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/summary.json",
+      "bytes": 55901,
+      "sha256": "5c04d607d0444f97fafcebdab01c3a43ce58776c0c89f7d5182cfe171a3f8291"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000008/trace.jsonl",
+      "bytes": 1251114,
+      "sha256": "2d7d3ff605ebc07fc96438b7f6d87afb4c2bb99163e15db93f667a51ab439d47"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/analytics/events-2026-11-04.jsonl",
+      "bytes": 17845353,
+      "sha256": "26bcb2f12080957be82afb90171881e2d4444133e7c1592c3663b3f32d25a999"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "702b4b57ff4709f2b800dfd17bddade436bedfd5fd1cec1ef6a20007a1aedb3b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/command.json",
+      "bytes": 532,
+      "sha256": "973ada1362d4840c61b369a7f84f11732f9523847a512ea5146e4e1194d09f7a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/evidence.json",
+      "bytes": 234079,
+      "sha256": "cb0c26659b5ef5b87158fe8b123b9fa8741836a768c89d59e0b343084be3762c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/godot.log",
+      "bytes": 2343953,
+      "sha256": "4775a85faa285ebd1f4c704b8e87438ab17d0a91582ff8bd6534193d46de9690"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/progression.json",
+      "bytes": 18123,
+      "sha256": "7d91ff24e73b65ce135c2a2ae945a7e936a171ce53b87232d74037e9abe07979"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/recent_events.json",
+      "bytes": 201,
+      "sha256": "45286f4a73fd666a5eed0793595b65fdc002680cf0ce183431dd3918e9fb7afc"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/run.save.pre-surfaces-v5.f304fe9310f0ff19",
+      "bytes": 175724,
+      "sha256": "f304fe9310f0ff191073ec23d27f417ea985a9d5298d740e67629787db4fc4ec"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/summary.json",
+      "bytes": 86343,
+      "sha256": "2c9d905f056fd21cb6695ddbee1a8168802fd6933840425d9816263af00d6268"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000009/trace.jsonl",
+      "bytes": 2288977,
+      "sha256": "8bf00a0668f9b5cb3b0c46204c9836f97562707c8675c42deaa2a171a9469930"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/analytics/events-2026-11-04.jsonl",
+      "bytes": 2747704,
+      "sha256": "6be1492141af014f8a51856f062826d9a05487ba387b9ad13ec943d121c93575"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "e1fbee885ec9b233eb689abf1d88cbb47174fc3f522bd84c9bbafa401a731341"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/command.json",
+      "bytes": 533,
+      "sha256": "81246b823ec875fc3c97075bfb7382105c522ef9daac3b67aaba9b011bc81e90"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/evidence.json",
+      "bytes": 70192,
+      "sha256": "543e0e6b2c5ae57adf79666209d2a81d96fbbb97f1a65956b7dfaa0dac0992ca"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/godot.log",
+      "bytes": 453225,
+      "sha256": "279dfdb73d3f6275cf76d885536e3a4819ff49de2f3d2cd3ab6bdad79ae89386"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/progression.json",
+      "bytes": 9912,
+      "sha256": "88ba00d9c3a92a81493b456b5a925f4aa84386851c09d482f22614909ccfa856"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/recent_events.json",
+      "bytes": 132,
+      "sha256": "293b4283090c47001bbd0f397b3986ad7df0c62f1a4e82fddc92ba6541713b97"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/run.save.pre-surfaces-v5.44b38f12d7cf65a1",
+      "bytes": 178216,
+      "sha256": "44b38f12d7cf65a11b0cb275264a78486eb00eddaecc0236e7f187f90c81098b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/summary.json",
+      "bytes": 37990,
+      "sha256": "a9c214385c953ce3b5edf1a883bb4ec64b1971241a81532bfd656d1ebc9cb74c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000010/trace.jsonl",
+      "bytes": 442452,
+      "sha256": "2f0c334a6dbe7686cbf9dc11b52d61822e10e76fd08040e503364dd6a9167e2e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/analytics/events-2026-11-04.jsonl",
+      "bytes": 476321,
+      "sha256": "a161880d47c82a584d17edf6e69933313f03c4afe6f06b01d5961aff21774371"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "9718417316e4fdbf43a95cd296c589a5a93275665f75a1387c1e968839b20524"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/command.json",
+      "bytes": 533,
+      "sha256": "6618a3112ec4a150a17c346b97761a28590c2be258c2a0c1bd009414e3c3fa17"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/evidence.json",
+      "bytes": 77307,
+      "sha256": "12dc1bedd6124334646b00583f50a88e27831f108f4f749cdb054d83e3dd9508"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/godot.log",
+      "bytes": 141200,
+      "sha256": "1477343902d12aaf825e295bbfc6d1738eeca30adad3cd809cbe401f5a3629ef"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/progression.json",
+      "bytes": 7139,
+      "sha256": "c91f15210644e1021cef2c61276f37b39b20d7084433fc6b7d0bbe47bf2a4179"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/recent_events.json",
+      "bytes": 48,
+      "sha256": "b47ae77f19b7afb59c1589c01bf44531b6ea716c302e40e6b4607a72888c5956"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/run.save.pre-surfaces-v5.0012a8cd16b0f6d3",
+      "bytes": 188472,
+      "sha256": "0012a8cd16b0f6d37afff5f8a3ad783ef83f7e7b50095e9f683db60235ec1293"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/summary.json",
+      "bytes": 27060,
+      "sha256": "882d5bb7275d4f14117b29de68f12781ebdf2f9c8c508372d54cce08afb25568"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000011/trace.jsonl",
+      "bytes": 137156,
+      "sha256": "1a554933be318f599dc9c9f9f6582ff62dbf1a5e5dde50bac66c5951af809e08"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/analytics/events-2026-11-04.jsonl",
+      "bytes": 16341485,
+      "sha256": "5c48bc8a6f9d6916f188750bdf0a121ecfdff1a1dc4c56ca30ea521532d739c1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/analytics/events-2026-11-05.jsonl",
+      "bytes": 1502158,
+      "sha256": "59d1c634f5343b6db2cc3832d621208393fe099c4a92bfa8805c27687b737b56"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "2106d56d91a205f65ca0f4ee52d572e21c0a2d92c5d4660ad714ddc9621adb00"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/command.json",
+      "bytes": 533,
+      "sha256": "09861823f519f37cea558b024ccf5a3c8ab92fb7a56998b560b52b4bf44b029f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/evidence.json",
+      "bytes": 239425,
+      "sha256": "2654f5c351cf94c79d345404403e8f2b281a85e1ac46b86592edce628e2b29f5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/godot.log",
+      "bytes": 2199330,
+      "sha256": "6fbdabe3b0ccf3492df281d506a6eaa3421e8f48aad4dc4c8fcb329fa997d16e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/progression.json",
+      "bytes": 19624,
+      "sha256": "55ef9eb44419111cb5c53c4450b75cfcec10ae9fef737693d781141340ecb81e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/recent_events.json",
+      "bytes": 186,
+      "sha256": "53dd790488fccf5c597cc5a6c720a694fa99c79d356718bb3abaaebf9a79885c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/run.save.pre-surfaces-v5.64d2d164fa8a1b3e",
+      "bytes": 183800,
+      "sha256": "64d2d164fa8a1b3ee6fa67f28675e3cf3ce85696a8170b529ceb8d884347d7fb"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/summary.json",
+      "bytes": 88143,
+      "sha256": "e47c6a91eb92c0378cddb33188dac481b420c4a455a0ee33ba67c732201442d5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default/seed-000012/trace.jsonl",
+      "bytes": 2148907,
+      "sha256": "265fb6bfffac7f1755e9aeb30d42f98c4a30fceea82899ecf9d8d41a4a2a24ac"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default-execution.json",
+      "bytes": 412,
+      "sha256": "a879419c0baf4e31c411d63f0ecff84ea9568002de0df36bdb4aa7c2e181f5d7"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-default.log",
+      "bytes": 723,
+      "sha256": "b00d25e7d969d9e9f35a3bb9785ff815d42e648749b07b1c1fa72f5cd15d00e9"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/campaign.json",
+      "bytes": 1047999,
+      "sha256": "7e010c7a587cd107f11e9861f04b11a32185c878d3de6e6aace58b2dc9644267"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/findings.json",
+      "bytes": 178282,
+      "sha256": "9630603bf695a310c1b001eb60ef321b9ce1aacc06ac50c714adb38f3b233861"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/provenance.json",
+      "bytes": 366,
+      "sha256": "efcb7d79379eee26da07c801c0fcdedd40ef5dd7c2df4ccded01fcd226685114"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/report.md",
+      "bytes": 13020,
+      "sha256": "d9f4e45904a5e14284485a9da2fe4f0d6935f39c0f2bc682a5c494bca986725d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/analytics/events-2026-11-05.jsonl",
+      "bytes": 15382477,
+      "sha256": "7320e6d2100b0807768b8632ca379578f64e380c61eaf774111957b19b30c8f1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "470dfce7571005ab1d77f0195c1e852ee1ff1f323964a1dd01b413832e8a0df5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/command.json",
+      "bytes": 567,
+      "sha256": "3b9ca8d6364c1d2e6c77ce71771dacd1da630d89bf2a6366cdc94dea2ecfe1ca"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/evidence.json",
+      "bytes": 258289,
+      "sha256": "c0264debad54b04eef54b8560c8283330dc3c04881498057ad195fea861ca961"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/godot.log",
+      "bytes": 2018311,
+      "sha256": "c50f250d64bb4e95188bcd6e51460a04326ab816301bccff469fe9709087bd9b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/progression.json",
+      "bytes": 18562,
+      "sha256": "47b93c0a51ff290b05dde075347ea556b9e38eb33b952b8306c653dfa2ccfc93"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/recent_events.json",
+      "bytes": 196,
+      "sha256": "6130deed6acdb4be5b0b6199d66adf83557bbc30a159fed49076807e15d09878"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/run.save.pre-surfaces-v5.7414004df0eec670",
+      "bytes": 183000,
+      "sha256": "7414004df0eec670e8e4ed777addc0c7a250f4eb581f50dca7a588e70f7f6631"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/summary.json",
+      "bytes": 86908,
+      "sha256": "723732a015d6b715101cb6d67ec7fa545be46e6e44b76078aa72eb5c59f86b60"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000003/trace.jsonl",
+      "bytes": 1971214,
+      "sha256": "d64555953556b4bb701cc6d545bbc541b0b6dbf785140c1913d53c60306c7816"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/analytics/events-2026-11-05.jsonl",
+      "bytes": 13841310,
+      "sha256": "d41b6645a247319b297e648bb9a1219cb61c88773a8203ec0bd25a2d421a9ab5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "a88a600a240f068cef95706e1fffd127d2f273aa1b11e883d082975c9b244a12"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/command.json",
+      "bytes": 567,
+      "sha256": "629600fda52445e37256bf2936c7c049df50e93a53259e9d1dae5ae38f3f0b2f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/evidence.json",
+      "bytes": 204418,
+      "sha256": "0f444e87f1beebfa9aaa2ff69478fb296a14a3d3aeb4e09e755b2009272c41a0"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/godot.log",
+      "bytes": 1855324,
+      "sha256": "c0602d3d626e645a183f74da9d670cd838d1af54b7f3c5e1165c0d341916fb99"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/progression.json",
+      "bytes": 19463,
+      "sha256": "df85b6846503493a06f2479a31c64eb0228db769ff1b12f07d547c0b27582d68"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/recent_events.json",
+      "bytes": 195,
+      "sha256": "6e9b4918bd5b9dc966407e428fa9eead2ec981977321ddc31621aad65da5c904"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/run.save.pre-surfaces-v5.900081729afdde53",
+      "bytes": 185252,
+      "sha256": "900081729afdde533cb8a418e204b96f4244d421415c1af8c6f604de7943c334"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/summary.json",
+      "bytes": 86878,
+      "sha256": "7a11e4d09f5b9d5b7fd7477967a2ab20ff06de1879abda7703ea0695ce182267"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000004/trace.jsonl",
+      "bytes": 1812956,
+      "sha256": "85c6852c2db1349e57d87ff5f97e8b053e235f270e4c42f00749321e4ce76697"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/analytics/events-2026-11-05.jsonl",
+      "bytes": 14338057,
+      "sha256": "fb84b534f042258f18019ca33961b00b140bb2d52c2d3f7f4f2b9925607d783c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "f3b727dd053f2ea70a947f2307db9fc458d77531a370e5289c3a61ac540c212f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/command.json",
+      "bytes": 567,
+      "sha256": "eebc076bead7dea115c8328d5508e7230a38f221d21e3594327d193c7ef06e52"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/evidence.json",
+      "bytes": 208215,
+      "sha256": "02250d96272130f3ad67f03c85de2d767fb44d9c905aac442ac6f17d112482b3"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/godot.log",
+      "bytes": 1893199,
+      "sha256": "6a4d882db60e18de3862dbaea9abd5412d83cd1754141cc745d37e6a44bb73a0"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/progression.json",
+      "bytes": 19341,
+      "sha256": "e351e3aebf8ccb8b8f98615c0f2859431ae001b6c85f79411da2297501101e56"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/recent_events.json",
+      "bytes": 251,
+      "sha256": "e285e22041947d92311d2146cd1b394d160d87fd037738007e29b91c22ce75ac"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/run.save.pre-surfaces-v5.6530169e1749e173",
+      "bytes": 180432,
+      "sha256": "6530169e1749e173186ed934bce4bf2bd789f107526729d9e82b85d8a851b5e7"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/summary.json",
+      "bytes": 88449,
+      "sha256": "833dc936ece93b1468f38247c383d485de0965223c6794b3f3f3d7eaa7ad4cac"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000005/trace.jsonl",
+      "bytes": 1850816,
+      "sha256": "53fe8420efbb42136d66a2ecb642b1a45a25db5c1ae5019f39fb4ee20dd4fc04"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/analytics/events-2026-11-05.jsonl",
+      "bytes": 17092288,
+      "sha256": "b5b45db9e28294e2ea35d4b33fd92a7e758482f57fd2f4d8ac2914fc14a88d19"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "31d53d6e5a91788dbaeaddaec09c9baa76675bb3ab4791f904f22404a8c79967"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/command.json",
+      "bytes": 567,
+      "sha256": "e13d62d65135cf378f22a950c806d153221e1a40e42655e1890974606b447b96"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/evidence.json",
+      "bytes": 235031,
+      "sha256": "e19e1e8edf7c3a78d33b1a7983c3d9e814ccca3591d4784e65bb933b59d18b3c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/godot.log",
+      "bytes": 2053962,
+      "sha256": "278dbaa070090a401c22653747b47537f06081e85f3f8bb2571d57ed9561ad14"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/progression.json",
+      "bytes": 18319,
+      "sha256": "79c97c876f53ae3d7798e04728a91ada25e24d73fdb0044ff78fee2273c1dfa2"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/recent_events.json",
+      "bytes": 195,
+      "sha256": "abe31286c2c0a116655391604c1bbe622fd5811699215dae7e1dca48009272b3"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/run.save.pre-surfaces-v5.6315ab7f142d96b8",
+      "bytes": 179464,
+      "sha256": "6315ab7f142d96b8810d33ccd58c514d18436a5568e4eea2ba76022e0dbba1ab"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/summary.json",
+      "bytes": 87215,
+      "sha256": "5f9d4a70aab319dc17d862c86cd085315fd037c02bf9ff337576d80133b7055f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace/seed-000006/trace.jsonl",
+      "bytes": 2006345,
+      "sha256": "8564c373442432921688766ea653d5993383100a7d69aecfcf20daf46e323ac1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace-execution.json",
+      "bytes": 438,
+      "sha256": "19921e01a3d276472f869af85a74ec173f20d057c3b890323dc71f86e384ebc6"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/campaign-no-embrace.log",
+      "bytes": 373,
+      "sha256": "009782e2cf6f979ca8689a1a37679803de31ad2771aa9ef1983f2167f5d54a6c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/campaign.json",
+      "bytes": 323294,
+      "sha256": "d578fc1abe8beed9e7e43926976e1e854742a10238f6f609294f4058888e90b8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/findings.json",
+      "bytes": 116242,
+      "sha256": "a9decfba301411ee25b4e5a04e2c16fb6c435962dc29a2e7243bf8aaba671c3a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/provenance.json",
+      "bytes": 366,
+      "sha256": "efcb7d79379eee26da07c801c0fcdedd40ef5dd7c2df4ccded01fcd226685114"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/report.md",
+      "bytes": 9102,
+      "sha256": "ffe6429d4d8bf40d364e98bd931962e8a7da9fed045c453a1f7fb6fd4d97089d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/analytics/events-2026-11-05.jsonl",
+      "bytes": 12228578,
+      "sha256": "b1b2e35328d47ab31c9d032dcee59a034b86df6e5bfa04ea2cd2485fe70283b2"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "1faef3d12eca348a921a8d63504ed2368ffb3e4abc7b3cfdf4f0b9b80a820392"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/command.json",
+      "bytes": 568,
+      "sha256": "5230a20f7c09bd366867be5973678206e44ac11c05581a54e4f5780f78928daf"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/evidence.json",
+      "bytes": 281041,
+      "sha256": "cd503780567cc8d201990650fadb9faa13d577d3ebf7d09febfae81e0d306f8f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/godot.log",
+      "bytes": 1759120,
+      "sha256": "8857bc5054abe4aebe49245806b5773846c88c41d677f9eafe5fda3ef43c9b1d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/progression.json",
+      "bytes": 9997,
+      "sha256": "bfdb982b079ecf9103a56fd8a85ca0e1513e5351f01f229429758c6ff291ea8e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/recent_events.json",
+      "bytes": 261,
+      "sha256": "df47612465cf5a7708b85d16ee6fda3443b1bec22b95db876bc8ba1d9be93323"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/run.save",
+      "bytes": 631248,
+      "sha256": "919ae25f304f11ad2c7464fd8cc19da40e27c208b0c3f1836a022b4194f60c9a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/run.save.pre-surfaces-v5.7988122de5e585ff",
+      "bytes": 180432,
+      "sha256": "7988122de5e585ff80058d2f4530a193cd26f81838f6c8a0ce5ce8f9935afb56"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/settings.json",
+      "bytes": 250,
+      "sha256": "3662daf2dc02e817942529bb501a3548b3114f21c6bfb259c3bf8c3f21c5ff28"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/summary.json",
+      "bytes": 81118,
+      "sha256": "5fe9b4fb98a7b6cb48e8962a745b356292ff083b95f8a7d89b21647100c0d3a8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5/seed-000005/trace.jsonl",
+      "bytes": 1720214,
+      "sha256": "acfc2db7f11707bc7b314914a9eea71cf44c3e88b14e59c770445dc6d039c725"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-default-5.log",
+      "bytes": 201,
+      "sha256": "8fc62dfa004ab6cef90acf78fbb1b1396be667647c8db2d7686bd281c279c49e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-executions.json",
+      "bytes": 1578,
+      "sha256": "c83078073159fa927f38985321f910dc1b28b96ace3313f772aa25054645b298"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/campaign.json",
+      "bytes": 275154,
+      "sha256": "003513fd63ea6913ef32ab772c75c9a2b88dc8de5f83e580ec049a84249ea318"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/findings.json",
+      "bytes": 57433,
+      "sha256": "703245518c2e1ef42e803c0429b6766088a2b9cc253d16f42fb24c9aa5032ee7"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/provenance.json",
+      "bytes": 366,
+      "sha256": "efcb7d79379eee26da07c801c0fcdedd40ef5dd7c2df4ccded01fcd226685114"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/report.md",
+      "bytes": 6124,
+      "sha256": "f7e8b607b2849d0245f905f3105d9d5d7709f8809738ed8f7cf561e59d7c3e79"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/analytics/events-2026-11-05.jsonl",
+      "bytes": 15383831,
+      "sha256": "1c01263d097a8ef8b24302d57c33bfc124b3c578180012d9562bc0a0c1fb8c52"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/analytics/meta.json",
+      "bytes": 110,
+      "sha256": "26235121aef86bfc8908afbd254882bcf1984de5568432ac89ca83312eabc91b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/command.json",
+      "bytes": 625,
+      "sha256": "580644ae63a12fc69e905658a5a25339122598569f373f4e46ad5e1f1fd57eaa"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/evidence.json",
+      "bytes": 237906,
+      "sha256": "c1a2f267ddff0260722db56d652e7dd8e066dd2cd4bba7ad91aaca70ffd21afe"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/godot.log",
+      "bytes": 2389021,
+      "sha256": "fc24529ee3182126ed3be506e1ae59fdbd722c61b8e1c3aa15928ea15e8a9478"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/progression.json",
+      "bytes": 18554,
+      "sha256": "e30a93110365d93ee330dc611371089a77d83a4af9cb8c50d4777bc2a913b580"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/recent_events.json",
+      "bytes": 196,
+      "sha256": "6130deed6acdb4be5b0b6199d66adf83557bbc30a159fed49076807e15d09878"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/run.save.pre-surfaces-v5.f5c71b125e96c1ec",
+      "bytes": 183000,
+      "sha256": "f5c71b125e96c1ecaa65e5be6890c439212e35b43b152139b6667182cd1a530e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/settings.json",
+      "bytes": 251,
+      "sha256": "5331938ad69a1ce96926af7970f36c17e24bde3e33eb836d09d5d05eacc724d8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/summary.json",
+      "bytes": 86908,
+      "sha256": "c0d49727a333b326e1086b19c5e1ab362397789db08806370248bde7378791cf"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3/seed-000003/trace.jsonl",
+      "bytes": 2212670,
+      "sha256": "315d1a7340d1ed215c7b54f5c8720ccdf3b0b635e947739cbf1726e230b87ca9"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-no-embrace-3.log",
+      "bytes": 196,
+      "sha256": "b85981ee94d70a7b82e96265f8374138e1dce84ce575d996f907c9153d60d64d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/census-parse-final.log",
+      "bytes": 480,
+      "sha256": "e70b4d2c3a5953bfd81ba9353994bbf9f902cc46fd3b8ced62e301dc647e3d10"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/collect_census.py",
+      "bytes": 5122,
+      "sha256": "b44f3db6b4cab12f1e7d4d65b0093e40006b3b78c3e53da88604bf7122186ff7"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/collect_diagnostics.py",
+      "bytes": 3422,
+      "sha256": "86c402f5b416049d8e53985a41fde7409cd2c243259b26eb8d7c043cc1dc377d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/collect_reports.py",
+      "bytes": 3415,
+      "sha256": "d3499c4276353239e0b3ef0fe65483dde49767898d490c74088e0d2211f357f1"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/compare_replays.py",
+      "bytes": 3061,
+      "sha256": "445f4c0a111ffd119dc71f6041abcb7b14f6f62c3b8bbe06c083f1e3b2288a4a"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/.gdignore",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/isolation-audit.json",
+      "bytes": 96308,
+      "sha256": "5f8156b1d622c68b3f9afcff2cc75a91166b12cb99ef46505fe9d47bce62030e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/isolation-audit.md",
+      "bytes": 6119,
+      "sha256": "90c3641d1e063ec792e2985b44f1636cbc949136669862e31d4e7b9712f53a2b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/plan.json",
+      "bytes": 1084,
+      "sha256": "6efd94b3b55ecff1d356848acfc1b5c719bb8e8d81c34b099a43f8346135db6d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-1-modules.json",
+      "bytes": 29,
+      "sha256": "b3f218872096ec0cccdbab981dc0b9dadab22bbdef4f1b96741c2e4346b110a8"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-1-output.log",
+      "bytes": 2257,
+      "sha256": "5ba2f6002e9dc396614ce9e6a6ee62e0adcf9a4ec41fa19367ca6bff70503690"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-1-result.json",
+      "bytes": 4463,
+      "sha256": "d2f8ce2d6e860210f3d562178a4704536497b3b248123cd8a0f59e94c168a64b"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-2-modules.json",
+      "bytes": 37,
+      "sha256": "bdef98ce17c091ab2da720d4112efba02a0b4b1ba89095533419d85355a0c135"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-2-output.log",
+      "bytes": 1307,
+      "sha256": "545c674470ac775a8ea23183deba79b3a95d0893f67daf5bf2389ff7ef16c426"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-2-result.json",
+      "bytes": 1721,
+      "sha256": "454f9225f70f76e8576655c29260bb659e2f622763241d22cd0eba5c97a18e7e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-3-modules.json",
+      "bytes": 34,
+      "sha256": "59eea469972744299fbac6be27f987c1a757f81a073d60c6db296dc33bc8da50"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-3-output.log",
+      "bytes": 47,
+      "sha256": "60f3b9a6475ddaac68d251a205fadc52c3f8ab7e750c626812f3ea477728cc0e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-3-result.json",
+      "bytes": 420,
+      "sha256": "409918d336aeb9651b4e710718e5652aebb61d5b9aab28c02040241214da8ebe"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-4-modules.json",
+      "bytes": 476,
+      "sha256": "9a61cb51632382a9ae6c7c3903e1e8930eeedee1d14b4fc383524fc74e7d819e"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-4-output.log",
+      "bytes": 1578,
+      "sha256": "8f92654b8c2b7c8915deb78f17993ee9822422ecac81c9f9acc7c67d6e7d3620"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/shard-4-result.json",
+      "bytes": 14694,
+      "sha256": "09c7020a1758438aa7bd90f2dc039d9e4987433d67fa20be8855cab110812bf4"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/suite-modules.json",
+      "bytes": 1554,
+      "sha256": "22771c71522e7f629b08ae07b1ad813bc365148184c17efa899cd2da0d836481"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default/summary.json",
+      "bytes": 23845,
+      "sha256": "5fbf77d72d911468841ada0cd61d07d46eafd1b9d8fca705475c64020b2242a5"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default-execution.json",
+      "bytes": 324,
+      "sha256": "8853d58872ea76a751ac9bce883be55c0c4c1d50dd24b15eeb6fdec780f020d4"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/python-default.log",
+      "bytes": 6188,
+      "sha256": "afa0e170224e85203e96532e7cc3c8b5ef5ce318ecbc513c710ff020dfc8ca2f"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/result.md",
+      "bytes": 1511,
+      "sha256": "9f1ac5c52456c8eebb76f6e5028bc55ef942edd2de5edffa83787d6e4de5fd65"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_campaigns.py",
+      "bytes": 1522,
+      "sha256": "62b4df468063e11a1056c29a0580b32a733075e3e7301ed8875ff959cede74cb"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_censuses.py",
+      "bytes": 3149,
+      "sha256": "bc042e07a83189f86529ef17828c450fc991c279dbed739646af6755ab370eab"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd",
+      "bytes": 18539,
+      "sha256": "f880bc10d5965642d3af9f87c44d5b7136fd26505e7ae4d155b0c915bd275109"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census.gd-parse.log",
+      "bytes": 480,
+      "sha256": "5691b9d9c3aab13c4ef024c98f6a9094934897b60daceef7125257eea9a777bf"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census_full.gd",
+      "bytes": 18404,
+      "sha256": "d91985b9850fe872e72b4c7fee03c90b383a258af874128afdcf2bfeefb44d6c"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_census_full.gd-parse.log",
+      "bytes": 485,
+      "sha256": "720cb4417e24d05a980aa8fa5ed3ba16d81387cb38cdcaf129075213eb786436"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_task.py",
+      "bytes": 1068,
+      "sha256": "bde1a7444af4f29102aead8b4b46576fa61cf7491e563ccd5097ab667c66a82d"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/run_hunt_task_verbose.py",
+      "bytes": 946,
+      "sha256": "6171d16371f0c29bc34d137502432dab7063c84d4a3bfb07f5c25184f18be374"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/qa-43/status.py",
+      "bytes": 2351,
+      "sha256": "25afcb8a94f7383d7becf9e419d8befa6f17ee11d1a38bd11d5f309150b8186f"
+    }
+  ]
+}

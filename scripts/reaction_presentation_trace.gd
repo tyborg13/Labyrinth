@@ -50,6 +50,7 @@ static func capture(trace: Dictionary, state: Dictionary) -> Dictionary:
 static func capture_owner(engine: RefCounted, trace: Dictionary, before: Dictionary, state: Dictionary) -> Dictionary:
 	if not bool(trace.get("capture_reactions", false)): return {}
 	var owner: Dictionary = {"after": snapshot(state), "losses": losses(engine, before, state), "sequence": int(state.get("surface_event_sequence", 0))}
+	owner["surface_events"] = engine._surface_events_since(before, state)
 	# Optional test observer binds an opaque boundary ID to the raw resolver
 	# state, independently of the serialized snapshot's contents. Never saved.
 	if engine.has_meta("reaction_state_observer"):
@@ -162,6 +163,7 @@ static func seal_owner(engine: RefCounted, state: Dictionary) -> void:
 	if not steps.is_empty() and steps.back()["source"] == owner:
 		var last: Dictionary = steps.back()
 		last["after"] = after
+		last["surface_events"].append_array(captured["surface_events"])
 		if captured.has("_resolver_boundary_id"): last["_resolver_boundary_id"] = captured["_resolver_boundary_id"]
 		if has_loss: last["bookkeeping"] = false
 		if stream_field == "movement_events": last["state"] = state.duplicate(true)

@@ -1,0 +1,5 @@
+[configuration]
+entry_symbol = "qa53_ids_init"
+compatibility_minimum = "4.4"
+[libraries]
+macos.debug = "/private/tmp/labyrinth_codex/qa-53/tools/object_ids.dylib"

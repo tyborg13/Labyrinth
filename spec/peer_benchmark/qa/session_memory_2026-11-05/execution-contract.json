@@ -1,0 +1,17 @@
+{
+  "task": "qa-53",
+  "risk_tier": "standard",
+  "acceptance": {
+    "1": "Five whole production runs in one process, including death and final-dragon victory; real title-menu New Run and final return; eleven ObjectDB/monitor boundary censuses and verbose exit log.",
+    "2": "Attribute every increasing monitor/class; distinguish warmup, bounded cache and linear leak; name creator and retained owner.",
+    "3": "Only proven leaks receive small root-cause fixes and a failing-first check in an existing test. Explain exit warnings by object ID/type."
+  },
+  "proof": [
+    "cold import",
+    "focused checks",
+    "Python default group (no full suites)",
+    "matched five-run saves/RNG/analytics comparisons",
+    "native GPU memory/captures left to owner"
+  ],
+  "inspection": "Owner runs native command; no window-server access in worker; fixture/peer review/publication assigned to owner."
+}

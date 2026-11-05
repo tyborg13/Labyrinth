@@ -520,8 +520,8 @@
     "card": "needle_flurry",
     "panels": [
       {
-        "title": "Area Attack",
-        "text": "Hits the red tiles, aimed at the adjacent tile you choose."
+        "title": "Melee",
+        "glossary": "melee"
       }
     ]
   },
@@ -529,8 +529,8 @@
     "card": "meteorfall",
     "panels": [
       {
-        "title": "Area Attack",
-        "glossary": "aoe"
+        "title": "Ranged",
+        "glossary": "ranged"
       }
     ]
   }

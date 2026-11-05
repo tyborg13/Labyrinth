@@ -1,0 +1,146 @@
+extends "/private/tmp/labyrinth_codex/qa-45/run_hunt_observed.gd"
+## Deeper census replay: observe transient side views and recompute forecasts
+## on a separate engine using owned input. No gameplay dispatch is changed.
+const IndependentEngine = preload("res://scripts/combat_engine.gd")
+const CENSUS_TERMINAL_SECTION: int = 5
+const CLEANUP_SAMPLE_FRAMES: int = 4
+var census_stop_enabled: bool = true
+var fresh_forecast_source: Dictionary = {}
+var fresh_forecast_summary: Dictionary = {}
+var fresh_forecasts: int = 0
+var side_observations: int = 0
+var qa45_glossary_signature: String = ""
+
+func _tick() -> void:
+	# Finish a bounded census only after the inherited tick's action has settled.
+	# The first section-5 sample and all prior real inputs remain unchanged.
+	if census_stop_enabled and not finished and not busy and is_instance_valid(scene) and census_sections.has(CENSUS_TERMINAL_SECTION) and not bool(scene.get("_animation_lock")) and settle_frames <= 0:
+		_finish("census_complete")
+		return
+	super._tick()
+
+func _record(action: Dictionary) -> void:
+	var before: Array = [hash(scene.get("_run_state")), hash(scene.get("_combat_state")), hash(scene.get("_preview_combat_state"))]
+	super._record(action)
+	_qa45_glossary_sample()
+	var after: Array = [hash(scene.get("_run_state")), hash(scene.get("_combat_state")), hash(scene.get("_preview_combat_state"))]
+	_compare("observer_preserves_state", before, after, "run_combat_preview")
+
+func _initialize() -> void:
+	super._initialize()
+	process_frame.connect(_observe_side_view)
+	process_frame.connect(_qa45_glossary_sample)
+
+func _observe_side_view() -> void:
+	if not busy or finished or not is_instance_valid(scene) or scene.is_queued_for_deletion(): return
+	if bool(scene.get("_animation_lock")): return
+	_observe()
+	side_observations += 1
+
+func _observe() -> void:
+	super._observe()
+	var run: Dictionary = scene.get("_run_state")
+	if str(run.get("mode", "")) != "combat": return
+	var committed: Dictionary = scene.get("_combat_state")
+	if (scene.get("_preview_combat_state") as Dictionary).is_empty():
+		var board: Node = scene.get("board_view")
+		_compare("board_committed", committed, board.get("combat_state"), "unselected_board")
+
+func _observe_hand(committed: Dictionary) -> void:
+	super._observe_hand(committed)
+	var hand: Array = (committed.get("deck", {}) as Dictionary).get("hand", [])
+	for index: int in range(hand.size()):
+		var widget: Control = scene.call("_hand_card_control", index) as Control
+		if widget == null or not widget.is_visible_in_tree(): continue
+		var id: String = str(hand[index])
+		var definition: Dictionary = scene.call("_card_def", id, committed)
+		_compare("hand_definition", definition, widget.call("_display_card_def"), "hand_%d" % index)
+		var state: Dictionary = committed.duplicate(true)
+		if bool(scene.call("_hand_card_empowered", index)):
+			preload("res://scripts/card_keyword_rules.gd").stamp_card_start(state, id, definition, true)
+		var display: Dictionary = preload("res://scripts/card_display_overrides.gd").for_card(id, state, definition)
+		_compare("hand_summary_fresh", display.get("summary_rows", []), widget.get("_summary_rows"), "hand_%d" % index)
+		_compare("hand_surcharge_fresh", int(display.get("time_surcharge", 0)), widget.get("_time_surcharge"), "hand_%d" % index)
+
+func _observe_forecast() -> void:
+	super._observe_forecast()
+	var cache: RefCounted = scene.get("_combat_forecast_cache")
+	if not bool(cache.get("_ready")): return
+	var source: Dictionary = cache.get("_state")
+	var actual: Dictionary = cache.get("_summary")
+	if source.is_empty() or actual.is_empty(): return
+	if source != fresh_forecast_source:
+		var engine := IndependentEngine.new()
+		var snapshot: Dictionary = source.duplicate(true)
+		var scheduled: Dictionary = engine.finish_player_activation(snapshot)
+		var result: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
+		fresh_forecast_summary = scene.call("_pass_preview_summary_for_phase_result", snapshot, result)
+		fresh_forecast_source = snapshot
+		fresh_forecasts += 1
+	_compare("forecast_fresh", fresh_forecast_summary, actual, "memo")
+	var key: String = scene.call("_pass_preview_key")
+	var entries: Dictionary = scene.get("_pass_preview_cache")
+	if not entries.has(key): return
+	var current: Dictionary = entries[key]
+	var chip: Variant = scene.find_child("PassPreviewChip", true, false)
+	if not is_instance_valid(chip) or not chip.is_visible_in_tree(): return
+	var line: Variant = chip.find_child("PassPreviewForecastLine", true, false)
+	if not is_instance_valid(line): return
+	_compare("forecast_visible_wait", int(current.get("wait_time", 0)), line.get_meta("pass_preview_wait_time", -1), "line")
+	_compare("forecast_visible_entries", scene.call("_pass_preview_forecast_entries", current), line.get_meta("pass_preview_values", null), "line")
+
+func _finish(outcome: String) -> void:
+	_sample_after_cleanup()
+	_emit("qa45_replay_checks", {"fresh_forecasts": fresh_forecasts, "side_observations": side_observations})
+	super._finish(outcome)
+
+# Observe settled and transient glossary geometry without changing scene inputs.
+func _qa45_glossary_sample() -> void:
+	if finished or not is_instance_valid(scene): return
+	var stack: Variant = scene.get("_card_focus_tooltip_stack")
+	if not is_instance_valid(stack) or not stack is Control or not stack.visible:
+		qa45_glossary_signature = ""
+		return
+	var owner: Variant = stack.get("_follow_target")
+	if not is_instance_valid(owner) or not owner is Control or not owner.has_meta("glossary_choice_row"): return
+	var host: Variant = stack.get("_panel_host")
+	var geometry: Dictionary = {
+		"owner": str(owner.name),
+		"viewport": get_root().get_visible_rect(),
+		"window_size": get_root().size,
+		"owner_rect": stack.call("_visual_global_rect", owner),
+		"row_rect": stack.call("_visual_global_rect", owner.get_meta("glossary_choice_row")),
+		"position": stack.global_position,
+		"flow_size": host.size if is_instance_valid(host) else Vector2.ZERO,
+		"above": bool(stack.get_meta("glossary_choice_above", false)),
+		"overflow": bool(stack.get_meta("glossary_choice_overflow", false)),
+	}
+	var signature: String = JSON.stringify(geometry)
+	if signature == qa45_glossary_signature: return
+	qa45_glossary_signature = signature
+	_emit("qa45_glossary_geometry", {"context": _context(), "frame": Engine.get_process_frames(), "geometry": geometry})
+
+func _check_room_leaks(sample: Dictionary) -> void:
+	super._check_room_leaks(sample)
+	var ids: Dictionary = {}
+	var owners: Dictionary = {}
+	_summary_orphan_owners(scene, ids, owners)
+	_emit("qa45_orphan_ownership", {"context": sample, "detached_summary_nodes": ids.size(), "owners": owners})
+
+func _summary_orphan_owners(node: Node, ids: Dictionary, owners: Dictionary) -> void:
+	if node.get_script() == preload("res://scripts/card_widget.gd"):
+		var cached: Dictionary = node.get("_summary_layout_cache")
+		var before: int = ids.size()
+		for entry: Dictionary in cached.values():
+			for child: Variant in entry.get("children", []): _detached_ids(child, ids)
+		if ids.size() > before: owners[str(node.get_path())] = {"nodes": ids.size() - before, "layouts": cached.size()}
+	for child: Node in node.get_children(true): _summary_orphan_owners(child, ids, owners)
+
+func _detached_ids(value: Variant, ids: Dictionary) -> void:
+	if not is_instance_valid(value) or not value is Node or value.is_inside_tree(): return
+	ids[value.get_instance_id()] = true
+	for child: Node in value.get_children(true): _detached_ids(child, ids)
+
+func _sample_after_cleanup() -> void:
+	for frame: int in range(CLEANUP_SAMPLE_FRAMES): await process_frame
+	_emit("qa45_post_cleanup", {"scene_alive": is_instance_valid(scene), "tree_nodes": _tree_count(root), "nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), "orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), "objects": int(Performance.get_monitor(Performance.OBJECT_COUNT)), "resources": int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT))})

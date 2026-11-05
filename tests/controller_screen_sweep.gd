@@ -16,6 +16,8 @@ const Recap = preload("res://scripts/run_end_recap_overlay.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const FIXTURE_SEED: int = 73491
 const FIXTURE_BUDGET: int = 720
+const UNAFFORDABLE_SHOP_EMBERS: int = 0
+const UNAFFORDABLE_SHOP_GEAR: String = "witchglass_aegis"
 const SETTLE_FRAMES: int = 3
 const NAVIGATION_LIMIT: int = 160
 const CURSOR_TICK_SECONDS: float = 1.0 / 60.0
@@ -114,14 +116,20 @@ func _run() -> void:
 	var combat_only: bool = OS.get_cmdline_user_args().has("--combat-only")
 	var menu_only: bool = OS.get_cmdline_user_args().has("--menu-only") or _setup_only
 	var regressions_only: bool = OS.get_cmdline_user_args().has("--regressions-only")
-	if not links_only and not combat_only and not regressions_only: await _menu_screens()
+	var tutorial_only: bool = OS.get_cmdline_user_args().has("--tutorial-navigation-only")
+	var reward_only: bool = OS.get_cmdline_user_args().has("--reward-focus-only")
+	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only: await _menu_screens()
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
 	_scene.set_script(RunFixture)
 	_scene.set("_defer_initial_run_presentation", true)
 	_viewport.add_child(_scene)
 	_scene.set("_defer_initial_run_presentation", false)
 	await _settle()
-	if regressions_only:
+	if tutorial_only:
+		await _tutorial_navigation_regression()
+	elif reward_only:
+		await _reward_focus_regression()
+	elif regressions_only:
 		await _hud_rebuild_regression()
 		await _analog_volume_regression()
 	elif menu_only:
@@ -149,6 +157,8 @@ func _run() -> void:
 	var report: Dictionary = {"regressions": _regression_checks, "screens": _rows, "activation": _pressed_rows, "failures": _failures, "back_rule": BACK_RULE, "back_checks": _back_checks, "search_text_entry_scope": SEARCH_TEXT_ENTRY_SCOPE, "native_capture": _capture_screen}
 	var filename: String = "sweep_before.json" if _before else "sweep_after.json"
 	if regressions_only: filename = "regressions_%s.json" % ("before" if _before else "after")
+	if tutorial_only: filename = "sweep_tutorial_navigation.json"
+	if reward_only: filename = "sweep_reward_focus.json"
 	if menu_only: filename = "sweep_menu.json"
 	if _setup_only: filename = "sweep_new_run_setup.json"
 	if combat_only: filename = "sweep_combat.json"
@@ -504,6 +514,32 @@ func _room_entry() -> void:
 		if entered: activated += 1
 	_pressed_rows.append({"screen": "room_entry", "activated": activated, "total": doors.size()})
 
+func _tutorial_navigation_regression() -> void:
+	var tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+	var scenario = preload("res://scripts/guided_combat_scenario.gd")
+	var profile: Dictionary = Store.default_data()
+	profile[tutorial.PROGRESSION_KEY] = tutorial.default_state()
+	Store.save_data(profile)
+	var state: Dictionary = scenario.mark_run_eligible(_combat_state())
+	state["progression"] = profile
+	state["combat_state"] = scenario.prepare_for_run(state, state["combat_state"])
+	_scene.set("_progression", profile)
+	await _load(state)
+	var prompt: Control = _scene.get("_contextual_combat_prompt")
+	var skip: Button = _button_text(prompt, "Skip Tutorial")
+	_expect(skip != null, "Guided combat exposes its existing Skip Tutorial action")
+	if skip == null: return
+	var controls: Array[Control]
+	controls.assign(_scene.call("_controller_header_focus_controls"))
+	_expect(controls.has(skip), "Controller navigation includes Skip Tutorial during the forced action")
+	if not controls.has(skip): return
+	await _cursor_to_key("control:%d" % skip.get_instance_id(), "Skip Tutorial")
+	await _capture("tutorial_skip")
+	await _joy(JOY_BUTTON_A)
+	await _settle()
+	_expect(not bool(_scene.call("_guided_tutorial_is_active")), "Controller A skips the tutorial through its existing action")
+	_expect(not prompt.is_visible_in_tree(), "Skipping removes the tutorial callout")
+
 func _combat_hud() -> void:
 	await _load(_combat_state())
 	if str(_scene.get("_controller_region")) == "hand": await _joy(JOY_BUTTON_X)
@@ -538,12 +574,25 @@ func _combat_hud() -> void:
 	# Routed A must open the pile, not leave the event on a passive Control.
 	for property: String in ["draw_pile", "discard_pile"]:
 		var control: Control = _scene.get(property)
-		if not await _cursor_to_key("control:%d" % control.get_instance_id(), property): continue
-		await _capture("combat_hud")
+		for visit: int in range(2):
+			if not await _cursor_to_key("control:%d" % control.get_instance_id(), property): continue
+			await _capture("combat_hud")
+			await _joy(JOY_BUTTON_A)
+			await _settle()
+			var pile: Control = _scene.get("_pile_scrim")
+			_expect(pile.visible, property + " A opens pile viewer")
+			_expect(_inside(pile, _focus()), property + " owns focus on first and cached open")
+			await _capture("pile_focus")
+			await _joy(JOY_BUTTON_B)
+			_expect(not pile.visible, property + " B closes pile viewer")
+	var details: Button = _scene.get("_enemy_intent_toggle_button")
+	var original_details: bool = bool(_scene.get("_show_all_enemy_intents"))
+	if await _cursor_to_key("control:%d" % details.get_instance_id(), "Details activation"):
 		await _joy(JOY_BUTTON_A)
-		_expect(_scene.get("_pile_scrim").visible, property + " A opens pile viewer")
-		await _joy(JOY_BUTTON_B)
-		_expect(not _scene.get("_pile_scrim").visible, property + " B closes pile viewer")
+		_expect(bool(_scene.get("_show_all_enemy_intents")) != original_details, "Controller A toggles Details through its toggled signal")
+		await _capture("combat_details")
+		await _joy(JOY_BUTTON_A)
+		_expect(bool(_scene.get("_show_all_enemy_intents")) == original_details, "Controller A toggles Details back")
 	if is_instance_valid(pass_control):
 		if await _cursor_to_key("control:%d" % pass_control.get_instance_id(), "Pass"):
 			var pressed: Array = []
@@ -578,7 +627,7 @@ func _hud_rebuild_regression() -> void:
 	portraits.assign(preload("res://scripts/turn_order_slots.gd").controller_controls(_scene))
 	_expect(not portraits.is_empty(), "Portrait rebuild fixture has a turn-order portrait")
 	if not portraits.is_empty():
-		var portrait: Control = portraits.back()
+		var portrait: Control = portraits.filter(func(control: Control) -> bool: return control.has_meta("turn_order_actor_key")).back()
 		var actor: String = str(portrait.get_meta("turn_order_actor_key"))
 		await _cursor_to_key("control:%d" % portrait.get_instance_id(), "Portrait rebuild regression")
 		await _joy(JOY_BUTTON_Y)
@@ -827,6 +876,22 @@ func _send_motion(axis: int, value: float) -> void:
 	Input.parse_input_event(event)
 	_viewport.push_input(event, true)
 
+func _reward_focus_regression() -> void:
+	var state: Dictionary = _base_state()
+	state["mode"] = "reward"
+	state["pending_reward"] = {"cards": ["quick_stab"], "heal_amount": Run.REWARD_HEAL, "ember_amount": 0}
+	await _load(state)
+	if _focus() != null: _focus().release_focus()
+	var live: Dictionary = _scene.get("_run_state")
+	live["pending_reward"]["intro_pending"] = true
+	_scene.set("_reward_reveal_pending", true)
+	_scene.set("_animation_lock", true)
+	_scene.call("_finish_reward_intro")
+	await _settle()
+	await _settle()
+	_expect(_inside(_scene.get("_relic_choice_overlay"), _focus()), "Finishing the reward reveal establishes controller focus without another input")
+	await _capture("reward_focus")
+
 func _encounter_screens() -> void:
 	var state: Dictionary = _base_state()
 	state["mode"] = "reward"
@@ -923,6 +988,27 @@ func _shop() -> void:
 	await _scan("scavenger_sell", shop)
 	await _joy(JOY_BUTTON_B)
 	_expect(not shop.visible, "Scavenger B returns to room")
+	await _shop_unaffordable_card_navigation(state)
+
+func _shop_unaffordable_card_navigation(source: Dictionary) -> void:
+	var state: Dictionary = source.duplicate(true)
+	state["held_embers"] = UNAFFORDABLE_SHOP_EMBERS
+	state["unbanked_embers"] = UNAFFORDABLE_SHOP_EMBERS
+	var room: Dictionary = state["rooms"][preload("res://scripts/section_map_graph.gd").key(state["current_room"])]
+	room[Run.MERCHANT_STOCK_KEY] = [UNAFFORDABLE_SHOP_GEAR, "boiled_leather", "crimson_draught"]
+	await _load(state)
+	var shop: Control = _scene.get("_scavenger_shop_view")
+	var offer: Control = shop.find_child("GearOffer_" + UNAFFORDABLE_SHOP_GEAR, true, false)
+	if not await _navigate(shop, shop.get("_mode_buy"), "Unaffordable gear Browse"): return
+	await _joy(JOY_BUTTON_A)
+	if not await _navigate(shop, offer, "Unaffordable multi-card gear"): return
+	await _joy(JOY_BUTTON_A)
+	_expect(shop.get("_detail_action").disabled, "Unaffordable gear keeps Buy disabled")
+	_expect(_focus() == shop.get("_detail_card_previous"), "A enters the existing card navigator when Buy is disabled")
+	var previous: int = int(shop.get("_detail_card_index"))
+	await _joy(JOY_BUTTON_A)
+	_expect(int(shop.get("_detail_card_index")) != previous, "Controller A can inspect another granted card without changing wares")
+	await _capture("shop_unaffordable")
 
 func _recap_screen() -> void:
 	var state: Dictionary = _base_state()

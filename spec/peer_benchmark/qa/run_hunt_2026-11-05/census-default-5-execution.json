@@ -1,0 +1,23 @@
+{
+  "name": "census-default-5",
+  "seed": 5,
+  "no_embrace": false,
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_task.py",
+    "--seed",
+    "5",
+    "--runs",
+    "1",
+    "--processes",
+    "1",
+    "--script",
+    "/private/tmp/labyrinth_codex/qa-45/run_hunt_replay.gd",
+    "--output-dir",
+    "/private/tmp/labyrinth_codex/qa-45/census-default-5"
+  ],
+  "output_dir": "/private/tmp/labyrinth_codex/qa-45/census-default-5",
+  "returncode": 0,
+  "started": 1793861019.607552,
+  "wall_seconds": 1593.6740369796753
+}
