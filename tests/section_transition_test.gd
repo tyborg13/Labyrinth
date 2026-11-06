@@ -18,6 +18,12 @@ func _run() -> void:
 	if suite == null or not suite.can_instantiate():
 		quit(2)
 		return
+	if OS.get_cmdline_user_args().has("--prepared-skip-only"):
+		suite.run_prepared_skip(_expect)
+		for failure: String in failures: push_error(failure)
+		print("PREPARED SKIP RESULT: %d failures" % failures.size())
+		quit(0 if failures.is_empty() else 1)
+		return
 	suite.run(_expect)
 	await suite.run_live(self, _expect)
 	for failure: String in failures: push_error(failure)

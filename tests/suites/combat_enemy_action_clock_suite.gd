@@ -259,7 +259,6 @@ static func _scene(tree: SceneTree, scene_script: Script = ObservedScene) -> Nod
 	tree.root.add_child(scene)
 	await tree.process_frame
 	Motion._install_fixture(scene,false)
-	scene.set("_turn_order_bar",null)
 	return scene
 
 static func _start(scene: Node, state: Dictionary, speed: String, reduced: bool) -> void:

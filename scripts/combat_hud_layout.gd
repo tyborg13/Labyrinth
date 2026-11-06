@@ -55,6 +55,23 @@ func begin_handoff(scene: Control) -> void:
 		var meter: Control = scene.get(field) as Control
 		if meter != null: meter.modulate.a = 1.0
 
+func prepare_opening(scene: Control, transition: Dictionary, draw_entries: Array) -> void:
+	# Pre-battle hides the hand row. Its first combat refresh has configured the
+	# real fan, but deferred ancestor sorts have not given HandScroll a rect yet.
+	# Run those same container sorts now, before the uncovered fight can draw.
+	var ancestors: Array[Container]
+	var current: Node = scene.get("hand_scroll")
+	while current != null and current != scene:
+		if current is Container: ancestors.append(current)
+		current = current.get_parent()
+	ancestors.reverse()
+	for container: Container in ancestors:
+		container.notification(Container.NOTIFICATION_PRE_SORT_CHILDREN)
+		container.notification(Container.NOTIFICATION_SORT_CHILDREN)
+	_held_bounds = Rect2()
+	_environment.clear()
+	begin_deal(scene, transition, draw_entries)
+
 func begin_deal(scene: Control, transition: Dictionary = {}, draw_entries: Array = []) -> void:
 	var key: String = _key_for(scene)
 	var count: int = (transition["target_hand"] as Array).size() if transition.has("target_hand") else _hand_count(scene)

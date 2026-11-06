@@ -1,0 +1,4952 @@
+[
+  {
+    "campaign": "default",
+    "seed": 4,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 4,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 4,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 4,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 4,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 5,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 6,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 7,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 8
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 8
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 8
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 8
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 8,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 8
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 9
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 9
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 9
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 9
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 9,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 9
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 10
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 10
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 10
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 10
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 10,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 10
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 11,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 11
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 12
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 12
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 12
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 12
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/trace.jsonl"
+  },
+  {
+    "campaign": "default",
+    "seed": 12,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 12
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 4,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 4
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 5,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 5
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 6,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 6
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 7
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 13
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 13
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 13
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 13
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 13
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 14,
+    "context": {
+      "decision": 0,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 14
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 14,
+    "context": {
+      "decision": 1,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 14
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 14,
+    "context": {
+      "decision": 2,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 14
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 14,
+    "context": {
+      "decision": 3,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 14
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/trace.jsonl"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 14,
+    "context": {
+      "decision": 4,
+      "mode": "room",
+      "room": "(0, 0)",
+      "room_kind": "start",
+      "room_metadata": {
+        "cleared": true,
+        "connections": [
+          {
+            "coord": "(1, -1)",
+            "door_dir": "(0, -1)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(1, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(0, 0)",
+        "depth": 0,
+        "element": "none",
+        "map_lane": 3.0,
+        "map_outline": true,
+        "map_step": 0,
+        "merchant_kind": "",
+        "npcs": [
+          {
+            "id": "emaciated_man",
+            "pos": "(4, 3)"
+          }
+        ],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 0,
+        "type": "start",
+        "visited": true
+      },
+      "section": 0,
+      "seed": 14
+    },
+    "kind": "fresh_board_display",
+    "owner": "stage_submission",
+    "differences": [
+      {
+        "path": "/player/hp",
+        "expected": 9999,
+        "actual": 24
+      },
+      {
+        "path": "/player/max_hp",
+        "expected": 9999,
+        "actual": 24
+      }
+    ],
+    "classification": "inherited opening hunt HP override",
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/trace.jsonl"
+  }
+]

@@ -3,6 +3,14 @@ extends RefCounted
 const Dragon = preload("res://scripts/dragon_presentation.gd")
 const Rules = preload("res://scripts/sfx_sync_rules.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
+const Arrival = preload("res://scripts/dragon_arrival.gd")
+
+static func arrival_anchor(frames: Array[Dictionary]) -> Dictionary:
+	for frame: Dictionary in frames:
+		for motion: Dictionary in frame["shown"].get("tharokh_motion", {}).values():
+			if str(motion.get("clip", "")) == "roar" and float(motion.get("phase", 0.0)) * Arrival.CLIP_SECONDS >= Arrival.HOLD_SECONDS - Arrival.TIME_EPSILON_SECONDS:
+				return frame
+	return {}
 
 # The trigger is the first associated visual/input response. The climax is a
 # separately observed submission, never a duration guessed from the audio.

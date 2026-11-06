@@ -138,6 +138,7 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 			var direction: Dictionary = Facing.direction_for_delta(delta)
 			facing = str(direction["facing"])
 			mirrored = bool(direction["mirrored"])
+	if clip == "challenge": facing = "front"
 	_apply_pose()
 
 func _process(delta: float) -> void:
@@ -160,7 +161,7 @@ func _apply_pose() -> void:
 	# Preserve the requested director/seed clock for existing consumers. The
 	# actual painted cache uses the stepped clock; held frames need no redraw.
 	_pose_signature = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px, root_forward_override]
-	var signature: Array = [facing, mirrored, shown, Pixels.phase_for(motion_data(), shown, progress), screen_pixel_scale, step_distance_px, root_forward_override]
+	var signature: Array = [facing, mirrored, shown, Pixels.phase_for(motion_data(), shown, progress), screen_pixel_scale, step_distance_px, root_forward_override, reduced_motion]
 	if signature == _render_signature: return
 	var registration_changed: bool = _render_signature.is_empty() or _render_signature[0] != facing or _render_signature[1] != mirrored
 	_render_signature = signature
@@ -178,6 +179,7 @@ func _apply_pose() -> void:
 			var axis: Vector2 = override["axis"]
 			override["axis"] = Vector2(-axis.x, axis.y)
 		rig.layout["root_forward_override"] = override
+		rig.layout["_challenge_reduced_motion"] = reduced_motion and shown == "challenge"
 		rig.apply_pose(shown, progress)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -198,7 +200,7 @@ func snapshot() -> Dictionary:
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
 
 func _shown_clip() -> String:
-	return "death" if clip == "death" else "rest" if reduced_motion else clip
+	return "death" if clip == "death" else "rest" if reduced_motion and clip != "challenge" else clip
 
 func _shown_phase() -> float:
-	return 1.0 if reduced_motion and clip == "death" else 0.0 if reduced_motion else _idle_seconds / float(motion_data()["clips"]["idle"]["seconds"]) if clip == "idle" else phase
+	return 1.0 if reduced_motion and clip == "death" else 0.0 if reduced_motion and clip != "challenge" else _idle_seconds / float(motion_data()["clips"]["idle"]["seconds"]) if clip == "idle" else phase

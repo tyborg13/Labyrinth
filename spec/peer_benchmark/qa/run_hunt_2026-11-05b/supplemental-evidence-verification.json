@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "cases": {
+    "observer-validation-v2": {
+      "difference_groups": {
+        "fresh_board_display": 5
+      },
+      "inherited_opening_occurrences": 5
+    },
+    "menu-continue": {
+      "difference_groups": {
+        "fresh_board_display": 5
+      },
+      "inherited_opening_occurrences": 5
+    },
+    "purchase-purge": {
+      "difference_groups": {
+        "fresh_board_display": 5
+      },
+      "inherited_opening_occurrences": 5
+    },
+    "smoke": {
+      "difference_groups": {
+        "fresh_board_display": 1
+      },
+      "inherited_opening_occurrences": 1
+    },
+    "trace-texture-default-10-v3": {
+      "difference_groups": {
+        "fresh_board_display": 5
+      },
+      "inherited_opening_occurrences": 5
+    }
+  },
+  "failures": []
+}

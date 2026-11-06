@@ -3,6 +3,7 @@ extends RefCounted
 ## Opt-in death clocks. Legacy groups retain their original shared timeline;
 ## a declared sequence samples each actor on its own existing frame boundaries.
 const Death = preload("death.gd")
+const PlaybackSamples = preload("res://scripts/combat_playback_samples.gd")
 
 static func configure(clock: Dictionary, scene: Node, units: Array[Dictionary], overlap: bool = false) -> void:
 	var declared: bool = false
@@ -59,19 +60,28 @@ static func sample(unit: Dictionary, elapsed: float, clock: Dictionary) -> void:
 	unit["death_progress"] = progress
 
 static func play(scene: Node, clock: Dictionary, render: Callable) -> void:
-	var schedule: Array = clock["schedule_usec"]
+	var schedule: Array = clock.get("schedule_usec", [])
+	var legacy: bool = not clock.has("unit_clocks")
+	var hold_end_usec: int = int(clock.get("hold_end_usec", 0))
+	if legacy:
+		# Legacy dissolves used the shared timed-frame runner. Keep exactly its
+		# rounded deadlines and frame-number progress, including the final hold.
+		var period: int = maxi(1, roundi(float(clock["frame_seconds"]) * 1000000.0))
+		for frame: int in range(int(clock["frames"])): schedule.append(frame * period)
+		hold_end_usec = int(clock["frames"]) * period
+	var required: Array[int]
+	for event: int in range(int(clock.get("burst_count", 0))):
+		for index: int in range(schedule.size()):
+			var progress: float = float(index) / float(maxi(1, schedule.size() - 1)) if legacy else float(schedule[index]) / 1000000.0 / float(clock["duration"])
+			# Use the decorator's exact arithmetic: a boundary rounded just below
+			# zero can change Health while still withholding its popup/effect.
+			var age: float = progress * float(clock["duration"]) - float(clock["first_start"]) - event * float(clock["burst_chain_seconds"])
+			if age >= 0.0:
+				required.append(index)
+				break
 	var started: int = Time.get_ticks_usec()
-	var origin: int = scene._combat_pacing.presentation_usec()
-	var index: int = 0
-	var rendered: int = 0
-	while true:
-		var elapsed: int = scene._combat_pacing.presentation_usec() - origin
-		var due: int = index
-		while due + 1 < schedule.size() and int(schedule[due + 1]) <= elapsed: due += 1
-		if due < schedule.size() and due >= index and int(schedule[due]) <= elapsed:
-			render.call(float(schedule[due]) / 1000000.0 / float(clock["duration"]))
-			rendered += 1
-			index = due + 1
-		if elapsed >= int(clock["hold_end_usec"]): break
-		await scene.get_tree().process_frame
-	scene._record_runtime_animation_clock(schedule.size(), rendered, int(clock["hold_end_usec"]), Time.get_ticks_usec() - started)
+	var rendered: int = await PlaybackSamples.play(scene, schedule, hold_end_usec, func(index: int) -> void:
+		var progress: float = float(index) / float(maxi(1, schedule.size() - 1)) if legacy else float(schedule[index]) / 1000000.0 / float(clock["duration"])
+		render.call(progress)
+	, required)
+	scene._record_runtime_animation_clock(schedule.size(), rendered, hold_end_usec, Time.get_ticks_usec() - started)

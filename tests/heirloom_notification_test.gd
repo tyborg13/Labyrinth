@@ -12,6 +12,8 @@ var _retired_queue_ids: PackedInt64Array
 class NoticeHost extends Node:
 	const COMBAT_LOG_TRANSIENT_SECONDS: float = 3.0
 	var _run_state: Dictionary = {"mode": "defeat"}
+	var _event_view: Control
+	var _magic_purge_overlay: Control
 	var log_overlay := PanelContainer.new()
 	var log_label := RichTextLabel.new()
 	var released: Array[String]
@@ -48,6 +50,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_retirement_checks()
+	_full_panel_notices()
 	_departure_release_guard()
 	await _save_and_quit()
 	await _rapid_continue_and_quit()
@@ -60,6 +63,27 @@ func _run() -> void:
 	print("HEIRLOOM NOTIFICATION TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _full_panel_notices() -> void:
+	var host := NoticeHost.new()
+	root.add_child(host)
+	host.log_label.text = PERSISTENT_NOTICE
+	for field: String in ["_event_view", "_magic_purge_overlay"]:
+		var panel := Control.new()
+		host.add_child(panel)
+		host.set(field, panel)
+		Notifications.refresh(host)
+		_expect(not host.log_overlay.visible and host.log_label.text == PERSISTENT_NOTICE, "Full panel suppresses notice paint without clearing content: " + field)
+		panel.hide()
+		Notifications.refresh(host)
+		_expect(host.log_overlay.visible and host.log_label.text == PERSISTENT_NOTICE, "Closing full panel restores the current notice: " + field)
+		panel.queue_free()
+		host.set(field, null)
+	host._run_state["mode"] = "event"
+	Notifications.refresh(host, true)
+	_expect(not host.log_overlay.visible, "Event mode also suppresses a transient during panel construction")
+	host.queue_free()
+	print("FULL PANEL NOTICE CHECKS: %s" % ("FAIL" if _failed else "PASS"))
 
 func _retirement_checks() -> void:
 	var host := NoticeHost.new()

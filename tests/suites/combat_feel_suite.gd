@@ -202,6 +202,8 @@ static func _test_movie_fps_source(expect: Callable) -> void:
 static func _test_movie_scale_change(expect: Callable, fps: int) -> void:
 	const FIXTURE_SCALE: float = 0.8
 	const VOICE_DEADLINE_MS: int = 70
+	const VOICE_FIXTURE_SEED: int = 410
+	const VOICE_CUE: String = "hit.blade.light"
 	var expiry_frame: int = ceili(float(VOICE_DEADLINE_MS) * fps / 1000.0)
 	var original_scale: float = Engine.time_scale
 	Engine.time_scale = 1.0
@@ -218,14 +220,17 @@ static func _test_movie_scale_change(expect: Callable, fps: int) -> void:
 	expect.call(bank_script.reload() == OK, "SFX bank uses the injected movie clock")
 	var bank: Node = bank_script.new()
 	bank.movie_clock = clock
-	var voice := AudioStreamPlayer.new()
-	voice.stream = load("res://assets/audio/sfx/cues/hit.blade.light/hit.blade.light_01.ogg")
-	bank.add_child(voice)
-	bank.players.append(voice)
+	# perf-36 polls only voices started by the bank. Exercise that public path,
+	# including its deadline and active registration, instead of seeding a pool.
+	bank.warm_up(null, {"cues": {VOICE_CUE: {
+		"variants": ["res://assets/audio/sfx/cues/hit.blade.light/hit.blade.light_01.ogg"],
+		"duration": float(VOICE_DEADLINE_MS) / 1000.0
+	}}}, VOICE_FIXTURE_SEED)
+	var voice: AudioStreamPlayer = bank.cues[VOICE_CUE]["voices"][0]
 	# Standalone checks can start before the first process_frame signal.
 	await (Engine.get_main_loop() as SceneTree).process_frame
 	var previous: int = clock.ticks_usec(false)
-	voice.set_meta("until", clock.ticks_msec(false) + VOICE_DEADLINE_MS)
+	bank.play(VOICE_CUE)
 	var first_step: int = 0
 	var alive_before_expiry: bool = false
 	for frame: int in range(1, expiry_frame + 1):

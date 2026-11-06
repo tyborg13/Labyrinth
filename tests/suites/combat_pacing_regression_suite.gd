@@ -18,7 +18,7 @@ const MOVE_ONLY_MAX_SECONDS: float = 0.05
 const FEEDBACK_INITIAL_ELAPSED: float = 0.20
 
 class FeedbackScene:
-	extends "res://scripts/run_scene.gd"
+	extends "res://tests/helpers/combat_action_clock_scene.gd"
 	var final_feedback_frame: int = -1
 	func _render_board_state(state: Dictionary, presentation: Dictionary, stable: bool = false) -> void:
 		super._render_board_state(state, presentation, stable)
@@ -227,8 +227,6 @@ static func _last_action_overlays(tree: SceneTree, expect: Callable, death: bool
 	scene.get("_settings")["combat_speed"] = "fastest"
 	scene.get("_run_state")["combat_state"] = state
 	scene.call("_refresh_ui")
-	# Fixture-only: an independent rail tween must not mask feedback cleanup.
-	scene.set("_turn_order_bar", null)
 	var boundary: Callable = func() -> void: RenderingServer.frame_post_draw.emit()
 	if DisplayServer.get_name() == "headless": tree.process_frame.connect(boundary)
 	scene.call("_on_pass_turn_pressed")

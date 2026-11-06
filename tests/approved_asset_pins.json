@@ -167,7 +167,8 @@
     },
     "revision": "c7124777577a4939838706cb20f987762f0be8bd",
     "rr52": "Owner-approved take-three Lamplighter paintings, protected rr-52 motion and whole underlays. Source cuts and derived density records; native rig proof pending director. Earlier asset pins preserved.",
-    "rr53": "Owner-approved Reaver paint and motion from rr-48. rr-53 feedback 1 withdraws clipping and restores r3 hidden supply/masks byte-for-byte. Integration pins remain unchanged."
+    "rr53": "Owner-approved Reaver paint and motion from rr-48. rr-53 feedback 1 withdraws clipping and restores r3 hidden supply/masks byte-for-byte. Integration pins remain unchanged.",
+    "guard02": "Director-authored guard-02 challenge clips for the three production humanoid_v2 guardians; compiled with the existing compiler. Prior clip values and all paint remain unchanged. Native challenge proof remains director-owned."
   },
   "cel_outputs": {
     "files": [],
@@ -1914,8 +1915,8 @@
     "assets/units/arc_thrall_cutout/segmented/rear/upper_near.png": "7709abc5f068d5414228377f4d569f67dff70121",
     "assets/units/ash_hound.png": "8719e1b93937bf9ce7d6cbf51a7c7caa381d8dc8",
     "assets/units/ashen_reaver.png": "1d22abd981e3c64a615e235b0c0e0fb92079825b",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/compiled_motion.json": "ec3d11fd48fa06de2e945c57ac9962535e5b0e8f",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/director_motion.json": "c6466d9189425bc3491f31224d8fb78ea93b95d5",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/compiled_motion.json": "9b20932e2619d59ee4f3635dce2b18aec55db931",
+    "assets/units/ashen_reaver_cutout/humanoid_v2/director_motion.json": "c50dc803823bc674bfa0c8847da563e5058f25af",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front.json": "5ed5ac72ef2123ef528d21901ec7f049703a4591",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_far.png": "a38a8726c3dfced989c48553cee3778f015f4f69",
     "assets/units/ashen_reaver_cutout/humanoid_v2/front/arm_near.png": "c7120563087771f00037cb4f589de6039bef0525",
@@ -3599,8 +3600,8 @@
     "assets/units/iskaldra_cutout/rear/wing_socket_far.png": "aeb8ed5214edc3b700076a036a95c897def08c5c",
     "assets/units/iskaldra_cutout/rear/wing_socket_near.png": "20ca4a551cb1756951372383668f845857b46086",
     "assets/units/last_lamplighter.png": "97c9067bb86ed9e1685ad8c4225a57e763cf873c",
-    "assets/units/last_lamplighter_cutout/humanoid_v2/compiled_motion.json": "115149a676ac790b9f8c9383cb61e65df83e25b4",
-    "assets/units/last_lamplighter_cutout/humanoid_v2/director_motion.json": "6d0918924aaec0dbece8bc12b80c4eb48f8e4652",
+    "assets/units/last_lamplighter_cutout/humanoid_v2/compiled_motion.json": "0181bd35ddde3e40c22a249153d1840f6bb0be3c",
+    "assets/units/last_lamplighter_cutout/humanoid_v2/director_motion.json": "ee8f23903cd836edfdd477d6fbda530770e28f4d",
     "assets/units/last_lamplighter_cutout/humanoid_v2/front.json": "acb6d598fbe5a3cb3373fefdf683735e9b6cae99",
     "assets/units/last_lamplighter_cutout/humanoid_v2/front/arm_far.png": "e51fb0b1a4de306fcc1ba5ef47627d0e0a20858a",
     "assets/units/last_lamplighter_cutout/humanoid_v2/front/arm_near.png": "768a2a98aff7cf79908379277ad80d281963845e",
@@ -4647,8 +4648,8 @@
     "assets/units/last_lamplighter_cutout/humanoid_v2/front/hidden_hand_far.png": "1788abfcdc9b4a140cfe30baca66425aa65a719f",
     "assets/units/last_lamplighter_cutout/humanoid_v2/front/hidden_hand_near.png": "ebcde1a8cb219324647e94613b602c90212c9d1b",
     "assets/units/last_lamplighter_cutout/humanoid_v2/front/hidden_lantern.png": "02bfdb39eecb33cd05a93baa920519380aeaffab",
-    "assets/units/storm_cantor_cutout/humanoid_v2/compiled_motion.json": "7725b4e207c6eeb1363eac65d7f6a1d73f8df74c",
-    "assets/units/storm_cantor_cutout/humanoid_v2/director_motion.json": "53c7fa53cf8b74ee1415126bf6259f5949b90366",
+    "assets/units/storm_cantor_cutout/humanoid_v2/compiled_motion.json": "cb1400e01e5c23dd63ab38927b98b7f6270d4e1e",
+    "assets/units/storm_cantor_cutout/humanoid_v2/director_motion.json": "0e0d1c5606998cff10f692a58447f04e993ed443",
     "assets/units/storm_cantor_cutout/humanoid_v2/front/arm_far.png": "6a5dc55bac9e3f3590ced0e9b61f9030beed2b22",
     "assets/units/storm_cantor_cutout/humanoid_v2/front/arm_near.png": "7709fff25beb0030f04baf6fdb17c4a441e3c187",
     "assets/units/storm_cantor_cutout/humanoid_v2/front/bell.png": "63342d0118167ffd21cd56e9e5bebd1a5c4fa264",
@@ -53226,7 +53227,8 @@
         "sweep",
         "fall",
         "hit",
-        "death"
+        "death",
+        "challenge"
       ],
       "facings": [
         "front",
@@ -53296,7 +53298,8 @@
         "mourning_hook",
         "last_procession",
         "hit",
-        "death"
+        "death",
+        "challenge"
       ],
       "facings": [
         "front",
@@ -53408,7 +53411,8 @@
         "broken_rhythm",
         "call_the_spark",
         "hit",
-        "death"
+        "death",
+        "challenge"
       ]
     },
     {

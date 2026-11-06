@@ -1,0 +1,41 @@
+extends "/private/tmp/labyrinth_codex/qa-56/validate_observer.gd"
+## Supplemental real menu Continue: exercises perf-54's overlapped CPU job,
+## which qa-45's direct RunScene resume path does not enter.
+func _validate() -> void:
+	scene._save_run_progress()
+	var before: Dictionary = scene._committed_run_state().duplicate(true)
+	var combat_before: Dictionary = scene._combat_state.duplicate(true)
+	scene.queue_free()
+	current_scene = null
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	var menu: Control = (load("res://scenes/main_menu.tscn") as PackedScene).instantiate()
+	root.add_child(menu)
+	current_scene = menu
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_require(not menu.continue_button.disabled, "real menu Continue enabled for saved combat")
+	menu._on_continue_button_pressed()
+	var transition: Node = current_scene
+	_require(transition.has_signal("finished"), "real menu installs MenuRunTransition")
+	if not transition.has_signal("finished"):
+		print("TEST RESULT: FAIL qa56 menu Continue transition missing")
+		quit(1)
+		return
+	transition.finished.connect(_continued.bind(before, combat_before, transition))
+
+func _continued(destination: Node, before: Dictionary, combat_before: Dictionary, transition: Node) -> void:
+	scene = destination
+	var timing: Dictionary = transition.performance_snapshot()
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	var after: Dictionary = scene._committed_run_state()
+	for field: String in ["seed", "current_room", "current_section", "mode", "player_hp", "player_max_hp", "held_embers", "magic_inventory", "equipped_equipment", "relics"]:
+		_require(before.get(field) == after.get(field), "Continue preserves " + field)
+	_require(scene._combat_state == combat_before, "Continue preserves complete committed combat")
+	_checkpoint()
+	var unexpected: Dictionary = observation_mismatches.duplicate()
+	unexpected.erase("fresh_board_display:stage_submission")
+	_require(unexpected.is_empty(), "fresh model comparisons after real Continue")
+	var file := FileAccess.open(output.path_join("menu-continue.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"failures": validation_failures, "timing": timing, "counts": checkpoint_counts, "mismatches": observation_mismatches}, "\t"))
+	file.close()
+	print("QA56 MENU CONTINUE: PASS committed combat preserved; overlapped loading and fresh presentation checked" if validation_failures.is_empty() else "TEST RESULT: FAIL qa56 menu Continue " + str(validation_failures))
+	_finish("menu_continue_validation")

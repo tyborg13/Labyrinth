@@ -1,0 +1,150 @@
+extends SceneTree
+## Separate diagnostic fixture: controller targeting, then a mouse counterfactual.
+const Runtime = preload("res://scripts/parallel_runtime.gd")
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Analytics = preload("res://scripts/analytics_store.gd")
+const Router = preload("res://scripts/input_router.gd")
+const PROOF_SIZE := Vector2i(1920, 1080)
+const TARGET := Vector2i(4, 2)
+const SETTLE_FRAMES: int = 8
+const MOUSE_SETTLE_FRAMES: int = 120
+const CARD_MODE_LIMIT: int = 6
+const MOTION_SAMPLE_LIMIT: int = 240
+const TEST_STICK_STRENGTH: float = 0.5
+const TARGET_TOLERANCE: float = 6.0
+const MOUSE_HANDOFF_OFFSET := Vector2(8, 0)
+const CARD_ID: String = "hamstring_shot"
+var fixture: String = "res://spec/peer_benchmark/qa/controller_hunt_2026-11-05/dragon-target.variant"
+var output: String = "/private/tmp/labyrinth_codex/qa-57/evidence/dragon-parity"
+var viewport: SubViewport
+var scene: Control
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--fixture"): fixture = args[args.find("--fixture") + 1]
+	if args.has("--output-dir"): output = args[args.find("--output-dir") + 1]
+	_run.call_deferred()
+func _run() -> void:
+	DirAccess.make_dir_recursive_absolute(output)
+	var file := FileAccess.open(fixture, FileAccess.READ)
+	if file == null: push_error("Missing captured dragon fixture"); quit(1); return
+	var state: Dictionary = file.get_var(false)
+	file.close()
+	Store.set_storage_path(output.path_join("profile.json"))
+	Store.set_run_storage_path(output.path_join("run.save"))
+	Settings.set_storage_path(output.path_join("settings.json"))
+	Analytics.set_storage_dir(output.path_join("analytics"))
+	Store.save_data(state.get("progression", Store.default_data()))
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	settings["combat_speed"] = Settings.COMBAT_FASTEST
+	Settings.save_settings(settings)
+	Router.ensure_input_map()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.size = PROOF_SIZE
+	root.content_scale_size = PROOF_SIZE
+	viewport = SubViewport.new()
+	viewport.size = PROOF_SIZE
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	if DisplayServer.get_name() == "headless": process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	scene = load("res://scenes/run_scene.tscn").instantiate()
+	scene.set("_defer_initial_run_presentation", true)
+	viewport.add_child(scene)
+	scene.set("_defer_initial_run_presentation", false)
+	scene.set("_progression", state.get("progression", Store.default_data()))
+	scene.call("_load_run_state", state)
+	scene.call("_close_dialogue")
+	await _settle()
+	var hand: Array = scene.get("_combat_state").get("deck", {}).get("hand", [])
+	var index: int = hand.find(CARD_ID)
+	if index < 0: push_error("Captured hand does not contain the repro card"); quit(1); return
+	if str(scene.get("_controller_region")) != "hand": await _joy(JOY_BUTTON_X)
+	for step: int in range(hand.size()):
+		if int(scene.get("_controller_hand_index")) == index: break
+		await _joy(JOY_BUTTON_RIGHT_SHOULDER)
+	await _joy(JOY_BUTTON_A)
+	if str(scene.get("_controller_region")) == "card_mode":
+		for step: int in range(CARD_MODE_LIMIT):
+			if str(scene.get("_controller_card_mode")) == "play": break
+			await _joy(JOY_BUTTON_DPAD_RIGHT)
+		await _joy(JOY_BUTTON_A)
+	await _settle()
+	var board: Control = scene.get("board_view")
+	var report: Dictionary = {"fixture": fixture, "target": TARGET, "pending_targets": scene.get("_pending_target_tiles"), "controller_tiles": scene.call("_controller_board_tiles"), "visible": board.call("_board_tile_is_visible_to_player", TARGET), "player": scene.get("_combat_state").get("player", {}), "preview_before": scene.get("_preview_combat_state").duplicate(true)}
+	# Even without a magnetic candidate, a real stick can move into free space.
+	for sample: int in range(MOTION_SAMPLE_LIMIT):
+		var target_point: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", TARGET) as Vector2)
+		var origin: Vector2 = scene.get("_controller_virtual_board_position")
+		var delta: Vector2 = target_point - origin
+		if delta.length() <= TARGET_TOLERANCE: break
+		var direction: Vector2 = delta.normalized() * TEST_STICK_STRENGTH
+		_motion(JOY_AXIS_LEFT_X, direction.x)
+		_motion(JOY_AXIS_LEFT_Y, direction.y)
+		await physics_frame
+		await process_frame
+	_motion(JOY_AXIS_LEFT_X, 0.0)
+	_motion(JOY_AXIS_LEFT_Y, 0.0)
+	await _settle()
+	report["controller_cursor"] = scene.get("_controller_virtual_board_position")
+	report["controller_candidate"] = scene.get("_controller_focus_candidate").duplicate()
+	await _joy(JOY_BUTTON_A)
+	report["controller_player_after"] = scene.get("_combat_state").get("player", {}).get("pos")
+	report["controller_card_retained"] = scene.get("_combat_state").get("deck", {}).get("hand", []).has(CARD_ID)
+	report["details_key_visible"] = scene.get("_enemy_intent_toggle_button").get("_key").visible
+	report["details_controller_tooltip"] = scene.call("_controller_candidate_for_control", scene.get("_enemy_intent_toggle_button")).get("detail", "")
+	await _capture("dragon_target_controller.png")
+	root.get_node("InputRouter").call("clear_forced_state_for_test")
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(PROOF_SIZE) * 0.5
+	motion.relative = MOUSE_HANDOFF_OFFSET
+	Input.parse_input_event(motion)
+	viewport.push_input(motion, true)
+	await _settle()
+	var point: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", TARGET) as Vector2)
+	report["mouse_hit"] = board.call("tile_at_global_position", point)
+	report["mouse_point"] = point
+	for pressed: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.position = point
+		click.pressed = pressed
+		Input.parse_input_event(click)
+		viewport.push_input(click, true)
+		await _settle()
+	for frame: int in range(MOUSE_SETTLE_FRAMES): await process_frame
+	report["preview_after"] = scene.get("_preview_combat_state").duplicate(true)
+	report["committed_after"] = scene.get("_combat_state").duplicate(true)
+	await _capture("dragon_target_pointer.png")
+	var result := FileAccess.open(output.path_join("parity.json"), FileAccess.WRITE)
+	result.store_string(JSON.stringify(report, "\t"))
+	result.close()
+	print("DRAGON TARGET PARITY: target=%s controller=%s visible=%s controller_card_retained=%s mouse_hit=%s committed_player=%s" % [TARGET, (report["controller_tiles"] as Array).has(TARGET), report["visible"], report["controller_card_retained"], report["mouse_hit"], report["committed_after"].get("player", {}).get("pos")])
+	scene.queue_free()
+	await _settle()
+	quit(0)
+func _joy(button: int) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button
+		event.device = 0
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		viewport.push_input(event, true)
+		await _settle()
+func _motion(axis: int, value: float) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.axis = axis
+	event.axis_value = value
+	event.device = 0
+	Input.parse_input_event(event)
+	viewport.push_input(event, true)
+func _settle() -> void:
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+func _capture(name: String) -> void:
+	if DisplayServer.get_name() == "headless": return
+	await RenderingServer.frame_post_draw
+	viewport.get_texture().get_image().save_png(output.path_join(name))

@@ -1,6 +1,12 @@
 extends Button
 class_name CardWidget
 
+const RetainedMetrics = preload("res://scripts/retained_card_metrics.gd")
+var _retain_hand_refresh_work: bool = false
+
+func enable_hand_refresh_retention() -> void:
+	_retain_hand_refresh_work = true
+
 signal activated
 signal empower_hover_changed(hovered: bool)
 signal empower_toggled
@@ -1144,8 +1150,12 @@ func _update_layout_metrics() -> void:
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var detail_size: int = _scaled_card_font_size(14 if compact else 16, 9)
 	_fit_title_label(_base_title_size())
-	UiTypography.set_rich_text_size(desc_label, detail_size)
-	UiTypography.set_label_size(footer_label, detail_size)
+	if _retain_hand_refresh_work:
+		RetainedMetrics.rich_text_size(desc_label, detail_size)
+		RetainedMetrics.label_size(footer_label, detail_size)
+	else:
+		UiTypography.set_rich_text_size(desc_label, detail_size)
+		UiTypography.set_label_size(footer_label, detail_size)
 	var art_min_height: float = _scaled_card_value(68.0 if compact else ART_MIN_HEIGHT, 36.0)
 	var art_max_height: float = _scaled_card_value(ART_MAX_HEIGHT, art_min_height)
 	var details_min_height: float = _scaled_card_value(104.0 if compact else DETAILS_MIN_HEIGHT, 48.0)
@@ -1178,6 +1188,9 @@ func _update_layout_metrics() -> void:
 	pivot_offset = size * 0.5
 
 func _apply_scaled_node_metrics() -> void:
+	if _retain_hand_refresh_work:
+		RetainedMetrics.apply_scaled_node_metrics(self)
+		return
 	var margin: MarginContainer = $Margin as MarginContainer
 	if margin != null:
 		margin.add_theme_constant_override("margin_left", _scaled_card_int(16, 6))
@@ -1596,6 +1609,12 @@ func _rebuild_summary_icon_rows(rows: Array) -> void:
 		SummaryMeasurements.font_revision(UiTypography.text_font()),
 		art_frame.custom_minimum_size, details_panel.custom_minimum_size]
 	var inset: float = _summary_screen_inset()
+	# The old path detached and immediately reattached these very same children
+	# on an exact hit. Restore the art loan reset by _update_layout_metrics without
+	# another subtree exit/entry (and its inherited theme/layout notifications).
+	if _retain_hand_refresh_work and layout_inputs == _summary_layout_inputs and _summary_active_layout == inset:
+		_remember_summary_layout(_summary_active_art_height, _summary_active_details_height)
+		return
 	if layout_inputs != _summary_layout_inputs:
 		_clear_summary_layout_cache()
 		_summary_layout_inputs = layout_inputs.duplicate(true)
@@ -2308,7 +2327,10 @@ func _fit_title_label(base_size: int) -> void:
 	_update_title_inset()
 	var font: Font = UiTypography.ui_font()
 	if font == null:
-		UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
+		if _retain_hand_refresh_work:
+			RetainedMetrics.label_size(title_label, _relieved_title_size(base_size))
+		else:
+			UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
 		return
 	var available_width: float = _title_nameplate_width()
 	var available_height: float = maxf(_scaled_card_value(28.0, 16.0), title_label.custom_minimum_size.y)
@@ -2317,9 +2339,15 @@ func _fit_title_label(base_size: int) -> void:
 		var render_size: int = _relieved_title_size(candidate)
 		var scaled_size: int = UiTypography.scaled_size(title_label, render_size)
 		if _title_fits(font, title_label.text, scaled_size, available_width, available_height):
-			UiTypography.set_label_size(title_label, render_size)
+			if _retain_hand_refresh_work:
+				RetainedMetrics.label_size(title_label, render_size)
+			else:
+				UiTypography.set_label_size(title_label, render_size)
 			return
-	UiTypography.set_label_size(title_label, min_title_size)
+	if _retain_hand_refresh_work:
+		RetainedMetrics.label_size(title_label, min_title_size)
+	else:
+		UiTypography.set_label_size(title_label, min_title_size)
 
 func _relieved_title_size(candidate: int) -> int:
 	var relief: int = _scaled_card_int(TITLE_FIT_RELIEF, 1)
@@ -2367,8 +2395,11 @@ func _update_title_inset() -> void:
 	var margin: float = _scaled_card_value(16.0, 6.0)
 	var left: float = _title_nameplate_left()
 	var right: float = maxf(left, minf(width - left, _title_right_limit))
-	_title_inset.content_margin_left = maxf(0.0, left - margin)
-	_title_inset.content_margin_right = maxf(0.0, width - margin - right)
+	if _retain_hand_refresh_work:
+		RetainedMetrics.horizontal_margins(_title_inset, maxf(0.0, left - margin), maxf(0.0, width - margin - right))
+	else:
+		_title_inset.content_margin_left = maxf(0.0, left - margin)
+		_title_inset.content_margin_right = maxf(0.0, width - margin - right)
 
 func _title_nameplate_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
@@ -2380,9 +2411,9 @@ func _title_fits(font: Font, title: String, font_size: int, available_width: flo
 		return true
 	var longest_word_width: float = 0.0
 	for word: String in title.split(" ", false):
-		longest_word_width = maxf(longest_word_width, font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x)
-	var full_width: float = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
-	var line_height: float = font.get_height(font_size)
+		longest_word_width = maxf(longest_word_width, SummaryMeasurements.text_width(font, font_size, word))
+	var full_width: float = SummaryMeasurements.text_width(font, font_size, title)
+	var line_height: float = SummaryMeasurements.text_height(font, font_size)
 	if longest_word_width > available_width:
 		return false
 	return full_width <= available_width and line_height <= available_height + 3.0

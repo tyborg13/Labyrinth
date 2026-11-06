@@ -1,0 +1,29 @@
+"""Explain raw orphan alarms with measured owners; never change census assertions."""
+from pathlib import Path
+import json,re
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56');PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56');REPORT=PROJECT/'spec/peer_benchmark/qa/run_hunt_2026-11-05b'
+capacity=int(re.search(r'SUMMARY_LAYOUT_CACHE_CAPACITY: int = (\d+)',(PROJECT/'scripts/card_widget.gd').read_text()).group(1))
+results=[];failures=[];positive=[];pending=[]
+for campaign in ('default','no-embrace','default-extra'):
+ for trace in sorted((ROOT/('campaign-'+campaign)).glob('seed-*/trace.jsonl')):
+  entries=[];cleanup=None
+  for line in trace.open():
+   try:r=json.loads(line)
+   except ValueError:continue
+   d=r['data']
+   if r['event']=='qa56_orphan_ownership':
+    entry=dict(campaign=campaign,seed=int(trace.parent.name[5:]),**d)
+    entry['unowned_orphans']=max(0,d['context']['orphans']-d['detached_summary_nodes'])
+    entry['owners_within_capacity']=all(o['layouts']<=capacity for o in d['owners'].values())
+    entries.append(entry)
+    if d['context']['orphans']:positive.append(entry)
+    if entry['unowned_orphans'] or not entry['owners_within_capacity']:failures.append(entry)
+   elif r['event']=='qa56_post_cleanup':cleanup=d
+  result=dict(campaign=campaign,seed=int(trace.parent.name[5:]),room_samples=len(entries),maximum_unowned_orphans=max((e['unowned_orphans'] for e in entries),default=0),cleanup=cleanup)
+  if cleanup is None:pending.append(dict(campaign=campaign,seed=result['seed']))
+  elif cleanup['scene_alive'] or cleanup['orphans']!=0:failures.append(result)
+  results.append(result)
+record=dict(status='FAIL' if failures else 'PARTIAL' if pending else 'PASS',summary_layout_capacity=capacity,runs=results,positive_samples=positive,failures=failures,pending=pending)
+(REPORT/'lifetime-ownership.json').write_text(json.dumps(record,indent=2)+'\n')
+print('QA56 LIFETIME OWNERSHIP:',record['status'],f"runs={len(results)} room_samples={sum(r['room_samples'] for r in results)} positive_samples={len(positive)} unknown_or_capacity_failures={len(failures)} pending={len(pending)}")
+raise SystemExit(bool(failures))

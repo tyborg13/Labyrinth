@@ -1,0 +1,57 @@
+extends "/private/tmp/labyrinth_codex/qa-56/run_hunt_cache_observed.gd"
+const TracePolicy = preload("/private/tmp/labyrinth_codex/qa-56/trace_policy.gd")
+const TRACE_SOURCE: String = "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/trace.jsonl"
+var trace_actions: Array = []
+var trace_failed: bool = false
+
+func _start() -> void:
+	var file := FileAccess.open(TRACE_SOURCE, FileAccess.READ)
+	while not file.eof_reached():
+		var line: String = file.get_line()
+		if line.strip_edges().is_empty(): continue
+		var row: Variant = JSON.parse_string(line)
+		if row is Dictionary and str(row.get("event", "")) == "decision": trace_actions.append(row["data"])
+	file.close()
+	super._start()
+	var replay := TracePolicy.new()
+	replay.hunt = self
+	replay.actions = trace_actions
+	replay.rng = rng
+	replay.no_embrace = no_embrace
+	policy = replay
+
+func _tick() -> void:
+	if trace_failed or finished: return
+	if is_instance_valid(scene) and not busy and not scene._animation_lock and settle_frames <= 0 and decision < trace_actions.size():
+		var expected: Dictionary = trace_actions[decision]
+		var context: Dictionary = _context()
+		for field: String in ["section", "room", "room_kind", "mode"]:
+			if expected["context"].get(field) != context.get(field):
+				_trace_failure("Context differs: " + field, expected)
+				return
+		if str(expected.get("kind", "")).begins_with("side_") and not policy.side_actions_available(scene): return
+	super._tick()
+
+func _side_action() -> bool:
+	if decision >= trace_actions.size(): return false
+	var action: Dictionary = trace_actions[decision]
+	var kind: String = str(action.get("kind", ""))
+	if not kind.begins_with("side_"): return false
+	kind = kind.trim_prefix("side_")
+	_record({"kind": "side_" + kind})
+	busy = true
+	if kind == "resume": _resume()
+	else: _run_side(kind)
+	settle_frames = SETTLE_FRAMES
+	return true
+
+func _trace_failure(message: String, expected: Dictionary) -> void:
+	if trace_failed: return
+	trace_failed = true
+	_emit("qa56_trace_failure", {"message": message, "expected": expected, "actual_context": _context()})
+	print("QA56 TRACE REPLAY: BLOCKED " + message)
+	call_deferred("_finish", "trace_divergence")
+
+func _finish(outcome: String) -> void:
+	print("QA56 TRACE REPLAY: prefix=%d outcome=%s" % [decision, outcome])
+	super._finish(outcome)

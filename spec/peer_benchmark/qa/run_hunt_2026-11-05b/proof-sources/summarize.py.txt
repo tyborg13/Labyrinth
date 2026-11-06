@@ -1,0 +1,59 @@
+from pathlib import Path
+from collections import Counter
+import json
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56')
+REPORT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56/spec/peer_benchmark/qa/run_hunt_2026-11-05b')
+
+def differences(a,b,path=''):
+    if type(a)!=type(b):return [dict(path=path,expected=a,actual=b)]
+    if isinstance(a,dict):
+        return [item for key in sorted(a.keys()|b.keys()) for item in differences(a.get(key),b.get(key),path+'/'+key)]
+    if isinstance(a,list):
+        if len(a)!=len(b):return [dict(path=path+'/length',expected=len(a),actual=len(b))]
+        return [item for i,(x,y) in enumerate(zip(a,b)) for item in differences(x,y,path+'/'+str(i))]
+    return [] if a==b else [dict(path=path,expected=a,actual=b)]
+
+def main():
+    coverage={}; models=Counter(); model_mismatches=Counter(); changes=Counter(); findings=[]; censuses=[]; markers=[]; resumes=0
+    for campaign in ('default','no-embrace','default-extra'):
+        runs=[]; rooms=Counter(); sections=Counter(); actions=Counter(); analytics=Counter()
+        for seed in sorted((ROOT/('campaign-'+campaign)).glob('seed-*')):
+            for event_file in (seed/'analytics').glob('*.jsonl'):
+                for line in event_file.open():
+                    try:event_row=json.loads(line)
+                    except ValueError:continue
+                    analytics[event_row.get('event_type','unknown')]+=1
+            trace=seed/'trace.jsonl'
+            if not trace.exists():continue
+            summary=json.loads((seed/'summary.json').read_text()) if (seed/'summary.json').exists() else {}
+            visits=[]; decisions=0; mcounts={}; mismatch_counts={}; change_counts=Counter()
+            for line in trace.open():
+                try:row=json.loads(line)
+                except ValueError:continue
+                d=row['data']; event=row['event']
+                if event=='decision':decisions+=1;actions[d['kind']]+=1
+                elif event=='room':rooms[d['room_kind']]+=1;visits.append(d['section'])
+                elif event=='resume':resumes+=1
+                elif event=='qa56_observation_summary':mcounts=d['counts'];mismatch_counts=d['mismatches']
+                elif event=='qa56_cache_checkpoint':change_counts.update(d['triggers'])
+                elif event=='qa56_census':censuses.append(dict(campaign=campaign,seed=int(seed.name[5:]),**d))
+                elif event in ('qa56_observation_mismatch','qa56_cache_difference'):
+                    diff=differences(d['expected'],d['actual'])
+                    known=(d['kind']=='fresh_board_display' and diff and all(x['path'] in ('/player/hp','/player/max_hp') and x['expected']==9999 and x['actual']==24 for x in diff) and d['context']['room_kind']=='start' and d['context']['section']==0 and 0<=d['context']['decision']<=4)
+                    findings.append(dict(campaign=campaign,seed=int(seed.name[5:]),context=d['context'],kind=d['kind'],owner=d['owner'],differences=diff,classification='inherited opening hunt HP override' if known else 'UNTRIAGED',trace=str(trace)))
+            models.update(mcounts);model_mismatches.update(mismatch_counts);changes.update(change_counts);sections.update(set(visits))
+            log=seed/'godot.log'
+            if log.exists():
+                lines=log.read_text(errors='replace').splitlines()
+                for i,line in enumerate(lines):
+                    if line.startswith(('SCRIPT ERROR:','ERROR:','WARNING:','TEST RESULT: FAIL')):
+                        markers.append(dict(campaign=campaign,seed=int(seed.name[5:]),line=i+1,message=line,stack=lines[i+1:i+6]))
+            runs.append(dict(seed=int(seed.name[5:]),outcome=summary.get('outcome','active'),decisions=decisions,sections=sorted(set(visits)),checkpoints=dict(change_counts),log=str(log)))
+        coverage[campaign]=dict(runs=runs,rooms=dict(rooms),sections=dict(sections),actions=dict(actions),analytics=dict(analytics),outcomes=dict(Counter(r['outcome'] for r in runs)),decisions=sum(r['decisions'] for r in runs))
+    result=dict(coverage=coverage,model_counts=dict(models),model_mismatches=dict(model_mismatches),checkpoint_changes=dict(changes),resumes=resumes,model_difference_occurrences=len(findings),untriaged=sum(f['classification']=='UNTRIAGED' for f in findings),runtime_marker_counts=dict(Counter(m['message'] for m in markers)))
+    for name,data in [('coverage',result),('cache-differences',findings),('censuses',censuses),('runtime-markers',markers)]:
+        (REPORT/(name+'.json')).write_text(json.dumps(data,indent=2)+'\n')
+    print('QA56 COVERAGE:',json.dumps({k:{'runs':len(v['runs']),'outcomes':v['outcomes'],'decisions':v['decisions']} for k,v in coverage.items()}))
+    print('QA56 CACHE DIFFERENCES:',len(findings),'untriaged='+str(result['untriaged']))
+    print('QA56 RUNTIME MARKERS:',result['runtime_marker_counts'])
+if __name__=='__main__':main()

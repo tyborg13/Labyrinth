@@ -58,6 +58,8 @@ const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
 const ARRIVAL_GAIN_DB: float = -4.0
 const BEAST_VOCAL_CHANCE: float = 0.30
+# Returned plays let the hero select another card (au-02 director feedback 1).
+const CARD_PLAY_GAIN_DB: float = -4.0
 
 var bank: Node
 var _action: Dictionary = {}
@@ -102,6 +104,12 @@ func _init(cue_bank: Node = null) -> void:
 func request(cue_id: String, opts: Dictionary = {}) -> void:
 	if bank != null: bank.play(cue_id, opts)
 
+func card_play_gain(amount: int) -> void:
+	for _play: int in range(maxi(0, amount)):
+		# Every earned play owns a request, including simultaneous multi-kills
+		# and gains immediately after selecting a card. Keep the cue's voice cap.
+		request("card.select", {"gain_db": CARD_PLAY_GAIN_DB, "bypass_cooldown": true})
+
 func weapon_family(weapon: String) -> String:
 	if EQUIPMENT_FAMILIES.has(weapon): return EQUIPMENT_FAMILIES[weapon]
 	var name: String = weapon.to_lower().replace("_", " ")
@@ -138,6 +146,8 @@ func bind_map_hover(host: Node) -> void:
 		if not host.focus_entered.is_connected(callback): host.focus_entered.connect(callback)
 	elif script != null and script.resource_path in ["res://scripts/event_view_choice.gd", "res://scripts/labyrinth_map_view.gd"]:
 		host.set_meta(CursorFeedback.CUE_CLICK_META, true)
+		if script.resource_path == "res://scripts/event_view_choice.gd":
+			host.set_meta(CursorFeedback.CUE_FOCUS_META, true)
 	for child: Node in host.get_children(): bind_map_hover(child)
 
 func _map_node_entered(button: Node) -> void:

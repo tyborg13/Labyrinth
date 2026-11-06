@@ -13,7 +13,7 @@ const Sources = preload("res://tests/sfx_sync_sources.gd")
 const Coverage = preload("res://tests/sfx_sync_coverage.gd")
 const Visuals = preload("res://tests/sfx_sync_visuals.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
-const INPUT_ANCHORS: Array = ["_toggle_pending_empower", "_on_hand_empower_toggled", "_on_card_pressed", "_on_card_drag_started", "_begin_card_preview", "_on_card_hover_started", "_on_board_tile_clicked", "_on_map_view_room_selected", "_on_section_map_event", "_on_merchant_buy_pressed", "_on_merchant_sell_pressed", "_confirm_magic_purge", "_refresh_relic_bar", "_update_ambient_sfx_for_context"]
+const INPUT_ANCHORS: Array = ["_toggle_pending_empower", "_on_hand_empower_toggled", "_on_card_pressed", "_on_card_drag_started", "_begin_card_preview", "_on_card_hover_started", "_on_board_tile_clicked", "_on_map_view_room_selected", "_on_section_map_event", "_on_merchant_buy_pressed", "_on_merchant_sell_pressed", "_confirm_magic_purge", "_refresh_relic_bar", "_update_ambient_sfx_for_context", "_animate_card_play_reward"]
 const FIXTURE_SEED: int = 410
 const MAX_ACTION_FRAMES: int = 600
 const SETTLE_FRAMES: int = 12
@@ -105,10 +105,13 @@ func _run_scale() -> void:
 	var instrumented: String = source.replace("Time.get_ticks_usec()", "_sfx_sync_clock.usec").replace("Time.get_ticks_msec()", "int(_sfx_sync_clock.usec / 1000)")
 	instrumented = instrumented.replace('const SfxBankScript = preload("res://scripts/sfx_bank.gd")', 'var SfxBankScript: Script')
 	instrumented = instrumented.replace('const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")', 'var SfxCueRouterScript: Script')
+	instrumented = instrumented.replace('const EmberHearthPresentation = preload("res://scripts/ember_hearth_presentation.gd")', 'var EmberHearthPresentation: Script')
+	instrumented = instrumented.replace('var _campfire_presentation := EmberHearthPresentation.new()', 'var _campfire_presentation: RefCounted')
+	instrumented = instrumented.replace('preload("res://scripts/dragon_arrival.gd")', '_sfx_sync_arrival')
 	instrumented = instrumented.replace("get_tree().create_timer(", "_sfx_sync_clock.create_timer(")
 	instrumented = instrumented.replace("\tboard_view.present_sound_snapshot(display_state, presentation)", "\t_sfx_sync_clock.render(display_state, presentation, get_stack()); board_view.present_sound_snapshot(display_state, presentation)")
 	instrumented = instrumented.replace("\t\t_sfx_router.enemy_arrivals(display_state, presentation)", "\t\t_sfx_sync_clock.render(display_state, presentation, get_stack()); _sfx_router.enemy_arrivals(display_state, presentation)")
-	instrumented += "\nvar _sfx_sync_clock: RefCounted\n"
+	instrumented += "\nvar _sfx_sync_clock: RefCounted\nvar _sfx_sync_arrival: Script\nfunc _sfx_sync_play_arrival() -> void:\n\t_sfx_sync_arrival.prepare(self)\n\tawait _sfx_sync_arrival.play(self)\n"
 	var instrumented_lines: PackedStringArray = instrumented.split("\n")
 	var input_method: String = ""
 	for index: int in range(instrumented_lines.size()):
@@ -123,7 +126,9 @@ func _run_scale() -> void:
 	var script: GDScript = Sources.compile_script("scripts/run_scene.gd", instrumented)
 	var bank_script: GDScript = Sources.bank(supplied_sources)
 	var router_script: GDScript = Sources.compile_script("scripts/sfx_cue_router.gd", Sources.read_source("scripts/sfx_cue_router.gd", supplied_sources))
-	if script == null or bank_script == null or router_script == null:
+	var hearth_script: GDScript = Sources.presentation_helper("scripts/ember_hearth_presentation.gd", supplied_sources)
+	var arrival_script: GDScript = Sources.presentation_helper("scripts/dragon_arrival.gd", supplied_sources)
+	if script == null or bank_script == null or router_script == null or hearth_script == null or arrival_script == null:
 		push_error("SFX sync: production scene instrumentation failed to compile")
 		quit(1)
 		return
@@ -133,6 +138,9 @@ func _run_scale() -> void:
 	scene.set("SfxBankScript", bank_script)
 	scene.set("SfxCueRouterScript", router_script)
 	scene.set("_sfx_sync_clock", clock)
+	scene.set("EmberHearthPresentation", hearth_script)
+	scene.set("_campfire_presentation", hearth_script.new())
+	scene.set("_sfx_sync_arrival", arrival_script)
 	scene.get("_combat_pacing").free()
 	var pacing := FixedPacing.new()
 	pacing.sync_clock = clock
@@ -150,7 +158,7 @@ func _run_scale() -> void:
 	Engine.time_scale = combat_scale
 	_drive_actions()
 	_drive_presentations()
-	_drive_support()
+	await _drive_support()
 	if assert_onsets: Coverage.verify(rows.slice(first_row), silence_rows, bank.data["cues"], failures)
 	clock.observing = false
 	clock.timers.clear()
@@ -250,6 +258,18 @@ func _invoke(method: String, args: Array) -> void:
 func _track(method: String, args: Array) -> void:
 	await scene.callv(method, args)
 	completed = true
+
+# perf-17's CPU preparation runs outside the presentation clock. Let its real
+# deferred/thread continuation run, still within the existing frame watchdog.
+func _invoke_prepared(method: String, args: Array) -> void:
+	completed = false
+	_track(method, args)
+	for index: int in range(MAX_ACTION_FRAMES):
+		if completed: break
+		clock.step(self)
+		if not completed: await process_frame
+	if not completed: failures.append("Prepared fixed-clock action did not finish: " + scenario)
+	for index: int in range(8): clock.step(self)
 
 func _drive_actions() -> void:
 	for kind: String in ["blink", "illusion_swap", "swap"]:
@@ -384,7 +404,7 @@ func _present_hit(label: String, action: Dictionary, weapon: String, count: int 
 	_finish(before)
 
 func _drive_support() -> void:
-	SupportCases.run(self)
+	await SupportCases.run(self)
 	preload("res://tests/suites/magic_deck_sfx_sync.gd").run(self)
 	preload("res://tests/suites/empower_sfx_sync_cases.gd").run(self)
 	preload("res://tests/sfx_sync_cutout_contacts.gd").run(self)
@@ -456,6 +476,8 @@ func _assert_onset(row: Dictionary) -> void:
 				failures.append("Rebuilt sample peak precedes visual climax: %s / %s" % [scenario, cue])
 
 func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence: int = 0) -> Dictionary:
+	if cue == "dragon.roar" and scenario == "dragon/arrival":
+		return Visuals.arrival_anchor(clock.frames)
 	var segment: int = -1
 	var previous_tile: Variant = null
 	for frame: Dictionary in clock.frames:

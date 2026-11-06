@@ -1,0 +1,14 @@
+{
+  "head": "b945f269f4918e69a88730a7a9c07046df2917b0",
+  "tracked_product_diff_returncode": 0,
+  "scope": [
+    "scripts",
+    "scenes",
+    "data",
+    "assets",
+    "tools",
+    "tests",
+    "project.godot"
+  ],
+  "commits_made": false
+}

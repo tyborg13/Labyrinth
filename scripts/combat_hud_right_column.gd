@@ -27,16 +27,20 @@ func layout(scene: Control) -> void:
 	if _placing or _entries.is_empty() or scene._turn_order_panel == null or str(scene._run_state.get("mode", "")) != "combat":
 		return
 	var pass_overlay: Control = scene._pass_preview_overlay
-	if pass_overlay == null or not pass_overlay.visible or pass_overlay.size.y <= 0.0:
-		return
 	_placing = true
 	var piles: Rect2 = scene.draw_pile.get_global_rect().merge(scene.discard_pile.get_global_rect())
-	pass_overlay.global_position = Vector2(piles.end.x - pass_overlay.size.x, piles.position.y - pass_overlay.size.y - BOTTOM_DOCK_GAP)
+	# Pass may still be hidden while the opening hand is being fitted. Its
+	# visibility is not a prerequisite for the initiative rail. Measure the same
+	# Layout C dock from the piles and Pass's available geometry instead.
+	var pass_size: Vector2 = pass_overlay.size.max(pass_overlay.get_combined_minimum_size()) if pass_overlay != null else Vector2.ZERO
+	var pass_top: float = piles.position.y - pass_size.y - BOTTOM_DOCK_GAP
+	if pass_overlay != null:
+		pass_overlay.global_position = Vector2(piles.end.x - pass_size.x, pass_top)
 	var root_origin: Vector2 = scene.ui_root.global_position
 	# Always measure the live header; never feed the anchor's old position
 	# back into layout after a container sort or a held-hand layout callback.
 	var header_bottom: float = top(scene)
-	var bottom: float = pass_overlay.global_position.y - root_origin.y - Layout.DETAILS_PASS_GAP
+	var bottom: float = pass_top - root_origin.y - Layout.DETAILS_PASS_GAP
 	var total_height: float = maxf(0.0, bottom - header_bottom)
 	var available_height: float = maxf(0.0, total_height - scene.ENEMY_INTENT_TOGGLE_HEIGHT - scene.ENEMY_INTENT_TOGGLE_TOP_GAP)
 	plan = Layout.solve(scene, _entries.size(), available_height)

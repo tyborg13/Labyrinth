@@ -6,6 +6,9 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const Recap = preload("res://scripts/run_end_recap_overlay.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const DeathFixture = preload("res://tests/helpers/chronicle_death_fixture.gd")
+const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
+const RuleHud = preload("res://scripts/battlefield_rule_hud.gd")
 const TEST_PROFILE: String = "user://chronicle_suite_profile.json"
 const TEST_RUN: String = "user://chronicle_suite_run.save"
 const FIXTURE_SEED: int = 8821
@@ -46,6 +49,8 @@ static func run(check: Callable) -> void:
 	for outcome: String in ["defeat", "victory", "embrace"]:
 		state["run_index"] = int(state.get("run_index", 0)) + 1
 		var record: Dictionary = Rules.build_record(state, outcome, Rules.Score.score(state, outcome), {"day": 12, "month": 10})
+		var recap_title: String = str(Recap.build_model(state, profile, outcome, 0)["title"])
+		check.call(record.get("end_title", "") == recap_title and Rules.result_word(record) == recap_title, "Chronicle stores the recap's chosen %s title using the recap identity" % outcome)
 		check.call(record["ended_at"] == "12 Oct" and record["run_seconds"] == 2460, "Chronicle preserves local date and elapsed time")
 		check.call(not (record["gear"] as Array).is_empty() and not (record["deck"] as Array).is_empty(), "Chronicle stores final equipped gear and compiled deck")
 		var stored: Dictionary = Store.record_run_result(profile, record["run_id"], state["run_stats"], state, outcome)
@@ -77,6 +82,13 @@ static func run(check: Callable) -> void:
 	check.call(Store.save_data(profile), "Chronicle profile saves")
 	var restarted: Dictionary = Store.load_data()
 	check.call(Store.chronicle_records(restarted) == Store.chronicle_records(profile) and Store.chronicle_totals(restarted) == Store.chronicle_totals(profile), "Chronicle survives profile restart")
+	for saved: Dictionary in Store.chronicle_records(restarted):
+		check.call(not str(saved.get("end_title", "")).is_empty() and Rules.result_word(saved) == saved.get("end_title"), "Chronicle title survives save/load without reseeding")
+	for outcome: String in ["defeat", "victory", "embrace"]:
+		var old_record: Dictionary = Rules.normalized_record({"run_id": "legacy-" + outcome, "outcome": outcome})
+		check.call(not old_record.has("end_title") and Rules.result_word(old_record) == Rules.Score.DEFAULT_TITLES[outcome], "Old %s records retain their current title and omit the additive field" % outcome)
+	var frozen_title: Dictionary = Rules.normalized_record({"run_id": "frozen-title", "outcome": "defeat", "end_title": "FALLEN"})
+	check.call(Rules.result_word(frozen_title) == "FALLEN", "Stored title wins over defaults and future seeded copy")
 	Store.set_run_storage_path(TEST_RUN)
 	check.call(Store.save_run_state(state), "Chronicle path save succeeds")
 	check.call(Store.load_saved_run()[Rules.PATH_KEY] == state[Rules.PATH_KEY], "Chronicle active path survives run restart")
@@ -102,6 +114,7 @@ static func run(check: Callable) -> void:
 	check.call(Rules.killer_text({"cause": "trap", "name": "Fire trap"}, "defeat") == "Slain by Fire trap", "Chronicle named trap copy")
 	check.call(Rules.killer_text({"cause": "trap", "element": "fire"}, "defeat") == "Slain by Fire Trap", "Chronicle uses the existing elemental trap name")
 	check.call(Rules.killer_text({}, "victory") == "Noctyrax falls" and Rules.killer_text({}, "embrace") == "Withdrew at the Ember Hearth", "Chronicle terminal copy")
+	_test_placeholder_fallbacks(check)
 	check.call(Rules.subline(first).contains("Umbra Depth 2") and Rules.subline(first).contains("41 min"), "Chronicle subline includes time and positive depth")
 	first.erase("umbra_depth")
 	check.call(not Rules.subline(first).contains("Umbra Depth"), "Chronicle absent depth is omitted")
@@ -123,3 +136,53 @@ static func run(check: Callable) -> void:
 	check.call(Rules.add_to_totals({"deepest_depth": 2}, deep_loss)["deepest_depth"] == 2, "Defeated depth never raises escaped-depth best")
 	Store.set_storage_path(previous_profile_path)
 	Store.set_run_storage_path(previous_run_path)
+
+static func _test_placeholder_fallbacks(check: Callable) -> void:
+	var killer_cases: Array[Dictionary] = [
+		{"killer": {}, "text": "The Umbra took your last breath"},
+		{"killer": {"enemy_type": "unknown_enemy"}, "text": "The Umbra took your last breath"},
+		{"killer": {"enemy_type": "frostglass_lancer", "intent_id": "unknown_intent"}, "text": "Felled by a Frostglass Lancer"},
+		{"killer": {"cause": "trap"}, "text": "Slain by a trap"},
+		{"killer": {"cause": "surface"}, "text": "Slain by a hazard"}
+	]
+	for example: Dictionary in killer_cases:
+		check.call(Rules.killer_text(example["killer"], "defeat") == example["text"], "Chronicle approved fallback: " + example["text"])
+	check.call(Rules.section_text({"section_index": 1}) == "Section II · The Labyrinth", "Chronicle unknown section uses the approved name")
+	check.call(Rules.section_text({"section_index": 1, "section_name": ""}) == "Section II · The Labyrinth", "Chronicle empty section uses the approved name")
+	var terminal: Dictionary = DeathFixture.terminal_run()
+	check.call(terminal["mode"] == "defeat" and terminal["player_hp"] == 0 and not terminal["run_stats"]["killer"].has("enemy_type"), "Chronicle regression starts with a real death lacking killer identity")
+	var result_id: String = RunEngine.run_result_id(terminal)
+	var stored: Dictionary = Store.record_run_result(Store.default_data(), result_id, Recap.result_stats(terminal))
+	var record: Dictionary = Store.chronicle_records(stored["data"])[0]
+	check.call(not Rules.subline(record).contains("TODO_DESIGN") and Rules.subline(record).ends_with(" · The Umbra took your last breath"), "No Chronicle line from a real death contains TODO_DESIGN")
+	var legacy_cases: Dictionary = {
+		"TODO_DESIGN_UNKNOWN_KILLER": "The Umbra took your last breath",
+		"Felled by a Frostglass Lancer's TODO_DESIGN_UNKNOWN_INTENT": "Felled by a Frostglass Lancer",
+		"Slain by TODO_DESIGN_TRAP_NAME": "Slain by a trap",
+		"Slain by TODO_DESIGN_SURFACE_NAME": "Slain by a hazard"
+	}
+	for old_text: String in legacy_cases:
+		var legacy: Dictionary = record.duplicate(true)
+		legacy["killer_text"] = old_text
+		legacy["section_name"] = "TODO_DESIGN_SECTION_NAME"
+		legacy["section_names"] = ["TODO_DESIGN_SECTION_NAME"]
+		var snapshot: Dictionary = legacy.duplicate(true)
+		var profile: Dictionary = Store.default_data()
+		profile[Store.CHRONICLE_RECORDS_KEY] = [legacy]
+		Store.save_data(profile)
+		var loaded: Dictionary = Store.chronicle_records(Store.load_data())[0]
+		check.call(Rules.subline(loaded).ends_with(" · " + legacy_cases[old_text]) and not Rules.subline(loaded).contains("TODO_DESIGN") and Rules.display_section_name(loaded["section_names"][0]) == "The Labyrinth", "Old Chronicle placeholders display approved text: " + old_text)
+		check.call(loaded == snapshot and legacy == snapshot, "Chronicle presentation leaves saved record unchanged: " + old_text)
+	var hud := RuleHud.new()
+	for id: String in BattlefieldRules.data()["instances"]:
+		var instance: Dictionary = BattlefieldRules.instance_for(id)
+		var state: Dictionary = {"battlefield_rule": instance, "enemies": [{"id": int(instance["source"].get("id", -1)), "hp": 1}]}
+		var panel: Dictionary = BattlefieldRules.panel(state)
+		check.call(not panel.is_empty() and not str(panel["sentence"]).contains("TODO_DESIGN"), "Authored rule HUD sentence has no placeholder: " + id)
+		var sentence: String = str(panel["sentence"])
+		hud.set_combat_state(state, null)
+		check.call(hud.get("_detail").text == sentence, "Authored rule HUD sentence stays verbatim: " + id)
+		instance.erase("sentence")
+		hud.set_combat_state(state, null)
+		check.call(hud.visible and hud.get("_title").text == str(panel["name"]).to_upper() and hud.get("_detail").text.is_empty(), "Missing rule sentence keeps the rule name without a placeholder: " + id)
+	hud.free()

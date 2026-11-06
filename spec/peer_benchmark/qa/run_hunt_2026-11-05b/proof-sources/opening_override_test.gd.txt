@@ -1,0 +1,26 @@
+extends SceneTree
+const Override = preload("/private/tmp/labyrinth_codex/qa-56/opening_override.gd")
+var failures: Array = []
+
+func _initialize() -> void:
+	var context: Dictionary = {"section": 0, "room_kind": "start", "decision": 0}
+	var expected: Dictionary = {"player": {"hp": Override.HUNT_HP, "max_hp": Override.HUNT_HP, "pos": Vector2i(4, 7)}, "grid": [["floor"]]}
+	var actual: Dictionary = {"player": {"hp": Override.KNOWN_OPENING_HP, "max_hp": Override.KNOWN_OPENING_HP, "pos": Vector2i(4, 7)}, "grid": [["floor"]]}
+	_check(Override.matches(context, "fresh_board_display", expected, actual), "recognize exact inherited override")
+	var corrupt: Dictionary = actual.duplicate(true)
+	corrupt["grid"] = [["wrong_grid"]]
+	_check(not Override.matches(context, "fresh_board_display", expected, corrupt), "reject another field difference")
+	corrupt = actual.duplicate(true)
+	corrupt["player"]["hp"] = -1
+	_check(not Override.matches(context, "fresh_board_display", expected, corrupt), "reject other health")
+	_check(not Override.matches({"section": 1, "room_kind": "start"}, "fresh_board_display", expected, actual), "reject later sections")
+	_check(not Override.matches({"section": 0, "room_kind": "start", "decision": Override.LAST_BOOTSTRAP_DECISION + 1}, "fresh_board_display", expected, actual), "reject later Continue/bootstrap lookalike")
+	_check(not Override.matches(context, "fresh_current_forecast", expected, actual), "reject another comparison")
+	_check(Override.unexpected({Override.KEY: 5}, 5).is_empty(), "classify all known occurrences")
+	_check(not Override.unexpected({Override.KEY: 6}, 5).is_empty(), "reject unknown occurrence in same group")
+	_check(not Override.unexpected({Override.KEY: 5, "other": 1}, 5).is_empty(), "retain other groups")
+	print("QA56 OPENING OVERRIDE CLASSIFIER: PASS 9 positive/negative cases" if failures.is_empty() else "TEST RESULT: FAIL " + str(failures))
+	quit(0 if failures.is_empty() else 1)
+
+func _check(value: bool, message: String) -> void:
+	if not value: failures.append(message)

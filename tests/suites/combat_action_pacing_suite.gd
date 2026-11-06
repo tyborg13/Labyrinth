@@ -146,7 +146,6 @@ static func _scene(tree: SceneTree, pacing_script: Script = Pacing) -> Node:
 	tree.root.add_child(scene)
 	await tree.process_frame
 	Motion._install_fixture(scene, false)
-	scene.set("_turn_order_bar", null)
 	# The production timeline integrates its clock source, including time spent
 	# descheduled by a busy host. Inject fixed frame deltas without replacing
 	# the production waits, step routing, or timeline completion evidence.

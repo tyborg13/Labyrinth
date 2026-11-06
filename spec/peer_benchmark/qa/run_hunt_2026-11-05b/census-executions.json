@@ -1,0 +1,30 @@
+[
+  {
+    "name": "census-default-5",
+    "seed": 5,
+    "output_dir": "/private/tmp/labyrinth_codex/qa-56/census-default-5",
+    "source_campaign": "/private/tmp/labyrinth_codex/qa-56/campaign-default/campaign.json",
+    "note": "Select existing campaign census, no additional run or input modification"
+  },
+  {
+    "name": "census-no-embrace-4",
+    "seed": 4,
+    "output_dir": "/private/tmp/labyrinth_codex/qa-56/census-no-embrace-4",
+    "source_campaign": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/campaign.json",
+    "note": "Select existing campaign census, no additional run or input modification"
+  },
+  {
+    "name": "census-no-embrace-5",
+    "seed": 5,
+    "output_dir": "/private/tmp/labyrinth_codex/qa-56/census-no-embrace-5",
+    "source_campaign": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/campaign.json",
+    "note": "Select existing campaign census, no additional run or input modification"
+  },
+  {
+    "name": "census-no-embrace-6",
+    "seed": 6,
+    "output_dir": "/private/tmp/labyrinth_codex/qa-56/census-no-embrace-6",
+    "source_campaign": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/campaign.json",
+    "note": "Select existing campaign census, no additional run or input modification"
+  }
+]

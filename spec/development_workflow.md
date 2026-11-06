@@ -269,6 +269,8 @@ python3 tools/parallel_task.py push
 
 A dirty primary checkout never blocks remote publication; local `master` update is skipped and reported.
 
+Before every master push through `spec/peer_benchmark/director_tools/release_squash_push.sh`, the helper runs `python3 tools/export_smoke.py --preset "Steam macOS" --project <snapshot-of-tested-commit>`. This exports through `tools/export_game.py`, then loads packed runtime scripts and scenes in the exported release binary, headless with an isolated HOME and Steam disabled. Addon `editor/` scripts/scenes and scripts extending `Editor*` classes are skipped with every skipped path printed; editor scene aliases are also skipped to avoid compiling their excluded script dependencies. Script, parse, or missing-resource errors stop publication even if Godot exits zero; logs and elapsed time are printed. Run the same command without `--project` to check the current project. Only an explicit `--skip-export-smoke` bypasses the gate, with a warning. Never pass constructors as callables (`TextureRect.new`): the editor accepts them but the release template rejects them; use lambdas such as `func() -> Node: return TextureRect.new()` instead.
+
 ## Hotspot Pressure
 
 Do not keep growing `scripts/run_scene.gd` and `tests/run_tests.gd` by default. Extract coherent helpers from `run_scene.gd` when a change introduces an independently testable responsibility. Put coherent test domains in `tests/suites/` and call their `run(Callable)` entry point from the full suite. The Steam service suite is the first extracted example. Focused suite scripts and visual probes should carry domain-specific proof so the monolithic full suite remains a regression net rather than the only place behavior can be tested.

@@ -1,0 +1,276 @@
+[
+  {
+    "campaign": "default",
+    "seed": 9,
+    "decision": 1133,
+    "context": {
+      "decision": 1133,
+      "mode": "combat",
+      "room": "(6, -6)",
+      "room_kind": "umbral_snare",
+      "room_metadata": {
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(6, 0)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          },
+          {
+            "coord": "(6, 1)",
+            "door_dir": "(0, 1)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(6, -6)",
+        "depth": 6,
+        "element": "earth",
+        "map_landmark": true,
+        "map_lane": 0,
+        "map_outline": true,
+        "map_step": 4,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 1,
+        "special_starting_reward_embers": 12,
+        "special_type": "umbral_snare",
+        "special_variant": "lightning",
+        "type": "special",
+        "visited": true
+      },
+      "section": 1,
+      "seed": 9
+    },
+    "objective": {
+      "description": "Reach a marked door to escape.",
+      "enemy_round_pending": false,
+      "exits": [
+        {
+          "coord": "(6, 1)",
+          "direction": "(0, 1)",
+          "door_tile": "(4, 8)",
+          "kept_open": false,
+          "kind": "outward",
+          "map_lane": 1,
+          "path_tiles": 6,
+          "role": "jailer",
+          "sealed": false,
+          "target_tile": "(4, 7)"
+        },
+        {
+          "coord": "(6, 0)",
+          "direction": "(1, 0)",
+          "door_tile": "(8, 4)",
+          "kept_open": false,
+          "kind": "outward",
+          "map_lane": 0,
+          "path_tiles": 8,
+          "role": "sealing",
+          "seal_after_player_turns": 3,
+          "sealbinder_id": 2,
+          "sealed": true,
+          "target_tile": "(7, 4)"
+        }
+      ],
+      "extra_enemy_count": 2,
+      "goal_met": true,
+      "hunters_spawned": 3,
+      "icon_path": "res://assets/art/icons/objectives/reach_the_exit.png",
+      "initial_enemy_count": 2,
+      "name": "Reach the Exit",
+      "player_turns_completed": 379,
+      "sealbinders_killed": 0,
+      "special_type": "umbral_snare",
+      "special_variant": "lightning",
+      "terrain_bonus": 3,
+      "type": "reach_exit"
+    },
+    "surviving_actors": [
+      {
+        "type": "chainbound_gaoler",
+        "hp": 19,
+        "pos": "(3, 7)"
+      },
+      {
+        "type": "arc_thrall",
+        "hp": 6,
+        "pos": "(2, 6)"
+      },
+      {
+        "type": "arc_thrall",
+        "hp": 11,
+        "pos": "(1, 5)"
+      },
+      {
+        "type": "arc_thrall",
+        "hp": 11,
+        "pos": "(3, 5)"
+      }
+    ],
+    "recent_log": [
+      "Arc Thrall fires.",
+      "The Umbral Gaoler fires.",
+      "Arc Thrall fires.",
+      "Arc Thrall fires.",
+      "Arc Thrall fires.",
+      "The Umbral Gaoler pulls.",
+      "Arc Thrall fires.",
+      "Arc Thrall hits."
+    ],
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/trace.jsonl",
+    "cause": "Unchanged hunt 400-fight-decision cap; ongoing simulation, not a proven gameplay softlock",
+    "source": "tools/run_hunt.gd:14"
+  },
+  {
+    "campaign": "no-embrace",
+    "seed": 7,
+    "decision": 1884,
+    "context": {
+      "decision": 1884,
+      "mode": "combat",
+      "room": "(11, 6)",
+      "room_kind": "combat",
+      "room_metadata": {
+        "biome": "fire",
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(11, 10)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(11, 6)",
+        "depth": 11,
+        "element": "fire",
+        "encounter_id": "t3_full_line",
+        "map_lane": 6,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 2,
+        "type": "combat",
+        "visited": true
+      },
+      "section": 2,
+      "seed": 7
+    },
+    "objective": {
+      "description": "Defeat every enemy.",
+      "icon_path": "res://assets/art/icons/objectives/kill_all_enemies.png",
+      "initial_enemy_count": 5,
+      "name": "Defeat All Enemies",
+      "type": "kill_all"
+    },
+    "surviving_actors": [
+      {
+        "type": "warden",
+        "hp": 6,
+        "pos": "(6, 5)"
+      },
+      {
+        "type": "grave_surgeon",
+        "hp": 6,
+        "pos": "(7, 5)"
+      }
+    ],
+    "recent_log": [
+      "Fatigue costs 15 health.",
+      "Collision: 2 damage.",
+      "Unbound Pinion triggers.",
+      "Unbound Pinion triggers.",
+      "Moved to (3, 5).",
+      "Grave Surgeon stitches Stone Warden for 3 health.",
+      "Stone Warden guards all other enemies for 7 block.",
+      "Moved to (4, 5)."
+    ],
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/trace.jsonl",
+    "cause": "Unchanged hunt 400-fight-decision cap; ongoing simulation, not a proven gameplay softlock",
+    "source": "tools/run_hunt.gd:14"
+  },
+  {
+    "campaign": "default-extra",
+    "seed": 13,
+    "decision": 2232,
+    "context": {
+      "decision": 2232,
+      "mode": "combat",
+      "room": "(15, 0)",
+      "room_kind": "combat",
+      "room_metadata": {
+        "biome": "fire",
+        "cleared": false,
+        "connections": [
+          {
+            "coord": "(15, 5)",
+            "door_dir": "(1, 0)",
+            "kind": "outward"
+          }
+        ],
+        "coord": "(15, 0)",
+        "depth": 15,
+        "element": "earth",
+        "encounter_id": "t3_full_line",
+        "map_lane": 4,
+        "map_outline": true,
+        "map_step": 9,
+        "merchant_kind": "",
+        "npcs": [],
+        "revealed": true,
+        "sealed": false,
+        "section_index": 3,
+        "type": "combat",
+        "visited": true
+      },
+      "section": 3,
+      "seed": 13
+    },
+    "objective": {
+      "description": "Defeat every enemy.",
+      "icon_path": "res://assets/art/icons/objectives/kill_all_enemies.png",
+      "initial_enemy_count": 5,
+      "name": "Defeat All Enemies",
+      "type": "kill_all"
+    },
+    "surviving_actors": [
+      {
+        "type": "warden",
+        "hp": 26,
+        "pos": "(3, 3)"
+      },
+      {
+        "type": "harrier",
+        "hp": 15,
+        "pos": "(5, 4)"
+      },
+      {
+        "type": "acolyte",
+        "hp": 18,
+        "pos": "(4, 4)"
+      },
+      {
+        "type": "grave_surgeon",
+        "hp": 15,
+        "pos": "(4, 2)"
+      }
+    ],
+    "recent_log": [
+      "Grave Surgeon stitches Bone Harrier for 3 health.",
+      "Bone Harrier fires.",
+      "Dust Acolyte fires.",
+      "Grave Surgeon stitches itself for 2 health.",
+      "Stone Warden guards all other enemies for 7 block.",
+      "Fatigue costs 16 health.",
+      "Bleed opens for 1.",
+      "Moved to (4, 5)."
+    ],
+    "trace": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/trace.jsonl",
+    "cause": "Unchanged hunt 400-fight-decision cap; ongoing simulation, not a proven gameplay softlock",
+    "source": "tools/run_hunt.gd:14"
+  }
+]

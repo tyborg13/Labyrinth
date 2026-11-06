@@ -7,6 +7,7 @@ const START_USEC: int = 10000000
 const SPIKE_CADENCE_FRAMES: int = 7
 var usec: int = START_USEC
 var visual_usec: float = START_USEC
+var frame_delta_seconds: float = float(FRAME_USEC) / 1000000.0
 var bank: Node
 var timers: Array[Dictionary]
 var frames: Array[Dictionary]
@@ -43,6 +44,7 @@ func step(tree: SceneTree, amount_usec: int = -1) -> void:
 		amount_usec = next_frame_usec()
 	usec += amount_usec
 	var visual_delta: float = float(amount_usec) * Engine.time_scale if not tree.paused else 0.0
+	frame_delta_seconds = visual_delta / 1000000.0
 	visual_usec += visual_delta
 	if bank != null:
 		bank.set_test_clock(float(usec) / 1000.0)

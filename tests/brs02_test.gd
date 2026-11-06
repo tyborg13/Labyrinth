@@ -22,7 +22,10 @@ const PROJECTION_SAMPLE_FRAMES: int = 3
 const MOTION_PART_ALL: int = -1
 const MOTION_PART_NORMAL: int = 0
 const MOTION_PART_REDUCED: int = 1
+# Invisible regression fixture: one frame crosses multiple 0.18 s Burst steps.
+const FORCED_FRAME_USEC: int = 250000
 var _motion_part: int = MOTION_PART_ALL
+var _playback_scene: Playback
 var failures: Array[String]
 var checks: int = 0
 
@@ -38,11 +41,12 @@ func _run() -> void:
 	var raw: Control = load("res://scenes/run_scene.tscn").instantiate()
 	raw.set_script(Playback)
 	var scene := raw as Playback
+	_playback_scene = scene
 	root.add_child(scene)
 	await Live.settle(self)
 	_configure_scene(scene)
 	if _motion_part != MOTION_PART_REDUCED: _projection_cost_guard()
-	process_frame.connect(scene.sample_frame)
+	process_frame.connect(scene.sample_frame_boundary)
 	for reduced: bool in [false, true]:
 		# Every route installs its own combat. Each motion partition still uses
 		# the real pacing/playback clocks and samples every submitted state.
@@ -58,7 +62,7 @@ func _run() -> void:
 		for route: String in ["room_wind", "enemy_wind", "push", "pull", "force_area_push", "force_area_pull", "swap", "retaliate_push", "erupt_push", "upheaval_push"]:
 			await _forced_movement(scene, route, reduced)
 		await _identical_fights(scene, reduced)
-	process_frame.disconnect(scene.sample_frame)
+	process_frame.disconnect(scene.sample_frame_boundary)
 	await _finish_proof(scene)
 	scene.queue_free()
 	await process_frame
@@ -66,8 +70,15 @@ func _run() -> void:
 	print("BRS02 FOCUSED RESULT: %s (%d checks; %d failures)" % ["PASS" if failures.is_empty() else "FAIL", checks, failures.size()])
 	quit(0 if failures.is_empty() else 1)
 
-func _configure_scene(_scene: Playback) -> void:
-	pass
+func _configure_scene(scene: Playback) -> void:
+	if _force_long_frames():
+		scene.forced_frame_usec = FORCED_FRAME_USEC
+		print("BRS02 FORCED FRAME DELTA: %d usec" % FORCED_FRAME_USEC)
+
+func _force_long_frames() -> bool:
+	# The visual runner has no script-argument passthrough. Its environment
+	# selects the same regression guard used by the headless command.
+	return OS.get_cmdline_user_args().has("--force-long-frames") or OS.get_environment("LABYRINTH_BRS02_FORCE_LONG_FRAMES") == "1"
 
 func _finish_proof(_scene: Playback) -> void:
 	pass
@@ -403,6 +414,15 @@ func _check_path(samples: Array[Dictionary], before: Dictionary, after: Dictiona
 			var hp: int = int(sample["health"][key])
 			if actual.is_empty() or actual.back() != hp: actual.append(hp)
 		_expect(actual == expected, "%s %s Health path expected=%s actual=%s" % [label, key, expected, actual])
+		if _force_long_frames():
+			# Fixture installation establishes the initial state. Every subsequent
+			# Health step must survive a frame boundary, not merely be submitted.
+			var rendered: Array[int]
+			rendered.append(int(path[0][key]))
+			for sample: Dictionary in _playback_scene.rendered_samples:
+				var hp: int = int(sample["health"][key])
+				if rendered.back() != hp: rendered.append(hp)
+			_expect(rendered == expected, "%s %s rendered Health path expected=%s actual=%s" % [label, key, expected, rendered])
 		var damage: Array[int]
 		var engine := Combat.new()
 		for event: Dictionary in events.slice((before.get("death_burst_events", []) as Array).size()):

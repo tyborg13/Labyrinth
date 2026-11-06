@@ -1,0 +1,32 @@
+from pathlib import Path
+import json
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56');REPORT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56/spec/peer_benchmark/qa/run_hunt_2026-11-05b')
+rows=[]
+for campaign in ('default','no-embrace','default-extra'):
+ for log in sorted((ROOT/('campaign-'+campaign)).glob('seed-*/godot.log')):
+  context={};history=[];lines=log.read_text(errors='replace').splitlines()
+  for i,line in enumerate(lines):
+   if line.startswith('RUN_HUNT_EVENT '):
+    try:event=json.loads(line.removeprefix('RUN_HUNT_EVENT '))
+    except ValueError:continue
+    d=event['data']
+    if event['event']=='decision':context=d['context'];history=(history+[d])[-20:]
+    elif event['event']=='room':context=d
+    elif event['event']=='finding':rows.append(dict(campaign=campaign,log=str(log),line=i+1,classification='hunt detector; inspect campaign finding',finding=d))
+   elif line.startswith(('ERROR:','WARNING:','SCRIPT ERROR:')):
+    r=dict(campaign=campaign,seed=int(log.parent.name[5:]),context=context.copy(),line=i+1,message=line,log=str(log),classification='OPEN')
+    if 'get_system_ca_certificates' in '\n'.join(lines[i:i+3]):r.update(classification='platform certificate lookup (also qa-45)',cause='platform/macos/os_macos.mm:1014')
+    elif 'Relic glossary above-row overflow' in line:
+     following=[];next_decision=None
+     for later in lines[i+1:]:
+      if not later.startswith('RUN_HUNT_EVENT '):continue
+      try:e=json.loads(later.removeprefix('RUN_HUNT_EVENT '))
+      except ValueError:continue
+      if e['event']=='qa56_glossary_geometry':following.append(e['data'])
+      if e['event']=='decision':next_decision=e['data']['context']['decision'];break
+     r.update(classification='transient headless geometry; native appearance unverified',cause='scripts/card_focus_tooltip_stack.gd:325',introduced='db82e2cfb5 (2026-10-15), before today; same warning class in qa-45',next_decision=next_decision,geometry_before_next_input=following,last_20_decisions=history.copy())
+    elif 'Parameter \"t\" is null' in line:r.update(classification='OPEN pre-existing dummy-texture diagnostic; cause unattributed',cause='servers/rendering/dummy/storage/texture_storage.h:84',introduced='Same class recorded in 2026-11-04 hunt and qa-18; no introducing merge established',baseline_report='spec/peer_benchmark/qa/run_hunt_2026-11-04/result.md:54',last_20_decisions=history.copy())
+    elif 'ObjectDB instances leaked' in line:r.update(classification='OPEN shutdown resource warning; no lifetime cause established',cause='core/object/object.cpp:2641',last_20_decisions=history.copy())
+    rows.append(r)
+(REPORT/'runtime-triage.json').write_text(json.dumps(rows,indent=2)+'\n')
+print('QA56 RUNTIME TRIAGE:',len(rows),'records;',sum(r.get('classification')=='OPEN' for r in rows),'unclassified runtime markers')

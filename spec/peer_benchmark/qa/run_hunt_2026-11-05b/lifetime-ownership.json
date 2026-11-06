@@ -1,0 +1,2498 @@
+{
+  "status": "PASS",
+  "summary_layout_capacity": 4,
+  "runs": [
+    {
+      "campaign": "default",
+      "seed": 4,
+      "room_samples": 34,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 8560,
+        "orphans": 0,
+        "resources": 1332,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "room_samples": 72,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 10087,
+        "orphans": 0,
+        "resources": 1499,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 6,
+      "room_samples": 10,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 6370,
+        "orphans": 0,
+        "resources": 1178,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 7,
+      "room_samples": 10,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 6308,
+        "orphans": 0,
+        "resources": 1190,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 8,
+      "room_samples": 34,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 8102,
+        "orphans": 0,
+        "resources": 1298,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 9,
+      "room_samples": 16,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 7555,
+        "orphans": 0,
+        "resources": 1216,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "room_samples": 22,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 7129,
+        "orphans": 0,
+        "resources": 1243,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 11,
+      "room_samples": 10,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 5557,
+        "orphans": 0,
+        "resources": 1167,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default",
+      "seed": 12,
+      "room_samples": 34,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 8164,
+        "orphans": 0,
+        "resources": 1340,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 4,
+      "room_samples": 72,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 10240,
+        "orphans": 0,
+        "resources": 1493,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "room_samples": 72,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 10244,
+        "orphans": 0,
+        "resources": 1526,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 6,
+      "room_samples": 72,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 10319,
+        "orphans": 0,
+        "resources": 1515,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 7,
+      "room_samples": 33,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 8847,
+        "orphans": 0,
+        "resources": 1350,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "room_samples": 45,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 9023,
+        "orphans": 0,
+        "resources": 1389,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 14,
+      "room_samples": 10,
+      "maximum_unowned_orphans": 0,
+      "cleanup": {
+        "nodes": 12,
+        "objects": 5854,
+        "orphans": 0,
+        "resources": 1161,
+        "scene_alive": false,
+        "tree_nodes": 12
+      }
+    }
+  ],
+  "positive_samples": [
+    {
+      "campaign": "default",
+      "seed": 4,
+      "context": {
+        "decision": 879,
+        "mode": "pre_battle",
+        "nodes": 3153,
+        "orphans": 8,
+        "room": "(10, 0)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(10, 4)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(10, 0)",
+          "depth": 10,
+          "element": "earth",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 5,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 4,
+        "tree_nodes": 3153
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@111608/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1179,
+        "mode": "pre_battle",
+        "nodes": 3637,
+        "orphans": 7,
+        "room": "(11, 4)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(11, 8)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 4)",
+          "depth": 11,
+          "element": "air",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "mystery_element": "air",
+          "mystery_type": "combat",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "combat",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 2,
+        "seed": 5,
+        "tree_nodes": 3637
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@94793/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1336,
+        "mode": "campfire",
+        "nodes": 2484,
+        "orphans": 7,
+        "room": "(11, 8)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(12, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 8)",
+          "depth": 11,
+          "element": "none",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 5,
+        "tree_nodes": 2484
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@94793/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1605,
+        "mode": "event",
+        "nodes": 2920,
+        "orphans": 8,
+        "room": "(14, -9)",
+        "room_kind": "event",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(14, -5)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(14, -9)",
+          "depth": 14,
+          "element": "none",
+          "event_id": "bloodletters_basin",
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 5,
+          "merchant_kind": "",
+          "mystery_element": "earth",
+          "mystery_type": "event",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "event",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 2920
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@210070/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1609,
+        "mode": "treasure",
+        "nodes": 2905,
+        "orphans": 8,
+        "room": "(14, -5)",
+        "room_kind": "treasure",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(15, -15)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(15, -14)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(14, -5)",
+          "depth": 14,
+          "element": "none",
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 6,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "treasure",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 2905
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@210070/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1613,
+        "mode": "room",
+        "nodes": 3152,
+        "orphans": 8,
+        "room": "(15, -15)",
+        "room_kind": "scavenger",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(15, -10)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(15, -9)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, -15)",
+          "depth": 15,
+          "element": "none",
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 7,
+          "merchant_kind": "scavenger",
+          "merchant_purchased_items": [],
+          "merchant_refill_count": 0,
+          "merchant_sold_items": [],
+          "merchant_stock": [
+            "tempest_form",
+            "beacon",
+            "stone_ward",
+            "lodestone_buckler",
+            "frostwalkers",
+            "voidsilk_carapace",
+            "whetstone",
+            "bitter_tonic",
+            "storm_jar"
+          ],
+          "npcs": [
+            {
+              "id": "scavenger",
+              "pos": "(3, 4)"
+            }
+          ],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "scavenger",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 3152
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@210070/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1623,
+        "mode": "treasure",
+        "nodes": 3053,
+        "orphans": 8,
+        "room": "(15, -9)",
+        "room_kind": "treasure",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(15, -4)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, -9)",
+          "depth": 15,
+          "element": "none",
+          "map_lane": 3,
+          "map_outline": true,
+          "map_step": 8,
+          "merchant_kind": "",
+          "mystery_element": "air",
+          "mystery_type": "treasure",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "treasure",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 3053
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@210070/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 1625,
+        "mode": "pre_battle",
+        "nodes": 3836,
+        "orphans": 8,
+        "room": "(15, -4)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(15, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, -4)",
+          "depth": 15,
+          "element": "air",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 3836
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@210070/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 5,
+      "context": {
+        "decision": 2263,
+        "mode": "pre_battle",
+        "nodes": 3032,
+        "orphans": 7,
+        "room": "(20, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vaeloryx",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-20, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(20, 0)",
+          "depth": 20,
+          "element": "air",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 4,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 4,
+        "seed": 5,
+        "tree_nodes": 3032
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 8,
+      "context": {
+        "decision": 632,
+        "mode": "room",
+        "nodes": 2661,
+        "orphans": 7,
+        "room": "(-4, 0)",
+        "room_kind": "start",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(5, -5)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(5, -4)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(5, -3)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(-4, 0)",
+          "depth": 4,
+          "element": "none",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 0,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "start",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 8,
+        "tree_nodes": 2661
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@34212/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 8,
+      "context": {
+        "decision": 854,
+        "mode": "pre_battle",
+        "nodes": 2329,
+        "orphans": 7,
+        "room": "(8, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "iskaldra",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(8, 0)",
+          "depth": 8,
+          "element": "ice",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 8,
+        "tree_nodes": 2329
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "context": {
+        "decision": 295,
+        "mode": "campfire",
+        "nodes": 2613,
+        "orphans": 16,
+        "room": "(-3, -2)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(4, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(-3, -2)",
+          "depth": 3,
+          "element": "none",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 0,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 0,
+        "seed": 10,
+        "tree_nodes": 2613
+      },
+      "detached_summary_nodes": 16,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@11647/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        },
+        "/root/RunScene/HandCardPool/@Control@22284/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "context": {
+        "decision": 305,
+        "mode": "pre_battle",
+        "nodes": 3214,
+        "orphans": 23,
+        "room": "(4, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "tharokh",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-4, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(4, 0)",
+          "depth": 4,
+          "element": "earth",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 0,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 0,
+        "seed": 10,
+        "tree_nodes": 3214
+      },
+      "detached_summary_nodes": 23,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@11647/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        },
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "context": {
+        "decision": 427,
+        "mode": "room",
+        "nodes": 2591,
+        "orphans": 12,
+        "room": "(-4, 0)",
+        "room_kind": "start",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(5, -5)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(5, -4)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(5, -3)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(-4, 0)",
+          "depth": 4,
+          "element": "none",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 0,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "start",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 10,
+        "tree_nodes": 2591
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@11647/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "context": {
+        "decision": 428,
+        "mode": "pre_battle",
+        "nodes": 3081,
+        "orphans": 12,
+        "room": "(5, -5)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(5, -2)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(5, -5)",
+          "depth": 5,
+          "element": "fire",
+          "map_lane": 0,
+          "map_outline": true,
+          "map_step": 1,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 10,
+        "tree_nodes": 3081
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@11647/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 10,
+      "context": {
+        "decision": 463,
+        "mode": "event",
+        "nodes": 2566,
+        "orphans": 12,
+        "room": "(5, -2)",
+        "room_kind": "event",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(5, 2)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(5, -2)",
+          "depth": 5,
+          "element": "none",
+          "event_id": "hungry_door",
+          "map_lane": 0,
+          "map_outline": true,
+          "map_step": 2,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "event",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 10,
+        "tree_nodes": 2566
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@11647/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 12,
+      "context": {
+        "decision": 624,
+        "mode": "campfire",
+        "nodes": 2850,
+        "orphans": 8,
+        "room": "(7, 7)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(7, 7)",
+          "depth": 7,
+          "element": "none",
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 12,
+        "tree_nodes": 2850
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default",
+      "seed": 12,
+      "context": {
+        "decision": 626,
+        "mode": "pre_battle",
+        "nodes": 3033,
+        "orphans": 8,
+        "room": "(8, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vyraketh",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(8, 0)",
+          "depth": 8,
+          "element": "fire",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 12,
+        "tree_nodes": 3033
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 4,
+      "context": {
+        "decision": 656,
+        "mode": "pre_battle",
+        "nodes": 2257,
+        "orphans": 8,
+        "room": "(8, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vyraketh",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(8, 0)",
+          "depth": 8,
+          "element": "fire",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 4,
+        "tree_nodes": 2257
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 4,
+      "context": {
+        "decision": 1404,
+        "mode": "treasure",
+        "nodes": 2938,
+        "orphans": 30,
+        "room": "(14, -2)",
+        "room_kind": "treasure",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(15, -15)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(15, -14)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(14, -2)",
+          "depth": 14,
+          "element": "none",
+          "map_lane": 1,
+          "map_outline": true,
+          "map_step": 6,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "treasure",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 4,
+        "tree_nodes": 2938
+      },
+      "detached_summary_nodes": 30,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 30
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 4,
+      "context": {
+        "decision": 1406,
+        "mode": "pre_battle",
+        "nodes": 3262,
+        "orphans": 30,
+        "room": "(15, -14)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(15, -9)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(15, -8)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, -14)",
+          "depth": 15,
+          "element": "fire",
+          "map_lane": 1,
+          "map_outline": true,
+          "map_step": 7,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 4,
+        "tree_nodes": 3262
+      },
+      "detached_summary_nodes": 30,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 30
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 4,
+      "context": {
+        "decision": 2512,
+        "mode": "pre_battle",
+        "nodes": 3134,
+        "orphans": 28,
+        "room": "(24, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "noctyrax",
+          "cleared": false,
+          "connections": [],
+          "coord": "(24, 0)",
+          "depth": 24,
+          "element": "shadow",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 12,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 5,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 5,
+        "seed": 4,
+        "tree_nodes": 3134
+      },
+      "detached_summary_nodes": 28,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 28
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 1179,
+        "mode": "pre_battle",
+        "nodes": 3637,
+        "orphans": 7,
+        "room": "(11, 4)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(11, 8)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 4)",
+          "depth": 11,
+          "element": "air",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "",
+          "mystery_element": "air",
+          "mystery_type": "combat",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "combat",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 2,
+        "seed": 5,
+        "tree_nodes": 3637
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@93610/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 1336,
+        "mode": "campfire",
+        "nodes": 2484,
+        "orphans": 7,
+        "room": "(11, 8)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(12, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 8)",
+          "depth": 11,
+          "element": "none",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 5,
+        "tree_nodes": 2484
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@93610/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 1769,
+        "mode": "campfire",
+        "nodes": 1789,
+        "orphans": 7,
+        "room": "(15, -1)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(16, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(15, -1)",
+          "depth": 15,
+          "element": "none",
+          "map_lane": 0,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 1789
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 1772,
+        "mode": "pre_battle",
+        "nodes": 2257,
+        "orphans": 7,
+        "room": "(16, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vyraketh",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-16, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(16, 0)",
+          "depth": 16,
+          "element": "fire",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 3,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 3,
+        "seed": 5,
+        "tree_nodes": 2257
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2206,
+        "mode": "room",
+        "nodes": 2656,
+        "orphans": 16,
+        "room": "(19, -4)",
+        "room_kind": "scavenger",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(19, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(19, -4)",
+          "depth": 19,
+          "element": "none",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 9,
+          "merchant_kind": "scavenger",
+          "merchant_purchased_items": [],
+          "merchant_refill_count": 0,
+          "merchant_sold_items": [],
+          "merchant_stock": [
+            "pyroclasm",
+            "beacon",
+            "jolt",
+            "oathstone",
+            "quarrymail",
+            "ironshod_sabatons",
+            "glacier_salts",
+            "nail_bomb",
+            "throwing_net"
+          ],
+          "mystery_element": "earth",
+          "mystery_type": "scavenger",
+          "npcs": [
+            {
+              "id": "scavenger",
+              "pos": "(3, 4)"
+            }
+          ],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 4,
+          "type": "scavenger",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 4,
+        "seed": 5,
+        "tree_nodes": 2656
+      },
+      "detached_summary_nodes": 16,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        },
+        "/root/RunScene/HandCardPool/@Control@271724/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2223,
+        "mode": "campfire",
+        "nodes": 2462,
+        "orphans": 24,
+        "room": "(19, 0)",
+        "room_kind": "campfire",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(20, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(19, 0)",
+          "depth": 19,
+          "element": "none",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 4,
+          "type": "campfire",
+          "visited": true
+        },
+        "section": 4,
+        "seed": 5,
+        "tree_nodes": 2462
+      },
+      "detached_summary_nodes": 24,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        },
+        "/root/RunScene/HandCardPool/@Control@271724/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        },
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2233,
+        "mode": "pre_battle",
+        "nodes": 2652,
+        "orphans": 12,
+        "room": "(20, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vaeloryx",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-20, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(20, 0)",
+          "depth": 20,
+          "element": "air",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 4,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 4,
+        "seed": 5,
+        "tree_nodes": 2652
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        },
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2272,
+        "mode": "room",
+        "nodes": 2404,
+        "orphans": 4,
+        "room": "(-20, 0)",
+        "room_kind": "start",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(21, -21)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(21, -20)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(21, -19)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(-20, 0)",
+          "depth": 20,
+          "element": "none",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 0,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 5,
+          "type": "start",
+          "visited": true
+        },
+        "section": 5,
+        "seed": 5,
+        "tree_nodes": 2404
+      },
+      "detached_summary_nodes": 4,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2274,
+        "mode": "pre_battle",
+        "nodes": 2967,
+        "orphans": 4,
+        "room": "(21, -20)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(21, -17)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(21, -16)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(21, -20)",
+          "depth": 21,
+          "element": "ice",
+          "map_lane": 3,
+          "map_outline": true,
+          "map_step": 1,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 5,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 5,
+        "seed": 5,
+        "tree_nodes": 2967
+      },
+      "detached_summary_nodes": 4,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 5,
+      "context": {
+        "decision": 2313,
+        "mode": "pre_battle",
+        "nodes": 3211,
+        "orphans": 4,
+        "room": "(21, -16)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(21, -12)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(21, -11)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(21, -16)",
+          "depth": 21,
+          "element": "air",
+          "map_lane": 3,
+          "map_outline": true,
+          "map_step": 2,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 5,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 5,
+        "seed": 5,
+        "tree_nodes": 3211
+      },
+      "detached_summary_nodes": 4,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@271715/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 4
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 6,
+      "context": {
+        "decision": 591,
+        "mode": "pre_battle",
+        "nodes": 3448,
+        "orphans": 8,
+        "room": "(7, -2)",
+        "room_kind": "ember_hoarder",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(7, 3)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(7, 4)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(7, -2)",
+          "depth": 7,
+          "element": "air",
+          "map_landmark": true,
+          "map_lane": 2,
+          "map_outline": true,
+          "map_step": 8,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "special_type": "ember_hoarder",
+          "special_variant": "air",
+          "type": "special",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 6,
+        "tree_nodes": 3448
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 6,
+      "context": {
+        "decision": 2249,
+        "mode": "pre_battle",
+        "nodes": 3020,
+        "orphans": 8,
+        "room": "(20, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "zekarion",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-20, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(20, 0)",
+          "depth": 20,
+          "element": "lightning",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 4,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 4,
+        "seed": 6,
+        "tree_nodes": 3020
+      },
+      "detached_summary_nodes": 8,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 8
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 7,
+      "context": {
+        "decision": 1017,
+        "mode": "pre_battle",
+        "nodes": 2795,
+        "orphans": 7,
+        "room": "(8, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "vaeloryx",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(8, 0)",
+          "depth": 8,
+          "element": "air",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 7,
+        "tree_nodes": 2795
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 7,
+      "context": {
+        "decision": 1322,
+        "mode": "treasure",
+        "nodes": 2725,
+        "orphans": 12,
+        "room": "(10, 3)",
+        "room_kind": "treasure",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(11, -8)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(11, -7)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(11, -6)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(10, 3)",
+          "depth": 10,
+          "element": "none",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 6,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "treasure",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 7,
+        "tree_nodes": 2725
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@68263/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 7,
+      "context": {
+        "decision": 1325,
+        "mode": "pre_battle",
+        "nodes": 3628,
+        "orphans": 12,
+        "room": "(11, -6)",
+        "room_kind": "combat",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(11, -1)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(11, 0)",
+              "door_dir": "(0, 1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, -6)",
+          "depth": 11,
+          "element": "earth",
+          "map_lane": 5,
+          "map_outline": true,
+          "map_step": 7,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "combat",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 7,
+        "tree_nodes": 3628
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@68263/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "no-embrace",
+      "seed": 7,
+      "context": {
+        "decision": 1446,
+        "mode": "graftwright",
+        "nodes": 2708,
+        "orphans": 12,
+        "room": "(11, 0)",
+        "room_kind": "graftwright",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(11, 6)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(11, 0)",
+          "depth": 11,
+          "element": "none",
+          "map_lane": 6,
+          "map_outline": true,
+          "map_step": 8,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 2,
+          "type": "graftwright",
+          "visited": true
+        },
+        "section": 2,
+        "seed": 7,
+        "tree_nodes": 2708
+      },
+      "detached_summary_nodes": 12,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@68263/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 12
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 385,
+        "mode": "pre_battle",
+        "nodes": 2551,
+        "orphans": 7,
+        "room": "(4, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "tharokh",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-4, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(4, 0)",
+          "depth": 4,
+          "element": "earth",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 10,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 0,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 0,
+        "seed": 13,
+        "tree_nodes": 2551
+      },
+      "detached_summary_nodes": 7,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 7
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 636,
+        "mode": "event",
+        "nodes": 2729,
+        "orphans": 11,
+        "room": "(6, -3)",
+        "room_kind": "event",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(6, 1)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(6, 2)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(6, -3)",
+          "depth": 6,
+          "element": "none",
+          "event_id": "shrine_last_door",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 4,
+          "merchant_kind": "",
+          "mystery_element": "earth",
+          "mystery_type": "event",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "event",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 1,
+        "seed": 13,
+        "tree_nodes": 2729
+      },
+      "detached_summary_nodes": 11,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@31594/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 639,
+        "mode": "room",
+        "nodes": 2966,
+        "orphans": 11,
+        "room": "(6, 2)",
+        "room_kind": "scavenger",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(6, 5)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(6, 2)",
+          "depth": 6,
+          "element": "none",
+          "map_lane": 4,
+          "map_outline": true,
+          "map_step": 5,
+          "merchant_kind": "scavenger",
+          "merchant_purchased_items": [],
+          "merchant_refill_count": 0,
+          "merchant_sold_items": [],
+          "merchant_stock": [
+            "ember_rain",
+            "cinder_fusillade",
+            "ball_lightning",
+            "windlass_repeater",
+            "bone_dice",
+            "parrying_dagger",
+            "powder_keg",
+            "smelling_salts",
+            "mirror_charm"
+          ],
+          "npcs": [
+            {
+              "id": "scavenger",
+              "pos": "(3, 4)"
+            }
+          ],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "scavenger",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 13,
+        "tree_nodes": 2966
+      },
+      "detached_summary_nodes": 11,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@31594/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 643,
+        "mode": "treasure",
+        "nodes": 2857,
+        "orphans": 11,
+        "room": "(6, 5)",
+        "room_kind": "treasure",
+        "room_metadata": {
+          "cleared": true,
+          "connections": [
+            {
+              "coord": "(7, -6)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(7, -5)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(6, 5)",
+          "depth": 6,
+          "element": "none",
+          "map_lane": 3,
+          "map_outline": true,
+          "map_step": 6,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "treasure",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 13,
+        "tree_nodes": 2857
+      },
+      "detached_summary_nodes": 11,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@31594/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 648,
+        "mode": "event",
+        "nodes": 2735,
+        "orphans": 11,
+        "room": "(7, -5)",
+        "room_kind": "event",
+        "room_metadata": {
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(7, -1)",
+              "door_dir": "(0, -1)",
+              "kind": "outward"
+            },
+            {
+              "coord": "(7, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(7, -5)",
+          "depth": 7,
+          "element": "none",
+          "event_id": "toll_collector",
+          "map_lane": 3,
+          "map_outline": true,
+          "map_step": 7,
+          "merchant_kind": "",
+          "mystery_element": "ice",
+          "mystery_type": "event",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "event",
+          "visited": true,
+          "was_mystery": true
+        },
+        "section": 1,
+        "seed": 13,
+        "tree_nodes": 2735
+      },
+      "detached_summary_nodes": 11,
+      "owners": {
+        "/root/RunScene/HandCardPool/@Control@31594/CardScaleFrame/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    },
+    {
+      "campaign": "default-extra",
+      "seed": 13,
+      "context": {
+        "decision": 835,
+        "mode": "pre_battle",
+        "nodes": 2918,
+        "orphans": 11,
+        "room": "(8, 0)",
+        "room_kind": "boss",
+        "room_metadata": {
+          "boss_id": "zekarion",
+          "cleared": false,
+          "connections": [
+            {
+              "coord": "(-8, 0)",
+              "door_dir": "(1, 0)",
+              "kind": "outward"
+            }
+          ],
+          "coord": "(8, 0)",
+          "depth": 8,
+          "element": "lightning",
+          "map_lane": 3.0,
+          "map_outline": true,
+          "map_step": 11,
+          "merchant_kind": "",
+          "npcs": [],
+          "revealed": true,
+          "sealed": false,
+          "section_index": 1,
+          "type": "boss",
+          "visited": true
+        },
+        "section": 1,
+        "seed": 13,
+        "tree_nodes": 2918
+      },
+      "detached_summary_nodes": 11,
+      "owners": {
+        "/root/RunScene/UiLayer/UiRoot/CardProxyPool/CardProxy/CardWidget": {
+          "layouts": 1,
+          "nodes": 11
+        }
+      },
+      "unowned_orphans": 0,
+      "owners_within_capacity": true
+    }
+  ],
+  "failures": [],
+  "pending": []
+}

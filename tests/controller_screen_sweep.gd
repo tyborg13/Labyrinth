@@ -18,11 +18,13 @@ const FIXTURE_SEED: int = 73491
 const FIXTURE_BUDGET: int = 720
 const UNAFFORDABLE_SHOP_EMBERS: int = 0
 const UNAFFORDABLE_SHOP_GEAR: String = "witchglass_aegis"
+const SKILL_LEARN_FOCUS_ID: String = "ghost_stride"
 const SETTLE_FRAMES: int = 3
 const NAVIGATION_LIMIT: int = 160
 const CURSOR_TICK_SECONDS: float = 1.0 / 60.0
 const HUD_REBUILD_ENEMY_POSITION := Vector2i(5, 4)
 const STALE_CONTROL_TEST_SIZE := Vector2(40, 40)
+const SHORTCUT_TOOLTIP_CASES: int = 16
 const SETUP_UNLOCKED_DEPTH: int = 3
 const SETUP_INITIAL_DEPTH: int = 1
 const SETUP_NEXT_DEPTH: int = 2
@@ -118,17 +120,23 @@ func _run() -> void:
 	var regressions_only: bool = OS.get_cmdline_user_args().has("--regressions-only")
 	var tutorial_only: bool = OS.get_cmdline_user_args().has("--tutorial-navigation-only")
 	var reward_only: bool = OS.get_cmdline_user_args().has("--reward-focus-only")
-	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only: await _menu_screens()
+	var shortcuts_only: bool = OS.get_cmdline_user_args().has("--shortcut-tooltips-only")
+	var skill_learn_only: bool = OS.get_cmdline_user_args().has("--skill-learn-focus-only")
+	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only and not shortcuts_only and not skill_learn_only: await _menu_screens()
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
 	_scene.set_script(RunFixture)
 	_scene.set("_defer_initial_run_presentation", true)
 	_viewport.add_child(_scene)
 	_scene.set("_defer_initial_run_presentation", false)
 	await _settle()
-	if tutorial_only:
+	if skill_learn_only:
+		await _skill_learn_focus_regression()
+	elif tutorial_only:
 		await _tutorial_navigation_regression()
 	elif reward_only:
 		await _reward_focus_regression()
+	elif shortcuts_only:
+		await _shortcut_tooltips()
 	elif regressions_only:
 		await _hud_rebuild_regression()
 		await _analog_volume_regression()
@@ -145,6 +153,7 @@ func _run() -> void:
 		await _room_entry()
 		await _menu_back_paths()
 		await _skill_reset_scope()
+		await _skill_learn_focus_regression()
 		await _combat_screens()
 		await _hud_rebuild_regression()
 		await _analog_volume_regression()
@@ -159,6 +168,7 @@ func _run() -> void:
 	if regressions_only: filename = "regressions_%s.json" % ("before" if _before else "after")
 	if tutorial_only: filename = "sweep_tutorial_navigation.json"
 	if reward_only: filename = "sweep_reward_focus.json"
+	if skill_learn_only: filename = "sweep_skill_learn_focus.json"
 	if menu_only: filename = "sweep_menu.json"
 	if _setup_only: filename = "sweep_new_run_setup.json"
 	if combat_only: filename = "sweep_combat.json"
@@ -362,6 +372,43 @@ func _menu_back_paths() -> void:
 		_expect(not _scene.get("_menu_scrim").visible, label + " B leaves menu")
 		_rows.append({"screen": label, "reached": 1, "total": 1, "note": "entry/back only; internal focus owned by kb-01"})
 
+func _skill_learn_focus_regression() -> void:
+	var failures_before: int = _failures.size()
+	var profile: Dictionary = Store.default_data()
+	profile["level"] = 3
+	profile["skill_ids"] = ["measured_breath"]
+	profile["moltshards"] = 1
+	Store.save_data(profile)
+	_scene.set("_progression", profile)
+	await _load(Run.new().create_new_run(FIXTURE_SEED, profile))
+	_scene.call("_open_character_overlay", "skills")
+	await _settle()
+	var scope: Control = _scene.get("_upgrade_scrim")
+	var tree: Control = _scene.get("_skill_tree_view")
+	var node: Control = tree.call("node_for_skill", SKILL_LEARN_FOCUS_ID)
+	var action: Button = tree.get("_detail_action")
+	if await _navigate(scope, node, "Learn focus skill node"):
+		await _joy(JOY_BUTTON_A)
+		if await _navigate(scope, action, "Learn focus action"):
+			# Traversing the graph can inspect another node before reaching Learn.
+			var learned_id: String = str(tree.call("focused_skill_id"))
+			node = tree.call("node_for_skill", learned_id)
+			await _joy(JOY_BUTTON_A)
+			_expect((Store.load_data().get("skill_ids", []) as Array).has(learned_id), "Controller Learn persists the selected skill")
+			_expect(action.disabled, "Learn becomes disabled after its point is spent")
+			_expect(_focus() == node, "Learning returns focus from the disabled action to its selected skill")
+			await _capture("skill_learn_focus")
+			await _joy(JOY_BUTTON_DPAD_RIGHT)
+			var current: Control = _focus()
+			_expect(_inside(scope, current) and current.is_visible_in_tree() and not (current is BaseButton and current.disabled), "Navigation after learning stays on an enabled Character control")
+			_expect((Store.load_data().get("skill_ids", []) as Array).size() == 2, "Navigation after learning spends no second skill point")
+	_scene.call("_close_card_upgrade_overlay")
+	Store.save_data(Store.default_data())
+	_scene.set("_progression", Store.default_data())
+	var passed: bool = _failures.size() == failures_before
+	_regression_checks.append({"name": "skill_learn_focus", "passed": passed})
+	print("REGRESSION SKILL_LEARN_FOCUS: " + ("PASS" if passed else "FAIL"))
+
 func _skill_reset_scope() -> void:
 	var profile: Dictionary = Store.default_data()
 	profile["level"] = 3
@@ -409,6 +456,7 @@ func _combat_state() -> Dictionary:
 	return state
 
 func _combat_screens() -> void:
+	await _shortcut_tooltips()
 	var engine := Run.new()
 	var state: Dictionary = _base_state()
 	for room: Dictionary in state["rooms"].values():
@@ -479,6 +527,31 @@ func _combat_screens() -> void:
 		await _scan("pile_" + kind, _scene.get("_pile_scrim"))
 		await _joy(JOY_BUTTON_B)
 		_expect(not _scene.get("_pile_scrim").visible, "Pile %s B closes" % kind)
+
+func _shortcut_tooltips() -> void:
+	await _load(_combat_state())
+	var details: BaseButton = _scene.get("_enemy_intent_toggle_button")
+	for modality: String in ["controller", "pointer", "controller", "pointer"]:
+		for family: String in [Router.FAMILY_XBOX, Router.FAMILY_STEAM_DECK]:
+			_router.call("set_forced_state_for_test", modality, family)
+			await _settle()
+			var controller: bool = modality == "controller"
+			var details_shortcut: String = "" if controller else " [I]"
+			var map_tooltip: String = "Map" if controller else "Map [M]"
+			for enabled: bool in [true, false]:
+				_scene.call("_set_show_all_enemy_intents", enabled)
+				var body: String = "Hide full plans" if enabled else "Show every enemy's full plan"
+				_expect(details.tooltip_text == body + details_shortcut, "Details tooltip follows %s/%s in both states" % [modality, family])
+				_expect(bool(details.get("_key").visible) == not controller, "Details preserves its existing key visibility")
+				if controller:
+					_scene.call("_controller_set_focus_candidate", _scene.call("_controller_candidate_for_control", details), true)
+					await _settle()
+					_expect(str(_scene.get("_controller_focus_candidate").get("detail", "")) == details.tooltip_text, "Controller focus receives the device-aware Details tooltip")
+					if not enabled: await _capture("details_tooltip")
+			for control: Control in [_scene.get("mini_map_overlay"), _scene.get("_section_map_hud_button")]:
+				_expect(control.tooltip_text == map_tooltip, "Map tooltip follows %s/%s" % [modality, family])
+	_router.call("set_forced_state_for_test", "controller", Router.FAMILY_XBOX)
+	_rows.append({"screen": "shortcut_tooltips", "reached": SHORTCUT_TOOLTIP_CASES, "total": SHORTCUT_TOOLTIP_CASES})
 
 func _legacy_room_state() -> Dictionary:
 	var engine := Run.new()

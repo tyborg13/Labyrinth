@@ -94,6 +94,12 @@ func _capture_states() -> void:
 	if sell_next == null:
 		_fail("A full probe pack should expose an enabled next-page affordance")
 	_assert_shelf_alignment(shop, state, run_engine)
+	shop.call("_set_pack_mode", true)
+	var sell_filters: Array[String]
+	for filter: Button in shop.get("_filter_buttons"): sell_filters.append(filter.text)
+	if sell_filters != ["ALL", "GEAR", "ITEMS"] or shop.find_child("PackFilter_magic", true, false) != null:
+		_fail("Release Sell filters are exactly ALL, GEAR, ITEMS, with no Magic action")
+	shop.call("_set_pack_mode", false)
 	await _save("normal.png")
 
 	var offers: Array = run_engine.merchant_offer_ids(state, RunEngine.MERCHANT_SCAVENGER)

@@ -1,0 +1,163 @@
+{
+  "min_images": 31,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/crate_00.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_01.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_02.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_03.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_04.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_05.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_06.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_07.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_08.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_09.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_10.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_11.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_12.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_13.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_14.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_15.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_16.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_17.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_18.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_19.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_20.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_21.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_22.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_23.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_24.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_25.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_26.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_27.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_28.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_29.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/crate_contact_strip.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

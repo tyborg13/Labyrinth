@@ -5,7 +5,9 @@ var redraw_requests: Array[String]
 var draw_events: Array[Dictionary]
 
 func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> void:
-	if is_instance_valid(layer): redraw_requests.append(str(layer.get("_render_layer_kind")))
+	# perf-63 (fd1d5a9ae) joins requests during submission, then calls this
+	# boundary again to flush. Count only requests that reach the retained layer.
+	if not _batching_submission_redraws and is_instance_valid(layer): redraw_requests.append(str(layer.get("_render_layer_kind")))
 	super._queue_render_layer_redraw(layer, clock_only)
 
 func _record_render_section_time(section: String, started_usec: int) -> void:
@@ -20,8 +22,14 @@ func _record_hud_draw(kind: String) -> void:
 
 # perf-35's sliced HUD bypasses the monolithic section-timing callbacks.
 # Observe the real paint calls, including every overlay/badge after the bars.
-func _draw_unit_huds(units: Array[Dictionary]) -> void:
-	super._draw_unit_huds(units)
+func _draw_health_bar_entry(entry: Dictionary) -> void:
+	super._draw_health_bar_entry(entry)
+	_record_hud_draw("health_bars")
+
+# hud-03 (57af3dda7) dispatches bars and actor details separately in depth
+# order. Observe both real paint boundaries rather than its retired wrapper.
+func _draw_unit_hud_details(units: Array[Dictionary]) -> void:
+	super._draw_unit_hud_details(units)
 	_record_hud_draw("unit_huds")
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
@@ -85,7 +93,7 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 		if event["kind"] != "callout": continue
 		callouts += 1
 		owner_correct = owner_correct and event["layer"] == hud
-		for section: String in ["unit_huds", "damage_preview_overlays"]:
+		for section: String in ["health_bars", "unit_huds", "damage_preview_overlays"]:
 			var prior: bool = false
 			for other_index: int in range(events.size()):
 				var other: Dictionary = events[other_index]

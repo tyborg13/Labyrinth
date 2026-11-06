@@ -12,6 +12,9 @@ static func index_for_input(scene: Node, controller: bool = false) -> int:
 
 static func blocked_health(scene: Node, index: int) -> int:
 	var card: Dictionary = scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)
+	return _blocked_health_for_card(scene, card)
+
+static func _blocked_health_for_card(scene: Node, card: Dictionary) -> int:
 	var health: int = int(Keywords.empower_cost(card).get("health", 0))
 	if health <= 0: return 0
 	var player: Dictionary = scene._combat_state.get("player", {})
@@ -42,6 +45,9 @@ static func tooltip(scene: Node, index: int) -> String:
 	var blocked: int = blocked_health(scene, index)
 	if blocked > 0: return "Not enough health: Empower costs %d HP." % blocked
 	var card: Dictionary = scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)
+	return _tooltip_for_card(scene, index, card)
+
+static func _tooltip_for_card(scene: Node, index: int, card: Dictionary) -> String:
 	var spec: Dictionary = card.get("empower", {}) as Dictionary
 	var bonus_tokens: Array = Icons.tokens_for_keyword_bonus(card.get("actions", []) as Array, spec)
 	for token: Dictionary in bonus_tokens:
@@ -63,7 +69,13 @@ static func sync_widgets(scene: Node) -> void:
 		var card: Dictionary = scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)
 		var raised: bool = index == scene._selected_card_index or index == scene._hovered_card_index or (scene._controller_hand_focused and index == scene._controller_hand_index)
 		var has_empower: bool = Keywords.has_empower(card)
-		widget.set_empower_state(has_empower, scene._hand_card_empowered(index), raised, blocked_health(scene, index) > 0 if has_empower else false, locked(scene, index) or scene._animation_lock, scene.get_node("/root/InputRouter").empower_glyph_label(), tooltip(scene, index) if has_empower else "")
+		# All three consumers read the same definition before touching the widget.
+		# Share this call's exact value; retain no state or results across callbacks.
+		var blocked: int = _blocked_health_for_card(scene, card) if has_empower else 0
+		var detail: String = ""
+		if has_empower:
+			detail = "Not enough health: Empower costs %d HP." % blocked if blocked > 0 else _tooltip_for_card(scene, index, card)
+		widget.set_empower_state(has_empower, scene._hand_card_empowered(index), raised, blocked > 0, locked(scene, index) or scene._animation_lock, scene.get_node("/root/InputRouter").empower_glyph_label(), detail)
 		if not widget.empower_toggled.is_connected(scene._on_hand_empower_toggled):
 			widget.empower_toggled.connect(scene._on_hand_empower_toggled.bind(widget))
 

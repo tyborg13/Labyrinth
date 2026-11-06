@@ -1,0 +1,1824 @@
+[
+  {
+    "case": "repro-texture-default-10",
+    "outcome": "embrace",
+    "decisions": 646,
+    "normalized_action_prefix": 105,
+    "method_equivalent_prefix": 105,
+    "first_difference": {
+      "original": {
+        "args": [
+          "(3, 0)"
+        ],
+        "context": {
+          "decision": 106,
+          "mode": "room",
+          "room": "(-1, -2)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(3, 0)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(3, 1)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-1, -2)",
+            "depth": 2,
+            "element": "none",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 106,
+        "kind": "map_room",
+        "method": "_on_large_map_room_selected"
+      },
+      "replay": {
+        "args": [
+          "(3, 1)"
+        ],
+        "context": {
+          "decision": 106,
+          "mode": "room",
+          "room": "(-1, -2)",
+          "room_kind": "treasure",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(3, 0)",
+                "door_dir": "(0, -1)",
+                "kind": "outward"
+              },
+              {
+                "coord": "(3, 1)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-1, -2)",
+            "depth": 2,
+            "element": "none",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 5,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "treasure",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 106,
+        "kind": "map_room",
+        "method": "_on_map_view_room_selected"
+      }
+    },
+    "context_failures": [],
+    "control_bindings": [],
+    "source_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "replay_checkpoint_773": null,
+    "checkpoint_773_equal": null,
+    "raw_markers": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\""
+    ],
+    "texture_null_count": 0,
+    "trace": "/private/tmp/labyrinth_codex/qa-56/repro-texture-default-10/seed-000010/trace.jsonl"
+  },
+  {
+    "case": "trace-texture-default-10",
+    "outcome": "trace_divergence",
+    "decisions": 296,
+    "normalized_action_prefix": 7,
+    "method_equivalent_prefix": 296,
+    "first_difference": {
+      "original": {
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      },
+      "replay": {
+        "args": [],
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      }
+    },
+    "context_failures": [
+      {
+        "actual_context": {
+          "decision": 296,
+          "mode": "room",
+          "room": "(-3, -2)",
+          "room_kind": "campfire",
+          "room_metadata": {
+            "cleared": true,
+            "connections": [
+              {
+                "coord": "(4, 0)",
+                "door_dir": "(1, 0)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(-3, -2)",
+            "depth": 3,
+            "element": "none",
+            "map_lane": 4,
+            "map_outline": true,
+            "map_step": 9,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "campfire",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "expected": {
+          "context": {
+            "decision": 297.0,
+            "mode": "campfire",
+            "room": "(-3, -2)",
+            "room_kind": "campfire",
+            "room_metadata": {
+              "cleared": true,
+              "connections": [
+                {
+                  "coord": "(4, 0)",
+                  "door_dir": "(1, 0)",
+                  "kind": "outward"
+                }
+              ],
+              "coord": "(-3, -2)",
+              "depth": 3.0,
+              "element": "none",
+              "map_lane": 4.0,
+              "map_outline": true,
+              "map_step": 9.0,
+              "merchant_kind": "",
+              "npcs": [],
+              "revealed": true,
+              "sealed": false,
+              "section_index": 0.0,
+              "type": "campfire",
+              "visited": true
+            },
+            "section": 0.0,
+            "seed": 10.0
+          },
+          "decision": 297.0,
+          "kind": "ui",
+          "path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+          "signal": "pressed",
+          "text": ""
+        },
+        "message": "Context differs: mode"
+      }
+    ],
+    "control_bindings": [],
+    "source_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "replay_checkpoint_773": null,
+    "checkpoint_773_equal": null,
+    "raw_markers": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "ERROR: Parse JSON failed. Error at line 0: Unknown error getting token"
+    ],
+    "texture_null_count": 0,
+    "trace": "/private/tmp/labyrinth_codex/qa-56/trace-texture-default-10/seed-000010/trace.jsonl"
+  },
+  {
+    "case": "trace-texture-default-10-v2",
+    "outcome": "replay_point",
+    "decisions": 774,
+    "normalized_action_prefix": 7,
+    "method_equivalent_prefix": 774,
+    "first_difference": {
+      "original": {
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      },
+      "replay": {
+        "args": [],
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      }
+    },
+    "context_failures": [],
+    "control_bindings": [
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@836/@VBoxContainer@837/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 9,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@850/@VBoxContainer@851/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@929/@VBoxContainer@930/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 10,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@943/@VBoxContainer@944/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow",
+        "choice_id": "",
+        "decision": 11,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 12,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_plunderers_step",
+        "choice_id": "",
+        "decision": 13,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_plunderers_step"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 14,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 15,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_carry_the_guard",
+        "choice_id": "",
+        "decision": 16,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_carry_the_guard"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/ContextualCombatPromptHost/@Control@364/GuidedActionCallout/@MarginContainer@366/@VBoxContainer@367/@HBoxContainer@390/@Button@396",
+        "choice_id": "",
+        "decision": 19,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/ContextualCombatPromptHost/@Control@364/GuidedActionCallout/@MarginContainer@366/@VBoxContainer@367/@HBoxContainer@390/@Button@396"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 50,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/Choice2",
+        "choice_id": "",
+        "decision": 52,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@3516/EventContinue",
+        "choice_id": "",
+        "decision": 53,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@3445/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@3516/Choice2",
+        "choice_id": "",
+        "decision": 55,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@3445/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 56,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 101,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_cold_mirror",
+        "choice_id": "",
+        "decision": 103,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_cold_mirror"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11252/@VBoxContainer@11253/@HBoxContainer@11254/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 105,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11270/@VBoxContainer@11271/@HBoxContainer@11272/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11657/@VBoxContainer@11658/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 109,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11705/@VBoxContainer@11706/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11729/@VBoxContainer@11730/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 110,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11777/@VBoxContainer@11778/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 111,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 112,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 113,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand",
+        "choice_id": "",
+        "decision": 114,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 115,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11756/@VBoxContainer@11757/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool",
+        "choice_id": "",
+        "decision": 116,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11775/@VBoxContainer@11776/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 119,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11823/@VBoxContainer@11824/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 120,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 121,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 122,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow",
+        "choice_id": "",
+        "decision": 123,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits",
+        "choice_id": "",
+        "decision": 124,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 125,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11881/@VBoxContainer@11882/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 126,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 227,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/Choice1",
+        "choice_id": "",
+        "decision": 229,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice1"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@21964/EventContinue",
+        "choice_id": "",
+        "decision": 230,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@22022/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22273/@VBoxContainer@22274/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 234,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22325/@VBoxContainer@22326/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22379/@VBoxContainer@22380/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand",
+        "choice_id": "",
+        "decision": 235,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22379/@VBoxContainer@22380/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 236,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22379/@VBoxContainer@22380/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool",
+        "choice_id": "",
+        "decision": 237,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22379/@VBoxContainer@22380/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sure_footed",
+        "choice_id": "",
+        "decision": 238,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sure_footed"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22379/@VBoxContainer@22380/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 239,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22392/@VBoxContainer@22393/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 240,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22444/@VBoxContainer@22445/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22419/@VBoxContainer@22420/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct",
+        "choice_id": "",
+        "decision": 241,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22471/@VBoxContainer@22472/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 294,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/@PanelContainer@31045",
+        "choice_id": "purge",
+        "decision": 296,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/@PanelContainer@30994"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 297,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_vacuum_line",
+        "choice_id": "",
+        "decision": 298,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_vacuum_line"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/CancelMagicPurge",
+        "choice_id": "",
+        "decision": 299,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/CancelMagicPurge"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 300,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeHeader/CancelMagicPurgeList",
+        "choice_id": "",
+        "decision": 301,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeHeader/CancelMagicPurgeList"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_waning_pulse",
+        "choice_id": "",
+        "decision": 302,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_waning_pulse"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31063/MagicPurgePanel/@VBoxContainer@31064/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 303,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/ConfirmMagicPurge",
+        "choice_id": "",
+        "decision": 304,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/ConfirmMagicPurge"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardSecondaryActions/DragonRewardContinue",
+        "choice_id": "",
+        "decision": 427,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardSecondaryActions/DragonRewardContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 462,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@21964/Choice3",
+        "choice_id": "",
+        "decision": 464,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@22022/Choice3"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 465,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45117/@VBoxContainer@45118/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 468,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45149/@VBoxContainer@45150/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45223/@VBoxContainer@45224/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 469,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45255/@VBoxContainer@45256/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45250/@VBoxContainer@45251/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_deferred_choice",
+        "choice_id": "",
+        "decision": 470,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_deferred_choice"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45250/@VBoxContainer@45251/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience",
+        "choice_id": "",
+        "decision": 471,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45250/@VBoxContainer@45251/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 472,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45263/@VBoxContainer@45264/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 473,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45295/@VBoxContainer@45296/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45290/@VBoxContainer@45291/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits",
+        "choice_id": "",
+        "decision": 474,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45322/@VBoxContainer@45323/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45290/@VBoxContainer@45291/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath",
+        "choice_id": "",
+        "decision": 475,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45322/@VBoxContainer@45323/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 502,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/Choice2",
+        "choice_id": "",
+        "decision": 504,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@48806/EventContinue",
+        "choice_id": "",
+        "decision": 505,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@48875/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49095/@VBoxContainer@49096/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 508,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49164/@VBoxContainer@49165/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49201/@VBoxContainer@49202/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 509,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49201/@VBoxContainer@49202/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 510,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49201/@VBoxContainer@49202/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 511,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49201/@VBoxContainer@49202/@HBoxContainer@49203/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 512,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/@HBoxContainer@49272/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49220/@VBoxContainer@49221/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 514,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49289/@VBoxContainer@49290/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 515,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 516,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_living_shadow",
+        "choice_id": "",
+        "decision": 517,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_living_shadow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience",
+        "choice_id": "",
+        "decision": 518,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 519,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 520,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49326/@VBoxContainer@49327/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_reserve",
+        "choice_id": "",
+        "decision": 521,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_reserve"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49345/@VBoxContainer@49346/@HBoxContainer@49347/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 524,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49414/@VBoxContainer@49415/@HBoxContainer@49416/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49345/@VBoxContainer@49346/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 526,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49414/@VBoxContainer@49415/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 527,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct",
+        "choice_id": "",
+        "decision": 528,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 529,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_pain_remembers",
+        "choice_id": "",
+        "decision": 530,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_pain_remembers"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath",
+        "choice_id": "",
+        "decision": 531,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 532,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49474/@VBoxContainer@49475/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 533,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 627,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_coffin_nails",
+        "choice_id": "",
+        "decision": 629,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_coffin_nails"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@58906/@VBoxContainer@58907/@HBoxContainer@58908/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 632,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@59156/@VBoxContainer@59157/@HBoxContainer@59158/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_resonant_clapper",
+        "choice_id": "",
+        "decision": 769,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_resonant_clapper"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/@Control@48806/Choice3",
+        "choice_id": "",
+        "decision": 771,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@48875/Choice3"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3470/IllustratedEventPanel/@Control@3471/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 772,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_worldbreaker/GearOffer_worldbreaker",
+        "choice_id": "",
+        "decision": 774,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_worldbreaker/GearOffer_worldbreaker"
+      }
+    ],
+    "source_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "replay_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "checkpoint_773_equal": true,
+    "raw_markers": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"",
+      "ERROR: Parse JSON failed. Error at line 0: Unknown error getting token"
+    ],
+    "texture_null_count": 0,
+    "trace": "/private/tmp/labyrinth_codex/qa-56/trace-texture-default-10-v2/seed-000010/trace.jsonl"
+  },
+  {
+    "case": "trace-texture-default-10-v3",
+    "outcome": "replay_point",
+    "decisions": 774,
+    "normalized_action_prefix": 7,
+    "method_equivalent_prefix": 774,
+    "first_difference": {
+      "original": {
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      },
+      "replay": {
+        "args": [],
+        "context": {
+          "decision": 8,
+          "mode": "pre_battle",
+          "room": "(1, 1)",
+          "room_kind": "combat",
+          "room_metadata": {
+            "cleared": false,
+            "connections": [
+              {
+                "coord": "(-1, 0)",
+                "door_dir": "(0, 1)",
+                "kind": "outward"
+              }
+            ],
+            "coord": "(1, 1)",
+            "depth": 1,
+            "element": "ice",
+            "map_lane": 5,
+            "map_outline": true,
+            "map_step": 1,
+            "merchant_kind": "",
+            "npcs": [],
+            "revealed": true,
+            "sealed": false,
+            "section_index": 0,
+            "type": "combat",
+            "visited": true
+          },
+          "section": 0,
+          "seed": 10
+        },
+        "decision": 8,
+        "kind": "equipment",
+        "method": "_on_pre_battle_equip_pressed"
+      }
+    },
+    "context_failures": [],
+    "control_bindings": [
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@836/@VBoxContainer@837/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 9,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@850/@VBoxContainer@851/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@929/@VBoxContainer@930/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 10,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@943/@VBoxContainer@944/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow",
+        "choice_id": "",
+        "decision": 11,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 12,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_plunderers_step",
+        "choice_id": "",
+        "decision": 13,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_plunderers_step"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 14,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 15,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@956/@VBoxContainer@957/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_carry_the_guard",
+        "choice_id": "",
+        "decision": 16,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@970/@VBoxContainer@971/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_carry_the_guard"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/ContextualCombatPromptHost/@Control@364/GuidedActionCallout/@MarginContainer@366/@VBoxContainer@367/@HBoxContainer@390/@Button@396",
+        "choice_id": "",
+        "decision": 19,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/ContextualCombatPromptHost/@Control@364/GuidedActionCallout/@MarginContainer@366/@VBoxContainer@367/@HBoxContainer@390/@Button@396"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 50,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/Choice2",
+        "choice_id": "",
+        "decision": 52,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@3420/EventContinue",
+        "choice_id": "",
+        "decision": 53,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@3445/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@3420/Choice2",
+        "choice_id": "",
+        "decision": 55,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@3445/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 56,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 101,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_cold_mirror",
+        "choice_id": "",
+        "decision": 103,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_cold_mirror"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11204/@VBoxContainer@11205/@HBoxContainer@11206/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 105,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11270/@VBoxContainer@11271/@HBoxContainer@11272/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11609/@VBoxContainer@11610/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 109,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11705/@VBoxContainer@11706/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11681/@VBoxContainer@11682/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 110,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11777/@VBoxContainer@11778/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 111,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 112,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 113,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand",
+        "choice_id": "",
+        "decision": 114,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 115,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11708/@VBoxContainer@11709/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool",
+        "choice_id": "",
+        "decision": 116,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11804/@VBoxContainer@11805/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11727/@VBoxContainer@11728/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 119,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11823/@VBoxContainer@11824/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 120,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 121,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 122,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow",
+        "choice_id": "",
+        "decision": 123,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_afterglow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits",
+        "choice_id": "",
+        "decision": 124,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 125,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11833/@VBoxContainer@11834/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 126,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@11929/@VBoxContainer@11930/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 227,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/Choice1",
+        "choice_id": "",
+        "decision": 229,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice1"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@21872/EventContinue",
+        "choice_id": "",
+        "decision": 230,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@22022/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22181/@VBoxContainer@22182/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 234,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22325/@VBoxContainer@22326/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22287/@VBoxContainer@22288/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand",
+        "choice_id": "",
+        "decision": 235,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_dawnbrand"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22287/@VBoxContainer@22288/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 236,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22287/@VBoxContainer@22288/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool",
+        "choice_id": "",
+        "decision": 237,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_makeshift_tool"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22287/@VBoxContainer@22288/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sure_footed",
+        "choice_id": "",
+        "decision": 238,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sure_footed"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22287/@VBoxContainer@22288/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 239,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22431/@VBoxContainer@22432/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22300/@VBoxContainer@22301/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 240,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22444/@VBoxContainer@22445/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22327/@VBoxContainer@22328/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct",
+        "choice_id": "",
+        "decision": 241,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@22471/@VBoxContainer@22472/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 294,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/@PanelContainer@31289",
+        "choice_id": "purge",
+        "decision": 296,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/@PanelContainer@30994"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 297,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_vacuum_line",
+        "choice_id": "",
+        "decision": 298,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_vacuum_line"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/CancelMagicPurge",
+        "choice_id": "",
+        "decision": 299,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/CancelMagicPurge"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 300,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeHeader/CancelMagicPurgeList",
+        "choice_id": "",
+        "decision": 301,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeHeader/CancelMagicPurgeList"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_waning_pulse",
+        "choice_id": "",
+        "decision": 302,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_waning_pulse"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31307/MagicPurgePanel/@VBoxContainer@31308/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual",
+        "choice_id": "",
+        "decision": 303,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/@CenterContainer@31012/MagicPurgePanel/@VBoxContainer@31013/MagicPurgeScrollHost/MagicPurgeScroll/MagicPurgeRows/MagicDeckRow_inferno_ritual"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/ConfirmMagicPurge",
+        "choice_id": "",
+        "decision": 304,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/MagicPurgeOverlay/MagicPurgeConfirmation/MagicPurgeConfirmationButtons/ConfirmMagicPurge"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardSecondaryActions/DragonRewardContinue",
+        "choice_id": "",
+        "decision": 427,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardSecondaryActions/DragonRewardContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 462,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@21872/Choice3",
+        "choice_id": "",
+        "decision": 464,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@22022/Choice3"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 465,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45368/@VBoxContainer@45369/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 468,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45149/@VBoxContainer@45150/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45474/@VBoxContainer@45475/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 469,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45255/@VBoxContainer@45256/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45501/@VBoxContainer@45502/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_deferred_choice",
+        "choice_id": "",
+        "decision": 470,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_deferred_choice"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45501/@VBoxContainer@45502/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience",
+        "choice_id": "",
+        "decision": 471,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45501/@VBoxContainer@45502/CharacterTabs/Buttons/CharacterMagicTab",
+        "choice_id": "",
+        "decision": 472,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45282/@VBoxContainer@45283/CharacterTabs/Buttons/CharacterMagicTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45514/@VBoxContainer@45515/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 473,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45295/@VBoxContainer@45296/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45541/@VBoxContainer@45542/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits",
+        "choice_id": "",
+        "decision": 474,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45322/@VBoxContainer@45323/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_quick_wits"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45541/@VBoxContainer@45542/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath",
+        "choice_id": "",
+        "decision": 475,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@45322/@VBoxContainer@45323/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 502,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/Choice2",
+        "choice_id": "",
+        "decision": 504,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/Choice2"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@49048/EventContinue",
+        "choice_id": "",
+        "decision": 505,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@48875/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49337/@VBoxContainer@49338/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 508,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49164/@VBoxContainer@49165/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49443/@VBoxContainer@49444/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 509,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49443/@VBoxContainer@49444/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 510,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49443/@VBoxContainer@49444/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 511,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49443/@VBoxContainer@49444/@HBoxContainer@49445/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 512,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49270/@VBoxContainer@49271/@HBoxContainer@49272/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49462/@VBoxContainer@49463/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 514,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49289/@VBoxContainer@49290/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape",
+        "choice_id": "",
+        "decision": 515,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_rehearsed_escape"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye",
+        "choice_id": "",
+        "decision": 516,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_discerning_eye"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_living_shadow",
+        "choice_id": "",
+        "decision": 517,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_living_shadow"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience",
+        "choice_id": "",
+        "decision": 518,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_curators_patience"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath",
+        "choice_id": "",
+        "decision": 519,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_measured_breath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 520,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49568/@VBoxContainer@49569/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_reserve",
+        "choice_id": "",
+        "decision": 521,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49395/@VBoxContainer@49396/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_reserve"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49587/@VBoxContainer@49588/@HBoxContainer@49589/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 524,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49414/@VBoxContainer@49415/@HBoxContainer@49416/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49587/@VBoxContainer@49588/CharacterTabs/Buttons/CharacterSkillsTab",
+        "choice_id": "",
+        "decision": 526,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49414/@VBoxContainer@49415/CharacterTabs/Buttons/CharacterSkillsTab"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride",
+        "choice_id": "",
+        "decision": 527,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_ghost_stride"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct",
+        "choice_id": "",
+        "decision": 528,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_prismatic_instinct"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn",
+        "choice_id": "",
+        "decision": 529,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_long_dawn"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_pain_remembers",
+        "choice_id": "",
+        "decision": 530,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_pain_remembers"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath",
+        "choice_id": "",
+        "decision": 531,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_sunpath"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky",
+        "choice_id": "",
+        "decision": 532,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_open_sky"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49716/@VBoxContainer@49717/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@963/@VBoxContainer@964/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door",
+        "choice_id": "",
+        "decision": 533,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@49543/@VBoxContainer@49544/CharacterBodyFrame/SkillTreeOverlayBody/CharacterSkillTree/SkillTreeGraphPanel/@MarginContainer@977/@VBoxContainer@978/SkillTreeGraphViewport/SkillTreeCanvas/SkillNode_last_door"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton",
+        "choice_id": "",
+        "decision": 627,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RewardChoiceStack/RewardSecondaryActionCenter/RewardSecondaryActions/RewardRecoverButton"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_coffin_nails",
+        "choice_id": "",
+        "decision": 629,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_coffin_nails"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@59525/@VBoxContainer@59526/@HBoxContainer@59527/CloseCharacterOverlay",
+        "choice_id": "",
+        "decision": 632,
+        "source_path": "/root/RunScene/UiLayer/CardUpgradeScrim/@CenterContainer@253/@PanelContainer@254/@MarginContainer@59156/@VBoxContainer@59157/@HBoxContainer@59158/CloseCharacterOverlay"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_resonant_clapper",
+        "choice_id": "",
+        "decision": 769,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/RelicChoiceOverlay/RelicChoiceHost/@HBoxContainer@329/RelicChoice_resonant_clapper"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/@Control@49048/Choice3",
+        "choice_id": "",
+        "decision": 771,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/@Control@48875/Choice3"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3374/IllustratedEventPanel/@Control@3375/EventRightColumn/EventContinue",
+        "choice_id": "",
+        "decision": 772,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/EventView/@Control@3399/IllustratedEventPanel/@Control@3400/EventRightColumn/EventContinue"
+      },
+      {
+        "actual_path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_worldbreaker/GearOffer_worldbreaker",
+        "choice_id": "",
+        "decision": 774,
+        "source_path": "/root/RunScene/UiLayer/UiRoot/ScavengerShopView/ScavengerShopCanvas/GearShelf/OfferRow/ShelfCubby_worldbreaker/GearOffer_worldbreaker"
+      }
+    ],
+    "source_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "replay_checkpoint_773": {
+      "equipped_equipment": {
+        "armor": "patched_cloak",
+        "boots": "skirmisher_boots",
+        "offhand": "splintered_shield",
+        "trinket": "cracked_lantern",
+        "weapon": "training_sword"
+      },
+      "held_embers": 455,
+      "magic_inventory": [],
+      "mode": "room",
+      "purchases": [],
+      "purges": 1,
+      "relics": [
+        "cold_mirror",
+        "worldheart",
+        "millstone_fob",
+        "coffin_nails",
+        "resonant_clapper"
+      ],
+      "reward_cards": [
+        "inferno_ritual",
+        "overclock",
+        "vacuum_line"
+      ],
+      "room": [
+        1,
+        "(7, 3)"
+      ],
+      "ui_scale": 1.0,
+      "zoom": 1.0
+    },
+    "checkpoint_773_equal": true,
+    "raw_markers": [
+      "ERROR: Condition \"ret != noErr\" is true. Returning: \"\""
+    ],
+    "texture_null_count": 0,
+    "trace": "/private/tmp/labyrinth_codex/qa-56/trace-texture-default-10-v3/seed-000010/trace.jsonl"
+  }
+]

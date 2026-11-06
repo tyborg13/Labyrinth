@@ -106,7 +106,10 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	var previous_clip: String = clip
 	clip = str(motion.get("clip", "idle"))
 	phase = float(motion.get("phase", 0.0))
-	if clip == "walk":
+	if clip == "challenge" and Motion.CHALLENGE_IDS.has(character_id):
+		facing = "front"
+		phase = clampf(phase, 0.0, 1.0)
+	elif clip == "walk":
 		phase = fposmod(phase, 1.0)
 	elif clip == "attack":
 		if phase >= 1.0:
@@ -133,9 +136,9 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else clip
-	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
-	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion and clip != "challenge" else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "challenge" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
+	var signature: Array = [facing, mirrored, shown_clip, shown_phase, reduced_motion]
 	if signature == _pose_signature:
 		return
 	_pose_signature = signature
@@ -145,7 +148,10 @@ func _apply_pose() -> void:
 		if rig.visible:
 			rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 			rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
-			ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
+			if shown_clip == "challenge":
+				rig.call("_apply_sampled_pose", Motion.sample_pose(shown_clip, shown_phase, rig.get("layout"), facing, reduced_motion))
+			else:
+				ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func texture() -> Texture2D:
@@ -153,8 +159,8 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art": character_id + "_cutout_v02", "facing": facing, "mirrored": mirrored,
-		"clip": "death" if clip == "death" else "rest" if reduced_motion else clip,
-		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip": "death" if clip == "death" else "rest" if reduced_motion and clip != "challenge" else clip,
+		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion and clip != "challenge" else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"active": active, "rig_count": rigs.size(),
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
 

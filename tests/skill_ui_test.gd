@@ -16,6 +16,11 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const TEST_PROGRESSION_PATH: String = "user://skill_ui_progression.json"
 const TEST_RUN_PATH: String = "user://skill_ui_run.save"
 const TEST_ANALYTICS_PATH: String = "user://skill_ui_analytics"
+const DEFERRED_TEST_LEVEL: int = 4
+const DEFERRED_TEST_EMBERS: int = 4
+const DEFERRED_TEST_CARD_IDS: Array = ["rime_shard", "static_lash", "gust_step"]
+const DEFERRED_TEST_SKILLS: Array = ["quick_wits", "discerning_eye", "deferred_choice"]
+const DEFERRED_TEST_DIALOG_COPY: String = "Fixture"
 
 var _failures: Array[String]
 
@@ -50,6 +55,13 @@ func _run() -> void:
 	instance.call("_load_run_state", run_state)
 	instance.call("_close_dialogue")
 	await process_frame
+	if OS.get_cmdline_user_args().has("--deferred-choice-only"):
+		await _test_deferred_choice_dialog(instance)
+		instance.queue_free()
+		await process_frame
+		print("SKILL UI DEFERRED CHOICE: %s (%d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _failures.size()])
+		_finish()
+		return
 
 	await _test_character_skill_tree(instance)
 	await _test_level_up_commit_feedback_and_persistence(instance)
@@ -63,6 +75,7 @@ func _run() -> void:
 	await _test_terminal_skill_event_analytics(instance)
 	await _test_reset_clears_stale_combat_preview(instance)
 	await _test_reward_reroll(instance)
+	await _test_deferred_choice_dialog(instance)
 	await _test_out_of_combat_reset_preserves_unbanked_embers(instance)
 	await _test_run_skill_event_cursor_resets_for_new_run(instance)
 	await _test_debug_boss_progression_is_sandboxed(instance)
@@ -953,6 +966,84 @@ func _play_item_as_printed_card(instance: Node, progression: Dictionary, arm_mak
 		"run": (instance.get("_run_state") as Dictionary).duplicate(true),
 		"saved": ProgressionStore.load_saved_run(),
 	}
+
+func _test_deferred_choice_dialog(instance: Node) -> void:
+	var skin = preload("res://scripts/ui_skin.gd")
+	var profile_before: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var saved_profile_before: Dictionary = ProgressionStore.load_data()
+	var saved_run_before: Dictionary = ProgressionStore.load_saved_run()
+	var profile: Dictionary = profile_before.duplicate(true)
+	profile["level"] = DEFERRED_TEST_LEVEL
+	profile["skill_ids"] = SkillTreeLibrary.repaired_selection([], DEFERRED_TEST_LEVEL - 1, DEFERRED_TEST_SKILLS)
+	profile = ProgressionStore.normalized_data(profile)
+	var engine := RunEngine.new()
+	var reward: Dictionary = engine.apply_progression_update(run_before, profile)
+	reward["mode"] = "reward"
+	reward["combat_state"] = {}
+	reward["pending_reward"] = {"cards": DEFERRED_TEST_CARD_IDS.duplicate(), "heal_amount": RunEngine.REWARD_HEAL, "ember_amount": DEFERRED_TEST_EMBERS}
+	instance.set("_progression", profile)
+	instance.set("_run_state", reward)
+	instance.set("_combat_state", {})
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var snapshot: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var panel: PanelContainer = instance.get("_skill_choice_dialog")
+	var title: Label = instance.get("_skill_choice_title")
+	var original_style: StyleBox = panel.get_theme_stylebox("panel")
+	var original_title_color: Color = title.get_theme_color("font_color")
+	var original_title_size: int = title.get_theme_font_size("font_size")
+	var original_title_font: Font = title.get_theme_font("font")
+	instance.call("_on_skip_reward_pressed")
+	await process_frame
+	await process_frame
+	var scrim: Control = instance.get("_skill_choice_scrim")
+	var choices: VBoxContainer = instance.get("_skill_choice_list")
+	_expect(scrim.visible and title.text == SkillTreeLibrary.display_name("deferred_choice"), "Reward Skip opens Deferred Choice with its existing name")
+	_expect(instance.get("_run_state") == snapshot, "Opening Deferred Choice cannot mutate reward state or RNG")
+	_expect(panel.get_meta("surface_variant", "") == skin.SURFACE_DIALOG and panel.has_node(skin.PANEL_ORNAMENT_NAME), "Deferred Choice uses the standard ornamented dialog panel")
+	_expect(panel.get_theme_stylebox("panel").get_content_margin(SIDE_LEFT) == original_style.get_content_margin(SIDE_LEFT), "Deferred Choice preserves its existing content inset")
+	_expect(panel.custom_minimum_size == preload("res://scripts/run_scene.gd").SKILL_CHOICE_DIALOG_SIZE, "Deferred Choice preserves its existing dialog dimensions")
+	var reward_title: Label = instance.get("_relic_choice_title")
+	_expect(title.get_theme_font("font") == reward_title.get_theme_font("font") and title.get_theme_font_size("font_size") == original_title_size, "Deferred Choice shares the reward title's font at its existing size")
+	for key: String in ["font_color", "font_outline_color", "font_shadow_color"]:
+		_expect(title.get_theme_color(key) == reward_title.get_theme_color(key), "Deferred Choice shares the reward title's " + key)
+	_expect(choices.get_child_count() == DEFERRED_TEST_CARD_IDS.size() + 1, "Deferred Choice keeps all three card choices plus the skip choice")
+	for child: Node in choices.get_children():
+		_expect(child.get_meta("button_variant", "") == skin.VARIANT_STANDARD and child.has_node(skin.BUTTON_ORNAMENT_NAME), "Deferred Choice keeps standard ornamented buttons")
+	var selected: Button = choices.get_child(1)
+	selected.grab_focus()
+	_expect(instance.get_viewport().gui_get_focus_owner() == selected, "Deferred Choice keeps native keyboard/controller focus")
+	var cancel := InputEventAction.new()
+	cancel.action = "ui_cancel"
+	cancel.pressed = true
+	instance.call("_input", cancel)
+	await process_frame
+	_expect(not scrim.visible and instance.get("_run_state") == snapshot, "Keyboard cancel closes Deferred Choice without claiming the reward")
+	# A shared factory must not repaint another skill's choices on its next use.
+	instance.call("_open_skill_choice_dialog", DEFERRED_TEST_DIALOG_COPY, DEFERRED_TEST_DIALOG_COPY, [{"text": DEFERRED_TEST_DIALOG_COPY, "callback": func() -> void: pass}])
+	_expect(panel.get_theme_stylebox("panel") == original_style and title.get_theme_color("font_color") == original_title_color, "Other skill-choice dialogs retain their original surface and title")
+	_expect(title.get_theme_font("font") == original_title_font, "Other skill-choice dialogs retain their original title font")
+	_expect(not (panel.get_node(skin.PANEL_ORNAMENT_NAME) as Control).visible, "Other skill-choice dialogs do not inherit Deferred Choice's ornament")
+	instance.call("_close_skill_choice_dialog")
+	instance.call("_on_skip_reward_pressed")
+	await process_frame
+	await process_frame
+	choices = instance.get("_skill_choice_list")
+	(choices.get_child(1) as Button).pressed.emit()
+	await process_frame
+	_expect(not scrim.visible, "Choosing a card closes Deferred Choice")
+	var skill_state: Dictionary = (instance.get("_run_state") as Dictionary).get("skill_state", {})
+	_expect(skill_state.get("pending_card", "") == DEFERRED_TEST_CARD_IDS[0], "Deferred Choice keeps the chosen card for the next reward")
+	_expect(ProgressionStore.save_data(saved_profile_before), "Deferred Choice test restores the saved profile")
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", run_before)
+	await process_frame
+	if saved_run_before.is_empty():
+		ProgressionStore.clear_saved_run()
+	else:
+		_expect(ProgressionStore.save_run_state(saved_run_before), "Deferred Choice test restores the saved run")
 
 func _test_reward_reroll(instance: Node) -> void:
 	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

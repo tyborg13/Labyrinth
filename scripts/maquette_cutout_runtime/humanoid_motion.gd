@@ -21,7 +21,10 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 	for track: Dictionary in tracks:
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
-		var value: float = Gait.value_at(track["keys"], phase)
+		var keys: Array = track["keys"]
+		if clip == "challenge" and bool(layout.get("_challenge_reduced_motion", false)):
+			keys = preload("guardian_challenge.gd").without_tremble(data, track, facing)
+		var value: float = Gait.value_at(keys, phase)
 		var drop: Dictionary = data.get("view_held_drops", {}).get(facing, {}).get(clip, {}).get(bone, {})
 		if track["channel"] == "angle_deg" and not drop.is_empty():
 			var drop_runtime: Script = load(str(layout["held_drop_runtime"]))

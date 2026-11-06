@@ -1,0 +1,48 @@
+extends "res://tests/controller_screen_sweep.gd"
+## Diagnose the frame boundary after the asynchronous purge exhaust finishes.
+const RETURN_SAMPLE_FRAMES: int = 16
+const COMMIT_WAIT_FRAMES: int = 2400
+const DIAGNOSTIC_FPS: int = 240
+const DIAGNOSTIC_TIME_SCALE: float = 8.0
+func _shop() -> void:
+	await super._shop()
+	var settings: Dictionary = Settings.default_settings()
+	settings["reduced_motion"] = false
+	settings["combat_speed"] = Settings.COMBAT_FASTEST
+	Settings.save_settings(settings)
+	_scene.call("_on_settings_changed", settings)
+	Engine.max_fps = DIAGNOSTIC_FPS
+	Engine.time_scale = DIAGNOSTIC_TIME_SCALE
+	await _load(_surface_states["scavenger"].duplicate(true))
+	var shop: Control = _scene.get("_scavenger_shop_view")
+	await _navigate(shop, shop.get("_mode_sell"), "Purge return Sell")
+	await _joy(JOY_BUTTON_A)
+	var service: Control = shop.find_child("ScavengerPurge", true, false)
+	await _navigate(shop, service, "Purge return service")
+	await _joy(JOY_BUTTON_A)
+	var purge: Control = _scene.get("_magic_purge_overlay")
+	if not is_instance_valid(purge):
+		_expect(false, "Purge return fixture opens")
+		return
+	var rows: Dictionary = purge.get("_rows")
+	var first: Control = rows.values()[0]
+	await _navigate(purge.call("focus_scope"), first, "Purge return row")
+	await _joy(JOY_BUTTON_A)
+	await _navigate(purge.call("focus_scope"), purge.get("_confirm"), "Purge return confirm")
+	await _joy(JOY_BUTTON_A)
+	var closed: bool = false
+	for frame: int in range(COMMIT_WAIT_FRAMES):
+		if not is_instance_valid(_scene.get("_magic_purge_overlay")):
+			closed = true
+			break
+		await process_frame
+	_expect(closed, "Purge exhaust finishes")
+	var samples: Array[Dictionary]
+	for frame: int in range(RETURN_SAMPLE_FRAMES):
+		var focus: Control = _focus()
+		var row: Dictionary = {"frame_after_close": frame, "focus": str(focus.get_path()) if focus != null else "", "scope": str(_scene.call("_controller_focus_scope").get_path()), "controller": bool(_router.call("using_controller")), "lock": _scene.get("_animation_lock")}
+		samples.append(row)
+		print("PURGE RETURN SAMPLE: " + JSON.stringify(row))
+		await process_frame
+	var file := FileAccess.open(_output_dir.path_join("purge_return_frames.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(samples, "\t"))

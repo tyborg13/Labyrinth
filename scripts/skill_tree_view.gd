@@ -1433,6 +1433,8 @@ func _on_detail_action_pressed() -> void:
 	if _unspent_points <= 0 or not SkillTreeLibrary.is_available(_focused_id, _owned_ids):
 		return
 	learn_requested.emit(_focused_id)
+	if is_instance_valid(_detail_action) and _detail_action.disabled and _detail_action.has_focus():
+		grab_tree_focus()
 
 func _default_focus_id() -> String:
 	if not _owned_ids.is_empty():

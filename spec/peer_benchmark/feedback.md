@@ -414,3 +414,14 @@ mechanical indicator gusts ... maybe we just disable them for now and bring them
 - hud-3: "No changes needed, but I do want to see this in motion. Frame by frame stills doesn't give me a great feel of how it looks in action." -> real-game true-speed clip.
 - hud-4 (acting-enemy tile marker): "Not a fan of this change. It's too busy imo. Let's shelve it." -> shelved, not merged (branch codex/hud-04 kept).
 
+## 2026-11-05 master push
+- Released as one squashed commit 4c1547f19 on master (tree of release f0af5a0be): everything approved since the 2026-11-04 push. Full Godot 140/140 and Python green at f0af5a0be; qa-56 hunt clean.
+
+## 2026-11-05 inbox verdicts (page, 17:51-17:54; relayed by the wishlist session, confirmed in the saved state)
+- APPROVED: qa-54 (controller targets what a mouse can), hud-3b (hud-03 in motion: approves hud-03), ui-18 (boss named once, Deferred Choice panel), au-2 (returned Card Play cue, event hover ticks), sd-4-5-real (FYI).
+- NEEDS CHANGES: fx-8 (guardian arrival): "I like this in theory but I think it only works if they have an animation where they make some sort of threatening motion accompanying it, like we do with the dragon roar." -> guard-02.
+
+## 2026-11-05 owner (chat): Steam build bugs
+- "In the current steam build, the turn order widget is missing. Also, there's a weird lag during the events for popping up the previewed results." Then: "could the turn order issue be an export problem since it shows when run directly but not through steam?" -> qa-59. The dev Mac's Steam install is the 2026-11-03 push (f206d3813), played 18:34-18:40 UTC at 1920x1205; event telemetry 7 frames > 50 ms per minute (max 142).
+- 2026-11-05 21:08-21:10 APPROVED (page): ui-17, guard-2 (no answer on the camera-push question; none added), txt-5.
+

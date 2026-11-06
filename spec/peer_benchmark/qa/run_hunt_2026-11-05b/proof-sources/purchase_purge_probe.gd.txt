@@ -1,0 +1,53 @@
+extends "/private/tmp/labyrinth_codex/qa-56/validate_observer.gd"
+const PurgeFixture = preload("res://tests/suites/magic_deck_suite.gd")
+const MAX_PURGE_SETTLE_FRAMES: int = 600
+
+func _validate() -> void:
+	# Reuse the repository's existing shop fixture and authored starter spells.
+	var fixture: Dictionary = PurgeFixture.shop_fixture(scene._run_engine)
+	hunt_seed = int(fixture["seed"])
+	scene._load_run_state(fixture)
+	scene._close_dialogue()
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_checkpoint()
+	var offers: Array = scene._run_engine.merchant_offer_ids(scene._run_state, "scavenger")
+	var purchased: String = ""
+	for offer: Variant in offers:
+		if scene._run_engine.merchant_item_kind(str(offer)) == "magic":
+			purchased = str(offer)
+			break
+	_require(not purchased.is_empty(), "fixture offers magic purchase")
+	var before_buy: Dictionary = scene._run_state.duplicate(true)
+	scene._on_merchant_buy_pressed("scavenger", purchased)
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_require(scene._run_state.attuned_magic_cards.size() == before_buy.attuned_magic_cards.size() + 1, "purchase commits one authored spell")
+	_checkpoint()
+	var purge_card: String = str(scene._run_state.attuned_magic_cards[0])
+	var before_purge: Dictionary = scene._run_state.duplicate(true)
+	scene._open_magic_purge("scavenger")
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	var modal: Control = scene._magic_purge_overlay
+	_require(is_instance_valid(modal), "paid purge overlay opens")
+	if not is_instance_valid(modal):
+		print("TEST RESULT: FAIL qa56 purchase/purge overlay missing")
+		_finish("purchase_purge_validation_failed")
+		return
+	modal.select_card(purge_card)
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	modal._confirm.pressed.emit()
+	for frame: int in range(MAX_PURGE_SETTLE_FRAMES):
+		await process_frame
+		if not is_instance_valid(scene._magic_purge_overlay): break
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_require(not is_instance_valid(scene._magic_purge_overlay), "purge Exhaust completes")
+	_require(int(scene._run_state.magic_purges_this_run) == int(before_purge.get("magic_purges_this_run", 0)) + 1, "purge commits once")
+	_require(scene._run_state.attuned_magic_cards.size() == before_purge.attuned_magic_cards.size() - 1, "purge removes one owned spell")
+	_checkpoint()
+	var unexpected: Dictionary = observation_mismatches.duplicate()
+	unexpected.erase("fresh_board_display:stage_submission")
+	_require(unexpected.is_empty(), "fresh board/stage/forecast comparisons after purchase and purge")
+	var file := FileAccess.open(output.path_join("purchase-purge.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"fixture_seed": PurgeFixture.TEST_SEED, "purchased": purchased, "purged": purge_card, "failures": validation_failures, "counts": checkpoint_counts, "mismatches": observation_mismatches}, "\t"))
+	file.close()
+	print("QA56 PURCHASE PURGE: PASS real purchase/confirmation/Exhaust; fresh presentation checked" if validation_failures.is_empty() else "TEST RESULT: FAIL qa56 purchase/purge " + str(validation_failures))
+	_finish("purchase_purge_validation")

@@ -11,6 +11,8 @@ const PROOF_SIZE: Vector2i = Vector2i(1920, 1080)
 const PROOF_DIRECTORY: String = "user://evt-02-feedback"
 const PROOF_SETTLE_FRAMES: int = 3
 const PROOF_MID_BEAT_SECONDS: float = 0.09
+const TYPOGRAPHY_DIRECTORY: String = "user://qa66-event-typography"
+const TYPOGRAPHY_HOVER_SETTLE_SECONDS: float = 0.2
 const PROOF_BEATS: Array = [
 	["whispering_well", "ember", "card"], ["fallen_lantern_bearer", "satchel", "item"],
 	["bloodletters_basin", "bleed", "relic"], ["ossuary_gamblers", "wager_embers", "equipment"],
@@ -35,6 +37,8 @@ func _initialize() -> void:
 		file.store_string(JSON.stringify(proof_contract(), "\t") + "\n")
 		print("EVT02 proof contract written")
 		quit()
+	elif args.has("--qa66-typography"):
+		_typography_proof.call_deferred()
 	elif args.has("--check-only"):
 		_check_fixtures.call_deferred()
 	else: _probe.call_deferred()
@@ -56,6 +60,75 @@ func _add_debug_scout() -> void:
 	var definition: Dictionary = Data.event_def("lost_cartographer").duplicate(true)
 	definition["choices"] = [{"id": "take", "label": "Scout fixture", "effects": [{"type": "scout", "amount": 1}], "result": "Scout fixture"}]
 	Data.events()["evt02_scout_fixture"] = definition
+
+func _typography_proof() -> void:
+	var semantics: bool = OS.get_cmdline_user_args().has("--semantics-only")
+	if DisplayServer.get_name() == "headless" and not semantics:
+		push_error("Typography captures require the native renderer")
+		quit(1)
+		return
+	Settings.set_storage_path("user://qa66_typography_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	Settings.save_settings(settings)
+	root.size = PROOF_SIZE
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_size = PROOF_SIZE
+	root.content_scale_factor = 1.0
+	viewport = SubViewport.new()
+	viewport.size = PROOF_SIZE
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(TYPOGRAPHY_DIRECTORY))
+	var measurements: Array[Dictionary]
+	for scale_case: String in ["current", "1_35"]:
+		for baseline: bool in [true, false]:
+			var view := preload("res://scripts/event_view.gd").new()
+			viewport.add_child(view)
+			if baseline:
+				# Reconstruct only the old warm-up context in memory. The checkout
+				# and every production asset remain identical in both captures.
+				var script := GDScript.new()
+				script.source_code = view.hover_preview.get_script().source_code.replace("_preparation_viewport.size_2d_override = Vector2i(get_viewport_rect().size)", "_preparation_viewport.size_2d_override = Vector2i.ZERO")
+				if script.reload() != OK:
+					quit(1)
+					return
+				view.hover_preview.set_script(script)
+				view.hover_preview.view = view
+			if scale_case == "1_35":
+				view.hover_preview.child_entered_tree.connect(func(child: Node) -> void:
+					if not child is SubViewport: return
+					for work: Dictionary in view.hover_preview._builds:
+						for job: Dictionary in work.jobs: job.factor = Suite.UPCOMING_PREVIEW_CARD_SCALE)
+			var state: Dictionary = Fixtures.fixture("whispering_well", true)
+			view.present(state, false)
+			view.finish_animation_for_test()
+			for frame: int in range(Suite.FIXTURE_READY_FRAMES):
+				if not view.hover_preview.preparation_snapshot().active: break
+				await process_frame
+			_expect(not view.hover_preview.preparation_snapshot().active, "Typography warm-up finishes")
+			view.preview_choice(Suite._choice_index(view, "ember"))
+			await create_timer(TYPOGRAPHY_HOVER_SETTLE_SECONDS).timeout
+			var card: Control = view.hover_preview.current.find_child("CardWidget", true, false)
+			var metrics: Dictionary = Suite._card_typography(card)
+			var effective_scale: float = card.get_global_transform_with_canvas().get_scale().x
+			var prefix: String = ("before" if baseline else "after") + "_" + scale_case
+			measurements.append({"capture": prefix + ".png", "baseline_reconstructed": baseline, "fonts_local_px": metrics, "card_scale": effective_scale, "rules_screen_px": float(metrics.rules) * effective_scale, "viewport": str(card.get_viewport_rect().size), "ui_scale": preload("res://scripts/ui_typography.gd").ui_scale(card)})
+			_expect(int(metrics.rules) == (17 if baseline else 16), "Typography measurement " + prefix + ": " + str(metrics))
+			if not semantics:
+				await RenderingServer.frame_post_draw
+				var path: String = TYPOGRAPHY_DIRECTORY.path_join(prefix + ".png")
+				var capture: Image = viewport.get_texture().get_image()
+				_expect(capture.get_size() == PROOF_SIZE and capture.save_png(path) == OK, "Typography capture saves")
+				print("Saved " + ProjectSettings.globalize_path(path))
+			view.queue_free()
+			await process_frame
+	var file := FileAccess.open(TYPOGRAPHY_DIRECTORY.path_join("font_measurements.json"), FileAccess.WRITE)
+	if file != null: file.store_string(JSON.stringify(measurements, "\t"))
+	print("QA66 TYPOGRAPHY: %d failures; %s" % [failures.size(), JSON.stringify(measurements)])
+	viewport.queue_free()
+	await process_frame
+	quit(0 if failures.is_empty() else 1)
 
 func _check_fixtures() -> void:
 	_add_debug_scout()

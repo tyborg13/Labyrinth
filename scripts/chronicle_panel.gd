@@ -499,7 +499,7 @@ func _build_path(record: Dictionary, parent: VBoxContainer) -> void:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 0)
 		parent.add_child(row)
-		var section_name: String = str(record["section_names"][index]) if index < record["section_names"].size() else Rules.TODO_DESIGN_SECTION_NAME
+		var section_name: String = Rules.display_section_name(str(record["section_names"][index]) if index < record["section_names"].size() else "")
 		var section := _label("%s · %s" % [Rules.Score.roman(index + 1), section_name], 16, Palette.TEXT_2)
 		section.custom_minimum_size.x = 150
 		section.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

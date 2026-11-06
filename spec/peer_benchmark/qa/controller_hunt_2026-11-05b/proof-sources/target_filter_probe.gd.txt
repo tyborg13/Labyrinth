@@ -1,0 +1,86 @@
+extends "res://tests/dragon_boss_probe.gd"
+## Diagnose the earlier elemental-boss target gaps separately from Umbra.
+const Router = preload("res://scripts/input_router.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const FIXTURE_DEPTH: int = 16
+const FIXTURE_CARD: String = "pale_spark"
+const SETTLE_FRAMES: int = 8
+const READY_FRAMES: int = 240
+const MODE_STEPS: int = 6
+const PROBE_MAX_FPS: int = 240
+var scene: Control
+var output: String = "/private/tmp/labyrinth_codex/qa-57/evidence/target-filter-final"
+func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
+	Engine.max_fps = PROBE_MAX_FPS
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--output-dir"): output = args[args.find("--output-dir")+1]
+	ProgressionStore.set_storage_path("user://target_filter_profile.json")
+	ProgressionStore.set_run_storage_path("user://target_filter_run.save")
+	Settings.set_storage_path("user://target_filter_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	Settings.save_settings(settings)
+	Router.ensure_input_map()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	root.size = DEFAULT_RESOLUTION
+	root.content_scale_size = DEFAULT_RESOLUTION
+	root.content_scale_factor = 1.0
+	if DisplayServer.get_name() == "headless": process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	call_deferred("_run_filter")
+func _run_filter() -> void:
+	var state: Dictionary = _boss_run_state("tharokh", FIXTURE_DEPTH, ProgressionStore.default_data())
+	state["combat_state"]["deck"]["hand"] = [FIXTURE_CARD]
+	scene = RUN_SCENE.instantiate()
+	scene.set("_defer_initial_run_presentation", true)
+	root.add_child(scene)
+	scene.set("_defer_initial_run_presentation", false)
+	scene.call("_load_run_state", state)
+	scene.call("_close_dialogue")
+	for frame: int in range(READY_FRAMES): await process_frame
+	print("FILTER READY: region=%s lock=%s gui=%s tutorial=%s" % [scene.get("_controller_region"), scene.get("_animation_lock"), scene.call("_controller_uses_gui_focus"),scene.call("_guided_tutorial_is_active")])
+	if str(scene.get("_controller_region")) != "hand": await _joy_filter(JOY_BUTTON_X)
+	await _joy_filter(JOY_BUTTON_A)
+	if str(scene.get("_controller_region")) == "card_mode":
+		for step: int in range(MODE_STEPS):
+			if str(scene.get("_controller_card_mode")) == "play": break
+			await _joy_filter(JOY_BUTTON_DPAD_RIGHT)
+		await _joy_filter(JOY_BUTTON_A)
+	print("FILTER SELECTED: region=%s selected=%s pending=%s" % [scene.get("_controller_region"),scene.get("_selected_card_index"),scene.get("_pending_target_tiles")])
+	if (scene.get("_pending_target_tiles") as Array).is_empty():
+		push_error("Target filter fixture did not reach a pending card target")
+		quit(1)
+		return
+	var board: Control = scene.get("board_view")
+	var combat: Dictionary = scene.get("_combat_state")
+	var tiles: Array = scene.call("_controller_board_tiles")
+	var rendered: Array = board.call("_rendered_tiles_in_draw_order")
+	var gaps: Array[Dictionary]
+	for tile: Vector2i in scene.get("_pending_target_tiles"):
+		if tiles.has(tile): continue
+		var grid_id: String = str(combat["grid"][tile.y][tile.x])
+		var point: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", tile) as Vector2)
+		var row: Dictionary = {"tile": tile, "grid": grid_id, "display": board.call("_display_tile_id", grid_id, tile), "visible": board.call("_board_tile_is_visible_to_player", tile), "rendered": rendered.has(tile), "mouse_hit": board.call("tile_at_global_position", point)}
+		gaps.append(row)
+		print("TARGET FILTER GAP: " + JSON.stringify(row))
+	DirAccess.make_dir_recursive_absolute(output)
+	var file := FileAccess.open(output.path_join("gaps.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"gaps":gaps, "pending":scene.get("_pending_target_tiles"), "card":FIXTURE_CARD}, "\t"))
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png(output.path_join("target_filter.png"))
+	print("TARGET FILTER PROBE: %d missing legal targets" % gaps.size())
+	scene.queue_free()
+	await _settle_filter()
+	quit(0)
+func _joy_filter(button: int) -> void:
+	for pressed: bool in [true,false]:
+		var event := InputEventJoypadButton.new()
+		event.device = 0
+		event.button_index = button
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		await _settle_filter()
+func _settle_filter() -> void:
+	for frame: int in range(SETTLE_FRAMES): await process_frame

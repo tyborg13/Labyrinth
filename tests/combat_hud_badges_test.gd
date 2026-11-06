@@ -59,6 +59,7 @@ func _run() -> void:
 	var normal: Dictionary = engine.begin_pre_battle_combat(engine.move_to_pre_battle(room_state, coord))
 	_expect(str(normal.get("mode", "")) == "combat", "Fixture must enter real combat")
 	await _load(instance, normal)
+	_assert_movement_label_case(instance)
 	await _capture("01_normal_combat")
 	var intents := instance.get("_enemy_intent_toggle_button") as Button
 	_expect(intents.visible and not intents.button_pressed and (intents.get_node("IntentContents/IntentTitle") as Label).text == "Details" and intents.tooltip_text == "Show every enemy's full plan [I]", "Intents starts off with its semantic label intact")
@@ -299,6 +300,17 @@ func _assert_relics(instance: Node, expected_count: int = 7) -> void:
 	if sigil != null:
 		for preview: Node in sigil.find_children("SkillSigilPreview_*", "PanelContainer", true, false):
 			_expect(not preview is BaseButton, "Ability previews retain master's passive frames")
+
+func _assert_movement_label_case(instance: Node) -> void:
+	var combat: Dictionary = instance.get("_combat_state")
+	var capacity: int = instance.get("_combat_engine").player_movement_capacity(combat)
+	var original_remaining: int = int(combat.get("player_movement_remaining", capacity))
+	for remaining: int in range(capacity + 1):
+		combat["player_movement_remaining"] = remaining
+		instance.call("_refresh_player_movement_meter")
+		_expect(instance.get("_movement_meter_count").text == "%d / %d Movement" % [remaining, capacity], "Movement label retains title case at every meter value")
+	combat["player_movement_remaining"] = original_remaining
+	instance.call("_refresh_player_movement_meter")
 
 func _load(instance: Node, state: Dictionary) -> void:
 	instance.set("_progression", state.get("progression", Store.default_data()))

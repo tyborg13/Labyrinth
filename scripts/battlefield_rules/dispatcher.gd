@@ -198,7 +198,15 @@ static func forecast_inputs(engine: RefCounted, state: Dictionary) -> Array:
 	var specials: GDScript = preload("res://scripts/special_encounter_library.gd")
 	if specials._data.is_empty(): specials.catalog()
 	var catalogs: Array = [data_source.enemies(), data_source.cards(), data_source.relics(), data_source.equipment(), data_source.upgrades(), data_source.omens(), data_source.progression_levels(), preload("res://scripts/skill_tree_library.gd").definitions(), specials._data, preload("res://scripts/depth_rules.gd").data()]
-	return [engine.get_instance_id(), state, _catalog_memo.exact_signature(catalogs)]
+	# Ordinary preview consumers own separate CombatEngine instances, but their
+	# forecasts read the same board/catalogs. Instance-local query caches are not
+	# rules inputs. Share only the production implementation; injected engines
+	# retain their instance identity because their own fields may affect results.
+	var script: Script = engine.get_script()
+	# Keep the implementation's identity without retaining its script through
+	# this static memo (CombatEngine itself preloads this dispatcher).
+	var engine_key: int = script.get_instance_id() if script != null and script.resource_path == "res://scripts/combat_engine.gd" else engine.get_instance_id()
+	return [engine_key, state, _catalog_memo.exact_signature(catalogs)]
 
 static func forecast(engine: RefCounted, state: Dictionary) -> Dictionary:
 	return _forecast_memo.resolve_repeated(forecast_inputs(engine, state), func() -> Dictionary: return _compute_forecast(engine, state))
@@ -236,7 +244,7 @@ static func panel(state: Dictionary) -> Dictionary:
 	if instance.is_empty(): return {}
 	for definition: Dictionary in data()["rules"]:
 		if definition["id"] == instance["rule"]:
-			return {"rule": instance["rule"], "name": definition["name"], "icon": definition["icon"], "sentence": instance.get("sentence", "TODO_DESIGN_battlefield_panel_sentence")}
+			return {"rule": instance["rule"], "name": definition["name"], "icon": definition["icon"], "sentence": instance.get("sentence", "")}
 	return {}
 
 static func project_turn_order(engine: RefCounted, state: Dictionary, turns: Array[Dictionary], limit: int) -> Array[Dictionary]:

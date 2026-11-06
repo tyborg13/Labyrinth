@@ -1,0 +1,42 @@
+extends "res://tools/run_hunt_policy.gd"
+var hunt: SceneTree
+var actions: Array = []
+# Source action 296 opens the purge picker at 297; anonymous panel IDs cannot
+# identify its signal binding after node-ordinal normalization.
+const RECONSTRUCTED_CHOICE_BY_DECISION: Dictionary = {296: "purge"}
+
+func choose(host: Node, candidates: Array) -> Dictionary:
+	if hunt.decision >= actions.size(): return {}
+	var expected: Dictionary = actions[hunt.decision]
+	var action: Dictionary = expected.duplicate(true)
+	for field: String in ["context", "decision"]: action.erase(field)
+	if action.has("method"):
+		var args: Array = []
+		for value: Variant in action.get("args", []): args.append(_decode(value))
+		action["args"] = args
+	elif action.has("path"):
+		for candidate: Dictionary in candidates:
+			if _normalized_path(str(candidate.get("path", ""))) == _normalized_path(str(action["path"])) and str(candidate.get("signal", "")) == str(action.get("signal", "")):
+				var choice: String = str(RECONSTRUCTED_CHOICE_BY_DECISION.get(hunt.decision + 1, ""))
+				if not choice.is_empty() and str(candidate["control"].get_meta("choice_id", "")) != choice: continue
+				action["control"] = candidate["control"]
+				hunt._emit("qa56_trace_binding", {"decision": hunt.decision + 1, "source_path": action["path"], "actual_path": candidate["path"], "choice_id": candidate["control"].get_meta("choice_id", "")})
+				break
+		if not action.has("control"):
+			hunt._trace_failure("Recorded control not currently offered", expected)
+	elif action.has("tile"):
+		action["tile"] = _decode(action["tile"])
+	return action
+
+func _decode(value: Variant) -> Variant:
+	if not value is String: return value
+	if value.begins_with("InputEventMouseButton:"): return _click()
+	if value.begins_with("(") and value.ends_with(")"):
+		var pieces: PackedStringArray = value.trim_prefix("(").trim_suffix(")").split(",")
+		if pieces.size() == 2: return Vector2i(int(pieces[0]), int(pieces[1]))
+	return value
+
+func _normalized_path(path: String) -> String:
+	var regex := RegEx.new()
+	regex.compile("@[A-Za-z0-9_]+@[0-9]+")
+	return regex.sub(path, "@NODE@", true)

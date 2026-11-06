@@ -1,0 +1,22 @@
+from pathlib import Path
+import hashlib,json,shutil
+root=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56')
+e=Path('/private/tmp/labyrinth_codex/qa-56');out=root/'spec/peer_benchmark/qa/run_hunt_2026-11-05b'
+names=['run_hunt_task.py','run_hunt_observed.gd','run_hunt_replay.gd','cache_observer.gd','run_hunt_cache_observed.gd','validate_observer.gd','menu_continue_probe.gd','purchase_purge_probe.gd','triage_runtime.py','verify_evidence.py','ensure_minimum.py','trace_policy.gd','run_hunt_trace_replay.gd','run_hunt_native_trace.gd','prepare_census.py','compare_texture_replay.py','verify_lifetimes.py','opening_override.gd','opening_override_test.gd','finalize_result.py','run_hunt_native.gd','run_campaigns.py','collect_census.py','status.py','summarize.py','package_sources.py']
+(out/'proof-sources').mkdir(exist_ok=True)
+manifest={}
+for name in names:
+ shutil.copyfile(e/name,out/'proof-sources'/(name+'.txt'))
+ manifest[name]=hashlib.sha256((e/name).read_bytes()).hexdigest()
+(out/'observer-source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+shutil.copyfile(root/'spec/peer_benchmark/qa/run_hunt_2026-11-05/native-proof-contract.json',out/'native-proof-contract.json')
+for name in ('observer-validation-v2','menu-continue','purchase-purge'):
+ path=e/name/'seed-000004'
+ for item in path.glob('*validation.json'):shutil.copyfile(item,out/(name+'-'+item.name))
+ for result_name in ('menu-continue','purchase-purge'):
+  if (path/(result_name+'.json')).exists():shutil.copyfile(path/(result_name+'.json'),out/(result_name+'-result.json'))
+for name in ('plan.json','summary.json','isolation-audit.json'):
+ if (e/'python-default'/name).exists():shutil.copyfile(e/'python-default'/name,out/('python-default-'+name))
+log=(e/'python-default.log').read_text()
+(out/'python-default-result.txt').write_text('\n'.join(l for l in log.splitlines() if l.startswith(('ISOLATION AUDIT:','SELECTED MODULES:','INPUT GROUP TIME','Ran ','OK','Cannot update','PYTHON SUITE WALL:')))+'\n')
+print('QA56 SOURCE PACKAGE:',len(manifest),'diagnostic source snapshots')

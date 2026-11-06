@@ -30,16 +30,47 @@ static func histogram(nodes: Array) -> Dictionary:
 
 static func census(tree: SceneTree) -> Dictionary:
 	var attached: Array = []
+	var retained_ids: Dictionary = {}
 	var pending: Array = [tree.root]
 	while not pending.is_empty():
 		var node: Node = pending.pop_back()
 		attached.append(node)
 		pending.append_array(node.get_children(true))
+		_card_layout_retained_ids(node, retained_ids)
 	var orphaned: Array = []
+	var retained: Array = []
+	var unowned: Array = []
 	for id: int in Node.get_orphan_node_ids():
 		var node: Node = instance_from_id(id) as Node
-		if node != null: orphaned.append(node)
-	return {"tree": histogram(attached), "orphans": histogram(orphaned)}
+		if node == null: continue
+		orphaned.append(node)
+		if retained_ids.has(id): retained.append(node)
+		else: unowned.append(node)
+	return {"tree": histogram(attached), "orphans": histogram(orphaned),
+		"retained_orphans": histogram(retained), "unowned_orphans": histogram(unowned)}
+
+static func _card_layout_retained_ids(owner: Node, ids: Dictionary) -> void:
+	var script: Script = owner.get_script() as Script
+	while script != null and script.resource_path != "res://scripts/card_widget.gd":
+		script = script.get_base_script()
+	if script == null: return
+	# perf-44 intentionally owns detached summary trees at up to four fitted
+	# insets. Recognize exact ownership, never names/classes or an orphan budget.
+	# An evicted tree, excess cache entry or dead owner still fails the guard.
+	var cache: Dictionary = owner.get("_summary_layout_cache")
+	if cache.size() > int(script.get_script_constant_map()["SUMMARY_LAYOUT_CACHE_CAPACITY"]): return
+	var pending: Array = []
+	for entry: Dictionary in cache.values(): pending.append_array(entry["children"])
+	while not pending.is_empty():
+		var node: Node = pending.pop_back()
+		if not is_instance_valid(node) or node.is_inside_tree() or node.is_queued_for_deletion(): continue
+		ids[node.get_instance_id()] = true
+		pending.append_array(node.get_children(true))
+
+static func histogram_count(values: Dictionary) -> int:
+	var count: int = 0
+	for value: int in values.values(): count += value
+	return count
 
 static func difference(before: Dictionary, after: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
@@ -56,8 +87,9 @@ static func plateau_errors(rounds: Array, orphan_bound: int = 2, node_bound: int
 	var errors: Array[String]
 	if rounds.size() < 20: errors.append("At least 20 rounds required")
 	for row: Dictionary in rounds:
-		if int(row["orphans"]) > orphan_bound:
-			errors.append("Round %d has %d orphans (bound %d)" % [row["round"], row["orphans"], orphan_bound])
+		var unowned: int = int(row.get("unowned_orphans", row["orphans"]))
+		if unowned > orphan_bound:
+			errors.append("Round %d has %d unowned orphans (bound %d)" % [row["round"], unowned, orphan_bound])
 	if rounds.size() >= 20:
 		var warm: Array = rounds.slice(rounds.size() / 2)
 		for metric: String in ["nodes", "objects"]:

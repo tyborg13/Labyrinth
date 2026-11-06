@@ -46,6 +46,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	var engine := CombatEngine.new()
 	var state: Dictionary = fixture(engine)
 	await _install(tree, scene, state)
+	_test_cached_rail_without_pass(scene, check)
 	await preload("res://tests/suites/turn_order_lifetime_suite.gd").check_still_portraits(tree, scene, check)
 	_assert_state(scene, check, 10, "", -1, [], "", "idle")
 	var idle_hero: Dictionary = _projected_hero(scene)
@@ -117,6 +118,22 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	tree.root.content_scale_factor = old_scale
 	tree.root.mode = old_mode
 	SettingsStore._applied_reduced_motion = old_reduced_motion
+
+static func _test_cached_rail_without_pass(scene: Node, expect: Callable) -> void:
+	# qa-59: hand/deal setup can hide Pass after the turn-order source is cached.
+	# Geometry and visibility must recover without another combat revision.
+	var overlay: Control = scene.get("_pass_preview_overlay")
+	var was_visible: bool = overlay.visible
+	var signature: String = scene.get("_turn_order_source_signature")
+	var bar: Control = scene.get("_turn_order_bar")
+	var slots: Array[Node] = bar.get_children()
+	overlay.hide()
+	scene.call("_set_turn_order_visible", false)
+	scene.call("_refresh_turn_order_bar")
+	expect.call(scene.get("_turn_order_source_signature") == signature, "Rail recovery does not invalidate the combat preview")
+	expect.call(bar.is_visible_in_tree() and bar.get_global_rect().has_area() and bar.get_children() == slots, "Cached turn order stays visible while Pass is hidden, reusing its slots")
+	overlay.visible = was_visible
+	scene.call("_layout_turn_order_anchor")
 
 static func _test_pills_and_tooltips(expect: Callable) -> void:
 	var scene := RunScene.new()

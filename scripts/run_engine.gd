@@ -332,13 +332,16 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	# their complete serialized state remains compatible byte for byte.
 	if SectionMapGraph.modern(next_state) and not next_state.has("encounter_history"):
 		next_state["encounter_history"] = []
-	next_state = migrate_combat_units(next_state)
+	# The first line owns the full snapshot. Current-schema no-op migrations
+	# need no second copy of the complete map and checkpoint history.
+	if combat_units_migration_required(next_state): next_state = migrate_combat_units(next_state)
 	preload("res://scripts/retired_mirror_save_migration.gd").migrate(next_state)
-	next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
+	if int(next_state.get(SurfaceSaveMigration.VERSION_KEY, 0)) < BoardSurfaceRules.RULES_VERSION:
+		next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
 	next_state = _repair_legacy_merchant_rooms(next_state)
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
 	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
-	next_state = GrimoireLibrary.ensure_run_state(next_state)
+	GrimoireLibrary._ensure_run_state_in_place(next_state)
 	next_state["run_stats"] = normalized_run_stats(next_state.get("run_stats", {}))
 	next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), held_embers(next_state))
 	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
@@ -396,7 +399,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
-	next_state = _repair_equipment_state(next_state)
+	_repair_equipment_state_in_place(next_state)
 	next_state = BattlefieldItemRules.repair_loaded_run(next_state)
 	next_state = _repair_skill_dependent_state(next_state)
 	next_state = _repair_pending_escape(next_state)
@@ -413,20 +416,22 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		_sync_current_layout_doors(next_state, current_coord)
 	return next_state
 
+# Entry-only helper: repair_loaded_run_state owns this deep snapshot.
 func _repair_legacy_merchant_rooms(run_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
-	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(true)
+	var next_state: Dictionary = run_state
+	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(false)
 	var current_room: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room_key: String = _room_key(current_room)
 	var migrated_current_room: bool = false
 	for room_key_var: Variant in rooms.keys():
 		if typeof(rooms.get(room_key_var)) != TYPE_DICTIONARY:
 			continue
-		var room: Dictionary = (rooms.get(room_key_var) as Dictionary).duplicate(true)
+		var room: Dictionary = rooms.get(room_key_var) as Dictionary
 		var room_type: String = str(room.get("type", ""))
 		var merchant_kind: String = str(room.get("merchant_kind", ""))
 		if room_type not in [LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST] and merchant_kind not in [LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST]:
 			continue
+		room = room.duplicate(true)
 		room["type"] = MERCHANT_SCAVENGER
 		room["merchant_kind"] = MERCHANT_SCAVENGER
 		room["npcs"] = [{"id": MERCHANT_SCAVENGER, "pos": Vector2i(3, 4)}]
@@ -452,8 +457,9 @@ func _repair_legacy_merchant_rooms(run_state: Dictionary) -> Dictionary:
 		next_state[SKILL_STATE_KEY] = skill_state
 	return next_state
 
+# Entry-only helper: repair_loaded_run_state owns this deep snapshot.
 func _repair_pending_escape(run_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
+	var next_state: Dictionary = run_state
 	var mode: String = str(next_state.get("mode", "room"))
 	if mode not in ["reward", MODE_ESCAPE]:
 		next_state["pending_escape"] = {}
@@ -2117,8 +2123,9 @@ func _mark_balance_transition(state: Dictionary) -> Dictionary:
 		state["balance_revision"] = GameData.BALANCE_REVISION
 	return state
 
+# Entry-only helper: repair_loaded_run_state owns this deep snapshot.
 func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
+	var next_state: Dictionary = run_state
 	if typeof(next_state.get(COMBAT_CONTINUATION_KEY, null)) != TYPE_ARRAY:
 		return next_state
 	var checkpoints: Array = []

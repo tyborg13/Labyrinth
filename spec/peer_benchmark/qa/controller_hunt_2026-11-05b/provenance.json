@@ -1,0 +1,45 @@
+{
+  "head": "f0af5a0be69316eea5e3ebb644b98f39dee17fea",
+  "uncommitted": true,
+  "production_changes": true,
+  "sources": {
+    "scripts/run_scene.gd": "04b276ee787e9b2d60d9bbd6976a2e572cafa981cfcbe283130342f83ccd08ee",
+    "scripts/modal_menu_focus.gd": "db4b7a63b291a2a3fb156372c8193dee6b2dd63a7826627b2d2d3587f4d50ef2",
+    "scripts/settings_panel.gd": "b44a5a04d50403fa153b6a937dd68cd8e8a12d6420e31bdaa489ae6e6c408c59",
+    "scripts/controller_focus_candidates.gd": "45d7c5cc64a9d46ee6a6cfb2924c2721078d79eef709b7a56ec833ee2f453bda",
+    "scripts/combat_board_view.gd": "840f0829e9bab2f10019d21bfda5ceb0095e5cc596668c1686874f369343cfba",
+    "scripts/skill_tree_view.gd": "ad29221bec58a27c3d19c31fdc19386e1001e49e7ea38a8eee688ad01a4fea13",
+    "scripts/grimoire_search_keyboard.gd": "ad9cd8cec20e3a114499423f5373dd381c8631a76908ab4da18b276daadd3282",
+    "scripts/chronicle_panel.gd": "9d10be4160fc79f2c331194313d3b52176607baa5ee2732d06c9e18a311c8063",
+    "tests/controller_screen_sweep.gd": "73b390b0443dc6ef143a622872e0015e30821f8af70bb94154b664a2022116b0",
+    "tools/run_hunt.gd": "575e7699d6cf1d557dde46c12b36d606d7ce8f48e794f88ede4b2446437581d0",
+    "tools/run_hunt_policy.gd": "7dd59a63638068bb9fe654a742a40a56dead07b957e8dc9ec3cdb88f98aa08b1"
+  },
+  "tools": {
+    "target_filter_probe.gd": "0fd1eee8bed77ccec602fbfa640b2783418e95c18f991f54b687704dfe392649",
+    "controller_hunt_pre_reset_scope.gd": "415c9353e3f8dae45d72d2bd9819545ebdee09da2998f27727abd7e17cd71aaa",
+    "controller_hunt.gd": "786e28559a024b59de1799306f20d2005109421e614411b7783f3ffebb4a5731",
+    "write_report.py": "81c39cbda12ef64907962abd0d35dd5cf22224f86247fdce45c002e42a2d378d",
+    "status.py": "daaf5d94d5f5638910dd7cd30d2e8c9b1516846409e3026008cf54d089235e07",
+    "dragon_target_parity.gd": "1400088b10cb42ee98d43f63131b6750ff3418b22cfe4800bdf3603c08bab32e",
+    "title_controller.gd": "41d861fe1d4758db531dbfbc801ff40044e7eee5c020461840231b1e90090e9d",
+    "skill_tree_view_initial_focus_fix.gd": "c9c93427b2fe09b1a13f099af96dd123b94213fa441a69176ef7c854baca51e9",
+    "verification.py": "1d8bb2585db38182c077c4e5a40b11707d36e91c04e8be838aca597045bb0283",
+    "purge_return_probe.gd": "1915fea1bce22e5308735ceedb0be9d5f50369e1883aab8f548c97ec1472d0d6",
+    "collect_report.py": "e553bb26b89443229e8dc9ee31c7543f73c40c2cac8d5cabab006b724a3e0a69",
+    "run_acceptance.py": "a6e173e80ab0a1846fc95ea236ae7886ec99a3d655fb9257952f4899f08db3a1",
+    "treasure_reveal_probe.gd": "f00f4eab12a9b47fbaf068167999ae18098de42997cc4c6be5599a75eb5332f3"
+  },
+  "release_sources": {
+    "scripts/skill_tree_view.gd": "8b37e19b4e9e232a7d691fabb9211d33a76fcb2600cefd37f0b3562a82bedc09",
+    "tests/controller_screen_sweep.gd": "0f37802f9721dd86a43f1ba8c65f03df25ccfa11eac50aeb52abc1c552eace7f"
+  },
+  "inherited_dragon_fixture": {
+    "path": "spec/peer_benchmark/qa/controller_hunt_2026-11-05/dragon-target.variant",
+    "sha256": "b55748c8066328cad485bdfb03e3d141b7a87a519a804da7f2bc9a068c66519b"
+  },
+  "treasure_fixture": {
+    "path": "treasure-reveal.variant",
+    "sha256": "e49b676f8c1204a3b7fb40995f176782c652d40fe01ca38e8a01db984226139d"
+  }
+}

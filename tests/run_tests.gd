@@ -6786,7 +6786,7 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 	var movement_meter: Control = instance.get("_movement_meter") as Control
 	var movement_count: Label = instance.get("_movement_meter_count") as Label
 	var movement_capacity: int = CombatEngine.new().player_movement_capacity(instance.get("_combat_state"))
-	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
+	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d Movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
 	_assert(not bool(instance.call("_combat_skill_activation_surface_available")), "Manual combat skills should not activate against a cached movement target set")
 	var armed_state: Dictionary = combat_state.duplicate(true)
 	armed_state["skill_ids"] = ["ghost_stride"]

@@ -176,6 +176,8 @@ func _initialize() -> void:
 		_sampling(false)
 		var census: Dictionary = Metrics.census(self)
 		var row: Dictionary = Metrics.counts()
+		row["unowned_orphans"] = Metrics.histogram_count(census["unowned_orphans"])
+		row["retained_orphans"] = Metrics.histogram_count(census["retained_orphans"])
 		row["preview_memo_entries"] = _memo_entries()
 		row.merge({"round": round_index + 1, "bout": bouts + 1, "turn": int((scene.get("_combat_state") as Dictionary).get("turn", 0)), "census": census, "idle_cpu": idle_cpu, "enemy_cpu": enemy_cpu, "tree_delta": Metrics.difference(first_census["tree"], census["tree"]), "orphan_delta": Metrics.difference(first_census["orphans"], census["orphans"]), "phases": _phase_stats(), "raw_samples": samples.duplicate(true)})
 		rows.append(row)
@@ -194,7 +196,7 @@ func _initialize() -> void:
 	var errors: Array[String]
 	if check_plateau:
 		errors = Metrics.replay_plateau_errors(rows) if replay_policy_cycles else Metrics.plateau_errors(rows)
-	if check_plateau and not Metrics.census(self)["orphans"].is_empty(): errors.append("Live orphan histogram must be empty")
+	if check_plateau and not Metrics.census(self)["unowned_orphans"].is_empty(): errors.append("Live unowned orphan histogram must be empty")
 	if replay_policy_cycles and cards_played < round_count: errors.append("Policy replay soak must commit at least one card per requested round")
 	if cards_played == 0 or enemy_rounds == 0: errors.append("Workload failed to play cards and enemy rounds")
 	report = {"schema_version": 1, "options": _options, "native": native, "replay_policy_cycles": replay_policy_cycles, "headless_time_scale": headless_time_scale if not native else 1.0, "viewport": [1920, 1080], "ui_scale": 1.0, "cel_environment": OS.get_environment("LABYRINTH_CEL_LOOK"), "engine": Engine.get_version_info(), "machine": {"model": OS.get_model_name(), "processor": OS.get_processor_name(), "os": OS.get_name()}, "debug_build": OS.is_debug_build(), "display": DisplayServer.get_name(), "renderer": RenderingServer.get_video_adapter_name(), "rounds": rows, "cards_played": cards_played, "enemy_rounds": enemy_rounds, "bouts": bouts + 1, "initial_census": first_census, "requested_rounds": round_count, "bot_cards_per_round": BOT_CARDS_PER_ROUND, "process_count_scope": "board _process and _draw section instrumentation; scene/engine section timers", "native_focus_samples": focus_samples, "runtime_sections": scene.call("runtime_performance_instrumentation_snapshot"), "errors": errors}

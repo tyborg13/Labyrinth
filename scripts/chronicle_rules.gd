@@ -7,11 +7,8 @@ const Elements = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RECORD_LIMIT: int = 50
 const PATH_KEY: String = "chronicle_path"
-const TODO_DESIGN_UNKNOWN_KILLER: String = "TODO_DESIGN_UNKNOWN_KILLER"
-const TODO_DESIGN_UNKNOWN_INTENT: String = "TODO_DESIGN_UNKNOWN_INTENT"
-const TODO_DESIGN_TRAP_NAME: String = "TODO_DESIGN_TRAP_NAME"
-const TODO_DESIGN_SURFACE_NAME: String = "TODO_DESIGN_SURFACE_NAME"
-const TODO_DESIGN_SECTION_NAME: String = "TODO_DESIGN_SECTION_NAME"
+const UNKNOWN_KILLER_TEXT: String = "The Umbra took your last breath"
+const UNKNOWN_SECTION_NAME: String = "The Labyrinth"
 const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 static var _terminal_snapshots: Dictionary = {}
@@ -57,7 +54,7 @@ static func enter_room(state: Dictionary, room: Dictionary) -> void:
 		var location_state: Dictionary = state.duplicate(false)
 		location_state["current_room"] = section.get("entry", state.get("current_room", Vector2i.ZERO))
 		var section_name: String = str(Score.location(location_state).get("biome_name", ""))
-		names.append(section_name if not section_name.is_empty() else TODO_DESIGN_SECTION_NAME)
+		names.append(display_section_name(section_name))
 	var kind: String = str(room.get("type", ""))
 	if kind in ["start", "threshold", ""]:
 		return
@@ -81,8 +78,9 @@ static func build_record(state: Dictionary, outcome: String, scored: Dictionary,
 			gear.append(str(item))
 	var record: Dictionary = {
 		"run_id": record_id(state), "outcome": outcome,
+		"end_title": str(Score.seeded_text(Score.identity(state), outcome)["title"]),
 		"ended_at": local_date(date), "run_seconds": float(stats["run_seconds"]),
-		"section_index": section_index, "section_name": str(location["biome_name"]) if not str(location["biome_name"]).is_empty() else TODO_DESIGN_SECTION_NAME,
+		"section_index": section_index, "section_name": display_section_name(str(location["biome_name"])),
 		"room_index": (path[section_index] as Array).size() if section_index < path.size() else 0,
 		"room_total": int(location["room_count"]), "score_total": int(scored.get("total", 0)),
 		"feats": feats, "killer_text": killer_text(stats["killer"], outcome), "path": path,
@@ -110,20 +108,33 @@ static func killer_text(killer: Dictionary, outcome: String) -> String:
 		"fatigue": return "Worn down by fatigue"
 		"surface":
 			var surface: String = str(killer.get("surface", ""))
-			return "Slain by %s" % (surface.capitalize() if not surface.is_empty() else TODO_DESIGN_SURFACE_NAME)
+			return "Slain by %s" % (surface.capitalize() if not surface.is_empty() else "a hazard")
 		"trap":
 			var trap_name: String = str(killer.get("name", ""))
 			if trap_name.is_empty() and Elements.is_elemental(str(killer.get("element", ""))):
 				trap_name = "%s Trap" % Elements.name(str(killer["element"]))
-			return "Slain by %s" % (trap_name if not trap_name.is_empty() else TODO_DESIGN_TRAP_NAME)
+			return "Slain by %s" % (trap_name if not trap_name.is_empty() else "a trap")
 	var enemy: Dictionary = GameData.enemy_def(str(killer.get("enemy_type", "")))
-	var intent_name: String = TODO_DESIGN_UNKNOWN_INTENT
+	if enemy.is_empty():
+		return UNKNOWN_KILLER_TEXT
+	var intent_name: String = ""
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
-	if enemy.is_empty():
-		return TODO_DESIGN_UNKNOWN_KILLER
-	return "Felled by a %s's %s" % [str(enemy.get("name", TODO_DESIGN_UNKNOWN_KILLER)), intent_name]
+	var enemy_text: String = "Felled by a %s" % str(enemy["name"])
+	return enemy_text if intent_name.is_empty() else "%s's %s" % [enemy_text, intent_name]
+
+# Old Chronicle records store their printed text, not the original killer.
+# Resolve only the former fallbacks at presentation time; never migrate or
+# rewrite a saved record (including section_names in its path).
+static func display_killer_text(record: Dictionary) -> String:
+	var text: String = str(record.get("killer_text", ""))
+	if text.is_empty():
+		return killer_text({}, str(record.get("outcome", "")))
+	return text.replace("TODO_DESIGN_UNKNOWN_KILLER", UNKNOWN_KILLER_TEXT).replace("'s TODO_DESIGN_UNKNOWN_INTENT", "").replace("TODO_DESIGN_TRAP_NAME", "a trap").replace("TODO_DESIGN_SURFACE_NAME", "a hazard")
+
+static func display_section_name(value: String) -> String:
+	return UNKNOWN_SECTION_NAME if value.is_empty() or value == "TODO_DESIGN_SECTION_NAME" else value
 
 static func deck_counts(value: Variant) -> Array:
 	var result: Array = []
@@ -256,6 +267,8 @@ static func _normalized_record(value: Dictionary, public_definitions: Dictionary
 		record["deck_card_definitions"] = definitions.duplicate(true)
 	if record.has("umbra_depth"):
 		record["umbra_depth"] = maxi(0, int(record["umbra_depth"]))
+	if record.has("end_title"):
+		record["end_title"] = str(record["end_title"])
 	return record
 
 static func _string_array(value: Variant) -> Array:
@@ -285,7 +298,7 @@ static func add_to_totals(totals: Dictionary, record: Dictionary) -> Dictionary:
 	return result
 
 static func result_word(record: Dictionary) -> String:
-	return str(Score.DEFAULT_TITLES.get(record.get("outcome", ""), ""))
+	return str(record.get("end_title", Score.DEFAULT_TITLES.get(record.get("outcome", ""), "")))
 
 static func where_text(record: Dictionary) -> String:
 	if record.get("outcome") == "victory":
@@ -293,7 +306,7 @@ static func where_text(record: Dictionary) -> String:
 	return section_text(record)
 
 static func section_text(record: Dictionary) -> String:
-	return "Section %s · %s" % [Score.roman(int(record.get("section_index", 0)) + 1), str(record.get("section_name", TODO_DESIGN_SECTION_NAME))]
+	return "Section %s · %s" % [Score.roman(int(record.get("section_index", 0)) + 1), display_section_name(str(record.get("section_name", "")))]
 
 static func subline(record: Dictionary) -> String:
 	var minutes: String = "%d min" % floori(float(record.get("run_seconds", 0)) / 60)
@@ -301,7 +314,7 @@ static func subline(record: Dictionary) -> String:
 	var text: String = "%s · %s" % [where_text(record), minutes] if victory else "%s, room %d of %d · %s" % [where_text(record), int(record.get("room_index", 0)), int(record.get("room_total", 0)), minutes]
 	if int(record.get("umbra_depth", 0)) > 0:
 		text += " · Umbra Depth %d" % int(record["umbra_depth"])
-	return text if victory else text + " · " + str(record.get("killer_text", ""))
+	return text if victory else text + " · " + display_killer_text(record)
 
 # Whole spell entries wrap together. The eighth line is reserved for overflow
 # only when the complete text needs more than eight lines.

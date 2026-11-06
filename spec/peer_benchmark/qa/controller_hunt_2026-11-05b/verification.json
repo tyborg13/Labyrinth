@@ -1,0 +1,301 @@
+[
+  {
+    "name": "cold-import",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/cold-import.log",
+    "sha256": "3ee0e7c379771d72d4737b7e89c780a58aa28d59bef18ea0b3d98e534f7a0762",
+    "result_lines": [],
+    "script_errors": []
+  },
+  {
+    "name": "smoke",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/smoke.log",
+    "sha256": "312cc471e77967c37e9f26e7687bb04c55e591096561b6db82bf07593da757e9",
+    "result_lines": [
+      "CONTROLLER HUNT: seed=14 outcome=replay_point inputs=347 findings=1",
+      "RUN HUNT: seed=14 outcome=replay_point decisions=40"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "sweep-baseline",
+    "returncode": 1,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/sweep-baseline.log",
+    "sha256": "a35b3a3dafdd831460f481e807b59c7d64153a237454071cb60732749eb6327f",
+    "result_lines": [
+      "REGRESSION HUD_REBUILD: PASS",
+      "REGRESSION ANALOG_VOLUME: PASS",
+      "REGRESSION ANALOG_SELECTION: PASS",
+      "SWEEP FINDING: Neutral joypad noise preserves pointer confirmation focus",
+      "SWEEP FINDING: Settings B returns to title",
+      "SWEEP FINDING: New-run setup initially focuses Begin Descent",
+      "SWEEP FINDING: New-run immediate A/Enter begins the chosen depth",
+      "CONTROLLER SCREEN SWEEP: FAIL (4 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "new-run-isolated",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/new-run-isolated.log",
+    "sha256": "d63d0dc7a1e04e8f2cf537efac34ffdcbf6421b4837415055e1cba0f21560101",
+    "result_lines": [
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "title-controller",
+    "returncode": 1,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/title-controller.log",
+    "sha256": "e5ecb4c045564e339e797f827ef15a1039768e485c7d8953412363210a739d9d",
+    "result_lines": [
+      "TITLE CONTROLLER FINDING: New Run immediately focuses Begin Descent",
+      "TITLE CONTROLLER: FAIL (1 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "title-controller-depth",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/title-controller-depth.log",
+    "sha256": "3dff11c2bbdd84cf3e3c1877e46298a0d05f44068716f615e80808cf0d30843d",
+    "result_lines": [
+      "TITLE CONTROLLER: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "python-default",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/python-default.log",
+    "sha256": "aa14b373b5b688868100fc676e506e7282ccd28b73487fe3e728bde81d0c23f5",
+    "result_lines": [
+      "ISOLATION AUDIT: 55 modules; /private/tmp/labyrinth_codex/qa-57/evidence/python-default/isolation-audit.md",
+      "SELECTED MODULES: 19 of 55",
+      "Ran 183 tests in 24.640s",
+      "OK",
+      "PYTHON SUITE WALL: 24.640s; results: /private/tmp/labyrinth_codex/qa-57/evidence/python-default"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "tutorial",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/tutorial.log",
+    "sha256": "b8c797df3db70e9e766001be66e46367fa726b724d3d11bf6bf316c98b0c713a",
+    "result_lines": [
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "reward",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/reward.log",
+    "sha256": "33746cce32b3ad5c31f11fc14a95c5a8f4ed589876cb5b69e681f86fe9e185f6",
+    "result_lines": [
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "dragon-parity",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/dragon-parity.log",
+    "sha256": "f17c228ebef00b6f78fb3ef5fa38ed60b16c5371b3ba8c8d81f63d94b2f6330e",
+    "result_lines": [
+      "DRAGON TARGET PARITY: target=(4, 2) controller=false visible=false controller_card_retained=true mouse_hit=(4, 2) committed_player=(3, 2)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "skill-learn-before",
+    "returncode": 1,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/skill-learn-before.log",
+    "sha256": "5f6b2b0c559f5bb5da50c0865b23e6c327634dccf1876774c3832773e4e9e23e",
+    "result_lines": [
+      "REGRESSION SKILL_LEARN_FOCUS: FAIL",
+      "SWEEP FINDING: Controller Learn persists the selected skill",
+      "SWEEP FINDING: Learning returns focus from the disabled action to its selected skill",
+      "CONTROLLER SCREEN SWEEP: FAIL (2 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "skill-learn-before-focused",
+    "returncode": 1,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/skill-learn-before-focused.log",
+    "sha256": "9989a7c915785f0cd473ce9f93984e891e544e88c8f288cec23fa61a89a703e6",
+    "result_lines": [
+      "REGRESSION SKILL_LEARN_FOCUS: FAIL",
+      "SWEEP FINDING: Learning returns focus from the disabled action to its selected skill",
+      "CONTROLLER SCREEN SWEEP: FAIL (1 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "skill-learn-after",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/skill-learn-after.log",
+    "sha256": "1e9855597080af1464f475b9bdf6a951c8b0a64c61487a6f4aeb80ecf21e4808",
+    "result_lines": [
+      "REGRESSION SKILL_LEARN_FOCUS: PASS",
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "ui-identity",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/ui-identity.log",
+    "sha256": "946fa343d3b8223d246c16999815e53890c7e27ed9cae70d020708f08273f3be",
+    "result_lines": [
+      "Ran 25 tests in 5.726s",
+      "OK"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "python-default-final",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/python-default-final.log",
+    "sha256": "64c10bf23fc3373a1fe5075b8686459583396e76f08c6c7b443220811c342490",
+    "result_lines": [
+      "ISOLATION AUDIT: 55 modules; /private/tmp/labyrinth_codex/qa-57/evidence/python-default-final/isolation-audit.md",
+      "SELECTED MODULES: 19 of 55",
+      "Ran 183 tests in 30.730s",
+      "OK",
+      "PYTHON SUITE WALL: 30.730s; results: /private/tmp/labyrinth_codex/qa-57/evidence/python-default-final"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "skill-learn-final",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/skill-learn-final.log",
+    "sha256": "41f7f36ecc04d7e7ed2faf99110804227e449e2c0d68d958efc8d17754beba39",
+    "result_lines": [
+      "REGRESSION SKILL_LEARN_FOCUS: PASS",
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "python-default-handler",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/python-default-handler.log",
+    "sha256": "7e15775570f6ed6c821e4b0d058b6ef0b87b9e1c9c3058fbd7f5503f2926d0d2",
+    "result_lines": [
+      "ISOLATION AUDIT: 55 modules; /private/tmp/labyrinth_codex/qa-57/evidence/python-default-handler/isolation-audit.md",
+      "SELECTED MODULES: 19 of 55",
+      "Ran 183 tests in 32.122s",
+      "OK",
+      "PYTHON SUITE WALL: 32.122s; results: /private/tmp/labyrinth_codex/qa-57/evidence/python-default-handler"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "ui-identity-final",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/ui-identity-final.log",
+    "sha256": "b824b9ecdd1d1afbd507ccc5154b2ca805d95a683cbc499e0bec1ab429c2eedc",
+    "result_lines": [
+      "Ran 25 tests in 6.743s",
+      "OK"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "treasure-replay",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/treasure-replay.log",
+    "sha256": "0726703908bd365a3453236d072cb41ba866cf55795e2a6e1fd7d2c1184c0bac",
+    "result_lines": [
+      "CONTROLLER HUNT: seed=14 outcome=replay_point inputs=1681 findings=1",
+      "RUN HUNT: seed=14 outcome=replay_point decisions=452"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "treasure-reveal-probe",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/treasure-reveal-probe.log",
+    "sha256": "8c0abcda628c7cf4999eb7bcba5483e110da1a04720b17911be1301d7652b2cb",
+    "result_lines": [
+      "TREASURE REVEAL BOUNDS: 180 samples, 0 overflow samples, native=false"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "target-filter",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/target-filter.log",
+    "sha256": "408befe6b2e4ad756db30dc493f1c91910a207e26e14a6a67224f58d01807e56",
+    "result_lines": [
+      "TARGET FILTER PROBE: 0 missing legal targets"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "target-filter-ready",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/target-filter-ready.log",
+    "sha256": "3ce226ee1e309a823a55adfd61659e24cc8b140ebdf88b1b3982af39c78cfeb7",
+    "result_lines": [
+      "FILTER SELECTED: region=board selected=-1 pending=[]",
+      "TARGET FILTER PROBE: 0 missing legal targets"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "target-filter-final",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/target-filter-final.log",
+    "sha256": "77ac026665c4424501caa147fd263de492fd78698e7065b85a2033d031037496",
+    "result_lines": [
+      "FILTER SELECTED: region=board selected=0 pending=[(4, 3), (5, 3), (4, 4), (5, 4), (2, 3)]",
+      "TARGET FILTER GAP: {\"display\":\"stone\",\"grid\":\"stone\",\"mouse_hit\":\"(5, 3)\",\"rendered\":true,\"tile\":\"(5, 3)\",\"visible\":false}",
+      "TARGET FILTER PROBE: 1 missing legal targets"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "sweep-final",
+    "returncode": 1,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/sweep-final.log",
+    "sha256": "053310e0bc3bbe7b31ae065848ca86ed59a48f8f83e51ede302ab9af1ca4a4c7",
+    "result_lines": [
+      "REGRESSION SKILL_LEARN_FOCUS: PASS",
+      "REGRESSION HUD_REBUILD: PASS",
+      "REGRESSION ANALOG_VOLUME: PASS",
+      "REGRESSION ANALOG_SELECTION: PASS",
+      "SWEEP FINDING: Neutral joypad noise preserves pointer confirmation focus",
+      "SWEEP FINDING: Settings B returns to title",
+      "SWEEP FINDING: New-run setup initially focuses Begin Descent",
+      "SWEEP FINDING: New-run immediate A/Enter begins the chosen depth",
+      "CONTROLLER SCREEN SWEEP: FAIL (4 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "purge-return",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/purge-return.log",
+    "sha256": "11208610924f6fc1e722d69664b7cea9963be5aa3aa0bb33d4919dfec11796ac",
+    "result_lines": [
+      "CONTROLLER SCREEN SWEEP: PASS (0 findings)"
+    ],
+    "script_errors": []
+  },
+  {
+    "name": "python-audit",
+    "returncode": 0,
+    "log": "/private/tmp/labyrinth_codex/qa-57/evidence/python-audit/isolation-audit.md",
+    "result_lines": [
+      "ISOLATION AUDIT: 55 modules",
+      "SELECTED MODULES: 19 of 55"
+    ]
+  }
+]

@@ -380,7 +380,7 @@ func _check_shared_feedback(live_router: RefCounted) -> void:
 	if feedback.call("feedback_counts") != before: failures.append("Map cue must suppress native confirmation and shared hover tick")
 	feedback.call("play_focus_feedback", card)
 	if feedback.call("feedback_counts") != before: failures.append("Card cue must suppress shared hover tick")
-	if CursorFeedback.cue_owns_feedback(choice, true): failures.append("Event choices retain their shared focus tick")
+	if not CursorFeedback.cue_owns_feedback(choice, true): failures.append("Event choices own the routed Hearth focus tick")
 	map.release_focus()
 	feedback.set("_last_valid_gesture_msec", -1000)
 	feedback.call("play_action_confirmation")

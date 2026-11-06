@@ -1,0 +1,16 @@
+from pathlib import Path
+import json
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56')
+executions=[]
+for name in ('default','no-embrace'):
+ path=ROOT/('campaign-'+name)/'campaign.json'
+ if not path.exists():continue
+ campaign=json.loads(path.read_text())
+ for run in sorted(campaign['runs'],key=lambda r:r['seed']):
+  if not any(room['section']==5 for room in run['rooms']):continue
+  directory=ROOT/f"census-{name}-{run['seed']}"
+  directory.mkdir(exist_ok=True)
+  (directory/'campaign.json').write_text(json.dumps(dict(runs=[run]),indent=2)+'\n')
+  executions.append(dict(name=directory.name,seed=run['seed'],output_dir=str(directory),source_campaign=str(path),note='Select existing campaign census, no additional run or input modification'))
+(ROOT/'census-executions.json').write_text(json.dumps(executions,indent=2)+'\n')
+print('QA56 CENSUS SELECTION:',len(executions),'completed section-5 campaigns')

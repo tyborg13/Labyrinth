@@ -33,6 +33,8 @@ const CHOICE_GAP: float = 14
 const CONTINUE_HEIGHT: float = 78 # CSS min-height 52 + 13 px vertical padding twice.
 const OUTCOME_ROW_FADE_SECONDS: float = 0.18
 const PAINTING_FADE_SECONDS: float = 0.22
+# Match EmberHearthPresentation's highlight-entry guard and existing cue.
+const CHOICE_FOCUS_COOLDOWN_MSEC: int = 80
 const SCRIM_SHADER: String = """
 shader_type canvas_item;
 uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
@@ -109,6 +111,7 @@ var _request_pending: bool = false
 var _art_started: bool = false
 var _content_bottom: float = 0
 var _sound: Callable
+var _last_choice_focus_msec: int = -1000
 var _built: bool = false
 var _stick_repeat := preload("res://scripts/controller_axis_repeat.gd").new()
 
@@ -261,6 +264,7 @@ func _rebuild() -> void:
 	health.set_health(float(run_state.get("player_hp", 0)), float(run_state.get("player_max_hp", 1)))
 	if _content_bottom > COLUMN_BOTTOM:
 		fit_errors.append("%s/%s content ends at %.1f > %.1f" % [Events.current_id(run_state), page, _content_bottom, COLUMN_BOTTOM])
+	hover_preview.prepare()
 	focus_initial()
 	_building_column = false
 	interaction_changed.emit()
@@ -351,6 +355,7 @@ func _build_column() -> void:
 			var button := Choice.new()
 			column.add_child(button)
 			button.configure(index, choice_def, cached_preview_lines(str(choice_def["id"])), Events.choice_block_reason(run_state, Events.current_id(run_state), str(choice_def["id"])), effect_size)
+			button.emphasis_refreshed.connect(_on_choice_emphasis_refreshed.bind(button))
 			button.position.y = y
 			y += button.size.y + CHOICE_GAP
 			button.pressed.connect(activate_choice.bind(index, true))
@@ -462,6 +467,17 @@ func _process(delta: float) -> void:
 func _activate_focused() -> void:
 	if page == "result": activate_continue()
 	else: activate_choice(focused_choice_index())
+
+func _on_choice_emphasis_refreshed(emphasized: bool, button: Button) -> void:
+	# Rebuild's automatic focus must not consume the first pointer highlight.
+	if _building_column or not is_visible_in_tree(): return
+	var was_emphasized: bool = bool(button.get_meta("event_choice_emphasized", false))
+	button.set_meta("event_choice_emphasized", emphasized)
+	if not emphasized or was_emphasized: return
+	var now: int = Time.get_ticks_msec()
+	if now - _last_choice_focus_msec < CHOICE_FOCUS_COOLDOWN_MSEC: return
+	_last_choice_focus_msec = now
+	_play(Sounds.HEARTH_FOCUS_ID)
 
 func _play(id: String) -> void:
 	if _sound.is_valid(): _sound.call(Sounds.entry(id))

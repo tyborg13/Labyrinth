@@ -194,7 +194,7 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - Tooling: pol-27's new roar call isn't in the sound sync audit's coverage yet (adds one uncovered call; covering it touches `sync_baseline.json`, which pol-21 also changes). `Input.warp_mouse(...)` in a movie-capture probe does park the game's pointer. Fight-opening clip tools: `director_tools/fight_opening_clip.py` and `fight_opening_clip_probe.gd`.
 - When an enemy stands right next to the hero, its intent chip and health bar can cover the hero's whole status row (the hero's Retaliate 3 was never visible beside the Warden).
 - Tooling: a general real-fight clip that plays a list of cards (`CLIP_PLAN="0@5:2;0@self"`): `director_tools/card_play_clip.py` with `card_play_clip_probe.gd`.
-- The Graftwright's room has no Graftwright standing in it once the screen closes, unlike the Scavenger's room. Check whether that's intended.
+- The Graftwright's room has no Graftwright standing in it once the screen closes, unlike the Scavenger's room. **Blocked on art (ui-19, 2026-11-05):** no standing Graftwright board body exists, only a portrait. Check whether that's intended.
 - On a fresh run the "Added 23 entries to the Grimoire" notice shows in the first room. Probe-only so far; check a real first run.
 - Confirming any card first drops the preview's results on the hero (Block bar and buff badges) for about 0.4 s while the card flies in, then replays them; enemy statuses from the preview do the same before the hit. Design question in the preview-to-playback handoff in `run_scene.gd`. A question on pol-29.
 - Retaliate, Quicken and next-attack steps have no label of their own in card playback (Block, Heal and Draw get "+N"), so a buff that's a card's only effect, like Whetstone, lands without text. Taste call.
@@ -228,3 +228,4 @@ Candidates noticed along the way, worst first. Take one if it's still the best c
 - At turn start, Pass and the counters vanish for about 3 frames (50 ms) as the cards land, then reappear in their new place (pol-43-fix strip, before and after). **In ui-15.**
 - Untested gap: after a deferred hover check, the slide's rest relies on Godot noticing a different card under the pointer. If the same card was under it at landing and at rest, it would stay down until the pointer moves. Never reproduced; a one-line fix would have the slide's rest call pol-43's resolve helper.
 - Tooling: the movie writer's frame index can be off from the logged frame (31 frames in pol-43-fix's play clip); match clips by motion.
+- The Chronicle opened from the run-end recap lets the recap's title and lines show faintly through its panel (seen in ui-20/txt-05 captures, 2026-11-05). **Not a bug** (ui-21): mid-crossfade capture; clean after the fade.

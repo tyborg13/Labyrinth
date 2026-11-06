@@ -4,6 +4,8 @@ extends "res://scripts/run_scene.gd"
 ## the dissolve. The dummy renderer uses the same Health-number source.
 var recording: bool = false
 var samples: Array[Dictionary]
+var rendered_samples: Array[Dictionary]
+var forced_frame_usec: int = 0
 var proof_output_dir: String = ""
 var proof_case: String = ""
 var captures: Array[Dictionary]
@@ -12,9 +14,20 @@ var _proof_revision: int = 0
 
 func begin_recording(label: String) -> void:
 	samples.clear()
+	rendered_samples.clear()
 	proof_case = label.replace(" ", "_").replace("=", "_")
 	_proof_health.clear()
 	recording = true
+
+func sample_frame_boundary() -> void:
+	if not recording: return
+	# process_frame precedes playback's next submission. The board retained
+	# here is the one available to the preceding frame's renderer, rather than
+	# every transient logical submission made during that frame.
+	sample_frame()
+	rendered_samples.append(samples.back())
+	# Test-only delta injection; never stall the product or change its timers.
+	if forced_frame_usec > 0: _combat_pacing._clock_usec += forced_frame_usec
 
 func _render_board_state(state: Dictionary, shown: Dictionary, stable: bool = false) -> void:
 	super._render_board_state(state, shown, stable)

@@ -1,0 +1,80 @@
+"""Collect qa-57's observed results; raw event streams remain task-local."""
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-57')
+BASE = Path('/private/tmp/labyrinth_codex/qa-57')
+CAMPAIGN = BASE / 'evidence/campaign-acceptance'
+REPORT = ROOT / 'spec/peer_benchmark/qa/controller_hunt_2026-11-05b'
+FINAL_DEPTH = 24
+
+def read(path, default=None):
+    return json.loads(path.read_text()) if path.exists() else default
+
+def collect():
+    runs, findings, markers, gear_events = [], [], [], []
+    scopes, actions, room_kinds, events, rewards = (Counter() for _ in range(5))
+    gear = set(read(ROOT / 'data/equipment.json', {}))
+    for directory in sorted(CAMPAIGN.glob('[0-9]*'), key=lambda p: int(p.name)):
+        trace_path = directory / 'trace.jsonl'
+        if not trace_path.exists(): continue
+        trace = [json.loads(line) for line in trace_path.read_text().splitlines()]
+        summary, controller = (read(directory / name, {}) for name in ('summary.json', 'controller.json'))
+        rooms = [row['data'] for row in trace if row['event'] == 'room']
+        dragons = [row for row in rooms if row['room_kind'] == 'boss' and row.get('room_metadata', {}).get('depth') == FINAL_DEPTH]
+        decisions = [row['data'] for row in trace if row['event'] == 'decision']
+        record = dict(seed=int(directory.name), directory=str(directory), execution=read(directory/'execution.json'),
+                      driver_sha256=(directory/'driver.sha256').read_text().strip() if (directory/'driver.sha256').exists() else None,
+                      production_revision='release before local Learn focus fix' if int(directory.name)<19 else 'initial local Learn focus fix applied',
+                      skill_tree_source_sha256=(directory/'skill-tree-source.sha256').read_text().strip() if (directory/'skill-tree-source.sha256').exists() else None,
+                      command=read(directory/'command.json'), outcome=summary.get('outcome','running'),
+                      decisions=summary.get('decisions',len(decisions)), inputs=controller.get('inputs'),
+                      final_dragon_entries=dragons, sections=summary.get('sections',sorted({str(r['section']) for r in rooms})),
+                      room_kinds=summary.get('room_kinds',dict(Counter(r['room_kind'] for r in rooms))),
+                      coverage=controller.get('coverage', {}))
+        scopes.update(record['coverage'].keys())
+        room_kinds.update(record['room_kinds'])
+        actions.update(summary.get('action_counts', {}))
+        for choice in decisions:
+            context = choice['context']
+            if context['mode'] == 'reward' and choice.get('card_id'): rewards['card_inputs'] += 1
+            control_name = choice.get('path','').rsplit('/',1)[-1]
+            if context['mode'] == 'treasure' and control_name.startswith('RelicChoice_'):
+                rewards['gear_inputs' if control_name.removeprefix('RelicChoice_') in gear else 'relic_inputs'] += 1
+        for path in (directory/'analytics').rglob('*.jsonl'):
+            for line in path.read_text().splitlines():
+                event = json.loads(line)
+                kind, payload = event.get('event_type',''), event.get('payload',{})
+                events[kind] += 1
+                if kind == 'merchant_trade': events['merchant_' + payload.get('action','')] += 1
+                if kind == 'reward_choice': rewards['committed_' + payload.get('choice_kind',payload.get('reward_kind','unknown'))] += 1
+                if kind == 'magic_purged' and payload.get('source') == 'scavenger': events['scavenger_purge_committed'] += 1
+                if kind == 'map_event_resolved':
+                    for outcome in payload.get('outcomes',[]):
+                        if outcome.get('type') == 'equipment':
+                            gear_events.append(dict(seed=int(directory.name), event_id=payload.get('event_id'), room=payload.get('room'), outcome=outcome))
+        for finding in controller.get('findings', []):
+            compact = dict(finding, seed=int(directory.name), inputs_path=str(directory/'inputs.jsonl'))
+            compact['input_tail'] = [{k:v for k,v in event.items() if k != 'context'} for event in compact.pop('inputs',[])]
+            findings.append(compact)
+        log_path = directory/'execution.log'
+        if log_path.exists():
+            markers.extend(dict(seed=int(directory.name), log=str(log_path), line=n, text=line)
+                           for n,line in enumerate(log_path.read_text().splitlines(),1)
+                           if line.startswith(('SCRIPT ERROR:','ERROR:','WARNING:')))
+        runs.append(record)
+    result = dict(runs=runs, completed_runs=sum(r['outcome'] in ('victory','embrace','defeat') for r in runs),
+                  final_dragon_entries=sum(len(r['final_dragon_entries']) for r in runs),
+                  total_decisions=sum(r['decisions'] for r in runs), total_inputs=sum(r['inputs'] or 0 for r in runs),
+                  runs_covering_scope=dict(scopes), room_kinds=dict(room_kinds), actions=dict(actions),
+                  analytics_event_counts=dict(events), rewards=dict(rewards), event_equipment_rewards=gear_events, findings=findings, runtime_markers=markers)
+    REPORT.mkdir(parents=True,exist_ok=True)
+    (REPORT/'campaign.json').write_text(json.dumps(result,indent=2)+'\n')
+    print(json.dumps({k:result[k] for k in ('completed_runs','final_dragon_entries','total_decisions','total_inputs')}))
+    for r in runs: print(r['seed'],r['outcome'],r['decisions'],r['sections'],r['coverage'].get('grimoire_search_mock'))
+    return result
+
+if __name__ == '__main__': collect()

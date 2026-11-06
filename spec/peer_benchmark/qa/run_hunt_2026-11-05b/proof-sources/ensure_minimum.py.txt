@@ -1,0 +1,21 @@
+"""After the two unchanged launch windows drain, top up only if <15 hunts ended."""
+from pathlib import Path
+import json,os,subprocess,sys,time
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56')
+PROJECT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56')
+MINIMUM_RUNS=15
+POLL_SECONDS=10
+while not (ROOT/'campaign-no-embrace-execution.json').exists():time.sleep(POLL_SECONDS)
+records=[json.loads((ROOT/('campaign-'+c)/'campaign.json').read_text()) for c in ('default','no-embrace')]
+ended=sum(len(r['runs']) for r in records);needed=max(0,MINIMUM_RUNS-ended)
+if not needed:
+ print('QA56 MINIMUM RUNS: satisfied',ended,flush=True)
+else:
+ next_seed=max(r['seed'] for r in records[0]['runs'])+1
+ argv=[sys.executable,str(ROOT/'run_hunt_task.py'),'--runs',str(needed),'--minutes','75','--processes','2','--seed',str(next_seed),'--output-dir',str(ROOT/'campaign-default-extra'),'--script',str(ROOT/'run_hunt_cache_observed.gd')]
+ started=time.time()
+ print('QA56 MINIMUM RUNS: top up',needed,'fresh default seeds beginning',next_seed,flush=True)
+ with (ROOT/'campaign-default-extra.log').open('w') as log:
+  result=subprocess.run(argv,cwd=PROJECT,env=dict(os.environ,LABYRINTH_CEL_LOOK='off'),stdout=log,stderr=subprocess.STDOUT)
+ (ROOT/'campaign-default-extra-execution.json').write_text(json.dumps(dict(name='campaign-default-extra',argv=argv,started=started,wall_seconds=time.time()-started,returncode=result.returncode),indent=2)+'\n')
+ sys.exit(result.returncode)

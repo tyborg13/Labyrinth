@@ -1,0 +1,15 @@
+import json
+from pathlib import Path
+BASE = Path('/private/tmp/labyrinth_codex/qa-57/evidence')
+for campaign in ('campaign-acceptance',):
+    for directory in sorted((BASE / campaign).glob('[0-9]*')):
+        path = directory / 'trace.jsonl'
+        if not path.exists():
+            print(campaign, directory.name, 'starting')
+            continue
+        rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        last = rows[-1]
+        data = last['data']
+        context = data.get('context', data)
+        rooms = [r['data'] for r in rows if r['event'] == 'room']
+        print(campaign, directory.name, last['event'], data.get('decision', data.get('decisions')), data.get('kind', data.get('outcome')), 'section', context.get('section'), 'room', context.get('room_kind'), 'rooms', len(rooms))

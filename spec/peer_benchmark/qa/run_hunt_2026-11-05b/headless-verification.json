@@ -1,0 +1,37 @@
+[
+  {
+    "name": "observer-validation-v2",
+    "log": "/private/tmp/labyrinth_codex/qa-56/observer-validation-v2/seed-000004/godot.log",
+    "result_lines": [
+      "QA56 OBSERVER VALIDATION: PASS board/stage/forecast poisoning detected; original references restored; scale/zoom change+restore checked"
+    ]
+  },
+  {
+    "name": "menu-continue",
+    "log": "/private/tmp/labyrinth_codex/qa-56/menu-continue/seed-000004/godot.log",
+    "result_lines": [
+      "QA56 MENU CONTINUE: PASS committed combat preserved; overlapped loading and fresh presentation checked"
+    ]
+  },
+  {
+    "name": "purchase-purge",
+    "log": "/private/tmp/labyrinth_codex/qa-56/purchase-purge/seed-000004/godot.log",
+    "result_lines": [
+      "QA56 PURCHASE PURGE: PASS real purchase/confirmation/Exhaust; fresh presentation checked"
+    ]
+  },
+  {
+    "name": "opening-override-classifier",
+    "log": "/private/tmp/labyrinth_codex/qa-56/opening-override-test.log",
+    "result_lines": [
+      "QA56 OPENING OVERRIDE CLASSIFIER: PASS 9 positive/negative cases"
+    ]
+  },
+  {
+    "name": "trace-v3",
+    "log": "/private/tmp/labyrinth_codex/qa-56/trace-texture-default-10-v3/seed-000010/godot.log",
+    "result_lines": [
+      "QA56 TRACE REPLAY: prefix=774 outcome=replay_point"
+    ]
+  }
+]

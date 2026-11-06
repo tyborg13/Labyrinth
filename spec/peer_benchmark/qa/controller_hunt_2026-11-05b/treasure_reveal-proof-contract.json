@@ -1,0 +1,59 @@
+{
+  "min_images": 3,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*treasure_reveal_0001.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*treasure_reveal_0032.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*treasure_reveal_0180.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

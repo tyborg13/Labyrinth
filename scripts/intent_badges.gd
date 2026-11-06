@@ -318,7 +318,7 @@ static func boss_health_rect(board: Control) -> Rect2:
 	return health_rect(board, {"boss_bar": true}) if frame.has_area() else Rect2()
 
 static func death_health_rect(board: Control, unit: Dictionary) -> Rect2:
-	# Match CombatBoardView._draw_death_health_bars: only the fading frame is
+	# Match CombatBoardView._draw_health_bar_entry: only the fading frame is
 	# drawn, without status/defense pills, text, crests or an order disc.
 	if not bool(unit.get("death_animation", false)): return Rect2()
 	if not (board.call("_umbra_actor_clip_for_unit", unit) as Dictionary).is_empty(): return Rect2()

@@ -11,6 +11,16 @@ const PREVIEW_HP_LOSS: int = 1
 const TARGET_TERRAIN_TILE := Vector2i(3, 3)
 const ATLAS_SOURCE_SIZE: int = 64
 const ATLAS_REGION_SIZE: int = 32
+const TERRAIN_PREVIEW_FRAMES: int = 30
+
+class PreviewBoard extends Board:
+	var terrain_preview_draws: int = 0
+	var terrain_preview_alphas: Array[float]
+	func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
+		if str(unit.get("id", "")) == "target_crate":
+			terrain_preview_draws += 1
+			terrain_preview_alphas.append((health_damage_preview_colors(false, presentation)["fill"] as Color).a)
+		super._draw_health_damage_preview(unit, rect, preview)
 
 class CommandSink extends Control:
 	var emitted: Array = []
@@ -25,7 +35,7 @@ func _run() -> void:
 	_options = {"seed": DEFAULT_SEED, "scenario": "warband", "warband_biome": "earth", "warband_tier": 2, "warband_case": "encounter", "hero_facing": "persist"}
 	var run: Dictionary = _build_run_state("warband", _build_progression())
 	var state: Dictionary = run["combat_state"]
-	var board := Board.new()
+	var board := PreviewBoard.new()
 	board.size = Vector2(1920, 1080)
 	root.add_child(board)
 	board.set_process(false)
@@ -82,6 +92,7 @@ func _run() -> void:
 	_expect(Dirty.bramble({"effect": {"kind": "melee"}}).is_empty(), "Unrelated attacks never repaint idle bramble")
 	_expect(Dirty.surfaces({"2,2": {"rubble": true}}, {"2,2": {"rubble": true}, "3,3": {"rubble": true}}) == {Vector2i(3, 3): true}, "New rubble dirties only its local surface tile")
 	await _terrain_target_membership(board, state, damage_preview)
+	await _terrain_preview_pulse(board, state)
 	_atlas_mutations()
 	board.free()
 	for error: String in errors: push_error(error)
@@ -142,3 +153,31 @@ func _atlas_mutations() -> void:
 		cache.enabled = true
 	sink.free()
 	print("PERF09 ATLAS CACHE: warm reuse; region, margin, underlying identity match fresh commands")
+
+func _terrain_preview_pulse(board: Control, state: Dictionary) -> void:
+	var fixture: Dictionary = state.duplicate(true)
+	fixture["terrain"] = [{"id": "target_crate", "kind": "wooden_crate", "pos": TARGET_TERRAIN_TILE, "hp": 3, "max_hp": 3}]
+	for reduced: bool in [false, true]:
+		board.set_combat_state(fixture, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": reduced, "damage_preview": {"terrain_target_crate": {"hp": 2, "hp_loss": 1, "lethal": false}}})
+		await _settle()
+		var canvases: Array[Control]
+		canvases.append(board._hud_render_layer)
+		canvases.append_array(board._hud_render_layer._layer_slices.canvases)
+		var before: int = _terrain_draws(canvases)
+		# Exercise the production clock invalidation, without resubmitting state
+		# or directly queuing the HUD. The renderer must visit the actual band.
+		for frame: int in range(TERRAIN_PREVIEW_FRAMES):
+			board._queue_continuous_render_redraws()
+			await process_frame
+		var draws: int = _terrain_draws(canvases) - before
+		_expect(draws == (0 if reduced else TERRAIN_PREVIEW_FRAMES), "Terrain damage band redraws on every clock invalidation, and stays static with reduced motion: %s draws=%d" % [reduced, draws])
+		if not reduced:
+			var alphas: Array[float]
+			for canvas: Control in canvases: alphas.append_array(canvas.terrain_preview_alphas)
+			_expect(alphas.size() > 1 and not is_equal_approx(alphas.min(), alphas.max()), "Terrain damage band samples changing pulse colours without new input")
+		print("TERRAIN PREVIEW PULSE: reduced=%s draws=%d/%d" % [reduced, draws, 0 if reduced else TERRAIN_PREVIEW_FRAMES])
+
+func _terrain_draws(canvases: Array[Control]) -> int:
+	var total: int = 0
+	for canvas: Control in canvases: total += canvas.terrain_preview_draws
+	return total

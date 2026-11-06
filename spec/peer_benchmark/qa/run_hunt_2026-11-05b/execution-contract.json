@@ -1,0 +1,25 @@
+{
+  "task": "qa-56",
+  "risk": "standard",
+  "head": "b945f269f4918e69a88730a7a9c07046df2917b0",
+  "acceptance": [
+    "qa-45 default and no-embrace campaigns, >=15 runs total, >=1 final-dragon victory, per-decision presentation checks and section-0/5 censuses",
+    "after every room/scale/zoom/reward/purchase/purge/Continue change compare board/stage/forecast to uncached rebuild; report all differences",
+    "findings with seed/decision/reproduction/cause/file:line and introducing merge where established"
+  ],
+  "proof": [
+    "cold import",
+    "observer validation",
+    "campaigns/censuses",
+    "Python default group"
+  ],
+  "inspection": "Native 1920x1080/100% UI capture left to owner: no window server; no fixture required",
+  "owner_steps": [
+    "preflight/contract",
+    "commit",
+    "review",
+    "inspection fixture",
+    "publication"
+  ],
+  "production_changes": "Only <=~10-line local fixes with focused regression; otherwise report"
+}

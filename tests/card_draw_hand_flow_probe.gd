@@ -167,8 +167,9 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 		await process_frame
 	_assert(intro_text_stack != null and intro_text_stack.scale.x > 0.32 and intro_text_stack.scale.x < 1.0, "Objective travel proof should show the text shrinking in flight")
 	_assert(objective_hud != null and float(objective_hud.get("intro_shadow_progress")) < 0.01, "Objective travel proof should retire the board-separation shadow before compact content arrives")
-	_assert(objective_hud != null and float(objective_hud.get("intro_chrome_progress")) >= 0.5, "Objective travel proof should show the compact widget background appearing behind the text")
+	_assert(objective_hud != null and float(objective_hud.get("intro_chrome_progress")) >= 0.5, "Objective travel proof should advance the authored chrome envelope")
 	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_content_progress"))), "Objective travel proof should avoid overlapping the large and compact objective copy")
+	_assert(objective_hud != null and is_zero_approx(objective_hud.self_modulate.a), "Objective travel proof must keep an empty compact plate hidden")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective travel proof should precede opening-card motion")
 	await _save_root_screenshot("%s/objective_intro_v5_01_chrome_arriving_shadow_retired.png" % OUTPUT_DIR)
 
@@ -182,6 +183,7 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	var late_intro_text: Control = objective_hud.get("_intro_text_stack") as Control if objective_hud != null else null
 	_assert(late_intro_text != null and late_intro_text.modulate.a < 0.01, "Content-arrival proof should fully retire the large objective copy")
 	_assert(objective_hud != null and float(objective_hud.get("intro_content_progress")) > 0.0, "Content-arrival proof should capture the compact widget content fading in")
+	_assert(objective_hud != null and is_equal_approx(objective_hud.self_modulate.a, float(objective_hud.get("intro_content_progress"))), "Content-arrival proof should reveal the plate together with its content")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Content-arrival proof should remain separate from opening-card motion")
 	await _save_root_screenshot("%s/objective_intro_v5_02_content_arriving.png" % OUTPUT_DIR)
 

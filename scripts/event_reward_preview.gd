@@ -31,8 +31,16 @@ static func outcome_line(outcome: Dictionary) -> Dictionary:
 	return {"kind": kind, "ids": ids}
 
 static func build(line: Dictionary, state: Dictionary, beat_only: bool = false) -> Control:
+	var work: Dictionary = begin_build(line, state, beat_only)
+	while not build_next(work): pass
+	return work["stage"]
+
+## The same native tree can be assembled one object at a time under event open.
+## Jobs contain data and parent nodes, never callbacks retaining their owner.
+static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = false) -> Dictionary:
 	var kind: String = str(line.get("kind", "plain"))
 	var ids: Array = line.get("ids", [])
+	var jobs: Array[Dictionary]
 	var stage := Control.new()
 	stage.name = "EventRewardPreview"
 	stage.set_meta("preview_line", line.duplicate(true))
@@ -46,33 +54,57 @@ static func build(line: Dictionary, state: Dictionary, beat_only: bool = false) 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	stage.add_child(row)
+	var content: Control = row
 	if kind in ["transform", "reforge"]:
 		stage.remove_child(row)
 		row.free()
 		var pairs := VBoxContainer.new()
 		stage.add_child(pairs)
+		content = pairs
 		for index: int in range(0, mini(ids.size(), 6), 2):
 			if index + 1 >= ids.size(): break
 			var pair := HBoxContainer.new()
 			pair.alignment = BoxContainer.ALIGNMENT_CENTER
 			pairs.add_child(pair)
-			pair.add_child(_object("equipment" if kind == "reforge" else "card", str(ids[index]), state, TRANSFORM_SCALE if kind == "transform" else 1.0))
+			var object_kind: String = "equipment" if kind == "reforge" else "card"
+			var factor: float = TRANSFORM_SCALE if kind == "transform" else 1.0
+			jobs.append(_object_job(pair, 0, object_kind, str(ids[index]), factor))
 			pair.add_child(_label("→", Typography.SIZE_SECTION, Palette.GOLD))
-			pair.add_child(_object("equipment" if kind == "reforge" else "card", str(ids[index + 1]), state, TRANSFORM_SCALE if kind == "transform" else 1.0))
-		_fit(stage, pairs)
+			jobs.append(_object_job(pair, 2, object_kind, str(ids[index + 1]), factor))
 	else:
-		for id: String in ids: row.add_child(_object(kind, id, state, 1.0, beat_only))
-		_fit(stage, row)
-		if beat_only:
-			var art_size: Vector2 = Builder.CARD_TOOLTIP_SIZE if kind in ["card", "card_choice", "item", "lose_item"] else Vector2.ONE * ICON_SIZE
-			art_size *= row.scale.x
-			stage.set_meta("reward_art_rect", Rect2(Vector2((stage.size.x - art_size.x) * 0.5, 0), art_size))
+		for index: int in range(ids.size()): jobs.append(_object_job(row, index, kind, str(ids[index]), 1.0, beat_only))
+	return {"stage": stage, "content": content, "jobs": jobs, "line": line, "state": state, "beat_only": beat_only}
+
+static func _object_job(parent: Control, index: int, kind: String, id: String, factor: float, beat_only: bool = false) -> Dictionary:
+	return {"parent": parent, "index": index, "kind": kind, "id": id, "factor": factor, "beat_only": beat_only}
+
+## Returns true only after fitting/decorating the completed subtree. At most one
+## card or icon is instantiated per call, including equipment's embedded cards.
+static func build_next(work: Dictionary) -> bool:
+	var jobs: Array[Dictionary] = work["jobs"]
+	if not jobs.is_empty():
+		var job: Dictionary = jobs.pop_front()
+		var child: Control = _object(job.kind, job.id, work.state, job.factor, job.beat_only, jobs)
+		var parent: Control = job.parent
+		parent.add_child(child)
+		parent.move_child(child, mini(int(job.index), parent.get_child_count() - 1))
+		work["last_object"] = child
+		return false
+	var stage: Control = work.stage
+	var kind: String = str(work.line.get("kind", "plain"))
+	var ids: Array = work.line.get("ids", [])
+	var beat_only: bool = work.beat_only
+	_fit(stage, work.content)
+	if beat_only and kind not in ["transform", "reforge"]:
+		var art_size: Vector2 = Builder.CARD_TOOLTIP_SIZE if kind in ["card", "card_choice", "item", "lose_item"] else Vector2.ONE * ICON_SIZE
+		art_size *= work.content.scale.x
+		stage.set_meta("reward_art_rect", Rect2(Vector2((stage.size.x - art_size.x) * 0.5, 0), art_size))
 	# Negative gain receipts retain their native crush/dissolve presentation.
 	var negative_beat: bool = beat_only and (kind == "lose_item" or (kind == "omen" and not ids.is_empty() and str(Data.omen_def(str(ids[0])).get("kind", "")) == "bane"))
 	if not negative_beat: Separation.decorate(stage)
 	if not beat_only: Separation.pool(stage, Rect2(Vector2.ZERO, stage.size))
 	ignore_input(stage)
-	return stage
+	return true
 
 static func _fit(stage: Control, content: Control) -> void:
 	var extent: Vector2 = content.get_combined_minimum_size()
@@ -83,7 +115,7 @@ static func _fit(stage: Control, content: Control) -> void:
 	stage.custom_minimum_size = stage.size
 	stage.pivot_offset = stage.size * 0.5
 
-static func _object(kind: String, id: String, state: Dictionary, scale_hint: float = 1.0, beat_only: bool = false) -> Control:
+static func _object(kind: String, id: String, state: Dictionary, scale_hint: float = 1.0, beat_only: bool = false, pending: Variant = null) -> Control:
 	if kind in ["card", "card_choice", "item", "lose_item"]:
 		var builder := Builder.new()
 		builder.state = state
@@ -133,7 +165,9 @@ static func _object(kind: String, id: String, state: Dictionary, scale_hint: flo
 		var cards := HBoxContainer.new()
 		cards.alignment = BoxContainer.ALIGNMENT_CENTER
 		box.add_child(cards)
-		for card_id: String in Data.equipment_cards(id, state): cards.add_child(_object("card", card_id, state, GEAR_CARD_SCALE))
+		for card_id: String in Data.equipment_cards(id, state):
+			if pending == null: cards.add_child(_object("card", card_id, state, GEAR_CARD_SCALE))
+			else: pending.append(_object_job(cards, pending.size(), "card", card_id, GEAR_CARD_SCALE))
 	return column
 
 static func icon_control(path: String) -> TextureRect:

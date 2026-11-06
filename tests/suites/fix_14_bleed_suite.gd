@@ -10,6 +10,41 @@ const SURVIVING_HP: int = 10
 const LETHAL_ATTACK_HP: int = 8
 const PARTNER := Vector2i(6, 4)
 const HERO := Vector2i(4, 4)
+const STATUS_TICK_AMOUNT: int = 3
+const OTHER_HP_LOSS: int = 2
+
+static func check_status_tick_feedback(scene: Control, expect: Callable) -> void:
+	for actor: String in ["player", "enemy_1"]:
+		for label: String in ["Fire", "Bleed"]:
+			var step: Dictionary = {"kind": "status_damage", "actor_key": actor, "tile": HERO, "amount": STATUS_TICK_AMOUNT, "label": label}
+			if actor != "player": step["enemy_losses"] = [{"key": actor, "tile": HERO, "hp_loss": STATUS_TICK_AMOUNT, "block_loss": 2, "stoneskin_loss": 1}]
+			var floats: Array = scene._floating_texts_for_step(step)
+			var icon: String = "surface_fire" if label == "Fire" else "bleed"
+			expect.call(not floats.is_empty(), "%s %s produces its existing loss numbers" % [actor, label])
+			for entry: Dictionary in floats:
+				expect.call(entry.get("icon", "") == icon, "%s %s decorates every owned Health/Block/Stoneskin loss" % [actor, label])
+	var before: Dictionary = Base.Fixtures.state([])
+	before["player"].merge({"hp": 10, "bleed": STATUS_TICK_AMOUNT, "block": 0, "stoneskin": 0}, true)
+	var after: Dictionary = Base.Combat.new()._trigger_player_bleed_for_action(before.duplicate(true), {"type": "move"})
+	var bleed: Array = scene._player_loss_floating_texts(before, after)
+	expect.call(bleed.size() == 1 and bleed[0].get("icon", "") == "bleed" and bleed[0]["text"] == "-3", "An actual hero Bleed payment carries the Bleed cause icon")
+	var mixed: Dictionary = after.duplicate(true)
+	mixed["player"]["hp"] -= OTHER_HP_LOSS
+	var mixed_floats: Array = scene._player_loss_floating_texts(before, mixed)
+	expect.call(mixed_floats.size() == 2 and mixed_floats[0]["text"] == "-3" and mixed_floats[0].get("icon", "") == "bleed" and mixed_floats[1]["text"] == "-2" and not mixed_floats[1].has("icon"), "Mixed damage attributes only the actual Bleed payment, preserving the total loss")
+	var ordinary: Array = scene._player_loss_floating_texts(after, mixed)
+	expect.call(ordinary.size() == 1 and not ordinary[0].has("icon"), "An earlier Bleed payment cannot label later damage")
+	var same_tile: Dictionary = {"kind": "status_damage", "label": "Fire", "actor_key": "enemy_1", "tile": HERO, "reaction_after": {}, "enemy_losses": [{"key": "enemy_1", "tile": HERO, "hp_loss": 3}, {"key": "enemy_2", "tile": HERO, "hp_loss": 1}]}
+	var cascade: Array = scene._floating_texts_for_step(same_tile)
+	expect.call(cascade.size() == 2 and cascade[0].get("icon", "") == "surface_fire" and not cascade[1].has("icon"), "A traced cascade never inherits another actor's cause icon on the same tile")
+	var previous_run_path: String = Base.Fixtures.Store._run_storage_path
+	Base.Fixtures.Store.set_run_storage_path("user://status_tick_receipts_test.save")
+	var saved_run: Dictionary = Base.Fixtures.Run.new().create_new_run(Base.Fixtures.TEST_SEED, Base.Fixtures.Store.default_data())
+	saved_run["mode"] = "combat"
+	saved_run["combat_state"] = after
+	expect.call(Base.Fixtures.Store.save_run_state(saved_run), "Additive status receipt save succeeds")
+	expect.call(Base.Fixtures.Store.load_saved_run().get("combat_state", {}).get("player_bleed_loss_totals", {}) == after["player_bleed_loss_totals"], "Status receipts survive save/load without replaying a payment")
+	Base.Fixtures.Store.set_run_storage_path(previous_run_path)
 
 static func cases() -> Array[Dictionary]:
 	# Both Tether and Mirror compound fixtures are retired.

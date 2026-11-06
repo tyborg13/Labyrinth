@@ -304,8 +304,9 @@ func _run_opening_hand_entry_regression() -> void:
 		_expect(traveling_intro_text != null and traveling_intro_text.scale.x > 0.32 and traveling_intro_text.scale.x < 1.0, "The traveling objective copy should visibly shrink toward its permanent size")
 		_expect(float(objective_hud.get("intro_shadow_progress")) < 0.01, "The board-separation shadow should retire before the compact widget arrives")
 		var chrome_progress: float = float(objective_hud.get("intro_chrome_progress"))
-		_expect(chrome_progress >= 0.5, "The widget background should fade in behind the text during the latter travel")
+		_expect(chrome_progress >= 0.5, "The authored chrome envelope should advance during the latter travel")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The compact widget text and icon should wait until the large text has nearly retired")
+		_expect(is_zero_approx(objective_hud.self_modulate.a), "The objective plate must stay hidden while its compact content is absent")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Card-deal motion should not compete with the traveling objective")
 	var content_arrival_deadline: int = Time.get_ticks_msec() + 1000
 	while (
@@ -319,6 +320,7 @@ func _run_opening_hand_entry_regression() -> void:
 		var content_progress: float = float(objective_hud.get("intro_content_progress"))
 		_expect(late_intro_text != null and late_intro_text.modulate.a < 0.01, "The large objective copy should be fully gone before compact widget content arrives")
 		_expect(content_progress > 0.0, "The compact widget content should fade in only after the large copy retires")
+		_expect(is_equal_approx(objective_hud.self_modulate.a, content_progress), "The objective plate must appear together with its compact content")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Late objective-content arrival should still precede opening-card motion")
 
 	var launch_deadline: int = Time.get_ticks_msec() + 3000

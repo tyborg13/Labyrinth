@@ -6,6 +6,13 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const EventViewScript = preload("res://scripts/event_view.gd")
+const EventFixtures = preload("res://tests/suites/event_view_suite.gd")
+const HearthPresentation = preload("res://scripts/ember_hearth_presentation.gd")
+const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
+const CueRouter = preload("res://scripts/sfx_cue_router.gd")
+const CHOICE_GUARD_PROOF_SECONDS: float = 0.09
+const CARD_PLAY_PROOF_CLOCK_MSEC: int = 10000
 
 const EXPECTED_DURATIONS: Dictionary = {
 	RunSfxLibrary.DOOR_OPEN_ID: 1.318844,
@@ -30,6 +37,7 @@ static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect
 	_test_registry_and_trimmed_assets(expect)
 	_test_victory_timing_contract(expect)
 	await _test_live_run_hooks(tree, expect)
+	await _test_choice_and_card_play_feedback(tree, expect)
 
 static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 	for sfx_id: String in EXPECTED_DURATIONS:
@@ -173,3 +181,109 @@ static func _played_sfx_count(instance: Node, sfx_id: String) -> int:
 		if player != null and str(player.get_meta("sfx_id", "")) == sfx_id:
 			count += 1
 	return count
+
+static func _test_choice_and_card_play_feedback(tree: SceneTree, expect: Callable) -> void:
+	var heard: Array[String]
+	var sound: Callable = func(entry: Dictionary) -> void:
+		heard.append(str(entry.get("id", "")))
+		if entry.get("id", "") == RunSfxLibrary.HEARTH_FOCUS_ID:
+			expect.call(entry == RunSfxLibrary.entry(RunSfxLibrary.HEARTH_FOCUS_ID), "Event and Hearth use the exact same entry, including bus, level and duration")
+	var view := EventViewScript.new()
+	tree.root.add_child(view)
+	var router := CueRouter.new()
+	router.bind_map_hover(view)
+	view.present(EventFixtures.fixture("whispering_well", true), true, sound)
+	view.finish_animation_for_test()
+	heard.clear()
+	await _wait_choice_guard(tree)
+	view.choices[0].mouse_entered.emit()
+	expect.call(heard.count(RunSfxLibrary.HEARTH_FOCUS_ID) == 1, "Automatic initial focus does not consume the first pointer hover cue")
+	view.choices[0].mouse_exited.emit()
+	for button: Button in view.choices: button.release_focus()
+	heard.clear()
+	await _wait_choice_guard(tree)
+	var choice: Button = view.choices[1]
+	choice.mouse_entered.emit()
+	var hover_count: int = heard.count(RunSfxLibrary.HEARTH_FOCUS_ID)
+	await _wait_choice_guard(tree)
+	choice.grab_focus()
+	expect.call(heard.count(RunSfxLibrary.HEARTH_FOCUS_ID) == hover_count, "Hover then focus remains one choice highlight beyond the cooldown")
+	choice.mouse_exited.emit()
+	choice.mouse_entered.emit()
+	expect.call(heard.count(RunSfxLibrary.HEARTH_FOCUS_ID) == hover_count, "Hover re-entry while focused does not tick twice")
+	choice.mouse_exited.emit()
+	choice.release_focus()
+	await _wait_choice_guard(tree)
+	view.move_focus(1)
+	var focus_count: int = heard.count(RunSfxLibrary.HEARTH_FOCUS_ID) - hover_count
+	expect.call(hover_count == 1 and focus_count == 1, "Event hover and controller focus request the Hearth cue")
+	expect.call(CursorFeedback.cue_owns_feedback(choice, true), "Event choices suppress the shared focus voice")
+	# An immediate distinct highlight uses the Hearth's same 80 ms guard.
+	for button: Button in view.choices: button.release_focus()
+	view.choices[0].mouse_entered.emit()
+	expect.call(heard.count(RunSfxLibrary.HEARTH_FOCUS_ID) == hover_count + focus_count, "Rapid choice changes retain the Hearth repeat guard")
+	print("AU02 EVENT FEEDBACK: hover=%d focus=%d" % [hover_count, focus_count])
+	view.queue_free()
+	await tree.process_frame
+	var panel := Control.new()
+	tree.root.add_child(panel)
+	panel.set_meta("choice_revealed", true)
+	heard.clear()
+	var hearth := HearthPresentation.new()
+	hearth.emphasize(panel, panel, true, sound)
+	hearth.emphasize(panel, panel, true, sound)
+	expect.call(heard == [RunSfxLibrary.HEARTH_FOCUS_ID], "Hearth comparison requests one cue for a repeated highlight")
+	panel.free()
+	await _test_card_play_gain_feedback(tree, expect)
+
+static func _test_card_play_gain_feedback(tree: SceneTree, expect: Callable) -> void:
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	tree.root.add_child(scene)
+	await tree.process_frame
+	scene.call("_close_dialogue")
+	scene.call("_ensure_sfx_bank")
+	var bank: Node = scene.get("_sfx_bank")
+	bank.set_test_clock(CARD_PLAY_PROOF_CLOCK_MSEC)
+	bank.play("card.select")
+	var normal_gain: float = float(bank.last_play["selected"]["gain"])
+	var played_before: int = int(bank.cues["card.select"]["played"])
+	var voices_before: int = bank.cues["card.select"]["voices"].size()
+	var requests: Array[Dictionary]
+	bank.cue_requested.connect(func(id: String, result: String) -> void:
+		if id == "card.select":
+			requests.append({"result": result, "frame": Engine.get_process_frames(),
+				"gain": bank.last_play["selected"]["gain"]})
+	)
+	scene.set("_card_play_budget_override", {"ordinary_remaining": 2, "banked_remaining": 0, "total_remaining": 2})
+	scene.call("_animate_card_play_reward", 3)
+	expect.call(requests.size() == 1 and requests[0]["result"] == "played" and requests[0]["frame"] == Engine.get_process_frames(), "One returned Card Play sounds on the meter pulse's starting frame, even immediately after selection")
+	expect.call(not requests.is_empty() and is_equal_approx(float(requests[0]["gain"]), normal_gain - 4.0), "Returned Card Play uses card.select exactly 4 dB below normal")
+	await tree.create_timer(0.3).timeout
+	expect.call(requests.size() == 1, "The settle animation adds no delayed sound requests")
+	expect.call(int(scene.get("_card_play_count_override")) == 3, "Card Play feedback retains the existing meter update")
+	var before: Dictionary = {"death_rewards": []}
+	var after: Dictionary = {"death_rewards": [{"card_plays": 1}, {"card_plays": 2}]}
+	scene.call("_animate_death_rewards", before, after)
+	expect.call(requests.size() == 4 and int(bank.cues["card.select"]["played"]) == played_before + 4, "A multi-kill plays one cue per returned play without cooldown suppression")
+	for index: int in range(1, requests.size()):
+		expect.call(requests[index]["frame"] == Engine.get_process_frames() and requests[index]["result"] == "played" and is_equal_approx(float(requests[index]["gain"]), normal_gain - 4.0), "Every multi-kill return sounds on the one existing meter pulse frame at minus 4 dB")
+	await tree.create_timer(0.3).timeout
+	await scene.call("_animate_death_rewards", after, after)
+	var router: RefCounted = scene.get("_sfx_router")
+	router.card_play_gain(0)
+	router.card_play_gain(-1)
+	expect.call(requests.size() == 4, "Unchanged rewards and non-gains do not replay feedback")
+	expect.call(bank.cues["card.select"]["voices"].size() == voices_before, "Returned plays keep the existing card.select voice cap")
+	expect.call(bank.play("card.select") == 0.0, "Normal selection still obeys its original cooldown")
+	bank.set_test_clock(CARD_PLAY_PROOF_CLOCK_MSEC + int(bank.cues["card.select"]["entry"]["cooldown_ms"]))
+	bank.play("card.select")
+	expect.call(is_equal_approx(float(bank.last_play["selected"]["gain"]), normal_gain), "Normal card.select level remains unchanged after returned-play feedback")
+	print("AU02 CARD PLAY FEEDBACK: 4 returned plays; card.select gain_db=-4; same-frame dispatch")
+	scene.queue_free()
+	await tree.process_frame
+
+static func _wait_choice_guard(tree: SceneTree) -> void:
+	# SceneTreeTimer can consume a cold fixture's preceding frame delta; the
+	# production Hearth and event guards both explicitly use wall time.
+	var deadline: int = Time.get_ticks_msec() + ceili(CHOICE_GUARD_PROOF_SECONDS * 1000.0)
+	while Time.get_ticks_msec() < deadline: await tree.process_frame

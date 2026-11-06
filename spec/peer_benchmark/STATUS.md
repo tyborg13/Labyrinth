@@ -1313,3 +1313,17 @@ magic-slot limit dropped — spells go straight into the deck, Purge at Scavenge
 Shale Bloomer + Lightning Wisp maquette cutout rigs on every surface (rr-04, int-02); Gust Shrike rig (rr-03/qa-06).
 Not yet in: run-start boons, map branching, auto next-section transition, Immolation buff, move+block "Stay",
 Frostglass Lancer redo (mq-03 in progress), remaining static-enemy rigs.
+
+## Update 2026-11-05 night (release 7e6e4e23b; master 4c1547f19)
+- Release gate at 7e6e4e23b: Python all groups OK, export smoke PASS, full Godot 1 load-only failure (brs02 skipped a
+  health step; passes alone) -> qa-63. Master push not yet offered-and-answered; daily push already went out today.
+- Owner's Steam bugs fixed in release: event preview hover lag (qa-59), missing turn order rail (exp-01, export-template
+  constructor callables; tool-01 export smoke now gates every push).
+- Running: perf-68 (pre-battle prepares while the map is open), perf-69 (board tile paint CPU), perf-70 (longest
+  in-fight frames), qa-63 (playback never skips a step on a slow frame).
+- In review (director native proofs): fx-10 (strike trails follow the weapon; native after-reel recording, compare with
+  /private/tmp/labyrinth_codex/fx-09/native), ui-22 (6 Deck fixes from sd-09; native before/after queued), ux-06
+  (new-player recording r2 queued). All three post to the inbox after review.
+- Inbox open: air-1 (merge air-01 on approval), qa-59 item. dmo-01..03 wait for the demo session's built-result post.
+- Parked: perf-65 (needs a quiet-machine native timing A/B). Queue ideas: set_combat_state maquette sync (perf-67 #4),
+  _refresh_stage_view input reuse (#5).

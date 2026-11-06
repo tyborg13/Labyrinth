@@ -162,9 +162,12 @@ static func _test_tactical_evaluation_is_read_only_and_bounded(expect: Callable)
 	var best_usec: int = 9223372036854775807
 	var measured_plan_calls: int = 0
 	var measured_future_searches: int = 0
+	var previous_shared_plan_memo: RefCounted = CombatEngine._shared_standard_plan_memo
 	for attempt: int in range(5):
-		# Fresh planner caches make every sample the same cold decision boundary.
+		# perf-59 (ca4f96e84) shares ordinary plans across engine instances.
+		# Reset that memo too: every sample must measure the same cold boundary.
 		combat = CombatEngine.new()
+		CombatEngine._shared_standard_plan_memo = preload("res://scripts/combat_preview_memo.gd").new()
 		combat.set_runtime_performance_instrumentation_enabled(true)
 		for enemy_index: int in range(enemies.size()):
 			combat.enemy_tactical_intent_options(state, enemy_index)
@@ -186,6 +189,7 @@ static func _test_tactical_evaluation_is_read_only_and_bounded(expect: Callable)
 			"With one player target, future-route searches should stay bounded to at most one per authored intent; plans=%d searches=%d" % [expected_plan_calls, measured_future_searches]
 		)
 		best_usec = mini(best_usec, total_usec)
+	CombatEngine._shared_standard_plan_memo = previous_shared_plan_memo
 	expect.call(
 		best_usec < 250000,
 		"The representative congested squad refresh should remain below the 250 ms decision-boundary ceiling; measured=%.2f ms" % (float(best_usec) / 1000.0)

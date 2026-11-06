@@ -61,6 +61,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		rows.append({"id":id,"name":GameData.card_def(id)["name"],"actions":actions.map(func(a:Dictionary)->String:return str(a["type"])),"targets_exercised":targets.size(),"targetless":bool(preview.get("complete",false)),"shortcut_targets":(shortcuts.get("plans",{}) as Dictionary).size()})
 		await tree.process_frame
 	await _test_worldroot(instance, combat, expect)
+	await _test_controller_hidden_targets(instance, combat, expect)
 	_test_force_range(combat,expect)
 	instance.queue_free()
 	await tree.process_frame
@@ -174,3 +175,56 @@ static func _test_worldroot(instance: Node, combat: CombatEngine, expect: Callab
 	Surface.remove(rejected, Vector2i(3, 4), "rubble", "test")
 	expect.call(not combat.valid_targets_for_player_action(rejected, action).has(target), "Disconnected Worldroot origins cannot extend reach")
 	expect.call(combat.apply_player_action(rejected, action, target) == rejected, "Invalid Worldroot cannot spend or hit")
+
+static func _test_controller_hidden_targets(instance: Node, combat: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = state_for(combat, "hamstring_shot")
+	_install(instance, state)
+	await instance.call("_on_card_pressed", 0)
+	var board: Control = instance.get("board_view")
+	var player: Vector2i = state["player"]["pos"]
+	# Presentation-only fixture: legal actions are unchanged; every non-player
+	# tile is obscured, including enemies and the floor effects in state_for().
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"umbra_visible_tiles": [player]})
+	var offered: Array[Vector2i]
+	offered.assign(instance.get("_pending_target_tiles"))
+	var preview: Dictionary = instance.call("_active_card_preview")
+	if bool(instance.call("_prepare_preview_shortcuts_for_current_action", preview)):
+		for tile: Vector2i in instance.get("_preview_shortcuts_cache").get("plans", {}):
+			if not offered.has(tile): offered.append(tile)
+	var candidates: Array = instance.call("_controller_board_tiles")
+	var hidden := Vector2i(-1, -1)
+	for tile: Vector2i in board.call("_rendered_tiles_in_draw_order"):
+		expect.call(candidates.has(tile) == offered.has(tile), "Controller target legality matches pointer offerings at %s" % tile)
+		if offered.has(tile) and tile != player:
+			hidden = tile
+			var candidate: Dictionary = instance.call("_controller_candidate_for_tile", tile)
+			expect.call(candidate["kind"] == "tile" and str(candidate["detail"]).is_empty() and str(candidate["detail_key"]).is_empty(), "Hidden target %s exposes no occupant, loot, intent or floor detail" % tile)
+			expect.call(str(board.call("controller_tooltip_for_tile", tile)).is_empty(), "Hidden pointer/controller tile tooltip stays empty at %s" % tile)
+	expect.call(hidden.x >= 0, "Targeting fixture offers a hidden legal target")
+	if hidden.x >= 0:
+		board.set("_slice_building", true)
+		board.set("_controller_focus_tile", Vector2i(-1, -1))
+		board.set("_hover_tile", hidden)
+		board.set("_slice_operations", [])
+		board.call("_draw_tile_overlays", hidden)
+		var pointer_operations: Array = board.get("_slice_operations").duplicate(true)
+		board.set("_controller_focus_tile", hidden)
+		board.set("_hover_tile", Vector2i(-1, -1))
+		board.set("_slice_operations", [])
+		board.call("_draw_tile_overlays", hidden)
+		expect.call(board.get("_slice_operations") == pointer_operations, "Hidden controller highlight uses exactly the pointer overlay operations")
+		board.set("_slice_building", false)
+	# Confirmation and ordinary movement use their own existing pointer targets.
+	instance.set("_pending_action_index", (instance.get("_pending_actions") as Array).size())
+	candidates = instance.call("_controller_board_tiles")
+	expect.call(candidates.size() == 1 and candidates.has(player), "Card confirmation includes only the preview player's tile")
+	instance.call("_reset_card_resolution")
+	var moves: Array[Vector2i] = combat.valid_targets_for_player_action(state, {"type": "move", "range": 2})
+	instance.set("_player_movement_selected", true)
+	instance.set("_player_movement_target_tiles", moves)
+	candidates = instance.call("_controller_board_tiles")
+	expect.call(candidates.size() == moves.size() and candidates.all(func(tile: Vector2i) -> bool: return moves.has(tile)), "Movement candidates include hidden legal destinations and exclude other tiles")
+	instance.call("_controller_enter_board", false)
+	expect.call(moves.has(instance.get("_controller_board_tile")), "Movement entry falls back to an offered destination when the player tile is not a target")
+	instance.set("_player_movement_selected", false)
+	board.call("set_controller_focus_tile", Vector2i(-1, -1))

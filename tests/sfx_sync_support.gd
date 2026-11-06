@@ -10,8 +10,11 @@ const MotionFixture = preload("res://tests/suites/combat_motion_timing_suite.gd"
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const SyncClock = preload("res://tests/sfx_sync_clock.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
+const SurfaceCards = preload("res://scripts/surface_card_rules.gd")
 const ARRIVAL_FIXTURE_ID: int = 9101
 const ARRIVAL_FIXTURE_TILE := Vector2i(4, 4)
+const CARD_PLAY_GAIN_FIXTURE_AMOUNT: int = 1
+const ARRIVAL_DRAGON_FIXTURE_TYPE: String = "tharokh"
 
 static func run(h: SceneTree) -> void:
 	_arrivals(h)
@@ -21,10 +24,49 @@ static func run(h: SceneTree) -> void:
 	_movement(h)
 	_veil(h)
 	_ui(h)
-	_run_contexts(h)
+	await _run_contexts(h)
 	_ambience(h)
 	_branches(h)
 	_composite_relays(h)
+	_release_cues(h)
+
+# Exercise the approved pol-05 / pol-27 / au-02 call sites without changing
+# the protected audio measurements or baseline cue/site/count requirements.
+static func _release_cues(h: SceneTree) -> void:
+	MotionFixture._install_fixture(h.scene, false)
+	h._begin("reward/card_play")
+	var before: Dictionary = h._state()
+	var remaining: int = int(h.scene.call("_displayed_card_play_budget").get("total_remaining", 0))
+	h._invoke("_animate_card_play_reward", [remaining + CARD_PLAY_GAIN_FIXTURE_AMOUNT, CARD_PLAY_GAIN_FIXTURE_AMOUNT])
+	var gains: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "card.select" and event["result"] == "played")
+	if gains.size() != CARD_PLAY_GAIN_FIXTURE_AMOUNT: h.failures.append("Earned play sync fixture must play its onset cue once")
+	h._finish(before)
+	MotionFixture._install_fixture(h.scene, false)
+	h._begin("meteorfall/landing")
+	var engine: RefCounted = h.scene.get("_combat_engine")
+	var action: Dictionary = Data.card_def("meteorfall")["actions"][0].duplicate(true)
+	action["_card_id"] = "meteorfall"
+	before = engine.apply_player_action(h._state(), action, h._state()["enemies"][0]["pos"])
+	var after: Dictionary = SurfaceCards.resolve_meteor_marks(engine, before.duplicate(true))
+	var steps: Array[Dictionary] = SurfaceCards.turn_start_presentation_steps(engine, before, after)
+	if steps.is_empty(): h.failures.append("Meteorfall sync fixture must land an approved mark")
+	h.router.baseline(before)
+	h._invoke("_animate_enemy_phase_steps", [before, steps])
+	for cue: String in ["push.collision", "spell.fire"]:
+		if h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == cue and event["result"] == "played").size() != 1:
+			h.failures.append("Meteorfall landing must play once: " + cue)
+	h._finish(before)
+	MotionFixture._install_fixture(h.scene, false)
+	h._begin("dragon/arrival")
+	before = h._state()
+	before["enemies"][0]["type"] = ARRIVAL_DRAGON_FIXTURE_TYPE
+	h.scene.set("_combat_state", before)
+	h.scene.get("_run_state")["combat_state"] = before
+	h.router.baseline(before)
+	h._invoke("_sfx_sync_play_arrival", [])
+	if h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "dragon.roar" and event["result"] == "played").size() != 1:
+		h.failures.append("Dragon opening must play its approved roar once")
+	h._finish(before)
 
 static func _arrivals(h: SceneTree) -> void:
 	var previous: Dictionary = h._state()
@@ -339,7 +381,7 @@ static func _run_contexts(h: SceneTree) -> void:
 	var moves: Array = engine.available_moves(run_state)
 	if not moves.is_empty():
 		h._begin("input/map_select")
-		h._invoke("_on_map_view_room_selected", [moves[0]])
+		await h._invoke_prepared("_on_map_view_room_selected", [moves[0]])
 		h._finish(h._state())
 
 static func _ambience(h: SceneTree) -> void:

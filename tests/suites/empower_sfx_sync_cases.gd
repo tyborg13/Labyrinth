@@ -15,7 +15,9 @@ static func run(h: SceneTree) -> void:
 			var state: Dictionary = Fixtures._state(Combat.new(), ["kwtest_empower_block"])
 			state["current_actor"] = {"kind": "player", "key": "player"}
 			state.erase("player_turn_restrictions")
-			h.scene.call("_cancel_card_selection")
+			h.scene.call("_reset_card_resolution")
+			h.scene.call("_cancel_player_movement_selection", false)
+			h.scene.get("_empower_charge").observe({})
 			h.scene.set("_combat_state", state)
 			h.scene.get("_run_state")["mode"] = "combat"
 			h.scene.get("_run_state")["combat_state"] = state
@@ -26,6 +28,12 @@ static func run(h: SceneTree) -> void:
 			if selected: h._invoke("_on_card_pressed", [0])
 			for charged: bool in [true, false]:
 				h._begin("input/empower/%s/selected=%s/reduced=%s" % ["charge" if charged else "uncharge", selected, reduced])
+				# The inter-case clock gap can legitimately expire pointer hover.
+				# Establish this keyboard input's owner after that gap, silently.
+				if not selected:
+					h.clock.observing = false
+					h.scene.call("_on_card_hover_started", 0)
+					h.clock.observing = true
 				h._invoke("_toggle_pending_empower", ["keyboard"])
 				if bool(h.scene.call("_hand_card_empowered", 0)) != charged:
 					h.failures.append("Empower sync case did not toggle: " + h.scenario)
@@ -35,13 +43,18 @@ static func run(h: SceneTree) -> void:
 				h._finish(state)
 	var blocked: Dictionary = Fixtures._state(Combat.new(), ["kwtest_empower_health"])
 	blocked["player"]["hp"] = 2
-	h.scene.call("_cancel_card_selection")
+	h.scene.call("_reset_card_resolution")
+	h.scene.call("_cancel_player_movement_selection", false)
+	h.scene.get("_empower_charge").observe({})
 	h.scene.set("_combat_state", blocked)
 	h.scene.get("_run_state")["combat_state"] = blocked
 	h.scene.call("_mark_combat_preview_state_changed")
 	h.scene.call("_refresh_ui")
 	h.scene.call("_on_card_hover_started", 0)
 	h._begin("input/empower/blocked_health")
+	h.clock.observing = false
+	h.scene.call("_on_card_hover_started", 0)
+	h.clock.observing = true
 	h._invoke("_toggle_pending_empower", ["keyboard"])
 	if h.events.size() != 1 or h.events[0]["cue"] != "card.invalid" or h.events[0]["result"] != "played":
 		h.failures.append("Blocked Empower sync case must play exactly card.invalid")

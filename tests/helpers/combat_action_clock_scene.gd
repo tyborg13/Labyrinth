@@ -5,6 +5,12 @@ var movement_scales: Array[float]
 var effect_scales: Dictionary = {}
 var timed_presentations: Array[Dictionary]
 var record_clocks: bool = false
+
+# Isolate feedback cleanup from the rail's independent tween while retaining
+# the complete HUD required by production's deferred right-column layout.
+func _animate_turn_order_transition(_before_order: Array[Dictionary], after_order: Array[Dictionary], _defeated_actor_keys: Dictionary = {}) -> void:
+	_set_turn_order_bar_entries(after_order)
+
 func _render_board_state(state: Dictionary, presentation: Dictionary, stable: bool = false) -> void:
 	var effect: Dictionary = presentation.get("effect",{})
 	if _combat_pacing.enemies_active and bool(_combat_pacing.get("_enemy_action_active")) and Engine.time_scale > 0.0:

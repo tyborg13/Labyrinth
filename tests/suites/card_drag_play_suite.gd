@@ -785,13 +785,23 @@ static func _test_controller_targeting_reuses_shared_arrow(tree: SceneTree, expe
 	expect.call(_hand(instance) == free_hand_before and _enemy_hp(instance) == free_enemy_hp_before, "Controller Accept between board candidates should not resolve the selected card")
 
 	var invalid_focus_tile := PLAYER_TILE
+	# qa-54 (92112b075): snapped candidates are pointer-accepted targets.
+	# An illegal square cannot replace intentional free-cursor aiming.
+	expect.call(not (instance.call("_controller_board_tiles") as Array).has(invalid_focus_tile), "The illegal focus fixture is outside the selected card's offered controller targets")
 	instance.call("_controller_set_board_tile", invalid_focus_tile)
 	await tree.process_frame
-	var invalid_endpoint: Vector2 = (instance.get("_controller_focus_candidate") as Dictionary).get("point", Vector2.ZERO)
+	if arrow != null:
+		var unchanged_transform: Transform2D = arrow.get_global_transform_with_canvas()
+		expect.call((unchanged_transform * (arrow.call("targeting_end") as Vector2)).distance_to(free_endpoint) <= 1.0, "An illegal controller square should preserve the free-cursor arrow endpoint")
+	expect.call((instance.get("_controller_focus_candidate") as Dictionary).is_empty() and board.get("_controller_focus_tile") == NO_TARGET_TILE and _hand(instance) == hand_before, "An illegal controller square should leave focus and the selected card unchanged")
+
+	instance.call("_controller_set_board_tile", enemy_tile)
+	await tree.process_frame
+	var moved_endpoint: Vector2 = (instance.get("_controller_focus_candidate") as Dictionary).get("point", Vector2.ZERO)
 	if arrow != null:
 		var moved_transform: Transform2D = arrow.get_global_transform_with_canvas()
-		expect.call((moved_transform * (arrow.call("targeting_end") as Vector2)).distance_to(invalid_endpoint) <= 1.0, "Moving controller focus should move the shared arrow endpoint through the same persistent targeting state")
-	expect.call(board.get("_controller_focus_tile") == invalid_focus_tile and _hand(instance) == hand_before, "Focusing an illegal controller square should remain non-destructive and visibly focused")
+		expect.call((moved_transform * (arrow.call("targeting_end") as Vector2)).distance_to(moved_endpoint) <= 1.0, "Moving controller focus to an offered target should move the shared arrow endpoint through the same persistent targeting state")
+	expect.call(instance.get("_controller_board_tile") == enemy_tile and board.get("_controller_focus_tile") == enemy_tile and _hand(instance) == hand_before, "Focusing an offered controller target should remain non-destructive and visibly focused")
 
 	instance.call("_open_menu_overlay")
 	await tree.process_frame

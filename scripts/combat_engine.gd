@@ -3,6 +3,7 @@ class_name CombatEngine
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const EnemyPlanningQueries = preload("res://scripts/enemy_planning_queries.gd")
+const IntentPlanInputs = preload("res://scripts/combat_intent_plan_inputs.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
 const MarkedRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -7642,6 +7643,7 @@ func _trigger_player_bleed_for_action(state: Dictionary, action: Dictionary) -> 
 	if bleed_amount <= 0:
 		return next_state
 	next_state = _damage_player(next_state, bleed_amount, false, false, "bleed")
+	preload("res://scripts/status_tick_receipts.gd").record_player_bleed(next_state, player)
 	_log(next_state, "Bleed opens for %d." % bleed_amount)
 	return next_state
 
@@ -9398,10 +9400,17 @@ func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_overrid
 	# Raw definitions completely identify the pure scaling dependency.
 	var definitions: Array
 	for value: Dictionary in state.get("enemies", []): definitions.append(GameData.enemies().get(str(value.get("type", "")), {}))
-	return _standard_plan_memo.resolve([state, definitions, enemy_index, intent, movement_disabled, attack_disabled], func() -> Dictionary:
+	# Board, badge and battlefield previews use separate ordinary engines. Their
+	# read-only plans depend on these exact inputs, not an instance's query caches.
+	# Keep custom/injected implementations isolated, including instance fields.
+	var ordinary_engine: bool = get_script().resource_path == "res://scripts/combat_engine.gd"
+	var memo: RefCounted = _shared_standard_plan_memo if ordinary_engine else _standard_plan_memo
+	var plan_state: Dictionary = IntentPlanInputs.for_standard_plan(state, intent) if ordinary_engine else state
+	return memo.resolve([plan_state, definitions, enemy_index, intent, movement_disabled, attack_disabled], func() -> Dictionary:
 		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled))
 
 var _standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
+static var _shared_standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
 
 func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dictionary, intent: Dictionary, movement_disabled: bool, attack_disabled: bool) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0

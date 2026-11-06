@@ -15,7 +15,7 @@ class CommandBoard extends Board:
 
 class RoutingBoard extends Board:
 	var queued: Array = []
-	func _queue_render_layer_redraw(layer: Control) -> void: queued.append(layer)
+	func _queue_render_layer_redraw(layer: Control, _clock_only: bool = false) -> void: queued.append(layer)
 	func _queue_dynamic_redraw() -> void: queued.append("all")
 
 class PathRoutingBoard extends Board:

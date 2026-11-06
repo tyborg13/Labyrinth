@@ -230,7 +230,7 @@ func _assert_movement_hud(instance: Node, expected_remaining: int, expected_capa
 	var meter: Control = instance.get("_movement_meter") as Control
 	var count: Label = instance.get("_movement_meter_count") as Label
 	_assert(meter != null and meter.visible, "%s should show the movement HUD" % label)
-	_assert(count != null and count.text == "%d / %d movement" % [expected_remaining, expected_capacity], "%s should show the exact movement count" % label)
+	_assert(count != null and count.text == "%d / %d Movement" % [expected_remaining, expected_capacity], "%s should show the exact movement count" % label)
 	var play_meter: Control = instance.get("_play_meter") as Control
 	if meter != null and play_meter != null:
 		var movement_rect: Rect2 = meter.get_global_rect()

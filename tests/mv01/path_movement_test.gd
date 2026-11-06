@@ -68,7 +68,11 @@ func _run() -> void:
 			tile_phase_unchanged = tile_phase_unchanged and is_equal_approx(scene.submissions[index][type + "_motion"]["enemy_1"]["phase"], float(index % count + 1) / count)
 		_expect(tile_phase_unchanged, type + ": limb/lift phase keeps one unchanged authored cycle per tile")
 		if Timing.uses_continuous_root(data):
-			_expect(is_equal_approx(float(schedule["frame_seconds"]) * schedule["frames"] / 3.0, EXPECTED_TILE_SECONDS[type]), type + ": director tile clock")
+			# walk-01 gives reviewed humanoids their authored tile clock even
+			# when a remaining root track still needs continuous interpolation.
+			var authored_humanoid: bool = Timing.uses_parity(data) and Timing.AUTHORED_HUMANOID_TILE_TYPES.has(type)
+			var expected_seconds: float = float(data["clips"]["move"]["seconds"]) if authored_humanoid else float(EXPECTED_TILE_SECONDS[type])
+			_expect(is_equal_approx(float(schedule["frame_seconds"]) * schedule["frames"] / 3.0, expected_seconds), type + (": authored humanoid tile clock" if authored_humanoid else ": director tile clock"))
 		else:
 			_expect(not scene.submissions[0][type + "_motion"]["enemy_1"].has("root_forward_override"), type + ": linear rig unchanged")
 		if type in ["ember_tick", "burrow_grub"]:

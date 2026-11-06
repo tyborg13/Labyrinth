@@ -1,0 +1,56 @@
+from pathlib import Path
+import json,re,time,collections
+EVIDENCE=Path('/private/tmp/labyrinth_codex/qa-56')
+TRACE_TAIL_BYTES=30000
+for campaign in ['default','no-embrace','default-extra']:
+ root=EVIDENCE/('campaign-'+campaign)
+ if not root.exists():continue
+ if (EVIDENCE/('campaign-'+campaign+'-execution.json')).exists():
+  data=json.loads((root/'campaign.json').read_text());outcomes=collections.Counter((run.get('finish') or {}).get('outcome','process_failure') for run in data['runs'])
+  print(campaign+': COMPLETE',len(data['runs']),'runs;',dict(outcomes),'wall_minutes='+str(round(data['wall_seconds']/60,2)))
+  continue
+ runs=sorted(root.glob('seed-*'))
+ print(campaign+':',len(runs),'started; elapsed since provenance',round((time.time()-(root/'provenance.json').stat().st_mtime)/60,2),'minutes')
+ counts=collections.Counter(); mismatches=collections.Counter()
+ for directory in runs:
+  summary=directory/'summary.json'; trace=directory/'trace.jsonl'
+  if summary.exists():
+   s=json.loads(summary.read_text());print(directory.name,s['outcome'],'decisions='+str(s['decisions']),'sections='+','.join(s['sections']))
+  elif trace.exists():
+   with trace.open('rb') as f:
+    f.seek(max(0,trace.stat().st_size-TRACE_TAIL_BYTES)); lines=f.read().decode(errors='replace').splitlines()
+   latest=next((json.loads(line)['data'] for line in reversed(lines) if '"event":"decision"' in line),{})
+   c=latest.get('context',{});print(directory.name,'active','decision='+str(latest.get('decision','startup')),'section='+str(c.get('section','-')),'room='+str(c.get('room_kind','-')))
+  log=directory/'godot.log'
+  if log.exists():
+   lines=log.read_text(errors='replace').splitlines()
+   for i,line in enumerate(lines):
+    if line.startswith(('SCRIPT ERROR:','ERROR:','WARNING:')):
+     loc=lines[i+1].strip() if i+1<len(lines) else ''
+     counts[(line,loc)]+=1
+    if '"event":"qa56_observation_mismatch"' in line:
+     row=json.loads(line.removeprefix('RUN_HUNT_EVENT '));mismatches[row['data']['kind']]+=1
+ print('marker totals:',{kind:sum(v for (message,_),v in counts.items() if message.startswith(kind)) for kind in ['SCRIPT ERROR:', 'ERROR:', 'WARNING:']})
+ print('script error sources:',{location:value for (message,location),value in counts.items() if message.startswith('SCRIPT ERROR:')})
+ print('observation mismatch groups:',dict(mismatches))
+
+for root in sorted(EVIDENCE.glob('census-*'))+sorted(EVIDENCE.glob('shutdown-*')):
+ if not root.is_dir():continue
+ for directory in sorted(root.glob('seed-*')):
+  trace=directory/'trace.jsonl';summary=directory/'summary.json'
+  if summary.exists():
+   data=json.loads(summary.read_text());print(root.name,data['outcome'],'decisions='+str(data['decisions']))
+  elif trace.exists():
+   with trace.open('rb') as stream:
+    stream.seek(max(0,trace.stat().st_size-TRACE_TAIL_BYTES));lines=stream.read().decode(errors='replace').splitlines()
+   action=next((json.loads(line)['data'] for line in reversed(lines) if '\"event\":\"decision\"' in line),{})
+   context=action.get('context',{});print(root.name,'active','decision='+str(action.get('decision','startup')),'section='+str(context.get('section','-')),'room='+str(context.get('room_kind','-')))
+  log=directory/'godot.log'
+  if log.exists():
+   lines=log.read_text(errors='replace').splitlines()
+   failures=[line for line in lines if line.startswith('SCRIPT ERROR:')]
+   mismatches=[json.loads(line.removeprefix('RUN_HUNT_EVENT '))['data']['kind'] for line in lines if '\"event\":\"qa56_observation_mismatch\"' in line]
+   command_path=directory/'command.json'
+   argv=json.loads(command_path.read_text())['argv'] if command_path.exists() else []
+   original_hunt='--script' in argv and argv[argv.index('--script')+1]=='tools/run_hunt.gd'
+   print('replay script_errors='+str(len(failures)), 'original hunt; no model observer' if original_hunt else 'model mismatch groups='+str(dict(collections.Counter(mismatches))))

@@ -1,0 +1,66 @@
+"""Retain exact observed result lines and test process exits for the handoff."""
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+
+ROOT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-57')
+BASE = Path('/private/tmp/labyrinth_codex/qa-57')
+REPORT = ROOT/'spec/peer_benchmark/qa/controller_hunt_2026-11-05b'
+# Values are the observed runner exits, not inferred from log substrings.
+OBSERVED_EXITS = {
+    'cold-import': 0, 'smoke': 0, 'sweep-baseline': 1, 'new-run-isolated': 0,
+    'title-controller': 1, 'title-controller-depth': 0, 'python-default': 0,
+    'tutorial': 0, 'reward': 0, 'dragon-parity': 0,
+    'skill-learn-before': 1, 'skill-learn-before-focused': 1, 'skill-learn-after': 0,
+    'ui-identity': 0, 'python-default-final': 0, 'skill-learn-final': 0,
+    'python-default-handler': 0, 'ui-identity-final': 0, 'treasure-replay': 0,
+    'treasure-reveal-probe': 0, 'target-filter': 0, 'target-filter-ready': 0, 'target-filter-final': 0, 'sweep-final': 1, 'purge-return': 0,
+}
+PREFIXES = ('CONTROLLER HUNT:', 'RUN HUNT:', 'CONTROLLER SCREEN SWEEP:', 'SWEEP FINDING:',
+            'REGRESSION ', 'TITLE CONTROLLER:', 'TITLE CONTROLLER FINDING:', 'DRAGON TARGET PARITY:',
+            'TREASURE REVEAL BOUNDS:', 'TARGET FILTER GAP:', 'TARGET FILTER PROBE:', 'FILTER SELECTED:',
+            'Ran ', 'OK', 'FAILED', 'PYTHON SUITE WALL:', 'SELECTED MODULES:', 'ISOLATION AUDIT:')
+
+def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def collect():
+    rows=[]
+    for name,code in OBSERVED_EXITS.items():
+        p=BASE/'evidence'/(name+'.log')
+        if not p.exists(): continue
+        lines=p.read_text().splitlines()
+        result_lines=[s for s in lines if s.startswith(PREFIXES)]
+        if name.startswith('python-default'):
+            # Nested runner-feedback fixtures print their own tiny suites.
+            # Retain the primary inventory and final unittest/wall summaries.
+            result_lines=[next(s for s in lines if s.startswith('ISOLATION AUDIT: 55')),
+                          next(s for s in lines if s.startswith('SELECTED MODULES: 19')),
+                          next(s for s in reversed(lines) if s.startswith('Ran ')),
+                          next(s for s in reversed(lines) if s in ('OK','FAILED')),
+                          next(s for s in reversed(lines) if s.startswith('PYTHON SUITE WALL:'))]
+        rows.append(dict(name=name,returncode=code,log=str(p),sha256=digest(p),
+                         result_lines=result_lines,
+                         script_errors=[s for s in lines if s.startswith(('SCRIPT ERROR:', 'Parse Error:'))]))
+    rows.append(dict(name='python-audit',returncode=0,log=str(BASE/'evidence/python-audit/isolation-audit.md'),
+                     result_lines=['ISOLATION AUDIT: 55 modules', 'SELECTED MODULES: 19 of 55']))
+    (REPORT/'verification.json').write_text(json.dumps(rows,indent=2)+'\n')
+    sources=REPORT/'proof-sources'
+    sources.mkdir(exist_ok=True)
+    for name in ('controller_hunt.gd','run_acceptance.py','collect_report.py','status.py','title_controller.gd','dragon_target_parity.gd','verification.py','write_report.py','treasure_reveal_probe.gd','target_filter_probe.gd','purge_return_probe.gd'):
+        shutil.copyfile(BASE/'tools'/name,sources/(name+'.txt'))
+    paths=['scripts/run_scene.gd','scripts/modal_menu_focus.gd','scripts/settings_panel.gd','scripts/controller_focus_candidates.gd',
+           'scripts/combat_board_view.gd','scripts/skill_tree_view.gd','scripts/grimoire_search_keyboard.gd','scripts/chronicle_panel.gd',
+           'tests/controller_screen_sweep.gd','tools/run_hunt.gd','tools/run_hunt_policy.gd']
+    provenance=dict(head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                    uncommitted=True, production_changes=True,
+                    sources={p:digest(ROOT/p) for p in paths},
+                    tools={p.name.removesuffix('.txt'):digest(p) for p in sources.iterdir()},
+                    release_sources={p:hashlib.sha256(subprocess.check_output(['git','show','HEAD:'+p],cwd=ROOT)).hexdigest() for p in ('scripts/skill_tree_view.gd','tests/controller_screen_sweep.gd')},
+                    inherited_dragon_fixture=dict(path='spec/peer_benchmark/qa/controller_hunt_2026-11-05/dragon-target.variant',
+                                                  sha256=digest(ROOT/'spec/peer_benchmark/qa/controller_hunt_2026-11-05/dragon-target.variant')))
+    provenance['treasure_fixture']={'path': 'treasure-reveal.variant', 'sha256':digest(REPORT/'treasure-reveal.variant')}
+    (REPORT/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
+
+if __name__=='__main__':collect()

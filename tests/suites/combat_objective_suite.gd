@@ -19,6 +19,7 @@ static func run(expect: Callable) -> void:
 	_test_reach_exit_reward_commits_route_and_preserves_board(expect)
 	_test_exit_objective_biases_control_and_blocking_routes(expect)
 	_test_objective_persistence_and_ui_surfaces(expect)
+	_test_boss_live_detail_keeps_facts_without_repeating_name(expect)
 
 static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> void:
 	for objective_type: String in [
@@ -288,6 +289,33 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 	hud.set_combat_state(state)
 	var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false) as Label
 	expect.call(detail != null and detail.text.begins_with("Dawn in ") and detail.text.contains("Reinforcements in"), "The live survival HUD should expose both victory time and the next reinforcement clock")
+	hud.free()
+
+static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Callable) -> void:
+	var hud := CombatObjectiveHud.new()
+	# Dragons and guardians share the named top health bar. Ordinary captains
+	# still need their identity in the objective's live detail.
+	for enemy_type: String in ["vyraketh", "zekarion", "ashen_reaver", "storm_cantor", "warden"]:
+		var definition: Dictionary = GameData.enemy_def(enemy_type)
+		var hp: int = int(definition.get("max_hp", 1))
+		var objective: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": enemy_type}
+		var state: Dictionary = {"objective": objective, "enemies": [{"id": 1, "type": enemy_type, "hp": hp, "max_hp": hp}]}
+		hud.set_combat_state(state)
+		var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false)
+		var title: Label = hud.find_child("ObjectiveTitle", true, false)
+		var facts: String = "%d/%d HP" % [hp, hp]
+		var expected: String = facts if bool(definition.get("boss_bar", false)) else "%s · %s" % [definition["name"], facts]
+		expect.call(detail.text == expected and detail.visible, enemy_type + " retains health facts and removes only a redundant boss name")
+		expect.call(title.text == CombatObjectiveRules.hud_title_for_objective(objective).to_upper(), enemy_type + " retains its exact objective title")
+		state["enemies"][0]["hp"] = 0
+		hud.set_combat_state(state)
+		expect.call(detail.text.ends_with("0/%d HP" % hp), enemy_type + " retains the zero-health fact during defeat presentation")
+		state["visible_enemy_ids"] = []
+		hud.set_combat_state(state)
+		expect.call(detail.text == "Leader concealed", enemy_type + " preserves hidden-enemy privacy")
+	var hoarder: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "ember_hoarder", "special_type": "ember_hoarder"}
+	hud.set_combat_state({"objective": hoarder, "enemies": [{"id": 1, "type": "ember_hoarder", "hp": 1, "max_hp": 2}]})
+	expect.call((hud.find_child("ObjectiveLiveDetail", true, false) as Label).text == "Before it escapes · 1/2 HP", "Hoarder live detail keeps its existing non-name copy")
 	hud.free()
 
 static func _room_metadata(depth: int) -> Dictionary:

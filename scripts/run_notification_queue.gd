@@ -46,7 +46,14 @@ static func refresh(host: Node, transient: bool = false) -> void:
 	if queue != null and not queue._departed and not transient:
 		queue._last_persistent = "" if label == null else label.text
 		queue._last_requested = queue._last_persistent
-	panel.visible = label != null and not label.text.is_empty() and (transient or str(host.get("_run_state").get("mode", "room")) != "combat")
+	panel.visible = not _full_panel_open(host) and label != null and not label.text.is_empty() and (transient or str(host.get("_run_state").get("mode", "room")) != "combat")
+
+static func _full_panel_open(host: Node) -> bool:
+	if str(host.get("_run_state").get("mode", "room")) == "event": return true
+	for field: String in ["_event_view", "_magic_purge_overlay"]:
+		var panel: Control = host.get(field) as Control
+		if is_instance_valid(panel) and panel.is_visible_in_tree(): return true
+	return false
 
 func _capture(message: String, transient: bool, resume_visible: bool = false) -> void:
 	if message.is_empty():
@@ -64,7 +71,7 @@ func _process(delta: float) -> void:
 	if not fixed_clock: advance(delta)
 
 func advance(seconds: float) -> void:
-	if not _owners.is_empty() or _current.is_empty(): return
+	if not _owners.is_empty() or _current.is_empty() or _full_panel_open(_host): return
 	_remaining -= seconds
 	if _remaining > 0.0: return
 	_current = {}
@@ -84,14 +91,14 @@ func _show_next() -> void:
 func _paint_current() -> void:
 	if _current.is_empty(): return
 	_host.get("log_label").text = str(_current["text"])
-	_host.get("log_overlay").show()
+	_host.get("log_overlay").visible = not _full_panel_open(_host)
 
 func _restore_persistent() -> void:
 	# A completed transient is no longer a notice. Leaving it in the label
 	# would make the next hold mistake stale paint for a fresh request.
 	_last_requested = _last_persistent
 	_host.get("log_label").text = _last_persistent
-	_host.get("log_overlay").visible = not _last_persistent.is_empty() and str(_host.get("_run_state").get("mode", "room")) != "combat"
+	_host.get("log_overlay").visible = not _full_panel_open(_host) and not _last_persistent.is_empty() and str(_host.get("_run_state").get("mode", "room")) != "combat"
 
 func _exit_tree() -> void:
 	_departed = true

@@ -132,6 +132,11 @@ func _queue_hover_redraws() -> void:
 
 
 func _draw_overlay_render_layer() -> void:
+	# perf-35 asks for a plan outside _draw. Keep the frozen oracle's complete
+	# paint callback as one operation; execute its legacy commands only in draw.
+	if _slice_building:
+		_slice_op("_draw_overlay_render_layer", [])
+		return
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()

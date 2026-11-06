@@ -60,8 +60,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 				expect.call(overlays.any(func(command: Array) -> bool: return bool(command[field]) if field == 4 else not command[field].is_empty()), "Retained draw fixture exercises overlay selector %d" % field)
 		else:
 			expect.call(overlays != last_overlay, "Changing overlay input changes actual retained tile content")
-		var torches: Array = candidate._foreground_render_layer.torch_commands
-		var old_torches: Array = reference._foreground_render_layer.torch_commands
+		var torches: Array = _torch_commands(candidate)
+		var old_torches: Array = _torch_commands(reference)
 		expect.call(not torches.is_empty() and not old_torches.is_empty(), "Real retained foreground emits torch sprite/trail commands")
 		expect.call(torches == old_torches, "Live torch cycle preserves every ordered sprite/trail command: %s" % TORCH_CLOCKS[mutation])
 		if mutation > 0: expect.call(torches != last_torch, "Changing the proof clock changes actual torch commands")
@@ -73,6 +73,15 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	for frame: int in range(SETTLE_FRAMES): await tree.process_frame
 	preload("res://tests/perf/hover_draw_manifest.gd")._textures.clear()
 	print("PERF04 RETAINED DRAW RESULT: %d live overlay/torch comparisons; leader, burrow, burst, zone and clock mutations exercised" % comparisons)
+
+static func _torch_commands(board: Control) -> Array:
+	var layer: Control = board._foreground_render_layer
+	var commands: Array = layer.torch_commands.duplicate(true)
+	# perf-35's ordered children now own foreground paint. Observe the actual
+	# drawing canvases, preserving their command order and the clock mutation.
+	for canvas: Control in layer._layer_slices.canvases:
+		commands.append_array(canvas.torch_commands)
+	return commands
 
 static func mutate_fixture(state: Dictionary, shown: Dictionary, mutation: int) -> void:
 	if mutation == 1:

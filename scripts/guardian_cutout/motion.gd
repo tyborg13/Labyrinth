@@ -9,11 +9,15 @@ const GAITS: Dictionary = {
  "bell_tender": [92.0, 0.54, 0.30], "wick_shade": [92.0, 0.54, 0.30],
  "roc_fledgling": [90.0, 0.50, 0.28]
 }
+const CHALLENGE_IDS = ["ashen_reaver", "storm_cantor", "last_lamplighter", "rimejaw", "craghide", "gallows_roc"]
+const CHALLENGE_SECONDS: float = 1.50
+const CHALLENGE_CUE_SECONDS: float = 0.36
 static func gait(character_id: String) -> Array:
 	return GAITS.get(character_id, [68.0, 0.58, 0.32])
 
 
-static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String, reduced_motion: bool = false) -> Dictionary:
+	if clip == "challenge": return _challenge_pose(phase, layout, facing, reduced_motion)
 	if clip in ["hit", "death"]: return _reaction_pose(clip,phase,layout,facing)
 	if clip not in ["rest","idle","walk"]: return _action_pose(clip,phase,layout,facing)
 	var pose: Dictionary = {}
@@ -135,7 +139,7 @@ static func sample_draw_order(_clip: String, _phase: float, layout: Dictionary, 
 		order[str(part.get("paint_node", part["name"]))] = int(part.get("z_index", 0))
 	return order
 
-static func _solve_chain(pose: Dictionary, layout: Dictionary, names: Array, target: Vector2, lift: float, leg: bool) -> void:
+static func _solve_chain(pose: Dictionary, layout: Dictionary, names: Array, target: Vector2, lift: float, leg: bool, preserve_bend: bool = false) -> void:
 	var upper: String = str(names[0])
 	var lower: String = str(names[1])
 	var end: String = str(names[2])
@@ -145,6 +149,16 @@ static func _solve_chain(pose: Dictionary, layout: Dictionary, names: Array, tar
 	var origin: Vector2 = _world(pose, layout, upper).origin
 	var bend: Vector2 = b + (origin-a)*0.5 + (target-c)*0.5
 	if leg: bend += Vector2(0, -0.22 * lift)
+	if preserve_bend:
+		# Rimejaw's almost-straight, occluded hind-far knee crosses its bind
+		# bend during the gather. Retain its bind-side knee clearance rather
+		# than a numerically unstable straight knee. Authored targets survive.
+		var axis: Vector2 = (target-origin).normalized()
+		var normal: Vector2 = axis.orthogonal()
+		var rest_clearance: float = (b-a).dot((c-a).normalized().orthogonal())
+		var clearance: float = (bend-origin).dot(normal)
+		if clearance * signf(rest_clearance) < absf(rest_clearance):
+			bend += normal * (rest_clearance-clearance)
 	var upper_world: Transform2D = _segment(b-a, bend-origin, origin)
 	var lower_world: Transform2D = _segment(c-b, target-bend, bend)
 	_store(pose, upper, _world(pose, layout, _parent(layout, upper)).affine_inverse()*upper_world)
@@ -181,6 +195,73 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[i-1].x, keys[i].x, t)
 			return lerpf(keys[i-1].y, keys[i].y, u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+## Encounter opening only. Keep the ordinary actions and shared helper rigs
+## on their existing samplers; all planted supports retain their source targets.
+static func _challenge_pose(phase: float, layout: Dictionary, facing: String, reduced_motion: bool) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest", 0.0, layout, facing)
+	var id: String = str(layout.get("character_id", ""))
+	if not CHALLENGE_IDS.has(id): return pose
+	var t: float = clampf(phase, 0.0, 1.0)
+	var gather: float = _curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.24, 1), Vector2(0.30, 0), Vector2(1, 0)]))
+	var peak: float = _curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.24, 0), Vector2(0.30, 1), Vector2(0.72, 1), Vector2(1, 0)]))
+	var rear: bool = facing == "rear"
+	var sign: float = -1.0 if rear else 1.0
+	var forward := (Vector2(1, -0.5) if rear else Vector2(-1, 0.5)).normalized()
+	var family: String = str(layout["family"])
+	var tremble: float = _challenge_tremble(t, reduced_motion)
+	var body: Vector2
+	# Production bipeds use their humanoid_v2 director clips. Their legacy
+	# poses below stay unreachable through Renderer.handles().
+	if family == "biped":
+		body = -forward * 2.0 * gather + forward * 3.0 * peak + Vector2(0, 3.0 * gather - 5.0 * peak)
+		pose["head"]["rotation"] = sign * (-0.05 * gather + 0.10 * peak) + tremble
+	elif family == "quadruped":
+		body = -forward * 5.0 * gather + forward * 9.0 * peak + Vector2(0, 3.0 * gather - 14.0 * peak)
+		pose["head"]["position"] += (forward * 12.0 + Vector2(0, -6.0)) * peak
+		pose["head"]["rotation"] = sign * (-0.08 * gather + 0.30 * peak) + tremble
+		if pose.has("tail"): pose["tail"]["rotation"] = -sign * 0.18 * peak
+	else:
+		body = Vector2(0, 3.0 * gather - 12.0 * peak)
+		pose["head"]["position"] += (forward * 8.0 + Vector2(0, -12.0)) * peak
+		pose["head"]["rotation"] = sign * (-0.04 * gather + 0.30 * peak) + tremble
+		pose["tail"]["rotation"] = -sign * 0.12 * peak
+	pose["pelvis"]["position"] += body
+	for chain: Dictionary in layout.get("chains", []):
+		var names: Array = chain["bones"]
+		var kind: String = str(chain["kind"])
+		var near: bool = str(chain["name"]) == "near"
+		if kind == "leg":
+			var target: Vector2 = _point(layout, str(names[2]))
+			var lift: float = 0.0
+			if family == "quadruped" and str(chain["name"]) in ["fore_near", "front_near"] and not bool(chain.get("occluded", false)):
+				lift = 36.0 * peak
+				target += forward * 14.0 * peak + Vector2(0, -lift)
+			_solve_chain(pose, layout, names, target, lift, true, id == "rimejaw" and str(chain["name"]) == "hind_far")
+		elif kind == "arm":
+			var delta: Vector2 = Vector2.ZERO
+			if id == "ashen_reaver":
+				delta = -forward * 6.0 * gather + (-forward * 4.0 + Vector2(0, -34.0)) * peak if near else (forward * 12.0 + Vector2(0, -10.0)) * peak
+			elif id == "storm_cantor":
+				# Half the strike's preparation; one rigid staff follows its grip.
+				delta = (-forward * 2.5 + Vector2(0, -7.0)) * gather + Vector2(0, -26.0) * peak if near else Vector2(0, -9.5) * gather + (forward * 6.0 + Vector2(0, -20.0)) * peak
+			elif id == "last_lamplighter":
+				delta = (forward * 14.0 + Vector2(0, -8.0)) * peak if near else Vector2(0, 4.0) * gather + (forward * 10.0 + Vector2(0, -30.0)) * peak
+			_solve_chain(pose, layout, names, _point(layout, str(names[2])) + body + delta, 0.0, false)
+		elif kind == "wing":
+			var side: float = 1.0 if near else -1.0
+			var spread: float = -0.10 * gather + 0.70 * peak
+			pose[str(names[0])]["rotation"] = side * spread
+			pose[str(names[1])]["rotation"] = -side * 0.70 * 0.18 * peak
+	if id == "ashen_reaver": pose["blade"]["rotation"] = sign * 1.35 * peak + tremble
+	elif id == "storm_cantor": pose["spear"]["rotation"] = sign * (-0.085 * gather - 0.20 * peak) + tremble
+	elif id == "last_lamplighter": pose["lantern"]["rotation"] = sign * -0.30 * peak + tremble
+	return pose
+
+static func _challenge_tremble(phase: float, reduced_motion: bool) -> float:
+	if reduced_motion or phase < 0.30 or phase > 0.72: return 0.0
+	var seconds_since_cue: float = phase * CHALLENGE_SECONDS - CHALLENGE_CUE_SECONDS
+	return 0.02 * sin(TAU * 12.0 * seconds_since_cue) * (1.0 - inverse_lerp(0.30, 0.72, phase))
 
 # Three actual action families per creature. Idle and locomotion are separate:
 # a sword cuts through space, a beak travels to contact, and a raised foreclaw

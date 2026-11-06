@@ -3,6 +3,7 @@
 # They are regenerated copies with local random UIDs; merging integration brings the canonical ones.
 set -eu
 WT=$1
+[ -d "$WT" ] || exit 0
 T=$(mktemp -d)
 git -C "$WT" ls-tree -r --name-only codex/peer-benchmark | grep -E '\.(import|uid)$' | sort > "$T/tracked"
 git -C "$WT" ls-files --others --exclude-standard | grep -E '\.(import|uid)$' | sort > "$T/untracked" || true

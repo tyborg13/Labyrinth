@@ -1,0 +1,83 @@
+extends SceneTree
+## Inspect the transient glossary warning using the captured seed-14 treasure.
+const Runtime = preload("res://scripts/parallel_runtime.gd")
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Analytics = preload("res://scripts/analytics_store.gd")
+const Router = preload("res://scripts/input_router.gd")
+const PROOF_SIZE := Vector2i(1920, 1080)
+const PROBE_MAX_FPS: int = 60
+const SAMPLE_FRAMES: int = 180
+const CAPTURE_FRAMES: Array = [1, 32, 180]
+const REPRO_RELIC: String = "venom_signet"
+var fixture: String = "/private/tmp/labyrinth_codex/qa-57/evidence/treasure-replay/run.save"
+var output: String = "/private/tmp/labyrinth_codex/qa-57/evidence/treasure-reveal-probe"
+var viewport: SubViewport
+var scene: Control
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	Engine.max_fps = PROBE_MAX_FPS
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--fixture"): fixture = args[args.find("--fixture") + 1]
+	if args.has("--output-dir"): output = args[args.find("--output-dir") + 1]
+	call_deferred("_run")
+func _run() -> void:
+	DirAccess.make_dir_recursive_absolute(output)
+	var file := FileAccess.open(fixture, FileAccess.READ)
+	if file == null:
+		push_error("Missing captured treasure fixture: " + fixture)
+		quit(1)
+		return
+	var state: Dictionary = file.get_var(false)
+	file.close()
+	if str(state.get("mode")) != "treasure" or not (state.get("pending_relics", []) as Array).has(REPRO_RELIC):
+		push_error("Treasure fixture must retain the captured Venom Signet offer")
+		quit(1)
+		return
+	Store.set_storage_path(output.path_join("profile.json"))
+	Store.set_run_storage_path(output.path_join("run.save"))
+	Settings.set_storage_path(output.path_join("settings.json"))
+	Analytics.set_storage_dir(output.path_join("analytics"))
+	Store.save_data(state.get("progression", Store.default_data()))
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	Settings.save_settings(settings)
+	Router.ensure_input_map()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	root.size = PROOF_SIZE
+	root.content_scale_size = PROOF_SIZE
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_factor = 1.0
+	viewport = SubViewport.new()
+	viewport.size = PROOF_SIZE
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	if DisplayServer.get_name() == "headless": process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	scene = load("res://scenes/run_scene.tscn").instantiate()
+	scene.set("_defer_initial_run_presentation", true)
+	viewport.add_child(scene)
+	scene.set("_defer_initial_run_presentation", false)
+	scene.set("_progression", state.get("progression", Store.default_data()))
+	scene.call("_load_run_state", state)
+	scene.call("_close_dialogue")
+	var stack: Control = scene.get("_card_focus_tooltip_stack")
+	var samples: Array[Dictionary]
+	var overflow_samples: int = 0
+	for frame: int in range(1, SAMPLE_FRAMES + 1):
+		await process_frame
+		var overflow: bool = stack.visible and bool(stack.get_meta("glossary_choice_overflow", false))
+		if overflow: overflow_samples += 1
+		var focused: Control = viewport.gui_get_focus_owner()
+		samples.append({"frame": frame, "overflow": overflow, "reveal_active": scene.get("_treasure_reveal_active"), "focus": str(focused.get_path()) if focused != null else "", "stack_rect": stack.get_global_rect()})
+		if CAPTURE_FRAMES.has(frame) or (overflow and overflow_samples == 1):
+			await _capture(frame)
+	var result := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
+	result.store_string(JSON.stringify({"fixture": fixture, "samples": samples, "overflow_samples": overflow_samples, "native": DisplayServer.get_name() != "headless"}, "\t"))
+	print("TREASURE REVEAL BOUNDS: %d samples, %d overflow samples, native=%s" % [samples.size(), overflow_samples, DisplayServer.get_name() != "headless"])
+	scene.queue_free()
+	await process_frame
+	quit(0)
+func _capture(frame: int) -> void:
+	if DisplayServer.get_name() == "headless": return
+	await RenderingServer.frame_post_draw
+	viewport.get_texture().get_image().save_png(output.path_join("treasure_reveal_%04d.png" % frame))

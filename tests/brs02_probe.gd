@@ -16,12 +16,15 @@ func _initialize() -> void:
 		push_error("BRS02 native capture requires a windowed renderer")
 		quit(1)
 		return
+	if not OS.get_environment("LABYRINTH_BRS02_OUTPUT_DIR").is_empty():
+		_output_dir = OS.get_environment("LABYRINTH_BRS02_OUTPUT_DIR")
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--output-dir="): _output_dir = argument.trim_prefix("--output-dir=")
 	DirAccess.make_dir_recursive_absolute(_output_dir)
 	super._initialize()
 
 func _configure_scene(scene: Playback) -> void:
+	super._configure_scene(scene)
 	root.content_scale_factor = 1.0
 	var settings: Dictionary = scene.get("_settings").duplicate(true)
 	settings["ui_scale"] = 1.0

@@ -164,8 +164,10 @@ static func run_integration(tree: SceneTree, expect: Callable) -> void:
 	death_unit["death_progress"] = 0.9
 	scene.call("_render_board_state", dead, {"death_animation_units": [death_unit]})
 	var overlay: Control = scene.get("_boss_health_overlay")
-	var expected_tint: Color = board.call("_death_animation_tint", death_unit)
-	expect.call(is_equal_approx(overlay.modulate.a, expected_tint.a), "A boss retained in the combat snapshot still follows its existing unit death fade")
+	var dying_owner: Dictionary = death_unit.duplicate(false)
+	dying_owner["death_animation"] = true
+	var expected_alpha: float = board.call("_health_bar_owner_alpha", dying_owner)
+	expect.call(is_equal_approx(overlay.modulate.a, expected_alpha), "A boss retained in the combat snapshot follows the shared owner dissolve clock")
 	hud.free()
 	scene.queue_free()
 	await tree.process_frame

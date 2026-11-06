@@ -78,6 +78,7 @@ func set_combat_state(state: Dictionary) -> bool:
 	_icon.texture = AssetLoader.load_texture(icon_path)
 	_title.text = title_text
 	_detail.text = detail_text
+	_detail.visible = not detail_text.is_empty()
 	_intro_title.text = CombatObjectiveRules.title_for_objective(objective).to_upper()
 	tooltip_text = next_tooltip
 	return true
@@ -387,9 +388,8 @@ func _intro_can_continue() -> bool:
 	return intro_active and visible and is_inside_tree()
 
 func _set_intro_chrome_progress(progress: float) -> void:
-	self_modulate.a = clampf(progress, 0.0, 1.0)
-	queue_redraw()
 	intro_chrome_progress = clampf(progress, 0.0, 1.0)
+	_sync_intro_plate_opacity()
 	if _panel_style != null:
 		_panel_style.bg_color = Color(
 			PANEL_BACKGROUND_COLOR.r,
@@ -414,6 +414,13 @@ func _set_intro_content_progress(progress: float) -> void:
 	intro_content_progress = clampf(progress, 0.0, 1.0)
 	if _content_row != null:
 		_content_row.modulate = Color(1.0, 1.0, 1.0, intro_content_progress)
+	_sync_intro_plate_opacity()
+
+func _sync_intro_plate_opacity() -> void:
+	# Retain the authored text/travel timing, but never paint an empty plate
+	# between the large objective copy retiring and compact content arriving.
+	self_modulate.a = minf(intro_chrome_progress, intro_content_progress)
+	queue_redraw()
 
 func _set_intro_font_progress(progress: float) -> void:
 	var amount: float = clampf(progress, 0.0, 1.0)
@@ -518,6 +525,10 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 					continue
 				var enemy_name: String = "Before it escapes" if str(objective.get("special_type", "")) == "ember_hoarder" else preload("res://scripts/enemy_identity.gd").display_name(enemy)
 				var hp: int = maxi(0, int(enemy.get("hp", 0)))
+				# The named boss bar and objective title already identify this foe.
+				# Keep live health facts; ordinary leaders still need their name here.
+				if bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false)):
+					return "%d/%d HP" % [hp, int(enemy.get("max_hp", hp))]
 				return "%s · %d/%d HP" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
 			return "The leader has fallen"
 		CombatObjectiveRules.SURVIVE:

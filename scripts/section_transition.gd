@@ -180,8 +180,26 @@ func begin(host: Control, target: Vector2i, entry_kind: String) -> void:
 	var focus: Control = host.get_viewport().gui_get_focus_owner()
 	if focus != null: focus.release_focus()
 	_build(Graph.section(host.get("_run_state"), Graph.active_section(host.get("_run_state")) + 1))
+	_prepare_destination()
 	active = true
 	_apply()
+
+func _prepare_destination() -> void:
+	# The destination map is hidden until arrival. Build its ordinary controls
+	# before starting the timeline, using a private rules projection. Never
+	# publish this run, persist it, or advance the host's engine. Entry still
+	# computes/validates/saves the live state at the original authored boundary.
+	var source: Dictionary = _host.get("_run_state")
+	var engine: RefCounted = _host.get("_run_engine").get_script().new()
+	var projected: Dictionary = _host.get("_start_room_map").transition_entry(source, engine, destination, entry)
+	if projected.get("current_room") != destination: return
+	if _map_arrival:
+		_host.get("_large_map_view").call("set_run_state", projected)
+		_prepare_map_arrival()
+	var room: Dictionary = engine.room_metadata(projected, destination)
+	var track: Dictionary = Music.entry_for_context("room", room, {}, _map_arrival)
+	var path: String = str(track.get("path", ""))
+	if not path.is_empty(): Assets.load_audio_stream(path, bool(track.get("loop", false)))
 
 func _build(info: Dictionary) -> void:
 	_surface = Control.new()
@@ -336,6 +354,14 @@ func _enter() -> void:
 	if not saved:
 		_return_to_reward()
 		return
+	if _map_arrival:
+		# Equal prepared inputs let the ordinary map skip rebuilding controls.
+		# Retain its usual aliases into the committed run, rather than the private
+		# projection's equal containers, for subsequent in-place room updates.
+		var map_state: Dictionary = _host.get("_large_map_view").get("run_state")
+		var committed: Dictionary = _host.get("_run_state")
+		map_state["rooms"] = committed.get("rooms", {})
+		map_state["map_sections"] = committed.get("map_sections", [])
 	_entered = true
 	if is_instance_valid(_music):
 		_music.stop()
@@ -349,7 +375,10 @@ func _enter() -> void:
 	# reveal the board. Consuming the visit prevents a second deferred handoff.
 	if _map_arrival:
 		_host.get("_start_room_map").present_transition_map(_host)
-		_prepare_map_arrival()
+		if not is_instance_valid(_map_scrim): _prepare_map_arrival()
+		# Opening normally raises the map above the host's current controls. Early
+		# reparenting must return it to that live front slot, not its begin-time slot.
+		if is_instance_valid(_map_parent): _map_index = _map_parent.get_child_count()
 	var planning: bool = _map_arrival
 	_host.call("_play_music", Music.entry_for_context("room", room, {}, planning))
 	arrived.emit()
@@ -391,7 +420,12 @@ func _apply_map_arrival(pose: Dictionary) -> void:
 	_text_band.modulate.a = float(pose["text_alpha"]) * (1.0 - blend)
 	_eyebrow.modulate.a = _text_band.modulate.a
 	_title.modulate.a = _text_band.modulate.a
-	if reduced_motion or _skipped: return
+	if reduced_motion or _skipped:
+		# Early preparation ran before the player could skip. Restore the real
+		# map backdrop now, while its controls share the same cross-fade alpha.
+		_map_scrim.color.a = 1.0
+		_map_background.visible = _map_background_visible
+		return
 	# The map painting occupies its content field rather than the full screen.
 	# Land on that exact cover-fit rectangle and scale, including settled native
 	# container geometry, so returning the real backdrop cannot produce a jump.
@@ -458,6 +492,10 @@ func cancel() -> void:
 	if not active: return
 	active = false
 	_restore_map()
+	# A canceled pre-arrival projection must not leave a future section in the
+	# ordinary hidden map. Failed saves already restored the reward via refresh.
+	if not _entered and is_instance_valid(_host) and not _host.is_queued_for_deletion():
+		_host.get("_large_map_view").call("set_run_state", _host.get("_run_state"))
 	_restore_cursor()
 	if not _entered and is_instance_valid(_music): _music.volume_linear = _music_volume
 	if not _entered and is_instance_valid(_board): _board.position = _board_origin

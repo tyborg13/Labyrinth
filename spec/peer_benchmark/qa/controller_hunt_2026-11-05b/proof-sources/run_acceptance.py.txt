@@ -1,0 +1,31 @@
+"""Run release controller campaigns with four isolated Godot processes."""
+import hashlib
+import concurrent.futures
+import json
+from pathlib import Path
+import subprocess
+import time
+ROOT = Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-57')
+EVIDENCE = Path('/private/tmp/labyrinth_codex/qa-57/evidence/campaign-acceptance')
+SEEDS = (14, 15, 16, 17, 18, 19)
+PROCESS_LIMIT = 4
+PROCESS_TIMEOUT_SECONDS = 3600
+SCRIPT = '/private/tmp/labyrinth_codex/qa-57/tools/controller_hunt.gd'
+def run(seed):
+    output = EVIDENCE / str(seed)
+    output.mkdir(parents=True, exist_ok=False)
+    command = ['python3', 'tools/godot_task_runner.py', '--task-id', 'qa-57', '--timeout', str(PROCESS_TIMEOUT_SECONDS), '--stream', '--', 'godot', '--headless', '--path', '.', '--script', SCRIPT, '--', '--seed', str(seed), '--no-embrace', 'true' if seed in (14, 15) else 'false', '--output-dir', str(output)]
+    (output / 'driver.sha256').write_text(hashlib.sha256(Path(SCRIPT).read_bytes()).hexdigest()+'\n')
+    (output / 'command.json').write_text(json.dumps(command, indent=2)+'\n')
+    start = time.monotonic()
+    with (output / 'execution.log').open('w') as log:
+        result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    record = dict(seed=seed, returncode=result.returncode, elapsed_seconds=time.monotonic()-start)
+    (output / 'execution.json').write_text(json.dumps(record, indent=2)+'\n')
+    print(json.dumps(record), flush=True)
+    return record
+if __name__ == '__main__':
+    EVIDENCE.mkdir(parents=True, exist_ok=True)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=PROCESS_LIMIT) as pool:
+        rows = list(pool.map(run, SEEDS))
+    (EVIDENCE / 'execution.json').write_text(json.dumps(rows, indent=2)+'\n')

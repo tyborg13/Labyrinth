@@ -1,0 +1,38 @@
+from pathlib import Path
+import json,re
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56')
+REPORT=Path('/Users/borgerding/workspace/Labyrinth.worktrees/qa-56/spec/peer_benchmark/qa/run_hunt_2026-11-05b')
+def events(path):return [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+def normalized(action):
+ action={k:v for k,v in action.items() if k not in ('context','decision')}
+ # Only Godot-generated node ordinals and JSON's equivalent integral floats.
+ return json.loads(re.sub(r'@[A-Za-z0-9_]+@[0-9]+','@NODE@',json.dumps(action,sort_keys=True)))
+def method_equivalent(action):
+ value=normalized(action)
+ if value.get('args')==[]:value.pop('args')
+ return value
+original=events(ROOT/'campaign-default/seed-000010/trace.jsonl');a=[r['data'] for r in original if r['event']=='decision']
+results=[]
+for case in ('repro-texture-default-10','trace-texture-default-10','trace-texture-default-10-v2','trace-texture-default-10-v3'):
+ path=ROOT/case/'seed-000010/trace.jsonl'
+ if not path.exists():continue
+ replay=events(path);b=[r['data'] for r in replay if r['event']=='decision'];match=0
+ for x,y in zip(a,b):
+  if normalized(x)!=normalized(y):break
+  match+=1
+ equivalent=0
+ for x,y in zip(a,b):
+  if method_equivalent(x)!=method_equivalent(y):break
+  equivalent+=1
+ bindings=[r['data'] for r in replay if r['event']=='qa56_trace_binding']
+ def checkpoint(rows):
+  item=next((r['data']['state'].copy() for r in rows if r['event']=='qa56_cache_checkpoint' and r['data']['context']['decision']==773),None)
+  if item:item.pop('scene',None)
+  return item
+ old_state,new_state=checkpoint(original),checkpoint(replay)
+ summary_path=path.with_name('summary.json');summary=json.loads(summary_path.read_text()) if summary_path.exists() else {}
+ errors=[l for l in path.with_name('godot.log').read_text().splitlines() if l.startswith(('ERROR:','SCRIPT ERROR:','WARNING:','TEST RESULT:'))]
+ result=dict(case=case,outcome=summary.get('outcome','active'),decisions=len(b),normalized_action_prefix=match,method_equivalent_prefix=equivalent,first_difference=None if match==len(b) else dict(original=a[match],replay=b[match]),context_failures=[r['data'] for r in replay if r['event']=='qa56_trace_failure'],control_bindings=bindings,source_checkpoint_773=old_state,replay_checkpoint_773=new_state,checkpoint_773_equal=old_state==new_state if new_state else None,raw_markers=errors,texture_null_count=sum('Parameter "t" is null' in l for l in errors),trace=str(path))
+ results.append(result)
+ print('QA56 TEXTURE REPLAY:',case,f"outcome={result['outcome']} normalized_actions={match}/{len(b)} method_equivalent={equivalent}/{len(b)} checkpoint773={result['checkpoint_773_equal']} texture_nulls={result['texture_null_count']}")
+(REPORT/'texture-replay-comparison.json').write_text(json.dumps(results,indent=2)+'\n')

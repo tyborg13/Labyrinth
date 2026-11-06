@@ -18,10 +18,16 @@ static var _load_attempted: bool = false
 static var _valid_sources: Dictionary = {}
 static var _textures: Dictionary = {}
 
-static func texture(key: String, source_path: String, signature: String, source_image: Image = null) -> Texture2D:
+static func prepare() -> void:
+	# The first hand otherwise deserializes the entire generated CPU resource in
+	# CardWidget._draw(). Initial UI preparation owns that deterministic load;
+	# individual GPU textures still decode only when the authored face needs them.
 	if not _load_attempted:
 		_load_attempted = true
 		if ResourceLoader.exists(PATH): _loaded = load(PATH)
+
+static func texture(key: String, source_path: String, signature: String, source_image: Image = null) -> Texture2D:
+	prepare()
 	if _loaded == null or int(_loaded.get("version")) != VERSION: return null
 	var entry: Dictionary = (_loaded.get("entries") as Dictionary).get(key, {}) as Dictionary
 	if str(entry.get("signature", "")) != signature: return null

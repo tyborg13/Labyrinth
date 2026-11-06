@@ -51,8 +51,12 @@ class BoardNavigationStub:
 
 	var navigable_tiles: Array[Vector2i] = []
 
-	func controller_navigable_tiles(_include_visible_doors: bool = false) -> Array[Vector2i]:
-		return navigable_tiles.duplicate()
+	func controller_navigable_tiles(_include_visible_doors: bool = false, legal_targets: Variant = null) -> Array[Vector2i]:
+		var result: Array[Vector2i]
+		for tile: Vector2i in navigable_tiles:
+			if legal_targets is Array and not (legal_targets as Array).has(tile): continue
+			result.append(tile)
+		return result
 
 
 class BoardPresentationStub:
@@ -845,6 +849,11 @@ static func _test_controller_candidate_filtering(expect: Callable) -> void:
 
 	var host: Control = scene.get("_contextual_combat_prompt_host") as Control
 	host.visible = false
+	# qa-54 (92112b075): releasing the guide preserves the pointer action's
+	# offered targets. Unselected board inspection exposes the ordinary floor.
+	var movement_board_tiles: Array[Vector2i] = scene.call("_controller_board_tiles") as Array[Vector2i]
+	expect.call(movement_board_tiles == _tiles([MOVE_TILE]), "After the guide releases its gate, selected movement still offers only pointer-accepted targets")
+	scene.set("_player_movement_selected", false)
 	var normal_board_tiles: Array[Vector2i] = scene.call("_controller_board_tiles") as Array[Vector2i]
 	expect.call(normal_board_tiles.has(WRONG_TILE), "Normal controller board candidates should return after the guide releases its gate")
 	var normal_header: Array[Control] = scene.call("_controller_header_focus_controls") as Array[Control]

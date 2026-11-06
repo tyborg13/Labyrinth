@@ -1,0 +1,27 @@
+extends RefCounted
+## The hunt raises run Health only after its opening board has been submitted.
+## Keep these diagnostic differences in the ledger; accept no other field.
+const KNOWN_OPENING_HP: int = 24
+const HUNT_HP: int = 9999
+const LAST_BOOTSTRAP_DECISION: int = 4
+const KEY: String = "fresh_board_display:stage_submission"
+
+static func matches(context: Dictionary, kind: String, expected: Variant, actual: Variant) -> bool:
+	if kind != "fresh_board_display" or context.get("room_kind") != "start" or context.get("section") != 0: return false
+	if int(context.get("decision", -1)) < 0 or int(context.get("decision", -1)) > LAST_BOOTSTRAP_DECISION: return false
+	if not expected is Dictionary or not actual is Dictionary: return false
+	var a: Dictionary = expected.duplicate(true)
+	var b: Dictionary = actual.duplicate(true)
+	var player_a: Dictionary = a.get("player", {})
+	var player_b: Dictionary = b.get("player", {})
+	if player_a.get("hp") != HUNT_HP or player_a.get("max_hp") != HUNT_HP: return false
+	if player_b.get("hp") != KNOWN_OPENING_HP or player_b.get("max_hp") != KNOWN_OPENING_HP: return false
+	for field: String in ["hp", "max_hp"]:
+		player_a.erase(field)
+		player_b.erase(field)
+	return a == b
+
+static func unexpected(mismatches: Dictionary, known_count: int) -> Dictionary:
+	var result: Dictionary = mismatches.duplicate()
+	if known_count > 0 and int(result.get(KEY, -1)) == known_count: result.erase(KEY)
+	return result

@@ -8,6 +8,9 @@ const Settings = preload("res://scripts/settings_store.gd")
 const OUTPUT: String = "user://probes/section_transition"
 const SIZE := Vector2i(1920, 1080)
 const LEGACY_PROOF_MILESTONE_SUFFIX: String = ":legacy_no_offer_probe:%s"
+const SKIP_PROOF_TIMES: Array = [0.40, 0.43, 0.46, 0.49, 0.51, 0.53]
+const SKIP_STRIP_COLUMNS: int = 3
+const SKIP_STRIP_CELL := Vector2i(640, 360)
 var host: Node
 var canvas: SubViewport
 var failures: Array[String]
@@ -35,6 +38,14 @@ func _run() -> void:
 	host = load("res://scenes/run_scene.tscn").instantiate()
 	canvas.add_child(host)
 	await Suite.settle(self)
+	if OS.get_cmdline_user_args().has("--qa66-skip"):
+		await _skip_strip()
+		for failure: String in failures: push_error(failure)
+		print("QA66 SKIP PROBE: %d failures; captures %s" % [failures.size(), ProjectSettings.globalize_path(OUTPUT)])
+		host.queue_free()
+		await process_frame
+		quit(0 if failures.is_empty() else 1)
+		return
 	await _strip(false, 0, "normal", [0.3, 0.9, 1.5, 2.4, 2.8, 3.0])
 	await _strip(true, 0, "reduced", [0.15, 0.9, 1.5, 1.85, 2.0, 2.1])
 	await _strip(false, 4, "section_vi", [1.5])
@@ -87,6 +98,41 @@ func _strip(reduced: bool, index: int, prefix: String, times: Array) -> void:
 		if seconds >= Transition.arrival_at(reduced) and not host.get("_large_map_scrim").visible: failures.append("Arrival cross-fades directly into the map: " + name)
 	if is_instance_valid(transition): transition.cancel()
 	await process_frame
+
+func _skip_strip() -> void:
+	host.get("_settings")["reduced_motion"] = false
+	Settings.apply_settings(host.get("_settings"), root, false)
+	await Suite.install(self, host, Suite.fixture())
+	host.find_child("DragonRewardContinue", true, false).pressed.emit()
+	var transition: Node = host.get("_section_transition")
+	if transition == null:
+		failures.append("CONTINUE starts the skip proof")
+		return
+	transition.set_process(false)
+	transition.advance(Transition.SKIP_AT)
+	transition.contain_input(Suite._skip_input("Enter"))
+	var images: Array[Image]
+	for seconds: float in SKIP_PROOF_TIMES:
+		if is_instance_valid(transition): transition.advance(seconds - float(transition.get("elapsed")))
+		var backdrop: TextureRect = host.get("_large_map_view").call("transition_backdrop")
+		var map: ColorRect = host.get("_large_map_scrim")
+		if not backdrop.visible or not is_equal_approx(map.color.a, 1.0): failures.append("Skip exposes the real backdrop during the fade at " + str(seconds))
+		evidence.append({"seconds": seconds, "map_alpha": map.modulate.a, "scrim_alpha": map.color.a, "backdrop_visible": backdrop.visible, "transition_active": is_instance_valid(transition) and transition.active})
+		await _capture("skip_%04d.png" % roundi(seconds * 1000.0))
+		if not semantics_only: images.append(canvas.get_texture().get_image())
+	if not images.is_empty():
+		var strip := Image.create(SIZE.x, SIZE.y, false, Image.FORMAT_RGBA8)
+		for index: int in range(images.size()):
+			var thumb: Image = images[index]
+			thumb.resize(SKIP_STRIP_CELL.x, SKIP_STRIP_CELL.y, Image.INTERPOLATE_LANCZOS)
+			strip.blit_rect(thumb, Rect2i(Vector2i.ZERO, SKIP_STRIP_CELL), Vector2i(index % SKIP_STRIP_COLUMNS, index / SKIP_STRIP_COLUMNS) * SKIP_STRIP_CELL)
+		var path: String = OUTPUT.path_join("skip_contact_strip.png")
+		if strip.save_png(path) != OK: failures.append("Skip contact strip saves")
+		print("Saved " + ProjectSettings.globalize_path(path))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	var file := FileAccess.open(OUTPUT.path_join("skip_timeline.json"), FileAccess.WRITE)
+	if file != null: file.store_string(JSON.stringify(evidence, "\t"))
+	print("QA66 SKIP TIMELINE: " + JSON.stringify(evidence))
 
 func _failed_entry(reduced: bool, legacy: bool = false) -> void:
 	host.get("_settings")["reduced_motion"] = reduced

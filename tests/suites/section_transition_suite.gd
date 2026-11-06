@@ -33,6 +33,49 @@ class MoveObserver extends Run:
 		move_calls += 1
 		return super.move_to_room(state, target)
 
+class PreparedMap extends Control:
+	var backdrop := TextureRect.new()
+	func transition_backdrop() -> TextureRect: return backdrop
+
+class PreparedMapHost extends Control:
+	var _large_map_scrim := ColorRect.new()
+	var _large_map_view := PreparedMap.new()
+
+static func run_prepared_skip(expect: Callable) -> void:
+	# Exercise early preparation and the real input/apply path without the
+	# unrelated RunScene music observer. No drawing or rules are substituted.
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	for kind: String in ["click", "A", "Enter"]:
+		var host := PreparedMapHost.new()
+		tree.root.add_child(host)
+		host.add_child(host._large_map_scrim)
+		host._large_map_scrim.add_child(host._large_map_view)
+		host._large_map_view.add_child(host._large_map_view.backdrop)
+		var transition := Transition.new()
+		host.add_child(transition)
+		transition.set_process(false)
+		transition._host = host
+		transition._surface = Control.new()
+		transition.add_child(transition._surface)
+		transition._black = ColorRect.new()
+		transition._text_band = ColorRect.new()
+		transition._eyebrow = Label.new()
+		transition._title = Label.new()
+		for control: Control in [transition._black, transition._text_band, transition._eyebrow, transition._title]: transition._surface.add_child(control)
+		transition._prepare_map_arrival()
+		expect.call(not host._large_map_view.backdrop.visible and is_zero_approx(host._large_map_scrim.color.a), "Early normal preparation hides the map backdrop")
+		transition.active = true
+		transition.elapsed = Transition.SKIP_AT
+		transition.contain_input(_skip_input(kind))
+		transition.active = false
+		transition.elapsed += Transition.SKIP_CROSSFADE_SECONDS * 0.5
+		transition._apply_map_arrival(Transition.presentation_at(Transition.SKIP_AT, false))
+		expect.call(host._large_map_view.backdrop.visible and is_equal_approx(host._large_map_scrim.color.a, 1.0) and is_equal_approx(host._large_map_scrim.modulate.a, 0.5), kind + " prepared skip shows the real map halfway through the fade")
+		print("PREPARED SKIP %s: backdrop=%s scrim_alpha=%.1f blend=%.1f" % [kind, host._large_map_view.backdrop.visible, host._large_map_scrim.color.a, host._large_map_scrim.modulate.a])
+		transition._restore_map()
+		expect.call(host._large_map_view.backdrop.visible and host._large_map_scrim.get_parent() == host, "Prepared skip restores the original map owner and backdrop")
+		host.free()
+
 static func prepare_storage() -> void:
 	_fixture_cache.clear()
 	Store.set_storage_path("user://section_transition_profile.json")
@@ -112,6 +155,7 @@ static func payout(state: Dictionary) -> Dictionary:
 
 static func run(expect: Callable) -> void:
 	_fixture_cache.clear()
+	run_prepared_skip(expect)
 	var probe := RichTextLabel.new()
 	probe.name = "PlaceholderProbe"
 	probe.add_text("TODO_DESIGN_LEGACY_REWARD_RULES")
@@ -273,6 +317,9 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 		transition.advance(0.06)
 		expect.call(host.get("_run_state")["current_room"] == Graph.section(claimed, 1)["entry"] and host.get("_large_map_scrim").visible and is_equal_approx(host.get("_large_map_scrim").modulate.a, 0.5), kind + " skips directly into the map cross-fade, halfway through its 0.12 seconds")
 		expect.call(transition.get("_painting").scale == Vector2.ONE * float(Transition.presentation_at(0.4, false)["painting_scale"]), "Skip has no push or reframing during its cross-fade")
+		var backdrop: TextureRect = host.get("_large_map_view").call("transition_backdrop")
+		expect.call(backdrop.visible and is_equal_approx(host.get("_large_map_scrim").color.a, 1.0), kind + " skip cross-fades the real map backdrop before restoration")
+		print("SECTION SKIP BACKDROP %s: visible=%s scrim_alpha=%.1f" % [kind, backdrop.visible, host.get("_large_map_scrim").color.a])
 		transition.advance(0.06 + BOUNDARY_EPSILON_SECONDS)
 		expect.call(host.get("_section_transition") == null and host.get("_large_map_scrim").visible, kind + " finishes on the map at 0.52s after the earliest skip")
 		await settle(tree)

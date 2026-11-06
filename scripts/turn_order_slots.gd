@@ -97,7 +97,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	var ink_key: String = scene._turn_order_actor_key(entry)
 	# Painted stroke behind the actor. It bleeds past the slot (widest on the
 	# left, where the time is painted) and keeps its variant and tilt per actor.
-	var backing: TextureRect = _part(parts, "backing", TextureRect.new)
+	var backing: TextureRect = _part(parts, "backing", func() -> Node: return TextureRect.new())
 	backing.name = "TurnOrderBrushBacking"
 	var brush: Texture2D = TurnOrderInk.brush_texture(active, ink_key)
 	var backing_rect: Rect2 = TurnOrderInk.brush_rect(slot_size, brush)
@@ -116,7 +116,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	# Drawn beneath every portrait in the rail so a neighbour's stroke never
 	# covers a face; the slot panel stays the frame's first child.
 	backing.z_index = -1
-	var panel: PanelContainer = _part(parts, "panel", PanelContainer.new)
+	var panel: PanelContainer = _part(parts, "panel", func() -> Node: return PanelContainer.new())
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
 	panel.anchor_bottom = 1.0
@@ -125,7 +125,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	panel.add_theme_stylebox_override("panel", scene._turn_order_slot_style(entry, active))
 	_attach(frame, panel)
 	_attach(frame, backing)
-	var margin: MarginContainer = _part(parts, "margin", MarginContainer.new)
+	var margin: MarginContainer = _part(parts, "margin", func() -> Node: return MarginContainer.new())
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
@@ -139,7 +139,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	_attach(panel, margin)
 	# The slanted, slightly ragged window is the mask; only the portrait inside
 	# it is drawn.
-	var portrait_crop: TurnOrderInk.PortraitMask = _part(parts, "portrait_crop", TurnOrderInk.PortraitMask.new)
+	var portrait_crop: TurnOrderInk.PortraitMask = _part(parts, "portrait_crop", func() -> Node: return TurnOrderInk.PortraitMask.new())
 	portrait_crop.name = "TurnOrderPortraitCrop"
 	portrait_crop.skew = TurnOrderInk.SKEW_RATIO
 	portrait_crop.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -147,7 +147,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	portrait_crop.anchor_bottom = 1.0
 	portrait_crop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_attach(margin, portrait_crop)
-	var portrait: TextureRect = _part(parts, "portrait", TextureRect.new)
+	var portrait: TextureRect = _part(parts, "portrait", func() -> Node: return TextureRect.new())
 	portrait.set_anchors_preset(Control.PRESET_FULL_RECT)
 	portrait.anchor_right = 1.0
 	portrait.anchor_bottom = 1.0
@@ -167,7 +167,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	if not str(entry.get("late_relic_id", "")).is_empty():
 		# A miniature of the relic-bar badge, so the cue reads as "this relic applies here".
 		var late_relic_id: String = str(entry["late_relic_id"])
-		var bell_badge: Panel = _part(parts, "bell_badge", Panel.new)
+		var bell_badge: Panel = _part(parts, "bell_badge", func() -> Node: return Panel.new())
 		bell_badge.name = "LateRelicIcon"
 		bell_badge.size = Vector2(30, 30)
 		bell_badge.position = Vector2(slot_size.x - 32, 2)
@@ -176,7 +176,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 		var late_effect: Dictionary = TempoRelicRules.effect_of_type(GameData.relic_effects(late_relic_id), "damage_vs_late")
 		bell_badge.tooltip_text = "Late: your attacks deal %d more." % int(late_effect.get("amount", 0))
 		bell_badge.add_theme_stylebox_override("panel", scene._pile_card_style(scene.TURN_ORDER_RELIC_BADGE_FILL, Color(GameData.relic_accent(late_relic_id)), 3.0))
-		var bell: TextureRect = _part(parts, "bell", TextureRect.new)
+		var bell: TextureRect = _part(parts, "bell", func() -> Node: return TextureRect.new())
 		bell.texture = AssetLoader.load_texture(str(GameData.relic_def(late_relic_id).get("icon_path", "")))
 		bell.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bell.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -185,7 +185,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 		bell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_attach(bell_badge, bell)
 		_attach(frame, bell_badge)
-	var edge: TurnOrderInk.SlashEdge = _part(parts, "edge", TurnOrderInk.SlashEdge.new)
+	var edge: TurnOrderInk.SlashEdge = _part(parts, "edge", func() -> Node: return TurnOrderInk.SlashEdge.new())
 	edge.name = "TurnOrderSlashEdge"
 	edge.skew = TurnOrderInk.SKEW_RATIO
 	edge.color = scene.TURN_ORDER_ACTIVE_EDGE_COLOR if active else Color(UiPalette.TEXT, 0.30)
@@ -252,7 +252,7 @@ static func _update_beat(scene: Node, entry: Dictionary, index: int, frame: Cont
 	frame.set_meta("turn_order_team", "rule")
 	frame.set_meta("turn_order_beat_rule", str(entry.get("rule", "")))
 	# The same faded stroke as a projected turn, so the numeral sits on paint like every row.
-	var backing: TextureRect = _part(parts, "backing", TextureRect.new)
+	var backing: TextureRect = _part(parts, "backing", func() -> Node: return TextureRect.new())
 	backing.name = "TurnOrderBrushBacking"
 	var ink_key: String = scene._turn_order_actor_key(entry)
 	var brush: Texture2D = TurnOrderInk.brush_texture(false, ink_key)
@@ -270,13 +270,13 @@ static func _update_beat(scene: Node, entry: Dictionary, index: int, frame: Cont
 	backing.z_index = -1
 	_attach(frame, backing)
 	var diameter: float = roundf(slot_size.y * BEAT_TOKEN_RATIO)
-	var token: BeatToken = _part(parts, "token", BeatToken.new)
+	var token: BeatToken = _part(parts, "token", func() -> Node: return BeatToken.new())
 	token.name = "TurnOrderBeatToken"
 	token.size = Vector2.ONE * diameter
 	token.position = Vector2(slot_size.x - diameter, slot_size.y - diameter) * Vector2(0.62, 0.5)
 	token.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_attach(frame, token)
-	var icon: TextureRect = _part(parts, "icon", TextureRect.new)
+	var icon: TextureRect = _part(parts, "icon", func() -> Node: return TextureRect.new())
 	icon.name = "TurnOrderBeatIcon"
 	var inset: float = diameter * BEAT_ICON_INSET_RATIO
 	icon.position = Vector2.ONE * inset

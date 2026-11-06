@@ -1,5 +1,7 @@
 extends Button
 
+signal emphasis_refreshed(emphasized: bool)
+
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -90,6 +92,7 @@ func refresh_emphasis() -> void:
 	var emphasized: bool = hovered or has_focus()
 	_skin.apply_choice_finish(plate, Palette.GOLD_DIM, emphasized, true)
 	queue_redraw()
+	emphasis_refreshed.emit(emphasized)
 
 func _draw() -> void:
 	if available and (hovered or has_focus()):

@@ -1,0 +1,727 @@
+{
+  "coverage": {
+    "default": {
+      "runs": [
+        {
+          "seed": 4,
+          "outcome": "embrace",
+          "decisions": 1002,
+          "sections": [
+            0,
+            1,
+            2
+          ],
+          "checkpoints": {
+            "scene": 6,
+            "room": 34,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 88,
+            "held_embers": 19,
+            "purges": 1,
+            "purchases": 3,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 8,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000004/godot.log"
+        },
+        {
+          "seed": 5,
+          "outcome": "victory",
+          "decisions": 2989,
+          "sections": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "checkpoints": {
+            "scene": 8,
+            "room": 72,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 183,
+            "held_embers": 38,
+            "purges": 2,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 2,
+            "relics": 14,
+            "equipped_equipment": 2
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000005/godot.log"
+        },
+        {
+          "seed": 6,
+          "outcome": "embrace",
+          "decisions": 306,
+          "sections": [
+            0
+          ],
+          "checkpoints": {
+            "scene": 1,
+            "room": 10,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 24,
+            "held_embers": 6,
+            "purges": 1,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 2,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000006/godot.log"
+        },
+        {
+          "seed": 7,
+          "outcome": "embrace",
+          "decisions": 476,
+          "sections": [
+            0
+          ],
+          "checkpoints": {
+            "scene": 1,
+            "room": 10,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 24,
+            "held_embers": 5,
+            "purges": 1,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 2,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000007/godot.log"
+        },
+        {
+          "seed": 8,
+          "outcome": "embrace",
+          "decisions": 1343,
+          "sections": [
+            0,
+            1,
+            2
+          ],
+          "checkpoints": {
+            "scene": 6,
+            "room": 34,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 89,
+            "held_embers": 17,
+            "purges": 2,
+            "purchases": 3,
+            "magic_inventory": 1,
+            "reward_cards": 2,
+            "relics": 11,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000008/godot.log"
+        },
+        {
+          "seed": 9,
+          "outcome": "fight_limit",
+          "decisions": 1133,
+          "sections": [
+            0,
+            1
+          ],
+          "checkpoints": {
+            "scene": 2,
+            "room": 16,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 49,
+            "held_embers": 12,
+            "purges": 1,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 3,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000009/godot.log"
+        },
+        {
+          "seed": 10,
+          "outcome": "embrace",
+          "decisions": 814,
+          "sections": [
+            0,
+            1
+          ],
+          "checkpoints": {
+            "scene": 1,
+            "room": 22,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 57,
+            "held_embers": 12,
+            "purges": 2,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 2,
+            "relics": 6,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000010/godot.log"
+        },
+        {
+          "seed": 11,
+          "outcome": "embrace",
+          "decisions": 158,
+          "sections": [
+            0
+          ],
+          "checkpoints": {
+            "scene": 2,
+            "room": 10,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 23,
+            "held_embers": 6,
+            "purges": 1,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 3,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000011/godot.log"
+        },
+        {
+          "seed": 12,
+          "outcome": "embrace",
+          "decisions": 1139,
+          "sections": [
+            0,
+            1,
+            2
+          ],
+          "checkpoints": {
+            "scene": 8,
+            "room": 34,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 84,
+            "held_embers": 20,
+            "purges": 3,
+            "purchases": 5,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 10,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default/seed-000012/godot.log"
+        }
+      ],
+      "rooms": {
+        "start": 22,
+        "combat": 71,
+        "treasure": 24,
+        "scavenger": 19,
+        "graftwright": 4,
+        "campfire": 21,
+        "boss": 14,
+        "event": 47,
+        "last_light": 4,
+        "guardian": 9,
+        "ember_hoarder": 3,
+        "warband": 1,
+        "umbral_snare": 3
+      },
+      "sections": {
+        "0": 9,
+        "1": 6,
+        "2": 4,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "actions": {
+        "dialogue": 56,
+        "map_room": 229,
+        "side_settings": 29,
+        "begin_combat": 105,
+        "ui": 1106,
+        "move": 2193,
+        "card": 2614,
+        "ranged": 816,
+        "melee": 286,
+        "confirm_card": 704,
+        "blink": 78,
+        "equipment": 124,
+        "pass": 794,
+        "side_deck": 8,
+        "side_escape": 20,
+        "leave_browse": 73,
+        "side_hover_hand": 11,
+        "side_resume": 26,
+        "side_reduced_motion": 25,
+        "side_map": 18,
+        "aoe": 9,
+        "cancel_card": 17,
+        "surface": 1,
+        "illusion": 1,
+        "pull": 17
+      },
+      "analytics": {
+        "section_entered": 22,
+        "route_revealed": 29,
+        "run_started": 9,
+        "route_choice_committed": 233,
+        "combat_started": 105,
+        "card_drawn": 3068,
+        "card_became_playable": 1608,
+        "guided_tutorial_started": 9,
+        "guided_tutorial_dismissed": 9,
+        "player_moved": 1508,
+        "card_played": 2597,
+        "player_turn_ended": 1609,
+        "enemy_action_resolved": 7034,
+        "player_turn_started": 1592,
+        "surface_event": 7273,
+        "enemy_status_tick": 255,
+        "combat_ended": 104,
+        "reward_offered": 104,
+        "reward_choice": 94,
+        "mystery_resolved": 40,
+        "run_resumed": 26,
+        "merchant_trade": 4,
+        "battlefield_rule_fired": 579,
+        "battlefield_rule_switched": 13,
+        "progression_moltshard_gained": 6,
+        "reward_claimed": 14,
+        "map_event_resolved": 47,
+        "item_picked_up": 28,
+        "progression_level_up": 5,
+        "omen_gained": 17,
+        "run_scored": 8,
+        "run_ended": 8,
+        "omen_expired": 12,
+        "magic_purged": 5,
+        "heirloom_left": 1,
+        "snare_pressure": 421
+      },
+      "outcomes": {
+        "embrace": 7,
+        "victory": 1,
+        "fight_limit": 1
+      },
+      "decisions": 9360
+    },
+    "no-embrace": {
+      "runs": [
+        {
+          "seed": 4,
+          "outcome": "victory",
+          "decisions": 2591,
+          "sections": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "checkpoints": {
+            "scene": 7,
+            "room": 72,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 194,
+            "held_embers": 47,
+            "purges": 4,
+            "purchases": 3,
+            "magic_inventory": 1,
+            "reward_cards": 2,
+            "relics": 14,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000004/godot.log"
+        },
+        {
+          "seed": 5,
+          "outcome": "victory",
+          "decisions": 2790,
+          "sections": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "checkpoints": {
+            "scene": 8,
+            "room": 72,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 185,
+            "held_embers": 45,
+            "purges": 3,
+            "purchases": 6,
+            "magic_inventory": 1,
+            "reward_cards": 3,
+            "relics": 14,
+            "equipped_equipment": 2
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000005/godot.log"
+        },
+        {
+          "seed": 6,
+          "outcome": "victory",
+          "decisions": 2993,
+          "sections": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "checkpoints": {
+            "scene": 8,
+            "room": 72,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 195,
+            "held_embers": 46,
+            "purges": 4,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 16,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000006/godot.log"
+        },
+        {
+          "seed": 7,
+          "outcome": "fight_limit",
+          "decisions": 1884,
+          "sections": [
+            0,
+            1,
+            2
+          ],
+          "checkpoints": {
+            "scene": 4,
+            "room": 33,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 86,
+            "held_embers": 18,
+            "purges": 2,
+            "purchases": 3,
+            "magic_inventory": 1,
+            "reward_cards": 2,
+            "relics": 9,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-no-embrace/seed-000007/godot.log"
+        }
+      ],
+      "rooms": {
+        "start": 21,
+        "combat": 82,
+        "treasure": 22,
+        "scavenger": 21,
+        "graftwright": 3,
+        "campfire": 20,
+        "boss": 20,
+        "event": 40,
+        "last_light": 2,
+        "guardian": 8,
+        "umbral_snare": 3,
+        "warband": 3,
+        "ember_hoarder": 4
+      },
+      "sections": {
+        "0": 4,
+        "1": 4,
+        "2": 4,
+        "3": 3,
+        "4": 3,
+        "5": 3
+      },
+      "actions": {
+        "dialogue": 20,
+        "map_room": 239,
+        "side_settings": 31,
+        "begin_combat": 122,
+        "ui": 1126,
+        "move": 2579,
+        "card": 3098,
+        "ranged": 983,
+        "melee": 300,
+        "confirm_card": 727,
+        "blink": 119,
+        "equipment": 129,
+        "pass": 515,
+        "side_deck": 15,
+        "side_escape": 21,
+        "leave_browse": 69,
+        "side_hover_hand": 11,
+        "side_resume": 23,
+        "side_reduced_motion": 21,
+        "side_map": 28,
+        "aoe": 67,
+        "cancel_card": 13,
+        "illusion": 1,
+        "surface": 1
+      },
+      "analytics": {
+        "section_entered": 21,
+        "route_revealed": 41,
+        "run_started": 4,
+        "route_choice_committed": 245,
+        "combat_started": 122,
+        "card_drawn": 3573,
+        "card_became_playable": 1810,
+        "guided_tutorial_started": 4,
+        "guided_tutorial_dismissed": 4,
+        "player_moved": 1692,
+        "card_played": 3085,
+        "player_turn_ended": 1443,
+        "enemy_action_resolved": 7229,
+        "player_turn_started": 1413,
+        "surface_event": 7074,
+        "enemy_status_tick": 642,
+        "combat_ended": 121,
+        "reward_offered": 121,
+        "reward_choice": 104,
+        "mystery_resolved": 40,
+        "run_resumed": 23,
+        "merchant_trade": 5,
+        "battlefield_rule_fired": 302,
+        "battlefield_rule_switched": 17,
+        "progression_moltshard_gained": 4,
+        "reward_claimed": 20,
+        "map_event_resolved": 40,
+        "item_picked_up": 24,
+        "magic_purged": 9,
+        "snare_pressure": 47,
+        "omen_gained": 19,
+        "omen_expired": 15,
+        "progression_level_up": 8,
+        "run_ended": 3,
+        "run_scored": 3,
+        "heirloom_left": 3
+      },
+      "outcomes": {
+        "victory": 3,
+        "fight_limit": 1
+      },
+      "decisions": 10258
+    },
+    "default-extra": {
+      "runs": [
+        {
+          "seed": 13,
+          "outcome": "fight_limit",
+          "decisions": 2232,
+          "sections": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "checkpoints": {
+            "scene": 7,
+            "room": 45,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 117,
+            "held_embers": 25,
+            "purges": 3,
+            "purchases": 4,
+            "magic_inventory": 1,
+            "reward_cards": 3,
+            "relics": 9,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000013/godot.log"
+        },
+        {
+          "seed": 14,
+          "outcome": "embrace",
+          "decisions": 294,
+          "sections": [
+            0
+          ],
+          "checkpoints": {
+            "scene": 1,
+            "room": 10,
+            "ui_scale": 1,
+            "zoom": 1,
+            "mode": 27,
+            "held_embers": 6,
+            "purges": 1,
+            "purchases": 1,
+            "magic_inventory": 1,
+            "reward_cards": 1,
+            "relics": 2,
+            "equipped_equipment": 1
+          },
+          "log": "/private/tmp/labyrinth_codex/qa-56/campaign-default-extra/seed-000014/godot.log"
+        }
+      ],
+      "rooms": {
+        "start": 5,
+        "combat": 19,
+        "event": 12,
+        "treasure": 5,
+        "campfire": 4,
+        "boss": 3,
+        "scavenger": 3,
+        "umbral_snare": 1,
+        "guardian": 1,
+        "graftwright": 1,
+        "last_light": 1
+      },
+      "sections": {
+        "0": 2,
+        "1": 1,
+        "2": 1,
+        "3": 1
+      },
+      "actions": {
+        "dialogue": 10,
+        "side_map": 3,
+        "side_reduced_motion": 7,
+        "map_room": 55,
+        "side_settings": 7,
+        "begin_combat": 25,
+        "ui": 225,
+        "card": 782,
+        "ranged": 284,
+        "move": 646,
+        "pass": 131,
+        "melee": 64,
+        "blink": 25,
+        "confirm_card": 201,
+        "side_escape": 6,
+        "equipment": 30,
+        "leave_browse": 12,
+        "side_resume": 6,
+        "side_hover_hand": 2,
+        "side_deck": 2,
+        "aoe": 1,
+        "surface": 1,
+        "outcrop": 1
+      },
+      "analytics": {
+        "section_entered": 5,
+        "route_revealed": 5,
+        "run_started": 2,
+        "route_choice_committed": 53,
+        "combat_started": 25,
+        "card_drawn": 891,
+        "card_became_playable": 387,
+        "guided_tutorial_started": 2,
+        "guided_tutorial_dismissed": 2,
+        "card_played": 782,
+        "player_moved": 441,
+        "player_turn_ended": 384,
+        "enemy_action_resolved": 1783,
+        "player_turn_started": 382,
+        "surface_event": 1233,
+        "enemy_status_tick": 17,
+        "combat_ended": 24,
+        "reward_offered": 24,
+        "reward_choice": 21,
+        "mystery_resolved": 12,
+        "map_event_resolved": 12,
+        "omen_gained": 4,
+        "omen_expired": 4,
+        "run_resumed": 6,
+        "magic_purged": 2,
+        "battlefield_rule_fired": 74,
+        "battlefield_rule_switched": 3,
+        "progression_moltshard_gained": 1,
+        "reward_claimed": 3,
+        "item_picked_up": 5,
+        "snare_pressure": 40,
+        "merchant_trade": 2,
+        "run_scored": 1,
+        "run_ended": 1
+      },
+      "outcomes": {
+        "fight_limit": 1,
+        "embrace": 1
+      },
+      "decisions": 2526
+    }
+  },
+  "model_counts": {
+    "board_committed": 11833,
+    "board_layer_state": 3757666,
+    "board_submission": 22770,
+    "board_units": 22770,
+    "boss_health": 2546,
+    "forecast_fresh": 18327,
+    "forecast_source_hp": 13601,
+    "forecast_visible_entries": 18207,
+    "forecast_visible_wait": 18207,
+    "forecast_wait": 18327,
+    "fresh_board_cache": 332385,
+    "fresh_board_display": 22159,
+    "fresh_checks_preserve_state": 22159,
+    "fresh_current_forecast": 18136,
+    "fresh_obstruction_candidates": 6380,
+    "fresh_stage_chrome": 66477,
+    "fresh_stage_props": 22159,
+    "fresh_stage_visibility": 165303,
+    "hand_definition": 92734,
+    "hand_identity": 92734,
+    "hand_summary_fresh": 92734,
+    "hand_surcharge_fresh": 92734,
+    "map_actionable": 26084,
+    "map_current": 580,
+    "map_node_data": 26084,
+    "map_route": 26084,
+    "observer_preserves_state": 22144,
+    "summary_card": 92734,
+    "time_badge": 92734
+  },
+  "model_mismatches": {
+    "fresh_board_display:stage_submission": 75
+  },
+  "checkpoint_changes": {
+    "scene": 70,
+    "room": 546,
+    "ui_scale": 15,
+    "zoom": 15,
+    "mode": 1425,
+    "held_embers": 322,
+    "purges": 31,
+    "purchases": 35,
+    "magic_inventory": 15,
+    "reward_cards": 24,
+    "relics": 123,
+    "equipped_equipment": 17
+  },
+  "resumes": 55,
+  "model_difference_occurrences": 75,
+  "untriaged": 0,
+  "runtime_marker_counts": {
+    "ERROR: Condition \"ret != noErr\" is true. Returning: \"\"": 15,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_ashen_phylactery, viewport=(1920.0, 1920.0), block=(1326.0, 88.0), top=1864.0, row_top=1964.0": 1,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_copper_shod_staff, viewport=(1920.0, 1920.0), block=(1326.0, 109.0), top=1843.0, row_top=1964.0": 1,
+    "ERROR: Parameter \"t\" is null.": 2,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_borrowed_hourglass, viewport=(1920.0, 1920.0), block=(624.0, 109.0), top=1843.0, row_top=1964.0": 1,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_reinforced_shield, viewport=(1920.0, 1920.0), block=(624.0, 88.0), top=1864.0, row_top=1964.0": 1,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_venom_signet, viewport=(1920.0, 1920.0), block=(1260.0, 109.0), top=1843.0, row_top=1964.0": 1,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_ember_siphon, viewport=(1920.0, 1920.0), block=(942.0, 88.0), top=1864.0, row_top=1964.0": 1,
+    "WARNING: Relic glossary above-row overflow: RelicChoice_tailwind_fletching, viewport=(1920.0, 1920.0), block=(942.0, 109.0), top=1843.0, row_top=1964.0": 1
+  }
+}

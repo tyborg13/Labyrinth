@@ -128,6 +128,12 @@ func _presentation_active() -> bool:
 func frame_id() -> int:
 	return int(_clock_ms) if _clock_ms >= 0 else Engine.get_process_frames()
 
+func _in_cooldown(state: Dictionary, opts: Dictionary, now: int) -> bool:
+	# Independent resource gains can share a cue with normal UI selection.
+	# Their per-call bypass leaves that cue's ordinary cooldown and pool intact.
+	if bool(opts.get("area_instance", false)) or bool(opts.get("bypass_cooldown", false)): return false
+	return now - int(state["last_ms"]) < int(state["entry"].get("cooldown_ms", 0))
+
 func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	if cues.is_empty(): warm_up()
 	cue_id = Attacks.CUE_ALIASES.get(cue_id, Runs.CUE_ALIASES.get(cue_id, cue_id))
@@ -141,7 +147,7 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		opts["peak_deadline_ms"] = presentation_ms()
 	state["requests"] += 1
 	var now: int = now_ms()
-	if not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
+	if _in_cooldown(state, opts, now):
 		state["suppressed"] += 1
 		_report_request(cue_id, opts, "cooldown")
 		return 0.0
@@ -191,7 +197,7 @@ func _start_selected(cue_id: String, selected: Dictionary, opts: Dictionary) -> 
 	var state: Dictionary = cues[cue_id]
 	var entry: Dictionary = state["entry"]
 	var now: int = now_ms()
-	if (selected.has("due_ms") or selected.has("presentation_deadline_ms")) and not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
+	if (selected.has("due_ms") or selected.has("presentation_deadline_ms")) and _in_cooldown(state, opts, now):
 		state["suppressed"] += 1
 		_report_request(cue_id, opts, "cooldown")
 		return 0.0

@@ -1,0 +1,101 @@
+extends RefCounted
+## Synchronous diagnostic only. Rebuild on owned scratch containers, then restore
+## exact original references so observation cannot repair a future cache miss.
+const EngineScript = preload("res://scripts/combat_engine.gd")
+const Visibility = preload("res://scripts/stage_visibility_retention.gd")
+const SUBMISSION_FIELDS: Array = [
+	"_submission_cache_initialized", "_submission_cache_valid", "_submission_cache_combat_changed",
+	"_submission_cache_source_snapshot", "_damage_preview_cache", "_scene_props_by_tile",
+	"_campfire_scene_props_cache", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
+	"_grid_tile_ids_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+	"_ability_tiles_cache", "_ability_tiles_lookup_cache", "_visible_units_cache",
+	"_preview_unit_pulse_cache", "_units_by_draw_tile_cache",
+	"_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs",
+	"_foreground_obstruction_candidates_cache_valid", "_foreground_obstruction_candidates_cache",
+	"_foreground_obstruction_candidates_source_snapshot", "_unit_draw_rect_cache",
+	"_board_layout_cache_valid", "_board_layout_content_cache_valid", "_board_layout_cache_size",
+	"_board_layout_cache_tiles", "_board_layout_cache_extents", "_board_layout_cache_tile_width",
+	"_board_layout_cache_origin", "_board_layout_cache_visual_top_offset", "_board_layout_cache_tile_centers",
+	"_board_layout_cache_tile_polygons", "_board_layout_content_rebuild_count",
+	"_maquette_pixel_centers_cache", "_navigation_zoom", "_navigation_pan",
+]
+const COMPARE_FIELDS: Array = [
+	"_damage_preview_cache", "_scene_props_by_tile", "_campfire_scene_props_cache",
+	"_terrain_by_tile", "_loot_by_tile", "_traps_by_tile", "_grid_tile_ids_cache",
+	"_ambient_element_id_cache", "_equipment_pickup_beacon_cache", "_ability_tiles_cache",
+	"_ability_tiles_lookup_cache", "_visible_units_cache", "_preview_unit_pulse_cache",
+	"_units_by_draw_tile_cache", "_foreground_obstruction_entries_cache",
+]
+
+func check(host: Node, compare: Callable) -> void:
+	var board: Node = host.board_view
+	var committed_before: Array = [hash(host._run_state), hash(host._combat_state), hash(host._preview_combat_state)]
+	var display: Dictionary = host._board_display_state()
+	compare.call("fresh_board_display", display, board.combat_state, "stage_submission")
+	if not display.is_empty() and bool(board._submission_cache_initialized):
+		_board(board, compare)
+	var run_mode: String = str(host._run_state.get("mode", ""))
+	if (run_mode == "combat" or host._post_combat_board_state_is_visible()) and not display.is_empty():
+		var state: Dictionary = host._board_visibility_state(display).duplicate(true)
+		var fresh: Dictionary = Visibility.new()._build(EngineScript.new(), state)
+		for key: String in fresh:
+			compare.call("fresh_stage_visibility", fresh[key], board.presentation.get(key), key)
+	_chrome(host, compare)
+	if run_mode == "combat": _forecast(host, compare)
+	compare.call("fresh_checks_preserve_state", committed_before, [hash(host._run_state), hash(host._combat_state), hash(host._preview_combat_state)], "state")
+
+func _board(board: Node, compare: Callable) -> void:
+	var saved: Dictionary = {}
+	for field: String in SUBMISSION_FIELDS:
+		var value: Variant = board.get(field)
+		saved[field] = value
+		if value is Dictionary or value is Array: board.set(field, value.duplicate(true))
+	var had_candidates: bool = bool(saved["_foreground_obstruction_candidates_cache_valid"])
+	# Preserve the intentional room-entry framing envelope; discard derived
+	# geometry and pixel-center lookups, never recapture it from a later actor.
+	board.set("_board_layout_cache_valid", false)
+	board.set("_board_layout_content_cache_valid", false)
+	board.set("_unit_draw_rect_cache", {})
+	board.set("_maquette_pixel_centers_cache", {})
+	board.call("_ensure_board_layout_cache")
+	# Retained vertical clearance is a composition input established at entry.
+	board.set("_board_layout_cache_visual_top_offset", saved["_board_layout_cache_visual_top_offset"])
+	board.set("_submission_cache_initialized", false)
+	board.call("_rebuild_submission_caches")
+	for field: String in COMPARE_FIELDS:
+		compare.call("fresh_board_cache", board.get(field), saved[field], field)
+	if had_candidates:
+		board.set("_foreground_obstruction_candidates_cache_valid", false)
+		compare.call("fresh_obstruction_candidates", board.call("_foreground_obstruction_candidates"), saved["_foreground_obstruction_candidates_cache"], "candidates")
+	for field: String in SUBMISSION_FIELDS: board.set(field, saved[field])
+
+func _chrome(host: Node, compare: Callable) -> void:
+	var key: String = host._stage_chrome_cache_key
+	var cached: Dictionary = host._stage_chrome_cache
+	host._stage_chrome_cache_key = ""
+	host._stage_chrome_cache = {}
+	var fresh: Dictionary = host._stage_chrome_presentation().duplicate(true)
+	host._stage_chrome_cache_key = key
+	host._stage_chrome_cache = cached
+	for field: String in ["active_door_tiles", "locked_door_tiles", "equipped_equipment"]:
+		compare.call("fresh_stage_chrome", fresh.get(field), host.board_view.presentation.get(field), field)
+	# Chest progress is applied after chrome construction.
+	var props: Array = fresh.get("scene_props", []).duplicate(true)
+	for prop: Dictionary in props:
+		if str(prop.get("kind", "")) == "relic_chest": prop["open_progress"] = host._treasure_chest_progress if str(host._run_state.get("mode", "")) == "treasure" else 1.0
+	var with_guardians: Dictionary = {"scene_props": props}
+	host._apply_guardian_props(host._board_display_state(), with_guardians)
+	compare.call("fresh_stage_props", with_guardians["scene_props"], host.board_view.presentation.get("scene_props", []), "props")
+
+func _forecast(host: Node, compare: Callable) -> void:
+	var source: Dictionary = host._pass_preview_source_state().duplicate(true)
+	var entries: Dictionary = host._pass_preview_cache
+	var key: String = host._pass_preview_key()
+	if source.is_empty() or not entries.has(key): return
+	var engine := EngineScript.new()
+	var fresh: Dictionary = {}
+	if engine.is_player_turn(source):
+		var scheduled: Dictionary = engine.finish_player_activation(source)
+		var result: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
+		fresh = host._pass_preview_summary_for_phase_result(source, result)
+	compare.call("fresh_current_forecast", fresh, entries[key], "current_selection")

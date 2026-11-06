@@ -1,0 +1,77 @@
+extends "/private/tmp/labyrinth_codex/qa-56/run_hunt_cache_observed.gd"
+var validation_started: bool = false
+var injected_kinds: Dictionary = {}
+var validation_failures: Array = []
+
+func _tick() -> void:
+	if not validation_started and not busy and is_instance_valid(scene) and not scene._animation_lock and settle_frames <= 0 and str(scene._run_state.get("mode", "")) == "combat":
+		validation_started = true
+		busy = true
+		_validate()
+		return
+	super._tick()
+
+func _injected_compare(kind: String, expected: Variant, actual: Variant, owner: String) -> void:
+	if expected != actual: injected_kinds[kind + ":" + owner] = true
+
+func _require(value: bool, message: String) -> void:
+	if not value: validation_failures.append(message)
+
+func _validate() -> void:
+	_checkpoint()
+	var board: Node = scene.board_view
+	var original_units: Array[Dictionary] = board._visible_units_cache
+	var corrupted: Array[Dictionary] = original_units.duplicate(true)
+	corrupted.append({"key": "qa56_injected_stale_unit"})
+	board._visible_units_cache = corrupted
+	var original_presentation: Dictionary = board.presentation
+	board.presentation = original_presentation.duplicate(true)
+	board.presentation["umbra_radius"] = -12345
+	var pass_key: String = scene._pass_preview_key()
+	var original_pass: Dictionary = scene._pass_preview_cache
+	scene._pass_preview_cache = original_pass.duplicate(true)
+	scene._pass_preview_cache[pass_key] = {"qa56_injected_stale_forecast": true}
+	cache_observer.check(scene, _injected_compare)
+	_require(injected_kinds.has("fresh_board_cache:_visible_units_cache"), "detect poisoned board")
+	_require(injected_kinds.has("fresh_stage_visibility:umbra_radius"), "detect poisoned stage")
+	_require(injected_kinds.has("fresh_current_forecast:current_selection"), "detect poisoned forecast")
+	_require(is_same(board._visible_units_cache, corrupted), "observer must restore poisoned cache, not heal it")
+	board._visible_units_cache = original_units
+	board.presentation = original_presentation
+	scene._pass_preview_cache = original_pass
+	_checkpoint()
+	# Choose the next existing option and the production wheel step, then restore.
+	scene._on_menu_button_pressed()
+	scene._open_settings_overlay()
+	var option: OptionButton = scene._settings_panel._controls["ui_scale"]
+	var initial_index: int = option.selected
+	var next_index: int = (initial_index + 1) % option.item_count
+	option.select(next_index)
+	option.item_selected.emit(next_index)
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_checkpoint()
+	option.select(initial_index)
+	option.item_selected.emit(initial_index)
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_checkpoint()
+	scene._close_settings_overlay()
+	scene._close_menu_overlay()
+	var original_zoom: float = board._navigation_zoom
+	board.set_navigation_zoom(original_zoom * board.BOARD_ZOOM_STEP)
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_checkpoint()
+	board.reset_navigation()
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_checkpoint()
+	_require(int(checkpoint_counts.get("ui_scale", 0)) >= 3, "observe scale change and restore")
+	_require(int(checkpoint_counts.get("zoom", 0)) >= 3, "observe zoom change and restore")
+	var unexpected: Dictionary = observation_mismatches.duplicate()
+	# qa-45 raises run HP after the opening board was submitted. Its off-board
+	# player HP remains 24 until the first normal stage refresh (diagnostic only).
+	unexpected.erase("fresh_board_display:stage_submission")
+	_require(unexpected.is_empty(), "unpoisoned model comparisons apart from inherited opening HP override")
+	var file := FileAccess.open(output.path_join("observer-validation.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"injected": injected_kinds, "failures": validation_failures, "counts": checkpoint_counts, "mismatches": observation_mismatches}, "\t"))
+	file.close()
+	print("QA56 OBSERVER VALIDATION: PASS board/stage/forecast poisoning detected; original references restored; scale/zoom change+restore checked" if validation_failures.is_empty() else "TEST RESULT: FAIL qa56 observer validation " + str(validation_failures))
+	_finish("observer_validation")

@@ -1,0 +1,26 @@
+"""Independently reject unknown differences, including supplemental HP checks."""
+from pathlib import Path
+import json
+import importlib.util
+ROOT=Path('/private/tmp/labyrinth_codex/qa-56')
+spec=importlib.util.spec_from_file_location('qa56_summary',ROOT/'summarize.py')
+summary=importlib.util.module_from_spec(spec);spec.loader.exec_module(summary)
+failures=[];counts={};intro=0
+for case in ('observer-validation-v2','menu-continue','purchase-purge','smoke','trace-texture-default-10-v3'):
+ for trace in (ROOT/case).glob('seed-*/trace.jsonl'):
+  case_counts={};case_intro=0
+  for line in trace.open():
+   r=json.loads(line);d=r['data']
+   if r['event'] not in ('qa56_observation_mismatch','qa56_cache_difference'):continue
+   case_counts[d['kind']]=case_counts.get(d['kind'],0)+1
+   diff=summary.differences(d['expected'],d['actual'])
+   known=(d['kind']=='fresh_board_display' and diff and all(x['path'] in ('/player/hp','/player/max_hp') and x['expected']==9999 and x['actual']==24 for x in diff) and d['context']['room_kind']=='start' and d['context']['section']==0 and 0<=d['context']['decision']<=4)
+   if known:case_intro+=1
+   else:failures.append(dict(case=case,context=d['context'],kind=d['kind'],owner=d['owner'],differences=diff))
+  counts[case]=dict(difference_groups=case_counts,inherited_opening_occurrences=case_intro);intro+=case_intro
+  errors=[l for l in trace.with_name('godot.log').read_text().splitlines() if l.startswith(('SCRIPT ERROR:','TEST RESULT: FAIL'))]
+  if errors:failures.append(dict(case=case,errors=errors))
+record=dict(status='FAIL' if failures else 'PASS',cases=counts,failures=failures)
+(ROOT/'supplemental-evidence-verification.json').write_text(json.dumps(record,indent=2)+'\n')
+print('QA56 SUPPLEMENTAL EVIDENCE:',record['status'],f'cases={len(counts)} unknown_differences={len(failures)} inherited_opening_occurrences={intro}')
+raise SystemExit(bool(failures))

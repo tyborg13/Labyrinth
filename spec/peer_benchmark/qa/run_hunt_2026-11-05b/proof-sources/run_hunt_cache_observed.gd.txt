@@ -1,0 +1,49 @@
+extends "/private/tmp/labyrinth_codex/qa-56/run_hunt_replay.gd"
+const CacheObserver = preload("/private/tmp/labyrinth_codex/qa-56/cache_observer.gd")
+var cache_observer := CacheObserver.new()
+var checkpoint_counts: Dictionary = {}
+var previous_checkpoint: Dictionary = {}
+var previous_action: Dictionary = {}
+
+func _record(action: Dictionary) -> void:
+	_checkpoint()
+	super._record(action)
+	previous_action = action.duplicate(false)
+	previous_action.erase("control")
+	previous_action.erase("object")
+
+func _finish(outcome: String) -> void:
+	if is_instance_valid(scene): _checkpoint()
+	_emit("qa56_cache_summary", {"counts": checkpoint_counts, "comparisons": observation_counts, "mismatches": observation_mismatches})
+	super._finish(outcome)
+
+func _checkpoint() -> void:
+	var run: Dictionary = scene._run_state
+	var board: Node = scene.board_view
+	var current: Dictionary = {
+		"scene": scene.get_instance_id(), "room": [run.get("current_section", run.get("section_index", _context()["section"])), run.get("current_room")],
+		"ui_scale": scene.get_window().content_scale_factor,
+		"zoom": board._navigation_zoom, "mode": run.get("mode"),
+		"held_embers": run.get("held_embers"), "purges": run.get("magic_purges_this_run", 0),
+		"purchases": scene._run_engine.room_metadata(run, run.get("current_room", Vector2i.ZERO)).get("merchant_purchased_items", []).duplicate(true), "magic_inventory": run.get("magic_inventory", []).duplicate(true),
+		"reward_cards": run.get("reward_cards", []).duplicate(true), "relics": run.get("relics", []).duplicate(true),
+		"equipped_equipment": run.get("equipped_equipment", {}).duplicate(true),
+	}
+	var triggers: Array = []
+	for field: String in current:
+		if previous_checkpoint.get(field) != current[field]: triggers.append(field)
+	# Every decision is stronger than transition-only checks, including no-op
+	# purchases/purges and room rewards that do not alter inventory.
+	cache_observer.check(scene, _fresh_compare)
+	checkpoint_counts["all_decisions_and_terminal"] = int(checkpoint_counts.get("all_decisions_and_terminal", 0)) + 1
+	if not triggers.is_empty():
+		for trigger: String in triggers: checkpoint_counts[trigger] = int(checkpoint_counts.get(trigger, 0)) + 1
+		_emit("qa56_cache_checkpoint", {"context": _context(), "triggers": triggers, "previous_action": previous_action, "state": current})
+	previous_checkpoint = current
+
+func _fresh_compare(kind: String, expected: Variant, actual: Variant, owner: String) -> void:
+	var key: String = kind + ":" + owner
+	var previous: int = int(observation_mismatches.get(key, 0))
+	_compare(kind, expected, actual, owner)
+	if expected != actual and previous > 0:
+		_emit("qa56_cache_difference", {"context": _context(), "kind": kind, "owner": owner, "expected": expected, "actual": actual})

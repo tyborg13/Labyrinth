@@ -1,0 +1,132 @@
+extends "/private/tmp/labyrinth_codex/qa-56/run_hunt_trace_replay.gd"
+## Owner-only native replay. Same hunt input policy; capture settled real frames.
+const OpeningOverride = preload("/private/tmp/labyrinth_codex/qa-56/opening_override.gd")
+var native_known_opening_differences: int = 0
+const PROOF_CATEGORIES: Array = ["scavenger_after_773"]
+var proof_captures: Dictionary = {}
+var proof_previous_room: String = ""
+var proof_previous_health: Array = []
+
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	for index: int in range(0, args.size(), 2):
+		if index + 1 >= args.size():
+			push_error("run_hunt: option requires a value: " + args[index])
+			quit(2)
+			return
+		match args[index]:
+			"--seed": hunt_seed = int(args[index + 1])
+			"--output-dir": output = args[index + 1]
+			"--no-embrace": no_embrace = args[index + 1] == "true"
+			"--stop-after": stop_after = int(args[index + 1])
+			_:
+				push_error("run_hunt: unknown option " + args[index])
+				quit(2)
+				return
+	if DisplayServer.get_name() == "headless":
+		push_error("qa56 native proof requires a real renderer")
+		quit(2)
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
+	transcript = FileAccess.open(output.path_join("trace.jsonl"), FileAccess.WRITE)
+	if transcript == null:
+		push_error("run_hunt: cannot write transcript")
+		quit(2)
+		return
+	Store.set_storage_path(output.path_join("progression.json"))
+	Store.set_run_storage_path(output.path_join("run.save"))
+	Settings.set_storage_path(output.path_join("settings.json"))
+	Analytics.set_storage_dir(output.path_join("analytics"))
+	RecentEvents.set_storage_path(output.path_join("recent_events.json"))
+	var settings: Dictionary = Settings.default_settings()
+	settings["combat_speed"] = Settings.COMBAT_FASTEST
+	settings["ui_scale"] = 1.0
+	settings["display_mode"] = Settings.DISPLAY_WINDOWED
+	Settings.save_settings(settings)
+	rng.seed = hunt_seed
+	# Production New Run reads this existing deterministic probe hook.
+	root.set_meta("labyrinth_performance_probe_seed", hunt_seed)
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1920, 1080)
+	root.content_scale_size = Vector2i(1920, 1080)
+	Engine.max_fps = SAMPLE_FPS
+	Engine.time_scale = HEADLESS_TIME_SCALE
+	OS.low_processor_usage_mode = false
+	RenderingServer.frame_post_draw.connect(_capture_side_views)
+	call_deferred("_start")
+
+
+func _record(action: Dictionary) -> void:
+	_observe_drawn_inputs(scene)
+	_capture_views()
+	super._record(action)
+
+func _capture_side_views() -> void:
+	if busy and not finished and is_instance_valid(scene) and not scene.is_queued_for_deletion(): _capture_views()
+
+func _capture_views() -> void:
+	if not is_instance_valid(scene) or bool(scene.get("_animation_lock")): return
+	var run: Dictionary = scene.get("_run_state")
+	if decision >= 773 and str(_context().get("room_kind")) == "scavenger": _capture("scavenger_after_773")
+	var map: Variant = scene.get("_large_map_view")
+	if is_instance_valid(map) and map.is_visible_in_tree():
+		_capture("map")
+		return
+	if str(run.get("mode", "")) != "combat": return
+	_capture("combat")
+	var state: Dictionary = scene.get("_combat_state")
+	var room: String = str(run.get("current_room"))
+	var health: Array = [(state.get("player", {}) as Dictionary).get("hp")]
+	for enemy: Dictionary in state.get("enemies", []): health.append([enemy.get("id"), enemy.get("hp")])
+	if room == proof_previous_room and health != proof_previous_health: _capture("changed_health")
+	proof_previous_room = room
+	proof_previous_health = health.duplicate(true)
+	if int(scene.get("_selected_card_index")) >= 0: _capture("selected_preview")
+	if int(scene.get("_hovered_card_index")) >= 0: _capture("hover_preview")
+
+func _capture(kind: String) -> void:
+	if proof_captures.has(kind): return
+	var image: Image = root.get_texture().get_image()
+	assert(image != null and image.get_size() == Vector2i(1920, 1080))
+	var path: String = output.path_join(kind + ".png")
+	assert(image.save_png(ProjectSettings.globalize_path(path)) == OK)
+	var board: Node = scene.get("board_view")
+	proof_captures[kind] = {"path": ProjectSettings.globalize_path(path), "context": _context(), "combat": scene.get("_combat_state").duplicate(true), "board_state": board.get("combat_state").duplicate(true), "presentation": board.get("presentation").duplicate(true)}
+	print(ProjectSettings.globalize_path(path))
+
+func _observe_drawn_inputs(node: Node) -> void:
+	if node is CanvasItem and not node.is_visible_in_tree(): return
+	var script: Script = node.get_script() as Script
+	var path: String = script.resource_path if script != null else ""
+	if path == "res://scripts/segmented_health_bar.gd":
+		var inputs: Array = node.get("_draw_inputs")
+		if inputs.size() >= 3:
+			_compare("drawn_health_inputs", Vector2(float(node.get("value")), float(node.get("max_value"))), Vector2(float(inputs[1]), float(inputs[2])), str(node.get_path()))
+	elif str(node.name) == "TimeCostBadge":
+		var inputs: Array = node.get("_value_fit_inputs")
+		if inputs.size() >= 4: _compare("drawn_badge_value", int(node.get("value")), int(inputs[3]), str(node.get_path()))
+	elif path == "res://scripts/section_map_node.gd":
+		var face: Array = node.get("_face_inputs")
+		var marks: Array = node.get("_marks_inputs")
+		if face.size() >= 2: _compare("drawn_map_face_route", node.get("route_state"), face[1], str(node.get_path()))
+		if marks.size() >= 2: _compare("drawn_map_mark_route", node.get("route_state"), marks[1], str(node.get_path()))
+	for child: Node in node.get_children(true): _observe_drawn_inputs(child)
+
+func _fresh_compare(kind: String, expected: Variant, actual: Variant, owner: String) -> void:
+	if expected != actual and OpeningOverride.matches(_context(), kind, expected, actual): native_known_opening_differences += 1
+	super._fresh_compare(kind, expected, actual, owner)
+
+func _finish(outcome: String) -> void:
+	_checkpoint()
+	var unexpected_models: Dictionary = OpeningOverride.unexpected(observation_mismatches, native_known_opening_differences)
+	var missing: Array = []
+	for kind: String in PROOF_CATEGORIES:
+		if not proof_captures.has(kind): missing.append(kind)
+	var proof: Dictionary = {"size": [1920,1080], "ui_scale": 1.0, "captures": proof_captures, "missing": missing, "model_counts": observation_counts, "model_mismatches": observation_mismatches, "known_opening_differences": native_known_opening_differences, "unexpected_model_mismatches": unexpected_models}
+	var file := FileAccess.open(output.path_join("native-observations.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(proof, "\t"))
+	file.close()
+	print("QA56 NATIVE CAPTURES: captured=%d missing=%s" % [proof_captures.size(), str(missing)])
+	print("QA56 NATIVE MODELS: PASS" if unexpected_models.is_empty() else "TEST RESULT: FAIL qa56 native model comparisons")
+	super._finish(outcome)

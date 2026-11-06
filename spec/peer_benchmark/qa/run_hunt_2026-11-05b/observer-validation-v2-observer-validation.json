@@ -1,0 +1,26 @@
+{
+	"counts": {
+		"all_decisions_and_terminal": 14,
+		"equipped_equipment": 1,
+		"held_embers": 1,
+		"magic_inventory": 1,
+		"mode": 3,
+		"purchases": 1,
+		"purges": 1,
+		"relics": 1,
+		"reward_cards": 1,
+		"room": 2,
+		"scene": 1,
+		"ui_scale": 3,
+		"zoom": 3
+	},
+	"failures": [],
+	"injected": {
+		"fresh_board_cache:_visible_units_cache": true,
+		"fresh_current_forecast:current_selection": true,
+		"fresh_stage_visibility:umbra_radius": true
+	},
+	"mismatches": {
+		"fresh_board_display:stage_submission": 5
+	}
+}

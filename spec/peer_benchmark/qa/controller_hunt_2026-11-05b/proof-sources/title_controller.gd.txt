@@ -1,0 +1,114 @@
+extends SceneTree
+## Physical-only countercheck for the broad sweep's mixed-input Settings failure.
+const Runtime = preload("res://scripts/parallel_runtime.gd")
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Router = preload("res://scripts/input_router.gd")
+const INPUT_SETTLE: int = 3
+const NAV_LIMIT: int = 160
+const FIXTURE_UNLOCKED_DEPTH: int = 3
+const FIXTURE_SELECTED_DEPTH: int = 1
+const PROOF_SIZE := Vector2i(1920, 1080)
+const EDGES: Array = [[SIDE_LEFT, JOY_BUTTON_DPAD_LEFT], [SIDE_TOP, JOY_BUTTON_DPAD_UP], [SIDE_RIGHT, JOY_BUTTON_DPAD_RIGHT], [SIDE_BOTTOM, JOY_BUTTON_DPAD_DOWN]]
+class MenuFixture extends "res://scripts/main_menu.gd":
+	var requested_scene: String = ""
+	func _change_scene_to_file(path: String, _prepare: Callable = Callable()) -> void: requested_scene = path
+var menu: Control
+var failures: Array[String]
+var inputs: Array[Dictionary]
+var output: String = "/private/tmp/labyrinth_codex/qa-57/evidence/title-controller-depth"
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	Store.set_storage_path("user://title_profile.json")
+	Store.set_run_storage_path("user://title_run.save")
+	Store.save_data(preload("res://tests/suites/depth_rules_suite.gd")._profile(FIXTURE_UNLOCKED_DEPTH, FIXTURE_SELECTED_DEPTH))
+	Settings.set_storage_path("user://title_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	Settings.save_settings(settings)
+	Router.ensure_input_map()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	root.size = PROOF_SIZE
+	root.content_scale_size = PROOF_SIZE
+	root.content_scale_factor = 1.0
+	if DisplayServer.get_name() == "headless": process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	call_deferred("_run")
+func _run() -> void:
+	menu = load("res://scenes/main_menu.tscn").instantiate()
+	menu.set_script(MenuFixture)
+	root.add_child(menu)
+	await _settle()
+	await _activate(menu.get("settings_button"))
+	var panel: Control = menu.get("settings_panel")
+	_expect(panel.visible, "Title A opens Settings")
+	var restore: Button
+	for node: Node in panel.find_children("*", "Button", true, false):
+		if node.text == "Restore defaults": restore = node
+	await _activate(restore)
+	var confirmation: Control = panel.get("_confirmation_panel")
+	_expect(confirmation.visible and confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Restore confirmation owns controller focus")
+	await _joy(JOY_BUTTON_B)
+	_expect(panel.visible and not confirmation.visible, "First B cancels confirmation")
+	await _joy(JOY_BUTTON_B)
+	_expect(not panel.visible and root.gui_get_focus_owner() == menu.get("settings_button"), "Second B returns to focused title Settings")
+	await _activate(menu.get("start_button"))
+	var picker: Control = menu.get("_new_descent_panel")
+	_expect(picker != null and root.gui_get_focus_owner() == picker.find_child("DepthBegin", true, false), "New Run immediately focuses Begin Descent")
+	await _joy(JOY_BUTTON_A)
+	_expect(menu.get("_new_descent_panel") == null and str(menu.get("requested_scene")) == "res://scenes/run_scene.tscn", "Immediate A begins the run")
+	DirAccess.make_dir_recursive_absolute(output)
+	var file := FileAccess.open(output.path_join("result.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"failures": failures, "inputs": inputs}, "\t"))
+	for failure: String in failures: print("TITLE CONTROLLER FINDING: " + failure)
+	print("TITLE CONTROLLER: %s (%d findings)" % ["PASS" if failures.is_empty() else "FAIL", failures.size()])
+	menu.queue_free()
+	await _settle()
+	quit(0 if failures.is_empty() else 1)
+func _expect(ok: bool, label: String) -> void:
+	if not ok: failures.append(label)
+func _settle() -> void:
+	for frame: int in range(INPUT_SETTLE): await process_frame
+func _joy(button: int) -> void:
+	var focus: Control = root.gui_get_focus_owner()
+	inputs.append({"button": button, "focus_before": str(focus.get_path()) if focus != null else ""})
+	var event := InputEventJoypadButton.new()
+	event.button_index = button
+	event.device = 0
+	event.pressed = true
+	Input.parse_input_event(event)
+	await _settle()
+	event = event.duplicate()
+	event.pressed = false
+	Input.parse_input_event(event)
+	await _settle()
+func _activate(target: Control) -> void:
+	if not is_instance_valid(target):
+		_expect(false, "Missing target")
+		return
+	if root.gui_get_focus_owner() == null: await _joy(JOY_BUTTON_DPAD_DOWN)
+	for step: int in range(NAV_LIMIT):
+		var focus: Control = root.gui_get_focus_owner()
+		if focus == target:
+			await _joy(JOY_BUTTON_A)
+			return
+		if focus == null: break
+		var pending: Array[Control]
+		pending.append(focus)
+		var paths: Dictionary = {focus.get_instance_id(): []}
+		var route: Array = []
+		while not pending.is_empty() and route.is_empty():
+			var current: Control = pending.pop_front()
+			for edge: Array in EDGES:
+				var next: Control = current.find_valid_focus_neighbor(edge[0])
+				if next == null or paths.has(next.get_instance_id()): continue
+				var path: Array = paths[current.get_instance_id()].duplicate()
+				path.append(edge[1])
+				if next == target:
+					route = path
+					break
+				paths[next.get_instance_id()] = path
+				pending.append(next)
+		if route.is_empty(): break
+		await _joy(route[0])
+	_expect(false, "Controller cannot reach " + str(target.get_path()))

@@ -7,6 +7,17 @@ It uses the ordinary append-only JSONL writer and session/install metadata; it
 does not rewrite existing history or emit on record selection. Probe-only opens
 can suppress emission.
 
+New Chronicle records carry additive `end_title`, chosen with the recap's
+`RunScoreRules.identity` and seeded title selector when the terminal record is
+built. The Chronicle reads that stored title; old records without the field
+retain their existing default title. No historical record is backfilled.
+
+Status-popup attribution uses additive combat-state `player_bleed_loss_totals`
+(cumulative Health, Block and Stoneskin losses). Snapshot deltas identify the
+hero's paid Bleed losses separately from other damage in the same action;
+older snapshots without the counters start at zero. This presentation receipt
+changes no damage, timing, event payload or local append-only JSONL writer.
+
 Runtime frame-time/render-load collection is specified separately in [performance_telemetry.md](performance_telemetry.md). Gameplay analytics and performance telemetry use distinct files and schemas so high-frequency performance sampling cannot inflate or destabilize the append-only gameplay-event contract below.
 
 The game now records local-only analytics as append-only JSON Lines under `user://analytics/` by default. The storage format is intentionally boring so it can later be uploaded to S3 and queried or compacted into Parquet without changing the in-game emitter.

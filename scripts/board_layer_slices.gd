@@ -12,6 +12,7 @@ const Badges = preload("res://scripts/intent_badges.gd")
 const Threats = preload("res://scripts/threat_tiles.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const Forecast = preload("res://scripts/combat_hud_forecast.gd")
 const STATE_FIELDS: Array = [
 	"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
 	"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile", "_controller_focus_tile",
@@ -28,6 +29,7 @@ const STATE_FIELDS: Array = [
 	"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 	"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 	"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache",
+	"_terrain_health_bar_sources",
 	"_hud_layout_entries_cache", "_rest_threat_tile_alphas"
 ]
 
@@ -138,11 +140,19 @@ func _rebuild(layer: Control) -> void:
 	layer.queue_redraw()
 
 static func _hud_operations(board: Control) -> void:
-	var units: Array[Dictionary] = board.call("_visible_units")
-	board.call("_slice_op", "_draw_slice_hud_base", [units])
+	# Match the unsliced HUD without applying forecast values to body rosters.
+	var units: Array[Dictionary]
+	for unit: Dictionary in board.call("_visible_units"): units.append(Forecast.unit(unit, board.presentation))
+	board.call("_slice_op", "_draw_noctyrax_brazier_markers", [])
 	var font: Font = board.get_theme_default_font()
-	if font != null:
-		for unit: Dictionary in units:
+	for entry: Dictionary in board.call("_health_bar_draw_entries", units):
+		var unit: Dictionary = entry["unit"]
+		var alpha: float = board.call("_health_bar_owner_alpha", unit)
+		# Terrain's entry also paints its nonlethal damage band. Its owner can be
+		# fully opaque while that band still samples the preview pulse clock.
+		var terrain_pulse: bool = bool(entry["terrain"]) and not unit.has("destruction_progress") and not bool(board.presentation.get("reduced_motion", false)) and board.call("_damage_preview_shows_lost_hp", board.call("_terrain_damage_preview", unit))
+		board.call("_slice_op", "_draw_health_bar_entry", [entry], (alpha > 0.0 and alpha < 1.0) or terrain_pulse)
+		if font != null and not bool(entry["terrain"]) and not bool(unit.get("death_animation", false)):
 			var preview: Dictionary = board.call("_unit_damage_preview", unit)
 			if not board.call("_damage_preview_shows_lost_hp", preview): continue
 			var health: Rect2 = board.get("_hud_health_rects_cache").get(str(unit.get("key", "")), Rect2())
@@ -150,6 +160,7 @@ static func _hud_operations(board: Control) -> void:
 			var rect: Rect2 = board.call("_health_bar_content_rect", unit, health)
 			board.call("_slice_op", "_draw_health_damage_preview", [unit, rect, preview], not bool(board.presentation.get("reduced_motion", false)))
 			board.call("_slice_op", "_draw_health_bar_text", [unit, rect, preview, font])
+	board.call("_slice_op", "_draw_unit_hud_details", [units])
 	board.call("_slice_op", "_draw_slice_hud_chips", [])
 	var measured: Array[Dictionary] = Badges.layouts(board, board.presentation.get("threats_at_rest", {}).get("badges", []))
 	board.call("_slice_op", "_draw_slice_intent_orders", [measured])

@@ -17,6 +17,9 @@ const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Beats = preload("res://scripts/event_result_beats.gd")
 const Gain = preload("res://scripts/event_gain_effect.gd")
 const Floating = preload("res://scripts/floating_combat_text.gd")
+class PreviewDrawClock:
+	extends RefCounted
+	signal rendered_frame
 const PROOF_SIZE: Vector2i = Vector2i(1920, 1080)
 const FIXTURE_READY_FRAMES: int = 240
 const BEAT_FIXTURE_SEED: int = 15000
@@ -30,6 +33,7 @@ const DEBUG_CROSS_STAGGER: float = 0.02
 const DEBUG_DRAIN_STEP: float = 2.0
 const DEBUG_EFFECT_FINISH_STEP: float = 3.0
 const DEBUG_COUNTER_TARGET: Vector2 = Vector2(1800, 80)
+const UPCOMING_PREVIEW_CARD_SCALE: float = 1.35 # ui-22's owner-approved scale.
 const BEAT_CASES: Array = [
 	["whispering_well", "ember"], ["fallen_lantern_bearer", "satchel"],
 	["bloodletters_basin", "bleed"], ["ossuary_gamblers", "wager_embers"],
@@ -61,6 +65,9 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 	tree.root.add_child(viewport)
 	var view := View.new()
 	viewport.add_child(view)
+	var warmups: Array[WeakRef]
+	view.hover_preview.child_entered_tree.connect(func(child: Node) -> void:
+		if child is SubViewport: warmups.append(weakref(child)))
 	var engine := Run.new()
 	# Receipts and previews own deep copies; no case writes the base run.
 	var fixture_base: Dictionary = engine.create_new_run(Fixtures.FIXTURE_SEED, Store.default_data())
@@ -86,12 +93,37 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 		var state: Dictionary = _fixture(fixture_base, fixture[0], true)
 		view.present(state, true)
 		view.finish_animation_for_test()
-		expect.call(view.hover_preview.cache.is_empty(), "Opening builds no preview widgets: " + fixture[2])
+		expect.call(not warmups.is_empty(), "Headless event preparation exercises the real viewport configuration")
+		if not warmups.is_empty():
+			var warmup: SubViewport = warmups[-1].get_ref() as SubViewport
+			if warmup != null:
+				expect.call(warmup.get_parent() == view.hover_preview and warmup.world_2d != view.get_world_2d(), "The warm-up owns a separate World2D and is attached for cancellation")
+			await tree.process_frame
+			expect.call(warmups[-1].get_ref() == null, "Completed warm-up viewport is freed")
 		var index: int = _choice_index(view, fixture[1])
 		expect.call(index >= 0, "Choice fixture exists")
+		var line: Dictionary = Preview.first_concrete(Events.preview_lines(state, fixture[0], fixture[1]))
+		var prepared: Control = view.hover_preview.cache.get(hash(line))
+		var prepared_count: int = view.hover_preview.cache.size()
+		expect.call(prepared != null and not prepared.visible, "Opening prepares the exact reward widget without revealing it: " + fixture[2])
+		if prepared != null:
+			var synchronous: Control = Preview.build(line, state)
+			synchronous.hide()
+			viewport.add_child(synchronous)
+			await tree.process_frame
+			expect.call(synchronous.size.is_equal_approx(prepared.size), "Sliced construction retains the native preview extent: %s sync=%s sliced=%s" % [fixture[2], synchronous.size, prepared.size])
+			var cold_cards: Array[Node] = synchronous.find_children("CardWidget", "", true, false)
+			var warm_cards: Array[Node] = prepared.find_children("CardWidget", "", true, false)
+			expect.call(cold_cards.size() == warm_cards.size(), "Warm-up retains every card: " + str(fixture[2]))
+			for card_index: int in range(mini(cold_cards.size(), warm_cards.size())):
+				var cold: Dictionary = _card_typography(cold_cards[card_index])
+				var warm: Dictionary = _card_typography(warm_cards[card_index])
+				expect.call(cold == warm, "Warm-up uses the event's real typography scale: %s cold=%s warm=%s" % [fixture[2], cold, warm])
+				if fixture[0] == "whispering_well": print("EVENT PREVIEW TYPOGRAPHY: cold=%s warm=%s" % [cold, warm])
+			synchronous.free()
 		view.choices[index].mouse_entered.emit()
 		var shown: Control = view.hover_preview.current
-		var line: Dictionary = Preview.first_concrete(Events.preview_lines(state, fixture[0], fixture[1]))
+		expect.call(shown == prepared and view.hover_preview.cache.size() == prepared_count, "First hover builds no reward widgets: " + fixture[2])
 		expect.call(shown != null and shown.get_meta("preview_line") == line, "Hover shows first concrete line: " + fixture[2])
 		if shown == null: continue
 		kinds[str(line["kind"])] = true
@@ -107,7 +139,7 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 		expect.call(view.preview_brightness == 0.32, "Reduced hover dims instantly")
 		view.choices[index].mouse_exited.emit()
 		view.choices[index].focus_entered.emit()
-		expect.call(view.hover_preview.current == shown and shown.visible and view.hover_preview.cache.size() == 1, "Focus reuses exact hover widget: " + fixture[2])
+		expect.call(view.hover_preview.current == shown and shown.visible and view.hover_preview.cache.size() == prepared_count, "Focus reuses exact hover widget: " + fixture[2])
 		_expect_ignores_input(shown, expect)
 		expect.call(is_equal_approx(view.health.size.x, 240) and view.health.hp == state["player_hp"], "Choices show current Health")
 		var after: Dictionary = engine.resolve_map_event(state, fixture[1])
@@ -140,6 +172,8 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 	view.finish_animation_for_test()
 	view.preview_choice(0)
 	expect.call(view.hover_preview.cache.is_empty(), "Plain gain has no preview")
+	await _warmup_lifetime(view, tree, expect, fixture_base)
+	await _scaled_preview_typography(view, tree, expect, fixture_base)
 	await _lifecycle(view, tree, expect, fixture_base)
 	await _all_beats(view, tree, expect, fixture_base)
 	await _feedback1_ui(view, tree, expect, fixture_base)
@@ -149,6 +183,76 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 	await _integration(viewport, tree, expect, fixture_base)
 	viewport.queue_free()
 	await tree.process_frame
+
+static func _card_typography(card: Node) -> Dictionary:
+	return {"title": card.get("title_label").get_theme_font_size("font_size"), "rules": card.get("desc_label").get_theme_font_size("normal_font_size"), "footer": card.get("footer_label").get_theme_font_size("font_size")}
+
+static func _scaled_preview_typography(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
+	var state: Dictionary = _fixture(fixture_base, "whispering_well", true)
+	var line: Dictionary = Preview.first_concrete(Events.preview_lines(state, "whispering_well", "ember"))
+	var work: Dictionary = Preview.begin_build(line, state)
+	work.jobs[0].factor = UPCOMING_PREVIEW_CARD_SCALE
+	var cold_work: Dictionary = Preview.begin_build(line, state)
+	cold_work.jobs[0].factor = UPCOMING_PREVIEW_CARD_SCALE
+	while not Preview.build_next(cold_work): pass
+	var cold: Control = cold_work.stage
+	view.get_parent().add_child(cold)
+	var hover := preload("res://scripts/event_hover_preview.gd").new()
+	view.add_child(hover)
+	hover.view = view
+	hover.cache[hash(line)] = work.stage
+	hover._builds.append(work)
+	hover._preparing = true
+	hover._prepare_rendering(hover._preparation_revision)
+	for frame: int in range(FIXTURE_READY_FRAMES):
+		if not hover.preparation_snapshot().active: break
+		await tree.process_frame
+	await tree.process_frame
+	var warm_card: Node = work.stage.find_child("CardWidget", true, false)
+	var cold_card: Node = cold.find_child("CardWidget", true, false)
+	expect.call(not hover.preparation_snapshot().active and _card_typography(warm_card) == _card_typography(cold_card), "Warm-up typography matches direct attachment at ui-22's 1.35 card scale")
+	print("EVENT PREVIEW TYPOGRAPHY 1.35: cold=%s warm=%s" % [_card_typography(cold_card), _card_typography(warm_card)])
+	cold.free()
+	hover.queue_free()
+	await tree.process_frame
+
+static func _warmup_lifetime(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
+	# A controlled draw signal tests waiting and cancellation without pretending
+	# that Godot's headless renderer supplied GPU proof. Normal prepare above
+	# independently exercises the real constructor, properties and separate world.
+	for cancel: bool in [false, true]:
+		view.present(_fixture(fixture_base, "fallen_lantern_bearer"), true)
+		view.finish_animation_for_test()
+		await tree.process_frame
+		var hover: Control = view.hover_preview
+		var pending := SubViewport.new()
+		pending.world_2d = World2D.new()
+		pending.disable_3d = true
+		hover.add_child(pending)
+		var lifetime: WeakRef = weakref(pending)
+		for reward: Control in hover.cache.values(): reward.reparent(pending, false)
+		hover.set("_preparation_viewport", pending)
+		hover.set("_preparing", true)
+		hover.set("_preparation_draws", 0)
+		var clock := PreviewDrawClock.new()
+		hover.call("_warm_draws", int(hover.get("_preparation_revision")), clock.rendered_frame)
+		clock.rendered_frame.emit()
+		expect.call(hover.preparation_snapshot().active and int(hover.preparation_snapshot().draws) == 1 and lifetime.get_ref() != null, "One draw retains the warm-up viewport")
+		if cancel: hover.clear()
+		clock.rendered_frame.emit()
+		await tree.process_frame
+		expect.call(lifetime.get_ref() == null and not hover.preparation_snapshot().active, "Warm-up is freed after %s" % ("cancellation between draws" if cancel else "its second draw"))
+		if not cancel:
+			for reward: Control in hover.cache.values():
+				expect.call(reward.get_parent() == hover and not reward.visible, "Completed warm-up retains the original hidden reward nodes")
+	var retiring := preload("res://scripts/event_hover_preview.gd").new()
+	var state: Dictionary = _fixture(fixture_base, "fallen_lantern_bearer", true)
+	var line: Dictionary = Preview.first_concrete(Events.preview_lines(state, "fallen_lantern_bearer", "satchel"))
+	var work: Dictionary = Preview.begin_build(line, state)
+	var unfinished: WeakRef = weakref(work.stage)
+	retiring.cache[hash(line)] = work.stage
+	retiring.free()
+	expect.call(unfinished.get_ref() == null, "Retiring the owner frees a preview whose sliced construction has not attached it yet")
 
 static func _lifecycle(view: Control, tree: SceneTree, expect: Callable, fixture_base: Dictionary) -> void:
 	var before: Dictionary = _fixture(fixture_base, "hanged_knight", true)
@@ -378,16 +482,17 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 	expect.call(is_equal_approx(overlap[1], 0.38) and is_equal_approx(overlap[2], 0.80), "Each centre reward begins when the previous reward starts flight")
 	var loss: Array[float] = Beats.schedule([{"type": "lose_item", "id": "fixture"}, {"type": "card", "id": "fixture"}], false)
 	expect.call(is_equal_approx(loss[1], 0.4), "A dissolving item owns the centre until its dissolve finishes")
-	# Hover during the opening never constructs its widgets on that frame path.
+	# Opening owns construction; hover during it only records the pending index.
 	var opening := View.new()
 	view.get_parent().add_child(opening)
 	opening.present(before, false)
+	var opening_cache: Dictionary = opening.hover_preview.cache.duplicate()
 	opening.preview_choice(0)
-	expect.call(opening.hover_preview.cache.is_empty(), "Opening hover defers widget construction until the surface is ready")
+	expect.call(not opening_cache.is_empty() and opening.hover_preview.current == null and opening.hover_preview.cache == opening_cache, "Opening hover defers reveal and does not construct widgets")
 	var intro: Tween = opening.get("_opening")
 	intro.pause()
 	intro.custom_step(0.23)
-	expect.call(opening.hover_preview.cache.size() == 1, "Pending opening hover builds exactly once after opening")
+	expect.call(opening.hover_preview.current != null and opening.hover_preview.cache == opening_cache, "Pending opening hover reveals the prepared widget after opening")
 	opening.queue_free()
 	await tree.process_frame
 	for fixture: Array in [["lost_cartographer", "embers"], ["starving_pilgrim", "item"]]:

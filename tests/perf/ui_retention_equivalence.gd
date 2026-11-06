@@ -4,6 +4,7 @@ const Slots = preload("res://scripts/turn_order_slots.gd")
 const Original = preload("res://tests/perf/turn_order_reference.gd")
 const Discovery = preload("res://scripts/grimoire_discovery_sync.gd")
 const Library = preload("res://scripts/grimoire_library.gd")
+const LAYOUT_STORAGE_ULPS: int = 1
 
 class FrozenClock extends "res://scripts/run_score_rules.gd":
 	func sample_scene_play_time(_host: Control, _committed_state: Dictionary = {}) -> void:
@@ -36,7 +37,9 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		var expected: Control = Original.build(scene, entry, comparisons % 6)
 		holder.add_child(expected)
 		for frame: int in range(3): await tree.process_frame
-		expect.call(snapshot(retained) == snapshot(expected), "Turn-order retained layout/style/texture/text/input equivalence " + str(comparisons))
+		var differences: Array[String] = _differences(snapshot(expected), snapshot(retained), "", true)
+		if not differences.is_empty(): print("PERF03 TURN ORDER PROPERTY DIFF: ", differences)
+		expect.call(differences.is_empty(), "Turn-order retained layout/style/texture/text/input equivalence " + str(comparisons))
 		if previous_id != 0: expect.call(retained.get_instance_id() == previous_id, "Turn-order actor root retained in place")
 		expected.free()
 		comparisons += 1
@@ -228,17 +231,27 @@ static func _value(value: Variant) -> Variant:
 		return copy
 	return value
 
-static func _differences(expected: Variant, actual: Variant, path: String = "") -> Array[String]:
+static func _differences(expected: Variant, actual: Variant, path: String = "", layout_storage: bool = false) -> Array[String]:
 	var differences: Array[String]
 	if expected == actual: return differences
+	# Control stores offsets as float32. Reusing its size/position setters can
+	# round an endpoint one representable value away from a fresh factory (the
+	# observed active numeral differed by 0.0000076294 px). Compare adjacent
+	# storage values only; styles, text, resources and other numbers stay exact.
+	if layout_storage and expected is float and actual is float and is_finite(expected) and is_finite(actual) and path.get_base_dir().ends_with("/properties") and path.get_file() in ["offset_left", "offset_top", "offset_right", "offset_bottom"]:
+		var encoded := PackedByteArray()
+		encoded.resize(8)
+		encoded.encode_float(0, expected)
+		encoded.encode_float(4, actual)
+		if absi(encoded.decode_s32(0) - encoded.decode_s32(4)) <= LAYOUT_STORAGE_ULPS: return differences
 	if expected is Dictionary and actual is Dictionary:
 		for key: Variant in expected:
 			if not actual.has(key): differences.append(path + "/" + str(key) + " missing")
-			else: differences.append_array(_differences(expected[key], actual[key], path + "/" + str(key)))
+			else: differences.append_array(_differences(expected[key], actual[key], path + "/" + str(key), layout_storage))
 		for key: Variant in actual:
 			if not expected.has(key): differences.append(path + "/" + str(key) + " extra")
 	elif expected is Array and actual is Array:
 		if expected.size() != actual.size(): differences.append(path + " size %d != %d" % [expected.size(), actual.size()])
-		for index: int in range(mini(expected.size(), actual.size())): differences.append_array(_differences(expected[index], actual[index], path + "/" + str(index)))
+		for index: int in range(mini(expected.size(), actual.size())): differences.append_array(_differences(expected[index], actual[index], path + "/" + str(index), layout_storage))
 	else: differences.append(path + ": " + str(expected) + " != " + str(actual))
 	return differences
