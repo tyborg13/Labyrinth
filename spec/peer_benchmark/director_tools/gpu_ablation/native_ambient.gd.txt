@@ -1,0 +1,7 @@
+extends RefCounted
+## Proof-only ambient time. Gameplay clocks and submitted action phases advance.
+const SECONDS: float = 0.375
+const TICKS_MSEC: int = 42000
+const TICKS_USEC: int = 42000000
+const PARTICLE_SEED: int = 83
+const PARTICLE_FPS: int = 60

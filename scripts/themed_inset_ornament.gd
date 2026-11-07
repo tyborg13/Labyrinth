@@ -183,13 +183,20 @@ func _native_tooltip_content(wrapper: Window) -> Control:
 	return content if ancestor == wrapper else null
 
 func _queue_native_tooltip_tighten() -> void:
+	if not is_inside_tree() or is_queued_for_deletion(): return
 	call_deferred("_tighten_native_tooltip_wrapper")
 	_tighten_native_tooltip_after_layout()
 
 
 func _tighten_native_tooltip_after_layout() -> void:
-	await get_tree().process_frame
-	await get_tree().process_frame
+	# The native popup owns this child. Its signals and pending layout passes
+	# can outlive the child's tree membership while the popup is being retired.
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	var tree: SceneTree = get_tree()
+	await tree.process_frame
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	await tree.process_frame
+	if not is_inside_tree() or is_queued_for_deletion(): return
 	_tighten_native_tooltip_wrapper()
 
 
@@ -231,6 +238,7 @@ func _has_button_ancestor(node: Node) -> bool:
 
 
 func _tighten_native_tooltip_wrapper() -> void:
+	if not is_inside_tree() or is_queued_for_deletion(): return
 	var wrapper: Window = _native_tooltip_wrapper()
 	if wrapper == null or _panel == null or not _panel.is_inside_tree():
 		return

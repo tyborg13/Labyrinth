@@ -1,0 +1,66 @@
+extends RefCounted
+static func resolve(scene: Node) -> Dictionary:
+ var controls: Array = []
+ _controls(scene,"",controls)
+ return {"controls":controls,"board":board(scene)}
+static func _controls(node: Node, path: String, result: Array) -> void:
+ if node.is_queued_for_deletion() or (node is Control and not node.is_visible_in_tree()): return
+ if node is Control:
+  var row: Dictionary = {"path":path,"class":node.get_class(),"visible":node.visible,"tree":node.is_visible_in_tree(),"focus":node.has_focus(),"mouse":node.mouse_filter,"focus_mode":node.focus_mode,"tooltip":node.tooltip_text}
+  if node is Label or node is RichTextLabel or node is Button or node is LineEdit:row["text"]=node.text
+  if node is BaseButton: row["disabled"]=node.disabled
+  result.append(row)
+ var index: int=0
+ for child: Node in node.get_children():
+  _controls(child,path+"/"+str(index),result)
+  index+=1
+static func canonical(value: Variant) -> Variant:
+ if value is Node:
+  var script: Script=value.get_script()
+  return ["Node",value.get_class(),script.resource_path if script != null else ""]
+ if value is Dictionary:
+  var result: Dictionary={}
+  var keys: Array=value.keys()
+  keys.sort_custom(func(a: Variant,b: Variant)->bool:return str(a)<str(b))
+  for key: Variant in keys:
+   var field: String=str(key)
+   if "timestamp" in field or "play_time" in field or "instance_id" in field or field in ["run_seconds","session_id","analytics_session_id","install_id"]:continue
+   if field=="event_id" and str(value[key]).begins_with("evt_"):continue
+   result[key]=canonical(value[key])
+  return result
+ if value is Array:
+  var result: Array=[]
+  for item: Variant in value:result.append(canonical(item))
+  return result
+ return value
+static func job(scene: Node, kind: String) -> Dictionary:
+ var fields: Dictionary={"header":["room_title","room_subtitle","umbra_subtitle","stats_label","relic_bar"],"navigation":["_turn_order_panel","_combat_objective_hud","mini_map","_large_map_view","draw_count","discard_count","burn_count"],"choices":["_play_meter","_movement_meter","_action_step_tracker","choice_bar","_choice_button_overlay","_pass_preview_overlay","_context_choice_overlay","_relic_choice_overlay","_scavenger_shop_view"],"hand":["hand_box"],"stage":["board_view"],"finish":["_event_view","_controller_prompt_bar","log_label"]}
+ var result: Dictionary={}
+ for field: String in fields[kind]:
+  var node: Variant=scene.get(field)
+  var controls: Array=[]
+  if is_instance_valid(node):_controls(node,field,controls)
+  result[field]=controls
+ if kind=="stage":result["board"]=board(scene)
+ if kind=="navigation":result["map"]=scene._large_map_view.run_state.duplicate(true)
+ return result
+
+static func board(scene: Node) -> Dictionary:
+ var view: Node=scene.board_view
+ var result: Dictionary={}
+ for field: String in ["combat_state","move_tiles","attack_tiles","selected_tile","status_label","status_detail","exit_tiles","exit_icon_ids","presentation"]:result[field]=view.get(field)
+ return _board_values(result)
+
+static func _board_values(value: Variant) -> Variant:
+ if value is Node:
+  var script: Script=value.get_script()
+  return ["Node",value.get_class(),script.resource_path if script != null else ""]
+ if value is Dictionary:
+  var result: Dictionary={}
+  for key: Variant in value:result[key]=_board_values(value[key])
+  return result
+ if value is Array:
+  var result: Array=[]
+  for item: Variant in value:result.append(_board_values(item))
+  return result
+ return value

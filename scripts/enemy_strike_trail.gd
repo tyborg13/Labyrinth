@@ -1,6 +1,6 @@
 extends RefCounted
-## Cache authored and resolved source points per motion/facing. Projection follows
-## camera/floor registration changes; area rakes stay in each target depth layer.
+## Weapons retain the rendered pose history; contact claws and jaw references
+## use the authored sampler. Area rakes stay in each target depth layer.
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Points = preload("res://scripts/enemy_strike_points.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
@@ -9,7 +9,14 @@ const Wind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
 const Geometry = preload("res://scripts/enemy_strike_geometry.gd")
 const SourceCache = preload("res://scripts/enemy_strike_cache.gd")
 const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
+const Live = preload("res://scripts/enemy_strike_live.gd")
+const SwingWindow = preload("res://scripts/enemy_strike_window.gd")
+# Thrust tips that already land on the target art keep their streak at the
+# tip instead of travelling to the hit point (director decision, fx-10).
+const STREAK_LANDS_AT_TIP: Array = ["frostglass_lancer", "harrier"]
 var _source_cache: RefCounted = SourceCache.new()
+var _live: RefCounted = Live.new()
+var _swing_window: RefCounted = SwingWindow.new()
 var resolved: Dictionary = {}
 var sample_build_count: int:
 	get: return _source_cache.sample_build_count
@@ -50,32 +57,63 @@ static func physical_area(effect: Dictionary) -> bool:
 func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dictionary]:
 	var empty: Array[Dictionary]
 	resolved = {}
-	if bool(board.presentation.get("reduced_motion",false)): return empty
+	if bool(board.presentation.get("reduced_motion",false)):
+		_live.clear()
+		return empty
 	var context: Dictionary = _context(board,effect)
-	if context.is_empty(): return empty
+	if context.is_empty():
+		_live.clear()
+		return empty
 	var source: Dictionary = context["actor"]
 	var settings: Dictionary = context["settings"]
 	var boundary: float = Points.contact(effect)
 	var window: Vector2 = Points.window_for(settings,boundary)
 	settings["window"] = window
 	var kind: String = settings["kind"]
+	var renderer: Node = board.unit_cutout_renderer(source)
+	_live.begin(renderer,effect,progress)
+	var swing: Dictionary = {}
+	if bool(settings.get("live_weapon",false)) and is_instance_valid(renderer) and board.presentation.has("strike_trail_effect"):
+		swing = _swing_window.profile(renderer,source,effect,settings,boundary)
+		if not swing.is_empty():
+			window = swing["window"]
+			settings["window"] = window
+			settings["contact_tail"] = swing["contact_tail"]
 	var preliminary: Vector2 = window
 	if kind == "arc": preliminary = Geometry.ARC_WINDOW
 	elif kind == "rake": preliminary.x = 0.36
 	# A short sweep can use the arc window. Gate their union before sampling,
 	# then gate the exact resolved window below, including held-contact arcs.
 	elif kind == "sweep": preliminary = Vector2(minf(window.x,Geometry.ARC_WINDOW.x),maxf(window.y,Geometry.ARC_WINDOW.y))
-	if Trail.envelope(progress,preliminary,Trail.CONTACT if kind == "arc" else boundary) <= 0.0: return empty
+	if not bool(settings.get("live_weapon",false)) and Trail.envelope(progress,preliminary,Trail.CONTACT if kind == "arc" else boundary) <= 0.0: return empty
 	var from: Vector2i = effect.get("from",Vector2i(-1,-1))
 	var to: Vector2i = effect.get("to",Vector2i(-1,-1))
 	if from.x < 0 or to.x < 0: return empty
 	var scale: float = Geometry.size_scale(board,source)
-	var renderer: Node = board.unit_cutout_renderer(source)
 	var samples: Array[Dictionary]
 	if kind == "arc" or not is_instance_valid(renderer):
 		kind = "arc"
-		samples = Geometry.target_arc_samples(board.world_position_for_tile(from),board.world_position_for_tile(to),scale)
-		resolved = {"kind":kind,"fallback":false}
+		var body: Rect2 = Live.body_rect(board,source,renderer) if is_instance_valid(renderer) else board.call("_unit_draw_rect_for_center",source,board.call("_unit_center",source))
+		var hand: Vector2 = Live.project_point(Points.weapon_hand(renderer),body)
+		samples = Geometry.hand_arc_samples(hand,board.world_position_for_tile(to)-board.world_position_for_tile(from),scale)
+		resolved = {"kind":kind,"fallback":false,"hand_anchor":hand}
+	elif bool(settings.get("live_weapon",false)):
+		var body: Rect2 = Live.body_rect(board,source,renderer)
+		var contact_point: Vector2 = Vector2.ZERO
+		if kind == "streak":
+			var delta: Vector2i = Points.direction(effect,source,board.combat_state.get("player",{}).get("pos",to))
+			var entry_value: Dictionary = _source_cache.entry(renderer,source,effect,delta,settings,boundary)
+			if entry_value.is_empty(): return empty
+			contact_point = Live.project_point(Trail.sample_at(TypedArrays.dictionaries(entry_value["raw"]),boundary)["tip"],body)
+		var target: Vector2 = target_center(board,to)
+		var reach_test: Dictionary = Geometry.screen_reach_test(board,contact_point,target) if kind=="streak" else {}
+		if kind=="streak" and str(source["type"]) in STREAK_LANDS_AT_TIP:
+			reach_test["reaches_target"] = false
+			reach_test["preserved_reference"] = true
+		resolved = _live.weapon(renderer,settings,progress,boundary,body,
+			target,reach_test,scale,contact_point)
+		if resolved.is_empty(): return empty
+		samples = TypedArrays.dictionaries(resolved["samples"])
 	else:
 		var delta: Vector2i = Points.direction(effect,source,board.combat_state.get("player",{}).get("pos",to))
 		var entry_value: Dictionary = _source_cache.entry(renderer,source,effect,delta,settings,boundary)
@@ -95,8 +133,9 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 		window = Geometry.ARC_WINDOW
 	resolved["window"] = window
 	resolved["visual_contact"] = boundary
+	resolved.merge(swing,false)
 	return Trail.geometry(samples,kind,progress,boundary,window,str(effect.get("element","none")),scale,
-		int(effect.get("seed",hash(effect))),float(settings.get("length",48.0)))
+		int(effect.get("seed",hash(effect))),float(settings.get("length",48.0)),-1.0,resolved.get("glint_anchor"),float(settings.get("contact_tail",-1.0)))
 
 static func target_center(board: Control, tile: Vector2i) -> Vector2:
 	var player: Dictionary = board.combat_state.get("player", {})

@@ -138,7 +138,11 @@ func _run_input_proof() -> void:
 		instance.call("_close_pinned_tooltip")
 		await process_frame
 	router.call("set_forced_state_for_test", "controller", "xbox")
-	_expect(not (panel.find_child("PreBattleFoeHint", true, false) as Control).visible, "Pointer hint hides for controller")
+	var hint := panel.find_child("PreBattleFoeHint", true, false) as Label
+	_expect(hint.visible and hint.text == "Focus or select a foe to read its moves", "Foe hint switches to visible controller wording")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	_expect(hint.visible and hint.text == "Hover or select a foe to read its moves", "Foe hint switches back to unchanged pointer wording")
+	router.call("set_forced_state_for_test", "controller", "xbox")
 	await _settle()
 	_assert_foe_fit(panel, (panel.find_child("PreBattleEnemyFlow", true, false) as Control).get_child_count())
 	var start := panel.find_child("PreBattleStartButton", true, false) as Button

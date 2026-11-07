@@ -5,13 +5,25 @@ const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Trail = preload("res://scripts/strike_trail_fx.gd")
 const SHORT_PATH: float = 24.0
 const AXIS_LIMIT: float = 50.0
-const TARGET_ANCHOR_DISTANCE: float = 0.6
+const REACH_DISTANCE_PX: float = 24.0
 const ARC_WINDOW := Vector2(0.33, 0.56)
+
+static func screen_reach_test(board: Control, tip: Vector2, target: Vector2) -> Dictionary:
+	var screen: Transform2D = board.get_viewport().get_final_transform() * board.get_global_transform_with_canvas()
+	var board_scale: float = float(board.get("_navigation_zoom")) / float(board.call("_default_navigation_zoom_for_viewport"))
+	var limit: float = REACH_DISTANCE_PX * board_scale * screen.x.length()
+	var distance: float = (screen*tip).distance_to(screen*target)
+	return {"reaches_target":distance>limit,"contact_gap_px":distance,"reach_limit_px":limit}
 
 static func target_arc_samples(from: Vector2, to: Vector2, scale: float) -> Array[Dictionary]:
 	# Exact illusion-echo construction and visual clock. Gameplay contact is
 	# owned by the resolver and remains independent of this light's .42 peak.
 	return Trail.arc_samples(from, to, scale, ARC_WINDOW)
+
+static func hand_arc_samples(hand: Vector2, direction: Vector2, scale: float) -> Array[Dictionary]:
+	# Keep the approved crescent construction, with its pivot at the hand.
+	var lift := Vector2(0,Trail.ARC_BODY_HEIGHT * scale)
+	return Trail.arc_samples(hand-direction+lift,hand+lift,scale,ARC_WINDOW)
 
 static func window_samples(samples: Array[Dictionary], window: Vector2) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -38,13 +50,12 @@ static func path_span(samples: Array[Dictionary]) -> float:
 	return sqrt(span)
 
 static func resolve(samples: Array[Dictionary], kind: String, attacker: Vector2,
-		target: Vector2, scale: float, contact: float, window: Vector2, span: float = -1.0, tile_width: float = 0.0) -> Dictionary:
+		target: Vector2, scale: float, contact: float, window: Vector2, span: float = -1.0, _tile_width: float = 0.0) -> Dictionary:
 	var result: Array[Dictionary] = TypedArrays.dictionaries(samples.duplicate(true))
 	if samples.is_empty(): return {"samples":result, "kind":kind, "fallback":false}
 	var point: Dictionary = Trail.sample_at(samples, contact)
 	var anchor: Vector2 = point["tip"]
 	var strike_point: Vector2 = anchor
-	var target_anchor: bool = kind == "streak" and tile_width > 0.0 and anchor.distance_to(target) > TARGET_ANCHOR_DISTANCE * tile_width
 	var target_direction: Vector2 = (target - attacker).normalized()
 	if target_direction == Vector2.ZERO: target_direction = Vector2.RIGHT
 	var to_target: Vector2 = (target - anchor).normalized()
@@ -58,13 +69,11 @@ static func resolve(samples: Array[Dictionary], kind: String, attacker: Vector2,
 				kind = "arc"
 				result = _anchored_arc(anchor, target_direction, scale, Trail.CONTACT, ARC_WINDOW)
 		"streak":
-			if target_anchor:
-				anchor = target
-				to_target = target_direction
+			# Live reach classification/travel uses screen_reach_test; the
+			# source-cache API retains its final argument for existing callers.
 			for sample: Dictionary in result:
-				if target_anchor: sample["tip"] = target
 				var axis: Vector2 = ((sample["tip"] as Vector2) - (sample["inner"] as Vector2)).normalized()
-				if target_anchor or short_path or axis.dot(target_direction) < cos(deg_to_rad(AXIS_LIMIT)):
+				if short_path or axis.dot(target_direction) < cos(deg_to_rad(AXIS_LIMIT)):
 					axis = to_target
 				sample["inner"] = (sample["tip"] as Vector2) - axis * scale
 			direction = ((Trail.sample_at(result,contact)["tip"] as Vector2) - (Trail.sample_at(result,contact)["inner"] as Vector2)).normalized()
@@ -76,7 +85,7 @@ static func resolve(samples: Array[Dictionary], kind: String, attacker: Vector2,
 			for sample: Dictionary in result:
 				sample["inner"] = (sample["tip"] as Vector2) - direction * scale
 	return {"samples":result, "kind":kind, "fallback":short_path, "span":measured,
-		"anchor":anchor, "strike_point":strike_point, "target_anchor":target_anchor,
+		"anchor":anchor, "strike_point":strike_point, "target_anchor":false,
 		"direction":direction, "target_direction":to_target}
 
 static func _anchored_arc(anchor: Vector2, direction: Vector2, scale: float,

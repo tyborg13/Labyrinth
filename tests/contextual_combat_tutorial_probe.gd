@@ -7,6 +7,16 @@ const InputRouterScript = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const PATH_FIXTURE_SEED: int = 22017
+const PATH_SMALL_VIEWPORT: Vector2i = Vector2i(1280, 800)
+const PATH_SMALL_UI_SCALE: float = 1.15
+const PATH_PAN_PIXELS: float = 40.0
+const PATH_TRAVEL_TIMEOUT_MSEC: int = 15000
+const PATH_SETTINGS_PATH: String = "user://ui-25-settings.json"
+const PATH_OUTPUT_ROOT: String = "user://probes/ui-25"
 
 const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial_v4"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
@@ -15,9 +25,15 @@ const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const INVALID_TILE: Vector2i = Vector2i(-999, -999)
 
 var _failed: bool = false
+var _path_viewport: Vector2i = PROBE_VIEWPORT
+var _path_output: String = ""
+var _path_captures: Array[Dictionary]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	if OS.get_cmdline_user_args().has("--path-only"):
+		_capture_path_lesson.call_deferred()
+		return
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(PROBE_VIEWPORT)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
@@ -37,6 +53,166 @@ func _initialize() -> void:
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("GUIDED COMBAT TUTORIAL PROBE: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _capture_path_lesson() -> void:
+	var logic_only: bool = OS.get_cmdline_user_args().has("--logic-only")
+	if not logic_only and DisplayServer.get_name() == "headless":
+		_fail("Path captures require the windowed visual probe runner; use --logic-only for headless checks")
+		quit(1)
+		return
+	var small: bool = OS.get_cmdline_user_args().has("--small")
+	_path_viewport = PATH_SMALL_VIEWPORT if small else PROBE_VIEWPORT
+	var ui_scale: float = PATH_SMALL_UI_SCALE if small else 1.0
+	var build: String = "demo" if DemoBuild.is_demo() else "full"
+	_path_output = PATH_OUTPUT_ROOT.path_join("%s-%dx%d" % [build, _path_viewport.x, _path_viewport.y])
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_path_output))
+	SettingsStore.set_storage_path(PATH_SETTINGS_PATH)
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = ui_scale
+	settings["display_mode"] = "windowed"
+	_assert(SettingsStore.save_settings(settings), "Path proof settings should save")
+	ProgressionStore.set_storage_path(STORAGE_PATH)
+	ProgressionStore.set_run_storage_path(RUN_STORAGE_PATH)
+	_remove_if_present(STORAGE_PATH)
+	_remove_if_present(RUN_STORAGE_PATH)
+	var progression: Dictionary = ProgressionStore.default_data()
+	_assert(ProgressionStore.save_data(progression), "Path proof should start with a fresh profile")
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	await _settle_ui()
+	if not logic_only:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(_path_viewport)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = _path_viewport
+	root.size = _path_viewport
+	root.content_scale_factor = ui_scale
+	# Advance only the invisible fixture: the scene renders the real generated
+	# first combat room after its reward, with the path milestone still pending.
+	for milestone: String in ContextualCombatTutorial.milestone_ids():
+		if milestone != ContextualCombatTutorial.MILESTONE_PATH:
+			progression = ContextualCombatTutorial.complete_milestone(progression, milestone)
+	var engine := RunEngine.new()
+	var state: Dictionary = engine.create_new_run(PATH_FIXTURE_SEED, progression)
+	state = engine.move_to_room(state, engine.available_moves(state)[0])
+	state["mode"] = "room"
+	state["combat_state"] = {}
+	state["progression"] = progression
+	SectionMapGraph.room(state, state["current_room"])["cleared"] = true
+	scene.call("_load_run_state", state)
+	scene.call("_close_dialogue")
+	scene.set("_animation_lock", false)
+	scene.call("_refresh_ui")
+	await _settle_ui()
+	var panel: Control = scene.get("_large_map_view")
+	var prompt: Control = scene.get("_contextual_combat_prompt")
+	var scrim: Control = scene.get("_large_map_scrim")
+	print("UI-25 PATH STATE: phase=%s mode=%s suppressed=%s map=%s exits=%s rooms=%s" % [scene.get("_guided_tutorial_phase_id"), scene.get("_run_state")["mode"], scene.call("_contextual_combat_tutorial_suppressed"), scrim.visible, scene.get("_exit_destinations_by_tile"), panel.call("selectable_room_global_rects", scene.call("_guided_tutorial_path_destinations"))])
+	_assert(scrim.visible, "The last guided lesson should automatically open over the generated post-combat room")
+	_assert_path_geometry(scene, true)
+	await _capture_path_state(scene, "01_map_pointer", logic_only)
+	var before_scroll: Array = (prompt.get_meta("spotlight_rects", []) as Array).duplicate()
+	panel.call("scroll_to", PATH_PAN_PIXELS)
+	await _settle_short()
+	_assert_path_geometry(scene, true)
+	_assert(before_scroll != prompt.get_meta("spotlight_rects", []), "Borders should move with the scrolling map")
+	await _capture_path_state(scene, "02_map_scrolled", logic_only)
+	panel.call("center_on_current", true)
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	scene.call("_guided_tutorial_prepare_controller_focus")
+	await _settle_ui()
+	_assert_path_geometry(scene, true)
+	var focused: Control = root.gui_get_focus_owner()
+	var focused_room: Vector2i = SectionMapGraph.INVALID
+	for coord: Vector2i in panel.get("node_buttons"):
+		if panel.get("node_buttons")[coord] == focused: focused_room = coord
+	_assert((scene.call("_guided_tutorial_path_destinations") as Array).has(focused_room), "Controller focus should land on a highlighted destination when the lesson starts")
+	_assert(bool(prompt.get_meta("controller_active", false)), "Controller capture should use the active controller copy")
+	await _capture_path_state(scene, "03_map_controller", logic_only)
+	scene.call("_close_large_map")
+	_assert_path_geometry(scene, false)
+	await _settle_short()
+	await _capture_path_state(scene, "04_doors_controller", logic_only)
+	router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_XBOX)
+	await _settle_short()
+	_assert_path_geometry(scene, false)
+	await _capture_path_state(scene, "05_doors_pointer", logic_only)
+	# M is the existing pointer/keyboard map path. Test synchronous copy/target
+	# switching before a frame can hide a stale doorway border.
+	var map_key := InputEventKey.new()
+	map_key.keycode = KEY_M
+	map_key.pressed = true
+	scene.call("_input", map_key)
+	_assert(scrim.visible, "M should reopen the map during the last guided lesson")
+	_assert_path_geometry(scene, true)
+	await _settle_ui()
+	await _capture_path_state(scene, "06_map_reopened", logic_only)
+	var before: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	await scene.call("_on_large_map_room_selected", state["current_room"])
+	_assert(scrim.visible and scene.get("_run_state") == before, "An unhighlighted room must not travel or close the map")
+	# Exercise native pointer/controller room activation and the ordinary travel
+	# transaction, including the existing path milestone and analytics boundary.
+	var destination: Vector2i = (scene.call("_guided_tutorial_path_destinations") as Array)[0]
+	if small:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		scene.call("_guided_tutorial_prepare_controller_focus")
+		var accept := InputEventAction.new()
+		accept.action = "ui_accept"
+		accept.pressed = true
+		root.push_input(accept, true)
+		await process_frame
+		accept = accept.duplicate()
+		accept.pressed = false
+		root.push_input(accept, true)
+	else:
+		await _click_control(panel.get("node_buttons")[destination])
+	var deadline: int = Time.get_ticks_msec() + PATH_TRAVEL_TIMEOUT_MSEC
+	while Time.get_ticks_msec() < deadline and not ContextualCombatTutorial.has_completed(scene.get("_progression"), ContextualCombatTutorial.MILESTONE_PATH):
+		await process_frame
+	_assert(ContextualCombatTutorial.has_completed(scene.get("_progression"), ContextualCombatTutorial.MILESTONE_PATH), "Native room activation should commit the existing path milestone")
+	_assert(scene.get("_run_state")["current_room"] == destination, "Travel should enter exactly the highlighted destination")
+	var semantics := FileAccess.open(_path_output.path_join("semantic-proof.json"), FileAccess.WRITE)
+	semantics.store_string(JSON.stringify({"build": build, "viewport": str(_path_viewport), "ui_scale": ui_scale, "cel_look": OS.get_environment("LABYRINTH_CEL_LOOK"), "captures": _path_captures, "passed": not _failed, "logic_only": logic_only}, "\t"))
+	semantics.close()
+	print(ProjectSettings.globalize_path(_path_output))
+	print("UI-25 PATH PROBE: %s (%s, %dx%d, %d%%; %s)" % ["FAIL" if _failed else "PASS", build, _path_viewport.x, _path_viewport.y, roundi(ui_scale * 100), "logic only; no captures" if logic_only else "native captures"])
+	router.call("clear_forced_state_for_test")
+	scene.queue_free()
+	await _settle_short()
+	quit(1 if _failed else 0)
+
+func _assert_path_geometry(scene: Node, map_open: bool) -> void:
+	var prompt: Control = scene.get("_contextual_combat_prompt")
+	_assert(scene.get("_contextual_combat_prompt_host").visible, "Path lesson should remain visible on the active travel surface")
+	var expected: Array = []
+	if map_open:
+		var native_rects: Dictionary = scene.get("_large_map_view").call("selectable_room_global_rects", scene.call("_guided_tutorial_path_destinations"))
+		for rect: Rect2 in native_rects.values(): expected.append(rect.grow(8.0))
+		_assert((scene.call("_guided_tutorial_allowed_board_tiles") as Array).is_empty(), "Hidden board doors must be gated while the map is open")
+	else:
+		for tile: Vector2i in scene.get("_exit_destinations_by_tile"):
+			expected.append(scene.call("_guided_tutorial_tile_global_rect", tile))
+	_assert(not expected.is_empty() and prompt.get_meta("spotlight_rects", []) == expected, "Spotlights should match exactly the active travel surface")
+	_assert(prompt.get_meta("prompt_text", "") == ("Select a glowing room on the map to travel there." if map_open else "Select a glowing doorway. The map previews where each route leads."), "Path copy should match the active surface immediately")
+
+func _capture_path_state(scene: Node, label: String, logic_only: bool) -> void:
+	var prompt: Control = scene.get("_contextual_combat_prompt")
+	var callout: Rect2 = prompt.get_meta("callout_rect", Rect2())
+	var viewport_rect: Rect2 = scene.get_viewport_rect()
+	_assert(callout.has_area() and viewport_rect.encloses(callout), "Path callout should fit the live viewport: %s in %s" % [callout, viewport_rect])
+	for rect: Rect2 in prompt.get_meta("spotlight_rects", []):
+		_assert(viewport_rect.intersects(rect), "Each highlighted room or door should intersect the viewport")
+		_assert(not callout.intersects(rect.grow(4.0)), "Path callout must not cover the highlighted travel action")
+	_path_captures.append({"state": label, "map_open": scene.get("_large_map_scrim").visible, "copy": prompt.get_meta("prompt_text", ""), "rects": str(prompt.get_meta("spotlight_rects", [])), "controller": prompt.get_meta("controller_active", false), "callout": str(callout)})
+	if logic_only: return
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var image: Image = root.get_texture().get_image()
+	_assert(image != null and image.get_size() == _path_viewport, "Path proof must capture the requested native viewport size")
+	if image == null or image.get_size() != _path_viewport: return
+	_assert(image.save_png(_path_output.path_join(label + ".png")) == OK, "Path capture should save")
 
 func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -263,10 +439,14 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_PATH, true, "choose the next room")
+	_assert_path_geometry(instance, instance.get("_large_map_scrim").visible)
 	await _save_root_screenshot("%s/20_path_choice.png" % OUTPUT_DIR)
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
 	var door_tile: Vector2i = exit_destinations.keys()[0] as Vector2i
-	await instance.call("_on_map_view_room_selected", exit_destinations[door_tile] as Vector2i, door_tile)
+	if instance.get("_large_map_scrim").visible:
+		await instance.call("_on_large_map_room_selected", exit_destinations[door_tile] as Vector2i)
+	else:
+		await instance.call("_on_map_view_room_selected", exit_destinations[door_tile] as Vector2i, door_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_COMPLETE, false, "guided-run completion")
 	await _save_root_screenshot("%s/21_completion.png" % OUTPUT_DIR)
@@ -450,7 +630,7 @@ func _capture_guided_run(active_progression: Dictionary) -> void:
 	await _save_root_screenshot("%s/13_reward_choice.png" % OUTPUT_DIR)
 	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_REWARD)
 
-	# Lesson 8: a generated, cleared room supplies real highlighted door choices.
+	# Lesson 8: the active travel surface owns the generated room/door choices.
 	var run_engine := RunEngine.new()
 	var room_state: Dictionary = run_engine.create_new_run(22017, instance.get("_progression") as Dictionary)
 	room_state["progression"] = (instance.get("_progression") as Dictionary).duplicate(true)
@@ -461,7 +641,8 @@ func _capture_guided_run(active_progression: Dictionary) -> void:
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_PATH, true, "choose the next room")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
-	_assert(not exit_destinations.is_empty(), "Path lesson should spotlight real generated doorway destinations")
+	_assert(not exit_destinations.is_empty(), "Path lesson should spotlight real generated travel destinations")
+	_assert_path_geometry(instance, instance.get("_large_map_scrim").visible)
 	await _save_root_screenshot("%s/14_path_choice.png" % OUTPUT_DIR)
 
 	# Commit a real doorway choice. The final acknowledgement must sit above the

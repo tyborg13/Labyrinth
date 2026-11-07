@@ -586,6 +586,11 @@
     "on_demand": true
   },
   {
+    "path": "tests/shutdown_reentrancy_test.gd",
+    "group": "soak",
+    "on_demand": true
+  },
+  {
     "path": "tests/fight_soak_metrics_test.gd",
     "group": "soak",
     "on_demand": true

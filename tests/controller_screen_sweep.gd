@@ -12,6 +12,8 @@ const GraftFixture = preload("res://tests/suites/graftwright_suite.gd")
 const HearthFixture = preload("res://tests/suites/ember_hearth_suite.gd")
 const DepthFixture = preload("res://tests/suites/depth_rules_suite.gd")
 const Recap = preload("res://scripts/run_end_recap_overlay.gd")
+const MapGraph = preload("res://scripts/section_map_graph.gd")
+const MapNavigation = preload("res://scripts/section_map_navigation.gd")
 # Debug-only fixtures and bounds, never production tuning.
 const PROOF_SIZE := Vector2i(1920, 1080)
 const FIXTURE_SEED: int = 73491
@@ -35,6 +37,13 @@ const ANALOG_TEST_START_VOLUME: float = 0.50
 const ANALOG_TEST_NEUTRAL: float = 0.29
 const HOLD_JITTER_SAMPLES: Array = [0.70, 0.71, 0.72, 0.71, 0.70]
 const READY_TIMEOUT_MSEC: int = 15000
+const UI27_CLIP_HOLD_FRAMES: int = 60
+const UI27_STICK_STRENGTH: float = 0.8
+const UI27_LAYOUTS: Dictionary = {
+	"branch": [Vector2(400, 300), Vector2(600, 180), Vector2(600, 420), Vector2(800, 300)],
+	"merge": [Vector2(400, 180), Vector2(400, 420), Vector2(650, 300), Vector2(850, 300)],
+	"same_height_paths": [Vector2(350, 300), Vector2(550, 300), Vector2(750, 300), Vector2(550, 500)],
+}
 const OUTPUT_DIR: String = "/private/tmp/labyrinth_codex/kb-03"
 const EDGES: Array = [
 	[SIDE_LEFT, JOY_BUTTON_DPAD_LEFT], [SIDE_TOP, JOY_BUTTON_DPAD_UP],
@@ -70,12 +79,14 @@ var _menu: Control
 var _regression_checks: Array[Dictionary]
 var _output_dir: String = OUTPUT_DIR
 var _setup_only: bool = false
+var _ui27_clip: bool = false
 
 func _initialize() -> void:
 	Runtime.apply_from_environment()
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	_before = args.has("--before")
 	_setup_only = args.has("--new-run-setup-only")
+	_ui27_clip = args.has("--ui27-clip")
 	if args.has("--output-dir"):
 		_output_dir = args[args.find("--output-dir") + 1]
 	if args.has("--capture-screen"):
@@ -111,6 +122,12 @@ func _run() -> void:
 	_viewport.size = PROOF_SIZE
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_viewport)
+	if _ui27_clip:
+		var display := TextureRect.new()
+		display.texture = _viewport.get_texture()
+		display.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		display.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(display)
 	# Headless semantics may await post-draw in production; no image proof is claimed.
 	if DisplayServer.get_name() == "headless":
 		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
@@ -122,14 +139,17 @@ func _run() -> void:
 	var reward_only: bool = OS.get_cmdline_user_args().has("--reward-focus-only")
 	var shortcuts_only: bool = OS.get_cmdline_user_args().has("--shortcut-tooltips-only")
 	var skill_learn_only: bool = OS.get_cmdline_user_args().has("--skill-learn-focus-only")
-	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only and not shortcuts_only and not skill_learn_only: await _menu_screens()
+	var ui27_only: bool = OS.get_cmdline_user_args().has("--ui27-only")
+	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only and not shortcuts_only and not skill_learn_only and not ui27_only: await _menu_screens()
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
 	_scene.set_script(RunFixture)
 	_scene.set("_defer_initial_run_presentation", true)
 	_viewport.add_child(_scene)
 	_scene.set("_defer_initial_run_presentation", false)
 	await _settle()
-	if skill_learn_only:
+	if ui27_only:
+		await _ui27_cancel_and_map()
+	elif skill_learn_only:
 		await _skill_learn_focus_regression()
 	elif tutorial_only:
 		await _tutorial_navigation_regression()
@@ -172,6 +192,7 @@ func _run() -> void:
 	if menu_only: filename = "sweep_menu.json"
 	if _setup_only: filename = "sweep_new_run_setup.json"
 	if combat_only: filename = "sweep_combat.json"
+	if ui27_only: filename = "sweep_ui27.json"
 	if links_only: filename = "sweep_%s_scavenger.json" % ("before" if _before else "after")
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.has("--activate-screen"): filename = "sweep_%s_%s.json" % ["before" if _before else "after", args[args.find("--activate-screen") + 1]]
@@ -366,11 +387,222 @@ func _menu_back_paths() -> void:
 	for label: String in ["camp", "pause"]:
 		await _load(_base_state() if label == "camp" else _combat_state())
 		await _joy(JOY_BUTTON_B)
-		_expect(_scene.get("_menu_scrim").visible, label + " controller opens the existing menu")
+		_expect(not _scene.get("_menu_scrim").visible, label + " idle B never opens the menu")
+		await _joy(JOY_BUTTON_START)
+		_expect(_scene.get("_menu_scrim").visible, label + " Start opens the existing menu")
 		await _capture("room_entry" if label == "camp" else "combat_back")
 		await _joy(JOY_BUTTON_B)
 		_expect(not _scene.get("_menu_scrim").visible, label + " B leaves menu")
 		_rows.append({"screen": label, "reached": 1, "total": 1, "note": "entry/back only; internal focus owned by kb-01"})
+
+func _ui27_cancel_and_map() -> void:
+	_router.call("set_forced_state_for_test", "controller", Router.FAMILY_STEAM_DECK)
+	preload("res://tests/suites/controller_input_suite.gd").run(_expect)
+	if _capture_screen != "ui27_map":
+		await _ui27_combat_cancel()
+		await _menu_back_paths()
+		await _load(_legacy_room_state())
+		await _joy(JOY_BUTTON_B)
+		_expect(not _scene.get("_menu_scrim").visible, "Legacy exploration B never opens pause")
+		# Tutorial data must never advertise B as the menu action.
+		var tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+		for definitions: Dictionary in [tutorial.PHASES, tutorial.AUTHORED_PHASES]:
+			for phase: Dictionary in definitions.values():
+				if phase.get("controller_action", "") == Router.ACTION_CANCEL:
+					_expect(not str(phase.get("controller_text", "")).to_lower().contains("menu"), "Tutorial never labels B as the menu action")
+		var scenario = preload("res://scripts/guided_combat_scenario.gd")
+		var profile: Dictionary = Store.default_data()
+		profile[tutorial.PROGRESSION_KEY] = tutorial.default_state()
+		var state: Dictionary = scenario.mark_run_eligible(_combat_state())
+		state["progression"] = profile
+		state["combat_state"] = scenario.prepare_for_run(state, state["combat_state"])
+		_scene.set("_progression", profile)
+		await _load(state)
+		_scene.call("_guided_tutorial_set_phase", tutorial.PHASE_SELECT_CARD_FOR_CANCEL)
+		var guided_indices: Array[int]
+		guided_indices.assign(_scene.call("_guided_tutorial_playable_card_indices"))
+		_expect(not guided_indices.is_empty(), "Guided cancel fixture exposes a playable card")
+		if not guided_indices.is_empty(): await _scene.call("_on_card_pressed", guided_indices[0])
+		_expect(int(_scene.get("_selected_card_index")) >= 0 and str(_scene.get("_guided_tutorial_phase_id")) == tutorial.PHASE_CANCEL_CARD, "Guided cancel fixture reaches the actual cancel-card phase")
+		await _joy(JOY_BUTTON_B)
+		_expect(int(_scene.get("_selected_card_index")) < 0 and not _scene.get("_menu_scrim").visible, "Guided cancel-card phase accepts B without opening pause")
+		_scene.set("_progression", Store.default_data())
+	if _capture_screen != "ui27_combat":
+		await _ui27_map_layouts()
+		await _ui27_map_trace()
+	print("UI27 CANCEL + SPATIAL MAP: %s" % ("PASS" if _failures.is_empty() else "FAIL"))
+
+func _ui27_combat_cancel() -> void:
+	await _load(_combat_state())
+	if not bool(_scene.get("_controller_hand_focused")): await _joy(JOY_BUTTON_X)
+	await _ui27_capture("ui27_combat", "hand_shown")
+	await _joy(JOY_BUTTON_B)
+	_expect(not bool(_scene.get("_controller_hand_focused")) and str(_scene.get("_controller_region")) == "board", "B hides the shown hand exactly like X")
+	_expect(not _scene.get("_menu_scrim").visible, "Hand-hide B never opens pause")
+	await _ui27_capture("ui27_combat", "hand_hidden")
+	var hidden_candidate: Dictionary = (_scene.get("_controller_focus_candidate") as Dictionary).duplicate()
+	await _joy(JOY_BUTTON_B)
+	_expect(not _scene.get("_menu_scrim").visible and not bool(_scene.get("_controller_hand_focused")) and _scene.get("_controller_focus_candidate") == hidden_candidate, "B with hidden hand and no selection is a no-op")
+	await _ui27_capture("ui27_combat", "idle_b")
+	# A retains the current direct printed-card preview path.
+	await _joy(JOY_BUTTON_X)
+	_expect(bool(_scene.get("_controller_hand_focused")), "X still restores the hand after B")
+	_scene.call("_controller_set_hand_index", 0)
+	await _joy(JOY_BUTTON_A)
+	_expect(int(_scene.get("_selected_card_index")) >= 0, "A enters card targeting for the cancel fixture")
+	await _ui27_capture("ui27_combat", "card_targeting")
+	await _joy(JOY_BUTTON_B)
+	_expect(int(_scene.get("_selected_card_index")) < 0 and not _scene.get("_menu_scrim").visible, "B cancels the directly previewed card without pause")
+	# Retained card-mode states are staged through their production entry points.
+	_scene.call("_show_card_action_choices", 0, _scene.call("_card_play_options_for_index", 0))
+	_scene.call("_controller_enter_card_mode")
+	_expect(bool(_scene.call("_controller_card_mode_active")), "Card-mode fixture enters the existing mode")
+	await _joy(JOY_BUTTON_B)
+	_expect(not bool(_scene.call("_controller_card_mode_active")) and bool(_scene.get("_controller_hand_focused")), "B leaves card mode before hiding the hand")
+	_scene.call("_show_card_action_choices", 0, _scene.call("_card_play_options_for_index", 0))
+	_scene.call("_controller_enter_card_mode")
+	await _joy(JOY_BUTTON_A)
+	_expect(int(_scene.get("_selected_card_index")) >= 0, "Card-mode A enters targeting")
+	await _joy(JOY_BUTTON_B)
+	_expect(bool(_scene.call("_controller_card_mode_active")), "B cancels targeting back to card mode")
+	await _joy(JOY_BUTTON_B)
+	_expect(int(_scene.get("_selected_card_index")) < 0 and int(_scene.get("_card_action_choice_index")) < 0, "Second B cancels the card selection")
+	await _joy(JOY_BUTTON_B)
+	_scene.call("_begin_player_movement_selection")
+	_expect(bool(_scene.get("_player_movement_selected")), "Movement cancel fixture selects movement")
+	await _joy(JOY_BUTTON_B)
+	_expect(not bool(_scene.get("_player_movement_selected")) and not _scene.get("_menu_scrim").visible, "B cancels movement without pause")
+	# Cover a selected card without an action-choice owner as well.
+	_scene.set("_selected_card_index", 0)
+	await _joy(JOY_BUTTON_B)
+	_expect(int(_scene.get("_selected_card_index")) < 0 and not _scene.get("_menu_scrim").visible, "B cancels a direct card selection without pause")
+	await _joy(JOY_BUTTON_START)
+	_expect(_scene.get("_menu_scrim").visible, "Start opens pause in combat")
+	await _ui27_capture("ui27_combat", "start_menu")
+	await _joy(JOY_BUTTON_B)
+	_expect(not _scene.get("_menu_scrim").visible, "B closes an open pause menu")
+	await _ui27_capture("ui27_combat", "menu_closed")
+	for kind: String in ["draw", "discard", "burn"]:
+		_scene.call("_open_pile_view", kind)
+		await _joy(JOY_BUTTON_B)
+		_expect(not _scene.get("_pile_scrim").visible and not _scene.get("_menu_scrim").visible, "B closes the " + kind + " overlay without opening pause")
+	_scene.set("_animation_lock", true)
+	await _joy(JOY_BUTTON_B)
+	_expect(not _scene.get("_menu_scrim").visible, "B during a locked controller fallback never opens pause")
+	_scene.set("_animation_lock", false)
+	await _scene.call("_on_card_pressed", 0)
+	_expect(int(_scene.get("_selected_card_index")) >= 0, "Escape card-cancel fixture selects a card")
+	await _key(KEY_ESCAPE)
+	_expect(int(_scene.get("_selected_card_index")) < 0 and not _scene.get("_menu_scrim").visible, "Escape still cancels a card before pause")
+	_scene.call("_begin_player_movement_selection")
+	await _key(KEY_ESCAPE)
+	_expect(not bool(_scene.get("_player_movement_selected")) and not _scene.get("_menu_scrim").visible, "Escape still cancels movement first")
+	await _key(KEY_ESCAPE)
+	_expect(_scene.get("_menu_scrim").visible, "Idle Escape still opens pause")
+	await _key(KEY_ESCAPE)
+	_expect(not _scene.get("_menu_scrim").visible, "Escape still closes pause")
+	_router.call("set_forced_state_for_test", "controller", Router.FAMILY_STEAM_DECK)
+
+func _ui27_map_layouts() -> void:
+	for layout: String in UI27_LAYOUTS:
+		await _load(_base_state())
+		_scene.call("_open_large_map")
+		await _settle()
+		var panel: Control = _scene.get("_large_map_view")
+		var buttons: Dictionary = panel.get("node_buttons")
+		var fixture_buttons: Dictionary = {}
+		for coord: Vector2i in buttons:
+			if fixture_buttons.size() < UI27_LAYOUTS[layout].size():
+				var button: Control = buttons[coord]
+				button.position = UI27_LAYOUTS[layout][fixture_buttons.size()] - button.size * 0.5
+				fixture_buttons[coord] = button
+			else: (buttons[coord] as Control).hide()
+		panel.set("node_buttons", fixture_buttons)
+		panel.call("_wire_choice_focus")
+		var rooms: Array = fixture_buttons.values()
+		var moves: Array = {
+			"branch": [[0, JOY_BUTTON_DPAD_DOWN, 2], [1, JOY_BUTTON_DPAD_DOWN, 2], [2, JOY_BUTTON_DPAD_RIGHT, 3]],
+			"merge": [[0, JOY_BUTTON_DPAD_DOWN, 1], [1, JOY_BUTTON_DPAD_RIGHT, 2], [2, JOY_BUTTON_DPAD_RIGHT, 3]],
+			"same_height_paths": [[0, JOY_BUTTON_DPAD_RIGHT, 1], [2, JOY_BUTTON_DPAD_LEFT, 1], [1, JOY_BUTTON_DPAD_DOWN, 3]],
+		}[layout]
+		for move: Array in moves:
+			(rooms[move[0]] as Control).grab_focus()
+			await _joy(move[1])
+			_expect(_focus() == rooms[move[2]], layout + " D-pad chooses spatial room " + str(move))
+			(rooms[move[0]] as Control).grab_focus()
+			var horizontal: bool = move[1] in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]
+			var axis: int = JOY_AXIS_LEFT_X if horizontal else JOY_AXIS_LEFT_Y
+			await _motion(axis, -UI27_STICK_STRENGTH if move[1] in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_UP] else UI27_STICK_STRENGTH)
+			await _motion(axis, 0.0)
+			_expect(_focus() == rooms[move[2]], layout + " stick chooses the same spatial room " + str(move))
+		if layout == "same_height_paths":
+			(rooms[0] as Control).grab_focus()
+			await _joy(JOY_BUTTON_DPAD_LEFT)
+			_expect(_focus() == rooms[0], "Empty left direction holds focus instead of jumping to current room")
+			await _joy(JOY_BUTTON_DPAD_UP)
+			_expect(_focus() == panel.get("_tabs").get_child(0), "Empty up direction goes to the section tab")
+			(rooms[3] as Control).grab_focus()
+			await _joy(JOY_BUTTON_DPAD_DOWN)
+			_expect(_focus() == panel.get("_scout"), "Empty down direction goes to Scout")
+		panel.set("node_buttons", buttons)
+		for button: Control in buttons.values(): button.show()
+		panel.call("_layout_nodes")
+
+func _ui27_map_trace() -> void:
+	await _load(_base_state())
+	_scene.call("_open_large_map")
+	await _settle()
+	var panel: Control = _scene.get("_large_map_view")
+	var buttons: Dictionary = panel.get("node_buttons")
+	var trace: Array[Dictionary]
+	var before_room: Vector2i = _scene.get("_run_state")["current_room"]
+	for coord: Vector2i in buttons:
+		if bool(panel.call("can_activate_room", coord)): continue
+		(buttons[coord] as Control).grab_focus()
+		await _joy(JOY_BUTTON_A)
+		_expect(_scene.get("_run_state")["current_room"] == before_room and _scene.get("_large_map_scrim").visible, "A still inspects unreachable rooms without travelling")
+		break
+	for scout: bool in [false, true]:
+		if scout: panel.call("_toggle_scout")
+		var candidates: Array[Control]
+		for coord: Vector2i in buttons:
+			if not scout or bool(panel.call("can_activate_room", coord)): candidates.append(buttons[coord])
+		_expect(not candidates.is_empty(), "Real map exposes navigation candidates (Scout=%s)" % scout)
+		if scout: _expect(bool(panel.get("scout_targeting")), "Real-map trace actually enters Scout targeting")
+		for origin: Control in candidates:
+			for edge: Array in EDGES:
+				origin.grab_focus()
+				var direction: Vector2 = {SIDE_LEFT: Vector2.LEFT, SIDE_TOP: Vector2.UP, SIDE_RIGHT: Vector2.RIGHT, SIDE_BOTTOM: Vector2.DOWN}[edge[0]]
+				var scores: Array[Dictionary]
+				for candidate: Control in candidates:
+					var value: float = MapNavigation.score(origin.get_global_rect().get_center(), direction, candidate.get_global_rect().get_center())
+					scores.append({"room": str(candidate.name), "eligible": is_finite(value), "score": value if is_finite(value) else null})
+				var expected: Control = MapNavigation.nearest(origin, direction, candidates)
+				if expected == null:
+					expected = panel.get("_tabs").get_child(int(panel.get("viewed_section"))) if edge[0] == SIDE_TOP else (panel.get("_scout") if edge[0] == SIDE_BOTTOM else origin)
+				await _joy(edge[1])
+				var chosen: Control = _focus()
+				_expect(chosen == expected, "Real map focus matches spatial score from " + str(origin.name))
+				trace.append({"start_room": str(origin.name), "direction": str(direction), "chosen_room": str(chosen.name) if chosen != null else "", "scout": scout, "candidates": scores})
+				if _capture_screen == "ui27_map" and origin == candidates[0]: await _ui27_capture("ui27_map", "%s_%d" % ["scout" if scout else "rooms", edge[0]])
+		if scout:
+			panel.call("cancel_action")
+	var file := FileAccess.open(_output_dir.path_join("ui27_focus_trace.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(trace, "\t") + "\n")
+	print("UI27 REAL MAP TRACE: %d moves; %s" % [trace.size(), _output_dir.path_join("ui27_focus_trace.json")])
+	await _joy(JOY_BUTTON_B)
+	_expect(not _scene.get("_large_map_scrim").visible and not _scene.get("_menu_scrim").visible, "B closes the map without opening pause")
+
+func _ui27_capture(screen: String, state: String) -> void:
+	if _capture_screen != screen: return
+	# Proof waits for the authored hand motion; production timing is unchanged.
+	var deadline: int = Time.get_ticks_msec() + READY_TIMEOUT_MSEC
+	var hand: Control = _scene.get("hand_box")
+	while screen == "ui27_combat" and hand.is_sliding() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	await _capture(screen, state)
+	if _ui27_clip and _capture_screen == screen:
+		for frame: int in range(UI27_CLIP_HOLD_FRAMES): await process_frame
 
 func _skill_learn_focus_regression() -> void:
 	var failures_before: int = _failures.size()
@@ -572,7 +804,9 @@ func _room_entry() -> void:
 	_rows.append({"screen": "room_entry", "reached": reached, "total": doors.size()})
 	if not doors.is_empty():
 		await _joy(JOY_BUTTON_B)
-		_expect(_scene.get("_menu_scrim").visible, "Room idle B opens existing menu")
+		_expect(not _scene.get("_menu_scrim").visible, "Room idle B never opens the menu")
+		await _joy(JOY_BUTTON_START)
+		_expect(_scene.get("_menu_scrim").visible, "Room Start opens the menu")
 		await _capture("room_entry")
 		await _joy(JOY_BUTTON_B)
 	var activated: int = 0

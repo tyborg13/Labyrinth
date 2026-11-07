@@ -112,9 +112,11 @@ static func _noise(seed: int, index: int, lane: int) -> float:
 
 static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 		contact: float, window: Vector2, element: String, scale: float, seed: int,
-		streak_length: float = 48.0, previous_progress: float = -1.0) -> Array[Dictionary]:
+		streak_length: float = 48.0, previous_progress: float = -1.0, glint_anchor: Variant = null, contact_tail: float = -1.0) -> Array[Dictionary]:
 	var batches: Array[Dictionary]
 	var alpha: float = envelope(progress, window, contact)
+	if contact_tail > 0.0 and progress >= contact:
+		alpha = 0.0 if progress >= contact+contact_tail-0.000001 else maxf(0.0,1.0-(progress-contact)/contact_tail)
 	if alpha <= 0.0 or scale <= 0.0:
 		return batches
 	# A coarse body step can jump over contact and over most of the rolling
@@ -122,7 +124,8 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 	# glint, and bridge to the actual current tip. No body/feedback retiming.
 	var crossed_contact: bool = previous_progress >= 0.0 and progress - previous_progress > TAIL and previous_progress < contact and progress >= contact
 	var exposure_start: float = minf(previous_progress, contact - TAIL) if crossed_contact else -1.0
-	var visible: Array[Dictionary] = visible_samples(samples, progress, window, exposure_start)
+	var visible: Array[Dictionary] = visible_samples(samples, progress, window, window.x if contact_tail>0.0 else exposure_start)
+	if contact_tail>0.0: visible = _distance_samples(visible)
 	if crossed_contact:
 		alpha = maxf(alpha, envelope(contact, window, contact))
 		visible = _distance_samples(visible)
@@ -145,7 +148,7 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 					for index: int in range(19):
 						points.append(tip - axis * streak_length * scale * float(index) / 18.0 * (1.0 if lane == 0 else 0.7) + normal * offset * scale)
 					points.reverse()
-					pass_batches.append(_streak(points, colors, _streak_envelope(progress, window, contact) * (1.0 if lane == 0 else 0.6), (4.4 if lane == 0 else 1.6) * scale, glow))
+					pass_batches.append(_streak(points, colors, (alpha if contact_tail>0.0 else _streak_envelope(progress, window, contact)) * (1.0 if lane == 0 else 0.6), (4.4 if lane == 0 else 1.6) * scale, glow))
 			"rake":
 				for lane: int in range(-1, 2):
 					var points := PackedVector2Array()
@@ -164,7 +167,7 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 		for spark: Dictionary in sparks(samples, progress, window, scale, seed):
 			pass_batches.append(_diamond(spark["point"], spark["radius"] * (2.8 if glow else 1.0), colors[1], spark["alpha"] * (0.16 if glow else 0.8)))
 		if progress >= contact and (progress < contact + 0.10 or crossed_contact):
-			var point: Vector2 = sample_at(samples, contact)["tip"]
+			var point: Vector2 = sample_at(samples, contact)["tip"] if glint_anchor == null else glint_anchor
 			var life: float = 1.0 if crossed_contact else 1.0 - (progress - contact) / 0.10
 			# One four-point contact glint; vertices feather to clear at the tips.
 			pass_batches.append(_diamond(point, CONTACT_GLINT_RADIUS * scale * (0.6 + 0.6 * life) * (1.45 if glow else 1.0), colors[0], life * (CONTACT_GLINT_GLOW_ALPHA if glow else 1.0), 1.2 * scale))

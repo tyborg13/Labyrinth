@@ -30,8 +30,7 @@ static func reconcile(scene: Control, remaining: int, capacity: int, skills: Arr
 		return
 	var sigil: Button = scene._skill_sigil
 	var compact: bool = bool(presentation.get("compact", false))
-	var required_size: Vector2 = scene.SKILL_SIGIL_COMPACT_SIZE if compact else scene.SKILL_SIGIL_SIZE
-	if not is_instance_valid(sigil) or sigil.custom_minimum_size != required_size:
+	if not is_instance_valid(sigil) or bool(sigil.get_meta("skill_sigil_compact", false)) != compact:
 		_remove(sigil)
 		sigil = scene._build_skill_sigil(skills, presentation)
 		scene._skill_sigil = sigil
@@ -66,6 +65,10 @@ static func _remove(control: Control) -> void:
 	if not is_instance_valid(control): return
 	if control.get_parent() != null: control.get_parent().remove_child(control)
 	control.queue_free()
+
+static func fit_sigil(button: Button, content: Control, base_size: Vector2) -> void:
+	# A Button does not inherit the minimum size of its child containers.
+	button.custom_minimum_size = base_size.max(content.get_combined_minimum_size())
 
 static func begin_commands(bar: Control) -> void:
 	bar.set_meta("command_count", 0)

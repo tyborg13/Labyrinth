@@ -6,6 +6,34 @@ sound, content completeness (room types, events, map branching), card/enemy desi
 Experimental: owner may cherry-pick or revert. Bold changes allowed; prior Codex-era approvals are
 not binding. Claude directs (all taste), Codex implements (orchestrate-codex skill).
 
+## 2026-11-07 morning: demo launch week (public Tue 17 Nov; release freeze Wed 11 Nov)
+- **Demo plan** (demo session, relaying the owner): review build = release 719205f28, gated full green, demo export check clean, waiting for the owner's Steam password. Launch build = release + the owner-approved Deck changes, gated, sent to the demo session before Wed 11 Nov. From Wed 11 Nov only demo-bug fixes reach release. Memory: demo-launch-2026-11-17.
+- **Merged to release today:** perf-77, ui-25, rr-59 (owner APPROVED); perf-83, perf-82, perf-85, perf-80, perf-86 (invisible); qa-75 (ui-22 gate fix, APPROVED), qa-76 (Lancer tail frame), ui-26, ui-27 (APPROVED).
+- **Owner Deck playtest 2026-11-07** -> ux-10 (bigger board), ui-27 (B/map, merged), ui-28 (glyphs on controls), ui-29 (aim preview clears panels; found in ux-10 captures), sd-15 (sharpening choice).
+- **Inbox, awaiting the owner:** ux-10 (r1 fixed qa-77's regressions, full Godot 140/140 alone and with ui-28), ui-28 (r2 + director header-badge edit), ui-29 (r2), sd-15 (Deck sharpening yes/no), plus older aud-1, aud-2, brs-3, fb-kindle-words, playtest-22.
+- **Running:** qa-78 (launch rehearsal 2 on release + ux-10 + ui-28 + ui-29), perf-88 (fresh stutter ranking), perf-89 (pre-battle open), qa-79 (two load-sensitive script errors). perf-87 (loading SFX decodes spread) native A/B/A queued.
+- **Parked until after launch:** perf-81 (save copies, 798c9fc01), perf-84 (_refresh_ui duplicates, c709b27f9; timing load-confounded).
+- **Post-launch:** Deck text type pass (sd-16/17/18 findings in spec/peer_benchmark/deck_text_2026-11-07/; most text under Valve's 9 px at 1280x800/115%; neither 125% UI scale nor a 16 px floor suffices alone).
+- **On approval:** merge ux-10, ui-28, ui-29 via merge_invisible.sh (ux-10 first), full gate on release, message the demo session the commit; then release_squash_push.sh.
+
+## 2026-11-06 afternoon: release 998711701; four slots running
+- **Release `codex/release` 998711701:** today's merges plus two release-review fixes.
+  - Today's merges: qa-62 to qa-70, perf-69, perf-70, perf-72, sd-11, fx-10, txt-06, ui-22, ui-24, dmo-01 to dmo-03, demo Steam IDs.
+  - Fix 1: D-pad navigation owns the demo recap's selection.
+  - Fix 2: the demo routing test uses fixture IDs.
+  - Master was last pushed as 301654168 (the tree of f49bfbb27). Next push: daily, `release_squash_push.sh`, after a review of the range since f49bfbb27.
+- **Running (Codex):** perf-73 (forecast spikes), perf-75 (board command building outside tile paint), rr-59 r1 (Lancer shaft layering during attacks only), rr-60 (Reaver sweep re-aim).
+- **Queued for slots:** au-03 r2 (its route waits for the expected screen; native take failed at 32 s), then perf-76 (fresh whole-run spike ranking on release, measure only).
+- **Native window queue (director lock):**
+  1. ui-23 after-deck recapture, then post rr-59, ui-23 and ui-24 to the inbox as needed;
+  2. the sd-13 proof;
+  3. the sd-14 sweep;
+  4. hov-02's resting-pointer and Empower captures, then merge hov-02 (owner APPROVED hov-1);
+  5. the sd-12 rerun of 19 unfocused arms.
+- **sd-12 so far:** the Mac GPU frame is about 1.5 ms (Vulkan/MoltenVK, 1280x800, 115%). Only hud_hand in the dragon action (+0.61 ms) clears the 0.4-0.7 ms baseline drift. GPU is not where Mac-side work pays; CPU spikes are.
+- **Dropped or parked today:** perf-68, perf-71, perf-74 and tool-02 dropped; perf-65 parked; air-01 shelved by the owner.
+- **Open with the owner:** Deck telemetry or SSH (asked 2026-11-04, no answer yet). Steamworks gaps: package 1579995 holds only the empty Content depot, and app 4530510 has no Steam Cloud. Both are the owner's to change.
+
 ## 2026-11-04 morning: four slots running; Steam Deck performance is the standing goal
 - **Owner:** slots never sit idle unless usage runs out or the owner says stop; performance and polish always have more. Invisible perf fixes skip the inbox on the director's review (decisions 2026-11-04) and are logged in `perf_log.md`.
 - **Owner on the Deck:** "very stuttery, lots of frame drops". Asked the owner for the Deck's `telemetry` folder (frame cohorts the game already records) or SSH access to the Deck.

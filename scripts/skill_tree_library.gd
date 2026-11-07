@@ -2,6 +2,8 @@ extends RefCounted
 class_name SkillTreeLibrary
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
 const SKILLS_PATH: String = "res://data/skills.json"
 const KEYSTONE_GROUP: String = "keystone"
 const COMPLETE_BUILD_SIZE: int = 19
@@ -178,6 +180,8 @@ static func selection_is_valid(value: Variant, exact_count: int = -1) -> bool:
 	return true
 
 static func is_available(skill_id: String, selected_value: Variant) -> bool:
+	if is_demo_locked(skill_id):
+		return false
 	if not is_player_visible(skill_id):
 		return false
 	var selected: Array[String] = normalized_ids(selected_value)
@@ -195,6 +199,8 @@ static func available_ids(selected_value: Variant) -> Array[String]:
 	return result
 
 static func locked_reason(skill_id: String, selected_value: Variant) -> String:
+	if is_demo_locked(skill_id):
+		return str(DemoRules.config()["text"]["keystone_tooltip"])
 	if not has_definition(skill_id):
 		return "Unknown skill."
 	if is_retired(skill_id):
@@ -223,6 +229,9 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	if not _selection_can_reach_complete_build(proposed):
 		return "This choice would leave no path to a keystone"
 	return "Available"
+
+static func is_demo_locked(skill_id: String) -> bool:
+	return DemoBuild.is_demo() and is_keystone(skill_id)
 
 static func _is_authored_available(skill_id: String, selected: Array[String]) -> bool:
 	if not has_definition(skill_id) or selected.has(skill_id):
@@ -365,7 +374,7 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 	if not is_same(_repair_cache_definitions, definitions()):
 		_repair_cache.clear()
 		_repair_cache_definitions = definitions()
-	var cache_key: String = var_to_str([safe_target, source, preference])
+	var cache_key: String = var_to_str([DemoBuild.is_demo(), safe_target, source, preference])
 	if _repair_cache.has(cache_key):
 		return _copy_string_array(_repair_cache[cache_key])
 	for skill_id: String in source:

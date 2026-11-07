@@ -67,6 +67,7 @@ var _confirm_panel_style: StyleBoxFlat
 var _columns: int = 1
 var _return_card_id: String = ""
 var _committing: bool = false
+var _center_grid: bool = false
 
 # A private, seekable presentation. Render the actual card subtree on its own
 # canvas rather than flattening its z levels or rebuilding a similar-looking
@@ -252,10 +253,12 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	content.add_child(header)
 	var entries: Array[Dictionary] = List.entries(state.get("attuned_magic_cards", []) as Array)
 	_columns = columns_for(entries.size())
-	var frame_size: Vector2 = Typography.modal_size(self, dialog_size_for(entries.size()))
+	var dialog_size: Vector2 = dialog_size_for(entries.size(), source == "scavenger" and not _can_afford)
+	var frame_size: Vector2 = Typography.modal_size(self, dialog_size)
+	_center_grid = frame_size.y > _picker_height_for(entries.size())
 	var available_width: float = frame_size.x - SIDE_MARGIN * 2.0 - BADGE_OVERFLOW_PADDING.x
 	_columns = maxi(1, mini(_columns, floori((available_width + CARD_GAP.x) / (PileView.CARD_SIZE.x + CARD_GAP.x))))
-	var bounded_grid: bool = frame_size != dialog_size_for(entries.size()) or _columns != columns_for(entries.size())
+	var bounded_grid: bool = frame_size != dialog_size or _columns != columns_for(entries.size())
 	var heading := PurgeHeading.new()
 	heading.name = "MagicPurgeHeading"
 	heading.setup("PURGE A SPELL", "%d spells" % (state.get("attuned_magic_cards", []) as Array).size())
@@ -313,6 +316,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	if not entries.is_empty() and _scroll is RowScroll:
 		(_scroll as RowScroll).configure(_grid, _columns, ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
 	_grid.resized.connect(_layout_grid)
+	_scroll.resized.connect(_layout_grid)
 	_panel.custom_minimum_size = frame_size if not entries.is_empty() else Typography.modal_size(self, _dialog_size)
 	# Reserve the scrollbar in the existing right margin, keeping the
 	# card spacing and the outer dialog width exact as columns reflow.
@@ -329,6 +333,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	_confirmation.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_confirmation.clip_contents = true
 	_panel.item_rect_changed.connect(_layout_confirmation_frame)
+	_header.item_rect_changed.connect(_layout_confirmation_frame)
 	_layout_confirmation_frame()
 	_confirm = _confirmation.confirm_button
 	_confirm.disabled = true
@@ -343,15 +348,21 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 
 func _layout_confirmation_frame() -> void:
 	if _confirmation == null: return
+	_confirmation.content_top = _header.get_global_rect().end.y - _panel.global_position.y + Typography.SPACE_SMALL
+	_confirmation.content_bottom_inset = BOTTOM_MARGIN
 	_confirmation.global_position = _panel.global_position
 	_confirmation.size = _panel.size
+	_confirmation.call("_layout")
 
-static func dialog_size_for(identities: int) -> Vector2:
+static func dialog_size_for(identities: int, show_wallet: bool = false) -> Vector2:
+	var confirmation_height: float = TOP_MARGIN + HEADER_HEIGHT + Typography.SPACE_SMALL + Confirmation.minimum_stack_height(show_wallet) + BOTTOM_MARGIN
+	return Vector2(layout_width_for(identities), minf(1080.0 - SCREEN_MARGIN * 2.0, maxf(_picker_height_for(identities), confirmation_height)))
+
+static func _picker_height_for(identities: int) -> float:
 	var cols: int = columns_for(identities)
 	var rows: int = maxi(1, mini(ceili(float(identities) / cols), RowScroll.VISIBLE_ROWS))
-	var width: float = layout_width_for(identities)
 	var viewport_height: float = rows * PileView.CARD_SIZE.y + (rows - 1) * CARD_GAP.y + CROWN_HEADROOM + BADGE_OVERFLOW_PADDING.y
-	return Vector2(width, minf(1080.0 - SCREEN_MARGIN * 2.0, TOP_MARGIN + HEADER_HEIGHT + HEADER_GAP + viewport_height + BOTTOM_MARGIN))
+	return minf(1080.0 - SCREEN_MARGIN * 2.0, TOP_MARGIN + HEADER_HEIGHT + HEADER_GAP + viewport_height + BOTTOM_MARGIN)
 
 static func layout_width_for(identities: int) -> float:
 	var cols: int = maxi(1, mini(identities, MAX_COLUMNS))
@@ -364,13 +375,17 @@ static func columns_for(identities: int) -> int:
 func _layout_grid() -> void:
 	var rows: int = ceili(float(_rows.size()) / _columns)
 	_grid.custom_minimum_size.y = rows * PileView.CARD_SIZE.y + maxi(0, rows - 1) * CARD_GAP.y + BADGE_OVERFLOW_PADDING.y
+	# Only the grown picker spends its extra height equally above/below the
+	# grid. Preserve the authored crown/badge padding and two-row scroll pitch.
+	var page_height: float = _scroll.size.y - _scroll.get_theme_stylebox("panel").get_minimum_size().y
+	var top: float = maxf(0.0, (page_height - _grid.custom_minimum_size.y) * 0.5) if _center_grid else 0.0
 	var card_width: float = _grid.size.x - BADGE_OVERFLOW_PADDING.x
 	for index: int in range(_rows.size()):
 		var row: int = index / _columns
 		var row_count: int = mini(_columns, _rows.size() - row * _columns)
 		var row_width: float = row_count * PileView.CARD_SIZE.x + (row_count - 1) * CARD_GAP.x
 		var cell: Control = _rows[index]
-		cell.position = Vector2((card_width - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), row * ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
+		cell.position = Vector2((card_width - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), top + row * ceili(PileView.CARD_SIZE.y + CARD_GAP.y))
 
 func select_card(card_id: String) -> void:
 	if _committing: return

@@ -1,0 +1,27 @@
+extends RefCounted
+static var rows: Dictionary = {}
+static var frames: Array = []
+static var enabled: bool = false
+static func finish(label: String, started: int) -> void:
+	if not enabled or OS.get_thread_caller_id() != OS.get_main_thread_id(): return
+	var row: Array = rows.get(label, [0, 0])
+	row[0] += 1
+	row[1] += Time.get_ticks_usec() - started
+	rows[label] = row
+static func redraw(node: CanvasItem, label: String) -> void:
+	if enabled:
+		var script: Script = node.get_script()
+		label = (script.resource_path if script != null else node.get_class()) + ":queue_redraw"
+		var row: Array = rows.get(label, [0, 0])
+		row[0] += 1
+		rows[label] = row
+	node.queue_redraw()
+static func load_resource(path: String) -> Resource:
+	var start: int = Time.get_ticks_usec()
+	var resource: Resource = load(path)
+	finish("load:" + path, start)
+	return resource
+static func flush() -> Dictionary:
+	var result: Dictionary = rows
+	rows = {}
+	return result

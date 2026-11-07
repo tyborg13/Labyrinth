@@ -215,13 +215,15 @@ const PHASES: Dictionary = {
 		"icon": "move", "kicker": "CHOOSE A PATH", "title": "Enter the Next Chamber",
 		"pointer_text": "Select a glowing doorway. The map previews where each route leads.",
 		"controller_text": "Select a glowing doorway. The map previews where each route leads.",
+		"map_pointer_text": "Select a glowing room on the map to travel there.",
+		"map_controller_text": "Select a glowing room on the map to travel there.",
 		"controller_action": "controller_accept", "action_label": "Travel",
 	},
 	PHASE_COMPLETE: {
 		"id": PHASE_COMPLETE, "lesson": 8, "lesson_total": 8,
 		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "Tutorial Complete",
-		"pointer_text": "You know the basic combat controls. Continue to the next room.",
-		"controller_text": "You know the basic combat controls. Continue to the next room.",
+		"pointer_text": "You know the basic combat controls. From here, you're on your own.",
+		"controller_text": "You know the basic combat controls. From here, you're on your own.",
 		"controller_action": "controller_accept", "action_label": "Begin",
 		"requires_continue": true, "continue_text": "Begin",
 	},
@@ -388,13 +390,15 @@ const AUTHORED_PHASES: Dictionary = {
 		"icon": "move", "kicker": "CHOOSE A PATH", "title": "Enter the Next Chamber",
 		"pointer_text": "Select a glowing doorway. The map previews where each route leads.",
 		"controller_text": "Select a glowing doorway. The map previews where each route leads.",
+		"map_pointer_text": "Select a glowing room on the map to travel there.",
+		"map_controller_text": "Select a glowing room on the map to travel there.",
 		"controller_action": "controller_accept", "action_label": "Travel",
 	},
 	PHASE_COMPLETE: {
 		"id": PHASE_COMPLETE, "lesson": 10, "lesson_total": 10,
 		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "Tutorial Complete",
-		"pointer_text": "You know the basic combat controls. Continue to the next room.",
-		"controller_text": "You know the basic combat controls. Continue to the next room.",
+		"pointer_text": "You know the basic combat controls. From here, you're on your own.",
+		"controller_text": "You know the basic combat controls. From here, you're on your own.",
 		"controller_action": "controller_accept", "action_label": "Begin",
 		"requires_continue": true, "continue_text": "Begin",
 	},
@@ -524,8 +528,12 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 		"completed_steps": MILESTONE_ORDER.duplicate() if status == STATUS_COMPLETED else completed,
 	}
 
-static func phase_definition(phase_id: String) -> Dictionary:
-	return (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
+static func phase_definition(phase_id: String, map_open: bool = false) -> Dictionary:
+	var definition: Dictionary = (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
+	if phase_id == PHASE_CHOOSE_PATH and map_open:
+		definition["pointer_text"] = definition["map_pointer_text"]
+		definition["controller_text"] = definition["map_controller_text"]
+	return definition
 
 static func phase_ids() -> Array[String]:
 	return _typed_string_array(PHASE_ORDER)

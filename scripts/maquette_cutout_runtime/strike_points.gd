@@ -53,8 +53,16 @@ static func samples(renderer: Node, actor: Dictionary, effect: Dictionary, delta
 static func save_nodes(rig: Node2D) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for node: Node in rig.find_children("*", "Node2D", true, false):
-		var row: Dictionary = {"node": node, "transform": node.transform, "modulate": node.modulate}
+		var row: Dictionary = {"node": node, "transform": node.transform, "modulate": node.modulate,
+			"self_modulate":node.self_modulate,"visible":node.visible,"z_index":node.z_index,"z_as_relative":node.z_as_relative,
+			"material":node.material}
 		if node is Sprite2D or node is Polygon2D: row["texture"] = node.texture
+		# Exact-source paint submits posed vertices independently of bones.
+		# Restoring only transforms would leave the sampled contact body drawn.
+		if node is Polygon2D:
+			row["polygon"] = node.polygon
+			row["uv"] = node.uv
+			row["skeleton"] = node.skeleton
 		result.append(row)
 	return result
 
@@ -63,4 +71,14 @@ static func restore_nodes(rows: Array[Dictionary]) -> void:
 		var node: Node2D = row["node"]
 		node.transform = row["transform"]
 		node.modulate = row["modulate"]
+		node.self_modulate = row["self_modulate"]
+		node.visible = row["visible"]
+		node.z_index = row["z_index"]
+		node.z_as_relative = row["z_as_relative"]
+		# Shaft layering swaps sprite materials while posed (Lancer tail).
+		node.material = row["material"]
 		if row.has("texture"): node.texture = row["texture"]
+		if node is Polygon2D:
+			node.polygon = row["polygon"]
+			node.uv = row["uv"]
+			node.skeleton = row["skeleton"]

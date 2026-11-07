@@ -1,0 +1,374 @@
+extends SceneTree
+const Run = preload("res://scripts/run_engine.gd")
+const Combat = preload("res://scripts/combat_engine.gd")
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const Flow = preload("res://tests/all_surface_performance_workload.gd")
+const Warband = preload("res://tools/warband_inspection.gd")
+const Trace = preload("/private/tmp/labyrinth_codex/sd-12/tools/trace.gd")
+const SAMPLE_SECONDS: float = 6.0
+const SETTLE_SECONDS: float = 1.5
+var output: String = "/private/tmp/labyrinth_codex/perf-67/before/steady.json"
+var size_arg := Vector2i(1280, 800)
+const ACTION_REPEATS: int = 4
+const ACTION_TIMEOUT_SECONDS: float = 30.0
+# Background scheduling can delay the same production action past 30 wall seconds.
+const PROXY_ACTION_TIMEOUT_SECONDS: float = 120.0
+const FIXTURE_SEED: int = 7262026
+var only: String = ""
+var scene: Node
+var errors: Array[String]
+var cases: Array[Dictionary]
+var native_rows: Array = []
+var native_previous_usec: int = 0
+var unfocused_frames: int = 0
+var previous_usec: int = 0
+var samples: Array
+var active: bool = false
+var churn_added: int = 0
+var churn_removed: int = 0
+var attribution: bool = false
+var run := Run.new()
+var combat := Combat.new()
+var flow := Flow.new()
+
+class Pulse extends Control:
+	func _draw() -> void: draw_rect(Rect2(0, 0, 1, 1), Color(0, 0, 0, 0.001))
+var pulse: Pulse
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--output="): output = arg.trim_prefix("--output=")
+		if arg == "--1080": size_arg = Vector2i(1920, 1080)
+		if arg.begins_with("--only="): only = arg.trim_prefix("--only=")
+		if arg == "--attribution": attribution = true
+	call_deferred("_run")
+
+func _run() -> void:
+	Engine.max_fps = 0
+	OS.low_processor_usage_mode = false
+	OS.low_processor_usage_mode_sleep_usec = 0
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Settings.set_storage_path("user://perf67-settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.15
+	settings["display_mode"] = "windowed"
+	Settings.save_settings(settings)
+	Store.save_data(Tutorial.complete_tutorial(Store.default_data()))
+	root.mode = Window.MODE_WINDOWED
+	root.size = size_arg
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.content_scale_factor = 1.15
+	root.position = Vector2i(24, 24)
+	root.set_meta("labyrinth_performance_probe_seed", 83)
+	flow._probe = self
+	pulse = Pulse.new()
+	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(pulse)
+	node_added.connect(func(_n: Node) -> void: churn_added += 1)
+	node_removed.connect(func(_n: Node) -> void: churn_removed += 1)
+	process_frame.connect(_fixed_clock)
+	node_added.connect(_seed_particle)
+	process_frame.connect(_boundary)
+	if DisplayServer.get_name() != "headless": RenderingServer.frame_post_draw.connect(_native_boundary)
+	if only == "title":
+		scene = load("res://scenes/main_menu.tscn").instantiate()
+		root.add_child(scene)
+		await _sample("title")
+		scene.queue_free()
+		await _next_frame()
+	scene = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	await _settle(SETTLE_SECONDS)
+	var state: Dictionary = run.create_new_run(83, Tutorial.complete_tutorial(Store.default_data()))
+	if only.is_empty() or only == "map":
+		await _install(state)
+		scene.call("_open_large_map")
+		await _sample("section_map")
+	var fight: Dictionary = Warband.build(run, combat, state, {"warband_biome": "air", "warband_tier": 1})
+	if only.is_empty() or only in ["fight", "hover", "drag"]:
+		await _install(fight)
+		_expect((scene.get("_combat_state") as Dictionary).get("enemies", []).size() == 4, "Fight must contain four enemies")
+		if only.is_empty() or only == "fight": await _sample("fight_idle")
+		if only.is_empty() or only == "hover": await _sample("card_hover", _hover)
+		if only.is_empty() or only == "drag":
+			await _install(fight)
+			await _start_drag()
+			await _sample("card_drag", _drag)
+			scene.call("_cancel_drag_play")
+	if only.is_empty() or only == "enemy_turn":
+		await _sample_actions("enemy_turn", fight, false)
+	if only.is_empty() or only == "walking":
+		await _sample_actions("walking", fight, true)
+	for special: String in ["warband", "guardian", "dragon"]:
+		if not only.is_empty() and only != special: continue
+		var fixture: Dictionary = _special_fight(special)
+		await _install(fixture)
+		_expect(str((scene.get("_run_state") as Dictionary).get("mode")) == "combat", special + " must be combat")
+		await _sample(special)
+	if only.is_empty() or only == "reward":
+		await _install(flow._reward_state())
+		await _sample("reward")
+	if only.is_empty() or only == "shop":
+		await _install(flow._scavenger_state(run))
+		_expect((scene.get("_scavenger_shop_view") as Control).is_visible_in_tree(), "Scavenger must be visible")
+		await _sample("shop")
+	for kind: String in ["event", "campfire"]:
+		if not only.is_empty() and only != kind: continue
+		var route: Dictionary = flow._route_fixture(kind)
+		_expect(not route.is_empty(), "Route exists: " + kind)
+		if route.is_empty(): continue
+		await _install(run.move_to_room(route["state"], route["destination"]))
+		_expect(str((scene.get("_run_state") as Dictionary).get("mode")) == kind, "Mode must be " + kind)
+		await _sample(kind)
+	var report: Dictionary = {"cases": cases, "errors": errors, "size": str(size_arg), "ui_scale": 1.15, "cel_look": preload("res://scripts/cel_look.gd").mode, "headless": DisplayServer.get_name() == "headless", "cpu": OS.get_processor_name(), "renderer": RenderingServer.get_current_rendering_method(), "adapter": RenderingServer.get_video_adapter_name(), "display_driver": DisplayServer.get_name(), "frame_cap": Engine.max_fps, "low_processor_usage_mode": OS.low_processor_usage_mode, "godot": Engine.get_version_info()["string"], "attribution": attribution, "metric": "native frame_post_draw interval; includes CPU/renderer delivery; fixed simulation delta and frozen ambient clocks", "cpu_profile": OS.get_environment("PERF67_CPU_PROFILE")}
+	DirAccess.make_dir_recursive_absolute(output.get_base_dir())
+	FileAccess.open(output, FileAccess.WRITE).store_string(JSON.stringify(report))
+	print("PERF67_STEADY: %s (%d errors) %s" % ["PASS" if errors.is_empty() else "FAIL", errors.size(), output])
+	scene.queue_free()
+	pulse.queue_free()
+	flow._probe = null
+	for frame: int in range(8): await _next_frame()
+	quit(0 if errors.is_empty() else 1)
+
+func _install(state: Dictionary) -> void:
+	state["progression"] = Tutorial.complete_tutorial(state.get("progression", Store.default_data()))
+	scene.set("_progression", state["progression"])
+	scene.call("_load_run_state", state.duplicate(true))
+	scene.call("_close_dialogue")
+	if (scene.get("_large_map_scrim") as Control).visible: scene.call("_close_large_map")
+	await _settle(SETTLE_SECONDS)
+
+func _sample(label: String, step: Callable = Callable()) -> void:
+	var capture_started_unix: float = Time.get_unix_time_from_system()
+	await _settle(SETTLE_SECONDS)
+	if scene.has_method("set_runtime_performance_instrumentation_enabled"):
+		scene.call("set_runtime_performance_instrumentation_enabled", attribution)
+		scene.get("board_view").call("reset_render_instrumentation")
+		scene.get("board_view").call("set_submission_performance_instrumentation_enabled", attribution)
+	samples = []
+	native_rows = []
+	unfocused_frames = 0
+	churn_added = 0
+	churn_removed = 0
+	var state_before: String = _state_hash()
+	await _next_frame()
+	var start: int = Time.get_ticks_usec()
+	previous_usec = start
+	Trace.flush()
+	Trace.enabled = attribution
+	active = true
+	while Time.get_ticks_usec() - start < int(SAMPLE_SECONDS * 1000000.0):
+		if step.is_valid(): step.call(float(Time.get_ticks_usec() - start) / 1000000.0)
+		await _next_frame()
+	active = false
+	Trace.enabled = false
+	var result: Dictionary = {"started_unix": capture_started_unix, "ended_unix": Time.get_unix_time_from_system(), "name": label, "native_frames": native_rows, "unfocused_frames": unfocused_frames, "root_size": str(root.size), "logical_size": str(root.get_visible_rect().size), "content_scale_factor": root.content_scale_factor, "samples": samples, "added": churn_added, "removed": churn_removed, "memory_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)), "orphan_nodes": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), "state_before": state_before, "state_after": _state_hash(), "fixture": _fixture_info()}
+	_expect(result["state_before"] == result["state_after"], label + " must preserve committed state")
+	_expect(int(result["orphan_nodes"]) == 0, label + " must leave no orphan nodes")
+	if scene.has_method("runtime_performance_instrumentation_snapshot"):
+		result["script_totals"] = scene.call("runtime_performance_instrumentation_snapshot")
+		result["script_frames"] = scene.call("runtime_performance_frame_instrumentation_snapshot")
+		result["render"] = scene.get("board_view").call("render_instrumentation_snapshot")
+	if DisplayServer.get_name() != "headless": _validate_native(native_rows, label)
+	if label == "card_drag": _expect(bool(scene.get("_drag_targeting_active")), "Drag must keep targeting active")
+	cases.append(result)
+	var times: Array = []
+	for sample: Array in samples: times.append(sample[1])
+	times.sort()
+	if OS.get_environment("PERF67_CPU_PROFILE") == "proxy":
+		print("PERF67_STATE %s frames=%d p50=%.3f" % [label, times.size(), times[times.size()/2]])
+	else:
+		print("PERF67_STATE %s frames=%d p50=%.3f p95=%.3f max=%.3f" % [label, times.size(), times[times.size()/2], times[int(times.size()*0.95)], times.back()])
+	await _capture_native(label)
+
+func _boundary() -> void:
+	var now: int = Time.get_ticks_usec()
+	if active:
+		samples.append([Engine.get_process_frames() - 1, float(now - previous_usec) / 1000.0, Performance.get_monitor(Performance.TIME_PROCESS)*1000.0, int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)), get_processed_tweens().size(), churn_added, churn_removed, Trace.flush() if attribution else {}])
+	previous_usec = now
+	if DisplayServer.get_name() == "headless": RenderingServer.frame_post_draw.emit()
+	else: pulse.queue_redraw()
+
+func _settle(seconds: float) -> void:
+	var started: int = Time.get_ticks_usec()
+	while Time.get_ticks_usec() - started < int(seconds * 1000000.0): await _next_frame()
+
+func _state_hash() -> String:
+	if not scene.has_method("_committed_run_state"): return "title"
+	var state: Dictionary = scene.call("_committed_run_state")
+	var run_id: String = str(state.get("analytics", {}).get("run_id", ""))
+	return var_to_bytes(_canonical(state, run_id)).hex_encode().sha256_text()
+
+func _canonical(value: Variant, run_id: String = "") -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+		var keys: Array = value.keys()
+		keys.sort_custom(func(a: Variant, b: Variant) -> bool: return str(a) < str(b))
+		for key: Variant in keys:
+			if str(key) in ["run_seconds", "session_id", "analytics_session_id", "timestamp_utc", "timestamp_unix"]: continue
+			result[_canonical(key, run_id)] = _canonical(value[key], run_id)
+		return result
+	if value is Array:
+		var result: Array = []
+		for item: Variant in value: result.append(_canonical(item, run_id))
+		return result
+	if value is String and not run_id.is_empty(): return value.replace(run_id, "<transport-run-id>")
+	return value
+
+func _hover(t: float) -> void:
+	var hand: Control = scene.get("hand_box")
+	var cards: Array = hand.get_children()
+	if cards.is_empty(): return
+	var card: Control = scene.call("_hand_card_control", int(t * 3.0) % cards.size())
+	_motion(card.get_global_transform_with_canvas() * (card.size * 0.6))
+
+func _start_drag() -> void:
+	var hand: Control = scene.get("hand_box")
+	var cards: Array = hand.get_children()
+	_expect(not cards.is_empty(), "Drag needs a dealt card")
+	if cards.is_empty(): return
+	var index: int = 0
+	for candidate: int in range(cards.size()):
+		if bool((scene.call("_card_play_options_for_index", candidate) as Dictionary).get("any_playable", false)):
+			index = candidate
+			break
+	var card: Control = scene.call("_hand_card_control", index)
+	var point: Vector2 = card.get_global_transform_with_canvas() * (card.size * 0.5)
+	_motion(point)
+	var press := InputEventMouseButton.new()
+	press.position = point
+	press.global_position = point
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.button_mask = MOUSE_BUTTON_MASK_LEFT
+	root.push_input(press, true)
+	_motion(point - Vector2(0, 16), MOUSE_BUTTON_MASK_LEFT)
+	await _next_frame()
+	_motion(point - Vector2(0, 150), MOUSE_BUTTON_MASK_LEFT)
+	await _next_frame()
+	_expect(int(scene.get("_drag_card_index")) >= 0, "Routed drag must activate targeting")
+
+func _drag(t: float) -> void:
+	var board: Control = scene.get("board_view")
+	var rect: Rect2 = board.get_global_rect()
+	_motion(rect.position + rect.size * Vector2(0.3 + 0.4 * fmod(t * 0.4, 1.0), 0.4), MOUSE_BUTTON_MASK_LEFT)
+
+func _motion(point: Vector2, mask: int = 0) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	motion.button_mask = mask
+	root.push_input(motion, true)
+
+func _expect(ok: bool, message: String) -> void:
+	if not ok:
+		errors.append(message)
+		print("PERF67_ERROR " + message)
+
+func _native_boundary() -> void:
+	var now: int = Time.get_ticks_usec()
+	if active and native_previous_usec > 0:
+		native_rows.append([Engine.get_process_frames(), float(now - native_previous_usec) / 1000.0, DisplayServer.window_is_focused(), str(root.size), root.content_scale_factor, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS), str(DisplayServer.window_get_size()), str(Vector2i(root.get_texture().get_size()))])
+		if not DisplayServer.window_is_focused(): unfocused_frames += 1
+	native_previous_usec = now
+
+func _special_fight(kind: String) -> Dictionary:
+	var progression: Dictionary = Tutorial.complete_tutorial(Store.default_data())
+	var state: Dictionary = run.create_new_run(FIXTURE_SEED, progression)
+	if kind == "warband":
+		return Warband.build(run, combat, run.create_new_run(83, progression), {"warband_biome": "earth", "warband_tier": 2})
+	if kind == "guardian":
+		return preload("res://tools/guardian_inspection.gd").build(run, combat, state, {"guardian_id": "craghide", "guardian_case": "encounter"})
+	var options: Dictionary = {"seed": FIXTURE_SEED, "dragon_id": "vyraketh", "dragon_depth": 4, "dragon_case": "encounter", "dragon_build": "balanced"}
+	var seed_value: int = preload("res://tools/dragon_boss_inspection.gd").seed_for_options(options)
+	return preload("res://tools/dragon_boss_inspection.gd").build(run, combat, run.create_new_run(seed_value, progression), options)
+
+func _fixture_info() -> Dictionary:
+	var enemies: Array = []
+	var battle: Dictionary = scene.get("_combat_state")
+	for enemy: Dictionary in battle.get("enemies", []): enemies.append(str(enemy.get("type", "")))
+	return {"enemies": enemies, "mode": (scene.get("_run_state") as Dictionary).get("mode", ""), "player_hp": (battle.get("player", {}) as Dictionary).get("hp", -1)}
+
+func _sample_actions(label: String, fixture: Dictionary, walking: bool) -> void:
+	var capture_started_unix: float = Time.get_unix_time_from_system()
+	samples = []
+	churn_added = 0
+	churn_removed = 0
+	var cycles: Array = []
+	for cycle: int in range(ACTION_REPEATS):
+		await _install(fixture.duplicate(true))
+		native_rows = []
+		var before: String = _state_hash()
+		await _next_frame()
+		var start: int = Time.get_ticks_usec()
+		previous_usec = start
+		Trace.flush()
+		Trace.enabled = attribution
+		active = true
+		if walking:
+			scene.call("_begin_player_movement_selection")
+			var targets: Array = scene.get("_player_movement_target_tiles")
+			_expect(not targets.is_empty(), "Walking needs legal production targets")
+			if not targets.is_empty(): scene.call("_on_board_tile_clicked", targets.back())
+		else:
+			scene.call("_on_pass_turn_pressed")
+		_expect(bool(scene.get("_animation_lock")), label + " must begin a real animation")
+		var frames: int = 0
+		while bool(scene.get("_animation_lock")) and Time.get_ticks_usec() - start < int((PROXY_ACTION_TIMEOUT_SECONDS if OS.get_environment("PERF67_CPU_PROFILE") == "proxy" else ACTION_TIMEOUT_SECONDS) * 1000000):
+			await _next_frame()
+			frames += 1
+		await _next_frame()
+		active = false
+		Trace.enabled = false
+		_expect(not bool(scene.get("_animation_lock")), label + " animation must complete")
+		_expect(before != _state_hash(), label + " must commit gameplay change")
+		cycles.append({"cycle": cycle, "frames": frames, "wall_us": Time.get_ticks_usec() - start, "before": before, "after": _state_hash(), "native_frames": native_rows.duplicate(true)})
+		if DisplayServer.get_name() != "headless": _validate_native(native_rows, label)
+	await _capture_native(label)
+	cases.append({"started_unix": capture_started_unix, "ended_unix": Time.get_unix_time_from_system(), "name": label, "samples": samples, "cycles": cycles, "fixture": _fixture_info(), "protocol": "four independent production actions; fixture reset and settle excluded"})
+	print("PERF67_ACTION_STATE %s frames=%d cycles=%d" % [label, samples.size(), cycles.size()])
+
+const Clock = preload("res://tests/helpers/presentation_test_clock.gd")
+const Ambient = preload("/private/tmp/labyrinth_codex/sd-12/tools/native_ambient.gd")
+const FIXED_DELTA_USEC: int = 16667
+const DELIVERY_THROTTLE_MS: float = 500.0
+const DELIVERY_THROTTLE_RUN_FRAMES: int = 3
+const NATIVE_CAPTURE_SIZE: Vector2i = Vector2i(1280, 800)
+
+func _fixed_clock() -> void:
+	Clock.now_usec += FIXED_DELTA_USEC
+
+func _next_frame() -> void:
+	if DisplayServer.get_name() == "headless":
+		await process_frame
+	else:
+		pulse.queue_redraw()
+		await RenderingServer.frame_post_draw
+
+func _seed_particle(node: Node) -> void:
+	if not node is CPUParticles2D and not node is GPUParticles2D: return
+	node.set("use_fixed_seed", true)
+	node.set("seed", Ambient.PARTICLE_SEED)
+	node.set("fixed_fps", Ambient.PARTICLE_FPS)
+
+func _validate_native(rows: Array, label: String) -> void:
+	_expect(not rows.is_empty(), label + " must record rendered intervals")
+	var delayed_run: int = 0
+	for row: Array in rows:
+		delayed_run = delayed_run + 1 if float(row[1]) >= DELIVERY_THROTTLE_MS else 0
+		_expect(delayed_run < DELIVERY_THROTTLE_RUN_FRAMES, label + " repeated >=500 ms delivery signature requires an unobscured rerun; raw intervals retained")
+		_expect(str(row[3]) == "(1280, 800)" and is_equal_approx(float(row[4]), 1.15) and str(row[6]) == "(1280, 800)" and str(row[7]) == "(1280, 800)", label + " must retain 1280x800 rendered pixels / 115%")
+
+func _capture_native(label: String) -> void:
+	if DisplayServer.get_name() == "headless": return
+	await _next_frame()
+	var image: Image = root.get_texture().get_image()
+	_expect(image.get_size() == NATIVE_CAPTURE_SIZE, "Native capture must contain 1280x800 rendered pixels")
+	DirAccess.make_dir_recursive_absolute(output.get_base_dir())
+	var capture_path: String = output.get_base_dir().path_join(label + ".png")
+	_expect(image.save_png(capture_path) == OK, "Native capture saves: " + capture_path)
+	print(capture_path)
+	await _settle(SETTLE_SECONDS)

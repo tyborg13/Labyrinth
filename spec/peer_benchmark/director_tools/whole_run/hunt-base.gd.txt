@@ -1,0 +1,297 @@
+extends SceneTree
+## One seeded whole-run exercise of the production scene. No fixture installation.
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Analytics = preload("res://scripts/analytics_store.gd")
+const RecentEvents = preload("res://scripts/recent_event_store.gd")
+const Runtime = preload("res://scripts/parallel_runtime.gd")
+const Policy = preload("res://tools/run_hunt_policy.gd")
+const HEADLESS_TIME_SCALE: float = 8.0
+const SAMPLE_FPS: int = 120
+const SETTLE_FRAMES: int = 8
+const NO_DECISION_SECONDS: float = 20.0
+const FIGHT_DECISION_LIMIT: int = 400
+const UNCHANGED_FIGHT_DECISIONS: int = 50
+const SCREEN_DECISION_LIMIT: int = 120
+const SIDE_CHANCE: float = 0.10
+const SIDE_ACTIONS: Array = ["hover_hand", "deck", "map", "settings", "heirloom", "resume", "escape", "reduced_motion"]
+
+var scene: Node
+var policy: RefCounted
+var rng := RandomNumberGenerator.new()
+var hunt_seed: int = 1
+var output: String = "user://run_hunt"
+var no_embrace: bool = false
+var unchanged_fight_decisions: int = 0
+var previous_fight_state: Dictionary = {}
+var awaiting_fight_change: bool = false
+var stop_after: int = 0
+var decision: int = 0
+var history: Array[Dictionary]
+var room_key: String = ""
+var screen_key: String = ""
+var fight_key: String = ""
+var screen_decisions: int = 0
+var fight_decisions: int = 0
+var sides: Dictionary = {}
+var room_samples: Array[Dictionary]
+var findings: Array[Dictionary]
+var visited: Dictionary = {}
+var sections: Dictionary = {}
+var action_counts: Dictionary = {}
+var transcript: FileAccess
+var idle_seconds: float = 0.0
+var lock_seconds: float = 0.0
+var settle_frames: int = SETTLE_FRAMES
+var finished: bool = false
+var busy: bool = false
+var leak_checked: bool = false
+
+func _initialize() -> void:
+	Runtime.apply_from_environment()
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	for index: int in range(0, args.size(), 2):
+		if index + 1 >= args.size():
+			push_error("run_hunt: option requires a value: " + args[index])
+			quit(2)
+			return
+		match args[index]:
+			"--seed": hunt_seed = int(args[index + 1])
+			"--output-dir": output = args[index + 1]
+			"--no-embrace": no_embrace = args[index + 1] == "true"
+			"--stop-after": stop_after = int(args[index + 1])
+			_:
+				push_error("run_hunt: unknown option " + args[index])
+				quit(2)
+				return
+	if DisplayServer.get_name() != "headless":
+		push_error("run_hunt is headless only")
+		quit(2)
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
+	transcript = FileAccess.open(output.path_join("trace.jsonl"), FileAccess.WRITE)
+	if transcript == null:
+		push_error("run_hunt: cannot write transcript")
+		quit(2)
+		return
+	Store.set_storage_path(output.path_join("progression.json"))
+	Store.set_run_storage_path(output.path_join("run.save"))
+	Settings.set_storage_path(output.path_join("settings.json"))
+	Analytics.set_storage_dir(output.path_join("analytics"))
+	RecentEvents.set_storage_path(output.path_join("recent_events.json"))
+	var settings: Dictionary = Settings.default_settings()
+	settings["combat_speed"] = Settings.COMBAT_FASTEST
+	Settings.save_settings(settings)
+	rng.seed = hunt_seed
+	# Production New Run reads this existing deterministic probe hook.
+	root.set_meta("labyrinth_performance_probe_seed", hunt_seed)
+	root.size = Vector2i(1920, 1080)
+	root.content_scale_size = Vector2i(1920, 1080)
+	Engine.max_fps = SAMPLE_FPS
+	Engine.time_scale = HEADLESS_TIME_SCALE
+	OS.low_processor_usage_mode = false
+	process_frame.connect(_headless_draw_boundary)
+	call_deferred("_start")
+
+func _start() -> void:
+	_emit("startup", {"seed": hunt_seed})
+	_enter_scene(false)
+	# The sole gameplay override, matching inspection_fixture's run HP fields.
+	var run: Dictionary = scene.get("_run_state")
+	run["player_hp"] = int(run["player_max_hp"])
+	scene.call("_save_run_progress")
+	policy = Policy.new()
+	policy.rng = rng
+	policy.no_embrace = no_embrace
+	while not finished:
+		await process_frame
+		_tick()
+
+func _enter_scene(resume: bool) -> void:
+	if resume: root.set_meta("labyrinth_resume_saved_run", true)
+	scene = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	root.add_child(scene)
+	current_scene = scene
+	settle_frames = SETTLE_FRAMES
+
+func _tick() -> void:
+	if finished or busy or not is_instance_valid(scene): return
+	var delta: float = scene.get_process_delta_time()
+	if bool(scene.get("_animation_lock")):
+		idle_seconds = 0.0
+		lock_seconds += delta
+		return
+	lock_seconds = 0.0
+	if settle_frames > 0:
+		settle_frames -= 1
+		return
+	var run: Dictionary = scene.get("_run_state")
+	var context: Dictionary = _context()
+	var next_room_key: String = "%s:%s" % [context["section"], context["room"]]
+	if room_key != next_room_key:
+		room_key = next_room_key
+		sides.clear()
+		var sample: Dictionary = context.duplicate(true)
+		sample.merge({"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), "orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), "tree_nodes": _tree_count(root)})
+		room_samples.append(sample)
+		visited[context["room_kind"]] = int(visited.get(context["room_kind"], 0)) + 1
+		sections[str(context["section"])] = true
+		_emit("room", sample)
+		_check_room_leaks(sample)
+	var mode: String = str(run.get("mode", ""))
+	# End prompts (including leaving an heirloom) remain real UI decisions.
+	if mode in ["victory", "defeat", "embrace"] and not bool(scene.get("_dialogue_active")) and not scene.get("_opening_boon_flow").active():
+		_finish(mode)
+		return
+	var next_screen: String = "%s:%s:%s" % [room_key, mode, str(run.get("event_state", {}).get("page", ""))]
+	if screen_key != next_screen:
+		screen_key = next_screen
+		screen_decisions = 0
+	if mode == "combat" and fight_key != room_key:
+		fight_key = room_key
+		fight_decisions = 0
+		unchanged_fight_decisions = 0
+		previous_fight_state = {}
+		awaiting_fight_change = false
+	if awaiting_fight_change and mode == "combat":
+		var current: Dictionary = scene.get("_combat_state")
+		unchanged_fight_decisions = unchanged_fight_decisions + 1 if current == previous_fight_state else 0
+		awaiting_fight_change = false
+		if unchanged_fight_decisions >= UNCHANGED_FIGHT_DECISIONS:
+			_finding("softlock", "Fight state unchanged for 50 consecutive decisions")
+			_finish("softlock")
+			return
+	if fight_decisions >= FIGHT_DECISION_LIMIT and mode == "combat":
+		_finding("warning", "Fight exploration budget reached 400 decisions")
+		_finish("fight_limit")
+		return
+	if screen_decisions > SCREEN_DECISION_LIMIT and mode != "combat":
+		_finding("softlock", "Screen exceeded 120 decisions")
+		_finish("softlock")
+		return
+	if stop_after > 0 and decision >= stop_after:
+		_finish("replay_point")
+		return
+	if _side_action(): return
+	var offers: Array = policy.offers(scene)
+	if offers.is_empty():
+		idle_seconds += delta
+		if idle_seconds >= NO_DECISION_SECONDS:
+			_finding("softlock", "No legal decision and no animation lock for 20 scene seconds")
+			_finish("softlock")
+		return
+	idle_seconds = 0.0
+	var chosen: Dictionary = policy.choose(scene, offers)
+	_record(chosen)
+	screen_decisions += 1
+	if mode == "combat" and not policy.browsing(scene):
+		fight_decisions += 1
+		previous_fight_state = (scene.get("_combat_state") as Dictionary).duplicate(true)
+		awaiting_fight_change = true
+	policy.dispatch(scene, chosen)
+	settle_frames = SETTLE_FRAMES
+
+func _record(action: Dictionary) -> void:
+	decision += 1
+	var logged: Dictionary = action.duplicate(false)
+	logged.erase("control")
+	logged.erase("object")
+	logged["decision"] = decision
+	logged["context"] = _context()
+	history.append(logged)
+	if history.size() > 20: history.pop_front()
+	var kind: String = str(action.get("kind", ""))
+	action_counts[kind] = int(action_counts.get(kind, 0)) + 1
+	_emit("decision", logged)
+
+func _side_action() -> bool:
+	if not policy.side_actions_available(scene): return false
+	for kind: String in SIDE_ACTIONS:
+		if sides.has(kind) or not policy.side_available(scene, kind): continue
+		sides[kind] = true
+		if rng.randf() >= SIDE_CHANCE: continue
+		_record({"kind": "side_" + kind})
+		if kind == "resume":
+			busy = true
+			_resume()
+		else:
+			busy = true
+			_run_side(kind)
+		settle_frames = SETTLE_FRAMES
+		return true
+	return false
+
+func _run_side(kind: String) -> void:
+	await policy.side_action(scene, kind)
+	busy = false
+
+func _resume() -> void:
+	scene.call("_save_run_progress")
+	var before: Dictionary = scene.call("_committed_run_state")
+	var saved: Dictionary = Store.load_saved_run()
+	if saved.is_empty() or int(saved.get("seed", -1)) != hunt_seed:
+		_finding("script error", "Save/resume did not produce this seed's saved run")
+		busy = false
+		return
+	var previous_room: Variant = before.get("current_room")
+	scene.queue_free()
+	current_scene = null
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	_enter_scene(true)
+	if (scene.get("_run_state") as Dictionary).get("current_room") != previous_room:
+		_finding("script error", "Real resume path changed the current room")
+	_emit("resume", _context())
+	busy = false
+
+func _context() -> Dictionary:
+	if not is_instance_valid(scene): return {"seed": hunt_seed, "section": -1, "room": "startup", "room_kind": "startup", "mode": "startup", "decision": decision}
+	var run: Dictionary = scene.get("_run_state")
+	var room: Dictionary = scene.get("_run_engine").room_metadata(run, run.get("current_room", Vector2i.ZERO))
+	var kind: String = str(room.get("type", "unknown"))
+	if not str(room.get("special_type", "")).is_empty(): kind = str(room["special_type"])
+	elif kind == "mystery": kind = str(room.get("mystery_type", kind))
+	return {"seed": hunt_seed, "section": int(room.get("section_index", 0)), "room": str(run.get("current_room", Vector2i.ZERO)), "room_kind": kind, "room_metadata": room, "mode": str(run.get("mode", "")), "decision": decision}
+
+func _finding(severity: String, message: String) -> void:
+	var stack: Array = get_stack()
+	var location: String = "res://tools/run_hunt.gd:%d" % int(stack[0].get("line", 0)) if not stack.is_empty() else "res://tools/run_hunt.gd:0"
+	var row: Dictionary = {"severity": severity, "error": message, "location": location, "context": _context(), "last_20_decisions": history.duplicate(true)}
+	findings.append(row)
+	_emit("finding", row)
+
+func _check_room_leaks(sample: Dictionary) -> void:
+	if leak_checked or int(sample["section"]) != 5: return
+	leak_checked = true
+	for baseline: Dictionary in room_samples:
+		if int(baseline["section"]) != 0: continue
+		for metric: String in ["tree_nodes", "orphans"]:
+			if float(sample[metric]) > float(baseline[metric]) * 1.25:
+				_finding("leak", "%s grew more than 25%% from section 0 to section 5 (%d -> %d)" % [metric, int(baseline[metric]), int(sample[metric])])
+		break
+
+func _finish(outcome: String) -> void:
+	finished = true
+	var summary: Dictionary = {"seed": hunt_seed, "outcome": outcome, "decisions": decision, "sections": sections.keys(), "room_kinds": visited, "room_samples": room_samples, "action_counts": action_counts, "findings": findings, "context": _context(), "last_20_decisions": history}
+	var file := FileAccess.open(output.path_join("summary.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(summary, "\t"))
+	file.close()
+	_emit("finish", summary)
+	print("RUN HUNT: seed=%d outcome=%s decisions=%d" % [hunt_seed, outcome, decision])
+	scene.queue_free()
+	for frame: int in range(SETTLE_FRAMES): await process_frame
+	quit()
+
+func _emit(event: String, data: Dictionary) -> void:
+	var row: Dictionary = {"event": event, "data": data}
+	var line: String = JSON.stringify(row)
+	transcript.store_line(line)
+	transcript.flush()
+	print("RUN_HUNT_EVENT " + line)
+
+func _tree_count(node: Node) -> int:
+	var count: int = 1
+	for child: Node in node.get_children(true): count += _tree_count(child)
+	return count
+
+func _headless_draw_boundary() -> void:
+	RenderingServer.frame_post_draw.emit()

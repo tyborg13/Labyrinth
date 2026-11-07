@@ -50,6 +50,16 @@ func _test_curriculum_catalog() -> void:
 	var select_bone_dart: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL)
 	_assert(str(select_bone_dart.get("title", "")) == "Select Pale Spark", "Step three should directly tell the player to select Pale Spark")
 	_assert(ContextualCombatTutorial.phase_definition("unknown_phase").is_empty(), "Unknown phases should not synthesize tutorial content")
+	for table: Dictionary in [ContextualCombatTutorial.PHASES, ContextualCombatTutorial.AUTHORED_PHASES]:
+		var path: Dictionary = table[ContextualCombatTutorial.PHASE_CHOOSE_PATH]
+		for input: String in ["pointer", "controller"]:
+			_assert(path["map_" + input + "_text"] == "Select a glowing room on the map to travel there.", "Both curricula should supply the approved map copy for %s" % input)
+			_assert(path[input + "_text"] == "Select a glowing doorway. The map previews where each route leads.", "Door copy should remain unchanged for %s" % input)
+	var map_path: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CHOOSE_PATH, true)
+	var door_path: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CHOOSE_PATH)
+	_assert(map_path["pointer_text"] == map_path["controller_text"] and map_path["pointer_text"] == "Select a glowing room on the map to travel there.", "Map-open copy should be selected for both input paths")
+	for field: String in ["lesson", "lesson_total", "kicker", "title", "action_label"]:
+		_assert(map_path[field] == door_path[field], "Switching surfaces should preserve %s" % field)
 
 func _test_new_and_returning_profile_migration() -> void:
 	var fresh: Dictionary = ProgressionStore.default_data()

@@ -1,5 +1,6 @@
 extends RefCounted
 ## Shared read-only snapshots for UI and manual headless JSONL emitters.
+const DemoBuild = preload("res://scripts/demo_build.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
@@ -99,6 +100,7 @@ static func run_started(_run_state: Dictionary, _progression: Dictionary) -> Dic
 	var recovery_marker: Dictionary = ProgressionStore.recovery_marker(_progression)
 	return {
 		"seed": int(_run_state.get("seed", 0)),
+		"build_kind": "demo" if DemoBuild.is_demo() else "full",
 		"depth": int(_run_state.get("umbra_depth", 0)),
 		"run_index": int(_run_state.get("run_index", 0)),
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
@@ -122,6 +124,7 @@ static func run_ended(_run_engine: RefCounted, _run_state: Dictionary, outcome: 
 	var run_stats: Dictionary = RunEngineScript.normalized_run_stats(_run_state.get("run_stats", {}))
 	return {
 		"outcome": outcome,
+		"build_kind": "demo" if DemoBuild.is_demo() else "full",
 		"depth": int(_run_state.get("umbra_depth", 0)),
 		"turns_spent": int(_run_state.get("turns_spent", 0)),
 		"held_embers": _run_engine.held_embers(_run_state),

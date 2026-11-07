@@ -96,7 +96,9 @@ def export(preset, output, task_id, godot='godot', pack_only=False, project=PROJ
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--preset', required=True, choices=['Steam macOS', 'Steam Windows', 'Steam Linux'])
+    parser.add_argument('--preset', required=True, choices=[
+        'Steam macOS', 'Steam Windows', 'Steam Linux',
+        'Steam Demo macOS', 'Steam Demo Windows', 'Steam Demo Linux'])
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--task-id', required=True)
     parser.add_argument('--godot', default='godot')

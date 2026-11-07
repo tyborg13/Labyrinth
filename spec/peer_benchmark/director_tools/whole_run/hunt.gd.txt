@@ -1,0 +1,93 @@
+extends "/private/tmp/labyrinth_codex/perf-65/tools/hunt-base.gd"
+const Trace = preload("/private/tmp/labyrinth_codex/perf-65/tools/trace.gd")
+const MeasurementPolicy = preload("/private/tmp/labyrinth_codex/perf-65/tools/policy.gd")
+const MEASURED_SECTIONS: int = 3
+var healed_room: String = ""
+var hp_samples: Dictionary = {}
+var frame_rows: Array
+var last_usec: int = 0
+var driver_usec: int = 0
+var last_driver_usec: int = 0
+var recording: bool = true
+var added: int = 0
+var removed: int = 0
+var decision_hashes: Array
+func _initialize() -> void:
+	Trace.enabled = OS.get_environment("PERF65_ATTRIBUTION") == "1"
+	super._initialize()
+	root.size = Vector2i(1280, 800)
+	root.content_scale_size = Vector2i(1920, 1080)
+	Engine.max_fps = 0
+	process_frame.connect(_record_frame)
+	node_added.connect(func(_node: Node) -> void: added += 1)
+	node_removed.connect(func(_node: Node) -> void: removed += 1)
+	last_usec = Time.get_ticks_usec()
+func _enter_scene(resume: bool) -> void:
+	super._enter_scene(resume)
+	if Trace.enabled:
+		scene.call("set_runtime_performance_instrumentation_enabled", true)
+		scene.get("board_view").call("set_submission_performance_instrumentation_enabled", true)
+func _tick() -> void:
+	# Stop only between decisions. Side actions (Escape/settings/resume) can
+	# await frames and still hold the scene after the section boundary arrives.
+	if not finished and sections.size() > MEASURED_SECTIONS:
+		if not busy and is_instance_valid(scene) and not bool(scene.get("_animation_lock")):
+			_finish("three_sections")
+		return
+	var start: int = Time.get_ticks_usec()
+	if policy != null and not policy is MeasurementPolicy:
+		policy = MeasurementPolicy.new()
+		policy.rng = rng
+		policy.no_embrace = no_embrace
+	# Tools only: retain real maximum HP; restore at each room entry before
+	# the scene can dispatch a decision. The private engine clamps lethal HP
+	# loss to one; it never changes maximum HP or production combat files.
+	if is_instance_valid(scene):
+		var run: Dictionary = scene.get("_run_state")
+		var combat: Dictionary = scene.get("_combat_state")
+		var room: String = str(run.get("current_room")) + ":" + str(run.get("section_index", 0))
+		if room != healed_room:
+			healed_room = room
+			run["player_hp"] = int(run.get("player_max_hp", 1))
+			if not combat.is_empty():
+				combat["player"]["hp"] = int(combat["player"]["max_hp"])
+		if not combat.is_empty():
+			var maximum: int = int(combat["player"]["max_hp"])
+			hp_samples[str(maximum)] = int(hp_samples.get(str(maximum), 0)) + 1
+	super._tick()
+	driver_usec += Time.get_ticks_usec() - start
+func _record(action: Dictionary) -> void:
+	var state: Dictionary = scene.call("_committed_run_state")
+	decision_hashes.append([decision + 1, var_to_bytes(_canonical(state)).hex_encode().sha256_text()])
+	super._record(action)
+func _record_frame() -> void:
+	var now: int = Time.get_ticks_usec()
+	if recording:
+		var context: Dictionary = _context() if is_instance_valid(scene) else {}
+		frame_rows.append([Engine.get_process_frames() - 1, float(now-last_usec)/1000.0, Performance.get_monitor(Performance.TIME_PROCESS)*1000.0, int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)), get_processed_tweens().size(), added, removed, driver_usec-last_driver_usec, context, _phases(), Trace.flush() if Trace.enabled else {}])
+	last_usec = now
+	last_driver_usec = driver_usec
+func _finish(outcome: String) -> void:
+	recording = false
+	FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE).store_string(JSON.stringify({"real_max_hp_frames":hp_samples, "samples":frame_rows, "decision_hashes":decision_hashes, "fixed_fps":120, "time_scale":Engine.time_scale, "size":"1280x800", "metric":"uncapped iteration interval, driver CPU also recorded"}))
+	await super._finish(outcome)
+	preload("/private/tmp/labyrinth_codex/perf-65/tools/whole_probe.gd").finish(frame_rows.size())
+func _canonical(value: Variant) -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+		var keys: Array = value.keys()
+		keys.sort_custom(func(a: Variant, b: Variant) -> bool: return str(a) < str(b))
+		for key: Variant in keys:
+			if "play_time" in str(key) or "timestamp" in str(key) or "instance_id" in str(key) or str(key) == "run_seconds" or str(key) in ["session_id", "analytics_session_id"]: continue
+			result[key] = _canonical(value[key])
+		return result
+	if value is Array:
+		var result: Array = []
+		for item: Variant in value: result.append(_canonical(item))
+		return result
+	return value
+
+func _phases() -> Dictionary:
+	if not Trace.enabled or not is_instance_valid(scene): return {}
+	if int(scene.get("_runtime_performance_frame_id")) != Engine.get_process_frames() - 1: return {}
+	return (scene.get("_runtime_performance_frame_phase_usec") as Dictionary).duplicate()

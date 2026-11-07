@@ -53,6 +53,13 @@ floor shadows); the former navy button bodies clashed with it.
   top catch-light and sheen, gilt inner hairline, diamond studs on wide
   buttons, ember halo on the primary (`selected`) variant, crimson body for
   destructive. The title-menu obsidian slabs keep their authored raster art.
+- **Quiet links** (`scripts/ui_quiet_link.gd`): the Crumble UI cut at 18 px
+  with 4 px glyph spacing, gold at rest and bright gold on hover/focus. A 1 px
+  underline sits under the words and keyboard/controller focus adds the existing
+  umbra arrow 8 px left of the text. Transparent 10 px top/bottom hit padding
+  preserves the ink placement. Owners can manage `umbra_selected` across a group;
+  otherwise the link manages hover/focus itself. The Chronicle and demo links
+  share this control.
 - **Panels** (`ThemedPanelOrnament`): full surfaces draw shadow + gradient glass
   + gilding; outer-frame dialogs keep their own fill with a 3 px radius so the
   fill and gold edge form one silhouette.

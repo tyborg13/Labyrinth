@@ -4,6 +4,8 @@ class_name SettingsPanel
 signal back_requested
 signal settings_changed(settings: Dictionary)
 
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoEndPanel = preload("res://scripts/demo_end_panel.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -28,6 +30,7 @@ var _ui_skin: UiSkin = UiSkin.new()
 var _settings: Dictionary = {}
 var _controls: Dictionary = {}
 var _syncing: bool = false
+var _demo_links: Array[Button]
 var _status_label: Label
 var _confirmation_panel: PanelContainer
 var _footer_actions: HBoxContainer
@@ -95,6 +98,7 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_update_responsive_minimum_size)
 	_build_surface()
 	refresh_from_disk()
+	_build_demo_links()
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
 func open() -> void:
@@ -682,3 +686,36 @@ func _divider(color: Color, alpha: float) -> ColorRect:
 	line.color = Color(color.r, color.g, color.b, alpha)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return line
+
+func _build_demo_links() -> void:
+	if not DemoBuild.is_demo():
+		return
+	# A free-layout child avoids changing the existing header's minimum size.
+	var layer := Control.new()
+	layer.name = "DemoHeaderLinks"
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(layer)
+	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for action: String in ["wishlist", "discord"]:
+		var link := DemoEndPanel.make_link(action)
+		layer.add_child(link)
+		_demo_links.append(link)
+	var audio: Control = _controls["master_volume"]["slider"] as Control
+	audio.focus_neighbor_top = audio.get_path_to(_demo_links[0])
+	for index: int in range(_demo_links.size()):
+		var link: Button = _demo_links[index]
+		var other: Button = _demo_links[1 - index]
+		link.focus_neighbor_left = link.get_path_to(other)
+		link.focus_neighbor_right = link.get_path_to(other)
+		link.focus_neighbor_top = link.get_path_to(link)
+		link.focus_neighbor_bottom = link.get_path_to(audio)
+	resized.connect(_layout_demo_links)
+	call_deferred("_layout_demo_links")
+
+func _layout_demo_links() -> void:
+	var right: float = size.x - 30.0
+	for index: int in range(_demo_links.size() - 1, -1, -1):
+		var link: Button = _demo_links[index]
+		right -= link.size.x
+		link.position = Vector2(right, 30.0)
+		right -= 32.0

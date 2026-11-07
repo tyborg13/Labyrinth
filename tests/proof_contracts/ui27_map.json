@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*ui27_map_rooms_0.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_rooms_1.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_rooms_2.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_rooms_3.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_scout_0.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_scout_1.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_scout_2.png", "width": 1920, "height": 1080},
+    {"pattern": "*ui27_map_scout_3.png", "width": 1920, "height": 1080}
+  ]
+}

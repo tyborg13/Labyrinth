@@ -49,7 +49,13 @@ var _transparent_native_cursor: ImageTexture
 var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
 var _native_cursor_refresh_elapsed: float = 0.0
 var _glyph_visibility_suppressors: Dictionary = {}
+var _pointer_position: Vector2 = Vector2.ZERO
+var _pointer_position_valid: bool = false
 var _input_router: Node
+var _exiting_tree: bool = false
+
+func _enter_tree() -> void:
+	_exiting_tree = false
 
 func _ready() -> void:
 	layer = 120
@@ -69,8 +75,15 @@ func _ready() -> void:
 	set_process(true)
 
 func _exit_tree() -> void:
+	# macOS can synchronously send WM_MOUSE_EXIT from either native cursor
+	# operation. Publish the exit state before touching Input so a still-valid
+	# RunScene cannot refresh gameplay during SceneTree::finalize.
+	_exiting_tree = true
 	_clear_transparent_native_cursors()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func is_exiting_tree() -> bool:
+	return _exiting_tree
 
 func _process(delta: float) -> void:
 	# Hidden mode is the primary suppression path. Transparent replacements for
@@ -82,7 +95,7 @@ func _process(delta: float) -> void:
 	if _glyph == null:
 		return
 	var viewport: Viewport = get_viewport()
-	var pointer_position: Vector2 = viewport.get_mouse_position()
+	var pointer_position: Vector2 = _pointer_position
 	_glyph.position = pointer_position - CustomCursorGlyphScript.HOTSPOT
 	_update_glyph_visibility(viewport, pointer_position)
 	_glyph.set_cursor_state(_resolved_cursor_state(viewport.gui_get_hovered_control(), pointer_position))
@@ -90,6 +103,7 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton and not event is InputEventMouseMotion:
 		return
+	observe_pointer_event(event)
 	if event is InputEventMouseMotion:
 		var motion_event := event as InputEventMouseMotion
 		_update_drag_from_motion(motion_event)
@@ -103,6 +117,20 @@ func _input(event: InputEvent) -> void:
 		_begin_pointer_press(mouse_event.position)
 	else:
 		_end_pointer_press()
+
+## Run-scene input may be consumed before this autoload receives it. Share the
+## received event position, never the host OS cursor, with the drawn glyph.
+func observe_pointer_event(event: InputEventMouse) -> void:
+	_pointer_position = event.position
+	_pointer_position_valid = true
+
+func clear_pointer_position() -> void:
+	_pointer_position_valid = false
+	_refresh_glyph_visibility()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_MOUSE_EXIT and is_inside_tree() and not _exiting_tree:
+		clear_pointer_position()
 
 func begin_loading() -> void:
 	_manual_loading_depth += 1
@@ -156,15 +184,15 @@ func glyph_visibility_suppressed() -> bool:
 	return not _glyph_visibility_suppressors.is_empty()
 
 func _refresh_glyph_visibility() -> void:
-	if _glyph == null:
+	if _exiting_tree or not is_inside_tree() or not is_instance_valid(_glyph):
 		return
 	var viewport: Viewport = get_viewport()
-	var pointer_position: Vector2 = viewport.get_mouse_position()
+	var pointer_position: Vector2 = _pointer_position
 	_update_glyph_visibility(viewport, pointer_position)
 
 func _update_glyph_visibility(viewport: Viewport, pointer_position: Vector2) -> void:
 	var window: Window = get_window()
-	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
+	var pointer_inside: bool = _pointer_position_valid and viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
 	_glyph.visible = glyph_should_be_visible(
 		pointer_inside,
 		window == null or window.has_focus(),

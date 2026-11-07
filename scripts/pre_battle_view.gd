@@ -282,15 +282,18 @@ static func _append_foe(host: Node, flow: Container, enemy: Dictionary, leader: 
 	caption.minimum_size_changed.connect(flow.queue_sort)
 
 static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: Control, flow: Container, separation: int) -> void:
-	var hint := Controls.PointerHint.new()
-	hint.text = "Hover or select a foe to read its moves"
+	var hint := Label.new()
+	preload("res://scripts/input_wording.gd").bind_label(hint, {
+		"pointer_text": "Hover or select a foe to read its moves",
+		"controller_text": "Focus or select a foe to read its moves",
+	})
 	Typography.apply_eyebrow(hint, 13, Palette.TEXT_3)
 	hint.name = "PreBattleFoeHint"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var hint_slot := Control.new()
 	hint_slot.name = "PreBattleFoeHintSlot"
 	var hint_height: float = hint.get_combined_minimum_size().y
-	# Keep the same reserve when controller input hides the pointer hint.
+	# Keep the same authored reserve while the input wording switches.
 	hint_slot.custom_minimum_size.y = hint_height + Typography.scaled_value(host, 14.0) - separation
 	hint_slot.add_child(hint)
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)

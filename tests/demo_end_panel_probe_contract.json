@@ -1,0 +1,212 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080/01_demo_clear.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            730,
+            780,
+            305
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/02_demo_clear_discord_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            730,
+            780,
+            305
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/03_demo_clear_eight_rows.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            328,
+            780,
+            700
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/04_demo_clear_no_feedback.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            730,
+            780,
+            305
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/05_links_defeat.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            610,
+            780,
+            110
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/06_links_withdrawal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            610,
+            780,
+            160
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/07_main_menu.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            72,
+            830,
+            440,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/08_main_menu_wishlist_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            72,
+            830,
+            440,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/09_settings_main_menu.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            820,
+            150,
+            1000,
+            70
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/10_settings_in_run.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            580,
+            150,
+            760,
+            50
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/11_skills_keystone.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            395,
+            850,
+            870,
+            30
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/1920x1080/12_full_build_recap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1010,
+            328,
+            560,
+            375
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

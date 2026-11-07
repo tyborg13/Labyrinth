@@ -139,6 +139,13 @@ retains complete JSONL rows and trims an interrupted final line before resuming.
 
 ## Current Event Types
 
+**Demo builds.** `run_started` and `run_ended` payloads add `build_kind`, either
+`"demo"` or `"full"`, from `DemoBuild.is_demo()`. Every existing payload field,
+event ID, receipt and local-first append-only JSONL contract stays unchanged.
+The configured demo cutoff uses the ordinary final-dragon reward and victory
+path, so the terminal `run_ended.outcome` remains `"victory"`. Its score omits
+full-escape awards as specified in [run_end.md](run_end.md).
+
 - `run_started`
 - `run_start_boon_offered`
 - `run_start_boon_chosen`

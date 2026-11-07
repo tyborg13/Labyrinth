@@ -692,6 +692,16 @@ static func build_alpha_polygons(
 	var cache_key: String = _alpha_polygon_cache_key(texture, alpha_threshold, simplify_epsilon, minimum_area)
 	if _alpha_polygon_cache.has(cache_key):
 		return TypedArrays.polygons(_alpha_polygon_cache.get(cache_key, []))
+	# Generated silhouettes are keyed by instance ID, just like alpha bounds.
+	# Keep atlas regions until their source dies, then release every variant.
+	var source: Texture2D = texture
+	while source is AtlasTexture:
+		source = (source as AtlasTexture).atlas
+	if source != null and source.resource_path.is_empty():
+		if not source.has_meta("asset_polygon_lifetime"):
+			source.set_meta("asset_polygon_lifetime", TextureBoundsLifetime.new(_alpha_polygon_cache))
+		var lifetime: TextureBoundsLifetime = source.get_meta("asset_polygon_lifetime")
+		lifetime.keys[cache_key] = true
 	var image: Image = texture_source_image(texture)
 	if image == null or image.is_empty():
 		_alpha_polygon_cache[cache_key] = polygons

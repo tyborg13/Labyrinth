@@ -9402,12 +9402,17 @@ func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_overrid
 	for value: Dictionary in state.get("enemies", []): definitions.append(GameData.enemies().get(str(value.get("type", "")), {}))
 	# Board, badge and battlefield previews use separate ordinary engines. Their
 	# read-only plans depend on these exact inputs, not an instance's query caches.
-	# Keep custom/injected implementations isolated, including instance fields.
-	var ordinary_engine: bool = get_script().resource_path == "res://scripts/combat_engine.gd"
+	# The live facing adapter only annotates resolved actions/steps. Standard
+	# plans return geometry and route durability, never those facing annotations.
+	# Keep all other custom/injected implementations isolated, including fields.
+	var ordinary_engine: bool = get_script().resource_path in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"]
 	var memo: RefCounted = _shared_standard_plan_memo if ordinary_engine else _standard_plan_memo
 	var plan_state: Dictionary = IntentPlanInputs.for_standard_plan(state, intent) if ordinary_engine else state
-	return memo.resolve([plan_state, definitions, enemy_index, intent, movement_disabled, attack_disabled], func() -> Dictionary:
-		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled))
+	# Repeated actor queries can validate the last result before hashing the
+	# board. Put the small discriminators first so another actor/intent rejects
+	# that fast path without traversing the complete state twice.
+	return memo.resolve([enemy_index, intent, movement_disabled, attack_disabled, plan_state, definitions], func() -> Dictionary:
+		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled), null, true, true)
 
 var _standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
 static var _shared_standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
@@ -9659,7 +9664,21 @@ func _enemy_support_route_precedes(candidate: Dictionary, incumbent: Dictionary)
 
 func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int) -> Array[Dictionary]:
 	if CapacitorRules.immobile(enemy): move_range = 0
-	var navigation: Dictionary = _unit_movement_navigation(state, enemy, move_range, _enemy_path_blockers(state, enemy, true, false))
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, false)
+	# Alternative intents and preview engines often ask for the same reachable
+	# paths. Cache this exact subquery rather than invalidating it with unrelated
+	# actor durability, intent metadata or turn scheduling. The memo owns inputs
+	# and published records; callers cannot mutate another plan's paths.
+	if get_script().resource_path in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"] and enemy.has("id"):
+		var inputs: Array = IntentPlanInputs.for_enemy_navigation(state, enemy, move_range, occupied, GameData.enemies().get(str(enemy.get("type", "")), {}))
+		return _dictionary_values(_shared_enemy_navigation_memo.resolve(inputs, func() -> Array[Dictionary]:
+			return _compute_enemy_actual_path_records(state, enemy, move_range, occupied)))
+	return _compute_enemy_actual_path_records(state, enemy, move_range, occupied)
+
+static var _shared_enemy_navigation_memo := preload("res://scripts/combat_preview_memo.gd").new()
+
+func _compute_enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int, occupied: Dictionary) -> Array[Dictionary]:
+	var navigation: Dictionary = _unit_movement_navigation(state, enemy, move_range, occupied)
 	var records: Array[Dictionary]
 	for tile: Vector2i in _sorted_tiles_from_lookup(navigation["paths"] as Dictionary):
 		var path: Array[Vector2i] = _vector2i_values(navigation["paths"][tile])

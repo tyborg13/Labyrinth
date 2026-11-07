@@ -124,6 +124,33 @@ python3 tools/steam_performance_stats.py schema \
 
 The generated CSV contains the exact API names and App Admin settings. Performance collection is enabled by default in the current playtest project configuration, so release-facing privacy disclosure and any required opt-out policy must explicitly cover these account-associated aggregate counters before shipping. See [`../spec/performance_telemetry.md`](../spec/performance_telemetry.md) for the batching behavior, metric interpretation, and the publisher-key report command. Never place a Steamworks publisher Web API key in the project or an exported build.
 
+## Demo app
+
+`./scripts/build_and_upload_steam.sh --targets demo` exports the three
+`Steam Demo …` presets into `build/steam_demo/content/` and uploads to a separate
+free Steam demo app. `--targets main,demo` exports both builds; `--export-only`,
+`--upload-only` and `--preview` also support the demo target. The default targets
+remain `main,playtest`.
+
+The owner must fill `STEAM_DEMO_APP_ID` and `STEAM_DEMO_DEPOT_MACOS`,
+`STEAM_DEMO_DEPOT_WINDOWS`, `STEAM_DEMO_DEPOT_LINUX` in
+[`steam_build_config.env`](steam_build_config.env) after creating the demo in
+Steamworks. Missing IDs stop the command before any export. `STEAM_DEMO_BRANCH`
+defaults to `default`; Steam requires the manual Set Live step for that branch.
+The `STEAM_DEMO_MACOS_APP_NAME`, `STEAM_DEMO_WINDOWS_EXECUTABLE_NAME` and
+`STEAM_DEMO_LINUX_EXECUTABLE_NAME` variables specify the exported launch targets:
+`Escape the Umbra Demo.app`, `Escape the Umbra Demo.exe` and
+`Escape the Umbra Demo.x86_64`.
+
+Non-Steam demo saves and profile use Godot's separate
+`app_userdata/Escape the Umbra Demo` folder under its platform user-data root.
+On Steam the directory is `Escape the Umbra Demo/steam/<SteamID>` under the
+native application-data root. Configure the demo's Steam Auto-Cloud subdirectory
+as `Escape the Umbra Demo/steam/{64BitSteamID}`, with the same platform root
+overrides and save-file patterns described below. Demo builds submit no Steam
+stats and never persist pending stat deltas. Full-game and Playtest folders and
+stats behavior are unchanged.
+
 ## Steam Cloud setup
 
 Steam Cloud is configured in Steamworks App Admin, not in this repo. Use Steam Auto-Cloud for the existing save files; the game code keeps the runtime paths stable and account-scoped.

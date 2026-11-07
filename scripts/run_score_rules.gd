@@ -2,6 +2,7 @@ extends RefCounted
 class_name RunScoreRules
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -99,7 +100,7 @@ static func score(run_state: Dictionary, outcome: String) -> Dictionary:
 	var dragon_count: int = mini(6, dragons.size())
 	# Six names overrun the recap row; the full set reads as one feat.
 	_append(lines, "dragons_slain", "Dragons slain", "All six" if dragon_count >= 6 else ", ".join(dragon_names), 25 * dragon_count * (dragon_count + 1))
-	var victory: bool = outcome == "victory"
+	var victory: bool = outcome == "victory" and not DemoRules.is_demo_clear(run_state, outcome)
 	if victory:
 		_append(lines, "escaped", "Escaped the Umbra", "", 250)
 	_aggregate_feat(feats, "unscathed", "Unscathed", string_ids(stats["guardians_unscathed"]), 25)

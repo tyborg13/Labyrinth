@@ -12,6 +12,19 @@ mechanic, currency rule, Steam metric or achievement is introduced by this unit.
 
 ## Counters and save contract
 
+**Demo builds.** `scripts/demo_rules.gd` reads the protected `data/demo.json`.
+Its zero-based `last_section_index` makes that section's dragon reward final;
+Continue uses the ordinary victory path without entering the next section.
+Dragon relics, the first-dragon Moltshard and victory healing are unchanged.
+Demo clears never unlock Umbra Depths or mark Depth 20 escaped. New demo runs
+alone carry `build_kind: "demo"`; full run-state bytes retain the sparse format.
+`end_panel_kind` returns `full` for demo victory, or `links` for defeat/Embrace
+after a visited `campfire` at or before the cutoff, provided the profile has no
+`demo_links_prompt_run_id` or it matches this terminal's result ID. Recording
+the first eligible terminal stores that ID in the same profile transaction;
+replaying that terminal keeps its links, later runs do not. Other cases and
+full builds return `none`. dmo-03 owns the visible panels.
+
 `RunScoreRules.normalized_stats` preserves additive fields and initializes old
 snapshots. `CombatEngine` retains the existing `enemies_killed`, `damage_dealt`
 and `damage_received` semantics. The new fields are:
@@ -60,6 +73,11 @@ reading a stale combat value. Swift and the Chronicle's run-time source continue
 to use the committed run field.
 
 ## Scoring
+
+**Demo builds.** A demo victory scores like Embrace, retaining dragon rows and
+ordinary feats but omitting Escaped the Umbra, Last Light, Swift and Ascetic.
+The terminal outcome remains `victory`; `titles.demo_clear[0]` is the approved
+`VICTORIOUS` label for its Chronicle record and the dmo-03 recap title.
 
 `RunScoreRules.score(run_state, outcome)` is pure and returns
 `{lines: Array[Dictionary], feats: Array[Dictionary], total: int}`. Each row has
@@ -132,6 +150,35 @@ controller focus adds the slabs' focus arrow beside it. It opens the Chronicle
 over the recap with the newest record selected; closing returns to the link.
 Rise Again keeps primary focus, left/right walk the two exits, Up reaches the
 link and Down returns to the exit last selected.
+
+Demo builds add `DemoEndPanel` only when `DemoRules.end_panel_kind` returns
+`full` or `links`. The first dragon's clear uses `titles.demo_clear[0]` and the
+short dragon name followed by “falls.”; more than five ledger rows use the
+existing two-column split. A 560×14 copy of the gilded rule sits 26 px below the
+Chronicle link, the data-authored heading and body follow at +24/+66, and quiet
+Discord/Feedback links sit 14 px below the body. The clear's three large plates
+occupy the existing slots at y=952: Wishlist on Steam, Rise Again, Main Menu.
+Wishlist receives initial focus/selection. Left/right walk the plates, Up reaches
+Discord, the demo links walk left/right, Up reaches Chronicle, and Down returns
+to the last selected plate. Chronicle's Down reaches the first demo link.
+
+A first post-Ember-Hearth defeat or withdrawal can instead show the one-time
+links row: `text.links_line` 30 px below Chronicle, then Wishlist/Discord/Feedback
+40 px below it with 24 px gaps. Rise Again stays primary; Up from the exits
+reaches Wishlist. `data/demo.json` owns every demo URL, store id and demo copy;
+an empty feedback URL creates no Feedback control or focus stop. Steam Wishlist
+opens the store overlay when active and enabled, otherwise the data store URL.
+Discord/Feedback open their data URLs without click analytics. Full builds create
+none of these nodes and keep the existing ledger threshold, exits and focus.
+
+Focused implementation proof is `tests/demo_end_panel_test.gd`. The renderer
+probe `tests/demo_end_panel_probe.gd` and its JSON contract cover twelve states at
+1920×1080 / 100% scale, including both link-row outcomes, five/eight-row clears,
+empty Feedback, menu/Settings links, keystone captions, and the same full-build
+recap. Its `--validate-only` mode checks scene integration headlessly and emits
+no captures. Probe-only feedback uses an in-memory URL; the approved data file
+is never rewritten. Renderer captures and inspection run on the design owner's
+window-server-enabled machine.
 
 The recap attaches to `UiLayer/UiRoot`, which covers the full viewport, rather
 than the inset StageRoot. The original coordinate assertion reads the correct

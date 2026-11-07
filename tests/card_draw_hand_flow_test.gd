@@ -5,6 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const PassPileDockChecks = preload("res://tests/helpers/pass_pile_dock_checks.gd")
 const FixedTweenClock = preload("res://tests/helpers/fixed_tween_clock.gd")
@@ -35,6 +36,7 @@ const HUD_PROOF_FPS: int = 60
 const HUD_PROOF_STRIP_FRAMES: int = 6
 const HUD_PROOF_PREROLL: int = 2
 const HUD_PROOF_CROP_MARGIN: float = 16.0
+const TEMPO_TEST_FINISHED_COUNTS: Array = [0, 1, 2]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -43,6 +45,23 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://card_draw_hand_flow_test/current_run.save")
 	SettingsStore.set_storage_path("user://card_draw_hand_flow_test/settings.json")
 	ProgressionStore.clear_saved_run()
+	if "--retained-content-only" in OS.get_cmdline_user_args():
+		var retained_instance: Node = load("res://scenes/run_scene.tscn").instantiate()
+		root.add_child(retained_instance)
+		await process_frame
+		await process_frame
+		var retained_state: Dictionary = await _load_combat_fixture(retained_instance)
+		await _run_retained_content_regression(retained_instance, retained_state)
+		retained_instance.queue_free()
+		await process_frame
+		print("RETAINED HAND CONTENT TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
+	if "--hover-only" in OS.get_cmdline_user_args():
+		await _run_resting_pointer_regression()
+		print("HAND POINTER TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
 	if OS.get_cmdline_user_args().has("--turn-start-hud-proof"):
 		await _run_hud_proof()
 		print("TURN START HUD PROOF RESULT: %s" % ("FAIL" if _failed else "PASS"))
@@ -593,100 +612,18 @@ func _load_combat_fixture(instance: Node) -> Dictionary:
 	await process_frame
 	return combat_state
 
-# pol-43: a resting pointer owns hover across a deselect and a turn-start relayout.
+# hov-01: shared headless regression and native movie/capture cases.
 func _run_resting_pointer_regression() -> void:
-	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
-	root.add_child(instance)
-	await process_frame
-	await process_frame
-	var source: Dictionary = await _load_combat_fixture(instance)
-	var hand_box: Control = instance.get("hand_box") as Control
-	instance.call("_ensure_sfx_bank")
-	var ticks: Array[int] = [0]
-	(instance.get("_sfx_bank") as Object).connect("cue_requested", func(cue_id: String, _result: String) -> void:
-		if cue_id == "card.hover": ticks[0] += 1)
-
-	# Deselect with the pointer still on the card: selected pose straight to hover pose, no tick.
-	await _park_pointer(instance, _hand_card_center(instance, 0))
-	_expect(int(instance.get("_hovered_card_index")) == 0, "A parked pointer should hover the card under it")
-	await instance.call("_on_card_pressed", 0)
-	_expect(int(instance.get("_selected_card_index")) == 0, "Shadow Step should select for targeting")
-	await process_frame
-	var ticks_before_deselect: int = ticks[0]
-	await instance.call("_on_card_pressed", 0)
-	_expect(int(instance.get("_selected_card_index")) == -1, "A second click on a targeted card should deselect it")
-	_expect(
-		int(instance.get("_hovered_card_index")) == 0
-		and int(hand_box.call("emphasized_index")) == 0
-		and is_equal_approx(float(hand_box.call("emphasis_strength")), 1.0)
-		and is_equal_approx(float(hand_box.get("_emphasis_scale")), HandFanContainer.DEFAULT_EMPHASIS_SCALE),
-		"A deselected card under the resting pointer should go straight to its hover pose"
-	)
-	_expect(ticks[0] == ticks_before_deselect, "Returning the same card to hover should not tick")
-
-	# Turn start: the hand is rebuilt and unlocked under a resting pointer.
-	var pointer: Vector2 = _hand_card_center(instance, 2)
-	await _park_pointer(instance, pointer)
-	instance.set("_hovered_card_index", -1)
-	instance.call("_set_hand_emphasized_index", -1, false)
-	instance.set("_animation_lock", true)
-	instance.call("_refresh_animation_lock_ui")
-	await process_frame
-	var dealt: Dictionary = source.duplicate(true)
-	dealt["deck"]["hand"] = ["shadow_step", "brace", "quick_stab", "patch_up", "lantern_shot"]
-	dealt["deck"]["draw"] = []
-	instance.set("_combat_state", dealt)
-	(instance.get("_run_state") as Dictionary)["combat_state"] = dealt
-	instance.call("_mark_combat_preview_state_changed")
-	var ticks_before_deal: int = ticks[0]
-	instance.call("_refresh_ui", false, true, true)
-	_expect(int(instance.get("_hovered_card_index")) == -1 and int(hand_box.call("emphasized_index")) == -1, "No card may take hover from the half-built layout")
-	# The cleared hover's neighbours are still easing back (pol-39), so the dealt
-	# hand lands while sliding. Nothing lifts until it rests; its rested layout,
-	# before anything lifts, decides the card under the pointer.
-	_expect(bool(hand_box.call("is_sliding")), "The dealt hand should land while the hand is still easing")
-	var rest_under: Array = [-2]
-	hand_box.connect("slide_finished", func() -> void: rest_under[0] = _hand_card_under_point(instance, pointer), CONNECT_ONE_SHOT)
-	var waited: int = 0
-	var slide_clean: bool = true
-	await process_frame
-	while bool(hand_box.call("is_sliding")) and waited < 600:
-		var sliding_hover: int = int(instance.get("_hovered_card_index"))
-		var sliding_lift: int = int(hand_box.call("emphasized_index"))
-		if slide_clean and (sliding_hover != -1 or sliding_lift != -1 or ticks[0] != ticks_before_deal):
-			slide_clean = false
-			_expect(false, "While the dealt hand slides nothing may hover, lift or tick (frame %d: hover %d, lifted %d)" % [waited + 1, sliding_hover, sliding_lift])
-		await process_frame
-		waited += 1
-	_expect(not bool(hand_box.call("is_sliding")), "The dealt hand should come to rest")
-	var under: int = int(rest_under[0])
-	_expect(under >= 0, "The resting pointer should be over a card of the rested hand")
-	# The first frame after the rest: the card under the pointer has taken hover and begun to lift.
-	var hovered: int = int(instance.get("_hovered_card_index"))
-	var native: int = _native_hand_index(instance)
-	var lifted: int = int(hand_box.call("emphasized_index"))
-	_expect(hovered == under and native == under and lifted == under, "The frame after the slide rests: hover %d (native %d, lifted %d) should be the card under the pointer %d" % [hovered, native, lifted, under])
-	_expect(ticks[0] - ticks_before_deal == 1, "The rest should tick once for the card under the pointer, not %d times" % (ticks[0] - ticks_before_deal))
-	# It keeps hover through its whole lift, with no further tick.
-	waited = 0
-	while lifted == under and float(hand_box.call("emphasis_strength")) < 1.0 and waited < 600:
-		await process_frame
-		waited += 1
-		hovered = int(instance.get("_hovered_card_index"))
-		lifted = int(hand_box.call("emphasized_index"))
-		_expect(hovered == under and lifted == under, "During its lift: hover %d (lifted %d) should stay on the card under the pointer %d" % [hovered, lifted, under])
-		if hovered != under: break
-	_expect(ticks[0] - ticks_before_deal == 1, "The deal should tick once for the card under the pointer, not %d times" % (ticks[0] - ticks_before_deal))
-	instance.queue_free()
-	await process_frame
+	var cases := preload("res://tests/hand_pointer_cases.gd").new()
+	await cases.run(self)
 
 func _park_pointer(instance: Node, point: Vector2) -> void:
-	# Headless roots are tiny and stretched; Input takes screen coordinates.
+	# Push viewport-local input; this works with headless stretch and Retina
+	# backing sizes without moving or consulting the host OS pointer.
 	var motion := InputEventMouseMotion.new()
-	motion.position = instance.get_viewport().get_screen_transform() * point
+	motion.position = point
 	motion.global_position = motion.position
-	Input.parse_input_event(motion)
-	Input.flush_buffered_events()
+	instance.get_viewport().push_input(motion, true)
 	await process_frame
 	await process_frame
 
@@ -1079,6 +1016,36 @@ func _run_retained_content_regression(instance: Node, source: Dictionary) -> voi
 			if not next.has(card_id): next[card_id] = {"id": widget_id, "exits": exits[widget_id]}
 		previous = next
 		_expect(instance.get("_combat_state") == state, "Hand reconciliation must not mutate gameplay")
+	# Tempo can change a face while every hand ID stays the same. In particular,
+	# Gloves arms for the second finished-card ordinal, then expires again.
+	var original_run_relics: Array = (instance.get("_run_state") as Dictionary).get("relics", []).duplicate()
+	var tempo_source: Dictionary = source.duplicate(true)
+	tempo_source["relics"] = ["fencers_gloves"]
+	(instance.get("_run_state") as Dictionary)["relics"] = tempo_source["relics"].duplicate()
+	var glove: Dictionary = GameData.relic_def("fencers_gloves")["effects"][0]
+	var retained_ids: Dictionary = {}
+	for finished: int in TEMPO_TEST_FINISHED_COUNTS:
+		var tempo_state: Dictionary = tempo_source.duplicate(true)
+		tempo_state["turn_flags"]["cards_finished"] = finished
+		instance.set("_combat_state", tempo_state)
+		(instance.get("_run_state") as Dictionary)["combat_state"] = tempo_state
+		instance.call("_mark_combat_preview_state_changed")
+		var state_hash: int = hash(tempo_state)
+		instance.call("_refresh_hand_panel")
+		await process_frame
+		await process_frame
+		for index: int in range(tempo_state["deck"]["hand"].size()):
+			var widget: Control = instance.call("_hand_card_control", index)
+			var base_time: int = int(GameData.card_def(str(tempo_state["deck"]["hand"][index]))["time"])
+			var discount: int = int(glove["amount"]) if finished + 1 == int(glove["card_number"]) else 0
+			var expected_time: int = maxi(1, base_time - discount)
+			_expect(int(widget.call("_display_card_def")["time"]) == expected_time, "Retained definitions follow the current Gloves ordinal")
+			_expect(int((widget.get("_time_badge") as Control).get("value")) == expected_time, "Retained Time badges follow the current Gloves ordinal")
+			if retained_ids.has(index):
+				_expect(widget.get_instance_id() == retained_ids[index], "Tempo updates retain the same live hand widgets")
+			retained_ids[index] = widget.get_instance_id()
+		_expect(hash(instance.get("_combat_state")) == state_hash, "Tempo presentation refresh must not mutate combat")
+	(instance.get("_run_state") as Dictionary)["relics"] = original_run_relics
 	instance.set("_combat_state", source.duplicate(true))
 	(instance.get("_run_state") as Dictionary)["combat_state"] = instance.get("_combat_state")
 	instance.call("_mark_combat_preview_state_changed")

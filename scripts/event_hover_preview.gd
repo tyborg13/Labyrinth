@@ -40,7 +40,7 @@ func prepare() -> void:
 		if not choice.available: continue
 		var line: Dictionary = Preview.first_concrete(view.cached_preview_lines(choice.choice_id))
 		if line.is_empty() or cache.has(hash(line)): continue
-		var work: Dictionary = Preview.begin_build(line, view.run_state)
+		var work: Dictionary = Preview.begin_build(line, view.run_state, false, true)
 		_builds.append(work)
 		cache[hash(line)] = work.stage
 	if cache.is_empty(): return

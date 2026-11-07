@@ -1,0 +1,25 @@
+{
+  "min_images": 1,
+  "expected_sizes": [
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "dragon_action.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1280,
+            800
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

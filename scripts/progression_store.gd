@@ -2,6 +2,8 @@ extends RefCounted
 class_name ProgressionStore
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -154,7 +156,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	var serialized_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
 	var source_skill_ids: Array[String]
 	for skill_id: String in serialized_skill_ids:
-		if not SkillTreeLibrary.is_retired(skill_id):
+		if not SkillTreeLibrary.is_retired(skill_id) and not SkillTreeLibrary.is_demo_locked(skill_id):
 			source_skill_ids.append(skill_id)
 	var retired_skill_count: int = serialized_skill_ids.size() - source_skill_ids.size()
 	# Schema 4 required a complete allocation at every level. Preserve those
@@ -461,7 +463,9 @@ static func save_data(data: Dictionary) -> bool:
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify(_normalized_data(data.duplicate(true)), "\t"))
+	var saved_data: Dictionary = _normalized_data(data.duplicate(true))
+	if DemoBuild.is_demo(): saved_data["build_kind"] = "demo"
+	file.store_string(JSON.stringify(saved_data, "\t"))
 	file.flush()
 	file.close()
 	if _load_profile_dictionary(temp_path).is_empty():
@@ -509,9 +513,20 @@ static func load_saved_run() -> Dictionary:
 	if not has_saved_run():
 		return {}
 	var loaded: Dictionary = _load_run_dictionary(_run_storage_path)
-	if not loaded.is_empty():
-		return loaded
-	return _load_run_dictionary(_run_backup_path())
+	if loaded.is_empty():
+		loaded = _load_run_dictionary(_run_backup_path())
+	if loaded.is_empty():
+		return {}
+	# Guard only the selected recoverable save. A rejected live save must never
+	# fall through to an older backup; leave both files untouched for recovery.
+	if DemoBuild.is_demo():
+		if str(loaded.get("build_kind", "")) != "demo" or DemoRules.is_past_cutoff(loaded):
+			print("Demo save guard: rejected unstamped or past-cutoff run.")
+			return {}
+	elif str(loaded.get("build_kind", "")) == "demo":
+		print("Demo save guard: rejected demo run in full build.")
+		return {}
+	return loaded
 
 static func _load_run_dictionary(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -724,8 +739,16 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 	# Chronicle has its own uncapped receipts: replay remains harmless even after
 	# the visible history and legacy result ledger have dropped this run.
 	var chronicle_record: Dictionary = Chronicle.terminal_snapshot(safe_result_id)
+	var links_eligible: bool = DemoBuild.is_demo() and bool(chronicle_record.get("_demo_links_eligible", false))
+	chronicle_record.erase("_demo_links_eligible")
 	if not run_state.is_empty():
 		chronicle_record = Chronicle.build_record(run_state, outcome, RunScoreRules.score(run_state, outcome))
+		links_eligible = DemoRules.end_panel_kind(run_state, outcome, next_data) == "links" and Chronicle.record_id(run_state) == safe_result_id
+	if links_eligible and str(next_data.get(DemoRules.LINKS_PROMPT_RUN_KEY, "")).is_empty():
+		next_data[DemoRules.LINKS_PROMPT_RUN_KEY] = safe_result_id
+		# Like awakening and heirloom receipts, this must supersede an older
+		# embedded profile on resume and survive the inverse torn-write repair.
+		next_data["progression_revision"] = int(next_data.get("progression_revision", 0)) + 1
 	if not chronicle_record.is_empty() and str(chronicle_record.get("run_id", "")) == safe_result_id:
 		next_data = record_chronicle(next_data, chronicle_record)
 	var completed_results: Array[Dictionary] = completed_run_results(next_data)
@@ -778,9 +801,10 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 		var depth_bests: Dictionary = depth_best_scores(next_data)
 		depth_bests[str(completed_depth)] = maxi(int(depth_bests.get(str(completed_depth), 0)), int(result["score"]))
 		next_data[UMBRA_DEPTH_BESTS_KEY] = depth_bests
-		if str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)) and completed_depth == unlocked_umbra_depth(next_data):
+		var demo_clear: bool = DemoRules.is_demo_clear(run_state, str(score_input["outcome"]))
+		if not demo_clear and str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)) and completed_depth == unlocked_umbra_depth(next_data):
 			next_data[UMBRA_DEPTH_UNLOCKED_KEY] = mini(DepthRules.MAX_DEPTH, completed_depth + 1)
-		if completed_depth == DepthRules.MAX_DEPTH and str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)):
+		if not demo_clear and completed_depth == DepthRules.MAX_DEPTH and str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)):
 			next_data["umbra_depth_twenty_escaped"] = true
 		# Durable, idempotent outbox follows the existing local JSONL delivery path.
 		next_data = queue_progression_analytics_event(next_data, "run_scored", "%s:run_scored" % safe_result_id, score_input.get("context", {"run_id": safe_result_id}), scored)
@@ -1097,6 +1121,8 @@ static func unspent_skill_points(data: Dictionary) -> int:
 	)
 
 static func can_learn_skill(data: Dictionary, skill_id: String) -> bool:
+	if SkillTreeLibrary.is_demo_locked(skill_id):
+		return false
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
 	return (
 		unspent_skill_points(normalized) > 0

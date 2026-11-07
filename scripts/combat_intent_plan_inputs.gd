@@ -20,3 +20,17 @@ static func for_standard_plan(state: Dictionary, intent: Dictionary) -> Dictiona
 	var inputs: Dictionary = state.duplicate(false)
 	for field: String in HISTORY_FIELDS: inputs.erase(field)
 	return inputs
+
+# Reachable paths are independent of the attack being considered, target HP,
+# initiative and journals. Occupancy is resolved by the engine before this
+# projection, so deaths, footprints, illusions and Snare seals still invalidate
+# the query. Keep complete terrain/traps/surfaces, including their ordering:
+# navigation uses first-entry terrain/trap semantics and Rubble departure costs.
+# Only ordinary engines with an enemy id use this projection; injected engines
+# and non-enemy callers keep the uncached implementation.
+static func for_enemy_navigation(state: Dictionary, enemy: Dictionary, move_range: int, occupied: Dictionary, definition: Dictionary) -> Array:
+	return [state.get("grid", []), state.get("terrain", []), state.get("traps", []),
+		state.get("surfaces", {}), state.get("surface_rule_overrides", {}),
+		state.get("_movement_trade_search", false), state.get("_movement_allowed_endpoints", {}),
+		enemy.get("pos", Vector2i.ZERO), enemy.get("footprint", Vector2i.ONE),
+		move_range, occupied, definition]

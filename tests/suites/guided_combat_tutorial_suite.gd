@@ -9,6 +9,14 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const ReplayRunSceneHarness = preload("res://tests/fixtures/guided_tutorial_run_scene_harness.gd")
+const SectionMapPanel = preload("res://scripts/section_map_panel.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
+const PATH_TEST_SEED: int = 22017
+const PATH_TEST_PANEL_SIZE: Vector2 = Vector2(1400, 800)
+const PATH_TEST_FIELD_SIZE: Vector2 = Vector2(1344, 500)
+const PATH_TEST_PAN: float = 80.0
+const PATH_TEST_SCALE: Vector2 = Vector2(1.15, 1.15)
+const PATH_TEST_ZOOM: float = 1.38
 
 const PLAYER_TILE: Vector2i = Vector2i(2, 3)
 const MOVE_TILE: Vector2i = Vector2i(3, 3)
@@ -26,11 +34,13 @@ class TutorialPromptStub:
 	var blocked_messages: Array[String] = []
 	var configured_phase_id: String = ""
 	var configured_spotlights: Array = []
+	var configured_definition: Dictionary = {}
 
 	func configure(definition: Dictionary, spotlights: Array, _avoid_rects: Array, _reduced_motion: bool) -> void:
 		configure_count += 1
 		configured_phase_id = str(definition.get("id", ""))
 		configured_spotlights = spotlights.duplicate()
+		configured_definition = definition.duplicate(true)
 
 	func update_geometry(spotlights: Array, _avoid_rects: Array) -> void:
 		configured_spotlights = spotlights.duplicate()
@@ -84,6 +94,13 @@ class BoardPresentationStub:
 		submission_count += 1
 		last_presentation = next_presentation.duplicate(true)
 
+class PathBoardStub:
+	extends Control
+	const TILE_SIZE: Vector2 = Vector2(60, 30)
+	func _tile_polygon(tile: Vector2i) -> PackedVector2Array:
+		var rect := Rect2(Vector2(tile) * TILE_SIZE, TILE_SIZE)
+		return PackedVector2Array([rect.position, rect.position + Vector2(rect.size.x, 0), rect.end, rect.position + Vector2(0, rect.size.y)])
+
 
 static func run(expect: Callable) -> void:
 	_test_authored_scenario_kill_refund(expect)
@@ -101,6 +118,7 @@ static func run(expect: Callable) -> void:
 	_test_forced_tutorial_blocks_skill_surfaces(expect)
 	_test_controller_candidate_filtering(expect)
 	_test_modal_suspension_and_resume(expect)
+	_test_path_map_targets_and_surface_switching(expect)
 	_test_pause_focus_memory_lifetime(expect)
 	_test_pause_menu_cannot_bypass_optional_surface_gate(expect)
 	_test_pre_battle_actions_cannot_bypass_visible_completion_gate(expect)
@@ -887,6 +905,123 @@ static func _test_modal_suspension_and_resume(expect: Callable) -> void:
 	expect.call(host.visible and prompt.configure_count == 2, "Closing the modal should resume the same guide phase")
 	expect.call(not ContextualCombatTutorial.has_completed(scene.get("_progression") as Dictionary, ContextualCombatTutorial.MILESTONE_CORE), "Suspending and resuming must not falsely complete a lesson")
 	scene.free()
+
+
+static func _test_path_map_targets_and_surface_switching(expect: Callable) -> void:
+	var scene: Node = _attached_combat_fixture()
+	if scene == null: return
+	scene.set("use_real_tutorial_refresh", true)
+	var state: Dictionary = RunEngine.new().create_new_run(PATH_TEST_SEED, ProgressionStore.default_data())
+	var destinations: Array[Vector2i] = RunEngine.new().available_moves(state)
+	expect.call(not destinations.is_empty(), "Path fixture should have generated destinations")
+	if destinations.is_empty():
+		scene.free()
+		return
+	scene.set("_run_state", state)
+	scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
+	scene.set("_guided_tutorial_started_logged", true)
+	# Keep another genuinely reachable room outside the lesson's door mapping.
+	scene.set("_exit_destinations_by_tile", {PLAYER_TILE: destinations[0]})
+	var prompt := TutorialPromptStub.new()
+	scene.add_child(prompt)
+	scene.set("_contextual_combat_prompt", prompt)
+	var board := PathBoardStub.new()
+	scene.add_child(board)
+	scene.set("board_view", board)
+	var scrim := ColorRect.new()
+	scene.add_child(scrim)
+	scene.set("_large_map_scrim", scrim)
+	var panel := SectionMapPanel.new()
+	panel.size = PATH_TEST_PANEL_SIZE
+	panel.room_action_filter = Callable(scene, "_guided_tutorial_map_room_allowed")
+	scrim.add_child(panel)
+	scene.set("_large_map_view", panel)
+	panel.target_geometry_changed.connect(Callable(scene, "_refresh_guided_tutorial_path_geometry"))
+	panel.set_run_state(state)
+	panel.get("_field").size = PATH_TEST_FIELD_SIZE
+	panel.call("_layout_nodes")
+	scene.call("_refresh_contextual_combat_tutorial")
+	expect.call(not bool(scene.call("_contextual_combat_tutorial_suppressed")) and bool(scene.call("_guided_tutorial_hard_gate_active")), "The path lesson should remain visible and gated over the open map")
+	_assert_path_map_rects(scene, panel, prompt, expect)
+	expect.call((scene.call("_guided_tutorial_allowed_board_tiles") as Array).is_empty(), "The open map must not permit the board's hidden doors")
+	expect.call(panel.can_activate_room(destinations[0]), "The mapped destination should remain actionable")
+	expect.call(not panel.can_activate_room(state["current_room"]), "The current room must not become a travel target")
+	if destinations.size() > 1:
+		expect.call(not panel.can_activate_room(destinations[1]), "Even another reachable room must be rejected if no lesson door leads to it")
+		var before: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+		scene.call("_on_large_map_room_selected", destinations[1])
+		expect.call(scrim.visible and scene.get("_run_state") == before, "Rejecting an unmapped room should preserve the open map and run")
+	panel.call("_toggle_scout")
+	expect.call(not panel.scout_targeting, "The map's Scout action must not bypass the travel gate")
+	var before_scout: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	scene.call("_on_section_map_scout", destinations[0])
+	expect.call(scene.get("_run_state") == before_scout, "The scene must also reject a direct Scout request during the path lesson")
+	var initial_rects: Array = prompt.configured_spotlights.duplicate()
+	panel.scroll_to(PATH_TEST_PAN)
+	_assert_path_map_rects(scene, panel, prompt, expect)
+	expect.call(prompt.configured_spotlights != initial_rects, "Path borders should follow the scrolling map")
+	scene.get("_contextual_combat_prompt_host").visible = false
+	panel.scroll_to(0.0)
+	expect.call(scene.get("_contextual_combat_prompt_host").visible, "A late map layout should resume a prompt that initially had no room rects")
+	panel.scale = PATH_TEST_SCALE
+	panel.get("_field").size = PATH_TEST_FIELD_SIZE / PATH_TEST_SCALE
+	panel.call("_layout_nodes")
+	scene.call("_refresh_guided_tutorial_live_geometry")
+	_assert_path_map_rects(scene, panel, prompt, expect)
+	panel.focus_controller_on_current(scene.call("_guided_tutorial_path_destinations"))
+	expect.call(panel.get_viewport().gui_get_focus_owner() == panel.node_buttons[destinations[0]], "Controller focus must start on a highlighted room")
+	expect.call(prompt.configured_definition.get("pointer_text") == "Select a glowing room on the map to travel there.", "The open-map lesson should use the exact approved copy")
+	# Closing and reopening through production methods must switch synchronously.
+	scene.call("_close_large_map")
+	expect.call(prompt.configured_spotlights == [scene.call("_guided_tutorial_tile_global_rect", PLAYER_TILE)], "Closing the map should restore the physical-door border immediately")
+	expect.call((scene.call("_guided_tutorial_allowed_board_tiles") as Array) == [PLAYER_TILE], "Closed-map gating should preserve the physical-door action")
+	expect.call(prompt.configured_definition.get("pointer_text") == "Select a glowing doorway. The map previews where each route leads.", "Closing the map should restore the existing doorway copy immediately")
+	scene.call("_open_large_map")
+	_assert_path_map_rects(scene, panel, prompt, expect)
+	expect.call(prompt.configured_definition.get("pointer_text") == "Select a glowing room on the map to travel there.", "Reopening should restore map copy in the same call")
+	# The exception belongs only to this lesson.
+	scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_CORE_COMPLETE)
+	expect.call(bool(scene.call("_contextual_combat_tutorial_suppressed")), "The map should continue suppressing other lessons")
+	expect.call(bool(scene.call("_guided_tutorial_map_room_allowed", destinations[0], true)), "Ordinary map scouting should return after the path restriction ends")
+	# Existing saves can still present the zoomable legacy map through the same
+	# large-map panel. Its rectangles must stay in that map's camera space too.
+	var legacy_state: Dictionary = RunEngine.new().create_new_run(PATH_TEST_SEED, ProgressionStore.default_data(), false)
+	var legacy_destinations: Array[Vector2i] = RunEngine.new().available_moves(legacy_state)
+	expect.call(not legacy_destinations.is_empty(), "The legacy path fixture should offer a destination")
+	if not legacy_destinations.is_empty():
+		scene.set("_run_state", legacy_state)
+		scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
+		scene.set("_exit_destinations_by_tile", {PLAYER_TILE: legacy_destinations[0]})
+		panel.set_run_state(legacy_state)
+		var legacy: Control = panel.get("_legacy")
+		legacy.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		legacy.size = PATH_TEST_PANEL_SIZE
+		scene.call("_refresh_contextual_combat_tutorial")
+		var legacy_rects: Dictionary = panel.selectable_room_global_rects(_tiles([legacy_destinations[0]]))
+		expect.call(legacy_rects.size() == 1 and prompt.configured_spotlights == [(legacy_rects.values()[0] as Rect2).grow(8.0)], "Legacy maps should expose and highlight their selectable destination")
+		legacy.call("set_camera_zoom", PATH_TEST_ZOOM)
+		var zoomed_rects: Dictionary = panel.selectable_room_global_rects(_tiles([legacy_destinations[0]]))
+		expect.call(not zoomed_rects.is_empty() and legacy_rects != zoomed_rects, "Legacy room rectangles should follow camera zoom")
+		expect.call(prompt.configured_spotlights == [(zoomed_rects.values()[0] as Rect2).grow(8.0)], "Legacy zoom should update the border on the same frame")
+		legacy.call("pan_camera", Vector2(-PATH_TEST_PAN, 0))
+		var panned_rects: Dictionary = panel.selectable_room_global_rects(_tiles([legacy_destinations[0]]))
+		expect.call(not panned_rects.is_empty() and panned_rects != zoomed_rects, "Legacy room rectangles should follow camera pan")
+		panel.focus_controller_on_current(_tiles([legacy_destinations[0]]))
+		expect.call(legacy.get("_hover_coord") == legacy_destinations[0], "Legacy controller focus should start on the highlighted destination")
+	scene.free()
+
+
+static func _assert_path_map_rects(scene: Node, panel: Control, prompt: TutorialPromptStub, expect: Callable) -> void:
+	var destinations: Array[Vector2i] = scene.call("_guided_tutorial_path_destinations")
+	var rooms: Dictionary = panel.call("selectable_room_global_rects", destinations)
+	var expected: Array = []
+	for coord: Vector2i in destinations:
+		var button: Control = panel.get("node_buttons")[coord]
+		var native_rect: Rect2 = button.get_global_rect().intersection(panel.get("_field").get_global_rect()).intersection(panel.get_global_rect())
+		if native_rect.has_area():
+			expect.call(rooms.get(coord) == native_rect, "The map must expose its actual visible native room rect")
+			expected.append(native_rect.grow(8.0))
+	expect.call(not expected.is_empty() and prompt.configured_spotlights == expected, "Each path border should match a selectable map-room rect with the existing 8 px padding")
 
 
 static func _test_pause_focus_memory_lifetime(expect: Callable) -> void:

@@ -1,0 +1,10 @@
+extends SceneTree
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	var script: Script = load("/private/tmp/labyrinth_codex/sd-12/tools/ablation_screens.gd")
+	if script == null or not script.can_instantiate():
+		push_error("SD-12 LOAD: FAIL")
+		quit(1)
+		return
+	print("SD-12 LOAD: PASS (ablation driver and dependencies)")
+	quit()

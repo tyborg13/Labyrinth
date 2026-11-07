@@ -12,6 +12,7 @@
         "test_card_heuristic_surfaces",
         "test_card_heuristic_wave4_surfaces",
         "test_card_panel_text",
+        "test_demo_build",
         "test_element_rule_contract",
         "test_godot_sidecars",
         "test_godot_task_runner",
@@ -24,7 +25,12 @@
         "test_short_card_tooltips",
         "test_text_budget"
       ],
-      "triggers": []
+      "triggers": [
+        "export_presets.cfg",
+        "project.godot",
+        "scripts/demo_build.gd",
+        "scripts/build_and_upload_steam.sh"
+      ]
     },
     "rig": {
       "modules": [

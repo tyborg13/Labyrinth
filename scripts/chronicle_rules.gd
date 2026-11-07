@@ -2,6 +2,7 @@ extends RefCounted
 class_name ChronicleRules
 
 const Score = preload("res://scripts/run_score_rules.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -23,6 +24,11 @@ static func stage_terminal_snapshot(state: Dictionary) -> void:
 	_terminal_snapshots.erase(record_id(state))
 	var outcome: String = str(state.get("mode", ""))
 	var record: Dictionary = build_record(state, outcome, Score.score(state, outcome)) if outcome in ["defeat", "victory", "embrace"] else {}
+	# Transient terminal metadata also supports the score-only production adapter.
+	# The store consumes this in the result transaction; it never reaches disk.
+	if DemoRules.end_panel_kind(state, outcome, {}) == "links":
+		if record.is_empty(): record = {"run_id": record_id(state)}
+		record["_demo_links_eligible"] = true
 	if record.is_empty():
 		return
 	_terminal_snapshots[record["run_id"]] = record
@@ -93,6 +99,9 @@ static func build_record(state: Dictionary, outcome: String, scored: Dictionary,
 	}
 	if state.has("umbra_depth"):
 		record["umbra_depth"] = maxi(0, int(state["umbra_depth"]))
+	if DemoRules.is_demo_clear(state, outcome):
+		record["demo_clear"] = true
+		record["killer_text"] = where_text(record)
 	return record
 
 static func local_date(date: Dictionary = {}) -> String:
@@ -285,22 +294,33 @@ static func normalized_totals(value: Variant) -> Dictionary:
 		totals[key] = maxi(0, int(source.get(key, 0)))
 	if source.has("deepest_depth"):
 		totals["deepest_depth"] = maxi(0, int(source["deepest_depth"]))
+	if source.has("demo_clears"):
+		totals["demo_clears"] = maxi(0, int(source["demo_clears"]))
 	return totals
 
 static func add_to_totals(totals: Dictionary, record: Dictionary) -> Dictionary:
 	var result: Dictionary = normalized_totals(totals)
 	result["runs"] += 1
-	result["escapes"] += 1 if record["outcome"] == "victory" else 0
+	var demo_clear: bool = bool(record.get("demo_clear", false))
+	result["escapes"] += 1 if record["outcome"] == "victory" and not demo_clear else 0
+	if demo_clear: result["demo_clears"] = int(result.get("demo_clears", 0)) + 1
 	result["best_score"] = maxi(int(result["best_score"]), int(record["score_total"]))
 	result["dragons_slain"] += int(record.get("dragons_slain", 0))
-	if record.has("umbra_depth"):
+	if record.has("umbra_depth") and not demo_clear:
 		result["deepest_depth"] = maxi(int(result.get("deepest_depth", 0)), int(record["umbra_depth"]) if record["outcome"] == "victory" else 0)
 	return result
 
 static func result_word(record: Dictionary) -> String:
+	if bool(record.get("demo_clear", false)):
+		return str(Score.seeded_text(str(record.get("run_id", "")), "demo_clear")["title"])
 	return str(record.get("end_title", Score.DEFAULT_TITLES.get(record.get("outcome", ""), "")))
 
 static func where_text(record: Dictionary) -> String:
+	if bool(record.get("demo_clear", false)):
+		var dragon_ids: Array = record.get("dragon_ids", [])
+		if not dragon_ids.is_empty():
+			return "%s falls" % Score.dragon_name(str(dragon_ids[0]))
+		return section_text(record)
 	if record.get("outcome") == "victory":
 		return "Noctyrax falls"
 	return section_text(record)

@@ -21,10 +21,10 @@ static func sync(board: Node, renderers: Dictionary, state: Dictionary, presenta
 			renderer.queue_free()
 			renderer = null
 		if not is_instance_valid(renderer):
-			renderer = Renderer.new()
+			renderer = board._take_prepared_unit_renderer(str(unit["type"]), int(unit.get("id", -1)), Renderer)
 			renderer.character_id = str(unit["type"])
 			renderer.name = "GuardianCutout_%d" % int(unit.get("id", -1))
-			board.add_child(renderer)
+			if renderer.get_parent() == null: board.add_child(renderer)
 			renderers[actor_key] = renderer
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not bool(unit.get("death_animation", false)) and not player.is_empty():

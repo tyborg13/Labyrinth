@@ -2,16 +2,19 @@ extends Control
 class_name RunEndRecapOverlay
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
-const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
-const ThemedButtonOrnament = preload("res://scripts/themed_button_ornament.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
 const InputRouter = preload("res://scripts/input_router.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
+const DemoEndPanel = preload("res://scripts/demo_end_panel.gd")
+const UiQuietLink = preload("res://scripts/ui_quiet_link.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
@@ -50,36 +53,7 @@ const CHRONICLE_LINK_GAP: float = 48.0 # Summary baseline to the link's capitals
 const CHRONICLE_LINK_HIT_PAD: float = 10.0 # Taller pointer target; the ink is unchanged.
 const EYEBROW_SIZE: int = 18 # The SCORE heading's size; the link shares its style.
 const TITLE_CAUSE_GAP_PX: float = 8.0
-
-# The Chronicle opens over this screen instead of leaving it, so it is a quiet
-# link in the recap column rather than a third plate beside the exits.
-class ChronicleLink:
-	extends Button
-	var focus_marker: Texture2D
-	# Hover and focus both select it, the same selection the slabs use.
-	func engaged() -> bool:
-		return bool(get_meta("umbra_selected", false))
-	func refresh() -> void:
-		var ink: Color = Palette.GOLD_BRIGHT if engaged() else Palette.GOLD
-		for state: String in ["font_color", "font_focus_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
-			add_theme_color_override(state, ink)
-		queue_redraw()
-	func _draw() -> void:
-		if not engaged():
-			return
-		var font: Font = get_theme_font("font")
-		var font_size: int = get_theme_font_size("font_size")
-		var baseline: float = (size.y - font.get_height(font_size)) * 0.5 + font.get_ascent(font_size)
-		# The underline runs under the words; the chevron stays a pointer. Letter
-		# spacing trails the final glyph, so the line stops at that glyph's ink.
-		var trailing: float = float((font as FontVariation).spacing_glyph) if font is FontVariation else 0.0
-		var width: float = font.get_string_size(text.rstrip(" ›"), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x - trailing
-		draw_rect(Rect2(0, roundf(baseline + 4.0), width, 1.0), Palette.GOLD_BRIGHT)
-		if has_focus() and focus_marker != null:
-			# The slabs' own focus arrow, at the link's cap height.
-			var marker_height: float = 24.0
-			var marker_size := Vector2(marker_height * focus_marker.get_width() / focus_marker.get_height(), marker_height)
-			draw_texture_rect(focus_marker, Rect2(Vector2(-marker_size.x - 8.0, baseline - font_size * 0.36 - marker_height * 0.5), marker_size), false)
+const SCORE_DIGIT_GLYPHS: String = "0123456789"
 
 class GildedRule:
 	extends Control
@@ -170,12 +144,17 @@ var _total_value: Label
 var _best: Label
 var _embers: RichTextLabel
 var _new_run_button: Button
-var _chronicle_button: ChronicleLink
+var _chronicle_button: UiQuietLink
+var _demo_panel: DemoEndPanel
+var _last_exit: Button
+# A key or pad press hands demo-recap selection to focus until the pointer moves again.
+var _pointer_holds_selection: bool = true
 var _chronicle: Control
 var _main_menu_button: Button
 var _run_host: Node
 var _clock_run_id: String = ""
 var _clock_last_usec: int = 0
+var _first_use_preparation := preload("res://scripts/run_end_preparation.gd").new()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -324,6 +303,12 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	model["score"] = scored
 	model["killer"] = killer
 	model["cause"] = RunScoreRules.cause_text(killer, normalized_outcome, ember_amount)
+	if DemoBuild.is_demo():
+		model["demo_end_panel_kind"] = DemoRules.end_panel_kind(run_state, normalized_outcome, progression)
+		if model["demo_end_panel_kind"] == "full":
+			model.merge(RunScoreRules.seeded_text(RunScoreRules.identity(run_state), "demo_clear"), true)
+			var section: Dictionary = SectionMapGraph.room(run_state, run_state.get("current_room", Vector2i.ZERO))
+			model["cause"] = "%s falls." % RunScoreRules.dragon_name(str(section.get("boss_id", "")))
 	var biome_copy: String = " · %s" % location["biome_name"] if not str(location["biome_name"]).is_empty() else ""
 	model["eyebrow"] = "Section %s%s · Room %d of %d" % [RunScoreRules.roman(int(location["section"])), biome_copy, int(location["step"]), int(location["room_count"])] if int(location["section"]) > 0 else "Depth %d" % int(model["depth"])
 	if DepthRules.depth(run_state) > 0: model["eyebrow"] += " · Umbra Depth %d" % DepthRules.depth(run_state)
@@ -369,6 +354,39 @@ func _spaced_font(spacing: int) -> FontVariation:
 	font.base_font = UI_FONT
 	font.spacing_glyph = spacing
 	return font
+
+# Prepare only the titles this run can actually select, using the same native
+# face/size/outline RIDs. No model, score ledger, clock, focus or demo flag changes.
+func title_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
+	var jobs: Array[Dictionary]
+	for batch: Callable in first_use_glyph_batches(state):
+		var prepared: Array[Dictionary] = batch.call()
+		jobs.append_array(prepared)
+	return jobs
+
+# Each batch shapes one native text run; the preparation cursor can yield
+# between faces/outlines instead of shaping every possible title in one frame.
+func first_use_glyph_batches(state: Dictionary) -> Array[Callable]:
+	var batches: Array[Callable]
+	var glyphs = preload("res://scripts/ui_glyph_preparation.gd")
+	batches.append(glyphs.collect_controls.bind(self))
+	# The count-up can introduce a different digit on successive frames. Prime
+	# its actual large face and the score rows' existing button-sized UI face.
+	for control: Control in [_total_value, _new_run_button]:
+		batches.append(glyphs.text_jobs.bind(SCORE_DIGIT_GLYPHS, control.get_theme_font("font"), control.get_theme_font_size("font_size"), 0, 0, get_viewport().get_oversampling()))
+	var identity: String = RunScoreRules.identity(state)
+	for outcome: String in ["defeat", "victory", "embrace", "demo_clear"]:
+		if outcome == "demo_clear" and not DemoBuild.is_demo(): continue
+		var text: String = str(RunScoreRules.seeded_text(identity, outcome)["title"])
+		batches.append(glyphs.text_jobs.bind(text, _title.get_theme_font("font"), _title.get_theme_font_size("font_size"), 0, 0, get_viewport().get_oversampling()))
+		for layer: Label in _title_glow.get_children():
+			batches.append(glyphs.text_jobs.bind(text, layer.get_theme_font("font"), layer.get_theme_font_size("font_size"), layer.get_theme_constant("outline_size"), 0, get_viewport().get_oversampling()))
+	if DemoBuild.is_demo():
+		batches.append(DemoEndPanel.glyph_preparation_jobs.bind(get_viewport().get_oversampling()))
+	return batches
+
+func prepare_first_use_after_fight(host: Control) -> void:
+	_first_use_preparation.schedule(host, self)
 
 func _build_children() -> void:
 	_death_shroud = DeathEngulfOverlay.new()
@@ -484,20 +502,12 @@ func _build_children() -> void:
 	_chronicle_button.focus_exited.connect(_chronicle_button.refresh)
 	_chronicle_button.mouse_exited.connect(_on_chronicle_link_exited)
 
-func _chronicle_link(font: Font) -> ChronicleLink:
-	var link := ChronicleLink.new()
+func _chronicle_link(font: Font) -> UiQuietLink:
+	var link := UiQuietLink.new()
+	link.owner_manages_selection = true
 	link.name = "ChronicleButton"
 	link.text = CHRONICLE_LINK_TEXT
-	link.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	link.add_theme_font_override("font", font)
-	link.add_theme_font_size_override("font_size", EYEBROW_SIZE)
-	var bare := StyleBoxEmpty.new()
-	bare.content_margin_top = CHRONICLE_LINK_HIT_PAD
-	bare.content_margin_bottom = CHRONICLE_LINK_HIT_PAD
-	for state: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
-		link.add_theme_stylebox_override(state, bare)
-	link.focus_marker = AssetLoader.load_texture_source_first(ThemedButtonOrnament.UMBRA_FOCUS_MARKER_LEFT_PATH)
-	ButtonFeedback.bind_button(link)
 	_column.add_child(link)
 	link.size = link.get_combined_minimum_size()
 	link.refresh()
@@ -512,20 +522,66 @@ func _button(node_name: String, text: String) -> Button:
 	add_child(button)
 	return button
 
+func _actions() -> Array[Button]:
+	# Typed temporary, not a bare literal (Windows typed-array rule in AGENTS.md).
+	var actions: Array[Button]
+	actions.append(_new_run_button)
+	actions.append(_chronicle_button)
+	actions.append(_main_menu_button)
+	if _demo_panel != null:
+		actions.append_array(_demo_panel.links)
+		if _demo_panel.wishlist_plate != null:
+			actions.append(_demo_panel.wishlist_plate)
+	return actions
+
 func _select_action(button: Button) -> void:
-	for action: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
+	var actions: Array[Button] = _actions()
+	if _demo_panel != null and _pointer_holds_selection:
+		for action: Button in actions:
+			if action.is_hovered():
+				button = action
+				break
+	for action: Button in actions:
 		action.set_meta("umbra_selected", action == button)
 		action.queue_redraw()
-	if button != _chronicle_button:
+		if action is UiQuietLink:
+			(action as UiQuietLink).refresh()
+	if _demo_panel != null:
+		if _demo_panel.plates.has(button):
+			_last_exit = button
+			_demo_panel.set_return_plate(button)
+	elif button != _chronicle_button:
 		_chronicle_button.focus_neighbor_bottom = _chronicle_button.get_path_to(button)
-	_chronicle_button.refresh()
 
-# Leaving the link hands the selection back to the exit that keys would press.
+# Leaving a link hands selection back to the exit that keys would press.
 func _on_chronicle_link_exited() -> void:
-	if _chronicle_button.has_focus() or not _chronicle_button.is_visible_in_tree():
+	if not _chronicle_button.is_visible_in_tree():
 		return
 	var focused: Control = get_viewport().gui_get_focus_owner()
-	_select_action(_main_menu_button if focused == _main_menu_button else _new_run_button)
+	if _demo_panel != null:
+		_select_action(focused as Button if _actions().has(focused) else _last_exit)
+	elif not _chronicle_button.has_focus():
+		_select_action(_main_menu_button if focused == _main_menu_button else _new_run_button)
+
+func _rebuild_demo_panel() -> void:
+	if _demo_panel != null:
+		_demo_panel.dispose()
+		_demo_panel = null
+	var kind: String = str(_model.get("demo_end_panel_kind", "none")) if DemoBuild.is_demo() else "none"
+	if kind == "none":
+		return
+	_demo_panel = DemoEndPanel.new()
+	_demo_panel.name = "DemoEndPanel"
+	_column.add_child(_demo_panel)
+	_demo_panel.configure(kind, _chronicle_button, _new_run_button, _main_menu_button, _column.get_node("GildedRule") as Control)
+	_last_exit = _demo_panel.primary_plate()
+	for button: Button in _demo_panel.links:
+		button.focus_entered.connect(_select_action.bind(button))
+		button.mouse_entered.connect(_select_action.bind(button))
+		button.mouse_exited.connect(_on_chronicle_link_exited)
+	if _demo_panel.wishlist_plate != null:
+		_demo_panel.wishlist_plate.focus_entered.connect(_select_action.bind(_demo_panel.wishlist_plate))
+		_demo_panel.wishlist_plate.mouse_entered.connect(_select_action.bind(_demo_panel.wishlist_plate))
 
 func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> void:
 	var row := Control.new()
@@ -648,7 +704,7 @@ func _apply_model() -> void:
 		row.queue_free()
 	_row_controls.clear()
 	var scored: Dictionary = _model.get("score", {}) as Dictionary
-	var split: bool = (scored.get("lines", []) as Array).size() + (scored.get("feats", []) as Array).size() > SINGLE_COLUMN_ROW_LIMIT
+	var split: bool = (scored.get("lines", []) as Array).size() + (scored.get("feats", []) as Array).size() > (5 if DemoBuild.is_demo() and str(_model.get("demo_end_panel_kind", "none")) == "full" else SINGLE_COLUMN_ROW_LIMIT)
 	var ledger_width: float = SPLIT_SCORE_WIDTH if split else SCORE_WIDTH
 	_rows.custom_minimum_size.x = ledger_width
 	_rows.size.x = ledger_width
@@ -669,7 +725,8 @@ func _apply_model() -> void:
 	var amount: String = RunScoreRules.grouped_number(int(_model.get("ember_amount", 0)))
 	_embers.text = embers_copy.replace(amount, "[font=res://fonts/LabyrinthCrumble-UI.tres][font_size=22][color=#e8893a]%s[/color][/font_size][/font]" % amount) if embers_copy.contains(amount) else embers_copy
 	_chronicle_button.position = Vector2(0, _chronicle_link_top())
-	_select_action(_new_run_button)
+	_rebuild_demo_panel()
+	_select_action(_demo_panel.primary_plate() if _demo_panel != null else _new_run_button)
 	for button: Button in [_new_run_button, _main_menu_button]:
 		var variant: String = UiSkin.VARIANT_UMBRA if _is_defeat() else UiSkin.VARIANT_LARGE
 		_ui_skin.apply_button_stylebox_overrides(button, variant)
@@ -693,6 +750,9 @@ func _layout() -> void:
 	var title_height: float = DISPLAY_FONT.get_height(_title.get_theme_font_size("font_size"))
 	if factor > 0.0 and canvas_scale > 0.0:
 		_cause.position.y = maxf(148.0, _title.position.y + title_height + TITLE_CAUSE_GAP_PX / (factor * canvas_scale))
+	if _demo_panel != null and _demo_panel.kind == "full":
+		_demo_panel.layout_plates(factor)
+		return
 	# The two exits keep their plate size and gap, centred where three plates stood.
 	var gap: float = DEFEAT_ACTION_GAP if _is_defeat() else ACTION_GAP
 	var plate: float = _new_run_button.size.x
@@ -730,6 +790,8 @@ func _set_recap_shown(shown: bool) -> void:
 	_column.visible = shown
 	for button: Button in [_new_run_button, _main_menu_button]:
 		button.visible = shown
+	if _demo_panel != null and _demo_panel.wishlist_plate != null:
+		_demo_panel.wishlist_plate.visible = shown
 
 func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED) -> void:
 	var fingerprint: String = JSON.stringify(model)
@@ -753,7 +815,7 @@ func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_C
 
 func _focus_primary_action() -> void:
 	if visible:
-		_new_run_button.grab_focus()
+		(_demo_panel.primary_plate() if _demo_panel != null else _new_run_button).grab_focus()
 
 func _is_defeat() -> bool:
 	return str(_model.get("outcome", "")) == "defeat"
@@ -792,6 +854,10 @@ func _process(delta: float) -> void:
 		set_process(false)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_pointer_holds_selection = true
+	elif (event.is_pressed() and not event is InputEventMouseButton) or (event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouter.JOYSTICK_ACTIVITY_THRESHOLD):
+		_pointer_holds_selection = false
 	if visible and (_chronicle == null or not _chronicle.visible) and event is InputEventJoypadButton and event.is_action_pressed(InputRouter.ACTION_CANCEL):
 		var router: Node = get_node_or_null("/root/InputRouter")
 		if router != null: router.call("record_input_activity", event)

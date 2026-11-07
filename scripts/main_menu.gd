@@ -13,9 +13,13 @@ const InputRouterScript = preload("res://scripts/input_router.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoEndPanel = preload("res://scripts/demo_end_panel.gd")
+const DemoLayout = preload("res://scripts/main_menu_demo_layout.gd")
+const UiQuietLink = preload("res://scripts/ui_quiet_link.gd")
 const TITLE_MOTE_COUNT: int = 42
 
-const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
+const BACKGROUND_ART_PATH: String = preload("res://scripts/menu_title_assets.gd").BACKGROUND_ART_PATH
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
 const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
@@ -174,6 +178,7 @@ var _loading_error: AcceptDialog
 var _umbra_primary_button: Button
 var _umbra_normal_style: StyleBoxFlat
 var _umbra_selected_style: StyleBoxFlat
+var _demo_links: Array[Button]
 var _settings_input_blocker: Control
 var _settings_menu_input: Dictionary = {}
 var _settings_menu_selection: Button
@@ -191,6 +196,7 @@ func _ready() -> void:
 	_chronicle.name = "ChroniclePanel"
 	add_child(_chronicle)
 	_chronicle.closed.connect(_on_chronicle_closed)
+	_build_demo_links()
 	_chronicle.visibility_changed.connect(_on_chronicle_visibility_changed)
 	_initialize_title_arrays()
 	_connect_steam_service()
@@ -757,6 +763,7 @@ func _set_menu_actions_locked(locked: bool) -> void:
 	quit_button.disabled = locked
 	boss_button.disabled = locked
 	call_deferred("_restore_umbra_selection")
+	_sync_demo_links_visibility()
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -808,6 +815,7 @@ func _update_layout() -> void:
 	var profile_height: float = 86.0
 	var profile_y: float = viewport_size.y - profile_height - clampf(viewport_size.y * 0.055, 34.0, 64.0)
 	profile_block.visible = not _chronicle.visible and profile_y > menu_y + _menu_column_height(button_height) + 16.0
+	call_deferred("_layout_demo_links")
 	profile_block.position = Vector2(margin_x, profile_y)
 	profile_block.size = Vector2(profile_width, profile_height)
 
@@ -1025,7 +1033,7 @@ func _focus_default_keyboard_target() -> void:
 	target.grab_focus()
 
 func _focusable_menu_buttons() -> Array:
-	return [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button, settings_back_button]
+	return [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button, settings_back_button] + _demo_links
 
 func _on_start_button_pressed() -> void:
 	if _loading_run:
@@ -1073,6 +1081,7 @@ func _open_new_descent() -> void:
 	_new_descent_panel.back_requested.connect(_close_new_descent)
 	_new_descent_panel.depth_changed.connect(_remember_umbra_depth)
 	add_child(_new_descent_panel)
+	_sync_demo_links_visibility()
 	_new_descent_panel.focus_begin()
 
 func _remember_umbra_depth(depth: int) -> void:
@@ -1116,12 +1125,14 @@ func _on_chronicle_button_pressed() -> void:
 		return
 	_chronicle.open()
 	menu_column.visible = false
+	_sync_demo_links_visibility()
 	resume_panel.visible = false
 	if _controller_prompt_bar != null:
 		_controller_prompt_bar.modulate.a = 0
 
 func _on_chronicle_closed() -> void:
 	menu_column.visible = true
+	_sync_demo_links_visibility()
 	_sync_context_panels()
 	if _controller_prompt_bar != null:
 		_controller_prompt_bar.modulate.a = 1
@@ -1168,6 +1179,7 @@ func _on_settings_button_pressed() -> void:
 		settings_panel.visible = true
 	_sync_context_panels()
 	_refresh_controller_prompts()
+	_sync_demo_links_visibility()
 	if _using_keyboard_navigation:
 		settings_back_button.grab_focus()
 	else:
@@ -1177,6 +1189,7 @@ func _on_settings_back_button_pressed() -> void:
 	if _loading_run:
 		return
 	settings_panel.visible = false
+	_sync_demo_links_visibility()
 	_sync_context_panels()
 	_refresh_controller_prompts()
 	if _using_keyboard_navigation:
@@ -1237,3 +1250,39 @@ func _on_run_loading_failed() -> void:
 func _restore_menu_focus_after_loading_error() -> void:
 	if _using_keyboard_navigation:
 		_focus_default_keyboard_target()
+
+func _build_demo_links() -> void:
+	if not DemoBuild.is_demo():
+		return
+	for action: String in ["wishlist", "discord"]:
+		var link := DemoEndPanel.make_link(action)
+		add_child(link)
+		_demo_links.append(link)
+	profile_block.visibility_changed.connect(_sync_demo_links_visibility)
+	quit_button.resized.connect(_layout_demo_links)
+	quit_button.item_rect_changed.connect(_layout_demo_links)
+	quit_button.focus_neighbor_bottom = quit_button.get_path_to(_demo_links[0])
+	for index: int in range(_demo_links.size()):
+		var link: Button = _demo_links[index]
+		link.focus_neighbor_top = link.get_path_to(quit_button if index == 0 else _demo_links[0])
+		link.focus_neighbor_bottom = link.get_path_to(_demo_links[1])
+		link.focus_neighbor_left = link.get_path_to(link)
+		link.focus_neighbor_right = link.get_path_to(link)
+
+func _layout_demo_links() -> void:
+	if _demo_links.is_empty():
+		return
+	var link_origin := Vector2(menu_column.global_position.x + DemoLayout.LINK_OFFSET.x, quit_button.get_global_rect().end.y + DemoLayout.LINK_OFFSET.y)
+	if profile_block.visible:
+		var last_link_y: float = link_origin.y + float(_demo_links.size() - 1) * DemoLayout.LINK_SEPARATION
+		var title_bottom: float = title_label.global_position.y + _title_text_height(title_label.get_theme_font_size("font_size"))
+		var shift: float = DemoLayout.upward_shift(_demo_links.back(), last_link_y, embers_label.global_position.y, menu_column.global_position.y, title_bottom)
+		menu_column.position.y -= shift
+		link_origin.y -= shift
+	for index: int in range(_demo_links.size()):
+		_demo_links[index].global_position = link_origin + Vector2(0.0, float(index) * DemoLayout.LINK_SEPARATION)
+	_sync_demo_links_visibility()
+
+func _sync_demo_links_visibility() -> void:
+	for link: Button in _demo_links:
+		link.visible = profile_block.visible and menu_column.visible and not settings_panel.visible and not _replacement_confirmation_open and not _loading_run and not is_instance_valid(_new_descent_panel)

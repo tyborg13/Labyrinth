@@ -13,12 +13,15 @@ const CardScene = preload("res://scenes/card_widget.tscn")
 const CARD_SIZE := Vector2(250.0, 352.0)
 const CARD_Y_OFFSET: float = -40.0
 const HEADING_GAP: float = 24.0
+const MIN_HEADING_GAP: float = 12.0
 const BUTTON_OFFSET: float = 28.0
+const MIN_BUTTON_OFFSET: float = 14.0
 const BUTTON_HEIGHT: float = 52.0
 const BUTTON_MIN_WIDTH: float = 200.0
 const BUTTON_SIDE_PADDING: float = 28.0
 const BUTTON_GAP: int = 16
 const WALLET_GAP: float = 12.0
+const WALLET_COPY: String = "You have %d Embers."
 const Halo = preload("res://scripts/magic_purge_halo.gd")
 # Opening Boon also uses this class's original text confirmation. Its surface
 # and public no-host API are deliberately preserved outside the purge redesign.
@@ -37,6 +40,8 @@ var _wallet: Label
 var _glow: TextureRect
 var _host: Node
 var _legacy_price: Control
+var content_top: float = 0.0
+var content_bottom_inset: float = 0.0
 
 func configure(host: Node = null) -> void:
 	_host = host
@@ -49,14 +54,7 @@ func configure(host: Node = null) -> void:
 	_glow = Halo.new()
 	_glow.name = "MagicPurgeCrimsonGlow"
 	add_child(_glow)
-	question = Label.new()
-	question.name = "PurgeConfirmationQuestion"
-	question.text = "Purge this spell?"
-	question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	Typography.apply_label_role(question, Typography.ROLE_TITLE)
-	question.add_theme_color_override("font_color", Palette.GOLD_BRIGHT)
-	question.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
-	question.add_theme_constant_override("outline_size", 3)
+	question = _question_label()
 	add_child(question)
 	card = CardScene.instantiate() as CardWidget
 	card.name = "MagicPurgeConfirmCard"
@@ -75,12 +73,7 @@ func configure(host: Node = null) -> void:
 	cancel_button.pressed.connect(func() -> void: cancelled.emit())
 	_buttons.add_child(cancel_button)
 	_contain_button_focus()
-	_wallet = Label.new()
-	_wallet.name = "MagicPurgeHeldEmbers"
-	Typography.apply_label_role(_wallet, Typography.ROLE_BODY)
-	Typography.set_label_size(_wallet, 16)
-	_wallet.add_theme_color_override("font_color", Palette.DANGER)
-	_wallet.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_wallet = _wallet_label()
 	add_child(_wallet)
 	resized.connect(_layout)
 	hide()
@@ -97,7 +90,7 @@ func present(card_id: String, price: int, paid: bool, affordable: bool, held: in
 	confirm_button.disabled = not affordable
 	confirm_button.focus_mode = Control.FOCUS_ALL if affordable else Control.FOCUS_NONE
 	_contain_button_focus()
-	_wallet.text = "You have %d Embers." % held
+	_wallet.text = WALLET_COPY % held
 	_wallet.visible = paid and not affordable
 	for button: Button in [confirm_button, cancel_button]:
 		var font: Font = button.get_theme_font("font")
@@ -172,15 +165,39 @@ func _contain_button_focus() -> void:
 
 func _layout() -> void:
 	if _card_slot == null: return
-	_card_slot.position = size * 0.5 + Vector2(0.0, CARD_Y_OFFSET) - CARD_SIZE * 0.5
+	question.size = Vector2(size.x, _label_height(question))
+	_buttons.size = Vector2(_buttons.get_combined_minimum_size().x, maxf(BUTTON_HEIGHT, _buttons.get_combined_minimum_size().y))
+	_wallet.size = Vector2(size.x, _label_height(_wallet))
+	var wallet_height: float = WALLET_GAP + _wallet.size.y if _wallet.visible else 0.0
+	var fixed_height: float = question.size.y + HEADING_GAP + BUTTON_OFFSET + _buttons.size.y + wallet_height
+	var available_height: float = maxf(0.0, size.y - content_top - content_bottom_inset)
+	var heading_gap: float = HEADING_GAP
+	var button_offset: float = BUTTON_OFFSET
+	# Spend the specified gaps before reducing the face. Native faces retain
+	# 16px rules/numbers and at least 20px icons, so the shared .875 floor
+	# yields 14px text and 17.5px icons in the legibility audit.
+	var deficit: float = maxf(0.0, fixed_height + CARD_SIZE.y - available_height)
+	var heading_reduction: float = minf(deficit, HEADING_GAP - MIN_HEADING_GAP)
+	heading_gap -= heading_reduction
+	var button_reduction: float = minf(deficit - heading_reduction, BUTTON_OFFSET - MIN_BUTTON_OFFSET)
+	button_offset -= button_reduction
+	fixed_height -= heading_reduction + button_reduction
+	var factor: float = clampf((available_height - fixed_height) / CARD_SIZE.y, CardWidget.MIN_READABLE_CARD_SCALE, 1.0)
+	var card_size: Vector2 = CARD_SIZE * factor
+	question.position = Vector2(0.0, content_top + maxf(0.0, (available_height - fixed_height - card_size.y) * 0.5))
+	# Restore the pre-ui-22 desktop composition whenever its entire stack fits
+	# below the header; the bounded fallback keeps the Deck question visible.
+	var original_card_top: float = size.y * 0.5 + CARD_Y_OFFSET - CARD_SIZE.y * 0.5
+	var original_question_top: float = original_card_top - HEADING_GAP - question.size.y
+	var original_bottom: float = original_card_top + CARD_SIZE.y + BUTTON_OFFSET + _buttons.size.y + wallet_height
+	if factor == 1.0 and original_question_top >= content_top and original_bottom <= size.y - content_bottom_inset:
+		question.position.y = original_question_top
+	_card_slot.scale = Vector2.ONE * factor
+	_card_slot.position = Vector2((size.x - card_size.x) * 0.5, question.position.y + question.size.y + heading_gap)
 	_glow.position = _card_slot.position - Vector2.ONE * Halo.FEATHER_RADIUS
-	_glow.size = CARD_SIZE + Vector2.ONE * Halo.FEATHER_RADIUS * 2.0
-	question.size = Vector2(size.x, question.get_minimum_size().y)
-	question.position = Vector2(0.0, _card_slot.position.y - HEADING_GAP - question.size.y)
-	_buttons.size = Vector2(_buttons.get_combined_minimum_size().x, BUTTON_HEIGHT)
-	_buttons.position = Vector2((size.x - _buttons.size.x) * 0.5, _card_slot.position.y + CARD_SIZE.y + BUTTON_OFFSET)
-	_wallet.size = Vector2(size.x, _wallet.get_minimum_size().y)
-	_wallet.position = Vector2(0.0, _buttons.position.y + BUTTON_HEIGHT + WALLET_GAP)
+	_glow.size = card_size + Vector2.ONE * Halo.FEATHER_RADIUS * 2.0
+	_buttons.position = Vector2((size.x - _buttons.size.x) * 0.5, _card_slot.position.y + card_size.y + button_offset)
+	_wallet.position = Vector2(0.0, _buttons.position.y + _buttons.size.y + WALLET_GAP)
 
 func play_exhaust() -> void:
 	confirm_button.disabled = true
@@ -214,7 +231,49 @@ static func highest_visible_z(node: Node, excluded: Node, parent_z: int = 0) -> 
 		highest = maxi(highest, highest_visible_z(child, excluded, depth))
 	return highest
 
-func _button(text: String, node_name: String, variant: String) -> Button:
+static func minimum_stack_height(show_wallet: bool = false) -> float:
+	# Use the same controls/fonts/minima as the live confirmation, including
+	# the optional wallet line; the picker can reserve this before presenting.
+	var heading: Label = _question_label()
+	var buttons := HBoxContainer.new()
+	buttons.add_child(_button("Purge", "ConfirmMagicPurge", UiSkin.VARIANT_DESTRUCTIVE))
+	buttons.add_child(_button("Back", "CancelMagicPurge", UiSkin.VARIANT_STANDARD))
+	var wallet: Label = _wallet_label()
+	wallet.text = WALLET_COPY % 0
+	var height: float = _label_height(heading) + HEADING_GAP + CARD_SIZE.y + BUTTON_OFFSET + maxf(BUTTON_HEIGHT, buttons.get_combined_minimum_size().y)
+	if show_wallet: height += WALLET_GAP + _label_height(wallet)
+	heading.free()
+	buttons.free()
+	wallet.free()
+	return height
+
+static func _label_height(label: Label) -> float:
+	# Detached labels have not received their theme notification yet. Measure
+	# the authored font directly rather than accepting the stale default size.
+	var font: Font = label.get_theme_font("font")
+	return maxf(label.get_minimum_size().y, font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).y)
+
+static func _question_label() -> Label:
+	var result := Label.new()
+	result.name = "PurgeConfirmationQuestion"
+	result.text = "Purge this spell?"
+	result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Typography.apply_label_role(result, Typography.ROLE_TITLE)
+	result.add_theme_color_override("font_color", Palette.GOLD_BRIGHT)
+	result.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
+	result.add_theme_constant_override("outline_size", 3)
+	return result
+
+static func _wallet_label() -> Label:
+	var result := Label.new()
+	result.name = "MagicPurgeHeldEmbers"
+	Typography.apply_label_role(result, Typography.ROLE_BODY)
+	Typography.set_label_size(result, 16)
+	result.add_theme_color_override("font_color", Palette.DANGER)
+	result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return result
+
+static func _button(text: String, node_name: String, variant: String) -> Button:
 	var result := Button.new()
 	result.name = node_name
 	result.text = text

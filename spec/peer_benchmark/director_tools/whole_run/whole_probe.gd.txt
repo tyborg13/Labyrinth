@@ -1,0 +1,114 @@
+extends RefCounted
+
+# Disposable measurement project only. No production script references this.
+const FIXTURE_WALL_USEC: int = 42000000
+const FIXTURE_TIMESTAMP: String = "2026-11-05T12:00:00Z"
+static var identity: bool = OS.get_environment("PERF65_IDENTITY") == "1"
+static var side: String = OS.get_environment("PERF65_SIDE")
+static var output: String = OS.get_environment("PERF65_OUTPUT")
+static var reference: String = OS.get_environment("PERF65_REFERENCE")
+static var depth: int = 0
+static var rows: Array[Dictionary]
+static var generated_ids: Dictionary = {}
+static var failures: int = 0
+static var write_failures: int = 0
+
+static func fixture_id(prefix: String) -> String:
+	generated_ids[prefix] = int(generated_ids.get(prefix, 0)) + 1
+	return "%s_42000000_%08x" % [prefix, int(generated_ids[prefix])]
+
+static func begin() -> void:
+	depth += 1
+
+static func boundary_type(boundary: String, mode: String) -> String:
+	if boundary == "explicit_save": return "explicit_save"
+	if boundary.ends_with("_outbox"): return "durable_outbox"
+	if boundary.ends_with("_ack"): return "durable_ack"
+	if boundary.ends_with("_cursor"): return "durable_cursor"
+	if mode in ["victory", "defeat"]: return mode
+	if "reward" in boundary or mode in ["reward", "relic_reward"]: return "reward"
+	if boundary == "direct_save": return "direct_save"
+	if mode != "combat": return "room_change"
+	if "enemy_phase" in boundary or "activation" in boundary or "enemy_round" in boundary: return "enemy_round"
+	return "combat_step"
+
+static func finish_boundary(boundary: String, mode: String, saved: bool) -> void:
+	var row: Dictionary = {"index": rows.size(), "boundary": boundary, "mode": mode,
+		"type": boundary_type(boundary, mode), "frame": Engine.get_process_frames(), "saved": saved}
+	if not saved: write_failures += 1
+	if identity:
+		var store = preload("res://scripts/progression_store.gd")
+		# Joining and oracle readback occur only in identity replays, never timings.
+		var worker_started_for_oracle: bool = false
+		var writer: Variant = store._run_writer
+		if side == "after":
+			if writer.busy() and not writer._thread.is_started():
+				# Admit this owned snapshot without advancing gameplay a frame.
+				# Otherwise an immediate flush would take the synchronous barrier
+				# path and fail to exercise worker serialization of this corpus.
+				for entry: Dictionary in writer._pending:
+					entry["queued_frame"] = Engine.get_process_frames() - 1
+				writer._last_attempt_frame = -1
+				store.poll_pending_run_saves()
+				worker_started_for_oracle = writer._thread.is_started()
+		var joined: bool = store.flush_pending_run_saves()
+		var exists: bool = FileAccess.file_exists(store._run_storage_path)
+		var bytes: PackedByteArray = FileAccess.get_file_as_bytes(store._run_storage_path) if exists else PackedByteArray()
+		var oracle_name: String = "%06d.save" % rows.size()
+		var oracle_dir: String = output.path_join("oracles")
+		DirAccess.make_dir_recursive_absolute(oracle_dir)
+		row.merge({"joined": joined, "exists": exists, "bytes": bytes.size(), "sha256": _digest(bytes),
+			"worker_started_for_oracle": worker_started_for_oracle,
+			"storage_thread_id": int(writer.last_thread_id) if side == "after" else OS.get_main_thread_id()})
+		if side == "before":
+			var file := FileAccess.open(oracle_dir.path_join(oracle_name), FileAccess.WRITE)
+			file.store_buffer(bytes)
+			file.close()
+		else:
+			var expected_path: String = reference.path_join("oracles").path_join(oracle_name)
+			var expected: PackedByteArray = FileAccess.get_file_as_bytes(expected_path) if FileAccess.file_exists(expected_path) else PackedByteArray()
+			var equal: bool = FileAccess.file_exists(expected_path) and bytes == expected
+			row["byte_equal"] = equal
+			if not equal:
+				failures += 1
+				var file := FileAccess.open(oracle_dir.path_join(oracle_name), FileAccess.WRITE)
+				file.store_buffer(bytes)
+				file.close()
+				row["different_top_level_fields"] = _different_fields(expected, bytes)
+				if failures <= 3: print("PERF65_BYTE_MISMATCH " + JSON.stringify(row))
+		if not joined: failures += 1
+	rows.append(row)
+	depth -= 1
+
+static func _digest(bytes: PackedByteArray) -> String:
+	var context := HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	context.update(bytes)
+	return context.finish().hex_encode()
+
+static func _different_fields(a: PackedByteArray, b: PackedByteArray) -> Array:
+	var fields: Array = []
+	if a.size() < 4 or b.size() < 4: return ["file_exists_or_length"]
+	var left: Variant = bytes_to_var(a.slice(4))
+	var right: Variant = bytes_to_var(b.slice(4))
+	if not left is Dictionary or not right is Dictionary: return ["decoded_type"]
+	for key: Variant in left:
+		if not right.has(key) or left[key] != right[key]: fields.append(str(key))
+	for key: Variant in right:
+		if not left.has(key): fields.append(str(key))
+	return fields
+
+static func finish(frames: int) -> void:
+	var store = preload("res://scripts/progression_store.gd")
+	store.flush_pending_run_saves()
+	var analytics: Array = preload("res://scripts/analytics_store.gd").load_all_events() if identity else []
+	if identity:
+		var file := FileAccess.open(output.path_join("complete-analytics.json"), FileAccess.WRITE)
+		file.store_string(JSON.stringify(analytics))
+		file.close()
+	var file := FileAccess.open(output.path_join("save-boundaries.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"side": side, "identity": identity, "rows": rows,
+		"byte_failures": failures, "write_failures": write_failures, "frames": frames,
+		"simulated_seconds": float(frames) * 8.0 / 120.0, "analytics_count": analytics.size()}, "\t"))
+	file.close()
+	print("PERF65 WHOLE SAVE ORACLE: %d boundaries; %d byte failures; %d write failures" % [rows.size(), failures, write_failures])

@@ -172,7 +172,7 @@ class TooltipPanelContainer:
 	func _make_custom_tooltip(for_text: String) -> Object:
 		if for_text.strip_edges().is_empty():
 			return null
-		return PreviewBuilders.text_tooltip(for_text, str(get_meta("relic_id", "")))
+		return preload("res://scripts/input_wording.gd").bind_tooltip_panel(self, PreviewBuilders.text_tooltip(for_text, str(get_meta("relic_id", ""))))
 
 class EquipmentTooltipPanelContainer:
 	extends TooltipPanelContainer
@@ -1415,6 +1415,9 @@ var _hand_hover_refresh_pending: bool = false
 # pol-43: a hand relayout under a resting pointer holds native card enter/exit
 # until the new layout's first draw, then resolves hover once from the pointer.
 var _hand_pointer_resolve_queued: bool = false
+# Viewport-local input received by this scene, including pushed capture input.
+var _hand_pointer_position: Vector2 = Vector2.ZERO
+var _hand_pointer_position_valid: bool = false
 const HAND_POINTER_AREA_MARGIN: float = 96.0
 const HAND_HOVER_REST_RENDERED_FRAMES: int = 2
 var _hand_hover_rest_pending: bool = false
@@ -1936,9 +1939,13 @@ var _combat_pacing = preload("res://scripts/combat_pacing.gd").new()
 var _burst_playback = preload("res://scripts/enemy_mechanics/burst_playback.gd").new()
 var _animation_step_requires_submission_validation: bool = false
 var _defer_initial_run_presentation: bool = false
+var _leaving_tree: bool = false
 
 func _init() -> void:
 	_combat_pacing.install(self)
+
+func _enter_tree() -> void:
+	_leaving_tree = false
 
 func _ready() -> void:
 	preload("res://scripts/controller_gui_navigation.gd").install(self, _controller_uses_gui_focus)
@@ -2127,6 +2134,7 @@ func _refresh_guided_tutorial_live_geometry() -> void:
 		ContextualCombatTutorial.PHASE_SELECT_KILL_CARD,
 		ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD,
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT,
+		ContextualCombatTutorial.PHASE_CHOOSE_PATH,
 	]:
 		_layout_contextual_combat_prompt_overlay()
 
@@ -2167,6 +2175,7 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	preload("res://scripts/hand_pointer_input.gd").observe(self, event)
 	# kb-01's menu guard must suspend actions without losing the aiming endpoint.
 	EmpowerUi.observe_targeting_pointer(self, event)
 	if is_instance_valid(_menu_focus) and _menu_focus.handle_input(event): return
@@ -2405,7 +2414,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _is_map_shortcut_event(event):
-		if _guided_tutorial_hard_gate_active():
+		if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 			_guided_tutorial_reject("The map can wait until the guided action is complete.")
 			get_viewport().set_input_as_handled()
 			return
@@ -2430,7 +2439,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
-		await _on_cancel_requested()
+		await _on_cancel_requested(not InputRouterScript.is_controller_event(event))
 
 func _build_controller_interface() -> void:
 	if _controller_prompt_bar != null:
@@ -2460,6 +2469,10 @@ func _build_controller_interface() -> void:
 
 func _on_input_modality_changed(modality: String) -> void:
 	_refresh_enemy_intent_toggle()
+	if _grimoire_detail_body != null and _grimoire_detail_body.visible:
+		var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
+		if not entry.is_empty() and str(entry.get("card_id", "")).is_empty():
+			_grimoire_detail_body.text = _grimoire_body_text(entry)
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if modality == InputRouterScript.MODALITY_CONTROLLER and _drag_card_index >= 0 and router != null and router.modality_change_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		# Right-stick Empower edits the held card; it does not transfer the drag
@@ -2575,7 +2588,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		_refresh_controller_prompts()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_MAP):
-		if _guided_tutorial_hard_gate_active():
+		if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 			_guided_tutorial_reject("The map can wait until the guided action is complete.")
 		else:
 			_open_large_map()
@@ -2594,7 +2607,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_on_merchant_return_to_shop_pressed()
 			return true
 		if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
-			await _on_cancel_requested()
+			await _on_cancel_requested(false)
 			return true
 		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
 			await _controller_activate_current()
@@ -2629,17 +2642,19 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _player_movement_selected:
-			await _on_cancel_requested()
+			await _on_cancel_requested(false)
 			_controller_region = "board"
 			_controller_set_hand_focused(false)
 		elif _selected_card_index >= 0 and _card_action_choice_index >= 0:
 			_controller_enter_card_mode()
 		elif _selected_card_index >= 0:
-			await _on_cancel_requested()
+			await _on_cancel_requested(false)
 			_controller_region = "board"
 			_controller_set_hand_focused(false)
+		elif _controller_hand_focused:
+			_controller_enter_board(false)
 		else:
-			await _on_cancel_requested()
+			await _on_cancel_requested(false)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
 		if _guided_tutorial_hard_gate_active():
@@ -3461,9 +3476,13 @@ func _schedule_controller_modal_refresh() -> void:
 	call_deferred("_refresh_controller_modal_after_layout")
 
 func _refresh_controller_modal_after_layout() -> void:
+	# Scene changes detach the run before queued calls and layout waits drain.
+	# Check every suspension boundary before accessing its tree or controls.
+	if not is_inside_tree() or _leaving_tree or is_queued_for_deletion(): return
 	await get_tree().process_frame
+	if not is_inside_tree() or _leaving_tree or is_queued_for_deletion(): return
 	await get_tree().process_frame
-	if not is_inside_tree(): return
+	if not is_inside_tree() or _leaving_tree or is_queued_for_deletion(): return
 	_refresh_controller_prompts()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
@@ -3634,7 +3653,11 @@ func _refresh_controller_prompts() -> void:
 	_controller_prompt_bar.offset_bottom = _controller_prompt_bar.offset_top
 	_controller_prompt_bar.anchor_left = 0.8 if graft_open else 0.5
 	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
+	_controller_prompt_bar.place_below_boss_health_frame(_boss_health_frame)
 	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
+	_controller_prompt_bar.refresh_guided_reward_placement()
+	if _contextual_combat_prompt != null and _contextual_combat_prompt.has_method("refresh_reward_placement"):
+		_contextual_combat_prompt.call("refresh_reward_placement")
 	var prompts: Array = []
 	if is_instance_valid(_magic_purge_overlay):
 		prompts = [{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"}, {"action": InputRouterScript.ACTION_CANCEL, "label": "Back"}, {"action": &"controller_dpad", "label": "Navigate"}]
@@ -3851,11 +3874,22 @@ func _board_fit_rect() -> Rect2:
 		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
 func _notification(what: int) -> void:
-	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_RESUMED] and is_inside_tree():
+	# Native cursor restoration can reenter this callback during tree finalize,
+	# after our children have lost their viewports. A valid Object is not enough.
+	if not _window_notifications_allowed():
+		return
+	if what == NOTIFICATION_WM_MOUSE_EXIT:
+		_hand_pointer_position_valid = false
+		_hand_pointer_resolve_queued = false
+		if not _controller_is_active(): _on_card_hover_ended(_hovered_card_index)
+		var cursor: Node = get_node_or_null("/root/CursorFeedback")
+		if cursor != null: cursor.clear_pointer_position()
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_RESUMED]:
 		_application_suspend.handle(self, what)
-	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED] and is_inside_tree():
+	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED]:
 		_run_play_clock.sample_scene_play_time(self)
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_leaving_tree = true
 		_save_run_progress()
 		preload("res://scripts/run_persistence.gd").flush(self)
 		_finalize_performance_telemetry_scene("window_close")
@@ -3881,7 +3915,14 @@ func _notification(what: int) -> void:
 			call_deferred("_rebuild_pre_battle_overlay")
 		_layout_progression_dialog()
 
+func _window_notifications_allowed() -> bool:
+	if _leaving_tree or not is_inside_tree() or is_queued_for_deletion():
+		return false
+	var cursor: Node = get_node_or_null("/root/CursorFeedback")
+	return cursor == null or not cursor.is_exiting_tree()
+
 func _exit_tree() -> void:
+	_leaving_tree = true
 	_application_suspend.dispose()
 	_pass_preview_warm_generation += 1
 	_pass_preview_prewarm.cancel()
@@ -5159,6 +5200,8 @@ func _build_large_map_overlay() -> void:
 	margin.add_child(_large_map_dialog)
 	_large_map_view = SectionMapPanelScript.new()
 	_large_map_view.name = "LargeMap"
+	_large_map_view.set("room_action_filter", Callable(self, "_guided_tutorial_map_room_allowed"))
+	_large_map_view.connect("target_geometry_changed", _refresh_guided_tutorial_path_geometry)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	_large_map_view.connect("scout_requested", _on_section_map_scout)
 	_large_map_view.connect("door_requested", _on_section_map_door)
@@ -5845,7 +5888,7 @@ func _layout_relic_choice_overlay() -> void:
 		# height (notices and the bottom stack can change it).
 		var area_top: float = top_bar.get_global_rect().end.y
 		var area_bottom: float = (stage_root.get_parent() as Control).get_global_rect().end.y
-		if _controller_prompt_bar != null and _controller_prompt_bar.is_visible_in_tree():
+		if _controller_prompt_bar != null and _controller_prompt_bar.is_visible_in_tree() and not _controller_prompt_bar.is_below_guided_reward_panel():
 			var hint_rect: Rect2 = _controller_prompt_bar.get_global_rect()
 			if hint_rect.position.y >= area_top:
 				area_bottom = minf(area_bottom, hint_rect.position.y)
@@ -7095,12 +7138,7 @@ func _populate_grimoire_equipment_detail(equipment_id: String) -> void:
 		row.add_child(_build_card_preview_widget(str(card_id_var), GRIMOIRE_EQUIPMENT_CARD_SIZE, true))
 
 func _grimoire_body_text(entry: Dictionary) -> String:
-	var paragraphs: Array[String]
-	for paragraph_var: Variant in entry.get("body", []):
-		var paragraph: String = str(paragraph_var).strip_edges()
-		if not paragraph.is_empty():
-			paragraphs.append(paragraph)
-	return "\n\n".join(paragraphs)
+	return preload("res://scripts/input_wording.gd").grimoire_body(entry, _controller_is_active())
 
 func _grimoire_entry_icon(entry: Dictionary) -> Texture2D:
 	var card_id: String = str(entry.get("card_id", ""))
@@ -7344,6 +7382,7 @@ func _build_dialogue_overlay() -> void:
 	UiTypography.apply_eyebrow(_dialogue_hint_label, UiTypography.SIZE_CAPTION, UiPalette.TEXT_3)
 	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_footer.add_child(_dialogue_hint_label)
+	preload("res://scripts/input_wording.gd").bind_dialogue(_dialogue_hint_label)
 
 	_dialogue_choice_bar = HBoxContainer.new()
 	_dialogue_choice_bar.custom_minimum_size = Vector2.ZERO
@@ -7806,7 +7845,7 @@ func _close_dialogue() -> void:
 	set_process(false)
 	_clear_dialogue_choices()
 	if _dialogue_hint_label != null:
-		_dialogue_hint_label.text = ""
+		preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {})
 	if _dialogue_overlay != null:
 		_dialogue_overlay.visible = false
 	_opening_boon_flow.dialogue_closed(self, closed_script)
@@ -7886,15 +7925,15 @@ func _update_dialogue_footer() -> void:
 	_clear_dialogue_choices()
 	if _dialogue_hint_label == null:
 		return
-	_dialogue_hint_label.text = ""
+	preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {})
 	if not _dialogue_active:
 		return
 	if not _dialogue_text_complete:
-		_dialogue_hint_label.text = "Click to reveal"
+		preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {"pointer_text": "Click to reveal", "controller_text": "Reveal"})
 		return
 	var options: Array = _current_dialogue_line().get("options", [])
 	if options.is_empty():
-		_dialogue_hint_label.text = _dialogue_hint_text()
+		preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {"pointer_text": _dialogue_hint_text(), "controller_text": "Continue" if _dialogue_line_index < (_dialogue_script.get("lines", []) as Array).size() - 1 else "Leave"})
 		return
 	for option_var: Variant in options:
 		if typeof(option_var) != TYPE_DICTIONARY:
@@ -8841,6 +8880,17 @@ func _layout_contextual_combat_prompt_overlay_content() -> void:
 		return
 	if _contextual_combat_prompt.has_method("set_evidence_rects"):
 		_contextual_combat_prompt.call("set_evidence_rects", _guided_tutorial_evidence_rects())
+	var reward_banner_rect := Rect2()
+	var reward_skip_rect := Rect2()
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_REWARD and _relic_choice_bar != null:
+		var skip_button := _relic_choice_bar.find_child("RewardRecoverButton", true, false) as Control
+		if skip_button == null:
+			skip_button = _relic_choice_bar.find_child("RewardSkipButton", true, false) as Control
+		if _visible_control(_relic_choice_banner) and _visible_control(skip_button):
+			reward_banner_rect = _relic_choice_banner.get_global_rect()
+			reward_skip_rect = skip_button.get_global_rect()
+	if _contextual_combat_prompt.has_method("set_reward_geometry"):
+		_contextual_combat_prompt.call("set_reward_geometry", reward_banner_rect, reward_skip_rect, _controller_prompt_bar, _relic_choice_bar)
 	_contextual_combat_prompt.call(
 		"update_geometry",
 		_guided_tutorial_spotlight_rects(_guided_tutorial_phase_id),
@@ -8971,7 +9021,7 @@ func _refresh_contextual_combat_tutorial() -> void:
 		return
 	_guided_tutorial_reconcile_phase()
 	_active_contextual_combat_prompt_id = _guided_tutorial_phase_id
-	var prompt: Dictionary = ContextualCombatTutorial.phase_definition(_guided_tutorial_phase_id)
+	var prompt: Dictionary = ContextualCombatTutorial.phase_definition(_guided_tutorial_phase_id, _guided_tutorial_path_uses_map())
 	var spotlight_rects: Array = _guided_tutorial_spotlight_rects(_guided_tutorial_phase_id)
 	if (
 		prompt.is_empty()
@@ -9167,6 +9217,9 @@ func _guided_tutorial_requires_continue() -> bool:
 func _guided_tutorial_prepare_controller_focus() -> void:
 	if not _controller_is_active() or not _guided_tutorial_hard_gate_active():
 		return
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_PATH and _guided_tutorial_path_uses_map():
+		_focus_large_map_for_controller()
+		return
 	if _guided_tutorial_requires_continue():
 		_contextual_combat_prompt.call("focus_primary_action")
 		if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
@@ -9252,15 +9305,41 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 		ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 			_guided_tutorial_append_control_rect(rects, _relic_choice_bar, 8.0)
 		ContextualCombatTutorial.PHASE_CHOOSE_PATH:
-			for tile_var: Variant in _exit_destinations_by_tile.keys():
-				if typeof(tile_var) == TYPE_VECTOR2I:
-					_guided_tutorial_append_tile_rect(rects, tile_var as Vector2i)
+			if _guided_tutorial_path_uses_map():
+				var room_rects: Dictionary = _large_map_view.call("selectable_room_global_rects", _guided_tutorial_path_destinations())
+				for rect: Rect2 in room_rects.values():
+					rects.append(rect.grow(8.0))
+			else:
+				for tile_var: Variant in _exit_destinations_by_tile.keys():
+					if typeof(tile_var) == TYPE_VECTOR2I:
+						_guided_tutorial_append_tile_rect(rects, tile_var as Vector2i)
 		ContextualCombatTutorial.PHASE_COMPLETE:
 			# The final Begin acknowledgement owns the decision. Keep the newly
 			# revealed pre-battle dossier fully dimmed so its Start button cannot
 			# compete with the guide's primary action.
 			pass
 	return rects
+
+func _guided_tutorial_path_uses_map() -> bool:
+	return _large_map_view != null and _visible_control(_large_map_scrim)
+
+func _refresh_guided_tutorial_path_geometry() -> void:
+	if _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
+		return
+	# The map's first container layout can arrive after its opening refresh.
+	# Resume a hidden prompt as soon as real selectable room rects exist.
+	if _contextual_combat_prompt_host != null and not _contextual_combat_prompt_host.visible:
+		_refresh_contextual_combat_tutorial()
+	else:
+		_refresh_guided_tutorial_live_geometry()
+
+func _guided_tutorial_path_destinations() -> Array[Vector2i]:
+	return _vector2i_array(_exit_destinations_by_tile.values())
+
+func _guided_tutorial_map_room_allowed(coord: Vector2i, scouting: bool = false) -> bool:
+	if not _guided_tutorial_action_restricted() or _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
+		return true
+	return not scouting and _guided_tutorial_path_destinations().has(coord)
 
 func _guided_tutorial_evidence_rects() -> Array:
 	var result: Array = []
@@ -9435,7 +9514,8 @@ func _guided_tutorial_allowed_board_tiles() -> Array[Vector2i]:
 			else:
 				result = _vector2i_array([GuidedCombatScenario.target_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_CHOOSE_PATH:
-			result = _vector2i_array(_exit_destinations_by_tile.keys())
+			if not _guided_tutorial_path_uses_map():
+				result = _vector2i_array(_exit_destinations_by_tile.keys())
 	return result
 
 func _guided_tutorial_board_tile_allowed(tile: Vector2i) -> bool:
@@ -9446,9 +9526,12 @@ func _guided_tutorial_card_allowed(index: int) -> bool:
 		return true
 	return _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id) and _guided_tutorial_playable_card_indices().has(index)
 
-func _guided_tutorial_reject(message: String = "Follow the highlighted action.") -> void:
+func _guided_tutorial_reject(message: String = "Follow the highlighted action.", controller_message: String = "") -> void:
 	if _contextual_combat_prompt != null:
-		_contextual_combat_prompt.call("show_blocked", message)
+		if controller_message.is_empty():
+			_contextual_combat_prompt.call("show_blocked", message)
+		else:
+			_contextual_combat_prompt.call("show_blocked", message, controller_message)
 
 func _guided_tutorial_reject_optional_surface(message: String) -> void:
 	if _visible_control(_menu_scrim):
@@ -9465,7 +9548,7 @@ func _contextual_combat_tutorial_suppressed() -> bool:
 		or _visible_control(_menu_scrim)
 		or _visible_control(_grimoire_scrim)
 		or _visible_control(_pile_scrim)
-		or _visible_control(_large_map_scrim)
+		or (_visible_control(_large_map_scrim) and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH)
 		or _visible_control(_upgrade_scrim)
 		or (
 			_visible_control(_pre_battle_scrim)
@@ -11534,6 +11617,7 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 		preview_ids.append(str(skill_id_var))
 	button.set_meta("ready_count", ready_count)
 	button.set_meta("owned_count", skill_ids.size())
+	button.set_meta("skill_sigil_compact", compact)
 	button.set_meta("preview_skill_ids", preview_ids)
 	for state_name: String in ["normal", "hover", "pressed", "focus"]:
 		var accent := Color("9b72cb")
@@ -11576,7 +11660,7 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 		else "%d READY  ·  %d OWNED" % [ready_count, skill_ids.size()]
 	)
 	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(summary, 10)
+	UiTypography.set_label_size(summary, UiTypography.SIZE_CAPTION)
 	summary.add_theme_color_override("font_color", Color("bfa7d7"))
 	copy.add_child(summary)
 	var previews := HBoxContainer.new()
@@ -11598,6 +11682,8 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	expansion.add_theme_color_override("font_color", Color("d8c0ed"))
 	content.add_child(expansion)
 	button.pressed.connect(_toggle_skill_status_popover)
+	margin.minimum_size_changed.connect(preload("res://scripts/combat_hud_utility_refresh.gd").fit_sigil.bind(button, margin, button.custom_minimum_size))
+	preload("res://scripts/combat_hud_utility_refresh.gd").fit_sigil(button, margin, button.custom_minimum_size)
 	return button
 
 
@@ -13568,10 +13654,9 @@ func _refresh_player_movement_meter() -> void:
 	var remaining: int = _combat_engine.player_movement_remaining(_combat_state)
 	var capacity: int = _combat_engine.player_movement_capacity(_combat_state)
 	_movement_meter_count.text = "%d / %d Movement" % [remaining, capacity]
-	_movement_meter.tooltip_text = (
-		ActionIcons.tooltip("movement") + "\n%d of %d movement remaining. Click your character, then a destination tile."
-		% [remaining, capacity]
-	)
+	var tooltip_prefix: String = ActionIcons.tooltip("movement") + "\n"
+	var pointer_text: String = tooltip_prefix + "%d of %d movement remaining. Click your character, then a destination tile." % [remaining, capacity]
+	var controller_text: String = tooltip_prefix + "%d of %d movement remaining. Select your character, then a destination tile." % [remaining, capacity]
 	var enabled: bool = (
 		remaining > 0
 		and _combat_engine.is_player_turn(_combat_state)
@@ -13579,7 +13664,10 @@ func _refresh_player_movement_meter() -> void:
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
 		var rooted_reason: String = ManeuverRules.movement_block_reason(_combat_state)
-		_movement_meter.tooltip_text += "\n" + (rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination.")
+		var unavailable_text: String = "\n" + (rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination.")
+		pointer_text += unavailable_text
+		controller_text += unavailable_text
+	preload("res://scripts/input_wording.gd").bind_tooltip(_movement_meter, {"pointer_text": pointer_text, "controller_text": controller_text})
 	_movement_meter.modulate = Color.WHITE if enabled or _combat_hud_layout.turn_start_active(self) else Color(1.0, 1.0, 1.0, 0.42)
 	if _player_movement_selected:
 		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
@@ -15572,6 +15660,7 @@ func _play_post_combat_victory(board_state: Dictionary, reward_state: Dictionary
 	else:
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
 	_victory_reward_preparation.schedule(self, _run_state if reward_state.is_empty() else reward_state)
+	_run_end_recap.prepare_first_use_after_fight(self)
 	await PostCombatRewardSequence.play_victory(
 		_post_combat_victory_overlay,
 		_reduced_motion_enabled()
@@ -17042,7 +17131,10 @@ func _update_retained_hand_layout() -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array
 	if hand.is_empty() or hand_box.get_child_count() != hand.size():
 		return
-	_queue_hand_pointer_resolve()
+	# A presentation-only resize (including Empower) keeps the raised card
+	# while testing its new geometry. Lowering it first moves the seal away
+	# from the received pointer and manufactures a leave/re-enter and cue.
+	_queue_hand_pointer_resolve(true)
 	var card_size: Vector2 = _hand_card_size(hand.size(), false)
 	for index: int in range(hand.size()):
 		var slot: Control = hand_box.get_child(index) as Control
@@ -17118,7 +17210,10 @@ func _sync_hand_motion() -> void:
 func _on_hand_slide_finished() -> void:
 	# Cards moved under a resting pointer; let the card now beneath it take hover.
 	if not _controller_is_active() and str(_run_state.get("mode", "")) == "combat":
-		get_viewport().update_mouse_cursor_state()
+		if _hand_pointer_resolve_queued:
+			_resolve_hand_pointer()
+		else:
+			get_viewport().update_mouse_cursor_state()
 
 func _update_existing_hand_interaction_state() -> bool:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -17137,6 +17232,9 @@ func _update_existing_hand_interaction_state() -> bool:
 		var options: Dictionary = _card_playability_for_index(index)
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options_total", performance_phase_started)
 		var display: Dictionary = _card_widget_display_for_index(index)
+		var definition: Dictionary = _card_def(str(hand[index]), _combat_state)
+		widget.set_card_definition(definition)
+		widget.set_meta("hand_card_definition_signature", hash(definition))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display_total", performance_phase_started)
 		var dimmed: bool = active_hand_index >= 0 and active_hand_index != index
@@ -17420,12 +17518,13 @@ func _on_hand_card_widget_drag_started(widget: CardWidget) -> void:
 		_on_card_drag_started(index)
 
 func _on_hand_card_widget_hover_started(widget: CardWidget) -> void:
-	if _hand_pointer_resolve_queued: return
+	if _controller_is_active() or _hand_pointer_resolve_queued or not _hand_pointer_position_valid: return
 	var index: int = _hand_card_index_for_widget(widget)
-	if index >= 0:
+	if index >= 0 and index == _hand_index_under_pointer():
 		_on_card_hover_started(index)
 
 func _on_hand_empower_hover_changed(hovered: bool, widget: CardWidget) -> void:
+	if _controller_is_active(): return
 	if hovered:
 		_on_hand_card_widget_hover_started(widget)
 		if _card_focus_tooltip_stack != null: _card_focus_tooltip_stack.hide_stack()
@@ -17433,7 +17532,8 @@ func _on_hand_empower_hover_changed(hovered: bool, widget: CardWidget) -> void:
 		_on_hand_card_widget_hover_ended(widget)
 
 func _on_hand_card_widget_hover_ended(widget: CardWidget) -> void:
-	if _hand_pointer_resolve_queued: return
+	if _controller_is_active() or _hand_pointer_resolve_queued: return
+	if _hand_pointer_hover_allowed() and _hand_index_under_pointer() == _hand_card_index_for_widget(widget): return
 	# The corner seal overhangs the card's input rectangle. Let Godot finish
 	# transferring pointer ownership to the child before lowering this card.
 	if widget.has_node("EmpowerSeal"):
@@ -17443,22 +17543,24 @@ func _on_hand_card_widget_hover_ended(widget: CardWidget) -> void:
 	if index >= 0: _on_card_hover_ended(index)
 
 func _finish_hand_card_widget_hover_ended(widget: CardWidget) -> void:
-	if _hand_pointer_resolve_queued or not is_instance_valid(widget) or not widget.is_inside_tree(): return
-	var hovered: Control = get_viewport().gui_get_hovered_control()
-	if hovered != null and (hovered == widget or widget.is_ancestor_of(hovered)): return
+	if _controller_is_active() or _hand_pointer_resolve_queued or not is_instance_valid(widget) or not widget.is_inside_tree(): return
 	var index: int = _hand_card_index_for_widget(widget)
+	if _hand_pointer_hover_allowed() and _hand_index_under_pointer() == index: return
 	if index >= 0: _on_card_hover_ended(index)
 
 # pol-43: after a relayout, Godot's cached control under a resting pointer
 # belongs to the old geometry, and enabling cards hit-tests whatever layout the
-# frame is midway through. Hold those enter/exit callbacks until the new layout
-# is about to draw, then re-test the real pointer once: a stale card never
-# lifts or ticks. Only when the pointer is over the hand, so board hover and
+# frame is midway through. Hold enter/exit callbacks until the fan rests, then
+# resolve its geometry even if a movie/synthetic pointer has no native owner.
+# Only when the pointer is over the hand, so board hover and
 # synthetic hovers elsewhere are untouched.
-func _queue_hand_pointer_resolve() -> void:
+func _queue_hand_pointer_resolve(retain_hover: bool = false) -> void:
 	if _hand_pointer_resolve_queued or not is_inside_tree() or _controller_is_active() or not _pointer_in_hand_area():
 		return
 	_hand_pointer_resolve_queued = true
+	if not retain_hover and _hand_pointer_hover_allowed():
+		_hovered_card_index = -1
+		_set_hand_emphasized_index(-1, false)
 	# Headless runs never draw; resolve at the next frame instead.
 	var resolve_signal: Signal = get_tree().process_frame if DisplayServer.get_name() == "headless" else RenderingServer.frame_pre_draw
 	resolve_signal.connect(_resolve_hand_pointer, CONNECT_ONE_SHOT)
@@ -17466,12 +17568,13 @@ func _queue_hand_pointer_resolve() -> void:
 func _resolve_hand_pointer() -> void:
 	if not _hand_pointer_resolve_queued:
 		return
-	_hand_pointer_resolve_queued = false
 	if not is_inside_tree() or hand_box == null or _controller_is_active() or not _hand_pointer_hover_allowed():
+		_hand_pointer_resolve_queued = false
 		return
 	# A hand easing into place re-tests the pointer when it comes to rest.
 	if hand_box.has_method("is_sliding") and bool(hand_box.call("is_sliding")):
 		return
+	_hand_pointer_resolve_queued = false
 	if _hand_index_under_pointer() >= 0 or _pointer_over_hand_card():
 		# Re-test only near cards, so a pointer resting on the board gets no
 		# extra board hover. The re-test's own enter/exit stay held.
@@ -17503,12 +17606,13 @@ func _hand_pointer_hover_allowed() -> bool:
 	)
 
 func _pointer_in_hand_area() -> bool:
-	if hand_scroll == null or not hand_scroll.is_visible_in_tree():
+	if not _hand_pointer_position_valid or hand_scroll == null or not hand_scroll.is_visible_in_tree():
 		return false
-	return hand_scroll.get_global_rect().grow(HAND_POINTER_AREA_MARGIN).has_point(get_viewport().get_mouse_position())
+	return hand_scroll.get_global_rect().grow(HAND_POINTER_AREA_MARGIN).has_point(_hand_pointer_position)
 
 func _pointer_over_hand_card() -> bool:
-	var pointer: Vector2 = get_viewport().get_mouse_position()
+	if not _hand_pointer_position_valid: return false
+	var pointer: Vector2 = _hand_pointer_position
 	for index: int in range(hand_box.get_child_count()):
 		var widget: Control = _hand_card_control(index)
 		if widget != null and widget.is_visible_in_tree() and Rect2(Vector2.ZERO, widget.size).has_point(widget.get_global_transform_with_canvas().affine_inverse() * pointer):
@@ -17516,14 +17620,15 @@ func _pointer_over_hand_card() -> bool:
 	return false
 
 func _hand_index_under_pointer() -> int:
-	var hovered: Control = get_viewport().gui_get_hovered_control()
-	if hovered == null or hand_box == null or not hand_box.is_ancestor_of(hovered):
-		return -1
+	if hand_box == null or not _hand_pointer_position_valid: return -1
+	var result: int = hand_box.card_index_at_point(_hand_pointer_position)
 	for index: int in range(hand_box.get_child_count()):
 		var widget: Control = _hand_card_control(index)
-		if widget != null and (widget == hovered or widget.is_ancestor_of(hovered)):
-			return index
-	return -1
+		var seal: Control = widget.get_node_or_null("EmpowerSeal") if widget != null else null
+		if seal != null and seal.is_visible_in_tree() and Rect2(Vector2.ZERO, seal.size).has_point(seal.get_global_transform_with_canvas().affine_inverse() * _hand_pointer_position):
+			if result < 0 or (hand_box.get_child(index) as Control).z_index >= (hand_box.get_child(result) as Control).z_index:
+				result = index
+	return result
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
@@ -18868,6 +18973,7 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	_record_runtime_performance_phase("committed_hand_query_normalize", normalize_started)
 	_committed_hand_query_state = state
 	_stage_hover_refresh.prepare(self, state, generation)
+	_stage_hover_refresh.prepare_forecast(self, state, generation)
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		await get_tree().process_frame
@@ -18880,31 +18986,6 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 		if _runtime_performance_instrumentation_enabled:
 			_committed_hand_query_diagnostics["prepared_cards"] = int(_committed_hand_query_diagnostics.get("prepared_cards", 0)) + 1
 
-	# Forecast one actor per existing animation frame after the hand queries.
-	# The authoritative preview cursor preserves hidden-enemy information and
-	# initiative ordering; no UI refresh ever waits for this optional result.
-	await get_tree().process_frame
-	if not _committed_hand_query_active(generation):
-		return
-	if not _combat_engine.is_player_turn(state):
-		_committed_hand_query_forecast = {"summary": {}}
-		_warm_committed_card_previews(state, generation)
-		return
-	var forecast_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var scheduled: Dictionary = _combat_engine.finish_player_activation(state)
-	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled, true)
-	_record_runtime_performance_phase("committed_forecast_prepare", forecast_started)
-	while not bool(cursor.get("complete", false)):
-		await get_tree().process_frame
-		if not _committed_hand_query_active(generation):
-			return
-		forecast_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
-		_record_runtime_performance_phase("committed_forecast_slice", forecast_started)
-	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
-	_committed_hand_query_forecast = {"summary": _pass_preview_summary_for_phase_result(state, phase_result)}
-	if _runtime_performance_instrumentation_enabled:
-		_committed_hand_query_diagnostics["prepared_forecasts"] = int(_committed_hand_query_diagnostics.get("prepared_forecasts", 0)) + 1
 	_warm_committed_card_previews(state, generation)
 
 func _committed_hand_query_active(generation: int) -> bool:
@@ -18919,8 +19000,8 @@ func _committed_query_definitions() -> Array:
 
 func _warm_committed_card_previews(state: Dictionary, generation: int) -> void:
 	if not _committed_hand_query_prepare_previews: return
-	# Finish the flags and forecast first. Each complete card query uses one
-	# existing rendered animation frame; adoption never waits for this work.
+	# Finish the hand flags first; forecast preparation runs alongside this job.
+	# Each card query uses an existing animation frame; adoption never waits.
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		await get_tree().process_frame
@@ -21293,7 +21374,8 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if _guided_tutorial_hard_gate_active():
-		_guided_tutorial_reject("For this first card, click to preview it.")
+		var wording: Dictionary = preload("res://scripts/input_wording.gd").FIRST_CARD_PREVIEW
+		_guided_tutorial_reject(wording["pointer_text"], wording["controller_text"])
 		return
 	if not _combat_skill_card_selection_zone.is_empty():
 		return
@@ -21785,7 +21867,7 @@ func _on_board_cancel_requested() -> void:
 	if _surface_aim.active() or _player_movement_selected or _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
 		await _on_cancel_requested()
 
-func _on_cancel_requested() -> void:
+func _on_cancel_requested(allow_menu: bool = true) -> void:
 	if _focused_intent_enemy_id >= 0:
 		_clear_focused_enemy_intent()
 		return
@@ -21832,7 +21914,7 @@ func _on_cancel_requested() -> void:
 			_cancel_card_selection()
 			return
 		if _selected_card_index < 0 and not _player_movement_selected and _card_action_choice_index < 0:
-			_open_menu_overlay()
+			if allow_menu: _open_menu_overlay()
 			return
 		_guided_tutorial_reject()
 		return
@@ -21848,13 +21930,14 @@ func _on_cancel_requested() -> void:
 	if _merchant_shop_open and not _current_room_merchant_kind().is_empty():
 		_on_merchant_hide_pressed()
 		return
-	_open_menu_overlay()
+	# Escape retains its idle pause shortcut; controller B only backs out.
+	if allow_menu: _open_menu_overlay()
 
 func _on_mini_map_overlay_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if _dialogue_active or _animation_lock:
 			return
-		if _guided_tutorial_hard_gate_active():
+		if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 			_guided_tutorial_reject("The map can wait until the guided action is complete.")
 			get_viewport().set_input_as_handled()
 			return
@@ -21969,6 +22052,8 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 		_large_map_view.call("center_on_current", true)
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_PATH:
+		_refresh_contextual_combat_tutorial()
 	_start_room_map.refresh_hint(self)
 	_large_map_scrim.move_to_front()
 	_update_performance_telemetry_context()
@@ -21984,6 +22069,9 @@ func _close_large_map() -> void:
 	if _large_map_view != null:
 		_large_map_view.call("reset_interaction")
 	_large_map_scrim.visible = false
+	if was_visible and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_PATH:
+		_refresh_contextual_combat_tutorial()
+		call_deferred("_guided_tutorial_prepare_controller_focus")
 	_start_room_map.map_closed(self, was_visible)
 	_update_performance_telemetry_context()
 	if _map_opened_from_toolbar and _section_map_hud_button != null and _section_map_hud_button.is_visible_in_tree():
@@ -22004,7 +22092,10 @@ func _focus_large_map_for_controller() -> void:
 		and bool(router.call("using_controller"))
 		and _large_map_view.has_method("focus_controller_on_current")
 	):
-		_large_map_view.call("focus_controller_on_current")
+		if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_PATH and _guided_tutorial_action_restricted():
+			_large_map_view.call("focus_controller_on_current", _guided_tutorial_path_destinations())
+		else:
+			_large_map_view.call("focus_controller_on_current")
 
 func _refresh_large_map_navigation_hint() -> void:
 	if _large_map_navigation_hint == null:
@@ -22015,6 +22106,9 @@ func _refresh_large_map_navigation_hint() -> void:
 	_large_map_navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM  •  M TO CLOSE"
 
 func _on_large_map_room_selected(coord: Vector2i) -> void:
+	if not _guided_tutorial_map_room_allowed(coord):
+		_guided_tutorial_reject()
+		return
 	_close_large_map()
 	await _on_map_view_room_selected(coord)
 
@@ -22029,17 +22123,16 @@ func _cancel_card_selection(resume_pointer_hover: bool = false) -> void:
 	)
 	var deselected: Control = _hand_card_control(_selected_card_index)
 	_reset_card_resolution()
-	# pol-43: a plain deselect hands hover back to the card under the resting
-	# pointer. Nothing moved, so Godot's cached pointer owner is still current.
+	# Resolve the resting pointer without relying on a cached native GUI owner.
 	var pointer_index: int = -1
 	if resume_pointer_hover and not _controller_is_active() and _hand_pointer_hover_allowed():
+		hand_box.apply_layout_immediately()
 		pointer_index = _hand_index_under_pointer()
-	if pointer_index >= 0 and _hand_card_control(pointer_index) == deselected:
-		# The pointer never left it: the refresh below takes it from its selected
-		# pose straight to its hover pose, with no tick.
-		_hovered_card_index = pointer_index
 	_refresh_card_preview_ui()
-	if pointer_index >= 0 and _hovered_card_index != pointer_index:
+	if pointer_index >= 0:
+		# Same owner: retain its silent return, but enter with the normal ease.
+		if _hand_card_control(pointer_index) == deselected:
+			_hovered_card_index = pointer_index
 		_on_card_hover_started(pointer_index)
 	if completes_tutorial_cancel:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_CANCEL)
@@ -27310,14 +27403,17 @@ func _sync_pre_battle_preview_after_refresh() -> void:
 	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		_close_pre_battle_preview()
 
-func _close_pre_battle_preview() -> void:
+func _close_pre_battle_preview(retire_during_opening: bool = false) -> void:
 	_cancel_pre_battle_entry()
 	if _pinned_tooltip_panel != null and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) in ["enemy", "equipment", "card"]:
 		_close_pinned_tooltip()
 	if _pre_battle_scrim != null:
 		_pre_battle_scrim.visible = false
 		_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
-	preload("res://scripts/run_card_pool_lifetime.gd").close_pre_battle(self)
+	if retire_during_opening:
+		preload("res://scripts/opening_view_retirement.gd").retire(self)
+	else:
+		preload("res://scripts/run_card_pool_lifetime.gd").close_pre_battle(self)
 	_pre_battle_destination = INVALID_TARGET_TILE
 	_pre_battle_door_tile = INVALID_TARGET_TILE
 	_pre_battle_preview_run_state.clear()
@@ -27355,7 +27451,7 @@ func _on_pre_battle_start_pressed() -> void:
 	if not preview_combat_state.is_empty():
 		board_view.prepare_unit_shadows_for_state(preview_combat_state)
 	phase_started = _record_runtime_performance_phase("pre_battle_start_shadows", phase_started)
-	_close_pre_battle_preview()
+	_close_pre_battle_preview(true)
 	_run_state = _run_engine.begin_pre_battle_combat(_run_state, _prepared_pre_battle_factory)
 	phase_started = _record_runtime_performance_phase("pre_battle_start_engine", phase_started)
 	_sync_progression_from_run()
@@ -27431,6 +27527,9 @@ func _await_opening_hand_draw_layout() -> void:
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or _treasure_presentation_busy() or str(_run_state.get("mode", "room")) != "room":
+		return
+	if not _guided_tutorial_map_room_allowed(coord):
+		_guided_tutorial_reject()
 		return
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 		_guided_tutorial_reject()
@@ -34278,6 +34377,9 @@ func _maybe_present_section_map(crossfade: bool = true) -> void:
 
 func _on_section_map_scout(coord: Vector2i) -> void:
 	if _animation_lock:
+		return
+	if not _guided_tutorial_map_room_allowed(coord, true):
+		_guided_tutorial_reject()
 		return
 	_run_state = _run_engine.scout_map(_run_state, coord)
 	_persist_committed_boundary("map_scout")

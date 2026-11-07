@@ -6,6 +6,9 @@ const CutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 # Headless fixture defaults only.
+const ALPHA_LIFETIME_FIXTURE_SIZE: int = 16
+const ALPHA_LIFETIME_BATCHES: int = 3
+const ALPHA_LIFETIME_TEXTURES: int = 8
 const FIXTURE_BOARD_SIZE: int = 9
 const FIXTURE_ENEMY_TILE := Vector2i(4, 4)
 const FIXTURE_PLAYER_HP: int = 100
@@ -29,6 +32,10 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
+	_alpha_polygon_lifetime()
+	if "--alpha-lifetime-only" in OS.get_cmdline_user_args():
+		_finish()
+		return
 	# Promoted rigs are covered by their runtime suites, never by still lookup.
 	for type: String in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES:
 		if not Facing.handles(type): continue
@@ -108,6 +115,33 @@ func _run() -> void:
 	_expect(capacitor._unit_art_scale({"type": "storm_capacitor"}) == Data.enemy_def("storm_capacitor")["art_scale"], "Explicit approved capacitor scale supersedes old canvas compensation")
 	capacitor.free()
 	_finish()
+
+func _alpha_polygon_lifetime() -> void:
+	var baseline: int = Assets._alpha_polygon_cache.size()
+	for batch: int in range(ALPHA_LIFETIME_BATCHES):
+		for index: int in range(ALPHA_LIFETIME_TEXTURES):
+			var image: Image = Image.create(ALPHA_LIFETIME_FIXTURE_SIZE, ALPHA_LIFETIME_FIXTURE_SIZE, false, Image.FORMAT_RGBA8)
+			image.fill(Color.WHITE)
+			var texture: Texture2D = ImageTexture.create_from_image(image)
+			var key: String = Assets._alpha_polygon_cache_key(texture, Assets.DEFAULT_ALPHA_POLYGON_THRESHOLD, Assets.DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON, Assets.DEFAULT_ALPHA_POLYGON_MIN_AREA)
+			var polygons: Array[PackedVector2Array] = Assets.build_alpha_polygons(texture)
+			_expect(not polygons.is_empty() and Assets._alpha_polygon_cache.has(key), "Live temporary texture keeps its silhouette")
+			_expect(Assets.build_alpha_polygons(texture) == polygons, "Cached silhouette preserves exact geometry")
+			# Several atlas regions and extraction options share a source lifetime.
+			var atlas := AtlasTexture.new()
+			atlas.atlas = texture
+			atlas.region = Rect2(0, 0, ALPHA_LIFETIME_FIXTURE_SIZE, ALPHA_LIFETIME_FIXTURE_SIZE)
+			var atlas_key: String = Assets._alpha_polygon_cache_key(atlas, Assets.DEFAULT_ALPHA_POLYGON_THRESHOLD, Assets.DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON, Assets.DEFAULT_ALPHA_POLYGON_MIN_AREA)
+			var atlas_polygons: Array[PackedVector2Array] = Assets.build_alpha_polygons(atlas)
+			_expect(atlas_polygons == polygons, "Atlas extraction preserves source geometry")
+			Assets.build_alpha_polygons(texture, Assets.DEFAULT_ALPHA_POLYGON_THRESHOLD, 0.5)
+			atlas = null
+			_expect(Assets._alpha_polygon_cache.has(atlas_key), "An atlas cache entry survives while its source is alive")
+			var identity: int = texture.get_instance_id()
+			texture = null
+			_expect(not is_instance_id_valid(identity), "Polygon cache never retains the source texture")
+			_expect(not Assets._alpha_polygon_cache.has(key) and not Assets._alpha_polygon_cache.has(atlas_key), "Dead source releases its direct and atlas silhouettes")
+		_expect(Assets._alpha_polygon_cache.size() == baseline, "Repeated temporary texture batches return to the original cache count")
 
 func _finish() -> void:
 	for failure: String in _failures: push_error(failure)

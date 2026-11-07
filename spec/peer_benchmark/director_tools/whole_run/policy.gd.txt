@@ -1,0 +1,34 @@
+extends "res://tools/run_hunt_policy.gd"
+# Measurement-only deterministic choices; qa-30 owns all offers and dispatch.
+const DISTANCE_SENTINEL: int = 100000
+func choose(scene: Node, candidates: Array) -> Dictionary:
+	var state: Dictionary = scene.get("_combat_state")
+	var engine: RefCounted = scene.get("_combat_engine")
+	# Prefer an attack that can actually hit now, rather than a printed attack
+	# whose legal floor tiles contain no enemy.
+	for candidate: Dictionary in candidates:
+		if str(candidate.get("kind", "")) != "card": continue
+		var index: int = int(candidate["args"][0])
+		var preview: Dictionary = (scene.call("_card_play_options_for_index", index) as Dictionary).get("play", {})
+		var action: Dictionary = preview.get("action", {})
+		if str(action.get("type", "")) not in ATTACK_TYPES: continue
+		for target: Vector2i in preview.get("target_tiles", []):
+			if _hits_enemy(engine, preview.get("state", state), action, target): return candidate
+	for candidate: Dictionary in candidates:
+		if str(candidate.get("kind", "")) in ATTACK_TYPES and bool(candidate.get("preferred", false)): return candidate
+	# Use the production movement pool to approach, with no gameplay override.
+	var best: Dictionary = {}
+	var distance: int = DISTANCE_SENTINEL
+	for candidate: Dictionary in candidates:
+		if str(candidate.get("kind", "")) != "move": continue
+		var args: Array = candidate.get("args", [])
+		var tile: Vector2i = candidate.get("tile", args[0] if not args.is_empty() else Vector2i(-1,-1))
+		for enemy: Dictionary in state.get("enemies", []):
+			if int(enemy.get("hp", 0)) <= 0: continue
+			var gap: int = absi(tile.x-enemy["pos"].x)+absi(tile.y-enemy["pos"].y)
+			if gap < distance:
+				distance = gap
+				best = candidate
+	if not best.is_empty(): return best
+	# Noncombat choices, aimed cards and utility cards retain qa-30 policy.
+	return super.choose(scene, candidates)

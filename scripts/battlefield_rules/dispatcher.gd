@@ -190,6 +190,12 @@ static var _forecast_memo := preload("res://scripts/combat_preview_memo.gd").new
 static var _catalog_memo := preload("res://scripts/combat_preview_memo.gd").new()
 
 static func forecast_inputs(engine: RefCounted, state: Dictionary) -> Array:
+	# With no living rule source, prepare() cannot produce a beat. Both terminal
+	# and nonterminal boards return the same empty projection, independent of
+	# catalogs/history/actor positions. Keep injected implementations isolated.
+	var implementation: Script = engine.get_script()
+	if implementation != null and implementation.resource_path in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"] and active(state).is_empty():
+		return ["inactive"]
 	# The resolver can read every catalog via deaths, traps, statuses, relics and
 	# vision. Intern their complete owned values once, independently of the board.
 	# The exact signature still validates in-place edits on every query; forecast

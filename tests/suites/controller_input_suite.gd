@@ -4,6 +4,7 @@ const ControllerNavigationScript = preload("res://scripts/controller_navigation.
 const InputGlyphScript = preload("res://scripts/input_glyph.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const SettingsStoreScript = preload("res://scripts/settings_store.gd")
+const MapNavigation = preload("res://scripts/section_map_navigation.gd")
 
 static func run(expect: Callable) -> void:
 	_test_controller_family_detection(expect)
@@ -11,6 +12,15 @@ static func run(expect: Callable) -> void:
 	_test_directional_navigation(expect)
 	_test_input_map_contract(expect)
 	_test_platform_ui_scale(expect)
+	_test_map_spatial_score(expect)
+
+static func _test_map_spatial_score(expect: Callable) -> void:
+	expect.call(is_equal_approx(MapNavigation.score(Vector2.ZERO, Vector2.RIGHT, Vector2(10, 3)), 16.0), "Map score counts forward distance plus double perpendicular distance")
+	expect.call(is_equal_approx(MapNavigation.score(Vector2(50, 30), Vector2.DOWN, Vector2(47, 40)), 16.0), "Map score uses button centres in the requested direction")
+	expect.call(is_finite(MapNavigation.score(Vector2.ZERO, Vector2.RIGHT, Vector2(10, 24))), "Map accepts a room just inside 67.5 degrees")
+	expect.call(not is_finite(MapNavigation.score(Vector2.ZERO, Vector2.RIGHT, Vector2(10, 25))), "Map rejects a room outside 67.5 degrees")
+	expect.call(not is_finite(MapNavigation.score(Vector2.ZERO, Vector2.RIGHT, Vector2(0, 10))), "Map requires a strictly positive forward distance")
+	expect.call(not is_finite(MapNavigation.score(Vector2.ZERO, Vector2.RIGHT, Vector2(-10, 0))), "Map rejects rooms behind the input direction")
 
 static func _test_controller_family_detection(expect: Callable) -> void:
 	expect.call(

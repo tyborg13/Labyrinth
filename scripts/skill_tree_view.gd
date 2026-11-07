@@ -1,6 +1,8 @@
 extends HBoxContainer
 class_name SkillTreeView
 
+const DemoRules = preload("res://scripts/demo_rules.gd")
+const UiQuietLink = preload("res://scripts/ui_quiet_link.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -45,6 +47,8 @@ static var _shared_link_fit_scale: float = -1.0
 class SkillLinkLayer:
 	extends Control
 
+	var _geometry := preload("res://scripts/skill_tree_triangle_batch.gd").new()
+
 	var links: Array[Dictionary]
 	var confirmation_skill_id: String = ""
 	var confirmation_strength: float = 0.0
@@ -82,6 +86,8 @@ class SkillLinkLayer:
 			if str(link.get("to_id", "")) == confirmation_skill_id and confirmation_strength > 0.0:
 				_draw_routed_line(points, bridge_gaps, Color(1.0, 0.87, 0.57, confirmation_strength * 0.65), width)
 
+		_geometry.flush(self)
+
 	func _draw_routed_line(
 		points: PackedVector2Array,
 		bridge_gaps: Array,
@@ -89,7 +95,7 @@ class SkillLinkLayer:
 		width: float
 	) -> void:
 		for point_index: int in range(1, points.size() - 1):
-			draw_circle(points[point_index], width * 0.5, color)
+			_geometry.circle(points[point_index], width * 0.5, color)
 
 		for segment_index: int in range(points.size() - 1):
 			var start: Vector2 = points[segment_index]
@@ -115,7 +121,7 @@ class SkillLinkLayer:
 				var half_gap: float = maxf(0.0, float(gap.get("half_gap", 0.0)))
 				var gap_start: float = maxf(cursor_distance, gap_distance - half_gap)
 				if gap_start > cursor_distance + 0.01:
-					draw_line(
+					_geometry.line(
 						start + direction * cursor_distance,
 						start + direction * gap_start,
 						color,
@@ -124,10 +130,12 @@ class SkillLinkLayer:
 					)
 				cursor_distance = maxf(cursor_distance, minf(segment_length, gap_distance + half_gap))
 			if cursor_distance < segment_length - 0.01:
-				draw_line(start + direction * cursor_distance, finish, color, width, true)
+				_geometry.line(start + direction * cursor_distance, finish, color, width, true)
 
 class SkillLinkOverlayLayer:
 	extends Control
+
+	var _geometry := preload("res://scripts/skill_tree_triangle_batch.gd").new()
 
 	const ARROW_LENGTH: float = 10.0
 	const ARROW_HALF_WIDTH: float = 5.0
@@ -169,14 +177,14 @@ class SkillLinkOverlayLayer:
 			if bool(link.get("highlighted", false)):
 				var glow := color
 				glow.a = 0.22
-				draw_line(points[0], source_overlay_end, glow, width + 8.0, true)
-				draw_line(target_overlay_start, target, glow, width + 8.0, true)
-			draw_line(points[0], source_overlay_end, under_color, width + 3.0, true)
-			draw_line(points[0], source_overlay_end, color, width, true)
-			draw_line(target_overlay_start, target, under_color, width + 3.0, true)
-			draw_line(target_overlay_start, target, color, width, true)
-			draw_circle(points[0], width * 0.9 + 1.0, under_color, true, -1.0, true)
-			draw_circle(points[0], width * 0.65, color, true, -1.0, true)
+				_geometry.line(points[0], source_overlay_end, glow, width + 8.0, true)
+				_geometry.line(target_overlay_start, target, glow, width + 8.0, true)
+			_geometry.line(points[0], source_overlay_end, under_color, width + 3.0, true)
+			_geometry.line(points[0], source_overlay_end, color, width, true)
+			_geometry.line(target_overlay_start, target, under_color, width + 3.0, true)
+			_geometry.line(target_overlay_start, target, color, width, true)
+			_geometry.disc(points[0], width * 0.9 + 1.0, under_color, true, -1.0, true)
+			_geometry.disc(points[0], width * 0.65, color, true, -1.0, true)
 			var normal := Vector2(-direction.y, direction.x)
 			var under_arrow := PackedVector2Array([
 				target + direction * 1.0,
@@ -188,8 +196,9 @@ class SkillLinkOverlayLayer:
 				target - direction * ARROW_LENGTH + normal * ARROW_HALF_WIDTH,
 				target - direction * ARROW_LENGTH - normal * ARROW_HALF_WIDTH,
 			])
-			draw_colored_polygon(under_arrow, under_color)
-			draw_colored_polygon(arrow, color)
+			_geometry.polygon(under_arrow, PackedColorArray([under_color]))
+			_geometry.polygon(arrow, PackedColorArray([color]))
+		_geometry.flush(self)
 
 class SkillLegendMarker:
 	extends Control
@@ -227,6 +236,8 @@ class SkillLegendMarker:
 
 class SkillNodeFace:
 	extends Control
+
+	var _geometry := preload("res://scripts/skill_tree_triangle_batch.gd").new()
 
 	var tier: String = "branch"
 	var state: String = "locked"
@@ -274,24 +285,26 @@ class SkillNodeFace:
 				halo_color = Color("ffd47a")
 			elif relationship == "dependent":
 				halo_color = Color("8ce1d5")
-			draw_arc(center, radius + 4.5, 0.0, TAU, 40, Color(0.02, 0.015, 0.02, 0.94), 6.0, true)
-			draw_arc(center, radius + 4.5, 0.0, TAU, 40, halo_color, 2.5, true)
+			_geometry.arc(center, radius + 4.5, 0.0, TAU, 40, Color(0.02, 0.015, 0.02, 0.94), 6.0, true)
+			_geometry.arc(center, radius + 4.5, 0.0, TAU, 40, halo_color, 2.5, true)
 		_draw_node_shadow(center, radius)
 		_draw_material_face(center, radius, fill, state_color, outline_width)
 		if confirmation_strength > 0.0:
 			var confirmation_rim: PackedVector2Array = _closed_points(_shape_points(center, radius + 0.5))
-			draw_polyline(confirmation_rim, Color(1.0, 0.76, 0.32, confirmation_strength * 0.20), 7.0, true)
-			draw_polyline(confirmation_rim, Color(1.0, 0.94, 0.73, confirmation_strength * 0.88), 2.2, true)
+			_geometry.polyline(confirmation_rim, Color(1.0, 0.76, 0.32, confirmation_strength * 0.20), 7.0, true)
+			_geometry.polyline(confirmation_rim, Color(1.0, 0.94, 0.73, confirmation_strength * 0.88), 2.2, true)
 		# The icon is the medallion's identity, not a small badge inside it. Keep a
 		# narrow state-marker gutter, then let the purpose-built silhouette occupy
 		# most of the remaining face so it survives fit-to-view scaling.
 		var icon_size: float = radius * (1.70 if tier != "keystone" else 1.74)
 		if icon_texture != null:
 			var icon_tint := Color.WHITE if state != "locked" else Color("77737b")
+			_geometry.flush(self)
 			draw_texture_rect(icon_texture, Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size), false, icon_tint)
-		draw_circle(center + Vector2(-radius * 0.62, radius * 0.70), 3.5, Color(0.02, 0.015, 0.02, 0.98), true, -1.0, true)
-		draw_circle(center + Vector2(-radius * 0.62, radius * 0.70), 2.4, branch_color, true, -1.0, true)
+		_geometry.circle(center + Vector2(-radius * 0.62, radius * 0.70), 3.5, Color(0.02, 0.015, 0.02, 0.98), true)
+		_geometry.circle(center + Vector2(-radius * 0.62, radius * 0.70), 2.4, branch_color, true)
 		_draw_state_marker(center + Vector2(radius * 0.68, radius * 0.70), state_color)
+		_geometry.flush(self)
 
 	func _draw_material_face(center: Vector2, radius: float, fill: Color, rim: Color, width: float) -> void:
 		var outline: PackedVector2Array = _shape_points(center, radius)
@@ -301,10 +314,10 @@ class SkillNodeFace:
 		var bottom: Color = fill.darkened(0.32)
 		for point: Vector2 in outline:
 			colors.append(top.lerp(bottom, clampf((point.y - center.y + radius) / (radius * 2.0), 0.0, 1.0)))
-		draw_polygon(outline, colors)
-		draw_polyline(_closed_points(outline), rim, width, true)
+		_geometry.polygon(outline, colors)
+		_geometry.polyline(_closed_points(outline), rim, width, true)
 		var inset: PackedVector2Array = _shape_points(center, radius - 3.3)
-		draw_polyline(_closed_points(inset), Color(0.015, 0.012, 0.019, 0.80), 1.6, true)
+		_geometry.polyline(_closed_points(inset), Color(0.015, 0.012, 0.019, 0.80), 1.6, true)
 		var highlights := PackedVector2Array()
 		var lowlights := PackedVector2Array()
 		for index: int in range(inset.size()):
@@ -319,16 +332,16 @@ class SkillNodeFace:
 				lowlights.append(b)
 		var shine: Color = rim.lightened(0.28)
 		shine.a = 0.54 if state == "locked" else 0.76
-		draw_multiline(highlights, shine, 1.1, true)
-		draw_multiline(lowlights, Color(0.0, 0.0, 0.0, 0.40), 1.2, true)
+		_geometry.multiline(highlights, shine, 1.1, true)
+		_geometry.multiline(lowlights, Color(0.0, 0.0, 0.0, 0.40), 1.2, true)
 		if tier == "keystone":
-			draw_polyline(_closed_points(_shape_points(center, radius - 5.5)), branch_color.darkened(0.08), 1.5, true)
+			_geometry.polyline(_closed_points(_shape_points(center, radius - 5.5)), branch_color.darkened(0.08), 1.5, true)
 
 	func _draw_node_shadow(center: Vector2, radius: float) -> void:
 		# Match the actual medallion, so diamond and hexagon corners sit on the
 		# graph instead of floating above an unrelated circular disk.
-		draw_colored_polygon(_shape_points(center + Vector2(0.0, 3.0), radius + 2.5), Color(0.0, 0.0, 0.0, 0.16))
-		draw_colored_polygon(_shape_points(center + Vector2(0.0, 2.0), radius + 1.0), Color(0.0, 0.0, 0.0, 0.55))
+		_geometry.polygon(_shape_points(center + Vector2(0.0, 3.0), radius + 2.5), PackedColorArray([Color(0.0, 0.0, 0.0, 0.16)]))
+		_geometry.polygon(_shape_points(center + Vector2(0.0, 2.0), radius + 1.0), PackedColorArray([Color(0.0, 0.0, 0.0, 0.55)]))
 
 	func _shape_points(center: Vector2, radius: float) -> PackedVector2Array:
 		var key: String = "%s:%s:%s" % [tier, center, radius]
@@ -357,21 +370,21 @@ class SkillNodeFace:
 		return points
 
 	func _draw_state_marker(center: Vector2, marker_color: Color) -> void:
-		draw_circle(center, 7.2, Color(0.025, 0.02, 0.03, 0.98), true, -1.0, true)
-		draw_arc(center, 7.0, 0.0, TAU, 20, marker_color, 1.8, true)
+		_geometry.circle(center, 7.2, Color(0.025, 0.02, 0.03, 0.98), true)
+		_geometry.arc(center, 7.0, 0.0, TAU, 20, marker_color, 1.8, true)
 		match state:
 			"owned":
-				draw_polyline(PackedVector2Array([center + Vector2(-3.4, 0.0), center + Vector2(-0.7, 2.8), center + Vector2(4.0, -3.0)]), marker_color, 2.0, true)
+				_geometry.polyline(PackedVector2Array([center + Vector2(-3.4, 0.0), center + Vector2(-0.7, 2.8), center + Vector2(4.0, -3.0)]), marker_color, 2.0, true)
 			"available":
-				draw_line(center + Vector2(-3.5, 0.0), center + Vector2(3.5, 0.0), marker_color, 1.8, true)
-				draw_line(center + Vector2(0.0, -3.5), center + Vector2(0.0, 3.5), marker_color, 1.8, true)
+				_geometry.line(center + Vector2(-3.5, 0.0), center + Vector2(3.5, 0.0), marker_color, 1.8, true)
+				_geometry.line(center + Vector2(0.0, -3.5), center + Vector2(0.0, 3.5), marker_color, 1.8, true)
 			"pending":
-				draw_circle(center, 3.2, marker_color, true, -1.0, true)
+				_geometry.disc(center, 3.2, marker_color, true, -1.0, true)
 			"excluded":
-				draw_line(center + Vector2(-3.7, 3.7), center + Vector2(3.7, -3.7), marker_color, 2.0, true)
+				_geometry.line(center + Vector2(-3.7, 3.7), center + Vector2(3.7, -3.7), marker_color, 2.0, true)
 			_:
-				draw_rect(Rect2(center + Vector2(-3.0, -0.5), Vector2(6.0, 4.5)), marker_color, false, 1.5, true)
-				draw_arc(center + Vector2(0.0, -0.5), 3.0, PI, TAU, 12, marker_color, 1.5, true)
+				_geometry.rectangle(Rect2(center + Vector2(-3.0, -0.5), Vector2(6.0, 4.5)), marker_color, false, 1.5, true)
+				_geometry.arc(center + Vector2(0.0, -0.5), 3.0, PI, TAU, 12, marker_color, 1.5, true)
 
 	func _diamond_points(center: Vector2, radius: float) -> PackedVector2Array:
 		return PackedVector2Array([
@@ -1031,6 +1044,20 @@ func _build_skill_nodes() -> void:
 		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 			button.add_theme_stylebox_override(style_name, _shared_empty_node_style)
 		_graph_canvas.add_child(button)
+		if SkillTreeLibrary.is_demo_locked(skill_id):
+			var tag := Label.new()
+			tag.name = "DemoKeystoneCaption"
+			tag.text = str(DemoRules.config()["text"]["keystone_tag"]).to_upper()
+			tag.add_theme_font_override("font", UiQuietLink.spaced_font(3))
+			tag.add_theme_font_size_override("font_size", 14)
+			tag.add_theme_color_override("font_color", UiPalette.TEXT_3)
+			tag.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
+			tag.add_theme_constant_override("shadow_offset_y", 2)
+			tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tag.position = Vector2(-40, node_size.y + 6)
+			tag.size = Vector2(node_size.x + 80, 20)
+			button.add_child(tag)
 		_node_buttons[skill_id] = button
 		_node_icons[skill_id] = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
 		var face := SkillNodeFace.new()
@@ -1495,6 +1522,8 @@ func _detail_status_text(skill_id: String, state: String) -> String:
 	return "%s  ·  %s  ·  %s" % [tier, _node_state_text(skill_id, state), activation]
 
 func _detail_reason_text(skill_id: String, state: String) -> String:
+	if SkillTreeLibrary.is_demo_locked(skill_id):
+		return SkillTreeLibrary.locked_reason(skill_id, _selection_for_availability())
 	if state == STATE_OWNED:
 		return ""
 	if state == STATE_AVAILABLE:

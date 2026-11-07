@@ -2,6 +2,8 @@ extends RefCounted
 class_name RunEngine
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+const DemoRules = preload("res://scripts/demo_rules.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
 const RecentEvents = preload("res://scripts/recent_event_store.gd")
@@ -199,6 +201,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		"progression": normalized_progression
 	}
 	# Sparse zero is the legacy persisted representation: byte-identical states.
+	if DemoBuild.is_demo(): run_state["build_kind"] = "demo"
 	if selected_depth > 0: run_state[DepthRules.STATE_KEY] = selected_depth
 	run_state["run_stats"]["max_held_embers"] = starting_embers
 	var gifts: Array[Dictionary] = ProgressionStore.pending_starting_relic_gifts(normalized_progression)
@@ -1352,7 +1355,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		var victory_embers: int = DepthRules.dragon_victory_embers(next_state, dragon_reward, BOSS_VICTORY_EMBERS)
 		next_state = add_held_embers(next_state, victory_embers)
 		var relic_id: String = DragonBossLibrary.relic_for_boss(boss_id)
-		var final_boss: bool = _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false))
+		var final_boss: bool = _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)) or (DemoBuild.is_demo() and int(room.get("section_index", 0)) == DemoRules.last_section_index())
 		var next_descent: bool = boss_id == DragonBossLibrary.SHADOW_BOSS_ID
 		if not relic_id.is_empty():
 			if next_descent:

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec godot --resolution 1280x800 --windowed "$@"

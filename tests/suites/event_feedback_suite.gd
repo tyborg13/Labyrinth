@@ -457,7 +457,8 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 		var detail: PanelContainer
 		for node: Node in panels:
 			if bool(node.get_meta("tooltip_surface", false)): detail = node
-		expect.call(detail != null and is_equal_approx(detail.get_combined_minimum_size().x, 420), "Preview uses the shared 420-pixel tooltip material: " + fixture[2])
+		# The shared width is a floor: ui-22's larger granted cards may grow the box.
+		expect.call(detail != null and is_equal_approx(detail.custom_minimum_size.x, 420) and detail.get_combined_minimum_size().x >= 420, "Preview retains the shared 420-pixel tooltip minimum: " + fixture[2])
 		if detail != null:
 			var icon: TextureRect = detail.get_parent().get_child(0)
 			expect.call(icon.custom_minimum_size == Vector2(128, 128) and icon.get_parent() == detail.get_parent(), "128-pixel icon sits above the detail panel")

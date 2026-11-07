@@ -19,6 +19,7 @@ const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Fog = preload("res://shaders/section_map_fog.gdshader")
 const Palette = preload("res://scripts/ui_palette.gd")
+const Navigation = preload("res://scripts/section_map_navigation.gd")
 
 signal room_selected(coord: Vector2i)
 signal scout_requested(coord: Vector2i)
@@ -26,6 +27,7 @@ signal door_requested(coord: Vector2i)
 signal event_requested(choice: String)
 signal interaction_changed
 signal close_requested
+signal target_geometry_changed
 
 const BACKGROUND_MODULATE := Color(0.56, 0.54, 0.59)
 
@@ -33,6 +35,8 @@ var run_state: Dictionary = {}
 var viewed_section: int = 0
 var selected_coord: Vector2i = Graph.INVALID
 var node_buttons: Dictionary = {}
+# Optional scene-owned action gate. Geometry and navigation remain map-owned.
+var room_action_filter: Callable
 var _skin := UiSkin.new()
 var _signature: int = 0
 var _built: bool = false
@@ -106,11 +110,20 @@ var _drag_released: bool = false
 var _drag_origin: float = 0.0
 var _drag_scroll: float = 0.0
 var _fog_openings := PackedVector4Array()
+var _covered_board := preload("res://scripts/section_map_covered_board.gd").new()
 
 func _ready() -> void:
 	_build()
 	resized.connect(_layout_nodes)
+	visibility_changed.connect(_sync_covered_board)
 	_refresh()
+	_sync_covered_board()
+
+func _sync_covered_board() -> void:
+	_covered_board.sync(self)
+
+func _exit_tree() -> void:
+	_covered_board.restore()
 
 func _build() -> void:
 	if _built:
@@ -218,6 +231,8 @@ func _build() -> void:
 	_legacy.name = "LegacyMap"
 	_legacy.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_legacy.connect("room_selected", func(coord: Vector2i) -> void: room_selected.emit(coord))
+	_legacy.connect("target_geometry_changed", target_geometry_changed.emit)
+	_legacy.resized.connect(target_geometry_changed.emit)
 	add_child(_legacy)
 	_legacy.hide()
 	var legacy_close: Button = _button("Close", func() -> void: close_requested.emit())
@@ -453,11 +468,27 @@ func select_room(coord: Vector2i) -> void:
 	_show_preview(coord)
 
 func can_activate_room(coord: Vector2i) -> bool:
+	if room_action_filter.is_valid() and not bool(room_action_filter.call(coord, scout_targeting)): return false
 	if viewed_section != Graph.active_section(run_state): return false
 	var mode: String = str(run_state.get("mode", ""))
 	if scout_targeting:
 		return mode in ["room", "combat", "pre_battle"] and not Graph.scout_targets(run_state, coord).is_empty()
 	return available_destinations().has(coord) and (mode == "room" or (mode == "combat" and bool(run_state.get("reach_exit", false))))
+
+# Read native controls at the time of use, so scroll, ancestor transforms,
+# resize and UI scale cannot leave a tutorial rectangle in board coordinates.
+func selectable_room_global_rects(destinations: Array[Vector2i]) -> Dictionary:
+	if not is_visible_in_tree(): return {}
+	if not Graph.enabled(run_state):
+		return _legacy.call("selectable_room_global_rects", destinations)
+	var result: Dictionary = {}
+	var field_rect: Rect2 = _field.get_global_rect().intersection(get_global_rect())
+	for coord: Vector2i in destinations:
+		var button: Control = node_buttons.get(coord)
+		if button == null or not button.is_visible_in_tree() or not can_activate_room(coord): continue
+		var rect: Rect2 = button.get_global_rect().intersection(field_rect)
+		if rect.has_area(): result[coord] = rect
+	return result
 
 func activate_room(coord: Vector2i) -> void:
 	# One gesture owns the entire acknowledgement and commit. Rapid clicks or
@@ -779,6 +810,7 @@ func _apply_scroll(value: float) -> void:
 	_update_fog()
 	_scroll_overlay.queue_redraw()
 	if selected_coord != Graph.INVALID and is_instance_valid(_preview): _position_preview(selected_coord)
+	target_geometry_changed.emit()
 
 func _update_fog() -> void:
 	# The shader holds 32 openings; rooms on screen take precedence.
@@ -846,6 +878,7 @@ func _scroll_input(event: InputEvent) -> bool:
 	return false
 
 func _process(delta: float) -> void:
+	_sync_covered_board()
 	# The right stick pans freely; the left stick and arrows move focus, and the
 	# map follows the focused room.
 	if _scroll_max <= 0.0 or not is_visible_in_tree(): return
@@ -997,30 +1030,30 @@ func _choice_destinations() -> Array[Vector2i]:
 	return TypedArrays.vector2i(Graph.scout_options(run_state) if scout_targeting else available_destinations())
 
 func _wire_choice_focus() -> void:
-	# Vertical navigation follows the current decision before visiting other
-	# depths. The ends lead to tabs/Scout so this does not trap native focus.
+	# Explicit links also suppress Godot's automatic focus search at the edges.
+	# The existing GUI input bridge supplies both D-pad and analog repeats.
+	var candidates: Array[Control]
+	for coord: Vector2i in node_buttons:
+		var button: Control = node_buttons[coord]
+		if button.focus_mode != Control.FOCUS_NONE and (not scout_targeting or can_activate_room(coord)):
+			candidates.append(button)
+	var tab: Control = _tabs.get_child(viewed_section)
 	for button: Control in node_buttons.values():
-		button.focus_neighbor_top = NodePath("")
-		button.focus_neighbor_bottom = NodePath("")
-		button.focus_neighbor_left = NodePath("")
-	if viewed_section != Graph.active_section(run_state): return
+		for side: int in [SIDE_TOP, SIDE_BOTTOM, SIDE_LEFT, SIDE_RIGHT]:
+			var direction: Vector2 = {SIDE_TOP: Vector2.UP, SIDE_BOTTOM: Vector2.DOWN, SIDE_LEFT: Vector2.LEFT, SIDE_RIGHT: Vector2.RIGHT}[side]
+			var target: Control = Navigation.nearest(button, direction, candidates)
+			if target == null:
+				target = tab if side == SIDE_TOP else (_scout if side == SIDE_BOTTOM else button)
+			button.set_focus_neighbor(side, button.get_path_to(target))
+	# Preserve the established entry/return rooms for tabs and Scout.
 	var choices: Array[Vector2i]
 	for coord: Vector2i in _choice_destinations():
 		if node_buttons.has(coord) and (not scout_targeting or can_activate_room(coord)):
 			choices.append(coord)
 	choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return (node_buttons[a] as Control).position.y < (node_buttons[b] as Control).position.y)
-	for index: int in range(choices.size()):
-		var button: Control = node_buttons[choices[index]]
-		var above: Control = node_buttons[choices[index - 1]] if index > 0 else _tabs.get_child(viewed_section)
-		var below: Control = node_buttons[choices[index + 1]] if index + 1 < choices.size() else _scout
-		button.focus_neighbor_top = button.get_path_to(above)
-		button.focus_neighbor_bottom = button.get_path_to(below)
-		var current: Control = node_buttons.get(run_state.get("current_room", Graph.INVALID))
-		if current != null and not scout_targeting: button.focus_neighbor_left = button.get_path_to(current)
 	if not choices.is_empty():
 		_scout.focus_neighbor_top = _scout.get_path_to(node_buttons[choices.back()])
-		var tab: Control = _tabs.get_child(viewed_section)
 		tab.focus_neighbor_bottom = tab.get_path_to(node_buttons[choices.front()])
 
 func controller_cancel_label() -> String:
@@ -1043,6 +1076,7 @@ func controller_action_label() -> String:
 
 func _toggle_scout() -> void:
 	if _scout.disabled or activation_coord != Graph.INVALID: return
+	if room_action_filter.is_valid() and not bool(room_action_filter.call(Graph.INVALID, true)): return
 	if cancel_action(): return
 	scout_targeting = true
 	_hide_preview()
@@ -1085,9 +1119,9 @@ func center_on_current(_reset_zoom: bool = true) -> void:
 	reset_interaction()
 	_refresh()
 
-func focus_controller_on_current() -> void:
+func focus_controller_on_current(allowed_destinations: Array = []) -> void:
 	if not Graph.enabled(run_state):
-		_legacy.call("focus_controller_on_current")
+		_legacy.call("focus_controller_on_current", allowed_destinations)
 	else:
 		var choices: Array[Vector2i] = _choice_destinations()
 		# At a section threshold the approved first focus is the lowest lane.
@@ -1096,6 +1130,7 @@ func focus_controller_on_current() -> void:
 			choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 				return float(Graph.room(run_state, a).get("map_lane", 0)) < float(Graph.room(run_state, b).get("map_lane", 0)))
 		for coord: Vector2i in choices:
+			if not allowed_destinations.is_empty() and not allowed_destinations.has(coord): continue
 			if node_buttons.has(coord) and (not scout_targeting or can_activate_room(coord)):
 				(node_buttons[coord] as Control).grab_focus()
 				return

@@ -137,6 +137,16 @@ target decisions have produced its final coherent combat result.
 
 ## Resume and namespaces
 
+**Demo builds.** `DemoBuild.is_demo()` selects the separate dmo-01 save namespace.
+New demo runs and saved demo profiles carry `build_kind: "demo"`; full builds
+add no build stamp. `load_saved_run()` rejects an unstamped run or a current room
+past `data/demo.json.last_section_index` in a demo, and rejects demo-stamped runs
+in the full game. Each rejected load logs one line and leaves every file intact.
+The guard applies after ordinary live/backup selection, so an incompatible live
+save cannot silently resume an older backup. Corrupt-live recovery still selects
+the backup and applies the same guard. Demo progress never carries into the full
+game; migration, replacement and reconciliation retain their existing ordering.
+
 Resume loads the complete run dictionary and repairs missing legacy defaults
 through `RunEngine.repair_loaded_run_state`. Combat state already contains board
 positions, ordered piles, HP/defenses/statuses, actors, initiative clock/queue,

@@ -14,6 +14,7 @@ static func lines(effects: Array, groups: Array, plain: Array[String]) -> Array[
 		var names: Array[String]
 		var kind: String = type if type in ["relic", "card", "card_choice", "equipment", "item", "omen", "reforge", "lose_item"] else "transform" if type == "transform_magic" else "plain"
 		var text: String = plain[index]
+		var controller_text: String = ""
 		for outcome: Dictionary in outcomes:
 			if outcome.has("id"): ids.append(str(outcome["id"]))
 			elif outcome.has("cards"):
@@ -35,9 +36,13 @@ static func lines(effects: Array, groups: Array, plain: Array[String]) -> Array[
 			text = "Your %s becomes %s." % [names[0], names[1]] if names.size() == 2 else "Reforge your gear."
 		elif kind == "transform":
 			if outcomes.size() == 1 and outcomes[0].has("to"): text = "%s becomes %s." % [names[0], names[1]]
-			elif outcomes.size() > 1 and outcomes.all(func(outcome: Dictionary) -> bool: return outcome.has("to")): text = "%d spells change: hover to see." % outcomes.size()
+			elif outcomes.size() > 1 and outcomes.all(func(outcome: Dictionary) -> bool: return outcome.has("to")):
+				text = "%d spells change: hover to see." % outcomes.size()
+				controller_text = "%d spells change: focus to see." % outcomes.size()
 			else: text = "Transform a spell." if outcomes.is_empty() else "Nothing changes."
-		result.append({"text": text, "kind": kind, "ids": ids})
+		var line: Dictionary = {"text": text, "kind": kind, "ids": ids}
+		if not controller_text.is_empty(): line["controller_text"] = controller_text
+		result.append(line)
 	return result
 
 static func _name(type: String, id: String) -> String:

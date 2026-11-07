@@ -54,6 +54,8 @@ func configure(index: int, definition: Dictionary, lines: Array[Dictionary], rea
 		var row: RichTextLabel = Text.label(str(line["text"]), 472, effect_size, Palette.TEXT_2, false, true)
 		row.set_meta("event_preview", line.duplicate(true))
 		content.add_child(row)
+		if line.has("controller_text"):
+			preload("res://scripts/input_wording.gd").bind_label(row, {"pointer_text": line["text"], "controller_text": line["controller_text"]})
 		row.position = Vector2(58, y + 4)
 		y += 4 + Text.height(row)
 		rows.append(row)

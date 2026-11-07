@@ -7,6 +7,19 @@ score, and unnumbered FEATS label take precedence over the mockup.
 
 ## Records and persistence
 
+**Demo builds.** A demo victory record retains outcome `victory` and adds sparse
+`demo_clear: true`. Its outcome label comes from `titles.demo_clear[0]` in
+`data/run_end_text.json`. Its history location and detail subline use the first
+entry of `dragon_ids` (the section-0 boss), with the existing short-name formatter
+and no-period wording `<dragon name> falls`. This also corrects older demo
+records that stored the full-victory cause; full victories keep `Noctyrax falls`.
+It increments `chronicle_totals.demo_clears` once via
+the existing uncapped receipt, without increasing `escapes` or `deepest_depth`.
+The new total is absent until a demo clear; full-build records and totals gain
+no fields. A staged terminal snapshot can also carry transient links eligibility
+for the score-only result adapter; the store consumes it in the prompt receipt
+transaction and never persists that transient metadata.
+
 `ChronicleRules` owns record construction, path bookkeeping, lifetime aggregation
 and formatting. `ProgressionStore` owns durable profile fields:
 

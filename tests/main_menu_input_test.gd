@@ -15,6 +15,9 @@ const RUN_PATH: String = "user://main_menu_input_test_run.save"
 const LOAD_COMPLETION_TIMEOUT_MS: int = 60000
 const FADE_ELAPSED_TOLERANCE: float = 0.0001
 const COARSE_STARTUP_FPS: int = 10
+const COARSE_RUN_ENTRY_FPS: int = 4
+const AUDIO_HANDOFF_STEP_SECONDS: float = 0.01
+const AUDIO_HANDOFF_TIMEOUT_MS: int = 1500
 
 var _failures: Array[String] = []
 
@@ -23,6 +26,14 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path(PROGRESSION_PATH)
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	ProgressionStore.clear_saved_run()
+	if OS.get_cmdline_user_args().has("--qa79-menu-slow-frame"):
+		SettingsStore.set_storage_path("user://startup_input_test_settings.json")
+		var previous_fps: int = Engine.max_fps
+		Engine.max_fps = COARSE_RUN_ENTRY_FPS
+		await _test_run_entry("new", false)
+		Engine.max_fps = previous_fps
+		_finish()
+		return
 	await _test_hover_and_press_same_frame_activates_once()
 	await _test_empty_space_pointer_motion_preserves_navigation_focus()
 	await _test_disabled_pointer_target_preserves_navigation_focus()
@@ -42,6 +53,9 @@ func _initialize() -> void:
 	await _test_loading_failure_preserves_save_and_recovers_focus()
 	await _test_staged_loading_teardown(false)
 	await _test_staged_loading_teardown(true)
+	_finish()
+
+func _finish() -> void:
 	SettingsStore.clear_storage()
 	_cleanup_storage()
 	if _failures.is_empty():
@@ -429,7 +443,7 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
 	var phase_times: Dictionary = {}
 	var result: Array[Node]
-	var observation: Dictionary = {"started": false, "transition": null, "phase_times": phase_times, "result": result}
+	var observation: Dictionary = {"started": false, "transition": null, "phase_times": phase_times, "result": result, "manual_audio_clock": not PerfGroup.enabled(), "handoff_tween": null, "audio_start_volume": music.volume_linear}
 	# The loading label enters after begin() locks input and before loading is
 	# deferred. This catches pointer, keyboard and direct controller activation
 	# without yielding a frame that may already finish a reduced-motion load.
@@ -493,13 +507,19 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	var room_started_ms := -1
 	var no_overlap := true
 	var menu_faded_down := true
-	var previous_volume := music.volume_linear
+	# The outgoing player may already be freed after one coarse frame. Its
+	# initial level was captured synchronously before the production handoff.
+	var previous_volume: float = observation["audio_start_volume"]
 	var initial_room_volume := -1.0
-	while Time.get_ticks_msec() - handoff_start < 1500:
+	var room_fade_completion: Dictionary = {"finished": false}
+	var handoff_tween: Tween = observation["handoff_tween"]
+	var room_fade: Tween
+	var audio_clock_seconds: float = 0.0
+	while (audio_clock_seconds * 1000.0 if observation["manual_audio_clock"] else Time.get_ticks_msec() - handoff_start) < AUDIO_HANDOFF_TIMEOUT_MS:
 		var outgoing := is_instance_valid(music) and music.playing
 		var incoming := room_music != null and room_music.playing
 		no_overlap = no_overlap and not (outgoing and incoming)
-		var elapsed := Time.get_ticks_msec() - handoff_start
+		var elapsed: int = roundi(audio_clock_seconds * 1000.0) if observation["manual_audio_clock"] else Time.get_ticks_msec() - handoff_start
 		if outgoing:
 			menu_faded_down = menu_faded_down and music.volume_linear <= previous_volume + 0.001 and music.get_stream_playback() == original_playback
 			previous_volume = music.volume_linear
@@ -508,8 +528,21 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 		if incoming and room_started_ms < 0:
 			room_started_ms = elapsed
 			initial_room_volume = room_music.volume_linear
-		if not room.get("_initial_music_deferred") and not is_instance_valid(music) and (not incoming or elapsed - room_started_ms > 350):
+			room_fade = room.get("_music_tween")
+			_expect(room_fade != null, "The incoming room track must retain its fade-in tween")
+			if room_fade != null:
+				if room_fade.is_valid():
+					room_fade.finished.connect(func() -> void: room_fade_completion["finished"] = true, CONNECT_ONE_SHOT)
+				else:
+					room_fade_completion["finished"] = true
+		# process_frame resumes before tweens advance. After a stall, wall time
+		# can exceed the fade duration while its final step is still pending.
+		if not room.get("_initial_music_deferred") and not is_instance_valid(music) and (not incoming or bool(room_fade_completion["finished"])):
 			break
+		if observation["manual_audio_clock"]:
+			if handoff_tween != null and handoff_tween.is_valid(): handoff_tween.custom_step(AUDIO_HANDOFF_STEP_SECONDS)
+			if room_fade != null and room_fade.is_valid(): room_fade.custom_step(AUDIO_HANDOFF_STEP_SECONDS)
+		audio_clock_seconds += AUDIO_HANDOFF_STEP_SECONDS
 		await process_frame
 	_expect(no_overlap, "Menu and room tracks must never play simultaneously")
 	_expect(menu_faded_down and menu_stopped_ms >= 150, "Menu audio retains its authored fade after room activation")
@@ -521,6 +554,7 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 		_expect(room_started_ms - menu_stopped_ms >= 60, "The intentional gap separates the tracks")
 		if PerfGroup.enabled(): _expect(room_started_ms - menu_stopped_ms < 250, "Music handoff finishes within scheduling slack")
 		_expect(initial_room_volume >= 0.0 and initial_room_volume < target_volume, "The room track must begin with a fade-in")
+		_expect(bool(room_fade_completion["finished"]), "The short room fade-in must finish before its level is sampled")
 		_expect(is_equal_approx(room_music.volume_linear, target_volume), "The short room fade-in must reach the authored level")
 		var playing_track := room_music.get_stream_playback()
 		room.call("start_initial_music_after_loading", MenuRunTransition.ROOM_MUSIC_FADE_IN_SECONDS)
@@ -560,6 +594,7 @@ func _observe_run_entry_start(menu: Control, mode: String, reduced_motion: bool,
 	observation["transition"] = transition
 	var music: AudioStreamPlayer = menu.get_node("MusicPlayer")
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	_observe_music_handoff(music, transition, observation)
 	_expect(music.playing and not music.stream_paused, "Locking the menu must not pause its music")
 	_expect(menu.is_inside_tree() and menu.is_visible_in_tree(), "The actual main menu must remain visible while loading")
 	_expect(root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_DISABLED, "Loading must block GUI, keyboard and controller input")
@@ -600,6 +635,27 @@ func _observe_run_entry_start(menu: Control, mode: String, reduced_motion: bool,
 			_expect(transition.destination.process_mode == Node.PROCESS_MODE_DISABLED, "Hidden room input must stay disabled through reveal")
 	)
 	transition.finished.connect(func(node: Node): result.append(node))
+
+func _observe_music_handoff(music: AudioStreamPlayer, transition: CanvasLayer, observation: Dictionary) -> void:
+	# The production handoff creates its room-owned tween immediately before
+	# renaming/reparenting this player. Capture that exact tween synchronously.
+	# Functional checks advance its real steps rather than requiring a process
+	# frame to land inside a 200 ms fade or 100 ms gap. Perf checks stay live.
+	music.renamed.connect(func() -> void:
+		if music.name != &"MenuMusicTail": return
+		var tweens: Array[Tween] = get_processed_tweens()
+		_expect(not tweens.is_empty(), "The outgoing music must retain its production handoff tween")
+		if tweens.is_empty(): return
+		var handoff: Tween = tweens.back()
+		observation["handoff_tween"] = handoff
+		var manual_audio_clock: bool = observation["manual_audio_clock"]
+		if manual_audio_clock: handoff.pause()
+		var room: Node = transition.destination
+		handoff.finished.connect(func() -> void:
+			var fade: Tween = room.get("_music_tween")
+			if fade != null and manual_audio_clock: fade.pause()
+		, CONNECT_ONE_SHOT)
+	)
 
 func _test_loading_failure_preserves_save_and_recovers_focus() -> void:
 	var saved := RunEngine.new().create_new_run(82272, ProgressionStore.default_data())

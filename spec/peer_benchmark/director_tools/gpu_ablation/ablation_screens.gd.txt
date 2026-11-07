@@ -1,0 +1,216 @@
+extends "/private/tmp/labyrinth_codex/sd-12/tools/gpu_screens.gd"
+const Ablations = preload("/private/tmp/labyrinth_codex/sd-12/tools/ablations.gd")
+const SAMPLE_FRAMES: int = 660
+const TARGET_STATES: Array = ["dragon_idle", "dragon_action", "character_gear", "character_magic", "character_skills", "fight_idle"]
+const DISCOVERY_OUTPUT: String = "/private/tmp/labyrinth_codex/sd-12/discovery"
+const CONTEXT_LIMIT: int = 2048
+var selected_arm: String = "baseline_a"
+var discover: bool = false
+var ablator := Ablations.new()
+var contexts: Array = []
+var phase: String = "warmup"
+var epoch: int = 0
+var sampling_started_usec: int = 0
+var capture_done: bool = false
+var case_notes: Dictionary = {}
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	gpu_output = DISCOVERY_OUTPUT
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--output-dir="): gpu_output = arg.trim_prefix("--output-dir=")
+		if arg.begins_with("--state="): gpu_only = arg.trim_prefix("--state=")
+		if arg.begins_with("--arm="): selected_arm = arg.trim_prefix("--arm=")
+		if arg == "--discover": discover = true
+	call_deferred("_run")
+
+func _run() -> void:
+	gpu_headless = DisplayServer.get_name() == "headless"
+	DirAccess.make_dir_recursive_absolute(gpu_output)
+	_expect(TARGET_STATES.has(gpu_only), "known sd-12 state")
+	_expect(gpu_headless or not discover, "discovery is headless only")
+	Engine.max_fps = 0
+	OS.low_processor_usage_mode = false
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Settings.set_storage_path("user://sd12-settings.json")
+	Store.set_storage_path("user://sd12-profile.json")
+	Store.set_run_storage_path("user://sd12-run.save")
+	preload("res://scripts/analytics_store.gd").set_storage_dir("user://sd12-analytics")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.15
+	settings["edge_smoothing"] = Settings.EDGE_SMOOTHING_OFF
+	settings["display_mode"] = "windowed"
+	Settings.save_settings(settings)
+	Store.save_data(Tutorial.complete_tutorial(Store.default_data()))
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 800)
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.content_scale_factor = 1.15
+	root.position = Vector2i(24, 24)
+	Settings.apply_settings(settings, root)
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "steam_deck")
+	if gpu_headless: process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	else:
+		_expect(Cel.mode == "all" and FileAccess.file_exists("res://cel_look_variants/manifest.json"), "approved cel all pack required")
+		_expect(RenderingServer.get_current_rendering_method() == "mobile", "mobile renderer required")
+		_expect(RenderingServer.get_current_rendering_driver_name() == "vulkan", "Vulkan timestamps required")
+		_expect(RenderingServer.get_rendering_device() != null, "RenderingDevice required")
+	if not errors.is_empty():
+		_finish()
+		return
+	gpu_metrics.attach(self)
+	scene = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	fixture_helper.set("_scene", scene)
+	await _gpu_warm()
+	var fixture: Dictionary
+	if gpu_only.begins_with("dragon"):
+		fixture = _special_fight("dragon")
+	elif gpu_only.begins_with("character"):
+		fixture = fixture_helper.call("_character_state")
+	else:
+		fixture = Warband.build(run, combat, run.create_new_run(83, Tutorial.complete_tutorial(Store.default_data())), {"warband_biome": "air", "warband_tier": 1})
+	await _install_target(fixture)
+	ablator.start(scene, selected_arm)
+	RenderingServer.frame_pre_draw.connect(_context_before_draw)
+	await _gpu_warm()
+	_expect(selected_arm in ["baseline_a", "baseline_b", "art_treatment", "floor_light", "atmosphere_shade", "hud_hand", "static_board_cache", "paper_doll", "card_strips", "skill_tree"] or selected_arm.begins_with("rig__"), "known ablation selector")
+	if discover:
+		if gpu_only == "dragon_action": await scene.call("_on_pass_turn_pressed")
+		FileAccess.open(gpu_output.path_join("discovery.json"), FileAccess.WRITE).store_string(JSON.stringify({"state": gpu_only, "headless": true, "targets": ablator.available(), "fixture": _fixture_info()}, "\t"))
+		print("SD-12 DISCOVERY: PASS state=%s groups=%d" % [gpu_only, ablator.available().size()])
+	elif gpu_only == "dragon_action": await _measure_dragon_actions(fixture)
+	else: await _measure_idle()
+	if not discover and not gpu_headless and not capture_done: await _gpu_capture(gpu_only)
+	_finish()
+
+func _install_target(fixture: Dictionary) -> void:
+	phase = "warmup"
+	await _gpu_install(fixture)
+	if gpu_only.begins_with("character"):
+		var mode: String = {"character_gear": "equipment", "character_magic": "magic", "character_skills": "skills"}[gpu_only]
+		scene.call("_open_character_overlay", mode)
+		_expect(str(scene.get("_progression_overlay_mode")) == mode and (scene.get("_upgrade_scrim") as Control).visible, "requested Character tab visible")
+	else: _expect(str(scene.get("_run_state").get("mode")) == "combat", "combat fixture")
+
+func _gpu_next() -> void:
+	if gpu_headless and is_instance_valid(scene) and ablator.scene != null:
+		ablator.apply()
+		_context_before_draw()
+	await super._gpu_next()
+
+func _context_before_draw() -> void:
+	var presentation: Dictionary = scene.get("board_view").get("presentation")
+	var effect: Dictionary = presentation.get("effect", {})
+	contexts.append({"begin_usec": Time.get_ticks_usec(), "phase": phase, "epoch": epoch, "animation_lock": bool(scene.get("_animation_lock")), "actor": (scene.get("_combat_state") as Dictionary).get("current_actor", {}).duplicate(true), "enemy_action": _visible_enemy_action(), "effect_actor_key": str(effect.get("actor_key", "")), "effect_kind": str(effect.get("kind", "")), "effect_progress": presentation.get("effect_progress", null), "affected": ablator.last_affected})
+	if contexts.size() > CONTEXT_LIMIT: contexts.pop_front()
+
+func _visible_enemy_action() -> bool:
+	var presentation: Dictionary = scene.get("board_view").get("presentation")
+	return bool(scene.get("_animation_lock")) and str(presentation.get("effect", {}).get("actor_key", "")).begins_with("enemy_") and presentation.has("effect_progress")
+
+func _timed_row() -> Dictionary:
+	var row: Dictionary = _sample_record()
+	if row.is_empty(): return row
+	var stamp: Dictionary = row["viewports"].get(gpu_metrics.main_viewport_rid, {}).get("timestamp", {})
+	var begin: int = int(stamp.get("cpu_begin_raw", Time.get_ticks_usec() if gpu_headless else -1))
+	# RenderingDevice CPU query times use OS monotonic usec, just like Time.
+	# Match delayed timestamp results to the context at submission, not readback.
+	for index: int in range(contexts.size() - 1, -1, -1):
+		var context: Dictionary = contexts[index]
+		if int(context["begin_usec"]) > begin: continue
+		row["submission_context"] = context
+		row["readback_delay_usec"] = Time.get_ticks_usec() - begin
+		if int(context["epoch"]) != epoch or str(context["phase"]) != phase: return {}
+		if phase == "action" and not bool(context["enemy_action"]): return {}
+		return row
+	return {}
+
+func _target_frames() -> int:
+	return HEADLESS_FIXTURE_FRAMES if gpu_headless else SAMPLE_FRAMES
+
+func _measure_idle() -> void:
+	var frames: Array = []
+	var inventories: Array = []
+	var before: String = _state_hash()
+	epoch += 1
+	phase = "steady"
+	sampling_started_usec = Time.get_ticks_usec()
+	while frames.size() < _target_frames() and Time.get_ticks_usec() - sampling_started_usec < STATE_TIMEOUT_MSEC * 1000:
+		await _gpu_next()
+		var row: Dictionary = _timed_row()
+		if row.is_empty(): continue
+		if frames.size() % Metrics.SNAPSHOT_STRIDE_FRAMES == 0: inventories.append({"sample": frames.size(), "inventory": gpu_metrics.inventory(root)})
+		frames.append(row)
+	_expect(before == _state_hash(), "idle committed state stable")
+	_save(frames, inventories, {"before": before, "after": _state_hash(), "protocol": "warmup excluded; unchanged production animation/shader clocks; delayed query submission-context matched"})
+
+func _measure_dragon_actions(fixture: Dictionary) -> void:
+	var frames: Array = []
+	var inventories: Array = []
+	var cycles: Array = []
+	# Warm the first real action and all action-only pipelines, excluded.
+	if not gpu_headless: await scene.call("_on_pass_turn_pressed")
+	for cycle: int in range(ENEMY_MAX_CYCLES):
+		await _install_target(fixture)
+		await _gpu_warm()
+		var before: String = _state_hash()
+		var cycle_start: int = frames.size()
+		epoch += 1
+		phase = "action"
+		enemy_action_done = false
+		_invoke_enemy_action.call_deferred()
+		var deadline: int = Time.get_ticks_msec() + STATE_TIMEOUT_MSEC
+		while not enemy_action_done and Time.get_ticks_msec() < deadline:
+			await _gpu_next()
+			var row: Dictionary = _timed_row()
+			if not row.is_empty() and frames.size() < _target_frames():
+				row["cycle"] = cycle
+				if frames.size() % Metrics.SNAPSHOT_STRIDE_FRAMES == 0: inventories.append({"sample": frames.size(), "inventory": gpu_metrics.inventory(root)})
+				frames.append(row)
+		_expect(enemy_action_done, "dragon action completed before deadline")
+		_expect(before != _state_hash(), "dragon action committed production turn")
+		cycles.append({"cycle": cycle, "sampled_frames": frames.size() - cycle_start, "before": before, "after": _state_hash()})
+		if frames.size() >= _target_frames(): break
+	_save(frames, inventories, {"cycles": cycles, "protocol": "pooled actual enemy effect/progress frames in the dragon fight; query CPU timestamp matched to submission context; hand/turn transitions, reload/warmup excluded; first native turn excluded; no animation slowing/freezing"})
+	if not gpu_headless:
+		# A separate, unmeasured replay guarantees action proof without allowing
+		# screenshot readback into any later timing sample.
+		await _install_target(fixture)
+		await _gpu_warm()
+		phase = "capture"
+		enemy_action_done = false
+		_invoke_enemy_action.call_deferred()
+		var capture_deadline: int = Time.get_ticks_msec() + STATE_TIMEOUT_MSEC
+		while not enemy_action_done and not capture_done and Time.get_ticks_msec() < capture_deadline:
+			await _gpu_next()
+			if _visible_enemy_action():
+				await _gpu_capture(gpu_only, true)
+				capture_done = true
+		_expect(capture_done, "separate replay captured during dragon action")
+		while not enemy_action_done and Time.get_ticks_msec() < capture_deadline: await _gpu_next()
+		_expect(enemy_action_done, "capture replay completed")
+
+func _save(frames: Array, inventories: Array, notes: Dictionary) -> void:
+	phase = "complete"
+	_expect(frames.size() == _target_frames(), "requested sample count")
+	notes["ablation"] = ablator.audit()
+	notes["ablation"]["target_present"] = not ablator.seen_paths.is_empty() if not selected_arm.begins_with("baseline_") else true
+	notes["fixture"] = _fixture_info()
+	case_notes = notes
+	var data: Dictionary = {"task": "sd-12", "state": gpu_only, "arm": selected_arm, "headless": gpu_headless, "frames": frames, "inventories": inventories, "viewport_catalog": gpu_metrics.catalog(), "main_viewport_rid": gpu_metrics.main_viewport_rid, "measurement_audit": gpu_metrics.measurement_audit(), "notes": notes}
+	FileAccess.open(gpu_output.path_join(gpu_only + ".json"), FileAccess.WRITE).store_string(JSON.stringify(data))
+	gpu_rows.append({"state": gpu_only, "arm": selected_arm, "frames": frames.size()})
+	print("SD-12 ARM: %s/%s frames=%d mode=%s affected=%d" % [gpu_only, selected_arm, frames.size(), "fixture-only" if gpu_headless else "native", ablator.seen_paths.size()])
+
+func _finish() -> void:
+	var report: Dictionary = {"task": "sd-12", "state": gpu_only, "arm": selected_arm, "headless": gpu_headless, "states": gpu_rows, "errors": errors, "gpu_measurements_available": not gpu_headless, "size": [root.size.x, root.size.y], "ui_scale": root.content_scale_factor, "cel_look": Cel.mode, "renderer": RenderingServer.get_current_rendering_method(), "rendering_driver": RenderingServer.get_current_rendering_driver_name(), "adapter": RenderingServer.get_video_adapter_name(), "godot": Engine.get_version_info(), "command": OS.get_cmdline_args(), "ablation": ablator.audit() if ablator.scene != null else {}}
+	FileAccess.open(gpu_output.path_join("index.json"), FileAccess.WRITE).store_string(JSON.stringify(report, "\t"))
+	print("SD-12 %s: %s state=%s arm=%s errors=%d" % ["FIXTURE" if gpu_headless else "NATIVE", "PASS" if errors.is_empty() else "FAIL", gpu_only, selected_arm, errors.size()])
+	if ablator.scene != null:
+		RenderingServer.frame_pre_draw.disconnect(_context_before_draw)
+		ablator.stop()
+	fixture_helper.set("_scene", null)
+	fixture_helper.free()
+	if is_instance_valid(scene): scene.queue_free()
+	quit(0 if errors.is_empty() else 1)

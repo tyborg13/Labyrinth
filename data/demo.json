@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "_doc": "Demo build settings (director-authored). Read through scripts/demo_rules.gd; never hard-code these values. last_section_index is 0-based: 0 ends the demo on the first section's dragon.",
+  "last_section_index": 0,
+  "store_app_id": 4530510,
+  "store_url": "https://store.steampowered.com/app/4530510/",
+  "discord_url": "https://discord.gg/fb7J52bceX",
+  "feedback_url": "",
+  "text": {
+    "end_title": "Thanks for playing the demo",
+    "end_body": "The full game takes you deeper into the Umbra, with more dragons to face before you escape. Wishlist it on Steam to hear the moment it launches.",
+    "links_line": "If you're enjoying the demo, a wishlist on Steam helps a lot.",
+    "wishlist": "Wishlist on Steam",
+    "discord": "Join the Discord",
+    "feedback": "Share feedback",
+    "keystone_tag": "Full game",
+    "keystone_tooltip": "Available in the full game."
+  }
+}

@@ -16,6 +16,12 @@ const MODELS: Dictionary = {
 	"vaeloryx": preload("res://scripts/vaeloryx_cutout/renderer.gd"),
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
 const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
+# Handless/sprite rigs anchor a synthetic arc at their existing source centre
+# (director decision, fx-10).
+const WEAPON_HAND_SOURCE := Vector2(127.5, 127.5)
+# Older arc registrations do not declare their attacking hand: the near hand
+# swings first (director decision, fx-10).
+const WEAPON_HAND_BONE_PRIORITY: Array = ["hand_near", "hand_r", "cast_hand", "hand_far"]
 const REGISTRY: Dictionary = {
 	"gust_shrike": {"area_strike_intents":["dive"], "kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
 	"briar_weaver": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Existing static sprite fallback; Lob/Grow use their own effects."},
@@ -64,9 +70,9 @@ static func settings(enemy_type: String, effect: Dictionary) -> Dictionary:
 	if enemy_type in BESPOKE:
 		return {"kind":"bespoke", "actions":["melee"]}
 	var result: Dictionary = REGISTRY.get(enemy_type, {"kind":"arc", "window":Vector2(0.33,0.56)}).duplicate()
-	# Hooked Sweep's blade is nearly held after its .38 contact. A moving
-	# windup must not disguise that stationary displayed contact/follow-through.
-	if enemy_type == "ashen_reaver" and kind == "aoe": result["contact_hold_arc"] = true
+	# Jaw sweeps retain their approved short-path treatment. Weapons, including
+	# held contact poses, always follow the currently painted item instead.
+	result["live_weapon"] = str(result["kind"]) in ["sweep", "streak"] and enemy_type not in ["ash_hound", "rime_spitter"]
 	result["actions"] = ["melee", "aoe"] if enemy_type in ["frostglass_lancer", "warden"] or Guardian.handles(enemy_type) else ["melee"]
 	var declared: Array = preload("res://scripts/maquette_cutout_runtime/presentation.gd").integration_for(enemy_type).get("strike_actions", [])
 	if not declared.is_empty(): result["actions"] = declared
@@ -83,6 +89,33 @@ static func direction(effect: Dictionary, actor: Dictionary, player_tile: Vector
 	if str(actor.get("type", "")) in Dragon.TYPES:
 		return Dragon.direction(effect, actor, player_tile)
 	return effect.get("action_direction", (effect.get("to", player_tile) as Vector2i) - (effect.get("from", actor.get("pos", Vector2i.ZERO)) as Vector2i))
+
+## Read the submitted pose, never reapply a clip or infer its contact clock.
+## Maquette held-item paint has an independent snapped/followed transform.
+static func live_sample(renderer: Node, settings_value: Dictionary, progress: float) -> Dictionary:
+	var view: String = renderer.facing
+	if not renderer.rigs.has(view): return {}
+	var rig: Node2D = renderer.rigs[view]
+	var layout: Dictionary = rig.layout
+	var bone: String = settings_value["bone"]
+	if not rig.bones.has(bone): return {}
+	var offset: Vector2 = renderer.canvas_geometry()["offset"] if renderer.has_method("canvas_geometry") else renderer.SOURCE_OFFSET
+	var tip: Vector2
+	if layout.get("strike_points", {}).has(bone):
+		tip = preload("res://scripts/maquette_cutout_runtime/posed_points.gd").source_point(renderer, bone)
+	else:
+		var bind: Vector2 = _point(layout["joints"][bone]["position"])
+		tip = (rig.bones[bone] as Node2D).global_transform * (bind_point(layout, settings_value, view) - bind) - offset
+	var grip: Vector2 = (rig.bones[settings_value["inner_bone"]] as Node2D).global_position - offset
+	return {"progress":progress, "tip":tip, "inner":tip.lerp(grip, float(settings_value.get("reach", 0.55)))}
+
+static func weapon_hand(renderer: Node) -> Vector2:
+	if not is_instance_valid(renderer) or not renderer.rigs.has(renderer.facing): return WEAPON_HAND_SOURCE
+	var rig: Node2D = renderer.rigs[renderer.facing]
+	var offset: Vector2 = renderer.canvas_geometry()["offset"] if renderer.has_method("canvas_geometry") else renderer.SOURCE_OFFSET
+	for bone: String in WEAPON_HAND_BONE_PRIORITY:
+		if rig.bones.has(bone): return (rig.bones[bone] as Node2D).global_position - offset
+	return WEAPON_HAND_SOURCE
 
 static func action_pose(enemy_type: String, effect: Dictionary, actor: Dictionary, progress: float, contact: float) -> Dictionary:
 	if Guardian.handles(enemy_type):

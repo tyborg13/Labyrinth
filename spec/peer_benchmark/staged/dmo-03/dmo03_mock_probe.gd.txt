@@ -1,0 +1,361 @@
+extends SceneTree
+
+# dmo-03 design mockup (director scratch, not for commit): real screens with the
+# demo end panel, the one-time links row, quiet links and the keystone teaser
+# added from the game's own parts.
+
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const Overlay = preload("res://scripts/run_end_recap_overlay.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
+const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
+const RUN_SCENE = preload("res://scenes/run_scene.tscn")
+const MENU_SCENE = preload("res://scenes/main_menu.tscn")
+const OUTPUT_DIR: String = "user://dmo03_mock/1920x1080"
+
+const END_TITLE: String = "Thanks for playing the demo"
+const END_BODY: String = "The full game takes you deeper into the Umbra, with more dragons to face before you escape. Wishlist it on Steam to hear the moment it launches."
+const LINKS_LINE: String = "If you're enjoying the demo, a wishlist on Steam helps a lot."
+const WISHLIST: String = "WISHLIST ON STEAM ›"
+const DISCORD: String = "JOIN THE DISCORD ›"
+const FEEDBACK: String = "SHARE FEEDBACK ›"
+const KEYSTONE_TAG: String = "FULL GAME"
+const KEYSTONE_REASON: String = "Available in the full game."
+const KEYSTONES: Array[String] = ["encore", "open_arsenal", "confluence", "last_door", "open_sky"]
+const LINK_GAP: float = 32.0
+
+var _resolution := Vector2i(1920, 1080)
+var _link_factory: Control
+
+func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
+	root.content_scale_size = _resolution
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.size = _resolution
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(_resolution)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	ProgressionStore.set_storage_path("user://dmo03_mock_progression.json")
+	ProgressionStore.set_run_storage_path("user://dmo03_mock_saved_run.save")
+	ProgressionStore.clear_saved_run()
+	call_deferred("_run")
+
+func _run() -> void:
+	await process_frame
+	# A hidden recap supplies the game's own quiet-link control for other screens.
+	_link_factory = Overlay.new()
+	_link_factory.visible = false
+	root.add_child(_link_factory)
+	await process_frame
+	await _demo_clear()
+	await _links_row()
+	await _main_menu()
+	await _settings()
+	await _keystone()
+	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("DMO03 MOCK: PASS")
+	quit(0)
+
+# --- Recap states ---------------------------------------------------------
+
+func _demo_clear() -> void:
+	var instance: Node = await _fresh_run_scene()
+	var engine := RunEngine.new()
+	var progression: Dictionary = ProgressionStore.default_data()
+	var state: Dictionary = _section_one_state(engine, progression, "victory", 236, 9, {
+		"rooms_explored": 9, "enemies_slain": 21, "enemies_killed": 21, "guardians_slain": 1,
+		"dragons_slain": ["vyraketh"], "max_kills_one_card": 3, "run_seconds": 2460,
+	})
+	await _install(instance, progression, state)
+	var recap: Control = instance.get("_run_end_recap") as Control
+	var model: Dictionary = recap.call("recap_model")
+	model["title"] = "VICTORIOUS"
+	model["cause"] = "Vyraketh falls."
+	_drop_rows(model, ["escaped"], ["swift", "ascetic", "last_light"])
+	recap.call("present", model)
+	recap.call("skip_presentation")
+	await process_frame
+	var column: Control = recap.get("_column") as Control
+	var chronicle: Control = recap.get("_chronicle_button") as Control
+	var top: float = chronicle.position.y + chronicle.size.y + 26.0
+	var rule: Control = (column.get_node("GildedRule") as Control).duplicate()
+	rule.position = Vector2(0, top)
+	column.add_child(rule)
+	column.add_child(_label(END_TITLE, UI_FONT, 30, Palette.TEXT, Rect2(0, top + 24, 780, 40)))
+	var body := _label(END_BODY, TEXT_FONT, 20, Palette.TEXT_2, Rect2(0, top + 66, 760, 56), true)
+	column.add_child(body)
+	var links_y: float = top + 66 + 56 + 14
+	var discord: Button = _recap_link(recap, DISCORD, Vector2(0, links_y))
+	_recap_link(recap, FEEDBACK, Vector2(discord.size.x + LINK_GAP, links_y))
+	# Wishlist takes the first of the three plate slots the exits were laid out for.
+	var new_run: Button = recap.get("_new_run_button") as Button
+	var main_menu: Button = recap.get("_main_menu_button") as Button
+	var wishlist: Button = recap.call("_button", "WishlistButton", "Wishlist on Steam") as Button
+	var skin = recap.get("_ui_skin")
+	skin.apply_button_stylebox_overrides(wishlist, UiSkin.VARIANT_LARGE)
+	skin.apply_button_text_overrides(wishlist)
+	wishlist.size = new_run.size
+	wishlist.custom_minimum_size = new_run.size
+	var x: float = 1010.0
+	for button: Button in [wishlist, new_run, main_menu]:
+		button.position = Vector2(x, 952)
+		x += new_run.size.x + 16.0
+	_select(recap, [wishlist, new_run, main_menu], wishlist)
+	wishlist.grab_focus()
+	await _capture("01_demo_clear.png")
+	_select(recap, [wishlist, new_run, main_menu], null)
+	discord.grab_focus()
+	discord.set_meta("umbra_selected", true)
+	discord.call("refresh")
+	await _capture("02_demo_clear_discord_focus.png")
+	await _free(instance)
+
+func _links_row() -> void:
+	var instance: Node = await _fresh_run_scene()
+	var engine := RunEngine.new()
+	var progression: Dictionary = ProgressionStore.load_data()
+	var state: Dictionary = _section_one_state(engine, progression, "defeat", 180, 9, {
+		"rooms_explored": 9, "enemies_slain": 18, "enemies_killed": 18, "guardians_slain": 0,
+		"dragons_slain": [], "max_kills_one_card": 2, "run_seconds": 2100,
+		"killer": {"enemy_type": "vyraketh", "intent_id": "", "damage": 9},
+	})
+	await _install(instance, progression, state)
+	var recap: Control = instance.get("_run_end_recap") as Control
+	instance.call("_seek_run_end_board_reframe", 1.0)
+	recap.call("skip_presentation")
+	await process_frame
+	var column: Control = recap.get("_column") as Control
+	var chronicle: Control = recap.get("_chronicle_button") as Control
+	var top: float = chronicle.position.y + chronicle.size.y + 30.0
+	column.add_child(_label(LINKS_LINE, TEXT_FONT, 20, Palette.TEXT_2, Rect2(0, top, 780, 30)))
+	var x: float = 0.0
+	for text: String in [WISHLIST, DISCORD, FEEDBACK]:
+		var link: Button = _recap_link(recap, text, Vector2(x, top + 40))
+		x += link.size.x + 24.0
+	await _capture("03_links_row_after_hearth.png")
+	await _free(instance)
+
+# --- Main menu, Settings, keystone ---------------------------------------
+
+func _main_menu() -> void:
+	var menu: Control = MENU_SCENE.instantiate() as Control
+	root.add_child(menu)
+	await _settle()
+	var quit_button: Control = menu.get_node("MenuColumn/QuitButton") as Control
+	var column: Control = menu.get_node("MenuColumn") as Control
+	var y: float = quit_button.get_global_rect().end.y + 12.0
+	var first: Button = null
+	for text: String in [WISHLIST, DISCORD]:
+		var link: Button = _loose_link(text)
+		menu.add_child(link)
+		link.global_position = Vector2(column.get_global_rect().position.x + 26.0, y)
+		y += 36.0
+		if first == null:
+			first = link
+	await _capture("04_main_menu.png")
+	first.grab_focus()
+	first.set_meta("umbra_selected", true)
+	first.call("refresh")
+	await _capture("05_main_menu_wishlist_focus.png")
+	await _free(menu)
+
+func _settings() -> void:
+	var instance: Node = await _fresh_run_scene()
+	var run_state: Dictionary = RunEngine.new().create_new_run(90211, ProgressionStore.default_data())
+	instance.call("_load_run_state", run_state)
+	instance.call("_close_dialogue")
+	await _settle()
+	instance.call("_open_menu_overlay")
+	instance.call("_open_settings_overlay")
+	await _settle()
+	var panel: Control = instance.get("_settings_panel") as Control
+	var rect: Rect2 = panel.get_global_rect()
+	var layer := CanvasLayer.new()
+	layer.layer = 120
+	instance.add_child(layer)
+	var right: float = rect.end.x - 30.0
+	for text: String in [DISCORD, WISHLIST]:
+		var link: Button = _loose_link(text)
+		layer.add_child(link)
+		right -= link.size.x
+		link.global_position = Vector2(right, rect.position.y + 30.0)
+		right -= LINK_GAP
+	await _capture("06_settings.png")
+	await _free(instance)
+
+func _keystone() -> void:
+	var instance: Node = await _fresh_run_scene()
+	var progression: Dictionary = ProgressionStore.default_data()
+	progression["level"] = 3
+	progression["skill_ids"] = ["quick_wits", "measured_breath"]
+	ProgressionStore.save_data(progression)
+	var run_state: Dictionary = RunEngine.new().create_new_run(90212, progression)
+	instance.set("_progression", progression)
+	instance.call("_load_run_state", run_state)
+	instance.call("_close_dialogue")
+	await _settle()
+	instance.call("_open_character_overlay", "skills")
+	await _settle()
+	var tree: Control = instance.get("_skill_tree_view") as Control
+	tree.call("focus_skill", "encore")
+	await _settle()
+	(tree.get("_detail_reason") as Label).text = KEYSTONE_REASON
+	(tree.get("_detail_reason") as Label).visible = true
+	var font: FontVariation = _link_factory.call("_spaced_font", 3)
+	for skill_id: String in KEYSTONES:
+		var node: Control = tree.call("node_for_skill", skill_id) as Control
+		if node == null:
+			continue
+		var tag := _label(KEYSTONE_TAG, font, 14, Palette.TEXT_3, Rect2(-40, node.size.y + 6, node.size.x + 80, 20))
+		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		node.add_child(tag)
+	await _capture("07_skills_keystone.png")
+	await _free(instance)
+
+# --- Helpers ----------------------------------------------------------------
+
+func _recap_link(recap: Control, text: String, at: Vector2) -> Button:
+	var link: Button = recap.call("_chronicle_link", recap.call("_spaced_font", 4)) as Button
+	link.text = text
+	link.size = link.get_combined_minimum_size()
+	link.position = at
+	link.call("refresh")
+	return link
+
+func _loose_link(text: String) -> Button:
+	var link: Button = _link_factory.call("_chronicle_link", _link_factory.call("_spaced_font", 4)) as Button
+	link.get_parent().remove_child(link)
+	link.text = text
+	link.size = link.get_combined_minimum_size()
+	link.call("refresh")
+	return link
+
+func _select(recap: Control, buttons: Array, chosen: Button) -> void:
+	for button: Button in buttons:
+		button.set_meta("umbra_selected", button == chosen)
+		button.queue_redraw()
+
+func _label(text: String, font: Font, size: int, color: Color, rect: Rect2, wrap: bool = false) -> Label:
+	var label := Label.new()
+	label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if wrap:
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size = Vector2(rect.size.x, 0)
+	label.text = text
+	label.position = rect.position
+	label.size = rect.size
+	return label
+
+func _drop_rows(model: Dictionary, line_ids: Array, feat_ids: Array) -> void:
+	var score: Dictionary = model.get("score", {}) as Dictionary
+	var total: int = 0
+	for key: String in ["lines", "feats"]:
+		var kept: Array = []
+		for row: Dictionary in score.get(key, []):
+			if (key == "lines" and line_ids.has(str(row.get("id", "")))) or (key == "feats" and feat_ids.has(str(row.get("id", "")))):
+				continue
+			kept.append(row)
+			total += int(row.get("points", 0))
+		score[key] = kept
+	score["total"] = total
+	model["score"] = score
+
+func _fresh_run_scene() -> Node:
+	var instance: Node = RUN_SCENE.instantiate()
+	root.add_child(instance)
+	await _settle()
+	return instance
+
+func _free(node: Node) -> void:
+	node.queue_free()
+	await process_frame
+	await process_frame
+
+func _settle() -> void:
+	for i: int in range(6):
+		await process_frame
+
+func _install(instance: Node, progression: Dictionary, state: Dictionary) -> void:
+	ProgressionStore.save_data(progression)
+	instance.set("_progression", progression.duplicate(true))
+	instance.call("_load_run_state", state)
+	await process_frame
+	await process_frame
+
+func _section_one_state(engine: RunEngine, progression: Dictionary, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
+	var coord := Vector2i(8, 0)
+	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	var marked: int = 0
+	for room_key_var: Variant in rooms.keys():
+		if marked >= cleared_rooms:
+			break
+		var candidate: Dictionary = (rooms[room_key_var] as Dictionary).duplicate(true)
+		if int(candidate.get("depth", 0)) <= 0 or str(room_key_var) == "%d,%d" % [coord.x, coord.y]:
+			continue
+		candidate["visited"] = true
+		candidate["cleared"] = true
+		rooms[room_key_var] = candidate
+		marked += 1
+	var room: Dictionary = engine.room_metadata(state, coord).duplicate(true)
+	room["revealed"] = true
+	room["visited"] = true
+	room["cleared"] = false
+	room["section_index"] = 0
+	room["map_step"] = 10
+	room["type"] = "boss"
+	room["boss_id"] = "vyraketh"
+	state["map_sections"][0]["boss_id"] = "vyraketh"
+	state["map_sections"][0]["room_count"] = 10
+	rooms["%d,%d" % [coord.x, coord.y]] = room
+	state["rooms"] = rooms
+	state["current_room"] = coord
+	state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
+	var layout: Dictionary = engine.call("_combat_layout_for_room", room, Vector2i(1, 0), state)
+	var combat := CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(int(state.get("seed", 0)), layout, engine.call("_player_snapshot", state) as Dictionary)
+	combat_state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
+	if outcome == "defeat":
+		var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+		player["hp"] = 0
+		combat_state["player"] = player
+	else:
+		var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+		for index: int in range(enemies.size()):
+			var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+			enemy["hp"] = 0
+			enemies[index] = enemy
+		combat_state["enemies"] = enemies
+	state["mode"] = "combat"
+	state["combat_state"] = combat_state
+	state["held_embers"] = held_embers
+	state["unbanked_embers"] = held_embers
+	state["_probe_terminal_combat_state"] = combat_state.duplicate(true)
+	state = engine.finish_combat(state, combat_state)
+	state["mode"] = outcome
+	state["victory"] = outcome == "victory"
+	state = preload("res://scripts/opening_boon_rules.gd").leave_heirloom(state, "")
+	state["game_over"] = outcome == "defeat"
+	state["held_embers"] = held_embers
+	state["unbanked_embers"] = held_embers
+	state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
+	state["progression"] = progression.duplicate(true)
+	return state
+
+func _capture(filename: String) -> void:
+	await _settle()
+	if DisplayServer.get_name() == "headless":
+		return
+	var image: Image = root.get_viewport().get_texture().get_image()
+	if image.get_width() != _resolution.x or image.get_height() != _resolution.y:
+		image.resize(_resolution.x, _resolution.y, Image.INTERPOLATE_LANCZOS)
+	image.save_png("%s/%s" % [OUTPUT_DIR, filename])

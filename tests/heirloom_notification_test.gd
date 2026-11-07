@@ -7,6 +7,7 @@ const SECOND_NOTICE: String = "Notification regression fixture: second notice"
 const PERSISTENT_NOTICE: String = "Notification regression fixture: underlying notice"
 const LOAD_TIMEOUT_MSEC: int = 30000
 const CLEANUP_FRAMES: int = 600
+const MODAL_REFRESH_SETTLE_FRAMES: int = 3
 var _retired_queue_ids: PackedInt64Array
 
 class NoticeHost extends Node:
@@ -36,6 +37,21 @@ class NoticeOwner extends Node:
 	func _exit_tree() -> void:
 		Notifications.release(host, self)
 
+# Exercise the real deferred callback without constructing unrelated run UI.
+class ModalRefreshScene extends "res://scripts/run_scene.gd":
+	var prompt_refreshes: int = 0
+	func _ready() -> void:
+		set_process(false)
+		set_physics_process(false)
+	func _notification(_what: int) -> void:
+		pass
+	func _exit_tree() -> void:
+		pass
+	func _refresh_controller_prompts() -> void:
+		prompt_refreshes += 1
+	func _sync_click_targeting_arrow(_mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+		pass
+
 func _initialize() -> void:
 	_setup()
 	Settings.set_storage_path("user://heirloom_notification_settings.json")
@@ -49,6 +65,7 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	await _detached_modal_refresh_checks()
 	_retirement_checks()
 	_full_panel_notices()
 	_departure_release_guard()
@@ -63,6 +80,40 @@ func _run() -> void:
 	print("HEIRLOOM NOTIFICATION TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _detached_modal_refresh_checks() -> void:
+	# -1 queues work before attachment, matching the release reproducer. The
+	# other cases detach while the callback is waiting on either layout frame.
+	for detach_after_frames: int in [-1, 0, 1]:
+		var scene: Node = _modal_refresh_scene()
+		if detach_after_frames < 0:
+			scene.call_deferred("_refresh_controller_modal_after_layout")
+		else:
+			root.add_child(scene)
+			scene.call("_refresh_controller_modal_after_layout")
+			for frame: int in range(detach_after_frames): await process_frame
+			root.remove_child(scene)
+		for frame: int in range(MODAL_REFRESH_SETTLE_FRAMES): await process_frame
+		_expect(scene.prompt_refreshes == 0, "Detached modal work must retire before refreshing prompts (detach frame %d)" % detach_after_frames)
+		scene.free()
+	var attached: Node = _modal_refresh_scene()
+	root.add_child(attached)
+	attached.call("_refresh_controller_modal_after_layout")
+	_expect(attached.prompt_refreshes == 0, "Attached modal refresh retains its layout wait")
+	await process_frame
+	_expect(attached.prompt_refreshes == 0, "Attached modal refresh still waits for the second layout frame")
+	await process_frame
+	_expect(attached.prompt_refreshes == 1, "Attached modal refresh runs once after both layout frames")
+	attached.free()
+	print("DETACHED MODAL CALLBACK CHECKS: %s" % ("FAIL" if _failed else "PASS"))
+
+func _modal_refresh_scene() -> Node:
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	# Keep the production hierarchy for its onready paths. Replacing the script
+	# installs the test subclass's own pacing child, so retire the original first.
+	scene.get_node("CombatPacing").free()
+	scene.set_script(ModalRefreshScene)
+	return scene
 
 func _full_panel_notices() -> void:
 	var host := NoticeHost.new()

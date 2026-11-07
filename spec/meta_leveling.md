@@ -315,6 +315,22 @@ revisioned analytics events so redraws and save/resume cannot duplicate them.
 
 ## Persistence and Migration
 
+**Demo builds.** Levels, points, roots, branches and junctions retain their
+ordinary rules. Keystones are unavailable through both `can_learn_skill` and
+`SkillTreeLibrary.is_available`; `is_demo_locked` exposes the same rule to
+dmo-03. Their locked reason reads `text.keystone_tooltip` from `data/demo.json`.
+Complete-build reachability still considers a future keystone possible, so
+other skills have exactly the same availability as in a full build.
+Normalization removes demo-locked keystones and legacy migration cannot add
+one; removed points remain unspent and the revision follows the existing
+refund/reconciliation path. Repair caches distinguish demo and full modes.
+Saved demo profiles alone gain `build_kind: "demo"` in their separate namespace.
+Setting the first `demo_links_prompt_run_id` advances `progression_revision`
+once, like awakening and heirloom receipts. The existing revision reconciliation
+and inverse torn-write repair therefore preserve it after interrupted Embrace.
+Existing save migration and both directions of torn-write revision repair below
+remain in force; demo progression does not transfer to full-game profiles.
+
 Progression schema `5` stores:
 
 ```gdscript

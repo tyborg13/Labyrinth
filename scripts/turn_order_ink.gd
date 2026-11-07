@@ -98,11 +98,12 @@ static func projection_style(delta: int = 0) -> StyleBoxFlat:
 	return style
 
 
-# Slanted portrait window. With clip_children the drawn polygon is the mask:
-# only the portrait inside it is visible, and the mask itself is never shown.
+# Slanted portrait window. The helper retains these same polygons' native
+# pixel coverage; unsupported or changing geometry keeps clip_children.
 class PortraitMask:
 	extends Control
 
+	var _clip := preload("res://scripts/turn_order_portrait_clip.gd").new()
 	var skew: float = 0.0
 
 	func _init() -> void:
@@ -110,7 +111,14 @@ class PortraitMask:
 		clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 		resized.connect(queue_redraw)
 
+	func _enter_tree() -> void:
+		_clip.install(self)
+
+	func _ready() -> void:
+		_clip.refresh()
+
 	func _draw() -> void:
+		if _clip.active: return
 		if size.x < 4.0 or size.y < 4.0:
 			return
 		draw_colored_polygon(window_points(size, skew), Color.WHITE)

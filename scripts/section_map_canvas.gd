@@ -3,11 +3,18 @@ extends Control
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
+const InkCache = preload("res://scripts/section_map_ink_cache.gd")
 var state: Dictionary = {}
 var positions: Dictionary = {}
 var radii: Dictionary = {}
 var section_index: int = 0
 var selected: Vector2i = Graph.INVALID
+# Consecutive dots share one native triangle upload. The helper preserves
+# Godot's circle fan, float colours and original paint order; AA rails remain
+# native flush boundaries. Static fans are retained per link and layer, and
+# ordered submissions reuse those exact arrays on unchanged draws.
+var _dot_batch := preload("res://scripts/section_map_ink_batch.gd").new()
+var _ink_cache := InkCache.new()
 # Revision 7 (map-03): inked dot trails, ground shadows and the lantern's walk.
 var ink: bool = false
 var travel_from: Vector2i = Graph.INVALID
@@ -89,64 +96,36 @@ func _draw_dashed(curve: Curve2D, color: Color) -> void:
 		distance += 13
 
 func _trail(a: Vector2, b: Vector2) -> Curve2D:
-	# Trails leave and enter each room sideways and bend between, as before.
-	var curve := Curve2D.new()
-	var reach: float = maxf(20, (b.x - a.x) * 0.52)
-	curve.add_point(a, Vector2.ZERO, Vector2(reach, 0))
-	curve.add_point(b, Vector2(-reach, 0), Vector2.ZERO)
-	return curve
+	return InkCache.make_trail(a, b)
 
 func _draw_ink() -> void:
-	var current: Vector2i = state.get("current_room", Graph.INVALID)
-	var future: Dictionary = Graph.descendants(state, current)
-	var planned: Dictionary = Graph.descendants(state, selected) if future.has(selected) else {}
+	var layers: Dictionary = _ink_cache.layers_for(state, positions, section_index, selected)
+	_dot_batch.begin_draw(layers, section_index)
 	for coord: Vector2i in positions:
 		_draw_ground_shadow(positions[coord], float(radii.get(coord, 37.0)) - 6.0)
-	var layers: Dictionary = {"bypassed": [], "ahead": [], "planned": [], "walked": [], "choice": [], "chosen": []}
-	for source: Vector2i in positions:
-		var node: Dictionary = Graph.room(state, source)
-		for link: Dictionary in node.get("connections", []):
-			var target: Vector2i = link.get("coord", Graph.INVALID)
-			if not positions.has(target): continue
-			var destination: Dictionary = Graph.room(state, target)
-			var kind: String = "ahead"
-			if bool(node.get("visited", false)) and bool(destination.get("visited", false)): kind = "walked"
-			elif source == current: kind = "chosen" if target == selected else "choice"
-			elif not future.has(source) or not future.has(target): kind = "bypassed"
-			elif (planned.has(source) or source == selected) and planned.has(target): kind = "planned"
-			(layers[kind] as Array).append([source, target])
 	for kind: String in ["bypassed", "ahead", "planned", "walked", "choice", "chosen"]:
 		for pair: Array in layers[kind]:
 			var source: Vector2i = pair[0]
 			var target: Vector2i = pair[1]
-			var a: Vector2 = positions[source] + Vector2(float(radii.get(source, 37.0)), 0)
-			var b: Vector2 = positions[target] - Vector2(float(radii.get(target, 37.0)), 0)
-			var points: PackedVector2Array = _trail(a, b).get_baked_points()
+			var trail: Dictionary = _ink_cache.trail_for(source, target, positions, radii)
+			var points: PackedVector2Array = trail["points"]
 			if kind == "walked":
+				_dot_batch.flush(self)
 				draw_polyline(points, Color(Palette.INK_0, 0.66), INK_WALKED_WIDTH * 2.0, true)
 				draw_polyline(points, Palette.GOLD, INK_WALKED_WIDTH, true)
 				continue
 			if kind in ["choice", "chosen"]:
+				_dot_batch.flush(self)
 				# A soft ember glow under your next choices.
 				draw_polyline(points, Color(Palette.EMBER, 0.08 if kind == "choice" else 0.14), 20.0, true)
 				draw_polyline(points, Color(Palette.EMBER, 0.14 if kind == "choice" else 0.22), 10.0, true)
 			var style: Array = {"bypassed": INK_BYPASSED, "ahead": INK_AHEAD, "planned": INK_PLANNED, "choice": INK_CHOICE, "chosen": INK_CHOSEN}[kind]
-			_draw_dots(_trail(a, b), style)
+			_draw_dots(pair, kind, trail, style)
+	_dot_batch.flush(self)
+	_dot_batch.end_draw()
 
-func _draw_dots(curve: Curve2D, style: Array) -> void:
-	var spacing: float = style[0]
-	var radius: float = style[1]
-	var colour := Color(style[2] as Color, float(style[4]))
-	var halo := Color(Palette.INK_0, float(style[3]))
-	var length: float = curve.get_baked_length()
-	var count: int = maxi(1, floori(length / spacing))
-	# Centre the dots on the trail so both ends sit an equal step from the rooms.
-	var start: float = (length - float(count) * spacing) * 0.5 + spacing * 0.5
-	var points := PackedVector2Array()
-	for index: int in range(count):
-		points.append(curve.sample_baked(start + float(index) * spacing))
-	for point: Vector2 in points: draw_circle(point, radius + INK_HALO, halo)
-	for point: Vector2 in points: draw_circle(point, radius, colour)
+func _draw_dots(pair: Array, kind: String, trail: Dictionary, style: Array) -> void:
+	_dot_batch.append_trail(pair, kind, trail["points"], trail["curve"], style, INK_HALO, Palette.INK_0)
 
 func _draw_ground_shadow(center: Vector2, radius: float) -> void:
 	# Seats each room on the painting: a soft, flattened pool under it.

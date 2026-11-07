@@ -695,6 +695,7 @@ var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
 var _ambient_batch_uvs: PackedVector2Array = PackedVector2Array()
 var _ambient_batch_colors: PackedColorArray = PackedColorArray()
 var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
+var _ambient_quad_indices := preload("res://scripts/board_quad_indices.gd").new()
 var _ambient_batch_sprite_count: int = 0
 var _ambient_batch_sprite_capacity: int = 0
 var _ambient_batch_sprite_total_count: int = 0
@@ -749,6 +750,7 @@ var status_pop_tracker: RefCounted = StatusPopTracker.new()
 var _next_health_ghost_state: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
+var _shadow_keys := preload("res://scripts/board_shadow_keys.gd").new()
 var _unit_shadow_draw_geometry_cache: Dictionary = {}
 var _unit_shadow_draw_mesh_cache: Dictionary = {}
 var _unit_ground_contact := preload("res://scripts/unit_ground_contact.gd").new()
@@ -1880,14 +1882,20 @@ func _create_static_render_cache() -> void:
 	_sync_static_render_cache()
 
 func _static_render_cache_size() -> Vector2i:
-	var pixel_scale: Vector2 = get_viewport().get_stretch_transform().get_scale()
-	var viewport_size: Vector2 = get_viewport().get_visible_rect().size * pixel_scale
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return Vector2i.ZERO
+	var pixel_scale: Vector2 = viewport.get_stretch_transform().get_scale()
+	var viewport_size: Vector2 = viewport.get_visible_rect().size * pixel_scale
 	return Vector2i(maxi(2, ceili(viewport_size.x)), maxi(2, ceili(viewport_size.y)))
 
 func _sync_static_render_cache() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
 		return
 	if _static_render_cache_viewport == null or not is_instance_valid(_static_render_cache_viewport):
+		return
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
 		return
 	_sync_art_lighting()
 	var cache_has_content: bool = _static_render_cache_enabled and not combat_state.is_empty()
@@ -1896,7 +1904,7 @@ func _sync_static_render_cache() -> void:
 		_static_render_cache_inputs.clear()
 		return
 	var cache_size: Vector2i = _static_render_cache_size()
-	var pixel_transform: Transform2D = get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	var pixel_transform: Transform2D = viewport.get_stretch_transform() * get_global_transform_with_canvas()
 	_ensure_board_layout_cache()
 	var inputs: Dictionary = _static_floor_inputs(cache_size, pixel_transform)
 	if not _static_render_cache_inputs.is_empty() and _static_render_cache_inputs == inputs:
@@ -3475,7 +3483,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_queue_render_layer_redraw(_hud_render_layer)
 		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
 	_sync_enemy_shadow_dissolve_effects()
+	var retained_strike_frame: bool = (
+		(presentation_changes.has("strike_trail_effect") or presentation_changes.has("strike_trail_progress"))
+		and is_instance_valid(_effects_render_layer) and not _submission_redraws.has(_effects_render_layer)
+	)
 	_flush_submission_redraws()
+	if retained_strike_frame:
+		LayerRedraws.bind_retained_strike_frame(self, _effects_render_layer)
 	_preparing_submission = false
 	_submission_units_valid = false
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
@@ -3670,6 +3684,10 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 				path_changed = true
 				effects_changed = true
+			"strike_trail_effect", "strike_trail_progress":
+				# Retained-state sync submits the trail to its independent child.
+				# Keep the parent's cadence while other effects/clocks are present.
+				effects_changed = effects_changed or LayerRedraws.strike_changes_need_effects_redraw(self)
 			"effect", "effect_progress":
 				for tile: Vector2i in SceneDirtyTiles.bramble(previous_path_presentation).merged(SceneDirtyTiles.bramble(presentation)):
 					_queue_scene_render_layer_for_tile(tile)
@@ -3797,7 +3815,13 @@ func _queue_presentation_change_redraws(
 			_queue_scene_render_layer_for_tile(tile)
 	if hud_changed:
 		_queue_render_layer_redraw(_hud_render_layer)
-	if not effects_changed and (changed_keys.has("protagonist_motion") or changed_keys.has("effect_progress")):
+	# Trail-only submissions retain the independent telegraph clock cadence.
+	if not effects_changed and (
+		changed_keys.has("protagonist_motion") or changed_keys.has("effect_progress")
+		or changed_keys.has("strike_trail_effect") or changed_keys.has("strike_trail_progress")
+	):
+		if changed_keys.has("strike_trail_effect") or changed_keys.has("strike_trail_progress"):
+			_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_telegraph_render_layer)
 	if effects_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
@@ -6180,6 +6204,7 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	# Canvas draw commands retain the mesh resource until the next redraw.
 	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
 	var active_element_ids: PackedStringArray = _ambient_active_element_ids()
+	var tile_width: float = _tile_width()
 	_begin_ambient_particle_batch()
 	_record_render_section_time("ambient_particle_setup", phase_started_usec)
 	phase_started_usec = Time.get_ticks_usec()
@@ -6192,7 +6217,7 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 		var templates: Array = _ambient_particle_templates(element_id, tiles, particle_count)
 		for index: int in range(particle_count):
 			var particle_template: AmbientParticleTemplate = templates[index] as AmbientParticleTemplate
-			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, room_opacity)
+			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, room_opacity, tile_width)
 	_record_render_section_time("ambient_particle_simulation", phase_started_usec)
 	phase_started_usec = Time.get_ticks_usec()
 	_flush_ambient_particle_batch()
@@ -6335,7 +6360,8 @@ func _draw_ambient_particle_from_template(
 	particle_template: AmbientParticleTemplate,
 	time_seconds: float,
 	motion_time_seconds: float,
-	room_opacity: float
+	room_opacity: float,
+	tile_width: float
 ) -> void:
 	var texture: Texture2D = particle_template.texture
 	if texture == null:
@@ -6348,7 +6374,6 @@ func _draw_ambient_particle_from_template(
 	var alpha: float = _ambient_alpha_for_element_with_opacity(element_id, cycle, room_opacity)
 	if alpha <= 0.04:
 		return
-	var tile_width: float = _tile_width()
 	var point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(element_id, particle_template, cycle, time_seconds, tile_width)
 	var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta(element_id), 0.0, 1.0)
 	var previous_point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(
@@ -6931,11 +6956,6 @@ func _begin_ambient_particle_batch() -> void:
 	_ensure_ambient_combined_atlas()
 	_ambient_batch_active = _ambient_combined_atlas != null
 	_ambient_batch_sprite_count = 0
-	if _ambient_batch_active and _ambient_batch_sprite_capacity > 0:
-		# The mesh only references submitted indices, so the packed vertex buffers
-		# can retain their warmed capacity between redraws. Re-expanding the index
-		# buffer reuses its allocation and avoids thousands of append operations.
-		_ambient_batch_indices.resize(_ambient_batch_sprite_capacity * 6)
 
 func _reserve_ambient_particle_batch(required_sprite_capacity: int) -> void:
 	if required_sprite_capacity <= _ambient_batch_sprite_capacity:
@@ -6944,7 +6964,6 @@ func _reserve_ambient_particle_batch(required_sprite_capacity: int) -> void:
 	_ambient_batch_vertices.resize(rounded_capacity * 4)
 	_ambient_batch_uvs.resize(rounded_capacity * 4)
 	_ambient_batch_colors.resize(rounded_capacity * 4)
-	_ambient_batch_indices.resize(rounded_capacity * 6)
 	_ambient_batch_sprite_capacity = rounded_capacity
 	_ambient_batch_buffer_grow_count += 1
 
@@ -6958,7 +6977,6 @@ func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_siz
 	var axis_x := Vector2(cos(rotation), sin(rotation)) * draw_size.x * 0.5
 	var axis_y := Vector2(-sin(rotation), cos(rotation)) * draw_size.y * 0.5
 	var first_vertex: int = _ambient_batch_sprite_count * 4
-	var first_index: int = _ambient_batch_sprite_count * 6
 	var vertex: Vector2 = point - axis_x - axis_y
 	_ambient_batch_vertices[first_vertex] = Vector3(vertex.x, vertex.y, 0.0)
 	vertex = point + axis_x - axis_y
@@ -6976,19 +6994,13 @@ func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_siz
 	_ambient_batch_colors[first_vertex + 1] = color
 	_ambient_batch_colors[first_vertex + 2] = color
 	_ambient_batch_colors[first_vertex + 3] = color
-	_ambient_batch_indices[first_index] = first_vertex
-	_ambient_batch_indices[first_index + 1] = first_vertex + 1
-	_ambient_batch_indices[first_index + 2] = first_vertex + 2
-	_ambient_batch_indices[first_index + 3] = first_vertex
-	_ambient_batch_indices[first_index + 4] = first_vertex + 2
-	_ambient_batch_indices[first_index + 5] = first_vertex + 3
 	_ambient_batch_sprite_count += 1
 
 func _flush_ambient_particle_batch() -> void:
 	_ambient_batch_active = false
 	if _ambient_batch_sprite_count <= 0 or _ambient_combined_atlas == null:
 		return
-	_ambient_batch_indices.resize(_ambient_batch_sprite_count * 6)
+	_ambient_batch_indices = _ambient_quad_indices.for_sprites(_ambient_batch_sprite_count)
 	_ambient_batch_sprite_total_count += _ambient_batch_sprite_count
 	_ambient_batch_sprite_max_count = maxi(_ambient_batch_sprite_max_count, _ambient_batch_sprite_count)
 	var arrays: Array = []
@@ -11696,6 +11708,9 @@ func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
 	# _ready(); creating a root light there would composite it twice.
 	if not is_inside_tree():
 		return
+	# A contact-playback rig can emit its trail while impact FX remain absent.
+	effect = presentation.get("strike_trail_effect",effect)
+	progress = float(presentation.get("strike_trail_progress",progress))
 	if not is_instance_valid(_strike_trail_layer) and (HeroStrikeTrail.handles(effect) or EnemyStrikeTrail.handles(self, effect)):
 		_ensure_strike_trail_layer()
 	if is_instance_valid(_strike_trail_layer):
@@ -15495,7 +15510,7 @@ func begin_unit_renderer_preparation(state: Dictionary) -> Array[Dictionary]:
 	var jobs: Array[Dictionary]
 	for unit: Dictionary in state.get("enemies", []):
 		var type: String = str(unit.get("type", ""))
-		if (type not in ["crawler", "harrier"] and not MaquettePresentation.handles(type)) or int(unit.get("hp", 0)) <= 0: continue
+		if (type not in ["crawler", "harrier"] and not MaquettePresentation.handles(type) and not GuardianCutout.handles(type)) or int(unit.get("hp", 0)) <= 0: continue
 		var key: String = "%s:%d" % [type, int(unit.get("id", -1))]
 		desired[key] = true
 		jobs.append({"key": key, "type": type, "id": int(unit.get("id", -1)), "motion": EnemyCutoutFacing.with_idle_direction({}, unit.get("pos", Vector2i.ZERO), (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))})
@@ -15516,10 +15531,15 @@ func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
 			"crawler": script = CrawlerCutout; prefix = "CrawlerCutout"
 			"harrier": script = HarrierCutout; prefix = "HarrierCutout"
 			_:
-				if not MaquettePresentation.handles(str(job["type"])): return
-				script = MaquettePresentation.renderer_script(str(job["type"]))
-				prefix = "MaquetteCutout"
+				if GuardianCutout.handles(str(job["type"])):
+					script = GuardianCutout
+					prefix = "GuardianCutout"
+				else:
+					if not MaquettePresentation.handles(str(job["type"])): return
+					script = MaquettePresentation.renderer_script(str(job["type"]))
+					prefix = "MaquetteCutout"
 		renderer = script.new()
+		if script == GuardianCutout: renderer.set("character_id", str(job["type"]))
 		renderer.name = "%s_%d" % [prefix, int(job["id"])]
 		add_child(renderer)
 		_prepared_unit_renderers[key] = renderer
@@ -17003,12 +17023,7 @@ func _unit_shadow_draw_cache_key(texture: Texture2D, draw_rect: Rect2, unit_type
 	# Shadow geometry is authored around the feet and translated at submission.
 	# Position is therefore not part of its identity: movement between tiles can
 	# reuse the same immutable mesh for a given sprite frame and draw size.
-	return "%d|%.3f,%.3f|%s|%s" % [
-		texture.get_instance_id(),
-		draw_rect.size.x,
-		draw_rect.size.y,
-		unit_type, _art_treatment_enabled
-	]
+	return _shadow_keys.resolve(texture, draw_rect.size, unit_type, _art_treatment_enabled)
 
 func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> Array:
 	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)

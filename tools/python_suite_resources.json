@@ -28,6 +28,7 @@
     "test_cutout_workflow": [
       "capacitor"
     ],
+    "test_demo_build": [],
     "test_demo_clips": [],
     "test_demo_recording": [],
     "test_element_rule_contract": [],

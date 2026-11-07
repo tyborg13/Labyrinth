@@ -80,6 +80,20 @@ func begin_close_slide(starts: Dictionary) -> void:
 func is_sliding() -> bool:
 	return not _slide_starts.is_empty()
 
+## Resolve against current geometry, including fan rotation and overlap order.
+## A parked/synthetic pointer need not have a native GUI hover owner.
+func card_index_at_point(global_point: Vector2) -> int:
+	var children: Array[Control] = _layout_children()
+	var result: int = -1
+	for index: int in range(children.size()):
+		var child: Control = children[index]
+		if not child.is_visible_in_tree():
+			continue
+		if Rect2(Vector2.ZERO, child.size).has_point(child.get_global_transform_with_canvas().affine_inverse() * global_point):
+			if result < 0 or child.z_index >= children[result].z_index:
+				result = index
+	return result
+
 ## How far a child still has to slide to reach its slot, on screen (zero at rest).
 func slide_remaining(child: Control) -> Vector2:
 	return get_global_transform().basis_xform((_laid_out.get(child, {}) as Dictionary).get("offset", Vector2.ZERO))

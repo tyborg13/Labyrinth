@@ -15,6 +15,7 @@ STEAMPIPE_SCRIPT_ROOT="${STEAMPIPE_ROOT}/scripts"
 STEAMPIPE_OUTPUT_ROOT="${STEAMPIPE_ROOT}/output"
 EXPORT_STAGING_ROOT="${PROJECT_ROOT}/.steam/export_staging"
 EXPORT_PROJECT_ROOT="${PROJECT_ROOT}/.steam/export_project"
+EXPORT_PRESET_PREFIX="Steam"
 DEV_EXPORT_PATH_PATTERN='^res://(\.codex|output|playtest|spec|tests|tmp|tools)/'
 
 CONFIG_PATH="${DEFAULT_CONFIG_PATH}"
@@ -31,6 +32,7 @@ STEAM_USERNAME_OVERRIDE=""
 
 TARGET_MAIN=0
 TARGET_PLAYTEST=0
+TARGET_DEMO=0
 EXPORT_MACOS=0
 EXPORT_WINDOWS=0
 EXPORT_LINUX=0
@@ -46,6 +48,14 @@ STEAM_PLAYTEST_BRANCH="default"
 STEAM_PLAYTEST_DEPOT_MACOS=0
 STEAM_PLAYTEST_DEPOT_WINDOWS=0
 STEAM_PLAYTEST_DEPOT_LINUX=0
+STEAM_DEMO_APP_ID=""
+STEAM_DEMO_BRANCH="default"
+STEAM_DEMO_DEPOT_MACOS=""
+STEAM_DEMO_DEPOT_WINDOWS=""
+STEAM_DEMO_DEPOT_LINUX=""
+STEAM_DEMO_MACOS_APP_NAME="Escape the Umbra Demo.app"
+STEAM_DEMO_WINDOWS_EXECUTABLE_NAME="Escape the Umbra Demo.exe"
+STEAM_DEMO_LINUX_EXECUTABLE_NAME="Escape the Umbra Demo.x86_64"
 STEAM_PRODUCT_NAME="Escape the Umbra"
 STEAM_MACOS_APP_NAME="Escape the Umbra.app"
 STEAM_WINDOWS_EXECUTABLE_NAME="Escape the Umbra.exe"
@@ -60,7 +70,7 @@ Usage:
 
 Options:
   --config PATH             Config file to source. Defaults to steam/steam_build_config.env
-  --targets LIST            Comma-separated: main, playtest. Defaults to main,playtest
+  --targets LIST            Comma-separated: main, playtest, demo. Defaults to main,playtest
   --platforms LIST          Comma-separated: macos, windows, linux, auto. Defaults to auto
   --export-only             Export builds but do not upload to Steam
   --upload-only             Upload existing exported builds without re-exporting
@@ -280,15 +290,18 @@ select_targets() {
 			playtest)
 				TARGET_PLAYTEST=1
 				;;
+			demo)
+				TARGET_DEMO=1
+				;;
 			'')
 				;;
 			*)
-				fail "Unsupported target '${raw}'. Use main and/or playtest."
+				fail "Unsupported target '${raw}'. Use main, playtest, and/or demo."
 				;;
 		esac
 	done
 
-	if [[ "${TARGET_MAIN}" -eq 0 && "${TARGET_PLAYTEST}" -eq 0 ]]; then
+	if [[ "${TARGET_MAIN}" -eq 0 && "${TARGET_PLAYTEST}" -eq 0 && "${TARGET_DEMO}" -eq 0 ]]; then
 		fail "No valid targets selected."
 	fi
 }
@@ -333,6 +346,15 @@ target_has_platform() {
 		playtest:linux)
 			depot_id="${STEAM_PLAYTEST_DEPOT_LINUX}"
 			;;
+		demo:macos)
+			depot_id="${STEAM_DEMO_DEPOT_MACOS}"
+			;;
+		demo:windows)
+			depot_id="${STEAM_DEMO_DEPOT_WINDOWS}"
+			;;
+		demo:linux)
+			depot_id="${STEAM_DEMO_DEPOT_LINUX}"
+			;;
 	esac
 
 	is_positive_int "${depot_id}"
@@ -372,6 +394,11 @@ select_platforms() {
 			target_has_platform playtest macos && EXPORT_MACOS=1
 			target_has_platform playtest windows && EXPORT_WINDOWS=1
 			target_has_platform playtest linux && EXPORT_LINUX=1
+		fi
+		if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+			target_has_platform demo macos && EXPORT_MACOS=1
+			target_has_platform demo windows && EXPORT_WINDOWS=1
+			target_has_platform demo linux && EXPORT_LINUX=1
 		fi
 	else
 		for raw in ${PLATFORMS_CSV//,/ }; do
@@ -574,13 +601,13 @@ export_platform() {
 	local preset_name staging_path staging_parent_dir
 	case "${platform}" in
 		macos)
-			preset_name="Steam macOS"
+			preset_name="${EXPORT_PRESET_PREFIX} macOS"
 			;;
 		windows)
-			preset_name="Steam Windows"
+			preset_name="${EXPORT_PRESET_PREFIX} Windows"
 			;;
 		linux)
-			preset_name="Steam Linux"
+			preset_name="${EXPORT_PRESET_PREFIX} Linux"
 			;;
 		*)
 			fail "Unsupported export platform '${platform}'."
@@ -701,6 +728,9 @@ target_app_id() {
 		playtest)
 			printf '%s' "${STEAM_PLAYTEST_APP_ID}"
 			;;
+		demo)
+			printf '%s' "${STEAM_DEMO_APP_ID}"
+			;;
 		*)
 			fail "Unknown target '$1'."
 			;;
@@ -714,6 +744,9 @@ target_branch() {
 			;;
 		playtest)
 			printf '%s' "${STEAM_PLAYTEST_BRANCH}"
+			;;
+		demo)
+			printf '%s' "${STEAM_DEMO_BRANCH}"
 			;;
 		*)
 			fail "Unknown target '$1'."
@@ -742,6 +775,15 @@ target_depot_id() {
 			;;
 		playtest:linux)
 			printf '%s' "${STEAM_PLAYTEST_DEPOT_LINUX}"
+			;;
+		demo:macos)
+			printf '%s' "${STEAM_DEMO_DEPOT_MACOS}"
+			;;
+		demo:windows)
+			printf '%s' "${STEAM_DEMO_DEPOT_WINDOWS}"
+			;;
+		demo:linux)
+			printf '%s' "${STEAM_DEMO_DEPOT_LINUX}"
 			;;
 		*)
 			fail "Unknown target/platform combination '${target}:${platform}'."
@@ -903,11 +945,63 @@ run_steamcmd_upload() {
 	fi
 }
 
+# A subshell keeps each build's paths/names local when full and demo exports
+# are requested together. Main and Playtest continue sharing the full build.
+with_build_kind() (
+	local kind="$1"
+	shift
+	if [[ "${kind}" == "demo" ]]; then
+		BUILD_ROOT="${PROJECT_ROOT}/build/steam_demo"
+		CONTENT_ROOT="${BUILD_ROOT}/content"
+		STEAMPIPE_ROOT="${BUILD_ROOT}/steampipe"
+		STEAMPIPE_SCRIPT_ROOT="${STEAMPIPE_ROOT}/scripts"
+		STEAMPIPE_OUTPUT_ROOT="${STEAMPIPE_ROOT}/output"
+		EXPORT_STAGING_ROOT="${PROJECT_ROOT}/.steam/export_staging_demo"
+		EXPORT_PRESET_PREFIX="Steam Demo"
+		STEAM_MACOS_APP_NAME="${STEAM_DEMO_MACOS_APP_NAME}"
+		STEAM_WINDOWS_EXECUTABLE_NAME="${STEAM_DEMO_WINDOWS_EXECUTABLE_NAME}"
+		STEAM_LINUX_EXECUTABLE_NAME="${STEAM_DEMO_LINUX_EXECUTABLE_NAME}"
+	fi
+	"$@"
+)
+
+export_selected_platforms() {
+	local platform
+	rm -rf "${CONTENT_ROOT}" "${EXPORT_STAGING_ROOT}"
+	ensure_dir "${CONTENT_ROOT}"
+	for platform in macos windows linux; do
+		if platform_enabled "${platform}"; then
+			export_platform "${platform}"
+		fi
+	done
+	for platform in macos windows linux; do
+		if platform_enabled "${platform}"; then
+			sync_staged_platform_output "${platform}"
+		fi
+	done
+	ensure_export_outputs_exist
+	validate_exported_content
+}
+
+validate_build_outputs() {
+	ensure_export_outputs_exist
+	validate_exported_content
+}
+
+validate_demo_config() {
+	if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+		if [[ -z "${STEAM_DEMO_APP_ID}" || -z "${STEAM_DEMO_DEPOT_MACOS}" || -z "${STEAM_DEMO_DEPOT_WINDOWS}" || -z "${STEAM_DEMO_DEPOT_LINUX}" ]]; then
+			fail "Demo target needs STEAM_DEMO_APP_ID and STEAM_DEMO_DEPOT_{MACOS,WINDOWS,LINUX} in steam/steam_build_config.env."
+		fi
+	fi
+}
+
 main() {
 	parse_args "$@"
 	load_config
-	validate_environment
 	select_targets
+	validate_demo_config
+	validate_environment
 	select_platforms
 
 	log "Selected targets: ${TARGETS_CSV}"
@@ -918,6 +1012,9 @@ main() {
 	if [[ "${TARGET_PLAYTEST}" -eq 1 ]]; then
 		validate_unique_target_depots playtest
 	fi
+	if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+		validate_unique_target_depots demo
+	fi
 
 	if [[ "${MODE}" != "upload-only" ]]; then
 		ensure_godot_templates
@@ -926,41 +1023,32 @@ main() {
 		python3 "${PROJECT_ROOT}/tools/cel_look.py" build --if-stale
 		python3 "${PROJECT_ROOT}/tools/cel_look.py" status
 		prepare_export_project
-		rm -rf "${CONTENT_ROOT}" "${EXPORT_STAGING_ROOT}"
-		ensure_dir "${CONTENT_ROOT}"
-		if [[ "${EXPORT_MACOS}" -eq 1 ]]; then
-			export_platform macos
+		if [[ "${TARGET_MAIN}" -eq 1 || "${TARGET_PLAYTEST}" -eq 1 ]]; then
+			with_build_kind full export_selected_platforms
 		fi
-		if [[ "${EXPORT_WINDOWS}" -eq 1 ]]; then
-			export_platform windows
+		if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+			with_build_kind demo export_selected_platforms
 		fi
-		if [[ "${EXPORT_LINUX}" -eq 1 ]]; then
-			export_platform linux
-		fi
-		if [[ "${EXPORT_MACOS}" -eq 1 ]]; then
-			sync_staged_platform_output macos
-		fi
-		if [[ "${EXPORT_WINDOWS}" -eq 1 ]]; then
-			sync_staged_platform_output windows
-		fi
-		if [[ "${EXPORT_LINUX}" -eq 1 ]]; then
-			sync_staged_platform_output linux
-		fi
-		ensure_export_outputs_exist
-		validate_exported_content
 	fi
 
 	if [[ "${MODE}" != "export-only" ]]; then
-		ensure_export_outputs_exist
-		validate_exported_content
+		if [[ "${TARGET_MAIN}" -eq 1 || "${TARGET_PLAYTEST}" -eq 1 ]]; then
+			with_build_kind full validate_build_outputs
+		fi
+		if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+			with_build_kind demo validate_build_outputs
+		fi
 		if [[ "${DRY_RUN}" -eq 0 ]]; then
 			ensure_steamcmd
 		fi
 		if [[ "${TARGET_MAIN}" -eq 1 ]]; then
-			run_steamcmd_upload main
+			with_build_kind full run_steamcmd_upload main
 		fi
 		if [[ "${TARGET_PLAYTEST}" -eq 1 ]]; then
-			run_steamcmd_upload playtest
+			with_build_kind full run_steamcmd_upload playtest
+		fi
+		if [[ "${TARGET_DEMO}" -eq 1 ]]; then
+			with_build_kind demo run_steamcmd_upload demo
 		fi
 	fi
 

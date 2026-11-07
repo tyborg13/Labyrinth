@@ -1,0 +1,259 @@
+extends "/private/tmp/labyrinth_codex/sd-11/tools/reference_native_steady.gd"
+## perf-67 native state factories + sd-09 production hover/Character fixtures.
+const Metrics = preload("/private/tmp/labyrinth_codex/sd-11/tools/gpu_metrics.gd")
+const Fixture = preload("res://tests/controller_screen_sweep.gd")
+const EventFixture = preload("res://tests/suites/event_view_suite.gd")
+const HearthFixture = preload("res://tests/suites/ember_hearth_suite.gd")
+const Cel = preload("res://scripts/cel_look.gd")
+const STEADY_FRAMES: int = 600
+const WARMUP_FRAMES: int = 120
+const HEADLESS_FIXTURE_FRAMES: int = 3
+const STATE_TIMEOUT_MSEC: int = 120000
+const HOVER_TIMEOUT_MSEC: int = 15000
+const ENEMY_MAX_CYCLES: int = 100
+const SCREEN_NAMES: Array = ["map", "fight_idle", "card_hover", "card_aim", "enemy_turn", "warband", "guardian", "dragon", "reward", "shop", "event_hover", "campfire", "character", "grimoire"]
+var gpu_output: String = "/private/tmp/labyrinth_codex/sd-10/native"
+var gpu_metrics := Metrics.new()
+var gpu_rows: Array = []
+var fixture_helper := Fixture.new()
+var gpu_headless: bool = false
+var gpu_only: String = ""
+var enemy_action_done: bool = false
+var enemy_capture_saved: bool = false
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--output-dir="): gpu_output = arg.trim_prefix("--output-dir=")
+		if arg.begins_with("--state="): gpu_only = arg.trim_prefix("--state=")
+	call_deferred("_run")
+
+func _run() -> void:
+	gpu_headless = DisplayServer.get_name() == "headless"
+	DirAccess.make_dir_recursive_absolute(gpu_output)
+	_expect(gpu_only.is_empty() or SCREEN_NAMES.has(gpu_only), "known requested state")
+	Engine.max_fps = 0
+	OS.low_processor_usage_mode = false
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Settings.set_storage_path("user://sd10-settings.json")
+	Store.set_storage_path("user://sd10-profile.json")
+	Store.set_run_storage_path("user://sd10-run.save")
+	preload("res://scripts/analytics_store.gd").set_storage_dir("user://sd10-analytics")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.15
+	settings["edge_smoothing"] = Settings.EDGE_SMOOTHING_OFF
+	settings["display_mode"] = "windowed"
+	Settings.save_settings(settings)
+	Store.save_data(Tutorial.complete_tutorial(Store.default_data()))
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 800)
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.content_scale_factor = 1.15
+	root.position = Vector2i(24, 24)
+	Settings.apply_settings(settings, root)
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "controller", "steam_deck")
+	if gpu_headless: process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	else:
+		_expect(Cel.mode == "all" and FileAccess.file_exists("res://cel_look_variants/manifest.json"), "approved cel all pack required")
+		_expect(RenderingServer.get_current_rendering_method() == "mobile", "mobile renderer required")
+		var device: RenderingDevice = RenderingServer.get_rendering_device()
+		_expect(device != null, "RenderingDevice required for GPU timestamps")
+		_expect(RenderingServer.get_current_rendering_driver_name() == "vulkan", "Vulkan (MoltenVK) backend required for GPU timestamps")
+		if not errors.is_empty():
+			_finish()
+			return
+	gpu_metrics.attach(self)
+	scene = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	await _gpu_warm()
+	var base: Dictionary = run.create_new_run(83, Tutorial.complete_tutorial(Store.default_data()))
+	var fight: Dictionary = Warband.build(run, combat, base, {"warband_biome": "air", "warband_tier": 1})
+	fixture_helper.set("_scene", scene)
+	for label: String in SCREEN_NAMES:
+		if not gpu_only.is_empty() and label != gpu_only: continue
+		await _prepare_state(label, base, fight)
+		if label == "enemy_turn": await _measure_enemy(fight)
+		else: await _measure_steady(label)
+		if not gpu_headless and label != "enemy_turn": await _gpu_capture(label)
+	_finish()
+
+func _prepare_state(label: String, base: Dictionary, fight: Dictionary) -> void:
+	if label == "map":
+		await _gpu_install(base)
+		scene.call("_open_large_map")
+		_expect((scene.get("_large_map_scrim") as Control).visible, "map open")
+	elif label in ["fight_idle", "enemy_turn"]:
+		await _gpu_install(fight)
+		_expect((scene.get("_combat_state")["enemies"] as Array).size() == 4, "four enemy fight")
+	elif label in ["card_hover", "card_aim"]:
+		await _gpu_install(fixture_helper.call("_combat_state"))
+		scene.call("_controller_set_hand_focused", true)
+		scene.call("_controller_set_hand_index", 0)
+		scene.call("_on_card_hover_started", 0, false)
+		if label == "card_aim": await scene.call("_on_card_pressed", 0)
+		_expect(int(scene.get("_selected_card_index")) == 0 if label == "card_aim" else int(scene.get("_hovered_card_index")) == 0, label + " selected/hovered index")
+	elif label in ["warband", "guardian", "dragon"]:
+		await _gpu_install(_special_fight(label))
+		_expect(str(scene.get("_run_state").get("mode")) == "combat", label + " combat")
+	elif label == "reward":
+		await _gpu_install(flow._reward_state())
+		_expect(str(scene.get("_run_state").get("mode")) == "reward", "reward mode")
+	elif label == "shop":
+		await _gpu_install(flow._scavenger_state(run))
+		_expect((scene.get("_scavenger_shop_view") as Control).is_visible_in_tree(), "shop visible")
+	elif label == "event_hover":
+		await _gpu_install(EventFixture.fixture("hanged_knight", true))
+		var event: Control = scene.get("_event_view")
+		event.call("finish_animation_for_test")
+		var shown: bool = false
+		var choices: Array = event.get("choices")
+		for index: int in range(choices.size()):
+			if not bool(choices[index].get("available")): continue
+			choices[index].grab_focus()
+			event.call("preview_choice", index)
+			var deadline: int = Time.get_ticks_msec() + HOVER_TIMEOUT_MSEC
+			while Time.get_ticks_msec() < deadline:
+				var current: Control = event.get("hover_preview").get("current")
+				if is_instance_valid(current) and current.visible:
+					shown = true
+					break
+				await _gpu_next()
+			if shown: break
+		_expect(shown, "event concrete hover preview visible")
+	elif label == "campfire":
+		await _gpu_install(base)
+		HearthFixture.setup(scene, 8, 180, false, true)
+		scene.set("_settings", Settings.load_settings())
+		_expect((scene.get("_relic_choice_overlay") as Control).is_visible_in_tree(), "campfire visible")
+	elif label in ["character", "grimoire"]:
+		await _gpu_install(fixture_helper.call("_character_state"))
+		if label == "character":
+			scene.call("_open_character_overlay", "equipment")
+			_expect((scene.get("_upgrade_scrim") as Control).visible, "Character equipment visible")
+		else:
+			scene.call("_open_grimoire_overlay")
+			_expect((scene.get("_grimoire_scrim") as Control).visible, "Grimoire visible")
+	await _gpu_warm()
+
+func _gpu_install(state: Dictionary) -> void:
+	if bool(scene.get("_drag_targeting_active")): scene.call("_cancel_drag_play")
+	# Existing sweep closes overlays before installing each production state.
+	for close_method: String in ["_close_dialogue", "_close_menu_overlay", "_close_large_map", "_close_card_upgrade_overlay", "_close_grimoire_overlay", "_close_pile_view", "_close_pre_battle_preview"]:
+		scene.call(close_method)
+	scene.call("_close_magic_purge", false)
+	var installed: Dictionary = state.duplicate(true)
+	installed["progression"] = Tutorial.complete_tutorial(installed.get("progression", Store.default_data()))
+	scene.set("_progression", installed["progression"])
+	scene.call("_load_run_state", installed)
+	scene.call("_close_dialogue")
+	await _gpu_next()
+	await _gpu_next()
+	scene.call("_recover_controller_focus")
+	Settings.apply_settings(Settings.load_settings(), root)
+
+func _gpu_warm() -> void:
+	gpu_metrics.prepare_warmup(self)
+	var audit: Dictionary = gpu_metrics.measurement_audit()
+	_expect(bool(audit["main_viewport_found"]), "main viewport registered before warmup")
+	_expect(audit["live_viewports"] == audit["measurement_enable_requests"], "all live viewports have measurement enabled before warmup")
+	for index: int in range(HEADLESS_FIXTURE_FRAMES if gpu_headless else WARMUP_FRAMES): await _gpu_next()
+
+func _gpu_next() -> void:
+	if gpu_headless: await process_frame
+	else: await RenderingServer.frame_post_draw
+
+func _sample_record() -> Dictionary:
+	var row: Dictionary = gpu_metrics.frame()
+	if row.is_empty(): return row
+	row["root_size"] = [root.size.x, root.size.y]
+	row["ui_scale"] = root.content_scale_factor
+	row["focused"] = DisplayServer.window_is_focused()
+	return row
+
+func _measure_steady(label: String) -> void:
+	var frames: Array = []
+	var inventories: Array = []
+	var before: String = _state_hash()
+	var deadline: int = Time.get_ticks_msec() + STATE_TIMEOUT_MSEC
+	while frames.size() < (HEADLESS_FIXTURE_FRAMES if gpu_headless else STEADY_FRAMES) and Time.get_ticks_msec() < deadline:
+		if frames.size() % Metrics.SNAPSHOT_STRIDE_FRAMES == 0: inventories.append({"sample": frames.size(), "inventory": gpu_metrics.inventory(root)})
+		await _gpu_next()
+		var row: Dictionary = _sample_record()
+		if not row.is_empty(): frames.append(row)
+	_expect(frames.size() == (HEADLESS_FIXTURE_FRAMES if gpu_headless else STEADY_FRAMES), label + " requested frame count")
+	_expect(before == _state_hash(), label + " committed state remains stable")
+	_write_case(label, frames, inventories, {"before": before, "after": _state_hash(), "fixture": _fixture_info(), "protocol": "warmup excluded; production animation and shader clocks advance normally"})
+
+func _invoke_enemy_action() -> void:
+	await scene.call("_on_pass_turn_pressed")
+	enemy_action_done = true
+
+func _measure_enemy(fight: Dictionary) -> void:
+	var frames: Array = []
+	var inventories: Array = []
+	var cycles: Array = []
+	var target: int = HEADLESS_FIXTURE_FRAMES if gpu_headless else STEADY_FRAMES
+	if not gpu_headless:
+		# Exclude the first production action to warm action-only pipelines/caches.
+		await scene.call("_on_pass_turn_pressed")
+		_expect(not bool(scene.get("_animation_lock")), "excluded enemy warmup turn completed")
+	for cycle: int in range(ENEMY_MAX_CYCLES):
+		await _gpu_install(fight)
+		await _gpu_warm()
+		var before: String = _state_hash()
+		enemy_action_done = false
+		_invoke_enemy_action.call_deferred()
+		var deadline: int = Time.get_ticks_msec() + STATE_TIMEOUT_MSEC
+		var cycle_start: int = frames.size()
+		while not enemy_action_done and Time.get_ticks_msec() < deadline:
+			await _gpu_next()
+			# Only live production action frames; fixture reloads and player idle excluded.
+			if frames.size() < target and bool(scene.get("_animation_lock")):
+				var row: Dictionary = _sample_record()
+				if not row.is_empty():
+					row["cycle"] = cycle
+					row["current_actor"] = scene.get("_combat_state").get("current_actor", {})
+					frames.append(row)
+					if frames.size() % Metrics.SNAPSHOT_STRIDE_FRAMES == 1: inventories.append({"sample": frames.size() - 1, "inventory": gpu_metrics.inventory(root)})
+			if not gpu_headless and frames.size() >= target and not enemy_capture_saved:
+				await _gpu_capture("enemy_turn", true)
+				enemy_capture_saved = true
+		_expect(enemy_action_done, "enemy action completed before timeout")
+		cycles.append({"cycle": cycle, "frames": frames.size() - cycle_start, "before": before, "after": _state_hash()})
+		_expect(before != _state_hash(), "enemy action committed a production turn")
+		if frames.size() >= target: break
+	_expect(frames.size() == target, "enemy turn requested frame count")
+	_write_case("enemy_turn", frames, inventories, {"cycles": cycles, "protocol": "600 live end-turn animation frames pooled across independent production turns; fixture reset/warmup excluded; no slowed or frozen animation"})
+
+func _write_case(label: String, frames: Array, inventories: Array, notes: Dictionary) -> void:
+	var path: String = gpu_output.path_join(label + ".json")
+	var row: Dictionary = {"state": label, "headless": gpu_headless, "frames": frames, "inventories": inventories, "viewport_catalog": gpu_metrics.catalog(), "main_viewport_rid": gpu_metrics.main_viewport_rid, "measurement_audit": gpu_metrics.measurement_audit(), "notes": notes}
+	FileAccess.open(path, FileAccess.WRITE).store_string(JSON.stringify(row))
+	gpu_rows.append({"state": label, "frames": frames.size(), "path": path})
+	print("SD-10 STATE: %s frames=%d mode=%s" % [label, frames.size(), "fixture-only" if gpu_headless else "native"])
+
+func _gpu_capture(label: String, post_draw_ready: bool = false) -> void:
+	# The last sampled action frame is already post-draw; capture it immediately.
+	# Readback follows all samples and never enters the timing data.
+	if not post_draw_ready: await _gpu_next()
+	var image: Image = root.get_texture().get_image()
+	_expect(image != null and image.get_size() == Vector2i(1280, 800), "1280x800 capture " + label)
+	if image != null:
+		var path: String = gpu_output.path_join(label + ".png")
+		_expect(image.save_png(path) == OK, "capture written " + label)
+		print(path)
+
+func _finish() -> void:
+	var report: Dictionary = {"headless": gpu_headless, "states": gpu_rows, "errors": errors, "gpu_measurements_available": false if gpu_headless or RenderingServer.get_current_rendering_driver_name() == "metal" else true, "gpu_timing_note": "Godot 4.6.1 Metal timestamp_query_pool_get_results returns zeros; CPU timing and counters remain usable" if RenderingServer.get_current_rendering_driver_name() == "metal" else "headless verification only" if gpu_headless else "require positive timestamps", "size": [1280, 800], "ui_scale": 1.15, "edge_smoothing": Settings.load_settings().get("edge_smoothing"), "cel_look": Cel.mode, "renderer": RenderingServer.get_current_rendering_method(), "rendering_driver": RenderingServer.get_current_rendering_driver_name(), "main_viewport_rid": gpu_metrics.main_viewport_rid, "measurement_audit": gpu_metrics.measurement_audit(), "adapter": RenderingServer.get_video_adapter_name(), "command": OS.get_cmdline_args(), "godot": Engine.get_version_info(), "cpu": OS.get_processor_name(), "frame_cap": Engine.max_fps, "note": "Mac uses Metal; Steam Deck uses Vulkan. Headless values are fixture validation only."}
+	FileAccess.open(gpu_output.path_join("index.json"), FileAccess.WRITE).store_string(JSON.stringify(report, "\t"))
+	print("SD-10 %s: %s states=%d errors=%d" % ["FIXTURES" if gpu_headless else "NATIVE", "PASS" if errors.is_empty() else "FAIL", gpu_rows.size(), errors.size()])
+	fixture_helper.set("_scene", null)
+	fixture_helper.free()
+	if is_instance_valid(scene): scene.queue_free()
+	quit(0 if errors.is_empty() else 1)
+
+func _expect(ok: bool, message: String) -> void:
+	if not ok:
+		errors.append(message)
+		print("SD-10 ERROR: " + message)

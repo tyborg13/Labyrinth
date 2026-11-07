@@ -36,6 +36,8 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 		var phase: float = 1.0 if reduced else Action.contact_phase(float(frame - 1) / intervals, ceilf(contact * intervals) / intervals, contact)
 		var shown: Dictionary = {"maquette_explicit_clip": true,
 			type + "_motion": {key: {"clip": clip, "phase": phase, "direction": direction}}}
+		# Trail-only windup light must not publish hit/elemental FX or cues early.
+		preload("res://scripts/enemy_strike_window.gd").decorate(shown,step,actor,phase,contact)
 		if phase >= contact:
 			if not clock["contact"]:
 				scene._apply_animation_step(state, step)

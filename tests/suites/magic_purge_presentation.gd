@@ -160,7 +160,11 @@ static func assert_confirmation(modal: Control, paid: bool, affordable: bool, he
 	expect.call(modal.find_child("MagicPurgeScroll", true, false).modulate == Color(1, 1, 1, 0.30), "Only the grid dims to 30%")
 	expect.call(modal.find_child("MagicPurgeHeader", true, false).modulate == Color(1, 1, 1, 0.60), "Only the header dims to 60%")
 	var slot: Control = modal.find_child("MagicPurgeConfirmCardSlot", true, false)
-	expect.call(slot.size == Vector2(250, 352) and slot.get_global_rect().get_center().is_equal_approx(Vector2(960, 500)), "Confirmation card is full size at the authored centre")
+	expect.call(slot.size == Vector2(250, 352) and slot.scale.x <= 1.0 and is_equal_approx(slot.scale.x, slot.scale.y), "Confirmation preserves native card geometry and scales uniformly to fit")
+	var header_rect: Rect2 = modal.find_child("MagicPurgeHeader", true, false).get_global_rect()
+	for name: String in ["PurgeConfirmationQuestion", "MagicPurgeConfirmCardSlot", "MagicPurgeConfirmationButtons"]:
+		var rect: Rect2 = modal.find_child(name, true, false).get_global_rect()
+		expect.call(panel.get_global_rect().grow(FIT_EPSILON).encloses(rect) and rect.position.y >= header_rect.end.y + Typography.SPACE_SMALL - FIT_EPSILON, "Confirmation fits below its title row with 8px clearance: " + name)
 	expect.call(modal.find_child("MagicPurgeConfirmCard", true, false).get("card_id") == modal.get("pending_card_id"), "Confirmation shows the selected spell")
 	var halo: TextureRect = modal.find_child("MagicPurgeCrimsonGlow", true, false)
 	expect.call(halo.get_global_rect() == slot.get_global_rect().grow(56.0), "Halo has exactly 56px outward space")

@@ -10,6 +10,7 @@ const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
 signal room_selected(coord: Vector2i)
+signal target_geometry_changed
 
 const ROOM_COLORS := {
 	"start": Color("d8b96f"),
@@ -571,18 +572,35 @@ func center_on_current(reset_zoom: bool = true) -> void:
 	_invalidate_layout_cache()
 	_ensure_layout_cache()
 	queue_redraw()
+	target_geometry_changed.emit()
 
-func focus_controller_on_current() -> void:
+func focus_controller_on_current(allowed_destinations: Array = []) -> void:
 	if not interactive or run_state.is_empty():
 		return
 	_ensure_layout_cache()
 	var current: Vector2i = run_state.get("current_room", INVALID_COORD)
+	for coord: Vector2i in allowed_destinations:
+		if _available_move_coord_set.has(coord):
+			current = coord
+			break
 	_hover_coord = current if _world_positions_cache.has(current) else INVALID_COORD
 	if _hover_coord.x <= -900 and not _visible_hit_rects_cache.is_empty():
 		_hover_coord = _visible_hit_rects_cache[0].get("coord", INVALID_COORD)
 	_controller_cursor_position = _cached_coord_position(_hover_coord) if _hover_coord.x > -900 else _map_rect_cache.get_center()
 	grab_focus()
 	queue_redraw()
+
+func selectable_room_global_rects(destinations: Array[Vector2i]) -> Dictionary:
+	var result: Dictionary = {}
+	if not interactive or not is_visible_in_tree(): return result
+	_ensure_layout_cache()
+	var transform: Transform2D = get_global_transform()
+	for entry: Dictionary in _available_hit_rects_cache:
+		var coord: Vector2i = entry.get("coord", INVALID_COORD)
+		if not destinations.has(coord): continue
+		var rect: Rect2 = (transform * (entry["rect"] as Rect2)).intersection(transform * _map_rect_cache)
+		if rect.has_area(): result[coord] = rect
+	return result
 
 func set_camera_zoom(next_zoom: float, anchor: Vector2 = Vector2.INF) -> void:
 	if not interactive:
@@ -601,6 +619,7 @@ func set_camera_zoom(next_zoom: float, anchor: Vector2 = Vector2.INF) -> void:
 	_hover_coord = INVALID_COORD
 	_invalidate_layout_cache()
 	queue_redraw()
+	target_geometry_changed.emit()
 
 func pan_camera(screen_delta: Vector2) -> void:
 	if not interactive or screen_delta.length_squared() <= 0.001:
@@ -611,6 +630,7 @@ func pan_camera(screen_delta: Vector2) -> void:
 	_hover_coord = INVALID_COORD
 	_invalidate_layout_cache()
 	queue_redraw()
+	target_geometry_changed.emit()
 
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():

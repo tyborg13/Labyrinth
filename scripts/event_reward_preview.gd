@@ -15,6 +15,7 @@ const ICON_SIZE: float = 128.0
 const GEAR_CARD_SCALE: float = 0.6
 const TRANSFORM_SCALE: float = 0.5
 const DETAIL_PANEL_WIDTH: float = 420.0
+const HOVER_CARD_SCALE: float = 1.35
 
 static func first_concrete(lines: Array) -> Dictionary:
 	for line: Dictionary in lines:
@@ -37,7 +38,7 @@ static func build(line: Dictionary, state: Dictionary, beat_only: bool = false) 
 
 ## The same native tree can be assembled one object at a time under event open.
 ## Jobs contain data and parent nodes, never callbacks retaining their owner.
-static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = false) -> Dictionary:
+static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = false, hover_cards: bool = true) -> Dictionary:
 	var kind: String = str(line.get("kind", "plain"))
 	var ids: Array = line.get("ids", [])
 	var jobs: Array[Dictionary]
@@ -73,7 +74,7 @@ static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = f
 			jobs.append(_object_job(pair, 2, object_kind, str(ids[index + 1]), factor))
 	else:
 		for index: int in range(ids.size()): jobs.append(_object_job(row, index, kind, str(ids[index]), 1.0, beat_only))
-	return {"stage": stage, "content": content, "jobs": jobs, "line": line, "state": state, "beat_only": beat_only}
+	return {"stage": stage, "content": content, "jobs": jobs, "line": line, "state": state, "beat_only": beat_only, "hover_cards": hover_cards}
 
 static func _object_job(parent: Control, index: int, kind: String, id: String, factor: float, beat_only: bool = false) -> Dictionary:
 	return {"parent": parent, "index": index, "kind": kind, "id": id, "factor": factor, "beat_only": beat_only}
@@ -84,7 +85,12 @@ static func build_next(work: Dictionary) -> bool:
 	var jobs: Array[Dictionary] = work["jobs"]
 	if not jobs.is_empty():
 		var job: Dictionary = jobs.pop_front()
-		var child: Control = _object(job.kind, job.id, work.state, job.factor, job.beat_only, jobs)
+		var dimensions_scale: float = job.factor
+		# Enlarge only card art in hover previews, including gear's granted cards.
+		# Result beats, transform pairs, relics, gear icons and items stay native.
+		if not bool(work.beat_only) and bool(work.hover_cards) and str(work.line.get("kind", "")) in ["card", "card_choice", "equipment"] and str(job.kind) in ["card", "card_choice"]:
+			dimensions_scale = (Builder.CARD_TOOLTIP_SIZE.x / Builder.CARD_BASE_SIZE.x if is_equal_approx(dimensions_scale, 1.0) else dimensions_scale) * HOVER_CARD_SCALE
+		var child: Control = _object(job.kind, job.id, work.state, dimensions_scale, job.beat_only, jobs)
 		var parent: Control = job.parent
 		parent.add_child(child)
 		parent.move_child(child, mini(int(job.index), parent.get_child_count() - 1))

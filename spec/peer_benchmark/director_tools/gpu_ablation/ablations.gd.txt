@@ -1,0 +1,106 @@
+extends RefCounted
+## Only instantiated by the external scratch-project probe. Product resources
+## retain their values: RenderingServer overrides preserve Control layout/focus.
+var scene: Node
+var arm: String
+var dirty: bool = true
+var groups: Dictionary = {}
+var cleared_rigs: Dictionary = {}
+var applications: int = 0
+var seen_paths: Dictionary = {}
+var last_affected: int = 0
+
+func start(target: Node, selected: String) -> void:
+	scene = target
+	arm = selected
+	scene.get_tree().node_added.connect(_node_added)
+	scene.get_tree().node_removed.connect(_node_added)
+	RenderingServer.frame_pre_draw.connect(apply)
+	_refresh()
+
+func stop() -> void:
+	RenderingServer.frame_pre_draw.disconnect(apply)
+	scene.get_tree().node_added.disconnect(_node_added)
+	scene.get_tree().node_removed.disconnect(_node_added)
+
+func _node_added(_node: Node) -> void:
+	dirty = true
+
+func _add(key: String, node: Node) -> void:
+	if not groups.has(key): groups[key] = []
+	groups[key].append(weakref(node))
+
+func _refresh() -> void:
+	groups.clear()
+	_walk(scene)
+	dirty = false
+
+func _walk(node: Node) -> void:
+	var path: String = str(node.get_path())
+	var script: Script = node.get_script()
+	var source: String = script.resource_path if script != null else ""
+	if node is CanvasItem:
+		var item := node as CanvasItem
+		if path.begins_with(str(scene.get("board_view").get_path())) and item.material is ShaderMaterial:
+			var treatment: RefCounted = scene.get("board_view").get("_art_treatment")
+			if item.material == treatment.get("material") or item.material == treatment.get("cache_bake_material"):
+				_add("art_treatment", item)
+		if node.name == "StaticBoardRenderCacheTexture": _add("floor_light", item)
+		if node.name == "AtmosphereShade": _add("atmosphere_shade", item)
+		var ui_path: String = str(scene.get("ui_root").get_path()) + "/"
+		if node == scene.get("ui_root") or node.name == "HudRenderLayer" or (path.begins_with(ui_path) and item.is_set_as_top_level()): _add("hud_hand", item)
+		if source == "res://scripts/character_card_strip.gd": _add("card_strips", item)
+		if node.name == "CharacterSkillTree": _add("skill_tree", item)
+	var parent_script: Script = node.get_parent().get_script() if node.get_parent() != null else null
+	var parent_source: String = parent_script.resource_path if parent_script != null else ""
+	if node is SubViewport and "cutout" in parent_source and parent_source.ends_with("/renderer.gd"):
+		var key: String = "paper_doll" if "CharacterPaperDoll/" in path else "rig__" + str(node.get_parent().name) + "__" + str(node.name)
+		_add(key, node)
+	if node is SubViewport and node.name == "LockedHandRenderCacheViewport": _add("hud_hand", node)
+	if node == scene.get("board_view"): _add("static_board_cache", node)
+	for child: Node in node.get_children(): _walk(child)
+
+func available() -> Dictionary:
+	if dirty: _refresh()
+	var result: Dictionary = {}
+	for key: String in groups:
+		var paths: Array = []
+		for ref: WeakRef in groups[key]:
+			var node: Node = ref.get_ref()
+			if is_instance_valid(node): paths.append(str(node.get_path()))
+		result[key] = paths
+	return result
+
+func apply() -> void:
+	if dirty: _refresh()
+	applications += 1
+	last_affected = 0
+	for ref: WeakRef in groups.get(arm, []):
+		var node: Node = ref.get_ref()
+		if not is_instance_valid(node): continue
+		last_affected += 1
+		seen_paths[str(node.get_path())] = true
+		if arm in ["art_treatment", "floor_light"]:
+			RenderingServer.canvas_item_set_material((node as CanvasItem).get_canvas_item(), RID())
+		elif arm == "static_board_cache":
+			# Existing uncached drawing path. Never remove the floor itself.
+			node.call("set_static_render_cache_enabled", false)
+		elif node is SubViewport:
+			var viewport := node as SubViewport
+			_hide_viewport_canvas(viewport, viewport)
+			var key: int = viewport.get_instance_id()
+			# One transparent clear hides the texture consumed by retained board
+			# draws. Then suppress every request to update this viewport.
+			viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
+			viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED if cleared_rigs.has(key) else SubViewport.UPDATE_ONCE
+			cleared_rigs[key] = true
+		else:
+			RenderingServer.canvas_item_set_visible((node as CanvasItem).get_canvas_item(), false)
+
+func _hide_viewport_canvas(node: Node, viewport: SubViewport) -> void:
+	if node is CanvasItem and node.get_viewport() == viewport:
+		RenderingServer.canvas_item_set_visible((node as CanvasItem).get_canvas_item(), false)
+	for child: Node in node.get_children(): _hide_viewport_canvas(child, viewport)
+
+func audit() -> Dictionary:
+	return {"arm": arm, "applications": applications, "last_affected": last_affected, "ever_affected_paths": seen_paths.keys(), "available": available(), "mechanism": "scratch runtime RenderingServer overrides; layout/input/process preserved; cache-off uses production direct draw fallback; rigs cleared transparent once then UPDATE_DISABLED"}

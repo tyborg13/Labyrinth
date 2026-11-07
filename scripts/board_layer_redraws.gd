@@ -71,6 +71,19 @@ static func has_lethal_preview(board: Control) -> bool:
 static func protagonist_effects_active(shown: Dictionary) -> bool:
 	return not (shown.get("effect", {}) as Dictionary).is_empty() or (not bool(shown.get("reduced_motion", false)) and float(shown.get("protagonist_motion", {}).get("charge", 0.0)) > 0.0)
 
+static func strike_changes_need_effects_redraw(board: Control) -> bool:
+	# Trail-only windup submits to an independent child. Preserve the parent's
+	# existing cadence whenever hit/preview FX, charge FX or lethal markers are
+	# present, including bespoke effects with progress-dependent actor sockets.
+	return protagonist_effects_active(board.presentation) or has_lethal_preview(board)
+
+static func bind_retained_strike_frame(board: Control, layer: Control) -> void:
+	# Match the redraw path's late bindings even when its canvas is retained.
+	# Run after submission flush so trail preparation keeps its original order.
+	layer.set("_idle_elapsed", board.get("_idle_elapsed"))
+	layer.set("_hover_tile", board.get("_hover_tile"))
+	layer.set("_controller_focus_tile", board.get("_controller_focus_tile"))
+
 # Ordinary melee's changing light is already submitted by _sync_strike_trail
 # to its independent child. The parent has no progress-dependent primitives.
 # Unknown/bespoke descriptors stay conservative as new effects are introduced.

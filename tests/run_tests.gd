@@ -5911,12 +5911,17 @@ func _test_run_scene_combat_log_prominence() -> void:
 	root.add_child(instance)
 	await process_frame
 	instance.call("_close_dialogue")
+	# Closing the opening dialogue defers the real section-map presentation.
+	await process_frame
 	var log_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay") as PanelContainer
 	var log_label: RichTextLabel = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
 	var action_banner: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner") as Label
 	action_banner.text = "Existing action"
 	action_banner.visible = false
 	instance.call("_show_combat_log_message", RunEngine.MISSED_EQUIPMENT_NOTICE)
+	await process_frame
+	_assert((instance.get("_large_map_scrim") as Control).is_visible_in_tree() and not log_overlay.visible, "Combat-log messages should wait while the section map is open")
+	instance.call("_close_large_map")
 	await process_frame
 	var log_style: StyleBoxFlat = log_overlay.get_theme_stylebox("panel") as StyleBoxFlat
 	_assert(log_overlay.size.x >= 390.0 and log_overlay.size.y >= 100.0, "Combat log should have a prominent readable footprint")

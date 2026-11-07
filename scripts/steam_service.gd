@@ -4,6 +4,9 @@ signal profile_changed(profile_name: String)
 signal steam_status_changed(active: bool)
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
+# Tests can substitute an absent feature to exercise the exported-build path.
+const TEST_OVERRIDE_FEATURE: String = "editor"
 
 const FALLBACK_PROFILE_NAME: String = "Reaver"
 const PROFILE_PREFIX: String = "Profile"
@@ -102,6 +105,18 @@ func is_steam_available() -> bool:
 func is_steam_active() -> bool:
 	return _initialized and _logged_on and not _steam_id.is_empty()
 
+func open_store_page() -> void:
+	var config: Dictionary = preload("res://scripts/demo_rules.gd").config()
+	if is_steam_active() and _steam.has_method("isOverlayEnabled") and bool(_steam.call("isOverlayEnabled")) and _steam.has_method("activateGameOverlayToStore"):
+		_steam.call("activateGameOverlayToStore", int(config["store_app_id"]), 0)
+	else:
+		var shell: Callable = OS.shell_open
+		if OS.has_feature(TEST_OVERRIDE_FEATURE):
+			var override: Variant = get_meta("store_shell_open_for_test", Callable())
+			if override is Callable and (override as Callable).is_valid():
+				shell = override
+		shell.call(str(config["store_url"]))
+
 func show_floating_gamepad_text_input(field_rect: Rect2i) -> bool:
 	if not _initialized or _steam == null or not _steam.has_method("showFloatingGamepadTextInput"):
 		return false
@@ -131,13 +146,16 @@ func persona_name() -> String:
 func steam_id() -> String:
 	return _steam_id
 
+static func steam_user_dir_prefix() -> String:
+	return DemoBuild.DEMO_APP_NAME + "/steam" if DemoBuild.is_demo() else STEAM_USER_DIR_PREFIX
+
 func steam_user_dir_name() -> String:
 	if _steam_id.is_empty():
 		return ""
-	return "%s/%s" % [STEAM_USER_DIR_PREFIX, _safe_path_fragment(_steam_id)]
+	return "%s/%s" % [steam_user_dir_prefix(), _safe_path_fragment(_steam_id)]
 
 func steam_cloud_subdirectory_template() -> String:
-	return "%s/%s" % [STEAM_USER_DIR_PREFIX, STEAM_ID_TEMPLATE]
+	return "%s/%s" % [steam_user_dir_prefix(), STEAM_ID_TEMPLATE]
 
 func profile_label_text() -> String:
 	var name: String = _persona_name if is_steam_active() else FALLBACK_PROFILE_NAME
@@ -147,6 +165,9 @@ func init_result() -> Dictionary:
 	return _init_result.duplicate(true)
 
 func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
+	if DemoBuild.is_demo():
+		_last_stats_status = {"accepted": [], "failed": {}, "reason": "demo_build"}
+		return _last_stats_status.duplicate(true)
 	if not is_steam_active():
 		_last_stats_status = {
 			"accepted": [],
@@ -212,6 +233,9 @@ func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
 	return _last_stats_status.duplicate(true)
 
 func store_pending_stats() -> Dictionary:
+	if DemoBuild.is_demo():
+		_last_stats_status = {"accepted": [], "failed": {}, "reason": "demo_build"}
+		return _last_stats_status.duplicate(true)
 	if _stats_store_in_flight:
 		_last_stats_status = {"attempted": false, "reason": "store_in_flight"}
 		return _last_stats_status.duplicate(true)
@@ -484,6 +508,8 @@ func _stats_queue_path() -> String:
 	return STATS_QUEUE_PATH_TEMPLATE % _safe_path_fragment(_steam_id)
 
 func _persist_queued_stat_deltas() -> bool:
+	if DemoBuild.is_demo():
+		return true
 	var path: String = _stats_queue_path()
 	if _queued_stat_deltas.is_empty():
 		if FileAccess.file_exists(path):

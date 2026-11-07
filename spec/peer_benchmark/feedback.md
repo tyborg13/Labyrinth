@@ -425,3 +425,10 @@ mechanical indicator gusts ... maybe we just disable them for now and bring them
 - "In the current steam build, the turn order widget is missing. Also, there's a weird lag during the events for popping up the previewed results." Then: "could the turn order issue be an export problem since it shows when run directly but not through steam?" -> qa-59. The dev Mac's Steam install is the 2026-11-03 push (f206d3813), played 18:34-18:40 UTC at 1920x1205; event telemetry 7 frames > 50 ms per minute (max 142).
 - 2026-11-05 21:08-21:10 APPROVED (page): ui-17, guard-2 (no answer on the camera-push question; none added), txt-5.
 
+
+## 2026-11-07 owner (chat): Steam Deck demo playtest
+- Board too small, hard to read and a little fuzzy on the Deck. Pull it down and make it bigger; let the hand cover part of it, since the hand hides while a card is selected and X hides it any time. Applies to the full game too -> ux-10.
+- B opens the menu, which "drives me insane". B should hide the hand and back out, and never open the menu; only Start opens it -> ui-27.
+- Remove the controller glyph bar at the top; put each glyph on its control (Y on Pass, X at the hand's corner) -> ui-28.
+- Map navigation with the stick should go to the nearest room in the pointed direction, jumping between paths -> ui-27.
+- Performance "a little chuggy at moments, but it's actually not too bad", improved since their last Deck session.

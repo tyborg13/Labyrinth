@@ -13,6 +13,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const CALLOUT_MIN_SIZE: Vector2 = Vector2(430.0, 194.0)
 const CALLOUT_MARGIN: float = 24.0
 const CALLOUT_TARGET_GAP: float = 22.0
+const REWARD_CALLOUT_GAP: float = 12.0
+const REWARD_CONTROLLER_PROMPT_GAP: float = 8.0
 const SPOTLIGHT_GROW: float = 3.0
 const SPOTLIGHT_CORNER: float = 16.0
 const MAX_SPOTLIGHTS: int = 24
@@ -27,6 +29,10 @@ var _definition: Dictionary = {}
 var _spotlight_rects: Array = []
 var _evidence_rects: Array = []
 var _avoid_rects: Array = []
+var _reward_banner_rect: Rect2 = Rect2()
+var _reward_skip_rect: Rect2 = Rect2()
+var _reward_prompt_bar: Control
+var _reward_panel: Control
 var _reduced_motion: bool = false
 var _blocked_until_msec: int = 0
 var _blocked_count: int = 0
@@ -122,6 +128,27 @@ func configure(
 	call_deferred("_layout_callout")
 	queue_redraw()
 
+func set_reward_geometry(banner_rect: Rect2, skip_rect: Rect2, prompt_bar: Control = null, panel: Control = null) -> void:
+	if banner_rect == _reward_banner_rect and skip_rect == _reward_skip_rect and prompt_bar == _reward_prompt_bar and panel == _reward_panel:
+		return
+	if prompt_bar != _reward_prompt_bar:
+		_release_reward_prompt_bar()
+	_reward_banner_rect = banner_rect
+	_reward_skip_rect = skip_rect
+	_reward_prompt_bar = prompt_bar
+	_reward_panel = panel
+	_layout_callout()
+
+func refresh_reward_placement() -> void:
+	if _phase_id == "choose_reward":
+		_layout_callout()
+	else:
+		_release_reward_prompt_bar()
+
+func _release_reward_prompt_bar() -> void:
+	if is_instance_valid(_reward_prompt_bar):
+		_reward_prompt_bar.call("place_below_guided_reward_panel", null)
+
 func update_geometry(spotlight_rects: Array, avoid_rects: Array = []) -> void:
 	var next_spotlights: Array = _normalized_rects(spotlight_rects)
 	var next_avoid_rects: Array = _normalized_rects(avoid_rects)
@@ -143,11 +170,16 @@ func set_evidence_rects(evidence_rects: Array) -> void:
 	queue_redraw()
 
 func clear_prompt() -> void:
+	_release_reward_prompt_bar()
+	_reward_prompt_bar = null
+	_reward_panel = null
 	_phase_id = ""
 	_definition.clear()
 	_spotlight_rects.clear()
 	_evidence_rects.clear()
 	_avoid_rects.clear()
+	_reward_banner_rect = Rect2()
+	_reward_skip_rect = Rect2()
 	_blocked_until_msec = 0
 	_blocked_has_drawn = false
 	_presentation_seconds = 0.0
@@ -175,14 +207,17 @@ func clear_prompt() -> void:
 func active_prompt_id() -> String:
 	return _phase_id
 
-func show_blocked(message: String = "Follow the highlighted action.") -> void:
+func show_blocked(message: String = "Follow the highlighted action.", controller_message: String = "") -> void:
 	if not visible:
 		return
 	_blocked_count += 1
 	_blocked_until_msec = _presentation_msec() + BLOCKED_DURATION_MSEC
 	_blocked_has_drawn = false
 	_blocked_input_frame = _presentation_frame
-	_feedback.text = message
+	preload("res://scripts/input_wording.gd").bind_label(_feedback, {
+		"pointer_text": message,
+		"controller_text": controller_message if not controller_message.is_empty() else message,
+	})
 	_feedback.visible = true
 	_feedback.queue_redraw() # Repeated identical text still needs a new first-draw boundary.
 	set_meta("blocked_count", _blocked_count)
@@ -545,6 +580,32 @@ func _layout_callout() -> void:
 		Vector2(CALLOUT_MARGIN, CALLOUT_MARGIN),
 		Vector2(maxf(0.0, size.x - CALLOUT_MARGIN * 2.0), maxf(0.0, size.y - CALLOUT_MARGIN * 2.0))
 	)
+	if _phase_id == "choose_reward" and _reward_banner_rect.has_area() and _reward_skip_rect.has_area():
+		# Reward geometry is in logical UI pixels, so the Window's UI scale
+		# scales this authored gap along with the banner and Skip button.
+		var above := Vector2(
+			_reward_banner_rect.get_center().x - global_position.x - desired_size.x * 0.5,
+			_reward_banner_rect.position.y - global_position.y - REWARD_CALLOUT_GAP - desired_size.y
+		)
+		var below := Vector2(above.x, _reward_skip_rect.end.y - global_position.y + REWARD_CALLOUT_GAP)
+		var fits_above: bool = safe.encloses(Rect2(above, desired_size))
+		if is_instance_valid(_reward_prompt_bar) and _reward_prompt_bar.is_visible_in_tree():
+			var already_below: bool = bool(_reward_prompt_bar.call("is_below_guided_reward_panel"))
+			var prompt_bottom: float = _reward_prompt_bar.get_global_rect().end.y - global_position.y
+			if fits_above and (already_below or above.y < prompt_bottom + REWARD_CONTROLLER_PROMPT_GAP):
+				if is_instance_valid(_reward_panel):
+					var frame_bounds: Rect2 = _global_rect_union(_spotlight_rects).grow(SPOTLIGHT_GROW)
+					var frame_padding: float = maxf(0.0, frame_bounds.end.y - _reward_panel.get_global_rect().end.y)
+					_reward_prompt_bar.call("place_below_guided_reward_panel", _reward_panel, frame_padding)
+				else:
+					fits_above = false
+			elif not fits_above:
+				_release_reward_prompt_bar()
+		else:
+			_release_reward_prompt_bar()
+		_set_callout_rect(Rect2(above if fits_above else below, desired_size))
+		return
+	_release_reward_prompt_bar()
 	var focus_bounds: Rect2 = _global_rect_union(_spotlight_rects)
 	if focus_bounds.has_area():
 		focus_bounds.position -= global_position
@@ -576,8 +637,11 @@ func _layout_callout() -> void:
 		if score < best_score:
 			best_score = score
 			chosen = candidate
-	_callout.position = chosen
-	_callout.size = desired_size
+	_set_callout_rect(Rect2(chosen, desired_size))
+
+func _set_callout_rect(rect: Rect2) -> void:
+	_callout.position = rect.position
+	_callout.size = rect.size
 	set_meta("callout_rect", Rect2(_callout.global_position, _callout.size))
 	queue_redraw()
 

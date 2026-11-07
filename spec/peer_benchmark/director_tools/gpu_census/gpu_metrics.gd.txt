@@ -1,0 +1,175 @@
+extends RefCounted
+## Observation only. No update modes, materials or production clocks are changed.
+const SNAPSHOT_STRIDE_FRAMES: int = 60
+var viewports: Dictionary = {}
+var device: RenderingDevice
+var last_timestamp_frame: int = -1
+var headless: bool = false
+var main_viewport_rid: String = ""
+var main_viewport_instance_id: int = 0
+var enable_request_count: int = 0
+
+func attach(tree: SceneTree) -> void:
+	headless = DisplayServer.get_name() == "headless"
+	device = RenderingServer.get_rendering_device()
+	main_viewport_instance_id = tree.root.get_instance_id()
+	main_viewport_rid = str(tree.root.get_viewport_rid().get_id())
+	tree.node_added.connect(_register)
+	# Root exists before node_added is connected: register it explicitly.
+	_register(tree.root)
+	_walk_register(tree.root)
+
+func _walk_register(node: Node) -> void:
+	_register(node)
+	for child: Node in node.get_children(): _walk_register(child)
+
+func _register(node: Node) -> void:
+	if not node is Viewport: return
+	var viewport := node as Viewport
+	var rid: RID = viewport.get_viewport_rid()
+	var key: String = str(rid.get_id())
+	if viewports.has(key): return
+	viewports[key] = {"weak": weakref(node), "meta": {"rid": key, "path": str(node.get_path()), "name": str(node.name), "class": node.get_class(), "source": _source(node), "is_main": node.get_instance_id() == main_viewport_instance_id}}
+	_enable_measurement(viewport)
+	# Production _ready setup may configure newly added viewports; reassert after it.
+	if not node.is_node_ready(): node.ready.connect(_enable_measurement.bind(viewport), CONNECT_ONE_SHOT)
+
+func _enable_measurement(viewport: Viewport) -> void:
+	var rid: RID = viewport.get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(rid, true)
+	enable_request_count += 1
+	var meta: Dictionary = viewports[str(rid.get_id())]["meta"]
+	meta["measure_render_time_requested"] = true
+	meta["measure_request_count"] = int(meta.get("measure_request_count", 0)) + 1
+	meta["measurement_enabled_before_frame"] = Engine.get_process_frames()
+
+func prepare_warmup(tree: SceneTree) -> void:
+	_walk_register(tree.root)
+	for entry: Dictionary in viewports.values():
+		var viewport: Viewport = entry["weak"].get_ref() as Viewport
+		if is_instance_valid(viewport): _enable_measurement(viewport)
+
+func measurement_audit() -> Dictionary:
+	var live: int = 0
+	var enabled: int = 0
+	for entry: Dictionary in viewports.values():
+		if is_instance_valid(entry["weak"].get_ref()):
+			live += 1
+			if entry["meta"].get("measure_render_time_requested", false): enabled += 1
+	return {"main_viewport_rid": main_viewport_rid, "main_viewport_found": viewports.has(main_viewport_rid), "live_viewports": live, "measurement_enable_requests": enabled, "enable_request_count": enable_request_count, "verification_scope": "RenderingServer setter calls recorded; API has no enable getter; GPU timing cannot be verified headlessly"}
+
+func _pixel_size(viewport: Viewport) -> Vector2i:
+	# Window.get_texture().get_size() includes the content stretch in Godot 4.6;
+	# it is not the physical render-target size returned by get_image().
+	return viewport.size
+
+func _source(node: Node) -> String:
+	var current: Node = node
+	while current != null:
+		if current.get_script() != null: return current.get_script().resource_path
+		current = current.get_parent()
+	return ""
+
+func frame() -> Dictionary:
+	var result: Dictionary = {"process_frame": Engine.get_process_frames(), "wall_usec": Time.get_ticks_usec(), "viewports": {}, "global": {}}
+	var drawn: Dictionary = {}
+	var starts: Dictionary = {}
+	if device != null:
+		var timestamp_frame: int = device.get_captured_timestamps_frame()
+		if timestamp_frame == last_timestamp_frame: return {}
+		last_timestamp_frame = timestamp_frame
+		result["timestamp_frame"] = timestamp_frame
+		for index: int in range(device.get_captured_timestamps_count()):
+			var label: String = device.get_captured_timestamp_name(index)
+			if label.begins_with("vp_begin_"):
+				starts[label.trim_prefix("vp_begin_")] = {"gpu": device.get_captured_timestamp_gpu_time(index), "cpu": device.get_captured_timestamp_cpu_time(index)}
+			if label.begins_with("vp_end_"):
+				var key: String = label.trim_prefix("vp_end_")
+				if starts.has(key):
+					# Godot 4.6 renderer_viewport.cpp converts GPU ns to ms /1e6;
+					# RenderingDevice docs currently mislabel these raw values as us.
+					drawn[key] = {"gpu_begin_raw": starts[key]["gpu"], "gpu_end_raw": device.get_captured_timestamp_gpu_time(index), "gpu_ms": float(device.get_captured_timestamp_gpu_time(index) - int(starts[key]["gpu"])) / 1000000.0, "cpu_ms": float(device.get_captured_timestamp_cpu_time(index) - int(starts[key]["cpu"])) / 1000.0}
+		# Warmup/unavailable timestamps cannot become zero-cost native evidence.
+		if drawn.is_empty(): result["gpu_timestamps_unavailable"] = true
+	else:
+		result["timestamp_frame"] = null
+	var global: Dictionary = result["global"]
+	global["draw_calls"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
+	global["objects"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)
+	global["primitives"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
+	global["texture_bytes"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TEXTURE_MEM_USED)
+	global["buffer_bytes"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_BUFFER_MEM_USED)
+	global["video_bytes"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED)
+	global["canvas_pipeline_compilations"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS)
+	global["render_setup_cpu_ms"] = RenderingServer.get_frame_setup_time_cpu() if not headless else null
+	for key: String in viewports:
+		var viewport: Viewport = viewports[key]["weak"].get_ref() as Viewport
+		if not is_instance_valid(viewport): continue
+		var rid: RID = viewport.get_viewport_rid()
+		var pixel_size: Vector2i = _pixel_size(viewport)
+		var texture_size: Vector2 = viewport.get_texture().get_size()
+		var row: Dictionary = {"is_main": key == main_viewport_rid, "measure_render_time_requested": viewports[key]["meta"].get("measure_render_time_requested", false), "size": [pixel_size.x, pixel_size.y], "texture_reported_size": [texture_size.x, texture_size.y], "msaa_2d": viewport.msaa_2d, "update_mode": viewport.render_target_update_mode if viewport is SubViewport else -1, "drew": drawn.has(key) if not headless else null}
+		# Getters return the last render time, so never read dormant viewport values.
+		row["timestamp"] = drawn.get(key, {})
+		row["api_gpu_ms"] = RenderingServer.viewport_get_measured_render_time_gpu(rid) if not headless and drawn.has(key) else null
+		row["api_cpu_ms"] = RenderingServer.viewport_get_measured_render_time_cpu(rid) if not headless and drawn.has(key) else null
+		row["canvas_items"] = RenderingServer.viewport_get_render_info(rid, RenderingServer.VIEWPORT_RENDER_INFO_TYPE_CANVAS, RenderingServer.VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME)
+		row["canvas_draw_calls"] = RenderingServer.viewport_get_render_info(rid, RenderingServer.VIEWPORT_RENDER_INFO_TYPE_CANVAS, RenderingServer.VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME)
+		row["canvas_primitives"] = RenderingServer.viewport_get_render_info(rid, RenderingServer.VIEWPORT_RENDER_INFO_TYPE_CANVAS, RenderingServer.VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME)
+		result["viewports"][key] = row
+	# Timestamp pairs survive a short-lived viewport's destruction, unlike its RID.
+	for key: String in drawn:
+		if not result["viewports"].has(key):
+			result["viewports"][key] = {"drew": true, "freed_before_readback": true, "api_gpu_ms": null, "api_cpu_ms": null, "timestamp": drawn[key]}
+	return result
+
+func catalog() -> Dictionary:
+	var result: Dictionary = {}
+	for key: String in viewports: result[key] = viewports[key]["meta"].duplicate(true)
+	return result
+
+func inventory(scope: Node) -> Dictionary:
+	var result: Dictionary = {"materials": {}, "canvas_groups": [], "visible_canvas_nodes": 0}
+	_inventory(scope, result)
+	return result
+
+func _inventory(node: Node, result: Dictionary) -> void:
+	if node is CanvasItem and node.is_visible_in_tree():
+		var item := node as CanvasItem
+		var alpha: float = item.self_modulate.a
+		var ancestor: CanvasItem = item
+		while ancestor != null:
+			alpha *= ancestor.modulate.a
+			ancestor = _parent_item(ancestor)
+		if alpha > 0.0:
+			result["visible_canvas_nodes"] += 1
+			var provider: CanvasItem = item
+			while provider.use_parent_material and _parent_item(provider) != null: provider = _parent_item(provider)
+			var material: Material = provider.material
+			var key: String = str(material.get_rid().get_id()) if material != null else "builtin_default_canvas"
+			if not result["materials"].has(key):
+				var shader: Shader = material.shader if material is ShaderMaterial else null
+				result["materials"][key] = {"resource": material.resource_path if material != null else "", "class": material.get_class() if material != null else "builtin", "shader": shader.resource_path if shader != null else "", "shader_code_hash": shader.code.sha256_text() if shader != null else "", "reads_screen": "hint_screen_texture" in shader.code if shader != null else false, "nodes": []}
+			var bounds: Rect2
+			var known: bool = true
+			if item is Control: bounds = Rect2(Vector2.ZERO, item.size)
+			elif item is Sprite2D: bounds = item.get_rect()
+			elif item is Polygon2D and not item.polygon.is_empty():
+				bounds = Rect2(item.polygon[0], Vector2.ZERO)
+				for point: Vector2 in item.polygon: bounds = bounds.expand(point)
+			else: known = false
+			var viewport: Viewport = item.get_viewport()
+			var rect: Rect2 = item.get_global_transform_with_canvas() * bounds
+			var draw_candidate: bool = item.has_method("_draw") or item is ColorRect or item is TextureRect or item is Sprite2D or item is Polygon2D or item is Panel or item is PanelContainer
+			var full: bool = known and draw_candidate and rect.grow(0.5).encloses(viewport.get_visible_rect())
+			result["materials"][key]["nodes"].append({"path": str(item.get_path()), "viewport": str(viewport.get_viewport_rid().get_id()), "source": _source(item), "bounds_known": known, "rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y] if known else [], "covers_viewport": full, "inherited": provider != item})
+			if item is CanvasGroup: result["canvas_groups"].append({"path": str(item.get_path()), "source": _source(item), "viewport": str(viewport.get_viewport_rid().get_id())})
+	for child: Node in node.get_children(): _inventory(child, result)
+
+func _parent_item(item: CanvasItem) -> CanvasItem:
+	if item.is_set_as_top_level(): return null
+	var parent: Node = item.get_parent()
+	while parent != null and not parent is Viewport and not parent is CanvasLayer:
+		if parent is CanvasItem: return parent as CanvasItem
+		parent = parent.get_parent()
+	return null
