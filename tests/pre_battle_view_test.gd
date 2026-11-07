@@ -104,6 +104,8 @@ func _run_input_proof() -> void:
 	progression["skill_ids"] = ["ghost_stride", "sure_footed", "discerning_eye", "true_bearing"]
 	state["progression"] = progression
 	state = _pre_battle_state_for_room(engine, state, coord)
+	state = engine._apply_collected_equipment_to_owned_state(state, {"collected_equipment": ["ward_kite"]})
+	state = engine.grant_magic_to_deck(state, "spark_dart")
 	var instance: Node = await _instance(state)
 	var panel := instance.get("_pre_battle_panel") as Control
 	_expect(panel.find_child("TrueBearingButton", true, false) != null, "Position action must remain present")
@@ -152,10 +154,19 @@ func _run_input_proof() -> void:
 	await _joy(JOY_BUTTON_A)
 	await _settle()
 	_expect((instance.get("_upgrade_scrim") as Control).visible, "Controller A activates Equip")
+	_expect(str(instance.get("_progression_overlay_mode")) == "equipment", "Equip prioritizes unread gear when both tabs have news")
 	await _joy(JOY_BUTTON_B)
 	await _settle()
 	_expect(not (instance.get("_upgrade_scrim") as Control).visible and (instance.get("_pre_battle_scrim") as Control).visible, "Controller Back returns to pre-battle")
 	panel = instance.get("_pre_battle_panel") as Control
+	var news := panel.find_child("PreBattleEquipNewTag", true, false) as Control
+	_expect(news != null and news.visible, "Returning from Gear retains Equip NEW while Magic is unread")
+	instance.call("_on_pre_battle_equip_pressed")
+	await _settle()
+	_expect(str(instance.get("_progression_overlay_mode")) == "magic", "Equip opens Magic when only spells are unread")
+	instance.call("_close_card_upgrade_overlay")
+	await _settle()
+	_expect(news != null and not news.visible, "Returning from the final unread tab hides Equip NEW without rebuilding its button")
 	var strip := panel.find_child("PreBattleDeckBadge", true, false) as Button
 	strip.grab_focus()
 	await _joy(JOY_BUTTON_A)

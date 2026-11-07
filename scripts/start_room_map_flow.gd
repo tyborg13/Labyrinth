@@ -124,13 +124,12 @@ func refresh_hint(host: Node) -> void:
 		_hint = PanelContainer.new()
 		_hint.name = "StartRoomMapHint"
 		_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var prompt_plate: PanelContainer = host.get("_controller_prompt_bar")
-		_hint.add_theme_stylebox_override("panel", prompt_plate.get_theme_stylebox("panel"))
+		var prompt_plate = preload("res://scripts/controller_prompt_bar.gd")
+		_hint.add_theme_stylebox_override("panel", prompt_plate._panel_style())
 		var margin := MarginContainer.new()
 		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var prompt_margin: MarginContainer = prompt_plate.get_child(0)
 		for side: String in ["left", "top", "right", "bottom"]:
-			margin.add_theme_constant_override("margin_" + side, prompt_margin.get_theme_constant("margin_" + side))
+			margin.add_theme_constant_override("margin_" + side, prompt_plate.PLATE_MARGIN_X if side in ["left", "right"] else prompt_plate.PLATE_MARGIN_Y)
 		_hint.add_child(margin)
 		_hint_row = HBoxContainer.new()
 		_hint_row.alignment = BoxContainer.ALIGNMENT_CENTER

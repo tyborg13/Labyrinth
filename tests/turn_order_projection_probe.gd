@@ -104,14 +104,14 @@ func _assert_card_projection(instance: Node, expected_name: String, expected_tim
 		_fail("Projected slot tooltip did not name %s and %s vs ending now during %s." % [expected_name, delta, phase])
 		return
 	var badge: Node = _first_node_named(slot, "ProjectionPreviewBadge")
-	if badge == null:
-		_fail("Projected slot was missing the visible card/time badge during %s." % phase)
+	if badge != null:
+		_fail("Projected slot still showed the removed card/time caption during %s." % phase)
 		return
-	var labels: Array[Label] = _labels_under(badge)
-	for label: Label in labels:
-		if label.text.contains(expected_name) and label.text.ends_with(delta):
-			return
-	_fail("Projected slot badge did not name %s and %s during %s." % [expected_name, delta, phase])
+	var numeral: Label = slot.get_node_or_null("TurnOrderTimeNumeral") as Label
+	if numeral == null or numeral.text != str(slot.get_meta("turn_order_badge_text", "")):
+		_fail("Projected slot lost its Time numeral during %s." % phase)
+	if instance.get("_turn_order_landing_strip") != null or bool(instance.call("_turn_order_landing_strip_allowed")):
+		_fail("Disabled landing strip was built or allowed during %s." % phase)
 
 func _card_projection_slot(instance: Node, expected_name: String, expected_time: int) -> Control:
 	var bar: Control = instance.get("_turn_order_bar") as Control

@@ -68,6 +68,8 @@ class SourceImageDrain extends Node:
 	var task_id: int = -1
 	var group_id: int = -1
 	var result: SourceImageResult
+	# Threaded non-texture requests only (run_loading_audio.gd's AudioStreams).
+	# Texture2D requests stay on the main thread (qa-82).
 	var imports: PackedStringArray
 	var resources: Array[Resource]
 
@@ -112,18 +114,15 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 		drain.result.images.resize(drain.result.paths.size())
 		var worker_count: int = maxi(1, mini(OS.get_processor_count(), drain.result.paths.size()))
 		drain.group_id = WorkerThreadPool.add_group_task(_decode_owned_source_image.bind(drain.result), drain.result.paths.size(), worker_count, false, "Decode initial source images")
-	# Imported lossless textures otherwise decode synchronously, one per main
-	# thread load(). Independent requests let the engine decode them in parallel;
-	# publication below still follows the original manifest order and loader.
-	for path: String in manifest:
-		if _texture_cache.has(path) or source_paths.has(path) or not ResourceLoader.exists(path): continue
-		if ResourceLoader.load_threaded_request(path, "Texture2D") == OK: drain.imports.append(path)
-	while _imports_in_progress(drain.imports) or not drain.decode_completed():
+	# Imported Texture2D loads also upload to RenderingDevice on the loading
+	# thread. In Godot 4.6.1, _acquire_transfer_worker can grow the pool while
+	# canvas redraw's free_polygon reads it without the pool mutex (qa-82).
+	# Keep the original imported resource/settings, but load it on the main
+	# thread below, outside redraw. Only private source-image decoding is async.
+	while not drain.decode_completed():
 		await present_frame.call()
 		if not is_instance_valid(drain) or not drain.is_inside_tree(): return
 		if still_active.is_valid() and not bool(still_active.call()): drain.result.cancel()
-	# Retain completed imports before calling load_texture, so ResourceLoader
-	# returns exactly the imported resource and its original import settings.
 	drain.join()
 	var slice_started: int = Time.get_ticks_usec()
 	for path: String in manifest:
@@ -153,11 +152,6 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 				if not is_instance_valid(drain) or not drain.is_inside_tree(): return
 				slice_started = Time.get_ticks_usec()
 	drain.queue_free()
-
-static func _imports_in_progress(paths: PackedStringArray) -> bool:
-	for path: String in paths:
-		if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS: return true
-	return false
 
 # Producers must create private CPU data only: no scene nodes, GPU objects or
 # shared-cache mutation. The main-thread caller owns publication after the join.

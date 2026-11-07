@@ -82,6 +82,9 @@ static func _arrivals(h: SceneTree) -> void:
 		newborn["pos"] = ARRIVAL_FIXTURE_TILE
 		after["enemies"].append(newborn)
 		h.router.baseline(before)
+		# Register this synthetic birth without consuming another action serial;
+		# later probabilistic cues retain their existing fixture RNG inputs.
+		h.router._enemy_arrivals.register_step({"kind": "summon", "spawned_enemies": [newborn]})
 		h.scene.set("_animation_lock", true)
 		h.scene.set("_preview_combat_state", {})
 		if path == "snapshot": h.scene.call("_render_board_state", after, {})
@@ -89,9 +92,9 @@ static func _arrivals(h: SceneTree) -> void:
 			h.scene.set("_combat_state", after)
 			h.scene.call("_refresh_stage_view")
 		if h.supplied_sources.is_empty():
-			var plays: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "spell.shadow" and event["result"] == "played")
-			if plays.size() != 1: h.failures.append("Arrival sync fixture plays exactly one shadow cue: " + path)
-			elif not is_equal_approx(float(plays[0]["gain_db"]), float(h.bank.data["cues"]["spell.shadow"]["volume_db"]) - 4.0): h.failures.append("Arrival sync fixture retains the authored -4 dB gain: " + path)
+			var plays: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "summon.arrive" and event["result"] == "played")
+			if plays.size() != 1: h.failures.append("Arrival sync fixture plays exactly one arrival cue: " + path)
+			elif not is_equal_approx(float(plays[0]["gain_db"]), float(h.bank.data["cues"]["summon.arrive"]["volume_db"])): h.failures.append("Arrival sync fixture retains the authored arrival gain: " + path)
 		h._finish(before)
 	h.scene.set("_combat_state", previous)
 	h.scene.set("_animation_lock", locked)

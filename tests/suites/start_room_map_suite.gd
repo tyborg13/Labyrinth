@@ -336,4 +336,4 @@ static func check_hint_layout(host: Node, expect: Callable) -> void:
 	var label: Label = flow.get("_label")
 	expect.call(label.get_theme_font("font") == Typography.text_font() and label.get_theme_font_size("font_size") == Typography.scaled_size(label, Flow.HINT_FONT_SIZE), "Hint uses the approved Text 17 px style")
 	expect.call(label.get_theme_color("font_color") == preload("res://scripts/ui_palette.gd").TEXT_2, "Hint uses the approved TEXT_2 colour")
-	expect.call(hint.get_theme_stylebox("panel") == host.get("_controller_prompt_bar").get_theme_stylebox("panel"), "Hint reuses the existing hint plate")
+	expect.call(hint.get_theme_stylebox("panel").bg_color == preload("res://scripts/controller_prompt_bar.gd")._panel_style().bg_color, "Hint reuses the existing hint plate")

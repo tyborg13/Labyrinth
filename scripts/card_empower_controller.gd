@@ -60,6 +60,10 @@ static func _tooltip_for_card(scene: Node, index: int, card: Dictionary) -> Stri
 	var instruction: String = ("Charged. Press RS to cancel." if controller else "Charged. Click to cancel.") if charged else ("Press RS" if controller else "Click the seal or press E")
 	return "Empower: %s · %s\n%s" % [Keywords.empower_cost_label(Keywords.empower_cost(card)), bonus, instruction]
 
+static func seal_hint(scene: Node) -> String:
+	# The controller uses InputGlyph art in the existing seal shortcut seat.
+	return "" if scene._controller_is_active() else str(scene.get_node("/root/InputRouter").empower_glyph_label())
+
 static func sync_widgets(scene: Node) -> void:
 	if scene.hand_box == null: return
 	scene._empower_charge.observe(scene._combat_state)
@@ -75,7 +79,7 @@ static func sync_widgets(scene: Node) -> void:
 		var detail: String = ""
 		if has_empower:
 			detail = "Not enough health: Empower costs %d HP." % blocked if blocked > 0 else _tooltip_for_card(scene, index, card)
-		widget.set_empower_state(has_empower, scene._hand_card_empowered(index), raised, blocked > 0, locked(scene, index) or scene._animation_lock, scene.get_node("/root/InputRouter").empower_glyph_label(), detail)
+		widget.set_empower_state(has_empower, scene._hand_card_empowered(index), raised, blocked > 0, locked(scene, index) or scene._animation_lock, seal_hint(scene), detail)
 		if not widget.empower_toggled.is_connected(scene._on_hand_empower_toggled):
 			widget.empower_toggled.connect(scene._on_hand_empower_toggled.bind(widget))
 
@@ -109,7 +113,7 @@ static func toggle(scene: Node, index: int, source: String) -> void:
 		var proxy_widget: Control = scene._drag_card_proxy.get_child(0)
 		var display: Dictionary = scene._card_widget_display_for_index(index)
 		proxy_widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
-		proxy_widget.set_empower_state(true, scene._hand_card_empowered(index), true, false, false, scene.get_node("/root/InputRouter").empower_glyph_label(), tooltip(scene, index))
+		proxy_widget.set_empower_state(true, scene._hand_card_empowered(index), true, false, false, seal_hint(scene), tooltip(scene, index))
 	sync_widgets(scene)
 	scene._analytics_store.write_event("empower_toggled", scene._analytics_context_from_states(scene._run_state, scene._combat_state), {"card_id": scene._card_id_for_hand_index(index), "on": scene._hand_card_empowered(index), "source": source, "phase": phase})
 	scene._refresh_controller_prompts()

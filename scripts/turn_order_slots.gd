@@ -199,7 +199,9 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	if health_bar != null:
 		parts["health"] = health_bar
 		_attach(frame, health_bar)
-	if scene._turn_order_is_card_preview_projection(entry):
+	# ui-30: the hero keeps its projected numeral and motion, without the
+	# card-name/Time caption. Enemy Stagger and Petrify badges remain unchanged.
+	if str(entry.get("kind", "")) != "player" and scene._turn_order_is_card_preview_projection(entry):
 		var projection: Control = scene._turn_order_projection_badge(entry, slot_size, parts.get("projection"))
 		parts["projection"] = projection
 		_attach(frame, projection)

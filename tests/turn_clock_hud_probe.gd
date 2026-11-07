@@ -19,8 +19,8 @@ func _initialize() -> void:
 	SettingsStore.save_settings(settings)
 	var path: String = ProjectSettings.globalize_path(OUTPUT)
 	DirAccess.make_dir_recursive_absolute(path)
-	# Suite asserts each state's pill/style, strip order, plate, size and no
-	# tooltip overlap before each of the eight named SubViewport captures. Failed
+	# Suite asserts each state's absent strip/caption, projection, plate and size
+	# before the named SubViewport captures. Failed
 	# states are recorded while the remaining states continue to be captured.
 	await Suite.run(self, Callable(self, "_expect"), path)
 	print(path)

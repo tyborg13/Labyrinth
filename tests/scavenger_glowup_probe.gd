@@ -126,9 +126,9 @@ func _capture_states() -> void:
 	await _settle()
 	_check(_viewport.gui_get_focus_owner() == _shop.get("_detail_action"), "Controller Accept enters the exact selected ware's trade action")
 	_check(str(_shop.get("_selected_item_id")) == "grave_mortar", "Accept preserves the ware chosen for inspection")
-	var hints: Control = _scene.get("_controller_prompt_bar") as Control
-	_check(str(hints.call("prompts_snapshot")[0]["label"]) == "Buy", "Controller hint names the currently focused Buy action")
-	_check(hints.get_global_rect().position.y >= 1020 and hints.get_global_rect().end.y <= 1080, "Shop controller hints fit below actions without covering the title")
+	var badges: Array = _scene.get("_controller_glyph_badges").badges_snapshot()
+	_check(badges.any(func(badge: Dictionary) -> bool: return badge["target"] == "ScavengerLeaveButton" and badge["action"] == "controller_cancel"), "Shop B glyph sits on Leave")
+	_check(_scene.find_child("ControllerPromptBar", true, false) == null, "Shop has no detached controller prompt bar")
 	await _save("11_controller_inspection.png")
 	await _navigate_controller_to(_shop, _shop.get("_detail_action") as Control, "Card to Buy")
 	await _press_controller_button(JOY_BUTTON_A)

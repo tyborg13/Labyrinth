@@ -14,6 +14,7 @@ static var revision4_graph_hashes: Dictionary = {}
 static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUNT, include_cases: bool = true) -> void:
 	revision4_graph_hashes.clear()
 	if include_cases:
+		test_icon_image_fallback(expect)
 		expect.call(Graph._walk_moves(0, Graph._coords([])) == [0, 0, 1] and Graph._walk_moves(3, Graph._coords([])) == [2, 3, 3], "Uniform clamped deltas retain both outer-lane stay rolls")
 		expect.call(Graph._walk_moves(1, Graph._coords([Vector2i(2, 1)])) == [0, 1], "Walk choices exclude only crossing moves")
 	for seed: int in range(seed_begin, seed_end):
@@ -35,6 +36,34 @@ static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUN
 		_test_older_layouts(expect)
 		_test_fallback(expect)
 		_test_probe_fixture(expect)
+
+static func test_icon_image_fallback(expect: Callable) -> void:
+	var skin = preload("res://scripts/section_map_skin.gd")
+	var assets = preload("res://scripts/asset_loader.gd")
+	var icons = preload("res://scripts/room_icon_library.gd")
+	var path: String = icons.icon_path(icons.ICON_COMBAT)
+	var original: Texture2D = assets.load_texture(path)
+	var readable: Image = original.get_image()
+	var expected: Image = readable.duplicate()
+	expected.resize(128, 128, Image.INTERPOLATE_LANCZOS)
+	expected.generate_mipmaps()
+	var processed: Dictionary = skin._process_icon_images({"missing": null, "empty": Image.new(), "readable": readable})
+	expect.call(not processed.has("missing") and not processed.has("empty"), "Map icon preparation skips null and empty CPU images like absent textures")
+	expect.call(processed.has("readable") and (processed["readable"] as Image).get_data() == expected.get_data(), "Readable map icons retain the exact resized pixels and mipmaps")
+	var key: String = "icon_" + icons.ICON_COMBAT
+	var had_cached: bool = skin._textures.has(key)
+	var cached: Variant = skin._textures.get(key)
+	skin._textures.erase(key)
+	# A real Texture2D without CPU pixels, as with Dummy or failed readback.
+	assets._texture_cache[path] = PlaceholderTexture2D.new()
+	expect.call(skin.icon_texture(icons.ICON_COMBAT) == null, "Unreadable map icon returns the existing absent-texture fallback")
+	expect.call(not skin._textures.has(key), "An unreadable map icon does not poison the processed texture cache")
+	assets._texture_cache[path] = original
+	var retried: Texture2D = skin.icon_texture(icons.ICON_COMBAT)
+	expect.call(retried != null and retried.get_image().get_data() == expected.get_data(), "A readable map icon can be retried without changing its pixels")
+	if had_cached: skin._textures[key] = cached
+	else: skin._textures.erase(key)
+	print("Section map icon image fallback: checked null, empty, readable and retry paths")
 
 static func _test_section(state: Dictionary, index: int, expect: Callable) -> void:
 	var info: Dictionary = Graph.section(state, index)

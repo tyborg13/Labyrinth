@@ -56,7 +56,6 @@ const RETORT_FAMILIES: Dictionary = {"retaliate": "pierce", "illusion_retort": "
 const GROUND_BURN_KINDS: Array[String] = Array(["move", "blink", "turn_start"], TYPE_STRING, "", null)
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
-const ARRIVAL_GAIN_DB: float = -4.0
 const BEAST_VOCAL_CHANCE: float = 0.30
 # Returned plays let the hero select another card (au-02 director feedback 1).
 const CARD_PLAY_GAIN_DB: float = -4.0
@@ -183,6 +182,7 @@ func begin_player_action(before: Dictionary, action: Dictionary, weapon: String 
 
 func begin_enemy_action(before: Dictionary, action: Dictionary, actor: Dictionary) -> void:
 	begin_action(before, action, actor)
+	_enemy_arrivals.register_step(action)
 
 # A dragon roars as its fight opens. That is its first roar of the fight, so its
 # first action does not repeat it; big area attacks still roar.
@@ -352,9 +352,9 @@ func baseline(state: Dictionary, reset_arrivals: bool = true) -> void:
 
 func enemy_arrivals(state: Dictionary, shown: Dictionary) -> void:
 	if _enemy_arrivals.observe(state, shown):
-		# The cohort owns deduplication. Allow its layer even if a shadow attack
-		# used this same cue on the birth frame; retain the bank's voice limit.
-		request("spell.shadow", {"gain_db": ARRIVAL_GAIN_DB, "area_instance": true})
+		# One request per board submission; the cue's cooldown also merges
+		# separate submissions in the same frame, without bypassing its cap.
+		request("summon.arrive")
 
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})

@@ -271,6 +271,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 				(next.get("collected_equipment", []) as Array).erase(old)
 				if not (next.get("collected_equipment", []) as Array).has(id): next["collected_equipment"].append(id)
 				(next.get("equipment_inventory", []) as Array).erase(id)
+				next = engine._mark_loadout_unread(next, "equipment", id)
 				outcomes.append({"type": type, "slot": slot, "from": old, "to": id})
 			"item":
 				for _index: int in range(int(effect["count"])):

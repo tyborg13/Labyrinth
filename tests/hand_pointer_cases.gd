@@ -7,7 +7,13 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 24
 const OBSERVE_FRAMES: int = 48
 const TURN_TIMEOUT_MS: int = 25000
+const REST_POSITION_TOLERANCE: float = 0.01
+const PENDING_SORT_TEST_OFFSET := Vector2.ONE
 const PROOF_DIR: String = "user://hov_01"
+const PROOF_CONTRACT_PATH: String = "/private/tmp/labyrinth-inspection-manifests/qa-81-hover.json"
+const PROOF_HAND_REGION := Rect2i(360, 650, 1320, 430)
+const PROOF_MIN_LUMA_RANGE: float = 45.0
+const PROOF_MIN_LUMA_STDEV: float = 8.0
 const CASES: Array = ["turn_start", "deselect", "mid_turn_draw", "middle_play"]
 
 var _tree: SceneTree
@@ -15,6 +21,17 @@ var _records: FileAccess
 var _frame: int = 0
 var _capture: bool = false
 var _hover_ticks: int = 0
+
+func write_proof_contract() -> Error:
+	var required: Array[Dictionary]
+	for case_name: String in CASES:
+		required.append({"pattern": "*" + case_name + ".png", "width": PROOF_SIZE.x, "height": PROOF_SIZE.y, "regions": [{"rect": [PROOF_HAND_REGION.position.x, PROOF_HAND_REGION.position.y, PROOF_HAND_REGION.size.x, PROOF_HAND_REGION.size.y], "min_luma_range": PROOF_MIN_LUMA_RANGE, "min_luma_stdev": PROOF_MIN_LUMA_STDEV}]})
+	DirAccess.make_dir_recursive_absolute(PROOF_CONTRACT_PATH.get_base_dir())
+	var file: FileAccess = FileAccess.open(PROOF_CONTRACT_PATH, FileAccess.WRITE)
+	if file == null: return FileAccess.get_open_error()
+	file.store_string(JSON.stringify({"min_images": CASES.size(), "expected_sizes": ["1920x1080"], "required_images": required}, "\t"))
+	print("HAND POINTER PROOF CONTRACT=" + PROOF_CONTRACT_PATH)
+	return OK
 
 func run(tree: SceneTree) -> void:
 	_tree = tree
@@ -28,6 +45,7 @@ func run(tree: SceneTree) -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PROOF_DIR))
 	_records = FileAccess.open(directory.path_join("hover_frames.jsonl"), FileAccess.WRITE)
 	_tree.call("_expect", _records != null, "Hover proof records should be writable")
+	await _run_layout_sampling_regression()
 	for case_name: String in CASES:
 		await _run_case(case_name)
 	await _run_pointer_guards()
@@ -95,9 +113,14 @@ func _run_case(case_name: String) -> void:
 		if case_name != "deselect" and not acquired:
 			if sliding and (hovered >= 0 or lifted >= 0):
 				moving_clean = false
-			if not locked and not sliding:
+			# Unlock can precede the deferred Container sort, especially at 12 FPS.
+			# is_sliding() covers animation, not that pending layout. Observe the
+			# actual unlifted slots before freezing the expected pointer owner.
+			if not locked and not sliding and (case_name != "turn_start" or _hand_layout_at_rest(fan)):
 				resting_index = _tree.call("_hand_card_under_point", scene, pointer)
 				acquired = true
+				if case_name == "turn_start":
+					print("HAND POINTER TURN START: sampled rested slots; expected=%d hovered=%d" % [resting_index, hovered])
 		if not locked and (acquired or case_name == "deselect"): tail += 1
 	_tree.call("_expect", tail == OBSERVE_FRAMES, "%s should finish and settle before the proof timeout" % case_name)
 	_tree.call("_expect", moving_clean, "%s must not hover or lift a card before the relayout rests" % case_name)
@@ -109,6 +132,36 @@ func _run_case(case_name: String) -> void:
 		_tree.call("_expect", _hover_ticks == ticks_before, "Returning the same card to hover should not tick again")
 	if _capture: await _save_capture(scene, case_name)
 	(scene.get("_sfx_bank") as Object).disconnect("cue_requested", _on_cue)
+	scene.queue_free()
+	await _next_frame()
+
+func _hand_layout_at_rest(fan: Control) -> bool:
+	if not fan.is_visible_in_tree() or fan.get_child_count() == 0: return false
+	for index: int in range(fan.get_child_count()):
+		var slot: Control = fan.get_child(index) as Control
+		var rest: Rect2 = HandFanContainer.card_rect_for_layout(index, fan.get_child_count(), slot.custom_minimum_size, float(fan.get("_card_gap")), bool(fan.get("_fan_enabled")), float(fan.get("_arch_height")))
+		var rotation: float = HandFanContainer.card_rotation_for_layout(index, fan.get_child_count(), bool(fan.get("_fan_enabled")), float(fan.get("_max_rotation_degrees")))
+		if slot.position.distance_to(rest.position) > REST_POSITION_TOLERANCE or not slot.size.is_equal_approx(rest.size) or not slot.scale.is_equal_approx(Vector2.ONE) or not is_equal_approx(slot.rotation, rotation):
+			return false
+	return true
+
+func _run_layout_sampling_regression() -> void:
+	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_tree.root.add_child(scene)
+	await _next_frame()
+	await _tree.call("_load_combat_fixture", scene)
+	for _index: int in range(SETTLE_FRAMES): await _next_frame()
+	var fan: Control = scene.get("hand_box") as Control
+	_tree.call("_expect", _hand_layout_at_rest(fan), "Pointer sampling fixture should begin with rested slots")
+	(fan.get_child(0) as Control).position += PENDING_SORT_TEST_OFFSET
+	fan.call("refresh_layout")
+	_tree.call("_expect", not bool(fan.call("is_sliding")), "A deferred Container sort is not a hand slide")
+	_tree.call("_expect", not _hand_layout_at_rest(fan), "Pointer sampling must reject unsorted slots even when no slide is running")
+	var deadline: int = Time.get_ticks_msec() + TURN_TIMEOUT_MS
+	while not _hand_layout_at_rest(fan) and Time.get_ticks_msec() < deadline:
+		await _next_frame()
+	_tree.call("_expect", _hand_layout_at_rest(fan), "Pointer sampling should accept slots after the queued sort completes")
+	print("HAND POINTER LAYOUT SAMPLING: pending sort rejected; rested slots accepted")
 	scene.queue_free()
 	await _next_frame()
 
@@ -222,7 +275,7 @@ func _record(scene: Node, case_name: String, phase: String) -> void:
 		var rest: Rect2 = HandFanContainer.card_rect_for_layout(index, fan.get_child_count(), slot.custom_minimum_size, float(fan.get("_card_gap")), bool(fan.get("_fan_enabled")))
 		cards.append({"index": index, "id": card.get("card_id"), "lift": rest.position.y - slot.position.y, "scale": slot.scale.x, "slide_remaining": str(fan.call("slide_remaining", slot))})
 	if _records != null:
-		_records.store_line(JSON.stringify({"frame": _frame, "case": case_name, "phase": phase, "hovered": scene.get("_hovered_card_index"), "lifted": fan.call("emphasized_index"), "strength": fan.call("emphasis_strength"), "sliding": fan.call("is_sliding"), "locked": scene.get("_animation_lock"), "cards": cards}))
+		_records.store_line(JSON.stringify({"frame": _frame, "case": case_name, "phase": phase, "hovered": scene.get("_hovered_card_index"), "lifted": fan.call("emphasized_index"), "strength": fan.call("emphasis_strength"), "sliding": fan.call("is_sliding"), "locked": scene.get("_animation_lock"), "resting_slots": _hand_layout_at_rest(fan), "cards": cards}))
 	_frame += 1
 
 func _save_capture(scene: Node, case_name: String) -> void:

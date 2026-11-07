@@ -1,7 +1,6 @@
 extends RefCounted
 
 const Assets = preload("res://scripts/asset_loader.gd")
-const CelLook = preload("res://scripts/cel_look.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const GraftRig = preload("res://scripts/graftwright_cutout/rig.gd")
 const GraftView = preload("res://scripts/graftwright_view.gd")
@@ -9,6 +8,11 @@ const GraftView = preload("res://scripts/graftwright_view.gd")
 # These are the existing view's resources. Preparation only fills its ordinary
 # caches; the view still owns construction, playback and all presentation values.
 const GRAFT_ART_FILES: PackedStringArray = ["atelier.png", "workmat.png", "item_cradle.png", "ritual_clasp.png"]
+
+# Keep callers on one manifest; the early CPU-assets job starts it while the
+# scene request is still outstanding, under the same loading cover.
+static func add_loading_textures(manifest: Dictionary) -> void:
+	preload("res://scripts/run_loading_texture_manifest.gd").add_to(manifest)
 
 static func active(scene: Variant, generation: int) -> bool:
 	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation
@@ -31,11 +35,9 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 			textures[path] = false
 	else:
 		for file: String in GRAFT_ART_FILES: textures[GraftView.ART.path_join(file)] = false
-	# Imported textures keep their original resource identity and import settings.
-	# Request them together, then publish through the normal loader only once the
-	# background load is complete. One large compressed texture cannot consume a
-	# whole travel-animation frame in the synchronous texture-preparation loop.
-	await prepare_imports(textures, frame, alive)
+	# Use the shared main-thread upload path here too. Threaded Texture2D
+	# requests can race canvas polygon retirement in Godot 4.6.1 (qa-82).
+	await Assets.prepare_textures_for(tree.root, textures, frame, alive)
 	if not active(scene, generation): return
 	if kind == "graftwright":
 		var path: String = GraftRig.GRAFT_BASE.path_join("front.json")
@@ -46,24 +48,3 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 			scene._encounter_cpu_asset_holds.append(source)
 			textures.merge(RigData.source_texture_manifest(source, path))
 	await Assets.prepare_textures_for(tree.root, textures, frame, alive)
-
-static func prepare_imports(textures: Dictionary, frame: Callable, alive: Callable) -> void:
-	var pending: Array[String]
-	for path: String in textures:
-		if ResourceLoader.has_cached(path) or not ResourceLoader.exists(path): continue
-		if Assets._should_prefer_source_file(path, Assets.TEXTURE_EXTENSIONS): continue
-		if CelLook.mode != "off" and not CelLook.variant_path(path).is_empty(): continue
-		if ResourceLoader.load_threaded_request(path, "Texture2D") == OK: pending.append(path)
-	# Drain every accepted request even after cancellation. Abandoned threaded
-	# requests otherwise retain their result; canceled owners never publish it.
-	while not pending.is_empty():
-		var remaining: Array[String]
-		for path: String in pending:
-			var status: int = ResourceLoader.load_threaded_get_status(path)
-			if status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-				remaining.append(path)
-			elif status == ResourceLoader.THREAD_LOAD_LOADED:
-				var held: Resource = ResourceLoader.load_threaded_get(path)
-				if held != null and bool(alive.call()): Assets.load_texture(path)
-		pending = remaining
-		if not pending.is_empty(): await frame.call()

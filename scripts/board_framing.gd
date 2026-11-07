@@ -8,12 +8,16 @@ const REFERENCE_WIDTH: float = 100.0
 const HUD_HALF_WIDTH: float = 71.0
 const HUD_HEIGHT: float = 34.0
 const HUD_CLEARANCE: float = 4.0
+const FIT_CACHE_ENTRIES: int = 2 # Default and legacy navigation baseline.
 var signature: String = ""
 var encounter_types: Array[String]
 var body_bounds := Rect2()
 var floor_bounds := Rect2()
 var head_bounds := Rect2()
 var _has_heads: bool = false
+var _body_rects: Array[Rect2]
+var _head_points: Array[Vector2]
+var _fit_cache: Array[Dictionary]
 
 func capture(board: Control, room_signature: String, tiles: Array[Vector2i]) -> void:
 	signature = room_signature
@@ -21,13 +25,18 @@ func capture(board: Control, room_signature: String, tiles: Array[Vector2i]) -> 
 	floor_bounds = Rect2()
 	head_bounds = Rect2()
 	_has_heads = false
+	_body_rects.clear()
+	_head_points.clear()
+	_fit_cache.clear()
 	# The owner temporarily resolves reference-width geometry at origin zero.
 	# Include doors, pillars and fixed room props, even when no actor is near them.
 	for rect: Rect2 in board.call("rendered_visual_rects", false, false):
+		_body_rects.append(rect)
 		body_bounds = rect if not body_bounds.has_area() else body_bounds.merge(rect)
 	for tile: Vector2i in tiles:
 		var center: Vector2 = _tile_center(Vector2(tile))
 		var rect := Rect2(center - Vector2(50, 25), Vector2(100, 70))
+		_body_rects.append(rect)
 		floor_bounds = rect if not floor_bounds.has_area() else floor_bounds.merge(rect)
 	body_bounds = body_bounds.merge(floor_bounds)
 	var grid: Array = (board.get("combat_state") as Dictionary).get("grid", [])
@@ -46,7 +55,9 @@ func capture(board: Control, room_signature: String, tiles: Array[Vector2i]) -> 
 		if not _fits(grid, tile, Vector2i.ONE):
 			continue
 		var center: Vector2 = _tile_center(Vector2(tile))
-		body_bounds = body_bounds.merge(Rect2(center + Vector2(-55, -88), Vector2(110, 112)))
+		var hero_body := Rect2(center + Vector2(-55, -88), Vector2(110, 112))
+		_body_rects.append(hero_body)
+		body_bounds = body_bounds.merge(hero_body)
 		_add_head(center + Vector2(0, -82))
 		for profile: Dictionary in profiles:
 			var footprint: Vector2i = profile["footprint"]
@@ -55,7 +66,9 @@ func capture(board: Control, room_signature: String, tiles: Array[Vector2i]) -> 
 			var foot: Vector2 = _tile_center(Vector2(tile) + Vector2(footprint - Vector2i.ONE) * 0.5)
 			var source_scale: float = profile["scale"]
 			var source: Rect2 = profile["body"]
-			body_bounds = body_bounds.merge(Rect2(foot + source.position * source_scale, source.size * source_scale))
+			var body := Rect2(foot + source.position * source_scale, source.size * source_scale)
+			_body_rects.append(body)
+			body_bounds = body_bounds.merge(body)
 			if bool(profile["local_hp"]):
 				_add_head(foot - Vector2(0, float(profile["height"]) * source_scale))
 
@@ -68,22 +81,88 @@ func bounds(tile_width: float) -> Rect2:
 		result = result.merge(hud)
 	return result
 
-func tile_width(available: Rect2, maximum: float) -> float:
+func tile_width(available: Rect2, maximum: float, exclusions: Array[Rect2] = []) -> float:
+	var key: Array = [available, maximum, exclusions]
+	for cached: Dictionary in _fit_cache:
+		if key == cached["key"]:
+			return float(cached["width"])
 	var low: float = 1.0
 	var high: float = maximum
 	for iteration: int in range(18):
 		var candidate: float = (low + high) * 0.5
-		var size: Vector2 = bounds(candidate).size
-		if size.x <= available.size.x and size.y <= available.size.y:
+		if _fitted_origin(available, candidate, exclusions).is_finite():
 			low = candidate
 		else:
 			high = candidate
-	return low
+	var fitted_width: float = maximum if _fitted_origin(available, maximum, exclusions).is_finite() else low
+	_fit_cache.append({"key": key.duplicate(true), "width": fitted_width,
+		"origin": _fitted_origin(available, fitted_width, exclusions)})
+	if _fit_cache.size() > FIT_CACHE_ENTRIES: _fit_cache.pop_front()
+	return fitted_width
 
-func origin(available: Rect2, tile_width: float) -> Vector2:
+func origin(available: Rect2, tile_width: float, exclusions: Array[Rect2] = []) -> Vector2:
+	for cached: Dictionary in _fit_cache:
+		if available == cached["key"][0] and exclusions == cached["key"][2] and tile_width == float(cached["width"]):
+			var cached_origin: Vector2 = cached["origin"]
+			if cached_origin.is_finite():
+				return cached_origin
+	var fitted: Vector2 = _fitted_origin(available, tile_width, exclusions)
+	if fitted.is_finite():
+		return fitted
+	# Explicit navigation zoom/pan may exceed the default envelope.
 	return available.get_center() - bounds(tile_width).get_center()
 
+func visual_rects(tile_width: float) -> Array[Rect2]:
+	var factor: float = tile_width / REFERENCE_WIDTH
+	var rects: Array[Rect2]
+	for body: Rect2 in _body_rects:
+		rects.append(Rect2(body.position * factor, body.size * factor))
+	for point: Vector2 in _head_points:
+		rects.append(Rect2(point * factor - Vector2(HUD_HALF_WIDTH, HUD_HEIGHT + HUD_CLEARANCE), Vector2(HUD_HALF_WIDTH * 2.0, HUD_HEIGHT)))
+	return rects
+
+func _fitted_origin(available: Rect2, width: float, exclusions: Array[Rect2]) -> Vector2:
+	var envelope: Rect2 = bounds(width)
+	if envelope.size.x > available.size.x or envelope.size.y > available.size.y:
+		return Vector2.INF
+	var centered: Vector2 = available.get_center() - envelope.get_center()
+	if exclusions.is_empty():
+		return centered
+	var minimum: float = available.position.y - envelope.position.y
+	var maximum: float = available.end.y - envelope.end.y
+	# Fixed horizontal centering leaves a one-dimensional interval problem.
+	# Subtract every forbidden origin interval, then choose the surviving point
+	# nearest the centered home. Keep separate diamonds/body/head rectangles:
+	# their union's empty corners are usable space beside the HUD.
+	var forbidden: Array[Vector2]
+	for rect: Rect2 in visual_rects(width):
+		for obstacle: Rect2 in exclusions:
+			if rect.position.x + centered.x >= obstacle.end.x or rect.end.x + centered.x <= obstacle.position.x:
+				continue
+			var interval := Vector2(obstacle.position.y - rect.end.y, obstacle.end.y - rect.position.y)
+			if interval.y > minimum and interval.x < maximum:
+				forbidden.append(interval)
+	forbidden.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+	var cursor: float = minimum
+	var best: float = INF
+	var distance: float = INF
+	for interval: Vector2 in forbidden:
+		if interval.x >= cursor:
+			var candidate: float = clampf(centered.y, cursor, minf(maximum, interval.x))
+			if absf(candidate - centered.y) < distance:
+				best = candidate
+				distance = absf(candidate - centered.y)
+		cursor = maxf(cursor, interval.y)
+		if cursor > maximum:
+			break
+	if cursor <= maximum:
+		var candidate: float = clampf(centered.y, cursor, maximum)
+		if absf(candidate - centered.y) < distance:
+			best = candidate
+	return Vector2(centered.x, best) if is_finite(best) else Vector2.INF
+
 func _add_head(point: Vector2) -> void:
+	_head_points.append(point)
 	head_bounds = head_bounds.expand(point) if _has_heads else Rect2(point, Vector2.ZERO)
 	_has_heads = true
 

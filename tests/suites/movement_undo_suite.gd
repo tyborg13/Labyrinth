@@ -283,8 +283,8 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	var router: Node = tree.root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "controller", "steam_deck")
 	scene.call("_refresh_controller_prompts")
-	var prompts: Array = scene.get("_controller_prompt_bar").prompts_snapshot()
-	expect.call(prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("label") == "Undo move" and prompt.get("action") == str(Router.ACTION_UNDO_MOVE)), "Available undo adds the controller prompt")
+	var prompts: Array = scene.get("_controller_glyph_badges").badges_snapshot()
+	expect.call(prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("action") == str(Router.ACTION_UNDO_MOVE) and prompt.get("target") == "MovementUndoButton"), "Available undo adds the controller prompt")
 	expect.call(Router.glyph_label_for_family(Router.ACTION_UNDO_MOVE, "steam_deck") == "L2" and Router.glyph_label_for_family(Router.ACTION_UNDO_MOVE, "xbox") == "LT", "Controller undo uses left trigger with the correct device glyph")
 	var trigger := InputEventJoypadMotion.new()
 	trigger.axis = JOY_AXIS_TRIGGER_LEFT
@@ -295,8 +295,8 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	expect.call(scene.get("_combat_state") == before, "Controller left trigger restores exact state")
 	scene.call("_refresh_controller_prompts")
 	await settle(tree)
-	prompts = scene.get("_controller_prompt_bar").prompts_snapshot()
-	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("label") == "Undo move"), "Unavailable undo removes its prompt")
+	prompts = scene.get("_controller_glyph_badges").badges_snapshot()
+	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("action") == str(Router.ACTION_UNDO_MOVE)), "Unavailable undo removes its prompt")
 	trigger.axis_value = 0.0
 	scene.call("_handle_controller_input", trigger)
 	sample_fade(button, FADE_OPAQUE_CHECK_SECONDS)
@@ -337,7 +337,7 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	expect.call(scene.get("_combat_state") == guided_after and not button.undo_available(), "Production mouse undo is disabled during the guided hard gate")
 	scene.call("_refresh_controller_prompts")
 	await settle(tree)
-	expect.call(not scene.get("_controller_prompt_bar").prompts_snapshot().any(func(prompt: Dictionary) -> bool: return prompt.get("label") == "Undo move"), "Tutorial early-return prompts never retain Undo move")
+	expect.call(not scene.get("_controller_glyph_badges").badges_snapshot().any(func(prompt: Dictionary) -> bool: return prompt.get("action") == str(Router.ACTION_UNDO_MOVE)), "Tutorial early-return prompts never retain Undo move")
 	scene.set("_progression", profile)
 	scene.set("_guided_tutorial_phase_id", "")
 	tutorial_host.visible = false

@@ -492,7 +492,7 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 			if bool(shown.get("maquette_explicit_clip", false)) and shown.has("effect"): return frame
 			continue
 		if cue == "move.blink" and scenario == "player/swap" and state.get("player", {}).get("pos") != before["player"]["pos"]: return frame
-		if cue == "spell.shadow" and scenario.begins_with("arrival/"): return frame
+		if cue == "summon.arrive" and scenario.begins_with("arrival/"): return frame
 		if cue == "move.blink" and str(shown.get("effect", {}).get("kind", "")) == "blink": return frame
 		if scenario == "enemy/eclipse" and cue == "spell.shadow" and shown.has("effect"): return frame
 		if cue.begins_with("swing.") and not (shown.get("effect", {}) as Dictionary).is_empty(): return frame

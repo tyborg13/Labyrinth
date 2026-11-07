@@ -88,7 +88,7 @@ func _initialize() -> void:
 	scout_button.grab_focus()
 	await _key(KEY_ENTER)
 	_check(bool(panel.get("scout_targeting")) and int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2, "Scout activation targets an unknown room without spending a use")
-	_check(_prompt_labels().has("Scout") and _prompt_labels().has("Cancel Scout"), "Controller cues distinguish Scout targeting from travel and closing")
+	_check(panel.controller_action_label() == "Scout" and panel.controller_cancel_label() == "Cancel Scout", "Controller cues distinguish Scout targeting from travel and closing")
 	await _capture("02b_scout_targeting.png")
 	await _key(KEY_ESCAPE)
 	_check(scrim.visible and not bool(panel.get("scout_targeting")), "Keyboard cancel leaves the map open and exits Scout targeting")
@@ -159,7 +159,7 @@ func _initialize() -> void:
 		_check(panel.get("activation_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Entry acknowledges " + input_kind + " activation before changing rooms")
 		_check(_route_choices(instance.get("_run_state")) == _route_choices(state), "The acknowledgement has no committed route event yet")
 		_check(int(feedback.call("feedback_counts").get("valid", 0)) == sound_before + 1, "Exactly one forged click confirms " + input_kind + " activation")
-		_check(_prompt_labels().has("Entering") and _prompt_labels().has("Cancel"), "Pending entry has truthful controller cues")
+		_check(panel.controller_action_label() == "Entering" and panel.controller_cancel_label() == "Cancel", "Pending entry has truthful controller cues")
 		_check(float(target_button.get("activation_progress")) > 0.0, "Selected room has active visual feedback")
 		if input_kind == "keyboard":
 			_check(float(target_button.call("activation_scale")) == 1.0, "Reduced motion acknowledges entry without scaling the room")
@@ -204,7 +204,7 @@ func _initialize() -> void:
 	event_view.finish_animation_for_test()
 	event_view.focus_initial()
 	_check(event_view.focused_choice_index() >= 0 and viewport.gui_get_focus_owner() == event_view.choices[event_view.focused_choice_index()], "Controller focus enters the dedicated event choices")
-	_check(_prompt_labels().has(str(EventRules.choice_def(EventRules.current_id(state), EventRules.first_available_choice_id(state))["label"])), "The event confirm cue names the focused choice")
+	_check(event_view.controller_action_label() == str(EventRules.choice_def(EventRules.current_id(state), EventRules.first_available_choice_id(state))["label"]), "The event confirm cue names the focused choice")
 	await _capture("08b_event_controller.png")
 	await _joy(JOY_BUTTON_A)
 	await process_frame
@@ -216,7 +216,7 @@ func _initialize() -> void:
 	await create_timer(EventViewSuite.CLOSE_PROOF_WAIT_SECONDS).timeout
 	await process_frame
 	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner().get_parent() == panel.get("_nodes"), "Controller event resolution restores room focus")
-	_check(_prompt_labels().has("Enter"), "The room confirm cue explicitly means direct entry")
+	_check(panel.controller_action_label() == "Enter", "The room confirm cue explicitly means direct entry")
 	await _capture("08c_event_focus_restored.png")
 	await _exercise_door_emblems()
 	await _finish_probe("SECTION MAP FLOW PROBE TEST RESULT")
@@ -351,7 +351,7 @@ func _exercise_scout_inputs(state: Dictionary) -> void:
 			if input_kind == "keyboard": await _key(KEY_ENTER)
 			else: await _joy(JOY_BUTTON_A)
 		_check(panel.get("activation_coord") == target and int((instance.get("_run_state") as Dictionary).get("map_event_revision", 0)) == revision_before, "Scout acknowledgement precedes its saved reveal")
-		_check(_prompt_labels().has("Scouting") and _prompt_labels().has("Cancel"), "Scout acknowledgement has accurate input cues")
+		_check(panel.controller_action_label() == "Scouting" and panel.controller_cancel_label() == "Cancel", "Scout acknowledgement has accurate input cues")
 		await _capture("02c_scout_" + input_kind + "_target.png")
 		await _wait_acknowledgement()
 		var after: Dictionary = instance.get("_run_state")
@@ -553,12 +553,6 @@ func _route_choices(state: Dictionary) -> int:
 		if str(event.get("type", "")) == "route_choice_committed": count += 1
 	return count
 
-func _prompt_labels() -> Array[String]:
-	var labels: Array[String]
-	for prompt: Dictionary in instance.get("_controller_prompt_bar").call("prompts_snapshot"):
-		labels.append(str(prompt.get("label", "")))
-	return labels
-
 func _set_reduced_motion(enabled: bool) -> void:
 	var settings: Dictionary = Settings.load_settings()
 	settings["reduced_motion"] = enabled
@@ -626,9 +620,9 @@ func _exercise_toolbar(prefix: String) -> void:
 	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", loadout), true)
 	await _joy(JOY_BUTTON_DPAD_LEFT)
 	_check(viewport.gui_get_focus_owner() == button, "Controller reaches Map by moving left from the adjacent loadout button")
-	_check(_prompt_labels().has("Open") and not _prompt_labels().has("Travel"), "Focused Map prompts opening the toolbar action instead of traveling")
+	_check(instance.find_child("ControllerPromptBar", true, false) == null, "The focused Map button has no detached shortcut bar")
 	if str((instance.get("_run_state") as Dictionary).get("mode")) == "room":
-		_check(_prompt_labels().has("Navigate") and not _prompt_labels().has("Choose Door"), "Room toolbar prompts navigation instead of choosing a door")
+		_check(instance.find_child("ControllerPromptBar", true, false) == null, "Room toolbar has no detached navigation label")
 	await _capture(prefix + "_focus.png")
 	await _joy(JOY_BUTTON_A)
 	_check(scrim.visible, "Controller A opens the focused toolbar map icon")

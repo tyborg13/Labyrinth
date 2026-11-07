@@ -5,6 +5,7 @@ const Strip = preload("res://scripts/turn_order_landing_strip.gd")
 const ForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const CountedScene = preload("res://tests/helpers/turn_clock_counted_run_scene.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
+const TUTORIAL_CALLOUT_POSITION := Vector2(820, 620) # Proof-only overlap fixture.
 
 static func run(tree: SceneTree, scene: Node, engine: CombatEngine, expect: Callable, fixture: Dictionary, install: Callable, hover: Callable, capture: Callable) -> void:
 	_test_projection_tooltips(scene, engine, fixture, expect)
@@ -88,7 +89,7 @@ static func _test_expensive_paths(tree: SceneTree, viewport: Viewport, fixture: 
 	strip.present(entries, 1, target, null, func(_entry: Dictionary) -> String: return "res://assets/art/icons/umbra_presence.png", Callable(counted, "_turn_order_landing_strip_allowed").bind(1), true)
 	for _frame: int in range(30):
 		strip.call("_process", 0.0)
-	expect.call(strip.visible and counted.card_preview_reads == 0, "Thirty strip follow frames build no card previews")
+	expect.call(not strip.visible and counted.card_preview_reads == 0, "Disabled presentation guard rejects the strip without building card previews")
 	counted.set("_hovered_card_index", 3)
 	strip.call("_process", 0.0)
 	expect.call(not strip.visible and counted.card_preview_reads == 0, "Per-frame guard hides stale focused indices without rebuilding a preview")
@@ -125,7 +126,7 @@ static func _test_modals(tree: SceneTree, scene: Node, fixture: Dictionary, inst
 				await tree.process_frame
 			var strip: Control = scene.get("_turn_order_landing_strip") as Control
 			var phase: String = "%s_%s" % ["selected" if selected else "hover", overlay]
-			expect.call(strip.visible and (not selected or int(scene.get("_selected_card_index")) == 1), "%s: the card preview and strip are active before opening the overlay" % phase)
+			expect.call(strip == null and (not selected or int(scene.get("_selected_card_index")) == 1), "%s: card preview is active and the disabled strip is unbuilt before opening the overlay" % phase)
 			if overlay == "map":
 				scene.call("_open_large_map", true)
 			elif overlay == "pile":
@@ -135,14 +136,13 @@ static func _test_modals(tree: SceneTree, scene: Node, fixture: Dictionary, inst
 			await tree.process_frame
 			await tree.process_frame
 			var scrim_property: String = "_large_map_scrim" if overlay == "map" else "_pile_scrim" if overlay == "pile" else "_menu_scrim"
-			expect.call((scene.get(scrim_property) as Control).visible and not strip.visible, "%s: opening the actual modal hides the strip" % phase)
+			expect.call((scene.get(scrim_property) as Control).visible and scene.get("_turn_order_landing_strip") == null, "%s: opening the actual modal keeps the strip unbuilt" % phase)
 			await capture.call(phase)
 			scene.call("_close_large_map" if overlay == "map" else "_close_pile_view" if overlay == "pile" else "_close_menu_overlay")
 			# No pointer event, controller action or process frame after modal close.
 			if selected:
-				expect.call(int(scene.get("_selected_card_index")) == 1 and strip.visible, "%s: closing the overlay immediately restores the selected card's strip without further input" % phase)
-			elif bool(scene.call("_turn_order_landing_strip_allowed")):
-				expect.call(strip.visible, "%s: closing the overlay immediately restores a retained hover's strip" % phase)
+				expect.call(int(scene.get("_selected_card_index")) == 1 and scene.get("_turn_order_landing_strip") == null, "%s: closing the overlay retains selection without building the strip" % phase)
+			expect.call(scene.get("_turn_order_landing_strip") == null and not bool(scene.call("_turn_order_landing_strip_allowed")), "%s: closing the overlay never restores the disabled strip" % phase)
 			if selected:
 				await capture.call("%s_restored" % phase)
 	await install.call(tree, scene, fixture.duplicate(true))
@@ -160,14 +160,12 @@ static func _test_modals(tree: SceneTree, scene: Node, fixture: Dictionary, inst
 		if blocker == null:
 			continue
 		blocker.visible = true
-		strip.call("_process", 0.0)
-		expect.call(not strip.visible and not bool(scene.call("_turn_order_landing_strip_allowed")), "Strip hides while %s is visible" % property)
+		expect.call(strip == null and not bool(scene.call("_turn_order_landing_strip_allowed")), "Disabled strip stays unbuilt while %s is visible" % property)
 		blocker.visible = false
 		scene.call("_refresh_turn_order_bar")
 	for property: String in ["_dialogue_active", "_treasure_reveal_active", "_relic_claim_in_progress", "_loadout_acquisition_in_progress"]:
 		scene.set(property, true)
-		strip.call("_process", 0.0)
-		expect.call(not strip.visible and not bool(scene.call("_turn_order_landing_strip_allowed")), "Strip respects the modal guard %s" % property)
+		expect.call(strip == null and not bool(scene.call("_turn_order_landing_strip_allowed")), "Disabled strip stays unbuilt during modal guard %s" % property)
 		scene.set(property, false)
 		scene.call("_refresh_turn_order_bar")
 	if temporary_confirmation != null:
@@ -185,12 +183,11 @@ static func _test_tutorial(tree: SceneTree, scene: Node, fixture: Dictionary, in
 	await tree.process_frame
 	await tree.process_frame
 	var callout: Control = prompt.get_node("GuidedActionCallout") as Control
-	callout.global_position = strip.global_position - Vector2(30, 30)
+	callout.global_position = TUTORIAL_CALLOUT_POSITION
 	scene.call("_refresh_turn_order_landing_strip")
-	strip.call("_process", 0.0)
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
-	expect.call(strip.visible and not strip.get_global_rect().intersects(callout.get_global_rect()) and not strip.get_global_rect().intersects(stack.get_global_rect()), "Live tutorial callout and tooltip stack both stay clear of the strip")
-	expect.call(strip.z_index + 8 < host.z_index and strip.z_index > 124, "Every strip child stays below the z1280 tutorial and above the board and hand")
+	expect.call(strip == null and scene.get("_turn_order_landing_strip") == null, "Live tutorial callout never builds the disabled strip")
+	expect.call(host.is_visible_in_tree() and callout.is_visible_in_tree() and stack.is_visible_in_tree(), "Tutorial callout and focus tooltip stack remain visible without the strip")
 	await capture.call("tutorial_callout")
 	prompt.call("clear_prompt")
 	host.visible = false
@@ -211,16 +208,15 @@ static func _test_long_order(tree: SceneTree, scene: Node, fixture: Dictionary, 
 	await install.call(tree, scene, state)
 	await hover.call(tree, scene, 3)
 	var strip: Control = scene.get("_turn_order_landing_strip") as Control
-	var roles: Dictionary = strip.role_entries()
 	var all: Array[Dictionary] = scene.get("_turn_order_all_entries")
+	var roles: Dictionary = Strip.roles_for(all)
 	var hero_index: int = -1
 	for index: int in range(all.size()):
 		if str(all[index].get("projection_kind", "")) == "end_now":
 			hero_index = index
 	var before: Array = roles.get("before", [])
-	expect.call(hero_index > 10 and before.size() > 10 and strip.visible, "The strip finds a projected hero beyond ten preceding entries")
-	var overflow: Label = strip.get_node_or_null("LandingStripOverflow") as Label
-	expect.call(overflow != null and overflow.text == "+%d" % (before.size() - 4) and strip.has_node("LandingStripSlot_3") and not strip.has_node("LandingStripSlot_4"), "Long order remains four before portraits plus the exact +N count")
+	expect.call(hero_index > 10 and before.size() > 10, "The retained strip roles find a projected hero beyond ten preceding entries")
+	expect.call(strip == null, "Long order never builds the disabled strip or its overflow portraits")
 	var rail: Control = scene.get("_turn_order_bar") as Control
 	var disclosed: int = 0
 	for child: Node in rail.get_children():
@@ -237,5 +233,5 @@ static func _test_long_order(tree: SceneTree, scene: Node, fixture: Dictionary, 
 		expect.call(rail_overflow.tooltip_text.split("\n").size() == 1 + overflow_count, "Rail overflow tooltip must disclose every omitted entry")
 		expect.call(rail.get_global_rect().encloses(rail_overflow.get_global_rect()), "The overflow portrait must fit within the compact rail")
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
-	expect.call(not strip.get_global_rect().intersects(stack.get_global_rect()), "Long strip still clears the focused tooltip stack")
+	expect.call(stack.visible and scene.get("_turn_order_landing_strip") == null, "Long order retains the focused tooltip stack without the strip")
 	await capture.call("beyond_rail_limit")

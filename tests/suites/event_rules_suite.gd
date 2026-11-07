@@ -240,6 +240,7 @@ static func _effects(engine: RefCounted, expect: Callable) -> void:
 	result = _apply(engine, state, [{"type": "reforge", "slot": "weapon", "rarity_step": 1}])
 	var new_weapon: String = result["state"]["equipped_equipment"]["weapon"]
 	expect.call(new_weapon != old_weapon and Data.equipment_def(new_weapon).get("rarity") == "rare" and not result["state"]["equipment_grafts"].has(old_weapon) and not result["state"]["equipment_inventory"].has(old_weapon), "Reforge destroys the old gear and graft and equips a higher-rarity replacement")
+	expect.call(engine.loadout_unread_ids(result["state"], "equipment").has(new_weapon) and engine.loadout_asset_is_new(result["state"], "equipment", new_weapon), "Reforged replacement gear is unread and NEW")
 	expect.call(result["state"]["deck_cards"] == Data.compile_deck_cards(result["state"]["equipped_equipment"], result["state"]["attuned_magic_cards"], result["state"]["equipped_items"], result["state"]), "Reforge rebuilds the compiled deck")
 	result = _apply(engine, state, [{"type": "item", "count": 3}, {"type": "lose_item"}])
 	expect.call(result["state"]["item_inventory"].size() == 2 and result["outcomes"].size() == 4, "Items acquire through pack rules and lose_item removes one pack copy")

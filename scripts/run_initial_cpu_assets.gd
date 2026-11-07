@@ -32,6 +32,7 @@ static func _prepare_for(job: Node, root: Node, present_frame: Callable, still_a
 	for id: String in MapSkin.Icons.all_icon_ids():
 		var path: String = MapSkin.Icons.icon_path(id)
 		if not path.is_empty(): manifest[path] = false
+	preload("res://scripts/run_loading_texture_manifest.gd").add_to(manifest)
 	await Assets.prepare_textures_for(root, manifest, present_frame, still_active)
 	if not owner_is_active(job, still_active): return
 	await prepare_cpu_assets_for(job, root, present_frame, still_active)

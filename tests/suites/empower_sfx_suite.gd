@@ -179,8 +179,8 @@ static func _blocked_health(tree: SceneTree, expect: Callable, source: String) -
 	expect.call(Ui.can_attempt(scene, 0) and not Ui.available(scene, 0), "%s: health block allows invalid feedback but never offers Empower" % source)
 	scene.call("_refresh_controller_prompts")
 	await settle(tree)
-	var prompts: Array = scene.get("_controller_prompt_bar").prompts_snapshot()
-	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt["label"] in ["Empower", "Unempower"]), "%s: health block hides the controller Empower prompt" % source)
+	var prompts: Array = scene.get("_controller_glyph_badges").badges_snapshot()
+	expect.call(not prompts.any(func(prompt: Dictionary) -> bool: return prompt["action"] == "controller_empower"), "%s: health block hides the controller Empower prompt" % source)
 	var seal: Button = (scene.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal") as Button
 	expect.call(not seal.get_node("Badge").visible, "%s: health block hides the keyboard/controller Empower badge" % source)
 	var original_tooltip: String = seal.tooltip_text

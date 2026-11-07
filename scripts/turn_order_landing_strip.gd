@@ -25,12 +25,14 @@ var _allowed: Callable
 var _fade: Tween
 var _slot_reuse := preload("res://scripts/landing_strip_slot_reuse.gd").new()
 
+const Z_INDEX: int = 1260
+
 func _init() -> void:
 	name = "TurnOrderLandingStrip"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top_level = true
 	z_as_relative = false
-	z_index = 1260
+	z_index = Z_INDEX
 	visible = false
 	set_process(false)
 

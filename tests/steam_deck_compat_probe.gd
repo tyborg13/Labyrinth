@@ -127,7 +127,7 @@ func _capture_run_surfaces() -> void:
 	_require(int(instance.get("_hovered_card_index")) == int(instance.get("_controller_hand_index")), "Controller hand navigation should use the card's authored hover/focus treatment")
 	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Controller card focus should not add a debug-style rectangular overlay")
 	_assert_forged_cursor_hidden_for_controller()
-	_assert_prompt_bar(instance.get("_controller_prompt_bar") as Control, "Combat hand")
+	_assert_run_badges(instance, "Combat hand")
 	_assert_key_handheld_text_floor(instance)
 	_require(bool(instance.get("_controller_hand_focused")), "Controller combat should open with the readable focused hand")
 	var controller_board: Control = instance.get("board_view") as Control
@@ -332,14 +332,14 @@ func _capture_run_surfaces() -> void:
 	await _settle()
 	instance.call("_controller_set_board_tile", combat_door)
 	_assert_board_cursor_center(instance)
-	_assert_prompt_bar(instance.get("_controller_prompt_bar") as Control, "Room door navigation")
+	_assert_run_badges(instance, "Room door navigation")
 	await _save_screenshot("room_door_cursor.png")
 	await instance.call("_controller_activate_current")
 	instance.call("_recover_controller_focus")
 	await _settle()
 	_assert_focus_inside(instance.get("_pre_battle_scrim") as Control, "Pre-battle")
 	_assert_control_inside_logical_viewport(instance.get("_pre_battle_panel") as Control, "Pre-battle panel", 16.0)
-	var pre_battle_prompts: Array = (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot")
+	var pre_battle_prompts: Array = instance.get("_controller_glyph_badges").call("badges_snapshot")
 	for prompt_var: Variant in pre_battle_prompts:
 		_require(str((prompt_var as Dictionary).get("action", "")) != str(InputRouterScript.ACTION_CANCEL), "Committed pre-battle should not advertise a cancel action that cannot return to the previous room")
 	await _save_screenshot("pre_battle_controller_focus.png")
@@ -385,8 +385,8 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	var selector: Control = instance.get("_card_action_mode_selector") as Control
 	_require(selector == null or not selector.visible, "The removed Printed/Attack/Move selector should stay hidden for controller play")
 	_require(not bool(instance.get("_controller_hand_focused")), "Entering direct card targeting should tuck the hand out of the board's way")
-	var card_targeting_prompts: Array[String] = _controller_prompt_labels(instance)
-	_require(card_targeting_prompts.has("Target") and card_targeting_prompts.has("Cancel"), "Direct card targeting should advertise Target and Cancel; got %s" % [card_targeting_prompts])
+	var card_targeting_prompts: Array[String] = _controller_badge_actions(instance)
+	_require(not card_targeting_prompts.has(str(InputRouterScript.ACTION_ACCEPT)) and not card_targeting_prompts.has(str(InputRouterScript.ACTION_CANCEL)), "Direct card targeting drops redundant Target and Cancel cues; got %s" % [card_targeting_prompts])
 	var targeting_hand_scroll: ScrollContainer = instance.get("hand_scroll") as ScrollContainer
 	_require(
 		targeting_hand_scroll != null and targeting_hand_scroll.visible and not targeting_hand_scroll.clip_contents,
@@ -423,8 +423,8 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	await _press_controller_button(JOY_BUTTON_A)
 	_require(bool(instance.get("_player_movement_selected")) and str(instance.get("_controller_region")) == "board", "A on the protagonist should enter independent movement targeting")
 	_require(not bool(instance.get("_controller_hand_focused")), "Independent movement targeting should keep the hand tucked")
-	var movement_prompts: Array[String] = _controller_prompt_labels(instance)
-	_require(movement_prompts.has("Target") and movement_prompts.has("Cancel"), "Movement targeting should advertise Target and Cancel; got %s" % [movement_prompts])
+	var movement_prompts: Array[String] = _controller_badge_actions(instance)
+	_require(not movement_prompts.has(str(InputRouterScript.ACTION_ACCEPT)) and not movement_prompts.has(str(InputRouterScript.ACTION_CANCEL)), "Movement targeting drops redundant Target and Cancel cues; got %s" % [movement_prompts])
 	var movement_targets: Array = instance.get("_player_movement_target_tiles") as Array
 	_require(not movement_targets.is_empty(), "Steam Deck movement proof requires a legal destination")
 	await _save_screenshot("combat_movement_targeting.png")
@@ -558,9 +558,9 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 		var header_presentation: Dictionary = header_board.get("presentation") as Dictionary
 		_require((header_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Header focus should not retain the enemy's projected movement or actions")
 		var header_prompt_labels: Array[String] = []
-		for prompt: Dictionary in (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot") as Array[Dictionary]:
-			header_prompt_labels.append(str(prompt.get("label", "")))
-		_require(header_prompt_labels.has("Open"), "An actionable header target should advertise A / Open; got %s for %s (base=%s disabled=%s)" % [header_prompt_labels, instance.get("_controller_focus_candidate"), menu_control is BaseButton, menu_control.disabled])
+		for prompt: Dictionary in instance.get("_controller_glyph_badges").call("badges_snapshot") as Array[Dictionary]:
+			header_prompt_labels.append(str(prompt.get("action", "")))
+		_require(not header_prompt_labels.has(str(InputRouterScript.ACTION_ACCEPT)), "An actionable header target drops redundant A / Open; got %s for %s (base=%s disabled=%s)" % [header_prompt_labels, instance.get("_controller_focus_candidate"), menu_control is BaseButton, menu_control.disabled])
 		var cursor: Control = instance.get("_controller_analog_cursor") as Control
 		var detail_panel: Control = cursor.get_node_or_null("ControllerCursorDetail") as Control
 		var cursor_detail_text: String = str((cursor.call("cursor_snapshot") as Dictionary).get("detail_text", ""))
@@ -750,11 +750,11 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	await _settle()
 	_require(str(instance.get("_controller_magic_source_kind")) == "inventory", "First A should hold the reserve spell for a two-step swap")
 	var swap_prompt_labels: Array[String] = []
-	for prompt: Dictionary in (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot") as Array[Dictionary]:
-		swap_prompt_labels.append(str(prompt.get("label", "")))
+	for prompt: Dictionary in instance.get("_controller_glyph_badges").call("badges_snapshot") as Array[Dictionary]:
+		swap_prompt_labels.append(str(prompt.get("action", "")))
 	_require(
-		swap_prompt_labels == ["Swap", "Cancel Swap", "Choose Slot"],
-		"Selected magic should advertise Swap / Cancel Swap / Choose Slot; got %s" % [swap_prompt_labels]
+		not swap_prompt_labels.has(str(InputRouterScript.ACTION_ACCEPT)) and not swap_prompt_labels.has(str(InputRouterScript.ACTION_CANCEL)),
+		"Selected magic drops detached text cues; got %s" % [swap_prompt_labels]
 	)
 	await _save_screenshot("character_magic_swap_selected.png")
 	attuned_tile.call("_gui_input", _controller_accept_event())
@@ -942,14 +942,14 @@ func _assert_prompt_bar(prompt_bar: Control, label: String) -> void:
 	var prompts: Array = prompt_bar.call("prompts_snapshot") if prompt_bar != null else []
 	_require(not prompts.is_empty(), "%s should expose at least one contextual controller command" % label)
 
-func _controller_prompt_labels(instance: Node) -> Array[String]:
-	var result: Array[String] = []
-	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
-	if prompt_bar == null:
-		return result
-	for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
-		if typeof(prompt_var) == TYPE_DICTIONARY:
-			result.append(str((prompt_var as Dictionary).get("label", "")))
+func _assert_run_badges(instance: Node, label: String) -> void:
+	_require(instance.find_child("ControllerPromptBar", true, false) == null, "%s has no in-run prompt bar" % label)
+	_require(not instance.get("_controller_glyph_badges").badges_snapshot().is_empty(), "%s has controller badges on its controls" % label)
+
+func _controller_badge_actions(instance: Node) -> Array[String]:
+	var result: Array[String]
+	for badge: Dictionary in instance.get("_controller_glyph_badges").badges_snapshot():
+		result.append(str(badge["action"]))
 	return result
 
 func _combat_movement_remaining(combat_state: Dictionary) -> int:
@@ -989,12 +989,8 @@ func _assert_combat_resource_stack(instance: Node, label: String) -> void:
 		_require(movement_rect.encloses(movement_icon.get_global_rect()), "%s movement icon should remain inside its plaque" % label)
 
 func _assert_prompt_above_modal(instance: Node, modal: Control, label: String) -> void:
-	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
-	_require(prompt_bar != null and modal != null, "%s should have prompt and modal surfaces" % label)
-	if prompt_bar == null or modal == null:
-		return
-	_require(not prompt_bar.z_as_relative and prompt_bar.z_index > modal.z_index, "%s prompts should render above its modal scrim" % label)
-	_assert_prompt_bar(prompt_bar, label)
+	_require(modal != null, "%s has its existing modal surface" % label)
+	_require(instance.find_child("ControllerPromptBar", true, false) == null, "%s has no floating prompt layer" % label)
 
 func _assert_board_cursor_center(instance: Node) -> void:
 	var tile: Vector2i = instance.get("_controller_board_tile")
@@ -1135,12 +1131,6 @@ func _assert_pointer_board_rect_restored(instance: Node, controller_navigation_s
 			)
 
 func _assert_key_handheld_text_floor(instance: Node) -> void:
-	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
-	for label_node: Node in prompt_bar.find_children("*", "Label", true, false):
-		var label := label_node as Label
-		var logical_font_size: int = label.get_theme_font_size("font_size")
-		var physical_font_size: float = float(logical_font_size) * float(_physical_size.y) / float(_logical_size.y)
-		_require(physical_font_size >= 12.0, "Controller prompt text should render at a 12px physical floor on Steam Deck; got %.2fpx" % physical_font_size)
 	if _probe_requires_handheld_output():
 		_require(UiTypography.is_handheld_output(instance.get("ui_root") as Control), "The production-stretch probe should engage the handheld type profile")
 

@@ -693,3 +693,39 @@
 | ui-28 | (update) | qa-78 NO-GO finding fixed by the director 5877b8e3e: L1 sits left of X when a collapsed hand leaves no room below (viewport clamp pushed it onto X); probe PASS both sizes alone and combined | |
 | qa-78 | (update) | **closed**: NO-GO only for the X/L1 bottom-clamp overlap (fixed 5877b8e3e); demo route 12/12 both sizes 0 divergences; hunts 3/3 = release; full Godot 139/140 (one turn-start parked-pointer program reproduces on release at 12 FPS); qa-77 items: Continue 3/3, ObjectDB warnings not candidate-only | |
 | release | (update) | gate at 5c8856350: full Godot PASS, Python failed only test_godot_sidecars (fixed 22805d35d) | |
+| qa-80 | (update) | **closed**: 15 raw demo attempts (all early bot defeats) + 15 assisted demo clears to the recap/title; 90 Save & Quit -> Continue checks 0 differences; 2,152 + 15,741 analytics events 0 schema violations; no stuck/recap findings; one headless-only null-image resize in section_map_skin.gd:73 (Dummy renderer; matched control clean) -> later guard; Python sidecar failure already fixed (22805d35d) | |
+| qa-81 | Two small pre-launch hardening fixes: section_map_skin null image resize; turn-start hover resolves to the rested layout at low FPS | running | brief .codex/tasks/briefs/qa-81.md |
+| qa-81 | (update) | r0: map skin null-image guard (readable images byte-identical); 12 FPS hover failure was a test sampling-before-sort defect (product correct), fixture fixed; committed on its branch; merge held until the master push of 365fab988 | |
+| release | (update) | master pushed 9ff1cd5bf (tree of 365fab988; full gate green; Codex reviews signed off; export smoke PASS); demo session told 365fab988 is cleared for the review upload | |
+| qa-81 | (update) | merged 543bedad8 (invisible) | |
+| perf-87 | (update) | r2 (final): decodes only at existing scene-request wait yields, same end frame, remainder to the bank at first use; 118 px = torch flame animation phase; title untouched; native A/B/A running | |
+| qa-82 | Native crashes in exported demo builds (control apps): Image::resize SIGSEGV on a worker thread x3 (map skin icon worker), RenderingDevice free_polygon SIGSEGV during canvas redraw x1 | running | brief .codex/tasks/briefs/qa-82.md |
+| release | (update) | crash reports: 4 intermittent native SIGSEGVs in exported demo control builds of release code (Image::resize on the map skin icon worker x3; RenderingDevice free_polygon during canvas redraw x1); demo session asked to hold the 365fab988 review upload; qa-82 root-causing | |
+| perf-87 | (update) | r2 native run interrupted by a control (a1) SIGSEGV (the free_polygon crash, release code); rerunning | |
+| ux-10 | (update) | **owner APPROVED**; merged c7830c904 | |
+| ui-29 | (update) | owner NEEDS CHANGES: remove the strip entirely ("deactivate it for now") and the card caption under the hero in the turn-order column -> **dropped**, superseded by ui-30 | |
+| ui-30 | Turn the aim turn-order preview strip off (constant, code kept) and drop the card name/Time caption under the hero in the turn-order column (owner) | running | brief .codex/tasks/briefs/ui-30.md |
+| ui-28 | (update) | **owner APPROVED**; merged e52254e59 (with the director's L1 fallback left of X when the hand is collapsed) | |
+| perf-88 | (update) | r0 measurement done (no product change): top demo/whole-run slow-frame paths are board commands, board submission (set_combat_state), forecast memo, scene-tile paint, persistence; candidates 1 and 3 briefed as perf-90/perf-91 | |
+| perf-90 | Board state submission (`set_combat_state`) stops costing whole frames on enemy steps (perf-88 #1 by own cost; invisible) | running | brief .codex/tasks/briefs/perf-90.md |
+| perf-91 | Forecast memo second pass on card play and hover (perf-88 #4; invisible) | running | brief .codex/tasks/briefs/perf-91.md |
+| qa-82 | (update) | r0: resize crashes = null receivers (qa-81's guard covers them); free_polygon crash = Godot 4.6.1 transfer-worker pool race with threaded Texture2D uploads -> imported texture creation moved to the main thread, worker images duplicated; r1: drop the new permanent test, measure loading/travel cost vs perf-23/perf-15 gains; director native stress running | |
+| ui-31 | Pre-battle Equip button shows the NEW tag while gear/spells are unread; Equip opens the tab with the news; controller focus clears tile NEW tags (owner) | queued | brief .codex/tasks/briefs/ui-31.md |
+| ui-30 | (update) | r0: strip constant off, hero caption removed; native before/after reviewed (1080 + Deck, standard + Warband); new test files moved out of the repo (test budget); committed 549bfe093; posted to the inbox | |
+| ui-31 | (update) | r0: shared NEW tag builder, Equip tag on unread, Equip opens the tab with news, focus clears tile tags, reforge now marks unread; native captures queued | |
+| perf-87 | (update) | r2 native: a0 cold/warm, b cold done (loading worst 379/346 -> 267 ms, load done 4.68 -> 4.30 s); b warm stalled at 1200 s (empty log, likely hidden window); Deck set requeued | |
+| qa-82 | (update) | source-native stress PASS (200 icons + 200 map cycles, Metal, 0 crashes); exported-demo stress command pointed at a missing project dir, rerun after r1 | |
+| perf-92 | Board command building costs less on enemy steps (perf-88 #2 by count, largest demo gain; invisible) | running | brief .codex/tasks/briefs/perf-92.md |
+| qa-82 | (update) | r1: test moved out; proxy: New Run/Continue faster, campfire worst travel frame +478 ms (4 x 1254px choice imports now on the main thread at ~126 ms each) -> r2: prewarm those (and Graftwright panels) behind the loading cover; measure map-time prep too | |
+| perf-87 | (update) | Deck native A/B/A complete: worst loading frame ~325 -> 240/256 ms; pixel diffs = tile highlight pulse phase only; merged (invisible) | |
+| ui-31 | (update) | native before/after reviewed (4 configs; tag placement, magic-only routing, focus clears tags); probe moved out of the repo; committed e645b6fb9; posted to the inbox | |
+| ui-30 | (update) | **owner APPROVED**; merged 6b2a5cf58 | |
+| ui-31 | (update) | **owner APPROVED**; merged 5dd027423 | |
+| aud-01 | (update) | **owner APPROVED** (aud-1); merged 27dcac000 | |
+| aud-02 | (update) | **owner APPROVED, picked A** (rush of air); notes cleaned d9c2fbd0d; merged d2976860f | |
+| perf-93 | The board's scene-tile layer paints less on enemy steps (perf-88 #5; invisible) | running | brief .codex/tasks/briefs/perf-93.md |
+| qa-82 | (update) | r2: 67 imports prewarm behind the loading cover; campfire travel -3 ms vs release, event/Scavenger travel better, totals within budget; residual Graftwright/Scavenger-map/loading rises have no imported load in their frames (accepted); committed 5a3be77c1; exported-demo native stress running | |
+| qa-82 | (update) | exported-demo native stress r2: 200 icon + 200 map cycles on Metal, 0 crashes, no .ips (only the known Retina exact-size check failed); merged with perf-87's SourceImageDrain fields kept (aeaf89944) -> a61c7b8a6 | |
+| fix | (update) | 967eb9d31: ui-30 + ui-28 interaction - with the landing strip off, the hand X/L1 glyph attach read a null strip's z_index (20 SCRIPT ERRORs in main_menu_input_test; glyphs missing on the hand with a controller); strip z-index is now a shared constant | |
+| release | (update) | full gate on a61c7b8a6 started (launch build candidate: ux-10, ui-28, ui-30, ui-31, aud-01, aud-02, perf-87, qa-82, glyph fix) | |
+| release | (update) | full gate on a61c7b8a6 PASS (Godot 465 s, 0 SCRIPT ERRORs; Python 189 OK; the pre-battle deck assertions ui-31 saw fail in isolation pass in suite order); sent to the demo session as the launch build candidate; Codex review rel-1107c running | |

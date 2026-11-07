@@ -278,8 +278,8 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	scene.call("_refresh_controller_prompts")
 	await tree.process_frame
-	var prompts: Array = scene.get("_controller_prompt_bar").prompts_snapshot()
-	expect.call(prompts.size() == 1 and prompts[0]["label"] == "Continue", "Real controller prompt names focused event action")
+	var prompts: Array = scene.get("_controller_glyph_badges").badges_snapshot()
+	expect.call(prompts.any(func(badge: Dictionary) -> bool: return badge["action"] == "controller_cancel" and badge["target"] == "EventContinue"), "Event result B badge belongs to the existing Continue control")
 	router.call("clear_forced_state_for_test")
 	var settings: Dictionary = scene.get("_settings").duplicate(true)
 	settings["reduced_motion"] = true

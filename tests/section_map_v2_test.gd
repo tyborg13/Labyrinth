@@ -8,6 +8,13 @@ func _initialize() -> void:
 	if OS.get_cmdline_user_args().has("--proof-contract-only"):
 		quit(0)
 		return
+	if OS.get_cmdline_user_args().has("--skin-only"):
+		Suite.test_icon_image_fallback(func(ok: bool, message: String) -> void:
+			if not ok: failures.append(message))
+		for failure: String in failures: push_error(failure)
+		print("Section map skin suite: %d failures" % failures.size())
+		quit(0 if failures.is_empty() else 1)
+		return
 	var seed_end: int = Suite.SEED_COUNT / Suite.SEED_PARTS if OS.get_cmdline_user_args().has("--map-part-0") else Suite.SEED_COUNT
 	_run_seed_range(0, seed_end, true)
 

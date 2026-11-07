@@ -128,6 +128,8 @@ func _parse_args() -> Dictionary:
 		"attuned_magic": "",
 		"magic_inventory": "",
 		"equipment_inventory": "",
+		"unread_equipment": "",
+		"unread_magic": "",
 		"item_inventory": "",
 		"equipped_items": "",
 		"equip": "",
@@ -251,6 +253,9 @@ func _parse_args() -> Dictionary:
 			"--equipment-inventory":
 				index += 1
 				parsed["equipment_inventory"] = _required_arg(args, index, arg)
+			"--unread-equipment", "--unread-magic":
+				index += 1
+				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
 			"--item-inventory":
 				index += 1
 				parsed["item_inventory"] = _required_arg(args, index, arg)
@@ -348,6 +353,7 @@ func _print_help() -> void:
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
 	print("  --equipment-inventory item_a,item_b")
+	print("  --unread-equipment owned_gear_a --unread-magic owned_spell_a (existing loadout NEW/unread state)")
 	print("  --item-inventory card_a,card_b --equipped-items card_c,card_d")
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
@@ -907,6 +913,14 @@ func _apply_loadout(run_state: Dictionary) -> Dictionary:
 	state["equipped_equipment"] = equipped
 	state["collected_equipment"] = _unique_strings(GameData.starter_equipment_ids() + _dictionary_values(equipped) + equipment_inventory)
 	state["deck_cards"] = GameData.compile_deck_cards(equipped, state.get("attuned_magic_cards", []), state.get("equipped_items", []))
+	for mode: String in ["equipment", "magic"]:
+		var unread: Array[String] = _string_list(str(_options.get("unread_" + mode, "")))
+		var owned: Array = state.get("collected_equipment", []) if mode == "equipment" else state.get("attuned_magic_cards", [])
+		for asset_id: String in unread:
+			if not owned.has(asset_id):
+				_fail("--unread-%s requires owned asset %s" % [mode, asset_id])
+				return state
+			state = _run_engine._mark_loadout_unread(state, mode, asset_id)
 	var max_hp: int = _option_or_default("player_max_hp", int(state.get("player_max_hp", 1)))
 	state["player_max_hp"] = maxi(1, max_hp)
 	state["player_hp"] = clampi(_option_or_default("player_hp", int(state.get("player_hp", max_hp))), 0, int(state.get("player_max_hp", max_hp)))

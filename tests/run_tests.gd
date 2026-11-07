@@ -6321,7 +6321,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and is_equal_approx(boss_overlay.size.y, 134.0), "The boss overlay should retain its authored width and 134px name, health and status budget")
 		var status_row: Control = instance.get("_boss_status_row") as Control
 		_assert(status_row != null and is_equal_approx(status_row.size.y, 32.0) and boss_overlay.get_global_rect().encloses(status_row.get_global_rect()), "The boss header should contain its full 32px status row")
-		_assert((instance.call("_board_fit_rect") as Rect2).position.y >= boss_overlay.get_global_rect().end.y + 4.0, "Boss board framing should begin below the complete status-bearing header")
+		_assert(await preload("res://tests/suites/combat_board_layout_suite.gd").header_controls_clear(self, instance), "Board tile, body and head bounds should clear the header controls by 12 px")
 		_assert(boss_overlay.get_node_or_null("BossHealthLinework") == null, "The boss name and HP bar should render without an enclosing background box")
 	_assert(boss_frame != null and boss_frame.texture != null, "Boss health should render the cohesive Umbral dragon frame asset")
 	if boss_frame != null and boss_frame.texture != null:
@@ -6815,15 +6815,9 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 		router.call("_input", incidental_host_click)
 		_assert(str(router.call("modality")) == InputRouterScript.MODALITY_CONTROLLER, "Forced controller tests should ignore incidental host pointer buttons")
 		instance.call("_refresh_controller_prompts")
-		var prompt_labels: Array[String] = []
-		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
-		for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
-			prompt_labels.append(str((prompt_var as Dictionary).get("label", "")))
-		_assert(
-			prompt_labels.has("Target") and prompt_labels.has("Cancel"),
-			"Controller movement targeting should advertise Target and Cancel; got %s in region %s"
-			% [prompt_labels, str(instance.get("_controller_region"))]
-		)
+		var badges: Array = instance.get("_controller_glyph_badges").badges_snapshot()
+		_assert(not badges.any(func(badge: Dictionary) -> bool: return badge["action"] in ["controller_accept", "controller_cancel", "controller_move", "controller_dpad"]), "Movement targeting drops redundant combat glyphs")
+
 	var cancel_event := InputEventAction.new()
 	cancel_event.action = InputRouterScript.ACTION_CANCEL
 	cancel_event.pressed = true
@@ -9328,9 +9322,12 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(loadout_badge.visible and loadout_badge_label.text == "1", "The loadout badge should remain for an unseen spell")
 	var gear_new_tag: Control = (instance.get("_upgrade_scrim") as Node).find_child("LoadoutNewTag", true, false) as Control
 	_assert(gear_new_tag != null and str(gear_new_tag.get_meta("asset_id", "")) == "ward_kite", "New equipment should show a NEW tag in the Gear inventory")
-	instance.call("_on_loadout_asset_hovered", "equipment", "ward_kite")
-	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array).has("ward_kite"), "Hovering new equipment should clear its persistent NEW state")
-	_assert(gear_new_tag != null and not gear_new_tag.visible, "Hovering new equipment should immediately hide its NEW tag")
+	var new_gear_tile: Control = (instance.get("_equipment_inventory_tiles") as Dictionary).get("ward_kite") as Control
+	if new_gear_tile != null:
+		new_gear_tile.grab_focus()
+	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array).has("ward_kite"), "Focusing new equipment should clear its persistent NEW state")
+	_assert(gear_new_tag != null and not gear_new_tag.visible, "Focusing new equipment should immediately hide its NEW tag")
+	_assert(not (ProgressionStore.load_saved_run().get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array).has("ward_kite"), "Focusing new equipment should save its seen state")
 	var unread_magic_tab: Button = _button_with_text(instance.get("_upgrade_scrim") as Node, "Magic")
 	_assert(unread_magic_tab != null and unread_magic_tab.find_child("MagicLoadoutTabBadge", true, false) != null, "The unopened Magic tab should show its own notification badge")
 	instance.call("_close_card_upgrade_overlay")

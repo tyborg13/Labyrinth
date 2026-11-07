@@ -2,6 +2,28 @@ extends RefCounted
 
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const HEADER_LAYOUT_SETTLE_FRAME_BUDGET: int = 120 # Fixture-only readiness guard.
+
+static func header_controls_clear(tree: SceneTree, scene: Control) -> bool:
+	var budget: RefCounted = scene.get("_board_hud_budget")
+	for frame: int in range(HEADER_LAYOUT_SETTLE_FRAME_BUDGET):
+		if budget.get("key") == budget.call("environment", scene): break
+		await tree.process_frame
+	if budget.get("key") != budget.call("environment", scene): return false
+	var exclusions: Array[Rect2]
+	exclusions.assign(budget.get("exclusions"))
+	var boss: Control = scene.get("_boss_health_overlay")
+	if boss == null or not exclusions.has(boss.get_global_rect().grow(12.0)): return false
+	var board: Control = scene.get("board_view")
+	var origin: Vector2 = board.call("_board_origin")
+	var framing: RefCounted = board.get("_room_framing")
+	var width: float = board.call("_tile_width")
+	for rect: Rect2 in framing.call("visual_rects", width):
+		rect.position += origin
+		rect = board.get_global_transform_with_canvas() * rect
+		for exclusion: Rect2 in exclusions:
+			if rect.intersection(exclusion).get_area() > 0.01: return false
+	return true
 
 
 static func run(expect: Callable) -> void:

@@ -147,6 +147,7 @@ static func _test_opening_arrival_baseline(expect: Callable) -> void:
 	recorder.run_context(run)
 	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1]})
 	expect.call(recorder.cues.is_empty(), "Start baselines opening enemies even though pre-battle already owns the room key")
+	recorder.begin_enemy_action(run["combat_state"], {"kind": "summon", "spawned_enemies": [{"id": 2, "hp": 10}]}, {})
 	run["combat_state"]["enemies"].append({"id": 2, "hp": 10})
 	recorder.run_context(run)
 	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1]})
@@ -154,9 +155,9 @@ static func _test_opening_arrival_baseline(expect: Callable) -> void:
 	recorder.begin_enemy_action(run["combat_state"], {}, {})
 	recorder.run_context(run)
 	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1, 2]})
-	expect.call(recorder.cues == ["spell.shadow"], "A pending mid-fight cohort survives action baselines and plays once when visible")
+	expect.call(recorder.cues == ["summon.arrive"], "A pending mid-fight cohort survives action baselines and plays once when visible")
 	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [1, 2]})
-	expect.call(recorder.cues == ["spell.shadow"], "Repeated presentation never replays a real arrival cohort")
+	expect.call(recorder.cues == ["summon.arrive"], "Repeated presentation never replays a real arrival cohort")
 	run["mode"] = "pre_battle"
 	run["combat_state"] = {}
 	recorder.run_context(run)
@@ -164,7 +165,7 @@ static func _test_opening_arrival_baseline(expect: Callable) -> void:
 	run["combat_state"] = {"enemies": [{"id": 3, "hp": 10}]}
 	recorder.run_context(run)
 	recorder.enemy_arrivals(run["combat_state"], {"visible_enemy_ids": [3]})
-	expect.call(recorder.cues == ["spell.shadow"], "A later combat entry resets its opening roster even if the room key is reused")
+	expect.call(recorder.cues == ["summon.arrive"], "A later combat entry resets its opening roster even if the room key is reused")
 
 static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

@@ -87,15 +87,9 @@ func _initialize() -> void:
 	if router != null:
 		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
 		instance.call("_refresh_controller_prompts")
-		var prompt_labels: Array[String] = []
-		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
-		for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
-			prompt_labels.append(str((prompt_var as Dictionary).get("label", "")))
-		_assert(
-			prompt_labels.has("Target") and prompt_labels.has("Cancel"),
-			"Movement targeting should advertise controller Target and Cancel; got %s in region %s (movement selected=%s)"
-			% [prompt_labels, str(instance.get("_controller_region")), str(instance.get("_player_movement_selected"))]
-		)
+		var badges: Array = instance.get("_controller_glyph_badges").badges_snapshot()
+		_assert(not badges.any(func(badge: Dictionary) -> bool: return badge["action"] in ["controller_accept", "controller_cancel", "controller_move", "controller_dpad"]), "Movement targeting drops redundant combat glyphs")
+
 	var cancel_event := InputEventAction.new()
 	cancel_event.action = InputRouterScript.ACTION_CANCEL
 	cancel_event.pressed = true

@@ -24,6 +24,7 @@ static var _medallion_rim: ArrayMesh
 const MEDALLION_SEGMENTS: int = 96
 
 static func _processed_image(image: Image, name: String) -> Image:
+	if image == null or image.is_empty(): return null
 	if name == "action_frame":
 		image = image.get_region(Rect2i(24, 212, 1944, 328))
 		image.resize(512, 86, Image.INTERPOLATE_LANCZOS)
@@ -37,12 +38,12 @@ static func _processed_image(image: Image, name: String) -> Image:
 static func prepare_initial_assets_for(root: Node, present_frame: Callable, still_active: Callable) -> void:
 	for name: String in ["action_frame", "medallion", "panel_frame"]:
 		if _textures.has(name): continue
-		var source: Image = Assets.load_texture(ART + name + ".png").get_image()
+		var source: Image = _owned_texture_image(Assets.load_texture(ART + name + ".png"))
 		var image: Image = (await Assets.prepare_cpu_value_for(root, _processed_image.bind(source, name), present_frame, still_active)) as Image
 		if not bool(still_active.call()): return
 		if image != null and not _textures.has(name): _textures[name] = ImageTexture.create_from_image(image)
 
-	# CPU copies are obtained on the main thread. A single owned worker makes
+	# Private CPU copies are obtained on the main thread. A single owned worker makes
 	# every exact 128px map icon; GPU publication remains bounded on the main.
 	var sources: Dictionary = {}
 	var started: int = Time.get_ticks_usec()
@@ -50,7 +51,9 @@ static func prepare_initial_assets_for(root: Node, present_frame: Callable, stil
 		var key: String = "icon_" + id
 		if _textures.has(key): continue
 		var texture: Texture2D = Icons.icon_texture(id)
-		if texture != null: sources[key] = texture.get_image()
+		if texture != null:
+			var image: Image = _owned_texture_image(texture)
+			if image != null and not image.is_empty(): sources[key] = image
 		if Time.get_ticks_usec() - started >= 4000:
 			await present_frame.call()
 			if not bool(still_active.call()): return
@@ -67,12 +70,26 @@ static func prepare_initial_assets_for(root: Node, present_frame: Callable, stil
 			if not bool(still_active.call()): return
 			started = Time.get_ticks_usec()
 
+static func _owned_texture_image(texture: Texture2D) -> Image:
+	if texture == null: return null
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty(): return null
+	# Dummy texture readback returns its stored Image itself, unlike native
+	# readback. Never let a worker resize a texture-owned/shared Image. Duplicate
+	# on the main thread, preserving its format and every byte (including mips).
+	return image.duplicate() as Image
+
 static func _process_icon_images(sources: Dictionary) -> Dictionary:
+	var images: Dictionary = {}
 	for key: String in sources:
 		var image: Image = sources[key]
+		# A texture may exist without readable CPU pixels (Dummy/readback failure).
+		# Omit it exactly like an absent icon; never publish a failed cache entry.
+		if image == null or image.is_empty(): continue
 		image.resize(128, 128, Image.INTERPOLATE_LANCZOS)
 		image.generate_mipmaps()
-	return sources
+		images[key] = image
+	return images
 
 static func _texture(name: String) -> Texture2D:
 	if not _textures.has(name):
@@ -86,7 +103,8 @@ static func icon_texture(id: String) -> Texture2D:
 		var source: Texture2D = Icons.icon_texture(id)
 		if source == null:
 			return null
-		var image: Image = source.get_image()
+		var image: Image = _owned_texture_image(source)
+		if image == null or image.is_empty(): return null
 		image.resize(128, 128, Image.INTERPOLATE_LANCZOS)
 		image.generate_mipmaps()
 		_textures[key] = ImageTexture.create_from_image(image)

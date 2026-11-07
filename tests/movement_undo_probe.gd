@@ -104,8 +104,8 @@ func _run() -> void:
 	router.call("set_forced_state_for_test", "controller", "steam_deck")
 	_scene.call("_refresh_controller_interface")
 	await Suite.settle(self)
-	var prompts: Array = _scene.get("_controller_prompt_bar").prompts_snapshot()
-	_expect(prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("label") == "Undo move" and prompt.get("action") == str(Router.ACTION_UNDO_MOVE)), "Controller prompt advertises available undo")
+	var prompts: Array = _scene.get("_controller_glyph_badges").badges_snapshot()
+	_expect(prompts.any(func(prompt: Dictionary) -> bool: return prompt.get("action") == str(Router.ACTION_UNDO_MOVE) and prompt.get("target") == "MovementUndoButton"), "Controller prompt advertises available undo")
 	_expect(router.call("glyph_label", Router.ACTION_UNDO_MOVE) == "L2", "Steam Deck uses left trigger glyph")
 	await _capture("04_controller_prompt", {"prompts": prompts, "glyph": "L2", "button_rect": _rect(button)})
 

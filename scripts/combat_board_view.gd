@@ -3033,7 +3033,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		"board_backdrop_visible",
 		"board_framing_mode",
 		"board_safe_global_rect",
-		"board_fit_rect", "board_encounter_types",
+		"board_fit_rect", "board_encounter_types", "board_fit_exclusions",
+		"board_legacy_fit_rect", "board_targeting",
 		"controller_combat_navigation",
 	]:
 		if presentation_changes.has(layout_key):
@@ -4362,7 +4363,7 @@ func set_navigation_zoom(next_zoom: float, focus_position: Vector2 = Vector2(-1.
 	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * clamped_zoom
 	# Room framing includes fixed HUD clearance. Its scaled origin is not a
 	# transform about the viewport centre; preserve the actual board point.
-	var next_origin: Vector2 = _room_framing.origin(_board_layout_available_rect(), next_tile_width)
+	var next_origin: Vector2 = _room_framing.origin(_board_layout_available_rect(), next_tile_width, _board_layout_exclusions())
 	var anchored_pan: Vector2 = focus_position - next_origin - (focus_position - _board_layout_cache_origin) * zoom_ratio
 	_navigation_zoom = clamped_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(anchored_pan, _board_layout_cache_extents, next_tile_width)
@@ -4387,8 +4388,11 @@ func reset_navigation() -> void:
 		_navigation_transform_changed(true)
 
 func _default_navigation_zoom_for_viewport() -> float:
-	# Fit includes the complete room/actor/HUD envelope. Enlarging that result
-	# again would defeat the up-front clearance and force reactive corrections.
+	if bool(presentation.get("controller_combat_navigation", false)):
+		var legacy: Rect2 = presentation.get("board_legacy_fit_rect", Rect2())
+		if legacy.has_area() and _room_framing.body_bounds.has_area():
+			var previous_width: float = _room_framing.tile_width(legacy, BOARD_MAX_TILE_WIDTH)
+			return maxf(1.0, previous_width * _navigation_zoom_scale_for_presentation(presentation) / _tile_width_for_extents({}))
 	return 1.0
 
 func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
@@ -14949,6 +14953,8 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
 	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
 	parts.append("fit:%s|roster:%s" % [str(next_presentation.get("board_fit_rect", Rect2())), str(next_presentation.get("board_encounter_types", []))])
+	parts.append("exclusions:%s|targeting:%s" % [str(next_presentation.get("board_fit_exclusions", [])), bool(next_presentation.get("board_targeting", false))])
+	parts.append("legacy_fit:%s" % str(next_presentation.get("board_legacy_fit_rect", Rect2())))
 	return "|".join(parts)
 
 func _visual_framing_signature_for_state(next_state: Dictionary, next_presentation: Dictionary) -> String:
@@ -16749,7 +16755,7 @@ func _board_origin() -> Vector2:
 	return _board_layout_cache_origin
 
 func _board_origin_for_extents(_extents: Dictionary, tile_width: float, _tiles: Array[Vector2i]) -> Vector2:
-	return _room_framing.origin(_board_layout_available_rect(), tile_width) + _navigation_pan
+	return _room_framing.origin(_board_layout_available_rect(), tile_width, _board_layout_exclusions()) + (Vector2.ZERO if bool(presentation.get("board_targeting", false)) else _navigation_pan)
 
 func room_centering_offset() -> Vector2:
 	_ensure_board_layout_cache()
@@ -16766,7 +16772,7 @@ func _navigation_zoom_anchor() -> Vector2:
 
 func _navigation_content_rect(_extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
 	var bounds: Rect2 = _room_framing.bounds(tile_width)
-	return Rect2(_room_framing.origin(_board_layout_available_rect(), tile_width) + bounds.position + pan, bounds.size)
+	return Rect2(_room_framing.origin(_board_layout_available_rect(), tile_width, _board_layout_exclusions()) + bounds.position + pan, bounds.size)
 
 func _board_vertical_bias() -> float:
 	if str(presentation.get("board_framing_mode", "room")) != "combat":
@@ -17345,8 +17351,27 @@ func _tile_width() -> float:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tile_width
 
+func set_room_framing(fit_rect: Rect2, exclusions: Array[Rect2], legacy_fit_rect: Rect2) -> void:
+	# A deferred HUD measurement must preserve the currently displayed animation
+	# snapshot, including Health samples and forced death clips.
+	var next_presentation: Dictionary = presentation.duplicate(false)
+	next_presentation["board_fit_rect"] = fit_rect
+	next_presentation["board_fit_exclusions"] = exclusions
+	next_presentation["board_legacy_fit_rect"] = legacy_fit_rect
+	set_combat_state(combat_state, move_tiles, attack_tiles, selected_tile,
+		status_label, status_detail, exit_tiles, exit_icon_ids, next_presentation, true)
+
 func _tile_width_for_extents(_extents: Dictionary) -> float:
-	return _room_framing.tile_width(_board_layout_available_rect(), BOARD_MAX_TILE_WIDTH)
+	return _room_framing.tile_width(_board_layout_available_rect(), BOARD_MAX_TILE_WIDTH, _board_layout_exclusions())
+
+func _board_layout_exclusions() -> Array[Rect2]:
+	var rects: Array[Rect2]
+	# Detached/zero-size callers retain release's rectangular fit, even when
+	# there is not enough room for its one-pixel minimum tile width.
+	if not is_inside_tree() or size.x <= 0.0 or size.y <= 0.0:
+		return rects
+	rects.assign(presentation.get("board_fit_exclusions", []))
+	return rects
 
 func _board_layout_available_rect() -> Rect2:
 	var authored: Rect2 = presentation.get("board_fit_rect", Rect2()) as Rect2
@@ -17458,8 +17483,6 @@ func _ensure_board_layout_cache() -> void:
 		if board != null and board.has_method("_copy_resolved_board_layout_to"):
 			board.call("_copy_resolved_board_layout_to", self)
 			return
-	if _navigation_uses_default_zoom:
-		_navigation_zoom = _default_navigation_zoom_for_viewport()
 	var tiles: Array[Vector2i] = _board_layout_cache_tiles
 	var extents: Dictionary = _board_layout_cache_extents
 	if not _board_layout_content_cache_valid:
@@ -17476,8 +17499,14 @@ func _ensure_board_layout_cache() -> void:
 	if _room_framing.signature != room_signature or not _room_framing.body_bounds.has_area():
 		_populate_board_layout_cache(tiles, BoardFraming.REFERENCE_WIDTH, Vector2.ZERO)
 		_room_framing.capture(self, room_signature, tiles)
-	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
-	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
+	if _navigation_uses_default_zoom:
+		_navigation_zoom = _default_navigation_zoom_for_viewport()
+	var targeting: bool = bool(presentation.get("board_targeting", false))
+	var tile_width: float = _tile_width_for_extents(extents) * (1.0 if targeting else _navigation_zoom)
+	# Targeting temporarily reveals the fitted room; cancelling retains the
+	# player's navigation preference, including pan on an overflowing axis.
+	if not targeting:
+		_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
 	_populate_board_layout_cache(tiles, tile_width, _board_origin_for_extents(extents, tile_width, tiles))
 
 func _populate_board_layout_cache(tiles: Array[Vector2i], tile_width: float, origin: Vector2) -> void:

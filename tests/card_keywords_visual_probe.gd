@@ -121,7 +121,7 @@ func _capture_stills(packed: PackedScene) -> void:
 	router.call("set_forced_state_for_test", "controller", "steam_deck")
 	instance.call("_refresh_controller_prompts")
 	await _settle()
-	_assert(_seal(instance, 1).get_node("Badge").text == "R3", "Controller focus uses the existing glyph")
+	_assert(_seal(instance, 1).get_node_or_null("GlyphBadge_controller_empower/InputGlyph") != null, "Controller focus uses the existing glyph")
 	_save(viewport, "charged_controller.png")
 	router.call("clear_forced_state_for_test")
 	router.call("set_forced_state_for_test", "pointer", "xbox")

@@ -88,6 +88,10 @@ static func refresh_sections(host: Node, panel: PanelContainer, room: Dictionary
 		_replace_component(host, content, 0, build_header(host, room, combat, accent))
 	if _foes_key(previous) != _foes_key(current):
 		_replace_component(host, body, 0, build_foes(host, combat, state))
+	if previous.get("loadout_unread_count") != current.get("loadout_unread_count"):
+		var tag: Control = panel.find_child("PreBattleEquipNewTag", true, false) as Control
+		if tag == null: return false
+		tag.visible = host.get("_run_engine").loadout_unread_count(state) > 0
 	if _kit_key(previous) != _kit_key(current):
 		var equip: Button = panel.find_child("PreBattleEquipButton", true, false) as Button
 		if equip == null: return false
@@ -425,10 +429,24 @@ static func build_actions(host: Node, future_state: Dictionary = {}) -> Control:
 	equip.icon = _equipped_weapon_icon(state)
 	equip.expand_icon = true
 	row.add_child(equip)
+	_add_equip_new_tag(host, equip, state)
 	var start := action(host, "PreBattleStartButton", "Start", "_on_pre_battle_start_pressed", 170.0, true)
 	start.tooltip_text = "Start combat"
 	row.add_child(start)
 	return row
+
+static func _add_equip_new_tag(host: Node, equip: Button, state: Dictionary) -> void:
+	var tag: PanelContainer = host.call("_build_loadout_new_tag") as PanelContainer
+	tag.name = "PreBattleEquipNewTag"
+	tag.visible = host.get("_run_engine").loadout_unread_count(state) > 0
+	equip.add_child(tag)
+	tag.size = tag.get_combined_minimum_size()
+	var inset: float = Typography.scaled_value(host, 8.0)
+	var place_tag: Callable = func() -> void:
+		tag.position = Vector2(equip.size.x - inset - tag.size.x, -tag.size.y * 0.5)
+	equip.resized.connect(place_tag)
+	tag.resized.connect(place_tag)
+	place_tag.call()
 
 static func _equipped_weapon_icon(state: Dictionary) -> Texture2D:
 	var weapon_id: String = str((state.get("equipped_equipment", {}) as Dictionary).get("weapon", ""))

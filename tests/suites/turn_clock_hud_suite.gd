@@ -91,11 +91,11 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	SettingsStore.apply_settings(settings, tree.root, false)
 	await _install(tree, scene, fixture(engine))
 	scene.call("_on_card_hover_started", 1)
-	check.call(is_equal_approx((scene.get("_turn_order_landing_strip") as Control).modulate.a, 1.0), "Reduced motion makes the strip opaque before advancing any frames")
+	check.call(scene.get("_turn_order_landing_strip") == null, "Reduced motion never builds the disabled strip, even before advancing frames")
 	await preload("res://tests/helpers/presentation_test_clock.gd").rendered_frames(tree, RunScene.HAND_HOVER_REST_RENDERED_FRAMES)
 	await _settle(tree)
 	_assert_state(scene, check, 10, "Quick Stab −3", -3, ["enemy:enemy_1"], "enemy:enemy_2", "reduced_motion_fast")
-	check.call(is_equal_approx((scene.get("_turn_order_landing_strip") as Control).modulate.a, 1.0), "reduced_motion_fast: the strip appears at full opacity immediately")
+	check.call(scene.get("_turn_order_landing_strip") == null, "reduced_motion_fast: the disabled strip stays unbuilt")
 	await _capture(capture_viewport, check, capture_dir, "reduced_motion_fast")
 
 	await _install(tree, scene, lap_fixture(engine))
@@ -294,6 +294,10 @@ static func _projected_hero(scene: Node) -> Dictionary:
 
 static func _assert_state(scene: Node, expect: Callable, wait_time: int, pill: String, delta: int, before_keys: Array, after_key: String, phase: String) -> void:
 	var strip: Control = scene.get("_turn_order_landing_strip") as Control
+	expect.call(strip == null and not bool(scene.call("_turn_order_landing_strip_allowed")), "%s: disabled landing strip is never built or allowed" % phase)
+	for slot: Node in (scene.get("_turn_order_bar") as Control).get_children():
+		if str(slot.get_meta("turn_order_actor_key", "")) == "player:player":
+			expect.call(slot.find_child("ProjectionPreviewBadge", true, false) == null, "%s: hero has no card-name/Time caption" % phase)
 	var line: Label = scene.find_child("PassPreviewForecastLine", true, false) as Label
 	var row: Control = scene.find_child("PassPreviewDamageRow", true, false) as Control
 	expect.call(line != null and row != null, "%s: Pass forecast exists" % phase)
@@ -318,43 +322,27 @@ static func _assert_state(scene: Node, expect: Callable, wait_time: int, pill: S
 		expect.call(not tooltip.begins_with("Ending now leaves"), "%s: no Wait tooltip when both plays were used" % phase)
 	expect.call(is_equal_approx(float((scene.get("_settings") as Dictionary).get("ui_scale", 0)), 1.0) and scene.get_viewport().get_visible_rect().size == Vector2(SIZE), "%s: exactly 1920x1080 at 100%% scale: viewport %s, settings %s" % [phase, scene.get_viewport().get_visible_rect(), (scene.get("_settings") as Dictionary).get("ui_scale", 0)])
 	if pill.is_empty():
-		expect.call(not strip.visible, "%s: no landing strip without a card preview" % phase)
 		return
-	expect.call(strip.is_visible_in_tree(), "%s: card preview shows the landing strip" % phase)
 	var entry: Dictionary = _projected_hero(scene)
 	expect.call(int(entry.get("projected_time_delta", 99)) == delta, "%s: projected delta is exact" % phase)
-	var badge: PanelContainer = null
+	var projected_slot: Control = null
 	for slot: Node in (scene.get("_turn_order_bar") as Control).get_children():
 		if bool(slot.get_meta("turn_order_projected", false)) and str(slot.get_meta("turn_order_projection_card_name", "")) == str(entry.get("projected_card_name", "")):
-			badge = slot.find_child("ProjectionPreviewBadge", true, false) as PanelContainer
+			projected_slot = slot as Control
 			break
-	expect.call(badge != null, "%s: projected rail pill is present" % phase)
-	if badge != null:
-		var label: Label = badge.get_child(0) as Label
-		var style: StyleBoxFlat = badge.get_theme_stylebox("panel") as StyleBoxFlat
-		var expected_style: StyleBoxFlat = Ink.projection_style(delta)
-		expect.call(label.text == pill and style.bg_color.is_equal_approx(expected_style.bg_color) and style.border_color.is_equal_approx(expected_style.border_color), "%s: exact pill copy and sign style: %s" % [phase, label.text])
-		# hud-02 (6e2db7a8a): the approved projection exception is 12px; ink and
-		# outline stay exactly as authored before layout C.
-		expect.call(label.get_theme_font_size("font_size") == 12 and label.get_theme_color("font_color") == Color("fff6ce") and label.get_theme_color("font_outline_color") == Color("120b07") and label.get_theme_constant("outline_size") == 1, "%s: pill retains layout C's 12px typography and original ink" % phase)
-	var roles: Dictionary = strip.role_entries()
+	expect.call(projected_slot != null, "%s: projected hero portrait remains present" % phase)
+	if projected_slot != null:
+		var numeral: Label = projected_slot.get_node_or_null("TurnOrderTimeNumeral") as Label
+		expect.call(projected_slot.find_child("ProjectionPreviewBadge", true, false) == null, "%s: projected hero caption is absent" % phase)
+		expect.call(numeral != null and numeral.text == str(scene.call("_turn_order_relative_time", entry)), "%s: projected portrait retains its exact Time numeral" % phase)
+	var roles: Dictionary = Strip.roles_for(scene.get("_turn_order_all_entries"))
 	var keys: Array = []
 	for before: Dictionary in roles.get("before", []):
 		keys.append(Strip.actor_key(before))
 	expect.call(keys == before_keys and Strip.actor_key(roles.get("hero", {})) == "player:player" and Strip.actor_key(roles.get("after", {})) == after_key, "%s: strip role order matches the rail: %s" % [phase, keys])
-	expect.call((strip.find_child("LandingStripAgainLabel", true, false) != null) == before_keys.is_empty(), "%s: ACT AGAIN appears exactly when no actor acts first" % phase)
-	var after: Control = strip.find_child("LandingStripAfter", true, false) as Control
-	expect.call(after != null and after.modulate == Strip.DIM_AFTER, "%s: the next actor is dimmed" % phase)
-	_assert_strip_art(strip, expect, phase)
+	expect.call(bool(roles.get("act_again", false)) == before_keys.is_empty(), "%s: retained strip role extraction still identifies ACT AGAIN" % phase)
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	expect.call(stack.visible, "%s: existing focus tooltip stack stays visible" % phase)
-	expect.call(not stack.visible or not strip.get_global_rect().intersects(stack.get_global_rect()), "%s: strip never overlaps the tooltip stack" % phase)
-	expect.call(scene.get_viewport().get_visible_rect().grow(-16).encloses(strip.get_global_rect()), "%s: strip stays within viewport gutters: %s" % [phase, strip.get_global_rect()])
-	var index: int = int(scene.get("_selected_card_index")) if int(scene.get("_selected_card_index")) >= 0 else int(scene.get("_hovered_card_index"))
-	var card: Control = scene.call("_hand_card_control", index)
-	var card_rect: Rect2 = preload("res://scripts/card_focus_tooltip_stack.gd")._visual_global_rect(card)
-	expect.call(is_equal_approx(strip.get_global_rect().end.y, card_rect.position.y - 4), "%s: strip ends 4px above the card frame" % phase)
-	expect.call(strip.z_index < stack.z_index and strip.mouse_filter == Control.MOUSE_FILTER_IGNORE, "%s: strip stays below tooltips and ignores the mouse" % phase)
 
 static func _assert_strip_art(strip: Control, expect: Callable, phase: String) -> void:
 	var slots: Array[Control]
@@ -437,14 +425,13 @@ static func _test_preview_visibility(tree: SceneTree, scene: Node, engine: Comba
 	await _install(tree, scene, fixture(engine))
 	await _hover(tree, scene, 1)
 	var strip: Control = scene.get("_turn_order_landing_strip") as Control
-	var rebuilds: int = int(strip.get_meta("rebuild_count", 0))
 	scene.call("_refresh_turn_order_bar")
 	await tree.process_frame
-	expect.call(int(strip.get_meta("rebuild_count", 0)) == rebuilds, "Unchanged content never rebuilds the strip")
+	expect.call(strip == null and scene.get("_turn_order_landing_strip") == null, "Unchanged content never builds the disabled strip")
 	var preview: Dictionary = scene.call("_card_preview_for_index", 1)
 	await scene.call("_begin_card_preview", 1, preview)
 	await _settle(tree)
-	expect.call(int(scene.get("_selected_card_index")) == 1 and strip.visible, "Click-select keeps the same card strip visible")
+	expect.call(int(scene.get("_selected_card_index")) == 1 and scene.get("_turn_order_landing_strip") == null, "Click-select keeps the card selected without building a strip")
 	var selected_line: Label = scene.find_child("PassPreviewForecastLine", true, false) as Label
 	scene.call("_refresh_selected_card_forecast")
 	expect.call(int(selected_line.get_meta("pass_preview_wait_time", -1)) == engine.pending_wait_time(scene.call("_pass_preview_source_state")), "Selected-card refresh updates Wait meta using the forecast source state")
@@ -452,19 +439,19 @@ static func _test_preview_visibility(tree: SceneTree, scene: Node, engine: Comba
 		scene.set(property, 1 if property == "_drag_card_index" else true)
 		scene.call("_refresh_turn_order_bar")
 		await tree.process_frame
-		expect.call(not strip.visible, "Strip hides during %s" % property)
+		expect.call(scene.get("_turn_order_landing_strip") == null, "Disabled strip stays unbuilt during %s" % property)
 		scene.set(property, -1 if property == "_drag_card_index" else false)
 		scene.call("_refresh_turn_order_bar")
-		expect.call(strip.visible, "Strip returns after %s clears" % property)
+		expect.call(scene.get("_turn_order_landing_strip") == null, "Disabled strip stays unbuilt after %s clears" % property)
 	var card: Control = scene.call("_hand_card_control", 1)
 	card.visible = false
 	scene.call("_refresh_turn_order_bar")
-	expect.call(not strip.visible, "Strip hides when its hand control is invisible")
+	expect.call(scene.get("_turn_order_landing_strip") == null, "Disabled strip stays unbuilt when its hand control is invisible")
 	card.visible = true
 	var combat: Dictionary = scene.get("_combat_state")
 	combat["current_actor"] = {"kind": "enemy", "actor_key": "enemy_1"}
 	scene.call("_refresh_turn_order_bar")
-	expect.call(not strip.visible, "Strip hides outside the player's turn")
+	expect.call(scene.get("_turn_order_landing_strip") == null, "Disabled strip stays unbuilt outside the player's turn")
 	# Test construction beyond the rail's visible slots, including Unknown Presence.
 	var target := Control.new()
 	target.position = Vector2(850, 650)

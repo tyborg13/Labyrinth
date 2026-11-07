@@ -171,21 +171,8 @@ func _assert_mixed_portraits(scene: Node) -> void:
 
 func _assert_landing_strip(scene: Node) -> void:
 	var strip: Control = scene.get("_turn_order_landing_strip")
-	_expect(strip != null and strip.is_visible_in_tree(), "Production landing strip is visible while aiming")
-	if strip == null:
-		return
-	_expect(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(strip.get_global_rect()), "Landing strip is inside the capture")
-	var visible_keys: Dictionary = {}
-	for slot: Node in strip.get_children():
-		if not slot.has_meta("turn_order_entry"):
-			continue
-		var entry: Dictionary = slot.get_meta("turn_order_entry")
-		var portrait: TextureRect = slot.get_node("LandingStripPortraitCrop/LandingStripPortrait")
-		_expect(_source(portrait.texture) == str(scene.call("_turn_order_portrait_path", entry)), "Aiming strip uses PATHS portrait")
-		_expect(not portrait.has_node("MaquettePortraitRenderer"), "Aiming strip has no live portrait renderer")
-		visible_keys[str(entry.get("type", "player"))] = true
-	_expect(visible_keys.has("ember_tick") and visible_keys.has("last_lamplighter"), "Aiming strip mixes older and reworked enemies")
-	print("TURN ORDER LANDING STRIP RECT: ", strip.get_global_rect())
+	_expect(strip == null and not bool(scene.call("_turn_order_landing_strip_allowed")), "Production landing strip remains unbuilt while aiming")
+	_assert_mixed_portraits(scene)
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

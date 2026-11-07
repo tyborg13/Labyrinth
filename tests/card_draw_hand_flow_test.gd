@@ -45,6 +45,12 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://card_draw_hand_flow_test/current_run.save")
 	SettingsStore.set_storage_path("user://card_draw_hand_flow_test/settings.json")
 	ProgressionStore.clear_saved_run()
+	if "--hover-proof-contract-only" in OS.get_cmdline_user_args():
+		var cases := preload("res://tests/hand_pointer_cases.gd").new()
+		var contract_error: Error = cases.write_proof_contract()
+		_expect(contract_error == OK, "Hover visual proof contract should be writable")
+		quit(1 if _failed else 0)
+		return
 	if "--retained-content-only" in OS.get_cmdline_user_args():
 		var retained_instance: Node = load("res://scenes/run_scene.tscn").instantiate()
 		root.add_child(retained_instance)
@@ -682,7 +688,7 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 		var proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 		var dealing: bool = false
 		for proxy: Control in proxies:
-			var tween: Tween = proxy.get_meta("active_card_proxy_tween", null) as Tween
+			var tween: Tween = proxy.get_meta("active_card_proxy_tween") as Tween if proxy.has_meta("active_card_proxy_tween") else null
 			if tween != null and tween.is_valid() and tween.is_running(): dealing = true
 		if not proxies.is_empty() and not saw_deal:
 			saw_deal = true

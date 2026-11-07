@@ -219,7 +219,7 @@ static func _rotation_and_precedence(tree: SceneTree, expect: Callable, fixtures
 	scene.set("_controller_hand_index", 1)
 	scene.call("_refresh_controller_prompts")
 	var seal: Button = _seal(scene, 1)
-	expect.call(seal.get_node("Badge").text == "R3" and seal.tooltip_text.ends_with("Charged. Press RS to cancel.") and not seal.tooltip_text.contains("[E]"), "Controller seal uses the existing right-stick glyph and controller copy")
+	expect.call(seal.get_node_or_null("GlyphBadge_controller_empower/InputGlyph") != null and seal.get_node("GlyphBadge_controller_empower/InputGlyph").family == "steam_deck" and seal.tooltip_text.ends_with("Charged. Press RS to cancel.") and not seal.tooltip_text.contains("[E]"), "Controller seal uses the existing right-stick glyph and controller copy")
 	var stick := InputEventJoypadButton.new()
 	stick.button_index = JOY_BUTTON_RIGHT_STICK
 	stick.pressed = true

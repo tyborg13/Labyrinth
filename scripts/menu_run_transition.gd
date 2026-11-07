@@ -124,11 +124,18 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		transition._fail()
 		return
 	var cpu_assets: Node
+	var audio_assets: Node
+	var audio_script: Script
 	if transition._path == RunPreload.RUN_SCENE_PATH:
+		# Even this helper's script dependencies belong behind the drawn cover.
+		audio_script = load("res://scripts/run_loading_audio.gd")
+		audio_assets = audio_script.call("start_for", transition)
 		cpu_assets = InitialCpuAssets.start_for(transition, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
 	while _threaded_load_status(transition) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		if audio_assets != null: audio_script.call("step_for", audio_assets)
 		await tree.process_frame
 		if not _loading_is_active(transition): return
+	if audio_assets != null: audio_script.call("stop_for", audio_assets)
 	if _threaded_load_status(transition) != ResourceLoader.THREAD_LOAD_LOADED:
 		transition._fail()
 		return

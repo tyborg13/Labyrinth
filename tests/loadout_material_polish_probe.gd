@@ -166,13 +166,7 @@ func _exercise_loadout_material(instance: Node, base_state: Dictionary) -> void:
 	reserve_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
 	_require(str(instance.get("_controller_magic_source_kind")) == "inventory", "First A should hold the reserve spell for a two-step swap")
-	var swap_prompt_labels: Array[String]
-	for prompt: Dictionary in (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot") as Array[Dictionary]:
-		swap_prompt_labels.append(str(prompt.get("label", "")))
-	_require(
-		swap_prompt_labels == ["Swap", "Cancel Swap", "Choose Slot"],
-		"Selected magic should advertise Swap / Cancel Swap / Choose Slot; got %s" % [swap_prompt_labels]
-	)
+	_require(instance.find_child("ControllerPromptBar", true, false) == null, "Magic selection has no detached prompt bar")
 	await _save_screenshot("character_magic_swap_selected.png")
 	attuned_tile.call("_gui_input", _controller_accept_event())
 	await _settle()

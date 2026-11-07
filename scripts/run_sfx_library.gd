@@ -87,7 +87,7 @@ const SFX: Dictionary = {
 	MENU_OPEN_ID: {
 		"path": "res://assets/audio/sfx/ui/menu_page_open.wav",
 		"trimmed_duration": 0.363,
-		"volume_db": -6.0,
+		"volume_db": -10.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	MENU_CLOSE_ID: {

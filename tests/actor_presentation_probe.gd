@@ -244,7 +244,7 @@ func _assert_actor_inside(actor: String, label: String) -> void:
 	_check(not local_hp or viewport_rect.encloses(hp), actor + " visible health bar stays on screen in " + label)
 	var available: Rect2 = _instance.call("_board_fit_rect")
 	_check(available.grow(0.1).encloses(visible_rect) and (not local_hp or available.grow(0.1).encloses(hp)), actor + " native silhouette and HP avoid the fixed header/hand reserve in " + label)
-	for property: String in ["_boss_health_overlay", "_controller_prompt_bar"]:
+	for property: String in ["_boss_health_overlay"]:
 		var header: Control = _instance.get(property) as Control
 		if header != null and header.is_visible_in_tree():
 			var header_rect: Rect2 = header.get_global_rect()

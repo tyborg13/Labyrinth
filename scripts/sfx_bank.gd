@@ -61,6 +61,11 @@ func _source_entry(cue_id: String, visited: Dictionary = {}) -> Dictionary:
 	if visited.has(cue_id): return {}
 	visited[cue_id] = true
 	var entry: Dictionary = data.get("cues", {}).get(cue_id, {})
+	# A cue's variants_from may name a raw run bank sound. Raw run entries have
+	# no JSON variants; expose their asset as a source while retaining the
+	# receiving cue's authored gain (rather than legacy gain).
+	if entry.is_empty() and visited.size() > 1 and Runs.SFX.has(cue_id):
+		return {"variants": [Runs.SFX[cue_id]["path"]]}
 	if entry.has("variants_from"):
 		return _source_entry(str(entry["variants_from"]), visited)
 	return entry

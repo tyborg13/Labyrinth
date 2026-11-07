@@ -222,7 +222,7 @@ func _assert_inspection(instance: Node, frame: Control, router: Node) -> void:
 	instance.set("_controller_region", "board")
 	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", frame), true)
 	await _settle()
-	var prompts: Array = (instance.get("_controller_prompt_bar") as Node).call("prompts_snapshot")
+	var prompts: Array = (instance.get("_controller_glyph_badges") as Node).call("badges_snapshot")
 	for prompt: Dictionary in prompts:
 		_expect(str(prompt.get("action", "")) != str(InputRouter.ACTION_ACCEPT), "Focused tooltip frames must not advertise an A prompt")
 	var cursor: Dictionary = (instance.get("_controller_analog_cursor") as Node).call("cursor_snapshot")

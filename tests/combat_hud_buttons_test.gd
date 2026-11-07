@@ -81,11 +81,9 @@ func _exercise_source(scene_path: String) -> void:
 	_header_instance.call("_controller_set_focus_candidate", _header_instance.call("_controller_candidate_for_control", grimoire), true)
 	await _settle()
 	_expect(grimoire.has_focus(), "Top-right buttons retain controller focus")
-	var open_prompt: bool = false
-	for prompt: Dictionary in (_header_instance.get("_controller_prompt_bar") as Node).call("prompts_snapshot"):
-		if str(prompt.get("action", "")) == str(InputRouter.ACTION_ACCEPT) and str(prompt.get("label", "")) == "Open":
-			open_prompt = true
-	_expect(open_prompt, "Focused top-right button retains its controller A Open prompt")
+	_expect(_header_instance.find_child("ControllerPromptBar", true, false) == null, "In-run header focus adds no prompt bar")
+	var badges: Array = _header_instance.get("_controller_glyph_badges").badges_snapshot()
+	_expect(not badges.any(func(badge: Dictionary) -> bool: return badge["action"] == str(InputRouter.ACTION_ACCEPT)), "Header focus has no redundant A Open glyph")
 	await _capture("04_controller_focus")
 	await _joy(JOY_BUTTON_A)
 	_expect((_header_instance.get("_grimoire_scrim") as Control).visible, "Controller A opens the focused grimoire")

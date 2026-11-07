@@ -198,7 +198,7 @@ func _input_handoffs(treasure: Dictionary) -> void:
 	var focused: Control = _proof_viewport.gui_get_focus_owner()
 	_expect_treasure(str(router.call("modality")) == "pointer", "Pointer handoff updates the actual router modality")
 	_expect_treasure(focused == null, "Pointer handoff clears stale toolbar and choice focus")
-	_expect_treasure(not (_treasure_scene.get("_controller_prompt_bar") as Control).visible, "Pointer handoff hides controller prompts")
+	_expect_treasure(_treasure_scene.get("_controller_glyph_badges").badges_snapshot().is_empty(), "Pointer handoff hides controller prompts")
 	await _treasure_capture("13_pointer_handoff.png")
 	router.call("set_modality", "pointer")
 	_treasure_scene.call("_load_run_state", treasure)
@@ -211,7 +211,7 @@ func _input_handoffs(treasure: Dictionary) -> void:
 	focused = _proof_viewport.gui_get_focus_owner()
 	_expect_treasure(str(router.call("modality")) == "controller" and int(router.call("active_device_id")) == 7, "Stick handoff updates controller mode and active device")
 	_expect_treasure(focused != null and _choices().is_ancestor_of(focused), "Stick navigation during opening restores visible choice focus")
-	_expect_treasure((_treasure_scene.get("_controller_prompt_bar") as Control).visible, "Stick handoff shows controller prompts")
+	_expect_treasure(not _treasure_scene.get("_controller_glyph_badges").badges_snapshot().is_empty(), "Stick handoff shows controller prompts")
 	await _treasure_capture("14_controller_handoff.png")
 
 func _natural_room_entry(engine: RunEngine, base: Dictionary, destination: Vector2i) -> void:
