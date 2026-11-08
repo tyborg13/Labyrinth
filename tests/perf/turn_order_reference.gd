@@ -141,7 +141,8 @@ static func build(scene: Node, entry: Dictionary, index: int) -> Control:
 	var health_bar: SegmentedHealthBar = scene._turn_order_health_bar(entry, slot_size)
 	if health_bar != null:
 		frame.add_child(health_bar)
-	if scene._turn_order_is_card_preview_projection(entry):
+	# ui-30 (owner-approved 2026-11-07): the hero's projection has no card caption.
+	if str(entry.get("kind", "")) != "player" and scene._turn_order_is_card_preview_projection(entry):
 		frame.add_child(scene._turn_order_projection_badge(entry, slot_size))
 	elif bool(entry.get("petrified", false)):
 		# Petrify: this queued activation is skipped but keeps its Time.

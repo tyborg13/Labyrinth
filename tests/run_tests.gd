@@ -125,6 +125,7 @@ func _initialize() -> void:
 	preload("res://tests/suites/run_score_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/ground_targeting_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/card_pool_overhaul_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/card_noop_legality_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/combat_outcome_feedback_suite.gd").run(Callable(self, "_assert"))
 	await PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
@@ -1395,13 +1396,14 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	var slow_state: Dictionary = combat.create_combat(15137, slow_layout, {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["bloody_lunge", "tombsplitter"],
+		# Two slow cards (6 + 8 Time); crd-03 made Tombsplitter Time 6.
+		"deck_cards": ["bloody_lunge", "white_silence"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var slow_deck: Dictionary = (slow_state.get("deck", {}) as Dictionary).duplicate(true)
-	slow_deck["hand"] = ["bloody_lunge", "tombsplitter"]
+	slow_deck["hand"] = ["bloody_lunge", "white_silence"]
 	slow_deck["draw"] = []
 	slow_deck["discard"] = []
 	slow_state["deck"] = slow_deck

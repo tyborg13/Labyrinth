@@ -17,6 +17,7 @@ const KEYWORD_APPENDED_FLAG: String = "_keyword_appended"
 const STAGGER_TURN_CAP: int = 6
 const STAGGER_TURN_FLAG: String = "stagger_applied"
 const STAGGER_PENDING_KEY: String = "stagger_pending"
+const STAGGER_DELAY_KEY: String = "stagger_delay"
 const STAGGER_TOTAL_KEY: String = "stagger_applied_total"
 const TILES_MOVED_TURN_FLAG: String = "tiles_moved"
 const PREVIEW_DELAYS_KEY: String = "turn_order_preview_enemy_delays"
@@ -244,6 +245,9 @@ static func apply_stagger(engine: RefCounted, state: Dictionary, enemy_id: int, 
 	if target_index >= 0:
 		var delayed: Dictionary = (queue[target_index] as Dictionary).duplicate(true)
 		delayed["time"] = int(delayed.get("time", 0)) + delay
+		# The delayed slot owns this condition until it is popped for activation.
+		# Turn flags only enforce the cap; they can reset before this slot runs.
+		delayed[STAGGER_DELAY_KEY] = int(delayed.get(STAGGER_DELAY_KEY, 0)) + delay
 		delayed["seq"] = engine._claim_activation_seq(state)
 		queue[target_index] = delayed
 		state["turn_queue"] = engine._sorted_turn_queue(queue)
@@ -262,7 +266,9 @@ static func consume_pending_stagger(state: Dictionary, entry: Dictionary) -> Dic
 	if not pending.has(key):
 		return entry
 	var delayed: Dictionary = entry.duplicate(true)
-	delayed["time"] = int(delayed.get("time", 0)) + maxi(0, int(pending.get(key, 0)))
+	var delay: int = maxi(0, int(pending.get(key, 0)))
+	delayed["time"] = int(delayed.get("time", 0)) + delay
+	delayed[STAGGER_DELAY_KEY] = int(delayed.get(STAGGER_DELAY_KEY, 0)) + delay
 	var remaining: Dictionary = pending.duplicate(true)
 	remaining.erase(key)
 	if remaining.is_empty():
@@ -312,6 +318,20 @@ static func state_condition_met(engine: RefCounted, state: Dictionary, condition
 			return false
 		"frozen":
 			return int(enemy.get("freeze", 0)) > 0
+		"bleeding":
+			return int(enemy.get("bleed", 0)) > 0
+		"immobilized":
+			return bool(enemy.get("immobilize", false))
+		"staggered":
+			var enemy_id: int = int(enemy.get("id", -1))
+			if int((state.get(STAGGER_PENDING_KEY, {}) as Dictionary).get(str(enemy_id), 0)) > 0:
+				return true
+			for entry: Dictionary in state.get("turn_queue", []):
+				if str(entry.get("kind", "")) == "enemy" and int(entry.get("enemy_id", -1)) == enemy_id and int(entry.get(STAGGER_DELAY_KEY, 0)) > 0:
+					return true
+			return false
+		"shocked":
+			return int(enemy.get("shock", 0)) > 0
 		"half_hp":
 			return int(enemy.get("hp", 0)) * 2 <= int(enemy.get("max_hp", 1))
 	return false

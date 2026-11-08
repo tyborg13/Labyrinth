@@ -70,6 +70,11 @@ These assumptions are baked into the current coefficients:
   and whatever stopped it take 2 damage per lost tile (walls take none). The
   collision value below prices that at roughly one collision per three
   forced-movement plays, so relics that add distance also add damage value.
+- A Push action carrying a `surface` places it at the target's final tile,
+  including travel shortened by Collision. A target killed before moving leaves
+  it on its occupied tile. Rooted Kick is the only current card using this
+  combination. This uses the ordinary bounded surface value, without crediting
+  guaranteed entry contact or additional control.
 - Flurry is dormant (flu-01): no shipped card carries `flurry`; the six former
   Flurry cards resolve once for one Card Play. Engine, analytics and scorer
   support remain for synthetic tests and a possible return. The preserved engine
@@ -426,7 +431,8 @@ These are the current default weights used by `tools/card_heuristic.py`:
   every other actor; the 6-per-turn cap and dragon halving are not modeled)
 - State bonus (`state_bonus`): the damage delta over the printed hit plus
   Stagger at `0.30`/pt, scaled by expected condition availability: target in
-  Light `0.40`, Frozen `0.30`, at or below half health `0.45`
+  Light `0.40`, Frozen/Bleeding/Immobilized/Staggered/Shocked `0.30`, at or below
+  half health `0.45`
 - Scale bonus (`scale_bonus`): the damage delta from expected points, capped at
   the card's `max`: `2.5` Stoneskin, or `1.5` independently moved tiles plus the
   card's own earlier Move/Blink range
@@ -569,7 +575,65 @@ This heuristic is intentionally conservative about:
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.
 
+## crd-02 — rarity balance batch 1
+
+Balance revision `crd02_cards_v1` supersedes `dragon_pressure_v3` in
+`GameData` and the scorer. These director-authored card values change printed
+Time and amounts, using existing actions; all scoring coefficients and combat
+semantics remain unchanged. Ember Guard now uses Ember Ward's existing
+`surface_adjacent_enemies` Fire action. Faces and card panels derive from the
+same definitions. Existing card-play, draw and surface analytics record the
+new values without a schema change.
+
+| Card | Authored change | Score before → after |
+| --- | --- | --- |
+| locket_chill | Damage 3 → 5; range 2, Time 4 retained | 2.9737 → 3.6835 |
+| far_draw | Time 3 → 2; draw 1 → 2 | 2.1235 → 3.4235 |
+| shield_wall | Block 9 → 12; no_move retained | 2.6500 → 3.4000 |
+| shield_charge | Time 4 → 3; damage 3 → 5; Push 2 retained | 2.3153 → 3.1475 |
+| mossglass_elixir | Time 4 → 3; heal 2 → 3; Stoneskin 1 → 2 | 2.6500 → 4.4000 |
+| bone_ward_charm | Time 4 → 2; Stoneskin 2 → 4; Block 3 → 4 | 2.0000 → 3.9500 |
+| cinder_patch | Heal 2 → 3; Block 4 → 5; Time 3, Exhaust, clear Fire retained | 3.1500 → 4.3000 |
+| crank_reload | Time 3 → 2 | 2.9000 → 3.3500 |
+| overclock | Time 3 → 2; Empower retained | 2.9000 → 3.3500 |
+| ember_guard | Block 7 → 10; Fire under each adjacent enemy | 2.4940 → 3.7060 |
+| raise_the_anvil | Stoneskin 4 → 6; outcrop retained | 3.8500 → 4.6500 |
+
+### Common gear and reward tuning (crd-06)
+
+Director-authored card Time, damage, movement and draw updates use the existing
+coefficients unchanged. Item scores sum every provided card (including the
+unchanged Flowing Step in Monk's Wraps). This batch changes thirteen balance
+cards; Rooted Kick's definition is unchanged by its surface-placement fix.
+
+| Item or reward | Before | After |
+| --- | ---: | ---: |
+| War Maul | 5.6278 | 8.1393 |
+| Iron Cleaver | 6.4392 | 8.0041 |
+| Frostwalkers | 4.7900 | 6.1400 |
+| Monk's Wraps | 5.0143 | 5.6796 |
+| Grapple Hook | 5.3038 | 6.2230 |
+| Buffet | 2.5187 | 3.4027 |
+| Skate | 2.5500 | 3.6500 |
+
+The values strengthen the weakest common gear and Time-2 rewards against their
+existing peers. No progression, relic, draw-per-turn or fatigue assumption is
+added by the two printed draw riders.
+
 ## Maintenance Rules
+
+Balance revision `status_payoffs_v1` (crd-08): `state_bonus` conditions
+`bleeding`, `immobilized`, `staggered`, and `shocked` share Frozen's `0.30`
+conditional availability, including when that weight is overridden. Each adds
+its damage delta over the printed hit before impact, per target and per hit.
+Bleeding checks positive Bleed, Immobilized checks the movement lock, and
+Shocked checks positive Shock. Staggered checks a positive outstanding delay on
+the enemy's next queued turn (or a pending delay awaiting scheduling); the slot
+owns this marker until activation, independently of the per-player-turn cap.
+This revision adds the supplied payoffs to Spear Thrust (+4 Immobilized),
+Serrated Slip (+4 Bleeding), Hobnail Drive (+3 Staggered), and Jolt (+3 Shocked).
+Status application, timing, and existing damage/state-delta analytics are
+unchanged; these conditions reuse the per-hit resolver and forecast path.
 
 Update this document and `tools/card_heuristic.py` together whenever any of the
 following change:
@@ -592,6 +656,77 @@ following change:
 
 If you change the rules above and do not update the heuristic, future card work
 will drift against stale assumptions.
+
+### Epic and legendary equipment batch 2 (crd-03)
+
+Balance revision `crd03_gear_v1` (GameData and scorer) records the director's
+fourteen-card data revision. Rime Hack/Frozen Bite/Shatter Swing now cost
+3/2/4 Time and hit for 7/5/10; Frozen Bite rewards a Freeze with one Card Play
+then one draw, and Shatter Swing splashes for 6. Grave Cleave/Blood Price/
+Tombsplitter cost 4/5/6 and hit for 8/14/14, preserving their riders and Empower.
+Quarry Plating costs 3 for 6 Stoneskin; Shrug Off grants 3 Block before conversion.
+Hoarfrost Wall costs 3 for 8 Block; Cold Shoulder costs 2 for 6 damage and Push 2.
+Cloudstep Loop costs 2 and draws one after Blink; Zephyr Feint costs 3 for 4 Block.
+Worldroot Stride costs 4 for 6 Stoneskin plus 3 on existing Rubble; Rooted Kick
+costs 3 for 8 damage. All other ranges, riders and costs remain authored.
+Existing tempo, result-reward, surface-bonus, draw and defense coefficients score
+these values directly; no coefficient or combat semantic changes accompany this
+batch. Existing analytics report the resolved amounts and ordered reward list.
+
+### Cloudstep Loop Follow-up (crd-11)
+
+Cloudstep Loop retains Time 2, Blink 3, then draw 1. Its one Card Play now
+comes from the shared Follow-up append after a prior card finishes this turn,
+replacing the Blink's `if_no_adjacent_enemies` rider. Existing coefficients score
+the change at **3.89 → 4.1825** (CLI display: **4.18**): the Follow-up bonus
+includes the appended Card Play and its draw/play synergies at the usual `0.55`
+share. No weights change.
+Existing `follow_up_active` and card-action play-gain analytics describe this
+transition without schema or instrumentation changes.
+
+The old `if_no_adjacent_enemies` scorer and runtime remain supported for
+`maneuver_suite.gd`'s `w4b_cloudstep_loop`, `relic_u5_suite.gd`'s nested Block
+suppression fixture, and `test_card_heuristic_maneuver.py`. No production card
+uses the rider after this change; the historical card-pool authoring definition
+and before-proof snapshot retain it.
+
+### Weak reward-pool cards batch 4 (crd-14)
+
+Scorer balance revision `crd14_cards_v1` records the director's thirteen-card
+reward-pool revision. Existing action fields express every change; coefficients,
+combat semantics, panel selection, and analytics payloads are unchanged. The
+implementation unit owns data and scorer metadata only; the runtime
+`GameData.BALANCE_REVISION` remains an integration-owner update.
+
+| Card | Authored change | Score before → after |
+| --- | --- | --- |
+| stoke | Damage 3 → 5; Time 4 retained | 1.7622 → 2.7450 |
+| hurricane_palm | Time 4 → 3; damage 3 → 4; Push 3 retained | 1.8528 → 2.4897 |
+| venom_claw | Time 4 → 3; damage 8 and Rubble retained | 2.1665 → 2.6165 |
+| tremor | Time 5 → 4; damage 3 → 4; Stagger 2 and Empower retained | 1.9787 → 2.8773 |
+| grounding | Time 3 → 2; Stoneskin per tile 2 → 3; cap 8 → 9 | 1.3500 → 2.2000 |
+| dust_devil | Time 4 → 3; Expose 2 → 4; Push 2 retained | 1.2685 → 1.9974 |
+| stonefist | Time 4 → 3; damage 5 → 6; scaling and cap retained | 1.8956 → 2.5816 |
+| thunderclap | Damage 3 → 5; Push 1 and Electrify retained | 2.0299 → 2.6768 |
+| magma_vent | Damage 5 → 7 | 2.2046 → 2.9062 |
+| vortex | Time 5 → 4 | 1.6932 → 2.1432 |
+| cyclone_seal | Second-action damage 6 → 9 | 3.5124 → 4.5535 |
+| rite_of_the_storm | Turn-start pulse damage 2 → 3 | 1.6100 → 2.6900 |
+| rite_of_the_pyre | Time 4 → 3 | 1.5200 → 1.9700 |
+
+### Fire player-surface synergy (crd-18)
+
+Balance revision `crd18_fire_synergy_v1` (GameData and scorer) records Cinder
+Wall's +4 Block and Hearth Rush's +3 melee damage while the player stands on
+Fire. Each uses the existing player-subject `surface_bonus`, evaluated when its
+action resolves: Cinder Wall paints before Block; Hearth Rush moves before its
+strike. Kindle already permits self-targeting; its description now says so.
+Existing surface-condition scoring applies unchanged: Cinder Wall's earlier
+Fire placement gives its bonus `0.80` availability; Hearth Rush uses `0.50`
+because its target Fire is painted after the strike, and Move alone does not
+supply Fire. Salamander Heart prevents Fire damage without changing either
+condition. Costs, coefficients, Fire contact rules and analytics are unchanged;
+existing action and surface events retain the actual resolved outcomes.
 
 ## Workflow
 
@@ -866,6 +1001,25 @@ tests `tests/test_card_heuristic_maneuver.py`):
   availability. Blink riders: `destination_requires_light` keeps `0.60` and
   `destination_adjacent_to` `0.85` of the Blink's tiles; `illusion_at_origin` is
   an illusion of that health; `if_no_adjacent_enemies` rewards at `0.60`.
+
+### Owner card simplification (crd-09)
+
+Hotfoot now uses the same current-position `surface_bonus` as Polar Guard:
+2 Block plus 4 on Fire, before an ordinary Move 2, at Time 2. It draws no
+cards. Existing Block, surface-availability, move/defense synergy and tempo
+weights score it at **3.25** (previously **2.31**).
+
+Joust now uses ordinary Move 4 followed by a required 7-damage Push 2 at
+range 1, at Time 4. Existing movement, damaging Push, displacement and tempo
+weights score it at **3.30** (previously **3.36**). Neither card needs a new
+weight or card-specific scorer override.
+
+The legacy `if_started_on_surface` and `straight_line` support remains because
+the brief explicitly preserves rules used by test fixtures. `maneuver_suite`
+still exercises both through `w4b_hotfoot` and `w4b_joust`; `relic_u6_suite`
+and `relic_u7_suite` also exercise straight Moves with Glassway Compass and
+Vaulting Sigil. Their runtime, face tokens, panel copy and scorer weights
+remain unchanged. Neither production card uses those riders anymore.
 
 ### Wave-4 surface family
 

@@ -230,7 +230,10 @@ func _input(event: InputEvent) -> void:
 		return
 	if InputRouterScript.is_controller_event(event):
 		_using_keyboard_navigation = true
-		if not _menu_or_settings_has_focus():
+		# B must still reach _unhandled_input's Back handler after pointer input
+		# left nothing focused (Settings would otherwise need two presses).
+		var back: bool = event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL)
+		if not back and not _menu_or_settings_has_focus():
 			_focus_default_keyboard_target()
 			get_viewport().set_input_as_handled()
 		_refresh_controller_prompts()

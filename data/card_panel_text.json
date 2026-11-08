@@ -209,6 +209,22 @@
     "legacy": "If Target Frozen\nApplies if the target is Frozen before the hit.",
     "term": "if_frozen"
   },
+  "if_bleeding": {
+    "title": "If Bleeding",
+    "text": "This bonus applies if the target is Bleeding."
+  },
+  "if_immobilized": {
+    "title": "If Immobilized",
+    "text": "This bonus applies if the target is Immobilized."
+  },
+  "if_staggered": {
+    "title": "If Staggered",
+    "text": "This bonus applies if the target's next turn is Staggered."
+  },
+  "if_shocked": {
+    "title": "If Shocked",
+    "text": "This bonus applies if the target is Shocked."
+  },
   "if_half_health": {
     "title": "If at Half Health",
     "text": "This bonus applies if the target is at or below half Health.",

@@ -6,6 +6,48 @@ sound, content completeness (room types, events, map branching), card/enemy desi
 Experimental: owner may cherry-pick or revert. Bold changes allowed; prior Codex-era approvals are
 not binding. Claude directs (all taste), Codex implements (orchestrate-codex skill).
 
+## 2026-11-08 morning: card focus day done; release 7017fb104 gated + hunted
+- **Owner card focus (2026-11-07):** non-perf slots went to cards.
+  - **Merged (owner APPROVED):** crd-02/03 (balance 1-2), crd-08 (status payoffs), crd-09 (Hotfoot/Joust), crd-11 (Cloudstep Follow-up), crd-13 (adjacent footprint).
+  - **Inbox, awaiting verdicts:**
+    - crd-04 (text accuracy), crd-05 (basic panels hidden), crd-06 (balance 3 + Rooted Kick), crd-07 + crd-10 (wording pass);
+    - crd-12 (Turns icon), crd-14 (balance 4), crd-15 (no-op cards unplayable);
+    - crd-16b (per-tile wording + live count; owner NEEDS CHANGES on v1), crd-18 (second Fire plan), crd-19 (Catch the Wind; rides on crd-16b).
+  - **Merge checklist for card units:**
+    - run `tests/glossary_test.gd` and `tests/card_summary_fit_test.gd` headless, and grep `tests/` for changed ids;
+    - add approved deltas in `tests/fixtures/approved_glossary_structure.gd` (txt02 cards inside its early-return branch);
+    - union `BALANCE_REVISION` conflicts (now status_payoffs_v1);
+    - crd-07 conflicts on Hurricane Palm, Tremor, Thunderclap and Magma Vent descriptions (crd-14 already uses crd-07 wording).
+  - **Style rule 11:** "if you stand on X".
+- **Release 7017fb104:** Godot full PASS (456 s); Python OK; hunt-1108 clean (4 seeds, ~12,600 decisions, all victories; only the known node growth, now 1.6-1.8x). **Next:** daily master push (`release_squash_push.sh`) and the demo fix candidate. Freeze is Wed 11 Nov; send the demo session one gated hash with whatever the owner approves by then.
+- **Perf:**
+  - **Merge after launch (committed on branches):** perf-93 (scene-tile; native timing in a quiet window, worktree kept), perf-95 (torch motes), perf-98 (persistence; Codex review SIGNOFF).
+  - **Dropped:** perf-90 and perf-99 (`set_combat_state` cost is diffuse; retry only with an architectural idea), perf-91 (forecast memo, no three-workload win).
+  - **Running:** perf-96 r2 (final ablation), perf-100 (stage view + hand refresh), perf-101 (controller prompts + summary refit).
+  - **Method:** measure under load with interleaved pairs (memory perf-measure-under-load).
+- **Measured:** crd-17 (variants: 0 live discrepancies); crd-20 (no card clearly too strong; Icicle Lance worth watching; Ball Lightning rarely played).
+
+## 2026-11-07 midday: launch build 48d524bfa sent; four slots running
+- **Launch build:** `codex/release` 48d524bfa.
+  - Full gate PASS (Godot 454 s, 0 SCRIPT ERRORs; Python 189 OK).
+  - Codex review rel-1107c of 365fab988..a61c7b8a6 found one Low; re-review rel-1107d found one edge case; both fixed (d78a65a2f, 48d524bfa).
+  - The demo session's export check of a61c7b8a6 was clean; 48d524bfa (4 code lines since then) is with it for a re-check.
+  - The owner lifted the review hold: 365fab988 went to Valve's review. Approved builds need no re-review, so the demo session sets the launch build live before 17 Nov.
+- **Merged today (this half):**
+  - qa-82: crash fix. Imported Texture2D creation is on the main thread, because Godot 4.6.1's RenderingDevice transfer-worker pool races canvas `free_polygon`. 67 room imports prewarm behind the loading cover. Exported-demo Metal stress: 200 + 200 cycles, 0 crashes.
+  - perf-87: smoother loading screen.
+  - ui-30, ui-31, aud-01, aud-02 (owner APPROVED).
+  - The ui-28 + ui-30 glyph null fix (967eb9d31).
+- **Running (Codex):**
+  - perf-91 (forecast memo);
+  - perf-92 (board commands);
+  - perf-93 r1 (scene-tile paint, whole runs);
+  - qa-83 (launch rehearsal 3 on 48d524bfa).
+- **Director native queue:** perf-90 enemy_turn A/B. Its headless results are mixed (demo and seed 83 worse, seed 84217 −33%); merge only on a clear native win, otherwise park until after launch.
+- **Release freeze:** perf units land by Tue 10 Nov or park. After Wed 11 Nov, only demo-bug fixes go to release.
+- **Inbox, awaiting the owner:** sd-15 (Deck sharpening), fb-kindle-words, playtest-22, brs-3.
+- **Still parked until after launch:** perf-81 and perf-84. The Deck text type pass is post-launch.
+
 ## 2026-11-07 morning: demo launch week (public Tue 17 Nov; release freeze Wed 11 Nov)
 - **Demo plan** (demo session, relaying the owner): review build = release 719205f28, gated full green, demo export check clean, waiting for the owner's Steam password. Launch build = release + the owner-approved Deck changes, gated, sent to the demo session before Wed 11 Nov. From Wed 11 Nov only demo-bug fixes reach release. Memory: demo-launch-2026-11-17.
 - **Merged to release today:** perf-77, ui-25, rr-59 (owner APPROVED); perf-83, perf-82, perf-85, perf-80, perf-86 (invisible); qa-75 (ui-22 gate fix, APPROVED), qa-76 (Lancer tail frame), ui-26, ui-27 (APPROVED).

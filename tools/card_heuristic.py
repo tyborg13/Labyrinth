@@ -128,7 +128,7 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BALANCE_REVISION = "dragon_pressure_v3"
+BALANCE_REVISION = "crd18_fire_synergy_v1"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 PETRIFY_BLOCK = 5
@@ -231,6 +231,38 @@ GUARDIAN_ASSUMPTIONS = {
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
     return {
+        "cloudstep_loop_crd11": {
+            "card": "Time2 Blink3 then draw1; Follow-up appends Card Play1 after a prior card finishes this turn",
+            "coefficient_policy": "unchanged; shared Follow-up 0.55 share includes Card Play and draw/play synergies",
+            "legacy_support": "if_no_adjacent_enemies remains for maneuver, relic_u5 and heuristic maneuver fixtures; no production card uses it",
+        },
+        "reward_balance_crd14": {
+            "revision": "crd14_cards_v1",
+            "stoke": "Time4 damage5 on visible Fire occupants",
+            "hurricane_palm": "Time3 damage4 Push3",
+            "venom_claw": "Time3 damage8, unchanged Rubble",
+            "tremor": "Time4 damage4 Stagger2; unchanged Empower +2 Time for Stagger4",
+            "grounding": "Time2 Stoneskin3 per Electrified tile removed, maximum9",
+            "dust_devil": "Time3 Expose4, unchanged Push2 and Rubble fuel",
+            "stonefist": "Time3 damage6, unchanged Stoneskin scaling and cap6",
+            "thunderclap": "Time4 damage5, unchanged Push1 and Electrify self",
+            "magma_vent": "Time5 damage7, unchanged Rubble fuel and Fire",
+            "vortex": "Time4, unchanged Pull2 radius2",
+            "cyclone_seal": "Time7 second-action damage9, unchanged Pull3 radius3 and Exhaust",
+            "rite_of_the_storm": "Time5 turn-start Electrified pulse damage3",
+            "rite_of_the_pyre": "Time3, unchanged Fire bonus2",
+            "coefficient_policy": "unchanged; existing action fields score directly",
+        },
+        "equipment_balance_crd03": {
+            "revision": "crd03_gear_v1",
+            "rimebite_hatchet": "Rime Hack Time3 damage7; Frozen Bite Time2 damage5, Freeze rewards Card Play1 then draw1; Shatter Swing Time4 damage10 splash6",
+            "grave_greatsword": "Grave Cleave Time4 damage8; Blood Price Time5 damage14, unchanged Empower; Tombsplitter Time6 damage14",
+            "quarrymail": "Quarry Plating Time3 Stoneskin6; Shrug Off Block3 before conversion, unchanged draw1",
+            "glacial_bulwark": "Hoarfrost Wall Time3 Block8; Cold Shoulder Time2 damage6 Push2",
+            "cloudstep_sandals": "Cloudstep Loop Time2 draw1 after Blink, unchanged conditional Card Play1; Zephyr Feint Time3 Block4",
+            "worldroot_greaves": "Worldroot Stride Time4 Stoneskin6 plus3 on existing Rubble; Rooted Kick Time3 damage8",
+            "coefficient_policy": "unchanged; existing action fields score directly",
+        },
         "magic_deck_context": {"ownership": "all owned magic enters deck; no slot cap", "starting_deck_cards": 16, "intrinsic_scores_depend_on_deck_size": False, "purge": "changes draw frequency only; analyze by deck composition and purge source/price"},
         "summon_card_plays": {"plays_per_successful_move": 1, "timing": "next hero activation", "stacking_cap": None, "excluded": ["zero arrivals", "death_spawn", "survive reinforcements", "summon_origin=guardian_replacement"], "restrictions": "Frozen forfeits plays normally", "intrinsic_card_score": False},
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,
@@ -254,6 +286,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "guardian_encounters": GUARDIAN_ASSUMPTIONS,
         "card_targeting": "one board decision, automatic riders and one-click movement approaches; push/pull targets are legal within maximum range when they deal damage, move the target or collide; force value still assumes useful space",
         "forced_movement": "straight cardinal lines only (default longer axis, Rotate picks the other); a stopped line deals 2 collision damage per lost tile to the target and its blocker (walls take none); non-direct, Block/Stoneskin absorb; distance relics add collision damage",
+        "push_surface_placement": "a Push action's surface is placed at the target's final tile after displacement, including Collision-shortened travel; a target killed before moving keeps its occupied tile; ordinary bounded surface value, no guaranteed extra contact",
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,
@@ -719,6 +752,10 @@ def state_bonus_availability(state: str, weights: HeuristicWeights) -> float:
     return {
         "light": weights.state_bonus_light_availability,
         "frozen": weights.state_bonus_frozen_availability,
+        "bleeding": weights.state_bonus_frozen_availability,
+        "immobilized": weights.state_bonus_frozen_availability,
+        "staggered": weights.state_bonus_frozen_availability,
+        "shocked": weights.state_bonus_frozen_availability,
         "half_hp": weights.state_bonus_half_hp_availability,
     }.get(state, 0.0)
 
@@ -1086,6 +1123,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if has_illusion:
                 illusion_before_move = True
             move_range = int(action.get("range", 0))
+            # Joust now uses an ordinary Move; the line discount remains for
+            # the maneuver and Glassway/Vault regression fixtures.
             line_factor = weights.straight_line_mobility_factor if bool(action.get("straight_line", False)) else 1.0
             move_tiles += move_range * action_scale * line_factor
             pre_attack_reach += int(round(move_range * action_scale * line_factor))
@@ -1319,6 +1358,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             continue
 
         if action_type == "block":
+            # Hotfoot shares Polar Guard's current-position surface bonus.
             breakdown.defense += int(action.get("amount", 0)) * weights.block_per_point * action_scale
             breakdown.defense += int(action.get("surface_bonus", {}).get("amount", 0)) * weights.block_per_point * surface_availability(action.get("surface_bonus", {}), prepared, weights)
             has_defense = True

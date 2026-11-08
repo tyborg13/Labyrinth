@@ -12208,12 +12208,18 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 	trace["detonate_tiles"] = blast_tiles
 	return state
 
-func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+func _consumable_surface_tiles(state: Dictionary, action: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	# Share the exact footprint and surface test between legality and resolution.
 	var selected: Array[Vector2i]
 	var surface: String = str(action.get("surface", ""))
 	for tile: Vector2i in _surface_action_tiles(state, action, target):
 		if BoardSurfaceRules.has_surface(state, tile, surface):
 			selected.append(tile)
+	return selected
+
+func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var selected: Array[Vector2i] = _consumable_surface_tiles(state, action, target)
+	var surface: String = str(action.get("surface", ""))
 	if selected.size() < int(action.get("min_consumed", 1)):
 		return state
 	for tile: Vector2i in selected:

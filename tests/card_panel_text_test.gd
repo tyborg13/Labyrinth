@@ -68,6 +68,8 @@ static func stack_errors(entries: Array[Dictionary], card: Dictionary) -> Array[
 	var term_titles: Array = []
 	for glossary: Dictionary in Glossary.all_entries(): term_titles.append(glossary["name"])
 	for row: Dictionary in _json(COPY_PATH)["rows"]: term_titles.append(row["title"])
+	# crd-08's supplied conditional titles extend the original director fixture.
+	term_titles.append_array(["If Bleeding", "If Immobilized", "If Staggered", "If Shocked"])
 	term_titles.append("Rubble")
 	var hidden: Array = []
 	_collect_cleanse_statuses(card, hidden)

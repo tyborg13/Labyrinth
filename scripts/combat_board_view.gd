@@ -7348,7 +7348,10 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_slice_op("_draw_tile_ring", [tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92])
 	if detailed: _record_render_section_time("overlay_targets", started); started = Time.get_ticks_usec()
-	_slice_op("_draw_meteor_mark", [tile])
+	# Slice playback happens after _overlay_draw_sources is cleared. Carry the
+	# selectors prepared for this plan, including empty results, so each tile
+	# does not rescan the enemy roster and rebuild the same marks during paint.
+	_slice_op("_draw_slice_meteor_mark", [tile, _overlay_draw_sources.get("burrow_marks"), _overlay_draw_sources.get("burst_tiles")])
 	if detailed: _record_render_section_time("overlay_meteor", started); started = Time.get_ticks_usec()
 	if _overlay_draw_sources.is_empty() or (_overlay_draw_sources["icefall_marks"] as Dictionary).has(tile):
 		_slice_op("_draw_slice_icefall", [tile])
@@ -7377,8 +7380,12 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
 # a feathered fire tile glow, with the incoming damage in the tooltip.
 func _draw_meteor_mark(tile: Vector2i) -> void:
-	BurrowView.draw_mark(self, tile, _overlay_draw_sources.get("burrow_marks"))
-	DeathBurstView.draw_preview(self, tile, _overlay_draw_sources.get("burst_tiles"))
+	# Reference renderers override this one-tile entry point.
+	_draw_slice_meteor_mark(tile, _overlay_draw_sources.get("burrow_marks"), _overlay_draw_sources.get("burst_tiles"))
+
+func _draw_slice_meteor_mark(tile: Vector2i, burrow_marks: Variant, burst_tiles: Variant) -> void:
+	BurrowView.draw_mark(self, tile, burrow_marks)
+	DeathBurstView.draw_preview(self, tile, burst_tiles)
 	DeathBurstView.draw_glows(self, tile)
 	# Floor glow only; the icon and damage are drawn above units by
 	# `_draw_meteor_mark_badges`.

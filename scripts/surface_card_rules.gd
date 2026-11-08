@@ -56,6 +56,8 @@ static func ground_targets(engine: RefCounted, state: Dictionary, action: Dictio
 	return result
 
 static func can_resolve(engine: RefCounted, state: Dictionary, action: Dictionary) -> bool:
+	if str(action.get("type", "")) == "consume_surface" and action.has("min_consumed"):
+		return engine._consumable_surface_tiles(state, action, INVALID).size() >= int(action["min_consumed"])
 	if str(action.get("type", "")) == "all_enemies":
 		return not selected_enemy_ids(engine, state, action).is_empty()
 	return true

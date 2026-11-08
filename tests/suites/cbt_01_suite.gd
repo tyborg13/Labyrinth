@@ -39,29 +39,29 @@ static func _test_support_cards(expect: Callable) -> void:
 			Maneuver.record_activation_start(before)
 		var prepared: Dictionary = engine.prepare_player_card(before, 0)
 		var actions: Array = engine.card_play_actions(id, prepared)
-		var action: Dictionary = actions[0]
+		var action: Dictionary = actions[1] if id == "hotfoot" else actions[0]
 		var targets: Array[Vector2i] = engine.valid_targets_for_player_action(prepared, action)
 		expect.call(targets.has(HERO) and targets[0] != HERO, "%s offers Stay without changing the default target" % id)
 		var after: Dictionary = _resolve(engine, prepared, actions)
 		expect.call(after["player"]["pos"] == HERO, "%s Stay preserves position" % id)
-		var blocks: Dictionary = {"guarded_step": 3, "warded_advance": 7, "trapdoor": 5, "hotfoot": 4}
+		var blocks: Dictionary = {"guarded_step": 3, "warded_advance": 7, "trapdoor": 5, "hotfoot": 6}
 		expect.call(after["player"]["block"] == blocks[id], "%s Stay applies its Block" % id)
 		expect.call(int(after.get("card_stay_sequence", 0)) == 1, "%s records one resolved Stay" % id)
 		if id == "guarded_step":
 			expect.call(int(after.get("card_play_bonus_this_turn", 0)) == int(prepared.get("card_play_bonus_this_turn", 0)) + 1, "Guarded Step preserves its card-play reward")
 		if id == "hotfoot":
-			expect.call(after["deck"]["hand"].size() == before["deck"]["hand"].size() + 1, "Hotfoot draws one on Fire Stay")
+			expect.call(after["deck"]["hand"].size() == before["deck"]["hand"].size(), "Hotfoot never draws on Fire Stay")
 		expect.call(prepared["player"]["block"] == 0 and prepared["player"]["pos"] == HERO, "%s resolution leaves the source state unchanged" % id)
 		var finished: Dictionary = engine.finish_player_card(after, 0)
 		expect.call(finished["deck"]["discard"].has(id) and int(finished.get("player_turn_time_spent", 0)) == engine.card_time_cost(id, prepared), "%s Stay pays ordinary card costs once" % id)
 	var cold: Dictionary = fixture(engine, "hotfoot")
 	var no_reward: Dictionary = _resolve(engine, cold, engine.card_play_actions("hotfoot", cold))
-	expect.call(no_reward["player"]["block"] == 0 and no_reward["deck"]["hand"].size() == cold["deck"]["hand"].size(), "Hotfoot Stay off Fire grants no conditional rewards")
+	expect.call(no_reward["player"]["block"] == 2 and no_reward["deck"]["hand"].size() == cold["deck"]["hand"].size(), "Hotfoot Stay off Fire grants only its base 2 Block and no draw")
 	Surface.place(cold, HERO, "fire")
 	Maneuver.record_activation_start(cold)
 	Surface.remove(cold, HERO, "fire")
 	var left_fire: Dictionary = _resolve(engine, cold, engine.card_play_actions("hotfoot", cold))
-	expect.call(left_fire["player"]["block"] == 4, "Hotfoot depends on activation start even after Fire is removed")
+	expect.call(left_fire["player"]["block"] == 2, "Hotfoot checks current Fire even when the activation started on Fire")
 
 static func _test_movement_triggers(expect: Callable) -> void:
 	var engine := CombatEngine.new()

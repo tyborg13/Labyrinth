@@ -382,7 +382,7 @@ static func _test_wave2_stagger_cards(expect: Callable) -> void:
 	var split: Dictionary = (_card_actions(combat, state)["actions"] as Array)[0]
 	expect.call(str(split.get("aim", "")) == "facing" and int(split.get("stagger", 0)) == 3 and not combat.player_action_needs_orientation(split), "Tombsplitter is a facing-aimed line with Stagger 3 and no separate rotation")
 	var after: Dictionary = _play_first(combat, state, [Vector2i(3, 4)])
-	expect.call(_hp(after, 1) == 48 and _hp(after, 2) == 48 and _hp(after, 3) == 60, "Tombsplitter hits the first two tiles in its line for 12")
+	expect.call(_hp(after, 1) == 46 and _hp(after, 2) == 46 and _hp(after, 3) == 60, "Tombsplitter hits the first two tiles in its line for 14")
 	expect.call(_queue_time(after, 1) == _queue_time(state, 1) + 3 and _queue_time(after, 2) == _queue_time(state, 2) + 3 and _queue_time(after, 3) == _queue_time(state, 3), "Tombsplitter staggers each enemy it hits by 3")
 	var maul_state: Dictionary = _queued_state(combat, ["tectonic_maul"], [{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 60, "max_hp": 60}])
 	var maul_after: Dictionary = _play_first(combat, maul_state, [Vector2i(3, 4), Vector2i(4, 4)])
@@ -503,7 +503,7 @@ static func _test_wave3_reactive_and_tempo_cards(expect: Callable) -> void:
 	for case_var: Variant in [["galvanize", 1, 2], ["stolen_moment", 1, 3], ["hourglass_sand", 2, 4], ["charged_orb", 2, 2], ["spur_spark", 2, 1]]:
 		var case: Array = case_var
 		var quick: Dictionary = _play_first(combat, _queued_state(combat, [str(case[0]), "overhead_smash"], enemies), [Vector2i(2, 3)])
-		expect.call(int(quick.get("player_turn_time_spent", 0)) == int(case[1]) and combat.card_time_cost("overhead_smash", quick) == 7 - int(case[2]), "%s Quickens the next card by %d" % [str(case[0]), int(case[2])])
+		expect.call(int(quick.get("player_turn_time_spent", 0)) == int(case[1]) and combat.card_time_cost("overhead_smash", quick) == 6 - int(case[2]), "%s Quickens the next card by %d" % [str(case[0]), int(case[2])])
 	# Next-attack buffs reach the next attack card, including Pierce.
 	var stone: Dictionary = _play_first(combat, _queued_state(combat, ["whetstone", "quick_stab"], enemies), [])
 	var stab: Dictionary = (_card_actions(combat, stone)["actions"] as Array)[0]
@@ -680,7 +680,7 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", warm) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Quick Stab's Follow-up 9 after a card")
 	var armored: Dictionary = state.duplicate(true)
 	(armored["player"] as Dictionary)["stoneskin"] = 3
-	expect.call(_display_damage((scene.call("_card_widget_display", "stonefist", armored) as Dictionary).get("summary_rows", [])) == 8, "The hand shows Stonefist's current Stoneskin-scaled damage")
+	expect.call(_display_damage((scene.call("_card_widget_display", "stonefist", armored) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Stonefist's current Stoneskin-scaled damage")  # crd-14: base 6 + 3 Stoneskin
 	var walked: Dictionary = state.duplicate(true)
 	walked["turn_flags"]["tiles_moved"] = 2
 	expect.call(_display_damage((scene.call("_card_widget_display", "couched_lance", walked) as Dictionary).get("summary_rows", [])) == 6, "The hand shows Couched Lance's tiles-moved damage")
@@ -707,7 +707,7 @@ const WAVE4_ROLE_EMBLEMS: Dictionary = {
 	"shield_wall": "block", "grapple": "mobility", "threadbare_guard": "block", "voidsilk_molt": "mobility",
 	"empty_husk": "illusion", "shrug_off": "block", "catch_the_wind": "mobility", "windbreak": "block",
 	"cloudstep_loop": "mobility", "glide": "mobility", "rime_step": "mobility", "cinder_trail": "mobility",
-	"hotfoot": "mobility", "sunpath_stride": "mobility", "seek_the_light": "mobility", "unsealed_gale": "attack_melee",
+	"hotfoot": "block", "sunpath_stride": "mobility", "seek_the_light": "mobility", "unsealed_gale": "attack_melee",
 	"headsmans_toll": "attack_ranged", "powder_keg": "attack_ranged", "flash_powder": "attack_ranged", "bottled_gale": "attack_melee",
 	"thunderstone": "attack_ranged", "smelling_salts": "mobility",
 }

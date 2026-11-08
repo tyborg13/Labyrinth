@@ -137,6 +137,7 @@ static func _path_commands() -> Array:
 static func _collision_state(hero: Vector2i, nonce: int) -> Dictionary:
 	var state: Dictionary = Orders.battle("air")
 	state.erase("battlefield_rule") # Keep the authored hash-collision fixture frozen.
+	state["balance_revision"] = "dragon_pressure_v3" # The revision it was authored at; card balance bumps it.
 	state.erase("wind")
 	state["objective"]["description"] = "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.\n" + Orders.STORMCALLER_ORDER_LINE
 	state["enemies"][0]["intent"] = Wind.commit(Combat.new(), state, state["enemies"][0], Orders.authored(state, "call_the_wind"))

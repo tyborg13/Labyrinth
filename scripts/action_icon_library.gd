@@ -731,7 +731,7 @@ static func _tooltip_entry_copy(icon_key: String, tooltip_text: String, title_ov
 	}
 
 static func token_tooltip(token: Dictionary, card_panel: bool = false) -> String:
-	if str(token.get("kind", "")) == "aoe_pattern": return ""
+	if str(token.get("kind", "")) == "aoe_pattern" and not bool(token.get("pattern_has_detail", false)): return ""
 	var icon_key: String = str(token.get("icon", ""))
 	var text: String = ""
 	if card_panel and token.has("card_tooltip"):
@@ -1041,7 +1041,7 @@ static func _keyword_field_icon(action: Dictionary, field: String) -> String:
 			return "illusion" if str(action.get("type", "")) == "illusion" else "health"
 	return field if KEYWORDS.has(field) else action_icon_key(action)
 
-# Per-hit rider rows: state bonuses (target in Light / Frozen / at half health)
+# Per-hit rider rows: target state bonuses
 # and scale bonuses (per Stoneskin or tile moved this turn).
 static func keyword_rider_rows(action: Dictionary) -> Array:
 	var rows: Array = []
@@ -1105,7 +1105,7 @@ static func surface_family_rider_rows(action: Dictionary) -> Array:
 		rows.append(result_row)
 	var splash: int = int(action.get("frozen_splash", 0))
 	if splash > 0:
-		rows.append([state_condition_token("frozen"), token_for("aoe", splash, "condition", PanelText.copy("shatter", {"n": splash})), text_token("adjacent", "neutral", PanelText.copy("unchanged_each_other_enemy_next_to_the_target"))])
+		rows.append([state_condition_token("frozen"), token_for("aoe", splash, "condition", PanelText.copy("shatter", {"n": splash})), CardArea.orthogonal_neighbors(text_token("adjacent", "neutral", PanelText.copy("unchanged_each_other_enemy_next_to_the_target")))])
 	return rows
 
 # `prefix` is the compact card-face label beside the condition icon, short
@@ -1114,6 +1114,10 @@ static func surface_family_rider_rows(action: Dictionary) -> Array:
 const STATE_CONDITION_COPY: Dictionary = {
 	"light": {"icon": "illuminate", "prefix": "in", "text": "if Target in Light:", "panel": "if_in_light"},
 	"frozen": {"icon": "freeze", "prefix": "vs", "text": "if Target Frozen:", "panel": "if_frozen"},
+	"bleeding": {"icon": "bleed", "prefix": "vs", "text": "if Target Bleeding:", "panel": "if_bleeding"},
+	"immobilized": {"icon": "immobilize", "prefix": "vs", "text": "if Target Immobilized:", "panel": "if_immobilized"},
+	"staggered": {"icon": "stagger", "prefix": "vs", "text": "if Target Staggered:", "panel": "if_staggered"},
+	"shocked": {"icon": "shock", "prefix": "vs", "text": "if Target Shocked:", "panel": "if_shocked"},
 	"half_hp": {"icon": "health", "prefix": "≤½", "text": "if Target at half health:", "panel": "if_half_health"},
 }
 
@@ -1353,7 +1357,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			var self_too: bool = bool(action.get("include_self", false))
 			var adjacent_detail: String = "Leaves this ground under each adjacent enemy%s." % (" and on your tile" if self_too else "")
 			tokens.append(surface_token(str(action.get("surface", "")), adjacent_detail))
-			tokens.append(text_token("adjacent + you" if self_too else "adjacent", "neutral", adjacent_detail))
+			tokens.append(CardArea.orthogonal_neighbors(text_token("adjacent + you" if self_too else "adjacent", "neutral", adjacent_detail), self_too))
 		"convert_surface":
 			var from_kind: String = str(action.get("surface", "ice"))
 			var to_kind: String = str(action.get("to", "electrified"))
@@ -1954,10 +1958,9 @@ static func surface_condition_token(condition: Dictionary) -> Dictionary:
 	var token: Dictionary = text_token(condition_text, "neutral", condition_text)
 	token["kind"] = "surface_condition"
 	token["icon"] = surface_icon_key(kind)
-	# Ground conditions read "on [Fire]:" on the face so the condition and its
-	# bonus share one hand-card row; the subject ("Target on Fire:", "if on
-	# Electrified:") stays in the plain text and the hover tooltip.
-	token["prefix"] = placement if subject in ["target", "player"] else prefix
+	# The face identifies the player's tile; target conditions keep their compact
+	# "on [Fire]:" label. Plain text and tooltips retain the full condition above.
+	token["prefix"] = "you %s" % placement if subject == "player" else placement if subject == "target" else prefix
 	token["suffix"] = suffix
 	token["surface_condition"] = condition.duplicate(true)
 	return token

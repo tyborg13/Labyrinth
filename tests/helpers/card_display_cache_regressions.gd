@@ -95,7 +95,7 @@ static func _player_transitions(tree: SceneTree, expect: Callable) -> void:
 		state["player_stoneskin"] = stoneskin
 		var before: int = Bindings.calculations
 		Display.refresh(host, state)
-		expect.call(_damage(face.display_summary_rows()) == 5 + mini(stoneskin, 6), "Bound Stonefist scales across the Stoneskin threshold: " + str(stoneskin))
+		expect.call(_damage(face.display_summary_rows()) == 6 + mini(stoneskin, 6), "Bound Stonefist scales across the Stoneskin threshold: " + str(stoneskin))
 		expect.call(face.display_summary_rows() == Display.for_card("stonefist", state)["summary_rows"], "Bound Stonefist rows match fresh resolution")
 		if stoneskin == 7: expect.call(Bindings.calculations == before, "Stonefist past its cap has the same effective Stoneskin dependency")
 	face.configure("frostbolt")

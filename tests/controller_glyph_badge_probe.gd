@@ -306,7 +306,8 @@ func _assert_badge_geometry(record: Dictionary) -> void:
 	var medallion: Control = card.get_node("TimeCostBadge")
 	var medallion_rect: Rect2 = medallion.get_global_transform() * Rect2(Vector2.ZERO, medallion.size)
 	var strip: Control = _scene.get("_turn_order_landing_strip")
-	var strip_rect: Rect2 = strip.get_global_rect() if strip.is_visible_in_tree() else Rect2()
+	# ui-30 switched the preview strip off; it may not exist.
+	var strip_rect: Rect2 = strip.get_global_rect() if strip != null and strip.is_visible_in_tree() else Rect2()
 	var x: Control = hand_badges[&"controller_hand_toggle"]
 	var x_rect: Rect2 = x.visual_rect()
 	var expected_x := Vector2(medallion_rect.position.x - 6.0 - x_rect.size.x, medallion_rect.get_center().y - x_rect.size.y * 0.5)

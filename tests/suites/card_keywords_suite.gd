@@ -449,7 +449,7 @@ static func _test_icon_rows_and_grimoire(expect: Callable) -> void:
 	expect.call(str((ground_row[0] as Dictionary).get("prefix", "")) == "on" and ActionIcons.plain_text_for_tokens(ground_row).begins_with("Target on Rubble:"), "A target ground condition reads 'on [ground]:' and keeps 'Target on' in its text")
 	expect.call(str((ground_row[1] as Dictionary).get("icon", "")) == "melee", "A melee ground bonus repeats the melee damage icon")
 	var guard_row: Array = ActionIcons.tokens_for_surface_bonus({"type": "block", "amount": 6, "surface_bonus": {"surface": "electrified", "subject": "player", "present": true, "amount": 3}})
-	expect.call(str((guard_row[0] as Dictionary).get("prefix", "")) == "on" and str((guard_row[0] as Dictionary).get("tooltip", "")).begins_with("if on Electrified"), "A self ground condition reads 'on [ground]:' and names the subject in its tooltip")
+	expect.call(str((guard_row[0] as Dictionary).get("prefix", "")) == "you on" and str((guard_row[0] as Dictionary).get("tooltip", "")).begins_with("if on Electrified"), "A self ground condition reads 'you on [ground]:' and keeps its existing tooltip")
 	expect.call(str((ActionIcons.tokens_for_surface_bonus({"type": "ranged", "damage": 4, "range": 3, "surface_bonus": {"surface": "fire", "subject": "target", "damage": 3}})[1] as Dictionary).get("icon", "")) == "ranged", "A ranged ground bonus keeps the ranged damage icon")
 	var scale_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_stonefist").get("actions", []))
 	var scale_token: Dictionary = (scale_rows[scale_rows.size() - 1] as Array)[0]

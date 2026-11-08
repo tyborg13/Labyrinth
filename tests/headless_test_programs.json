@@ -309,6 +309,9 @@
     "path": "tests/glossary_test.gd"
   },
   {
+    "path": "tests/crd18_player_surface_bonus_test.gd"
+  },
+  {
     "path": "tests/dragon_feedback_mechanics_test.gd"
   },
   {

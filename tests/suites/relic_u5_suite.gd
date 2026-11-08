@@ -373,11 +373,11 @@ static func _test_nested_block(engine: CombatEngine, expect: Callable) -> void:
 	s["deck"]["hand"] = ["hotfoot"]
 	s["deck"]["draw"] = ["u5_guard", "u5_guard"]
 	var action: Dictionary = engine.card_play_actions("hotfoot", s)[0]
-	var target := Vector2i(2, 3)
+	var target: Vector2i = NONE
 	var forecast: Dictionary = engine.surface_preview_for_player_action(s, action, target)["state"]
 	var committed: Dictionary = engine.apply_player_action(s, action, target)
-	expect.call(forecast == committed and committed["player"]["block"] == 0, "Throne suppresses Hotfoot's started-on-Fire Block in preview and commit")
-	expect.call(int(committed["deck"]["draw_revision"]) > int(s["deck"]["draw_revision"]), "Throne preserves Hotfoot's nested Draw reward")
+	expect.call(forecast == committed and committed["player"]["block"] == 0, "Throne suppresses Hotfoot's standing-on-Fire Block in preview and commit")
+	expect.call(int(committed["deck"]["draw_revision"]) == int(s["deck"]["draw_revision"]), "Hotfoot has no Draw reward under Throne")
 	var nested: Dictionary = {"type": "move", "if_no_adjacent_enemies": [{"type": "block", "amount": 5}], "on_result": {"rewards": [{"type": "block", "amount": 4}]}, "custom": [[{"type": "block", "amount": 3}]], "transfer_block": true}
 	var suppressed: Dictionary = Rules.suppress_card_block(nested, engine._relic_effects(s))
 	expect.call(suppressed["if_no_adjacent_enemies"][0]["amount"] == 0 and suppressed["on_result"]["rewards"][0]["amount"] == 0 and suppressed["custom"][0][0]["amount"] == 0 and suppressed["transfer_block"], "Throne walks all nested dictionaries and arrays without changing Block transfer")

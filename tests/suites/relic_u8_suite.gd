@@ -97,11 +97,11 @@ static func _test_retort_values_and_resolution(engine: Combat, expect: Callable)
 	expect.call(Data.card_def_for_progression("quick_stab", s) == Data.card_def_for_progression("quick_stab", {}), "Retort is idle on non-items")
 	expect.call(Data.card_def_for_progression("lamp_oil", s) == Data.card_def_for_progression("lamp_oil", {}), "Retort does not boost terrain hazard damage or placement")
 	var guard: Dictionary = play(engine, s, "bone_ward_charm")
-	expect.call(guard["player"]["block"] == 5 and guard["player"]["stoneskin"] == 3, "Retort grants ceil-scaled Block and Stoneskin")
+	expect.call(guard["player"]["block"] == 6 and guard["player"]["stoneskin"] == 6, "Retort grants ceil-scaled Block and Stoneskin")
 	s = state(engine, ["alchemists_retort"], ["mossglass_elixir"])
 	s["player"]["hp"] = 20
 	var healed: Dictionary = play(engine, s, "mossglass_elixir")
-	expect.call(healed["player"]["hp"] == 23 and healed["player"]["stoneskin"] == 2, "Retort boosts healing and rounds odd Stoneskin upward")
+	expect.call(healed["player"]["hp"] == 25 and healed["player"]["stoneskin"] == 3, "Retort scales the revised healing and Stoneskin")
 	s = state(engine, ["alchemists_retort"], ["thunderstone"])
 	var action: Dictionary = engine.card_play_actions("thunderstone", s)[0]
 	var preview: Dictionary = engine.resolve_player_action_for_presentation(s, action, TARGET)["state"]
@@ -205,7 +205,7 @@ static func _test_card_faces_and_forecasts(engine: Combat, expect: Callable) -> 
 	var preview: Dictionary = scene.call("_card_preview_for_index", 0)
 	paid = scene.call("_pass_preview_state_after_resolved_target", preview["state"], preview["actions"], (preview["actions"] as Array).size())
 	committed = play(engine, s, "bone_ward_charm")
-	expect.call(paid["player"] == committed["player"] and paid["cards_played_this_turn"] == 0 and paid["player_turn_time_spent"] == 5, "Boosted defense hover forecast equals Ledger/Bandolier commit")
+	expect.call(paid["player"] == committed["player"] and paid["cards_played_this_turn"] == 0 and paid["player_turn_time_spent"] == 3, "Boosted defense hover forecast equals Ledger/Bandolier commit")
 	s = state(engine, ALL_RELICS, ["mossglass_elixir"])
 	s["player"]["hp"] = 20
 	scene.set("_combat_state", s)

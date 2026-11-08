@@ -1264,6 +1264,13 @@ keyed by `relic_id` `rite:<card_id>:<n>`.
 
 ### Wave-4 surface family (spec/card_mechanics_surfaces.md)
 
+Push actions carrying a surface (currently Rooted Kick) emit their ordinary
+`surface_created` record at the target's final tile, after displacement and any
+Collision. A target killed before moving leaves the surface at its occupied
+tile. Existing forced-movement/Collision records precede surface placement;
+`card_played` surface snapshots and the append-only surface stream observe the
+same resolved location. No event type or payload field changes.
+
 No new event types and no `card_played` field changes. The existing append-only
 `surface_event` stream gains these kinds: `meteor_marked` (`tiles`, `damage`, `surface`,
 player card `source`), `meteor_impact` at the next player turn start (`tiles`, `damage`,

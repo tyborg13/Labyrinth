@@ -227,7 +227,7 @@ static func _test_leaden_pommel(expect: Callable) -> void:
 	expect.call(int(heavy.get("stagger", 0)) == int(printed.get("stagger", 0)) + 1, "Leaden Pommel adds to printed Stagger on heavy attacks")
 	var light: Dictionary = _attack(engine, "quick_stab", value)
 	expect.call(int(light.get("stagger", 0)) == int(_attack(engine, "quick_stab", {}).get("stagger", 0)), "Leaden Pommel idle below five Time")
-	expect.call(int(_attack(engine, "butcher_chop", value).get("stagger", 0)) == 1, "Leaden Pommel includes the exact five-Time boundary")
+	expect.call(int(_attack(engine, "quarry_step", value).get("stagger", 0)) == 1, "Leaden Pommel includes the exact five-Time boundary")  # crd-06 made Butcher Chop Time 4
 	expect.call(int(_attack(engine, "tectonic_maul", value).get("stagger", 0)) == 4, "Leaden Pommel stacks with printed Stagger three")
 	var hit: Dictionary = _forecast(engine, value, heavy, Vector2i(3, 4), expect)
 	expect.call(int(hit["enemies"][0].get("stagger_this_turn", hit["enemies"][0].get("stagger", 0))) >= 0 and hit["turn_queue"] != value["turn_queue"], "Pommel delays the target initiative in forecast and commit")

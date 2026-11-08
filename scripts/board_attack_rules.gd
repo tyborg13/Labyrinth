@@ -228,7 +228,11 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 		state = engine._damage_terrain_indices(state, terrain_targets, int(resolved.get("damage", 0)))
 	if not enemies_only:
 		state = engine._trigger_traps_on_tiles(state, engine._trap_tiles_in_tiles(state, impact))
-	state = engine._place_action_surface(state, resolved, engine._board_aoe_center(action, target, origin) if str(action.get("type", "")) == "aoe" else target, impact)
+	if str(resolved.get("type", "")) == "push" and resolved.has("surface"):
+		var destination: Vector2i = _push_surface_destination(engine, state, plan, target)
+		state = engine._place_action_surface(state, resolved, destination, TypedArrays.vector2i([destination]))
+	else:
+		state = engine._place_action_surface(state, resolved, engine._board_aoe_center(action, target, origin) if str(action.get("type", "")) == "aoe" else target, impact)
 	if actor_kind == "player" and not echo and not affected.is_empty():
 		state = engine._trigger_direct_attack_surface(state, resolved, target)
 	if raise_outcrop:
@@ -254,4 +258,16 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	trace["chain_hits"] = native_trace if capture_route else []
 	engine._record_runtime_performance_phase("board_attack_finish_total", performance_started)
 	return state
+
+static func _push_surface_destination(engine: RefCounted, state: Dictionary, plan: Dictionary, target: Vector2i) -> Vector2i:
+	# Rooted Kick leaves ground under its target after displacement. Collision
+	# shortens the push; a pre-move death retains its occupied tile. Deaths are
+	# still batched here, so the actor's final position remains available.
+	for hit: Dictionary in plan.get("hits", []):
+		var before: Dictionary = hit.get("unit", {}) as Dictionary
+		if str(hit.get("kind_trace", "")) != "actor" or not BoardSurfaceRules.footprint_tiles(before).has(target):
+			continue
+		var after: Dictionary = engine._surface_actor(state, str(hit["kind"]), int(hit["id"]))
+		return target + (after.get("pos", before["pos"]) as Vector2i) - (before["pos"] as Vector2i)
+	return target
 

@@ -102,7 +102,7 @@ func _run() -> void:
 					if Baseline.NAMED_CARDS.has(entry["id"]):
 						regression_failures[entry["id"]] = true
 				if not baseline: _expect(fits, key + " parchment margin: " + str(margin))
-				if not baseline:
+				if not baseline and Baseline.pinned(key):
 					_expect(before.has(key), "Committed before sample exists: " + key)
 					if before.has(key):
 						var previous: Dictionary = before[key]
@@ -123,7 +123,8 @@ func _run() -> void:
 		for id: String in Baseline.NAMED_CARDS:
 			_expect(regression_failures.has(id), "Named regression fails before: " + id)
 	elif not before.is_empty() and _argument("--only-context").is_empty():
-		_expect(samples.size() == before.size(), "Committed baseline and after coverage are identical")
+		var pinned: Callable = func(key: String) -> bool: return Baseline.pinned(key)
+		_expect(samples.keys().filter(pinned).size() == before.keys().filter(pinned).size(), "Committed baseline and after coverage are identical")
 	var changed_ids: Array = changed.keys()
 	changed_ids.sort()
 	var coverage: Array = []

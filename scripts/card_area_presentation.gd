@@ -59,10 +59,29 @@ static func patterns(rows: Array) -> Array:
 		result.append(copy)
 	return result
 
+## Wards select Manhattan-distance-1 enemy tiles; Shatter uses DIRS_4 around
+## the target footprint (surface_card_rules.gd). Reuse the existing pattern
+## chip, with a pale reference tile unless include_self also affects it.
+static func orthogonal_neighbors(detail: Dictionary, include_self: bool = false) -> Dictionary:
+	var token: Dictionary = detail.duplicate(true)
+	token["plain_text"] = str(token.get("value", ""))
+	token.erase("value")
+	token["kind"] = "aoe_pattern"
+	token["icon"] = "aoe_pattern"
+	token["pattern"] = [[0, -1], [-1, 0], [1, 0], [0, 1]]
+	if include_self: (token["pattern"] as Array).append([0, 0])
+	token["show_origin"] = true
+	token["pattern_has_detail"] = true
+	token["card_keyword"] = false
+	return token
+
 static func _pattern(source: Dictionary) -> Dictionary:
 	var token: Dictionary = source.duplicate(true)
 	token["card_keyword"] = false
 	# Native card-chip hover and the inspection stack both omit this topic.
+	# Adjacency chips retain the existing text token's detail, without adding
+	# a geometry panel to the focus stack.
+	if bool(token.get("pattern_has_detail", false)): return token
 	token["tooltip"] = ""
 	token["card_tooltip"] = ""
 	for key: String in ["card_title", "card_term", "glossary_key", "panel_id"]: token.erase(key)

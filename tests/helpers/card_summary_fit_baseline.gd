@@ -3,6 +3,13 @@ extends RefCounted
 const SOURCE_WIDGET_SHA256: String = "8b794e01111cbbaa5d36f980bb63e2c6e9dfaf38727054a0f9e24085d4240441"
 const NAMED_CARDS: Array = ["worldbreak", "cloudstep_loop", "hall_of_mirrors"]
 const CONTROL_CARD: String = "quick_stab"
+# Owner-approved definition changes after the capture. Their faces must still
+# pass every fit check, but their layouts and upgrade samples no longer match it.
+# crd-03 (2026-11-07): Cloudstep Loop costs 2 and draws 1.
+const DEFINITION_CHANGED: Array = ["cloudstep_loop"]
+
+static func pinned(key: String) -> bool:
+	return not DEFINITION_CHANGED.has(key.get_slice("/", 1))
 
 static func focused_entries(entries: Array) -> Array:
 	# All formerly changed faces are in the three named families. Quick Stab

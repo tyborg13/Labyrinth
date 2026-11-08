@@ -4,7 +4,11 @@ extends RefCounted
 static var _txt02_panels: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt02_approved_card_panels.json"))["panels"]
 
 static func entries(id: String, historical: Dictionary) -> Array:
-	if _txt02_panels.has(id): return (_txt02_panels[id] as Array).duplicate(true)
+	if _txt02_panels.has(id):
+		var approved: Array = (_txt02_panels[id] as Array).duplicate(true)
+		# crd-08 (owner-approved 2026-11-08): Spear Thrust pays off Immobilized targets.
+		if id == "spear_thrust": approved.append({"icon": "immobilize", "body_lines": 1})
+		return approved
 	var expected: Array = (historical[id] as Array).duplicate(true)
 	if id == "petrify":
 		# fix-07: the keyword owns its Block; the card prints only Petrify + range.
@@ -28,6 +32,28 @@ static func entries(id: String, historical: Dictionary) -> Array:
 	if id in ["updraft", "crosswind"]:
 		for entry: Dictionary in expected:
 			if entry["icon"] == "melee": entry["icon"] = "ranged"
+	# crd-02/crd-03 (owner-approved 2026-11-07): Ember Guard leaves Fire under
+	# adjacent enemies instead of at range; Cloudstep Loop and Frozen Bite add
+	# Draw 1; Shrug Off gains Block before turning all of it into Stoneskin.
+	if id == "ember_guard":
+		expected = expected.filter(func(entry: Dictionary) -> bool: return entry["icon"] != "range")
+	# crd-06 (owner-approved 2026-11-08): Glide and Skate also draw 1.
+	if id in ["frozen_bite", "glide", "skate"]:
+		expected.append((historical["shrug_off"][3] as Dictionary).duplicate(true))
+	if id == "shrug_off":
+		expected.insert(0, (historical["brace"][1] as Dictionary).duplicate(true))
+	# crd-08/09/11 (owner-approved 2026-11-08): status payoffs show their
+	# condition's panel; Hotfoot gains Block (more on Fire) before its move;
+	# Joust's hit pushes; Cloudstep Loop draws, then Follow-up grants the Card Play.
+	var payoff_conditions: Dictionary = {"serrated_slip": "bleed", "hobnail_drive": "stagger", "jolt": "shock", "spear_thrust": "immobilize"}
+	if payoff_conditions.has(id):
+		expected.append({"icon": payoff_conditions[id], "body_lines": 1})
+	if id == "hotfoot":
+		expected = [{"icon": "block", "body_lines": 1}, {"icon": "surface_fire", "body_lines": 1}, {"icon": "move", "body_lines": 1}]
+	if id == "joust":
+		expected.append({"icon": "push", "body_lines": 1})
+	if id == "cloudstep_loop":
+		expected = [{"icon": "blink", "body_lines": 1}, {"icon": "draw", "body_lines": 1}, {"icon": "follow_up", "body_lines": 1}, {"icon": "card_play", "body_lines": 1}]
 	# tt-02 R1 gives every panel a nonempty, single-line body. R3/R7
 	# collapse repeated ground/area meanings; R5 suppresses Cleanse statuses.
 	var removed_indexes: Dictionary = {
