@@ -49,6 +49,7 @@ var _floating_keyboard_open: bool = false
 
 func _enter_tree() -> void:
 	ParallelRuntime.apply_from_environment()
+	preload("res://scripts/application_shutdown.gd").install(get_tree().root)
 	_initialize_steam()
 	_apply_steam_user_directory()
 	if _initialized:

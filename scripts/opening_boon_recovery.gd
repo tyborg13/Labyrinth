@@ -9,6 +9,9 @@ const Run = preload("res://scripts/run_engine.gd")
 # writes; focused recovery tests replace this for exactly one failed attempt.
 static var profile_writer: Callable = Store.save_data
 
+static func release_shutdown_callables() -> void:
+	profile_writer = Callable()
+
 static func retaining_events(host: Node, state: Dictionary, profile: Dictionary) -> Dictionary:
 	var next: Dictionary = Store.merge_progression_analytics_outbox(profile, Store.load_data())
 	if host.get("_opening_boon_flow").flush_events(host, state): return next

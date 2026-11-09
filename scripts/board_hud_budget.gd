@@ -52,13 +52,11 @@ func capture(scene: Control) -> void:
 	var top: float = RightColumn.top(scene) + scene.ui_root.global_position.y
 	var available: float = maxf(0.0, minf(piles.position.y, pass_rect.position.y) - Rail.DETAILS_PASS_GAP - top - scene.ENEMY_INTENT_TOGGLE_TOP_GAP - scene.ENEMY_INTENT_TOGGLE_HEIGHT)
 	# Forecasts can repeat actors; summons/reinforcements can occupy every legal
-	# tile. Audit every count, since compression makes rail height non-monotonic.
+	# tile. Compression makes rail height non-monotonic before overflow.
 	var cells: int = 1
 	for row: Array in (scene.get("_combat_state") as Dictionary).get("grid", []):
 		cells += row.size()
-	var longest: float = 0.0
-	for count: int in range(1, maxi(scene.TURN_ORDER_DISCLOSURE_LIMIT, cells * 2 + 2) + 1):
-		longest = maxf(longest, float(Rail.solve(scene, count, available).height))
+	var longest: float = maximum_rail_height(scene, maxi(scene.TURN_ORDER_DISCLOSURE_LIMIT, cells * 2 + 2), available)
 	var rail_width: float = Rail.column_width(scene)
 	_add(Rect2(viewport.x - scene.TURN_ORDER_RAIL_EDGE_GAP - rail_width, top,
 		rail_width, longest + scene.ENEMY_INTENT_TOGGLE_TOP_GAP + scene.ENEMY_INTENT_TOGGLE_HEIGHT))
@@ -69,6 +67,19 @@ func capture(scene: Control) -> void:
 	if has_boss:
 		scene._layout_boss_health_overlay_content()
 		_add(scene._boss_health_overlay.get_global_rect())
+
+static func maximum_rail_height(scene: Node, count_limit: int, available: float) -> float:
+	var longest: float = 0.0
+	for count: int in range(1, count_limit + 1):
+		var plan: Dictionary = Rail.solve(scene, count, available)
+		longest = maxf(longest, float(plan.height))
+		# Once MIN_SCALE cannot fit this count, solve removes trailing slots.
+		# Its measured slots are a count-independent prefix: all larger counts
+		# therefore keep that same prefix at MIN_SCALE and the same height.
+		# Overflow only moves the last portrait horizontally. Keep auditing all
+		# compressed fits before this boundary; their heights can rise and fall.
+		if int(plan.overflow) > 0: break
+	return longest
 
 func _add(rect: Rect2) -> void:
 	if rect.has_area(): exclusions.append(rect.grow(EXCLUSION_GAP))

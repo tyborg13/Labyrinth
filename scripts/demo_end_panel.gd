@@ -18,6 +18,10 @@ const TEST_OVERRIDE_FEATURE: String = "editor"
 static var shell_open: Callable = OS.shell_open
 static var store_page_override_for_test: Callable
 
+static func release_shutdown_callables() -> void:
+	shell_open = Callable()
+	store_page_override_for_test = Callable()
+
 var kind: String
 var links: Array[Button]
 var plates: Array[Button]

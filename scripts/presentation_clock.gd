@@ -12,6 +12,12 @@ static var _unscaled_usec: float = 1.0
 static var _ticker: Node
 var _last_frame: int = -1
 
+static func release_shutdown_callables() -> void:
+	if is_instance_valid(_ticker):
+		_ticker.set_process(false)
+		_ticker.set("sync", Callable())
+	_ticker = null
+
 class MovieTicker:
 	extends Node
 	var sync: Callable

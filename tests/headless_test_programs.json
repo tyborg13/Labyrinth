@@ -589,6 +589,9 @@
     "on_demand": true
   },
   {
+    "path": "tests/application_shutdown_test.gd"
+  },
+  {
     "path": "tests/shutdown_reentrancy_test.gd",
     "group": "soak",
     "on_demand": true

@@ -5,6 +5,15 @@ extends RefCounted
 const MAX_WIDTHS_PER_FONT: int = 2048
 static var _fonts: Dictionary = {}
 
+static func release_shutdown_connections() -> void:
+	# A theme/TextServer can outlive the scene that first measured this font.
+	for id: int in _fonts:
+		var font: Font = (_fonts[id]["font"] as WeakRef).get_ref()
+		var callback: Callable = _font_changed.bind(id)
+		if font != null and font.changed.is_connected(callback):
+			font.changed.disconnect(callback)
+	_fonts.clear()
+
 static func _measurements(font: Font) -> Dictionary:
 	var id: int = font.get_instance_id()
 	if not _fonts.has(id):
