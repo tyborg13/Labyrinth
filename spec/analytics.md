@@ -384,6 +384,13 @@ counter acknowledgement, Bone Dart setup, Quick Stab kill, observed kill refund,
 and Brace spending that refunded play. Their normal `card_played` records remain
 the source of truth for damage and `death_bonus_card_plays_gained`.
 
+The guided setup stages Pale Spark, Quick Stab and Brace from the real starting
+loadout, then builds its draw pile from that loadout's remaining copies. It no
+longer injects Backhand Nick or duplicate equipment grants. Existing
+`combat_started.opening_hand`, `combat_started.deck_cards` and `card_drawn`
+records describe this state without new fields or events. Its support crawler
+uses the production Skitter Strike payload (Move 2, Melee 4, Bleed 1).
+
 `run_started` includes the compiled starting deck plus the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
 `collected_equipment`. It also includes recovery marker fields when a previous
@@ -681,6 +688,13 @@ presentation data, not a new saved-state field or analytics event. Claw damage,
 lightning launch/arrival, Skybreak results, and the atomic enemy-action event
 boundaries retain their existing semantics.
 
+`combat_started.payload` also includes additive `fight_number` (the current
+section's one-based fight count, including the guided tutorial, specials,
+Guardians and resolved mystery fights, excluding bosses) and `encounter_tier`
+(the selected table tier after the depth/fight-number minimum). They come from
+persisted room metadata; `0` means unavailable/not applicable (including bosses,
+non-table tiers and pre-change saves without those fields).
+
 `combat_started.payload` also includes additive `encounter_id` and `biome`.
 For revision-4 section regular fights, `encounter_id` is the authored table
 composition id and `biome` is the section dragon's element (`fire`, `earth`,
@@ -829,6 +843,15 @@ the just-finished run. The profile keeps the 32 most recently used completed
 result records, including their original stats and badge fields; a non-adjacent
 `A → B → replay A` returns A's original decision without changing the monotonic
 bests, and refreshes A's recency in that bounded ledger.
+
+On combat defeat, `RunEngine.finish_combat` settles the fatal fight's
+`room_embers` into `held_embers` / `unbanked_embers` before discarding the combat
+snapshot. Terminal loss processing therefore stores the HUD total in the
+progression recovery marker's `amount` and presents that same amount in the
+recap. The existing `run_ended.held_embers` field now includes those earnings when
+emitted before terminal wallet clearing;
+no event schema or append-only history changes. Last Door retreats retain their
+existing settlement path.
 
 Terminal persistence must record the result before profile save and before the
 terminal snapshot is cleared. Any committed-boundary save path should pass its

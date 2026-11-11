@@ -332,11 +332,11 @@ static func _test_probe_fixture(expect: Callable) -> void:
 	panel.set_run_state(state)
 	expect.call(Graph.modern(panel.run_state), "Panel's compact snapshot retains revision 4 behavior via saved lane metadata")
 	for target: Vector2i in targets:
-		expect.call(panel.room_description(target) == "Unknown room\nNot yet visited", "Mystery tooltip uses the approved name and normal state line")
+		expect.call(panel.room_description(target) == "Unknown room\nAnything could be here. Scout reveals it.\nNot yet visited", "Mystery tooltip uses the approved name and normal state line")
 		expect.call(not panel.room_description(target).contains(str(Graph.room(state, target)["mystery_type"]).capitalize()), "Panel tooltips never expose an unscouted hidden type")
 		var scouted: Dictionary = Graph.scout(state, target)
 		panel.set_run_state(scouted)
-		expect.call(panel.room_description(target) == "Unknown room · " + panel._type_label(Graph.room(state, target)["mystery_type"]) + "\nNot yet visited", "Scouted mystery tooltip names its revealed type with the normal state line")
+		expect.call(panel.room_description(target) == "Unknown room · " + panel._type_label(Graph.room(state, target)["mystery_type"]) + "\n" + panel.type_description(Graph.display_type(Graph.room(scouted, target))) + "\nNot yet visited", "Scouted mystery tooltip names its revealed type with the normal state line")
 		panel.set_run_state(state)
 	_test_presentation_adapters(panel, expect)
 	panel.free()

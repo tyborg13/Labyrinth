@@ -16,6 +16,8 @@ signal display_overrides_changed
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
+# Approved area-pattern hover copy (director, 2026-11-10).
+const AREA_PATTERN_TOOLTIP: String = "Area: the pattern shows which tiles this card hits."
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
@@ -855,12 +857,15 @@ func _gui_input(event: InputEvent) -> void:
 			drag_started.emit()
 			accept_event()
 
-func _get_tooltip(_at_position: Vector2) -> String:
+func _get_tooltip(at_position: Vector2) -> String:
 	if not _native_tooltips_enabled:
 		return ""
-	if _time_badge != null and _time_badge.visible and _time_badge.get_global_rect().has_point(get_global_mouse_position()):
+	# Godot supplies a card-local query point. Resolve that point through the
+	# current reward hover transform rather than sampling the live pointer again.
+	var global_point: Vector2 = get_global_transform() * at_position
+	if _time_badge != null and _time_badge.visible and _time_badge.get_global_rect().has_point(global_point):
 		return _time_badge.tooltip_text
-	var icon_tooltip: String = _tooltip_for_icon_at(get_global_mouse_position())
+	var icon_tooltip: String = _tooltip_for_icon_at(global_point)
 	if not icon_tooltip.is_empty():
 		return icon_tooltip
 	return "modifiers" if not _modifier_tooltip_lines.is_empty() else ""
@@ -872,7 +877,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return UiTooltipPanel.make_lines("MODIFIERS", _modifier_tooltip_lines)
 	if for_text.strip_edges().is_empty():
 		return null
-	return UiTooltipPanel.make_text(for_text)
+	return InlineIconText.glossary_panel(for_text)
 
 func _tooltip_for_icon_at(global_point: Vector2) -> String:
 	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point)
@@ -1848,6 +1853,7 @@ func _center_precise_summary_groups() -> void:
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
 	if str(token.get("kind", "")) == "aoe_pattern":
+		if tooltip.is_empty(): tooltip = AREA_PATTERN_TOOLTIP
 		var pattern_view := AoePatternView.new()
 		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
 		row.add_child(pattern_view)
@@ -1858,6 +1864,8 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	if str(token.get("kind", "")) == "surface_condition":
 		var condition_group := HBoxContainer.new()
 		condition_group.name = "SurfaceCondition"
+		# The keyword spans icon, label and their gap as one hover target.
+		condition_group.tooltip_text = tooltip
 		condition_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		condition_group.add_theme_constant_override("separation", 3)
 		if not str(token.get("prefix", "if")).is_empty():

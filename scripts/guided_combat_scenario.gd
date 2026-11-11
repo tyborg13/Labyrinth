@@ -93,7 +93,12 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 	]
 	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = [PREVIEW_CARD_ID, KILL_CARD_ID, REFUND_CARD_ID, "guarded_step", "hamstring_shot"]
-	deck["draw"] = ["shadow_step", "dull_bolt", "backhand_nick", "guarded_step", "quick_stab", "brace"]
+	# Stage the lesson cards, then retain exactly the real loadout's remaining
+	# copies. Never inject cards or duplicate gear grants for free play.
+	var remaining_cards: Array = (run_state.get("deck_cards", GameData.starting_deck()) as Array).duplicate()
+	for card_id: String in deck["hand"]:
+		remaining_cards.erase(card_id)
+	deck["draw"] = remaining_cards
 	deck["discard"] = []
 	deck["burned"] = []
 	deck["consumed"] = []
@@ -190,12 +195,12 @@ static func _support_tile(grid: Array, occupied: Array[Vector2i], origin: Vector
 			if path.is_empty():
 				continue
 			var distance: int = path.size() - 1
-			# Skitter Strike moves 3 and then attacks at range 1. Prefer a
-			# four-step route so its movement and Brace's damage absorption are
+			# Skitter Strike moves 2 and then attacks at range 1. Prefer a
+			# three-step route so its movement and Brace's damage absorption are
 			# both visible when the player passes.
-			if distance < 2 or distance > 4:
+			if distance < 2 or distance > 3:
 				continue
-			var score: int = absi(4 - distance) * 10000 + tile.y * 100 + tile.x
+			var score: int = absi(3 - distance) * 10000 + tile.y * 100 + tile.x
 			if score < best_score:
 				best_score = score
 				result = tile
@@ -224,15 +229,9 @@ static func _authored_crawler(enemy_id: int, tile: Vector2i, hp: int, intent_ind
 	}
 
 static func _tutorial_support_intent() -> Dictionary:
-	return {
-		"id": "guided_skitter_strike",
-		"name": "Skitter Strike",
-		"time": 5,
-		"actions": [
-			{"type": "move_toward", "range": 3},
-			{"type": "melee", "damage": 4, "range": 1},
-		],
-	}
+	# Use the production payload, including Bleed, to keep the pre-fight and
+	# guided intent identical.
+	return (GameData.enemy_def("crawler")["intents"][0] as Dictionary).duplicate(true)
 
 static func _enemy_queue_entry(enemy: Dictionary, scheduled_time: int, sequence: int) -> Dictionary:
 	return {

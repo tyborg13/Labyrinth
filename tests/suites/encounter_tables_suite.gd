@@ -39,6 +39,7 @@ static func run(expect: Callable) -> void:
 	_test_weights(expect)
 	_test_history(expect)
 	_test_run_history(expect)
+	_test_section_resume(expect)
 	_test_legacy(expect)
 	_test_placement(expect)
 	print("Encounter base totals: ", JSON.stringify(expansion_report()))
@@ -256,7 +257,17 @@ static func _test_legacy(expect: Callable) -> void:
 			expect.call(state == legacy, "Legacy run matches table-disabled path: %d/revision %d" % [seed, revision])
 			var destination: Vector2i = Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"]
 			expect.call(engine.move_to_room(state, destination) == legacy_engine.move_to_room(legacy, destination), "Legacy entry state and RNG match: %d/revision %d" % [seed, revision])
-	print("Encounter legacy differential: 64 seeds; layouts, pools/RNG, non-section and revision-3 entry states checked")
+	# These pre-change full-layout pins are shared with the Warband/Snare
+	# suites. A missing k must preserve more than just an enemy roster: the
+	# original tier, RNG, placements and layout keys all remain byte-identical.
+	var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/spx03_legacy_golden.json"))
+	for revision: int in [4, 5]:
+		for seed: int in range(1, LEGACY_SEEDS + 1):
+			var room: Dictionary = {"type": "combat", "coord": Vector2i(seed % 7, seed % 11), "depth": 1 + seed % 3, "element": "air", "section_index": 0, "section_map_layout_revision": revision, "encounter_biome": "air", "connections": [{"door_dir": Vector2i.UP, "coord": Vector2i(0, -1), "kind": "outward"}]}
+			var layout: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
+			expect.call(var_to_bytes(layout).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Missing-k room keeps pre-change complete layout revision %d seed %d" % [revision, seed])
+			expect.call(not layout.has("encounter_tier"), "Missing-k room preserves its original metadata keys")
+	print("Encounter legacy differential: 64 seeds; legacy/revision-3 runtime states and 128 revision-4/5 missing-k full-layout goldens checked")
 
 static func _test_placement(expect: Callable) -> void:
 	_finish_placement(expect, placement_seed_range(expect, 0, PLACEMENT_SEEDS))
@@ -484,3 +495,45 @@ static func run_renderer_preparation(tree: SceneTree, expect: Callable) -> void:
 
 static func _preparation_frame(tree: SceneTree) -> void:
 	await tree.process_frame
+
+# One save contract covers entry, pre-battle and mid-fight with the real writer.
+static func _test_section_resume(expect: Callable) -> void:
+	var engine := RunEngineScript.new()
+	var state: Dictionary = engine.create_new_run(FIXTURE_SEED, Progression.default_data())
+	var destination: Vector2i = Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"]
+	Graph.room(state, destination)["depth"] = 3
+	# Actual-route counting includes all fight kinds and ignores events/bosses.
+	var fixtures: Array = ["combat", "special", "guardian", "combat", "event", "boss"]
+	for index: int in range(fixtures.size()):
+		state["rooms"]["fixture_%d" % index] = {"coord": Vector2i(100, index), "section_index": 0, "cleared": true, "type": fixtures[index]}
+	state["rooms"]["other_section"] = {"coord": Vector2i(101, 0), "section_index": 1, "cleared": true, "type": "combat"}
+	var pending: Dictionary = engine.move_to_pre_battle(state, destination)
+	expect.call(Graph.room(pending, destination).get("fight_number") == 5, "Only actual current-section nonboss fights advance k")
+	var expected: Dictionary = engine.begin_pre_battle_combat(pending)
+	Progression.set_run_storage_path("user://ptf01_resume.save")
+	expect.call(Progression.save_run_state(pending), "Pre-battle room saves")
+	var loaded: Dictionary = engine.repair_loaded_run_state(Progression.load_saved_run())
+	var resumed: Dictionary = RunEngineScript.new().begin_pre_battle_combat(loaded)
+	expect.call(resumed["combat_state"]["enemies"] == expected["combat_state"]["enemies"], "Pre-battle resume reproduces exact foes")
+	expect.call(Graph.room(resumed, destination).get("fight_number") == 5 and Graph.room(resumed, destination).get("encounter_tier") == 3, "Save retains fight number and depth-minimum tier")
+	var mid: Dictionary = expected.duplicate(true)
+	mid["combat_state"]["enemies"][0]["hp"] -= 1
+	expect.call(Progression.save_run_state(mid), "Mid-fight room saves")
+	var restored: Dictionary = engine.repair_loaded_run_state(Progression.load_saved_run())
+	expect.call(restored["combat_state"]["enemies"] == mid["combat_state"]["enemies"], "Mid-fight resume retains exact foes and health")
+	Graph.room(mid, destination).erase("fight_number")
+	Graph.room(mid, destination).erase("encounter_tier")
+	expect.call(Progression.save_run_state(mid), "Pre-change mid-fight room saves")
+	restored = engine.repair_loaded_run_state(Progression.load_saved_run())
+	expect.call(restored["combat_state"]["enemies"] == mid["combat_state"]["enemies"], "Pre-change mid-fight save keeps current generated foes")
+	# Pre-change pending rooms have no k. Both old and new runtimes must use
+	# the old depth tier, weights, token groups, trimming and RNG calls.
+	Graph.room(pending, destination).erase("fight_number")
+	var old_engine := RunEngineScript.new()
+	old_engine._room_generator = preload("res://tools/ptf01/baseline_generator.gd").new()
+	var old_expected: Dictionary = old_engine.begin_pre_battle_combat(pending)
+	expect.call(Progression.save_run_state(pending), "Pre-change pending room saves")
+	loaded = engine.repair_loaded_run_state(Progression.load_saved_run())
+	resumed = RunEngineScript.new().begin_pre_battle_combat(loaded)
+	expect.call(resumed["combat_state"]["enemies"] == old_expected["combat_state"]["enemies"], "Pre-change pending save keeps original generated foes")
+	Progression.set_run_storage_path("")

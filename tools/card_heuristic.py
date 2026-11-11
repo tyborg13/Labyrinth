@@ -6,8 +6,12 @@ stable, reviewable baseline for valuing cards in "health saved equivalent"
 terms without coupling the live game to the balance model.
 
 Current encounter assumptions that shape the coefficients but are not directly
-scored here: a complete run contains six four-depth sequences with 3/4/5
-standard-enemy density before each boss gate. The first five gates use the five
+scored here: legacy runs contain six four-depth sequences with 3/4/5
+standard-enemy density before each boss gate. Section-map table fights use the
+minimum of depth-band tier and section fight-number tier (1-2:1, 3-4:2, 5+:3),
+with post-expansion tier ceilings 3/5/6 and fight-number caps 3/3/4/5/5/6
+(the final fight cap continues for later fights). Tutorial, special, Guardian and resolved
+mystery fights count; bosses do not. Intrinsic card coefficients are unchanged. The first five gates use the five
 non-shadow elemental dragons in seeded random order, including Zekarion, while
 Noctyrax is fixed at depth 24. Boss health, primary attacks and support use completed-sequence scaling;
 the six battlefield rules retain their authored dials. Lateral rooms
@@ -15,7 +19,7 @@ remain deck-building route choices, but a guaranteed outward route appears after
 three visited rooms at the current depth when no outward route is otherwise
 available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
 uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
-eligibility; depth controls density and scaling instead of gating enemy types.
+eligibility; depth controls stats and bounds the fight-number tier instead of gating enemy types.
 The first combat remains a kill-all tutorial. Standard rooms in layout revision 6+ always use kill-all. Revisions 3–5 retain
 the seeded 50/25/25 mix of kill-all, kill-leader, and reach-exit objectives;
 survive is temporarily out of rotation but retains saved-encounter support;
@@ -265,6 +269,17 @@ def encounter_assumptions() -> dict[str, Any]:
         },
         "magic_deck_context": {"ownership": "all owned magic enters deck; no slot cap", "starting_deck_cards": 16, "intrinsic_scores_depend_on_deck_size": False, "purge": "changes draw frequency only; analyze by deck composition and purge source/price"},
         "summon_card_plays": {"plays_per_successful_move": 1, "timing": "next hero activation", "stacking_cap": None, "excluded": ["zero arrivals", "death_spawn", "survive reinforcements", "summon_origin=guardian_replacement"], "restrictions": "Frozen forfeits plays normally", "intrinsic_card_score": False},
+        "section_table_scaling": {
+            "tier": "min(depth-band tier, section fight-number tier)",
+            "fight_number_tiers": {"1-2": 1, "3-4": 2, "5+": 3},
+            "tier_max_units": {"1": 3, "2": 5, "3": 6},
+            "fight_max_units": {"1": 3, "2": 3, "3": 4, "4": 5, "5": 5, "6": 6},
+            "unit_cap": "min(global max_units, tier ceiling, fight cap); later fights use the final fight cap",
+            "counted": ["standard", "guided tutorial", "special", "guardian", "resolved mystery combat"],
+            "excluded": ["boss"],
+            "enemy_stats": "unchanged depth scaling",
+            "intrinsic_card_coefficients": "unchanged",
+        },
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,
         "sequences_per_run": SEQUENCES_PER_RUN,
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,

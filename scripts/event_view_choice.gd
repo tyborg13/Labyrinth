@@ -99,3 +99,9 @@ func refresh_emphasis() -> void:
 func _draw() -> void:
 	if available and (hovered or has_focus()):
 		Gilding.draw_glow(self, Rect2(Vector2.ZERO, size), Color(Palette.EMBER, 0.28), 22, 3)
+
+func _get_tooltip(at_position: Vector2) -> String:
+	return Text.tooltip_at(self, get_global_transform() * at_position)
+
+func _make_custom_tooltip(for_text: String) -> Object:
+	return Text.Inline.glossary_panel(for_text)

@@ -308,6 +308,8 @@ func _build_column() -> void:
 	column.add_child(rule)
 	var result: bool = page == "result"
 	var body_text: String = str(run_state.get("event_state", {}).get("result_text", "")) if result else str(definition.get("body", ""))
+	if result and body_text.strip_edges().is_empty():
+		body_text = "You move on."
 	var body: RichTextLabel = Text.label(body_text, COLUMN_WIDTH, body_size, Color("d8c9a8") if result else Palette.TEXT, result, false, 1.42)
 	body.name = "EventBody"
 	body.position.y = rule.position.y + 14 + 18
@@ -315,7 +317,7 @@ func _build_column() -> void:
 	var y: float = body.position.y + Text.height(body) + (30 if result else 32)
 	if result:
 		if not Events.outcome_lines(run_state).is_empty():
-			var well := PanelContainer.new()
+			var well := Text.OutcomeWell.new()
 			well.name = "OutcomeWell"
 			well.set_meta("panel_safe_inset", 0)
 			well.position.y = y

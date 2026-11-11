@@ -160,13 +160,13 @@ func _run_input_proof() -> void:
 	_expect(not (instance.get("_upgrade_scrim") as Control).visible and (instance.get("_pre_battle_scrim") as Control).visible, "Controller Back returns to pre-battle")
 	panel = instance.get("_pre_battle_panel") as Control
 	var news := panel.find_child("PreBattleEquipNewTag", true, false) as Control
-	_expect(news != null and news.visible, "Returning from Gear retains Equip NEW while Magic is unread")
+	_expect(news != null and not news.visible, "Returning from Gear hides Equip NEW even while Magic is unread")
 	instance.call("_on_pre_battle_equip_pressed")
 	await _settle()
 	_expect(str(instance.get("_progression_overlay_mode")) == "magic", "Equip opens Magic when only spells are unread")
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
-	_expect(news != null and not news.visible, "Returning from the final unread tab hides Equip NEW without rebuilding its button")
+	_expect(news != null and not news.visible, "Returning from the final unread tab keeps Equip NEW hidden")
 	var strip := panel.find_child("PreBattleDeckBadge", true, false) as Button
 	strip.grab_focus()
 	await _joy(JOY_BUTTON_A)

@@ -79,7 +79,7 @@ func _initialize() -> void:
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord and _route_choices(instance.get("_run_state")) == _route_choices(state), "Activating " + route_state + " only inspects; no travel or route event")
 	await _pointer_hover(target_button.get_global_rect().get_center())
 	_check(panel.get("selected_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Hover previews the branch without requiring a selection or moving the player")
-	_check(str(panel.get("_preview_text")).split("\n").size() == 2 and not str(panel.get("_preview_text")).contains("door"), "Optional tooltip contains only the room identity and state")
+	_check(str(panel.get("_preview_text")).split("\n").size() == 3 and not str(panel.get("_preview_text")).contains("door"), "Optional tooltip contains the room identity, description and state")
 	await _capture("01b_pointer_preview.png")
 	panel.call("focus_controller_on_current")
 	await _capture("02_keyboard_focus.png")

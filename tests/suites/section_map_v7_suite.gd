@@ -20,6 +20,7 @@ const PANEL_SIZE: Vector2 = Vector2(1864, 1024)
 const WALK_WAIT_SECONDS: float = 0.85
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/ptf02_saved_map_test.gd").check_saved_map(expect)
 	test_new_runs_use_revision_7(expect)
 	test_saved_revisions_regenerate(expect)
 	test_fallback_sections(expect)
@@ -78,7 +79,7 @@ static func test_section_rules(state: Dictionary, index: int, expect: Callable) 
 	var info: Dictionary = Graph.section(state, index)
 	var count: int = int(info["room_count"])
 	var gather: Array[int]
-	gather.assign([ceili(count / 2.0), count - 1])
+	gather.assign([Graph.V7_MID_HEARTH_STEP, ceili(count / 2.0), count - 1])
 	var rows: Dictionary = {}
 	for node: Dictionary in _section_rooms(state, index):
 		var step: int = int(node["map_step"])
@@ -86,6 +87,10 @@ static func test_section_rules(state: Dictionary, index: int, expect: Callable) 
 		expect.call(lane >= 0 and lane < Graph.V7_LANE_COUNT, "Rooms sit in the seven lanes")
 		if not rows.has(step): rows[step] = []
 		rows[step].append(node)
+		if step == Graph.V7_MID_HEARTH_STEP:
+			expect.call(node["type"] == "campfire" and int(node["depth"]) - index * 4 == 2, "Every lane at step 4 is a band-2 Ember Hearth")
+		elif step != count - 1:
+			expect.call(node["type"] != "campfire", "No route has a second mid-section Hearth")
 		var exits: Array = node["connections"]
 		if step == count - 1:
 			expect.call(exits.size() == 1 and Graph.room(state, exits[0]["coord"])["type"] == "boss", "The Ember Hearth row leads to the boss")

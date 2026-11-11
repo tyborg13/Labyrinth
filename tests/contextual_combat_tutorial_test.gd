@@ -30,6 +30,9 @@ func _initialize() -> void:
 	quit(1)
 
 func _test_curriculum_catalog() -> void:
+	var intent: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CONFIRM_INTENT)
+	for input_key: String in ["pointer_text", "controller_text"]:
+		_assert(intent[input_key] == "This crawler will move up to 2 tiles, then hit you for 4 and make you Bleed.", "Both input paths pin the production crawler rules")
 	var phases: Array[String] = ContextualCombatTutorial.phase_ids()
 	var milestones: Array[String] = ContextualCombatTutorial.milestone_ids()
 	_assert(phases.size() == 23, "Authored curriculum should expose all twenty-three motor, rule, and decision phases")

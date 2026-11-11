@@ -44,7 +44,7 @@ const MAGIC_DECK_SAVE_VERSION_KEY: String = "magic_deck_save_version"
 const SCAVENGER_PURGE_BASE_PRICE: int = 50
 const SCAVENGER_PURGE_PRICE_STEP: int = 25
 const REWARD_HEAL: int = 3
-const CAMPFIRE_LINGER_HEAL: int = 4
+const CAMPFIRE_LINGER_HEAL: int = 6
 const BOSS_VICTORY_HEAL_FRACTION: float = 0.25
 const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
@@ -735,6 +735,11 @@ static func _replace_renamed_content_ids(value: Variant, replacements: Dictionar
 	match typeof(value):
 		TYPE_STRING, TYPE_STRING_NAME:
 			var text: String = str(value)
+			# Current authored omen/discovery IDs (e.g. tithe_of_ash) are not
+			# retired card vocabulary. Preserve exact catalog identities before
+			# the legacy free-text neutralizer walks profile and run snapshots.
+			if GameData.omens().has(text.trim_prefix("omen:")):
+				return text
 			if replacements.has(text):
 				return str(replacements.get(text, text))
 			for content_id_var: Variant in composite_ids:
@@ -937,6 +942,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
+	preload("res://scripts/encounter_tables.gd").record_room_entry(next_state, room)
 	Chronicle.enter_room(next_state, room)
 	if str(room.get("type", "")) == "special" and next_state.has(Chronicle.PATH_KEY):
 		var path: Array = next_state[Chronicle.PATH_KEY][int(room["section_index"])]
@@ -1069,6 +1075,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
+	preload("res://scripts/encounter_tables.gd").record_room_entry(next_state, room)
 	Chronicle.enter_room(next_state, room)
 	if str(room.get("type", "")) == "special" and next_state.has(Chronicle.PATH_KEY):
 		var path: Array = next_state[Chronicle.PATH_KEY][int(room["section_index"])]
@@ -1310,6 +1317,9 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	if outcome == "defeat":
 		if _can_last_door_retreat(next_state):
 			return _retreat_through_last_door(next_state)
+		# The HUD includes earnings from this fight. Settle them once here,
+		# before terminal persistence records the loss and recovery marker.
+		next_state = add_held_embers(next_state, int(resolved_combat_state.get("room_embers", 0)))
 		next_state["mode"] = "defeat"
 		next_state["game_over"] = true
 		return next_state
@@ -2537,6 +2547,8 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		var section: Dictionary = SectionMapGraph.section(run_state, int(room["section_index"]))
 		layout_room["encounter_biome"] = DragonBossLibrary.element_for_boss(str(section["boss_id"]))
 		layout_room["encounter_history"] = run_state.get("encounter_history", []).duplicate()
+		# An already-entered pre-change room retains the original picker/RNG.
+		layout_room["encounter_legacy"] = not room.has("fight_number")
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	if str(room.get("type", "")) == "special":
 		layout["special_starting_reward_embers"] = Specials.starting_embers(layout)
@@ -2563,6 +2575,7 @@ func _record_encounter_pick(run_state: Dictionary, layout: Dictionary) -> void:
 	run_state["encounter_history"] = history
 	var room: Dictionary = SectionMapGraph.room(run_state, run_state["current_room"])
 	room["encounter_id"] = layout["encounter_id"]
+	if layout.has("encounter_tier"): room["encounter_tier"] = layout["encounter_tier"]
 	room["biome"] = layout["biome"]
 
 func _generated_combat_layout(seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:

@@ -336,7 +336,13 @@ func _test_legacy_save_repair() -> void:
 	var legacy_pattern := RegEx.new()
 	var legacy_prefix: String = _encoded_legacy_id([97, 115, 104])
 	_assert(legacy_pattern.compile("(?i)(?<![[:alnum:]])%s[[:alnum:]_-]*" % legacy_prefix) == OK, "Legacy vocabulary scan should compile")
-	_assert(legacy_pattern.search(var_to_str(repaired)) == null, "Repaired run state should contain no retired vocabulary tokens")
+	# The current omen catalog deliberately includes Tithe of Ash. Exempt
+	# only exact serialized catalog IDs, never legacy IDs or surrounding prose.
+	var vocabulary_scan: String = var_to_str(repaired)
+	for omen_id: String in GameData.omens():
+		for current_id: String in [omen_id, "omen:" + omen_id]:
+			vocabulary_scan = vocabulary_scan.replace(var_to_str(current_id), "")
+	_assert(legacy_pattern.search(vocabulary_scan) == null, "Repaired run state should contain no retired vocabulary tokens outside current omen IDs")
 	_matrix_rows.append("legacy/repair")
 
 func _encoded_legacy_id(values: Array) -> String:

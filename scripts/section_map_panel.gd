@@ -279,8 +279,14 @@ func _refresh_legend() -> void:
 		_boss_legend_icon.queue_redraw()
 	_layout_legend.call_deferred()
 
+class LegendItem:
+	extends HBoxContainer
+	func _make_custom_tooltip(for_text: String) -> Object:
+		return preload("res://scripts/ui_tooltip_panel.gd").make_text(for_text)
+
 func _add_legend_item(type: String) -> void:
-	var item := HBoxContainer.new()
+	var item := LegendItem.new()
+	item.tooltip_text = type_description(type)
 	item.add_theme_constant_override("separation", 8)
 	_legend.add_child(item)
 	var icon := Control.new()
@@ -930,6 +936,21 @@ func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dic
 	if available.has(coord) and viewed_section == Graph.active_section(run_state): return "reachable"
 	return "ahead"
 
+static func type_description(type: String) -> String:
+	if type.begins_with("special_"):
+		return Specials.tooltip_line({"special_type": type.trim_prefix("special_")})
+	match type:
+		"start": return "Where this section begins."
+		"combat": return "Defeat every foe."
+		"guardian": return "A tough foe holds this room. Richer rewards."
+		"event": return "A choice, often with a cost."
+		"scavenger": return "Trade Embers for supplies."
+		"graftwright": return "Bring two gear pieces of the same kind; one inherits the other's card."
+		"treasure": return "Claim 1 of 3 relics."
+		"campfire": return "Rest to heal, or bank your Embers and end the run."
+		"boss": return "The section's dragon."
+	return "Anything could be here. Scout reveals it."
+
 func room_description(coord: Vector2i) -> String:
 	var node: Dictionary = Graph.room(run_state, coord)
 	var detail: String = "Not yet visited"
@@ -945,14 +966,13 @@ func room_description(coord: Vector2i) -> String:
 		detail = "Undiscovered"
 	if _has_recovery(node):
 		detail += " · %d lost Embers" % int(node.get("recovery_amount", 0))
-	if bool(node.get("revealed", false)) and str(node.get("type", "")) == "graftwright":
-		detail = "Inherit an equipment card · " + detail
 	if str(node.get("type","")) == "guardian" and bool(node.get("revealed",false)):
 		var guardian: Dictionary = preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id","")))
-		return "%s · Guardian combat\n%s" % [guardian.get("name","Guardian"),detail]
+		return "%s · Guardian combat\n%s\n%s" % [guardian.get("name","Guardian"), type_description("guardian"), detail]
 	if str(node.get("type", "")) == "special" and bool(node.get("revealed", false)):
 		return Specials.display_name(node) + "\n" + Specials.tooltip_line(node) + "\n" + detail
-	return _room_label(node) + "\n" + detail
+	var description: String = type_description(Graph.display_type(node) if bool(node.get("revealed", false)) else "unknown")
+	return _room_label(node) + ("\n" + description if not description.is_empty() else "") + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:
 	if activation_coord != Graph.INVALID or not node_buttons.has(coord): return

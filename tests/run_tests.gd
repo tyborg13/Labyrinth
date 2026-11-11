@@ -7545,7 +7545,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "Linger") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Draw Strength") != null, "Campfire overlay should label the level-up option")
-	_assert(_label_with_text(relic_overlay, "+4 HP") != null, "Campfire linger choice should show a compact heal chip")
+	_assert(_label_with_text(relic_overlay, "+6 HP") != null, "Campfire linger choice should show a compact heal chip")
 	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
 	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
 	_assert(_label_with_text(relic_overlay, "END RUN") == null, "Campfire abandon choice should not duplicate end-run text in a chip")
@@ -7626,7 +7626,7 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 	await process_frame
 	var next_state: Dictionary = instance.get("_run_state")
 	_assert(str(next_state.get("mode", "")) == "room", "Campfire linger press should still leave campfire mode")
-	_assert(int(next_state.get("player_hp", 0)) == 14, "Rapid duplicate linger presses should heal only once")
+	_assert(int(next_state.get("player_hp", 0)) == 16, "Rapid duplicate linger presses should heal only once")
 	instance.queue_free()
 	await process_frame
 

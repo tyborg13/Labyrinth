@@ -88,10 +88,10 @@ static func refresh_sections(host: Node, panel: PanelContainer, room: Dictionary
 		_replace_component(host, content, 0, build_header(host, room, combat, accent))
 	if _foes_key(previous) != _foes_key(current):
 		_replace_component(host, body, 0, build_foes(host, combat, state))
-	if previous.get("loadout_unread_count") != current.get("loadout_unread_count"):
+	if previous.get("has_unread_spare_gear") != current.get("has_unread_spare_gear"):
 		var tag: Control = panel.find_child("PreBattleEquipNewTag", true, false) as Control
 		if tag == null: return false
-		tag.visible = host.get("_run_engine").loadout_unread_count(state) > 0
+		tag.visible = has_unread_spare_gear(host.get("_run_engine"), state)
 	if _kit_key(previous) != _kit_key(current):
 		var equip: Button = panel.find_child("PreBattleEquipButton", true, false) as Button
 		if equip == null: return false
@@ -435,10 +435,18 @@ static func build_actions(host: Node, future_state: Dictionary = {}) -> Control:
 	row.add_child(start)
 	return row
 
+static func has_unread_spare_gear(engine: RefCounted, state: Dictionary) -> bool:
+	# Preserve the existing acknowledgement behavior; Magic news and equipped
+	# gear cannot advertise a spare item on the Equip action.
+	var inventory: Array = state.get("equipment_inventory", []) as Array
+	for id: String in engine.loadout_unread_ids(state, "equipment"):
+		if inventory.has(id): return true
+	return false
+
 static func _add_equip_new_tag(host: Node, equip: Button, state: Dictionary) -> void:
 	var tag: PanelContainer = host.call("_build_loadout_new_tag") as PanelContainer
 	tag.name = "PreBattleEquipNewTag"
-	tag.visible = host.get("_run_engine").loadout_unread_count(state) > 0
+	tag.visible = has_unread_spare_gear(host.get("_run_engine"), state)
 	equip.add_child(tag)
 	tag.size = tag.get_combined_minimum_size()
 	var inset: float = Typography.scaled_value(host, 8.0)

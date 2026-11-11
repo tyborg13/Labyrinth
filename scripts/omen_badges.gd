@@ -75,6 +75,7 @@ class Badge extends Control:
 
 	func _make_custom_tooltip(_text: String) -> Object:
 		var panel: PanelContainer = Tooltip.make_lines(str(entry["name"]), PackedStringArray([str(entry["description"]), "%d fights left" % int(entry["fights_left"])]))
+		Tooltip.append_glossary(panel, str(entry["description"]))
 		var box: VBoxContainer = panel.get_child(0) as VBoxContainer
 		var eyebrow := Label.new()
 		Typography.apply_eyebrow(eyebrow, 15, Palette.EVENT_BLESSING if str(entry["kind"]) == "blessing" else Palette.EVENT_BANE)

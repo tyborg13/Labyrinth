@@ -34,7 +34,7 @@ static func markup(text: String, toned: bool = false) -> String:
 	return result
 
 static func label(text: String, width: float, font_size: int, color: Color = Palette.TEXT, italic: bool = false, toned: bool = false, line_height: float = 1.35) -> RichTextLabel:
-	var label := RichTextLabel.new()
+	var label := Inline.GlossaryRichLabel.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.bbcode_enabled = true
 	label.scroll_active = false
@@ -73,3 +73,21 @@ static func height(label: RichTextLabel) -> float:
 
 static func _append_icons(label: RichTextLabel, text: String) -> void:
 	Inline.append_to(label, text, 20.0, false)
+
+# Hit-test through the existing event input owners: text must remain transparent
+# to choice activation, hover emphasis and controller preview routing.
+class OutcomeWell extends PanelContainer:
+	func _get_tooltip(at_position: Vector2) -> String:
+		return load("res://scripts/event_view_text.gd").tooltip_at(self, get_global_transform() * at_position)
+	func _make_custom_tooltip(for_text: String) -> Object:
+		return Inline.glossary_panel(for_text)
+
+static func tooltip_at(node: Node, global_point: Vector2) -> String:
+	for child: Node in node.get_children():
+		if child is RichTextLabel and child.has_meta("event_source_text"):
+			var label: RichTextLabel = child
+			if label.is_visible_in_tree() and label.get_global_rect().has_point(global_point):
+				return label.get_tooltip(label.get_global_transform().affine_inverse() * global_point)
+		var found: String = tooltip_at(child, global_point)
+		if not found.is_empty(): return found
+	return ""

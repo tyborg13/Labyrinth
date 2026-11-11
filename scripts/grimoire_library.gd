@@ -188,8 +188,25 @@ static func _entries_ref() -> Array:
 	result.append_array(equipment_radiance_card_entries())
 	result.append_array(item_entries())
 	result.append_array(character_entries())
+	result.append_array(omen_entries())
 	_entries_cache = result
 	return _entries_cache
+
+# Banes and blessings sit with the keywords (director, 2026-11-10).
+const OMEN_SECTION: String = "keywords"
+
+static func omen_entries() -> Array:
+	var result: Array = []
+	for id: String in GameData.omens():
+		var omen: Dictionary = GameData.omen_def(id)
+		var description: String = str(omen["description"])
+		var body: Array = [description]
+		for key: String in preload("res://scripts/inline_icon_text.gd").concept_keys(description):
+			body.append(ActionIcons.tooltip(key))
+		body.append("Lasts %d fights." % int(omen["fights"]))
+		result.append({"id": "omen:" + id, "section": OMEN_SECTION,
+			"title": omen["name"], "body": body, "default": true, "omen_id": id})
+	return result
 
 static func magick_entries() -> Array:
 	var result: Array = []

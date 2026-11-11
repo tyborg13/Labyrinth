@@ -456,7 +456,9 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 		var panels: Array[Node] = stage.find_children("*", "PanelContainer", true, false)
 		var detail: PanelContainer
 		for node: Node in panels:
-			if bool(node.get_meta("tooltip_surface", false)): detail = node
+			# Keyword help now nests tooltip panels inside this reward detail.
+			# Identify the owning reward panel, not the last nested definition.
+			if bool(node.get_meta("tooltip_surface", false)) and node.has_meta("reward_id"): detail = node
 		# The shared width is a floor: ui-22's larger granted cards may grow the box.
 		expect.call(detail != null and is_equal_approx(detail.custom_minimum_size.x, 420) and detail.get_combined_minimum_size().x >= 420, "Preview retains the shared 420-pixel tooltip minimum: " + fixture[2])
 		if detail != null:

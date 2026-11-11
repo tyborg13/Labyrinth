@@ -209,7 +209,7 @@ static func _test_start_and_rewards(expect: Callable) -> void:
 		if depth >= 10:
 			expect.call(Omens.active(state)[0]["id"] == "hunted" and int(Omens.active(state)[0]["fights_left"]) == int(Data.omen_def("hunted")["fights"]), "Hunted uses its default authored fights")
 		state["player_hp"] = 1
-		expect.call(int(engine.leave_campfire(state, Run.CAMPFIRE_LINGER_HEAL)["player_hp"]) == 4, "Hearth linger runtime heals three at depth five and above")
+		expect.call(int(engine.leave_campfire(state, Run.CAMPFIRE_LINGER_HEAL)["player_hp"]) == 6, "Hearth linger runtime heals five at depth five and above")
 	var base: Dictionary = engine.create_new_run(FIXTURE_SEED, Store.default_data())
 	var modified: Dictionary = base.duplicate(true)
 	modified[Rules.STATE_KEY] = 12

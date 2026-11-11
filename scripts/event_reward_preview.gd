@@ -155,6 +155,7 @@ static func _object(kind: String, id: String, state: Dictionary, scale_hint: flo
 	if kind != "omen" and not rarity.is_empty(): lines.append(rarity.capitalize())
 	if kind != "equipment": lines.append(str(definition.get("description", "")))
 	var panel: PanelContainer = Tooltip.make_lines(str(definition.get("name", id)), lines, DETAIL_PANEL_WIDTH)
+	Tooltip.append_glossary(panel, str(definition.get("description", "")))
 	panel.set_meta("reward_id", id)
 	# The native tooltip surface has a -1 ornament. Raise this embedded panel
 	# once so that ornament paints above the event's opaque painting/panel.

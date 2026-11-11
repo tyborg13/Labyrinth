@@ -182,9 +182,15 @@ Encounter calibration is also important:
   compare realized movement/control, AOE, and execute value by
   `objective_type` analytics cohorts and call out objective-specific strengths
   during review.
-- A complete run has six four-depth sequences. The first three depths of each
-  sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
-  boss gate. The first five gates draw Zekarion and the earth, fire, air, and
+- Legacy runs have six four-depth sequences with about `3`, `4`, and `5`
+  enemies before each boss gate. In section-map table fights the tier is the
+  minimum of the depth-band tier and the current section fight-number tier:
+  fights `1–2` → tier `1`, `3–4` → tier `2`, `5+` → tier `3`. Caps after token
+  expansion are tier ceilings `3/5/6`, further limited by fight-number caps
+  `3/3/4/5/5/6` for k `1–6`; later fights retain the final cap. The global
+  `max_units` remains an additional bound. Count the
+  guided tutorial, specials, Guardians and resolved mystery fights, excluding
+  bosses. Enemy stats still use depth; intrinsic card coefficients are unchanged. The first five gates draw Zekarion and the earth, fire, air, and
   ice dragons in a seeded random order without repeats. Noctyrax, the Shadow
   Dragon, is always the sixth and final gate at depth `24`. New section-map runs
   budget 66 room visits and 40 fights including bosses across six sections;

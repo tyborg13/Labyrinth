@@ -1,0 +1,107 @@
+{
+  "min_images": 5,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/01_tutorial_step_2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/02_map_legend_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/03_graftwright_node_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/04_board_gear_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*/05_death_midfight_embers.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ],
+  "runtime_assertions": {
+    "02_map_legend_hover.png": {
+      "surface": "section_map",
+      "tooltip_kind": "native_legend",
+      "tooltip_text": "Bring two gear pieces of the same kind; one inherits the other's card.",
+      "displayed_tooltip_text": "BRING TWO GEAR PIECES OF THE SAME KIND; ONE INHERITS THE OTHER'S CARD."
+    },
+    "03_graftwright_node_hover.png": {
+      "surface": "section_map",
+      "tooltip_kind": "node_preview",
+      "tooltip_text": "Graftwright\nBring two gear pieces of the same kind; one inherits the other's card.\nCurrent room",
+      "displayed_tooltip_text": "GRAFTWRIGHT\nBring two gear pieces of the same kind; one inherits the other's card.\nCurrent room"
+    }
+  }
+}

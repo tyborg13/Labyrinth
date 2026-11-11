@@ -256,8 +256,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_CONFIRM_INTENT: {
 		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 10,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Skitter Strike",
-		"pointer_text": "This crawler will move up to 3 tiles, then attack for 4 damage.",
-		"controller_text": "This crawler will move up to 3 tiles, then attack for 4 damage.",
+		"pointer_text": "This crawler will move up to 2 tiles, then hit you for 4 and make you Bleed.",
+		"controller_text": "This crawler will move up to 2 tiles, then hit you for 4 and make you Bleed.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},

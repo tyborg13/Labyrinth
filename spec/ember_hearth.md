@@ -6,10 +6,11 @@ unchanged. The name describes the existing refuge, without adding new lore.
 
 ## Decision and hierarchy
 
-The player chooses one use of the hearth: **Linger** restores up to 4 HP and
+The player chooses one use of the hearth: **Linger** restores up to 6 HP and
 continues, **Embrace** banks held Embers and ends the run, or **Draw Strength**
 spends the displayed level cost for one level and a bankable skill point. Rules,
-costs, healing amount, and progression outcomes are unchanged. The Linger chip
+costs and progression outcomes are unchanged. Umbra-depth `hearth_heal_delta`
+still modifies the base heal. The Linger chip
 shows the actual capped heal (or Full Health); Embrace shows the banked amount;
 Draw Strength distinguishes a skill point from immediately learning a skill.
 

@@ -1,5 +1,8 @@
 extends RefCounted
 
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
+
 const CardDisplay = preload("res://scripts/card_display_overrides.gd")
 
 # Shared run/Chronicle presentation. The caller owns rules and progression;
@@ -11,6 +14,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const BOARD_GEAR_CLAIM_TEXT: String = "Step on it to claim. It crumbles when the fight ends."
 const CARD_BASE_SIZE := Vector2(250, 352)
 const CARD_TOOLTIP_SIZE := Vector2(224, 224 * 352.0 / 250.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE := Vector2(224, 224 * 352.0 / 250.0)
@@ -50,9 +54,9 @@ func card_tooltip(card_id: String, interactive: bool = false, destination: Strin
 		column.add_child(destination_label)
 	else:
 		margin.add_child(card_preview(card_id, CARD_TOOLTIP_SIZE, interactive))
-	return panel
+	return with_keywords(panel, [card_id])
 
-func equipment_tooltip(equipment_id: String, interactive: bool = false) -> Control:
+func equipment_tooltip(equipment_id: String, interactive: bool = false, board_pickup: bool = false) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var accent := Color(GameData.equipment_accent(equipment_id))
 	var panel := PanelContainer.new()
@@ -104,13 +108,13 @@ func equipment_tooltip(equipment_id: String, interactive: bool = false) -> Contr
 	vbox.add_child(card_row)
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id, state):
 		card_row.add_child(card_preview(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE, interactive))
-	if equipment_locked:
+	if equipment_locked or board_pickup:
 		var locked_label := Label.new()
-		locked_label.text = "Locked in combat"
+		locked_label.text = BOARD_GEAR_CLAIM_TEXT if board_pickup else "Locked in combat"
 		UiTypography.set_label_size(locked_label, UiTypography.SIZE_CAPTION)
 		locked_label.add_theme_color_override("font_color", Palette.PREVIEW_LOCKED)
 		vbox.add_child(locked_label)
-	return panel
+	return with_keywords(panel, GameData.equipment_cards(equipment_id, state))
 
 func card_preview(card_id: String, card_size: Vector2, interactive: bool = false) -> Control:
 	# Load the card scene only when a preview is requested, outside menu boot.
@@ -142,6 +146,7 @@ static func text_tooltip(text: String, relic_id: String = "") -> Control:
 	if text.strip_edges().is_empty():
 		return null
 	var panel: Control = Tooltip.make_text(text)
+	Tooltip.append_glossary(panel, text)
 	if not relic_id.is_empty():
 		panel.set_meta("relic_id", relic_id)
 	return panel
@@ -158,3 +163,40 @@ static func granted_card_row() -> HFlowContainer:
 	row.add_theme_constant_override("h_separation", 10)
 	row.add_theme_constant_override("v_separation", 10)
 	return row
+
+# Embed the combat panels inside the native popup's own bounds. A top-level
+# follow stack would be clipped by the popup window outside combat.
+func with_keywords(preview: Control, card_ids: Array) -> Control:
+	var row := HBoxContainer.new()
+	# Preserve the framed owner type used by equipment pickup inspection.
+	# The transparent outer panel adds no padding or material to the existing
+	# side-by-side card and keyword panels.
+	var owner := PanelContainer.new()
+	owner.name = "CardInspectionWithKeywords"
+	owner.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	owner.mouse_filter = preview.mouse_filter
+	owner.add_child(row)
+	row.mouse_filter = preview.mouse_filter
+	for key: StringName in preview.get_meta_list(): owner.set_meta(key, preview.get_meta(key))
+	preview.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_theme_constant_override("separation", int(Stack.CARD_GAP))
+	row.add_child(preview)
+	var column := VBoxContainer.new()
+	column.name = "InspectionKeywordPanels"
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", Stack.STACK_SEPARATION)
+	row.add_child(column)
+	var seen: Dictionary = {}
+	for id: String in card_ids:
+		var card: Dictionary = card_definition(id)
+		var rows: Array = CardDisplay.for_card(id, state, card)["summary_rows"] if use_run_display else ActionIcons.rows_for_card(card)
+		var leading: Array = []
+		if ActionIcons.card_is_rite(card): leading.append("rite")
+		for entry: Dictionary in ActionIcons.tooltip_entries_for_rows(rows, leading):
+			var key: String = str(entry.get("semantic_key", entry["tooltip"]))
+			if seen.has(key): continue
+			seen[key] = true
+			var panel: PanelContainer = Tooltip.make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]))
+			panel.set_meta("semantic_key", key)
+			column.add_child(panel)
+	return owner

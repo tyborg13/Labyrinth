@@ -150,3 +150,12 @@ static func _panel_style(content_margin: float = 16.0) -> StyleBoxFlat:
 	style.shadow_size = 0
 	style.shadow_offset = Vector2.ZERO
 	return style
+
+# Native popup windows cannot retain a second nested hover popup. Include the
+# referenced definitions in the owning tooltip so HUD inspection is complete.
+static func append_glossary(panel: Control, markup: String) -> void:
+	var box: VBoxContainer = panel.get_child(0) as VBoxContainer
+	for id: String in InlineIconText.concept_keys(markup):
+		if box.has_meta("glossary_" + id): continue
+		box.set_meta("glossary_" + id, true)
+		box.add_child(InlineIconText.glossary_panel(InlineIconText.ActionIcons.tooltip(id)))

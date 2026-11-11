@@ -200,6 +200,14 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		hand.slice(0, 3) == [GuidedCombatScenario.PREVIEW_CARD_ID, GuidedCombatScenario.KILL_CARD_ID, GuidedCombatScenario.REFUND_CARD_ID],
 		"The authored opening hand should deterministically stage Pale Spark, Quick Stab, then Brace"
 	)
+	var actual_cards: Array = hand.duplicate()
+	actual_cards.append_array(state["deck"]["draw"])
+	var starter_cards: Array = preload("res://scripts/game_data.gd").starting_deck()
+	actual_cards.sort()
+	starter_cards.sort()
+	expect.call(actual_cards == starter_cards, "Tutorial hand and draw preserve every real starter copy with no injected cards")
+	var support_intent: Dictionary = _enemy_for_id(state, GuidedCombatScenario.SUPPORT_ENEMY_ID)["intent"]
+	expect.call(support_intent == preload("res://scripts/game_data.gd").enemy_def("crawler")["intents"][0], "Tutorial Skitter Strike uses production Move 2, Melee 4 and Bleed 1")
 	var target_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID)
 	expect.call(int(target_before.get("hp", 0)) == 12, "The authored target should have the exact 12 HP needed by the scripted two-card kill")
 

@@ -1976,7 +1976,7 @@ func _ready() -> void:
 		and bool(ProjectSettings.get_setting("telemetry/performance/section_instrumentation_enabled", true))
 	)
 	_record_runtime_performance_phase("startup_settings_and_prefix", prefix_started)
-	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
+	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel").bind(false, true)
 	board_view.item_tooltip_builder = Callable(self, "_build_item_pickup_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
@@ -2467,7 +2467,7 @@ func _on_input_modality_changed(modality: String) -> void:
 	if _grimoire_detail_body != null and _grimoire_detail_body.visible:
 		var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
 		if not entry.is_empty() and str(entry.get("card_id", "")).is_empty():
-			_grimoire_detail_body.text = _grimoire_body_text(entry)
+			InlineIconText.apply_to(_grimoire_detail_body, _grimoire_body_text(entry), InlineIconText.DEFAULT_ICON_SCALE, true)
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if modality == InputRouterScript.MODALITY_CONTROLLER and _drag_card_index >= 0 and router != null and router.modality_change_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		# Right-stick Empower edits the held card; it does not transfer the drag
@@ -5299,6 +5299,7 @@ func _pre_battle_view_key(state: Dictionary, preview: Dictionary) -> Dictionary:
 		"defiance_capacity": _run_engine.defiance_capacity(state),
 		"defiance_remaining": _run_engine.defiance_remaining(state),
 		"loadout_unread_count": _run_engine.loadout_unread_count(state),
+		"has_unread_spare_gear": preload("res://scripts/pre_battle_view.gd").has_unread_spare_gear(_run_engine, state),
 		"viewport": get_viewport_rect().size,
 		"scale": UiTypography.ui_scale(self),
 		"skin": _ui_skin.get_instance_id(),
@@ -6991,12 +6992,12 @@ func _refresh_grimoire_detail() -> void:
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		_populate_grimoire_card_detail(card_id)
 	elif not equipment_id.is_empty():
-		_grimoire_detail_body.text = body_text
+		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
 		_grimoire_detail_body.visible = not body_text.is_empty()
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		_populate_grimoire_equipment_detail(equipment_id)
 	else:
-		_grimoire_detail_body.text = body_text
+		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
 		_grimoire_detail_body.visible = true
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
@@ -16195,7 +16196,8 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_color_override("default_color", UiPalette.TEXT)
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
-	InlineIconText.apply_to(description, str(relic.get("description", "")))
+	InlineIconText.apply_to(description, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
+	description.mouse_filter = Control.MOUSE_FILTER_PASS
 	vbox.add_child(description)
 
 func _configure_relic_choice_focus() -> void:
@@ -31634,8 +31636,8 @@ func _build_card_tooltip_panel(card_id: String, interactive: bool = false, picku
 			destination = "Item · Ready in hand" if hand.size() < CombatEngineScript.MAX_HAND_SIZE else "Item · Top of draw pile"
 	return _item_preview_builder().card_tooltip(card_id, interactive, destination)
 
-func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false) -> Control:
-	return _item_preview_builder().equipment_tooltip(equipment_id, interactive)
+func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false, board_pickup: bool = false) -> Control:
+	return _item_preview_builder().equipment_tooltip(equipment_id, interactive, board_pickup)
 
 func _build_card_preview_widget(card_id: String, card_size: Vector2, interactive: bool = false) -> Control:
 	return _item_preview_builder().card_preview(card_id, _normalized_card_size(card_size), interactive)
@@ -31742,7 +31744,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 	await _animate_equipment_swap_fx(equipment_id, before_id, slot, source_rect, previous_slot_rect)
 	_schedule_controller_modal_refresh()
 
-func _equipment_tooltip(equipment_id: String) -> String:
+func _equipment_tooltip(equipment_id: String, board_pickup: bool = false) -> String:
 	if equipment_id.is_empty():
 		return ""
 	var item: Dictionary = GameData.equipment_def(equipment_id)
@@ -31753,7 +31755,9 @@ func _equipment_tooltip(equipment_id: String) -> String:
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		var card: Dictionary = GameData.card_def(str(card_id_var))
 		lines.append(str(card.get("name", card_id_var)))
-	if not _equipment_overlay_can_change():
+	if board_pickup:
+		lines.append(ItemPreviewBuilders.BOARD_GEAR_CLAIM_TEXT)
+	elif not _equipment_overlay_can_change():
 		lines.append("Locked in combat")
 	return "\n".join(lines)
 

@@ -8,6 +8,7 @@ func _initialize() -> void:
 	Suite._test_weights(_expect)
 	Suite._test_history(_expect)
 	Suite._test_run_history(_expect)
+	Suite._test_section_resume(_expect)
 	Suite._test_legacy(_expect)
 	print("Encounter base totals: ", JSON.stringify(Suite.expansion_report()))
 	_test_analytics()

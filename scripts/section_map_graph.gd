@@ -98,6 +98,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 			if layout.is_empty():
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 		if revision >= 6 and not Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id), {}, revision):
+			_diagnostic_v5(section_diagnostics, "fallback")
 			layout = _fallback_layout_v7(seed_value, index) if revision >= 7 else _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 			# Placement mutates the layout, so release builds must execute it
 			# independently of the debug-only assertion.
@@ -138,7 +139,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 				var guardian: Dictionary = Guardians.for_boss(boss_id)
 				node.merge({"element": guardian["element"], "boss_id": boss_id, "guardian_id": guardian["id"], "guardian_relic": guardian["relic"], "map_landmark": true}, true)
 				guardians.append(coord)
-			if index == 5 and cell.x in [ceili(count / 2.0), count - 1]: node["map_landmark"] = true
+			if index == 5 and (cell.x in [ceili(count / 2.0), count - 1] or (revision >= 7 and cell.x == V7_MID_HEARTH_STEP)): node["map_landmark"] = true
 			rooms[key(coord)] = node
 		info["guardians"] = guardians
 		info["guardian"] = guardians[0]
@@ -253,6 +254,12 @@ const V7_TYPE_NODE_BUDGET: int = 64
 const V7_FIGHT_SLACK: int = 2 # a route may run two fights under the section target
 const V7_FORBID_UP: int = 1
 const V7_FORBID_DOWN: int = 2
+# ptf-02: reserve a non-fight row before the guaranteed Relic row. Step 4 is
+# in band 2 for every section length, including Section I's capacity spill.
+# Only new revision-7 generation uses it; stored maps and retained revisions
+# are never rewritten. Reserving the row in the solver avoids converting an
+# already assigned fight, Guardian, special or guaranteed Relic into a Hearth.
+const V7_MID_HEARTH_STEP: int = 4
 
 static func _section_layout_v7(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
@@ -319,14 +326,14 @@ static func _web_layout_v7(rng: RandomNumberGenerator, index: int, count: int, d
 		var children: Dictionary = {}
 		var legal: bool = true
 		for step: int in range(1, count - 1):
-			var forced: bool = step + 1 in [mid, count - 1]
+			var forced: bool = step + 1 in [V7_MID_HEARTH_STEP, mid, count - 1]
 			var eligible_left: int = 0
 			for later: int in range(step, count - 1):
-				if later + 1 not in [mid, count - 1]: eligible_left += 1
+				if later + 1 not in [V7_MID_HEARTH_STEP, mid, count - 1]: eligible_left += 1
 			var row: Dictionary = {}
 			for row_try: int in range(V7_ROW_TRIES):
 				_diagnostic_v5(diagnostics, "row_samples")
-				row = _web_row_v7(rng, step, rows[step], forbid, run_in, choices_in, forced, eligible_left, int(step + 2 in [mid, count - 1]))
+				row = _web_row_v7(rng, step, rows[step], forbid, run_in, choices_in, forced, eligible_left, int(step + 2 in [V7_MID_HEARTH_STEP, mid, count - 1]))
 				if not row.is_empty(): break
 			if row.is_empty():
 				legal = false
@@ -380,6 +387,9 @@ static func _web_row_v7(rng: RandomNumberGenerator, step: int, lanes: Array, for
 			allowed.append(target)
 		if allowed.is_empty(): return {}
 		var run: int = int(run_in[cell])
+		# Two fixed rows can be adjacent (Hearth then Relic in Section I).
+		# Reject a forced fourth single exit rather than relaxing choice cadence.
+		if forced and run > V7_MAX_RUN: return {}
 		var need_fork: bool = not forced and (run >= V7_MAX_RUN or run + gather_ahead > V7_MAX_RUN or (int(choices_in[cell]) < V7_MIN_CHOICES and int(choices_in[cell]) + eligible_left <= V7_MIN_CHOICES))
 		var exits: int = 1 if forced else _weighted_index_v7(rng, V7_EXIT_WEIGHTS) + 1
 		if need_fork: exits = maxi(exits, 2)
@@ -420,7 +430,7 @@ static func _layout_from_children_v7(rows: Dictionary, children: Dictionary, cou
 		for target: Vector2i in children[cell]:
 			if not parents.has(target): parents[target] = []
 			parents[target].append(cell)
-	return {"rows": rows, "children": children, "parents": parents, "order": order, "walks": [], "nodes": {}, "door_mode": "lane", "lane_count": V7_LANE_COUNT, "fight_slack": V7_FIGHT_SLACK}
+	return {"rows": rows, "children": children, "parents": parents, "order": order, "walks": [], "nodes": {}, "door_mode": "lane", "lane_count": V7_LANE_COUNT, "fight_slack": V7_FIGHT_SLACK, "mid_hearth_step": V7_MID_HEARTH_STEP}
 
 # Revision 7 doors face the destination's lane; the boss and the next section's
 # threshold always sit straight ahead.
@@ -883,6 +893,7 @@ static func _prepare_types(layout: Dictionary, seed_value: int, index: int, coun
 		var rng := RandomNumberGenerator.new()
 		rng.seed = absi(seed_value * NODE_SEED_RUN_MULTIPLIER + index * NODE_SEED_SECTION_MULTIPLIER + cell.x * NODE_SEED_STEP_MULTIPLIER + cell.y * NODE_SEED_LANE_MULTIPLIER)
 		var type: String = "combat" if cell.x == 1 else ("campfire" if cell.x == count - 1 else ("treasure" if cell.x == ceili(count / 2.0) else ""))
+		if cell.x == int(layout.get("mid_hearth_step", -1)): type = "campfire"
 		layout["nodes"][cell] = {"type": type, "fixed": not type.is_empty(), "mystery_type": _weighted_roll(rng, MYSTERY_WEIGHTS), "combat_element": Elements.all_elements()[rng.randi_range(0, 4)]}
 
 # Weighted first rolls, then weighted re-rolls of offending assignments. Prefix
@@ -940,7 +951,7 @@ static func _prefix_type_legal(layout: Dictionary, cell: Vector2i, count: int, f
 	if int(node["max_guardians"]) > 1 or int(node["max_fights"]) > fights + 1: return false
 	var remaining_fights: int = 0
 	for step: int in range(cell.x + 1, count - 1):
-		if step != ceili(count / 2.0): remaining_fights += 1
+		if step != ceili(count / 2.0) and step != int(layout.get("mid_hearth_step", -1)): remaining_fights += 1
 	if int(node["min_fights"]) + remaining_fights < fights - int(layout.get("fight_slack", 1)): return false
 	for parent: Vector2i in layout["parents"].get(cell, []):
 		if type in ["guardian", "scavenger", "graftwright", "campfire", "treasure"] and str(layout["nodes"][parent]["type"]) == type: return false

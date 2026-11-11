@@ -134,7 +134,11 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var table_encounter: bool = _uses_encounter_tables(room)
 	var enemy_types: Array = []
 	if table_encounter:
-		encounter = _section_encounter(room, clampi(encounter_depth, 1, 3), rng)
+		var tier: int = clampi(encounter_depth, 1, 3)
+		if not _uses_legacy_encounter_picker(room):
+			tier = mini(tier, EncounterTables.fight_number_tier(int(room["fight_number"])))
+		encounter = _section_encounter(room, tier, rng)
+		if not encounter.is_empty(): encounter["tier"] = tier
 		# Invalid table loads and unavailable entries must take the complete legacy
 		# path, including placement. An empty combat is never a valid fallback.
 		table_encounter = not (encounter.get("units", []) as Array).is_empty()
@@ -258,6 +262,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	if hoarder: preload("res://scripts/hoarder_room_rules.gd").mark_layout(layout, ENEMY_SPAWN_SAFE_RADIUS)
 	if table_encounter:
 		layout["encounter_id"] = encounter["id"]
+		if not _uses_legacy_encounter_picker(room): layout["encounter_tier"] = encounter["tier"]
 		layout["biome"] = room["encounter_biome"]
 	if room_type == "boss": DragonBossLibrary.configure_layout(layout)
 	if room_type == "guardian":
@@ -339,8 +344,13 @@ func _add_depth_guardian_helpers(layout: Dictionary, room: Dictionary) -> void:
 func _uses_encounter_tables(room: Dictionary) -> bool:
 	return int(room.get("section_map_layout_revision", 0)) >= 4 and room.has("section_index") and str(room.get("type", "")) == "combat" and (room.get("npcs", []) as Array).is_empty() and not bool(room.get("encounter_tables_exempt", false))
 
+# Missing k identifies direct/tool calls and pre-change rooms. Preserve their
+# original depth tier, weighted expansion/RNG and complete layout key shape.
+func _uses_legacy_encounter_picker(room: Dictionary) -> bool:
+	return not room.has("fight_number") or bool(room.get("encounter_legacy", false))
+
 func _section_encounter(room: Dictionary, tier: int, rng: RandomNumberGenerator) -> Dictionary:
-	return EncounterTables.pick(tier, str(room.get("element", ElementData.NONE)), str(room["encounter_biome"]), room.get("encounter_history", []), rng)
+	return EncounterTables.pick(tier, str(room.get("element", ElementData.NONE)), str(room["encounter_biome"]), room.get("encounter_history", []), rng, _uses_legacy_encounter_picker(room), int(room.get("fight_number", 0)))
 
 func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> void:
 	var count: int = int(room.get("omen_extra_enemies", 0))
