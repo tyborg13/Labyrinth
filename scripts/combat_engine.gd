@@ -2447,7 +2447,7 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	for enemy_var: Variant in next_state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
-		var initial_enemy: Dictionary = _normalized_enemy(enemy_var as Dictionary)
+		var initial_enemy: Dictionary = preload("res://scripts/combat_preview_known_losses.gd").enemy_record(self, enemy_var as Dictionary)
 		if int(initial_enemy.get("hp", 0)) <= 0:
 			continue
 		if (initial_enemy.get("intent", {}) as Dictionary).is_empty():
@@ -2456,11 +2456,14 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	_record_runtime_performance_phase("enemy_preview_visible_intents", performance_phase_started)
 	return {
 		"state": next_state,
+		"initial_state": state,
 		"steps": [],
 		"player_turn_before_state": {},
 		"initially_visible_enemy_ids": initially_visible_enemy_ids,
+		"losses_only": losses_only,
 		"choose_next_intents": not losses_only or not preload("res://scripts/combat_preview_known_losses.gd").can_defer_unrevealed_selection(self, state),
 		"revealed_enemy_ids": {},
+		"repeated_enemy_names": [],
 		"unrevealed_before_player": false,
 		"safety": 0,
 		"complete": combat_outcome(next_state) != "",
@@ -2493,15 +2496,17 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 	# resolver takes its own copy before applying any subsequent actor changes.
 	next_state = popped.get("state", next_state) as Dictionary
 	_record_runtime_performance_phase("enemy_preview_pop_result_duplicate", performance_phase_started)
-	if not (popped.get("reinforcement_steps", []) as Array).is_empty():
+	if not (popped.get("reinforcement_steps", []) as Array).is_empty() and not bool(cursor.get("losses_only", false)):
 		cursor["unrevealed_before_player"] = true
-		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		next_state = before_pop_state.duplicate(true)
-		_record_runtime_performance_phase("enemy_preview_reinforcement_restore_duplicate", performance_phase_started)
-		cursor["state"] = next_state
+		cursor["state"] = before_pop_state
 		cursor["complete"] = true
 		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
 		return cursor
+	if not (popped.get("reinforcement_steps", []) as Array).is_empty():
+		# An unseen arrival can change paths even before its own activation.
+		# Preserve the original information boundary while collecting known costs.
+		cursor["unrevealed_before_player"] = true
+		(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
 	if combat_outcome(next_state) != "":
 		cursor["state"] = next_state
 		cursor["player_turn_before_state"] = next_state.duplicate(true)
@@ -2514,6 +2519,8 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 		cursor["state"] = next_state
 		cursor["player_turn_before_state"] = next_state.duplicate(true)
 		cursor["complete"] = true
+		if bool(cursor.get("losses_only", false)):
+			preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
 		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
 		return cursor
 	match str(entry.get("kind", "")):
@@ -2525,14 +2532,24 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 			var enemy_id: int = int(entry.get("enemy_id", -1))
 			var enemy_index: int = _enemy_index_for_id(next_state, enemy_id)
 			if enemy_index >= 0:
-				var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+				var enemy: Dictionary = preload("res://scripts/combat_preview_known_losses.gd").enemy_record(self, (next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 				var intent: Dictionary = enemy.get("intent", {}) as Dictionary
 				var initially_visible_enemy_ids: Dictionary = cursor.get("initially_visible_enemy_ids", {}) as Dictionary
 				var revealed_enemy_ids: Dictionary = cursor.get("revealed_enemy_ids", {}) as Dictionary
 				if not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty():
 					cursor["unrevealed_before_player"] = true
-					next_state = before_pop_state.duplicate(true)
-					cursor["complete"] = true
+					if not initially_visible_enemy_ids.has(enemy_id):
+						(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
+					if revealed_enemy_ids.has(enemy_id) and is_enemy_visible_to_player(before_pop_state, enemy):
+						(cursor["repeated_enemy_names"] as Array).append(str(entry.get("name", enemy.get("type", ""))))
+					# Do not roll or apply a hidden second move. Continue to the other
+					# announced actors and the known next-draw cost instead of losing
+					# that evidence at the first unknown activation.
+					next_state["current_actor"] = {}
+					if not bool(cursor.get("losses_only", false)):
+						next_state = before_pop_state.duplicate(true)
+						cursor["complete"] = true
+
 				else:
 					revealed_enemy_ids[enemy_id] = true
 					cursor["revealed_enemy_ids"] = revealed_enemy_ids
@@ -2552,14 +2569,20 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					else:
 						enemy_index = _enemy_index_for_id(next_state, enemy_id)
 						if enemy_index >= 0:
-							enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+							enemy = preload("res://scripts/combat_preview_known_losses.gd").enemy_record(self, (next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 							if int(enemy.get("hp", 0)) > 0:
 								_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
 						next_state["current_actor"] = {}
 		_:
 			pass
+	if bool(cursor.get("losses_only", false)) and bool(cursor.get("complete", false)) and not (cursor.get("player_turn_before_state", {}) as Dictionary).is_empty():
+		preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
+		next_state = cursor["state"]
 	cursor["state"] = next_state
 	if int(cursor.get("safety", 0)) >= 100:
+		if not bool(cursor.get("complete", false)):
+			cursor["unrevealed_before_player"] = true
+			cursor["forecast_limit_reached"] = true
 		_log(next_state, "The initiative clock stalls.")
 		cursor["complete"] = true
 	_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
@@ -2567,10 +2590,14 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 
 func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 	return {
+		"initial_state": cursor.get("initial_state", {}),
 		"state": cursor.get("state", {}) as Dictionary,
 		"steps": cursor.get("steps", []) as Array,
 		"player_turn_before_state": cursor.get("player_turn_before_state", {}) as Dictionary,
 		"unrevealed_before_player": bool(cursor.get("unrevealed_before_player", false)),
+		"repeated_enemy_names": cursor.get("repeated_enemy_names", []),
+		"fatigue_loss": int(cursor.get("fatigue_loss", 0)),
+		"forecast_limit_reached": bool(cursor.get("forecast_limit_reached", false)),
 	}
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
@@ -3019,7 +3046,12 @@ func _resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 	}
 
 func prepare_next_player_turn(state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state.duplicate(true)
+	return _prepare_next_player_turn_in_place(state.duplicate(true))
+
+# Only callers owning an isolated snapshot may use this entry point. The PASS
+# cursor already retains its pre-turn receipt snapshot; a second clone here
+# copied the same complete board only to throw it away after summing losses.
+func _prepare_next_player_turn_in_place(next_state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))

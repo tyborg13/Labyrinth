@@ -3,6 +3,7 @@ extends Node
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AFTER_DRAW_RESOLUTION_META: String = "persistence_rules_after_draw"
 var _host: WeakRef
 var _observed_analytics_failure: int = 0
@@ -95,9 +96,28 @@ static func _invalidate_replay_cursors(scene: Node) -> void:
 	scene.set_meta("perf03_analytics_replay_needed", true)
 
 static func persist(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
+	return _persist_snapshot(scene, run_state, hold_for_animation, boundary, false)
+
+static func persist_owned(scene: Node, owned_state: Dictionary, boundary: String) -> Dictionary:
+	# Transfer only a fresh _committed_run_state() result. The caller must never
+	# mutate or reuse it. Public/held snapshot callers retain defensive copying;
+	# combat queues take ownership after the last mutation (play-time sampling).
+	return _persist_snapshot(scene, owned_state, false, boundary, true)
+
+static func _queue_owned_snapshot(state: Dictionary, failure_boundary: String) -> bool:
+	# Identical request, path capture, callback and supersession policy to
+	# ProgressionStore.queue_run_state. Only this detached snapshot's ownership
+	# differs. After submission, opening/surface/map analytics only read it;
+	# only the recursively read-only map journal may be shared with a live or
+	# held snapshot. All mutable fields belong exclusively to this request.
+	var request: Dictionary = {"state": state, "failure_boundary": failure_boundary, "reported": false}
+	ProgressionStore._run_writer.submit(ProgressionStore._save_queued_run_state_at.bind(ProgressionStore._run_storage_path, request), true)
+	return true
+
+static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String, owns_snapshot: bool) -> Dictionary:
 	mark_resolution_frame()
 	var performance_total_started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-	var state: Dictionary = run_state.duplicate(true)
+	var state: Dictionary = run_state if owns_snapshot else SectionMapGraph.checkpoint_copy(run_state)
 	var performance_phase_started: int = scene._record_runtime_performance_phase("combat_checkpoint_persist_input_duplicate", performance_total_started)
 	if state.is_empty() or bool(state.get("debug_boss_run", false)):
 		return {"state": state, "saved": false}
@@ -135,14 +155,19 @@ static func persist(scene: Node, run_state: Dictionary, hold_for_animation: bool
 	else:
 		var durable_boundary: bool = boundary == "explicit_save" or boundary.ends_with("_outbox") or boundary.ends_with("_ack") or boundary.ends_with("_cursor")
 		var failure_boundary: String = "" if durable_boundary else (boundary if not boundary.is_empty() else "unspecified")
-		saved = ProgressionStore.queue_run_state(state, failure_boundary) if mode == "combat" else ProgressionStore.save_run_state(state)
+		if mode == "combat":
+			# Public/held callers still receive independently mutable run fields;
+			# the queued request shares only the guarded journal prefix.
+			saved = _queue_owned_snapshot(state if owns_snapshot else SectionMapGraph.checkpoint_copy(state), failure_boundary)
+		else:
+			saved = ProgressionStore.save_run_state(state)
 		# Durable outbox/cursor protocols must observe the actual result, never
 		# queue acceptance. These explicit barriers remain synchronous.
 		if mode == "combat" and durable_boundary:
 			saved = ProgressionStore.flush_pending_run_saves() and saved
 	performance_phase_started = scene._record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
 	if hold_for_animation:
-		scene._committed_run_state_override = state.duplicate(true)
+		scene._committed_run_state_override = SectionMapGraph.checkpoint_copy(state)
 	scene._record_runtime_performance_phase("combat_checkpoint_persist_hold_duplicate", performance_phase_started)
 	scene._save_in_progress = false
 	if not saved:

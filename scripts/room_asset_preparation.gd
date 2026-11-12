@@ -1,5 +1,7 @@
 extends RefCounted
 
+static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
+
 const Assets = preload("res://scripts/asset_loader.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const GraftRig = preload("res://scripts/graftwright_cutout/rig.gd")
@@ -22,6 +24,7 @@ static func present_frame(tree: SceneTree) -> void:
 	else: await RenderingServer.frame_post_draw
 
 static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
+	var _hitch_continuation: RefCounted
 	if not active(scene, generation): return
 	var room: Dictionary = scene._run_engine.room_metadata(state, state.get("current_room", Vector2i.ZERO))
 	var kind: String = str(room.get("type", ""))
@@ -37,14 +40,24 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 		for file: String in GRAFT_ART_FILES: textures[GraftView.ART.path_join(file)] = false
 	# Use the shared main-thread upload path here too. Threaded Texture2D
 	# requests can race canvas polygon retirement in Godot 4.6.1 (qa-82).
+	if _hitch_trace_enabled: _hitch_continuation = null
 	await Assets.prepare_textures_for(tree.root, textures, frame, alive)
+	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:room_asset_preparation:begin_for:1")
 	if not active(scene, generation): return
 	if kind == "graftwright":
 		var path: String = GraftRig.GRAFT_BASE.path_join("front.json")
+		if _hitch_trace_enabled: _hitch_continuation = null
 		var prepared: Variant = await Assets.prepare_cpu_value_for(tree.root, RigData.prepare_owned_source.bind(path), frame, alive)
+		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:room_asset_preparation:begin_for:2")
 		if not active(scene, generation) or not prepared is RefCounted: return
 		var source: RefCounted = RigData.publish_owned_source(path, prepared)
 		if source != null:
 			scene._encounter_cpu_asset_holds.append(source)
 			textures.merge(RigData.source_texture_manifest(source, path))
+	if _hitch_trace_enabled: _hitch_continuation = null
 	await Assets.prepare_textures_for(tree.root, textures, frame, alive)
+	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:room_asset_preparation:begin_for:3")
+
+# Resolve only on the enabled path; no telemetry preload dependency.
+static func _hitch_sink() -> Node:
+	return (Engine.get_main_loop() as SceneTree).root.get_node("PerformanceTelemetry")

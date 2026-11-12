@@ -4574,6 +4574,8 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	board.free()
 
 func _test_terrain_health_bars_are_contextual() -> void:
+	# Classic "Always" rules; "On hover and aim" visibility lives in board_plate_visibility.gd.
+	preload("res://scripts/settings_store.gd")._applied_board_health_bars = preload("res://scripts/settings_store.gd").BOARD_HEALTH_ALWAYS
 	var board := CombatBoardView.new()
 	var terrain_tile := Vector2i(3, 4)
 	var terrain := {
@@ -4609,6 +4611,7 @@ func _test_terrain_health_bars_are_contextual() -> void:
 	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Terrain with a pending damage preview should show its health bar")
 	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain health bars should read terrain damage previews by terrain key")
 	board.free()
+	preload("res://scripts/settings_store.gd")._applied_board_health_bars = preload("res://scripts/settings_store.gd").DEFAULT_BOARD_HEALTH_BARS
 
 func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
@@ -6540,7 +6543,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var wait_lapping_summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(bool(wait_lapping_summary.get("unrevealed_before_player", false)), "A pass at +19 should include the enemy's unrevealed second activation")
 	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == 5, "Wait lapping should retain the first activation's revealed health damage")
-	_assert_pass_preview_chip(instance, ["-5 +?"], false, true, "Wait lapping pass at +19")
+	_assert_pass_preview_chip(instance, ["-5 + ? 2ND MOVE"], false, true, "Wait lapping pass at +19")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
@@ -6563,7 +6566,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var defiance_risk_text: String = str((instance.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
 	_assert(defiance_risk_text.contains("DEFIANCE -1") and defiance_risk_text.contains("4 HP") and defiance_risk_text.contains("0 LEFT"), "Action-context risk should show both the spent charge and resulting HP")
 	var defiance_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
-	_assert(defiance_chip != null and defiance_chip.tooltip_text.contains("4/24 HP") and defiance_chip.tooltip_text.contains("net -1 HP"), "Defiance preview tooltip should explain the projected end state and net HP consequence")
+	_assert(defiance_chip != null and defiance_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nBefore your next turn: −7 Health\nDefiance: spend 1 charge and return at 4/24 Health.", "Defiance preview tooltip should retain the exact approved loss and resulting Health explanation")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("defiance_umbra"))
 	await process_frame
@@ -6584,10 +6587,10 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "unrevealed pass")
-	var danger_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	_assert(danger_line != null and danger_line.text.begins_with("+10") and danger_line.text.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
+	var danger_line: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
+	_assert(danger_line.begins_with("+10") and danger_line.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
-	_assert(danger_chip != null and danger_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nEnemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
+	_assert(danger_chip != null and danger_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nBefore your next turn: no damage\nTunnel Crawler acts twice before you. Its second move is hidden.", "DANGER! pass preview should expose the unrevealed-action tooltip")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("umbra"))
 	await process_frame
@@ -6596,8 +6599,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var umbra_summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(bool(umbra_summary.get("umbra_unknown_before_player", false)), "Pass preview should flag a hidden presence acting before the player")
 	_assert(int(umbra_summary.get("hp_loss", 0)) == 0, "Pass preview should not leak hidden-intent damage")
-	var umbra_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	_assert(umbra_line != null and umbra_line.text.contains("UNKNOWN"), "Hidden pass preview should explain uncertainty in its compact forecast ribbon")
+	var umbra_line: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
+	_assert(umbra_line.contains("UNKNOWN"), "Hidden pass preview should explain uncertainty in its compact forecast ribbon")
 
 	# A revealed Eclipse precedes a guard's first activation. Staying nearby keeps
 	# both intents visible; moving away hides the guard without either enemy lapping.
@@ -11386,13 +11389,13 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 	instance.call("_layout_choice_button_overlay")
 
 func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
-	var forecast: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	var forecast: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
 	var summary: Dictionary = instance.call("_pass_preview_summary")
-	var fragment: String = ("+?" if bool(instance.call("_pass_preview_known_damage_suffix", summary)) else "UNKNOWN") if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
-	_assert(forecast != null and forecast.is_visible_in_tree() and forecast.text.contains(fragment), "%s should retain risk in the existing forecast ribbon: %s" % [context, fragment])
+	var fragment: String = ("+ ? 2ND MOVE" if bool(instance.call("_pass_preview_known_damage_suffix", summary)) else "UNKNOWN") if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
+	_assert(forecast.contains(fragment), "%s summary should retain risk: %s" % [context, fragment])
 	_assert(str(summary.get("tone", "safe")) == expected_tone, "%s should retain its risk tone" % context)
 	var pass_chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
-	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s forecast remains visible while Pass is unavailable during targeting" % context)
+	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s Pass remains unavailable during targeting" % context)
 
 func _label_text_fits(label: Label) -> bool:
 	if label == null:
@@ -11430,12 +11433,12 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	var row: Node = instance.find_child("PassPreviewDamageRow", true, false)
 	_assert(chip != null, "%s should render the pass preview chip" % context)
-	_assert(row != null, "%s should render the pass preview damage row" % context)
+	_assert(row == null, "%s has no redundant damage row" % context)
 	if chip != null:
 		var chip_rect: Rect2 = chip.get_global_rect()
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
 		var pass_art: TextureRect = chip.find_child("PassForecastFrameArtHost", true, false) as TextureRect
-		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 100) and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "normal", "%s pass forecast should use the native v2 normal frame" % context)
+		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 66) and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "normal", "%s pass forecast should use the native v2 normal frame" % context)
 		_assert(chip.find_child("PassFocusEdgeCue", true, false) != null and chip.find_child("PassActionStateGlow", true, false) == null, "%s pass forecast should reserve code-drawn treatment for the narrow focus edge, not a colored action wash" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
 		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/PilesBar") as Control
@@ -11460,56 +11463,13 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
 			_assert(not tracker_rect.intersects(chip_rect), "%s action-step tracker should stay clear of Pass" % context)
-	if row == null:
-		return
-	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
-	var forecast_text: String = actual_texts[0] if not actual_texts.is_empty() else ""
+	preload("res://tests/helpers/pass_forecast_checks.gd").assert_rows(instance, _assert, context)
+	var forecast_text: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
 	for expected_text: Variant in expected_texts:
-		_assert(forecast_text.contains(str(expected_text)), "%s forecast ribbon should include %s, got %s" % [context, str(expected_text), forecast_text])
-	var forecast_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	var action_label: Label = instance.find_child("PassActionLabel", true, false) as Label
-	var wait_time: int = int(forecast_line.get_meta("pass_preview_wait_time", 0)) if forecast_line != null else 0
-	var lead: String = "+%d" % wait_time if wait_time > 0 else "TURN END"
-	_assert(forecast_line != null and forecast_line.text.begins_with(lead), "%s pass preview should lead with its Wait cost or turn end" % context)
-	_assert(forecast_line != null and _label_text_fits(forecast_line), "%s pass forecast ribbon should fit its full text" % context)
-	_assert(action_label != null and absf(action_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should be centered in the main action bay" % context)
-	_assert((forecast_line != null and forecast_line.text.contains("DEFEAT")) == expect_defeat, "%s defeat forecast presence should be %s" % [context, str(expect_defeat)])
-	_assert((forecast_line != null and (forecast_line.text.contains("UNKNOWN") or forecast_line.text.contains("+?") or forecast_line.text.contains("SAFE"))) == expect_danger or not expect_danger, "%s danger forecast should retain its compact risk result" % context)
-
-func _pass_preview_chip_damage_texts(row: Node) -> PackedStringArray:
-	var texts := PackedStringArray()
-	var line: Label = row.find_child("PassPreviewForecastLine", true, false) as Label
-	if line != null:
-		texts.append(line.text)
-	return texts
-
-func _pass_preview_chip_damage_labels(row: Node) -> Array[Label]:
-	var labels: Array[Label] = []
-	for label: Label in _labels_under(row):
-		if _pass_preview_chip_label_is_value(label):
-			labels.append(label)
-	return labels
-
-func _pass_preview_chip_label_is_value(label: Label) -> bool:
-	return [
-		"PassPreviewStoneSkinLoss",
-		"PassPreviewBlockLoss",
-		"PassPreviewHpLoss",
-		"PassPreviewDefianceSpent",
-		"PassPreviewHpAfterDefiance",
-		"PassPreviewSafe",
-		"PassPreviewUmbraUnknown",
-		"PassPreviewDefeat"
-	].has(str(label.name))
-
-func _pass_preview_chip_label_uses_icon(label: Label) -> bool:
-	return [
-		"PassPreviewStoneSkinLoss",
-		"PassPreviewBlockLoss",
-		"PassPreviewHpLoss",
-		"PassPreviewDefianceSpent",
-		"PassPreviewHpAfterDefiance"
-	].has(str(label.name))
+		_assert(forecast_text.contains(str(expected_text)), "%s forecast semantics include %s" % [context, str(expected_text)])
+	var summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(bool(summary.get("defeat", false)) == expect_defeat, context + " retains defeat semantics")
+	_assert(not expect_danger or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)), context + " retains uncertainty semantics")
 
 func _pass_preview_chip_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:
 	var best_tile: Vector2i = Vector2i(-1, -1)

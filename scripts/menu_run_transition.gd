@@ -10,6 +10,9 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunPreload = preload("res://scripts/menu_run_preload.gd")
 const InitialCpuAssets = preload("res://scripts/run_initial_cpu_assets.gd")
+# Travel with the menu's existing threaded dependency request. A first-use
+# load here can join the run-scene script loader for hundreds of milliseconds.
+const LoadingAudio = preload("res://scripts/run_loading_audio.gd")
 const MESSAGE := "Entering the Labyrinth"
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
@@ -127,8 +130,8 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	var audio_assets: Node
 	var audio_script: Script
 	if transition._path == RunPreload.RUN_SCENE_PATH:
-		# Even this helper's script dependencies belong behind the drawn cover.
-		audio_script = load("res://scripts/run_loading_audio.gd")
+		# The helper script is ready; only its ordinary audio work starts here.
+		audio_script = LoadingAudio
 		audio_assets = audio_script.call("start_for", transition)
 		cpu_assets = InitialCpuAssets.start_for(transition, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
 	while _threaded_load_status(transition) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:

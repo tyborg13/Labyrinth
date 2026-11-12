@@ -97,7 +97,9 @@ func _run() -> void:
 	var expected_description: String = "Seals its door in 2 turns. Kill it to keep the door open. When you escape, each open door pays 6 Embers."
 	_expect(board.enemy_intent_tooltip("enemy_%d" % int(binder["id"])) == "Seal · 2\n" + expected_description, "Controller intent detail includes exact Seal rules")
 	var point: Vector2 = board._tile_center(binder["pos"])
-	_expect(board._get_tooltip(point) == "Seal · 2\n" + expected_description, "Pointer over Sealbinder exposes title and full tooltip body")
+	# Owner 2026-11-12: no enemy tooltip on board hover; the Seal rules live on the
+	# Sealbinder's countdown chip (tools/rd08/sealbinder_checks.gd).
+	_expect(board._get_tooltip(point) == "", "Pointer over Sealbinder opens no enemy tooltip")
 	var tooltip: Control = board._make_custom_tooltip("Seal · 2\n" + expected_description)
 	_expect(tooltip != null, "Seal rules use the existing intent tooltip panel")
 	tooltip.free()

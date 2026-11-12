@@ -21,7 +21,14 @@ var _failures: Array[String]
 var _assertions: int = 0
 
 func _initialize() -> void:
+	# rd-08: these placement and compass contracts describe the legacy chips, which the
+	# "Always" health-bar setting keeps; "On hover and aim" is proven by tools/rd07 and rd08.
 	ParallelRuntime.apply_from_environment()
+	var settings_store = preload("res://scripts/settings_store.gd")
+	var pinned: Dictionary = settings_store.default_settings()
+	pinned["board_health_bars"] = settings_store.BOARD_HEALTH_ALWAYS
+	settings_store.save_settings(pinned)
+	settings_store.apply_settings(pinned, null, false)
 	Suite.run(_expect)
 	CompassSuite.run(_expect)
 	await preload("res://tests/pt14_01_source_suite.gd").prepare_fixtures(self)
@@ -76,16 +83,16 @@ func _test_live_stage() -> void:
 	await _settle()
 	presentation = board.get("presentation") as Dictionary
 	_expect((presentation.get("enemy_threat_previews", []) as Array).size() == 1, "Pointer hover retains the detailed single-enemy view")
-	for badge: Dictionary in (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []):
-		_expect(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_1" else 0.4), "Live hover dims other discs and chips")
+	# rd-04/rd-08: isolation now fades other enemies' layers (30%) through the
+	# retained canvases keyed by isolated_enemy_actor_keys, not per-badge alpha.
+	_expect((presentation.get("isolated_enemy_actor_keys", []) as Array) == ["enemy_1"], "Live hover isolates the hovered enemy")
 	await _capture("02_hover_isolation_1920x1080")
 	scene.set("_focused_intent_enemy_id", 2)
 	scene.call("_on_board_tile_hovered", Vector2i(-1, -1))
 	scene.call("_refresh_stage_view")
 	await _settle()
 	presentation = board.get("presentation") as Dictionary
-	for badge: Dictionary in (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []):
-		_expect(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_2" else 0.4), "Pinned/controller focus isolates the same layer")
+	_expect((presentation.get("isolated_enemy_actor_keys", []) as Array) == ["enemy_2"] or (presentation.get("expanded_enemy_actor_keys", []) as Array) == ["enemy_2"], "Pinned/controller focus isolates the same enemy")
 	await _capture("03_focus_isolation_1920x1080")
 	scene.set("_focused_intent_enemy_id", -1)
 	scene.call("_set_show_all_enemy_intents", true)

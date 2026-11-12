@@ -32,6 +32,8 @@ func configure(
 	seed: float,
 	reduced_motion: bool
 ) -> void:
+	var previous_draw_texture: Texture2D = _draw_texture
+	var previous_draw_size: Vector2 = size
 	_source_texture = texture
 	_source_rect = source_rect
 	_progress = clampf(progress, 0.0, 1.0)
@@ -61,7 +63,10 @@ func configure(
 	shader_material.set_shader_parameter("source_uv_min", source_uv_rect.position)
 	shader_material.set_shader_parameter("source_uv_size", source_uv_rect.size)
 	visible = _source_texture != null and source_rect.size.x > 0.0 and source_rect.size.y > 0.0
-	queue_redraw()
+	# Progress, atlas regions and UV bounds are shader uniforms. They update in
+	# this frame without resubmitting the identical underlying texture rectangle.
+	if _draw_texture != previous_draw_texture or size != previous_draw_size:
+		queue_redraw()
 
 
 func source_rect() -> Rect2:

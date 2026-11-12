@@ -2,7 +2,6 @@ extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const Strip = preload("res://scripts/turn_order_landing_strip.gd")
-const ForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const CountedScene = preload("res://tests/helpers/turn_clock_counted_run_scene.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const TUTORIAL_CALLOUT_POSITION := Vector2(820, 620) # Proof-only overlap fixture.
@@ -38,16 +37,17 @@ static func _test_projection_tooltips(scene: Node, engine: CombatEngine, fixture
 	expect.call(text.contains("Borrowed Hourglass: another turn at once (+10 carried)") and not text.contains("Base ") and not text.contains("Carried +") and not text.contains("Relics"), "Immediate Hourglass tooltip reports carried Time without an invented relic reduction")
 
 static func _test_forecast_copy(scene: Node, expect: Callable) -> void:
-	var summary: Dictionary = {"wait_time": 0, "unrevealed_before_player": true, "hp_loss": 5, "entries": [{"text": "-5", "color": Color("f39779")}]}
+	var summary: Dictionary = {"wait_time": 0, "unrevealed_before_player": true, "repeated_enemy_names": ["Tunnel Crawler"], "hp_loss": 5, "entries": [{"text": "-5", "color": Color("f39779")}]}
 	var entries: Array[Dictionary] = scene.call("_pass_preview_forecast_entries", summary)
-	var line := ForecastLine.new()
-	line.configure(0, entries)
-	var cells: Array = line.get("_cells")
-	expect.call(line.text == "TURN END  •  -5 +?" and cells[0]["color"] == Color("f39779") and cells[1]["color"] == Color("f39779") and cells.back()["color"] == Color("c89be3"), "Zero-Wait TURN END and bullet inherit known damage ink, while only +? stays violet")
-	line.configure(5, entries)
-	cells = line.get("_cells")
-	expect.call(cells[0]["color"] == UiPalette.GOLD_BRIGHT and cells[1]["color"] == UiPalette.GOLD_BRIGHT and cells.back()["color"] == Color("c89be3"), "Pending Wait keeps its gold lead even with the violet suffix")
-	line.free()
+	var inks: Dictionary = preload("res://tools/ptf08/row_tests.gd").inks(scene)
+	var portraits: Array[Dictionary]
+	portraits.append({"actor_key": "enemy:enemy_1", "path": "", "aspect": 4.0/3.0})
+	var rows: Array[Dictionary] = preload("res://scripts/pass_forecast_focus_tooltip.gd").rows(summary, portraits, inks)
+	expect.call(rows[0]["parts"][0]["icon"] == "health" and rows[0]["parts"][0]["color"] == entries[0]["color"] and rows[1]["parts"][0]["color"] == inks["unknown"], "Health loss and repeat row retain their existing inks without the strip")
+	summary["wait_time"] = 5
+	rows = preload("res://scripts/pass_forecast_focus_tooltip.gd").rows(summary, portraits, inks)
+	expect.call(rows[0]["parts"][0]["color"] == UiPalette.GOLD_BRIGHT and rows[0]["parts"][0]["icon"] == "time", "Pending Wait retains its gold Time icon row")
+	summary["wait_time"] = 0
 	summary["defiance_spent"] = 1
 	summary["defiance_restored"] = 24
 	summary["projected_hp"] = 24
@@ -55,8 +55,8 @@ static func _test_forecast_copy(scene: Node, expect: Callable) -> void:
 	summary["defiance_remaining_after"] = 0
 	summary["net_hp_change"] = 19
 	var text: String = scene.call("_pass_preview_tooltip", summary)
-	expect.call(text.contains("A revealed lethal hit will spend 1 Defiance") and text.ends_with("Enemies have unrevealed actions before your next turn, you may take additional damage."), "Defiance tooltip retains its known outcome and appends the unrevealed-lap warning")
-	expect.call(bool(scene.call("_pass_preview_known_damage_suffix", summary)), "Defiance plus an unrevealed lap retains the same +? plate semantics")
+	expect.call(text == "Before your next turn: −5 Health\nDefiance: spend 1 charge and return at 24/24 Health.\nTunnel Crawler acts twice before you. Its second move is hidden.", "Defiance tooltip retains its known outcome and appends the unrevealed-lap warning")
+	expect.call(bool(scene.call("_pass_preview_known_damage_suffix", summary)), "Defiance plus an unrevealed lap retains the same + ? 2ND MOVE plate semantics")
 
 static func _test_tutorial_placement(expect: Callable) -> void:
 	var viewport := Rect2(0, 0, 1920, 1080)
@@ -96,21 +96,16 @@ static func _test_expensive_paths(tree: SceneTree, viewport: Viewport, fixture: 
 	counted.set("_hovered_card_index", 1)
 	var chip := Button.new()
 	chip.name = "PassPreviewChip"
-	var row := Control.new()
-	row.name = "PassPreviewDamageRow"
-	var line := ForecastLine.new()
-	row.add_child(line)
-	chip.add_child(row)
 	counted.add_child(chip)
 	var summary: Dictionary = counted.call("_pass_preview_summary")
 	counted.call("_refresh_selected_card_forecast")
 	counted.call("_update_action_context_risk")
 	var tooltip: String = counted.call("_pass_preview_tooltip", summary)
-	expect.call(counted.source_reads == 1 and int(summary.get("wait_time", -1)) == 10 and int(line.get_meta("pass_preview_wait_time", -1)) == 10 and tooltip.begins_with("Ending now leaves 2 card plays unused: +10 Time."), "Forecast line, context and tooltip reuse Wait after one isolated source read")
+	expect.call(counted.source_reads == 1 and int(summary.get("wait_time", -1)) == 10 and int((chip.get_meta("pass_forecast_summary", {}) as Dictionary).get("wait_time", -1)) == 10 and tooltip.begins_with("Ending now leaves 2 card plays unused: +10 Time."), "Forecast line, context and tooltip reuse Wait after one isolated source read")
 	counted.source_snapshot["cards_played_this_turn"] = 2
 	counted.set("_combat_preview_revision", int(counted.get("_combat_preview_revision")) + 1)
 	counted.call("_refresh_selected_card_forecast")
-	expect.call(counted.source_reads == 2 and int(line.get_meta("pass_preview_wait_time", -1)) == 0 and line.text.begins_with("TURN END"), "A revised forecast source recomputes Wait once and clears the plate lead")
+	expect.call(counted.source_reads == 2 and int((chip.get_meta("pass_forecast_summary", {}) as Dictionary).get("wait_time", -1)) == 0, "A revised forecast source recomputes Wait once and clears the plate lead")
 	strip.queue_free()
 	target.queue_free()
 	counted.free()

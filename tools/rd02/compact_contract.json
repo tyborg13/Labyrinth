@@ -1,0 +1,42 @@
+{
+  "min_images": 2,
+  "expected_sizes": [
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "*on.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            100,
+            120,
+            1000,
+            500
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 8
+        }
+      ]
+    },
+    {
+      "pattern": "*off.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            100,
+            120,
+            1000,
+            500
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 8
+        }
+      ]
+    }
+  ]
+}

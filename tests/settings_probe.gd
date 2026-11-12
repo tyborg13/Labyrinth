@@ -12,6 +12,7 @@ const SUSPEND_TRANSIENT_SEED: int = 73492
 const ATOMIC_WRITE_TEST_MUSIC_VOLUME: float = 0.25
 
 static func verify_atomic_writes(expect: Callable, previous: Dictionary) -> void:
+	verify_board_health_settings(expect)
 	var temp_path: String = "%s.tmp" % SettingsStore.storage_path()
 	var interrupted := FileAccess.open(temp_path, FileAccess.WRITE)
 	expect.call(interrupted != null, "Atomic settings guard can create an interrupted temp file")
@@ -271,3 +272,20 @@ func _button_with_text(node: Node, text: String) -> Button:
 		if found != null:
 			return found
 	return null
+
+# rd-05's one permanent regression: persistence and old-profile migration.
+static func verify_board_health_settings(expect: Callable) -> void:
+	var original_path: String = SettingsStore.storage_path()
+	SettingsStore.set_storage_path("user://rd05_settings_roundtrip.json")
+	for value: String in [SettingsStore.BOARD_HEALTH_ALWAYS, SettingsStore.BOARD_HEALTH_CONTEXTUAL]:
+		var settings: Dictionary = SettingsStore.default_settings()
+		settings["board_health_bars"] = value
+		expect.call(SettingsStore.save_settings(settings), "Board health setting saves: " + value)
+		expect.call(SettingsStore.load_settings()["board_health_bars"] == value, "Board health setting round-trips: " + value)
+	var old_file := FileAccess.open(SettingsStore.storage_path(), FileAccess.WRITE)
+	old_file.store_string(JSON.stringify({"music_volume": 0.35}))
+	old_file.close()
+	var legacy: Dictionary = SettingsStore.load_settings()
+	expect.call(legacy["board_health_bars"] == SettingsStore.DEFAULT_BOARD_HEALTH_BARS and is_equal_approx(float(legacy["music_volume"]), 0.35), "Old settings adopt board health default and preserve other preferences")
+	SettingsStore.clear_storage()
+	SettingsStore.set_storage_path(original_path)

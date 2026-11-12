@@ -8,6 +8,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 
 const PROGRESSION_PATH: String = "user://save_resume_boundary_progression.json"
 const UNWRITABLE_PROGRESSION_PATH: String = "user://save_resume_boundary_missing/progression.json"
@@ -18,6 +19,12 @@ const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const TRAVEL_SOURCE_SEED: int = 1234
 const TRAVEL_REPLACEMENT_SEED: int = 9999
 const TRAVEL_WAIT_FRAMES: int = 360
+
+class SnapshotDispatchHost extends "res://scripts/run_scene.gd":
+	var observed_boundary: String = ""
+	func _persist_run_state_snapshot(state: Dictionary, _hold: bool, boundary: String) -> Dictionary:
+		observed_boundary = boundary
+		return {"state": state, "saved": false}
 
 class CancelledTravelHost extends "res://scripts/run_scene.gd":
 	class SilentSfx extends RefCounted:
@@ -84,6 +91,8 @@ func _initialize() -> void:
 	if base_run.is_empty():
 		_failures.append("Could not build deterministic normal combat run")
 	else:
+		_test_checkpoint_snapshot_ownership(base_run)
+		_test_checkpoint_journal_ownership(base_run)
 		_test_player_boundaries(base_run)
 		_test_enemy_and_turn_boundaries(base_run)
 		_test_room_and_reward_boundaries(base_run)
@@ -105,6 +114,118 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL — %d committed save/resume failure(s)" % _failures.size())
 	quit(1)
+
+func _test_checkpoint_snapshot_ownership(base_run: Dictionary) -> void:
+	var source: Dictionary = base_run.duplicate(true)
+	var combat: Dictionary = (source["combat_state"] as Dictionary).duplicate(true)
+	_run_scene.set("_run_state", source)
+	_run_scene.set("_combat_state", combat)
+	var source_bytes: PackedByteArray = var_to_bytes(source)
+	var combat_bytes: PackedByteArray = var_to_bytes(combat)
+	var committed: Dictionary = _run_scene.call("_committed_run_state")
+	var expected: Dictionary = _run_engine.set_combat_state(source.duplicate(true), combat)
+	_assert(var_to_bytes(committed) == var_to_bytes(expected), "Committed snapshot must retain binary field order and contents")
+	(committed["combat_state"] as Dictionary)["ownership_fixture"] = {"items": [1]}
+	(committed["progression"] as Dictionary)["ownership_fixture"] = {"items": [2]}
+	_assert(var_to_bytes(source) == source_bytes and var_to_bytes(combat) == combat_bytes, "Mutating a committed snapshot must not mutate either live input")
+	var checkpoint: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", source, combat)
+	_assert(var_to_bytes(source) == source_bytes and var_to_bytes(combat) == combat_bytes, "Checkpoint analytics staging must not mutate either input")
+	(checkpoint["combat_state"] as Dictionary)["ownership_fixture"] = {"items": [3]}
+	(checkpoint["progression"] as Dictionary)["ownership_fixture"] = {"items": [4]}
+	_assert(var_to_bytes(source) == source_bytes and var_to_bytes(combat) == combat_bytes, "Prepared checkpoint must detach retained and replacement fields")
+	var continuations: Array = [{"boundary": "ownership_fixture", "state": combat}]
+	source[COMBAT_CONTINUATION_KEY] = [{"state": {"discarded": [1, 2]}}]
+	source_bytes = var_to_bytes(source)
+	var queued: Dictionary = _run_scene.call("_run_state_with_combat_checkpoints", source, continuations)
+	var expected_queued: Dictionary = source.duplicate(true)
+	expected_queued.erase(COMBAT_CONTINUATION_KEY)
+	expected_queued[COMBAT_CONTINUATION_KEY] = continuations.duplicate(true)
+	_assert(var_to_bytes(queued) == var_to_bytes(expected_queued), "Replacing continuations must preserve exact binary field order")
+	queued[COMBAT_CONTINUATION_KEY][0]["state"]["ownership_fixture"] = true
+	(queued["progression"] as Dictionary)["ownership_fixture"] = true
+	_assert(var_to_bytes(source) == source_bytes and var_to_bytes(combat) == combat_bytes, "Queued continuation and retained run fields must own nested data")
+	source.erase(COMBAT_CONTINUATION_KEY)
+	_assert(bool(_run_scene.call("_persist_committed_boundary", "snapshot_ownership")), "Owned committed snapshot must be accepted by the existing queue")
+	_assert(ProgressionStore._run_writer.busy(), "Ownership fixture must exercise a pending snapshot before its write")
+	var pending_expected: Dictionary = _run_scene.call("_committed_run_state")
+	(source["progression"] as Dictionary)["ownership_fixture"] = {"items": [-1]}
+	(combat["player"] as Dictionary)["hp"] = 1
+	_assert(var_to_bytes(ProgressionStore.load_saved_run()) == var_to_bytes(pending_expected), "Live mutations after transfer must not change queued save bytes")
+	var dispatch_host := SnapshotDispatchHost.new()
+	dispatch_host.set("_run_state", base_run.duplicate(true))
+	dispatch_host.set("_combat_state", (base_run["combat_state"] as Dictionary).duplicate(true))
+	_assert(not bool(dispatch_host.call("_persist_committed_boundary", "snapshot_dispatch_failure")), "Snapshot dispatch overrides must retain failure injection")
+	_assert(dispatch_host.observed_boundary == "snapshot_dispatch_failure", "Committed boundaries must still dispatch through the snapshot helper")
+	_assert((dispatch_host.get("_owned_boundary_snapshot") as Dictionary).is_empty(), "Failed dispatch must release the invocation-owned snapshot scope")
+	dispatch_host.free()
+	_run_scene.set("_run_state", {})
+	_run_scene.set("_combat_state", {})
+	_matrix_rows.append("snapshot/ownership_and_bytes")
+
+func _test_checkpoint_journal_ownership(base_run: Dictionary) -> void:
+	var source: Dictionary = base_run.duplicate(true)
+	var payload: Dictionary = {"known": [{"room": Vector2i(1, 2), "tags": ["start"]}]}
+	SectionMapGraph.record_event(source, "journal_ownership", payload)
+	var before: PackedByteArray = var_to_bytes(source)
+	var first: Dictionary = SectionMapGraph.checkpoint_copy(source)
+	var second: Dictionary = SectionMapGraph.checkpoint_copy(first)
+	_assert(var_to_bytes(first) == before and var_to_bytes(second) == before, "Journal sharing must preserve exact serialized bytes and key order")
+	_assert(is_same(first["map_events"], second["map_events"]), "Successive checkpoints must share the committed journal")
+	_assert(_journal_is_read_only(first["map_events"]), "Every shared journal container must reject mutation, including nested payload arrays")
+	payload["known"][0]["tags"].append("changed")
+	_assert(var_to_bytes(first) == before, "Mutable source payload aliases must not change a committed journal")
+	var prefix: Array = first["map_events"]
+	var prefix_bytes: PackedByteArray = var_to_bytes(prefix)
+	var staged_payload: Dictionary = {"entry": "staged", "nested": [{"value": 1}]}
+	SectionMapGraph.record_event(first, "section_entered", staged_payload)
+	first["map_events"].back()["payload"]["entry"] = "annotated"
+	_assert(var_to_bytes(prefix) == prefix_bytes, "Appending and annotating a staged tail must preserve every prior checkpoint")
+	_assert(is_same(prefix[0], first["map_events"][0]), "Appending must retain the immutable prefix records")
+	var committed: Dictionary = SectionMapGraph.checkpoint_copy(first)
+	var committed_bytes: PackedByteArray = var_to_bytes(committed)
+	staged_payload["nested"][0]["value"] = 2
+	_assert(var_to_bytes(committed) == committed_bytes and committed["map_events"].back()["payload"]["entry"] == "annotated", "Commit must detach the staged annotated tail")
+	_assert(_journal_is_read_only(committed["map_events"]), "Newly committed tail must be recursively guarded")
+	_run_scene.set("_run_state", committed)
+	_run_scene.set("_combat_state", committed["combat_state"])
+	var combat_checkpoint: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", committed, committed["combat_state"])
+	_assert(is_same(combat_checkpoint["map_events"], committed["map_events"]), "Combat preparation and analytics staging must retain the guarded journal")
+	var expected: Dictionary = _run_engine.set_combat_state(committed.duplicate(true), committed["combat_state"])
+	_assert(var_to_bytes(_run_scene.call("_committed_run_state")) == var_to_bytes(expected), "Combat checkpoint journal restoration must retain binary field order")
+	var finish_source: Dictionary = SectionMapGraph.checkpoint_copy(committed)
+	finish_source["omens"] = [{"id": "hunted", "fights_left": 1}]
+	var finished_combat: Dictionary = (committed["combat_state"] as Dictionary).duplicate(true)
+	for enemy: Dictionary in finished_combat.get("enemies", []):
+		enemy["hp"] = 0
+	var finish_expected: Dictionary = _run_engine.finish_combat(finish_source.duplicate(true), finished_combat)
+	var finish_actual: Dictionary = _run_scene.call("_combat_checkpoint_with_shared_map_events", finish_source, finished_combat, true)
+	_assert(var_to_bytes(finish_actual) == var_to_bytes(finish_expected), "Combat completion must preserve exact bytes, including newly appended omen events")
+	_assert(is_same(finish_actual["map_events"][0], committed["map_events"][0]), "Combat completion must share the committed prefix")
+	_assert(finish_actual["map_events"].back()["type"] == "omen_expired" and int(finish_actual["map_event_revision"]) == int(finish_source["map_event_revision"]) + 1, "Combat completion must retain the staged tail and its next revision")
+	var persisted: Dictionary = _run_scene.call("_persist_run_state_snapshot", committed, true, "journal_ownership")
+	var returned: Dictionary = persisted["state"]
+	var saved_bytes: PackedByteArray = var_to_bytes(returned)
+	SectionMapGraph.record_event(returned, "after_queue", {"new": true})
+	(returned["progression"] as Dictionary)["journal_ownership"] = true
+	_assert(var_to_bytes(ProgressionStore.load_saved_run()) == saved_bytes, "Public persistence return mutations must not alter queued journal or mutable fields")
+	var held: Dictionary = _run_scene.get("_committed_run_state_override")
+	_assert(var_to_bytes(held) == saved_bytes, "Held checkpoint must remain independent of public return mutations")
+	_assert(_journal_is_read_only(held["map_events"]), "Held checkpoint must retain the immutable journal guard")
+	_run_scene.call("_release_committed_run_state")
+	_run_scene.set("_run_state", {})
+	_run_scene.set("_combat_state", {})
+	_matrix_rows.append("journal/immutable_prefix_staged_tail_and_queue_bytes")
+
+func _journal_is_read_only(value: Variant) -> bool:
+	if value is Dictionary:
+		if not value.is_read_only(): return false
+		for child: Variant in value.values():
+			if not _journal_is_read_only(child): return false
+	elif value is Array:
+		if not value.is_read_only(): return false
+		for child: Variant in value:
+			if not _journal_is_read_only(child): return false
+	return true
 
 func _test_transactional_corrupt_recovery() -> void:
 	var valid: Dictionary = _run_engine.create_new_run(88001, ProgressionStore.default_data())

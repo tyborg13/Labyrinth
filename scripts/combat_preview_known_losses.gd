@@ -31,3 +31,11 @@ static func can_defer_unrevealed_selection(engine: RefCounted, state: Dictionary
 		for action: Dictionary in enemy.get("intent", {}).get("actions", []):
 			if str(action.get("type", "")) not in ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "block", "heal", "gain_charge", "chain_discharge", "call_wind", "surface"]: return false
 	return true
+
+# The cursor only reads canonical engine records. Do not deep-copy their intents
+# and status payloads just to inspect ID/HP or hand them to the scheduler. Keep
+# the normalizer fallback for partial legacy/debug inputs and its defaults.
+static func enemy_record(engine: RefCounted, value: Dictionary) -> Dictionary:
+	if value.has("hp") and value.has("id") and value.has("type") and value.get("pos") is Vector2i and value.get("intent") is Dictionary:
+		return value
+	return engine._normalized_enemy(value)

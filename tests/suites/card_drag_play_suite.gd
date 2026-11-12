@@ -218,10 +218,10 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	expect.call((instance.get("_pending_target_tiles") as Array).has(TARGET_TILE), "Drag targeting should expose the normal legal target set")
 	expect.call(instance.get("_drag_card_proxy") == null, "Board entry should replace the following card with targeting feedback")
 	expect.call(source_card.is_visible_in_tree() and bool(source_card.get_meta("drag_hand_origin", false)), "Board entry should restore the original card as the selected hand anchor")
-	expect.call(_targeting_hand_is_tucked(instance), "The targeted card should stay tucked with the hand while aiming")
+	expect.call(_targeting_hand_matches_layout(instance), "The targeted card should retain the output-appropriate hand pose while aiming")
 	var source_rect: Rect2 = instance.call("_control_visual_global_rect", source_card)
 	var hand_scroll: Control = instance.get("hand_scroll") as Control
-	expect.call(hand_box != null and hand_box.is_ancestor_of(source_card) and _targeting_hand_is_tucked(instance), "The dragged card should retain its hand anchor below the board while aiming")
+	expect.call(hand_box != null and hand_box.is_ancestor_of(source_card) and _targeting_hand_matches_layout(instance), "The dragged card should retain its output-appropriate hand anchor while aiming")
 	expect.call(source_rect.size.x < hover_rect.size.x and source_rect.size.y < hover_rect.size.y, "The selected targeting pose should be smaller than the hover preview")
 	expect.call(not source_rect.has_point(valid_position), "The hand-origin card should never cover the hovered board target")
 	expect.call(source_card.modulate.is_equal_approx(Color.WHITE), "Target validity should never tint the selected card")
@@ -263,7 +263,7 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	await tree.process_frame
 	arrow_transform = arrow.get_global_transform_with_canvas()
 	expect.call((arrow_transform * (arrow.call("targeting_end") as Vector2)).distance_to(post_release_position) <= 1.0, "Post-release pointer motion should win over deferred handoff layout and keep the arrow responsive")
-	expect.call(_targeting_hand_is_tucked(instance), "The selected card should remain tucked after handoff to click aiming")
+	expect.call(_targeting_hand_matches_layout(instance), "The selected card should retain the output-appropriate pose after handoff to click aiming")
 	var cursor_feedback: Node = tree.root.get_node_or_null("CursorFeedback")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Pointer targeting handoff should keep the forged cursor hidden")
@@ -448,7 +448,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	expect.call(int(instance.get("_selected_card_index")) == 0 and int(instance.get("_drag_card_index")) == -1, "Click selection should enter pointer targeting without creating drag state")
 	expect.call(arrow != null and arrow.visible, "Click targeting should reuse the same segmented raster arrow as drag targeting")
 	var hand_box: Control = instance.get("hand_box") as Control
-	expect.call(_targeting_hand_is_tucked(instance), "Click aiming should keep the selected card tucked with the hand")
+	expect.call(_targeting_hand_matches_layout(instance), "Click aiming should retain the output-appropriate selected card pose")
 	var expected_start := Vector2.ZERO
 	if arrow != null:
 		var arrow_transform: Transform2D = arrow.get_global_transform_with_canvas()
@@ -1098,6 +1098,18 @@ static func _tile_global_position(instance: Node, tile: Vector2i) -> Vector2:
 
 static func _drag_start_position(instance: Node, hand_index: int) -> Vector2:
 	return (instance.call("_hand_card_global_rect", hand_index) as Rect2).get_center()
+
+
+static func _targeting_hand_matches_layout(instance: Node) -> bool:
+	if bool(instance.call("_compact_board_layout")) or bool(instance.call("_controller_combat_layout_active")):
+		return _targeting_hand_is_tucked(instance)
+	var row: Control = instance.get("hand_row") as Control
+	var margin: Control = instance.get("hand_tuck_margin") as Control
+	var fan: Control = instance.get("hand_box") as Control
+	return bool(instance.call("_board_targeting_active")) \
+		and is_equal_approx(row.custom_minimum_size.y, instance.DESKTOP_HAND_ROW_HEIGHT) \
+		and margin.get_theme_constant("margin_top") == 0 \
+		and int(fan.call("emphasized_index")) == int(instance.get("_selected_card_index"))
 
 
 static func _targeting_hand_is_tucked(instance: Node) -> bool:

@@ -131,6 +131,11 @@ static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
 		expect.call(cache.entries.has(path) and cache.source_sha256.get(path, "") == FileAccess.get_sha256(path), "Both waves retain current shadow entries: %s" % type)
 
 static func _terrain_health_bars(engine: RefCounted, expect: Callable) -> void:
+	# These are the classic "Always" bar rules; under "On hover and aim" every live
+	# prop is plate-eligible and visibility is owned by board_plate_visibility.gd.
+	var settings_store = preload("res://scripts/settings_store.gd")
+	var previous_setting: String = settings_store._applied_board_health_bars
+	settings_store._applied_board_health_bars = settings_store.BOARD_HEALTH_ALWAYS
 	var board: Control = Board.new()
 	board.combat_state = fixture(engine)
 	var tile: Vector2i = FIXTURE_HERO + Vector2i.UP
@@ -152,6 +157,7 @@ static func _terrain_health_bars(engine: RefCounted, expect: Callable) -> void:
 		expect.call(board._should_show_terrain_health_bar(entry), "%s still shows its health bar under damage preview" % kind)
 		expect.call(board._terrain_damage_preview(entry) == damage_preview, "%s retains its terrain damage preview" % kind)
 	board.free()
+	settings_store._applied_board_health_bars = previous_setting
 
 static func _schema(engine: RefCounted, expect: Callable) -> void:
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e2.json"))

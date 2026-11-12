@@ -96,7 +96,8 @@ static func status_entries(badges: Array[Dictionary], fill: Rect2, hero: bool) -
 			position = Vector2(origin.x, position.y + PILL_HEIGHT + PILL_ROW_GAP)
 		var entry: Dictionary = badge.duplicate()
 		entry["rect"] = Rect2(position, Vector2(width, PILL_HEIGHT))
-		entry["tooltip"] = str(badge.get("tooltip", Icons.tooltip(str(badge.get("icon", "")))))
+		entry["tooltip"] = str(badge.get("tooltip", ""))
+		if str(entry["tooltip"]).is_empty(): entry["tooltip"] = Icons.tooltip(str(badge.get("icon", "")))
 		result.append(entry)
 		position.x += width + PILL_GAP
 	return result

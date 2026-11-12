@@ -662,7 +662,6 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 	PassPileDockChecks.assert_presented_hand_clearance(instance, _expect, "Before turn-start deal")
 	var controls: Dictionary = {
 		"pass": instance.find_child("PassPreviewChip", true, false),
-		"forecast": instance.find_child("PassPreviewForecastLine", true, false),
 		"card_plays": instance.get("_play_meter"),
 		"movement": instance.get("_movement_meter"),
 		"objective": instance.get("_combat_objective_hud"),
@@ -699,7 +698,6 @@ func _run_turn_start_hud_regression(exhausted: bool = false) -> void:
 				target_rects[key] = (controls[key] as Control).get_global_rect()
 		if saw_deal and not dealing and landing_frame < 0: landing_frame = rows.size()
 		controls["pass"] = instance.find_child("PassPreviewChip", true, false)
-		controls["forecast"] = instance.find_child("PassPreviewForecastLine", true, false)
 		var row: Dictionary = {"frame": rows.size(), "dealing": dealing, "landing_frame": landing_frame, "locked": instance.get("_animation_lock"), "controls": {}}
 		var context: String = "Turn-start %s frame %d" % ["exhausted" if exhausted else "normal", rows.size()]
 		PassPileDockChecks.assert_layout(instance, _expect, context)
@@ -1118,7 +1116,7 @@ func _capture_turn_start_hud() -> void:
 			if tween != null and tween.is_valid() and tween.is_running(): dealing = true
 		saw_deal = saw_deal or not proxies.is_empty()
 		var controls: Array[Control]
-		controls.assign([instance.find_child("PassPreviewChip", true, false), instance.find_child("PassPreviewForecastLine", true, false), instance.get("_play_meter"), instance.get("_movement_meter")])
+		controls.assign([instance.find_child("PassPreviewChip", true, false), instance.get("_play_meter"), instance.get("_movement_meter")])
 		var row := {"frame": rows.size(), "dealing": dealing, "pending": instance.get("_hand_layout_pending_revision"), "controls": {}}
 		for control: Control in controls:
 			var shown: bool = control != null and control.is_visible_in_tree() and _hud_effective_alpha(control) >= HUD_MIN_OPACITY

@@ -1,0 +1,55 @@
+{
+  "min_images": 9,
+  "expected_sizes": [
+    "1920x1080",
+    "1920x1200",
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_idle.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*1920x1080_dull_bolt_aim.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*1920x1080_hero_movement.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*1920x1200_idle.png",
+      "width": 1920,
+      "height": 1200
+    },
+    {
+      "pattern": "*1920x1200_dull_bolt_aim.png",
+      "width": 1920,
+      "height": 1200
+    },
+    {
+      "pattern": "*1920x1200_hero_movement.png",
+      "width": 1920,
+      "height": 1200
+    },
+    {
+      "pattern": "*1280x800_idle.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*1280x800_dull_bolt_aim.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*1280x800_hero_movement.png",
+      "width": 1280,
+      "height": 800
+    }
+  ]
+}

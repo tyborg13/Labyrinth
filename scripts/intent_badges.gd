@@ -8,6 +8,7 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const ChipPlacement = preload("res://scripts/intent_chip_placement.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const HudGroups = preload("res://scripts/board_hud_group_placement.gd")
 
 const MEDALLION_DIAMETER: float = 32.0
@@ -350,6 +351,7 @@ static func terrain_health_rects(board: Control) -> Array[Rect2]:
 static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if badges.is_empty(): return result
+	if Settings._applied_board_health_bars == Settings.BOARD_HEALTH_CONTEXTUAL: return contextual_layouts(board, badges)
 	var font: Font = Typography.ui_font()
 	var sorted_badges: Array = badges.duplicate(true)
 	sorted_badges.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -415,8 +417,10 @@ static func needs_pulse(presentation: Dictionary) -> bool:
 		if bool(badge.get("danger", false)): return true
 	return false
 
-static func details_discloses_compass(presentation: Dictionary, actor_key: String) -> bool:
-	return bool(presentation.get("show_all_enemy_intents", false)) or (presentation.get("expanded_enemy_actor_keys", []) as Array).has(actor_key)
+# Owner 2026-11-12: the floor compass shows only with Details [I] on, never on
+# hover, rail hover or threat isolation.
+static func details_discloses_compass(presentation: Dictionary, _actor_key: String) -> bool:
+	return bool(presentation.get("show_all_enemy_intents", false))
 
 static func draw(board: Control, badges: Array, triangle_batch: RefCounted = null) -> void:
 	var font: Font = Typography.ui_font()
@@ -424,13 +428,11 @@ static func draw(board: Control, badges: Array, triangle_batch: RefCounted = nul
 	# A debug-only fixed clock makes peak-pulse renderer proof deterministic.
 	var seconds: float = float(presentation.get("threats_proof_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
 	var measured: Array[Dictionary] = layouts(board, badges)
-	for badge: Dictionary in measured:
-		var rect: Rect2 = badge["order_rect"]
-		if rect.has_area(): draw_order_disc(board, rect, str(badge["order"]), float(badge["alpha"]), font)
 	for on_top: bool in [false, true]:
 		for badge: Dictionary in measured:
 			if bool(badge["above_everything"]) == on_top:
-				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)), triangle_batch)
+				if bool(badge.get("contextual", false)): draw_contextual_chip(board, badge, triangle_batch)
+				else: _draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)), triangle_batch)
 
 static func draw_order_disc(board: Control, rect: Rect2, order: String, alpha: float, font: Font) -> void:
 	var style := StyleBoxFlat.new()
@@ -450,6 +452,14 @@ static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: f
 	if bool(badge.get("danger", false)):
 		var halo: Dictionary = halo_texture(end)
 		board.draw_texture(halo["texture"], center + (halo["offset"] as Vector2), Color(Palette.DANGER, halo_alpha(seconds, reduced_motion) * alpha))
+	_draw_tab(board, badge, font)
+	_draw_disc(board, badge, triangle_batch)
+
+static func _draw_tab(board: Control, badge: Dictionary, font: Font) -> void:
+	var center: Vector2 = badge["center"]
+	var alpha: float = float(badge.get("alpha", 1.0))
+	var ring: Color = ring_color(badge)
+	var end: float = plate_end(badge, font)
 	if end > 0.0:
 		var plate := Rect2(center + Vector2(PLATE_START, -PLATE_HEIGHT * 0.5), Vector2(end - PLATE_START, PLATE_HEIGHT))
 		board.draw_rect(plate, Color(PLATE_FILL, 0.92 * alpha))
@@ -462,6 +472,11 @@ static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: f
 			x += SECONDARY_GAP
 			_draw_icon(board, str(badge["secondary_icon"]), Rect2(Vector2(x, center.y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
 			_draw_number(board, font, str(badge.get("secondary_number", "")), x + SECONDARY_ICON_SIZE, center.y + 1.0, SECONDARY_FONT_SIZE, alpha)
+
+static func _draw_disc(board: Control, badge: Dictionary, triangle_batch: RefCounted = null) -> void:
+	var center: Vector2 = badge["center"]
+	var alpha: float = float(badge.get("alpha", 1.0))
+	var ring: Color = ring_color(badge)
 	if triangle_batch != null:
 		triangle_batch.circle(center, MEDALLION_DIAMETER * 0.5, Color(MEDALLION_FILL, alpha), true)
 		triangle_batch.flush(board)
@@ -535,3 +550,73 @@ static func halo_texture(plate_end_x: float) -> Dictionary:
 	var result: Dictionary = {"texture": ImageTexture.create_from_image(image), "offset": -Vector2.ONE * padding}
 	_halo_cache[end] = result
 	return result
+
+# Contextual markers never enter the legacy silhouette-placement solver. The
+# full plate geometry is still reserved by that solver, preserving bar anchors.
+static func contextual_layouts(board: Control, badges: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	var units: Dictionary = board.call("_units_by_key", board.call("_visible_units"))
+	for source: Dictionary in badges:
+		var key: String = str(source.get("key", ""))
+		var unit: Dictionary = units.get(key, {})
+		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
+		var badge: Dictionary = source.duplicate(true)
+		var center: Vector2 = ChipPlacement.compact_anchor(board, unit)
+		var expanded: bool = board.get("plate_visibility").unfurled(key)
+		var rect: Rect2 = chip_rect(center, badge, Typography.ui_font()) if expanded else Rect2(center - Vector2.ONE * MEDALLION_DIAMETER * 0.5, Vector2.ONE * MEDALLION_DIAMETER)
+		badge.merge({"contextual": true, "unfurled": expanded, "center": center, "rect": rect, "order_rect": Rect2(), "placement": "footprint_front", "above_everything": false}, true)
+		result.append(badge)
+	return result
+
+class TabInk extends Control:
+	var badge: Dictionary = {}
+	var painter: Callable
+	func _draw() -> void:
+		if painter.is_valid(): painter.call(self, badge, Typography.ui_font())
+
+class TabWindow extends Control:
+	var ink: TabInk
+	var width: float = 0.0
+	var expanded: bool = false
+	var motion: Tween
+	var reveal: float = 0.0:
+		set(value):
+			reveal = value
+			size.x = width * value
+			if is_instance_valid(ink): ink.position.x = -width * (1.0 - value)
+
+	func configure(badge: Dictionary, painter: Callable, end: float) -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = true
+		show_behind_parent = true
+		if ink == null:
+			ink = TabInk.new()
+			ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(ink)
+		width = maxf(0.0, end + 1.0 + FINIAL_DIAMETER * 0.5 - PLATE_START) if end > 0.0 else 0.0
+		position = (badge["center"] as Vector2) + Vector2(PLATE_START, -MEDALLION_DIAMETER * 0.5)
+		size.y = MEDALLION_DIAMETER
+		var local: Dictionary = badge.duplicate(true)
+		local["center"] = Vector2(-PLATE_START, MEDALLION_DIAMETER * 0.5)
+		ink.badge = local
+		ink.painter = painter
+		ink.queue_redraw()
+		reveal = reveal
+		var next: bool = bool(badge.get("unfurled", false))
+		if expanded == next: return
+		expanded = next
+		if motion != null and motion.is_valid(): motion.kill()
+		motion = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		motion.tween_property(self, "reveal", 1.0 if next else 0.0, 0.12)
+
+static func draw_contextual_chip(board: Control, badge: Dictionary, triangle_batch: RefCounted = null) -> void:
+	var name: String = "IntentTab_" + str(badge["key"])
+	var tab: TabWindow = board.get_node_or_null(NodePath(name)) as TabWindow
+	if tab == null:
+		tab = TabWindow.new()
+		tab.name = name
+		board.add_child(tab)
+		tab.modulate = board.get_meta("rd03_target", board.self_modulate)
+	tab.show()
+	tab.configure(badge, _draw_tab, plate_end(badge, Typography.ui_font()))
+	_draw_disc(board, badge, triangle_batch)

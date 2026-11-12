@@ -7,6 +7,7 @@ var case_directory: String = ""
 var precise_angles: Dictionary = {}
 var _glow_textures: Dictionary = {}
 var cap_bones: Dictionary = {}
+var _presenting_stable_paint: bool = false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED:
@@ -47,7 +48,14 @@ func _resolve(path: String) -> String:
 func apply_pose(clip_name: String, phase_value: float) -> void:
 	layout["motion_data"] = base_path().path_join("compiled_motion.json")
 	var data: Dictionary = SemanticMotion.data_for(layout)
+	# The production path immediately submits source-space paint below. Restoring
+	# bind geometry first dirties every Polygon2D even when the final pose is held.
+	# Keep the virtual authored-pose call (including case-owned overrides), while
+	# retaining the original restore for standalone diagnostic/oracle callers.
+	var previous_submission: bool = _presenting_stable_paint
+	_presenting_stable_paint = data.get("rig", "") == "humanoid_v2" and layout.get("stable_source_raster", false)
 	apply_authored_pose(clip_name, Pixels.phase_for(data, clip_name, phase_value))
+	_presenting_stable_paint = previous_submission
 	if str(data.get("rig", "")) == "humanoid_v2":
 		preload("humanoid_presentation.gd").apply(self, clip_name, phase_value)
 		preload("stable_paint.gd").apply(self, clip_name)
@@ -58,7 +66,7 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 ## raw Bone2D contract separately from the deliberately stepped presentation.
 func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 	layout["motion_data"] = base_path().path_join("compiled_motion.json")
-	preload("stable_paint.gd").restore(self)
+	if not _presenting_stable_paint: preload("stable_paint.gd").restore(self)
 	preload("humanoid_held_follow.gd").reset_authored_sprites(self, SemanticMotion.data_for(layout))
 	var pose: Dictionary = SemanticMotion.sample_pose(clip_name, phase_value, layout, facing)
 	_apply_sampled_pose(pose, true)

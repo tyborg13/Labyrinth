@@ -1,15 +1,23 @@
 extends RefCounted
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
-const TurnClockForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
-const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
+const UiTooltipButton = preload("res://scripts/pass_forecast_tooltip_button.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
-static func forecast_unchanged(label: Label, row: Control, entries: Array[Dictionary], wait_time: int) -> bool:
-	# Both owners keep private copies already. Comparing their exact values also
-	# detects a caller's in-place edit; a hash or the combat revision cannot.
-	return row.get_meta("pass_preview_wait_time", -1) == wait_time and label.get_meta("pass_preview_wait_time", -1) == wait_time and row.get_meta("pass_preview_values", null) == entries and label.get_meta("pass_preview_values", null) == entries
+# Director 2026-11-11 (ptf-08 r2): the strip under PASS is gone. Show only the
+# button part (texture rows 0-131) of each authored 540x200 PASS frame.
+const PASS_BUTTON_REGION := Rect2(0, 0, 540, 132)
+static var _button_art_cache: Dictionary = {}
+
+static func button_art(texture: Texture2D) -> Texture2D:
+	if texture == null: return null
+	if not _button_art_cache.has(texture):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = texture
+		atlas.region = PASS_BUTTON_REGION
+		_button_art_cache[texture] = atlas
+	return _button_art_cache[texture]
 
 # Keep the authored control and its signal/focus identity; only its values change.
 static func build(scene: Control) -> Button:
@@ -41,16 +49,16 @@ static func build(scene: Control) -> Button:
 	chip.pressed.connect(scene._on_pass_turn_pressed)
 	var art_host := TextureRect.new()
 	art_host.name = "PassForecastFrameArtHost"
-	art_host.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art_host.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	art_host.anchor_right = 1.0
-	art_host.anchor_bottom = 1.0
+	art_host.offset_bottom = PASS_BUTTON_REGION.size.y * 0.5
 	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art_host.texture = AssetLoader.load_texture(scene.PASS_FORECAST_FRAME_TEXTURE_PATH)
+	art_host.texture = button_art(AssetLoader.load_texture(scene.PASS_FORECAST_FRAME_TEXTURE_PATH))
 	art_host.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
-	art_host.set_meta("expected_target_size", Vector2i(270, 100))
+	art_host.set_meta("expected_target_size", Vector2i(270, 66))
 	art_host.set_meta("pass_forecast_art_state", "normal")
 	chip.add_child(art_host)
 
@@ -89,34 +97,6 @@ static func build(scene: Control) -> Button:
 	action_label.add_theme_constant_override("outline_size", 4)
 	action_label.z_index = 5
 	content.add_child(action_label)
-	var forecast_title := Label.new()
-	forecast_title.name = "PassPreviewTitle"
-	forecast_title.text = ""
-	forecast_title.visible = false
-	forecast_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	forecast_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	forecast_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(forecast_title, UiTypography.SIZE_SMALL)
-	forecast_title.add_theme_color_override("font_color", scene.PASS_FORECAST_TITLE_COLOR)
-	content.add_child(forecast_title)
-
-	var damage_row := Control.new()
-	damage_row.name = "PassPreviewDamageRow"
-	# The lower authored ribbon ends above the distressed lower edge. Keep the
-	# forecast vertically contained inside it instead of centering against the
-	# whole lower strip.
-	damage_row.position = Vector2(12.0, 71.0)
-	damage_row.size = Vector2(246.0, 18.0)
-	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(damage_row)
-	var forecast_entries: Array[Dictionary] = scene._pass_preview_forecast_entries(summary)
-	damage_row.set_meta("pass_preview_values", forecast_entries.duplicate(true))
-	var forecast_line := TurnClockForecastLine.new()
-	forecast_line.tooltip_text = tooltip_text
-	damage_row.add_child(forecast_line)
-	forecast_line.position = Vector2.ZERO
-	forecast_line.size = damage_row.size
-	scene._refresh_pass_forecast_line(forecast_line, damage_row, forecast_entries, int(summary.get("wait_time", 0)))
 	var danger_state: bool = (
 		card_defiance_spent > 0
 		or bool(summary.get("defeat", false))
@@ -163,10 +143,6 @@ static func refresh(scene: Control) -> void:
 	var action: Label = content.get_node("PassActionLabel")
 	action.text = "CARD COST\nDEFIANCE -%d" % spent if spent > 0 else "PASS"
 	UiTypography.set_label_size(action, UiTypography.SIZE_SECTION + 3 if spent <= 0 else UiTypography.SIZE_BODY)
-	var row: Control = content.get_node("PassPreviewDamageRow")
-	var line: Label = row.get_child(0)
-	line.tooltip_text = tooltip
-	scene._refresh_pass_forecast_line(line, row, scene._pass_preview_forecast_entries(summary), int(summary.get("wait_time", 0)))
 	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false))
 	var accent: Color = scene._action_context_risk_color("danger" if danger else str(summary.get("tone", "safe")))
 	chip.set_meta("panel_surface_accent", accent)

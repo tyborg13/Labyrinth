@@ -1,0 +1,167 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 8,
+  "required_images": [
+    {
+      "pattern": "second_move_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "second_move_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "fatigue_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "fatigue_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "safe_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "safe_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "defiance_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "defiance_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    }
+  ],
+  "semantic_assertions": {
+    "enforced_by": "tools/ptf08/forecast_probe.gd::require_panel",
+    "all_eight_captures": [
+      "panel visible above PASS and right-aligned",
+      "maximum absolute HUD z-index",
+      "same current icon rows on hover and focus",
+      "native popup suppressed"
+    ],
+    "second_move": [
+      "rail \u00d72 badge visible"
+    ],
+    "hover_captures": [
+      "pointer hover active",
+      "keyboard focus absent",
+      "same bounds as focus"
+    ],
+    "defiance_captures": [
+      "no strip nodes",
+      "one charge spent and projected Health 4",
+      "visible defiance icon row exactly \u22121 \u2192 4/24 before saving",
+      "invalid Defiance captures are skipped"
+    ]
+  }
+}

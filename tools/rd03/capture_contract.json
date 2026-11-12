@@ -1,0 +1,68 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*01_melee_one_foe_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*01_melee_one_foe_off.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*02_ranged_two_foes_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*02_ranged_two_foes_off.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*03_area_two_foes_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*03_area_two_foes_off.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*04_zekarion_melee_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*04_zekarion_melee_off.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*05_trap_choosing_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*05_trap_choosing_off.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*06_trap_idle_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*06_trap_idle_off.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

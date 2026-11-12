@@ -23,7 +23,10 @@ const MAX_LAYOUT_COST_RATIO: float = 1.05
 # Director feedback 1 reproduction; proof-only board/camera values.
 const HAND_ENEMY_TILE := Vector2i(7, 7)
 const HAND_ZOOM: float = 1.4
-const HAND_PAN := Vector2.ZERO
+# ux-11: on a desktop output the board now sits above the full hand, so the
+# director's zoom-1.4 framing needs a small downward pan to put this foe's
+# home chip back over the live hand (the regression this case reproduces).
+const HAND_PAN := Vector2(0, 40)
 const HAND_SETTLE_FRAMES: int = 8
 const HAND_ZOOM_SETTLE_FRAMES: int = 2
 const HAND_CLEANUP_SECONDS: float = 1.0
@@ -211,7 +214,7 @@ static func live_hand_overlap(tree: SceneTree, expect: Callable) -> void:
 	scene.process_mode = Node.PROCESS_MODE_DISABLED
 	board.set_navigation_pan(HAND_PAN, false)
 	var navigation: Dictionary = board.navigation_snapshot()
-	expect.call(is_equal_approx(float(navigation["zoom"]), HAND_ZOOM) and (navigation["pan"] as Vector2).is_zero_approx(), "Hand regression uses director's zoom 1.4 and zero pan")
+	expect.call(is_equal_approx(float(navigation["zoom"]), HAND_ZOOM) and (navigation["pan"] as Vector2).is_equal_approx(HAND_PAN), "Hand regression uses director's zoom 1.4 and its fixed pan")
 	var hand: Control = scene.get("hand_box")
 	expect.call(hand != null and hand.is_visible_in_tree(), "Hand regression exposes the real live hand")
 	var global_hand: Rect2 = hand.get_global_rect()

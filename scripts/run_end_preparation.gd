@@ -1,5 +1,7 @@
 extends RefCounted
 
+static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
+
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
 const SLICE_USEC: int = 4000
 
@@ -31,10 +33,15 @@ static func _present_frame(tree: SceneTree) -> void:
 	else: await RenderingServer.frame_post_draw
 
 static func _wait_for_window(owner: WeakRef, recap_owner: WeakRef, inputs: Array, tree: SceneTree) -> bool:
+	var _hitch_continuation: RefCounted
+	if _hitch_trace_enabled: _hitch_continuation = null
 	await _present_frame(tree)
+	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_end_preparation:_wait_for_window:1")
 	while _active(owner, recap_owner, inputs):
 		if _window_open(owner.get_ref()): return true
+		if _hitch_trace_enabled: _hitch_continuation = null
 		await _present_frame(tree)
+		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:run_end_preparation:_wait_for_window:2")
 	return false
 
 func _prepare(owner: WeakRef, recap_owner: WeakRef, inputs: Array) -> void:
@@ -68,10 +75,14 @@ func _prepare(owner: WeakRef, recap_owner: WeakRef, inputs: Array) -> void:
 	_running = false
 
 static func _shape_batch(batch: Callable, jobs: Array[Dictionary]) -> void:
+	var _hitch_span: RefCounted
+	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_end_preparation:_shape_batch")
 	var shaped: Array[Dictionary] = batch.call()
 	jobs.append_array(shaped)
 
 static func _draw_slice(jobs: Array[Dictionary], cursor: Dictionary) -> void:
+	var _hitch_span: RefCounted
+	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_end_preparation:_draw_slice")
 	var server: TextServer = TextServerManager.get_primary_interface()
 	var canvas: RID = RenderingServer.canvas_item_create()
 	var started: int = Time.get_ticks_usec()
@@ -90,3 +101,7 @@ static func _draw_slice(jobs: Array[Dictionary], cursor: Dictionary) -> void:
 			cursor["shift"] = 0
 		if Time.get_ticks_usec() - started >= SLICE_USEC: break
 	RenderingServer.free_rid(canvas)
+
+# Resolve only on the enabled path; no telemetry preload dependency.
+static func _hitch_sink() -> Node:
+	return (Engine.get_main_loop() as SceneTree).root.get_node("PerformanceTelemetry")

@@ -4,6 +4,8 @@ var failures: Array[String]
 var assertions: int = 0
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	# Classic board HUD contracts (see tests/helpers/legacy_board_hud.gd).
+	preload("res://tests/helpers/legacy_board_hud.gd").pin_always()
 	call_deferred("_run")
 func _run() -> void:
 	Suite.run(_expect)

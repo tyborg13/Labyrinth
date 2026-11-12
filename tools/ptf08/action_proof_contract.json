@@ -1,0 +1,44 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 4,
+  "required_images": [
+    {
+      "pattern": "kill.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "non_kill.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "block_confirmation.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "shortcut_hover.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "semantic_assertions": {
+    "enforced_by": "tools/ptf08/action_capture.gd",
+    "sequence": [
+      "verified real combat fixture",
+      "pointer-select Bone Dart; sweep kill and surviving targets",
+      "invalid tile fades out",
+      "Brace confirmation",
+      "pointer-select Sidestep Slash; hover shortcut foe",
+      "hero movement",
+      "PASS hover"
+    ],
+    "stills": [
+      "fully visible panel",
+      "post-action rows match headless verified plan"
+    ]
+  }
+}

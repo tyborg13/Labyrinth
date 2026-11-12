@@ -26,9 +26,9 @@ func _initialize() -> void:
 	board.free()
 	var scene := RunScene.new()
 	var entry: Dictionary = {"kind": "enemy", "name": "Crawler", "eta": 3, "petrified": true}
-	var lines: PackedStringArray = str(scene._turn_order_tooltip(entry, 0)).split("\n")
-	_expect(lines.count(QUEUED_TOOLTIP) == 1 and QUEUED_TOOLTIP == ManeuverRules.petrified_tooltip(true), "The turn-order tooltip uses the shared exact queued-turn wording once")
-	_expect(not lines.has(STATUS_TOOLTIP), "The turn-order tooltip stays specific to the queued turn")
+	# Owner 2026-11-12: enemy hover tooltips are gone, including the rail. The
+	# Petrified wording stays on the board status badge (checked above).
+	_expect(str(scene._turn_order_tooltip(entry, 0)).is_empty() and QUEUED_TOOLTIP == ManeuverRules.petrified_tooltip(true), "Enemy rail entries open no tooltip; the queued-turn wording is unchanged")
 	entry["petrified"] = false
 	_expect(not scene._turn_order_tooltip(entry, 0).contains("Petrified"), "An unpetrified queued turn has no Petrified tooltip line")
 	scene.free()

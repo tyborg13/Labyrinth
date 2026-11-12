@@ -3,6 +3,8 @@ extends "res://tests/run_tests.gd"
 ## Focused invocation of existing HUD/status regressions plus sb-01 coverage.
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	# Classic board HUD contracts (see tests/helpers/legacy_board_hud.gd).
+	preload("res://tests/helpers/legacy_board_hud.gd").pin_always()
 	call_deferred("_run_status_checks")
 
 func _run_status_checks() -> void:

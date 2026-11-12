@@ -783,3 +783,56 @@ func _timestamp_utc_iso() -> String:
 func _utc_date_string() -> String:
 	var now: Dictionary = Time.get_datetime_dict_from_system(true)
 	return "%04d-%02d-%02d" % [int(now.get("year", 1970)), int(now.get("month", 1)), int(now.get("day", 1))]
+
+
+# perf-106: opt-in instance sink reached through the existing autoload.
+var hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
+var _hitch_events: Dictionary = {}
+var _hitch_phases: Dictionary = {}
+
+class HitchSpan extends RefCounted:
+	var label: String
+	var started: int
+	var is_load: bool
+	var cache_hit: bool
+	var destination: Dictionary
+
+	func _init(target: Dictionary, span_label: String, load_event: bool = false, cached: bool = false) -> void:
+		destination = target
+		label = span_label
+		is_load = load_event
+		cache_hit = cached
+		started = Time.get_ticks_usec()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_PREDELETE:
+			var elapsed: int = Time.get_ticks_usec() - started
+			if is_load:
+				var entry: Dictionary = destination.get(label, {"count": 0, "total_us": 0, "godot_cached_at_entry": 0})
+				entry["count"] += 1
+				entry["total_us"] += elapsed
+				entry["godot_cached_at_entry"] += int(cache_hit)
+				destination[label] = entry
+			else:
+				destination[label] = int(destination.get(label, 0)) + elapsed
+
+func hitch_phase(label: String) -> RefCounted:
+	return HitchSpan.new(_hitch_phases, label)
+
+func hitch_load(path: String) -> RefCounted:
+	return HitchSpan.new(_hitch_events, "load:" + path, true, ResourceLoader.has_cached(path))
+
+func hitch_resource_load(path: String) -> Resource:
+	var _span: RefCounted
+	if hitch_trace_enabled: _span = hitch_load(path)
+	return ResourceLoader.load(path)
+
+func take_hitch_events() -> Dictionary:
+	var result: Dictionary = _hitch_events.duplicate(true)
+	_hitch_events.clear()
+	return result
+
+func take_hitch_phases() -> Dictionary:
+	var result: Dictionary = _hitch_phases.duplicate()
+	_hitch_phases.clear()
+	return result

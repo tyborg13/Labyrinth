@@ -73,7 +73,7 @@ func _schedule(scene: Node, ticket: int) -> void:
 	_tree.process_frame.connect(_callback, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
 
 func source_state(scene: Node, target: Vector2i, default_approach: bool) -> Dictionary:
-	if scene._selected_card_index < 0:
+	if scene._selected_card_index < 0 and not scene._player_movement_selected and not scene._surface_aim.active():
 		return scene._build_pass_preview_source_state_for_tile(target, default_approach)
 	var key: String = scene._pass_preview_key(target, default_approach)
 	if not _source_states.has(key):
@@ -84,6 +84,11 @@ func source_state(scene: Node, target: Vector2i, default_approach: bool) -> Dict
 			_source_states.erase(_source_states.keys()[0])
 		_source_states[key] = state
 	return _source_states[key]
+
+# Presentation consumers share the exact snapshot used to fill this tile's
+# summary, including kills and privacy filtering; never resolve it again.
+func cached_source(scene: Node, target: Vector2i) -> Dictionary:
+	return _source_states.get(scene._pass_preview_key(target), {}) as Dictionary
 
 func effective_entry(scene: Node, target: Vector2i) -> Vector2i:
 	var approach: RefCounted = scene._move_attack_approach
@@ -97,10 +102,10 @@ func effective_entry(scene: Node, target: Vector2i) -> Vector2i:
 	return INVALID if approach.plan_for(scene, preview, target, shortcuts.get("movement_plan", {})).is_empty() else approach.entry
 
 func _eligible(scene: Node) -> bool:
-	return scene.is_inside_tree() and not scene._animation_lock and str(scene._run_state.get("mode", "room")) == "combat" and scene._selected_card_index >= 0 and not scene._preview_combat_state.is_empty() and scene._combat_engine.is_player_turn(scene._combat_state)
+	return scene.is_inside_tree() and not scene._animation_lock and str(scene._run_state.get("mode", "room")) == "combat" and (scene._player_movement_selected or (scene._selected_card_index >= 0 and not scene._preview_combat_state.is_empty())) and scene._combat_engine.is_player_turn(scene._combat_state)
 
 func _inputs(scene: Node) -> Array:
-	return [scene._combat_preview_revision, scene._preview_selection_revision, scene._selected_card_index, scene._pending_action_index, scene._pending_target_tiles.duplicate(), scene._aoe_aim_orientation, scene._pending_orientation_target_tile, scene._card_action_choice_mode]
+	return [scene._combat_preview_revision, scene._preview_selection_revision, scene._selected_card_index, scene._pending_action_index, scene._pending_target_tiles.duplicate(), scene._player_movement_selected, scene._player_movement_target_tiles.duplicate(), scene._aoe_aim_orientation, scene._pending_orientation_target_tile, scene._card_action_choice_mode]
 
 func tick(scene: Node) -> void:
 	if not _eligible(scene):
@@ -189,7 +194,7 @@ func _clear_current() -> void:
 	_cursor = {}
 
 func _order_targets(scene: Node) -> void:
-	_tiles.assign(scene._pending_target_tiles)
+	_tiles.assign(scene._player_movement_target_tiles if scene._player_movement_selected else scene._pending_target_tiles)
 	if scene._orientation_pending():
 		for tile: Vector2i in scene._direction_choice_tiles(scene._pending_orientation_target_tile):
 			if not _tiles.has(tile): _tiles.append(tile)

@@ -1,0 +1,41 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 4,
+  "required_images": [
+    {
+      "pattern": "safe.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "loss.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "x2.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "pass_hover.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "semantic_assertions": {
+    "enforced_by": "tools/ptf08/movement_capture.gd",
+    "sequence": [
+      "verified real combat inspection fixture, seed 123, room 0,13",
+      "hero selection via pointer click",
+      "four legal destinations over 75 frames",
+      "known Safe and 4 Health loss, repeated Bone Harrier",
+      "invalid enemy tile fades out and valid reentry returns",
+      "PASS pointer hover",
+      "Shadow Step pointer selection and two landing previews",
+      "30 FPS presentation clock, 1920x1080, UI scale 1.0"
+    ]
+  }
+}

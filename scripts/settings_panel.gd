@@ -249,6 +249,16 @@ func _build_accessibility_section() -> Control:
 	_controls["combat_speed"] = combat_option
 	rows.add_child(_setting_row("Combat speed", COMBAT_SPEED_DETAIL, combat_option))
 
+	var health_option := _option_control()
+	health_option.name = "BoardHealthBarsOption"
+	health_option.add_item("Always")
+	health_option.set_item_metadata(0, SettingsStore.BOARD_HEALTH_ALWAYS)
+	health_option.add_item("On hover and aim")
+	health_option.set_item_metadata(1, SettingsStore.BOARD_HEALTH_CONTEXTUAL)
+	health_option.item_selected.connect(_on_option_selected.bind("board_health_bars", health_option))
+	_controls["board_health_bars"] = health_option
+	rows.add_child(_setting_row("Board health bars", "", health_option))
+
 	var reduced_button := Button.new()
 	reduced_button.toggle_mode = true
 	reduced_button.custom_minimum_size = Vector2(CONTROL_WIDTH, 44.0)
@@ -478,6 +488,7 @@ func _sync_controls_from_settings() -> void:
 	_select_option_value(_controls.get("ui_scale") as OptionButton, _settings.get("ui_scale"))
 	_select_option_value(_controls.get("edge_smoothing") as OptionButton, _settings.get("edge_smoothing"))
 	_select_option_value(_controls.get("dialogue_speed") as OptionButton, _settings.get("dialogue_speed"))
+	_select_option_value(_controls.get("board_health_bars") as OptionButton, _settings.get("board_health_bars"))
 	_select_option_value(_controls.get("combat_speed") as OptionButton, _settings.get("combat_speed"))
 	var reduced_button: Button = _controls.get("reduced_motion") as Button
 	if reduced_button != null:
@@ -504,7 +515,7 @@ func _on_option_selected(index: int, key: String, option: OptionButton) -> void:
 	if _syncing or index < 0:
 		return
 	_settings[key] = option.get_item_metadata(index)
-	var status: String = "Display updated" if key in ["display_mode", "ui_scale", "edge_smoothing"] else "Dialogue updated"
+	var status: String = "Display updated" if key in ["display_mode", "ui_scale", "edge_smoothing", "board_health_bars"] else "Dialogue updated"
 	_commit_change("Saved automatically" if key == "combat_speed" else status)
 
 func _on_reduced_motion_toggled(enabled: bool) -> void:

@@ -8,20 +8,43 @@ const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 var _triangle_batch := WidgetBatch.new()
 var _separator_batch := WidgetBatch.new()
 var _draw_inputs: Array = []
+var _redraw_inputs: Array = []
 
 var ghost_tracker: RefCounted
 var ghost_key: String = ""
 var ghost_color: Color = Color.TRANSPARENT
 
 func bind_ghost(tracker: RefCounted, key: String, enemy: bool) -> void:
+	var next_color: Color = HealthGhostTracker.ENEMY_GHOST_COLOR if enemy else HealthGhostTracker.ALLY_GHOST_COLOR
+	if ghost_tracker == tracker and ghost_key == key and ghost_color == next_color:
+		_request_redraw()
+		return
 	if ghost_tracker != tracker:
-		if ghost_tracker != null and ghost_tracker.changed.is_connected(queue_redraw):
-			ghost_tracker.changed.disconnect(queue_redraw)
+		if ghost_tracker != null and ghost_tracker.changed.is_connected(_ghost_changed):
+			ghost_tracker.changed.disconnect(_ghost_changed)
 		ghost_tracker = tracker
 		if ghost_tracker != null:
-			ghost_tracker.changed.connect(queue_redraw)
+			ghost_tracker.changed.connect(_ghost_changed)
 	ghost_key = key
-	ghost_color = HealthGhostTracker.ENEMY_GHOST_COLOR if enemy else HealthGhostTracker.ALLY_GHOST_COLOR
+	ghost_color = next_color
+	_request_redraw()
+
+func _ghost_changed() -> void:
+	# The shared tracker notifies every bar, including while another actor
+	# animates or this actor's damage ghost is holding at the same position.
+	_request_redraw()
+
+func _draw_key(ghost: Dictionary) -> Array:
+	return [size, value, max_value, segment_count, background_color, fill_color,
+		fill_highlight_color, border_color, separator_color, separator_width,
+		border_width, ghost_color, ghost]
+
+func _request_redraw() -> void:
+	# Compare every input, not just setter arguments: observe() can change max
+	# HP without emitting changed, and reduced motion changes the ghost sample.
+	var inputs: Array = _draw_key(ghost_sample())
+	if inputs == _redraw_inputs: return
+	_redraw_inputs = inputs
 	queue_redraw()
 
 func ghost_sample() -> Dictionary:
@@ -40,27 +63,29 @@ func ghost_sample() -> Dictionary:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
-		queue_redraw()
+		_request_redraw()
 
 func set_health(next_value: float, next_max_value: float) -> void:
+	next_max_value = maxf(next_max_value, 1.0)
 	value = next_value
-	max_value = maxf(next_max_value, 1.0)
-	queue_redraw()
+	max_value = next_max_value
+	_request_redraw()
 
 func set_fill(next_fill_color: Color, next_highlight_color: Color) -> void:
 	fill_color = next_fill_color
 	fill_highlight_color = next_highlight_color
-	queue_redraw()
+	_request_redraw()
 
 func set_appearance(next_background: Color, next_border: Color, next_separator: Color) -> void:
 	background_color = next_background
 	border_color = next_border
 	separator_color = next_separator
-	queue_redraw()
+	_request_redraw()
 
 func set_segment_count(next_segment_count: int) -> void:
-	segment_count = maxi(1, next_segment_count)
-	queue_redraw()
+	next_segment_count = maxi(1, next_segment_count)
+	segment_count = next_segment_count
+	_request_redraw()
 
 static func segment_count_for_max_hp(bar_max_value: float, hp_per_segment: int = HP_PER_SEGMENT) -> int:
 	if hp_per_segment <= 0:
@@ -70,15 +95,14 @@ static func segment_count_for_max_hp(bar_max_value: float, hp_per_segment: int =
 func _draw() -> void:
 	if size.x <= 0.0 or size.y <= 0.0: return
 	var ghost: Dictionary = ghost_sample()
+	_redraw_inputs = _draw_key(ghost)
 	var ghost_range: Vector2 = ghost.get("ghost_range", Vector2.ZERO)
 	var batch_faces: bool = ghost_range.y <= ghost_range.x and float(ghost.get("heal_flash", 0.0)) <= 0.0
 	# Animated ghost/heal faces stay native: rebuilding their triangles each
 	# sample costs more CPU than the original commands. Stable bars retain the
 	# complete faces and separators without per-segment work or vertex hashing.
 	if batch_faces:
-		var inputs: Array = [size, value, max_value, segment_count, background_color,
-			fill_color, fill_highlight_color, border_color, separator_color,
-			separator_width, border_width, ghost_color, ghost]
+		var inputs: Array = _redraw_inputs
 		if inputs == _draw_inputs:
 			_triangle_batch.replay(self)
 			_separator_batch.replay(self)

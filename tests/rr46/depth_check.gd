@@ -148,10 +148,16 @@ func _check_visible_callbacks(report: Dictionary) -> void:
 	board.free()
 
 func _missing_actor_callback(board: Control) -> int:
+	# rd-02 team outlines paint each body in a per-unit retained child of its tile
+	# layer (depth covered by tools/rd02). Probe the tile routing itself here.
+	var outlines: Node = board.get("_occlusion_silhouettes")
+	var outline_tool: Variant = outlines.get("tool_enabled") if is_instance_valid(outlines) else null
+	if outline_tool != null: outlines.set("tool_enabled", false)
 	var submitted: int = 0
 	for layer: Control in board._scene_render_layers:
 		if layer._render_layer_scene_effect_pass != 0: continue
 		layer.submitted_actor_keys.clear()
 		layer._draw_unit_bodies_for_tile(layer._render_layer_tile, layer._visible_units())
 		submitted += layer.submitted_actor_keys.count("enemy_1")
+	if outline_tool != null: outlines.set("tool_enabled", outline_tool)
 	return 0 if submitted == 1 else 1

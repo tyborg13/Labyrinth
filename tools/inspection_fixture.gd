@@ -122,6 +122,7 @@ func _parse_args() -> Dictionary:
 		"trap_elements": "",
 		"trap_positions": "",
 		"terrain": "",
+		"terrain_blocks_sight": false,
 		"reward_cards": "",
 		"relic_choices": "",
 		"relics": "",
@@ -155,6 +156,8 @@ func _parse_args() -> Dictionary:
 				parsed["show_help"] = true
 			"--allow-live-user-dir":
 				parsed["allow_live_user_dir"] = true
+			"--terrain-blocks-sight":
+				parsed["terrain_blocks_sight"] = true
 			"--umbra-warning":
 				parsed["umbra_warning"] = true
 			"--hero-facing":
@@ -359,7 +362,7 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --surfaces fire@4:3,rubble@4:3,ice@5:4,electrified@6:4")
 	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
-	print("  --terrain wooden_box@3:6,wooden_crate@5:6,powder_keg@4:3")
+	print("  --terrain wooden_box@3:6,wooden_crate@5:6,powder_keg@4:3 [--terrain-blocks-sight]")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --item-drops crimson_draught@2:3,nail_bomb@6:1")
@@ -1189,6 +1192,8 @@ func _apply_terrain_overrides(combat_state: Dictionary) -> Dictionary:
 		blocked[tile] = true
 		terrain.append({"id": "inspection_terrain_%d_%d" % [tile.x, tile.y], "kind": pair[0], "pos": tile,
 			"hp": RoomGenerator.TERRAIN_HP, "max_hp": RoomGenerator.TERRAIN_HP})
+		if bool(_options.get("terrain_blocks_sight", false)):
+			terrain[-1]["blocks_sight"] = true
 	combat_state["terrain"] = terrain
 	return combat_state
 

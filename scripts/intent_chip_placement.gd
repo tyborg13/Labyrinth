@@ -282,3 +282,20 @@ static func _clear(rect: Rect2, occupied: Array[Rect2]) -> bool:
 	for obstacle: Rect2 in occupied:
 		if rect.intersects(obstacle, false): return false
 	return true
+
+## Owner-authored anchor, independent of art, occlusion and chip width.
+static func compact_anchor(board: Control, unit: Dictionary) -> Vector2:
+	var bounds := Rect2()
+	var first: bool = true
+	for tile: Vector2i in board.call("_unit_footprint_tiles", unit):
+		for point: Vector2 in board.call("_tile_polygon", tile):
+			if first:
+				bounds = Rect2(point, Vector2.ZERO)
+				first = false
+			else: bounds = bounds.expand(point)
+	var anchor := Vector2(bounds.get_center().x, bounds.end.y - 0.12 * float(board.call("_tile_height")))
+	var positions: Dictionary = board.presentation.get("unit_world_positions", {})
+	var key: String = str(unit.get("key", ""))
+	if positions.has(key):
+		anchor += (positions[key] as Vector2) - (board.call("world_position_for_unit_origin", unit, unit.get("pos", Vector2i.ZERO)) as Vector2)
+	return anchor

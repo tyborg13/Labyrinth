@@ -357,7 +357,8 @@ static func _test_chip_content(expect: Callable) -> void:
 	expect.call(Badges.halo_texture(end)["texture"] == halo["texture"], "Repeated halo drawing reuses its cached Gaussian mask")
 	expect.call(not Badges.details_discloses_compass({}, "enemy_1"), "Ground compass is absent at rest")
 	expect.call(Badges.details_discloses_compass({"show_all_enemy_intents": true}, "enemy_1"), "Details retains the ground compass")
-	expect.call(Badges.details_discloses_compass({"expanded_enemy_actor_keys": ["enemy_1"]}, "enemy_1") and not Badges.details_discloses_compass({"expanded_enemy_actor_keys": ["enemy_1"]}, "enemy_2"), "Focus retains only its disclosed compass")
+	# Owner 2026-11-12: hover, rail hover and isolation never show the floor compass; only Details does.
+	expect.call(not Badges.details_discloses_compass({"expanded_enemy_actor_keys": ["enemy_1"]}, "enemy_1"), "Hover or focus shows no floor compass")
 
 static func _test_danger(expect: Callable) -> void:
 	var combat := Combat.new()

@@ -1,0 +1,6 @@
+{"type":"header","schema":1,"native":true,"columns":["frame","draw_interval_ms","cpu_ms","context","monitors","events","observer_previous_us","focused"]}
+[1,10,3,{"screen":"combat","action":"pass","phase":"enemy","seed":83,"decision":1,"room_type":"combat"},{"OBJECT_NODE_COUNT":100},{},12,true]
+[2,40,30,{"screen":"combat","action":"pass","phase":"enemy","seed":83,"decision":2,"room_type":"combat"},{"OBJECT_NODE_COUNT":101},{"instance:res://scripts/enemy.gd":1},13,true]
+[3,120,90,{"screen":"combat","action":"pass","phase":"enemy","seed":83,"decision":3,"room_type":"combat"},{"OBJECT_NODE_COUNT":102},{"instance:res://scripts/enemy.gd":2},14,true]
+[4,60,20,{"screen":"map","action":"open","phase":"map","seed":83,"decision":4,"room_type":"start"},{"OBJECT_NODE_COUNT":103},{"pipeline:canvas":1},15,false]
+[5,33.3,10,{"screen":"map","action":"open","phase":"map","seed":83,"decision":5,"room_type":"start"},{"OBJECT_NODE_COUNT":103},{},16,true]

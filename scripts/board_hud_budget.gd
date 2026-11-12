@@ -10,18 +10,35 @@ const HAND_BOTTOM_GAP: float = 8.0
 var key: Array = []
 var exclusions: Array[Rect2]
 var collapsed_strip: float = 0.0
+var desktop_hand_top: float = 0.0
+var _layout_key: Array = []
+var _compact: bool = false
 
 func environment(scene: Control) -> Array:
 	return [scene.get("_board_encounter_key"), scene.get("_board_encounter_started"),
-		scene.get_viewport_rect().size, scene.get_window().content_scale_factor]
+		scene.get_viewport_rect().size, scene.get_window().content_scale_factor,
+		preload("res://scripts/ui_typography.gd").output_size(scene)]
+
+func compact_layout(scene: Control) -> bool:
+	# Resolve before the hand's first sort, then retain the output decision with
+	# this encounter's HUD budget. Physical size also invalidates scaled windows.
+	var current: Array = environment(scene) if scene.is_inside_tree() else []
+	if current != _layout_key or current.is_empty():
+		_layout_key = current
+		_compact = preload("res://scripts/ui_typography.gd").is_handheld_output(scene) \
+			or preload("res://scripts/input_router.gd").platform_is_steam_deck()
+	return _compact
 
 func capture(scene: Control) -> void:
 	key = environment(scene)
+	var compact: bool = compact_layout(scene)
 	# Published presentations retain this array. Replace it for the next room;
 	# mutating it would hide an exclusion change from the board's input diff.
 	var next_exclusions: Array[Rect2]
 	exclusions = next_exclusions
 	collapsed_strip = _collapsed_strip(scene)
+	if not compact:
+		desktop_hand_top = _desktop_hand_top(scene)
 	# ui-28 may remove this node entirely. Its Control geometry is the only
 	# dependency; no glyph construction, prompt methods or class constants.
 	var prompt: Control = scene.get("_controller_prompt_bar") as Control
@@ -83,6 +100,21 @@ static func maximum_rail_height(scene: Node, count_limit: int, available: float)
 
 func _add(rect: Rect2) -> void:
 	if rect.has_area(): exclusions.append(rect.grow(EXCLUSION_GAP))
+
+func _desktop_hand_top(scene: Control) -> float:
+	# Measure the full desktop row even if combat begins with a controller or an
+	# explicit pointer tuck. Sort synchronously and restore before any frame draws;
+	# the frozen board budget must never depend on the current input device/focus.
+	var height: float = scene.hand_row.custom_minimum_size.y
+	var tuck: int = scene.hand_tuck_margin.get_theme_constant("margin_top")
+	scene.hand_row.custom_minimum_size.y = scene.DESKTOP_HAND_ROW_HEIGHT
+	scene.hand_tuck_margin.add_theme_constant_override("margin_top", 0)
+	scene._sort_targeting_hand_containers()
+	var top: float = scene.hand_row.get_global_rect().position.y
+	scene.hand_row.custom_minimum_size.y = height
+	scene.hand_tuck_margin.add_theme_constant_override("margin_top", tuck)
+	scene._sort_targeting_hand_containers()
+	return top
 
 func _collapsed_strip(scene: Control) -> float:
 	# The CenterContainer grows to the fan's minimum height in SHOW_NEVER mode.

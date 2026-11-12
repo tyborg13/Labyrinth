@@ -1,0 +1,125 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 6,
+  "required_images": [
+    {
+      "pattern": "second_move_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "second_move_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "fatigue_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "fatigue_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "safe_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "safe_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1400,
+            600,
+            500,
+            480
+          ],
+          "min_luma_range": 3,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    }
+  ],
+  "semantic_assertions": {
+    "enforced_by": "tools/ptf07/forecast_probe.gd::require_panel",
+    "all_six_captures": [
+      "panel visible in scene",
+      "above PASS and right-aligned",
+      "absolute maximum HUD z-index",
+      "same panel text for both input paths",
+      "native popup suppressed"
+    ],
+    "hover_captures": [
+      "pointer hover active",
+      "keyboard focus absent",
+      "same bounds as focus capture"
+    ]
+  }
+}

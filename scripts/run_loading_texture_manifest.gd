@@ -78,6 +78,14 @@ const MAP_PREPARATION_TEXTURES: PackedStringArray = [
 	"res://assets/art/ui/visual_pass_4/price_tag.png",
 ]
 
+# perf-126: only the two idle sheets observed in the first minute of the demo.
+# Keep the ordinary import/source policy; the shared source worker can decode
+# these before BiomeLibrary first asks for them while constructing the room.
+const DEMO_FIRST_ROOM_TEXTURES: PackedStringArray = [
+	"res://assets/art/biomes/tharokh/light_left_idle.png",
+	"res://assets/art/biomes/tharokh/light_right_idle.png",
+]
+
 static func add_to(manifest: Dictionary) -> void:
-	for paths: PackedStringArray in [CAMPFIRE_VIEW_TEXTURES, GRAFT_PANEL_TEXTURES, MAP_PREPARATION_TEXTURES]:
+	for paths: PackedStringArray in [CAMPFIRE_VIEW_TEXTURES, GRAFT_PANEL_TEXTURES, MAP_PREPARATION_TEXTURES, DEMO_FIRST_ROOM_TEXTURES]:
 		for path: String in paths: manifest[path] = false

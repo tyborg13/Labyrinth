@@ -1356,8 +1356,48 @@ static func record_choice(state: Dictionary, destination: Vector2i) -> void:
 			known_metadata.append({"room": node.get("coord", INVALID), "type": display_type(node), "element": node.get("mystery_element", "none") if display_type(node) == "combat" and str(node.get("type", "")) == "mystery" else node.get("element", ""), "step": node.get("map_step", 0), "landmark": node.get("map_landmark", false)})
 	record_event(state, "route_choice_committed", {"section": active_section(state), "origin": state.get("current_room", Vector2i.ZERO), "destination": destination, "known_rooms": known, "known_room_metadata": known_metadata, "scouts": section(state, active_section(state)).get("scouts", 0)})
 
+static func checkpoint_copy(state: Dictionary) -> Dictionary:
+	# Keep the journal's slot (and therefore serialized Dictionary order). Only
+	# committed, recursively read-only records may cross snapshot ownership.
+	var shell: Dictionary = state.duplicate(false)
+	if state.has("map_events"):
+		shell["map_events"] = []
+	var snapshot: Dictionary = shell.duplicate(true)
+	if state.has("map_events"):
+		snapshot["map_events"] = checkpoint_events(state)
+	return snapshot
+
+static func checkpoint_events(state: Dictionary) -> Array:
+	var events: Array = state.get("map_events", [])
+	if events.is_read_only():
+		return events
+	# Appending detaches only the Array shell. Existing committed records stay
+	# frozen; new/staged records (including section-entry annotations) detach
+	# here, after their last mutation and before save/analytics consumption.
+	var committed: Array = events.duplicate(false)
+	for index: int in range(committed.size()):
+		var event: Dictionary = committed[index]
+		if not event.is_read_only():
+			event = event.duplicate(true)
+			_freeze_checkpoint_event(event)
+			committed[index] = event
+	committed.make_read_only()
+	return committed
+
+static func _freeze_checkpoint_event(value: Variant) -> void:
+	if value is Dictionary:
+		for child: Variant in value.values():
+			_freeze_checkpoint_event(child)
+		value.make_read_only()
+	elif value is Array:
+		for child: Variant in value:
+			_freeze_checkpoint_event(child)
+		value.make_read_only()
+
 static func record_event(state: Dictionary, event_type: String, payload: Dictionary) -> void:
 	var events: Array = state.get("map_events", [])
+	if events.is_read_only():
+		events = events.duplicate(false)
 	var revision: int = int(state.get("map_event_revision", 0)) + 1
 	events.append({"revision": revision, "type": event_type, "payload": payload})
 	state["map_events"] = events

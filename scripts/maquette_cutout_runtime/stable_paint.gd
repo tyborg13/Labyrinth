@@ -19,8 +19,8 @@ static func restore(rig: Node2D) -> void:
 	if not rig.layout.get("stable_source_raster", false): return
 	for node: Node in rig.get_children():
 		if node is Polygon2D and node.has_meta("stable_source"):
-			node.polygon = node.get_meta("stable_polygon")
-			node.skeleton = node.get_meta("stable_skeleton")
+			if node.polygon != node.get_meta("stable_polygon"): node.polygon = node.get_meta("stable_polygon")
+			if node.skeleton != node.get_meta("stable_skeleton"): node.skeleton = node.get_meta("stable_skeleton")
 	for part: Dictionary in rig.layout["parts"]:
 		var sprite: Sprite2D = rig.bones[part["bone"]].get_node_or_null(NodePath(part["name"])) as Sprite2D
 		if sprite == null or not sprite.has_node("ExactSourcePaint"): continue
@@ -60,15 +60,19 @@ static func apply(rig: Node2D, clip: String) -> void:
 		var mesh: Polygon2D = node as Polygon2D
 		var data: Dictionary = node.get_meta("stable_source")
 		var compiled: RefCounted = mesh.get_meta("stable_skin")
-		mesh.skeleton = NodePath()
+		if not mesh.skeleton.is_empty(): mesh.skeleton = NodePath()
+		var points: PackedVector2Array
 		if clip in ["rest", "idle"]:
 			var offset: Vector2 = idle_offset(rig, data)
-			mesh.polygon = compiled.idle(node.get_meta("stable_polygon"), offset)
+			points = compiled.idle(node.get_meta("stable_polygon"), offset)
 		else:
 			var poses := PackedFloat64Array()
 			for name: String in compiled.names:
 				poses.append_array(cap_poses[name] if data.get("rigid_source_alignment", false) and cap_poses.has(name) else body_poses[name])
-			mesh.polygon = compiled.submit(poses)
+			points = compiled.submit(poses)
+		# Native packed-array equality preserves every vertex and every pose frame.
+		# Polygon2D setters invalidate triangulation even for identical arrays.
+		if mesh.polygon != points: mesh.polygon = points
 	var replaced: Dictionary = {}
 	for data: Dictionary in rig.layout["joint_meshes"]: replaced[data["replaces_part"]] = true
 	for part: Dictionary in rig.layout["parts"]:
@@ -84,7 +88,7 @@ static func apply(rig: Node2D, clip: String) -> void:
 			triangles.assign([PackedInt32Array([0, 1, 2]), PackedInt32Array([0, 2, 3])])
 			paint.polygons = triangles
 		paint.global_transform = rig.global_transform
-		paint.texture = sprite.texture
+		if paint.texture != sprite.texture: paint.texture = sprite.texture
 		paint.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		paint.texture_repeat = CanvasItem.TEXTURE_REPEAT_DISABLED
 		paint.z_as_relative = false
@@ -96,8 +100,8 @@ static func apply(rig: Node2D, clip: String) -> void:
 		for point: Vector2 in uv:
 			points.append(snap_point(float(pose[0]) * float(point.x) + float(pose[2]) * float(point.y) + float(pose[4]),
 				float(pose[1]) * float(point.x) + float(pose[3]) * float(point.y) + float(pose[5])))
-		paint.uv = uv
-		paint.polygon = points
+		if paint.uv != uv: paint.uv = uv
+		if paint.polygon != points: paint.polygon = points
 		paint.show()
 		sprite.self_modulate.a = 0.0
 

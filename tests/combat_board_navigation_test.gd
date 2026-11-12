@@ -16,6 +16,8 @@ var _tile_drag_release_count: int = 0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	# Classic board HUD contracts (see tests/helpers/legacy_board_hud.gd).
+	preload("res://tests/helpers/legacy_board_hud.gd").pin_always()
 	DisplayServer.window_set_size(Vector2i(960, 680))
 	root.size = Vector2i(960, 680)
 	var board: Control = CombatBoardView.new()

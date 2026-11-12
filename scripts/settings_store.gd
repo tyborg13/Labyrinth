@@ -16,6 +16,12 @@ const EDGE_SMOOTHING_VIEWPORT_GROUP: StringName = &"settings_edge_smoothing_view
 const DIALOGUE_STANDARD: String = "standard"
 const DIALOGUE_FAST: String = "fast"
 const DIALOGUE_INSTANT: String = "instant"
+const BOARD_HEALTH_ALWAYS: String = "always"
+const BOARD_HEALTH_CONTEXTUAL: String = "on_hover_and_aim"
+const DEFAULT_BOARD_HEALTH_BARS: String = BOARD_HEALTH_CONTEXTUAL
+const BOARD_HEALTH_GROUP: StringName = &"board_health_settings"
+static var _applied_board_health_bars: String = DEFAULT_BOARD_HEALTH_BARS
+
 const COMBAT_NORMAL: String = "normal"
 const COMBAT_FAST: String = "fast"
 const COMBAT_FASTEST: String = "fastest"
@@ -95,6 +101,7 @@ static func default_settings() -> Dictionary:
 		"dialogue_speed": DIALOGUE_STANDARD,
 		"combat_speed": COMBAT_NORMAL,
 		"hero_facing": "persist",
+		"board_health_bars": DEFAULT_BOARD_HEALTH_BARS,
 		"reduced_motion": false
 	}
 
@@ -129,6 +136,8 @@ static func normalize_settings(data: Variant) -> Dictionary:
 	normalized["reduced_motion"] = _bool_or_default(source.get("reduced_motion"), bool(defaults["reduced_motion"]))
 	var hero_facing: String = str(source.get("hero_facing", "persist"))
 	normalized["hero_facing"] = hero_facing if hero_facing in ["persist", "snap"] else "persist"
+	var board_health: String = str(source.get("board_health_bars", DEFAULT_BOARD_HEALTH_BARS))
+	normalized["board_health_bars"] = board_health if board_health in [BOARD_HEALTH_ALWAYS, BOARD_HEALTH_CONTEXTUAL] else DEFAULT_BOARD_HEALTH_BARS
 	normalized["settings_schema"] = SETTINGS_SCHEMA
 	return normalized
 
@@ -181,6 +190,11 @@ static func restore_defaults(window: Window = null) -> Dictionary:
 static func apply_settings(settings: Dictionary, window: Window = null, apply_display_mode: bool = true) -> Dictionary:
 	var normalized: Dictionary = normalize_settings(settings)
 	_applied_reduced_motion = bool(normalized["reduced_motion"])
+	_applied_board_health_bars = str(normalized["board_health_bars"])
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if tree != null:
+		for board: Node in tree.get_nodes_in_group(BOARD_HEALTH_GROUP):
+			board.call("refresh_plate_visibility")
 	apply_audio_settings(normalized)
 	_apply_edge_smoothing(str(normalized["edge_smoothing"]))
 	if window != null:

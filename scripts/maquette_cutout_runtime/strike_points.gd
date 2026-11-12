@@ -77,8 +77,8 @@ static func restore_nodes(rows: Array[Dictionary]) -> void:
 		node.z_as_relative = row["z_as_relative"]
 		# Shaft layering swaps sprite materials while posed (Lancer tail).
 		node.material = row["material"]
-		if row.has("texture"): node.texture = row["texture"]
+		if row.has("texture") and node.texture != row["texture"]: node.texture = row["texture"]
 		if node is Polygon2D:
-			node.polygon = row["polygon"]
-			node.uv = row["uv"]
-			node.skeleton = row["skeleton"]
+			if node.polygon != row["polygon"]: node.polygon = row["polygon"]
+			if node.uv != row["uv"]: node.uv = row["uv"]
+			if node.skeleton != row["skeleton"]: node.skeleton = row["skeleton"]

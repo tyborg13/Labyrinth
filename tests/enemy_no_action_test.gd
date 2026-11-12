@@ -27,6 +27,8 @@ var _canvas: SubViewport
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	# Classic board HUD contracts (see tests/helpers/legacy_board_hud.gd).
+	preload("res://tests/helpers/legacy_board_hud.gd").pin_always()
 	Progression.set_storage_path("user://fb_01_profile.json")
 	Progression.set_run_storage_path("user://fb_01_run.save")
 	Settings.set_storage_path("user://fb_01_settings.json")

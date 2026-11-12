@@ -38,11 +38,15 @@ def write_json(path: Path, data: object) -> None:
 
 
 def command_for(seed: int, directory: Path, args: argparse.Namespace) -> list[str]:
-    command = [sys.executable, "tools/godot_task_runner.py", "--task-id", "qa-18", "--timeout", str(args.seed_timeout), "--stream", "--", "godot", "--headless", "--path", ".", "--script", args.script, "--", "--seed", str(seed), "--output-dir", str(directory)]
+    command = [sys.executable, "tools/godot_task_runner.py", "--task-id", "qa-85" if getattr(args, "demo", False) else "qa-18", "--timeout", str(args.seed_timeout), "--stream", "--", "godot", "--headless", "--path", ".", "--script", args.script, "--", "--seed", str(seed), "--output-dir", str(directory)]
     if args.no_embrace:
         command.extend(("--no-embrace", "true"))
     if args.stop_after:
         command.extend(("--stop-after", str(args.stop_after)))
+    if getattr(args, "demo", False): command.extend(("--demo", "true"))
+    if getattr(args, "health", 9999) != 9999: command.extend(("--health", str(args.health)))
+    if getattr(args, "profile_runs", 2) != 2: command.extend(("--profile-runs", str(args.profile_runs)))
+    if getattr(args, "defeat_after_hearth", False): command.extend(("--defeat-after-hearth", "true"))
     return command
 
 
@@ -114,10 +118,12 @@ def run_seed(seed: int, output: Path, args: argparse.Namespace) -> dict:
     directory = output / f"seed-{seed:06d}"
     directory.mkdir()
     command = command_for(seed, directory, args)
-    write_json(directory / "command.json", {"cwd": str(PROJECT), "env": {"LABYRINTH_CEL_LOOK": "off"}, "argv": command})
+    environment = {"LABYRINTH_CEL_LOOK": "off"}
+    if getattr(args, "demo", False): environment["LABYRINTH_DEMO"] = "1"
+    write_json(directory / "command.json", {"cwd": str(PROJECT), "env": environment, "argv": command})
     started = time.monotonic()
     with (directory / "godot.log").open("w") as log:
-        result = subprocess.run(command, cwd=PROJECT, env={**os.environ, "LABYRINTH_CEL_LOOK": "off"}, stdout=log, stderr=subprocess.STDOUT, check=False)
+        result = subprocess.run(command, cwd=PROJECT, env={**os.environ, **environment}, stdout=log, stderr=subprocess.STDOUT, check=False)
     evidence = read_evidence(seed, directory, result.returncode)
     evidence["wall_seconds"] = time.monotonic() - started
     write_json(directory / "evidence.json", evidence)
@@ -146,6 +152,12 @@ def replay_command(group: dict, args: argparse.Namespace) -> str:
     point = int(group["context"].get("decision", 0)) + 1
     command = ["python3", "tools/run_hunt.py", "--seed", str(seed), "--runs", "1", "--processes", "1", "--stop-after", str(point), "--output-dir", f"/private/tmp/labyrinth_codex/qa-18/replay-{seed}-{point}-{time.time_ns()}"]
     if args.no_embrace: command.append("--no-embrace")
+    if getattr(args, "demo", False): command.append("--demo")
+    if getattr(args, "health", 9999) != 9999: command.extend(("--health", str(args.health)))
+    if getattr(args, "demo", False):
+        command[command.index("--output-dir") + 1] = command[command.index("--output-dir") + 1].replace("/qa-18/", "/qa-85/")
+    if getattr(args, "profile_runs", 2) != 2: command.extend(("--profile-runs", str(args.profile_runs)))
+    if getattr(args, "defeat_after_hearth", False): command.append("--defeat-after-hearth")
     script = group.get("replay_script", args.script)
     if script != "tools/run_hunt.gd": command.extend(("--script", script))
     return f"cd {shlex.quote(str(PROJECT))} && LABYRINTH_CEL_LOOK=off {shlex.join(command)}"
@@ -187,6 +199,25 @@ def render_report(runs: list[dict], args: argparse.Namespace, elapsed: float, st
     for kind in sorted(set(REQUIRED_KINDS) | set(visits)):
         text.append(f"| {kind} | {visits[kind]}{' — NEVER VISITED' if not visits[kind] else ''} |")
     text.extend(("", "Aliases retain both the brief's label and the generator's key: dragon = `boss`, Snare = `umbral_snare`, Hoarder = `ember_hoarder`. These paired rows describe the same entries. Blacksmith and arcanist are legacy shop kinds: current new-run generation uses Scavenger (`scripts/run_engine.gd:59–65`). No fixtures were substituted to manufacture coverage.", "", "Node and orphan censuses are retained at every room entry in each seed's summary and trace. The leak detector compares the first section 0 entry with the first section 5 entry; a zero orphan baseline flags any increase. Runs that do not reach section 5 provide no section-5 leak proof.", "", "Every raw marker is retained, including startup/platform errors and shutdown warnings. A nonzero runner status is reported separately; it can mean the runner detected a script error despite a native exit of zero. Per-seed command.json and godot.log retain that distinction.", ""))
+    if getattr(args, "health", 9999) != 9999:
+        text = [line.replace("starting Health 9,999", "starting Health " + ("normal" if args.health == 0 else f"{args.health:,}")) for line in text]
+    if getattr(args, "demo", False):
+        text[0] += " — demo mode"
+        text = [line.replace("starting Health 9,999", "starting Health " + ("normal" if args.health == 0 else f"{args.health:,}")) for line in text]
+        text = [line.replace("No fixtures were substituted to manufacture coverage.", "No synthetic run fixtures were substituted. Terminal reload checks durable profile/Chronicle receipts, cleared resumable state and a fresh Section I run; later endings exercise Rise Again.") for line in text]
+        text.extend(("", "## Demo runs (Section is zero based)", "", "| Seed / profile run | Outcome | Section reached | Rooms | Hearth | Panel shown / expected | Resume checks | Rise Again Section |", "|---|---|---:|---:|---|---|---|---|"))
+        for run in runs:
+            finish = run.get("finish") or {}
+            rows = finish.get("demo_runs", [])
+            if not rows:
+                text.append(f"| {run['seed']} | {finish.get('outcome', 'process_failure')} | — | {len(run['rooms'])} | — | not reached | not reached | — |")
+            for index, row in enumerate(rows, 1):
+                text.append(f"| {run['seed']} / {index} | {row['outcome']} | {row['section']} | {row['rooms']} | {row['hearth']} | {row['shown']} / {row['expected']} | {json.dumps(row['resumes'], sort_keys=True)} | {row.get('restart_section', '—')} |")
+        text.extend(("", "## Exact commands", ""))
+        for run in runs:
+            recorded = json.loads((Path(run["log"]).parent / "command.json").read_text())
+            environment = " ".join(f"{key}={shlex.quote(value)}" for key, value in recorded.get("env", {}).items())
+            text.append(f"```sh\ncd {shlex.quote(str(PROJECT))} && {environment} {shlex.join(recorded['argv'])}\n```")
     return "\n".join(text), groups
 
 
@@ -207,6 +238,10 @@ def extra_evidence(paths: list[str]) -> list[dict]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--demo", action="store_true", help="exercise demo cutoff, end panels, resume and Rise Again on an editor binary")
+    parser.add_argument("--profile-runs", type=int, default=2, help="natural demo runs sharing each seeded profile")
+    parser.add_argument("--defeat-after-hearth", action="store_true", help="demo: keep override Health until Hearth, then set Health to 1 in the next fight and pass")
+    parser.add_argument("--health", type=int, default=9999, help="starting Health override; 0 keeps normal starting Health")
     parser.add_argument("--no-embrace", action="store_true", help="exclude Embrace, abandonment and other voluntary run-ending choices")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--runs", type=int, default=0, help="0: launch sequential seeds until the wall-clock cutoff")
@@ -219,8 +254,10 @@ def main() -> int:
     parser.add_argument("--report-only", action="store_true", help="Rebuild a completed campaign's report from its raw logs, without running Godot")
     parser.add_argument("--include-evidence", action="append", default=[], help="Supplement report findings with a separately verified seed evidence.json; excludes its run count and coverage")
     args = parser.parse_args()
-    if not 0 < args.minutes <= MAX_MINUTES or args.seed_timeout <= 0 or args.runs < 0 or args.stop_after < 0:
-        parser.error("minutes must be in (0, 75], seed-timeout positive, runs and stop-after nonnegative")
+    if not 0 < args.minutes <= MAX_MINUTES or args.seed_timeout <= 0 or args.runs < 0 or args.stop_after < 0 or args.health < 0:
+        parser.error("minutes must be in (0, 75], seed-timeout positive, runs, stop-after and health nonnegative")
+    if args.profile_runs < 1 or (args.defeat_after_hearth and (not args.demo or args.health == 0)):
+        parser.error("profile-runs must be positive; defeat-after-hearth requires demo and positive starting Health")
     output = args.output_dir.resolve()
     if args.report_only:
         campaign = json.loads((output / "campaign.json").read_text())

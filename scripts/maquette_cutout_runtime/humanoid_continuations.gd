@@ -35,4 +35,5 @@ static func apply(rig: Node2D, gait: bool, clip: String = "") -> void:
 				var colour: Color = Color.YELLOW if rig.get_meta("gait_proof_checks", false) else paint.get_pixel(int(texel[2]), int(texel[3]))
 				image.set_pixel(int(texel[0]), int(texel[1]), colour)
 			node.set_meta(key, ImageTexture.create_from_image(image))
-		node.set("texture", node.get_meta(key if active.has(name) else "gait_original_texture"))
+		var texture: Texture2D = node.get_meta(key if active.has(name) else "gait_original_texture")
+		if node.get("texture") != texture: node.set("texture", texture)

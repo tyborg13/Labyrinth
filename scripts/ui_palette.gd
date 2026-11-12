@@ -44,3 +44,8 @@ const PREVIEW_META := Color("d7c6aa")
 const PREVIEW_LOCKED := Color("d8a06a")
 const PREVIEW_INK := Color(0.085, 0.060, 0.045, 0.96)
 const PREVIEW_SHADOW := Color(0.008, 0.006, 0.009, 0.34)
+
+# Existing enemy intent title contours, also used by bare board notices.
+const BOARD_TITLE_FILL := Color("fff0cf")
+const BOARD_TITLE_OUTLINE := Color(0.035, 0.022, 0.025, 0.98)
+const BOARD_TITLE_SHADOW := Color(0.015, 0.01, 0.015, 0.82)

@@ -9,7 +9,6 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const Ink = preload("res://scripts/turn_order_ink.gd")
 const Strip = preload("res://scripts/turn_order_landing_strip.gd")
-const ForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ReviewSuite = preload("res://tests/suites/turn_clock_hud_review_suite.gd")
@@ -101,12 +100,12 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	await _install(tree, scene, lap_fixture(engine))
 	_assert_state(scene, check, 10, "", -1, [], "", "pass_lap_known_damage")
 	var summary: Dictionary = scene.call("_pass_preview_summary")
-	var line: Label = scene.find_child("PassPreviewForecastLine", true, false) as Label
+	var line: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(scene)
 	check.call(bool(summary.get("unrevealed_before_player", false)) and not bool(summary.get("umbra_unknown_before_player", false)) and int(summary.get("hp_loss", 0)) == 5, "pass_lap_known_damage: a revealed 5 HP hit precedes an unrevealed second activation")
-	check.call(line.text == "+10  •  -5 +?", "pass_lap_known_damage: exact lead, damage, and single-space +? suffix: %s" % line.text)
+	check.call(line == "+10  •  -5 + ? 2ND MOVE", "pass_lap_known_damage: exact lead, damage, and single-space + ? 2ND MOVE suffix: %s" % line)
 	scene.call("_update_action_context_risk")
 	var risk_text: String = str((scene.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
-	check.call(risk_text == "WAIT +10 · -5 HP +?", "The action context retains known HP damage and the same suffix: %s" % risk_text)
+	check.call(risk_text == "WAIT +10 · -5 HP + ? 2ND MOVE", "The action context retains known HP damage and the same suffix: %s" % risk_text)
 	await _capture(capture_viewport, check, capture_dir, "pass_lap_known_damage")
 	await _test_preview_visibility(tree, scene, engine, check)
 	_test_forecasts(scene, check)
@@ -298,23 +297,9 @@ static func _assert_state(scene: Node, expect: Callable, wait_time: int, pill: S
 	for slot: Node in (scene.get("_turn_order_bar") as Control).get_children():
 		if str(slot.get_meta("turn_order_actor_key", "")) == "player:player":
 			expect.call(slot.find_child("ProjectionPreviewBadge", true, false) == null, "%s: hero has no card-name/Time caption" % phase)
-	var line: Label = scene.find_child("PassPreviewForecastLine", true, false) as Label
-	var row: Control = scene.find_child("PassPreviewDamageRow", true, false) as Control
-	expect.call(line != null and row != null, "%s: Pass forecast exists" % phase)
-	if line == null or row == null:
-		return
-	expect.call(int(line.get_meta("pass_preview_wait_time", -1)) == wait_time and int(row.get_meta("pass_preview_wait_time", -1)) == wait_time, "%s: plate and row carry the exact Wait meta" % phase)
-	expect.call(line.text.begins_with("+%d  •  " % wait_time if wait_time > 0 else "TURN END  •  "), "%s: plate lead is the Wait cost or TURN END: %s" % [phase, line.text])
-	expect.call(line.content_width() <= row.size.x and is_equal_approx(line.get_global_rect().get_center().x, row.get_global_rect().get_center().x) and line.get_theme_font_size("font_size") == UiTypography.SIZE_SMALL, "%s: the full colored forecast with icon fits its centred line" % phase)
-	expect.call(line.get_meta("pass_preview_values", []) == row.get_meta("pass_preview_values", []), "%s: forecast values meta is preserved" % phase)
-	var icon: Texture2D = line.get("_time_icon") as Texture2D
-	expect.call(icon == preload("res://scripts/action_icon_library.gd").icon_texture("time") if wait_time > 0 else icon == null, "%s: the existing Time icon appears only while Wait is pending" % phase)
-	var cells: Array = line.get("_cells")
-	if wait_time > 0:
-		expect.call(cells[0].get("color") == UiPalette.GOLD_BRIGHT, "%s: Wait cost uses GOLD_BRIGHT" % phase)
-	var values: Array = line.get_meta("pass_preview_values", [])
-	for index: int in range(values.size()):
-		expect.call(cells[2 + index * 2].get("color") == values[index].get("color"), "%s: forecast cell %d keeps its semantic color" % [phase, index])
+	preload("res://tests/helpers/pass_forecast_checks.gd").assert_rows(scene, expect, phase)
+	var summary: Dictionary = scene.call("_pass_preview_summary")
+	expect.call(int(summary.get("wait_time", -1)) == wait_time, phase + ": cached forecast retains exact Wait")
 	var tooltip: String = str(scene.call("_pass_preview_tooltip", scene.call("_pass_preview_summary")))
 	if wait_time > 0:
 		expect.call(tooltip.begins_with("Ending now leaves %d card %s unused: +%d Time." % [wait_time / 5, "play" if wait_time == 5 else "plays", wait_time]), "%s: Pass tooltip leads with exact unused plays and Wait" % phase)
@@ -406,9 +391,9 @@ static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	card.call("_refresh_time_badge", GameData.card_def("quick_stab"))
 
 static func _test_forecasts(scene: Node, expect: Callable) -> void:
-	var summary: Dictionary = {"unrevealed_before_player": true, "hp_loss": 5, "entries": [{"name": "PassPreviewHpLoss", "text": "-5", "color": Color("f39779")}]}
+	var summary: Dictionary = {"unrevealed_before_player": true, "repeated_enemy_names": ["Tunnel Crawler"], "hp_loss": 5, "entries": [{"name": "PassPreviewHpLoss", "text": "-5", "color": Color("f39779")}]}
 	var entries: Array[Dictionary] = scene.call("_pass_preview_forecast_entries", summary)
-	expect.call(entries.size() == 2 and str(entries.back().get("text", "")) == "+?" and entries.back().get("color") == Color("c89be3") and bool(entries.back().get("suffix", false)), "Known HP loss retains a violet, single-space suffix cell")
+	expect.call(entries.size() == 2 and str(entries.back().get("text", "")) == "+ ? 2ND MOVE" and entries.back().get("color") == Color("c89be3") and bool(entries.back().get("suffix", false)), "Known HP loss retains a violet, single-space suffix cell")
 	summary["hp_loss"] = 0
 	summary["entries"] = []
 	entries = scene.call("_pass_preview_forecast_entries", summary)
@@ -432,9 +417,15 @@ static func _test_preview_visibility(tree: SceneTree, scene: Node, engine: Comba
 	await scene.call("_begin_card_preview", 1, preview)
 	await _settle(tree)
 	expect.call(int(scene.get("_selected_card_index")) == 1 and scene.get("_turn_order_landing_strip") == null, "Click-select keeps the card selected without building a strip")
-	var selected_line: Label = scene.find_child("PassPreviewForecastLine", true, false) as Label
+	var selected_chip: Button = scene.find_child("PassPreviewChip", true, false) as Button
 	scene.call("_refresh_selected_card_forecast")
-	expect.call(int(selected_line.get_meta("pass_preview_wait_time", -1)) == engine.pending_wait_time(scene.call("_pass_preview_source_state")), "Selected-card refresh updates Wait meta using the forecast source state")
+	# ptf-08c: with no previewed target the panel deliberately holds no summary;
+	# once a target is previewed its Wait comes from the forecast source state.
+	var selected_summary: Dictionary = selected_chip.get_meta("pass_forecast_summary", {}) as Dictionary
+	if preload("res://scripts/pass_forecast_presentation.gd").preview_active(scene):
+		expect.call(int(selected_summary.get("wait_time", -1)) == engine.pending_wait_time(scene.call("_pass_preview_source_state")), "Selected-card refresh updates Wait meta using the forecast source state")
+	else:
+		expect.call(selected_summary.is_empty(), "Selected card without a previewed target keeps the forecast panel empty")
 	for property: String in ["_drag_card_index", "_animation_lock"]:
 		scene.set(property, 1 if property == "_drag_card_index" else true)
 		scene.call("_refresh_turn_order_bar")

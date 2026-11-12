@@ -18,7 +18,10 @@ func _record_render_section_time(section: String, started_usec: int) -> void:
 func _record_hud_draw(kind: String) -> void:
 	# A retained slice paints inside its original logical HUD layer.
 	var owner: Control = get_parent() as Control if _is_layer_slice_canvas else self
-	draw_events.append({"kind": kind, "layer": owner, "frame": Engine.get_process_frames()})
+	# rd-03 per-unit HUD canvases are fresh children of the layer; record into the
+	# layer's shared event list so their paint order is observed with it.
+	var sink: Variant = owner.get("draw_events") if owner != null else null
+	(sink if sink is Array else draw_events).append({"kind": kind, "layer": owner, "frame": Engine.get_process_frames()})
 
 # perf-35's sliced HUD bypasses the monolithic section-timing callbacks.
 # Observe the real paint calls, including every overlay/badge after the bars.
@@ -103,7 +106,10 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 			order_correct = order_correct and prior
 	expect.call(callouts > 0, "Actual callout text draw submissions were observed")
 	expect.call(owner_correct and hud.z_index >= effects.z_index and hud.get_index() > effects.get_index(), "Actual callout text is owned by the HUD layer above effects")
-	expect.call(order_correct, "Actual callout text draws after actor HUDs and all HUD overlays/badges in the same frame")
+	var hud_kinds: Array = []
+	for event: Dictionary in events:
+		if event["layer"] == hud: hud_kinds.append(str(event["kind"]))
+	expect.call(order_correct, "Actual callout text draws after actor HUDs and all HUD overlays/badges in the same frame: " + ",".join(hud_kinds))
 	shown = (board.get("presentation") as Dictionary).duplicate(true)
 	shown.erase("intent_callouts")
 	(board.get("redraw_requests") as Array).clear()

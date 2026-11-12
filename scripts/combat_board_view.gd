@@ -2,6 +2,9 @@ extends Control
 
 class_name CombatBoardView
 
+var _aim_focus := preload("res://scripts/board_aim_focus.gd").new()
+var _targeted_tile_highlight: Node2D
+
 var _hud_triangles := preload("res://scripts/board_hud_triangle_batch.gd").new()
 
 var _prop_command_cache := preload("res://scripts/board_prop_command_cache.gd").new()
@@ -9,7 +12,7 @@ var _tile_paint_inputs := preload("res://scripts/board_tile_paint_inputs.gd").ne
 var _torch_placements := preload("res://scripts/board_torch_placements.gd").new()
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
-const LayerSlices = preload("res://scripts/board_layer_slices.gd")
+const LayerSlices = preload("res://scripts/board_threat_isolation.gd")
 const LayerRedraws = preload("res://scripts/board_layer_redraws.gd")
 const SceneDirtyTiles = preload("res://scripts/board_scene_dirty_tiles.gd")
 const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
@@ -192,6 +195,7 @@ class AmbientParticleTemplate:
 	var wind_direction: float = 1.0
 	var air_variant_index: int = 0
 	var hashes: PackedFloat64Array = PackedFloat64Array()
+	var fire_samples: PackedFloat64Array = PackedFloat64Array()
 
 const GRID_OUTLINE: Color = Color("1f1713")
 const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
@@ -301,10 +305,10 @@ const INTENT_CONTOUR_TITLE_HEIGHT: float = 42.0
 const INTENT_CONTOUR_ROW_HEIGHT: float = 47.0
 const INTENT_CONTOUR_SHOULDER_INSET: float = 13.0
 const INTENT_CONTOUR_LINE_STAGGER: float = 11.0
-const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.25
+const INTENT_CONTOUR_OUTLINE_SIZE: float = preload("res://scripts/board_contour_text.gd").OUTLINE_SIZE
 const INTENT_CONTOUR_ACTION_OUTLINE_SIZE: float = 2.0
 const INTENT_CONTOUR_ICON_HALO_SIZE: float = 2.5
-const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.5, 4.5)
+const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = preload("res://scripts/board_contour_text.gd").SHADOW_OFFSET
 const UNIT_ART_HUD_CLEARANCE: float = 4.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
@@ -693,6 +697,7 @@ var _ambient_particle_batch_enabled: bool = true
 var _ambient_batch_active: bool = false
 var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
 var _ambient_batch_uvs: PackedVector2Array = PackedVector2Array()
+var _ambient_batch_uv_rects: Array[Rect2]
 var _ambient_batch_colors: PackedColorArray = PackedColorArray()
 var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
 var _ambient_quad_indices := preload("res://scripts/board_quad_indices.gd").new()
@@ -775,6 +780,7 @@ var _rest_threat_tile_alphas: Dictionary = {}
 var _overlay_draw_sources: Dictionary = {}
 var _command_glow_inputs: Array = []
 var _command_glow_commands_by_tile: Dictionary = {}
+var _torch_mote_materials_for_draw: Array = []
 var _torch_mote_templates := preload("res://scripts/board_torch_mote_templates.gd").new()
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
@@ -824,6 +830,7 @@ var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
 var _equipment_pickup_beacon_cache: bool = false
 var _preview_unit_pulse_cache: bool = false
+var plate_visibility = preload("res://scripts/board_plate_visibility.gd").new()
 var _status_plate_layout = preload("res://scripts/board_status_layout_cache.gd").new()
 var _hud_health_rects_cache: Dictionary = {}
 var _terrain_health_bar_sources: Dictionary = {}
@@ -910,6 +917,8 @@ var _retained_layers_cache_valid: bool = false
 var _retained_layers_cache: Array = []
 var _retained_base_layers_cache: Array = []
 var _unit_draw_rect_cache: Dictionary = {}
+var _unit_outline_actor: Dictionary = {}
+var _occlusion_silhouettes: Node2D = null
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
@@ -978,6 +987,14 @@ func _ready() -> void:
 		focus_mode = Control.FOCUS_NONE
 		set_process(false)
 		return
+	plate_visibility.attach_to(self)
+	add_to_group(preload("res://scripts/settings_store.gd").BOARD_HEALTH_GROUP)
+	plate_visibility.changed.connect(_plate_visibility_changed)
+	plate_visibility.inspection_changed.connect(_queue_hover_redraws)
+	mouse_exited.connect(func() -> void:
+		plate_visibility.pointer_keys.clear()
+		plate_visibility.refresh()
+	)
 	health_ghost_tracker.attach_to(self)
 	health_ghost_tracker.changed.connect(func() -> void:
 		if is_instance_valid(_hud_render_layer):
@@ -1014,6 +1031,10 @@ func _ready() -> void:
 	_create_dynamic_render_layer()
 	_record_startup_performance_phase("retained_layers", startup_started)
 
+# Integration seam for rd-03; this task does not alter aim focus or body tint.
+func set_unit_outline_alpha_multiplier(actor_key: String, multiplier: float) -> void:
+	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.set_unit_alpha_multiplier(actor_key, multiplier)
+
 func _uses_protagonist_cutout() -> bool:
 	return true
 
@@ -1021,7 +1042,14 @@ func protagonist_animation_snapshot() -> Dictionary:
 	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
 
 func _on_protagonist_rest_texture_changed() -> void:
+	var previous_texture: Texture2D = _unit_textures.get("player")
 	ProtagonistGearBoard.refresh_rest(self)
+	if _unit_textures.get("player") != previous_texture and not combat_state.is_empty():
+		# Rest art can become ready after the first state submission. The bridge
+		# already queues the redraw; bind its new obstruction geometry before it.
+		_refresh_foreground_obstruction_entries_cache(_visible_units())
+		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs"])
+	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.invalidate()
 
 func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if str(unit.get("type", "")) == "player":
@@ -1839,6 +1867,8 @@ func _on_board_resized() -> void:
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
 	_sync_static_render_cache()
+	_sync_targeted_tile_geometry()
+	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.invalidate()
 	queue_redraw()
 	_queue_dynamic_redraw()
 
@@ -1988,6 +2018,8 @@ func _create_dynamic_render_layer() -> void:
 	_dynamic_render_layer = _create_retained_render_layer("DynamicRenderLayer", RENDER_LAYER_WORLD)
 	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
 	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
+	_occlusion_silhouettes = preload("res://scripts/board_occlusion_silhouettes.gd").new()
+	_occlusion_silhouettes.attach(self)
 	_effects_telegraph_render_layer = _create_retained_render_layer("EffectsTelegraphs", RENDER_LAYER_TELEGRAPHS)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
@@ -2047,6 +2079,7 @@ func _retained_render_layers(include_slices: bool = true) -> Array:
 	return (ordered if include_slices else layers).duplicate(false)
 
 func _sync_scene_render_layers() -> void:
+	_place_targeted_tile_floor_layer()
 	var desired_tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	if _scene_render_layers_match(desired_tiles):
 		return
@@ -2090,7 +2123,7 @@ func _sync_scene_render_layers() -> void:
 		_scene_render_layers.append(back_effect_layer)
 		_scene_render_layers.append(layer)
 		_scene_render_layers.append(front_effect_layer)
-	var insertion_index: int = _action_floor_render_layer.get_index() + 1
+	var insertion_index: int = _scene_render_layers_start_index()
 	for layer_var: Variant in _scene_render_layers:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
@@ -2101,13 +2134,15 @@ func _sync_scene_render_layers() -> void:
 func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 	if not is_inside_tree() or not is_instance_valid(_action_floor_render_layer):
 		return false
+	if is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.get_index() != _action_floor_render_layer.get_index() + 1:
+		return false
 	if _scene_render_layers.size() != tiles.size() * 3:
 		return false
 	for mapping: Dictionary in [_scene_back_effect_render_layers_by_tile, _scene_render_layers_by_tile, _scene_front_effect_render_layers_by_tile]:
 		if mapping.size() != tiles.size():
 			return false
 	var index: int = 0
-	var child_index: int = _action_floor_render_layer.get_index() + 1
+	var child_index: int = _scene_render_layers_start_index()
 	for tile: Vector2i in tiles:
 		for pass_index: int in range(3):
 			var mapping: Dictionary = [_scene_back_effect_render_layers_by_tile, _scene_render_layers_by_tile, _scene_front_effect_render_layers_by_tile][pass_index]
@@ -2121,6 +2156,16 @@ func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 			index += 1
 			child_index += 1
 	return true
+
+func _scene_render_layers_start_index() -> int:
+	return _action_floor_render_layer.get_index() + 1 + (1 if is_instance_valid(_targeted_tile_highlight) else 0)
+
+func _place_targeted_tile_floor_layer() -> void:
+	if not is_instance_valid(_targeted_tile_highlight) or not is_instance_valid(_action_floor_render_layer): return
+	var floor_index: int = _action_floor_render_layer.get_index()
+	var border_index: int = _targeted_tile_highlight.get_index()
+	if border_index == floor_index + 1: return
+	move_child(_targeted_tile_highlight, floor_index if border_index < floor_index else floor_index + 1)
 
 func _sync_enemy_shadow_dissolve_effects() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
@@ -2251,7 +2296,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gust_shrike_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_rr07_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
-			"_status_plate_layout", "_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
+			"plate_visibility", "_status_plate_layout", "_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache", "_unit_ground_contact",
 			"_unit_shadow_prewarm_pending_ids",
 			"_door_opening_frames", "_door_opening_flipped_frames",
@@ -2329,7 +2374,10 @@ func _queue_dynamic_redraw() -> void:
 	for layer: Control in _retained_render_layers(false):
 		_queue_render_layer_redraw(layer)
 
+var _render_redraw_request_count: int = 0
+
 func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> void:
+	_render_redraw_request_count += 1
 	if layer == _effects_render_layer and is_instance_valid(_effects_telegraph_render_layer):
 		_queue_render_layer_redraw(_effects_telegraph_render_layer)
 	if layer == null or not is_instance_valid(layer):
@@ -2340,14 +2388,21 @@ func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> voi
 		# dominates a clock-only one. Flush before set_combat_state returns.
 		_submission_redraws[layer] = clock_only and bool(_submission_redraws.get(layer, true))
 		return
+	if is_instance_valid(_occlusion_silhouettes):
+		var kind: String = str(layer.get("_render_layer_kind"))
+		if kind == RENDER_LAYER_SCENE_TILE and int(layer.get("_render_layer_scene_effect_pass")) == 0:
+			_occlusion_silhouettes.invalidate_pose(layer.get("_render_layer_tile"))
+		elif kind == RENDER_LAYER_GROUND:
+			_occlusion_silhouettes.invalidate_pose(Vector2i(-1, -1), true)
 	if LayerRedraws.retain_empty(self, layer):
 		return
 	layer.set("_idle_elapsed", _idle_elapsed)
 	layer.set("_hover_tile", _hover_tile)
 	layer.set("_controller_focus_tile", _controller_focus_tile)
-	if LayerSlices.supports(str(layer.get("_render_layer_kind"))) and not bool(layer.get("_is_layer_slice_canvas")):
+	if LayerSlices.supports(str(layer.get("_render_layer_kind")), layer.presentation) and not bool(layer.get("_is_layer_slice_canvas")):
 		layer.get("_layer_slices").invalidate(layer, clock_only)
 	else:
+		if str(layer.get("_render_layer_kind")) in [RENDER_LAYER_SCENE_TILE, RENDER_LAYER_EFFECTS, RENDER_LAYER_TELEGRAPHS]: layer.get("_layer_slices").retire(layer)
 		layer.queue_redraw()
 
 func _flush_submission_redraws() -> void:
@@ -2854,6 +2909,23 @@ func _any_idle_animation_active() -> bool:
 		return true
 	return false
 
+func set_targeted_tile_context(context: Dictionary, tile: Vector2i) -> void:
+	if not is_instance_valid(_targeted_tile_highlight):
+		if context.is_empty(): return
+		_targeted_tile_highlight = preload("res://scripts/targeted_tile_highlight.gd").new()
+		add_child(_targeted_tile_highlight)
+		_place_targeted_tile_floor_layer()
+	_targeted_tile_highlight.set_context(context)
+	set_targeted_tile(tile)
+
+func set_targeted_tile(tile: Vector2i) -> void:
+	_aim_focus.set_focus(tile if tile.x >= 0 else _hover_tile)
+	if not is_instance_valid(_targeted_tile_highlight): return
+	_targeted_tile_highlight.present(self, tile)
+
+func _sync_targeted_tile_geometry() -> void:
+	if is_instance_valid(_targeted_tile_highlight): set_targeted_tile(_targeted_tile_highlight.tile)
+
 # Forecast HP is drawn separately; the normal stage supplies true durability.
 func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
@@ -2899,6 +2971,14 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	return result
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	if not _is_dynamic_render_layer:
+		plate_visibility.observe(next_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state, next_presentation)
+		call_deferred("refresh_plate_visibility")
+	if not bool(next_presentation.get("board_targeting", false)): _aim_focus.finish()
+	# Surface skills can enter animation without a normal stage refresh. Clear
+	# their retained aiming border on the first non-targeting submission as well.
+	if is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.visible and not bool(next_presentation.get("board_targeting", false)):
+		set_targeted_tile_context({}, Vector2i(-1, -1))
 	# Every untrusted boundary gets a new revision, including boundaries where
 	# active effects bypass decoration. A later trusted sample cannot reuse a
 	# pre-boundary battlefield snapshot after an in-place enemy-step commit.
@@ -3340,6 +3420,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	submission_phase_started = _record_submission_performance_phase("hud_layout", submission_phase_started)
 	if layout_changed:
 		_ensure_board_layout_cache()
+		# A fit-only submission can retain the actor roster while replacing its
+		# startup projection. Publish obstruction rectangles in the final layout
+		# before retained tile canvases receive their bindings.
+		if _foreground_obstruction_geometry_inputs != _foreground_obstruction_layout_inputs():
+			_refresh_foreground_obstruction_entries_cache(_visible_units())
 		geometry_changed = previous_geometry.is_empty() or previous_geometry != _resolved_board_geometry_inputs()
 		if geometry_changed:
 			_unit_shadow_draw_geometry_cache.clear()
@@ -3478,7 +3563,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if not registration_changes.is_empty():
 		# A persistent viewport can turn without changing its actor dictionary.
 		# The retained draw command must select that view's floor registration too.
-		_refresh_moving_foreground_obstruction_entries(registration_changes)
+		if not _refresh_moving_foreground_obstruction_entries(registration_changes):
+			_refresh_foreground_obstruction_entries_cache(_visible_units())
 		_rebuild_hud_health_rects_cache()
 		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		_queue_render_layer_redraw(_hud_render_layer)
@@ -3491,6 +3577,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_flush_submission_redraws()
 	if retained_strike_frame:
 		LayerRedraws.bind_retained_strike_frame(self, _effects_render_layer)
+	if is_instance_valid(_occlusion_silhouettes):
+		_occlusion_silhouettes.submission_changed(state_changed or layout_changed or visual_framing_changed or biome_changed, presentation_changes, registration_changes)
 	_preparing_submission = false
 	_submission_units_valid = false
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
@@ -3675,13 +3763,16 @@ func _queue_presentation_change_redraws(
 				hud_changed = true
 			"ambient_time_seconds":
 				ambient_changed = true
-			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
+			"hover_owner_tile":
+				# Input-owner metadata has no paint of its own.
+				pass
+			"threat_isolation_hero_preview", "attack_reach_tiles", "attack_reach_color", "ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
 			"player_aoe_preview_active":
 				overlay_changed = true
 			"path_color", "path_tiles", "displacement_paths":
 				path_changed = true
-			"enemy_threat_previews", "illusion_echo_previews":
+			"isolated_enemy_actor_keys", "enemy_threat_previews", "illusion_echo_previews":
 				overlay_changed = true
 				path_changed = true
 				effects_changed = true
@@ -4444,10 +4535,21 @@ func _tile_drag_aiming_active() -> bool:
 	return bool(presentation.get("tile_drag_aiming", false))
 
 func _update_hover_at(pointer_position: Vector2) -> Vector2i:
-	var next_hover: Vector2i = _tile_at_point(pointer_position)
-	if next_hover == _hover_tile:
+	var floor_tile: Vector2i = _tile_at_point(pointer_position)
+	# Owner 2026-11-12: hover is tile-based. The floor tile under the pointer is
+	# always the hover target; enemy sprites, intent discs and status icons never
+	# redirect it, so every tile stays selectable. Status icons and discs still
+	# open their own unit's plate through plate_visibility's pointer keys.
+	var next_hover: Vector2i = floor_tile
+	plate_visibility.update_pointer(pointer_position, floor_tile)
+	var owner_hover: Vector2i = presentation.get("hover_owner_tile", _hover_tile)
+	var same_owner: bool = owner_hover == next_hover or (owner_hover.x < 0 and next_hover.x < 0)
+	# Scene mode changes and rail exits can retire their hover without pointer
+	# motion. Do not suppress the re-entry merely because this cache is unchanged.
+	if next_hover == _hover_tile and same_owner:
 		return next_hover
 	_hover_tile = next_hover
+	if not _aim_focus.choosing: _aim_focus.set_focus(_hover_tile)
 	tile_hovered.emit(_hover_tile)
 	_update_cursor_shape()
 	_queue_hover_redraws()
@@ -4493,6 +4595,7 @@ func _clear_hover_for_navigation() -> void:
 	_queue_hover_redraws()
 
 func _queue_hover_redraws() -> void:
+	refresh_plate_visibility()
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		queue_redraw()
 		return
@@ -4530,6 +4633,8 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	if is_instance_valid(_effects_render_layer):
 		_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 	_sync_static_render_cache()
+	_sync_targeted_tile_geometry()
+	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.invalidate()
 	queue_redraw()
 	_queue_dynamic_redraw()
 	if update_hover:
@@ -4554,13 +4659,20 @@ func set_tooltips_enabled(enabled: bool) -> void:
 func _get_tooltip(at_position: Vector2) -> String:
 	if not _tooltips_enabled:
 		return ""
+	var status_tooltip: String = plate_visibility.tooltip_at(at_position)
+	if not status_tooltip.is_empty(): return status_tooltip
+	# Owner 2026-11-12: hovering a unit inspects the unit (plate, intent, rail);
+	# floor, trap, prop and loot tooltips under it stay closed.
+	var on_unit: bool = _pointer_on_unit(at_position)
 	# Equipment floats and bobs independently of its tile layer. Resolve its live
 	# draw rect directly so pointer inspection is reliable even between retained
 	# scene-layer redraws or near the edge of the sprite's glow.
-	var live_loot_tooltip: String = _loot_tooltip_at_position(at_position)
+	var live_loot_tooltip: String = "" if on_unit else _loot_tooltip_at_position(at_position)
 	if not live_loot_tooltip.is_empty():
 		return live_loot_tooltip
-	var tooltip_sources: Array = _retained_render_layers()
+	var tooltip_sources: Array = _retained_render_layers().duplicate(false)
+	for record: Dictionary in _aim_focus.canvases.values():
+		if is_instance_valid(record.canvas) and record.canvas.visible and record.hud: tooltip_sources.append(record.canvas)
 	tooltip_sources.reverse()
 	tooltip_sources.append(self)
 	for source_var: Variant in tooltip_sources:
@@ -4571,10 +4683,19 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				var tile_region: Dictionary = (source.get("_tile_tooltip_regions") as Dictionary).get(index, {})
-				return _surface_tooltip_for_tile(tile_region["tile"]) if tile_region.has("tile") else str(region.get("tooltip", ""))
-	var seal_tooltip: String = _snare_sealbinder_tooltip_at_position(at_position)
-	if not seal_tooltip.is_empty(): return seal_tooltip
-	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
+				if tile_region.has("tile"):
+					return "" if on_unit else _surface_tooltip_for_tile(tile_region["tile"])
+				return str(region.get("tooltip", ""))
+	return "" if on_unit else _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
+
+# Tile-based like hover: the pointer is on a unit when the floor tile under it
+# is part of a living unit's footprint.
+func _pointer_on_unit(at_position: Vector2) -> bool:
+	var tile: Vector2i = tile_at_global_position(at_position + global_position)
+	for unit: Dictionary in _visible_units():
+		if int(unit.get("hp", 1)) <= 0 or bool(unit.get("death_animation", false)) or _unit_is_preview_echo(unit): continue
+		if _unit_footprint_tiles(unit).has(tile): return true
+	return false
 
 func _loot_tooltip_at_position(at_position: Vector2) -> String:
 	for loot_var: Variant in combat_state.get("loot", []):
@@ -4623,6 +4744,10 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	return "\n".join(lines)
 
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
+	# Controller focus is deliberate navigation, and it is the only way a pad
+	# player can inspect ground under a unit, so it keeps floor details. The
+	# owner's 2026-11-12 rule (no floor tooltips while hovering a unit) is for
+	# passive mouse hover in _get_tooltip.
 	return _surface_tooltip_for_tile(tile)
 
 func tile_tooltip_revision() -> int:
@@ -4695,6 +4820,7 @@ func _submit_pixel_line(points: PackedVector2Array, core: Color, halo: Color, el
 	return true
 
 func _draw() -> void:
+	preload("res://scripts/board_aim_focus.gd").for_board(self).begin_draw(self)
 	_path_draw_cache.begin_canvas_draw(self)
 	_pixel_fx_draw_transform = Transform2D.IDENTITY
 	if is_instance_valid(_pixel_fx_layer):
@@ -4715,10 +4841,11 @@ func _draw_board_commands() -> void:
 		_tooltip_regions.clear()
 		_tile_tooltip_regions.clear()
 		for operation: Array in _render_slice_ops:
-			callv(operation[0], operation[1])
+			if not preload("res://scripts/board_aim_focus.gd").for_board(self).route_operation(self, operation[0], operation[1]):
+				callv(operation[0], operation[1])
 		if not whole_layer: _record_dynamic_draw_time(started_usec)
 		return
-	if _is_dynamic_render_layer and LayerSlices.supports(_render_layer_kind):
+	if _is_dynamic_render_layer and LayerSlices.supports(_render_layer_kind, presentation):
 		return # Ordered children own this layer's static and clock submissions.
 	# Canvas draw commands retain RIDs, not the ArrayMesh resources. Shared cache
 	# invalidation must not free a shadow still submitted by an unchanged layer.
@@ -4728,6 +4855,13 @@ func _draw_board_commands() -> void:
 		_draw_static_board_contents()
 		return
 	if _is_dynamic_render_layer:
+		if _render_layer_kind == "unit_body_outline":
+			var unit_started: int = Time.get_ticks_usec()
+			_dynamic_draw_count += 1
+			KindleView.clear_glows(self)
+			_draw_unit_body(_unit_outline_actor)
+			_record_dynamic_draw_time(unit_started)
+			return
 		match _render_layer_kind:
 			RENDER_LAYER_AMBIENT:
 				_draw_ambient_render_layer()
@@ -4857,14 +4991,37 @@ func _draw_action_floor_render_layer() -> void:
 	_record_render_section_time("elemental_floor_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
+var _threat_slice_keys: Array[String]
+
 func _slice_op(method: String, args: Array, animated: bool = false) -> void:
 	if _slice_building:
-		_slice_operations.append([method, args, animated])
+		if not presentation.has("isolated_enemy_actor_keys"):
+			_slice_operations.append([method, args, animated])
+			return
+		if method in ["_draw_slice_intent_halo", "_draw_slice_intent_chip"]:
+			var chip_owner: Array[String]
+			chip_owner.append(str(args[0].get("key", "")))
+			_slice_operations.append([method, args, animated, chip_owner])
+			return
+		if method == "_draw_slice_meteor_mark":
+			var burrow_owners: Array[String] = LayerSlices.mechanic_keys(self, method, args[0])
+			_slice_operations.append(["_draw_isolated_burrow_mark", [args[0], args[1]], animated, burrow_owners])
+			_slice_operations.append([method, [args[0], {}, args[2]], animated, []])
+			return
+		if _threat_slice_keys.is_empty() and method in ["_draw_slice_icefall", "_draw_slice_wind"]:
+			_threat_slice_keys = LayerSlices.mechanic_keys(self, method, args[0] if not args.is_empty() else Vector2i(-1, -1))
+			_slice_operations.append([method, args, animated, _threat_slice_keys.duplicate()])
+			_threat_slice_keys.clear()
+			return
+		_slice_operations.append([method, args, animated, _threat_slice_keys.duplicate()])
 	else:
 		callv(method, args)
 
 func _draw_slice_banner(tile: Vector2i, polygon: PackedVector2Array) -> void:
 	WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD)
+
+func _draw_isolated_burrow_mark(tile: Vector2i, marks: Variant) -> void:
+	BurrowView.draw_mark(self, tile, marks)
 
 func _draw_slice_icefall(tile: Vector2i) -> void:
 	IcefallView.draw_tile(self, tile)
@@ -4887,20 +5044,23 @@ func _draw_slice_hud_chips() -> void:
 	_draw_friendly_damage_chips()
 	ReflectView.draw_preview(self)
 
-func _draw_slice_intent_orders(badges: Array[Dictionary]) -> void:
-	var font: Font = UiTypography.ui_font()
-	for badge: Dictionary in badges:
-		var rect: Rect2 = badge["order_rect"]
-		if rect.has_area(): IntentBadges.draw_order_disc(self, rect, str(badge["order"]), float(badge["alpha"]), font)
+func _draw_slice_intent_orders(_badges: Array[Dictionary]) -> void:
+	# Ordinal geometry stays reserved to preserve the existing plate positions.
+	pass
 
 func _draw_slice_intent_halo(badge: Dictionary) -> void:
 	var seconds: float = float(presentation.get("threats_proof_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
-	var halo: Dictionary = IntentBadges.halo_texture(IntentBadges.plate_end(badge, UiTypography.ui_font()))
+	var halo: Dictionary = IntentBadges.halo_texture(0.0 if bool(badge.get("contextual", false)) else IntentBadges.plate_end(badge, UiTypography.ui_font()))
 	draw_texture(halo["texture"], (badge["center"] as Vector2) + (halo["offset"] as Vector2), Color(UiPaletteTokens.DANGER, IntentBadges.halo_alpha(seconds, bool(presentation.get("reduced_motion", false))) * float(badge.get("alpha", 1.0))))
 
 func _draw_slice_intent_chip(badge: Dictionary) -> void:
 	# Skip only the halo; keep its danger ring colour in the original renderer.
-	LayerSlices.draw_intent_chip(self, badge, _hud_triangles)
+	if bool(badge.get("contextual", false)):
+		IntentBadges.draw_contextual_chip(self, badge, _hud_triangles)
+	else:
+		var tab: Control = get_node_or_null(NodePath("IntentTab_" + str(badge["key"])))
+		if tab != null: tab.hide()
+		LayerSlices.draw_intent_chip(self, badge, _hud_triangles)
 
 func _draw_slice_callouts() -> void:
 	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
@@ -4988,6 +5148,65 @@ func _draw_path_render_layer() -> void:
 	_record_render_section_time("path_preview", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
+var _scene_tile_preparation := preload("res://scripts/board_scene_tile_preparation.gd").new()
+
+func _build_threat_effect_operations() -> void:
+	preload("res://scripts/board_threat_isolation_paint.gd").effects(self)
+
+func _draw_isolated_collision(marker: Dictionary) -> void:
+	var previous: Dictionary = presentation
+	presentation = presentation.duplicate(false)
+	presentation["collision_markers"] = [marker]
+	_draw_collision_markers()
+	presentation = previous
+
+func _draw_isolated_mechanic_badges(kind: String, enemy: Dictionary) -> void:
+	var previous: Dictionary = combat_state
+	combat_state = combat_state.duplicate(false)
+	combat_state["enemies"] = [enemy]
+	match kind:
+		"burrow": BurrowView.draw_badges(self)
+		"icefall": IcefallView.draw_badges(self)
+		"lob": LobView.draw_badges(self)
+	combat_state = previous
+
+func _draw_isolated_wind_collisions() -> void:
+	WindView.draw_collisions(self)
+
+func _build_threat_telegraph_operations() -> void:
+	preload("res://scripts/board_threat_isolation_paint.gd").telegraphs(self)
+
+func _draw_isolated_chain(threat: Dictionary) -> void:
+	var previous: Dictionary = presentation
+	presentation = presentation.duplicate(false)
+	presentation["enemy_threat_previews"] = [threat]
+	CapacitorView.draw_telegraphs(self)
+	presentation = previous
+
+func _build_threat_scene_operations() -> void:
+	preload("res://scripts/board_threat_isolation_paint.gd").scene(self)
+
+func _draw_isolated_props(tile: Vector2i) -> void:
+	# Isolation paint can be queued for a tile of a board that has since been
+	# replaced or cleared; only draw tiles inside the current grid.
+	var grid: Array = combat_state.get("grid", [])
+	if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
+		return
+	_prop_command_cache.begin_draw()
+	_draw_scene_props_for_tile(tile, _foreground_obstruction_entries_cache)
+	_draw_tile_props(combat_state.get("grid", []), tile, _foreground_obstruction_entries_cache)
+	_prop_command_cache.end_draw()
+
+func _draw_isolated_path(entry: Array, tile: Vector2i) -> void:
+	_path_depth_tile = tile
+	_path_depth_clip = _tile_polygon(tile)
+	_draw_path_tiles(_vector2i_array(entry[0]), entry[1], entry[2])
+	_path_depth_clip = PackedVector2Array()
+	_path_depth_tile = Vector2i(-1, -1)
+
+func _draw_isolated_arrow(effect: Dictionary) -> void:
+	_draw_ranged_target_preview_curve(effect, _ranged_preview_source_anchor(effect), _ranged_preview_target_anchor(effect))
+
 func _draw_scene_tile_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
@@ -5009,7 +5228,8 @@ func _draw_scene_tile_render_layer() -> void:
 	)
 	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
 	var grid: Array = combat_state.get("grid", [])
-	var units_to_draw: Array[Dictionary] = _visible_units()
+	var units_to_draw: Array[Dictionary]
+	if not _submission_cache_valid: units_to_draw = _visible_units()
 	var obstruction_entries: Array = _foreground_obstruction_entries_cache
 	if detailed_sections:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
@@ -5081,7 +5301,13 @@ func _draw_hud_render_layer() -> void:
 	section_started_usec = Time.get_ticks_usec()
 	_draw_friendly_damage_chips()
 	ReflectView.draw_preview(self)
-	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []), _hud_triangles)
+	var plate_badges: Array[Dictionary] = IntentBadges.layouts(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
+	_draw_slice_intent_orders(plate_badges)
+	for on_top: bool in [false, true]:
+		for badge: Dictionary in plate_badges:
+			if bool(badge["above_everything"]) != on_top: continue
+			if bool(badge.get("danger", false)): _draw_slice_intent_halo(badge)
+			_draw_slice_intent_chip(badge)
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	# Intent results are the topmost board HUD, above every bar, pip and badge.
 	section_started_usec = Time.get_ticks_usec()
@@ -6335,6 +6561,7 @@ func _build_ambient_particle_template(element_id: String, base_point: Vector2, s
 	particle_template.hashes.resize(64)
 	for hash_offset: int in range(particle_template.hashes.size()):
 		particle_template.hashes[hash_offset] = _ambient_hash01(seed + hash_offset)
+	particle_template.fire_samples = _torch_mote_templates.fire_samples(particle_template.hashes)
 	particle_template.cycle_phase = _ambient_hash01(seed + 101)
 	particle_template.speed = _ambient_particle_speed(element_id, seed)
 	particle_template.variant_index = int(particle_template.hashes[41] * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
@@ -6634,7 +6861,7 @@ func _ambient_particle_offset_from_template(
 		"fire":
 			return Vector2(
 				lateral + sin(time_seconds * lerpf(1.2, 2.5, hashes[5]) + hashes[6] * TAU) * tile_width * 0.07,
-				_tile_height() * 0.30 - cycle * tile_width * 0.90
+				(tile_width * 0.5) * 0.30 - cycle * tile_width * 0.90
 			)
 		"ice":
 			return Vector2(
@@ -6778,12 +7005,12 @@ func _draw_ambient_fire_particle_from_template(
 	alpha: float,
 	time_seconds: float
 ) -> void:
-	var hashes: PackedFloat64Array = particle_template.hashes
+	var samples: PackedFloat64Array = particle_template.fire_samples
 	var draw_size: Vector2 = particle_template.draw_size
-	var flicker: float = 0.88 + sin(time_seconds * lerpf(7.0, 10.5, hashes[14]) + hashes[15] * TAU) * 0.12
+	var flicker: float = 0.88 + sin(time_seconds * samples[0] + samples[1]) * 0.12
 	var ember_offset := Vector2(
-		sin(time_seconds * lerpf(1.6, 2.8, hashes[16]) + hashes[17] * TAU) * draw_size.x * 0.10,
-		sin(time_seconds * lerpf(2.2, 3.8, hashes[18]) + hashes[19] * TAU) * draw_size.y * 0.05
+		sin(time_seconds * samples[2] + samples[3]) * draw_size.x * 0.10,
+		sin(time_seconds * samples[4] + samples[5]) * draw_size.y * 0.05
 	)
 	if particle_template.glow_texture != null:
 		_draw_ambient_particle_trail(particle_template.glow_texture, point, velocity, draw_size, alpha * 0.90, "fire")
@@ -6791,7 +7018,7 @@ func _draw_ambient_fire_particle_from_template(
 			particle_template.glow_texture,
 			point + ember_offset * 0.45,
 			draw_size * Vector2(2.35, 2.05),
-			rotation + sin(time_seconds * 0.9 + hashes[20] * TAU) * 0.16,
+			rotation + sin(time_seconds * 0.9 + samples[6]) * 0.16,
 			alpha * 0.24 * flicker,
 			Color(1.0, 0.60, 0.22, 1.0)
 		)
@@ -6800,7 +7027,7 @@ func _draw_ambient_fire_particle_from_template(
 			particle_template.soft_texture,
 			point + ember_offset,
 			draw_size * Vector2(1.30, 1.18),
-			rotation + sin(time_seconds * 1.3 + hashes[21] * TAU) * 0.22,
+			rotation + sin(time_seconds * 1.3 + samples[7]) * 0.22,
 			alpha * 0.82 * flicker,
 			Color(1.0, 0.78, 0.42, 1.0)
 		)
@@ -6808,7 +7035,7 @@ func _draw_ambient_fire_particle_from_template(
 			particle_template.soft_texture,
 			point - ember_offset * 0.35,
 			draw_size * Vector2(0.72, 0.68),
-			rotation - sin(time_seconds * 1.7 + hashes[22] * TAU) * 0.18,
+			rotation - sin(time_seconds * 1.7 + samples[8]) * 0.18,
 			alpha * 0.46,
 			Color(1.0, 0.94, 0.66, 1.0)
 		)
@@ -6967,6 +7194,7 @@ func _reserve_ambient_particle_batch(required_sprite_capacity: int) -> void:
 	var rounded_capacity: int = int(ceil(float(required_sprite_capacity) / float(AMBIENT_BATCH_SPRITE_GROWTH))) * AMBIENT_BATCH_SPRITE_GROWTH
 	_ambient_batch_vertices.resize(rounded_capacity * 4)
 	_ambient_batch_uvs.resize(rounded_capacity * 4)
+	_ambient_batch_uv_rects.resize(rounded_capacity)
 	_ambient_batch_colors.resize(rounded_capacity * 4)
 	_ambient_batch_sprite_capacity = rounded_capacity
 	_ambient_batch_buffer_grow_count += 1
@@ -6989,10 +7217,15 @@ func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_siz
 	_ambient_batch_vertices[first_vertex + 2] = Vector3(vertex.x, vertex.y, 0.0)
 	vertex = point - axis_x + axis_y
 	_ambient_batch_vertices[first_vertex + 3] = Vector3(vertex.x, vertex.y, 0.0)
-	_ambient_batch_uvs[first_vertex] = uv_rect.position
-	_ambient_batch_uvs[first_vertex + 1] = Vector2(uv_rect.end.x, uv_rect.position.y)
-	_ambient_batch_uvs[first_vertex + 2] = uv_rect.end
-	_ambient_batch_uvs[first_vertex + 3] = Vector2(uv_rect.position.x, uv_rect.end.y)
+	# UVs depend only on the exact packed region at this ordered sprite slot.
+	# Keep the previous quartet when identical, including unused capacity tails;
+	# positions/colours and every animated sample still update on every redraw.
+	if _ambient_batch_uv_rects[_ambient_batch_sprite_count] != uv_rect:
+		_ambient_batch_uv_rects[_ambient_batch_sprite_count] = uv_rect
+		_ambient_batch_uvs[first_vertex] = uv_rect.position
+		_ambient_batch_uvs[first_vertex + 1] = Vector2(uv_rect.end.x, uv_rect.position.y)
+		_ambient_batch_uvs[first_vertex + 2] = uv_rect.end
+		_ambient_batch_uvs[first_vertex + 3] = Vector2(uv_rect.position.x, uv_rect.end.y)
 	var color := Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha)
 	_ambient_batch_colors[first_vertex] = color
 	_ambient_batch_colors[first_vertex + 1] = color
@@ -7308,8 +7541,12 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		if not leader.is_empty():
 			_slice_op("_draw_cached_command_glow", [tile, polygon, leader])
 	if detailed: _record_render_section_time("overlay_banner", started); started = Time.get_ticks_usec()
+	_threat_slice_keys = LayerSlices.tile_keys(self, tile)
 	LayerSlices.threat_operations(self, tile, polygon, _overlay_draw_sources)
+	_threat_slice_keys.clear()
 	if detailed: _record_render_section_time("overlay_rest", started); started = Time.get_ticks_usec()
+	if (presentation.get("attack_reach_tiles", []) as Array).has(tile):
+		_slice_op("draw_colored_polygon", [polygon, presentation.get("attack_reach_color", FOCUS_HIGHLIGHT)])
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if _snare_sealing_threshold(tile): _slice_op("draw_colored_polygon", [polygon, Color(UiPaletteTokens.UMBRA, 0.30)])
 	# A Warband's Command glow centres on its captain and the crest names it.
@@ -7336,8 +7573,10 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_slice_op("draw_colored_polygon", [polygon, ATTACK_HIGHLIGHT])
 		if bool(presentation.get("pulse_attack_tiles", false)): _slice_op("_draw_attack_target_pulse", [tile], true)
 	if _projected_attack_tiles_lookup_cache.has(tile):
+		_threat_slice_keys = LayerSlices.preview_tile_keys(self, tile, "projected_attack")
 		_slice_op("draw_colored_polygon", [polygon, Color(0.98, 0.30, 0.20, 0.18)])
 		_slice_op("_draw_tile_ring", [tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78])
+	_threat_slice_keys.clear()
 	if _summon_tiles_lookup_cache.has(tile):
 		_slice_op("draw_colored_polygon", [polygon, Color(0.24, 0.80, 0.30, 0.23)])
 		_slice_op("_draw_tile_ring", [tile, Color(0.52, 0.96, 0.48, 0.95), 3.6, 0.78])
@@ -7346,7 +7585,9 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 			var icon_side: float = _tile_width() * 0.23
 			_slice_op("draw_texture_rect", [summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72)])
 	if _projected_destination_tiles_lookup_cache.has(tile):
+		_threat_slice_keys = LayerSlices.preview_tile_keys(self, tile, "projected_destination")
 		_slice_op("_draw_tile_ring", [tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92])
+	_threat_slice_keys.clear()
 	if detailed: _record_render_section_time("overlay_targets", started); started = Time.get_ticks_usec()
 	# Slice playback happens after _overlay_draw_sources is cleared. Carry the
 	# selectors prepared for this plan, including empty results, so each tile
@@ -7398,8 +7639,8 @@ func _draw_slice_meteor_mark(tile: Vector2i, burrow_marks: Variant, burst_tiles:
 		return
 	TileGlow.draw_wash(self, _tile_polygon(tile), Color(0.95, 0.38, 0.16), 0.20)
 
-func _draw_meteor_mark_badges() -> void:
-	BurrowView.draw_badges(self)
+func _draw_meteor_mark_badges(include_burrow: bool = true) -> void:
+	if include_burrow: BurrowView.draw_badges(self)
 	DeathBurstView.draw_flames(self)
 	# Meteorfall's icon and incoming damage sit on a medallion at each marked
 	# tile's front edge in the effects layer, above units, so a mark under an
@@ -7564,7 +7805,6 @@ func _draw_objective_leader_beacon(tile: Vector2i) -> void:
 	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.18)
 	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
 	draw_texture_rect(texture, icon_rect, false, Color(1.0, 0.90, 0.70, 0.88))
-	_register_tooltip(icon_rect, "Marked leader · Defeat this enemy to clear the encounter.")
 
 func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 0.92) -> void:
 	var center: Vector2 = _tile_center(tile)
@@ -8087,6 +8327,7 @@ func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array
 	# calculation until the shared cache is rebuilt for this resolved layout.
 	var reuse_obstructions: bool = _submission_cache_valid and _foreground_obstruction_geometry_inputs == _foreground_obstruction_layout_inputs()
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries_cache if reuse_obstructions else _foreground_obstruction_entries(units_to_draw)
+	_torch_mote_materials_for_draw = _torch_mote_materials()
 	for placement: Dictionary in _torch_placements.resolve(self, tiles, pillar_texture):
 		var tile: Vector2i = placement["tile"]
 		var pillar_rect: Rect2 = placement["rect"]
@@ -8094,6 +8335,7 @@ func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array
 		var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
+	_torch_mote_materials_for_draw = []
 
 func _pillar_torch_ember_motes_active() -> bool:
 	if not visible or combat_state.is_empty():
@@ -8110,41 +8352,44 @@ func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2,
 	if torch_texture == null:
 		return
 	var source_point: Vector2 = _torch_placements.flame_point(self, tile, pillar_rect, torch_texture, side_key, side_sign)
-	for index: int in range(COLUMN_TORCH_EMBER_MOTE_COUNT):
-		var seed: int = _pillar_torch_ember_seed(tile, side_key, index)
-		var particle_template: AmbientParticleTemplate = _torch_mote_templates.resolve(combat_state.get("room_coord", Vector2i.ZERO), seed, _build_torch_mote_template)
+	var tile_width: float = _tile_width()
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var materials: Array = _torch_mote_materials_for_draw if not _torch_mote_materials_for_draw.is_empty() else _torch_mote_materials()
+	var motes: Array = _torch_mote_templates.for_side(room_coord, tile, side_key, tile_width, materials, COLUMN_TORCH_EMBER_MOTE_COUNT, _pillar_torch_ember_seed, _build_torch_mote_template, COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+	for mote: RefCounted in motes:
+		var particle_template: AmbientParticleTemplate = mote.particle
 		var hashes: PackedFloat64Array = particle_template.hashes
 		var cycle: float = wrapf(particle_template.cycle_phase + time_seconds * particle_template.speed, 0.0, 1.0)
 		var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.86) * COLUMN_TORCH_EMBER_MOTE_ALPHA * tint_alpha
 		alpha *= lerpf(0.56, 1.0, hashes[19])
 		if alpha <= 0.045:
 			continue
-		var point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, cycle, time_seconds, side_sign, hashes)
+		var point: Vector2 = _pillar_torch_ember_mote_point_at_width(source_point, cycle, time_seconds, side_sign, hashes, tile_width)
 		var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire") * 0.62)
-		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign, hashes)
+		var previous_point: Vector2 = _pillar_torch_ember_mote_point_at_width(source_point, previous_cycle, time_seconds - 0.09, side_sign, hashes, tile_width)
 		var velocity: Vector2 = point - previous_point
-		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, hashes[37])
-		var variant_index: int = posmod(index + int(hashes[39] * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
-		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
-		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
-		if texture == null and soft_texture == null:
+		var draw_width: float = mote.width
+		if mote.texture == null:
 			draw_circle(point, maxf(0.7, draw_width * 0.28), Color(1.0, 0.70, 0.30, minf(alpha * 0.62, 0.48)))
 			continue
-		if texture == null:
-			texture = soft_texture
-		var texture_size: Vector2 = texture.get_size()
-		var draw_size := Vector2(draw_width, draw_width)
-		if texture_size.x > 0.0:
-			draw_size.y = draw_width * texture_size.y / texture_size.x
 		var rotation: float = lerpf(-0.22, 0.22, hashes[43]) + sin(time_seconds * 0.86 + hashes[47] * TAU) * 0.07
 		var mote_alpha: float = alpha * lerpf(0.48, 0.74, hashes[41])
-		particle_template.texture = texture
-		particle_template.soft_texture = soft_texture
-		particle_template.glow_texture = glow_texture
-		particle_template.draw_size = draw_size
+		particle_template.texture = mote.texture
+		particle_template.soft_texture = mote.soft_texture
+		particle_template.glow_texture = mote.glow_texture
+		particle_template.draw_size = mote.draw_size
 		_draw_ambient_fire_particle_from_template(particle_template, point, velocity, rotation, mote_alpha, time_seconds)
 		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.52, 0.46)))
+
+func _torch_mote_materials() -> Array:
+	var materials: Array = []
+	for variant: int in range(AMBIENT_PARTICLE_ATLAS_COLUMNS):
+		var texture: Texture2D = _ambient_particle_texture("fire", variant)
+		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant)
+		var sized_texture: Texture2D = texture if texture != null else soft_texture
+		materials.append([texture, soft_texture, glow_texture, sized_texture.get_size() if sized_texture != null else Vector2.ZERO])
+	return materials
 
 func _pillar_torch_flame_point(torch_rect: Rect2, side_sign: float) -> Vector2:
 	var flame_x_scale: float = 0.34 if side_sign < 0.0 else 0.66
@@ -8159,18 +8404,21 @@ func _build_torch_mote_template(seed: int) -> AmbientParticleTemplate:
 	var result := AmbientParticleTemplate.new()
 	result.hashes.resize(preload("res://scripts/board_torch_mote_templates.gd").HASH_COUNT)
 	for offset: int in range(result.hashes.size()): result.hashes[offset] = _ambient_hash01(seed + offset)
+	result.fire_samples = _torch_mote_templates.fire_samples(result.hashes)
 	result.speed = lerpf(0.34, 0.56, result.hashes[13])
 	result.cycle_phase = result.hashes[17]
 	return result
 
 func _pillar_torch_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float, side_sign: float, hashes: PackedFloat64Array = PackedFloat64Array()) -> Vector2:
-	var tile_width: float = _tile_width()
 	var samples: PackedFloat64Array = _build_torch_mote_template(seed).hashes if hashes.is_empty() else hashes
+	return _pillar_torch_ember_mote_point_at_width(source_point, cycle, time_seconds, side_sign, samples, _tile_width())
+
+func _pillar_torch_ember_mote_point_at_width(source_point: Vector2, cycle: float, time_seconds: float, side_sign: float, samples: PackedFloat64Array, tile_width: float) -> Vector2:
 	var base_lateral: float = lerpf(-0.18, 0.18, samples[23]) * tile_width * lerpf(1.0, 0.64, cycle)
 	var sway: float = sin(time_seconds * lerpf(1.2, 2.6, samples[29]) + samples[31] * TAU) * tile_width * lerpf(0.006, 0.038, cycle)
 	var side_drift: float = side_sign * tile_width * lerpf(0.006, 0.030, samples[33]) * pow(cycle, 1.10)
 	var rise: float = pow(cycle, 0.76) * tile_width * COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE * lerpf(0.82, 1.18, samples[35])
-	return source_point + Vector2(base_lateral + sway + side_drift, _tile_height() * 0.018 - rise)
+	return source_point + Vector2(base_lateral + sway + side_drift, (tile_width * 0.5) * 0.018 - rise)
 
 func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
 	if tile.y < 0 or tile.y >= grid.size():
@@ -8187,6 +8435,11 @@ func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
 	return tile_id == "pillar"
 
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
+	if _is_dynamic_render_layer and _render_layer_kind == RENDER_LAYER_SCENE_TILE:
+		return _scene_tile_preparation.tint(self, tile_id, tile, prop_rect, obstruction_entries)
+	return _foreground_blocker_tint_uncached(tile_id, tile, prop_rect, obstruction_entries)
+
+func _foreground_blocker_tint_uncached(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
 		return Color.WHITE
 	var tint: Color = Color.WHITE
@@ -8835,9 +9088,11 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2, bar_alph
 		_draw_health_damage_preview(terrain, bar_rect, preview)
 
 func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
-	if int(terrain.get("max_hp", 0)) <= 0 or str(terrain.get("kind", "")) == "ice_pillar": return false
+	if int(terrain.get("max_hp", 0)) <= 0: return false
 	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return false
+	if preload("res://scripts/settings_store.gd")._applied_board_health_bars == preload("res://scripts/settings_store.gd").BOARD_HEALTH_CONTEXTUAL: return true
+	if str(terrain.get("kind", "")) == "ice_pillar": return false
 	if int(terrain.get("hp", 0)) < maxi(1, int(terrain.get("max_hp", 1))):
 		return true
 	if not _terrain_damage_preview(terrain).is_empty():
@@ -9080,6 +9335,9 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
 	KindleView.clear_glows(self)
+	# Per-unit retained children keep each body and its team rim together.
+	if is_instance_valid(_render_instrumentation_owner) and is_instance_valid(_render_instrumentation_owner.get("_occlusion_silhouettes")) and bool(_render_instrumentation_owner.get("_occlusion_silhouettes").get("tool_enabled")):
+		return
 	if _submission_cache_valid:
 		for unit: Dictionary in _units_by_draw_tile_cache.get(tile, []):
 			_draw_unit_body(unit)
@@ -9090,7 +9348,8 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
-	KindleView.draw_under(self, unit)
+	# Keep the existing additive glow behind the whole original tile canvas.
+	KindleView.draw_under(get_parent() if _render_layer_kind == "unit_body_outline" else self, unit)
 	if BurrowView.draw_body(self, unit):
 		_draw_enemy_intent_compass(unit)
 		return
@@ -9123,6 +9382,13 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		if detailed_sections:
 			_record_render_section_time("unit_body_sprite", phase_started_usec)
 		return
+	_draw_unit_sprite(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_body_sprite", phase_started_usec)
+
+func _draw_unit_sprite(unit: Dictionary) -> void:
+	if preload("res://scripts/board_aim_focus.gd").for_board(self).route(self, "_draw_unit_sprite", [unit], unit, false): return
+	var umbra_clip: Dictionary = _umbra_actor_clip_for_unit(unit)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		var death_animation: bool = bool(unit.get("death_animation", false))
@@ -9160,8 +9426,6 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
 			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip, CombatPacingScript.WHITE_FLASH_PROFILE)
-	if detailed_sections:
-		_record_render_section_time("unit_body_sprite", phase_started_usec)
 
 func _umbra_actor_clip_for_unit(unit: Dictionary) -> Dictionary:
 	var actor_key: String = str(unit.get("key", ""))
@@ -9587,6 +9851,10 @@ func _refresh_moving_hud_geometry(moving_actor_keys: Dictionary) -> bool:
 	return true
 
 func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
+	if preload("res://scripts/settings_store.gd")._applied_board_health_bars == preload("res://scripts/settings_store.gd").BOARD_HEALTH_CONTEXTUAL:
+		for unit: Dictionary in hud_units:
+			if str(unit.get("role", "")) == "enemy" and plate_visibility.inspected(str(unit.get("key", ""))): return _enemy_hud_actor_key(unit)
+		return ""
 	var focus_tile: Vector2i = _controller_focus_tile if _controller_focus_tile.x >= 0 else _hover_tile
 	if focus_tile.x < 0:
 		return ""
@@ -9742,7 +10010,9 @@ func _draw_depth_ordered_health_bars(units: Array[Dictionary]) -> void:
 
 func _draw_health_bar_entry(entry: Dictionary) -> void:
 	var unit: Dictionary = entry["unit"]
+	if bool(entry["terrain"]): plate_visibility.draw_terrain_statuses(self, unit)
 	var alpha: float = _health_bar_owner_alpha(unit)
+	alpha *= plate_visibility.opacity(plate_visibility.terrain_key(unit)) if bool(entry["terrain"]) else _plate_opacity(unit)
 	if alpha <= 0.0: return
 	if bool(entry["terrain"]):
 		_draw_terrain_health_bar(unit, entry["rect"], alpha)
@@ -9754,7 +10024,7 @@ func _draw_health_bar_entry(entry: Dictionary) -> void:
 		# Keep the connector below its own painted frame, as in the grouped HUD.
 		if not (entry.get("layout", {}) as Dictionary).is_empty():
 			_draw_enemy_hud_connector(unit, _unit_center(unit), entry["layout"])
-		_draw_health_bar(unit, entry["rect"])
+		_draw_health_bar(unit, entry["rect"], alpha)
 
 func _death_dissolve_progress(unit: Dictionary) -> float:
 	var progress: float = float(unit.get("death_progress", 0.0))
@@ -9810,8 +10080,6 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2, bar_alpha: float = 1.0) -> 
 		_draw_health_damage_preview(unit, content_rect, preview)
 	if font != null and not defer_preview_overlay:
 		_draw_health_bar_text(unit, content_rect, preview, font)
-	for entry: Dictionary in status_layout["defenses"]:
-		StatusPlates.draw_entry(self, entry, _keyword_icon_textures.get(str(entry["icon"]), null), 1.0, -1.0, false, presentation)
 
 func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
 	# Unit health bars are only drawn during the HUD phase. Always defer a
@@ -9836,8 +10104,6 @@ func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect
 	if texture != null:
 		var icon_side: float = marker_rect.size.x * LEADER_CREST_ICON_RATIO
 		draw_texture_rect(texture, Rect2(centre - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side), false)
-	var order: String = WarbandRules.order_line(combat_state.get("objective", {}))
-	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately." + ("\n" + order if not order.is_empty() else ""))
 
 func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
@@ -9856,11 +10122,13 @@ func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> voi
 		_draw_health_bar_text(unit, content_rect, preview, font)
 
 func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
+	if _plate_opacity(unit) <= 0.0: return
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
 	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 2.0)
 	var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
 	var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
 	var alpha: float = PreviewPulse.alpha(presentation) if HudForecast.field_is_preview(unit, "hp", preview) else 1.0
+	alpha *= _plate_opacity(unit)
 	text_color.a *= alpha
 	for offset: Vector2 in [
 		Vector2(-1.0, 0.0),
@@ -9923,6 +10191,7 @@ func _damage_preview_shows_lost_hp(preview: Dictionary) -> bool:
 	return not preview.is_empty() and not bool(preview.get("lethal", false))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
+	if _plate_opacity(unit) <= 0.0: return
 	var current_hp: float = float(unit.get("hp", 0))
 	var next_hp: float = float(preview.get("hp", current_hp))
 	var max_hp: float = maxf(1.0, float(unit.get("max_hp", 1)))
@@ -9933,7 +10202,7 @@ func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Diction
 			Vector2(rect.position.x + rect.size.x * next_ratio, rect.position.y),
 			Vector2(rect.size.x * (current_ratio - next_ratio), rect.size.y)
 		)
-		draw_health_damage_preview(self, damage_rect, bool(preview.get("lethal", false)), presentation)
+		draw_health_damage_preview(self, damage_rect, bool(preview.get("lethal", false)), presentation, _plate_opacity(unit))
 
 # The wide boss bar and board bars use the same draw commands and clock.
 static func health_damage_preview_colors(lethal: bool, source_presentation: Dictionary) -> Dictionary:
@@ -9942,8 +10211,10 @@ static func health_damage_preview_colors(lethal: bool, source_presentation: Dict
 		damage_color = Color(0.72, 0.18, 0.14, PreviewPulse.alpha(source_presentation, true))
 	return {"fill": damage_color, "outline": Color(1.0, 0.93, 0.62, 0.45)}
 
-static func draw_health_damage_preview(canvas: CanvasItem, damage_rect: Rect2, lethal: bool, source_presentation: Dictionary) -> void:
+static func draw_health_damage_preview(canvas: CanvasItem, damage_rect: Rect2, lethal: bool, source_presentation: Dictionary, opacity: float = 1.0) -> void:
 	var colors: Dictionary = health_damage_preview_colors(lethal, source_presentation)
+	colors["fill"] = Color(colors["fill"], colors["fill"].a * opacity)
+	colors["outline"] = Color(colors["outline"], colors["outline"].a * opacity)
 	canvas.draw_rect(damage_rect, colors["fill"], true)
 	canvas.draw_rect(damage_rect, colors["outline"], false, 1.0)
 
@@ -10188,13 +10459,16 @@ func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	)
 
 func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
+	var alpha: float = 1.0
 	var status_layout: Dictionary = _status_plate_layout.resolve(self, unit, health_rect)
-	CapacitorView.draw_pips(self, unit, status_layout["frame"])
+	plate_visibility.draw_pips(self, unit, status_layout["frame"], alpha)
 	var actor_key: String = str(unit.get("key", ""))
 	status_pop_tracker.observe(actor_key, status_layout["statuses"])
 	var still: bool = bool(presentation.get("reduced_motion", false))
+	for defense: Dictionary in status_layout["defenses"]:
+		StatusPlates.draw_entry(self, defense, _keyword_icon_textures.get(str(defense["icon"]), null), 1.0, -1.0, false, presentation)
 	for entry: Dictionary in status_layout["statuses"]:
-		StatusPlates.draw_entry(self, entry, _keyword_icon_textures.get(str(entry["icon"]), null), KindleView.badge_scale(presentation, actor_key) if str(entry["icon"]) == "burst" else 1.0,
+		StatusPlates.draw_entry(plate_visibility.ink(self, alpha), entry, _keyword_icon_textures.get(str(entry["icon"]), null), KindleView.badge_scale(presentation, actor_key) if str(entry["icon"]) == "burst" else 1.0,
 			status_pop_tracker.progress(actor_key, str(entry["icon"])), still, presentation)
 
 func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
@@ -10272,8 +10546,7 @@ func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: F
 	# The accent belongs behind the wordmark so descenders such as the G in
 	# "Lunge" remain intact instead of being crossed by the line.
 	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
-	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
-	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
+	preload("res://scripts/board_contour_text.gd").draw_title(self, display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE)
 
 func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float = 1.0) -> void:
 	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
@@ -10690,6 +10963,7 @@ func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Arr
 	return []
 
 func _enemy_intent_expanded(unit: Dictionary) -> bool:
+	if preload("res://scripts/settings_store.gd")._applied_board_health_bars == preload("res://scripts/settings_store.gd").BOARD_HEALTH_CONTEXTUAL and plate_visibility.inspected(str(unit.get("key", ""))): return true
 	if _all_enemy_intents_expanded():
 		return true
 	var expanded_keys: Array = presentation.get("expanded_enemy_actor_keys", [])
@@ -13698,11 +13972,28 @@ func _draw_vyraketh_bite_effect(from_point: Vector2, to_point: Vector2, progress
 		draw_polyline(points, color, 2.0, true)
 
 func _draw_path_depth_pass(tile: Vector2i) -> void:
-	_path_depth_tile = tile
-	_path_depth_clip = _tile_polygon(tile)
-	_draw_path_preview()
+	if (
+		(presentation.get("displacement_paths", []) as Array).is_empty()
+		and (presentation.get("path_tiles", []) as Array).is_empty()
+		and (presentation.get("enemy_threat_previews", []) as Array).is_empty()
+	):
+		return
+	if _blink_preview_effect_active(): return
+	if not _is_dynamic_render_layer or _render_layer_kind != RENDER_LAYER_SCENE_TILE:
+		_path_depth_tile = tile
+		_path_depth_clip = _tile_polygon(tile)
+		_draw_path_preview()
+	else:
+		# Resolve ordered typed paths once per exact input snapshot. The path
+		# painter still samples Light links and emits the original clip commands.
+		for entry: Array in _scene_tile_preparation.paths(self):
+			var path: Array[Vector2i] = entry[0]
+			if not path.has(tile): continue
+			_path_depth_tile = tile
+			_path_depth_clip = _tile_polygon(tile)
+			_draw_path_tiles(path, entry[1], entry[2])
 	_path_depth_clip = PackedVector2Array()
-	_path_depth_tile = Vector2i(-1,-1)
+	_path_depth_tile = Vector2i(-1, -1)
 
 func _draw_path_color_polygon(polygon: PackedVector2Array, color: Color) -> void:
 	if _path_depth_clip.is_empty():
@@ -17975,10 +18266,10 @@ New ground has no immediate occupant effect." % [ElementData.name(element), dama
 
 
 func _surface_tooltip_for_tile(tile: Vector2i) -> String:
+	if preload("res://scripts/board_aim_focus.gd").for_board(self).choosing: return ""
 	return _tile_tooltip_cache.encoded_for_tile(self, tile)
 
 func _draw_board_surface(tile: Vector2i) -> void:
-	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
 	# Ground a feedback beat replaces, consumes or breaks keeps its retained
 	# layer for the start of the beat, fading out as the new ground arrives.
@@ -17986,6 +18277,20 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
 	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
 	var surface: Dictionary = (combat_state.get("surfaces", {}) as Dictionary).get(_tile_paint_inputs.surface_key(tile), {})
+	# Empty floor has no commands to prepare. A previous retained child must
+	# still take the normal cleanup path; feedback/preview/chain inputs must
+	# still reach their live painters even when the persistent surface is empty.
+	if (
+		surface.is_empty() and feedback_events.is_empty()
+		and (presentation.get("surface_preview_events", []) as Array).is_empty()
+		and (presentation.get("surface_preview_arcs", []) as Array).is_empty()
+		and str((presentation.get("effect", {}) as Dictionary).get("kind", "")) != "chain"
+		and _surface_rubble_layer == null and _surface_rubble_floor_layer == null
+		and _surface_ice_layer == null and _surface_fire_layer == null and _surface_electric_layer == null
+		and _surface_base_drawing == null and _surface_feedback_pixel_layer == null
+	):
+		return
+	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
 	var element: String = BoardSurfaceRules.kind(str(surface.get("elemental", "")))
 	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
 	var split_rubble: bool = element == "ice" or ice_leaving > 0.0
@@ -18266,15 +18571,6 @@ func _refresh_snare_chips() -> void:
 func _door_destination_medallion_visible(tile: Vector2i) -> bool:
 	return not _snare_door_sealed(tile)
 
-func _snare_sealbinder_tooltip_at_position(point: Vector2) -> String:
-	if not SnareRules.active(combat_state): return ""
-	var tile: Vector2i = tile_at_global_position(get_global_transform_with_canvas() * point)
-	for unit: Dictionary in _visible_units():
-		if str(unit.get("intent", {}).get("id", "")) != "snare_seal": continue
-		if unit["pos"] == tile or _enemy_hud_actor_clear_rect(unit, _unit_center(unit)).has_point(point):
-			return SnareRules.seal_tooltip(combat_state["objective"], unit)
-	return ""
-
 func _release_room_surface_layers() -> void:
 	for field: String in ["_surface_rubble_floor_layer", "_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer"]:
 		var layer: Node2D = get(field) as Node2D
@@ -18283,3 +18579,17 @@ func _release_room_surface_layers() -> void:
 			layer.queue_free()
 		set(field, null)
 	_release_surface_feedback_layers()
+
+# rd-05: painting changes only; all legacy HUD geometry remains reserved.
+func refresh_plate_visibility() -> void:
+	if not _is_dynamic_render_layer: plate_visibility.refresh()
+
+func _plate_visibility_changed() -> void:
+	if is_instance_valid(_hud_render_layer): _queue_render_layer_redraw(_hud_render_layer)
+	else: queue_redraw()
+
+func _plate_opacity(unit: Dictionary) -> float:
+	return plate_visibility.opacity(str(unit.get("key", "")))
+
+func _draw_friendly_rest_plates(_units: Array[Dictionary]) -> void:
+	pass
