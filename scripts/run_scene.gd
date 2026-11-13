@@ -105,6 +105,7 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const LockedHandRenderCache = preload("res://scripts/locked_hand_render_cache.gd")
 const CardFocusTooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
+const CardKeywordHover = preload("res://scripts/card_keyword_hover.gd")
 const TurnOrderLandingStrip = preload("res://scripts/turn_order_landing_strip.gd")
 const TURN_ORDER_LANDING_STRIP_ENABLED := false
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -15941,6 +15942,7 @@ func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_ca
 	CardDisplay.bind(widget, _card_display_state())
 	widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
 	widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
+	CardKeywordHover.bind(widget, _card_focus_tooltip_stack)
 	var card_slot: Control = _reward_card_choice_slot(widget, card_id, reward_card_size, choice_state)
 	card_row.add_child(card_slot)
 	widget.focus_mode = Control.FOCUS_ALL

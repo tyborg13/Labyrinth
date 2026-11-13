@@ -2,6 +2,7 @@ extends Control
 class_name ScavengerShopView
 
 const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+const CardKeywordHover = preload("res://scripts/card_keyword_hover.gd")
 
 signal buy_requested(item_id: String, source: Control)
 signal sell_requested(item_id: String, source: Control)
@@ -1070,7 +1071,8 @@ func _build_magic_offer(item_id: String) -> Control:
 	center.custom_minimum_size = OFFER_CARD_SIZE + Vector2(12.0, 8.0)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(center)
-	_build_native_scaled_card(center, item_id, OFFER_CARD_SIZE, "MagicCard", false)
+	var offer_card: CardWidget = _build_native_scaled_card(center, item_id, OFFER_CARD_SIZE, "MagicCard", false)
+	CardKeywordHover.bind(button, CardKeywordHover.scene_stack(self), offer_card)
 	stack.add_child(_price_tag(item_id, false))
 	_make_mouse_passive(stack)
 	_offer_sources["buy:%s" % item_id] = button
@@ -1144,7 +1146,8 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	center.custom_minimum_size = Vector2(122.0, 140.0)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(center)
-	_build_native_scaled_card(center, item_id, Vector2(100.0, 140.0), "SellMagicCard", false)
+	var sell_card: CardWidget = _build_native_scaled_card(center, item_id, Vector2(100.0, 140.0), "SellMagicCard", false)
+	CardKeywordHover.bind(button, CardKeywordHover.scene_stack(self), sell_card)
 	stack.add_child(_price_tag(item_id, true))
 	_make_mouse_passive(stack)
 	_offer_sources["sell:%s" % item_id] = button

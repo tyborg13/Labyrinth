@@ -68,6 +68,12 @@ static func verify(canvas: SubViewport, state: Dictionary, settle_frames: int, e
 	canvas.add_child(board)
 	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"show_all_enemy_intents": true})
 	for _frame: int in range(settle_frames): await canvas.get_tree().process_frame
+	# Plate fades run on real time (0.12 s in), so a fixed frame count settles
+	# them only at slow frame rates. Wait for the fade itself, or a late fade
+	# step repaints the HUD a second time inside the observed frame.
+	var plates: Object = board.get("plate_visibility")
+	var fade_deadline: int = Time.get_ticks_msec() + 2000
+	while bool(plates.call("_active")) and Time.get_ticks_msec() < fade_deadline: await canvas.get_tree().process_frame
 	var hud: Control = board.get("_hud_render_layer")
 	var effects: Control = board.get("_effects_render_layer")
 	var shown: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
