@@ -15221,6 +15221,12 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	# This is the known simulation's net loss, even when its opaque horizon
 	# prevents displaying a final HP projection. Its source omits hidden causes.
 	var health_loss: int = clampi(before_hp - int(after_player.get("hp", before_hp)) - fatigue_hp_loss, 0, before_hp)
+	# qa-87 R2: a battlefield-rule completion (Zekarion's lightning storm) changes HP
+	# with no loss receipt. Receipts already include Fatigue, so any net loss beyond
+	# them is unreceipted; count it so the total and tone match the resolved state
+	# the icon panel reads.
+	var net_hp_loss: int = clampi(before_hp - int(after_player.get("hp", before_hp)), 0, before_hp)
+	if net_hp_loss > int(losses.get("hp", 0)): losses["hp"] = net_hp_loss
 	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
@@ -27419,6 +27425,9 @@ func _show_pre_battle_preview() -> bool:
 	if _pre_battle_scrim == null:
 		return false
 	_pre_battle_scrim.visible = true
+	# qa-86: an open board tooltip is its own popup Window; the scrim blocks new
+	# hovers but cannot cover or retire it, so dismiss it with the modal's open.
+	if board_view != null and board_view.has_method("dismiss_tooltip_popups"): board_view.dismiss_tooltip_popups()
 	_sync_pre_battle_overlay_layering()
 	_animate_pre_battle_entry()
 	call_deferred("_focus_pre_battle_entry")

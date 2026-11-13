@@ -4697,6 +4697,15 @@ func _pointer_on_unit(at_position: Vector2) -> bool:
 		if _unit_footprint_tiles(unit).has(tile): return true
 	return false
 
+# qa-86: board tooltips render in popup Windows owned by this board. A blocking
+# modal's scrim cannot cover or retire one that is already open, so modal
+# openers call this to dismiss it (moving the pointer would otherwise be needed).
+func dismiss_tooltip_popups() -> void:
+	for child: Node in get_children():
+		if child is Window and str(child.get("theme_type_variation")) == "TooltipPanel":
+			(child as Window).hide()
+			child.queue_free()
+
 func _loot_tooltip_at_position(at_position: Vector2) -> String:
 	for loot_var: Variant in combat_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:

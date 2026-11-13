@@ -222,6 +222,7 @@ func _test_recap(kind: String, row_count: int, feedback: bool) -> void:
 	_check(panel.links.size() == (2 if kind == "full" else 3) - (0 if feedback else 1), "Empty feedback URL removes its link: " + kind)
 	_check((recap._feat_rows.visible) == (kind == "full" and row_count > 5), "Clear ledgers split above five rows")
 	_check(root.gui_get_focus_owner() == panel.primary_plate(), "The correct primary plate receives initial focus")
+	_check(panel.wishlist_plate == null or panel.primary_plate() != panel.wishlist_plate, "Initial focus never lands on Wishlist (qa-87 F10)")
 	_check(bool(panel.primary_plate().get_meta("umbra_selected")), "The primary plate is selected")
 	await _test_link_pointer_selection(recap, panel)
 	for index: int in range(panel.plates.size()):

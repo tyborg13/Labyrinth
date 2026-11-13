@@ -137,7 +137,11 @@ func set_return_plate(plate: Button) -> void:
 	for link: Button in links:
 		link.focus_neighbor_bottom = link.get_path_to(plate)
 
+# Default focus is never Wishlist (qa-87 F10: an Enter after the click-to-continue
+# lines opened the Steam page). It is Rise Again, as on the links-only recap.
 func primary_plate() -> Button:
+	for plate: Button in plates:
+		if plate != wishlist_plate: return plate
 	return plates[0]
 
 func layout_plates(factor: float) -> void:

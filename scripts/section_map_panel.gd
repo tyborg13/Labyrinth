@@ -1,6 +1,7 @@
 extends Control
 class_name SectionMapPanel
 
+const PREVIEW_ABSOLUTE_Z: int = 1290
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -982,8 +983,11 @@ func _show_preview(coord: Vector2i) -> void:
 	_preview = Tooltip.make_text(_preview_text)
 	_preview.name = "RoomPreview"
 	# Shared inset ornaments draw one layer behind their parent. Keep both
-	# the tooltip body and its text above the map background and nodes.
-	_preview.z_index = 2
+	# the tooltip body and its text above the map background and nodes, and
+	# above the contextual tutorial host (run_scene, absolute z 1280), whose
+	# highlight otherwise dims the preview during the map lesson (qa-87 R8).
+	_preview.z_as_relative = false
+	_preview.z_index = PREVIEW_ABSOLUTE_Z
 	_field.add_child(_preview)
 	_preview.reset_size()
 	_position_preview.call_deferred(coord)

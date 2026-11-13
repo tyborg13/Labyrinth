@@ -38,6 +38,11 @@ static func preview_active(scene: Node) -> bool:
 	if scene._selected_card_index >= 0 and scene._pending_card_requires_confirmation(): return true
 	if scene._selected_card_index >= 0 and scene._orientation_pending():
 		return scene._direction_choice_tiles(scene._pending_orientation_target_tile).has(scene._hovered_board_tile)
+	# qa-87 R6: during hero movement, the hero's own tile previews staying put
+	# (the unchanged state's Pass forecast) instead of closing the panel.
+	if scene._player_movement_selected and scene._selected_card_index < 0:
+		var hero_tile: Vector2i = (scene._combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+		if hero_tile.x >= 0 and scene._hovered_board_tile == hero_tile: return true
 	var preview: Dictionary = scene._active_card_preview()
 	if preview.is_empty(): return false
 	return (preview.get("target_tiles", []) as Array).has(scene._hovered_board_tile) or not scene._shortcut_plan_for_tile(preview, scene._hovered_board_tile).is_empty()
