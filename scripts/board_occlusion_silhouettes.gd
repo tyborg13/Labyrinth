@@ -30,7 +30,7 @@ var coverage_builds: int = 0
 var pose_updates: int = 0
 var tool_enabled: bool = true
 # Painter-order rest-mask sources, shared with the occ-02 focus reveal.
-var latest_sources: Array[Dictionary] = []
+var latest_sources: Array[Dictionary]
 var sources_revision: int = 0
 var _sources_stale: bool = true
 
