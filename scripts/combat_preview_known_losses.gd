@@ -3,11 +3,12 @@ extends RefCounted
 const Data = preload("res://scripts/game_data.gd")
 const ENGINE_RESOURCE_PATH: String = "res://scripts/combat_engine.gd"
 
-# PASS consumes only known losses/uncertainty and stops before an actor repeats.
-# Rescheduling uses the intent just resolved, not the next roll. For this closed
-# deterministic subset, selecting unrevealed future intents cannot affect any
-# announced action. Full-state previews, all other loadouts/mechanics and real
-# combat keep the ordinary selector and exact RNG continuation.
+# PASS consumes only known losses/uncertainty. Rescheduling uses the intent just
+# resolved, not the next roll. For this closed deterministic subset, selecting
+# future intents cannot affect any announced action until a visible foe repeats;
+# then the cursor resolves again with ordinary selection (pass_forecast_repeats.gd).
+# Full-state previews, all other loadouts/mechanics and real combat keep the
+# ordinary selector and exact RNG continuation.
 static func can_defer_unrevealed_selection(engine: RefCounted, state: Dictionary) -> bool:
 	var script: Script = engine.get_script()
 	if script == null or script.resource_path != ENGINE_RESOURCE_PATH: return false

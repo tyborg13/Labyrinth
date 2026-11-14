@@ -386,6 +386,22 @@ static func overflow(scene: Node, entries: Array[Dictionary], index: int) -> Con
 # clock projection to preserve actor identity even when two foes share a name.
 static func pass_repeat_portraits(scene: Node, summary: Dictionary, source: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
+	# atk-03: a visible foe whose every move was forecast ("acts twice, already
+	# counted"), resolved by actor identity, then the still-unknown repeats.
+	var counted_keys: Dictionary = {}
+	for repeat: Dictionary in summary.get("counted_repeats", []):
+		var key: String = "enemy:" + str(repeat.get("key", ""))
+		var portrait_entry: Dictionary = {}
+		for entry: Dictionary in scene._turn_order_all_entries:
+			if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) and scene._turn_order_actor_key(entry) == key:
+				portrait_entry = entry
+				break
+		if portrait_entry.is_empty():
+			for enemy: Dictionary in (source if not source.is_empty() else scene._combat_state).get("enemies", []):
+				if "enemy:enemy_%d" % int(enemy.get("id", -1)) == key: portrait_entry = {"kind": "enemy", "type": str(enemy.get("type", ""))}
+		if portrait_entry.is_empty(): continue
+		counted_keys[key] = true
+		result.append({"actor_key": key, "path": scene._turn_order_portrait_path(portrait_entry), "aspect": scene.TURN_ORDER_PORTRAIT_SIZE.aspect(), "counted": true, "count": int(repeat.get("count", 2))})
 	var names: Array = summary.get("repeated_enemy_names", [])
 	if names.is_empty(): return result
 	var disclosed: Dictionary = {}
@@ -402,7 +418,7 @@ static func pass_repeat_portraits(scene: Node, summary: Dictionary, source: Dict
 		var key: String = scene._turn_order_actor_key(entry)
 		if not source.is_empty() and not disclosed.has(key): continue
 		counts[key] = int(counts.get(key, 0)) + 1
-		if int(counts[key]) != 2 or not names.has(str(entry.get("name", ""))): continue
+		if int(counts[key]) != 2 or not names.has(str(entry.get("name", ""))) or counted_keys.has(key): continue
 		result.append({"actor_key": key, "path": scene._turn_order_portrait_path(entry), "aspect": scene.TURN_ORDER_PORTRAIT_SIZE.aspect()})
 	return result
 
@@ -417,11 +433,17 @@ static func refresh_pass_badges(scene: Node, chip: Button) -> void:
 		if row.has("portrait"): violet = row["parts"][0]["color"]
 	for slot: Control in scene._turn_order_bar.get_children():
 		var repeated: bool = false
+		var repeat_text: String = "×2"
 		for portrait: Dictionary in portraits:
-			if slot.get_meta("turn_order_actor_key", "") == portrait["actor_key"]: repeated = true
+			if slot.get_meta("turn_order_actor_key", "") == portrait["actor_key"]:
+				repeated = true
+				repeat_text = "×%d" % int(portrait.get("count", 2))
 		var badge: Label = slot.get_node_or_null("PassForecastDoubleTurnBadge") as Label
+		if repeated and badge != null and badge.text != repeat_text:
+			badge.text = repeat_text
+			badge.size = badge.get_minimum_size()
 		if repeated and badge == null:
-			badge = scene._turn_order_number_badge("×2", {}, false, slot.size) as Label
+			badge = scene._turn_order_number_badge(repeat_text, {}, false, slot.size) as Label
 			badge.name = "PassForecastDoubleTurnBadge"
 			badge.add_theme_color_override("font_color", violet)
 			badge.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)

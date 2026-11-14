@@ -29,6 +29,9 @@ const UMBRA := Color("9a7cf0")
 const UMBRA_DEEP := Color(0.018, 0.006, 0.042)
 const UMBRA_VIOLET := Color(0.165, 0.048, 0.235)
 const STEEL := Color("8fb3d9")
+# The forecast's unknown and repeat ink (PASS panel ×2 rows, rail ×2 badge,
+# compact-disc ×2 pip).
+const FORECAST_UNKNOWN := Color("c89be3")
 const SUCCESS := Color("8fcf7d")
 
 # Authored event transaction tones.

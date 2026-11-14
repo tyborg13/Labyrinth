@@ -2536,15 +2536,27 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 				var intent: Dictionary = enemy.get("intent", {}) as Dictionary
 				var initially_visible_enemy_ids: Dictionary = cursor.get("initially_visible_enemy_ids", {}) as Dictionary
 				var revealed_enemy_ids: Dictionary = cursor.get("revealed_enemy_ids", {}) as Dictionary
-				if not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty():
+				var Repeats: GDScript = preload("res://scripts/pass_forecast_repeats.gd")
+				Repeats.note_hidden_before(cursor, next_state, entry)
+				# atk-03: a visible foe's repeat activation is forecast with the
+				# intent its previous activation rolled on this copy.
+				var known_repeat: bool = bool(cursor.get("losses_only", false)) and revealed_enemy_ids.has(enemy_id) and initially_visible_enemy_ids.has(enemy_id) and not intent.is_empty() and Repeats.known_repeat(cursor, enemy_id)
+				if known_repeat and not bool(cursor.get("choose_next_intents", true)):
+					Repeats.restart_with_rolls(cursor)
+					_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
+					return cursor
+				if not known_repeat and (not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty()):
+					Repeats.note_skipped(cursor)
 					cursor["unrevealed_before_player"] = true
 					if not initially_visible_enemy_ids.has(enemy_id):
 						(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
 					if revealed_enemy_ids.has(enemy_id) and is_enemy_visible_to_player(before_pop_state, enemy):
 						(cursor["repeated_enemy_names"] as Array).append(str(entry.get("name", enemy.get("type", ""))))
-					# Do not roll or apply a hidden second move. Continue to the other
-					# announced actors and the known next-draw cost instead of losing
-					# that evidence at the first unknown activation.
+						Repeats.note_unknown_repeat(cursor, enemy_id)
+					# Do not roll or apply an unknown move (a hidden or new actor, or a
+					# repeat whose roll no longer matches the live generator). Continue to
+					# the other announced actors and the known next-draw cost instead of
+					# losing that evidence at the first unknown activation.
 					next_state["current_actor"] = {}
 					if not bool(cursor.get("losses_only", false)):
 						next_state = before_pop_state.duplicate(true)
@@ -2554,11 +2566,18 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					revealed_enemy_ids[enemy_id] = true
 					cursor["revealed_enemy_ids"] = revealed_enemy_ids
 					performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)))
+					var hero_before: Array = Repeats.hero_mark(next_state)
+					# The PASS-loss copy accepts each action as live play does (the
+					# bos-01 half-Health switch, director 2026-11-13); only the copy
+					# switches. Full-state previews (bot lookahead, frozen measurement
+					# policies) keep their recorded no-switch behaviour.
+					var accepted: Callable = preload("res://scripts/battlefield_rules/committed.gd").callback(self) if bool(cursor.get("losses_only", false)) else Callable()
+					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)), accepted)
 					_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
 					# The turn result already owns its state. Keep that ownership across
 					# rendered slices instead of cloning the full snapshot again.
 					next_state = turn_result.get("state", next_state) as Dictionary
+					Repeats.record(cursor, enemy_id, str(entry.get("name", enemy.get("type", ""))), hero_before, next_state)
 					var steps: Array = cursor.get("steps", []) as Array
 					for step_var: Variant in turn_result.get("steps", []):
 						if typeof(step_var) == TYPE_DICTIONARY:
@@ -2598,7 +2617,7 @@ func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 		"repeated_enemy_names": cursor.get("repeated_enemy_names", []),
 		"fatigue_loss": int(cursor.get("fatigue_loss", 0)),
 		"forecast_limit_reached": bool(cursor.get("forecast_limit_reached", false)),
-	}
+	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor))
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)

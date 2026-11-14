@@ -114,7 +114,7 @@ Files involved:
     5. `both_plays_used`: the plate shows `TURN END`.
     6. `controller_focus_fast`: bumper focus onto Quick Stab shows the strip.
     7. `reduced_motion_fast`.
-    8. `pass_lap_known_damage`: a fixture where the +19 pass spans an enemy's unrevealed second activation, with revealed damage before it. The plate reads `+10  •  −N +?`.
+    8. `pass_lap_known_damage`: a fixture where the +19 pass spans an enemy's second activation, with revealed damage before it. The plate read `+10  •  −N +?`; since atk-03 (2026-11-13) the second move is forecast and the plate reads the full `+10  •  −N`.
 - Update `tests/turn_order_projection_probe.gd` and any pass-preview or HUD probe or test whose old text changed. List each one.
 - Run the full suite and `python3 tests/test_icon_identity_policy.py`.
 - Report the capture paths. The design owner reviews them against the mockups.

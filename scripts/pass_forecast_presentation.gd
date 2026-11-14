@@ -11,6 +11,7 @@ class Lifecycle extends Node:
 	var scene: Node
 	var chip: Button
 	var previewed: bool = false
+	var ends_turn: bool = false
 	var eligible: Callable
 
 	func _ready() -> void:
@@ -21,19 +22,35 @@ class Lifecycle extends Node:
 		if chip.is_visible_in_tree(): scene.call_deferred("_refresh_selected_card_forecast")
 
 	func _process(_delta: float) -> void:
-		var selection_ended: bool = previewed and scene._selected_card_index < 0 and not scene._player_movement_selected and not scene._surface_aim.active()
-		if selection_ended or not eligible.call():
+		var selection_ended: bool = previewed and scene._selected_card_index < 0 and not scene._player_movement_selected and not scene._surface_aim.active() and scene._drag_card_index < 0
+		if selection_ended or not eligible.call(ends_turn):
 			ForecastPanel.refresh(chip, false)
 			chip.set_meta("pass_action_preview", false)
 			chip.set_meta("pass_movement_preview", false)
 			Slots.refresh_pass_badges(scene, chip)
 			set_process(false)
 
-static func allowed(scene: Node) -> bool:
-	return not scene._animation_lock and not scene._dialogue_active and scene._drag_card_index < 0 and str(scene._run_state.get("mode", "")) == "combat" and scene._combat_engine.is_player_turn(scene._combat_state) and scene._combat_engine.combat_outcome(scene._combat_state).is_empty()
+# A held card hides the panel, except while it previews an action that ends the
+# turn (atk-02 trigger c).
+static func allowed(scene: Node, allow_drag: bool = false) -> bool:
+	return not scene._animation_lock and not scene._dialogue_active and (allow_drag or scene._drag_card_index < 0) and str(scene._run_state.get("mode", "")) == "combat" and scene._combat_engine.is_player_turn(scene._combat_state) and scene._combat_engine.combat_outcome(scene._combat_state).is_empty()
 
 static func preview_active(scene: Node) -> bool:
-	if not allowed(scene): return false
+	return allowed(scene) and _previewed(scene)
+
+# atk-02 trigger (c): a selected card's valid target (pointer or controller
+# focus, click or drag aim), a targetless confirmation, a targetless card held
+# over the board, or a hero-movement destination previews an action after which
+# no card play, movement or free Rite remains and the fight goes on, so the
+# auto-pass fires on that click. Reads only the preview's cached source state.
+# `previewed` passes an already computed _previewed(scene) for this refresh.
+static func ends_turn(scene: Node, previewed: Variant = null) -> bool:
+	if not allowed(scene, true) or scene._surface_aim.active() or scene._auto_pass_tutorial_hold(): return false
+	if not scene._pass_preview_drag_play_active():
+		if (scene._selected_card_index < 0 and not scene._player_movement_selected) or not (bool(previewed) if previewed != null else _previewed(scene)): return false
+	return scene._pass_preview_prewarm.ends_turn(scene, scene._hovered_board_tile)
+
+static func _previewed(scene: Node) -> bool:
 	if not scene._player_movement_selected and scene._selected_card_index < 0 and not scene._surface_aim.active(): return false
 	if scene._selected_card_index >= 0 and scene._pending_card_requires_confirmation(): return true
 	if scene._selected_card_index >= 0 and scene._orientation_pending():
@@ -58,14 +75,18 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 		lifecycle.name = "PassForecastLifecycle"
 		lifecycle.scene = scene
 		lifecycle.chip = chip
-		lifecycle.eligible = allowed.bind(scene)
+		lifecycle.eligible = func(allow_drag: bool) -> bool: return allowed(scene, allow_drag)
 		chip.add_child(lifecycle)
 	chip.set_meta("pass_forecast_summary", summary)
-	var previewed: bool = preview_active(scene)
+	var core: bool = allowed(scene, true) and _previewed(scene)
+	var final_action: bool = not summary.is_empty() and ends_turn(scene, core)
+	var previewed: bool = (core and allowed(scene)) or final_action
 	var pass_active: bool = not chip.disabled and (chip.has_focus() or bool(chip.get_meta("pass_keyboard_focus", false)) or bool(chip.get_meta("pass_pointer_hover", false)))
-	var active: bool = allowed(scene) and chip.is_visible_in_tree() and not summary.is_empty() and (previewed or pass_active)
+	var active: bool = allowed(scene, final_action) and chip.is_visible_in_tree() and not summary.is_empty() and (previewed or pass_active)
 	lifecycle.previewed = previewed
+	lifecycle.ends_turn = final_action
 	lifecycle.set_process(active)
+	chip.set_meta("pass_ends_turn_preview", final_action)
 	chip.set_meta("pass_action_preview", previewed)
 	chip.set_meta("pass_movement_preview", movement_active(scene))
 	# Keep the last destination's rows throughout its fade-out. Visibility alone
@@ -73,7 +94,7 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 	if active or not chip.has_node("PassForecastFocusTooltip"):
 		var state: Dictionary = scene._pass_preview_prewarm.cached_source(scene, scene._hovered_board_tile)
 		var portraits: Array[Dictionary] = Slots.pass_repeat_portraits(scene, summary, state)
-		var source: Array = [summary, portraits]
+		var source: Array = [summary, portraits, final_action]
 		if chip.get_meta("forecast_presentation_source", []) != source:
 			chip.set_meta("forecast_presentation_source", source.duplicate(true))
 			var inks: Dictionary = {
@@ -89,6 +110,7 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 				# even the absence of hidden foes is undisclosed information.
 				for index: int in range(rows.size() - 1, -1, -1):
 					if rows[index].get("parts", [])[0].get("text", "") == "Safe": rows.remove_at(index)
+			if final_action: rows.push_front(ForecastPanel.ends_turn_row())
 			ForecastPanel.configure(chip, rows)
 		chip.set_meta("forecast_repeat_portraits", portraits)
 	ForecastPanel.refresh(chip, active)

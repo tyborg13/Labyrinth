@@ -75,11 +75,16 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 		var text: String = "−%d" % loss
 		if key == "health" and bool(summary.get("defeat", false)): text += " → 0"
 		losses.append(_part(key, text, inks[key]))
-	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)):
+	# atk-03: Safe only when the whole simulation, every repeat move included, loses nothing.
+	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)) and (summary.get("repeated_enemy_names", []) as Array).is_empty():
 		losses.append(_part("", "Safe", Palette.SUCCESS))
 	if not losses.is_empty(): result.append({"parts": losses})
 	for index: int in range(mini(2, portraits.size())):
-		result.append({"portrait": portraits[index], "parts": [_part("", "×2", inks["unknown"]), _part("", "?", inks["unknown"])]})
+		# atk-03: a counted repeat ("acts twice, already counted") has no "?".
+		if bool(portraits[index].get("counted", false)):
+			result.append({"portrait": portraits[index], "parts": [_part("", "×%d" % int(portraits[index].get("count", 2)), inks["unknown"])]})
+		else:
+			result.append({"portrait": portraits[index], "parts": [_part("", "×2", inks["unknown"]), _part("", "?", inks["unknown"])]})
 	if int(amounts["fatigue"]) > 0:
 		var text: String = "−%d" % int(amounts["fatigue"])
 		if bool(summary.get("defeat", false)) and int(amounts["health"]) == 0: text += " → 0"
@@ -113,6 +118,11 @@ static func row_losses(summary: Dictionary) -> Dictionary:
 
 static func _part(icon: String, text: String, color: Color) -> Dictionary:
 	return {"icon": icon, "text": text, "color": color}
+
+# atk-02 trigger (c) header: the previewed action ends the turn. It renders with
+# the row values' font and size; presentation prepends it above rows().
+static func ends_turn_row() -> Dictionary:
+	return {"parts": [_part("turn_clock", "Ends turn", Palette.GOLD_BRIGHT)]}
 
 static func configure(chip: Button, data: Array[Dictionary]) -> void:
 	if chip.get_meta("forecast_rows", []) == data: return

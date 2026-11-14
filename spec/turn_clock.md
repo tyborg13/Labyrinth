@@ -73,9 +73,14 @@ term.
   turns retain the next YOUR TURN banner without an intervening ENEMY TURN.
 - **Pass plate.** While base plays remain, the plate's lead cell shows the Time
   icon and `+N` (the Wait the pass would pay) instead of TURN END.
-  Because a pass can now span an enemy's unrevealed second activation, the
-  forecast keeps the known damage and appends `+?` instead of collapsing to
-  UNKNOWN.
+  A pass can span an enemy's second (or later) activation. Since atk-03
+  (director 2026-11-13) every forecast simulates it: a visible foe's repeat
+  move rolls its intent on the forecast copy from the fight's saved generator,
+  exactly as live play will, and the totals include it. Its PASS panel row is
+  the portrait and `×2` (no `?`), and its compact intent disc wears a small
+  violet `×2` pip. Only a repeat whose roll can no longer match live play (a
+  foe hidden in the Umbra or a new arrival acted first) keeps the known damage
+  plus `+?` instead of collapsing to UNKNOWN.
 - Copy: the TIME keyword reads "Delays your next turn. Each unused play takes 5."
 
 Held for playtest: an ACT AGAIN turn banner replacing YOUR TURN. Rejected: a

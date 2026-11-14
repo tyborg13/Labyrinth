@@ -21,6 +21,11 @@ var _signature: Array = []
 var _tiles: Array[Vector2i]
 var _key: String = ""
 var _source_states: Dictionary = {}
+# atk-02: whether each cached source's click finishes its card or walk, and the memoized
+# "this action ends the turn" answer for the same key.
+var _source_completes: Dictionary = {}
+var _source_movement_left: Dictionary = {}
+var _ends_turn: Dictionary = {}
 var _tile: Vector2i = INVALID
 var _phase: String = "source"
 var _remembered: bool = false
@@ -39,6 +44,9 @@ func cancel() -> void:
 	_tiles.clear()
 	_clear_current()
 	_source_states.clear()
+	_source_completes.clear()
+	_source_movement_left.clear()
+	_ends_turn.clear()
 
 func restart(scene: Node) -> void:
 	cancel()
@@ -73,7 +81,7 @@ func _schedule(scene: Node, ticket: int) -> void:
 	_tree.process_frame.connect(_callback, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
 
 func source_state(scene: Node, target: Vector2i, default_approach: bool) -> Dictionary:
-	if scene._selected_card_index < 0 and not scene._player_movement_selected and not scene._surface_aim.active():
+	if scene._selected_card_index < 0 and not scene._player_movement_selected and not scene._surface_aim.active() and not scene._pass_preview_drag_play_active():
 		return scene._build_pass_preview_source_state_for_tile(target, default_approach)
 	var key: String = scene._pass_preview_key(target, default_approach)
 	if not _source_states.has(key):
@@ -81,9 +89,28 @@ func source_state(scene: Node, target: Vector2i, default_approach: bool) -> Dict
 		# summaries. Stage intents also need them; retain the queue's exact result.
 		var state: Dictionary = scene._build_pass_preview_source_state_for_tile(target, default_approach)
 		if _source_states.size() >= scene.PASS_PREVIEW_CACHE_LIMIT:
+			_source_completes.erase(_source_states.keys()[0])
+			_source_movement_left.erase(_source_states.keys()[0])
 			_source_states.erase(_source_states.keys()[0])
 		_source_states[key] = state
+		_source_completes[key] = scene._pass_preview_source_completes_card
+		_source_movement_left[key] = scene._pass_preview_source_movement_left
 	return _source_states[key]
+
+# The same cached snapshot the panel's rows come from: its click finishes the
+# card (or the walk) and leaves no card play, movement or free Rite while the
+# fight goes on.
+func ends_turn(scene: Node, target: Vector2i) -> bool:
+	var key: String = scene._pass_preview_key(target)
+	if not _ends_turn.has(key):
+		var state: Dictionary = source_state(scene, target, false)
+		# A walk's source leaves its movement unpaid; judge it with the walk paid.
+		var movement_left: int = int(_source_movement_left.get(key, -1))
+		if movement_left >= 0 and not state.is_empty():
+			state = state.duplicate(false)
+			state["player_movement_remaining"] = movement_left
+		_ends_turn[key] = bool(_source_completes.get(key, false)) and not state.is_empty() and scene._combat_engine.player_turn_resources_exhausted(state)
+	return bool(_ends_turn[key])
 
 # Presentation consumers share the exact snapshot used to fill this tile's
 # summary, including kills and privacy filtering; never resolve it again.

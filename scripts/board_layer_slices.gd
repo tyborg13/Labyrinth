@@ -234,4 +234,5 @@ static func draw_intent_chip(board: Control, badge: Dictionary, triangle_batch: 
 	Badges._draw_icon(board, str(badge["icon"]), icon_rect, alpha)
 	if bool(badge.get("cancelled", false)):
 		board.draw_line(Vector2(icon_rect.position.x, icon_rect.end.y), Vector2(icon_rect.end.x, icon_rect.position.y), Color(Palette.TEXT_2, alpha), 2.0, true)
+	Badges._draw_repeat_pip(board, badge, center, alpha)
 

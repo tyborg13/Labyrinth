@@ -1,5 +1,8 @@
 extends RefCounted
 ## Preview APIs stay pure because only accepted live transitions can switch.
+## Director 2026-11-13 (atk-03): the PASS forecast copy accepts each action as
+## live play does, so the copy itself may switch; the live state never does, and
+## no switch analytics, banner or save is ever emitted by a forecast.
 const Combat = preload("res://scripts/combat_engine.gd")
 const Base = preload("res://tests/suites/battlefield_rules_suite.gd")
 const Rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
@@ -66,9 +69,13 @@ static func run(expect: Callable) -> void:
 		for observed: Dictionary in engine.observations: unswitched(observed, clock["battlefield_rule"], expect, "turn_clock/" + rule_name)
 		var pass_state: Dictionary = state.duplicate(true)
 		Surfaces.place(pass_state, SOURCE, "fire")
+		var pass_input: Dictionary = pass_state.duplicate(true)
 		var scheduled: Dictionary = engine.finish_player_activation(pass_state)
+		var scheduled_input: Dictionary = scheduled.duplicate(true)
 		after = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)["state"]
-		unswitched(after, before["battlefield_rule"], expect, "PASS/" + rule_name)
+		expect.call(pass_state == pass_input and scheduled == scheduled_input, "BOS01 F2 PASS forecast never mutates its live inputs: " + rule_name)
+		unswitched(scheduled, before["battlefield_rule"], expect, "PASS live input/" + rule_name)
+		expect.call(bool(after.get("battlefield_rule", {}).get("half_health_switched", false)) or int(after["enemies"][0].get("hp", 0)) <= 0, "BOS01 F2 PASS forecast copy accepts the half-Health switch as live play does: " + rule_name)
 		var committed: Dictionary = Committed.player_action(engine, state, HIT, SOURCE)
 		expect.call(bool(committed["battlefield_rule"].get("half_health_switched", false)) and committed["battlefield_rule"]["cadence"]["every"] == 2 and committed["battlefield_rule"]["sentence"] == HALF_SENTENCE, "BOS01 F2 same committed hit switches: " + rule_name)
 		expect.call(state == before, "BOS01 F2 every query preserves its source input: " + rule_name)
@@ -137,6 +144,38 @@ static func scene_previews(scene: Control, expect: Callable) -> void:
 		for observed: Dictionary in engine.observations: unswitched(observed, reference, expect, "at_rest_wind/" + rule_name)
 		unswitched(rest, rest["battlefield_rule"], expect, "at_rest_input/" + rule_name)
 		if rule_name == "gust": expect.call(Rules.forecast(engine, state)["direction"] == Vector2i.UP, "BOS01 F2 Gust forecast holds Up through all production previews")
+		_production_pass(scene, engine, rule_name, expect)
 	scene.set("_combat_engine", original_engine)
 	wind_view._engine = original_wind_engine
-	print("BOS01 F2 PRODUCTION PREVIEWS: six rules, hover, provisional targeting and at-rest wind checked")
+	print("BOS01 F2 PRODUCTION PREVIEWS: six rules, hover, provisional targeting, at-rest wind and PASS checked")
+
+# The production PASS forecast may switch its own copy (the source burns to half
+# Health on its turn), but the live state, analytics, banner and save never see it.
+static func _production_pass(scene: Control, engine: RefCounted, rule_name: String, expect: Callable) -> void:
+	var state: Dictionary = fixture(engine, rule_name)
+	Surfaces.place(state, SOURCE, "fire")
+	scene.call("_load_run_state", preload("res://tests/fixtures/bos01_rule_fights.gd").run_state(state))
+	scene.call("_close_dialogue")
+	var live: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var store: GDScript = preload("res://scripts/analytics_store.gd")
+	var previous_dir: String = store.storage_dir()
+	store.set_storage_dir("user://bos01-pass-analytics")
+	store.clear_storage()
+	var progression: GDScript = preload("res://scripts/progression_store.gd")
+	var save_path: String = progression._run_storage_path
+	var save_before: int = FileAccess.get_modified_time(save_path) if FileAccess.file_exists(save_path) else -1
+	var banner: Control = scene.get("_turn_banner")
+	if banner != null: banner.hide()
+	scene.set("_hovered_board_tile", Vector2i(-1, -1))
+	var summary: Dictionary = scene.call("_pass_preview_summary")
+	expect.call(not summary.is_empty(), "BOS01 F2 production PASS forecast resolves: " + rule_name)
+	var after: Dictionary = scene.get("_combat_state")
+	expect.call(after == live, "BOS01 F2 production PASS never changes the live state: " + rule_name)
+	unswitched(after, state["battlefield_rule"], expect, "production_PASS_live/" + rule_name)
+	var switches: Array = store.load_all_events().filter(func(event: Dictionary) -> bool: return str(event["event_type"]) == "battlefield_rule_switched")
+	expect.call(switches.is_empty(), "BOS01 F2 production PASS emits no switch analytics: " + rule_name)
+	expect.call(banner == null or not banner.visible, "BOS01 F2 production PASS plays no switch banner: " + rule_name)
+	var save_after: int = FileAccess.get_modified_time(save_path) if FileAccess.file_exists(save_path) else -1
+	expect.call(save_after == save_before, "BOS01 F2 production PASS writes no save: " + rule_name)
+	store.clear_storage()
+	store.set_storage_dir(previous_dir)

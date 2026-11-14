@@ -11859,7 +11859,7 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 		if foreground and targets.has(tile):
 			if str(profile.get("enemy", "")) == "vyraketh":
 				_draw_vyraketh_bite_effect(ground, _tile_center(tile), progress)
-			else:
+			elif is_instance_valid(_strike_trail_layer):
 				_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
 		return
 	if tile == origin and source_visible and not foreground and not reduced:

@@ -6529,7 +6529,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Pass preview summary should not spend live card plays")
 
 	# Wait lapping is separate from the revealed display cases above and below.
-	# Known first-lap damage stays visible beside the unrevealed-lap suffix.
+	# atk-03 (director 2026-11-13): the crawler's second activation is forecast
+	# with the intent its first one rolls, exactly as live play then deals it.
 	var wait_lapping_state: Dictionary = _pass_preview_chip_state("wait_lapping")
 	var scheduled_lapping_state: Dictionary = CombatEngine.new().finish_player_activation(wait_lapping_state)
 	var lapping_return_time: int = -1
@@ -6541,9 +6542,11 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	var wait_lapping_summary: Dictionary = instance.call("_pass_preview_summary")
-	_assert(bool(wait_lapping_summary.get("unrevealed_before_player", false)), "A pass at +19 should include the enemy's unrevealed second activation")
-	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == 5, "Wait lapping should retain the first activation's revealed health damage")
-	_assert_pass_preview_chip(instance, ["-5 + ? 2ND MOVE"], false, true, "Wait lapping pass at +19")
+	var wait_lapping_live: int = _pass_preview_live_hp_loss(instance.get("_combat_state"))
+	_assert(not bool(wait_lapping_summary.get("unrevealed_before_player", false)) and (wait_lapping_summary.get("repeated_enemy_names", []) as Array).is_empty(), "A pass at +19 forecasts the enemy's second activation instead of hiding it")
+	_assert(wait_lapping_summary.get("counted_repeats", []) == [{"key": "enemy_1", "name": "Tunnel Crawler", "count": 2}], "Wait lapping counts the crawler's two activations: %s" % str(wait_lapping_summary.get("counted_repeats", [])))
+	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == wait_lapping_live and wait_lapping_live > 5, "Wait lapping totals both activations exactly as live play deals them (%d forecast, %d live)" % [int(wait_lapping_summary.get("hp_loss", 0)), wait_lapping_live])
+	_assert_pass_preview_chip(instance, ["-%d" % wait_lapping_live], false, false, "Wait lapping pass at +19")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
@@ -6583,14 +6586,19 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	_assert_pass_preview_chip(instance, ["DEFEAT"], true, false, "lethal pass")
 
+	# atk-03: a far crawler that acts three times before the hero returns. Its
+	# later moves are forecast too, so the panel states the loss live play deals.
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("unrevealed"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "unrevealed pass")
+	var repeat_summary: Dictionary = instance.call("_pass_preview_summary")
+	var repeat_live: int = _pass_preview_live_hp_loss(instance.get("_combat_state"))
+	_assert(int(repeat_summary.get("hp_loss", 0)) == repeat_live and repeat_live > 0 and not bool(repeat_summary.get("unrevealed_before_player", false)), "Repeat moves of a visible foe are forecast exactly (%d forecast, %d live)" % [int(repeat_summary.get("hp_loss", 0)), repeat_live])
+	_assert_pass_preview_chip(instance, ["-%d" % repeat_live], false, false, "repeat-activation pass")
 	var danger_line: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
-	_assert(danger_line.begins_with("+10") and danger_line.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
+	_assert(danger_line.begins_with("+10") and not danger_line.contains("UNKNOWN") and not danger_line.contains("2ND MOVE"), "A counted repeat drops the unknown second-move wording: %s" % danger_line)
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
-	_assert(danger_chip != null and danger_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nBefore your next turn: no damage\nTunnel Crawler acts twice before you. Its second move is hidden.", "DANGER! pass preview should expose the unrevealed-action tooltip")
+	_assert(danger_chip != null and danger_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nBefore your next turn: −%d Health" % repeat_live, "A counted repeat's tooltip states the full loss without the hidden-move line: %s" % (danger_chip.tooltip_text if danger_chip != null else ""))
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("umbra"))
 	await process_frame
@@ -11373,6 +11381,14 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		umbra["stage_reduction"] = 0
 		state["umbra"] = umbra
 	return state
+
+# The committed live path (RunScene's Pass), on a copy: end the turn, then
+# resolve every activation until the hero's next turn starts.
+func _pass_preview_live_hp_loss(combat_state: Dictionary) -> int:
+	var engine: CombatEngine = CombatEngine.new()
+	var Committed: GDScript = preload("res://scripts/battlefield_rules/committed.gd")
+	var phase: Dictionary = Committed.advance_to_player(engine, Committed.finish_player_activation(engine, combat_state)).get("state", {})
+	return int(combat_state.get("player", {}).get("hp", 0)) - int(phase.get("player", {}).get("hp", 0))
 
 func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) -> void:
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

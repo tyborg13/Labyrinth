@@ -24,9 +24,11 @@ func rest_badges(host: Node, preview: Dictionary, focus: String, committed_overr
 	# both exact states while the existing animation moves between them.
 	var index: Array = [hash(committed), hash(preview), focus]
 	var known_source: Callable = host._surface_preview_information_state.bind(preview) if committed_override == null else host._surface_preview_information_state.bind(preview, committed)
-	return _badges.resolve(inputs, func() -> Dictionary:
+	var badges: Dictionary = _badges.resolve(inputs, func() -> Dictionary:
 		return host._intent_badges.presentation_for_state(engine, committed, preview,
 			focus, known_source), index, true, true)
+	# atk-03: at rest, the discs follow the PASS forecast once it is ready.
+	return preload("res://scripts/pass_forecast_discs.gd").apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, committed_override == null and is_same(preview, host._combat_state))
 
 func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	var inputs: Array = _compass_inputs(state, visible_ids)

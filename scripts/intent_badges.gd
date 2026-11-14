@@ -163,6 +163,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			cancelled = cancelled or (state_changed and not acting and committed_orders.has(actor_key))
 		var badge: Dictionary = descriptor(primary, intent, repeated_action)
 		badge.merge({"key": actor_key, "order": "·".join(orders.get(actor_key, PackedStringArray())),
+			"repeats": (orders.get(actor_key, PackedStringArray()) as PackedStringArray).size(),
 			"acting": acting, "cancelled": cancelled,
 			"danger": attacking and acting and not cancelled and (threat.get("projected_attack", []) as Array).has((preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))),
 			"alpha": (1.0 if acting else INACTIVE_ALPHA) * (ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0)}, true)
@@ -488,6 +489,24 @@ static func _draw_disc(board: Control, badge: Dictionary, triangle_batch: RefCou
 	_draw_icon(board, str(badge["icon"]), icon_rect, alpha)
 	if bool(badge.get("cancelled", false)):
 		board.draw_line(Vector2(icon_rect.position.x, icon_rect.end.y), Vector2(icon_rect.end.x, icon_rect.position.y), Color(Palette.TEXT_2, alpha), 2.0, true)
+	_draw_repeat_pip(board, badge, center, alpha)
+
+# atk-03 (director 2026-11-13): a foe due to act twice or more before the hero's
+# next turn wears the rail's "×2" in the same violet display ink, about 60% of
+# the rail badge (22 px; the caption floor is 14). Presentation only.
+const REPEAT_PIP_OUTLINE: int = 3
+static func _draw_repeat_pip(board: Control, badge: Dictionary, center: Vector2, alpha: float) -> void:
+	var repeats: int = int(badge.get("repeats", 0))
+	if repeats < 2: return
+	var font: Font = Typography.display_font()
+	var text: String = "×%d" % repeats
+	var size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Typography.SIZE_CAPTION)
+	var radius: float = MEDALLION_DIAMETER * 0.5
+	# Centre the numeral on the ring's upper-right shoulder (45 degrees).
+	var anchor: Vector2 = center + Vector2(radius, -radius) * 0.72
+	var baseline := Vector2(anchor.x - size.x * 0.5, anchor.y + (font.get_ascent(Typography.SIZE_CAPTION) - font.get_descent(Typography.SIZE_CAPTION)) * 0.5)
+	board.draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, Typography.SIZE_CAPTION, REPEAT_PIP_OUTLINE, Color(Palette.TEXT_OUTLINE, alpha))
+	board.draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, Typography.SIZE_CAPTION, Color(Palette.FORECAST_UNKNOWN, alpha))
 
 static func _draw_centered_text(board: Control, font: Font, text: String, rect: Rect2, size: int, color: Color) -> void:
 	var baseline: float = rect.get_center().y + (font.get_ascent(size) - font.get_descent(size)) * 0.5

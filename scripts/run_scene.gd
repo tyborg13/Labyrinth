@@ -1358,6 +1358,9 @@ var _committed_hand_query_definitions: Array = []
 var _committed_hand_query_prepare_previews: bool = false
 var _combat_forecast_cache = preload("res://scripts/combat_forecast_cache.gd").new()
 var _committed_hand_query_diagnostics: Dictionary = {}
+# atk-03: the at-rest PASS forecast's per-foe marks for the compact intent discs.
+var _rest_pass_disc_marks: Dictionary = {}
+var _rest_pass_disc_refresh_queued: bool = false
 
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
@@ -1373,6 +1376,10 @@ var _preview_shortcuts_content_order: Array[String]
 var _pass_preview_cache: Dictionary = {}
 var _pass_preview_cache_order: Array[String]
 var _pass_preview_prewarm := preload("res://scripts/pass_preview_prewarm.gd").new()
+# atk-02: set while building a preview source; true when that click finishes the card
+# (or the walk). A hero walk also records the movement it leaves (-1 otherwise).
+var _pass_preview_source_completes_card: bool = false
+var _pass_preview_source_movement_left: int = -1
 var _pass_preview_warm_generation: int = 0
 var _pass_preview_warm_active: bool = false
 var _pass_preview_warm_key: String = ""
@@ -14837,7 +14844,8 @@ func _refresh_selected_card_forecast() -> void:
 		_pass_preview_forecast_chip = weakref(chip) if chip != null else null
 	if chip == null:
 		return
-	if (_player_movement_selected or _selected_card_index >= 0 or _surface_aim.active()) and not preload("res://scripts/pass_forecast_presentation.gd").preview_active(self) and not chip.has_focus() and not bool(chip.get_meta("pass_pointer_hover", false)):
+	var presentation: GDScript = preload("res://scripts/pass_forecast_presentation.gd")
+	if (_player_movement_selected or _selected_card_index >= 0 or _surface_aim.active()) and not presentation.preview_active(self) and not presentation.ends_turn(self) and not chip.has_focus() and not bool(chip.get_meta("pass_pointer_hover", false)):
 		_configure_pass_forecast_panel(chip, {})
 		return
 	var summary: Dictionary = _pass_preview_summary()
@@ -14925,7 +14933,7 @@ func _pass_preview_forecast_entries(summary: Dictionary) -> Array[Dictionary]:
 		return defeat_result
 	if bool(summary.get("forecast_limit_reached", false)) or bool(summary.get("umbra_unknown_before_player", false)) or (bool(summary.get("unrevealed_before_player", false)) and not _pass_preview_has_known_losses(summary)):
 		var unknown_result: Array[Dictionary]
-		unknown_result.append({"name": "PassPreviewUmbraUnknown", "text": "UNKNOWN", "color": Color("c89be3")})
+		unknown_result.append({"name": "PassPreviewUmbraUnknown", "text": "UNKNOWN", "color": UiPalette.FORECAST_UNKNOWN})
 		return unknown_result
 	var entries: Array = summary.get("entries", [])
 	if entries.is_empty():
@@ -14951,7 +14959,7 @@ func _pass_preview_forecast_entries(summary: Dictionary) -> Array[Dictionary]:
 	if result.is_empty():
 		result.append(entries[0] as Dictionary)
 	if _pass_preview_known_damage_suffix(summary):
-		result.append({"name": "PassPreviewUnrevealedSuffix", "text": "+ ? 2ND MOVE", "color": Color("c89be3"), "suffix": true})
+		result.append({"name": "PassPreviewUnrevealedSuffix", "text": "+ ? 2ND MOVE", "color": UiPalette.FORECAST_UNKNOWN, "suffix": true})
 	return result
 
 func _pass_preview_button_tooltip() -> String:
@@ -14966,6 +14974,11 @@ func _pass_preview_source_state_for_tile(target_tile: Vector2i, default_approach
 
 func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_approach: bool) -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_pass_preview_source_completes_card = false
+	_pass_preview_source_movement_left = -1
+	if _pass_preview_drag_play_active():
+		_pass_preview_source_completes_card = true
+		return preload("res://scripts/pass_forecast_action_source.gd").drag_play(self)
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
 		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state(target_tile, default_approach)
 		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover_total", performance_phase_started)
@@ -14973,6 +14986,7 @@ func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_ap
 			var safe_hovered_state: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, hovered_state)
 			_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
 			return safe_hovered_state
+		_pass_preview_source_completes_card = _pending_card_requires_confirmation()
 		var known_prefix_state: Dictionary = _pending_card_known_forecast_state()
 		if _pending_target_tiles.has(target_tile) and _pending_action_index < _pending_actions.size() and _umbra_hover_preview_would_reveal_information(_preview_combat_state, _pending_actions[_pending_action_index]):
 			known_prefix_state = preload("res://scripts/pass_forecast_action_source.gd").pay_prefix(self, known_prefix_state, _pending_actions)
@@ -14983,6 +14997,9 @@ func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_ap
 		return preload("res://scripts/pass_forecast_action_source.gd").surface_skill(self, target_tile)
 	if _player_movement_selected and _player_movement_target_tiles.has(target_tile):
 		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, target_tile)
+		# A hero walk is one click; nothing is left to choose after it.
+		_pass_preview_source_completes_card = true
+		_pass_preview_source_movement_left = preload("res://scripts/pass_forecast_action_source.gd").movement_left_after_walk(self, (movement["known"] as Dictionary)["state"])
 		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, (movement["known"] as Dictionary)["state"])
 	if not _combat_state.is_empty():
 		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, _surface_preview_information_state(_combat_state))
@@ -15058,6 +15075,7 @@ func _pass_preview_confirmed_shortcut_state(preview: Dictionary, shortcut_plan: 
 	if action_state.is_empty():
 		return {}
 	if _target_needs_force_orientation_in_state(action_state, action, target_tile):
+		_pass_preview_source_completes_card = false
 		return action_state
 	if not _combat_engine.valid_targets_for_player_action(action_state, action).has(target_tile):
 		return {}
@@ -15083,6 +15101,9 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 	# for multi-step move/illusion cards.
 	var working_state: Dictionary = resolved_state
 	var cursor: int = next_action_index
+	# atk-02: an early return below leaves a later player choice, so that click
+	# does not finish the card (and cannot fire the auto-pass).
+	_pass_preview_source_completes_card = false
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor] as Dictionary
 		if not _combat_engine.player_action_can_resolve(working_state, action):
@@ -15113,6 +15134,7 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 			return preload("res://scripts/pass_forecast_action_source.gd").pay_prefix(self, working_state, actions) if pay_prefix else working_state
 		working_state = _combat_engine.apply_player_action(working_state, action)
 		cursor += 1
+	_pass_preview_source_completes_card = true
 	return _combat_engine.finish_player_card(
 		working_state,
 		_selected_card_index,
@@ -15162,7 +15184,7 @@ func _pass_preview_summary() -> Dictionary:
 	if _pass_preview_cache.has(cache_key):
 		_pass_preview_prewarm.cache_hits += 1
 		_record_runtime_performance_phase("pass_preview_cache_hit", performance_phase_started)
-		return _pass_preview_cache.get(cache_key, {}) as Dictionary
+		return _note_rest_pass_disc_marks(_pass_preview_cache.get(cache_key, {}) as Dictionary)
 	_pass_preview_prewarm.cache_misses += 1
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_cache_miss_key", performance_phase_started)
 	var source_state: Dictionary = _pass_preview_source_state()
@@ -15171,7 +15193,7 @@ func _pass_preview_summary() -> Dictionary:
 		var remembered: Dictionary = _combat_forecast_cache.summary()
 		_cache_pass_preview(cache_key, remembered)
 		_record_runtime_performance_phase("pass_preview_source_cache_hit", performance_phase_started)
-		return remembered
+		return _note_rest_pass_disc_marks(remembered)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
@@ -15179,7 +15201,34 @@ func _pass_preview_summary() -> Dictionary:
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
 	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state, true)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
-	return _pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
+	return _note_rest_pass_disc_marks(_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result))
+
+# atk-03: the same branches as _build_pass_preview_source_state_for_tile. Only
+# this source is the hero passing from its own tile.
+func _pass_preview_source_is_rest(target_tile: Vector2i) -> bool:
+	if _selected_card_index >= 0 and not _preview_combat_state.is_empty(): return false
+	if _surface_aim.active() and _surface_skill_tiles.has(target_tile): return false
+	if _player_movement_selected and _player_movement_target_tiles.has(target_tile): return false
+	return not _combat_state.is_empty()
+
+# The at-rest PASS forecast also marks the compact intent discs. Record it once
+# per committed state; redraw only when the board still shows other marks.
+func _note_rest_pass_disc_marks(summary: Dictionary) -> Dictionary:
+	if summary.is_empty() or not _pass_preview_source_is_rest(_hovered_board_tile): return summary
+	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
+	var marks: Dictionary = Discs.record(summary, _combat_preview_revision)
+	if marks == _rest_pass_disc_marks: return summary
+	_rest_pass_disc_marks = marks
+	if _rest_pass_disc_refresh_queued or _animation_lock or board_view == null: return summary
+	if Discs.stale((board_view.get("presentation") as Dictionary).get("threats_at_rest", {}), marks, _combat_preview_revision):
+		_rest_pass_disc_refresh_queued = true
+		call_deferred("_refresh_rest_pass_discs")
+	return summary
+
+func _refresh_rest_pass_discs() -> void:
+	_rest_pass_disc_refresh_queued = false
+	if _animation_lock or str(_run_state.get("mode", "")) != "combat": return
+	_refresh_stage_view()
 
 func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -15228,6 +15277,16 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	# the icon panel reads.
 	var net_hp_loss: int = clampi(before_hp - int(after_player.get("hp", before_hp)), 0, before_hp)
 	if net_hp_loss > int(losses.get("hp", 0)): losses["hp"] = net_hp_loss
+	# atk-01: the same unreceipted beats (and Burrow eruptions) strip Block and
+	# Stoneskin, so count the enemy phase's net loss too. It starts from the
+	# scheduled state: turn-end effects (Guard turning Block into Stoneskin) keep
+	# their own receipt. Then add what the previewed action itself removed before
+	# the turn ends (a walk through fire), as the Health row already does.
+	var end_losses: Dictionary = _pass_preview_player_damage_losses([loss_steps[0]], disclosed_actors) if not scheduled_state.is_empty() else {"block": 0, "stoneskin": 0}
+	var phase_player: Dictionary = (scheduled_state if not scheduled_state.is_empty() else source_state).get("player", {}) as Dictionary
+	for field: String in ["block", "stoneskin"]:
+		var net_loss: int = maxi(0, int(phase_player.get(field, 0)) - int(after_player.get(field, 0)))
+		losses[field] = int(end_losses[field]) + maxi(int(losses[field]) - int(end_losses[field]), net_loss) + int(source_state.get("_pass_forecast_action_" + field, 0))
 	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
@@ -15261,6 +15320,8 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		"fatigue_loss": int(phase_result.get("fatigue_loss", 0)),
 		"forecast_limit_reached": bool(phase_result.get("forecast_limit_reached", false))
 	}
+	# atk-03: counted repeat activations and which foes the simulation saw hurt you.
+	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array, disclosed_actors: Dictionary = {}) -> Dictionary:
@@ -19246,7 +19307,13 @@ func _pass_preview_key(target_tile: Variant = null, default_approach: bool = fal
 	]
 
 	if _surface_aim.active(): result += "|surface:%s:%s:%s" % [_surface_aim.skill_id, _surface_aim.kind, str(_surface_aim.origin)]
+	if _pass_preview_drag_play_active(): result += "|drag_play:%d" % _drag_card_index
 	return result
+
+# atk-02: a targetless card held over the board plays on release, like its
+# click confirmation, so it previews that play's end of turn.
+func _pass_preview_drag_play_active() -> bool:
+	return _drag_card_index >= 0 and not _drag_targeting_active and _drag_hover_zone == "play" and not CardDragPlayRules.preview_requires_target(_drag_card_options.get("play", {}) as Dictionary) and bool((_drag_card_options.get("play", {}) as Dictionary).get("playable", false))
 
 func _cache_pass_preview(key: String, summary: Dictionary) -> void:
 	if _pass_preview_cache.has(key):
@@ -19353,7 +19420,7 @@ func _warm_pass_preview_cache_across_frames(
 	if _finish_pass_preview_cache_warm_if_stale(generation, cache_key):
 		return
 	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
-	_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
+	_note_rest_pass_disc_marks(_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result))
 	_finish_pass_preview_cache_warm(generation, cache_key)
 
 func _finish_pass_preview_cache_warm(generation: int, cache_key: String) -> void:
@@ -28623,10 +28690,15 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 		or not _combat_engine.player_turn_resources_exhausted(_combat_state)
 	):
 		return false
-	if _guided_tutorial_is_active() and not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PASS):
+	if _auto_pass_tutorial_hold():
 		return false
 	await _resolve_enemy_round("auto")
 	return true
+
+# The guided tutorial teaches PASS before the turn may end by itself. The Pass
+# forecast's "Ends turn" header (atk-02) reads the same hold.
+func _auto_pass_tutorial_hold() -> bool:
+	return _guided_tutorial_is_active() and not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PASS)
 
 func _open_menu_overlay() -> void:
 	if is_instance_valid(_magic_purge_overlay): return

@@ -6,6 +6,38 @@ static func pay_prefix(scene: Node, state: Dictionary, actions: Array) -> Dictio
 	return scene._combat_engine.finish_player_card(state, scene._selected_card_index,
 		scene._combat_engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
 
+# atk-02: a targetless card held over the board plays on release through its
+# click confirmation (_begin_card_preview, then _on_confirm_card_play_pressed).
+# Forecast the same paid state _pending_card_known_forecast_state gives that
+# confirmation, from the held card's preview; limited sight replays the known
+# board, as the confirmation does. Preview-only; the commit path is untouched.
+static func drag_play(scene: Node) -> Dictionary:
+	var engine: RefCounted = scene._combat_engine
+	var index: int = scene._drag_card_index
+	var preview: Dictionary = scene._drag_card_options.get("play", {}) as Dictionary
+	var actions: Array = preview.get("actions", []) as Array
+	var played: Dictionary = preview.get("state", {}) as Dictionary
+	if played.is_empty() or actions.is_empty(): return {}
+	if engine.effective_umbra_radius(scene._combat_state) < preload("res://scripts/combat_engine.gd").UMBRA_UNLIMITED_RADIUS:
+		var modifiers: Dictionary = played.get(preload("res://scripts/card_keyword_rules.gd").PLAY_MODIFIERS_KEY, {}) as Dictionary
+		var empowered: bool = scene._hand_card_empowered(index) or (bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == scene._card_id_for_hand_index(index))
+		var prepared: Dictionary = engine.prepare_player_card(scene._surface_preview_information_state(scene._combat_state), index, "empower" if empowered else "play")
+		var no_targets: Array[Vector2i]
+		played = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(engine, prepared, actions, actions.size(), no_targets)
+	return visibility_safe(scene, engine.finish_player_card(played, index, engine.card_plays_spent_for_actions(actions), {"play_mode": "play"}))
+
+# atk-02: the hover resolution of a hero walk leaves the movement pool unpaid
+# (the forecast rows never read it). Mirror apply_player_movement's payment on
+# the known resolution to learn how much movement this walk leaves.
+static func movement_left_after_walk(scene: Node, walked: Dictionary) -> int:
+	var engine: RefCounted = scene._combat_engine
+	var origin: Vector2i = (scene._combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var destination: Vector2i = (walked.get("player", {}) as Dictionary).get("pos", origin)
+	var spent: int = int((walked.get("last_player_movement", {}) as Dictionary).get("spent", 0))
+	if str(scene._player_movement_action.get("type", "")) == "blink":
+		spent = absi(destination.x - origin.x) + absi(destination.y - origin.y)
+	return clampi(engine.player_movement_remaining(scene._combat_state) - spent, 0, engine.player_movement_capacity(walked))
+
 static func surface_skill(scene: Node, tile: Vector2i) -> Dictionary:
 	var key: String = scene._pass_preview_key(tile)
 	if scene._surface_preview_cache.get("forecast_key", "") == key:
@@ -65,6 +97,14 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	if before_hp != int(known.get("player", {}).get("hp", 0)):
 		result = result.duplicate(false)
 		result["_pass_forecast_source_hp"] = before_hp
+	# atk-01: a previewed walk through fire (or any previewed action) can also
+	# strip Block or Stoneskin before the turn ends. Retain what it removed so
+	# the defence rows count it, as the Health row already counts its Health.
+	for field: String in ["block", "stoneskin"]:
+		var spent: int = int(scene._combat_state.get("player", {}).get(field, 0)) - int(known.get("player", {}).get(field, 0))
+		if spent <= 0: continue
+		if is_same(result, known): result = result.duplicate(false)
+		result["_pass_forecast_action_" + field] = spent
 	if not scene._preview_umbra_is_limited(known): return result
 	result = result.duplicate(false)
 	var player: Dictionary = (result.get("player", {}) as Dictionary).duplicate(false)
@@ -77,7 +117,9 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	for collection: String in ["traps", "loot"]:
 		if known.has(collection): result[collection] = known[collection]
 	var disclosed: Dictionary = {}
+	var living: Dictionary = {}
 	for enemy: Dictionary in scene._combat_state.get("enemies", []):
+		if int(enemy.get("hp", 0)) > 0: living[int(enemy.get("id", -1))] = true
 		if scene._combat_engine.is_enemy_visible_to_player(scene._combat_state, enemy):
 			disclosed[int(enemy.get("id", -1))] = true
 	var enemies: Array = []
@@ -91,7 +133,9 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	var hidden_queue: Array = []
 	for entry: Dictionary in known.get("turn_queue", []):
 		if str(entry.get("kind", "")) == "enemy" and not disclosed.has(int(entry.get("enemy_id", -1))):
-			hidden_queue.append({"time": int(entry.get("time", 0)), "seq": int(entry.get("seq", 0))})
+			# atk-03: "alive" tells the repeat forecast whether this entry can draw
+			# from the live generator; the '?' horizon below reads time/seq only.
+			hidden_queue.append({"time": int(entry.get("time", 0)), "seq": int(entry.get("seq", 0)), "alive": living.has(int(entry.get("enemy_id", -1)))})
 		else:
 			queue.append(entry)
 	result["turn_queue"] = queue
