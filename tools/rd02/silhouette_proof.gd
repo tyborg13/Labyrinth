@@ -87,6 +87,7 @@ func _run() -> void:
 			var entry: Dictionary = active[key]
 			samples.append({"key": key, "coverage": entry["coverage"], "on": entry["on"], "kind": entry["source"]["kind"]})
 			_check((entry["sprite"] as Sprite2D).material.shader == Silhouettes.Outline, "Dedicated mask shader, normal art unchanged")
+			_check_front_mask(board, overlay, key, entry)
 		# Actual fade progression on retained sprites, including reversal.
 		for entry: Dictionary in active.values(): entry["alpha"] = 0.0
 		overlay._process(Silhouettes.FADE_SECONDS * 0.5)
@@ -94,8 +95,10 @@ func _run() -> void:
 		overlay._process(Silhouettes.FADE_SECONDS * 0.5)
 		for entry: Dictionary in active.values(): _check(is_equal_approx(entry["alpha"], 1.0), "Full fade reaches director alpha")
 		var builds_before: int = overlay.get("coverage_builds")
+		var poses_before: int = overlay.get("pose_updates")
 		for frame: int in range(STEADY_FRAMES): overlay._process(0.0)
 		_check(builds_before == int(overlay.get("coverage_builds")), "Settled frame ticks do not rebuild board coverage")
+		_check(poses_before == int(overlay.get("pose_updates")), "Settled frame ticks do not rebind rims or front cut-outs")
 		_check(not overlay.is_processing(), "Settled silhouettes disable process")
 		root.size = COMPACT_SIZE
 		root.content_scale_size = COMPACT_SIZE
@@ -209,6 +212,42 @@ func _test_math() -> void:
 		_check(Silhouettes.team_color({"kind": "unit", "data": {"role": role}}) == Color(Palette.ALLY, 0.85), "Player side ALLY 85% " + role)
 	_check(Silhouettes.team_color({"kind": "trap", "data": {}}) == Color(Palette.TEXT, 0.70), "Object TEXT 70%")
 	_check(Silhouettes.WIDTH == 2.0 and Silhouettes.FADE_SECONDS == 0.15, "Director width and fade")
+
+# occ-01: an object rim is hidden under units painted after it. The shader gets
+# every such unit whose live drawing reaches the rim, at its live texture/rect.
+func _check_front_mask(board: Control, overlay: Node2D, key: String, entry: Dictionary) -> void:
+	var source: Dictionary = entry["source"]
+	var ink: ShaderMaterial = (entry["sprite"] as Sprite2D).material
+	var fronts: Array = entry.get("front", [])
+	if str(source["kind"]) == "unit":
+		_check(fronts.is_empty() and int(ink.get_shader_parameter("front_count")) == 0, "Unit x-ray has no front cut-out: " + key)
+		return
+	var sources: Array[Dictionary] = Sources.collect(board)
+	var index: int = -1
+	for at: int in range(sources.size()):
+		if str(sources[at].get("key", "")) == key: index = at
+	_check(index >= 0, "Object x-ray is a painter-order source: " + key)
+	var expected: Array = overlay.call("front_units", sources, index)
+	_check(fronts.size() == expected.size() and not fronts.is_empty(), "Covered object rim knows every unit painted in front of it: " + key)
+	_check(int(ink.get_shader_parameter("front_count")) == fronts.size(), "Shader front count: " + key)
+	# Floating loot bobs between pose updates, so compare with the rim sprite itself.
+	var sprite: Sprite2D = entry["sprite"]
+	var size: Vector2 = sprite.scale * Vector2(sprite.texture.get_size())
+	var placed: Vector4 = ink.get_shader_parameter("object_rect")
+	_check(Vector2(placed.x, placed.y).is_equal_approx(sprite.position - size * 0.5) and Vector2(placed.z, placed.w).is_equal_approx(size), "Cut-out maps the rim sprite's drawn object rect: " + key)
+	for slot: int in range(fronts.size()):
+		var front: Dictionary = fronts[slot]
+		var later: bool = false
+		for at: int in range(index + 1, sources.size()): later = later or str(sources[at].get("key", "")) == str(front["key"])
+		_check(str(front["kind"]) == "unit" and later, "Only units painted after the object cut its rim: " + key)
+		var live: Dictionary = Sources.drawing(board, front)
+		var rect: Rect2 = live["rect"]
+		var texture: Texture2D = live["texture"]
+		_check(ink.get_shader_parameter("front_rect_%d" % slot) == Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y), "Cut-out follows the live unit placement: " + key)
+		_check(ink.get_shader_parameter("front_texture_%d" % slot) == ((texture as AtlasTexture).atlas if texture is AtlasTexture else texture), "Cut-out samples the unit's live pose texture: " + key)
+		var ring: float = Silhouettes.WIDTH * float(board.get("_navigation_zoom")) if overlay.get("team").get("entries").has(str(front["key"])) else 0.0
+		var region: Rect2 = Silhouettes.uv_region(texture)
+		_check((ink.get_shader_parameter("front_pad_%d" % slot) as Vector2).is_equal_approx(region.size * ring / rect.size), "Cut-out widens by the front unit's team-rim ring: " + key)
 
 func _check(ok: bool, message: String) -> void:
 	checks += 1

@@ -11,6 +11,11 @@ const ACTIVE_COUNT: int = 2
 const UNIT_COUNT: int = 8
 var results: Array[Dictionary]
 var failures: Array[String]
+# Optional workload: --manifest <verified fight> --active <x-rays> --units <rims> --output-dir <dir>.
+var manifest_path: String = ""
+var active_count: int = ACTIVE_COUNT
+var unit_count: int = UNIT_COUNT
+var output: String = Fixture.OUTPUT
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -20,9 +25,16 @@ func _initialize() -> void:
 func _run() -> void:
 	# Proof-only uncapped sampling: vsync must not hide added renderer cost.
 	Engine.max_fps = 0
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--manifest"): manifest_path = args[args.find("--manifest") + 1]
+	if args.has("--active"): active_count = int(args[args.find("--active") + 1])
+	if args.has("--units"): unit_count = int(args[args.find("--units") + 1])
+	if args.has("--output-dir"): output = args[args.find("--output-dir") + 1]
+	DirAccess.make_dir_recursive_absolute(output)
 	if DisplayServer.get_name() != "headless": DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	_write_results() # A failed fresh launch cannot leave a stale pair report.
-	Fixture.install("eight")
+	if manifest_path.is_empty(): Fixture.install("eight")
+	else: Fixture.install_manifest(manifest_path)
 	var canvas: SubViewport = Real.make_canvas(self)
 	RenderingServer.viewport_set_measure_render_time(canvas.get_viewport_rid(), true)
 	for side: String in ORDER:
@@ -37,9 +49,9 @@ func _run() -> void:
 		var active: int = 0
 		for entry: Dictionary in overlay.get("entries").values():
 			if bool(entry["on"]): active += 1
-		if active != ACTIVE_COUNT: failures.append("Eight-unit fixture has %d x-rays; requires exactly two" % active)
+		if active != active_count: failures.append("Fixture has %d x-rays; requires exactly %d" % [active, active_count])
 		var team: RefCounted = overlay.get("team")
-		if team.get("entries").size() != UNIT_COUNT: failures.append("Fixture requires exactly eight team outlines")
+		if team.get("entries").size() != unit_count: failures.append("Fixture requires exactly %d team outlines" % unit_count)
 		overlay.set_tool_enabled(side == "B")
 		for frame: int in range(WARMUP): await process_frame
 		scene.call("set_runtime_performance_instrumentation_enabled", true)
@@ -74,22 +86,22 @@ func _run() -> void:
 			_write_results()
 		if side == "B" and results.size() == ORDER.size() and DisplayServer.get_name() != "headless":
 			await RenderingServer.frame_post_draw
-			canvas.get_texture().get_image().save_png(Fixture.OUTPUT.path_join("performance.png"))
+			canvas.get_texture().get_image().save_png(output.path_join("performance.png"))
 		scene.queue_free()
 		for frame: int in range(WARMUP): await process_frame
 	var label: String = "headless" if DisplayServer.get_name() == "headless" else "native"
-	var file := FileAccess.open(Fixture.OUTPUT.path_join("performance_" + label + ".json"), FileAccess.WRITE)
+	var file := FileAccess.open(output.path_join("performance_" + label + ".json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"renderer": DisplayServer.get_name(), "size": [1920,1080], "order": ORDER,
 		"samples": SAMPLE_FRAMES, "results": results, "failures": failures}, "\t"))
 	file.close()
-	print(Fixture.OUTPUT.path_join("performance.png"))
+	print(output.path_join("performance.png"))
 	for failure: String in failures: push_error(failure)
 	print("RD02 PERFORMANCE: %s (A/B, B/A, A/B; %s; no GPU claims for headless)" % ["PASS" if failures.is_empty() else "FAIL", label])
 	quit(0 if failures.is_empty() else 1)
 
 func _write_results() -> void:
 	var label: String = "headless" if DisplayServer.get_name() == "headless" else "native"
-	var file := FileAccess.open(Fixture.OUTPUT.path_join("performance_" + label + ".json"), FileAccess.WRITE)
+	var file := FileAccess.open(output.path_join("performance_" + label + ".json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"renderer": DisplayServer.get_name(), "size": [1920,1080], "order": ORDER,
 		"samples": SAMPLE_FRAMES, "results": results, "failures": failures}, "\t"))
 	file.close()

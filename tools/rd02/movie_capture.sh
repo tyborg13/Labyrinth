@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-RD02_MOVIE_DIR=/private/tmp/labyrinth_codex/rd-02/movie_raw
+RD02_MOVIE_DIR=${RD02_MOVIE_DIR:-/private/tmp/labyrinth_codex/rd-02/movie_raw}
 RD02_MOVIE_FPS=30
 RD02_MOVIE_GODOT=${RD02_MOVIE_GODOT:-godot}
 mkdir -p "$RD02_MOVIE_DIR"

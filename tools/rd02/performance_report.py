@@ -18,11 +18,13 @@ def percentile(values, fraction):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('samples', type=Path)
+    parser.add_argument('--active', type=int, default=2, help='Required x-rays per side (default: eight-unit fixture).')
+    parser.add_argument('--units', type=int, default=8, help='Required team outlines per side.')
     args = parser.parse_args()
     data = json.loads(args.samples.read_text())
     passed = data['renderer'] != 'headless' and not data['failures'] and len(data['results']) == 6
     assert data['order'] == ['A', 'B', 'B', 'A', 'A', 'B']
-    passed &= all(row.get('active') == 2 and row.get('outlined_units') == 8 for row in data['results'])
+    passed &= all(row.get('active') == args.active and row.get('outlined_units') == args.units for row in data['results'])
     for pair, start in enumerate(range(0, len(data["results"]) - 1, 2), 1):
         rows = {row['side']: row for row in data['results'][start:start + 2]}
         delta = {key: (statistics.median(rows['B'][key]) - statistics.median(rows['A'][key]),

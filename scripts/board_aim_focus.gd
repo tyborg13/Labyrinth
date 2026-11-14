@@ -18,6 +18,9 @@ var changes: int = 0
 var _signature: Array = []
 var _outline_targets: Dictionary = {}
 var _outline_tweens: Dictionary = {}
+# occ-02 focus reveal: body opacity per actor, on each body canvas's modulate
+# (self_modulate keeps the aim dim; HUD canvases never take it).
+var body_alphas: Dictionary = {}
 
 static func for_board(board: Control) -> RefCounted:
 	var owner: Control = board.get("_render_instrumentation_owner") as Control
@@ -70,6 +73,13 @@ func full_strength(board: Control, unit: Dictionary) -> bool:
 		if affected_tiles.has(tile): return true
 	return false
 
+func set_body_alpha(key: String, alpha: float) -> void:
+	if alpha >= 1.0: body_alphas.erase(key)
+	else: body_alphas[key] = alpha
+	for record: Dictionary in canvases.values():
+		if bool(record.hud) or str(record.unit.get("key", "")) != key or not is_instance_valid(record.canvas): continue
+		(record.canvas as Control).modulate.a = alpha
+
 func set_focus(tile: Vector2i) -> void:
 	if focus_tile == tile: return
 	focus_tile = tile
@@ -118,6 +128,7 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 	canvas.set("_render_slice_ops", [[method, args]])
 	record.unit = unit
 	_present(record)
+	if not hud: canvas.modulate.a = float(body_alphas.get(key, 1.0))
 	canvas.show()
 	canvas.queue_redraw()
 	return true
@@ -168,7 +179,7 @@ func _present(record: Dictionary) -> void:
 		_outline_targets[key] = outline_alpha
 		var previous: Tween = _outline_tweens.get(key)
 		if previous != null and previous.is_valid(): previous.kill()
-		var from: float = outlines.unit_alpha_multiplier(key)
+		var from: float = outlines.supplied_alpha_multiplier(key)
 		var motion: Tween = owner.create_tween().set_trans(EASE_OUT_CURVE).set_ease(Tween.EASE_OUT)
 		motion.tween_method(func(value: float) -> void: owner.set_unit_outline_alpha_multiplier(key, value), from, outline_alpha, TRANSITION_SECONDS)
 		_outline_tweens[key] = motion

@@ -9,7 +9,10 @@ const SETTLE_FRAMES: int = 24
 const WALK: Array = [Vector2i(3, 4), Vector2i(3, 3), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4)]
 
 static func install(name: String) -> void:
-	var path: String = OUTPUT.path_join(name + ".json")
+	install_manifest(OUTPUT.path_join(name + ".json"))
+
+# Any verified inspection manifest, e.g. a later unit's own real fight.
+static func install_manifest(path: String) -> void:
 	assert(FileAccess.file_exists(path), "Run tools/rd02/prepare_fixtures.py first")
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if str(manifest.get("scenario", "")) == "combat":

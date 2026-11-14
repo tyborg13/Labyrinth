@@ -5,6 +5,7 @@ const Alpha = preload("res://scripts/board_occlusion_alpha.gd")
 const Sources = preload("res://scripts/board_occlusion_sources.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Outline = preload("res://scripts/board_occlusion_silhouettes.gdshader")
+const Reveal = preload("res://scripts/board_occlusion_reveal.gd")
 const UNIT_ON: float = 0.30
 const UNIT_OFF: float = 0.22
 const OBJECT_ON: float = 0.40
@@ -13,6 +14,8 @@ const FADE_SECONDS: float = 0.15
 const WIDTH: float = 2.0
 const UNIT_ALPHA: float = 0.85
 const OBJECT_ALPHA: float = 0.70
+# Shader slots for units painted in front of one object (front_texture_0..3).
+const MAX_FRONT_UNITS: int = 4
 var team := TeamOutlines.new()
 var _unit_alpha_overrides: Dictionary = {}
 var alpha_masks := Alpha.new()
@@ -26,6 +29,10 @@ var ground_dirty: bool = false
 var coverage_builds: int = 0
 var pose_updates: int = 0
 var tool_enabled: bool = true
+# Painter-order rest-mask sources, shared with the occ-02 focus reveal.
+var latest_sources: Array[Dictionary] = []
+var sources_revision: int = 0
+var _sources_stale: bool = true
 
 func attach(owner_board: Control) -> void:
 	board = owner_board
@@ -36,11 +43,34 @@ func attach(owner_board: Control) -> void:
 
 func invalidate() -> void:
 	coverage_dirty = true
+	_sources_changed()
 	set_process(tool_enabled)
+
+func _sources_changed() -> void:
+	_sources_stale = true
+	var reveal: Node = board.get("_occlusion_reveal") if is_instance_valid(board) else null
+	if is_instance_valid(reveal): reveal.invalidate()
+
+# The current sources without a rebuild when nothing invalidated them.
+func current_sources() -> Array[Dictionary]:
+	if _sources_stale: _collect_sources()
+	return latest_sources
+
+func _collect_sources() -> Array[Dictionary]:
+	var room: Variant = (board.get("combat_state") as Dictionary).get("room_coord")
+	if _mask_room != room:
+		alpha_masks = Alpha.new()
+		_mask_room = room
+	latest_sources = Sources.collect(board)
+	alpha_masks.prepare(latest_sources)
+	_sources_stale = false
+	sources_revision += 1
+	return latest_sources
 
 func submission_changed(structural: bool, changes: Dictionary, registrations: Dictionary) -> void:
 	if not tool_enabled:
 		coverage_dirty = true
+		_sources_changed()
 		return
 	team.sync()
 	if changes.has("unit_outline_alpha_multipliers"):
@@ -89,12 +119,7 @@ static func team_color(entry: Dictionary) -> Color:
 func sync_coverage() -> void:
 	coverage_dirty = false
 	coverage_builds += 1
-	var room: Variant = (board.get("combat_state") as Dictionary).get("room_coord")
-	if _mask_room != room:
-		alpha_masks = Alpha.new()
-		_mask_room = room
-	var sources: Array[Dictionary] = Sources.collect(board)
-	alpha_masks.prepare(sources)
+	var sources: Array[Dictionary] = _collect_sources()
 	_pose_sets = Sources.pose_set_signature(board)
 	team.sync()
 	var retained: Dictionary = {}
@@ -116,7 +141,7 @@ func sync_coverage() -> void:
 			sprite.self_modulate.a = 0.0
 			add_child(sprite)
 			entry = {"sprite": sprite, "alpha": 0.0}
-		entry.merge({"source": source, "coverage": amount, "on": on}, true)
+		entry.merge({"source": source, "coverage": amount, "on": on, "front": [] if unit else front_units(sources, index)}, true)
 		_update_pose(entry)
 		retained[key] = entry
 	for key: String in entries:
@@ -127,11 +152,32 @@ func sync_coverage() -> void:
 	entries = retained
 	for key: String in team.entries: team.refresh_alpha(key)
 
+# Units painted after an object whose live drawing can reach its rim; past the
+# shader's slots, the largest overlaps win. Units hidden for privacy are not
+# sources, so they never shape a rim.
+func front_units(sources: Array[Dictionary], index: int) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	var target: Rect2 = sources[index]["rect"]
+	var reach: Rect2 = target.grow(WIDTH * 2.0 * float(board.get("_navigation_zoom")))
+	for later: int in range(index + 1, sources.size()):
+		var source: Dictionary = sources[later]
+		if str(source["kind"]) != "unit": continue
+		var draw: Dictionary = Sources.drawing(board, source)
+		if not draw.is_empty() and reach.intersects(draw["rect"]): result.append(source)
+	if result.size() > MAX_FRONT_UNITS:
+		result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return target.intersection(a["rect"]).get_area() > target.intersection(b["rect"]).get_area())
+		result.resize(MAX_FRONT_UNITS)
+	return result
+
 func _update_pose(entry: Dictionary) -> void:
 	var draw: Dictionary = Sources.drawing(board, entry["source"])
 	if draw.is_empty(): return
 	var sprite: Sprite2D = entry["sprite"]
-	var signature: Array = [draw["texture"], draw["rect"], board.get("_navigation_zoom"), rim_color(entry["source"])]
+	var fronts: Array = []
+	for front: Dictionary in entry.get("front", []):
+		var front_draw: Dictionary = Sources.drawing(board, front)
+		if not front_draw.is_empty(): fronts.append([front_draw["texture"], front_draw["rect"], front_ring(str(front["key"])), reveal_alpha(str(front["key"]))])
+	var signature: Array = [draw["texture"], draw["rect"], board.get("_navigation_zoom"), rim_color(entry["source"]), fronts]
 	if signature == entry.get("pose_signature", []): return
 	entry["pose_signature"] = signature
 	var texture: Texture2D = draw["texture"]
@@ -143,14 +189,39 @@ func _update_pose(entry: Dictionary) -> void:
 	ink.set_shader_parameter("silhouette_texture", (texture as AtlasTexture).atlas if texture is AtlasTexture else texture)
 	ink.set_shader_parameter("rim_color", rim_color(entry["source"]))
 	configure_rim(ink, texture, rect)
+	configure_front_mask(ink, rect, fronts)
 	pose_updates += 1
+
+static func uv_region(texture: Texture2D) -> Rect2:
+	if not texture is AtlasTexture: return Rect2(Vector2.ZERO, Vector2.ONE)
+	var atlas: AtlasTexture = texture
+	return Rect2(atlas.region.position / Vector2(atlas.atlas.get_size()), atlas.region.size / Vector2(atlas.atlas.get_size()))
+
+# Board-pixel width of the team-rim ring a front unit shows (0 without one);
+# the object rim stops at that ring's outer edge.
+func front_ring(key: String) -> float:
+	return WIDTH * float(board.get("_navigation_zoom")) if team.entries.has(key) and unit_alpha_multiplier(key) > 0.0 else 0.0
+
+# The shader samples each front unit's current texture, so live rig poses need
+# no update here; frame/atlas or placement changes arrive through _process.
+func configure_front_mask(ink: ShaderMaterial, rect: Rect2, fronts: Array) -> void:
+	ink.set_shader_parameter("front_count", fronts.size())
+	ink.set_shader_parameter("object_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
+	for slot: int in range(MAX_FRONT_UNITS):
+		var texture: Texture2D = fronts[slot][0] if slot < fronts.size() else null
+		var front: Rect2 = fronts[slot][1] if slot < fronts.size() else Rect2()
+		var region: Rect2 = uv_region(texture) if texture != null else Rect2(Vector2.ZERO, Vector2.ONE)
+		var ring: float = float(fronts[slot][2]) if slot < fronts.size() else 0.0
+		# occ-02: a unit faded by the focus reveal hides only that share of the rim.
+		ink.set_shader_parameter("front_alpha_%d" % slot, float(fronts[slot][3]) if slot < fronts.size() else 1.0)
+		ink.set_shader_parameter("front_pad_%d" % slot, region.size * ring / front.size if ring > 0.0 else Vector2.ZERO)
+		ink.set_shader_parameter("front_texture_%d" % slot, (texture as AtlasTexture).atlas if texture is AtlasTexture else texture)
+		ink.set_shader_parameter("front_rect_%d" % slot, Vector4(front.position.x, front.position.y, front.size.x, front.size.y))
+		ink.set_shader_parameter("front_region_%d" % slot, Vector4(region.position.x, region.position.y, region.end.x, region.end.y))
 
 func configure_rim(ink: ShaderMaterial, texture: Texture2D, rect: Rect2) -> void:
 	ink.set_shader_parameter("silhouette_texture", (texture as AtlasTexture).atlas if texture is AtlasTexture else texture)
-	var region := Rect2(Vector2.ZERO, Vector2.ONE)
-	if texture is AtlasTexture:
-		var atlas: AtlasTexture = texture
-		region = Rect2(atlas.region.position / Vector2(atlas.atlas.get_size()), atlas.region.size / Vector2(atlas.atlas.get_size()))
+	var region: Rect2 = uv_region(texture)
 	ink.set_shader_parameter("radius_source", Vector2(texture.get_size()) * WIDTH * float(board.get("_navigation_zoom")) / rect.size)
 	ink.set_shader_parameter("mask_min", region.position)
 	ink.set_shader_parameter("mask_max", region.end)
@@ -160,19 +231,43 @@ func xray_opacity(key: String) -> float:
 	if not tool_enabled or not entries.has(key): return 0.0
 	return float(entries[key]["alpha"]) * UNIT_ALPHA * unit_alpha_multiplier(key)
 
+# Rims follow the supplied hook value and the unit's occ-02 reveal alpha.
 func unit_alpha_multiplier(key: String) -> float:
+	return supplied_alpha_multiplier(key) * reveal_alpha(key)
+
+func supplied_alpha_multiplier(key: String) -> float:
 	var supplied: Dictionary = (board.get("presentation") as Dictionary).get("unit_outline_alpha_multipliers", {})
 	return clampf(float(_unit_alpha_overrides.get(key, supplied.get(key, 1.0))), 0.0, 1.0)
 
+func reveal_alpha(key: String) -> float:
+	var reveal: Node = board.get("_occlusion_reveal")
+	return float(reveal.unit_alpha(key)) if is_instance_valid(reveal) else 1.0
+
+# A focus-reveal fade step: rims, rim cut-outs and team rims follow it.
+func reveal_changed() -> void:
+	for entry: Dictionary in entries.values(): _update_pose(entry)
+	for key: String in team.entries: team.refresh_alpha(key)
+
 func set_unit_alpha_multiplier(key: String, value: float) -> void:
 	_unit_alpha_overrides[key] = clampf(value, 0.0, 1.0)
-	if entries.has(key): _update_pose(entries[key])
+	# Object rims cut by this unit follow whether its team ring still shows.
+	for entry: Dictionary in entries.values(): _update_pose(entry)
 	team.refresh_alpha(key)
 
 func rim_color(source: Dictionary) -> Color:
 	var result: Color = team_color(source)
 	if str(source["kind"]) == "unit": result.a *= unit_alpha_multiplier(str(source["key"]))
+	else:
+		# An object's rim fades with the object when the focus reveal fades it.
+		var reveal: Node = board.get("_occlusion_reveal")
+		var category: String = Reveal.category_for(source)
+		if is_instance_valid(reveal) and not category.is_empty(): result.a *= float(reveal.prop_alpha(category, source["tile"]))
 	return result
+
+func _front_redrawn(entry: Dictionary) -> bool:
+	for front: Dictionary in entry.get("front", []):
+		if pose_tiles.has(front["tile"]): return true
+	return false
 
 func _process(delta: float) -> void:
 	if not tool_enabled: return
@@ -184,7 +279,7 @@ func _process(delta: float) -> void:
 	for key: String in entries:
 		var entry: Dictionary = entries[key]
 		var source: Dictionary = entry["source"]
-		if pose_tiles.has(source["tile"]) or (ground_dirty and bool(source.get("ground", false))): _update_pose(entry)
+		if pose_tiles.has(source["tile"]) or (ground_dirty and bool(source.get("ground", false))) or _front_redrawn(entry): _update_pose(entry)
 		var target: float = 1.0 if bool(entry["on"]) else 0.0
 		var alpha: float = move_toward(float(entry["alpha"]), target, delta / FADE_SECONDS)
 		entry["alpha"] = alpha

@@ -919,6 +919,9 @@ var _retained_base_layers_cache: Array = []
 var _unit_draw_rect_cache: Dictionary = {}
 var _unit_outline_actor: Dictionary = {}
 var _occlusion_silhouettes: Node2D = null
+var _occlusion_reveal: Node = null
+# occ-02: whether pointer motion last reached the board (its focus tile reveal).
+var _pointer_over_board: bool = false
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
@@ -994,6 +997,8 @@ func _ready() -> void:
 	mouse_exited.connect(func() -> void:
 		plate_visibility.pointer_keys.clear()
 		plate_visibility.refresh()
+		_pointer_over_board = false
+		_sync_occlusion_reveal_focus()
 	)
 	health_ghost_tracker.attach_to(self)
 	health_ghost_tracker.changed.connect(func() -> void:
@@ -2023,6 +2028,9 @@ func _create_dynamic_render_layer() -> void:
 	_effects_telegraph_render_layer = _create_retained_render_layer("EffectsTelegraphs", RENDER_LAYER_TELEGRAPHS)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
+	# After the silhouettes: their frame's source refresh precedes the reveal's.
+	_occlusion_reveal = preload("res://scripts/board_occlusion_reveal.gd").new()
+	_occlusion_reveal.attach(self)
 	_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(true)
 	_sync_enemy_shadow_dissolve_effects()
@@ -2920,8 +2928,8 @@ func set_targeted_tile_context(context: Dictionary, tile: Vector2i) -> void:
 
 func set_targeted_tile(tile: Vector2i) -> void:
 	_aim_focus.set_focus(tile if tile.x >= 0 else _hover_tile)
-	if not is_instance_valid(_targeted_tile_highlight): return
-	_targeted_tile_highlight.present(self, tile)
+	if is_instance_valid(_targeted_tile_highlight): _targeted_tile_highlight.present(self, tile)
+	_sync_occlusion_reveal_focus()
 
 func _sync_targeted_tile_geometry() -> void:
 	if is_instance_valid(_targeted_tile_highlight): set_targeted_tile(_targeted_tile_highlight.tile)
@@ -4367,6 +4375,7 @@ func _entries_for_tile(index: Dictionary, entries: Array, tile_key: String, tile
 	return matching
 
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion or event is InputEventGesture: _pointer_over_board = true
 	if event is InputEventMagnifyGesture:
 		_last_pointer_position = event.position
 		set_navigation_zoom(_navigation_zoom * event.factor, event.position)
@@ -4547,12 +4556,14 @@ func _update_hover_at(pointer_position: Vector2) -> Vector2i:
 	# Scene mode changes and rail exits can retire their hover without pointer
 	# motion. Do not suppress the re-entry merely because this cache is unchanged.
 	if next_hover == _hover_tile and same_owner:
+		_sync_occlusion_reveal_focus()
 		return next_hover
 	_hover_tile = next_hover
 	if not _aim_focus.choosing: _aim_focus.set_focus(_hover_tile)
 	tile_hovered.emit(_hover_tile)
 	_update_cursor_shape()
 	_queue_hover_redraws()
+	_sync_occlusion_reveal_focus()
 	return next_hover
 
 func set_controller_focus_tile(tile: Vector2i) -> void:
@@ -4568,6 +4579,31 @@ func set_controller_focus_tile(tile: Vector2i) -> void:
 		_hud_render_layer.set("_controller_focus_tile", _controller_focus_tile)
 		_hud_render_layer.set("_hover_tile", _hover_tile)
 	_queue_hover_redraws()
+	_sync_occlusion_reveal_focus()
+
+# occ-02: one focus tile at a time. The aimed tile while targeting (the scene
+# retires it when the pointer leaves; a held card drag never reaches this
+# board's input), else the controller focus, else the tile under the pointer
+# while the pointer is on the board.
+func _occlusion_reveal_focus_tile() -> Vector2i:
+	if combat_state.is_empty(): return Vector2i(-1, -1)
+	if is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.visible: return _targeted_tile_highlight.tile
+	if _controller_focus_tile.x >= 0: return _controller_focus_tile
+	return _hover_tile if _pointer_over_board else Vector2i(-1, -1)
+
+func _sync_occlusion_reveal_focus() -> void:
+	if is_instance_valid(_occlusion_reveal): _occlusion_reveal.set_focus(_occlusion_reveal_focus_tile())
+
+# Draw-time tint of a revealed occluder; layers and slices ask their owner.
+func _occlusion_reveal_tint(category: String, tile: Vector2i, tint: Color) -> Color:
+	var owner: Node = _render_instrumentation_owner if is_instance_valid(_render_instrumentation_owner) else self
+	var reveal: Node = owner.get("_occlusion_reveal")
+	return reveal.tint(category, tile, tint) if is_instance_valid(reveal) else tint
+
+# A revealed prop repaints only its own tile canvas (its animated slices when
+# threat isolation slices the tile).
+func _queue_occlusion_reveal_redraw(tile: Vector2i) -> void:
+	_queue_render_layer_redraw(_scene_render_layers_by_tile.get(tile, null) as Control, true)
 
 func controller_navigable_tiles(include_visible_doors: bool = false, legal_targets: Variant = null) -> Array[Vector2i]:
 	var result: Array[Vector2i]
@@ -4593,6 +4629,7 @@ func _clear_hover_for_navigation() -> void:
 	_hover_tile = Vector2i(-1, -1)
 	tile_hovered.emit(_hover_tile)
 	_queue_hover_redraws()
+	_sync_occlusion_reveal_focus()
 
 func _queue_hover_redraws() -> void:
 	refresh_plate_visibility()
@@ -7928,7 +7965,7 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		if texture == null:
 			continue
 		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
-		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
+		var tint: Color = _occlusion_reveal_tint("scene_prop", tile, _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries))
 		if str(prop.get("kind", "")) == "campfire_bonfire":
 			_draw_campfire_prop_glow(tile, draw_rect)
 		if str(prop.get("kind", "")) == "relic_chest":
@@ -8138,7 +8175,7 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstr
 	if moss.is_empty():
 		return
 	var moss_rect: Rect2 = moss["rect"]
-	_draw_world_texture(moss["texture"], moss_rect, _foreground_blocker_tint(moss["tile_id"], tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
+	_draw_world_texture(moss["texture"], moss_rect, _occlusion_reveal_tint(moss["tile_id"], tile, _foreground_blocker_tint(moss["tile_id"], tile, moss_rect, obstruction_entries)), CombatArtTreatment.STONE)
 
 func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
@@ -8148,7 +8185,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		_prop_command_cache.paint(self, "stone", [tile_id, tile, Vector2i((grid[0] as Array).size(), grid.size()), _tile_width(), _board_origin(),
 			obstruction_entries, _moss_signature, combat_state.get("room_coord", Vector2i.ZERO),
 			combat_state.get("room_element", ""), _tile_paint_inputs.stone_textures(self, tile_id, grid, tile),
-			_art_treatment != null, _art_treatment_enabled], _draw_tile_stone_props.bind(grid, tile, tile_id, obstruction_entries))
+			_art_treatment != null, _art_treatment_enabled, _occlusion_reveal_tint(tile_id, tile, Color.WHITE).a], _draw_tile_stone_props.bind(grid, tile, tile_id, obstruction_entries))
 	else:
 		_draw_tile_stone_props(grid, tile, tile_id, obstruction_entries)
 	if tile_id == "pillar":
@@ -8198,7 +8235,7 @@ func _draw_tile_stone_props(grid: Array, tile: Vector2i, tile_id: String, obstru
 			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
 			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
-			_draw_pillar_body(texture, draw_rect, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
+			_draw_pillar_body(texture, draw_rect, _occlusion_reveal_tint("pillar", tile, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)))
 	elif tile_id == "wall":
 		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
 		for segment: Dictionary in segments:
@@ -8220,6 +8257,7 @@ func _draw_tile_stone_props(grid: Array, tile: Vector2i, tile_id: String, obstru
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
 			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
+			tint = _occlusion_reveal_tint("door", tile, tint)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
 				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
@@ -8268,7 +8306,8 @@ func _pillar_torch_tint(tint: Color) -> Color:
 	return Color(tint, maxf(tint.a, PILLAR_OBSTRUCTION_TORCH_ALPHA))
 
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
-	var tint: Color = _torch_placements.tint(self, tile, pillar_rect, obstruction_entries)
+	# Like the cap band, torches keep their readable floor on a revealed shaft.
+	var tint: Color = _pillar_torch_tint(_occlusion_reveal_tint("pillar", tile, _torch_placements.tint(self, tile, pillar_rect, obstruction_entries)))
 	var left_texture: Texture2D = _pillar_torch_texture("left")
 	var right_texture: Texture2D = _pillar_torch_texture("right")
 	if left_texture != null:
@@ -8960,7 +8999,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		return
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	if terrain_rect.size.y <= 0.0: return
-	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	var tint: Color = _occlusion_reveal_tint("terrain", tile, _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries))
 	if terrain_kind not in ["crag_outcrop", "dragon_spire"]:
 		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
 			[tile, texture, terrain_rect, tint, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
