@@ -141,7 +141,10 @@ func _check(engine: RefCounted, committed: Dictionary, mode: String, tile: Vecto
 		resolved = bool((moved.get("last_player_movement", {}) as Dictionary).get("resolved", false))
 	var actual: Dictionary = _actual_trace(engine, committed, moved)
 	var shown: Dictionary = _shown(summary)
-	var disclosed: bool = bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("forecast_limit_reached", false)) or bool(summary.get("terminal_unknown", false))
+	var disclosed_other: bool = bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("forecast_limit_reached", false)) or bool(summary.get("terminal_unknown", false))
+	# atk-04: the Umbra "?" for a path over unseen ground also discloses.
+	var unseen: bool = bool(summary.get("unseen_ground_crossed", false))
+	var disclosed: bool = disclosed_other or unseen
 	var result: Dictionary = {
 		"kind": "check", "mode": mode, "point": point_id, "tile": str(tile), "resolved": resolved,
 		"ui_usec": ui_usec, "summary_empty": summary.is_empty(),
@@ -149,6 +152,8 @@ func _check(engine: RefCounted, committed: Dictionary, mode: String, tile: Vecto
 		"shown": shown, "disclosed": disclosed,
 		"repeated": summary.get("repeated_enemy_names", []), "counted": summary.get("counted_repeats", []), "restarted": bool(forecast.get("restarted", false)), "unrevealed": bool(summary.get("unrevealed_before_player", false)),
 		"umbra_unknown": bool(summary.get("umbra_unknown_before_player", false)), "limit": bool(summary.get("forecast_limit_reached", false)),
+		"unseen": unseen, "unseen_only": unseen and not disclosed_other, "new_arrival": bool(summary.get("new_arrival_before_player", false)),
+		"panel_safe": _panel_says_safe(summary), "limited": bool(source.get("_pass_forecast_limited", false)),
 		"forecast_sim": {"hp": forecast["hp"], "block": forecast["block"], "stoneskin": forecast["stoneskin"], "tile": str(forecast["tile"]), "outcome": forecast["outcome"], "sources": forecast["sources"], "slices": forecast["slices"]},
 		"actual": {"hp": actual["hp"], "block": actual["block"], "stoneskin": actual["stoneskin"], "tile": str(actual["tile"]), "outcome": actual["outcome"], "sources": actual["sources"], "slices": actual["slices"], "activations": actual["activations"]},
 	}
@@ -166,7 +171,8 @@ func _check(engine: RefCounted, committed: Dictionary, mode: String, tile: Vecto
 		if bool(result["mismatch"][measure]): any_mismatch = true
 	# Diagnostic only: the same simulation with nothing hidden. When it agrees
 	# with reality, the UI forecast differed only by what the Umbra hides.
-	if any_mismatch and not disclosed:
+	# atk-04: also for checks the unseen-ground "?" alone disclosed.
+	if any_mismatch and not disclosed_other:
 		var raw: Dictionary = committed if mode != "move" else engine.surface_preview_for_player_action(committed, engine.player_movement_action(committed), tile, true)["state"]
 		var seen_all: Dictionary = _forecast_trace(engine, committed, raw)
 		result["omniscient_matches_actual"] = [seen_all["hp"], seen_all["block"], seen_all["stoneskin"], seen_all["tile"], seen_all["outcome"]] == [actual["hp"], actual["block"], actual["stoneskin"], actual["tile"], actual["outcome"]]
@@ -184,7 +190,17 @@ func _shown(summary: Dictionary) -> Dictionary:
 	return {"hp": int(summary.get("hp_loss", 0)), "row_health": int(rows["health"]), "fatigue": int(rows["fatigue"]), "block": int(rows["block"]), "stoneskin": int(rows["stoneskin"]), "defeat": bool(summary.get("defeat", false)), "tone": str(summary.get("tone", "")), "defiance": int(summary.get("defiance_spent", 0))}
 
 func _summary_core(summary: Dictionary) -> Array:
-	return [int(summary.get("hp_loss", 0)), int(summary.get("block_loss", 0)), int(summary.get("stoneskin_loss", 0)), bool(summary.get("defeat", false)), str(summary.get("tone", "")), bool(summary.get("unrevealed_before_player", false)), bool(summary.get("umbra_unknown_before_player", false))]
+	return [int(summary.get("hp_loss", 0)), int(summary.get("block_loss", 0)), int(summary.get("stoneskin_loss", 0)), bool(summary.get("defeat", false)), str(summary.get("tone", "")), bool(summary.get("unrevealed_before_player", false)), bool(summary.get("umbra_unknown_before_player", false)), bool(summary.get("unseen_ground_crossed", false)), bool(summary.get("new_arrival_before_player", false))]
+
+# atk-04: does the panel's own row builder show "Safe" for this summary?
+func _panel_says_safe(summary: Dictionary) -> bool:
+	if summary.is_empty() or bool(summary.get("terminal_unknown", false)): return false
+	var inks: Dictionary = {"block": Color.WHITE, "stoneskin": Color.WHITE, "health": Color.WHITE, "defiance": Color.WHITE, "unknown": Color.WHITE}
+	var portraits: Array[Dictionary]
+	for row: Dictionary in preload("res://scripts/pass_forecast_focus_tooltip.gd").rows(summary, portraits, inks):
+		for part: Dictionary in row.get("parts", []):
+			if str(part.get("text", "")) == "Safe": return true
+	return false
 
 # --- forecast replica: the same cursor the UI runs, one actor per slice --------
 

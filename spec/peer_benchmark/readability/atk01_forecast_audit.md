@@ -6,6 +6,8 @@
   claimed to know the outcome was wrong 0.6% of the time (114 cases), always in the Block or Stoneskin row or on
   ground the Umbra hides. Those two Block/Stoneskin lies are fixed. After the fixes it is 0.13% (21 of 16,614), and
   every remaining case is one of two open design questions: unseen Umbra ground, and the half-Health rule switch.
+  Both are now decided. After atk-04, 1 of 15,181 checks was wrong and undisclosed, against 49 after atk-03 (see
+  "atk-04 follow-up").
 - **The surprise damage comes from foes that act twice.** In 44–48% of turns, at least one foe acts twice before
   your next turn. Its second move is hidden on purpose. That hidden move hit the hero in 32–38% of all turns, for 8–9
   damage on average (36 at most). The PASS panel does say so ("+ ? 2ND MOVE", or UNKNOWN), but the number beside
@@ -182,22 +184,111 @@ Rerun as `after-atk03` on the same seeds (101 and 102 at 9,999 Health, 201–208
     8.1 ms and 22.2 ms without one.
   - The deferred-roll restart never fired in these runs.
 
+## atk-04 follow-up: unseen ground and new foes (2026-11-13)
+
+Director decisions, 2026-11-13:
+- **Unseen-ground flag.** The forecast still plays the enemy phase on the board you can see. It is flagged
+  `unseen_ground_crossed` when any unit (a foe, a summon, or the hero walking, pushed or pulled) enters or is forced onto
+  a tile outside your current sight, or an area effect targets an unseen tile next to a unit
+  (`pass_forecast_unseen_ground.gd`). The check covers the previewed action itself, every simulated activation, and
+  the end and start of the turn.
+  - It reads only which tiles you can see, never what is on them. Walls are board-public, so only passable unseen tiles
+    count. No new simulation: it reads the activations the forecast already resolved.
+- **Panel.** When the flag is set, the Umbra "?" row (same icon and ink) replaces "Safe". Any losses shown stay as a
+  known minimum, followed by that one "?" row. "Safe" never shows with the flag set. The tone, the PASS accent and the
+  action-context label treat it like the Umbra "?".
+- **New foes.** A summon, split or reinforcement that you can see and that acts before you shows the turn-clock "?" row.
+  The tooltip line is "A new foe acts before you." The Umbra wording stays for foes actually hidden in the Umbra.
+- **Dead foes.** A dead foe's stale queue entry no longer raises the Umbra "?" (`pass_forecast_action_source.gd
+  hidden_horizon`). This fixes atk-03's Warband seed 301, point 47; that point now shows no "?".
+
+Rerun as `after-atk04` on the same seeds as `after-atk03`: 101 and 102 at 9,999 Health, 201–208 at real Health, and the
+air:2 Warband (`--stop-after 220`).
+
+| | after-atk03 | after-atk04 |
+|---|---:|---:|
+| Checks | 16,692 | 15,181 |
+| Undisclosed mismatches (all measures, by check) | 49 | 1 |
+| … of which unseen Umbra ground | 49 | 1 |
+| Panel showed Safe and was wrong, undisclosed | n/a | 0 |
+| Umbra "?" in an Umbra room with no hidden living foe | 1,457 | 275 |
+| … of which the last visible foe dies (designed "?" instead of victory) | 251 | 272 |
+
+| Measure | PASS now: said nothing | Move, then end: said nothing | Stay put: said nothing | All forecasts: wrong but flagged |
+|---|---|---|---|---|
+| Health lost | 0.21% → 0.00% | 0.25% → 0.01% | 0.23% → 0.00% | 11.34% → 14.89% |
+| Block lost | 0.00% → 0.00% | 0.00% → 0.00% | 0.00% → 0.00% | 0.01% → 0.11% |
+| Stoneskin lost | 0.00% → 0.00% | 0.01% → 0.00% | 0.00% → 0.00% | 0.17% → 0.62% |
+| Death | 0.00% → 0.00% | 0.00% → 0.00% | 0.00% → 0.00% | 0.03% → 0.01% |
+| Hero's final tile | 0.07% → 0.00% | 0.09% → 0.00% | 0.05% → 0.00% | 0.64% → 0.60% |
+| Which foes hit you | 0.11% → 0.00% | 0.11% → 0.01% | 0.14% → 0.00% | 9.06% → 11.70% |
+
+The bot's routes differ between passes, so the "wrong but flagged" column moves with the rooms played (more Umbra fights
+with hidden foes this pass); compare the "said nothing" columns.
+
+- **How often the new "?" shows.** 1,650 of 12,879 Umbra-room checks (12.8%) carry the flag: PASS 257, destinations
+  1,197, stay put 196. It was the only disclosure in 1,025.
+  - In 72 of those 1,025, the forecast was wrong; that is the error class atk-01 found, now disclosed.
+  - In the other 953, the numbers turned out exact; the "?" was a precaution.
+  - 92 of the 1,025 showed no loss, so their "Safe" became "?". In the rest, the "?" follows the known losses.
+- **New foes.** The turn-clock "?" showed in 50 checks. The Umbra "?" never showed in a lit room. These routes met no
+  lit-room summon. The ptf07 fixtures (`death_spawn`, `reinforcements`) show the switch in a lit room (`tools/atk04/focused_tests.gd`).
+- **The one residual.** Seed 101, section 6 ordinary fight, turn 12, hero (6,3) → (7,3): forecast −26, reality −34.
+  The acolyte at (4,3) plans differently on the filtered board. With the full board it stays and fires Dust Bolt (8).
+  With unseen contents stripped, it steps to (3,3), misses, and its second roll differs. Every path stays in sight, so
+  the flag does not fire. Hidden contents changed a plan, not a path. Save:
+  `/private/tmp/labyrinth_codex/atk-01/audit/after-atk04/seed-101-hp9999/repro/101-1147/`.
+- **Reproductions (native, cel look, 1920×1080, 100% UI scale, real saves).** Both are under
+  `/private/tmp/labyrinth_codex/atk-04/captures/`, as `<case>_before.png`, `<case>_after.png` and a 2× panel pair,
+  `<case>_panels.png`.
+  - Cinder Ooze (seed 101, section 6, turn 9, (6,2) → (7,2)): "+10 · Safe" became "+10 · Umbra ?".
+  - Night Coil (seed 102, Noctyrax, turn 1, (1,4) → (2,5)): "−9" became "−9 · Umbra ?".
+- **Hover cost.** Interleaved A/B/A/B on three real saves, timing the destination source build plus the forecast and the
+  summary for every destination (25 rounds each), medians in µs:
+  - Night Coil save: A 10,211 / 10,324, B 10,392 / 10,428.
+  - Cinder Ooze save: A 9,474 / 9,306, B 9,336 / 9,398.
+  - Seed 102 point 1138: A 16,009 / 16,016, B 16,245 / 16,289.
+  - About 0–2% (≤ 0.3 ms). The audit's own `ui_usec` moved more, but it follows the rooms played.
+
+### Round 2 (director, 2026-11-13): "Safe" never sits beside a "?"
+
+"Safe" means the forecast is sure nothing touches you. It no longer appears beside any "?" row: the Umbra "?" (hidden
+foes or unseen ground), the turn-clock "?" (a new foe, or the forecast limit), or a "×2 ?" unknown repeat
+(`pass_forecast_focus_tooltip.gd rows`). A counted repeat ("×2", no "?") that loses nothing still reads "Safe".
+
+- **Panel states that change, measured on the after-atk04 data:** 358 of 15,181 checks (PASS 51, destinations 270,
+  stay put 37). Of those, 346 had the hidden-foe Umbra "?" and 12 the new-foe turn-clock "?".
+  - In 107 of the 358, the hero did lose Health before its next turn, though the panel had said "Safe".
+- **Native pair.** Seed 101, point 755: turn 1, hero (4,7), four foes hidden in the Umbra. The PASS panel showed
+  "+10 · Safe · Umbra ?" (left) and now shows "+10 · Umbra ?" (right). In reality the hidden foes dealt 7.
+  - Files: `/private/tmp/labyrinth_codex/atk-04/captures/hidden_foe_safe_{before,after,panels}.png`. "Before" is
+    atk-04 round 1.
+- **Stale proof expectations.** `tools/ptf07/forecast_cases.gd` and `tools/ptf08/forecast_cases.gd` still expected the
+  pre-atk-03 behaviour. They now expect the current truth:
+  - `second_move`, `later_known` and `many_repeats` are counted repeats: ×N, with no "?" and no hidden-move wording.
+  - `later_known` checks the other foe's hit against live play.
+  - `safety_limit` gives the hero enough Health that the 100-activation ceiling is still reached; counted repeats used
+    to kill the 24-Health hero first.
+
 ## Open design questions
 
 - **Decided (atk-03, director 2026-11-13): second moves are forecast.** Was TODO_DESIGN_second_move_forecast. See
   "atk-03 follow-up" below.
-- **TODO_DESIGN_umbra_unseen_ground.** Forecasts treat unseen tiles as empty, so a push into an unseen crate or trap
-  surprises you. Options: show "?" when the simulation moves anything across an unseen tile; or accept it.
+- **Decided (atk-04, director 2026-11-13): unseen ground shows the Umbra "?".** Was TODO_DESIGN_umbra_unseen_ground.
+  See "atk-04 follow-up" above.
 - **Decided (atk-03, director 2026-11-13): the forecast copy applies the half-Health switch.** Was
   TODO_DESIGN_half_health_switch_in_forecast. bos-01 feedback 2's "previews never switch" protected the live state,
   analytics, banner and save, which stay untouched; the forecast copy now switches as live play does.
 - **Decided (atk-03, director 2026-11-13): at rest, discs follow the PASS simulation.** Was
   TODO_DESIGN_disc_from_full_simulation. A disc is red when any of that foe's activations before your next turn hurts
   you (a rule beat on its turn counts as its own).
-- **TODO_DESIGN_new_arrival_wording.** A visible summon's first move shows the Umbra "?" with Umbra wording.
+- **Decided (atk-04, director 2026-11-13): a visible new foe uses the turn-clock "?".** Was
+  TODO_DESIGN_new_arrival_wording. See "atk-04 follow-up" above.
 
 ## Rerun
 
 `python3 tools/atk01/audit.py run --seeds 101 --health 9999 --label <name>` (one headless Godot at a time; add
 `--warband air:2` for a Warband entry, `--project <dir>` for a baseline copy), then
 `python3 tools/atk01/audit.py report --label <name>` and `audit.py table --before before --after after`.
+The Warband entry uses `--seeds 301 --health 9999 --warband air:2 --stop-after 220`. One saved decision point:
+`tools/atk04/probe_steps.gd` prints each forecast step's tiles, marks unseen ones, and names what raised the flag.

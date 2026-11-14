@@ -14207,7 +14207,7 @@ func _update_action_context_risk() -> void:
 			values.append("-%d BLOCK" % int(summary.get("block_loss", 0)))
 		if int(summary.get("hp_loss", 0)) > 0:
 			values.append("-%d HP" % int(summary.get("hp_loss", 0)))
-		if bool(summary.get("umbra_unknown_before_player", false)):
+		if bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false)):
 			values.append("+ ? UMBRA")
 			if tone == "safe": tone = "warning"
 		if not values.is_empty():
@@ -15289,11 +15289,17 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		losses[field] = int(end_losses[field]) + maxi(int(losses[field]) - int(end_losses[field]), net_loss) + int(source_state.get("_pass_forecast_action_" + field, 0))
 	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
+	# atk-04: any unit's path onto unseen ground (the previewed action, the end
+	# of the activation, or the enemy phase). The losses stay a known minimum.
+	const Unseen = preload("res://scripts/pass_forecast_unseen_ground.gd")
+	var unseen_ground_crossed: bool = bool(source_state.get(Unseen.CROSSED_KEY, false)) or bool(phase_result.get("unseen_ground_crossed", false))
+	if not unseen_ground_crossed and source_state.get(Unseen.VISIBLE_KEY) is Dictionary and not scheduled_state.is_empty():
+		unseen_ground_crossed = Unseen.moved_onto_unseen(source_state[Unseen.VISIBLE_KEY], source_state, scheduled_state)
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
 	var tone: String = "safe"
 	if defeat or int(losses.get("hp", 0)) > 0 or int(losses.get("defiance_spent", 0)) > 0:
 		tone = "danger"
-	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player or umbra_unknown_before_player:
+	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player or umbra_unknown_before_player or unseen_ground_crossed:
 		tone = "warning"
 	var summary: Dictionary = {
 		"wait_time": _combat_engine.pending_wait_time(source_state),
@@ -15318,7 +15324,9 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		"terminal_unknown": terminal_unknown,
 		"repeated_enemy_names": phase_result.get("repeated_enemy_names", []),
 		"fatigue_loss": int(phase_result.get("fatigue_loss", 0)),
-		"forecast_limit_reached": bool(phase_result.get("forecast_limit_reached", false))
+		"forecast_limit_reached": bool(phase_result.get("forecast_limit_reached", false)),
+		"unseen_ground_crossed": unseen_ground_crossed,
+		"new_arrival_before_player": bool(phase_result.get("new_arrival_before_player", false))
 	}
 	# atk-03: counted repeat activations and which foes the simulation saw hurt you.
 	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
@@ -15458,6 +15466,8 @@ func _pass_preview_risk_tooltip(summary: Dictionary) -> String:
 		lines.append("+%d more foes act twice." % (repeated.size() - 2))
 	if bool(summary.get("umbra_unknown_before_player", false)):
 		lines.append("Foes hidden in the Umbra may act first.")
+	if bool(summary.get("new_arrival_before_player", false)):
+		lines.append("A new foe acts before you.")
 	if bool(summary.get("forecast_limit_reached", false)):
 		lines.append(preload("res://scripts/pass_forecast_turn_start.gd").FORECAST_LIMIT_WARNING)
 	if int(summary.get("fatigue_loss", 0)) > 0:

@@ -93,7 +93,8 @@ def category(row: dict) -> str:
     div = first_divergence(row)
     # atk-03: an undisclosed mismatch the Umbra information filter caused is
     # unseen ground first, whichever slice (or the panel sum) shows it.
-    if not row["disclosed"] and row.get("umbra_filter_changed_forecast") and row.get("omniscient_matches_actual"):
+    # atk-04: the unseen-ground "?" may be the only disclosure; same category.
+    if (not row["disclosed"] or row.get("unseen_only")) and row.get("umbra_filter_changed_forecast") and row.get("omniscient_matches_actual"):
         return "umbra_unseen_board"
     if div["why"] == "accounting":
         walk = next((s for s in row["actual"]["slices"] if s["actor"] == "move"), None)
@@ -108,7 +109,7 @@ def category(row: dict) -> str:
     # Undisclosed divergence caused by the Umbra information filter: the same
     # simulation on the full board differs (runs before this field existed were
     # checked by replaying their saves; see the report).
-    if not row["disclosed"] and row.get("umbra_filter_changed_forecast", row.get("omniscient_matches_actual", row["context"].get("umbra_limited"))):
+    if (not row["disclosed"] or row.get("unseen_only")) and row.get("umbra_filter_changed_forecast", row.get("omniscient_matches_actual", row["context"].get("umbra_limited"))):
         return "umbra_unseen_board"
     known = {e["key"] for e in row["context"]["enemies"]}
     if div["actor"].startswith("enemy_") and div["actor"] not in known:
@@ -220,6 +221,25 @@ def report(args: argparse.Namespace) -> None:
     print(f"\nsecond moves: {len(twice)}/{len(passes)} PASS points have a foe acting twice; hidden move lands in {len(hidden_hit)} (mean {sum(hidden_dmg)/max(1,len(hidden_dmg)):.1f}, max {max(hidden_dmg or [0])}); panel said {dict(said)}; panel exact in {exact}")
     restarts = sum(1 for r in checks if r.get("restarted"))
     print(f"deferred-roll restarts: {restarts}/{len(checks)} checks")
+    # atk-04: how often the unseen-ground "?" shows, and whether it was needed.
+    unseen = {}
+    if any("unseen" in r for r in checks):
+        limited = [r for r in checks if r["context"].get("umbra_limited")]
+        flagged = [r for r in checks if r.get("unseen")]
+        only = [r for r in flagged if r.get("unseen_only")]
+        only_wrong = [r for r in only if mismatched(r)]
+        no_loss = [r for r in only if (r["shown"]["hp"] + r["shown"]["block"] + r["shown"]["stoneskin"] + r["shown"]["fatigue"]) == 0 and not r["shown"]["defeat"]]
+        safe_bad = [r for r in checks if r.get("panel_safe") and mismatched(r) and not r["disclosed"]]
+        safe_with_flag = [r for r in checks if r.get("panel_safe") and (r.get("unseen") or r.get("umbra_unknown"))]
+        unseen = {"umbra_limited_checks": len(limited), "flagged": len(flagged), "flagged_by_mode": dict(Counter(r["mode"] for r in flagged)), "only_disclosure": len(only),
+                  "only_and_wrong": len(only_wrong), "only_and_exact": len(only) - len(only_wrong), "only_with_no_loss_shown": len(no_loss),
+                  "panel_safe": sum(1 for r in checks if r.get("panel_safe")), "panel_safe_and_wrong_undisclosed": len(safe_bad), "panel_safe_with_umbra_or_unseen": len(safe_with_flag)}
+        print("unseen ground:", unseen)
+        arrivals = [r for r in checks if r.get("new_arrival")]
+        lit_umbra = [r for r in checks if r.get("umbra_unknown") and not r["context"].get("umbra_limited")]
+        unseen["new_arrival_checks"] = len(arrivals)
+        unseen["umbra_row_in_lit_rooms"] = len(lit_umbra)
+        print(f"new arrivals (turn-clock ?): {len(arrivals)} checks; Umbra '?' in lit rooms: {len(lit_umbra)}")
     summary = {"label": args.label, "runs": len(totals), "fights": len(fights), "decision_points": len(points), "checks": dict(by_mode),
                "sections": sorted({r["context"]["section"] for r in checks}), "room_kinds": dict(Counter(r["context"]["room_kind"] for r in checks)), "biomes": dict(Counter(r["context"]["biome"] for r in checks)),
                "rates": [{"mode": m, "measure": me, "checks": n, "mismatches": b, "undisclosed": h} for m, me, n, b, h in rows],
@@ -227,7 +247,7 @@ def report(args: argparse.Namespace) -> None:
                "flags": {"total": len(flag_rows), "red_hit": cm[(True, True)], "red_miss": cm[(True, False)], "grey_hit": cm[(False, True)], "grey_miss": cm[(False, False)], "grey_hit_first_activation": sum(1 for f in grey_hit if f["hit_first"])},
                "categories": {f"{k[0]}|{'disclosed' if k[1] else 'undisclosed'}": len(v) for k, v in cats.items()},
                "second_moves": {"pass_points": len(passes), "acts_twice": len(twice), "hidden_lands": len(hidden_hit), "panel_said": dict(said), "panel_exact": exact},
-               "restarts": restarts,
+               "restarts": restarts, "unseen": unseen,
                "ui_usec": {"median": usec[len(usec)//2] if usec else 0, "p95": usec[int(len(usec)*0.95)] if usec else 0}}
     (ROOT / args.label / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     if args.examples:
@@ -267,7 +287,7 @@ def table(args: argparse.Namespace) -> None:
             return pct(sum(r["mismatches"] - r["undisclosed"] for r in rows), sum(r["checks"] for r in rows))
         print(f"| {label} | {' | '.join(cells)} | {flagged(b)} → {flagged(a)} |")
     for label, data in (("before", before), ("after", after)):
-        print(f"\n{label}: flags {data['flags']} reasons {data.get('flag_reasons')} categories {data['categories']} second_moves {data['second_moves']} ui_usec {data['ui_usec']}")
+        print(f"\n{label}: flags {data['flags']} reasons {data.get('flag_reasons')} categories {data['categories']} second_moves {data['second_moves']} ui_usec {data['ui_usec']} unseen {data.get('unseen')}")
 
 
 def main() -> None:

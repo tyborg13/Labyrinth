@@ -76,7 +76,15 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 		if key == "health" and bool(summary.get("defeat", false)): text += " → 0"
 		losses.append(_part(key, text, inks[key]))
 	# atk-03: Safe only when the whole simulation, every repeat move included, loses nothing.
-	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)) and (summary.get("repeated_enemy_names", []) as Array).is_empty():
+	# atk-04 (director): Safe means the forecast is sure nothing touches you, so it
+	# never sits beside a "?" row (Umbra, unseen ground, new foe, forecast limit, "×2 ?").
+	var unseen_ground: bool = bool(summary.get("unseen_ground_crossed", false))
+	var umbra_row: bool = bool(summary.get("umbra_unknown_before_player", false)) or unseen_ground
+	var clock_row: bool = bool(summary.get("forecast_limit_reached", false)) or bool(summary.get("new_arrival_before_player", false))
+	var unknown_repeat: bool = not (summary.get("repeated_enemy_names", []) as Array).is_empty()
+	for index: int in range(mini(2, portraits.size())):
+		if not bool(portraits[index].get("counted", false)): unknown_repeat = true
+	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)) and not unknown_repeat and not umbra_row and not clock_row:
 		losses.append(_part("", "Safe", Palette.SUCCESS))
 	if not losses.is_empty(): result.append({"parts": losses})
 	for index: int in range(mini(2, portraits.size())):
@@ -93,9 +101,11 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 		var hp: int = int(summary.get("projected_hp", -1))
 		var max_hp: int = int(summary.get("projected_max_hp", -1))
 		result.append({"parts": [_part("defiance", "−%d → %s/%s" % [int(summary["defiance_spent"]), str(hp) if hp >= 0 else "?", str(max_hp) if max_hp > 0 else "?"], inks["defiance"])]})
-	if bool(summary.get("umbra_unknown_before_player", false)):
+	# Any losses above stay as a known minimum, followed by the one Umbra "?" row.
+	if umbra_row:
 		result.append({"parts": [_part("umbra", "?", inks["unknown"])]})
-	if bool(summary.get("forecast_limit_reached", false)):
+	# atk-04: a visible new foe (a summon or split) acting first uses the turn-clock "?".
+	if clock_row:
 		result.append({"parts": [_part("turn_clock", "?", inks["unknown"])]})
 	return result
 

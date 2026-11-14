@@ -44,7 +44,7 @@ static func restart_with_rolls(cursor: Dictionary) -> void:
 	cursor["choose_next_intents"] = true
 	cursor["safety"] = 0
 	cursor["complete"] = false
-	for field: String in ["rng_unknown", "roll_known", "enemy_activations", "enemy_hits", "enemy_names", "unknown_repeat_ids"]:
+	for field: String in ["rng_unknown", "roll_known", "enemy_activations", "enemy_hits", "enemy_names", "unknown_repeat_ids", "unseen_ground_crossed", "new_arrival_before_player"]:
 		cursor.erase(field)
 
 # A visible foe whose later move stays unknown keeps the "×2 ?" disclosure.

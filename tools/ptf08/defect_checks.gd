@@ -485,7 +485,8 @@ func recovery_ruling_checks() -> void:
 			"bleed_fatigue": _assert(health_text == "−1 → 0" and fatigue_text == "−15", "D9 Bleed plus lethal Fatigue keeps the death arrow on Health")
 			"surface_fatigue": _assert(health_text == "−3 → 0" and fatigue_text == "−15", "D9 turn-start fire remains Health before lethal Fatigue")
 			"heal_full": _assert(health_text.is_empty() and safe, "D9 full recovery omits Health and permits Safe")
-			"heal_full_umbra": _assert(health_text.is_empty() and safe and summary["umbra_unknown_before_player"] and int(summary["projected_hp"]) < 0, "D9 public healing nets known loss while hidden projection stays unknown")
+			# atk-04 round 2 (director): Safe never sits beside the Umbra "?".
+			"heal_full_umbra": _assert(health_text.is_empty() and not safe and str(rows).contains("umbra") and summary["umbra_unknown_before_player"] and int(summary["projected_hp"]) < 0, "D9 public healing nets known loss while hidden projection stays unknown (Umbra '?' without Safe)")
 			"heal_partial": _assert(health_text == "−3" and not safe, "D9 partial recovery shows only net Health -3")
 			"fatigue_heal": _assert(health_text.is_empty() and fatigue_text == "−15" and not safe, "D9 healing offsets Health without concealing applied Fatigue")
 			"defiance_gain": _assert(health_text.is_empty() and int(summary["projected_hp"]) > int(summary["source_hp"]), "D9 Defiance net gain has no Health-loss part")

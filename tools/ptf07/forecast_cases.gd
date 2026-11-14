@@ -42,18 +42,20 @@ func _initialize() -> void:
 			check(str(scene.call("_pass_preview_tooltip", summary)).ends_with("Fatigue: lose 15 Health at your next draw."), kind + ": tooltip draw explanation")
 		if kind in ["fatigue_full_hand", "fatigue_empty"]: check(int(summary["fatigue_loss"]) == 0, kind + ": no shuffle means no Fatigue")
 		if kind == "fatigue_cycles": check(int(summary["fatigue_loss"]) == 17, "Fatigue includes prior deck cycles")
+		# atk-03: a visible foe's repeat move is forecast. It is counted (×N) with no
+		# "?" and no hidden-move wording; only an unknown repeat keeps those.
 		if kind == "many_repeats":
-			check((summary["repeated_enemy_names"] as Array).size() == 3, "All repeating foes recorded")
-			check(str(scene.call("_pass_preview_tooltip", summary)).contains("+1 more foes act twice."), "Multiple repeating foes use approved capped wording")
+			check(counted_repeats(summary, ["enemy_1", "enemy_2", "enemy_3"]), "All repeating foes counted twice, none unknown")
+			check(not str(scene.call("_pass_preview_tooltip", summary)).contains("acts twice"), "Counted repeats need no acts-twice wording (the capped wording stays for unknown repeats)")
 		if kind == "fatigue_heal": check(int(summary["hp_loss"]) == 15 and int(summary["projected_hp"]) == 24 and str(summary["tone"]) == "danger", "Recovery cannot erase Fatigue from the gross loss warning")
 		if kind == "fatigue_lethal": check(bool(summary["defeat"]), "Fatigue warns DEFEAT")
 		if kind == "fatigue_defiance": check(int(summary["defiance_spent"]) == 1, "Fatigue warns Defiance")
 		if kind in ["second_move", "later_known"]:
-			check((summary["repeated_enemy_names"] as Array).size() == 1, kind + ": second activation warning")
+			check(counted_repeats(summary, ["enemy_1"]), kind + ": second activation counted")
 			var entries: Array[Dictionary] = scene.call("_pass_preview_forecast_entries", summary)
-			check(str(entries.back()["text"]) == "+ ? 2ND MOVE", kind + ": explicit label suffix")
+			check(not str(entries.back()["text"]).contains("?") and not str(scene.call("_pass_preview_tooltip", summary)).contains("second move is hidden"), kind + ": a counted repeat has no unknown suffix")
 		if kind == "safety_limit": check(bool(summary["forecast_limit_reached"]) and str(scene.call("_pass_preview_tooltip", summary)).contains("Too many moves ahead to forecast them all."), "Bounded partial result cannot claim SAFE")
-		if kind == "later_known": check(int(summary["hp_loss"]) == 7, "A repeat cannot hide another foe's announced attack")
+		if kind == "later_known": check(bool((summary.get("enemy_hits", {}) as Dictionary).get("enemy_2", false)) and int(summary["hp_loss"]) == int(source["player"]["hp"]) - int(after["player"]["hp"]), "A repeat cannot hide another foe's announced attack")
 		if kind == "activation_end": check(int(summary["hp_loss"]) > 5, "Activation-end pressure included before the announced attack")
 		if kind == "block_start": check(int(summary["hp_loss"]) > 0, "Block expires before turn-start fire")
 		if kind in ["reinforcements", "death_spawn", "safety_limit", "umbra"]:
@@ -76,6 +78,14 @@ func _initialize() -> void:
 	scene.free()
 	print("PTF07 RESULT: %s (%d checks, %d failures)" % ["PASS" if failures == 0 else "FAIL", checks, failures])
 	quit(1 if failures else 0)
+
+# Exactly these foes repeat, each counted twice, and no repeat stays unknown.
+static func counted_repeats(summary: Dictionary, keys: Array) -> bool:
+	var counted: Array = summary.get("counted_repeats", [])
+	if counted.size() != keys.size() or not (summary.get("repeated_enemy_names", []) as Array).is_empty() or not (summary.get("unknown_repeat_keys", {}) as Dictionary).is_empty(): return false
+	for index: int in range(keys.size()):
+		if str(counted[index].get("key", "")) != str(keys[index]) or int(counted[index].get("count", 0)) != 2: return false
+	return true
 
 func check(ok: bool, message: String) -> void:
 	checks += 1
@@ -146,6 +156,10 @@ static func fixture(kind: String) -> Dictionary:
 		state["player_turn_time_spent"] = 20
 	if kind == "safety_limit":
 		state["player_turn_time_spent"] = 1000
+		# atk-03: repeat moves are forecast now, so the default 24-Health hero falls
+		# before the 100-activation ceiling. Enough Health keeps the ceiling reached.
+		state["player"]["hp"] = 999
+		state["player"]["max_hp"] = 999
 		state["enemies"] = []
 		state["turn_queue"] = []
 		for id: int in range(1, 102):

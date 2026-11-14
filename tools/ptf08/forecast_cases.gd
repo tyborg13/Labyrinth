@@ -41,18 +41,21 @@ func _initialize() -> void:
 			check(row_text(scene, summary).contains("fatigue:−15"), kind + ": tooltip draw explanation")
 		if kind in ["fatigue_full_hand", "fatigue_empty"]: check(int(summary["fatigue_loss"]) == 0, kind + ": no shuffle means no Fatigue")
 		if kind == "fatigue_cycles": check(int(summary["fatigue_loss"]) == 17, "Fatigue includes prior deck cycles")
+		# atk-03: a counted repeat shows ×N with no "?"; only an unknown repeat keeps "?".
 		if kind == "many_repeats":
-			check((summary["repeated_enemy_names"] as Array).size() == 3, "All repeating foes recorded")
-			check((summary["repeated_enemy_names"] as Array).size() == 3, "Multiple repeating foes use approved capped wording")
+			check(preload("res://tools/ptf07/forecast_cases.gd").counted_repeats(summary, ["enemy_1", "enemy_2", "enemy_3"]), "All repeating foes counted twice, none unknown")
+			var rows: String = repeat_rows(scene, summary, source)
+			check(rows.count("×2") == 2 and not rows.contains("?") and not rows.contains("Safe"), "Counted repeats keep the two-foe cap as ×2 rows without '?': " + rows)
 		if kind == "fatigue_heal": check(int(summary["hp_loss"]) == 15 and int(summary["projected_hp"]) == 24 and str(summary["tone"]) == "danger", "Recovery cannot erase Fatigue from the gross loss warning")
 		if kind == "fatigue_lethal": check(bool(summary["defeat"]), "Fatigue warns DEFEAT")
 		if kind == "fatigue_defiance": check(int(summary["defiance_spent"]) == 1, "Fatigue warns Defiance")
 		if kind in ["second_move", "later_known"]:
-			check((summary["repeated_enemy_names"] as Array).size() == 1, kind + ": second activation warning")
+			check(preload("res://tools/ptf07/forecast_cases.gd").counted_repeats(summary, ["enemy_1"]), kind + ": second activation counted")
 			var entries: Array[Dictionary] = scene.call("_pass_preview_forecast_entries", summary)
-			check(str(entries.back()["text"]) == "+ ? 2ND MOVE", kind + ": explicit label suffix")
-		if kind == "safety_limit": check(bool(summary["forecast_limit_reached"]) and row_text(scene, summary).contains("turn_clock:?"), "Bounded partial result cannot claim SAFE")
-		if kind == "later_known": check(int(summary["hp_loss"]) == 7, "A repeat cannot hide another foe's announced attack")
+			var rows: String = repeat_rows(scene, summary, source)
+			check(not str(entries.back()["text"]).contains("?") and rows.contains("portrait:enemy:enemy_1 :×2") and not rows.contains("?"), kind + ": counted repeat shows ×2 without '?': " + rows)
+		if kind == "safety_limit": check(bool(summary["forecast_limit_reached"]) and row_text(scene, summary).contains("turn_clock:?") and not row_text(scene, summary).contains("Safe"), "Bounded partial result cannot claim SAFE")
+		if kind == "later_known": check(bool((summary.get("enemy_hits", {}) as Dictionary).get("enemy_2", false)) and int(summary["hp_loss"]) == int(source["player"]["hp"]) - int(after["player"]["hp"]), "A repeat cannot hide another foe's announced attack")
 		if kind == "activation_end": check(int(summary["hp_loss"]) > 5, "Activation-end pressure included before the announced attack")
 		if kind == "block_start": check(int(summary["hp_loss"]) > 0, "Block expires before turn-start fire")
 		if kind in ["reinforcements", "death_spawn", "safety_limit", "umbra"]:
@@ -95,3 +98,8 @@ static func fixture(kind: String) -> Dictionary:
 
 func row_text(scene: Node, summary: Dictionary) -> String:
 	return preload("res://tools/ptf08/row_tests.gd").text(scene, summary)
+
+# The panel rows with the repeat portraits the PASS chip would show for this source.
+func repeat_rows(scene: Node, summary: Dictionary, source: Dictionary) -> String:
+	var portraits: Array[Dictionary] = preload("res://scripts/turn_order_slots.gd").pass_repeat_portraits(scene, summary, source)
+	return preload("res://tools/ptf08/row_tests.gd").text(scene, summary, portraits)

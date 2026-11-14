@@ -2506,7 +2506,10 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 		# An unseen arrival can change paths even before its own activation.
 		# Preserve the original information boundary while collecting known costs.
 		cursor["unrevealed_before_player"] = true
-		(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
+		# atk-04: a reinforcement the player can see is a new foe, not the Umbra.
+		var arrivals: Array = []
+		for spawn_step: Dictionary in popped["reinforcement_steps"]: arrivals.append_array(spawn_step.get("spawned_enemies", []))
+		preload("res://scripts/pass_forecast_unseen_ground.gd").note_unplanned(self, cursor, next_state, arrivals)
 	if combat_outcome(next_state) != "":
 		cursor["state"] = next_state
 		cursor["player_turn_before_state"] = next_state.duplicate(true)
@@ -2549,7 +2552,9 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					Repeats.note_skipped(cursor)
 					cursor["unrevealed_before_player"] = true
 					if not initially_visible_enemy_ids.has(enemy_id):
-						(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
+						# atk-04: a visible summon or split is a new foe; anything else
+						# keeps the Umbra's opaque marker.
+						preload("res://scripts/pass_forecast_unseen_ground.gd").note_unplanned(self, cursor, next_state, [enemy])
 					if revealed_enemy_ids.has(enemy_id) and is_enemy_visible_to_player(before_pop_state, enemy):
 						(cursor["repeated_enemy_names"] as Array).append(str(entry.get("name", enemy.get("type", ""))))
 						Repeats.note_unknown_repeat(cursor, enemy_id)
@@ -2574,10 +2579,13 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					var accepted: Callable = preload("res://scripts/battlefield_rules/committed.gd").callback(self) if bool(cursor.get("losses_only", false)) else Callable()
 					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)), accepted)
 					_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
+					var turn_before: Dictionary = next_state
 					# The turn result already owns its state. Keep that ownership across
 					# rendered slices instead of cloning the full snapshot again.
 					next_state = turn_result.get("state", next_state) as Dictionary
 					Repeats.record(cursor, enemy_id, str(entry.get("name", enemy.get("type", ""))), hero_before, next_state)
+					# atk-04: did this activation take any unit onto unseen ground?
+					preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, turn_before, next_state, turn_result.get("steps", []))
 					var steps: Array = cursor.get("steps", []) as Array
 					for step_var: Variant in turn_result.get("steps", []):
 						if typeof(step_var) == TYPE_DICTIONARY:
@@ -2617,7 +2625,7 @@ func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 		"repeated_enemy_names": cursor.get("repeated_enemy_names", []),
 		"fatigue_loss": int(cursor.get("fatigue_loss", 0)),
 		"forecast_limit_reached": bool(cursor.get("forecast_limit_reached", false)),
-	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor))
+	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_unseen_ground.gd").result_fields(cursor))
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)

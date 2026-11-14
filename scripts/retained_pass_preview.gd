@@ -102,6 +102,7 @@ static func build(scene: Control) -> Button:
 		or bool(summary.get("defeat", false))
 		or bool(summary.get("unrevealed_before_player", false))
 		or bool(summary.get("umbra_unknown_before_player", false))
+		or bool(summary.get("unseen_ground_crossed", false))
 	)
 	var accent: Color = scene._action_context_risk_color("danger" if danger_state else str(summary.get("tone", "safe")))
 	chip.set_meta("panel_surface_accent", accent)
@@ -143,7 +144,7 @@ static func refresh(scene: Control) -> void:
 	var action: Label = content.get_node("PassActionLabel")
 	action.text = "CARD COST\nDEFIANCE -%d" % spent if spent > 0 else "PASS"
 	UiTypography.set_label_size(action, UiTypography.SIZE_SECTION + 3 if spent <= 0 else UiTypography.SIZE_BODY)
-	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false))
+	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false))
 	var accent: Color = scene._action_context_risk_color("danger" if danger else str(summary.get("tone", "safe")))
 	chip.set_meta("panel_surface_accent", accent)
 	chip.set_meta("panel_selected", danger)

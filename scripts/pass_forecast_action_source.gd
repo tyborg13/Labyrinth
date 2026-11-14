@@ -141,6 +141,9 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	result["turn_queue"] = queue
 	result["_pass_forecast_hidden_queue"] = hidden_queue
 	result["_pass_forecast_limited"] = true
+	# atk-04: the decision-time sight, so the forecast can say when any unit
+	# enters unseen ground (tile visibility only; contents stay stripped).
+	preload("res://scripts/pass_forecast_unseen_ground.gd").attach(result, scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(known)), scene._combat_state, known)
 	# Known victory must stop end-turn effects. Its presentation remains unknown
 	# under limited sight, independently of whether any hidden enemy exists.
 	result.erase("_preview_opaque_enemies")
@@ -155,6 +158,8 @@ static func hidden_horizon(source: Dictionary, phase: Dictionary) -> bool:
 			break
 	if boundary.is_empty(): return false
 	for entry: Dictionary in source.get("_pass_forecast_hidden_queue", []):
+		# atk-04: a dead foe's stale queue entry is not a foe hidden in the Umbra.
+		if not bool(entry.get("alive", true)): continue
 		if int(entry["time"]) < int(boundary["time"]) or (int(entry["time"]) == int(boundary["time"]) and int(entry["seq"]) < int(boundary.get("seq", 0))):
 			return true
 	return false
