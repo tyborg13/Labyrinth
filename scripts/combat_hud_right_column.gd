@@ -14,6 +14,11 @@ func clear() -> void:
 	_signature = ""
 	plan.clear()
 
+# The next present() reconciles every slot back to its motion baseline, even
+# when the order itself is unchanged (a rail motion cut short, atk-10).
+func invalidate() -> void:
+	_signature = ""
+
 func present(scene: Control, entries: Array[Dictionary]) -> void:
 	_entries = scene._turn_order_array(entries)
 	if entries.is_empty():

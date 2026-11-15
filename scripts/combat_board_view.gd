@@ -4,6 +4,10 @@ class_name CombatBoardView
 
 var _aim_focus := preload("res://scripts/board_aim_focus.gd").new()
 var _targeted_tile_highlight: Node2D
+# atk-09: the targeted tile's red threat outline, in the sibling slot after the
+# border; its fill is lifted above the move-range and hover highlights (overlay).
+var _targeted_tile_threat: Node2D
+var _threat_lift_tile := Vector2i(-1, -1)
 
 var _hud_triangles := preload("res://scripts/board_hud_triangle_batch.gd").new()
 
@@ -2144,6 +2148,8 @@ func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 		return false
 	if is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.get_index() != _action_floor_render_layer.get_index() + 1:
 		return false
+	if is_instance_valid(_targeted_tile_threat) and (not is_instance_valid(_targeted_tile_highlight) or _targeted_tile_threat.get_index() != _targeted_tile_highlight.get_index() + 1):
+		return false
 	if _scene_render_layers.size() != tiles.size() * 3:
 		return false
 	for mapping: Dictionary in [_scene_back_effect_render_layers_by_tile, _scene_render_layers_by_tile, _scene_front_effect_render_layers_by_tile]:
@@ -2166,14 +2172,20 @@ func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 	return true
 
 func _scene_render_layers_start_index() -> int:
-	return _action_floor_render_layer.get_index() + 1 + (1 if is_instance_valid(_targeted_tile_highlight) else 0)
+	return _action_floor_render_layer.get_index() + 1 + (1 if is_instance_valid(_targeted_tile_highlight) else 0) + (1 if is_instance_valid(_targeted_tile_threat) else 0)
 
 func _place_targeted_tile_floor_layer() -> void:
 	if not is_instance_valid(_targeted_tile_highlight) or not is_instance_valid(_action_floor_render_layer): return
 	var floor_index: int = _action_floor_render_layer.get_index()
 	var border_index: int = _targeted_tile_highlight.get_index()
-	if border_index == floor_index + 1: return
-	move_child(_targeted_tile_highlight, floor_index if border_index < floor_index else floor_index + 1)
+	if border_index != floor_index + 1:
+		move_child(_targeted_tile_highlight, floor_index if border_index < floor_index else floor_index + 1)
+	# atk-09: the targeted tile's red paint sits directly above the border.
+	if not is_instance_valid(_targeted_tile_threat): return
+	border_index = _targeted_tile_highlight.get_index()
+	var threat_index: int = _targeted_tile_threat.get_index()
+	if threat_index == border_index + 1: return
+	move_child(_targeted_tile_threat, border_index if threat_index < border_index else border_index + 1)
 
 func _sync_enemy_shadow_dissolve_effects() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
@@ -2922,6 +2934,9 @@ func set_targeted_tile_context(context: Dictionary, tile: Vector2i) -> void:
 		if context.is_empty(): return
 		_targeted_tile_highlight = preload("res://scripts/targeted_tile_highlight.gd").new()
 		add_child(_targeted_tile_highlight)
+		_targeted_tile_threat = preload("res://scripts/targeted_tile_threat.gd").new()
+		_targeted_tile_threat.use_parent_material = true
+		add_child(_targeted_tile_threat)
 		_place_targeted_tile_floor_layer()
 	_targeted_tile_highlight.set_context(context)
 	set_targeted_tile(tile)
@@ -2929,6 +2944,16 @@ func set_targeted_tile_context(context: Dictionary, tile: Vector2i) -> void:
 func set_targeted_tile(tile: Vector2i) -> void:
 	_aim_focus.set_focus(tile if tile.x >= 0 else _hover_tile)
 	if is_instance_valid(_targeted_tile_highlight): _targeted_tile_highlight.present(self, tile)
+	if is_instance_valid(_targeted_tile_threat):
+		_targeted_tile_threat.present(self, tile, is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.visible)
+		var lift: Vector2i = _targeted_tile_threat.tile if _targeted_tile_threat.visible else Vector2i(-1, -1)
+		if lift != _threat_lift_tile:
+			_threat_lift_tile = lift
+			if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
+				_overlay_render_layer.set("_threat_lift_tile", lift)
+				_queue_render_layer_redraw(_overlay_render_layer)
+			else:
+				queue_redraw()
 	_sync_occlusion_reveal_focus()
 
 func _sync_targeted_tile_geometry() -> void:
@@ -7662,6 +7687,11 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		else:
 			_slice_op("draw_colored_polygon", [polygon, Color(0.98, 0.79, 0.37, 0.16)])
 			_slice_op("_draw_tile_ring", [tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90])
+	# atk-09: the targeted tile's red fill sits above its move-range and hover highlights.
+	if tile == _threat_lift_tile:
+		_threat_slice_keys = LayerSlices.tile_keys(self, tile)
+		LayerSlices.lifted_threat_operations(self, tile, polygon, _overlay_draw_sources)
+		_threat_slice_keys.clear()
 
 # Player Meteorfall marks persist through enemy turns and land at the start of
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on

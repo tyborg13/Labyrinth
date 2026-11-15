@@ -270,6 +270,51 @@ foes or unseen ground), the turn-clock "?" (a new foe, or the forecast limit), o
   - `safety_limit` gives the hero enough Health that the 100-activation ceiling is still reached; counted repeats used
     to kill the 24-Health hero first.
 
+## atk-07 follow-up: forecast through a skipped turn (2026-11-14)
+
+Director decision, 2026-11-14 (after the owner's Iskaldra death on 13 Nov, atk-05):
+- **Every forecast covers the time until the player can next act.** When the forecast copy reaches a hero turn Freeze
+  skips, it plays that turn as live play does: production turn-start preparation consumes Freeze, and the hero passes
+  with nothing played through the same activation end live PASS uses. It then keeps simulating, with the atk-03 repeat
+  handling, to the next hero turn the hero can act on, within the same 100-activation ceiling
+  (`pass_forecast_frozen_turns.gd`, called from `combat_engine.gd advance_revealed_enemy_actions_preview`). Live state,
+  generator, AI, analytics and saves are untouched.
+- **Totals, death, Safe, Fatigue and the turn-start rows cover the whole span.** Foes hidden in
+  the Umbra due before the span's last hero entry raise the Umbra "?" (`pass_forecast_action_source.gd hidden_horizon`).
+- **Panel header.** The Freeze status icon and "Turn skipped" ("Turn skipped ×N") in gold, directly below "Ends turn"
+  or on top without it. Discs, pips and the "×N" portrait rows follow the span with no new rule.
+
+Measured with `tools/atk07/audit.gd`: the atk-01 audit, except that the real resolution also plays any skipped hero turn
+(PASS through the committed path) and continues to the next turn the hero can act on. Seed 101 at 9,999 Health, the
+same route before and after (7,298 checks). 96 checks at 20 decision points end the turn into a skipped one (PASS 14,
+move 71, stay put 11): the Rimejaw Guardian (turns 3 and 5) and Iskaldra (turns 4, 8 and 12).
+
+| Frozen-turn checks (96) | Before | After |
+|---|---:|---:|
+| Health wrong (all undisclosed before) | 96 | 0 |
+| … panel short by, mean / max | 6.5 / 11 | 0 |
+| Which foes hit you wrong | 9 | 0 |
+| Death, Block, Stoneskin, final tile wrong | 0 | 0 |
+| Forecast's skipped turns equal live play | 0 | 96 |
+| Foes that hit only after the skipped turn: red disc | 0 of 2 | 2 of 2 |
+| Disc pip equals that foe's activations in the span | 0 of 17 | 17 of 17 |
+
+- No forecast claimed a skipped turn that live play didn't have, and none of the other 7,202 checks changed.
+- **The atk-01 audit as is** (`after-atk07`: seed 101 plus the air:2 Warband, the same 7,960 checks as `after-atk04`):
+  every check outside the span is identical. Its real resolution stops at the frozen turn, so it now lists the 96 span
+  checks as undisclosed "panel_accounting" Health mismatches: the forecast counts the round after the skipped turn,
+  which that audit doesn't resolve. The Warband route has no frozen turn. The one other undisclosed check is the atk-04
+  residual (seed 101, point 1147).
+- **Hover cost** (atk-01 `ui_usec`, same checks): all checks median 14,465 → 13,005 µs, p95 37,603 → 32,697 µs (run
+  noise on a shared machine). Span checks only: median 16,568 → 22,860 µs, p95 19,094 → 31,087 µs (one more enemy
+  round). Warmed PASS: median 19 µs before and after.
+- **Native pair** (cel look, 1920×1080, 100% UI scale, real save): seed 101, Iskaldra, turn 4, hero (7,2), point 244.
+  PASS read "+10 · −13" with the Rime Spitter's disc grey; it now reads "Turn skipped · +10 · −24 · Iskaldra ×2 ·
+  Rime Spitter ×3" with both discs red. After PASS, the frozen turn and PASS again, live play dealt 24. Files under
+  `/private/tmp/labyrinth_codex/atk-07/captures/`.
+- Rerun: `python3 tools/atk07/audit.py run --seeds 101 --health 9999 --label <name>`, then `audit.py report --label
+  <name>` and `audit.py compare --before <a> --after <b>`.
+
 ## Open design questions
 
 - **Decided (atk-03, director 2026-11-13): second moves are forecast.** Was TODO_DESIGN_second_move_forecast. See

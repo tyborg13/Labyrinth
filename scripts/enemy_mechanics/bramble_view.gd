@@ -32,13 +32,14 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 	var key: String = engine._enemy_key(captain)
 	var marked: Dictionary = {"key": key, "area": true}
 	for entry: Dictionary in threats:
-		if str(entry.get("key", "")) == key:
+		if str(entry.get("key", "")) == key and not bool(entry.get("later", false)):
 			marked = entry.duplicate(false)
 			break
 	marked["tiles"] = threat.get("projected_attack", [])
 	marked["attacker_tile"] = threat.get("projected_attack_from", captain["pos"])
 	marked["plan"] = threat
-	threats = threats.filter(func(entry: Dictionary) -> bool: return str(entry.get("key", "")) != key)
+	# atk-09: the captain's later activations keep their own tiles.
+	threats = threats.filter(func(entry: Dictionary) -> bool: return str(entry.get("key", "")) != key or bool(entry.get("later", false)))
 	threats.append(marked)
 	rest["threats"] = threats
 	rest["hero_tile"] = state["player"]["pos"]

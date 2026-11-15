@@ -110,6 +110,7 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 				# even the absence of hidden foes is undisclosed information.
 				for index: int in range(rows.size() - 1, -1, -1):
 					if rows[index].get("parts", [])[0].get("text", "") == "Safe": rows.remove_at(index)
+			if int(summary.get("skipped_turns", 0)) > 0: rows.push_front(ForecastPanel.turn_skipped_row(int(summary["skipped_turns"])))
 			if final_action: rows.push_front(ForecastPanel.ends_turn_row())
 			ForecastPanel.configure(chip, rows)
 		chip.set_meta("forecast_repeat_portraits", portraits)

@@ -51,7 +51,7 @@ var _flash_draw_keys: Array = []
 var _popups: Dictionary = {}
 var _deaths: Array[Dictionary]
 var _surfaces: Array[Dictionary]
-var _pending_order: Dictionary = {}
+var _order_serial: int = 0
 var _order_running: bool = false
 var _last_state: Dictionary = {}
 var _last_presentation: Dictionary = {}
@@ -165,21 +165,22 @@ func _apply_speed() -> void:
 	Engine.time_scale = desired
 	_applied_scale = desired
 
+# The rail keeps up with the foe that acts (atk-10). A newer order never waits
+# behind a running rail motion: that motion jumps to its end state and the
+# newest plays at once, at its normal duration. Nothing older stays queued, and
+# no actor waits for the rail.
 func present_turn_order(before: Array, after: Array, defeated: Dictionary = {}) -> void:
-	_pending_order = {"before": before, "after": after, "defeated": defeated}
-	if not _order_running: _drain_turn_orders()
-
-func _drain_turn_orders() -> void:
+	if not is_instance_valid(scene) or not scene.is_inside_tree(): return
+	_order_serial += 1
+	var serial: int = _order_serial
+	scene.call("_finish_turn_order_transition_now")
 	_order_running = true
-	while not _pending_order.is_empty() and is_instance_valid(scene) and scene.is_inside_tree():
-		var pending: Dictionary = _pending_order
-		_pending_order = {}
-		var before: Array[Dictionary]
-		before.assign(pending["before"])
-		var after: Array[Dictionary]
-		after.assign(pending["after"])
-		await scene.call("_animate_turn_order_transition", before, after, pending["defeated"])
-	_order_running = false
+	var before_order: Array[Dictionary]
+	before_order.assign(before)
+	var after_order: Array[Dictionary]
+	after_order.assign(after)
+	await scene.call("_animate_turn_order_transition", before_order, after_order, defeated)
+	if serial == _order_serial: _order_running = false
 
 func finish_enemies() -> void:
 	_change_phase("hero hand-off")

@@ -172,15 +172,18 @@ static func _hud_operations(board: Control) -> void:
 			board.call("_slice_op", "_draw_slice_intent_chip", [badge])
 	board.call("_slice_op", "_draw_slice_callouts", [])
 
-static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
+# The red threat paint of one tile: its alpha, whether it is the hero's pulsing
+# fill, and the inset diamond. Empty when the tile is not red or not seen.
+# atk-09: shared with the targeted tile's repaint above the border.
+static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, polygon: PackedVector2Array = PackedVector2Array()) -> Dictionary:
 	var lob: Dictionary = sources["lob_marks"] if sources.has("lob_marks") else board.LobView.marks(board)
 	var threats: Dictionary = board.get("_rest_threat_tile_alphas")
 	var hero: Vector2i = board.presentation.get("threats_at_rest", {}).get("hero_tile", Vector2i(-1, -1))
 	if lob.has(tile):
 		threats = {tile: float(threats.get(tile, 1.0))}
 		hero = tile if bool(lob[tile]["center"]) else Vector2i(-1, -1)
-	if not threats.has(tile) or not board.call("_board_tile_is_visible_to_player", tile): return
-	var alpha: float = float(threats[tile])
+	if not threats.has(tile) or not board.call("_board_tile_is_visible_to_player", tile): return {}
+	if polygon.is_empty(): polygon = board.call("_tile_polygon", tile)
 	var center: Vector2 = board.call("_tile_center", tile)
 	var inset: float = Threats.OUTLINE_WIDTH * 0.5
 	var width: float = float(board.call("_tile_width"))
@@ -189,15 +192,38 @@ static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVec
 	var inner := PackedVector2Array()
 	for point: Vector2 in polygon:
 		inner.append(center + (point - center) * maxf(0.0, 1.0 - inset / edge_distance))
-	if tile == hero:
-		board.call("_slice_op", "_draw_slice_threat_fill", [inner, alpha], not bool(board.presentation.get("reduced_motion", false)))
-	else:
-		board.call("_slice_op", "draw_colored_polygon", [inner, Color(Palette.DANGER, Threats.FILL_ALPHA * alpha)])
-	inner = inner.duplicate()
+	return {"alpha": float(threats[tile]), "hero": tile == hero, "inner": inner, "center": center}
+
+static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
+	# atk-09: the targeted tile's paint is drawn later (lifted_threat_operations, and
+	# its outline above the targeted-tile border by targeted_tile_threat.gd).
+	if tile == board.get("_threat_lift_tile"): return
+	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
+	if paint.is_empty(): return
+	_threat_fill_operations(board, paint)
+	var inner: PackedVector2Array = (paint["inner"] as PackedVector2Array).duplicate()
 	inner.append(inner[0])
-	board.call("_slice_op", "draw_polyline", [inner, Color(Palette.DANGER, Threats.OUTLINE_ALPHA * alpha), Threats.OUTLINE_WIDTH, true])
+	board.call("_slice_op", "draw_polyline", [inner, Color(Palette.DANGER, Threats.OUTLINE_ALPHA * float(paint["alpha"])), Threats.OUTLINE_WIDTH, true])
+	_threat_tag_operations(board, tile, paint, sources)
+
+# atk-09: the targeted tile's red fill and zone tag, after its move-range and
+# hover highlights. Its outline is drawn above the targeted-tile border.
+static func lifted_threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
+	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
+	if paint.is_empty(): return
+	_threat_fill_operations(board, paint)
+	_threat_tag_operations(board, tile, paint, sources)
+
+static func _threat_fill_operations(board: Control, paint: Dictionary) -> void:
+	var alpha: float = float(paint["alpha"])
+	if bool(paint["hero"]):
+		board.call("_slice_op", "_draw_slice_threat_fill", [paint["inner"], alpha], not bool(board.presentation.get("reduced_motion", false)))
+	else:
+		board.call("_slice_op", "draw_colored_polygon", [paint["inner"], Color(Palette.DANGER, Threats.FILL_ALPHA * alpha)])
+
+static func _threat_tag_operations(board: Control, tile: Vector2i, paint: Dictionary, sources: Dictionary) -> void:
 	for tag: Dictionary in sources["zone_tags"] if sources.has("zone_tags") else Threats.zone_tags(board.presentation.get("threats_at_rest", {}).get("threats", [])):
-		if tag["tile"] == tile: board.call("_slice_op", "_draw_slice_threat_tag", [tag, center])
+		if tag["tile"] == tile: board.call("_slice_op", "_draw_slice_threat_tag", [tag, paint["center"]])
 
 static func objective_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array) -> void:
 	if not board.call("_snare_sealing_threshold", tile): board.call("_slice_op", "draw_colored_polygon", [polygon, Color(0.15, 0.70, 0.72, 0.30)])

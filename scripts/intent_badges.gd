@@ -82,7 +82,9 @@ func _orders_for(engine: RefCounted, state: Dictionary) -> Dictionary:
 	for enemy: Dictionary in state.get("enemies", []): definitions.append(Data.enemies().get(str(enemy.get("type", "")), {}))
 	return _orders_memo.resolve([state, definitions, engine._relic_effects(state), engine.get_script()], func() -> Dictionary: return enemy_orders(engine, state))
 
-static func enemy_orders(engine: RefCounted, state: Dictionary) -> Dictionary:
+# seen_now: foes the player sees at the committed boundary. A preview can stand
+# the hero out of their sight; they keep their slot (atk-06).
+static func enemy_orders(engine: RefCounted, state: Dictionary, seen_now: Dictionary = {}) -> Dictionary:
 	var scheduled: Dictionary = engine.finish_player_activation(state) if engine.is_player_turn(state) else state
 	# current_turn_order emits the queue and one follow-up per actor. Avoid its
 	# ten-entry disclosure cap without adding a different clock projection.
@@ -95,9 +97,9 @@ static func enemy_orders(engine: RefCounted, state: Dictionary) -> Dictionary:
 		if str(entry.get("kind", "")) != "enemy":
 			continue
 		ordinal += 1
-		if bool(entry.get("hidden_by_umbra", false)):
+		if bool(entry.get("hidden_by_umbra", false)) and not seen_now.has("enemy_%d" % int(entry.get("enemy_id", -1))):
 			continue
-		var actor_key: String = str(entry.get("actor_key", "enemy_%d" % int(entry.get("enemy_id", -1))))
+		var actor_key: String = "enemy_%d" % int(entry.get("enemy_id", -1)) if bool(entry.get("hidden_by_umbra", false)) else str(entry.get("actor_key", "enemy_%d" % int(entry.get("enemy_id", -1))))
 		if not orders.has(actor_key):
 			orders[actor_key] = PackedStringArray()
 		var values: PackedStringArray = orders[actor_key]
@@ -119,6 +121,11 @@ static func movement_preview(engine: RefCounted, committed: Dictionary, known: D
 static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}, preview_orders: Variant = null, original_orders: Variant = null) -> Dictionary:
 	var orders: Dictionary = enemy_orders(engine, preview) if preview_orders == null else preview_orders
 	var state_changed: bool = committed != preview
+	# atk-06: the turn order judges sight from where the previewed hero stands.
+	# Visibility is the committed boundary: a foe the player sees now keeps its slot.
+	if state_changed:
+		var seen_now: Dictionary = _seen_now_hidden_in(engine, committed, preview)
+		if not seen_now.is_empty(): orders = enemy_orders(engine, preview, seen_now)
 	var committed_orders: Dictionary = orders if not state_changed else enemy_orders(engine, committed) if original_orders == null else original_orders
 	var preview_enemies: Dictionary = {}
 	for enemy: Dictionary in preview.get("enemies", []):
@@ -145,7 +152,9 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var threat: Dictionary = {}
 		for index: int in range(known_enemies.size()):
 			if int((known_enemies[index] as Dictionary).get("id", -2)) == id:
-				threat = engine.enemy_threat_tiles(known_preview, index)
+				# atk-06: this foe passed the committed sight check above; a previewed
+				# hero walking out of its sight must not erase its planned attack.
+				threat = engine.committed_enemy_threat_tiles(known_preview, index)
 				break
 		var repeated_action: Dictionary = {}
 		if WarbandRules.active(known_preview) and is_attack(primary) and not (threat.get("projected_attack_action", {}) as Dictionary).is_empty():
@@ -173,6 +182,17 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
 				"area": is_area_intent(intent), "order": badge["order"], "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1))), "plan": threat})
 	return {"badges": badges, "threats": threats, "hero_tile": (preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))}
+
+# Foes visible at the committed boundary that the preview's own sight would hide.
+static func _seen_now_hidden_in(engine: RefCounted, committed: Dictionary, preview: Dictionary) -> Dictionary:
+	var keys: Dictionary = {}
+	var shown: Dictionary = {}
+	for enemy: Dictionary in preview.get("enemies", []): shown[int(enemy.get("id", -1))] = enemy
+	for enemy: Dictionary in committed.get("enemies", []):
+		var id: int = int(enemy.get("id", -1))
+		if int(enemy.get("hp", 0)) <= 0 or not shown.has(id) or not engine.is_enemy_visible_to_player(committed, enemy): continue
+		if not engine.is_enemy_visible_to_player(preview, shown[id]): keys["enemy_%d" % id] = true
+	return keys
 
 static func primary_action(intent: Dictionary) -> Dictionary:
 	for action: Dictionary in intent.get("actions", []):

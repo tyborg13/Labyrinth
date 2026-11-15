@@ -123,6 +123,8 @@ func _test_live_stage() -> void:
 	_expect((preview["enemies"][3] as Dictionary)["pos"] != (state["enemies"][3] as Dictionary)["pos"], "Hovered Crosswind actually displaces the preview enemy")
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
 	var expected: Dictionary = Badges.build(combat, state, preview, "", scene.call("_surface_preview_information_state", preview))
+	# atk-09: the hovered card preview's own PASS forecast adds its later activations' tiles.
+	expected = preload("res://scripts/pass_forecast_red_tiles.gd").adjust_from_summary(expected, scene.call("_hover_red_forecast"))
 	_expect(rest == expected, "Live push chips/tags/tiles match the same preview source as full plans and Pass")
 	var before_plan: Dictionary = combat.enemy_threat_tiles(state, 3)
 	var after_plan: Dictionary = combat.enemy_threat_tiles(preview, 3)

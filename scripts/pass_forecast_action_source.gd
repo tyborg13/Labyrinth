@@ -151,11 +151,13 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 
 static func hidden_horizon(source: Dictionary, phase: Dictionary) -> bool:
 	if not bool(source.get("_pass_forecast_limited", false)): return false
-	var boundary: Dictionary = {}
-	for entry: Dictionary in phase.get("initial_state", {}).get("turn_queue", []):
-		if str(entry.get("kind", "")) == "player":
-			boundary = entry
-			break
+	# atk-07: a span through a turn Freeze skips ends at a later hero entry.
+	var boundary: Dictionary = phase.get("span_boundary", {})
+	if boundary.is_empty():
+		for entry: Dictionary in phase.get("initial_state", {}).get("turn_queue", []):
+			if str(entry.get("kind", "")) == "player":
+				boundary = entry
+				break
 	if boundary.is_empty(): return false
 	for entry: Dictionary in source.get("_pass_forecast_hidden_queue", []):
 		# atk-04: a dead foe's stale queue entry is not a foe hidden in the Umbra.

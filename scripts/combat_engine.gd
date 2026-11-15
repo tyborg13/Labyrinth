@@ -2524,6 +2524,8 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 		cursor["complete"] = true
 		if bool(cursor.get("losses_only", false)):
 			preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
+			# atk-07: a turn Freeze skips is played on the copy; the span goes on.
+			preload("res://scripts/pass_forecast_frozen_turns.gd").continue_span(self, cursor)
 		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
 		return cursor
 	match str(entry.get("kind", "")):
@@ -2584,6 +2586,8 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					# rendered slices instead of cloning the full snapshot again.
 					next_state = turn_result.get("state", next_state) as Dictionary
 					Repeats.record(cursor, enemy_id, str(entry.get("name", enemy.get("type", ""))), hero_before, next_state)
+					# atk-09: a later activation's struck tiles and a foe that dies before it acts, for the red tiles.
+					preload("res://scripts/pass_forecast_red_tiles.gd").note(self, cursor, turn_before, enemy_index, enemy_id, next_state)
 					# atk-04: did this activation take any unit onto unseen ground?
 					preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, turn_before, next_state, turn_result.get("steps", []))
 					var steps: Array = cursor.get("steps", []) as Array
@@ -2604,6 +2608,8 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 			pass
 	if bool(cursor.get("losses_only", false)) and bool(cursor.get("complete", false)) and not (cursor.get("player_turn_before_state", {}) as Dictionary).is_empty():
 		preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
+		# atk-07: a turn Freeze skips is played on the copy; the span goes on.
+		preload("res://scripts/pass_forecast_frozen_turns.gd").continue_span(self, cursor)
 		next_state = cursor["state"]
 	cursor["state"] = next_state
 	if int(cursor.get("safety", 0)) >= 100:
@@ -2625,7 +2631,7 @@ func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 		"repeated_enemy_names": cursor.get("repeated_enemy_names", []),
 		"fatigue_loss": int(cursor.get("fatigue_loss", 0)),
 		"forecast_limit_reached": bool(cursor.get("forecast_limit_reached", false)),
-	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_unseen_ground.gd").result_fields(cursor))
+	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_unseen_ground.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_frozen_turns.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_red_tiles.gd").result_fields(self, cursor))
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)
@@ -2813,6 +2819,19 @@ const THREAT_PREVIEW_CACHE_STATES: int = 8
 var _threat_preview_cache: Array[Dictionary]
 
 func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
+	return _cached_enemy_threat_tiles(state, enemy_index, false)
+
+# atk-06: the plan of a foe the caller already shows at the committed sight
+# boundary (the rest badges). A hovered destination or card preview can move the
+# hero out of that foe's sight; its plan must not vanish because of where the
+# previewed hero stands. Concealed foes never reach this query.
+func committed_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size() or is_enemy_visible_to_player(state, _normalized_enemy(enemies[enemy_index] as Dictionary)):
+		return enemy_threat_tiles(state, enemy_index)
+	return _cached_enemy_threat_tiles(state, enemy_index, true)
+
+func _cached_enemy_threat_tiles(state: Dictionary, enemy_index: int, past_sight: bool) -> Dictionary:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	# Scaling is pure: compare raw definitions without copying scaled public data.
 	var definitions: Array
@@ -2827,30 +2846,53 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		entry = {"key": key, "state": state.duplicate(true), "definitions": definitions.duplicate(true), "threats": {}}
 		if _threat_preview_cache.size() >= THREAT_PREVIEW_CACHE_STATES: _threat_preview_cache.pop_front()
 		_threat_preview_cache.append(entry)
-	if not entry["threats"].has(enemy_index):
-		entry["threats"][enemy_index] = _compute_enemy_threat_tiles(state, enemy_index)
+	var slot: Variant = "%d:past_sight" % enemy_index if past_sight else enemy_index
+	if not entry["threats"].has(slot):
+		entry["threats"][slot] = _compute_enemy_threat_tiles(state, enemy_index, past_sight)
 		_record_runtime_performance_phase("enemy_threat_tiles_build", started)
 	else: _record_runtime_performance_phase("enemy_threat_tiles_hit", started)
-	return (entry["threats"][enemy_index] as Dictionary).duplicate(true)
+	return (entry["threats"][slot] as Dictionary).duplicate(true)
 
-func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
+# The plan part of a threat query, shared by the full query and the attack-only
+# one: {"result": <complete answer>} when there is no plan to make (dead, unseen,
+# no intent, Burrow), else the foe, its effective intent, statuses and plan.
+func _enemy_threat_plan(state: Dictionary, enemy_index: int, past_sight: bool) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
+		return {"result": {"move": [], "attack": [], "projected_path": [], "projected_attack": []}}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
-		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	if not is_enemy_visible_to_player(state, enemy):
-		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
+		return {"result": {"move": [], "attack": [], "projected_path": [], "projected_attack": []}}
+	if not past_sight and not is_enemy_visible_to_player(state, enemy):
+		return {"result": {"move": [], "attack": [], "projected_path": [], "projected_attack": []}}
 	var intent: Dictionary = WarbandRules.current_intent(state, enemy, BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {})))
-	if not (intent.get("actions", []) as Array).is_empty() and BurrowRules.handles(intent["actions"][0]): return BurrowRules.threat(self, state, enemy_index, intent)
+	if not (intent.get("actions", []) as Array).is_empty() and BurrowRules.handles(intent["actions"][0]): return {"result": BurrowRules.threat(self, state, enemy_index, intent)}
 	if intent.is_empty():
-		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	var enemy_definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+		return {"result": {"move": [], "attack": [], "projected_path": [], "projected_attack": []}}
 	var frozen: bool = int(enemy.get("freeze", 0)) > 0 or ManeuverRules.is_petrified(enemy)
 	var shocked: bool = int(enemy.get("shock", 0)) > 0
 	var immobilized: bool = bool(enemy.get("immobilize", false))
-	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)
+	return {"enemy": enemy, "intent": intent, "frozen": frozen, "shocked": shocked,
+		"plan": enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)}
+
+# atk-09: only the tiles a foe's attack plan strikes: the projected_attack of
+# _compute_enemy_threat_tiles without its Details reach, paths or summons. The
+# PASS forecast's red tiles plan each later activation through this.
+func enemy_planned_attack_tiles(state: Dictionary, enemy_index: int, past_sight: bool) -> Array[Vector2i]:
+	var planned: Dictionary = _enemy_threat_plan(state, enemy_index, past_sight)
+	if planned.has("result"): return _vector2i_values((planned["result"] as Dictionary).get("projected_attack", []))
+	var after_pattern: Variant = _projected_attack_after_pattern(state, enemy_index, planned["intent"], planned["plan"], bool(planned["frozen"]) or bool(planned["shocked"]))
+	return _vector2i_values(after_pattern if after_pattern != null else (planned["plan"] as Dictionary).get("projected_attack", []))
+
+func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int, past_sight: bool = false) -> Dictionary:
+	var planned: Dictionary = _enemy_threat_plan(state, enemy_index, past_sight)
+	if planned.has("result"): return planned["result"]
+	var enemy: Dictionary = planned["enemy"]
+	var intent: Dictionary = planned["intent"]
+	var enemy_definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+	var frozen: bool = planned["frozen"]
+	var shocked: bool = planned["shocked"]
+	var plan: Dictionary = planned["plan"]
 	var occupied: Dictionary = _enemy_threat_path_blockers(state, enemy, true, true)
 	var coverage: Dictionary = _threat_coverage(state, enemy, intent, plan, occupied)
 	var move_lookup: Dictionary = coverage["move"]
@@ -2861,6 +2903,11 @@ func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Diction
 		for tile: Vector2i in plan.get("path",[]):
 			if tile != enemy["pos"]: move_lookup[tile] = true
 		for tile: Vector2i in plan.get("projected_attack",[]): attack_lookup[tile] = true
+	var projected: Array[Vector2i] = _vector2i_values(plan.get("projected_attack", []))
+	var after_pattern: Variant = _projected_attack_after_pattern(state, enemy_index, intent, plan, frozen or shocked)
+	if after_pattern != null:
+		projected = _vector2i_values(after_pattern)
+		for tile: Vector2i in projected: attack_lookup[tile] = true
 	var summons: Array[Vector2i] = _vector2i_values(plan.get("projected_summon", []))
 	if not frozen and not shocked and not intent.has("committed_plan"):
 		var summon_state: Dictionary = {}
@@ -2880,7 +2927,7 @@ func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Diction
 		"projected_path": _vector2i_values(plan.get("path", [])),
 		"projected_route": _vector2i_values(plan.get("route", [])),
 		"projected_destination": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
-		"projected_attack": _vector2i_values(plan.get("projected_attack", [])),
+		"projected_attack": projected,
 		"projected_target_key": str(plan.get("target_key", "")),
 		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
 		"projected_attack_element": str((plan.get("attack_action", {}) as Dictionary).get("element", enemy_definition.get("element", ElementData.NONE))),
@@ -2888,6 +2935,35 @@ func _compute_enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Diction
 		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE),
 		"side_push_previews": plan.get("side_push_previews", []), "side_push_collisions": plan.get("side_push_collisions", [])
 	}
+
+# atk-06: when only board patterns resolve before an intent's direct attack
+# (Faultline's burst consumes the Worldspines that can block its shot), live play
+# aims that attack on the board the patterns leave. Mark it there: the patterns'
+# own tiles, then the attack resolved on a private copy through the real
+# resolver, as Guardian plans already do. Null when the intent has another shape.
+func _projected_attack_after_pattern(state: Dictionary, enemy_index: int, intent: Dictionary, plan: Dictionary, attack_disabled: bool) -> Variant:
+	var actions: Array = intent.get("actions", [])
+	var attack_index: int = int(plan.get("attack_action_index", -1))
+	if attack_disabled or attack_index <= 0 or attack_index >= actions.size() or intent.has("committed_plan"): return null
+	for index: int in range(attack_index):
+		if str((actions[index] as Dictionary).get("type", "")) not in BOSS_PATTERN_ACTION_TYPES: return null
+	var enemy: Dictionary = _normalized_enemy(state["enemies"][enemy_index] as Dictionary)
+	var result: Array[Vector2i] = _vector2i_values([])
+	var trial: Dictionary = state.duplicate(true)
+	var rng := RandomNumberGenerator.new()
+	rng.state = int(state.get("rng_state", 0))
+	var context: Dictionary = plan.duplicate(true)
+	for index: int in range(attack_index):
+		for tile: Vector2i in _boss_action_threat_tiles(state, enemy, actions[index]):
+			if not result.has(tile): result.append(tile)
+		var bleed_steps: Array[Dictionary]
+		context["action_index"] = index
+		trial = _resolve_enemy_action(trial, enemy_index, actions[index], rng, {}, bleed_steps, context)
+		if int((trial["enemies"][enemy_index] as Dictionary).get("hp", 0)) <= 0: return result
+	context["action_index"] = attack_index
+	for tile: Vector2i in _enemy_direct_attack_threat_tiles(trial, enemy_index, actions[attack_index], context):
+		if not result.has(tile): result.append(tile)
+	return result
 
 var _threat_coverage_memo := preload("res://scripts/combat_preview_memo.gd").new()
 

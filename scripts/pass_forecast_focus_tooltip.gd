@@ -134,6 +134,12 @@ static func _part(icon: String, text: String, color: Color) -> Dictionary:
 static func ends_turn_row() -> Dictionary:
 	return {"parts": [_part("turn_clock", "Ends turn", Palette.GOLD_BRIGHT)]}
 
+# atk-07 header: the forecast plays through hero turns Freeze skips (the hero's
+# Freeze status icon). Same font and size as "Ends turn"; presentation puts it
+# directly below that row, or on top without it.
+static func turn_skipped_row(count: int) -> Dictionary:
+	return {"parts": [_part("freeze", "Turn skipped" if count < 2 else "Turn skipped ×%d" % count, Palette.GOLD_BRIGHT)]}
+
 static func configure(chip: Button, data: Array[Dictionary]) -> void:
 	if chip.get_meta("forecast_rows", []) == data: return
 	chip.set_meta("forecast_rows", data.duplicate(true))

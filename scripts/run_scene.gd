@@ -1238,6 +1238,12 @@ const TURN_ORDER_ACTIVATE_SCALE: Vector2 = Vector2(0.94, 0.94)
 const TURN_ORDER_UPDATE_TINT: Color = Color(1.15, 1.04, 0.76, 1.0)
 const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.16
 const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.56
+# Longer than any rail tween: one custom step ends a superseded motion's tweens.
+const TURN_ORDER_FINISH_STEP_SECONDS: float = 10.0
+const TURN_ORDER_INITIATIVE_FIELDS: Array = ["current_actor", "turn_queue", "initiative_clock"]
+# Presentation-only: the text clock offset _animate_floating_text_presentation
+# reads (and removes) for numbers first drawn inside attack frames.
+const FLOATING_TEXT_DELAY_KEY: String = "floating_text_delay_seconds"
 const TURN_ORDER_DEFEAT_SHADOW_TINT: Color = Color(0.12, 0.035, 0.19, 1.0)
 const TURN_ORDER_DEFEAT_EFFECT_MODULATE: Color = Color(1.18, 1.0, 1.26, 1.0)
 # Authored colours shared with the retained choice factories.
@@ -1361,6 +1367,10 @@ var _committed_hand_query_diagnostics: Dictionary = {}
 # atk-03: the at-rest PASS forecast's per-foe marks for the compact intent discs.
 var _rest_pass_disc_marks: Dictionary = {}
 var _rest_pass_disc_refresh_queued: bool = false
+# atk-09: the forecast key the hovered red set asked for, whether it was ready then.
+var _hover_red_forecast_key: String = ""
+var _hover_red_forecast_ready: bool = false
+var _hover_red_refresh_queued: bool = false
 
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
@@ -1684,6 +1694,16 @@ var _turn_order_panel_locked_width: float = -1.0
 var _turn_order_source_signature: String = "<unset>"
 var _turn_order_render_signature: String = "<unset>"
 var _turn_order_rendered_entries: Array[Dictionary]
+# atk-10: the rail keeps up. A newer order ends the running motion at once
+# (_finish_turn_order_transition_now): every superseded request sees the serial
+# move and returns. The running motion's end state and tweens are kept here.
+var _turn_order_supersede_serial: int = 0
+var _turn_order_resume_from_rendered: bool = false
+var _turn_order_motion_after: Array[Dictionary]
+var _turn_order_motion_tweens: Array[Tween]
+# The current actor and queue the rail projects during enemy playback (see
+# _turn_order_entries_from_state); empty outside an enemy round.
+var _enemy_round_initiative: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _card_play_resolution_spend: int = 0
@@ -13134,8 +13154,34 @@ func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
 		_refresh_stage_view()
 
 func _turn_order_entries_from_state(state: Dictionary) -> Array[Dictionary]:
-	var limit: int = maxi(TURN_ORDER_MAX_SLOTS, (state.get("turn_queue", []) as Array).size() * 2 + 2)
-	return _combat_engine.current_turn_order(state, limit)
+	var projected: Dictionary = state
+	if not _enemy_round_initiative.is_empty():
+		# Enemy playback states skip the engine's commit steps, so their own
+		# current actor and queue stay at the round's start. Rail motion for a hit
+		# or a defeat mid-round projects the slice's real initiative instead: the
+		# acting foe stays the rail's active entry (atk-10).
+		projected = state.duplicate(false)
+		projected.merge(_enemy_round_initiative, true)
+	var limit: int = maxi(TURN_ORDER_MAX_SLOTS, (projected.get("turn_queue", []) as Array).size() * 2 + 2)
+	return _combat_engine.current_turn_order(projected, limit)
+
+func _turn_order_initiative_fields(state: Dictionary) -> Dictionary:
+	var fields: Dictionary = {}
+	for field: String in TURN_ORDER_INITIATIVE_FIELDS:
+		if state.has(field): fields[field] = state[field]
+	return fields
+
+# The initiative an enemy slice holds while its foe acts: the engine's own pop
+# of the next actor, on a probe of the state before the slice. Popping writes
+# only these top-level fields unless a survival room spawns reinforcements
+# (those probe a full copy). Any other slice shows its resolved initiative.
+func _enemy_activation_initiative(before_state: Dictionary, resolved_state: Dictionary) -> Dictionary:
+	var survival: bool = str((before_state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.SURVIVE
+	var probe: Dictionary = before_state.duplicate(survival)
+	var popped: Dictionary = _combat_engine._pop_next_actor(probe)
+	if str((popped.get("entry", {}) as Dictionary).get("kind", "")) != "enemy":
+		return _turn_order_initiative_fields(resolved_state)
+	return _turn_order_initiative_fields(popped.get("state", probe) as Dictionary)
 
 func _turn_order_array(value: Variant) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -13286,11 +13332,11 @@ func _turn_order_shadow_dissolve_slot(slot: Control) -> Dictionary:
 		"visual_states": visual_states
 	}
 
-func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary]) -> void:
+func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary], supersede_serial: int = -1) -> void:
 	if dissolve_slots.is_empty():
 		return
 	var started_usec: int = _combat_pacing.presentation_usec()
-	while true:
+	while supersede_serial < 0 or supersede_serial == _turn_order_supersede_serial:
 		var elapsed_seconds: float = float(_combat_pacing.presentation_usec() - started_usec) / 1000000.0
 		var progress: float = clampf(elapsed_seconds / TURN_ORDER_DEFEAT_DISSOLVE_SECONDS, 0.0, 1.0)
 		# Keep the recognizable portrait and rail chrome through the middle of the
@@ -13378,11 +13424,17 @@ func _animate_turn_order_transition(
 	# away another producer's dissolving portraits or release its lock early.
 	if not is_inside_tree():
 		return
-	var waited_for_rail: bool = _turn_order_animating
+	# A newer order that ends this motion early (or arrives while this request
+	# waits) moves the serial; this request then returns and leaves the rail to it.
+	var supersede: int = _turn_order_supersede_serial
+	var waited_for_rail: bool = _turn_order_animating or _turn_order_resume_from_rendered
+	_turn_order_resume_from_rendered = false
 	while _turn_order_animating:
 		await get_tree().process_frame
 		if not is_inside_tree():
 			return
+	if supersede != _turn_order_supersede_serial:
+		return
 	# A completed writer (or a newer refresh) can move the rail while this request
 	# waits. Start from what the rail shows now, so old portraits never return and
 	# a continuation of another length still lands.
@@ -13401,27 +13453,34 @@ func _animate_turn_order_transition(
 		_set_turn_order_bar_entries(after_order)
 		return
 	if _turn_order_is_activation_style_update(before_order, after_order):
-		_turn_order_animating = true
+		_begin_turn_order_motion(after_order)
 		_set_turn_order_bar_entries(after_order)
 		await get_tree().process_frame
+		if supersede != _turn_order_supersede_serial:
+			return
 		var active_child: Control = _turn_order_bar.get_child(0) as Control if _turn_order_bar.get_child_count() > 0 else null
 		if active_child != null:
 			active_child.pivot_offset = active_child.size * 0.5
 			active_child.scale = TURN_ORDER_ACTIVATE_SCALE
 			active_child.modulate = TURN_ORDER_UPDATE_TINT
-			var activate_tween: Tween = create_tween().set_parallel(true)
+			var activate_tween: Tween = _turn_order_motion_tween()
 			activate_tween.tween_property(active_child, "scale", Vector2.ONE, TURN_ORDER_STYLE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			activate_tween.tween_property(active_child, "modulate", Color.WHITE, TURN_ORDER_STYLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 			await activate_tween.finished
 		else:
 			await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+		if supersede != _turn_order_supersede_serial:
+			return
+		_turn_order_motion_tweens.clear()
 		_turn_order_animating = false
 		return
-	_turn_order_animating = true
+	_begin_turn_order_motion(after_order)
 	var working_order: Array[Dictionary] = _turn_order_array(before_order)
 	_turn_order_panel_locked_width = maxf(_turn_order_panel_width_for_count(working_order.size()), _turn_order_panel_width_for_count(after_order.size()))
 	_set_turn_order_bar_entries(working_order)
 	await get_tree().process_frame
+	if supersede != _turn_order_supersede_serial:
+		return
 	var removed_indices: Array = _turn_order_removed_indices(working_order, after_order)
 	if not removed_indices.is_empty():
 		var has_defeat_dissolve: bool = false
@@ -13436,6 +13495,8 @@ func _animate_turn_order_transition(
 			# Let the board actor own the first death beat. The Turn Clock answers a
 			# moment later with the same Umbra breakup, like a delayed final echo.
 			await get_tree().create_timer(TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS).timeout
+			if supersede != _turn_order_supersede_serial:
+				return
 		var remove_tween: Tween = null
 		var dissolve_slots: Array[Dictionary]
 		for index_var: Variant in removed_indices:
@@ -13456,23 +13517,27 @@ func _animate_turn_order_transition(
 					dissolve_slots.append(dissolve_slot)
 					continue
 			if remove_tween == null:
-				remove_tween = create_tween().set_parallel(true)
+				remove_tween = _turn_order_motion_tween()
 			removed_child.pivot_offset = removed_child.size * 0.5
 			var removed_target_position: Vector2 = removed_child.position + TURN_ORDER_EXIT_OFFSET
 			remove_tween.tween_property(removed_child, "position", removed_target_position, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			remove_tween.tween_property(removed_child, "scale", Vector2(0.90, 0.90), TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		if not dissolve_slots.is_empty():
-			await _animate_turn_order_shadow_dissolves(dissolve_slots)
+			await _animate_turn_order_shadow_dissolves(dissolve_slots, supersede)
 		# Slides and portrait dissolves run together. A short slide can finish
 		# while we await the dissolve; its finished signal is not replayed.
 		if remove_tween != null and remove_tween.is_running():
 			await remove_tween.finished
+		if supersede != _turn_order_supersede_serial:
+			return
 	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
 	var previous_signatures: Dictionary = _turn_order_instance_signatures(working_order, removed_indices)
 	var after_keys: Array[String] = _turn_order_instance_keys(after_order)
 	_set_turn_order_bar_entries(after_order)
 	await get_tree().process_frame
+	if supersede != _turn_order_supersede_serial:
+		return
 	var reflow_tween: Tween = null
 	var inserted_slots: Array[Dictionary]
 	var child_count: int = mini(after_order.size(), _turn_order_bar.get_child_count())
@@ -13488,7 +13553,7 @@ func _animate_turn_order_transition(
 			if offset.length() > 0.5:
 				child.position = final_position + offset
 				if reflow_tween == null:
-					reflow_tween = create_tween().set_parallel(true)
+					reflow_tween = _turn_order_motion_tween()
 				reflow_tween.tween_property(child, "position", final_position, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 			var current_signature: String = _turn_order_signature(_turn_order_array([after_order[index]]))
 			if str(previous_signatures.get(instance_key, "")) != current_signature:
@@ -13496,7 +13561,7 @@ func _animate_turn_order_transition(
 				child.scale = TURN_ORDER_UPDATE_SCALE
 				child.modulate = TURN_ORDER_UPDATE_TINT
 				if reflow_tween == null:
-					reflow_tween = create_tween().set_parallel(true)
+					reflow_tween = _turn_order_motion_tween()
 				reflow_tween.tween_property(child, "scale", Vector2.ONE, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 				reflow_tween.tween_property(child, "modulate", Color.WHITE, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		else:
@@ -13512,6 +13577,8 @@ func _animate_turn_order_transition(
 		await reflow_tween.finished
 	else:
 		await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+	if supersede != _turn_order_supersede_serial:
+		return
 	if not inserted_slots.is_empty():
 		# A refresh during the await can rebuild the rail and free these slots.
 		var insert_tween: Tween = null
@@ -13522,16 +13589,50 @@ func _animate_turn_order_transition(
 				continue
 			var inserted_child: Control = inserted_value as Control
 			if insert_tween == null:
-				insert_tween = create_tween().set_parallel(true)
+				insert_tween = _turn_order_motion_tween()
 			var target_position: Vector2 = slot.get("position", inserted_child.position)
 			insert_tween.tween_property(inserted_child, "position", target_position, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			insert_tween.tween_property(inserted_child, "scale", Vector2.ONE, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			insert_tween.tween_property(inserted_child, "modulate:a", 1.0, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		if insert_tween != null:
 			await insert_tween.finished
+		if supersede != _turn_order_supersede_serial:
+			return
+	_turn_order_motion_tweens.clear()
 	_turn_order_panel_locked_width = -1.0
 	_set_turn_order_bar_entries(after_order)
 	_turn_order_animating = false
+
+func _begin_turn_order_motion(after_order: Array[Dictionary]) -> void:
+	_turn_order_animating = true
+	_turn_order_motion_after = _turn_order_array(after_order)
+	_turn_order_motion_tweens.clear()
+
+func _turn_order_motion_tween() -> Tween:
+	var tween: Tween = create_tween().set_parallel(true)
+	_turn_order_motion_tweens.append(tween)
+	return tween
+
+# A newer turn order arrived (atk-10): end the running rail motion at once, at
+# its end state, so the newest order plays from there at its normal duration.
+# Durations are unchanged; only the wait behind the older motion goes. Ending a
+# tween wakes the superseded motion, which sees the serial move and returns.
+func _finish_turn_order_transition_now() -> void:
+	_turn_order_supersede_serial += 1
+	if not _turn_order_animating or _turn_order_bar == null:
+		return
+	var tweens: Array[Tween]
+	tweens.assign(_turn_order_motion_tweens)
+	_turn_order_motion_tweens.clear()
+	for tween: Tween in tweens:
+		if tween.is_valid(): tween.custom_step(TURN_ORDER_FINISH_STEP_SECONDS)
+	_turn_order_animating = false
+	_turn_order_panel_locked_width = -1.0
+	# Reconcile every slot to its baseline: a cut motion can leave a slot mid
+	# slide, faded for insertion or dissolving.
+	_combat_hud_layout.right_column.invalidate()
+	_set_turn_order_bar_entries(_turn_order_motion_after)
+	_turn_order_resume_from_rendered = true
 
 func _animate_turn_order_alongside_defeats(
 	before_state: Dictionary,
@@ -15230,6 +15331,31 @@ func _refresh_rest_pass_discs() -> void:
 	if _animation_lock or str(_run_state.get("mode", "")) != "combat": return
 	_refresh_stage_view()
 
+# atk-09: the forecast the panel shows for the hovered destination or the card
+# preview (the red set's own preview source), if it is ready. Never computes it;
+# when it arrives later (_cache_pass_preview) the red set refreshes once.
+func _hover_red_forecast() -> Dictionary:
+	var hovering_move: bool = _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile)
+	if _animation_lock or not (hovering_move or (_selected_card_index >= 0 and not _preview_combat_state.is_empty())):
+		_hover_red_forecast_key = ""
+		return {}
+	_hover_red_forecast_key = _pass_preview_key(_hovered_board_tile)
+	var summary: Dictionary = _pass_preview_cache.get(_hover_red_forecast_key, {})
+	_hover_red_forecast_ready = not summary.is_empty()
+	return summary
+
+func _note_hover_red_forecast(key: String, summary: Dictionary) -> void:
+	if _hover_red_forecast_ready or _hover_red_refresh_queued or key != _hover_red_forecast_key or key.is_empty(): return
+	if not preload("res://scripts/pass_forecast_red_tiles.gd").changes(summary): return
+	_hover_red_refresh_queued = true
+	call_deferred("_refresh_hover_red_tiles")
+
+func _refresh_hover_red_tiles() -> void:
+	_hover_red_refresh_queued = false
+	if _animation_lock or str(_run_state.get("mode", "")) != "combat" or _hover_red_forecast_ready: return
+	if _hover_red_forecast_key.is_empty() or not _pass_preview_cache.has(_hover_red_forecast_key): return
+	_refresh_stage_view()
+
 func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var summary: Dictionary = _pass_preview_summary_for_phase_result(source_state, phase_result)
@@ -15284,8 +15410,10 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	# the turn ends (a walk through fire), as the Health row already does.
 	var end_losses: Dictionary = _pass_preview_player_damage_losses([loss_steps[0]], disclosed_actors) if not scheduled_state.is_empty() else {"block": 0, "stoneskin": 0}
 	var phase_player: Dictionary = (scheduled_state if not scheduled_state.is_empty() else source_state).get("player", {}) as Dictionary
+	# atk-09: Block that merely expires at the hero's turn start is not a loss.
+	var expired_block: int = preload("res://scripts/pass_forecast_turn_start.gd").expired_block(_combat_engine, phase_result.get("player_turn_before_state", {}), after_state)
 	for field: String in ["block", "stoneskin"]:
-		var net_loss: int = maxi(0, int(phase_player.get(field, 0)) - int(after_player.get(field, 0)))
+		var net_loss: int = maxi(0, int(phase_player.get(field, 0)) - int(after_player.get(field, 0)) - (expired_block if field == "block" else 0))
 		losses[field] = int(end_losses[field]) + maxi(int(losses[field]) - int(end_losses[field]), net_loss) + int(source_state.get("_pass_forecast_action_" + field, 0))
 	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
@@ -15326,10 +15454,14 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		"fatigue_loss": int(phase_result.get("fatigue_loss", 0)),
 		"forecast_limit_reached": bool(phase_result.get("forecast_limit_reached", false)),
 		"unseen_ground_crossed": unseen_ground_crossed,
-		"new_arrival_before_player": bool(phase_result.get("new_arrival_before_player", false))
+		"new_arrival_before_player": bool(phase_result.get("new_arrival_before_player", false)),
+		# atk-07: hero turns Freeze skips inside this forecast's span.
+		"skipped_turns": int(phase_result.get("skipped_turns", 0))
 	}
 	# atk-03: counted repeat activations and which foes the simulation saw hurt you.
 	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
+	# atk-09: later activations' struck tiles and foes that die first, for the red tiles.
+	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").summary_fields(phase_result))
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array, disclosed_actors: Dictionary = {}) -> Dictionary:
@@ -19333,6 +19465,7 @@ func _cache_pass_preview(key: String, summary: Dictionary) -> void:
 	while _pass_preview_cache_order.size() > PASS_PREVIEW_CACHE_LIMIT:
 		var expired_key: String = _pass_preview_cache_order.pop_front()
 		_pass_preview_cache.erase(expired_key)
+	_note_hover_red_forecast(key, summary)
 
 func _schedule_pass_preview_cache_warm(include_playable_analytics: bool = false) -> void:
 	var cache_key: String = _pass_preview_key(_hovered_board_tile)
@@ -22596,6 +22729,15 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	while not bool(pile_completion.get("done", false)):
 		await get_tree().process_frame
 	_consume_pending_card_draw_sfx(committed_combat_state)
+	# atk-08: a card's own costs (Health, Empower) are paid as it finishes, after
+	# its effects and echoes (which their own beats already showed). Show that
+	# loss on the hero with the existing hero-loss beat.
+	var cost_before_state: Dictionary = IllusionRelicRules.finish_echoes(_combat_engine, pre_commit_combat_state.duplicate(true))
+	if _player_took_loss(cost_before_state, committed_combat_state):
+		await _animate_floating_text_presentation(committed_combat_state, _death_hold_presentation(cost_before_state, committed_combat_state, {
+			"floating_texts": _player_loss_floating_texts(cost_before_state, committed_combat_state),
+			"impact_actor_keys": ["player"]
+		}))
 	await _animate_enemy_loss_feedback_between_states(
 		pre_commit_combat_state,
 		committed_combat_state,
@@ -23273,6 +23415,13 @@ func _animate_floating_text_presentation(
 	overlap_with_next_action: bool = false,
 	companion_completion: Dictionary = {}
 ) -> void:
+	# Numbers first drawn after contact inside an attack's frame steps keep their
+	# full life: their clock starts at that first drawn frame (atk-10). The rest
+	# of the feedback keeps the attack's clock.
+	var text_delay_seconds: float = maxf(0.0, float(base_presentation.get(FLOATING_TEXT_DELAY_KEY, 0.0)))
+	if base_presentation.has(FLOATING_TEXT_DELAY_KEY):
+		base_presentation = base_presentation.duplicate(false)
+		base_presentation.erase(FLOATING_TEXT_DELAY_KEY)
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
@@ -23283,11 +23432,11 @@ func _animate_floating_text_presentation(
 		and not base_texts.is_empty()
 	)
 	if use_player_timeline:
-		_queue_player_popup_group(base_texts, initial_elapsed_seconds)
+		_queue_player_popup_group(base_texts, initial_elapsed_seconds - text_delay_seconds)
 	var duration_seconds: float = (
 		FloatingCombatText.action_advance_duration(base_texts)
 		if use_player_timeline
-		else FloatingCombatText.total_duration(base_texts)
+		else FloatingCombatText.total_duration(base_texts) + (0.0 if base_texts.is_empty() else text_delay_seconds)
 	)
 	duration_seconds = _combat_pacing.feedback_duration(base_texts, duration_seconds, initial_elapsed_seconds)
 	duration_seconds = preload("res://scripts/enemy_mechanics/burst_fx.gd").feedback_duration(base_presentation, duration_seconds)
@@ -23320,7 +23469,7 @@ func _animate_floating_text_presentation(
 		presentation["floating_texts"] = (
 			[]
 			if use_player_timeline
-			else FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
+			else FloatingCombatText.animate_entries(base_texts, elapsed_seconds - text_delay_seconds, reduced_motion)
 		)
 		_render_board_state(display_state, presentation, state_validated_for_animation)
 		state_validated_for_animation = true
@@ -23421,6 +23570,18 @@ func _attack_feedback_elapsed_seconds(
 		return 0.0
 	var effect_duration: float = float(maxi(1, frame_count)) * maxf(0.0, frame_seconds)
 	return maxf(0.0, effect_progress - start_progress) * effect_duration
+
+# The attack-feedback time at which an attack's numbers were first drawn, kept
+# in `birth` (a frame callback's shared Dictionary). Their animation clock is
+# feedback time minus this, so their life starts on that frame (atk-10).
+func _floating_text_birth(birth: Dictionary, feedback_elapsed_seconds: float, texts: Array) -> float:
+	if float(birth.get("seconds", -1.0)) < 0.0 and not texts.is_empty():
+		birth["seconds"] = feedback_elapsed_seconds
+	return maxf(0.0, float(birth.get("seconds", -1.0)))
+
+func _carry_floating_text_birth(presentation: Dictionary, birth: Dictionary) -> void:
+	if float(birth.get("seconds", -1.0)) > 0.0:
+		presentation[FLOATING_TEXT_DELAY_KEY] = float(birth["seconds"])
 
 func _attack_feedback_waits_for_trap(effect: Dictionary) -> bool:
 	return not (effect.get("triggered_traps", []) as Array).is_empty()
@@ -24213,6 +24374,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 				var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state,after_state),effect)
 				var ground_sound: Dictionary = {"played":false}
+				var text_birth: Dictionary = {"seconds": -1.0}
 				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
 					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
@@ -24239,7 +24401,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						presentation["impact_actor_keys"] = attack_impact_actor_keys
 						presentation["floating_texts"] = FloatingCombatText.animate_entries(
 							attack_floating_texts,
-							feedback_elapsed_seconds,
+							feedback_elapsed_seconds - _floating_text_birth(text_birth, feedback_elapsed_seconds, attack_floating_texts),
 							_reduced_motion_enabled()
 						)
 						effect_display_state = primary_display_state
@@ -24281,6 +24443,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					impact_presentation["effect_progress"] = 1.0
 					impact_presentation["impact_actor_keys"] = attack_impact_actor_keys
 					impact_presentation["floating_texts"] = attack_floating_texts
+					_carry_floating_text_birth(impact_presentation, text_birth)
 					await _animate_floating_text_presentation(
 						primary_display_state,
 						_death_hold_presentation(
@@ -24362,6 +24525,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				}]
 			}), 0.0, true)
 		"draw":
+			# atk-08: a draw that reshuffles the deck pays Fatigue mid-turn. Present
+			# it with the turn-start Fatigue beat (number and words on the hero),
+			# before the drawn cards, as the reshuffle comes first.
+			var draw_fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_state, after_state)
+			if not draw_fatigue_events.is_empty():
+				await _animate_fatigue_damage(primary_display_state, draw_fatigue_events)
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var draw_transition: Dictionary = _draw_hand_transition_between_states(
@@ -24545,7 +24714,9 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		# crash may replay this locked enemy turn, but live animation must not rewrite
 		# the complete run at every internal commit boundary.
 		if _hitch_trace_enabled: _hitch_continuation = null
+		_enemy_round_initiative = _enemy_activation_initiative(phase_state, slice_result.get("state", phase_state) as Dictionary)
 		await _animate_enemy_phase_steps(animated_state, slice_steps, slice_result.get("state", phase_state))
+		_enemy_round_initiative = _turn_order_initiative_fields(slice_result.get("state", phase_state) as Dictionary)
 		var draw_sfx_state: Dictionary = (
 			slice_player_turn_before_state
 			if not slice_player_turn_before_state.is_empty()
@@ -24553,6 +24724,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		)
 		_consume_pending_card_draw_sfx(draw_sfx_state)
 		phase_state = slice_result.get("state", phase_state) as Dictionary
+	_enemy_round_initiative = {}
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _combat_pacing.finish_enemies()
 	if phase_slice_safety >= 100:
@@ -24768,6 +24940,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			"reinforcement_spawn":
 				await _animate_reinforcement_spawn(animated_state, step)
 			"turn_order":
+				# Past its reschedule, a slice's rail projects its resolved initiative.
+				if str(step.get("label", "")) == "reschedule" and not resolved_state.is_empty() and not _enemy_round_initiative.is_empty():
+					_enemy_round_initiative = _turn_order_initiative_fields(resolved_state)
 				_combat_pacing.present_turn_order(step.get("before_order", []), step.get("after_order", []))
 			"intent":
 				_clear_enemy_block_by_key(animated_state, step_actor_key)
@@ -24927,6 +25102,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 					animated_state,
 					attack_feedback_state
 				)
+				var text_birth: Dictionary = {"seconds": -1.0}
 				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
 					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
@@ -24959,7 +25135,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 						presentation["impact_actor_keys"] = impact_actor_keys
 						presentation["floating_texts"] = FloatingCombatText.animate_entries(
 							attack_floating_texts,
-							feedback_elapsed_seconds,
+							feedback_elapsed_seconds - _floating_text_birth(text_birth, feedback_elapsed_seconds, attack_floating_texts),
 							_reduced_motion_enabled()
 						)
 						effect_display_state = attack_feedback_state
@@ -25011,6 +25187,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 					impact_presentation["effect"] = step
 					impact_presentation["effect_progress"] = 1.0
 					impact_presentation["floating_texts"] = attack_floating_texts
+					_carry_floating_text_birth(impact_presentation, text_birth)
 					await _animate_floating_text_presentation(
 						animated_state,
 						_death_hold_presentation(

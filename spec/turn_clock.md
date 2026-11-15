@@ -81,6 +81,14 @@ term.
   violet `×2` pip. Only a repeat whose roll can no longer match live play (a
   foe hidden in the Umbra or a new arrival acted first) keeps the known damage
   plus `+?` instead of collapsing to UNKNOWN.
+  Since atk-07 (director 2026-11-14) every forecast covers the time until the
+  player can next act: when the copy reaches a hero turn Freeze skips, it plays
+  that turn as live play does (Freeze consumed, PASS with nothing played) and
+  keeps simulating to the next turn the hero can act on, within the same
+  activation ceiling. Totals, death, Safe, Fatigue, discs and the Umbra `?`
+  cover the whole span. The panel then shows a header row, the Freeze status
+  icon and `Turn skipped` (`Turn skipped ×N` for more) in gold, directly below
+  `Ends turn` or on top without it (`pass_forecast_frozen_turns.gd`).
 - Copy: the TIME keyword reads "Delays your next turn. Each unused play takes 5."
 
 Held for playtest: an ACT AGAIN turn banner replacing YOUR TURN. Rejected: a

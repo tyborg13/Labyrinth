@@ -28,7 +28,11 @@ func rest_badges(host: Node, preview: Dictionary, focus: String, committed_overr
 		return host._intent_badges.presentation_for_state(engine, committed, preview,
 			focus, known_source), index, true, true)
 	# atk-03: at rest, the discs follow the PASS forecast once it is ready.
-	return preload("res://scripts/pass_forecast_discs.gd").apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, committed_override == null and is_same(preview, host._combat_state))
+	# atk-09: so do the red tiles; a hovered destination or card preview uses its own forecast.
+	var at_rest: bool = committed_override == null and is_same(preview, host._combat_state)
+	var result: Dictionary = preload("res://scripts/pass_forecast_discs.gd").apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest, focus)
+	if at_rest or committed_override != null: return result
+	return preload("res://scripts/pass_forecast_red_tiles.gd").adjust_from_summary(result, host._hover_red_forecast(), focus)
 
 func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	var inputs: Array = _compass_inputs(state, visible_ids)

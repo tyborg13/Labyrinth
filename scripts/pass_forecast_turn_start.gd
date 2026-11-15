@@ -25,13 +25,21 @@ static func complete(engine: RefCounted, cursor: Dictionary) -> void:
 		after = _prepare_full_with_receipt(engine, cursor["state"], cursor)
 		cursor["turn_start_path"] = "full"
 	var steps: Array = cursor["steps"]
-	steps.append({"kind": "pass_turn_start", "target_losses": player_losses(engine, before, after), "fatigue_hp_loss": int(cursor.get("fatigue_hp_loss", 0))})
+	# atk-09: Block that merely expires at the hero's own turn start is not a loss.
+	var kept: Dictionary = before
+	var expired: int = expired_block(engine, before, after)
+	if expired > 0:
+		kept = before.duplicate(false)
+		kept["player"] = (before["player"] as Dictionary).duplicate(false)
+		kept["player"]["block"] = int(before["player"].get("block", 0)) - expired
+	steps.append({"kind": "pass_turn_start", "target_losses": player_losses(engine, kept, after), "fatigue_hp_loss": int(cursor.get("fatigue_hp_loss", 0))})
 	var before_cycles: int = int(before.get("deck", {}).get("cycles", 0))
 	var after_cycles: int = int(after.get("deck", {}).get("cycles", before_cycles))
 	var fatigue: int = 0
 	for cycle: int in range(before_cycles, after_cycles):
 		fatigue += int(before.get("deck", {}).get("fatigue_base", engine.FATIGUE_BASE_DAMAGE)) + cycle
-	cursor["fatigue_loss"] = fatigue
+	# atk-07: a span through a turn Freeze skips draws at each turn start.
+	cursor["fatigue_loss"] = int(cursor.get("fatigue_loss", 0)) + fatigue
 	# atk-04: a turn-start beat that moves a unit onto unseen ground.
 	preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, before, after, [])
 	cursor["state"] = after
@@ -103,6 +111,15 @@ static func _draw_with_receipt(engine: RefCounted, state: Dictionary, cursor: Di
 	cursor["fatigue_hp_loss"] = maxi(0, int(after.get("run_stats", {}).get(engine.RUN_STAT_DAMAGE_RECEIVED, 0)) - before)
 	return after
 
+# atk-09 (director 2026-11-14): the Block the hero's own turn start lets expire
+# (all but what a relic retains). A hit on retained Block still counts; when the
+# turn start did not run (the fight ended first) nothing expired.
+static func expired_block(engine: RefCounted, before: Dictionary, after: Dictionary) -> int:
+	if before.is_empty() or after.is_empty(): return 0
+	var block: int = int((before.get("player", {}) as Dictionary).get("block", 0))
+	var expiring: int = maxi(0, block - engine.CommonRelicRules.retained_block(engine._relic_effects(before), block))
+	return mini(expiring, maxi(0, block - int((after.get("player", {}) as Dictionary).get("block", 0))))
+
 # Aggregate turn-start snapshots can include both damage and healing. The live
 # score counter records gross Health loss, including Fatigue and lethal packets;
 # using only the HP difference could turn a real loss into SAFE after recovery.
@@ -128,6 +145,8 @@ static func _can_project_draw_only(engine: RefCounted, cursor: Dictionary) -> bo
 	var state: Dictionary = cursor["state"]
 	if str(state.get("room_type", "")) != "combat" or not str(state.get("objective", {}).get("special_type", "")).is_empty(): return false
 	if str(state.get("objective", {}).get("type", "kill_all")) not in ["kill_all", "kill_leader"]: return false
+	# atk-07: Freeze is consumed (and the turn skipped) only by production preparation.
+	if int((state.get("player", {}) as Dictionary).get("freeze", 0)) > 0: return false
 	var equipment: Dictionary = state.get("equipped_equipment", {})
 	if not equipment.is_empty() and equipment != preload("res://scripts/game_data.gd").starting_equipped_equipment(): return false
 	for field: String in ["surfaces", "battlefield_rule", "equipment_grafts", "relic_flags", "skill_flags", "self_flags"]:
