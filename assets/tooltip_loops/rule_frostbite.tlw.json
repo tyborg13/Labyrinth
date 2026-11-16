@@ -1,0 +1,159 @@
+{
+  "action_frame_limit": 126,
+  "action_frames": 30,
+  "action_seconds": 1.0,
+  "actions": "[{\n\"after\": {\n\"_surface_damage_batch\": false,\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(1, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 1,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"damage\": 1.0\n},\n\"last_beat_tiles\": {\n\"catch\": [],\n\"freeze\": [Vector2i(1, 1)],\n\"rise\": [],\n\"strike\": []\n},\n\"last_player_turn\": 1,\n\"rule\": \"frostbite\",\n\"sentence\": \"After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"damage_context\": {},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 1,\n\"frost_armor\": 0,\n\"hp\": 11,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(1, 1),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(1, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"ice\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 3,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"surface_event_sequence\": 5,\n\"surface_events\": [{\n\"kind\": \"surface_created\",\n\"previous_surface\": \"\",\n\"rules_version\": 5,\n\"sequence\": 1,\n\"source\": {\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 1\n},\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"actor_key\": \"enemy_1\",\n\"actor_kind\": \"enemy\",\n\"id\": 1,\n\"kind\": \"status_applied\",\n\"rules_version\": 5,\n\"sequence\": 2,\n\"status\": \"chilled\",\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"kind\": \"surface_removed\",\n\"reason\": \"freeze\",\n\"rubble_underlay\": false,\n\"rules_version\": 5,\n\"sequence\": 3,\n\"source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\",\n\"player_card\": false,\n\"rule\": \"frostbite\",\n\"source_kind\": \"battlefield_rule\"\n},\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"actor_key\": \"enemy_1\",\n\"actor_kind\": \"enemy\",\n\"consumed_ice\": Array[Vector2i]([Vector2i(1, 1)]),\n\"id\": 1,\n\"kind\": \"status_applied\",\n\"rules_version\": 5,\n\"sequence\": 4,\n\"source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\",\n\"player_card\": false,\n\"rule\": \"frostbite\",\n\"source_kind\": \"battlefield_rule\"\n},\n\"status\": \"freeze\",\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"affected_units\": 1,\n\"beat_index\": 1,\n\"damage_to_enemies\": 3,\n\"damage_to_player\": 0,\n\"kind\": \"battlefield_rule_fired\",\n\"rule\": \"frostbite\",\n\"rules_version\": 5,\n\"sequence\": 5,\n\"source_kind\": \"room\",\n\"source_type\": \"\",\n\"tiles_changed\": 1\n}],\n\"surface_revision\": 2,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {},\n\"terrain\": [],\n\"traps\": [],\n\"turn\": 1,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(1, 1),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n},\n\"before\": {\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(1, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 0,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"damage\": 1.0\n},\n\"rule\": \"frostbite\",\n\"sentence\": \"After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": true,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 0,\n\"frost_armor\": 0,\n\"hp\": 14,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(1, 1),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(1, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"ice\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 0,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"surface_event_sequence\": 2,\n\"surface_events\": [{\n\"kind\": \"surface_created\",\n\"previous_surface\": \"\",\n\"rules_version\": 5,\n\"sequence\": 1,\n\"source\": {\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 1\n},\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"actor_key\": \"enemy_1\",\n\"actor_kind\": \"enemy\",\n\"id\": 1,\n\"kind\": \"status_applied\",\n\"rules_version\": 5,\n\"sequence\": 2,\n\"status\": \"chilled\",\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}],\n\"surface_revision\": 1,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {\n\"1,1\": {\n\"elemental\": \"ice\",\n\"elemental_source\": {\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 0\n}\n}\n},\n\"terrain\": [],\n\"traps\": [],\n\"turn\": 1,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(1, 1),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n},\n\"kind\": \"room_rule\",\n\"steps\": Array[Dictionary]([])\n}]",
+  "asset_sha256": "ef75e7bea0465ba2335b1852ba42f3e1d12b67379f56117f8ad183042ceecbbf",
+  "background_settled_before_frame_zero": true,
+  "commit": "1637275f51b8b8a31852afda48a9d89e99f91d05",
+  "crop": "Rect2i(608, 212, 703, 419)",
+  "crossfade_seconds": 0.25,
+  "fixture": "res://tools/tooltip_loops/fixture.gd",
+  "format": "TLW2 indexed WebP",
+  "fps": 30,
+  "hold_seconds": 0.6,
+  "id": "rule_frostbite",
+  "initial_state": "{\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(1, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 0,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"damage\": 1.0\n},\n\"rule\": \"frostbite\",\n\"sentence\": \"After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": true,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 0,\n\"frost_armor\": 0,\n\"hp\": 14,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(1, 1),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(1, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"ice\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 0,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"surface_event_sequence\": 2,\n\"surface_events\": [{\n\"kind\": \"surface_created\",\n\"previous_surface\": \"\",\n\"rules_version\": 5,\n\"sequence\": 1,\n\"source\": {\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 1\n},\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}, {\n\"actor_key\": \"enemy_1\",\n\"actor_kind\": \"enemy\",\n\"id\": 1,\n\"kind\": \"status_applied\",\n\"rules_version\": 5,\n\"sequence\": 2,\n\"status\": \"chilled\",\n\"surface\": \"ice\",\n\"tile\": Vector2i(1, 1)\n}],\n\"surface_revision\": 1,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {\n\"1,1\": {\n\"elemental\": \"ice\",\n\"elemental_source\": {\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 0\n}\n}\n},\n\"terrain\": [],\n\"traps\": [],\n\"turn\": 1,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(1, 1),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n}",
+  "motion_timing": {
+    "action_seconds": 1.0,
+    "first_motion_seconds": 0.366666666666667,
+    "first_visible_frame": 12,
+    "hero_crop_ok": true,
+    "id": "rule_frostbite",
+    "last_visible_frame": 29,
+    "recording_frames": 30,
+    "seen_numbers": [
+      "enemy_1:-3"
+    ],
+    "source_frames": 31,
+    "tail_seconds": 0.0333333333333333,
+    "trim_end_frames": 0,
+    "trim_start_frames": 1
+  },
+  "renderer": {
+    "cel_look": "all",
+    "driver": "Apple M5 Pro (Apple9)",
+    "engine": {
+      "build": "official",
+      "hash": "14d19694e0c88a3f9e82d899a0400f27a24c176e",
+      "hex": 263681,
+      "major": 4,
+      "minor": 6,
+      "patch": 1,
+      "status": "stable",
+      "string": "4.6.1-stable (official)",
+      "timestamp": 0
+    },
+    "launch_arguments": [
+      "--script",
+      "tools/tooltip_loops/record.gd"
+    ],
+    "method": "mobile",
+    "ui_scale": 1.0,
+    "viewport": [
+      1920,
+      1080
+    ]
+  },
+  "source_dirty": " M data/tooltip_loops.json\n M scripts/battlefield_rule_hud.gd\n M tools/tooltip_loops/capture.gd\n M tools/tooltip_loops/capture.py\n M tools/tooltip_loops/fixture.gd\n M tools/tooltip_loops/playback.gd\n M tools/tooltip_loops/record.gd\n M tools/tooltip_loops/record.py\n M tools/tooltip_loops/tip03_fixture.gd\n?? tools/tooltip_loops/TIP04.md\n?? tools/tooltip_loops/tip04_capture_contract.json\n?? tools/tooltip_loops/tip04_context.gd\n?? tools/tooltip_loops/tip04_context.gd.uid\n?? tools/tooltip_loops/tip04_fixture.gd\n?? tools/tooltip_loops/tip04_fixture.gd.uid\n",
+  "source_sha256": {
+    "assets/units/storm_capacitor_cutout/actions.gd": "d3684bfb8bdd2dd2199fd0a6e2b03f2c8e954e6126661c6dec5129fde4b841a6",
+    "data/battlefield_rules.json": "412ab5b6163c1ffbe8defe752469e82b0560613f6ee63001eeb3131898ec6840",
+    "data/cards.json": "549d2a318477d4765ff130807a7a4be717d788a7cff31eed4230036798688bff",
+    "data/enemies.json": "5bba148ebb28d5d3a542876d60446838f43b7f45c79037a4834a7f6d6b630b19",
+    "data/tooltip_loops.json": "e48d00dce8530997642a7b7306a2f8ae1bef571b036244ca35d9078b0462c0f5",
+    "scripts/battlefield_rules/dispatcher.gd": "852f56eb1c56e9c781c560b3022331a2d68b58d31c07656ddbcec225029e31ec",
+    "scripts/battlefield_rules/frostbite.gd": "973f6f284f6495af6b61e364682bf0fc8801f138be6c781ec45d56b7c7bb29ba",
+    "scripts/battlefield_rules/gust.gd": "cda288588e4c50a342f1efcaf276ea6388a055e1291111b8ed66a1742d83bee2",
+    "scripts/battlefield_rules/lightning_storm.gd": "835388c54905730e3cb5042659957b297ba972c2ec697b6384ce921c159565cc",
+    "scripts/board_surface_rules.gd": "bc10050431cbaf4050407e24cb00cb4cb9e267225b695a3feaec07e1f34d01c9",
+    "scripts/combat_board_view.gd": "013be51b63ba52f7ca87154b84b9a506ee790a048ebbe3e51a2215332e69f875",
+    "scripts/enemy_mechanics/capacitor_view.gd": "f9770c0213a8cf299fc958490f75a31b7bf03adc1bdffbb2a442eb808c489d12",
+    "scripts/enemy_mechanics/chain_hit_feedback.gd": "1e14fa497d3d116e4c41f2d0fa57c61d148c840e45dd040625d0808e0462f8f6",
+    "scripts/run_scene.gd": "aa17c6674c863bcc8c1c231a857b829ab5e8dc59b9498c17646516686135c21b",
+    "scripts/settings_store.gd": "1b7ac56681337bc40faf23b1e80633ea2028e5d32d521a22e30a814c55db562c",
+    "tools/tooltip_loops/fixture.gd": "88d21bb818401749e42a7bf251972a035c22b139085c8dc4eac4d11c7cc4ea5a",
+    "tools/tooltip_loops/playback.gd": "e7193fb2e6c0b268624be7acb0faf9010019f97f5cb4e915d8897bd5b5fd3e15",
+    "tools/tooltip_loops/record.gd": "f02e01cc9c4c773b426a08e583fc2b3faf97cd5d5f3cdbbfaa77e29b8cb4d9fb",
+    "tools/tooltip_loops/record_board.gd": "ef005ccffe531fcae34fb654c4ae3993a7c27c078322e0bb01519b946c25a414",
+    "tools/tooltip_loops/tip03_fixture.gd": "d053ab1d274a041b4e562fd384701d57bddac169502029a9c561f92866249ec4",
+    "tools/tooltip_loops/tip04_fixture.gd": "086a3fa01932aff446e91fdb73342bba4bf831d77c477e599baf83d5f503dfc1"
+  },
+  "speed": "normal",
+  "timing_within_brief": true,
+  "vignette": {
+    "corner_alpha": 0.45,
+    "curve": "squared radial distance",
+    "ink": "0b0908ff"
+  },
+  "vignette_baked": true,
+  "compression": {
+    "id": "rule_frostbite",
+    "action_frames": 30,
+    "action_seconds": 1.0,
+    "raw_sha256": "48bf3d9299fa433ac5d6bac994158cea81e1a8ccb9d0fe1f00c773c439e60186",
+    "libwebp_version": 66816,
+    "encoder_method": 6,
+    "encoder_quality": 100,
+    "chunk_frames": 16,
+    "tool_sha256": {
+      "compress.py": "594a7c62b7e80e03bf247c99d087fe8f772afad89251bce297f2c7583c885cfb",
+      "webp_encode.py": "294a721cc89c4aa83780cc0513389c6b118052c2e241846de61034e797cf7987"
+    },
+    "candidates": [
+      {
+        "near_lossless": 60,
+        "file_bytes": 222490,
+        "max_per_channel_error": [
+          2,
+          2,
+          2
+        ],
+        "mean_per_channel_error": [
+          0.44184608240459305,
+          0.4465010413148711,
+          0.43664443318698637
+        ],
+        "passes": true,
+        "cap_bytes": 1500000
+      },
+      {
+        "near_lossless": 40,
+        "file_bytes": 174894,
+        "max_per_channel_error": [
+          4,
+          4,
+          4
+        ],
+        "mean_per_channel_error": [
+          0.8067319599234493,
+          0.8115930710345604,
+          0.7960964764156253
+        ],
+        "passes": false,
+        "cap_bytes": 1500000
+      }
+    ],
+    "selected": {
+      "near_lossless": 60,
+      "file_bytes": 222490,
+      "max_per_channel_error": [
+        2,
+        2,
+        2
+      ],
+      "mean_per_channel_error": [
+        0.44184608240459305,
+        0.4465010413148711,
+        0.43664443318698637
+      ],
+      "passes": true,
+      "cap_bytes": 1500000
+    },
+    "recorded_speed": "normal",
+    "recording_matches_brief": true,
+    "registry_cap_bytes": 1500000,
+    "within_registry_cap": true
+  },
+  "requires_native_rerecord": false
+}

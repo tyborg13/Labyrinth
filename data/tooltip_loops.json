@@ -10,7 +10,9 @@
       },
       "asset_path": "res://assets/tooltip_loops/burst_ember_tick.tlw",
       "intent_titles": "*",
-      "speed": "normal"
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 147
     },
     {
       "id": "marked_burrow_grub",
@@ -28,7 +30,9 @@
         "Burrow",
         "Erupt"
       ],
-      "speed": "fast"
+      "speed": "fast",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 147
     },
     {
       "id": "chain_card",
@@ -37,7 +41,178 @@
         "kind": "hero_card"
       },
       "asset_path": "res://assets/tooltip_loops/chain_card.tlw",
-      "speed": "normal"
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 147
+    },
+    {
+      "id": "collision_push",
+      "term": "collision",
+      "source_match": {
+        "kind": "hero_card"
+      },
+      "asset_path": "res://assets/tooltip_loops/collision_push.tlw",
+      "speed": "normal",
+      "aliases": [
+        "push",
+        "pull"
+      ],
+      "global_terms": [
+        "collision"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "retaliate_hollow_mimic",
+      "term": "retaliate",
+      "source_match": {
+        "kind": "enemy",
+        "id": "hollow_mimic"
+      },
+      "asset_path": "res://assets/tooltip_loops/retaliate_hollow_mimic.tlw",
+      "speed": "normal",
+      "intent_titles": [
+        "Echo"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "charge_storm_capacitor",
+      "term": "charge",
+      "source_match": {
+        "kind": "enemy",
+        "id": "storm_capacitor"
+      },
+      "asset_path": "res://assets/tooltip_loops/charge_storm_capacitor.tlw",
+      "speed": "normal",
+      "intent_titles": [
+        "Charge",
+        "Arc Burst"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "lightning_strikes",
+      "term": "lightning_strikes",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "lightning_storm"
+      },
+      "asset_path": "res://assets/tooltip_loops/lightning_strikes.tlw",
+      "speed": "normal",
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "marked_icefall_seer",
+      "term": "marked",
+      "source_match": {
+        "kind": "enemy",
+        "id": "hoarfrost_seer"
+      },
+      "asset_path": "res://assets/tooltip_loops/marked_icefall_seer.tlw",
+      "speed": "fast",
+      "intent_titles": [
+        "Icefall"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "marked_lob_slag",
+      "term": "marked",
+      "source_match": {
+        "kind": "enemy",
+        "id": "slag_mortar"
+      },
+      "asset_path": "res://assets/tooltip_loops/marked_lob_slag.tlw",
+      "speed": "fast",
+      "intent_titles": [
+        "Lob Slag"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "freeze_status",
+      "term": "freeze",
+      "source_match": {
+        "kind": "*"
+      },
+      "asset_path": "res://assets/tooltip_loops/freeze_status.tlw",
+      "speed": "normal",
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000,
+      "aliases": [
+        "if_frozen"
+      ]
+    },
+    {
+      "id": "splits_cinder_ooze",
+      "term": "splits",
+      "aliases": [
+        "split"
+      ],
+      "source_match": {
+        "kind": "enemy",
+        "id": "cinder_ooze"
+      },
+      "asset_path": "res://assets/tooltip_loops/splits_cinder_ooze.tlw",
+      "intent_titles": "*",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 147
+    },
+    {
+      "id": "rule_gust",
+      "term": "wind",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "gust"
+      },
+      "asset_path": "res://assets/tooltip_loops/rule_gust.tlw",
+      "speed": "normal",
+      "max_recording_frames": 135,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "rule_wildfire",
+      "term": "wildfire",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "wildfire"
+      },
+      "asset_path": "res://assets/tooltip_loops/rule_wildfire.tlw",
+      "speed": "normal",
+      "max_recording_frames": 135,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "rule_frostbite",
+      "term": "frostbite",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "frostbite"
+      },
+      "asset_path": "res://assets/tooltip_loops/rule_frostbite.tlw",
+      "speed": "normal",
+      "max_recording_frames": 135,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "rule_shadowstep",
+      "term": "shadowstep",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "shadowstep"
+      },
+      "asset_path": "res://assets/tooltip_loops/rule_shadowstep.tlw",
+      "speed": "normal",
+      "max_recording_frames": 135,
+      "max_asset_bytes": 1500000
     }
   ]
 }

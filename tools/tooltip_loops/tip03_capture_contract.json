@@ -1,0 +1,195 @@
+{
+  "min_images": 11,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*burst_ember_tick_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*chain_card_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*collision_push_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*retaliate_hollow_mimic_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*charge_storm_capacitor_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*lightning_strikes_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_icefall_seer_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_lob_slag_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*freeze_status_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*splits_cinder_ooze_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

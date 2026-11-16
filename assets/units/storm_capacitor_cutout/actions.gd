@@ -69,7 +69,7 @@ static func finish_hops(scene: Control, state: Dictionary, hits: Array, clock: D
 	while int(clock["completed_hops"]) < count:
 		var hit: Dictionary = hits[int(clock["completed_hops"])]
 		state.merge(hit["state"].duplicate(true), true)
-		scene._queue_player_popup_group(scene._floating_texts_for_target_losses(hit.get("target_losses", [])), 0.0)
+		preload("res://scripts/enemy_mechanics/chain_hit_feedback.gd").submit(scene, state, hit.get("target_losses", []))
 		clock["completed_hops"] = int(clock["completed_hops"]) + 1
 
 static func chain_frame(scene: Control, state: Dictionary, step: Dictionary, hits: Array, clock: Dictionary, elapsed: float, shown: Dictionary) -> void:

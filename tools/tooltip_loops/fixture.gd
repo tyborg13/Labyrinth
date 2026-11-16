@@ -3,6 +3,9 @@ const Data = preload("res://scripts/game_data.gd")
 const Runs = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
+const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
+const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
+const Tip03 = preload("res://tools/tooltip_loops/tip03_fixture.gd")
 const SEED: int = 1511 # Debug fixture RNG only.
 const HERO := Vector2i(1, 2)
 const GRUB_HERO := Vector2i(2, 2)
@@ -35,6 +38,14 @@ static func build(id: String) -> Dictionary:
 			units = [["crawler", Vector2i(1, 1)], ["crawler", Vector2i(2, 1)], ["crawler", Vector2i(3, 0)]]
 			card = "chain_bolt"
 			layout["element"] = "none"
+	if Tip04.IDS.has(id):
+		var config: Dictionary = Tip04.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
+	if Tip03.IDS.has(id):
+		var config: Dictionary = Tip03.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
 	for entry: Array in units:
 		var definition: Dictionary = Data.enemy_def(entry[0])
 		layout["enemies"].append({"id": layout["enemies"].size() + 1, "type": entry[0], "pos": entry[1], "hp": definition["max_hp"], "max_hp": definition["max_hp"]})
@@ -45,12 +56,16 @@ static func build(id: String) -> Dictionary:
 		hand.append(card)
 		state["deck"]["hand"] = hand
 	if id == "marked_burrow_grub": state["enemies"][0]["intent"] = Data.enemy_def("burrow_grub")["intents"][0].duplicate(true)
+	if Tip03.IDS.has(id): Tip03.prepare(state, id)
+	if Tip04.IDS.has(id): Tip04.prepare(state, id)
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
 	run["combat_state"] = state
 	return {"run": run, "state": state, "card": card, "id": id, "layout": layout}
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
+	if Tip04.IDS.has(fixture["id"]): return Tip04.plan(fixture, engine)
+	if Tip03.IDS.has(fixture["id"]): return Tip03.plan(fixture, engine)
 	var state: Dictionary = fixture["state"]
 	var beats: Array[Dictionary]
 	if fixture["id"] == "marked_burrow_grub":
@@ -74,6 +89,13 @@ static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 	return {"beats": beats, "final": state}
 
 static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	var failures: Array[String] = _validate_mechanics(fixture, result)
+	failures.append_array(PatchChecks.tiles(fixture, result))
+	return failures
+
+static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Tip04.IDS.has(fixture["id"]): return Tip04.validate(fixture, result)
+	if Tip03.IDS.has(fixture["id"]): return Tip03.validate(fixture, result)
 	var failures: Array[String]
 	var before: Dictionary = fixture["state"]
 	var after: Dictionary = result["final"]

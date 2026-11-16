@@ -3,6 +3,7 @@ class_name UiTooltipPanel
 
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
 const LoopRegistry = preload("res://scripts/tooltip_loop_registry.gd")
 const LoopView = preload("res://scripts/tooltip_loop_view.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -20,6 +21,9 @@ const ICON_SIZE: float = 42.0
 const ICON_BODY_WIDTH: float = 226.0
 
 static func make_text(text: String) -> PanelContainer:
+	# Source-free terms are explicitly opted in by the loop registry.
+	var loop_panel: Control = LoopContext.panel_for_text(text, {})
+	if loop_panel != null: return loop_panel as PanelContainer
 	var lines: PackedStringArray = text.split("\n", false)
 	if lines.is_empty():
 		return make_lines(text.strip_edges(), PackedStringArray())
@@ -49,7 +53,7 @@ static func make_icon_lines(
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 10)
 	var loop: Dictionary = LoopRegistry.find(term, source)
-	if not loop.is_empty() and FileAccess.file_exists(str(loop["asset_path"])):
+	if LoopRegistry.media_available(loop):
 		var column := VBoxContainer.new()
 		column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		column.add_theme_constant_override("separation", 10)

@@ -1,0 +1,62 @@
+{
+  "burst_ember_tick": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "458179846ab8311546a5cee8dd7cb34ea795f74db6d3e08dff2a2bb364ab6fc2"
+  },
+  "marked_burrow_grub": {
+    "action_seconds": 4.83333333333333,
+    "action_frames": 145,
+    "speed": "fast",
+    "asset_sha256": "d789b649d7a1c9f07b10d75c0d93d4e254a4966a2e28c9f6e1417613e9335fca"
+  },
+  "chain_card": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "bfba7863abd8a883d9340e40c238005c59623f95edfba116267a928f81b66915"
+  },
+  "collision_push": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "d96421f31ad7d3de67335b376069989658483ab1b5b5cb1bf452baa6e2030778"
+  },
+  "retaliate_hollow_mimic": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "78a85147227cef26c157a958ad00d0828c05e52d273b4ee3b42831542a49e954"
+  },
+  "charge_storm_capacitor": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "70fd36f1d1e3c32fb2abae8a35e8978f719210b4543c6e295f202e3d8ca15dff"
+  },
+  "lightning_strikes": {
+    "action_seconds": 3.0,
+    "action_frames": 90,
+    "speed": "normal",
+    "asset_sha256": "7914d85f1a33245542d7a81ad587e416abe07145f1e67b4313ca805c62e266c4"
+  },
+  "marked_icefall_seer": {
+    "action_seconds": 3.26666666666667,
+    "action_frames": 98,
+    "speed": "fast",
+    "asset_sha256": "c4c203d8bb3a461bd06f51deda55ce80ff8af2a525ec82355a5476619fb3b466"
+  },
+  "marked_lob_slag": {
+    "action_seconds": 3.36666666666667,
+    "action_frames": 101,
+    "speed": "fast",
+    "asset_sha256": "1df9f59eee4eb6f28abb0b17e31caabe70432d77218c54d0e2572dcb94a5911f"
+  },
+  "freeze_status": {
+    "action_seconds": 3.16666666666667,
+    "action_frames": 95,
+    "speed": "normal",
+    "asset_sha256": "5ad0bd2d35b9d612e12988f7c5801ce782402ad41ad4520545de78d6cb199048"
+  }
+}

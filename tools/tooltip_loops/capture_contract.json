@@ -1,5 +1,5 @@
 {
-  "min_images": 15,
+  "min_images": 14,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -193,23 +193,6 @@
     },
     {
       "pattern": "*chain_card_reduced_motion_1920x1080.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            0,
-            0,
-            1920,
-            1080
-          ],
-          "min_luma_range": 12,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*marked_hoarfrost_seer_text_only_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [

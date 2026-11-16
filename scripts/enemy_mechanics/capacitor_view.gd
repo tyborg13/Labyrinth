@@ -124,6 +124,6 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 		)
 		state.merge(hit["state"].duplicate(true), true)
 		scene._render_board_state(state, {})
-		scene._queue_player_popup_group(scene._floating_texts_for_target_losses(hit.get("target_losses", [])), 0.0)
+		preload("res://scripts/enemy_mechanics/chain_hit_feedback.gd").submit(scene, state, hit.get("target_losses", []))
 	scene._apply_animation_step(state, step)
 	scene._render_board_state(state, {})

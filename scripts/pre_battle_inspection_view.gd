@@ -18,14 +18,16 @@ const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
 
 class LoopMovePlate extends Controls.Plate:
 	var loop_source: Dictionary = {}
+	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
-		var panel: Control = LoopContext.panel_for_text(text, loop_source)
+		var panel: Control = LoopContext.panel_for_text(text, loop_source, loop_term)
 		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
 
 class LoopTraitRow extends HBoxContainer:
 	var loop_source: Dictionary = {}
+	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
-		var panel: Control = LoopContext.panel_for_text(text, loop_source)
+		var panel: Control = LoopContext.panel_for_text(text, loop_source, loop_term)
 		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
 
 static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> Control:
@@ -107,7 +109,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 		if not order.is_empty(): content.add_child(rules_label(order, "WarbandCaptainOrder", 600.0))
 	var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(enemy)
 	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait, LoopContext.enemy(str(enemy.get("type", "")))))
-	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, build_trait)
+	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, func(token: Dictionary) -> Control: return build_trait(token, LoopContext.enemy(str(enemy.get("type", "")))))
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"
@@ -135,6 +137,7 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) 
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
 	var plate := LoopMovePlate.new()
 	plate.loop_source = source
+	plate.loop_term = LoopContext.intent_term(str(intent.get("name", "")), source)
 	plate.name = "PreBattleKnownMoveRow"
 	plate.top = Palette.INK_2
 	plate.bottom = Palette.INK_1
@@ -161,9 +164,11 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) 
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
 	text_box.add_child(rules_label(summary if not summary.is_empty() else "Recovers." if actions.is_empty() else "Special action", "PreBattleMoveEffect", 410.0))
-	if source.get("id") == "burrow_grub":
+	if source.get("id") in ["burrow_grub", "hoarfrost_seer", "slag_mortar"]:
 		for action: Dictionary in actions:
-			if str(action.get("type", "")) in ["burrow", "erupt"]: plate.tooltip_text = ActionIcons.marked_move_text(action)
+			if str(action.get("type", "")) in ["burrow", "erupt", "icefall_mark", "icefall_land", "lob_mark", "lob_land"]: plate.tooltip_text = ActionIcons.marked_move_text(action)
+	var details: String = move_tooltip(rows)
+	if plate.tooltip_text.is_empty() and not LoopContext.term_in(details, source).is_empty(): plate.tooltip_text = details
 	var notes: String = GuardianLibrary.intent_notes(intent)
 	if not notes.is_empty():
 		text_box.add_child(rules_label(notes, "GuardianMoveRules", 410.0))
@@ -195,6 +200,7 @@ static func move_tooltip(rows: Array) -> String:
 static func build_trait(burst_trait: Dictionary, source: Dictionary = {}) -> Control:
 	var row := LoopTraitRow.new()
 	row.loop_source = source
+	row.loop_term = str(burst_trait.get("glossary_key", burst_trait.get("icon", "")))
 	row.name = "EnemyBurstTrait"
 	row.add_theme_constant_override("separation", 10)
 	var socket := Socket.new()

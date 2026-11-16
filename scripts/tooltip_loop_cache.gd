@@ -23,18 +23,25 @@ static func shared() -> Node:
 static func resident_stream_count() -> int:
 	return _instance.streams.size() if is_instance_valid(_instance) else 0
 
+static func diagnostics_if_present() -> Dictionary:
+	return _instance.diagnostics() if is_instance_valid(_instance) else {}
+
 func acquire(path: String) -> void:
 	var started: int = Time.get_ticks_usec()
 	if not streams.has(path):
-		streams[path] = {"users": 0, "release_at_usec": 0, "frames": {}, "order": [], "task": -1, "request": -1, "result": {}, "header": {}, "failed": false}
+		streams[path] = {"users": 0, "release_at_usec": 0, "frames": {}, "order": [], "task": -1, "request": -1, "result": {}, "header": {}, "failed": false, "created_usec": started, "release_count": 0, "acquire_max_usec": 0, "decode_max_usec": 0, "upload_max_usec": 0}
 	streams[path]["users"] += 1
 	streams[path]["release_at_usec"] = 0
-	acquire_max_usec = maxi(acquire_max_usec, Time.get_ticks_usec() - started)
+	var elapsed: int = Time.get_ticks_usec() - started
+	streams[path]["acquire_max_usec"] = maxi(int(streams[path]["acquire_max_usec"]), elapsed)
+	acquire_max_usec = maxi(acquire_max_usec, elapsed)
 
 func release(path: String) -> void:
 	if streams.has(path):
 		streams[path]["users"] = maxi(0, int(streams[path]["users"]) - 1)
-		if int(streams[path]["users"]) == 0: streams[path]["release_at_usec"] = Time.get_ticks_usec() + int(RELEASE_SECONDS * 1000000.0)
+		if int(streams[path]["users"]) == 0:
+			streams[path]["release_at_usec"] = Time.get_ticks_usec() + int(RELEASE_SECONDS * 1000000.0)
+			streams[path]["release_count"] += 1
 
 func header(path: String) -> Dictionary:
 	return streams.get(path, {}).get("header", {})
@@ -80,6 +87,7 @@ func _process(_delta: float) -> void:
 				stream["result"] = {}
 			else:
 				stream["header"] = completed["header"]
+				stream["decode_max_usec"] = maxi(int(stream["decode_max_usec"]), int(completed["decode_usec"]))
 				decode_max_usec = maxi(decode_max_usec, int(completed["decode_usec"]))
 		if int(stream["task"]) < 0 and not stream["result"].is_empty() and not uploaded:
 			var pictures: Dictionary = stream["result"]["images"]
@@ -94,7 +102,9 @@ func _process(_delta: float) -> void:
 				stream["frames"].erase(stream["order"].pop_front())
 			pictures.erase(index)
 			if pictures.is_empty(): stream["result"] = {}
-			upload_max_usec = maxi(upload_max_usec, Time.get_ticks_usec() - started)
+			var elapsed: int = Time.get_ticks_usec() - started
+			stream["upload_max_usec"] = maxi(int(stream["upload_max_usec"]), elapsed)
+			upload_max_usec = maxi(upload_max_usec, elapsed)
 			uploaded = true
 		if int(stream["users"]) == 0:
 			if Time.get_ticks_usec() >= int(stream["release_at_usec"]) and int(stream["task"]) < 0: streams.erase(path)
@@ -111,3 +121,11 @@ func _exit_tree() -> void:
 	for stream: Dictionary in streams.values():
 		if int(stream["task"]) >= 0: WorkerThreadPool.wait_for_task_completion(int(stream["task"]))
 	streams.clear()
+
+func diagnostics() -> Dictionary:
+	# No textures/images/worker references escape in proof diagnostics.
+	var result: Dictionary = {}
+	for path: String in streams:
+		var stream: Dictionary = streams[path]
+		result[path] = {"users": stream["users"], "release_at_usec": stream["release_at_usec"], "release_count": stream["release_count"], "created_usec": stream["created_usec"], "task_pending": int(stream["task"]) >= 0, "cached_frames": stream["frames"].size(), "acquire_max_usec": stream["acquire_max_usec"], "decode_max_usec": stream["decode_max_usec"], "upload_max_usec": stream["upload_max_usec"]}
+	return result

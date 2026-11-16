@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate and pack raw renderer recordings; never retime, crop or omit frames."""
+"""Gate and pack the contiguous recorder window; preserve every retained frame."""
 import argparse
 import hashlib
 import io
@@ -99,28 +99,37 @@ def main():
     parser.add_argument("--evaluate-only", action="store_true")
     parser.add_argument("--migrate-existing", action="store_true",
                         help="Convert old approved recordings; mark provenance as requiring native re-record")
+    parser.add_argument("--loops", help="Comma-separated registry IDs; default: all recordable loops")
     args = parser.parse_args()
     encoder, reports, outputs = Encoder(args.libwebp), [], []
     registry = json.loads((ROOT / "data/tooltip_loops.json").read_text())
+    selected_ids = set(args.loops.split(",")) if args.loops else None
+    rows = [row for row in registry["loops"] if not row.get("todo_design") and (selected_ids is None or row["id"] in selected_ids)]
+    if selected_ids is not None and selected_ids != {row["id"] for row in rows}:
+        raise ValueError("Unknown or TODO_DESIGN loop selected")
+    if not rows:
+        raise ValueError("No recordable loops selected")
     provenance_valid = True
-    for row in registry["loops"]:
+    for row in rows:
         source = args.input_dir / (row["id"] + ".tlp")
         target = ROOT / "assets/tooltip_loops" / (row["id"] + ".tlw")
         report, output = compress(source, target, encoder)
         provenance = json.loads(source.with_suffix(".tlp.json").read_text())
         speed = row.get("speed", "normal")
-        ceiling = 165 if speed == "fast" else 126
+        ceiling = min(165 if speed == "fast" else 126, row.get("max_recording_frames", 165))
         report["recorded_speed"] = provenance.get("speed", "normal")
         report["recording_matches_brief"] = (report["recorded_speed"] == speed and
                                               report["action_frames"] <= ceiling and
                                               provenance.get("asset_sha256") == report["raw_sha256"])
         provenance_valid = provenance_valid and report["recording_matches_brief"]
+        report["registry_cap_bytes"] = row.get("max_asset_bytes", LOSSLESS_CAP_BYTES)
+        report["within_registry_cap"] = output is not None and len(output[1]) <= report["registry_cap_bytes"]
         reports.append(report)
-        if output is not None:
+        if report["within_registry_cap"]:
             outputs.append(output)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(reports, indent=2) + "\n")
-    if len(outputs) != len(registry["loops"]):
+    if len(outputs) != len(rows):
         print("TIP02 COMPRESSION: FAIL (no assets replaced)")
         return 1
     if not args.evaluate_only:
@@ -135,13 +144,13 @@ def main():
             temporary.replace(target)
             target.with_suffix(target.suffix + ".json").write_text(json.dumps(provenance, indent=2) + "\n")
         # Switch the registry only after all compressed assets/provenance exist.
-        for row in registry["loops"]:
+        for row in rows:
             row["asset_path"] = "res://assets/tooltip_loops/" + row["id"] + ".tlw"
         (ROOT / "data/tooltip_loops.json").write_text(json.dumps(registry, indent=2) + "\n")
         presets = ROOT / "export_presets.cfg"
         presets.write_text(presets.read_text().replace("assets/tooltip_loops/*.tlp,assets/tooltip_loops/*.tlp.json,", ""))
         # Only remove old shipping raw files after every loop has passed.
-        for row in registry["loops"]:
+        for row in rows:
             old = ROOT / "assets/tooltip_loops" / (row["id"] + ".tlp")
             old.unlink(missing_ok=True)
             old.with_suffix(".tlp.json").unlink(missing_ok=True)

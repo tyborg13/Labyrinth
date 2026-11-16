@@ -8,7 +8,8 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Cache = preload("res://scripts/tooltip_loop_cache.gd")
 const Format = preload("res://scripts/tooltip_loop_format.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
-const OUT: String = "/private/tmp/labyrinth_codex/tip-02/capture"
+const OpenProof = preload("res://tools/tooltip_loops/capture_open.gd")
+const OUT: String = "/private/tmp/labyrinth_codex/tip-04/capture"
 const SAMPLE_FRAMES: int = 60 # Debug timing sample count per cold open.
 const READY_FRAME_LIMIT: int = 300 # Debug IO/readiness timeout.
 const HOVER_WAIT_SECONDS: float = 1.5
@@ -35,6 +36,9 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	if OS.get_cmdline_user_args().has("--lifecycle-only"):
+		await preload("res://tools/tooltip_loops/capture_checks.gd").order(self)
+		_finish("LIFECYCLE"); return
 	if OS.get_cmdline_user_args().has("--semantics-only"):
 		await _semantics()
 		_finish("SEMANTICS"); return
@@ -45,85 +49,98 @@ func _run() -> void:
 	viewport = Playback.canvas(self)
 	viewport.gui_embed_subwindows = true
 	viewport.notify_mouse_entered()
-	DirAccess.make_dir_recursive_absolute(OUT)
-	_expect(Registry.entries()[0]["id"] == "burst_ember_tick", "Fresh-process measurement opens Burst first")
-	_expect(Cache.resident_stream_count() == 0, "No stream is warmed before the first opening measurement")
+	DirAccess.make_dir_recursive_absolute(output_dir())
+	_expect(Cache.resident_stream_count() == 0, "No stream warmed before the first loop opening")
 	var first_loop_open: bool = true
-	for row: Dictionary in Registry.entries():
+	var closures: Array[Dictionary]
+	for row: Dictionary in ordered_entries():
+		if row.has("todo_design"): continue
 		if not FileAccess.file_exists(row["asset_path"]):
 			failures.append("Record first: missing " + str(row["asset_path"])); continue
 		var proof_file := FileAccess.open(row["asset_path"], FileAccess.READ)
 		var proof_header: Dictionary = Format.header(proof_file)
-		_expect(not proof_header.is_empty() and not bool(proof_header.get("legacy_raw", false)), "Native proof requires freshly compressed assets: " + str(row["id"]))
+		_expect(not proof_header.is_empty() and not bool(proof_header.get("legacy_raw", false)), "Native proof requires compressed footage: " + str(row["id"]))
 		var provenance: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str(row["asset_path"]) + ".json"))
 		_expect(not bool(provenance.get("requires_native_rerecord", true)), "Native proof requires re-recorded footage: " + str(row["id"]))
-		_expect(provenance.get("speed", "normal") == row.get("speed", "normal"), "Native proof recording speed matches registry: " + str(row["id"]))
+		var timing: Dictionary = provenance.get("motion_timing", {})
+		_expect(not timing.is_empty(), "Native proof requires the new unpadded recording: " + str(row["id"]))
+		_expect(float(timing.get("first_motion_seconds", INF)) <= 0.4 and float(timing.get("tail_seconds", INF)) <= 0.2, "Recording lead-in and settled tail meet the director limits: " + str(row["id"]))
+		_expect(proof_file.get_length() <= int(row.get("max_asset_bytes", 1500000)), "Compressed recording fits its size cap: " + str(row["id"]))
+		_expect(provenance.get("speed", "normal") == row.get("speed", "normal"), "Recording speed matches registry: " + str(row["id"]))
+		Registry.proof_media_disabled = true
 		var fixture: Dictionary = Fixture.build(row["id"])
 		var scene: Node = await Playback.instance(self, viewport, fixture, false)
-		if row["source_match"].get("kind") == "enemy": await _prepare_enemy_inspection(scene)
-		# Measure quiet board frames before opening the cold stream.
-		var baseline: int = await _frame_max(SAMPLE_FRAMES)
-		_opening_active = true
-		_opening_max = 0
-		_opening_previous = Time.get_ticks_usec()
-		var before: int = Time.get_ticks_usec()
-		var panel: Control = await _open(scene, row)
-		var open_usec: int = Time.get_ticks_usec() - before
-		if panel == null:
-			_opening_active = false
-			failures.append("Context tooltip failed to open: " + str(row["id"]))
-			scene.queue_free(); await process_frame; continue
-		var window: Control = panel.find_child("TooltipLoopWindow", true, false) as Control
-		if window == null:
-			failures.append("Source context did not attach its loop: " + str(row["id"]))
-		else:
-			await _frame_max(SAMPLE_FRAMES)
-			_opening_active = false
-			var opened_max: int = _opening_max
+		var prepared: Dictionary = await OpenProof.prepare(self, scene, row)
+		var route: Dictionary = prepared["route"]
+		var baseline: Dictionary = await OpenProof.measure(self, scene, route, false)
+		closures.append({"id": row["id"], "variant": "no_loop", "audit": await OpenProof.close(self, scene, baseline["panel"])})
+		_expect(not Cache.diagnostics_if_present().has(row["asset_path"]), "No-loop control leaves this loop cold: " + str(row["id"]))
+		var opened: Dictionary = await OpenProof.measure(self, scene, route, true)
+		var panel: Control = opened["panel"]
+		var window: Control = opened["window"]
+		_expect(opened["text"] == baseline["text"] and opened["owner_path"] == baseline["owner_path"] and opened["icons"] == baseline["icons"], "Same open preserves identical owner, text and icons: " + str(row["id"]))
+		if window != null:
 			var cache: Node = Cache.shared()
 			var rate: float = await _playback_rate(window)
-			_expect(rate >= 20.0, "At least 20 fps observed playback: " + str(row["id"]))
+			var metrics: Dictionary = cache.diagnostics().get(row["asset_path"], {})
 			var bound: int = cache.resident_bound_bytes() / maxi(1, cache.streams.size())
-			var added: int = maxi(0, opened_max - baseline)
-			measurements.append({"id": row["id"], "baseline_max_frame_usec": baseline, "open_max_frame_usec": opened_max, "added_frame_usec": added, "tooltip_open_route_usec": open_usec, "acquire_max_usec": cache.acquire_max_usec, "upload_max_usec": cache.upload_max_usec, "worker_decode_max_usec": cache.decode_max_usec, "decode_strategy": "worker decode, one texture upload per tick", "resident_bound_bytes_per_loop": bound, "observed_playback_fps": rate, "first_loop_open_in_process": first_loop_open, "vignette_processing": "baked into recorded RGB", "runtime_warmup": "none", "tooltip_build_usec": panel.get_meta("tooltip_loop_build_usec", -1), "loop_ready_usec": window.ready_usec, "stream_lease_usec": window.lease_usec})
-			_expect(added <= OPEN_BUDGET_USEC and cache.acquire_max_usec <= OPEN_BUDGET_USEC and cache.upload_max_usec <= OPEN_BUDGET_USEC, "Opening adds no frame over 4 ms: " + str(row["id"]))
+			var added: int = maxi(0, int(opened["max_frame_usec"]) - int(baseline["max_frame_usec"]))
+			measurements.append({"id": row["id"], "order": OS.get_environment("TOOLTIP_LOOP_ORDER"), "context_preparation_loop_disabled": prepared["timings"], "no_loop_max_frame_usec": baseline["max_frame_usec"], "no_loop_route_usec": baseline["route_usec"], "open_max_frame_usec": opened["max_frame_usec"], "added_frame_usec": added, "tooltip_open_route_usec": opened["route_usec"], "per_stream": metrics, "observed_playback_fps": rate, "action_playback_sample": window.get_meta("action_playback_sample", {}), "resident_bound_bytes_per_loop": bound, "first_loop_open_in_process": first_loop_open, "tooltip_build_usec": panel.get_meta("tooltip_loop_build_usec", -1), "loop_ready_usec": window.ready_usec, "stream_lease_usec": window.lease_usec, "comparison": "same scene, same prepared actor state, same tooltip route/text/icons; attachment only toggled", "loop_warmup": "none"})
+			_expect(added <= OPEN_BUDGET_USEC and int(metrics.get("acquire_max_usec", 0)) <= OPEN_BUDGET_USEC and int(metrics.get("upload_max_usec", 0)) <= OPEN_BUDGET_USEC, "Loop adds no frame over 4 ms versus same no-loop open: " + str(row["id"]))
+			_expect(rate >= 20.0, "At least 20 fps observed playback: " + str(row["id"]))
 			_expect(bound <= RESIDENT_BUDGET, "At most 12 MB resident per loop")
-			for moment: String in ["start", "middle", "end"]:
+			var moments: Array = ["middle"] if Fixture.Tip03.IDS.has(row["id"]) else ["start", "middle", "end"]
+			for moment: String in moments:
 				var info: Dictionary = cache.header(window.asset_path)
 				var duration: float = float(info.get("count", 0)) / 30.0
 				window.proof_seconds = 0.0 if moment == "start" else duration * 0.5 if moment == "middle" else duration + 0.3
 				await _wait_frame(window, mini(int(window.proof_seconds * 30.0), int(info.get("count", 1)) - 1))
 				await _capture("%s_%s" % [row["id"], moment])
-			window.reduced_motion = true
-			window.proof_seconds = -1.0
-			await _wait_frame(window, int(cache.header(window.asset_path).get("count", 1)) - 1)
-			await _capture(str(row["id"]) + "_reduced_motion")
-		first_loop_open = false
-		if row["source_match"].get("kind") == "enemy": await _capture_pre_battle(scene, fixture, row)
+			if not Fixture.Tip03.IDS.has(row["id"]):
+				window.reduced_motion = true
+				window.proof_seconds = -1.0
+				await _wait_frame(window, int(cache.header(window.asset_path).get("count", 1)) - 1)
+				await _capture(str(row["id"]) + "_reduced_motion")
+		if row["source_match"].get("kind") == "enemy" and not Fixture.Tip03.IDS.has(row["id"]):
+			await _capture_pre_battle(scene, fixture, row)
+			var outer: Control = _tooltip(scene)
+			await OpenProof.close(self, scene, outer)
+		# The pre-battle proof can free the board panel first; pass null rather than a freed Object.
+		closures.append({"id": row["id"], "variant": "loop", "audit": await OpenProof.close(self, scene, panel if is_instance_valid(panel) else null)})
 		scene.queue_free()
 		await process_frame
-	# Negative context uses a real Seer with its real Icefall intent.
-	var seer: Dictionary = _seer_fixture()
-	var scene: Node = await Playback.instance(self, viewport, seer, false)
-	var panel: Control = await _open(scene, {"id": "marked_hoarfrost_seer", "source_match": {"kind": "enemy", "id": "hoarfrost_seer"}, "term": "marked"})
-	_expect(panel != null and panel.find_child("TooltipLoopWindow", true, false) == null, "Hoarfrost Seer Marked stays text-only")
-	if panel != null: await _capture("marked_hoarfrost_seer_text_only")
-	scene.queue_free()
-	await process_frame
-	await create_timer(10.1, true, false, true).timeout
-	_expect(Cache.shared().streams.is_empty(), "All streams freed ten seconds after close")
-	FileAccess.open(OUT.path_join("measurements.json"), FileAccess.WRITE).store_string(JSON.stringify({"measurements": measurements, "hover_routes": hover_routes, "failures": failures, "display": DisplayServer.get_name(), "engine": Engine.get_version_info()}, "\t"))
+		first_loop_open = false
+	Registry.proof_media_disabled = false
+	var expiry: Dictionary = await OpenProof.expire(self)
+	_expect(Cache.shared().streams.is_empty(), "All released streams expire on their ten-second monotonic deadlines: " + JSON.stringify(expiry["after_expiry"]))
+	FileAccess.open(output_dir().path_join("measurements.json"), FileAccess.WRITE).store_string(JSON.stringify({"measurements": measurements, "hover_routes": hover_routes, "closures": closures, "expiry": expiry, "failures": failures, "display": DisplayServer.get_name(), "engine": Engine.get_version_info()}, "\t"))
 	_finish("CAPTURE")
 
-func _seer_fixture() -> Dictionary:
-	var fixture: Dictionary = Fixture.build("marked_burrow_grub")
-	fixture["id"] = "hoarfrost_seer"
-	var enemy: Dictionary = fixture["state"]["enemies"][0]
-	enemy["type"] = "hoarfrost_seer"
-	for intent: Dictionary in preload("res://scripts/game_data.gd").enemy_def("hoarfrost_seer")["intents"]:
-		if (intent.get("actions", []) as Array).any(func(action: Dictionary) -> bool: return str(action.get("type", "")).begins_with("icefall_")):
-			enemy["intent"] = intent.duplicate(true); break
-	return fixture
+func output_dir() -> String:
+	var destination: String = OS.get_environment("TOOLTIP_LOOP_CAPTURE_OUT")
+	return OUT if destination.is_empty() else destination
+
+func ordered_entries() -> Array:
+	var rows: Array = preload("res://tools/tooltip_loops/record.gd").selected_entries().duplicate()
+	var order: String = OS.get_environment("TOOLTIP_LOOP_ORDER")
+	if order in ["freeze-first", "freeze-last"]:
+		for index: int in range(rows.size()):
+			if rows[index]["id"] != "freeze_status": continue
+			var freeze: Dictionary = rows.pop_at(index)
+			if order == "freeze-first": rows.push_front(freeze)
+			else: rows.append(freeze)
+			break
+	return rows
+
+func _start_frame_sample() -> void:
+	_opening_max = 0
+	_opening_previous = Time.get_ticks_usec()
+	_opening_active = true
+
+func _stop_frame_sample() -> int:
+	_sample_opening_frame()
+	_opening_active = false
+	return _opening_max
 
 func _capture_pre_battle(scene: Node, fixture: Dictionary, row: Dictionary) -> void:
 	var run: Dictionary = fixture["run"].duplicate(true)
@@ -156,13 +173,17 @@ func _capture_pre_battle(scene: Node, fixture: Dictionary, row: Dictionary) -> v
 	await _capture(str(row["id"]) + "_pre_battle_outer")
 
 func _open(scene: Node, row: Dictionary) -> Control:
-	if row["term"] == "chain":
+	if row["source_match"].get("kind") == "hero_card":
 		# The hand's real keyword column; its entry factory is also kw-cards.
 		var stack: Control = scene.get("_card_focus_tooltip_stack")
 		scene.call("_show_card_focus_tooltips", 0)
 		await process_frame
 		return stack
-	if not bool(scene.get("_show_all_enemy_intents")): await _prepare_enemy_inspection(scene)
+	if row["source_match"].get("kind") == "battlefield_rule":
+		var hud: Control = scene.get("_battlefield_rule_hud")
+		await _pointer(hud.get_global_rect().get_center())
+		await create_timer(HOVER_WAIT_SECONDS, true, false, true).timeout
+		return _tooltip(hud)
 	var board: Control = scene.get("board_view")
 	await _pointer(CLEAR_POINTER)
 	for attempt: int in range(HOVER_ROUTE_ATTEMPTS):
@@ -175,11 +196,11 @@ func _open(scene: Node, row: Dictionary) -> Control:
 			var source: Dictionary = Context.board_source(board, game_text)
 			var owns_hover: bool = viewport.gui_get_hovered_control() == board
 			var matches_source: bool = source.get("id", "") == row["source_match"]["id"]
-			if not owns_hover or not matches_source or not preload("res://scripts/glossary.gd").ids_in_text(game_text).has(row["term"]): continue
+			if not owns_hover or not matches_source or not _matches_term(game_text, row): continue
 			await create_timer(HOVER_WAIT_SECONDS, true, false, true).timeout
 			var popup: Control = _tooltip(board)
 			if popup != null:
-				hover_routes.append({"id": row["id"], "source_canvas": candidate["canvas"], "routed_hud": candidate["routed_hud"], "game_text": game_text, "native_popup": true})
+				hover_routes.append({"id": row["id"], "source_canvas": candidate["canvas"], "routed_hud": candidate["routed_hud"], "game_text": game_text, "native_popup": true, "media_enabled": not Registry.proof_media_disabled})
 				return popup
 			await _pointer(CLEAR_POINTER)
 	var hovered: Control = viewport.gui_get_hovered_control()
@@ -198,13 +219,22 @@ func _prepare_enemy_inspection(scene: Node) -> void:
 		await process_frame
 	for frame: int in range(OUTER_POPUP_SETTLE_FRAMES): await process_frame
 
+func _matches_term(text: String, row: Dictionary) -> bool:
+	var source: Dictionary = row["source_match"]
+	return Registry.find(Context.term_in(text, source), source).get("term", "") == row["term"]
+
 func _enemy_hover_candidates(board: Control, row: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for layer: Control in Context.tooltip_sources(board):
 		for region: Dictionary in layer._tooltip_regions:
 			if region.get("loop_source", {}).get("id", "") != row["source_match"]["id"]: continue
-			if not preload("res://scripts/glossary.gd").ids_in_text(str(region.get("tooltip", ""))).has(row["term"]): continue
+			if not _matches_term(str(region.get("tooltip", "")), row): continue
 			result.append({"rect": region["rect"], "canvas": str(layer.get_path()), "routed_hud": layer.has_meta("rd03_canvas")})
+	for unit: Dictionary in board.plate_visibility.actors():
+		if Context.actor_source(board, str(unit.get("key", ""))) != row["source_match"]: continue
+		for entry: Dictionary in board.plate_visibility.status_entries(unit):
+			if not _matches_term(str(entry.get("tooltip", "")), row): continue
+			result.append({"rect": entry["rect"], "canvas": "status_plate", "routed_hud": false})
 	return result
 
 func _pointer(point: Vector2) -> void:
@@ -230,16 +260,10 @@ func _wait_frame(window: Control, index: int) -> void:
 	failures.append("Stream did not present frame %d" % index)
 
 func _playback_rate(window: Control) -> float:
-	window._elapsed = 0.0
-	var started: int = Time.get_ticks_usec()
-	var previous: int = int(window.displayed_frame)
-	var changes: int = 0
-	while Time.get_ticks_usec() - started < 1000000:
-		await process_frame
-		if int(window.displayed_frame) != previous:
-			changes += 1
-			previous = int(window.displayed_frame)
-	return float(changes) * 1000000.0 / float(Time.get_ticks_usec() - started)
+	var count: int = int(Cache.shared().header(window.asset_path).get("count", 0))
+	var sample: Dictionary = await preload("res://tools/tooltip_loops/playback_rate.gd").measure(self, window, count)
+	window.set_meta("action_playback_sample", sample)
+	return float(sample["fps"])
 
 func _sample_opening_frame() -> void:
 	if not _opening_active: return
@@ -262,7 +286,7 @@ func _capture(label: String) -> void:
 	var picture: Image = viewport.get_texture().get_image()
 	_expect(picture != null and picture.get_size() == Playback.SIZE, "Real 1920x1080 renderer capture")
 	if picture == null: return
-	var path: String = OUT.path_join(label + "_1920x1080.png")
+	var path: String = output_dir().path_join(label + "_1920x1080.png")
 	_expect(picture.save_png(path) == OK, "Save " + label)
 	print(path)
 
@@ -270,9 +294,9 @@ func _semantics() -> void:
 	_expect(Fixture.BIOMES.get("chain_card") == "zekarion", "Chain defaults to Zekarion floor and light")
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
-	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "Only Burrow records at the player fast setting")
-	_expect(Registry.entries().size() == 3, "Exactly three registered recordings")
-	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).is_empty(), "Seer cannot borrow Grub recording")
+	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
+	_expect(Registry.entries().size() == 15, "Eleven existing plus four room-rule scripts")
+	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
 	_expect(Registry.find("erupt", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Erupt alias resolves by source")
@@ -282,7 +306,8 @@ func _semantics() -> void:
 	_expect(Context.term_in(Icons.tooltip("burst"), Context.enemy("ember_tick")) == "burst", "Canonical tooltip identifies Bursts")
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
-		_expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		# New recordings are director-owned native work; no synthetic footage ships.
+		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))
@@ -355,20 +380,24 @@ func _semantics() -> void:
 	await process_frame
 	row["asset_path"] = original
 	await _outer_popup_semantics(path)
+	await preload("res://tools/tooltip_loops/tip03_context.gd").verify(self, path)
+	await preload("res://tools/tooltip_loops/tip04_context.gd").verify(self, path)
+	await preload("res://tools/tooltip_loops/capture_checks.gd").verify(self)
 	await create_timer(10.1, true, false, true).timeout
 	_expect(Cache.shared().streams.is_empty(), "Real-time cache expires ten seconds after last close")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func _routed_hover_semantics() -> void:
 	viewport = Playback.canvas(self)
-	for id: String in ["burst_ember_tick", "marked_burrow_grub", "hoarfrost_seer"]:
-		var fixture: Dictionary = _seer_fixture() if id == "hoarfrost_seer" else Fixture.build(id)
+	for id: String in ["burst_ember_tick", "marked_burrow_grub", "hoarfrost_seer", "splits_cinder_ooze"]:
+		var fixture: Dictionary = Fixture.build("marked_icefall_seer") if id == "hoarfrost_seer" else Fixture.build(id)
 		var scene: Node = await Playback.instance(self, viewport, fixture, false)
 		var board: Control = scene.get("board_view")
 		scene.call("_set_show_all_enemy_intents", true)
 		var enemy: Dictionary = fixture["state"]["enemies"][0]
 		var source: Dictionary = Context.enemy(str(enemy["type"]))
-		var term: String = "burst" if id == "burst_ember_tick" else "marked"
+		var term: String = "splits" if id == "splits_cinder_ooze" else "burst" if id == "burst_ember_tick" else "marked"
+		var tooltip_text: String = str(Context.Splits.trait_token(enemy)["tooltip"]) if term == "splits" else Icons.tooltip(term)
 		var row: Dictionary = {"term": term, "source_match": source}
 		# Dummy rendering cannot populate native draw registrations. Reproduce
 		# the real per-actor routing boundary using the production board script,
@@ -380,21 +409,21 @@ func _routed_hover_semantics() -> void:
 		routed.set_meta("rd03_canvas", true)
 		board.add_child(routed)
 		routed._tooltip_loop_source = source
-		routed._register_tooltip(ROUTE_PROOF_RECT, Icons.tooltip(term))
+		routed._register_tooltip(ROUTE_PROOF_RECT, tooltip_text)
 		board._aim_focus.canvases["tooltip_route_proof"] = {"canvas": routed, "unit": enemy, "hud": true}
 		_expect(not board._retained_render_layers().has(routed), "Reproduces HUD canvas omitted by the old capture route")
 		var candidates: Array[Dictionary] = _enemy_hover_candidates(board, row)
-		_expect(candidates.size() == 1 and bool(candidates[0]["routed_hud"]), "Capture finds the same per-actor region as the game: " + id)
+		_expect(candidates.filter(func(candidate: Dictionary) -> bool: return bool(candidate["routed_hud"])).size() == 1, "Capture finds the same per-actor region as the game: " + id)
 		board._last_pointer_position = ROUTE_PROOF_RECT.get_center()
 		var game_text: String = board._get_tooltip(board._last_pointer_position)
-		_expect(game_text == Icons.tooltip(term), "Game native hit-test opens the intended term: " + id)
+		_expect(game_text == tooltip_text, "Game native hit-test opens the intended term: " + id)
 		_expect(Context.board_source(board, game_text) == source, "Native term keeps its exact enemy source: " + id)
 		var panel: Control = board._make_custom_tooltip(game_text)
 		var window: Control = panel.find_child("TooltipLoopWindow", true, false) if panel != null else null
-		_expect(panel != null and (window == null if id == "hoarfrost_seer" else window != null), "Game tooltip builder preserves source-specific loop/Seer exclusion: " + id)
+		_expect(panel != null and (window != null if FileAccess.file_exists(Registry.find(term, source).get("asset_path", "")) else window == null), "Game tooltip builder preserves source-specific routing: " + id)
 		if panel != null: panel.free()
 		routed.hide()
-		_expect(_enemy_hover_candidates(board, row).is_empty(), "Capture excludes hidden routed canvases")
+		_expect(_enemy_hover_candidates(board, row).filter(func(candidate: Dictionary) -> bool: return bool(candidate["routed_hud"])).is_empty(), "Capture excludes hidden routed canvases")
 		scene.queue_free()
 		await process_frame
 	# Separately exercise the recorder mask for all three real fixture scenes.
@@ -437,7 +466,7 @@ func _outer_popup_semantics(path: String) -> void:
 	var pinned: Control = inspection.build(host, enemy, true)
 	_expect(pinned.find_child("TooltipLoopWindow", true, false) == null, "Pinned inspector and its nested native term popups remain unchanged")
 	pinned.free()
-	_expect(Context.outer_popup_window(Context.enemy("hoarfrost_seer")) == null, "Seer outer popup stays text-only")
+	_expect(Context.outer_popup_window(Context.enemy("frost_tick")) == null, "Unlisted enemy outer popup stays text-only")
 	popup.queue_free()
 	host.free()
 	await process_frame

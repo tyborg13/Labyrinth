@@ -22,7 +22,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	settings["combat_speed"] = speed
 	Settings.save_settings(settings) # Task-runner HOME only; _ready reads this same player setting.
 	Settings.apply_settings(settings, null, false)
-	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Biomes.default_biome()))
+	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Biomes.default_biome()))))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -69,7 +69,16 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 	await scene.get_tree().create_timer(0.4).timeout
 	var pacing: Node = scene.get("_combat_pacing")
 	for beat: Dictionary in result["beats"]:
-		if beat["kind"] == "enemy":
+		if beat["kind"] == "room_rule":
+			pacing.begin_enemies()
+			await Fixture.Tip04.play(scene, beat)
+		elif beat["kind"] == "rule":
+			pacing.begin_enemies()
+			# The ordinary loss-feedback painter owns numbers, reactions and timing;
+			# feed the rule's real struck tiles to its existing lightning effect.
+			var shown: Dictionary = rule_presentation(scene, beat)
+			await scene.call("_animate_floating_text_presentation", beat["after"], shown)
+		elif beat["kind"] == "enemy":
 			pacing.begin_enemies()
 			await scene.call("_animate_enemy_phase_steps", beat["before"].duplicate(true), beat["steps"], beat["after"])
 		else:
@@ -78,7 +87,7 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 			await scene.call("_animate_player_action_step", beat["before"], beat["after"], str(beat.get("card", "")), beat["action"], beat["target"], beat["chain_hits"])
 			await scene.call("_finish_player_popup_timeline", beat["after"])
 		scene.call("_render_board_state", beat["after"], {})
-		if beat["kind"] == "enemy": await pacing.finish_enemies()
+		if beat["kind"] in ["enemy", "rule", "room_rule"]: await pacing.finish_enemies()
 		else: pacing.end_scope()
 	completion["done"] = true
 
@@ -94,3 +103,10 @@ static func crop_rect(board: Control) -> Rect2i:
 	var width: float = bounds.size.x * 282.0 / 258.0
 	var extent := Vector2(width, width * 168.0 / 282.0)
 	return Rect2i(Rect2(bounds.get_center() - extent * 0.5, extent))
+
+static func rule_presentation(scene: Node, beat: Dictionary) -> Dictionary:
+	var shown: Dictionary = scene.call("_enemy_loss_feedback_presentation_between_states", beat["before"], beat["after"], "lightning")
+	# The normal impact helper strips its effect after creating decals. Reuse
+	# the production Lightning Strikes painter for both real rule-fuel tiles.
+	shown["effect"] = {"kind": "lightning_strikes", "element": "lightning", "tiles": beat["tiles"], "source_kind": "battlefield_rule"}
+	return shown

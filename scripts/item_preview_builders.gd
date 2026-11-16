@@ -187,6 +187,9 @@ func with_keywords(preview: Control, card_ids: Array) -> Control:
 	column.add_theme_constant_override("separation", Stack.STACK_SEPARATION)
 	row.add_child(column)
 	var seen: Dictionary = {}
+	# Tooltip loops play on one card's own keywords. Two-card gear tooltips are
+	# the densest panels (Crown of Thorns reached 1184 px with one), so they skip them.
+	var loops: bool = card_ids.size() == 1
 	for id: String in card_ids:
 		var card: Dictionary = card_definition(id)
 		var rows: Array = CardDisplay.for_card(id, state, card)["summary_rows"] if use_run_display else ActionIcons.rows_for_card(card)
@@ -196,7 +199,7 @@ func with_keywords(preview: Control, card_ids: Array) -> Control:
 			var key: String = str(entry.get("semantic_key", entry["tooltip"]))
 			if seen.has(key): continue
 			seen[key] = true
-			var panel: PanelContainer = Tooltip.make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), str(entry.get("glossary_key", "")), {"kind": "hero_card"})
+			var panel: PanelContainer = Tooltip.make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), str(entry.get("glossary_key", "")) if loops else "", {"kind": "hero_card"})
 			panel.set_meta("semantic_key", key)
 			column.add_child(panel)
 	return owner
