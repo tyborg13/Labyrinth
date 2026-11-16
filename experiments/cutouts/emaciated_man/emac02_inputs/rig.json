@@ -1,0 +1,245 @@
+{
+  "character_id": "emaciated_man",
+  "joints": {
+    "root": {
+      "joint": "root",
+      "parent": null
+    },
+    "robe_torso": {
+      "joint": "root",
+      "parent": "root"
+    },
+    "head_hood": {
+      "joint": "neck",
+      "parent": "root"
+    },
+    "near_upper_arm": {
+      "joint": "shoulder_near",
+      "parent": "root"
+    },
+    "near_forearm": {
+      "joint": "elbow_near",
+      "parent": "root"
+    },
+    "near_hand": {
+      "joint": "wrist_near",
+      "parent": "root"
+    },
+    "far_upper_arm": {
+      "joint": "shoulder_far",
+      "parent": "root"
+    },
+    "far_forearm_hand": {
+      "joint": "elbow_far",
+      "parent": "far_upper_arm"
+    },
+    "legs": {
+      "joint": "root",
+      "parent": "root"
+    },
+    "ember_sack": {
+      "joint": "sack_base",
+      "parent": "root"
+    },
+    "far_hand_support": {
+      "joint": "far_hand_support",
+      "parent": "root"
+    }
+  },
+  "parts": {
+    "far_forearm_hand": "far_forearm_hand",
+    "far_upper_arm": "far_upper_arm",
+    "legs": "legs",
+    "robe_torso": "robe_torso",
+    "head_hood": "head_hood",
+    "near_upper_arm": "near_upper_arm",
+    "near_forearm": "near_forearm",
+    "near_hand": "near_hand",
+    "ember_sack": "ember_sack"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 224,
+      "duration": 3.36,
+      "loop": true,
+      "stepped_pose": true,
+      "preview_cycles": 1
+    }
+  },
+  "rigid_bones": [
+    "legs",
+    "ember_sack"
+  ],
+  "contact_feet": [],
+  "copy_files": [
+    {
+      "from": "../../../../scripts/emaciated_man_cutout/motion.gd",
+      "to": "motion.gd"
+    }
+  ],
+  "materials": {
+    "far_forearm_hand": "skin",
+    "far_upper_arm": "skin",
+    "legs": "approved brown cloth",
+    "robe_torso": "approved brown cloth",
+    "head_hood": "approved brown cloth",
+    "near_upper_arm": "skin",
+    "near_forearm": "skin",
+    "near_hand": "skin",
+    "ember_sack": "approved brown cloth"
+  },
+  "ownership_regions": {
+    "front": [
+      {
+        "part": "head_hood",
+        "replace_owners": [
+          "ember_sack"
+        ],
+        "polygon": [
+          [
+            0,
+            0
+          ],
+          [
+            254,
+            0
+          ],
+          [
+            254,
+            133
+          ],
+          [
+            0,
+            133
+          ]
+        ],
+        "reason": "Round 3 rigid groups: maquette edge-label islands on the painted hood belong to the upper body, not the static sack."
+      },
+      {
+        "part": "robe_torso",
+        "replace_owners": [
+          "ember_sack"
+        ],
+        "polygon": [
+          [
+            0,
+            134
+          ],
+          [
+            254,
+            134
+          ],
+          [
+            254,
+            207
+          ],
+          [
+            0,
+            207
+          ]
+        ],
+        "reason": "Round 3 rigid groups: isolated sack-label islands above the painted sack neck follow the upper body."
+      },
+      {
+        "part": "ember_sack",
+        "replace_owners": [
+          "robe_torso",
+          "near_forearm"
+        ],
+        "polygon": [
+          [
+            204.16296296296298,
+            208.01481481481483
+          ],
+          [
+            225.71851851851852,
+            208.01481481481483
+          ],
+          [
+            232.9037037037037,
+            218.07407407407408
+          ],
+          [
+            241.52592592592595,
+            233.88148148148147
+          ],
+          [
+            244.4,
+            248.25185185185185
+          ],
+          [
+            234.34074074074073,
+            254.0
+          ],
+          [
+            195.54074074074074,
+            254.0
+          ],
+          [
+            178.2962962962963,
+            243.94074074074075
+          ],
+          [
+            178.2962962962963,
+            232.44444444444446
+          ],
+          [
+            192.66666666666669,
+            215.2
+          ]
+        ],
+        "reason": "Director round 1: painted sack contour below the planted hand; this cloth is sack paint, not the breathing torso. Trace from approved processed take."
+      }
+    ]
+  },
+  "maquette_registration": {
+    "front": {
+      "scale": [
+        0.3592592592592593,
+        0.3592592592592593
+      ],
+      "offset": [
+        -55.94074074074075,
+        -111.00740740740743
+      ],
+      "trace": {
+        "basis": "Director round 3: original maquette / 4, then 194/135 about (128,254); no silhouette fitting",
+        "reference_bbox": [
+          70,
+          120,
+          207,
+          254
+        ]
+      }
+    }
+  },
+  "cloth": {
+    "far_forearm_hand": {
+      "bones": [
+        "far_forearm_hand",
+        "far_hand_support"
+      ],
+      "bands": [
+        {
+          "center": [
+            79.34589166650629,
+            163.72800044000942
+          ],
+          "axis": [
+            -29.61658703735779,
+            36.1396305096485
+          ],
+          "width": 46.72488759874448
+        }
+      ]
+    }
+  },
+  "proof_defaults": {
+    "mesh_grid": [
+      2,
+      1
+    ],
+    "clip_frames": 224
+  }
+}

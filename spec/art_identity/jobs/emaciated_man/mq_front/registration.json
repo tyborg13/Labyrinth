@@ -1,0 +1,101 @@
+{
+  "art_scale": 1.0,
+  "canvas": [
+    255,
+    255
+  ],
+  "director_revision": "round 3 ground precedence",
+  "factor": 1.4370370370370371,
+  "glow_components": [
+    {
+      "bbox_xyxy_exclusive": [
+        103,
+        109,
+        107,
+        112
+      ],
+      "pixels": 12
+    },
+    {
+      "bbox_xyxy_exclusive": [
+        117,
+        109,
+        121,
+        113
+      ],
+      "pixels": 14
+    },
+    {
+      "bbox_xyxy_exclusive": [
+        214,
+        191,
+        215,
+        193
+      ],
+      "pixels": 2
+    },
+    {
+      "bbox_xyxy_exclusive": [
+        221,
+        241,
+        230,
+        247
+      ],
+      "pixels": 36
+    }
+  ],
+  "glow_min_saturation": 0.75,
+  "green_corrections": 24,
+  "maquette_offset": [
+    -55.94074074074075,
+    -111.00740740740743
+  ],
+  "maquette_scale": [
+    0.3592592592592593,
+    0.3592592592592593
+  ],
+  "paint_bbox": [
+    42,
+    60,
+    244,
+    254
+  ],
+  "pivot": [
+    128,
+    254
+  ],
+  "root": [
+    128,
+    242.5037037037037
+  ],
+  "glow_overlay_boxes": {
+    "eyes": [
+      [
+        103,
+        109,
+        107,
+        112
+      ],
+      [
+        117,
+        109,
+        121,
+        113
+      ]
+    ],
+    "sack_tear": [
+      [
+        221,
+        241,
+        230,
+        247
+      ]
+    ],
+    "bounds": "xyxy exclusive",
+    "selected_pixels": {
+      "eyes": 26,
+      "sack_tear": 36
+    },
+    "ownership_filter": "head_hood and ember_sack overlays only; the two orange skin pixels [214,191:193] belong to near_hand and do not glow"
+  }
+}

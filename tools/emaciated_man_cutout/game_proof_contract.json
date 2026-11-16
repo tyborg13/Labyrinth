@@ -1,0 +1,76 @@
+{
+  "min_images": 6,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*central_waypoint.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 24,
+          "min_luma_stdev": 4
+        }
+      ]
+    },
+    {
+      "pattern": "*dialogue_portrait.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 24,
+          "min_luma_stdev": 4
+        }
+      ]
+    },
+    {
+      "pattern": "*reduced_motion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 24,
+          "min_luma_stdev": 4
+        }
+      ]
+    },
+    {
+      "pattern": "*central_waypoint_default.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 24,
+          "min_luma_stdev": 4
+        }
+      ]
+    }
+  ]
+}

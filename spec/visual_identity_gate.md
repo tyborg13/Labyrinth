@@ -222,6 +222,14 @@ is exactly `{ "previous_output_pixel_sha256": "<preceding output pixel digest>" 
 and need not be committed. Every output uses `pixel_digest` (decoded RGBA bytes plus image size), independent of the
 PNG encoder. The art-05 `output_raw_sha256` field is rejected; re-record it as `output_raw_pixel_sha256` once.
 
+`resize_canvas` records an approved raw normalization using
+`parameters: {"size": [1024,1024], "resample": "LANCZOS"}` and a single bound
+`raw` input. emac-02 retains the untouched 1254² take and binds its normalized
+1024² pixels before K=4 processing. Its maquette kit also records
+`canvas_registration: {"center_x": 138.5, "bottom_y": 254}`, taken from the
+supplied drawn clay bbox. This opt-in placement preserves that delivery's
+registration; jobs without it retain the existing x=128/y=246 placement.
+
 ```json
 {
   "raw_steps": [
@@ -452,3 +460,9 @@ The first probe writes the empty board and normal/boss lineups; the second write
 isolated `user://probes/` directory. Capture uses only the fixed SubViewport texture. These probes construct their
 own presentation fixtures; no saved-run inspection fixture is needed. The 11 old/new portrait pairs are available
 at exact 2× NEAREST in `tests/static_facing_portrait_contact.png` (old left, approved crop right).
+
+Maquette re-adoption may record a positive `reduction_factor` alongside the kit's
+integer generation K. Processing uses that factor for BOX reduction directly
+from the replayed normalized raw; the record retains `k_eff`, placement and
+`fit_scale`. emac-02 round 3 uses 2.783505154639175 for a 194px figure, with
+`fit_scale` 1.0; its maquette and joints share the ground-pivot transform.

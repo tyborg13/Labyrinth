@@ -1,0 +1,228 @@
+{
+  "views": {
+    "front": {
+      "reassignment": {
+        "far_forearm_hand": {
+          "painted_pixels": 1670,
+          "reassigned_pixels": 561,
+          "reassigned_share": 0.33592814371257484,
+          "above_15_percent": true
+        },
+        "far_upper_arm": {
+          "painted_pixels": 768,
+          "reassigned_pixels": 220,
+          "reassigned_share": 0.2864583333333333,
+          "above_15_percent": true
+        },
+        "legs": {
+          "painted_pixels": 5110,
+          "reassigned_pixels": 865,
+          "reassigned_share": 0.16927592954990214,
+          "above_15_percent": true
+        },
+        "robe_torso": {
+          "painted_pixels": 6445,
+          "reassigned_pixels": 363,
+          "reassigned_share": 0.05632273079906905,
+          "above_15_percent": false
+        },
+        "head_hood": {
+          "painted_pixels": 4623,
+          "reassigned_pixels": 330,
+          "reassigned_share": 0.07138221933809215,
+          "above_15_percent": false
+        },
+        "near_upper_arm": {
+          "painted_pixels": 1255,
+          "reassigned_pixels": 92,
+          "reassigned_share": 0.07330677290836653,
+          "above_15_percent": false
+        },
+        "near_forearm": {
+          "painted_pixels": 342,
+          "reassigned_pixels": 42,
+          "reassigned_share": 0.12280701754385964,
+          "above_15_percent": false
+        },
+        "near_hand": {
+          "painted_pixels": 467,
+          "reassigned_pixels": 31,
+          "reassigned_share": 0.06638115631691649,
+          "above_15_percent": false
+        },
+        "ember_sack": {
+          "painted_pixels": 2041,
+          "reassigned_pixels": 528,
+          "reassigned_share": 0.2586967172954434,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "robe_torso",
+        "far_forearm_hand",
+        "far_upper_arm",
+        "legs",
+        "head_hood",
+        "ember_sack",
+        "near_forearm",
+        "near_upper_arm",
+        "near_hand"
+      ],
+      "ownership_regions": [
+        {
+          "part": "head_hood",
+          "replace_owners": [
+            "ember_sack"
+          ],
+          "polygon": [
+            [
+              0,
+              0
+            ],
+            [
+              254,
+              0
+            ],
+            [
+              254,
+              133
+            ],
+            [
+              0,
+              133
+            ]
+          ],
+          "reason": "Round 3 rigid groups: maquette edge-label islands on the painted hood belong to the upper body, not the static sack.",
+          "transferred_pixels": 53
+        },
+        {
+          "part": "robe_torso",
+          "replace_owners": [
+            "ember_sack"
+          ],
+          "polygon": [
+            [
+              0,
+              134
+            ],
+            [
+              254,
+              134
+            ],
+            [
+              254,
+              207
+            ],
+            [
+              0,
+              207
+            ]
+          ],
+          "reason": "Round 3 rigid groups: isolated sack-label islands above the painted sack neck follow the upper body.",
+          "transferred_pixels": 9
+        },
+        {
+          "part": "ember_sack",
+          "replace_owners": [
+            "robe_torso",
+            "near_forearm"
+          ],
+          "polygon": [
+            [
+              204.16296296296298,
+              208.01481481481483
+            ],
+            [
+              225.71851851851852,
+              208.01481481481483
+            ],
+            [
+              232.9037037037037,
+              218.07407407407408
+            ],
+            [
+              241.52592592592595,
+              233.88148148148147
+            ],
+            [
+              244.4,
+              248.25185185185185
+            ],
+            [
+              234.34074074074073,
+              254.0
+            ],
+            [
+              195.54074074074074,
+              254.0
+            ],
+            [
+              178.2962962962963,
+              243.94074074074075
+            ],
+            [
+              178.2962962962963,
+              232.44444444444446
+            ],
+            [
+              192.66666666666669,
+              215.2
+            ]
+          ],
+          "reason": "Director round 1: painted sack contour below the planted hand; this cloth is sack paint, not the breathing torso. Trace from approved processed take.",
+          "transferred_pixels": 232
+        }
+      ],
+      "bone_mapping": {
+        "far_forearm_hand": "far_forearm_hand",
+        "far_upper_arm": "far_upper_arm",
+        "legs": "legs",
+        "robe_torso": "robe_torso",
+        "head_hood": "head_hood",
+        "near_upper_arm": "near_upper_arm",
+        "near_forearm": "near_forearm",
+        "near_hand": "near_hand",
+        "ember_sack": "ember_sack"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "missing_solos": [],
+  "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
+  "depth_basis": "Mean primitive centre distance along the explicit view camera (legacy humanoid camera when unspecified); smaller is nearer",
+  "chosen_defaults": {
+    "sheet_columns": 5,
+    "sheet_label_height": 28,
+    "keyframes_per_clip": 8,
+    "mask_alpha_threshold": 128,
+    "pose_canvas": 512,
+    "pose_offset": 128,
+    "joint_rounding_tolerance": 0.02,
+    "neighbour_connectivity": 4
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "6cbbd81ca41894b1445f269d4921a132094da4ceb46202c169e8f66cba5bbcd9"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "emaciated_man",
+    "layouts": {
+      "front": {
+        "joints": 11,
+        "parts": 18,
+        "meshes": 2,
+        "vertices": 3730
+      }
+    },
+    "errors": []
+  },
+  "ok": true,
+  "complete": true
+}

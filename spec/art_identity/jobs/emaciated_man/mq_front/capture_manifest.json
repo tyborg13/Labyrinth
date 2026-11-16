@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "spec_hash": "cd927817a230114b5937e11c256788c2391d2f236e58f9d96f4b9eb1fa859a06",
+  "mode": "full",
+  "images": {
+    "front_clay.png": {
+      "sha256": "7ebdfc98ada36b47181c3c66804a439624fe9a733c77f1730a9eb8ffcee946a6",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_parts.png": {
+      "sha256": "aa12067e8fa87f633146cf03707a7b82c9b9d469ac77e977ade833f7244a81ec",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_silhouette.png": {
+      "sha256": "455b5ae6cab77cea69b959aac3014920e99a2307bfd597ce76f2872bc462f635",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_ember_sack.png": {
+      "sha256": "a6bc2396f99e3fcc077d9e0df801b7e237a39e2c2c23fc48e8573f7e5aaa6f50",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_far_forearm_hand.png": {
+      "sha256": "dabf0c1c51c18f9408e059b21fdc0cc8a210f65ef3b6e0ed66c2b77501162c35",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_far_upper_arm.png": {
+      "sha256": "b4c6225e19b435a474b5fa90fbbbceda038386851184679ceeb4e2b387d0aae3",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_head_hood.png": {
+      "sha256": "883ec18f8fc0e3ca7afb210fe2f136c6960895938cd84f2a6e45ddcbdb8fd411",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_legs.png": {
+      "sha256": "5b4ef70508390cd496d664de3730bcbf1ccef25de338dd1860881bc9ef79d151",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_near_forearm.png": {
+      "sha256": "e94da22268137f2992b11815799e34667b89ac0c782f76aa994b670b0fa4ed6e",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_near_hand.png": {
+      "sha256": "1a9027e65493942f0568ad3ec8ec2632c72b82a58fe885c1292c036c431a4da5",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_near_upper_arm.png": {
+      "sha256": "ff88cc6ccd9a01ddd1d2770715c3fa242b2fc487a4f7c7d721957aa01a9ac659",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_robe_torso.png": {
+      "sha256": "028a8df1039157f002e424ac4df558fa89300caee0b64d2c3e884f7844740d36",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  },
+  "joints_sha256": "1060f2c6cf7cdc190bbd0ce5516b8702e0ec53e0018dc3a1933e56d579bf43e9"
+}

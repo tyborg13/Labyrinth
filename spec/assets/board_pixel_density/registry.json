@@ -9735,6 +9735,48 @@
           "assets/units/storm_cantor_cutout/humanoid_v2/rear/rest.png"
         ]
       }
+    },
+    {
+      "id": "emaciated_man_cutout",
+      "unit_type": "emaciated_man",
+      "kind": "rig",
+      "dir": "assets/units/emaciated_man_cutout",
+      "rig_script": "scripts/emaciated_man_cutout/rig.gd",
+      "paths": [
+        "assets/units/emaciated_man_cutout/front/ember_sack.png",
+        "assets/units/emaciated_man_cutout/front/far_forearm_hand.png",
+        "assets/units/emaciated_man_cutout/front/far_upper_arm.png",
+        "assets/units/emaciated_man_cutout/front/head_hood.png",
+        "assets/units/emaciated_man_cutout/front/hidden_ember_sack.png",
+        "assets/units/emaciated_man_cutout/front/hidden_legs.png",
+        "assets/units/emaciated_man_cutout/front/hidden_robe_torso.png",
+        "assets/units/emaciated_man_cutout/front/legs.png",
+        "assets/units/emaciated_man_cutout/front/near_forearm.png",
+        "assets/units/emaciated_man_cutout/front/near_hand.png",
+        "assets/units/emaciated_man_cutout/front/near_upper_arm.png",
+        "assets/units/emaciated_man_cutout/front/robe_torso.png"
+      ],
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/npcs.json",
+        "key": "emaciated_man.art_scale",
+        "expression": "NPC fitted 255-canvas art_scale / hero source pixel scale; director art_scale 1.0"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/emaciated_man_cutout/front/rest.png",
+          "orphan_share": 0.015316227278728929,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/emaciated_man_cutout/front/rest.png"
+        ]
+      }
     }
   ]
 }

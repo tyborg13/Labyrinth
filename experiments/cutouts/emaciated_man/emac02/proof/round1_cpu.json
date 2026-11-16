@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "poses": 337,
+  "static_sack_pixels": 2087,
+  "max_sack_changed_pixels": 0,
+  "green_pixels": 0,
+  "glow_min_saturation": 0.75,
+  "basis": "CPU nearest-affine diagnostic; native mesh/frame gate remains required"
+}

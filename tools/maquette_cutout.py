@@ -668,7 +668,7 @@ def render_maquette(spec_path: Path, target: Path, blender: str) -> None:
 
 def render_manifest(directory: Path, spec: dict, allow_incomplete: bool = False) -> dict:
     """Validate the complete maquette input set before creating a case."""
-    required = ["joints_px.json"] + [f"{view}_{kind}.png" for view in ["front", "rear"]
+    required = ["joints_px.json"] + [f"{view}_{kind}.png" for view in spec.get("facings", ["front", "rear"])
                 for kind in ["parts", "clay", *["solo_" + name for name in spec["labels"]]]]
     missing = [name for name in required if not (directory / name).is_file()]
     if missing and (not allow_incomplete or any("_solo_" not in name for name in missing)):
@@ -686,7 +686,7 @@ def render_manifest(directory: Path, spec: dict, allow_incomplete: bool = False)
                 image.verify()
         files[name] = digest(path)
     joints = read_json(directory / "joints_px.json")
-    for view in ["front", "rear"]:
+    for view in spec.get("facings", ["front", "rear"]):
         if set(joints.get(view, {})) != set(spec["joints"]):
             raise CutoutError("Maquette projected joint names differ from the spec: " + view)
     return {"files": files, "missing": missing, "complete": not missing}
@@ -743,7 +743,15 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         raise CutoutError("Approved processed paint size/digest differs from its record")
     if set(np.unique(np.asarray(paint)[..., 3])) - {0, 255}:
         raise CutoutError("Hidden underlays require process_raw's binary alpha")
-    transform = registration(source / "raw.png", record)
+    if view in recipe.get("maquette_registration", {}):
+        data = recipe["maquette_registration"][view]
+        transform = Registration(data["scale"], data["offset"], data["trace"])
+        if (len(transform.scale) != 2 or len(transform.offset) != 2
+                or not np.isfinite(transform.scale + transform.offset).all()
+                or min(transform.scale) <= 0):
+            raise CutoutError("Invalid explicit maquette registration")
+    else:
+        transform = registration(source / "raw.png", record)
     maquette = root / "source/maquette"
     names = list(spec["labels"])
     depths = camera_depths(spec, view)
@@ -758,6 +766,13 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
     label_image = Image.open(registered / f"{view}_parts.png")
     labels = decode_labels(label_image, palette, names, depths)
     owners, reassigned = nearest_labels(labels, np.asarray(paint)[..., 3] > 0, names, depths)
+    ownership_regions = []
+    for region in recipe.get("ownership_regions", {}).get(view, []):
+        mask_image = Image.new("1", paint.size)
+        ImageDraw.Draw(mask_image).polygon([tuple(p) for p in region["polygon"]], fill=1)
+        mask = np.asarray(mask_image, dtype=bool) & np.isin(owners, [names.index(n) for n in region["replace_owners"]])
+        ownership_regions.append({**region, "transferred_pixels": int(mask.sum())})
+        owners[mask] = names.index(region["part"])
     original_owners = owners.copy()
     solos = {}
     for name in names:
@@ -943,6 +958,7 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         write_json(skin_path, skin)
         apply_skin(root, skin_path)
     return {"requests": requests, "reassignment": reassigned, "depth_order": order,
+            "ownership_regions": ownership_regions,
             "bone_mapping": mapping, "rigid_cloth_mapping": rigid_mapping, "ownership_cleanup": cleanup,
             "unmaterialized_parts": layout["unmaterialized_parts"]}
 
@@ -953,7 +969,12 @@ def build(args) -> dict:
     transforms = getattr(args, "view_transforms", None)
     if transforms:
         spec["view_transforms"] = read_json(transforms)
-    for view in ["front", "rear"]:
+    facings = spec.get("facings", ["front", "rear"])
+    if facings not in (["front"], ["front", "rear"]):
+        raise CutoutError("Maquette facings must be front, or front/rear")
+    if "rear" in facings and args.rear_job is None:
+        raise CutoutError("Rear maquettes require --rear-job")
+    for view in facings:
         camera_view(spec, view)  # Fail before creating a case on malformed metadata.
     recipe_path = args.rig_recipe or (GAOLER_RECIPE if args.spec.parent.name == "chainbound_gaoler" else None)
     if recipe_path is None:
@@ -968,7 +989,7 @@ def build(args) -> dict:
         if not args.resume_scaffold or read_json(root / "cutout.json")["source_baseline"].get("art_status") != "unbuilt":
             raise CutoutError("Choose a new case; --resume-scaffold accepts only an unbuilt init scaffold")
     else:
-        init_case(root, recipe["character_id"], ["front", "rear"])
+        init_case(root, recipe["character_id"], facings)
     (root / "source").mkdir(exist_ok=True)
     def copy(source, destination):
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -981,6 +1002,8 @@ def build(args) -> dict:
     for source in recipe.get("copy_files", []):
         copy(recipe_path.parent / source["from"], root / source["to"])
     for view, job, explicit in [("front", args.front_job, args.front_raw), ("rear", args.rear_job, args.rear_raw)]:
+        if view not in facings:
+            continue
         for name in ["processed.png", "processed.json", "kit.json"]:
             copy(job / name, root / "source" / view / name)
         copy(raw_for_job(job, explicit), root / "source" / view / "raw.png")
@@ -1017,7 +1040,7 @@ def build(args) -> dict:
     config.update({k: recipe[k] for k in ["motion", "clips", "rigid_bones", "contact_feet"]})
     config["design_placeholders"] = recipe.get("design_placeholders", {})
     write_json(config_path, config)
-    views = {view: build_view(root, spec, view, palette, recipe, args.allow_incomplete_renders) for view in ["front", "rear"]}
+    views = {view: build_view(root, spec, view, palette, recipe, args.allow_incomplete_renders) for view in facings}
     requests = [r for value in views.values() for r in value.pop("requests")]
     write_json(root / "hidden_requests/index.json", {"exposure_basis": "pending headless sampler measurement; unknown solos are not zero-sized requests", "requests": requests})
     config_path, config = load_case(root)
@@ -1363,6 +1386,14 @@ def fill_hidden(args) -> dict:
         expected_hidden, _ = hidden_region(solo, owners, names.index(part))
         if rig_recipe.get("ownership_cleanup"):
             expected_hidden = np.load(root / f"registered/{view}_hidden_{part}.npy", allow_pickle=False)
+        scope = rig_recipe.get("hidden_motion_scope", {}).get(view, {}).get(part)
+        if scope:
+            scoped_path = local_path(root, scope["mask"])
+            scoped = np.load(scoped_path, allow_pickle=False)
+            if (digest(scoped_path) != scope["sha256"] or scoped.shape != expected_hidden.shape
+                    or scoped.dtype != bool or np.any(scoped & ~expected_hidden)):
+                raise CutoutError("Motion-scoped support differs from the bound solo subset: " + part)
+            expected_hidden = scoped
         if (request["status"] != "measured" or int(hidden.sum()) != request["hidden_pixel_count"]
                 or not np.array_equal(hidden, expected_hidden)
                 or not np.array_equal(request_pixels, np.asarray(request_image(Image.fromarray(paint), owners, names.index(part), hidden)))):
@@ -1592,9 +1623,9 @@ def main() -> int:
 
 
 def build_arguments(parser):
-    for name in ["spec", "front-job", "rear-job", "case"]:
+    for name in ["spec", "front-job", "case"]:
         parser.add_argument("--" + name, type=Path, required=True)
-    for name in ["front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config", "view-transforms"]:
+    for name in ["rear-job", "front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config", "view-transforms"]:
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--blender", default=BLENDER)
     parser.add_argument("--task-id", help="Headless sampler runner isolation; defaults to the current codex branch id")

@@ -1,0 +1,13 @@
+Running task-local command:
+  task: emac-02
+  run: emac-02-1794799173097583000-82784
+  HOME: /private/tmp/labyrinth-godot-home/emac-02-1794799173097583000-82784
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/emac-02-1794799173097583000-82784/godot.log --headless --path . --script tools/emaciated_man_cutout/sample_motion.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EMAC RIGID MOTION: PASS; samples=337; basis_mismatches=0; group_offset_mismatches=0; bob=1.68s; loop=3.36s

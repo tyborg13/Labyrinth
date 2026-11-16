@@ -1,0 +1,136 @@
+{
+  "ok": true,
+  "source_sha256": "393c6680eadb1283a9ab35c33fa2927ba972db02a019735adf3774a81055d5ec",
+  "ownership_sha256": "61b44cac8b391c3d05e00b628a636f15d41505a820d2fc8d0739c67ca065145b",
+  "parts": [
+    {
+      "name": "far_forearm_hand",
+      "file": "far_forearm_hand.png",
+      "offset": [
+        42,
+        108
+      ],
+      "bbox": [
+        42,
+        108,
+        107,
+        212
+      ]
+    },
+    {
+      "name": "far_upper_arm",
+      "file": "far_upper_arm.png",
+      "offset": [
+        79,
+        99
+      ],
+      "bbox": [
+        79,
+        99,
+        107,
+        152
+      ]
+    },
+    {
+      "name": "legs",
+      "file": "legs.png",
+      "offset": [
+        50,
+        171
+      ],
+      "bbox": [
+        50,
+        171,
+        185,
+        252
+      ]
+    },
+    {
+      "name": "robe_torso",
+      "file": "robe_torso.png",
+      "offset": [
+        97,
+        114
+      ],
+      "bbox": [
+        97,
+        114,
+        204,
+        232
+      ]
+    },
+    {
+      "name": "head_hood",
+      "file": "head_hood.png",
+      "offset": [
+        81,
+        60
+      ],
+      "bbox": [
+        81,
+        60,
+        185,
+        132
+      ]
+    },
+    {
+      "name": "near_upper_arm",
+      "file": "near_upper_arm.png",
+      "offset": [
+        144,
+        124
+      ],
+      "bbox": [
+        144,
+        124,
+        213,
+        186
+      ]
+    },
+    {
+      "name": "near_forearm",
+      "file": "near_forearm.png",
+      "offset": [
+        51,
+        172
+      ],
+      "bbox": [
+        51,
+        172,
+        219,
+        235
+      ]
+    },
+    {
+      "name": "near_hand",
+      "file": "near_hand.png",
+      "offset": [
+        202,
+        184
+      ],
+      "bbox": [
+        202,
+        184,
+        226,
+        211
+      ]
+    },
+    {
+      "name": "ember_sack",
+      "file": "ember_sack.png",
+      "offset": [
+        178,
+        208
+      ],
+      "bbox": [
+        178,
+        208,
+        244,
+        254
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

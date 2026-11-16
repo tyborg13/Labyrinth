@@ -532,6 +532,13 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
                     or any(type(v) is not int for v in box) or not (0 <= box[0] < box[2] and 0 <= box[1] < box[3])):
                 raise ValueError(label + " invalid composite_region parameters")
             expected = {"raw", "edit"}
+        elif kind == "resize_canvas":
+            size = parameters.get("size")
+            if (set(parameters) != {"size", "resample"} or parameters["resample"] != "LANCZOS"
+                    or not isinstance(size, list) or len(size) != 2
+                    or any(type(v) is not int or v <= 0 for v in size)):
+                raise ValueError(label + " invalid resize_canvas parameters")
+            expected = {"raw"}
         elif kind == "tone_region":
             if parameters != {"space": "CIE Lab"}:
                 raise ValueError(label + " invalid tone_region parameters")
@@ -582,6 +589,8 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
             if box[2] > raw.width or box[3] > raw.height:
                 raise ValueError("composite_region box exceeds approved raw")
             result = composite_region(raw, rgba(io.BytesIO(data["edit"])), box)
+        elif step["kind"] == "resize_canvas":
+            result = raw.resize(tuple(step["parameters"]["size"]), RESAMPLE.LANCZOS)
         elif step["kind"] == "tone_region":
             result = tone_region(raw, json.loads(data["config"]))
         elif step['kind'] == 'gaoler_arm_rr44':
@@ -961,7 +970,11 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
         return record
     if image.width != image.height:
         raise ValueError("raw image must be square")
-    k_eff = factor * image.width / RAW_CANVAS_WIDTH
+    reduction = kit.get("reduction_factor", factor)
+    if ("reduction_factor" in kit and (kit.get("kit_kind") != "maquette"
+            or type(reduction) not in (int, float) or not math.isfinite(reduction) or reduction <= 0)):
+        raise ValueError("reduction_factor requires a finite positive maquette reduction")
+    k_eff = reduction * image.width / RAW_CANVAS_WIDTH
     pixels = np.asarray(image.convert("RGB"), dtype=float)
     distance = np.abs(pixels - np.array([0, 255, 0])).max(-1)
     alpha = np.clip((distance - 40) / 40, 0, 1)
@@ -1004,8 +1017,16 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
     # registration follows the final painted bbox; never clip surviving paint.
     sprite = sprite.crop(alpha_bbox(sprite))
     placement = read_json(root / IDENTITY / "bands.json")["canvas"]
+    if "canvas_registration" in kit:
+        registration = kit["canvas_registration"]
+        if (kit.get("kit_kind") != "maquette" or set(registration) != {"center_x", "bottom_y"}
+                or any(type(v) not in (int, float) or not math.isfinite(v) for v in registration.values())):
+            raise ValueError("canvas_registration requires finite maquette centre/ground coordinates")
+        placement = {**placement, **registration}
     size = placement["size"]
-    x, y = placement["center_x"] - sprite.width // 2, placement["bottom_y"] - sprite.height
+    x = (round(placement["center_x"] - sprite.width / 2) if "canvas_registration" in kit
+         else placement["center_x"] - sprite.width // 2)
+    y = placement["bottom_y"] - sprite.height
     if x < 0 or y < 0 or sprite.width > size or sprite.height > size:
         raise ValueError("director fit limits disagree with canvas placement")
     placed_x, placed_y = min(x, size - sprite.width), min(y, size - sprite.height)
@@ -1101,9 +1122,15 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
         if "raw_sha256" in processed:
             raise ValueError("processed raw_steps require raw_pixel_sha256, not raw_sha256")
         names = [step.get("step") for step in steps]
-        if names not in ([], ["palette_match"], ["clean_outline"], ["palette_match", "clean_outline"]):
+        correction_names = [step["step"] for step in kit.get("processed_post_steps", [])]
+        base_steps = steps
+        if correction_names:
+            if names[-len(correction_names):] != correction_names:
+                raise ValueError("processed corrections differ from the kit recipe")
+            base_steps = steps[:-len(correction_names)]
+        if [step.get("step") for step in base_steps] not in ([], ["palette_match"], ["clean_outline"], ["palette_match", "clean_outline"]):
             raise ValueError("unsupported post_steps order for replay")
-        for step in steps:
+        for step in base_steps:
             valid = (valid_palette_parameters(step.get("parameters")) if step["step"] == "palette_match"
                      else step.get("parameters") == OUTLINE_PARAMETERS)
             if not valid or not is_digest(step.get("pre_step_pixel_sha256")):
@@ -1676,6 +1703,8 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
     candidate = rgba(front)
     candidate_path = str(front.resolve().relative_to(root.resolve())) if root.resolve() in front.resolve().parents else ""
     candidate_meta = meta.get(candidate_path, next((m for m in meta.values() if m["id"] == kit["id"]), {}))
+    candidate_registry = next((e for e in read_json(root / IDENTITY / "registry.json")["entries"]
+                               if e["path"] == candidate_path), {})
     rear_image = rgba(rear) if rear is not None else None
     subjects = [(rgba(repo_path(root, canon["hero_front"]["path"])), 1.0, "hero"),
                 (rgba(repo_path(root, references[0]["path"])), scale_for(references[0]["path"]), references[0]["id"]),
@@ -1710,6 +1739,9 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         for metric, value in measured.items():
             limit = limits.get(metric)
             status = "INFO" if limit is None else ("PASS" if in_band(value, limit) else "FAIL")
+            if status == "FAIL" and any(e.get("metric") == metric and e.get("value") == value
+                                       and e.get("reason") for e in candidate_registry.get("exceptions", [])):
+                status = "EXCEPT"
             metric_rows.append((facing + "." + metric, "%0.4f" % value, str(limit) if limit else "unbanded", status))
         fit_scale = processed_fit_scale(path)
         metric_rows.append((facing + ".fit_scale", "%0.4f" % fit_scale if fit_scale is not None else "N/A", "unbanded", "INFO"))

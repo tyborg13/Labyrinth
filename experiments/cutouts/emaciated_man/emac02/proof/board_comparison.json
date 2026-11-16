@@ -1,0 +1,20 @@
+{
+  "art_scale": 1.0,
+  "emaciated_bbox": [
+    42,
+    60,
+    244,
+    254
+  ],
+  "root": [
+    128,
+    242.5037037037037
+  ],
+  "pivot": [
+    128,
+    254
+  ],
+  "hero_height": 216,
+  "emaciated_height": 194,
+  "source": "normalized 1024 raw, BOX 2.783505154639175; never enlarged 255px paint"
+}

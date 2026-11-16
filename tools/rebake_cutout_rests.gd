@@ -99,6 +99,7 @@ func _stage_rest(entry: Dictionary, facing: String) -> void:
 		_fail("Could not load rig: " + str(entry["id"]) + "/" + facing)
 		viewport.free()
 		return
+	if rig.has_method("set_glow_enabled"): rig.call("set_glow_enabled", false)
 	rig.call("apply_pose", "rest", 0.0)
 	await process_frame
 	await process_frame

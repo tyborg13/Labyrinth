@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "parts_back_to_front": [
+    "far_forearm_hand",
+    "far_upper_arm",
+    "legs",
+    "robe_torso",
+    "head_hood",
+    "near_upper_arm",
+    "near_forearm",
+    "near_hand",
+    "ember_sack"
+  ],
+  "hood_top_over_H": 0.6199997062560946,
+  "minimum_z": 0.0,
+  "limb_widths_game_pixels": {
+    "far_forearm_hand": [
+      10.825441814240545
+    ],
+    "far_upper_arm": [
+      12.490894401046782
+    ],
+    "legs": [
+      17.4872521614655,
+      17.4872521614655,
+      12.490894401046782,
+      12.490894401046782
+    ],
+    "near_upper_arm": [
+      12.490894401046782
+    ],
+    "near_forearm": [
+      10.825441814240545
+    ]
+  },
+  "brief": {
+    "seated_height_over_hero": 0.62,
+    "head_over_standing_height": 0.2,
+    "hunch_degrees": 15,
+    "head_pitch_degrees": 10,
+    "head_turn_degrees": 10,
+    "sack_from_knee_tiles": 0.5,
+    "minimum_limb_game_pixels": 3
+  },
+  "note": "Pose, overlaps and silhouette require owner inspection."
+}

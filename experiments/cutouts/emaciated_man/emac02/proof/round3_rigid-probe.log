@@ -1,0 +1,14 @@
+Running task-local command:
+  task: emac-02
+  run: emac-02-1794799406603110000-83829
+  HOME: /private/tmp/labyrinth-godot-home/emac-02-1794799406603110000-83829
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/emac-02-1794799406603110000-83829/godot.log --headless --path . --script tools/emaciated_man_cutout/rigid_probe.gd -- --verify-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EMAC RIGID PROBE: PASS; group_samples=70; native_pixels=false
+/private/tmp/labyrinth-godot-home/emac-02-1794799406603110000-83829/Library/Application Support/Escape the Umbra Parallel emac-02-1794799406603110000-83829/probes/emac02_rigid/manifest.json

@@ -1,0 +1,65 @@
+{
+  "min_images": 104,
+  "expected_sizes": [
+    "1920x1080",
+    "1440x640"
+  ],
+  "required_images": [
+    {
+      "pattern": "throw_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 25,
+      "regions": [
+        {
+          "rect": [
+            240,
+            160,
+            1440,
+            640
+          ],
+          "min_luma_range": 3.0,
+          "min_luma_stdev": 0.75
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 25
+    },
+    {
+      "pattern": "strip_throw_*.png",
+      "width": 1440,
+      "height": 640,
+      "min_count": 25
+    },
+    {
+      "pattern": "strip_reduced_*.png",
+      "width": 1440,
+      "height": 640,
+      "min_count": 25
+    },
+    {
+      "pattern": "tail_throw.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tail_reduced.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "strip_tail_throw.png",
+      "width": 1440,
+      "height": 640
+    },
+    {
+      "pattern": "strip_tail_reduced.png",
+      "width": 1440,
+      "height": 640
+    }
+  ]
+}

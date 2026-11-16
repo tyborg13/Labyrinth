@@ -1,0 +1,344 @@
+{
+  "version": 1,
+  "facing": "front",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "position": [
+        128.0,
+        242.5037037037037
+      ],
+      "parent": null
+    },
+    "robe_torso": {
+      "position": [
+        128.0,
+        242.5037037037037
+      ],
+      "parent": "root"
+    },
+    "head_hood": {
+      "position": [
+        128.0,
+        112.87937037037038
+      ],
+      "parent": "root"
+    },
+    "near_upper_arm": {
+      "position": [
+        155.5012962962963,
+        134.8768148148148
+      ],
+      "parent": "root"
+    },
+    "near_forearm": {
+      "position": [
+        195.69162962962963,
+        174.3234814814815
+      ],
+      "parent": "root"
+    },
+    "near_hand": {
+      "position": [
+        216.84840740740736,
+        196.55803703703702
+      ],
+      "parent": "root"
+    },
+    "far_upper_arm": {
+      "position": [
+        104.73077777777777,
+        109.49155555555554
+      ],
+      "parent": "root"
+    },
+    "far_forearm_hand": {
+      "position": [
+        94.15418518518518,
+        145.65818518518518
+      ],
+      "parent": "far_upper_arm"
+    },
+    "legs": {
+      "position": [
+        128.0,
+        242.5037037037037
+      ],
+      "parent": "root"
+    },
+    "ember_sack": {
+      "position": [
+        218.96444444444444,
+        250.72714814814816
+      ],
+      "parent": "root"
+    },
+    "far_hand_support": {
+      "position": [
+        56.71056858605944,
+        193.0607729161672
+      ],
+      "parent": "root"
+    }
+  },
+  "parts": [
+    {
+      "name": "far_forearm_hand",
+      "file": "segmented/front/far_forearm_hand.png",
+      "offset": [
+        42,
+        108
+      ],
+      "bbox": [
+        42,
+        108,
+        107,
+        212
+      ],
+      "logical_part": "far_forearm_hand",
+      "bone": "far_forearm_hand",
+      "z_index": 1,
+      "rest_depth_source": "far_forearm_hand"
+    },
+    {
+      "name": "far_upper_arm",
+      "file": "segmented/front/far_upper_arm.png",
+      "offset": [
+        79,
+        99
+      ],
+      "bbox": [
+        79,
+        99,
+        107,
+        152
+      ],
+      "logical_part": "far_upper_arm",
+      "bone": "far_upper_arm",
+      "z_index": 2,
+      "rest_depth_source": "far_upper_arm"
+    },
+    {
+      "name": "legs",
+      "file": "segmented/front/legs.png",
+      "offset": [
+        50,
+        171
+      ],
+      "bbox": [
+        50,
+        171,
+        185,
+        252
+      ],
+      "logical_part": "legs",
+      "bone": "legs",
+      "z_index": 3,
+      "rest_depth_source": "legs"
+    },
+    {
+      "name": "robe_torso",
+      "file": "segmented/front/robe_torso.png",
+      "offset": [
+        97,
+        114
+      ],
+      "bbox": [
+        97,
+        114,
+        204,
+        232
+      ],
+      "logical_part": "robe_torso",
+      "bone": "robe_torso",
+      "z_index": 0,
+      "rest_depth_source": "robe_torso"
+    },
+    {
+      "name": "head_hood",
+      "file": "segmented/front/head_hood.png",
+      "offset": [
+        81,
+        60
+      ],
+      "bbox": [
+        81,
+        60,
+        185,
+        132
+      ],
+      "logical_part": "head_hood",
+      "bone": "head_hood",
+      "z_index": 4,
+      "rest_depth_source": "head_hood"
+    },
+    {
+      "name": "near_upper_arm",
+      "file": "segmented/front/near_upper_arm.png",
+      "offset": [
+        144,
+        124
+      ],
+      "bbox": [
+        144,
+        124,
+        213,
+        186
+      ],
+      "logical_part": "near_upper_arm",
+      "bone": "near_upper_arm",
+      "z_index": 7,
+      "rest_depth_source": "near_upper_arm"
+    },
+    {
+      "name": "near_forearm",
+      "file": "segmented/front/near_forearm.png",
+      "offset": [
+        51,
+        172
+      ],
+      "bbox": [
+        51,
+        172,
+        219,
+        235
+      ],
+      "logical_part": "near_forearm",
+      "bone": "near_forearm",
+      "z_index": 6,
+      "rest_depth_source": "near_forearm"
+    },
+    {
+      "name": "near_hand",
+      "file": "segmented/front/near_hand.png",
+      "offset": [
+        202,
+        184
+      ],
+      "bbox": [
+        202,
+        184,
+        226,
+        211
+      ],
+      "logical_part": "near_hand",
+      "bone": "near_hand",
+      "z_index": 8,
+      "rest_depth_source": "near_hand"
+    },
+    {
+      "name": "ember_sack",
+      "file": "segmented/front/ember_sack.png",
+      "offset": [
+        178,
+        208
+      ],
+      "bbox": [
+        178,
+        208,
+        244,
+        254
+      ],
+      "logical_part": "ember_sack",
+      "bone": "ember_sack",
+      "z_index": 5,
+      "rest_depth_source": "ember_sack"
+    },
+    {
+      "name": "hidden_legs",
+      "logical_part": "legs",
+      "hidden_material": true,
+      "file": "hidden/front/legs.png",
+      "offset": [
+        55,
+        194
+      ],
+      "bone": "legs",
+      "z_index": -6
+    },
+    {
+      "name": "hidden_robe_torso",
+      "logical_part": "robe_torso",
+      "hidden_material": true,
+      "file": "hidden/front/robe_torso.png",
+      "offset": [
+        172,
+        223
+      ],
+      "bone": "robe_torso",
+      "z_index": -9
+    },
+    {
+      "name": "hidden_ember_sack",
+      "logical_part": "ember_sack",
+      "hidden_material": true,
+      "file": "hidden/front/ember_sack.png",
+      "offset": [
+        223,
+        201
+      ],
+      "bone": "ember_sack",
+      "z_index": -4
+    }
+  ],
+  "rest_source": "source/front/processed.png",
+  "unmaterialized_parts": [],
+  "landmarks": {},
+  "logical_parts": [
+    "far_forearm_hand",
+    "far_upper_arm",
+    "legs",
+    "robe_torso",
+    "head_hood",
+    "near_upper_arm",
+    "near_forearm",
+    "near_hand",
+    "ember_sack"
+  ],
+  "maquette_depths": {
+    "far_forearm_hand": 30.103670723341278,
+    "far_upper_arm": 30.035397317244175,
+    "legs": 30.02978534106083,
+    "robe_torso": 30.151590557637864,
+    "head_hood": 29.88094762496068,
+    "near_upper_arm": 29.858933035249354,
+    "near_forearm": 29.865378826929128,
+    "near_hand": 29.828200894251943,
+    "ember_sack": 29.871553147454044
+  },
+  "glow_min_saturation": 0.75,
+  "glow_overlays": [
+    {
+      "part": "head_hood",
+      "channel": "eyes"
+    },
+    {
+      "part": "ember_sack",
+      "channel": "sack"
+    }
+  ],
+  "portrait_head_width": 63.58684539398786,
+  "idle_groups": {
+    "upper": {
+      "bones": [
+        "robe_torso",
+        "head_hood",
+        "near_upper_arm",
+        "near_forearm",
+        "near_hand",
+        "far_upper_arm",
+        "far_forearm_hand",
+        "far_hand_support"
+      ]
+    },
+    "lower": {
+      "bones": [
+        "legs",
+        "ember_sack"
+      ]
+    }
+  }
+}

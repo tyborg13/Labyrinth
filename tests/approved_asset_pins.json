@@ -168,7 +168,8 @@
     "revision": "c7124777577a4939838706cb20f987762f0be8bd",
     "rr52": "Owner-approved take-three Lamplighter paintings, protected rr-52 motion and whole underlays. Source cuts and derived density records; native rig proof pending director. Earlier asset pins preserved.",
     "rr53": "Owner-approved Reaver paint and motion from rr-48. rr-53 feedback 1 withdraws clipping and restores r3 hidden supply/masks byte-for-byte. Integration pins remain unchanged.",
-    "guard02": "Director-authored guard-02 challenge clips for the three production humanoid_v2 guardians; compiled with the existing compiler. Prior clip values and all paint remain unchanged. Native challenge proof remains director-owned."
+    "guard02": "Director-authored guard-02 challenge clips for the three production humanoid_v2 guardians; compiled with the existing compiler. Prior clip values and all paint remain unchanged. Native challenge proof remains director-owned.",
+    "emac_02": "Director judged 2026-11-15: approved take 1; emac-02 brief authorizes adoption and cutout integration. Owner inbox approval and native rest rebake remain pending in spec/art_identity/registry.json."
   },
   "cel_outputs": {
     "files": [],
@@ -4728,7 +4729,21 @@
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released.png": "03a19cef730e639c0af4087d21b6efb4174827f5",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hand_far_released_checks.png": "e65176f3be98b08c46af3a59594d1dc1362c1f39",
     "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released.png": "835f97943169f4bde8a595fd16bda13da552b311",
-    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released_checks.png": "835f97943169f4bde8a595fd16bda13da552b311"
+    "assets/units/ashen_reaver_cutout/humanoid_v2/rear/hidden_hand_far_released_checks.png": "835f97943169f4bde8a595fd16bda13da552b311",
+    "assets/units/emaciated_man_cutout/front/ember_sack.png": "ba0b11fc866c28cf48f81990cc36dccb91c4fcf4",
+    "assets/units/emaciated_man_cutout/front/far_forearm_hand.png": "eafd6547a3db407ea29a94e4afec25e2a0a74888",
+    "assets/units/emaciated_man_cutout/front/far_upper_arm.png": "6a45d5394281adb113720fc225343f6bf16aafc7",
+    "assets/units/emaciated_man_cutout/front/head_hood.png": "c883388aac3dc9054cc3cd45fcc54f66a0df876a",
+    "assets/units/emaciated_man_cutout/front/hidden_ember_sack.png": "c7cdf26757ba0006be5bb52575b2c05b610c08df",
+    "assets/units/emaciated_man_cutout/front/hidden_legs.png": "ad089b652d10bd21b828b0644d26ab44c87d2133",
+    "assets/units/emaciated_man_cutout/front/hidden_robe_torso.png": "61c93bd065c57986a0ab3c4f8e0e4677e4f7c047",
+    "assets/units/emaciated_man_cutout/front/legs.png": "5c97b7820ccfbf26904821d4a64b9e556396fa40",
+    "assets/units/emaciated_man_cutout/front/near_forearm.png": "1f59bb9378147d0e3906b442216bad32b905c7fe",
+    "assets/units/emaciated_man_cutout/front/near_hand.png": "103fd42c001da067a99c3951ce62bc9b4aa8ace2",
+    "assets/units/emaciated_man_cutout/front/near_upper_arm.png": "883b2c73e507315d23cfe39194f3bcfe69e2464d",
+    "assets/units/emaciated_man_cutout/front/rest.png": "8ee268a93bc1c97995007a6aa1fdb5867f5d160f",
+    "assets/units/emaciated_man_cutout/front/robe_torso.png": "1bd73ecb1660a43047428465a08c8b3e5e51aa38",
+    "assets/units/emaciated_man_cutout/front.json": "0e7db26fc471b3d630d39f3174da34b0a4e18efd"
   },
   "ground_contact": {
     "burrow_grub": {
@@ -52007,6 +52022,162 @@
         34
       ],
       "alpha_bounds": []
+    },
+    "assets/units/emaciated_man_cutout/front/ember_sack.png": {
+      "size": [
+        66,
+        46
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        66,
+        46
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/far_forearm_hand.png": {
+      "size": [
+        65,
+        104
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        65,
+        104
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/far_upper_arm.png": {
+      "size": [
+        28,
+        53
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        28,
+        53
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/head_hood.png": {
+      "size": [
+        104,
+        72
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        104,
+        72
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/hidden_ember_sack.png": {
+      "size": [
+        3,
+        3
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        3,
+        3
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/hidden_legs.png": {
+      "size": [
+        56,
+        39
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        56,
+        39
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/hidden_robe_torso.png": {
+      "size": [
+        2,
+        3
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        2,
+        3
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/legs.png": {
+      "size": [
+        135,
+        81
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        135,
+        81
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/near_forearm.png": {
+      "size": [
+        168,
+        63
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        168,
+        63
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/near_hand.png": {
+      "size": [
+        24,
+        27
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        24,
+        27
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/near_upper_arm.png": {
+      "size": [
+        69,
+        62
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        69,
+        62
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/rest.png": {
+      "size": [
+        255,
+        255
+      ],
+      "alpha_bounds": [
+        42,
+        60,
+        244,
+        254
+      ]
+    },
+    "assets/units/emaciated_man_cutout/front/robe_torso.png": {
+      "size": [
+        107,
+        118
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        107,
+        118
+      ]
     }
   },
   "mirror_sole": {
@@ -53442,6 +53613,20 @@
         "rear": "assets/units/guardians/wick_shade/rear.json"
       },
       "rig_script": "scripts/guardian_cutout/rig.gd"
+    },
+    {
+      "actor": "emaciated_man",
+      "facings": [
+        "front"
+      ],
+      "layouts": {
+        "front": "assets/units/emaciated_man_cutout/front.json"
+      },
+      "rig_script": "scripts/emaciated_man_cutout/rig.gd",
+      "clip": "idle",
+      "clips": [
+        "idle"
+      ]
     }
   ],
   "runtime_resources": [

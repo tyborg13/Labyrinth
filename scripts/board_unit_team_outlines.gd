@@ -82,6 +82,7 @@ func sync() -> void:
 		canvas.set("_unit_outline_actor", unit)
 		# Copy the authoritative geometry without evicting shared shadow meshes.
 		board.call("_copy_resolved_board_layout_to", canvas)
+		preload("res://scripts/displacement_throw.gd").sync_depth(board, canvas, unit, _bindings)
 		retained[key] = true
 		var alive: bool = eligible(board, unit)
 		var continuing_death: bool = bool(unit.get("death_animation", false)) and entries.has(key) and visible_to_player(board, unit)

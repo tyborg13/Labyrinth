@@ -1,0 +1,18 @@
+{
+  "files": {
+    "joints_px.json": "ad1bf114e98a0ca5f8d79a6466b8514a16a67f429aa9dfe152161287aebd3046",
+    "front_parts.png": "aa12067e8fa87f633146cf03707a7b82c9b9d469ac77e977ade833f7244a81ec",
+    "front_clay.png": "7ebdfc98ada36b47181c3c66804a439624fe9a733c77f1730a9eb8ffcee946a6",
+    "front_solo_far_forearm_hand.png": "dabf0c1c51c18f9408e059b21fdc0cc8a210f65ef3b6e0ed66c2b77501162c35",
+    "front_solo_far_upper_arm.png": "b4c6225e19b435a474b5fa90fbbbceda038386851184679ceeb4e2b387d0aae3",
+    "front_solo_legs.png": "5b4ef70508390cd496d664de3730bcbf1ccef25de338dd1860881bc9ef79d151",
+    "front_solo_robe_torso.png": "028a8df1039157f002e424ac4df558fa89300caee0b64d2c3e884f7844740d36",
+    "front_solo_head_hood.png": "883ec18f8fc0e3ca7afb210fe2f136c6960895938cd84f2a6e45ddcbdb8fd411",
+    "front_solo_near_upper_arm.png": "ff88cc6ccd9a01ddd1d2770715c3fa242b2fc487a4f7c7d721957aa01a9ac659",
+    "front_solo_near_forearm.png": "e94da22268137f2992b11815799e34667b89ac0c782f76aa994b670b0fa4ed6e",
+    "front_solo_near_hand.png": "1a9027e65493942f0568ad3ec8ec2632c72b82a58fe885c1292c036c431a4da5",
+    "front_solo_ember_sack.png": "a6bc2396f99e3fcc077d9e0df801b7e237a39e2c2c23fc48e8573f7e5aaa6f50"
+  },
+  "missing": [],
+  "complete": true
+}

@@ -1,0 +1,421 @@
+{
+  "status": "director_geometry_v1",
+  "coordinate_contract": "+X forward, +Y near/viewer right, +Z up; hero standing crown-to-sole H=1; floor Z=0; seated hood top Z=0.62",
+  "joints": {
+    "neck": [
+      -0.08,
+      -0.08,
+      0.435
+    ],
+    "shoulder_far": [
+      -0.09,
+      -0.2,
+      0.395
+    ],
+    "shoulder_near": [
+      -0.09,
+      0.04,
+      0.395
+    ],
+    "elbow_far": [
+      -0.09,
+      -0.25,
+      0.235
+    ],
+    "elbow_near": [
+      -0.17,
+      0.15,
+      0.255
+    ],
+    "wrist_near": [
+      -0.17,
+      0.25,
+      0.21
+    ],
+    "sack_base": [
+      -0.17,
+      0.26,
+      0.005
+    ],
+    "root": [
+      0,
+      0,
+      0
+    ]
+  },
+  "shapes": [
+    {
+      "part": "far_forearm_hand",
+      "type": "limb",
+      "a": "elbow_far",
+      "b": [
+        0.01,
+        -0.29,
+        0.12
+      ],
+      "radii": [
+        0.03,
+        0.027,
+        0.026
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "far_forearm_hand",
+      "type": "ellipsoid",
+      "c": [
+        0.045,
+        -0.292,
+        0.09
+      ],
+      "s": [
+        0.045,
+        0.032,
+        0.042
+      ],
+      "rot": [
+        0,
+        0.6,
+        0
+      ]
+    },
+    {
+      "part": "far_upper_arm",
+      "type": "limb",
+      "a": "shoulder_far",
+      "b": "elbow_far",
+      "radii": [
+        0.038,
+        0.032,
+        0.03
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "legs",
+      "type": "limb",
+      "a": [
+        -0.17,
+        -0.14,
+        0.065
+      ],
+      "b": [
+        -0.03,
+        -0.28,
+        0.065
+      ],
+      "radii": [
+        0.055,
+        0.048,
+        0.042
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "legs",
+      "type": "limb",
+      "a": [
+        -0.17,
+        -0.02,
+        0.065
+      ],
+      "b": [
+        -0.03,
+        0.12,
+        0.065
+      ],
+      "radii": [
+        0.055,
+        0.048,
+        0.042
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "legs",
+      "type": "limb",
+      "a": [
+        -0.03,
+        -0.28,
+        0.06
+      ],
+      "b": [
+        0.015,
+        0.02,
+        0.04
+      ],
+      "radii": [
+        0.04,
+        0.034,
+        0.03
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "legs",
+      "type": "limb",
+      "a": [
+        -0.03,
+        0.12,
+        0.065
+      ],
+      "b": [
+        0.06,
+        -0.16,
+        0.045
+      ],
+      "radii": [
+        0.04,
+        0.034,
+        0.03
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "legs",
+      "type": "ellipsoid",
+      "c": [
+        0.025,
+        0.05,
+        0.035
+      ],
+      "s": [
+        0.06,
+        0.032,
+        0.026
+      ],
+      "rot": [
+        0,
+        0,
+        0.3
+      ]
+    },
+    {
+      "part": "legs",
+      "type": "ellipsoid",
+      "c": [
+        0.075,
+        -0.19,
+        0.037
+      ],
+      "s": [
+        0.065,
+        0.034,
+        0.028
+      ],
+      "rot": [
+        0,
+        0,
+        -0.3
+      ]
+    },
+    {
+      "part": "robe_torso",
+      "type": "torso",
+      "c": [
+        -0.19,
+        -0.08,
+        0
+      ],
+      "lean": [
+        0.27,
+        0
+      ],
+      "sections": [
+        {
+          "z": 0.055,
+          "width": 0.3,
+          "depth": 0.22,
+          "round": 2.2
+        },
+        {
+          "z": 0.17500000000000002,
+          "width": 0.23,
+          "depth": 0.16,
+          "round": 2.0
+        },
+        {
+          "z": 0.295,
+          "width": 0.21,
+          "depth": 0.14,
+          "round": 2.0
+        },
+        {
+          "z": 0.395,
+          "width": 0.25,
+          "depth": 0.13,
+          "round": 2.4
+        }
+      ]
+    },
+    {
+      "part": "robe_torso",
+      "type": "ellipsoid",
+      "c": [
+        -0.19,
+        -0.08,
+        0.055
+      ],
+      "s": [
+        0.16,
+        0.19,
+        0.055
+      ]
+    },
+    {
+      "part": "head_hood",
+      "type": "ellipsoid",
+      "c": [
+        -0.05,
+        -0.08,
+        0.500395
+      ],
+      "s": [
+        0.085,
+        0.08,
+        0.09
+      ],
+      "rot": [
+        0,
+        0.175,
+        0.175
+      ]
+    },
+    {
+      "part": "head_hood",
+      "type": "ellipsoid",
+      "c": [
+        -0.075,
+        -0.08,
+        0.515395
+      ],
+      "s": [
+        0.105,
+        0.108,
+        0.105
+      ],
+      "rot": [
+        0,
+        0.175,
+        0.175
+      ]
+    },
+    {
+      "part": "head_hood",
+      "type": "ellipsoid",
+      "c": [
+        -0.22,
+        -0.08,
+        0.415
+      ],
+      "s": [
+        0.07,
+        0.12,
+        0.08
+      ]
+    },
+    {
+      "part": "near_upper_arm",
+      "type": "limb",
+      "a": "shoulder_near",
+      "b": "elbow_near",
+      "radii": [
+        0.038,
+        0.032,
+        0.03
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "near_forearm",
+      "type": "limb",
+      "a": "elbow_near",
+      "b": "wrist_near",
+      "radii": [
+        0.03,
+        0.027,
+        0.026
+      ],
+      "mid_at": 0.5
+    },
+    {
+      "part": "near_hand",
+      "type": "ellipsoid",
+      "c": [
+        -0.16,
+        0.265,
+        0.215
+      ],
+      "s": [
+        0.055,
+        0.045,
+        0.03
+      ],
+      "rot": [
+        0,
+        0.2,
+        0
+      ]
+    },
+    {
+      "part": "ember_sack",
+      "type": "ellipsoid",
+      "c": [
+        -0.17,
+        0.26,
+        0.08
+      ],
+      "s": [
+        0.078,
+        0.072,
+        0.075
+      ]
+    },
+    {
+      "part": "ember_sack",
+      "type": "ellipsoid",
+      "c": [
+        -0.17,
+        0.26,
+        0.165
+      ],
+      "s": [
+        0.03,
+        0.03,
+        0.035
+      ]
+    },
+    {
+      "part": "ember_sack",
+      "type": "ellipsoid",
+      "c": [
+        -0.17,
+        0.26,
+        0.195
+      ],
+      "s": [
+        0.035,
+        0.035,
+        0.02
+      ]
+    }
+  ],
+  "pose_contract": {
+    "front_yaw_degrees": 0,
+    "spine_forward_degrees": 15,
+    "head_down_degrees": 10,
+    "head_toward_camera_degrees": 10,
+    "seated_hood_over_hero_height": 0.62,
+    "head_over_standing_height": 0.2,
+    "limb_minimum_game_pixels": 3,
+    "body_width_tiles": 1,
+    "sack_distance_from_near_knee_tiles": 0.5,
+    "legs": "One crossed-legs part, both feet visible, knees wide, hips under robe hem.",
+    "near_arm": "Hangs outside near knee; hand rests on gathered tied sack mouth.",
+    "far_arm": "Forearm along far knee; hand limp over kneecap.",
+    "lap": "Crossed legs and robe hem only; no sack or other object.",
+    "hood": "Rounded; back drape owned by head_hood.",
+    "sack": "Slumped, tied, on floor beside near knee; height approximately shin height.",
+    "materials": "Neutral clay and diagnostic labels only. Earth-brown cloth and ember-orange eyes belong to owner paint-over."
+  }
+}

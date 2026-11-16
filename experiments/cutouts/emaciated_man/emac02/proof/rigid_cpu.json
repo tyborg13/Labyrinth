@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "basis": "CPU source texels and actual Godot bones; native mesh raster proof pending",
+  "samples": 337,
+  "group_pixel_mismatches": {
+    "upper": 0,
+    "lower": 0
+  },
+  "upper_y_offsets": [
+    0,
+    1,
+    2
+  ],
+  "green_pixels": 0,
+  "rest_bbox": [
+    42,
+    60,
+    244,
+    254
+  ],
+  "height": 194,
+  "art_scale": 1.0
+}

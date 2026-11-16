@@ -79,6 +79,7 @@ var _bile_bloomer_renderers: Dictionary = {}
 const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 const ShaleMaquette = preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd")
 const WispMaquette = preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd")
+const EmaciatedMan = preload("res://scripts/emaciated_man_cutout/presentation.gd")
 const GustShrikeCutout = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const GustShrikePresentation = preload("res://scripts/gust_shrike_cutout/presentation.gd")
 var _gust_shrike_renderers: Dictionary = {}
@@ -1240,6 +1241,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
+	if EmaciatedMan.handles(unit): return true
 	if MaquettePresentation.handles(str(unit.get("type", ""))): return true
 	if str(unit.get("type", "")) == "gust_shrike": return GustShrikeCutout.available()
 	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "cinder_droplet", "cinder_ooze", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
@@ -1254,6 +1256,7 @@ func bile_bloomer_source_pixel_scale() -> float:
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
 
 func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	if EmaciatedMan.handles(unit): return EmaciatedMan.renderer_for_unit(self, unit)
 	var rr07_type: String = str(unit.get("type", ""))
 	if _rr07_renderers.has(rr07_type):
 		return (_rr07_renderers[rr07_type] as Dictionary).get("enemy_%d" % int(unit.get("id", -1)), null) as Node
@@ -2674,6 +2677,7 @@ func _process_board_frame(delta: float) -> void:
 	if not animating:
 		return
 	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
+	EmaciatedMan.advance(self, _idle_elapsed)
 	var next_frames: Dictionary = _active_idle_frames_by_source()
 	var changed_sources: Dictionary = {}
 	for source_var: Variant in next_frames:
@@ -3325,6 +3329,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
 	# A detached update leaves existing pools stale too; resubmit them after
 	# reattachment even if the next presentation/state is identical.
+	EmaciatedMan.sync(self)
 	_cutout_roster_initialized = is_inside_tree() and not _is_dynamic_render_layer and not _is_static_render_cache_layer
 	var registration_changes: Dictionary = {}
 	var current_registrations: Dictionary = _cutout_floor_registrations()
@@ -3875,9 +3880,9 @@ func _queue_presentation_change_redraws(
 				unit_movement_changed = true
 			"combat_feel_owner", "combat_feel_hits", "effect_frame_count", "maquette_explicit_clip", "harrier_travel_variant", "umbra_reveal_actor_on_visible_tiles":
 				pass
-			"combat_feel_surface_frames":
+			"combat_feel_surface_frames", "throw_surface_frames":
 				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
-				_feel_surface_tiles = (presentation.get("combat_feel_surface_frames",{}) as Dictionary).keys()
+				_feel_surface_tiles = (presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames",{})) as Dictionary).keys()
 				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
@@ -4932,6 +4937,9 @@ func _draw_board_commands() -> void:
 		_draw_static_board_contents()
 		return
 	if _is_dynamic_render_layer:
+		if _render_layer_kind == "unit_throw_shadow":
+			preload("res://scripts/displacement_throw.gd").draw_ground_shadow(self, _unit_outline_actor)
+			return
 		if _render_layer_kind == "unit_body_outline":
 			var unit_started: int = Time.get_ticks_usec()
 			_dynamic_draw_count += 1
@@ -9045,7 +9053,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 			_draw_ordinary_terrain_body.bind(tile, texture, terrain_rect, tint))
 	if terrain_kind in ["crag_outcrop","dragon_spire"]:
 		tint.a = maxf(tint.a,0.58)
-		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(((presentation.get("combat_feel_surface_frames",{}) as Dictionary).get(terrain.get("pos",Vector2i(-1,-1)),{}) as Dictionary).get("progress",presentation.get("surface_feedback_progress",1.0))),bool(presentation.get("reduced_motion",false)))
+		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(((presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames",{})) as Dictionary).get(terrain.get("pos",Vector2i(-1,-1)),{}) as Dictionary).get("progress",presentation.get("surface_feedback_progress",1.0))),bool(presentation.get("reduced_motion",false)))
 		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
 			[tile, terrain_rect, terrain_kind, rise, tint.a, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
 			_draw_procedural_terrain_body.bind(tile, terrain_rect, terrain_kind, rise, tint.a))
@@ -9452,7 +9460,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	if detailed_sections:
 		_record_render_section_time("unit_body_compass", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
-	if umbra_clip.is_empty():
+	if umbra_clip.is_empty() and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(str(unit.get("key", ""))):
 		_draw_unit_shadow(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_shadow", phase_started_usec)
@@ -16555,6 +16563,9 @@ func _death_frame_index(unit: Dictionary) -> int:
 	return clampi(int(unit.get("death_frame", 0)), 0, death_frames.size() - 1)
 
 func _idle_frame_index(unit: Dictionary) -> int:
+	var held: Dictionary = presentation.get("unit_throw_idle_frames", {})
+	if held.has(str(unit.get("key", ""))): return int(held[str(unit["key"])])
+	if EmaciatedMan.handles(unit): return Engine.get_process_frames()
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if idle_frames.is_empty():
 		return 0
@@ -16671,6 +16682,7 @@ func _active_idle_frame_key() -> String:
 	return "|".join(parts)
 
 func _unit_idle_animation_active(unit: Dictionary) -> bool:
+	if EmaciatedMan.handles(unit): return visible and not combat_state.is_empty() and not bool(presentation.get("reduced_motion", false))
 	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
 		return false
 	if bool(unit.get("death_animation", false)):
@@ -16770,7 +16782,7 @@ func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: floa
 		var geometry: Dictionary = canvas_renderer.canvas_geometry() if not canvas_renderer.has_method("borrow_canvas_geometry") and canvas_renderer.has_method("canvas_geometry") else (canvas_renderer.borrow_canvas_geometry() if canvas_renderer.has_method("borrow_canvas_geometry") else {"offset": ProtagonistCutout.SOURCE_OFFSET, "size": ProtagonistCutout.CANVAS_SIZE})
 		rect = Rect2(rect.position - rect.size * (geometry["offset"] as Vector2) / ProtagonistCutout.SOURCE_SIZE,
 			rect.size * Vector2(geometry["size"]) / ProtagonistCutout.SOURCE_SIZE)
-	if align_pixels and MaquettePresentation.handles(str(unit.get("type", ""))):
+	if align_pixels and MaquettePresentation.handles(str(unit.get("type", ""))) and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(str(unit.get("key", ""))):
 		rect = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd").board_rect(rect)
 	return rect
 
@@ -16798,7 +16810,7 @@ func _unit_center(unit: Dictionary) -> Vector2:
 		return Vector2(cached.x, cached.y)
 	var overrides: Dictionary = presentation.get("unit_world_positions", {})
 	var center: Vector2 = overrides[unit_key] if overrides.has(unit_key) else world_position_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
-	if MaquettePresentation.handles(str(unit.get("type", ""))):
+	if MaquettePresentation.handles(str(unit.get("type", ""))) and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(unit_key):
 		center = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd").board_center(self, unit, center)
 		if not unit_key.is_empty(): _maquette_pixel_centers_cache[unit_key] = Vector4(center.x, center.y, tile.x, tile.y)
 	return center
@@ -18367,7 +18379,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
 	# Ground a feedback beat replaces, consumes or breaks keeps its retained
 	# layer for the start of the beat, fading out as the new ground arrives.
-	var feedback_frame: Dictionary = (presentation.get("combat_feel_surface_frames", EMPTY_FEEL_FRAME) as Dictionary).get(tile, EMPTY_FEEL_FRAME)
+	var feedback_frame: Dictionary = (presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames", EMPTY_FEEL_FRAME)) as Dictionary).get(tile, EMPTY_FEEL_FRAME)
 	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
 	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
 	var surface: Dictionary = (combat_state.get("surfaces", {}) as Dictionary).get(_tile_paint_inputs.surface_key(tile), {})

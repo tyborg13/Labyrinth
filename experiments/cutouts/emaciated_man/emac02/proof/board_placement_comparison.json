@@ -1,0 +1,120 @@
+{
+  "ok": true,
+  "before_manifest": "/private/tmp/labyrinth-godot-home/emac-02-1794790491410471000-61690/Library/Application Support/Escape the Umbra Parallel emac-02-1794790491410471000-61690/probes/emac02/manifest.json",
+  "after_manifest": "/private/tmp/labyrinth-godot-home/emac-02-1794799406603109000-83828/Library/Application Support/Escape the Umbra Parallel emac-02-1794799406603109000-83828/probes/emac02/manifest.json",
+  "tile_width_before": 149.413848876953,
+  "tile_width_after": 149.413848876953,
+  "before_actors": [
+    {
+      "body_visible": true,
+      "draw_count": 102,
+      "expected_width": 153.896270751953,
+      "key": "npc_emaciated_man_0",
+      "logical_rect": [
+        957.7587890625,
+        286.948059082031,
+        153.896270751953,
+        153.896270751953
+      ],
+      "paint_rect": [
+        998.797790527344,
+        437.183380126953,
+        85.0956420898438,
+        81.4745178222656
+      ],
+      "tile": [
+        4,
+        3
+      ],
+      "true_scale": true,
+      "type": "emaciated_man"
+    },
+    {
+      "body_visible": true,
+      "draw_count": 2,
+      "expected_width": 153.896270751953,
+      "key": "player",
+      "logical_rect": [
+        658.931091308594,
+        436.361907958984,
+        153.896270751953,
+        153.896270751953
+      ],
+      "paint_rect": [
+        660.138122558594,
+        520.210571289062,
+        125.531066894531,
+        130.359191894531
+      ],
+      "tile": [
+        4,
+        7
+      ],
+      "true_scale": true,
+      "type": "player"
+    }
+  ],
+  "after_actors": [
+    {
+      "body_visible": true,
+      "canvas_ground_y": 440.240815877914,
+      "draw_count": 101,
+      "expected_width": 153.896270751953,
+      "key": "npc_emaciated_man_0",
+      "logical_rect": [
+        957.7587890625,
+        286.948059082031,
+        153.896270751953,
+        153.896270751953
+      ],
+      "paint_rect": [
+        998.797790527344,
+        437.183380126953,
+        85.0956420898438,
+        81.4745178222656
+      ],
+      "root_used_for_placement": false,
+      "shadow_foot": [
+        1041.34558105469,
+        440.240814208984
+      ],
+      "tile": [
+        4,
+        3
+      ],
+      "true_scale": true,
+      "type": "emaciated_man"
+    },
+    {
+      "body_visible": true,
+      "canvas_ground_y": 589.654664754868,
+      "draw_count": 2,
+      "expected_width": 153.896270751953,
+      "key": "player",
+      "logical_rect": [
+        658.931091308594,
+        436.361907958984,
+        153.896270751953,
+        153.896270751953
+      ],
+      "paint_rect": [
+        660.138122558594,
+        520.210571289062,
+        125.531066894531,
+        130.359191894531
+      ],
+      "root_used_for_placement": false,
+      "shadow_foot": [
+        722.903686523438,
+        572.152709960938
+      ],
+      "tile": [
+        4,
+        7
+      ],
+      "true_scale": true,
+      "type": "player"
+    }
+  ],
+  "inputs": "255 canvas, art_scale, tile frame and neutral-rest silhouette; no rig-root placement input"
+}

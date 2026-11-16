@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "character_id": "emaciated_man",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 224,
+      "duration": 3.36,
+      "loop": true,
+      "stepped_pose": true,
+      "preview_cycles": 1
+    }
+  },
+  "rigid_bones": [
+    "legs",
+    "ember_sack"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "hidden_fills/index.json",
+    "motion.gd",
+    "recipes/front_ownership.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_fill.json",
+    "recipes/rig.json",
+    "registered/front_clay.png",
+    "registered/front_hidden_ember_sack.npy",
+    "registered/front_hidden_far_forearm_hand.npy",
+    "registered/front_hidden_far_upper_arm.npy",
+    "registered/front_hidden_head_hood.npy",
+    "registered/front_hidden_legs.npy",
+    "registered/front_hidden_near_forearm.npy",
+    "registered/front_hidden_near_hand.npy",
+    "registered/front_hidden_near_upper_arm.npy",
+    "registered/front_hidden_robe_torso.npy",
+    "registered/front_joints_px.json",
+    "registered/front_owners.npy",
+    "registered/front_parts.png",
+    "registered/front_registration.json",
+    "registered/front_solo_ember_sack.png",
+    "registered/front_solo_far_forearm_hand.png",
+    "registered/front_solo_far_upper_arm.png",
+    "registered/front_solo_head_hood.png",
+    "registered/front_solo_legs.png",
+    "registered/front_solo_near_forearm.png",
+    "registered/front_solo_near_hand.png",
+    "registered/front_solo_near_upper_arm.png",
+    "registered/front_solo_robe_torso.png",
+    "source/front/kit.json",
+    "source/front/processed.json",
+    "source/front/processed.png",
+    "source/front/raw.png",
+    "source/label_palette.json",
+    "source/maquette/front_clay.png",
+    "source/maquette/front_parts.png",
+    "source/maquette/front_solo_ember_sack.png",
+    "source/maquette/front_solo_far_forearm_hand.png",
+    "source/maquette/front_solo_far_upper_arm.png",
+    "source/maquette/front_solo_head_hood.png",
+    "source/maquette/front_solo_legs.png",
+    "source/maquette/front_solo_near_forearm.png",
+    "source/maquette/front_solo_near_hand.png",
+    "source/maquette/front_solo_near_upper_arm.png",
+    "source/maquette/front_solo_robe_torso.png",
+    "source/maquette/joints_px.json",
+    "source/maquette_manifest.json",
+    "source/spec.json"
+  ],
+  "source_baseline": {
+    "kind": "maquette_registered_paint",
+    "spec_sha256": "43d11a951ca66c0e15b3921ba50e81c5d4c483147d6d699fd2896b623c421d2b",
+    "art_status": "hidden_filled_pending_director_review",
+    "production_integration": false
+  },
+  "design_placeholders": {},
+  "hidden_fill": {
+    "recipe": "recipes/hidden_fill.json",
+    "manifest": "hidden_fills/index.json",
+    "pending_design": []
+  }
+}

@@ -135,6 +135,17 @@ accepts only an unbuilt `cutout_workflow.py init` case; completed cases are neve
 overwritten. The raw images must be supplied through `--front-raw`/`--rear-raw`
 or stored as `raw.png` in each job. Their digests must match `processed.json`.
 
+A front-only delivery may declare `facings: ["front"]` in its derived spec
+and omit `--rear-job`; no rear geometry or reflected paint is synthesized.
+An explicit rig-recipe `maquette_registration` maps the cached maquette canvas
+to its already approved drawn canvas, instead of recovering a painting fit.
+The Emaciated Man's emac-02 case uses the supplied 1024-canvas projections at
+K=4, preserving `front_clay_drawn.png`'s native silhouette and ground line.
+Motion-limited hidden requests may bind a `hidden_motion_scope` mask per
+part/view; fill verifies its digest and that it is a subset of the original
+solo-derived hidden region. CPU exposure scopes are authoring evidence only;
+native seam/continuity inspection remains mandatory.
+
 Registration replays the exact green-key alpha, outward block padding, two
 alpha trims and rounded fit dimensions used by `art_identity_gate.process_raw`.
 It records the resulting affine transform and applies it to all maps, solos

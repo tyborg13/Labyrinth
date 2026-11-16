@@ -1,0 +1,15 @@
+{
+  "coordinate_space": "processed 255 canvas",
+  "eyes": [
+    [
+      104.28888888888889,
+      110.29629629629628
+    ],
+    [
+      118.65925925925926,
+      110.29629629629628
+    ]
+  ],
+  "face_center_x": 111.47407407407408,
+  "measurement": "Round 3: all round-1 painted landmarks transformed by 194/135 about (128,254), like the joints and maquette."
+}

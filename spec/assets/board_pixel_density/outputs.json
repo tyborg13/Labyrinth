@@ -8427,6 +8427,108 @@
     "grid": 1.73,
     "facing": "rear"
   },
+  "assets/units/emaciated_man_cutout/front/ember_sack.png": {
+    "pixel_sha256": "5ae86171e9acbe632f3ca042a5253cd7d875dd623a80d59e345154955f24657d",
+    "source_pixel_sha256": "a08c0f911a8d90f069fb41f41f691d7ad6e0e37b4396d95388f1c8783fca3ceb",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/far_forearm_hand.png": {
+    "pixel_sha256": "16e4b49c5bafb552d140b28c505b3ce607ef6a12bbf4a0a3a7ad788e075b3376",
+    "source_pixel_sha256": "decfef7c933b89c26902015587dc51ff7fb1d2c2f1b4a4664267b08624e7b62b",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/far_upper_arm.png": {
+    "pixel_sha256": "d804d69f364de1fdcf0e14d2f3a3223920488ffe1c06784f77b48abad4418991",
+    "source_pixel_sha256": "f6b7df2ae4dca72d1e713d7302c99a98dbb1456d1fe076efed7841d9aabfdc81",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/head_hood.png": {
+    "pixel_sha256": "ee2808d0bc30419c23b16f805691e45dd122f6553fe3eb1b304de8d81ec64685",
+    "source_pixel_sha256": "ba925767bae253eecfdcf70fc400a672fca48a318683d25cfa9cafa69888d751",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/hidden_ember_sack.png": {
+    "pixel_sha256": "e8a88e9795a0afd1bcde82b523c95ae8057de089310833e0fe6af806425c42e8",
+    "source_pixel_sha256": "e8a88e9795a0afd1bcde82b523c95ae8057de089310833e0fe6af806425c42e8",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/hidden_legs.png": {
+    "pixel_sha256": "1b32aa0e50cb2badcc12e5f82b57aad0c5dcce6597bffa41d95c966bef3b383f",
+    "source_pixel_sha256": "9743045bfb9fe5e8a7243183c135e893204672b3ad85250517ee6768f46a2235",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/hidden_robe_torso.png": {
+    "pixel_sha256": "c0db211c980c11b44cb8b3c6bc0cf4ba7f0e3f23db76974ad7a0281ad3ca9b56",
+    "source_pixel_sha256": "c0db211c980c11b44cb8b3c6bc0cf4ba7f0e3f23db76974ad7a0281ad3ca9b56",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/legs.png": {
+    "pixel_sha256": "e51da7378470916938ba0b8f8a3a1e4b1d79e76fad5927d008875e23a177f4b9",
+    "source_pixel_sha256": "e7b376387efd92a4889edfd6ccd93922a67d86f725360c95a6488d1fef4c0fed",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/near_forearm.png": {
+    "pixel_sha256": "4dcb277ea4f5e351e7012dbf7052c37c3736fa756f40608517ea94419d6c7962",
+    "source_pixel_sha256": "fd592637f059e2514361c8f828f05e60eca97c185b59b02336446892d350b936",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/near_hand.png": {
+    "pixel_sha256": "f4e515bc78c7f355b1cc7a38580b69288eb073a69e54b44ccbd25977267b64a6",
+    "source_pixel_sha256": "1849a6caefbe65b767ef736a44e8720c572aa84fd23cc152ac51382e6af5b501",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/near_upper_arm.png": {
+    "pixel_sha256": "2601303823d0a958960943ab9fe08e829a478f4b540199bd61d61ec0a30ae869",
+    "source_pixel_sha256": "e02000aba4a1a5df00d36a73624fb14f1c66e6b8939bd45bd8844b1b77a70faf",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/emaciated_man_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "emaciated_man_cutout",
+    "pixel_sha256": "e16fbd3cfd396a59ea725b9051cf6a1ee5099c39bc6f6fc5a94669609db64f81",
+    "parts_pixel_sha256": "ee873176218d617eef64b0c5c73cdbcbb3b3de4ee534dde3f6270e1bf5908954"
+  },
+  "assets/units/emaciated_man_cutout/front/robe_torso.png": {
+    "pixel_sha256": "01b891dbb29ca0d2580b14f760743514e5cb0b31ce46637c1bbe84b7cb98675b",
+    "source_pixel_sha256": "e6609430acfe1aff3d0dd006320b40f4c7b4d69653b14d7a57dfd9ec6f0e7997",
+    "id": "emaciated_man_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
   "assets/units/ember_tick_cutout/front/rest.png": {
     "kind": "rest",
     "id": "ember_tick_cutout",

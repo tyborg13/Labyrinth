@@ -1,0 +1,19 @@
+{
+  "scale": [
+    0.3592592592592593,
+    0.3592592592592593
+  ],
+  "offset": [
+    -55.94074074074075,
+    -111.00740740740743
+  ],
+  "trace": {
+    "basis": "Director round 3: original maquette / 4, then 194/135 about (128,254); no silhouette fitting",
+    "reference_bbox": [
+      70,
+      120,
+      207,
+      254
+    ]
+  }
+}

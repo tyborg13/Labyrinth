@@ -3817,6 +3817,7 @@ func _board_encounter_types() -> Array[String]:
 
 func _board_fit_rect() -> Rect2:
 	_board_encounter_types()
+	if preload("res://scripts/emaciated_man_cutout/presentation.gd").uses_waypoint_room_fit(_run_state): return _legacy_board_fit_rect()
 	# Detached callers have no HUD geometry to measure (including the existing
 	# framing unit fixtures). Retain their established rectangular fallback.
 	if not is_inside_tree():
@@ -7988,9 +7989,7 @@ func _set_dialogue_portrait(npc_id: String) -> void:
 	# Bust crop: the upper-middle of the sprite, scaled up with crisp pixels.
 	var atlas := AtlasTexture.new()
 	atlas.atlas = texture
-	var source: Vector2 = texture.get_size()
-	var crop: float = source.x * 0.56
-	atlas.region = Rect2(Vector2((source.x - crop) * 0.5, source.y * 0.04), Vector2(crop, crop))
+	atlas.region = preload("res://scripts/npc_portrait_region.gd").region(GameData.npc_def(npc_id), texture.get_size())
 	_dialogue_portrait.texture = atlas
 	_dialogue_portrait_frame.visible = true
 
@@ -34689,6 +34688,10 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 	return chips
 
 func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}, first_frame: Callable = Callable()) -> void:
+	var throws: Array[Dictionary] = preload("res://scripts/displacement_throw.gd").paths(before, after)
+	if not throws.is_empty():
+		await preload("res://scripts/displacement_throw.gd").animate(self, before, after, throws, base, first_frame)
+		return
 	if _combat_pacing.overlap_surface(before, after, base): return
 	var events: Array[Dictionary] = _surface_events_between(before, after)
 	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))

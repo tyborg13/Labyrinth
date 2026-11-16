@@ -31,6 +31,11 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary, actor: Dic
 	var after: Dictionary = step["state_after"] if type == "burrow_grub" else state.duplicate(true)
 	if type == "ember_tick": scene._apply_animation_step(after, step)
 	var rising: Dictionary = Burrow.rise_state(before, step) if clip == "erupt" else before
+	var throws: Array[Dictionary]
+	if clip == "erupt": throws.assign(preload("res://scripts/displacement_throw.gd").paths(before, after, [step["to"]], str(step["actor_key"])))
+	if not throws.is_empty():
+		await _erupt_throw(scene, state, step, rising, after, throws, duration, contact, reduced)
+		return
 	var events: Array[Dictionary]
 	var texts: Array[Dictionary]
 	if clip == "erupt":
@@ -72,3 +77,24 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary, actor: Dic
 	elif clip == "kindle" and not texts.is_empty():
 		await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, {"floating_texts": texts}), duration * (1.0 - contact))
 	scene._render_board_state(state, {})
+
+static func _erupt_throw(scene: Node, state: Dictionary, step: Dictionary, rising: Dictionary, after: Dictionary, throws: Array[Dictionary], duration: float, contact: float, reduced: bool) -> void:
+	var before: Dictionary = state.duplicate(true)
+	var key: String = str(step["actor_key"])
+	if not reduced:
+		var started: int = scene._combat_pacing.presentation_usec()
+		while true:
+			var elapsed: float = float(scene._combat_pacing.presentation_usec() - started) / 1000000.0
+			if elapsed >= duration * contact: break
+			scene._render_board_state(rising, {"maquette_explicit_clip": true, "burrow_grub_motion": {key: {"clip": "erupt", "phase": elapsed / duration}}})
+			await scene.get_tree().process_frame
+	scene._play_sfx(Sfx.entry_for_enemy_action({"type": "aoe", "element": "earth"}))
+	await preload("res://scripts/displacement_throw.gd").animate(scene, before, after, throws, {}, Callable(), func(shown: Dictionary, elapsed: float) -> void:
+		shown["maquette_explicit_clip"] = true
+		shown["burrow_grub_motion"] = {key: {"clip": "erupt", "phase": 1.0 if reduced else minf(1.0, contact + elapsed / duration)}}
+		if not reduced and elapsed < Burrow.DUST_SECONDS:
+			shown["en01_erupt_dust"] = {"actor_key": key, "tile": step["to"], "progress": elapsed / Burrow.DUST_SECONDS}
+	)
+	state.clear()
+	state.merge(after.duplicate(true), true)
+	await scene._animate_turn_order_alongside_defeats(before, state)

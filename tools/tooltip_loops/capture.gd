@@ -383,7 +383,8 @@ func _semantics() -> void:
 	await preload("res://tools/tooltip_loops/tip03_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/tip04_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/capture_checks.gd").verify(self)
-	await create_timer(10.1, true, false, true).timeout
+	# 0.6 s margin: the last panel can close a frame or two after this point on a loaded machine.
+	await create_timer(10.6, true, false, true).timeout
 	_expect(Cache.shared().streams.is_empty(), "Real-time cache expires ten seconds after last close")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 

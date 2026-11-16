@@ -33,7 +33,7 @@ static func presentation_for(board: Control, state: Dictionary, source: Dictiona
 		var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
 		var footprint: Vector2i = board._resolved_unit_footprint(unit)
 		var direction: Dictionary = Facing.direction_for_delta(player * 2 - (tile * 2 + footprint - Vector2i.ONE))
-		if bool(unit.get("death_animation", false)) or int(unit.get("hp", 0)) <= 0:
+		if (source.get("unit_throw_ground_positions", {}) as Dictionary).has(key) or bool(unit.get("death_animation", false)) or int(unit.get("hp", 0)) <= 0:
 			direction = old.get(key, direction)
 		elif positions.has(key):
 			# World samples retain the current segment direction even after the

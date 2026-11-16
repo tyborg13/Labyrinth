@@ -1,0 +1,8 @@
+{
+  "spec_hash": "cd927817a230114b5937e11c256788c2391d2f236e58f9d96f4b9eb1fa859a06",
+  "checks": {
+    "shared_geometry": true,
+    "required_solo_coverage": true
+  },
+  "passed": true
+}

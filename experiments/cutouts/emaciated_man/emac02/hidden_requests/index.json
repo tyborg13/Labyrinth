@@ -1,0 +1,213 @@
+{
+  "exposure_basis": "337 actual Godot rigid idle poses, CPU source-texel visibility, one native-pixel raster margin; not rendered proof",
+  "requests": [
+    {
+      "part": "far_forearm_hand",
+      "view": "front",
+      "image": "hidden_requests/front_far_forearm_hand.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 72,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "skin",
+      "paint_nodes": []
+    },
+    {
+      "part": "far_upper_arm",
+      "view": "front",
+      "image": "hidden_requests/front_far_upper_arm.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "skin",
+      "paint_nodes": []
+    },
+    {
+      "part": "legs",
+      "view": "front",
+      "image": "hidden_requests/front_legs.png",
+      "status": "measured",
+      "hidden_pixel_count": 28,
+      "bounding_box": [
+        55,
+        194,
+        111,
+        233
+      ],
+      "solo_outside_paint_pixels": 44,
+      "motions": [
+        "idle"
+      ],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [
+        {
+          "part": "robe_torso",
+          "pixels": 26,
+          "material": "approved brown cloth"
+        },
+        {
+          "part": "near_forearm",
+          "pixels": 2,
+          "material": "skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "robe_torso",
+          "pixels": 11,
+          "material": "approved brown cloth"
+        },
+        {
+          "part": "near_forearm",
+          "pixels": 3,
+          "material": "skin"
+        }
+      ],
+      "material": "approved brown cloth",
+      "paint_nodes": [
+        "hidden_legs"
+      ]
+    },
+    {
+      "part": "robe_torso",
+      "view": "front",
+      "image": "hidden_requests/front_robe_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 5,
+      "bounding_box": [
+        172,
+        223,
+        174,
+        226
+      ],
+      "solo_outside_paint_pixels": 100,
+      "motions": [
+        "idle"
+      ],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [
+        {
+          "part": "legs",
+          "pixels": 5,
+          "material": "approved brown cloth"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "legs",
+          "pixels": 5,
+          "material": "approved brown cloth"
+        }
+      ],
+      "material": "approved brown cloth",
+      "paint_nodes": [
+        "hidden_robe_torso"
+      ]
+    },
+    {
+      "part": "head_hood",
+      "view": "front",
+      "image": "hidden_requests/front_head_hood.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 104,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "approved brown cloth",
+      "paint_nodes": []
+    },
+    {
+      "part": "near_upper_arm",
+      "view": "front",
+      "image": "hidden_requests/front_near_upper_arm.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 169,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "skin",
+      "paint_nodes": []
+    },
+    {
+      "part": "near_forearm",
+      "view": "front",
+      "image": "hidden_requests/front_near_forearm.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 84,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "skin",
+      "paint_nodes": []
+    },
+    {
+      "part": "near_hand",
+      "view": "front",
+      "image": "hidden_requests/front_near_hand.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 98,
+      "motions": [],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "skin",
+      "paint_nodes": []
+    },
+    {
+      "part": "ember_sack",
+      "view": "front",
+      "image": "hidden_requests/front_ember_sack.png",
+      "status": "measured",
+      "hidden_pixel_count": 8,
+      "bounding_box": [
+        223,
+        201,
+        226,
+        204
+      ],
+      "solo_outside_paint_pixels": 93,
+      "motions": [
+        "idle"
+      ],
+      "exposure_status": "sampled_cpu_texel_visibility_with_1px_raster_margin",
+      "occluding_parts": [
+        {
+          "part": "near_hand",
+          "pixels": 8,
+          "material": "skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "near_hand",
+          "pixels": 6,
+          "material": "skin"
+        }
+      ],
+      "material": "approved brown cloth",
+      "paint_nodes": [
+        "hidden_ember_sack"
+      ]
+    }
+  ]
+}

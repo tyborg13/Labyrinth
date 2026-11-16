@@ -5,6 +5,7 @@ extends "res://scripts/protagonist_cutout/rig.gd"
 var config: Dictionary = {}
 var case_directory: String = ""
 var sampler: Script
+var _ember_overlay: RefCounted
 var _layer_facing: String = ""
 var _layer_nodes: Dictionary = {}
 var _layer_defaults: Dictionary = {}
@@ -22,10 +23,20 @@ func configure(path: String) -> bool:
 		load_errors.append("Motion script needs static sample_pose(clip, phase, layout, facing)")
 		return false
 	facing = str(config["default_facing"])
-	return load_rig()
+	var loaded: bool = load_rig()
+	if loaded and not layout.get("glow_overlays", []).is_empty():
+		_ember_overlay = preload("res://scripts/emaciated_man_cutout/glow.gd").new()
+		_ember_overlay.setup(self)
+		apply_pose("idle", 0.0)
+	return loaded
 
 func _layout_path(which: String) -> String:
 	return _resolve(str(config["layouts"][which]))
+
+func set_glow_enabled(enabled: bool) -> void:
+	if _ember_overlay != null:
+		_ember_overlay.enabled = enabled
+		if not enabled: _ember_overlay.present({})
 
 func has_facing(which: String) -> bool:
 	return config.get("layouts", {}).has(which) and FileAccess.file_exists(_layout_path(which))
@@ -48,6 +59,8 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 		bone.skew = float(override.get("skew", 0.0))
 		bone.visible = bool(override.get("visible", true))
 	_apply_draw_order(clip_name, phase_value)
+	if _ember_overlay != null and sampler.has_method("sample_glow"):
+		_ember_overlay.present(sampler.call("sample_glow", clip_name, phase_value))
 
 func _draw_order_targets() -> Dictionary:
 	if _layer_facing == facing:
@@ -145,11 +158,18 @@ func save_editable(path: String) -> Error:
 			for property: String in ["position", "rotation", "scale", "skew", "visible"]:
 				var track: int = animation.add_track(Animation.TYPE_VALUE)
 				animation.track_set_path(track, NodePath(str(get_path_to(bones[bone_name])) + ":" + property))
-				animation.track_set_interpolation_type(track, Animation.INTERPOLATION_NEAREST if property == "visible" else Animation.INTERPOLATION_LINEAR)
-				if property == "visible":
+				animation.track_set_interpolation_type(track, Animation.INTERPOLATION_NEAREST if property == "visible" or bool(specification.get("stepped_pose", false)) else Animation.INTERPOLATION_LINEAR)
+				if property == "visible" or bool(specification.get("stepped_pose", false)):
 					animation.value_track_set_update_mode(track, Animation.UPDATE_DISCRETE)
 				tracks[bone_name][property] = track
 		var layer_tracks: Dictionary = {}
+		var glow_tracks: Dictionary = {}
+		if _ember_overlay != null:
+			for channel: String in _ember_overlay.overlays:
+				var overlay: Node = _ember_overlay.overlays[channel]
+				var track: int = animation.add_track(Animation.TYPE_VALUE)
+				animation.track_set_path(track, NodePath(str(get_path_to(overlay)) + ":material:shader_parameter/pulse_alpha"))
+				glow_tracks[channel] = track
 		for part_name: String in _draw_order_targets():
 			var track: int = animation.add_track(Animation.TYPE_VALUE)
 			animation.track_set_path(track, NodePath(str(get_path_to(_layer_nodes[part_name])) + ":z_index"))
@@ -164,6 +184,8 @@ func save_editable(path: String) -> Error:
 					animation.track_insert_key(tracks[bone_name][property], float(index) * duration / float(frames), bones[bone_name].get(property))
 			for part_name: String in layer_tracks:
 				animation.track_insert_key(layer_tracks[part_name], float(index) * duration / float(frames), (_layer_nodes[part_name] as CanvasItem).z_index)
+			for channel: String in glow_tracks:
+				animation.track_insert_key(glow_tracks[channel], float(index) * duration / float(frames), (_ember_overlay.materials[channel] as ShaderMaterial).get_shader_parameter("pulse_alpha"))
 		library.add_animation(clip_name, animation)
 	player.add_animation_library("", library)
 	apply_pose("rest", 0.0)

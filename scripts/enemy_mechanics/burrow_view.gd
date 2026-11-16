@@ -129,6 +129,13 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 			var progress: float = float(frame - 1) / float(maxi(1, frames - 1))
 			scene._render_board_state(rising, {"en01_erupt": {"actor_key": step["actor_key"], "progress": progress}, "en01_erupt_dust": dust}))
 	var before: Dictionary = state.duplicate(true)
+	var throws: Array[Dictionary] = preload("res://scripts/displacement_throw.gd").paths(before, after, [step["to"]], str(step["actor_key"])) if str(step["kind"]) == "erupt" else preload("res://scripts/typed_arrays.gd").dictionaries([])
+	if not throws.is_empty():
+		await preload("res://scripts/displacement_throw.gd").animate(scene, before, after, throws)
+		state.clear()
+		state.merge(after.duplicate(true), true)
+		await scene._animate_turn_order_alongside_defeats(before, state)
+		return
 	state.clear()
 	state.merge(after.duplicate(true), true)
 	var impact: Dictionary = {}

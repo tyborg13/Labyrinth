@@ -1,0 +1,10 @@
+{
+  "min_images": 72,
+  "expected_sizes": ["512x512"],
+  "required_images": [
+    {"pattern":"*upper_rest.png","width":512,"height":512},
+    {"pattern":"*lower_rest.png","width":512,"height":512},
+    {"pattern":"*upper_34.png","width":512,"height":512},
+    {"pattern":"*lower_34.png","width":512,"height":512}
+  ]
+}

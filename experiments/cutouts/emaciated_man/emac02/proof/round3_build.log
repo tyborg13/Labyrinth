@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "complete": false,
+  "missing_solos": [],
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "6cbbd81ca41894b1445f269d4921a132094da4ceb46202c169e8f66cba5bbcd9"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "emaciated_man",
+    "layouts": {
+      "front": {
+        "joints": 11,
+        "parts": 18,
+        "meshes": 2,
+        "vertices": 3730
+      }
+    },
+    "errors": []
+  },
+  "pending_design": {}
+}

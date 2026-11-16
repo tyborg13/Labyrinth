@@ -1,0 +1,35 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "far_forearm_hand",
+      "parts": [
+        "far_forearm_hand",
+        "hidden_far_forearm_hand"
+      ],
+      "bones": [
+        "far_forearm_hand",
+        "far_hand_support"
+      ],
+      "bands": [
+        {
+          "center": [
+            79.34589166650629,
+            163.72800044000942
+          ],
+          "axis": [
+            -29.61658703735779,
+            36.1396305096485
+          ],
+          "width": 46.72488759874448
+        }
+      ],
+      "grid": [
+        2,
+        1
+      ]
+    }
+  ]
+}
