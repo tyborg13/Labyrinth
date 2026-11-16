@@ -1,0 +1,144 @@
+{
+  "min_images": 8,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*01_opening_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*02_opening_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*03_opening_strikes.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*04_second_skybreak_wisps.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*05_second_strikes.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*06_overload_warning.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*07_overload_firing.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*08_overload_result.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

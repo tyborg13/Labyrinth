@@ -176,7 +176,7 @@ SOURCE_FILTERS = (
 )
 
 BOSS_ENCOUNTER_ROLES = {
-    "zekarion": "HP50; two Wisps and capped Call Wisps; Skybreak5, Storm Lash4; Overload shot3 plus Lightning Storm damage5 Chain1, Chain2 at half Health",
+    "zekarion": "HP62; two Wisps and capped Call Wisps; Skybreak5 on nine separated scatter tiles; cycle Skybreak, Storm Lash, Call Wisps, Skybreak, Overload; Storm Lash4; Overload shot3 plus Lightning Storm damage5 Chain1, Chain2 at half Health",
     "tharokh": "HP72; two finite Burrow Grubs; Stonewake damage6, Claw damage14, Bedrock damage10; guarded source-owned length5 health4 Upheaval every second hero turn, each hero turn at half Health; radius1 consuming Faultline8 plus shot4",
     "vyraketh": "HP52; one finite Cinder Droplet; Cinder Maw8, Breath6; seven-cell Fire renewal; Wildfire spreads all on Breath, every second source turn at half Health; Crownfire detonates only remembered marks",
     "vaeloryx": "HP50; one finite Gust Shrike; live Skyhook4, swept Dive6, ring Gale6 Push1 and Eye8/bite4; clockwise Gust after each source turn, Push1 then Push2 at half Health; no recorded wake",

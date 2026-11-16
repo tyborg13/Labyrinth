@@ -1,0 +1,360 @@
+{
+  "min_images": 61,
+  "expected_sizes": [
+    "1920x1080",
+    "3840x1080",
+    "3200x1080",
+    "3200x2880"
+  ],
+  "required_images": [
+    {
+      "pattern": "emaciated_man_line.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            730,
+            340,
+            300
+          ],
+          "min_luma_range": 15,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            646,
+            910,
+            924,
+            48
+          ],
+          "min_luma_range": 15,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_line.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            730,
+            340,
+            300
+          ],
+          "min_luma_range": 15,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            646,
+            910,
+            924,
+            48
+          ],
+          "min_luma_range": 15,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "service_trade_focus.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "service_trade_hover.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "emaciated_man_line_beside_mockup.png",
+      "width": 3840,
+      "height": 1080
+    },
+    {
+      "pattern": "scavenger_line_beside_mockup.png",
+      "width": 3840,
+      "height": 1080
+    },
+    {
+      "pattern": "service_trade_focus_beside_mockup.png",
+      "width": 3840,
+      "height": 1080
+    },
+    {
+      "pattern": "service_trade_hover_beside_mockup.png",
+      "width": 3840,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_00.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_01.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_02.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_03.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_04.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_05.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_06.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_07.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_08.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_09.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_10.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_11.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_12.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_1x_sheet.png",
+      "width": 3200,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_00.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_01.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_02.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_03.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_04.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_05.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_06.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_07.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_08.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_09.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_10.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_11.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_12.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_13.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_14.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_15.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_16.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_17.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_18.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_19.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_20.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_21.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_22.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_23.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_24.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_25.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_26.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_27.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_28.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_29.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_30.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_31.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_32.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_33.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_34.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_35.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_36.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "opening_third_speed_sheet.png",
+      "width": 3200,
+      "height": 2880
+    }
+  ]
+}

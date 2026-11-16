@@ -1,7 +1,6 @@
 extends "res://tests/pre_battle_fixture.gd"
 const Evidence = preload("res://tools/emaciated_man_cutout/game_evidence.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
-const Portrait = preload("res://scripts/npc_portrait_region.gd")
 const Motion = preload("res://scripts/emaciated_man_cutout/motion.gd")
 const Boons = preload("res://scripts/opening_boon_rules.gd")
 const OUTPUT: String = "user://probes/emac02"
@@ -69,12 +68,12 @@ func _run() -> void:
 	board.call("_queue_dynamic_redraw")
 	await _settle()
 	var portrait: TextureRect = scene.get("_dialogue_portrait")
-	var atlas: AtlasTexture = portrait.texture as AtlasTexture
-	_expect(atlas != null, "Actual dialogue uses an atlas portrait")
-	if atlas != null:
-		_expect(atlas.region == Portrait.region(GameData.npc_def("emaciated_man"), atlas.atlas.get_size()), "Dialogue reads the per-NPC crop")
-		_expect(is_equal_approx(atlas.region.size.x, 1.9 * float(renderer.rig.layout["portrait_head_width"])), "Bust uses head shell width, excluding the back drape")
-		_expect(atlas.region.end.y < float(renderer.rig.layout["joints"]["near_hand"]["position"][1]), "Bust crop excludes the seated hands and sack")
+	var authored: Dictionary = GameData.npc_def("emaciated_man")["portrait_bust"]
+	_expect(portrait.texture != null, "Actual dialogue uses the authored bust")
+	if portrait.texture != null:
+		_expect(portrait.texture.get_meta("portrait_bust") == authored, "Dialogue reads the explicit full-width bust coordinates")
+		_expect(portrait.texture.get_size() == Vector2(765, 300), "Dialogue uses the full sprite width and authored scale 3")
+		_expect(portrait.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "Dialogue retains nearest pixel filtering")
 	if not _verify_only: await _capture(OUTPUT.path_join("dialogue_portrait.png"))
 	# Reduce motion through the board's normal presentation, then check the
 	# exact rest pose and steady pulse without changing saved state or gameplay.
@@ -90,7 +89,7 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var file := FileAccess.open(OUTPUT.path_join("manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"ok":not _failed,"size":[1920,1080],"ui_scale":1.0,"cel_look":preload("res://scripts/cel_look.gd").mode,"proof_seconds":PROOF_SECONDS,"proof_hero_tile":[PROOF_HERO_TILE.x,PROOF_HERO_TILE.y],"npc":GameData.npc_def("emaciated_man"),"snapshot":renderer.call("snapshot"),"verify_only":_verify_only,"default_actors":_default_actors,"native_actors":_native_actors,"tile_width":board.call("_tile_width")},"\t"))
-	print("EMAC GAME PROBE: %s; waypoint=cutout; dialogue=portrait_region; reduced=rest; sheet=unused" % ("FAIL" if _failed else "PASS"))
+	print("EMAC GAME PROBE: %s; waypoint=cutout; dialogue=portrait_bust; reduced=rest; sheet=unused" % ("FAIL" if _failed else "PASS"))
 	print(ProjectSettings.globalize_path(OUTPUT))
 	scene.queue_free()
 	await process_frame

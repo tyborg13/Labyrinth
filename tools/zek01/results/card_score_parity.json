@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "comparison": "all scorer JSON values equal to HEAD scorer with the same current card data",
+  "current_scores_sha256": "40eaa1b1c2df253039ef75c0625bc06f33515766fb4407d13c775abad9f0ac18"
+}

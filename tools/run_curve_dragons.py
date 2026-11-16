@@ -134,6 +134,11 @@ def collect(output: Path, scratch: Path, workers: int, wall_seconds: float, max_
 
 
 def main() -> None:
+    if "--zek01" in sys.argv:
+        sys.argv.remove("--zek01")
+        from zek01.measure import main as zek01_main
+        zek01_main()
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scratch-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)

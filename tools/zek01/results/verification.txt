@@ -1,0 +1,50 @@
+rules (exit 0):
+ZEK01 RULES: PASS (6830 assertions, 0 failures)
+
+focused (exit 0):
+ZEK01 FOCUSED: PASS (1717 assertions, 0 failures)
+
+committed-patterns (exit 0):
+Dragon committed patterns passed.
+
+feedback-mechanics (exit 0):
+Dragon feedback mechanics passed.
+
+atk04 (exit 0):
+ATK04 FOCUSED RESULT: PASS (892 assertions, 0 failures)
+
+threats (exit 0):
+THREATS AT REST TEST RESULT: PASS (16952 assertions; includes compass suite)
+
+capture-fixture (exit 0):
+ZEK01 CAPTURE FIXTURE: PASS
+
+warning-parse (exit 0):
+
+revision-parse (exit 0):
+
+presentation-parse (exit 0):
+
+python-resource-audit (exit 0):
+ISOLATION AUDIT: 56 modules; /private/tmp/zek01-python-audit/isolation-audit.md
+
+focused-original-data (exit 0):
+ZEK01 FOCUSED: PASS (1628 assertions, 0 failures)
+
+ZEK01 DATA SCOPE: PASS (only approved Health, count, placement and cycle_order differ)
+ZEK01 CARD SCORE PARITY: PASS (all intrinsic card scores unchanged)
+JSON PASS data/enemies.json
+JSON PASS tools/zek01/proof_contract.json
+Python compile: exit 0 (PYTHONPYCACHEPREFIX=/private/tmp/zek01-pycache)
+git diff --check: exit 0
+
+The Godot runs emitted the host certificate warning: ERROR: Condition "ret != noErr" is true. Returning: "" at get_system_ca_certificates (platform/macos/os_macos.mm:1014). The runner returned exit 0 for each successful check above. The focused scene boot also emitted the existing non-equal-anchor size warning. No parser/test failure marker remained.
+Renderer captures were not attempted; no window server. Cel status: CEL_STATUS input stamp differs; owner rebuild command is in HANDOFF.md.
+
+TRACE OUTCOME PARITY: PASS matched_cells=187
+ZEK01 REPORT CHECKS: PASS (maximum N64 half-width 0.1190; explicit cause takes priority)
+
+ZEK01 COLLECTION PASS N=64
+ZEK01 REPORT PASS N=64 raw_fights=704 audit_fights=8 qualifying_losses=56
+AUDIT OUTCOME PARITY: PASS (8 fights; all positive Health-loss receipts identical)
+FINAL ARTIFACT CHECK: PASS (704 unique fights; 36 N64 cells; six approved Health values; all Zekarion intervals within 12 points)

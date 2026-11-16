@@ -4,6 +4,7 @@ const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Committed = preload("res://scripts/guardian_combat_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const Scatter = preload("res://scripts/dragon_scatter_pattern.gd")
 const Fields = preload("res://scripts/dragon_pressure_fields.gd")
 
 static func initialize(engine: RefCounted, state: Dictionary) -> void:
@@ -63,15 +64,32 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 			if not bool(brazier.get("lit",true)): restored.append(brazier["pos"])
 			brazier["lit"] = true
 		Surfaces.record_event(state,{"kind":"dragon_light_restored","tiles":restored,"trigger":"legacy_saved_night_coil","source":{"actor_kind":"enemy","actor_id":enemy["id"]}})
+	var order: Array = engine.GameData.enemy_def(str(enemy["type"])).get("cycle_order", [])
+	_map_cycle(enemy, intents, order)
 	var cycle: int = int(enemy.get("dragon_cycle", -1)) + 1
 	enemy["dragon_cycle"] = cycle
-	var intent: Dictionary = (intents[posmod(cycle, intents.size())] as Dictionary).duplicate(true)
+	var selected: int = posmod(cycle, intents.size())
+	if not order.is_empty():
+		var id: String = str(order[posmod(cycle, order.size())])
+		for i: int in range(intents.size()):
+			if str(intents[i].get("id", "")) == id:
+				selected = i
+				break
+	var intent: Dictionary = (intents[selected] as Dictionary).duplicate(true)
 	for action: Dictionary in intent.get("actions", []):
 		match str(action.get("type", "")):
 			"cinder_marks":
 				if str(action.get("placement", "")) == "band": action["declared_tiles"] = Fields.band_tiles(engine, state, enemy, int(action.get("count", 7)))
 				else: action["declared_tiles"] = meteor_tiles(engine, state, enemy, int(action.get("count", 5))) if str(action.get("placement", "")) == "scattered" else kindle_tiles(engine, state, enemy, int(action.get("count", 3)))
-			"lightning_strikes": action["declared_tiles"] = Fields.band_tiles(engine,state,enemy,int(action.get("count",7))) if str(action.get("placement","")) == "band" else storm_tiles(engine,state,enemy,int(action.get("count",3)))
+			"lightning_strikes":
+				match str(action.get("placement", "")):
+					"scatter":
+						# Old combats have no factory seed. Freeze their saved RNG
+						# state once as a compatibility seed, without advancing it.
+						if not state.has("fight_seed"): state["fight_seed"] = int(state.get("rng_state", 0))
+						action["declared_tiles"] = Scatter.tiles(engine, state, enemy, int(action.get("count", 9)))
+					"band": action["declared_tiles"] = Fields.band_tiles(engine, state, enemy, int(action.get("count", 7)))
+					_: action["declared_tiles"] = storm_tiles(engine, state, enemy, int(action.get("count", 3)))
 		if bool(action.get("snuff_brazier",false)):
 			var braziers: Array = state.get("guardian_braziers",[])
 			if not braziers.is_empty():
@@ -88,6 +106,21 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 					enemy["eclipse_brazier_id"] = action["brazier_id"]
 	intent = engine._surface_prepare_enemy_intent(state, enemy, intent)
 	return Committed.commit(engine, state, index, intent)
+
+# Legacy cycle indexes refer to the unique intent array. Preserve the current
+# warning verbatim, then continue after that id's first slot in the new order.
+# The stored order makes this mapping idempotent across subsequent saves.
+static func _map_cycle(enemy: Dictionary, intents: Array, order: Array) -> void:
+	if order.is_empty() or enemy.get("dragon_cycle_order", []) == order: return
+	var previous: Array = enemy.get("dragon_cycle_order", [])
+	if previous.is_empty():
+		for intent: Dictionary in intents: previous.append(str(intent.get("id", "")))
+	var cycle: int = int(enemy.get("dragon_cycle", -1))
+	if cycle >= 0:
+		var id: String = str(previous[posmod(cycle, previous.size())])
+		var slot: int = order.find(id)
+		if slot >= 0: enemy["dragon_cycle"] = (cycle / previous.size()) * order.size() + slot
+	enemy["dragon_cycle_order"] = order.duplicate()
 
 static func kindle_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
 	var target: Vector2i = state["player"]["pos"]

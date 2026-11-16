@@ -1,0 +1,10 @@
+Running task-local command:
+  task: zek-01
+  run: zek-01-1794851472200716000-7251
+  HOME: /private/tmp/labyrinth-godot-home/zek-01-1794851472200716000-7251
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/zek-01-1794851472200716000-7251/godot.log --headless --path . --check-only --script tests/dragon_pressure_warning_probe.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+

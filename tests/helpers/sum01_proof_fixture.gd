@@ -32,7 +32,9 @@ static func select_summon(combat: RefCounted, battle: Dictionary, index: int = 0
 		if not (intents[slot]["actions"] as Array).any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "summon_minions"): continue
 		# Test/proof setup selects the cycle position, then lets production choose,
 		# scale, add missing-helper metadata and commit the authored warning.
-		enemy["dragon_cycle" if bool(definition.get("dragon_cycle", false)) else "guardian_cycle"] = slot - 1
+		var order: Array = definition.get("cycle_order", [])
+		var cycle_slot: int = order.find(str(intents[slot]["id"])) if not order.is_empty() else slot
+		enemy["dragon_cycle" if bool(definition.get("dragon_cycle", false)) else "guardian_cycle"] = cycle_slot - 1
 		enemy["intent"] = {}
 		var rng := RandomNumberGenerator.new()
 		rng.seed = PROOF_SEED

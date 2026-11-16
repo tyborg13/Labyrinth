@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Staged warning coverage, not a played encounter or queue/balance study.
-## Start with the inspection recipe, then resolve the actual boss four times.
+## Start with the inspection recipe, then resolve the actual boss through its authored cycle.
 ## Only setup health and the displayed current actor are restored; production
 ## terrain, surfaces, trails, helpers, held areas, positions and RNG carry on.
 const Factory = preload("res://tools/dragon_boss_inspection.gd")
@@ -18,7 +18,7 @@ const OUTPUT: String = "user://probes/dragon_pressure_warnings"
 const SOURCES = [
 	"data/enemies.json", "data/cards.json", "data/relics.json", "data/equipment.json", "data/grimoire.json",
 	"scripts/combat_engine.gd", "scripts/run_engine.gd", "scripts/game_data.gd",
-	"scripts/dragon_combat_rules.gd", "scripts/guardian_combat_rules.gd", "scripts/dragon_pressure_fields.gd",
+	"scripts/dragon_combat_rules.gd", "scripts/guardian_combat_rules.gd", "scripts/dragon_pressure_fields.gd", "scripts/dragon_scatter_pattern.gd",
 	"scripts/committed_pattern_shapes.gd", "scripts/board_surface_rules.gd", "scripts/room_generator.gd",
 	"scripts/run_scene.gd", "scripts/combat_board_view.gd", "scripts/dragon_presentation.gd", "scripts/grimoire_library.gd", "scripts/action_icon_library.gd",
 	"tools/dragon_boss_inspection.gd", "tools/inspection_fixture.gd", "tests/dragon_pressure_warning_probe.gd"
@@ -58,7 +58,11 @@ func _run() -> void:
 	var roster: Dictionary = _roster()
 	for boss_id: String in roster:
 		await _cycle(boss_id, int(roster[boss_id]))
-	_expect(witnesses.size() == roster.size()*4, "Every requested authored warning has a distinct capture")
+	var expected_count: int = 0
+	for boss_id: String in roster:
+		var definition: Dictionary = Data.enemy_def(boss_id)
+		expected_count += (definition.get("cycle_order", definition["intents"]) as Array).size()
+	_expect(witnesses.size() == expected_count, "Every requested authored warning has a distinct capture")
 	if _include_grimoire():
 		await _grimoire_pages()
 		_expect(grimoire_witnesses.size() == _grimoire_entries().size(), "Every requested revised Grimoire page has a capture")
@@ -112,16 +116,18 @@ func _cycle(boss_id: String, depth: int) -> void:
 	var entry_actor: Dictionary = state["current_actor"].duplicate(true)
 	var seen: Dictionary = {}
 	var previous_resolution: Dictionary = {}
-	for phase: int in range(4):
+	var definition: Dictionary = Data.enemy_def(boss_id)
+	var phase_count: int = (definition.get("cycle_order", definition["intents"]) as Array).size()
+	for phase: int in range(phase_count):
 		var index: int = _boss_index(state, boss_id)
-		_expect(index >= 0, boss_id + " remains alive for all four staged warnings")
+		_expect(index >= 0, boss_id + " remains alive for all staged warnings")
 		if index < 0: return
 		state["current_actor"] = entry_actor.duplicate(true)
 		state["player"]["hp"] = entry_player["hp"]
 		state["player"]["max_hp"] = entry_player["max_hp"]
 		var enemy: Dictionary = state["enemies"][index]
 		var intent_id: String = str(enemy["intent"]["id"])
-		_expect(not seen.has(intent_id), boss_id + " has a distinct warning for phase " + str(phase))
+		# cycle_order may repeat a move id; each declared slot gets a capture.
 		seen[intent_id] = true
 		var label: String = "%02d_%s_d%02d_%s" % [witnesses.size()+1, boss_id, depth, intent_id]
 		var before_preview: Dictionary = state.duplicate(true)
@@ -170,7 +176,7 @@ func _cycle(boss_id: String, depth: int) -> void:
 			"resolver_state":state.duplicate(true), "previous_resolution":previous_resolution
 		})
 		print(ProjectSettings.globalize_path(OUTPUT.path_join(label+".png")))
-		if phase == 3: break
+		if phase == phase_count - 1: break
 		# Health protection exists only in setup. Do not replace declared source
 		# fields or force a new intent: the resolver owns the next declaration.
 		var setup: Dictionary = state.duplicate(true)

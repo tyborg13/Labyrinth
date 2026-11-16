@@ -162,7 +162,10 @@ func _empty_arena(boss_id: String) -> Dictionary:
 	return state
 
 func _declare(state: Dictionary, cycle: int) -> void:
-	state["enemies"][0]["dragon_cycle"] = cycle - 1
+	var definition: Dictionary = Combat.new().GameData.enemy_def(str(state["enemies"][0]["type"]))
+	var order: Array = definition.get("cycle_order", [])
+	var slot: int = order.find(str(definition["intents"][cycle]["id"])) if not order.is_empty() else cycle
+	state["enemies"][0]["dragon_cycle"] = slot - 1
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 93
 	Combat.new()._assign_enemy_intent(state,0,rng)

@@ -865,6 +865,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 			continue
 		enemies.append(_normalized_enemy(enemy_var as Dictionary))
 	var state: Dictionary = {
+		"fight_seed": _combat_seed(run_seed, room_layout.get("coord", Vector2i.ZERO)),
 		"room_name": str(room_layout.get("name", "Room")),
 		"room_coord": room_layout.get("coord", Vector2i.ZERO),
 		"room_depth": int(room_layout.get("depth", 1)),

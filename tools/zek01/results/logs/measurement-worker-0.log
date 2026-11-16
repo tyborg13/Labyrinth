@@ -1,0 +1,83 @@
+Running task-local command:
+  task: zek-01
+  run: zek-01-1794851881813762000-8605
+  HOME: /private/tmp/labyrinth-godot-home/zek-01-1794851881813762000-8605
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/zek-01-1794851881813762000-8605/godot.log --headless --path . --script tools/zek01/measure.gd -- --inputs /private/tmp/zek01-measure/inputs --output /private/tmp/zek01-measure/fights-1794851881690091000-0.jsonl --first 0 --last 10 --completed /private/tmp/zek01-measure/completed-1794851881690091000.json
+  timeout: disabled
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ZEK01 FIGHT sample=0 variant=baseline dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=0 variant=pattern50 dragon=zekarion won=false turns=9
+ZEK01 FIGHT sample=0 variant=hp56 dragon=zekarion won=false turns=9
+ZEK01 FIGHT sample=0 variant=hp62 dragon=zekarion won=false turns=9
+ZEK01 FIGHT sample=0 variant=hp68 dragon=zekarion won=false turns=9
+ZEK01 FIGHT sample=0 variant=hp74 dragon=zekarion won=false turns=9
+ZEK01 FIGHT sample=1 variant=baseline dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=1 variant=pattern50 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=1 variant=hp56 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=1 variant=hp62 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=1 variant=hp68 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=1 variant=hp74 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=2 variant=baseline dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=2 variant=pattern50 dragon=zekarion won=true turns=6
+ZEK01 FIGHT sample=2 variant=hp56 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=2 variant=hp62 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=2 variant=hp68 dragon=zekarion won=true turns=8
+ZEK01 FIGHT sample=2 variant=hp74 dragon=zekarion won=true turns=10
+ZEK01 FIGHT sample=3 variant=baseline dragon=zekarion won=true turns=6
+ZEK01 FIGHT sample=3 variant=pattern50 dragon=zekarion won=true turns=8
+ZEK01 FIGHT sample=3 variant=hp56 dragon=zekarion won=true turns=9
+ZEK01 FIGHT sample=3 variant=hp62 dragon=zekarion won=true turns=10
+ZEK01 FIGHT sample=3 variant=hp68 dragon=zekarion won=true turns=10
+ZEK01 FIGHT sample=3 variant=hp74 dragon=zekarion won=false turns=12
+ZEK01 FIGHT sample=4 variant=baseline dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=4 variant=pattern50 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=4 variant=hp56 dragon=zekarion won=false turns=7
+ZEK01 FIGHT sample=4 variant=hp62 dragon=zekarion won=false turns=7
+ZEK01 FIGHT sample=4 variant=hp68 dragon=zekarion won=false turns=7
+ZEK01 FIGHT sample=4 variant=hp74 dragon=zekarion won=false turns=7
+ZEK01 FIGHT sample=5 variant=baseline dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=5 variant=pattern50 dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=5 variant=hp56 dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=5 variant=hp62 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=5 variant=hp68 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=5 variant=hp74 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=baseline dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=pattern50 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=hp56 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=hp62 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=hp68 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=6 variant=hp74 dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=7 variant=baseline dragon=zekarion won=true turns=5
+ZEK01 FIGHT sample=7 variant=pattern50 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=7 variant=hp56 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=7 variant=hp62 dragon=zekarion won=true turns=7
+ZEK01 FIGHT sample=7 variant=hp68 dragon=zekarion won=true turns=8
+ZEK01 FIGHT sample=7 variant=hp74 dragon=zekarion won=true turns=9
+ZEK01 FIGHT sample=8 variant=baseline dragon=vyraketh won=true turns=6
+ZEK01 FIGHT sample=8 variant=baseline dragon=tharokh won=false turns=9
+ZEK01 FIGHT sample=8 variant=baseline dragon=vaeloryx won=true turns=8
+ZEK01 FIGHT sample=8 variant=baseline dragon=iskaldra won=false turns=9
+ZEK01 FIGHT sample=8 variant=baseline dragon=zekarion won=true turns=8
+ZEK01 FIGHT sample=8 variant=baseline dragon=noctyrax won=false turns=9
+ZEK01 FIGHT sample=8 variant=pattern50 dragon=zekarion won=true turns=8
+ZEK01 FIGHT sample=8 variant=hp56 dragon=zekarion won=false turns=8
+ZEK01 FIGHT sample=8 variant=hp62 dragon=zekarion won=false turns=8
+ZEK01 FIGHT sample=8 variant=hp68 dragon=zekarion won=false turns=8
+ZEK01 FIGHT sample=8 variant=hp74 dragon=zekarion won=false turns=8
+ZEK01 FIGHT sample=9 variant=baseline dragon=vyraketh won=true turns=6
+ZEK01 FIGHT sample=9 variant=baseline dragon=tharokh won=true turns=21
+ZEK01 FIGHT sample=9 variant=baseline dragon=vaeloryx won=true turns=9
+ZEK01 FIGHT sample=9 variant=baseline dragon=iskaldra won=true turns=7
+ZEK01 FIGHT sample=9 variant=baseline dragon=zekarion won=false turns=5
+ZEK01 FIGHT sample=9 variant=baseline dragon=noctyrax won=true turns=11
+ZEK01 FIGHT sample=9 variant=pattern50 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=9 variant=hp56 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=9 variant=hp62 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=9 variant=hp68 dragon=zekarion won=false turns=4
+ZEK01 FIGHT sample=9 variant=hp74 dragon=zekarion won=false turns=4
+ZEK01 MEASUREMENT PASS first=0 last=10

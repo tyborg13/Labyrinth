@@ -1,0 +1,49 @@
+Running task-local command:
+  task: zek-01
+  run: zek-01-1794851749398644000-7952
+  HOME: /private/tmp/labyrinth-godot-home/zek-01-1794851749398644000-7952
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/zek-01-1794851749398644000-7952/godot.log --headless --path . --script tools/zek01/focused_tests.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1479)
+     GDScript backtrace (most recent call first):
+         [0] layout (res://scripts/combat_hud_right_column.gd:66)
+         [1] _layout_turn_order_anchor_content (res://scripts/run_scene.gd:10256)
+         [2] _layout_turn_order_anchor (res://scripts/run_scene.gd:10250)
+         [3] present (res://scripts/combat_hud_right_column.gd:29)
+         [4] _set_turn_order_bar_entries (res://scripts/run_scene.gd:12749)
+         [5] _refresh_turn_order_bar (res://scripts/run_scene.gd:12680)
+         [6] _refresh_ui_navigation (res://scripts/run_scene.gd:10983)
+         [7] _refresh_ui (res://scripts/run_scene.gd:10879)
+         [8] _load_run_state (res://scripts/run_scene.gd:10790)
+         [9] _start_debug_boss_run (res://scripts/run_scene.gd:10864)
+         [10] _boot_run (res://scripts/run_scene.gd:10673)
+         [11] _ready (res://scripts/run_scene.gd:2042)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1479)
+     GDScript backtrace (most recent call first):
+         [0] layout (res://scripts/combat_hud_right_column.gd:66)
+         [1] _layout_choice_button_overlay_content (res://scripts/run_scene.gd:5105)
+         [2] _layout_choice_button_overlay (res://scripts/run_scene.gd:5060)
+         [3] _refresh_visibility (res://scripts/run_scene.gd:14699)
+         [4] _refresh_ui_finish (res://scripts/run_scene.gd:11028)
+         [5] _refresh_ui (res://scripts/run_scene.gd:10905)
+         [6] _load_run_state (res://scripts/run_scene.gd:10790)
+         [7] _start_debug_boss_run (res://scripts/run_scene.gd:10864)
+         [8] _boot_run (res://scripts/run_scene.gd:10673)
+         [9] _ready (res://scripts/run_scene.gd:2042)
+EL01 FORECAST MEMO: 100 queries, 1 resolver executions, 46.882 ms
+EL01 FEEDBACK CHECKS: Expose, traps, on-hit reactions, burial, memo dependencies, intent gates, authored selector and occupied guards PASS
+BLOCK FIRE REPRO: availability={ "intent": "test_wait", "available": false } projected=false fired=false source_hp=0 source_block=0
+INITIALIZED GUST REPRO: pending_call=true D0=(0, 1) D1=(0, -1) shared=(0, -1) view=(0, -1) resolved=(0, -1)
+INITIALIZED GUST REPRO: pending_call=false D0=(0, 1) D1=(0, -1) shared=(0, 1) view=(0, 1) resolved=(0, 1)
+Battlefield rules: six resolvers, all implemented dials, cadence, privacy, saves and analytics checked
+ZEK01 FOCUSED: PASS (1717 assertions, 0 failures)

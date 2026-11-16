@@ -58,12 +58,22 @@ static func _mixed_age(expect: Callable) -> void:
 static func _zekarion(expect: Callable) -> void:
 	var engine := ObservedCombat.new()
 	var state: Dictionary = Boss._boss_combat_state("zekarion")
+	var accepted: Callable = _refresh_fresh_candidate.bind(engine)
 	for phase: int in range(ZEKARION_PHASES):
-		var result: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))
+		var result: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state, accepted), accepted)
 		state = result["state"]
 	expect.call(engine.beat_plans>0 and engine.mixed_plans>0,"Zekarion's six production-scheduler phases plan Overload with mature strikes and fresh conductor candidates")
 	expect.call(engine.fresh_conductors==0,"Zekarion's production-scheduler beats never route through fresh conductors (used %d)" % engine.fresh_conductors)
 	expect.call(int(state["battlefield_rule"].get("beats_fired",0))>0,"Zekarion regression resolves production Overload beats")
+
+# Keep a fresh candidate at each accepted action boundary. A five-slot cycle
+# must not depend on the old band's incidental Wisp repaint for this witness.
+static func _refresh_fresh_candidate(state: Dictionary, engine: RefCounted) -> void:
+	for tile: Vector2i in engine._all_passable_tiles(state):
+		if not Surface.can_place(state, tile): continue
+		Surface.remove(state, tile, "electrified", "test_refresh")
+		Surface.place(state, tile, "electrified", {"actor_kind":"player", "actor_id":-1})
+		return
 
 static func _cantor_chain(expect: Callable) -> void:
 	var engine := ObservedCombat.new()

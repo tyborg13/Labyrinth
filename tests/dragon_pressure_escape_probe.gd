@@ -16,7 +16,7 @@ const PAIRS = {
 	"RM":["dull_bolt", "quick_stab"], "RR":["dull_bolt", "dull_bolt"]
 }
 const SOURCES = ["data/enemies.json", "data/cards.json", "data/relics.json", "scripts/combat_engine.gd",
-	"scripts/guardian_combat_rules.gd", "scripts/dragon_combat_rules.gd", "scripts/dragon_pressure_fields.gd",
+	"scripts/guardian_combat_rules.gd", "scripts/dragon_combat_rules.gd", "scripts/dragon_pressure_fields.gd", "scripts/dragon_scatter_pattern.gd",
 	"scripts/committed_pattern_shapes.gd", "scripts/board_surface_rules.gd", "scripts/room_generator.gd",
 	"tests/dragon_pressure_escape_probe.gd"]
 const BAD_STATUSES = ["freeze", "shock", "immobilize", "chilled", "bleed", "burn", "poison", "expose", "sunder"]

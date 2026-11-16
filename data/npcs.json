@@ -8,7 +8,13 @@
       "Nothing down here is useless. Some things are just waiting for the right hand.",
       "Cards, steel, little miracles in bottles. I find what the dark forgets.",
       "Buy it, use it, lose it. That's the honest bargain."
-    ]
+    ],
+    "portrait_bust": {
+      "top": 9,
+      "bottom": 109,
+      "center_x": 118
+    },
+    "portrait_scale": 3
   },
   "emaciated_man": {
     "name": "Emaciated Man",
@@ -16,11 +22,11 @@
     "art_path": "res://assets/units/emaciated_man_cutout/front/rest.png",
     "art_scale": 1.0,
     "cutout": "res://scripts/emaciated_man_cutout/rig.gd",
-    "portrait_region": [
-      51.06657094978562,
-      54,
-      120.81500624857692,
-      120.81500624857692
-    ]
+    "portrait_bust": {
+      "top": 60,
+      "bottom": 160,
+      "center_x": 130
+    },
+    "portrait_scale": 3
   }
 }

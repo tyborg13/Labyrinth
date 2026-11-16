@@ -69,24 +69,16 @@ func _compare(path: String, should_cel: bool) -> void:
 
 func _character_views() -> void:
 	var scene: Node = load("res://scripts/run_scene.gd").new()
-	var portrait := TextureRect.new()
-	var frame := PanelContainer.new()
-	scene.set("_dialogue_portrait", portrait)
-	scene.set("_dialogue_portrait_frame", frame)
-	scene.call("_set_dialogue_portrait", "scavenger")
-	_check(portrait.texture is AtlasTexture, "dialogue retains its bust atlas")
-	if portrait.texture is AtlasTexture:
-		var atlas: AtlasTexture = portrait.texture
-		var path: String = "assets/art/npcs/scavenger.png"
-		var expected: Image = _source("res://cel_look_variants/" + path + ".celpng") if Cel.mode != "off" else Assets.load_original_texture("res://" + path).get_image()
-		_check(_same_pixels(atlas.atlas.get_image(), expected), "dialogue bust follows character mode")
-		var thumbnail: Texture2D = scene.call("_grimoire_entry_icon", {"npc_id": "scavenger"})
-		_check(_same_pixels(thumbnail.get_image(), expected), "grimoire NPC follows character mode")
+	# dlg-01 v5: the dialogue bust is painted from PortraitPaint's source, not a bare AtlasTexture crop.
+	var path: String = "assets/art/npcs/scavenger.png"
+	var expected: Image = _source("res://cel_look_variants/" + path + ".celpng") if Cel.mode != "off" else Assets.load_original_texture("res://" + path).get_image()
+	var bust_source: Texture2D = preload("res://scripts/dialogue_portrait_paint.gd").source_texture("res://" + path)
+	_check(bust_source != null and _same_pixels(bust_source.get_image(), expected), "dialogue bust follows character mode")
+	var thumbnail: Texture2D = scene.call("_grimoire_entry_icon", {"npc_id": "scavenger"})
+	_check(_same_pixels(thumbnail.get_image(), expected), "grimoire NPC follows character mode")
 	var preview: TextureRect = preload("res://scripts/pre_battle_view.gd").icon(ACTOR, PROOF_PREVIEW_DIAMETER)
 	_check(preview.texture == Assets.load_texture(ACTOR), "pre-battle preview shares board character art")
 	preview.free()
-	portrait.free()
-	frame.free()
 	scene.free()
 	var map: Node = preload("res://scripts/labyrinth_map_view.gd").new()
 	var badge: Texture2D = map.call("_recovery_marker_icon_texture")

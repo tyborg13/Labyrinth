@@ -101,16 +101,11 @@ def main():
     layout['rest_source']='front/rest.png';layout['rest_source_sha256']=pixel_digest(Image.open(rest).convert('RGBA'))
     write_json(BASE/'front.json',layout)
     # Same NPC frame fitting, footing, art_scale and source-driven shadow path
-    # as the Scavenger. The optional portrait field only changes this NPC.
+    # as the Scavenger. Dialogue crops are owned by data/npcs.json, not the rig.
     data=read_json(ROOT/'data/npcs.json');npc=data['emaciated_man']
     npc['art_path']='res://'+str(rest.relative_to(ROOT));npc['art_scale']=1.0
     npc.pop('idle_sheet_ping_pong',None)
     npc['cutout']='res://scripts/emaciated_man_cutout/rig.gd'
-    hood=next(p for p in layout['parts'] if p['logical_part']=='head_hood' and not p.get('hidden_material'))
-    bounds=Image.open(BASE/hood['file']).getbbox();width=1.9*layout['portrait_head_width']
-    # Center on the measured painted eyes, not the asymmetric hood/drape bbox.
-    face_x=read_json(JOB/'paint_landmarks.json')['face_center_x']
-    npc['portrait_region']=[face_x-width/2,hood['offset'][1]+bounds[1]-6,width,width]
     write_json(ROOT/'data/npcs.json',data)
     m=metrics(Image.open(rest).convert('RGBA'));t=strength(m['orphan_share']);grid=round(t/1.0,2)
     density=dict(id='emaciated_man_cutout',unit_type='emaciated_man',kind='rig',dir=str(BASE.relative_to(ROOT)),rig_script='scripts/emaciated_man_cutout/rig.gd',paths=sorted(paths),frames=None,r=1.0,

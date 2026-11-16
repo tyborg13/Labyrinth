@@ -39,7 +39,7 @@ func _run() -> void:
 		var seed: int = Factory.seed_for_options(options)
 		var original: Dictionary = Factory.build(engine, combat, engine.create_new_run(seed, Progression.default_data()), options)
 		var battle: Dictionary = original["combat_state"].duplicate(true)
-		for phase: int in range(4):
+		for phase: int in range((preload("res://scripts/game_data.gd").enemy_def(boss_id).get("cycle_order", [0,1,2,3]) as Array).size()):
 			var run: Dictionary = original.duplicate(true)
 			battle["current_actor"] = original["combat_state"]["current_actor"].duplicate(true)
 			battle["player"]["hp"] = original["combat_state"]["player"]["hp"]

@@ -1,0 +1,578 @@
+[
+  {
+    "variant": "baseline",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "baseline",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "baseline",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "baseline",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "baseline",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 36,
+    "interval95": [
+      0.4408620895699301,
+      0.6770599029559693
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 23.0,
+    "skybreak_hits_per_fight": 0.328125,
+    "overload_storm_damage_per_fight": 2.953125,
+    "overload_bolt_damage_per_fight": 2.15625,
+    "lightning_storm_damage_per_fight": 0.796875
+  },
+  {
+    "variant": "baseline",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 31,
+    "interval95": [
+      0.3663355166543264,
+      0.6041839852141988
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 24.0,
+    "skybreak_hits_per_fight": 0.1875,
+    "overload_storm_damage_per_fight": 1.171875,
+    "overload_bolt_damage_per_fight": 0.765625,
+    "lightning_storm_damage_per_fight": 0.40625
+  },
+  {
+    "variant": "pattern50",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp56",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp56",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp56",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp56",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp56",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 25,
+    "interval95": [
+      0.2805556918824008,
+      0.5130808211972754
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 24.0,
+    "skybreak_hits_per_fight": 0.234375,
+    "overload_storm_damage_per_fight": 1.328125,
+    "overload_bolt_damage_per_fight": 0.921875,
+    "lightning_storm_damage_per_fight": 0.40625
+  },
+  {
+    "variant": "hp56",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp62",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp62",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp62",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp62",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp62",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 22,
+    "interval95": [
+      0.23923142078443355,
+      0.46596359790081815
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 24.0,
+    "skybreak_hits_per_fight": 0.234375,
+    "overload_storm_damage_per_fight": 1.40625,
+    "overload_bolt_damage_per_fight": 1,
+    "lightning_storm_damage_per_fight": 0.40625
+  },
+  {
+    "variant": "hp62",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp68",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp68",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp68",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp68",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp68",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 21,
+    "interval95": [
+      0.22570557904469185,
+      0.45000894150908505
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 24.0,
+    "skybreak_hits_per_fight": 0.25,
+    "overload_storm_damage_per_fight": 1.5625,
+    "overload_bolt_damage_per_fight": 1.046875,
+    "lightning_storm_damage_per_fight": 0.515625
+  },
+  {
+    "variant": "hp68",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp74",
+    "dragon": "vyraketh",
+    "n": 64,
+    "wins": 46,
+    "interval95": [
+      0.5986606971779259,
+      0.8140662766627217
+    ],
+    "median_turns": 5.0,
+    "median_hp_lost": 20.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp74",
+    "dragon": "tharokh",
+    "n": 64,
+    "wins": 58,
+    "interval95": [
+      0.810171204003544,
+      0.9563217474148016
+    ],
+    "median_turns": 12.0,
+    "median_hp_lost": 11.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp74",
+    "dragon": "vaeloryx",
+    "n": 64,
+    "wins": 53,
+    "interval95": [
+      0.7178678837734179,
+      0.9012225769875536
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 13.5,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp74",
+    "dragon": "iskaldra",
+    "n": 64,
+    "wins": 50,
+    "interval95": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "median_turns": 7.0,
+    "median_hp_lost": 14.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  },
+  {
+    "variant": "hp74",
+    "dragon": "zekarion",
+    "n": 64,
+    "wins": 20,
+    "interval95": [
+      0.21231066539482046,
+      0.4339233570274815
+    ],
+    "median_turns": 6.0,
+    "median_hp_lost": 24.0,
+    "skybreak_hits_per_fight": 0.234375,
+    "overload_storm_damage_per_fight": 1.734375,
+    "overload_bolt_damage_per_fight": 1.140625,
+    "lightning_storm_damage_per_fight": 0.59375
+  },
+  {
+    "variant": "hp74",
+    "dragon": "noctyrax",
+    "n": 64,
+    "wins": 59,
+    "interval95": [
+      0.8298046264583709,
+      0.9661688230914496
+    ],
+    "median_turns": 9.0,
+    "median_hp_lost": 10.0,
+    "skybreak_hits_per_fight": 0,
+    "overload_storm_damage_per_fight": 0,
+    "overload_bolt_damage_per_fight": 0,
+    "lightning_storm_damage_per_fight": 0
+  }
+]

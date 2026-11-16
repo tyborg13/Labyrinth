@@ -52,3 +52,16 @@ const PREVIEW_SHADOW := Color(0.008, 0.006, 0.009, 0.34)
 const BOARD_TITLE_FILL := Color("fff0cf")
 const BOARD_TITLE_OUTLINE := Color(0.035, 0.022, 0.025, 0.98)
 const BOARD_TITLE_SHADOW := Color(0.015, 0.01, 0.015, 0.82)
+
+# Director-authored dialogue v3 inks (spec/design/dialogue_v3/mockup.py).
+const DIALOGUE_BAND := Color("1e1611")
+const DIALOGUE_UNDER := Color("6a4428")
+const DIALOGUE_NAME_INK := Color("6b5232")
+const DIALOGUE_CHOICE_PRIMARY := Color("7a3d16")
+const DIALOGUE_CHOICE_SECONDARY := Color("3a2a1e")
+
+# Director-authored dialogue v4 portrait panel (spec/design/dialogue_v4/).
+const DIALOGUE_PORTRAIT_FILL := Color("16100c")
+const DIALOGUE_PORTRAIT_WASH := Color("5a3a22")
+const DIALOGUE_PORTRAIT_TEXTURE := Color("2c2016")
+const DIALOGUE_PORTRAIT_RIM := Color("9a7444")

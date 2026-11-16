@@ -1,0 +1,13 @@
+Running task-local command:
+  task: zek-01
+  run: zek-01-1794850698411930000-4175
+  HOME: /private/tmp/labyrinth-godot-home/zek-01-1794850698411930000-4175
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/zek-01-1794850698411930000-4175/godot.log --headless --path . --script tests/dragon_feedback_mechanics_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Dragon feedback mechanics passed.

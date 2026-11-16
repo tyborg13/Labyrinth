@@ -1555,7 +1555,7 @@
   },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
-    "max_hp": 50,
+    "max_hp": 62,
     "base_initiative": 14,
     "reward_embers": 80,
     "accent": "#f5d96c",
@@ -1585,10 +1585,10 @@
           {
             "type": "lightning_strikes",
             "damage": 5,
-            "count": 7,
+            "count": 9,
             "surface": "electrified",
             "element": "lightning",
-            "placement": "band",
+            "placement": "scatter",
             "replace_owned_field": true
           }
         ]
@@ -1650,6 +1650,7 @@
     ],
     "element": "lightning",
     "dragon_cycle": true,
+    "cycle_order": ["skybreak", "storm_claw", "call_wisps", "skybreak", "tempest_breath"],
     "opening_delay": 12,
     "battlefield_instance": "zekarion"
   },

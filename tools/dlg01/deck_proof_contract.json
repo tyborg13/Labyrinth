@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": [
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "emaciated_man_line.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "scavenger_line.png",
+      "width": 1280,
+      "height": 800
+    }
+  ]
+}

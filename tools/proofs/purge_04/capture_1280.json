@@ -1,0 +1,148 @@
+{
+  "min_images": 248,
+  "expected_sizes": [
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/ui100_burn/frame_000.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/frame_001.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/frame_003.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/frame_006.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/frame_012.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/frame_074.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_burn/contact_sheet.png",
+      "width": 3840,
+      "height": 1600
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_000.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_001.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_003.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_006.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_012.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/frame_047.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui100_reduced/contact_sheet.png",
+      "width": 3840,
+      "height": 1600
+    },
+    {
+      "pattern": "*/ui125_burn/frame_000.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/frame_001.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/frame_003.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/frame_006.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/frame_012.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/frame_074.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_burn/contact_sheet.png",
+      "width": 3840,
+      "height": 1600
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_000.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_001.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_003.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_006.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_012.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/frame_047.png",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "pattern": "*/ui125_reduced/contact_sheet.png",
+      "width": 3840,
+      "height": 1600
+    }
+  ]
+}

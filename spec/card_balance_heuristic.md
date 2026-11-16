@@ -218,7 +218,7 @@ Encounter calibration is also important:
   crawlers, `13` for Cinder Droplets, `13.4` for harriers, `15.8` for frostglass lancers, `16` for grave
   surgeons, `16.25` for acolytes, `17.78` for Cinder Oozes, `17.8` for
   gaolers, `19.1` for bile bloomers, and `20.25` for wardens; Zekarion cycles
-  around `19.25` before summon forcing. Grave surgeons contribute low direct
+  around `19.6` before summon forcing. Grave surgeons contribute low direct
   damage but can heal or guard the most injured/threatened nearby enemy, so
   their support amounts follow the same depth/sequence support curve as enemy
   block and healing. Tunnel crawler claw attacks and the Bone Harrier's spear
@@ -273,7 +273,7 @@ Encounter calibration is also important:
   punishes darkness. Held directions survive player movement; charges reanchor
   their pattern at the actual destination and evaluate the entire footprint's
   hazards. Base cycle-average initiative delays, before depth/status modifiers,
-  are 18/20/17.5/19/19.5/19.75 for Fire/Earth/Air/Ice/Lightning/Shadow.
+  are 18/20/17.5/19/19.6/19.75 for Fire/Earth/Air/Ice/Lightning/Shadow.
   See [the encounter contract](dragon_boss_encounters.md) for cycle payloads.
   These mechanics change the encounter-specific value of positioning, control,
   secondary hits, surfaces, and Light. They do not change intrinsic card
@@ -894,8 +894,9 @@ owned Gauntlet is assumed in intrinsic card scores.
 
 ### Dragon element rules (bos-02; `dragon_pressure_v3` compatibility revision)
 
-The six dragons retain their initiative, primary intent cycles and clock-12
-openings. Director feedback 1 tunes base HP, primary damage and boss-only
+The six dragons retain their initiative and clock-12 openings. Zek-01 adds a
+second Skybreak to Zekarion's cycle; the other primary cycles are unchanged.
+Director feedback 1 tunes base HP, primary damage and boss-only
 lieutenant counts through cumulative 50-sample ladders; the first in-band rung
 is retained, or the last authorized rung when none qualifies. Each fight now installs one source-owned battlefield rule
 from data. The approved context is in
@@ -910,7 +911,7 @@ from data. The approved context is in
 | Tharokh | Guarded `line_between` Upheaval, length 5 / Health 4, every second hero turn; every hero turn at half Health. | HP 72; two finite Burrow Grubs. Rule Outcrops replace the separate spire kind. Stonewake keeps range 4 with damage 6; Claw damage is 14 and Bedrock damage 10; Claw/Breath pulses and paired raises are removed. Faultline 8 consumes only source-owned stone at radius 1, then keeps shot 4. Flagged lanes preserve their stone and see through it as before. |
 | Iskaldra | Frostbite 3 on Rime Talon; every second source turn at half Health. | Two finite Rime Spitters. Mantle, Shatterstorm and Whiteout's previous-trail replacement remain. Mantle absorbs the beat; Freeze immunity remains. Talon's surviving-trail rider is removed. |
 | Vaeloryx | Clockwise Gust after every source turn, Push 1; Push 2 at half Health. | HP 50; one finite Gust Shrike. Skyhook 4, swept Dive 6, Gale 6 / Push 1, and Eye 8 / inner bite 4 remain. The recorded wake and Gale wake hit are removed. |
-| Zekarion | Lightning Storm 5 / Chain 1 on Overload; Chain 2 at half Health. | HP 50; Skybreak 5, Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
+| Zekarion | Lightning Storm 5 / Chain 1 on Overload; Chain 2 at half Health. | HP 62; Skybreak 5 on nine separated scatter tiles, twice per five-slot cycle (Skybreak, Storm Lash, Call Wisps, Skybreak, Overload). Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
 | Noctyrax | Void Claw Shadowstep Blinks hidden Veilbound Acolytes 3; no half-Health change. | HP 64; Void Claw 10. Acolytes, Last Eclipse replacement, darkness and braziers remain. The three player-anchored sweeps are removed. |
 
 The ordinary completed-sequence curves still scale boss HP and primary attacks;

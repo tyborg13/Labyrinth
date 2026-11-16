@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "matched_cells": 187,
+  "compared_fields": [
+    "won",
+    "turns",
+    "hp_lost",
+    "decisions",
+    "search_capped",
+    "turn_cap_reached"
+  ],
+  "superseded_trace_sha256": "00bbd666c752b80210d6e62846305fc57020f75c46884beeb0172599f250311d",
+  "reason": "Tracer now retains every positive-damage impact, including fully absorbed hits. All completed Zekarion cells from the earlier tracer were re-collected; comparator cells were retained."
+}

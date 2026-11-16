@@ -44,6 +44,7 @@ const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const SfxBankScript = preload("res://scripts/sfx_bank.gd")
 const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
+const DialogueBoxView = preload("res://scripts/dialogue_box_view.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
@@ -1044,7 +1045,7 @@ const PILE_HUD_EDGE_MARGIN: float = 12.0
 const COMBAT_OBJECTIVE_DOCK_GAP: float = 12.0
 # The battlefield rule panel sits this far above the objective, its twin in one column.
 const BATTLEFIELD_RULE_DOCK_GAP: float = 8.0
-const DIALOGUE_PORTRAIT_SIZE: Vector2 = Vector2(104.0, 104.0)
+const DIALOGUE_PORTRAIT_SIZE: Vector2 = DialogueBoxView.PORTRAIT_SIZE
 const TURN_BANNER_Z_INDEX: int = 66
 # The action caption sits centred at the top of the stage. It keeps its old
 # 360 px minimum and grows to fit longer captions at the heading size.
@@ -1158,14 +1159,14 @@ const RELIC_ACQUISITION_MOTES: int = 8
 const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
 const LOADOUT_ACQUISITION_RAY_SECONDS: float = 0.42
 const LOADOUT_ACQUISITION_MOTES: int = 10
-const DIALOGUE_DIALOG_WIDTH: float = 1060.0
-const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
-const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
+const DIALOGUE_DIALOG_WIDTH: float = DialogueBoxView.WIDTH
+const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = DialogueBoxView.LINE_HEIGHT
+const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = DialogueBoxView.CHOICE_HEIGHT
 const DIALOGUE_TEXT_HINT_MIN_HEIGHT: float = 46.0
 const DIALOGUE_TEXT_OPTION_MIN_HEIGHT: float = 78.0
 const DIALOGUE_HINT_FOOTER_HEIGHT: float = 34.0
-const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
-const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
+const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 62.0
+const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 210.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
@@ -2146,6 +2147,8 @@ func _process(delta: float) -> void:
 		return
 	if SettingsStore.dialogue_is_instant(_settings):
 		_complete_current_dialogue_line()
+		return
+	if _dialogue_overlay != null and not _dialogue_overlay.is_settled():
 		return
 	var characters_per_second: float = SettingsStore.dialogue_characters_per_second(_settings)
 	_dialogue_char_progress = minf(_dialogue_char_progress + delta * characters_per_second, float(text.length()))
@@ -7245,137 +7248,17 @@ func _grimoire_scrim_cursor_feedback_context(local_position: Vector2) -> String:
 	return "action"
 
 func _build_dialogue_overlay() -> void:
-	_dialogue_overlay = Control.new()
-	_dialogue_overlay.name = "DialogueOverlay"
-	_dialogue_overlay.visible = false
-	_dialogue_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	_dialogue_overlay.z_index = 260
-	_dialogue_overlay.anchors_preset = Control.PRESET_FULL_RECT
-	_dialogue_overlay.anchor_right = 1.0
-	_dialogue_overlay.anchor_bottom = 1.0
-	_dialogue_overlay.set_meta("cursor_feedback_context_provider", _dialogue_cursor_feedback_context)
-	_dialogue_overlay.gui_input.connect(_on_dialogue_overlay_gui_input)
-	ui_root.add_child(_dialogue_overlay)
-
-	var scrim := ColorRect.new()
-	scrim.color = Color(0.01, 0.01, 0.01, 0.18)
-	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	scrim.anchors_preset = Control.PRESET_FULL_RECT
-	scrim.anchor_right = 1.0
-	scrim.anchor_bottom = 1.0
-	_dialogue_overlay.add_child(scrim)
-
-	var anchor := MarginContainer.new()
-	anchor.anchors_preset = Control.PRESET_FULL_RECT
-	anchor.anchor_right = 1.0
-	anchor.anchor_bottom = 1.0
-	anchor.add_theme_constant_override("margin_left", 18)
-	anchor.add_theme_constant_override("margin_top", 18)
-	anchor.add_theme_constant_override("margin_right", 18)
-	anchor.add_theme_constant_override("margin_bottom", 18)
-	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_overlay.add_child(anchor)
-
-	var bottom := VBoxContainer.new()
-	bottom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	bottom.alignment = BoxContainer.ALIGNMENT_END
-	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	anchor.add_child(bottom)
-
-	_dialogue_dialog = PanelContainer.new()
-	_dialogue_dialog.custom_minimum_size = Vector2(DIALOGUE_DIALOG_WIDTH, DIALOGUE_DIALOG_HINT_MIN_HEIGHT)
-	_dialogue_dialog.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_dialogue_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_apply_dialogue_frame(UiPalette.GOLD)
-	bottom.add_child(_dialogue_dialog)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_dialog.add_child(margin)
-
-	var content_row := HBoxContainer.new()
-	content_row.name = "DialogueContentRow"
-	content_row.add_theme_constant_override("separation", 20)
-	content_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(content_row)
-
-	# The speaker's own board sprite, cropped to a bust, anchors who is talking.
-	_dialogue_portrait_frame = PanelContainer.new()
-	_dialogue_portrait_frame.name = "DialoguePortraitFrame"
-	_dialogue_portrait_frame.custom_minimum_size = DIALOGUE_PORTRAIT_SIZE
-	_dialogue_portrait_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_dialogue_portrait_frame.clip_contents = true
-	_dialogue_portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var portrait_style := StyleBoxFlat.new()
-	portrait_style.bg_color = Color(0.043, 0.035, 0.031, 1.0)
-	portrait_style.border_color = UiPalette.GOLD_DIM
-	portrait_style.set_border_width_all(1)
-	portrait_style.set_corner_radius_all(3)
-	_dialogue_portrait_frame.add_theme_stylebox_override("panel", portrait_style)
-	_dialogue_portrait_frame.visible = false
-	content_row.add_child(_dialogue_portrait_frame)
-	_dialogue_portrait = TextureRect.new()
-	_dialogue_portrait.name = "DialoguePortrait"
-	_dialogue_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_dialogue_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_dialogue_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_dialogue_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_portrait_frame.add_child(_dialogue_portrait)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content_row.add_child(vbox)
-
-	_dialogue_name_label = Label.new()
-	UiTypography.apply_eyebrow(_dialogue_name_label, UiTypography.SIZE_BODY, UiPalette.GOLD_BRIGHT)
-	_dialogue_name_label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
-	_dialogue_name_label.add_theme_constant_override("outline_size", 3)
-	_dialogue_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(_dialogue_name_label)
-
-	_dialogue_text_label = RichTextLabel.new()
-	_dialogue_text_label.bbcode_enabled = true
-	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_dialogue_text_label.visible_characters = 0
-	_dialogue_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_dialogue_text_label.size_flags_vertical = Control.SIZE_FILL
-	_dialogue_text_label.custom_minimum_size = Vector2(0.0, DIALOGUE_TEXT_HINT_MIN_HEIGHT)
-	_dialogue_text_label.fit_content = true
-	_dialogue_text_label.scroll_active = false
-	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_SECTION)
-	_dialogue_text_label.add_theme_color_override("default_color", UiPalette.TEXT)
-	_dialogue_text_label.add_theme_constant_override("line_separation", 4)
-	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(_dialogue_text_label)
-
-	_dialogue_footer = HBoxContainer.new()
-	_dialogue_footer.custom_minimum_size = Vector2(0.0, DIALOGUE_HINT_FOOTER_HEIGHT)
-	_dialogue_footer.add_theme_constant_override("separation", 12)
-	_dialogue_footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(_dialogue_footer)
-
-	_dialogue_hint_label = Label.new()
-	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_dialogue_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_eyebrow(_dialogue_hint_label, UiTypography.SIZE_CAPTION, UiPalette.TEXT_3)
-	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_footer.add_child(_dialogue_hint_label)
-	preload("res://scripts/input_wording.gd").bind_dialogue(_dialogue_hint_label)
-
-	_dialogue_choice_bar = HBoxContainer.new()
-	_dialogue_choice_bar.custom_minimum_size = Vector2.ZERO
-	_dialogue_choice_bar.alignment = BoxContainer.ALIGNMENT_END
-	_dialogue_choice_bar.add_theme_constant_override("separation", 10)
-	_dialogue_choice_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialogue_choice_bar.visible = false
-	_dialogue_footer.add_child(_dialogue_choice_bar)
+	var view := DialogueBoxView.new()
+	view.build(self)
+	_dialogue_overlay = view
+	_dialogue_dialog = view.panel
+	_dialogue_portrait_frame = view.portrait_frame
+	_dialogue_portrait = view.portrait
+	_dialogue_name_label = view.speaker_name
+	_dialogue_text_label = view.body
+	_dialogue_footer = view.footer
+	_dialogue_hint_label = view.hint
+	_dialogue_choice_bar = view.choices
 
 func _build_pile_overlay() -> void:
 	_pile_scrim = ColorRect.new()
@@ -7723,7 +7606,7 @@ func _start_dialogue(dialogue: Dictionary) -> void:
 	_dialogue_active = true
 	_start_room_map.dialogue_started(self, dialogue)
 	_dialogue_suppresses_choices = not _current_room_merchant_kind().is_empty() or str(dialogue.get("npc_id", "")) == "emaciated_man"
-	_dialogue_overlay.visible = true
+	_dialogue_overlay.open()
 	if _dialogue_suppresses_choices:
 		_refresh_choice_bar()
 	_show_dialogue_line(0)
@@ -7742,7 +7625,7 @@ func _show_dialogue_line(index: int) -> void:
 	var accent_text: String = str(line.get("accent", _dialogue_script.get("accent", "#b8aa90")))
 	_apply_dialogue_accent(accent_text)
 	_set_dialogue_portrait(str(line.get("npc_id", _dialogue_script.get("npc_id", ""))))
-	_dialogue_name_label.text = speaker
+	_dialogue_overlay.show_speaker(speaker)
 	_dialogue_text_label.text = _dialogue_line_markup(line)
 	_sync_dialogue_layout()
 	var visible_text_length: int = _dialogue_visible_text().length()
@@ -7771,6 +7654,7 @@ func _complete_current_dialogue_line() -> void:
 func _advance_dialogue() -> void:
 	if not _dialogue_active:
 		return
+	_dialogue_overlay.finish_open()
 	if not _dialogue_text_complete:
 		_complete_current_dialogue_line()
 		return
@@ -7786,6 +7670,7 @@ func _advance_dialogue() -> void:
 func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	if not _dialogue_active or not _dialogue_text_complete:
 		return
+	_dialogue_overlay.finish_open()
 	if bool(option.get("disabled", false)): return
 	var action: String = str(option.get("action", ""))
 	if action == "leave_heirloom":
@@ -7832,7 +7717,7 @@ func _close_dialogue() -> void:
 	if _dialogue_hint_label != null:
 		preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {})
 	if _dialogue_overlay != null:
-		_dialogue_overlay.visible = false
+		_dialogue_overlay.close()
 	_opening_boon_flow.dialogue_closed(self, closed_script)
 	if should_restore_choices and is_inside_tree() and not _run_state.is_empty():
 		_refresh_choice_bar()
@@ -7889,25 +7774,15 @@ func _has_current_dialogue_options() -> bool:
 	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
 
 func _sync_dialogue_layout() -> void:
+	if _dialogue_overlay == null: return
 	if _opening_boon_flow.seats_dialogue():
 		_opening_boon_flow.layout_dialogue(self)
-		return
-	if _dialogue_dialog == null or _dialogue_text_label == null or _dialogue_footer == null:
-		return
-	var options: Array = _current_dialogue_line().get("options", [])
-	var has_options: bool = not options.is_empty()
-	var dialog_height: float = DIALOGUE_DIALOG_OPTION_MIN_HEIGHT if has_options else DIALOGUE_DIALOG_HINT_MIN_HEIGHT
-	var text_height: float = DIALOGUE_TEXT_OPTION_MIN_HEIGHT if has_options else DIALOGUE_TEXT_HINT_MIN_HEIGHT
-	var footer_height: float = DIALOGUE_OPTION_BUTTON_HEIGHT if has_options else DIALOGUE_HINT_FOOTER_HEIGHT
-	_dialogue_dialog.custom_minimum_size = Vector2(DIALOGUE_DIALOG_WIDTH, dialog_height)
-	_dialogue_text_label.custom_minimum_size = Vector2(0.0, text_height)
-	_dialogue_footer.custom_minimum_size = Vector2(0.0, footer_height)
-	if _dialogue_choice_bar != null:
-		_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT if has_options else 0.0)
-		_dialogue_choice_bar.visible = has_options
+	var has_options: bool = not (_current_dialogue_line().get("options", []) as Array).is_empty()
+	_dialogue_overlay.set_footer(has_options, _dialogue_text_complete)
 
 func _update_dialogue_footer() -> void:
 	_clear_dialogue_choices()
+	_sync_dialogue_layout()
 	if _dialogue_hint_label == null:
 		return
 	preload("res://scripts/input_wording.gd").bind_label(_dialogue_hint_label, {})
@@ -7924,18 +7799,11 @@ func _update_dialogue_footer() -> void:
 		if typeof(option_var) != TYPE_DICTIONARY:
 			continue
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
-		var button := Button.new()
+		var button: Button = _dialogue_overlay.create_choice(option)
 		button.text = str(option.get("label", "Continue"))
 		button.set_meta("dialogue_action",str(option.get("action","")))
 		button.disabled = bool(option.get("disabled", false)) or (str(option.get("action", "")) == "exchange_moltshard" and _molt_exchange_feedback.active)
 		button.tooltip_text = str(option.get("tooltip", ""))
-		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
-		_ui_skin.apply_button_text_overrides(button)
-		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
-		# Six heirloom choices use native text widths; the existing three-service
-		# minimum would force the prompt beyond the 1920px viewport.
-		var minimum_width: float = 0.0 if str(_dialogue_script.get("id", "")) == "opening_boon_heirloom_prompt" else DIALOGUE_OPTION_BUTTON_MIN_WIDTH
-		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, minimum_width)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 	for child: Node in _dialogue_choice_bar.get_children():
@@ -7960,38 +7828,13 @@ func _clear_dialogue_choices() -> void:
 	_clear_children(_dialogue_choice_bar)
 
 func _apply_dialogue_accent(accent_text: String) -> void:
-	var accent: Color = Color(accent_text)
-	if _dialogue_name_label != null:
-		_dialogue_name_label.add_theme_color_override("font_color", accent.lerp(UiPalette.GOLD_BRIGHT, 0.45))
-	if _dialogue_dialog == null:
-		return
-	# Each speaker tints the gilding, softened toward gold so every NPC still
-	# belongs to the same material family.
-	_apply_dialogue_frame(accent.lerp(UiPalette.GOLD, 0.45))
+	_apply_dialogue_frame(Color(accent_text))
 
 func _apply_dialogue_frame(accent: Color) -> void:
-	if _dialogue_dialog == null:
-		return
-	_dialogue_dialog.set_meta("panel_surface_accent", accent)
-	_dialogue_dialog.set_meta("panel_safe_inset", 0.0)
-	_ui_skin.apply_panel_surface(_dialogue_dialog, UiSkin.SURFACE_DIALOG)
-	_ui_skin.refresh_panel_surface(_dialogue_dialog)
+	if _dialogue_overlay != null: _dialogue_overlay.apply_frame(accent)
 
 func _set_dialogue_portrait(npc_id: String) -> void:
-	if _dialogue_portrait == null or _dialogue_portrait_frame == null:
-		return
-	var art_path: String = str(GameData.npc_def(npc_id).get("art_path", "")) if not npc_id.is_empty() else ""
-	var texture: Texture2D = AssetLoader.load_texture(art_path) if not art_path.is_empty() else null
-	if texture == null:
-		_dialogue_portrait_frame.visible = false
-		_dialogue_portrait.texture = null
-		return
-	# Bust crop: the upper-middle of the sprite, scaled up with crisp pixels.
-	var atlas := AtlasTexture.new()
-	atlas.atlas = texture
-	atlas.region = preload("res://scripts/npc_portrait_region.gd").region(GameData.npc_def(npc_id), texture.get_size())
-	_dialogue_portrait.texture = atlas
-	_dialogue_portrait_frame.visible = true
+	if _dialogue_overlay != null: _dialogue_overlay.set_portrait(npc_id)
 
 func _show_drag_overlay() -> void:
 	if _drag_overlay == null:

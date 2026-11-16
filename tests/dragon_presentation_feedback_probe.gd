@@ -66,10 +66,14 @@ func _run() -> void:
 				battle = rules.after_player_turn(combat, battle, turn + 1)
 		# This is an animation study: reset life between actions, retaining the
 		# real resolver's targets, surfaces, movement and multi-action sequence.
-		for phase: int in range(4):
+		var captured_intents: Dictionary = {}
+		for phase: int in range((preload("res://scripts/game_data.gd").enemy_def(boss_id).get("cycle_order", [0,1,2,3]) as Array).size()):
 			battle["player"]["hp"] = 24
 			battle["player"]["max_hp"] = 24
 			var intent_id: String = str(battle["enemies"][0]["intent"]["id"])
+			var capture_prefix: String = boss_id+"_"+intent_id
+			if captured_intents.has(intent_id): capture_prefix += "_slot%d" % phase
+			captured_intents[intent_id] = true
 			# Stage both branches of multi-action intents: stand in Stonewake's
 			# live melee reach, and leave a replacement slot for helper summons.
 			if intent_id == "stonewake": battle["player"]["pos"] = Vector2i(3,4)
@@ -81,10 +85,10 @@ func _run() -> void:
 			var run: Dictionary = original.duplicate(true)
 			run["combat_state"] = battle.duplicate(true)
 			await _load(run)
-			await _capture(boss_id+"_"+intent_id+"_intent")
+			await _capture(capture_prefix+"_intent")
 			var result: Dictionary = combat.resolve_enemy_turn_with_steps(battle,0)
-			await _animate_capture(battle.duplicate(true),result["steps"],boss_id+"_"+intent_id)
-			_expect_stages(boss_id+"_"+intent_id,REQUIRED_ACTIONS[intent_id])
+			await _animate_capture(battle.duplicate(true),result["steps"],capture_prefix)
+			_expect_stages(capture_prefix,REQUIRED_ACTIONS[intent_id])
 			battle = result["state"].duplicate(true)
 			# Reduced motion renders the same complete-area impact from the same
 			# immutable step, without a travelling projectile or pose animation.
@@ -97,7 +101,7 @@ func _run() -> void:
 				reduced["reduced_motion"] = true
 				scene.set("_settings",reduced)
 				scene.call("_render_board_state",battle,{"effect":effect,"effect_progress":.62},true)
-				await _capture(boss_id+"_"+intent_id+"_reduced")
+				await _capture(capture_prefix+"_reduced")
 				scene.set("_settings",settings)
 				break
 			if intent_id in ["stonewake","crystal_mantle","call_wisps","last_eclipse"]:

@@ -6,6 +6,9 @@ extends RefCounted
 # never competes with the pixel-art board for attention.
 
 const Palette = preload("res://scripts/ui_palette.gd")
+const BLUR_GRADIENT_STOPS: int = 64
+const GAUSSIAN_EXTENT: float = 3.0
+static var _blurred_discs: Dictionary = {}
 
 # Soft, offset drop shadow built from stacked translucent rounded rects.
 static func draw_shadow(canvas: CanvasItem, rect: Rect2, spread: float = 14.0, alpha: float = 0.55, offset: Vector2 = Vector2(0.0, 8.0), radius: float = 6.0) -> void:
@@ -168,3 +171,37 @@ static func _draw_fading_line(canvas: CanvasItem, from: Vector2, to: Vector2, co
 		var mid: float = (a + b) * 0.5
 		var fade: float = (1.0 - mid) if one_sided else (1.0 - absf(mid - 0.5) * 2.0)
 		canvas.draw_line(from.lerp(to, a), from.lerp(to, b), Color(color, color.a * fade), 1.0, true)
+
+static func draw_solid_diamond(canvas: CanvasItem, center: Vector2, radius: float, color: Color) -> void:
+	canvas.draw_colored_polygon(PackedVector2Array([center + Vector2.UP * radius, center + Vector2.RIGHT * radius, center + Vector2.DOWN * radius, center + Vector2.LEFT * radius]), color)
+
+# UI-only procedural gradient retained for the dialogue continue halo.
+static func blurred_disc_texture(color: Color, diameter: float, blur: float) -> Texture2D:
+	var key: Array = [color, diameter, blur]
+	if _blurred_discs.has(key): return _blurred_discs[key]
+	var extent: float = diameter * 0.5 + blur * GAUSSIAN_EXTENT
+	var gradient := Gradient.new()
+	var offsets := PackedFloat32Array()
+	var colors := PackedColorArray()
+	for index: int in range(BLUR_GRADIENT_STOPS + 1):
+		var t: float = float(index) / BLUR_GRADIENT_STOPS
+		offsets.append(t)
+		colors.append(Color(color, color.a * _normal_cdf((diameter * 0.5 - t * extent) / blur)))
+	gradient.offsets = offsets
+	gradient.colors = colors
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = ceili(extent * 2.0)
+	texture.height = texture.width
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2.ONE * 0.5
+	texture.fill_to = Vector2(1.0, 0.5)
+	_blurred_discs[key] = texture
+	return texture
+
+static func _normal_cdf(value: float) -> float:
+	# Winitzki's erf approximation (error below 0.0002).
+	var x: float = value / sqrt(2.0)
+	var squared: float = x * x
+	var erf: float = signf(x) * sqrt(1.0 - exp(-squared * (4.0 / PI + 0.147 * squared) / (1.0 + 0.147 * squared)))
+	return 0.5 * (1.0 + erf)

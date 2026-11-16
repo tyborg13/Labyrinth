@@ -61,6 +61,8 @@ static func _declare(expect: Callable, state: Dictionary, id: String) -> void:
 		if str(intents[i].get("id", "")) == id: index = i
 	expect.call(index >= 0, "Production intent exists: %s/%s" % [enemy["type"], id])
 	if index < 0: return
+	var order: Array = Data.enemy_def(str(enemy["type"])).get("cycle_order", [])
+	if not order.is_empty(): index = order.find(id)
 	enemy["dragon_cycle"] = index - 1
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 930928
@@ -156,15 +158,15 @@ static func _test_owned_band_retirement(expect: Callable) -> void:
 		_declare(expect, state, intent)
 		var type: String = "cinder_marks" if id == "vyraketh" else "lightning_strikes"
 		var marks: Array = _action(expect, state, type)["declared_tiles"]
-		expect.call(marks.size() == 7, "%s fills a seven-cell connected pressure band in an open arena" % id)
+		expect.call(marks.size() == (9 if id == "zekarion" else 7), "%s fills its authored field count in an open arena" % id)
 		state = _resolve(state)
 		expect.call(not Surface.has_surface(state, Vector2i(7,5), surface) and not Surface.has_surface(state, Vector2i(7,6), surface), "%s replaces its old field instead of accumulating permanent charges" % id)
 		expect.call(Surface.has_surface(state, Vector2i(6,1), surface) and Surface.has_surface(state, Vector2i(7,2), surface), "%s retirement preserves another enemy's and the player's same-element surfaces" % id)
-		expect.call(_owned_count(state, surface) == 7, "%s owns only the newly resolved band" % id)
+		expect.call(_owned_count(state, surface) == (9 if id == "zekarion" else 7), "%s owns only the newly resolved band" % id)
 		state["player"]["pos"] = Vector2i(3,6)
 		_declare(expect, state, intent)
 		state = _resolve(_roundtrip(expect, state, "%s second band" % id))
-		expect.call(_owned_count(state, surface) <= 7, "%s repeated cast remains bounded after reload" % id)
+		expect.call(_owned_count(state, surface) <= (9 if id == "zekarion" else 7), "%s repeated cast remains bounded after reload" % id)
 		expect.call(Surface.has_surface(state, Vector2i(6,1), surface) and Surface.has_surface(state, Vector2i(7,2), surface), "%s repeated retirement remains owner-only" % id)
 
 static func _test_skybreak_retirement_preview(expect: Callable) -> void:

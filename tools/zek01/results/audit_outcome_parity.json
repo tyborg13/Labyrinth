@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "fights": 8,
+  "compared_fields": [
+    "won",
+    "turns",
+    "hp_lost",
+    "decisions",
+    "search_capped",
+    "turn_cap_reached"
+  ],
+  "positive_health_loss_receipts": "all identical; audit additionally captures planner route kind",
+  "screen_observation": "pending design owner windowed proof"
+}

@@ -17,12 +17,20 @@ const BOTTOM_BAND_HEIGHT: float = 360.0
 const BOTTOM_BAND_ALPHA: float = 0.82
 const INK := Color(0.030, 0.022, 0.018)
 
+# Callers can opt into a bottom-only seat; the HUD defaults stay unchanged.
+var _bottom_seat: Dictionary = {}
+
 var show_bottom_band: bool = false:
 	set(value):
 		if show_bottom_band == value:
 			return
 		show_bottom_band = value
 		queue_redraw()
+
+func configure_bottom_seat(top: float, alpha: float, power: float, ink: Color) -> void:
+	_bottom_seat = {"top": top, "alpha": alpha, "power": power, "ink": ink}
+	_batch = null
+	queue_redraw()
 
 func _ready() -> void:
 	name = "HudSeatScrim"
@@ -42,6 +50,13 @@ func _draw() -> void:
 	_batch.draw_on(self)
 
 func _build_batch() -> void:
+	if not _bottom_seat.is_empty():
+		var top: float = _bottom_seat["top"]
+		for y: int in range(ceili(top), ceili(size.y)):
+			var t: float = (float(y) - top) / maxf(1.0, size.y - top)
+			var alpha: float = float(_bottom_seat["alpha"]) * pow(t, float(_bottom_seat["power"]))
+			_batch.polygon(PackedVector2Array([Vector2(0, y), Vector2(size.x, y), Vector2(size.x, y + 1), Vector2(0, y + 1)]), PackedColorArray([Color(_bottom_seat["ink"], alpha)]))
+		return
 	_draw_top_band(minf(TOP_BAND_HEIGHT, size.y * 0.2))
 	if show_bottom_band:
 		var height: float = minf(BOTTOM_BAND_HEIGHT, size.y * 0.38)

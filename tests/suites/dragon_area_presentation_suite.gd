@@ -26,7 +26,8 @@ static func declare(state: Dictionary, intent_id: String) -> void:
 	var intents: Array = Data.enemy_def(str(boss["type"]))["intents"]
 	for index: int in range(intents.size()):
 		if str(intents[index]["id"]) != intent_id: continue
-		boss["dragon_cycle"] = index-1
+		var order: Array = Data.enemy_def(str(boss["type"])).get("cycle_order", [])
+		boss["dragon_cycle"] = (order.find(intent_id) if not order.is_empty() else index)-1
 		Combat.new()._assign_enemy_intent(state,0,RandomNumberGenerator.new())
 		return
 	assert(false,"Unknown fixture intent: "+intent_id)

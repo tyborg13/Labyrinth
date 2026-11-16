@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "measurement_runtime_source_changes": [],
+  "changed_non_runtime_proof_files": [
+    "tools/zek01/capture.gd"
+  ],
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "note": "Only proof/test programs outside the measurement entry point changed after collection started. Earlier retained comparator cells use identical gameplay; all earlier Zekarion cells were replaced with tracer v2."
+}

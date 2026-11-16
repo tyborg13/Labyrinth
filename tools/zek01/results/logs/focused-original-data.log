@@ -1,0 +1,19 @@
+Running task-local command:
+  task: zek-01
+  run: zek-01-1794850696117254000-4163
+  HOME: /private/tmp/labyrinth-godot-home/zek-01-1794850696117254000-4163
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/zek-01-1794850696117254000-4163/godot.log --headless --path . --script tools/zek01/focused_tests.gd -- --baseline
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EL01 FORECAST MEMO: 100 queries, 1 resolver executions, 65.281 ms
+EL01 FEEDBACK CHECKS: Expose, traps, on-hit reactions, burial, memo dependencies, intent gates, authored selector and occupied guards PASS
+BLOCK FIRE REPRO: availability={ "intent": "test_wait", "available": false } projected=false fired=false source_hp=0 source_block=0
+INITIALIZED GUST REPRO: pending_call=true D0=(0, 1) D1=(0, -1) shared=(0, -1) view=(0, -1) resolved=(0, -1)
+INITIALIZED GUST REPRO: pending_call=false D0=(0, 1) D1=(0, -1) shared=(0, 1) view=(0, 1) resolved=(0, 1)
+Battlefield rules: six resolvers, all implemented dials, cadence, privacy, saves and analytics checked
+ZEK01 FOCUSED: PASS (1628 assertions, 0 failures)

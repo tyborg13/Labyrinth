@@ -1231,7 +1231,7 @@ Dragon pressure uses additive surface events: `dragon_status_consumed` records
 the enemy, consumed status, amount and source after Shatterstorm.
 `dragon_spire_pulse` records `tiles`, `radius`, `consumed` and causal `source` for
 persistent Claw/Breath pulses and consuming Faultline. `dragon_field_replaced`
-records `surface`, removed `tiles` and dragon `source` when a new owned band retires
+records `surface`, removed `tiles` and dragon `source` when a new owned field retires
 its predecessor. Individual removals retain their ordinary `surface_removed`
 records with reason `dragon_field_replaced`; player/helper replacements remain.
 `replaced_trail` identifies retiring owned Ice. New Overload retains charge; only
@@ -1688,3 +1688,16 @@ card actions through shared action legality, so no post-defeat heal/action
 event is emitted. Preview and playback use the same gate; Defiance survival
 continues normally. Save content migration touches only active/resumable combat
 snapshots and leaves embedded analytics/history as well as external JSONL intact.
+
+### Zekarion scatter cycle (zek-01)
+
+Skybreak retains `intent_id: skybreak` for both slots of its five-slot cycle.
+The `on_intent` cadence still keys Overload by `tempest_breath`; no event or
+battlefield instance changes. Declared scatter tiles persist in the existing
+action snapshot. `fight_seed` is an additive combat-state field used only by a
+local integer hash; it never advances run/combat RNG or emits analytics. Legacy
+saves retain their active warning and map the old cycle index by intent id to
+its first new slot on the next declaration, retaining completed-cycle count.
+Legacy combats without `fight_seed` freeze their saved RNG state once as the
+compatibility seed at the first scatter declaration.
+`dragon_cycle_order` records the mapping version; history/JSONL are untouched.

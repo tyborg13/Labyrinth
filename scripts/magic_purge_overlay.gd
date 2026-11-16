@@ -87,6 +87,11 @@ class PurgeBurn extends Control:
 		name = "CardProxy"
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		z_index = 1
+		# The canvas, shader origin and sparks all use viewport coordinates.
+		# Cancel the confirmation panel's translation before compositing them;
+		# inheriting it would add that origin a second time (ui-22/qa-75).
+		# Keep the parent for its z ordering and the confirmation's lifetime.
+		global_position = Vector2.ZERO
 		card_rect = slot.get_global_rect()
 		size = Vector2(get_viewport_rect().size)
 		_canvas = SubViewport.new()

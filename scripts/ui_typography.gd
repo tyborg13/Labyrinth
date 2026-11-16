@@ -122,6 +122,19 @@ static func apply_eyebrow(label: Label, size: int = SIZE_CAPTION, color: Color =
 	label.uppercase = true
 	label.add_theme_color_override("font_color", color)
 
+# FontVariation spacing is integer-only. A doubled label gives authored half-pixel
+# tracking without changing the visible type size or introducing another font.
+static func apply_spaced_eyebrow(label: Label, size: int, spacing: float, color: Color) -> void:
+	apply_eyebrow(label, size, color)
+	var font := FontVariation.new()
+	font.base_font = ui_font()
+	var fractional: bool = spacing != floorf(spacing)
+	font.spacing_glyph = roundi(spacing * 2.0) if fractional else roundi(spacing)
+	if fractional:
+		set_label_size(label, size * 2)
+		label.scale = Vector2.ONE * 0.5
+	label.add_theme_font_override("font", font)
+
 static func text_font() -> Font:
 	return AssetLoader.load_font(TEXT_FONT_PATH)
 

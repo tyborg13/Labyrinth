@@ -4412,7 +4412,7 @@ func _test_zekarion_summons_wisps_when_alone() -> void:
 		var enemy: Dictionary = enemies[index]
 		if str(enemy.get("type", "")) == "zekarion":
 			enemy["intent"] = {"id": "debug_wait", "name": "Wait", "actions": []}
-			enemy["dragon_cycle"] = 2 # Call Wisps follows the third declared slot.
+			enemy["dragon_cycle"] = GameData.enemy_def("zekarion")["cycle_order"].find("call_wisps") - 1
 			enemies[index] = enemy
 		if str(enemy.get("type", "")) == "lightning_wisp":
 			enemy["hp"] = 0
@@ -9248,8 +9248,8 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
 	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
 	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon.", "The opening NPC line should match the scripted default dialogue")
-	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.x <= 1200.0, "The opening NPC dialogue should stay narrower than the full viewport")
-	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.y <= 160.0, "The opening NPC dialogue should use a compact spoken-line panel")
+	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.x <= 1500.0, "The opening NPC dialogue should stay narrower than the full viewport") # dlg-01 v5 band: 1500 wide (owner-approved 2026-11-16)
+	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.y <= 220.0, "The opening NPC dialogue should use a compact spoken-line panel") # dlg-01 v5 line band: 220 tall
 	_assert(dialogue_footer != null and dialogue_footer.custom_minimum_size.y <= 40.0, "The opening NPC dialogue should not reserve choice-button height for a hint-only footer")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
