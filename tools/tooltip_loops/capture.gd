@@ -9,7 +9,7 @@ const Cache = preload("res://scripts/tooltip_loop_cache.gd")
 const Format = preload("res://scripts/tooltip_loop_format.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const OpenProof = preload("res://tools/tooltip_loops/capture_open.gd")
-const OUT: String = "/private/tmp/labyrinth_codex/tip-04/capture"
+const OUT: String = "/private/tmp/labyrinth_codex/tip-05/capture"
 const SAMPLE_FRAMES: int = 60 # Debug timing sample count per cold open.
 const READY_FRAME_LIMIT: int = 300 # Debug IO/readiness timeout.
 const HOVER_WAIT_SECONDS: float = 1.5
@@ -295,7 +295,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 15, "Eleven existing plus four room-rule scripts")
+	_expect(Registry.entries().size() == 16, "Fifteen existing plus the room Upheaval script")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -307,7 +307,7 @@ func _semantics() -> void:
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
-		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))

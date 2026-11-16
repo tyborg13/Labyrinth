@@ -2,6 +2,10 @@ extends RefCounted
 ## Recording/rehearsal geometry uses the same board placement as the renderer.
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const SpriteMargin = preload("res://tools/tooltip_loops/sprite_margin.gd")
+const UpheavalChecks = preload("res://tools/tooltip_loops/tip05_checks.gd")
+const TerrainChecks = preload("res://tools/tooltip_loops/terrain_checks.gd")
+var upheaval := UpheavalChecks.new()
+var terrain := TerrainChecks.new()
 const PATCH := Rect2i(0, 0, 4, 3)
 var failures: Array[String]
 var droplet_rects: Dictionary = {}
@@ -40,6 +44,8 @@ func _fail(message: String) -> void:
 
 func observe(board: Control, crop: Rect2i, id: String) -> void:
 	samples += 1
+	terrain.observe(board, crop)
+	if id == "rule_upheaval": upheaval.observe(board, samples, failures)
 	var units: Array[Dictionary] = board._visible_units()
 	var hero := Rect2()
 	var droplets: Array[Dictionary]

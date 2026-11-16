@@ -3,6 +3,12 @@ extends "res://scripts/combat_board_view.gd"
 func set_combat_state(state: Dictionary, _moves: Array = [], _attacks: Array = [], _selected: Vector2i = Vector2i(-1, -1), _label: String = "", _detail: String = "", _exits: Dictionary = {}, _icons: Dictionary = {}, shown: Dictionary = {}, stable: bool = false) -> void:
 	var clean: Dictionary = shown.duplicate()
 	for key: String in ["threats_at_rest", "enemy_threat_previews", "focus_actor_keys", "focus_tiles", "path_tiles", "attack_reach_tiles", "intent_callouts", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hover_owner_tile"]: clean.erase(key)
+	if state.get("battlefield_rule", {}).get("rule") == "upheaval" and state.get("battlefield_rule", {}).get("source", {}).get("kind") == "room":
+		# This script explicitly starts on the production room mark. Retain only
+		# that threat layer while masking ordinary planning/intent HUD.
+		var rest: Dictionary = shown.get("threats_at_rest", {}).duplicate(true)
+		rest["threats"] = (rest.get("threats", []) as Array).filter(func(threat: Dictionary) -> bool: return threat.get("key") == "snare_pressure")
+		clean["threats_at_rest"] = rest
 	_observe(state, shown)
 	var recorded: Dictionary = _recording_state(state, clean)
 	_hover_tile = Vector2i(-1, -1)
@@ -17,7 +23,13 @@ func _draw_slice_intent_halo(_badge: Dictionary) -> void: pass
 func _draw_slice_callouts() -> void: pass
 func _draw_unit_focus(_unit: Dictionary, _center: Vector2) -> void: pass
 func _draw_scene_props_for_tile(_tile: Vector2i, _obstructions: Array = []) -> void: pass
-func _draw_tile_props(_grid: Array, _tile: Vector2i, _obstructions: Array = []) -> void: pass
+# Tile props include committed terrain and its rise/destruction animation.
+# Inherit that production paint/depth path; only decorative scene props are masked.
+static var proof_hidden_terrain_tile := Vector2i(-1, -1)
+
+func _draw_terrain_object(terrain: Dictionary, obstructions: Array = []) -> void:
+	# Native final-frame counterfactual only, outside the recorded action.
+	if terrain.get("pos") != proof_hidden_terrain_tile: super._draw_terrain_object(terrain, obstructions)
 
 var capture_frame: int = 0
 var capture_id: String = ""
@@ -43,6 +55,7 @@ func _visible_state(state: Dictionary) -> String:
 	for unit: Dictionary in state.get("enemies", []):
 		actors.append([unit.get("id"), unit.get("pos"), unit.get("hp"), unit.get("charge"), unit.get("lob_tiles", []), unit.get("icefall_tiles", [])])
 	actors.append(state.get("surfaces", {}))
+	actors.append(state.get("terrain", []))
 	return var_to_str(actors)
 
 func _motion(value: Dictionary) -> bool:

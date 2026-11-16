@@ -1,0 +1,251 @@
+{
+  "action_frame_limit": 126,
+  "action_frames": 36,
+  "action_seconds": 1.2,
+  "actions": "[{\n\"after\": {\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(0, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 1,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"health\": 3.0,\n\"pattern\": \"exit_lane\"\n},\n\"last_beat_tiles\": {\n\"catch\": [],\n\"freeze\": [],\n\"rise\": [Vector2i(2, 2)],\n\"strike\": []\n},\n\"last_player_turn\": 2,\n\"marks\": Array[Vector2i]([Vector2i(1, 1)]),\n\"marks_source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 2,\n\"rule\": \"upheaval\",\n\"source_kind\": \"battlefield_rule\"\n},\n\"rule\": \"upheaval\",\n\"sentence\": \"After each of your turns, a marked tile on your way out rises as an Outcrop.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"damage_context\": {},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 0,\n\"frost_armor\": 0,\n\"hp\": 14,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(3, 2),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"enemy_round_pending\": false,\n\"exits\": [{\n\"door_tile\": Vector2i(3, 2),\n\"kept_open\": true,\n\"role\": \"jailer\",\n\"sealed\": false,\n\"target_tile\": Vector2i(3, 2)\n}],\n\"goal_met\": true,\n\"hunters_spawned\": 3.0,\n\"player_turns_completed\": 0,\n\"sealbinders_killed\": 0,\n\"special_type\": \"umbral_snare\",\n\"special_variant\": \"earth\",\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(0, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"earth\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 0,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"snare_entry\": Vector2i(0, 2),\n\"snare_pressure\": {\n\"id\": \"rubble_lane\",\n\"radius_loss\": 0\n},\n\"surface_event_sequence\": 2,\n\"surface_events\": [{\n\"element\": \"earth\",\n\"health\": 3,\n\"kind\": \"terrain_created\",\n\"rules_version\": 5,\n\"sequence\": 1,\n\"source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\"\n},\n\"terrain_id\": \"outcrop_1\",\n\"terrain_kind\": \"crag_outcrop\",\n\"tile\": Vector2i(2, 2)\n}, {\n\"affected_units\": 1,\n\"beat_index\": 1,\n\"damage_to_enemies\": 0,\n\"damage_to_player\": 0,\n\"kind\": \"battlefield_rule_fired\",\n\"rule\": \"upheaval\",\n\"rules_version\": 5,\n\"sequence\": 2,\n\"source_kind\": \"room\",\n\"source_type\": \"\",\n\"tiles_changed\": 1\n}],\n\"surface_revision\": 0,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {},\n\"terrain\": [{\n\"blocks_sight\": true,\n\"hp\": 3,\n\"id\": \"outcrop_1\",\n\"kind\": \"crag_outcrop\",\n\"max_hp\": 3,\n\"owner_id\": -1,\n\"owner_kind\": \"room\",\n\"pos\": Vector2i(2, 2),\n\"surface_on_destroy\": \"rubble\"\n}],\n\"terrain_creation_sequence\": 1,\n\"traps\": [],\n\"turn\": 2,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(2, 2),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n},\n\"before\": {\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(0, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 0,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"health\": 3.0,\n\"pattern\": \"exit_lane\"\n},\n\"marks\": Array[Vector2i]([Vector2i(2, 2)]),\n\"marks_source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 1,\n\"rule\": \"upheaval\",\n\"source_kind\": \"battlefield_rule\"\n},\n\"rule\": \"upheaval\",\n\"sentence\": \"After each of your turns, a marked tile on your way out rises as an Outcrop.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 0,\n\"frost_armor\": 0,\n\"hp\": 14,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(2, 2),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"enemy_round_pending\": false,\n\"exits\": [{\n\"door_tile\": Vector2i(3, 2),\n\"kept_open\": true,\n\"role\": \"jailer\",\n\"sealed\": false,\n\"target_tile\": Vector2i(3, 2)\n}],\n\"goal_met\": true,\n\"hunters_spawned\": 3.0,\n\"player_turns_completed\": 0,\n\"sealbinders_killed\": 0,\n\"special_type\": \"umbral_snare\",\n\"special_variant\": \"earth\",\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(0, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"earth\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 0,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"snare_entry\": Vector2i(0, 2),\n\"snare_pressure\": {\n\"id\": \"rubble_lane\",\n\"radius_loss\": 0\n},\n\"surface_events\": [],\n\"surface_revision\": 0,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {},\n\"terrain\": [],\n\"traps\": [],\n\"turn\": 2,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(2, 2),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n},\n\"kind\": \"room_rule\",\n\"steps\": Array[Dictionary]([])\n}]",
+  "asset_sha256": "b332abab893e749aa1b722f29927edce0fc43eae00636e420e059a873bb8aec8",
+  "background_settled_before_frame_zero": true,
+  "commit": "089d6570cb373ae36cb0ddebcfe26dd84f15ee03",
+  "crop": "Rect2i(608, 212, 703, 419)",
+  "crossfade_seconds": 0.25,
+  "fixture": "res://tools/tooltip_loops/fixture.gd",
+  "format": "TLW2 indexed WebP",
+  "fps": 30,
+  "hold_seconds": 0.6,
+  "id": "rule_upheaval",
+  "initial_state": "{\n\"activation_seq\": 1,\n\"activation_start\": {\n\"surfaces\": [],\n\"tile\": Vector2i(0, 2),\n\"turn\": 1\n},\n\"balance_revision\": \"crd18_fire_synergy_v1\",\n\"banked_play_active\": 0,\n\"banked_play_spent_this_activation\": 0,\n\"banked_plays\": 0,\n\"battlefield_rule\": {\n\"beats_fired\": 0,\n\"cadence\": {\n\"anchor\": \"after_player_turn\",\n\"every\": 1.0\n},\n\"counter\": 0,\n\"dials\": {\n\"health\": 3.0,\n\"pattern\": \"exit_lane\"\n},\n\"marks\": Array[Vector2i]([Vector2i(2, 2)]),\n\"marks_source\": {\n\"actor_id\": -1,\n\"actor_kind\": \"room\",\n\"laid_player_activation\": 1,\n\"rule\": \"upheaval\",\n\"source_kind\": \"battlefield_rule\"\n},\n\"rule\": \"upheaval\",\n\"sentence\": \"After each of your turns, a marked tile on your way out rises as an Outcrop.\",\n\"source\": {\n\"kind\": \"room\"\n}\n},\n\"boss_id\": \"\",\n\"card_play_bonus_this_turn\": 0,\n\"cards_per_turn\": 2,\n\"cards_played_this_turn\": 0,\n\"current_actor\": {\n\"actor_key\": \"player\",\n\"kind\": \"player\",\n\"name\": \"Reaver\",\n\"seq\": 0,\n\"team\": \"player\",\n\"time\": 0,\n\"type\": \"player\"\n},\n\"death_bonus_card_plays_this_turn\": 0,\n\"death_rewards\": [],\n\"deck\": {\n\"burned\": [],\n\"consumed\": [],\n\"cycles\": 0,\n\"discard\": [],\n\"draw\": Array[String]([\"bloody_lunge\", \"hamstring_shot\", \"pale_spark\", \"guarded_step\", \"dull_bolt\", \"brace\", \"quick_stab\", \"lantern_shot\", \"shadow_step\", \"pale_spark\", \"waning_pulse\"]),\n\"draw_revision\": 5,\n\"fatigue_base\": 2,\n\"hand\": [\"sidestep_slash\", \"patch_up\", \"dull_bolt\", \"waning_pulse\", \"whirlwind_slash\"]\n},\n\"defiance_capacity\": 0,\n\"defiance_event_revision\": 0,\n\"defiance_events\": [],\n\"defiance_remaining\": 0,\n\"draw_per_turn\": 2,\n\"enemies\": Array[Dictionary]([{\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"element\": \"none\",\n\"expose\": 0,\n\"footprint\": Vector2i(1, 1),\n\"freeze\": 0,\n\"frost_armor\": 0,\n\"hp\": 14,\n\"id\": 1,\n\"immobilize\": false,\n\"intent\": {\n\"actions\": [{\n\"range\": 2.0,\n\"type\": \"move_toward\"\n}, {\n\"bleed\": 1,\n\"damage\": 4,\n\"element\": \"none\",\n\"range\": 1.0,\n\"type\": \"melee\"\n}],\n\"id\": \"skitter_strike\",\n\"name\": \"Skitter Strike\",\n\"time\": 5.0,\n\"weight\": 4.0\n},\n\"max_hp\": 14,\n\"pos\": Vector2i(2, 2),\n\"shock\": 0,\n\"stoneskin\": 0,\n\"type\": \"crawler\"\n}]),\n\"equipment_grafts\": {},\n\"equipped_equipment\": {\n\"armor\": \"patched_cloak\",\n\"boots\": \"skirmisher_boots\",\n\"offhand\": \"splintered_shield\",\n\"trinket\": \"cracked_lantern\",\n\"weapon\": \"training_sword\"\n},\n\"equipped_items\": [],\n\"grid\": [[\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"], [\"stone\", \"stone\", \"stone\", \"stone\"]],\n\"guardian_braziers\": [],\n\"guardian_id\": \"\",\n\"hand_size\": 5,\n\"heal_bonus\": 0,\n\"illusions\": [],\n\"initiative_clock\": 0,\n\"item_inventory\": [],\n\"level\": 1,\n\"log\": [\"Entered Quiet Hall.\"],\n\"loot\": Array[Dictionary]([]),\n\"moss\": {},\n\"next_illusion_id\": 1,\n\"objective\": {\n\"enemy_round_pending\": false,\n\"exits\": [{\n\"door_tile\": Vector2i(3, 2),\n\"kept_open\": true,\n\"role\": \"jailer\",\n\"sealed\": false,\n\"target_tile\": Vector2i(3, 2)\n}],\n\"goal_met\": true,\n\"hunters_spawned\": 3.0,\n\"player_turns_completed\": 0,\n\"sealbinders_killed\": 0,\n\"special_type\": \"umbral_snare\",\n\"special_variant\": \"earth\",\n\"type\": \"kill_all\"\n},\n\"pending_relic_card_plays\": 0,\n\"pending_summon_card_plays\": 0,\n\"player\": {\n\"bleed\": 0,\n\"block\": 0,\n\"chilled\": false,\n\"expose\": 0,\n\"freeze\": 0,\n\"hp\": 24,\n\"immobilize\": false,\n\"max_hp\": 24,\n\"pos\": Vector2i(0, 2),\n\"shock\": 0,\n\"stoneskin\": 0\n},\n\"player_movement_capacity\": 2,\n\"player_movement_remaining\": 2,\n\"player_turn_ending\": false,\n\"player_turn_restrictions\": {\n\"frozen\": false,\n\"immobilized\": false,\n\"shocked\": false\n},\n\"player_turn_time_spent\": 0,\n\"plays_forfeited_this_turn\": 0,\n\"recovered_embers_total\": 0,\n\"relic_flags\": {},\n\"relics\": [],\n\"rng_state\": -1626167330131196328,\n\"room_coord\": Vector2i(0, 0),\n\"room_depth\": 1,\n\"room_element\": \"earth\",\n\"room_embers\": 0,\n\"room_name\": \"Quiet Hall\",\n\"room_type\": \"combat\",\n\"rules_version\": 5,\n\"run_stats\": {\n\"card_resolution_active\": false,\n\"card_resolution_kills\": 0,\n\"damage_dealt\": 0,\n\"damage_received\": 0,\n\"defiance_spent\": 0,\n\"dragons_flawless\": Array[String]([]),\n\"dragons_slain\": Array[String]([]),\n\"enemies_killed\": 0,\n\"enemies_slain\": 0,\n\"events_resolved\": 0,\n\"guardians_slain\": 0,\n\"guardians_unscathed\": Array[String]([]),\n\"killer\": {},\n\"max_held_embers\": 0,\n\"max_kills_one_card\": 0,\n\"max_single_hit\": 0,\n\"mystery_rooms_entered\": 0,\n\"rooms_explored\": 0\n},\n\"score_health_loss_at_start\": 0,\n\"score_wallet_base\": 0,\n\"skill_events\": [],\n\"skill_flags\": {},\n\"skill_ids\": Array[String]([]),\n\"snare_entry\": Vector2i(0, 2),\n\"snare_pressure\": {\n\"id\": \"rubble_lane\",\n\"radius_loss\": 0\n},\n\"surface_events\": [],\n\"surface_revision\": 0,\n\"surface_rule_overrides\": {\n\"conductive_fire\": false,\n\"elemental_overwrite_spread\": false,\n\"player_ignores_rubble\": false\n},\n\"surfaces\": {},\n\"terrain\": [],\n\"traps\": [],\n\"turn\": 2,\n\"turn_flags\": {\n\"first_attack_bonus_used\": false,\n\"first_move_bonus_used\": false\n},\n\"turn_queue\": [{\n\"actor_key\": \"enemy_1\",\n\"enemy_id\": 1,\n\"intent_time_cost\": 5,\n\"kind\": \"enemy\",\n\"name\": \"Tunnel Crawler\",\n\"pos\": Vector2i(2, 2),\n\"seq\": 1,\n\"team\": \"enemy\",\n\"time\": 13,\n\"type\": \"crawler\"\n}],\n\"umbra\": {\n\"boss_eclipse_activations\": 0,\n\"boss_eclipse_stage\": \"\",\n\"enemies_revealed_total\": 0,\n\"hidden_attack_damage_received_total\": 0,\n\"light_sources\": [],\n\"movement_interrupted_total\": 0,\n\"next_light_source_id\": 1,\n\"stage\": \"clear\",\n\"stage_reduction\": 0,\n\"tiles_illuminated_total\": 0,\n\"truesight_activations\": 0,\n\"vision_bonus\": 0,\n\"vision_bonus_activations\": 0\n},\n\"zekarion_summon_waves\": 0\n}",
+  "motion_timing": {
+    "action_seconds": 1.2,
+    "first_motion_seconds": 0.366666666666667,
+    "first_visible_frame": 12,
+    "hero_crop_ok": true,
+    "id": "rule_upheaval",
+    "last_visible_frame": 35,
+    "patch_visibility": {
+      "droplet_frames": 0,
+      "droplets": {},
+      "failures": [],
+      "filter_pad_px": 1.0,
+      "required_margin_px": 4.0,
+      "samples": 37,
+      "shadow_arrival_seen": false,
+      "shadow_blink_seen": false,
+      "shadow_ghost_seen": false,
+      "sprite_margins": {
+        "enemy_1": {
+          "minimum_px": 30.9998474121094,
+          "rect": "Rect2(965.4502, 466.99606, 87.996704, 84.19479)",
+          "sample": 26,
+          "type": "crawler"
+        },
+        "player": {
+          "minimum_px": 16.2690105438232,
+          "rect": "Rect2(668.6847, 255.06973, 154.58887, 160.53458)",
+          "sample": 21,
+          "type": "player"
+        },
+        "rule_ghost_enemy_1_3_2": {
+          "minimum_px": 30.9998474121094,
+          "rect": "Rect2(965.4502, 466.43427, 87.996704, 84.75659)",
+          "sample": 1,
+          "type": "crawler"
+        }
+      },
+      "terrain": {
+        "airborne_above_rock_seen": true,
+        "changes": [
+          {
+            "after": "[{\n\"blocks_sight\": true,\n\"hp\": 3,\n\"id\": \"outcrop_1\",\n\"kind\": \"crag_outcrop\",\n\"max_hp\": 3,\n\"owner_id\": -1,\n\"owner_kind\": \"room\",\n\"pos\": Vector2i(2, 2),\n\"surface_on_destroy\": \"rubble\"\n}]",
+            "before": "[]",
+            "field": "terrain"
+          }
+        ],
+        "failures": [],
+        "final_rock_pixels_above_floor": 845,
+        "final_surfaces": [],
+        "final_terrain": [
+          {
+            "commands": 487,
+            "kind": "crag_outcrop",
+            "tile": "Vector2i(2, 2)"
+          }
+        ],
+        "minimum_margins_px": {
+          "outcrop_1": 31.8340110778809
+        },
+        "native_pixels_above_floor": 5365,
+        "observed_surfaces": [],
+        "rise_samples": [
+          0.0,
+          0.0330129628731955,
+          0.121711175880604,
+          0.250587939335103,
+          0.404124119585727,
+          0.566812044380709,
+          0.723145139696843,
+          0.857602624536201,
+          0.954678348330059,
+          0.998861674619867,
+          1.0
+        ]
+      },
+      "upheaval": {
+        "airborne_seen": true,
+        "landing": "Vector2i(3, 2)",
+        "landing_inside_patch": true,
+        "landing_seen": true,
+        "mark_seen": true,
+        "outcrop_seen": true
+      }
+    },
+    "recording_frames": 36,
+    "seen_numbers": [],
+    "source_frames": 37,
+    "tail_seconds": 0.0333333333333333,
+    "trim_end_frames": 0,
+    "trim_start_frames": 1
+  },
+  "renderer": {
+    "cel_look": "all",
+    "driver": "Apple M5 Pro (Apple9)",
+    "engine": {
+      "build": "official",
+      "hash": "14d19694e0c88a3f9e82d899a0400f27a24c176e",
+      "hex": 263681,
+      "major": 4,
+      "minor": 6,
+      "patch": 1,
+      "status": "stable",
+      "string": "4.6.1-stable (official)",
+      "timestamp": 0
+    },
+    "launch_arguments": [
+      "--script",
+      "tools/tooltip_loops/record.gd"
+    ],
+    "method": "mobile",
+    "ui_scale": 1.0,
+    "viewport": [
+      1920,
+      1080
+    ]
+  },
+  "source_dirty": "",
+  "source_sha256": {
+    "assets/units/storm_capacitor_cutout/actions.gd": "d3684bfb8bdd2dd2199fd0a6e2b03f2c8e954e6126661c6dec5129fde4b841a6",
+    "data/battlefield_rules.json": "412ab5b6163c1ffbe8defe752469e82b0560613f6ee63001eeb3131898ec6840",
+    "data/cards.json": "549d2a318477d4765ff130807a7a4be717d788a7cff31eed4230036798688bff",
+    "data/enemies.json": "5bba148ebb28d5d3a542876d60446838f43b7f45c79037a4834a7f6d6b630b19",
+    "data/special_encounters.json": "5fb33bd3348c353577ecefde5bf73cfdb8f7b8a99d9043269f74819d8129a929",
+    "data/tooltip_loops.json": "992c61d5e2188474fdb0cae060494618948e1c240cdc75c2fe65c2493e14ab10",
+    "scripts/battlefield_rule_hud.gd": "35c43573e3c513b0e8a7b6bd0745d9572778765e13f94d153415b3bdf1b482ff",
+    "scripts/battlefield_rule_view.gd": "7d78f2dd3dbf3bf7caa945a9789efb43a573a23b8bd4d5f2e9617c519b1f07eb",
+    "scripts/battlefield_rules/dispatcher.gd": "852f56eb1c56e9c781c560b3022331a2d68b58d31c07656ddbcec225029e31ec",
+    "scripts/battlefield_rules/frostbite.gd": "973f6f284f6495af6b61e364682bf0fc8801f138be6c781ec45d56b7c7bb29ba",
+    "scripts/battlefield_rules/gust.gd": "cda288588e4c50a342f1efcaf276ea6388a055e1291111b8ed66a1742d83bee2",
+    "scripts/battlefield_rules/lightning_storm.gd": "835388c54905730e3cb5042659957b297ba972c2ec697b6384ce921c159565cc",
+    "scripts/battlefield_rules/shadowstep.gd": "05ac466b56ded45b51d7592eeaa00697be715303452d2c96dc6cb88d4043d784",
+    "scripts/battlefield_rules/upheaval.gd": "7e302edc318f37bd267436ff25a35988476c2ca1b3a9e3b86c4b45aaa2c2f054",
+    "scripts/battlefield_rules/wildfire.gd": "6ba8c826000994c323a6a9701216882697d08c55230c0d5764761ef65c3c9914",
+    "scripts/board_surface_rules.gd": "bc10050431cbaf4050407e24cb00cb4cb9e267225b695a3feaec07e1f34d01c9",
+    "scripts/combat_board_view.gd": "849e7d77ec7d79ca0e1f6053f5c605047870772cb754cf26f3fb8412e2b1b362",
+    "scripts/displacement_throw.gd": "80daefe3d930af9de37ff188cac81952cd0e4ebe8dbd8d46b4e133fee2c60fd5",
+    "scripts/enemy_mechanics/burrow.gd": "bf547ec6a245ddfdbdf360b3e8d3ca183a1caa6f4d709b859a355d4ea48442b1",
+    "scripts/enemy_mechanics/capacitor_view.gd": "f9770c0213a8cf299fc958490f75a31b7bf03adc1bdffbb2a442eb808c489d12",
+    "scripts/enemy_mechanics/chain_hit_feedback.gd": "1e14fa497d3d116e4c41f2d0fa57c61d148c840e45dd040625d0808e0462f8f6",
+    "scripts/enemy_mechanics/stalker.gd": "74ce3bd8d09ce929fa72ffe7ef183c71746a30d0189d27510f0b5ae0a6f0a08d",
+    "scripts/enemy_mechanics/stalker_view.gd": "1beed426a17d3fd3065e57b2ee978e4daf46dd60265fe183ef45234ed7a8507e",
+    "scripts/run_scene.gd": "6d878f15bb897540409e9ad369ee602c4c431fc8e8c2b5c2cea7d9bed186d9ce",
+    "scripts/settings_store.gd": "1b7ac56681337bc40faf23b1e80633ea2028e5d32d521a22e30a814c55db562c",
+    "scripts/snare_pressure_rules.gd": "2f98e20b0c7e7c3bd638f97e696c050e414673a0c2221432c6cf40105dfab63e",
+    "scripts/snare_pressure_view.gd": "f88c16fb0ce50e65ad043dc3e7ae4be82cfc952c1109356e8383c16196a69f52",
+    "tools/tooltip_loops/fixture.gd": "d7dafc90f0f3820e468bb61c79f9304b33bd881f049b463308ed3f10323f6a22",
+    "tools/tooltip_loops/patch_checks.gd": "ed61c514e69ef869367b35adc4c144b1655d23f72e8357713bb45bd388e30359",
+    "tools/tooltip_loops/playback.gd": "f7c33a053df4a2ef7699d0ce8150ac8f1a72ff7a662c976a53b238a7ef0da214",
+    "tools/tooltip_loops/record.gd": "56dc9f4c67e344a287487b9ef64cd9da61ab11cc6598710b76b77eb140e602fd",
+    "tools/tooltip_loops/record_board.gd": "f748beef73eb13dab9a1e8b279d21719e45ea26e553fdb26f84d76692f2708ea",
+    "tools/tooltip_loops/sprite_margin.gd": "9d63d9ccf629abfefb34b053067f1b18a740c533abda536c3d6b59becf9e4094",
+    "tools/tooltip_loops/terrain_checks.gd": "efe054a71df51b560b281fff27402e53372717c2dc7cfdf935e4dfb6f809b67d",
+    "tools/tooltip_loops/tip03_fixture.gd": "ef72ce07dedd68b53806dcea0a3deb5d7ccc6f25da09c04eb1437614b3bf6d9a",
+    "tools/tooltip_loops/tip04_fixture.gd": "40be4fe6b783ff41e68219e2b8e9d1a0388cb2b4334c3c10caf2cdb34b07d7af",
+    "tools/tooltip_loops/tip05_checks.gd": "6649a8d374eae8f5d1bf426a280d8dbd5f9593c5f86cc6b656155526790a4fc1",
+    "tools/tooltip_loops/tip05_fixture.gd": "13c98909747165b5190578e9106fd1f0a14caaa94073f647b3e0b2ca5a352043"
+  },
+  "speed": "normal",
+  "timing_within_brief": true,
+  "vignette": {
+    "corner_alpha": 0.45,
+    "curve": "squared radial distance",
+    "ink": "0b0908ff"
+  },
+  "vignette_baked": true,
+  "compression": {
+    "id": "rule_upheaval",
+    "action_frames": 36,
+    "action_seconds": 1.2,
+    "raw_sha256": "175a5b46e5fb120f758f7dc339713f5bb575b98930073dca3d5120d8c2dae250",
+    "libwebp_version": 66816,
+    "encoder_method": 6,
+    "encoder_quality": 100,
+    "chunk_frames": 16,
+    "tool_sha256": {
+      "compress.py": "594a7c62b7e80e03bf247c99d087fe8f772afad89251bce297f2c7583c885cfb",
+      "webp_encode.py": "294a721cc89c4aa83780cc0513389c6b118052c2e241846de61034e797cf7987"
+    },
+    "candidates": [
+      {
+        "near_lossless": 60,
+        "file_bytes": 218862,
+        "max_per_channel_error": [
+          2,
+          2,
+          2
+        ],
+        "mean_per_channel_error": [
+          0.46773448347029906,
+          0.46943600135089497,
+          0.46773565612218093
+        ],
+        "passes": true,
+        "cap_bytes": 1500000
+      },
+      {
+        "near_lossless": 40,
+        "file_bytes": 160032,
+        "max_per_channel_error": [
+          4,
+          4,
+          4
+        ],
+        "mean_per_channel_error": [
+          0.8557204304101467,
+          0.866524658523772,
+          0.839379526436264
+        ],
+        "passes": false,
+        "cap_bytes": 1500000
+      }
+    ],
+    "selected": {
+      "near_lossless": 60,
+      "file_bytes": 218862,
+      "max_per_channel_error": [
+        2,
+        2,
+        2
+      ],
+      "mean_per_channel_error": [
+        0.46773448347029906,
+        0.46943600135089497,
+        0.46773565612218093
+      ],
+      "passes": true,
+      "cap_bytes": 1500000
+    },
+    "recorded_speed": "normal",
+    "recording_matches_brief": true,
+    "registry_cap_bytes": 1500000,
+    "within_registry_cap": true
+  },
+  "requires_native_rerecord": false
+}

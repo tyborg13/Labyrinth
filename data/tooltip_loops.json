@@ -213,6 +213,18 @@
       "speed": "normal",
       "max_recording_frames": 135,
       "max_asset_bytes": 1500000
+    },
+    {
+      "id": "rule_upheaval",
+      "term": "upheaval",
+      "source_match": {
+        "kind": "battlefield_rule",
+        "id": "upheaval"
+      },
+      "asset_path": "res://assets/tooltip_loops/rule_upheaval.tlw",
+      "speed": "normal",
+      "max_recording_frames": 135,
+      "max_asset_bytes": 1500000
     }
   ]
 }

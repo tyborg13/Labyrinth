@@ -4,6 +4,7 @@ const Runs = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
+const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
 const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
 const Tip03 = preload("res://tools/tooltip_loops/tip03_fixture.gd")
 const SEED: int = 1511 # Debug fixture RNG only.
@@ -38,6 +39,10 @@ static func build(id: String) -> Dictionary:
 			units = [["crawler", Vector2i(1, 1)], ["crawler", Vector2i(2, 1)], ["crawler", Vector2i(3, 0)]]
 			card = "chain_bolt"
 			layout["element"] = "none"
+	if Tip05.IDS.has(id):
+		var config: Dictionary = Tip05.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
 	if Tip04.IDS.has(id):
 		var config: Dictionary = Tip04.configure(layout, id)
 		units = config["units"]
@@ -58,12 +63,14 @@ static func build(id: String) -> Dictionary:
 	if id == "marked_burrow_grub": state["enemies"][0]["intent"] = Data.enemy_def("burrow_grub")["intents"][0].duplicate(true)
 	if Tip03.IDS.has(id): Tip03.prepare(state, id)
 	if Tip04.IDS.has(id): Tip04.prepare(state, id)
+	if Tip05.IDS.has(id): Tip05.prepare(state, id)
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
 	run["combat_state"] = state
 	return {"run": run, "state": state, "card": card, "id": id, "layout": layout}
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
+	if Tip05.IDS.has(fixture["id"]): return Tip05.plan(fixture, engine)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.plan(fixture, engine)
 	if Tip03.IDS.has(fixture["id"]): return Tip03.plan(fixture, engine)
 	var state: Dictionary = fixture["state"]
@@ -94,6 +101,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	return failures
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Tip05.IDS.has(fixture["id"]): return Tip05.validate(fixture, result)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.validate(fixture, result)
 	if Tip03.IDS.has(fixture["id"]): return Tip03.validate(fixture, result)
 	var failures: Array[String]

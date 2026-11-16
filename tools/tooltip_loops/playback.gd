@@ -22,7 +22,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	settings["combat_speed"] = speed
 	Settings.save_settings(settings) # Task-runner HOME only; _ready reads this same player setting.
 	Settings.apply_settings(settings, null, false)
-	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Biomes.default_biome()))))
+	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Fixture.Tip05.BIOMES.get(fixture["id"], Biomes.default_biome())))))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -71,7 +71,10 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 	for beat: Dictionary in result["beats"]:
 		if beat["kind"] == "room_rule":
 			pacing.begin_enemies()
-			await Fixture.Tip04.play(scene, beat)
+			if beat["before"]["battlefield_rule"]["rule"] == "upheaval":
+				await Fixture.Tip05.play(scene, beat)
+			else:
+				await Fixture.Tip04.play(scene, beat)
 		elif beat["kind"] == "rule":
 			pacing.begin_enemies()
 			# The ordinary loss-feedback painter owns numbers, reactions and timing;

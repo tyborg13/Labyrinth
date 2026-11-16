@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-OUTPUT = Path("/private/tmp/labyrinth_codex/tip-04/record")
+OUTPUT = Path("/private/tmp/labyrinth_codex/tip-05/record")
 RECORD_TIMEOUT_SECONDS = 240  # GPU-backed recordings plus production asset warmup.
 
 
@@ -27,7 +27,7 @@ def main():
     if args.check_only:
         from webp_encode import Encoder
         Encoder() # Fail before a native recording if the offline encoder ABI is unavailable.
-        return subprocess.call(["python3", "tools/godot_task_runner.py", "--task-id", "tip-04", "--stream", "--", args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/record.gd", "--check-only"], cwd=ROOT)
+        return subprocess.call(["python3", "tools/godot_task_runner.py", "--task-id", "tip-05", "--stream", "--", args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/record.gd", "--check-only"], cwd=ROOT)
     env = os.environ.copy()
     env.update(TIP01_OUT=str(OUTPUT), LABYRINTH_CEL_LOOK="all")
     env["TOOLTIP_LOOP_IDS"] = args.loops or ""
@@ -38,7 +38,7 @@ def main():
         wrapper = Path(directory) / "godot-clock"
         wrapper.write_text("#!/bin/sh\nexec " + shlex.quote(args.godot) + " --write-movie " + shlex.quote(str(Path(directory) / "clock.avi")) + ' --fixed-fps 30 "$@"\n')
         wrapper.chmod(0o755)
-        command = ["python3", "tools/visual_probe_runner.py", "tools/tooltip_loops/record.gd", "--task-id", "tip-04", "--godot", str(wrapper), "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy", "--timeout", str(RECORD_TIMEOUT_SECONDS), "--expect-size", "1920x1080", "--min-images", str(len(rows) * 3), "--result-manifest", str(OUTPUT / "manifest.json"), "--overwrite-result-manifest"]
+        command = ["python3", "tools/visual_probe_runner.py", "tools/tooltip_loops/record.gd", "--task-id", "tip-05", "--godot", str(wrapper), "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy", "--timeout", str(RECORD_TIMEOUT_SECONDS), "--expect-size", "1920x1080", "--min-images", str(len(rows) * 3), "--result-manifest", str(OUTPUT / "manifest.json"), "--overwrite-result-manifest"]
         result = subprocess.call(command, cwd=ROOT, env=env)
         if result:
             return result
