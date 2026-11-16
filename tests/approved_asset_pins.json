@@ -384,6 +384,7 @@
     "scenes"
   ],
   "files": {
+    "assets/art/icons/splits.png": "8978395a26de79977504f458c3f2d49b5469b07c",
     "assets/art/backgrounds/map_labyrinth_depths_v1.png": "e5f9483f8ce2d9ae6c78bf2121ec0ee01b36e78c",
     "assets/art/backgrounds/sealed_dungeon_hall.png": "43a69674ded8ac4f77cc0ad2c3ae420820d1668b",
     "assets/art/backgrounds/sections/iskaldra.png": "976b4370bda663e075cdd6e11de8e73f96ecfbea",
@@ -2588,7 +2589,7 @@
     "assets/units/frostglass_lancer_cutout/humanoid_v2/front/spear.png": "453fc495880fab830d2eeee41b69d36b49beda86",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/front/tabard.png": "350d12d37abcbf0fdb292b75b3db760378e5c67e",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/front/torso.png": "f2a895188e11605adb1072f9063b9ef9db76a3a9",
-    "assets/units/frostglass_lancer_cutout/humanoid_v2/rear.json": "9c76fc23af0f8ccd07a22f5813a6d466342586ea",
+    "assets/units/frostglass_lancer_cutout/humanoid_v2/rear.json": "786e456433ab1eaa2d28329e2ef7dbe09230239f",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/arm_far.png": "b78d3186670923d0ca6e36af6ec29ae1c2db3444",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/arm_near.png": "85aec7b9fdb63e81c86a786826b725121c4a710d",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/cape_far.png": "32a911f837075e2a12917687580ca2de40a916a7",
@@ -2614,7 +2615,7 @@
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/leg_far.png": "40bd344b60d0633c70616d8646008b4cbf059262",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/leg_near.png": "41a3a725483cae5ef23f2e522198a521df1399aa",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/pelvis.png": "2935008a8b7d6d395d875b37a51edc37a15038f9",
-    "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png": "884e9e6ec4051e9b563ff60e40cb55891142c6d6",
+    "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/rest.png": "fbf04afdcc75456dd0fb4563deaad3b322ba097a",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/spear.png": "6e54fe8d8a60eb9a075589e5bb7bbb21983c61d9",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/tabard.png": "9e3714ea0574081f1fb6e07504cecdd7ef37474d",
     "assets/units/frostglass_lancer_cutout/humanoid_v2/rear/torso.png": "c8cab96d809daa19b43b4b1119a46a2a6022b4c0",
@@ -4758,6 +4759,18 @@
     }
   },
   "images": {
+    "assets/art/icons/splits.png": {
+      "alpha_bounds": [
+        4,
+        7,
+        60,
+        57
+      ],
+      "size": [
+        64,
+        64
+      ]
+    },
     "assets/art/backgrounds/map_labyrinth_depths_v1.png": {
       "alpha_bounds": [
         0,

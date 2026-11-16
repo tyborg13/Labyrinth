@@ -8,7 +8,7 @@ static func build(enemy_type: String, unit: Dictionary = {}) -> Array:
 		var shown: Dictionary = unit if not unit.is_empty() else {"type": enemy_type}
 		var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(shown)
 		return [{"text": burst_trait["value"], "icon_key": "burst", "tooltip": burst_trait["tooltip"]}]
-	return from_intents(GameData.enemy_def(enemy_type).get("intents", []) as Array)
+	return preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_tag(from_intents(GameData.enemy_def(enemy_type).get("intents", []) as Array), enemy_type)
 
 static func from_intents(intents: Array) -> Array:
 	var tags: Array = []

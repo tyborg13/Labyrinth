@@ -92,8 +92,11 @@ class TextBudgetTest(unittest.TestCase):
         live = marked_glossary_supersession(live)
         short_copy = {key: text for key, text in short_copy.items() if key not in MARKED_RETIRED}
         short_copy["marked"] = MARKED_DEFINITION
+        # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
+        live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
+                          "definition": "When it dies, it splits into smaller foes next to it."}
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 139)
+        self.assertEqual(len(live), 140)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]

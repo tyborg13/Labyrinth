@@ -75,6 +75,8 @@ func _run() -> void:
 		_check(scene.get("_hovered_board_tile") == INVALID and not bool(scene.get("_player_movement_selected")) and int(scene.get("_selected_card_index")) < 0, "board at rest: nothing hovered or selected")
 	else:
 		_check(scene.get("_hovered_board_tile") == _tile(target), "real pointer owns the hovered tile")
+	_prepare_frame(scene, board, target)
+	await process_frame
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		var picture: Image = canvas.get_texture().get_image()
@@ -91,9 +93,11 @@ func _run() -> void:
 	var summary: Dictionary = scene.call("_pass_preview_summary") if target != "rest" else {}
 	var report: Dictionary = {"target": target, "hero": str(state["player"]["pos"]), "red": red_out, "marks": marks,
 		"summary": {"hp": int(summary.get("hp_loss", 0)), "block": int(summary.get("block_loss", 0)), "defeat": bool(summary.get("defeat", false)), "tone": str(summary.get("tone", ""))}, "failures": failures}
+	report.merge(_proof_fields())
 	var file := FileAccess.open(out.get_basename() + ".json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
+	print(out)
 	print("ATK06 CAPTURE %s %s" % [out, JSON.stringify(report)])
 	for failure: String in failures: push_error(failure)
 	print("ATK06 CAPTURE: %s" % ("PASS" if failures.is_empty() else "FAIL"))
@@ -107,3 +111,10 @@ func _motion(point: Vector2) -> void:
 
 func _check(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
+
+# Task-specific proofs may compare a prior presentation on the same saved board.
+func _prepare_frame(_scene: Node, _board: Control, _target: String) -> void:
+	pass
+
+func _proof_fields() -> Dictionary:
+	return {}

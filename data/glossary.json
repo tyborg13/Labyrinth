@@ -57,6 +57,15 @@
     ]
   },
   {
+    "id": "splits",
+    "name": "Splits",
+    "icon": "splits",
+    "definition": "When it dies, it splits into smaller foes next to it.",
+    "aliases": [
+      "split"
+    ]
+  },
+  {
     "id": "burst",
     "name": "Bursts",
     "icon": "burst",

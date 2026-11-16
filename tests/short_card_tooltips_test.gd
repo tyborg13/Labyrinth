@@ -40,7 +40,7 @@ func _run() -> void:
 	(_expectations["triggers"] as Dictionary).erase("mirror")
 	(_expectations["encounters"]["hollow_mimic"]["unlocks"] as Array).erase("mirror")
 	var entry_map: Dictionary = Grimoire.entry_map()
-	_expect(Glossary.all_entries().size() == 139, "Final glossary contains all 139 live entries")
+	_expect(Glossary.all_entries().size() == 140, "Final glossary contains all 140 live entries")
 	_expect(Glossary.definition("marked") == "These tiles take the hit on this enemy's next turn.", "Marked retains its approved definition")
 	_expect(entry_map["keyword:marked"]["body"] == [Glossary.definition("marked")], "Marked owns the full definition replacing the four retired topics")
 	var changes: Dictionary = {}

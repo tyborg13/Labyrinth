@@ -86,7 +86,11 @@ static func _prepare_full_with_receipt(engine: RefCounted, next_state: Dictionar
 	}
 	next_state = engine.CommonRelicRules.turn_start(engine, next_state)
 	next_state = engine.DefenseRelicRules.player_turn_start(engine, next_state)
+	# atk-11: a surface under the hero that hurts them now (red tiles).
+	var RedTiles: GDScript = preload("res://scripts/pass_forecast_red_tiles.gd")
+	var contact: Dictionary = RedTiles.before_turn_start_contact(engine, next_state)
 	next_state = engine._resolve_player_start_of_turn(next_state)
+	RedTiles.note_turn_start_surface(engine, cursor, contact, next_state)
 	if engine.combat_outcome(next_state) != "":
 		return next_state
 	next_state = engine.SurfaceCardRules.resolve_meteor_marks(engine, next_state)

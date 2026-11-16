@@ -14,6 +14,20 @@ const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 
+const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
+
+class LoopMovePlate extends Controls.Plate:
+	var loop_source: Dictionary = {}
+	func _make_custom_tooltip(text: String) -> Object:
+		var panel: Control = LoopContext.panel_for_text(text, loop_source)
+		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
+
+class LoopTraitRow extends HBoxContainer:
+	var loop_source: Dictionary = {}
+	func _make_custom_tooltip(text: String) -> Object:
+		var panel: Control = LoopContext.panel_for_text(text, loop_source)
+		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
+
 static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> Control:
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	var panel := PanelContainer.new()
@@ -33,7 +47,17 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	panel.add_child(content)
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 16)
-	content.add_child(header)
+	var header_host: VBoxContainer = content
+	if not interactive:
+		var window: Control = LoopContext.outer_popup_window(LoopContext.enemy(str(enemy.get("type", ""))))
+		if window != null:
+			header_host = VBoxContainer.new()
+			header_host.name = "PreBattleTooltipLoopHeader"
+			header_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			header_host.add_theme_constant_override("separation", 10)
+			content.add_child(header_host)
+			header_host.add_child(window)
+	header_host.add_child(header)
 	var stage := InkPool.new()
 	stage.name = "PreBattleEnemyPortraitInset"
 	stage.custom_minimum_size = Vector2(138.0, 154.0)
@@ -82,7 +106,8 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(battle.get("objective", {}))
 		if not order.is_empty(): content.add_child(rules_label(order, "WarbandCaptainOrder", 600.0))
 	var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(enemy)
-	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait))
+	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait, LoopContext.enemy(str(enemy.get("type", "")))))
+	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, build_trait)
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"
@@ -91,7 +116,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
 		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
 		var shown: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)
-		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown)))
+		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", "")))))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel
@@ -105,10 +130,11 @@ static func rules_label(text: String, node_name: String, width: float) -> Label:
 	result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return result
 
-static func build_move(host: Node, intent: Dictionary) -> Control:
+static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) -> Control:
 	var rows: Array = move_rows(intent)
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
-	var plate := Controls.Plate.new()
+	var plate := LoopMovePlate.new()
+	plate.loop_source = source
 	plate.name = "PreBattleKnownMoveRow"
 	plate.top = Palette.INK_2
 	plate.bottom = Palette.INK_1
@@ -135,6 +161,9 @@ static func build_move(host: Node, intent: Dictionary) -> Control:
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
 	text_box.add_child(rules_label(summary if not summary.is_empty() else "Recovers." if actions.is_empty() else "Special action", "PreBattleMoveEffect", 410.0))
+	if source.get("id") == "burrow_grub":
+		for action: Dictionary in actions:
+			if str(action.get("type", "")) in ["burrow", "erupt"]: plate.tooltip_text = ActionIcons.marked_move_text(action)
 	var notes: String = GuardianLibrary.intent_notes(intent)
 	if not notes.is_empty():
 		text_box.add_child(rules_label(notes, "GuardianMoveRules", 410.0))
@@ -163,14 +192,15 @@ static func move_tooltip(rows: Array) -> String:
 			if not detail.is_empty() and not details.has(detail): details.append(detail)
 	return "\n".join(details)
 
-static func build_trait(burst_trait: Dictionary) -> Control:
-	var row := HBoxContainer.new()
+static func build_trait(burst_trait: Dictionary, source: Dictionary = {}) -> Control:
+	var row := LoopTraitRow.new()
+	row.loop_source = source
 	row.name = "EnemyBurstTrait"
 	row.add_theme_constant_override("separation", 10)
 	var socket := Socket.new()
 	socket.socket_size = 40.0
 	socket.interactive = false
-	socket.setup(ActionIcons.icon_texture("burst"))
+	socket.setup(ActionIcons.icon_texture(str(burst_trait.get("icon", "burst"))))
 	row.add_child(socket)
 	var text := VBoxContainer.new()
 	text.custom_minimum_size.x = BurstTraitText.WIDTH

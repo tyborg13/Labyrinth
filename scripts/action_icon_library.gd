@@ -26,6 +26,7 @@ const KEYWORDS: Dictionary = {
 	"shadowstep": {"label": "Shadowstep", "path": "%s/shadowstep.png" % ICON_ROOT},
 	"burrow": {"label": "Burrow", "path": "%s/burrow.png" % ICON_ROOT},
 	"erupt": {"label": "Erupt", "path": "%s/erupt.png" % ICON_ROOT},
+	"splits": {"label": "Splits", "path": "%s/splits.png" % ICON_ROOT},
 	"burst": {"label": "Bursts", "path": "%s/burst.png" % ICON_ROOT},
 	"surface": {"label": "Shape Ground", "path": "%s/surface.png" % ICON_ROOT},
 	"surface_fire": {"label": "Fire", "path": "%s/surface_fire.png" % ICON_ROOT},

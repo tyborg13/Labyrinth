@@ -37,10 +37,11 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 	var result: Dictionary = original.duplicate(false)
 	var rest: Dictionary = original.get("threats_at_rest", {}).duplicate(false)
 	var threats: Array = rest.get("threats", []).duplicate(false)
-	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY)
+	# atk-11: the forecast's own red for the hero's tile (pass_forecast_red_tiles.gd) stays.
+	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY or bool(threat.get("later", false)))
 	threats.append({"key": THREAT_KEY, "area": true, "tiles": tiles})
 	rest["threats"] = threats
-	rest["hero_tile"] = state["player"]["pos"]
+	rest["hero_tile"] = rest.get("hero_tile", state["player"]["pos"])
 	result["threats_at_rest"] = rest
 	return result
 

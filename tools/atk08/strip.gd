@@ -8,6 +8,10 @@ extends SceneTree
 ## fixed frame per render, so slow PNG saves cannot stretch the timing.
 ## Usage (after --): --save-dir <repro> --out-dir <dir> [--seconds 6] [--every 0.1] [--reduced 0|1] [--from 0]
 ## --from skips frames before that presentation time (atk-10: late hits in long rounds).
+## --speed normal|fast|fastest sets the combat speed (atk-12; default normal).
+## --before 1 captures the integrated scene with only atk-12 presentation omitted.
+## --require-number <text> / --require-actor <type> validate the captured witness.
+## --require-progress <fraction> checks that number's captured animation life.
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const SIZE := Vector2i(1920, 1080)
@@ -39,7 +43,7 @@ func _run() -> void:
 	var settings: Dictionary = Settings.default_settings()
 	settings["ui_scale"] = 1.0
 	settings["reduced_motion"] = _arg("--reduced", "0") == "1"
-	settings["combat_speed"] = Settings.COMBAT_NORMAL
+	settings["combat_speed"] = _arg("--speed", Settings.COMBAT_NORMAL)
 	settings["display_mode"] = "windowed"
 	Settings.save_settings(settings)
 	root.size = SIZE
@@ -54,6 +58,11 @@ func _run() -> void:
 	container.add_child(canvas)
 	root.set_meta("labyrinth_resume_saved_run", true)
 	scene = load("res://scenes/run_scene.tscn").instantiate()
+	if _arg("--before", "0") == "1":
+		var before := GDScript.new()
+		before.source_code = preload("res://tools/atk12/scene_source.gd").before(FileAccess.get_file_as_string("res://scripts/run_scene.gd"))
+		_check(before.reload() == OK, "before scene compiles")
+		scene.set_script(before)
 	canvas.add_child(scene)
 	for frame: int in range(90): await process_frame
 	await create_timer(2.0).timeout
@@ -94,8 +103,17 @@ func _run() -> void:
 			if not idle: idle_since = -1.0
 			if t >= seconds or (idle_since >= 0.0 and t - idle_since > 0.6): break
 			await process_frame
+	var required_number: String = _arg("--require-number")
+	if not required_number.is_empty():
+		var witnessed: bool = false
+		for frame: Dictionary in manifest:
+			if not _arg("--require-actor").is_empty() and str(frame["acting_type"]) != _arg("--require-actor"): continue
+			for number: Dictionary in frame["hero_numbers"]:
+				if str(number["text"]) == required_number and float(number["progress"]) >= float(_arg("--require-progress", "0")):
+					witnessed = true
+		_check(witnessed, "captured required hero number and animation progress: " + required_number)
 	var file := FileAccess.open(out.path_join("manifest.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"save_dir": save_dir, "every": every, "reduced_motion": settings["reduced_motion"], "speed": "normal", "frames": manifest, "failures": failures}, "\t"))
+	file.store_string(JSON.stringify({"save_dir": save_dir, "before": _arg("--before", "0") == "1", "ui_scale": settings["ui_scale"], "size": [SIZE.x, SIZE.y], "every": every, "reduced_motion": settings["reduced_motion"], "speed": settings["combat_speed"], "frames": manifest, "failures": failures}, "\t"))
 	file.close()
 	for row: Dictionary in manifest: print(row["path"])
 	for failure: String in failures: push_error(failure)
@@ -112,6 +130,7 @@ func _frame_row(path: String, t: float) -> Dictionary:
 	canvases.append_array(layer.get_children())
 	for canvas_node: Node in canvases:
 		if not (canvas_node is Control) or not ("_floating_text_last_layout" in canvas_node): continue
+		if not (canvas_node as Control).is_visible_in_tree(): continue
 		var ops: Array = canvas_node.get("_render_slice_ops")
 		var draws: bool = canvas_node == layer and not (layer.get("presentation") as Dictionary).has("isolated_enemy_actor_keys")
 		for operation: Variant in ops:

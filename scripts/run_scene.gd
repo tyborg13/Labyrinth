@@ -15298,7 +15298,7 @@ func _pass_preview_summary() -> Dictionary:
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
-	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
+	var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
 	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state, true)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
@@ -15334,6 +15334,7 @@ func _refresh_rest_pass_discs() -> void:
 # atk-09: the forecast the panel shows for the hovered destination or the card
 # preview (the red set's own preview source), if it is ready. Never computes it;
 # when it arrives later (_cache_pass_preview) the red set refreshes once.
+# atk-11: the hovered discs follow the same forecast.
 func _hover_red_forecast() -> Dictionary:
 	var hovering_move: bool = _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile)
 	if _animation_lock or not (hovering_move or (_selected_card_index >= 0 and not _preview_combat_state.is_empty())):
@@ -15345,8 +15346,10 @@ func _hover_red_forecast() -> Dictionary:
 	return summary
 
 func _note_hover_red_forecast(key: String, summary: Dictionary) -> void:
-	if _hover_red_forecast_ready or _hover_red_refresh_queued or key != _hover_red_forecast_key or key.is_empty(): return
-	if not preload("res://scripts/pass_forecast_red_tiles.gd").changes(summary): return
+	if _hover_red_forecast_ready or _hover_red_refresh_queued or key != _hover_red_forecast_key or key.is_empty() or board_view == null: return
+	# atk-11: refresh only when the hovered red tiles or discs would change.
+	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
+	if not Discs.stale((board_view.get("presentation") as Dictionary).get("threats_at_rest", {}), Discs.record(summary, _combat_preview_revision), _combat_preview_revision): return
 	_hover_red_refresh_queued = true
 	call_deferred("_refresh_hover_red_tiles")
 
@@ -15462,6 +15465,8 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
 	# atk-09: later activations' struck tiles and foes that die first, for the red tiles.
 	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").summary_fields(phase_result))
+	# atk-11: rule beats and surfaces laid under the hero that strike the hero's own tile.
+	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").hero_fields(_combat_engine, source_state, phase_result))
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array, disclosed_actors: Dictionary = {}) -> Dictionary:
@@ -19475,7 +19480,7 @@ func _schedule_pass_preview_cache_warm(include_playable_analytics: bool = false)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return
-	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
+	var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
 	_pass_preview_warm_generation += 1
 	var generation: int = _pass_preview_warm_generation
 	_pass_preview_warm_active = true
@@ -24657,6 +24662,9 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	if not room_pressure_animated:
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
+		# atk-12: a beat after the hero's turn (a room's Frostbite) can hit the hero too.
+		if _hitch_trace_enabled: _hitch_continuation = null
+		await preload("res://scripts/hero_loss_playback.gd").present(self, _combat_state.duplicate(false), scheduled_state)
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
 	_combat_pacing.present_initial_order(_combat_state, scheduled_state)
@@ -24838,7 +24846,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 	# Capped summon telemetry must not create a caption, cue or animation beat.
 	steps = MaquetteAction.presentation_steps(animated_state, steps)
 	var presentation_steps: Array = steps.filter(func(step: Dictionary) -> bool: return not bool(step.get("analytics_only", false)))
-	for step_var: Variant in preload("res://scripts/enemy_mechanics/lob_view.gd").caption_steps(_intent_callouts.decorate_steps(_combat_engine, animated_state, presentation_steps)):
+	var playback_steps: Array = preload("res://scripts/enemy_mechanics/lob_view.gd").caption_steps(_intent_callouts.decorate_steps(_combat_engine, animated_state, presentation_steps))
+	var turn_completion: Variant = null if resolved_state.is_empty() else preload("res://scripts/hero_loss_playback.gd").completion_step(playback_steps)
+	for step_var: Variant in playback_steps:
 		var step: Dictionary = (step_var as Dictionary).duplicate(false)
 		_hero_facing.enemy_step = step
 		# Resolve before pacing stores the turn caption. Cutout adapters and
@@ -24852,6 +24862,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			if not step.has("intent_id"): step["intent_id"] = dragon_actor.get("intent",{}).get("id","")
 		if str(step.get("kind", "")) == "commit":
 			continue
+		if turn_completion != null and is_same(step_var, turn_completion):
+			await preload("res://scripts/hero_loss_playback.gd").present(self, animated_state, resolved_state)
 		if step.has("trace_state_after") and str(step.get("kind", "")) != "intent_refresh":
 			_apply_animation_step(animated_state, step)
 			if str(step.get("kind", "")) == "trace_state":
@@ -25201,6 +25213,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
 		await _combat_pacing.after_step(step)
 	_hero_facing.enemy_step = {}
+	# A beat that ends the fight leaves no intent refresh or reschedule after it.
+	if turn_completion == null and not resolved_state.is_empty() and _combat_engine.combat_outcome(resolved_state) != "":
+		await preload("res://scripts/hero_loss_playback.gd").present(self, animated_state, resolved_state)
 	await _burst_playback.finish_resolved_slice(self, animated_state, resolved_state)
 
 func _tharokh_action_direction(effect: Dictionary, actor: Dictionary) -> Vector2i:

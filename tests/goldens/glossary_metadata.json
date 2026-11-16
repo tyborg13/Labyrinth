@@ -58,6 +58,14 @@
       "name": "Gust"
     },
     {
+      "id": "splits",
+      "name": "Splits",
+      "icon": "splits",
+      "aliases": [
+        "split"
+      ]
+    },
+    {
       "aliases": [],
       "icon": "burrow",
       "id": "burrow",

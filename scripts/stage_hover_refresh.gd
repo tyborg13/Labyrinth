@@ -29,10 +29,14 @@ func rest_badges(host: Node, preview: Dictionary, focus: String, committed_overr
 			focus, known_source), index, true, true)
 	# atk-03: at rest, the discs follow the PASS forecast once it is ready.
 	# atk-09: so do the red tiles; a hovered destination or card preview uses its own forecast.
+	# atk-11: and so do that preview's discs, once its forecast is ready.
+	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
 	var at_rest: bool = committed_override == null and is_same(preview, host._combat_state)
-	var result: Dictionary = preload("res://scripts/pass_forecast_discs.gd").apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest, focus)
+	var result: Dictionary = Discs.apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest, focus)
 	if at_rest or committed_override != null: return result
-	return preload("res://scripts/pass_forecast_red_tiles.gd").adjust_from_summary(result, host._hover_red_forecast(), focus)
+	var hovered: Dictionary = host._hover_red_forecast()
+	if hovered.is_empty(): return result
+	return Discs.apply(result, Discs.record(hovered, host._combat_preview_revision), host._combat_preview_revision, true, focus)
 
 func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	var inputs: Array = _compass_inputs(state, visible_ids)
@@ -89,7 +93,7 @@ func prepare_forecast(host: Node, state: Dictionary, generation: int) -> void:
 		host._committed_hand_query_forecast = {"summary": {}}
 		return
 	var started: int = Time.get_ticks_usec() if host._runtime_performance_instrumentation_enabled else 0
-	var scheduled: Dictionary = host._combat_engine.finish_player_activation(state)
+	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(host._combat_engine, state)
 	var cursor: Dictionary = host._combat_engine.begin_revealed_enemy_actions_preview(scheduled, true)
 	host._record_runtime_performance_phase("committed_forecast_prepare", started)
 	while not bool(cursor.get("complete", false)):

@@ -17,14 +17,14 @@ class GlossaryRichLabel extends RichTextLabel:
 		return load("res://scripts/inline_icon_text.gd").glossary_panel(for_text)
 
 # Use the combat panel factory and glossary entry copy for inline hit targets.
-static func glossary_panel(for_text: String) -> Control:
+static func glossary_panel(for_text: String, source: Dictionary = {}) -> Control:
 	for term: Dictionary in Glossary.all_entries():
 		var id: String = str(term["id"])
 		if ActionIcons.tooltip(id) != for_text: continue
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[ActionIcons.token_for(id)]])
 		if not entries.is_empty():
 			var entry: Dictionary = entries[0]
-			return load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]))
+			return load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), id, source)
 	return load("res://scripts/ui_tooltip_panel.gd").make_text(for_text)
 
 static func _tokens(markup: String) -> Array[RegExMatch]:

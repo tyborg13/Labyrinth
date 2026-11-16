@@ -2441,6 +2441,9 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool = false) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
+	if losses_only:
+		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT
+		next_state[receipt] = bool(state.get(receipt, false))
 	_record_runtime_performance_phase("enemy_preview_initial_duplicate", performance_total_started)
 	var initially_visible_enemy_ids: Dictionary = {}
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0

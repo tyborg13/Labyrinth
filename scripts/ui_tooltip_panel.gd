@@ -3,6 +3,8 @@ class_name UiTooltipPanel
 
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const LoopRegistry = preload("res://scripts/tooltip_loop_registry.gd")
+const LoopView = preload("res://scripts/tooltip_loop_view.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 
 const TITLE_COLOR: Color = Color("fff0d1")
@@ -38,13 +40,27 @@ static func make_lines(title: String, body_lines: PackedStringArray, panel_width
 static func make_icon_lines(
 	icon_texture: Texture2D,
 	title: String,
-	body_lines: PackedStringArray
+	body_lines: PackedStringArray,
+	term: String = "",
+	source: Dictionary = {}
 ) -> PanelContainer:
 	var panel: PanelContainer = _make_panel(ICON_TOOLTIP_WIDTH, 12.0)
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 10)
-	panel.add_child(row)
+	var loop: Dictionary = LoopRegistry.find(term, source)
+	if not loop.is_empty() and FileAccess.file_exists(str(loop["asset_path"])):
+		var column := VBoxContainer.new()
+		column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		column.add_theme_constant_override("separation", 10)
+		panel.add_child(column)
+		var window := LoopView.new()
+		window.asset_path = str(loop["asset_path"])
+		window.set_meta("tooltip_loop_id", loop["id"])
+		column.add_child(window)
+		column.add_child(row)
+	else:
+		panel.add_child(row)
 
 	var icon := TextureRect.new()
 	icon.name = "TooltipIcon"

@@ -770,6 +770,7 @@ var _tooltip_regions: Array[Dictionary]
 var _tile_tooltip_regions: Dictionary = {}
 var _tile_tooltip_cache := BoardTileTooltipCache.new()
 var _tile_tooltip_refresh_pending: bool = false
+var _tooltip_loop_source: Dictionary = {}
 var _tooltips_enabled: bool = true
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
@@ -2995,10 +2996,12 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	if _battlefield_rest_presentation.is_empty() or rest != _battlefield_rest_inputs:
 		_battlefield_rest_inputs = rest.duplicate(true)
 		_battlefield_rest_presentation = rest.duplicate(true)
-		var threats: Array = (_battlefield_rest_presentation.get("threats", []) as Array).filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != BattlefieldRuleView.THREAT_KEY)
+		# atk-11: keep the forecast's own red for the hero's tile (pass_forecast_red_tiles.gd).
+		var threats: Array = (_battlefield_rest_presentation.get("threats", []) as Array).filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != BattlefieldRuleView.THREAT_KEY or bool(threat.get("later", false)))
 		threats.append_array(_battlefield_rule_threat["threats"])
 		_battlefield_rest_presentation["threats"] = threats
-		_battlefield_rest_presentation["hero_tile"] = _battlefield_rule_threat["hero_tile"]
+		# atk-11: a hovered destination or card preview keeps its own hero tile (its pulse).
+		_battlefield_rest_presentation["hero_tile"] = rest.get("hero_tile", _battlefield_rule_threat["hero_tile"])
 	var result: Dictionary = original.duplicate(false)
 	result["threats_at_rest"] = _battlefield_rest_presentation.duplicate(true)
 	return result
@@ -4857,6 +4860,9 @@ func tile_tooltip_detail(text: String) -> Dictionary:
 	return {"text": BoardTileTooltip.plain_text(entries), "loot_key": loot_key}
 
 func _make_custom_tooltip(for_text: String) -> Object:
+	var loops = preload("res://scripts/tooltip_loop_context.gd")
+	var loop_panel: Control = loops.panel_for_text(for_text, loops.board_source(self, for_text))
+	if loop_panel != null: return loop_panel
 	if for_text.begins_with(BoardTileTooltip.PREFIX):
 		return BoardTileTooltip.make_stack(BoardTileTooltip.decode(for_text), Callable(self, "_make_custom_tooltip"))
 	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
@@ -5125,6 +5131,7 @@ func _draw_slice_intent_halo(badge: Dictionary) -> void:
 	draw_texture(halo["texture"], (badge["center"] as Vector2) + (halo["offset"] as Vector2), Color(UiPaletteTokens.DANGER, IntentBadges.halo_alpha(seconds, bool(presentation.get("reduced_motion", false))) * float(badge.get("alpha", 1.0))))
 
 func _draw_slice_intent_chip(badge: Dictionary) -> void:
+	_tooltip_loop_source = preload("res://scripts/tooltip_loop_context.gd").actor_source(self, str(badge.get("key", "")))
 	# Skip only the halo; keep its danger ring colour in the original renderer.
 	if bool(badge.get("contextual", false)):
 		IntentBadges.draw_contextual_chip(self, badge, _hud_triangles)
@@ -5132,6 +5139,8 @@ func _draw_slice_intent_chip(badge: Dictionary) -> void:
 		var tab: Control = get_node_or_null(NodePath("IntentTab_" + str(badge["key"])))
 		if tab != null: tab.hide()
 		LayerSlices.draw_intent_chip(self, badge, _hud_triangles)
+	preload("res://scripts/tooltip_loop_context.gd").register_badge(self, badge, _tooltip_loop_source)
+	_tooltip_loop_source = {}
 
 func _draw_slice_callouts() -> void:
 	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
@@ -10578,6 +10587,7 @@ func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 	var line_rects: Array = layout.get("line_rects", []) as Array
 	if line_rects.is_empty():
 		return
+	_tooltip_loop_source = layout.get("loop_source", {})
 	var rows: Array = layout.get("rows", [])
 	var intent_name: String = str(layout.get("intent_name", ""))
 	var border: Color = layout.get("border", Color("d8b96f"))
@@ -10603,6 +10613,7 @@ func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 			true
 		)
 		line_index += 1
+	_tooltip_loop_source = {}
 
 func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int, popup_width: float = INTENT_POPUP_WIDTH) -> Rect2:
 	if line_count <= 0:
@@ -10616,6 +10627,7 @@ func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line
 func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: Font) -> void:
 	if title.is_empty() or font == null:
 		return
+	preload("res://scripts/tooltip_loop_context.gd").register_title(self, rect, title, _tooltip_loop_source)
 	var display_font: Font = UiTypography.display_font()
 	if display_font == null:
 		display_font = font
@@ -10865,6 +10877,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	if crest.has_area(): occupied.append(crest)
 	return {
 		"health_rect": health_rect,
+		"loop_source": {"kind": "enemy", "id": str(unit.get("type", ""))},
 		"intent_rect": intent_rect,
 		"line_rects": contour.get("line_rects", []),
 		"rows": rows,
@@ -11447,7 +11460,8 @@ func _register_tooltip(rect: Rect2, tooltip: String) -> void:
 		return
 	_tooltip_regions.append({
 		"rect": rect,
-		"tooltip": tooltip
+		"tooltip": tooltip,
+		"loop_source": _tooltip_loop_source.duplicate()
 	})
 
 func _token_value_color(token: Dictionary, default_color: Color) -> Color:
@@ -17932,6 +17946,7 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 			token["burst_rules"] = true
 			result.append([token])
 	result.append_array(_move_rows_for_unit(unit, intent))
+	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_rows(result, unit, INTENT_POPUP_ROW_FONT_SIZE)
 	return result
 
 func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
@@ -18140,6 +18155,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	badges.append_array(CapacitorView.badges(unit, combat_state))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))
+	badges.append_array(preload("res://scripts/enemy_mechanics/split_trait_text.gd").badges(unit))
 	for mechanic_badge: Dictionary in badges: mechanic_badge["status_class"] = "trait"
 	badges.append_array(RetaliateRules.enemy_badges(unit))
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))

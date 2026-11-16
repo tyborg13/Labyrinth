@@ -1,0 +1,36 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 3,
+  "required_images": [
+    {
+      "pattern": "pre_battle_splits_hover.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "board_status_plate.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "splits_keyword_tooltip.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "semantic_assertions": {
+    "enforced_by": "tools/spl01/capture.gd",
+    "headless": [
+      "Exact Splits 2 token and contextual tooltip",
+      "Move tags and rows preserved",
+      "Living status badge uses approved splits icon",
+      "All known moves retained in inspection"
+    ],
+    "windowed": [
+      "Actual pointer hover on Splits tag opens production inspection popup",
+      "Cel look all; UI scale 100%"
+    ]
+  }
+}

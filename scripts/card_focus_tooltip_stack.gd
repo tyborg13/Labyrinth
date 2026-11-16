@@ -159,7 +159,9 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false) -> vo
 		var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
 			icon_texture,
 			str(entry.get("title", "")),
-			body_lines
+			body_lines,
+			str(entry.get("glossary_key", "")),
+			{} if relic_layout else {"kind": "hero_card"}
 		) if icon_texture != null else UiTooltipPanel.make_lines(str(entry.get("title", "")), body_lines)
 		if _relic_layout and description.contains("["):
 			_apply_definition_bbcode(panel, description, icon_texture != null)

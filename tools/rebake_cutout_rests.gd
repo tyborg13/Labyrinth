@@ -31,6 +31,11 @@ func _run() -> void:
 		if entry["kind"] != "rig" or (not only.is_empty() and entry["id"] != only):
 			continue
 		matched = true
+		# rr-51 preserves retired paint under an explicit registry override.
+		# Missing scripts without that override must still fail in _stage_rest.
+		if not str(entry.get("override", "")).is_empty() and not FileAccess.file_exists("res://" + str(entry["rig_script"])):
+			print(str(entry["id"]) + ": skipped (retired, override)")
+			continue
 		for facing_var: Variant in entry["rest_paths"]:
 			var facing: String = str(facing_var)
 			if not _parts_changed(entry, facing):

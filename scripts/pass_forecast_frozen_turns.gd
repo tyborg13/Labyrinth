@@ -29,7 +29,7 @@ static func continue_span(engine: RefCounted, cursor: Dictionary) -> void:
 		return
 	# Live play: PASS on the frozen turn (RunScene._resolve_enemy_round through
 	# CommittedBattlefieldRules.finish_player_activation).
-	var scheduled: Dictionary = engine.finish_player_activation(state, Committed.callback(engine))
+	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(engine, state, Committed.callback(engine))
 	# The skipped turn's own activation end keeps a receipt, like the first one.
 	(cursor["steps"] as Array).append({"kind": "pass_skipped_turn_end", "target_losses": TurnStart.player_losses(engine, state, scheduled)})
 	Unseen.note(cursor, state, scheduled, [])

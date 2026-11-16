@@ -124,7 +124,10 @@ func _test_live_stage() -> void:
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
 	var expected: Dictionary = Badges.build(combat, state, preview, "", scene.call("_surface_preview_information_state", preview))
 	# atk-09: the hovered card preview's own PASS forecast adds its later activations' tiles.
-	expected = preload("res://scripts/pass_forecast_red_tiles.gd").adjust_from_summary(expected, scene.call("_hover_red_forecast"))
+	# atk-11: its discs follow that forecast too (pass_forecast_discs.gd), as at rest.
+	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
+	var revision: int = int(scene.get("_combat_preview_revision"))
+	expected = Discs.apply(expected, Discs.record(scene.call("_hover_red_forecast"), revision), revision, true)
 	_expect(rest == expected, "Live push chips/tags/tiles match the same preview source as full plans and Pass")
 	var before_plan: Dictionary = combat.enemy_threat_tiles(state, 3)
 	var after_plan: Dictionary = combat.enemy_threat_tiles(preview, 3)
@@ -216,7 +219,10 @@ func _test_live_stage() -> void:
 	scene.call("_on_board_tile_hovered", move_target)
 	await _settle()
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
-	_expect(rest["hero_tile"] == move_target and not bool(Suite._badge(rest, "enemy_1")["danger"]), "Live card-move preview removes adjacent melee danger")
+	# atk-11: the hovered disc follows the card's own forecast. Guarded Step's Time lets
+	# this foe act twice and follow the hero, so it is red exactly when that forecast says so.
+	var card_hits: Dictionary = (scene.call("_hover_red_forecast") as Dictionary).get("enemy_hits", {})
+	_expect(rest["hero_tile"] == move_target and bool(Suite._badge(rest, "enemy_1")["danger"]) == card_hits.has("enemy_1"), "Live card-move preview disc follows that card's forecast")
 	await _capture("12_card_removes_danger_1920x1080")
 	scene.call("_cancel_card_selection")
 	await _test_wave_e2_stage(scene, combat)

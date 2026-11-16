@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "loops": [
+    {
+      "id": "burst_ember_tick",
+      "term": "burst",
+      "source_match": {
+        "kind": "enemy",
+        "id": "ember_tick"
+      },
+      "asset_path": "res://assets/tooltip_loops/burst_ember_tick.tlw",
+      "intent_titles": "*",
+      "speed": "normal"
+    },
+    {
+      "id": "marked_burrow_grub",
+      "term": "marked",
+      "aliases": [
+        "burrow",
+        "erupt"
+      ],
+      "source_match": {
+        "kind": "enemy",
+        "id": "burrow_grub"
+      },
+      "asset_path": "res://assets/tooltip_loops/marked_burrow_grub.tlw",
+      "intent_titles": [
+        "Burrow",
+        "Erupt"
+      ],
+      "speed": "fast"
+    },
+    {
+      "id": "chain_card",
+      "term": "chain",
+      "source_match": {
+        "kind": "hero_card"
+      },
+      "asset_path": "res://assets/tooltip_loops/chain_card.tlw",
+      "speed": "normal"
+    }
+  ]
+}

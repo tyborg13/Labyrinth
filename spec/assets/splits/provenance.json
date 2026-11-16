@@ -1,0 +1,13 @@
+{
+  "source": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/icon-splits-1/splits.png",
+  "source_sha256": "a8c1e7d06a9aba17d1055ace3967dd949d7851ea4f61c0decd05911b026d4603",
+  "prompt": "prompt.txt",
+  "references": {
+    "ref_01_burst.png": "eb7d2b120939a7dfaf3e584a2c976816f1a15a07ce83c0ddca7087cfc334db7c",
+    "ref_02_burrow.png": "f04c2f6f3f1cd8fa0c9d910b43be09924d945f9de31ff6d8dd6050741ea7a965",
+    "ref_03_summon.png": "7d288839bd63f80fba2c481d4aa42db1f4242a665d81c9b03fd1451994fd7f13",
+    "ref_04_cinder_ooze.png": "2e2cc6c847896abcba12a5b356d61748ee8a3c3f8d84900b373b8748b2d41758"
+  },
+  "processing": "key_green; alpha trim; BOX longest side 56; centre on transparent 64x64; pixel_density.consolidate (24 colours, 3x3 mode, orphan cleanup)",
+  "output_sha256": "e3c9ad966b357e32851eb9e8e91ac9ab6f16fe08c9b8c1e464c640ba5e141069"
+}

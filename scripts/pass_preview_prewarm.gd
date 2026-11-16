@@ -195,7 +195,7 @@ func _run_step(scene: Node) -> void:
 				_remembered = true
 			_phase = "summary" if _remembered else "schedule"
 		"schedule":
-			_cursor = scene._combat_engine.begin_revealed_enemy_actions_preview(scene._combat_engine.finish_player_activation(_source), true)
+			_cursor = scene._combat_engine.begin_revealed_enemy_actions_preview(preload("res://scripts/pass_forecast_red_tiles.gd").schedule(scene._combat_engine, _source), true)
 			_phase = "summary" if bool(_cursor.get("complete", false)) else "enemy"
 		"enemy":
 			scene._combat_engine.advance_revealed_enemy_actions_preview(_cursor)

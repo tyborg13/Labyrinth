@@ -123,6 +123,7 @@ var in_round: bool = false
 var round_index: int = 0
 var round_t0: int = 0
 var round_counts: Dictionary = {}
+var round_frame0: int = 0
 var round_begin_state: Dictionary = {}
 var round_begin_enemy_ids: Dictionary = {}
 var slice_prev: Dictionary = {}
@@ -586,6 +587,7 @@ func on_round_begin(_scene: Node) -> void:
 	in_round = true
 	round_index += 1
 	round_t0 = now
+	round_frame0 = frame_index
 	round_counts = {}
 	round_begin_state = state.duplicate(true)
 	round_begin_enemy_ids = {}
@@ -600,7 +602,7 @@ func on_slice_begin(_scene: Node, animated_state: Dictionary, steps: Array, _res
 	var engine: RefCounted = scene.get("_combat_engine")
 	var before: Dictionary = slice_prev if not slice_prev.is_empty() else animated_state.duplicate(true)
 	if slice_prev.is_empty() and _hero_lost(_hero_summary(round_begin_state), _hero_summary(before)):
-		_emit_losses(round_begin_state, before, {"t0": round_t0, "t1": now, "frame0": frame_index, "frame1": frame_index}, {"category": "turn_end", "path": "finish_player_activation", "actor": "player"})
+		_emit_losses(round_begin_state, before, {"t0": round_t0, "t1": now, "frame0": round_frame0, "frame1": frame_index}, {"category": "turn_end", "path": "finish_player_activation", "actor": "player"})
 	var actor: Dictionary = _peek_actor(engine, before)
 	var key: String = str(actor["key"])
 	round_counts[key] = int(round_counts.get(key, 0)) + 1

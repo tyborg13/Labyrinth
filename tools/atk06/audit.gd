@@ -18,9 +18,12 @@ const RedTiles = preload("res://scripts/pass_forecast_red_tiles.gd")
 var plan_engine: RefCounted = EngineScript.new()
 var timing_engine: RefCounted = EngineScript.new()
 var point_rest: Dictionary = {}
-# atk-09: the red set the pre-atk-09 rule draws on the same state (no later
-# activations' tiles; foes that die first keep their red), for paired before/after.
+# atk-09: the red set the previous rule draws on the same state, for paired
+# before/after. atk-11: by default the atk-09 rule (no forecast red on the hero's
+# own tile, discs on hover from the plan); ATK06_INRUN_BASE=atk-06 rebuilds the
+# pre-atk-09 rule instead (no later activations' tiles; foes that die first keep red).
 var point_rest_old: Dictionary = {}
+var inrun_base: String = OS.get_environment("ATK06_INRUN_BASE")
 var point_hero: Vector2i = Vector2i(-1, -1)
 var point_reach: Dictionary = {}
 var hover_previews: Array[Dictionary]
@@ -52,7 +55,7 @@ func _audit_decision_point() -> void:
 	super._audit_decision_point()
 	# Cost of building the red set from cold per-engine caches: at rest, and for every destination.
 	var build_usec: int = _timed_build(committed, committed)
-	var red_extra_usec: int = _timed_red_extra(board)
+	var red_extra: Array = _timed_red_extra(board)
 	var hover_usec: Array[int]
 	for preview: Dictionary in hover_previews: hover_usec.append(_timed_build(committed, preview))
 	hover_previews.clear()
@@ -65,12 +68,23 @@ func _audit_decision_point() -> void:
 	samples.store_line(JSON.stringify({"kind": "red_point", "point": point_id, "hero": str(point_hero),
 		"rest": _out(point_rest), "held_matches": _keys(held) == _keys(point_rest), "held": _out(held) if _keys(held) != _keys(point_rest) else {},
 		"reach": point_reach.keys().map(func(tile: Vector2i) -> String: return str(tile)),
-		"badges": badges, "build_usec": build_usec, "red_extra_usec": red_extra_usec, "hover_build_usec": hover_usec, "refresh_usec": refresh_usec, "hero_status": status,
+		"badges": badges, "build_usec": build_usec, "red_extra_usec": red_extra[0], "red_hits_usec": red_extra[1], "hover_build_usec": hover_usec, "refresh_usec": refresh_usec, "hero_status": status,
 		"rule": str((committed.get("battlefield_rule", {}) as Dictionary).get("rule", "")), "rule_due": BattlefieldRuleView.beat_before_next_player_turn(committed) if not BattlefieldRuleView.BattlefieldRules.active(committed).is_empty() else false}))
 
 func _check(engine: RefCounted, committed: Dictionary, mode: String, tile: Vector2i, point_id: String) -> Dictionary:
 	trace_usec.clear()
 	var result: Dictionary = super._check(engine, committed, mode, tile, point_id)
+	# Time a complete uncached destination forecast; a warmed panel-cache lookup
+	# is not the forecast cost. The same production engine class handles starts.
+	if mode == "move":
+		var source: Dictionary = scene.call("_pass_preview_source_state_for_tile", tile)
+		var measured: RefCounted = engine.get_script().new()
+		measured.set_runtime_performance_instrumentation_enabled(true)
+		var started: int = Time.get_ticks_usec()
+		var phase: Dictionary = measured.preview_revealed_enemy_actions_before_player_turn_with_steps(RedTiles.schedule(measured, source), true)
+		RedTiles.hero_fields(measured, source, phase)
+		result["forecast_usec"] = Time.get_ticks_usec() - started
+		result["forecast_added_usec"] = int(measured.runtime_performance_instrumentation_snapshot().get(RedTiles.HIT_PHASE, {}).get("total_usec", 0))
 	if not trace_usec.is_empty():
 		result["plan_usec"] = trace_usec[0][0]
 		result["trace_usec"] = trace_usec[0][1]
@@ -90,6 +104,16 @@ func _check(engine: RefCounted, committed: Dictionary, mode: String, tile: Vecto
 		var hover_died: Dictionary = (scene.call("_hover_red_forecast") as Dictionary).get("died_first_keys", {})
 		result["red_hover_old"] = _old_red(board, hovered, hover_died, committed, hover_preview).has(at)
 		result["hover_forecast_ready"] = bool(scene.get("_hover_red_forecast_ready"))
+		# atk-11: each visible foe's disc with this tile hovered, now and from its plan
+		# (the atk-09 hover rule): [danger now, danger before, ×N now, ×N before].
+		var plan_badges: Dictionary = {}
+		var planned: Dictionary = (scene.get("_intent_badges") as RefCounted).presentation_for_state(engine, scene.get("_combat_state"), hover_preview, "", Callable(scene, "_surface_preview_information_state").bind(hover_preview))
+		for badge: Dictionary in planned.get("badges", []): plan_badges[str(badge["key"])] = badge
+		var discs: Dictionary = {}
+		for badge: Dictionary in (board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("badges", []):
+			var before: Dictionary = plan_badges.get(str(badge["key"]), badge)
+			discs[str(badge["key"])] = [bool(badge.get("danger", false)), bool(before.get("danger", false)), int(badge.get("repeats", 0)), int(before.get("repeats", 0))]
+		result["hover_discs"] = discs
 		# Red is only painted on tiles the player can see now.
 		result["tile_seen"] = bool(board.call("_board_tile_is_visible_to_player", at))
 		if mode == "move": hover_previews.append(scene.call("_enemy_intent_preview_state", scene.call("_board_display_state")))
@@ -104,6 +128,14 @@ var evidence_counts: Dictionary = {}
 var evidence_saved: int = 0
 
 func _keep_evidence(result: Dictionary, committed: Dictionary, point_id: String) -> void:
+	# atk-11: red the hero's own tile gains from the forecast, and hovered discs that change.
+	if bool(result.get("red", false)) and not bool(result.get("red_old", true)):
+		_evidence("%s:hit_red:%s" % [result["mode"], ",".join(result["red_owners"])], result, committed, point_id)
+	if bool(result.get("red_hover", false)) and not bool(result.get("red_hover_old", true)):
+		_evidence("hover:hit_red:%s" % ",".join(result["hover_owners"]), result, committed, point_id)
+	for key: String in result.get("hover_discs", {}):
+		var disc: Array = result["hover_discs"][key]
+		if bool(disc[0]) != bool(disc[1]): _evidence("hover:disc:%s" % ("red" if bool(disc[0]) else "grey"), result, committed, point_id)
 	var shown: Dictionary = result["shown"]
 	var slices: Array = result["forecast_sim"]["slices"]
 	var hit: bool = bool(shown["defeat"])
@@ -151,10 +183,11 @@ func _evidence(key: String, result: Dictionary, committed: Dictionary, point_id:
 # own, and give back the first-activation tiles of foes the forecast has die first.
 func _old_red(board: Control, red: Dictionary, died_first: Dictionary, committed: Dictionary, preview: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
+	var drop_later: bool = inrun_base == "atk-06"
 	for tile: Vector2i in red:
-		var owners: Array = (red[tile] as Array).filter(func(owner: String) -> bool: return not owner.begins_with("later:"))
+		var owners: Array = (red[tile] as Array).filter(func(owner: String) -> bool: return not owner.begins_with("hit:") and not (drop_later and owner.begins_with("later:")))
 		if not owners.is_empty(): result[tile] = owners
-	if died_first.is_empty(): return result
+	if not drop_later or died_first.is_empty(): return result
 	var built: Dictionary = IntentBadges.build(plan_engine, committed, preview, "", scene.call("_surface_preview_information_state", preview))
 	for threat: Dictionary in built.get("threats", []):
 		if not died_first.has(str(threat.get("key", ""))): continue
@@ -179,8 +212,9 @@ static func board_red(board: Control) -> Dictionary:
 		if not bool(board.call("_board_tile_is_visible_to_player", tile)): continue
 		var owners: Array = []
 		for threat: Dictionary in rest.get("threats", []):
-			# atk-09: a later activation's tiles are owned by "later:<foe>".
-			if (threat.get("tiles", []) as Array).has(tile): owners.append(("later:" if bool(threat.get("later", false)) else "") + str(threat.get("key", "")))
+			# atk-09: a later activation's tiles are owned by "later:<foe>"; atk-11: what the
+			# forecast has strike the hero's own tile by "hit:<owner>".
+			if (threat.get("tiles", []) as Array).has(tile): owners.append(("hit:" if bool(threat.get("hero_hit", false)) else "later:" if bool(threat.get("later", false)) else "") + str(threat.get("key", "")))
 		result[tile] = owners
 	for tile: Vector2i in lob:
 		if not bool(board.call("_board_tile_is_visible_to_player", tile)): continue
@@ -213,18 +247,26 @@ func _timed_build(committed: Dictionary, preview: Dictionary) -> int:
 # atk-09: the work the red set adds per decision point: its plans inside the
 # at-rest PASS forecast (a simulation the discs already run), measured by that
 # code's own phase on a cold engine, plus applying the record to the rest set.
-func _timed_red_extra(board: Control) -> int:
+# atk-11: [the atk-09 work, the atk-11 receipt work], both measured inside
+# the same simulation. No additional activation-end replay.
+func _timed_red_extra(board: Control) -> Array:
 	var source: Dictionary = scene.call("_pass_preview_source_state_for_tile", INVALID)
-	if source.is_empty() or not timing_engine.is_player_turn(source): return 0
+	if source.is_empty() or not timing_engine.is_player_turn(source): return [0, 0]
 	timing_engine.set_runtime_performance_instrumentation_enabled(true)
-	var phase: Dictionary = timing_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(timing_engine.finish_player_activation(source), true)
-	var planned: int = int(timing_engine.runtime_performance_instrumentation_snapshot().get("pass_forecast_red_tiles", {}).get("total_usec", 0))
+	var phase: Dictionary = timing_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(RedTiles.schedule(timing_engine, source), true)
+	var hero: Dictionary = RedTiles.hero_fields(timing_engine, source, phase)
+	var snapshot: Dictionary = timing_engine.runtime_performance_instrumentation_snapshot()
+	var planned: int = int(snapshot.get("pass_forecast_red_tiles", {}).get("total_usec", 0))
+	var hits: int = int(snapshot.get(RedTiles.HIT_PHASE, {}).get("total_usec", 0))
 	timing_engine.set_runtime_performance_instrumentation_enabled(false)
 	var fields: Dictionary = RedTiles.summary_fields(phase)
 	var rest: Dictionary = (board.get("presentation") as Dictionary).get("threats_at_rest", {})
 	var started: int = Time.get_ticks_usec()
 	RedTiles.adjust(rest, fields["later_red_tiles"], fields["died_first_keys"])
-	return planned + Time.get_ticks_usec() - started
+	var adjust_usec: int = Time.get_ticks_usec() - started
+	started = Time.get_ticks_usec()
+	RedTiles.adjust(rest, fields["later_red_tiles"], fields["died_first_keys"], "", hero["hero_red_owners"])
+	return [planned + adjust_usec, hits + maxi(0, Time.get_ticks_usec() - started - adjust_usec)]
 
 # --- the atk-01 forecast replica, with each activation's own plan ---------------------
 
@@ -289,9 +331,13 @@ func _forecast_trace(engine: RefCounted, committed: Dictionary, source: Dictiona
 	return trace
 
 # Which battlefield beat has fired (the dispatcher counts each one).
+# atk-11: the latest beat the rule actually fired (its surface event), not the
+# instance's counter, which preparation can reset or replace without a beat.
 func _beat_mark(state: Dictionary) -> String:
-	var rule: Dictionary = state.get("battlefield_rule", {})
-	return "" if rule.is_empty() else "%s:%d" % [rule.get("rule", ""), int(rule.get("beats_fired", 0))]
+	var events: Array = state.get("surface_events", [])
+	for index: int in range(events.size() - 1, -1, -1):
+		if str((events[index] as Dictionary).get("kind", "")) == "battlefield_rule_fired": return str(int(events[index].get("sequence", 0)))
+	return ""
 
 # Diagnostic only: the same activation on a copy with the battlefield rule removed.
 func _hurts_without_rule(engine: RefCounted, state: Dictionary, enemy_id: int) -> bool:
@@ -320,3 +366,33 @@ func _plan(state: Dictionary, actor: Array) -> Dictionary:
 	for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []): actions.append(str(action.get("type", "")))
 	return {"plan": "ok", "visible": plan_engine.is_enemy_visible_to_player(state, enemy), "covers": tiles.has(hero),
 		"plan_tiles": tiles.map(func(tile: Vector2i) -> String: return str(tile)), "acts": actions, "intent": str((enemy.get("intent", {}) as Dictionary).get("id", "")), "type": str(enemy.get("type", ""))}
+
+# atk-07 live-span pairing: the oracle resolves until the next playable turn.
+func _actual_trace(engine: RefCounted, committed: Dictionary, state: Dictionary) -> Dictionary:
+	var trace: Dictionary = _new_trace()
+	var phase: Dictionary = state
+	var frozen_turns: int = 0
+	if state != committed: _add_slice(trace, ["move", 0, false], _hero(committed), _hero(state))
+	var safety: int = 0
+	while engine.combat_outcome(phase).is_empty() and engine.is_player_turn(phase):
+		var scheduled: Dictionary = Committed.finish_player_activation(engine, phase)
+		_add_slice(trace, ["turn_end", 0, false], _hero(phase), _hero(scheduled))
+		phase = scheduled
+		var reached: bool = false
+		while engine.combat_outcome(phase).is_empty() and safety < 100:
+			safety += 1
+			var actor: Array = _peek_actor(engine, phase)
+			var before: Dictionary = _hero(phase)
+			var slice: Dictionary = Committed.advance_one_activation(engine, phase, false)
+			phase = slice.get("state", phase)
+			_add_slice(trace, actor, before, _hero(phase))
+			if bool(slice.get("complete", false)):
+				reached = true
+				break
+		if not reached or not engine.combat_outcome(phase).is_empty(): break
+		if not bool((phase.get("player_turn_restrictions", {}) as Dictionary).get("frozen", false)): break
+		frozen_turns += 1
+	trace["frozen_turns"] = frozen_turns
+	trace["tile"] = (phase.get("player", {}) as Dictionary).get("pos", INVALID)
+	trace["outcome"] = engine.combat_outcome(phase)
+	return trace

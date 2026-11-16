@@ -126,8 +126,10 @@ static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
 		expect.call(not Badges.details_discloses_compass({"threats_at_rest": rest}, "enemy_1"), "Lob has no compass at rest")
 		expect.call(state == original, "itb-03 Lob presentation preserves combat, marks and schedule")
 	var cache: Resource = load("res://assets/generated/unit_shadow_cache.res")
+	# These units draw from their cutout rig rests now; the static art is no longer a board texture (hyg-01, 2026-11-16).
+	var rests: Dictionary = {"briar_weaver": "res://assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png", "slag_mortar": "res://assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png", "storm_capacitor": "res://assets/units/storm_capacitor_cutout/front/rest.png", "hollow_mimic": "res://assets/units/hollow_mimic_cutout/front/rest.png"}
 	for type: String in ["briar_weaver", "slag_mortar", "storm_capacitor", "hollow_mimic"]:
-		var path: String = "res://assets/art/enemies/%s.png" % type
+		var path: String = str(rests[type])
 		expect.call(cache.entries.has(path) and cache.source_sha256.get(path, "") == FileAccess.get_sha256(path), "Both waves retain current shadow entries: %s" % type)
 
 static func _terrain_health_bars(engine: RefCounted, expect: Callable) -> void:

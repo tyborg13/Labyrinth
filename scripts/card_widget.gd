@@ -877,7 +877,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return UiTooltipPanel.make_lines("MODIFIERS", _modifier_tooltip_lines)
 	if for_text.strip_edges().is_empty():
 		return null
-	return InlineIconText.glossary_panel(for_text)
+	return InlineIconText.glossary_panel(for_text, {"kind": "hero_card"})
 
 func _tooltip_for_icon_at(global_point: Vector2) -> String:
 	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point)

@@ -46,7 +46,7 @@ def run(args: argparse.Namespace) -> None:
             print(f"skip {directory} (exists)")
             continue
         directory.mkdir(parents=True, exist_ok=True)
-        command = [sys.executable, str(project / "tools/godot_task_runner.py"), "--project", str(project), "--task-id", f"{os.environ.get('ATK06_TASK', 'atk-06')}-audit-{out.name}-{seed}", "--timeout", str(args.timeout), "--",
+        command = [sys.executable, str(project / "tools/godot_task_runner.py"), "--project", str(project), "--task-id", os.environ.get("ATK06_TASK", f"atk-06-audit-{out.name}-{seed}"), "--timeout", str(args.timeout), "--stream", "--",
                    "godot", "--headless", "--path", ".", "--script", args.script, "--",
                    "--seed", str(seed), "--output-dir", str(directory), "--no-embrace", "true", "--health", str(args.health)]
         if args.stop_after:
@@ -56,6 +56,8 @@ def run(args: argparse.Namespace) -> None:
         with open(directory / "godot.log", "w") as log:
             code = subprocess.call(command, cwd=project, stdout=log, stderr=subprocess.STDOUT, env=env)
         print(f"seed {seed} health {args.health}: exit {code} in {time.time() - started:.0f}s", flush=True)
+        if code:
+            raise SystemExit(code)
 
 
 def load(label: str) -> tuple[list[dict], dict, list[dict]]:
@@ -202,6 +204,10 @@ def alarm_cause(row: dict, hovered: bool = False) -> str:
             continue
         if owner == "died_first":
             reasons.append("owner_died_on_its_turn")
+            continue
+        if owner.startswith("hit:"):
+            # atk-11: the forecast had something strike the hero's tile; the audit's replica says not.
+            reasons.append("hit_forecast_differs")
             continue
         if owner.startswith("later:"):
             # atk-09: a later activation's tiles, from the forecast that left the hero unhurt.
@@ -514,19 +520,23 @@ def compare(args: argparse.Namespace) -> None:
 
 
 def inrun(args: argparse.Namespace) -> None:
-    """atk-09: before/after on the same states of one run. "Before" is the pre-atk-09
-    red rule the audit rebuilt at each check (red_old, red_hover_old)."""
+    """Before/after on identical states: atk-09 by default, or the pre-atk-09
+    rule with ATK06_INRUN_BASE=atk-06 (red_old, red_hover_old)."""
     checks, points, totals = load(args.label)
     stay = [r for r in checks if r["mode"] == "pass"]
     dests = [r for r in checks if r["mode"] == "move" and r.get("resolved", True)]
     hovered = [r for r in dests if "red_hover" in r]
     print(f"label {args.label}: {len(totals)} runs, {len({r['context']['fight'] for r in checks})} fights, {len(points)} points, stay {len(stay)}, destinations {len(dests)}")
 
+    # atk-11: the default before is the atk-09 rule (no "hit:" red on the hero's
+    # tile); ATK06_INRUN_BASE=atk-06 runs compare the pre-atk-09 rule.
+    atk06_base = os.environ.get("ATK06_INRUN_BASE", "") == "atk-06"
+
     def as_old(r: dict, hover: bool) -> dict:
         o = dict(r)
         field, owners = ("red_hover", "hover_owners") if hover else ("red", "red_owners")
         o[field] = r.get(field + "_old", r.get(field))
-        o[owners] = [w for w in r.get(owners, []) if not w.startswith("later:")]
+        o[owners] = [w for w in r.get(owners, []) if not w.startswith("hit:") and not (atk06_base and w.startswith("later:"))]
         if o[field] and not o[owners]:
             # Red before only through a foe the forecast now has die first.
             o[owners] = ["died_first"]
@@ -574,6 +584,43 @@ def inrun(args: argparse.Namespace) -> None:
             print(f"   NEW misses (red before, clear now, hit) {len(newly_missed)} e.g. {example(newly_missed[0])}")
         if hover:
             print(f"   hovered forecast ready when the board drew: {sum(1 for r in rows if r.get('hover_forecast_ready'))}/{len(rows)}")
+    # atk-11: the hero's own tile struck by a rule beat or a surface laid under it.
+    groups = {"rule beats": ("rule_beat", "rule_beat_on_its_turn", "rule_beat_after_your_turn", "rule_beat_after_your_turn_moved_things"), "foe surfaces": ("foe_surface_under_you",)}
+    for name, rows, hover in (("your tile, PASS", stay, False), ("destinations, hovered", hovered, True)):
+        field = "red_hover" if hover else "red"
+        old = [as_old(r, hover) for r in rows]
+        mb = Counter(miss_cause(r, hover) for r in old if not r[field] and forecast_hit(r))
+        ma = Counter(miss_cause(r, hover) for r in rows if not r[field] and forecast_hit(r))
+        print(f"{name}: misses " + "; ".join(f"{g} {sum(mb[c] for c in cs)} → {sum(ma[c] for c in cs)}" for g, cs in groups.items())
+              + "; by cause " + ", ".join(f"{c} {mb[c]} → {ma[c]}" for cs in groups.values() for c in cs))
+        left = [r for r in rows if not r[field] and forecast_hit(r) and miss_cause(r, hover) in groups["rule beats"]]
+        lost = sum(1 for r in left if any(loss(s) > 0 for s in r["forecast_sim"]["slices"] if s["actor"] not in ("move", "turn_start")))
+        print(f"   rule-beat misses left: {len(left)}, of which {len(left) - lost} only push the hero (no Health, Block or Stoneskin lost)")
+        hits = [r for r in rows if any(w.startswith("hit:") for w in r.get("hover_owners" if hover else "red_owners", []))]
+        print(f"   tiles red through a forecast hit: {len(hits)} ({sum(1 for r in hits if forecast_hit(r))} hurt); owners {dict(Counter(w for r in hits for w in r.get('hover_owners' if hover else 'red_owners', []) if w.startswith('hit:')))}")
+    # Hovered discs: does a foe's disc agree with whether that foe hurt you there?
+    # A disc is red when the foe takes Health, Block or Stoneskin (atk-03), so "hurt" here is a loss, not a push.
+    for label, index in (("before", 1), ("after", 0)):
+        m = Counter()
+        for r in hovered:
+            for key, disc in r.get("hover_discs", {}).items():
+                foe_hit = any(s["actor"] == key and loss(s) > 0 for s in r["actual"]["slices"])
+                m[("red" if disc[index] else "grey", "hurt" if foe_hit else "safe")] += 1
+        print(f"hovered discs {label} vs live span: red & hurt {m[('red', 'hurt')]}, red & safe {m[('red', 'safe')]}, grey & hurt {m[('grey', 'hurt')]}, grey & safe {m[('grey', 'safe')]}")
+        summary[f"hover discs {label}"] = {f"{a}_{b}": n for (a, b), n in m.items()}
+    for label, index in (("before", 1), ("after", 0)):
+        m = Counter()
+        for r in hovered:
+            if uncertain(r):
+                continue
+            for key, disc in r.get("hover_discs", {}).items():
+                foe_hit = any(s["actor"] == key and loss(s) > 0 for s in r["actual"]["slices"])
+                m[("red" if disc[index] else "grey", "hurt" if foe_hit else "safe")] += 1
+        print(f"hovered discs {label}, no ? shown: red & hurt {m[('red', 'hurt')]}, red & safe {m[('red', 'safe')]}, grey & hurt {m[('grey', 'hurt')]}, grey & safe {m[('grey', 'safe')]}")
+        summary[f"hover discs {label}, no ?"] = {f"{a}_{b}": n for (a, b), n in m.items()}
+    changed = [r for r in hovered if any(bool(d[0]) != bool(d[1]) for d in r.get("hover_discs", {}).values())]
+    if changed:
+        print(f"   hovered destinations where a disc changed: {len(changed)}, e.g. {example(next((r for r in changed if r.get('repro')), changed[0]))}")
     shown = sum(1 for r in checks if r.get("block_expiry_only"))
     hidden = sum(1 for r in checks if r.get("block_expiry_hidden"))
     print(f"\nBlock row from expiry alone: {hidden} checks the old panel showed as a Block loss now show none; still shown {shown}")
@@ -581,12 +628,25 @@ def inrun(args: argparse.Namespace) -> None:
     if hidden_rows:
         print("   e.g.", example(next((r for r in hidden_rows if r.get("repro")), hidden_rows[0])))
     print(f"forecast hit == real hit: {sum(1 for r in checks if forecast_hit(r) == actual_hit(r))}/{len(checks)}; held set == fresh rebuild {sum(1 for p in points.values() if p['held_matches'])}/{len(points)}")
-    build = [p["build_usec"] for p in points.values()]
-    extra = [p.get("red_extra_usec", 0) for p in points.values()]
+    if atk06_base:
+        build = [p["build_usec"] for p in points.values()]
+        extra = [p.get("red_extra_usec", 0) for p in points.values()]
+    else:
+        # atk-11: before is the atk-09 rest set (badge build plus atk-09's work).
+        build = [p["build_usec"] + p.get("red_extra_usec", 0) for p in points.values()]
+        extra = [p.get("red_hits_usec", 0) for p in points.values()]
     total = [b + e for b, e in zip(build, extra)]
     print(f"rest red-set build per decision point, µs median / p95 (n {len(build)}): before {pct_list(build, 0.5)} / {pct_list(build, 0.95)};"
-          f" atk-09 work {pct_list(extra, 0.5)} / {pct_list(extra, 0.95)}; after {pct_list(total, 0.5)} / {pct_list(total, 0.95)}")
+          f" added {pct_list(extra, 0.5)} / {pct_list(extra, 0.95)}; after {pct_list(total, 0.5)} / {pct_list(total, 0.95)}")
     summary["costs"] = {"before": [pct_list(build, 0.5), pct_list(build, 0.95)], "added": [pct_list(extra, 0.5), pct_list(extra, 0.95)], "after": [pct_list(total, 0.5), pct_list(total, 0.95)]}
+    timed = [r for r in dests if "forecast_usec" in r]
+    if timed:
+        after = [r["forecast_usec"] for r in timed]
+        before = [r["forecast_usec"] - r.get("forecast_added_usec", 0) for r in timed]
+        added = [r.get("forecast_added_usec", 0) for r in timed]
+        print(f"one destination forecast (the panel's), µs median / p95 (n {len(timed)}): before {pct_list(before, 0.5)} / {pct_list(before, 0.95)};"
+              f" added {pct_list(added, 0.5)} / {pct_list(added, 0.95)} / max {max(added)}; after {pct_list(after, 0.5)} / {pct_list(after, 0.95)}")
+        summary["destination forecast"] = {"before": [pct_list(before, 0.5), pct_list(before, 0.95)], "after": [pct_list(after, 0.5), pct_list(after, 0.95)], "added_max": max(added)}
     summary["block_expiry"] = {"hidden": hidden, "still_shown": shown}
     (label_dir(args.label) / "inrun.json").write_text(json.dumps(summary, indent=2) + "\n")
 

@@ -1,0 +1,263 @@
+{
+  "min_images": 15,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*burst_ember_tick_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*burst_ember_tick_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*burst_ember_tick_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*burst_ember_tick_reduced_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_reduced_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*chain_card_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*chain_card_middle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*chain_card_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*chain_card_reduced_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_hoarfrost_seer_text_only_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*burst_ember_tick_pre_battle_outer_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_burrow_grub_pre_battle_outer_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

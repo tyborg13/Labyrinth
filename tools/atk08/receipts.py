@@ -62,7 +62,7 @@ def run(args: argparse.Namespace) -> None:
                 continue
             directory.mkdir(parents=True, exist_ok=True)
             command = [sys.executable, str(project / "tools/godot_task_runner.py"), "--project", str(project), "--task-id", f"{TASK_PREFIX}-receipts-{args.label}-{speed}-{reduced}-{seed}",
-                       "--timeout", str(args.timeout), "--", "godot", "--headless", "--path", ".", "--script", "res://tools/atk08/receipts.gd", "--",
+                       "--timeout", str(args.timeout), "--stream", "--", "godot", "--headless", "--path", ".", "--script", "res://tools/atk08/receipts.gd", "--",
                        "--seed", str(seed), "--output-dir", str(directory), "--no-embrace", "true", "--health", str(args.health)]
             if args.stop_after:
                 command += ["--stop-after", str(args.stop_after)]
@@ -132,9 +132,16 @@ def classify_run(run: dict) -> list[dict]:
         return r["field"] == "block" and r["hero_after"]["stoneskin"] - r["hero_before"]["stoneskin"] >= r["amount"]
     losses = [r for r in rows if r["kind"] == "loss" and r["category"] != "block_expiry" and not converted(r)]
     claimed: set[str] = set()
+    round_starts = {(r["fight"], r["round"]): r["frame"] for r in rows if r["kind"] == "round" and r.get("edge") == "begin"}
 
     def window(loss: dict) -> tuple[int, int]:
-        return loss["frame0"], loss["frame1"] + 1
+        # Older observers timestamped turn-end losses from round start but
+        # accidentally set both frame bounds to the first enemy slice. The
+        # existing begin row recovers the matching window without editing logs.
+        first = loss["frame0"]
+        if loss["path"] == "finish_player_activation":
+            first = round_starts.get((loss["fight"], loss["round"]), first)
+        return first, loss["frame1"] + 1
 
     def candidates(loss: dict) -> list[dict]:
         lo, hi = window(loss)
@@ -170,6 +177,8 @@ def classify_run(run: dict) -> list[dict]:
             matched[index] = {"popup": other[0], "how": "wrong"}
             claimed.add(other[0]["key"])
 
+    # atk-12: hero numbers no loss claimed (a duplicate or stray number).
+    run["unclaimed_numbers"] = [p for p in numbers if p["key"] not in claimed and p["reaction"] == "player" and not p["text"].endswith((" B", " S"))]
     results = []
     cumulative = defaultdict(int)
     for index, loss in enumerate(losses):
@@ -338,6 +347,15 @@ def report(args: argparse.Namespace) -> dict:
         print("enemy rounds:", rounds)
         delays = text_delays(list(runs_here.values()))
         print("late-number clock offsets:", delays)
+        missing = Counter(r["loss"]["category"] for _, r in items if "missing" in r["why"])
+        missing_by_source = Counter(
+            f"{r['loss'].get('actor_type') or r['loss']['category']}:{r['loss']['path']}:{r['loss']['field']}"
+            for _, r in items if "missing" in r["why"]
+        )
+        print("missing numbers by source:", dict(missing))
+        print("missing numbers by actor/path/resource:", dict(missing_by_source))
+        unclaimed = sum(len(run.get("unclaimed_numbers", [])) for run in runs_here.values())
+        print("hero Health numbers no loss claimed:", unclaimed)
         examples = {}
         for run, r in items:
             keys = [r["kind"]] if r["kind"] != "clear" else []
@@ -351,7 +369,9 @@ def report(args: argparse.Namespace) -> dict:
                       f" | popup {r['popup']['text'] if r['popup'] else None} | {'; '.join(r['why'] + r['flags'])} | src {r['source']} | {run['path'].name}")
         summary["configs"][config] = {"losses": len(items), "fights": len(fights), "table": {k: dict(v) for k, v in table.items()}, "health": {k: dict(v) for k, v in health.items()},
                                       "flags": dict(flags), "examples": {f"{k}|{c}": example_row(run, r) for (k, c), (run, r) in examples.items()},
-                                      "rail": dict(rail), "rail_examples": rail_examples(items), "rounds": rounds, "text_delays": delays}
+                                      "rail": dict(rail), "rail_examples": rail_examples(items), "rounds": rounds, "text_delays": delays,
+                                      "missing": dict(missing), "missing_by_source": dict(missing_by_source), "unclaimed_numbers": unclaimed,
+                                      "missing_examples": [example_row(run, r) for run, r in items if "missing" in r["why"]]}
     (ROOT / args.label / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     return summary
 
@@ -439,6 +459,13 @@ def compare(args: argparse.Namespace) -> None:
             continue
         deltas = sorted(fa[k] - fb[k] for k in shared)
         print(f"{config}: {len(shared)} fights in both passes; round time per fight after - before: median {deltas[len(deltas) // 2]:+.2f} s, min {deltas[0]:+.2f}, max {deltas[-1]:+.2f}")
+    print()
+    print("| Setting | Missing numbers (source: before → after) | Hero numbers no loss claimed |")
+    print("|---|---|---:|")
+    for config in sorted(set(before) | set(after)):
+        b, a = before.get(config, {}).get("missing", {}), after.get(config, {}).get("missing", {})
+        cells = ", ".join(f"{CATEGORY_NAMES.get(k, k)} {b.get(k, 0)} → {a.get(k, 0)}" for k in sorted(set(b) | set(a))) or "none"
+        print(f"| {config} | {cells} (all: {sum(b.values())} → {sum(a.values())}) | {before.get(config, {}).get('unclaimed_numbers', '-')} → {after.get(config, {}).get('unclaimed_numbers', '-')} |")
     print()
     for config in sorted(after):
         d = after[config].get("text_delays", {})
