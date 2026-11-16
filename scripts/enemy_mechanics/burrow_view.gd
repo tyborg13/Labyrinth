@@ -129,7 +129,10 @@ static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
 			var progress: float = float(frame - 1) / float(maxi(1, frames - 1))
 			scene._render_board_state(rising, {"en01_erupt": {"actor_key": step["actor_key"], "progress": progress}, "en01_erupt_dust": dust}))
 	var before: Dictionary = state.duplicate(true)
-	var throws: Array[Dictionary] = preload("res://scripts/displacement_throw.gd").paths(before, after, [step["to"]], str(step["actor_key"])) if str(step["kind"]) == "erupt" else preload("res://scripts/typed_arrays.gd").dictionaries([])
+	# Windows typed-array rule: no conditional expression in a typed assignment.
+	var throws: Array[Dictionary] = preload("res://scripts/typed_arrays.gd").dictionaries([])
+	if str(step["kind"]) == "erupt":
+		throws = preload("res://scripts/displacement_throw.gd").paths(before, after, [step["to"]], str(step["actor_key"]))
 	if not throws.is_empty():
 		await preload("res://scripts/displacement_throw.gd").animate(scene, before, after, throws)
 		state.clear()
