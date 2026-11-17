@@ -66,7 +66,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	state["_surface_damage_batch"] = true
 	var consumed: Dictionary = plan["consumed"] as Dictionary
 	var used_conductors: Dictionary = plan["used_conductors"] as Dictionary
-	var capture_route: bool = int(route_action.get("chain", 0)) > 0 or not used_conductors.is_empty() or action.has("_ranged_relay") or bool(plan.get("refraction", false))
+	var capture_route: bool = (bool(action.get("_battlefield_rule_fuel", false)) and trace.has("chain_hits")) or int(route_action.get("chain", 0)) > 0 or not used_conductors.is_empty() or action.has("_ranged_relay") or bool(plan.get("refraction", false))
 	capture_states = capture_states and capture_route
 	# Ordinary Electrified is reusable. Stormcoal Fire pays for conduction.
 	for tile: Vector2i in engine._sorted_tiles_from_lookup(used_conductors):
@@ -195,6 +195,10 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				player_struck = true
 				struck_player_tile = (state.get("player", {}) as Dictionary).get("pos", engine.INVALID_TILE)
 			state = engine._apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
+		if str(hit.get("kind", "")) == "player" and str(hit.get("kind_trace", "")) == "actor" and hit.get("from") != hit.get("to") and state.has(preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT):
+			var owners: Dictionary = (state.get("_pass_forecast_chain_owners", {}) as Dictionary).duplicate()
+			owners["battlefield_rule" if str(state.get("damage_context", {}).get("source_kind", "")) == "battlefield_rule" else "enemy_%d" % actor_id] = true
+			state["_pass_forecast_chain_owners"] = owners
 		trace_hit["hidden_direct"] = bool(hit.get("hidden_direct", false))
 		rebound_route.append(trace_hit.duplicate(true))
 		if bool(hit.get("hidden_direct", false)):

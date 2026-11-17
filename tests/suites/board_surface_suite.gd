@@ -2,6 +2,7 @@ extends RefCounted
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Rules = preload("res://scripts/board_surface_rules.gd")
+const DYNAMIC_EARTH_TRAP_FULL_BUDGET: int = 5 # Synthetic route: enter 1, leave center 2, leave neighbor 2.
 
 static func run(expect: Callable) -> void:
 	var engine: CombatEngine = CombatEngine.new()
@@ -68,12 +69,12 @@ static func run(expect: Callable) -> void:
 	expect.call(engine.movement_cost_for_path(state,path,1,true) == 1 and engine.movement_cost_for_path(state,path,1,false) == 2, "Fresh allowance minimum progress does not reset per click")
 	state["player_movement_remaining"] = 1
 	expect.call(not engine.player_movement_targets(state).has(Vector2i(3,3)), "Spent movement allowance cannot leave Rubble with its last point")
-	# Traps hit the center, then place four disjoint wake tiles.
+	# Traps hit the center, then place ground on center and cardinal wake.
 	state = fixture(engine)
 	state["traps"] = [{"pos":Vector2i(4,3),"element":"lightning","damage":30}]
 	state = engine._trigger_trap_at_index(state,0)
 	expect.call(int(state["enemies"][0]["hp"]) == 970 and int(state["player"]["hp"]) == 1000, "Trap direct damage only affects center occupant")
-	expect.call(Rules.tiles(state,"electrified").size() == 4 and Rules.element_at(state,Vector2i(4,3)).is_empty(), "Trap wake is cardinal and excludes center")
+	expect.call(Rules.tiles(state,"electrified").size() == 5 and Rules.element_at(state,Vector2i(4,3)) == "electrified", "Trap ground includes its center and cardinal wake")
 	# Revealed fuel is exact, denied fuel cannot silently pick another tile.
 	state = fixture(engine)
 	Rules.place(state,Vector2i(4,4),"electrified")
@@ -267,7 +268,7 @@ static func _test_dynamic_movement_allowance(engine: CombatEngine, expect: Calla
 	initial["player_movement_remaining"] = 3
 	initial["traps"] = [{"id": "ground_changes_cost", "pos": Vector2i(3, 3), "element": "earth", "damage": 0}]
 	var player_result: Dictionary = engine.apply_player_movement(initial, Vector2i(5, 3))
-	expect.call(player_result["player"]["pos"] == Vector2i(4, 3) and int(player_result["last_player_movement"]["spent"]) == 2, "Walk stops before leaving trap-painted Rubble when the surcharge exceeds its remaining allowance")
+	expect.call(player_result["player"]["pos"] == Vector2i(4, 3) and int(player_result["last_player_movement"]["spent"]) == 3, "Walk pays to leave center Rubble and stops before leaving the neighbor beyond its allowance")
 	var card_result: Dictionary = engine.apply_player_action(initial, {"type": "move", "range": 3}, Vector2i(5, 3))
 	expect.call(card_result["player"]["pos"] == Vector2i(4, 3), "Card movement stops before a trap-created Rubble step that exceeds its allowance")
 	var enemy_initial: Dictionary = fixture(engine)
@@ -277,10 +278,10 @@ static func _test_dynamic_movement_allowance(engine: CombatEngine, expect: Calla
 	path.assign([Vector2i(4, 3), Vector2i(5, 3), Vector2i(6, 3), Vector2i(7, 3)])
 	var context: Dictionary = {}
 	var enemy_result: Dictionary = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 3)
-	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(6, 3) and int(context["movement_spent"]) == 2, "Enemy walking stops before newly painted Rubble beyond its remaining allowance")
+	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(6, 3) and int(context["movement_spent"]) == 3, "Enemy walking pays center Rubble and stops before the next Rubble exit beyond its allowance")
 	context = {}
-	enemy_result = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 4)
-	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(7, 3) and int(context["movement_spent"]) == 4, "Enemy walking spends the same actual changing-ground costs as player movement")
+	enemy_result = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, DYNAMIC_EARTH_TRAP_FULL_BUDGET)
+	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(7, 3) and int(context["movement_spent"]) == DYNAMIC_EARTH_TRAP_FULL_BUDGET, "Enemy walking spends the same actual changing-ground costs as player movement")
 
 
 static func _test_reusable_conduction(engine: CombatEngine, expect: Callable) -> void:

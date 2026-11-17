@@ -39,6 +39,7 @@ static func restart_with_rolls(cursor: Dictionary) -> void:
 	if bool(cursor.get("losses_only", false)):
 		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT
 		cursor["state"][receipt] = bool((cursor["initial_state"] as Dictionary).get(receipt, false))
+		preload("res://scripts/pass_forecast_statuses.gd").begin(cursor["state"])
 	cursor["steps"] = []
 	cursor["player_turn_before_state"] = {}
 	cursor["revealed_enemy_ids"] = {}

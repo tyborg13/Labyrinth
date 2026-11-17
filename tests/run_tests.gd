@@ -3438,7 +3438,7 @@ func _test_lightning_trap_wake_preserves_current_turn_actions() -> void:
 	_assert((state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Triggered traps should not halt movement mid-path")
 	_assert((state.get("traps", []) as Array).is_empty(), "Triggered traps should be consumed immediately")
 	_assert(str(state.get("pending_player_trap_restriction", "")).is_empty(), "Lightning traps create ground without a hidden Shock rider")
-	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 4, "Lightning trap leaves four cardinal conductors")
+	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 5, "Lightning trap leaves center and four cardinal conductors")
 	_assert(int(state["player"]["hp"]) == 22, "Only the occupied trap center deals immediate damage")
 	state = combat.finish_player_card(state, 0)
 	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Trap wake never applies Shock this turn")
@@ -3475,7 +3475,7 @@ func _test_lightning_trap_wake_never_banks_obsolete_control() -> void:
 	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Last-play trap shock should not retroactively lock the finished turn")
 	state = combat.prepare_next_player_turn(state)
 	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "No obsolete trap control may appear at the next activation")
-	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 4, "Unconsumed Electrified ground persists across activations")
+	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 5, "Unconsumed Electrified ground persists across activations")
 
 func _test_move_paths_only_cross_required_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -3582,7 +3582,7 @@ func _test_attacking_trap_creates_delayed_cardinal_fire() -> void:
 	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Trap wake placement does not immediately damage an adjacent player")
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
 	_assert(int(enemy.get("hp", 0)) == 10, "Trap wake placement does not immediately damage an adjacent enemy")
-	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)).is_empty(), "Trap wake excludes its center")
+	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)) == "fire", "Trap ground includes its center")
 	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Cardinal occupant receives Fire beneath it")
 	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 3)).is_empty(), "Diagonals remain unaffected")
 	var enemy_turn: Dictionary = combat._resolve_enemy_start_of_turn(state, 0)
@@ -4516,8 +4516,8 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
 	var tooltip: String = str(board.call("_trap_tooltip_text", {"element": "air", "damage": 3}))
-	_assert(tooltip.contains("Air Trap") and tooltip.contains("3 damage only to its center occupant"), "Trap text must distinguish center impact from neighboring wake")
-	_assert(tooltip.contains("Pushes neighboring units outward 1 tile"), "Air traps must explain the cardinal force wake")
+	_assert(tooltip.contains("Air Trap") and tooltip.contains("3 damage to the unit on this tile."), "Trap text must distinguish center impact from neighboring wake")
+	_assert(tooltip.contains("@kw(push) each unit next to this tile 1 tile away."), "Air traps must explain the cardinal force wake")
 	board.combat_state = {"grid": _simple_grid()}
 	var wake: Array = board.call("_trap_blast_tiles", {"pos": Vector2i(3, 3)})
 	_assert(wake.size() == 5 and not wake.has(Vector2i(4, 4)), "Trap preview must exclude diagonal blast tiles")

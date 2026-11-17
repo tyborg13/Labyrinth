@@ -1013,6 +1013,14 @@ hit, conduction hit, passive hazard, trap and secondary relic pulse remain
 separate sources. Actors hit by multiple occupied tiles or overlapping branches
 appear once in the damage set. Consumption records show the actual removed
 surface, including Fire used as a conductor under Stormcoal Crucible.
+`trap_triggered` retains `tile`, `element`, `wake_tiles` (four cardinal neighbors)
+and `damage`, and adds `center_surface`: normalized `fire`, `ice`, `electrified`
+or `rubble` placed on the center, or `""` for Air or a center rejected by the
+ordinary placement rule. Center and neighbor ground share the existing
+`surface_created` / `surface_replaced` events and source
+`{"actor_kind": "trap", "tile": center}`. Damage resolves before placement;
+placing ground does not immediately contact its occupants. Disarming prevents
+the hit while retaining placement. There is no new save state or schema version.
 The additive `rubble_underlay` on `surface_removed` records whether Rubble
 coexisted at the instant of removal, after any earlier terrain payment in the
 same action. Layered-consumption rewards use this event-time fact rather than

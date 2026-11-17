@@ -7,11 +7,15 @@ const Fixtures = preload("res://tests/suites/en02_enemies_suite.gd")
 const SnareFixtures = preload("res://tests/suites/snare_pressure_suite.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Analytics = preload("res://scripts/battlefield_rules/analytics.gd")
+const IntentRows = preload("res://scripts/battlefield_rules/intent_rows.gd")
+const Icons = preload("res://scripts/action_icon_library.gd")
 const Gust = preload("res://scripts/enemy_mechanics/wind.gd")
 # Chosen defaults: existing fixed-board fixture, private save path, proof damage.
 const SAVE_PATH: String = "user://el01-roundtrip.save"
 const TEST_DAMAGE: int = 2
 const TEST_BLINK: int = 3
+const INTENT_ROW_DAMAGE: int = 7
+const INTENT_ROW_CHAIN: int = 2
 
 static func battle(engine: RefCounted) -> Dictionary:
 	var state: Dictionary = Fixtures.fixture(engine, "crawler")
@@ -33,9 +37,36 @@ static func run(expect: Callable) -> void:
 	_upheaval(engine, expect)
 	_shadowstep(engine, expect)
 	_framework(engine, expect)
+	_intent_beats(engine, expect)
+	_intent_rows(engine, expect)
 	preload("res://tests/suites/battlefield_rules_feedback_suite.gd").run(engine, battle, rule, resolve_and_compare, expect)
 	preload("res://tests/suites/battlefield_rules_feedback_2_suite.gd").run(engine, battle, rule, resolve_and_compare, expect)
 	print("Battlefield rules: six resolvers, all implemented dials, cadence, privacy, saves and analytics checked")
+
+static func _intent_rows(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = battle(engine)
+	var unit: Dictionary = state["enemies"][0]
+	var intent: Dictionary = unit["intent"]
+	var instance: Dictionary = rule("upheaval", {"pattern": "line_between", "length": 5, "health": 3}, true)
+	instance["cadence"] = {"anchor": "on_intent", "intent": intent["id"]}
+	Rules.install(engine, state, instance)
+	expect.call(IntentRows.tokens(state, unit, intent).is_empty(), "Non-storm on_intent rule without damage has no storm row")
+	instance = Rules.instance_for("dynamo", int(unit["id"]))
+	instance["cadence"]["intent"] = intent["id"]
+	instance["at_half_health"] = {"dials": {"damage": INTENT_ROW_DAMAGE, "chain": INTENT_ROW_CHAIN}, "sentence": "Test half-health storm."}
+	Rules.install(engine, state, instance)
+	var original_dials: Dictionary = instance["dials"].duplicate(true)
+	expect.call(IntentRows.tokens(state, unit, intent) == [Icons.token_for("lightning_storm"), Icons.token_for("lightning_strikes", int(original_dials["damage"])), Icons.text_token("every Electrified tile")], "Storm row reads installed dials before the half-health switch")
+	unit["hp"] = int(unit["max_hp"]) / 2
+	preload("res://scripts/battlefield_rules/committed.gd").accept(engine, state)
+	var before: Dictionary = state.duplicate(true)
+	expect.call(IntentRows.tokens(state, unit, intent) == [Icons.token_for("lightning_storm"), Icons.token_for("lightning_strikes", INTENT_ROW_DAMAGE), Icons.token_for("chain", INTENT_ROW_CHAIN), Icons.text_token("every Electrified tile")], "Storm row reads merged half-health damage and Chain")
+	expect.call(state == before and instance["dials"] == original_dials, "Intent rows leave live and authored dials unchanged")
+	expect.call(IntentRows.tokens(state, unit, {"id": "other"}).is_empty(), "Storm row applies only to its cadence intent")
+	for source_type: String in Rules.data()["instances"]:
+		var catalog: Dictionary = Rules.instance_for(source_type)
+		if str(catalog["cadence"].get("anchor", "")) != "on_intent" or str(catalog["rule"]) == "lightning_storm": continue
+		expect.call(IntentRows.tokens({}, {"type": source_type}, {"id": catalog["cadence"]["intent"]}).is_empty(), "Catalog non-storm on_intent has no storm row: " + source_type)
 
 static func mature_fuel(state: Dictionary) -> void:
 	# Primitive resolver witnesses explicitly model already-observed ground.
@@ -147,7 +178,7 @@ static func _lightning(engine: RefCounted, expect: Callable) -> void:
 		Surfaces.place(state, Vector2i(5, 5), "electrified")
 		Rules.install(engine, state, rule("lightning_storm", {"damage": TEST_DAMAGE, "chain": chain}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
-		expect.call(int(after["player"]["hp"]) == 48 and int(after["player"]["shock"]) == 1, "Lightning Storm strikes Electrified units with Shock")
+		expect.call(int(after["player"]["hp"]) == 48 and int(after["player"]["shock"]) == 0, "Lightning Storm strikes Electrified units without hidden Shock")
 		expect.call(after["surfaces"] == state["surfaces"], "Lightning Storm never changes the field")
 		expect.call(int(after["enemies"][0]["hp"]) == (50 if chain == 0 else 48) and int(after["enemies"][1]["hp"]) == (20 if chain == 0 else 18), "Lightning Storm chain dial uses existing Chain route: " + str(chain))
 	var state: Dictionary = battle(engine)
@@ -157,7 +188,7 @@ static func _lightning(engine: RefCounted, expect: Callable) -> void:
 	Surfaces.place(state, Vector2i(5, 5), "electrified")
 	state["battlefield_rule"]["dials"]["damage"] = 0
 	after = resolve_and_compare(engine, state, expect)
-	expect.call(after["player"]["hp"] == state["player"]["hp"] and int(after["player"]["shock"]) == 1, "Lightning Storm zero damage still applies Shock")
+	expect.call(after["player"]["hp"] == state["player"]["hp"] and int(after["player"]["shock"]) == 0, "Lightning Storm zero damage adds no Shock")
 	expect.call(not Rules.error_for(state, rule("lightning_storm", {"damage": 1, "chain": 4})).is_empty(), "Lightning Storm rejects out-of-range Chain")
 
 static func _upheaval(engine: RefCounted, expect: Callable) -> void:
@@ -344,7 +375,7 @@ static func _primitive_edges(engine: RefCounted, expect: Callable) -> void:
 		state = engine._surface_contact(state, "illusion", 7, engine.INVALID_TILE, true)
 		Rules.install(engine, state, rule(id, {"damage": TEST_DAMAGE, "chain": 0}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
-		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == 1, "Battlefield hits include illusion statuses: " + id)
+		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == (1 if id == "frostbite" else 0), "Battlefield hits include illusion statuses: " + id)
 	for damage: int in [3, 4]:
 		var state: Dictionary = battle(engine)
 		Surfaces.place(state, state["player"]["pos"], "electrified")
@@ -401,3 +432,41 @@ static func _analytics_callers(engine: RefCounted, expect: Callable) -> void:
 		host.free()
 	store_script.clear_storage()
 	store_script.set_storage_dir(previous)
+
+static func _intent_beats(engine: RefCounted, expect: Callable) -> void:
+	const Rows = preload("res://scripts/battlefield_rules/intent_rows.gd")
+	for id: String in ["dynamo", "storm_cantor", "zekarion"]:
+		var state: Dictionary = battle(engine)
+		state["enemies"][0]["type"] = "storm_capacitor" if id == "dynamo" else id
+		var authored: Dictionary = Rules.instance_for(id, 1)
+		Rules.install(engine, state, authored)
+		var intent: Dictionary = {"id": authored["cadence"]["intent"]}
+		var row: Array = Rows.tokens(state, state["enemies"][0], intent)
+		expect.call(row.size() == (4 if int(authored["dials"]["chain"]) > 0 else 3) and row[0]["icon"] == "lightning_storm" and int(row[1]["value"]) == int(authored["dials"]["damage"]) and (int(authored["dials"]["chain"]) == 0 or int(row[2]["value"]) == int(authored["dials"]["chain"])), "Intent beat row reads live damage and Chain: " + id)
+		if id == "dynamo":
+			var discharge: Dictionary = preload("res://scripts/game_data.gd").enemy_def("storm_capacitor")["intents"][1]
+			var board: Control = preload("res://scripts/combat_board_view.gd").new()
+			board.set("combat_state", state)
+			expect.call((board.call("_move_rows_for_unit", state["enemies"][0], discharge) as Array).size() == 2, "Dynamo specialized Arc row is followed by its rule beat")
+			expect.call(preload("res://scripts/pre_battle_inspection_view.gd").move_rows(discharge, state["enemies"][0], state).size() == 2, "Pre-battle Dynamo reads its installed rule rather than the ordinary Capacitor catalog")
+			board.free()
+		if id == "zekarion":
+			state["enemies"][0]["hp"] = 25
+			preload("res://scripts/battlefield_rules/half_health.gd").check(state)
+			expect.call(int(Rows.tokens(state, state["enemies"][0], intent)[2]["value"]) == 2, "Overload row follows the half-Health Chain dial")
+		Surfaces.place(state, state["player"]["pos"], "electrified")
+		mature_fuel(state)
+		var steps: Array[Dictionary]
+		var after: Dictionary = Rules.fire(engine, state.duplicate(true), steps)
+		expect.call(steps.size() == 1 and bool(steps[0].get("battlefield_rule_step", false)) and steps[0]["rule_panel"]["name"] == "Lightning Storm", "Rule fires one dedicated named playback step: " + id)
+		expect.call(int(after["player"].get("shock", 0)) == 0, "Rule has no hidden Shock: " + id)
+	var frozen: Dictionary = battle(engine)
+	Surfaces.place(frozen, frozen["player"]["pos"], "ice")
+	frozen = engine._surface_contact(frozen, "player", -1, engine.INVALID_TILE, true)
+	Rules.install(engine, frozen, rule("frostbite", {"damage": 0}))
+	mature_fuel(frozen)
+	var source: Dictionary = frozen.duplicate(true)
+	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(engine, frozen)
+	var forecast: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
+	expect.call(int(forecast.get("status_gains", {}).get("freeze", 0)) == 1 and int(forecast.get("skipped_turns", 0)) == 1, "PASS retains a rule's gained Freeze after the skipped turn consumes it")
+	expect.call(frozen == source and not frozen.has(preload("res://scripts/pass_forecast_statuses.gd").KEY), "Status receipts stay on the forecast copy")

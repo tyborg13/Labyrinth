@@ -23,6 +23,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	Settings.save_settings(settings) # Task-runner HOME only; _ready reads this same player setting.
 	Settings.apply_settings(settings, null, false)
 	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Fixture.Tip05.BIOMES.get(fixture["id"], Biomes.default_biome())))))
+	biome = str(Fixture.Traps.BIOMES.get(fixture["id"], biome))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -69,7 +70,10 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 	await scene.get_tree().create_timer(0.4).timeout
 	var pacing: Node = scene.get("_combat_pacing")
 	for beat: Dictionary in result["beats"]:
-		if beat["kind"] == "room_rule":
+		if beat["kind"] == "trap":
+			pacing.begin_enemies()
+			await Fixture.Traps.play(scene, beat)
+		elif beat["kind"] == "room_rule":
 			pacing.begin_enemies()
 			if beat["before"]["battlefield_rule"]["rule"] == "upheaval":
 				await Fixture.Tip05.play(scene, beat)
@@ -90,7 +94,7 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 			await scene.call("_animate_player_action_step", beat["before"], beat["after"], str(beat.get("card", "")), beat["action"], beat["target"], beat["chain_hits"])
 			await scene.call("_finish_player_popup_timeline", beat["after"])
 		scene.call("_render_board_state", beat["after"], {})
-		if beat["kind"] in ["enemy", "rule", "room_rule"]: await pacing.finish_enemies()
+		if beat["kind"] in ["enemy", "rule", "room_rule", "trap"]: await pacing.finish_enemies()
 		else: pacing.end_scope()
 	completion["done"] = true
 

@@ -2257,13 +2257,16 @@ func _umbra_presented_turn_order_entry(state: Dictionary, entry: Dictionary, pro
 	return presented
 
 func finish_player_activation(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
+	return finish_player_activation_with_rule_steps(state, accepted)
+
+func finish_player_activation_with_rule_steps(state: Dictionary, accepted: Callable = Callable(), rule_steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	var next_state: Dictionary = prepare_player_activation_end(state)
 	if combat_outcome(state) != "" or not is_player_turn(state):
 		return next_state
 	if accepted.is_valid(): accepted.call(next_state)
 	var room_round_started: bool = SnareRules.begin_round(self, next_state)
 	HoarderRules.begin_round(self, next_state)
-	next_state = BattlefieldRules.after_player_turn(self, next_state, -1, accepted)
+	next_state = BattlefieldRules.after_player_turn(self, next_state, -1, accepted, rule_steps)
 	if room_round_started: SnareRules.start_round(self, next_state, true, true)
 	return next_state
 
@@ -2445,6 +2448,7 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	if losses_only:
 		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT
 		next_state[receipt] = bool(state.get(receipt, false))
+		preload("res://scripts/pass_forecast_statuses.gd").begin(next_state)
 	_record_runtime_performance_phase("enemy_preview_initial_duplicate", performance_total_started)
 	var initially_visible_enemy_ids: Dictionary = {}
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -2583,7 +2587,7 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					# switches. Full-state previews (bot lookahead, frozen measurement
 					# policies) keep their recorded no-switch behaviour.
 					var accepted: Callable = preload("res://scripts/battlefield_rules/committed.gd").callback(self) if bool(cursor.get("losses_only", false)) else Callable()
-					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)), accepted)
+					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)), preload("res://scripts/pass_forecast_statuses.gd").callback(self, accepted) if bool(cursor.get("losses_only", false)) else accepted)
 					_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
 					var turn_before: Dictionary = next_state
 					# The turn result already owns its state. Keep that ownership across
@@ -2634,6 +2638,8 @@ func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 		"unrevealed_before_player": bool(cursor.get("unrevealed_before_player", false)),
 		"repeated_enemy_names": cursor.get("repeated_enemy_names", []),
 		"fatigue_loss": int(cursor.get("fatigue_loss", 0)),
+		"status_gains": preload("res://scripts/pass_forecast_statuses.gd").gains(cursor.get("state", {})),
+		"chain_hero_owners": cursor.get("state", {}).get("_pass_forecast_chain_owners", {}),
 		"forecast_limit_reached": bool(cursor.get("forecast_limit_reached", false)),
 	}.merged(preload("res://scripts/pass_forecast_repeats.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_unseen_ground.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_frozen_turns.gd").result_fields(cursor)).merged(preload("res://scripts/pass_forecast_red_tiles.gd").result_fields(self, cursor))
 
@@ -7659,6 +7665,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 			state = _surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), damage, false)
 	var wake: Array[Vector2i] = trap_wake_tiles(state, trap)
 	var element: String = str(trap.get("element", ""))
+	var center_surface: String = ""
 	if element == "air":
 		for actor: Dictionary in actors:
 			var unit: Dictionary = _surface_actor(state, str(actor["kind"]), int(actor["id"]))
@@ -7672,9 +7679,11 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 				state = _force_move_actor(state, str(actor["kind"]), int(actor["id"]), tile - center, 1, center_tiles, true)
 				break
 	else:
-		for tile: Vector2i in wake:
+		for tile: Vector2i in trap_ground_tiles(state, trap):
 			BoardSurfaceRules.place(state, tile, BoardSurfaceRules.kind(element), {"actor_kind": "trap", "tile": center})
-	BoardSurfaceRules.record_event(state, {"kind": "trap_triggered", "tile": center, "element": element, "wake_tiles": wake, "damage": damage})
+		if BoardSurfaceRules.can_place(state, center) and BoardSurfaceRules.has_surface(state, center, element):
+			center_surface = BoardSurfaceRules.kind(element)
+	BoardSurfaceRules.record_event(state, {"kind": "trap_triggered", "tile": center, "element": element, "wake_tiles": wake, "damage": damage, "center_surface": center_surface})
 	state["damage_context"] = context
 	_log(state, _trap_trigger_log(state, trap, damage))
 	_record_runtime_performance_phase("trap_resolution", performance_started)
@@ -7736,6 +7745,16 @@ func trap_wake_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
 	for direction: Vector2i in PathUtils.DIRS_4:
 		if BoardSurfaceRules.can_place(state, center + direction):
 			tiles.append(center + direction)
+	return tiles
+
+func trap_ground_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
+	# Previews/forecasts resolve this same placement path. Keep the wake's
+	# four-neighbor meaning separate from the full ground footprint.
+	var tiles: Array[Vector2i]
+	if str(trap.get("element", "")) == "air": return tiles
+	var center: Vector2i = trap.get("pos", INVALID_TILE)
+	if BoardSurfaceRules.can_place(state, center): tiles.append(center)
+	tiles.append_array(trap_wake_tiles(state, trap))
 	return tiles
 
 func _trap_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
@@ -7932,6 +7951,7 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	state = _surface_contact(state, "player", -1, INVALID_TILE, true)
 	state["damage_context"] = previous_context
 	player = state.get("player", {}) as Dictionary
+	preload("res://scripts/pass_forecast_statuses.gd").observe(state)
 	var shocked: bool = not frozen and int(player.get("shock", 0)) > 0
 	var immobilized: bool = not frozen and bool(player.get("immobilize", false))
 	if frozen:
@@ -7941,6 +7961,7 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	if immobilized:
 		player["immobilize"] = false
 	state["player_turn_restrictions"] = {"frozen": frozen, "shocked": shocked, "immobilized": immobilized}
+	preload("res://scripts/pass_forecast_statuses.gd").observe(state)
 	return state
 
 func _enemy_action_is_movement(action: Dictionary) -> bool:

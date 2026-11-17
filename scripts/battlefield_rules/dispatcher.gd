@@ -132,8 +132,7 @@ static func dispatch(engine: RefCounted, state: Dictionary, anchor: String, acto
 		instance["counter"] = 0
 	return fire(engine, state, steps, accepted)
 
-static func after_player_turn(engine: RefCounted, state: Dictionary, player_turn: int = -1, accepted: Callable = Callable()) -> Dictionary:
-	var steps: Array[Dictionary]
+static func after_player_turn(engine: RefCounted, state: Dictionary, player_turn: int = -1, accepted: Callable = Callable(), steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	return dispatch(engine, state, "after_player_turn", -1, "", steps, player_turn, accepted)
 
 static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary] = TypedArrays.dictionaries([]), accepted: Callable = Callable()) -> Dictionary:
@@ -149,7 +148,9 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	var context: Dictionary = state.get("damage_context", {}).duplicate(true)
 	var source: Dictionary = instance["source"]
 	state["damage_context"] = {"actor_kind": source["kind"], "actor_id": int(source.get("id", -1)), "source_kind": "battlefield_rule", "rule": instance["rule"], "player_card": false}
-	state = RESOLVERS[instance["rule"]].resolve_beat(engine, state, instance)
+	var trace: Dictionary = {"chain_hits": []}
+	if str(instance["rule"]) == "lightning_storm": state = LightningStorm.resolve_beat(engine, state, instance, trace)
+	else: state = RESOLVERS[instance["rule"]].resolve_beat(engine, state, instance)
 	# Presentation receipt only on the PASS copy, at this exact beat boundary.
 	preload("res://scripts/pass_forecast_red_tiles.gd").note_beat(engine, before, state)
 	if not state.get("battlefield_rule", {}).is_empty(): instance = state["battlefield_rule"]
@@ -163,11 +164,14 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	# false when absent; only a fired latch needs additional durable metadata.
 	if bool(instance.get("half_health_switched", false)): event["half_health_switched"] = true
 	Surfaces.record_event(state, event)
+	var beat_step: Dictionary = preload("res://scripts/battlefield_rules/playback.gd").step(engine, before, state, trace)
 	if str(instance["rule"]) == "gust":
 		var index: int = engine._enemy_index_for_id(before, int(source.get("id", -1)))
 		var step: Dictionary = Gust.animation_step(engine, before, state, index, {"type": "wind_push"})
 		step["en02_state_before"] = before
-		steps.append(step)
+		beat_step["gust_step"] = step
+		beat_step.merge(step, true)
+	steps.append(beat_step)
 	if instance.has("beats_remaining"): instance["beats_remaining"] = int(instance["beats_remaining"]) - 1
 	state["damage_context"] = context
 	# An early cadence still counts as a beat, but must retain the visible

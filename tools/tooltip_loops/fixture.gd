@@ -7,6 +7,7 @@ const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
 const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
 const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
 const Tip03 = preload("res://tools/tooltip_loops/tip03_fixture.gd")
+const Traps = preload("res://tools/tooltip_loops/trap_fixture.gd")
 const SEED: int = 1511 # Debug fixture RNG only.
 const HERO := Vector2i(1, 2)
 const GRUB_HERO := Vector2i(2, 2)
@@ -51,6 +52,10 @@ static func build(id: String) -> Dictionary:
 		var config: Dictionary = Tip03.configure(layout, id)
 		units = config["units"]
 		card = config["card"]
+	if Traps.IDS.has(id):
+		var config: Dictionary = Traps.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
 	for entry: Array in units:
 		var definition: Dictionary = Data.enemy_def(entry[0])
 		layout["enemies"].append({"id": layout["enemies"].size() + 1, "type": entry[0], "pos": entry[1], "hp": definition["max_hp"], "max_hp": definition["max_hp"]})
@@ -70,6 +75,7 @@ static func build(id: String) -> Dictionary:
 	return {"run": run, "state": state, "card": card, "id": id, "layout": layout}
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
+	if Traps.IDS.has(fixture["id"]): return Traps.plan(fixture, engine)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.plan(fixture, engine)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.plan(fixture, engine)
 	if Tip03.IDS.has(fixture["id"]): return Tip03.plan(fixture, engine)
@@ -101,6 +107,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	return failures
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Traps.IDS.has(fixture["id"]): return Traps.validate(fixture, result)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.validate(fixture, result)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.validate(fixture, result)
 	if Tip03.IDS.has(fixture["id"]): return Tip03.validate(fixture, result)

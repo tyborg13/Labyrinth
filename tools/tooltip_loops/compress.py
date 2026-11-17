@@ -119,6 +119,7 @@ def main():
         ceiling = min(165 if speed == "fast" else 126, row.get("max_recording_frames", 165))
         report["recorded_speed"] = provenance.get("speed", "normal")
         report["recording_matches_brief"] = (report["recorded_speed"] == speed and
+                                              report["action_frames"] >= row.get("min_recording_frames", 1) and
                                               report["action_frames"] <= ceiling and
                                               provenance.get("asset_sha256") == report["raw_sha256"])
         provenance_valid = provenance_valid and report["recording_matches_brief"]

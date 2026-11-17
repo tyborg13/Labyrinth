@@ -9,6 +9,7 @@ from marked_glossary_contract import (
     MARKED_DEFINITION, MARKED_METADATA, MARKED_RETIRED,
     marked_metadata_supersession,
 )
+from trap_copy_contract import TRAP_BODY, TRAP_DEFINITION
 
 ROOT = Path(__file__).resolve().parents[1]
 COPY = ROOT / "spec/peer_benchmark/staged/tt-01/tooltips.json"
@@ -34,6 +35,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.superseding = {e["id"]: e["text"] for e in json.loads(
             (ROOT / "spec/peer_benchmark/staged/tt-02/card_panels.json").read_text())["glossary_edits"]}
         self.superseding["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
+        self.superseding["traps"] = TRAP_DEFINITION
         self.glossary = json.loads((ROOT / "data/glossary.json").read_text())
         self.grimoire = json.loads((ROOT / "data/grimoire.json").read_text())
 
@@ -76,6 +78,8 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 if change["id"] in ("gale_force", "worldspines"):
                     approved = json.loads((ROOT / "tests/fixtures/bos02_feedback1_grimoire.json").read_text())
                     self.assertEqual(entries[owner]["body"], approved["entries"][owner]["body"])
+                elif change["id"] == "traps":
+                    self.assertEqual(entries[owner]["body"], TRAP_BODY)
                 else:
                     self.assertIn(UMBRA_AREA_BODY if change["id"] == "umbra" else change["old"], entries[owner]["body"],
                                   "Former full definition must remain in its owning topic")

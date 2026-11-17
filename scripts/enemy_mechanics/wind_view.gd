@@ -67,7 +67,12 @@ const GHOST_HAZE := Color(Palette.STEEL, 0.10)
 const SOURCE_TOOLTIP: String = "Calls the wind. Defeat it and the wind stops."
 const CARD_ARROW_HEAD_WIDTH_RATIO: float = 0.405
 const CARD_ARROW_HEAD_REACH_RATIO: float = 0.138 + 0.285
-static var _engine: RefCounted = EngineScript.new()
+# Construct after script loading: CombatEngine's query dependencies also load this view.
+static var _engine: RefCounted
+
+static func _query_engine() -> RefCounted:
+	if _engine == null: _engine = EngineScript.new()
+	return _engine
 
 class DirectionArrow extends Control:
 	var heading := Vector2.ZERO
@@ -111,8 +116,8 @@ static func _forecast_entry(view: Control) -> Dictionary:
 	var definitions: Array
 	# Scaling is pure, so exact raw definitions identify the same dependency
 	# without copying/scaling a full public definition for every depth layer.
-	for enemy: Dictionary in state.get("enemies", []): definitions.append(_engine.GameData.enemies().get(str(enemy.get("type", "")), {}))
-	var inputs: Array = [state, definitions, _engine._relic_effects(state)]
+	for enemy: Dictionary in state.get("enemies", []): definitions.append(_query_engine().GameData.enemies().get(str(enemy.get("type", "")), {}))
+	var inputs: Array = [state, definitions, _query_engine()._relic_effects(state)]
 	# Always compare complete owned inputs. Equal hashes are never evidence that
 	# hero displacement, definitions or relic effects are unchanged.
 	if view.get_meta("en02_wind_inputs", []) == inputs:
@@ -132,19 +137,19 @@ static func _has_wind_source(state: Dictionary) -> bool:
 static func _forecast_for_state(state: Dictionary) -> Dictionary:
 	if not _has_wind_source(state): return {"wind": {}, "dashed": false, "layers": []}
 	var layers: Array[Dictionary]
-	var value: Dictionary = Wind.active(_engine, state)
+	var value: Dictionary = Wind.active(_query_engine(), state)
 	if not value.is_empty():
 		var current: Dictionary = {"wind": value, "dashed": false}
 		if Wind.room_sourced(state, value):
 			var pressure = preload("res://scripts/snare_pressure_rules.gd")
-			current.merge(pressure.presentation_projection(pressure.preview(_engine, state)))
+			current.merge(pressure.presentation_projection(pressure.preview(_query_engine(), state)))
 		else:
-			current.merge(Wind.preview(_engine, state, value))
+			current.merge(Wind.preview(_query_engine(), state, value))
 		layers.append(current)
 	for index: int in range(state.get("enemies", []).size()):
 		var enemy: Dictionary = state["enemies"][index]
-		if int(enemy.get("hp", 0)) <= 0 or int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0 or _engine.ManeuverRules.is_petrified(enemy) or not _engine.is_enemy_visible_to_player(state, enemy): continue
-		var plan: Dictionary = Wind.plan(_engine, state, index, enemy.get("intent", {}), false)
+		if int(enemy.get("hp", 0)) <= 0 or int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0 or _query_engine().ManeuverRules.is_petrified(enemy) or not _query_engine().is_enemy_visible_to_player(state, enemy): continue
+		var plan: Dictionary = Wind.plan(_query_engine(), state, index, enemy.get("intent", {}), false)
 		if plan.is_empty(): continue
 		var call: Dictionary = {"wind": plan["wind"], "dashed": true}
 		call.merge(plan["wind_preview"])
@@ -454,7 +459,7 @@ static func status_badges(unit: Dictionary) -> Array[Dictionary]:
 	if str(unit.get("type", "")) != "gale_herald": return badges
 	# The wind's source carries the wind sigil (owner, warband-markers-v2).
 	badges.append({"status_class": "trait", "icon": "wind", "count": 0, "fill": Palette.STEEL, "border": Palette.STEEL, "icon_tint": Color.WHITE, "tooltip": SOURCE_TOOLTIP})
-	var anchored: Array[Dictionary] = _engine.ManeuverRules.player_badges({"self_flags": {"anchored": {}}})
+	var anchored: Array[Dictionary] = _query_engine().ManeuverRules.player_badges({"self_flags": {"anchored": {}}})
 	for badge: Dictionary in anchored:
 		badge["tooltip"] = "Anchored: the wind does not move it."
 		badge["status_class"] = "trait"
@@ -482,29 +487,20 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 	scene._burst_playback.prepare(before, after)
 	if str(step["en02_mechanic"]) == "wind_push":
 		var value: Dictionary = before.get("wind", {})
-		var reduced: bool = scene._reduced_motion_enabled()
 		scene._play_sfx(Sfx.entry_for_enemy_step(step))
-		await scene._play_timed_animation_frames(1 if reduced else scene.MOVE_STEP_FRAMES, 0.0 if reduced else scene.MOVE_FRAME_SECONDS, func(frame: int) -> void:
-			var progress: float = 1.0 if reduced else float(frame) / float(scene.MOVE_STEP_FRAMES)
-			var positions: Dictionary = {}
-			for actor: Dictionary in Wind.actors(before, value["direction"]):
-				var key: String = _engine._surface_actor_key(str(actor["kind"]), int(actor["id"]))
-				var start: Vector2 = scene.board_view._tile_center(actor["unit"]["pos"])
-				var finish: Vector2 = scene.board_view._tile_center(_engine._surface_actor(after, str(actor["kind"]), int(actor["id"])).get("pos", actor["unit"]["pos"]))
-				positions[key] = start.lerp(finish, progress)
-			scene._render_board_state(before, {"effect": step, "effect_progress": progress, "unit_world_positions": positions}))
+		await preload("res://scripts/forced_displacement_view.gd").animate(scene, before, after, Wind.actors(before, value["direction"]), {"effect": step})
 	state.clear()
 	state.merge(after.duplicate(true), true)
 	scene._render_board_state(state, {})
 	scene._refresh_battlefield_rule_hud(state)
-	var feedback_step: Dictionary = preload("res://scripts/enemy_mechanics/burst_playback.gd").without_burst_losses(_engine, step, before, after)
+	var feedback_step: Dictionary = preload("res://scripts/enemy_mechanics/burst_playback.gd").without_burst_losses(_query_engine(), step, before, after)
 	var feedback: Array[Dictionary] = damage_texts(scene, feedback_step)
 	if not feedback.is_empty(): await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, {"floating_texts": feedback}))
 	await scene._animate_turn_order_alongside_defeats(before, state)
 
 static func animate_room_completion(scene: Control, before: Dictionary, after: Dictionary) -> bool:
 	if not Wind.room_sourced(before, before.get("wind", {})) or before == after: return false
-	var step: Dictionary = Wind.animation_step(_engine, before, after, -1, {"type": "wind_push"})
+	var step: Dictionary = Wind.animation_step(_query_engine(), before, after, -1, {"type": "wind_push"})
 	step["en02_state_before"] = before
 	await animate(scene, before.duplicate(true), step)
 	return true

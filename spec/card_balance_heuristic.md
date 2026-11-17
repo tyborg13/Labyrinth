@@ -317,8 +317,9 @@ Encounter calibration is also important:
   projected attack shown separately; exact projections also honor freeze,
   shock, immobilize, and deterministic lightning-strike tiles.
 - Elemental combat rooms seed `2-3` single-use traps, avoiding the player's
-  entry halo. Only the center occupant takes direct damage. The four cardinal
-  neighbors receive the element's surface, or an outward push for Air. Placement
+  entry halo. Only the center occupant takes direct damage. The center and four
+  cardinal neighbors receive the element's surface; Air only pushes cardinal
+  neighbors outward. Placement
   does not cause immediate Fire/Chill contact; diagonals are unaffected.
 - Generated traps retain fixed `6/7/8` damage at local depths `1/2/3` and `5`
   in first-sequence boss rooms, with later sequence bonuses `0/1/1/2/2/3`.

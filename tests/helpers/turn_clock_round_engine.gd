@@ -4,9 +4,9 @@ var finish_calls: int = 0
 var activation_kinds: Array[String]
 var _advancing: bool = false
 
-func finish_player_activation(state: Dictionary, accepted: Callable = Callable()) -> Dictionary:
+func finish_player_activation_with_rule_steps(state: Dictionary, accepted: Callable = Callable(), rule_steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
 	finish_calls += 1
-	return super.finish_player_activation(state, accepted)
+	return super.finish_player_activation_with_rule_steps(state, accepted, rule_steps)
 
 func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	_advancing = true

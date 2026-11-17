@@ -84,7 +84,7 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 	var unknown_repeat: bool = not (summary.get("repeated_enemy_names", []) as Array).is_empty()
 	for index: int in range(mini(2, portraits.size())):
 		if not bool(portraits[index].get("counted", false)): unknown_repeat = true
-	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)) and not unknown_repeat and not umbra_row and not clock_row:
+	if losses.is_empty() and int(amounts["fatigue"]) == 0 and not bool(summary.get("defeat", false)) and (summary.get("status_gains", {}) as Dictionary).is_empty() and not unknown_repeat and not umbra_row and not clock_row:
 		losses.append(_part("", "Safe", Palette.SUCCESS))
 	if not losses.is_empty(): result.append({"parts": losses})
 	for index: int in range(mini(2, portraits.size())):
@@ -101,6 +101,9 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 		var hp: int = int(summary.get("projected_hp", -1))
 		var max_hp: int = int(summary.get("projected_max_hp", -1))
 		result.append({"parts": [_part("defiance", "−%d → %s/%s" % [int(summary["defiance_spent"]), str(hp) if hp >= 0 else "?", str(max_hp) if max_hp > 0 else "?"], inks["defiance"])]})
+	for status: String in preload("res://scripts/pass_forecast_statuses.gd").FIELDS:
+		var gain: int = int(summary.get("status_gains", {}).get(status, 0))
+		if gain > 0: result.append({"parts": [_part(status, "+%d" % gain, inks["health"])], "status_gain": status})
 	# Any losses above stay as a known minimum, followed by the one Umbra "?" row.
 	if umbra_row:
 		result.append({"parts": [_part("umbra", "?", inks["unknown"])]})
@@ -206,7 +209,16 @@ static func configure(chip: Button, data: Array[Dictionary]) -> void:
 			portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			mask.add_child(portrait)
 		for part: Dictionary in row_data["parts"]:
-			if not str(part["icon"]).is_empty(): row.add_child(_icon(Icons.icon_texture(part["icon"]), ICON_SIZE))
+			# Status rows read icon-first like every other row; the icon carries the status tooltip (director, 2026-11-16).
+			var status_gain: bool = row_data.has("status_gain")
+			if not str(part["icon"]).is_empty():
+				var icon_node: TextureRect = _icon(Icons.icon_texture(part["icon"]), ICON_SIZE)
+				if status_gain:
+					icon_node.mouse_filter = Control.MOUSE_FILTER_PASS
+					icon_node.tooltip_text = Icons.tooltip(str(part["icon"]))
+					row.mouse_filter = Control.MOUSE_FILTER_PASS
+					column.mouse_filter = Control.MOUSE_FILTER_PASS
+				row.add_child(icon_node)
 			var value := RichTextLabel.new()
 			value.bbcode_enabled = true
 			value.fit_content = true

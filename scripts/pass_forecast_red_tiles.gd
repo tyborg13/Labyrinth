@@ -91,8 +91,9 @@ static func schedule(engine: RefCounted, source: Dictionary, accepted: Callable 
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	var marked: Dictionary = source.duplicate(false)
 	marked[BEAT_RECEIPT] = bool(source.get(BEAT_RECEIPT, false))
+	preload("res://scripts/pass_forecast_statuses.gd").begin(marked)
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
-	return engine.finish_player_activation(marked, accepted)
+	return engine.finish_player_activation(marked, preload("res://scripts/pass_forecast_statuses.gd").callback(engine, accepted))
 
 static func note_beat(engine: RefCounted, before: Dictionary, after: Dictionary) -> void:
 	if not after.has(BEAT_RECEIPT): return

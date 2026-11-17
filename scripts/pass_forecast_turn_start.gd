@@ -42,6 +42,7 @@ static func complete(engine: RefCounted, cursor: Dictionary) -> void:
 	cursor["fatigue_loss"] = int(cursor.get("fatigue_loss", 0)) + fatigue
 	# atk-04: a turn-start beat that moves a unit onto unseen ground.
 	preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, before, after, [])
+	preload("res://scripts/pass_forecast_statuses.gd").observe(after)
 	cursor["state"] = after
 	engine._record_runtime_performance_phase("pass_forecast_turn_start", started)
 

@@ -15276,6 +15276,7 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		tone = "warning"
 	var summary: Dictionary = {
 		"wait_time": _combat_engine.pending_wait_time(source_state),
+		"status_gains": phase_result.get("status_gains", {}),
 		"tone": tone,
 		"entries": entries,
 		"defeat": defeat,
@@ -15303,12 +15304,23 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 		# atk-07: hero turns Freeze skips inside this forecast's span.
 		"skipped_turns": int(phase_result.get("skipped_turns", 0))
 	}
+	var status_gains: Dictionary = (summary["status_gains"] as Dictionary).duplicate()
+	var source_status: Dictionary = preload("res://scripts/pass_forecast_statuses.gd").mark(source_state)
+	var current_status: Dictionary = preload("res://scripts/pass_forecast_statuses.gd").mark(_combat_state)
+	for field: String in source_status:
+		var gain: int = maxi(0, int(source_status[field]) - int(current_status[field]))
+		if gain > 0: status_gains[field] = int(status_gains.get(field, 0)) + gain
+	summary["status_gains"] = status_gains
 	# atk-03: counted repeat activations and which foes the simulation saw hurt you.
 	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
 	# atk-09: later activations' struck tiles and foes that die first, for the red tiles.
 	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").summary_fields(phase_result))
 	# atk-11: rule beats and surfaces laid under the hero that strike the hero's own tile.
 	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").hero_fields(_combat_engine, source_state, phase_result))
+	# atk-14: only a hovered destination gains the exact Chain-hit receipt.
+	# At-rest red keeps its existing policy. No new forecast is computed.
+	if source_state.get("player", {}).get("pos") != _combat_state.get("player", {}).get("pos"):
+		summary["hero_red_owners"].merge(phase_result.get("chain_hero_owners", {}), true)
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array, disclosed_actors: Dictionary = {}) -> Dictionary:
@@ -24458,11 +24470,14 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	# Schedule once before presenting the hand-off. The clock may return directly
 	# to the Reaver; an enemy banner must agree with actual activation selection.
 	var finish_activation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var scheduled_state: Dictionary = CommittedBattlefieldRules.finish_player_activation(_combat_engine, _combat_state)
+	var rule_steps: Array[Dictionary]
+	var scheduled_state: Dictionary = CommittedBattlefieldRules.finish_player_activation_with_rule_steps(_combat_engine, _combat_state, rule_steps)
 	_record_runtime_performance_phase("enemy_round_finish_player_activation", finish_activation_started)
 	_burst_playback.prepare(_combat_state, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
-	var room_pressure_animated: bool = await preload("res://scripts/enemy_mechanics/wind_view.gd").animate_room_completion(self, _combat_state, scheduled_state)
+	var rule_display: Dictionary = _combat_state.duplicate(true)
+	for beat: Dictionary in rule_steps:
+		await preload("res://scripts/battlefield_rules/playback.gd").animate(self, rule_display, beat)
 	if _combat_engine.enemy_acts_before_next_player_turn(scheduled_state):
 		_combat_pacing.begin_enemies()
 		_show_turn_banner(false)
@@ -24501,14 +24516,14 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_checkpoint_queue_total", performance_phase_started)
 	_hold_committed_run_state(queued_checkpoint_state, "player_activation_finished")
 	_record_runtime_performance_phase("enemy_round_initial_checkpoint_persist_total", performance_phase_started)
-	if not room_pressure_animated:
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
-		# atk-12: a beat after the hero's turn (a room's Frostbite) can hit the hero too.
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await preload("res://scripts/hero_loss_playback.gd").present(self, _combat_state.duplicate(false), scheduled_state)
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
+	if _hitch_trace_enabled: _hitch_continuation = null
+	await _animate_enemy_loss_feedback_between_states(rule_display, scheduled_state)
+	# Caption-only rules retain their existing completion effects; a played
+	# Lightning Storm/Gust has already reconciled its own losses on rule_display.
+	if _hitch_trace_enabled: _hitch_continuation = null
+	await preload("res://scripts/hero_loss_playback.gd").present(self, rule_display, scheduled_state)
+	if _hitch_trace_enabled: _hitch_continuation = null
+	await _animate_defeats_and_terrain_destruction(rule_display, scheduled_state)
 	_combat_pacing.present_initial_order(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
@@ -24725,6 +24740,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			if bool(step.get("hidden_by_umbra", false)): continue
 			await _combat_pacing.before_step(step, steps)
 			await IntentCallouts.play(self, animated_state, step)
+			continue
+		if bool(step.get("battlefield_rule_step", false)):
+			await preload("res://scripts/battlefield_rules/playback.gd").animate(self, animated_state, step)
 			continue
 		_ensure_sfx_bank()
 		await _combat_pacing.before_step(step, steps)
@@ -27114,6 +27132,10 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 
 func _set_action_banner(text: String) -> void:
 	text = _boss_move_caption(_combat_pacing.caption_text(text))
+	var rule_icon: Node = action_banner.get_node_or_null("BattlefieldRuleCaptionIcon")
+	if rule_icon != null:
+		action_banner.remove_child(rule_icon)
+		rule_icon.queue_free()
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
 	if not text.is_empty() and _turn_banner != null and _turn_banner.visible:

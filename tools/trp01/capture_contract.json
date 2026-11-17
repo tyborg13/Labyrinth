@@ -1,0 +1,59 @@
+{
+  "min_images": 3,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*trap_fire_tooltip_playing_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_air_tooltip_playing_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_fire_five_tile_aftermath_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

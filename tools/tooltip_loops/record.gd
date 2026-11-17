@@ -141,6 +141,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	if fixture["id"] == "rule_upheaval":
 		audit.failures.append_array(audit.upheaval.finish(board.seen_numbers, fixture, result))
 		visibility["upheaval"] = audit.upheaval.report()
+	if Fixture.Traps.IDS.has(fixture["id"]): visibility["trap"] = audit.traps.finish(board, fixture, audit.failures)
 	failures.append_array(audit.failures)
 	if not audit.failures.is_empty(): valid_recording = false
 	print("TIP04 PATCH VISIBILITY %s: %s %s" % [fixture["id"], "PASS" if audit.failures.is_empty() else "FAIL", JSON.stringify(visibility)])
@@ -171,6 +172,9 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			valid_recording = false
 	var completed: bool = bool(completion["done"])
 	var limit: int = mini(action_frame_limit(str(row.get("speed", "normal"))), int(row.get("max_recording_frames", FAST_MAX_ACTION_FRAMES)))
+	if frames < int(row.get("min_recording_frames", 1)):
+		failures.append("Recording is shorter than the authored minimum: " + str(row["id"]))
+		valid_recording = false
 	if completed and frames > limit:
 		failures.append("%s needs %d frames (%.3f s) at %s speed; exceeds %.1f s. Recording rejected; no beats skipped." % [row["id"], frames, float(frames) / FPS, row.get("speed", "normal"), float(limit) / FPS])
 	if not completed:
@@ -238,6 +242,8 @@ static func background_is_settled(image: Image, crop: Rect2i, expected: Color) -
 func _source_hashes() -> Dictionary:
 	var hashes: Dictionary = {}
 	for path: String in ["data/tooltip_loops.json", "scripts/settings_store.gd", "tools/tooltip_loops/record.gd", "tools/tooltip_loops/fixture.gd", "tools/tooltip_loops/tip03_fixture.gd", "tools/tooltip_loops/tip04_fixture.gd", "tools/tooltip_loops/tip05_fixture.gd", "tools/tooltip_loops/tip05_checks.gd", "tools/tooltip_loops/terrain_checks.gd", "scripts/battlefield_rule_hud.gd", "scripts/displacement_throw.gd", "scripts/battlefield_rules/upheaval.gd", "scripts/snare_pressure_rules.gd", "scripts/snare_pressure_view.gd", "scripts/enemy_mechanics/burrow.gd", "data/special_encounters.json", "tools/tooltip_loops/patch_checks.gd", "tools/tooltip_loops/sprite_margin.gd", "scripts/battlefield_rules/gust.gd", "scripts/battlefield_rules/frostbite.gd", "scripts/battlefield_rules/wildfire.gd", "scripts/battlefield_rules/shadowstep.gd", "scripts/battlefield_rule_view.gd", "scripts/enemy_mechanics/stalker.gd", "scripts/enemy_mechanics/stalker_view.gd", "tools/tooltip_loops/playback.gd", "tools/tooltip_loops/record_board.gd", "scripts/run_scene.gd", "scripts/combat_board_view.gd", "data/cards.json", "data/enemies.json", "data/battlefield_rules.json", "scripts/battlefield_rules/dispatcher.gd", "scripts/battlefield_rules/lightning_storm.gd", "scripts/board_surface_rules.gd", "scripts/enemy_mechanics/chain_hit_feedback.gd", "assets/units/storm_capacitor_cutout/actions.gd", "scripts/enemy_mechanics/capacitor_view.gd"]:
+		hashes[path] = FileAccess.get_sha256("res://" + path)
+	for path: String in ["scripts/combat_engine.gd", "scripts/room_generator.gd", "scripts/board_tile_tooltip.gd", "scripts/tooltip_loop_registry.gd", "scripts/forced_displacement_view.gd", "scripts/enemy_mechanics/wind_view.gd", "tools/tooltip_loops/trap_fixture.gd", "tools/tooltip_loops/trap_checks.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	return hashes
 

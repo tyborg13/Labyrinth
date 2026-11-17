@@ -73,7 +73,7 @@ static func _illusion_hits(engine: RefCounted, battle: Callable, rule: Callable,
 		state = engine._surface_contact(state, "illusion", int(ILLUSION["id"]), engine.INVALID_TILE, true)
 		Rules.install(engine, state, rule.call(id, {"damage": 0, "chain": 0}))
 		after = compare.call(engine, state, expect)
-		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == 1, "Zero-damage battlefield hit retains its illusion status: " + id)
+		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == (1 if id == "frostbite" else 0), "Zero-damage battlefield hit retains its illusion status: " + id)
 		if id == "frostbite": expect.call(not Surfaces.has_surface(after, ILLUSION["pos"], "ice"), "Zero-damage battlefield Ice hit expends the illusion's Ice")
 
 # el-02 feedback: each Anchored case has an otherwise identical movable control.

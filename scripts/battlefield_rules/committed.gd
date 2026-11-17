@@ -36,6 +36,9 @@ static func player_card(engine: RefCounted, before: Dictionary, resolved: Dictio
 static func finish_player_activation(engine: RefCounted, state: Dictionary) -> Dictionary:
 	return engine.finish_player_activation(state, callback(engine))
 
+static func finish_player_activation_with_rule_steps(engine: RefCounted, state: Dictionary, rule_steps: Array[Dictionary]) -> Dictionary:
+	return engine.finish_player_activation_with_rule_steps(state, callback(engine), rule_steps)
+
 static func advance_one_activation(engine: RefCounted, state: Dictionary, include_commit_steps: bool = true) -> Dictionary:
 	return engine.advance_one_activation_with_steps(state, include_commit_steps, callback(engine))
 

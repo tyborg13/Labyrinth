@@ -15,6 +15,13 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_TILE := Vector2i(4, 4)
 const SETTLE_FRAMES: int = 3
 const TRAP_DAMAGE: int = 7
+const TRAP_COPY: Dictionary = {
+	"fire": "Fire Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_fire) on this tile and each tile next to it.",
+	"ice": "Ice Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_ice) on this tile and each tile next to it.",
+	"lightning": "Lightning Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_electrified) on this tile and each tile next to it.",
+	"earth": "Earth Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_rubble) on this tile and each tile next to it.",
+	"air": "Air Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\n@kw(push) each unit next to this tile 1 tile away.",
+}
 const RETAINED_CLOCK_SAMPLES: int = 3
 const PROOF_CURSOR_EDGE_POINTS: Array = [Vector2(0, 0), Vector2(1919, 0), Vector2(0, 1079), Vector2(1919, 1079)]
 const PROOF_REDUCED_PHASE: float = 0.37
@@ -64,7 +71,7 @@ func _run() -> void:
 			_check(entries.size() == (3 if trapped else 2), "One panel per co-located effect")
 			_check(entries[0]["icon"] == "surface_" + kind and entries[0]["description"] == copy[kind], "Elemental first, exact copy")
 			_check(entries[1]["icon"] == "surface_rubble" and entries[1]["description"] == "Walking out of Rubble costs 2 movement.", "Rubble second, exact copy")
-			if trapped: _check(entries[2] == TileTooltip.from_text(board._trap_tooltip_text(state["traps"][0])), "Trap last, exact copy")
+			if trapped: _check(entries[2] == _trap_entry("earth"), "Trap last, exact copy and loop metadata")
 			run_scene.set("_combat_state", state)
 			var candidate: Dictionary = run_scene.call("_controller_candidate_for_tile", PROOF_TILE)
 			_check(candidate["detail_key"] == controller, "Real controller candidate requests the shared stack")
@@ -103,6 +110,12 @@ func _run() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void:
+	for element: String in TRAP_COPY:
+		var trapped: Dictionary = Fixture.fixture(engine)
+		trapped["traps"] = [{"pos": PROOF_TILE, "element": element, "damage": TRAP_DAMAGE}]
+		board.set_combat_state(trapped)
+		_check(board._trap_tooltip_text(trapped["traps"][0]) == TRAP_COPY[element], "Approved per-element trap copy: " + element)
+		_check(TileTooltip.entries(board, PROOF_TILE) == [_trap_entry(element)], "Trap icon, copy and tooltip loop: " + element)
 	var state: Dictionary = Fixture.fixture(engine)
 	Ground.place(state, PROOF_TILE, "fire")
 	state["surface_rule_overrides"] = {"conductive_fire": true}
@@ -139,6 +152,12 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	state["umbra"]["stage"] = "eclipse"
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"umbra_visible_tiles": []})
 	_check(board.controller_tooltip_for_tile(PROOF_TILE).is_empty(), "Unknown tiles disclose no effects, terrain, marks, or loot")
+
+func _trap_entry(element: String) -> Dictionary:
+	var entry: Dictionary = TileTooltip.from_text(TRAP_COPY[element], "traps")
+	entry["loop_term"] = "traps"
+	entry["loop_source"] = {"kind": "trap", "element": element}
+	return entry
 
 func _native_popup_layout(board: Control, engine: RefCounted) -> void:
 	# Exercise the actual PopupPanel and deferred ornament sanitizer under the

@@ -4,6 +4,7 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Base = preload("res://tests/suites/board_surface_suite.gd")
 const Ground = preload("res://scripts/board_surface_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const DYNAMIC_EARTH_TRAP_FULL_BUDGET: int = 5 # Synthetic fixture pays both new Rubble exits.
 const Relics = preload("res://scripts/surface_relic_rules.gd")
 
 static func run(expect: Callable) -> void:
@@ -72,7 +73,7 @@ static func _test_mid_move_rubble_cost(combat: Combat, expect: Callable) -> void
 	state["enemies"][0]["pos"] = Vector2i(7, 3)
 	state["traps"] = [{"id": "movement_earth", "pos": Vector2i(3, 3), "element": "earth", "damage": 0}]
 	# The three-step request initially fits. Its first step paints Rubble on
-	# the second tile, so leaving that tile costs the final two points.
+	# the center and second tile; leaving the center spends the last two points.
 	state["relics"] = ["pilgrim_boots"]
 	state["player_movement_capacity"] = 3
 	state["player_movement_remaining"] = 3
@@ -81,7 +82,7 @@ static func _test_mid_move_rubble_cost(combat: Combat, expect: Callable) -> void
 	split = combat.apply_player_movement(split, Vector2i(4, 3))
 	split = combat.apply_player_movement(split, Vector2i(5, 3))
 	expect.call(grouped["player"]["pos"] == split["player"]["pos"] and grouped["player_movement_remaining"] == split["player_movement_remaining"], "A trap creating Rubble mid-move must cost the same for one movement request and split clicks")
-	expect.call(grouped["player"]["pos"] == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 1, "The already-spent pool must stop before leaving newly created Rubble")
+	expect.call(grouped["player"]["pos"] == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 0, "The pool pays to leave center Rubble and stops before leaving the next Rubble tile")
 
 static func _test_hidden_aoe_chain_head(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -212,14 +213,15 @@ static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Call
 	for intent: Dictionary in GameData.enemy_def("crawler")["intents"]:
 		if str(intent["id"]) == "lunge":
 			state["enemies"][0]["intent"] = intent.duplicate(true)
-	# Synthetic four-point budget keeps the dynamic-cost regression independent of roster tuning.
-	state["enemies"][0]["intent"]["actions"][0]["range"] = 4
+	# Synthetic budget keeps this regression independent of roster tuning while
+	# paying for Rubble on both the triggered center and its cardinal neighbor.
+	state["enemies"][0]["intent"]["actions"][0]["range"] = DYNAMIC_EARTH_TRAP_FULL_BUDGET
 	state["grid"][3][3] = "wall"
 	state["grid"][4][4] = "wall"
 	state["traps"] = [{"id": "earth_path", "pos": Vector2i(4, 2), "element": "earth", "damage": 2}]
 	var before: Dictionary = state.duplicate(true)
 	var record: Dictionary = {}
-	for candidate: Dictionary in combat._enemy_actual_path_records(state, state["enemies"][0], 4):
+	for candidate: Dictionary in combat._enemy_actual_path_records(state, state["enemies"][0], DYNAMIC_EARTH_TRAP_FULL_BUDGET):
 		if candidate["tile"] == Vector2i(2, 2):
 			record = candidate
 	expect.call(not record.is_empty() and int(record.get("steps", 0)) == 3, "Dynamic Earth-trap route initially costs three movement")
@@ -227,15 +229,15 @@ static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Call
 		return
 	var path: Array[Vector2i]
 	path.assign(record["path"])
-	for allowance: int in [4, 3]:
+	for allowance: int in [DYNAMIC_EARTH_TRAP_FULL_BUDGET, 3]:
 		var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record, allowance)
 		var context: Dictionary = {}
 		var after: Dictionary = combat._move_enemy_along_planned_path(state.duplicate(true), 0, path, context, allowance)
-		var expected: Vector2i = Vector2i(2, 2) if allowance == 4 else Vector2i(3, 2)
+		var expected: Vector2i = Vector2i(2, 2) if allowance == DYNAMIC_EARTH_TRAP_FULL_BUDGET else Vector2i(3, 2)
 		expect.call(prediction["destination"] == expected and after["enemies"][0]["pos"] == expected, "Forecast and execution honor the full Move %d budget after trap-created Rubble" % allowance)
 		expect.call(int(prediction["health_lost"]) == 2 and int(after["enemies"][0]["hp"]) == 8, "Dynamic route forecast matches actual trap damage at Move %d" % allowance)
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
-	expect.call(plan["path"] == path and bool(plan["attack_available"]), "The synthetic pursuit uses its spare fourth movement point to retain the legal same-turn melee route")
+	expect.call(plan["path"] == path and bool(plan["attack_available"]), "The synthetic pursuit uses its full budget to pay both Rubble exits and retain the same-turn melee route")
 	expect.call(state == before, "Dynamic route forecasts preserve the input state")
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
 	expect.call(resolved["enemies"][0]["pos"] == Vector2i(2, 2) and int(resolved["enemies"][0]["hp"]) == 8 and int(resolved["player"]["hp"]) < int(state["player"]["hp"]), "The selected full-budget dynamic route arrives alive and resolves melee")

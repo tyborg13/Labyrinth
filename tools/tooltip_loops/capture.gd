@@ -185,6 +185,14 @@ func _open(scene: Node, row: Dictionary) -> Control:
 		await create_timer(HOVER_WAIT_SECONDS, true, false, true).timeout
 		return _tooltip(hud)
 	var board: Control = scene.get("board_view")
+	if row["source_match"].get("kind") == "trap":
+		var tile: Vector2i = Fixture.Traps.CENTER
+		await _pointer(board.get_global_transform_with_canvas() * board._tile_center(tile))
+		await create_timer(HOVER_WAIT_SECONDS, true, false, true).timeout
+		var text: String = board.call("_get_tooltip", board._tile_center(tile))
+		var entries: Array[Dictionary] = preload("res://scripts/board_tile_tooltip.gd").decode(text)
+		_expect(entries.any(func(entry: Dictionary) -> bool: return entry.get("loop_source", {}) == row["source_match"]), "Native tile hover owns this trap element: " + str(row["id"]))
+		return _tooltip(board)
 	await _pointer(CLEAR_POINTER)
 	for attempt: int in range(HOVER_ROUTE_ATTEMPTS):
 		for frame: int in range(OUTER_POPUP_SETTLE_FRAMES): await process_frame
@@ -295,7 +303,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 16, "Fifteen existing plus the room Upheaval script")
+	_expect(Registry.entries().size() == 21, "Sixteen existing loops plus five element-specific trap scripts")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -307,7 +315,7 @@ func _semantics() -> void:
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
-		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))
@@ -382,6 +390,7 @@ func _semantics() -> void:
 	await _outer_popup_semantics(path)
 	await preload("res://tools/tooltip_loops/tip03_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/tip04_context.gd").verify(self, path)
+	await preload("res://tools/tooltip_loops/trap_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/capture_checks.gd").verify(self)
 	# 0.6 s margin: the last panel can close a frame or two after this point on a loaded machine.
 	await create_timer(10.6, true, false, true).timeout

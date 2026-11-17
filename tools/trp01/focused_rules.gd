@@ -1,0 +1,22 @@
+extends "res://tests/run_tests.gd"
+## Run only the existing affected suites, never the full harness initializer.
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	_test_room_generation_populates_elemental_traps()
+	_test_lightning_trap_wake_preserves_current_turn_actions()
+	_test_lightning_trap_wake_never_banks_obsolete_control()
+	_test_move_paths_only_cross_required_traps()
+	_test_attacking_trap_creates_delayed_cardinal_fire()
+	_test_trap_wake_preserves_incidental_terrain()
+	_test_enemy_attacks_profitable_trap_without_self_damage()
+	_test_enemy_threat_tiles_exclude_nonexistent_radial_trap_damage()
+	_test_enemy_pathfinding_avoids_traps()
+	_test_air_trap_tooltip_is_damage_only()
+	var expect := Callable(self, "_assert")
+	preload("res://tests/suites/board_surface_suite.gd").run(expect)
+	preload("res://tests/suites/surface_core_review_suite.gd").run(expect)
+	preload("res://tests/suites/enemy_surface_acceptance_suite.gd").run(expect)
+	preload("res://tests/suites/destruction_preview_suite.gd").run(expect)
+	preload("res://tests/suites/skill_combat_suite.gd")._test_sure_footed(expect)
+	print("TRP01 FOCUSED TRAP/SURFACE: %s (%d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _assertion_count, _failures.size()])
+	_finish_test_result()

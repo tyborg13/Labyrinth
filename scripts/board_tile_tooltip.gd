@@ -16,7 +16,11 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 	var result: Array[Dictionary] = Surface.tooltip_entries(view.combat_state, tile)
 	var state: Dictionary = view.combat_state
 	for trap: Dictionary in state.get("traps", []):
-		if trap.get("pos") == tile: result.append(from_text(view._trap_tooltip_text(trap)))
+		if trap.get("pos") == tile:
+			var entry: Dictionary = from_text(view._trap_tooltip_text(trap), "traps")
+			entry["loop_term"] = "traps"
+			entry["loop_source"] = {"kind": "trap", "element": str(trap.get("element", ""))}
+			result.append(entry)
 	# Preserve the controller's existing terrain-before-loot traversal. Surface
 	# effects and traps now precede both, per the tile stack contract.
 	for terrain: Dictionary in state.get("terrain", []):
@@ -134,7 +138,7 @@ static func make_stack(values: Array[Dictionary], builder: Callable) -> VBoxCont
 			var icon: String = str(entry.get("icon", ""))
 			var texture: Texture2D = Icons.icon_texture(icon) if not icon.is_empty() else null
 			var lines := PackedStringArray([str(entry["description"])]) if not str(entry["description"]).is_empty() else PackedStringArray()
-			panel = Panels.make_icon_lines(texture, str(entry["title"]), lines) if texture != null else Panels.make_lines(str(entry["title"]), lines)
+			panel = Panels.make_icon_lines(texture, str(entry["title"]), lines, str(entry.get("loop_term", "")), entry.get("loop_source", {})) if texture != null else Panels.make_lines(str(entry["title"]), lines)
 		if panel == null: continue
 		panel.set_meta("tile_tooltip_entry", entry.duplicate(true))
 		stack.add_child(panel)

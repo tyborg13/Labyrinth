@@ -225,7 +225,8 @@ func _test_rubble_stop_presentation(scene: Node, combat: RefCounted) -> void:
 	var planned: Array = combat.path_for_player_action(state, action, requested)
 	var grouped: Dictionary = combat.apply_player_movement(state, requested)
 	var endpoint: Vector2i = grouped["player"]["pos"]
-	assert(endpoint == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 1)
+	# trp-01: departing the trap's own Rubble spends the final movement point.
+	assert(endpoint == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 0)
 	var shown: Array = scene.call("_resolved_movement_animation_path", state["player"]["pos"], endpoint, planned)
 	assert(shown == [Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3)], "Grouped walk presentation stops on newly created Rubble before an unaffordable departure")
 	var bent: Array = [Vector2i(2, 2), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4)]

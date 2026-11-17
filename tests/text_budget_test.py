@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from marked_glossary_contract import MARKED_DEFINITION, MARKED_RETIRED, marked_glossary_supersession
+from trap_copy_contract import TRAP_DEFINITION
 
 ROOT = Path(__file__).resolve().parents[1]
 # Read the renderer's grammar rather than maintaining a narrower Python copy.
@@ -85,6 +86,7 @@ class TextBudgetTest(unittest.TestCase):
         self.assertTrue(RETIRED_TERMS.isdisjoint(self.glossary))
         short_copy.pop("mirror")
         short_copy["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
+        short_copy["traps"] = TRAP_DEFINITION
         self.assertTrue(set(short_copy).issubset(live))
         self.assertEqual(len(live), 142)
         # mrk-01 replaces four keywords with Marked, without rewriting the
@@ -105,7 +107,12 @@ class TextBudgetTest(unittest.TestCase):
                 self.assertTrue(set(source["aliases"]).issubset(actual["aliases"]))
                 if source.get("current_name") and source["current_name"] != source["name"]:
                     self.assertIn(source["current_name"], actual["aliases"])
-                self.assertLessEqual(words(actual["definition"]), 20)
+                # trp-01 explicitly replaces the former short copy with this
+                # exact approved definition; every other term keeps its budget.
+                if key == "traps":
+                    self.assertEqual(words(actual["definition"]), words(TRAP_DEFINITION))
+                else:
+                    self.assertLessEqual(words(actual["definition"]), 20)
                 self.assertEqual(actual["icon"] is None, key in TEXT_ONLY)
         self.assertIn("chain_discharge", self.glossary["charge"]["aliases"])
         self.assertNotIn("chain_discharge", self.glossary["chain"]["aliases"])

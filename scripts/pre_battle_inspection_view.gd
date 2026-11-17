@@ -118,7 +118,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
 		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
 		var shown: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)
-		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", "")))))
+		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", ""))), enemy, battle))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel
@@ -132,8 +132,8 @@ static func rules_label(text: String, node_name: String, width: float) -> Label:
 	result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return result
 
-static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) -> Control:
-	var rows: Array = move_rows(intent)
+static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, unit: Dictionary = {}, state: Dictionary = {}) -> Control:
+	var rows: Array = move_rows(intent, unit if not unit.is_empty() else source, state)
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
 	var plate := LoopMovePlate.new()
 	plate.loop_source = source
@@ -160,10 +160,24 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) 
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var summary: String = ActionIcons.plain_text_for_rows(rows).replace("\n", "  /  ")
+	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(state, unit if not unit.is_empty() else source, intent)
+	var own_rows: Array = rows.duplicate()
+	if not beat_row.is_empty(): own_rows.pop_back()
+	var summary: String = ActionIcons.plain_text_for_rows(own_rows).replace("\n", "  /  ")
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
 	text_box.add_child(rules_label(summary if not summary.is_empty() else "Recovers." if actions.is_empty() else "Special action", "PreBattleMoveEffect", 410.0))
+	if not beat_row.is_empty():
+		var markup := PackedStringArray()
+		for token: Dictionary in beat_row:
+			if not str(token.get("icon", "")).is_empty(): markup.append("@" + "icon(" + str(token["icon"]) + ")")
+			var value: String = ActionIcons.token_value_text(token)
+			if not value.is_empty(): markup.append(value)
+		var beat_label: RichTextLabel = preload("res://scripts/ui_tooltip_panel.gd")._make_rich_label(" ".join(markup), 410.0, Typography.ROLE_CAPTION, Palette.TEXT_2, 0)
+		beat_label.name = "PreBattleRuleBeat"
+		beat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		beat_label.set_meta("rule_tokens", beat_row)
+		text_box.add_child(beat_label)
 	if source.get("id") in ["burrow_grub", "hoarfrost_seer", "slag_mortar"]:
 		for action: Dictionary in actions:
 			if str(action.get("type", "")) in ["burrow", "erupt", "icefall_mark", "icefall_land", "lob_mark", "lob_land"]: plate.tooltip_text = ActionIcons.marked_move_text(action)
@@ -185,9 +199,12 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}) 
 	time_chip.add_child(time_label)
 	return plate
 
-static func move_rows(intent: Dictionary) -> Array:
+static func move_rows(intent: Dictionary, source: Dictionary = {}, state: Dictionary = {}) -> Array:
 	var capacitor: Array = CapacitorView.rows(intent)
-	return capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(intent.get("actions", []))
+	var rows: Array = capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(intent.get("actions", []))
+	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(state, source, intent)
+	if not beat_row.is_empty(): rows.append(beat_row)
+	return rows
 
 static func move_tooltip(rows: Array) -> String:
 	var details := PackedStringArray()

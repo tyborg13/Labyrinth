@@ -88,7 +88,7 @@ enemies use actor-level targeting: one legal visible footprint tile makes the
 whole footprint clickable, but the action still counts as one target and one
 hit for scoring.
 Elemental rooms seed 2-3 single-use traps. Direct damage only hits the
-center occupant; four cardinal neighbors receive Fire, Ice, Rubble or Electrified.
+center occupant; center and four cardinal neighbors receive Fire, Ice, Rubble or Electrified.
 Air traps push cardinal neighbors outward. Shared permanent surfaces replace
 intensity: Fire deals 2 on entry and 3 on actor start; Ice activates Chill on entry
 or start and an Ice hit can consume it to Freeze. Rubble costs 2 to leave with a
@@ -442,7 +442,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "chilled_direct_damage_bonus": 2,
             "frozen_direct_damage_multiplier": 3,
             "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; Stormcoal Fire is consumed",
-            "trap_shape": "center-only direct damage; cardinal wake",
+            "trap_shape": "center-only direct damage; center and cardinal ground; Air cardinal push only",
             "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost",
         },
         "sequence_scaling": {

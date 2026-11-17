@@ -29,6 +29,11 @@ class DiscoveryScene extends Node:
 func _initialize() -> void:
 	call_deferred("_run")
 
+const TRP01_TRAP_BODY: Array = [
+	"A trap triggers when a unit enters its tile or an attack hits that tile. The trap damages the unit on its tile, then leaves its element on that tile and each tile next to it. An Air trap leaves no ground: it pushes each unit next to it 1 tile away.",
+	"Trigger when entered or attacked. Damage the unit on them, then leave their element on their tile and each tile next to it."
+]
+
 func _run() -> void:
 	Runtime.apply_from_environment()
 	var copy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(COPY_PATH))
@@ -49,6 +54,8 @@ func _run() -> void:
 	for edit: Dictionary in tt02["glossary_edits"]:
 		superseding[edit["id"]] = edit["text"]
 	superseding["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
+	# trp-01 (owner 2026-11-16): traps also leave their ground on their own tile; director copy supersedes the tt-era text.
+	superseding["traps"] = "Trigger when entered or attacked: damage the unit on them, then leave their element on their tile and each tile next to it. Air traps push instead."
 	_expect((_expectations["owners"] as Dictionary).size() == (copy["entries"] as Array).size(), "Every changed term has an independently specified owning topic")
 	for change: Dictionary in copy["entries"]:
 		var id: String = str(change["id"])
@@ -68,6 +75,8 @@ func _run() -> void:
 		if id in ["gale_force", "worldspines"]:
 			var approved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_feedback1_grimoire.json"))
 			_expect(entry.get("body", []) == approved["entries"][owner]["body"], "bos-02 approved full rules replace retired prose: " + id)
+		elif id == "traps":
+			_expect(entry.get("body", []) == TRP01_TRAP_BODY, "trp-01 director rules own the trap topic: " + id + " -> " + owner)
 		else:
 			_expect((entry.get("body", []) as Array).has(UMBRA_AREA_BODY if id == "umbra" else change["old"]), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
 	_test_new_entry_schema(changes, entry_map)

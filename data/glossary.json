@@ -721,7 +721,7 @@
     "id": "traps",
     "name": "Traps",
     "icon": "traps",
-    "definition": "Trigger when entered or hit, spreading their element around.",
+    "definition": "Trigger when entered or attacked: damage the unit on them, then leave their element on their tile and each tile next to it. Air traps push instead.",
     "aliases": []
   },
   {

@@ -225,6 +225,71 @@
       "speed": "normal",
       "max_recording_frames": 135,
       "max_asset_bytes": 1500000
+    },
+    {
+      "id": "trap_fire",
+      "term": "traps",
+      "source_match": {
+        "kind": "trap",
+        "element": "fire"
+      },
+      "asset_path": "res://assets/tooltip_loops/trap_fire.tlw",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 96,
+      "min_recording_frames": 36
+    },
+    {
+      "id": "trap_ice",
+      "term": "traps",
+      "source_match": {
+        "kind": "trap",
+        "element": "ice"
+      },
+      "asset_path": "res://assets/tooltip_loops/trap_ice.tlw",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 96,
+      "min_recording_frames": 36
+    },
+    {
+      "id": "trap_lightning",
+      "term": "traps",
+      "source_match": {
+        "kind": "trap",
+        "element": "lightning"
+      },
+      "asset_path": "res://assets/tooltip_loops/trap_lightning.tlw",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 96,
+      "min_recording_frames": 36
+    },
+    {
+      "id": "trap_earth",
+      "term": "traps",
+      "source_match": {
+        "kind": "trap",
+        "element": "earth"
+      },
+      "asset_path": "res://assets/tooltip_loops/trap_earth.tlw",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 96,
+      "min_recording_frames": 36
+    },
+    {
+      "id": "trap_air",
+      "term": "traps",
+      "source_match": {
+        "kind": "trap",
+        "element": "air"
+      },
+      "asset_path": "res://assets/tooltip_loops/trap_air.tlw",
+      "speed": "normal",
+      "max_asset_bytes": 1500000,
+      "max_recording_frames": 96,
+      "min_recording_frames": 36
     }
   ]
 }

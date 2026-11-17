@@ -1,0 +1,263 @@
+{
+  "min_images": 15,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*trap_fire_source_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_fire_source_first_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_fire_source_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_ice_source_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_ice_source_first_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_ice_source_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_lightning_source_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_lightning_source_first_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_lightning_source_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_earth_source_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_earth_source_first_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_earth_source_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_air_source_start_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_air_source_first_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*trap_air_source_end_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

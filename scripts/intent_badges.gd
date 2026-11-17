@@ -15,6 +15,10 @@ const MEDALLION_DIAMETER: float = 32.0
 const PLATE_HEIGHT: float = 22.0
 const PRIMARY_ICON_SIZE: float = 24.0
 const SECONDARY_ICON_SIZE: float = 16.0
+const RULE_RIDER_SIZE: float = SECONDARY_ICON_SIZE
+const RULE_RIDER_SHOULDER_FACTOR: float = 0.72
+const RULE_RIDER_OUTLINE: float = 3.0
+const RULE_RIDER_OFFSET := Vector2(-MEDALLION_DIAMETER * 0.5 * RULE_RIDER_SHOULDER_FACTOR - RULE_RIDER_SIZE * 0.5, MEDALLION_DIAMETER * 0.5 * RULE_RIDER_SHOULDER_FACTOR - RULE_RIDER_SIZE * 0.5)
 const PRIMARY_FONT_SIZE: int = 19
 const SECONDARY_FONT_SIZE: int = 15
 const ORDER_FONT_SIZE: int = 15
@@ -171,6 +175,8 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			# Stagger past the hero suppresses the announced attack in this preview.
 			cancelled = cancelled or (state_changed and not acting and committed_orders.has(actor_key))
 		var badge: Dictionary = descriptor(primary, intent, repeated_action)
+		var beat: Dictionary = preload("res://scripts/battlefield_rules/intent_rows.gd").instance_for(known_preview, enemy, intent)
+		badge["rule_icon"] = str(beat.get("rule", ""))
 		badge.merge({"key": actor_key, "order": "·".join(orders.get(actor_key, PackedStringArray())),
 			"repeats": (orders.get(actor_key, PackedStringArray()) as PackedStringArray).size(),
 			"acting": acting, "cancelled": cancelled,
@@ -230,16 +236,23 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}, repeated_act
 		if str(token.get("icon", "")) in ["bleed", "chilled", "push", "pull", "shock", "freeze", "immobilize", "expose", "stagger"] and (str(token.get("icon", "")) != Icons.action_icon_key(action) or (kind in ["push", "pull"] and int(action.get("damage", 0)) > 0)):
 			riders.append(token)
 	if int(action.get("chilled", 0)) > 0: riders.append({"icon": "chilled", "value": action["chilled"]})
+	var condition: String = ""
+	for token: Dictionary in Icons.tokens_for_surface_bonus(action):
+		if str(token.get("kind", "")) == "surface_condition": condition = str(token.get("icon", ""))
+		else:
+			var rider: Dictionary = token.duplicate(true)
+			rider["condition_icon"] = condition
+			riders.append(rider)
 	var secondary: Dictionary = secondary_rider(riders)
 	return {"icon": Icons.action_icon_key(action), "number": number,
-		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": Icons.token_value_text(secondary),
+		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": Icons.token_value_text(secondary), "condition_icon": str(secondary.get("condition_icon", "")),
 		"family": "movement" if kind in Compass.MOVEMENT_TYPES else Compass.FAMILY_SUPPORT if kind == "upheaval_mark" else "attack" if is_attack(action) else Compass.family_for_action(action)}
 
 static func secondary_rider(riders: Array) -> Dictionary:
 	for icon: String in SECONDARY_PRIORITY:
 		for rider: Dictionary in riders:
 			if str(rider.get("icon", "")) == icon: return rider
-	return {}
+	return riders[0] if not riders.is_empty() else {}
 
 static func is_area_intent(intent: Dictionary) -> bool:
 	for action: Dictionary in intent.get("actions", []):
@@ -254,6 +267,7 @@ static func plate_end(badge: Dictionary, font: Font) -> float:
 	if not str(badge.get("secondary_icon", "")).is_empty():
 		end += SECONDARY_GAP + SECONDARY_ICON_SIZE
 		end += font.get_string_size(str(badge.get("secondary_number", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, SECONDARY_FONT_SIZE).x
+		if not str(badge.get("condition_icon", "")).is_empty(): end += SECONDARY_ICON_SIZE
 	return end + CONTENT_END_PADDING
 
 static func chip_rect(center: Vector2, badge: Dictionary, font: Font) -> Rect2:
@@ -492,7 +506,9 @@ static func _draw_tab(board: Control, badge: Dictionary, font: Font) -> void:
 		if not str(badge.get("secondary_icon", "")).is_empty():
 			x += SECONDARY_GAP
 			_draw_icon(board, str(badge["secondary_icon"]), Rect2(Vector2(x, center.y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
-			_draw_number(board, font, str(badge.get("secondary_number", "")), x + SECONDARY_ICON_SIZE, center.y + 1.0, SECONDARY_FONT_SIZE, alpha)
+			x = _draw_number(board, font, str(badge.get("secondary_number", "")), x + SECONDARY_ICON_SIZE, center.y + 1.0, SECONDARY_FONT_SIZE, alpha)
+			if not str(badge.get("condition_icon", "")).is_empty():
+				_draw_icon(board, str(badge["condition_icon"]), Rect2(Vector2(x, center.y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
 
 static func _draw_disc(board: Control, badge: Dictionary, triangle_batch: RefCounted = null) -> void:
 	var center: Vector2 = badge["center"]
@@ -509,6 +525,8 @@ static func _draw_disc(board: Control, badge: Dictionary, triangle_batch: RefCou
 	_draw_icon(board, str(badge["icon"]), icon_rect, alpha)
 	if bool(badge.get("cancelled", false)):
 		board.draw_line(Vector2(icon_rect.position.x, icon_rect.end.y), Vector2(icon_rect.end.x, icon_rect.position.y), Color(Palette.TEXT_2, alpha), 2.0, true)
+	if not str(badge.get("rule_icon", "")).is_empty():
+		_draw_rule_rider(board, str(badge["rule_icon"]), Rect2(center + RULE_RIDER_OFFSET, Vector2.ONE * RULE_RIDER_SIZE), alpha)
 	_draw_repeat_pip(board, badge, center, alpha)
 
 # atk-03 (director 2026-11-13): a foe due to act twice or more before the hero's
@@ -535,6 +553,21 @@ static func _draw_centered_text(board: Control, font: Font, text: String, rect: 
 static func _draw_icon(board: Control, key: String, rect: Rect2, alpha: float) -> void:
 	var texture: Texture2D = Icons.icon_texture(key)
 	if texture != null: board.draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, alpha))
+
+static func _draw_rule_rider(board: Control, key: String, rect: Rect2, alpha: float) -> void:
+	var texture: Texture2D = Icons.icon_texture(key)
+	if texture == null: return
+	# Outline the approved icon's cached alpha contour, then cover its inner
+	# half with the original art. The visible outer halo is exactly three px.
+	var scale: Vector2 = rect.size / texture.get_size()
+	for contour: PackedVector2Array in preload("res://scripts/asset_loader.gd").build_alpha_polygons(texture):
+		var points := PackedVector2Array()
+		for point: Vector2 in contour: points.append(rect.position + point * scale)
+		if points.is_empty(): continue
+		points.append(points[0])
+		board.draw_polyline(points, Color(Palette.TEXT_OUTLINE, alpha), RULE_RIDER_OUTLINE * 2.0, true)
+		for point: Vector2 in points: board.draw_circle(point, RULE_RIDER_OUTLINE, Color(Palette.TEXT_OUTLINE, alpha), true, -1.0, true)
+	_draw_icon(board, key, rect, alpha)
 
 static func _draw_number(board: Control, font: Font, number: String, x: float, center_y: float, font_size: int, alpha: float) -> float:
 	var width: float = font.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
