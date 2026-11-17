@@ -1,0 +1,31 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881428093733000-97936
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881428093733000-97936
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881428093733000-97936/godot.log --headless --path . --script tools/tune01/focused.gd -- --suite enemy-count
+  timeout: 600s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Invalid encounter table; using legacy pools: tier 1/t1_crawl_pack unknown unit: missing_enemy
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _validated_table (res://scripts/encounter_tables.gd:47)
+       [1] install_table_for_tests (res://scripts/encounter_tables.gd:23)
+       [2] _test_invalid_fallback (res://tests/suites/encounter_tables_suite.gd:71)
+       [3] run (res://tests/suites/encounter_tables_suite.gd:37)
+       [4] _initialize (res://tools/tune01/focused.gd:12)
+Encounter invalid-table fallback: 18 populated legacy rooms; one expected validation error
+Encounter weights tier 1/fire: 10000 picks, max relative error 1.440%
+Encounter weights tier 1/none: 10000 picks, max relative error 0.865%
+Encounter weights tier 2/fire: 10000 picks, max relative error 1.140%
+Encounter weights tier 2/none: 10000 picks, max relative error 1.370%
+Encounter weights tier 3/fire: 10000 picks, max relative error 1.790%
+Encounter weights tier 3/none: 10000 picks, max relative error 1.800%
+Encounter legacy differential: 64 seeds; legacy/revision-3 runtime states and 128 revision-4/5 missing-k full-layout goldens checked
+Encounter placement sweep: 22656 layouts, 1536 ineligible neutral cases skipped, max 5 units including objective extras
+Encounter base totals: {"1":{"base_hp":{"max":52,"mean":36.945179584121,"min":24},"expansions":529,"units":{"max":5,"mean":3.43289224952741,"min":2}},"2":{"base_hp":{"max":70,"mean":51.7973231357553,"min":24},"expansions":523,"units":{"max":5,"mean":4.61759082217973,"min":4}},"3":{"base_hp":{"max":74,"mean":54.8187250996016,"min":24},"expansions":1004,"units":{"max":7,"mean":4.97011952191235,"min":4}}}
+TUNE01_FOCUSED enemy-count: PASS (49763 checks, 0 failures)

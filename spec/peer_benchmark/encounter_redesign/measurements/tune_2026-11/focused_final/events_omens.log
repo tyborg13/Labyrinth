@@ -1,0 +1,28 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881535818583000-98139
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881535818583000-98139
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881535818583000-98139/godot.log --headless --path . --script tests/event_rules_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Event history file checks: missing/corrupt/atomic/last-16/failure isolation passed
+EVT01 FAILED-AWARD RECOVERY: control_shards=1 after_history_shards=1 next_run_shards=1 bank=17
+Event empty card preview equals result: 1350 choices; 50 seeds × 3 depths
+Event preview matrix: depth=0 exhausted=false complete
+Event preview matrix: depth=3 exhausted=false complete
+Event preview matrix: depth=6 exhausted=false complete
+Event preview matrix: depth=0 exhausted=true complete
+Event preview matrix: depth=3 exhausted=true complete
+Event preview matrix: depth=6 exhausted=true complete
+Event preview equals result: 37500 choices; 50 seeds × 3 depths × fresh/exhausted; 4650 substitutions
+HERO EXPOSE PREVIEW: first_hp_loss=4 second_hp_loss=5 projected_hp=0
+Event rules suite: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

@@ -4,6 +4,7 @@ class_name CombatEngine
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const EnemyPlanningQueries = preload("res://scripts/enemy_planning_queries.gd")
 const IntentPlanInputs = preload("res://scripts/combat_intent_plan_inputs.gd")
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
 const MarkedRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -959,6 +960,8 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"rng_state": rng.state,
 		"log": []
 	}
+	for key: String in ["difficulty_tier", "difficulty_stats"]:
+		if room_layout.has(key): state[key] = room_layout[key].duplicate(true) if room_layout[key] is Dictionary else room_layout[key]
 	if room_layout.has("battlefield_rule"): state["battlefield_rule"] = room_layout["battlefield_rule"].duplicate(true)
 	if SnareRules.active(state): state["snare_entry"] = room_layout.get("snare_entry", room_layout.get("player_start", Vector2i.ZERO))
 	if bool(room_layout.get(SnuffRules.RELIGHT_KEY, false)): state[SnuffRules.RELIGHT_KEY] = true
@@ -969,7 +972,10 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	state = CommonRelicRules.start_combat(self, state)
-	state = OmenRules.start_combat(self, state, player_snapshot, int(room_layout.get("omen_extra_enemies_added", 0)))
+	# Hunted fires the existing omen feedback for either its extra unit or
+	# the full-room Health substitute. Both are applied at room generation.
+	var hunted_effects_applied: int = int(room_layout.get("omen_extra_enemies_added", 0)) + int(room_layout.get("omen_enemy_hp_compensations", 0))
+	state = OmenRules.start_combat(self, state, player_snapshot, hunted_effects_applied)
 	DragonCombatRules.initialize(self, state)
 	WarbandRules.initialize(self, state)
 	SnareRules.Pressure.initialize(self, state)
@@ -6753,7 +6759,7 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 	var first_minion_index: int = enemies.size()
 	var next_id: int = _next_enemy_id(next_state)
 	for tile: Vector2i in spawn_tiles:
-		var minion_max_hp: int = _scaled_enemy_max_hp(minion_type, int(next_state.get("room_depth", 1)))
+		var minion_max_hp: int = Difficulty.arrival_hp(next_state, _scaled_enemy_max_hp(minion_type, int(next_state.get("room_depth", 1))))
 		var minion: Dictionary = {
 			"id": next_id,
 			"type": minion_type,
@@ -8571,6 +8577,8 @@ func _spawned_enemy_entry(state: Dictionary, enemy_type: String, enemy_id: int, 
 		if summoned and (guardian.get("helpers", []) as Array).has(enemy_type): spawned["guardian_helper"] = true
 		spawned["max_hp"] = DepthRules.enemy_hp(state, spawned, max_hp)
 		spawned["hp"] = spawned["max_hp"]
+	spawned["max_hp"] = Difficulty.arrival_hp(state, int(spawned["max_hp"]))
+	spawned["hp"] = spawned["max_hp"]
 	return _normalized_enemy(spawned)
 
 func _schedule_enemy_after_spawn(state: Dictionary, enemy: Dictionary, spawn_order: int, wait_for_player: bool = false) -> void:
@@ -9411,7 +9419,7 @@ func _scale_enemy_intent(base_intent: Dictionary, room_depth: int, depth_state: 
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = (action_var as Dictionary).duplicate(true)
-		actions.append(DepthRules.damaging_action(depth_state, enemy, _scale_enemy_action_for_depth(action, room_depth)))
+		actions.append(DepthRules.damaging_action(depth_state, enemy, _scale_enemy_action_for_depth(action, room_depth, depth_state)))
 	intent["actions"] = actions
 	return intent
 
@@ -9431,7 +9439,7 @@ func _scaled_enemy_max_hp(enemy_type: String, room_depth: int) -> int:
 	scaled_hp = ceili(float(scaled_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
 	return scaled_hp + ENEMY_HP_FLAT_BONUS_PER_SEQUENCE * sequence_index
 
-func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dictionary:
+func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int, depth_state: Dictionary = {}) -> Dictionary:
 	var scaled: Dictionary = action.duplicate(true)
 	var action_type: String = str(scaled.get("type", ""))
 	var scale_damage: bool = bool(scaled.get("scale_damage", true))
@@ -9449,9 +9457,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 		elif action_type == "raise_terrain" and scaled.has("health"):
 			scaled["health"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("health", 0)) + support_delta)
 	var sequence_index: int = _depth_sequence_index(room_depth)
-	if sequence_index <= 0:
-		return scaled
-	var damage_bonus: int = ENEMY_DAMAGE_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)]
+	var damage_bonus: int = ENEMY_DAMAGE_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)] + Difficulty.damage_bonus(depth_state)
 	var support_bonus: int = ENEMY_SUPPORT_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_SUPPORT_BONUS_BY_SEQUENCE.size() - 1)]
 	if scale_damage and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES):
 		if scaled.has("damage"):

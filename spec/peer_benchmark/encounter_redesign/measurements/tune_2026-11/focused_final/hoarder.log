@@ -1,0 +1,28 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881993272072000-98886
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881993272072000-98886
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881993272072000-98886/godot.log --headless --path . --script tests/hoarder_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Hoarder data: enabled, stub fields removed, staged bytes retained except four brs-01 title fields
+Hoarder unit: Ember Tick art/element/burst, Kindle + Scurry, no attack
+Hoarder generation: 720 rooms (6 biomes x 3 tiers x 40 seeds, sections I-VI, Umbra depth) checked
+Hoarder objective, rule sentence and clock checked for all tiers
+Hoarder keep-away: 36 staged activations match the Warband captain step
+Hoarder never attacks across 24 staged fights; attacking mutation detected
+Hoarder clock: 18 biome/tier fights slip away after turns 5/4/4, silently, then Defeat All
+Hoarder catch: 18 fights win at once, brood scatter silently, own burst fires
+Hoarder rewards: caught pays 4 cards, x1.5 and the hoard; escape pays standard
+Hoarder analytics: caught/escaped and catch turn on UI and console combat_ended
+Hoarder legacy batch API shares the clock
+Hoarder map: emblem, tooltip, placement and measurement cohort checked (40 sections over 12 seeds)
+Hoarder inspection fixture: 6 biomes x 3 tiers x pre_battle/encounter
+Hoarder production entry: map node, pre-battle, combat and catch reward
+Hoarder native probe: compiles; headless preconditions for all ten captures hold
+Hoarder suite: 0 failures

@@ -1,0 +1,578 @@
+[
+  {
+    "section": 0,
+    "kind": "guardian",
+    "hp_percent": 115,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 41.145833333333336,
+    "baseline_gap": 11.458333333333334,
+    "centre": 20,
+    "cost": 51.77902621722846,
+    "cost_ci": [
+      44.89700374531835,
+      58.80681818181818
+    ],
+    "win_rate": 97.75280898876404,
+    "win_ci": [
+      92.1723653251775,
+      99.38156012978713
+    ],
+    "median_turns": 7,
+    "goal_met_rate": 97.75280898876404,
+    "normal_cost": 31.226591760299627,
+    "gap": 20.55243445692884,
+    "gap_ci": [
+      12.406367041198502,
+      28.745318352059925
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 0,
+    "kind": "boss",
+    "hp_percent": 135,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 67.25260416666667,
+    "baseline_gap": 17.708333333333336,
+    "centre": 30,
+    "cost": 83.84831460674157,
+    "cost_ci": [
+      78.8425925925926,
+      88.79629629629629
+    ],
+    "win_rate": 57.30337078651685,
+    "win_ci": [
+      46.935116372658754,
+      67.06724869692407
+    ],
+    "median_turns": 9,
+    "goal_met_rate": 57.30337078651685,
+    "normal_cost": 48.735955056179776,
+    "gap": 35.1123595505618,
+    "gap_ci": [
+      9.55056179775281,
+      57.49063670411985
+    ],
+    "outside_band": 0.11235955056179847,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 0,
+    "kind": "warband",
+    "hp_percent": 115,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 27.083333333333332,
+    "baseline_gap": -4.166666666666666,
+    "centre": 10,
+    "cost": 52.949438202247194,
+    "cost_ci": [
+      43.58614232209738,
+      62.592592592592595
+    ],
+    "win_rate": 60.674157303370784,
+    "win_ci": [
+      50.286539539946105,
+      70.17845556175189
+    ],
+    "median_turns": 14,
+    "goal_met_rate": 60.674157303370784,
+    "normal_cost": 33.239700374531836,
+    "gap": 19.709737827715355,
+    "gap_ci": [
+      8.848314606741573,
+      33.70786516853933
+    ],
+    "outside_band": 4.7097378277153545,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 0,
+    "kind": "umbral_snare",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 0.0,
+    "baseline_gap": -59.72222222222222,
+    "centre": 10,
+    "cost": 12.586805555555555,
+    "cost_ci": [
+      0.0,
+      34.895833333333336
+    ],
+    "win_rate": 97.91666666666667,
+    "win_ci": [
+      89.10078200474814,
+      99.63128890224893
+    ],
+    "median_turns": 2.0,
+    "goal_met_rate": 97.91666666666667,
+    "normal_cost": 53.90625,
+    "gap": -41.31944444444444,
+    "gap_ci": [
+      -54.427083333333336,
+      -26.5625
+    ],
+    "outside_band": 46.31944444444444,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 0,
+    "kind": "last_light",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 25.245098039215687,
+    "baseline_gap": -16.176470588235293,
+    "centre": 10,
+    "cost": 56.647940074906366,
+    "cost_ci": [
+      45.59659090909091,
+      69.21296296296296
+    ],
+    "win_rate": 84.26966292134831,
+    "win_ci": [
+      75.3112149931246,
+      90.39219033337945
+    ],
+    "median_turns": 4,
+    "goal_met_rate": 84.26966292134831,
+    "normal_cost": 46.348314606741575,
+    "gap": 10.299625468164795,
+    "gap_ci": [
+      -6.202651515151514,
+      26.357677902621724
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 0,
+    "kind": "ember_hoarder",
+    "hp_percent": 175,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 23.106060606060606,
+    "baseline_gap": -5.113636363636364,
+    "centre": 10,
+    "cost": 50.98314606741573,
+    "cost_ci": [
+      44.72222222222222,
+      59.04356060606061
+    ],
+    "win_rate": 98.87640449438203,
+    "win_ci": [
+      93.90675378849535,
+      99.80138167717438
+    ],
+    "median_turns": 4,
+    "goal_met_rate": 2.247191011235955,
+    "normal_cost": 37.68726591760299,
+    "gap": 13.295880149812735,
+    "gap_ci": [
+      -10.201149425287356,
+      29.583333333333332
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 2,
+    "kind": "guardian",
+    "hp_percent": 155,
+    "damage_bonus": 0,
+    "n": 88,
+    "paired_n": 88,
+    "confirmation_n": 88,
+    "baseline_cost": 60.518973214285715,
+    "baseline_gap": -5.031622023809524,
+    "centre": 20,
+    "cost": 90.24621212121212,
+    "cost_ci": [
+      83.99621212121212,
+      95.54924242424242
+    ],
+    "win_rate": 34.09090909090909,
+    "win_ci": [
+      25.03913492660681,
+      44.47354446727611
+    ],
+    "median_turns": 7.5,
+    "goal_met_rate": 34.09090909090909,
+    "normal_cost": 63.933982683982684,
+    "gap": 26.312229437229437,
+    "gap_ci": [
+      14.109848484848484,
+      38.90692640692641
+    ],
+    "outside_band": 1.312229437229437,
+    "status": "unconfirmed (88/96 confirmation fights)"
+  },
+  {
+    "section": 2,
+    "kind": "boss",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 87.51860119047619,
+    "baseline_gap": -1.4973958333333337,
+    "centre": 30,
+    "cost": 100.0,
+    "cost_ci": [
+      100.0,
+      100.0
+    ],
+    "win_rate": 0.0,
+    "win_ci": [
+      6.938893903907228e-16,
+      7.410012966611748
+    ],
+    "median_turns": 4.0,
+    "goal_met_rate": 0.0,
+    "normal_cost": 90.47619047619048,
+    "gap": 9.523809523809524,
+    "gap_ci": [
+      2.5545634920634916,
+      17.42311507936508
+    ],
+    "outside_band": 15.476190476190476,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 2,
+    "kind": "warband",
+    "hp_percent": 150,
+    "damage_bonus": 0,
+    "n": 88,
+    "paired_n": 88,
+    "confirmation_n": 88,
+    "baseline_cost": 69.50757575757575,
+    "baseline_gap": -8.874458874458876,
+    "centre": 10,
+    "cost": 87.22267316017316,
+    "cost_ci": [
+      74.64678178963894,
+      96.49545211342964
+    ],
+    "win_rate": 31.818181818181817,
+    "win_ci": [
+      23.022582402932684,
+      42.134765475790665
+    ],
+    "median_turns": 6.0,
+    "goal_met_rate": 31.818181818181817,
+    "normal_cost": 75.35849567099567,
+    "gap": 11.86417748917749,
+    "gap_ci": [
+      1.792717086834734,
+      20.905285190999475
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (88/96 confirmation fights)"
+  },
+  {
+    "section": 2,
+    "kind": "umbral_snare",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 25.0,
+    "baseline_gap": -49.30555555555556,
+    "centre": 10,
+    "cost": 36.02430555555556,
+    "cost_ci": [
+      14.45578231292517,
+      56.54761904761905
+    ],
+    "win_rate": 79.16666666666667,
+    "win_ci": [
+      65.74109872738207,
+      88.2697270420944
+    ],
+    "median_turns": 2.0,
+    "goal_met_rate": 79.16666666666667,
+    "normal_cost": 84.28819444444444,
+    "gap": -48.263888888888886,
+    "gap_ci": [
+      -65.51418439716312,
+      -28.583333333333332
+    ],
+    "outside_band": 53.263888888888886,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 2,
+    "kind": "last_light",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 25.62358276643991,
+    "baseline_gap": -61.30952380952381,
+    "centre": 10,
+    "cost": 82.15525793650794,
+    "cost_ci": [
+      67.00680272108843,
+      93.9625850340136
+    ],
+    "win_rate": 41.666666666666664,
+    "win_ci": [
+      28.84966777841157,
+      55.71866771602373
+    ],
+    "median_turns": 4.0,
+    "goal_met_rate": 41.666666666666664,
+    "normal_cost": 81.27480158730158,
+    "gap": 0.8804563492063492,
+    "gap_ci": [
+      -9.549138804457954,
+      13.28125
+    ],
+    "outside_band": 4.119543650793651,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 2,
+    "kind": "ember_hoarder",
+    "hp_percent": 175,
+    "damage_bonus": 2,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 36.574074074074076,
+    "baseline_gap": -23.14814814814815,
+    "centre": 10,
+    "cost": 75.93632958801498,
+    "cost_ci": [
+      67.08333333333333,
+      85.97222222222223
+    ],
+    "win_rate": 64.04494382022472,
+    "win_ci": [
+      53.68541183779016,
+      73.24221329602297
+    ],
+    "median_turns": 4,
+    "goal_met_rate": 1.1235955056179776,
+    "normal_cost": 64.65355805243446,
+    "gap": 11.282771535580524,
+    "gap_ci": [
+      -6.60919540229885,
+      46.11111111111111
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 4,
+    "kind": "guardian",
+    "hp_percent": 150,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 89,
+    "confirmation_n": 89,
+    "baseline_cost": 86.43456514550265,
+    "baseline_gap": 8.939938822751323,
+    "centre": 20,
+    "cost": 97.33814874264313,
+    "cost_ci": [
+      93.53174603174602,
+      100.0
+    ],
+    "win_rate": 7.865168539325842,
+    "win_ci": [
+      3.861982216517404,
+      15.355142382043201
+    ],
+    "median_turns": 3,
+    "goal_met_rate": 7.865168539325842,
+    "normal_cost": 78.43469472682956,
+    "gap": 18.903454015813566,
+    "gap_ci": [
+      7.249123119909637,
+      34.94047619047619
+    ],
+    "outside_band": 0,
+    "status": "unconfirmed (89/96 confirmation fights)"
+  },
+  {
+    "section": 4,
+    "kind": "boss",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 86.86838624338624,
+    "baseline_gap": -2.7670304232804233,
+    "centre": 30,
+    "cost": 99.6875,
+    "cost_ci": [
+      99.0625,
+      100.0
+    ],
+    "win_rate": 2.0833333333333335,
+    "win_ci": [
+      0.3687110977510649,
+      10.899217995251862
+    ],
+    "median_turns": 2.0,
+    "goal_met_rate": 2.0833333333333335,
+    "normal_cost": 89.27083333333333,
+    "gap": 10.416666666666666,
+    "gap_ci": [
+      4.253472222222222,
+      16.927083333333332
+    ],
+    "outside_band": 14.583333333333334,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 4,
+    "kind": "warband",
+    "hp_percent": 130,
+    "damage_bonus": 0,
+    "n": 89,
+    "paired_n": 88,
+    "confirmation_n": 89,
+    "baseline_cost": 82.0299823633157,
+    "baseline_gap": -3.1243386243386246,
+    "centre": 10,
+    "cost": 93.41923785744011,
+    "cost_ci": [
+      83.39575530586767,
+      99.64285714285714
+    ],
+    "win_rate": 11.235955056179776,
+    "win_ci": [
+      6.218743336655998,
+      19.46101129401976
+    ],
+    "median_turns": 4,
+    "goal_met_rate": 11.235955056179776,
+    "normal_cost": 84.47676166426166,
+    "gap": 8.867694805194805,
+    "gap_ci": [
+      -9.390048154093098,
+      32.0390365448505
+    ],
+    "outside_band": 0,
+    "status": "incomplete pairing (88/89)"
+  },
+  {
+    "section": 4,
+    "kind": "umbral_snare",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 39.632936507936506,
+    "baseline_gap": -39.8313492063492,
+    "centre": 10,
+    "cost": 59.94405864197531,
+    "cost_ci": [
+      41.145833333333336,
+      86.42939814814815
+    ],
+    "win_rate": 54.166666666666664,
+    "win_ci": [
+      40.2910745456498,
+      67.42475770713254
+    ],
+    "median_turns": 2.0,
+    "goal_met_rate": 54.166666666666664,
+    "normal_cost": 82.28891093474427,
+    "gap": -22.34485229276896,
+    "gap_ci": [
+      -42.52232142857143,
+      -4.918981481481481
+    ],
+    "outside_band": 27.34485229276896,
+    "status": "stat-limit probe outside band"
+  },
+  {
+    "section": 4,
+    "kind": "last_light",
+    "hp_percent": 175,
+    "damage_bonus": 0,
+    "n": 88,
+    "paired_n": 88,
+    "confirmation_n": 88,
+    "baseline_cost": 64.74089635854342,
+    "baseline_gap": -6.995798319327732,
+    "centre": 10,
+    "cost": 72.67045454545455,
+    "cost_ci": [
+      61.38392857142857,
+      83.17415730337079
+    ],
+    "win_rate": 68.18181818181819,
+    "win_ci": [
+      57.86523452420933,
+      76.97741759706732
+    ],
+    "median_turns": 4.0,
+    "goal_met_rate": 68.18181818181819,
+    "normal_cost": 76.28517316017316,
+    "gap": -3.614718614718615,
+    "gap_ci": [
+      -13.499197431781703,
+      7.9004329004329
+    ],
+    "outside_band": 8.614718614718615,
+    "status": "unconfirmed (88/96 confirmation fights)"
+  },
+  {
+    "section": 4,
+    "kind": "ember_hoarder",
+    "hp_percent": 175,
+    "damage_bonus": 3,
+    "n": 48,
+    "paired_n": 48,
+    "confirmation_n": 0,
+    "baseline_cost": 52.261904761904766,
+    "baseline_gap": -41.607142857142854,
+    "centre": 10,
+    "cost": 93.1657848324515,
+    "cost_ci": [
+      88.64087301587301,
+      97.4674823633157
+    ],
+    "win_rate": 20.833333333333332,
+    "win_ci": [
+      11.730272957905594,
+      34.258901272617926
+    ],
+    "median_turns": 2.0,
+    "goal_met_rate": 0.0,
+    "normal_cost": 90.6374007936508,
+    "gap": 2.528384038800705,
+    "gap_ci": [
+      -6.2375992063492065,
+      11.086309523809524
+    ],
+    "outside_band": 2.471615961199295,
+    "status": "stat-limit probe outside band"
+  }
+]

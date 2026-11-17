@@ -1,0 +1,68 @@
+{
+  "audit_report": "/private/tmp/labyrinth_codex/meas07-python-audit/isolation-audit.md",
+  "checks": [
+    {
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/meas07/verify.py /Users/borgerding/workspace/Labyrinth.worktrees/meas-07/spec/peer_benchmark/encounter_redesign/measurements/bosses_2026-11",
+      "returncode": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/meas-07/tools/meas07/verify.py\", line 90, in <module>\n    verify(args.output, args.allow_incomplete)\n  File \"/Users/borgerding/workspace/Labyrinth.worktrees/meas-07/tools/meas07/verify.py\", line 25, in verify\n    assert contract[\"complete\"], \"Budget-limited incomplete sample\"\nAssertionError: Budget-limited incomplete sample\n",
+      "stdout": ""
+    },
+    {
+      "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/meas07/verify.py /Users/borgerding/workspace/Labyrinth.worktrees/meas-07/spec/peer_benchmark/encounter_redesign/measurements/bosses_2026-11 --allow-incomplete",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "MEAS07_ARTIFACT_VALIDITY_PASS target_complete=false cohorts=24 n=24 reported_fights=576 raw_fights=580 inputs=192 entries=48 ladders=8 paired=true\nMEAS07_STATISTICS_PASS Wilson_endpoints=true half_width_threshold=true medians=true report_reproducible=true\n"
+    }
+  ],
+  "cohorts_with_ci_half_width_over_12_points": [
+    "ashen_reaver",
+    "gallows_roc",
+    "iskaldra",
+    "last_lamplighter",
+    "noctyrax",
+    "rimejaw",
+    "standard_for_ashen_reaver",
+    "standard_for_gallows_roc",
+    "standard_for_iskaldra",
+    "standard_for_last_lamplighter",
+    "standard_for_noctyrax",
+    "standard_for_rimejaw",
+    "standard_for_storm_cantor",
+    "standard_for_tharokh",
+    "standard_for_vaeloryx",
+    "standard_for_vyraketh",
+    "standard_for_zekarion",
+    "storm_cantor",
+    "tharokh",
+    "vaeloryx",
+    "vyraketh",
+    "zekarion"
+  ],
+  "excluded_partial_block_fights": 4,
+  "initial_py_compile": "Blocked by a read-only system bytecode cache; in-memory compilation passed",
+  "max_workers": 4,
+  "open_issues": [
+    "N=48 fallback not reached after correcting the initial section-entry protocol error",
+    "Owner task workflow contract acceptance/proof fields remain empty",
+    "Unchanged bot omits live accepted-transition half-Health checks; fidelity caveat documented"
+  ],
+  "owner_workflow_contract_ready": false,
+  "previous_observed_checks": [
+    "MEAS07_STATS_SELF_CHECK_PASS Wilson=0/64,32/64,64/64,24/48 median=even,empty death_filter=empty",
+    "MEAS07_REPORT_PREFIX_FIXTURE_PASS n=8 excluded=1 paired=true",
+    "MEAS07_PYTHON_PARSE_PASS modules=4",
+    "MEAS07_NATIVE_PLAN_PASS tasks=192 cells=24",
+    "MEAS07_BATCH_PASS fights=3",
+    "ISOLATION AUDIT: 56 modules",
+    "git diff --check: exit 0"
+  ],
+  "proof_completed_unix": 1794859138.59658,
+  "raw_fights": 580,
+  "reported_fights": 576,
+  "reported_n_per_cohort": 24,
+  "required_n_minimum": 48,
+  "status": "incomplete_sample_target",
+  "todo_design": [],
+  "tracked_game_data_art_tests_changed": false,
+  "wall_seconds_including_setup_and_discarded_attempt": 5294.750236988068
+}

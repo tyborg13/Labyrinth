@@ -571,6 +571,18 @@ static func _omens(engine: RefCounted, expect: Callable) -> void:
 				expect.call(hunted_combat["enemies"].size() == base["enemies"].size() + 1, "The dossier and created combat contain Hunted's extra enemy")
 				var last: Dictionary = hunted_layout["enemies"].back()
 				expect.call(last["pos"] != hunted_layout["player_start"] and not (layout["enemies"] as Array).any(func(entry: Dictionary) -> bool: return entry["pos"] == last["pos"]), "Extra enemy occupies a legal free tile")
+	# The full-room substitute keeps the same one-time omen activation path.
+	var full_room: Dictionary = room.duplicate(true)
+	full_room["depth"] = 3
+	full_room["section_map_layout_revision"] = 6
+	var full_base: Dictionary = generator.generate_room(TEST_SEED, full_room, Vector2i.ZERO)
+	full_room["omen_extra_enemies"] = 1
+	var full_hunted: Dictionary = generator.generate_room(TEST_SEED, full_room, Vector2i.ZERO)
+	expect.call(full_base["enemies"].size() == 5 and full_hunted["enemies"].size() == 5, "Hunted keeps a full room at five starters")
+	for index: int in range(5):
+		expect.call(full_hunted["enemies"][index]["max_hp"] == ceili(float(full_base["enemies"][index]["max_hp"]) * 1.2), "Hunted full-room Health substitute applies once")
+	var full_combat: Dictionary = combat.create_combat(TEST_SEED, full_hunted, engine._player_snapshot(Omens.add(_event_state(engine), "hunted")))
+	expect.call((full_combat.get(Omens.START_APPLIED_KEY, []) as Array).count("hunted") == 1, "Hunted Health substitute fires existing feedback exactly once")
 	for type: String in ["guardian", "boss"]:
 		var special: Dictionary = room.duplicate(true)
 		special["type"] = type

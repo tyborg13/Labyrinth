@@ -189,7 +189,7 @@ static func _matrix(expect: Callable) -> void:
 				var types: Array = []
 				for enemy: Dictionary in layout["enemies"]: types.append(enemy["type"])
 				expect.call(types.slice(0, 4) == ["ember_hoarder", "ember_tick", "ember_tick", "ember_tick"], "Roster: Hoarder plus 3 Ember Ticks: " + context)
-				var expected_tick: int = DepthHelper.final_hp(generator, layout, "ember_tick")
+				var expected_tick: int = ceili(DepthHelper.final_hp(generator, layout, "ember_tick") * int(layout["difficulty_stats"]["hp_percent"]) / 100.0)
 				for index: int in range(1, 4):
 					expect.call(int(layout["enemies"][index]["max_hp"]) == expected_tick, "Brood Ember Tick scaled normally: " + context)
 				expect.call(hp_matches(layout, EXPECTED_HP_MULTIPLIER), "Hoarder Health is 3x the Ember Tick's: " + context)

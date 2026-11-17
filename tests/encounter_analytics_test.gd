@@ -67,6 +67,10 @@ func check_caller_boundaries(run: Dictionary, combat: Dictionary, expected: Dict
 			check(store.write_events(Progression.progression_analytics_outbox(staged["progression"])), "UI boss staged reward_claimed appends")
 		var records: Array = Store.load_all_events()
 		caller_records[caller + "_" + str(expected["room_type"])] = records
+		for event: Dictionary in records:
+			if event["event_type"] == "combat_started":
+				check(event["payload"].has("difficulty_tier") and event["payload"]["difficulty_tier"] == str(combat.get("difficulty_tier", "")), caller + " combat start includes the frozen difficulty tier")
+				check(event["schema_version"] == 1, caller + " difficulty tier stays additive in schema 1")
 		if caller == "UI":
 			for event: Dictionary in records:
 				if event["event_type"] == "combat_started":

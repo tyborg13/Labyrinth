@@ -1,0 +1,190 @@
+{
+  "probe": {
+    "0:guardian": [
+      125,
+      0
+    ],
+    "0:boss": [
+      135,
+      0
+    ],
+    "0:warband": [
+      140,
+      0
+    ],
+    "0:umbral_snare": [
+      175,
+      0
+    ],
+    "0:last_light": [
+      175,
+      0
+    ],
+    "0:ember_hoarder": [
+      145,
+      0
+    ],
+    "2:guardian": [
+      175,
+      0
+    ],
+    "2:boss": [
+      175,
+      0
+    ],
+    "2:warband": [
+      155,
+      0
+    ],
+    "2:umbral_snare": [
+      175,
+      0
+    ],
+    "2:last_light": [
+      175,
+      0
+    ],
+    "2:ember_hoarder": [
+      175,
+      0
+    ],
+    "4:guardian": [
+      135,
+      0
+    ],
+    "4:boss": [
+      175,
+      0
+    ],
+    "4:warband": [
+      140,
+      0
+    ],
+    "4:umbral_snare": [
+      175,
+      0
+    ],
+    "4:last_light": [
+      150,
+      0
+    ],
+    "4:ember_hoarder": [
+      175,
+      0
+    ]
+  },
+  "proposed": {
+    "0:guardian": [
+      115,
+      0
+    ],
+    "0:boss": [
+      135,
+      0
+    ],
+    "0:warband": [
+      115,
+      0
+    ],
+    "0:umbral_snare": [
+      175,
+      3
+    ],
+    "0:last_light": [
+      175,
+      3
+    ],
+    "0:ember_hoarder": [
+      175,
+      0
+    ],
+    "2:guardian": [
+      155,
+      0
+    ],
+    "2:boss": [
+      175,
+      3
+    ],
+    "2:warband": [
+      150,
+      0
+    ],
+    "2:umbral_snare": [
+      175,
+      3
+    ],
+    "2:last_light": [
+      175,
+      3
+    ],
+    "2:ember_hoarder": [
+      175,
+      2
+    ],
+    "4:guardian": [
+      150,
+      0
+    ],
+    "4:boss": [
+      175,
+      3
+    ],
+    "4:warband": [
+      130,
+      0
+    ],
+    "4:umbral_snare": [
+      175,
+      3
+    ],
+    "4:last_light": [
+      175,
+      0
+    ],
+    "4:ember_hoarder": [
+      175,
+      3
+    ]
+  },
+  "status": {
+    "0:guardian": "unconfirmed (89/96 confirmation fights)",
+    "0:boss": "unconfirmed (89/96 confirmation fights)",
+    "0:warband": "unconfirmed (89/96 confirmation fights)",
+    "0:umbral_snare": "stat-limit probe outside band",
+    "0:last_light": "unconfirmed (89/96 confirmation fights)",
+    "0:ember_hoarder": "unconfirmed (89/96 confirmation fights)",
+    "2:guardian": "unconfirmed (88/96 confirmation fights)",
+    "2:boss": "stat-limit probe outside band",
+    "2:warband": "unconfirmed (88/96 confirmation fights)",
+    "2:umbral_snare": "stat-limit probe outside band",
+    "2:last_light": "stat-limit probe outside band",
+    "2:ember_hoarder": "unconfirmed (89/96 confirmation fights)",
+    "4:guardian": "unconfirmed (89/96 confirmation fights)",
+    "4:boss": "stat-limit probe outside band",
+    "4:warband": "incomplete pairing (88/89)",
+    "4:umbral_snare": "stat-limit probe outside band",
+    "4:last_light": "unconfirmed (88/96 confirmation fights)",
+    "4:ember_hoarder": "stat-limit probe outside band"
+  },
+  "algorithm_status": {
+    "0:guardian": "confirmation incomplete",
+    "0:boss": "confirmation incomplete",
+    "0:warband": "confirmation incomplete",
+    "0:umbral_snare": "stats cannot reach band at 175/+3",
+    "0:last_light": "confirmation incomplete",
+    "0:ember_hoarder": "confirmation incomplete",
+    "2:guardian": "confirmation incomplete",
+    "2:boss": "stats cannot reach band at 175/+3",
+    "2:warband": "confirmation incomplete",
+    "2:umbral_snare": "stats cannot reach band at 175/+3",
+    "2:last_light": "stats cannot reach band at 175/+3",
+    "2:ember_hoarder": "confirmation incomplete",
+    "4:guardian": "confirmation incomplete",
+    "4:boss": "stats cannot reach band at 175/+3",
+    "4:warband": "confirmation incomplete",
+    "4:umbral_snare": "stats cannot reach band at 175/+3",
+    "4:last_light": "confirmation incomplete",
+    "4:ember_hoarder": "stats cannot reach band at 175/+3"
+  }
+}

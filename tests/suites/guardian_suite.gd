@@ -173,7 +173,8 @@ func _test_encounter_edges() -> void:
 					occupied[actor["pos"]] = true
 					check(paths.manhattan(opening["player"]["pos"],actor["pos"])>=3,info["id"]+" entry halo")
 					var expected: int = ceili(float(data.enemy_def(actor["type"])["max_hp"])*(1.0+.08*int((depth-1)/4)))
-					check(actor["max_hp"]==expected,info["id"]+" standard section HP scaling")
+					expected = ceili(float(expected) * int(opening["difficulty_stats"]["hp_percent"]) / 100.0)
+					check(actor["max_hp"]==expected,info["id"]+" section and frozen tier HP scaling")
 	var state: Dictionary = guardian_fixture("ashen_reaver")
 	state = engine._damage_enemy(state,1,100)
 	check(state["room_embers"]==0 and state["death_bonus_card_plays_this_turn"]==1,"finite helper grants one play and zero Embers")

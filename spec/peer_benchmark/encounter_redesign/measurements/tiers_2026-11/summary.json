@@ -1,0 +1,33 @@
+{
+  "census_rows": 3747,
+  "excluded_partial_fights": 0,
+  "inventory_nodes": 953,
+  "n_by_section_category": {
+    "s0-boss": 64,
+    "s0-guardian": 64,
+    "s0-normal": 192,
+    "s0-objective": 64,
+    "s1-boss": 1,
+    "s1-guardian": 1,
+    "s1-normal": 3,
+    "s1-objective": 1,
+    "s2-boss": 64,
+    "s2-guardian": 64,
+    "s2-normal": 192,
+    "s2-objective": 64,
+    "s3-boss": 1,
+    "s3-guardian": 1,
+    "s3-normal": 3,
+    "s3-objective": 1,
+    "s4-boss": 64,
+    "s4-guardian": 64,
+    "s4-normal": 192,
+    "s4-objective": 64,
+    "s5-boss": 1,
+    "s5-guardian": 1,
+    "s5-normal": 3,
+    "s5-objective": 1
+  },
+  "raw_fights": 1170,
+  "reported_fights": 1170
+}

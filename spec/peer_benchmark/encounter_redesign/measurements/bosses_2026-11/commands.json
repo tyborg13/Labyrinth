@@ -1,0 +1,1026 @@
+[
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 2126.665493249893 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-0.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 175.28566813468933,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-0.log",
+    "returncode": 0,
+    "started_unix": 1794857090.323562
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 2126.665416240692 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-1.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 210.2706789970398,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-1.log",
+    "returncode": 0,
+    "started_unix": 1794857090.32363
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1780.5402750968933 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-10.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 116.24677920341492,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-10.log",
+    "returncode": 0,
+    "started_unix": 1794857436.448778
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 180.60111618041992 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-100.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0016798973083496,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-100.log",
+    "returncode": 0,
+    "started_unix": 1794859036.387937
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 180.60106801986694 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-101.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9958949089050293,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-101.log",
+    "returncode": 0,
+    "started_unix": 1794859036.387979
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 180.59403109550476 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-102.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9927058219909668,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-102.log",
+    "returncode": 0,
+    "started_unix": 1794859036.395018
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 180.55301308631897 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-103.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9372549057006836,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-103.log",
+    "returncode": 0,
+    "started_unix": 1794859036.4360452
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 178.6149799823761 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-104.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.4805798530578613,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-104.log",
+    "returncode": 0,
+    "started_unix": 1794859038.374073
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 178.6047170162201 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-105.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.4879279136657715,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-105.log",
+    "returncode": 0,
+    "started_unix": 1794859038.3843331
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 178.60072994232178 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-106.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.477219820022583,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-106.log",
+    "returncode": 0,
+    "started_unix": 1794859038.388322
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 178.59899520874023 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-107.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.417201042175293,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-107.log",
+    "returncode": 0,
+    "started_unix": 1794859038.390054
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 176.18144702911377 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-108.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0046300888061523,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-108.log",
+    "returncode": 0,
+    "started_unix": 1794859040.807602
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 176.13401627540588 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-109.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.002061128616333,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-109.log",
+    "returncode": 0,
+    "started_unix": 1794859040.855037
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1740.4270629882812 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-11.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 156.36257600784302,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-11.log",
+    "returncode": 0,
+    "started_unix": 1794857476.561996
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 176.12296891212463 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-110.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.001296043395996,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-110.log",
+    "returncode": 0,
+    "started_unix": 1794859040.866086
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 176.11643719673157 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-111.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.01029109954834,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-111.log",
+    "returncode": 0,
+    "started_unix": 1794859040.872612
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 174.1764702796936 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-112.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.885641098022461,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-112.log",
+    "returncode": 0,
+    "started_unix": 1794859042.812578
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 174.13154006004333 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-113.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9351940155029297,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-113.log",
+    "returncode": 0,
+    "started_unix": 1794859042.857513
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 174.1212682723999 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-114.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8956830501556396,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-114.log",
+    "returncode": 0,
+    "started_unix": 1794859042.8677819
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 174.10580492019653 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-115.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9982929229736328,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-115.log",
+    "returncode": 0,
+    "started_unix": 1794859042.883244
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 172.29021096229553 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-116.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0087170600891113,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-116.log",
+    "returncode": 0,
+    "started_unix": 1794859044.698845
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 172.22522401809692 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-117.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9901597499847412,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-117.log",
+    "returncode": 0,
+    "started_unix": 1794859044.7638242
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 172.19599199295044 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-118.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0040130615234375,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-118.log",
+    "returncode": 0,
+    "started_unix": 1794859044.7930582
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 172.10712790489197 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-119.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.020347833633423,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-119.log",
+    "returncode": 0,
+    "started_unix": 1794859044.881922
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1730.8942291736603 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-12.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 90.520094871521,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-12.log",
+    "returncode": 0,
+    "started_unix": 1794857486.094835
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 170.08359217643738 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-120.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1044762134552,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-120.log",
+    "returncode": 0,
+    "started_unix": 1794859046.905458
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 170.08352708816528 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-121.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.106436014175415,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-121.log",
+    "returncode": 0,
+    "started_unix": 1794859046.905521
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 170.08346796035767 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-122.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1081228256225586,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-122.log",
+    "returncode": 0,
+    "started_unix": 1794859046.905579
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 170.07978510856628 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-123.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1215980052948,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-123.log",
+    "returncode": 0,
+    "started_unix": 1794859046.90933
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 167.97849416732788 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-124.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9061501026153564,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-124.log",
+    "returncode": 0,
+    "started_unix": 1794859049.010562
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 167.97663402557373 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-125.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8941047191619873,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-125.log",
+    "returncode": 0,
+    "started_unix": 1794859049.0124211
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 167.97501516342163 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-126.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8868060111999512,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-126.log",
+    "returncode": 0,
+    "started_unix": 1794859049.0140312
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 167.95767211914062 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-127.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.888552188873291,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-127.log",
+    "returncode": 0,
+    "started_unix": 1794859049.031378
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 166.0873839855194 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-128.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9943699836730957,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-128.log",
+    "returncode": 0,
+    "started_unix": 1794859050.901673
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 166.082190990448 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-129.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9979429244995117,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-129.log",
+    "returncode": 0,
+    "started_unix": 1794859050.906857
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1717.1830251216888 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-13.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 120.40440607070923,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-13.log",
+    "returncode": 0,
+    "started_unix": 1794857499.806033
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 166.0719211101532 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-130.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.002246141433716,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-130.log",
+    "returncode": 0,
+    "started_unix": 1794859050.9171379
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 166.06881499290466 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-131.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0104050636291504,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-131.log",
+    "returncode": 0,
+    "started_unix": 1794859050.920233
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 164.0924849510193 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-132.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9951889514923096,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-132.log",
+    "returncode": 0,
+    "started_unix": 1794859052.896564
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 164.08391904830933 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-133.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0082197189331055,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-133.log",
+    "returncode": 0,
+    "started_unix": 1794859052.905131
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 164.0692949295044 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-134.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.010921001434326,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-134.log",
+    "returncode": 0,
+    "started_unix": 1794859052.919755
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 164.05808019638062 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-135.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.0422959327697754,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-135.log",
+    "returncode": 0,
+    "started_unix": 1794859052.930971
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 162.09691715240479 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-136.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.895792007446289,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-136.log",
+    "returncode": 0,
+    "started_unix": 1794859054.892134
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 162.07528614997864 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-137.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8846030235290527,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-137.log",
+    "returncode": 0,
+    "started_unix": 1794859054.913764
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 162.0580232143402 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-138.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8945682048797607,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-138.log",
+    "returncode": 0,
+    "started_unix": 1794859054.931026
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 162.0153350830078 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-139.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.933332920074463,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-139.log",
+    "returncode": 0,
+    "started_unix": 1794859054.973716
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1664.292682170868 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-14.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 103.33577609062195,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-14.log",
+    "returncode": 0,
+    "started_unix": 1794857552.696373
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 160.200679063797 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-140.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9274423122406006,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-140.log",
+    "returncode": 0,
+    "started_unix": 1794859056.7883708
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 160.19017219543457 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-141.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8925318717956543,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-141.log",
+    "returncode": 0,
+    "started_unix": 1794859056.79888
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 160.16307401657104 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-142.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.8909308910369873,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-142.log",
+    "returncode": 0,
+    "started_unix": 1794859056.825977
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 160.0815908908844 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-143.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 1.9451839923858643,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-143.log",
+    "returncode": 0,
+    "started_unix": 1794859056.907458
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1640.373672246933 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-15.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 55.0573410987854,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-15.log",
+    "returncode": 0,
+    "started_unix": 1794857576.6153789
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1596.7774550914764 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-16.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 69.97879886627197,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-16.log",
+    "returncode": 0,
+    "started_unix": 1794857620.21162
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1585.3159310817719 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-17.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 88.97871112823486,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-17.log",
+    "returncode": 0,
+    "started_unix": 1794857631.6731179
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1584.0633912086487 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-18.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 89.12761998176575,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-18.log",
+    "returncode": 0,
+    "started_unix": 1794857632.925663
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1560.9564452171326 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-19.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 100.61514210700989,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-19.log",
+    "returncode": 0,
+    "started_unix": 1794857656.032605
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 2126.665194272995 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-2.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 170.76834893226624,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-2.log",
+    "returncode": 0,
+    "started_unix": 1794857090.32385
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1526.7980551719666 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-20.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 162.00297689437866,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-20.log",
+    "returncode": 0,
+    "started_unix": 1794857690.190998
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1496.3364992141724 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-21.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 79.71214008331299,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-21.log",
+    "returncode": 0,
+    "started_unix": 1794857720.652555
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1494.9353420734406 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-22.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 88.2376561164856,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-22.log",
+    "returncode": 0,
+    "started_unix": 1794857722.053708
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1460.3408160209656 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-23.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 53.25399208068848,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-23.log",
+    "returncode": 0,
+    "started_unix": 1794857756.648234
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1364.7914130687714 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-24.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 166.4587128162384,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-24.log",
+    "returncode": 0,
+    "started_unix": 1794857852.1976352
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1364.7902081012726 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-25.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 102.17117595672607,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-25.log",
+    "returncode": 0,
+    "started_unix": 1794857852.198893
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1364.7899661064148 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-26.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 94.09481811523438,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-26.log",
+    "returncode": 0,
+    "started_unix": 1794857852.1990788
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1364.7888841629028 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-27.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 82.17739701271057,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-27.log",
+    "returncode": 0,
+    "started_unix": 1794857852.200205
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1282.6108572483063 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-28.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 72.15889978408813,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-28.log",
+    "returncode": 0,
+    "started_unix": 1794857934.378195
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1270.6946280002594 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-29.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 77.63157176971436,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-29.log",
+    "returncode": 0,
+    "started_unix": 1794857946.2944572
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1916.3881142139435 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-3.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 116.95021200180054,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-3.log",
+    "returncode": 0,
+    "started_unix": 1794857300.600939
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1262.618557214737 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-30.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 52.12928915023804,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-30.log",
+    "returncode": 0,
+    "started_unix": 1794857954.370492
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1210.4888002872467 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-31.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 41.61135196685791,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-31.log",
+    "returncode": 0,
+    "started_unix": 1794858006.500264
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1210.4515540599823 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-32.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 56.332772970199585,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-32.log",
+    "returncode": 0,
+    "started_unix": 1794858006.537497
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1198.3321299552917 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-33.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 63.35492396354675,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-33.log",
+    "returncode": 0,
+    "started_unix": 1794858018.6569211
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1193.0621161460876 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-34.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 97.88564825057983,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-34.log",
+    "returncode": 0,
+    "started_unix": 1794858023.926941
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1168.8770191669464 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-35.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 150.2823190689087,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-35.log",
+    "returncode": 0,
+    "started_unix": 1794858048.112031
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1154.1183619499207 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-36.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 76.87100315093994,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-36.log",
+    "returncode": 0,
+    "started_unix": 1794858062.870686
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1134.9767792224884 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-37.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 55.64879608154297,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-37.log",
+    "returncode": 0,
+    "started_unix": 1794858082.01227
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1095.176027059555 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-38.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 79.808748960495,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-38.log",
+    "returncode": 0,
+    "started_unix": 1794858121.813023
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1079.3273692131042 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-39.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 37.19762396812439,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-39.log",
+    "returncode": 0,
+    "started_unix": 1794858137.661681
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1916.387989282608 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-4.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 135.8466489315033,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-4.log",
+    "returncode": 0,
+    "started_unix": 1794857300.601063
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1077.2468929290771 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-40.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 46.2071418762207,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-40.log",
+    "returncode": 0,
+    "started_unix": 1794858139.7421582
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1042.129319190979 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-41.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 60.085044860839844,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-41.log",
+    "returncode": 0,
+    "started_unix": 1794858174.85973
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1031.039335012436 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-42.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 62.19802975654602,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-42.log",
+    "returncode": 0,
+    "started_unix": 1794858185.9497201
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1018.5938532352448 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-43.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 106.59088015556335,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-43.log",
+    "returncode": 0,
+    "started_unix": 1794858198.395201
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1015.3668441772461 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-44.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 150.9564609527588,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-44.log",
+    "returncode": 0,
+    "started_unix": 1794858201.622206
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 982.043851852417 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-45.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 67.20893001556396,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-45.log",
+    "returncode": 0,
+    "started_unix": 1794858234.945197
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 968.8407411575317 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-46.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 71.88985967636108,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-46.log",
+    "returncode": 0,
+    "started_unix": 1794858248.1483111
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 914.8310241699219 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-47.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 46.85563015937805,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-47.log",
+    "returncode": 0,
+    "started_unix": 1794858302.158036
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 864.4072532653809 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-48.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 184.07085585594177,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-48.log",
+    "returncode": 0,
+    "started_unix": 1794858352.5817971
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 864.4071810245514 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-49.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 124.97743201255798,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-49.log",
+    "returncode": 0,
+    "started_unix": 1794858352.581867
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1916.3878600597382 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-5.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 103.43091034889221,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-5.log",
+    "returncode": 0,
+    "started_unix": 1794857300.6011899
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 864.4071168899536 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-50.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 74.34480309486389,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-50.log",
+    "returncode": 0,
+    "started_unix": 1794858352.581929
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 864.4047882556915 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-51.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 96.81735706329346,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-51.log",
+    "returncode": 0,
+    "started_unix": 1794858352.584277
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 790.0615620613098 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-52.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 119.55714416503906,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-52.log",
+    "returncode": 0,
+    "started_unix": 1794858426.92749
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 767.5868599414825 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-53.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 113.63460397720337,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-53.log",
+    "returncode": 0,
+    "started_unix": 1794858449.402196
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 739.4292330741882 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-54.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 69.95267391204834,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-54.log",
+    "returncode": 0,
+    "started_unix": 1794858477.559818
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 680.3358480930328 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-55.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 52.80787897109985,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-55.log",
+    "returncode": 0,
+    "started_unix": 1794858536.653207
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 670.503965139389 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-56.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 56.17225384712219,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-56.log",
+    "returncode": 0,
+    "started_unix": 1794858546.485085
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 669.4761209487915 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-57.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 67.96412682533264,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-57.log",
+    "returncode": 0,
+    "started_unix": 1794858547.512931
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 653.951797246933 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-58.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 104.90183401107788,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-58.log",
+    "returncode": 0,
+    "started_unix": 1794858563.037251
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 627.5275681018829 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-59.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 99.85971307754517,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-59.log",
+    "returncode": 0,
+    "started_unix": 1794858589.4614809
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1916.3841750621796 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-6.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 110.94317603111267,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-6.log",
+    "returncode": 0,
+    "started_unix": 1794857300.604922
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 614.3312559127808 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-60.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 57.17294001579285,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-60.log",
+    "returncode": 0,
+    "started_unix": 1794858602.6577952
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 601.5116009712219 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-61.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 98.39817214012146,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-61.log",
+    "returncode": 0,
+    "started_unix": 1794858615.477449
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 557.1577441692352 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-62.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 81.0212049484253,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-62.log",
+    "returncode": 0,
+    "started_unix": 1794858659.831309
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 549.0491061210632 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-63.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 38.9980628490448,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-63.log",
+    "returncode": 0,
+    "started_unix": 1794858667.93995
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 527.6673781871796 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-64.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 51.28930997848511,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-64.log",
+    "returncode": 0,
+    "started_unix": 1794858689.321677
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 510.05038189888 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-65.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 65.81245017051697,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-65.log",
+    "returncode": 0,
+    "started_unix": 1794858706.9387589
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 503.11286520957947 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-66.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 63.818228006362915,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-66.log",
+    "returncode": 0,
+    "started_unix": 1794858713.8761861
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 476.3776421546936 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-67.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 57.25804805755615,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-67.log",
+    "returncode": 0,
+    "started_unix": 1794858740.611407
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 476.13610887527466 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-68.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 229.20839595794678,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-68.log",
+    "returncode": 0,
+    "started_unix": 1794858740.85294
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 444.23739409446716 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-69.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 82.58440613746643,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-69.log",
+    "returncode": 0,
+    "started_unix": 1794858772.751658
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1812.955973148346 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-7.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 82.06068992614746,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-7.log",
+    "returncode": 0,
+    "started_unix": 1794857404.033087
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 439.2941982746124 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-70.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 70.14847683906555,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-70.log",
+    "returncode": 0,
+    "started_unix": 1794858777.6948512
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 419.1190071105957 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-71.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 87.86188697814941,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-71.log",
+    "returncode": 0,
+    "started_unix": 1794858797.870044
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 246.9213752746582 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-72.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 10.536561012268066,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-72.log",
+    "returncode": 0,
+    "started_unix": 1794858970.067677
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 246.9197690486908 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-73.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 64.19369173049927,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-73.log",
+    "returncode": 0,
+    "started_unix": 1794858970.0693681
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 246.91724514961243 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-74.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 15.590541124343872,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-74.log",
+    "returncode": 0,
+    "started_unix": 1794858970.071831
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 246.91448307037354 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-75.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 10.828338861465454,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-75.log",
+    "returncode": 0,
+    "started_unix": 1794858970.0746071
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 236.3839819431305 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-76.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.639286994934082,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-76.log",
+    "returncode": 0,
+    "started_unix": 1794858980.605073
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 236.08560013771057 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-77.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.5463850498199463,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-77.log",
+    "returncode": 0,
+    "started_unix": 1794858980.903452
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 233.7441930770874 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-78.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.7097420692443848,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-78.log",
+    "returncode": 0,
+    "started_unix": 1794858983.24486
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 233.53875708580017 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-79.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.644334077835083,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-79.log",
+    "returncode": 0,
+    "started_unix": 1794858983.450294
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1805.4403171539307 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-8.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 65.01219487190247,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-8.log",
+    "returncode": 0,
+    "started_unix": 1794857411.548739
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 231.32624912261963 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-80.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.586064100265503,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-80.log",
+    "returncode": 0,
+    "started_unix": 1794858985.662803
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 231.0331392288208 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-81.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.628530979156494,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-81.log",
+    "returncode": 0,
+    "started_unix": 1794858985.955916
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 230.89400219917297 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-82.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.513111114501953,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-82.log",
+    "returncode": 0,
+    "started_unix": 1794858986.095049
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 228.7397222518921 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-83.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.538804054260254,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-83.log",
+    "returncode": 0,
+    "started_unix": 1794858988.2493281
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 228.40418124198914 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-84.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.5694172382354736,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-84.log",
+    "returncode": 0,
+    "started_unix": 1794858988.5848699
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 228.38040709495544 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-85.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.613068103790283,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-85.log",
+    "returncode": 0,
+    "started_unix": 1794858988.608646
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 226.20044612884521 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-86.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.5118069648742676,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-86.log",
+    "returncode": 0,
+    "started_unix": 1794858990.788605
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 225.83430314064026 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-87.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.54595685005188,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-87.log",
+    "returncode": 0,
+    "started_unix": 1794858991.1547542
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 225.766930103302 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-88.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.668447971343994,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-88.log",
+    "returncode": 0,
+    "started_unix": 1794858991.2221189
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 223.68818497657776 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-89.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.4985580444335938,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-89.log",
+    "returncode": 0,
+    "started_unix": 1794858993.300865
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 1799.436862230301 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-9.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 82.25288581848145,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-9.log",
+    "returncode": 0,
+    "started_unix": 1794857417.5522041
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 223.28785610198975 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-90.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.562969923019409,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-90.log",
+    "returncode": 0,
+    "started_unix": 1794858993.701196
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 223.0979790687561 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-91.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.6416430473327637,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-91.log",
+    "returncode": 0,
+    "started_unix": 1794858993.891072
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 221.18923997879028 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-92.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.55755615234375,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-92.log",
+    "returncode": 0,
+    "started_unix": 1794858995.79981
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 220.72436714172363 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-93.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.7294421195983887,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-93.log",
+    "returncode": 0,
+    "started_unix": 1794858996.264684
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 220.455913066864 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-94.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.695957899093628,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-94.log",
+    "returncode": 0,
+    "started_unix": 1794858996.533138
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 218.63115310668945 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-95.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.5219950675964355,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-95.log",
+    "returncode": 0,
+    "started_unix": 1794858998.357901
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 182.72241306304932 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-96.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1206889152526855,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-96.log",
+    "returncode": 0,
+    "started_unix": 1794859034.266638
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 182.7223060131073 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-97.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1279349327087402,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-97.log",
+    "returncode": 0,
+    "started_unix": 1794859034.266739
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 182.72084712982178 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-98.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1669750213623047,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-98.log",
+    "returncode": 0,
+    "started_unix": 1794859034.268298
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 182.72044610977173 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --jobs /private/tmp/labyrinth_codex/meas07-ladder-entry/batch-99.json --deadline-unix 1794859216.989041",
+    "elapsed_seconds": 2.1189169883728027,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/batch-99.log",
+    "returncode": 0,
+    "started_unix": 1794859034.268611
+  },
+  {
+    "command": "/Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id meas-07 --timeout 300 --stream -- godot --headless --path . --script tools/meas07/measure.gd -- --native-plan --directory /private/tmp/labyrinth_codex/meas07-ladder-entry",
+    "elapsed_seconds": 11.996980905532837,
+    "log": "/private/tmp/labyrinth_codex/meas07-ladder-entry/plan.log",
+    "returncode": 0,
+    "started_unix": 1794857078.2789152
+  },
+  {
+    "command": "python3 tools/meas07/collect.py --scratch-dir /private/tmp/labyrinth_codex/meas07-ladder-entry --archived-loadouts",
+    "phase": "corrected top-level invocation"
+  },
+  {
+    "command": "python3 tools/meas07/collect.py --scratch-dir /private/tmp/labyrinth_codex/meas07-current --reuse-recovery",
+    "expanded_commands": "discarded_section_entry/commands.json",
+    "phase": "discarded protocol"
+  }
+]

@@ -4,12 +4,17 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveHud = preload("res://scripts/combat_objective_hud.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const PreBattleView = preload("res://scripts/pre_battle_view.gd")
+
+class UncappedRoomGenerator extends "res://scripts/room_generator.gd":
+	func _finalize_difficulty(_layout: Dictionary) -> void:
+		pass # Retain the authored roster and Health before cap/tier scaling.
 
 static func run(expect: Callable) -> void:
 	_test_objective_registry_and_deterministic_mix(expect)
@@ -154,17 +159,27 @@ static func _test_reach_exit_generation_and_completion(expect: Callable) -> void
 	var generator := RoomGenerator.new()
 	var room: Dictionary = _room_metadata(3)
 	var layout: Dictionary = {}
+	var layout_seed: int = 0
 	for seed: int in range(1, 300):
 		var candidate: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
 		if str((candidate.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.REACH_EXIT:
 			layout = candidate
+			layout_seed = seed
 			break
 	expect.call(not layout.is_empty(), "Seeded generation should produce a Reach the Exit room")
 	if layout.is_empty():
 		return
 	var objective: Dictionary = layout.get("objective", {}) as Dictionary
-	expect.call((layout.get("enemies", []) as Array).size() == 7, "A local-depth-three exit encounter should add two enemies to the normal five")
+	expect.call(Difficulty.starter_count(layout) == Difficulty.MAX_STARTERS and (layout["enemies"] as Array).size() == Difficulty.MAX_STARTERS, "A local-depth-three exit encounter should retain five starters")
 	expect.call((layout.get("enemies", []) as Array).any(func(enemy: Dictionary) -> bool: return str(enemy.get("type", "")) == "chainbound_gaoler"), "Exit encounters should guarantee a movement-control anchor")
+	var uncapped: Dictionary = UncappedRoomGenerator.new().generate_room(layout_seed, room, Vector2i.UP)
+	var removed: int = Difficulty.starter_count(uncapped) - Difficulty.starter_count(layout)
+	expect.call(removed == int(objective["extra_enemy_count"]), "The exit encounter's two extra starters should fold into Health at the cap")
+	for enemy: Dictionary in layout["enemies"]:
+		var original: Dictionary = (uncapped["enemies"] as Array).filter(func(unit: Dictionary) -> bool: return int(unit["id"]) == int(enemy["id"]))[0]
+		var compensated_hp: int = ceili(float(original["max_hp"]) * pow(Difficulty.REMOVED_ENEMY_HP_FACTOR, removed))
+		var expected_hp: int = Difficulty.arrival_hp(layout, compensated_hp)
+		expect.call(int(enemy["max_hp"]) == expected_hp and int(enemy["hp"]) == expected_hp, "Every retained exit starter receives cap Health compensation and tier Health once")
 	expect.call((layout.get("terrain", []) as Array).size() >= 8, "Exit encounters should add three destructible blockers over the normal minimum")
 	var terrain_tiles: Array[Vector2i] = []
 	for terrain: Dictionary in layout.get("terrain", []):

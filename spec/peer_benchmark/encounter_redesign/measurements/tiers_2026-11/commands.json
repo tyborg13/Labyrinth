@@ -1,0 +1,2067 @@
+[
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 600 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --native-plan --directory /private/tmp/labyrinth_codex/diff01-native",
+    "elapsed_seconds": 17.259439706802368,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/plan.log",
+    "returncode": 0,
+    "started_unix": 1794860190.08047
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10662.568708896637 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-0.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 50.36428904533386,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-0.log",
+    "returncode": 0,
+    "started_unix": 1794860207.396061
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10662.5686211586 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-1.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 74.67566204071045,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-1.log",
+    "returncode": 0,
+    "started_unix": 1794860207.396148
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10662.566863059998 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-2.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 58.749390840530396,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-2.log",
+    "returncode": 0,
+    "started_unix": 1794860207.397933
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10662.565200805664 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-3.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 101.7864351272583,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-3.log",
+    "returncode": 0,
+    "started_unix": 1794860207.399585
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10612.203732013702 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-4.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 45.61880302429199,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-4.log",
+    "returncode": 0,
+    "started_unix": 1794860257.76104
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10603.816859960556 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-5.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.03814482688904,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-5.log",
+    "returncode": 0,
+    "started_unix": 1794860266.147912
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10587.892309904099 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-6.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 64.60294103622437,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-6.log",
+    "returncode": 0,
+    "started_unix": 1794860282.072462
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10566.584399938583 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-7.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 35.668376207351685,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-7.log",
+    "returncode": 0,
+    "started_unix": 1794860303.3803709
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10560.778260946274 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-8.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.70123076438904,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-8.log",
+    "returncode": 0,
+    "started_unix": 1794860309.18651
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10148.504297018051 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-9.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.527263879776,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-9.log",
+    "returncode": 0,
+    "started_unix": 1794860721.460475
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10148.504215955734 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-10.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.31597113609314,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-10.log",
+    "returncode": 0,
+    "started_unix": 1794860721.460553
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10148.504112958908 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-11.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.64464616775513,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-11.log",
+    "returncode": 0,
+    "started_unix": 1794860721.460657
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10148.500138044357 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-12.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 52.50657320022583,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-12.log",
+    "returncode": 0,
+    "started_unix": 1794860721.4646358
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10113.976359844208 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-13.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 52.692768812179565,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-13.log",
+    "returncode": 0,
+    "started_unix": 1794860755.988414
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10106.187571048737 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-14.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.713578939437866,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-14.log",
+    "returncode": 0,
+    "started_unix": 1794860763.777201
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10103.858790874481 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-15.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.44482707977295,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-15.log",
+    "returncode": 0,
+    "started_unix": 1794860766.10598
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10095.993014097214 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-16.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 24.415483713150024,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-16.log",
+    "returncode": 0,
+    "started_unix": 1794860773.9717572
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10073.413487911224 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-17.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 64.47940421104431,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-17.log",
+    "returncode": 0,
+    "started_unix": 1794860796.551283
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10071.57707810402 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-18.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.337626934051514,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-18.log",
+    "returncode": 0,
+    "started_unix": 1794860798.3876941
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10061.473550081253 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-19.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.519535064697266,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-19.log",
+    "returncode": 0,
+    "started_unix": 1794860808.491221
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10061.282885789871 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-20.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.33373308181763,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-20.log",
+    "returncode": 0,
+    "started_unix": 1794860808.681886
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10037.238937139511 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-21.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.62272572517395,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-21.log",
+    "returncode": 0,
+    "started_unix": 1794860832.725835
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10030.953407049179 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-22.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.37917900085449,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-22.log",
+    "returncode": 0,
+    "started_unix": 1794860839.0113752
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10008.933428049088 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-23.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 104.10207414627075,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-23.log",
+    "returncode": 0,
+    "started_unix": 1794860861.031345
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 10002.615429878235 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-24.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.42157816886902,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-24.log",
+    "returncode": 0,
+    "started_unix": 1794860867.3493419
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9987.94845199585 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-25.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.998164892196655,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-25.log",
+    "returncode": 0,
+    "started_unix": 1794860882.01632
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9984.573725938797 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-26.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.00231099128723,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-26.log",
+    "returncode": 0,
+    "started_unix": 1794860885.391047
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9951.193346977234 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-27.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 64.48869895935059,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-27.log",
+    "returncode": 0,
+    "started_unix": 1794860918.771425
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9950.94981789589 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-28.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 70.23846101760864,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-28.log",
+    "returncode": 0,
+    "started_unix": 1794860919.014953
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9940.570858955383 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-29.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 96.15324187278748,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-29.log",
+    "returncode": 0,
+    "started_unix": 1794860929.393912
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9904.830687999725 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-30.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 35.469666957855225,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-30.log",
+    "returncode": 0,
+    "started_unix": 1794860965.134084
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9886.704159021378 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-31.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 32.948232889175415,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-31.log",
+    "returncode": 0,
+    "started_unix": 1794860983.260611
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9880.710896968842 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-32.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 41.927507400512695,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-32.log",
+    "returncode": 0,
+    "started_unix": 1794860989.2538738
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9869.360538959503 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-33.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 66.44661498069763,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-33.log",
+    "returncode": 0,
+    "started_unix": 1794861000.604233
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9853.755448102951 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-34.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 35.44556283950806,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-34.log",
+    "returncode": 0,
+    "started_unix": 1794861016.2093241
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9844.417054891586 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-35.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.589157819747925,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-35.log",
+    "returncode": 0,
+    "started_unix": 1794861025.547717
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9838.782752990723 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-36.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.843979597091675,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-36.log",
+    "returncode": 0,
+    "started_unix": 1794861031.1820202
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9818.308674097061 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-37.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 74.50154089927673,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-37.log",
+    "returncode": 0,
+    "started_unix": 1794861051.6560981
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9802.91341996193 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-38.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.66219997406006,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-38.log",
+    "returncode": 0,
+    "started_unix": 1794861067.051351
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9792.827267169952 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-39.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.272292137145996,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-39.log",
+    "returncode": 0,
+    "started_unix": 1794861077.137505
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9782.938283920288 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-40.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 33.27147197723389,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-40.log",
+    "returncode": 0,
+    "started_unix": 1794861087.026489
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9743.795444011688 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-41.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 66.70906496047974,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-41.log",
+    "returncode": 0,
+    "started_unix": 1794861126.1693282
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9743.795361042023 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-42.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.23014998435974,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-42.log",
+    "returncode": 0,
+    "started_unix": 1794861126.169409
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9743.795267105103 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-43.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 47.56509327888489,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-43.log",
+    "returncode": 0,
+    "started_unix": 1794861126.169504
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9743.795166015625 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-44.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.94281792640686,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-44.log",
+    "returncode": 0,
+    "started_unix": 1794861126.169604
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9707.564676046371 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-45.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.80503988265991,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-45.log",
+    "returncode": 0,
+    "started_unix": 1794861162.400096
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9704.85171198845 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-46.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.24063014984131,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-46.log",
+    "returncode": 0,
+    "started_unix": 1794861165.11306
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9696.229560136795 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-47.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 35.082334995269775,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-47.log",
+    "returncode": 0,
+    "started_unix": 1794861173.735213
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9677.085839986801 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-48.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.752016067504883,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-48.log",
+    "returncode": 0,
+    "started_unix": 1794861192.878931
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9661.146712064743 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-49.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.409061908721924,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-49.log",
+    "returncode": 0,
+    "started_unix": 1794861208.818059
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9660.758661985397 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-50.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.72386193275452,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-50.log",
+    "returncode": 0,
+    "started_unix": 1794861209.206109
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9654.333271026611 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-51.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.13511109352112,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-51.log",
+    "returncode": 0,
+    "started_unix": 1794861215.631501
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9651.610544919968 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-52.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 32.99274015426636,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-52.log",
+    "returncode": 0,
+    "started_unix": 1794861218.3542259
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9632.736556053162 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-53.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 68.72636079788208,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-53.log",
+    "returncode": 0,
+    "started_unix": 1794861237.2282171
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9618.617127895355 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-54.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 33.00062012672424,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-54.log",
+    "returncode": 0,
+    "started_unix": 1794861251.347643
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9618.19733595848 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-55.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.527610778808594,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-55.log",
+    "returncode": 0,
+    "started_unix": 1794861251.767435
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9609.034223794937 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-56.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.283647060394287,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-56.log",
+    "returncode": 0,
+    "started_unix": 1794861260.930548
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9585.61574292183 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-57.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.99392485618591,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-57.log",
+    "returncode": 0,
+    "started_unix": 1794861284.349029
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9583.750118970871 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-58.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 69.35894393920898,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-58.log",
+    "returncode": 0,
+    "started_unix": 1794861286.214653
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9573.669159889221 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-59.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 43.49281716346741,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-59.log",
+    "returncode": 0,
+    "started_unix": 1794861296.295611
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9564.00931096077 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-60.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 32.72429180145264,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-60.log",
+    "returncode": 0,
+    "started_unix": 1794861305.95546
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9538.621146917343 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-61.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.46656680107117,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-61.log",
+    "returncode": 0,
+    "started_unix": 1794861331.343625
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9531.284078121185 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-62.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 50.206299781799316,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-62.log",
+    "returncode": 0,
+    "started_unix": 1794861338.680695
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9530.175827026367 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-63.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 29.89993691444397,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-63.log",
+    "returncode": 0,
+    "started_unix": 1794861339.788949
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9514.390569925308 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-64.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 111.5419409275055,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-64.log",
+    "returncode": 0,
+    "started_unix": 1794861355.574202
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9500.275389909744 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-65.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.49379897117615,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-65.log",
+    "returncode": 0,
+    "started_unix": 1794861369.6893811
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9500.153807163239 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-66.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 71.93380880355835,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-66.log",
+    "returncode": 0,
+    "started_unix": 1794861369.810965
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9481.077176094055 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-67.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 41.49502396583557,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-67.log",
+    "returncode": 0,
+    "started_unix": 1794861388.887595
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9453.780528783798 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-68.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.18534207344055,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-68.log",
+    "returncode": 0,
+    "started_unix": 1794861416.184244
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9439.581336975098 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-69.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 82.78836798667908,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-69.log",
+    "returncode": 0,
+    "started_unix": 1794861430.383436
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9428.21931385994 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-70.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 60.06763005256653,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-70.log",
+    "returncode": 0,
+    "started_unix": 1794861441.74546
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9404.594621896744 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-71.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 100.1154510974884,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-71.log",
+    "returncode": 0,
+    "started_unix": 1794861465.3701499
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9402.848031044006 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-72.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.30613470077515,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-72.log",
+    "returncode": 0,
+    "started_unix": 1794861467.1167412
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9368.147896051407 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-73.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 90.61120104789734,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-73.log",
+    "returncode": 0,
+    "started_unix": 1794861501.816875
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9356.792386054993 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-74.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 99.8258638381958,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-74.log",
+    "returncode": 0,
+    "started_unix": 1794861513.1723871
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9353.541315078735 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-75.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 29.11375093460083,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-75.log",
+    "returncode": 0,
+    "started_unix": 1794861516.423455
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9324.427011013031 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-76.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.56428813934326,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-76.log",
+    "returncode": 0,
+    "started_unix": 1794861545.537761
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9256.955594062805 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-77.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 65.33517503738403,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-77.log",
+    "returncode": 0,
+    "started_unix": 1794861613.009176
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9256.955476045609 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-78.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.769410848617554,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-78.log",
+    "returncode": 0,
+    "started_unix": 1794861613.009294
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9256.945556879044 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-79.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 60.45419001579285,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-79.log",
+    "returncode": 0,
+    "started_unix": 1794861613.019231
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9256.94310593605 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-80.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.85215401649475,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-80.log",
+    "returncode": 0,
+    "started_unix": 1794861613.021667
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9218.185204029083 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-81.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.918635845184326,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-81.log",
+    "returncode": 0,
+    "started_unix": 1794861651.779571
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9218.090337991714 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-82.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 61.52408981323242,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-82.log",
+    "returncode": 0,
+    "started_unix": 1794861651.874433
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9196.49077796936 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-83.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 62.26907396316528,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-83.log",
+    "returncode": 0,
+    "started_unix": 1794861673.473994
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9191.619796037674 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-84.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 27.33948302268982,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-84.log",
+    "returncode": 0,
+    "started_unix": 1794861678.344976
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9189.265301942825 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-85.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.32575297355652,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-85.log",
+    "returncode": 0,
+    "started_unix": 1794861680.69947
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9164.279669046402 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-86.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 58.87750506401062,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-86.log",
+    "returncode": 0,
+    "started_unix": 1794861705.6851032
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9160.93756389618 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-87.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.535577058792114,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-87.log",
+    "returncode": 0,
+    "started_unix": 1794861709.027207
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9156.56572008133 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-88.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.972047090530396,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-88.log",
+    "returncode": 0,
+    "started_unix": 1794861713.399051
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9135.40141582489 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-89.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 85.2188651561737,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-89.log",
+    "returncode": 0,
+    "started_unix": 1794861734.563356
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9134.219740867615 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-90.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.71264719963074,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-90.log",
+    "returncode": 0,
+    "started_unix": 1794861735.7450318
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9121.593072891235 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-91.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 67.86818718910217,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-91.log",
+    "returncode": 0,
+    "started_unix": 1794861748.3716989
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9105.401482105255 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-92.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 29.925039768218994,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-92.log",
+    "returncode": 0,
+    "started_unix": 1794861764.56329
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9078.506512880325 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-93.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 60.74919295310974,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-93.log",
+    "returncode": 0,
+    "started_unix": 1794861791.45826
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9075.475838899612 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-94.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 88.80617499351501,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-94.log",
+    "returncode": 0,
+    "started_unix": 1794861794.488933
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9053.724270105362 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-95.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.33040189743042,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-95.log",
+    "returncode": 0,
+    "started_unix": 1794861816.240503
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9050.181865930557 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-96.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.715094089508057,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-96.log",
+    "returncode": 0,
+    "started_unix": 1794861819.7829068
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9018.466168165207 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-97.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.35568404197693,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-97.log",
+    "returncode": 0,
+    "started_unix": 1794861851.498603
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9017.756697177887 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-98.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 40.572675943374634,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-98.log",
+    "returncode": 0,
+    "started_unix": 1794861852.208075
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 9005.393360853195 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-99.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 47.53555107116699,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-99.log",
+    "returncode": 0,
+    "started_unix": 1794861864.571411
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8986.669127941132 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-100.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 39.42605638504028,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-100.log",
+    "returncode": 0,
+    "started_unix": 1794861883.2956438
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8977.183499097824 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-101.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 33.9287588596344,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-101.log",
+    "returncode": 0,
+    "started_unix": 1794861892.781274
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8963.109950065613 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-102.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 45.67100405693054,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-102.log",
+    "returncode": 0,
+    "started_unix": 1794861906.854822
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8957.8571331501 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-103.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 57.55374097824097,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-103.log",
+    "returncode": 0,
+    "started_unix": 1794861912.1076381
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8947.242489099503 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-104.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.86958193778992,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-104.log",
+    "returncode": 0,
+    "started_unix": 1794861922.722285
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8943.25405216217 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-105.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 78.26847696304321,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-105.log",
+    "returncode": 0,
+    "started_unix": 1794861926.710721
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8917.43833398819 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-106.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 78.60879302024841,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-106.log",
+    "returncode": 0,
+    "started_unix": 1794861952.526439
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8900.372380971909 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-107.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 61.77685022354126,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-107.log",
+    "returncode": 0,
+    "started_unix": 1794861969.592392
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8900.302895784378 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-108.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.7847101688385,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-108.log",
+    "returncode": 0,
+    "started_unix": 1794861969.661875
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8864.985044956207 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-109.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.07587695121765,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-109.log",
+    "returncode": 0,
+    "started_unix": 1794862004.979726
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8848.516865968704 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-110.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 138.06118202209473,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-110.log",
+    "returncode": 0,
+    "started_unix": 1794862021.447905
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8838.829013109207 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-111.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.49375581741333,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-111.log",
+    "returncode": 0,
+    "started_unix": 1794862031.135759
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8838.594897985458 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-112.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 83.01370215415955,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-112.log",
+    "returncode": 0,
+    "started_unix": 1794862031.3698719
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8710.44310593605 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-113.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.42193388938904,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-113.log",
+    "returncode": 0,
+    "started_unix": 1794862159.521665
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8710.443000078201 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-114.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 76.65283703804016,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-114.log",
+    "returncode": 0,
+    "started_unix": 1794862159.521769
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8710.440963983536 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-115.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 56.63146495819092,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-115.log",
+    "returncode": 0,
+    "started_unix": 1794862159.523823
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8710.440423965454 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-116.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 50.01688599586487,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-116.log",
+    "returncode": 0,
+    "started_unix": 1794862159.5243468
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8660.42282485962 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-117.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.65657687187195,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-117.log",
+    "returncode": 0,
+    "started_unix": 1794862209.541949
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8655.020601034164 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-118.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 58.58729004859924,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-118.log",
+    "returncode": 0,
+    "started_unix": 1794862214.94417
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8653.80874800682 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-119.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.81856298446655,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-119.log",
+    "returncode": 0,
+    "started_unix": 1794862216.156024
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8633.789366960526 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-120.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 43.42540788650513,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-120.log",
+    "returncode": 0,
+    "started_unix": 1794862236.1754072
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8614.988655805588 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-121.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.770472049713135,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-121.log",
+    "returncode": 0,
+    "started_unix": 1794862254.976117
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8606.765475988388 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-122.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.40114212036133,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-122.log",
+    "returncode": 0,
+    "started_unix": 1794862263.199297
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8596.43251991272 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-123.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 57.13822793960571,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-123.log",
+    "returncode": 0,
+    "started_unix": 1794862273.5322518
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8590.36337685585 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-124.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 37.91194009780884,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-124.log",
+    "returncode": 0,
+    "started_unix": 1794862279.601395
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8589.217638969421 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-125.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 156.21441197395325,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-125.log",
+    "returncode": 0,
+    "started_unix": 1794862280.747134
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8562.363368988037 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-126.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 32.46378779411316,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-126.log",
+    "returncode": 0,
+    "started_unix": 1794862307.601402
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8552.450958013535 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-127.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.34828495979309,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-127.log",
+    "returncode": 0,
+    "started_unix": 1794862317.513814
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8539.293754816055 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-128.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.44075107574463,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-128.log",
+    "returncode": 0,
+    "started_unix": 1794862330.671017
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8529.898895978928 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-129.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.46904683113098,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-129.log",
+    "returncode": 0,
+    "started_unix": 1794862340.065875
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8516.85244178772 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-130.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.91654205322266,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-130.log",
+    "returncode": 0,
+    "started_unix": 1794862353.112331
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8504.10214304924 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-131.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 64.21999478340149,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-131.log",
+    "returncode": 0,
+    "started_unix": 1794862365.8626292
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8491.429260015488 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-132.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.99207663536072,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-132.log",
+    "returncode": 0,
+    "started_unix": 1794862378.5355132
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8442.935377836227 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-133.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.26860904693604,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-133.log",
+    "returncode": 0,
+    "started_unix": 1794862427.0293949
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8441.436656951904 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-134.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.03060507774353,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-134.log",
+    "returncode": 0,
+    "started_unix": 1794862428.528115
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8439.879446983337 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-135.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 63.817397117614746,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-135.log",
+    "returncode": 0,
+    "started_unix": 1794862430.085325
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8433.002054929733 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-136.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 74.42956805229187,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-136.log",
+    "returncode": 0,
+    "started_unix": 1794862436.962718
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8386.405466794968 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-137.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.61055088043213,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-137.log",
+    "returncode": 0,
+    "started_unix": 1794862483.559304
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8376.061439990997 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-138.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 70.28788590431213,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-138.log",
+    "returncode": 0,
+    "started_unix": 1794862493.903332
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8369.666052103043 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-139.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 72.74214625358582,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-139.log",
+    "returncode": 0,
+    "started_unix": 1794862500.29872
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8358.571836948395 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-140.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 29.17894196510315,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-140.log",
+    "returncode": 0,
+    "started_unix": 1794862511.392936
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8329.39232993126 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-141.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 78.35110211372375,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-141.log",
+    "returncode": 0,
+    "started_unix": 1794862540.572442
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8312.794337034225 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-142.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 52.25703477859497,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-142.log",
+    "returncode": 0,
+    "started_unix": 1794862557.1704352
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8305.767161130905 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-143.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 62.10599708557129,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-143.log",
+    "returncode": 0,
+    "started_unix": 1794862564.197611
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8296.92329287529 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-144.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.380948305130005,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-144.log",
+    "returncode": 0,
+    "started_unix": 1794862573.041478
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8260.536535024643 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-145.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 75.1219699382782,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-145.log",
+    "returncode": 0,
+    "started_unix": 1794862609.428235
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8251.040580749512 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-146.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 100.41048812866211,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-146.log",
+    "returncode": 0,
+    "started_unix": 1794862618.924194
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8245.541756868362 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-147.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 39.328524112701416,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-147.log",
+    "returncode": 0,
+    "started_unix": 1794862624.423014
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8243.660616874695 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-148.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.31258511543274,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-148.log",
+    "returncode": 0,
+    "started_unix": 1794862626.3041549
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8150.620442867279 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-149.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 186.145348072052,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-149.log",
+    "returncode": 0,
+    "started_unix": 1794862719.344327
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8150.6203010082245 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-150.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 39.64975690841675,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-150.log",
+    "returncode": 0,
+    "started_unix": 1794862719.34447
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8150.617872953415 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-151.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.1761999130249,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-151.log",
+    "returncode": 0,
+    "started_unix": 1794862719.346903
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8150.6176500320435 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-152.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 70.30922412872314,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-152.log",
+    "returncode": 0,
+    "started_unix": 1794862719.347121
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8110.969738960266 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-153.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.57402181625366,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-153.log",
+    "returncode": 0,
+    "started_unix": 1794862758.9950342
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8101.441108942032 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-154.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 387.46957302093506,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-154.log",
+    "returncode": 0,
+    "started_unix": 1794862768.523663
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8080.307760953903 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-155.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 354.6962459087372,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-155.log",
+    "returncode": 0,
+    "started_unix": 1794862789.657012
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 8074.395124912262 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-156.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 332.71868085861206,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-156.log",
+    "returncode": 0,
+    "started_unix": 1794862795.569647
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7964.472761154175 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-157.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 179.20039105415344,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-157.log",
+    "returncode": 0,
+    "started_unix": 1794862905.492023
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7785.265381813049 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-158.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 470.99646615982056,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-158.log",
+    "returncode": 0,
+    "started_unix": 1794863084.6993978
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7741.6651520729065 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-159.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 299.22762799263,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-159.log",
+    "returncode": 0,
+    "started_unix": 1794863128.299625
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7725.606091976166 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-160.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 273.7820291519165,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-160.log",
+    "returncode": 0,
+    "started_unix": 1794863144.358686
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7713.960812091827 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-161.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 657.1901950836182,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-161.log",
+    "returncode": 0,
+    "started_unix": 1794863156.003973
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7451.819231033325 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-162.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 255.16259813308716,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-162.log",
+    "returncode": 0,
+    "started_unix": 1794863418.145552
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7442.435778141022 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-163.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 425.58607506752014,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-163.log",
+    "returncode": 0,
+    "started_unix": 1794863427.529001
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7314.267509937286 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-164.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 237.88576006889343,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-164.log",
+    "returncode": 0,
+    "started_unix": 1794863555.69727
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7196.651846885681 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-165.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 413.440376996994,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-165.log",
+    "returncode": 0,
+    "started_unix": 1794863673.312932
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7076.376169919968 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-166.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 568.4717328548431,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-166.log",
+    "returncode": 0,
+    "started_unix": 1794863793.588614
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7056.766747951508 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-167.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 349.64550709724426,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-167.log",
+    "returncode": 0,
+    "started_unix": 1794863813.198037
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 7016.842304944992 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-168.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 286.66431283950806,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-168.log",
+    "returncode": 0,
+    "started_unix": 1794863853.1224792
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6783.208429098129 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-169.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 327.94994616508484,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-169.log",
+    "returncode": 0,
+    "started_unix": 1794864086.7563488
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6730.174829006195 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-170.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 414.30113887786865,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-170.log",
+    "returncode": 0,
+    "started_unix": 1794864139.789952
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6707.1137018203735 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-171.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 320.83490085601807,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-171.log",
+    "returncode": 0,
+    "started_unix": 1794864162.8510761
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6507.893327951431 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-172.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 236.20612907409668,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-172.log",
+    "returncode": 0,
+    "started_unix": 1794864362.071451
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6455.252785921097 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-173.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 173.02014589309692,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-173.log",
+    "returncode": 0,
+    "started_unix": 1794864414.711989
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6386.27768611908 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-174.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 65.58056783676147,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-174.log",
+    "returncode": 0,
+    "started_unix": 1794864483.687088
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6320.696077108383 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-175.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.389816761016846,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-175.log",
+    "returncode": 0,
+    "started_unix": 1794864549.268695
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6315.873065948486 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-176.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 23.768178939819336,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-176.log",
+    "returncode": 0,
+    "started_unix": 1794864554.091706
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6292.104275941849 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-177.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.15561127662659,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-177.log",
+    "returncode": 0,
+    "started_unix": 1794864577.8604958
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6282.232015132904 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-178.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 84.6220371723175,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-178.log",
+    "returncode": 0,
+    "started_unix": 1794864587.732756
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6274.3058178424835 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-179.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 91.30459904670715,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-179.log",
+    "returncode": 0,
+    "started_unix": 1794864595.658953
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6271.686425924301 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-180.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 40.61181306838989,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-180.log",
+    "returncode": 0,
+    "started_unix": 1794864598.278346
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6247.948207855225 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-181.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.251779079437256,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-181.log",
+    "returncode": 0,
+    "started_unix": 1794864622.016563
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6231.074155092239 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-182.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 66.23089671134949,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-182.log",
+    "returncode": 0,
+    "started_unix": 1794864638.8906162
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6197.6094489097595 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-183.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.18602013587952,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-183.log",
+    "returncode": 0,
+    "started_unix": 1794864672.3553228
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6194.695899963379 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-184.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.021575927734375,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-184.log",
+    "returncode": 0,
+    "started_unix": 1794864675.268872
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6148.413475036621 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-185.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 85.83549904823303,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-185.log",
+    "returncode": 0,
+    "started_unix": 1794864721.551295
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6148.413336992264 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-186.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 41.17588806152344,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-186.log",
+    "returncode": 0,
+    "started_unix": 1794864721.551432
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6148.411324977875 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-187.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 69.09419989585876,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-187.log",
+    "returncode": 0,
+    "started_unix": 1794864721.553451
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6148.411047935486 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-188.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 50.280109167099,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-188.log",
+    "returncode": 0,
+    "started_unix": 1794864721.5537229
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6107.236621141434 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-189.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 47.18962287902832,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-189.log",
+    "returncode": 0,
+    "started_unix": 1794864762.728153
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6098.130373954773 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-190.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.855026960372925,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-190.log",
+    "returncode": 0,
+    "started_unix": 1794864771.834398
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6079.316583871841 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-191.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 35.083112955093384,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-191.log",
+    "returncode": 0,
+    "started_unix": 1794864790.6481888
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6062.577489852905 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-192.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.172749042510986,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-192.log",
+    "returncode": 0,
+    "started_unix": 1794864807.387281
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6060.046366930008 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-193.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.88778281211853,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-193.log",
+    "returncode": 0,
+    "started_unix": 1794864809.918404
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6051.274348020554 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-194.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.49060416221619,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-194.log",
+    "returncode": 0,
+    "started_unix": 1794864818.690424
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6044.232936859131 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-195.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.5687198638916,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-195.log",
+    "returncode": 0,
+    "started_unix": 1794864825.7318342
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6037.4039170742035 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-196.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 24.82787775993347,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-196.log",
+    "returncode": 0,
+    "started_unix": 1794864832.5608552
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6037.157674074173 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-197.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 69.43493580818176,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-197.log",
+    "returncode": 0,
+    "started_unix": 1794864832.8070982
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6012.663583040237 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-198.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 50.98171901702881,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-198.log",
+    "returncode": 0,
+    "started_unix": 1794864857.30119
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 6012.575460910797 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-199.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.560112953186035,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-199.log",
+    "returncode": 0,
+    "started_unix": 1794864857.389311
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5997.782970905304 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-200.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 33.746084213256836,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-200.log",
+    "returncode": 0,
+    "started_unix": 1794864872.1818008
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5967.722184896469 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-201.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 65.15948820114136,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-201.log",
+    "returncode": 0,
+    "started_unix": 1794864902.2425878
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5964.036384105682 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-202.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 58.990386962890625,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-202.log",
+    "returncode": 0,
+    "started_unix": 1794864905.928388
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5961.681223869324 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-203.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.297760009765625,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-203.log",
+    "returncode": 0,
+    "started_unix": 1794864908.28355
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5959.014793872833 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-204.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 21.829529762268066,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-204.log",
+    "returncode": 0,
+    "started_unix": 1794864910.949978
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5937.184827804565 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-205.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 65.22453188896179,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-205.log",
+    "returncode": 0,
+    "started_unix": 1794864932.779943
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5913.382962942123 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-206.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 54.90971326828003,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-206.log",
+    "returncode": 0,
+    "started_unix": 1794864956.5818088
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5905.045279979706 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-207.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.16101312637329,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-207.log",
+    "returncode": 0,
+    "started_unix": 1794864964.919491
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5902.562220096588 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-208.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.539188861846924,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-208.log",
+    "returncode": 0,
+    "started_unix": 1794864967.4025521
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5871.959813833237 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-209.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.437202215194702,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-209.log",
+    "returncode": 0,
+    "started_unix": 1794864998.004957
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5871.022510051727 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-210.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.041604042053223,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-210.log",
+    "returncode": 0,
+    "started_unix": 1794864998.942261
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5858.47275018692 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-211.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.44723892211914,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-211.log",
+    "returncode": 0,
+    "started_unix": 1794865011.492021
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5856.883800983429 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-212.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.24099087715149,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-212.log",
+    "returncode": 0,
+    "started_unix": 1794865013.08097
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5846.522125005722 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-213.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 48.19212198257446,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-213.log",
+    "returncode": 0,
+    "started_unix": 1794865023.442647
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5842.980330944061 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-214.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 60.980719804763794,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-214.log",
+    "returncode": 0,
+    "started_unix": 1794865026.98444
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5834.6423218250275 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-215.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.05329608917236,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-215.log",
+    "returncode": 0,
+    "started_unix": 1794865035.322449
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5812.0241668224335 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-216.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 45.047720193862915,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-216.log",
+    "returncode": 0,
+    "started_unix": 1794865057.940605
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5798.329322099686 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-217.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 56.84264779090881,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-217.log",
+    "returncode": 0,
+    "started_unix": 1794865071.6354501
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5785.5883939266205 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-218.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.46817111968994,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-218.log",
+    "returncode": 0,
+    "started_unix": 1794865084.376378
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5781.999125957489 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-219.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 39.599750995635986,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-219.log",
+    "returncode": 0,
+    "started_unix": 1794865087.965645
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5766.97586107254 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-220.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 26.239877700805664,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-220.log",
+    "returncode": 0,
+    "started_unix": 1794865102.9889102
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5712.111298084259 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-221.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 86.75706124305725,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-221.log",
+    "returncode": 0,
+    "started_unix": 1794865157.853472
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5712.111167907715 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-222.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 63.720839977264404,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-222.log",
+    "returncode": 0,
+    "started_unix": 1794865157.8536
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5712.11109495163 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-223.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 51.28824305534363,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-223.log",
+    "returncode": 0,
+    "started_unix": 1794865157.853674
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5712.106802940369 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-224.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 38.580636978149414,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-224.log",
+    "returncode": 0,
+    "started_unix": 1794865157.857974
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5673.525568008423 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-225.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.96704888343811,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-225.log",
+    "returncode": 0,
+    "started_unix": 1794865196.4392052
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5660.822282075882 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-226.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.83426570892334,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-226.log",
+    "returncode": 0,
+    "started_unix": 1794865209.1424901
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5650.557986974716 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-227.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.683223009109497,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-227.log",
+    "returncode": 0,
+    "started_unix": 1794865219.406785
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5648.389683008194 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-228.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 29.160763025283813,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-228.log",
+    "returncode": 0,
+    "started_unix": 1794865221.575089
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5625.353626966476 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-229.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.40357208251953,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-229.log",
+    "returncode": 0,
+    "started_unix": 1794865244.6111438
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5619.22839307785 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-230.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 52.057748794555664,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-230.log",
+    "returncode": 0,
+    "started_unix": 1794865250.7363782
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5618.874117851257 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-231.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 44.09738111495972,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-231.log",
+    "returncode": 0,
+    "started_unix": 1794865251.090653
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5606.987138032913 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-232.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.883875846862793,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-232.log",
+    "returncode": 0,
+    "started_unix": 1794865262.977634
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5599.949583053589 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-233.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 107.36681079864502,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-233.log",
+    "returncode": 0,
+    "started_unix": 1794865270.0151901
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5576.102727890015 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-234.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.83193612098694,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-234.log",
+    "returncode": 0,
+    "started_unix": 1794865293.8620448
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5574.776232004166 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-235.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 62.031044244766235,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-235.log",
+    "returncode": 0,
+    "started_unix": 1794865295.1885388
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5567.170179128647 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-236.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 24.938326120376587,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-236.log",
+    "returncode": 0,
+    "started_unix": 1794865302.794592
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5547.270338058472 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-237.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 67.80050420761108,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-237.log",
+    "returncode": 0,
+    "started_unix": 1794865322.694433
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5542.230581998825 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-238.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.924519062042236,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-238.log",
+    "returncode": 0,
+    "started_unix": 1794865327.73419
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5512.744610071182 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-239.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 49.51750707626343,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-239.log",
+    "returncode": 0,
+    "started_unix": 1794865357.220161
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5492.582181930542 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-240.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 19.518803119659424,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-240.log",
+    "returncode": 0,
+    "started_unix": 1794865377.3825889
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5488.3055510520935 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-241.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 26.33114981651306,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-241.log",
+    "returncode": 0,
+    "started_unix": 1794865381.659225
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5479.469386100769 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-242.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 62.54280686378479,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-242.log",
+    "returncode": 0,
+    "started_unix": 1794865390.4953852
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5473.062824010849 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-243.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 60.67626428604126,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-243.log",
+    "returncode": 0,
+    "started_unix": 1794865396.9019468
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5463.2266409397125 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-244.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 55.69395923614502,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-244.log",
+    "returncode": 0,
+    "started_unix": 1794865406.7381299
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5461.973945856094 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-245.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.697078943252563,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-245.log",
+    "returncode": 0,
+    "started_unix": 1794865407.990825
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5433.27644276619 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-246.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.551053047180176,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-246.log",
+    "returncode": 0,
+    "started_unix": 1794865436.688328
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5416.925993919373 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-247.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.64228892326355,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-247.log",
+    "returncode": 0,
+    "started_unix": 1794865453.038778
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5412.385987043381 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-248.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 37.93115711212158,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-248.log",
+    "returncode": 0,
+    "started_unix": 1794865457.578785
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5407.532132148743 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-249.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.44823384284973,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-249.log",
+    "returncode": 0,
+    "started_unix": 1794865462.43264
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5398.7247059345245 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-250.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 59.664064168930054,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-250.log",
+    "returncode": 0,
+    "started_unix": 1794865471.240067
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5380.282850027084 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-251.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 56.10842990875244,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-251.log",
+    "returncode": 0,
+    "started_unix": 1794865489.681922
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5374.454223155975 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-252.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.46428418159485,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-252.log",
+    "returncode": 0,
+    "started_unix": 1794865495.5105479
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5373.083477020264 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-253.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 63.44655799865723,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-253.log",
+    "returncode": 0,
+    "started_unix": 1794865496.881294
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5339.060148000717 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-254.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 70.14839506149292,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-254.log",
+    "returncode": 0,
+    "started_unix": 1794865530.904622
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5324.173938989639 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-255.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.461244106292725,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-255.log",
+    "returncode": 0,
+    "started_unix": 1794865545.790832
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5320.989439964294 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-256.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 36.72704100608826,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-256.log",
+    "returncode": 0,
+    "started_unix": 1794865548.975331
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5268.906979084015 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-257.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 81.25392508506775,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-257.log",
+    "returncode": 0,
+    "started_unix": 1794865601.05779
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5268.906912088394 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-258.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 53.93211007118225,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-258.log",
+    "returncode": 0,
+    "started_unix": 1794865601.057857
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5268.9045169353485 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-259.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 42.69412183761597,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-259.log",
+    "returncode": 0,
+    "started_unix": 1794865601.060266
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5268.904305934906 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-260.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 19.89061999320984,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-260.log",
+    "returncode": 0,
+    "started_unix": 1794865601.060462
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5249.013153076172 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-261.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.3319571018219,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-261.log",
+    "returncode": 0,
+    "started_unix": 1794865620.951618
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5226.20990395546 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-262.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 43.49306607246399,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-262.log",
+    "returncode": 0,
+    "started_unix": 1794865643.7548668
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5218.680563926697 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-263.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.60343909263611,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-263.log",
+    "returncode": 0,
+    "started_unix": 1794865651.284213
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5214.974333047867 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-264.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 22.5002920627594,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-264.log",
+    "returncode": 0,
+    "started_unix": 1794865654.990438
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5192.473401784897 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-265.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.481456995010376,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-265.log",
+    "returncode": 0,
+    "started_unix": 1794865677.491369
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5188.076620101929 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-266.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 41.761369943618774,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-266.log",
+    "returncode": 0,
+    "started_unix": 1794865681.888151
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5187.652569055557 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-267.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 25.559443950653076,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-267.log",
+    "returncode": 0,
+    "started_unix": 1794865682.312202
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5182.716341018677 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-268.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 24.866363048553467,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-268.log",
+    "returncode": 0,
+    "started_unix": 1794865687.24843
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5166.991369009018 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-269.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 88.17895102500916,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-269.log",
+    "returncode": 0,
+    "started_unix": 1794865702.973402
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5162.092623949051 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-270.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 24.247114896774292,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-270.log",
+    "returncode": 0,
+    "started_unix": 1794865707.872148
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5157.849489927292 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-271.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 28.85169506072998,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-271.log",
+    "returncode": 0,
+    "started_unix": 1794865712.11528
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5146.314718008041 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-272.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 27.621285915374756,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-272.log",
+    "returncode": 0,
+    "started_unix": 1794865723.650052
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5137.844994068146 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-273.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 26.38338804244995,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-273.log",
+    "returncode": 0,
+    "started_unix": 1794865732.119777
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5128.997225999832 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-274.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 74.11295890808105,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-274.log",
+    "returncode": 0,
+    "started_unix": 1794865740.967548
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5118.692836761475 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-275.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 30.994831085205078,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-275.log",
+    "returncode": 0,
+    "started_unix": 1794865751.271935
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5111.46072602272 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-276.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 27.013803958892822,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-276.log",
+    "returncode": 0,
+    "started_unix": 1794865758.50405
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5087.697386026382 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-277.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.310243844985962,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-277.log",
+    "returncode": 0,
+    "started_unix": 1794865782.267385
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5084.446228027344 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-278.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 58.09782409667969,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-278.log",
+    "returncode": 0,
+    "started_unix": 1794865785.518544
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5078.8120040893555 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-279.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 31.422346115112305,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-279.log",
+    "returncode": 0,
+    "started_unix": 1794865791.152767
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5056.386725902557 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-280.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 73.46092700958252,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-280.log",
+    "returncode": 0,
+    "started_unix": 1794865813.578045
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5054.883887767792 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-281.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 46.39483189582825,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-281.log",
+    "returncode": 0,
+    "started_unix": 1794865815.080887
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5047.388729095459 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-282.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 23.434107065200806,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-282.log",
+    "returncode": 0,
+    "started_unix": 1794865822.576043
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5026.347927093506 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-283.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 34.12726187705994,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-283.log",
+    "returncode": 0,
+    "started_unix": 1794865843.6168451
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5023.954098939896 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-284.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 17.423965215682983,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-284.log",
+    "returncode": 0,
+    "started_unix": 1794865846.0106728
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5008.488440990448 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-285.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 143.27344512939453,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-285.log",
+    "returncode": 0,
+    "started_unix": 1794865861.47633
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 5006.529583930969 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-286.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 67.95439505577087,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-286.log",
+    "returncode": 0,
+    "started_unix": 1794865863.435188
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4992.220257997513 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-287.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 72.57104086875916,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-287.log",
+    "returncode": 0,
+    "started_unix": 1794865877.744519
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4982.925160884857 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-288.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 119.77341079711914,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-288.log",
+    "returncode": 0,
+    "started_unix": 1794865887.0396101
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4938.574052810669 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-289.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 84.71944284439087,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-289.log",
+    "returncode": 0,
+    "started_unix": 1794865931.3907242
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4919.648002147675 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-290.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 129.89186906814575,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-290.log",
+    "returncode": 0,
+    "started_unix": 1794865950.316774
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4865.213849067688 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-291.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 70.46864819526672,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-291.log",
+    "returncode": 0,
+    "started_unix": 1794866004.7509289
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 4863.149852991104 --stream -- godot --headless --path . --script tools/diff01/measure.gd -- --jobs /private/tmp/labyrinth_codex/diff01-native/batch-292.json --deadline-unix 1794870869.964767",
+    "elapsed_seconds": 65.28801012039185,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/batch-292.log",
+    "returncode": 0,
+    "started_unix": 1794866006.8149319
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/diff-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id diff-01 --timeout 300 --stream -- godot --headless --path . --script tools/diff01/census.gd -- --directory /private/tmp/labyrinth_codex/diff01-native --output /private/tmp/labyrinth_codex/diff01-native/census.jsonl",
+    "elapsed_seconds": 18.25594186782837,
+    "log": "/private/tmp/labyrinth_codex/diff01-native/census.log",
+    "returncode": 0,
+    "started_unix": 1794866094.791478
+  }
+]

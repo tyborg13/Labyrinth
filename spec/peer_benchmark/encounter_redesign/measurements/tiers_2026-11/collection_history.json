@@ -1,0 +1,27 @@
+[
+  {
+    "command": "python3 tools/diff01/collect.py --scratch-dir /private/tmp/labyrinth_codex/diff01-tiers",
+    "returncode": 1,
+    "result": "Discarded planner: default ZERO entrance produced No legal Snare formation; log preserved."
+  },
+  {
+    "command": "python3 tools/diff01/collect.py --scratch-dir /private/tmp/labyrinth_codex/diff01-native --output-dir /private/tmp/labyrinth_codex/diff01-native-output",
+    "returncode": 1,
+    "result": "Native planner and 36-fight pilot passed; scheduler detected missing s3/seed7 normal t2 before main launch."
+  },
+  {
+    "command": "python3 tools/godot_task_runner.py --task-id diff-01 --stream -- godot --headless --path . --script tools/diff01/check_map.gd",
+    "returncode": 0,
+    "result": "s3/seed7/native t2 contains no direct or hidden normal combat room; no room was fabricated."
+  },
+  {
+    "command": "python3 tools/diff01/collect.py --scratch-dir /private/tmp/labyrinth_codex/diff01-native --output-dir /private/tmp/labyrinth_codex/diff01-native-output --resume",
+    "returncode": 1,
+    "result": "Resume filename glob included .command.json; no engine launched."
+  },
+  {
+    "command": "python3 tools/diff01/collect.py --scratch-dir /private/tmp/labyrinth_codex/diff01-native --output-dir /private/tmp/labyrinth_codex/diff01-native-output --resume",
+    "result": "DIFF01_COLLECTION_DONE fights=1170 wall_seconds=5891.2",
+    "returncode": 0
+  }
+]

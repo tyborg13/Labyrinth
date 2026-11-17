@@ -1,0 +1,62 @@
+[
+  [
+    "s0",
+    "normal \u2265 warband \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s0",
+    "normal \u2265 umbral_snare \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s0",
+    "normal \u2265 last_light \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s0",
+    "normal \u2265 ember_hoarder \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s2",
+    "normal \u2265 warband \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ],
+  [
+    "s2",
+    "normal \u2265 umbral_snare \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s2",
+    "normal \u2265 last_light \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ],
+  [
+    "s2",
+    "normal \u2265 ember_hoarder \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ],
+  [
+    "s4",
+    "normal \u2265 warband \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ],
+  [
+    "s4",
+    "normal \u2265 umbral_snare \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ],
+  [
+    "s4",
+    "normal \u2265 last_light \u2265 Guardian \u2265 dragon",
+    "ORDER VIOLATION"
+  ],
+  [
+    "s4",
+    "normal \u2265 ember_hoarder \u2265 Guardian \u2265 dragon",
+    "compatible"
+  ]
+]

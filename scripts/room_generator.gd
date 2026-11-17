@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RoomGenerator
 
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const SnareRooms = preload("res://scripts/snare_room_rules.gd")
@@ -276,7 +277,17 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	if hoarder: preload("res://scripts/hoarder_room_rules.gd").configure(layout)
 	if snare: SnareRooms.configure(layout, clampi(encounter_depth, 1, 3))
 	if last_light: LastLightRooms.configure(layout, braziers)
+	if table_encounter and int(encounter.get("trimmed_enemies", 0)) > 0: layout["encounter_trimmed_enemies"] = int(encounter["trimmed_enemies"])
+	if room.has("difficulty_stats"):
+		layout["difficulty_stats"] = (room["difficulty_stats"] as Dictionary).duplicate(true)
+		layout["difficulty_tier"] = str(room.get("difficulty_tier", ""))
+	_finalize_difficulty(layout)
 	return layout
+
+# This final boundary also lets legacy golden fixtures retain their original
+# layout pin while exercising the new cap on the returned production layout.
+func _finalize_difficulty(layout: Dictionary) -> void:
+	Difficulty.finalize(layout)
 
 # Retry the room's own template with the same seeded RNG, as Warband and Snare
 # formations do; the last resort keeps floor and doors but clears blockers.
@@ -373,6 +384,9 @@ func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> v
 	for tile: Vector2i in _floor_tiles(layout["grid"]):
 		if not occupied.has(tile) and PathUtils.manhattan(tile, layout["player_start"]) > ENEMY_SPAWN_SAFE_RADIUS: free.append(tile)
 	for _index: int in range(count):
+		if Difficulty.starter_count(layout) >= Difficulty.MAX_STARTERS:
+			layout["omen_enemy_hp_compensations"] = int(layout.get("omen_enemy_hp_compensations", 0)) + 1
+			continue
 		if free.is_empty() or pool.is_empty(): break
 		var type: String = pool[rng.randi_range(0, pool.size() - 1)]
 		var pos: Vector2i = free.pop_at(rng.randi_range(0, free.size() - 1))

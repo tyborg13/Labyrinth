@@ -1,0 +1,100 @@
+[
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11619.724727869034 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-889.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-889.log",
+    "started_unix": 1794869716.3412092,
+    "elapsed_seconds": 65.1209008693695,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11619.721282958984 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-891.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-891.log",
+    "started_unix": 1794869716.344654,
+    "elapsed_seconds": 69.4982979297638,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11554.60288977623 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-892.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-892.log",
+    "started_unix": 1794869781.463051,
+    "elapsed_seconds": 36.30775499343872,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11619.72199177742 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-890.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-890.log",
+    "started_unix": 1794869716.344001,
+    "elapsed_seconds": 113.99647307395935,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11619.724864006042 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-888.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-888.log",
+    "started_unix": 1794869716.341075,
+    "elapsed_seconds": 126.07164216041565,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11518.294528961182 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-894.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-894.log",
+    "started_unix": 1794869817.77141,
+    "elapsed_seconds": 28.877748012542725,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11550.222445011139 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-893.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-893.log",
+    "started_unix": 1794869785.843494,
+    "elapsed_seconds": 77.46854329109192,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11493.65259385109 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-896.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-896.log",
+    "started_unix": 1794869842.413346,
+    "elapsed_seconds": 33.097288846969604,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11489.416249036789 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-897.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-897.log",
+    "started_unix": 1794869846.649688,
+    "elapsed_seconds": 36.40460705757141,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11472.752489805222 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-898.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-898.log",
+    "started_unix": 1794869863.3134751,
+    "elapsed_seconds": 44.097275733947754,
+    "returncode": 0
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11428.654443979263 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-901.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-901.log",
+    "started_unix": 1794869907.411496,
+    "elapsed_seconds": 0.12337613105773926,
+    "returncode": 130
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11460.554677009583 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-899.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-899.log",
+    "started_unix": 1794869875.511261,
+    "elapsed_seconds": 32.04377102851868,
+    "returncode": 130
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11453.010844945908 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-900.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-900.log",
+    "started_unix": 1794869883.0550988,
+    "elapsed_seconds": 24.501896381378174,
+    "returncode": 130
+  },
+  {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 11505.724969863892 --stream -- godot --headless --path . --script tools/tune01/measure.gd -- --jobs /private/tmp/labyrinth_codex/tune-01-search/batch-895.json --deadline-unix 1794881336.06593",
+    "log": "/private/tmp/labyrinth_codex/tune-01-search/batch-895.log",
+    "started_unix": 1794869830.340966,
+    "elapsed_seconds": 77.21756196022034,
+    "returncode": 130
+  }
+]

@@ -1,0 +1,20 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881503588867000-98073
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881503588867000-98073
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881503588867000-98073/godot.log --headless --path . --script tools/tune01/focused.gd -- --suite guardian
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Guardian relic contracts exercised
+Guardian exercised: Ashen Reaver
+Guardian exercised: Rimejaw
+Guardian exercised: Storm Cantor
+Guardian exercised: Gallows Roc
+Guardian exercised: Craghide
+Guardian exercised: Last Lamplighter
+TUNE01_FOCUSED guardian: PASS (151 checks, 0 failures)

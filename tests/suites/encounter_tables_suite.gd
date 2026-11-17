@@ -230,7 +230,7 @@ static func _test_run_history(expect: Callable) -> void:
 	Progression.set_run_storage_path("")
 
 static func _test_legacy(expect: Callable) -> void:
-	var generator := Generator.new()
+	var generator := preload("res://tests/helpers/pre_tier_layout_generator.gd").new()
 	var legacy_generator := LegacyGenerator.new()
 	for seed: int in range(LEGACY_SEEDS):
 		for depth: int in range(1, 5):
@@ -259,13 +259,14 @@ static func _test_legacy(expect: Callable) -> void:
 			expect.call(engine.move_to_room(state, destination) == legacy_engine.move_to_room(legacy, destination), "Legacy entry state and RNG match: %d/revision %d" % [seed, revision])
 	# These pre-change full-layout pins are shared with the Warband/Snare
 	# suites. A missing k must preserve more than just an enemy roster: the
-	# original tier, RNG, placements and layout keys all remain byte-identical.
+	# original tier, RNG, placements and layout keys remain byte-identical before
+	# the tune-01 cap/stat boundary. The returned room still runs that boundary.
 	var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/spx03_legacy_golden.json"))
 	for revision: int in [4, 5]:
 		for seed: int in range(1, LEGACY_SEEDS + 1):
 			var room: Dictionary = {"type": "combat", "coord": Vector2i(seed % 7, seed % 11), "depth": 1 + seed % 3, "element": "air", "section_index": 0, "section_map_layout_revision": revision, "encounter_biome": "air", "connections": [{"door_dir": Vector2i.UP, "coord": Vector2i(0, -1), "kind": "outward"}]}
 			var layout: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
-			expect.call(var_to_bytes(layout).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Missing-k room keeps pre-change complete layout revision %d seed %d" % [revision, seed])
+			expect.call(var_to_bytes(generator.before_tier_and_cap).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Missing-k room keeps pre-change complete layout revision %d seed %d" % [revision, seed])
 			expect.call(not layout.has("encounter_tier"), "Missing-k room preserves its original metadata keys")
 	print("Encounter legacy differential: 64 seeds; legacy/revision-3 runtime states and 128 revision-4/5 missing-k full-layout goldens checked")
 
@@ -303,6 +304,13 @@ static func placement_seed_range(expect: Callable, seed_begin: int, seed_end: in
 						generator._apply_template(grid, rng)
 						var expansion: Dictionary = Tables.expand_entry(entry, element, biome, rng)
 						var expected: Array = generator._objective_adjusted_enemy_types(expansion["units"], layout["objective"], int(tier), rng)
+						# The cap retains the objective leader and the exit's guaranteed
+						# Gaoler, trimming the remaining tail after objective additions.
+						var leader_index: int = int(layout["objective"].get("leader_id", -1)) - 1
+						for trim_index: int in range(expected.size() - 1, -1, -1):
+							if expected.size() <= 5: break
+							var exit_anchor: bool = str(layout["objective"]["type"]) == "reach_exit" and str(expected[trim_index]) == "chainbound_gaoler"
+							if trim_index != leader_index and not exit_anchor: expected.remove_at(trim_index)
 						var actual: Array = []
 						var occupied: Dictionary = {}
 						var reachable: Dictionary = _reachable(layout)
@@ -324,7 +332,7 @@ static func _finish_placement(expect: Callable, statistics: Dictionary) -> void:
 	var generated: int = statistics["generated"]
 	var skipped: int = statistics["skipped"]
 	var largest: int = statistics["largest"]
-	expect.call(largest >= int(table["rules"]["max_units"]), "Placement sweep exercises the full seven-unit cap and objective extras")
+	expect.call(largest >= int(table["rules"]["max_units"]), "Placement sweep exercises the full five-starter cap and objective extras")
 	print("Encounter placement sweep: %d layouts, %d ineligible neutral cases skipped, max %d units including objective extras" % [generated, skipped, largest])
 
 static func _reachable(layout: Dictionary) -> Dictionary:

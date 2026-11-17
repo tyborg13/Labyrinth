@@ -1,0 +1,57 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881526646673000-98111
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881526646673000-98111
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881526646673000-98111/godot.log --headless --path . --script tests/save_resume_boundary_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _archive_before_surface_migration (res://scripts/progression_store.gd:703)
+       [1] save_data (res://scripts/progression_store.gd:458)
+       [2] _test_profile_transactional_recovery (res://tests/save_resume_boundary_test.gd:314)
+       [3] _initialize (res://tests/save_resume_boundary_test.gd:88)
+ERROR: Failed to persist committed run boundary: terminal_defeat_forced_failure
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_snapshot (res://scripts/run_persistence.gd:174)
+       [1] persist (res://scripts/run_persistence.gd:99)
+       [2] _persist_run_state_snapshot (res://scripts/run_scene.gd:29169)
+       [3] _test_terminal_failure_recovery (res://tests/save_resume_boundary_test.gd:763)
+       [4] _initialize (res://tests/save_resume_boundary_test.gd:100)
+ERROR: Failed to persist terminal progression; the resumable fallback remains intact.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _save_run_progress (res://scripts/run_scene.gd:29227)
+       [1] _test_terminal_failure_recovery (res://tests/save_resume_boundary_test.gd:772)
+       [2] _initialize (res://tests/save_resume_boundary_test.gd:100)
+ERROR: Failed to persist committed run boundary: terminal_victory_forced_failure
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_snapshot (res://scripts/run_persistence.gd:174)
+       [1] persist (res://scripts/run_persistence.gd:99)
+       [2] _persist_run_state_snapshot (res://scripts/run_scene.gd:29169)
+       [3] _test_terminal_failure_recovery (res://tests/save_resume_boundary_test.gd:763)
+       [4] _initialize (res://tests/save_resume_boundary_test.gd:100)
+ERROR: Failed to persist terminal progression; the resumable fallback remains intact.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _save_run_progress (res://scripts/run_scene.gd:29227)
+       [1] _test_terminal_failure_recovery (res://tests/save_resume_boundary_test.gd:772)
+       [2] _initialize (res://tests/save_resume_boundary_test.gd:100)
+ERROR: Failed to persist campfire Embrace; the run remains resumable.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _on_campfire_embrace_pressed (res://scripts/run_scene.gd:27964)
+       [1] _test_campfire_failure_preserves_run (res://tests/save_resume_boundary_test.gd:805)
+       [2] _initialize (res://tests/save_resume_boundary_test.gd:101)
+SAVE NAMESPACE: Escape the Umbra Parallel tune-01-1794881526646673000-98111
+SAVE PATH: /private/tmp/labyrinth-godot-home/tune-01-1794881526646673000-98111/Library/Application Support/Escape the Umbra Parallel tune-01-1794881526646673000-98111/current_run.save
+DEEP-COMPARE MATRIX: corrupt/current→backup, transaction/replacement_failure_backup, profile/corrupt_and_replacement_recovery, legacy/repair, snapshot/ownership_and_bytes, journal/immutable_prefix_staged_tail_and_queue_bytes, player/full_card, player/basic_attack, player/basic_move, player/compound_card, player/pickup, turn/compact_enemy_phase_marker, resume/compact_enemy_phase_replay, resume/malformed_actor_progress, resume/safety_bound_recovery, turn/pass_activation, resume/pass_activation, legacy/empty_actor_transition_resume, enemy/00_initiative_activate, resume/00_initiative_activate, enemy/01_enemy_turn_start, resume/01_enemy_turn_start, enemy/02_enemy_action, resume/02_enemy_action, enemy/03_enemy_action, resume/03_enemy_action, enemy/04_enemy_turn_complete, resume/04_enemy_turn_complete, enemy/05_initiative_reschedule, resume/05_initiative_reschedule, enemy/06_initiative_activate, resume/06_initiative_activate, enemy/07_enemy_turn_start, resume/07_enemy_turn_start, enemy/08_enemy_action, resume/08_enemy_action, enemy/09_enemy_action, resume/09_enemy_action, enemy/10_enemy_turn_complete, resume/10_enemy_turn_complete, enemy/11_initiative_reschedule, resume/11_initiative_reschedule, enemy/12_player_turn_start, resume/12_player_turn_start, turn/round_complete, room/combat_complete, reward/card_pickup, room/move_commit, terminal/defeat, terminal/result_idempotence, terminal/victory, terminal/defeat_io_retry, terminal/victory_io_retry, campfire/embrace_io_failure, room/travel_load_cancellation_and_live_controls, room/loading_preparation_load_cancellation
+TEST RESULT: PASS — committed save/resume boundary matrix

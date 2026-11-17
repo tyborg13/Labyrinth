@@ -1,0 +1,21 @@
+COMMAND: /Library/Developer/CommandLineTools/usr/bin/python3 -m py_compile tools/diff01/collect.py tools/diff01/finalize.py tools/diff01/inventory.py tools/diff01/progress.py tools/diff01/report.py tools/diff01/verify.py
+EXIT: 0
+
+COMMAND: /Library/Developer/CommandLineTools/usr/bin/python3 tools/diff01/verify.py spec/peer_benchmark/encounter_redesign/measurements/tiers_2026-11
+DIFF01_ARTIFACT_VALIDITY_PASS raw_fights=1170 complete_blocks=195 inputs=359 entries=48 source_hashes=true full_health=true paired_depth=true max_concurrency=4 target_complete=true
+DIFF01_COUNT_INVENTORY_PASS census_rows=3747 exhaustive_compositions=75 source_anchors=32
+DIFF01_STATISTICS_PASS Wilson=true band_edges=true matched_weights=true summon_separation=true token_capacity=true report_reproducible=true
+EXIT: 0
+
+Report wording correction and final regeneration:
+COMMAND: /Library/Developer/CommandLineTools/usr/bin/python3 -m py_compile tools/diff01/report.py
+EXIT: 0
+
+COMMAND: /Library/Developer/CommandLineTools/usr/bin/python3 tools/diff01/report.py spec/peer_benchmark/encounter_redesign/measurements/tiers_2026-11
+EXIT: 0
+
+COMMAND: /Library/Developer/CommandLineTools/usr/bin/python3 tools/diff01/verify.py spec/peer_benchmark/encounter_redesign/measurements/tiers_2026-11
+DIFF01_ARTIFACT_VALIDITY_PASS raw_fights=1170 complete_blocks=195 inputs=359 entries=48 source_hashes=true full_health=true paired_depth=true max_concurrency=4 target_complete=true
+DIFF01_COUNT_INVENTORY_PASS census_rows=3747 exhaustive_compositions=75 source_anchors=32
+DIFF01_STATISTICS_PASS Wilson=true band_edges=true matched_weights=true summon_separation=true token_capacity=true report_reproducible=true
+EXIT: 0

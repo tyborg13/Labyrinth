@@ -9,7 +9,7 @@ Current encounter assumptions that shape the coefficients but are not directly
 scored here: legacy runs contain six four-depth sequences with 3/4/5
 standard-enemy density before each boss gate. Section-map table fights use the
 minimum of depth-band tier and section fight-number tier (1-2:1, 3-4:2, 5+:3),
-with post-expansion tier ceilings 3/5/6 and fight-number caps 3/3/4/5/5/6
+with post-expansion tier ceilings 3/5/5 and fight-number caps 3/3/4/5/5/5
 (the final fight cap continues for later fights). Tutorial, special, Guardian and resolved
 mystery fights count; bosses do not. Intrinsic card coefficients are unchanged. The first five gates use the five
 non-shadow elemental dragons in seeded random order, including Zekarion, while
@@ -272,12 +272,13 @@ def encounter_assumptions() -> dict[str, Any]:
         "section_table_scaling": {
             "tier": "min(depth-band tier, section fight-number tier)",
             "fight_number_tiers": {"1-2": 1, "3-4": 2, "5+": 3},
-            "tier_max_units": {"1": 3, "2": 5, "3": 6},
-            "fight_max_units": {"1": 3, "2": 3, "3": 4, "4": 5, "5": 5, "6": 6},
+            "tier_max_units": {"1": 3, "2": 5, "3": 5},
+            "fight_max_units": {"1": 3, "2": 3, "3": 4, "4": 5, "5": 5, "6": 5},
             "unit_cap": "min(global max_units, tier ceiling, fight cap); later fights use the final fight cap",
             "counted": ["standard", "guided tutorial", "special", "guardian", "resolved mystery combat"],
             "excluded": ["boss"],
-            "enemy_stats": "unchanged depth scaling",
+            "enemy_stats": "normal depth scaling unchanged; generated objective/kind, Guardian and boss dials freeze data/difficulty_tiers.json for starters and arrivals",
+            "starting_cap": {"non_summoned": 5, "removed_starter_health_factor": 1.2, "order": "existing tail order; protected objective units retained; compensation before tier Health"},
             "intrinsic_card_coefficients": "unchanged",
         },
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,
@@ -388,7 +389,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "layout_revision": "6+; earlier revisions retain their seeded objective mix",
             "warband": {
                 "objective": "kill_leader",
-                "roster": "biome captain plus first 3/4/5 ordered escorts at local tier 1/2/3",
+                "roster": "biome captain plus first 3/4/5 ordered escorts at local tier 1/2/3 before five-starter cap; trim last tier-3 escort and grant remaining starters x1.2 Health before tier dials",
                 "captain_hp_multiplier": 1.25,
                 "captain_stoneskin_by_tier": [2, 3, 4],
                 "captain_start_distance": [5, 7],

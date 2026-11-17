@@ -695,6 +695,12 @@ Guardians and resolved mystery fights, excluding bosses) and `encounter_tier`
 persisted room metadata; `0` means unavailable/not applicable (including bosses,
 non-table tiers and pre-change saves without those fields).
 
+`combat_started.payload` also includes additive `difficulty_tier`: `normal`,
+`objective`, `guardian`, or `boss`, frozen when the room is generated. Older
+generated rooms without this field emit an empty string. The serialized room
+and combat retain `difficulty_stats` for starters and later arrivals; changing
+the table never retunes a generated saved room. Schema version remains 1.
+
 `combat_started.payload` also includes additive `encounter_id` and `biome`.
 For revision-4 section regular fights, `encounter_id` is the authored table
 composition id and `biome` is the section dragon's element (`fire`, `earth`,

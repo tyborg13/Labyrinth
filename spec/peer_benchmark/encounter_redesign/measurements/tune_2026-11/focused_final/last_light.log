@@ -1,0 +1,15 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881473413757000-98020
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881473413757000-98020
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881473413757000-98020/godot.log --headless --path . --script tests/last_light_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Last Light depth sight: 126 generated section/depth cases; Light and Vision raise sight
+Last Light: data, 216 biome x tier x seed x entry layouts, darkness, Shadowstep, Snuff, relight, reward, map and fixture
+Last Light suite: 0 failures

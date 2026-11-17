@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Rules = preload("res://scripts/depth_rules.gd")
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
@@ -155,7 +156,11 @@ static func _test_encounters(expect: Callable) -> void:
 	var snapshot: Dictionary = {"hp": 24, "max_hp": 24, "deck_cards": ["quick_stab"]}
 	for fixture: Array in [["combat", "", 2, 7], ["guardian", "vyraketh", 3, 8], ["boss", "vyraketh", 4, 9], ["boss", "noctyrax", 20, 20]]:
 		var room: Dictionary = _room(fixture[0], fixture[1])
-		var original: Dictionary = generator.generate_room(FIXTURE_SEED, room, FIXTURE_TRAVEL_DIR)
+		# Keep encounter scaling and cap compensation, but defer tier rounding
+		# until after the depth rule, exactly as production generation does.
+		var untiered_room: Dictionary = room.duplicate(true)
+		untiered_room["difficulty_stats"] = {}
+		var original: Dictionary = generator.generate_room(FIXTURE_SEED, untiered_room, FIXTURE_TRAVEL_DIR)
 		for depth: int in [int(fixture[2]) - 1, int(fixture[2]), int(fixture[3]), 20]:
 			room[Rules.STATE_KEY] = depth
 			var layout: Dictionary = generator.generate_room(FIXTURE_SEED, room, FIXTURE_TRAVEL_DIR)
@@ -164,7 +169,8 @@ static func _test_encounters(expect: Callable) -> void:
 			for index: int in range(original["enemies"].size()):
 				var enemy: Dictionary = layout["enemies"][index]
 				var original_enemy: Dictionary = original["enemies"][index]
-				expect.call(int(enemy["max_hp"]) == Rules.enemy_hp(_at(depth), original_enemy, int(original_enemy["max_hp"])), "Generated HP applies after encounter scaling, including helpers and enrage")
+				var expected_hp: int = Difficulty.arrival_hp(layout, Rules.enemy_hp(_at(depth), original_enemy, int(original_enemy["max_hp"])))
+				expect.call(int(enemy["max_hp"]) == expected_hp, "Generated HP applies depth after encounter scaling, then tier Health once, including helpers and enrage")
 				var base_intents: Array = combat._scaled_enemy_intents(Data.enemy_def(str(enemy["type"])).get("intents", []), int(room["depth"]))
 				var scaled_intents: Array = combat._scaled_enemy_intents(Data.enemy_def(str(enemy["type"])).get("intents", []), int(room["depth"]), battle, enemy)
 				for intent_index: int in range(base_intents.size()):
@@ -178,7 +184,7 @@ static func _test_encounters(expect: Callable) -> void:
 			expect.call(combat._enemy_base_initiative(battle, regular) == Rules.enemy_initiative(battle, regular, base_initiative if int(room["depth"]) == 6 else combat._enemy_base_initiative({"room_depth": room["depth"]}, regular)), "Runtime base initiative uses the depth rule")
 			expect.call(int(battle["deck"]["fatigue_base"]) == 2 + (1 if depth >= 18 else 0), "Runtime reshuffle fatigue starts at the authored base")
 			var spawned: Dictionary = combat._spawned_enemy_entry(battle, "crawler", FIXTURE_SPAWN_ID, FIXTURE_SPAWN_TILE, false)
-			expect.call(int(spawned["max_hp"]) == Rules.enemy_hp(battle, spawned, combat._scaled_enemy_max_hp("crawler", int(room["depth"]))), "Objective reinforcements use regular HP scaling")
+			expect.call(int(spawned["max_hp"]) == Difficulty.arrival_hp(battle, Rules.enemy_hp(battle, spawned, combat._scaled_enemy_max_hp("crawler", int(room["depth"])))), "Objective reinforcements use regular HP scaling and tier Health once")
 	# Legal extra helpers are installed after authored Guardian placement.
 	for boss: String in ["vyraketh", "iskaldra", "zekarion", "vaeloryx", "tharokh", "noctyrax"]:
 		var room: Dictionary = _room("guardian", boss)
@@ -197,7 +203,7 @@ static func _test_encounters(expect: Callable) -> void:
 		var battle: Dictionary = combat.create_combat(FIXTURE_SEED, after, snapshot)
 		var type: String = str(after["enemies"][1]["type"])
 		var replacement: Dictionary = combat._spawned_enemy_entry(battle, type, FIXTURE_SPAWN_ID, FIXTURE_SPAWN_TILE, true)
-		expect.call(bool(replacement.get("guardian_helper", false)) and int(replacement["max_hp"]) == Rules.enemy_hp(battle, replacement, combat._scaled_enemy_max_hp(type, 6)), "Guardian replacements retain Guardian HP despite being summoned")
+		expect.call(bool(replacement.get("guardian_helper", false)) and int(replacement["max_hp"]) == Difficulty.arrival_hp(battle, Rules.enemy_hp(battle, replacement, combat._scaled_enemy_max_hp(type, FIXTURE_ROOM_DEPTH))), "Guardian replacements retain Guardian HP and tier Health once despite being summoned")
 
 static func _test_start_and_rewards(expect: Callable) -> void:
 	var engine := Run.new()

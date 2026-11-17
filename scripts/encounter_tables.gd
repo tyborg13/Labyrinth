@@ -172,7 +172,8 @@ static func pick(tier: int, room_element: String, biome: String, history: Array,
 	var selected: Dictionary = _weighted_pick(candidates, rng)
 	if legacy: return expand_entry(selected, room_element, biome, rng)
 	var cap: int = unit_cap(tier, k, table)
-	var expanded: Dictionary = expand_entry(selected, room_element, biome, rng, cap)
+	var previous_cap: int = 6 if tier == 3 and k >= 6 else cap
+	var expanded: Dictionary = expand_entry(selected, room_element, biome, rng, cap, false, previous_cap)
 	if not expanded.is_empty(): return expanded
 	# Retry only viable entries, preserving weights and the recent-history rule
 	# among that viable set. Minimum means token units: concrete units can trim.
@@ -188,20 +189,22 @@ static func pick(tier: int, room_element: String, biome: String, history: Array,
 	selected = _weighted_pick(candidates, rng)
 	# Reserve minimum space for later tokens on retry so a weighted early group
 	# cannot starve a later token and cause an unbounded retry loop.
-	return expand_entry(selected, room_element, biome, rng, cap, true)
+	return expand_entry(selected, room_element, biome, rng, cap, true, previous_cap)
 
 static func supports_element(entry: Dictionary, room_element: String) -> bool:
 	if _load_table().is_empty(): return false
 	return not (entry["units"] as Array).has(ELEMENT_TOKEN) or (room_element != ElementData.NONE and _load_table()["element_regulars"].has(room_element))
 
-static func expand_entry(entry: Dictionary, room_element: String, biome: String, rng: RandomNumberGenerator, capacity: int = 0, reserve_tokens: bool = false) -> Dictionary:
+static func expand_entry(entry: Dictionary, room_element: String, biome: String, rng: RandomNumberGenerator, capacity: int = 0, reserve_tokens: bool = false, previous_capacity: int = 7) -> Dictionary:
 	var table: Dictionary = _load_table()
 	if table.is_empty(): return {}
 	assert(supports_element(entry, room_element), "Encounter requires an elemental room")
 	var expanded: Array[String]
 	var from_token: Array[bool]
 	var token_units: int = 0
-	var max_units: int = int(table["rules"]["max_units"]) if capacity == 0 else mini(capacity, int(table["rules"]["max_units"]))
+	# Legacy picker expansion retains its previous ceiling until the shared
+	# room finalizer selects/protects the leader and trims the starting roster.
+	var max_units: int = maxi(int(table["rules"]["max_units"]), previous_capacity) if capacity == 0 else mini(capacity, int(table["rules"]["max_units"]))
 	var units: Array = entry["units"]
 	for unit_index: int in range(units.size()):
 		var unit: String = units[unit_index]
@@ -224,6 +227,7 @@ static func expand_entry(entry: Dictionary, room_element: String, biome: String,
 		for expanded_unit: String in group:
 			expanded.append(expanded_unit)
 			from_token.append(unit == ELEMENT_TOKEN or unit == BIOME_TOKEN)
+	var before_trim: int = expanded.size()
 	for index: int in range(expanded.size() - 1, -1, -1):
 		if expanded.size() <= max_units: break
 		if not from_token[index]:
@@ -231,7 +235,7 @@ static func expand_entry(entry: Dictionary, room_element: String, biome: String,
 			from_token.remove_at(index)
 	assert(not expanded.is_empty(), "Encounter cannot be empty")
 	assert(expanded.size() <= max_units, "Encounter tokens exceed max_units")
-	return {"id": str(entry["id"]), "units": expanded}
+	return {"id": str(entry["id"]), "units": expanded, "trimmed_enemies": maxi(0, mini(before_trim, previous_capacity) - maxi(5, max_units))}
 
 static func _weighted_pick(entries: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
 	var total: float = 0.0

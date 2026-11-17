@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "director_note": "2026-11-16 director starting values. The bot ladder is only valid at s0 (it loses most s2/s4 normal rooms, so Health cost saturates). Flat values come from the s0 measurement; s1-s5 await a calibrated bot or the owner's play. Snare, Last Light and Hoarder stay neutral: stats can't move them, their dials need redesign.",
+  "tiers": {
+    "objective": {
+      "default": {
+        "hp_percent": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "warband": {
+        "hp_percent": [
+          110,
+          110,
+          110,
+          110,
+          110,
+          110
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "s0 115% landed +19.7 cost (band +5..+15); 110% aims at the band"
+      },
+      "umbral_snare": {
+        "hp_percent": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "escape in 2 turns; stats do not move it (175%/+3 still -41); dial redesign"
+      },
+      "last_light": {
+        "hp_percent": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "survival room; needs dial redesign, not stats"
+      },
+      "ember_hoarder": {
+        "hp_percent": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "escape counts as a win; needs dial redesign, not stats"
+      }
+    },
+    "guardian": {
+      "default": {
+        "hp_percent": [
+          115,
+          115,
+          115,
+          115,
+          115,
+          115
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "s0 115% landed +20.6 cost (band +15..+25)"
+      }
+    },
+    "boss": {
+      "default": {
+        "hp_percent": [
+          135,
+          135,
+          135,
+          135,
+          135,
+          135
+        ],
+        "damage_bonus": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "director_note": "s0 135% landed +35.1 cost (band +25..+35)"
+      }
+    }
+  }
+}

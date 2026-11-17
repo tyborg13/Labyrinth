@@ -60,19 +60,19 @@ static func _matrix(expect: Callable) -> void:
 						expect.call(length > int(previous["path_tiles"]) or (length == int(previous["path_tiles"]) and int(exit["map_lane"]) > int(previous["map_lane"])), "Shortest path / lower lane ordering: " + context)
 						expect.call(int(exit["seal_after_player_turns"]) == (3 if exits.size() == 2 else [2, 4][index - 1]), "Authored seal time: " + context)
 						var binder: Dictionary = layout["enemies"][index]
-						expect.call(binder["type"] == "veilbound_acolyte" and binder["hp"] == 4 and binder["display_name"] == "Sealbinder" and int(binder["id"]) == int(exit["sealbinder_id"]), "Sealbinder identity: " + context)
+						expect.call(binder["type"] == "veilbound_acolyte" and binder["hp"] == ceili((5 if biome == "ice" and exits.size() == 3 else 4) * int(layout["difficulty_stats"]["hp_percent"]) / 100.0) and binder["display_name"] == "Sealbinder" and int(binder["id"]) == int(exit["sealbinder_id"]), "Sealbinder identity: " + context)
 						expect.call(Paths.manhattan(binder["pos"], exit["target_tile"]) == 1 and binder["pos"] != exit["door_tile"], "Sealbinder inside beside threshold: " + context)
 				var jailer: Dictionary = layout["enemies"][0]
 				var path: Array[Vector2i] = Paths.find_path(layout["grid"], layout["player_start"], exits[0]["target_tile"])
 				expect.call(jailer["type"] == "chainbound_gaoler" and jailer["display_name"] == "The Umbral Gaoler" and jailer["pos"] == path[path.size() - 2], "Gaoler path placement: " + context)
-				expect.call(jailer["hp"] == ceili(generator._scaled_enemy_max_hp("chainbound_gaoler", tier) * 2.0) and jailer["stoneskin"] == tier + 1, "Gaoler authored scaling: " + context)
+				expect.call(jailer["hp"] == ceili(ceili(ceili(generator._scaled_enemy_max_hp("chainbound_gaoler", tier) * 2.0) * (1.2 if biome == "ice" and exits.size() == 3 else 1.0)) * int(layout["difficulty_stats"]["hp_percent"]) / 100.0) and jailer["stoneskin"] == tier + 1, "Gaoler authored scaling: " + context)
 				for enemy: Dictionary in layout["enemies"]:
 					expect.call(not occupied.has(enemy["pos"]) and Paths.is_passable(layout["grid"], enemy["pos"]) and not Paths.find_path(layout["grid"], layout["player_start"], enemy["pos"]).is_empty(), "Free reachable spawn: " + context)
 					occupied[enemy["pos"]] = true
 					if bool(enemy.get("snare_hunter", false)): expect.call(Paths.manhattan(enemy["pos"], layout["player_start"]) >= 2, "Ice hunter distance: " + context)
 				var expected_roster_embers: int = int(Data.enemy_def("chainbound_gaoler")["reward_embers"]) + (exits.size() - 1) * int(Data.enemy_def("veilbound_acolyte")["reward_embers"])
 				expect.call(layout["special_starting_reward_embers"] == expected_roster_embers and Library.starting_embers(layout) == expected_roster_embers, "Reward roster excludes starting hunters: " + context)
-				var start_count: int = 3 if biome == "ice" else 0
+				var start_count: int = mini(3, 5 - exits.size()) if biome == "ice" else 0
 				expect.call(layout["enemies"].size() == exits.size() + start_count and layout["objective"]["hunters_spawned"] == start_count, "Complete roster: " + context)
 				count += 1
 	print("Snare placement matrix: %d rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries" % count)
@@ -81,7 +81,7 @@ static func _fallback(expect: Callable) -> void:
 	var generator := BlockedGenerator.new()
 	var layout: Dictionary = generator.generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("ice", 2), Vector2i.RIGHT)
 	expect.call(generator.template_attempts == Rules.MAX_PLACEMENT_ATTEMPTS + 1, "Snare exhausts seeded rerolls before deterministic blocker clearing")
-	expect.call(layout["enemies"].size() == 6, "Fallback preserves entire ice roster")
+	expect.call(layout["enemies"].size() == 5, "Fallback preserves protected Ice roster and caps starting hunters")
 	for exit: Dictionary in layout["objective"]["exits"]:
 		expect.call(Paths.find_path(layout["grid"], layout["player_start"], exit["target_tile"]).size() - 1 >= 5, "Fallback never relaxes five-tile exit rule")
 	print("Snare fallback: seeded retries and complete deterministic formation checked")
@@ -120,7 +120,7 @@ static func _boundaries(expect: Callable) -> void:
 	var sealed: Vector2i = state["objective"]["exits"][1]["target_tile"]
 	expect.call(not Objectives.exit_target_tiles(state["objective"]).has(sealed) and engine._player_blocking_tiles(state).has(sealed) and engine._enemy_blocking_tiles(state).has(sealed) and engine._force_blocker_at(state, sealed, "player", -1)["kind"] == "wall", "Sealed threshold is blocked for all actors and no longer an exit")
 	expect.call(state["enemies"][1]["hp"] == 0 and bool(state["enemies"][1]["snare_dissolved"]) and state["objective"]["sealbinders_killed"] == 0 and (state["death_rewards"] as Array).is_empty(), "Dissolve has no kill or rewards")
-	var killed: Dictionary = engine._damage_enemy(original.duplicate(true), 1, 4, true, true, false, false)
+	var killed: Dictionary = engine._damage_enemy(original.duplicate(true), 1, int(original["enemies"][1]["max_hp"]), true, true, false, false)
 	for turn: int in range(4): killed = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(killed))["state"]
 	expect.call(not killed["objective"]["exits"][1]["sealed"] and killed["objective"]["exits"][1]["kept_open"] and killed["objective"]["sealbinders_killed"] == 1, "Killed Sealbinder keeps door open through deadline")
 	var legacy: Dictionary = engine.resolve_enemy_phase(original)
@@ -158,7 +158,7 @@ static func _hunters(expect: Callable) -> void:
 			var count: int = 0
 			for enemy: Dictionary in state["enemies"]:
 				if bool(enemy.get("snare_hunter", false)): count += 1
-			expect.call(count == (3 if biome == "ice" else mini(turn + 1, 3)), "Hunter total cap / ice start: %s %d" % [biome, turn])
+			expect.call(count == (2 if biome == "ice" else mini(turn + 1, 3)), "Hunter total cap / ice start: %s %d" % [biome, turn])
 			if turn == 0 and biome != "ice":
 				var hunter: Dictionary = state["enemies"].back()
 				expect.call(Paths.manhattan(hunter["pos"], state["snare_entry"]) == 1, "Occupied entry uses nearest free threshold neighbour")
@@ -217,7 +217,7 @@ static func _rewards_and_save(expect: Callable) -> void:
 		expect.call(result["pending_escape"]["destination"] == battle_value["objective"]["exits"][0]["coord"], "Escape commits used branch")
 		expect.call(engine.finish_combat(result, battle_value) == result, "Escape bonus cannot pay twice")
 	var kept_run: Dictionary = Fixture.build(engine, combat, source, {})
-	kept_run["combat_state"] = combat._damage_enemy(kept_run["combat_state"], 1, 4, true, true, false, false)
+	kept_run["combat_state"] = combat._damage_enemy(kept_run["combat_state"], 1, int(kept_run["combat_state"]["enemies"][1]["max_hp"]), true, true, false, false)
 	Fixture.stage(combat, kept_run, "escape")
 	var kept_result: Dictionary = engine.finish_combat(kept_run, kept_run["combat_state"])
 	_analytics(expect, kept_run, kept_run["combat_state"], kept_result, 3, 1)

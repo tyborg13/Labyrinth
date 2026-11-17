@@ -1,0 +1,42 @@
+{
+  "fights": 3843,
+  "peak_workers": 4,
+  "unpaired_targets": 1,
+  "placeholders": [
+    "TODO_DESIGN_LAST_LIGHT_S3_FRACTIONAL_DAMAGE_ROUNDING",
+    "TODO_DESIGN_EMBER_HOARDER_S3_FRACTIONAL_DAMAGE_ROUNDING",
+    "TODO_DESIGN_BOSS_S1_FRACTIONAL_DAMAGE_ROUNDING"
+  ],
+  "proposal_sha256": "bbf8f3968f40a79fdcf55ec7c7b76b5d2b32cfa13fc4afa927e0de2d21dd1c72",
+  "analysis_tool_sha256": {
+    "tools/tune01/run_focused.py": "9865fda61959c2d59e9e33de24f1e7c6e2c2c9b4bfb7e2f59be7413964c116f2",
+    "tools/tune01/census_report.py": "5873a9ea3cec29bcedfc6666a8878568f62808d39b3ffeb225f227d473a9fc11",
+    "tools/tune01/finish_report.py": "cfc69805476cf46d46c01cc3f005256f795ceaa97dc0d242e223f0bf16641e78",
+    "tools/tune01/search.py": "d1d6ff7f71892e1e881a3f1c337c88225d3ceebbaef5cc83a770149dec9ec6d7",
+    "tools/tune01/verify.py": "bf60ffb11eeea6d82101ab335ef1439997734f9d6024566c1bddc94ebd19099b",
+    "tools/tune01/report.py": "226007719f7c4443451807031a29b4310d13ceec2a2ff1419336a98a0bbc828e"
+  },
+  "artifacts": {
+    "fixture_diagnosis.jsonl.gz": "b554c1b963d7c8ef19ffb687f0d50be6dbb1cd91a19af6b6f80eaf8f8c7a05ad",
+    "normal.jsonl.gz": "4fe6b737ab32ee8af7cc1045d27dc231295d33c517426fe7eacf716dc30598ab",
+    "census_before.jsonl.gz": "f402dc3d0e5265a1abb2c4319f60027b13d62d9d71fe84da826abbf6f1b73f97",
+    "batches.jsonl.gz": "22885fb68575b7cc5ad50e4e5c41ef905734c9271d740a8148a36b941e4544c4",
+    "focused_logs.jsonl.gz": "dba90a6a45c1fc40ffd0652e1fe60dac550d7f61c7235c8652e4140c93ba10ba",
+    "native_inputs.jsonl.gz": "4329239b2831dfd3dbc405863884104ff364b2dfae30bcc092987d8b1116309a",
+    "damage1.jsonl.gz": "33c09de9521eb95d0292d0679eb765f0e5b0f00c3d164ddeaaff8fba8a4c062e",
+    "baseline_costs.jsonl.gz": "02ceb1e103e53c4dcd6a9f3f184a2341e86e8af95ae314441330d66e9de9ca20",
+    "tasks.jsonl.gz": "c6f8782fac8160b33c738c20e2e911a012104c2c071250d42c0c03bba87e18bd",
+    "entry_loadouts.jsonl.gz": "833671943f6b9c80a45d631edb131cee0416865e52e968c98df7a2274ea9a282",
+    "damage2.jsonl.gz": "869871cf4efcdbedbb4fd411cac22f4d2c8f59ae34de7e44217cd1cdb4fcb4d2",
+    "damage3.jsonl.gz": "f877e15bae2a02b946b816ebb140f040c66786af29b1ba37fca37bc6cc792711",
+    "legacy_census_after.jsonl.gz": "92ac5e468792ebc5aede317f12cf633db3d208a7eda32709fc0d61eff7cfad81",
+    "focused_final_logs.jsonl.gz": "e2aecd418e980414fcba0c79b5808f93b171b7770741323f6eceb3634d0c8a59",
+    "proposed_unique_runs.jsonl.gz": "633fa78b3103875feb05f523bbb2c5742e3e196dde5313d8ed9b4b5890c29e87",
+    "unpaired_targets.jsonl.gz": "f83442275d38a01f3c93435d467ad8cd37ebab8452eafa48834902ec66539ebc",
+    "confirm.jsonl.gz": "ce513e5415108170ac5448f33581b152da5d772e7a7bdad32f392bfc046cd0c2",
+    "probe.jsonl.gz": "e4852e740698277d3da0a964fa26b03a8b39a198c7a0656aa7a9ea1ab7dbf376",
+    "worker_logs.jsonl.gz": "f47d5aab592eb433f66e404d8efc59b93c766da570b13bca48898f795ca0b6ba",
+    "discarded_pilots.jsonl.gz": "615aa2fce886dcd55a8c6ab9d1f3578ffa704b8a14c4c17242ac58974b27507c",
+    "census_after.jsonl.gz": "4061d30557c23ad3ea384b992c2d5f2e3d154a3ab654204b3bde255f7ffe2a2e"
+  }
+}

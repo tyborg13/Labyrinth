@@ -18,7 +18,7 @@ const SETTLE_SECONDS: float = 0.25
 const READY_TIMEOUT_SECONDS: float = 20.0
 const CAPTURE_VISION_BONUS: int = Combat.UMBRA_UNLIMITED_RADIUS
 # Debug-only endurance so staged turns never end the proof fight early.
-const PROOF_PLAYER_HP: int = 100
+const PROOF_PLAYER_HP: int = 200
 const VARIANTS: Array = [{"biome": "fire", "tier": 2}, {"biome": "ice", "tier": 1}]
 var failures: Array[String]
 var captures: Array[Dictionary]

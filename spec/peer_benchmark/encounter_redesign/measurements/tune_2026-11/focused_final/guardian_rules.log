@@ -1,0 +1,15 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881513937219000-98086
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881513937219000-98086
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881513937219000-98086/godot.log --headless --path . --script tests/guardian_rules_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+QA18 COMMITTED ACTOR live_body=false control_tiles=[(4, 5)] actual_tiles=[(4, 5)] control_pos=(4, 4) actual_pos=(4, 4) control_hp=21 actual_hp=21
+QA18 COMMITTED ACTOR live_body=true control_tiles=[(4, 5)] actual_tiles=[(4, 5)] control_pos=(4, 4) actual_pos=(4, 4) control_hp=21 actual_hp=21
+GUARDIAN RULES TEST RESULT: PASS (528 checks, 0 failures)

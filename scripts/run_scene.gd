@@ -34573,10 +34573,12 @@ func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictio
 		if frame == 1 and first_frame.is_valid(): first_frame.call()
 		# New ground lands on the first frame; any ground it replaces or
 		# consumes breaks and fades out in the same beat (break_surface).
-		_render_board_state(after, shown)
+		# Units this change killed stay standing through the beat, as in every
+		# other hit path; without the hold they vanish until their deaths play.
+		_render_board_state(after, _death_hold_presentation(before, after, shown))
 	)
 	_queue_player_popup_group(texts, 0.36)
-	_render_board_state(after, {})
+	_render_board_state(after, _death_hold_presentation(before, after, {}))
 
 func _surface_preview_units_by_key(state: Dictionary) -> Dictionary:
 	var result: Dictionary = {"player": state.get("player", {})}

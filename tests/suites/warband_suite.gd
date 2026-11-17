@@ -82,7 +82,7 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 				var entry: Vector2i = layout["player_start"]
 				var grid: Array = layout["grid"]
 				var context: String = "%s tier %d seed %d" % [biome, tier, seed]
-				expect.call(enemies.size() == tier + 3 and captain["type"] == variant["captain"] and bool(captain.get("is_leader", false)), "Authored roster/captain: " + context)
+				expect.call(enemies.size() == mini(5, tier + 3) and captain["type"] == variant["captain"] and bool(captain.get("is_leader", false)), "Authored roster/captain: " + context)
 				for index: int in range(1, enemies.size()): expect.call(enemies[index]["type"] == variant["escort"][index - 1], "Ordered tier escort: " + context)
 				var distance: int = Paths.manhattan(entry, captain["pos"])
 				expect.call(distance >= 5 and distance <= 7, "Captain range 5–7: " + context)
@@ -98,7 +98,7 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 				expect.call(nearest < distance, "Captain never closest: " + context)
 				var screen: Vector2i = enemies[2]["pos"]
 				expect.call(Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain["pos"]) == distance, "Screen on Manhattan shortest path: " + context)
-				expect.call(captain["max_hp"] == ceili(generator._scaled_enemy_max_hp(str(captain["type"]), tier) * 1.25) and captain["stoneskin"] == tier + 1, "Warband HP/Stoneskin: " + context)
+				expect.call(captain["max_hp"] == ceili(ceili(ceili(generator._scaled_enemy_max_hp(str(captain["type"]), tier) * 1.25) * (1.2 if tier == 3 else 1.0)) * int(layout["difficulty_stats"]["hp_percent"]) / 100.0) and captain["stoneskin"] == tier + 1, "Warband HP/Stoneskin: " + context)
 				expect.call(not captain.has("scale") and Identity.display_name(captain) == variant["title"], "Captain density/title: " + context)
 				_spread_rules(expect, layout, context)
 				if biome == "lightning":
@@ -221,12 +221,12 @@ static func _placement_regressions(expect: Callable) -> void:
 
 static func _golden(expect: Callable) -> void:
 	var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/spx03_legacy_golden.json"))
-	var generator := Rooms.new()
+	var generator := preload("res://tests/helpers/pre_tier_layout_generator.gd").new()
 	for revision: int in [3, 4, 5]:
 		for seed: int in range(1, LEGACY_GOLDEN_SEEDS + 1):
 			var room: Dictionary = {"type": "combat", "coord": Vector2i(seed % 7, seed % 11), "depth": 1 + seed % 3, "element": "air", "section_index": 0, "section_map_layout_revision": revision, "encounter_biome": "air", "connections": [{"door_dir": Vector2i.UP, "coord": Vector2i(0, -1), "kind": "outward"}]}
 			var layout: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
-			expect.call(var_to_bytes(layout).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Pre-change full layout golden revision %d seed %d" % [revision, seed])
+			expect.call(var_to_bytes(generator.before_tier_and_cap).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Pre-change full layout golden revision %d seed %d" % [revision, seed])
 			room["section_map_layout_revision"] = 6
 			expect.call(Objectives._type_for_room(seed, room) == Objectives.KILL_ALL, "Revision 6 standard always Defeat All")
 	for type: String in ["boss", "guardian"]:
@@ -339,7 +339,7 @@ static func _break(expect: Callable) -> void:
 			for index: int in range(1, path.size()): expect.call(Paths.manhattan(path[index - 1], path[index]) == 1, "Flee route is contiguous")
 			if int(enemy["id"]) == 2:
 				expect.call(path.size() == 3 and mini(mini(path.back().x - 1, 7 - path.back().x), mini(path.back().y - 1, 7 - path.back().y)) > 0, "Central follower stops after two tiles before reaching the edge and dissolves")
-	expect.call(fled == 5 and after["player"]["hp"] == hp_before, "Ember Ticks flee without bursting")
+	expect.call(fled == 4 and after["player"]["hp"] == hp_before, "Ember Ticks flee without bursting")
 	expect.call((after.get("death_burst_events", []) as Array).is_empty(), "No Tick death-burst event")
 	expect.call((after.get("death_rewards", []) as Array).size() <= 1, "No per-follower break reward")
 	var line: String = after["objective"]["break_line"]
@@ -354,7 +354,7 @@ static func _break(expect: Callable) -> void:
 	batch = engine._damage_enemy(batch, 0, TEST_PLAYER_HP, false, true)
 	batch["_surface_damage_batch"] = false
 	batch = engine._flush_surface_deaths(batch)
-	expect.call((batch["enemies"] as Array).size() == 6 and (batch["enemies"] as Array).all(func(enemy: Dictionary) -> bool: return int(enemy["hp"]) == 0), "A simultaneous captain/Ooze kill cannot spawn surviving Droplets")
+	expect.call((batch["enemies"] as Array).size() == 5 and (batch["enemies"] as Array).all(func(enemy: Dictionary) -> bool: return int(enemy["hp"]) == 0), "A simultaneous captain/Ooze kill cannot spawn surviving Droplets")
 	expect.call((batch.get("death_burst_events", []) as Array).is_empty() and int(batch["player"]["hp"]) == TEST_PLAYER_HP, "Queued adjacent Tick deaths do not burst after simultaneous captain kill")
 	print("Warband break: followers, Tick suppression, no follower Embers and one announcement checked (including batched captain/Tick/Ooze deaths)")
 
@@ -374,7 +374,7 @@ static func _break_fixture() -> Dictionary:
 	state["enemies"][0]["stoneskin"] = 0
 	var positions: Array[Vector2i]
 	positions.assign([Vector2i(1, 1), Vector2i(4, 4), Vector2i(7, 3), Vector2i(5, 5), Vector2i(1, 7), Vector2i(7, 7)])
-	for index: int in range(positions.size()): state["enemies"][index]["pos"] = positions[index]
+	for index: int in range(state["enemies"].size()): state["enemies"][index]["pos"] = positions[index]
 	return state
 
 static func _titles(expect: Callable) -> void:

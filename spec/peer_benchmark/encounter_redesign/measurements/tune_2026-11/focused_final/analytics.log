@@ -1,0 +1,101 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881524855532000-98108
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881524855532000-98108
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881524855532000-98108/godot.log --headless --path . --script tests/encounter_analytics_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)
+Enemy phase resolved: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler advance (2,4) -> (3,4)
+  - Tunnel Crawler strike: player -4 HP
+Next turn setup: ready.
+Run 0 | seed 611 | mode combat | HP 26/24 | embers 0 | deck 16
+Combat Movement Test Room | turn 2 | plays 2 | movement 2/2 | player (4,4) block 0 stone 0
+Ground: none
+Order: Reaver now -> Tunnel Crawler +7 -> Reaver projected +19 -> Tunnel Crawler projected +20
+Round clock: if pass now return +19 (base 9 + played 0); after Tunnel Crawler +7; before Tunnel Crawler projected +20.
+Board:
+  0 # # # # # # # #
+  1 # . . . . . . #
+  2 # . . . . . . #
+  3 # . . . . . . #
+  4 # . . 0 P . . #
+  5 # . . . . . . #
+  6 # . . . . . . #
+  7 # # # # # # # #
+    0 1 2 3 4 5 6 7 8
+Enemies:
+  0: Tunnel Crawler at (3,4) HP 14/14 block 0  intent Skitter Strike: move_toward 2; melee dmg 4 range 1
+If you pass now, enemy phase: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler strike: player -4 HP
+Hand: 2/7, draw 0, discard 0, exhausted 0, next fatigue 2 on reshuffle
+  0: Quick Stab (2 time) [click / drag play] melee dmg 6 range 1 | if played return +21 (base 9 + played 0 + this 2); after Tunnel Crawler +7, Tunnel Crawler projected +20
+  1: Brace (1 time) [click / drag play] block 6 | if played return +20 (base 9 + played 0 + this 1); after Tunnel Crawler +7; before Tunnel Crawler projected +20
+Commands: card N, click N, drag N play, walk x,y, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], pass, note TEXT
+Enemy phase resolved: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler advance (2,4) -> (3,4)
+  - Tunnel Crawler strike: player -4 HP
+Next turn setup: ready.
+Run 0 | seed 611 | mode combat | HP 26/24 | embers 0 | deck 16
+Combat Movement Test Room | turn 2 | plays 2 | movement 2/2 | player (4,4) block 0 stone 0
+Ground: none
+Order: Reaver now -> Tunnel Crawler +7 -> Reaver projected +19 -> Tunnel Crawler projected +20
+Round clock: if pass now return +19 (base 9 + played 0); after Tunnel Crawler +7; before Tunnel Crawler projected +20.
+Board:
+  0 # # # # # # # #
+  1 # . . . . . . #
+  2 # . . . . . . #
+  3 # . . . . . . #
+  4 # . . 0 P . . #
+  5 # . . . . . . #
+  6 # . . . . . . #
+  7 # # # # # # # #
+    0 1 2 3 4 5 6 7 8
+Enemies:
+  0: Tunnel Crawler at (3,4) HP 14/14 block 0  intent Skitter Strike: move_toward 2; melee dmg 4 range 1
+If you pass now, enemy phase: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler strike: player -4 HP
+Hand: 2/7, draw 0, discard 0, exhausted 0, next fatigue 2 on reshuffle
+  0: Quick Stab (2 time) [click / drag play] melee dmg 6 range 1 | if played return +21 (base 9 + played 0 + this 2); after Tunnel Crawler +7, Tunnel Crawler projected +20
+  1: Brace (1 time) [click / drag play] block 6 | if played return +20 (base 9 + played 0 + this 1); after Tunnel Crawler +7; before Tunnel Crawler projected +20
+Commands: card N, click N, drag N play, walk x,y, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], pass, note TEXT
+Enemy phase resolved: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler advance (2,4) -> (3,4)
+  - Tunnel Crawler strike: player -4 HP
+Next turn setup: ready.
+Run 0 | seed 611 | mode combat | HP 26/24 | embers 0 | deck 16
+Combat Movement Test Room | turn 2 | plays 2 | movement 2/2 | player (4,4) block 0 stone 0
+Ground: none
+Order: Reaver now -> Tunnel Crawler +7 -> Reaver projected +19 -> Tunnel Crawler projected +20
+Round clock: if pass now return +19 (base 9 + played 0); after Tunnel Crawler +7; before Tunnel Crawler projected +20.
+Board:
+  0 # # # # # # # #
+  1 # . . . . . . #
+  2 # . . . . . . #
+  3 # . . . . . . #
+  4 # . . 0 P . . #
+  5 # . . . . . . #
+  6 # . . . . . . #
+  7 # # # # # # # #
+    0 1 2 3 4 5 6 7 8
+Enemies:
+  0: Tunnel Crawler at (3,4) HP 14/14 block 0  intent Skitter Strike: move_toward 2; melee dmg 4 range 1
+If you pass now, enemy phase: -4 HP.
+  - Tunnel Crawler prepares Skitter Strike
+  - Tunnel Crawler strike: player -4 HP
+Hand: 2/7, draw 0, discard 0, exhausted 0, next fatigue 2 on reshuffle
+  0: Quick Stab (2 time) [click / drag play] melee dmg 6 range 1 | if played return +21 (base 9 + played 0 + this 2); after Tunnel Crawler +7, Tunnel Crawler projected +20
+  1: Brace (1 time) [click / drag play] block 6 | if played return +20 (base 9 + played 0 + this 1); after Tunnel Crawler +7; before Tunnel Crawler projected +20
+Commands: card N, click N, drag N play, walk x,y, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], pass, note TEXT
+ENCOUNTER ANALYTICS: PASS (0 failures)

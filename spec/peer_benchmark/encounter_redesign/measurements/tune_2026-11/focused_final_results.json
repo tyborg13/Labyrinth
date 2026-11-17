@@ -1,0 +1,178 @@
+[
+  {
+    "name": "enemy_count",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 600 --stream -- godot --headless --path . --script tools/tune01/focused.gd -- --suite enemy-count",
+    "returncode": 0,
+    "elapsed_seconds": 89.07036805152893,
+    "passed": true,
+    "result_lines": [
+      "TUNE01_FOCUSED enemy-count: PASS (49763 checks, 0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/enemy_count.log"
+  },
+  {
+    "name": "warband",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/warband_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 27.67529273033142,
+    "passed": true,
+    "result_lines": [
+      "Warband suite: 0 failures"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/warband.log"
+  },
+  {
+    "name": "last_light",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/last_light_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 14.645190000534058,
+    "passed": true,
+    "result_lines": [
+      "Last Light suite: 0 failures"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/last_light.log"
+  },
+  {
+    "name": "guardian",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tools/tune01/focused.gd -- --suite guardian",
+    "returncode": 0,
+    "elapsed_seconds": 10.346570014953613,
+    "passed": true,
+    "result_lines": [
+      "TUNE01_FOCUSED guardian: PASS (151 checks, 0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/guardian.log"
+  },
+  {
+    "name": "guardian_rules",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/guardian_rules_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 4.985540151596069,
+    "passed": true,
+    "result_lines": [
+      "GUARDIAN RULES TEST RESULT: PASS (528 checks, 0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/guardian_rules.log"
+  },
+  {
+    "name": "dragon",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tools/tune01/focused.gd -- --suite dragon",
+    "returncode": 0,
+    "elapsed_seconds": 7.683431386947632,
+    "passed": true,
+    "result_lines": [
+      "TUNE01_FOCUSED dragon: PASS (282 checks, 0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/dragon.log"
+  },
+  {
+    "name": "area01",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/dragon_committed_patterns_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 7.724004030227661,
+    "passed": true,
+    "result_lines": [
+      "Dragon committed patterns passed."
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/area01.log"
+  },
+  {
+    "name": "analytics",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 10.962010145187378,
+    "passed": true,
+    "result_lines": [
+      "ENCOUNTER ANALYTICS: PASS (0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/analytics.log"
+  },
+  {
+    "name": "save_resume",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/save_resume_boundary_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 13.88854193687439,
+    "passed": true,
+    "result_lines": [
+      "TEST RESULT: PASS \u2014 committed save/resume boundary matrix"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/save_resume.log"
+  },
+  {
+    "name": "events_omens",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/event_rules_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 66.84490990638733,
+    "passed": true,
+    "result_lines": [
+      "Event rules suite: 0 failures"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/events_omens.log"
+  },
+  {
+    "name": "tier_rules",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tools/tune01/check.gd",
+    "returncode": 0,
+    "elapsed_seconds": 2.174320936203003,
+    "passed": true,
+    "result_lines": [
+      "TUNE01_RULES_CHECK: PASS (150 checks, 0 failures)"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/tier_rules.log"
+  },
+  {
+    "name": "ui_identity",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tests/test_ui_identity_lint.py",
+    "returncode": 0,
+    "passed": true,
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/ui_identity.log",
+    "result_lines": [
+      "Ran 25 tests in 3.418s",
+      "OK"
+    ]
+  },
+  {
+    "name": "snare",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/snare_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 17.468286991119385,
+    "passed": true,
+    "result_lines": [
+      "Snare suite: 0 failures"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/snare.log",
+    "previous_attempts": [
+      {
+        "name": "snare",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/snare_test.gd",
+        "returncode": 1,
+        "elapsed_seconds": 17.636834144592285,
+        "passed": false,
+        "result_lines": [],
+        "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/snare.attempt1.log"
+      }
+    ]
+  },
+  {
+    "name": "hoarder",
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/hoarder_test.gd",
+    "returncode": 0,
+    "elapsed_seconds": 15.334160804748535,
+    "passed": true,
+    "result_lines": [
+      "Hoarder suite: 0 failures"
+    ],
+    "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/hoarder.log",
+    "previous_attempts": [
+      {
+        "name": "hoarder",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/tune-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --task-id tune-01 --timeout 300 --stream -- godot --headless --path . --script tests/hoarder_test.gd",
+        "returncode": 1,
+        "elapsed_seconds": 15.537810325622559,
+        "passed": false,
+        "result_lines": [],
+        "log_path": "/Users/borgerding/workspace/Labyrinth.worktrees/tune-01/spec/peer_benchmark/encounter_redesign/measurements/tune_2026-11/focused_final/hoarder.attempt1.log"
+      }
+    ]
+  }
+]

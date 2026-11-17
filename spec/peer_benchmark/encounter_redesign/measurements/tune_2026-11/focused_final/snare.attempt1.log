@@ -1,0 +1,49 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881455768980000-97984
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881455768980000-97984
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881455768980000-97984/godot.log --headless --path . --script tests/snare_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Snare stock cards: Mirror Image and Changing Winds respect sealed thresholds
+Snare stock AI: Cudgel Press cannot route or resolve through (7,4)
+Snare Vaulting Sigil: occupied turn-two seal blocks turn-three free movement; geometry stays raw
+Snare forced movement: sealed threshold stops Push and deals wall collision damage
+Snare True Bearing: seed 83 lightning entrance and seed 0 ice distance checked
+Snare path boundary: four edges rejected; five edges accepted; short layout rerolled
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare fallback: seeded retries and complete deterministic formation checked
+Snare seals: exact boundary, permanent kill, immobility, blocked exits, silent dissolve and batch API checked
+Snare first turn: free movement cannot escape; two legal Shadow Steps can
+Snare hunters: all six variants, total cap, alternating list and ice start checked
+Snare escape/reward/save: all 18 biome/tier fixtures, 1/2/3 open doors and pending-round resume checked
+Warband legacy golden seeds: 192 full layouts (revisions 3–5)
+Snare revision-5 Reach Exit: existing full-layout goldens checked
+Snare Headwind: slides, wall collisions, four entry walls, anchored Sealbinders and persistence checked
+Snare Ice: exact approach tiles, shortest path/x/y ties and post-seal persistence checked
+Snare Umbra: exact two-turn steps, minimum one, doors/thresholds/Sealbinders and renderer exemptions checked
+Snare pressure preview/outcome/escape: all six variants at seeds 0, 83, 199
+Snare pressure save/load: six mid-Snare states, previews and next outcomes through production repair
+Snare pressure analytics: six ids, exact payloads, empty wind/Umbra tiles, retry deduplication on UI and console
+Snare pressure fixtures: six tier-two seed-83 turn-three states; aligned Thralls and shrunk Shadow sight
+Snare pressures: six rules, live previews, escapes, persistence and additive analytics checked
+Snare Cinder Trail forecast HP=0; outcome HP=0
+Snare pressure boundary regressions: Cinder Trail and six real Worldheart/death-burst preparation cases checked
+ERROR: Killed Sealbinder keeps door open through deadline
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/snare_test.gd:17)
+ERROR: Additive Snare analytics fields: UI
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/snare_test.gd:17)
+ERROR: Additive Snare analytics fields: console
+   at: push_error (core/variant/variant_utility.cpp:1024)
+Snare suite: 3 failures
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/snare_test.gd:17)

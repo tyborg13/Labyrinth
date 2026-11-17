@@ -1,0 +1,25 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881428093739000-97937
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881428093739000-97937
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881428093739000-97937/godot.log --headless --path . --script tests/warband_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Warband placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 4 entry directions
+Warband console regression: air tier 2 seed 83: pass preview 11 HP
+Warband console regression: fire tier 1 seed 7: pass preview 4 HP
+Warband spread geometry: guard, screen, alternating skirmishers, gaps and way-through checked
+Warband legacy golden seeds: 192 full layouts (revisions 3–5)
+Warband Command: intents, previews, movement boundary and resolved damaging actions checked
+Warband composite Command: Dive, Erupt and Ambush enter/leave aura checked
+Warband keep-distance: screened, blocked, immobilized and immobile cases checked
+Warband break: followers, Tick suppression, no follower Embers and one announcement checked (including batched captain/Tick/Ooze deaths)
+Warband titles: all six instance, caption, objective and initiative paths checked
+Warband save/load: exact mid-combat state and deterministic next turn checked
+Warband native fixture contracts: Stormcaller tier 2 and Dynamo tier 3 checked headless
+Warband suite: 0 failures

@@ -1,0 +1,77 @@
+[
+  {
+    "name": "native_census",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794867431006916000-59216/godot.log",
+    "result": "DIFF01_CENSUS_PASS rows=3747"
+  },
+  {
+    "name": "legacy_census",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794867842010597000-60677/godot.log",
+    "result": "TUNE01_LEGACY_CENSUS: cases=8640 over_5_non_summoned=0"
+  },
+  {
+    "name": "warband",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868390348485000-62130/godot.log",
+    "result": "Warband suite: 0 failures"
+  },
+  {
+    "name": "snare",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868809842335000-63814/godot.log",
+    "result": "Snare suite: 0 failures"
+  },
+  {
+    "name": "last_light",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868632861304000-63076/godot.log",
+    "result": "Last Light suite: 0 failures"
+  },
+  {
+    "name": "hoarder",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868634017078000-63079/godot.log",
+    "result": "Hoarder suite: 0 failures"
+  },
+  {
+    "name": "guardian",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868391465869000-62137/godot.log",
+    "result": "TUNE01_FOCUSED guardian: PASS (151 checks, 0 failures)"
+  },
+  {
+    "name": "guardian_rules",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868667456221000-63284/godot.log",
+    "result": "GUARDIAN RULES TEST RESULT: PASS (528 checks, 0 failures)"
+  },
+  {
+    "name": "dragon",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868730951361000-63512/godot.log",
+    "result": "TUNE01_FOCUSED dragon: PASS (282 checks, 0 failures)"
+  },
+  {
+    "name": "area01",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868944927176000-64222/godot.log",
+    "result": "Dragon committed patterns passed."
+  },
+  {
+    "name": "save_resume",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868729742376000-63492/godot.log",
+    "result": "TEST RESULT: PASS \u2014 committed save/resume boundary matrix"
+  },
+  {
+    "name": "enemy_count",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868810805022000-63819/godot.log",
+    "result": "TUNE01_FOCUSED enemy-count: PASS (49763 checks, 0 failures)"
+  },
+  {
+    "name": "tier_rules",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794869021826557000-64366/godot.log",
+    "result": "TUNE01_RULES_CHECK: PASS (108 checks, 0 failures)"
+  },
+  {
+    "name": "thread_smoke",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868618991642000-63038/godot.log",
+    "result": "TUNE01_PRIORITY thread=LOW macos_qos=UTILITY start_result=0"
+  },
+  {
+    "name": "head_golden_baseline",
+    "log_path": "/private/tmp/labyrinth-godot-home/tune-01-1794868302930828000-61813/godot.log",
+    "result": "TUNE01_HEAD_GOLDEN_BASELINE: cases=192 failures=0"
+  }
+]

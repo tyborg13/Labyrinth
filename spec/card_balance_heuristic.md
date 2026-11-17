@@ -1216,7 +1216,9 @@ death rewards and save storage carry these mechanics without new analytics types
 
 Revision-6 specials use the protected `data/special_encounters.json` (or its
 staged copy before spx-02). Warbands use a specific biome captain and the first
-3/4/5 ordered escorts by local tier. Captain HP is the ordinary depth-scaled
+3/4/5 ordered escorts by local tier before the shared five-starter cap; the
+last tier-3 escort is removed, giving all remaining starters ×1.2 Health.
+Captain HP is the ordinary depth-scaled
 HP ×1.25, rounded up; Stoneskin is 2/3/4, replacing generic leader bonuses.
 There is no art/footprint scaling. Per director feedback 1, Manhattan ranges
 govern the captain's 5–7-tile opening and every escort's minimum entry distance
@@ -1264,3 +1266,26 @@ assumption records with `keyword: marked`; intrinsic scoring coefficients
 and combat assumptions are unchanged, so no changed mechanic needs rescoring.
 Permanent timing, shape and old-save checks live in `tests/mrk01_marked_test.gd`;
 `tests/enc03_slag_test.gd` checks resolved damage and barrage presentation.
+
+## Four difficulty tiers (tune-01)
+
+Normal rooms retain section Health/damage scaling. Every generation path caps
+non-summoned starters at five, removing from the existing tail order while
+preserving leaders, captains, jailers, Sealbinders, Hoarders, Guardians and dragons.
+Each newly removed starter grants ×1.2 Health to the remaining starting roster
+before the tier table. Hunted adds an enemy below five and grants that same
+Health factor to a full room. Table capacity trims that already occurred at
+three/four/five units do not gain a new compensation.
+
+`data/difficulty_tiers.json` stores per-section objective/kind, Guardian and boss
+dials. Generated layouts freeze those dials. After existing local, section,
+leader/special and Umbra Depth rules, tier Health multiplies final max Health
+once, rounding up; Hoarder Health is then derived as 3×the fully scaled brood.
+All later arrivals use the room's frozen Health percentage. Tier damage adds
+through the existing section-damage applicability rules; support is unchanged.
+Old generated rooms without dials retain identity scaling. Unmeasured s1/s3
+Health is the neighbour mean rounded to five; s5 copies s4.
+
+This changes encounter context, not card mechanics or intrinsic card coefficients.
+The scorer reports the count caps and table source in `--show-assumptions`;
+relative Health-cost measurements live in the tune-01 report.

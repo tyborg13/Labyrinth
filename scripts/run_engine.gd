@@ -2549,6 +2549,12 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		layout_room["encounter_history"] = run_state.get("encounter_history", []).duplicate()
 		# An already-entered pre-change room retains the original picker/RNG.
 		layout_room["encounter_legacy"] = not room.has("fight_number")
+	var saved_layout: Dictionary = run_state.get("current_room_layout", {})
+	if str(run_state.get("mode", "")) == MODE_PRE_BATTLE and str(layout_room.get("type", "")) in ["special", "guardian", "boss"] and saved_layout.get("coord") == layout_room.get("coord") and saved_layout.get("type") == layout_room.get("type"):
+		# Dossier/pre-battle layouts are serialized too. Old generated rooms
+		# without dials retain identity scaling; fresh rooms consult the table.
+		layout_room["difficulty_stats"] = (saved_layout.get("difficulty_stats", {}) as Dictionary).duplicate(true)
+		layout_room["difficulty_tier"] = str(saved_layout.get("difficulty_tier", ""))
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	if str(room.get("type", "")) == "special":
 		layout["special_starting_reward_embers"] = Specials.starting_embers(layout)

@@ -1,0 +1,19 @@
+Running task-local command:
+  task: tune-01
+  run: tune-01-1794881540533915000-98147
+  HOME: /private/tmp/labyrinth-godot-home/tune-01-1794881540533915000-98147
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/tune-01-1794881540533915000-98147/godot.log --headless --path . --script tools/tune01/check.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TUNE01_TIER_CHECK tier=objective kind=warband
+TUNE01_TIER_CHECK tier=objective kind=umbral_snare
+TUNE01_TIER_CHECK tier=objective kind=last_light
+TUNE01_TIER_CHECK tier=objective kind=ember_hoarder
+TUNE01_TIER_CHECK tier=guardian kind=guardian
+TUNE01_TIER_CHECK tier=boss kind=boss
+TUNE01_RULES_CHECK: PASS (150 checks, 0 failures)
