@@ -127,7 +127,9 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	state["meteor_marks"] = [{"tiles": [PROOF_TILE], "damage": 5, "surface": "fire"}]
 	board.set_combat_state(state)
 	entries = TileTooltip.entries(board, PROOF_TILE)
-	_check(entries.size() == 4 and entries[2] == TileTooltip.from_text(board._terrain_tooltip_text(state["terrain"][0])), "Worldspine has its own exact terrain panel")
+	var worldspine: Dictionary = TileTooltip.from_text(board._terrain_tooltip_text(state["terrain"][0]))
+	worldspine["display_description"] = "4/8 HP\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes 3."
+	_check(entries.size() == 4 and entries[2] == worldspine, "Worldspine has its own exact terrain panel")
 	_check(entries[3]["title"] == "Meteorfall" and entries[3]["description"].contains("5 damage and becomes Fire."), "Marked tile has its own panel")
 	board._register_tile_tooltip(Rect2(Vector2.ZERO, Vector2.ONE), "Light Source\nReveals Umbra within 2 tiles.\nLasts for this combat.", PROOF_TILE, "proof_light")
 	entries = TileTooltip.entries(board, PROOF_TILE)
@@ -155,6 +157,14 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 
 func _trap_entry(element: String) -> Dictionary:
 	var entry: Dictionary = TileTooltip.from_text(TRAP_COPY[element], "traps")
+	var diagrams: Dictionary = {
+		"fire": "@pattern(cross) Leaves @term(surface_fire) on these tiles.",
+		"ice": "@pattern(cross) Leaves @term(surface_ice) on these tiles.",
+		"lightning": "@pattern(cross) Leaves @term(surface_electrified) on these tiles.",
+		"earth": "@pattern(cross) Leaves @term(surface_rubble) on these tiles.",
+		"air": "@pattern(neighbors:origin) @kw(push) each unit on these tiles 1 tile away.",
+	}
+	entry["display_description"] = "Triggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [TRAP_DAMAGE, diagrams[element]]
 	entry["loop_term"] = "traps"
 	entry["loop_source"] = {"kind": "trap", "element": element}
 	return entry

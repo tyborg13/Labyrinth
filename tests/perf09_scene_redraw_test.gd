@@ -3,6 +3,7 @@ extends "res://tools/inspection_fixture.gd"
 ## renderer. Explicit animation samples remove wall-clock/cadence dependence.
 const Board = preload("res://scripts/combat_board_view.gd")
 const Dirty = preload("res://scripts/board_scene_dirty_tiles.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const ACTION_SAMPLES: int = 12
 const MAX_LOCAL_ACTION_SCENE_DRAWS: int = 48
 const MAX_HOVER_SCENE_DRAWS: int = 8
@@ -32,6 +33,8 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	# The original prop bar checks use the classic Always display policy.
+	Settings._applied_board_health_bars = Settings.BOARD_HEALTH_ALWAYS
 	_options = {"seed": DEFAULT_SEED, "scenario": "warband", "warband_biome": "earth", "warband_tier": 2, "warband_case": "encounter", "hero_facing": "persist"}
 	var run: Dictionary = _build_run_state("warband", _build_progression())
 	var state: Dictionary = run["combat_state"]

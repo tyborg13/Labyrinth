@@ -63,6 +63,9 @@ func _run() -> void:
 	var settings: Dictionary = Settings.default_settings()
 	settings["ui_scale"] = 1.0
 	settings["display_mode"] = "windowed"
+	# The director's status catalog shows every plate and its separate order
+	# disc. RD-08 made contextual plates and footprint markers the default.
+	settings["board_health_bars"] = Settings.BOARD_HEALTH_ALWAYS
 	Settings.save_settings(settings)
 	Settings.apply_settings(settings, root, false)
 	root.size = SIZE

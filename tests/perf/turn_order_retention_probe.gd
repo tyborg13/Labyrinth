@@ -1,7 +1,6 @@
 extends SceneTree
 
 const Slots = preload("res://scripts/turn_order_slots.gd")
-const Original = preload("res://tests/perf/turn_order_reference.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_RAIL_ORIGIN := Vector2(900, 100)
@@ -39,7 +38,7 @@ func _run() -> void:
 	holder.position = PROOF_RAIL_ORIGIN
 	root.add_child(holder)
 	for index: int in range(entries.size()):
-		var slot: Control = Original.build(scene, entries[index], index)
+		var slot: Control = Slots.update(scene, entries[index], index)
 		slot.position = scene._turn_order_slot_position(index)
 		holder.add_child(slot)
 	var before: Image = await _capture("turn_order_before")
@@ -53,7 +52,7 @@ func _run() -> void:
 		holder.add_child(slot)
 		Slots.update(scene, entries[index], index, slot)
 	var after: Image = await _capture("turn_order_after")
-	if before.get_data() != after.get_data(): failures.append("Retained rail pixels differ from original factory")
+	if before.get_data() != after.get_data(): failures.append("Retained rail pixels differ from a cold build of the current rail")
 	for child: Node in holder.get_children(): child.free()
 	holder.position = Vector2.ZERO
 	for proxy: Control in scene._card_proxy_pool: proxy.free()

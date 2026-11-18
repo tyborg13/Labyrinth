@@ -773,6 +773,7 @@ var _tile_tooltip_regions: Dictionary = {}
 var _tile_tooltip_cache := BoardTileTooltipCache.new()
 var _tile_tooltip_refresh_pending: bool = false
 var _tooltip_loop_source: Dictionary = {}
+var _tooltip_loop_actor_key: String = ""
 var _tooltips_enabled: bool = true
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
@@ -4809,8 +4810,10 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 		if _enemy_hud_actor_key(unit) != actor_key: continue
 		var marked_move: String = ""
 		for action: Dictionary in unit.get("intent", {}).get("actions", []):
-			if str(action.get("type", "")) in ["icefall_mark", "icefall_land", "lob_mark", "lob_land", "burrow", "erupt"]:
-				marked_move = LobView.action_text(combat_state, unit, action) if str(action["type"]).begins_with("lob_") else ActionIcons.marked_move_text(action)
+			if str(action.get("type", "")) in ["lob_mark", "lob_land"]:
+				return LobView.action_text(combat_state, unit, action)
+			if str(action.get("type", "")) in ["icefall_mark", "icefall_land", "burrow", "erupt"]:
+				marked_move = ActionIcons.marked_move_text(action)
 				break
 		if not marked_move.is_empty():
 			lines.append(marked_move)
@@ -4821,7 +4824,7 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 				for token: Dictionary in row:
 					# The expanded row already states ordinary movement, damage and reach.
 					if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
-					var detail: String = ActionIcons.token_tooltip(token)
+					var detail: String = str(token.get("display_tooltip", ActionIcons.token_tooltip(token)))
 					if detail.is_empty() or seen.has(detail): continue
 					seen[detail] = true
 					lines.append(detail)
@@ -6022,7 +6025,7 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var source_seed: float = _umbra_light_source_seed(source)
 		if bool(source.get("tethered", false)):
 			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
-			_register_tile_tooltip(tethered_rect, _tethered_light_tooltip(source), tile, str(source.get("id", "light")))
+			_register_tile_tooltip(tethered_rect, _tethered_light_tooltip(source), tile, str(source.get("id", "light")), _tethered_light_tooltip(source, true))
 			continue
 		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
 		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
@@ -6037,7 +6040,8 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
-		_register_tile_tooltip(marker_rect, tooltip, tile, str(source.get("id", "light")))
+		var diagram: String = "Light Source\n@pattern(diamond:%d) Reveals these tiles through the Umbra.\n%s" % [radius_tiles, duration_text]
+		_register_tile_tooltip(marker_rect, tooltip, tile, str(source.get("id", "light")), diagram)
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
 
@@ -6159,9 +6163,11 @@ func _draw_noctyrax_brazier_markers() -> void:
 		_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
 		_register_tile_tooltip(rect,marker["tooltip"],tile,"brazier")
 
-func _tethered_light_tooltip(source: Dictionary) -> String:
+func _tethered_light_tooltip(source: Dictionary, with_diagram: bool = false) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
 	var lines := PackedStringArray(["Tethered Light — Radius %d" % radius])
+	if with_diagram:
+		lines = PackedStringArray(["Tethered Light", "@pattern(diamond:%d) Reveals these tiles through the Umbra." % radius])
 	for contributor_var: Variant in source.get("radius_contributors", []):
 		if typeof(contributor_var) != TYPE_DICTIONARY:
 			continue
@@ -10604,6 +10610,7 @@ func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 	if line_rects.is_empty():
 		return
 	_tooltip_loop_source = layout.get("loop_source", {})
+	_tooltip_loop_actor_key = str(layout.get("actor_key", ""))
 	var rows: Array = layout.get("rows", [])
 	var intent_name: String = str(layout.get("intent_name", ""))
 	var border: Color = layout.get("border", Color("d8b96f"))
@@ -10630,6 +10637,7 @@ func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 		)
 		line_index += 1
 	_tooltip_loop_source = {}
+	_tooltip_loop_actor_key = ""
 
 func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int, popup_width: float = INTENT_POPUP_WIDTH) -> Rect2:
 	if line_count <= 0:
@@ -10692,7 +10700,7 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			cursor_x += text_width + 6.0
 			continue
 		var icon_key: String = str(token.get("icon", ""))
-		var tooltip: String = ActionIcons.token_tooltip(token)
+		var tooltip: String = str(token.get("display_tooltip", ActionIcons.token_tooltip(token)))
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
 		var condition_tint: Color = Color.WHITE
 		if token.has("condition_active") and not bool(token.get("condition_active", false)):
@@ -10775,7 +10783,10 @@ func _draw_aoe_token_pattern(token: Dictionary, rect: Rect2, icon_size: float) -
 		var is_origin: bool = show_origin and offset == Vector2i.ZERO and not hit_lookup.has(offset)
 		var fill: Color = Color("e9dcc6") if is_origin else Color("d95f4a")
 		var border: Color = Color("5a493b") if is_origin else Color("7b2f25")
-		_draw_aoe_token_tile(_aoe_token_center(offset, icon_size) + shift, icon_size, fill, border)
+		var center: Vector2 = _aoe_token_center(offset, icon_size) + shift
+		_draw_aoe_token_tile(center, icon_size, fill, border)
+		if offset == Vector2i.ZERO and bool(token.get("mark_affected_origin", false)):
+			draw_circle(center, 1.0, preload("res://scripts/ui_palette.gd").PATTERN_ORIGIN_FILL, true, -1.0, true)
 
 func _aoe_token_offsets(token: Dictionary) -> Array[Vector2i]:
 	var raw_pattern: Variant = token.get("pattern", [])
@@ -10893,7 +10904,8 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	if crest.has_area(): occupied.append(crest)
 	return {
 		"health_rect": health_rect,
-		"loop_source": {"kind": "enemy", "id": str(unit.get("type", ""))},
+		"loop_source": preload("res://scripts/tooltip_loop_context.gd").enemy_unit(unit),
+		"actor_key": _enemy_hud_actor_key(unit),
 		"intent_rect": intent_rect,
 		"line_rects": contour.get("line_rects", []),
 		"rows": rows,
@@ -11462,9 +11474,11 @@ func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tin
 	if not tooltip.is_empty():
 		_register_tooltip(rect, tooltip)
 
-func _register_tile_tooltip(rect: Rect2, tooltip: String, tile: Vector2i, detail_key: String = "") -> void:
+func _register_tile_tooltip(rect: Rect2, tooltip: String, tile: Vector2i, detail_key: String = "", display_tooltip: String = "") -> void:
 	if tooltip.is_empty() or not rect.has_area(): return
-	_tile_tooltip_regions[_tooltip_regions.size()] = {"tile": tile, "tile_detail_key": detail_key, "tooltip": tooltip}
+	var entry: Dictionary = {"tile": tile, "tile_detail_key": detail_key, "tooltip": tooltip}
+	if not display_tooltip.is_empty(): entry["display_tooltip"] = display_tooltip
+	_tile_tooltip_regions[_tooltip_regions.size()] = entry
 	_register_tooltip(rect, tooltip)
 	if not detail_key.is_empty():
 		var owner: Control = _render_instrumentation_owner as Control if is_instance_valid(_render_instrumentation_owner) else self
@@ -17925,10 +17939,19 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var burst_trait: Dictionary = DeathBurstView.trait_token(unit)
 	if not burst_trait.is_empty():
 		result.append([burst_trait])
-		for line: String in BurstTraitText.lines(str(burst_trait["tooltip"]), UiTypography.ui_font(), INTENT_POPUP_ROW_FONT_SIZE):
+		var sentence: String = DeathBurstView.rules_sentence(DeathBurstView.Rules.damage(unit))
+		var diagram: Dictionary = ActionIcons.pattern_detail(ActionIcons.text_token(""), "surround", "origin")
+		var diagram_row: bool = true
+		var usable_width: float = BurstTraitText.WIDTH - _aoe_token_size(diagram, INTENT_POPUP_ICON_SIZE).x
+		for line: String in BurstTraitText.lines(sentence, UiTypography.ui_font(), INTENT_POPUP_ROW_FONT_SIZE, usable_width):
 			var token: Dictionary = ActionIcons.text_token(line)
 			token["burst_rules"] = true
-			result.append([token])
+			if diagram_row:
+				diagram["burst_rules"] = true
+				result.append([diagram, token])
+				diagram_row = false
+			else:
+				result.append([token])
 	result.append_array(_move_rows_for_unit(unit, intent))
 	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_rows(result, unit, INTENT_POPUP_ROW_FONT_SIZE)
 	return result

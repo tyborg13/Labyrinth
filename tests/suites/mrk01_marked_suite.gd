@@ -12,10 +12,10 @@ const Store = preload("res://scripts/progression_store.gd")
 const SAVE_PATH: String = "user://mrk01-marked-old-save.bin"
 const MARKED_DEFINITION: String = "These tiles take the hit on this enemy's next turn."
 const MOVE_COPY: Dictionary = {
-	"icefall": "Marks 3 tiles across yours. Next turn they take the hit and turn to Ice.",
-	"lob": "Marks your tile and the 4 around it. Next turn they take the hit and become Fire.",
+	"icefall": "@pattern(icefall:hero) Marks these tiles. Next turn they take the hit and turn to Ice.",
+	"lob": "@pattern(cross:hero) On your tile. Next turn they take the hit and become Fire.",
 	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved. Attacks that hit an area still hit buried enemies.",
-	"erupt": "Emerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2."
+	"erupt": "Emerges at its mark, or the nearest free tile."
 }
 const MARK_IDS: Dictionary = {"hoarfrost_seer": "icefall", "slag_mortar": "lob_slag", "burrow_grub": "burrow"}
 const OLD_ALIASES = ["icefall", "Icefall", "icefall_mark", "icefall_land", "lob", "Lob Slag", "lob_slag", "lob_mark", "lob_land", "slag_lands", "burrow", "Burrow", "erupt", "Erupt"]

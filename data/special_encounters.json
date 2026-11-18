@@ -1,6 +1,6 @@
 {
  "version": 1,
- "_doc": "Director-authored special encounters (owner approval enc-specials, 2026-10-21). Standard fights in new runs are always Defeat All. Special encounters replace standard combat nodes on the section map, carry their own emblem, and pay a better reward. 'enabled' gates each type until its combat rules exist. Escort and gang lists are ordered: tier 1 uses the first 3 units, tier 2 the first 4, tier 3 all 5. Section keys are the section dragon's biome element.",
+ "_doc": "Director-authored special encounters (owner approval enc-specials, 2026-10-21). Standard fights in new runs are always Defeat All. Special encounters replace standard combat nodes on the section map and carry their own emblem. 'enabled' gates each type until its combat rules exist. Escort and gang lists are ordered: tier 1 uses the first 3 units, tier 2 the first 4, tier 3 all 5. Section keys are the section dragon's biome element.",
  "placement": {
   "replaces_room_type": "combat",
   "per_section_count_weights": {
@@ -178,7 +178,9 @@
    "enabled": true,
    "name": "Umbral Snare",
    "emblem": "res://assets/art/icons/map/umbral_snare.png",
+   "reward_profile": "combat",
    "tooltip_line": "The doors are sealing. Get out before they close.",
+   "reward_line": "Normal fight reward, plus %d Embers per open door.",
    "objective": "reach_exit",
    "bonus": {
     "kind": "embers_per_open_door",

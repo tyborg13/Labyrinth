@@ -29,10 +29,7 @@ static func run(scene: Control, battle: Dictionary, reduced: bool, expect: Calla
 		geometry = {"tiles": committed.get("lob_tiles", []), "centers": centers, "cross_count": centers.size()}
 		var damage: Dictionary = Lob.landing_action(engine, battle, enemy)
 		var numbers: Array = [int(damage["center_damage"]), int(damage["arm_damage"])]
-		if centers.size() > 1:
-			expected = ("Marked tiles take the hit: %d in each centre, %d around them, and they become Fire." if landing else "Marks %d crosses. Next turn: %d in each centre, %d around them, and they become Fire.") % (numbers if landing else [centers.size()] + numbers)
-		else:
-			expected = ("Marked tiles take the hit: %d in the centre, %d around it, and they become Fire." if landing else "Marks your tile and the 4 around it. Next turn: %d in the centre, %d around it, and they become Fire.") % numbers
+		expected = ("Lob Slag · %d / %d" if landing else "Lob Slag next turn · %d / %d") % numbers
 	var steps: Array
 	var adapter_steps: int = 0
 	for step: Dictionary in resolved["steps"]:
@@ -49,7 +46,8 @@ static func run(scene: Control, battle: Dictionary, reduced: bool, expect: Calla
 		if not bool(scene.get("_animation_lock")) or not bool(pacing.get("enemies_active")): result["lock_lost"] = true
 		# Pre-lob retreat keeps its existing movement caption. Start the lob
 		# assertion at the intent lead, and retain it through all adapter frames.
-		if str(pacing.get("_actor")) == key and banner.visible and not banner.text.is_empty():
+		# Ship-02 gives the separate live battlefield-rule beat its own banner.
+		if str(pacing.get("_actor")) == key and banner.visible and not banner.text.is_empty() and not banner.has_node("BattlefieldRuleCaptionIcon"):
 			result["samples"] += 1
 			if banner.text != expected and not result["wrong"].has(banner.text): result["wrong"].append(banner.text)
 			result["caption_ready"] = true

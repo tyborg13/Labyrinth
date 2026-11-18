@@ -122,8 +122,45 @@
       "max_asset_bytes": 1500000
     },
     {
+      "id": "fade_gloam_stalker",
+      "term": "blink",
+      "source_match": {
+        "kind": "enemy",
+        "id": "gloam_stalker"
+      },
+      "asset_path": "res://assets/tooltip_loops/fade_gloam_stalker.tlw",
+      "intent_titles": [
+        "Fade"
+      ],
+      "speed": "fast",
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "lob_slagmaster_barrage",
+      "term": "lob",
+      "aliases": [
+        "marked"
+      ],
+      "source_match": {
+        "kind": "enemy",
+        "id": "slag_mortar",
+        "variant": "slagmaster"
+      },
+      "asset_path": "res://assets/tooltip_loops/lob_slagmaster_barrage.tlw",
+      "intent_titles": [
+        "Lob Slag"
+      ],
+      "speed": "fast",
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
       "id": "marked_lob_slag",
       "term": "marked",
+      "aliases": [
+        "lob"
+      ],
       "source_match": {
         "kind": "enemy",
         "id": "slag_mortar"

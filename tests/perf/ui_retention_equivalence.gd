@@ -1,7 +1,6 @@
 extends RefCounted
 
 const Slots = preload("res://scripts/turn_order_slots.gd")
-const Original = preload("res://tests/perf/turn_order_reference.gd")
 const Discovery = preload("res://scripts/grimoire_discovery_sync.gd")
 const Library = preload("res://scripts/grimoire_library.gd")
 const LAYOUT_STORAGE_ULPS: int = 1
@@ -34,7 +33,9 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		var previous_id: int = retained.get_instance_id() if retained != null else 0
 		retained = Slots.update(scene, entry, comparisons % 6, retained)
 		if retained.get_parent() == null: holder.add_child(retained)
-		var expected: Control = Original.build(scene, entry, comparisons % 6)
+		# Compare the retained slot with a cold build of the current UI. RD-08
+		# added rail health numerals and linked inspection to the board plates.
+		var expected: Control = Slots.update(scene, entry, comparisons % 6)
 		holder.add_child(expected)
 		for frame: int in range(3): await tree.process_frame
 		var differences: Array[String] = _differences(snapshot(expected), snapshot(retained), "", true)
@@ -52,14 +53,11 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	for topology: Dictionary in topologies:
 		var shaped: Dictionary = entry.duplicate(true)
 		shaped.merge(topology, true)
-		var expected: Control = Original.build(scene, shaped, 1)
-		holder.add_child(expected)
 		var candidate: Control = Slots.update(scene, shaped, 1)
 		holder.add_child(candidate)
 		shaped["hp"] = 5
 		candidate = Slots.update(scene, shaped, 2, candidate)
-		expected.free()
-		expected = Original.build(scene, shaped, 2)
+		var expected: Control = Slots.update(scene, shaped, 2)
 		holder.add_child(expected)
 		for frame: int in range(3): await tree.process_frame
 		expect.call(snapshot(candidate) == snapshot(expected), "Retained optional portrait/badge/input topology " + str(topology))
@@ -205,7 +203,7 @@ static func snapshot(node: Node) -> Dictionary:
 	for property: Dictionary in node.get_property_list():
 		var key: String = property["name"]
 		if not (int(property["usage"]) & PROPERTY_USAGE_STORAGE): continue
-		if key in ["name", "owner", "unique_name_in_owner"] or key.begins_with("metadata/perf03_"): continue
+		if key in ["name", "owner", "unique_name_in_owner", "metadata/rd07_edge_tween", "metadata/rd04_rail_tween"] or key.begins_with("metadata/perf03_"): continue
 		values[key] = _value(node.get(key))
 	var children: Array = []
 	for child: Node in node.get_children(): children.append(snapshot(child))

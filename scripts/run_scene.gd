@@ -14467,11 +14467,13 @@ func _refresh_umbra_subtitle() -> void:
 		return
 	var radius: int = _combat_engine.effective_umbra_radius(_combat_state)
 	var stage_name: String = _combat_engine.umbra_stage_display_name(stage_id)
-	var radius_text: String = "unlimited" if radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else "%d tile%s" % [radius, "" if radius == 1 else "s"]
+	var vision_text: String = "Personal vision: unlimited."
+	if radius < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		vision_text = "@pattern(diamond:%d:hero) Personal vision covers these tiles." % radius
 	umbra_subtitle.text = "%s Umbra" % stage_name
-	umbra_subtitle.tooltip_text = "%s Umbra\nPersonal vision: %s.\nTiles outside your vision or a light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
+	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your vision or a light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
 		stage_name,
-		radius_text
+		vision_text
 	]
 	umbra_subtitle.visible = true
 
@@ -17750,7 +17752,15 @@ func _show_card_focus_tooltips(index: int) -> void:
 		display.get("summary_rows", []) as Array,
 		leading_icons
 	)
-	_card_focus_tooltip_stack.show_for(card_control, entries)
+	_card_focus_tooltip_stack.show_for(card_control, entries, false, _card_focus_hand_bounds)
+
+func _card_focus_hand_bounds() -> Array[Rect2]:
+	var bounds: Array[Rect2]
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = _hand_card_control(index)
+		if card != null and card.is_visible_in_tree():
+			bounds.append(CardFocusTooltipStack._visual_global_rect(card))
+	return bounds
 
 func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -20363,7 +20373,7 @@ func _compute_preview_shortcuts(
 			_shortcut_path_pickup_score(preview_state, path_tiles), information_override
 		)
 	if bool(preview.get("skip_allowed", false)):
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles, 0, 0, information_override)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, TypedArrays.vector2i([]), [], allowed_target_tiles, 0, 0, information_override)
 	if umbra_limited and plans.is_empty():
 		# "No visible shortcut" is a stable, information-safe result for this
 		# preview revision. Cache the empty result too; otherwise every presentation
@@ -27934,7 +27944,7 @@ func _on_skip_reward_pressed() -> void:
 			var card: Dictionary = GameData.card_def(card_id)
 			options.append({
 				"text": ("Heal & save %s" if heals else "Save %s") % str(card.get("name", card_id)),
-				"detail": "This card will replace one choice in your next combat reward.",
+				"detail": SkillTreeLibrary.description("deferred_choice"),
 				"callback": _commit_reward_heal.bind(card_id)
 			})
 		_open_skill_choice_dialog(
@@ -34267,7 +34277,7 @@ func _add_surface_relic_commands() -> void:
 		var changed_mode: String = ""
 		for mode_var: Variant in current_modes + next_modes:
 			if current_modes.has(mode_var) != next_modes.has(mode_var): changed_mode = str(mode_var)
-		var short_labels: Dictionary = {"transport": "Carry ground", "redirect": "Redirect", "cross": "Cross strike", "crush": "Crush Rubble", "swap": "Swap ends", "remote": "Worldroot"}
+		var short_labels: Dictionary = {"transport": "Carry ground", "redirect": "Redirect", "cross": "Strike", "crush": "Crush Rubble", "swap": "Swap ends", "remote": "Worldroot"}
 		var short_label: String = str(short_labels.get(changed_mode, label))
 		var active: bool = SurfaceRelicRules.mode_enabled(action, changed_mode)
 		_add_action_context_button(("✓ " if active else "") + short_label, _select_surface_relic_variant.bind(variant), label, true)

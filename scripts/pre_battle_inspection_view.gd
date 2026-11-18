@@ -16,6 +16,7 @@ const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const RuleRows = preload("res://scripts/battlefield_rules/intent_rows.gd")
 
+const PatternText = preload("res://scripts/pattern_text.gd")
 const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
 
 class LoopMovePlate extends Controls.Plate:
@@ -53,7 +54,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	header.add_theme_constant_override("separation", 16)
 	var header_host: VBoxContainer = content
 	if not interactive:
-		var window: Control = LoopContext.outer_popup_window(LoopContext.enemy(str(enemy.get("type", ""))))
+		var window: Control = LoopContext.outer_popup_window(LoopContext.enemy_unit(enemy))
 		if window != null:
 			header_host = VBoxContainer.new()
 			header_host.name = "PreBattleTooltipLoopHeader"
@@ -110,8 +111,8 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(battle.get("objective", {}))
 		if not order.is_empty(): content.add_child(rules_label(order, "WarbandCaptainOrder", 600.0))
 	var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(enemy)
-	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait, LoopContext.enemy(str(enemy.get("type", "")))))
-	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, func(token: Dictionary) -> Control: return build_trait(token, LoopContext.enemy(str(enemy.get("type", "")))))
+	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait, LoopContext.enemy_unit(enemy)))
+	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, func(token: Dictionary) -> Control: return build_trait(token, LoopContext.enemy_unit(enemy)))
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"
@@ -122,7 +123,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
 		var shown: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)
 		shown = preload("res://scripts/warband_intent_presentation.gd").intent(engine, battle, enemy, shown)
-		moves.add_child(build_move(host, Lob.presentation_intent(engine, battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", ""))), enemy, battle))
+		moves.add_child(build_move(host, Lob.presentation_intent(engine, battle, enemy, shown), LoopContext.enemy_unit(enemy), enemy, battle))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel
@@ -167,10 +168,16 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var summary: String = ActionIcons.plain_text_for_rows(own_rows).replace("\n", "  /  ")
+	var summary: String = ActionIcons.plain_text_for_rows(own_rows, true).replace("\n", "  /  ")
+	for action: Dictionary in actions:
+		if str(action.get("type", "")) in ["lob_mark", "lob_land"]:
+			summary = ActionIcons.lob_diagram_text(action)
+			break
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
-	text_box.add_child(rules_label(summary if not summary.is_empty() else "Recovers." if actions.is_empty() else "Special action", "PreBattleMoveEffect", 410.0))
+	if summary.is_empty(): summary = "Recovers." if actions.is_empty() else "Special action"
+	text_box.add_child(_pattern_label(summary, "PreBattleMoveEffect", 410.0))
+
 	if not beat_row.is_empty():
 		var markup := PackedStringArray()
 		for token: Dictionary in beat_row:
@@ -202,6 +209,20 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	time_chip.add_child(time_label)
 	return plate
+
+static func _pattern_label(summary: String, label_name: String, width: float) -> Control:
+	var patterns: Array[RegExMatch] = PatternText.matches(summary)
+	var label: Label = rules_label(PatternText.strip(summary).strip_edges(), label_name, width)
+	if patterns.is_empty(): return label
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.custom_minimum_size.x = width
+	for token: RegExMatch in patterns:
+		var diagram: Control = PatternText.make_view(token, Typography.SIZE_CAPTION)
+		row.add_child(diagram)
+		label.custom_minimum_size.x -= diagram.custom_minimum_size.x + row.get_theme_constant("separation")
+	row.add_child(label)
+	return row
 
 static func move_rows(intent: Dictionary, source: Dictionary = {}, state: Dictionary = {}) -> Array:
 	var rows: Array = _own_move_rows(intent, source, state)
@@ -244,8 +265,7 @@ static func build_trait(burst_trait: Dictionary, source: Dictionary = {}) -> Con
 	var title := View.label(str(burst_trait["value"]), 18)
 	title.name = "EnemyBurstTraitTitle"
 	text.add_child(title)
-	var rules := rules_label(str(burst_trait["tooltip"]), "EnemyBurstTraitRules", BurstTraitText.WIDTH)
-	rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	text.add_child(rules)
-	row.tooltip_text = str(burst_trait["tooltip"])
+	var details: String = str(burst_trait.get("display_tooltip", burst_trait["tooltip"]))
+	text.add_child(_pattern_label(details, "EnemyBurstTraitRules", BurstTraitText.WIDTH))
+	row.tooltip_text = details
 	return row

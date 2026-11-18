@@ -384,10 +384,10 @@ func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> v
 	for tile: Vector2i in _floor_tiles(layout["grid"]):
 		if not occupied.has(tile) and PathUtils.manhattan(tile, layout["player_start"]) > ENEMY_SPAWN_SAFE_RADIUS: free.append(tile)
 	for _index: int in range(count):
-		if Difficulty.starter_count(layout) >= Difficulty.MAX_STARTERS:
+		if Difficulty.starter_count(layout) >= Difficulty.MAX_STARTERS or free.is_empty():
 			layout["omen_enemy_hp_compensations"] = int(layout.get("omen_enemy_hp_compensations", 0)) + 1
 			continue
-		if free.is_empty() or pool.is_empty(): break
+		if pool.is_empty(): break
 		var type: String = pool[rng.randi_range(0, pool.size() - 1)]
 		var pos: Vector2i = free.pop_at(rng.randi_range(0, free.size() - 1))
 		var hp: int = _scaled_enemy_max_hp(type, depth)

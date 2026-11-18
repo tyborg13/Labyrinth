@@ -7,6 +7,7 @@ const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
 const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
 const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
 const Tip03 = preload("res://tools/tooltip_loops/tip03_fixture.gd")
+const Txt13 = preload("res://tools/txt13/loop_fixture.gd")
 const Traps = preload("res://tools/tooltip_loops/trap_fixture.gd")
 const SEED: int = 1511 # Debug fixture RNG only.
 const HERO := Vector2i(1, 2)
@@ -56,9 +57,15 @@ static func build(id: String) -> Dictionary:
 		var config: Dictionary = Traps.configure(layout, id)
 		units = config["units"]
 		card = config["card"]
+	if Txt13.IDS.has(id): units = Txt13.configure(layout, id)
 	for entry: Array in units:
 		var definition: Dictionary = Data.enemy_def(entry[0])
 		layout["enemies"].append({"id": layout["enemies"].size() + 1, "type": entry[0], "pos": entry[1], "hp": definition["max_hp"], "max_hp": definition["max_hp"]})
+	if id == Txt13.BARRAGE:
+		var leaders: Array[Dictionary]
+		leaders.assign(layout["enemies"])
+		preload("res://scripts/room_generator.gd").new()._apply_leader_objective(leaders, layout["objective"])
+		layout["enemies"] = leaders
 	var snapshot: Dictionary = runs._player_snapshot(run)
 	var state: Dictionary = Combat.new().create_combat(SEED, layout, snapshot)
 	if not card.is_empty():
@@ -69,12 +76,14 @@ static func build(id: String) -> Dictionary:
 	if Tip03.IDS.has(id): Tip03.prepare(state, id)
 	if Tip04.IDS.has(id): Tip04.prepare(state, id)
 	if Tip05.IDS.has(id): Tip05.prepare(state, id)
+	if Txt13.IDS.has(id): Txt13.prepare(state, id)
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
 	run["combat_state"] = state
 	return {"run": run, "state": state, "card": card, "id": id, "layout": layout}
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
+	if Txt13.IDS.has(fixture["id"]): return Txt13.plan(fixture, engine)
 	if Traps.IDS.has(fixture["id"]): return Traps.plan(fixture, engine)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.plan(fixture, engine)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.plan(fixture, engine)
@@ -103,10 +112,11 @@ static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 
 static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	var failures: Array[String] = _validate_mechanics(fixture, result)
-	failures.append_array(PatchChecks.tiles(fixture, result))
+	failures.append_array(PatchChecks.tiles(fixture, result, crop_tiles(fixture["id"])))
 	return failures
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Txt13.IDS.has(fixture["id"]): return Txt13.validate(fixture, result)
 	if Traps.IDS.has(fixture["id"]): return Traps.validate(fixture, result)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.validate(fixture, result)
 	if Tip04.IDS.has(fixture["id"]): return Tip04.validate(fixture, result)
@@ -132,3 +142,6 @@ static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Arra
 			for index: int in range(3):
 				if after["enemies"][index]["hp"] >= before["enemies"][index]["hp"]: failures.append("Every Crawler takes real Chain damage")
 	return failures
+
+static func crop_tiles(id: String) -> Rect2i:
+	return Txt13.BARRAGE_PATCH if id == Txt13.BARRAGE else PatchChecks.PATCH

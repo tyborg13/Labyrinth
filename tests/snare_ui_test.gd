@@ -12,6 +12,8 @@ const TEST_NAVIGATION_ZOOM: float = 1.25
 const TEST_BOARD_SIZE := Vector2(1920, 1080)
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const Store = preload("res://scripts/progression_store.gd")
+const Specials = preload("res://scripts/special_encounter_library.gd")
+const EmberRewardFeedback = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 var failures: Array[String]
 
 class ChipBoard extends "res://scripts/combat_board_view.gd":
@@ -136,10 +138,44 @@ func _run() -> void:
 		if study == "first_seal": _expect(battle["objective"]["exits"][1]["sealed"], "Fixture reaches real first seal boundary")
 		if study == "kept_open": _expect(battle["objective"]["exits"][1]["kept_open"] and not battle["objective"]["exits"][1]["sealed"] and battle["objective"]["sealbinders_killed"] == 1, "Fixture kills binder and passes its deadline")
 		if study == "escape": _expect(combat.combat_outcome(battle) == "victory", "Fixture resolves legal exit step")
+	await _check_reward_copy(engine, combat, fixture_source)
+	if OS.get_cmdline_user_args().has("--ember-feedback"):
+		var previous_failures: int = failures.size()
+		await EmberRewardFeedback.run(self, _expect)
+		print("Ember reward feedback suite: %d failures" % (failures.size() - previous_failures))
 	await process_frame
 	for failure: String in failures: push_error(failure)
 	print("Snare UI/fixture suite: %d failures" % failures.size())
 	quit(0 if failures.is_empty() else 1)
+
+func _check_reward_copy(engine: RefCounted, combat: RefCounted, source: Dictionary) -> void:
+	var line: String = Specials.snare_reward_line()
+	_expect(line == "Normal fight reward, plus 6 Embers per open door.", "Snare uses the approved reward copy")
+	var map: GDScript = preload("res://scripts/section_map_panel.gd")
+	# Director: the map keeps the Snare identity line; the reward line shows before battle and in the Grimoire.
+	_expect(map.type_description("special_umbral_snare") == "The doors are sealing. Get out before they close.", "Map room tooltip keeps the Snare identity line")
+	var article: Dictionary = preload("res://scripts/grimoire_library.gd").entry_def("basic:rewards")
+	_expect(line in article["body"], "Grimoire Rewards shows the shared Snare line")
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	root.add_child(scene)
+	await process_frame
+	scene.call("_load_run_state", Fixture.pre_battle(engine, combat, source))
+	if bool(scene.get("_dialogue_active")): scene.call("_close_dialogue")
+	var scrim: Control = scene.get("_pre_battle_scrim") as Control
+	var heading: Control = scene.find_child("PreBattleObjectiveTitle", true, false) as Control
+	_expect(scrim != null and scrim.is_visible_in_tree() and heading != null and heading.tooltip_text.ends_with("\n" + line), "Production pre-battle Objective tooltip shows the shared line")
+	if heading != null:
+		heading.grab_focus()
+		await process_frame
+		_expect(heading.get_node_or_null("PreBattleObjectiveFocusTooltip") != null, "Pre-battle focus reveals the reward line")
+	var run: Dictionary = Fixture.build(engine, combat, source, {"snare_case": "escape"})
+	var reward: Dictionary = engine.finish_combat(run, run["combat_state"])
+	reward["pending_reward"]["intro_pending"] = false
+	scene.call("_load_run_state", reward)
+	_expect(reward["pending_reward"].get("special_bonus_line") == line and scene.get("log_label").text.contains(line), "Production reward screen notice uses the shared line")
+	scene.queue_free()
+	await process_frame
+	print("Snare reward copy: map, pre-battle objective, reward notice and Grimoire checked")
 
 func _check_door_draws() -> void:
 	var board := DoorDrawBoard.new()

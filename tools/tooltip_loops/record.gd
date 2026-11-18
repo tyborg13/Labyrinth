@@ -62,9 +62,10 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		failures.append("Production run scene could not load"); return
 	var completion: Dictionary = {"done": false}
 	var board: Control = scene.get("board_view")
-	var crop: Rect2i = Playback.crop_rect(board)
+	var patch: Rect2i = Fixture.crop_tiles(fixture["id"])
+	var crop: Rect2i = Playback.crop_rect(board, patch)
 	var audit := PatchChecks.new()
-	audit.drawn_floor(board, fixture["state"], fixture["id"], "start")
+	audit.drawn_floor(board, fixture["state"], fixture["id"], "start", patch)
 	var frames: int = 0
 	var terminal_frames: int = 0
 	var last_picture: Image
@@ -110,7 +111,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			if image == null or image.get_size() != Playback.SIZE:
 				failures.append("Recorder requires a real 1920x1080 renderer image"); valid_recording = false; break
 			if not Rect2i(Vector2i.ZERO, Playback.SIZE).encloses(crop):
-				failures.append("The fixed 4x3 crop must fit inside the SubViewport"); valid_recording = false; break
+				failures.append("The capture crop must fit inside the SubViewport"); valid_recording = false; break
 			if frames == 0 and not background_is_settled(image, crop, background):
 				failures.append("%s frame zero still has an unsettled background; recording rejected" % row["id"])
 				valid_recording = false
@@ -132,7 +133,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	if not hero_crop_ok:
 		failures.append("Lob Slag hero body leaves the capture patch")
 		valid_recording = false
-	audit.drawn_floor(board, result["final"], fixture["id"], "end")
+	audit.drawn_floor(board, result["final"], fixture["id"], "end", patch)
 	var visibility: Dictionary = audit.finish(fixture["id"])
 	audit.terrain.finish(board, fixture, result, crop)
 	if recording and fixture["id"] == "rule_upheaval": await audit.terrain.native_final(scene, viewport, last_picture, crop, Fixture.Tip05.CRAWLER, proof_dir)
@@ -243,7 +244,7 @@ func _source_hashes() -> Dictionary:
 	var hashes: Dictionary = {}
 	for path: String in ["data/tooltip_loops.json", "scripts/settings_store.gd", "tools/tooltip_loops/record.gd", "tools/tooltip_loops/fixture.gd", "tools/tooltip_loops/tip03_fixture.gd", "tools/tooltip_loops/tip04_fixture.gd", "tools/tooltip_loops/tip05_fixture.gd", "tools/tooltip_loops/tip05_checks.gd", "tools/tooltip_loops/terrain_checks.gd", "scripts/battlefield_rule_hud.gd", "scripts/displacement_throw.gd", "scripts/battlefield_rules/upheaval.gd", "scripts/snare_pressure_rules.gd", "scripts/snare_pressure_view.gd", "scripts/enemy_mechanics/burrow.gd", "data/special_encounters.json", "tools/tooltip_loops/patch_checks.gd", "tools/tooltip_loops/sprite_margin.gd", "scripts/battlefield_rules/gust.gd", "scripts/battlefield_rules/frostbite.gd", "scripts/battlefield_rules/wildfire.gd", "scripts/battlefield_rules/shadowstep.gd", "scripts/battlefield_rule_view.gd", "scripts/enemy_mechanics/stalker.gd", "scripts/enemy_mechanics/stalker_view.gd", "tools/tooltip_loops/playback.gd", "tools/tooltip_loops/record_board.gd", "scripts/run_scene.gd", "scripts/combat_board_view.gd", "data/cards.json", "data/enemies.json", "data/battlefield_rules.json", "scripts/battlefield_rules/dispatcher.gd", "scripts/battlefield_rules/lightning_storm.gd", "scripts/board_surface_rules.gd", "scripts/enemy_mechanics/chain_hit_feedback.gd", "assets/units/storm_capacitor_cutout/actions.gd", "scripts/enemy_mechanics/capacitor_view.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
-	for path: String in ["scripts/combat_engine.gd", "scripts/room_generator.gd", "scripts/board_tile_tooltip.gd", "scripts/tooltip_loop_registry.gd", "scripts/forced_displacement_view.gd", "scripts/enemy_mechanics/wind_view.gd", "tools/tooltip_loops/trap_fixture.gd", "tools/tooltip_loops/trap_checks.gd"]:
+	for path: String in ["scripts/combat_engine.gd", "scripts/room_generator.gd", "scripts/board_tile_tooltip.gd", "scripts/tooltip_loop_registry.gd", "scripts/forced_displacement_view.gd", "scripts/enemy_mechanics/wind_view.gd", "tools/tooltip_loops/trap_fixture.gd", "tools/tooltip_loops/trap_checks.gd", "tools/txt13/loop_fixture.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	return hashes
 

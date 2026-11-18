@@ -58,6 +58,7 @@ const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
 const ReflectRules = preload("res://scripts/enemy_mechanics/reflect.gd")
 const FlyingRules = preload("res://scripts/enemy_mechanics/flying.gd")
 const StalkerRules = preload("res://scripts/enemy_mechanics/stalker.gd")
+const HeroFacingState = preload("res://scripts/hero_facing_state.gd")
 const CapacitorRules = preload("res://scripts/enemy_mechanics/capacitor.gd")
 const VeilRules = preload("res://scripts/enemy_mechanics/veil.gd")
 const SnuffRules = preload("res://scripts/enemy_mechanics/snuff.gd")
@@ -2780,7 +2781,7 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 			var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_state, enemy_id)
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_visibility", performance_phase_started)
 			if not choose_next_intent and not include_commit_steps and not enemy_hidden_before and bleed_steps.is_empty() and (action_context.get("reaction_trace", {}).get("attack_bleed_steps", []) as Array).is_empty():
-				steps.append({"kind": "known_loss", "target_losses": _actor_target_losses(before_state, next_state)})
+				steps.append(_compact_enemy_action_step(before_state, next_state, enemy_index, action, action_context))
 				_record_runtime_performance_phase("enemy_turn_action_compact_loss", performance_phase_started)
 				_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 				continue
@@ -2830,6 +2831,12 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 		"steps": steps,
 		"time_cost": turn_time_cost
 	}
+
+func hero_facing_direction(state: Dictionary) -> Vector2i:
+	return HeroFacingState.tile_direction(HeroFacingState.current(state))
+
+func _compact_enemy_action_step(before: Dictionary, after: Dictionary, _index: int, _action: Dictionary, _context: Dictionary) -> Dictionary:
+	return {"kind": "known_loss", "target_losses": _actor_target_losses(before, after)}
 
 # A bounded owned snapshot cache, shared by rest badges, expanded intents and
 # hover focus. Hashes select a bucket; full equality protects in-place changes
@@ -3698,7 +3705,7 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 		var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_action, enemy_id)
 		var action_context: Dictionary = activation_plan.duplicate(true)
 		action_context["action_index"] = action_index
-		next_state = _resolve_enemy_action(next_state, enemy_index, action, null, {}, [], action_context)
+		next_state = _resolve_enemy_action(next_state, enemy_index, action, null, {}, TypedArrays.dictionaries([]), action_context)
 		if _enemy_action_is_movement(action): activation_plan["resolved_path"] = action_context.get("resolved_path",_vector2i_values([next_state["enemies"][enemy_index]["pos"]]))
 		_anonymize_hidden_enemy_action_logs(before_action, next_state, enemy_id, action, enemy_hidden_before)
 		_record_hidden_umbra_attack_damage(before_action, next_state, enemy_id, enemy_hidden_before)

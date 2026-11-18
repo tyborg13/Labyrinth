@@ -847,7 +847,7 @@
     "id": "skill_deferred_choice",
     "name": "Deferred Choice",
     "icon": "skill_deferred_choice",
-    "definition": "Skip a card reward to save 1 offered card. It replaces 1 card in your next non-boss card reward.",
+    "definition": "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward.",
     "aliases": []
   },
   {

@@ -1,5 +1,6 @@
 extends SceneTree
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const AttackSfxSuite = preload("res://tests/suites/attack_sfx_suite.gd")
 
 const ProgramSuiteRunner = preload("res://tools/program_suite_runner.gd")
@@ -93,7 +94,7 @@ const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/PilesBar"
 const MAP_RULE_SCAN_DEPTH: int = 8
 const LEGACY_LIVE_FIXTURE_EMBERS: int = 180
 
-var _failures: Array[String] = []
+var _failures: Array[String]
 var _assertion_count: int = 0
 
 func _initialize() -> void:
@@ -656,12 +657,12 @@ func _test_room_generation_blocks_door_tiles() -> void:
 	var grid: Array = room.get("grid", [])
 	var spawn: Vector2i = room.get("player_start", Vector2i.ZERO)
 	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(grid, spawn, 20, {})
-	var door_tiles: Array[Vector2i] = [
+	var door_tiles: Array[Vector2i] = TypedArrays.vector2i([
 		RoomGenerator.door_tile_for_direction(Vector2i(0, -1)),
 		RoomGenerator.door_tile_for_direction(Vector2i(1, 0)),
 		RoomGenerator.door_tile_for_direction(Vector2i(0, 1)),
 		RoomGenerator.door_tile_for_direction(Vector2i(-1, 0))
-	]
+	])
 	for door_tile: Vector2i in door_tiles:
 		_assert(str(grid[door_tile.y][door_tile.x]) == "door", "Connected rooms should stamp door tiles onto the board edge")
 		_assert(not PathUtils.is_passable(grid, door_tile), "Door tiles should be impassable terrain")
@@ -741,7 +742,7 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 
 func _assert_corner_pillar_room(room: Dictionary, label: String) -> void:
 	var grid: Array = room.get("grid", [])
-	var pillar_tiles: Array[Vector2i] = [Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 6), Vector2i(6, 6)]
+	var pillar_tiles: Array[Vector2i] = TypedArrays.vector2i([Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 6), Vector2i(6, 6)])
 	for pillar_tile: Vector2i in pillar_tiles:
 		_assert(str((grid[pillar_tile.y] as Array)[pillar_tile.x]) == "pillar", "%s rooms should place pillars on the second-to-last ring corners" % label)
 	for y: int in range(1, grid.size() - 1):
@@ -766,7 +767,7 @@ func _open_floor_count_with_blockers(grid: Array, blocked: Dictionary) -> int:
 func _reachable_floor_count_with_blockers(grid: Array, start: Vector2i, blocked: Dictionary) -> int:
 	if blocked.has(start) or not PathUtils.is_passable(grid, start):
 		return 0
-	var queue: Array[Vector2i] = []
+	var queue: Array[Vector2i]
 	queue.append(start)
 	var visited: Dictionary = {start: true}
 	while not queue.is_empty():
@@ -1006,7 +1007,7 @@ func _test_element_locked_enemy_spawn_rules() -> void:
 		"cinder_ooze": ElementData.FIRE,
 		"chainbound_gaoler": ElementData.AIR
 	}
-	var room_elements: Array[String] = [ElementData.NONE]
+	var room_elements: Array[String] = TypedArrays.strings([ElementData.NONE])
 	for element_id: String in ElementData.all_elements():
 		room_elements.append(element_id)
 	for enemy_type_var: Variant in locked_elements.keys():
@@ -4590,11 +4591,11 @@ func _test_terrain_health_bars_are_contextual() -> void:
 	var damaged_terrain: Dictionary = terrain.duplicate(true)
 	damaged_terrain["hp"] = 2
 	_assert(bool(board.call("_should_show_terrain_health_bar", damaged_terrain)), "Damaged terrain should show its health bar")
-	var highlighted_tiles: Array[Vector2i] = []
+	var highlighted_tiles: Array[Vector2i]
 	highlighted_tiles.append(terrain_tile)
 	board.set("attack_tiles", highlighted_tiles)
 	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Attack-highlighted terrain should show its health bar")
-	var empty_tiles: Array[Vector2i] = []
+	var empty_tiles: Array[Vector2i]
 	board.set("attack_tiles", empty_tiles)
 	board.set("presentation", {
 		"effect": {
@@ -4736,10 +4737,10 @@ func _test_enemy_intent_shortcut_and_threat_union() -> void:
 	_assert(bool(run_scene.call("_is_enemy_intent_shortcut_event", intent_key)), "I should be the discoverable enemy-intent toggle shortcut")
 	intent_key.shift_pressed = true
 	_assert(not bool(run_scene.call("_is_enemy_intent_shortcut_event", intent_key)), "Modified text-entry chords should not trigger the enemy-intent toggle")
-	var previews: Array[Dictionary] = [
+	var previews: Array[Dictionary] = TypedArrays.dictionaries([
 		{"move": [Vector2i(2, 2), Vector2i(3, 2)]},
 		{"move": [Vector2i(3, 2), Vector2i(4, 2)]}
-	]
+	])
 	var union: Array[Vector2i] = run_scene.call("_enemy_threat_tiles_union", previews, "move")
 	_assert(union == [Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2)], "Show-all threat aggregation should preserve order while deduplicating overlapping tiles")
 	run_scene.free()
@@ -4769,7 +4770,7 @@ func _test_enemy_intent_contour_uses_right_shoulder() -> void:
 func _test_enemy_hud_small_top_correction_stays_centered() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var base_rects: Array[Rect2] = []
+	var base_rects: Array[Rect2]
 	base_rects.append(Rect2(Vector2(420.0, 4.0), Vector2(120.0, 40.0)))
 	var actor_clear_rect := Rect2(Vector2(450.0, 55.0), Vector2(60.0, 100.0))
 	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect], actor_clear_rect, "enemy_41")
@@ -4781,7 +4782,7 @@ func _test_enemy_hud_small_top_correction_stays_centered() -> void:
 func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var base_rects: Array[Rect2] = []
+	var base_rects: Array[Rect2]
 	base_rects.append(Rect2(Vector2(420.0, 180.0), Vector2(120.0, 40.0)))
 	var actor_clear_rect := Rect2(Vector2(450.0, 240.0), Vector2(60.0, 100.0))
 	var sliver := Rect2(Vector2(420.0, 180.0), Vector2(0.5, 2.0))
@@ -4792,10 +4793,10 @@ func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
 func _test_enemy_hud_does_not_duplicate_owning_actor_obstacle() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var base_rects: Array[Rect2] = []
+	var base_rects: Array[Rect2]
 	base_rects.append(Rect2(Vector2(420.0, 180.0), Vector2(120.0, 40.0)))
 	var actor_clear_rect := Rect2(Vector2(539.98125, 160.0), Vector2(60.0, 100.0))
-	var reserved_rects: Array[Rect2] = []
+	var reserved_rects: Array[Rect2]
 	reserved_rects.append(actor_clear_rect)
 	var placement_obstacles: Array = board.call("_enemy_hud_placement_obstacles", reserved_rects, actor_clear_rect)
 	_assert(placement_obstacles.size() == 1, "The production reserved list should contain the owning actor obstacle exactly once")
@@ -4808,7 +4809,7 @@ func _test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces() -> 
 	board.size = Vector2(960.0, 680.0)
 	var intent_rect := Rect2(Vector2(420.0, -30.0), Vector2(120.0, 30.0))
 	var health_rect := Rect2(Vector2(438.0, 0.0), Vector2(84.0, 14.0))
-	var base_rects: Array[Rect2] = []
+	var base_rects: Array[Rect2]
 	base_rects.append(intent_rect)
 	base_rects.append(health_rect)
 	var actor_clear_rect := Rect2(Vector2(450.0, 42.0), Vector2(60.0, 100.0))
@@ -5114,7 +5115,7 @@ func _test_merchant_assets_load_for_board() -> void:
 	board.free()
 
 func _test_room_icon_library_covers_door_room_types() -> void:
-	var room_cases: Array[Dictionary] = [
+	var room_cases: Array[Dictionary] = TypedArrays.dictionaries([
 		{"room": {"type": "combat", "element": "fire"}, "icon": "fire"},
 		{"room": {"type": "combat", "element": "none"}, "icon": "combat"},
 		{"room": {"type": "campfire", "element": "none"}, "icon": "campfire"},
@@ -5124,7 +5125,7 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		{"room": {"type": "scavenger", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "boss", "element": "none"}, "icon": "boss_tharokh"},
 		{"room": {"type": "boss", "boss_id": "noctyrax", "element": "none"}, "icon": "boss_noctyrax"}
-	]
+	])
 	for room_case: Dictionary in room_cases:
 		var icon_id: String = RoomIcons.icon_id_for_room(room_case.get("room", {}))
 		_assert(icon_id == str(room_case.get("icon", "")), "Door icon ids should distinguish elemental combat and non-combat room destinations")
@@ -5164,7 +5165,7 @@ func _map_bounds_fixture(min_coord: Vector2i, max_coord: Vector2i) -> Dictionary
 	return {"mode": "room", "current_room": Vector2i.ZERO, "rooms": rooms}
 
 func _map_visible_coords(map_view: LabyrinthMapView) -> Array[Vector2i]:
-	var coords: Array[Vector2i] = []
+	var coords: Array[Vector2i]
 	for room_var: Variant in map_view.call("_visible_rooms"):
 		if typeof(room_var) != TYPE_DICTIONARY:
 			continue
@@ -5191,7 +5192,7 @@ func _first_reachable_room_of_type(run_engine: RunEngine, run_state: Dictionary,
 	return {}
 
 func _room_coords_near_to_far() -> Array[Vector2i]:
-	var result: Array[Vector2i] = [Vector2i.ZERO]
+	var result: Array[Vector2i] = TypedArrays.vector2i([Vector2i.ZERO])
 	for depth: int in range(1, RunEngine.MAX_DEPTH + 1):
 		for x: int in range(-depth, depth + 1):
 			result.append(Vector2i(x, -depth))
@@ -5328,7 +5329,7 @@ func _test_run_map_relic_room_spacing_and_density() -> void:
 	var found_different_signature: bool = false
 	for seed: int in range(1, 41):
 		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data(), false)
-		var signature_parts: Array[String] = []
+		var signature_parts: Array[String]
 		for exit_coord: Vector2i in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
 			_assert(str(run_engine.room_metadata(run_state, exit_coord).get("type", "")) != "treasure", "Relic rooms should never be direct exits from the start")
 		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
@@ -5368,7 +5369,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 	var found_different_signature: bool = false
 	for seed: int in range(1, 51):
 		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data(), false)
-		var signature_parts: Array[String] = []
+		var signature_parts: Array[String]
 		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 				var coord := Vector2i(x, y)
@@ -5493,7 +5494,7 @@ func _test_run_map_last_loop_room_opens_outward() -> void:
 	current_room["cleared"] = true
 	current_room["sealed"] = false
 	rooms["%d,%d" % [current.x, current.y]] = current_room
-	var sealed_coords: Array[Vector2i] = []
+	var sealed_coords: Array[Vector2i]
 	sealed_coords.append(Vector2i(2, -2))
 	sealed_coords.append(Vector2i(2, 0))
 	for sealed_coord: Vector2i in sealed_coords:
@@ -6086,14 +6087,14 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 					_assert(not count_label.visible or strip_rect.encloses(count_label.get_global_rect()), "Pre-battle duplicate counts should remain fully inside their strips")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
-	var inspection_sources: Array[Control] = []
+	var inspection_sources: Array[Control]
 	if preview_panel != null:
 		for node_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleDeckBadge"]:
 			var source: Control = preview_panel.find_child(node_name, true, false) as Control
 			if source != null:
 				inspection_sources.append(source)
 	_assert(inspection_sources.size() == 3, "Pre-battle enemy, equipment, and active deck entries should all be inspectable")
-	var inspection_kinds: Array[String] = ["enemy", "equipment", "card"]
+	var inspection_kinds: Array[String] = TypedArrays.strings(["enemy", "equipment", "card"])
 	for index: int in range(inspection_sources.size()):
 		var hover_inspection_var: Variant = inspection_sources[index].call("_make_custom_tooltip", inspection_sources[index].tooltip_text)
 		_assert(hover_inspection_var is Control, "Hovering a pre-battle summary entry should build a readable rich inspection")
@@ -6420,7 +6421,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.call("_layout_choice_button_overlay")
 	await process_frame
 	var actual_turn_order_bar: Control = instance.get("_turn_order_bar") as Control
-	var actual_normal_slots: Array[Control] = []
+	var actual_normal_slots: Array[Control]
 	if actual_turn_order_bar != null:
 		for child: Node in actual_turn_order_bar.get_children():
 			if child is Control and child.name != "TurnOrderOverflowBadge":
@@ -6431,7 +6432,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 		var menu: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control
 		var utility_bottom: float = maxf(grimoire.get_global_rect().end.y if grimoire != null and grimoire.visible else 0.0, menu.get_global_rect().end.y if menu != null and menu.visible else 0.0)
 		_assert(actual_normal_slots[0].get_global_rect().position.y >= utility_bottom + 4.0, "The normal rail's first portrait should clear the visible top utility buttons")
-	var normal_rail_entries: Array[Dictionary] = []
+	var normal_rail_entries: Array[Dictionary]
 	for index: int in range(10):
 		normal_rail_entries.append({
 			"kind": "player" if index % 2 == 0 else "enemy",
@@ -6445,7 +6446,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.call("_set_turn_order_bar_entries", normal_rail_entries)
 	await process_frame
 	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
-	var normal_slots: Array[Control] = []
+	var normal_slots: Array[Control]
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():
 			if child is Control and child.name != "TurnOrderOverflowBadge":
@@ -8810,7 +8811,7 @@ func _test_run_scene_show_all_enemy_intents_and_threats() -> void:
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [{"type": "melee", "damage": 2, "range": 1}])
 	instance.set("_pending_action_index", 0)
-	var pending_target_tiles: Array[Vector2i] = []
+	var pending_target_tiles: Array[Vector2i]
 	pending_target_tiles.append(Vector2i(2, 2))
 	instance.set("_pending_target_tiles", pending_target_tiles)
 	instance.set("_preview_combat_state", combat_state)
@@ -9711,7 +9712,7 @@ func _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable() -> void:
 	await process_frame
 	instance.call("_close_dialogue")
 	var run_state: Dictionary = GrimoireLibrary.ensure_run_state(instance.get("_run_state"))
-	var all_entry_ids: Array[String] = []
+	var all_entry_ids: Array[String]
 	for entry_var: Variant in GrimoireLibrary.entries():
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -10163,7 +10164,7 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	await process_frame
 
 func _analytics_events_by_type(events: Array[Dictionary], event_type: String) -> Array[Dictionary]:
-	var filtered: Array[Dictionary] = []
+	var filtered: Array[Dictionary]
 	for event: Dictionary in events:
 		if str(event.get("event_type", "")) == event_type:
 			filtered.append(event)
@@ -10221,7 +10222,7 @@ func _intent_rows_have_icon(rows: Array, icon_key: String) -> bool:
 	return false
 
 func _bleed_action_types_from_steps(steps: Array) -> Array[String]:
-	var action_types: Array[String] = []
+	var action_types: Array[String]
 	for step_var: Variant in steps:
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
@@ -10294,7 +10295,7 @@ func _combat_log_contains(state: Dictionary, text: String) -> bool:
 	return false
 
 func _test_umbra_curve_tracks_dragon_sections() -> void:
-	var expected: Array[String] = ["clear", "fringe", "advancing", "pressing", "deep", "heart"]
+	var expected: Array[String] = TypedArrays.strings(["clear", "fringe", "advancing", "pressing", "deep", "heart"])
 	for section_index: int in range(expected.size()):
 		_assert(CombatEngine.umbra_stage_for_section(section_index) == expected[section_index], "Umbra stage should advance by elemental-dragon section")
 		var first_depth: int = section_index * 4 + 1
@@ -11168,7 +11169,7 @@ func _route_clear_current_combat(run_engine: RunEngine, state: Dictionary) -> Di
 	return run_engine.repair_loaded_run_state(next_state)
 
 func _route_search_key(state: Dictionary) -> String:
-	var flags: Array[String] = []
+	var flags: Array[String]
 	var rooms: Dictionary = state.get("rooms", {})
 	for room_key_var: Variant in rooms.keys():
 		var room_key: String = str(room_key_var)
@@ -11191,7 +11192,7 @@ func _first_loot_of_kind(combat_state: Dictionary, loot_kind: String) -> Diction
 func _simple_grid() -> Array:
 	var grid: Array = []
 	for y: int in range(8):
-		var row: Array[String] = []
+		var row: Array[String]
 		for x: int in range(8):
 			if x == 0 or y == 0 or x == 7 or y == 7:
 				row.append("wall")
@@ -11203,7 +11204,7 @@ func _simple_grid() -> Array:
 func _enemy_footprint_tiles_for_test(enemy: Dictionary) -> Array[Vector2i]:
 	var origin: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for y: int in range(maxi(1, footprint.y)):
 		for x: int in range(maxi(1, footprint.x)):
 			tiles.append(origin + Vector2i(x, y))
@@ -11219,7 +11220,7 @@ func _find_boundary_segment(segments: Array, orientation: String) -> Dictionary:
 	return {}
 
 func _buttons_under(node: Node) -> Array[Button]:
-	var buttons: Array[Button] = []
+	var buttons: Array[Button]
 	if node is Button:
 		buttons.append(node)
 	for child: Node in node.get_children():
@@ -11540,7 +11541,7 @@ func _combat_deck_card_ids(combat_state: Dictionary) -> Array:
 	return card_ids
 
 func _labels_under(node: Node) -> Array[Label]:
-	var labels: Array[Label] = []
+	var labels: Array[Label]
 	if node is Label:
 		labels.append(node)
 	for child: Node in node.get_children():
@@ -11562,7 +11563,7 @@ func _label_with_text(node: Node, text: String) -> Label:
 	return null
 
 func _texture_rects_under(node: Node) -> Array[TextureRect]:
-	var texture_rects: Array[TextureRect] = []
+	var texture_rects: Array[TextureRect]
 	if node is TextureRect:
 		texture_rects.append(node)
 	for child: Node in node.get_children():
@@ -11586,7 +11587,7 @@ func _card_widget_count_under(node: Node) -> int:
 	return count
 
 func _card_widgets_under(node: Node) -> Array[CardWidget]:
-	var widgets: Array[CardWidget] = []
+	var widgets: Array[CardWidget]
 	if node == null:
 		return widgets
 	if node.get_script() == CardWidgetScript:

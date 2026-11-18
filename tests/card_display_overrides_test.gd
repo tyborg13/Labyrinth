@@ -177,7 +177,7 @@ func _item_row_rules(audit: RefCounted) -> void:
 	var definition: Dictionary = Data.card_def_for_progression("nail_bomb", modified)
 	var display: Dictionary = Display.for_card("nail_bomb", modified, definition)
 	var text: String = Display.rules_text("nail_bomb", definition, display["summary_rows"])
-	_expect(text == "Consume. Deal %s in a cross at range %s and Sunder %s." % [ItemText.token_number(display["summary_rows"], "ranged"), ItemText.token_number(display["summary_rows"], "range"), ItemText.token_number(display["summary_rows"], "sunder")], "Relic and runtime modifiers change only their numeric fields")
+	_expect(text == "Consume. Deal %s at range %s and Sunder %s." % [ItemText.token_number(display["summary_rows"], "ranged"), ItemText.token_number(display["summary_rows"], "range"), ItemText.token_number(display["summary_rows"], "sunder")], "Relic and runtime modifiers change only their numeric fields")
 	_expect(text != Icons.card_rules_text(Data.card_def("nail_bomb")), "Modifier fixture actually changes the numbers")
 	host.set("_run_state", saved_run)
 	host.set("_combat_state", saved_combat)

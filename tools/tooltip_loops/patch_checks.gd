@@ -18,7 +18,7 @@ var shadow_ghost_seen: bool = false
 var shadow_blink_seen: bool = false
 var shadow_arrival_seen: bool = false
 
-static func tiles(fixture: Dictionary, result: Dictionary) -> Array[String]:
+static func tiles(fixture: Dictionary, result: Dictionary, patch: Rect2i = PATCH) -> Array[String]:
 	var errors: Array[String]
 	var states: Array[Dictionary]
 	states.append(fixture["state"])
@@ -33,7 +33,7 @@ static func tiles(fixture: Dictionary, result: Dictionary) -> Array[String]:
 		actors.append_array(state.get("illusions", []))
 		for actor: Dictionary in actors:
 			for tile: Vector2i in Surfaces.footprint_tiles(actor):
-				if not PATCH.has_point(tile):
+				if not patch.has_point(tile):
 					var message: String = "%s: unit %s start/end footprint leaves patch at %s" % [fixture["id"], actor.get("id", "hero"), tile]
 					if not errors.has(message): errors.append(message)
 	return errors
@@ -83,14 +83,14 @@ func observe(board: Control, crop: Rect2i, id: String) -> void:
 		if hero.intersects(rect): _fail("Droplet screen rect overlaps the hero: " + str(unit["key"]))
 		droplet_rects[str(unit["key"])] = {"tile": str(unit["pos"]), "rect": var_to_str(rect), "hero_rect": var_to_str(hero), "inside_patch": Rect2(crop).encloses(rect), "hero_overlap": hero.intersects(rect)}
 
-func drawn_floor(board: Control, state: Dictionary, id: String, boundary: String) -> void:
+func drawn_floor(board: Control, state: Dictionary, id: String, boundary: String, patch: Rect2i = PATCH) -> void:
 	var drawn: Array[Vector2i] = board._rendered_tiles_in_draw_order()
 	var actors: Array[Dictionary]
 	actors.append(state["player"])
 	actors.append_array(state.get("enemies", []))
 	for actor: Dictionary in actors:
 		for tile: Vector2i in Surfaces.footprint_tiles(actor):
-			if not PATCH.has_point(tile) or not drawn.has(tile) or not board._tile_drawn_as_floor(state["grid"], tile):
+			if not patch.has_point(tile) or not drawn.has(tile) or not board._tile_drawn_as_floor(state["grid"], tile):
 				_fail("%s: unit %s %s tile %s must have drawn patch floor" % [id, actor.get("id", "hero"), boundary, tile])
 
 func finish(id: String) -> Dictionary:

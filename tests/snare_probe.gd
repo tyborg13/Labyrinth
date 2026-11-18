@@ -12,6 +12,7 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
 const OUTPUT: String = "user://probes/spx05/fire_tier2"
 const PRESSURE_OUTPUT: String = "user://probes/spx06/pressures_tier2"
+const PRE_BATTLE_OUTPUT: String = "user://probes/snr01"
 const SETTLE_SECONDS: float = 0.25
 const READY_TIMEOUT_SECONDS: float = 20.0
 const CAPTURE_VISION_BONUS: int = Combat.UMBRA_UNLIMITED_RADIUS
@@ -43,10 +44,17 @@ func _run() -> void:
 	canvas.gui_embed_subwindows = true
 	root.add_child(canvas)
 	canvas.notify_mouse_entered()
-	if not OS.get_cmdline_user_args().has("--pressures-only"):
-		for study: String in ["first_turn", "first_seal", "kept_open", "escape"]: await _case(study)
-	for biome: String in ["earth", "fire", "air", "ice", "lightning", "shadow"]: await _pressure_case(biome)
-	var manifest_output: String = PRESSURE_OUTPUT if OS.get_cmdline_user_args().has("--pressures-only") else OUTPUT
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var manifest_output: String = OUTPUT
+	if args.has("--pre-battle-only"):
+		manifest_output = PRE_BATTLE_OUTPUT
+		await _pre_battle_case()
+	else:
+		if args.has("--pressures-only"):
+			manifest_output = PRESSURE_OUTPUT
+		else:
+			for study: String in ["first_turn", "first_seal", "kept_open", "escape"]: await _case(study)
+		for biome: String in ["earth", "fire", "air", "ice", "lightning", "shadow"]: await _pressure_case(biome)
 	var file := FileAccess.open(manifest_output.path_join("captures.json"), FileAccess.WRITE)
 	_expect(file != null, "Capture facts manifest is writable")
 	if file != null: file.store_string(JSON.stringify({"size": [1920, 1080], "ui_scale": PROOF_UI_SCALE, "seed": Fixture.FIXTURE_SEED, "capture_vision_bonus": CAPTURE_VISION_BONUS, "captures": captures, "errors": failures}, "\t"))
@@ -56,6 +64,30 @@ func _run() -> void:
 	print("Snare native proof: %d captures, %d failures" % [captures.size(), failures.size()])
 	print("Snare captures: " + ProjectSettings.globalize_path(manifest_output))
 	quit(0 if failures.is_empty() else 1)
+
+func _pre_battle_case() -> void:
+	var engine := Run.new()
+	var state: Dictionary = Fixture.pre_battle(engine, Combat.new(), engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()))
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	canvas.add_child(scene)
+	await process_frame
+	scene.call("_load_run_state", state)
+	if bool(scene.get("_dialogue_active")): scene.call("_close_dialogue")
+	var scrim: Control = scene.get("_pre_battle_scrim") as Control
+	var heading: Control = scene.find_child("PreBattleObjectiveTitle", true, false) as Control
+	_expect(scrim != null and scrim.is_visible_in_tree() and heading != null, "Snare pre-battle opens its production objective heading")
+	if heading != null:
+		heading.grab_focus()
+		await create_timer(SETTLE_SECONDS).timeout
+		var tooltip: Control = heading.get_node_or_null("PreBattleObjectiveFocusTooltip") as Control
+		var line: String = Specials.snare_reward_line()
+		_expect(tooltip != null and tooltip.is_visible_in_tree(), "Focused objective shows its native tooltip")
+		if tooltip != null:
+			var rendered: PackedStringArray = TooltipProof.rendered_lines(tooltip)
+			_expect("\n".join(rendered).ends_with("\n" + line), "Pre-battle renders the ordinary reward and open-door bonus")
+			await _capture("pre_battle", {"reward_line": line, "objective_tooltip": rendered}, PRE_BATTLE_OUTPUT)
+	scene.queue_free()
+	await process_frame
 
 func _case(study: String) -> void:
 	var engine := Run.new()
@@ -169,23 +201,26 @@ func _escape_reward(scene: Node, engine: RefCounted, state: Dictionary, battle: 
 	var payout: int = int(reward["pending_reward"]["ember_amount"])
 	var bonus: int = int(Specials.definition("umbral_snare")["bonus"]["amount"])
 	var open_count: int = int(facts["escape"]["doors_open_at_escape"])
-	var base: int = Specials.reward_embers(engine.room_metadata(state, state["current_room"]), battle)
+	var base: int = int(battle["room_embers"])
 	_expect(payout == base + open_count * bonus, "Reward Ember payout includes every open door")
 	scene.call("_load_run_state", reward)
 	var deadline: int = Time.get_ticks_msec() + int(READY_TIMEOUT_SECONDS * 1000.0)
 	var row: Control = null
 	while Time.get_ticks_msec() < deadline:
 		row = scene.find_child("RewardCardRow", true, false) as Control
-		if not bool(scene.call("_reward_intro_pending")) and not bool(scene.get("_reward_intro_in_progress")) and row != null and row.is_visible_in_tree() and row.get_child_count() == 4: break
+		if not bool(scene.call("_reward_intro_pending")) and not bool(scene.get("_reward_intro_in_progress")) and row != null and row.is_visible_in_tree() and row.get_child_count() == 3: break
 		await process_frame
-	_expect(row != null and row.is_visible_in_tree() and row.get_child_count() == 4, "Reward capture displays the four special reward cards")
+	_expect(row != null and row.is_visible_in_tree() and row.get_child_count() == 3, "Reward capture displays the three ordinary reward cards")
 	_expect(not bool(scene.call("_reward_intro_pending")) and not bool(scene.get("_reward_intro_in_progress")), "Reward reveal has resolved before capture")
 	await create_timer(SETTLE_SECONDS).timeout
 	var stats: Label = scene.get("stats_label")
 	var held: int = engine.held_embers(reward)
 	_expect(stats.is_visible_in_tree() and stats.text.ends_with("EMBERS %d" % held), "Reward screen shows the actual Ember total")
+	var notice: RichTextLabel = scene.get("log_label")
+	var reward_line: String = Specials.snare_reward_line()
+	_expect(notice.is_visible_in_tree() and notice.text.contains(reward_line), "Reward screen shows the open-door bonus rule")
 	var detail: Dictionary = facts.duplicate(true)
-	detail.merge({"reward_ember_amount": payout, "held_embers": held, "stats_label": stats.text, "mode": str((scene.get("_run_state") as Dictionary)["mode"])})
+	detail.merge({"reward_ember_amount": payout, "held_embers": held, "stats_label": stats.text, "reward_line": reward_line, "mode": str((scene.get("_run_state") as Dictionary)["mode"])})
 	await _capture("escape_reward", detail)
 
 func _strings(values: Array) -> Array[String]:

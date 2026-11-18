@@ -100,6 +100,11 @@ func _compare(engine: RefCounted, state: Dictionary, label: String) -> void:
 	var centers: Array = enemy.get("lob_centers", [enemy.get("lob_center")])
 	var count: int = centers.size()
 	cross_counts[count] = true
+	_expect(count > 0 and centers[0] == state["player"]["pos"], label + ": first cross centers on the hero")
+	if count > 1:
+		var axis: Vector2i = Warband.order_axis(engine, Vector2i(state["player"]["pos"]) - Vector2i(enemy["pos"]))
+		var offset: Vector2i = centers[1] - centers[0]
+		_expect(offset == axis * 2 or offset == axis * -2, label + ": second cross centers two tiles along the perpendicular axis")
 	var moved: Vector2i = enemy["pos"] - state["enemies"][0]["pos"]
 	if moved != Vector2i.ZERO: retreat_directions[moved] = true
 	_expect(marks.size() == tiles.size() and tiles.all(func(tile: Vector2i) -> bool: return marks.has(tile)), label + ": aiming tiles equal committed tiles")
@@ -110,11 +115,11 @@ func _compare(engine: RefCounted, state: Dictionary, label: String) -> void:
 	_expect(stronger.size() == count and centers.all(func(tile: Vector2i) -> bool: return stronger.has(tile)), label + ": stronger centres equal committed centres")
 	var action: Dictionary = Lob.landing_action(engine, committed, enemy)
 	var numbers: Array = [int(action["center_damage"]), int(action["arm_damage"])]
-	var aiming_expected: String = "Marks %d crosses. Next turn: %d in each centre, %d around them, and they become Fire." % ([count] + numbers) if count > 1 else "Marks your tile and the 4 around it. Next turn: %d in the centre, %d around it, and they become Fire." % numbers
-	var landing_expected: String = ("Marked tiles take the hit: %d in each centre, %d around them, and they become Fire." if count == 2 else "Marked tiles take the hit: %d in the centre, %d around it, and they become Fire.") % numbers
-	_expect(aiming_copy == aiming_expected and aiming_tooltip == aiming_expected, label + ": aiming copy counts what commits")
-	var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(state.get("objective", {})) if bool(state["enemies"][0].get("is_leader", false)) else ""
-	_expect(board.enemy_intent_tooltip("enemy_%d" % int(enemy["id"])) == aiming_expected + ("\n" + order if not order.is_empty() else ""), label + ": full tooltip counts what commits and retains its separate order")
+	var aiming_expected: String = "Lob Slag next turn · %d / %d" % numbers
+	var aiming_rule: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. Next turn they take the hit and become Fire." if count > 1 else "@pattern(cross:hero) On your tile. Next turn they take the hit and become Fire."
+	var landing_expected: String = "Lob Slag · %d / %d" % numbers
+	_expect(aiming_copy == aiming_expected and aiming_tooltip == aiming_rule, label + ": aiming copy counts what commits")
+	_expect(board.enemy_intent_tooltip("enemy_%d" % int(enemy["id"])) == aiming_rule, label + ": full tooltip counts what commits and omits the separate order")
 	for step: Dictionary in View.caption_steps(resolution["steps"]):
 		if str(step.get("kind", "")) != "intent": continue
 		_expect(step.get("turn_caption", "") == aiming_expected, label + ": playback copy counts committed crosses without re-forecasting")

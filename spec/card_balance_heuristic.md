@@ -1128,7 +1128,7 @@ has landed; the director adds these enemies to spawn pools after merge.
 | Enemy | HP / initiative / Embers | Authored cadence before spawn stagger | Reach and counterplay | Closest comparison |
 | --- | --- | --- | --- | --- |
 | Arc Thrall | 10 / 11 / 9 | Arc Bolt 16 (3/5), Arc Jab 15 (2/5); weighted 15.6 | Arc Bolt: Move 2 + ranged lightning 3, range 3, leaving Electrified on the target tile. Arc Jab unchanged: Move 2 + melee 3 + Shock 1. No pairing constraint. | Storm Lash uses the same movement and ranged primitives; Lightning Wisp provides the existing Shock comparison for Jab. |
-| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero; no Veiled status or targeting restriction. Ambush re-Blinks if needed, melee 7; Slash Move 2 + melee 4. Normal movement, blocking and attacks remain available during wind-up. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
+| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero's visible facing, with a legal adjacent fallback; no Veiled status or targeting restriction. Ambush re-Blinks if needed, melee 7; Slash Move 2 + melee 4. Normal movement, blocking and attacks remain available during wind-up. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
 
 The Thrall follows owner-approved `thrall-rework-v1` (2026-10-30); the Stalker
 retains its protected staged values with the approved removal of Veiled. The
@@ -1285,9 +1285,10 @@ Normal rooms retain section Health/damage scaling. Every generation path caps
 non-summoned starters at five, removing from the existing tail order while
 preserving leaders, captains, jailers, Sealbinders, Hoarders, Guardians and dragons.
 Each newly removed starter grants ×1.2 Health to the remaining starting roster
-before the tier table. Hunted adds an enemy below five. In a full room, it
-multiplies each starter's final Health (including trim and tier scaling) by
-1.2 and rounds up. Table capacity trims that already occurred at
+before the tier table. Hunted adds an enemy below five when a legal spawn tile
+is free; if the cap or tile availability prevents the spawn, it multiplies each
+starter's final Health (including trim and tier scaling) by 1.2 and rounds up.
+Table capacity trims that already occurred at
 three/four/five units do not gain a new compensation.
 
 `data/difficulty_tiers.json` stores per-section objective/kind, Guardian and boss

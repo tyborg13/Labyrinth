@@ -277,7 +277,9 @@ static func _update_beat(scene: Node, entry: Dictionary, index: int, frame: Cont
 	frame.clip_contents = false
 	frame.mouse_filter = Control.MOUSE_FILTER_STOP
 	frame.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE
-	frame.tooltip_text = "%s — %s" % [str(entry.get("name", "")), str(entry.get("sentence", ""))]
+	var sentence: String = str(entry.get("sentence", ""))
+	var diagram_sentence: String = preload("res://scripts/pattern_text.gd").display_rules(sentence)
+	frame.tooltip_text = ("%s — %s" if sentence == diagram_sentence else "%s\n%s") % [str(entry.get("name", "")), diagram_sentence]
 	frame.set_meta("turn_order_key", scene._turn_order_entry_key(entry))
 	frame.set_meta("turn_order_actor_key", scene._turn_order_actor_key(entry))
 	frame.set_meta("turn_order_animation_role", scene._turn_order_animation_role(entry))

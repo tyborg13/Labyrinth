@@ -7,6 +7,7 @@ const Reference = preload("res://tests/perf/hover_board_reference.gd")
 const Arena = preload("res://tests/suites/warband_suite.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
 const DrawCases = preload("res://tests/perf/hover_draw_cases.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_SECONDS: float = 0.3
 const SETTLE_FRAMES: int = 3
@@ -35,10 +36,12 @@ func _run() -> void:
 		print("PERF04 NATIVE EQUIVALENCE: native renderer required")
 		quit(1)
 		return
-	preload("res://scripts/settings_store.gd").set_storage_path("user://perf04-proof-settings.json")
-	var settings: Dictionary = preload("res://scripts/settings_store.gd").default_settings()
+	Settings.set_storage_path("user://perf04-proof-settings.json")
+	var settings: Dictionary = Settings.default_settings()
 	settings["ui_scale"] = 1.0
-	preload("res://scripts/settings_store.gd").save_settings(settings)
+	settings["board_health_bars"] = Settings.BOARD_HEALTH_ALWAYS
+	Settings.save_settings(settings)
+	Settings.apply_settings(settings, root, false)
 	root.size = PROOF_SIZE
 	root.content_scale_size = PROOF_SIZE
 	if not _setup_only: DisplayServer.window_set_size(PROOF_SIZE)

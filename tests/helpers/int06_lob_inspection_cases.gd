@@ -52,12 +52,16 @@ static func _check_panel(engine: RefCounted, state: Dictionary, aimed: Dictionar
 		expect.call(int(resolved["lob_cross_count"]) == count, "Inspection fixture exercises the requested cross count")
 		var effect: Label = moves.get_child(index).find_child("PreBattleMoveEffect", true, false) as Label
 		var expected: String = Icons.lob_text(resolved)
-		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(board.combat_state.get("objective", {})) if bool(enemy.get("is_leader", false)) else ""
-		var tooltip: String = expected + ("\n" + order if not order.is_empty() else "")
-		expect.call(board.enemy_intent_tooltip("enemy_%d" % int(enemy["id"])) == tooltip, "Board tooltip keeps exact Lob copy and the separate captain order")
-		expect.call(effect != null and effect.text == expected, "Known %s shows the board's exact %d-cross centre/arm copy" % [id, count])
+		var expected_display: String = preload("res://scripts/pattern_text.gd").strip(Icons.lob_diagram_text(resolved))
+		var move_rule: String = Icons.marked_move_text(resolved)
+		expect.call(board.enemy_intent_tooltip("enemy_%d" % int(enemy["id"])) == move_rule, "Board tooltip keeps exact Lob copy without the separate captain order")
+		expect.call(moves.get_child(index).tooltip_text == move_rule, "Known move tooltip reflects the forecasted Lob rule")
+		expect.call(effect != null and effect.text == expected_display, "Known %s shows the board's exact %d-cross centre/arm copy" % [id, count])
 		var rows: Array = board.call("_intent_rows_for_unit", enemy, enemy["intent"])
-		expect.call(Icons.plain_text_for_rows(rows) == expected, "Lob plain text retains the resolved centre, arm and cross count")
+		if id == "lob_slag":
+			expect.call(rows[0].slice(0, count).all(func(token: Dictionary) -> bool: return token["kind"] == "aoe_pattern") and rows[0].slice(count).map(func(token: Dictionary) -> String: return token["icon"]) == ["marked", "aoe", "surface_fire"] and Icons.token_value_text(rows[0][count + 1]) == str(center), "On-board Lob uses ordered tokens and resolved centre damage")
+		else:
+			expect.call(Icons.plain_text_for_rows(rows) == expected, "Lob landing retains the resolved centre, arm and cross count")
 	expect.call(state == before, "Known-move formatting preserves the combat state, declared intent and RNG")
 	board.free()
 	panel.free()

@@ -2,6 +2,8 @@ extends SceneTree
 ## CPU construction/pose measurements; not a proxy for native GPU frame pacing.
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const GuardianRenderer = preload("res://scripts/guardian_cutout/renderer.gd")
+const WispRig = preload("res://scripts/maquette_cutout_runtime/lightning_wisp_rig.gd")
+const BloomerRig = preload("res://scripts/maquette_cutout_runtime/shale_bloomer_rig.gd")
 const ACTORS = ["crawler", "stone_warden", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 const REPETITIONS: int = 5
 var _errors: Array[String] = []
@@ -62,7 +64,12 @@ func _create_rigs(actors: Array) -> Array[Node2D]:
 		var family: String = "guardian" if GuardianRenderer.handles(actor) else actor
 		var legacy_path: String = "res://scripts/%s_cutout/rig.gd" % family
 		var path: String = legacy_path if ResourceLoader.exists(legacy_path) else "res://assets/units/%s_cutout/rig.gd" % family
-		var script: Script = load(path)
+		var script: Script
+		# RR-04 replaced these two rigs with production maquette adapters.
+		match actor:
+			"lightning_wisp": script = WispRig
+			"bile_bloomer": script = BloomerRig
+			_: script = load(path)
 		for facing: String in ["front", "rear"]:
 			var rig: Node2D = script.new()
 			rig.set("facing", facing)

@@ -9,6 +9,10 @@ const Run = preload("res://scripts/run_engine.gd")
 const FIXTURE_SEED: int = 1001
 const TEST_HP_PERCENT: int = 150
 const TEST_DAMAGE_BONUS: int = 2
+const NO_SPAWN_HERO_TILE := Vector2i(1, 1)
+const NO_SPAWN_ENEMY_TILE := Vector2i(4, 1)
+const NO_SPAWN_ENEMY_HP: int = 30
+const NO_SPAWN_EXPECTED_HP: int = 36
 var failures: Array[String]
 var checks: int = 0
 
@@ -91,6 +95,25 @@ func _initialize() -> void:
 			expect(fresh["difficulty_stats"]["hp_percent"] == 175, kind + " ungenerated room uses current table")
 			print("TUNE01_TIER_CHECK tier=%s kind=%s" % [tier, kind])
 	Difficulty._data = authored
+	_check_hunted_no_spawn_tile(generator)
 	for failure: String in failures: push_error(failure)
 	print("TUNE01_RULES_CHECK: %s (%d checks, %d failures)" % ["PASS" if failures.is_empty() else "FAIL", checks, failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func _check_hunted_no_spawn_tile(generator: RefCounted) -> void:
+	var room: Dictionary = {"type": "combat", "depth": 1, "omen_extra_enemies": 1}
+	var layout: Dictionary = {
+		"type": "combat", "depth": 1, "difficulty_stats": {}, "objective": {},
+		"grid": [["wall", "wall", "wall", "wall", "wall", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "wall", "wall", "wall", "wall", "wall"]],
+		"player_start": NO_SPAWN_HERO_TILE,
+		"enemies": [{"id": 1, "type": "crawler", "pos": NO_SPAWN_ENEMY_TILE,
+			"hp": NO_SPAWN_ENEMY_HP, "max_hp": NO_SPAWN_ENEMY_HP}],
+	}
+	expect(Difficulty.starter_count(layout) < Difficulty.MAX_STARTERS, "No-spawn Hunted fixture is below the roster cap")
+	generator._add_omen_enemies(layout, room, FIXTURE_SEED)
+	expect(Difficulty.starter_count(layout) == 1 and not layout.has("omen_extra_enemies_added"), "Hunted cannot add an enemy when the only floor tile beyond the safe radius is occupied")
+	expect(layout.get("omen_enemy_hp_compensations", 0) == 1, "Hunted records one Health substitute when no spawn tile is free")
+	Difficulty.finalize(layout)
+	expect(layout["enemies"][0]["hp"] == NO_SPAWN_EXPECTED_HP and layout["enemies"][0]["max_hp"] == NO_SPAWN_EXPECTED_HP, "Hunted raises current and maximum Health by 20% with no legal spawn tile")

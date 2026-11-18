@@ -134,7 +134,7 @@ func _initialize() -> void:
 			# Exercise the original aiming flow, including mutually exclusive geometry.
 			var current: Dictionary = (scene.get("_pending_actions") as Array)[0] as Dictionary
 			for option: Dictionary in Relics.action_variants(state, current):
-				if str(option.get("_surface_relic_label", "")) == "Spend 4 Stoneskin · cross":
+				if str(option.get("_surface_relic_label", "")) == "Spend 4 Stoneskin":
 					scene.call("_select_surface_relic_variant", option)
 			current = (scene.get("_pending_actions") as Array)[0] as Dictionary
 			assert(Relics.mode_enabled(current, "cross"))

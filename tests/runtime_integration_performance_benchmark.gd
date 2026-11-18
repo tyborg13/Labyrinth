@@ -647,13 +647,10 @@ func _verify_skill_sigil_event_cache(instance: Node) -> Dictionary:
 	}
 
 func _verify_unit_shadow_local_mesh_equivalence(board: Control) -> Dictionary:
-	var frame_values: Array = board.call("_unit_idle_frames", {"type": "player"}) as Array
-	var texture: Texture2D = null
-	for frame_var: Variant in frame_values:
-		if frame_var is Texture2D:
-			texture = frame_var as Texture2D
-			break
-	_expect(texture != null, "local shadow mesh proof requires a loaded player idle frame")
+	# The player is a cutout. Use its production rest silhouette for this
+	# texture-mesh equivalence check instead of the retired sprite idle frames.
+	var texture: Texture2D = board.get("_unit_textures").get("player")
+	_expect(texture != null, "local shadow mesh proof requires the player cutout rest")
 	if texture == null:
 		return {}
 	var shadow_data: Dictionary = board.call("_unit_shadow_data_for_texture", texture) as Dictionary

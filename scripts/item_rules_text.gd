@@ -19,7 +19,7 @@ const NUMBER_TOKENS: Dictionary = {
 	"bitter_tonic": ["draw", "card_play"],
 	"caltrops": ["range", "bleed"],
 	"glacier_salts": ["range"],
-	"lamp_oil": ["range"],
+	"lamp_oil": ["", "range"],
 	"mirror_charm": ["illusion", "range"],
 	"seers_candle": ["vision", "time"],
 	"hourglass_sand": ["quicken", "quicken", "draw"],

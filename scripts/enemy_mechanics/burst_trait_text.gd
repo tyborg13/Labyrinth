@@ -4,12 +4,12 @@ const WIDTH: float = 420.0
 
 # The intent layout is retained; wrapping happens when its rows are built,
 # never while the overlay is painted. Measure with the font used to draw it.
-static func lines(text: String, font: Font, font_size: int) -> PackedStringArray:
+static func lines(text: String, font: Font, font_size: int, width: float = WIDTH) -> PackedStringArray:
 	var result := PackedStringArray()
 	var line: String = ""
 	for word: String in text.split(" ", false):
 		var candidate: String = word if line.is_empty() else line + " " + word
-		if not line.is_empty() and font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > WIDTH:
+		if not line.is_empty() and font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > width:
 			result.append(line)
 			line = word
 		else:

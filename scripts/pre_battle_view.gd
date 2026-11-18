@@ -211,6 +211,8 @@ static func build_objective(combat: Dictionary) -> Control:
 		Surface.label_style(heading, 19, Palette.TEXT)
 		heading.mouse_filter = Control.MOUSE_FILTER_STOP
 		heading.tooltip_text = ("%s\n%s" % [ObjectiveRules.title_for_objective(objective), ObjectiveRules.description_for_objective(objective)]).strip_edges()
+		if str(objective.get("special_type", "")) == "umbral_snare":
+			heading.tooltip_text += "\n" + preload("res://scripts/special_encounter_library.gd").snare_reward_line()
 		contents.add_child(heading)
 	return row
 

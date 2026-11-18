@@ -47,6 +47,15 @@ static func display_name(room: Dictionary) -> String:
 static func tooltip_line(room: Dictionary) -> String:
 	return str(definition(str(room.get("special_type", ""))).get("tooltip_line", "ERROR_MISSING_SPECIAL_TOOLTIP"))
 
+static func snare_reward_line() -> String:
+	var snare: Dictionary = catalog()["types"]["umbral_snare"]
+	return str(snare["reward_line"]) % int(snare["bonus"]["amount"])
+
+static func uses_enhanced_rewards(room: Dictionary) -> bool:
+	if str(room.get("type", "")) != "special": return false
+	var entry: Dictionary = catalog()["types"].get(str(room.get("special_type", "")), {})
+	return str(entry.get("reward_profile", "")) != "combat"
+
 static func goal_met(room: Dictionary, combat: Dictionary) -> bool:
 	if str(room.get("type", "")) != "special": return false
 	# Warband cannot fail on victory. Future failable objectives must save this

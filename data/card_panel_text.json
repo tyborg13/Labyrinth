@@ -3,7 +3,8 @@
     "title": "Shatter",
     "text": "If the target was Frozen, deal {n} to each enemy next to it.",
     "legacy": "Shatter\nIf the target was Frozen before the hit, deal {n} to each other enemy next to it (not tripled).",
-    "term": "shatter"
+    "term": "shatter",
+    "diagram_text": "@pattern(neighbors:origin) If the target was Frozen, deal {n} to each enemy on these tiles."
   },
   "shock_all_hits": {
     "title": "Shock",
@@ -75,13 +76,15 @@
     "title": "Light",
     "text": "Creates Light of this radius.",
     "legacy": "Light radius in tiles.",
-    "term": "illuminate"
+    "term": "illuminate",
+    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles."
   },
   "title_sentence_light_self": {
     "title": "Light",
     "text": "Creates Light of this radius around you.",
     "legacy": "Light radius in tiles, centered on you.",
-    "term": "illuminate"
+    "term": "illuminate",
+    "diagram_text": "@pattern(diamond:{r}:hero) Creates Light on these tiles around you."
   },
   "range_light": {
     "title": "Range",
@@ -105,7 +108,8 @@
     "title": "Raise Terrain",
     "text": "Raises a Worldspine with this much Health on each empty tile around the target.",
     "legacy": "Raises a Worldspine with this much health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
-    "term": "raise_terrain"
+    "term": "raise_terrain",
+    "diagram_text": "@pattern(neighbors:origin) Raises a Worldspine with this much Health on each empty one of these tiles around the target."
   },
   "range_outcrop": {
     "title": "Range",
@@ -117,13 +121,15 @@
     "title": "Detonate",
     "text": "When destroyed, the keg deals {n} to everything on and next to it.",
     "legacy": "When the keg is destroyed by anything, it deals {n} to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off.",
-    "term": "detonate"
+    "term": "detonate",
+    "diagram_text": "@pattern(cross) When destroyed, the keg deals {n} to everything on these tiles."
   },
   "worldspine_burst": {
     "title": "Terrain Burst",
     "text": "Each turn, enemies next to your Worldspines take {n}.",
     "legacy": "At the start of each of your turns, each enemy next to at least one of your Worldspines takes {n}.",
-    "term": "terrain_burst"
+    "term": "terrain_burst",
+    "diagram_text": "@pattern(neighbors:origin) Each turn, enemies on these tiles around your Worldspines take {n}."
   },
   "quicken": {
     "title": "Quicken",
@@ -159,7 +165,8 @@
     "title": "Light",
     "text": "Creates Light of this radius on each tile you enter.",
     "legacy": "Creates Light on each tile you enter. Radius in tiles.",
-    "term": "illuminate"
+    "term": "illuminate",
+    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles centered on each tile you enter."
   },
   "range_illusion": {
     "title": "Range",
@@ -189,13 +196,15 @@
     "title": "Light",
     "text": "Creates Light of this radius at the target.",
     "legacy": "Creates Light at the target. Radius in tiles.",
-    "term": "illuminate"
+    "term": "illuminate",
+    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles at the target."
   },
   "light_land": {
     "title": "Light",
     "text": "Creates Light of this radius where you land.",
     "legacy": "Creates Light where you land. Radius in tiles.",
-    "term": "illuminate"
+    "term": "illuminate",
+    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles where you land."
   },
   "if_in_light": {
     "title": "If in Light",
@@ -301,19 +310,22 @@
     "title": "Pull",
     "text": "Pulls each enemy within {r} of the chosen tile {n} tiles toward it.",
     "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
-    "term": "pull"
+    "term": "pull",
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pulls each enemy on these tiles {n} tiles toward the chosen tile."
   },
   "title_sentence_push_area_target": {
     "title": "Push",
     "text": "Pushes each enemy within {r} of the chosen tile {n} tiles away from it.",
     "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
-    "term": "push"
+    "term": "push",
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pushes each enemy on these tiles {n} tiles away from the chosen tile."
   },
   "title_sentence_push_area": {
     "title": "Push",
     "text": "Pushes each enemy within {r} of you {n} tiles away.",
     "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
-    "term": "push"
+    "term": "push",
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pushes each enemy on these tiles {n} tiles away from you."
   },
   "expend_after_hit": {
     "title": "Expend",
@@ -383,7 +395,8 @@
   },
   "unchanged_each_empty_tile_next_to_the_illusion": {
     "text": "Each empty tile next to the illusion.",
-    "legacy": "Each empty tile next to the illusion."
+    "legacy": "Each empty tile next to the illusion.",
+    "diagram_text": "@pattern(neighbors:origin) Each empty one of these tiles next to the illusion."
   },
   "unchanged_the_illusion_appears_on_the_free_tile_next_to_the_chosen_enemy_that_is_nearest_you": {
     "text": "The illusion appears on the free tile next to the chosen enemy that is nearest you.",
@@ -395,7 +408,8 @@
   },
   "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": {
     "text": "Creates one illusion on each empty tile next to you (up to four).",
-    "legacy": "Creates one illusion on each empty tile next to you (up to four)."
+    "legacy": "Creates one illusion on each empty tile next to you (up to four).",
+    "diagram_text": "@pattern(neighbors:origin) Creates one illusion on each empty one of these tiles (up to four)."
   },
   "unchanged_applies_if_no_enemy_is_next_to_you_after_the_blink": {
     "text": "Applies if no enemy is next to you after the Blink.",
@@ -439,11 +453,13 @@
   },
   "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_terrain": {
     "text": "Hits each enemy on the four tiles next to the destroyed terrain.",
-    "legacy": "Hits each enemy on the four tiles next to the destroyed terrain."
+    "legacy": "Hits each enemy on the four tiles next to the destroyed terrain.",
+    "diagram_text": "@pattern(neighbors:origin) Hits each enemy on these tiles next to the destroyed terrain."
   },
   "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_illusion": {
     "text": "Hits each enemy on the four tiles next to the destroyed illusion.",
-    "legacy": "Hits each enemy on the four tiles next to the destroyed illusion."
+    "legacy": "Hits each enemy on the four tiles next to the destroyed illusion.",
+    "diagram_text": "@pattern(neighbors:origin) Hits each enemy on these tiles next to the destroyed illusion."
   },
   "unchanged_any_of_your_illusions_on_the_board": {
     "text": "Any of your illusions on the board.",
@@ -459,7 +475,8 @@
   },
   "unchanged_each_other_enemy_next_to_the_target": {
     "text": "Each other enemy next to the target.",
-    "legacy": "Each other enemy next to the target."
+    "legacy": "Each other enemy next to the target.",
+    "diagram_text": "@pattern(neighbors:origin) Each other enemy on these tiles next to the target."
   },
   "unchanged_empower_repeat_this_card_s_first_action": {
     "text": "Empower: repeat this card's first action.",

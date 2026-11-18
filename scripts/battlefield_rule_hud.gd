@@ -9,6 +9,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
+const PatternText = preload("res://scripts/pattern_text.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 
 const KICKER: String = "BATTLEFIELD"
@@ -32,6 +33,8 @@ var _kicker: Label
 var _title: Label
 var _arrow: Control
 var _detail: Label
+var _detail_row: HBoxContainer
+var _detail_pattern: Control
 var _signature: String = ""
 var rule_id: String = ""
 
@@ -76,8 +79,10 @@ func set_combat_state(state: Dictionary, engine: RefCounted) -> bool:
 	_arrow.visible = heading != Vector2.ZERO
 	_arrow.set("heading", heading)
 	_arrow.queue_redraw()
-	_detail.text = str(panel["sentence"])
+	var sentence: String = str(panel["sentence"])
+	_set_detail(sentence)
 	tooltip_text = Icons.tooltip(str(panel["icon"]))
+	if _detail_pattern != null: tooltip_text += "\n" + PatternText.display_rules(sentence)
 	visible = true
 	return true
 
@@ -96,21 +101,36 @@ func _set_room_rule(panel: Dictionary) -> bool:
 	_title.text = str(panel["name"]).to_upper()
 	_arrow.visible = false
 	_arrow.set("heading", Vector2.ZERO)
-	_detail.text = str(panel["sentence"])
+	_set_detail(str(panel["sentence"]))
 	tooltip_text = str(panel["sentence"])
 	visible = true
 	return true
+
+func _set_detail(sentence: String) -> void:
+	if _detail_pattern != null:
+		_detail_pattern.free()
+		_detail_pattern = null
+	var markup: String = PatternText.display_rules(sentence)
+	var patterns: Array[RegExMatch] = PatternText.matches(markup)
+	_detail.text = PatternText.strip(markup)
+	if patterns.is_empty(): return
+	_detail_pattern = PatternText.make_view(patterns[0], DETAIL_FONT_SIZE)
+	_detail_row.add_child(_detail_pattern)
+	_detail_row.move_child(_detail_pattern, 0)
 
 ## Height for a given width, so the panel docks exactly above the objective.
 func preferred_height(width: float) -> float:
 	_build()
 	var text_width: float = maxf(1.0, width - MARGIN_LEFT - MARGIN_RIGHT - ICON_WELL_SIZE - ROW_SEPARATION)
+	if _detail_pattern != null:
+		text_width = maxf(1.0, text_width - _detail_pattern.custom_minimum_size.x - _detail_row.get_theme_constant("separation"))
 	var detail_font: Font = _detail.get_theme_font("font")
 	var line_height: float = detail_font.get_height(DETAIL_FONT_SIZE)
 	var wrapped: float = detail_font.get_multiline_string_size(_detail.text, HORIZONTAL_ALIGNMENT_LEFT, text_width, DETAIL_FONT_SIZE).y
 	var lines: int = clampi(ceili(wrapped / line_height - 0.01), 1, DETAIL_MAX_LINES)
 	# A Label adds its theme line spacing between wrapped lines.
 	var detail_height: float = lines * line_height + (lines - 1) * _detail.get_theme_constant("line_spacing")
+	if _detail_pattern != null: detail_height = maxf(detail_height, _detail_pattern.custom_minimum_size.y)
 	var stack: float = _kicker.get_theme_font("font").get_height(UiTypography.SIZE_CAPTION) + _title.get_theme_font("font").get_height(TITLE_FONT_SIZE) + detail_height
 	return MARGIN_VERTICAL * 2.0 + maxf(ICON_WELL_SIZE, stack)
 
@@ -202,4 +222,8 @@ func _build() -> void:
 	UiTypography.apply_label_role(_detail, UiTypography.ROLE_BODY)
 	_detail.add_theme_font_size_override("font_size", DETAIL_FONT_SIZE)
 	_detail.add_theme_color_override("font_color", Palette.TEXT_2)
-	text_stack.add_child(_detail)
+	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_detail_row = HBoxContainer.new()
+	_detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text_stack.add_child(_detail_row)
+	_detail_row.add_child(_detail)

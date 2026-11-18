@@ -7,6 +7,7 @@ const BadgeReference = preload("res://tests/perf/intent_badges_reference.gd")
 const Arena = preload("res://tests/suites/warband_suite.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Facing = preload("res://scripts/static_enemy_facing.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const PROOF_SIZE := Vector2(1920, 1080)
 const SCORE_CASES: int = 128
 const SCORE_SEED: int = 404
@@ -53,6 +54,10 @@ class IdentityEngine extends Arena.Combat:
 		return super.enemy_threat_tiles(state, enemy_index)
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	var previous_health_bars: String = Settings._applied_board_health_bars
+	# The frozen oracle models the Always layout. Contextual plates, introduced
+	# by RD-08, use a different layout and have their own board UI proof.
+	Settings._applied_board_health_bars = Settings.BOARD_HEALTH_ALWAYS
 	var probe: Script = load("res://tests/perf/hover_equivalence_probe.gd")
 	expect.call(probe != null and probe.can_instantiate(), "Native equivalence probe parses headless")
 	_catalog(expect)
@@ -130,6 +135,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		reference.queue_free()
 		for frame: int in range(3): await tree.process_frame
 	print("PERF04 HOVER EQUIVALENCE: %d complete HUD/badge/retained-state comparisons; submission and catalog mutations detected" % comparisons)
+	Settings._applied_board_health_bars = previous_health_bars
 
 static func _catalog(expect: Callable) -> void:
 	for type: String in Data.enemies():

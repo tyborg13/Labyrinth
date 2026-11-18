@@ -12,8 +12,10 @@ const Metrics = preload("res://tools/enc03_measurement_engine.gd")
 const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const CaptionScrim = preload("res://scripts/action_caption_scrim.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
-const AIM_TEXT: String = "Marks your tile and the 4 around it. Next turn: 5 in the centre, 3 around it, and they become Fire."
-const LAND_TEXT: String = "Marked tiles take the hit: 5 in the centre, 3 around it, and they become Fire."
+const AIM_TOOLTIP: String = "@pattern(cross:hero) On your tile. Next turn they take the hit and become Fire."
+const BARRAGE_TOOLTIP: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. Next turn they take the hit and become Fire."
+const AIM_TEXT: String = "Lob Slag next turn · 5 / 3"
+const LAND_TEXT: String = "Lob Slag · 5 / 3"
 const AI_SEEDS: int = 32
 const SCRIM_TEST_TEXT_SIZE := Vector2(661.0, 30.0)
 
@@ -85,13 +87,13 @@ static func run(expect: Callable) -> void:
 		state["enemies"][0]["intent"] = intent
 		var action: Dictionary = Lob.presentation_action(engine, state, state["enemies"][0], intent["actions"][0])
 		var expected: String = AIM_TEXT if id == "lob_slag" else LAND_TEXT
+		var tooltip: String = AIM_TOOLTIP if id == "lob_slag" else "@pattern(cross) Marked tiles take the hit: 5 in the centre, 3 around it, and they become Fire."
 		board.combat_state = state
-		expect.call(board.enemy_intent_tooltip("enemy_1") == expected, "Complete intent tooltip uses the exact approved sentence")
+		expect.call(board.enemy_intent_tooltip("enemy_1") == tooltip, "Complete intent tooltip uses the exact approved sentence")
 		var tokens: Array = Icons.tokens_for_action(action)
-		expect.call(tokens.size() == 1 and tokens[0]["icon"] == "lob" and Icons.token_value_text(tokens[0]) == "5", "Both lob rows have only lob 5; no range or ratio")
-		expect.call(Icons.token_tooltip(tokens[0]) == expected and tokens[0]["plain_text"] == expected, "Exact lob token tooltip and plain text")
+		_check_row(tokens, id == "slag_lands", 5, expected, expect)
 		expect.call(View.callout(state, "enemy_1", "fallback") == expected, "Exact lob callout")
-		expect.call(View.mark_tooltip(state, state["enemies"][0]) == expected, "Exact tile tooltip")
+		expect.call(View.mark_tooltip(state, state["enemies"][0]) == tooltip, "Exact tile tooltip")
 		var badge: Dictionary = Badges.descriptor(action, intent)
 		expect.call(badge["icon"] == "lob" and badge["number"] == "5" and badge["secondary_icon"] == "" and badge["secondary_number"] == "", "Both feet badges have only lob 5")
 	state["enemies"][0]["intent"] = Base.intent("slag_mortar", "lob_slag")
@@ -129,13 +131,15 @@ static func _scaled_presentation(engine: RefCounted, expect: Callable) -> void:
 				state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
 			var enemy: Dictionary = state["enemies"][0]
 			var action: Dictionary = Lob.presentation_action(engine, state, enemy, enemy["intent"]["actions"][0])
-			var expected: String = ("Marked tiles take the hit: %d in the centre, %d around it, and they become Fire." if landing else "Marks your tile and the 4 around it. Next turn: %d in the centre, %d around it, and they become Fire.") % [expected_center, expected_arm]
+			var expected: String = ("Lob Slag · %d / %d" if landing else "Lob Slag next turn · %d / %d") % [expected_center, expected_arm]
+			var tooltip: String = "@pattern(cross) Marked tiles take the hit: %d in the centre, %d around it, and they become Fire." % [expected_center, expected_arm] if landing else AIM_TOOLTIP
 			expect.call(int(action["center_damage"]) == expected_center and int(action["arm_damage"]) == expected_arm, "Depth %d resolves scaled landing values" % depth)
 			board.combat_state = state
 			var rows: Array = View.rows(board, enemy, enemy["intent"])
-			expect.call(rows.size() == 1 and rows[0].size() == 1 and Icons.token_value_text(rows[0][0]) == str(expected_center), "Scaled HUD row contains only lob and actual centre damage")
-			expect.call(Icons.token_tooltip(rows[0][0]) == expected and rows[0][0]["plain_text"] == expected and board.enemy_intent_tooltip("enemy_1") == expected, "Scaled row and full tooltip use approved Marked copy")
-			expect.call(View.callout(state, "enemy_1", "fallback") == expected and View.mark_tooltip(state, enemy) == expected, "Scaled callout and tile tooltip use the same resolved copy")
+			expect.call(rows.size() == 1, "Scaled HUD has one move row")
+			_check_row(rows[0], landing, expected_center, expected, expect)
+			expect.call(board.enemy_intent_tooltip("enemy_1") == tooltip, "Scaled full tooltip uses approved copy")
+			expect.call(View.callout(state, "enemy_1", "fallback") == expected and View.mark_tooltip(state, enemy) == tooltip, "Scaled callout and tile tooltip use the same resolved copy")
 			var badge: Dictionary = Badges.build(engine, state, state)["badges"][0]
 			expect.call(badge["icon"] == "lob" and badge["number"] == str(expected_center) and badge["secondary_icon"] == "", "Live badge uses scaled centre damage on both turns")
 			expect.call(Compass.descriptors_for_state(state)["enemy_1"]["value"] == expected_center, "Compass matches scaled preview on both turns")
@@ -166,18 +170,24 @@ static func _cross_count_copy(engine: RefCounted, expect: Callable) -> void:
 			if landing: state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
 			var enemy: Dictionary = state["enemies"][0]
 			var action: Dictionary = Lob.presentation_action(engine, state, enemy, enemy["intent"]["actions"][0])
-			var expected: String
-			if count == 2:
-				expected = "Marked tiles take the hit: 6 in each centre, 4 around them, and they become Fire." if landing else "Marks 2 crosses. Next turn: 6 in each centre, 4 around them, and they become Fire."
-			else:
-				expected = "Marked tiles take the hit: 6 in the centre, 4 around it, and they become Fire." if landing else "Marks your tile and the 4 around it. Next turn: 6 in the centre, 4 around it, and they become Fire."
+			var expected: String = "Lob Slag · 6 / 4" if landing else "Lob Slag next turn · 6 / 4"
 			board.combat_state = state
-			var expected_intent: String = expected
-			if count == 2: expected_intent += "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(state["objective"])
+			var tooltip: String = BARRAGE_TOOLTIP if count == 2 else AIM_TOOLTIP
+			if landing:
+				tooltip = "@pattern(cross) @pattern(cross) Marked tiles take the hit: 6 in each centre, 4 around them, and they become Fire." if count == 2 else "@pattern(cross) Marked tiles take the hit: 6 in the centre, 4 around it, and they become Fire."
 			expect.call(int(action["lob_cross_count"]) == count, "Copy counts the actual aiming or held landing crosses")
 			expect.call(View.callout(state, "enemy_1", "fallback") == expected, "Exact one/two-cross callout on both turns")
-			expect.call(board.enemy_intent_tooltip("enemy_1") == expected_intent, "Exact one/two-cross full tooltip preserves phase, damage and captain Order")
-			expect.call(View.mark_tooltip(state, enemy) == expected, "Exact one/two-cross tile tooltip on both turns")
+			expect.call(board.enemy_intent_tooltip("enemy_1") == tooltip, "Exact one/two-cross full tooltip omits the captain Order")
+			expect.call(View.mark_tooltip(state, enemy) == tooltip, "Exact one/two-cross tile tooltip on both turns")
 			var tokens: Array = Icons.tokens_for_action(action)
-			expect.call(tokens.size() == 1 and Icons.token_value_text(tokens[0]) == "6" and Icons.token_tooltip(tokens[0]) == expected and tokens[0]["plain_text"] == expected, "Exact phase/barrage tooltip and plain text; badge retains centre damage")
+			_check_row(tokens, landing, 6, expected, expect, count)
 		board.free()
+
+static func _check_row(tokens: Array, landing: bool, damage: int, legacy_text: String, expect: Callable, count: int = 1) -> void:
+	var icons: Array = tokens.map(func(token: Dictionary) -> String: return token["icon"])
+	var pattern_icons: Array
+	for index: int in range(count): pattern_icons.append("aoe_pattern")
+	if landing:
+		expect.call(icons == pattern_icons + ["lob"] and Icons.token_value_text(tokens[count]) == str(damage) and tokens[count]["plain_text"] == legacy_text, "Landing row retains its phase text and damage")
+	else:
+		expect.call(icons == pattern_icons + ["marked", "aoe", "surface_fire"] and Icons.token_value_text(tokens[count + 1]) == str(damage), "Aiming row shows Marked, scaled centre damage and Fire in order")

@@ -15,7 +15,7 @@ const BENCHMARK_QUERIES: int = 100
 class CountingEngine extends Combat:
 	var board_resolutions: int = 0
 	var invalid_placements: int = 0
-	func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
+	func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = Array([], TYPE_VECTOR2I, "", null)) -> Dictionary:
 		board_resolutions += 1
 		return super._resolve_board_attack(state, action, target, actor_kind, actor_id, trace, supplied_impact)
 	func _force_place_actor(state: Dictionary, kind: String, id: int, anchor: Vector2i) -> Dictionary:

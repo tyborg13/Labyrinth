@@ -105,7 +105,7 @@ static func rows(intent: Dictionary) -> Array:
 	var action: Dictionary = intent["actions"][0]
 	match str(action.get("type", "")):
 		"burrow": return [[Icons.icon_text_token(BURROW_ICON, "Burrow", Icons.tooltip("burrow"))]]
-		"erupt": return [[Icons.token_for("marked"), Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), Icons.tooltip("erupt"))]]
+		"erupt": return [Icons.tokens_for_action(action)]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:

@@ -31,7 +31,12 @@ static func trait_token(unit: Dictionary) -> Dictionary:
 	var amount: int = Rules.damage(unit)
 	var token: Dictionary = preload("res://scripts/action_icon_library.gd").icon_text_token(BURST_ICON, "Bursts %d" % amount, "When it dies, it hits every unit next to it for %d and leaves Fire." % amount)
 	token["burst_trait"] = true
+	token["display_tooltip"] = "@pattern(surround:origin) " + rules_sentence(amount)
+	token["diagram_tooltip"] = token["display_tooltip"]
 	return token
+
+static func rules_sentence(amount: int) -> String:
+	return "When it dies, it hits every unit on these tiles for %d and leaves Fire." % amount
 
 static func focused_tiles(view: Control) -> Array[Vector2i]:
 	var result: Array[Vector2i]

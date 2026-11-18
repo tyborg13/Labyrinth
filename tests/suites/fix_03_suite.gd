@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Combat = preload("res://scripts/combat_engine.gd")
+const Data = preload("res://scripts/game_data.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const SkillFixture = preload("res://tests/suites/skill_combat_suite.gd")
 const BurrowView = preload("res://scripts/enemy_mechanics/burrow_view.gd")
@@ -15,10 +16,9 @@ const TEST_DAMAGE: int = 2
 const LATER_CYCLE: int = 2
 const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
-	"burrow": "Burrow", "erupt": "Marked  Erupt 6", "kindle": "Burst +2",
+	"burrow": "Burrow", "erupt": "Erupt %d  Push %d  Rubble  Expose %d", "kindle": "Burst +2",
 	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, range 4, 3 jumps"
 }
-const ERUPT_TOOLTIP: String = "Erupt\nEmerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2."
 
 static func run(expect: Callable) -> bool:
 	# A runtime error returns without reaching the completion sentinel. Callers
@@ -91,11 +91,16 @@ static func _test_skill_hud(expect: Callable) -> bool:
 
 static func token_cases() -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	for action: Dictionary in [{"type": "burrow"}, {"type": "erupt", "damage": 6}, {"type": "kindle", "amount": 2}]:
+	var grub_intents: Array = Data.enemy_def("burrow_grub")["intents"]
+	var erupt_intent: Dictionary = grub_intents.filter(func(intent: Dictionary) -> bool: return intent["id"] == "erupt")[0]
+	for action: Dictionary in [{"type": "burrow"}, erupt_intent["actions"][0], {"type": "kindle", "amount": 2}]:
 		var key: String = Icons.action_icon_key(action)
-		result.append({"name": "library_" + action["type"], "tokens": Icons.tokens_for_action(action), "icon": key, "caption": TOKEN_CAPTIONS[action["type"]]})
+		var caption: String = TOKEN_CAPTIONS[action["type"]]
+		if action["type"] == "erupt":
+			caption = caption % [action["damage"], action["push"], action["self_expose"]]
+		result.append({"name": "library_" + action["type"], "tokens": Icons.tokens_for_action(action), "icon": key, "caption": caption})
 		var rows: Array = KindleView.rows({"actions": [action]}) if action["type"] == "kindle" else BurrowView.rows({"actions": [action]})
-		result.append({"name": "intent_" + action["type"], "tokens": rows[0], "icon": key, "caption": TOKEN_CAPTIONS[action["type"]]})
+		result.append({"name": "intent_" + action["type"], "tokens": rows[0], "icon": key, "caption": caption})
 	for action: Dictionary in [{"type": "gain_charge", "amount": 1}, {"type": "chain_discharge", "damage": 4, "first_range": 4, "jumps": 3, "falloff": 1}]:
 		var rows: Array = CapacitorView.rows({"actions": [action]})
 		result.append({"name": "intent_" + action["type"], "tokens": rows[0], "icon": "charge" if action["type"] == "gain_charge" else "chain", "caption": TOKEN_CAPTIONS[action["type"]]})
@@ -108,6 +113,7 @@ static func token_cases() -> Array[Dictionary]:
 
 static func _test_tokens(expect: Callable) -> bool:
 	var cases: Array[Dictionary] = token_cases()
+	var txt13: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt13_approved_copy.json"))
 	expect.call(cases.size() == EXPECTED_TOKEN_CASES, "Every FIX-03 token fixture finishes construction")
 	if cases.size() != EXPECTED_TOKEN_CASES: return false
 	for entry: Dictionary in cases:
@@ -121,7 +127,7 @@ static func _test_tokens(expect: Callable) -> bool:
 				expect.call(Icons.icon_texture(entry["icon"]) != null, entry["name"] + " has a loadable approved icon")
 				expect.call(not Icons.token_tooltip(token).contains("<"), entry["name"] + " tooltip has no unfilled placeholder")
 				if entry["icon"] == "erupt":
-					expect.call(Icons.token_tooltip(token) == ERUPT_TOOLTIP, entry["name"] + " keeps the release Erupt tooltip")
+					expect.call(Icons.token_tooltip(token) == txt13["erupt_tooltip"], entry["name"] + " keeps the release Erupt tooltip")
 				if entry["name"] == "intent_gain_charge":
 					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst. Shocking it removes 1 Charge.", "Charge uses its exact numeric rules")
 				if entry["name"] == "intent_chain_discharge":

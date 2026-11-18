@@ -13,16 +13,14 @@ static func handles_intent(intent: Dictionary) -> bool:
 	return false
 
 static func record_move(state: Dictionary, from: Vector2i, to: Vector2i) -> void:
+	# Retain the legacy movement field in saves and Undo snapshots.
 	if from == to: return
 	state["hero_last_move"] = {"turn": int(state.get("turn", 1)), "direction": direction(from, to)}
 
 static func destination(engine: RefCounted, state: Dictionary, enemy: Dictionary, reach: int = BLINK_RANGE) -> Vector2i:
 	var hero: Vector2i = state["player"]["pos"]
 	var start: Vector2i = enemy["pos"]
-	var last: Dictionary = state.get("hero_last_move", {})
-	var direction: Vector2i = last.get("direction", Vector2i.ZERO) if int(last.get("turn", -1)) == int(state.get("turn", 1)) else Vector2i.ZERO
-	if direction == Vector2i.ZERO: direction = direction(hero, start)
-	var preferred: Vector2i = hero - direction
+	var preferred: Vector2i = hero - engine.hero_facing_direction(state)
 	var chosen: Vector2i = start
 	var nearest: int = 2147483647
 	var blockers: Dictionary = engine._enemy_path_blockers(state, enemy, true, false)

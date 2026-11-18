@@ -4,9 +4,10 @@ sta-01 supersedes the Veiled portions of en-03 (owner approved
 `enemy-mechanics-audit`, 2026-10-30). HP 11, initiative 10, reward 10 Embers,
 Fade/Slash weights and all Time values are unchanged.
 
-1. Fade Blinks up to 4 to the free adjacent tile behind the hero's last
-   voluntary movement direction this round. Without a recorded direction it
-   uses the opposite of the hero-to-stalker start direction. The nearest free
+1. Fade Blinks up to 4 to the adjacent tile behind the hero's visible facing.
+   Persistent facing initializes toward the nearest living enemy, breaking
+   ties by enemy ID. Without a living enemy, or when using Snap facing at
+   rest, the sprite shows front and unmirrored (grid down). The nearest free
    adjacent alternative uses existing stable cardinal ordering. With no legal
    destination in range, it stays. Immobilize still blocks the Blink.
 2. `next_intent` forces Ambush for 7 with its existing telegraph, melee, re-Blink
@@ -14,10 +15,10 @@ Fade/Slash weights and all Time values are unchanged.
    and melee 4. Shock and Freeze retain existing activation restrictions.
 3. Fade grants no status. During the wind-up the Stalker is targetable normally,
    draws normally, and has no Veiled badge, rim, wisps, or faded body. Ordinary
-   attacks can kill it. Tooltip: “Fade: Blinks behind you. Next turn it Ambushes.”
+   attacks can kill it. Tooltip: “Lands behind you if it can, otherwise next to you; Ambushes next turn.”
 4. Legacy saves discard `veiled` and convert `ends_veil` to the retained Ambush
    positioning marker, preserving held intent identity, Time and damage.
-   Hero movement direction still persists and restores with Undo.
+   The legacy voluntary movement field still persists and restores with Undo.
 
 Umbra concealment and the shadow Warband's Prior order remain independent:
 `scripts/enemy_mechanics/veil.gd` retains only their visibility helpers.

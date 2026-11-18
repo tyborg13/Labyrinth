@@ -20,13 +20,24 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 		if trap.get("pos") == tile:
 			var entry: Dictionary = from_text(view._trap_tooltip_text(trap), "traps")
 			entry["loop_term"] = "traps"
+			var parts: PackedStringArray = str(entry["description"]).rsplit("\n", true, 1)
+			var air: bool = trap.get("element") == "air"
+			var diagram: String = "@pattern(neighbors:origin) " if air else "@pattern(cross) "
+			var wake: String = parts[1].replace("next to this tile", "on these tiles") if air else parts[1].replace("on this tile and each tile next to it", "on these tiles")
+			entry["display_description"] = parts[0] + "\n" + diagram + wake
 			entry["loop_source"] = {"kind": "trap", "element": str(trap.get("element", ""))}
 			result.append(entry)
 	# Preserve the controller's existing terrain-before-loot traversal. Surface
 	# effects and traps now precede both, per the tile stack contract.
 	for terrain: Dictionary in state.get("terrain", []):
 		if terrain.get("pos") == tile and Rules.terrain_is_live(terrain):
-			result.append(from_text(view._terrain_tooltip_text(terrain)))
+			var entry: Dictionary = from_text(view._terrain_tooltip_text(terrain))
+			match str(terrain.get("kind", "")):
+				"powder_keg":
+					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(cross) When destroyed, deals %d to these tiles." % int(terrain.get("burst_damage", 0))
+				"worldspine":
+					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes %d." % int(terrain.get("pulse_damage", 0))
+			result.append(entry)
 	for loot: Dictionary in state.get("loot", []):
 		if loot.get("pos") != tile or bool(loot.get("claimed", false)): continue
 		var text: String = view._loot_tooltip_text(loot)
@@ -69,10 +80,17 @@ static func mark_entries(view: Control) -> Dictionary:
 		var enemy: Dictionary = lob[tile]["enemy"]
 		var id: int = int(enemy.get("id", -1))
 		if not lob_texts.has(id): lob_texts[id] = preload("res://scripts/enemy_mechanics/lob_view.gd").mark_tooltip(state, enemy)
-		_append_for_tile(result, tile, from_text(lob_texts[id], "lob"))
+		var text: String = "Lob Slag\n" + lob_texts[id]
+		var entry: Dictionary = from_text(text, "lob")
+		entry["loop_source"] = preload("res://scripts/tooltip_loop_context.gd").enemy_unit(enemy)
+		entry["loop_term"] = "lob"
+		_append_for_tile(result, tile, entry)
 	for mark: Dictionary in preload("res://scripts/enemy_mechanics/burrow_view.gd").marks(state):
 		var tile: Vector2i = mark["tile"]
-		_append_for_tile(result, tile, from_text(Icons.tooltip("erupt") + "\n%d damage.%s" % [int(mark["damage"]), _standing_line(tile, player_tile)], "erupt"))
+		var entry: Dictionary = from_text(Icons.tooltip("erupt") + "\n%d damage.%s" % [int(mark["damage"]), _standing_line(tile, player_tile)], "erupt")
+		entry["loop_source"] = preload("res://scripts/tooltip_loop_context.gd").enemy("burrow_grub")
+		entry["loop_term"] = "erupt"
+		_append_for_tile(result, tile, entry)
 	var fixed_marks: Dictionary = {}
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
@@ -108,7 +126,12 @@ static func light_entries(view: Control) -> Dictionary:
 			if tile_seen.has(key): continue
 			tile_seen[key] = true
 			seen[tile] = tile_seen
-			_append_for_tile(result, tile, from_text(str(region["tooltip"])))
+			var entry: Dictionary = from_text(str(region["tooltip"]))
+			if region.has("display_tooltip"):
+				var display: Dictionary = from_text(str(region["display_tooltip"]))
+				entry["display_title"] = display["title"]
+				entry["display_description"] = display["description"]
+			_append_for_tile(result, tile, entry)
 	return result
 
 static func from_text(text: String, icon: String = "") -> Dictionary:
@@ -131,7 +154,7 @@ static func plain_text(values: Array[Dictionary]) -> String:
 	var text := PackedStringArray()
 	for entry: Dictionary in values:
 		text.append(str(entry["title"]) + ("\n" + str(entry["description"]) if not str(entry["description"]).is_empty() else ""))
-	return "\n\n".join(text)
+	return preload("res://scripts/pattern_text.gd").strip("\n\n".join(text))
 
 static func make_stack(values: Array[Dictionary], builder: Callable) -> VBoxContainer:
 	var stack := VBoxContainer.new()
@@ -146,8 +169,10 @@ static func make_stack(values: Array[Dictionary], builder: Callable) -> VBoxCont
 		else:
 			var icon: String = str(entry.get("icon", ""))
 			var texture: Texture2D = Icons.icon_texture(icon) if not icon.is_empty() else null
-			var lines := PackedStringArray([str(entry["description"])]) if not str(entry["description"]).is_empty() else PackedStringArray()
-			panel = Panels.make_icon_lines(texture, str(entry["title"]), lines, str(entry.get("loop_term", "")), entry.get("loop_source", {})) if texture != null else Panels.make_lines(str(entry["title"]), lines)
+			var title: String = str(entry.get("display_title", entry["title"]))
+			var description: String = str(entry.get("display_description", entry["description"]))
+			var lines := PackedStringArray([description]) if not description.is_empty() else PackedStringArray()
+			panel = Panels.make_icon_lines(texture, title, lines, str(entry.get("loop_term", "")), entry.get("loop_source", {})) if texture != null else Panels.make_lines(title, lines)
 		if panel == null: continue
 		panel.set_meta("tile_tooltip_entry", entry.duplicate(true))
 		stack.add_child(panel)

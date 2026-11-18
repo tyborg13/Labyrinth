@@ -12,6 +12,7 @@ const Data = preload("res://scripts/game_data.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const MATRIX_SEEDS: int = 200
 const TEST_HP: int = 100
+const LEGACY_SNARE_SAVE: String = "user://snr01-legacy-special-reward.save"
 const FIRST_TURN_CARD_FIXTURE: Dictionary = {"hand": ["shadow_step", "shadow_step"]}
 
 class BlockedGenerator extends "res://scripts/room_generator.gd":
@@ -70,8 +71,7 @@ static func _matrix(expect: Callable) -> void:
 					expect.call(not occupied.has(enemy["pos"]) and Paths.is_passable(layout["grid"], enemy["pos"]) and not Paths.find_path(layout["grid"], layout["player_start"], enemy["pos"]).is_empty(), "Free reachable spawn: " + context)
 					occupied[enemy["pos"]] = true
 					if bool(enemy.get("snare_hunter", false)): expect.call(Paths.manhattan(enemy["pos"], layout["player_start"]) >= 2, "Ice hunter distance: " + context)
-				var expected_roster_embers: int = int(Data.enemy_def("chainbound_gaoler")["reward_embers"]) + (exits.size() - 1) * int(Data.enemy_def("veilbound_acolyte")["reward_embers"])
-				expect.call(layout["special_starting_reward_embers"] == expected_roster_embers and Library.starting_embers(layout) == expected_roster_embers, "Reward roster excludes starting hunters: " + context)
+				expect.call(not layout.has("special_starting_reward_embers"), "Snare does not store an enhanced reward roster: " + context)
 				var start_count: int = mini(3, 5 - exits.size()) if biome == "ice" else 0
 				expect.call(layout["enemies"].size() == exits.size() + start_count and layout["objective"]["hunters_spawned"] == start_count, "Complete roster: " + context)
 				count += 1
@@ -188,13 +188,24 @@ static func _rewards_and_save(expect: Callable) -> void:
 			expect.call(fixture["combat_state"]["objective"]["exits"].size() >= 2, "Natural fixture retains branching route")
 	var run: Dictionary = Fixture.build(engine, combat, source, {})
 	expect.call(run["combat_state"]["objective"]["exits"].size() == 3, "Fire tier 2 proof has both chips")
+	var legacy_room: Dictionary = run["rooms"][preload("res://scripts/section_map_graph.gd").key(run["current_room"])]
+	var legacy_roster_embers: int = Library.starting_embers(run["current_room_layout"])
+	legacy_room["special_starting_reward_embers"] = legacy_roster_embers
+	run["current_room_layout"]["special_starting_reward_embers"] = legacy_roster_embers
+	run["combat_state"] = combat._damage_enemy(run["combat_state"], 1, int(run["combat_state"]["enemies"][1]["hp"]), true, true, false, false)
 	run["combat_state"] = combat.finish_player_activation(run["combat_state"])
 	var previous: String = Store._run_storage_path
-	Store.set_run_storage_path("user://spx05-mid-snare.save")
-	expect.call(Store.save_run_state(run), "Mid-Snare save writes")
+	Store.set_run_storage_path(LEGACY_SNARE_SAVE)
+	expect.call(Store.save_run_state(run), "Old special-reward Mid-Snare save writes")
 	var loaded: Dictionary = engine.repair_loaded_run_state(Store.load_saved_run())
 	expect.call(loaded["combat_state"] == run["combat_state"], "Mid-Snare timers / hunters roundtrip exactly")
-	expect.call(combat.advance_to_next_player_turn_with_steps(loaded["combat_state"]) == combat.advance_to_next_player_turn_with_steps(run["combat_state"]), "Pending enemy round resumes deterministically")
+	var resumed: Dictionary = combat.advance_to_next_player_turn_with_steps(loaded["combat_state"])
+	expect.call(resumed == combat.advance_to_next_player_turn_with_steps(run["combat_state"]), "Pending enemy round resumes deterministically")
+	loaded["combat_state"] = resumed["state"]
+	Fixture.stage(combat, loaded, "escape")
+	var claimed: Dictionary = engine.finish_combat(loaded, loaded["combat_state"])
+	_expect_normal_reward(expect, engine, loaded, claimed, 3)
+	expect.call(engine.held_embers(claimed) == engine.held_embers(loaded) + int(claimed["pending_reward"]["ember_amount"]), "Old special-reward fight settles exactly once")
 	Store.clear_saved_run()
 	Store.set_run_storage_path(previous)
 	for open_count: int in [1, 2, 3]:
@@ -209,20 +220,35 @@ static func _rewards_and_save(expect: Callable) -> void:
 		defeated["player"]["hp"] = 0
 		expect.call(combat.snare_escape_context(defeated)["doors_open_at_escape"] == 0, "Defeat on a threshold is not an escape")
 		var result: Dictionary = engine.finish_combat(state, battle_value)
-		var room: Dictionary = engine.room_metadata(state, state["current_room"])
-		var base: int = Library.reward_embers(room, battle_value)
-		expect.call(result["pending_reward"]["ember_amount"] == base + 6 * open_count and result["pending_reward"]["cards"].size() == 4, "Special reward plus per-open-door bonus")
-		expect.call((result["pending_reward"]["cards"] as Array).any(func(id: String) -> bool: return Data.card_rarity(id) in ["rare", "epic", "legendary"]), "Snare retains Rare reward floor")
+		_expect_normal_reward(expect, engine, state, result, open_count)
 		_analytics(expect, state, battle_value, result, open_count)
 		expect.call(result["pending_escape"]["destination"] == battle_value["objective"]["exits"][0]["coord"], "Escape commits used branch")
 		expect.call(engine.finish_combat(result, battle_value) == result, "Escape bonus cannot pay twice")
 	var kept_run: Dictionary = Fixture.build(engine, combat, source, {})
+	var deferred_card: String = FIRST_TURN_CARD_FIXTURE["hand"][0]
+	kept_run[Run.SKILL_STATE_KEY]["pending_card"] = deferred_card
 	kept_run["combat_state"] = combat._damage_enemy(kept_run["combat_state"], 1, int(kept_run["combat_state"]["enemies"][1]["max_hp"]), true, true, false, false)
+	kept_run["combat_state"] = combat._damage_enemy(kept_run["combat_state"], 0, int(kept_run["combat_state"]["enemies"][0]["max_hp"]), true, true, false, false)
+	kept_run["combat_state"] = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(kept_run["combat_state"]))["state"]
+	kept_run["combat_state"] = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(kept_run["combat_state"]))["state"]
 	Fixture.stage(combat, kept_run, "escape")
 	var kept_result: Dictionary = engine.finish_combat(kept_run, kept_run["combat_state"])
+	expect.call(int(kept_run["combat_state"]["room_embers"]) > 0 and int(kept_result["pending_reward"]["ember_amount"]) > 18, "Escape includes Gaoler kill Embers and pays for the door protected past its deadline")
+	_expect_normal_reward(expect, engine, kept_run, kept_result, 3)
+	expect.call(kept_result["pending_reward"]["cards"].has(deferred_card) and kept_result[Run.SKILL_STATE_KEY]["pending_card"].is_empty(), "Snare consumes Deferred Choice in the ordinary offer")
 	_analytics(expect, kept_run, kept_run["combat_state"], kept_result, 3, 1)
 	_natural_entry(expect, engine, combat)
-	print("Snare escape/reward/save: all 18 biome/tier fixtures, 1/2/3 open doors and pending-round resume checked")
+	print("Snare escape/reward/save: 18 biome/tier fixtures, normal offer, 1/2/3 open doors and old special-reward save checked")
+
+static func _expect_normal_reward(expect: Callable, engine: RefCounted, run: Dictionary, result: Dictionary, doors: int) -> void:
+	var ordinary: Dictionary = run.duplicate(true)
+	var room: Dictionary = ordinary["rooms"][preload("res://scripts/section_map_graph.gd").key(run["current_room"])]
+	room["type"] = "combat"
+	room.erase("special_type")
+	var baseline: Dictionary = engine.finish_combat(ordinary, ordinary["combat_state"])["pending_reward"]
+	var reward: Dictionary = result["pending_reward"]
+	expect.call(reward["cards"] == baseline["cards"] and reward["cards"].size() == 3, "Snare offers the exact normal lineup for the same room seed, depth and element")
+	expect.call(reward["ember_amount"] == int(baseline["ember_amount"]) + 6 * doors, "Snare pays earned room Embers plus 6 per open door")
 
 static func _natural_entry(expect: Callable, engine: RefCounted, combat: RefCounted) -> void:
 	# int-09: seed 1 finds natural Snares on the merged revision-7 catalog.
@@ -250,7 +276,7 @@ static func _natural_entry(expect: Callable, engine: RefCounted, combat: RefCoun
 	expect.call(Rules.active(run["combat_state"]) and run["combat_state"]["objective"]["exits"].size() == selected["connections"].size(), "Natural Snare preserves every outgoing branch")
 	Fixture.stage(combat, run, "escape")
 	var result: Dictionary = engine.finish_combat(run, run["combat_state"])
-	expect.call(result["pending_reward"]["cards"].size() == 4, "Natural Snare escape meets its special goal")
+	expect.call(result["pending_reward"]["cards"].size() == 3 and result["pending_reward"]["ember_amount"] == 6 * int(combat.snare_escape_context(run["combat_state"])["doors_open_at_escape"]), "Natural Snare escape pays the normal offer and the open-door bonus")
 
 static func _analytics(expect: Callable, run: Dictionary, battle_value: Dictionary, result: Dictionary, open_count: int, expected_kills: int = 0) -> void:
 	var previous_dir: String = Analytics.storage_dir()
@@ -267,11 +293,17 @@ static func _analytics(expect: Callable, run: Dictionary, battle_value: Dictiona
 		else: host._log_combat_transition(run, "snare_test", battle_value)
 		var records: Array[Dictionary] = Analytics.load_all_events()
 		var count: int = 0
+		var reward_count: int = 0
 		for event: Dictionary in records:
+			if event["event_type"] == "reward_offered":
+				reward_count += 1
+				var reward: Dictionary = result["pending_reward"]
+				expect.call(event["payload"]["offered_cards"] == reward["cards"] and int(event["payload"]["ember_amount"]) == int(reward["ember_amount"]), "Snare analytics reports the settled offer: " + caller)
 			if event["event_type"] != "combat_ended": continue
 			count += 1
 			expect.call(int(event["payload"]["doors_open_at_escape"]) == open_count and int(event["payload"]["sealbinders_killed"]) == expected_kills, "Additive Snare analytics fields: " + caller)
 		expect.call(count == 1, "Snare emits one existing combat_ended event: " + caller)
+		expect.call(reward_count == 1, "Snare emits one existing reward_offered event: " + caller)
 		host.free()
 	Analytics.clear_storage()
 	Analytics.set_storage_dir(previous_dir)

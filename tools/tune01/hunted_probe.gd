@@ -27,6 +27,7 @@ func _probe() -> void:
 	var manager: RefCounted = _scene.get("_omen_badges")
 	_expect(manager.badges.has("hunted"), "Hunted production badge present")
 	if manager.badges.has("hunted"):
+		_expect(manager.badges["hunted"].tooltip_text.contains("Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health."), "Focused badge shows the exact Hunted rule")
 		manager.badges["hunted"].grab_focus()
 		await process_frame
 		await _capture("hunted_focus.png")

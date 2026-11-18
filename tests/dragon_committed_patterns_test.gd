@@ -78,7 +78,7 @@ func _test_edge_shapes() -> void:
 	state["terrain"] = []
 	var action := {"committed_shape":"crescent", "pattern_footprint":[2,2], "range":2}
 	var affected: Array[Vector2i] = Shapes.footprint_shape(combat, state, Vector2i(4,3), Vector2i.LEFT, action)
-	var expected: Array[Vector2i] = []
+	var expected: Array[Vector2i]
 	for x: int in [2,3]:
 		for y: int in [2,3,4,5]: expected.append(Vector2i(x,y))
 	for x: int in [4,5]:

@@ -1025,7 +1025,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				return next_state
 			SectionMapGraph.room(next_state, destination).erase("omen_combat_finished")
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
-			if str(room.get("type", "")) == "special": SectionMapGraph.room(next_state, destination)["special_starting_reward_embers"] = Specials.starting_embers(layout)
+			if Specials.uses_enhanced_rewards(room): SectionMapGraph.room(next_state, destination)["special_starting_reward_embers"] = Specials.starting_embers(layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
 			var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
 			# The deterministic teaching room deliberately has no loot. Do not let a
@@ -1171,7 +1171,7 @@ func pre_battle_preview_state(run_state: Dictionary, prepared: Dictionary = {}) 
 	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
 	if owned.is_empty(): return {}
 	var next_state: Dictionary = run_state.duplicate(true)
-	if str(room_metadata(next_state, next_state["current_room"]).get("type", "")) == "special":
+	if Specials.uses_enhanced_rewards(room_metadata(next_state, next_state["current_room"])):
 		SectionMapGraph.room(next_state, next_state["current_room"])["special_starting_reward_embers"] = Specials.starting_embers(owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
@@ -1234,7 +1234,7 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
 	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
 	_record_encounter_pick(next_state, owned["layout"])
-	if str(room_metadata(next_state, next_state["current_room"]).get("type", "")) == "special":
+	if Specials.uses_enhanced_rewards(room):
 		SectionMapGraph.room(next_state, next_state["current_room"])["special_starting_reward_embers"] = Specials.starting_embers(owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
@@ -1340,10 +1340,12 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	_ensure_loop_escape_connection(next_state, current_room)
 	_sync_current_layout_doors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
-	var earned_embers: int = Specials.reward_embers(room, combat_state) if bool(room.get("special_goal_met", false)) else int(combat_state.get("room_embers", 0))
-	var snare_context: Dictionary = preload("res://scripts/snare_room_rules.gd").escape_context(combat_state)
-	if bool(room.get("special_goal_met", false)) and str(Specials.definition(str(room.get("special_type", ""))).get("bonus", {}).get("kind", "")) == "embers_per_open_door":
-		earned_embers += int(snare_context.get("doors_open_at_escape", 0)) * int(Specials.definition(str(room["special_type"]))["bonus"]["amount"])
+	var earned_embers: int = int(combat_state.get("room_embers", 0))
+	var enhanced_reward: bool = bool(room.get("special_goal_met", false)) and Specials.uses_enhanced_rewards(room)
+	if enhanced_reward:
+		earned_embers = Specials.reward_embers(room, combat_state)
+	var snare_bonus: int = SnareRules.escape_bonus(combat_state) if SnareRules.is_room(room) else 0
+	earned_embers += snare_bonus
 	var hoard_embers: int = preload("res://scripts/hoarder_room_rules.gd").hoard_embers(room, combat_state) if bool(room.get("special_goal_met", false)) and preload("res://scripts/hoarder_room_rules.gd").bonus_kind(room) == "hoard_embers" else 0
 	earned_embers += hoard_embers
 	var total_embers: int = earned_embers + ember_bonus
@@ -1391,14 +1393,8 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			next_state["guardian_reward"] = {"guardian_id":room.get("guardian_id", ""),"relic_id":trophy,"room":current_room,"claimed":false}
 			next_state["mode"] = "treasure"
 			return next_state
-	var reward_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
-	var pending_card: String = str(reward_skill_state.get("pending_card", ""))
+	var pending_card: String = str(next_state.get(SKILL_STATE_KEY, {}).get("pending_card", ""))
 	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room, 991, [], pending_card)
-	if not pending_card.is_empty():
-		if not bool(room.get("special_goal_met", false)) and not GameData.card_def(pending_card).is_empty():
-			reward_cards = _offer_with_deferred_id(reward_cards, pending_card)
-		reward_skill_state["pending_card"] = ""
-		next_state[SKILL_STATE_KEY] = reward_skill_state
 	next_state["pending_reward"] = {
 		"cards": reward_cards,
 		"heal_amount": REWARD_HEAL + int(next_state.get("heal_bonus", 0)),
@@ -1406,14 +1402,16 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		"board_state": resolved_combat_state.duplicate(true),
 		"intro_pending": true
 	}
+	_apply_deferred_card_reward(next_state)
 	if LastLightRules.is_room(room) and bool(room.get("special_goal_met", false)): next_state["pending_reward"]["healed_amount"] = dawn_healed
 	next_state["mode"] = "reward"
 	if not missed_equipment.is_empty():
 		next_state["notice"] = ESCAPE_MISSED_EQUIPMENT_NOTICE if not pending_escape.is_empty() else MISSED_EQUIPMENT_NOTICE
-	if hoard_embers > 0:
-		var hoard_line: String = preload("res://scripts/hoarder_room_rules.gd").reward_line(hoard_embers)
-		next_state["pending_reward"]["special_bonus_line"] = hoard_line
-		next_state["notice"] = hoard_line if str(next_state.get("notice", "")).is_empty() else str(next_state["notice"]) + "\n" + hoard_line
+	var bonus_line: String = Specials.snare_reward_line() if snare_bonus > 0 else ""
+	if hoard_embers > 0: bonus_line = preload("res://scripts/hoarder_room_rules.gd").reward_line(hoard_embers)
+	if not bonus_line.is_empty():
+		next_state["pending_reward"]["special_bonus_line"] = bonus_line
+		next_state["notice"] = bonus_line if str(next_state.get("notice", "")).is_empty() else str(next_state["notice"]) + "\n" + bonus_line
 	return next_state
 
 # Last Light's bonus: Health per brazier lit at dawn, capped by the catalog and
@@ -2557,7 +2555,7 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		layout_room["difficulty_tier"] = str(saved_layout.get("difficulty_tier", ""))
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	if str(room.get("type", "")) == "special":
-		layout["special_starting_reward_embers"] = Specials.starting_embers(layout)
+		if Specials.uses_enhanced_rewards(room): layout["special_starting_reward_embers"] = Specials.starting_embers(layout)
 		# Until spx-03 supplies special loot, use the existing pickup factory.
 		if not equipment_drop.is_empty() and not _layout_has_equipment_drop(layout):
 			var loot_room: Dictionary = layout_room.duplicate(true)
@@ -2790,7 +2788,7 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	var blocked_general: Array[String] = TypedArrays.strings(excluded.duplicate())
 	blocked_general.append_array(choices)
 	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
-	var special_reward: bool = str(room.get("type", "")) == "special" and bool(room.get("special_goal_met", false))
+	var special_reward: bool = bool(room.get("special_goal_met", false)) and Specials.uses_enhanced_rewards(room)
 	var count: int = int(Specials.catalog()["rewards"]["card_choices"]) if special_reward else 3
 	# Keep the ordinary first three offers. The fourth is the last elemental
 	# slot in elemental rooms, or another general slot in neutral rooms.
@@ -2841,6 +2839,19 @@ func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array
 	else:
 		choices.append(deferred_id)
 	return choices
+
+func _apply_deferred_card_reward(run_state: Dictionary) -> void:
+	var reward: Dictionary = run_state.get("pending_reward", {})
+	var choices: Array = reward.get("cards", [])
+	if choices.is_empty(): return
+	var skills: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+	var pending: String = skills["pending_card"]
+	if pending.is_empty(): return
+	# Successful special rewards already place the card in its compatible slot.
+	if not choices.has(pending) and not GameData.card_def(pending).is_empty():
+		choices[choices.size() - 1] = pending
+	skills["pending_card"] = ""
+	run_state[SKILL_STATE_KEY] = skills
 
 func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String], depth_state: Dictionary = {}) -> Array[String]:
 	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter, true)
@@ -3950,6 +3961,8 @@ func resolve_map_event(run_state: Dictionary, choice: String) -> Dictionary:
 	var next: Dictionary = EventRules.continue_event(run_state) if choice == "continue" else EventRules.choose_event(run_state, choice, self)
 	var before_page: String = str((run_state.get("event_state", {}) as Dictionary).get("page", ""))
 	var after_page: String = str((next.get("event_state", {}) as Dictionary).get("page", ""))
+	if before_page == "result" and after_page.is_empty() and str(next.get("pending_reward", {}).get("kind", "")) == "event":
+		_apply_deferred_card_reward(next)
 	if before_page != "result" and after_page == "result":
 		var stats: Dictionary = normalized_run_stats(next.get("run_stats", {}))
 		stats["events_resolved"] = int(stats["events_resolved"]) + 1

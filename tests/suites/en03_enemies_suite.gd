@@ -3,6 +3,8 @@ extends RefCounted
 const Glossary = preload("res://scripts/glossary.gd")
 
 const Combat = preload("res://scripts/combat_engine.gd")
+const FacingCombat = preload("res://scripts/hero_facing_combat.gd")
+const Facing = preload("res://scripts/hero_facing_state.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Veil = preload("res://scripts/enemy_mechanics/stalker.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
@@ -269,14 +271,26 @@ static func _test_veil_targeting(expect: Callable) -> void:
 	board.free()
 
 static func _test_blink_destinations(expect: Callable) -> void:
-	var combat := Combat.new()
+	var combat := FacingCombat.new()
 	var value: Dictionary = state([enemy("gloam_stalker", 1, Vector2i(6, 4), "fade")])
-	expect.call(Veil.destination(combat, value, value["enemies"][0]) == Vector2i(3, 4), "No move: opposite hero-to-stalker direction")
-	Veil.record_move(value, Vector2i(4, 3), Vector2i(4, 4))
-	expect.call(Veil.destination(combat, value, value["enemies"][0]) == Vector2i(4, 3), "Last round movement determines behind")
+	expect.call(Veil.destination(combat, value, value["enemies"][0]) == Vector2i(3, 4), "Unset persistent facing initializes toward the nearest living enemy")
+	Veil.record_move(value, Vector2i(3, 4), Vector2i(4, 4))
+	for direction: Vector2i in combat.CARDINAL_DIRECTIONS:
+		value[Facing.KEY] = Facing.direction(direction, Facing.FRONT)
+		var behind: Vector2i = value["player"]["pos"] - direction
+		var plan: Dictionary = combat.enemy_intent_plan(value, 0)
+		var threat: Dictionary = combat.enemy_threat_tiles(value, 0)
+		var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(value, 0)["state"]
+		expect.call(plan["destination"] == behind and threat["projected_path"].back() == behind and resolved["enemies"][0]["pos"] == behind, "Fade plan, preview and resolution use visible facing %s" % direction)
+	value[Facing.KEY] = Facing.direction(Vector2i.LEFT, Facing.FRONT)
+	combat.persist_hero_facing = false
+	expect.call(combat.enemy_threat_tiles(value, 0)["projected_path"].back() == Vector2i(4, 3), "Snap preview uses the front unmirrored idle sprite")
+	expect.call(combat.resolve_enemy_turn_with_steps(value, 0)["state"]["enemies"][0]["pos"] == Vector2i(4, 3), "Snap resolution matches preview")
+	combat.persist_hero_facing = true
+	value[Facing.KEY] = Facing.FRONT.duplicate()
 	value["grid"][3][4] = "wall"
 	var alternative: Vector2i = Veil.destination(combat, value, value["enemies"][0])
-	expect.call(alternative != Vector2i(4, 3) and alternative.distance_squared_to(Vector2i(4, 4)) == 1, "Blocked preferred tile uses the closest free adjacent tile")
+	expect.call(alternative == value["player"]["pos"] + combat.CARDINAL_DIRECTIONS[1], "Blocked preferred tile uses existing tie order")
 	for offset: Vector2i in combat.CARDINAL_DIRECTIONS:
 		var tile: Vector2i = value["player"]["pos"] + offset
 		value["grid"][tile.y][tile.x] = "wall"
@@ -285,9 +299,13 @@ static func _test_blink_destinations(expect: Callable) -> void:
 	value = state([enemy("gloam_stalker", 1, Vector2i(1, 1), "fade")], Vector2i(7, 7))
 	after = resolve(value)
 	expect.call(after["enemies"][0]["pos"] == Vector2i(1, 1) and not after["enemies"][0].has("veiled"), "Range four limits Blink even across walls")
-	value = state([enemy("gloam_stalker", 1, Vector2i(6, 4), "fade")])
-	value["hero_last_move"] = {"turn": 0, "direction": Vector2i.DOWN}
-	expect.call(Veil.destination(combat, value, value["enemies"][0]) == Vector2i(3, 4), "Previous round direction is ignored")
+	value = state([enemy("gloam_stalker", 1, Vector2i(6, 4), "fade"), enemy("crawler", 2, Vector2i(4, 5))])
+	value["enemies"][1]["intent"] = {"id": "hit", "actions": [{"type": "melee", "damage": 2, "range": 1}]}
+	value[Facing.KEY] = Facing.direction(Vector2i.LEFT, Facing.FRONT)
+	var full: Dictionary = combat.resolve_enemy_turn_with_steps(value, 1)["state"]
+	var compact: Dictionary = combat.resolve_enemy_turn_with_steps(value, 1, false, false)["state"]
+	expect.call(compact[Facing.KEY] == full[Facing.KEY] and full[Facing.KEY] == Facing.FRONT, "PASS losses and live contact turn the hero the same way")
+	expect.call(combat.enemy_intent_plan(compact, 0)["destination"] == Vector2i(4, 3), "Fade later in the PASS plan uses the new facing")
 
 static func _test_ambush_and_movement(expect: Callable) -> void:
 	var combat := Combat.new()

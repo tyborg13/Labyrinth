@@ -23,6 +23,7 @@ static func find(term: String, source: Dictionary) -> Dictionary:
 		if str(match_source["kind"]) == "*": return row
 		if str(source.get("kind", "")) != str(match_source["kind"]): continue
 		if match_source.has("id") and str(source.get("id", "")) != str(match_source["id"]): continue
+		if match_source.has("variant") and match_source["variant"] != source.get("variant"): continue
 		if match_source.has("element") and str(source.get("element", "")) != str(match_source["element"]): continue
 		return row
 	return {}

@@ -7,9 +7,18 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 static func enemy(type: String) -> Dictionary:
 	return {"kind": "enemy", "id": type}
 
+static func enemy_unit(unit: Dictionary) -> Dictionary:
+	var source: Dictionary = enemy(str(unit.get("type", "")))
+	if source["id"] == "slag_mortar" and bool(unit.get("is_leader", false)): source["variant"] = "slagmaster"
+	return source
+
 static func term_in(text: String, source: Dictionary) -> String:
 	for term: String in Glossary.ids_in_text(text):
 		if not Registry.find(term, source).is_empty(): return term
+	if source.get("id") == "gloam_stalker" and text.contains(Icons.FADE_DESCRIPTION): return "blink"
+	if source.get("id") == "slag_mortar" and text.contains("@pattern(cross"): return "lob"
+	if source.get("id") == "hoarfrost_seer" and text.contains("@pattern(icefall"): return "marked"
+	if source.get("id") == "burrow_grub" and text.contains(Icons.description("erupt")): return "erupt"
 	# The authored trait sentence uses ordinary lower-case "splits". Preserve
 	# glossary case rules and copy; identify this exact source-owned trait.
 	if source.get("kind") == "enemy" and not Registry.find("splits", source).is_empty():
@@ -64,7 +73,7 @@ static func board_source(view: Control, text: String) -> Dictionary:
 
 static func actor_source(view: Control, key: String) -> Dictionary:
 	for unit: Dictionary in view.combat_state.get("enemies", []):
-		if "enemy_%d" % int(unit.get("id", -1)) == key: return enemy(str(unit.get("type", "")))
+		if "enemy_%d" % int(unit.get("id", -1)) == key: return enemy_unit(unit)
 	return {}
 
 static func register_badge(view: Control, badge: Dictionary, source: Dictionary) -> void:
@@ -81,7 +90,13 @@ static func intent_term(title: String, source: Dictionary) -> String:
 
 static func register_title(view: Control, rect: Rect2, title: String, source: Dictionary) -> void:
 	var term: String = intent_term(title, source)
-	if not term.is_empty(): view._register_tooltip(rect, Icons.tooltip(term))
+	if term.is_empty(): return
+	var text: String = Icons.tooltip(term)
+	if title in ["Fade", "Lob Slag", "Erupt", "Icefall"]:
+		var actor_key: String = str(view.get("_tooltip_loop_actor_key"))
+		var detail: String = view.enemy_intent_tooltip(actor_key)
+		if not detail.is_empty(): text = title + "\n" + detail
+	view._register_tooltip(rect, text)
 
 static func outer_popup_window(source: Dictionary) -> Control:
 	for row: Dictionary in Registry.entries():

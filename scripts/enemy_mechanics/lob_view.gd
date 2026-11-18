@@ -44,7 +44,7 @@ static func marks(view: Control) -> Dictionary:
 	return result
 
 static func action_text(state: Dictionary, enemy: Dictionary, action: Dictionary) -> String:
-	return Icons.lob_text(Rules.presentation_action(_preview_engine, state, enemy, action))
+	return Icons.marked_move_text(Rules.presentation_action(_preview_engine, state, enemy, action))
 
 static func mark_tooltip(state: Dictionary, enemy: Dictionary) -> String:
 	for action: Dictionary in enemy.get("intent", {}).get("actions", []):

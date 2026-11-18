@@ -183,6 +183,10 @@ static func _entries_ref() -> Array:
 	if not _entries_cache.is_empty():
 		return _entries_cache
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
+	for entry: Dictionary in result:
+		if entry.get("id") == "basic:rewards":
+			entry["body"].append(preload("res://scripts/special_encounter_library.gd").snare_reward_line())
+			break
 	result.append_array(magick_entries())
 	result.append_array(equipment_entries())
 	result.append_array(equipment_radiance_card_entries())

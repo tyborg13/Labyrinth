@@ -1,10 +1,24 @@
 extends "res://scripts/combat_engine.gd"
 
-## Presentation adapter used by the live scene and playtest console. The base
-## resolver stays unchanged; previews receive their own additive facing field.
+## Facing adapter used by the live scene and playtest console.
 const HeroFacing = preload("res://scripts/hero_facing_state.gd")
-var persist_hero_facing: bool = true
+var persist_hero_facing: bool = true:
+	set(value):
+		if persist_hero_facing != value: _threat_preview_cache.clear()
+		persist_hero_facing = value
 var _direct_hit_context: Dictionary = {}
+
+func hero_facing_direction(state: Dictionary) -> Vector2i:
+	if not persist_hero_facing:
+		return HeroFacing.tile_direction(HeroFacing.FRONT)
+	return super.hero_facing_direction(state)
+
+func _compact_enemy_action_step(before: Dictionary, after: Dictionary, index: int, action: Dictionary, context: Dictionary) -> Dictionary:
+	var compact: Dictionary = super._compact_enemy_action_step(before, after, index, action, context)
+	if persist_hero_facing and not (context.get("direct_player_hits", []) as Array).is_empty():
+		# Keep the regular step's hit attribution even when PASS only collects losses.
+		compact["hero_facing_delta"] = HeroFacing.source_delta(before, _enemy_action_step(before, after, index, action, context))
+	return compact
 
 func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup: Dictionary = {}, bleed: Array[Dictionary] = TypedArrays.dictionaries([]), context: Dictionary = {}) -> Dictionary:
 	if not persist_hero_facing: return super._resolve_enemy_action(state, index, action, rng, followup, bleed, context)

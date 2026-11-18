@@ -56,8 +56,10 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call(not overlays.is_empty() and not expected.is_empty(), "Real retained overlay draw executes")
 		expect.call(overlays == expected, "Retained overlay draw inputs/glow geometry match independent selectors: %d" % mutation)
 		if mutation == 0:
-			for field: int in [2, 3, 4, 5]:
+			for field: int in [2, 3, 4]:
 				expect.call(overlays.any(func(command: Array) -> bool: return bool(command[field]) if field == 4 else not command[field].is_empty()), "Retained draw fixture exercises overlay selector %d" % field)
+			expect.call(float(candidate._rest_threat_tile_alphas.get(ZONE_TILE, 0.0)) > 0.0, "Area-01 keeps the warning tile without a floor order tag")
+			expect.call(not overlays.any(func(command: Array) -> bool: return not command[5].is_empty()), "Area-01 keeps order numbers off the red floor")
 		else:
 			expect.call(overlays != last_overlay, "Changing overlay input changes actual retained tile content")
 		var torches: Array = _torch_commands(candidate)

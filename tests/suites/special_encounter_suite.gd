@@ -1,5 +1,6 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
@@ -243,7 +244,14 @@ static func _test_deferred_special_rewards(expect: Callable) -> void:
 	var combat: Dictionary = state["combat_state"].duplicate(true)
 	combat["objective"] = {"type": "kill_all"}
 	for enemy: Dictionary in combat["enemies"]: enemy["hp"] = 0
-	state[RunEngineScript.SKILL_STATE_KEY]["pending_card"] = DEFERRED_TEST_CARD
+	var with_skill: Dictionary = preload("res://tests/suites/skill_run_suite.gd")._new_run(engine, ["deferred_choice"])
+	state["progression"] = with_skill["progression"]
+	state["mode"] = "reward"
+	state["pending_reward"] = {"cards": [DEFERRED_TEST_CARD], "heal_amount": 0}
+	state = engine.skip_reward_for_heal(state, DEFERRED_TEST_CARD)
+	expect.call(state[RunEngineScript.SKILL_STATE_KEY]["pending_card"] == DEFERRED_TEST_CARD, "Skipping a reward saves the card before the next special-room reward")
+	state["mode"] = "combat"
+	room = Graph.room(state, state["current_room"])
 	var result: Dictionary = engine.finish_combat(state, combat)
 	var cards: Array = result["pending_reward"]["cards"]
 	expect.call(cards.size() == 4 and cards[2] == DEFERRED_TEST_CARD, "finish_combat puts an off-element deferral in the general slot")
@@ -324,7 +332,7 @@ static func _test_forced_floor(engine: RunEngineScript, state: Dictionary, eleme
 			break
 	var rng := RandomNumberGenerator.new()
 	rng.seed = RARITY_FLOOR_TEST_SEED
-	var forced: Array[String] = engine._special_rarity_floor(rng, common.duplicate(), [], state, filter)
+	var forced: Array[String] = engine._special_rarity_floor(rng, common.duplicate(), TypedArrays.strings([]), state, filter)
 	expect.call(forced.slice(0, 3) == common.slice(0, 3) and GameData.card_rarity(forced[3]) in ["rare", "epic", "legendary"], "An all-common roll rerolls only the last element slot, or last neutral slot, at Rare or better: " + element)
 	if Elements.is_elemental(element):
 		expect.call(GameData.card_element(forced[3]) == element, "Forced Rare offer retains the room's element filter: " + element)

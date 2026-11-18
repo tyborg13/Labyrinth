@@ -12,6 +12,8 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
+const Txt08Proof = preload("res://tests/helpers/txt08_combat_proof.gd")
 
 const TEST_PROGRESSION_PATH: String = "user://skill_ui_progression.json"
 const TEST_RUN_PATH: String = "user://skill_ui_run.save"
@@ -21,6 +23,8 @@ const DEFERRED_TEST_EMBERS: int = 4
 const DEFERRED_TEST_CARD_IDS: Array = ["rime_shard", "static_lash", "gust_step"]
 const DEFERRED_TEST_SKILLS: Array = ["quick_wits", "discerning_eye", "deferred_choice"]
 const DEFERRED_TEST_DIALOG_COPY: String = "Fixture"
+const DEFERRED_PROOF_PATH: String = "user://txt08_deferred_choice.png"
+const DEFERRED_RULE: String = "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
 
 var _failures: Array[String]
 
@@ -33,6 +37,10 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	if OS.get_cmdline_user_args().has("--capture-deferred-choice") and not OS.get_cmdline_user_args().has("--deferred-choice-only"):
+		await _capture_deferred_choice()
+		_finish()
+		return
 	var progression: Dictionary = _skill_progression()
 	_expect(ProgressionStore.save_data(progression), "Skill UI fixture progression should save")
 	_expect(ProgressionStore.selected_skill_ids(progression) == ["quick_wits", "discerning_eye"], "Skill UI fixture should retain both learned roots")
@@ -56,10 +64,13 @@ func _run() -> void:
 	instance.call("_close_dialogue")
 	await process_frame
 	if OS.get_cmdline_user_args().has("--deferred-choice-only"):
+		SkillRunSuite._test_deferred_choice(_expect)
 		await _test_deferred_choice_dialog(instance)
 		instance.queue_free()
 		await process_frame
 		print("SKILL UI DEFERRED CHOICE: %s (%d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _failures.size()])
+		if OS.get_cmdline_user_args().has("--capture-deferred-choice"):
+			await _capture_deferred_choice()
 		_finish()
 		return
 
@@ -1015,6 +1026,7 @@ func _test_deferred_choice_dialog(instance: Node) -> void:
 	var selected: Button = choices.get_child(1)
 	selected.grab_focus()
 	_expect(instance.get_viewport().gui_get_focus_owner() == selected, "Deferred Choice keeps native keyboard/controller focus")
+	_expect(selected.tooltip_text == DEFERRED_RULE, "Focused Deferred Choice card shows the exact non-boss reward rule")
 	var cancel := InputEventAction.new()
 	cancel.action = "ui_cancel"
 	cancel.pressed = true
@@ -1044,6 +1056,47 @@ func _test_deferred_choice_dialog(instance: Node) -> void:
 		ProgressionStore.clear_saved_run()
 	else:
 		_expect(ProgressionStore.save_run_state(saved_run_before), "Deferred Choice test restores the saved run")
+
+func _capture_deferred_choice() -> void:
+	var profile: Dictionary = _unguided_progression()
+	profile["level"] = DEFERRED_TEST_LEVEL
+	profile["skill_ids"] = SkillTreeLibrary.repaired_selection([], DEFERRED_TEST_LEVEL - 1, DEFERRED_TEST_SKILLS)
+	profile = ProgressionStore.normalized_data(profile)
+	_expect(ProgressionStore.save_data(profile), "Deferred Choice proof saves its learned abilities")
+	var run: Dictionary = Txt08Proof.fade_run(profile)
+	var viewport: SubViewport = Txt08Proof.viewport(self)
+	var instance: Control = load("res://scenes/run_scene.tscn").instantiate()
+	viewport.add_child(instance)
+	await Txt08Proof.settle(self)
+	instance._load_run_state(run)
+	instance._close_dialogue()
+	await Txt08Proof.settle(self)
+
+	var sigil: Button = instance.get("_skill_sigil")
+	_expect(sigil != null and sigil.is_visible_in_tree(), "Combat shows the Abilities control")
+	if sigil != null:
+		sigil.pressed.emit()
+	await Txt08Proof.settle(self)
+	var popover: Control = instance.get("_skill_status_popover")
+	var tile := popover.find_child("SkillStatusTile_deferred_choice", true, false) as Button
+	_expect(tile != null and tile.is_visible_in_tree(), "Abilities popover shows the Deferred Choice tile")
+	if tile != null:
+		tile.grab_focus()
+	await process_frame
+	await process_frame
+
+	Txt08Proof.check_fight(instance, run, "txt08_deferred_choice", _expect)
+	var title: Label = instance.get("_skill_status_detail_title")
+	var detail: RichTextLabel = instance.get("_skill_status_detail_description")
+	_expect(title.is_visible_in_tree() and title.text == "Deferred Choice", "Abilities popover shows the Deferred Choice heading")
+	_expect(detail.is_visible_in_tree() and detail.get_parsed_text() == DEFERRED_RULE, "Abilities popover shows the exact Deferred Choice rule")
+	_expect(viewport.get_visible_rect().encloses(detail.get_global_rect()) and detail.get_content_height() <= detail.size.y, "Deferred Choice rule fits inside the capture")
+	if _failures.is_empty():
+		print("TXT08 DEFERRED CHOICE RULE: " + detail.get_parsed_text())
+		await Txt08Proof.capture(instance, DEFERRED_PROOF_PATH, _expect)
+	viewport.queue_free()
+	await process_frame
+	print("TXT08 DEFERRED CHOICE PROBE: %s (%d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _failures.size()])
 
 func _test_reward_reroll(instance: Node) -> void:
 	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

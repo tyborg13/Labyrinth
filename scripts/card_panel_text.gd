@@ -18,10 +18,14 @@ static func copy(id: String, values: Dictionary = {}, glossary_override: String 
 	var term: String = glossary_override if not glossary_override.is_empty() else str(template.get("term", ""))
 	var title: String = Glossary.name_for(term) if not glossary_override.is_empty() else str(template.get("title", ""))
 	var text: String = Glossary.definition(term) if template.get("text") == null or not glossary_override.is_empty() else _format_card_text(str(template["text"]), values)
+	var diagram_text: String = ""
+	if template.has("diagram_text") and glossary_override.is_empty():
+		diagram_text = _format_card_text(str(template["diagram_text"]), values)
 	return {
 		"tooltip": str(template.get("legacy", template.get("text", ""))).format(values),
 		"card_tooltip": (title + "\n" if not title.is_empty() else "") + text,
 		"card_title": title,
+		"diagram_tooltip": (title + "\n" if not title.is_empty() else "") + diagram_text if not diagram_text.is_empty() else "",
 		"card_term": term,
 		"panel_id": id,
 	}

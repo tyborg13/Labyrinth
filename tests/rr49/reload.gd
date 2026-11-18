@@ -1,8 +1,20 @@
 extends SceneTree
 
 const Current = preload("res://assets/units/chainbound_gaoler_cutout/rig.gd")
-const Legacy = preload("res://experiments/cutouts/chainbound_gaoler/rr49/fixtures/submission_2bd5ea39a/legacy_production.gd")
 const PHASE: float = 0.26
+
+class Legacy extends "res://experiments/cutouts/chainbound_gaoler/rr49/fixtures/submission_2bd5ea39a/legacy_production.gd":
+	func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> void:
+		super._build_mesh(data, mesh_name, source_key)
+		var mesh: Polygon2D = get_node_or_null(NodePath(mesh_name)) as Polygon2D
+		if mesh == null or not mesh.has_meta("stable_source"): return
+		# The production loader prepares vectors in advance. The frozen painter
+		# still expects JSON arrays for the source vertices it skins.
+		var source: Dictionary = mesh.get_meta("stable_source")
+		var vertices: Array
+		for point: Variant in source["vertices"]:
+			vertices.append([point.x, point.y] if point is Vector2 else point)
+		source["vertices"] = vertices
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()

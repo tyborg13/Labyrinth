@@ -275,8 +275,14 @@ func _initialize() -> void:
 	# These six leaves and their six save copies are the complete diff from
 	# both 695404aa5 and pre-qa-18 e6b5727ef; only seed 1 combat/save hashes
 	# are re-pinned. Maps, rooms and all other fields still compare exactly.
+	# qa-94 reproduced the old hashes and compared full snapshots at the release
+	# boundaries. The map hashes stay exact. crd-14/18 change balance metadata,
+	# zek-01 adds fight_seed, and trp-01 changes trap ground and its resolution.
+	# tune-01/gfix-02 add difficulty tiers and cap starters while protecting the
+	# exit Gaoler. ship-02 changes the Upheaval marks, and ship-03 changes area
+	# intent geometry/provenance. The last checkpoint matches b8de863ef exactly.
 	var expected: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/encounter_measurement_golden.json"))
-	check(Sweep.golden(_legacy_wind_metadata) == expected, "pre-change golden maps, rooms, combat transitions and save roundtrips match")
+	check(Sweep.golden(_legacy_wind_metadata) == expected, "release golden maps, rooms, combat transitions and save roundtrips match")
 	check(stripped_wind_announcements > 0, "Legacy golden exercises the separately tested additive wind-lock metadata")
 	check(stripped_fuel_metadata > 0, "Legacy golden exercises the lay provenance independently covered by the fuel scheduler/save regressions")
 	test_run_save_roundtrips()

@@ -303,7 +303,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 21, "Sixteen existing loops plus five element-specific trap scripts")
+	_expect(Registry.entries().size() == 23, "Existing loops plus Fade and Slagmaster barrage")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -315,7 +315,7 @@ func _semantics() -> void:
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
-		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]) and not Fixture.Txt13.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))
@@ -422,8 +422,10 @@ func _routed_hover_semantics() -> void:
 		routed._register_tooltip(ROUTE_PROOF_RECT, tooltip_text)
 		board._aim_focus.canvases["tooltip_route_proof"] = {"canvas": routed, "unit": enemy, "hud": true}
 		_expect(not board._retained_render_layers().has(routed), "Reproduces HUD canvas omitted by the old capture route")
+		var routed_path: String = str(routed.get_path())
+		var injected: Callable = func(candidate: Dictionary) -> bool: return str(candidate["canvas"]) == routed_path and bool(candidate["routed_hud"])
 		var candidates: Array[Dictionary] = _enemy_hover_candidates(board, row)
-		_expect(candidates.filter(func(candidate: Dictionary) -> bool: return bool(candidate["routed_hud"])).size() == 1, "Capture finds the same per-actor region as the game: " + id)
+		_expect(candidates.filter(injected).size() == 1, "Capture finds the same per-actor region as the game: " + id)
 		board._last_pointer_position = ROUTE_PROOF_RECT.get_center()
 		var game_text: String = board._get_tooltip(board._last_pointer_position)
 		_expect(game_text == tooltip_text, "Game native hit-test opens the intended term: " + id)
@@ -433,7 +435,7 @@ func _routed_hover_semantics() -> void:
 		_expect(panel != null and (window != null if FileAccess.file_exists(Registry.find(term, source).get("asset_path", "")) else window == null), "Game tooltip builder preserves source-specific routing: " + id)
 		if panel != null: panel.free()
 		routed.hide()
-		_expect(_enemy_hover_candidates(board, row).filter(func(candidate: Dictionary) -> bool: return bool(candidate["routed_hud"])).is_empty(), "Capture excludes hidden routed canvases")
+		_expect(_enemy_hover_candidates(board, row).filter(injected).is_empty(), "Capture excludes hidden routed canvases")
 		scene.queue_free()
 		await process_frame
 	# Separately exercise the recorder mask for all three real fixture scenes.

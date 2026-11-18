@@ -1,6 +1,9 @@
 extends SceneTree
 
 const Combat = preload("res://scripts/combat_engine.gd")
+const Committed = preload("res://scripts/battlefield_rules/committed.gd")
+const PassForecast = preload("res://scripts/pass_forecast_red_tiles.gd")
+const LIVE_SKIPPED_TURN_LIMIT: int = 100
 const CASES = ["safe", "danger", "defiance", "defiance_twice", "defiance_umbra", "fatigue", "fatigue_lethal", "fatigue_defiance", "fatigue_full_hand", "fatigue_empty", "fatigue_cycles", "fatigue_heal", "block_start", "expose", "chilled", "bleed", "burn", "reinforcements", "reinforcements_after", "summon", "death_spawn", "safety_limit", "second_move", "many_repeats", "later_known", "meteor", "activation_end", "activation_end_lethal", "dead_queue", "dead_actor", "missing_intent", "player_tie", "umbra"]
 var failures: int = 0
 var checks: int = 0
@@ -12,7 +15,7 @@ func _initialize() -> void:
 	for kind: String in CASES:
 		var source: Dictionary = fixture(kind)
 		var unchanged: Dictionary = source.duplicate(true)
-		var scheduled: Dictionary = engine.finish_player_activation(source)
+		var scheduled: Dictionary = PassForecast.schedule(engine, source)
 		var forecast: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
 		var summary: Dictionary = scene.call("_pass_preview_summary_for_phase_result", source, forecast)
 		var turn_before: Dictionary = forecast.get("player_turn_before_state", {})
@@ -25,8 +28,8 @@ func _initialize() -> void:
 				check(int(forecast["state"]["player"].get(field, 0)) == int(production_start["player"].get(field, 0)), kind + ": optimized start matches production " + field)
 			check(int(forecast["state"].get("deck", {}).get("cycles", 0)) == int(production_start.get("deck", {}).get("cycles", 0)), kind + ": optimized draw cycles match production")
 			check(turn_before == frozen_before, kind + ": turn-start receipt snapshot is retained unchanged")
-		var actual: Dictionary = engine.advance_to_next_player_turn_with_steps(scheduled)
-		var after: Dictionary = actual["state"]
+		var live: Dictionary = _resolve_live_span(engine, source)
+		var after: Dictionary = live["state"]
 		var uncertain: bool = bool(summary["unrevealed_before_player"]) or bool(summary["umbra_unknown_before_player"])
 		check(source == unchanged, kind + ": forecast preserves source")
 		if not uncertain:
@@ -56,7 +59,15 @@ func _initialize() -> void:
 			check(not str(entries.back()["text"]).contains("?") and rows.contains("portrait:enemy:enemy_1 :×2") and not rows.contains("?"), kind + ": counted repeat shows ×2 without '?': " + rows)
 		if kind == "safety_limit": check(bool(summary["forecast_limit_reached"]) and row_text(scene, summary).contains("turn_clock:?") and not row_text(scene, summary).contains("Safe"), "Bounded partial result cannot claim SAFE")
 		if kind == "later_known": check(bool((summary.get("enemy_hits", {}) as Dictionary).get("enemy_2", false)) and int(summary["hp_loss"]) == int(source["player"]["hp"]) - int(after["player"]["hp"]), "A repeat cannot hide another foe's announced attack")
-		if kind == "activation_end": check(int(summary["hp_loss"]) > 5, "Activation-end pressure included before the announced attack")
+		if kind == "activation_end":
+			check(int(summary["hp_loss"]) > 5, "Activation-end pressure included before the announced attack")
+			check(int(live["first_hp"]) > 0 and int(live["skipped_turns"]) > 0, "Frostbite leaves the hero alive on the first, Frozen turn")
+			check(engine.combat_outcome(after) == "defeat", "The committed Frozen span ends in defeat")
+		if kind in ["activation_end", "activation_end_lethal"]:
+			check(int(summary["skipped_turns"]) == int(live["skipped_turns"]), kind + ": forecast counts the Frozen turns before defeat")
+			check(row_text(scene, summary).contains("health:−%d → 0" % int(source["player"]["hp"])), kind + ": panel shows the full lethal Health loss")
+			print("ACTIVATION END %s: first_hp=%d skipped_turns=%d forecast_defeat=%s actual_outcome=%s" % [
+				kind, int(live["first_hp"]), int(live["skipped_turns"]), str(summary["defeat"]), engine.combat_outcome(after)])
 		if kind == "block_start": check(int(summary["hp_loss"]) > 0, "Block expires before turn-start fire")
 		if kind in ["reinforcements", "death_spawn", "safety_limit", "umbra"]:
 			check(uncertain, kind + ": unavailable intent flagged")
@@ -78,7 +89,7 @@ func _initialize() -> void:
 	var repaired_run: Dictionary = run_engine.repair_loaded_run_state(fixture_run)
 	check(int(repaired_run["defiance_capacity"]) == int(defiance_state["defiance_capacity"]) and int(repaired_run["defiance_remaining"]) == int(defiance_state["defiance_remaining"]), "Defiance capture run retains fixture capacity and charges after load repair")
 	var repaired_combat: Dictionary = repaired_run["combat_state"]
-	var scheduled: Dictionary = engine.finish_player_activation(repaired_combat)
+	var scheduled: Dictionary = PassForecast.schedule(engine, repaired_combat)
 	var forecast: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
 	var summary: Dictionary = scene.call("_pass_preview_summary_for_phase_result", repaired_combat, forecast)
 	check(int(summary["defiance_spent"]) == 1 and row_text(scene, summary).contains("defiance:−1 → 4/24"), "Repaired Defiance capture fixture projects the expected save row")
@@ -86,6 +97,20 @@ func _initialize() -> void:
 	scene.free()
 	print("PTF08 CASES RESULT: %s (%d checks, %d failures)" % ["PASS" if failures == 0 else "FAIL", checks, failures])
 	quit(1 if failures else 0)
+
+# atk-07 totals cover the next turn the hero can act on. Follow the committed
+# Pass path again whenever turn-start Freeze leaves the hero unable to act.
+func _resolve_live_span(engine: RefCounted, source: Dictionary) -> Dictionary:
+	var state: Dictionary = source
+	var first_hp: int = 0
+	for skipped_turns: int in range(LIVE_SKIPPED_TURN_LIMIT + 1):
+		var scheduled: Dictionary = Committed.finish_player_activation(engine, state)
+		state = Committed.advance_to_player(engine, scheduled)["state"]
+		if skipped_turns == 0: first_hp = int(state["player"]["hp"])
+		if engine.combat_outcome(state) != "" or not engine.is_player_turn(state) or not bool(state.get("player_turn_restrictions", {}).get("frozen", false)):
+			return {"state": state, "first_hp": first_hp, "skipped_turns": skipped_turns}
+	check(false, "Live forecast fixture exceeded the Frozen-turn limit")
+	return {"state": state, "first_hp": first_hp, "skipped_turns": LIVE_SKIPPED_TURN_LIMIT}
 
 func check(ok: bool, message: String) -> void:
 	checks += 1

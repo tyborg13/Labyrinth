@@ -24,6 +24,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	Settings.apply_settings(settings, null, false)
 	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Fixture.Tip05.BIOMES.get(fixture["id"], Biomes.default_biome())))))
 	biome = str(Fixture.Traps.BIOMES.get(fixture["id"], biome))
+	biome = str(Fixture.Txt13.BIOMES.get(fixture["id"], biome))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -98,18 +99,22 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 		else: pacing.end_scope()
 	completion["done"] = true
 
-static func crop_rect(board: Control) -> Rect2i:
+static func crop_rect(board: Control, tiles: Rect2i = Fixture.PatchChecks.PATCH) -> Rect2i:
+	var bounds: Rect2 = tile_bounds(board, tiles)
+	var width: float = bounds.size.x * 282.0 / 258.0
+	var extent := Vector2(width, width * 168.0 / 282.0)
+	return Rect2i(Rect2(bounds.get_center() - extent * 0.5, extent))
+
+static func tile_bounds(board: Control, tiles: Rect2i) -> Rect2:
 	var bounds := Rect2()
 	var first: bool = true
-	for y: int in range(3):
-		for x: int in range(4):
+	for y: int in range(tiles.position.y, tiles.end.y):
+		for x: int in range(tiles.position.x, tiles.end.x):
 			for vertex: Vector2 in board._tile_polygon(Vector2i(x, y)):
 				var point: Vector2 = board.get_global_transform_with_canvas() * vertex
 				if first: bounds = Rect2(point, Vector2.ZERO); first = false
 				else: bounds = bounds.expand(point)
-	var width: float = bounds.size.x * 282.0 / 258.0
-	var extent := Vector2(width, width * 168.0 / 282.0)
-	return Rect2i(Rect2(bounds.get_center() - extent * 0.5, extent))
+	return bounds
 
 static func rule_presentation(scene: Node, beat: Dictionary) -> Dictionary:
 	var shown: Dictionary = scene.call("_enemy_loss_feedback_presentation_between_states", beat["before"], beat["after"], "lightning")

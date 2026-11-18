@@ -56,7 +56,7 @@
    "name": "Hunted",
    "kind": "bane",
    "fights": 2,
-   "description": "Each combat has one more enemy. Full rooms get +20% enemy Health instead.",
+   "description": "Each normal combat gets one more enemy, up to {starter_cap}; if it can't, its enemies get +20% Health.",
    "effect": {
     "type": "extra_enemies",
     "amount": 1

@@ -72,10 +72,10 @@ static func _wrapping_and_anchor(check: Callable) -> void:
 	var joined := PackedStringArray()
 	check.call(title_index > 2, "Burst rules wrap over multiple lines")
 	for index: int in range(1, title_index):
-		var line: String = str(rows[index][0]["value"])
+		var line: String = str(rows[index].back()["value"])
 		joined.append(line)
 		check.call(board.get_theme_default_font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, board.INTENT_POPUP_ROW_FONT_SIZE).x <= Text.WIDTH, "Every drawn Burst line fits 420 px with the board font")
-	check.call(" ".join(joined) == "When it dies, it hits every unit next to it for 6 and leaves Fire.", "Wrapping preserves exact live rules")
+	check.call(" ".join(joined) == "When it dies, it hits every unit on these tiles for 6 and leaves Fire.", "Wrapping preserves exact live rules")
 	var line_rects: Array[Rect2] = board._enemy_intent_contour_line_rects(Rect2(400, 200, 100, 150), rows, "Scuttle", Typography.ui_font(), "right")
 	for index: int in range(1, title_index): check.call(is_equal_approx(line_rects[index].position.x, line_rects[0].position.x + board.INTENT_POPUP_ICON_SIZE + 3.0), "Wrapped rules align with Bursts title glyphs")
 	board.presentation["burst_intent_obstacle_global_rect"] = RAIL_PROOF_RECT
@@ -89,7 +89,7 @@ static func _wrapping_and_anchor(check: Callable) -> void:
 	await tree.process_frame
 	var rules: Label = trait_row.find_child("EnemyBurstTraitRules", true, false)
 	var title: Label = trait_row.find_child("EnemyBurstTraitTitle", true, false)
-	check.call(rules.size.x <= Text.WIDTH and rules.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT and is_equal_approx(rules.global_position.x, title.global_position.x), "Actual pre-battle rules wrap at 420 and align with their title")
+	check.call(rules.size.x <= Text.WIDTH and rules.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT and is_equal_approx(rules.get_parent().global_position.x, title.global_position.x), "Actual pre-battle diagram and rules wrap at 420 and align with their title")
 	trait_row.free()
 	state["enemies"][0]["kindled_bonus"] = 0
 	state["enemies"][0]["intent"] = Data.enemy_def("ember_tick")["intents"][1].duplicate(true)

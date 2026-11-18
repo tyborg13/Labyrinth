@@ -1,0 +1,324 @@
+{
+  "min_images": 18,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "fade_gloam_stalker_combat_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lob_slagmaster_barrage_combat_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lob_slagmaster_barrage_tile_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lob_slagmaster_barrage_pre_battle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "marked_burrow_grub_combat_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "marked_burrow_grub_tile_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "marked_icefall_seer_combat_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "marked_icefall_seer_pre_battle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "card_light_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "keyword_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "brazier_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "relic_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "grimoire_article_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            816,
+            468,
+            29,
+            20
+          ],
+          "min_luma_range": 35,
+          "min_luma_stdev": 7
+        },
+        {
+          "rect": [
+            817,
+            581,
+            47,
+            30
+          ],
+          "min_luma_range": 35,
+          "min_luma_stdev": 7
+        }
+      ]
+    },
+    {
+      "pattern": "battlefield_rule_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "burst_ember_tick_combat_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "burst_ember_tick_pre_battle_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "card_force_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1124,
+            430,
+            250,
+            280
+          ],
+          "min_luma_range": 35,
+          "min_luma_stdev": 7
+        }
+      ]
+    },
+    {
+      "pattern": "umbra_vision_tooltip_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            1118,
+            171,
+            190,
+            38
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

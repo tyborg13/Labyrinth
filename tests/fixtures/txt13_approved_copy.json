@@ -1,0 +1,14 @@
+{
+  "glossary_definitions": {
+    "skill_deferred_choice": "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
+  },
+  "relic_descriptions": {
+    "witchglass_lantern": "Your @icon(illusion) shed @icon(illuminate) {radius} tiles farther while they last.",
+    "winters_spur": "Moving across @term(surface_ice) without turning costs only 1 @kw(movement). Turning starts a new stretch.",
+    "galehook_talon": "Your @kw(push) and @kw(pull) move the target together with every enemy connected to it by contact along that direction. Only the front one collides."
+  },
+  "skill_descriptions": {
+    "witchlight": "Your @icon(illusion) shed @icon(illuminate) 1 tile farther while they last."
+  },
+  "erupt_tooltip": "Erupt\nEmerges at its mark, or the nearest free tile."
+}

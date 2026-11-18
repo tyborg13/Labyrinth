@@ -134,6 +134,9 @@ static func run_forced(expect: Callable) -> void:
 	var state: Dictionary = _sealed_battle()
 	state["player"]["pos"] = PUSH_ORIGIN
 	state["enemies"][0]["pos"] = PLAYER_BESIDE_SEAL
+	# Isolate collision damage so Block and Stoneskin cannot absorb it.
+	state["enemies"][0]["block"] = 0
+	state["enemies"][0]["stoneskin"] = 0
 	var push: Dictionary = {"type": "push", "range": 1, "amount": 2}
 	expect.call(not engine._tile_is_passable(state, SEALED_TILE) and Paths.is_passable(state["grid"], SEALED_TILE), "Forced-movement regression distinguishes the seal from the raw floor")
 	expect.call(engine.valid_targets_for_player_action(state, push).has(PLAYER_BESIDE_SEAL), "Push into the sealed threshold is legal through its wall collision")

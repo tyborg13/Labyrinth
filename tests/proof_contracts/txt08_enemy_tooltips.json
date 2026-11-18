@@ -1,0 +1,76 @@
+{
+  "min_images": 4,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*slag_mortar_01_aim.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*burrow_grub_02_marked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*gloam_stalker_fade.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*slagmaster_barrage.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            48,
+            160,
+            1600,
+            730
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    }
+  ]
+}

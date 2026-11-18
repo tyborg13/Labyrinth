@@ -20,6 +20,7 @@ def syntax_pattern(name):
 TOKEN = syntax_pattern("TOKEN_PATTERN")
 TOKEN_START = syntax_pattern("TOKEN_START_PATTERN")
 FLURRY_RETIREMENT = json.loads((ROOT / "tests/fixtures/flurry_retirement_copy.json").read_text())
+TXT13_APPROVED_COPY = json.loads((ROOT / "tests/fixtures/txt13_approved_copy.json").read_text())
 # sta-01 and flu-01 supersede these records; keep protected design sources verbatim.
 RETIRED_TERMS = {"dive", "veil", "aoe", *FLURRY_RETIREMENT["retired_glossary_ids"]}
 TEXT_ONLY = {"wait", "turns", "movement", "item", "outcrop"}
@@ -94,6 +95,7 @@ class TextBudgetTest(unittest.TestCase):
         live = marked_glossary_supersession(live)
         short_copy = {key: text for key, text in short_copy.items() if key not in MARKED_RETIRED}
         short_copy["marked"] = MARKED_DEFINITION
+        short_copy.update(TXT13_APPROVED_COPY["glossary_definitions"])
         # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
         live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
                           "definition": "When it dies, it splits into smaller foes next to it."}
@@ -120,20 +122,21 @@ class TextBudgetTest(unittest.TestCase):
 
     def test_relics_match_approved_copy_and_budget(self):
         relics = read("data/relics.json")
+        txt13 = TXT13_APPROVED_COPY["relic_descriptions"]
+        superseded = FLURRY_RETIREMENT["relic_descriptions"] | txt13
         active = retired = 0
         for source in read("spec/peer_benchmark/staged/text/relic_rewrite.json"):
             with self.subTest(relic=source["id"]):
                 actual = relics[source["id"]]
                 self.assertEqual(actual["name"], source["name"])
-                # Flurry retirement explicitly supersedes Crown's exclusion copy.
-                description = FLURRY_RETIREMENT["relic_descriptions"].get(source["id"], source["description"])
+                description = superseded.get(source["id"], source["description"])
                 if source["id"] == "cragbound_gauntlet":
                     description = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
                 self.assertEqual(actual["description"], description)
                 if source.get("retired_redirect_to"):
                     retired += 1
                     self.assertTrue(actual["retired"])
-                    self.assertEqual(actual["description"], source["current_description"])
+                    self.assertEqual(actual["description"], txt13.get(source["id"], source["current_description"]))
                 else:
                     active += 1
                     self.assertLessEqual(words(actual["description"]), 25)

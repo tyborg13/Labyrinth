@@ -111,7 +111,8 @@ func _run() -> void:
 							changed[entry["id"]] = true
 							changed_faces.append(key)
 							summary["changed_samples"] += 1
-						if previous["margin_px"] == null or float(previous["margin_px"]) + Audit.EPSILON >= Measure.EDGE_INSET_PX:
+						var previously_fits: bool = previous["margin_px"] == null or float(previous["margin_px"]) + Audit.EPSILON >= Measure.EDGE_INSET_PX
+						if previously_fits and not Baseline.PATTERN_ROWS_CHANGED.has(entry["id"]):
 							_expect(identical, "Previously fitting layout is byte-identical: " + key)
 		minimums.append(summary)
 		summary["validation_failure_count"] = failures.size() - context_failure_start

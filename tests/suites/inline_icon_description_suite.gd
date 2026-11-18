@@ -67,6 +67,9 @@ static func run(expect: Callable) -> void:
 	var retirement: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/flurry_retirement_copy.json"))
 	for relic_id: String in retirement["relic_descriptions"]:
 		approved[relic_id]["description"] = retirement["relic_descriptions"][relic_id]
+	var txt13: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt13_approved_copy.json"))
+	for relic_id: String in txt13["relic_descriptions"]:
+		approved[relic_id]["description"] = txt13["relic_descriptions"][relic_id]
 	# txt-02 retires Area Attack wording; retain the protected historical record.
 	approved["cragbound_gauntlet"]["description"] = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
 	var relic_icon_count: int = 0

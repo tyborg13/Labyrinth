@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*gloam_stalker_fade.png",
+      "regions": [
+        {"rect": [48, 160, 320, 100], "min_luma_range": 32, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*slagmaster_barrage.png",
+      "regions": [
+        {"rect": [48, 160, 320, 100], "min_luma_range": 32, "min_luma_stdev": 4}
+      ]
+    }
+  ]
+}

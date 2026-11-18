@@ -30,6 +30,7 @@ var _entries: Array[Dictionary]
 var _relic_layout: bool = false
 var _panel_host: Control
 var _panels: Array[Control]
+var _hand_diagram_bounds: Callable
 var _mouse_focus_clear_pending: bool = false
 var _layout_signature: Array = []
 var _layout_passes: int = 0
@@ -133,7 +134,7 @@ func _ready() -> void:
 	add_theme_constant_override("separation", STACK_SEPARATION)
 	set_process(false)
 
-func show_for(target: Control, entries: Array, relic_layout: bool = false) -> void:
+func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_bounds: Callable = Callable()) -> void:
 	hide_stack(true)
 	_relic_layout = relic_layout
 	if target == null or entries.is_empty():
@@ -153,7 +154,9 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false) -> vo
 		if icon_texture == null and not _relic_layout:
 			continue
 		var body_lines := PackedStringArray()
-		var description: String = str(entry.get("description", "")).strip_edges()
+		var description: String = str(entry.get("display_description", entry.get("description", ""))).strip_edges()
+		if hand_bounds.is_valid() and description.begins_with("@pattern("):
+			_hand_diagram_bounds = hand_bounds
 		if not description.is_empty():
 			body_lines.append(description)
 		var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
@@ -206,6 +209,7 @@ func hide_stack(force: bool = false) -> void:
 	visible = false
 	set_process(false)
 	_follow_target = null
+	_hand_diagram_bounds = Callable()
 	_entries.clear()
 	_panels.clear()
 	_layout_signature.clear()
@@ -256,7 +260,21 @@ func _follow_target_now() -> void:
 		viewport_rect.position.y + SAFE_MARGIN,
 		viewport_rect.end.y - SAFE_MARGIN - stack_size.y
 	)
+	if _hand_diagram_bounds.is_valid():
+		target_position.y = _clear_hand(target_position, stack_size, viewport_rect.position.y + SAFE_MARGIN)
 	global_position = target_position
+
+func _clear_hand(proposed: Vector2, stack_size: Vector2, min_top: float) -> float:
+	var stack_rect := Rect2(proposed, stack_size)
+	var hand_top: float = INF
+	var intersects_hand: bool = false
+	for card: Rect2 in _hand_diagram_bounds.call():
+		if stack_rect.position.x >= card.end.x or stack_rect.end.x <= card.position.x:
+			continue
+		hand_top = minf(hand_top, card.position.y)
+		intersects_hand = intersects_hand or stack_rect.intersects(card)
+	var above_hand: float = hand_top - stack_size.y - CARD_GAP
+	return above_hand if intersects_hand and above_hand >= min_top else proposed.y
 
 func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 	var row: Control = _follow_target.get_meta("glossary_choice_row") as Control

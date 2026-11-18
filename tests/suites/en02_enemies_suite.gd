@@ -288,7 +288,8 @@ static func _additional_boundaries(engine: RefCounted, expect: Callable) -> void
 	state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
 	expect.call(state["enemies"][0]["icefall_tiles"] == marked and state["enemies"][0]["intent"]["id"] == "icefall_land", "Freeze preserves held Icefall on its skipped activation")
 	var rows: Array = Icons.tokens_for_action(intent("hoarfrost_seer", "icefall")["actions"][0])
-	expect.call(rows.size() == 2 and rows[0]["icon"] == "icefall" and int(rows[0]["value"]) == 5 and int(rows[1]["value"]) == 5, "Icefall intent rows show real five damage and range five")
+	expect.call(rows.size() == 3 and rows[0].get("diagram_markup") == "@pattern(icefall:hero)" and rows[0].get("mark_affected_origin") == true, "Icefall intent starts with the hero-centred marking diagram")
+	expect.call(rows.size() == 3 and rows[1]["icon"] == "icefall" and int(rows[1]["value"]) == 5 and rows[2]["icon"] == "range" and int(rows[2]["value"]) == 5, "Icefall intent rows show real five damage and range five")
 	rows = Icons.tokens_for_action(intent("gale_herald", "call_the_wind")["actions"][0])
 	expect.call(rows.size() == 2 and rows[0]["icon"] == "wind" and int(rows[0]["value"]) == 2 and rows[1]["icon"] == "push" and int(rows[1]["value"]) == 1, "Call rows show two rounds and Push one")
 	state = fixture(engine, "gale_herald")

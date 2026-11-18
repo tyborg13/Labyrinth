@@ -151,16 +151,20 @@ func _inspect_live_caption(scene: Control, battle: Dictionary, captain: Dictiona
 	print("ENC03 DRAW ORDER: ", diagnostics)
 	if not before:
 		_expect(int(diagnostics["ui_layer"]) > int(diagnostics["board_layer"]), "Action caption canvas draws after retained board HUD, status, intent and lob overlays")
-		if label.begins_with("aiming"): _expect(bool(diagnostics.get("overlap", false)), "Real fire Warband fixture reproduces caption/leader crest screen-rect overlap")
+		if label.begins_with("aiming"):
+			var screen_crest: Rect2 = diagnostics.get("crest_rect", Rect2())
+			_expect(screen_crest.has_area() and not bool(diagnostics["overlap"]), "Warband leader crest clears the action caption after ux-10's board framing")
 		_check_caption_scrim(banner, diagnostics)
 		if not check_only:
 			DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 			await ScrimRenderer.check(self, banner, diagnostics, OUTPUT.path_join("after_%s_scrim_1920x1080.png" % label), _expect)
 		var resolved: Dictionary = Lob.presentation_action(Combat.new(), battle, captain, intent["actions"][0])
-		_expect(rows.size() == 1 and rows[0].size() == 1 and Icons.token_value_text(rows[0][0]) == str(int(resolved["center_damage"])), "Live lob HUD has only lob and actual scaled centre damage")
-		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(battle.get("objective", {}))
-		var expected_tooltip: String = Icons.lob_text(resolved) + ("\n" + order if not order.is_empty() else "")
-		_expect(board.call("enemy_intent_tooltip", "enemy_%d" % int(captain["id"])) == expected_tooltip, "Live captain tooltip matches the approved sentence with scaled values and its separate order")
+		var aiming: bool = str(resolved["type"]) == "lob_mark"
+		var expected_icons: Array = ["marked", "aoe", "surface_fire"] if aiming else ["lob"]
+		var patterns: int = maxi(1, int(resolved.get("lob_cross_count", 1)))
+		_expect(rows.size() == 1 and rows[0].slice(0, patterns).all(func(token: Dictionary) -> bool: return token["kind"] == "aoe_pattern") and rows[0].slice(patterns).map(func(token: Dictionary) -> String: return token["icon"]) == expected_icons and Icons.token_value_text(rows[0][patterns + int(aiming)]) == str(int(resolved["center_damage"])), "Live Lob HUD shows the committed diagrams, phase and scaled centre damage")
+		var expected_tooltip: String = Icons.marked_move_text(resolved)
+		_expect(board.call("enemy_intent_tooltip", "enemy_%d" % int(captain["id"])) == expected_tooltip, "Live captain tooltip matches the approved phase-specific copy")
 		_expect(mark_count > 0, "Landing danger tiles exist on " + label)
 	print("ENC03 LIVE HUD: %s turn%d depth%d text='%s' marks=%d" % [label, battle["turn"], battle["room_depth"], text, mark_count])
 	await _capture(label, {"turn": battle["turn"], "depth": battle["room_depth"], "intent": intent, "rows_text": text, "callout_text": banner.text, "draw_order": diagnostics, "marks": mark_count, "captain": captain["pos"], "hero": battle["player"]["pos"]})

@@ -9,6 +9,14 @@ const SNAPSHOT_FIELDS: Array = ["trace_state_after", "reaction_after", "en04_sta
 static func valid(value: Variant) -> bool:
 	return value is Dictionary and value.get("facing", "") in ["front", "rear"] and value.get("mirrored") is bool
 
+static func current(state: Dictionary) -> Dictionary:
+	var value: Variant = state.get(KEY)
+	return value if valid(value) else initial(state)
+
+static func tile_direction(value: Dictionary) -> Vector2i:
+	var forward := Vector2i.RIGHT if bool(value["mirrored"]) else Vector2i.DOWN
+	return forward if value["facing"] == "front" else -forward
+
 static func direction(delta: Vector2i, current: Dictionary) -> Dictionary:
 	if delta == Vector2i.ZERO: return current.duplicate()
 	var x: Dictionary = {"facing": "front" if delta.x > 0 else "rear", "mirrored": true}
@@ -33,7 +41,7 @@ static func initial(state: Dictionary) -> Dictionary:
 	return FRONT.duplicate() if nearest.is_empty() else direction(nearest["pos"] - origin, FRONT)
 
 static func ensure(state: Dictionary) -> Dictionary:
-	if not valid(state.get(KEY)): state[KEY] = initial(state)
+	if not valid(state.get(KEY)): state[KEY] = current(state)
 	return state[KEY]
 
 static func action_delta(engine: RefCounted, before: Dictionary, action: Dictionary, target: Vector2i) -> Vector2i:
@@ -82,7 +90,8 @@ static func enemy_result(before: Dictionary, result: Dictionary) -> void:
 			if not pending_commit.is_empty(): pending_commit[KEY] = current.duplicate()
 			pending_commit = step.get("state", {})
 			continue
-		current = direction(source_delta(state, step), current)
+		var delta: Vector2i = step.get("hero_facing_delta", Vector2i.ZERO) if step.get("kind") == "known_loss" else source_delta(state, step)
+		current = direction(delta, current)
 		# Track source movement and hero displacement without turning on either.
 		if str(step.get("kind", "")) == "move":
 			for enemy: Dictionary in state.get("enemies", []):

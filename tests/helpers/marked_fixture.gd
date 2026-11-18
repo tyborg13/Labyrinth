@@ -3,17 +3,20 @@ extends RefCounted
 # Permanent production-combat fixture; no captured baseline or absolute paths.
 const Data = preload("res://scripts/game_data.gd")
 const FIXTURE_SEED: int = 611
+const FIXTURE_DEPTH: int = 2
 const BOARD_SIZE: int = 11
 const FIXTURE_HP: int = 100
 
-static func fixture(engine: RefCounted, type: String, seed_value: int) -> Dictionary:
+static func fixture(engine: RefCounted, type: String, seed_value: int, player: Dictionary = {}) -> Dictionary:
 	var grid: Array
 	for y: int in range(BOARD_SIZE):
 		var row: Array[String]
 		for x: int in range(BOARD_SIZE): row.append("wall" if x == 0 or y == 0 or x == BOARD_SIZE - 1 or y == BOARD_SIZE - 1 else "stone")
 		grid.append(row)
-	var room: Dictionary = {"coord": Vector2i(1, 0), "depth": 2, "type": "combat", "grid": grid, "player_start": Vector2i(5, 5), "enemies": [{"id": 1, "type": type, "pos": Vector2i(5, 2), "hp": FIXTURE_HP, "max_hp": FIXTURE_HP}], "terrain": [], "traps": [], "loot": []}
-	var state: Dictionary = engine.create_combat(seed_value, room, {"hp": FIXTURE_HP, "max_hp": FIXTURE_HP, "deck_cards": ["quick_stab", "brace"], "skill_ids": [], "relics": [], "hand_size": 1})
+	var enemy_hp: int = FIXTURE_HP if player.is_empty() else engine._scaled_enemy_max_hp(type, FIXTURE_DEPTH)
+	var room: Dictionary = {"coord": Vector2i(1, 0), "depth": FIXTURE_DEPTH, "type": "combat", "grid": grid, "player_start": Vector2i(5, 5), "enemies": [{"id": 1, "type": type, "pos": Vector2i(5, 2), "hp": enemy_hp, "max_hp": enemy_hp}], "terrain": [], "traps": [], "loot": []}
+	var snapshot: Dictionary = player if not player.is_empty() else {"hp": FIXTURE_HP, "max_hp": FIXTURE_HP, "deck_cards": ["quick_stab", "brace"], "skill_ids": [], "relics": [], "hand_size": 1}
+	var state: Dictionary = engine.create_combat(seed_value, room, snapshot)
 	state.erase("umbra")
 	return state
 

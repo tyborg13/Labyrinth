@@ -369,7 +369,7 @@ def encounter_assumptions() -> dict[str, Any]:
                           "damage_progression": "ordinary ranged local-depth scaling followed by unchanged DepthRules modifiers",
                           "arc_jab": "Move 2 + melee 3 + Shock 1"},
             "gloam_stalker": {"hp": 11, "base_initiative": 10, "reward_embers": 10, "weighted_cycle_including_forced_ambush": 14.75,
-                              "fade": "Blink <=4 behind last hero movement this round; no status, normal targeting and body during wind-up",
+                              "fade": "Blink <=4 behind the hero's visible facing, with a legal adjacent fallback; no status, normal targeting and body during wind-up",
                               "ambush": "forced following Fade; re-Blink if needed; melee 7; impossible strike falls back to Slash",
                               "slash": "Move 2 + melee 4"},
             "encounters": "Encounter tables are unchanged; no intrinsic card coefficient change",

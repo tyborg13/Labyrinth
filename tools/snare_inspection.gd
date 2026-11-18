@@ -68,7 +68,6 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	state["rooms"][Graph.key(room["coord"])] = room
 	state["current_room"] = room["coord"]
 	state["current_room_layout"] = Rooms.new().generate_room(int(state["seed"]), room, travel)
-	room["special_starting_reward_embers"] = state["current_room_layout"]["special_starting_reward_embers"]
 	state["player_hp"] = FIXTURE_PLAYER_HP
 	state["player_max_hp"] = FIXTURE_PLAYER_HP
 	state["combat_state"] = combat.create_combat(int(state["seed"]), state["current_room_layout"], engine._player_snapshot(state))
@@ -82,10 +81,18 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	stage(combat, state, study)
 	return state
 
+static func pre_battle(engine: RefCounted, combat: RefCounted, source: Dictionary) -> Dictionary:
+	var state: Dictionary = build(engine, combat, source, {})
+	state["mode"] = "pre_battle"
+	state["pre_battle_pending"] = true
+	state["pre_battle_travel_dir"] = state["snare_inspection"]["travel"]
+	state["combat_state"] = {}
+	return state
+
 static func stage(combat: RefCounted, state: Dictionary, study: String) -> void:
 	var battle: Dictionary = state["combat_state"]
 	if study == "kept_open":
-		battle = combat._damage_enemy(battle, 1, Rules.SEALBINDER_HP, true, true, false, false)
+		battle = combat._damage_enemy(battle, 1, int(battle["enemies"][1]["max_hp"]), true, true, false, false)
 	if study in ["first_seal", "kept_open"]:
 		var seal_turn: int = int(battle["objective"]["exits"][1]["seal_after_player_turns"])
 		for turn: int in range(seal_turn):

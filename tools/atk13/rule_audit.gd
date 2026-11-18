@@ -1,5 +1,6 @@
 extends SceneTree
 ## Natural fights, deterministic movement/PASS only. No encounter or dial edits.
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Cases = preload("res://tools/atk13/rule_cases.gd")
 const RuleTruth = preload("res://tools/atk13/rule_truth.gd")
 const Observer = preload("res://tools/atk13/rule_observer.gd")
@@ -129,7 +130,7 @@ func _check_forecast(engine: RefCounted, id: String, sample: Dictionary, before:
 	if mismatch:
 		coverage[id]["forecast_mismatches"] += 1
 		failures.append("%s seed=%d clock=%d forecast health=%d hp=%d actual loss=%d hp=%d safe=%s hurt=%s hidden=%s" % [id, sample["seed"], before.get("initiative_clock", 0), shown, summary.get("projected_hp", -1), loss, actual_hp, safe, hurt, hidden])
-		if coverage[id]["forecast_mismatches"] == 1: _exception_repro(id + "-pass", sample, before, before, after, [{"summary": summary, "rows": rows}])
+		if coverage[id]["forecast_mismatches"] == 1: _exception_repro(id + "-pass", sample, before, before, after, TypedArrays.dictionaries([{"summary": summary, "rows": rows}]))
 	passes.append({"instance": id, "seed": sample["seed"], "clock": before.get("initiative_clock", 0), "shown_loss": shown, "realized_loss": loss, "shown_hp": summary.get("projected_hp", -1), "realized_hp": actual_hp, "safe": safe, "actual_hurt": hurt, "hidden": hidden, "mismatch": mismatch})
 
 func _check_beat(engine: RefCounted, id: String, sample: Dictionary, passed: Dictionary, step: Dictionary) -> void:

@@ -126,9 +126,6 @@ static func configure(layout: Dictionary, tier: int) -> void:
 	layout["objective"]["hunters_spawned"] = enemies.size() - exits.size()
 	layout["special_type"] = "umbral_snare"
 	layout["special_variant"] = layout["objective"]["special_variant"]
-	# The special reward is the starting Gaoler + Sealbinder roster only.
-	var roster_layout: Dictionary = {"enemies": enemies.slice(0, exits.size())}
-	layout["special_starting_reward_embers"] = Library.starting_embers(roster_layout)
 	for index: int in range(exits.size(), enemies.size()): enemies[index]["reward_embers"] = 0
 
 static func hunter_type(variant: Dictionary, index: int) -> String:
@@ -186,6 +183,10 @@ static func escape_context(state: Dictionary) -> Dictionary:
 		open_count += 1
 		if exit["target_tile"] == state["player"]["pos"] and int(state["player"]["hp"]) > 0: escaped = true
 	return {"doors_open_at_escape": open_count if escaped else 0, "sealbinders_killed": int(state["objective"].get("sealbinders_killed", 0))}
+
+static func escape_bonus(state: Dictionary) -> int:
+	var doors: int = int(escape_context(state).get("doors_open_at_escape", 0))
+	return doors * int(Library.catalog()["types"]["umbral_snare"]["bonus"]["amount"])
 
 # Removal by sealing is silent and earns no death effects. Keep its silhouette
 # in the visual snapshot; omit it only from the board's audio snapshot.

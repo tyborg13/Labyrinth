@@ -186,7 +186,7 @@ static func presentation_action(engine: RefCounted, state: Dictionary, enemy: Di
 			break
 	if str(action["type"]) == "lob_mark":
 		var landing: Dictionary = _scaled_landing_action(engine, state, source)
-		for field: String in ["center_damage", "arm_damage"]: result[field] = landing[field]
+		for field: String in ["center_damage", "arm_damage", "surface"]: result[field] = landing[field]
 		result["lob_cross_count"] = (aiming_forecast(engine, state, source).get("centers", []) as Array).size()
 	else:
 		# Use the saved centres after marking, including a clipped barrage that

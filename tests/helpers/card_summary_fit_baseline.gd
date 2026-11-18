@@ -6,6 +6,8 @@ const CONTROL_CARD: String = "quick_stab"
 # Owner-approved definition changes after the capture. Their faces must still
 # pass every fit check, but their layouts and upgrade samples no longer match it.
 # crd-03 (2026-11-07): Cloudstep Loop costs 2 and draws 1.
+# txt-13 replaces the Hall of Mirrors and Worldbreak text chips with diagrams.
+const PATTERN_ROWS_CHANGED: Array = ["hall_of_mirrors", "worldbreak"]
 const DEFINITION_CHANGED: Array = ["cloudstep_loop"]
 
 static func pinned(key: String) -> bool:

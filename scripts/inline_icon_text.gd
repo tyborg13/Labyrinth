@@ -5,6 +5,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
+const Patterns = preload("res://scripts/pattern_text.gd")
 const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
 const DEFAULT_ICON_SCALE: float = 1.15
 # All explicit concept words share this colour and inherit host typography.
@@ -33,7 +34,7 @@ static func _tokens(markup: String) -> Array[RegExMatch]:
 # Historical name: callers use this to choose RichTextLabel over Label, so
 # word-only @kw markup must also take the rich-text path.
 static func has_icons(markup: String) -> bool:
-	return not _tokens(markup).is_empty()
+	return not _tokens(markup).is_empty() or not Patterns.matches(markup).is_empty()
 
 static func concept_keys(markup: String) -> Array[String]:
 	var result: Array[String]
@@ -66,8 +67,10 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 	if install_glossary_tooltip and label.get_script() == null:
 		label.set_script(GlossaryRichLabel)
 	label.clear()
+	markup = Patterns.display_rules(markup)
 	var font_size: int = label.get_theme_font_size("normal_font_size")
 	var icon_size: float = maxf(12.0, float(font_size) * icon_scale)
+	label.set_meta("inline_pattern_count", Patterns.matches(markup).size())
 	label.set_meta("inline_icon_keys", icon_keys(markup))
 	label.set_meta("inline_concept_keys", concept_keys(markup))
 	label.set_meta("inline_icon_font_size", font_size)
@@ -78,8 +81,16 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 static func append_to(label: RichTextLabel, markup: String, icon_size: float, parse_bbcode: bool = true) -> void:
 	label.hint_underlined = false
 	var cursor: int = 0
-	for token: RegExMatch in _tokens(markup):
+	var tokens: Array[RegExMatch] = _tokens(markup)
+	tokens.append_array(Patterns.matches(markup))
+	tokens.sort_custom(func(a: RegExMatch, b: RegExMatch) -> bool: return a.get_start() < b.get_start())
+	for token: RegExMatch in tokens:
 		_append_text(label, markup.substr(cursor, token.get_start() - cursor), parse_bbcode)
+		if token.get_string().begins_with("@pattern("):
+			var pattern: Texture2D = Patterns.texture(token, icon_size)
+			if pattern != null: label.add_image(pattern, pattern.get_width(), pattern.get_height(), Color.WHITE, INLINE_ALIGNMENT_CENTER)
+			cursor = token.get_end()
+			continue
 		var key: String = token.get_string(2)
 		var kind: String = token.get_string(1)
 		var entry: Dictionary = Glossary.lookup(key)
@@ -105,6 +116,7 @@ static func append_to(label: RichTextLabel, markup: String, icon_size: float, pa
 	_append_text(label, markup.substr(cursor), parse_bbcode)
 
 static func plain_text(markup: String) -> String:
+	markup = Patterns.strip(markup)
 	var result: String = ""
 	var cursor: int = 0
 	for token: RegExMatch in _tokens(markup):

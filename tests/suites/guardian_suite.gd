@@ -1,12 +1,13 @@
 extends RefCounted
 
-const GUARDIAN_HP_PERCENT_BY_SECTION: Array[int] = [115, 120, 125, 125, 125, 125]
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const GUARDIAN_HP_PERCENT_BY_SECTION: Array[int] = Array([115, 120, 125, 125, 125, 125], TYPE_INT, "", null)
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const Map = preload("res://scripts/section_map_graph.gd")
 const LEGACY_SNUFF_CAP: int = 2
-var failures: Array[String] = []
+var failures: Array[String]
 func check(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
 static func run(expect: Callable) -> void:
@@ -314,7 +315,7 @@ func _test_reward_flow() -> void:
 	var combat := Combat.new()
 	var progression = preload("res://scripts/progression_store.gd")
 	var data = preload("res://scripts/game_data.gd")
-	var exclusives: Array[String] = []
+	var exclusives: Array[String]
 	for id: String in data.relics():
 		if bool(data.relic_def(id).get("exclusive_guardian",false)): exclusives.append(id)
 	check(exclusives.size()==6,"six exclusive Guardian trophies")
@@ -370,7 +371,7 @@ func _test_cover_and_force_boundaries() -> void:
 	check(state["enemies"][0]["pos"]==Vector2i(2,1) and state["enemies"][1]["pos"]==Vector2i(3,1),"Talon never carries a group into the player")
 	state=fixture("resonant_clapper",[Vector2i(3,1),Vector2i(3,3),Vector2i(4,1),Vector2i(4,3)])
 	for actor: Dictionary in state["enemies"]: actor["block"]=0
-	var heads: Array[Vector2i] = [Vector2i(3,1),Vector2i(3,3)]
+	var heads: Array[Vector2i] = TypedArrays.vector2i([Vector2i(3,1),Vector2i(3,3)])
 	state=engine._resolve_board_attack(state,{"type":"aoe","range":3,"damage":4,"chain":1},Vector2i(3,1),"player",-1,{},heads)
 	check(state["enemies"][0]["hp"]==96 and state["enemies"][1]["hp"]==96,"multiple native Chain heads each start at base damage")
 	check(state["enemies"][2]["hp"]==95 and state["enemies"][3]["hp"]==95,"each head owns a distinct first hop without a global counter")

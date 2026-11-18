@@ -17,19 +17,21 @@ const FIXTURE_SEED: int = 2902
 const FIXTURE_LOW_HP: int = 9
 const PROMPT_FIXTURE_RUN_INDEX: int = 50
 const DEMO_ENV: String = "LABYRINTH_DEMO"
-# Run goldens re-captured on codex/release d6e088d7a (no demo code) when release was merged in;
-# profile goldens unchanged from 76664b3e2. Profile save/load
-# goldens captured by executing that revision's original store source. Hash the complete Variant bytes,
-# including field order and nested values; full-game zero-depth stays sparse.
+# qa-94 reproduced the d6e088d7a run pins and compared before/after snapshots
+# on both sides of ptf-06 (Grimoire omens), ptf-02 (revision-7 Hearth row,
+# downstream map and journal), and tune-01 (normal tier on the room layout).
+# Those changes account for the entire run diff through b8de863ef. The
+# profile save/load pins still come from the original 76664b3e2 store.
+# Hash the complete Variant bytes, including field order and nested values.
 const FULL_GOLDEN := {
 	"saved_profile_json": "73d6d7544b1b04d75f88b7ae9d51427dd51a92dae0392d135647821348d02389",
 	"resumed_profile": "c23ced3bfa78be966eefa10ff3ab7b78e832624c2f6eaebe6eb342fd75504a68",
 	"profile": "55cf35f832e2e7ecb29c52f8397498e1e6440dd818508ae2abc9bdb6d3929d99",
-	"new_run": "d520c7c0457c7007becfd1ecc5e90c117d2815e1dddfb2767354ba3889ebbbbb",
-	"resumed_run": "c2ac2b53c65eae33430c92de413f180ea71cddebd76ee9e22a6f6c030e686a4e",
-	"continued": "49b978daaf2ff6c1d1478150d7033da0ce04fa13fdd65cdbdde448905a2616b5",
+	"new_run": "35b02fd0beea47d6d61ced1e21fb071d9d5b289cb2dd1b4256b5ce0ce6fd76cc",
+	"resumed_run": "25ef3c61e12b25c931145197632b7eeecd90be27071deb9589b163657e6fc239",
+	"continued": "7c085c00a97b09ce0c9aae613841f460dfb93f57edd5b9bcd8db7946a6511664",
 	"continued_mode": "room", "continued_section": 0,
-	"next_section": "3616399da1a22e27a6248b2b2343509f53cde6e246a07c8af18cd16a339a77e0",
+	"next_section": "382fa21b68f220fd39e1c06be0645ac14bff4fbdc04162605ac3defff33d0127",
 	"next_mode": "room", "next_section_index": 1,
 }
 
@@ -71,8 +73,8 @@ func _test_full_golden() -> void:
 	var profile: Dictionary = ProgressionStore.default_data()
 	var state: Dictionary = engine.create_new_run(FIXTURE_SEED, profile)
 	_assert(_fingerprint(profile) == FULL_GOLDEN["profile"], "Full new profile bytes match the before-change golden")
-	_assert(_fingerprint(state) == FULL_GOLDEN["new_run"], "Full new run bytes match the before-change golden")
-	_assert(_fingerprint(engine.repair_loaded_run_state(state)) == FULL_GOLDEN["resumed_run"], "Full resumed run bytes match the before-change golden")
+	_assert(_fingerprint(state) == FULL_GOLDEN["new_run"], "Full new run bytes match the release golden")
+	_assert(_fingerprint(engine.repair_loaded_run_state(state)) == FULL_GOLDEN["resumed_run"], "Full resumed run bytes match the release golden")
 	_assert(not state.has("build_kind") and not profile.has("build_kind") and not profile.has(DemoRules.LINKS_PROMPT_RUN_KEY), "Full state has no new demo fields")
 	_assert(ProgressionStore.save_data(profile), "Full profile saves")
 	_assert(FileAccess.get_file_as_string(ProgressionStore._storage_path).sha256_text() == FULL_GOLDEN["saved_profile_json"], "Full saved profile JSON bytes match the original store golden")
@@ -86,13 +88,13 @@ func _test_full_golden() -> void:
 	state = engine.finish_combat(state, state["combat_state"])
 	state = engine.continue_dragon_reward(state)
 	_assert(state["mode"] == FULL_GOLDEN["continued_mode"] and DemoGraph.active_section(state) == FULL_GOLDEN["continued_section"], "Full dragon Continue keeps its original mode and section")
-	_assert(_fingerprint(state) == FULL_GOLDEN["continued"], "Full dragon reward/Continue bytes match the before-change golden")
+	_assert(_fingerprint(state) == FULL_GOLDEN["continued"], "Full dragon reward/Continue bytes match the release golden")
 	for coord: Vector2i in engine.available_moves(state):
 		if int(engine.room_metadata(state, coord).get("section_index", 0)) == 1:
 			state = engine.move_to_room(state, coord)
 			break
 	_assert(state["mode"] == FULL_GOLDEN["next_mode"] and DemoGraph.active_section(state) == FULL_GOLDEN["next_section_index"], "Full first dragon opens section 2 exactly as before")
-	_assert(_fingerprint(state) == FULL_GOLDEN["next_section"], "Full section transition bytes match the before-change golden")
+	_assert(_fingerprint(state) == FULL_GOLDEN["next_section"], "Full section transition bytes match the release golden")
 
 func _test_config_and_cutoff() -> void:
 	var config: Dictionary = DemoRules.config()

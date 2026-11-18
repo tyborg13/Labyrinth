@@ -1459,12 +1459,17 @@ resolve effects, add events, or write saves. Choice ownership and the existing
 map-event receipt are committed before beats start; skipping, explicit saving,
 loading a result page, or reduced motion cannot grant anything again. The
 ordinary `map_event_resolved`, `omen_gained`, `omen_expired` and `reward_choice`
-payloads and local-first append-only writer are unchanged.
+payloads and local-first append-only writer are unchanged. A previously saved
+Deferred Choice card may replace an event card when its chooser opens. The
+map-event receipt retains the authored outcome and the later reward-choice
+receipt records the card actually chosen.
 
 evt-02 feedback 1 records `omen_start_applied_ids` in newly created combat
 snapshots solely for presentation. The resolver records only actual stat,
 Vision, surface or Umbra changes; generated layouts report actual extra enemies
-added, including no receipt for bosses, Guardians, specials or a full board.
+added. Hunted also reports a Health substitute when the normal-room cap or
+spawn availability prevents its extra enemy. Bosses, Guardians and specials
+do not receive a Hunted receipt.
 Clamped/no-op and drop-time effects do not announce at fight start. This additive
 receipt adds no analytics event or payload field and changes no omen numbers.
 Old combat snapshots without it remain readable and do not fabricate a firing.
@@ -1547,9 +1552,11 @@ their doors, excluding silent deadline dissolves; it is 0 outside a Snare.
 These derive from the saved combat objective through
 `CombatEngine.snare_escape_context`, using the same open-door count as the
 `embers_per_open_door` reward hook. The completed combat/pending-escape snapshot
-freezes the winning moment. No event is renamed, schema version changes, prior
-record is rewritten or network dependency is introduced. Both paths retain the
-local-first append-only JSONL writer and the existing special/variant context.
+freezes the winning moment. For snr-01, `reward_offered.payload.offered_cards`
+uses the ordinary combat offer and `ember_amount` includes earned room Embers,
+the existing relic modifier and 6 Embers per open door. Both paths retain the
+existing event names, schema version, local-first append-only JSONL writer and
+special/variant context.
 
 ## Last Light (spx-08)
 
@@ -1677,7 +1684,8 @@ Existing historical records remain unchanged. New Gust Shrike Dive activations
 emit ordinary `enemy_action_resolved` Move and AoE steps; `intent_id: dive`
 preserves grouping. The shared AoE step carries `committed_shape: swept_path`,
 Air and actual affected tiles; forced movement uses existing collision events.
-Fade/Ambush retain enemy-action event boundaries, identity and damage. Veiled
+Fade/Ambush retain enemy-action event boundaries, identity and damage. Their
+Blink destinations reflect the hero's visible facing. Veiled
 is no longer a status, and no new status-tick event is emitted. No analytics
 schema change, event deletion, save-history rewrite or intrinsic card bonus.
 Legacy Veiled/Dive save conversion visits only enemies and their intents in the

@@ -67,7 +67,7 @@ static func action_variants(state: Dictionary, action: Dictionary) -> Array[Dict
 	if action_type == "melee" and int(action.get("chain", 0)) <= 0 and has_effect(state, "stoneskin_melee_cross"):
 		var price: int = int(effect(state, "stoneskin_melee_cross").get("cost", 4))
 		if int((state.get("player", {}) as Dictionary).get("stoneskin", 0)) >= price:
-			result.append(_with_mode(action, "cross", "Spend %d Stoneskin · cross" % price))
+			result.append(_with_mode(action, "cross", "Spend %d Stoneskin" % price))
 	if action_type == "detonate" and has_effect(state, "rubble_detonate"):
 		result.append(_with_mode(action, "crush", "Crush Rubble"))
 	if int(action.get("chain", 0)) > 0 and has_effect(state, "chain_swap_endpoints"):

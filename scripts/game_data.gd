@@ -2,6 +2,7 @@ extends RefCounted
 class_name GameData
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
 const ItemRelicRules = preload("res://scripts/item_relic_rules.gd")
@@ -108,7 +109,11 @@ static func event_def(id: String) -> Dictionary:
 	return events().get(id, {})
 
 static func omen_def(id: String) -> Dictionary:
-	return _load_json_dict(EVENTS_PATH).get("omens", {}).get(id, {})
+	var definition: Dictionary = omens().get(id, {})
+	if id == "hunted" and not definition.is_empty():
+		definition = definition.duplicate(false)
+		definition["description"] = str(definition["description"]).format({"starter_cap": Difficulty.MAX_STARTERS})
+	return definition
 
 static func omens() -> Dictionary:
 	return _load_json_dict(EVENTS_PATH).get("omens", {})
@@ -1146,23 +1151,25 @@ static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) ->
 				if not pattern.has(pair) and not frontier.has(pair):
 					frontier.append(pair)
 		if not frontier.is_empty():
-			options.append({"kind": "pattern_add", "action_index": action_index, "label": "Widen connected area", "offsets": frontier, "cost_base": 460 * frontier.size()})
+			options.append({"kind": "pattern_add", "action_index": action_index, "label": "Add %d tiles" % frontier.size(), "offsets": frontier, "cost_base": 460 * frontier.size()})
 		return options
 	var diagonal_offsets: Array = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
-	if _missing_offsets(pattern, diagonal_offsets).size() > 0:
+	var added_diagonals: int = _missing_offsets(pattern, diagonal_offsets).size()
+	if added_diagonals > 0:
 		options.append({
 			"kind": "pattern_add",
 			"action_index": action_index,
-			"label": "Add diagonals",
+			"label": "Add %d tiles" % added_diagonals,
 			"offsets": diagonal_offsets,
 			"cost_base": 920 * territory_multiplier
 		})
 	var extended_cross: Array = [[2, 0], [-2, 0], [0, 2], [0, -2]]
-	if _missing_offsets(pattern, extended_cross).size() > 0:
+	var added_outer_tiles: int = _missing_offsets(pattern, extended_cross).size()
+	if added_outer_tiles > 0:
 		options.append({
 			"kind": "pattern_add",
 			"action_index": action_index,
-			"label": "Extend cross",
+			"label": "Add %d tiles" % added_outer_tiles,
 			"offsets": extended_cross,
 			"cost_base": 1080 * territory_multiplier
 		})

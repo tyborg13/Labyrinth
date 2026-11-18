@@ -14,10 +14,12 @@ const Board = preload("res://scripts/combat_board_view.gd")
 const Run = preload("res://scripts/run_scene.gd")
 const LandingStrip = preload("res://scripts/turn_order_landing_strip.gd")
 const Portrait = preload("res://scripts/maquette_cutout_runtime/portrait.gd")
+const Dependencies = preload("res://scripts/maquette_cutout_runtime/dependencies.gd")
 const Fixture = preload("res://tests/maquette_cutout/runtime_suite.gd")
 const PROCESS_FRAMES: int = 3
 
 static func run(expect: Callable) -> void:
+	_test_mixed_dependency_keys(expect)
 	var tree := Engine.get_main_loop() as SceneTree
 	var stage := Control.new()
 	tree.root.add_child(stage)
@@ -56,6 +58,18 @@ static func run(expect: Callable) -> void:
 		board.free()
 	host.free()
 	stage.free()
+
+static func _test_mixed_dependency_keys(expect: Callable) -> void:
+	var tile := Vector2i(4, 3)
+	var state: Dictionary = {
+		"enemies": [{"type": "tharokh", "intent": {"actions": [{
+			"area_terrain_at_declaration": {tile: "outcrop"},
+			"nested": {tile: [{"minion_type": "lightning_wisp"}], "enemy_type": "ember_tick"}
+		}]}}],
+		"encounter": {&"enemy_type": "burrow_grub"}
+	}
+	var expected := PackedStringArray(["lightning_wisp", "ember_tick"])
+	expect.call(Dependencies.types_for(state) == expected, "Maquette dependencies traverse mixed-key dictionaries and recognize only String spawn fields")
 
 static func _check_portrait(surface: Node, expected: Script, context: String, expect: Callable) -> void:
 	var renderer: Node = surface.find_child("MaquettePortraitRenderer", true, false)

@@ -1549,7 +1549,7 @@
   "witchglass_lantern": {
     "name": "Witchglass Lantern",
     "rarity": "epic",
-    "description": "Your @icon(illusion) have +{radius} @icon(illuminate) radius while they last.",
+    "description": "Your @icon(illusion) shed @icon(illuminate) {radius} tiles farther while they last.",
     "icon_path": "res://assets/art/relics/witchglass_lantern.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1666,7 +1666,7 @@
   "winters_spur": {
     "name": "Winter's Spur",
     "rarity": "legendary",
-    "description": "Each straight line of @term(surface_ice) you move across costs only 1 @kw(movement). Turning starts a new line.",
+    "description": "Moving across @term(surface_ice) without turning costs only 1 @kw(movement). Turning starts a new stretch.",
     "icon_path": "res://assets/art/relics/winters_spur.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1710,7 +1710,7 @@
   "galehook_talon": {
     "name": "Galehook Talon",
     "rarity": "legendary",
-    "description": "Your @kw(push) and @kw(pull) move the target together with every enemy touching it in a line along that direction. Only the front one collides.",
+    "description": "Your @kw(push) and @kw(pull) move the target together with every enemy connected to it by contact along that direction. Only the front one collides.",
     "icon_path": "res://assets/art/relics/galehook_talon.png",
     "accent": "#d9862f",
     "design_version": 3,

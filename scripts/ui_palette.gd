@@ -3,6 +3,12 @@ extends RefCounted
 # Shared "Ember & Umbra" colour tokens. Warm ink harmonises with the torch-lit
 # board; gold marks what can be touched; violet is reserved for the Umbra.
 
+# Card-face pattern ink, also used by rules and move tooltips.
+const PATTERN_ORIGIN_FILL: Color = Color("e9dcc6")
+const PATTERN_ORIGIN_BORDER: Color = Color("5a493b")
+const PATTERN_HIT_FILL: Color = Color("d95f4a")
+const PATTERN_HIT_BORDER: Color = Color("7b2f25")
+
 const INK_0 := Color("0b0908")
 const INK_1 := Color("15110e")
 const INK_2 := Color("1f1813")

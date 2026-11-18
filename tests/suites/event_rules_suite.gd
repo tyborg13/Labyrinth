@@ -5,6 +5,7 @@ const Data = preload("res://scripts/game_data.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
+const Difficulty = preload("res://scripts/difficulty_tier_rules.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
@@ -20,6 +21,8 @@ const EXPOSE_FIXTURE_PLAYER_TILE: Vector2i = Vector2i(3, 4)
 const EXPOSE_FIXTURE_ENEMY_TILE: Vector2i = Vector2i(4, 4)
 const SELECTION_SEEDS: int = 50
 const EVENTS_PER_SECTION: int = 2
+const DEFERRED_EVENT_CARD: String = "rime_shard"
+const INVALID_DEFERRED_EVENT_CARD: String = "invalid_deferred_fixture"
 const SURVEY_FIXTURE_HOPS: int = 4
 const SURVEY_FIXTURE_TARGET_COUNT: int = 2
 static var _event_fixture_engine: RefCounted
@@ -30,6 +33,7 @@ static func run(expect: Callable, include_preview_matrix: bool = true) -> void:
 	var engine := Run.new()
 	expect.call(Events.validate_data().is_empty(), "Authored event data validates: %s" % str(Events.validate_data()))
 	expect.call(Data.events().size() == 45 and Data.omens().size() == 11, "All 45 events and 11 omens load")
+	expect.call(Data.omen_def("hunted")["description"] == "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.", "Hunted states the normal-room rule and Health substitute")
 	expect.call(Events.art_path("bloodletters_basin") == "res://assets/art/events/bloodletters_basin.png", "Art has one derived accessor and may be missing")
 	preload("res://tests/helpers/event_preview_checks.gd").run(engine, expect, include_preview_matrix)
 	_validation(expect)
@@ -583,6 +587,11 @@ static func _omens(engine: RefCounted, expect: Callable) -> void:
 		expect.call(full_hunted["enemies"][index]["max_hp"] == ceili(float(full_base["enemies"][index]["max_hp"]) * 1.2), "Hunted full-room Health substitute applies once")
 	var full_combat: Dictionary = combat.create_combat(TEST_SEED, full_hunted, engine._player_snapshot(Omens.add(_event_state(engine), "hunted")))
 	expect.call((full_combat.get(Omens.START_APPLIED_KEY, []) as Array).count("hunted") == 1, "Hunted Health substitute fires existing feedback exactly once")
+	var blocked: Dictionary = layout.duplicate(true)
+	for row: Array in blocked["grid"]: row.fill("wall")
+	expect.call(Difficulty.starter_count(blocked) < Difficulty.MAX_STARTERS, "Blocked Hunted fixture is below the cap")
+	generator._add_omen_enemies(blocked, {"type": "combat", "omen_extra_enemies": 1}, TEST_SEED)
+	expect.call(blocked["enemies"].size() == layout["enemies"].size() and blocked.get("omen_enemy_hp_compensations", 0) == 1, "No legal spawn tile triggers the same Health compensation")
 	for type: String in ["guardian", "boss"]:
 		var special: Dictionary = room.duplicate(true)
 		special["type"] = type
@@ -660,6 +669,17 @@ static func _persistence_and_rewards(engine: RefCounted, expect: Callable) -> vo
 		else:
 			var skipped: Dictionary = engine.skip_reward_for_heal(continued, card)
 			expect.call(skipped["mode"] == "room" and skipped["player_hp"] == continued["player_hp"] and skipped["magic_inventory"] == continued["magic_inventory"], "Event skip grants no card or healing")
+	var ordinary_offer: Array = continued["pending_reward"]["cards"]
+	expect.call(not ordinary_offer.has(DEFERRED_EVENT_CARD), "Moth Library fixture needs a deferred card outside its ordinary offer")
+	state[Run.SKILL_STATE_KEY]["pending_card"] = DEFERRED_EVENT_CARD
+	var deferred: Dictionary = engine.resolve_map_event(state, "continue")
+	var expected_offer: Array = ordinary_offer.duplicate()
+	expected_offer[expected_offer.size() - 1] = DEFERRED_EVENT_CARD
+	expect.call(deferred["pending_reward"]["cards"] == expected_offer, "The next event card reward replaces one offer with the saved card")
+	expect.call(deferred[Run.SKILL_STATE_KEY]["pending_card"].is_empty(), "The event reward consumes the saved card")
+	state[Run.SKILL_STATE_KEY]["pending_card"] = INVALID_DEFERRED_EVENT_CARD
+	var invalid: Dictionary = engine.resolve_map_event(state, "continue")
+	expect.call(invalid["pending_reward"]["cards"] == ordinary_offer and invalid[Run.SKILL_STATE_KEY]["pending_card"].is_empty(), "Invalid saved IDs clear without changing the event offer")
 	Store.clear_saved_run()
 
 static func _edges(engine: RefCounted, expect: Callable) -> void:

@@ -96,7 +96,7 @@ static func _make_text_box(
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_theme_constant_override("separation", separation)
-	var title_text: String = title.strip_edges()
+	var title_text: String = InlineIconText.Patterns.display_rules(title.strip_edges())
 	if not title_text.is_empty():
 		if InlineIconText.has_icons(title_text):
 			vbox.add_child(_make_rich_label(title_text, body_width, UiTypography.ROLE_BODY_LARGE, TITLE_COLOR, 2))
@@ -112,9 +112,9 @@ static func _make_text_box(
 			title_label.add_theme_constant_override("outline_size", 2)
 			vbox.add_child(title_label)
 	if not body_lines.is_empty():
-		var body_text: String = "\n".join(body_lines)
+		var body_text: String = InlineIconText.Patterns.display_rules("\n".join(body_lines))
 		if InlineIconText.has_icons(body_text):
-			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1))
+			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY if InlineIconText.concept_keys(body_text).is_empty() else UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1))
 		else:
 			var body_label := Label.new()
 			body_label.text = body_text
@@ -130,13 +130,16 @@ static func _make_text_box(
 
 
 static func _make_rich_label(markup: String, body_width: float, role: String, color: Color, outline_size: int) -> RichTextLabel:
+	var minimum_width: float = INLINE_TEXT_WIDTH
+	if not InlineIconText.Patterns.matches(markup).is_empty() and InlineIconText.concept_keys(markup).is_empty():
+		minimum_width = 0.0
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = false
 	label.fit_content = true
 	label.scroll_active = false
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(maxf(body_width, INLINE_TEXT_WIDTH), 0.0)
+	label.custom_minimum_size = Vector2(maxf(body_width, minimum_width), 0.0)
 	UiTypography.apply_rich_text_role(label, role)
 	label.add_theme_color_override("default_color", color)
 	label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)

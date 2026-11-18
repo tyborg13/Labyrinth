@@ -25,11 +25,14 @@ static func types_for(state: Dictionary) -> PackedStringArray:
 
 static func _collect(value: Variant, pending: PackedStringArray) -> void:
 	if value is Dictionary:
-		for key: String in value:
-			if key in ["minion_type", "enemy_type"]: _add(pending, str(value[key]))
-			elif key in ["reinforcement_pool", "helpers", "guardian_initial_helpers"] and value[key] is Array:
-				for type: Variant in value[key]: _add(pending, str(type))
-			else: _collect(value[key], pending)
+		for key: Variant in value:
+			var child: Variant = value[key]
+			if key is String and key in ["minion_type", "enemy_type"]:
+				_add(pending, str(child))
+			elif key is String and key in ["reinforcement_pool", "helpers", "guardian_initial_helpers"] and child is Array:
+				for type: Variant in child: _add(pending, str(type))
+			else:
+				_collect(child, pending)
 	elif value is Array:
 		for child: Variant in value: _collect(child, pending)
 

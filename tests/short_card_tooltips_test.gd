@@ -4,6 +4,7 @@ const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Proof = preload("res://tests/helpers/short_card_tooltips_proof.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Glossary = preload("res://scripts/glossary.gd")
+const Skills = preload("res://scripts/skill_tree_library.gd")
 const DiscoverySync = preload("res://scripts/grimoire_discovery_sync.gd")
 const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe"] # sta-01/mrk-01/flu-01; protected copy stays intact.
 const UMBRA_AREA_BODY: String = "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
@@ -47,6 +48,8 @@ func _run() -> void:
 	var entry_map: Dictionary = Grimoire.entry_map()
 	_expect(Glossary.all_entries().size() == 140, "Final glossary contains all 140 live entries")
 	_expect(Glossary.definition("marked") == "These tiles take the hit on this enemy's next turn.", "Marked retains its approved definition")
+	var deferred_copy: String = "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
+	_expect(Glossary.definition("skill_deferred_choice") == deferred_copy and Skills.description("deferred_choice") == deferred_copy, "Deferred Choice uses its exact shared non-boss reward rule")
 	_expect(entry_map["keyword:marked"]["body"] == [Glossary.definition("marked")], "Marked owns the full definition replacing the four retired topics")
 	var changes: Dictionary = {}
 	var tt02: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/tt-02/card_panels.json"))

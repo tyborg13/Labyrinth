@@ -84,8 +84,8 @@ func _preview_and_copy() -> void:
 			_expect(tags.size() == 1 and tags[0]["icon_key"] == "burst" and tags[0]["text"] == token["value"], "Pre-battle Burst caption " + type)
 			var rows: Array = board._intent_rows_for_unit(unit, Data.enemy_def(type)["intents"][0])
 			var rules := PackedStringArray()
-			for index: int in range(1, preload("res://scripts/enemy_mechanics/burst_trait_text.gd").title_index(rows)): rules.append(str(rows[index][0]["value"]))
-			_expect(rows[0][0] == token and " ".join(rules) == token["tooltip"], "Combat trait above moves " + type)
+			for index: int in range(1, preload("res://scripts/enemy_mechanics/burst_trait_text.gd").title_index(rows)): rules.append(str(rows[index].back()["value"]))
+			_expect(rows[0][0] == token and " ".join(rules) == str(token["display_tooltip"]).trim_prefix("@pattern(surround:origin) "), "Combat trait above moves " + type)
 	var kindle_action: Dictionary = {"type": "kindle", "amount": 2}
 	var token: Dictionary = Icons.tokens_for_action(kindle_action)[0]
 	_expect(token["icon"] == "burst" and token["value"] == "Burst +2" and token["tooltip"] == "Its Burst hits 2 harder, up to +4.", "Exact Kindle row and tooltip")

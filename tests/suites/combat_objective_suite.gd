@@ -134,7 +134,7 @@ static func _test_survival_reinforcements_join_initiative_and_clock_wins(expect:
 	expect.call((after_spawn.get("enemies", []) as Array).size() == 3, "Both survival reinforcements should enter the live enemy roster")
 	var spawned_enemy: Dictionary = (after_spawn.get("enemies", []) as Array)[1]
 	expect.call(bool(spawned_enemy.get("objective_reinforcement", false)) and not (spawned_enemy.get("intent", {}) as Dictionary).is_empty(), "Reinforcements should arrive with an assigned intent")
-	var queued_ids: Array[int] = []
+	var queued_ids: Array[int]
 	for entry_var: Variant in after_spawn.get("turn_queue", []):
 		if typeof(entry_var) == TYPE_DICTIONARY and str((entry_var as Dictionary).get("kind", "")) == "enemy":
 			queued_ids.append(int((entry_var as Dictionary).get("enemy_id", -1)))
@@ -181,7 +181,7 @@ static func _test_reach_exit_generation_and_completion(expect: Callable) -> void
 		var expected_hp: int = Difficulty.arrival_hp(layout, compensated_hp)
 		expect.call(int(enemy["max_hp"]) == expected_hp and int(enemy["hp"]) == expected_hp, "Every retained exit starter receives cap Health compensation and tier Health once")
 	expect.call((layout.get("terrain", []) as Array).size() >= 8, "Exit encounters should add three destructible blockers over the normal minimum")
-	var terrain_tiles: Array[Vector2i] = []
+	var terrain_tiles: Array[Vector2i]
 	for terrain: Dictionary in layout.get("terrain", []):
 		terrain_tiles.append(terrain.get("pos", Vector2i(-1, -1)))
 	for target_tile: Vector2i in CombatObjectiveRules.exit_target_tiles(objective):
@@ -378,7 +378,7 @@ static func _player_snapshot() -> Dictionary:
 static func _grid() -> Array:
 	var grid: Array = []
 	for y: int in range(9):
-		var row: Array[String] = []
+		var row: Array[String]
 		for x: int in range(9):
 			row.append("wall" if x == 0 or y == 0 or x == 8 or y == 8 else "stone")
 		grid.append(row)

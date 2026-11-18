@@ -239,8 +239,12 @@ func _menu_screens() -> void:
 	await _joy(JOY_BUTTON_B)
 	_expect(panel.visible and not confirmation.visible, "Settings B cancels confirmation before leaving settings")
 	_router.call("set_forced_state_for_test", "pointer", "xbox")
-	var pointer_focus: Control = _focus()
 	panel.call("_show_restore_confirmation")
+	await _settle()
+	# Modal Settings moves focus on open for every input family. Compare the
+	# opened modal immediately before and after sending neutral axis noise.
+	var pointer_focus: Control = _focus()
+	_expect(_inside(confirmation, pointer_focus), "Pointer-opened confirmation places focus inside the modal")
 	await _motion(JOY_AXIS_LEFT_X, 0.0)
 	_expect(_focus() == pointer_focus, "Neutral joypad noise preserves pointer confirmation focus")
 	panel.call("_cancel_restore_confirmation")
@@ -1371,7 +1375,8 @@ func _activate_inventory() -> void:
 		if label in ["combat_hand", "combat_hud", "room_entry", "run_end_recap", "camp", "pause", "skills_reset_confirmation"]: continue
 		var scope: Control = await _restore_surface(label)
 		if scope == null: continue
-		var count: int = _controls(scope).size()
+		var inventory: Array = _controls(scope).map(func(control: Control) -> StringName: return control.name)
+		var count: int = inventory.size()
 		if label.begins_with("grimoire"):
 			_expect(count == int(row["total"]), label + " replay preserves the complete discovered catalog")
 		var activated: int = 0
@@ -1380,6 +1385,11 @@ func _activate_inventory() -> void:
 			print("Pressing %s %d/%d" % [label, index + 1, count])
 			scope = await _restore_surface(label)
 			var controls: Array[Control] = _controls(scope)
+			if label in ["character_skills", "scavenger"]:
+				var restored_inventory: Array = controls.map(func(control: Control) -> StringName: return control.name)
+				if restored_inventory != inventory:
+					_expect(false, "%s replay inventory after press %d: expected %s, got %s" % [label, index, inventory, restored_inventory])
+					continue
 			if index >= controls.size():
 				_expect(false, label + " replay inventory is stable")
 				continue
@@ -1482,6 +1492,10 @@ func _restore_surface(label: String) -> Control:
 			_scene.call("_recover_controller_focus")
 			return _scene.get("_grimoire_scrim")
 		_scene.call("_open_character_overlay", label.trim_prefix("character_"))
+		if label == "character_skills":
+			# The retained tree remembers focus after a press. Start each replay
+			# on the fixture's already learned skill to restore the same controls.
+			_scene.get("_skill_tree_view").call("focus_skill", state["progression"]["skill_ids"][0])
 		await _settle()
 		_scene.call("_recover_controller_focus")
 		return _scene.get("_upgrade_scrim")
@@ -1510,11 +1524,25 @@ func _restore_surface(label: String) -> Control:
 		await _settle()
 		return view
 	if label in ["scavenger", "scavenger_sell", "purge", "purge_confirmation"]:
-		_scene.get("_scavenger_shop_view").set("_room_coord", Vector2i(999, 999))
+		var shop: Control = _scene.get("_scavenger_shop_view")
+		shop.set("_room_coord", Vector2i(999, 999))
 		await _load(_surface_states["scavenger"].duplicate(true))
-		if label == "scavenger": return _scene.get("_scavenger_shop_view")
+		# Replaying the same room can retain the Sell canvas made by the
+		# preceding press. Restore Browse before rebuilding the target surface.
+		shop.call("_set_pack_mode", false)
+		_scene.call("_recover_controller_focus")
+		if label == "scavenger":
+			# Entering an offer's focus populates the Trade detail control. Use
+			# the same offer on every rebuild so its action stays in inventory.
+			for control: Control in _controls(shop):
+				if str(control.name).begins_with("MagicOffer_"):
+					# Browse clears the selection even if this offer still owns focus.
+					if control.has_focus(): control.release_focus()
+					control.grab_focus()
+					break
+			await _settle()
+			return shop
 		if label == "scavenger_sell":
-			var shop: Control = _scene.get("_scavenger_shop_view")
 			await _navigate(shop, shop.get("_mode_sell"), "Sell fixture")
 			await _joy(JOY_BUTTON_A)
 			return shop

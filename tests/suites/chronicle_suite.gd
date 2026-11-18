@@ -9,6 +9,7 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const DeathFixture = preload("res://tests/helpers/chronicle_death_fixture.gd")
 const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
 const RuleHud = preload("res://scripts/battlefield_rule_hud.gd")
+const PatternText = preload("res://scripts/pattern_text.gd")
 const TEST_PROFILE: String = "user://chronicle_suite_profile.json"
 const TEST_RUN: String = "user://chronicle_suite_run.save"
 const FIXTURE_SEED: int = 8821
@@ -179,10 +180,13 @@ static func _test_placeholder_fallbacks(check: Callable) -> void:
 		var state: Dictionary = {"battlefield_rule": instance, "enemies": [{"id": int(instance["source"].get("id", -1)), "hp": 1}]}
 		var panel: Dictionary = BattlefieldRules.panel(state)
 		check.call(not panel.is_empty() and not str(panel["sentence"]).contains("TODO_DESIGN"), "Authored rule HUD sentence has no placeholder: " + id)
-		var sentence: String = str(panel["sentence"])
+		var sentence: String = PatternText.display_rules(str(panel["sentence"]))
+		var patterns: Array[RegExMatch] = PatternText.matches(sentence)
 		hud.set_combat_state(state, null)
-		check.call(hud.get("_detail").text == sentence, "Authored rule HUD sentence stays verbatim: " + id)
+		check.call(hud.get("_detail").text == PatternText.strip(sentence), "Rule HUD preserves the authored words alongside any diagram: " + id)
+		var diagram: Control = hud.get("_detail_pattern")
+		check.call((diagram == null) == patterns.is_empty(), "Rule HUD shows a diagram for authored pattern markup: " + id)
 		instance.erase("sentence")
 		hud.set_combat_state(state, null)
-		check.call(hud.visible and hud.get("_title").text == str(panel["name"]).to_upper() and hud.get("_detail").text.is_empty(), "Missing rule sentence keeps the rule name without a placeholder: " + id)
+		check.call(hud.visible and hud.get("_title").text == str(panel["name"]).to_upper() and hud.get("_detail").text.is_empty() and hud.get("_detail_pattern") == null, "Missing rule sentence keeps the rule name without a placeholder or diagram: " + id)
 	hud.free()

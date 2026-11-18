@@ -1,5 +1,6 @@
 extends SceneTree
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -11,7 +12,7 @@ const OUTPUT_DIR: String = "user://grimoire_search_probe"
 const UPHEAVAL_ENTRY: String = "keyword:upheaval"
 const UPHEAVAL_BODY: String = "Marked tiles rise as Outcrops when the rule fires. A unit on a rising tile is pushed to a free tile beside it; the tile stays flat if a wall, a trap, a brazier or a unit that can't be pushed off is on it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
 
-var _failures: Array[String] = []
+var _failures: Array[String]
 var _capture_viewport: SubViewport
 
 class KeyboardRouter extends "res://scripts/input_router.gd":
@@ -64,7 +65,7 @@ func _run_probe() -> void:
 	instance.call("_close_dialogue")
 	var engine := RunEngine.new()
 	var state: Dictionary = engine.create_new_run(84217, ProgressionStore.default_data())
-	var all_entry_ids: Array[String] = []
+	var all_entry_ids: Array[String]
 	for entry_var: Variant in GrimoireLibrary.entries():
 		if typeof(entry_var) == TYPE_DICTIONARY:
 			all_entry_ids.append(str((entry_var as Dictionary).get("id", "")))
@@ -184,7 +185,7 @@ func _verify_steam_keyboard(instance: Node, field: LineEdit) -> void:
 	var router := KeyboardRouter.new()
 	router.name = "InputRouter"
 	root.add_child(router)
-	var properties: Array[String] = ["_steam", "_initialized", "_logged_on", "_steam_id", "_floating_keyboard_open"]
+	var properties: Array[String] = TypedArrays.strings(["_steam", "_initialized", "_logged_on", "_steam_id", "_floating_keyboard_open"])
 	var original: Dictionary = {}
 	for property: String in properties: original[property] = service.get(property)
 	var processing: bool = service.is_processing()

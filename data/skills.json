@@ -229,7 +229,7 @@
   "deferred_choice": {
     "name": "Deferred Choice",
     "icon": "skill_deferred_choice",
-    "description": "Skip a card reward to save one offered card. It replaces one card in your next reward.",
+    "description": "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward.",
     "branch": "foresight",
     "tier": "branch",
     "position": [
@@ -627,7 +627,7 @@
   "witchlight": {
     "name": "Witchlight",
     "icon": "skill_witchlight",
-    "description": "Your @icon(illusion) have +1 @icon(illuminate) radius while they last.",
+    "description": "Your @icon(illusion) shed @icon(illuminate) 1 tile farther while they last.",
     "branch": "radiance",
     "tier": "branch",
     "position": [
