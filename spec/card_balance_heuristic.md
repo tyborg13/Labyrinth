@@ -1285,14 +1285,16 @@ Normal rooms retain section Health/damage scaling. Every generation path caps
 non-summoned starters at five, removing from the existing tail order while
 preserving leaders, captains, jailers, Sealbinders, Hoarders, Guardians and dragons.
 Each newly removed starter grants ×1.2 Health to the remaining starting roster
-before the tier table. Hunted adds an enemy below five and grants that same
-Health factor to a full room. Table capacity trims that already occurred at
+before the tier table. Hunted adds an enemy below five. In a full room, it
+multiplies each starter's final Health (including trim and tier scaling) by
+1.2 and rounds up. Table capacity trims that already occurred at
 three/four/five units do not gain a new compensation.
 
 `data/difficulty_tiers.json` stores per-section objective/kind, Guardian and boss
 dials. Generated layouts freeze those dials. After existing local, section,
 leader/special and Umbra Depth rules, tier Health multiplies final max Health
-once, rounding up; Hoarder Health is then derived as 3×the fully scaled brood.
+once, rounding up. Hoarder Health is then derived as 3×the scaled brood, before
+any full-room Hunted bonus.
 All later arrivals use the room's frozen Health percentage. Tier damage adds
 through the existing section-damage applicability rules; support is unchanged.
 Old generated rooms without dials retain identity scaling. Unmeasured s1/s3

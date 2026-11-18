@@ -52,7 +52,9 @@ static func animate(scene: Control, state: Dictionary, beat: Dictionary) -> void
 	var before: Dictionary = beat["before"]
 	var after: Dictionary = beat["after"]
 	var panel: Dictionary = beat["rule_panel"]
+	var caption: Dictionary = {"battlefield_rule_caption": panel}
 	# Any activation-end costs before this beat retain their existing feedback.
+	scene._burst_playback.prepare(state, before)
 	await scene._animate_enemy_loss_feedback_between_states(state, before)
 	await preload("res://scripts/hero_loss_playback.gd").present(scene, state, before)
 	await scene._animate_defeats_and_terrain_destruction(state, before)
@@ -67,25 +69,46 @@ static func animate(scene: Control, state: Dictionary, beat: Dictionary) -> void
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	scene.action_banner.add_child(icon)
-	scene._render_board_state(state, {"battlefield_rule_caption": panel})
+	scene._render_board_state(state, caption)
 	if beat.has("gust_step"):
 		await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(scene, state, beat["gust_step"])
-	elif str(beat["rule"]) == "lightning_storm" and not (beat["tiles"] as Array).is_empty():
-		await _lightning(scene, before, after, beat)
-		state.clear()
-		state.merge(after.duplicate(true), true)
 	else:
-		await scene._play_timed_animation_frames(1, CAPTION_ONLY_HOLD_SECONDS, func(_frame: int) -> void:
-			scene._render_board_state(state, {"battlefield_rule_caption": panel})
-		)
-		var losses: Array[Dictionary] = Hits.losses(scene._combat_engine, before, after)
-		if not losses.is_empty():
-			await scene._animate_floating_text_presentation(after, scene._death_hold_presentation(before, after, {"floating_texts": scene._floating_texts_for_target_losses(losses), "impact_actor_keys": scene._combat_engine._target_loss_keys(losses)}))
-		state.clear()
-		state.merge(after.duplicate(true), true)
+		scene._burst_playback.prepare(before, after)
+		if str(beat["rule"]) == "lightning_storm" and not (beat["tiles"] as Array).is_empty():
+			await _lightning(scene, before, after, beat)
+		else:
+			await scene._play_timed_animation_frames(1, CAPTION_ONLY_HOLD_SECONDS, func(_frame: int) -> void:
+				scene._render_board_state(state, caption)
+			)
+			var losses: Array[Dictionary] = Hits.losses(scene._combat_engine, before, after)
+			if not losses.is_empty():
+				await scene._animate_floating_text_presentation(after, scene._death_hold_presentation(before, after, {"floating_texts": scene._floating_texts_for_target_losses(losses), "impact_actor_keys": scene._combat_engine._target_loss_keys(losses)}))
+		# Hit playback holds the bodies through the complete beat. The beat
+		# still owns its pre-hit snapshot when the normal defeat sequence starts.
+		await scene._animate_turn_order_alongside_defeats(before, after, caption)
+	await _animate_arrival_defeats(scene, before, after, caption)
+	state.clear()
+	state.merge(after.duplicate(true), true)
 	# As a caption child the icon shares its fade/visibility. The next caption
 	# clears it in _set_action_banner; it stays through all numbers and arcs.
 	scene._render_board_state(state, {})
+
+static func _animate_arrival_defeats(scene: Control, before: Dictionary, after: Dictionary, caption: Dictionary) -> void:
+	# A split arrival can die on contact with a trap before the beat ends.
+	# Its death receipt is the only witness for a unit absent at beat start.
+	var defeated_arrivals: Array[Dictionary]
+	for event: Dictionary in scene._surface_events_between(before, after):
+		if event["kind"] != "actor_death" or event.get("actor_kind") != "enemy": continue
+		if scene._combat_engine._enemy_index_for_id(before, int(event["id"])) >= 0: continue
+		var arrival: Dictionary = event["unit"].duplicate(true)
+		arrival["hp"] = arrival["max_hp"]
+		defeated_arrivals.append(arrival)
+	if defeated_arrivals.is_empty(): return
+	# The original deaths own the split. Use the settled board as the baseline
+	# for the arrivals so the parent and its effects never play a second time.
+	var arrival_before: Dictionary = after.duplicate(false)
+	arrival_before["enemies"] = defeated_arrivals
+	await scene._animate_defeats_and_terrain_destruction(arrival_before, after, caption)
 
 static func _lightning(scene: Control, before: Dictionary, after: Dictionary, beat: Dictionary) -> void:
 	var reduced: bool = scene._reduced_motion_enabled()

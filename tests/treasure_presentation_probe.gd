@@ -2,6 +2,7 @@ extends "res://tests/ui_probe.gd"
 
 const ChestProp = preload("res://scripts/relic_chest_prop.gd")
 const TREASURE_OUTPUT: String = "user://probes/treasure_presentation_v1"
+const TEARDOWN_TWEEN_SECONDS: float = 10.0
 var _treasure_failures: Array[String]
 var _treasure_scene: Node
 
@@ -36,8 +37,7 @@ func _initialize() -> void:
 	await _reduced_and_cancellation(treasure, settings)
 	await _input_handoffs(treasure)
 	await _natural_room_entry(engine, base, treasure.get("current_room", Vector2i.ZERO))
-	_treasure_scene.queue_free()
-	await process_frame
+	await _teardown_with_pending_tween()
 	root.get_node("InputRouter").call("clear_forced_state_for_test")
 	settings["reduced_motion"] = false
 	SettingsStore.apply_settings(settings, root, false)
@@ -46,6 +46,28 @@ func _initialize() -> void:
 	print(ProjectSettings.globalize_path(TREASURE_OUTPUT))
 	print("TREASURE PRESENTATION PROBE: %s" % ("PASS" if _treasure_failures.is_empty() else "FAIL"))
 	quit(0 if _treasure_failures.is_empty() else 1)
+
+func _teardown_with_pending_tween() -> void:
+	var tween_ref: WeakRef = _detach_with_pending_tween()
+	_treasure_scene.queue_free()
+	await process_frame
+	await process_frame
+	_expect_treasure(tween_ref.get_ref() == null, "Teardown releases the cancelled Tween instance")
+
+func _detach_with_pending_tween() -> WeakRef:
+	var tween: Tween = _treasure_scene.create_tween()
+	tween.tween_interval(TEARDOWN_TWEEN_SECONDS)
+	_treasure_scene.get("_treasure_sequence_tweens").append(tween)
+	var result: Array[bool]
+	_record_treasure_wait(tween, result)
+	_expect_treasure(result.is_empty(), "Treasure waiter is pending before scene exit")
+	_proof_viewport.remove_child(_treasure_scene)
+	_expect_treasure(result.size() == 1 and not result[0], "Scene exit immediately releases the cancelled treasure waiter")
+	_expect_treasure(not tween.is_valid(), "Scene exit kills the pending treasure tween")
+	return weakref(tween)
+
+func _record_treasure_wait(tween: Tween, result: Array[bool]) -> void:
+	result.append(await _treasure_scene.call("_await_treasure_tween", tween, _treasure_scene.get("_treasure_sequence_epoch")))
 
 func _prop_registration_contract() -> void:
 	var body: Image = Image.load_from_file(ChestProp.ROOT + "body.png")

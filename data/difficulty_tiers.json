@@ -102,11 +102,11 @@
       "default": {
         "hp_percent": [
           115,
-          115,
-          115,
-          115,
-          115,
-          115
+          120,
+          125,
+          125,
+          125,
+          125
         ],
         "damage_bonus": [
           0,
@@ -116,7 +116,7 @@
           0,
           0
         ],
-        "director_note": "s0 115% landed +20.6 cost (band +15..+25)"
+        "director_note": "s0 115% landed +20.6 cost (band +15..+25). s2 (tune-02, sighted section-deck bot, N=64+32): 115% gave +8.6/+9.9, 130% +21.3 with win 37.5% vs boss 26.6%; 125% interpolates to about +17.5 and keeps Guardians below dragons on win rate. s1 interpolated; s3-s5 held at s2 until a stronger bot or the owner's play (the s4 ladder is saturated: normals 42% wins)."
       }
     },
     "boss": {

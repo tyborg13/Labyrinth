@@ -24,6 +24,7 @@ const HERO := Vector2i(4, 3)
 const ATTACKER := Vector2i(3, 3)
 const STARTING_HP: int = 100
 const LOCAL_DEPTH: int = 2
+const GUARDIAN_ROOM_DEPTH: int = 10
 const CAPTAIN_POSITIONS = [Vector2i(3, 1), Vector2i(1, 1)]
 const HOUND_START := Vector2i(1, 3)
 const HOUND_MOVE_RANGE: int = 2
@@ -46,10 +47,10 @@ func _initialize() -> void:
 func _run() -> void:
 	Settings.apply_settings(Settings.default_settings(), null, false)
 	var last_light: Dictionary = LastLight.combat_for(LastLight.layout_for("shadow", LOCAL_DEPTH))
-	var guardian: Dictionary = Guardians.new().guardian_fixture("storm_cantor")
+	var guardian: Dictionary = Guardians.new().guardian_fixture("storm_cantor", GUARDIAN_ROOM_DEPTH)
 	var warband: Dictionary = Warband.battle("air", LOCAL_DEPTH)
 	_health("Last Light", last_light, 100)
-	_health("Guardian", guardian, 115)
+	_health("Guardian", guardian, 125)
 	_health("Warband", warband, 110)
 	_health("Hoarder", Hoarder.battle_for("fire", LOCAL_DEPTH, HOARDER_SEED), 115)
 

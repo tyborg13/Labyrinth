@@ -11,6 +11,7 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const ChipPlacement = preload("res://scripts/intent_chip_placement.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const HudGroups = preload("res://scripts/board_hud_group_placement.gd")
+const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 
 const MEDALLION_DIAMETER: float = 32.0
 const PLATE_HEIGHT: float = 22.0
@@ -416,12 +417,15 @@ static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	var hud_entries: Array = board.get("_hud_layout_entries_cache")
 	if hud_entries.is_empty(): hud_entries = board.call("_build_hud_layout_data", board.call("_hud_layout_units"))["entries"]
 	var hud_by_key: Dictionary = {}
+	var titles: Array[Rect2]
 	for entry: Dictionary in hud_entries:
 		var actor: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {})
 		if not actor.is_empty() and not (board.call("_umbra_actor_clip_for_unit", actor) as Dictionary).is_empty(): continue
 		var layout: Dictionary = entry.get("layout", {})
 		hud_by_key[str(entry.get("actor_key", ""))] = layout
 		for line: Rect2 in layout.get("line_rects", []): hud_rects.append(line)
+		var title: Rect2 = _intent_title_rect(layout)
+		if title.has_area(): titles.append(title)
 	for actor: Dictionary in board.call("_hud_layout_units"):
 		if bool(actor.get("death_animation", false)):
 			var death_frame: Rect2 = death_health_rect(board, actor)
@@ -444,6 +448,7 @@ static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
 		var layout: Dictionary = badge.duplicate(true)
 		layout.merge(place_chip(board.call("_unit_center", unit), badge, font, hud_rects, result, board.call("_enemy_hud_viewport_bounds"), silhouettes), true)
+		_clear_title_overlap(layout, layout["rect"], titles, result)
 		layout["order_rect"] = order_rect(order_anchor_rect(board, unit), str(badge.get("order", "")), font)
 		result.append(layout)
 	return result
@@ -636,11 +641,37 @@ static func halo_texture(plate_end_x: float) -> Dictionary:
 	_halo_cache[end] = result
 	return result
 
-# Contextual markers never enter the legacy silhouette-placement solver. The
-# full plate geometry is still reserved by that solver, preserving bar anchors.
+static func _intent_title_rect(layout: Dictionary) -> Rect2:
+	var lines: Array = layout.get("line_rects", [])
+	if str(layout.get("intent_name", "")).is_empty() or lines.is_empty(): return Rect2()
+	return lines[BurstTraitText.title_index(layout.get("rows", []))]
+
+static func _clear_title_overlap(badge: Dictionary, rect: Rect2, titles: Array[Rect2], neighbors: Array[Dictionary]) -> void:
+	if not _overlaps(rect, titles, []): return
+	var obstacles: Array[Rect2] = titles.duplicate()
+	for neighbor: Dictionary in neighbors:
+		if str(neighbor["key"]) != str(badge["key"]): obstacles.append(neighbor["rect"])
+	# Keep the closest clear point to this badge's own home. Don't trade a
+	# title collision for a collision with an adjacent badge.
+	var clear: Dictionary = ChipPlacement.find_clear(rect, rect, obstacles, [], Rect2(), false, true, INF)
+	var offset: Vector2 = (clear["rect"] as Rect2).position - rect.position
+	badge["center"] += offset
+	var hit_rect: Rect2 = badge["rect"]
+	hit_rect.position += offset
+	badge["rect"] = hit_rect
+
+# Contextual markers use their footprint home and the already placed titles.
+# Reserving the complete chip also covers the tab as it opens and closes.
 static func contextual_layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	var units: Dictionary = board.call("_units_by_key", board.call("_visible_units"))
+	var titles: Array[Rect2]
+	for entry: Dictionary in board.get("_hud_layout_entries_cache"):
+		var actor: Dictionary = units.get(str(entry.get("actor_key", "")), {})
+		if actor.is_empty() or not (board.call("_umbra_actor_clip_for_unit", actor) as Dictionary).is_empty(): continue
+		var title: Rect2 = _intent_title_rect(entry.get("layout", {}))
+		if title.has_area(): titles.append(title)
+	var font: Font = Typography.ui_font()
 	for source: Dictionary in badges:
 		var key: String = str(source.get("key", ""))
 		var unit: Dictionary = units.get(key, {})
@@ -648,9 +679,12 @@ static func contextual_layouts(board: Control, badges: Array) -> Array[Dictionar
 		var badge: Dictionary = source.duplicate(true)
 		var center: Vector2 = ChipPlacement.compact_anchor(board, unit)
 		var expanded: bool = board.get("plate_visibility").unfurled(key)
-		var rect: Rect2 = chip_rect(center, badge, Typography.ui_font()) if expanded else Rect2(center - Vector2.ONE * MEDALLION_DIAMETER * 0.5, Vector2.ONE * MEDALLION_DIAMETER)
+		var rect: Rect2 = chip_rect(center, badge, font) if expanded else Rect2(center - Vector2.ONE * MEDALLION_DIAMETER * 0.5, Vector2.ONE * MEDALLION_DIAMETER)
 		badge.merge({"contextual": true, "unfurled": expanded, "center": center, "rect": rect, "order_rect": Rect2(), "placement": "footprint_front", "above_everything": false}, true)
 		result.append(badge)
+	if not titles.is_empty():
+		for badge: Dictionary in result:
+			_clear_title_overlap(badge, chip_rect(badge["center"], badge, font), titles, result)
 	return result
 
 class TabInk extends Control:

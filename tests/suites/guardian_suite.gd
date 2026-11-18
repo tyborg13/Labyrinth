@@ -1,4 +1,6 @@
 extends RefCounted
+
+const GUARDIAN_HP_PERCENT_BY_SECTION: Array[int] = [115, 120, 125, 125, 125, 125]
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
@@ -165,6 +167,7 @@ func _test_encounter_edges() -> void:
 	var paths = preload("res://scripts/path_utils.gd")
 	for info: Dictionary in Guardians.DEFINITIONS.values():
 		for depth: int in [2,6,10,14,18,22]:
+			var section: int = int((depth - 1) / 4)
 			for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.RIGHT,Vector2i.DOWN]:
 				var opening: Dictionary = guardian_fixture(info["id"],depth,entry)
 				var occupied: Dictionary = {opening["player"]["pos"]:true}
@@ -172,8 +175,8 @@ func _test_encounter_edges() -> void:
 					check(paths.is_passable(opening["grid"],actor["pos"]) and not occupied.has(actor["pos"]),info["id"]+" rotated arena spawn is legal")
 					occupied[actor["pos"]] = true
 					check(paths.manhattan(opening["player"]["pos"],actor["pos"])>=3,info["id"]+" entry halo")
-					var expected: int = ceili(float(data.enemy_def(actor["type"])["max_hp"])*(1.0+.08*int((depth-1)/4)))
-					expected = ceili(float(expected) * int(opening["difficulty_stats"]["hp_percent"]) / 100.0)
+					var expected: int = ceili(float(data.enemy_def(actor["type"])["max_hp"])*(1.0+.08*section))
+					expected = ceili(float(expected) * GUARDIAN_HP_PERCENT_BY_SECTION[section] / 100.0)
 					check(actor["max_hp"]==expected,info["id"]+" section and frozen tier HP scaling")
 	var state: Dictionary = guardian_fixture("ashen_reaver")
 	state = engine._damage_enemy(state,1,100)

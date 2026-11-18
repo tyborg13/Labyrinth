@@ -1,0 +1,9 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "storm_trap_before.png", "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "storm_trap_death.png", "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "storm_trap_reward.png", "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

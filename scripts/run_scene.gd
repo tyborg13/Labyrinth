@@ -1730,6 +1730,7 @@ var _campfire_choice_action_pending: bool = false
 var _campfire_embrace_committed: bool = false
 var _campfire_presentation := EmberHearthPresentation.new()
 var _molt_exchange_feedback := MoltExchangeFeedback.new()
+signal _treasure_sequence_frame
 var _relic_claim_in_progress: bool = false
 var _treasure_sequence_epoch: int = 0
 var _treasure_reveal_active: bool = false
@@ -10918,7 +10919,7 @@ func _refresh_animation_lock_ui() -> void:
 	_record_runtime_performance_phase("animation_lock_ui_telemetry", performance_phase_started)
 	_record_runtime_performance_phase("animation_lock_ui_total", performance_total_started)
 
-func _refresh_enemy_round_lock_ui() -> void:
+func _refresh_enemy_round_lock_ui(rule_display: Dictionary = {}) -> void:
 	# Passing does not alter combat state, resource counts, movement legality,
 	# objectives, or layout before the first enemy activation. Retain those
 	# surfaces and update only the controls whose lock presentation changes. The
@@ -10931,9 +10932,15 @@ func _refresh_enemy_round_lock_ui() -> void:
 	_lock_existing_pass_preview()
 	_combat_hud_layout.begin_handoff(self)
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_pass", performance_phase_started)
-	_refresh_turn_order_bar()
+	if rule_display.is_empty():
+		_refresh_turn_order_bar()
+	else:
+		_refresh_turn_order_bar(rule_display)
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_turn_order_total", performance_phase_started)
-	_refresh_stage_view()
+	if rule_display.is_empty():
+		_refresh_stage_view()
+	else:
+		_refresh_stage_view_with_state(rule_display)
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_stage_total", performance_phase_started)
 	_refresh_hand_panel()
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_hand_total", performance_phase_started)
@@ -17927,10 +17934,13 @@ func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
 	_draw_hand_transition_cards.clear()
 
 func _refresh_stage_view() -> void:
+	_refresh_stage_view_with_state()
+
+func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	_exit_destinations_by_tile = _exit_tile_lookup()
-	var display_state: Dictionary = _board_display_state()
+	var display_state: Dictionary = _board_display_state() if accepted_display_state.is_empty() else accepted_display_state
 	var visibility_state: Dictionary = _board_visibility_state(display_state)
 	var post_combat_board_visible: bool = _post_combat_board_state_is_visible()
 	var move_tiles: Array[Vector2i]
@@ -24470,7 +24480,6 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var rule_steps: Array[Dictionary]
 	var scheduled_state: Dictionary = CommittedBattlefieldRules.finish_player_activation_with_rule_steps(_combat_engine, _combat_state, rule_steps)
 	_record_runtime_performance_phase("enemy_round_finish_player_activation", finish_activation_started)
-	_burst_playback.prepare(_combat_state, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
 	var rule_display: Dictionary = _combat_state.duplicate(true)
 	for beat: Dictionary in rule_steps:
@@ -24478,7 +24487,8 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	if _combat_engine.enemy_acts_before_next_player_turn(scheduled_state):
 		_combat_pacing.begin_enemies()
 		_show_turn_banner(false)
-	_refresh_enemy_round_lock_ui()
+	# The lock refresh must use the last played beat, including its defeats.
+	_refresh_enemy_round_lock_ui(rule_display if not rule_steps.is_empty() else {})
 	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _begin_locked_hand_render_cache()
@@ -24513,15 +24523,16 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_checkpoint_queue_total", performance_phase_started)
 	_hold_committed_run_state(queued_checkpoint_state, "player_activation_finished")
 	_record_runtime_performance_phase("enemy_round_initial_checkpoint_persist_total", performance_phase_started)
+	_burst_playback.prepare(rule_display, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _animate_enemy_loss_feedback_between_states(rule_display, scheduled_state)
-	# Caption-only rules retain their existing completion effects; a played
-	# Lightning Storm/Gust has already reconciled its own losses on rule_display.
+	# The rule playback owns its own losses. These are the remaining effects
+	# of ending the player activation after the last presented rule beat.
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await preload("res://scripts/hero_loss_playback.gd").present(self, rule_display, scheduled_state)
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await _animate_defeats_and_terrain_destruction(rule_display, scheduled_state)
-	_combat_pacing.present_initial_order(_combat_state, scheduled_state)
+	_combat_pacing.present_initial_order(rule_display, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
@@ -28060,7 +28071,7 @@ func _sync_treasure_room_reveal() -> void:
 
 func _play_treasure_room_reveal(sequence_epoch: int, key: String) -> void:
 	while _animation_lock and _treasure_sequence_is_current(sequence_epoch):
-		await get_tree().process_frame
+		await _next_treasure_sequence_frame()
 	if not _treasure_sequence_is_current(sequence_epoch) or key != _treasure_room_reveal_key():
 		return
 	var tween := create_tween()
@@ -28090,12 +28101,21 @@ func _set_treasure_chest_progress(progress: float) -> void:
 		board_view.set_treasure_chest_open_progress(_treasure_chest_progress)
 
 func _treasure_sequence_is_current(sequence_epoch: int) -> bool:
-	return is_inside_tree() and sequence_epoch == _treasure_sequence_epoch
+	return is_inside_tree() and not _leaving_tree and sequence_epoch == _treasure_sequence_epoch
+
+func _next_treasure_sequence_frame() -> Signal:
+	var process_frame: Signal = get_tree().process_frame
+	if not process_frame.is_connected(_emit_treasure_sequence_frame):
+		process_frame.connect(_emit_treasure_sequence_frame, CONNECT_ONE_SHOT)
+	return _treasure_sequence_frame
+
+func _emit_treasure_sequence_frame() -> void:
+	_treasure_sequence_frame.emit()
 
 func _await_treasure_tween(tween: Tween, sequence_epoch: int) -> bool:
 	var began_reduced: bool = _reduced_motion_enabled()
-	while tween != null and tween.is_valid() and tween.is_running():
-		await get_tree().process_frame
+	while _treasure_sequence_is_current(sequence_epoch) and tween != null and tween.is_valid() and tween.is_running():
+		await _next_treasure_sequence_frame()
 		if not _treasure_sequence_is_current(sequence_epoch):
 			return false
 		if not began_reduced and _reduced_motion_enabled() and tween.is_valid():
@@ -28124,6 +28144,11 @@ func _cancel_treasure_presentation() -> void:
 	_treasure_reveal_active = false
 	_treasure_reveal_key = ""
 	_treasure_chest_progress = 0.0
+	# Wake the awaiting functions on this stack, while the scene can still
+	# return cancellation to their callers and release their Tween references.
+	if is_inside_tree() and get_tree().process_frame.is_connected(_emit_treasure_sequence_frame):
+		get_tree().process_frame.disconnect(_emit_treasure_sequence_frame)
+	_treasure_sequence_frame.emit()
 
 func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	if _treasure_presentation_busy():
@@ -28571,7 +28596,8 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	if _card_fx_layer == null or _reduced_motion_enabled():
 		return
 	var sequence_epoch: int = _treasure_sequence_epoch
-	await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch): return
+	await _next_treasure_sequence_frame()
 	if not _treasure_sequence_is_current(sequence_epoch) or not _node_is_alive(_card_fx_layer):
 		return
 	var frame: Control = _relic_frame_for_id(relic_id)
@@ -28645,7 +28671,8 @@ func _relic_bar_target_global_position(frame: Control) -> Vector2:
 
 func _animate_relic_acquired(relic_id: String) -> void:
 	var sequence_epoch: int = _treasure_sequence_epoch
-	await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch): return
+	await _next_treasure_sequence_frame()
 	if not _treasure_sequence_is_current(sequence_epoch):
 		return
 	var frame: Control = _relic_frame_for_id(relic_id)

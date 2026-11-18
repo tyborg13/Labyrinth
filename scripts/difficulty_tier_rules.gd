@@ -56,7 +56,7 @@ static func finalize(layout: Dictionary) -> void:
 	freeze(layout)
 	var enemies: Array = layout["enemies"]
 	var excess: int = maxi(0, starter_count(layout) - MAX_STARTERS)
-	var removed: int = int(layout.get("omen_enemy_hp_compensations", 0)) + int(layout.get("encounter_trimmed_enemies", 0))
+	var removed: int = int(layout.get("encounter_trimmed_enemies", 0))
 	# Authored roster order is the existing trim order; retain IDs and objective
 	# bindings. Warband escorts and Snare hunters occupy the tail of that order.
 	for index: int in range(enemies.size() - 1, -1, -1):
@@ -80,3 +80,10 @@ static func finalize(layout: Dictionary) -> void:
 	# than rounding its previous 3x Health independently.
 	if str(layout.get("special_type", "")) == "ember_hoarder":
 		preload("res://scripts/hoarder_room_rules.gd").configure(layout)
+	# Hunted increases the Health each starter would have had in this room.
+	# Preserve the completed trim, tier and derived Health rounding first.
+	var hunted_compensations: int = int(layout.get("omen_enemy_hp_compensations", 0))
+	if hunted_compensations > 0:
+		for enemy: Dictionary in enemies:
+			enemy["max_hp"] = ceili(float(enemy["max_hp"]) * pow(REMOVED_ENEMY_HP_FACTOR, hunted_compensations))
+			enemy["hp"] = enemy["max_hp"]

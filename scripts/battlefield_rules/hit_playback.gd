@@ -2,11 +2,13 @@ extends RefCounted
 ## Rearrange resolved receipts for simultaneous primary bolts, then actual hops.
 ## Scalar patches affect only the displayed copy; no targeting/damage is rerun.
 const Typed = preload("res://scripts/typed_arrays.gd")
+const Bursts = preload("res://scripts/enemy_mechanics/burst_playback.gd")
 
 static func losses(engine: RefCounted, before: Dictionary, after: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary] = engine._actor_target_losses(before, after)
 	result.append_array(engine._enemy_target_losses(before, after))
-	return result
+	# The normal defeat sequence shows each Burst's damage on its own contact.
+	return Bursts.without_burst_losses(engine, {"target_losses": result}, before, after)["target_losses"]
 
 static func _receipt(engine: RefCounted, before: Dictionary, after: Dictionary) -> Dictionary:
 	var changes: Array[Dictionary]

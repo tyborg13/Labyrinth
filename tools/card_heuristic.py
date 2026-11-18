@@ -279,6 +279,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "excluded": ["boss"],
             "enemy_stats": "normal depth scaling unchanged; generated objective/kind, Guardian and boss dials freeze data/difficulty_tiers.json for starters and arrivals",
             "starting_cap": {"non_summoned": 5, "removed_starter_health_factor": 1.2, "order": "existing tail order; protected objective units retained; compensation before tier Health"},
+            "hunted_full_room": "ceil(final starter Health × 1.2) after trim compensation, tier scaling and derived Health",
             "intrinsic_card_coefficients": "unchanged",
         },
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,

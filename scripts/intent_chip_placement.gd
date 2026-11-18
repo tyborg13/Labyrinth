@@ -220,7 +220,7 @@ static func unit_rest_silhouette(board: Control, unit: Dictionary) -> Dictionary
 ## A closest clear point is a home projection onto an edge or an intersection
 ## of edges, so this finite grid includes it without a pixel-step approximation.
 ## only_preferred limits this same search to the coverage-chosen home.
-static func find_clear(right: Rect2, left: Rect2, obstacles: Array, previous: Array, bounds: Rect2, prefer_left: bool = false, only_preferred: bool = false) -> Dictionary:
+static func find_clear(right: Rect2, left: Rect2, obstacles: Array, previous: Array, bounds: Rect2, prefer_left: bool = false, only_preferred: bool = false, max_slide: float = MAX_SLIDE) -> Dictionary:
 	var occupied: Array[Rect2]
 	occupied.assign(obstacles)
 	for chip: Dictionary in previous: occupied.append(chip["rect"])
@@ -233,23 +233,23 @@ static func find_clear(right: Rect2, left: Rect2, obstacles: Array, previous: Ar
 	if not only_preferred: homes.append(right if prefer_left else left)
 	for home: Rect2 in homes:
 		var nearby: Array[Rect2]
-		var reach: Rect2 = home.grow(MAX_SLIDE)
+		var reach: Rect2 = home.grow(max_slide) if not is_inf(max_slide) else Rect2()
 		for rect: Rect2 in occupied:
-			if reach.intersects(rect, false): nearby.append(rect)
+			if is_inf(max_slide) or reach.intersects(rect, false): nearby.append(rect)
 		var x_values: Array[float]
 		var y_values: Array[float]
-		_add_axis(x_values, home.position.x, home.position.x)
-		_add_axis(y_values, home.position.y, home.position.y)
+		_add_axis(x_values, home.position.x, home.position.x, max_slide)
+		_add_axis(y_values, home.position.y, home.position.y, max_slide)
 		if bounds.has_area():
-			_add_axis(x_values, bounds.position.x, home.position.x)
-			_add_axis(x_values, bounds.end.x - home.size.x, home.position.x)
-			_add_axis(y_values, bounds.position.y, home.position.y)
-			_add_axis(y_values, bounds.end.y - home.size.y, home.position.y)
+			_add_axis(x_values, bounds.position.x, home.position.x, max_slide)
+			_add_axis(x_values, bounds.end.x - home.size.x, home.position.x, max_slide)
+			_add_axis(y_values, bounds.position.y, home.position.y, max_slide)
+			_add_axis(y_values, bounds.end.y - home.size.y, home.position.y, max_slide)
 		for rect: Rect2 in nearby:
-			_add_axis(x_values, rect.position.x - home.size.x, home.position.x)
-			_add_axis(x_values, rect.end.x, home.position.x)
-			_add_axis(y_values, rect.position.y - home.size.y, home.position.y)
-			_add_axis(y_values, rect.end.y, home.position.y)
+			_add_axis(x_values, rect.position.x - home.size.x, home.position.x, max_slide)
+			_add_axis(x_values, rect.end.x, home.position.x, max_slide)
+			_add_axis(y_values, rect.position.y - home.size.y, home.position.y, max_slide)
+			_add_axis(y_values, rect.end.y, home.position.y, max_slide)
 		# Stable signs match the original solver: above before below, right
 		# before left. No inputs depend on draw-frame time or sprite motion.
 		x_values.sort()
@@ -262,7 +262,7 @@ static func find_clear(right: Rect2, left: Rect2, obstacles: Array, previous: Ar
 			for y: float in y_values:
 				var offset := Vector2(x, y) - home.position
 				var distance: float = offset.length_squared()
-				if distance > MAX_SLIDE * MAX_SLIDE or distance > best_distance or distance > home_distance: continue
+				if distance > max_slide * max_slide or distance > best_distance or distance > home_distance: continue
 				if distance == home_distance and absf(offset.x) >= home_horizontal: continue
 				var rect := Rect2(Vector2(x, y), home.size)
 				if bounds.has_area() and not bounds.encloses(rect): continue
@@ -275,8 +275,8 @@ static func find_clear(right: Rect2, left: Rect2, obstacles: Array, previous: Ar
 			best = home_best
 	return best
 
-static func _add_axis(values: Array[float], value: float, origin: float) -> void:
-	if absf(value - origin) <= MAX_SLIDE and not values.has(value): values.append(value)
+static func _add_axis(values: Array[float], value: float, origin: float, max_slide: float) -> void:
+	if absf(value - origin) <= max_slide and not values.has(value): values.append(value)
 
 static func _clear(rect: Rect2, occupied: Array[Rect2]) -> bool:
 	for obstacle: Rect2 in occupied:
