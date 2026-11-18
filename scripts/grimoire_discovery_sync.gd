@@ -63,6 +63,7 @@ static func _combat_inputs(combat: Dictionary) -> Dictionary:
 		var values: Variant = deck.get(pile, [])
 		if typeof(values) == TYPE_ARRAY: cards.append_array(values)
 	return {"surfaces": combat.get("surfaces"), "umbra": (combat.get("umbra", {}) as Dictionary).get("stage"),
+		"upheaval": Library.has_upheaval_rule(combat),
 		"traps": not (combat.get("traps", []) as Array).is_empty(), "enemies": enemy_types, "equipment": equipment,
 		"collected": combat.get("collected_equipment"), "cards": _sorted_ids(cards)}
 

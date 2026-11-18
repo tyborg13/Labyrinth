@@ -1,8 +1,15 @@
 extends RefCounted
 
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
+const DiscoverySync = preload("res://scripts/grimoire_discovery_sync.gd")
+const UPHEAVAL_ENTRY: String = "keyword:upheaval"
 
 static func run(expect: Callable) -> void:
+	var upheaval_combat: Dictionary = {"battlefield_rule": {"rule": "upheaval"}}
+	expect.call(GrimoireLibrary.entry_ids_for_combat_state(upheaval_combat).has(UPHEAVAL_ENTRY), "A battlefield Upheaval unlocks the Grimoire article without a Weaver")
+	expect.call(DiscoverySync.inputs({}, upheaval_combat) != DiscoverySync.inputs({}, {}), "Installing an Upheaval rule invalidates Grimoire discovery input")
+	expect.call(GrimoireLibrary.entry_ids_for_actions([{"type": "upheaval_mark"}]).has(UPHEAVAL_ENTRY), "Thornwall discovers the same Upheaval article")
 	var sections: Array = [
 		{"id": "combat", "title": "Combat"},
 		{"id": "keywords", "title": "Keywords"}

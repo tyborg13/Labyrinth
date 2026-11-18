@@ -766,6 +766,8 @@ static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictiona
 
 static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}
+	if has_upheaval_rule(combat_state):
+		wanted["keyword:upheaval"] = true
 	for tile: Vector2i in BoardSurfaces.tiles(combat_state):
 		_collect_surface_entry_ids(BoardSurfaces.element_at(combat_state, tile), wanted)
 		if BoardSurfaces.has_rubble(combat_state, tile): _collect_surface_entry_ids("rubble", wanted)
@@ -803,6 +805,9 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 	for pile_name: String in ["hand", "draw", "discard", "burned", "consumed"]:
 		_collect_entry_ids_for_card_ids(deck.get(pile_name, []), wanted)
 	return _ordered_entry_ids_from_set(wanted)
+
+static func has_upheaval_rule(combat_state: Dictionary) -> bool:
+	return str(combat_state.get("battlefield_rule", {}).get("rule", "")) == "upheaval"
 
 static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}

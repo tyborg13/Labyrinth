@@ -74,7 +74,13 @@ func _run() -> void:
 		# bos-02 replaces these two retired dragon rules with approved full bodies.
 		if id in ["gale_force", "worldspines"]:
 			var approved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_feedback1_grimoire.json"))
-			_expect(entry.get("body", []) == approved["entries"][owner]["body"], "bos-02 approved full rules replace retired prose: " + id)
+			var expected_body: Array = approved["entries"][owner]["body"]
+			if id == "worldspines":
+				expected_body[0] = str(expected_body[0]).replace(
+					"After every second turn of yours, the marked tiles rise as Outcrops: stone that blocks movement until it is broken.",
+					"After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
+				)
+			_expect(entry.get("body", []) == expected_body, "Grimoire retains the approved full rules: " + id)
 		elif id == "traps":
 			_expect(entry.get("body", []) == TRP01_TRAP_BODY, "trp-01 director rules own the trap topic: " + id + " -> " + owner)
 		else:

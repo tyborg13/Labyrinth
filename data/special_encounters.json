@@ -87,7 +87,7 @@
      ],
      "order": {
       "id": "thornmother_wall",
-      "text": "After every second Thornmother turn, the marked tiles rise as Outcrops.",
+      "text": "After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them.",
       "battlefield_instance": "thornmother"
      }
     },

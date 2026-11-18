@@ -255,8 +255,8 @@ Encounter calibration is also important:
   health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
   Overload keeps a direct bolt for 3 and fires Lightning Storm across every
-  Electrified tile for 5 with Chain 1 (Chain 2 at half Health). Advancing Storm
-  Lash keeps its shot for 4 and Electrified ground. Movement safety depends on
+  Electrified tile on the board when Overload fires for 6 (7 at half Health),
+  with Chain 0. Advancing Storm Lash keeps its shot for 4 and Electrified ground. Movement safety depends on
   each intent's announced geometry and conduction rules.
 - Large enemies use actor-level direct targeting: if any visible footprint tile
   satisfies an attack's range and line-of-sight rules, the full footprint
@@ -847,11 +847,12 @@ complementary safe flanks, keeping Guardian approach and strike tiles clear.
 Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
 Cantor/Tender extend one shared network toward the player; Peal fires the
 Lightning Storm beat. Each Guardian installs its own data-authored cadence and
-dials. Frostbite deals zero damage and Freezes Chilled actors on Ice. Roc is
+dials. Frostbite deals zero damage and Freezes occupants of live Ice tiles,
+retaining existing immunities. Roc is
 Anchored in its own wind. Craghide's beat raises owned 2-HP Outcrops, counted by
 Groundsplit. Only hidden Wick Shades Shadowstep; the Lamplighter does not.
-The director's final feedback-3 ladder retains Rimejaw HP 34 / Pounce 6; Cantor HP 66 /
-Lay the Choir 6 fresh linked tiles / Broken Rhythm 11 / Wisp cap 2 / Peal 3 with Chain 2 /
+With the owner's area-02 storm update, the retained feedback-3 tuning is Rimejaw HP 34 / Pounce 6; Cantor HP 66 /
+Lay the Choir 6 fresh linked tiles / Broken Rhythm 11 / Wisp cap 2 / Peal 4 with Chain 0 /
 Guardian Bell Tender Staff Bolt 4 (ordinary Staff Bolt stays 3);
 and Lamplighter HP 30 / Procession 6 / Shade cap 1 / Mourning Hook 3 /
 Guardian-only Shade melee 1. Lamplighter still starts with one Shade: the ladder
@@ -866,8 +867,10 @@ Only explicitly authored directional ground patterns retain orientation; ordinar
 Displacement translates their approach and footprint; blockers/traps shorten the approach
 and a surviving caster strikes from its actual arrival. Player dodges do not re-aim
 the attack. Occupied summon reservations relocate within the existing summon range,
-retaining roster caps and avoiding the caster’s attack footprint. Skipped slots advance. Craghide cannot seal connected floor;
-all outcrops block movement and attack sight and can be cleared by AI.
+retaining roster caps and avoiding the caster’s attack footprint. Skipped slots advance.
+Craghide guards connected floor at marking time. At the rise, placement and immovable
+occupants are checked on the live board. All outcrops block movement and attack sight
+and can be cleared by AI.
 
 These optional fights and exclusive trophies are their own analytics cohort;
 they do not inflate every printed card's intrinsic score. The scorer exposes
@@ -912,8 +915,17 @@ from data. The approved context is in
 | Tharokh | Guarded `line_between` Upheaval, length 5 / Health 4, every second hero turn; every hero turn at half Health. | HP 72; two finite Burrow Grubs. Rule Outcrops replace the separate spire kind. Stonewake keeps range 4 with damage 6; Claw damage is 14 and Bedrock damage 10; Claw/Breath pulses and paired raises are removed. Faultline 8 consumes only source-owned stone at radius 1, then keeps shot 4. Flagged lanes preserve their stone and see through it as before. |
 | Iskaldra | Frostbite 3 on Rime Talon; every second source turn at half Health. | Two finite Rime Spitters. Mantle, Shatterstorm and Whiteout's previous-trail replacement remain. Mantle absorbs the beat; Freeze immunity remains. Talon's surviving-trail rider is removed. |
 | Vaeloryx | Clockwise Gust after every source turn, Push 1; Push 2 at half Health. | HP 50; one finite Gust Shrike. Skyhook 4, swept Dive 6, Gale 6 / Push 1, and Eye 8 / inner bite 4 remain. The recorded wake and Gale wake hit are removed. |
-| Zekarion | Lightning Storm 5 / Chain 1 on Overload; Chain 2 at half Health. | HP 62; Skybreak 5 on nine separated scatter tiles, twice per five-slot cycle (Skybreak, Storm Lash, Call Wisps, Skybreak, Overload). Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
+| Zekarion | Lightning Storm 6 / Chain 0 on Overload; damage 7 at half Health. | HP 62; Skybreak 5 on nine separated scatter tiles, twice per five-slot cycle (Skybreak, Storm Lash, Call Wisps, Skybreak, Overload). Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
 | Noctyrax | Void Claw Shadowstep Blinks hidden Veilbound Acolytes 3; no half-Health change. | HP 64; Void Claw 10. Acolytes, Last Eclipse replacement, darkness and braziers remain. The three player-anchored sweeps are removed. |
+
+Battlefield rule beats use the live board, including foes-turn fuel changes.
+Rule red shows the current footprint. The Pass forecast simulates the known
+foes' turn through those changes. Gust pushes live occupants in its installed
+direction, including after a Call in the same foes' turn. Upheaval guards routes
+at marking time. At the rise, a mark stays flat only for impassable terrain,
+a trap, a guardian brazier, or an occupant the throw cannot move. Raised
+Outcrops can be broken. All four storms have Chain 0. Player Chain and card
+scores retain their existing values.
 
 The ordinary completed-sequence curves still scale boss HP and primary attacks;
 rule dials retain these authored values. Beat Fire, Ice and Outcrops belong to

@@ -218,10 +218,10 @@ static func _routes(engine: RefCounted, expect: Callable) -> void:
 	expect.call(state["battlefield_rule"]["marks"] == [Vector2i(6, 3), Vector2i(6, 4)], "BOS01 line route guard skips exactly the floor-splitting mark")
 	var after: Dictionary = compare(engine, state, expect)
 	expect.call(after["terrain"].size() == 2 and engine._terrain_index_at_tile(after, Vector2i(6, 5)) < 0, "BOS01 guarded line raises its other marks")
-	# Old held marks/saves also pass the guard at resolution.
+	# Held marks use the marking-time decision, including legacy saved marks.
 	state["battlefield_rule"]["marks"] = [Vector2i(6, 3), Vector2i(6, 4), Vector2i(6, 5)]
 	after = compare(engine, state, expect)
-	expect.call(after["terrain"].size() == 2, "BOS01 route guard rechecks old held lines at resolution")
+	expect.call(after["terrain"].size() == 3, "BOS01 held lines do not repeat marking-time route guards")
 	var big: Dictionary = Base.battle(engine)
 	big["enemies"][0].merge({"pos": Vector2i(4, 4), "footprint": Vector2i(2, 2)}, true)
 	big["player"]["pos"] = Vector2i(7, 4)
@@ -237,7 +237,7 @@ static func _routes(engine: RefCounted, expect: Callable) -> void:
 	expect.call(not Rules.Upheaval.line_preserves_routes(engine, big, big["battlefield_rule"], Vector2i(6, 4)), "BOS01 route guard keeps two exits for a 2x2 footprint")
 	big["battlefield_rule"]["marks"] = [Vector2i(6, 4)]
 	after = compare(engine, big, expect)
-	expect.call(after["terrain"].is_empty() and after["enemies"][0]["pos"] == source["pos"], "BOS01 2x2 box-in mark is skipped")
+	expect.call(after["terrain"].size() == 1 and after["enemies"][0]["pos"] == source["pos"], "BOS01 held adjacent mark rises without a source-route re-check")
 	print("BOS01 ROUTE FIXTURES: corridor skips (6,5); 2x2 line skips (6,4),(6,5)")
 
 static func _ground(engine: RefCounted, expect: Callable) -> void:

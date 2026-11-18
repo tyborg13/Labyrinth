@@ -37,8 +37,8 @@ static func note_hidden_before(cursor: Dictionary, state: Dictionary, entry: Dic
 static func restart_with_rolls(cursor: Dictionary) -> void:
 	cursor["state"] = (cursor.get("initial_state", {}) as Dictionary).duplicate(true)
 	if bool(cursor.get("losses_only", false)):
-		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT
-		cursor["state"][receipt] = bool((cursor["initial_state"] as Dictionary).get(receipt, false))
+		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER
+		cursor["state"][receipt] = true
 		preload("res://scripts/pass_forecast_statuses.gd").begin(cursor["state"])
 	cursor["steps"] = []
 	cursor["player_turn_before_state"] = {}
@@ -49,7 +49,7 @@ static func restart_with_rolls(cursor: Dictionary) -> void:
 	cursor["safety"] = 0
 	cursor["complete"] = false
 	# atk-07: a span through a skipped turn (and its Fatigue sum) starts over too; atk-09/atk-11: so do the red-tile records.
-	for field: String in ["rng_unknown", "roll_known", "enemy_activations", "enemy_hits", "enemy_names", "unknown_repeat_ids", "unseen_ground_crossed", "new_arrival_before_player", "skipped_turns", "span_boundary", "fatigue_loss", "red_later_tiles", "red_died_first", "red_turn_start_surfaces"]:
+	for field: String in ["rng_unknown", "roll_known", "least_frozen_health", "enemy_activations", "enemy_hits", "enemy_names", "unknown_repeat_ids", "unseen_ground_crossed", "new_arrival_before_player", "skipped_turns", "span_boundary", "fatigue_loss", "red_later_tiles", "red_died_first", "red_turn_start_surfaces"]:
 		cursor.erase(field)
 
 # A visible foe whose later move stays unknown keeps the "×2 ?" disclosure.

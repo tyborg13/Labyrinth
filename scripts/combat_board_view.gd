@@ -119,6 +119,7 @@ const BoardTileTooltipCache = preload("res://scripts/board_tile_tooltip_cache.gd
 const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
 const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
+const BoardSurfaceVisibility = preload("res://scripts/board_surface_visibility.gd")
 const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
@@ -782,6 +783,7 @@ var _enemy_shadow_dissolve_spare_effect: Control = null
 var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _rest_threat_tile_alphas: Dictionary = {}
+var _rule_threat_tiles: Dictionary = {}
 # Borrowed only during one synchronous overlay draw; rebuilt on every draw.
 var _overlay_draw_sources: Dictionary = {}
 var _command_glow_inputs: Array = []
@@ -2969,15 +2971,15 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
 
 func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary, validated_state_revision: int = -1) -> Dictionary:
-	var effect: Dictionary = original.get("effect", {})
-	if state.is_empty() or str(state.get("objective", {}).get("special_type", "")) == "umbral_snare" or str(state.get("current_actor", {}).get("kind", "player")) != "player" or (not effect.is_empty() and not bool(effect.get("preview", false))) or BattlefieldRuleView.BattlefieldRules.active(state).is_empty():
-		return original
+	if not BattlefieldRuleView.eligible(state, original): return original
 	# The forecast memo hashes every raw catalog on every hit. Animation samples
 	# keep those exact inputs: compare the last owned snapshot before entering
 	# that memo. Include all its dependencies so in-place rule/catalog edits
 	# still miss. Only the rest-threat overlay is derived here; unrelated frame
 	# fields (positions, poses, clocks) always come from this submission.
 	var inputs: Array = BattlefieldRuleView.BattlefieldRules.forecast_inputs(BattlefieldRuleView._engine, state)
+	var sight: Dictionary = BoardSurfaceVisibility.projection_input(original)
+	inputs.append(sight)
 	# RunScene's trusted animation sequence cannot mutate its combat snapshot.
 	# Reuse only the state input already owned/validated in that exact sequence;
 	# forecast_inputs still validates every catalog through its exact token.
@@ -2987,11 +2989,11 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	if not _battlefield_presentation_initialized or inputs != _battlefield_presentation_inputs:
 		# Hover changes the enemy rest overlay, not the rule forecast. Cache the
 		# rule's contribution independently, validating all forecast inputs exactly.
-		var decorated: Dictionary = BattlefieldRuleView.presentation_for(state, {})
+		var decorated: Dictionary = BattlefieldRuleView.presentation_for(state, sight)
 		_battlefield_presentation_inputs = inputs.duplicate(true)
 		_battlefield_presentation_initialized = true
-		_battlefield_presentation_changed = not decorated.is_empty()
 		_battlefield_rule_threat = (decorated.get("threats_at_rest", {}) as Dictionary).duplicate(true)
+		_battlefield_presentation_changed = not _battlefield_rule_threat.is_empty()
 		_battlefield_rest_presentation = {}
 	_battlefield_presentation_state_revision = validated_state_revision
 	if not _battlefield_presentation_changed:
@@ -3000,8 +3002,7 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	if _battlefield_rest_presentation.is_empty() or rest != _battlefield_rest_inputs:
 		_battlefield_rest_inputs = rest.duplicate(true)
 		_battlefield_rest_presentation = rest.duplicate(true)
-		# atk-11: keep the forecast's own red for the hero's tile (pass_forecast_red_tiles.gd).
-		var threats: Array = (_battlefield_rest_presentation.get("threats", []) as Array).filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != BattlefieldRuleView.THREAT_KEY or bool(threat.get("later", false)))
+		var threats: Array = (_battlefield_rest_presentation.get("threats", []) as Array).filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != BattlefieldRuleView.THREAT_KEY)
 		threats.append_array(_battlefield_rule_threat["threats"])
 		_battlefield_rest_presentation["threats"] = threats
 		# atk-11: a hovered destination or card preview keeps its own hero tile (its pulse).
@@ -3027,11 +3028,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var submitted_paths: Dictionary = next_presentation.duplicate(false)
 	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = BrambleView.presentation_for(next_state, next_presentation)
-	next_presentation = SnarePressureView.presentation_for(next_state, next_presentation)
+	next_presentation = SnarePressureView.presentation_for(next_state, next_presentation, true)
 	next_presentation = _battlefield_rule_presentation_for(next_state, next_presentation, _submission_state_revision)
 	next_presentation = preload("res://scripts/enemy_path_presentation.gd").without_enemy_paths(next_presentation, submitted_paths)
 	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
-	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
+	var threats: Array = next_presentation.get("threats_at_rest", {}).get("threats", [])
+	var previous_rule_threat_tiles: Dictionary = _rule_threat_tiles
+	_rest_threat_tile_alphas = ThreatTiles.tile_alphas(threats)
+	_rule_threat_tiles = ThreatTiles.rule_tiles(threats)
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
@@ -3512,7 +3516,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if exit_icon_ids_changed:
 			retained_sync_fields.append("exit_icon_ids")
 		if not presentation_changes.is_empty():
-			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas"])
+			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas", "_rule_threat_tiles"])
 			retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		if presentation_changes.has("damage_preview") or presentation_changes.has("effect"):
 			retained_sync_fields.append("_damage_preview_cache")
@@ -3601,6 +3605,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		)
 		for surface_tile: Vector2i in surface_redraw_tiles:
 			_queue_scene_render_layer_for_tile(surface_tile)
+		if presentation_changes.has("threats_at_rest"):
+			for tile: Vector2i in previous_rule_threat_tiles:
+				_queue_scene_render_layer_for_tile(tile)
+			for tile: Vector2i in _rule_threat_tiles:
+				if not previous_rule_threat_tiles.has(tile): _queue_scene_render_layer_for_tile(tile)
 	if not registration_changes.is_empty():
 		# A persistent viewport can turn without changing its actor dictionary.
 		# The retained draw command must select that view's floor registration too.
@@ -5323,6 +5332,7 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	_draw_board_surface(_render_layer_tile)
+	LayerSlices.rule_outline_operations(self, _render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_board_surface", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
@@ -7917,6 +7927,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
 		_draw_board_surface(tile)
+		LayerSlices.rule_outline_operations(self, tile)
 		_draw_path_depth_pass(tile)
 		_draw_enemy_threat_depth_pass(tile)
 		_draw_noctyrax_refuge_tile(tile)
@@ -7925,11 +7936,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
 func _board_tile_is_visible_to_player(tile: Vector2i) -> bool:
-	if SnareRules.Pressure.visible_tile(combat_state, tile): return true
-	var visible_tiles: Variant = presentation.get("umbra_visible_tiles", null)
-	if typeof(visible_tiles) != TYPE_ARRAY:
-		return true
-	return (visible_tiles as Array).has(tile)
+	return BoardSurfaceVisibility.tile_is_drawn(combat_state, tile, presentation.get("umbra_visible_tiles"))
 
 
 func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:

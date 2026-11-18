@@ -2452,8 +2452,8 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	if losses_only:
-		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT
-		next_state[receipt] = bool(state.get(receipt, false))
+		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER
+		next_state[receipt] = true
 		preload("res://scripts/pass_forecast_statuses.gd").begin(next_state)
 	_record_runtime_performance_phase("enemy_preview_initial_duplicate", performance_total_started)
 	var initially_visible_enemy_ids: Dictionary = {}
@@ -3240,6 +3240,7 @@ func player_movement_remaining(state: Dictionary) -> int:
 
 func normalize_player_movement_pool(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
+	BattlefieldRules.repair_saved_rule(self, next_state)
 	var capacity: int = player_movement_capacity(next_state)
 	next_state["player_movement_capacity"] = capacity
 	next_state["player_movement_remaining"] = clampi(
@@ -11973,9 +11974,10 @@ func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int,
 
 func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int, action: Dictionary) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
+	if bool(action.get("_battlefield_frostbite", false)) and actor_kind == "player" and (ManeuverRules.player_skating(state) or SurfaceRelicRules.has_effect(state, "surface_chill_immunity")): return state
 	if bool(action.get("_skip_surface_freeze", false)):
 		return state
-	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or (not action.has("_collision_freeze_tile") and not bool(unit.get("chilled", false))) or _action_element(action) != "ice":
+	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or (not bool(action.get("_battlefield_frostbite", false)) and not action.has("_collision_freeze_tile") and not bool(unit.get("chilled", false))) or _action_element(action) != "ice":
 		return state
 	if actor_kind == "enemy" and _enemy_is_immune_to_status(unit, "freeze"):
 		return state

@@ -6,7 +6,10 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
+const PROOF_UI_SCALE: float = 1.0
 const OUTPUT_DIR: String = "user://grimoire_search_probe"
+const UPHEAVAL_ENTRY: String = "keyword:upheaval"
+const UPHEAVAL_BODY: String = "Marked tiles rise as Outcrops when the rule fires. A unit on a rising tile is pushed to a free tile beside it; the tile stays flat if a wall, a trap, a brazier or a unit that can't be pushed off is on it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
 
 var _failures: Array[String] = []
 var _capture_viewport: SubViewport
@@ -28,6 +31,7 @@ func _initialize() -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = VIEWPORT_SIZE
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_factor = PROOF_UI_SCALE
 	root.size = VIEWPORT_SIZE
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	await process_frame
@@ -130,6 +134,12 @@ func _run_probe() -> void:
 	var typo_status: Label = instance.get("_grimoire_search_status") as Label
 	_expect(typo_status != null and typo_status.text.contains("close"), "Typo-only results should be labeled as close matches")
 	await _capture("grimoire_search_v1_typo.png")
+
+	await _set_query(instance, input, "Upheaval")
+	_expect(str(instance.get("_grimoire_selected_entry")) == UPHEAVAL_ENTRY, "Searching for Upheaval selects its dedicated article")
+	var body: RichTextLabel = instance.get("_grimoire_detail_body") as RichTextLabel
+	_expect(body != null and body.is_visible_in_tree() and body.get_parsed_text() == UPHEAVAL_BODY, "Upheaval article renders the verified sentences verbatim")
+	await _capture("grimoire_search_upheaval.png")
 
 	await _set_query(instance, input, "purple banana")
 	_expect(str(instance.get("_grimoire_selected_entry")).is_empty(), "No-result search should clear the result selection")

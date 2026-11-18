@@ -1,11 +1,12 @@
 extends RefCounted
 ## The next battlefield beat's tiles, marked like any other threat at rest (el-04).
 ## Snares keep their own pressure view; Warband orders and ordinary sources preview
-## here, and only when their beat fires before the hero's next turn.
+## here. Each board update shows the geometry the beat would affect now.
 const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const SurfaceVisibility = preload("res://scripts/board_surface_visibility.gd")
 const THREAT_KEY: String = "battlefield_rule"
 const TURN_ORDER_SCAN: int = 12
 # Gust keeps WindView's landing ghosts. Upheaval sets units down like the wind does, so it uses the same pale
@@ -25,30 +26,44 @@ static var _engine := preload("res://scripts/combat_engine.gd").new()
 static var _memo := preload("res://scripts/combat_preview_memo.gd").new()
 static var _ghost_memo := preload("res://scripts/combat_preview_memo.gd").new()
 
+static func eligible(state: Dictionary, original: Dictionary) -> bool:
+	if state.is_empty() or str(state.get("objective", {}).get("special_type", "")) == "umbral_snare": return false
+	var instance: Dictionary = BattlefieldRules.active(state)
+	if instance.is_empty(): return false
+	if str(instance["rule"]) == "shadowstep":
+		var effect: Dictionary = original.get("effect", {})
+		return str(state.get("current_actor", {}).get("kind", "player")) == "player" and (effect.is_empty() or bool(effect.get("preview", false)))
+	return true
+
 static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
-	if state.is_empty() or str(state.get("objective", {}).get("special_type", "")) == "umbral_snare": return original
-	if str(state.get("current_actor", {}).get("kind", "player")) != "player": return original
-	var effect: Dictionary = original.get("effect", {})
-	if not effect.is_empty() and not bool(effect.get("preview", false)): return original
-	if BattlefieldRules.active(state).is_empty(): return original
+	if not eligible(state, original): return original
 	# Same pure inputs as the rule forecast itself: the board state and every catalog it reads.
-	var tiles: Array = _memo.resolve(BattlefieldRules.forecast_inputs(_engine, state), func() -> Array: return _due_tiles(state))
+	var board_sight: Dictionary = SurfaceVisibility.projection_input(original) if original.has("umbra_visible_tiles") else {}
+	var inputs: Array = BattlefieldRules.forecast_inputs(_engine, state)
+	inputs.append(board_sight)
+	var tiles: Array = _memo.resolve(inputs, func() -> Array: return _due_tiles(state, board_sight))
 	if tiles.is_empty(): return original
 	var result: Dictionary = original.duplicate(false)
 	var rest: Dictionary = original.get("threats_at_rest", {}).duplicate(false)
 	var threats: Array = rest.get("threats", []).duplicate(false)
-	# atk-11: the forecast's own red for the hero's tile (pass_forecast_red_tiles.gd) stays.
-	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY or bool(threat.get("later", false)))
-	threats.append({"key": THREAT_KEY, "area": true, "tiles": tiles})
+	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY)
+	threats.append({"key": THREAT_KEY, "area": true, "tiles": tiles, "rule_outline": true})
 	rest["threats"] = threats
 	rest["hero_tile"] = rest.get("hero_tile", state["player"]["pos"])
 	result["threats_at_rest"] = rest
 	return result
 
-static func _due_tiles(state: Dictionary) -> Array:
+static func _due_tiles(state: Dictionary, board_sight: Dictionary = {}) -> Array:
 	var tiles: Array = []
-	if not beat_before_next_player_turn(state): return tiles
-	for group: Array in BattlefieldRules.forecast(_engine, state).get("tiles", {}).values():
+	var instance: Dictionary = BattlefieldRules.active(state)
+	var rule: String = str(instance.get("rule", ""))
+	if rule in ["wildfire", "frostbite", "lightning_storm"]:
+		var visible: Variant = board_sight["umbra_visible_tiles"] if board_sight.has("umbra_visible_tiles") else _engine.umbra_visible_tiles(state)
+		for tile: Vector2i in BattlefieldRules.Geometry.affected_tiles(_engine, state, instance):
+			if SurfaceVisibility.tile_is_drawn(state, tile, visible): tiles.append(tile)
+		return tiles
+	if str(instance.get("rule", "")) == "shadowstep" and not beat_before_next_player_turn(state): return tiles
+	for group: Array in BattlefieldRules.forecast(_engine, state, board_sight).get("tiles", {}).values():
 		for tile: Vector2i in group:
 			if not tiles.has(tile): tiles.append(tile)
 	return tiles

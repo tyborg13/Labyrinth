@@ -77,7 +77,15 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 # Grimoire bodies. Keep the retention assertion for every other term.
                 if change["id"] in ("gale_force", "worldspines"):
                     approved = json.loads((ROOT / "tests/fixtures/bos02_feedback1_grimoire.json").read_text())
-                    self.assertEqual(entries[owner]["body"], approved["entries"][owner]["body"])
+                    expected = approved["entries"][owner]["body"]
+                    if change["id"] == "worldspines":
+                        expected[0] = expected[0].replace(
+                            "After every second turn of yours, the marked tiles rise as Outcrops: "
+                            "stone that blocks movement until it is broken.",
+                            "After every second turn of yours, Tharokh's marked tiles rise as Outcrops "
+                            "unless something immovable is on them.",
+                        )
+                    self.assertEqual(entries[owner]["body"], expected)
                 elif change["id"] == "traps":
                     self.assertEqual(entries[owner]["body"], TRAP_BODY)
                 else:

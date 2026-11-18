@@ -195,7 +195,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				player_struck = true
 				struck_player_tile = (state.get("player", {}) as Dictionary).get("pos", engine.INVALID_TILE)
 			state = engine._apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
-		if str(hit.get("kind", "")) == "player" and str(hit.get("kind_trace", "")) == "actor" and hit.get("from") != hit.get("to") and state.has(preload("res://scripts/pass_forecast_red_tiles.gd").BEAT_RECEIPT):
+		if str(hit.get("kind", "")) == "player" and str(hit.get("kind_trace", "")) == "actor" and hit.get("from") != hit.get("to") and state.has(preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER):
 			var owners: Dictionary = (state.get("_pass_forecast_chain_owners", {}) as Dictionary).duplicate()
 			owners["battlefield_rule" if str(state.get("damage_context", {}).get("source_kind", "")) == "battlefield_rule" else "enemy_%d" % actor_id] = true
 			state["_pass_forecast_chain_owners"] = owners

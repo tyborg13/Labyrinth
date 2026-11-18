@@ -37,6 +37,13 @@ static func tile_alphas(threats: Array) -> Dictionary:
 			result[tile] = maxf(float(result.get(tile, 0.0)), float(threat.get("alpha", 1.0)))
 	return result
 
+static func rule_tiles(threats: Array) -> Dictionary:
+	var result: Dictionary = {}
+	for threat: Dictionary in threats:
+		if not bool(threat.get("rule_outline", false)): continue
+		for tile: Vector2i in threat["tiles"]: result[tile] = true
+	return result
+
 static func hero_fill_alpha(seconds: float, reduced_motion: bool) -> float:
 	if reduced_motion: return HERO_FILL_ALPHA
 	return HERO_FILL_ALPHA + (PULSE_MAX - PULSE_MIN) * 0.5 * sin(TAU * seconds / PULSE_SECONDS)

@@ -1612,18 +1612,18 @@ The existing saved surface-event sequence and combat id form its retry-safe key
 flush emits it to the append-only JSONL stream. Forecasts resolve on private
 copies and never emit analytics. No historical event or schema is rewritten.
 
-bos-04 records `laid_player_activation` in each new ground layer's existing source
-record (and its ordinary placement event source), using the saved `turn` index.
-A beat still emits its scheduled `battlefield_rule_fired` event when all fuel is
-fresh, with zero affected units/tiles/damage. Fuel becomes eligible after a later
-player activation begins; entry hazards and other ground effects are unchanged.
-The forecast uses the same boundary, including every ground relay and connected
-conductor used by rule-beat lightning. Ordinary attacks still conduct through
-fresh ground immediately. Upheaval stores its warning's source and lay
-index in `marks_source` and retains fresh marks across an early beat. Old saves
-without these additive timestamps keep their previously announced eligibility;
-replacement ground receives a new timestamp. Existing JSONL events remain
-append-only, and no analytics event type or historical payload is rewritten.
+Battlefield rule beats resolve against the board at the beat, including ground
+laid or removed during the foes' turn. Gust uses its installed direction and
+can blow immediately after a Call. Upheaval marks are chosen with route safety
+at marking time. At the rise, impassable terrain, traps, guardian braziers and
+occupants that cannot be thrown keep their own tiles flat. Outcrops are
+destructible. Display and Pass forecasts resolve on private copies. The
+experimental Pass clock and saved geometry from the area-02 drafts were never
+shipped and are no longer emitted. Hero-turn and foes-turn draft saves discard
+the retired Pass fields and resume with the live board.
+Saved Cantor and Zekarion fights use the current authored storm dials when
+resumed. The existing half-Health latch, beat counters and event history carry
+over.
 
 bos-01 adds `half_health_switched` as a boolean on every committed `battlefield_rule_fired`:
 true after this instance's declared half-Health switch has fired, false otherwise. Legacy pending beat records

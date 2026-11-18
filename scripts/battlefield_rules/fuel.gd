@@ -1,8 +1,8 @@
 extends RefCounted
-## Ground is visible immediately, but a beat may use it only after the next
-## player activation begins. `turn` is the engine's player-activation index;
-## enemy activations and clocks never advance this boundary. Provenance stays
-## in the existing ground source record and survives ordinary save snapshots.
+## Saved placement provenance and legacy age compatibility. Committed rule beats
+## select fuel from the live board, regardless of when it was laid.
+## The age predicate remains for legacy direct conduction callers; stamping is
+## additive and survives ordinary save snapshots.
 const LAID_ACTIVATION: String = "laid_player_activation"
 
 static func stamped(state: Dictionary, source: Dictionary) -> Dictionary:

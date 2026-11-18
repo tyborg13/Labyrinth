@@ -147,10 +147,10 @@ static func _data(expect: Callable) -> void:
 	mutated["hoarder"]["spill_embers_per_hit"] = 3
 	expect.call(not data_failures(mutated).is_empty(), "Mutation: a leftover spill_embers_per_hit fails")
 	expect.call(Library.enabled_types().has("ember_hoarder") and Library.enabled_types().has("last_light"), "int-09 enables both approved specials")
-	var staged: String = FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/spx/special_encounters.json")
-	expect.call(staged == FileAccess.get_file_as_string("res://data/special_encounters.json"), "Staged director catalog is byte-identical to the live catalog")
+	var approved: String = preload("res://tests/suites/special_encounter_suite.gd").approved_catalog_text()
+	expect.call(approved == FileAccess.get_file_as_string("res://data/special_encounters.json"), "Live catalog matches the staged bytes with the approved Thornmother sentence")
 	expect.call(definition["bonus"]["kind"] == "hoard_embers" and float(definition["bonus"]["standard_fight_embers"]) == 1.0, "New hoard_embers bonus kind at one standard fight")
-	print("Hoarder data: enabled, stub fields removed, staged catalog byte-identical")
+	print("Hoarder data: enabled, stub fields removed, approved catalog checked")
 
 # ---------------------------------------------------------------- 2. the unit
 

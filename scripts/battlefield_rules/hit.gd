@@ -4,7 +4,8 @@ static func resolve(engine: RefCounted, state: Dictionary, instance: Dictionary,
 	if tiles.is_empty(): return state
 	action = action.duplicate(true)
 	action["_battlefield_all_units"] = true
-	action["_battlefield_rule_fuel"] = true
+	# The Electrified field is already the whole primary footprint.
+	action["no_conduction"] = true
 	var source: Dictionary = instance["source"]
 	# Primitive: full board attack resolution (Expose, statuses, traps, terrain,
 	# death batching and on-hit reactions); non-player actors get no card bonuses.

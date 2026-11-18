@@ -177,4 +177,4 @@ static func _occupied_marks(battle: Callable, rule: Callable, compare: Callable,
 	state["battlefield_rule"]["marks"] = [Vector2i(5, 5)]
 	expect.call(Rules.Upheaval.leaves_exit(state, Vector2i(5, 5)), "Occupied exit mark is initially reachable from the hero")
 	after = compare.call(engine, state, expect)
-	expect.call(after["player"]["pos"] == Vector2i(5, 5) and after["terrain"].is_empty(), "Upheaval post-displacement exit guard keeps the displaced hero's last way open")
+	expect.call(after["player"]["pos"] != Vector2i(5, 5) and engine._terrain_index_at_tile(after, Vector2i(5, 5)) >= 0, "An occupied exit mark rises after a legal throw, without a second route guard")

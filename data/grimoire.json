@@ -772,7 +772,7 @@
       "title": "Zekarion, the Raging Tempest",
       "body": [
         "Storm dragon supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified ground.",
-        "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1. At half Health the Chain grows to 2. Stay off charged ground, or lure its Wisps onto it."
+        "When Zekarion uses Overload, lightning strikes every Electrified tile for 6. At half Health, lightning strikes every Electrified tile for 7. Stay off charged ground, or lure its Wisps onto it."
       ]
     },
     {
@@ -790,7 +790,7 @@
       "title": "Worldspines",
       "icon": "worldspines",
       "body": [
-        "Tharokh marks a line of tiles between you and it. After every second turn of yours, the marked tiles rise as Outcrops: stone that blocks movement until it is broken. At half Health they rise after each of your turns.",
+        "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns.",
         "Outcrops block Tharokh and its Burrow Grubs too. Break one to open a route."
       ]
     },
@@ -916,7 +916,7 @@
       "title": "Tharokh, the Worldspine",
       "body": [
         "Earth dragon that walls you in, with Burrow Grubs at its side.",
-        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. At half Health they rise after each of your turns. Break through before the wall closes."
+        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns. Break through before the wall closes."
       ]
     },
     {
@@ -1109,6 +1109,15 @@
       "icon": "wind",
       "body": [
         "On its beat, the wind Pushes every unit downwind. Anchored units don't move."
+      ]
+    },
+    {
+      "id": "keyword:upheaval",
+      "section": "keywords",
+      "title": "Upheaval",
+      "icon": "upheaval",
+      "body": [
+        "Marked tiles rise as Outcrops when the rule fires. A unit on a rising tile is pushed to a free tile beside it; the tile stays flat if a wall, a trap, a brazier or a unit that can't be pushed off is on it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
       ]
     },
     {

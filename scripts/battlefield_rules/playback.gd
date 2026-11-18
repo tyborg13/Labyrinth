@@ -46,7 +46,7 @@ static func step(engine: RefCounted, before: Dictionary, after: Dictionary, trac
 		"actor_name": engine._enemy_display_name(enemy) if index >= 0 else "", "intent_name": enemy.get("intent", {}).get("name", ""),
 		"rule_panel": load("res://scripts/battlefield_rules/dispatcher.gd").panel(before),
 		"before": before, "after": after.duplicate(true), "chain_hits": trace.get("chain_hits", []),
-		"tiles": preload("res://scripts/board_surface_rules.gd").fuel_tiles(before, "electrified") if str(instance["rule"]) == "lightning_storm" else []}
+		"tiles": preload("res://scripts/battlefield_rules/geometry.gd").affected_tiles(engine, before, instance) if str(instance["rule"]) == "lightning_storm" else []}
 
 static func animate(scene: Control, state: Dictionary, beat: Dictionary) -> void:
 	var before: Dictionary = beat["before"]

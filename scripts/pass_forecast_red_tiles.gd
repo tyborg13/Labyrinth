@@ -20,7 +20,6 @@ extends RefCounted
 
 const Badges = preload("res://scripts/intent_badges.gd")
 const Repeats = preload("res://scripts/pass_forecast_repeats.gd")
-const RULE_KEY: String = "battlefield_rule"
 const HIT_PHASE: String = "pass_forecast_red_hits"
 # Marks that land after the hero's next turn strike nothing in that activation.
 const TELEGRAPH_TYPES := ["lob_mark", "icefall_mark", "upheaval_mark", "cinder_marks", "burrow"]
@@ -78,29 +77,21 @@ static func result_fields(engine: RefCounted, cursor: Dictionary) -> Dictionary:
 			var index: int = engine._enemy_index_for_id(state, id)
 			if index < 0 or int(((state.get("enemies", []) as Array)[index] as Dictionary).get("hp", 0)) <= 0: died[id] = true
 	return {"red_later_tiles": cursor.get("red_later_tiles", {}), "red_died_first": died,
-		"red_beat_hit": bool(state.get(BEAT_RECEIPT, false)), "red_turn_start_surfaces": cursor.get("red_turn_start_surfaces", [])}
+		"red_turn_start_surfaces": cursor.get("red_turn_start_surfaces", [])}
 
 # --- atk-11: what strikes the hero's tile itself -----------------------------------
 
-# Private receipt on the forecast copy only. The dispatcher observes its already
-# resolved beat, including defense-only collisions; live/save/analytics state
-# never carries this field. Scheduling uses the same resolver once, not a replay.
-const BEAT_RECEIPT: String = "_pass_forecast_red_beat_hit"
+# Private forecast marker for the shared attack resolver's Chain receipts.
+const FORECAST_MARKER: String = "_pass_forecast_marked"
 
 static func schedule(engine: RefCounted, source: Dictionary, accepted: Callable = Callable()) -> Dictionary:
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	var marked: Dictionary = source.duplicate(false)
-	marked[BEAT_RECEIPT] = bool(source.get(BEAT_RECEIPT, false))
+	marked[FORECAST_MARKER] = true
 	preload("res://scripts/pass_forecast_statuses.gd").begin(marked)
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
+	if not accepted.is_valid(): accepted = preload("res://scripts/battlefield_rules/committed.gd").callback(engine)
 	return engine.finish_player_activation(marked, preload("res://scripts/pass_forecast_statuses.gd").callback(engine, accepted))
-
-static func note_beat(engine: RefCounted, before: Dictionary, after: Dictionary) -> void:
-	if not after.has(BEAT_RECEIPT): return
-	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
-	if hurt(Repeats.hero_mark(before), Repeats.hero_mark(after)):
-		after[BEAT_RECEIPT] = true
-	engine._record_runtime_performance_phase(HIT_PHASE, started)
 
 static func hurt(before: Array, after: Array) -> bool:
 	return after[0] < before[0] or after[1] < before[1] or after[2] < before[2] or after[3] > before[3] or after[4] < before[4]
@@ -123,21 +114,16 @@ static func note_turn_start_surface(engine: RefCounted, cursor: Dictionary, cont
 		cursor["red_turn_start_surfaces"] = contacts
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
 
-# Summary owners use the original forecast source, even across skipped turns.
 # Walking onto fire is a separate cost, outside this contact receipt. At turn
 # start, a foe's ground still belongs to that foe even if it was laid earlier.
-# Unattributed new ground falls back to the rule; old ambient ground stays a cost.
-static func hero_owners(engine: RefCounted, source: Dictionary, phase_result: Dictionary) -> Dictionary:
+# Rule red comes from the current board, independently of this simulation.
+static func hero_owners(engine: RefCounted, _source: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	var owners: Dictionary = {}
-	if bool(phase_result.get("red_beat_hit", false)): owners[RULE_KEY] = true
 	for surface: Dictionary in phase_result.get("red_turn_start_surfaces", []):
 		var laid: Dictionary = surface["source"]
-		if str(laid.get("source_kind", "")) == "battlefield_rule": owners[RULE_KEY] = true
-		elif str(laid.get("actor_kind", "")) == "enemy" and int(laid.get("actor_id", -1)) >= 0: owners["enemy_%d" % int(laid["actor_id"])] = true
-		elif str(laid.get("actor_kind", "")) != "player":
-			var earlier: Dictionary = engine.BoardSurfaceRules.surface_at(source, surface["tile"])
-			if str(earlier.get("elemental", "")) != str(surface["elemental"]) or earlier.get("elemental_source", {}) != laid: owners[RULE_KEY] = true
+		if str(laid.get("source_kind", "")) != "battlefield_rule" and str(laid.get("actor_kind", "")) == "enemy" and int(laid.get("actor_id", -1)) >= 0:
+			owners["enemy_%d" % int(laid["actor_id"])] = true
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
 	return owners
 
@@ -178,7 +164,7 @@ static func adjust(rest: Dictionary, later: Dictionary, died_first: Dictionary, 
 		threats.append({"key": key, "tiles": tiles, "alpha": Badges.ISOLATED_ALPHA if not focus.is_empty() and focus != key else 1.0, "area": false, "order": "", "later": true})
 	var hero: Vector2i = rest.get("hero_tile", Vector2i(-1, -1))
 	for key: String in hero_owners:
-		if hero.x < 0 or (key != RULE_KEY and not shown.has(key)): continue
+		if hero.x < 0 or not shown.has(key): continue
 		var tiles: Array[Vector2i]
 		tiles.append(hero)
 		threats.append({"key": key, "tiles": tiles, "alpha": Badges.ISOLATED_ALPHA if not focus.is_empty() and focus != key else 1.0, "area": false, "order": "", "later": true, "hero_hit": true})

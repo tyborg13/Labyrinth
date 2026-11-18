@@ -28,13 +28,13 @@
       "length": 5,
       "health": 4
     },
-    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them.",
     "at_half_health": {
       "cadence": {
         "anchor": "after_player_turn",
         "every": 1
       },
-      "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+      "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
     }
   },
   "iskaldra": {
@@ -80,15 +80,15 @@
       "intent": "tempest_breath"
     },
     "dials": {
-      "damage": 5,
-      "chain": 1
+      "damage": 6,
+      "chain": 0
     },
-    "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1.",
+    "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
     "at_half_health": {
       "dials": {
-        "chain": 2
+        "damage": 7
       },
-      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 2."
+      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 7."
     }
   },
   "noctyrax": {

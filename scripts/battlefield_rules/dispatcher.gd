@@ -1,6 +1,7 @@
 extends RefCounted
 ## One data-driven rule per fight. All caller-owned snapshots remain immutable.
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const Geometry = preload("res://scripts/battlefield_rules/geometry.gd")
 const Gust = preload("res://scripts/battlefield_rules/gust.gd")
 const Wildfire = preload("res://scripts/battlefield_rules/wildfire.gd")
 const Frostbite = preload("res://scripts/battlefield_rules/frostbite.gd")
@@ -22,6 +23,37 @@ static func instance_for(id: String, source_id: int = -1) -> Dictionary:
 	var instance: Dictionary = data()["instances"].get(id, {}).duplicate(true)
 	if str(instance.get("source", {}).get("kind", "")) == "enemy": instance["source"]["id"] = source_id
 	return instance
+
+static func repair_saved_rule(engine: RefCounted, state: Dictionary) -> void:
+	state.erase("pending_gust_snapshots")
+	var instance: Dictionary = state.get("battlefield_rule", {})
+	instance.erase("beat_snapshot")
+	instance.erase("awaiting_pass")
+	for event: Dictionary in state.get("surface_events", []):
+		event.erase("beat_tiles_frozen_at")
+	var rule: String = str(instance.get("rule", ""))
+	if rule not in ["upheaval", "lightning_storm"]: return
+	var source: Dictionary = instance.get("source", {})
+	var id: String = "snare_earth"
+	if str(source.get("kind", "")) == "enemy":
+		id = str(engine._surface_actor(state, "enemy", int(source.get("id", -1))).get("type", ""))
+	elif rule != "upheaval" or str(source.get("kind", "")) != "room":
+		return
+	var authored: Dictionary = data()["instances"].get(id, {})
+	if str(authored.get("rule", "")) != rule: return
+	var switch: Dictionary = authored.get("at_half_health", {})
+	if rule == "lightning_storm":
+		# Only these two authored storms changed their saved dials in area-02.
+		if id not in ["storm_cantor", "zekarion"]: return
+		instance["dials"].merge(authored["dials"], true)
+		instance["sentence"] = authored["sentence"]
+		if not switch.is_empty():
+			instance["at_half_health"] = switch.duplicate(true)
+			if bool(instance.get("half_health_switched", false)): HalfHealth.replace_values(instance, switch)
+		return
+	if instance.has("at_half_health") and not switch.is_empty():
+		instance["at_half_health"]["sentence"] = switch["sentence"]
+	instance["sentence"] = switch.get("sentence", authored["sentence"]) if bool(instance.get("half_health_switched", false)) else authored["sentence"]
 
 static func active(state: Dictionary) -> Dictionary:
 	var instance: Dictionary = state.get("battlefield_rule", {})
@@ -86,7 +118,6 @@ static func prepare(engine: RefCounted, state: Dictionary) -> void:
 		"gust":
 			Gust.prepare(engine, state, instance)
 			state["wind"] = Gust.value_for(state, instance)
-		"wildfire": Wildfire.prepare(engine, state, instance)
 		"upheaval": Upheaval.prepare(engine, state, instance)
 
 static func install_call(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> void:
@@ -150,9 +181,8 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	state["damage_context"] = {"actor_kind": source["kind"], "actor_id": int(source.get("id", -1)), "source_kind": "battlefield_rule", "rule": instance["rule"], "player_card": false}
 	var trace: Dictionary = {"chain_hits": []}
 	if str(instance["rule"]) == "lightning_storm": state = LightningStorm.resolve_beat(engine, state, instance, trace)
+	elif str(instance["rule"]) == "upheaval": state = Upheaval.resolve_beat(engine, state, instance, trace)
 	else: state = RESOLVERS[instance["rule"]].resolve_beat(engine, state, instance)
-	# Presentation receipt only on the PASS copy, at this exact beat boundary.
-	preload("res://scripts/pass_forecast_red_tiles.gd").note_beat(engine, before, state)
 	if not state.get("battlefield_rule", {}).is_empty(): instance = state["battlefield_rule"]
 	instance["beats_fired"] = int(instance.get("beats_fired", 0)) + 1
 	var projection: Dictionary = Outcomes.project(engine, before, state, false)
@@ -165,6 +195,7 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	if bool(instance.get("half_health_switched", false)): event["half_health_switched"] = true
 	Surfaces.record_event(state, event)
 	var beat_step: Dictionary = preload("res://scripts/battlefield_rules/playback.gd").step(engine, before, state, trace)
+	if str(instance["rule"]) == "upheaval": beat_step["upheaval_outcomes"] = trace.get("upheaval", [])
 	if str(instance["rule"]) == "gust":
 		var index: int = engine._enemy_index_for_id(before, int(source.get("id", -1)))
 		var step: Dictionary = Gust.animation_step(engine, before, state, index, {"type": "wind_push"})
@@ -174,12 +205,9 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	steps.append(beat_step)
 	if instance.has("beats_remaining"): instance["beats_remaining"] = int(instance["beats_remaining"]) - 1
 	state["damage_context"] = context
-	# An early cadence still counts as a beat, but must retain the visible
-	# warning until a player activation has begun. Consumed marks are replanned.
-	if str(instance["rule"]) != "upheaval" or Surfaces.BeatFuel.eligible(state, instance.get("marks_source", {})):
-		instance.erase("marks")
-		instance.erase("marks_source")
-	if str(instance["rule"]) == "wildfire": instance.erase("locked_direction")
+	# A fired beat consumes its held marks; replanning belongs to the next beat.
+	instance.erase("marks")
+	instance.erase("marks_source")
 	if str(instance["rule"]) == "gust": Gust.after_beat(instance)
 	clear_dead_source(state)
 	prepare(engine, state)
@@ -220,10 +248,12 @@ static func forecast_inputs(engine: RefCounted, state: Dictionary) -> Array:
 	var engine_key: int = script.get_instance_id() if script != null and script.resource_path == "res://scripts/combat_engine.gd" else engine.get_instance_id()
 	return [engine_key, state, _catalog_memo.exact_signature(catalogs)]
 
-static func forecast(engine: RefCounted, state: Dictionary) -> Dictionary:
-	return _forecast_memo.resolve_repeated(forecast_inputs(engine, state), func() -> Dictionary: return _compute_forecast(engine, state))
+static func forecast(engine: RefCounted, state: Dictionary, board_sight: Dictionary = {}) -> Dictionary:
+	var inputs: Array = forecast_inputs(engine, state)
+	if not board_sight.is_empty(): inputs.append(board_sight)
+	return _forecast_memo.resolve_repeated(inputs, func() -> Dictionary: return _compute_forecast(engine, state, board_sight))
 
-static func _compute_forecast(engine: RefCounted, state: Dictionary) -> Dictionary:
+static func _compute_forecast(engine: RefCounted, state: Dictionary, board_sight: Dictionary) -> Dictionary:
 	# Rebuild derived relic effects on a miss, including raw catalog invalidation.
 	engine._relic_effect_cache_valid = false
 	if engine.combat_outcome(state) != "": return {"moves": [], "tiles": {"catch": [], "freeze": [], "strike": [], "rise": []}, "hits": [], "collision_markers": []}
@@ -233,16 +263,20 @@ static func _compute_forecast(engine: RefCounted, state: Dictionary) -> Dictiona
 	if instance.is_empty(): return {"moves": [], "tiles": {"catch": [], "freeze": [], "strike": [], "rise": []}, "hits": [], "collision_markers": []}
 	var problem: String = error_for(trial, instance)
 	if not problem.is_empty(): return {"error": problem}
-	if str(instance["rule"]) == "gust":
-		# Project the source's pending relock on this private resolver snapshot.
+	# A pending Call can change the next blow. This preview is separate from
+	# the installed direction used by the current-board warning.
+	if str(instance["rule"]) == "gust" and board_sight.is_empty():
 		instance["locked_direction"] = Gust.projected_value_for(engine, trial, instance)["direction"]
+		trial["wind"] = Gust.value_for(trial, instance)
 	# Keep the announcement even if a future resolver changes derived state.
 	var announcement: Dictionary = {}
-	if instance.has("locked_direction"): announcement["direction"] = instance["locked_direction"]
+	if str(instance["rule"]) == "gust": announcement["direction"] = Gust.value_for(trial, instance)["direction"]
+	elif str(instance["rule"]) == "wildfire" and str(instance["dials"]["spread"]) == "toward_player":
+		announcement["direction"] = Geometry.toward_player(engine, trial, instance)
 	var before: Dictionary = trial.duplicate(true)
 	trial["damage_context"] = {"actor_kind": instance["source"]["kind"], "actor_id": int(instance["source"].get("id", -1)), "source_kind": "battlefield_rule", "rule": instance["rule"], "player_card": false}
 	trial = RESOLVERS[instance["rule"]].resolve_beat(engine, trial, instance)
-	var result: Dictionary = Outcomes.project(engine, before, trial)
+	var result: Dictionary = Outcomes.project(engine, before, trial, true, board_sight)
 	result.merge(announcement)
 	return result
 

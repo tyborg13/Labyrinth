@@ -161,17 +161,18 @@ func _test_board_preview() -> void:
 	for group: Array in BattlefieldRules.forecast(engine, due)["tiles"].values():
 		for tile: Vector2i in group:
 			if not expected.has(tile): expected.append(tile)
-	var shown: Dictionary = RuleView.presentation_for(due, {})
-	var threats: Array = shown.get("threats_at_rest", {}).get("threats", [])
-	var marked: Array = []
-	for threat: Dictionary in threats:
-		if str(threat.get("key", "")) == RuleView.THREAT_KEY: marked = threat["tiles"]
-	_expect(not expected.is_empty() and marked == expected, "A due Upheaval marks exactly the forecast tiles as a threat at rest")
+	_expect(not expected.is_empty() and _rule_threat_tiles(due) == expected, "A due Upheaval marks exactly the forecast tiles as a threat at rest")
 	var later: Dictionary = _warband("earth", false)
-	_expect(not RuleView.beat_before_next_player_turn(later) and RuleView.presentation_for(later, {}).is_empty(), "A beat that isn't due before the hero's next turn marks nothing")
+	_expect(not RuleView.beat_before_next_player_turn(later) and _rule_threat_tiles(later) == expected, "Upheaval marks the same tiles before the beat is due")
 	var enemy_turn: Dictionary = due.duplicate(true)
 	enemy_turn["current_actor"] = {"kind": "enemy", "id": 1}
-	_expect(RuleView.presentation_for(enemy_turn, {}).is_empty(), "No beat preview during enemy turns")
+	_expect(_rule_threat_tiles(enemy_turn) == expected, "Upheaval marks the same tiles during enemy turns")
+
+func _rule_threat_tiles(state: Dictionary) -> Array:
+	var shown: Dictionary = RuleView.presentation_for(state, {})
+	for threat: Dictionary in shown.get("threats_at_rest", {}).get("threats", []):
+		if str(threat.get("key", "")) == RuleView.THREAT_KEY: return threat["tiles"]
+	return []
 
 # The three board members the ghost builder reads; every tile counts as visible here.
 class GhostView extends Control:

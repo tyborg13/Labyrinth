@@ -109,7 +109,7 @@
         "length": 5,
         "health": 3
       },
-      "sentence": "After every second Thornmother turn, the marked tiles rise as Outcrops."
+      "sentence": "After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them."
     },
     "prior": {
       "rule": "shadowstep",
@@ -139,7 +139,7 @@
         "pattern": "exit_lane",
         "health": 3
       },
-      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop."
+      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop unless something immovable is on it."
     },
     "snare_fire": {
       "rule": "wildfire",
@@ -285,10 +285,10 @@
         "intent": "peal"
       },
       "dials": {
-        "damage": 3,
-        "chain": 2
+        "damage": 4,
+        "chain": 0
       },
-      "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."
+      "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4."
     },
     "gallows_roc": {
       "rule": "gust",
@@ -321,7 +321,7 @@
         "length": 3,
         "health": 2
       },
-      "sentence": "After every second Craghide turn, the marked tiles rise as Outcrops."
+      "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops unless something immovable is on them."
     },
     "last_lamplighter": {
       "rule": "shadowstep",
@@ -378,13 +378,13 @@
         "length": 5,
         "health": 4
       },
-      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them.",
       "at_half_health": {
         "cadence": {
           "anchor": "after_player_turn",
           "every": 1
         },
-        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
       }
     },
     "iskaldra": {
@@ -442,15 +442,15 @@
         "intent": "tempest_breath"
       },
       "dials": {
-        "damage": 5,
-        "chain": 1
+        "damage": 6,
+        "chain": 0
       },
-      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 1.",
+      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
       "at_half_health": {
         "dials": {
-          "chain": 2
+          "damage": 7
         },
-        "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 5, with Chain 2."
+        "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 7."
       }
     },
     "noctyrax": {

@@ -28,10 +28,10 @@
       "intent": "peal"
     },
     "dials": {
-      "damage": 3,
-      "chain": 2
+      "damage": 4,
+      "chain": 0
     },
-    "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 3, with Chain 2."
+    "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4."
   },
   "gallows_roc": {
     "rule": "gust",
@@ -56,7 +56,7 @@
       "length": 3,
       "health": 2
     },
-    "sentence": "After every second Craghide turn, the marked tiles rise as Outcrops."
+    "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops unless something immovable is on them."
   },
   "last_lamplighter": {
     "rule": "shadowstep",

@@ -43,6 +43,10 @@ static func scene(board: Control) -> void:
 		board._slice_op("_draw_elemental_scene_depth_pass", [tile, board._render_layer_scene_effect_pass > 0], true)
 		return
 	board._slice_op("_draw_board_surface", [tile])
+	if board._rule_threat_tiles.has(tile):
+		board._threat_slice_keys = Isolation.tile_keys(board, tile)
+		Isolation.rule_outline_operations(board, tile)
+		board._threat_slice_keys.clear()
 	for entry: Array in board._scene_tile_preparation.paths(board):
 		if not (entry[0] as Array).has(tile): continue
 		board._threat_slice_keys.clear()

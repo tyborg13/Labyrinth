@@ -71,7 +71,7 @@ static func _objective_exit(engine: RefCounted, expect: Callable) -> void:
 	state["battlefield_rule"]["marks"] = [exit_tile]
 	Base.mature_fuel(state)
 	var after: Dictionary = Rules.fire(engine, state.duplicate(true))
-	expect.call(after["terrain"].is_empty(), "BOS01 F1 objective guard rejects a held sole-exit mark")
+	expect.call(after["terrain"].size() == 1, "BOS01 F1 objective route guard runs at marking, not firing")
 
 static func _displaced_source(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = Base.battle(engine)
@@ -84,9 +84,9 @@ static func _displaced_source(engine: RefCounted, expect: Callable) -> void:
 	Rules.install(engine, state, instance)
 	expect.call(Rules.Upheaval.line_preserves_routes(engine, state, instance, Vector2i(2, 2)), "BOS01 F1 ring source has two exits before displacement")
 	var after: Dictionary = Rules.fire(engine, state.duplicate(true))
-	expect.call(after["terrain"].is_empty() and after["enemies"][0]["pos"] == Vector2i(2, 2), "BOS01 F1 post-displacement guard rejects both rise and source movement")
+	expect.call(after["terrain"].size() == 1 and after["enemies"][0]["pos"] != Vector2i(2, 2), "BOS01 F1 occupied held mark throws and rises without a post-displacement route check")
 	var forecast: Dictionary = Rules.forecast(engine, state)
-	expect.call(forecast["moves"].is_empty() and forecast["tiles"]["rise"].is_empty(), "BOS01 F1 ring forecast commits neither a rise nor a displacement")
+	expect.call(not forecast["moves"].is_empty() and forecast["tiles"]["rise"] == [Vector2i(2, 2)], "BOS01 F1 ring forecast shows the held rise and its throw")
 
 static func _fifo(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = Base.battle(engine)

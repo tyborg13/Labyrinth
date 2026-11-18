@@ -30,7 +30,7 @@ const STATE_FIELDS: Array = [
 	"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 	"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache",
 	"_terrain_health_bar_sources",
-	"_hud_layout_entries_cache", "_rest_threat_tile_alphas"
+	"_hud_layout_entries_cache", "_rest_threat_tile_alphas", "_rule_threat_tiles"
 ]
 
 var canvases: Array[Control]
@@ -201,10 +201,20 @@ static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVec
 	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
 	if paint.is_empty(): return
 	_threat_fill_operations(board, paint)
+	if not board._rule_threat_tiles.has(tile): _threat_outline_operations(board, paint)
+	_threat_tag_operations(board, tile, paint, sources)
+
+# The Umbra veil and elemental ground render after ordinary floor overlays.
+# Paint the same rule outline over both, before paths, props, and actors.
+static func rule_outline_operations(board: Control, tile: Vector2i) -> void:
+	if not board._rule_threat_tiles.has(tile): return
+	var paint: Dictionary = threat_paint(board, tile, {"lob_marks": {}})
+	if not paint.is_empty(): _threat_outline_operations(board, paint)
+
+static func _threat_outline_operations(board: Control, paint: Dictionary) -> void:
 	var inner: PackedVector2Array = (paint["inner"] as PackedVector2Array).duplicate()
 	inner.append(inner[0])
 	board.call("_slice_op", "draw_polyline", [inner, Color(Palette.DANGER, Threats.OUTLINE_ALPHA * float(paint["alpha"])), Threats.OUTLINE_WIDTH, true])
-	_threat_tag_operations(board, tile, paint, sources)
 
 # atk-09: the targeted tile's red fill and zone tag, after its move-range and
 # hover highlights. Its outline is drawn above the targeted-tile border.

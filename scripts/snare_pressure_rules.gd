@@ -8,7 +8,13 @@ const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 static func definition(state: Dictionary) -> Dictionary:
 	var objective: Dictionary = state.get("objective", {})
 	if str(objective.get("special_type", "")) != "umbral_snare": return {}
-	return Library.variant("umbral_snare", str(objective["special_variant"])).get("pressure", {})
+	var pressure: Dictionary = Library.variant("umbral_snare", str(objective["special_variant"])).get("pressure", {})
+	var key: String = str(pressure.get("battlefield_instance", ""))
+	if key.is_empty(): return pressure
+	var dispatcher: GDScript = load("res://scripts/battlefield_rules/dispatcher.gd")
+	var rule: Dictionary = dispatcher.data()["instances"].get(key, {})
+	if rule.has("sentence"): pressure["text"] = rule["sentence"]
+	return pressure
 
 static func id(state: Dictionary) -> String:
 	if str(state.get("objective", {}).get("special_type", "")) != "umbral_snare": return ""
@@ -101,6 +107,12 @@ static func preview(engine: RefCounted, state: Dictionary, player_turn: int = -1
 	var prepared: Dictionary = engine.prepare_player_activation_end(state) if engine.is_player_turn(state) else state
 	return _preview_prepared(engine, prepared, player_turn)
 
+static func present_now(engine: RefCounted, state: Dictionary, board_sight: Dictionary = {}) -> Dictionary:
+	# Shadowstep and the shrinking Umbra keep their existing presentation.
+	if str(definition(state).get("id", "")) in ["umbra_rings", "shadowstep"]:
+		return preview(engine, state)
+	return _preview_prepared(engine, state, -1, board_sight)
+
 static func exit_lane(state: Dictionary) -> Array[Vector2i]:
 	var pressure: Dictionary = definition(state)
 	var tiles: Array[Vector2i]
@@ -127,14 +139,14 @@ static func exit_lane(state: Dictionary) -> Array[Vector2i]:
 			break
 	return tiles
 
-static func _preview_prepared(engine: RefCounted, state: Dictionary, player_turn: int) -> Dictionary:
+static func _preview_prepared(engine: RefCounted, state: Dictionary, player_turn: int, board_sight: Dictionary = {}) -> Dictionary:
 	var pressure: Dictionary = definition(state)
 	var pressure_id: String = str(pressure.get("id", ""))
 	var tiles: Array[Vector2i]
 	if pressure_id.is_empty() or engine.combat_outcome(state) != "": return {"id": pressure_id, "tiles": tiles}
 	if player_turn < 0: player_turn = int(state["objective"].get("player_turns_completed", 0)) + 1
 	var dispatcher: GDScript = load("res://scripts/battlefield_rules/dispatcher.gd")
-	var beat: Dictionary = dispatcher.forecast(engine, state)
+	var beat: Dictionary = dispatcher.forecast(engine, state, board_sight)
 	for group: Array in beat.get("tiles", {}).values():
 		for tile: Vector2i in group:
 			if not tiles.has(tile): tiles.append(tile)

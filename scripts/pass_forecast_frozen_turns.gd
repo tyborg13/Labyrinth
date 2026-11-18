@@ -6,7 +6,7 @@ extends RefCounted
 ## the hero passes with nothing played through the same activation end live
 ## PASS uses. The cursor then keeps simulating, with the same atk-03 repeat
 ## handling, up to the next hero entry where the hero can act. Consecutive
-## frozen turns repeat this within the cursor's existing activation ceiling.
+## frozen turns keep that ceiling for spans without measurable progress.
 ## Only the cursor's own copy changes; the live state and generator never do.
 
 # Preloaded, not global class names: exported packs may lack the class cache.
@@ -23,6 +23,7 @@ static func continue_span(engine: RefCounted, cursor: Dictionary) -> void:
 	# never runs with Freeze pending and keeps the source turn's restrictions).
 	if str(cursor.get("turn_start_path", "")) != "full": return
 	if not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("frozen", false)): return
+	_credit_visible_frostbite_progress(cursor, state)
 	if int(cursor.get("safety", 0)) >= ACTIVATION_CEILING:
 		cursor["unrevealed_before_player"] = true
 		cursor["forecast_limit_reached"] = true
@@ -42,6 +43,21 @@ static func continue_span(engine: RefCounted, cursor: Dictionary) -> void:
 	cursor["state"] = scheduled
 	cursor["player_turn_before_state"] = {}
 	cursor["complete"] = engine.combat_outcome(scheduled) != ""
+
+# Live Frostbite can repeatedly freeze a hero who never leaves Ice. If the
+# visible sequence keeps taking Health, keep simulating to its actual end.
+# Each renewal requires a strict new minimum, so it is bounded by the starting
+# Health even if healing or Defiance can restore it along the way.
+static func _credit_visible_frostbite_progress(cursor: Dictionary, state: Dictionary) -> void:
+	if str(state.get("battlefield_rule", {}).get("rule", "")) != "frostbite": return
+	if bool(cursor.get("unrevealed_before_player", false)) or bool(cursor.get("unseen_ground_crossed", false)) or bool(cursor.get("rng_unknown", false)): return
+	var initial: Dictionary = cursor.get("initial_state", {})
+	if not initial.get("_pass_forecast_hidden_queue", []).is_empty(): return
+	var minimum: int = int(cursor.get("least_frozen_health", initial.get("player", {}).get("hp", 0)))
+	var hp: int = int(state["player"]["hp"])
+	if hp >= minimum: return
+	cursor["least_frozen_health"] = hp
+	cursor["safety"] = 0
 
 static func result_fields(cursor: Dictionary) -> Dictionary:
 	return {"skipped_turns": int(cursor.get("skipped_turns", 0)), "span_boundary": cursor.get("span_boundary", {})}

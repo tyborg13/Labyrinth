@@ -1,164 +1,170 @@
 extends RefCounted
-## bos-04: fresh fuel through production activation scheduling, not direct beats.
+## area-02: hero and foe ground changes feed live beats.
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
-const Commit = preload("res://scripts/battlefield_rules/committed.gd")
-const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const Surface = preload("res://scripts/board_surface_rules.gd")
 const Base = preload("res://tests/suites/battlefield_rules_suite.gd")
-const Boss = preload("res://tests/suites/dragon_boss_suite.gd")
-const Rooms = preload("res://scripts/room_generator.gd")
 const Store = preload("res://scripts/progression_store.gd")
-const PROOF_HP: int = 1000
-const LONG_ACTIVATION_TIME: int = 60
-const SAVE_PATH: String = "user://bos04_fuel.save"
+const Analytics = preload("res://scripts/battlefield_rules/analytics.gd")
+const SAVE_PATH: String = "user://area02-live-rule.save"
+const PROOF_DAMAGE: int = 2
+const PROOF_RESUMED_BEATS: int = 3
+const OLD_TILE := Vector2i(5, 5)
+const NEW_TILE := Vector2i(6, 5)
 
 static func run(expect: Callable) -> void:
-	_generic_scheduler(expect)
-	_provenance(expect)
-	_cantor(expect)
-	_dragon_scheduler(expect,"zekarion")
-	_dragon_scheduler(expect,"vyraketh")
-	_iskaldra(expect)
-	preload("res://tests/suites/battlefield_conduction_suite.gd").run(expect)
+	for rule: String in ["lightning_storm", "frostbite", "wildfire"]: _geometry(expect, rule)
+	_occupants_and_walls(expect)
+	_gust_and_marks(expect)
+	_presentation(expect)
+	_save_and_analytics(expect)
+	_saved_storms(expect)
+	_catalog(expect)
+	preload("res://tests/suites/battlefield_snapshot_feedback_suite.gd").run(expect)
+	print("BATTLEFIELD LIVE RULES: fuel, present red, occupants, saves, analytics and storm data checked")
 
-static func _generic_scheduler(expect: Callable) -> void:
-	var engine := Combat.new()
-	for id: String in ["wildfire","frostbite","lightning_storm","upheaval"]:
-		var state: Dictionary = Base.battle(engine)
-		state["player"]["hp"] = PROOF_HP
-		state["player"]["max_hp"] = PROOF_HP
-		var dials: Dictionary = {"wildfire":{"spread":"all"},"frostbite":{"damage":2},"lightning_storm":{"damage":2,"chain":0},"upheaval":{"pattern":"line_between","length":3,"health":2}}[id]
-		var instance: Dictionary = Base.rule(id,dials,id=="upheaval")
-		# All use the real after-player boundary here. Production boss cadences
-		# are independently pinned; no clock or resolver shortcut is used.
-		instance["cadence"] = {"anchor":"after_player_turn","every":1}
-		Rules.install(engine,state,instance)
-		if id=="upheaval":
-			# Replanning after an early beat would now produce different geometry.
-			state["player"]["pos"] = Vector2i(7,5)
-		var surface: String = {"wildfire":"fire","frostbite":"ice","lightning_storm":"electrified","upheaval":""}[id]
-		if not surface.is_empty(): Surfaces.place(state,state["player"]["pos"],surface,{"actor_kind":"player"})
-		var before: Dictionary = state.duplicate(true)
-		var fresh_forecast: Dictionary = Rules.forecast(engine,state)
-		var fresh: Dictionary = engine.finish_player_activation(state)
-		expect.call(fresh_forecast["hits"].is_empty() and _tile_count(fresh_forecast)==0,id+" fresh fuel has no danger forecast")
-		expect.call(fresh["surfaces"]==before["surfaces"] and fresh["terrain"]==before["terrain"] and fresh["player"]["hp"]==before["player"]["hp"],id+" same-activation scheduler beat leaves fresh fuel visible and unused")
-		if id=="upheaval":
-			expect.call(fresh["battlefield_rule"]["marks"]==before["battlefield_rule"]["marks"],"Fresh Upheaval marks survive hero movement and an ineligible beat")
-			expect.call(fresh["battlefield_rule"]["marks_source"]==before["battlefield_rule"]["marks_source"],"Fresh Upheaval marks retain their exact provenance across an early beat")
-		state = engine.advance_to_next_player_turn_with_steps(fresh)["state"]
-		expect.call(int(state["turn"])==int(before["turn"])+1,id+" production scheduler begins the next player activation")
-		var mature_forecast: Dictionary = Rules.forecast(engine,state)
-		expect.call(not mature_forecast["hits"].is_empty() or _tile_count(mature_forecast)>0,id+" next activation makes old fuel eligible")
-		var after: Dictionary = engine.finish_player_activation(state)
-		var actual: Dictionary = Rules.Outcomes.project(engine,state,after)
-		for key: String in ["hits","tiles"]: expect.call(mature_forecast[key]==actual[key],id+" mature scheduler resolution equals forecast "+key)
-		if id=="wildfire":
-			# Fire entry remains immediate, independently of beat eligibility.
-			var hazard: Dictionary = Base.battle(engine)
-			Surfaces.place(hazard,Vector2i(6,5),"fire")
-			var hp: int = hazard["player"]["hp"]
-			hazard["player"]["pos"] = Vector2i(6,5)
-			hazard = engine.surface_actor_arrival(hazard,"player",-1,Vector2i(5,5))
-			expect.call(hazard["player"]["hp"]==hp-Surfaces.FIRE_ENTRY_DAMAGE,"Fresh Fire keeps ordinary entry damage")
-
-static func _tile_count(forecast: Dictionary) -> int:
-	var count: int = 0
-	for tiles: Array in forecast["tiles"].values(): count += tiles.size()
-	return count
-
-static func _provenance(expect: Callable) -> void:
+static func fixture(rule: String) -> Dictionary:
 	var engine := Combat.new()
 	var state: Dictionary = Base.battle(engine)
-	var tile: Vector2i = state["player"]["pos"]
-	Surfaces.place(state,tile,"fire",{"actor_kind":"enemy","actor_id":1,"source_kind":"battlefield_rule","rule":"wildfire"})
-	var source: Dictionary = Surfaces.surface_at(state,tile)["elemental_source"].duplicate(true)
-	expect.call(source.get("laid_player_activation",-1)==state["turn"] and source["rule"]=="wildfire","Ground preserves beat provenance and records its lay activation")
-	state = engine.prepare_next_player_turn(state)
-	Surfaces.place(state,tile,"fire",{"actor_kind":"player"})
-	expect.call(Surfaces.surface_at(state,tile)["elemental_source"]==source,"A no-op repaint never refreshes old ground")
-	expect.call(Surfaces.fuel_tiles(state,"fire").has(tile),"Existing Fire matures at player-activation start")
-	Surfaces.place(state,tile,"ice",{"actor_kind":"player"})
-	expect.call(Surfaces.fuel_tiles(state,"ice").is_empty(),"An elemental replacement starts a new eligibility boundary")
-	Surfaces.place(state,tile,"rubble",{"actor_kind":"room"})
-	expect.call(Surfaces.fuel_tiles(state,"rubble").is_empty(),"Rubble uses the same independent ground-layer boundary")
-	var file := FileAccess.open(SAVE_PATH,FileAccess.WRITE)
-	file.store_var({"combat_state":state}); file.close()
-	var loaded: Dictionary = Store._load_run_dictionary(SAVE_PATH)["combat_state"]
-	expect.call(loaded["surfaces"]==state["surfaces"] and Surfaces.fuel_tiles(loaded,"ice").is_empty(),"Continue preserves fresh fuel timestamps and eligibility")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
-	Surfaces.surface_at(state,tile)["elemental_source"].erase("laid_player_activation")
-	expect.call(Surfaces.fuel_tiles(state,"ice").has(tile),"Legacy ground without a timestamp retains its announced eligibility")
+	var dials: Dictionary = {"lightning_storm": {"damage": PROOF_DAMAGE, "chain": 0}, "frostbite": {"damage": 0}, "wildfire": {"spread": "all"}}[rule]
+	var instance: Dictionary = Base.rule(rule, dials, true)
+	Rules.install(engine, state, instance)
+	return state
 
-static func _cantor(expect: Callable) -> void:
+static func _geometry(expect: Callable, rule: String) -> void:
 	var engine := Combat.new()
-	var layout: Dictionary = Rooms.new().generate_room(92,{"coord":Vector2i(2,1),"depth":2,"type":"guardian","element":"lightning","boss_id":"zekarion"},Vector2i.ZERO)
-	var state: Dictionary = engine.create_combat(92,layout,{"hp":24,"max_hp":24,"deck_cards":["daybreak","daybreak","reprise","reprise","reprise"]})
-	for id: String in ["daybreak","daybreak","reprise","reprise"]:
-		var index: int = state["deck"]["hand"].find(id)
-		expect.call(index>=0 and engine.hand_card_has_play_budget(state,index),"Cantor reproducer legally plays "+id)
-		state = engine.prepare_player_card(state,index)
-		var actions: Array = engine.card_play_actions(id,state)
-		for action: Dictionary in actions: state = engine.apply_player_action(state,action)
-		state = engine.finish_player_card(state,index,engine.card_plays_spent_for_actions(actions))
-	expect.call(state["player_turn_time_spent"]==26 and engine.cards_remaining_this_turn(state)==0,"Cantor exact legal sequence spends 26 Time and all plays")
-	var result: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))
-	var after: Dictionary = result["state"]
-	var intents: Array[String]
-	for step: Dictionary in result["steps"]:
-		if step.get("kind","")=="intent": intents.append(str(step.get("intent_name","")))
-	var beats: Array = after.get("surface_events",[]).filter(func(event: Dictionary) -> bool: return event.get("kind","")=="battlefield_rule_fired")
-	expect.call(after["initiative_clock"]==35 and beats.size()==1,"Cantor scheduler still reaches Choir/helpers/Peal before clock 35: "+str(intents))
-	if not beats.is_empty(): expect.call(beats[0]["affected_units"]==0 and beats[0]["damage_to_player"]==0,"Cantor Peal cannot strike Choir's six same-phase tiles")
-	expect.call(Surfaces.tiles(after,"electrified").size()>=6,"Choir's fresh ground stays visible")
+	var state: Dictionary = fixture(rule)
+	var element: String = {"lightning_storm": "electrified", "frostbite": "ice", "wildfire": "fire"}[rule]
+	var bucket: String = {"lightning_storm": "strike", "frostbite": "freeze", "wildfire": "catch"}[rule]
+	expect.call(Rules.forecast(engine, state)["tiles"][bucket].is_empty(), rule + " has no footprint without fuel")
+	Surface.place(state, OLD_TILE, element, {"actor_kind": "player"})
+	var added: Array = Rules.forecast(engine, state)["tiles"][bucket]
+	expect.call(not added.is_empty(), rule + " player-laid fuel updates red immediately")
+	Surface.remove(state, OLD_TILE, element, "expend")
+	expect.call(Rules.forecast(engine, state)["tiles"][bucket].is_empty(), rule + " player Expend removes red immediately")
+	Surface.place(state, OLD_TILE, element, {"actor_kind": "player"})
+	state = engine.finish_player_activation(state)
+	Surface.remove(state, OLD_TILE, element, "expend")
+	Surface.place(state, NEW_TILE, element, {"actor_kind": "enemy"})
+	state["enemies"][0]["pos"] = NEW_TILE
+	var present: Array = Rules.forecast(engine, state)["tiles"][bucket]
+	expect.call(not present.is_empty() and present != added, rule + " foe placement and removal retarget the beat")
+	var steps: Array[Dictionary]
+	var after: Dictionary = Rules.fire(engine, state.duplicate(true), steps)
+	if rule == "lightning_storm":
+		expect.call(after["player"]["hp"] == state["player"]["hp"] and after["enemies"][0]["hp"] == state["enemies"][0]["hp"] - PROOF_DAMAGE, "Storm hits the foe on fresh Electrified and leaves the former tile safe")
+		expect.call(steps[0]["tiles"] == [NEW_TILE] and not steps[0]["chain_hits"].any(func(hit: Dictionary) -> bool: return hit.get("from") != hit.get("to")), "Storm playback shows the live strike without Chain")
+	elif rule == "frostbite":
+		expect.call(after["player"]["freeze"] == 0 and after["enemies"][0]["freeze"] == 1, "Frostbite Freezes the occupant of fresh Ice")
+	else:
+		for tile: Vector2i in present: expect.call(Surface.element_at(after, tile) == "fire", "Wildfire spreads from fresh Fire")
+		expect.call(Surface.element_at(after, Vector2i(4, 5)).is_empty(), "Removed fuel does not spread")
 
-static func _dragon_scheduler(expect: Callable, id: String) -> void:
+static func _occupants_and_walls(expect: Callable) -> void:
 	var engine := Combat.new()
-	var state: Dictionary = Boss._boss_combat_state(id)
-	state["player_turn_time_spent"] = LONG_ACTIVATION_TIME
-	var observations: Dictionary = {"fresh_beats":0,"violations":0}
-	var accepted: Callable = _observe_fresh.bind(engine,observations)
-	state = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state,accepted),accepted)["state"]
-	expect.call(int(observations["fresh_beats"])>0,id+" production scheduler lays fuel and resolves a beat within the same enemy phase")
-	expect.call(int(observations["violations"])==0,id+" same-phase fresh fuel never enters a beat forecast")
-	# These first-phase beats have no older fuel: no beat may change ground or hit.
-	for event: Dictionary in state.get("surface_events",[]):
-		if event.get("kind","")=="battlefield_rule_fired": expect.call(event["affected_units"]==0 and event["tiles_changed"]==0,id+" scheduler beat excludes all newly laid fuel")
+	var state: Dictionary = fixture("lightning_storm")
+	Surface.place(state, OLD_TILE, "electrified")
+	state = engine.finish_player_activation(state)
+	state["player"]["pos"] = NEW_TILE
+	state["enemies"][0]["pos"] = OLD_TILE
+	var after: Dictionary = Rules.fire(engine, state.duplicate(true))
+	expect.call(after["player"]["hp"] == state["player"]["hp"] and after["enemies"][0]["hp"] == state["enemies"][0]["hp"] - PROOF_DAMAGE, "Beat targets whoever occupies the live Electrified tile")
+	state["grid"][OLD_TILE.y][OLD_TILE.x] = "wall"
+	after = Rules.fire(engine, state.duplicate(true))
+	expect.call(after["enemies"][0]["hp"] == state["enemies"][0]["hp"], "An impassable tile strikes nothing")
+	state["grid"][OLD_TILE.y][OLD_TILE.x] = "floor"
+	state["terrain"].append({"pos": OLD_TILE, "hp": 3, "max_hp": 3, "kind": "crag_outcrop"})
+	after = Rules.fire(engine, state.duplicate(true))
+	expect.call(after["terrain"] == state["terrain"] and after["enemies"][0]["hp"] == state["enemies"][0]["hp"], "New impassable terrain blocks the beat without being damaged")
 
-static func _observe_fresh(state: Dictionary, engine: RefCounted, observations: Dictionary) -> void:
-	Commit.accept(engine,state)
-	var instance: Dictionary = Rules.active(state)
-	if instance.is_empty(): return
-	var surface: String = {"wildfire":"fire","frostbite":"ice","lightning_storm":"electrified"}.get(str(instance["rule"]),"")
-	if surface.is_empty(): return
-	var fresh: Array[Vector2i]
-	for tile: Vector2i in Surfaces.tiles(state,surface):
-		if int(Surfaces.surface_at(state,tile).get("elemental_source",{}).get("laid_player_activation",state.get("turn",1)))==int(state.get("turn",1)): fresh.append(tile)
-	if fresh.is_empty(): return
-	observations["fresh_beats"] += 1
-	var forecast: Dictionary = Rules.forecast(engine,state)
-	# With no mature fuel, even chained lightning cannot start.
-	if fresh.size()==Surfaces.tiles(state,surface).size() and (not forecast["hits"].is_empty() or _tile_count(forecast)>0): observations["violations"] += 1
-	if surface=="ice" and fresh.has(state["player"]["pos"]):
-		observations["fresh_hero_ice"] = int(observations.get("fresh_hero_ice",0))+1
-		for hit: Dictionary in forecast["hits"]:
-			if str(hit["actor_key"])=="player": observations["violations"] += 1
-
-static func _iskaldra(expect: Callable) -> void:
+static func _gust_and_marks(expect: Callable) -> void:
 	var engine := Combat.new()
-	var state: Dictionary = Boss._boss_combat_state("iskaldra")
-	var observations: Dictionary = {"fresh_beats":0,"violations":0}
-	var accepted: Callable = _observe_fresh.bind(engine,observations)
-	var whiteout_seen: bool = false
-	for phase: int in range(4):
-		if phase==1:
-			expect.call(int(state["enemies"][0].get("frost_armor",0))>0,"Iskaldra reproduction crosses half Health after Mantle")
-			state["enemies"][0]["hp"] = int(state["enemies"][0]["max_hp"])/2
-			state = Commit.accept(engine,state)
-		var result: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state,accepted),accepted)
-		state = result["state"]
-		for step: Dictionary in result["steps"]:
-			if str(step.get("kind",""))=="intent" and str(step.get("intent_name",""))=="Whiteout Lance": whiteout_seen = true
-	expect.call(whiteout_seen,"Iskaldra scheduler regression includes the production Whiteout intent")
-	expect.call(int(observations.get("fresh_hero_ice",0))>0,"Iskaldra scheduler regression includes fresh Ice under the hero")
-	expect.call(observations["fresh_beats"]>0 and observations["violations"]==0,"Iskaldra helper/Whiteout fresh Ice is never immediate Frostbite fuel")
+	var state: Dictionary = Base.battle(engine)
+	Rules.install(engine, state, Base.rule("gust", {"tiles": 1, "direction": "fixed:right"}, true))
+	state = engine.finish_player_activation(state)
+	state["battlefield_rule"]["dials"]["direction"] = "fixed:left"
+	var after: Dictionary = Rules.fire(engine, state.duplicate(true))
+	expect.call(after["player"]["pos"] == OLD_TILE + Vector2i.LEFT and Rules.forecast(engine, state)["direction"] == Vector2i.LEFT, "Gust resolution and forecast use its current direction")
+	state = Base.battle(engine)
+	Rules.install(engine, state, Base.rule("upheaval", {"pattern": "line_between", "length": 3, "health": 2}, true))
+	var marks: Array = state["battlefield_rule"]["marks"].duplicate()
+	state = engine.finish_player_activation(state)
+	state["player"]["pos"] = Vector2i(7, 5)
+	after = Rules.fire(engine, state.duplicate(true))
+	for terrain: Dictionary in after["terrain"]: expect.call(marks.has(terrain["pos"]), "Upheaval rises only on its announced marks")
+	expect.call(not after["terrain"].is_empty(), "Upheaval retains a nonempty held-mark witness")
+
+static func _presentation(expect: Callable) -> void:
+	var engine := Combat.new()
+	var state: Dictionary = fixture("lightning_storm")
+	state["battlefield_rule"]["cadence"]["every"] = 2
+	Surface.place(state, OLD_TILE, "electrified")
+	var view: Script = preload("res://scripts/battlefield_rule_view.gd")
+	var live: Dictionary = view.presentation_for(state, {})
+	expect.call(live["threats_at_rest"]["threats"][0]["tiles"] == [OLD_TILE], "Rule red stays drawn all turn even when the next beat is not due")
+	state = engine.finish_player_activation(state)
+	state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
+	Surface.place(state, NEW_TILE, "electrified")
+	var during: Dictionary = view.presentation_for(state, {"effect": {"kind": "ranged"}})
+	expect.call(during["threats_at_rest"]["threats"][0]["tiles"] == [OLD_TILE, NEW_TILE], "Foe action red includes new Electrified ground")
+	var board: Control = preload("res://scripts/combat_board_view.gd").new()
+	var submitted: Dictionary = board.call("_battlefield_rule_presentation_for", state, {"effect": {"kind": "ranged"}})
+	expect.call(submitted["threats_at_rest"]["threats"][0]["tiles"] == [OLD_TILE, NEW_TILE], "Board submission refreshes rule red during foes' animation")
+	board.free()
+	state["grid"][OLD_TILE.y][OLD_TILE.x] = "wall"
+	expect.call(view.presentation_for(state, {})["threats_at_rest"]["threats"][0]["tiles"] == [NEW_TILE], "A new wall immediately clears its rule red")
+	Surface.remove(state, NEW_TILE, "electrified", "expend")
+	expect.call(view.presentation_for(state, {}).is_empty(), "Removing the last legal conductor clears its red")
+
+static func _save_and_analytics(expect: Callable) -> void:
+	var engine := Combat.new()
+	var state: Dictionary = fixture("lightning_storm")
+	for foes_turn: bool in [false, true]:
+		var draft: Dictionary = state.duplicate(true)
+		if foes_turn: draft = engine.finish_player_activation(draft)
+		draft["battlefield_rule"]["beat_snapshot"] = {"tiles": [NEW_TILE], "frozen_at": 17}
+		draft["battlefield_rule"]["awaiting_pass"] = true
+		draft["pending_gust_snapshots"] = {1: {}}
+		Surface.place(draft, OLD_TILE, "electrified")
+		var resumed: Dictionary = engine.normalize_player_movement_pool(roundtrip(draft))
+		expect.call(not resumed.has("pending_gust_snapshots") and not resumed["battlefield_rule"].has("beat_snapshot") and not resumed["battlefield_rule"].has("awaiting_pass"), "Draft hero and foes-turn saves discard retired Pass state")
+		var after: Dictionary = Rules.fire(engine, resumed)
+		expect.call(after["player"]["hp"] == draft["player"]["hp"] - PROOF_DAMAGE, "Draft save resumes with live fuel")
+		var event: Dictionary = after["surface_events"].back()
+		expect.call(event["kind"] == "battlefield_rule_fired" and not event.has("beat_tiles_frozen_at") and not Analytics.record(event, {}, "test")["payload"].has("beat_tiles_frozen_at"), "Committed and JSONL beats omit the retired clock")
+
+static func _saved_storms(expect: Callable) -> void:
+	var engine := Combat.new()
+	var catalog: Dictionary = Rules.data()["instances"]
+	for fixture: Array in [["storm_cantor", false, 3, 2], ["zekarion", false, 5, 1], ["zekarion", true, 5, 2]]:
+		var id: String = fixture[0]
+		var switched: bool = fixture[1]
+		var state: Dictionary = Base.battle(engine)
+		state["enemies"][0]["type"] = id
+		var instance: Dictionary = Rules.instance_for(id, int(state["enemies"][0]["id"]))
+		instance.merge({"dials": {"damage": fixture[2], "chain": fixture[3]}, "sentence": "Legacy storm.", "beats_fired": PROOF_RESUMED_BEATS}, true)
+		if id == "zekarion": instance["at_half_health"] = {"dials": {"chain": 2}, "sentence": "Legacy half-Health storm."}
+		if switched: instance["half_health_switched"] = true
+		state["battlefield_rule"] = instance
+		var resumed: Dictionary = engine.normalize_player_movement_pool(roundtrip(state))
+		var actual: Dictionary = resumed["battlefield_rule"]
+		var authored: Dictionary = catalog[id].duplicate(true)
+		if switched: Rules.HalfHealth.replace_values(authored, authored["at_half_health"])
+		expect.call(actual["dials"] == authored["dials"] and actual["sentence"] == authored["sentence"], id + " resumes with the approved live dials and sentence")
+		expect.call(actual.get("at_half_health", {}) == authored.get("at_half_health", {}), id + " resumes with the approved switch")
+		expect.call(actual["beats_fired"] == PROOF_RESUMED_BEATS and actual.get("half_health_switched", false) == switched, id + " preserves beat count and half-Health latch")
+		expect.call(resumed["surface_events"] == state["surface_events"], id + " preserves saved analytics")
+	DirAccess.remove_absolute(SAVE_PATH)
+
+static func roundtrip(state: Dictionary) -> Dictionary:
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	file.store_var({"combat_state": state}); file.close()
+	return Store._load_run_dictionary(SAVE_PATH)["combat_state"]
+
+static func _catalog(expect: Callable) -> void:
+	for id: String in ["storm_cantor", "zekarion", "dynamo", "snare_lightning"]:
+		var instance: Dictionary = Rules.instance_for(id, 1)
+		expect.call(instance["dials"]["chain"] == 0, id + " has no rule Chain")
+		if instance.has("at_half_health"):
+			Rules.HalfHealth.replace_values(instance, instance["at_half_health"])
+			expect.call(instance["dials"]["chain"] == 0 and instance["dials"]["damage"] == 7, "Half-Health Zekarion merges Damage 7 with Chain 0")

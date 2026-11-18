@@ -75,8 +75,7 @@ blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
 sequences. Zekarion's 2x2 footprint makes printed reach feel larger. Its
-Overload keeps a live shot 3 and fires Lightning Storm 5 / Chain 1 (Chain 2 at
-half Health) across Electrified tiles. Storm Lash retains its live shot and
+Overload keeps a live shot 3 and fires Lightning Storm 6 (7 at half Health), Chain 0, across the live Electrified field. Storm Lash retains its live shot and
 Electrified fuel without the former charge pulse. All six dragons use one
 source-owned battlefield rule, replacing their bespoke secondary riders.
 Vyraketh spreads Fire, Tharokh raises guarded Outcrops, Iskaldra hits Ice,
@@ -214,11 +213,12 @@ GUARDIAN_ASSUMPTIONS = {
     "clock": "Guardians initiative 9–12 plus Time 4–7; Cantor 11, Roc 9; Guardian Tender/Fledgling 12, Wisp 19; other helpers 8–10 plus Time 4–6; ordinary Wisp remains 7 plus 4",
     "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
     "cohort_pressure": "initial helpers are finite; only authored Call the Spark and Snuff renew Wisps/Shades within their data-authored living-kind caps, paying one Card Play per successful summon; helpers advance on each intent and prefer complementary safe flanks; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
-    "ground_pressure": "each Guardian installs data-authored beat cadence and dials; Reaver adds Fire after empty sword strikes; Cantor/Tender extend a shared network and Peal fires Lightning Storm; Frostbite deals zero damage and Freezes Chilled actors on Ice; Roc is Anchored; Craghide raises owned 2-HP Outcrops counted by Groundsplit; only hidden Wick Shades Shadowstep",
-    "director_tuning": "feedback 3: Rimejaw HP 34/Pounce 6; Cantor HP 66/Choir 6 fresh linked tiles when legal space permits/Broken Rhythm 11/Wisp cap 2/Peal 3 Chain 2/Guardian Tender Staff Bolt 4 (ordinary 3); Lamplighter HP 30/Procession 6/one initial Shade/Shade cap 1/Hook 3/Guardian Shade melee 1; ordinary Shade melee 2; enemy intents have no intrinsic player-card score",
+    "ground_pressure": "each Guardian installs data-authored beat cadence and dials; Reaver adds Fire after empty sword strikes; Cantor/Tender extend a shared network and Peal fires Lightning Storm; Frostbite deals zero damage and Freezes occupants of live Ice tiles, retaining existing immunities; Roc is Anchored; Craghide raises owned 2-HP Outcrops counted by Groundsplit; only hidden Wick Shades Shadowstep",
+    "director_tuning": "feedback 3 plus owner area-02 storm update: Rimejaw HP 34/Pounce 6; Cantor HP 66/Choir 6 fresh linked tiles when legal space permits/Broken Rhythm 11/Wisp cap 2/Peal 4 Chain 0/Guardian Tender Staff Bolt 4 (ordinary 3); Lamplighter HP 30/Procession 6/one initial Shade/Shade cap 1/Hook 3/Guardian Shade melee 1; ordinary Shade melee 2; enemy intents have no intrinsic player-card score",
     "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
     "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
-    "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "geometry": "shared outcrops block movement and attack sight; Craghide guards floor routes at marking time; held marks use only the live placement and immovable-occupant exceptions; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "beat_geometry": "rule beats use the live board, including foes-turn ground changes; Gust pushes live occupants in its installed direction including after a Call that turn; Upheaval guards routes at marking time and skips only impassable terrain, traps, guardian braziers and immovable units at rise; rule red shows the present; all four rule storms have Chain 0; intrinsic card scores unchanged",
     "ground_targeting": "surface-producing attacks admit legal empty floor; a preceding attack can share Fire ground with previous-target Detonate; damage still requires an occupant and no extra fuel is assumed",
     "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
     "trophy_curves": {
