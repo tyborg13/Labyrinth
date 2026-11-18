@@ -82,20 +82,27 @@ Resolve chips in the unchanged action order; ties retain roster order. The
 attacker's own sprite is excluded from its collision obstacles. Concealed
 units and props never enter the geometry boundary.
 
-## 5. Area zone tags and unchanged tiles
+## 5. Announced threat tiles
 
-Only exact `projected_attack` footprints of visible enemies acting before the
-next hero turn enter the rest layer. The existing 2px inner diamond outline in
-DANGER at 75%, fill at 12%, and hero-tile fill at 24% remain unchanged. Hero
-fill pulses 18%→30% over 1.1 seconds; reduced motion holds 24%. Overlapping
-threats use maximum alpha, never additive fills.
+Exact attack footprints retain the existing 2px inner DANGER diamond outline at
+75%, fill at 12%, and hero-tile fill at 24%. The hero fill pulses 18%–30% over
+1.1 seconds; reduced motion holds 24%. Overlaps use maximum alpha.
 
-An area/pattern intent gains one 20px tag on its footprint tile nearest the
-attacker's previewed tile, using the board's Manhattan distance and existing
-footprint order for equal distances. Place it at that tile's centre. Fill
-`#46140f` at 94%, 2px DANGER ring, Crumble UI 13px GOLD_BRIGHT attacker's order
-numeral. Single-target attacks get no tag. Tags are recomputed from preview
-geometry and obey visible-tile clipping and focus alpha.
+Red floor tiles never carry an attacker-order tag: at rest, while aiming,
+in Details, on pointer/controller focus or in isolation. Health-frame order
+discs, the intent chip's ×N and the turn-order bar retain their numbers.
+
+Pointer and controller inspection show the foe's currently announced move in
+the existing title and action/rule rows. The chip keeps its ×N count for repeat
+activations. Repeat attacks paint the announced footprint once. Fixed areas keep
+the Marked keyword and tile marks. Relative areas still shift as the caster
+moves and use the existing shape and action rows.
+
+At rest, while aiming and during inspection, attack red comes from each foe's
+announced move. Battlefield-rule red reads the displayed board and shows the
+applicable current rule footprint. The Pass Health forecast, Safe and Health
+at hovered destinations cover the entire enemy turn, including later
+activations, with the existing uncertainty disclosure.
 
 ## 6. Preserve preview, focus and resolution paths
 
@@ -107,8 +114,8 @@ causes before simulating movement. Committed enemy visibility remains the
 disclosure boundary, including when a preview could reveal a new actor.
 
 Hover, pinned/controller focus and rail focus dim other discs, chips and
-threat tiles/tags to 40%, while preserving the existing detailed single-enemy
-view. Push/Pull re-aims footprint/danger/tag data live; cancelling restores the
+threat tiles to 40%, while preserving the existing detailed single-enemy
+view. Push/Pull re-aims footprint/danger data live; cancelling restores the
 committed state. Kill, Shock, Freeze and Stagger beyond the next hero turn
 retain cancellation and the existing 2px TEXT_2 diagonal icon strike.
 
@@ -123,12 +130,12 @@ text, font and 0.9-second animation remain in `intent_callouts.gd` and use
 Standard risk; full suite required by the unit brief in addition to focused
 checks. Acceptance is each numbered section above: no at-rest compass/pill,
 projected order beside the real bar, approved feet chip/danger rendering,
-only authored feet placements, one owner tag per area, and preserved itb-01
+only authored feet placements, no order tags on the floor, and preserved itb-01
 preview/focus/Details/callout/privacy behaviour.
 
 Ownership: `intent_badges.gd` owns descriptors, measured layouts, chip/disc
 rendering and the Gaussian pulse mask; `threat_tiles.gd` owns unchanged tiles
-plus tags. CombatBoardView contains draw/redraw calls and disclosure plumbing.
+without order tags. CombatBoardView contains draw/redraw calls and disclosure plumbing.
 RunScene adds five lines for real boss-frame geometry and existing independent
 movement forecast plumbing. Tests retain resolver/callout coverage and the
 existing compass suite; no assertions in other suites are rewritten.
@@ -156,14 +163,14 @@ resizing. Its proof contract requires thirteen PNGs in
 13. `13_wave_e2_rest_1920x1080.png` — Briar Weaver's Thornwall (`bramble`),
     Slag Mortar's Lob Slag (`lob`), Glacial Mirror's Refraction (`aoe`) and
     Gust Shrike's Dive (`dive`) around the hero. All four show their order
-    discs, feet chips and exact-footprint zone tags. Dive retains its dashed
+    discs, feet chips and number-free exact-footprint red. Dive retains its dashed
     line and right-hand push preview without detailed popup disclosure.
 
 Director en-05 feedback 2 adds this E2 state to both the headless suite/live
 stage and the windowed probe. Its named `WAVE_E2_ROSTER` proof fields use
 hero-relative offsets `(1,0)`, `(-3,0)`, `(0,-3)`, `(3,0)` in the order above;
-the existing hero, seed, grid and queue timings are retained. Thornwall is
-an area intent for its zone tag. Primary and rider chip numbers use the
+the existing hero, seed, grid and queue timings are retained. Thornwall remains
+an area intent; its red has no order tag. Primary and rider chip numbers use the
 shared `ActionIconLibrary.token_value_text` integer formatter.
 
 ### Chosen defaults (non-production)

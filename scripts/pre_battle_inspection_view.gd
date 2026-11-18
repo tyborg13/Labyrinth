@@ -14,6 +14,7 @@ const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
+const RuleRows = preload("res://scripts/battlefield_rules/intent_rows.gd")
 
 const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
 
@@ -136,7 +137,10 @@ static func rules_label(text: String, node_name: String, width: float) -> Label:
 	return result
 
 static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, unit: Dictionary = {}, state: Dictionary = {}) -> Control:
-	var rows: Array = move_rows(intent, unit if not unit.is_empty() else source, state)
+	var actor: Dictionary = unit if not unit.is_empty() else source
+	var own_rows: Array = _own_move_rows(intent, actor, state)
+	var beat_row: Array = RuleRows.tokens(state, actor, intent)
+	var rows: Array = own_rows if beat_row.is_empty() else own_rows + [beat_row]
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
 	var plate := LoopMovePlate.new()
 	plate.loop_source = source
@@ -163,9 +167,6 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(state, unit if not unit.is_empty() else source, intent)
-	var own_rows: Array = rows.duplicate()
-	if not beat_row.is_empty(): own_rows.pop_back()
 	var summary: String = ActionIcons.plain_text_for_rows(own_rows).replace("\n", "  /  ")
 	if capacitor or actions.any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "kindle"):
 		plate.tooltip_text = move_tooltip(rows)
@@ -203,13 +204,19 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	return plate
 
 static func move_rows(intent: Dictionary, source: Dictionary = {}, state: Dictionary = {}) -> Array:
-	var capacitor: Array = CapacitorView.rows(intent)
-	var actions: Array = (intent.get("actions", []) as Array).map(func(action: Variant) -> Variant:
-		return Icefall.presentation_action(state, source, action) if action is Dictionary else action)
-	var rows: Array = capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(actions)
-	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(state, source, intent)
+	var rows: Array = _own_move_rows(intent, source, state)
+	var beat_row: Array = RuleRows.tokens(state, source, intent)
 	if not beat_row.is_empty(): rows.append(beat_row)
 	return rows
+
+static func _own_move_rows(intent: Dictionary, source: Dictionary, state: Dictionary) -> Array:
+	var enemy_type: String = str(source.get("type", source.get("id", "")))
+	intent = preload("res://scripts/boss_area_rules.gd").presentation_intent(enemy_type, intent)
+	var capacitor: Array = CapacitorView.rows(intent)
+	if not capacitor.is_empty(): return capacitor
+	var actions: Array = (intent.get("actions", []) as Array).map(func(action: Variant) -> Variant:
+		return Icefall.presentation_action(state, source, action) if action is Dictionary else action)
+	return ActionIcons.rows_for_actions(actions)
 
 static func move_tooltip(rows: Array) -> String:
 	var details := PackedStringArray()

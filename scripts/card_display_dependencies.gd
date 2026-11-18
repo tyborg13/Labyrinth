@@ -3,10 +3,16 @@ extends RefCounted
 ## Exact dependency snapshots. These are source dictionaries, booleans and
 ## integer rule results, never hashes standing in for equality. Player inputs
 ## are selected per definition; an unrelated status is not a text dependency.
+const Combat = preload("res://scripts/combat_engine.gd")
 const Keywords = preload("res://scripts/card_keyword_rules.gd")
 const SPATIAL_FIELDS: Array = ["surfaces", "grid", "umbra", "illusions", "surface_rule_overrides"]
 const ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks", "destroy_illusion", "burst_terrain"]
-static var _engine := preload("res://scripts/combat_engine.gd").new()
+# Initialize on first use in case CombatEngine is still loading this script.
+static var _engine_instance: RefCounted = null
+
+static func _engine() -> RefCounted:
+	if _engine_instance == null: _engine_instance = Combat.new()
+	return _engine_instance
 
 static func context_values(state: Dictionary) -> Dictionary:
 	var source: Dictionary = state.duplicate(false)
@@ -29,7 +35,7 @@ static func for_definition(card: Dictionary, effects: Array) -> Array:
 	actions.append_array(Keywords.actions_with_modifiers(card, {"follow_up": true, "empowered": true}))
 	for original: Dictionary in actions:
 		if str(original.get("type", "")) not in ATTACK_TYPES: continue
-		var blast: Dictionary = _engine.blast_action_for_player_action(original)
+		var blast: Dictionary = _engine().blast_action_for_player_action(original)
 		var action: Dictionary = original if blast.is_empty() else blast
 		var scale: Dictionary = action.get("scale_bonus", {})
 		if str(scale.get("per", "")) == "stoneskin":
@@ -66,8 +72,8 @@ static func values(dependencies: Array, available: Dictionary) -> Array:
 	for dependency: Dictionary in dependencies:
 		match str(dependency["input"]):
 			"scale": result.append(Keywords.scale_bonus_damage(state, dependency["action"]))
-			"surface": result.append(_engine._surface_condition_met(state, dependency["condition"], Vector2i.ZERO))
-			"player_condition": result.append(_engine._relic_player_state_condition_met(state, dependency["effect"]))
-			"cross": result.append(_engine.SurfaceRelicRules.resolve_action(state, dependency["action"]))
+			"surface": result.append(_engine()._surface_condition_met(state, dependency["condition"], Vector2i.ZERO))
+			"player_condition": result.append(_engine()._relic_player_state_condition_met(state, dependency["effect"]))
+			"cross": result.append(_engine().SurfaceRelicRules.resolve_action(state, dependency["action"]))
 			_: result.append(available[dependency["input"]])
 	return result

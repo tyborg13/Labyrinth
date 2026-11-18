@@ -123,6 +123,7 @@ const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -1
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const CommonRelicRules = preload("res://scripts/common_relic_rules.gd")
 const GuardianRelicRules = preload("res://scripts/guardian_relic_rules.gd")
+const BossAreaRules = preload("res://scripts/boss_area_rules.gd")
 const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
@@ -2454,7 +2455,10 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	if losses_only:
 		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER
 		next_state[receipt] = true
+		next_state[BossAreaRules.FORECAST_RECEIPT] = state.get(BossAreaRules.FORECAST_RECEIPT, {}).duplicate(true)
 		preload("res://scripts/pass_forecast_statuses.gd").begin(next_state)
+	else:
+		next_state.erase(BossAreaRules.FORECAST_RECEIPT)
 	_record_runtime_performance_phase("enemy_preview_initial_duplicate", performance_total_started)
 	var initially_visible_enemy_ids: Dictionary = {}
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -2600,8 +2604,7 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					# rendered slices instead of cloning the full snapshot again.
 					next_state = turn_result.get("state", next_state) as Dictionary
 					Repeats.record(cursor, enemy_id, str(entry.get("name", enemy.get("type", ""))), hero_before, next_state)
-					# atk-09: a later activation's struck tiles and a foe that dies before it acts, for the red tiles.
-					preload("res://scripts/pass_forecast_red_tiles.gd").note(self, cursor, turn_before, enemy_index, enemy_id, next_state)
+					preload("res://scripts/pass_forecast_red_tiles.gd").note(self, cursor, enemy, next_state)
 					# atk-04: did this activation take any unit onto unseen ground?
 					preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, turn_before, next_state, turn_result.get("steps", []))
 					var steps: Array = cursor.get("steps", []) as Array
@@ -2891,9 +2894,7 @@ func _enemy_threat_plan(state: Dictionary, enemy_index: int, past_sight: bool) -
 	return {"enemy": enemy, "intent": intent, "frozen": frozen, "shocked": shocked,
 		"plan": enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)}
 
-# atk-09: only the tiles a foe's attack plan strikes: the projected_attack of
-# _compute_enemy_threat_tiles without its Details reach, paths or summons. The
-# PASS forecast's red tiles plan each later activation through this.
+# Attack contact from the current plan, without Details reach, paths or summons.
 func enemy_planned_attack_tiles(state: Dictionary, enemy_index: int, past_sight: bool) -> Array[Vector2i]:
 	var planned: Dictionary = _enemy_threat_plan(state, enemy_index, past_sight)
 	if planned.has("result"): return _vector2i_values((planned["result"] as Dictionary).get("projected_attack", []))
@@ -6842,9 +6843,10 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var spire_tiles: Array[Vector2i]
 	for stone: Dictionary in DragonCombatRules.owned_stone(next_state, int(enemy["id"])): spire_tiles.append(stone["pos"])
-	if spire_tiles.is_empty():
+	if BossAreaRules.held(action): spire_tiles = BossAreaRules.stone_fuel(self, next_state, action)
+	if spire_tiles.is_empty() and not BossAreaRules.held(action):
 		return next_state
-	var affected_tiles: Array[Vector2i] = _terrain_burst_tiles(next_state, int(action.get("radius", 1)), int(enemy["id"]))
+	var affected_tiles: Array[Vector2i] = BossAreaRules.strike_tiles(self, next_state, action) if BossAreaRules.held(action) else _terrain_burst_tiles(next_state, int(action.get("radius", 1)), int(enemy["id"]))
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
@@ -6897,7 +6899,7 @@ func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: i
 
 func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
-	var candidates: Array[Vector2i] = TypedArrays.vector2i(_vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5)))))
+	var candidates: Array[Vector2i] = BossAreaRules.strike_tiles(self, state, action) if BossAreaRules.held(action) else TypedArrays.vector2i(_vector2i_values(action["declared_tiles"]) if action.has("declared_tiles") else _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5)))))
 	if int(action.get("damage", 0)) > 0 and not candidates.is_empty():
 		state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(state, enemy_index): return state
@@ -6932,7 +6934,8 @@ func _enemy_detonate_cinders(state: Dictionary, enemy_index: int, action: Dictio
 	var selected: Array[Vector2i]
 	for entry: Dictionary in _cinder_fire_entries(state, int(enemy.get("id", -1))):
 		selected.append(entry["pos"])
-	if not selected.is_empty():
+	if BossAreaRules.held(action): selected = _vector2i_values(action.get("area_fuel_tiles", []))
+	if not selected.is_empty() or BossAreaRules.held(action):
 		state = _resolve_board_detonate(state, action, enemy.get("pos", INVALID_TILE), {}, selected)
 	enemy = _surface_actor(state, "enemy", int(enemy.get("id", -1)))
 	enemy["cinder_detonation_pending"] = false
@@ -7028,9 +7031,10 @@ func _enemy_umbra_eclipse(state: Dictionary, enemy_index: int, action: Dictionar
 				brazier["lit"] = false
 				BoardSurfaceRules.record_event(next_state,{"kind":"dragon_light_snuffed","brazier_id":brazier["id"],"tile":brazier["pos"],"source":_surface_source(next_state,action)})
 	var exposed_targets: Array[Dictionary]
+	var fixed_tiles: Array[Vector2i] = BossAreaRules.strike_tiles(self, next_state, action) if BossAreaRules.held(action) else _vector2i_values([])
 	for target: Dictionary in _actor_targets(next_state):
-		if not _actor_has_radiance_protection(next_state, target):
-			exposed_targets.append(target)
+		var exposed: bool = _surface_unit_intersects(_surface_actor(next_state, str(target.get("kind", "")), int(target.get("id", -1))), fixed_tiles) if BossAreaRules.held(action) else not _actor_has_radiance_protection(next_state, target)
+		if exposed: exposed_targets.append(target)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
 	umbra["boss_eclipse_stage"] = UMBRA_STAGE_ECLIPSE
 	umbra["boss_eclipse_activations"] = maxi(1, int(action.get("duration", 2)))
@@ -7042,6 +7046,7 @@ func _enemy_umbra_eclipse(state: Dictionary, enemy_index: int, action: Dictionar
 	return next_state
 
 func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	if BossAreaRules.held(action): return BossAreaRules.strike_tiles(self, state, action)
 	match str(action.get("type", "")):
 		"raise_terrain":
 			return _vector2i_values(action.get("declared_tiles",[]))
@@ -8477,6 +8482,7 @@ func _lightning_strike_threat_tiles(state: Dictionary, enemy: Dictionary, action
 	return result
 
 func _lightning_strike_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	if BossAreaRules.held(action): return BossAreaRules.strike_tiles(self, state, action)
 	if action.has("declared_tiles"): return _vector2i_values(action["declared_tiles"])
 	var candidates: Array[Vector2i]
 	var grid: Array = state.get("grid", [])
@@ -12256,6 +12262,9 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	return {"hits": hits, "used_conductors": used_conductors, "consumed": consumed}
 
 func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
+	if BossAreaRules.held(action):
+		supplied_impact = BossAreaRules.strike_tiles(self, state, action)
+		if supplied_impact.is_empty(): return state
 	return BoardAttackRules.resolve(self, state, action, target, actor_kind, actor_id, trace, supplied_impact)
 
 func _board_aoe_center(action: Dictionary, target: Vector2i, origin: Vector2i) -> Vector2i:
@@ -12282,7 +12291,7 @@ func _trigger_direct_attack_surface(state: Dictionary, action: Dictionary, targe
 
 func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}, selected_override: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
 	var selected: Array[Vector2i] = TypedArrays.vector2i(selected_override.duplicate())
-	if selected.is_empty():
+	if selected.is_empty() and not BossAreaRules.held(action):
 		selected = _surface_action_tiles(state, action, target)
 	var fuel: String = SurfaceCardRules.detonate_fuel(action)
 	var cluster_bonus: int = GuardianRelicRules.amount(state,"connected_detonate") if not action.has("_enemy_id") and fuel == "fire" else 0
@@ -12298,6 +12307,7 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 	var blast: Dictionary = {}
 	var consumed: Array[Vector2i]
 	for tile: Vector2i in selected:
+		if BossAreaRules.held(action) and action.get("area_fuel_sources", {}).get(tile, {}) != BoardSurfaceRules.surface_at(state, tile).get("elemental_source", {}): continue
 		if not BoardSurfaceRules.has_surface(state, tile, fuel):
 			continue
 		consumed.append(tile)
@@ -12305,7 +12315,10 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 		for direction: Vector2i in PathUtils.DIRS_4:
 			if PathUtils.is_passable(state.get("grid", []), tile + direction):
 				blast[tile + direction] = int(blast.get(tile + direction,0)) + 1
-	if consumed.is_empty():
+	if BossAreaRules.held(action):
+		blast.clear()
+		for tile: Vector2i in BossAreaRules.strike_tiles(self, state, action): blast[tile] = 1
+	elif consumed.is_empty():
 		return state
 	var player_action: bool = not action.has("_enemy_id")
 	if player_action:
@@ -12444,6 +12457,7 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 
 func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
 	intent = WindRules.commit(self, state, enemy, intent)
+	if str(enemy.get("type", "")) == "briar_weaver": intent = BossAreaRules.freeze(self, state, enemy, intent)
 	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(GameData.enemy_property(str(enemy["type"]), "dragon_cycle", false)) and not bool(GameData.enemy_property(str(enemy["type"]), "intent_cycle", false)):
 		intent = GuardianCombatRules.commit(self, state, _enemy_index_for_id(state, int(enemy["id"])), intent)
 	var prepared: Dictionary = intent.duplicate(true)

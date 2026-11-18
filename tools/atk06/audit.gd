@@ -42,7 +42,7 @@ func _audit_decision_point() -> void:
 	point_rest = _board_red(board)
 	point_hero = committed["player"]["pos"]
 	var marks: Dictionary = scene.get("_rest_pass_disc_marks")
-	var died_first: Dictionary = marks.get("died_first", {}) if int(marks.get("revision", -1)) == int(scene.get("_combat_preview_revision")) else {}
+	var died_first: Dictionary = marks.get("died_first_keys", {}) if int(marks.get("revision", -1)) == int(scene.get("_combat_preview_revision")) else {}
 	point_rest_old = _old_red(board, point_rest, died_first, committed, committed)
 	var badges: Dictionary = {}
 	for badge: Dictionary in (board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("badges", []):
@@ -244,17 +244,13 @@ func _timed_build(committed: Dictionary, preview: Dictionary) -> int:
 	if not BattlefieldRuleView.BattlefieldRules.active(committed).is_empty(): BattlefieldRuleView._due_tiles(committed)
 	return Time.get_ticks_usec() - started
 
-# atk-09: the work the red set adds per decision point: its plans inside the
-# at-rest PASS forecast (a simulation the discs already run), measured by that
-# code's own phase on a cold engine, plus applying the record to the rest set.
-# atk-11: [the atk-09 work, the atk-11 receipt work], both measured inside
-# the same simulation. No additional activation-end replay.
+# Time announced-red adjustments and contact receipts within the same forecast.
 func _timed_red_extra(board: Control) -> Array:
 	var source: Dictionary = scene.call("_pass_preview_source_state_for_tile", INVALID)
 	if source.is_empty() or not timing_engine.is_player_turn(source): return [0, 0]
 	timing_engine.set_runtime_performance_instrumentation_enabled(true)
 	var phase: Dictionary = timing_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(RedTiles.schedule(timing_engine, source), true)
-	var hero: Dictionary = RedTiles.hero_fields(timing_engine, source, phase)
+	RedTiles.hero_fields(timing_engine, source, phase)
 	var snapshot: Dictionary = timing_engine.runtime_performance_instrumentation_snapshot()
 	var planned: int = int(snapshot.get("pass_forecast_red_tiles", {}).get("total_usec", 0))
 	var hits: int = int(snapshot.get(RedTiles.HIT_PHASE, {}).get("total_usec", 0))
@@ -262,11 +258,8 @@ func _timed_red_extra(board: Control) -> Array:
 	var fields: Dictionary = RedTiles.summary_fields(phase)
 	var rest: Dictionary = (board.get("presentation") as Dictionary).get("threats_at_rest", {})
 	var started: int = Time.get_ticks_usec()
-	RedTiles.adjust(rest, fields["later_red_tiles"], fields["died_first_keys"])
-	var adjust_usec: int = Time.get_ticks_usec() - started
-	started = Time.get_ticks_usec()
-	RedTiles.adjust(rest, fields["later_red_tiles"], fields["died_first_keys"], "", hero["hero_red_owners"])
-	return [planned + adjust_usec, hits + maxi(0, Time.get_ticks_usec() - started - adjust_usec)]
+	RedTiles.adjust_from_summary(rest, fields)
+	return [planned + Time.get_ticks_usec() - started, hits]
 
 # --- the atk-01 forecast replica, with each activation's own plan ---------------------
 

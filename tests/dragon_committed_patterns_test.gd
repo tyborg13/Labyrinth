@@ -217,16 +217,21 @@ func _test_swept_dive() -> void:
 	intent["committed_plan"]["path"] = [Vector2i(4,3),Vector2i(3,3),Vector2i(2,3)]
 	intent["committed_plan"]["destination"] = Vector2i(2,3)
 	var preview: Dictionary = combat.enemy_intent_plan(state,0)
-	expect(preview["projected_attack"].has(Vector2i(4,5)) and preview["projected_attack"].has(Vector2i(1,4)),"Dive must sweep the traveled perimeter and landing, not reuse a front crescent")
+	var stamp: Dictionary = intent["actions"][1]
+	var expected: Array[Vector2i] = preload("res://scripts/boss_area_rules.gd").at_anchor(stamp, preview["destination"])
+	expected = combat._vector2i_values(expected.filter(func(tile: Vector2i) -> bool: return combat._tile_is_passable(state, tile)))
+	expect(_same_tiles(preview["projected_attack"], expected), "Dive translates its announced wake without rebuilding it from a changed live route")
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
 	var attack_steps: Array = result["steps"].filter(func(step: Dictionary)->bool: return str(step.get("intent_id",""))=="razor_dive" and str(step.get("action_type",""))=="aoe")
 	expect(attack_steps.size()==1 and _same_tiles(attack_steps[0]["tiles"],preview["projected_attack"]),"Dive's rendered impact cells must exactly match its predicted traveled route")
-	expect(result["state"]["player"]["hp"]==state["player"]["hp"]-6,"Dive applies the approved six damage once across overlapping route cells")
+	expect(state["player"]["hp"]-result["state"]["player"]["hp"] == (6 if expected.has(state["player"]["pos"]) else 0),"Dive applies the approved six damage once on its translated stamp")
 	state["terrain"] = [{"id":"dive_blocker","pos":Vector2i(3,3),"hp":99,"max_hp":99}]
 	preview = combat.enemy_intent_plan(state,0)
-	expect(preview["destination"]==Vector2i(4,3) and not preview["projected_attack"].has(Vector2i(1,4)),"Blocking Dive's path must remove damage around its unreachable landing")
+	expected = preload("res://scripts/boss_area_rules.gd").at_anchor(stamp, Vector2i(4,3))
+	expected = combat._vector2i_values(expected.filter(func(tile: Vector2i) -> bool: return combat._tile_is_passable(state, tile) and combat._terrain_index_at_tile(state,tile)<0))
+	expect(preview["destination"]==Vector2i(4,3) and _same_tiles(preview["projected_attack"],expected),"Blocking Dive shifts the entire announced wake back with its stopped body")
 	result = combat.resolve_enemy_turn_with_steps(state,0)
-	expect(result["state"]["player"]["hp"]==state["player"]["hp"],"A blocked Dive must not damage a player beyond its actual route")
+	expect(state["player"]["hp"]-result["state"]["player"]["hp"] == (6 if expected.has(state["player"]["pos"]) else 0),"A blocked Dive hits only the shifted wake, preserving six damage")
 
 func _test_ice_ground_budget() -> void:
 	var combat := Combat.new()
@@ -264,10 +269,10 @@ func _test_ice_ground_budget() -> void:
 	var intact: Array = combat.enemy_threat_tiles(state,0)["attack"]
 	state = combat._damage_enemy(state,0,1,true)
 	var peeled: Array = combat.enemy_threat_tiles(state,0)["attack"]
-	expect(peeled.size()<intact.size(),"Peeling Mantle during Shatterstorm must shrink the announced danger ring")
+	expect(_same_tiles(peeled,intact),"Peeling Mantle during Shatterstorm preserves the announced danger ring")
 	state = combat._damage_enemy(state,0,1,true)
 	var bare: Array = combat.enemy_threat_tiles(state,0)["attack"]
-	expect(bare.size()<peeled.size(),"The second Mantle hit must shrink the remaining Shatterstorm radius")
+	expect(_same_tiles(bare,intact),"The second Mantle hit also preserves the announced Shatterstorm radius")
 	state = BossSuite._resolve_boss_turn(state)
 	expect(state["enemies"][0]["frost_armor"]==0,"Shatterstorm must spend all remaining Mantle layers")
 
@@ -282,10 +287,10 @@ func _test_storm_marks_conduction_and_cap() -> void:
 	var connected: Dictionary = state.duplicate(true)
 	for tile: Vector2i in [Vector2i(1,4),Vector2i(2,4),Vector2i(3,4)]: Surface.place(connected,tile,"electrified")
 	connected["player"]["pos"] = Vector2i(3,4)
-	expect(not marks.has(Vector2i(3,4)) and combat.enemy_threat_tiles(connected,0)["attack"].has(Vector2i(3,4)),"Skybreak must advertise conducted damage beyond its fixed marks")
+	expect(not marks.has(Vector2i(3,4)) and not combat.enemy_threat_tiles(connected,0)["attack"].has(Vector2i(3,4)),"Skybreak must exclude unmarked connected ground")
 	var marked_hp: int = connected["player"]["hp"]
 	connected = BossSuite._resolve_boss_turn(connected)
-	expect(connected["player"]["hp"]==marked_hp-5,"Skybreak's conducted warning must match its approved five damage")
+	expect(connected["player"]["hp"]==marked_hp,"Skybreak must leave the unmarked connected occupant unharmed")
 	state = BossSuite._resolve_boss_turn(state)
 	expect(_same_tiles(Surface.tiles(state,"electrified"),marks),"Skybreak must leave Electrified on its fixed strike cells")
 	state["surfaces"] = {}
@@ -373,11 +378,11 @@ func _test_eclipse_refuges() -> void:
 	state["player"]["pos"] = snuffed
 	expect(combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"An unlit brazier must be inside the current Eclipse warning")
 	state = combat.surface_actor_arrival(state,"player",-1,refuge)
-	expect(not combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"Relighting removes the Eclipse darkness threat")
+	expect(combat.enemy_threat_tiles(state,0)["attack"].has(snuffed),"Relighting preserves the already announced Eclipse footprint")
 	var hp: int = state["player"]["hp"]
 	state["enemies"][1]["hp"] = 0
 	state = BossSuite._resolve_boss_turn(state)
-	expect(state["player"]["hp"]==hp,"The relit refuge avoids Eclipse with the bespoke sweep removed")
+	expect(state["player"]["hp"]==hp-8,"The relit marked tile still takes the approved eight Eclipse damage")
 	var living: int = 0
 	for helper: Dictionary in state["enemies"]:
 		if helper["type"]=="veilbound_acolyte" and helper["hp"]>0: living+=1

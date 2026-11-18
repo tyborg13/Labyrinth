@@ -1,6 +1,7 @@
 extends RefCounted
 ## Read-only end-now presentation. No resolver or scheduling state is retained.
 
+const Areas = preload("res://scripts/boss_area_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const Compass = preload("res://scripts/enemy_intent_compass.gd")
@@ -141,7 +142,11 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 	if known_preview.is_empty(): known_preview = preview
 	var known_enemies: Array = known_preview.get("enemies", []) as Array
 	for enemy: Dictionary in committed.get("enemies", []):
-		if int(enemy.get("hp", 0)) <= 0 or not engine.is_enemy_visible_to_player(committed, enemy):
+		if int(enemy.get("hp", 0)) <= 0: continue
+		if not engine.is_enemy_visible_to_player(committed, enemy):
+			var held: Array[Vector2i] = Areas.announced_tiles(preview_enemies.get(int(enemy["id"]), enemy), engine, preview)
+			if not held.is_empty():
+				threats.append({"key": "enemy_%d" % int(enemy["id"]), "tiles": held, "alpha": 1.0, "area": true, "area_announced": true, "area_signature":Areas.forecast_signature(enemy.get("intent",{})), "order": "", "attacker_tile": enemy["pos"]})
 			continue
 		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
@@ -183,10 +188,18 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			"danger": attacking and acting and not cancelled and (threat.get("projected_attack", []) as Array).has((preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))),
 			"alpha": (1.0 if acting else INACTIVE_ALPHA) * (ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0)}, true)
 		badges.append(badge)
+		# Held stamps follow the forecast source; fixed ground retains its marks.
+		var held: Array[Vector2i] = Areas.announced_tiles(projected, engine, known_preview) if not projected.is_empty() else Areas.pending_tiles(intent)
+		if not projected.is_empty() and int(projected.get("hp", 0)) > 0 and not held.is_empty():
+			threats.append({"key": actor_key, "tiles": held, "alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
+				"area": true, "area_announced": true, "area_signature":Areas.forecast_signature(intent), "attacker_tile": projected.get("pos", enemy["pos"]), "plan": threat})
 		if attacking and acting and not cancelled:
-			threats.append({"key": actor_key, "tiles": threat.get("projected_attack", []),
+			var live: Array[Vector2i]
+			for tile: Vector2i in threat.get("projected_attack", []):
+				if not held.has(tile): live.append(tile)
+			threats.append({"key": actor_key, "tiles": live,
 				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
-				"area": is_area_intent(intent), "order": badge["order"], "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1))), "plan": threat})
+				"area": is_area_intent(intent), "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1))), "plan": threat})
 	return {"badges": badges, "threats": threats, "hero_tile": (preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))}
 
 # Foes visible at the committed boundary that the preview's own sight would hide.

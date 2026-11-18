@@ -1,69 +1,33 @@
 extends RefCounted
-## atk-09 (director 2026-11-14): the red threat tiles agree with the forecast.
-## A visible foe's first activation keeps the tiles its badge plan draws. Every
-## later activation the PASS forecast resolves (second, third...) adds the tiles
-## that foe's plan strikes on the forecast board at that moment. A foe the
-## forecast has die before it acts (its own Bleed or Fire at its turn start, or
-## anything else first) without hurting the hero loses its first-activation red,
-## as its disc is already grey. Same paint: no new colour, mark, number or text.
-##
-## The PASS-loss cursor records while it plays (no new simulation); the rest red
-## set reads the at-rest forecast's record, a hovered destination or card preview
-## reads its own forecast's record once that forecast is ready. Presentation only.
-##
-## atk-11 (director 2026-11-14): the hero's own tile is red when that forecast has
-## the hero lose Health, Block or Stoneskin to a battlefield rule beat (any kind:
-## pushes, collisions, Upheaval; on a foe's turn or right after the hero's) or to a
-## foe-laid surface that hurts the hero at their turn start. A beat
-## is owned by "battlefield_rule"; a surface by the foe that laid it, else by the
-## rule. Fatigue, the hero's own walk, ticks and other turn-end effects stay costs.
+## The board starts with the announced intent footprints. The Pass cursor can
+## correct an announced relative stamp's attack anchor or suppress ordinary
+## attack red if its foe dies first. Later activations contribute to Health.
 
-const Badges = preload("res://scripts/intent_badges.gd")
 const Repeats = preload("res://scripts/pass_forecast_repeats.gd")
+const Areas = preload("res://scripts/boss_area_rules.gd")
 const HIT_PHASE: String = "pass_forecast_red_hits"
-# Marks that land after the hero's next turn strike nothing in that activation.
-const TELEGRAPH_TYPES := ["lob_mark", "icefall_mark", "upheaval_mark", "cinder_marks", "burrow"]
 
-# Cursor side: one resolved activation of a foe visible at the forecast's start
-# (the PASS-loss copy only). `before` is the copy as the foe begins to act and
-# `after` the copy once it has. Activations are already counted (Repeats.record).
-static func note(engine: RefCounted, cursor: Dictionary, before: Dictionary, enemy_index: int, enemy_id: int, after: Dictionary) -> void:
+# Keep only the first activation's anchor. Even an identical later cast can
+# have a different anchor, for example if another foe moved the caster.
+static func note(engine: RefCounted, cursor: Dictionary, enemy: Dictionary, after: Dictionary) -> void:
 	if not bool(cursor.get("losses_only", false)): return
+	var id: int = int(enemy["id"])
+	if int((cursor.get("enemy_activations", {}) as Dictionary).get(id, 0)) != 1: return
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
-	var count: int = int((cursor.get("enemy_activations", {}) as Dictionary).get(enemy_id, 0))
-	if count <= 1:
-		var index: int = engine._enemy_index_for_id(after, enemy_id)
-		var alive: bool = index >= 0 and int(((after.get("enemies", []) as Array)[index] as Dictionary).get("hp", 0)) > 0
-		if not alive and not (cursor.get("enemy_hits", {}) as Dictionary).has(enemy_id):
-			var died: Dictionary = cursor.get("red_died_first", {})
-			died[enemy_id] = true
-			cursor["red_died_first"] = died
-	else:
-		var tiles: Array[Vector2i] = struck_tiles(engine, before, enemy_index)
-		if not tiles.is_empty():
-			var later: Dictionary = cursor.get("red_later_tiles", {})
-			var known: Array = later.get(enemy_id, [])
-			for tile: Vector2i in tiles:
-				if not known.has(tile): known.append(tile)
-			later[enemy_id] = known
-			cursor["red_later_tiles"] = later
+	var key: String = "enemy_%d" % id
+	var records: Dictionary = after.get(Areas.FORECAST_RECEIPT, {})
+	var stamp: Dictionary = records.get(key, {})
+	if not stamp.is_empty() and stamp["signature"] == Areas.forecast_signature(enemy.get("intent", {})):
+		var announced: Dictionary = cursor.get("red_announced_areas", {})
+		announced[key] = stamp
+		cursor["red_announced_areas"] = announced
+	var index: int = engine._enemy_index_for_id(after, id)
+	var alive: bool = index >= 0 and int(((after.get("enemies", []) as Array)[index] as Dictionary).get("hp", 0)) > 0
+	if not alive and not (cursor.get("enemy_hits", {}) as Dictionary).has(id):
+		var died: Dictionary = cursor.get("red_died_first", {})
+		died[id] = true
+		cursor["red_died_first"] = died
 	engine._record_runtime_performance_phase("pass_forecast_red_tiles", started)
-
-# The tiles a foe's attack plan strikes on this board, as the rest badges plan a
-# first activation: attack intents only, nothing while Shocked or Frozen. A foe
-# visible at the forecast's start keeps its plan past the hero's sight (atk-06).
-static func struck_tiles(engine: RefCounted, state: Dictionary, enemy_index: int) -> Array[Vector2i]:
-	var tiles: Array[Vector2i]
-	var enemies: Array = state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size(): return tiles
-	var enemy: Dictionary = engine._normalized_enemy(enemies[enemy_index] as Dictionary)
-	if int(enemy.get("hp", 0)) <= 0 or int(enemy.get("shock", 0)) > 0 or int(enemy.get("freeze", 0)) > 0: return tiles
-	var primary: Dictionary = Badges.primary_action(enemy.get("intent", {}) as Dictionary)
-	if not Badges.is_attack(primary) or TELEGRAPH_TYPES.has(str(primary.get("type", ""))): return tiles
-	# The attack plan only (no Details reach), uncached: each forecast board is new,
-	# and the shared plan cache serves the rest badges.
-	tiles.assign(engine.enemy_planned_attack_tiles(state, enemy_index, not engine.is_enemy_visible_to_player(state, enemy)))
-	return tiles
 
 # A foe visible at the forecast's start that never got to act and is gone by the
 # hero's next turn died first as well (killed before its own turn came).
@@ -76,7 +40,7 @@ static func result_fields(engine: RefCounted, cursor: Dictionary) -> Dictionary:
 			if activations.has(id): continue
 			var index: int = engine._enemy_index_for_id(state, id)
 			if index < 0 or int(((state.get("enemies", []) as Array)[index] as Dictionary).get("hp", 0)) <= 0: died[id] = true
-	return {"red_later_tiles": cursor.get("red_later_tiles", {}), "red_died_first": died,
+	return {"red_died_first": died, "red_relative_areas": cursor.get("red_announced_areas", {}),
 		"red_turn_start_surfaces": cursor.get("red_turn_start_surfaces", [])}
 
 # --- atk-11: what strikes the hero's tile itself -----------------------------------
@@ -88,6 +52,7 @@ static func schedule(engine: RefCounted, source: Dictionary, accepted: Callable 
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	var marked: Dictionary = source.duplicate(false)
 	marked[FORECAST_MARKER] = true
+	marked[Areas.FORECAST_RECEIPT] = source.get(Areas.FORECAST_RECEIPT, {}).duplicate(true)
 	preload("res://scripts/pass_forecast_statuses.gd").begin(marked)
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
 	if not accepted.is_valid(): accepted = preload("res://scripts/battlefield_rules/committed.gd").callback(engine)
@@ -130,62 +95,30 @@ static func hero_owners(engine: RefCounted, _source: Dictionary, phase_result: D
 
 # Summary view, keyed like the rest badges ("enemy_<id>").
 static func summary_fields(phase_result: Dictionary) -> Dictionary:
-	var later: Dictionary = {}
-	for id: int in phase_result.get("red_later_tiles", {}):
-		later["enemy_%d" % id] = phase_result["red_later_tiles"][id]
 	var died: Dictionary = {}
 	for id: int in phase_result.get("red_died_first", {}):
 		died["enemy_%d" % id] = true
-	return {"later_red_tiles": later, "died_first_keys": died}
+	return {"died_first_keys": died, "relative_red_areas": phase_result.get("red_relative_areas", {})}
 
-# Summary view of the hero's own tile (atk-11), needing the forecast's source.
+# The full forecast records turn-start contacts separately from attack red.
 static func hero_fields(engine: RefCounted, source: Dictionary, phase_result: Dictionary) -> Dictionary:
 	return {"hero_red_owners": hero_owners(engine, source, phase_result)}
 
-# --- presentation ------------------------------------------------------------------
-
-# The rest set with a forecast's record applied. Idempotent: earlier added tiles
-# are replaced. Only foes the set already shows a badge for (visible at the
-# committed boundary) gain tiles; a foe that dies first keeps its badge. atk-11:
-# hero_owners mark the set's hero tile, owned by the rule or by a visible foe.
-static func adjust(rest: Dictionary, later: Dictionary, died_first: Dictionary, focus: String = "", hero_owners: Dictionary = {}) -> Dictionary:
-	if later.is_empty() and died_first.is_empty() and hero_owners.is_empty() and not _has_later(rest): return rest
-	var shown: Dictionary = {}
-	for badge: Dictionary in rest.get("badges", []): shown[str(badge.get("key", ""))] = true
+static func adjust_from_summary(rest: Dictionary, summary: Dictionary) -> Dictionary:
+	var died_first: Dictionary = summary.get("died_first_keys", {})
+	var relative_areas: Dictionary = summary.get("relative_red_areas", {})
+	if died_first.is_empty() and relative_areas.is_empty(): return rest
 	var threats: Array[Dictionary]
 	for threat: Dictionary in rest.get("threats", []):
-		if bool(threat.get("later", false)) or died_first.has(str(threat.get("key", ""))): continue
+		var key: String = str(threat.get("key", ""))
+		if not bool(threat.get("area_announced", threat.get("area_fixed", false))) and died_first.has(key): continue
+		var resolved: Dictionary = relative_areas.get(key, {})
+		var signature: Array = threat.get("area_signature", [])
+		if not signature.is_empty() and resolved.get("signature", []) == signature:
+			threat = threat.duplicate(false)
+			threat["tiles"] = resolved["tiles"]
+			threat["area_forecast_anchor"] = resolved["anchor"]
 		threats.append(threat)
-	for key: String in later:
-		if not shown.has(key) or died_first.has(key) or (later[key] as Array).is_empty(): continue
-		var tiles: Array[Vector2i]
-		tiles.assign(later[key])
-		# No zone tag: an added activation carries no order number of its own.
-		threats.append({"key": key, "tiles": tiles, "alpha": Badges.ISOLATED_ALPHA if not focus.is_empty() and focus != key else 1.0, "area": false, "order": "", "later": true})
-	var hero: Vector2i = rest.get("hero_tile", Vector2i(-1, -1))
-	for key: String in hero_owners:
-		if hero.x < 0 or not shown.has(key): continue
-		var tiles: Array[Vector2i]
-		tiles.append(hero)
-		threats.append({"key": key, "tiles": tiles, "alpha": Badges.ISOLATED_ALPHA if not focus.is_empty() and focus != key else 1.0, "area": false, "order": "", "later": true, "hero_hit": true})
 	var result: Dictionary = rest.duplicate(false)
 	result["threats"] = threats
 	return result
-
-static func adjust_from_summary(rest: Dictionary, summary: Dictionary, focus: String = "") -> Dictionary:
-	return adjust(rest, summary.get("later_red_tiles", {}), summary.get("died_first_keys", {}), focus, summary.get("hero_red_owners", {}))
-
-# Order-free identity of the foes' red tiles, for staleness checks.
-static func signature(rest: Dictionary) -> Array:
-	var result: Array = []
-	for threat: Dictionary in rest.get("threats", []):
-		var tiles: Array = (threat.get("tiles", []) as Array).map(func(tile: Vector2i) -> String: return str(tile))
-		tiles.sort()
-		result.append("%s|%s|%s|%s" % [threat.get("key", ""), bool(threat.get("later", false)), bool(threat.get("hero_hit", false)), ",".join(tiles)])
-	result.sort()
-	return result
-
-static func _has_later(rest: Dictionary) -> bool:
-	for threat: Dictionary in rest.get("threats", []):
-		if bool(threat.get("later", false)): return true
-	return false

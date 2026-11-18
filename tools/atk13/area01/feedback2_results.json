@@ -1,0 +1,1033 @@
+{
+  "base_head": "10f8e538e1759f21fa9f71248a13c636560dd5eb",
+  "uncommitted": true,
+  "status": "headless_pass_native_pending",
+  "requirements": {
+    "R1": "No floor order tags; discs, repeat chips and rail unchanged",
+    "R2": "Each known red-producing activation has its own named move block; shared pointer/controller content",
+    "R3": "All nineteen relative moves use exact Moves with Name wording; fixed Marked unchanged"
+  },
+  "totals": {
+    "alternatives": 5619,
+    "oracle_mismatches": 0,
+    "ui_replica_mismatches": 0,
+    "grub_marked_landings": 366,
+    "grub_marked_hit_mismatches": 0,
+    "walked_grub_marked_landings": 81
+  },
+  "moves": {
+    "ashen_reaver/executioners_fall": {
+      "executed_alternatives": 73,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 73,
+      "walked_executions": 8,
+      "announced_at_turn_start": 63,
+      "red_omissions": 0,
+      "no_displacement_checks": 61,
+      "rest_strike_mismatches": 0,
+      "natural_displacement_checks": 2,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 6,
+        "displaced_checks": 12,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 11,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 6
+      }
+    },
+    "ashen_reaver/hooked_sweep": {
+      "executed_alternatives": 89,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 89,
+      "announced_at_turn_start": 70,
+      "red_omissions": 0,
+      "no_displacement_checks": 67,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 8,
+      "natural_displacement_checks": 3,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 6,
+        "displaced_checks": 8,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 12,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 6
+      }
+    },
+    "ashen_reaver/raking_flame": {
+      "executed_alternatives": 85,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 85,
+      "announced_at_turn_start": 58,
+      "red_omissions": 0,
+      "no_displacement_checks": 57,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 9,
+      "natural_displacement_checks": 1,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 4,
+        "displaced_checks": 8,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 8,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 4
+      }
+    },
+    "bell_tender/connector": {
+      "executed_alternatives": 63,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 63,
+      "announced_at_turn_start": 57,
+      "red_omissions": 0,
+      "no_displacement_checks": 56,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 8,
+      "natural_displacement_checks": 1,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 1,
+        "displaced_checks": 1,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 1,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0
+      }
+    },
+    "briar_weaver/thornwall": {
+      "executed_alternatives": 83,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 83,
+      "announced_at_turn_start": 83,
+      "red_omissions": 0,
+      "no_displacement_checks": 83,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 13,
+      "seeds": [
+        "1302",
+        "1310"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 6,
+        "displaced_checks": 12,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "yank_checks": 6,
+        "strike_checks": 10,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0
+      }
+    },
+    "craghide/groundsplit": {
+      "executed_alternatives": 125,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 125,
+      "announced_at_turn_start": 91,
+      "red_omissions": 0,
+      "no_displacement_checks": 91,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 30,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 15,
+        "displaced_checks": 20,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 30,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 15
+      }
+    },
+    "gallows_roc/hookwind": {
+      "executed_alternatives": 340,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 340,
+      "announced_at_turn_start": 233,
+      "red_omissions": 0,
+      "no_displacement_checks": 231,
+      "rest_strike_mismatches": 0,
+      "natural_displacement_checks": 2,
+      "walked_executions": 40,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 28,
+        "displaced_checks": 0,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 56,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 28
+      }
+    },
+    "gallows_roc/razor_pinion": {
+      "executed_alternatives": 355,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 355,
+      "announced_at_turn_start": 204,
+      "red_omissions": 0,
+      "no_displacement_checks": 177,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 38,
+      "natural_displacement_checks": 27,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 22,
+        "displaced_checks": 0,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 44,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 22
+      }
+    },
+    "iskaldra/shatterstorm": {
+      "executed_alternatives": 188,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 188,
+      "announced_at_turn_start": 90,
+      "red_omissions": 0,
+      "no_displacement_checks": 86,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 22,
+      "natural_displacement_checks": 4,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 11,
+        "displaced_checks": 11,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 22,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 1,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 11
+      }
+    },
+    "iskaldra/whiteout_lance": {
+      "executed_alternatives": 172,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 172,
+      "announced_at_turn_start": 119,
+      "red_omissions": 0,
+      "no_displacement_checks": 119,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 22,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 14,
+        "displaced_checks": 22,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 28,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 14
+      }
+    },
+    "last_lamplighter/mourning_hook": {
+      "executed_alternatives": 288,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 288,
+      "announced_at_turn_start": 167,
+      "red_omissions": 0,
+      "no_displacement_checks": 156,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 38,
+      "natural_displacement_checks": 11,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 19,
+        "displaced_checks": 18,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 38,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 19
+      }
+    },
+    "noctyrax/last_eclipse": {
+      "executed_alternatives": 174,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 174,
+      "announced_at_turn_start": 174,
+      "red_omissions": 0,
+      "no_displacement_checks": 174,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 22,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 21,
+        "displaced_checks": 28,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 42,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 21
+      }
+    },
+    "noctyrax/night_coil": {
+      "executed_alternatives": 154,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 154,
+      "announced_at_turn_start": 113,
+      "red_omissions": 0,
+      "no_displacement_checks": 113,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 22,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 16,
+        "displaced_checks": 20,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 2,
+        "oracle_mismatches": 0,
+        "strike_checks": 32,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 2,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 16
+      }
+    },
+    "noctyrax/starless_breath": {
+      "executed_alternatives": 122,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 122,
+      "announced_at_turn_start": 105,
+      "red_omissions": 0,
+      "no_displacement_checks": 105,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 20,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 16,
+        "displaced_checks": 21,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 32,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 1,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 16
+      }
+    },
+    "storm_cantor/lay_the_choir": {
+      "executed_alternatives": 237,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 237,
+      "announced_at_turn_start": 177,
+      "red_omissions": 0,
+      "no_displacement_checks": 176,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 27,
+      "natural_displacement_checks": 1,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 18,
+        "displaced_checks": 25,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 36,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 18
+      }
+    },
+    "tharokh/bedrock_breath": {
+      "executed_alternatives": 93,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 93,
+      "announced_at_turn_start": 86,
+      "red_omissions": 0,
+      "no_displacement_checks": 86,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 19,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 13,
+        "displaced_checks": 18,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 26,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 1,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 13
+      }
+    },
+    "tharokh/faultline": {
+      "executed_alternatives": 102,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 102,
+      "announced_at_turn_start": 92,
+      "red_omissions": 0,
+      "no_displacement_checks": 92,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 18,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 12,
+        "displaced_checks": 21,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 2,
+        "oracle_mismatches": 0,
+        "strike_checks": 24,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 12
+      }
+    },
+    "tharokh/stonewake": {
+      "executed_alternatives": 108,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 108,
+      "announced_at_turn_start": 103,
+      "red_omissions": 0,
+      "no_displacement_checks": 102,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 20,
+      "natural_displacement_checks": 1,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 13,
+        "displaced_checks": 18,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 2,
+        "oracle_mismatches": 0,
+        "strike_checks": 26,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 2,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 13
+      }
+    },
+    "tharokh/worldspine_claw": {
+      "executed_alternatives": 101,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 101,
+      "announced_at_turn_start": 92,
+      "red_omissions": 0,
+      "natural_displacement_checks": 12,
+      "no_displacement_checks": 80,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 19,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 12,
+        "displaced_checks": 17,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 24,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 1,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 12
+      }
+    },
+    "vaeloryx/eye_of_storm": {
+      "executed_alternatives": 216,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 216,
+      "walked_executions": 22,
+      "announced_at_turn_start": 174,
+      "red_omissions": 0,
+      "no_displacement_checks": 174,
+      "rest_strike_mismatches": 0,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 14,
+        "displaced_checks": 22,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 28,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 14
+      }
+    },
+    "vaeloryx/hollow_gale": {
+      "executed_alternatives": 212,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 212,
+      "announced_at_turn_start": 212,
+      "red_omissions": 0,
+      "no_displacement_checks": 212,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 22,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 23,
+        "displaced_checks": 27,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 46,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 23
+      }
+    },
+    "vaeloryx/razor_dive": {
+      "executed_alternatives": 231,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 231,
+      "announced_at_turn_start": 131,
+      "red_omissions": 0,
+      "no_displacement_checks": 79,
+      "rest_strike_mismatches": 0,
+      "natural_displacement_checks": 52,
+      "walked_executions": 24,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 14,
+        "displaced_checks": 22,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 28,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 14
+      }
+    },
+    "vyraketh/cinder_maw": {
+      "executed_alternatives": 67,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 67,
+      "announced_at_turn_start": 51,
+      "red_omissions": 0,
+      "no_displacement_checks": 51,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 7,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 5,
+        "displaced_checks": 6,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 10,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 5
+      }
+    },
+    "vyraketh/cinderfall": {
+      "executed_alternatives": 70,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 70,
+      "announced_at_turn_start": 45,
+      "red_omissions": 0,
+      "no_displacement_checks": 45,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 8,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 5,
+        "displaced_checks": 7,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 10,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 1,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 5
+      }
+    },
+    "vyraketh/crownfire": {
+      "executed_alternatives": 78,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 78,
+      "announced_at_turn_start": 78,
+      "red_omissions": 0,
+      "no_displacement_checks": 78,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 8,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 8,
+        "displaced_checks": 15,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 1,
+        "oracle_mismatches": 0,
+        "strike_checks": 15,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 8
+      }
+    },
+    "vyraketh/kindle_ground": {
+      "executed_alternatives": 77,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 77,
+      "announced_at_turn_start": 77,
+      "red_omissions": 0,
+      "no_displacement_checks": 77,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 9,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 8,
+        "displaced_checks": 11,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 0,
+        "oracle_mismatches": 0,
+        "strike_checks": 16,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 9
+      }
+    },
+    "zekarion/skybreak": {
+      "executed_alternatives": 274,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 274,
+      "announced_at_turn_start": 240,
+      "red_omissions": 0,
+      "no_displacement_checks": 240,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 32,
+      "seeds": [
+        "1301",
+        "1302"
+      ],
+      "stamp_checks": {
+        "updraft_checks": 10,
+        "displaced_checks": 7,
+        "forecast_mismatches": 0,
+        "source_prediction_disagreements": 2,
+        "oracle_mismatches": 0,
+        "strike_checks": 20,
+        "strike_mismatches": 0,
+        "end_to_end_forecast_mismatches": 0,
+        "undisclosed_end_to_end_forecast_mismatches": 0,
+        "yank_checks": 10
+      }
+    }
+  },
+  "kinds": {
+    "relative": {
+      "executed_alternatives": 3197,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "relative_to_source": 3197,
+      "walked_executions": 396,
+      "announced_at_turn_start": 2299,
+      "red_omissions": 0,
+      "no_displacement_checks": 2182,
+      "rest_strike_mismatches": 0,
+      "natural_displacement_checks": 117,
+      "moves": 19,
+      "updraft_checks": 255,
+      "displaced_checks": 277,
+      "forecast_mismatches": 0,
+      "source_prediction_disagreements": 8,
+      "oracle_mismatches": 0,
+      "strike_checks": 508,
+      "strike_mismatches": 0,
+      "end_to_end_forecast_mismatches": 9,
+      "undisclosed_end_to_end_forecast_mismatches": 0,
+      "yank_checks": 254
+    },
+    "fixed": {
+      "executed_alternatives": 980,
+      "stamp_shape_mismatches": 0,
+      "tile_mismatches": 0,
+      "fixed_at_announcement": 980,
+      "announced_at_turn_start": 886,
+      "red_omissions": 0,
+      "no_displacement_checks": 886,
+      "rest_strike_mismatches": 0,
+      "walked_executions": 139,
+      "moves": 8,
+      "updraft_checks": 85,
+      "displaced_checks": 120,
+      "forecast_mismatches": 0,
+      "source_prediction_disagreements": 6,
+      "oracle_mismatches": 0,
+      "strike_checks": 167,
+      "strike_mismatches": 0,
+      "end_to_end_forecast_mismatches": 0,
+      "undisclosed_end_to_end_forecast_mismatches": 0,
+      "yank_checks": 86
+    }
+  },
+  "followup_matrices": {
+    "tharokh/faultline": [
+      59,
+      0,
+      0,
+      43
+    ],
+    "vaeloryx/eye_of_storm": [
+      7,
+      0,
+      0,
+      209
+    ],
+    "vyraketh/cinder_maw": [
+      38,
+      0,
+      0,
+      29
+    ],
+    "vyraketh/crownfire": [
+      40,
+      0,
+      0,
+      27
+    ],
+    "vyraketh/kindle_ground": [
+      74,
+      0,
+      0,
+      3
+    ]
+  },
+  "checks": [
+    {
+      "script": "tools/atk13/area01/rules_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tools-atk13-area01-rules_tests.log",
+      "result": "AREA01 RULES RESULT: PASS (1879 checks, 0 failures)"
+    },
+    {
+      "script": "tools/atk13/area01/focused_suites.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tools-atk13-area01-focused_suites.log",
+      "result": "AREA01 EXISTING SUITES RESULT: PASS (1921 checks, 0 failures)"
+    },
+    {
+      "script": "tests/dragon_committed_patterns_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_committed_patterns_test.log",
+      "result": "Dragon committed patterns passed."
+    },
+    {
+      "script": "tests/dragon_feedback_mechanics_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_feedback_mechanics_test.log",
+      "result": "Dragon feedback mechanics passed."
+    },
+    {
+      "script": "tests/dragon_rewards_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_rewards_test.log",
+      "result": "Dragon rewards, gifts, wallet recovery and relic hooks passed."
+    },
+    {
+      "script": "tests/dragon_reward_feedback_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_reward_feedback_test.log",
+      "result": "Dragon reward feedback logic: PASS"
+    },
+    {
+      "script": "tests/dragon_trophy_feedback_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_trophy_feedback_test.log",
+      "result": "DRAGON TROPHY FEEDBACK: PASS"
+    },
+    {
+      "script": "tests/dragon_wallet_ack_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-dragon_wallet_ack_test.log",
+      "result": "DRAGON WALLET ACK TEST: PASS (108 checks)"
+    },
+    {
+      "script": "tests/guardian_rules_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tests-guardian_rules_test.log",
+      "result": "GUARDIAN RULES TEST RESULT: PASS (667 checks, 0 failures)"
+    },
+    {
+      "script": "tests/threats_at_rest_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/threats-final.log",
+      "result": "THREATS AT REST TEST RESULT: PASS (17040 assertions; includes compass suite)"
+    },
+    {
+      "script": "tools/atk03/focused_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tools-atk03-focused_tests.log",
+      "result": "ATK03 FOCUSED RESULT: PASS (1778 assertions, 0 failures)"
+    },
+    {
+      "script": "tools/atk04/focused_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/checks/tools-atk04-focused_tests.log",
+      "result": "ATK04 FOCUSED RESULT: PASS (892 assertions, 0 failures)"
+    },
+    {
+      "script": "tests/short_card_tooltips_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/feedback2/short-tooltips.log",
+      "result": "SHORT CARD TOOLTIPS TEST RESULT: PASS (767 checks, 0 failures)"
+    }
+  ],
+  "captures": [
+    {
+      "path": "/private/tmp/labyrinth_codex/area-01/feedback2/components/ashen_reaver-raking_flame.json",
+      "activation_names": [
+        "Raking Flame"
+      ],
+      "health": {
+        "hp": 24,
+        "max_hp": 24
+      },
+      "crop_rect": "[P: (1077, 236), S: (516, 229)]",
+      "unnamed_foe_red": [],
+      "result": "AREA01 CAPTURE PASS semantic=true"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/area-01/feedback2/components/tharokh-bedrock_breath.json",
+      "activation_names": [
+        "Bedrock Breath",
+        "Faultline"
+      ],
+      "health": {
+        "hp": 24,
+        "max_hp": 24
+      },
+      "crop_rect": "[P: (1134, 306), S: (437, 308)]",
+      "unnamed_foe_red": [],
+      "result": "AREA01 CAPTURE PASS semantic=true"
+    },
+    {
+      "path": "/private/tmp/labyrinth_codex/area-01/feedback2/components/zekarion-skybreak.json",
+      "activation_names": [
+        "Skybreak"
+      ],
+      "health": {
+        "hp": 24,
+        "max_hp": 24
+      },
+      "crop_rect": "[P: (1120, 297), S: (273, 105)]",
+      "unnamed_foe_red": [],
+      "result": "AREA01 CAPTURE PASS semantic=true"
+    }
+  ],
+  "remaining_legacy_wording_locations": {
+    "spec/peer_benchmark/deck_text_2026-11-07/inventory.csv": [
+      199
+    ],
+    "scripts/action_icon_library.gd": [
+      1986,
+      2032,
+      2043
+    ],
+    "spec/peer_benchmark/staged/text/inventory.csv": [
+      615,
+      621,
+      623,
+      624
+    ],
+    "spec/peer_benchmark/staged/text/inventory.json": [
+      15187,
+      15345,
+      15399,
+      15402,
+      15412,
+      15425,
+      15428,
+      15438
+    ],
+    "tests/suites/threats_at_rest_suite.gd": [
+      437
+    ]
+  },
+  "remaining_live_fallback_enemy": "rime_spitter/needle",
+  "protected_unchanged": [
+    "data",
+    "assets",
+    "scripts/battlefield_rules",
+    "scripts/boss_area_rules.gd",
+    "scripts/guardian_combat_rules.gd",
+    "scripts/combat_engine.gd",
+    "tools/run_curve_dragons.py"
+  ],
+  "source_sha256": {
+    "scripts/action_icon_library.gd": "e98d30b3d122b139e26d9adc0dbfea135818d7e4c32485363ca9bf151c38c4e2",
+    "scripts/combat_board_view.gd": "0a6b30e343cc32a22ad3cd2ba4213547a4c5886e578d8466daed62854ec1f496",
+    "scripts/enemy_intent_activations.gd": "f5652fc1ebd7ccb26e1fd9feab0a485050240dc5e0b8576cbd0959b506d87772",
+    "scripts/enemy_intent_activations.gd.uid": "4d4e93682d4f72587efb5a904e48e49e78cfbc1eae9909e3e12f08c2b5bbfdfc",
+    "scripts/intent_badges.gd": "99d0746d13bbb22078ea93dc62d4b8d56a210c1fa4f7838fded8d40ffcd826be",
+    "scripts/pass_forecast_discs.gd": "10d8a473bfbec07cff3defc0720d6f6d82f78f3654eea3482e9994b00f4d0538",
+    "scripts/pass_forecast_red_tiles.gd": "e10ebaf5d58307bc82690f0d55f1feaecae7484be67f69640f168ae018d9c6a4",
+    "scripts/pre_battle_inspection_view.gd": "f0aa7ffd5663a2fd9c98ff4a816f0683c7e05e9922cb13dff1fb7ebffd03d96a",
+    "scripts/threat_tiles.gd": "2ddde607b4d12a5ddcb47223942c865a8014e3908ae13f4bf64c9a5ebfb4429d",
+    "spec/threats_at_rest.md": "2c5455a73dc33a57f97d1ec3ced553e8c2da949d53c44dafb05fa14d2584b06b",
+    "spec/visual_design_system.md": "aff39adc56f6d9dcd46b84449a812ee3ce59391ae4904043b97d66e5ffffa0fd",
+    "tests/suites/en04_enemies_suite.gd": "9563d15c841b32ca33b2f493f17dbdc09624bb80146748e901b9eb6f39b0b995",
+    "tests/suites/threats_at_rest_suite.gd": "c08b748a111be4993561ff5655776afa0155e77849f88f6d8f0c8ab20443c728",
+    "tests/threats_at_rest_test.gd": "8eca8dc08be43994dec608c17735ff43d29dcde4799cf0fb6e63efaa407f97bd",
+    "tools/atk13/area01/bootstrap_sidecars.gd": "b180bd939fe5a73d1a654d6ee7b5879703034d94c16663a3cc20047adbc50643",
+    "tools/atk13/area01/capture.gd": "f01324c07ca6d8509c87f20c8a2f903d9f28f7c52b90ff0cdb7249e3f52b167a",
+    "tools/atk13/area01/feedback2.md": "74cf5a7b26209865b8580fa90e1cff5401f2174bc9b09075b836b851f58b4f7d",
+    "tools/atk13/area01/native_capture.sh": "844fbb3b8b56a4694dbf034955f99c691867da929c7c38492a03aa14385842c9",
+    "tools/atk13/area01/single_capture_contract.json": "07aadb5e45467e840054f2e805b738c94ab9bd8d2bdefde54f5feb3e7a61140f"
+  },
+  "native_proof": "Owner commands in feedback2.md; no windowed run attempted",
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "crop_padding_pixels": 8,
+    "windowed_attempts": 1,
+    "health": "Derived from BASE_MAX_HP and DepthRules.start_max_hp (24/24 in these fixtures)",
+    "existing_defaults": "Unchanged from r1"
+  },
+  "open_issues": [
+    "Native visual inspection pending",
+    "Accepted r1 disclosed relative forecast differences unchanged"
+  ]
+}

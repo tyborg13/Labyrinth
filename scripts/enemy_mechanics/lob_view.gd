@@ -94,29 +94,32 @@ static func caption_steps(steps: Array) -> Array[Dictionary]:
 
 static func draw_badges(view: Control) -> void:
 	var icon: Texture2D = Icons.icon_texture("lob")
-	var font: Font = view.get_theme_default_font()
 	var held: Dictionary = marks(view)
 	for tile: Vector2i in held:
 		if not view._board_tile_is_visible_to_player(tile): continue
-		var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
-		var radius: float = size * 0.62
-		var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
-		view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
-		view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
-		view.draw_arc(center, radius - 1, 0, TAU, 32, view.COLLISION_MARKER_RING, 2, true)
-		var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
-		if icon != null: view.draw_texture_rect(icon, rect, false)
-		var tooltip: String = mark_tooltip(view.combat_state, held[tile]["enemy"])
-		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
-		else: view._register_tooltip(rect, tooltip)
-		if font == null: continue
-		var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
-		var text: String = str(held[tile]["damage"])
-		var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-		var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
-		view._draw_outlined_string(font, baseline, text, width + 4, font_size, view.COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
-		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip, tile)
-		else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip)
+		draw_mark_badge(view, tile, icon, mark_tooltip(view.combat_state, held[tile]["enemy"]), held[tile]["damage"])
+
+static func draw_mark_badge(view: Control, tile: Vector2i, icon: Texture2D, tooltip: String, damage: Variant = null) -> void:
+	var font: Font = view.get_theme_default_font()
+	var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
+	var radius: float = size * 0.62
+	var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
+	view.draw_circle(center + Vector2(0, 2), radius + 2, Color(0, 0, 0, 0.40))
+	view.draw_circle(center, radius, view.COLLISION_MARKER_FILL)
+	view.draw_arc(center, radius - 1, 0, TAU, 32, view.COLLISION_MARKER_RING, 2, true)
+	var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
+	if icon != null: view.draw_texture_rect(icon, rect, false)
+
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
+	else: view._register_tooltip(rect, tooltip)
+	if font == null or damage == null: return
+	var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
+	var text: String = str(damage)
+	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
+	view._draw_outlined_string(font, baseline, text, width + 4, font_size, view.COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
+	if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip, tile)
+	else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(width + 4, font_size + 4)), tooltip)
 
 static func arc_point(start: Vector2, end: Vector2, tile_height: float, progress: float) -> Vector2:
 	return start.lerp(end, progress) - Vector2(0, 4.0 * progress * (1.0 - progress) * tile_height * APEX_TILES)

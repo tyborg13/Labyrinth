@@ -60,14 +60,14 @@ static func _test_wave_e2(expect: Callable) -> void:
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"threats_at_rest": rest})
 	var layouts: Array[Dictionary] = Badges.layouts(board, rest["badges"])
 	var tags: Array[Dictionary] = Tiles.zone_tags(rest["threats"])
-	expect.call(layouts.size() == 4 and tags.size() == 4, "All four wave E2 intents have feet chips and area zone tags")
+	expect.call(layouts.size() == 4 and tags.is_empty(), "All four wave E2 intents retain feet chips without floor numbers")
 	for index: int in range(WAVE_E2_ROSTER.size()):
 		var key: String = "enemy_%d" % (index + 1)
 		var entry: Dictionary = WAVE_E2_ROSTER[index]
 		var badge: Dictionary = _badge(rest, key)
 		expect.call(badge.get("icon") == entry["icon"], "%s at-rest chip uses its own %s icon" % [entry["type"], entry["icon"]])
 		expect.call(not str(badge.get("order", "")).is_empty() and layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "%s has an order disc at its actual health frame" % entry["type"])
-		expect.call(tags.any(func(tag: Dictionary) -> bool: return tag["key"] == key and tag["tile"] in combat.enemy_threat_tiles(state, index)["projected_attack"]), "%s has a zone tag on its exact footprint" % entry["type"])
+		expect.call(tags.is_empty(), "%s has no floor order tag" % entry["type"])
 		expect.call(not str(badge.get("number", "")).contains(".") and not str(badge.get("secondary_number", "")).contains("."), "%s chip displays only integer numbers" % entry["type"])
 	var presentation: Dictionary = board.presentation
 	expect.call(presentation.get("enemy_threat_previews", []).is_empty(), "Wave E2 rest leaves detailed popups and compass disclosure off")
@@ -385,27 +385,71 @@ static func _test_danger(expect: Callable) -> void:
 static func _test_zone_tags(expect: Callable) -> void:
 	var combat := Combat.new()
 	var state: Dictionary = staged_state(combat)
-	var rest: Dictionary = Badges.build(combat, state, state)
-	var tags: Array[Dictionary] = Tiles.zone_tags(rest["threats"])
-	expect.call(tags.size() == 1 and tags[0]["key"] == "enemy_3" and tags[0]["order"] == "2", "Only area attacker gets a zone tag with its order numeral")
-	for threat: Dictionary in rest["threats"]:
-		if not bool(threat["area"]): continue
-		var source: Vector2i = threat["attacker_tile"]
-		var nearest: Vector2i = tags[0]["tile"]
-		var distance: int = absi(nearest.x - source.x) + absi(nearest.y - source.y)
-		for tile: Vector2i in threat["tiles"]:
-			expect.call(distance <= absi(tile.x - source.x) + absi(tile.y - source.y), "Tag tile is nearest its attacker")
-	expect.call(Badges.is_area_intent({"actions": [{"type": "ranged", "pattern": [[0, 0]]}]}), "Pattern attacks qualify for a zone tag")
-	var isolated: Array[Dictionary] = Tiles.zone_tags(Badges.build(combat, state, state, "enemy_1")["threats"])
-	expect.call(is_equal_approx(float(isolated[0]["alpha"]), 0.4), "Other zone tags dim to 40% under isolation")
+	var original: Dictionary = state.duplicate(true)
+	for focus: String in ["", "enemy_1", "enemy_3"]:
+		var rest: Dictionary = Badges.build(combat, state, state, focus)
+		expect.call(Tiles.zone_tags(rest["threats"]).is_empty(), "Rest and focus never paint floor order tags")
+		expect.call(_badge(rest,"enemy_3")["order"] == "2", "Health-frame order number remains unchanged")
 	var preview: Dictionary = state.duplicate(true)
-	(preview["enemies"][2] as Dictionary)["pos"] += ZONE_PREVIEW_OFFSET
+	preview["enemies"][2]["pos"] += ZONE_PREVIEW_OFFSET
 	var after: Dictionary = Badges.build(combat, state, preview)
-	var after_tags: Array[Dictionary] = Tiles.zone_tags(after["threats"])
-	expect.call(after_tags.size() == 1, "Re-aim fixture retains a real area zone tag")
-	if not after_tags.is_empty(): expect.call(after_tags[0]["tile"] != tags[0]["tile"], "Displacing an area source re-aims its zone tag")
-	for tag: Dictionary in after_tags:
-		expect.call(tag["tile"] in combat.enemy_threat_tiles(preview, 2)["projected_attack"], "Preview zone tag stays on re-aimed area")
+	expect.call(Tiles.zone_tags(after["threats"]).is_empty(), "Displacement aiming never paints floor order tags")
+	expect.call(not Tiles.tile_alphas(after["threats"]).is_empty(), "Removing tags preserves attack red")
+	expect.call(state == original, "Floor presentation never mutates combat")
+	_test_announced_intent(expect, combat, state)
+
+static func _test_announced_intent(expect: Callable, combat: RefCounted, state: Dictionary) -> void:
+	var Red = preload("res://scripts/pass_forecast_red_tiles.gd")
+	var Discs = preload("res://scripts/pass_forecast_discs.gd")
+	var Areas = preload("res://scripts/boss_area_rules.gd")
+	var Inspection = preload("res://scripts/pre_battle_inspection_view.gd")
+	var enemy: Dictionary = state["enemies"][0]
+	var original: Dictionary = state.duplicate(true)
+	var key: String = "enemy_1"
+	var summary: Dictionary = {"enemy_activations": {key: 2}, "enemy_hits": {key: true},
+		"later_red_tiles": {key: [FIXTURE_HERO]}, "hero_red_owners": {key: true}}
+	var marks: Dictionary = Discs.record(summary, 1)
+	var preview: Dictionary = state.duplicate(true)
+	preview["enemies"][0]["pos"] += ZONE_PREVIEW_OFFSET
+	for shown: Dictionary in [state, preview]:
+		for focus: String in ["", key, "enemy_3"]:
+			var rest: Dictionary = Badges.build(combat, state, shown, focus)
+			expect.call(Discs.stale(rest, marks, 1), "Repeat count invalidates the rest view")
+			var applied: Dictionary = Discs.apply(rest, marks, 1, true)
+			expect.call(_badge(applied, key)["repeats"] == 2, "An identical repeat retains the ×2 chip")
+			expect.call(_badge(applied, key)["danger"] == _badge(rest, key)["danger"], "Later Health loss leaves the announced chip danger unchanged")
+			expect.call(applied["threats"] == rest["threats"], "Forecast repeats and contacts add no red, even when focused or aiming")
+			expect.call(not Discs.stale(applied, marks, 1), "Announced projection settles without refreshing forever")
+	var cursor: Dictionary = {"losses_only": true, "enemy_activations": {1: 2}, "state": state}
+	var relative: Dictionary = {"id": 1, "intent": {"id": "repeat", "actions": [
+		{Areas.FIELD: [FIXTURE_HERO], "area_targeting": Areas.RELATIVE_KIND}]}}
+	var after: Dictionary = state.duplicate(false)
+	after[Areas.FORECAST_RECEIPT] = {key: {"signature": Areas.forecast_signature(relative["intent"]), "tiles": [FIXTURE_HERO]}}
+	Red.note(combat, cursor, relative, after)
+	expect.call(Red.summary_fields(Red.result_fields(combat, cursor))["relative_red_areas"].is_empty(),
+		"An identical second intent cannot replace the announced stamp if only the second attack resolved")
+	expect.call(state == original, "Announced presentation leaves resolver state unchanged")
+	var board := Board.new()
+	var actor: Dictionary = enemy.duplicate(true)
+	actor["key"] = key
+	board.presentation = {"expanded_enemy_actor_keys": [key], "threats_at_rest": Discs.apply(Badges.build(combat, state, state), marks, 1, true)}
+	expect.call(board.call("_enemy_intent_rows_for_display", actor, enemy["intent"]) == board.call("_intent_rows_for_unit", actor, enemy["intent"]),
+		"Expanded repeat actor uses only the announced rows")
+	for kind: String in Areas.MOVES:
+		var unit: Dictionary = {"type": kind}
+		for intent: Dictionary in GameData.enemy_def(kind).get("intents", []):
+			if not Areas.selected(unit, intent): continue
+			var fixed: bool = Areas.kind_for(kind, str(intent["id"])) == Areas.FIXED_KIND
+			for rows: Array in [board.call("_move_rows_for_unit", unit, intent), Inspection.move_rows(intent, unit)]:
+				for row: Array in rows:
+					for token: Dictionary in row:
+						expect.call(not str(token.get("value", "")).begins_with("Moves with ") and str(token.get("value", "")) != "Fixed direction",
+							"%s/%s omits movement labels" % [kind, intent["id"]])
+						expect.call(not Badges.Icons.token_tooltip(token).begins_with("Pushing, pulling or swapping "),
+							"%s/%s omits movement hover text" % [kind, intent["id"]])
+				if fixed:
+					expect.call(Badges.Icons.plain_text_for_rows(rows).contains("Marked"), "%s/%s retains Marked" % [kind, intent["id"]])
+	board.free()
 
 static func _badge(rest: Dictionary, key: String) -> Dictionary:
 	for badge: Dictionary in rest["badges"]:

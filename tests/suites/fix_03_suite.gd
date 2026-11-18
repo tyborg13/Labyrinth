@@ -15,9 +15,10 @@ const TEST_DAMAGE: int = 2
 const LATER_CYCLE: int = 2
 const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
-	"burrow": "Burrow", "erupt": "Erupt 6", "kindle": "Burst +2",
+	"burrow": "Burrow", "erupt": "Marked  Erupt 6", "kindle": "Burst +2",
 	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, range 4, 3 jumps"
 }
+const ERUPT_TOOLTIP: String = "Erupt\nEmerges at the mark, hitting and moving whoever stands there. Neighbours get Push 1. Leaves Rubble; gains Expose 2."
 
 static func run(expect: Callable) -> bool:
 	# A runtime error returns without reaching the completion sentinel. Callers
@@ -119,6 +120,8 @@ static func _test_tokens(expect: Callable) -> bool:
 				expect.call(token.get("kind", "") != "text", entry["name"] + " reaches the icon renderer")
 				expect.call(Icons.icon_texture(entry["icon"]) != null, entry["name"] + " has a loadable approved icon")
 				expect.call(not Icons.token_tooltip(token).contains("<"), entry["name"] + " tooltip has no unfilled placeholder")
+				if entry["icon"] == "erupt":
+					expect.call(Icons.token_tooltip(token) == ERUPT_TOOLTIP, entry["name"] + " keeps the release Erupt tooltip")
 				if entry["name"] == "intent_gain_charge":
 					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst. Shocking it removes 1 Charge.", "Charge uses its exact numeric rules")
 				if entry["name"] == "intent_chain_discharge":

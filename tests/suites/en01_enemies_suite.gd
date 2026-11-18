@@ -125,10 +125,12 @@ static func _test_erupt(check: Callable) -> void:
 	blocked["grid"][4][4] = "wall"
 	var expected: Vector2i = Burrow.landing_tile(engine, blocked, blocked["enemies"][0])
 	var blocked_threat: Dictionary = engine.enemy_threat_tiles(blocked, 0)
-	check.call(int(blocked_threat["projected_attack_action"]["damage"]) == 0 and blocked_threat["projected_destination"] == expected, "Blocked Erupt preview shows zero center damage at actual fallback")
+	check.call(int(blocked_threat["projected_attack_action"]["damage"]) == 6 and blocked_threat["projected_destination"] == expected and (blocked_threat["projected_attack"] as Array).has(FIXTURE_HERO_TILE), "Blocked Erupt keeps its marked strike and six damage while its body relocates")
+	var badge: Dictionary = preload("res://scripts/enemy_mechanics/burrow_view.gd").marks(blocked)[0]
+	check.call(badge["tile"] == FIXTURE_HERO_TILE and int(badge["damage"]) == 6, "Blocked Erupt's existing tile badge stays on the original strike mark")
 	var hp: int = int(blocked["player"]["hp"])
 	blocked = engine.resolve_enemy_turn_with_steps(blocked, 0)["state"]
-	check.call(blocked["enemies"][0]["pos"] == expected and int(blocked["player"]["hp"]) == hp, "Blocked mark uses nearest free landing and no central damage")
+	check.call(blocked["enemies"][0]["pos"] == expected and int(blocked["player"]["hp"]) == hp, "Relocated Erupt leaves the hero outside its original mark unharmed")
 	var surrounded: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(["burrow_grub", "crawler"]), 0)["state"]
 	for tile: Vector2i in [Vector2i(5, 4), Vector2i(4, 5), Vector2i(3, 4), Vector2i(4, 3)]: surrounded["grid"][tile.y][tile.x] = "wall"
 	surrounded["enemies"][1]["pos"] = Vector2i(6, 3)

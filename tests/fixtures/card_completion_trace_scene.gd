@@ -40,9 +40,9 @@ func _refresh_stage_view() -> void:
 	super._refresh_stage_view()
 	_trace_exit("stage")
 
-func _refresh_turn_order_bar() -> void:
+func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 	_trace_enter("turnbar")
-	super._refresh_turn_order_bar()
+	super._refresh_turn_order_bar(accepted_display_state)
 	_trace_exit("turnbar")
 
 func _refresh_contextual_combat_tutorial() -> void:

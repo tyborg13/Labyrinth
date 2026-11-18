@@ -1715,3 +1715,22 @@ its first new slot on the next declaration, retaining completed-cycle count.
 Legacy combats without `fight_seed` freeze their saved RNG state once as the
 compatibility seed at the first scatter declaration.
 `dragon_cycle_order` records the mapping version; history/JSONL are untouched.
+
+## Boss area targeting (area-01)
+
+`enemy_action_resolved` adds `area_targeting` (`relative_to_source` for the
+listed body-origin stamps, `fixed_at_announcement` for sky/ground marks,
+otherwise empty) and `area_shown_tiles` (the original announcement coordinates).
+`resolved_tiles` retains its meaning: the actual strike footprint, after source
+translation for a relative stamp; off-board/newly impassable marks are inert.
+Follow-up shots/bites keep their own events and rows. No event boundaries or
+existing payload fields change; JSONL remains local and append-only.
+
+Saves retain the historical `area_fixed_tiles` field as the original footprint
+for either kind. `area_targeting`, `area_source_id`, `area_announcement_origin`
+and `area_planned_origin` distinguish the stamp and its planned movement offset.
+`area_origin_basis` says `stored_announcement` when the saved path/origin was
+available, otherwise `current_position_fallback`. Legacy stored tiles, including
+empty sets, are never re-aimed or reshaped. Fixed detonations without a footprint
+snapshot saved fuel/refuges once; pending Thornwall retains its saved marks.
+Numbers, victims, status timing and rule beats are unchanged.

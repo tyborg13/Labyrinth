@@ -1,0 +1,828 @@
+{
+  "base_head": "fd6d24f274457557906e2a87794bd87569745d94",
+  "uncommitted": true,
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "protected_data_sha256": {
+    "data/battlefield_rules.json": "412ab5b6163c1ffbe8defe752469e82b0560613f6ee63001eeb3131898ec6840",
+    "data/biome_light_motion.json": "d1c5af84579e800c0a6109308762f156f52e97a7060aac4a39e2a312c2114aa0",
+    "data/biomes.json": "8a1587752f0e2fbce5faf2a9224ba5951036a664675b657122a3b7b3dcb9f510",
+    "data/card_panel_text.json": "acca412b0d1b40893ed569b7bf2dfdfd26f8acb9714564c2940482bb4fc36874",
+    "data/cards.json": "549d2a318477d4765ff130807a7a4be717d788a7cff31eed4230036798688bff",
+    "data/demo.json": "423c30632c179ecf044a2cc24b053c4bc7f3556df5e26e77af4eda5aae144615",
+    "data/depths.json": "d1bdac2f55502fae759b24293839e879d57f7d3742a159d506881bf670d886ab",
+    "data/encounters.json": "f1b0ab80c35daddda473dfec207f3435578efaaaa116b558fb3add5038775dbf",
+    "data/enemies.json": "a01ea404fd09dda3b6cad12a99057368dc94689175ed19668e24830f260d70bb",
+    "data/equipment.json": "ac55e0f413e549ec347d35b3b4edc3b461fe9ef640a50a2986986580f8b586da",
+    "data/events.json": "29bea18fab86ec376fa33aae043b4bb7149b42b293428e15bb4f25432dbb2e2b",
+    "data/glossary.json": "574b51b49825f00e0729ea6141c9be5631f2df45c49e3b209430da6fd64fa933",
+    "data/grimoire.json": "9f88fab9196d808a585acf7bacb3a6d39b70e57f7aa6e9b619b5a8b5dc659047",
+    "data/npcs.json": "a575870f02c31371eb1dfd7aee891698f6b2de0553109a8d0ec6a3b567bfeaca",
+    "data/opening_boons.json": "7c172475d7031224e9b7c121750d496daa9d3b7487a4972431220e8e622c291e",
+    "data/progression_levels.json": "b503e1beac4cb86305d0d586b00faa2aa20ba1645cff6afce28b0c4aad3661b0",
+    "data/relics.json": "52cb72cfbe46efb328c83497767b9a6721d6e45b3eda2968a5a27aeba25ad0ed",
+    "data/run_end_text.json": "467f6dedcde49d4f7e36a04c774d66e80c3fc284b12d783defd3d6a0f8a1f709",
+    "data/section_map_v7_fallbacks.json": "5c7ddbc3a1ed4d243bc737c76f041a053aabe55569b7cb4e1673e9346d3c3b4f",
+    "data/sfx_cues.json": "709ebbcdf282ca9352083878d257481e4bdaf8b768d84c06fbfcc5cb5fab7097",
+    "data/skills.json": "55267bde92aa7f95d08877ffa1dca1b3d5a013a264e69d19ea29b61bde6af84a",
+    "data/special_encounters.json": "5fb33bd3348c353577ecefde5bf73cfdb8f7b8a99d9043269f74819d8129a929",
+    "data/tooltip_loops.json": "992c61d5e2188474fdb0cae060494618948e1c240cdc75c2fe65c2493e14ab10",
+    "data/upgrades.json": "9c94e84a8c2bb6022701a8c1a0c8be35991bb47d0e984b4b7744b3096ccec7d0",
+    "data/vfx_pixel_style.json": "eafcc4dbcfc532433902870beb6079e2cf0a2818a207522a610b85645cc9cfab"
+  },
+  "constructor_inputs_sha256": {
+    "cantor-ladder-10.bin": "68bbd5deb4c6fb9413181337464873ad780b0d77b107dbbd86d8c08b687929c7",
+    "cantor-ladder-11.bin": "cdcf8b1f5cce00e152f6464a6ec8811c1b9a5d925b08ae07abcf119420434483",
+    "cantor-ladder-12.bin": "db8fc4b2739d564f49094f30d3e33bc98644b8097ab575219ee4b20296f8d903",
+    "cantor-ladder-13.bin": "552550efe5f370513e6fc2afdbc4004134d70ea392f40618b96c8c3744943b71",
+    "cantor-ladder-14.bin": "677dc9a20cd5b1430de7df629fb76b08cd184146983c29733d1d6545a9890ab7",
+    "cantor-ladder-15.bin": "b2be8eb25df533d638a6b58651ce056e7817d164e881b3609c82f849267db327",
+    "cantor-ladder-16.bin": "2c7fb4ed7a57684840bd89b8fe7c8ede91457144f608cf00116aa4f0a73544ec",
+    "cantor-ladder-17.bin": "80aa55c37839b082811cd2d5b2168ba9a8706afc59a8aa7fd5667f8b89ec907a",
+    "cantor-ladder-18.bin": "830c409ecd29617326a152064e9ee64459303b4c48c96cd4a41ab66dbff2f604",
+    "cantor-ladder-19.bin": "0b91b2cfbc188965ebc7e1a762ee3906412b5010668e8ecf67d59a7a12b5730c",
+    "cantor-ladder-20.bin": "c1f9e1bffa293ea143b5bd4a43455b3946d6dd274d0d94cf3f6ad125cdc00e81",
+    "cantor-ladder-21.bin": "63686c421c15dedeb0f4ec565127e9a7c0808b5468f6eafb20cc640cf4642e4a",
+    "cantor-ladder-22.bin": "3df8359211380ceec363d96ab6c4ccf57c0309df1f998d19fc68d32015a10571",
+    "cantor-ladder-23.bin": "541db18e4715ce56bfb249cc59a61d099f7bb34cbcaad163787f1be5d9c2b2c5",
+    "cantor-ladder-24.bin": "4ace637692a9f09bd4c30d1fa0fc9573472e5a7bd465577263b6385297079612",
+    "ladder-1.bin": "73deb40546213e12df2728f8b5842afce72e1e1ea5ed535e790e3b4e2770cd95",
+    "ladder-2.bin": "a92a84f4baf3467d423a202221b136696b306f583b6563db384933c43724ca64",
+    "ladder-3.bin": "b0b1e6e6eca6d6d5b5e4411f1a6940afdef5d47a1afccda1ccc2a365c51c3ae5",
+    "ladder-4.bin": "4f8deadcc1c9f6430896084ea807c3e53aa5efb92a003edd113ea6c38e0aadec",
+    "ladder-5.bin": "081d988921448abfaf49e7d759b356aa71d27ca9d86b1ffa8d26ce3fc12b8067",
+    "ladder-6.bin": "d9515b7eaa41988f590a577c15a5863ea490d8ca9320c2db9c690d723b77be51",
+    "ladder-7.bin": "bb4731160bdc1ab2c9186cfc05ff7a324e5f64e50a1fb9e6b0cdf97e850c347f",
+    "ladder-8.bin": "0adc9c5201fc701900ca206cd780d53eb774cc123ffd01eff7432ac968acaef8",
+    "ladder-9.bin": "41544431619b24bc7f159627a4481a65eeb873b507585b5f0a7727be63651f8b"
+  },
+  "source_sha256": {
+    "scripts/board_layer_slices.gd": "a0c1c803453deb0b6d68d1a35199995b2687180ff969193faeb11eca87b80979",
+    "scripts/boss_area_rules.gd": "dbeb44607f80b02c00cfbc32927a40c4c145e16fb3984e3ddd6f700cd85e54f8",
+    "scripts/boss_area_rules.gd.uid": "354985dac3c8bc3cfffb86f05d8ef7b8db1a386c39bf695e792f4aa0b4975b0a",
+    "scripts/combat_engine.gd": "1a317ebb11737a88c51fd24536d7cd52df4ceb081ca023718820224a4703f3b1",
+    "scripts/enemy_action_analytics.gd": "f786802d104250f61a6948376e8a4e90c07de1d3ad1cc8078beb91b48405e2d6",
+    "scripts/enemy_mechanics/bramble.gd": "e85a6e9d158ed62e7a7577fea6acb15bb3de7431af91d5fe6d0b0077f7c02857",
+    "scripts/enemy_mechanics/burrow.gd": "94480e9b5e72570ce18ffe60aac31b01fc91386153c231991f84bb6847f43f83",
+    "scripts/guardian_combat_rules.gd": "6a7728296154daa8a034b270ad8284ca24d3100b57046e818ee9ff6a78bd2a6a",
+    "scripts/intent_badges.gd": "908744d31317b51f85d9aa7baa103b60dc56a5af9364bb4a4416335994bc73e5",
+    "scripts/pass_forecast_red_tiles.gd": "32ac9724717ab358ee03fc66b8fb4c48daa580d02f12eb250dab10676791b153",
+    "scripts/progression_store.gd": "9d447cde4b42c3e6fe907f986e67a2aca86c014d274ec20aa157bc3e76e68eed",
+    "scripts/threat_tiles.gd": "92ca61f1f6205859e9e56861d6c64b39b72af5f347d38123e259956f959be7a7",
+    "spec/analytics.md": "7eba410c387409e16f937f9964c5c97b99a2bb51327f5a30d6339b238c05c911",
+    "tests/dragon_committed_patterns_test.gd": "e3788b5f41bb68ea021d8b1c6bbb893746d68419f37caa37ac55b52099662499",
+    "tests/suites/boss_area_rules_suite.gd": "36c1f3a0f187a65a686c6cf8cccaa31cd00417e8817527bee375263fb53c713c",
+    "tests/suites/boss_area_rules_suite.gd.uid": "d131299878eec258e07e8010fb355dbae994706033745436051aead9f5438222",
+    "tests/suites/dragon_area_presentation_suite.gd": "74f721eda1ec403f00f696f453b874f4de67f75ab44f2e455eed510a272fe83d",
+    "tests/suites/dragon_pressure_mechanics_suite.gd": "1d0d9939f0ac03c78dd8161e5c73be763c75819a34a5031787572efaa1f55cfa",
+    "tests/suites/guardian_rules_suite.gd": "f6044f2b6e4415f52149aac2e8321186d519170776eaef3a950746e35a658799",
+    "tests/suites/guardian_suite.gd": "0b3c6d89942f4a02eeb00765aae3edf9f2f33628ab7f4be2a3b7cad14b256c92",
+    "tools/atk13/area01/README.md": "cb2e70494d03e0b08e27dfe5098c932185c78251650fc90c184d66daffd968dd",
+    "tools/atk13/area01/audit.gd": "7208d15c75888d32eddc569418c48ee45abc024b01abf4714b0a32b96fd3ee58",
+    "tools/atk13/area01/audit.gd.uid": "44ff596d3c827e591727cc8fbcc375ab6f909135e7908287b404778bd4dd9ab7",
+    "tools/atk13/area01/audit.py": "578f3a54d5f159c8a5639abb8a1df4570ab20d1dd203d8a15ab0a0eb0916559d",
+    "tools/atk13/area01/bootstrap_sidecars.gd": "a5a3e17f1f9651962f3e77d91c391f1d9e1c5bbdd24a8ce366d9f89c3a32f25c",
+    "tools/atk13/area01/bootstrap_sidecars.gd.uid": "97adb18956cb0d1d19372f900ac541d127ae9bd97c5c7e497e2d536ce965a877",
+    "tools/atk13/area01/capture.gd": "aabe42deab35f459cd8ca0edfb6acab195901b0247d8dd661dec39eb53bf2a36",
+    "tools/atk13/area01/capture.gd.uid": "102e958637897873157eb5da3c3526e465a82108be15002f04d51d79f65647e7",
+    "tools/atk13/area01/capture_cantor.py": "6328b875c31eeed2cd700690fde950ab0ddaaa78fc73f991e7c12845be8fb8e0",
+    "tools/atk13/area01/capture_checks.py": "6993e006e61082cb40011970cedc2f654f2af54bcd3568c6b3f08d1046abe9b1",
+    "tools/atk13/area01/capture_contract.json": "c02fb1b401aea23e31f9ca6213bb54e87066d1c372665bd890a8124d8786e5c4",
+    "tools/atk13/area01/capture_plan.py": "2b1667b75711781fa497a5605d5c6d7f0ee914dea0092041f0d247e970619fbf",
+    "tools/atk13/area01/discover_standard.gd": "79d1644f696d8561e0dab69376b5c653a017e40598310cd3e151a5b855dcdf70",
+    "tools/atk13/area01/discover_standard.gd.uid": "2ef8e7868c30f6ebb1ff44760a16f4b55f90ea45046ae90caa94a70e49ff38e0",
+    "tools/atk13/area01/focused_suites.gd": "0668c5701353a5c0e11cd4b3fc6caa4cf766bba84c94d054e7988fd81d3df777",
+    "tools/atk13/area01/focused_suites.gd.uid": "7eb16b17d4549ede2280b6d73ba0bb7bc95eacfbe227f97d76794d6fd3786937",
+    "tools/atk13/area01/followup_audit.gd": "5ce2cca4b40f47793881f2e3bbbfbb78711c470e9694d9ca20ae876eb64a1bf0",
+    "tools/atk13/area01/followup_audit.gd.uid": "f06bf883b3999dccf38e896de6fad3e3abccec7f59b4bcf617470315ddd400e9",
+    "tools/atk13/area01/inspect_inputs.gd": "1a863eaccafc7838f01971ea52d913dfdffa1a116fc6d4de73386eeca105a1fe",
+    "tools/atk13/area01/inspect_inputs.gd.uid": "23c1f1ef30e0047f16419b365e2ce4e034a25891df090eb7ce1c6234df007fb6",
+    "tools/atk13/area01/ladder_capture.gd": "b5cf8f92e418997c7bfc979720c7dfaa14fcbb7cdbc6742311f4c787eb326e16",
+    "tools/atk13/area01/ladder_capture.gd.uid": "4d64b5ac2b6e16740540f0ffedaad2867dd5f22fc55f92af4f364f2236cf9468",
+    "tools/atk13/area01/measure.gd": "2774ef9534fe97bfebd60e6925be16b1df8f51e2e96e781308f4226d55a568f9",
+    "tools/atk13/area01/measure.gd.uid": "af948c00bdf5aef0961cd0a8b4eb23e06db31a0afd59408232e0ed974bfe3fdb",
+    "tools/atk13/area01/measure.py": "040875619121ff1ad384471dd29481f8a18612e965e31674823bd4b4deb139fc",
+    "tools/atk13/area01/native_capture.sh": "cf78fd2e4a9b9f22b628360062b0cb53175b0822df04d4b5b18a7ec80bdf73bd",
+    "tools/atk13/area01/observed_engine.gd": "148e7a43380ed13ce3566331c863ff0817727c129ccf21bcd0c58b5cf676eb6e",
+    "tools/atk13/area01/observed_engine.gd.uid": "72e45096bb6a3ee3c39e04c3883bbd9beea55783e261c3481bf6cdc04d792944",
+    "tools/atk13/area01/rules_tests.gd": "e198c05eacf74e80f566628114715f7c8c2157ec0b714e14bb4bb87e5264256a",
+    "tools/atk13/area01/rules_tests.gd.uid": "a0523df4cd88ca300484927b497719befdd387262fa2e68aed456a9e680d5b1d",
+    "tools/atk13/area01/run_checks.py": "de3e635c0bca23ccefb1b7027d03e52a93bed12ab6ad1f0bfd9a1d1872b7cfbb",
+    "tools/atk13/area01/write_report.py": "6dac01c02bb2f12df01ac6242e27c765a0c553ef259bace04141c14093c03a81",
+    "tools/run_curve_dragons.py": "991902a47e81593abc535b5424679ed6120001509b93292aad4a904194aeff23"
+  },
+  "truth": {
+    "totals": {
+      "alternatives": 5642,
+      "oracle_mismatches": 0,
+      "ui_replica_mismatches": 0,
+      "grub_marked_landings": 102,
+      "grub_marked_hit_mismatches": 0,
+      "walked_grub_marked_landings": 34
+    },
+    "moves": {
+      "ashen_reaver/executioners_fall": {
+        "executed_alternatives": 73,
+        "tile_mismatches": 0,
+        "walked_executions": 8,
+        "announced_at_turn_start": 63,
+        "red_omissions": 0,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "ashen_reaver/hooked_sweep": {
+        "executed_alternatives": 89,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 70,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "ashen_reaver/raking_flame": {
+        "executed_alternatives": 85,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 58,
+        "red_omissions": 0,
+        "walked_executions": 9,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "bell_tender/connector": {
+        "executed_alternatives": 63,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 57,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "briar_weaver/thornwall": {
+        "executed_alternatives": 83,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 83,
+        "red_omissions": 0,
+        "walked_executions": 13,
+        "seeds": [
+          "1302",
+          "1310"
+        ]
+      },
+      "craghide/groundsplit": {
+        "executed_alternatives": 125,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 91,
+        "red_omissions": 0,
+        "walked_executions": 30,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "gallows_roc/hookwind": {
+        "executed_alternatives": 340,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 233,
+        "red_omissions": 0,
+        "walked_executions": 40,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "gallows_roc/razor_pinion": {
+        "executed_alternatives": 355,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 204,
+        "red_omissions": 0,
+        "walked_executions": 38,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "iskaldra/shatterstorm": {
+        "executed_alternatives": 199,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 76,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "iskaldra/whiteout_lance": {
+        "executed_alternatives": 177,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 121,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "last_lamplighter/mourning_hook": {
+        "executed_alternatives": 288,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 167,
+        "red_omissions": 0,
+        "walked_executions": 38,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "noctyrax/last_eclipse": {
+        "executed_alternatives": 174,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 174,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "noctyrax/night_coil": {
+        "executed_alternatives": 154,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 113,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "noctyrax/starless_breath": {
+        "executed_alternatives": 122,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 105,
+        "red_omissions": 0,
+        "walked_executions": 20,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "storm_cantor/lay_the_choir": {
+        "executed_alternatives": 237,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 177,
+        "red_omissions": 0,
+        "walked_executions": 27,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/bedrock_breath": {
+        "executed_alternatives": 93,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 86,
+        "red_omissions": 0,
+        "walked_executions": 19,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/faultline": {
+        "executed_alternatives": 96,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 86,
+        "red_omissions": 0,
+        "walked_executions": 18,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/stonewake": {
+        "executed_alternatives": 112,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 107,
+        "red_omissions": 0,
+        "walked_executions": 20,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/worldspine_claw": {
+        "executed_alternatives": 103,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 94,
+        "red_omissions": 0,
+        "walked_executions": 19,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/eye_of_storm": {
+        "executed_alternatives": 216,
+        "tile_mismatches": 0,
+        "walked_executions": 22,
+        "announced_at_turn_start": 174,
+        "red_omissions": 0,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/hollow_gale": {
+        "executed_alternatives": 212,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 212,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/razor_dive": {
+        "executed_alternatives": 231,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 131,
+        "red_omissions": 0,
+        "walked_executions": 24,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/cinder_maw": {
+        "executed_alternatives": 67,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 51,
+        "red_omissions": 0,
+        "walked_executions": 7,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/cinderfall": {
+        "executed_alternatives": 70,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 45,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/crownfire": {
+        "executed_alternatives": 78,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 78,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/kindle_ground": {
+        "executed_alternatives": 77,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 77,
+        "red_omissions": 0,
+        "walked_executions": 9,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "zekarion/skybreak": {
+        "executed_alternatives": 274,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 240,
+        "red_omissions": 0,
+        "walked_executions": 32,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      }
+    },
+    "followup_red_matrices_11_10_01_00": {
+      "tharokh/faultline": [
+        44,
+        33,
+        7,
+        12
+      ],
+      "vaeloryx/eye_of_storm": [
+        7,
+        188,
+        0,
+        21
+      ],
+      "vyraketh/cinder_maw": [
+        38,
+        15,
+        0,
+        14
+      ],
+      "vyraketh/crownfire": [
+        40,
+        22,
+        0,
+        5
+      ],
+      "vyraketh/kindle_ground": [
+        74,
+        3,
+        0,
+        0
+      ]
+    },
+    "followup_action_forecast_matrices_11_10_01_00": {},
+    "undisclosed_followup_action_forecast_matrices_11_10_01_00": {},
+    "examples": []
+  },
+  "followups": {
+    "totals": {
+      "alternatives": 1311,
+      "oracle_mismatches": 0,
+      "ui_replica_mismatches": 0
+    },
+    "moves": {
+      "tharokh/bedrock_breath": {
+        "executed_alternatives": 93,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 86,
+        "red_omissions": 0,
+        "walked_executions": 19,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/faultline": {
+        "executed_alternatives": 96,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 86,
+        "red_omissions": 0,
+        "walked_executions": 18,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/stonewake": {
+        "executed_alternatives": 112,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 107,
+        "red_omissions": 0,
+        "walked_executions": 20,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "tharokh/worldspine_claw": {
+        "executed_alternatives": 103,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 94,
+        "red_omissions": 0,
+        "walked_executions": 19,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/eye_of_storm": {
+        "executed_alternatives": 216,
+        "tile_mismatches": 0,
+        "walked_executions": 22,
+        "announced_at_turn_start": 174,
+        "red_omissions": 0,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/hollow_gale": {
+        "executed_alternatives": 212,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 212,
+        "red_omissions": 0,
+        "walked_executions": 22,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vaeloryx/razor_dive": {
+        "executed_alternatives": 231,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 131,
+        "red_omissions": 0,
+        "walked_executions": 24,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/cinder_maw": {
+        "executed_alternatives": 67,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 51,
+        "red_omissions": 0,
+        "walked_executions": 7,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/cinderfall": {
+        "executed_alternatives": 70,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 45,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/crownfire": {
+        "executed_alternatives": 78,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 78,
+        "red_omissions": 0,
+        "walked_executions": 8,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      },
+      "vyraketh/kindle_ground": {
+        "executed_alternatives": 77,
+        "tile_mismatches": 0,
+        "announced_at_turn_start": 77,
+        "red_omissions": 0,
+        "walked_executions": 9,
+        "seeds": [
+          "1301",
+          "1302"
+        ]
+      }
+    },
+    "followup_red_matrices_11_10_01_00": {
+      "tharokh/faultline": [
+        44,
+        33,
+        7,
+        12
+      ],
+      "vaeloryx/eye_of_storm": [
+        7,
+        188,
+        0,
+        21
+      ],
+      "vyraketh/cinder_maw": [
+        38,
+        15,
+        0,
+        14
+      ],
+      "vyraketh/crownfire": [
+        40,
+        22,
+        0,
+        5
+      ],
+      "vyraketh/kindle_ground": [
+        74,
+        3,
+        0,
+        0
+      ]
+    },
+    "followup_action_forecast_matrices_11_10_01_00": {
+      "tharokh/faultline": [
+        50,
+        0,
+        1,
+        45
+      ],
+      "vaeloryx/eye_of_storm": [
+        7,
+        0,
+        0,
+        209
+      ],
+      "vyraketh/cinder_maw": [
+        38,
+        0,
+        0,
+        29
+      ],
+      "vyraketh/crownfire": [
+        40,
+        0,
+        0,
+        27
+      ],
+      "vyraketh/kindle_ground": [
+        74,
+        0,
+        0,
+        3
+      ]
+    },
+    "undisclosed_followup_action_forecast_matrices_11_10_01_00": {
+      "tharokh/faultline": [
+        13,
+        0,
+        0,
+        24
+      ],
+      "vyraketh/cinder_maw": [
+        38,
+        0,
+        0,
+        29
+      ],
+      "vyraketh/crownfire": [
+        40,
+        0,
+        0,
+        27
+      ],
+      "vyraketh/kindle_ground": [
+        66,
+        0,
+        0,
+        2
+      ]
+    },
+    "examples": []
+  },
+  "difficulty": [
+    {
+      "boss": "tharokh",
+      "N": 64,
+      "before_wins": 43,
+      "after_wins": 48,
+      "delta_pp": 7.8125
+    },
+    {
+      "boss": "vyraketh",
+      "N": 64,
+      "before_wins": 36,
+      "after_wins": 45,
+      "delta_pp": 14.0625
+    },
+    {
+      "boss": "vaeloryx",
+      "N": 64,
+      "before_wins": 26,
+      "after_wins": 30,
+      "delta_pp": 6.25
+    },
+    {
+      "boss": "iskaldra",
+      "N": 64,
+      "before_wins": 24,
+      "after_wins": 23,
+      "delta_pp": -1.5625
+    },
+    {
+      "boss": "zekarion",
+      "N": 64,
+      "before_wins": 18,
+      "after_wins": 19,
+      "delta_pp": 1.5625
+    },
+    {
+      "boss": "noctyrax",
+      "N": 64,
+      "before_wins": 44,
+      "after_wins": 38,
+      "delta_pp": -9.375
+    },
+    {
+      "boss": "ashen_reaver",
+      "N": 64,
+      "before_wins": 11,
+      "after_wins": 14,
+      "delta_pp": 4.6875
+    },
+    {
+      "boss": "rimejaw",
+      "N": 64,
+      "before_wins": 49,
+      "after_wins": 49,
+      "delta_pp": 0.0
+    },
+    {
+      "boss": "storm_cantor",
+      "N": 64,
+      "before_wins": 60,
+      "after_wins": 57,
+      "delta_pp": -4.6875
+    },
+    {
+      "boss": "gallows_roc",
+      "N": 64,
+      "before_wins": 32,
+      "after_wins": 34,
+      "delta_pp": 3.125
+    },
+    {
+      "boss": "craghide",
+      "N": 64,
+      "before_wins": 46,
+      "after_wins": 45,
+      "delta_pp": -1.5625
+    },
+    {
+      "boss": "last_lamplighter",
+      "N": 64,
+      "before_wins": 59,
+      "after_wins": 58,
+      "delta_pp": -1.5625
+    }
+  ],
+  "checks": [
+    {
+      "script": "tools/atk13/area01/rules_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tools-atk13-area01-rules_tests.log"
+    },
+    {
+      "script": "tools/atk13/area01/focused_suites.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tools-atk13-area01-focused_suites.log"
+    },
+    {
+      "script": "tests/dragon_committed_patterns_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_committed_patterns_test.log"
+    },
+    {
+      "script": "tests/dragon_feedback_mechanics_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_feedback_mechanics_test.log"
+    },
+    {
+      "script": "tests/dragon_rewards_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_rewards_test.log"
+    },
+    {
+      "script": "tests/dragon_reward_feedback_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_reward_feedback_test.log"
+    },
+    {
+      "script": "tests/dragon_trophy_feedback_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_trophy_feedback_test.log"
+    },
+    {
+      "script": "tests/dragon_wallet_ack_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-dragon_wallet_ack_test.log"
+    },
+    {
+      "script": "tests/guardian_rules_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-guardian_rules_test.log"
+    },
+    {
+      "script": "tests/threats_at_rest_test.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tests-threats_at_rest_test.log"
+    },
+    {
+      "script": "tools/atk03/focused_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tools-atk03-focused_tests.log"
+    },
+    {
+      "script": "tools/atk04/focused_tests.gd",
+      "exit": 0,
+      "log": "/private/tmp/labyrinth_codex/area-01/checks/tools-atk04-focused_tests.log"
+    }
+  ],
+  "preexisting_python_failure": "test_guardian_rules_measurement.GuardianRulesMeasurementTests.test_production_contains_only_the_chosen_cumulative_rungs: older enemy definition fixture, including art_scale 1.15 versus unchanged master 1.03; reproduced against baseline",
+  "native_renderer_proof": "Owner execution required; no windowed run attempted"
+}

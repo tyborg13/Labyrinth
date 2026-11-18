@@ -267,7 +267,7 @@ static func marked_keys(scene: Node, state: Dictionary, tile: Vector2i) -> Array
 	if tile.x < 0: return keys
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0 or not scene._combat_engine.is_enemy_visible_to_player(state, enemy): continue
-		var covered: bool = (enemy.get("icefall_tiles", []) as Array).has(tile) or (enemy.get("lob_tiles", []) as Array).has(tile)
+		var covered: bool = (enemy.get("icefall_tiles", []) as Array).has(tile) or (enemy.get("lob_tiles", []) as Array).has(tile) or preload("res://scripts/boss_area_marks.gd").tiles(state, enemy).has(tile)
 		if not covered and (enemy.get("lob_tiles", []) as Array).is_empty():
 			for action: Dictionary in enemy.get("intent", {}).get("actions", []):
 				if str(action.get("type", "")) == "lob_mark":

@@ -15,6 +15,7 @@ const MIN_FRAME_SIZE := Vector2i(1600, 900)
 const OUTPUT_ENV := "LABYRINTH_REAL_FIGHT_CAPTURE_OUTPUT"
 const CROP_MARGIN_PX: float = 24.0
 const ALIGNMENT_TOLERANCE_PX: float = 1.0
+const CONTINUE_TIMEOUT_SECONDS: float = 60.0
 const SETTLE_TIMEOUT_SECONDS: float = 20.0
 const STABLE_LAYOUT_FRAMES: int = 8
 const CONTAINMENT_FOLLOWUP_FRAMES: int = 30
@@ -109,7 +110,7 @@ func _capture_run() -> void:
 	await process_frame
 	_continue_frame = Engine.get_process_frames()
 	menu.call("_on_continue_button_pressed")
-	var launch_deadline: int = Time.get_ticks_msec() + int(SETTLE_TIMEOUT_SECONDS * 1000.0)
+	var launch_deadline: int = Time.get_ticks_msec() + int(CONTINUE_TIMEOUT_SECONDS * 1000.0)
 	while current_scene == null or not current_scene.has_method("initial_presentation_is_ready"):
 		await process_frame
 		if Time.get_ticks_msec() >= launch_deadline:

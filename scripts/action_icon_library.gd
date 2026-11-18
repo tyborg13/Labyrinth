@@ -1232,6 +1232,7 @@ static func marked_move_text(action: Dictionary) -> String:
 static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> Array:
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
+	if preload("res://scripts/boss_area_rules.gd").marked(action) or action_type == "erupt": tokens.append(token_for("marked"))
 	match action_type:
 		"upheaval_mark":
 			tokens.append(token_for("upheaval", int(action["health"])))
@@ -2020,7 +2021,6 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 				pattern.append([-1, row_index])
 				pattern.append([2, row_index])
 		row.append(_aoe_pattern_token({"pattern": pattern, "range": 0}))
-		row.append(text_token("Fixed direction", "warning", "The shown approach and direction stay fixed. Displacing the dragon shifts the pattern with it."))
 		_append_brazier_rule(row,action)
 		return row
 	match shape:
@@ -2031,7 +2031,6 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 				for distance: int in range(1,int(action.get("guardian_length",action.get("range",1)))+1):
 					if shape!="broken_line" or distance!=2: pattern.append([side,-distance])
 			row.append(_aoe_pattern_token({"pattern":pattern,"range":0}))
-			row.append(text_token("Fixed direction", "warning", "Pattern follows the caster; direction stays fixed."))
 		"connector":
 			row.append(text_token("%d linked tiles" % int(action.get("guardian_count",1)),"warning","Extends existing Electrified toward its target."))
 		"conductor":

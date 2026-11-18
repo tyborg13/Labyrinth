@@ -226,10 +226,10 @@ func _test_encounter_edges() -> void:
 	set_cycle(engine,state,1)
 	check(engine.enemy_intent_plan(state,0)["projected_attack"].has(Vector2i(2,4)),"quake shows declared outcrop threats")
 	state = engine._damage_terrain(state,0,3)
-	check(not engine.enemy_intent_plan(state,0)["projected_attack"].has(Vector2i(2,4)),"destroyed outcrop removes its quake tiles before resolution")
+	check(engine.enemy_intent_plan(state,0)["projected_attack"].has(Vector2i(2,4)),"destroying an outcrop preserves its announced Groundsplit tiles")
 	var hp_before: int = state["player"]["hp"]
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
-	check(hp_before-state["player"]["hp"]==7,"Groundsplit deals one ordinary hit from the surviving outcrop")
+	check(hp_before-state["player"]["hp"]==7,"Groundsplit deals one ordinary hit across its frozen union")
 	state = guardian_fixture("ashen_reaver")
 	state["player"]["pos"] = Vector2i(4,7)
 	set_cycle(engine,state,1)
@@ -239,10 +239,15 @@ func _test_encounter_edges() -> void:
 	if path.size()>1:
 		state["terrain"].append({"kind":"raised_cover","pos":path[1],"hp":3,"max_hp":3,"owner_kind":"player"})
 		var blocked: Dictionary = engine.enemy_intent_plan(state,0)
-		check(blocked["path"].size()==1 and not blocked["projected_attack"].has(Vector2i(4,7)),"blocked approach previews its strike from the actual position")
+		var delta: Vector2i = state["enemies"][0]["pos"] - Vector2i(original["destination"])
+		var shifted: Array[Vector2i]
+		for tile: Vector2i in original["projected_attack"]:
+			var moved: Vector2i = tile + delta
+			if engine._tile_is_passable(state,moved) and engine._terrain_index_at_tile(state,moved)<0: shifted.append(moved)
+		check(blocked["path"].size()==1 and preload("res://tests/suites/boss_area_rules_suite.gd").same(blocked["projected_attack"],shifted),"blocked approach shifts the whole stamp back with its stopped body")
 		var start: Vector2i = state["enemies"][0]["pos"]
 		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
-		check(state["enemies"][0]["pos"]==start and state["player"]["hp"]==24,"blocked sweep cannot overlap cover or attack from its old endpoint")
+		check(state["enemies"][0]["pos"]==start and (state["player"]["hp"]<24) == shifted.has(state["player"]["pos"]),"blocked sweep hits only its shifted stamp while the body stays behind cover")
 	state = guardian_fixture("ashen_reaver")
 	set_cycle(engine,state,2)
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]

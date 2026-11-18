@@ -184,16 +184,16 @@ static func _test_skybreak_retirement_preview(expect: Callable) -> void:
 		state = _roundtrip(expect, state, "Skybreak conductor ownership")
 		var before: Dictionary = state.duplicate(true)
 		var plan: Dictionary = combat.enemy_intent_plan(state, 0)
-		expect.call((plan["projected_attack"] as Array).has(Vector2i(3,3)) == (not owned), "Skybreak warning conducts only through bridges that survive its own field retirement")
+		expect.call(not (plan["projected_attack"] as Array).has(Vector2i(3,3)), "Skybreak warning excludes unmarked bridges regardless of ownership")
 		expect.call(state == before, "Forecasting Skybreak field retirement cannot remove live surfaces or append events")
 		var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0, false)
 		var hit: Dictionary = resolved["state"]
-		expect.call(int(state["player"]["hp"]) - int(hit["player"]["hp"]) == (0 if owned else 5), "Skybreak's approved five damage agrees with whether the old bridge survives")
+		expect.call(int(state["player"]["hp"]) - int(hit["player"]["hp"]) == 0, "Skybreak never damages this unmarked bridge occupant")
 		var saw_strike: bool = false
 		for step: Dictionary in resolved["steps"]:
 			if str(step.get("action_type", "")) == "lightning_strikes":
 				saw_strike = true
-				expect.call((step.get("tiles", []) as Array).has(Vector2i(3,3)) == (not owned), "Skybreak resolution FX excludes retired bridges and includes surviving conduction")
+				expect.call(_same_tiles(step.get("tiles", []), strike["declared_tiles"]), "Skybreak resolution FX keeps exactly its declared scatter marks")
 		expect.call(saw_strike, "Skybreak's resolved strike supplies a real FX footprint")
 
 static func _test_ice_cross_and_mantle_counterplay(expect: Callable) -> void:
@@ -206,7 +206,7 @@ static func _test_ice_cross_and_mantle_counterplay(expect: Callable) -> void:
 	state = combat._damage_enemy(state, 0, 4)
 	state = combat._damage_enemy(state, 0, 4)
 	var weak: Array = combat.enemy_intent_plan(state, 0)["projected_attack"]
-	expect.call(weak.size() < strong.size(), "Spending attacks to break Mantle shrinks the already announced Shatter field")
+	expect.call(_same_tiles(weak, strong), "Breaking Mantle preserves the already announced Shatter field")
 	_declare(expect, state, "whiteout_lance")
 	var cross: Dictionary = _action(expect, state, "aoe", "cross")
 	var area: Array[Vector2i] = Committed.live_tiles(combat, state, state["enemies"][0], cross)

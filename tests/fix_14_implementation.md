@@ -117,6 +117,18 @@ presentation gap remains intentionally unchanged and is not asserted correct.
 
 ## Verification and evidence
 
+For the gfix-04 refresh, capture the comparison input from
+`fix_14_test.gd -- --check-only` through the task-local Godot runner.
+Use the exact existing `JSON.stringify(actual)` after lay-metadata validation
+for each ordinary and retaliate resolution, and the same serializer in
+`_legacy_analytics` for the analytics-only strings. For the Capacitor and
+Stalker fixture, use the existing tab-indented, key-sorted serialization with
+its trailing newline. Compare the decoded captures before replacing the pins.
+The area-01 refresh adds only `area_targeting: ""` and `area_shown_tiles: []`
+to `enemy_action_resolved` for Warden, Capacitor and Stalker. These actions
+carry no announced boss area. Status events and playback captures retain
+their previous bytes.
+
 All Godot commands use `tools/godot_task_runner.py --task-id fix-14 --stream`.
 No editor scan was used. Matrix playback was split by actor using test-only
 arguments, with a 600-second runner cap for the known 25/26-case sequences.

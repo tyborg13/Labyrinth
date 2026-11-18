@@ -73,30 +73,30 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	enemy["burrowed"] = false
 	enemy.erase("erupt_tile")
 	enemy["erupt_resolved"] = true
-	if not blocked:
-		for actor: Dictionary in occupants:
-			if str(actor["kind"]) == "enemy" and int(actor["id"]) == int(enemy["id"]): continue
-			if not Surfaces.footprint_tiles(actor["unit"]).has(marked): continue
-			if str(actor["kind"]) == "illusion": Illusions.note_enemy_hit(engine, state, struck_illusions, actor, attack)
-			var hp_before: int = int(state["player"].get("hp", 0))
-			var block_before: int = int(state["player"].get("block", 0))
-			state = Burst.damage_actor(engine, state, actor, int(action.get("damage", 0)))
-			if str(actor["kind"]) == "player":
-				struck_player = true
-				health_loss = maxi(0, hp_before - int(state["player"].get("hp", 0)))
-				block_loss = maxi(0, block_before - int(state["player"].get("block", 0)))
-				# Record the central hit before any forced placement, arrival trap
-				# or neighboring push. The live facing adapter may have captured
-				# this same damage call already; base-engine callers need it too.
-				if int(action.get("damage", 0)) > 0 and not action_context.has("direct_player_hits"):
-					action_context["direct_player_hits"] = [{"source_actor_key": "enemy_%d" % int(enemy["id"]), "source_tile": destination, "target_key": "player", "target_tile": marked, "damage": int(action["damage"])}]
-			var unit: Dictionary = engine._surface_actor(state, str(actor["kind"]), int(actor["id"]))
-			if int(unit.get("hp", 0)) <= 0 or bool(unit.get("burrowed", false)): continue
-			if destination != marked: continue
-			var free: Vector2i = adjacent_free(engine, state, marked, old_tile, int(enemy["id"]), unit)
-			if free == engine.INVALID_TILE: continue
-			state = engine._force_place_actor(state, str(actor["kind"]), int(actor["id"]), free)
-			state = engine.surface_actor_arrival(state, str(actor["kind"]), int(actor["id"]), destination)
+	# Landing relocation never cancels the marked strike.
+	for actor: Dictionary in occupants:
+		if str(actor["kind"]) == "enemy" and int(actor["id"]) == int(enemy["id"]): continue
+		if not Surfaces.footprint_tiles(actor["unit"]).has(marked): continue
+		if str(actor["kind"]) == "illusion": Illusions.note_enemy_hit(engine, state, struck_illusions, actor, attack)
+		var hp_before: int = int(state["player"].get("hp", 0))
+		var block_before: int = int(state["player"].get("block", 0))
+		state = Burst.damage_actor(engine, state, actor, int(action.get("damage", 0)))
+		if str(actor["kind"]) == "player":
+			struck_player = true
+			health_loss = maxi(0, hp_before - int(state["player"].get("hp", 0)))
+			block_loss = maxi(0, block_before - int(state["player"].get("block", 0)))
+			# Record the central hit before any forced placement, arrival trap
+			# or neighboring push. The live facing adapter may have captured
+			# this same damage call already; base-engine callers need it too.
+			if int(action.get("damage", 0)) > 0 and not action_context.has("direct_player_hits"):
+				action_context["direct_player_hits"] = [{"source_actor_key": "enemy_%d" % int(enemy["id"]), "source_tile": destination, "target_key": "player", "target_tile": marked, "damage": int(action["damage"])}]
+		var unit: Dictionary = engine._surface_actor(state, str(actor["kind"]), int(actor["id"]))
+		if int(unit.get("hp", 0)) <= 0 or bool(unit.get("burrowed", false)): continue
+		if destination != marked: continue
+		var free: Vector2i = adjacent_free(engine, state, marked, old_tile, int(enemy["id"]), unit)
+		if free == engine.INVALID_TILE: continue
+		state = engine._force_place_actor(state, str(actor["kind"]), int(actor["id"]), free)
+		state = engine.surface_actor_arrival(state, str(actor["kind"]), int(actor["id"]), destination)
 	enemy = state["enemies"][index]
 	if int(enemy.get("hp", 0)) <= 0: return state
 	enemy["pos"] = destination
@@ -174,9 +174,6 @@ static func threat(engine: RefCounted, state: Dictionary, index: int, intent: Di
 		else:
 			destination = landing_tile(engine, state, enemy)
 			if destination != engine.INVALID_TILE:
-				if not Paths.is_passable(state.get("grid", []), enemy.get("erupt_tile", destination)) or engine._terrain_index_at_tile(state, enemy.get("erupt_tile", destination)) >= 0:
-					action = action.duplicate(true)
-					action["damage"] = 0
 				tiles.append(destination)
 				var marked: Vector2i = enemy.get("erupt_tile", destination)
 				if int(action.get("damage", 0)) > 0 and not tiles.has(marked): tiles.append(marked)

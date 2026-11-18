@@ -2977,7 +2977,7 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	# that memo. Include all its dependencies so in-place rule/catalog edits
 	# still miss. Only the rest-threat overlay is derived here; unrelated frame
 	# fields (positions, poses, clocks) always come from this submission.
-	var inputs: Array = BattlefieldRuleView.BattlefieldRules.forecast_inputs(BattlefieldRuleView._engine, state)
+	var inputs: Array = BattlefieldRuleView.BattlefieldRules.forecast_inputs(BattlefieldRuleView._engine(), state)
 	var sight: Dictionary = BoardSurfaceVisibility.projection_input(original)
 	inputs.append(sight)
 	# RunScene's trusted animation sequence cannot mutate its combat snapshot.
@@ -5265,6 +5265,7 @@ func _draw_isolated_mechanic_badges(kind: String, enemy: Dictionary) -> void:
 		"burrow": BurrowView.draw_badges(self)
 		"icefall": IcefallView.draw_badges(self)
 		"lob": LobView.draw_badges(self)
+		"area": preload("res://scripts/boss_area_marks.gd").draw_badges(self)
 	combat_state = previous
 
 func _draw_isolated_wind_collisions() -> void:
@@ -17940,6 +17941,7 @@ func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 
 func _own_move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	intent = preload("res://scripts/warband_intent_presentation.gd").intent(_summon_forecast_engine, combat_state, unit, intent)
+	intent = preload("res://scripts/boss_area_rules.gd").presentation_intent(str(unit.get("type", "")), intent)
 	var refraction_rows: Array = ReflectView.intent_rows(intent)
 	if not refraction_rows.is_empty(): return refraction_rows
 	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)

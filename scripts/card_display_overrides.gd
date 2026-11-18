@@ -3,6 +3,7 @@ extends RefCounted
 ## One rules/tooltip projection for hand cards and every run-scoped card preview.
 ## A supplied definition retains authored upgrade flags/numbers or historical
 ## snapshots; it must already include the run's definition-level modifiers.
+const Combat = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
@@ -11,7 +12,12 @@ const State = preload("res://scripts/card_display_state.gd")
 const Bindings = preload("res://scripts/card_display_bindings.gd")
 const ItemText = preload("res://scripts/item_rules_text.gd")
 const CardArea = preload("res://scripts/card_area_presentation.gd")
-static var _engine := preload("res://scripts/combat_engine.gd").new()
+# Initialize on first use in case CombatEngine is still loading this script.
+static var _engine_instance: RefCounted = null
+
+static func _engine() -> RefCounted:
+	if _engine_instance == null: _engine_instance = Combat.new()
+	return _engine_instance
 
 static func apply_projection(widget: Control, card: Dictionary, display: Dictionary) -> void:
 	widget.set_card_definition(card)
@@ -82,13 +88,13 @@ static func for_card(card_id: String, state: Dictionary, definition: Dictionary 
 		if action_type in ["illuminate", "vision", "truesight"] or action.has("illuminate_duration"):
 			action = action.duplicate(false)
 			if action_type in ["illuminate", "vision", "truesight"]:
-				action["duration"] = _engine._radiance_duration_for_player(state, int(action.get("duration", action.get("amount", 1) if action_type == "truesight" else 1)))
+				action["duration"] = _engine()._radiance_duration_for_player(state, int(action.get("duration", action.get("amount", 1) if action_type == "truesight" else 1)))
 			if action.has("illuminate_duration"):
-				action["illuminate_duration"] = _engine._radiance_duration_for_player(state, int(action["illuminate_duration"]))
+				action["illuminate_duration"] = _engine()._radiance_duration_for_player(state, int(action["illuminate_duration"]))
 		match action_type:
 			"melee", "ranged", "aoe", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks":
-				var attack_final_damage: int = _engine.final_damage_for_player_action(preview_state, action)
-				var attack_damage_modifiers: Array[Dictionary] = _engine.damage_modifiers_for_player_action(preview_state, action)
+				var attack_final_damage: int = _engine().final_damage_for_player_action(preview_state, action)
+				var attack_damage_modifiers: Array[Dictionary] = _engine().damage_modifiers_for_player_action(preview_state, action)
 				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
@@ -99,21 +105,21 @@ static func for_card(card_id: String, state: Dictionary, definition: Dictionary 
 			"destroy_illusion", "burst_terrain":
 				# The blast is a player-card attack on the struck tiles: attack
 				# bonuses apply, next-attack buffs do not (spec/card_mechanics_illusions_terrain.md).
-				var blast: Dictionary = _engine.blast_action_for_player_action(action)
-				var blast_final_damage: int = _engine.final_damage_for_player_action(preview_state, blast)
-				var blast_modifiers: Array[Dictionary] = _engine.damage_modifiers_for_player_action(preview_state, blast)
+				var blast: Dictionary = _engine().blast_action_for_player_action(action)
+				var blast_final_damage: int = _engine().final_damage_for_player_action(preview_state, blast)
+				var blast_modifiers: Array[Dictionary] = _engine().damage_modifiers_for_player_action(preview_state, blast)
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": blast_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(blast_final_damage, blast_modifiers, blast),
 					"damage_modifiers": blast_modifiers
 				})
-				if blast_final_damage > 0 and _engine.attack_bonus_for_current_turn(preview_state) != 0:
+				if blast_final_damage > 0 and _engine().attack_bonus_for_current_turn(preview_state) != 0:
 					var blast_flags: Dictionary = (preview_state.get("turn_flags", {}) as Dictionary).duplicate(true)
 					blast_flags["first_attack_bonus_used"] = true
 					preview_state["turn_flags"] = blast_flags
 			"push", "pull":
-				var shove_final_damage: int = _engine.final_damage_for_player_action(preview_state, action)
-				var shove_damage_modifiers: Array[Dictionary] = _engine.damage_modifiers_for_player_action(preview_state, action)
+				var shove_final_damage: int = _engine().final_damage_for_player_action(preview_state, action)
+				var shove_damage_modifiers: Array[Dictionary] = _engine().damage_modifiers_for_player_action(preview_state, action)
 				var shove_visible_modifiers: Array[Dictionary] = shove_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
@@ -175,7 +181,7 @@ static func consume_preview_damage_modifiers(state: Dictionary, action: Dictiona
 		return
 	# The sequence's resolver owns its effects/cache (including synthetic and
 	# legacy effects). card-02's shared display engine may have different inputs.
-	var resolver: RefCounted = engine if engine != null else _engine
+	var resolver: RefCounted = engine if engine != null else _engine()
 	if resolver.attack_bonus_for_current_turn(state) == 0:
 		return
 	var turn_flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)

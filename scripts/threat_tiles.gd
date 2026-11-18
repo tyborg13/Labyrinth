@@ -9,26 +9,21 @@ const HERO_FILL_ALPHA: float = 0.24
 const PULSE_MIN: float = 0.18
 const PULSE_MAX: float = 0.30
 const PULSE_SECONDS: float = 1.1
-const TAG_DIAMETER: float = 20.0
-const TAG_FONT_SIZE: int = 13
-const TAG_FILL := Color("46140f")
-const CIRCLE_SEGMENTS: int = 64
+# Announced areas are public warnings. Moving sight or hover must not hide a
+# held mark; this paints only the existing danger diamond, never unseen units.
+static func announced_at(presentation: Dictionary, tile: Vector2i) -> bool:
+	for threat: Dictionary in presentation.get("threats_at_rest", {}).get("threats", []):
+		if bool(threat.get("area_announced", threat.get("area_fixed", false))) and (threat.get("tiles", []) as Array).has(tile): return true
+	return false
 
-static func zone_tags(threats: Array) -> Array[Dictionary]:
-	var tags: Array[Dictionary]
-	for threat: Dictionary in threats:
-		if not bool(threat.get("area", false)) or str(threat.get("order", "")).is_empty(): continue
-		var source: Vector2i = threat.get("attacker_tile", Vector2i(-1, -1))
-		var nearest := Vector2i(-1, -1)
-		var distance: int = 2147483647
-		for tile: Vector2i in threat.get("tiles", []):
-			var candidate: int = absi(tile.x - source.x) + absi(tile.y - source.y)
-			if candidate < distance:
-				nearest = tile
-				distance = candidate
-		if nearest.x >= 0:
-			tags.append({"key": threat["key"], "tile": nearest, "order": threat["order"], "alpha": threat.get("alpha", 1.0)})
-	return tags
+static func visible_at(board: Control, tile: Vector2i) -> bool:
+	return bool(board.call("_board_tile_is_visible_to_player", tile)) or announced_at(board.get("presentation"), tile)
+
+# area-01 feedback 2: kept as a compatibility boundary for retained layers.
+# Order belongs to health-frame discs and the rail, never the red floor.
+static func zone_tags(_threats: Array) -> Array[Dictionary]:
+	var none: Array[Dictionary]
+	return none
 
 static func tile_alphas(threats: Array) -> Dictionary:
 	var result: Dictionary = {}
@@ -52,7 +47,7 @@ static func needs_pulse(presentation: Dictionary, threats: Dictionary) -> bool:
 	return not bool(presentation.get("reduced_motion", false)) and threats.has((presentation.get("threats_at_rest", {}) as Dictionary).get("hero_tile", Vector2i(-1, -1)))
 
 static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, threats: Dictionary, hero_tile: Vector2i, reduced_motion: bool, draw_tags: Variant = null) -> void:
-	if not threats.has(tile) or not bool(board.call("_board_tile_is_visible_to_player", tile)):
+	if not threats.has(tile) or not visible_at(board, tile):
 		return
 	var alpha: float = float(threats[tile])
 	var center: Vector2 = board.call("_tile_center", tile)
@@ -68,13 +63,6 @@ static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Arra
 	board.draw_colored_polygon(inner, Color(Palette.DANGER, fill * alpha))
 	inner.append(inner[0])
 	board.draw_polyline(inner, Color(Palette.DANGER, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)
-	for tag: Dictionary in zone_tags((board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("threats", [])) if draw_tags == null else draw_tags:
-		if tag["tile"] == tile: draw_zone_tag(board, tag, center)
 
-static func draw_zone_tag(board: Control, tag: Dictionary, center: Vector2) -> void:
-	var alpha: float = float(tag["alpha"])
-	board.draw_circle(center, TAG_DIAMETER * 0.5, Color(TAG_FILL, 0.94 * alpha), true, -1.0, true)
-	board.draw_arc(center, TAG_DIAMETER * 0.5 - 1.0, 0.0, TAU, CIRCLE_SEGMENTS, Color(Palette.DANGER, alpha), 2.0, true)
-	var font: Font = Typography.ui_font()
-	var baseline: float = center.y + (font.get_ascent(TAG_FONT_SIZE) - font.get_descent(TAG_FONT_SIZE)) * 0.5
-	board.draw_string(font, Vector2(center.x - TAG_DIAMETER * 0.5, baseline), str(tag["order"]), HORIZONTAL_ALIGNMENT_CENTER, TAG_DIAMETER, TAG_FONT_SIZE, Color(Palette.GOLD_BRIGHT, alpha))
+static func draw_zone_tag(_board: Control, _tag: Dictionary, _center: Vector2) -> void:
+	pass

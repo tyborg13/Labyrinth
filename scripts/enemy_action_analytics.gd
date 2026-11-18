@@ -4,6 +4,9 @@ static func decorate_step(engine: RefCounted, before: Dictionary, after: Diction
 	# These bespoke presentation steps lack the ordinary action's loss payload.
 	# Keep analytics-only data separate so animation and saved combat are unchanged.
 	if step.is_empty(): return
+	if preload("res://scripts/boss_area_rules.gd").held(action):
+		step["area_targeting"] = str(action.get("area_targeting", "fixed_at_announcement"))
+		step["area_shown_tiles"] = preload("res://scripts/boss_area_rules.gd").shown(action)
 	match str(action.get("type", "")):
 		"burrow", "erupt":
 			step["analytics_fields"] = {
@@ -105,6 +108,8 @@ static func action_events(phase_result: Dictionary, context: Dictionary) -> Arra
 				"element": str(step.get("element", "none")),
 				"action_direction": step.get("action_direction", Vector2i.ZERO),
 				"resolved_tiles": step.get("tiles", []),
+				"area_targeting": str(step.get("area_targeting", "")),
+				"area_shown_tiles": step.get("area_shown_tiles", []),
 				"enemy_type": str(step.get("enemy_type", "")),
 				"ai_role": str(step.get("ai_role", "")),
 				"intent_id": str(step.get("intent_id", "")),

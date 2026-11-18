@@ -182,7 +182,7 @@ static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, po
 	if lob.has(tile):
 		threats = {tile: float(threats.get(tile, 1.0))}
 		hero = tile if bool(lob[tile]["center"]) else Vector2i(-1, -1)
-	if not threats.has(tile) or not board.call("_board_tile_is_visible_to_player", tile): return {}
+	if not threats.has(tile) or not Threats.visible_at(board, tile): return {}
 	if polygon.is_empty(): polygon = board.call("_tile_polygon", tile)
 	var center: Vector2 = board.call("_tile_center", tile)
 	var inset: float = Threats.OUTLINE_WIDTH * 0.5

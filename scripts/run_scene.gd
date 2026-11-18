@@ -15173,10 +15173,8 @@ func _refresh_rest_pass_discs() -> void:
 	if _animation_lock or str(_run_state.get("mode", "")) != "combat": return
 	_refresh_stage_view()
 
-# atk-09: the forecast the panel shows for the hovered destination or the card
-# preview (the red set's own preview source), if it is ready. Never computes it;
-# when it arrives later (_cache_pass_preview) the red set refreshes once.
-# atk-11: the hovered discs follow the same forecast.
+# The matching forecast supplies repeat counts and announced stamp corrections
+# when ready. The cache schedules a refresh when the result arrives.
 func _hover_red_forecast() -> Dictionary:
 	var hovering_move: bool = _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile)
 	if _animation_lock or not (hovering_move or (_selected_card_index >= 0 and not _preview_combat_state.is_empty())):
@@ -15313,12 +15311,11 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	summary["status_gains"] = status_gains
 	# atk-03: counted repeat activations and which foes the simulation saw hurt you.
 	summary.merge(preload("res://scripts/pass_forecast_repeats.gd").summary_fields(phase_result))
-	# atk-09: later activations' struck tiles and foes that die first, for the red tiles.
+	# Presentation corrections for the announced move.
 	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").summary_fields(phase_result))
-	# atk-11: rule beats and surfaces laid under the hero that strike the hero's own tile.
+	# Contact receipts remain available to the forecast audit.
 	summary.merge(preload("res://scripts/pass_forecast_red_tiles.gd").hero_fields(_combat_engine, source_state, phase_result))
-	# atk-14: only a hovered destination gains the exact Chain-hit receipt.
-	# At-rest red keeps its existing policy. No new forecast is computed.
+	# Include the exact hovered-destination Chain-hit receipt in the audit.
 	if source_state.get("player", {}).get("pos") != _combat_state.get("player", {}).get("pos"):
 		summary["hero_red_owners"].merge(phase_result.get("chain_hero_owners", {}), true)
 	return summary

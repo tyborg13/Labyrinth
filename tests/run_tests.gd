@@ -135,6 +135,7 @@ func _initialize() -> void:
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
 	await DepthRulesSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/boss_area_rules_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/dragon_pressure_mechanics_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/dragon_spire_routes_suite.gd").run(Callable(self, "_assert"))
 	SkillTreeSuite.run(Callable(self, "_assert"))

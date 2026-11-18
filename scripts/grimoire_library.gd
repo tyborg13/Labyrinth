@@ -744,6 +744,9 @@ static func _entry_ids_for_enemy_type_ref(enemy_type: String) -> Array:
 		return _enemy_type_entry_ids_cache.get(enemy_type, []) as Array
 	var wanted: Dictionary = {}
 	wanted["enemy:%s" % enemy_type] = true
+	var areas = preload("res://scripts/boss_area_rules.gd")
+	for move: String in areas.MOVES.get(enemy_type, []):
+		if not (areas.RELATIVE.get(enemy_type, []) as Array).has(move): wanted["keyword:marked"] = true
 	_collect_entry_ids_for_enemy_def(GameData.enemy_def(enemy_type), wanted)
 	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
 	_enemy_type_entry_ids_cache[enemy_type] = result
@@ -851,6 +854,7 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
+		if preload("res://scripts/boss_area_rules.gd").marked(action): wanted["keyword:marked"] = true
 		# Reuse authored aliases and the same concept identity shown by the
 		# card/intent, including self_flag stances and text-only Outcrops.
 		_collect_glossary_keyword(action_type, wanted)

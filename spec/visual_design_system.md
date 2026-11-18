@@ -137,7 +137,7 @@ floor shadows); the former navy button bodies clashed with it.
   board. One row for 1–3 foes (centred vertically), two rows for 4–6 with 2×2
   foes spanning both rows in the centre.
 
-- At rest, enemies show gilt order discs beside their health frames and bronze medallion intent chips at their feet; chips turn crimson and pulse when they threaten the previewed hero tile, and area threat diamonds carry an attacker-order tag. Use the exact dimensions, placement, reduced-motion and preview/privacy contract in [threats at rest v2](threats_at_rest.md); full plans and ground compasses remain in Details [I] or focused inspection.
+- At rest, enemies show gilt order discs beside their health frames and bronze medallion intent chips at their feet; chips turn crimson and pulse when they threaten the previewed hero tile, and red threat diamonds carry no attacker-order numbers. Enemy tooltips and attack diamonds show the currently announced move, and repeat actors keep the ×N chip. Battlefield-rule red follows the displayed board. Pass and hovered-destination Health forecasts cover the whole enemy turn. Use the exact dimensions, placement, reduced-motion and preview/privacy contract in [threats at rest v2](threats_at_rest.md); full plans and ground compasses remain in Details [I] or focused inspection.
 
 ## Combat composition
 

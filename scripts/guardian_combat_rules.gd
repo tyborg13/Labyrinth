@@ -3,6 +3,7 @@ class_name GuardianCombatRules
 
 # Identity lives in data. These verbs commit oriented plans and use the
 # ordinary combat engine for damage, contact, statuses, terrain and scheduling.
+const Areas = preload("res://scripts/boss_area_rules.gd")
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
@@ -97,8 +98,9 @@ static func candidates(engine: RefCounted, state: Dictionary, origin: Vector2i, 
 static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Dictionary) -> Dictionary:
 	var result: Dictionary = intent.duplicate(true)
 	result.erase("committed_plan")
-	if not has_authored_actions(result): return result
 	var enemy: Dictionary = state["enemies"][index]
+	var restoring_plan: bool = not intent.has("committed_plan")
+	if not has_authored_actions(result) and not Areas.selected(enemy, result): return result
 	result["_planning_shape"] = true
 	var plan: Dictionary = pattern_approach(engine,state,index,result,engine.enemy_intent_plan(state,index,result))
 	result.erase("_planning_shape")
@@ -114,7 +116,9 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 		if not authored_action(action): continue
 		var affected: Array[Vector2i]
 		var shape_id: String = shape(action)
-		if shape_id in GEOMETRIC_SHAPES:
+		if Areas.held(action):
+			affected = Areas.shown(action)
+		elif shape_id in GEOMETRIC_SHAPES:
 			var geometry: Dictionary = action.duplicate(true)
 			geometry["_resolved_path"] = plan.get("path",[origin])
 			geometry = status_range(enemy,geometry)
@@ -150,8 +154,9 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 			affected.assign(plan.get("projected_attack",[]))
 		action["_guardian_committed"] = true
 		action["declared_tiles"] = affected
-		action["declared_origin"] = origin
-		action["declared_direction"] = direction
+		if not Areas.held(action) or not action.get("declared_origin") is Vector2i: action["declared_origin"] = origin
+		if not Areas.held(action) or not action.has("declared_direction"): action["declared_direction"] = direction
+		if restoring_plan and Areas.relative(action) and str(action.get("area_origin_basis","")) == "current_position_fallback": action["area_planned_origin"] = origin
 		if action.has("committed_shape"):
 			if shape_id in DIRECTIONAL_SHAPES:
 				if int(action.get("push",0)) > 0: action["force_direction"] = direction
@@ -167,6 +172,12 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 			if type == "summon_minions":
 				if not summon_tiles.has(tile): summon_tiles.append(tile)
 			elif not all_tiles.has(tile): all_tiles.append(tile)
+	result["committed_plan"] = plan
+	result = Areas.freeze(engine, state, enemy, result)
+	if Areas.has_held(result): plan["attack_action_index"] = -1 # Separate follow-ups select live ordinary targets.
+	for action: Dictionary in result.get("actions", []):
+		for tile: Vector2i in Areas.shown(action):
+			if not all_tiles.has(tile): all_tiles.append(tile)
 	plan["projected_attack"] = all_tiles
 	plan["projected_summon"] = summon_tiles
 	plan["attack_action"] = {}
@@ -250,7 +261,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 			var context: Dictionary = plan.duplicate(true)
 			context["action_index"] = action_index
 			context["resolved_path"] = geometry["_resolved_path"]
-			if not handles(action):
+			if not handles(action) and not Areas.held(action):
 				# Direct shots use the board left by earlier pressure, including
 				# an illusion killed by the first half of a compound attack.
 				var secondary_tiles: Array[Vector2i]
@@ -262,7 +273,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 				for tile: Vector2i in secondary_tiles:
 					if not projected.has(tile): projected.append(tile)
 			else:
-				var impact: Array[Vector2i] = live_tiles(engine,preview_state,preview_enemy,geometry)
+				var impact: Array[Vector2i] = Areas.strike_tiles(engine,preview_state,geometry) if Areas.held(geometry) else live_tiles(engine,preview_state,preview_enemy,geometry)
 				for tile: Vector2i in impact:
 					if not projected.has(tile): projected.append(tile)
 				if (engine._action_element(action) == "lightning" or int(action.get("chain",0)) > 0) and not impact.is_empty():
@@ -325,6 +336,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	var enemy: Dictionary = state["enemies"][index]
 	var type: String = str(action.get("type",""))
 	var declared: Array[Vector2i] = live_tiles(engine,state,enemy,action)
+	Areas.record_forecast(state,enemy,action,declared)
 	if shape(action) == "ring":
 		action = action.duplicate(true)
 		action["radial_force"] = true
@@ -392,6 +404,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	return state
 
 static func live_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	if Areas.held(action): return Areas.strike_tiles(engine,state,action)
 	if str(action.get("type", "")) == "terrain_burst": return quake_tiles(state,int(enemy["id"]),int(action.get("range",1)))
 	var declared: Array[Vector2i] = tiles(action.get("declared_tiles",[]))
 	var shape_id: String = shape(action)
@@ -464,17 +477,20 @@ static func authored_action(action: Dictionary) -> bool:
 	return not shape(action).is_empty() or str(action.get("guardian_kind",""))=="crag_outcrop" or (str(action.get("type",""))=="summon_minions" and action.has("guardian_cap"))
 
 static func has_authored_actions(intent: Dictionary) -> bool:
+	if Areas.has_held(intent): return true
 	for action: Dictionary in intent.get("actions",[]):
 		if authored_action(action): return true
 	return false
 
 static func has_held_actions(intent: Dictionary) -> bool:
+	if Areas.has_held(intent): return true
 	for action: Dictionary in intent.get("actions",[]):
 		if handles(action): return true
 	return false
 
 static func holds_path(intent: Dictionary) -> bool:
 	if bool(intent.get("live_body",false)): return false
+	if Areas.has_held(intent): return true
 	for action: Dictionary in intent.get("actions",[]):
 		if authored_action(action) and str(action.get("type","")) != "summon_minions": return true
 	return false
@@ -565,6 +581,7 @@ static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, 
 	# authored direction while evaluating that identical candidate only once.
 	var pattern_shape: String = shape(pattern)
 	var directions: Array[Vector2i] = tiles(Paths.DIRS_4)
+	if Areas.relative(pattern) and pattern.has("declared_direction"): directions = tiles([pattern["declared_direction"]])
 	if pattern_shape in ["cross", "ring", "swept_path"]: directions.resize(1)
 	# Overlapping candidate routes share anchors on this unchanged board. Keep
 	# their radial footprints local to this plan, including its status range.

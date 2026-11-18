@@ -73,6 +73,12 @@ static func mark_entries(view: Control) -> Dictionary:
 	for mark: Dictionary in preload("res://scripts/enemy_mechanics/burrow_view.gd").marks(state):
 		var tile: Vector2i = mark["tile"]
 		_append_for_tile(result, tile, from_text(Icons.tooltip("erupt") + "\n%d damage.%s" % [int(mark["damage"]), _standing_line(tile, player_tile)], "erupt"))
+	var fixed_marks: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0: continue
+		for tile: Vector2i in preload("res://scripts/boss_area_marks.gd").tiles(state, enemy): fixed_marks[tile] = true
+	for tile: Vector2i in fixed_marks:
+		_append_for_tile(result, tile, from_text(Icons.tooltip("marked"), "marked"))
 	return result
 
 static func _standing_line(tile: Vector2i, player_tile: Vector2i) -> String:

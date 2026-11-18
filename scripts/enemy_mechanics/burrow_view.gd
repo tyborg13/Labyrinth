@@ -105,7 +105,7 @@ static func rows(intent: Dictionary) -> Array:
 	var action: Dictionary = intent["actions"][0]
 	match str(action.get("type", "")):
 		"burrow": return [[Icons.icon_text_token(BURROW_ICON, "Burrow", Icons.tooltip("burrow"))]]
-		"erupt": return [[Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), Icons.tooltip("erupt"))]]
+		"erupt": return [[Icons.token_for("marked"), Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), Icons.tooltip("erupt"))]]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:
@@ -168,8 +168,7 @@ static func marks(state: Dictionary) -> Array[Dictionary]:
 		var landing: Vector2i = Rules.landing_tile(engine, state, enemy)
 		if landing == engine.INVALID_TILE: continue
 		var marked: Vector2i = enemy.get("erupt_tile", landing)
-		var blocked: bool = not preload("res://scripts/path_utils.gd").is_passable(state.get("grid", []), marked) or engine._terrain_index_at_tile(state, marked) >= 0
-		result.append({"tile": landing if blocked else marked, "damage": 0 if blocked else erupt_damage(enemy), "enemy_id": int(enemy["id"])})
+		result.append({"tile": marked, "damage": erupt_damage(enemy), "enemy_id": int(enemy["id"])})
 	return result
 
 static func draw_dust(view: Control, unit: Dictionary) -> void:

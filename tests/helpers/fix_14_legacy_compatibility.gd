@@ -9,6 +9,8 @@ extends RefCounted
 # -6 at 24 HP; the existing Burst beat owns -4 and the true 20 HP result.
 # pol-17 (440ab0d3e) adds each popup's damage-tier hit_scale; pol-26
 # (5822959d8) adds its actor-anchored offset. All other playback bytes stay pinned.
+# area-01 (bab81dd1a) adds empty area_targeting and area_shown_tiles to
+# enemy_action_resolved payloads for actions without boss area targeting.
 const GOLDEN: String = "res://tests/fixtures/fix_14_legacy_presentation.json"
 
 static func resolution(expect: Callable, phase: Dictionary, scene: Control, mode: String) -> void:
@@ -16,7 +18,7 @@ static func resolution(expect: Callable, phase: Dictionary, scene: Control, mode
 	var actual: Dictionary = {"steps": phase["steps"], "surface_events": phase["state"].get("surface_events", []), "actions": scene._analytics_enemy_action_events(phase, {}), "statuses": scene._analytics_enemy_status_tick_events(phase, {})}
 	actual = actual.duplicate(true)
 	expect.call(_remove_lay_metadata(actual, int(phase["state"].get("turn", 1)), expect)>0, "Legacy resolution exercises separately tested bos-04 ground provenance")
-	expect.call(JSON.stringify(actual) == str(base[mode]["resolution"]), "Ordinary %s resolution and analytics byte-match int-10 baseline plus brs-01 Burst journal" % mode)
+	expect.call(JSON.stringify(actual) == str(base[mode]["resolution"]), "Ordinary %s resolution and analytics byte-match the updated int-10 baseline" % mode)
 
 static func _remove_lay_metadata(value: Variant, player_activation: int, expect: Callable) -> int:
 	# Ground lay provenance is tested separately and remains excluded here;
@@ -49,4 +51,4 @@ static func nontraced_payloads(expect: Callable, combat: RefCounted, scene: Cont
 		var phase: Dictionary = combat.resolve_enemy_turn_with_steps(before, 0, false)
 		actual[type] = {"steps": phase["steps"], "analytics": scene._analytics_enemy_action_events(phase, {})}
 	var expected: String = FileAccess.get_file_as_string("res://tests/fixtures/fix_15_legacy_nontrace.json")
-	expect.call(JSON.stringify(actual, "\t", true) + "\n" == expected, "Capacitor and Stalker full presentation payloads and analytics byte-match int-10 baseline")
+	expect.call(JSON.stringify(actual, "\t", true) + "\n" == expected, "Capacitor and Stalker full presentation payloads and analytics byte-match the updated int-10 baseline")

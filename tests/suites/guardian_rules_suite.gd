@@ -78,6 +78,7 @@ static func run(expect: Callable) -> void:
 	_renames(engine,fixture,expect)
 	_authored_summons(engine,fixture,expect)
 	_choir(engine,fixture,expect)
+	preload("res://tests/suites/boss_area_rules_suite.gd").run(expect)
 
 static func _choir(engine: RefCounted, fixture: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture.fixture("",[TEST_CHOIR_SOURCE_TILE])

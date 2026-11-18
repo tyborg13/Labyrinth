@@ -2,6 +2,7 @@ extends RefCounted
 ## The next battlefield beat's tiles, marked like any other threat at rest (el-04).
 ## Snares keep their own pressure view; Warband orders and ordinary sources preview
 ## here. Each board update shows the geometry the beat would affect now.
+const Combat = preload("res://scripts/combat_engine.gd")
 const BattlefieldRules = preload("res://scripts/battlefield_rules/dispatcher.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
@@ -22,9 +23,14 @@ const SHADE_LIGHTEN: float = 0.6
 const SHADE_BODY_MAX_VALUE: float = 0.22
 const SHADE_FRAME_SHARE: float = 0.45
 static var _shade_texture: Texture2D
-static var _engine := preload("res://scripts/combat_engine.gd").new()
 static var _memo := preload("res://scripts/combat_preview_memo.gd").new()
 static var _ghost_memo := preload("res://scripts/combat_preview_memo.gd").new()
+# Initialize on first use in case CombatEngine is still loading this script.
+static var _engine_instance: RefCounted = null
+
+static func _engine() -> RefCounted:
+	if _engine_instance == null: _engine_instance = Combat.new()
+	return _engine_instance
 
 static func eligible(state: Dictionary, original: Dictionary) -> bool:
 	if state.is_empty() or str(state.get("objective", {}).get("special_type", "")) == "umbral_snare": return false
@@ -39,7 +45,7 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 	if not eligible(state, original): return original
 	# Same pure inputs as the rule forecast itself: the board state and every catalog it reads.
 	var board_sight: Dictionary = SurfaceVisibility.projection_input(original) if original.has("umbra_visible_tiles") else {}
-	var inputs: Array = BattlefieldRules.forecast_inputs(_engine, state)
+	var inputs: Array = BattlefieldRules.forecast_inputs(_engine(), state)
 	inputs.append(board_sight)
 	var tiles: Array = _memo.resolve(inputs, func() -> Array: return _due_tiles(state, board_sight))
 	if tiles.is_empty(): return original
@@ -58,19 +64,19 @@ static func _due_tiles(state: Dictionary, board_sight: Dictionary = {}) -> Array
 	var instance: Dictionary = BattlefieldRules.active(state)
 	var rule: String = str(instance.get("rule", ""))
 	if rule in ["wildfire", "frostbite", "lightning_storm"]:
-		var visible: Variant = board_sight["umbra_visible_tiles"] if board_sight.has("umbra_visible_tiles") else _engine.umbra_visible_tiles(state)
-		for tile: Vector2i in BattlefieldRules.Geometry.affected_tiles(_engine, state, instance):
+		var visible: Variant = board_sight["umbra_visible_tiles"] if board_sight.has("umbra_visible_tiles") else _engine().umbra_visible_tiles(state)
+		for tile: Vector2i in BattlefieldRules.Geometry.affected_tiles(_engine(), state, instance):
 			if SurfaceVisibility.tile_is_drawn(state, tile, visible): tiles.append(tile)
 		return tiles
 	if str(instance.get("rule", "")) == "shadowstep" and not beat_before_next_player_turn(state): return tiles
-	for group: Array in BattlefieldRules.forecast(_engine, state, board_sight).get("tiles", {}).values():
+	for group: Array in BattlefieldRules.forecast(_engine(), state, board_sight).get("tiles", {}).values():
 		for tile: Vector2i in group:
 			if not tiles.has(tile): tiles.append(tile)
 	return tiles
 
 ## True when the rail shows the rule's beat before the hero acts again.
 static func beat_before_next_player_turn(state: Dictionary) -> bool:
-	for entry: Dictionary in _engine.current_turn_order(state, TURN_ORDER_SCAN):
+	for entry: Dictionary in _engine().current_turn_order(state, TURN_ORDER_SCAN):
 		if bool(entry.get("active", false)): continue
 		if str(entry.get("kind", "")) == "beat": return true
 		if str(entry.get("kind", "")) == "player": return false
@@ -84,7 +90,7 @@ static func move_ghosts(view: Control) -> Array[Dictionary]:
 	if state.is_empty() or str(state.get("current_actor", {}).get("kind", "player")) != "player": return ghosts
 	var rule: String = str(BattlefieldRules.active(state).get("rule", ""))
 	if rule not in ["upheaval", "shadowstep"]: return ghosts
-	var due: Dictionary = _ghost_memo.resolve(BattlefieldRules.forecast_inputs(_engine, state), func() -> Dictionary: return _due_moves(state))
+	var due: Dictionary = _ghost_memo.resolve(BattlefieldRules.forecast_inputs(_engine(), state), func() -> Dictionary: return _due_moves(state))
 	var role: String = ENEMY_MOVE_ROLE if rule == "shadowstep" else WindView.GHOST_ROLE
 	for move: Dictionary in due.get("moves", []):
 		var landing: Vector2i = move["to"]
@@ -109,8 +115,8 @@ static func _due_moves(state: Dictionary) -> Dictionary:
 	# A Snare's beat resolves after the hero's activation-end preparation: forecast from that boundary, as the
 	# Snare pressure preview does.
 	var snare: bool = str(state.get("objective", {}).get("special_type", "")) in ["umbral_snare", "last_light"]
-	var basis: Dictionary = _engine.prepare_player_activation_end(state) if snare and _engine.is_player_turn(state) else state
-	var forecast: Dictionary = BattlefieldRules.forecast(_engine, basis)
+	var basis: Dictionary = _engine().prepare_player_activation_end(state) if snare and _engine().is_player_turn(state) else state
+	var forecast: Dictionary = BattlefieldRules.forecast(_engine(), basis)
 	return {"moves": (forecast.get("moves", []) as Array).duplicate(true), "emergences": (forecast.get("emergences", []) as Array).duplicate(true)}
 
 static func _unit_for(state: Dictionary, key: String) -> Dictionary:

@@ -27,16 +27,15 @@ func rest_badges(host: Node, preview: Dictionary, focus: String, committed_overr
 	var badges: Dictionary = _badges.resolve(inputs, func() -> Dictionary:
 		return host._intent_badges.presentation_for_state(engine, committed, preview,
 			focus, known_source), index, true, true)
-	# atk-03: at rest, the discs follow the PASS forecast once it is ready.
-	# atk-09: so do the red tiles; a hovered destination or card preview uses its own forecast.
-	# atk-11: and so do that preview's discs, once its forecast is ready.
+	# Apply the matching forecast's repeat counts and announced-stamp corrections
+	# once it is ready, both at rest and for a hovered destination or aimed card.
 	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
 	var at_rest: bool = committed_override == null and is_same(preview, host._combat_state)
-	var result: Dictionary = Discs.apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest, focus)
+	var result: Dictionary = Discs.apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest)
 	if at_rest or committed_override != null: return result
 	var hovered: Dictionary = host._hover_red_forecast()
 	if hovered.is_empty(): return result
-	return Discs.apply(result, Discs.record(hovered, host._combat_preview_revision), host._combat_preview_revision, true, focus)
+	return Discs.apply(result, Discs.record(hovered, host._combat_preview_revision), host._combat_preview_revision, true)
 
 func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	var inputs: Array = _compass_inputs(state, visible_ids)

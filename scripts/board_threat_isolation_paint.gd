@@ -9,11 +9,12 @@ static func effects(board: Control) -> void:
 		board._threat_slice_keys = Isolation.owner_keys(marker)
 		board._slice_op("_draw_isolated_collision", [marker])
 	board._threat_slice_keys.clear()
-	for kind: String in ["burrow", "meteor", "icefall", "lob"]:
+	for kind: String in ["burrow", "meteor", "icefall", "lob", "area"]:
 		if kind == "meteor":
 			board._slice_op("_draw_meteor_mark_badges", [false])
 			continue
 		for enemy: Dictionary in board.combat_state.get("enemies", []):
+			if kind == "area" and preload("res://scripts/boss_area_marks.gd").tiles(board.combat_state, enemy).is_empty(): continue
 			if kind == "burrow" and not bool(enemy.get("burrowed", false)): continue
 			if kind == "icefall" and (enemy.get("icefall_tiles", []) as Array).is_empty(): continue
 			if kind == "lob" and (enemy.get("lob_tiles", []) as Array).is_empty() and not (enemy.get("intent", {}).get("actions", []) as Array).any(func(action: Dictionary) -> bool: return str(action.get("type", "")) in ["lob_mark", "lob_land"]): continue

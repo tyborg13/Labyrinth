@@ -55,7 +55,7 @@ static func check_playback(expect: Callable, before: Dictionary, phase: Dictiona
 		print("FIX-14 FEEDBACK PLAYBACK: %s; ring starts=%s; cue starts=%s" % [label, scene.get("burst_sources"), scene.get("burst_cue_starts")])
 
 static func _legacy_analytics(expect: Callable) -> void:
-	# int-10 analytics baseline includes the approved additive payload fields.
+	# The int-10 baseline includes the area-01 announcement fields, empty for this fight.
 	var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/fix_14_legacy_analytics.json"))
 	var engine := Base.Combat.new()
 	var scene := Base.RunScene.new()

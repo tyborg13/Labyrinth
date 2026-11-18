@@ -71,7 +71,7 @@ func _probe(engine: RefCounted, tile: Vector2i, detail: bool = false, at_rest: b
 	started = Time.get_ticks_usec()
 	RedTiles.summary_fields(RedTiles.result_fields(engine, cursor))
 	steps.append(["summary", summary_usec, mini(summary_usec, Time.get_ticks_usec() - started)])
-	return {"steps": steps, "later": not (summary.get("later_red_tiles", {}) as Dictionary).is_empty(), "checked": checks[0], "mismatches": checks[1]}
+	return {"steps": steps, "later": (summary.get("enemy_activations", {}) as Dictionary).values().any(func(count: int) -> bool: return count > 1), "checked": checks[0], "mismatches": checks[1]}
 
 # After the timed step: if it was a foe's later activation, plan it again on the
 # board it started from, both ways, and compare the tiles.

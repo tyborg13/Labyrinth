@@ -51,7 +51,7 @@ static func canceled_case(boss_id: String) -> Dictionary:
 		state["terrain"] = [{"id":"canceled_spire_1","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(3,4),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"},{"id":"canceled_spire_2","kind":"crag_outcrop","owner_kind":"enemy","owner_id":int(state["enemies"][0]["id"]),"pos":Vector2i(6,5),"hp":4,"max_hp":4,"surface_on_destroy":"rubble"}]
 		declare(state,"faultline")
 	# Crownfire and Faultline now also carry ordinary melee/ranged follow-ups.
-	# This fixture isolates the cancelable area action; the full authored intent
+	# This historical cancellation fixture now isolates the held area action; the full authored intent
 	# and its follow-ups remain covered by dragon_committed_patterns_test.
 	var area_intent: Dictionary = state["enemies"][0]["intent"].duplicate(true)
 	var area_actions: Array[Dictionary]
@@ -82,12 +82,12 @@ static func run(expect: Callable) -> void:
 		var fixture: Dictionary = canceled_case(boss_id)
 		var state: Dictionary = fixture["run"]["combat_state"]
 		expect.call(not fixture["before_counterplay"].is_empty(),boss_id+" starts with a real announced area")
-		expect.call((combat.enemy_threat_tiles(state,0)["attack"] as Array).is_empty(),boss_id+" counterplay removes its whole warning")
+		expect.call(preload("res://tests/suites/boss_area_rules_suite.gd").same(combat.enemy_threat_tiles(state,0)["attack"],fixture["before_counterplay"]),boss_id+" removing fuel preserves its announced warning")
 		var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
 		var step: Dictionary = area_step(result,fixture["action"],boss_id)
-		expect.call(not step.is_empty() and step.get("tiles",[]).is_empty(),boss_id+" keeps an explicitly empty resolved area")
-		expect.call(int(result["state"]["player"]["hp"])==int(state["player"]["hp"]),boss_id+" canceled area causes no player damage")
-		expect.call(Profile.tiles(step).is_empty(),boss_id+" canceled area invents no safe-player impact")
+		expect.call(not step.is_empty() and preload("res://tests/suites/boss_area_rules_suite.gd").same(step.get("tiles",[]),fixture["before_counterplay"]),boss_id+" resolves exactly the held area after fuel removal")
+		expect.call((int(result["state"]["player"]["hp"])<int(state["player"]["hp"])) == (fixture["before_counterplay"] as Array).has(state["player"]["pos"]),boss_id+" held area hits exactly its marked player")
+		expect.call(Profile.tiles(step)==step.get("tiles",[]),boss_id+" presentation preserves the resolved held footprint")
 	var direct: Dictionary = build_run("vaeloryx")["combat_state"]
 	declare(direct,"skyhook")
 	var shot: Dictionary = area_step(combat.resolve_enemy_turn_with_steps(direct,0),"ranged","vaeloryx")

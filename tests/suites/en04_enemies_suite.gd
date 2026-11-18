@@ -121,8 +121,8 @@ static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
 		var zone: Dictionary = rest["threats"][0]
 		expect.call(bool(zone["area"]) and zone["tiles"] == engine.enemy_threat_tiles(state, 0)["projected_attack"], "Lob mark/landing is an area zone using the resolved plus shape")
 		var tags: Array[Dictionary] = ThreatTiles.zone_tags(rest["threats"])
-		expect.call(tags.size() == 1, "Lob mark/landing has exactly one owner zone tag")
-		expect.call(tags[0]["key"] == "enemy_1" and tags[0]["order"] == chip["order"] and tags[0]["tile"] == FIXTURE_HERO + Vector2i.UP, "Lob zone tag uses the attacker's order on the nearest marked tile")
+		expect.call(tags.is_empty(), "Lob mark/landing has no floor order tag")
+		expect.call(ThreatTiles.tile_alphas(rest["threats"]).has(FIXTURE_HERO + Vector2i.UP), "Removing Lob order tags preserves its marked attack red")
 		expect.call(not Badges.details_discloses_compass({"threats_at_rest": rest}, "enemy_1"), "Lob has no compass at rest")
 		expect.call(state == original, "itb-03 Lob presentation preserves combat, marks and schedule")
 	var cache: Resource = load("res://assets/generated/unit_shadow_cache.res")

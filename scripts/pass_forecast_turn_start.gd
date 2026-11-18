@@ -87,7 +87,7 @@ static func _prepare_full_with_receipt(engine: RefCounted, next_state: Dictionar
 	}
 	next_state = engine.CommonRelicRules.turn_start(engine, next_state)
 	next_state = engine.DefenseRelicRules.player_turn_start(engine, next_state)
-	# atk-11: a surface under the hero that hurts them now (red tiles).
+	# Record turn-start surface contacts for forecast diagnostics.
 	var RedTiles: GDScript = preload("res://scripts/pass_forecast_red_tiles.gd")
 	var contact: Dictionary = RedTiles.before_turn_start_contact(engine, next_state)
 	next_state = engine._resolve_player_start_of_turn(next_state)

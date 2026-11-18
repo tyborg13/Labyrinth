@@ -123,8 +123,7 @@ func _test_live_stage() -> void:
 	_expect((preview["enemies"][3] as Dictionary)["pos"] != (state["enemies"][3] as Dictionary)["pos"], "Hovered Crosswind actually displaces the preview enemy")
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
 	var expected: Dictionary = Badges.build(combat, state, preview, "", scene.call("_surface_preview_information_state", preview))
-	# atk-09: the hovered card preview's own PASS forecast adds its later activations' tiles.
-	# atk-11: its discs follow that forecast too (pass_forecast_discs.gd), as at rest.
+	# The hovered forecast contributes repeat counts and first-stamp corrections.
 	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
 	var revision: int = int(scene.get("_combat_preview_revision"))
 	expected = Discs.apply(expected, Discs.record(scene.call("_hover_red_forecast"), revision), revision, true)
@@ -219,10 +218,10 @@ func _test_live_stage() -> void:
 	scene.call("_on_board_tile_hovered", move_target)
 	await _settle()
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
-	# atk-11: the hovered disc follows the card's own forecast. Guarded Step's Time lets
-	# this foe act twice and follow the hero, so it is red exactly when that forecast says so.
 	var card_hits: Dictionary = (scene.call("_hover_red_forecast") as Dictionary).get("enemy_hits", {})
-	_expect(rest["hero_tile"] == move_target and bool(Suite._badge(rest, "enemy_1")["danger"]) == card_hits.has("enemy_1"), "Live card-move preview disc follows that card's forecast")
+	var card_badge: Dictionary = Suite._badge(rest, "enemy_1")
+	_expect(rest["hero_tile"] == move_target and not bool(card_badge["danger"]), "Live card aiming colours only the announced attack")
+	_expect(card_hits.has("enemy_1") and int(card_badge["repeats"]) == 2, "The card-move forecast still counts the later hit and both activations")
 	await _capture("12_card_removes_danger_1920x1080")
 	scene.call("_cancel_card_selection")
 	await _test_wave_e2_stage(scene, combat)
@@ -245,7 +244,7 @@ func _test_wave_e2_stage(scene: Node, combat: RefCounted) -> void:
 		var entry: Dictionary = Suite.WAVE_E2_ROSTER[index]
 		_expect(Suite._badge(rest, key).get("icon") == entry["icon"], "Live %s chip uses its own icon" % entry["type"])
 		_expect(layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "Live %s has an order disc" % entry["type"])
-		_expect(Tiles.zone_tags(rest.get("threats", [])).any(func(tag: Dictionary) -> bool: return tag["key"] == key), "Live %s has its area zone tag" % entry["type"])
+		_expect(Tiles.zone_tags(rest.get("threats", [])).is_empty(), "Live %s has no floor order tag" % entry["type"])
 	_expect(board.presentation.get("enemy_threat_previews", []).is_empty(), "Live wave E2 rest has no detailed popup disclosure")
 	_expect(not board.presentation.has("en05_dive_telegraphs") and board.presentation.get("path_tiles", []).is_empty() and board.presentation.get("displacement_paths", []).is_empty(), "Live wave E2 Dive has no special telegraph or resting movement/displacement path")
 

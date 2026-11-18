@@ -134,6 +134,11 @@ def collect(output: Path, scratch: Path, workers: int, wall_seconds: float, max_
 
 
 def main() -> None:
+    if "--area01" in sys.argv:
+        sys.argv.remove("--area01")
+        from atk13.area01.measure import main as area01_main
+        area01_main()
+        return
     if "--zek01" in sys.argv:
         sys.argv.remove("--zek01")
         from zek01.measure import main as zek01_main
