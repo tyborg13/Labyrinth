@@ -66,7 +66,7 @@ static func _test_data(expect: Callable) -> void:
 	expect.call(data["bonus"]["kind"] == "heal_per_lit_brazier" and int(data["bonus"]["amount"]) == HEAL_PER_BRAZIER and int(data["bonus"]["max"]) == HEAL_CAP and data["bonus"]["reward_line"] == REWARD_LINE, "Dawn bonus kind, amount, cap and reward line")
 	expect.call(int(data["sight_radius"]) == SIGHT and int(data["braziers"]["count"]) == BRAZIERS and int(data["braziers"]["distance_from_start"]) == BRAZIER_DISTANCE and data["braziers"]["tooltip"] == TOOLTIP, "Sight, brazier count, distance and tooltip")
 	var staged: String = FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/spx/special_encounters.json")
-	expect.call(preload("res://tests/helpers/brs01_catalog.gd").matches(staged, raw), "The staged catalog stays byte-identical except the four brs-01 title fields")
+	expect.call(staged == raw, "The staged catalog stays byte-identical")
 	var instance: Dictionary = Rules.data()["instances"]["last_light"]
 	expect.call(instance == _json({"rule": "shadowstep", "source": {"kind": "room"}, "cadence": {"anchor": "after_player_turn", "every": 1}, "dials": {"blink": 2, "who": "all_hidden"}, "sentence": SENTENCE}), "The Last Light Shadowstep instance is exact")
 	var intents: Array = _shade_intents()

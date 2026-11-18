@@ -6,6 +6,7 @@ const Panels = preload("res://scripts/ui_tooltip_panel.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Surface = preload("res://scripts/board_surface_presentation.gd")
 const Rules = preload("res://scripts/board_surface_rules.gd")
+const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const PREFIX: String = "tile-effects:"
 const PANEL_GAP: int = 6
 
@@ -58,8 +59,10 @@ static func mark_entries(view: Control) -> Dictionary:
 		var mark: Dictionary = meteors[tile]
 		var surface: String = str(mark["surface"])
 		_append_for_tile(result, tile, from_text("Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [int(mark["damage"]), " and becomes %s" % surface.capitalize() if not surface.is_empty() else "", _standing_line(tile, player_tile)], "cinder_marks"))
-	for tile: Vector2i in preload("res://scripts/enemy_mechanics/icefall_view.gd").marks(view):
-		_append_for_tile(result, tile, from_text(Icons.tooltip("icefall") + "\n5 damage.%s" % _standing_line(tile, player_tile), "icefall"))
+	var icefall: Dictionary = Icefall.marks(view)
+	for tile: Vector2i in icefall:
+		var amount: int = Icefall.landing_damage(state, icefall[tile])
+		_append_for_tile(result, tile, from_text(Icefall.mark_tooltip(amount, tile == player_tile), "icefall"))
 	var lob: Dictionary = preload("res://scripts/enemy_mechanics/lob_view.gd").marks(view)
 	var lob_texts: Dictionary = {}
 	for tile: Vector2i in lob:

@@ -1,6 +1,7 @@
 extends RefCounted
 class_name EnemyIntentCompass
 
+const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 
 const FAMILY_ATTACK := "attack"
@@ -43,7 +44,7 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 		if intent.is_empty():
 			continue
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(state, enemy, intent)
-		var primary: Dictionary = _primary_action(intent)
+		var primary: Dictionary = Icefall.presentation_action(state, enemy, _primary_action(intent))
 		if preload("res://scripts/enemy_mechanics/marked_strike.gd").is_lob(primary):
 			var lob_engine: RefCounted = command_engine if command_engine != null else preload("res://scripts/combat_engine.gd").new()
 			primary = preload("res://scripts/enemy_mechanics/marked_strike.gd").presentation_action(lob_engine, state, enemy, primary)
@@ -53,7 +54,7 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 			var projected_action: Dictionary = threat.get("projected_attack_action", {})
 			if not projected_action.is_empty():
 				projected_action = preload("res://scripts/enemy_mechanics/marked_strike.gd").presentation_action(command_engine, state, enemy, projected_action)
-				descriptor = descriptor_for_enemy({"actions": [projected_action]})
+				descriptor = descriptor_for_enemy({"actions": [Icefall.presentation_action(state, enemy, projected_action)]})
 		if not descriptor.is_empty():
 			result["enemy_%d" % enemy_id] = descriptor
 	return result
@@ -92,7 +93,7 @@ static func is_supported_action_type(action_type: String) -> bool:
 static func value_for_action(action: Dictionary) -> int:
 	if str(action.get("type", "")) in ["lob_mark", "lob_land"]: return int(action["center_damage"])
 	if str(action.get("type", "")) == "upheaval_mark": return int(action["health"])
-	if str(action.get("type", "")) == "icefall_mark": return 5
+	if str(action.get("type", "")) == "icefall_mark": return int(action.get("impact_damage", 5))
 	if str(action.get("type", "")) == "call_wind": return int(action.get("push", 1))
 	for key: String in ["damage", "amount", "count"]:
 		if action.has(key):

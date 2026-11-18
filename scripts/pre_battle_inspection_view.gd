@@ -12,6 +12,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const GuardianLibrary = preload("res://scripts/guardian_library.gd")
 const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
+const Icefall = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const Lob = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 
 const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
@@ -115,10 +116,12 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	moves.name = "PreBattleKnownMoves"
 	moves.add_theme_constant_override("separation", 7)
 	content.add_child(moves)
+	var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
+	var engine: RefCounted = host.get("_combat_engine")
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
-		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
 		var shown: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)
-		moves.add_child(build_move(host, Lob.presentation_intent(host.get("_combat_engine"), battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", ""))), enemy, battle))
+		shown = preload("res://scripts/warband_intent_presentation.gd").intent(engine, battle, enemy, shown)
+		moves.add_child(build_move(host, Lob.presentation_intent(engine, battle, enemy, shown), LoopContext.enemy(str(enemy.get("type", ""))), enemy, battle))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel
@@ -201,7 +204,9 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 
 static func move_rows(intent: Dictionary, source: Dictionary = {}, state: Dictionary = {}) -> Array:
 	var capacitor: Array = CapacitorView.rows(intent)
-	var rows: Array = capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(intent.get("actions", []))
+	var actions: Array = (intent.get("actions", []) as Array).map(func(action: Variant) -> Variant:
+		return Icefall.presentation_action(state, source, action) if action is Dictionary else action)
+	var rows: Array = capacitor if not capacitor.is_empty() else ActionIcons.rows_for_actions(actions)
 	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(state, source, intent)
 	if not beat_row.is_empty(): rows.append(beat_row)
 	return rows

@@ -13,6 +13,8 @@ const CHAIN_HP: int = 4
 const TRIGGER_DAMAGE: int = 6
 const WITNESS := Vector2i(5, 4)
 const DIRECTOR_SEED: int = 83
+# Keep the fourth Hoarder Tick away from the two Bursts that reach the hero.
+const DIRECTOR_TICK_OFFSETS: Array = [Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, -1), Vector2i(-3, 0)]
 const FORCE_WITNESS := Vector2i(5, 3)
 const ERUPT_ORIGIN := Vector2i(2, 3)
 const ERUPT_CENTER := Vector2i(3, 3)
@@ -115,17 +117,19 @@ func _director_pass(scene: Playback, reduced: bool) -> void:
 	before["player"]["hp"] = HERO_HP
 	before["player"]["max_hp"] = HERO_HP
 	var hero: Vector2i = before["player"]["pos"]
-	var index: int = 0
-	var spots: Array[Vector2i]
-	spots.assign([hero + Vector2i(1, 0), hero + Vector2i(2, 0), hero + Vector2i(1, -1)])
+	var brood: Array[Dictionary]
 	for enemy: Dictionary in before["enemies"]:
-		if str(enemy["type"]) != "ember_tick": continue
-		enemy["pos"] = spots[index]
-		before["grid"][spots[index].y][spots[index].x] = "stone"
+		if str(enemy["type"]) == "ember_tick": brood.append(enemy)
+	_expect(brood.size() == DIRECTOR_TICK_OFFSETS.size(), "Director pass positions the entire four-Tick Hoarder brood")
+	if brood.size() != DIRECTOR_TICK_OFFSETS.size(): return
+	for index: int in range(brood.size()):
+		var enemy: Dictionary = brood[index]
+		var tile: Vector2i = hero + DIRECTOR_TICK_OFFSETS[index]
+		enemy["pos"] = tile
+		before["grid"][tile.y][tile.x] = "stone"
 		enemy["hp"] = 1
 		enemy["bleed"] = BLEED
 		enemy["bleed_stacks"] = BLEED
-		index += 1
 	scene._load_run_state(run)
 	scene.set("_animation_lock", false)
 	if bool(scene.get("_dialogue_active")): scene._close_dialogue()
@@ -139,6 +143,7 @@ func _director_pass(scene: Playback, reduced: bool) -> void:
 	scene.sample_frame()
 	var after: Dictionary = scene.get("_combat_state")
 	scene.recording = false
+	_expect(after.get("death_burst_events", []).size() == brood.size(), "Director pass resolves a Burst for every Tick")
 	_expect(int(after["player"]["hp"]) == 52, "Director pass retains the true 52 Health result")
 	_check_path(scene.samples, before, after, "director_pass reduced=%s" % reduced)
 

@@ -194,6 +194,9 @@ static func presentation_action(engine: RefCounted, state: Dictionary, enemy: Di
 		result["lob_cross_count"] = maxi(1, (source.get("lob_centers", []) as Array).size())
 	return result
 
+static func icefall_damage(action: Dictionary) -> int:
+	return int(action.get("damage", 5))
+
 static func _resolve_icefall_land(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	var affected: Array[Vector2i] = tiles(engine, state, enemy, action)
@@ -211,9 +214,9 @@ static func _resolve_icefall_land(engine: RefCounted, state: Dictionary, index: 
 			if affected.has(tile): hit = true
 		if not hit or int(actor["unit"].get("hp", 0)) <= 0: continue
 		if str(actor["kind"]) == "enemy":
-			state = engine._damage_enemy(state, engine._enemy_index_for_id(state, int(actor["id"])), int(action.get("damage", 5)), true, false, false)
+			state = engine._damage_enemy(state, engine._enemy_index_for_id(state, int(actor["id"])), icefall_damage(action), true, false, false)
 		else:
-			state = engine._surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), int(action.get("damage", 5)), true)
+			state = engine._surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), icefall_damage(action), true)
 		state = engine._surface_freeze_actor(state, str(actor["kind"]), int(actor["id"]), action)
 	for tile: Vector2i in affected:
 		state = engine._place_action_surface(state, {"type": "surface", "surface": str(action.get("surface", "ice")), "_enemy_id": int(enemy["id"])}, tile)

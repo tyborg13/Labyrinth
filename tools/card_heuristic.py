@@ -403,7 +403,7 @@ def encounter_assumptions() -> dict[str, Any]:
             },
             "ember_hoarder": {
                 "objective": "kill_leader, then kill_all once it slips away",
-                "roster": "Ember Hoarder plus 3 Ember Ticks at every tier, Warband captain back-line placement",
+                "roster": "Ember Hoarder plus 4 Ember Ticks at every tier, Warband captain back-line placement",
                 "hoarder_hp": "3x the room's scaled Ember Tick Health; no Stoneskin",
                 "hoarder_intents": "Kindle (Ember Tick, weight 1) and Scurry (move_away 2, Time 4, weight 2); no attack",
                 "keep_distance": "Warband captain step: one tile before its intent when the player is within 2",

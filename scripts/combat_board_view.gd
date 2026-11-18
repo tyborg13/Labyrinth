@@ -17932,6 +17932,7 @@ func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	return rows
 
 func _own_move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	intent = preload("res://scripts/warband_intent_presentation.gd").intent(_summon_forecast_engine, combat_state, unit, intent)
 	var refraction_rows: Array = ReflectView.intent_rows(intent)
 	if not refraction_rows.is_empty(): return refraction_rows
 	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
@@ -17939,7 +17940,7 @@ func _own_move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	var actions: Array = intent.get("actions", [])
 	for action_index: int in range(actions.size()):
-		var action: Dictionary = actions[action_index]
+		var action: Dictionary = IcefallView.presentation_action(combat_state, unit, actions[action_index])
 		if action.has("range_status"):
 			action = action.duplicate(false)
 			action["range"] = mini(int(action.get("maximum_range",99)),int(action.get("range",1))+int(unit.get(str(action["range_status"]),0)))
@@ -18333,7 +18334,7 @@ func _trap_draw_rect(tile: Vector2i, texture: Texture2D = null) -> Rect2:
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
 	var element: String = str(trap.get("element", ElementData.NONE))
-	var damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var damage: int = _summon_forecast_engine.trap_damage(combat_state, trap)
 	var ground: String = {"fire": "@term(surface_fire)", "ice": "@term(surface_ice)", "lightning": "@term(surface_electrified)", "earth": "@term(surface_rubble)"}.get(element, "")
 	var wake: String = "@kw(push) each unit next to this tile 1 tile away." if element == "air" else "Leaves %s on this tile and each tile next to it." % ground
 	return "%s Trap\nTriggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [ElementData.name(element), damage, wake]

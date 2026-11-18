@@ -148,9 +148,9 @@ static func _data(expect: Callable) -> void:
 	expect.call(not data_failures(mutated).is_empty(), "Mutation: a leftover spill_embers_per_hit fails")
 	expect.call(Library.enabled_types().has("ember_hoarder") and Library.enabled_types().has("last_light"), "int-09 enables both approved specials")
 	var staged: String = FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/spx/special_encounters.json")
-	expect.call(preload("res://tests/helpers/brs01_catalog.gd").matches(staged, FileAccess.get_file_as_string("res://data/special_encounters.json")), "Staged director copy plus the four brs-01 title fields matches the live catalog")
+	expect.call(staged == FileAccess.get_file_as_string("res://data/special_encounters.json"), "Staged director catalog is byte-identical to the live catalog")
 	expect.call(definition["bonus"]["kind"] == "hoard_embers" and float(definition["bonus"]["standard_fight_embers"]) == 1.0, "New hoard_embers bonus kind at one standard fight")
-	print("Hoarder data: enabled, stub fields removed, staged bytes retained except four brs-01 title fields")
+	print("Hoarder data: enabled, stub fields removed, staged catalog byte-identical")
 
 # ---------------------------------------------------------------- 2. the unit
 
@@ -188,13 +188,13 @@ static func _matrix(expect: Callable) -> void:
 				var context: String = "%s/%d/%d/s%d/u%d" % [biome, tier, seed, section, umbra]
 				var types: Array = []
 				for enemy: Dictionary in layout["enemies"]: types.append(enemy["type"])
-				expect.call(types.slice(0, 4) == ["ember_hoarder", "ember_tick", "ember_tick", "ember_tick"], "Roster: Hoarder plus 3 Ember Ticks: " + context)
+				expect.call(types == ["ember_hoarder", "ember_tick", "ember_tick", "ember_tick", "ember_tick"], "Roster: Hoarder plus 4 Ember Ticks: " + context)
 				var expected_tick: int = ceili(DepthHelper.final_hp(generator, layout, "ember_tick") * int(layout["difficulty_stats"]["hp_percent"]) / 100.0)
-				for index: int in range(1, 4):
+				for index: int in range(1, 5):
 					expect.call(int(layout["enemies"][index]["max_hp"]) == expected_tick, "Brood Ember Tick scaled normally: " + context)
 				expect.call(hp_matches(layout, EXPECTED_HP_MULTIPLIER), "Hoarder Health is 3x the Ember Tick's: " + context)
 				var sliced: Dictionary = layout.duplicate(true)
-				sliced["enemies"] = (layout["enemies"] as Array).slice(0, 4)
+				sliced["enemies"] = (layout["enemies"] as Array).slice(0, 5)
 				expect.call(WarbandRooms.validate(sliced, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Back-line, screened Warband captain placement: " + context)
 				var hoarder: Dictionary = layout["enemies"][0]
 				expect.call(bool(hoarder["is_leader"]) and hoarder["display_name"] == "Ember Hoarder" and int(hoarder["stoneskin"]) == 0, "Leader nameplate, no generic leader bonus: " + context)
@@ -361,7 +361,7 @@ static func _catch(expect: Callable) -> void:
 			var fled: int = 0
 			for enemy: Dictionary in caught["enemies"]:
 				if str(enemy["type"]) == "ember_tick" and bool(enemy.get("warband_fled", false)): fled += 1
-			expect.call(fled == 3 and bool(caught["objective"]["completed_by_leader"]), "Brood scatters by the Warband break: " + context)
+			expect.call(fled == 4 and bool(caught["objective"]["completed_by_leader"]), "Brood scatters by the Warband break: " + context)
 			var own: Array = (caught.get("death_burst_events", []) as Array).filter(func(event: Dictionary) -> bool: return int(event["id"]) == int(state["enemies"][index]["id"]))
 			expect.call(own.size() == 1 and int(own[0]["damage"]) == 4, "Hoarder's own death burst fires as an Ember Tick's: " + context)
 			expect.call(catch_clean(caught), "Brood death bursts suppressed after the catch: " + context)

@@ -69,23 +69,23 @@
           100
         ],
         "damage_bonus": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
         ],
-        "director_note": "survival room; needs dial redesign, not stats"
+        "director_note": "+4 damage: sighted-bot s0 Health-cost gap +10.7 [-1.5, +24.0] vs matched normals (llt-01 r1); +3 gave +4.4"
       },
       "ember_hoarder": {
         "hp_percent": [
-          100,
-          100,
-          100,
-          100,
-          100,
-          100
+          115,
+          115,
+          115,
+          115,
+          115,
+          115
         ],
         "damage_bonus": [
           0,
@@ -95,7 +95,7 @@
           0,
           0
         ],
-        "director_note": "escape counts as a win; needs dial redesign, not stats"
+        "director_note": "brood 4 + 115% Health: s0 gap +9.8 (obj-01)"
       }
     },
     "guardian": {

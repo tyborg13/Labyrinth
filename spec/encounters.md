@@ -1139,10 +1139,10 @@ new `data/enemies.json` entry `ember_hoarder`, or from `HoarderRoomRules`
   int-09 decision in the maquette runtime. Floor, height and action bounds reuse
   the Tick's exact registration, and Kindle uses its existing selector. Every
   other rig remains byte-identical; provenance ledgers carry the exact alias delta.
-- **Start.** The roster is the Hoarder plus three Ember Ticks at every tier,
+- **Start.** The roster is the Hoarder plus four Ember Ticks at every tier,
   placed by `WarbandRoomRules.positions` and validated by `WarbandRoomRules.validate`
   (captain slot 5–7 from entry, screened). Ordinary depth, sequence and Umbra
-  scaling apply to all four; then the Hoarder's Health becomes 3× the brood Tick's
+  scaling apply to all five; then the Hoarder's Health becomes 3× the brood Tick's
   final Health. The Defeat the Leader objective carries no generic leader HP or
   Stoneskin. The Hoarder is the marked leader with the per-instance nameplate
   "Ember Hoarder" (the captain's mechanism; no new icon). Omen enemies are added

@@ -270,7 +270,8 @@
    "emblem": "res://assets/art/icons/map/ember_hoarder.png",
    "tooltip_line": "Catch the Ember Hoarder before it slips away with its hoard.",
    "objective": "defeat_leader",
-   "objective_title": "Ember Hoarder",
+   "objective_title": "Defeat the Ember Hoarder before it escapes!",
+   "objective_hud_title": "Defeat the Hoarder",
    "objective_description": "Catch the Hoarder before it slips away.",
    "rule_line": "The Hoarder slips away with its hoard after your %s turn.",
    "rule_panel": {
@@ -303,10 +304,12 @@
    },
    "brood": {
     "unit": "ember_tick",
-    "count": 3
+    "count": 4
    }
   },
   "last_light": {
+   "objective_title": "Survive until dawn!",
+   "objective_hud_title": "Survive until dawn",
    "enabled": true,
    "first_layout_revision": 7,
    "name": "Last Light",

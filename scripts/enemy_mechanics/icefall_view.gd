@@ -7,9 +7,21 @@ const Biomes = preload("res://scripts/biome_library.gd")
 const Fx = preload("res://scripts/elemental_spell_fx.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
+const Combat = preload("res://scripts/combat_engine.gd")
+const Marks = preload("res://scripts/enemy_mechanics/marked_strike.gd")
+const Warband = preload("res://scripts/warband_combat_rules.gd")
+const Data = preload("res://scripts/game_data.gd")
+
 const TINT := Color("9cc8e6")
 const FALL_SECONDS: float = 0.18
 const PUFF_SECONDS: float = 0.30
+
+# Created on first use: a static initializer runs while CombatEngine may still be loading (grel21 dragon test).
+static var _preview_engine_instance: RefCounted = null
+
+static func _preview_engine() -> RefCounted:
+	if _preview_engine_instance == null: _preview_engine_instance = Combat.new()
+	return _preview_engine_instance
 
 static func pillar_tooltip(terrain: Dictionary) -> String:
 	return Icons.tooltip("ice_pillar") + "\n%d turns left" % int(terrain.get("rounds_left", 0))
@@ -26,12 +38,32 @@ static func draw_tile(view: Control, tile: Vector2i) -> void:
 	if not marks(view).has(tile): return
 	TileGlow.draw_wash(view, view._tile_polygon(tile), TINT, 0.20)
 
+static func landing_damage(state: Dictionary, enemy: Dictionary) -> int:
+	# Held marks keep the revealed landing action. The marking move can also
+	# be inspected before a landing is revealed, so scale its follow-up once.
+	for action: Dictionary in enemy.get("intent", {}).get("actions", []):
+		if str(action.get("type", "")) == "icefall_land":
+			return Marks.icefall_damage(Warband.action(state, enemy, action))
+	var base: Dictionary = _preview_engine()._intent_by_id(Data.enemy_property("hoarfrost_seer", "intents", []), "icefall_land")
+	var scaled: Dictionary = _preview_engine()._scale_enemy_intent(base, int(state.get("room_depth", 1)), state, enemy)
+	return Marks.icefall_damage(Warband.action(state, enemy, scaled["actions"][0]))
+
+static func presentation_action(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Dictionary:
+	if str(action.get("type", "")) != "icefall_mark": return action
+	var shown: Dictionary = action.duplicate(false)
+	shown["impact_damage"] = landing_damage(state, enemy)
+	return shown
+
+static func mark_tooltip(amount: int, standing: bool) -> String:
+	return Icons.tooltip("icefall") + "\n%d damage.%s" % [amount, "\nYou are standing on it." if standing else ""]
+
 static func draw_badges(view: Control) -> void:
 	var icon: Texture2D = Icons.icon_texture("icefall")
 	var font: Font = view.get_theme_default_font()
-	for tile: Vector2i in marks(view):
+	var held: Dictionary = marks(view)
+	for tile: Vector2i in held:
 		if not view._board_tile_is_visible_to_player(tile): continue
-		var enemy: Dictionary = marks(view)[tile]
+		var amount: int = landing_damage(view.combat_state, held[tile])
 		var size: float = clampf(view._tile_width() * 0.22, 24.0, 40.0)
 		var radius: float = size * 0.62
 		var center: Vector2 = view._tile_center(tile) + Vector2(-view._tile_width() * 0.16, view._tile_height() * 0.22)
@@ -40,14 +72,15 @@ static func draw_badges(view: Control) -> void:
 		view.draw_arc(center, radius - 1, 0, TAU, 32, TINT, 2, true)
 		var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
 		if icon != null: view.draw_texture_rect(icon, rect, false)
-		var tooltip: String = Icons.tooltip("icefall") + "\n5 damage.%s" % ["\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
+		var tooltip: String = mark_tooltip(amount, tile == view.combat_state.get("player", {}).get("pos"))
 		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(rect, tooltip, tile)
 		else: view._register_tooltip(rect, tooltip)
 		if font == null: continue
 		var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))
-		var text_width: float = font.get_string_size("5", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var text: String = str(amount)
+		var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
-		view._draw_outlined_string(font, baseline, "5", text_width + 4, font_size, TINT.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
+		view._draw_outlined_string(font, baseline, text, text_width + 4, font_size, TINT.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2)
 		if view.has_method("_register_tile_tooltip"): view._register_tile_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip, tile)
 		else: view._register_tooltip(Rect2(baseline - Vector2(0, font_size), Vector2(text_width + 4, font_size + 4)), tooltip)
 

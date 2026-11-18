@@ -1241,7 +1241,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.back()["plain_text"] = lob_text(action)
 			return tokens
 		"icefall_mark":
-			tokens.append(token_for("icefall", 5))
+			tokens.append(token_for("icefall", int(action.get("impact_damage", 5))))
 			tokens.append(token_for("range", int(action.get("range", 5))))
 		"icefall_land":
 			tokens.append(token_for("icefall", int(action.get("damage", 5)), "neutral", marked_move_text(action)))

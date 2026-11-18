@@ -1240,7 +1240,7 @@ the existing objective cohort. Variant orders are outside this unit.
 
 ## Ember Hoarder (spx-09)
 
-The Ember Hoarder room is the Hoarder plus three Ember Ticks at every tier, in
+The Ember Hoarder room is the Hoarder plus four Ember Ticks at every tier, in
 the Warband captain's back-line formation. The Hoarder is an Ember Tick with
 3× the room's scaled Ember Tick Health, no Stoneskin, Kindle (weight 1) and
 Scurry (`move_away` 2, Time 4, weight 2), and no attack. It takes the captain's
