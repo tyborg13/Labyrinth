@@ -1,24 +1,28 @@
 extends RefCounted
 
-# One complete input snapshot survives selection-key changes. No field subset
-# or hash can omit a status, RNG, history, or Umbra information dependency.
-# Own both values: the live state and the per-selection summary may be mutated.
-var _state: Dictionary = {}
-var _summary: Dictionary = {}
-var _ready: bool = false
+# Keep the rest forecast alongside recent target forecasts as selection keys
+# change. Compare full owned inputs, including RNG, history and Umbra data.
+const SOURCE_LIMIT: int = 8
+var _entries: Array[Dictionary]
 
 func remember(state: Dictionary, result: Dictionary) -> void:
-	_state = state.duplicate(true)
-	_summary = result.duplicate(true)
-	_ready = true
+	for index: int in range(_entries.size()):
+		if _entries[index]["state"] == state:
+			_entries.remove_at(index)
+			break
+	_entries.push_front({"state": state.duplicate(true), "summary": result.duplicate(true)})
+	if _entries.size() > SOURCE_LIMIT: _entries.pop_back()
 
-func matches(state: Dictionary) -> bool:
-	return _ready and _state == state
-
-func summary() -> Dictionary:
-	return _summary.duplicate(true)
+# Null is the miss sentinel. A computed empty summary is still a hit.
+func lookup(state: Dictionary) -> Variant:
+	for index: int in range(_entries.size()):
+		var entry: Dictionary = _entries[index]
+		if entry["state"] == state:
+			if index > 0:
+				_entries.remove_at(index)
+				_entries.push_front(entry)
+			return (entry["summary"] as Dictionary).duplicate(true)
+	return null
 
 func clear() -> void:
-	_state = {}
-	_summary = {}
-	_ready = false
+	_entries.clear()

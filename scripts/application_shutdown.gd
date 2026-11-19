@@ -3,6 +3,7 @@ extends RefCounted
 ## The root exits after scenes and autoloads, including their persistence and
 ## telemetry barriers. Release cross-script Callables here, while every script's
 ## update mutex is still alive, rather than in GDScriptLanguage::finish().
+const Disk = preload("res://scripts/persistence_disk_worker.gd")
 const Persistence = preload("res://scripts/run_persistence.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
@@ -28,6 +29,7 @@ static func finish() -> bool:
 	for writer: RefCounted in Analytics._writers_by_directory.values():
 		writer.cancel_pending()
 	Analytics._writers_by_directory.clear()
+	Disk.join()
 	Bindings.reset_cache()
 	Measurements.release_shutdown_connections()
 	Recovery.release_shutdown_callables()

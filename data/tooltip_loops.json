@@ -52,13 +52,40 @@
         "kind": "hero_card"
       },
       "asset_path": "res://assets/tooltip_loops/collision_push.tlw",
-      "speed": "normal",
-      "aliases": [
-        "push",
-        "pull"
+      "speed": "fast",
+      "grimoire_entries": [
+        "keyword:collision"
       ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000,
       "global_terms": [
         "collision"
+      ]
+    },
+    {
+      "id": "push_card",
+      "term": "push",
+      "source_match": {
+        "kind": "hero_card"
+      },
+      "asset_path": "res://assets/tooltip_loops/push_card.tlw",
+      "speed": "fast",
+      "grimoire_entries": [
+        "keyword:push"
+      ],
+      "max_recording_frames": 147,
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "pull_card",
+      "term": "pull",
+      "source_match": {
+        "kind": "hero_card"
+      },
+      "asset_path": "res://assets/tooltip_loops/pull_card.tlw",
+      "speed": "fast",
+      "grimoire_entries": [
+        "keyword:pull"
       ],
       "max_recording_frames": 147,
       "max_asset_bytes": 1500000

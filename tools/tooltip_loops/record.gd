@@ -65,6 +65,8 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	var patch: Rect2i = Fixture.crop_tiles(fixture["id"])
 	var crop: Rect2i = Playback.crop_rect(board, patch)
 	var audit := PatchChecks.new()
+	var force_audit: RefCounted
+	if Fixture.Tip07.IDS.has(row["id"]): force_audit = Playback.Tip07Playback.new()
 	audit.drawn_floor(board, fixture["state"], fixture["id"], "start", patch)
 	var frames: int = 0
 	var terminal_frames: int = 0
@@ -97,7 +99,9 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			valid_recording = false
 			break
 		board.audit_frame()
-		if not recording: audit.observe(board, crop, fixture["id"])
+		if not recording:
+			audit.observe(board, crop, fixture["id"])
+			if force_audit != null: force_audit.observe(board, fixture, result, frames)
 		if row["id"] == "marked_lob_slag":
 			for unit: Dictionary in board._visible_units():
 				if unit.get("role") != "player": continue
@@ -107,6 +111,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			await RenderingServer.frame_post_draw
 			# Frame-margin proof observes the pose actually submitted for this image.
 			audit.observe(board, crop, fixture["id"])
+			if force_audit != null: force_audit.observe(board, fixture, result, frames)
 			var image: Image = viewport.get_texture().get_image()
 			if image == null or image.get_size() != Playback.SIZE:
 				failures.append("Recorder requires a real 1920x1080 renderer image"); valid_recording = false; break
@@ -121,6 +126,10 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 				var label: String = "source_start" if frames == 0 else "source_first_motion"
 				if frames != 0: source_first_motion_saved = true
 				var proof: String = proof_dir.path_join("%s_%s_1920x1080.png" % [row["id"], label])
+				image.save_png(proof)
+				print(proof)
+			if force_audit != null and force_audit.impact_frame == frames:
+				var proof: String = proof_dir.path_join(str(row["id"]) + "_source_impact_1920x1080.png")
 				image.save_png(proof)
 				print(proof)
 			var picture: Image = image.get_region(crop)
@@ -143,6 +152,9 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		audit.failures.append_array(audit.upheaval.finish(board.seen_numbers, fixture, result))
 		visibility["upheaval"] = audit.upheaval.report()
 	if Fixture.Traps.IDS.has(fixture["id"]): visibility["trap"] = audit.traps.finish(board, fixture, audit.failures)
+	if force_audit != null:
+		visibility["forced_movement"] = force_audit.report(fixture, result, board, audit.failures)
+		print("TIP07 PLAYBACK RECEIPT %s: %s" % [row["id"], JSON.stringify(visibility["forced_movement"])])
 	failures.append_array(audit.failures)
 	if not audit.failures.is_empty(): valid_recording = false
 	print("TIP04 PATCH VISIBILITY %s: %s %s" % [fixture["id"], "PASS" if audit.failures.is_empty() else "FAIL", JSON.stringify(visibility)])
@@ -245,6 +257,8 @@ func _source_hashes() -> Dictionary:
 	for path: String in ["data/tooltip_loops.json", "scripts/settings_store.gd", "tools/tooltip_loops/record.gd", "tools/tooltip_loops/fixture.gd", "tools/tooltip_loops/tip03_fixture.gd", "tools/tooltip_loops/tip04_fixture.gd", "tools/tooltip_loops/tip05_fixture.gd", "tools/tooltip_loops/tip05_checks.gd", "tools/tooltip_loops/terrain_checks.gd", "scripts/battlefield_rule_hud.gd", "scripts/displacement_throw.gd", "scripts/battlefield_rules/upheaval.gd", "scripts/snare_pressure_rules.gd", "scripts/snare_pressure_view.gd", "scripts/enemy_mechanics/burrow.gd", "data/special_encounters.json", "tools/tooltip_loops/patch_checks.gd", "tools/tooltip_loops/sprite_margin.gd", "scripts/battlefield_rules/gust.gd", "scripts/battlefield_rules/frostbite.gd", "scripts/battlefield_rules/wildfire.gd", "scripts/battlefield_rules/shadowstep.gd", "scripts/battlefield_rule_view.gd", "scripts/enemy_mechanics/stalker.gd", "scripts/enemy_mechanics/stalker_view.gd", "tools/tooltip_loops/playback.gd", "tools/tooltip_loops/record_board.gd", "scripts/run_scene.gd", "scripts/combat_board_view.gd", "data/cards.json", "data/enemies.json", "data/battlefield_rules.json", "scripts/battlefield_rules/dispatcher.gd", "scripts/battlefield_rules/lightning_storm.gd", "scripts/board_surface_rules.gd", "scripts/enemy_mechanics/chain_hit_feedback.gd", "assets/units/storm_capacitor_cutout/actions.gd", "scripts/enemy_mechanics/capacitor_view.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	for path: String in ["scripts/combat_engine.gd", "scripts/room_generator.gd", "scripts/board_tile_tooltip.gd", "scripts/tooltip_loop_registry.gd", "scripts/forced_displacement_view.gd", "scripts/enemy_mechanics/wind_view.gd", "tools/tooltip_loops/trap_fixture.gd", "tools/tooltip_loops/trap_checks.gd", "tools/txt13/loop_fixture.gd"]:
+		hashes[path] = FileAccess.get_sha256("res://" + path)
+	for path: String in ["tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	return hashes
 

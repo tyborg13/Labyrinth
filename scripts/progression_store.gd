@@ -62,7 +62,9 @@ static var _session_umbra_depth: int = -1
 static var _session_depth_save_failed: bool = false
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
-static var _run_writer := preload("res://scripts/ordered_background_writer.gd").new()
+const PersistenceDisk = preload("res://scripts/persistence_disk_worker.gd")
+const OrderedWriter = preload("res://scripts/ordered_background_writer.gd")
+static var _run_writer := OrderedWriter.new()
 
 static func set_storage_path(path: String) -> void:
 	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
@@ -455,25 +457,29 @@ static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Di
 	return result
 
 static func save_data(data: Dictionary) -> bool:
-	if not _archive_before_surface_migration(_storage_path, true) or not _archive_before_surface_migration(_profile_backup_path(), true):
+	var saved_data: Dictionary = _normalized_data(data.duplicate(true))
+	if DemoBuild.is_demo(): saved_data["build_kind"] = "demo"
+	var bytes: PackedByteArray = JSON.stringify(saved_data, "\t").to_utf8_buffer()
+	return PersistenceDisk.run(_write_profile_at.bind(_storage_path, bytes))
+
+static func _write_profile_at(path: String, bytes: PackedByteArray) -> bool:
+	var temp_path: String = "%s.tmp" % path
+	var backup_path: String = "%s.backup" % path
+	if not _archive_before_surface_migration(path, true) or not _archive_before_surface_migration(backup_path, true):
 		return false
-	var temp_path: String = _profile_temp_path()
-	var backup_path: String = _profile_backup_path()
 	_remove_profile_file_if_present(temp_path)
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	var saved_data: Dictionary = _normalized_data(data.duplicate(true))
-	if DemoBuild.is_demo(): saved_data["build_kind"] = "demo"
-	file.store_string(JSON.stringify(saved_data, "\t"))
+	file.store_buffer(bytes)
 	file.flush()
 	file.close()
 	if _load_profile_dictionary(temp_path).is_empty():
 		_remove_profile_file_if_present(temp_path)
 		return false
-	var live_path: String = ProjectSettings.globalize_path(_storage_path)
-	var live_exists: bool = FileAccess.file_exists(_storage_path)
-	var live_valid: bool = live_exists and not _load_profile_dictionary(_storage_path).is_empty()
+	var live_path: String = ProjectSettings.globalize_path(path)
+	var live_exists: bool = FileAccess.file_exists(path)
+	var live_valid: bool = live_exists and not _load_profile_dictionary(path).is_empty()
 	var backup_valid: bool = false
 	if live_valid:
 		_remove_profile_file_if_present(backup_path)
@@ -488,7 +494,7 @@ static func save_data(data: Dictionary) -> bool:
 				_remove_profile_file_if_present(temp_path)
 				return false
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
-		if backup_valid and not FileAccess.file_exists(_storage_path):
+		if backup_valid and not FileAccess.file_exists(path):
 			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)
 		_remove_profile_file_if_present(temp_path)
 		return false
@@ -583,18 +589,31 @@ static func save_run_state(run_state: Dictionary) -> bool:
 	return flush_pending_run_saves()
 
 static func queue_run_state(run_state: Dictionary, failure_boundary: String = "") -> bool:
-	# Later idle writes own every nested array/dictionary. A successful newer
-	# checkpoint may supersede older snapshots, including a failed predecessor.
-	var request: Dictionary = {"state": run_state.duplicate(true), "failure_boundary": failure_boundary, "reported": false}
-	_run_writer.submit(_save_queued_run_state_at.bind(_run_storage_path, request), true)
+	return queue_owned_run_state(run_state.duplicate(true), failure_boundary)
+
+static func queue_owned_run_state(state: Dictionary, failure_boundary: String, receipt: OrderedWriter.Receipt = null,
+		settled: Callable = Callable()) -> bool:
+	# Defer encoding to dispatch so superseded checkpoints are never encoded.
+	# Only the owned snapshot is read during preparation on the game thread.
+	var request: Dictionary = {"reported": false}
+	_run_writer.submit_prepared(_prepare_run_state_at.bind(_run_storage_path, state), true,
+		_report_run_write.bind(failure_boundary, request, settled), receipt)
 	return true
 
-static func _save_queued_run_state_at(path: String, request: Dictionary) -> bool:
-	var saved: bool = _save_run_state_at(path, request["state"])
-	if not saved and not bool(request["reported"]) and not str(request["failure_boundary"]).is_empty():
-		push_error("Failed to persist committed run boundary: %s" % str(request["failure_boundary"]))
+static func _prepare_run_state_at(path: String, state: Dictionary, transaction_probe: Callable = Callable()) -> Callable:
+	# FileAccess.store_var(false) writes a little-endian length followed by the
+	# same object-free Variant payload as var_to_bytes(). Keep both finished
+	# buffers separate to avoid copying the full room graph into a second array.
+	var payload: PackedByteArray = var_to_bytes(state)
+	var length: PackedByteArray = [0, 0, 0, 0]
+	length.encode_u32(0, payload.size())
+	return _write_run_state_at.bind(path, length, payload, not state.is_empty(), transaction_probe)
+
+static func _report_run_write(saved: bool, failure_boundary: String, request: Dictionary, settled: Callable) -> void:
+	if not saved and not bool(request["reported"]) and not failure_boundary.is_empty():
+		push_error("Failed to persist committed run boundary: %s" % failure_boundary)
 		request["reported"] = true
-	return saved
+	if settled.is_valid(): settled.call(saved)
 
 static func poll_pending_run_saves(idle: bool = true) -> void:
 	_run_writer.poll(idle)
@@ -606,6 +625,10 @@ static func flush_pending_run_saves() -> bool:
 	return succeeded
 
 static func _save_run_state_at(run_path: String, run_state: Dictionary, transaction_probe: Callable = Callable()) -> bool:
+	return PersistenceDisk.run(_prepare_run_state_at(run_path, run_state, transaction_probe))
+
+static func _write_run_state_at(run_path: String, length: PackedByteArray, payload: PackedByteArray,
+		validate: bool, transaction_probe: Callable) -> bool:
 	# Reuse this transaction's inspection for migration and crash recovery. Both
 	# used to deserialize the entire previous run independently on every save.
 	# Never cache across transactions: externally restored/corrupt files must be
@@ -620,10 +643,11 @@ static func _save_run_state_at(run_path: String, run_state: Dictionary, transact
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_var(run_state, false)
+	file.store_buffer(length)
+	file.store_buffer(payload)
 	file.flush()
 	file.close()
-	if not run_state.is_empty() and not _run_dictionary_is_nonempty(temp_path):
+	if validate and not _run_dictionary_is_nonempty(temp_path):
 		_remove_run_file_if_present(temp_path)
 		return false
 	if transaction_probe.is_valid() and not transaction_probe.call("temporary_validated"): return false
@@ -655,20 +679,21 @@ static func _save_run_state_at(run_path: String, run_state: Dictionary, transact
 
 static func clear_saved_run() -> void:
 	flush_pending_run_saves()
-	# A terminal legacy save can reach clearing without another combat write.
-	# Preserve its original bytes before the normal live/recovery cleanup.
-	if not _archive_before_surface_migration(_run_storage_path, false) or not _archive_before_surface_migration(_run_backup_path(), false):
+	if not PersistenceDisk.run(_clear_run_at.bind(_run_storage_path)):
 		push_warning("Could not archive the legacy run; preserving the saved run.")
 		return
-	# The original synchronous path cleared the completed/abandoned run even
-	# after a failed checkpoint. Do not resurrect it after its explicit deletion.
+	# An explicitly deleted run must never be resurrected by a failed retry.
 	_run_writer.cancel_pending()
-	_remove_run_file_if_present(_run_storage_path)
-	_remove_run_file_if_present(_run_temp_path())
-	_remove_run_file_if_present(_run_backup_path())
 
-static func _run_temp_path() -> String:
-	return "%s.tmp" % _run_storage_path
+static func _clear_run_at(path: String) -> bool:
+	# A terminal legacy save can reach clearing without another combat write.
+	# Preserve its original bytes before the normal live/recovery cleanup.
+	if not _archive_before_surface_migration(path, false) or not _archive_before_surface_migration(path + ".backup", false):
+		return false
+	_remove_run_file_if_present(path)
+	_remove_run_file_if_present(path + ".tmp")
+	_remove_run_file_if_present(path + ".backup")
+	return true
 
 static func _inspect_run_file(path: String) -> Dictionary:
 	var result: Dictionary = {"exists": FileAccess.file_exists(path), "readable": false, "valid": false, "surface_rules_version": 0}

@@ -1322,6 +1322,8 @@ var _run_state: Dictionary = {}
 var _combat_state: Dictionary = {}
 var _committed_run_state_override: Dictionary = {}
 var _owned_boundary_snapshot: Dictionary = {}
+const PersistenceWriter = preload("res://scripts/ordered_background_writer.gd")
+var _deferred_checkpoint_receipt: PersistenceWriter.Receipt
 var _save_in_progress: bool = false
 var _skill_analytics_queue = DeferredReconciliationQueue.new()
 var _run_skill_analytics_queue = DeferredReconciliationQueue.new()
@@ -3772,8 +3774,16 @@ func _connect_board_aim_signals() -> void:
 	if board_view.has_signal("tile_drag_released") and not board_view.tile_drag_released.is_connected(_on_board_tile_drag_released):
 		board_view.tile_drag_released.connect(_on_board_tile_drag_released)
 
+var _board_view_rect_sync_queued: bool = false
+
 func _queue_board_view_rect_sync() -> void:
-	call_deferred("_sync_board_view_rect")
+	if _board_view_rect_sync_queued: return
+	_board_view_rect_sync_queued = true
+	call_deferred("_flush_board_view_rect_sync")
+
+func _flush_board_view_rect_sync() -> void:
+	_board_view_rect_sync_queued = false
+	_sync_board_view_rect()
 
 func _sync_board_view_rect() -> void:
 	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
@@ -10719,7 +10729,12 @@ func _refresh_ui(
 	var slice_cpu_started: int = Time.get_ticks_usec()
 	var slice_telemetry_overhead_started: int = _runtime_performance_record_overhead_live_usec
 	var sliced_wait_occurred: bool = false
+	var unlock_before_choices: bool = unlock_animation_after_slices and not frame_sliced and queue_hand_ready_wave_on_unlock
 	for job: Callable in [_refresh_ui_header, _refresh_ui_navigation, _refresh_ui_choices, _refresh_ui_stage, _refresh_ui_hand]:
+		if unlock_before_choices and job == _refresh_ui_choices:
+			# This enemy-round handoff is synchronous. The board, Pass and hand
+			# can go straight to the final player-turn presentation.
+			_unlock_after_ui_refresh(true)
 		job.call()
 		if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 			var wait_started: int = Time.get_ticks_usec()
@@ -10736,19 +10751,23 @@ func _refresh_ui(
 		# Unlock and rebuild all lock-dependent surfaces synchronously after the final
 		# await so no Pass/card/board event can enter the still-running refresh.
 		var unlock_inputs_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		_animation_lock = false
-		if queue_hand_ready_wave_on_unlock:
-			_queue_hand_ready_wave("player_turn_start")
-			_show_turn_banner(true)
-		_refresh_card_play_meter()
-		_refresh_player_movement_meter()
-		_refresh_choice_bar()
-		_refresh_stage_view()
-		_refresh_hand_panel()
+		if not unlock_before_choices:
+			_unlock_after_ui_refresh(queue_hand_ready_wave_on_unlock)
+			_refresh_card_play_meter()
+			_refresh_player_movement_meter()
+			_refresh_choice_bar()
+			_refresh_stage_view()
+			_refresh_hand_panel()
 		_record_runtime_performance_phase("refresh_ui_unlock_inputs_total", unlock_inputs_started)
 	_refresh_ui_finish()
 	_record_runtime_performance_phase("refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total", performance_total_started)
 	_end_ui_refresh(frame_sliced)
+
+func _unlock_after_ui_refresh(queue_hand_ready_wave: bool) -> void:
+	_animation_lock = false
+	if queue_hand_ready_wave:
+		_queue_hand_ready_wave("player_turn_start")
+		_show_turn_banner(true)
 
 func _begin_ui_refresh(frame_sliced: bool) -> void:
 	_consume_pending_card_draw_sfx(_combat_state)
@@ -10846,7 +10865,9 @@ func _refresh_ui_choices(reward_jobs: Variant = null) -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_card_play_meter", performance_phase_started)
 	_refresh_player_movement_meter()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_movement_meter", performance_phase_started)
-	_refresh_action_step_tracker()
+	# Choice refresh updates this after choice layout. The dialogue early return
+	# is the only branch that still needs the standalone tracker update.
+	if _dialogue_active and _dialogue_suppresses_choices: _refresh_action_step_tracker()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker_total", performance_phase_started)
 	_refresh_pile_visuals()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_visuals", performance_phase_started)
@@ -12503,13 +12524,14 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 	# The stage/animation submission owns the boss overlay's live preview.
 	# _board_presentation is only base chrome: refreshing from it here erases
 	# the forecast just submitted by a card hover or attack-target change.
+	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays()
 	var source_signature: String = "%d|%d|%d|%d|%d|%s" % [
 		_combat_preview_revision,
 		_selected_card_index,
 		_hovered_card_index,
 		1 if _animation_lock else 0,
 		1 if _selected_card_empowered() else 0,
-		str(_turn_order_stagger_preview_delays())
+		str(stagger_delays)
 	]
 	if source_signature == _turn_order_source_signature:
 		_refresh_turn_order_landing_strip()
@@ -12519,7 +12541,7 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 			_set_turn_order_bar_entries(_turn_order_all_entries)
 		return
 	_turn_order_source_signature = source_signature
-	var display_state: Dictionary = _turn_order_display_state() if accepted_display_state.is_empty() else accepted_display_state
+	var display_state: Dictionary = _turn_order_display_state(stagger_delays) if accepted_display_state.is_empty() else accepted_display_state
 	# The strip needs the end-now hero even beyond the rail's disclosure cap.
 	# Each queued actor can contribute its entry and one follow-up, plus the
 	# active actor and its next turn. Project once, then cap only the rail.
@@ -12558,9 +12580,9 @@ func _refresh_turn_order_landing_strip() -> void:
 	var callout: Control = _contextual_combat_prompt.get_node_or_null("GuidedActionCallout") as Control if _contextual_combat_prompt != null else null
 	_turn_order_landing_strip.present(_turn_order_all_entries, index, card, _card_focus_tooltip_stack, _turn_order_portrait_path, _turn_order_landing_strip_allowed.bind(index), _reduced_motion_enabled(), callout)
 
-func _turn_order_display_state() -> Dictionary:
+func _turn_order_display_state(accepted_stagger_delays: Variant = null) -> Dictionary:
 	var preview: Dictionary = _turn_order_card_time_preview()
-	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays()
+	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays() if accepted_stagger_delays == null else accepted_stagger_delays
 	if preview.is_empty() and stagger_delays.is_empty():
 		return _combat_state
 	# The turn-order projection only reads nested combat data. A shallow shell is
@@ -14787,17 +14809,26 @@ func _pending_card_defiance_spent() -> int:
 func _add_pass_preview_chip() -> void:
 	preload("res://scripts/retained_pass_preview.gd").refresh(self)
 
-func _refresh_selected_card_forecast() -> void:
+func _selected_card_forecast_chip() -> Button:
 	# Keep the same recursive discovery/child contract, but reuse its live owner
 	# instead of walking every board rig and inventory node on targeting motion.
 	var chip: Button = _pass_preview_forecast_chip.get_ref() as Button if _pass_preview_forecast_chip != null else null
 	if chip == null or not is_ancestor_of(chip):
 		chip = find_child("PassPreviewChip", true, false) as Button
 		_pass_preview_forecast_chip = weakref(chip) if chip != null else null
+	return chip
+
+func _selected_card_forecast_needed(chip: Button) -> bool:
+	if _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active(): return true
+	if chip.has_focus() or bool(chip.get_meta("pass_pointer_hover", false)): return true
+	var forecast: GDScript = preload("res://scripts/pass_forecast_presentation.gd")
+	return forecast.preview_active(self) or forecast.ends_turn(self)
+
+func _refresh_selected_card_forecast() -> void:
+	var chip: Button = _selected_card_forecast_chip()
 	if chip == null:
 		return
-	var presentation: GDScript = preload("res://scripts/pass_forecast_presentation.gd")
-	if (_player_movement_selected or _selected_card_index >= 0 or _surface_aim.active()) and not presentation.preview_active(self) and not presentation.ends_turn(self) and not chip.has_focus() and not bool(chip.get_meta("pass_pointer_hover", false)):
+	if not _selected_card_forecast_needed(chip):
 		_configure_pass_forecast_panel(chip, {})
 		return
 	var summary: Dictionary = _pass_preview_summary()
@@ -14851,7 +14882,7 @@ func _set_pass_preview_released(chip: Button, art_host: TextureRect, content: Co
 	chip.set_meta("pass_pressed", false)
 	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
+func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color, summary: Variant = null) -> void:
 	if chip == null or art_host == null or content == null or focus_edge == null:
 		return
 	var disabled: bool = chip.disabled
@@ -14862,11 +14893,14 @@ func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, cont
 	chip.set_meta("pass_interaction_state", state)
 	content.position = Vector2(0.0, 1.0) if pressed else Vector2.ZERO
 	var art_state: String = "pressed" if pressed else "hover" if hovered or focused else "normal"
-	art_host.texture = preload("res://scripts/retained_pass_preview.gd").button_art(AssetLoader.load_texture(PASS_FORECAST_PRESSED_TEXTURE_PATH) if art_state == "pressed" else AssetLoader.load_texture(PASS_FORECAST_HOVER_TEXTURE_PATH) if art_state == "hover" else AssetLoader.load_texture(PASS_FORECAST_FRAME_TEXTURE_PATH))
-	art_host.set_meta("pass_forecast_art_state", art_state)
+	if art_host.get_meta("pass_forecast_art_state", "") != art_state:
+		art_host.texture = preload("res://scripts/retained_pass_preview.gd").button_art(AssetLoader.load_texture(PASS_FORECAST_PRESSED_TEXTURE_PATH) if art_state == "pressed" else AssetLoader.load_texture(PASS_FORECAST_HOVER_TEXTURE_PATH) if art_state == "hover" else AssetLoader.load_texture(PASS_FORECAST_FRAME_TEXTURE_PATH))
+		art_host.set_meta("pass_forecast_art_state", art_state)
 	art_host.modulate = Color(0.56, 0.56, 0.56, 0.92) if disabled else Color.WHITE
 	focus_edge.visible = focused
-	_configure_pass_forecast_panel(chip, _pass_preview_summary())
+	_configure_pass_forecast_panel(chip, _pass_preview_summary() if summary == null else summary)
+	if focus_edge.get_meta("pass_focus_accent", Color.TRANSPARENT) == accent: return
+	focus_edge.set_meta("pass_focus_accent", accent)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color.TRANSPARENT
 	style.border_color = Color(accent.r, accent.g, accent.b, 0.94)
@@ -15141,17 +15175,22 @@ func _pass_preview_summary() -> Dictionary:
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_cache_miss_key", performance_phase_started)
 	var source_state: Dictionary = _pass_preview_source_state()
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_total", performance_phase_started)
-	if _combat_forecast_cache.matches(source_state):
-		var remembered: Dictionary = _combat_forecast_cache.summary()
+	var remembered: Variant = _combat_forecast_cache.lookup(source_state)
+	if remembered != null:
 		_cache_pass_preview(cache_key, remembered)
 		_record_runtime_performance_phase("pass_preview_source_cache_hit", performance_phase_started)
 		return _note_rest_pass_disc_marks(remembered)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
-	var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
-	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state, true)
+	var cursor: Dictionary = _pass_preview_prewarm.cursor_for_source(self, source_state)
+	var phase_result: Dictionary
+	if cursor.is_empty():
+		var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
+		performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
+		phase_result = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state, true)
+	else:
+		phase_result = _combat_engine.finish_revealed_enemy_actions_preview(cursor)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
 	return _note_rest_pass_disc_marks(_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result))
 
@@ -17964,10 +18003,11 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	var run_mode: String = str(_run_state.get("mode", "room"))
 	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
-	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	var boss_unit: Dictionary = _boss_unit_for_health_overlay(display_state)
+	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(boss_unit)
 	presentation["burst_intent_obstacle_global_rect"] = _turn_order_panel.get_global_rect() if _turn_order_panel != null and _turn_order_panel.is_visible_in_tree() else Rect2()
-	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
-	presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not boss_unit.is_empty() else Rect2()
+	presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not boss_unit.is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -17995,6 +18035,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	performance_phase_started = _record_runtime_performance_phase("stage_visibility", performance_phase_started)
 	var preview: Dictionary = {}
 	var card_preview_active: bool = false
+	var intent_preview_state: Variant = null
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
 		if not _preview_combat_state.is_empty():
@@ -18060,7 +18101,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 			and _state_has_visible_enemy_at_tile(display_state, intent_focus_tile)
 		)
 		if render_all_enemy_intents or enemy_hover_active:
-			var intent_preview_state: Dictionary = _enemy_intent_preview_state(display_state)
+			intent_preview_state = _enemy_intent_preview_state(display_state)
 			var threat_previews: Array[Dictionary] = _dictionary_array([])
 			if render_all_enemy_intents:
 				threat_previews = _visible_enemy_threat_previews(intent_preview_state)
@@ -18100,9 +18141,6 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 			presentation["expanded_enemy_actor_keys"] = ["enemy_%d" % _focused_intent_enemy_id]
 		if not _turn_order_hovered_enemy_key.is_empty() and not guided_intent_focus_active:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
-		var rest_preview: Dictionary = _enemy_intent_preview_state(display_state)
-		var rest_focus: String = preload("res://scripts/board_hover_actor.gd").key_at_tile(self, display_state, intent_focus_tile, _turn_order_hovered_enemy_key) if enemy_hover_active else _turn_order_hovered_enemy_key
-		presentation["threats_at_rest"] = _stage_hover_refresh.rest_badges(self, rest_preview, rest_focus)
 		_intent_callouts.observe(_combat_engine, _combat_state)
 		presentation["show_all_enemy_intents"] = render_all_enemy_intents
 	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
@@ -18137,12 +18175,14 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 			}
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	if run_mode == "combat":
-		preload("res://scripts/board_threat_isolation.gd").decorate(self, display_state, presentation, _hovered_board_tile)
+		preload("res://scripts/board_threat_isolation.gd").decorate(self, display_state, presentation, _hovered_board_tile, intent_preview_state)
 	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	_apply_guardian_props(display_state, presentation)
 	_hero_facing.decorate(display_state, presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
-	call_deferred("_sync_board_view_rect")
+	if board_view.has_method("_begin_stage_submission_detail"): board_view._begin_stage_submission_detail()
+	var detail_started: int = performance_phase_started
+	_queue_board_view_rect_sync()
 	if board_view.has_method("set_health_ghost_source_state"):
 		board_view.call("set_health_ghost_source_state", _combat_state if run_mode == "combat" else display_state)
 	presentation = _hud_forecast.decorate(self, display_state, presentation)
@@ -18153,6 +18193,8 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 		_sfx_router.enemy_arrivals(display_state, presentation)
 	var aim_focus: Variant = board_view.get("_aim_focus") if board_view != null else null
 	if aim_focus != null: aim_focus.submit(self, preview)
+	if performance_phase_started > 0 and board_view.get("_submission_detail_enabled") == true:
+		board_view._record_submission_detail("sections", "stage_inputs", Time.get_ticks_usec() - detail_started)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -18164,16 +18206,24 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
 		presentation
 	)
+	if performance_phase_started > 0: detail_started = Time.get_ticks_usec()
 	if board_view != null and board_view.has_method("set_targeted_tile_context"):
 		board_view.set_targeted_tile_context(preload("res://scripts/targeted_tile_context.gd").build(self, preview), _hovered_board_tile)
 	if run_mode == "combat" and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
+	if performance_phase_started > 0 and board_view.get("_submission_detail_enabled") == true:
+		var context_end: int = Time.get_ticks_usec()
+		board_view._record_submission_detail("sections", "stage_target_context", context_end - detail_started)
+		detail_started = context_end
 	if _selected_card_index < 0 and not _player_movement_selected and _intent_path_geometry_revision != _combat_preview_revision and board_view.has_method("prepare_intent_path_geometry"):
-		for index: int in range(_combat_state.get("enemies", []).size()):
-			var enemy: Dictionary = _combat_state["enemies"][index]
-			if int(enemy.get("hp", 0)) <= 0 or not _combat_engine.is_enemy_visible_to_player(_combat_state, enemy): continue
-			var threat: Dictionary = _combat_engine.enemy_threat_tiles(_combat_state, index)
-			board_view.prepare_intent_path_geometry(_vector2i_array(threat.get("projected_path", [])))
+		# The displayed intents already own the projected routes. A second
+		# planning pass over the committed snapshot repeated enemy simulation.
+		for threat: Dictionary in presentation.get("threats_at_rest", {}).get("threats", []):
+			if not bool(threat.get("later", false)):
+				board_view.prepare_intent_path_geometry(_vector2i_array(threat.get("plan", {}).get("projected_path", [])))
 		_intent_path_geometry_revision = _combat_preview_revision
+	if performance_phase_started > 0 and board_view.get("_submission_detail_enabled") == true:
+		board_view._record_submission_detail("sections", "stage_intent_path_warmup", Time.get_ticks_usec() - detail_started)
+		board_view._end_stage_submission_detail()
 	performance_phase_started = _record_runtime_performance_phase("stage_board_submission", performance_phase_started)
 	_refresh_boss_health_overlay(display_state, presentation)
 	_record_runtime_performance_phase("stage_boss_overlay", performance_phase_started)
@@ -18360,13 +18410,18 @@ func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 		return 0
 	var measured_end_usec: int = Time.get_ticks_usec()
 	var elapsed_usec: int = measured_end_usec - started_usec
-	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + elapsed_usec
-	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
-	_runtime_performance_max_usec[phase] = maxi(int(_runtime_performance_max_usec.get(phase, 0)), elapsed_usec)
+	_record_persistence_performance_sample(phase, elapsed_usec)
 	_record_runtime_performance_frame_phase(phase, started_usec, measured_end_usec)
 	var bookkeeping_end_usec: int = Time.get_ticks_usec()
 	_record_runtime_performance_diagnostic_interval(measured_end_usec, bookkeeping_end_usec)
 	return Time.get_ticks_usec()
+
+func _record_persistence_performance_sample(phase: String, elapsed_usec: int) -> void:
+	# Worker wall time belongs in section telemetry only. Putting it in the
+	# frame's interval partition would charge background work to the main thread.
+	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + elapsed_usec
+	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
+	_runtime_performance_max_usec[phase] = maxi(int(_runtime_performance_max_usec.get(phase, 0)), elapsed_usec)
 
 func _record_external_runtime_performance_interval(
 	phase: String,
@@ -19351,7 +19406,6 @@ func _schedule_pass_preview_cache_warm(include_playable_analytics: bool = false)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return
-	var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
 	_pass_preview_warm_generation += 1
 	var generation: int = _pass_preview_warm_generation
 	_pass_preview_warm_active = true
@@ -19360,7 +19414,6 @@ func _schedule_pass_preview_cache_warm(include_playable_analytics: bool = false)
 		generation,
 		cache_key,
 		source_state,
-		scheduled_state,
 		include_playable_analytics
 	)
 
@@ -19368,7 +19421,6 @@ func _warm_pass_preview_cache_across_frames(
 	generation: int,
 	cache_key: String,
 	source_state: Dictionary,
-	scheduled_state: Dictionary,
 	include_playable_analytics: bool
 ) -> void:
 	var _hitch_continuation: RefCounted
@@ -19421,9 +19473,18 @@ func _warm_pass_preview_cache_across_frames(
 		var playable_write_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_analytics_store.write_events(events)
 		_record_runtime_performance_phase("analytics_playable_warm_write", playable_write_started)
+	if _finish_pass_preview_cache_warm_if_stale(generation, cache_key):
+		return
 	if _pass_preview_cache.has(cache_key):
 		_finish_pass_preview_cache_warm(generation, cache_key)
 		return
+	var remembered: Variant = _combat_forecast_cache.lookup(source_state)
+	if remembered != null:
+		_cache_pass_preview(cache_key, remembered)
+		_note_rest_pass_disc_marks(remembered)
+		_finish_pass_preview_cache_warm(generation, cache_key)
+		return
+	var scheduled_state: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source_state)
 	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled_state, true)
 	while not bool(cursor.get("complete", false)):
 		if _hitch_trace_enabled: _hitch_continuation = null
@@ -21743,6 +21804,7 @@ func _refresh_board_hover_presentation() -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(presented_tile)
+		var action_context_can_change: bool = _pass_preview_hover_can_change() or _player_movement_selected or _surface_aim.active()
 		if stage_refresh_needed and not hand_refreshed:
 			_refresh_stage_view()
 		if _selected_card_index >= 0 or _player_movement_selected:
@@ -21750,7 +21812,6 @@ func _refresh_board_hover_presentation() -> void:
 			_refresh_turn_order_bar() # Stagger targets preview their delayed slot.
 			_record_runtime_performance_phase("hover_turn_order_total", turn_order_started)
 		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh_total", performance_phase_started)
-		var action_context_can_change: bool = _pass_preview_hover_can_change() or _player_movement_selected or _surface_aim.active()
 		if _pending_flow_has_force_aim() and _force_aim_rotation_available() != _force_aim_rotate_shown:
 			_refresh_action_step_tracker()
 		performance_phase_started = _record_runtime_performance_phase("hover_context_check", performance_phase_started)
@@ -26077,15 +26138,15 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	_apply_guardian_props(display_state, rendered_presentation)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
-	if not cutout_effect.is_empty():
-		var source_actor: Dictionary = _animation_actor_unit(display_state,str(cutout_effect.get("actor_key","")))
-		if str(source_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
-			cutout_effect = cutout_effect.duplicate(false)
-			cutout_effect["enemy_type"] = source_actor["type"]
-			if not cutout_effect.has("intent_id"): cutout_effect["intent_id"] = source_actor.get("intent",{}).get("id","")
-			rendered_presentation["effect"] = cutout_effect
 	var effect_actor_key: String = str(cutout_effect.get("actor_key", ""))
-	if not effect_actor_key.is_empty() and BileBloomerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	var effect_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key) if not effect_actor_key.is_empty() else {}
+	if not cutout_effect.is_empty():
+		if str(effect_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
+			cutout_effect = cutout_effect.duplicate(false)
+			cutout_effect["enemy_type"] = effect_actor["type"]
+			if not cutout_effect.has("intent_id"): cutout_effect["intent_id"] = effect_actor.get("intent",{}).get("id","")
+			rendered_presentation["effect"] = cutout_effect
+	if not effect_actor_key.is_empty() and BileBloomerCutout.uses_attack(cutout_effect, effect_actor):
 		var bloomer_motions: Dictionary = (presentation.get("bile_bloomer_motion", {}) as Dictionary).duplicate(false)
 		bloomer_motions[effect_actor_key] = BileBloomerCutout.motion_for_effect(cutout_effect, float(presentation.get("effect_progress", 1.0)), (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
 		rendered_presentation["bile_bloomer_motion"] = bloomer_motions
@@ -26093,7 +26154,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		bloomer_effect["bile_bloomer_release"] = true
 		rendered_presentation["effect"] = bloomer_effect
 	var surgeon_source_key: String = str(cutout_effect.get("source_actor_key", effect_actor_key))
-	var surgeon_source: Dictionary = _animation_actor_unit(display_state, surgeon_source_key)
+	var surgeon_source: Dictionary = effect_actor if surgeon_source_key == effect_actor_key else _animation_actor_unit(display_state, surgeon_source_key)
 	var surgeon_support: String = GraveSurgeonCutout.support_clip(cutout_effect, surgeon_source)
 	if GraveSurgeonCutout.uses_attack(cutout_effect, surgeon_source) or not surgeon_support.is_empty():
 		var surgeon_motions: Dictionary = (presentation.get("grave_surgeon_motion", {}) as Dictionary).duplicate(false)
@@ -26112,31 +26173,29 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			"contact": _attack_feedback_start_progress(cutout_effect), "direction": direction}
 		rendered_presentation["grave_surgeon_motion"] = surgeon_motions
 	if not effect_actor_key.is_empty():
-		var vaeloryx_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
-		var vaeloryx_action: String = VaeloryxCutout.action_for_effect(cutout_effect, vaeloryx_actor)
+		var vaeloryx_action: String = VaeloryxCutout.action_for_effect(cutout_effect, effect_actor)
 		if not vaeloryx_action.is_empty():
 			var vaeloryx_motions: Dictionary = (presentation.get("vaeloryx_motion", {}) as Dictionary).duplicate(false)
 			vaeloryx_motions[effect_actor_key] = {"clip": "attack", "action": vaeloryx_action,
 				"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
-				"direction": VaeloryxCutout.effect_direction(cutout_effect, vaeloryx_actor, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))}
+				"direction": VaeloryxCutout.effect_direction(cutout_effect, effect_actor, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))}
 			rendered_presentation["vaeloryx_motion"] = vaeloryx_motions
-	if not effect_actor_key.is_empty() and WardenCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and WardenCutout.uses_attack(cutout_effect, effect_actor):
 		var warden_motions: Dictionary = (presentation.get("warden_motion", {}) as Dictionary).duplicate(false)
 		warden_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
 			"contact": _attack_feedback_start_progress(cutout_effect),
 			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 		rendered_presentation["warden_motion"] = warden_motions
 	if not effect_actor_key.is_empty():
-		var crawler_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
-		if CrawlerCutout.uses_attack(cutout_effect, crawler_actor) or CrawlerCutout.uses_coil(cutout_effect, crawler_actor):
+		if CrawlerCutout.uses_attack(cutout_effect, effect_actor) or CrawlerCutout.uses_coil(cutout_effect, effect_actor):
 			var crawler_motions: Dictionary = (presentation.get("crawler_motion", {}) as Dictionary).duplicate(false)
-			var crawler_attack: bool = CrawlerCutout.uses_attack(cutout_effect, crawler_actor)
+			var crawler_attack: bool = CrawlerCutout.uses_attack(cutout_effect, effect_actor)
 			crawler_motions[effect_actor_key] = {"clip": "attack" if crawler_attack else "coil",
 				"variant": CrawlerCutout.attack_clip(cutout_effect), "phase": float(presentation.get("effect_progress", 1.0)),
 				"contact": _attack_feedback_start_progress(cutout_effect),
 				"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 			rendered_presentation["crawler_motion"] = crawler_motions
-	if not effect_actor_key.is_empty() and AcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and AcolyteCutout.uses_attack(cutout_effect, effect_actor):
 		var acolyte_motions: Dictionary = (presentation.get("acolyte_motion", {}) as Dictionary).duplicate(false)
 		var style: String = AttackFxLibrary.style_for_effect(cutout_effect)
 		acolyte_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
@@ -26148,12 +26207,12 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var acolyte_effect: Dictionary = cutout_effect.duplicate(false)
 		acolyte_effect["acolyte_cast"] = true
 		rendered_presentation["effect"] = acolyte_effect
-	if not effect_actor_key.is_empty() and GuardianCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and GuardianCutout.uses_attack(cutout_effect, effect_actor):
 		var guardian_motions: Dictionary = (presentation.get("guardian_motion", {}) as Dictionary).duplicate(false)
-		guardian_motions[effect_actor_key] = GuardianCutout.action_motion(cutout_effect, _animation_actor_unit(display_state, effect_actor_key),
+		guardian_motions[effect_actor_key] = GuardianCutout.action_motion(cutout_effect, effect_actor,
 			float(presentation.get("effect_progress", 1.0)), _attack_feedback_start_progress(cutout_effect))
 		rendered_presentation["guardian_motion"] = guardian_motions
-	if not effect_actor_key.is_empty() and CinderDropletCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and CinderDropletCutout.uses_attack(cutout_effect, effect_actor):
 		var cinder_droplet_motions: Dictionary = (presentation.get("cinder_droplet_motion", {}) as Dictionary).duplicate(false)
 		cinder_droplet_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
 			"contact": _attack_feedback_start_progress(cutout_effect),
@@ -26163,18 +26222,18 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			var cinder_droplet_effect: Dictionary = cutout_effect.duplicate(false)
 			cinder_droplet_effect["cinder_droplet_melee"] = true
 			rendered_presentation["effect"] = cinder_droplet_effect
-	if not effect_actor_key.is_empty() and CinderOozeCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and CinderOozeCutout.uses_attack(cutout_effect, effect_actor):
 		var ooze_motions: Dictionary = (presentation.get("cinder_ooze_motion", {}) as Dictionary).duplicate(false)
 		var ooze_direction: Vector2i = (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)
 		if ooze_direction == Vector2i.ZERO:
-			ooze_direction = (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) - _animation_actor_unit(display_state, effect_actor_key).get("pos", Vector2i.ZERO)
+			ooze_direction = (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) - effect_actor.get("pos", Vector2i.ZERO)
 		ooze_motions[effect_actor_key] = {"clip": "attack", "action": CinderOozeCutout.action_clip(cutout_effect),
 			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect), "direction": ooze_direction}
 		rendered_presentation["cinder_ooze_motion"] = ooze_motions
 		var ooze_effect: Dictionary = cutout_effect.duplicate(false)
 		ooze_effect["cinder_ooze_action"] = CinderOozeCutout.action_clip(cutout_effect)
 		rendered_presentation["effect"] = ooze_effect
-	if not effect_actor_key.is_empty() and HarrierCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and HarrierCutout.uses_attack(cutout_effect, effect_actor):
 		var harrier_motions: Dictionary = (presentation.get("harrier_motion", {}) as Dictionary).duplicate(false)
 		var harrier_motion: Dictionary = HarrierAction.motion_for_effect(cutout_effect,float(presentation.get("effect_progress",1.0)))
 		if str(cutout_effect.get("kind", "")) == "melee":harrier_motion["contact"] = _attack_feedback_start_progress(cutout_effect)
@@ -26185,19 +26244,18 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			harrier_effect["harrier_ranged"] = true
 			rendered_presentation["effect"] = harrier_effect
 	if not effect_actor_key.is_empty():
-		var iskaldra_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
-		if not IskaldraAction.clip_for_effect(cutout_effect, iskaldra_actor).is_empty():
+		if not IskaldraAction.clip_for_effect(cutout_effect, effect_actor).is_empty():
 			var iskaldra_motions: Dictionary = (presentation.get("iskaldra_motion", {}) as Dictionary).duplicate(false)
 			var iskaldra_progress: float = float(presentation.get("impact_progress", 1.0)) if str(cutout_effect.get("kind", "")) == "status" else float(presentation.get("effect_progress", 1.0))
-			iskaldra_motions[effect_actor_key] = IskaldraAction.motion_for_effect(cutout_effect, iskaldra_actor, iskaldra_progress, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
+			iskaldra_motions[effect_actor_key] = IskaldraAction.motion_for_effect(cutout_effect, effect_actor, iskaldra_progress, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
 			rendered_presentation["iskaldra_motion"] = iskaldra_motions
-	if not effect_actor_key.is_empty() and LightningWispCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and LightningWispCutout.uses_attack(cutout_effect, effect_actor):
 		var wisp_motions: Dictionary = (presentation.get("lightning_wisp_motion", {}) as Dictionary).duplicate(false)
 		wisp_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
 			"action": "cast" if str(cutout_effect.get("kind", "")) == "ranged" else "dart",
 			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 		rendered_presentation["lightning_wisp_motion"] = wisp_motions
-	if not effect_actor_key.is_empty() and NoctyraxCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and NoctyraxCutout.uses_attack(cutout_effect, effect_actor):
 		var noctyrax_motions: Dictionary = (presentation.get("noctyrax_motion", {}) as Dictionary).duplicate(false)
 		noctyrax_motions[effect_actor_key] = {"clip": NoctyraxCutout.clip_for_effect(cutout_effect),
 			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
@@ -26206,14 +26264,13 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var noctyrax_effect: Dictionary = cutout_effect.duplicate(false)
 		noctyrax_effect["noctyrax_breath"] = str(cutout_effect.get("kind", "")) == "ranged"
 		rendered_presentation["effect"] = noctyrax_effect
-	var tharokh_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
-	if not effect_actor_key.is_empty() and TharokhCutout.uses_attack(cutout_effect, tharokh_actor):
+	if not effect_actor_key.is_empty() and TharokhCutout.uses_attack(cutout_effect, effect_actor):
 		var tharokh_motions: Dictionary = (presentation.get("tharokh_motion", {}) as Dictionary).duplicate(false)
-		tharokh_motions[effect_actor_key] = {"clip": "attack", "action": TharokhCutout.action_clip(cutout_effect, tharokh_actor),
+		tharokh_motions[effect_actor_key] = {"clip": "attack", "action": TharokhCutout.action_clip(cutout_effect, effect_actor),
 			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
-			"direction": _tharokh_action_direction(cutout_effect, tharokh_actor)}
+			"direction": _tharokh_action_direction(cutout_effect, effect_actor)}
 		rendered_presentation["tharokh_motion"] = tharokh_motions
-	if not effect_actor_key.is_empty() and VeilboundAcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and VeilboundAcolyteCutout.uses_attack(cutout_effect, effect_actor):
 		var veilbound_motions: Dictionary = (presentation.get("veilbound_acolyte_motion", {}) as Dictionary).duplicate(false)
 		veilbound_motions[effect_actor_key] = {"clip": "attack", "action": str(cutout_effect.get("kind", "")),
 			"phase": float(presentation.get("effect_progress", 1.0)),
@@ -26222,12 +26279,11 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var veilbound_effect: Dictionary = cutout_effect.duplicate(false)
 		veilbound_effect["veilbound_acolyte_" + str(cutout_effect.get("kind", ""))] = true
 		rendered_presentation["effect"] = veilbound_effect
-	var vyraketh_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key) if not effect_actor_key.is_empty() else {}
-	var vyraketh_action: String = VyrakethCutout.action_for_effect(cutout_effect, vyraketh_actor)
+	var vyraketh_action: String = VyrakethCutout.action_for_effect(cutout_effect, effect_actor)
 	if not vyraketh_action.is_empty():
 		var vyraketh_motions: Dictionary = (presentation.get("vyraketh_motion", {}) as Dictionary).duplicate(false)
 		var progress: float = float(presentation.get("effect_progress", 0.0 if vyraketh_action == "kindle" else 1.0))
-		var origin: Vector2i = cutout_effect.get("from", vyraketh_actor.get("pos", Vector2i.ZERO))
+		var origin: Vector2i = cutout_effect.get("from", effect_actor.get("pos", Vector2i.ZERO))
 		var target: Vector2i = cutout_effect.get("to", display_state.get("player", {}).get("pos", origin))
 		vyraketh_motions[effect_actor_key] = {"clip":"attack", "action":vyraketh_action,
 			"phase":lerpf(0.55,1.0,progress) if vyraketh_action == "kindle" else progress,
@@ -26237,21 +26293,20 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			var maw_effect: Dictionary = cutout_effect.duplicate(false)
 			maw_effect["vyraketh_maw"] = true
 			rendered_presentation["effect"] = maw_effect
-	if not effect_actor_key.is_empty() and ZekarionCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+	if not effect_actor_key.is_empty() and ZekarionCutout.uses_attack(cutout_effect, effect_actor):
 		var dragon_motions: Dictionary = (presentation.get("zekarion_motion", {}) as Dictionary).duplicate(false)
 		dragon_motions[effect_actor_key] = ZekarionAction.motion_for_effect(cutout_effect,
-			float(presentation.get("effect_progress",1.0)), _animation_actor_unit(display_state,effect_actor_key), display_state.get("player",{}), _attack_feedback_start_progress(cutout_effect))
+			float(presentation.get("effect_progress",1.0)), effect_actor, display_state.get("player",{}), _attack_feedback_start_progress(cutout_effect))
 		rendered_presentation["zekarion_motion"] = dragon_motions
 		var dragon_effect: Dictionary = cutout_effect.duplicate(false)
 		dragon_effect["zekarion_cutout"] = true
 		rendered_presentation["effect"] = dragon_effect
-	var dragon_actor: Dictionary = _animation_actor_unit(display_state,effect_actor_key) if not effect_actor_key.is_empty() else {}
-	var dragon_profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(cutout_effect,dragon_actor)
+	var dragon_profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(cutout_effect,effect_actor)
 	if not dragon_profile.is_empty():
 		var motion_key: String = str(dragon_profile["enemy"])+"_motion"
 		var motions: Dictionary = (rendered_presentation.get(motion_key,{}) as Dictionary).duplicate(false)
 		var motion: Dictionary = (motions.get(effect_actor_key,{}) as Dictionary).duplicate(false)
-		motion["direction"] = preload("res://scripts/dragon_presentation.gd").direction(cutout_effect,dragon_actor,display_state.get("player",{}).get("pos",Vector2i.ZERO))
+		motion["direction"] = preload("res://scripts/dragon_presentation.gd").direction(cutout_effect,effect_actor,display_state.get("player",{}).get("pos",Vector2i.ZERO))
 		if str(dragon_profile["geometry"]) != "physical":
 			motion["clip"] = str(dragon_profile["clip"]) if str(dragon_profile["enemy"]) == "noctyrax" else "attack"
 			motion["action"] = dragon_profile["clip"]
@@ -26267,10 +26322,11 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
-	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	var boss_unit: Dictionary = _boss_unit_for_health_overlay(display_state)
+	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(boss_unit)
 	rendered_presentation["burst_intent_obstacle_global_rect"] = _turn_order_panel.get_global_rect() if _turn_order_panel != null and _turn_order_panel.is_visible_in_tree() else Rect2()
-	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
-	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not boss_unit.is_empty() else Rect2()
+	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not boss_unit.is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_fit_exclusions"] = _board_hud_budget.exclusions
@@ -26328,7 +26384,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	GustShrikeAction.decorate(display_state, rendered_presentation)
 	MaquetteAction.decorate(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
-	call_deferred("_sync_board_view_rect")
+	_queue_board_view_rect_sync()
 	rendered_presentation = _hud_forecast.decorate(self, display_state, rendered_presentation)
 	board_view.set_combat_state(
 		display_state,
@@ -27188,14 +27244,14 @@ func _layout_action_banner() -> void:
 	action_banner.offset_left = -half_width
 	action_banner.offset_right = half_width
 
-func _board_hud_obstacles(display_state: Dictionary) -> Array[Rect2]:
+func _board_hud_obstacles(boss: Dictionary) -> Array[Rect2]:
 	var rects: Array[Rect2]
-	if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty():
+	if _boss_health_overlay != null and not boss.is_empty():
 		_layout_boss_health_overlay_content()
 		rects.append(_boss_health_overlay.get_global_rect().grow(10.0))
 		if action_banner != null and action_banner.visible:
 			rects.append(action_banner.get_global_rect().grow(4.0))
-		elif action_banner != null and str(_boss_unit_for_health_overlay(display_state).get("type", "")) == "noctyrax":
+		elif action_banner != null and str(boss.get("type", "")) == "noctyrax":
 			# Noctyrax's retained brazier labels must already leave room before an
 			# action appears; the HUD need not repaint during every windup frame.
 			var band_width: float = maxf(action_banner.size.x, ACTION_BANNER_RESERVE_WIDTH)
@@ -29221,7 +29277,7 @@ func _release_committed_run_state() -> void:
 
 func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
 	if not hold_for_animation and is_same(run_state, _owned_boundary_snapshot):
-		return preload("res://scripts/run_persistence.gd").persist_owned(self, run_state, boundary)
+		return preload("res://scripts/run_persistence.gd").persist_owned(self, run_state, boundary, _deferred_checkpoint_receipt)
 	return preload("res://scripts/run_persistence.gd").persist(self, run_state, hold_for_animation, boundary)
 
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
@@ -32746,11 +32802,11 @@ func _analytics_log_skill_reset(before_progression: Dictionary, after_progressio
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
-func _skill_analytics_steps() -> Array[Callable]:
+func _skill_analytics_steps(deferred: bool = false) -> Array[Callable]:
 	var steps: Array[Callable]
-	steps.append(_prepare_skill_analytics_outbox)
+	steps.append(_prepare_skill_outbox_over_frames if deferred else _prepare_skill_analytics_outbox)
 	steps.append(_append_and_acknowledge_skill_analytics)
-	steps.append(_persist_skill_analytics_acknowledgment)
+	steps.append(_persist_skill_ack_over_frames if deferred else _persist_skill_analytics_acknowledgment)
 	return steps
 
 func _skill_analytics_scope() -> String:
@@ -32779,7 +32835,7 @@ func _request_skill_event_analytics() -> void:
 	if _skill_analytics_requested_scope != scope:
 		_skill_analytics_queue.cancel()
 	_skill_analytics_requested_scope = scope
-	_skill_analytics_queue.request(_skill_analytics_steps(), _skill_analytics_ready, _skill_analytics_scope)
+	_skill_analytics_queue.request(_skill_analytics_steps(has_node("RunPersistence")), _skill_analytics_ready, _skill_analytics_scope)
 
 func _cancel_deferred_skill_analytics(preserve_run_event_contexts: bool = false) -> void:
 	if not preserve_run_event_contexts:
@@ -32817,7 +32873,7 @@ func _reconcile_skill_event_analytics_across_frames() -> void:
 	if _skill_analytics_locked_scope == scope:
 		_skill_analytics_locked_scope = ""
 
-func _prepare_skill_analytics_outbox() -> bool:
+func _stage_skill_analytics_outbox() -> bool:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_skill_analytics_staged_now = false
 	if not _combat_state.is_empty():
@@ -32832,11 +32888,32 @@ func _prepare_skill_analytics_outbox() -> bool:
 	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
 		_record_runtime_performance_phase("skill_analytics_no_pending", started)
 		return false
-	# Queue acceptance is not a successful save. Failed writes retain the outbox
-	# and stop this attempt; only a later request or explicit checkpoint retries.
+	return true
+
+func _prepare_skill_analytics_outbox() -> bool:
+	if not _stage_skill_analytics_outbox(): return false
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var saved: bool = _persist_committed_boundary("combat_skill_event_outbox")
 	_record_runtime_performance_phase("skill_analytics_persist_outbox_total" if saved else "skill_analytics_persist_outbox_failed_total", started)
 	return saved
+
+func _prepare_skill_outbox_over_frames() -> bool:
+	if not _stage_skill_analytics_outbox(): return false
+	return await _persist_combat_analytics_receipt("combat_skill_event_outbox")
+
+func _persist_skill_ack_over_frames() -> bool:
+	if str(_run_state.get("mode", "")) in ["victory", "defeat"]: return true
+	return await _persist_combat_analytics_receipt("combat_skill_event_ack")
+
+func _persist_combat_analytics_receipt(boundary: String) -> bool:
+	# Lend the receipt only to this synchronous snapshot submission. Later
+	# decisions and explicit quit must retain their own persistence semantics.
+	var receipt := PersistenceWriter.Receipt.new()
+	_deferred_checkpoint_receipt = receipt
+	var accepted: bool = _persist_committed_boundary(boundary)
+	_deferred_checkpoint_receipt = null
+	if not accepted or not receipt.queued: return accepted
+	return await receipt.wait_in_tree(get_tree())
 
 func _append_and_acknowledge_skill_analytics() -> bool:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -34864,7 +34941,8 @@ func _confirm_magic_purge(card_id: String, source: String) -> void:
 		"attuned_magic_cards": next["attuned_magic_cards"].duplicate(),
 	})
 	var hearth_token: int = _campfire_presentation.generation
-	await _magic_purge_overlay.play_exhaust()
+	_magic_purge_overlay.play_exhaust()
+	if not await _magic_purge_overlay.exhaust_finished: return
 	if source != "campfire":
 		_close_magic_purge()
 		return

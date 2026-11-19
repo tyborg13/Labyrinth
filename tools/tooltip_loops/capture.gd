@@ -176,7 +176,10 @@ func _open(scene: Node, row: Dictionary) -> Control:
 	if row["source_match"].get("kind") == "hero_card":
 		# The hand's real keyword column; its entry factory is also kw-cards.
 		var stack: Control = scene.get("_card_focus_tooltip_stack")
-		scene.call("_show_card_focus_tooltips", 0)
+		if row["id"] == Fixture.Tip07.COLLISION:
+			stack.show_for(scene.call("_hand_card_control", 0), Icons.tooltip_entries_for_rows([[Icons.token_for("collision")]]))
+		else:
+			scene.call("_show_card_focus_tooltips", 0)
 		await process_frame
 		return stack
 	if row["source_match"].get("kind") == "battlefield_rule":
@@ -303,7 +306,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 23, "Existing loops plus Fade and Slagmaster barrage")
+	_expect(Registry.entries().size() == 22 + Fixture.Tip07.IDS.size(), "Existing loops plus the forced movement recordings")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -315,7 +318,7 @@ func _semantics() -> void:
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
-		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]) and not Fixture.Txt13.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]) and not Fixture.Txt13.IDS.has(entry["id"]) and not Fixture.Tip07.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))

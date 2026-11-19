@@ -40,9 +40,11 @@ var _initialized: bool = false
 static func supports(kind: String) -> bool:
 	return kind in ["ambient", "overlays", "foreground", "hud"]
 
-func invalidate(layer: Control, clock_only: bool) -> void:
-	if not clock_only or not _initialized:
+func invalidate(layer: Control, clock_only: bool, reuse_plan: bool = false) -> void:
+	if not _initialized or (not clock_only and not reuse_plan):
 		_rebuild(layer)
+	elif reuse_plan and not clock_only:
+		layer.queue_redraw()
 	for index: int in range(canvases.size()):
 		if not clock_only or _animated[index]:
 			var canvas: Control = canvases[index]
@@ -91,7 +93,7 @@ func _rebuild(layer: Control) -> void:
 	# Retain node identities on ordinary changes; discard only unused tail slots.
 	if canvases.size() != groups.size():
 		var owner: Control = layer.get("_render_instrumentation_owner") as Control
-		if is_instance_valid(owner): owner.call("_invalidate_retained_render_layers")
+		if is_instance_valid(owner): owner.call("_invalidate_retained_slice_list")
 	while canvases.size() > groups.size():
 		var stale: Control = canvases.pop_back()
 		layer.remove_child(stale)

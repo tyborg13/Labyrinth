@@ -68,7 +68,7 @@ func confirm(resolved: Dictionary) -> bool:
 
 func decorate(scene: Node, state: Dictionary, presentation: Dictionary) -> Dictionary:
 	var forecast: Dictionary = {}
-	if scene._animation_lock:
+	if scene._animation_lock and not _held.is_empty():
 		var current: Dictionary = actors(state)
 		var current_badges: Dictionary = badges_by_icon(keyword_badges(state))
 		# Each value becomes real at the existing delivery snapshot, independently
@@ -91,9 +91,10 @@ func decorate(scene: Node, state: Dictionary, presentation: Dictionary) -> Dicti
 			if _empty(entry): remaining.erase(actor)
 		_held = remaining
 		forecast = remaining
-	else:
+	elif not scene._animation_lock:
 		clear()
 		if scene._selected_card_index >= 0: forecast = changes(scene._combat_state, state)
+	if forecast.is_empty() and not presentation.has(KEY): return presentation
 	var result: Dictionary = presentation.duplicate(false)
 	if forecast.is_empty():
 		result.erase(KEY)

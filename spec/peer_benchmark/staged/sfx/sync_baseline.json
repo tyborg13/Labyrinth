@@ -121,7 +121,7 @@
     ["card.exhaust","scripts/sfx_cue_router.gd","card_exhaust","func card_exhaust() -> void: request(\"card.exhaust\")"],
     ["card.hover","scripts/run_scene.gd","_on_card_hover_started","_sfx_router.card_hover()"],
     ["card.hover","scripts/sfx_cue_router.gd","card_hover","func card_hover() -> void: request(\"card.hover\")"],
-    ["card.invalid","scripts/run_scene.gd","_on_board_tile_clicked","_sfx_router.card_invalid()"],
+    ["card.invalid","scripts/run_scene.gd","_reject_target_click","_sfx_router.card_invalid()"],
     ["card.invalid","scripts/run_scene.gd","_on_card_drag_started","_sfx_router.card_invalid()"],
     ["card.invalid","scripts/run_scene.gd","_on_card_pressed","_sfx_router.card_invalid()"],
     ["card.invalid","scripts/sfx_cue_router.gd","card_invalid","func card_invalid() -> void: request(\"card.invalid\")"],

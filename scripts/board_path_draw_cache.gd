@@ -5,6 +5,8 @@ extends RefCounted
 # polygon operations change. Public results own nested data and mesh resources.
 const CAPACITY: int = 256
 const CLIP_CAPACITY: int = 1024
+# A conservative margin around the clipper’s coordinate snapping.
+const CLIP_BOUNDS_PADDING: float = 1.0
 var _paths: Dictionary = {}
 var _path_order: Array[int]
 var _clips: Dictionary = {}
@@ -20,7 +22,9 @@ func statistics() -> Dictionary:
 	return {"paths": _paths.size(), "clips": _clips.size(), "path_limit": CAPACITY, "clip_limit": CLIP_CAPACITY}
 
 func path(inputs: Array, build: Callable) -> Dictionary:
-	return _path(inputs, build).duplicate(true)
+	var owned: Dictionary = _path(inputs, build).duplicate(true)
+	owned.erase("bounds")
+	return owned
 
 func _path(inputs: Array, build: Callable) -> Dictionary:
 	var key: int = hash(inputs)
@@ -34,6 +38,10 @@ func _path(inputs: Array, build: Callable) -> Dictionary:
 	entry = {"id": _next_id, "inputs": inputs.duplicate(true), "commands": (build.call() as Array).duplicate(true)}
 	if record_builds and build_records.size() < CAPACITY:
 		build_records.append({"frame_id": Engine.get_process_frames(), "elapsed_usec": Time.get_ticks_usec() - started, "inputs": inputs.duplicate(true)})
+	var bounds: Array[Rect2]
+	for command: Dictionary in entry["commands"]:
+		bounds.append(_geometry_bounds(command.get("polygon", command.get("line", PackedVector2Array()))))
+	entry["bounds"] = bounds
 	_paths[key] = entry
 	return entry
 
@@ -83,9 +91,17 @@ func _clipped_entry(entry: Dictionary, clip: PackedVector2Array, can_draw: Calla
 	var cached: Dictionary = _clips.get(key, {})
 	if not cached.is_empty() and cached["inputs"] == inputs: return cached
 	var commands: Array[Dictionary]
-	for command: Dictionary in entry["commands"]:
+	var source: Array = entry["commands"]
+	var bounds: Array = entry.get("bounds", []) if private_entry else []
+	var clip_bounds: Rect2 = _geometry_bounds(clip).grow(CLIP_BOUNDS_PADDING)
+	for index: int in range(source.size()):
+		var command: Dictionary = source[index]
 		if clip.is_empty():
 			commands.append(command.duplicate(true))
+			continue
+		# The clipper snaps coordinates internally. Test only clearly
+		# disjoint bounds, keeping touching and near-boundary commands.
+		if not bounds.is_empty() and not clip_bounds.intersects(bounds[index], true):
 			continue
 		if command.has("polygon"):
 			for piece: PackedVector2Array in Geometry2D.intersect_polygons(command["polygon"], clip):
@@ -98,6 +114,12 @@ func _clipped_entry(entry: Dictionary, clip: PackedVector2Array, can_draw: Calla
 		_clip_order.append(key)
 	_clips[key] = {"inputs": inputs.duplicate(true), "commands": commands}
 	return _clips[key]
+
+static func _geometry_bounds(points: PackedVector2Array) -> Rect2:
+	if points.is_empty(): return Rect2()
+	var bounds := Rect2(points[0], Vector2.ZERO)
+	for point: Vector2 in points: bounds = bounds.expand(point)
+	return bounds
 
 # Polygon triangles remain in their original paint order, with constant colour
 # per triangle. Lines retain their separate antialiased calls in that same order.

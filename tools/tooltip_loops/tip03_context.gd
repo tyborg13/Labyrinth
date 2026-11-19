@@ -13,7 +13,7 @@ const Inspection = preload("res://scripts/pre_battle_inspection_view.gd")
 static func verify(proof: SceneTree, path: String) -> void:
 	var originals: Dictionary = {}
 	for row: Dictionary in Registry.entries():
-		if not Fixture.Tip03.IDS.has(row["id"]) or row.has("todo_design"): continue
+		if not (Fixture.Tip03.IDS.has(row["id"]) or Fixture.Tip07.IDS.has(row["id"])) or row.has("todo_design"): continue
 		originals[row["id"]] = row["asset_path"]
 		row["asset_path"] = path
 		var source: Dictionary = row["source_match"]
@@ -56,7 +56,7 @@ static func verify(proof: SceneTree, path: String) -> void:
 	global.free()
 	for term: String in ["push", "pull"]:
 		var card_panel: Control = Inline.glossary_panel(Icons.tooltip(term), {"kind": "hero_card"})
-		_expect_loop(proof, card_panel, "collision_push", "card " + term)
+		_expect_loop(proof, card_panel, {"push": Fixture.Tip07.PUSH, "pull": Fixture.Tip07.PULL}[term], "card " + term)
 		card_panel.free()
 		proof._expect(Registry.find(term, Context.enemy("crawler")).is_empty() and Registry.find(term, {}).is_empty(), "Push/Pull outside cards stay text-only")
 	var skybreak: Control = Inline.glossary_panel(Icons.tooltip("lightning_strikes"), Context.enemy("zekarion"))

@@ -9,7 +9,13 @@ const CAMERA_PADDING: int = 24
 const ASPECT_UNITS := Vector2i(16, 9)
 
 static func surface_bounds(control: Control, rect: Rect2) -> Rect2:
-	return control.get_global_transform_with_canvas() * rect
+	var bounds: Rect2 = control.get_global_transform_with_canvas() * rect
+	var popup := control.get_viewport() as PopupPanel
+	if popup != null and popup.is_embedded():
+		# Tooltip contents use window-local coordinates. The capture reads their
+		# composited pixels in the parent viewport.
+		bounds.position += Vector2(popup.position)
+	return bounds
 
 static func camera(board: Rect2, panel: Rect2) -> Rect2i:
 	var canvas := Rect2(Vector2.ZERO, Vector2(Playback.SIZE))

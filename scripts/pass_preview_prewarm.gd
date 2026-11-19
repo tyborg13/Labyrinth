@@ -117,6 +117,13 @@ func ends_turn(scene: Node, target: Vector2i) -> bool:
 func cached_source(scene: Node, target: Vector2i) -> Dictionary:
 	return _source_states.get(scene._pass_preview_key(target), {}) as Dictionary
 
+# A foreground request can finish the cursor already built for this exact
+# information-safe source. The deferred worker may publish its own tile key.
+func cursor_for_source(scene: Node, source: Dictionary) -> Dictionary:
+	if _generation == scene._pass_preview_warm_generation and _source == source:
+		return _cursor
+	return {}
+
 func effective_entry(scene: Node, target: Vector2i) -> Vector2i:
 	var approach: RefCounted = scene._move_attack_approach
 	if approach.entry.x < 0 or approach.tile != target or scene._selected_card_index < 0:
@@ -188,8 +195,9 @@ func _run_step(scene: Node) -> void:
 	match _phase:
 		"source":
 			_source = scene._pass_preview_source_state_for_tile(_tile, true)
-			if scene._combat_forecast_cache.matches(_source):
-				_summary = scene._combat_forecast_cache.summary()
+			var remembered: Variant = scene._combat_forecast_cache.lookup(_source)
+			if remembered != null:
+				_summary = remembered
 				_remembered = true
 			elif _source.is_empty() or not scene._combat_engine.is_player_turn(_source):
 				_remembered = true
@@ -204,6 +212,7 @@ func _run_step(scene: Node) -> void:
 			if not _remembered:
 				var phase_result: Dictionary = scene._combat_engine.revealed_enemy_actions_preview_result(_cursor)
 				_summary = scene._pass_preview_summary_for_phase_result(_source, phase_result)
+				scene._combat_forecast_cache.remember(_source, _summary)
 			_publish(scene, _summary)
 
 func _publish(scene: Node, summary: Dictionary) -> void:

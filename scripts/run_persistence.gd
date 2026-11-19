@@ -3,6 +3,7 @@ extends Node
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
+const Writer = preload("res://scripts/ordered_background_writer.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AFTER_DRAW_RESOLUTION_META: String = "persistence_rules_after_draw"
 var _host: WeakRef
@@ -38,39 +39,57 @@ func _process(_delta: float) -> void:
 
 func _drain_idle() -> void:
 	var scene: Node = _host.get_ref()
+	var saves: RefCounted = ProgressionStore._run_writer
+	var events: RefCounted = AnalyticsStore._writer
+	saves.collect()
+	AnalyticsStore.collect_completed_events()
 	if _observed_analytics_failure != AnalyticsStore.write_failure_generation():
 		_observed_analytics_failure = AnalyticsStore.write_failure_generation()
 		_invalidate_replay_cursors(scene)
 	if not is_instance_valid(scene) or _write_frame == Engine.get_process_frames(): return
 	var idle: bool = _resolution_frame != Engine.get_process_frames() and not scene.has_meta(AFTER_DRAW_RESOLUTION_META)
-	var saves: RefCounted = ProgressionStore._run_writer
-	var events: RefCounted = AnalyticsStore._writer
-	# One automatic disk operation per frame. Oldest first; the age cap takes
-	# precedence over combat exclusion, including a reserved post-draw frame.
-	var saves_ready: bool = saves.busy() and (idle or saves.oldest_wait_usec() >= saves.MAX_DELAY_USEC)
-	var events_ready: bool = events.busy() and (idle or events.oldest_wait_usec() >= events.MAX_DELAY_USEC)
-	if not saves_ready and not events_ready: return
-	var write_checkpoint: bool = saves_ready and (not events_ready or saves.service_wait_usec() >= events.service_wait_usec())
-	var writer: RefCounted = saves if write_checkpoint else events
-	var started: int = Time.get_ticks_usec()
-	if write_checkpoint: ProgressionStore.poll_pending_run_saves(idle)
-	else: AnalyticsStore.poll_pending_events(idle)
-	if writer.last_write_started_usec >= started:
-		_write_frame = Engine.get_process_frames()
-	_record_write_interval(scene, "deferred_checkpoint_write" if write_checkpoint else "deferred_analytics_batch", started, writer)
-	# When both queues are past the cap, serving only one would push the other a
-	# frame beyond it; the cap outranks the one-write-per-frame budget.
-	var other: RefCounted = events if write_checkpoint else saves
-	if other.busy() and other.oldest_wait_usec() >= other.MAX_DELAY_USEC:
-		var other_started: int = Time.get_ticks_usec()
-		if write_checkpoint: AnalyticsStore.poll_pending_events(idle)
-		else: ProgressionStore.poll_pending_run_saves(idle)
-		_record_write_interval(scene, "deferred_analytics_batch" if write_checkpoint else "deferred_checkpoint_write", other_started, other)
+	# Preserve the original dispatch order and per-frame cadence. The disk
+	# service runs both stores' accepted transactions in that same order.
+	var saves_ready: bool = saves.can_dispatch() and (idle or saves.oldest_wait_usec() >= saves.MAX_DELAY_USEC)
+	var events_ready: bool = events.can_dispatch() and (idle or events.oldest_wait_usec() >= events.MAX_DELAY_USEC)
+	if saves_ready or events_ready:
+		var write_checkpoint: bool = saves_ready and (not events_ready or saves.service_wait_usec() >= events.service_wait_usec())
+		_dispatch(scene, idle, write_checkpoint)
+		var other: RefCounted = events if write_checkpoint else saves
+		if other.can_dispatch() and other.oldest_wait_usec() >= other.MAX_DELAY_USEC:
+			_dispatch(scene, idle, not write_checkpoint)
+	_record_samples(scene)
 
-static func _record_write_interval(scene: Node, phase: String, started: int, writer: RefCounted) -> void:
+static func _dispatch(scene: Node, idle: bool, checkpoint: bool) -> void:
+	var writer: RefCounted = ProgressionStore._run_writer if checkpoint else AnalyticsStore._writer
+	var started: int = Time.get_ticks_usec()
+	if checkpoint: ProgressionStore.poll_pending_run_saves(idle)
+	else: AnalyticsStore.poll_pending_events(idle)
 	if writer.last_write_started_usec < started: return
-	if is_instance_valid(scene) and scene.has_method("_record_external_runtime_performance_interval"):
-		scene._record_external_runtime_performance_interval(phase, writer.last_write_started_usec, writer.last_write_started_usec + writer.last_write_usec)
+	_write_frame = Engine.get_process_frames()
+	if scene.has_method("_record_external_runtime_performance_interval"):
+		var phase: String = "deferred_checkpoint_write" if checkpoint else "deferred_analytics_batch"
+		scene._record_external_runtime_performance_interval(phase, writer.last_write_started_usec,
+			writer.last_write_started_usec + writer.last_write_usec)
+
+static func _record_samples(scene: Node) -> void:
+	var enabled: bool = is_instance_valid(scene) and scene.has_method("_record_persistence_performance_sample") and scene._runtime_performance_instrumentation_enabled
+	for checkpoint: bool in [true, false]:
+		var writer: RefCounted = ProgressionStore._run_writer if checkpoint else AnalyticsStore._writer
+		var samples: Array[Dictionary] = writer.take_samples()
+		writer.track_performance = enabled
+		if not enabled: continue
+		var prefix: String = "checkpoint_write_" if checkpoint else "analytics_write_"
+		var deferred_phase: String = "deferred_checkpoint_write" if checkpoint else "deferred_analytics_batch"
+		for sample: Dictionary in samples:
+			if sample.has("worker_usec"):
+				scene._record_persistence_performance_sample(prefix + "worker", int(sample["worker_usec"]))
+			elif sample.has("barrier_wait_usec"):
+				scene._record_persistence_performance_sample(prefix + "barrier_wait", int(sample["barrier_wait_usec"]))
+			else:
+				scene._record_persistence_performance_sample(prefix + "serialize", int(sample["serialize_usec"]))
+				if not bool(sample["barrier"]):
+					scene._record_persistence_performance_sample(deferred_phase, int(sample["elapsed_usec"]))
 
 func _exit_tree() -> void:
 	flush(_host.get_ref())
@@ -87,6 +106,7 @@ static func flush(scene: Node = null) -> bool:
 		scene._analytics_flush_map_events(scene._run_state)
 		appended = AnalyticsStore.flush_pending_events(true)
 		if not appended: _invalidate_replay_cursors(scene)
+	_record_samples(scene)
 	return saved and appended
 
 static func _invalidate_replay_cursors(scene: Node) -> void:
@@ -98,23 +118,14 @@ static func _invalidate_replay_cursors(scene: Node) -> void:
 static func persist(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
 	return _persist_snapshot(scene, run_state, hold_for_animation, boundary, false)
 
-static func persist_owned(scene: Node, owned_state: Dictionary, boundary: String) -> Dictionary:
+static func persist_owned(scene: Node, owned_state: Dictionary, boundary: String, receipt: Writer.Receipt = null) -> Dictionary:
 	# Transfer only a fresh _committed_run_state() result. The caller must never
 	# mutate or reuse it. Public/held snapshot callers retain defensive copying;
 	# combat queues take ownership after the last mutation (play-time sampling).
-	return _persist_snapshot(scene, owned_state, false, boundary, true)
+	return _persist_snapshot(scene, owned_state, false, boundary, true, receipt)
 
-static func _queue_owned_snapshot(state: Dictionary, failure_boundary: String) -> bool:
-	# Identical request, path capture, callback and supersession policy to
-	# ProgressionStore.queue_run_state. Only this detached snapshot's ownership
-	# differs. After submission, opening/surface/map analytics only read it;
-	# only the recursively read-only map journal may be shared with a live or
-	# held snapshot. All mutable fields belong exclusively to this request.
-	var request: Dictionary = {"state": state, "failure_boundary": failure_boundary, "reported": false}
-	ProgressionStore._run_writer.submit(ProgressionStore._save_queued_run_state_at.bind(ProgressionStore._run_storage_path, request), true)
-	return true
-
-static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String, owns_snapshot: bool) -> Dictionary:
+static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String, owns_snapshot: bool,
+		receipt: Writer.Receipt = null) -> Dictionary:
 	mark_resolution_frame()
 	var performance_total_started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
 	var state: Dictionary = run_state if owns_snapshot else SectionMapGraph.checkpoint_copy(run_state)
@@ -156,14 +167,17 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 		var durable_boundary: bool = boundary == "explicit_save" or boundary.ends_with("_outbox") or boundary.ends_with("_ack") or boundary.ends_with("_cursor")
 		var failure_boundary: String = "" if durable_boundary else (boundary if not boundary.is_empty() else "unspecified")
 		if mode == "combat":
+			var settled: Callable
+			if receipt != null:
+				settled = _finish_combat_receipt.bind(weakref(scene), state, boundary)
 			# Public/held callers still receive independently mutable run fields;
 			# the queued request shares only the guarded journal prefix.
-			saved = _queue_owned_snapshot(state if owns_snapshot else SectionMapGraph.checkpoint_copy(state), failure_boundary)
+			saved = ProgressionStore.queue_owned_run_state(state if owns_snapshot else SectionMapGraph.checkpoint_copy(state), failure_boundary, receipt, settled)
 		else:
 			saved = ProgressionStore.save_run_state(state)
-		# Durable outbox/cursor protocols must observe the actual result, never
-		# queue acceptance. These explicit barriers remain synchronous.
-		if mode == "combat" and durable_boundary:
+		# Explicit callers need the result now. Deferred combat reconciliation
+		# instead waits on its pinned receipt before the dependent append.
+		if mode == "combat" and durable_boundary and receipt == null:
 			saved = ProgressionStore.flush_pending_run_saves() and saved
 	performance_phase_started = scene._record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
 	if hold_for_animation:
@@ -173,14 +187,24 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 	if not saved:
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
 	scene._record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
-	if saved:
-		var opening_events_saved: bool = scene._opening_boon_flow.flush_events(scene, state)
-		if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved and profile_saved:
-			ProgressionStore.clear_saved_run()
-		scene._analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
-		scene._analytics_flush_map_events(state)
+	if saved and receipt == null:
+		_after_saved_snapshot(scene, state, mode, profile_saved)
 		# A reveal/action may save after its final HUD refresh. Keep that same-run
 		# request alive so unlocking without another refresh still drains it.
 		if resume_run_skill_request: scene._request_run_skill_event_analytics()
 	return {"state": state, "saved": saved}
+
+static func _finish_combat_receipt(saved: bool, host: WeakRef, state: Dictionary, boundary: String) -> void:
+	if not saved:
+		push_error("Failed to persist committed run boundary: %s" % boundary)
+		return
+	var scene: Node = host.get_ref()
+	if is_instance_valid(scene): _after_saved_snapshot(scene, state, "combat", true)
+
+static func _after_saved_snapshot(scene: Node, state: Dictionary, mode: String, profile_saved: bool) -> void:
+	var opening_events_saved: bool = scene._opening_boon_flow.flush_events(scene, state)
+	if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved and profile_saved:
+		ProgressionStore.clear_saved_run()
+	scene._analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
+	scene._analytics_flush_map_events(state)
 

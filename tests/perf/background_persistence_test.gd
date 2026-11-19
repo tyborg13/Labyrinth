@@ -22,6 +22,7 @@ func _state(index: int) -> Dictionary:
 
 func _run() -> void:
 	await _queue_cadence()
+	await _pinned_checkpoint_receipt()
 	Progression.set_run_storage_path(SAVE_PATH)
 	Progression.clear_saved_run()
 	_check(Progression.save_run_state(_state(-1)), "Initial durable checkpoint")
@@ -169,12 +170,14 @@ func _queue_cadence() -> void:
 	_check(calls.is_empty(), "Rule-resolution frame never executes deferred writes")
 	writer.poll()
 	writer.poll()
+	await _collect_write(writer)
 	_check(calls.size() == 1 and int(calls[0][0]) == 0, "At most one FIFO job per idle frame")
-	if not calls.is_empty(): _check(int(calls[0][2]) == OS.get_main_thread_id(), "Write callback runs on the main thread")
+	if not calls.is_empty(): _check(int(calls[0][2]) != OS.get_main_thread_id(), "Write callback runs on the disk worker")
 	if preload("res://tests/helpers/perf_group.gd").enabled():
 		_check(writer.last_wait_usec <= Writer.MAX_DELAY_USEC, "First available idle write lands within 0.5 seconds")
 	await _next_frame()
 	writer.poll()
+	await _collect_write(writer)
 	_check(calls.size() == 2 and int(calls[1][0]) == 1, "Next job waits until the next frame")
 	_check(writer.flush() and calls.size() == 3 and int(calls[2][0]) == 2, "Barrier drains remaining jobs synchronously in FIFO order")
 	var replacement := Writer.new()
@@ -185,8 +188,9 @@ func _queue_cadence() -> void:
 	replacement.submit(func() -> bool: values.append("new"); return true, true)
 	_check(int(replacement._pending[0]["queued_usec"]) == queued_at, "Replacement inherits the original deadline")
 	replacement.poll()
+	await _collect_write(replacement)
 	_check(values == ["new"] and not replacement.busy(), "Continuous superseding cannot starve the next idle write")
-	print("PERF03 DEFERRED CADENCE: main thread, later frame, one/frame, busy exclusion, deadline, FIFO barriers")
+	print("PERF03 DEFERRED CADENCE: disk worker, later frame, one/frame, busy exclusion, deadline, FIFO barriers")
 
 func _failed_checkpoint_retry() -> void:
 	var blocked: String = "user://perf03-checkpoint-blocker"
@@ -201,6 +205,7 @@ func _failed_checkpoint_retry() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(blocked))
 	await _next_frame()
 	Progression.poll_pending_run_saves()
+	await _collect_write(Progression._run_writer)
 	_check(not Progression._run_writer.busy() and Progression.load_saved_run() == _state(110), "Next idle frame retries the exact failed snapshot without requeueing")
 	var probe := Writer.new()
 	var attempts: Array = []
@@ -221,3 +226,28 @@ func _check(ok: bool, message: String) -> void:
 func _next_frame() -> void:
 	var frame: int = Engine.get_process_frames()
 	while Engine.get_process_frames() <= frame: await process_frame
+
+func _collect_write(writer: RefCounted) -> void:
+	while writer._active != null:
+		await process_frame
+		writer.collect()
+
+func _pinned_checkpoint_receipt() -> void:
+	var writer := Writer.new()
+	var checkpoints: Array[String]
+	var receipt := Writer.Receipt.new()
+	var prepare: Callable = func() -> Callable:
+		return func() -> bool:
+			checkpoints.append("outbox")
+			return true
+	writer.submit_prepared(prepare, true, Callable(), receipt)
+	writer.submit(func() -> bool:
+		checkpoints.append("newer checkpoint")
+		return true, true)
+	await _next_frame()
+	writer.poll()
+	await _collect_write(writer)
+	_check(receipt.finished and receipt.succeeded and checkpoints == ["outbox"],
+		"Newer checkpoint cannot supersede the exact save required by an analytics receipt")
+	_check(writer.flush() and checkpoints == ["outbox", "newer checkpoint"],
+		"Latest ordinary checkpoint still saves after the durable outbox")

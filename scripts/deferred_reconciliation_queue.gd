@@ -1,7 +1,7 @@
 extends RefCounted
 class_name DeferredReconciliationQueue
 
-# Main-thread reconciliation with one synchronous step per rendered frame.
+# Main-thread reconciliation starts at most one step per rendered frame.
 # This schedules work; callbacks own the storage protocol and authoritative
 # state. A false step result leaves recovery/retry to a later explicit request.
 var _generation: int = 0
@@ -96,7 +96,7 @@ func _drain(generation: int) -> void:
 		if not step.is_valid():
 			_finish(generation)
 			return
-		var succeeded: bool = bool(step.call())
+		var succeeded: bool = bool(await step.call())
 		if not _owns(generation):
 			return
 		if not succeeded:

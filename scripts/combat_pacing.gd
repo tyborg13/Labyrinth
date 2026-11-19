@@ -260,7 +260,9 @@ func _process(_delta: float) -> void:
 
 func _refresh_overlays() -> void:
 	if not _scope.is_empty() and _last_render_frame != Engine.get_process_frames() and scene != null and scene.is_inside_tree() and not _last_state.is_empty():
+		var started: int = Time.get_ticks_usec() if bool(scene.get("_runtime_performance_instrumentation_enabled")) else 0
 		scene.call("_render_board_state", _last_state, _last_presentation, true)
+		if started > 0: scene.call("_record_runtime_performance_phase", "animation_overlay_board_submission", started)
 
 func _active_overlays(entries: Array[Dictionary], clock: int) -> Array[Dictionary]:
 	var active: Array[Dictionary]

@@ -26,8 +26,9 @@ static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictio
 	keys.sort()
 	return keys
 
-static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, tile: Vector2i) -> void:
-	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, scene._enemy_intent_preview_state(state), "")
+static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, tile: Vector2i, intent_preview: Variant = null) -> void:
+	var intent_state: Dictionary = scene._enemy_intent_preview_state(state) if intent_preview == null else intent_preview
+	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, intent_state, "")
 	var keys: Array[String] = resolve(scene, state, tile, rest, not scene._targeted_card_aiming_active())
 	presentation["threats_at_rest"] = rest
 	presentation["isolated_enemy_actor_keys"] = keys
@@ -159,7 +160,7 @@ func _rebuild(layer: Control) -> void:
 	# Retain node identities on ordinary changes; discard only unused tail slots.
 	if canvases.size() != groups.size():
 		var owner: Control = layer.get("_render_instrumentation_owner") as Control
-		if is_instance_valid(owner): owner.call("_invalidate_retained_render_layers")
+		if is_instance_valid(owner): owner.call("_invalidate_retained_slice_list")
 	while canvases.size() > groups.size():
 		var stale: Control = canvases.pop_back()
 		layer.remove_child(stale)
@@ -290,4 +291,4 @@ func retire(layer: Control) -> void:
 	_initialized = false
 	layer.set("_render_slice_ops", [])
 	var owner: Control = layer.get("_render_instrumentation_owner")
-	if is_instance_valid(owner): owner.call("_invalidate_retained_render_layers")
+	if is_instance_valid(owner): owner.call("_invalidate_retained_slice_list")

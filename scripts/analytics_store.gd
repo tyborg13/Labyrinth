@@ -4,6 +4,7 @@ class_name AnalyticsStore
 const SCHEMA_VERSION: int = 1
 const DEFAULT_STORAGE_DIR: String = "user://analytics"
 const META_FILE_NAME: String = "meta.json"
+const PersistenceDisk = preload("res://scripts/persistence_disk_worker.gd")
 
 static var _storage_dir: String = DEFAULT_STORAGE_DIR
 static var _storage_generation: int = 0
@@ -39,12 +40,17 @@ static func storage_dir() -> String:
 
 static func clear_storage() -> void:
 	if not flush_pending_events(): return
-	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
+	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir).simplify_path()
+	PersistenceDisk.run(_clear_directory.bind(absolute_dir))
+	_storage_generation += 1
+	_receipt_orders.erase(absolute_dir)
+
+static func _clear_directory(absolute_dir: String) -> bool:
 	if DirAccess.dir_exists_absolute(absolute_dir):
 		_remove_dir_contents_recursive(absolute_dir)
-	_ensure_storage_dir()
-	_storage_generation += 1
-	_receipt_orders.erase(ProjectSettings.globalize_path(_storage_dir).simplify_path())
+	for path: String in _append_ready_paths.keys():
+		if path.get_base_dir() == absolute_dir: _append_ready_paths.erase(path)
+	return DirAccess.make_dir_recursive_absolute(absolute_dir) == OK
 
 static func load_all_events() -> Array[Dictionary]:
 	flush_pending_events()
@@ -320,27 +326,41 @@ func _append_records(records: Array) -> bool:
 func _append_records_at(path: String, records: Array) -> bool:
 	if not deferred_writes:
 		if not flush_pending_events(): return false
-		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
-		return _append_jsonl_at(path, records)
+		return PersistenceDisk.run(_append_jsonl_at.bind(path, _serialize_records(records)))
 	if records.is_empty(): return true
-	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
-	if bool(_open_batch.get("pending", false)) and str(_open_batch["path"]) == path:
-		(_open_batch["records"] as Array).append_array(records.duplicate(true))
+	if not bool(_open_batch.get("sealed", true)) and str(_open_batch["path"]) == path:
+		(_open_batch["records"] as Array).append_array(records)
 	else:
-		_open_batch = {"pending": true, "path": path, "records": records.duplicate(true)}
+		_open_batch = {"sealed": false, "path": path, "records": records}
 		_pending_batches.append(_open_batch)
-		_writer.submit(_append_queued_batch.bind(_open_batch))
+		_writer.submit_prepared(_prepare_queued_batch.bind(_open_batch), false, _settle_queued_batch.bind(_open_batch))
 	return true
 
-static func _append_queued_batch(batch: Dictionary) -> bool:
-	var succeeded: bool = _append_jsonl_at(str(batch["path"]), batch["records"])
-	if succeeded:
-		batch["pending"] = false
-		_pending_batches.erase(batch)
-	return succeeded
+static func _prepare_queued_batch(batch: Dictionary) -> Callable:
+	if not bool(batch["sealed"]):
+		batch["sealed"] = true
+		batch["lines"] = _serialize_records(batch["records"])
+	return _append_jsonl_at.bind(str(batch["path"]), batch["lines"])
+
+static func _settle_queued_batch(succeeded: bool, batch: Dictionary) -> void:
+	if succeeded: _pending_batches.erase(batch)
+
+static func _serialize_records(records: Array) -> Array[Dictionary]:
+	var lines: Array[Dictionary]
+	for record: Dictionary in records:
+		lines.append({"event_id": record["event_id"], "idempotency_key": record["idempotency_key"],
+			"bytes": (JSON.stringify(record) + "\n").to_utf8_buffer()})
+	return lines
 
 static func poll_pending_events(idle: bool = true) -> void:
 	_writer.poll(idle)
+	_observe_writer_failure()
+
+static func collect_completed_events() -> void:
+	_writer.collect()
+	_observe_writer_failure()
+
+static func _observe_writer_failure() -> void:
 	if _writer.take_failure():
 		_write_failure_generation += 1
 		_storage_generation += 1
@@ -362,14 +382,10 @@ static func flush_pending_events(all_directories: bool = false) -> bool:
 		push_error("Failed to flush queued analytics events.")
 	return succeeded
 
-static func _append_jsonl_records(records: Array) -> bool:
-	if not flush_pending_events(): return false
-	_ensure_storage_dir()
-	return _append_jsonl_at(_event_file_path(), records)
-
-static func _append_jsonl_at(path: String, records: Array) -> bool:
-	if records.is_empty():
+static func _append_jsonl_at(path: String, lines: Array[Dictionary]) -> bool:
+	if lines.is_empty():
 		return true
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ_WRITE)
 	if file == null:
 		file = FileAccess.open(path, FileAccess.WRITE_READ)
@@ -393,13 +409,13 @@ static func _append_jsonl_at(path: String, records: Array) -> bool:
 				file.store_8(10)
 		_append_ready_paths[path] = true
 	file.seek_end()
-	for record_var: Variant in records:
-		if typeof(record_var) == TYPE_DICTIONARY:
-			var record: Dictionary = record_var
-			if recovered.has("event:" + str(record.get("event_id", ""))) or recovered.has("key:" + str(record.get("idempotency_key", ""))): continue
-			file.store_line(JSON.stringify(record))
-			if not str(record.get("event_id", "")).is_empty(): recovered["event:" + str(record["event_id"])] = true
-			if not str(record.get("idempotency_key", "")).is_empty(): recovered["key:" + str(record["idempotency_key"])] = true
+	for line: Dictionary in lines:
+		var event_key: String = "event:" + str(line["event_id"])
+		var receipt_key: String = "key:" + str(line["idempotency_key"])
+		if recovered.has(event_key) or recovered.has(receipt_key): continue
+		file.store_buffer(line["bytes"])
+		if not str(line["event_id"]).is_empty(): recovered[event_key] = true
+		if not str(line["idempotency_key"]).is_empty(): recovered[receipt_key] = true
 	file.flush()
 	var write_succeeded: bool = file.get_error() == OK
 	file.close()
@@ -421,11 +437,7 @@ static func _event_file_path() -> String:
 static func _meta_file_path() -> String:
 	return ProjectSettings.globalize_path(_storage_dir).path_join(META_FILE_NAME)
 
-static func _ensure_storage_dir() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_storage_dir))
-
 static func _ensure_installation_id() -> String:
-	_ensure_storage_dir()
 	var meta_path: String = _meta_file_path()
 	if FileAccess.file_exists(meta_path):
 		var file: FileAccess = FileAccess.open(meta_path, FileAccess.READ)
@@ -436,14 +448,21 @@ static func _ensure_installation_id() -> String:
 				if not stored_install_id.is_empty():
 					return stored_install_id
 	var install_id: String = _random_id("install")
-	var write_file: FileAccess = FileAccess.open(meta_path, FileAccess.WRITE)
-	if write_file != null:
-		write_file.store_string(JSON.stringify({
-			"schema_version": SCHEMA_VERSION,
-			"install_id": install_id,
-			"created_at_utc": _timestamp_utc_iso()
-		}, "\t"))
+	var bytes: PackedByteArray = JSON.stringify({
+		"schema_version": SCHEMA_VERSION,
+		"install_id": install_id,
+		"created_at_utc": _timestamp_utc_iso()
+	}, "\t").to_utf8_buffer()
+	PersistenceDisk.run(_write_installation_meta.bind(meta_path, bytes))
 	return install_id
+
+static func _write_installation_meta(path: String, bytes: PackedByteArray) -> bool:
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	if file == null: return false
+	file.store_buffer(bytes)
+	file.close()
+	return true
 
 static func _random_id(prefix: String) -> String:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()

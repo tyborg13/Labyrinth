@@ -8,12 +8,15 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
 const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
+const EmpowerInput = preload("res://tests/suites/empower_sfx_suite.gd")
+const SummonFixture = preload("res://tests/helpers/sum01_proof_fixture.gd")
 const TEST_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const CAPTURE_DIR: String = "user://sfx_cue_coverage/1920x1080_ui100"
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const TEST_SEED: int = 410
 const TEST_START_MS: int = 10000
 const TEST_REQUEST_GAP_MS: int = 5000
+const TEST_EMPOWER_CARD: String = "overclock"
 const REPORT_DIR: String = "user://sfx_cue_coverage"
 var bank: Node
 var router: RefCounted
@@ -336,8 +339,56 @@ func _live_checks() -> void:
 	scene.call("_render_board_state", defense, {})
 	_check([], "same rendered snapshot does not retrigger cues")
 	if visual: await _capture("02_defense_result")
+	await _check_summon_and_empower(scene)
+	live_bank.cue_requested.disconnect(_record)
 	scene.queue_free()
 	await process_frame
+
+func _check_summon_and_empower(scene: Node) -> void:
+	root.size = TEST_VIEWPORT
+	var run: Dictionary = SummonFixture.build()
+	var battle: Dictionary = run["combat_state"]
+	battle["deck"]["hand"] = [TEST_EMPOWER_CARD]
+	scene.call("_load_run_state", run)
+	scene.call("_close_dialogue")
+	await process_frame
+	_check_live_cues("summon.", [], "opening placement")
+	for source: String in ["mouse", "keyboard", "controller"]:
+		await EmpowerInput._prepare_input(self, scene, source)
+		for charged: bool in [true, false]:
+			await EmpowerInput.route_toggle(self, scene, source)
+			if bool(scene.call("_hand_card_empowered", 0)) != charged:
+				failures.append("%s did not toggle Empower to %s" % [source, charged])
+			var expected: String = "empower.charge" if charged else "empower.uncharge"
+			_check_live_cues("empower.", [expected], "%s Empower %s" % [source, "on" if charged else "off"])
+	root.get_node("InputRouter").call("clear_forced_state_for_test")
+	var engine: RefCounted = scene.get("_combat_engine")
+	var before: Dictionary = scene.get("_combat_state")
+	var resolved: Dictionary = engine.resolve_enemy_turn_with_steps(before, 0, true, false)
+	var summons: Array = (resolved["steps"] as Array).filter(func(step: Dictionary) -> bool: return step.get("kind", "") == "summon")
+	if summons.size() != 1 or (summons[0].get("spawned_enemies", []) as Array).is_empty():
+		failures.append("Storm Cantor must resolve an authored summon with a newborn")
+		return
+	_check_live_cues("summon.", [], "summon resolution before presentation")
+	var animated: Dictionary = before.duplicate(true)
+	await scene.call("_animate_enemy_phase_steps", animated, summons)
+	var board: Node = scene.get("board_view")
+	var presentation: Dictionary = board.get("presentation")
+	var visible: Array = presentation.get("visible_enemy_ids", [])
+	for newborn: Dictionary in summons[0]["spawned_enemies"]:
+		if not visible.has(int(newborn["id"])):
+			failures.append("Storm Cantor newborn must appear on the submitted board: %s" % newborn["id"])
+	_check_live_cues("summon.", ["summon.arrive"], "Storm Cantor summon appearance")
+	scene.call("_render_board_state", animated, {})
+	_check_live_cues("summon.", [], "repeated summon presentation")
+
+func _check_live_cues(prefix: String, expected: Array, label: String) -> void:
+	var actual: Array[String]
+	for cue: String in requested:
+		if cue.begins_with(prefix): actual.append(cue)
+	requested.clear()
+	print("LIVE SFX COVERAGE %s: %s" % [label, actual])
+	if actual != expected: failures.append("%s: expected %s, requested %s" % [label, expected, actual])
 
 func _check_shared_feedback(live_router: RefCounted) -> void:
 	var feedback: Node = root.get_node("CursorFeedback")

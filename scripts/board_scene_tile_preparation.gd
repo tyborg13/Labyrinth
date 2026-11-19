@@ -1,11 +1,13 @@
 extends RefCounted
 
-# Owned by one scene-tile canvas, never synchronized from set_combat_state.
+# Path inputs are shared by the board's depth slices; tint remains local.
 # Snapshot values, not container identity: tools and callers can edit arrays in
 # place. Only lookup/occlusion preparation is retained; paint and clocks stay live.
 const MAX_TINT_QUERIES: int = 16
 var _path_inputs: Array = []
 var _paths: Array = []
+var _paths_by_tile: Dictionary = {}
+var _path_revision: int = -1
 var _obstructions: Array = []
 var _tints: Dictionary = {}
 var _cacheable_obstructions: bool = true
@@ -14,13 +16,21 @@ var path_hits: int = 0
 var tint_builds: int = 0
 var tint_hits: int = 0
 
-func paths(board: Control) -> Array:
+func paths_at(board: Control, tile: Vector2i, revision: int = -1) -> Array:
+	if revision < 0 or revision != _path_revision:
+		_sync_paths(board)
+		_path_revision = revision
+	else:
+		path_hits += 1
+	return _paths_by_tile.get(tile, [])
+
+func _sync_paths(board: Control) -> void:
 	var inputs: Array = [board.presentation.get("displacement_paths", []),
 		board.presentation.get("path_tiles", []), board.presentation.get("path_color", board.MOVE_PATH_COLOR),
 		board.presentation.get("enemy_threat_previews", [])]
 	if inputs == _path_inputs:
 		path_hits += 1
-		return _paths
+		return
 	_path_inputs = inputs.duplicate(true)
 	_paths = []
 	for path: Array in inputs[0]:
@@ -36,8 +46,15 @@ func paths(board: Control) -> Array:
 	for threat: Variant in threats:
 		if typeof(threat) != TYPE_DICTIONARY or not board._threat_has_projected_movement(threat): continue
 		_paths.append([board._vector2i_array(threat.get("projected_path", [])), board.ENEMY_PATH_PREVIEW_COLOR, false])
+	_paths_by_tile.clear()
+	for entry: Array in _paths:
+		# A path that revisits a tile still contributes just one clipped command.
+		var visited: Dictionary = {}
+		for tile: Vector2i in entry[0]:
+			if visited.has(tile): continue
+			visited[tile] = true
+			(_paths_by_tile.get_or_add(tile, []) as Array).append(entry)
 	path_builds += 1
-	return _paths
 
 func tint(board: Control, tile_id: String, tile: Vector2i, rect: Rect2, entries: Array) -> Color:
 	if entries != _obstructions:

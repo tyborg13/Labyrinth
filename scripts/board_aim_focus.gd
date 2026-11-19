@@ -98,6 +98,16 @@ func begin_draw(source: Control) -> void:
 	for child: Node in source.get_children():
 		if child.has_meta("rd03_canvas"): (child as Control).hide()
 
+func release_room_canvases() -> void:
+	# The source layers may be reused in the next room, but their child
+	# canvases contain this room's actor snapshots and paint commands.
+	for record: Dictionary in canvases.values():
+		var canvas: Control = record.canvas
+		if not is_instance_valid(canvas): continue
+		canvas.hide()
+		canvas.queue_free()
+	canvases.clear()
+
 func route(source: Control, method: String, args: Array, unit: Dictionary, hud: bool) -> bool:
 	if source.has_meta("rd03_canvas") or unit.is_empty() or bool(unit.get("death_animation", false)): return false
 	var key: String = str(unit.get("key", ""))

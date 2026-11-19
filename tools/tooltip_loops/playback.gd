@@ -3,6 +3,7 @@ const SIZE := Vector2i(1920, 1080)
 const Settings = preload("res://scripts/settings_store.gd")
 const Biomes = preload("res://scripts/biome_library.gd")
 const Fixture = preload("res://tools/tooltip_loops/fixture.gd")
+const Tip07Playback = preload("res://tools/tooltip_loops/tip07_playback.gd")
 const SETTLE_FRAMES: int = 12 # Debug warmup, outside recording.
 const READY_FRAME_LIMIT: int = 300 # Debug startup/centering watchdog.
 const MASK_SETTLE_FRAMES: int = 3 # Renderer submissions after the recording mask.
@@ -25,6 +26,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	var biome: String = str(Fixture.BIOMES.get(fixture["id"], Fixture.Tip03.BIOMES.get(fixture["id"], Fixture.Tip04.BIOMES.get(fixture["id"], Fixture.Tip05.BIOMES.get(fixture["id"], Biomes.default_biome())))))
 	biome = str(Fixture.Traps.BIOMES.get(fixture["id"], biome))
 	biome = str(Fixture.Txt13.BIOMES.get(fixture["id"], biome))
+	if Fixture.Tip07.IDS.has(fixture["id"]): biome = Fixture.Tip07.BIOME
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -92,7 +94,10 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 		else:
 			pacing.begin_card()
 			scene.call("_begin_player_popup_timeline")
-			await scene.call("_animate_player_action_step", beat["before"], beat["after"], str(beat.get("card", "")), beat["action"], beat["target"], beat["chain_hits"])
+			if result.has("force_loop"):
+				await Tip07Playback.play(scene, beat)
+			else:
+				await scene.call("_animate_player_action_step", beat["before"], beat["after"], str(beat.get("card", "")), beat["action"], beat["target"], beat["chain_hits"])
 			await scene.call("_finish_player_popup_timeline", beat["after"])
 		scene.call("_render_board_state", beat["after"], {})
 		if beat["kind"] in ["enemy", "rule", "room_rule", "trap"]: await pacing.finish_enemies()

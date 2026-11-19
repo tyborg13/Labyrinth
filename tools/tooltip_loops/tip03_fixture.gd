@@ -4,8 +4,8 @@ const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Retaliate = preload("res://scripts/retaliate_rules.gd")
 const Rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
-const IDS: Array = ["collision_push", "retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "freeze_status", "splits_cinder_ooze"]
-const BIOMES: Dictionary = {"collision_push": "stone", "retaliate_hollow_mimic": "noctyrax", "charge_storm_capacitor": "zekarion", "lightning_strikes": "zekarion", "marked_icefall_seer": "iskaldra", "marked_lob_slag": "tharokh", "freeze_status": "iskaldra", "splits_cinder_ooze": "vyraketh"}
+const IDS: Array = ["retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "freeze_status", "splits_cinder_ooze"]
+const BIOMES: Dictionary = {"retaliate_hollow_mimic": "noctyrax", "charge_storm_capacitor": "zekarion", "lightning_strikes": "zekarion", "marked_icefall_seer": "iskaldra", "marked_lob_slag": "tharokh", "freeze_status": "iskaldra", "splits_cinder_ooze": "vyraketh"}
 const TODO_DESIGN_lob_slag_one_tile: String = "A real centered Lob Slag plus includes every legal one-tile step. Closest no-hit script walks two tiles horizontally inside the patch."
 const SPLITS_OOZE := Vector2i(1, 2) # Spawn tiles (1,1)/(2,2), both to the hero's right.
 const SPLITS_HERO := Vector2i(0, 2)
@@ -24,10 +24,6 @@ static func configure(layout: Dictionary, id: String) -> Dictionary:
 			layout["player_start"] = SPLITS_HERO
 			card = "quick_stab"
 			layout["element"] = "fire"
-		"collision_push":
-			units = [["crawler", Vector2i(1, 1)], ["crawler", Vector2i(1, 0)]]
-			card = "razor_gale"
-			layout["element"] = "none"
 		"retaliate_hollow_mimic":
 			units = [["hollow_mimic", Vector2i(1, 1)]]
 			card = "quick_stab"
@@ -149,9 +145,6 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 			if raw_damage != int(stab["action"]["damage"]) * Surfaces.FROZEN_MULTIPLIER: failures.append("Quick Stab must resolve triple real damage against Freeze")
 			if int(after["enemies"][0]["hp"]) <= 0: failures.append("30 HP fixture Crawler must survive the full tripled hit")
 			if int(after["enemies"][0]["hp"]) != maxi(0, int(frozen["hp"]) - raw_damage): failures.append("Real HP loss must respect the Crawler's remaining HP")
-		"collision_push":
-			if before["enemies"][0]["pos"] != after["enemies"][0]["pos"]: failures.append("Second Crawler must block the Push")
-			if int(before["enemies"][0]["hp"]) - int(after["enemies"][0]["hp"]) != 8 or int(before["enemies"][1]["hp"]) - int(after["enemies"][1]["hp"]) != 4: failures.append("Razor Gale deals 4 plus Collision 4 to first, Collision 4 to second")
 		"retaliate_hollow_mimic":
 			if int(before["player"]["hp"]) - int(after["player"]["hp"]) != 3: failures.append("Retaliate must hit the hero for exactly 3")
 			if int(before["enemies"][0]["hp"]) - int(after["enemies"][0]["hp"]) != 6: failures.append("Quick Stab must hit the Mimic for 6")

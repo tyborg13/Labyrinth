@@ -2,6 +2,7 @@ extends Control
 
 signal confirmed(card_id: String, source: String)
 signal closed
+signal exhaust_finished(completed: bool)
 
 const List = preload("res://scripts/magic_deck_list.gd")
 const Data = preload("res://scripts/game_data.gd")
@@ -68,6 +69,7 @@ var _columns: int = 1
 var _return_card_id: String = ""
 var _committing: bool = false
 var _center_grid: bool = false
+var _exhaust_tween: Tween
 
 # A private, seekable presentation. Render the actual card subtree on its own
 # canvas rather than flattening its z levels or rebuilding a similar-looking
@@ -436,11 +438,23 @@ func play_exhaust() -> void:
 	var burn := PurgeBurn.new()
 	_confirmation.add_child(burn)
 	burn.configure(slot, pending_card_id, reduced_motion)
-	var tween: Tween = create_tween()
-	if reduced_motion: tween.tween_method(burn.fade, 1.0, 0.0, REDUCED_BURN_SECONDS)
-	else: tween.tween_method(burn.seek, 0.0, BURN_SECONDS, BURN_SECONDS)
-	await tween.finished
+	_exhaust_tween = create_tween()
+	if reduced_motion: _exhaust_tween.tween_method(burn.fade, 1.0, 0.0, REDUCED_BURN_SECONDS)
+	else: _exhaust_tween.tween_method(burn.seek, 0.0, BURN_SECONDS, BURN_SECONDS)
+	_exhaust_tween.finished.connect(_finish_exhaust.bind(burn, reduced_motion), CONNECT_ONE_SHOT)
+
+func _finish_exhaust(burn: PurgeBurn, reduced_motion: bool) -> void:
+	_exhaust_tween = null
 	if not reduced_motion: burn.release_embers(get_parent())
+	exhaust_finished.emit(true)
+
+func _exit_tree() -> void:
+	if _exhaust_tween == null: return
+	# A killed tween never emits finished. Settle the caller before freeing
+	# the overlay so interrupted burns leave no suspended GDScript state.
+	_exhaust_tween.kill()
+	_exhaust_tween = null
+	exhaust_finished.emit(false)
 
 func retry_confirmation() -> void:
 	_committing = false

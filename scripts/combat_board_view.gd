@@ -909,7 +909,8 @@ var _scene_back_effect_render_layers_by_tile: Dictionary = {}
 var _scene_front_effect_render_layers_by_tile: Dictionary = {}
 var _scene_render_layers: Array = []
 var _retained_asset_bindings: Dictionary = {}
-var _retained_asset_layers: Array = []
+var _retained_asset_base_revision: int = -1
+var _retained_asset_base_ids: Dictionary = {}
 var _battlefield_presentation_inputs: Array = []
 var _battlefield_presentation_initialized: bool = false
 var _battlefield_presentation_changed: bool = false
@@ -919,12 +920,15 @@ var _battlefield_rule_threat: Dictionary = {}
 var _submission_state_revision: int = 0
 var _battlefield_presentation_state_revision: int = -1
 var _retained_state_bindings: Dictionary = {}
-var _retained_state_layers: Array = []
-var _retained_layers_revision: int = 0
+var _retained_presentation: Dictionary = {}
+var _retained_presentation_revision: int = 0
+var _retained_base_layers_revision: int = 0
 var _retained_state_layers_revision: int = -1
 var _retained_layers_cache_valid: bool = false
 var _retained_layers_cache: Array = []
 var _retained_base_layers_cache: Array = []
+var _plate_refresh_queued: bool = false
+var _plate_observed_state: Dictionary = {}
 var _unit_draw_rect_cache: Dictionary = {}
 var _unit_outline_actor: Dictionary = {}
 var _occlusion_silhouettes: Node2D = null
@@ -958,10 +962,43 @@ var _unit_shadow_sync_miss_metrics: Dictionary = {}
 var _unit_shadow_draw_cache_metrics: Dictionary = {}
 var _full_dynamic_redraw_count: int = 0
 var _unclassified_presentation_redraw_keys: Dictionary = {}
+# Optional attribution for the route probe. Keep detailed timers out of
+# production telemetry and of ordinary timing runs.
+const SUBMISSION_DETAIL_LIMIT: int = 12
+var _submission_detail_enabled: bool = false
+var _submission_detail_current: Dictionary = {}
+var _submission_detail_top: Array[Dictionary]
+var _submission_draw_categories: Dictionary = {}
+
+func _begin_stage_submission_detail() -> void:
+	if _submission_detail_enabled:
+		_submission_detail_current = {"started": Time.get_ticks_usec(), "frame": Engine.get_process_frames(), "sections": {}, "layers": {}, "slices": {}, "sample": str(presentation.get("board_framing_mode", ""))}
+
+func _end_stage_submission_detail() -> void:
+	if _submission_detail_current.is_empty(): return
+	_submission_detail_current["total_usec"] = Time.get_ticks_usec() - int(_submission_detail_current["started"])
+	_submission_detail_top.append(_submission_detail_current)
+	_submission_detail_current = {}
+	_submission_detail_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["total_usec"] > b["total_usec"])
+	if _submission_detail_top.size() > SUBMISSION_DETAIL_LIMIT:
+		_submission_detail_top.resize(SUBMISSION_DETAIL_LIMIT)
+
+func _record_submission_detail(group: String, category: String, elapsed: int) -> void:
+	if _submission_detail_current.is_empty(): return
+	var target: Dictionary = _submission_detail_current[group]
+	_add_detail_sample(target, category, elapsed)
+
+func _add_detail_sample(target: Dictionary, category: String, elapsed: int) -> void:
+	var row: Dictionary = target.get_or_add(category, {"calls": 0, "usec": 0, "max_usec": 0})
+	row["calls"] += 1
+	row["usec"] += elapsed
+	row["max_usec"] = maxi(int(row["max_usec"]), elapsed)
+
 var _submission_performance_instrumentation_enabled: bool = false
 var _submission_performance_total_usec: Dictionary = {}
 var _submission_performance_counts: Dictionary = {}
 var _submission_redraws: Dictionary = {}
+var _submission_reuses_effect_plan: bool = false
 var _batching_submission_redraws: bool = false
 var _retained_draw_frame_id: int = -1
 var _retained_draw_frame_total_usec: int = 0
@@ -2070,7 +2107,12 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 
 func _invalidate_retained_render_layers() -> void:
 	_retained_layers_cache_valid = false
-	_retained_layers_revision += 1
+	_retained_base_layers_revision += 1
+
+func _invalidate_retained_slice_list() -> void:
+	# A new slice copies its parent's current bindings when it is created.
+	# Only a new base layer needs all bindings replayed by the owner.
+	_retained_layers_cache_valid = false
 
 func _retained_render_layers(include_slices: bool = true) -> Array:
 	# Tile and slice identities change only at their lifecycle boundaries. Keep
@@ -2306,7 +2348,6 @@ func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:
 func _sync_dynamic_render_assets() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
-	var layers: Array = _retained_render_layers()
 	var bindings: Dictionary = {}
 	for field: String in [
 			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants", "_biome_id", "_biome_light_color",
@@ -2330,21 +2371,29 @@ func _sync_dynamic_render_assets() -> void:
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
 	]:
 		bindings[field] = get(field)
-	# Keep reference identity, not equal-content values. A shared dictionary's
-	# in-place mutations are already visible, but a replacement must be copied.
-	var same_bindings: bool = not layers.is_empty() and layers == _retained_asset_layers and bindings.size() == _retained_asset_bindings.size()
-	if same_bindings:
-		for field: String in bindings:
-			if not is_same(bindings[field], _retained_asset_bindings.get(field)):
-				same_bindings = false
-				break
-	if same_bindings:
-		return
-	for layer: Control in layers:
-		for field: String in bindings:
-			layer.set(field, bindings[field])
+	# New slices already copy their base layer's bindings. A changed slice
+	# count must not replay every asset binding across the whole board.
+	var base_changed: bool = _retained_asset_base_revision != _retained_base_layers_revision
+	var changed: Dictionary = {}
+	for field: String in bindings:
+		if not is_same(bindings[field], _retained_asset_bindings.get(field)):
+			changed[field] = bindings[field]
+	if not base_changed and changed.is_empty(): return
+	if not changed.is_empty():
+		for layer: Control in _retained_render_layers():
+			for field: String in changed:
+				layer.set(field, changed[field])
+	if base_changed:
+		var next_ids: Dictionary = {}
+		for layer: Control in _retained_render_layers(false):
+			var id: int = layer.get_instance_id()
+			next_ids[id] = true
+			if not _retained_asset_base_ids.has(id):
+				for field: String in bindings:
+					if not changed.has(field): layer.set(field, bindings[field])
+		_retained_asset_base_ids = next_ids
+		_retained_asset_base_revision = _retained_base_layers_revision
 	_retained_asset_bindings = bindings
-	_retained_asset_layers = layers
 
 func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = [], geometry_changed: bool = true) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
@@ -2362,7 +2411,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	if not _retained_layers_cache_valid:
 		_retained_render_layers()
 	var layers: Array = _retained_layers_cache
-	var same_layers: bool = _retained_state_layers_revision == _retained_layers_revision
+	var same_layers: bool = _retained_state_layers_revision == _retained_base_layers_revision
 	if fields.is_empty() or not same_layers:
 		fields = LayerSlices.STATE_FIELDS
 	if layout_changed or visual_framing_changed:
@@ -2378,6 +2427,14 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	for field_var: Variant in fields:
 		var field: StringName = StringName(field_var)
 		var value: Variant = get(field)
+		if field == &"presentation":
+			# All retained slices read the same current submission. Keep that
+			# binding stable while the owner retains distinct old/new snapshots
+			# for diffing and the static floor owns its last baked snapshot.
+			_retained_presentation.clear()
+			_retained_presentation.merge(presentation)
+			_retained_presentation_revision += 1
+			value = _retained_presentation
 		# Shared containers already expose in-place changes to every canvas.
 		# Retain identities (rather than equal contents) so replacements still
 		# reach all children, including newly created ordered slices.
@@ -2388,8 +2445,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 				(layer.get("_unit_draw_rect_cache") as Dictionary).clear()
 			layer.set(field, value)
 		_retained_state_bindings[field] = value
-	_retained_state_layers = layers
-	_retained_state_layers_revision = _retained_layers_revision
+	_retained_state_layers_revision = _retained_base_layers_revision
 
 	_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 
@@ -2427,7 +2483,7 @@ func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> voi
 	layer.set("_hover_tile", _hover_tile)
 	layer.set("_controller_focus_tile", _controller_focus_tile)
 	if LayerSlices.supports(str(layer.get("_render_layer_kind")), layer.presentation) and not bool(layer.get("_is_layer_slice_canvas")):
-		layer.get("_layer_slices").invalidate(layer, clock_only)
+		layer.get("_layer_slices").invalidate(layer, clock_only, layer == _effects_render_layer and _submission_reuses_effect_plan)
 	else:
 		if str(layer.get("_render_layer_kind")) in [RENDER_LAYER_SCENE_TILE, RENDER_LAYER_EFFECTS, RENDER_LAYER_TELEGRAPHS]: layer.get("_layer_slices").retire(layer)
 		layer.queue_redraw()
@@ -2435,7 +2491,12 @@ func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> voi
 func _flush_submission_redraws() -> void:
 	_batching_submission_redraws = false
 	for layer: Control in _submission_redraws:
+		var started: int = Time.get_ticks_usec() if not _submission_detail_current.is_empty() else 0
 		_queue_render_layer_redraw(layer, bool(_submission_redraws[layer]))
+		if started > 0:
+			var elapsed: int = Time.get_ticks_usec() - started
+			_record_submission_detail("layers", layer._render_layer_kind, elapsed)
+			_record_submission_detail("slices", layer._render_instrumentation_detail_key(), elapsed)
 	_submission_redraws.clear()
 
 func render_instrumentation_snapshot() -> Dictionary:
@@ -3013,9 +3074,18 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	return result
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	if not _is_dynamic_render_layer:
-		plate_visibility.observe(next_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state, next_presentation)
-		call_deferred("refresh_plate_visibility")
+		var plate_state: Dictionary = next_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state
+		if not trust_same_reference_state or not is_same(plate_state, _plate_observed_state) or (
+			next_presentation.get("umbra_truesight_activations", 0) != presentation.get("umbra_truesight_activations", 0)
+			or next_presentation.get("umbra_truesight_conditional", false) != presentation.get("umbra_truesight_conditional", false)
+		):
+			plate_visibility.observe(plate_state, next_presentation)
+			_plate_observed_state = plate_state
+		if not _plate_refresh_queued:
+			_plate_refresh_queued = true
+			call_deferred("_flush_plate_visibility")
 	if not bool(next_presentation.get("board_targeting", false)): _aim_focus.finish()
 	# Surface skills can enter animation without a normal stage refresh. Clear
 	# their retained aiming border on the first non-targeting submission as well.
@@ -3037,7 +3107,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_rule_threat_tiles: Dictionary = _rule_threat_tiles
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas(threats)
 	_rule_threat_tiles = ThreatTiles.rule_tiles(threats)
-	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	submission_phase_started = _record_submission_performance_phase("decorate", submission_phase_started)
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
 	# compare only the board-consumed snapshot when a non-conforming caller mutates
@@ -3125,8 +3195,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_units_by_key: Dictionary = {}
 	var track_visible_unit_changes: bool = false
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
-		previous_damage_preview = _damage_preview_map().duplicate(true)
-		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
+		# A rebuild replaces the map, leaving the previous snapshot available for
+		# dirty-tile comparison.
+		previous_damage_preview = _damage_preview_map()
+		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation, presentation_changes)
 		# The retained visible-unit cache still represents the last submitted
 		# frame even when a non-conforming caller mutated the combat dictionary in
 		# place. Capture it before rebuilding the cache so the exact old/new actor
@@ -3152,6 +3224,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# exact combat diff also detects in-place edits to these room fields.
 	var room_grid_inputs_changed: bool = combat_state.is_empty() != next_state.is_empty() or combat_render_changes.has("grid") or combat_render_changes.has("room_coord")
 	var layout_inputs_changed: bool = room_grid_inputs_changed or exit_tiles_changed or _board_layout_signature.is_empty()
+	var only_aim_framing_changed: bool = not layout_inputs_changed and presentation_changes.has("board_targeting")
 	for layout_key: String in [
 		"active_door_tiles",
 		"locked_door_tiles",
@@ -3159,12 +3232,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		"board_framing_mode",
 		"board_safe_global_rect",
 		"board_fit_rect", "board_encounter_types", "board_fit_exclusions",
-		"board_legacy_fit_rect", "board_targeting",
+		"board_legacy_fit_rect",
 		"controller_combat_navigation",
 	]:
 		if presentation_changes.has(layout_key):
 			layout_inputs_changed = true
-			break
+			if layout_key != "board_targeting":
+				only_aim_framing_changed = false
+				break
 	var framing_inputs_changed: bool = combat_state.is_empty() != next_state.is_empty() or _board_visual_framing_signature.is_empty()
 	for framing_key: String in ["player", "illusions", "enemies", "npcs", "terrain", "loot", "traps"]:
 		if combat_render_changes.has(framing_key):
@@ -3215,6 +3290,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# avoiding a full recursive clone on every animation/hover submission.
 	# Tile canvases survive reframing; their surface children belong to one room.
 	if combat_state.get("room_coord", Vector2i(-1, -1)) != next_state.get("room_coord", Vector2i(-1, -1)):
+		_aim_focus.release_room_canvases()
 		for layer: Node in _scene_render_layers:
 			layer.call("_release_room_surface_layers")
 	combat_state = next_state
@@ -3472,6 +3548,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if _foreground_obstruction_geometry_inputs != _foreground_obstruction_layout_inputs():
 			_refresh_foreground_obstruction_entries_cache(_visible_units())
 		geometry_changed = previous_geometry.is_empty() or previous_geometry != _resolved_board_geometry_inputs()
+		# Aiming toggles navigation framing. If its exact projection stayed
+		# identical, route the changed target/hover paint without invalidating
+		# every base canvas and ordered tile slice.
+		if only_aim_framing_changed and not geometry_changed:
+			layout_changed = false
 		if geometry_changed:
 			_unit_shadow_draw_geometry_cache.clear()
 			_unit_shadow_draw_mesh_cache.clear()
@@ -3481,6 +3562,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_dynamic_render_assets()
 	# Warmup restores the live hover layout. Publish that final result with the
 	# retained bindings, including obstacle-only submissions.
+	# Contextual intent expansion can reuse the warmed layout's inspected-actor
+	# key. A current-only solve here drops the release label in Deep Umbra.
 	if prepare_hover_hud or (layout_changed and geometry_changed) or presentation_changes.has("hud_obstacle_global_rects") or presentation_changes.has("burst_intent_obstacle_global_rect"):
 		preload("res://scripts/board_hover_hud_warmup.gd").prepare(self)
 	var retained_sync_fields: Array = []
@@ -3556,6 +3639,15 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or not retained_sync_fields.is_empty():
 		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields, geometry_changed)
 	submission_phase_started = _record_submission_performance_phase("retained_sync", submission_phase_started)
+	# The isolated effects plan embeds actor/marker arguments. Progress and
+	# floating text only update paint-time values. Retain the ordered plan,
+	# while repainting its canvases with the usual clock and presentation.
+	_submission_reuses_effect_plan = not layout_changed and not visual_framing_changed and not biome_changed and not state_changed and not interaction_changed and combat_render_changes.is_empty() and presentation.has("isolated_enemy_actor_keys")
+	if _submission_reuses_effect_plan:
+		for key: String in presentation_changes:
+			if key not in ["effect_progress", "floating_texts", "strike_trail_progress", "tharokh_motion"]:
+				_submission_reuses_effect_plan = false
+				break
 	_batching_submission_redraws = true
 	if group_ui_changed: _queue_render_layer_redraw(_hud_render_layer)
 	_update_cursor_shape()
@@ -3620,12 +3712,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		_queue_render_layer_redraw(_hud_render_layer)
 		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
-	_sync_enemy_shadow_dissolve_effects()
+	if not _enemy_shadow_dissolve_effects_by_key.is_empty() or not (presentation.get("death_animation_units", []) as Array).is_empty():
+		_sync_enemy_shadow_dissolve_effects()
 	var retained_strike_frame: bool = (
 		(presentation_changes.has("strike_trail_effect") or presentation_changes.has("strike_trail_progress"))
 		and is_instance_valid(_effects_render_layer) and not _submission_redraws.has(_effects_render_layer)
 	)
 	_flush_submission_redraws()
+	_submission_reuses_effect_plan = false
 	if retained_strike_frame:
 		LayerRedraws.bind_retained_strike_frame(self, _effects_render_layer)
 	if is_instance_valid(_occlusion_silhouettes):
@@ -3656,6 +3750,7 @@ func _record_submission_performance_phase(phase: String, started_usec: int) -> i
 	if not _submission_performance_instrumentation_enabled:
 		return 0
 	var now_usec: int = Time.get_ticks_usec()
+	if not _submission_detail_current.is_empty(): _record_submission_detail("sections", phase, now_usec - started_usec)
 	_submission_performance_total_usec[phase] = int(_submission_performance_total_usec.get(phase, 0)) + now_usec - started_usec
 	_submission_performance_counts[phase] = int(_submission_performance_counts.get(phase, 0)) + 1
 	return now_usec
@@ -3712,9 +3807,11 @@ func _coalescible_explicit_redraw_frame() -> int:
 	# and must not suppress the following frame's continuous redraw.
 	return render_frame if _last_processed_render_frame != render_frame else -1
 
-func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
+func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary, diff: Variant = null) -> Dictionary:
+	var changed_fields: Dictionary = _changed_presentation_keys(previous, next) if diff == null else diff
 	var changed: Dictionary = {}
 	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_texture_origins", "unit_draw_tiles", "static_enemy_facings"]:
+		if not changed_fields.has(field): continue
 		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
 		var next_values: Dictionary = next.get(field, {}) as Dictionary
 		for key_var: Variant in previous_values:
@@ -3723,12 +3820,13 @@ func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionar
 		for key_var: Variant in next_values:
 			if not previous_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
 				changed[str(key_var)] = true
-	for field: String in previous.keys() + next.keys():
+	for field: String in changed_fields:
 		if not field.ends_with("_motion") or field == "reduced_motion": continue
-		if not previous.get(field, {}) is Dictionary or not next.get(field, {}) is Dictionary: continue
-		if previous.get(field, {}) == next.get(field, {}): continue
+		var previous_motion: Variant = previous.get(field, {})
+		var next_motion: Variant = next.get(field, {})
+		if not previous_motion is Dictionary or not next_motion is Dictionary or previous_motion == next_motion: continue
 		if field == "protagonist_motion": changed["player"] = true
-		for source: Dictionary in [previous.get(field, {}) as Dictionary, next.get(field, {}) as Dictionary]:
+		for source: Dictionary in [previous_motion, next_motion]:
 			for actor_key: String in source:
 				if actor_key == "player" or actor_key.begins_with("enemy_") or actor_key.begins_with("illusion_"):
 					changed[actor_key] = true
@@ -3814,8 +3912,8 @@ func _queue_presentation_change_redraws(
 				hud_changed = true
 			"ambient_time_seconds":
 				ambient_changed = true
-			"hover_owner_tile":
-				# Input-owner metadata has no paint of its own.
+			"hover_owner_tile", "controller_hand_focused", "plate_aim_actor_keys":
+				# Plate aim is consumed by the independent visibility observer.
 				pass
 			"threat_isolation_hero_preview", "attack_reach_tiles", "attack_reach_color", "ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
@@ -3842,7 +3940,7 @@ func _queue_presentation_change_redraws(
 				# actor state can leave its old label over the windup banner.
 				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
 					hud_changed = true
-			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "collision_markers":
+			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "status_typography_role", "collision_markers":
 				effects_changed = true
 			"trap_effects", "trap_trigger_previews":
 				effects_changed = true
@@ -3885,7 +3983,7 @@ func _queue_presentation_change_redraws(
 				# The effects canvas only reads the hero's charge/socket when a
 				# charge, attack, or lethal marker is actually present.
 				effects_changed = effects_changed or LayerRedraws.protagonist_effects_active(previous_path_presentation) or LayerRedraws.protagonist_effects_active(presentation) or LayerRedraws.has_lethal_preview(self)
-			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
+			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "tharokh_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Pose textures retain their RID; pixel/floor registration can move.
 				unit_movement_changed = true
 			"combat_feel_owner", "combat_feel_hits", "effect_frame_count", "maquette_explicit_clip", "harrier_travel_variant", "umbra_reveal_actor_on_visible_tiles":
@@ -4067,6 +4165,7 @@ func _queue_moving_actor_redraws(
 	previous_unit_render_tiles: Dictionary,
 	previous_unit_obstruction_entries: Dictionary
 ) -> void:
+	if moving_actor_keys.is_empty(): return
 	var current_render_tiles: Dictionary = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
 	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
 	var previous_moving_entries: Array = []
@@ -4081,6 +4180,7 @@ func _queue_moving_actor_redraws(
 			previous_moving_entries.append(previous_unit_obstruction_entries.get(actor_key))
 		if current_obstruction_entries.has(actor_key):
 			current_moving_entries.append(current_obstruction_entries.get(actor_key))
+	if previous_moving_entries == current_moving_entries: return
 	for candidate_var: Variant in _foreground_obstruction_candidates():
 		var candidate: Dictionary = candidate_var as Dictionary
 		if (
@@ -4934,9 +5034,15 @@ func _draw_board_commands() -> void:
 		if not whole_layer: _dynamic_draw_count += 1
 		_tooltip_regions.clear()
 		_tile_tooltip_regions.clear()
+		var aim: RefCounted = preload("res://scripts/board_aim_focus.gd").for_board(self)
+		var detail_owner: Node = _render_instrumentation_owner
+		var detailed: bool = is_instance_valid(detail_owner) and detail_owner._submission_detail_enabled
 		for operation: Array in _render_slice_ops:
-			if not preload("res://scripts/board_aim_focus.gd").for_board(self).route_operation(self, operation[0], operation[1]):
+			var operation_started: int = Time.get_ticks_usec() if detailed else 0
+			if not aim.route_operation(self, operation[0], operation[1]):
 				callv(operation[0], operation[1])
+			if detailed:
+				detail_owner._add_detail_sample(detail_owner._submission_draw_categories, operation[0], Time.get_ticks_usec() - operation_started)
 		if not whole_layer: _record_dynamic_draw_time(started_usec)
 		return
 	if _is_dynamic_render_layer and LayerSlices.supports(_render_layer_kind, presentation):
@@ -5101,8 +5207,14 @@ func _slice_op(method: String, args: Array, animated: bool = false) -> void:
 			_slice_operations.append([method, args, animated, chip_owner])
 			return
 		if method == "_draw_slice_meteor_mark":
-			var burrow_owners: Array[String] = LayerSlices.mechanic_keys(self, method, args[0])
-			_slice_operations.append(["_draw_isolated_burrow_mark", [args[0], args[1]], animated, burrow_owners])
+			var burrow_owners: Array[String]
+			if args[1] == null:
+				burrow_owners = LayerSlices.mechanic_keys(self, method, args[0])
+			else:
+				for mark: Dictionary in args[1]:
+					if mark["tile"] == args[0]: burrow_owners.append("enemy_%d" % int(mark["enemy_id"]))
+			if not burrow_owners.is_empty():
+				_slice_operations.append(["_draw_isolated_burrow_mark", [args[0], args[1]], animated, burrow_owners])
 			_slice_operations.append([method, [args[0], {}, args[2]], animated, []])
 			return
 		if _threat_slice_keys.is_empty() and method in ["_draw_slice_icefall", "_draw_slice_wind"]:
@@ -5185,9 +5297,15 @@ func _draw_overlay_render_layer() -> void:
 		"burst_tiles": DeathBurstView.focused_tiles(self),
 		"zone_tags": ThreatTiles.zone_tags((presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	}
-	_prepare_command_glow_cache(_overlay_draw_sources["leader"])
+	var OverlayTiles = preload("res://scripts/board_overlay_tiles.gd")
+	var leader: Dictionary = _overlay_draw_sources["leader"]
+	var meteor_tiles: Dictionary = OverlayTiles.meteor_tiles(combat_state, presentation, _overlay_draw_sources["burrow_marks"], _overlay_draw_sources["burst_tiles"])
+	_overlay_draw_sources["meteor_tiles"] = meteor_tiles
+	if not leader.is_empty(): _prepare_command_glow_cache(leader)
+	var isolate_threats: bool = presentation.has("isolated_enemy_actor_keys") and leader.is_empty()
+	var paint_tiles: Dictionary = OverlayTiles.candidates(self, _overlay_draw_sources) if isolate_threats else {}
 	for tile: Vector2i in tiles:
-		_draw_tile_overlays(tile)
+		if not isolate_threats or paint_tiles.has(tile): _draw_tile_overlays(tile)
 	_overlay_draw_sources = {}
 	# Wind is drawn once over the floor, not per tile (director, warband-markers).
 	_slice_op("_draw_slice_wind", [], WindView.has_forecast(self) and not bool(presentation.get("reduced_motion", false)))
@@ -5249,6 +5367,12 @@ func _draw_path_render_layer() -> void:
 	_record_dynamic_draw_time(started_usec)
 
 var _scene_tile_preparation := preload("res://scripts/board_scene_tile_preparation.gd").new()
+
+func _scene_paths_at(tile: Vector2i) -> Array:
+	var owner: Control = _render_instrumentation_owner
+	if is_instance_valid(owner) and is_same(presentation, owner.get("_retained_presentation")):
+		return owner._scene_tile_preparation.paths_at(owner, tile, owner._retained_presentation_revision)
+	return _scene_tile_preparation.paths_at(self, tile)
 
 func _build_threat_effect_operations() -> void:
 	preload("res://scripts/board_threat_isolation_paint.gd").effects(self)
@@ -7697,7 +7821,8 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	# Slice playback happens after _overlay_draw_sources is cleared. Carry the
 	# selectors prepared for this plan, including empty results, so each tile
 	# does not rescan the enemy roster and rebuild the same marks during paint.
-	_slice_op("_draw_slice_meteor_mark", [tile, _overlay_draw_sources.get("burrow_marks"), _overlay_draw_sources.get("burst_tiles")])
+	if not _overlay_draw_sources.has("meteor_tiles") or (_overlay_draw_sources["meteor_tiles"] as Dictionary).has(tile):
+		_slice_op("_draw_slice_meteor_mark", [tile, _overlay_draw_sources.get("burrow_marks"), _overlay_draw_sources.get("burst_tiles")])
 	if detailed: _record_render_section_time("overlay_meteor", started); started = Time.get_ticks_usec()
 	if _overlay_draw_sources.is_empty() or (_overlay_draw_sources["icefall_marks"] as Dictionary).has(tile):
 		_slice_op("_draw_slice_icefall", [tile])
@@ -14072,9 +14197,8 @@ func _draw_path_depth_pass(tile: Vector2i) -> void:
 	else:
 		# Resolve ordered typed paths once per exact input snapshot. The path
 		# painter still samples Light links and emits the original clip commands.
-		for entry: Array in _scene_tile_preparation.paths(self):
+		for entry: Array in _scene_paths_at(tile):
 			var path: Array[Vector2i] = entry[0]
-			if not path.has(tile): continue
 			_path_depth_tile = tile
 			_path_depth_clip = _tile_polygon(tile)
 			_draw_path_tiles(path, entry[1], entry[2])
@@ -14203,13 +14327,10 @@ func _path_cache_inputs(path_tiles: Array[Vector2i], color: Color) -> Array:
 func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
 	# Called once per committed board revision, using plans already queried by
 	# the rest badges. Hover focus then only replays these ordered commands.
-	var paths: Array = []
-	if path.size() >= 2: paths.append(path)
-	for source: Array in paths:
-		var prepared: Array[Vector2i] = _vector2i_array(source)
-		var clips: Array = []
-		for tile: Vector2i in prepared: clips.append(_tile_polygon(tile))
-		_path_draw_cache.prepare_path(_path_cache_inputs(prepared, ENEMY_PATH_PREVIEW_COLOR), func() -> Array: return _capture_unclipped_path(prepared, ENEMY_PATH_PREVIEW_COLOR, false), clips, _polygon_can_draw)
+	if path.size() < 2: return
+	var clips: Array = []
+	for tile: Vector2i in path: clips.append(_tile_polygon(tile))
+	_path_draw_cache.prepare_path(_path_cache_inputs(path, ENEMY_PATH_PREVIEW_COLOR), func() -> Array: return _capture_unclipped_path(path, ENEMY_PATH_PREVIEW_COLOR, false), clips, _polygon_can_draw)
 
 func _capture_unclipped_path(path_tiles: Array[Vector2i], color: Color, hero_path: bool) -> Array:
 	var previous_clip: PackedVector2Array = _path_depth_clip
@@ -15337,7 +15458,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
 	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
 	parts.append("fit:%s|roster:%s" % [str(next_presentation.get("board_fit_rect", Rect2())), str(next_presentation.get("board_encounter_types", []))])
-	parts.append("exclusions:%s|targeting:%s" % [str(next_presentation.get("board_fit_exclusions", [])), bool(next_presentation.get("board_targeting", false))])
+	parts.append("exclusions:%s" % str(next_presentation.get("board_fit_exclusions", [])))
 	parts.append("legacy_fit:%s" % str(next_presentation.get("board_legacy_fit_rect", Rect2())))
 	return "|".join(parts)
 
@@ -17143,7 +17264,7 @@ func _board_origin() -> Vector2:
 	return _board_layout_cache_origin
 
 func _board_origin_for_extents(_extents: Dictionary, tile_width: float, _tiles: Array[Vector2i]) -> Vector2:
-	return _room_framing.origin(_board_layout_available_rect(), tile_width, _board_layout_exclusions()) + (Vector2.ZERO if bool(presentation.get("board_targeting", false)) else _navigation_pan)
+	return _room_framing.origin(_board_layout_available_rect(), tile_width, _board_layout_exclusions()) + _navigation_pan
 
 func room_centering_offset() -> Vector2:
 	_ensure_board_layout_cache()
@@ -17811,8 +17932,10 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset if preserve_visual_top_offset else 0.0
 	_board_layout_cache_valid = false
 	_board_layout_cache_visual_top_offset = retained_visual_top_offset
-	_board_layout_cache_tile_centers.clear()
-	_board_layout_cache_tile_polygons.clear()
+	# Retained canvases can still be displaying the last resolved geometry.
+	# Replace shared snapshots at invalidation and fill fresh containers.
+	_board_layout_cache_tile_centers = {}
+	_board_layout_cache_tile_polygons = {}
 	# Same-room visual framing moves the origin but does not change immutable
 	# foot-relative meshes. Draw size is already in their key. Keep them through
 	# actor moves/deaths/spawns; content, viewport and navigation resets retire them.
@@ -17823,8 +17946,9 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	_invalidate_layout_render_semantics()
 	if content_changed:
 		_board_layout_content_cache_valid = false
-		_board_layout_cache_tiles.clear()
-		_board_layout_cache_extents.clear()
+		var empty_tiles: Array[Vector2i]
+		_board_layout_cache_tiles = empty_tiles
+		_board_layout_cache_extents = {}
 
 func _invalidate_layout_render_semantics() -> void:
 	_ambient_particle_template_signature = ""
@@ -17836,7 +17960,7 @@ func _resolved_board_geometry_inputs() -> Dictionary:
 		return {}
 	return {
 		"size": size, "width": _board_layout_cache_tile_width, "origin": _board_layout_cache_origin,
-		"tiles": _board_layout_cache_tiles.duplicate(), "extents": _board_layout_cache_extents.duplicate(),
+		"tiles": _board_layout_cache_tiles, "extents": _board_layout_cache_extents,
 		"zoom": _navigation_zoom, "pan": _navigation_pan,
 		"offset": _board_layout_cache_visual_top_offset,
 		"canvas_transform": get_global_transform_with_canvas(),
@@ -17854,8 +17978,7 @@ func _copy_resolved_board_layout_to(layer: Control) -> void:
 		"_board_layout_cache_tile_polygons", "_navigation_zoom", "_navigation_pan",
 		"_navigation_uses_default_zoom"
 	]:
-		var value: Variant = get(field)
-		layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+		layer.set(field, get(field))
 	# Retained controls share the owner's coordinate space even while full-rect
 	# anchors are settling; their local size must not trigger independent framing.
 	layer.set("_board_layout_cache_size", layer.size)
@@ -17889,12 +18012,10 @@ func _ensure_board_layout_cache() -> void:
 		_room_framing.capture(self, room_signature, tiles)
 	if _navigation_uses_default_zoom:
 		_navigation_zoom = _default_navigation_zoom_for_viewport()
-	var targeting: bool = bool(presentation.get("board_targeting", false))
-	var tile_width: float = _tile_width_for_extents(extents) * (1.0 if targeting else _navigation_zoom)
-	# Targeting temporarily reveals the fitted room; cancelling retains the
-	# player's navigation preference, including pan on an overflowing axis.
-	if not targeting:
-		_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
+	# Targeting overlays the current board and uses the same projection for hit
+	# testing. Only the room/display fit and board navigation own this geometry.
+	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
+	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
 	_populate_board_layout_cache(tiles, tile_width, _board_origin_for_extents(extents, tile_width, tiles))
 
 func _populate_board_layout_cache(tiles: Array[Vector2i], tile_width: float, origin: Vector2) -> void:
@@ -18690,6 +18811,10 @@ func _release_room_surface_layers() -> void:
 # rd-05: painting changes only; all legacy HUD geometry remains reserved.
 func refresh_plate_visibility() -> void:
 	if not _is_dynamic_render_layer: plate_visibility.refresh()
+
+func _flush_plate_visibility() -> void:
+	_plate_refresh_queued = false
+	refresh_plate_visibility()
 
 func _plate_visibility_changed() -> void:
 	if is_instance_valid(_hud_render_layer): _queue_render_layer_redraw(_hud_render_layer)

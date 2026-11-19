@@ -2445,6 +2445,13 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Dictionary, losses_only: bool = false) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var cursor: Dictionary = begin_revealed_enemy_actions_preview(state, losses_only)
+	return _finish_revealed_enemy_actions_preview(cursor, performance_total_started)
+
+func finish_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	return _finish_revealed_enemy_actions_preview(cursor, started)
+
+func _finish_revealed_enemy_actions_preview(cursor: Dictionary, performance_total_started: int) -> Dictionary:
 	while not bool(cursor.get("complete", false)):
 		advance_revealed_enemy_actions_preview(cursor)
 	_record_runtime_performance_phase("enemy_preview_total", performance_total_started)

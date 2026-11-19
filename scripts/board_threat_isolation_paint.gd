@@ -48,8 +48,7 @@ static func scene(board: Control) -> void:
 		board._threat_slice_keys = Isolation.tile_keys(board, tile)
 		Isolation.rule_outline_operations(board, tile)
 		board._threat_slice_keys.clear()
-	for entry: Array in board._scene_tile_preparation.paths(board):
-		if not (entry[0] as Array).has(tile): continue
+	for entry: Array in board._scene_paths_at(tile):
 		board._threat_slice_keys.clear()
 		for threat: Dictionary in board.presentation.get("enemy_threat_previews", []):
 			if entry[0] == board._vector2i_array(threat.get("projected_path", [])) and not bool(entry[2]): board._threat_slice_keys.append(str(threat.get("enemy_key", "")))

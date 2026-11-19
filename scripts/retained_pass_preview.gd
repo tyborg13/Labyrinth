@@ -114,7 +114,7 @@ static func build(scene: Control) -> Button:
 	chip.focus_exited.connect(func() -> void: scene._set_pass_preview_focus_exited(chip, art_host, content, focus_edge, chip.get_meta("panel_surface_accent")))
 	chip.button_down.connect(func() -> void: scene._set_pass_preview_pressed(chip, art_host, content, focus_edge, chip.get_meta("panel_surface_accent")))
 	chip.button_up.connect(func() -> void: scene._set_pass_preview_released(chip, art_host, content, focus_edge, chip.get_meta("panel_surface_accent")))
-	scene._refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
+	scene._refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent, summary)
 
 	if scene._choice_buttons_use_overlay():
 		scene._pass_preview_overlay.add_child(chip)
@@ -149,4 +149,4 @@ static func refresh(scene: Control) -> void:
 	chip.set_meta("panel_surface_accent", accent)
 	chip.set_meta("panel_selected", danger)
 	if chip.disabled: chip.set_meta("pass_pressed", false)
-	scene._refresh_pass_preview_interaction(chip, chip.get_node("PassForecastFrameArtHost"), content, content.get_node("PassFocusEdgeCue"), accent)
+	scene._refresh_pass_preview_interaction(chip, chip.get_node("PassForecastFrameArtHost"), content, content.get_node("PassFocusEdgeCue"), accent, summary)
