@@ -2,6 +2,7 @@ extends RefCounted
 ## Stage the committed hit, slide and contact for the recording camera.
 const Slide = preload("res://scripts/forced_displacement_view.gd")
 const Fixture = preload("res://tools/tooltip_loops/tip07_fixture.gd")
+const RecordBoard = preload("res://tools/tooltip_loops/record_board.gd")
 
 var slide_frame: int = -1
 var impact_frame: int = -1
@@ -56,7 +57,7 @@ func observe(board: Control, fixture: Dictionary, result: Dictionary, frame: int
 		var numbers: Dictionary = {}
 		for entry: Dictionary in shown.get("floating_texts", []):
 			if float(entry.get("alpha", 1.0)) > 0.0:
-				numbers[entry.get("reaction_actor_key", "")] = entry.get("text", "")
+				numbers[entry.get("reaction_actor_key", "")] = RecordBoard.audit_number_label(entry)
 		var blocker_key: String = "enemy_%d" % int(before["enemies"][1]["id"])
 		if numbers.get(key) == "-%d" % int(event["target_damage"]) and numbers.get(blocker_key) == "-%d" % int(event["blocker_damage"]):
 			impact_frame = frame

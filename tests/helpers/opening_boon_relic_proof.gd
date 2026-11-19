@@ -24,7 +24,7 @@ static func run(viewport: Node, scene: Node, expect: Callable) -> Dictionary:
 			var rich: RichTextLabel = card.get_node("BoonRules")
 			var font_size: int = rich.get_theme_font_size("normal_font_size")
 			var lines: int = rich.get_line_count()
-			var suffix: String = "" if boon == "trinket" else " Start at half @kw(health|HP)."
+			var suffix: String = "" if boon == "trinket" else " Start at half @kw(health|Health)."
 			expect.call(Boons.text(offer) == str(Data.relic_def(id)["description"]) + suffix, "Authored effect/keywords survive both relic presentations: " + id + "/" + boon)
 			expect.call(absf(rich.position.x - 24.0) <= 1.0 and absf(rich.size.x - 252.0) <= 1.0 and absf(card.size.x - rich.get_rect().end.x - 24.0) <= 1.0, "Rendered relic rules retain both 24px pads and 252px width: " + id + "/" + boon)
 			expect.call((font_size == Typography.SIZE_BODY and lines <= 4) or (font_size == Typography.SIZE_SMALL and lines <= 5), "Rendered relic rules obey 4 body / 5 smaller-body line limits: %s/%s size=%d lines=%d" % [id, boon, font_size, lines])

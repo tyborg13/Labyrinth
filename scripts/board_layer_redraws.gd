@@ -9,12 +9,12 @@ static func retain_empty(board: Control, layer: Control) -> bool:
 	if not layer.is_inside_tree():
 		layer.set("_retained_commands_empty", false)
 		return false
-	var empty: bool = _empty(board, layer)
+	var empty: bool = is_empty(board, layer)
 	var was_empty: bool = bool(layer.get("_retained_commands_empty"))
 	layer.set("_retained_commands_empty", empty)
 	return empty and was_empty
 
-static func _empty(board: Control, layer: Control) -> bool:
+static func is_empty(board: Control, layer: Control) -> bool:
 	var shown: Dictionary = board.presentation
 	match str(layer.get("_render_layer_kind")):
 		"scene_tile":
@@ -117,3 +117,27 @@ static func overlay_clock_only(changed: Dictionary, previous: Dictionary, shown:
 	for key: String in changed:
 		if key != "effect_progress": return false
 	return overlay_effect_inputs(previous) == overlay_effect_inputs(shown)
+
+# A targeting transition used to refresh every scene tile. Keep the tiles
+# with independent paint clocks and any owned operations whose isolation fade
+# can change. Ordinary empty floor and boundary stone have no clock.
+static func targeting_scene_tiles(board: Control, previous: Dictionary) -> Dictionary:
+	var shown: Dictionary = board.presentation
+	var tiles: Dictionary = preload("res://scripts/board_preview_redraws.gd").tiles(board, previous, shown)
+	for sources: Dictionary in [
+		board._units_by_draw_tile_cache, board._scene_props_by_tile,
+		board._terrain_by_tile, board._loot_by_tile, board._rule_threat_tiles,
+	]:
+		tiles.merge(sources)
+	for tile: Vector2i in board.BoardSurfaceRules.tiles(board.combat_state):
+		tiles[tile] = true
+	var grid: Array = board.combat_state.get("grid", [])
+	var live_surface_paint: bool = false
+	for key: String in ["surface_preview_events", "surface_preview_arcs", "surface_feedback_events", "throw_surface_frames", "combat_feel_surface_frames"]:
+		if not shown.get(key, []).is_empty():
+			live_surface_paint = true
+			break
+	for tile: Vector2i in board._rendered_tiles_in_draw_order():
+		if live_surface_paint or board._tile_renders_as_pillar(grid, tile):
+			tiles[tile] = true
+	return tiles

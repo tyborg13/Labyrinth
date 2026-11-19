@@ -7,6 +7,15 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 static func enemy(type: String) -> Dictionary:
 	return {"kind": "enemy", "id": type}
 
+static func card_panel_for_text(text: String, source: Dictionary) -> Control:
+	var title: String = text.get_slice("\n", 0).strip_edges()
+	var term: String = str(Glossary.lookup(title).get("id", ""))
+	var row: Dictionary = Registry.find(term, source)
+	var match_source: Dictionary = row.get("source_match", {})
+	if not (match_source.has("id") or match_source.has("ids")) or not Registry.media_available(row):
+		return null
+	return panel_for_text(text, source, term)
+
 static func enemy_unit(unit: Dictionary) -> Dictionary:
 	var source: Dictionary = enemy(str(unit.get("type", "")))
 	if source["id"] == "slag_mortar" and bool(unit.get("is_leader", false)): source["variant"] = "slagmaster"

@@ -1,0 +1,14 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1280x800"],
+  "required_images": [
+    {
+      "pattern": "*resting_hand_zekarion_four_hovered_1280x800.png",
+      "regions": [{"rect": [590, 620, 100, 120], "min_luma_range": 30, "min_luma_stdev": 5}]
+    },
+    {
+      "pattern": "*resting_hand_zekarion_four_selected_1280x800.png",
+      "regions": [{"rect": [590, 720, 100, 65], "min_luma_range": 30, "min_luma_stdev": 5}]
+    }
+  ]
+}

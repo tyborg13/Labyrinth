@@ -39,7 +39,7 @@
   "illusion_block": {
     "title": "Block",
     "text": "Your illusion takes all your Block as extra Health.",
-    "legacy": "The illusion gains all your Block as extra health. You lose that Block.",
+    "legacy": "The illusion gains all your Block as extra Health. You lose that Block.",
     "term": "block"
   },
   "shatter_illusion": {
@@ -50,14 +50,14 @@
   },
   "terrain_burst_own": {
     "title": "Terrain Burst",
-    "text": "Destroy an adjacent outcrop or Worldspine you raised.",
+    "text": "Destroy an adjacent Outcrop or Worldspine you raised.",
     "legacy": "Destroy an adjacent Outcrop or Worldspine you raised.",
     "term": "terrain_burst"
   },
   "terrain_burst_any": {
     "title": "Terrain Burst",
-    "text": "Destroy an outcrop, crate or other terrain in range and sight.",
-    "legacy": "Destroy an outcrop, crate or other terrain within range and sight.",
+    "text": "Destroy an Outcrop, crate or other terrain in range and sight.",
+    "legacy": "Destroy an Outcrop, crate or other terrain within range and sight.",
     "term": "terrain_burst"
   },
   "title_sentence_range_illusion": {
@@ -94,26 +94,26 @@
   },
   "raise_outcrop": {
     "title": "Raise Terrain",
-    "text": "Raises an outcrop with this much Health that blocks movement and sight.",
-    "legacy": "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "text": "Raises an Outcrop with this much Health that blocks movement and sight.",
+    "legacy": "Raises an Outcrop with this much Health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
     "term": "raise_terrain"
   },
   "raise_keg": {
     "title": "Raise Terrain",
     "text": "Places a powder keg with this much Health that blocks movement, not sight.",
-    "legacy": "Places a powder keg with this much health on empty floor. It blocks movement, not sight.",
+    "legacy": "Places a powder keg with this much Health on empty floor. It blocks movement, not sight.",
     "term": "raise_terrain"
   },
   "raise_worldspine": {
     "title": "Raise Terrain",
     "text": "Raises a Worldspine with this much Health on each empty tile around the target.",
-    "legacy": "Raises a Worldspine with this much health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
+    "legacy": "Raises a Worldspine with this much Health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
     "term": "raise_terrain",
     "diagram_text": "@pattern(neighbors:origin) Raises a Worldspine with this much Health on each empty one of these tiles around the target."
   },
   "range_outcrop": {
     "title": "Range",
-    "text": "Place the outcrop within this range.",
+    "text": "Place the Outcrop within this range.",
     "legacy": "Outcrop placement range.",
     "term": "range"
   },
@@ -152,7 +152,7 @@
   "crystal_mantle": {
     "title": "Crystal Mantle",
     "text": null,
-    "legacy": "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it.",
+    "legacy": "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and Health costs bypass it.",
     "term": "frost_armor"
   },
   "petrify": {
@@ -237,7 +237,7 @@
   "if_half_health": {
     "title": "If at Half Health",
     "text": "This bonus applies if the target is at or below half Health.",
-    "legacy": "If Target at Half Health\nApplies if the target is at or below half health before the hit.",
+    "legacy": "If Target at Half Health\nApplies if the target is at or below half Health before the hit.",
     "term": "if_half_health"
   },
   "only_fire": {
@@ -267,7 +267,7 @@
   "skate": {
     "title": "Skate",
     "text": null,
-    "legacy": "Skate\nThis turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+    "legacy": "Skate\nThis turn, moving onto Ice costs no Movement and Ice doesn't Chill you.",
     "term": "skate"
   },
   "fireproof": {
@@ -417,11 +417,11 @@
   },
   "unchanged_leaves_an_illusion_with_this_much_health_where_you_stood": {
     "text": "Leaves an illusion with this much Health where you stood.",
-    "legacy": "Leaves an illusion with this much health where you stood."
+    "legacy": "Leaves an illusion with this much Health where you stood."
   },
   "unchanged_the_destination_must_be_next_to_an_enemy_outcrop_or_crate": {
-    "text": "The destination must be next to an enemy, outcrop or crate.",
-    "legacy": "The destination must be next to an enemy, outcrop or crate."
+    "text": "The destination must be next to an enemy, Outcrop or crate.",
+    "legacy": "The destination must be next to an enemy, Outcrop or crate."
   },
   "unchanged_the_destination_must_be_in_light": {
     "text": "The destination must be in Light.",
@@ -448,8 +448,8 @@
     "legacy": "Places ground on the nearest affected tiles, beginning at the dragon."
   },
   "unchanged_raises_an_outcrop_with_this_much_hp_at_an_empty_ground_target": {
-    "text": "Raises an outcrop with this much HP at an empty ground target.",
-    "legacy": "Raises an outcrop with this much HP at an empty ground target."
+    "text": "Raises an Outcrop with this much Health at an empty ground target.",
+    "legacy": "Raises an Outcrop with this much Health at an empty ground target."
   },
   "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_terrain": {
     "text": "Hits each enemy on the four tiles next to the destroyed terrain.",
@@ -512,7 +512,7 @@
   "empower_health": {
     "title": "",
     "text": "Empower cost: lose {n} Health after the card resolves.",
-    "legacy": "Empower cost: pay {n} health after the card resolves."
+    "legacy": "Empower cost: pay {n} Health after the card resolves."
   },
   "empower_time": {
     "title": "",

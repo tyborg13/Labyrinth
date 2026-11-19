@@ -110,7 +110,7 @@ static func _test_enemy_detail_semantics(host: Node, expect: Callable) -> void:
 	var hp_label: Label = inspection.find_child("PreBattleEnemyHpLine", true, false) as Label
 	var initiative_label: Label = inspection.find_child("PreBattleEnemyInitiativeLine", true, false) as Label
 	var close_button: Button = inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button
-	expect.call(hp_label != null and hp_label.text.begins_with("HP ") and hp_label.get_theme_color("font_color").is_equal_approx(HP_COLOR), "Detailed enemy HP should be isolated on a red line")
+	expect.call(hp_label != null and hp_label.text.begins_with("Health ") and hp_label.get_theme_color("font_color").is_equal_approx(HP_COLOR), "Detailed enemy HP should be isolated on a red line")
 	expect.call(initiative_label != null and initiative_label.text.begins_with("Base initiative ") and initiative_label.get_theme_color("font_color").is_equal_approx(INITIATIVE_COLOR), "Detailed enemy initiative should be isolated on a blue line")
 	expect.call(not _labels_text(inspection).contains("Known repertoire") and not _labels_text(inspection).contains("next move concealed"), "Detailed enemy inspection should remove the redundant repertoire/concealment line")
 	var close_glyph: Label = close_button.find_child("*Glyph", true, false) as Label if close_button != null else null

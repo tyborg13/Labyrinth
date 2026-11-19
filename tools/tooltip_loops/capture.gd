@@ -306,7 +306,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 22 + Fixture.Tip07.IDS.size(), "Existing loops plus the forced movement recordings")
+	_expect(Registry.entries().size() == 22 + Fixture.Tip07.IDS.size() + Fixture.Tip06.IDS.size(), "Existing loops plus the forced movement and card mechanic recordings")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -318,7 +318,9 @@ func _semantics() -> void:
 	for entry: Dictionary in Registry.entries():
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
-		if not Fixture.Tip03.IDS.has(entry["id"]) and not Fixture.Tip04.IDS.has(entry["id"]) and not Fixture.Tip05.IDS.has(entry["id"]) and not Fixture.Traps.IDS.has(entry["id"]) and not Fixture.Txt13.IDS.has(entry["id"]) and not Fixture.Tip07.IDS.has(entry["id"]): _expect(packed_file != null, "Registered asset exists: " + str(entry["id"]))
+		var id: String = entry["id"]
+		var native_fixture: bool = id in Fixture.Tip03.IDS or id in Fixture.Tip04.IDS or id in Fixture.Tip05.IDS or id in Fixture.Traps.IDS or id in Fixture.Txt13.IDS or id in Fixture.Tip07.IDS or id in Fixture.Tip06.IDS
+		if not native_fixture: _expect(packed_file != null, "Registered asset exists: " + id)
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))

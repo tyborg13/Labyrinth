@@ -5,6 +5,7 @@ const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Demo = preload("res://scripts/demo_build.gd")
 const Cel = preload("res://scripts/cel_look.gd")
 const Timing = preload("res://tools/smoke_recording/timing.gd")
@@ -20,11 +21,11 @@ const LAYOUT_FRAMES: int = 6
 const OPENING_FIGHT := Vector2i(1, 1)
 const FIRST_EVENT := Vector2i(-1, -1)
 const CRAGHIDE := Vector2i(2, 2)
-const TO_THAROKH: Array[Vector2i] = [
+const TO_THAROKH: Array[Vector2i] = Array([
 	Vector2i(0, 2), Vector2i(-2, 2), Vector2i(-2, -1), Vector2i(3, -1),
 	Vector2i(3, 3), Vector2i(-1, 3), Vector2i(4, 0),
-]
-const CHOREOGRAPHY_WATCHDOG_SECONDS: float = 300.0
+], TYPE_VECTOR2I, "", null)
+const CHOREOGRAPHY_WATCHDOG_SECONDS: float = 900.0 # native at 30 fps with audio runs ~5-6 min
 const POINTER_AWAY := Vector2(960, 96)
 const CHAPTERS := ["Main menu and map", "Normal fight", "Rewards and event", "Craghide and Tharokh", "Return to menu"]
 # The brief specifies short reading holds and an overall duration range, with
@@ -285,7 +286,7 @@ func enter_room(destination: Vector2i) -> void:
 	if map == null: return
 	var node: Control = map.get("node_buttons").get(destination)
 	if not require(driver.usable(node) and bool(map.call("can_activate_room", destination)), "Available route node %s from %s" % [str(destination), str(run_state().get("current_room"))]): return
-	var destinations: Array[Vector2i] = [destination]
+	var destinations: Array[Vector2i] = TypedArrays.vector2i([destination])
 	var rects: Dictionary = map.call("selectable_room_global_rects", destinations)
 	if not require(rects.has(destination), "On-screen route node %s" % str(destination)): return
 	await driver.click((rects[destination] as Rect2).get_center())

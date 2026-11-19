@@ -437,7 +437,7 @@ func _test_inspection_rules() -> void:
 	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
 	var procession: Dictionary = data.enemy_def("last_lamplighter")["intents"][2]
 	check(Guardians.intent_notes(snuff).contains("after Last Procession"), "Snuff inspection explains outage duration")
-	check(Guardians.intent_notes(procession).contains("even when skipped") and Guardians.intent_notes(procession).contains("Snuff’s Shades"), "Procession inspection explains unconditional light and Shade cleanup")
+	check(Guardians.intent_notes(procession).contains("even when skipped") and Guardians.intent_notes(procession).contains("Snuff's Shades"), "Procession inspection explains unconditional light and Shade cleanup")
 	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("Overlapping bursts hit once"), "Groundsplit inspection explains its overlap exception")
 
 	var icons = preload("res://scripts/action_icon_library.gd")
@@ -453,7 +453,7 @@ func _test_inspection_rules() -> void:
 	var upheaval_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][0]["actions"]))
 	check(upheaval_text.contains("Move") and not upheaval_text.contains("Raise Terrain"), "Crag Heave keeps Move while its raise belongs to the beat")
 	var burst_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][1]["actions"]))
-	check(burst_text.contains("All outcrops") and burst_text.contains("within 2") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
+	check(burst_text.contains("All Outcrops") and burst_text.contains("within 2") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
 	var rooms := Rooms.new()
 	for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT,Vector2i.DOWN]:
 		var layout: Dictionary = rooms.generate_room(92,{"coord":Vector2i(2,1),"depth":2,"type":"guardian","element":"air","boss_id":"vaeloryx"},entry)

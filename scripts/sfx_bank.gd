@@ -35,20 +35,56 @@ var presentation_clock: Callable
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
 const EMPTY_OPTIONS: Dictionary = {}
+static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 
 func _init() -> void:
 	set_process(false)
 
 func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -> void:
 	if not cues.is_empty(): return
-	_host = host if host != null else self
-	Settings.ensure_audio_buses()
-	data = source if not source.is_empty() else JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
+	_begin_warm_up(host, source)
 	for cue_id: String in data.get("cues", {}):
 		_compile(cue_id, data["cues"][cue_id], seed_value)
 	for cue: String in cues:
-		if bool(cues[cue]["entry"].get("sync_warm_up", false)):
-			for stream: AudioStream in cues[cue]["streams"]: PeakAlignment.decoded(stream)
+		_warm_cue_alignment(cue)
+	_finish_warm_up()
+
+static func warm_up_for(bank: Node, host: Node, present: Callable, active: Callable) -> void:
+	if not bank.cues.is_empty(): return
+	bank._begin_warm_up(host, {})
+	var telemetry: Node = host.get_node("/root/PerformanceTelemetry") if _hitch_trace_enabled else null
+	for cue_id: String in bank.data.get("cues", {}):
+		while Assets.preparation_slice_full():
+			await present.call()
+			if not is_instance_valid(bank) or not bool(active.call()): return
+		var started: int = Time.get_ticks_usec()
+		var _span: RefCounted
+		if telemetry != null: _span = telemetry.hitch_phase("startup:sfx_bank:compile_cue")
+		bank._compile(cue_id, bank.data["cues"][cue_id], -1)
+		_span = null
+		Assets.count_preparation_work(started)
+	for cue_id: String in bank.cues:
+		while Assets.preparation_slice_full():
+			await present.call()
+			if not is_instance_valid(bank) or not bool(active.call()): return
+		var started: int = Time.get_ticks_usec()
+		var _span: RefCounted
+		if telemetry != null: _span = telemetry.hitch_phase("startup:sfx_bank:warm_cue_alignment")
+		bank._warm_cue_alignment(cue_id)
+		_span = null
+		Assets.count_preparation_work(started)
+	bank._finish_warm_up()
+
+func _begin_warm_up(host: Node, source: Dictionary) -> void:
+	_host = host if host != null else self
+	Settings.ensure_audio_buses()
+	data = source if not source.is_empty() else JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
+
+func _warm_cue_alignment(cue: String) -> void:
+	if bool(cues[cue]["entry"].get("sync_warm_up", false)):
+		for stream: AudioStream in cues[cue]["streams"]: PeakAlignment.decoded(stream)
+
+func _finish_warm_up() -> void:
 	for index: int in range(2):
 		var player := AudioStreamPlayer.new()
 		player.name = "AmbientSfxPlayer" if index == 0 else "AmbientSfxCrossfadePlayer"

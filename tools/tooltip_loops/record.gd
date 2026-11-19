@@ -5,6 +5,7 @@ const Registry = preload("res://scripts/tooltip_loop_registry.gd")
 const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
+const LoopView = preload("res://scripts/tooltip_loop_view.gd")
 const FPS: int = 30
 const MAX_LEAD_FRAMES: int = 11 # <=0.4 s including one renderer submission boundary.
 static var _vignette_weights := PackedFloat32Array()
@@ -67,6 +68,8 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	var audit := PatchChecks.new()
 	var force_audit: RefCounted
 	if Fixture.Tip07.IDS.has(row["id"]): force_audit = Playback.Tip07Playback.new()
+	var card_audit: RefCounted
+	if Fixture.Tip06.IDS.has(row["id"]): card_audit = Fixture.Tip06.Checks.new()
 	audit.drawn_floor(board, fixture["state"], fixture["id"], "start", patch)
 	var frames: int = 0
 	var terminal_frames: int = 0
@@ -99,6 +102,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			valid_recording = false
 			break
 		board.audit_frame()
+		if card_audit != null: card_audit.observe(board, Fixture.Tip06, row["id"])
 		if not recording:
 			audit.observe(board, crop, fixture["id"])
 			if force_audit != null: force_audit.observe(board, fixture, result, frames)
@@ -155,6 +159,12 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	if force_audit != null:
 		visibility["forced_movement"] = force_audit.report(fixture, result, board, audit.failures)
 		print("TIP07 PLAYBACK RECEIPT %s: %s" % [row["id"], JSON.stringify(visibility["forced_movement"])])
+	if card_audit != null:
+		var card_failures: Array[String] = card_audit.finish(fixture, result, board, Fixture.Tip06)
+		audit.failures.append_array(card_failures)
+		visibility["card_mechanic"] = {"failures": card_failures, "max_idle_frames": card_audit.max_idle_frames}
+		if card_audit.max_idle_frames > roundi(LoopView.HOLD_SECONDS * FPS):
+			audit.failures.append("%s has a longer internal idle than the shared end hold" % row["id"])
 	failures.append_array(audit.failures)
 	if not audit.failures.is_empty(): valid_recording = false
 	print("TIP04 PATCH VISIBILITY %s: %s %s" % [fixture["id"], "PASS" if audit.failures.is_empty() else "FAIL", JSON.stringify(visibility)])
@@ -258,7 +268,11 @@ func _source_hashes() -> Dictionary:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	for path: String in ["scripts/combat_engine.gd", "scripts/room_generator.gd", "scripts/board_tile_tooltip.gd", "scripts/tooltip_loop_registry.gd", "scripts/forced_displacement_view.gd", "scripts/enemy_mechanics/wind_view.gd", "tools/tooltip_loops/trap_fixture.gd", "tools/tooltip_loops/trap_checks.gd", "tools/txt13/loop_fixture.gd"]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
-	for path: String in ["tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd"]:
+	for path: String in [
+		"tools/tooltip_loops/tip06_fixture.gd", "tools/tooltip_loops/tip06_checks.gd",
+		"scripts/surface_card_rules.gd", "scripts/illusion_card_rules.gd", "scripts/terrain_card_rules.gd", "scripts/combat_outcome_feedback.gd",
+		"tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd",
+	]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	return hashes
 

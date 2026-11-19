@@ -1,0 +1,12 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*/quit-*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [250, 130, 1420, 820], "min_luma_stdev": 4}]
+    }
+  ]
+}

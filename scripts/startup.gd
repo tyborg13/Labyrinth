@@ -7,6 +7,8 @@ signal finished(menu: Control)
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const Shutdown = preload("res://scripts/application_shutdown.gd")
+const SceneLoads = preload("res://scripts/menu_run_preload.gd")
 const MENU_SCENE_PATH := "res://scenes/main_menu.tscn"
 const MAKERS_SEAL_PATH := "res://assets/art/ui/boot_splash_makers_seal.png"
 const FADE_IN_SECONDS := 0.4
@@ -25,6 +27,10 @@ var _input_locked: bool = false
 var _cursor: CanvasLayer
 var _cursor_was_visible: bool
 var _cursor_input_was_enabled: bool
+var _menu_scene_pending: bool
+var _quitting: bool
+var _fade_tween: Tween
+var _fade_duration: float
 
 
 func _ready() -> void:
@@ -44,36 +50,41 @@ func _ready() -> void:
 		_cursor_input_was_enabled = _cursor.is_processing_input()
 		_cursor.hide()
 		_cursor.set_process_input(false)
-	var error := ResourceLoader.load_threaded_request(MENU_SCENE_PATH, "PackedScene")
+	var error := SceneLoads.request_for(get_tree(), MENU_SCENE_PATH)
 	if error != OK:
 		_fail("Could not request the main menu (error %d)." % error)
 		return
+	_menu_scene_pending = true
 	_play_intro.call_deferred()
 
 
 func _play_intro() -> void:
 	# Present black before fading, matching the native engine's black splash.
 	await _present_frame()
+	if _quitting: return
 	_set_phase(&"fade_in")
 	await _fade(seal, 1.0, FADE_IN_SECONDS)
+	if _quitting: return
 	await _present_frame()
+	if _quitting: return
 	_set_phase(&"hold")
 	# Keep a full second at full opacity, independent of loading and fades.
 	var hold_until_ms := preload("res://scripts/presentation_clock.gd").ticks_msec() + int(HOLD_SECONDS * 1000.0)
 	preload("res://scripts/menu_title_assets.gd").prepare_during_hold(self)
 	while preload("res://scripts/presentation_clock.gd").ticks_msec() < hold_until_ms:
 		await get_tree().process_frame
-	while ResourceLoader.load_threaded_get_status(MENU_SCENE_PATH) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		if _quitting: return
+	while SceneLoads.status_for(get_tree(), MENU_SCENE_PATH) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await get_tree().process_frame
-	if ResourceLoader.load_threaded_get_status(MENU_SCENE_PATH) != ResourceLoader.THREAD_LOAD_LOADED:
-		_fail("Could not load the main menu.")
-		return
-	var packed := ResourceLoader.load_threaded_get(MENU_SCENE_PATH) as PackedScene
+		if _quitting: return
+	var packed := SceneLoads.take_for(get_tree(), MENU_SCENE_PATH) as PackedScene
+	_menu_scene_pending = false
 	if packed == null:
-		_fail("The main-menu resource is not a scene.")
+		_fail("Could not load the main menu.")
 		return
 	_set_phase(&"fade_out")
 	await _fade(seal, 0.0, FADE_OUT_SECONDS)
+	if _quitting: return
 	_set_phase(&"menu_black")
 	menu = packed.instantiate() as Control
 	if menu == null:
@@ -84,8 +95,10 @@ func _play_intro() -> void:
 	get_tree().current_scene = menu
 	# Startup's opaque black stays behind the menu until the reveal is complete.
 	await _present_frame()
+	if _quitting: return
 	_set_phase(&"menu_fade_in")
 	await _fade(menu, 1.0, MENU_FADE_SECONDS)
+	if _quitting: return
 	_release_input()
 	_set_phase(&"complete")
 	finished.emit(menu)
@@ -100,14 +113,21 @@ func _fade(target: CanvasItem, alpha: float, seconds: float) -> void:
 	var tween := create_tween().set_ignore_time_scale(true)
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(target, "modulate:a", alpha, duration)
+	_fade_tween = tween
+	_fade_duration = duration
 	await tween.finished
+	_fade_tween = null
 
 
 func _present_frame() -> void:
-	if DisplayServer.get_name() == "headless":
-		await get_tree().process_frame
-	else:
-		await RenderingServer.frame_post_draw
+	await Shutdown.present_preparation(get_tree())
+
+
+func cancel_loading_for_quit() -> void:
+	_quitting = true
+	# Release the intro continuation before the hidden scene stops processing.
+	if _fade_tween != null and _fade_tween.is_running():
+		_fade_tween.custom_step(_fade_duration * 2.0)
 
 
 func _set_phase(next_phase: StringName) -> void:
@@ -119,7 +139,7 @@ func _release_input() -> void:
 	if not _input_locked:
 		return
 	_input_locked = false
-	if is_instance_valid(_viewport):
+	if is_instance_valid(_viewport) and not _quitting:
 		_viewport.gui_disable_input = _input_was_disabled
 	if is_instance_valid(_cursor):
 		_cursor.visible = _cursor_was_visible
@@ -127,6 +147,7 @@ func _release_input() -> void:
 
 
 func _exit_tree() -> void:
+	if _menu_scene_pending: SceneLoads.abandon_for(get_tree(), MENU_SCENE_PATH)
 	_release_input()
 	if is_instance_valid(menu):
 		menu.modulate.a = 1.0
@@ -135,4 +156,4 @@ func _exit_tree() -> void:
 func _fail(message: String) -> void:
 	push_error("Startup: " + message)
 	_release_input()
-	get_tree().quit(1)
+	Shutdown.request(get_tree(), "startup_failure", 1)

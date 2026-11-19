@@ -56,7 +56,8 @@ static func loading_active(scene: Variant, generation: int, still_active: Callab
 ## prepare, and must not pay for any maquette family before the first travel.
 static func prepare_loaded_for(scene: Node, present: Callable, alive: Callable) -> void:
 	if not bool(scene.get_tree().root.get_meta("labyrinth_resume_saved_run", false)): return
-	var state: Dictionary = preload("res://scripts/progression_store.gd").load_saved_run()
+	var state: Dictionary = preload("res://scripts/progression_store.gd").read_resumable_checkpoint().get("state", {})
+	if state.is_empty(): return
 	state = scene._run_engine.repair_loaded_run_state(scene._run_engine.migrate_renamed_content_ids(state))
 	var battle: Dictionary = state.get("combat_state", {})
 	if str(state.get("mode", "")) == "pre_battle":

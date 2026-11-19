@@ -174,7 +174,7 @@ static func _test_glassway_trade_edges(e: RefCounted, check: Callable) -> void:
 	var scene = preload("res://scripts/run_scene.gd").new()
 	var endpoints: Array[Vector2i] = scene._trade_route_endpoints(rubble, rubble_route)
 	var chips: Array = scene._movement_risk_chips_for_states(rubble, traded, endpoints, rubble_route)
-	check.call(endpoints.size() == 2 and int(e.trade_movement_cost(rubble, rubble_route)["spent"]) == 3 and chips.any(func(chip: Dictionary) -> bool: return str(chip.get("label", "")) == "3 movement · Rubble"), "A trade's movement chip shows the Rubble cost of the route it pays for")
+	check.call(endpoints.size() == 2 and int(e.trade_movement_cost(rubble, rubble_route)["spent"]) == 3 and chips.any(func(chip: Dictionary) -> bool: return str(chip.get("label", "")) == "3 Movement · Rubble"), "A trade's movement chip shows the Rubble cost of the route it pays for")
 	scene.free()
 
 static func _test_triptych(e: RefCounted, check: Callable) -> void:

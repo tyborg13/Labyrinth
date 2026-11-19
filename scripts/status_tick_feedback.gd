@@ -36,10 +36,10 @@ static func player_losses(scene: Control, before: Dictionary, after: Dictionary,
 		if tick > 0:
 			var status_entry: Dictionary = entry.duplicate(true)
 			var suffix: String = " B" if field == "block" else " S" if field == "stoneskin" else ""
-			status_entry["text"] = "-%d%s" % [tick, suffix]
+			status_entry["text"] = "−%d%s" % [tick, suffix]
 			scene._decorate_bleed_damage_float(status_entry, "bleed")
 			result.append(status_entry)
 			if tick == loss: continue
-			entry["text"] = "-%d%s" % [loss - tick, suffix]
+			entry["text"] = "−%d%s" % [loss - tick, suffix]
 		result.append(entry)
 	return result

@@ -150,7 +150,7 @@ func _run() -> void:
 	menu.queue_free()
 	canvas.queue_free()
 	await _settle_tiles()
-	_test_preload_teardown()
+	await _test_preload_teardown()
 	for failure: String in failures:
 		push_error(failure)
 	print("CHRONICLE HOVER PROOF: %d native popups; 5 pointer targets" % _native_hover_popups)
@@ -158,14 +158,12 @@ func _run() -> void:
 	quit(0 if failures.is_empty() else 1)
 
 func _test_preload_teardown() -> void:
-	# Deterministically exercise perf-16's idle load even if all hover timers
-	# happened to finish before the menu's idle watcher requested it.
-	_check(RunPreload.request_for(self, RunPreload.RUN_SCENE_PATH) == OK, "Chronicle teardown owns a pending run-scene preload")
-	var job: Node = root.get_node_or_null(RunPreload.JOB_NAME)
-	_check(job != null, "Run-scene preload has a tree-owned lifetime")
-	if job != null:
-		job.free()
-	_check(ResourceLoader.load_threaded_get_status(RunPreload.RUN_SCENE_PATH) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE, "Freeing an unclaimed preload collects its threaded request before engine shutdown")
+	# Model an explicit run request abandoned while the tree remains live.
+	_check(RunPreload.request_for(self, RunPreload.RUN_SCENE_PATH) == OK, "Run-scene request was accepted")
+	RunPreload.abandon_for(self, RunPreload.RUN_SCENE_PATH)
+	while RunPreload.status_for(self, RunPreload.RUN_SCENE_PATH) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		await process_frame
+	_check(ResourceLoader.load_threaded_get_status(RunPreload.RUN_SCENE_PATH) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE, "Abandoned request releases its engine token on live frames")
 
 func _check(ok: bool, message: String) -> void:
 	if not ok:

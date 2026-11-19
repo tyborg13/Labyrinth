@@ -5,6 +5,7 @@ const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
 const Tip07 = preload("res://tools/tooltip_loops/tip07_fixture.gd")
+const Tip06 = preload("res://tools/tooltip_loops/tip06_fixture.gd")
 const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
 const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
 const Tip03 = preload("res://tools/tooltip_loops/tip03_fixture.gd")
@@ -52,6 +53,10 @@ static func build(id: String) -> Dictionary:
 		card = config["card"]
 		run["equipped_equipment"]["weapon"] = Tip07.EQUIPMENT[id]
 		run["deck_cards"] = Data.compile_deck_cards(run["equipped_equipment"], run["attuned_magic_cards"], run["equipped_items"])
+	if Tip06.IDS.has(id):
+		var config: Dictionary = Tip06.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
 	if Tip04.IDS.has(id):
 		var config: Dictionary = Tip04.configure(layout, id)
 		units = config["units"]
@@ -83,6 +88,7 @@ static func build(id: String) -> Dictionary:
 	if Tip03.IDS.has(id): Tip03.prepare(state, id)
 	if Tip04.IDS.has(id): Tip04.prepare(state, id)
 	if Tip05.IDS.has(id): Tip05.prepare(state, id)
+	if Tip06.IDS.has(id): state = Tip06.prepare(state, id)
 	if Txt13.IDS.has(id): Txt13.prepare(state, id)
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
@@ -91,6 +97,7 @@ static func build(id: String) -> Dictionary:
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 	if Tip07.IDS.has(fixture["id"]): return Tip07.plan(fixture, engine)
+	if Tip06.IDS.has(fixture["id"]): return Tip06.plan(fixture, engine)
 	if Txt13.IDS.has(fixture["id"]): return Txt13.plan(fixture, engine)
 	if Traps.IDS.has(fixture["id"]): return Traps.plan(fixture, engine)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.plan(fixture, engine)
@@ -125,6 +132,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	if Tip07.IDS.has(fixture["id"]): return Tip07.validate(fixture, result)
+	if Tip06.IDS.has(fixture["id"]): return Tip06.Checks.validate(fixture, result, Tip06)
 	if Txt13.IDS.has(fixture["id"]): return Txt13.validate(fixture, result)
 	if Traps.IDS.has(fixture["id"]): return Traps.validate(fixture, result)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.validate(fixture, result)
@@ -154,4 +162,5 @@ static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Arra
 
 static func crop_tiles(id: String) -> Rect2i:
 	if Tip07.IDS.has(id): return Tip07.PATCH
+	if id == Tip06.WORLDSPINE: return Tip06.WORLDSPINE_PATCH
 	return Txt13.BARRAGE_PATCH if id == Txt13.BARRAGE else PatchChecks.PATCH

@@ -3,6 +3,7 @@ extends SceneTree
 # Windowed proof at the required native size. --check-only constructs the exact
 # same combat states and copy witnesses without touching the window server.
 const Fixture = preload("res://tests/helpers/marked_fixture.gd")
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Contract = preload("res://tests/suites/mrk01_marked_suite.gd")
 const Proof = preload("res://tests/helpers/txt08_combat_proof.gd")
 const MarkedStrike = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -15,6 +16,8 @@ const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const LoopContext = preload("res://scripts/tooltip_loop_context.gd")
+const LoopCapture = preload("res://tools/txt13/clip_capture.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 const OUTPUT_DIR: String = "user://mrk01_marked_probe"
 const VIEWPORT_SIZE := Proof.VIEWPORT_SIZE
@@ -27,7 +30,11 @@ const CAP07_EXPECTED_CASES: int = 2
 const TXT09_EXPECTED_CASES: int = 4
 const FADE_PROOF_DIRECTION := Vector2i.RIGHT
 const FADE_TOOLTIP: String = "Lands behind you if it can, otherwise next to you; Ambushes next turn."
+# txt-13 approved move copy and diagram order are recorded in tools/txt13/shape_words.md.
 const BARRAGE_TOOLTIP: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. Next turn they take the hit and become Fire."
+const BARRAGE_ROW: Array = ["aoe_pattern", "aoe_pattern", "marked", "aoe", "surface_fire"]
+const BARRAGE_DAMAGE_INDEX: int = 3
+const BARRAGE_LOOP_ID: String = "lob_slagmaster_barrage"
 const HUNTED_TOOLTIP: String = "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health."
 const PROOF_SHUTDOWN_DRAIN_SECONDS: float = 0.5
 var _engine := Combat.new()
@@ -87,11 +94,10 @@ func _cap07_cases() -> Array[Dictionary]:
 	var fade: Dictionary = Proof.fade_run(Store.default_data())
 	var barrage: Dictionary = Proof.barrage_run(Store.default_data())
 	fade["combat_state"][Facing.KEY] = Facing.direction(FADE_PROOF_DIRECTION, Facing.FRONT)
-	var cases: Array[Dictionary] = [
+	return TypedArrays.dictionaries([
 		{"name": "gloam_stalker_fade", "run": fade, "expected_tooltip": FADE_TOOLTIP},
 		{"name": "slagmaster_barrage", "run": barrage, "expected_tooltip": BARRAGE_TOOLTIP},
-	]
-	return cases
+	])
 
 func _txt09_cases() -> Array[Dictionary]:
 	var cases: Array[Dictionary] = _cap07_cases()
@@ -150,6 +156,8 @@ func _capture() -> void:
 			await process_frame
 			_expect(int(scene.get("_focused_intent_enemy_id")) == int(enemy["id"]), name + " opens the enemy intent inspection")
 		var tip: String = board.enemy_intent_tooltip(actor_key)
+		var move_row: Array = []
+		var is_barrage: bool = name == "slagmaster_barrage"
 		if case.has("expected_tooltip"):
 			_expect(tip == case["expected_tooltip"], "Unexpected tooltip for %s: %s" % [name, tip])
 		_expect(is_equal_approx(Typography.ui_scale(scene), 1.0), "Proof uses 100% UI scale")
@@ -157,12 +165,18 @@ func _capture() -> void:
 			Proof.check_fight(scene, run, name, _expect)
 			var intent_rect: Rect2 = board.enemy_intent_visual_global_rect(actor_key)
 			_expect(intent_rect.has_area() and _canvas.get_visible_rect().encloses(intent_rect), name + " enemy intent is in frame")
-			if name == "slagmaster_barrage":
+			if is_barrage:
 				var forecast: Dictionary = MarkedStrike.aiming_forecast(_engine, battle, enemy)
 				var centers: Array = forecast.get("centers", [])
 				var tiles: Array = forecast.get("tiles", [])
 				_expect(centers.size() == 2 and centers[0] == battle["player"]["pos"] and tiles.size() == Proof.FULL_BARRAGE_TILE_COUNT, "Slagmaster forecasts two full crosses, including the hero's tile")
-				_check_move_row(board, actor_key, ["marked", "aoe", "surface_fire"], {1: str(MarkedStrike.landing_action(_engine, battle, enemy)["center_damage"])})
+				var landing: Dictionary = MarkedStrike.landing_action(_engine, battle, enemy)
+				move_row = _check_move_row(board, actor_key, BARRAGE_ROW, {BARRAGE_DAMAGE_INDEX: str(landing["center_damage"])})
+				var diagrams: Array = move_row.map(func(token: Dictionary) -> String: return str(token.get("diagram_markup", "")))
+				_expect(diagrams.slice(0, 2) == ["@pattern(cross:hero)", "@pattern(cross)"], "Slagmaster shows the hero-centered diagram before the second cross")
+				if move_row.size() > BARRAGE_DAMAGE_INDEX:
+					var damage_detail: String = "%d in each center, %d around them." % [landing["center_damage"], landing["arm_damage"]]
+					_expect(move_row[BARRAGE_DAMAGE_INDEX].get("tooltip") == damage_detail, "Slagmaster damage detail uses both resolved numbers")
 				var order: String = WarbandRules.order_line(battle["objective"]).trim_prefix("Order: ")
 				_expect(not order.is_empty() and Proof.contains_label(scene.get("_battlefield_rule_hud"), order, _canvas.get_visible_rect()), "Slagmaster Order is visible on the separate battlefield panel")
 			elif name == "erupt_move":
@@ -176,7 +190,18 @@ func _capture() -> void:
 				_expect(Facing.valid(shown) and Facing.tile_direction(shown) == FADE_PROOF_DIRECTION, "Fade hero sprite faces away from the Stalker")
 				_expect((enemy["pos"] as Vector2i).y == hero.y and (enemy["pos"] as Vector2i).x < behind.x, "Fade proof places the Stalker behind a free preferred tile")
 				_expect(engine.enemy_intent_plan(battle, 0)["destination"] == behind, "Fade plans to use the free tile behind the hero")
-		var panel: Control = board._make_custom_tooltip(tip)
+		if is_barrage and _txt08_only and not _cap07_only and not _txt09_only and not _check_only and not _failed:
+			await Proof.capture(scene, _capture_dir.path_join("slagmaster_barrage_move_row.png"), _expect)
+		var panel: Control
+		var loop: Control
+		if is_barrage:
+			# Build the same source-aware panel as the production move-title hover.
+			var title: String = board._intent_display_name(enemy["intent"])
+			panel = LoopContext.panel_for_text(title + "\n" + tip, LoopContext.enemy_unit(enemy))
+			loop = panel.find_child("TooltipLoopWindow", true, false) as Control if panel != null else null
+			_expect(loop != null and loop.get_meta("tooltip_loop_id", "") == BARRAGE_LOOP_ID, "Slagmaster tooltip uses its approved barrage loop")
+		else:
+			panel = board._make_custom_tooltip(tip)
 		if panel != null:
 			# The root canvas is under the opaque board backdrop; use the UI canvas.
 			scene.ui_root.add_child(panel)
@@ -185,9 +210,16 @@ func _capture() -> void:
 		await process_frame
 		await process_frame
 		if case.has("expected_tooltip"):
-			_expect(panel != null and Proof.contains_label(panel, tip.get_slice("\n", 0).to_upper(), _canvas.get_visible_rect()), "Tooltip sentence is visible for " + name)
-		_witnesses.append({"case": name, "tooltip": tip, "ui_scale": Typography.ui_scale(scene), "intent": enemy["intent"]["id"]})
+			var approved_line: String = str(case["expected_tooltip"]).get_slice("\n", 0)
+			_expect(panel != null and Proof.contains_tooltip_line(panel, approved_line, _canvas.get_visible_rect()), "Tooltip sentence is visible for " + name)
+		var witness: Dictionary = {"case": name, "tooltip": tip, "ui_scale": Typography.ui_scale(scene), "intent": enemy["intent"]["id"]}
+		if is_barrage:
+			witness["move_row"] = Proof.move_row_witness(move_row)
+			print("TXT08 SLAGMASTER MOVE ROW: " + JSON.stringify(witness["move_row"]))
+		_witnesses.append(witness)
 		if not _check_only:
+			if loop != null and not _failed:
+				_expect(await LoopCapture.seek_middle(self, loop) >= 0.0, "Slagmaster tooltip displays its barrage loop before capture")
 			if case.has("run"):
 				if not _failed:
 					await Proof.capture(scene, _capture_dir.path_join(name + ".png"), _expect)
@@ -212,7 +244,7 @@ func _capture() -> void:
 	else: print("MRK01 MARKED PROBE: %s" % ["FAIL" if _failed else "PASS"])
 	quit(1 if _failed else 0)
 
-func _check_move_row(board: Control, actor_key: String, expected_icons: Array, numbers: Dictionary) -> void:
+func _check_move_row(board: Control, actor_key: String, expected_icons: Array, numbers: Dictionary) -> Array:
 	for unit: Dictionary in board._visible_units():
 		if unit.get("key") != actor_key: continue
 		var rows: Array = board._enemy_intent_rows_for_display(unit, unit["intent"])
@@ -221,8 +253,9 @@ func _check_move_row(board: Control, actor_key: String, expected_icons: Array, n
 		_expect(icons == expected_icons, "Expanded move row shows the approved tokens in order")
 		for index: int in numbers:
 			_expect(index < row.size() and Icons.token_value_text(row[index]) == numbers[index], "Expanded move row uses the resolved number for " + str(expected_icons[index]))
-		return
+		return row
 	_expect(false, "No visible unit for move row " + actor_key)
+	return []
 
 func _capture_hunted(scene: Control, run: Dictionary, name: String) -> void:
 	Proof.check_fight(scene, run, name, _expect)
@@ -262,8 +295,9 @@ func _capture_marked_grimoire(scene: Control) -> void:
 	await process_frame
 	var title: Label = scene.get("_grimoire_detail_title")
 	var body: RichTextLabel = scene.get("_grimoire_detail_body")
-	if title.text != "Marked" or body.text != Contract.MARKED_DEFINITION or body.get_content_height() > body.size.y + 1.0: _failed = true
-	_witnesses.append({"case": "marked_grimoire", "title": title.text, "body": body.text, "body_height": body.get_content_height(), "available_height": body.size.y})
+	# InlineIconText appends the body, so .text stays empty; compare what is shown.
+	if title.text != "Marked" or body.get_parsed_text().strip_edges() != Contract.MARKED_DEFINITION or body.get_content_height() > body.size.y + 1.0: _failed = true
+	_witnesses.append({"case": "marked_grimoire", "title": title.text, "body": body.get_parsed_text(), "body_height": body.get_content_height(), "available_height": body.size.y})
 	await _save_image("marked_grimoire")
 	scene._close_grimoire_overlay()
 

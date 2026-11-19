@@ -8,6 +8,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const FIXTURE_CLOCK_MS: int = 10000
 const FIXTURE_SEED: int = 410
 const FIXTURE_GAIN_DB: float = -3.0
+const MIXER_DRAIN_UPDATES: int = 2
+const MIXER_DRAIN_TIMEOUT_USEC: int = 2000000
 var failures: Array[String]
 
 func _initialize() -> void:
@@ -105,7 +107,7 @@ func _run() -> void:
 		_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "Remaining active time releases the queued call")
 	_absolute_deadline_cases(bank)
 	_due_while_frozen(bank)
-	bank.free()
+	await _release_voices(bank)
 	var limited := Bank.new()
 	root.add_child(limited)
 	limited.warm_up(null, {"cues": {"fixture": {"variants": ["res://assets/audio/sfx/cues/hit.blade.light/hit.blade.light_01.ogg"], "volume_db": FIXTURE_GAIN_DB, "max_voices": 1}}}, FIXTURE_SEED)
@@ -129,10 +131,32 @@ func _run() -> void:
 	limited.set_test_clock(FIXTURE_CLOCK_MS + 2000)
 	limited.advance(2.0)
 	_expect(starts.size() == count, "The compatibility area API cannot serialize a cue behind a delay")
-	limited.free()
+	await _release_voices(limited)
 	for failure: String in failures: push_error(failure)
 	print("SFX SYNC BANK TEST RESULT: %s (%d failures)" % ["PASS" if failures.is_empty() else "FAIL", failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func _release_voices(bank: Node) -> void:
+	bank.set_process(false)
+	for child: Node in bank.get_children():
+		if child is AudioStreamPlayer: child.stop()
+	# A scene timer can expire on the fixture's first long frame before the
+	# mixer has retired stopped playback. Observe real mixer updates instead.
+	var last_mix: int = _mixer_update_usec()
+	var deadline: int = Time.get_ticks_usec() + MIXER_DRAIN_TIMEOUT_USEC
+	var updates: int = 0
+	while updates < MIXER_DRAIN_UPDATES and Time.get_ticks_usec() < deadline:
+		await process_frame
+		var mix: int = _mixer_update_usec()
+		if mix - last_mix >= 1000:
+			last_mix = mix
+			updates += 1
+	_expect(updates == MIXER_DRAIN_UPDATES, "Stopped fixture voices must drain on the mixer")
+	bank.free()
+	await process_frame
+
+func _mixer_update_usec() -> int:
+	return Time.get_ticks_usec() - roundi(AudioServer.get_time_since_last_mix() * 1000000.0)
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition: failures.append(message)

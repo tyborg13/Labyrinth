@@ -593,7 +593,7 @@ func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> vo
 	var label_x: float = 17.0 if feat else 0.0
 	var label_width: float = UI_FONT.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
 	var detail_x: float = label_x + label_width + LABEL_DETAIL_GAP
-	var detail_text: String = str(data.get("detail", ""))
+	var detail_text: String = RunScoreRules.feat_detail_for_display(label_text, str(data.get("detail", "")))
 	row.custom_minimum_size = Vector2(width, ROW_MIN_HEIGHT)
 	parent.add_child(row)
 	if feat:

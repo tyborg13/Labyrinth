@@ -15,32 +15,101 @@ func clear() -> void:
 func rest_badges(host: Node, preview: Dictionary, focus: String, committed_override: Variant = null) -> Dictionary:
 	var engine: RefCounted = host._combat_engine
 	var committed: Dictionary = host._combat_state if committed_override == null else committed_override as Dictionary
+	var catalog: Dictionary = host.GameData.enemies()
 	var definitions: Array = []
-	for enemy: Dictionary in committed.get("enemies", []):
-		definitions.append(host.GameData.enemies().get(str(enemy.get("type", "")), {}))
+	_append_badge_definitions(definitions, catalog, committed)
+	var committed_relics: Array = committed.get("relics", [])
+	var preview_relics: Array = preview.get("relics", [])
+	# Rites are already in the exact board inputs. Read relic effect sources
+	# directly, since the engine expansion can lag catalog edits at the same IDs.
+	var effects: Array = [_badge_relic_inputs(host.GameData, committed_relics)]
+	if not is_same(committed, preview):
+		_append_badge_definitions(definitions, catalog, preview)
+		if preview_relics != committed_relics:
+			effects.append(_badge_relic_inputs(host.GameData, preview_relics))
 	var inputs: Array = [host._intent_badges, committed, preview, definitions,
-		engine._relic_effects(preview), engine.get_script(), focus]
+		effects, engine.get_script(), engine._preview_facing_mode(), focus]
 	# Preparation and the still-visible old board can share a tile. Retain
 	# both exact states while the existing animation moves between them.
-	var index: Array = [hash(committed), hash(preview), focus]
+	# The memo checks its latest exact snapshot before hashing the index. Avoid
+	# eagerly hashing unrelated decks/journals on each identical stage submit.
+	var index: Array
+	if is_instance_valid(host.board_view) and host.board_view._board_redraw_baseline():
+		index = [hash(committed), hash(preview), focus]
+	else:
+		index = [committed.get("room_coord"), committed.get("turn"), committed.get("player"),
+			preview.get("player"), preview.get("enemies"), focus]
 	var known_source: Callable = host._surface_preview_information_state.bind(preview) if committed_override == null else host._surface_preview_information_state.bind(preview, committed)
 	var badges: Dictionary = _badges.resolve(inputs, func() -> Dictionary:
+		engine._relic_effect_cache_valid = false
 		return host._intent_badges.presentation_for_state(engine, committed, preview,
 			focus, known_source), index, true, true)
-	# Apply the matching forecast's repeat counts and announced-stamp corrections
-	# once it is ready, both at rest and for a hovered destination or aimed card.
+	# Release keeps ownership of plates and hover. Only the floor uses the
+	# original stamps and the approved atk-11 Pass supplements.
+	if committed_override != null: return badges
 	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
-	var at_rest: bool = committed_override == null and is_same(preview, host._combat_state)
-	var result: Dictionary = Discs.apply(badges, host._rest_pass_disc_marks, host._combat_preview_revision, at_rest)
-	if at_rest or committed_override != null: return result
-	var hovered: Dictionary = host._hover_red_forecast()
-	if hovered.is_empty(): return result
-	return Discs.apply(result, Discs.record(hovered, host._combat_preview_revision), host._combat_preview_revision, true)
+	var Red: GDScript = preload("res://scripts/pass_forecast_red_tiles.gd")
+	var revision: int = host._combat_preview_revision
+	var marks: Dictionary
+	if is_same(preview, host._combat_state):
+		marks = host._rest_pass_disc_marks
+	else:
+		var hovered: Dictionary = host._hover_red_forecast()
+		if not hovered.is_empty(): marks = Discs.record(hovered, revision)
+	if marks.is_empty() or int(marks.get("revision", -1)) != revision: return badges
+	var result: Dictionary = Discs.apply(badges, marks, revision, true)
+	var floor: Variant = Red.floor_override(badges, result, marks)
+	if floor != null: result[Red.FLOOR_KEY] = floor
+	return result
+
+func _append_badge_definitions(definitions: Array, catalog: Dictionary, state: Dictionary) -> void:
+	for enemy: Dictionary in state.get("enemies", []):
+		definitions.append(catalog.get(str(enemy.get("type", "")), {}))
+
+func _badge_relic_inputs(data: GDScript, ids: Array) -> Array:
+	var inputs: Array = []
+	if ids.is_empty(): return inputs
+	var catalog: Dictionary = data.relics()
+	for id: Variant in ids:
+		var key: String = str(id)
+		var definition: Dictionary = catalog.get(key, {})
+		if bool(definition.get("retired", false)):
+			key = data.resolve_relic_id(key)
+			definition = catalog.get(key, {})
+		inputs.append([key, definition.get("effects", []), definition.get("effect", ""), definition.get("value", 0)])
+	return inputs
 
 func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	var inputs: Array = _compass_inputs(state, visible_ids)
 	return _compasses.resolve(inputs, func() -> Dictionary:
 		return host.EnemyIntentCompass.descriptors_for_state(state, visible_ids), null, true, true)
+
+func prepare_paths(host: Node, shown: Dictionary) -> void:
+	var visible_paths: Array = [host._vector2i_array(shown.get("path_tiles", []))]
+	for path: Array in shown.get("displacement_paths", []):
+		visible_paths.append(host._vector2i_array(path))
+	for threat: Dictionary in shown.get("enemy_threat_previews", []):
+		visible_paths.append(host._vector2i_array(threat.get("projected_path", [])))
+	var hidden_paths: Array = []
+	for threat: Dictionary in shown.get("threats_at_rest", {}).get("threats", []):
+		if bool(threat.get("later", false)): continue
+		var path: Array[Vector2i] = host._vector2i_array(threat.get("plan", {}).get("projected_path", []))
+		if path.size() < 2: continue
+		if visible_paths.has(path):
+			host.board_view.prepare_intent_path_geometry(path)
+		elif not hidden_paths.has(path):
+			hidden_paths.append(path)
+	if hidden_paths.is_empty() or not host.is_inside_tree(): return
+	var revision: int = host._combat_preview_revision
+	await host.get_tree().process_frame
+	if not is_instance_valid(host) or not host.is_inside_tree() or host._combat_preview_revision != revision: return
+	if host._selected_card_index >= 0 or host._player_movement_selected: return
+	# Future hover alternatives use the same exact cache on demand. They
+	# can warm after this submission without affecting its visible paths.
+	var started: int = Time.get_ticks_usec() if host._runtime_performance_instrumentation_enabled else 0
+	for path: Array[Vector2i] in hidden_paths:
+		host.board_view.prepare_intent_path_geometry(path)
+	host._record_runtime_performance_phase("stage_hidden_path_warmup", started)
 
 # Ordinary compass summaries only read visible, living actors' ids/intents.
 # Bramble fallback, Lob scaling and Warband projected attacks use the complete
@@ -88,11 +157,12 @@ func prepare(host: Node, state: Dictionary, generation: int) -> void:
 func prepare_forecast(host: Node, state: Dictionary, generation: int) -> void:
 	await host.get_tree().process_frame
 	if not is_instance_valid(host) or not host._committed_hand_query_active(generation): return
-	if not host._combat_engine.is_player_turn(state):
-		host._committed_hand_query_forecast = {"summary": {}}
-		return
 	var started: int = Time.get_ticks_usec() if host._runtime_performance_instrumentation_enabled else 0
-	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(host._combat_engine, state)
+	# Match the foreground Pass information boundary, including opaque foes
+	# and unseen ground in Umbra. The live scene still displays the old state.
+	var source: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").rest_source(host, state)
+	if not host._combat_engine.is_player_turn(source): return
+	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(host._combat_engine, source)
 	var cursor: Dictionary = host._combat_engine.begin_revealed_enemy_actions_preview(scheduled, true)
 	host._record_runtime_performance_phase("committed_forecast_prepare", started)
 	while not bool(cursor.get("complete", false)):
@@ -102,6 +172,6 @@ func prepare_forecast(host: Node, state: Dictionary, generation: int) -> void:
 		host._combat_engine.advance_revealed_enemy_actions_preview(cursor)
 		host._record_runtime_performance_phase("committed_forecast_slice", started)
 	var phase_result: Dictionary = host._combat_engine.revealed_enemy_actions_preview_result(cursor)
-	host._committed_hand_query_forecast = {"summary": host._pass_preview_summary_for_phase_result(state, phase_result)}
+	host._committed_hand_query_forecast = {"source": source, "result": phase_result}
 	if host._runtime_performance_instrumentation_enabled:
 		host._committed_hand_query_diagnostics["prepared_forecasts"] = int(host._committed_hand_query_diagnostics.get("prepared_forecasts", 0)) + 1

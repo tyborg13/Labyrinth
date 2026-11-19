@@ -79,6 +79,9 @@ class BoardPresentationStub:
 	func rendered_visual_bounds() -> Rect2:
 		return rendered_bounds
 
+	func _board_redraw_baseline() -> bool:
+		return false
+
 	func set_combat_state(
 		_next_state: Dictionary,
 		_next_move_tiles: Array = [],

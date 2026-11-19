@@ -80,11 +80,11 @@ static func pay_health_cost(engine: RefCounted, state: Dictionary, amount: int, 
 	if cost > 0:
 		state = engine._lose_player_health(state, cost, true, false, "card_health_cost")
 	if skin_spent > 0:
-		engine._log(state, "Paid %d health and %d Stoneskin for %s." % [cost, skin_spent, source_name])
+		engine._log(state, "Paid %d Health and %d Stoneskin for %s." % [cost, skin_spent, source_name])
 	elif source_name.begins_with("Empower "):
-		engine._log(state, "Paid %d health to Empower %s." % [cost, source_name.trim_prefix("Empower ")])
+		engine._log(state, "Paid %d Health to Empower %s." % [cost, source_name.trim_prefix("Empower ")])
 	else:
-		engine._log(state, "Paid %d health for %s." % [cost, source_name])
+		engine._log(state, "Paid %d Health for %s." % [cost, source_name])
 	return state
 
 static func after_health_loss(engine: RefCounted, state: Dictionary, hp_lost: int) -> void:

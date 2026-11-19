@@ -57,7 +57,7 @@ func _prepare_hand(scene: Node, state: Dictionary, generation: int) -> void:
 		if scene._runtime_performance_instrumentation_enabled:
 			scene._committed_hand_query_diagnostics["prepared_cards"] = int(scene._committed_hand_query_diagnostics.get("prepared_cards", 0)) + 1
 	# Keep speculative selection work behind the opening's mandatory queries.
-	while not scene._committed_hand_query_forecast.has("summary"):
+	while scene._committed_hand_query_forecast.is_empty():
 		await scene.get_tree().process_frame
 		if not _active(scene, generation): return
 	scene._warm_committed_card_previews(state, generation)
@@ -65,10 +65,14 @@ func _prepare_hand(scene: Node, state: Dictionary, generation: int) -> void:
 func _prepare_forecast(scene: Node, state: Dictionary, generation: int) -> void:
 	await scene.get_tree().process_frame
 	if not _active(scene, generation): return
-	if not scene._combat_engine.is_player_turn(state):
-		scene._committed_hand_query_forecast = {"summary": {}}
+	# The same Umbra-safe input and schedule as the foreground Pass and the
+	# committed hand path (stage_hover_refresh.prepare_forecast); adoption
+	# reads {source, result}. "skipped" only releases the hand warmup above.
+	var source: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").rest_source(scene, state)
+	if not scene._combat_engine.is_player_turn(source):
+		scene._committed_hand_query_forecast = {"skipped": true}
 		return
-	var scheduled: Dictionary = scene._combat_engine.finish_player_activation(state)
+	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(scene._combat_engine, source)
 	var cursor: Dictionary = scene._combat_engine.begin_revealed_enemy_actions_preview(scheduled, true)
 	while not bool(cursor.get("complete", false)):
 		await scene.get_tree().process_frame
@@ -77,7 +81,7 @@ func _prepare_forecast(scene: Node, state: Dictionary, generation: int) -> void:
 		scene._combat_engine.advance_revealed_enemy_actions_preview(cursor)
 		scene._record_runtime_performance_phase("opening_forecast_slice", started)
 	var result: Dictionary = scene._combat_engine.revealed_enemy_actions_preview_result(cursor)
-	scene._committed_hand_query_forecast = {"summary": scene._pass_preview_summary_for_phase_result(state, result)}
+	scene._committed_hand_query_forecast = {"source": source, "result": result}
 	if scene._runtime_performance_instrumentation_enabled:
 		scene._committed_hand_query_diagnostics["prepared_forecasts"] = int(scene._committed_hand_query_diagnostics.get("prepared_forecasts", 0)) + 1
 

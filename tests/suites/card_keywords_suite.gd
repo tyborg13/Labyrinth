@@ -164,7 +164,7 @@ static func _test_rules_helpers(expect: Callable) -> void:
 		expect.call(CardKeywordRules.stagger_delay(dragon, 3, 0) == 1, "%s takes half Stagger, rounded down" % dragon)
 	expect.call(CardKeywordRules.stagger_delay("crawler", 4, 4) == 2, "Stagger cannot exceed 6 per enemy per player turn")
 	expect.call(CardKeywordRules.stagger_delay("crawler", 3, 6) == 0, "A capped enemy takes no further Stagger this turn")
-	expect.call(CardKeywordRules.empower_cost_label({"time": 2}) == "+2 Time" and CardKeywordRules.empower_cost_label({"health": 1}) == "1 HP" and CardKeywordRules.empower_cost_label({"exhaust": true}) == "Exhaust", "Empower cost labels name each cost")
+	expect.call(CardKeywordRules.empower_cost_label({"time": 2}) == "+2 Time" and CardKeywordRules.empower_cost_label({"health": 1}) == "1 Health" and CardKeywordRules.empower_cost_label({"exhaust": true}) == "Exhaust", "Empower cost labels name each cost")
 
 static func _test_stagger_delays_queued_turn(expect: Callable) -> void:
 	var combat := CombatEngine.new()

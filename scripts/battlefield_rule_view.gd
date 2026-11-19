@@ -41,12 +41,16 @@ static func eligible(state: Dictionary, original: Dictionary) -> bool:
 		return str(state.get("current_actor", {}).get("kind", "player")) == "player" and (effect.is_empty() or bool(effect.get("preview", false)))
 	return true
 
-static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
+static func presentation_for(state: Dictionary, original: Dictionary, accepted_inputs: Variant = null) -> Dictionary:
 	if not eligible(state, original): return original
 	# Same pure inputs as the rule forecast itself: the board state and every catalog it reads.
 	var board_sight: Dictionary = SurfaceVisibility.projection_input(original) if original.has("umbra_visible_tiles") else {}
-	var inputs: Array = BattlefieldRules.forecast_inputs(_engine(), state)
-	inputs.append(board_sight)
+	var inputs: Array
+	if accepted_inputs is Array:
+		inputs = accepted_inputs
+	else:
+		inputs = BattlefieldRules.forecast_inputs(_engine(), state)
+		inputs.append(board_sight)
 	var tiles: Array = _memo.resolve(inputs, func() -> Array: return _due_tiles(state, board_sight))
 	if tiles.is_empty(): return original
 	var result: Dictionary = original.duplicate(false)

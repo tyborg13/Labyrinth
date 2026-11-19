@@ -84,7 +84,7 @@ static func build(scene: Control) -> Button:
 	action_label.name = "PassActionLabel"
 	# Targetless confirmations hide the action tracker. The disabled Pass face
 	# makes this card's lethal payment visible beside the separate turn-end risk.
-	action_label.text = "CARD COST\nDEFIANCE -%d" % card_defiance_spent if card_defiance_spent > 0 else "PASS"
+	action_label.text = "CARD COST\nDEFIANCE −%d" % card_defiance_spent if card_defiance_spent > 0 else "PASS"
 	action_label.position = Vector2(18.0, 10.0)
 	action_label.size = Vector2(234.0, 50.0)
 	action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -128,7 +128,7 @@ static func refresh(scene: Control) -> void:
 	if chip == null:
 		build(scene)
 		return
-	var summary: Dictionary = scene._pass_preview_summary()
+	var summary: Dictionary = summary_for_chip(scene, chip)
 	if summary.is_empty():
 		chip.hide()
 		return
@@ -142,7 +142,7 @@ static func refresh(scene: Control) -> void:
 	chip.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE if not tooltip.is_empty() else Control.CURSOR_ARROW
 	var content: Control = chip.get_node("PassForecastContent")
 	var action: Label = content.get_node("PassActionLabel")
-	action.text = "CARD COST\nDEFIANCE -%d" % spent if spent > 0 else "PASS"
+	action.text = "CARD COST\nDEFIANCE −%d" % spent if spent > 0 else "PASS"
 	UiTypography.set_label_size(action, UiTypography.SIZE_SECTION + 3 if spent <= 0 else UiTypography.SIZE_BODY)
 	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false))
 	var accent: Color = scene._action_context_risk_color("danger" if danger else str(summary.get("tone", "safe")))
@@ -150,3 +150,14 @@ static func refresh(scene: Control) -> void:
 	chip.set_meta("panel_selected", danger)
 	if chip.disabled: chip.set_meta("pass_pressed", false)
 	scene._refresh_pass_preview_interaction(chip, chip.get_node("PassForecastFrameArtHost"), content, content.get_node("PassFocusEdgeCue"), accent, summary)
+
+static func summary_for_chip(scene: Control, chip: Button) -> Dictionary:
+	if scene._animation_lock and scene._selected_card_index >= 0 and not scene._preview_combat_state.is_empty() and chip.has_node("PassForecastFocusTooltip"):
+		# A committed card closes the Pass forecast and disables its tooltip.
+		# Keep the previous rows through their fade. The board still queries the
+		# exact source for its intents and this check preserves chip visibility.
+		var source: Dictionary = scene._pass_preview_source_state()
+		if source.is_empty() or not scene._combat_engine.is_player_turn(source): return {}
+		var previous: Dictionary = chip.get_meta("pass_forecast_summary", {})
+		if not previous.is_empty(): return previous
+	return scene._pass_preview_summary()

@@ -108,9 +108,9 @@ func _check_case(config: Dictionary) -> void:
 		# The choice overlay becomes visible after its deferred layout pass.
 		for _frame: int in range(30):
 			risk = scene.find_child("PassActionLabel", true, false) as Label
-			if risk != null and risk.is_visible_in_tree() and risk.text == "CARD COST\nDEFIANCE -1": break
+			if risk != null and risk.is_visible_in_tree() and risk.text == "CARD COST\nDEFIANCE −1": break
 			await process_frame
-		expect(risk != null and risk.is_visible_in_tree() and risk.text == "CARD COST\nDEFIANCE -1", "The visible confirmation risk discloses the payment's spent Defiance")
+		expect(risk != null and risk.is_visible_in_tree() and risk.text == "CARD COST\nDEFIANCE −1", "The visible confirmation risk discloses the payment's spent Defiance")
 		if risk != null: expect(risk.get_line_count() == 2 and risk.get_minimum_size().y <= risk.size.y, "The Defiance warning fits the forecast panel")
 	elif int(config["hp"]) > 1:
 		var board: Control = scene.get("board_view")

@@ -13,6 +13,18 @@ from pathlib import Path
 from attribution import attribute, hitch_id, new_catalog_row, add_catalog_frame, finish_catalog, catalog_markdown
 
 THRESHOLDS_MS = (33.3, 50.0, 100.0)
+TOUR_FIXTURES = ('playback:craghide', 'playback:gust', 'playback:lightning_storm',
+                 'playback:tharokh', 'table:difficulty_table')
+
+
+def incomplete_tour_reason(receipt):
+    coverage = receipt.get("coverage", {})
+    missing = [key.split(":", 1)[1] for key in TOUR_FIXTURES if not coverage.get(key)]
+    if missing:
+        return "tour missing fixture coverage: " + ", ".join(missing)
+    if receipt.get("outcome") != "tour_complete" or receipt.get("errors"):
+        return "tour did not complete successfully"
+    return ""
 
 
 def stats(values):
@@ -112,6 +124,11 @@ def generate(run_paths, output):
             if viewport_failure:
                 rejected.append({"run": str(run_path), "reason": viewport_failure})
                 continue
+            if run.get("driver") == "tour":
+                reason = incomplete_tour_reason(receipt)
+                if reason:
+                    rejected.append({"run": str(run_path), "reason": reason})
+                    continue
             if run.get("driver") == "calibration":
                 continue
             path = directory / "frames.jsonl"
@@ -131,7 +148,7 @@ def generate(run_paths, output):
                 frame.update(attribution)
                 duration = frame["game_ms"]
                 screen, action, phase, resources, shaders = trigger(frame)
-                is_loading = phase in ("startup", "fixture_install") or screen == "title"
+                is_loading = phase in ("startup", "fixture_prepare", "fixture_install") or screen == "title"
                 target = loading if is_loading else catalog
                 catalog_key = (hitch_id(frame), run["profile"], run["cache"])
                 if catalog_key not in target: target[catalog_key] = new_catalog_row(frame, run)
@@ -208,6 +225,11 @@ def write_markdown(result, path):
         if run.get('driver') == 'whole':
             settings = run.get('whole_settings', run['receipt'].get('whole_settings', 'unrecorded'))
             lines.append(f"- Seed {run.get('seed')}: {json.dumps(settings)}")
+    lines += ["", "## Fixture coverage", "", "| Driver / seed | Requested ground FX | Stop | Coverage |", "|---|---|---|---|"]
+    for run in result["runs"]:
+        for label, coverage in sorted(run["receipt"].get("coverage", {}).items()):
+            if label.startswith(("playback:", "surfaces:", "table:")):
+                lines.append(f"| {run.get('driver')} / {run.get('seed')} | {run.get('ground_fx', 'unknown')} | {label.split(':', 1)[1]} | {json.dumps(coverage, sort_keys=True)} |")
     lines += ["", "## Named hitch catalog", ""] + catalog_markdown(result["named_hitch_catalog"])
     lines += redraw.markdown(result["redraw"])
     lines += ["", "## Loading frames", ""] + catalog_markdown(result["loading"])

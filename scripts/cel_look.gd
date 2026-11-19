@@ -23,14 +23,18 @@ static func _read_manifest() -> Dictionary:
 		return {}
 	return data.get("files", {})
 
-static func variant_path(path: String) -> String:
+static func variant_candidate_path(path: String) -> String:
 	if mode == "off" or not path.begins_with("res://"): return ""
 	var relative: String = path.trim_prefix("res://")
 	var scope: String = str(_files.get(relative, "off"))
 	if scope == "off" or (scope == "all" and mode != "all"): return ""
-	var variant: String = "res://cel_look_variants/" + relative + ".celpng"
+	return "res://cel_look_variants/" + relative + ".celpng"
+
+static func variant_path(path: String) -> String:
+	var variant: String = variant_candidate_path(path)
+	if variant.is_empty(): return ""
 	if FileAccess.file_exists(variant): return variant
-	warn_missing(relative)
+	warn_missing(path.trim_prefix("res://"))
 	return ""
 
 static func warn_missing(path: String) -> void:

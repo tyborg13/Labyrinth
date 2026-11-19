@@ -70,7 +70,7 @@ func _run() -> void:
 			var entries: Array[Dictionary] = TileTooltip.decode(mouse)
 			_check(entries.size() == (3 if trapped else 2), "One panel per co-located effect")
 			_check(entries[0]["icon"] == "surface_" + kind and entries[0]["description"] == copy[kind], "Elemental first, exact copy")
-			_check(entries[1]["icon"] == "surface_rubble" and entries[1]["description"] == "Walking out of Rubble costs 2 movement.", "Rubble second, exact copy")
+			_check(entries[1]["icon"] == "surface_rubble" and entries[1]["description"] == "Walking out of Rubble costs 2 Movement.", "Rubble second, exact copy")
 			if trapped: _check(entries[2] == _trap_entry("earth"), "Trap last, exact copy and loop metadata")
 			run_scene.set("_combat_state", state)
 			var candidate: Dictionary = run_scene.call("_controller_candidate_for_tile", PROOF_TILE)
@@ -128,7 +128,7 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	board.set_combat_state(state)
 	entries = TileTooltip.entries(board, PROOF_TILE)
 	var worldspine: Dictionary = TileTooltip.from_text(board._terrain_tooltip_text(state["terrain"][0]))
-	worldspine["display_description"] = "4/8 HP\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes 3."
+	worldspine["display_description"] = "4/8 Health\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes 3."
 	_check(entries.size() == 4 and entries[2] == worldspine, "Worldspine has its own exact terrain panel")
 	_check(entries[3]["title"] == "Meteorfall" and entries[3]["description"].contains("5 damage and becomes Fire."), "Marked tile has its own panel")
 	board._register_tile_tooltip(Rect2(Vector2.ZERO, Vector2.ONE), "Light Source\nReveals Umbra within 2 tiles.\nLasts for this combat.", PROOF_TILE, "proof_light")

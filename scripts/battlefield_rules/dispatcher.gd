@@ -36,7 +36,12 @@ static func repair_saved_rule(engine: RefCounted, state: Dictionary) -> void:
 	var source: Dictionary = instance.get("source", {})
 	var id: String = "snare_earth"
 	if str(source.get("kind", "")) == "enemy":
-		id = str(engine._surface_actor(state, "enemy", int(source.get("id", -1))).get("type", ""))
+		var actor: Dictionary = engine._surface_actor(state, "enemy", int(source.get("id", -1)))
+		id = str(actor.get("type", ""))
+		# Warband captains can install a variant rule under a different id.
+		if rule == "upheaval" and bool(actor.get("is_leader", false)):
+			var order: Dictionary = preload("res://scripts/warband_combat_rules.gd").order_for_objective(state.get("objective", {}))
+			id = str(order.get("battlefield_instance", id))
 	elif rule != "upheaval" or str(source.get("kind", "")) != "room":
 		return
 	var authored: Dictionary = data()["instances"].get(id, {})
@@ -183,6 +188,7 @@ static func fire(engine: RefCounted, state: Dictionary, steps: Array[Dictionary]
 	if str(instance["rule"]) == "lightning_storm": state = LightningStorm.resolve_beat(engine, state, instance, trace)
 	elif str(instance["rule"]) == "upheaval": state = Upheaval.resolve_beat(engine, state, instance, trace)
 	else: state = RESOLVERS[instance["rule"]].resolve_beat(engine, state, instance)
+	preload("res://scripts/pass_forecast_red_tiles.gd").note_beat(engine, before, state)
 	if not state.get("battlefield_rule", {}).is_empty(): instance = state["battlefield_rule"]
 	instance["beats_fired"] = int(instance.get("beats_fired", 0)) + 1
 	var projection: Dictionary = Outcomes.project(engine, before, state, false)

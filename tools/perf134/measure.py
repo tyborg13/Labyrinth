@@ -25,6 +25,7 @@ SECTIONS = (
     "card_preview_refresh_total", "refresh_ui_choice_bar_total",
     "pass_preview_enemy_actions_total", "engine_enemy_preview_total",
 )
+REFRESH_SECTIONS = SECTIONS[2:7]
 THRESHOLDS_MS = (16.67, 20.0, 33.0, 33.33, 50.0, 100.0)
 RENDER_COLUMNS = ("process_monitor_peak_ms", "viewport_cpu_ms", "viewport_gpu_ms",
                   "draw_calls", "objects", "primitives")
@@ -35,15 +36,15 @@ def run(command, cwd, extra_env=None):
     subprocess.run(command, cwd=cwd, check=True, env={**os.environ, "SteamDeck": "0", **(extra_env or {})})
 
 
-def validate_base(project):
+def validate_base(project, expected=BASE_HEAD):
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=project, text=True).strip()
-    if revision != BASE_HEAD:
-        raise ValueError(f"Baseline must be {BASE_HEAD}, got {revision}")
+    if revision != expected:
+        raise ValueError(f"Baseline must be {expected}, got {revision}")
     if subprocess.check_output(["git", "diff", "HEAD", "--name-only"], cwd=project).strip():
         raise ValueError("Baseline has tracked changes")
 
 
-def prepare_fixtures(base, output):
+def prepare_fixtures(base, output, task_id=TASK_ID):
     output.mkdir(parents=True, exist_ok=True)
     bundle = output / "fixtures-v3.var"
     if not bundle.exists():
@@ -51,21 +52,22 @@ def prepare_fixtures(base, output):
         # Never regenerate a different starting board on candidate boot.
         with TemporaryDirectory(prefix="fixture-", dir=output) as scratch:
             generated = Path(scratch) / bundle.name
-            headless_probe(base, scratch, f"--prepare-fixtures={generated}")
+            headless_probe(base, scratch, f"--prepare-fixtures={generated}", task_id=task_id)
             generated.replace(bundle)
     return bundle
 
 
-def headless_probe(project, output, *args, fixed_fps=False):
+def headless_probe(project, output, *args, fixed_fps=False, stand_in=False, task_id=TASK_ID):
     clock = ["--fixed-fps", "60"] if fixed_fps else []
-    run([sys.executable, str(TOOLS / "godot_task_runner.py"), "--task-id", TASK_ID,
+    policy = ["taskpolicy", "-c", "background"] if stand_in else []
+    run([*policy, sys.executable, str(TOOLS / "godot_task_runner.py"), "--task-id", task_id,
          "--stream", "--", "godot", "--headless", *clock, "--path", str(project), "--script", str(PROBE),
          "--", "--headless-check", f"--output={output}", *args], project)
 
 
-def timing(project, output, bundle):
+def timing(project, output, bundle, task_id=TASK_ID):
     run(["taskpolicy", "-c", "background", sys.executable, str(TOOLS / "godot_task_runner.py"),
-         "--task-id", TASK_ID, "--stream", "--", "godot", "--path", str(project),
+         "--task-id", task_id, "--stream", "--", "godot", "--path", str(project),
          "--windowed", "--display-driver", "macos",
          "--rendering-driver", "metal", "--rendering-method", "mobile", "--audio-driver", "Dummy",
          "--script", str(PROBE), "--", f"--output={output}", f"--fixtures={bundle}"], project)
@@ -129,7 +131,7 @@ def assessment(values, minimum):
             "win": min(values) > 0 and middle > spread and middle >= minimum}
 
 
-def report(output):
+def report(output, base_head=BASE_HEAD):
     samples = []
     for index, side in enumerate(ORDER, 1):
         path = output / f"{index}-{side}" / "summary.json"
@@ -166,7 +168,7 @@ def report(output):
                       for a, b in pairs]
             checks[kind][f"combat_frames.{metric}"] = assessment(values, .5 if metric.startswith("over_33ms_") else 0)
     path = output / "paired-report.json"
-    path.write_text(json.dumps({"baseline": BASE_HEAD, "order": list(ORDER), "samples": samples, "checks": checks}, indent=2) + "\n")
+    path.write_text(json.dumps({"baseline": base_head, "order": list(ORDER), "samples": samples, "checks": checks}, indent=2) + "\n")
     for kind, rows in checks.items():
         for metric, row in rows.items():
             print(f"{kind} {metric}: {json.dumps(row)}")
@@ -198,13 +200,13 @@ def pixel_difference(left, right):
             "masks": []}
 
 
-def capture(projects, output, state, bundle):
+def capture(projects, output, state, bundle, task_id=TASK_ID):
     for side, project in projects.items():
         directory = output / "captures" / side
         directory.mkdir(parents=True, exist_ok=True)
         with TemporaryDirectory(prefix=f"{state}-movie-", dir=output) as scratch:
             run([sys.executable, str(TOOLS / "visual_probe_runner.py"), str(PROBE),
-                 "--project", str(project), "--task-id", TASK_ID, "--no-headless",
+                 "--project", str(project), "--task-id", task_id, "--no-headless",
                  "--display-driver", "macos", "--rendering-driver", "metal", "--rendering-method", "mobile",
                  "--audio-driver", "Dummy", "--godot", str(PROBE.with_name("capture_godot.sh")),
                  "--expect-size", "1920x1080", "--timeout", "90",
@@ -230,10 +232,10 @@ def mismatched_fields(left, right):
     return sorted(key for key in left.keys() | right.keys() if left.get(key, missing) != right.get(key, missing))
 
 
-def headless_receipts(projects, output, bundle):
+def headless_receipts(projects, output, bundle, task_id=TASK_ID):
     directories = [output / "headless-captures" / side for side in projects]
     for project, directory in zip(projects.values(), directories):
-        headless_probe(project, directory, f"--fixtures={bundle}", "--capture-all", fixed_fps=True)
+        headless_probe(project, directory, f"--fixtures={bundle}", "--capture-all", fixed_fps=True, task_id=task_id)
     for state in CAPTURES:
         left, right = (json.loads((directory / f"{state}-state.json").read_text()) for directory in directories)
         fields = mismatched_fields(left, right)
@@ -242,11 +244,11 @@ def headless_receipts(projects, output, bundle):
         print(f"PERF-135 RECEIPTS: {state} identical (headless)")
 
 
-def headless_timing(projects, output, bundle):
+def headless_timing(projects, output, bundle, task_id=TASK_ID):
     results = {}
     for side, project in projects.items():
         directory = output / "headless-timing" / side
-        headless_probe(project, directory, f"--fixtures={bundle}")
+        headless_probe(project, directory, f"--fixtures={bundle}", task_id=task_id)
         result = json.loads((directory / "summary.json").read_text())
         if not result["headless"] or result["deck"] or result["errors"] or result["orphan_nodes"]:
             raise ValueError(f"Invalid headless sample {directory}")
@@ -271,38 +273,84 @@ def section_text(case, section):
     return f"{row['count']} calls, mean {row['usec_per_call'] / 1000:.3f} ms, max {row['max_usec'] / 1000:.3f} ms"
 
 
+def headless_pairs(projects, output, bundle, task_id, base_head):
+    samples = []
+    for index, side in enumerate(ORDER, 1):
+        directory = output / f"{index}-{side}"
+        headless_probe(projects[side], directory, f"--fixtures={bundle}", stand_in=True, task_id=task_id)
+        result = json.loads((directory / "summary.json").read_text())
+        if (not result["headless"] or result["deck"] or result["errors"] or result["orphan_nodes"]
+                or result["size"] != [1920, 1080] or result["ui_scale"] != 1.0):
+            raise ValueError(f"Invalid stand-in sample {directory}")
+        samples.append(result)
+    environment = {key: value for key, value in samples[0].items() if key != "cases"}
+    for sample in samples[1:]:
+        if any(sample[key] != value for key, value in environment.items()):
+            raise ValueError("Stand-in sample environments differ")
+    pairs = [(samples[0], samples[1]), (samples[3], samples[2]), (samples[4], samples[5])]
+    checks = {}
+    for kind in ("normal", "tharokh"):
+        for key in ("initial_combat_sha256", "initial_turn", "final_turn"):
+            if len({sample["cases"][kind][key] for sample in samples}) != 1:
+                raise ValueError(f"Stand-in {kind} routes differ on {key}")
+        checks[kind] = {}
+        for section in REFRESH_SECTIONS:
+            pair_max_ms = [[sample["cases"][kind]["sections"][section]["max_usec"] / 1000
+                            for sample in pair] for pair in pairs]
+            pooled_max_ms = [max(side) for side in zip(*pair_max_ms)]
+            checks[kind][section] = {
+                "pair_max_ms": pair_max_ms,
+                "pooled_max_ms": pooled_max_ms,
+                "pooled_max_reduction": reduction(*pooled_max_ms),
+            }
+            print(f"HEADLESS PAIRS {kind} {section} max ms (A, B): {pair_max_ms}")
+    path = output / "headless-pairs.json"
+    path.write_text(json.dumps({"baseline": base_head, "order": ORDER, "environment": environment, "checks": checks}, indent=2) + "\n")
+    print(path)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ("pairs", "report", "capture", "headless-receipts", "headless-timing"):
+    for command in ("pairs", "report", "capture", "headless-receipts", "headless-timing", "headless-pairs", "opening-glyphs"):
         action = sub.add_parser(command)
         action.add_argument("--output", type=Path, required=True)
+        action.add_argument("--base-head", default=BASE_HEAD)
         if command != "report":
             action.add_argument("--base", type=Path, required=True)
+            action.add_argument("--task-id", default=TASK_ID)
         if command == "capture":
             action.add_argument("state", choices=CAPTURES)
     args = parser.parse_args()
     output = args.output.resolve()
     if args.command == "report":
-        report(output)
+        report(output, args.base_head)
         return
     projects = {"A": args.base.resolve(), "B": ROOT}
-    validate_base(projects["A"])
+    validate_base(projects["A"], args.base_head)
+    bundle = prepare_fixtures(projects["A"], output, args.task_id)
     if args.command == "headless-receipts":
-        headless_receipts(projects, output, prepare_fixtures(projects["A"], output))
+        headless_receipts(projects, output, bundle, args.task_id)
         return
     if args.command == "headless-timing":
-        headless_timing(projects, output, prepare_fixtures(projects["A"], output))
+        headless_timing(projects, output, bundle, args.task_id)
         return
     if args.command == "capture":
-        capture(projects, output, args.state, prepare_fixtures(projects["A"], output))
+        capture(projects, output, args.state, bundle, args.task_id)
+        return
+    if args.command == "opening-glyphs":
+        for side, project in projects.items():
+            headless_probe(project, output / f"opening-glyphs-{side}", f"--fixtures={bundle}",
+                           "--opening-glyphs", stand_in=True, task_id=args.task_id)
         return
     if any((output / f"{index}-{side}").exists() for index, side in enumerate(ORDER, 1)):
         parser.error("Use a fresh --output for a complete set of paired samples")
-    bundle = prepare_fixtures(projects["A"], output)
+    if args.command == "headless-pairs":
+        headless_pairs(projects, output, bundle, args.task_id, args.base_head)
+        return
     for index, side in enumerate(ORDER, 1):
-        timing(projects[side], output / f"{index}-{side}", bundle)
-    report(output)
+        timing(projects[side], output / f"{index}-{side}", bundle, args.task_id)
+    report(output, args.base_head)
 
 
 if __name__ == "__main__":

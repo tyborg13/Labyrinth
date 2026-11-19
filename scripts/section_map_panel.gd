@@ -408,7 +408,7 @@ func _refresh() -> void:
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
 		if int(node.get("section_index", -1)) == viewed_section and bool(node.get("visited", false)) and str(node.get("type", "")) != "start":
 			visited += 1
-	_progress.text = "SECTION %s / VI  ·  %d / %d ROOMS EXPLORED%s" % [_roman(viewed_section), visited, int(info.get("room_count", 11)), "  ·  HISTORY" if viewed_section < Graph.active_section(run_state) else ""]
+	_progress.text = "SECTION %s/VI · %d/%d ROOMS EXPLORED%s" % [_roman(viewed_section), visited, int(info.get("room_count", 11)), " · HISTORY" if viewed_section < Graph.active_section(run_state) else ""]
 	# Tabs are a fixed six-control surface. Refresh their current state instead
 	# of discarding native controls and their complete theme notifications.
 	if _tabs.get_child_count() == 0:
@@ -942,8 +942,8 @@ static func type_description(type: String) -> String:
 		return Specials.tooltip_line({"special_type": type.trim_prefix("special_")})
 	match type:
 		"start": return "Where this section begins."
-		"combat": return "Defeat every foe."
-		"guardian": return "A tough foe holds this room. Richer rewards."
+		"combat": return "Defeat every enemy."
+		"guardian": return "A tough enemy holds this room. Richer rewards."
 		"event": return "A choice, often with a cost."
 		"scavenger": return "Trade Embers for supplies."
 		"graftwright": return "Bring two gear pieces of the same kind; one inherits the other's card."
@@ -1025,7 +1025,7 @@ func _refresh_actions() -> void:
 	var has_targets: bool = not Graph.scout_options(run_state).is_empty()
 	_scout.disabled = not active or uses <= 0 or not has_targets or mode not in ["room", "combat", "pre_battle"]
 	if _scout.disabled: scout_targeting = false
-	_scout.text = "Cancel Scout" if scout_targeting else "Scout · %d / 2" % uses
+	_scout.text = "Cancel Scout" if scout_targeting else "Scout · %d/2" % uses
 	_scout.tooltip_text = "Reveal an unknown room."
 	if uses <= 0: _scout.tooltip_text = "No Scouts remaining."
 	elif not active: _scout.tooltip_text = "Completed section."

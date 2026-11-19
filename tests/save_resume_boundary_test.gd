@@ -1045,6 +1045,8 @@ func _drive_room_travel(host: Node, target: Vector2i, escape: bool, completion: 
 func _test_cancelled_loading_preparation() -> void:
 	var pending: Dictionary = _normal_combat_run()
 	pending["mode"] = RunEngine.MODE_PRE_BATTLE
+	pending["pre_battle_pending"] = true
+	pending["pre_battle_travel_dir"] = Vector2i.ZERO
 	pending["combat_state"] = {}
 	_assert(ProgressionStore.save_run_state(pending), "Loading cancellation needs a saved room")
 	var host: Node = load("res://scenes/run_scene.tscn").instantiate()

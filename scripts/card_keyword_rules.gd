@@ -145,7 +145,7 @@ static func _record_modifier(action: Dictionary, source: String, field: String, 
 	entries.append({
 		"source": source,
 		"amount": amount,
-		"label": "%+d" % amount if amount != 0 else "",
+		"label": ("%+d" % amount).replace("-", "−") if amount != 0 else "",
 		"field": field,
 		"before": before,
 		"after": after,
@@ -162,7 +162,7 @@ static func empower_cost_label(cost: Dictionary) -> String:
 	if bool(cost.get("exhaust", false)):
 		return "Exhaust"
 	if int(cost.get("health", 0)) > 0:
-		return "%d HP" % int(cost.get("health", 0))
+		return "%d Health" % int(cost.get("health", 0))
 	if int(cost.get("time", 0)) > 0:
 		return "+%d Time" % int(cost.get("time", 0))
 	return ""

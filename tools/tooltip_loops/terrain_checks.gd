@@ -1,6 +1,7 @@
 extends RefCounted
 ## Authoring proof from production retained draw commands, not state presence alone.
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Margin = preload("res://tools/tooltip_loops/sprite_margin.gd")
 const Board = preload("res://tools/tooltip_loops/record_board.gd")
 const LOOP_SIZE := Vector2(282, 168)
@@ -110,13 +111,13 @@ func observe(board: Control, crop: Rect2i) -> void:
 			var key: String = str(terrain.get("id", terrain["pos"]))
 			minimum_margins[key] = minf(float(minimum_margins.get(key, INF)), margin)
 			if margin < Margin.REQUIRED_PIXELS and not failures.has("Terrain lacks 4 px frame margin: " + key): failures.append("Terrain lacks 4 px frame margin: " + key)
-			if terrain.get("kind") == "crag_outcrop":
+			if terrain.get("kind") in ["crag_outcrop", "worldspine"]:
 				var rise: float = float(row["inputs"][3])
 				if not rise_samples.has(rise): rise_samples.append(rise)
 				if rise > 0.0 and rise < 1.0:
 					if board.first_visible_frame < 0: board.first_visible_frame = board.capture_frame
 					board.last_visible_frame = maxi(board.last_visible_frame, board.capture_frame)
-				if board.presentation.get("unit_throw_ground_positions", {}).has("enemy_1"):
+				if terrain.get("kind") == "crag_outcrop" and board.presentation.get("unit_throw_ground_positions", {}).has("enemy_1"):
 					var manager: Node = board.get("_occlusion_silhouettes")
 					if is_instance_valid(manager):
 						var body: Control = manager.get("team").bodies.get("enemy_1")
@@ -129,8 +130,11 @@ func finish(board: Control, fixture: Dictionary, result: Dictionary, crop: Rect2
 		states.append(beat["after"])
 		for field: String in ["terrain", "surfaces", "grid"]:
 			if beat["before"].get(field) != beat["after"].get(field): changes.append({"field": field, "before": var_to_str(beat["before"].get(field)), "after": var_to_str(beat["after"].get(field))})
+	var engine := Combat.new()
 	for state: Dictionary in states:
+		var visible: Dictionary = engine.umbra_visible_tile_lookup(state)
 		for tile: Vector2i in Surfaces.tiles(state):
+			if not visible.has(tile): continue
 			for kind: String in ["rubble", "ice", "fire", "electrified"]:
 				if Surfaces.has_surface(state, tile, kind) and not observed_surfaces.has("%s:%s" % [tile, kind]):
 					var error: String = "Surface must draw during its recorded lifetime: %s %s" % [kind, tile]
@@ -147,17 +151,24 @@ func finish(board: Control, fixture: Dictionary, result: Dictionary, crop: Rect2
 		final_terrain.append({"tile": var_to_str(tile), "kind": terrain.get("kind"), "commands": count})
 	for key: String in result["final"].get("surfaces", {}):
 		var tile: Vector2i = Surfaces.tile_from_key(key)
+		var expected_visible: bool = engine.is_tile_visible_to_player(result["final"], tile)
 		for kind: String in ["rubble", "ice", "fire", "electrified"]:
 			if not Surfaces.has_surface(result["final"], tile, kind): continue
 			var drawn: bool = _surface_visible(board, tile, kind)
 			final_surfaces.append({"tile": var_to_str(tile), "kind": kind, "production_layer_visible": drawn})
-			if not drawn: failures.append("Final surface lacks its visible production layer: %s %s" % [kind, tile])
+			if expected_visible and not drawn: failures.append("Final surface lacks its visible production layer: %s %s" % [kind, tile])
+			if not expected_visible and drawn: failures.append("A dark tile reveals its final surface: %s %s" % [kind, tile])
+	if fixture["id"] == "worldspine_pulse" and not _rise_complete():
+		failures.append("Production Worldspines must animate their rise and finish fully raised")
 	if fixture["id"] == "rule_upheaval":
 		var found: bool = (board.combat_state.get("terrain", []) as Array).any(func(t: Dictionary) -> bool: return t.get("pos") == fixture["state"]["enemies"][0]["pos"] and t.get("kind") == "crag_outcrop" and Surfaces.terrain_is_live(t))
 		if not found: failures.append("Final recording board must retain the Outcrop on the marked tile")
 		if final_rock_pixels_above_floor <= 0: failures.append("Final Outcrop must submit non-floor rock pixels above its tile")
-		if not rise_samples.any(func(rise: float) -> bool: return rise > 0.0 and rise < 1.0) or not rise_samples.has(1.0): failures.append("Production Outcrop must animate its rise and finish fully raised")
+		if not _rise_complete(): failures.append("Production Outcrop must animate its rise and finish fully raised")
 		if not airborne_above_rock_seen: failures.append("Production throw body must draw above the rock while airborne")
+
+func _rise_complete() -> bool:
+	return rise_samples.has(1.0) and rise_samples.any(func(rise: float) -> bool: return rise > 0.0 and rise < 1.0)
 
 func report() -> Dictionary:
 	return {"changes": changes, "final_terrain": final_terrain, "final_surfaces": final_surfaces, "observed_surfaces": observed_surfaces.keys(), "minimum_margins_px": minimum_margins, "rise_samples": rise_samples, "airborne_above_rock_seen": airborne_above_rock_seen, "final_rock_pixels_above_floor": final_rock_pixels_above_floor, "native_pixels_above_floor": native_pixels_above_floor, "failures": failures}

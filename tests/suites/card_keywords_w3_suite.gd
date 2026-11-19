@@ -512,7 +512,7 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	var thorn_card: Dictionary = GameData.card_def("w3_fx_rite_thorns")
 	var thorn_rows: Array = ActionIcons.rows_for_card(thorn_card)
 	var thorn_cost_row: Array = thorn_rows[0] as Array if not thorn_rows.is_empty() else []
-	expect.call(thorn_rows.size() == 2 and thorn_cost_row.size() == 2 and str((thorn_cost_row[0] as Dictionary).get("icon", "")) == "rite" and str((thorn_cost_row[1] as Dictionary).get("icon", "")) == "health_cost" and str((thorn_cost_row[1] as Dictionary).get("value", "")) == "-2", "A Rite card leads with a labelled Rite keyword row and its health cost")
+	expect.call(thorn_rows.size() == 2 and thorn_cost_row.size() == 2 and str((thorn_cost_row[0] as Dictionary).get("icon", "")) == "rite" and str((thorn_cost_row[1] as Dictionary).get("icon", "")) == "health_cost" and str((thorn_cost_row[1] as Dictionary).get("value", "")) == "−2", "A Rite card leads with a labelled Rite keyword row and its health cost")
 	expect.call(ActionIcons.token_tooltip(thorn_cost_row[0] as Dictionary if not thorn_cost_row.is_empty() else {}) == "Rite\nIts effect lasts the rest of combat and the card Exhausts.", "The Rite keyword token explains Exhaust and duration")
 	var thorn_text: Dictionary = (thorn_rows[1] as Array)[0] as Dictionary if thorn_rows.size() > 1 else {}
 	expect.call(str(thorn_text.get("kind", "")) == "rules_text" and str(thorn_text.get("value", "")) == "Enemies that hit you in melee take 3 and Bleed\u00a01.", "The Rite's rules text follows its keyword row without repeating Rite or the cost, its last two words kept together")
@@ -548,7 +548,7 @@ static func _test_run_scene_hand_display(engine: CombatEngine, expect: Callable)
 	expect.call(int(chain_token.get("value", 0)) == 2 and ActionIcons.token_is_modified(chain_token), "The hand row shows Chain granted by a pending Lightning buff")
 	var rite_display: Dictionary = scene.call("_card_widget_display", "w3_fx_rite_thorns", _state(engine))
 	var rite_rows: Array = rite_display.get("summary_rows", []) as Array
-	expect.call(not _token_with_icon(rite_rows, "rite").is_empty() and str(_token_with_icon(rite_rows, "health_cost").get("value", "")) == "-2" and rite_rows.size() == 2 and str(((rite_rows[1] as Array)[0] as Dictionary).get("value", "")).begins_with("Enemies that hit you"), "A Rite card in hand shows its Rite keyword and health cost, then its rules text")
+	expect.call(not _token_with_icon(rite_rows, "rite").is_empty() and str(_token_with_icon(rite_rows, "health_cost").get("value", "")) == "−2" and rite_rows.size() == 2 and str(((rite_rows[1] as Array)[0] as Dictionary).get("value", "")).begins_with("Enemies that hit you"), "A Rite card in hand shows its Rite keyword and health cost, then its rules text")
 	var retaliate_display: Dictionary = scene.call("_card_widget_display", "w3_fx_retaliate_riders", _state(engine))
 	expect.call(not _token_with_icon(retaliate_display.get("summary_rows", []) as Array, "retaliate").is_empty(), "A Retaliate card in hand shows the Retaliate token")
 	scene.free()

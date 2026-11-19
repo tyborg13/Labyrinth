@@ -115,10 +115,9 @@ func _start() -> void:
 		errors.append(str(startup_viewport["failure"]))
 		finish("viewport_rejected")
 		return
-	if headless_smoke:
+	if headless_smoke or validate_only:
 		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	if validate_only:
-		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 		await _validate()
 		return
 	if driver_name == "demo":
@@ -249,6 +248,16 @@ func _validate() -> void:
 
 func finish(outcome: String) -> void:
 	if finished: return
+	if validate_tour or (driver_name == "tour" and not validate_only):
+		var missing := Tour.missing_stops(coverage)
+		if not missing.is_empty():
+			errors.append("Tour stopped at %s with missing coverage: %s" % [outcome, ", ".join(missing)])
+		elif outcome == "time_limit":
+			errors.append("Time limit before tour completion")
+		if not errors.is_empty() and outcome == "tour_complete":
+			outcome = "tour_incomplete"
+		for error: String in errors:
+			printerr("HITCH TOUR: " + error)
 	finished = true
 	census_finished.emit()
 	var stats: Dictionary = trace.finish()

@@ -129,11 +129,11 @@ text = "RUN IN PROGRESS"
 
 [node name="ResumeLocation" type="Label" parent="ResumePanel/ResumeMargin/ResumeVBox"]
 layout_mode = 2
-text = "DEPTH 3  ·  IN COMBAT"
+text = "DEPTH 3 · IN COMBAT"
 
 [node name="ResumeStats" type="Label" parent="ResumePanel/ResumeMargin/ResumeVBox"]
 layout_mode = 2
-text = "HP 185 / 260  ·  HELD 74 EMBERS"
+text = "HEALTH 185/260 · HELD 74 EMBERS"
 
 [node name="ProfileBlock" type="VBoxContainer" parent="."]
 layout_mode = 0
@@ -150,7 +150,7 @@ text = "Profile Reaver"
 [node name="Footer" type="Label" parent="ProfileBlock"]
 layout_mode = 2
 autowrap_mode = 2
-text = "LV 1  |  EMBERS 0  |  BOUND 0"
+text = "LV 1 · EMBERS 0 · BOUND 0"
 
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 visible = false
@@ -186,11 +186,11 @@ text = "This run will be discarded."
 
 [node name="ReplacementLocation" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
 layout_mode = 2
-text = "DEPTH 3  ·  IN COMBAT"
+text = "DEPTH 3 · IN COMBAT"
 
 [node name="ReplacementStats" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
 layout_mode = 2
-text = "HP 185 / 260  ·  HELD 74 EMBERS"
+text = "HEALTH 185/260 · HELD 74 EMBERS"
 
 [node name="ReplacementSpacer" type="Control" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
 custom_minimum_size = Vector2(0, 5)

@@ -301,7 +301,7 @@ static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	changed_slot.free()
 	GameData.relics()["toll_late_bell"] = bell_data
 	var widget := preload("res://scripts/card_widget.gd").new()
-	for source: Array in [["whirling_sash", "_tempo_time_surcharge", "+2"], ["quick_draw_bandolier", "_item_time_surcharge", "+2"], ["fencers_gloves", "_relic_time_discount", "-2"]]:
+	for source: Array in [["whirling_sash", "_tempo_time_surcharge", "+2"], ["quick_draw_bandolier", "_item_time_surcharge", "+2"], ["fencers_gloves", "_relic_time_discount", "−2"]]:
 		var id: String = source[0]
 		var key: String = source[1]
 		var original_name: String = GameData.relics()[id]["name"]

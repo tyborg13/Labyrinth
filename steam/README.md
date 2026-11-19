@@ -155,7 +155,7 @@ stats behavior are unchanged.
 
 Steam Cloud is configured in Steamworks App Admin, not in this repo. Use Steam Auto-Cloud for the existing save files; the game code keeps the runtime paths stable and account-scoped.
 
-Enable Steam Cloud for both the main app and Playtest app, then add two Auto-Cloud root entries for each app:
+Enable Steam Cloud for both the main app and Playtest app, then add these Auto-Cloud root entries for each app:
 
 ```text
 Root: WinAppDataRoaming
@@ -169,7 +169,19 @@ Subdirectory: Escape the Umbra/steam/{64BitSteamID}
 Pattern: current_run.save
 OS: All OSes
 Recursive: No
+
+Root: WinAppDataRoaming
+Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+Pattern: current_run.save.backup
+OS: All OSes
+Recursive: No
 ```
+
+On Windows, a crash during checkpoint replacement can leave the last committed
+run in `current_run.save.backup`. Sync this exact filename so a fresh Steam
+install can offer Continue from that backup. The game checks the live checkpoint
+first and can read the backup when the live file is missing. Temporary files
+and migration archives stay local.
 
 Add root overrides for the same subdirectory so the Windows root maps to the native locations on the other supported platforms:
 

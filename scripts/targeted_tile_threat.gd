@@ -21,7 +21,7 @@ func _init() -> void:
 
 # shown: the targeted-tile border is on this tile.
 func present(board: Control, next_tile: Vector2i, shown: bool) -> void:
-	var paint: Dictionary = Slices.threat_paint(board, next_tile, {}) if shown and next_tile.x >= 0 and not board._rule_threat_tiles.has(next_tile) else {}
+	var paint: Dictionary = Slices.threat_paint(board, next_tile, {}, PackedVector2Array(), true) if shown and next_tile.x >= 0 else {}
 	var changed: bool = paint != _paint or next_tile != tile
 	tile = next_tile
 	_paint = paint

@@ -89,11 +89,16 @@ static func information_state(scene: Node, state: Dictionary, information_overri
 # Hidden actors never enter numeric simulation, including support targeting,
 # occupancy and status hooks. Retain only queue ordering for the '?' horizon.
 # This snapshot is preview-only; the engine's opaque-board contract is intact.
-static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
-	var result: Dictionary = scene._visibility_safe_preview_display_state(known)
+static func rest_source(scene: Node, committed: Dictionary) -> Dictionary:
+	return visibility_safe(scene, information_state(scene, committed, committed), committed)
+
+static func visibility_safe(scene: Node, known: Dictionary, rest_boundary: Variant = null) -> Dictionary:
+	var at_rest: bool = rest_boundary is Dictionary
+	var committed: Dictionary = rest_boundary if at_rest else scene._combat_state
+	var result: Dictionary = known if at_rest else scene._visibility_safe_preview_display_state(known)
 	# Retain the initial Health only when the action changed it. This covers
 	# lethal Bleed before scheduling, without changing unchanged source identity.
-	var before_hp: int = int(scene._combat_state.get("player", {}).get("hp", known.get("player", {}).get("hp", 0)))
+	var before_hp: int = int(committed.get("player", {}).get("hp", known.get("player", {}).get("hp", 0)))
 	if before_hp != int(known.get("player", {}).get("hp", 0)):
 		result = result.duplicate(false)
 		result["_pass_forecast_source_hp"] = before_hp
@@ -101,11 +106,11 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	# strip Block or Stoneskin before the turn ends. Retain what it removed so
 	# the defence rows count it, as the Health row already counts its Health.
 	for field: String in ["block", "stoneskin"]:
-		var spent: int = int(scene._combat_state.get("player", {}).get(field, 0)) - int(known.get("player", {}).get(field, 0))
+		var spent: int = int(committed.get("player", {}).get(field, 0)) - int(known.get("player", {}).get(field, 0))
 		if spent <= 0: continue
 		if is_same(result, known): result = result.duplicate(false)
 		result["_pass_forecast_action_" + field] = spent
-	if not scene._preview_umbra_is_limited(known): return result
+	if not scene._preview_umbra_is_limited(known, committed): return result
 	result = result.duplicate(false)
 	var player: Dictionary = (result.get("player", {}) as Dictionary).duplicate(false)
 	for field: String in ["hp", "block", "stoneskin"]:
@@ -118,9 +123,9 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 		if known.has(collection): result[collection] = known[collection]
 	var disclosed: Dictionary = {}
 	var living: Dictionary = {}
-	for enemy: Dictionary in scene._combat_state.get("enemies", []):
+	for enemy: Dictionary in committed.get("enemies", []):
 		if int(enemy.get("hp", 0)) > 0: living[int(enemy.get("id", -1))] = true
-		if scene._combat_engine.is_enemy_visible_to_player(scene._combat_state, enemy):
+		if scene._combat_engine.is_enemy_visible_to_player(committed, enemy):
 			disclosed[int(enemy.get("id", -1))] = true
 	var enemies: Array = []
 	for enemy: Dictionary in known.get("enemies", []):
@@ -143,7 +148,7 @@ static func visibility_safe(scene: Node, known: Dictionary) -> Dictionary:
 	result["_pass_forecast_limited"] = true
 	# atk-04: the decision-time sight, so the forecast can say when any unit
 	# enters unseen ground (tile visibility only; contents stay stripped).
-	preload("res://scripts/pass_forecast_unseen_ground.gd").attach(result, scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(known)), scene._combat_state, known)
+	preload("res://scripts/pass_forecast_unseen_ground.gd").attach(result, scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(known, committed)), committed, known)
 	# Known victory must stop end-turn effects. Its presentation remains unknown
 	# under limited sight, independently of whether any hidden enemy exists.
 	result.erase("_preview_opaque_enemies")

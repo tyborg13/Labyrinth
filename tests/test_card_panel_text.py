@@ -28,9 +28,13 @@ class CardPanelTextTest(unittest.TestCase):
             "title_sentence_range_terrain", "title_sentence_range_illusion",
         )
         rows = {row["id"]: row for row in director["rows"]}
+        outcrop_rows = {"raise_outcrop", "terrain_burst_any", "terrain_burst_own", "range_outcrop"}
         for key in straightforward:
             with self.subTest(row=key):
-                self.assertEqual(templates[key]["text"], rows[key]["text"])
+                expected = rows[key]["text"]
+                if key in outcrop_rows:
+                    expected = expected.replace("outcrop", "Outcrop")
+                self.assertEqual(templates[key]["text"], expected)
                 self.assertEqual(templates[key]["title"], rows[key]["title"])
         self.assertEqual(templates["retaliate_illusion"]["text"],
                          "Enemies that damage this illusion take {n}{suffix} damage{suffix2}.")
@@ -53,7 +57,12 @@ class CardPanelTextTest(unittest.TestCase):
         self.assertEqual(sum(f["appended"] for f in facts.values()), 11)
         for row in director["rows"]:
             if row["id"] in facts and facts[row["id"]]["appended"]:
-                self.assertEqual(facts[row["id"]]["paragraphs"], [row["grimoire"].split(": ", 1)[1]])
+                expected = row["grimoire"].split(": ", 1)[1]
+                if row["id"] == "raise_outcrop":
+                    expected = expected.replace(" outcrop", " Outcrop")
+                if row["id"] == "title_sentence_push_area":
+                    expected = expected.replace("in an area push", "In an area Push")
+                self.assertEqual(facts[row["id"]]["paragraphs"], [expected])
 
     def test_new_gdscript_uses_windows_safe_typed_arrays(self):
         pattern = re.compile(r"\b(?:var|const)\s+\w+\s*:\s*Array\[[^]]+\]\s*=\s*\[")

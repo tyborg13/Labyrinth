@@ -53,7 +53,7 @@ static func tooltip_entries(state: Dictionary, tile: Vector2i) -> Array[Dictiona
 				lines.append("Chain can also jump through individual Electrified tiles.")
 		entries.append({"icon": "surface_" + kind, "title": title_for(kind), "description": "\n".join(lines)})
 	if Rules.has_rubble(state, tile):
-		entries.append({"icon": "surface_rubble", "title": "Rubble", "description": "Walking out of Rubble costs 2 movement."})
+		entries.append({"icon": "surface_rubble", "title": "Rubble", "description": "Walking out of Rubble costs 2 Movement."})
 	return entries
 
 static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, center: Vector2, width: float, time: float, reduced_motion: bool, draw_rubble: bool = true, draw_elemental: bool = true, draw_electric: bool = true) -> void:

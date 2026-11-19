@@ -257,7 +257,7 @@ func _build_accessibility_section() -> Control:
 	health_option.set_item_metadata(1, SettingsStore.BOARD_HEALTH_CONTEXTUAL)
 	health_option.item_selected.connect(_on_option_selected.bind("board_health_bars", health_option))
 	_controls["board_health_bars"] = health_option
-	rows.add_child(_setting_row("Board health bars", "", health_option))
+	rows.add_child(_setting_row("Board Health Bars", "", health_option))
 
 	var reduced_button := Button.new()
 	reduced_button.toggle_mode = true
@@ -311,7 +311,7 @@ func _build_footer() -> Control:
 	cancel.pressed.connect(_cancel_restore_confirmation)
 	confirm_row.add_child(cancel)
 	var confirm := Button.new()
-	confirm.text = "Reset all"
+	confirm.text = "Reset All"
 	_style_button(confirm, 138.0, Color("ffcabd"), UiSkin.VARIANT_DESTRUCTIVE)
 	confirm.pressed.connect(_confirm_restore_defaults)
 	confirm_row.add_child(confirm)
@@ -335,7 +335,7 @@ func _build_footer() -> Control:
 	_status_label.add_theme_color_override("font_color", Color("82d7b0"))
 	actions.add_child(_status_label)
 	var restore := Button.new()
-	restore.text = "Restore defaults"
+	restore.text = "Restore Defaults"
 	_style_button(restore, 194.0, Color("efc7ba"), UiSkin.VARIANT_DESTRUCTIVE)
 	restore.pressed.connect(_show_restore_confirmation)
 	actions.add_child(restore)
@@ -529,7 +529,7 @@ func _on_reduced_motion_toggled(enabled: bool) -> void:
 func _update_reduced_motion_button(button: Button) -> void:
 	if button == null:
 		return
-	button.text = "On — less motion" if button.button_pressed else "Off — full motion"
+	button.text = "On — Less Motion" if button.button_pressed else "Off — Full Motion"
 
 func _commit_change(status: String) -> void:
 	_settings = SettingsStore.normalize_settings(_settings)

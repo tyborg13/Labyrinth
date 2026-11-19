@@ -261,7 +261,7 @@ static func _begin_foes(host: Node, combat: Dictionary, state: Dictionary, jobs:
 		if center_index >= 0:
 			var center_enemy: Dictionary = enemies.pop_at(center_index)
 			enemies.insert(1, center_enemy)
-	var header := section("FOES", str(enemies.size()), "PreBattleFoesDivider")
+	var header := section("ENEMIES", str(enemies.size()), "PreBattleFoesDivider")
 	foes.add_child(header)
 	var scroll := ScrollContainer.new()
 	scroll.name = "PreBattleEnemyScroll"
@@ -290,8 +290,8 @@ static func _append_foe(host: Node, flow: Container, enemy: Dictionary, leader: 
 static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: Control, flow: Container, separation: int) -> void:
 	var hint := Label.new()
 	preload("res://scripts/input_wording.gd").bind_label(hint, {
-		"pointer_text": "Hover or select a foe to read its moves",
-		"controller_text": "Focus or select a foe to read its moves",
+		"pointer_text": "Hover or select an enemy to read its moves",
+		"controller_text": "Focus or select an enemy to read its moves",
 	})
 	Typography.apply_eyebrow(hint, 13, Palette.TEXT_3)
 	hint.name = "PreBattleFoeHint"
@@ -664,7 +664,7 @@ static func build_health(host: Node, future_state: Dictionary = {}) -> Control:
 	health_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	values.add_child(health_label)
 	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
-	values.add_child(label("%d / %d" % [int(state.get("player_hp", 0)), int(state.get("player_max_hp", 0))], 19, Palette.ALLY))
+	values.add_child(label("%d/%d" % [int(state.get("player_hp", 0)), int(state.get("player_max_hp", 0))], 19, Palette.ALLY))
 	var capacity: int = int(host.get("_run_engine").defiance_capacity(state))
 	if capacity > 0:
 		var defiance_icon := icon("", 18.0)

@@ -415,7 +415,7 @@ static func _model(kind: String, rows: int) -> Dictionary:
 	for index: int in range(mini(rows, 4)):
 		lines.append({"id": "test_line_%d" % index, "label": "Rooms explored", "detail": "9 × 5", "points": 45})
 	for index: int in range(rows - lines.size()):
-		feats.append({"id": "test_feat_%d" % index, "label": "Chain Reaction", "detail": "3 foes slain by one card", "points": 25})
+		feats.append({"id": "test_feat_%d" % index, "label": "Chain Reaction", "detail": "3 enemies slain by one card", "points": 25})
 	return {"outcome": "victory" if kind == "full" else "defeat", "title": "VICTORIOUS" if kind == "full" else "FALLEN", "cause": "Vyraketh falls.", "demo_end_panel_kind": kind, "score": {"lines": lines, "feats": feats, "total": 187}, "ember_amount": 236, "embers_text": "Embers carried 236."}
 
 func _activate_link(link: Button) -> void:

@@ -43,7 +43,7 @@ static func can_attempt(scene: Node, index: int) -> bool:
 
 static func tooltip(scene: Node, index: int) -> String:
 	var blocked: int = blocked_health(scene, index)
-	if blocked > 0: return "Not enough health: Empower costs %d HP." % blocked
+	if blocked > 0: return "Not enough Health: Empower costs %d Health." % blocked
 	var card: Dictionary = scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)
 	return _tooltip_for_card(scene, index, card)
 
@@ -78,7 +78,7 @@ static func sync_widgets(scene: Node) -> void:
 		var blocked: int = _blocked_health_for_card(scene, card) if has_empower else 0
 		var detail: String = ""
 		if has_empower:
-			detail = "Not enough health: Empower costs %d HP." % blocked if blocked > 0 else _tooltip_for_card(scene, index, card)
+			detail = "Not enough Health: Empower costs %d Health." % blocked if blocked > 0 else _tooltip_for_card(scene, index, card)
 		widget.set_empower_state(has_empower, scene._hand_card_empowered(index), raised, blocked > 0, locked(scene, index) or scene._animation_lock, seal_hint(scene), detail)
 		if not widget.empower_toggled.is_connected(scene._on_hand_empower_toggled):
 			widget.empower_toggled.connect(scene._on_hand_empower_toggled.bind(widget))

@@ -103,7 +103,7 @@ func configure(
 	_icon.texture = ActionIcons.icon_texture(icon_key) if not icon_key.is_empty() else null
 	_kicker.text = str(_definition.get("kicker", "GUIDED RUN"))
 	_title.text = str(_definition.get("title", "Your Next Action"))
-	_progress_label.text = "GUIDED RUN  •  %d / %d" % [
+	_progress_label.text = "GUIDED RUN • %d/%d" % [
 		int(_definition.get("lesson", 1)),
 		int(_definition.get("lesson_total", 1)),
 	]

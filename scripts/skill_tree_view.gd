@@ -1187,7 +1187,7 @@ func _refresh_legend() -> void:
 func _refresh_summary() -> void:
 	if _summary_label == null:
 		return
-	_summary_label.text = "LEARNED %d  ·  POINTS %d" % [_owned_ids.size(), _unspent_points]
+	_summary_label.text = "LEARNED %d · POINTS %d" % [_owned_ids.size(), _unspent_points]
 
 var _focus_render_refresh_count: int = 0
 
@@ -1296,7 +1296,7 @@ func _refresh_detail() -> void:
 	_detail_status.add_theme_color_override("font_color", _state_color(state).lightened(0.12))
 	_detail_title.text = SkillTreeLibrary.display_name(_focused_id)
 	InlineIconText.apply_to(_detail_description, SkillTreeLibrary.description(_focused_id))
-	_detail_activation.text = "TIMING  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
+	_detail_activation.text = "TIMING · %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
 	_detail_requirements.text = _requirements_text(_focused_id)
 	_detail_unlocks.text = _unlocks_text(_focused_id)
 	_detail_reason.text = _detail_reason_text(_focused_id, state)
@@ -1320,7 +1320,7 @@ func _refresh_detail_action(state: String) -> void:
 	if state == STATE_OWNED:
 		_detail_action.text = "Learned"
 	elif state == STATE_AVAILABLE and _unspent_points > 0:
-		_detail_action.text = "Learn  ·  1 Point"
+		_detail_action.text = "Learn · 1 Point"
 		_detail_action.disabled = not _editing_enabled
 	elif state == STATE_AVAILABLE:
 		_detail_action.text = "No Skill Points"
@@ -1499,11 +1499,11 @@ func _node_state_text(skill_id: String, state: String) -> String:
 		STATE_OWNED:
 			return "[ LEARNED ]"
 		STATE_AVAILABLE:
-			return "+  AVAILABLE"
+			return "+ AVAILABLE"
 		STATE_EXCLUDED:
-			return "X  EXCLUSIVE"
+			return "X EXCLUSIVE"
 		_:
-			return "-  LOCKED"
+			return "- LOCKED"
 
 func _legend_state_text(state: String) -> String:
 	match state:
@@ -1519,7 +1519,7 @@ func _legend_state_text(state: String) -> String:
 func _detail_status_text(skill_id: String, state: String) -> String:
 	var tier: String = str(SkillTreeLibrary.definition(skill_id).get("tier", "skill")).to_upper()
 	var activation: String = SkillTreeLibrary.activation_kind(skill_id).to_upper()
-	return "%s  ·  %s  ·  %s" % [tier, _node_state_text(skill_id, state), activation]
+	return "%s · %s · %s" % [tier, _node_state_text(skill_id, state), activation]
 
 func _detail_reason_text(skill_id: String, state: String) -> String:
 	if SkillTreeLibrary.is_demo_locked(skill_id):
@@ -1537,18 +1537,18 @@ func _requirements_text(skill_id: String) -> String:
 	parts.append("REQUIRES")
 	var selection: Array[String] = _selection_for_availability()
 	for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
-		parts.append("%s  %s" % [
+		parts.append("%s · %s" % [
 			"READY" if selection.has(prerequisite_id) else "NEED",
 			SkillTreeLibrary.display_name(prerequisite_id),
 		])
 	if SkillTreeLibrary.prerequisites(skill_id).is_empty():
-		parts.append("NONE  Root skill")
+		parts.append("NONE · Root skill")
 	var minimum_owned: int = SkillTreeLibrary.minimum_owned(skill_id)
 	if minimum_owned > 0:
 		var other_skill_count: int = selection.size() - (1 if selection.has(skill_id) else 0)
-		parts.append("%s  %d other skills learned" % ["READY" if other_skill_count >= minimum_owned else "NEED", minimum_owned])
+		parts.append("%s · %d other skills learned" % ["READY" if other_skill_count >= minimum_owned else "NEED", minimum_owned])
 	if not SkillTreeLibrary.exclusive_group(skill_id).is_empty():
-		parts.append("LIMIT  One keystone per build")
+		parts.append("LIMIT · One keystone per build")
 	return "\n".join(parts)
 
 func _unlocks_text(skill_id: String) -> String:
@@ -1558,7 +1558,7 @@ func _unlocks_text(skill_id: String) -> String:
 	var names: Array[String]
 	for dependent_id: String in dependents:
 		names.append(SkillTreeLibrary.display_name(dependent_id))
-	return "LEADS TO\n%s" % "  ·  ".join(names)
+	return "LEADS TO\n%s" % " · ".join(names)
 
 func _selection_for_availability() -> Array[String]:
 	return _string_array(_owned_ids)

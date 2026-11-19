@@ -56,7 +56,7 @@
       "length": 3,
       "health": 2
     },
-    "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops unless something immovable is on them."
+    "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops."
   },
   "last_lamplighter": {
     "rule": "shadowstep",

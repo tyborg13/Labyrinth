@@ -1,0 +1,14 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 2,
+  "required_images": [
+    {
+      "pattern": "*20_zekarion_ready.png",
+      "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*20_zekarion_objective_hover.png",
+      "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 8, "min_luma_stdev": 2}]
+    }
+  ]
+}

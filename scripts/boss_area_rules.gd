@@ -73,7 +73,9 @@ static func at_anchor(action: Dictionary, anchor: Vector2i) -> Array[Vector2i]:
 
 static func forecast_signature(intent: Dictionary) -> Array:
 	for action: Dictionary in intent.get("actions", []):
-		if relative(action): return [str(intent.get("id", "")), shown(action), action.get("area_planned_origin"), action.get("area_announcement_origin")]
+		# shown() may borrow the intent's typed tile array. Published stamps
+		# and forecast receipts own their signature.
+		if relative(action): return [str(intent.get("id", "")), shown(action).duplicate(), action.get("area_planned_origin"), action.get("area_announcement_origin")]
 	return []
 
 # Opt-in receipt on the PASS-loss copy only. Planning copies own deep copies of

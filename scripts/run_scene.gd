@@ -134,6 +134,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
+const CombatHandBudget = preload("res://scripts/combat_hand_budget.gd")
 const CommittedBattlefieldRules = preload("res://scripts/battlefield_rules/committed.gd")
 const BattlefieldRuleHudScript = preload("res://scripts/battlefield_rule_hud.gd")
 const CombatHudIntents = preload("res://scripts/combat_hud_intents.gd")
@@ -1045,6 +1046,7 @@ const PILE_HUD_EDGE_MARGIN: float = 12.0
 const COMBAT_OBJECTIVE_DOCK_GAP: float = 12.0
 # The battlefield rule panel sits this far above the objective, its twin in one column.
 const BATTLEFIELD_RULE_DOCK_GAP: float = 8.0
+const COMBAT_LEFT_STACK_BOTTOM_MARGIN_PX: float = 8.0
 const DIALOGUE_PORTRAIT_SIZE: Vector2 = DialogueBoxView.PORTRAIT_SIZE
 const TURN_BANNER_Z_INDEX: int = 66
 # The action caption sits centred at the top of the stage. It keeps its old
@@ -1615,6 +1617,8 @@ var _hand_card_pool_host: Control
 var _hand_card_pool: Array[Dictionary]
 var _hand_layout_revision: int = 0
 var _hand_layout_pending_revision: int = -1
+var _hand_hud_fit_queued: bool = false
+var _hand_hud_fit_key := Vector3(INF, INF, -1.0)
 var _combat_hud_layout := preload("res://scripts/combat_hud_layout.gd").new()
 var _hand_layout_envelope_signature: String = "<unset>"
 var _draw_hand_transition_cards: Array[String]
@@ -1680,6 +1684,9 @@ var _enemy_intent_toggle_button: Button
 var _combat_objective_hud: PanelContainer
 var _battlefield_rule_switch = preload("res://scripts/battlefield_rules/switch_presentation.gd").new()
 var _battlefield_rule_hud: PanelContainer
+var _combat_objective_dock_home := Rect2()
+var _combat_objective_intro_dock := Rect2()
+var _ui33_chip_layouts: int
 var _victory_cleared_hud: Dictionary = {}
 var _boss_health_overlay: Control
 var _boss_health_name: Label
@@ -1773,6 +1780,7 @@ var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
 var _drag_zone_detail_labels: Dictionary = {}
 var _drag_cancel_in_progress: bool = false
+var _drag_drop_confirmed: bool = false
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
@@ -1972,6 +1980,10 @@ func _schedule_encounter_assets(state: Dictionary) -> void:
 	preload("res://scripts/encounter_asset_preparation.gd").begin_for.call_deferred(self, state.duplicate(true), _encounter_preparation_generation)
 
 var _initial_ui_staging_requested: bool = false
+const InitialGraph = preload("res://scripts/initial_run_graph.gd")
+var _initial_run_graph: InitialGraph.Preparation
+var _initial_automatic_seed: Variant
+var _initial_loading_cancelled: bool = false
 var _initial_ui_complete: bool = false
 var _initial_cpu_asset_holds: Array[RefCounted]
 var _combat_pacing = preload("res://scripts/combat_pacing.gd").new()
@@ -2045,12 +2057,27 @@ func _ready() -> void:
 	ready_started = _record_runtime_performance_phase("startup_controls", ready_started)
 	_boot_run()
 	_record_runtime_performance_phase("startup_boot_run", ready_started)
+	if not has_installed_run(): return
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 	call_deferred("_refresh_controller_interface")
 	_initial_ui_complete = true
 
 func request_staged_initial_ui() -> void:
 	_initial_ui_staging_requested = true
+
+func adopt_initial_run_graph(job: InitialGraph.Preparation, automatic_seed: Variant = null) -> void:
+	if _initial_run_graph != job: cancel_initial_run_graph()
+	_initial_run_graph = job
+	if automatic_seed != null: _initial_automatic_seed = automatic_seed
+
+func cancel_initial_run_graph() -> void:
+	if _initial_run_graph != null: _initial_run_graph.cancel()
+
+func cancel_initial_run_loading() -> void:
+	_initial_loading_cancelled = true
+	cancel_initial_run_graph()
+	_encounter_preparation_generation += 1
+	if is_instance_valid(_section_transition): _section_transition.cancel()
 
 static func prepare_initial_ui_for(scene: Node, present_frame: Callable, still_active: Callable) -> void:
 	await preload("res://scripts/maquette_cutout_runtime/preparation.gd").prepare_initial_ui_for(scene, present_frame, still_active)
@@ -2075,7 +2102,8 @@ func _initial_ui_jobs() -> Array[Callable]:
 		_setup_pile_widgets, _setup_contextual_combat_tutorial,
 		_setup_action_step_tracker, _setup_play_meter, _setup_movement_meter,
 		_connect_header_layout_signals, _connect_choice_overlay_layout_signals,
-		_connect_board_aim_signals, _connect_initial_viewport_signal, _prepare_initial_run_state,
+		_connect_board_aim_signals, _connect_initial_viewport_signal,
+		_ensure_sfx_bank, _prepare_initial_run_state,
 		_prepare_initial_skill_tree_geometry, _prepare_initial_skill_tree_view,
 	]:
 		jobs.append(job)
@@ -2104,6 +2132,7 @@ func initial_texture_preparation_manifest() -> Dictionary:
 		if FileAccess.file_exists(idle_path): manifest[idle_path] = false
 	for name: String in ["action_frame", "medallion", "panel_frame"]:
 		manifest["res://assets/art/ui/section_map/" + name + ".png"] = false
+	preload("res://scripts/run_initial_cpu_assets.gd").add_gear_validation_textures(manifest)
 	return manifest
 
 static func prepare_initial_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
@@ -2116,12 +2145,16 @@ func initial_asset_preparation_target() -> Control:
 func initial_presentation_is_ready() -> bool:
 	# Initial viewport/hand refreshes schedule further container fitting. The
 	# menu must cover that work even when reduced motion omits its reveal fade.
-	return is_node_ready() and _initial_ui_complete and not _run_state.is_empty() and (
+	return is_node_ready() and _initial_ui_complete and has_installed_run() and (
 		str(_run_state.get("mode", "")) != "combat" or _hand_layout_pending_revision < 0
 	)
 
+func has_installed_run() -> bool:
+	return preload("res://scripts/run_persistence.gd").has_checkpoint(_run_state)
+
 func _on_hand_viewport_size_changed() -> void:
 	_combat_hud_layout.viewport_changed(self)
+	_hud_refresh_layout.request(self, &"_layout_combat_objective_hud")
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 	call_deferred("_layout_combat_piles")
 
@@ -3884,17 +3917,20 @@ func _notification(what: int) -> void:
 			_clear_pointer_board_preview()
 		var cursor: Node = get_node_or_null("/root/CursorFeedback")
 		if cursor != null: cursor.clear_pointer_position()
+	if (
+		what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]
+		and _drag_card_index >= 0
+		and not _drag_drop_confirmed
+	):
+		_animate_drag_cancel_to_source()
 	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_RESUMED]:
-		_application_suspend.handle(self, what)
+		# Minimizing on native close can deliver suspend while the departing
+		# checkpoint is still in flight. Its save is owned by the quit drain.
+		if not preload("res://scripts/application_shutdown.gd").departure_requested(get_tree()):
+			_application_suspend.handle(self, what)
 	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED]:
 		_run_play_clock.sample_scene_play_time(self)
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_leaving_tree = true
-		_save_run_progress()
-		preload("res://scripts/run_persistence.gd").flush(self)
-		_finalize_performance_telemetry_scene("window_close")
-		get_tree().quit()
-	elif what == NOTIFICATION_RESIZED:
+	if what == NOTIFICATION_RESIZED:
 		_sync_board_view_rect()
 		_layout_mini_map_overlay()
 		_layout_combat_action_dock()
@@ -4407,7 +4443,7 @@ func _build_skill_status_popover() -> void:
 	header.add_child(_skill_status_title)
 	_skill_status_summary = Label.new()
 	_skill_status_summary.name = "SkillStatusSummary"
-	_skill_status_summary.text = "0 READY  ·  0 OWNED"
+	_skill_status_summary.text = "0 READY · 0 OWNED"
 	UiTypography.apply_label_role(_skill_status_summary, UiTypography.ROLE_CAPTION)
 	_skill_status_summary.add_theme_color_override("font_color", Color("bfa7d7"))
 	header.add_child(_skill_status_summary)
@@ -4452,7 +4488,7 @@ func _build_skill_status_popover() -> void:
 	_skill_status_page_host.add_child(page_row)
 	_skill_status_previous_page = Button.new()
 	_skill_status_previous_page.name = "PreviousSkillStatusPage"
-	_skill_status_previous_page.text = "←  PREV"
+	_skill_status_previous_page.text = "← PREV"
 	_skill_status_previous_page.custom_minimum_size = Vector2(86.0, 28.0)
 	_ui_skin.apply_button_stylebox_overrides(_skill_status_previous_page, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(_skill_status_previous_page)
@@ -4469,7 +4505,7 @@ func _build_skill_status_popover() -> void:
 	page_row.add_child(_skill_status_page_label)
 	_skill_status_next_page = Button.new()
 	_skill_status_next_page.name = "NextSkillStatusPage"
-	_skill_status_next_page.text = "NEXT  →"
+	_skill_status_next_page.text = "NEXT →"
 	_skill_status_next_page.custom_minimum_size = Vector2(86.0, 28.0)
 	_ui_skin.apply_button_stylebox_overrides(_skill_status_next_page, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(_skill_status_next_page)
@@ -5133,6 +5169,37 @@ func _connect_choice_overlay_layout_signals() -> void:
 			control.resized.connect(_queue_contextual_combat_prompt_layout)
 	if piles_bar != null and not piles_bar.resized.is_connected(_queue_combat_pile_layout):
 		piles_bar.resized.connect(_queue_combat_pile_layout)
+	for column: Control in [
+		_combat_objective_hud, _battlefield_rule_hud, _play_meter, _movement_meter,
+		_movement_undo_button, _pass_preview_overlay, draw_pile, discard_pile
+	]:
+		if column != null:
+			column.item_rect_changed.connect(_queue_hand_hud_fit)
+			column.visibility_changed.connect(_queue_hand_hud_fit)
+
+func _queue_hand_hud_fit() -> void:
+	if _hand_hud_fit_queued or str(_run_state.get("mode", "")) != "combat":
+		return
+	_hand_hud_fit_queued = true
+	call_deferred("_fit_hand_to_hud_columns")
+
+func _fit_hand_to_hud_columns() -> void:
+	# Keep HUD changes queued through the post-fit wait. A fit can consume
+	# earlier changes, but a later HUD move must be checked on completion.
+	if _hand_layout_pending_revision >= 0:
+		return
+	_hand_hud_fit_queued = false
+	if str(_run_state.get("mode", "")) != "combat" or not hand_box.is_visible_in_tree():
+		return
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	if hand.is_empty() or hand_box.get_child_count() != hand.size():
+		return
+	var key: Vector3 = CombatHandBudget.fit_key(self, hand.size())
+	if key == _hand_hud_fit_key:
+		return
+	var first_slot: Control = hand_box.get_child(0)
+	_queue_hand_pointer_resolve(true)
+	_configure_combat_hand_layout(hand.size(), first_slot.custom_minimum_size, key)
 
 func _queue_combat_pile_layout() -> void:
 	_hud_refresh_layout.request(self, &"_layout_combat_piles")
@@ -6418,7 +6485,7 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 			continue
 		var section_selected: bool = section_id == _grimoire_selected_section
 		var section_button := _grimoire_nav_button(
-			"%s  %d" % [str(section.get("title", section_id)), section_entries.size()],
+			"%s · %d" % [str(section.get("title", section_id)), section_entries.size()],
 			0,
 			section_selected,
 			_grimoire_section_has_unread(section_id, unread),
@@ -6444,7 +6511,7 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 			var group_entries: Array[Dictionary] = _grimoire_entries_for_group(section_entries, group_id)
 			var group_selected: bool = group_id == _grimoire_selected_group
 			var group_button := _grimoire_nav_button(
-				"%s  %d" % [_grimoire_group_title(group_entries, group_id), group_entries.size()],
+				"%s · %d" % [_grimoire_group_title(group_entries, group_id), group_entries.size()],
 				1,
 				group_selected,
 				_grimoire_group_has_unread(group_entries, unread),
@@ -6669,7 +6736,8 @@ func _new_grimoire_search_result(result: Dictionary, unread: Array[String]) -> B
 		selected,
 		false,
 		_grimoire_search_result_tooltip(result),
-		"search"
+		"search",
+		entry_id
 	)
 	button.custom_minimum_size.y = 60.0
 	button.focus_mode = Control.FOCUS_ALL
@@ -6917,7 +6985,8 @@ func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: in
 		entry_id == _grimoire_selected_entry,
 		unread.has(entry_id),
 		str(entry.get("title", entry_id)),
-		"entry"
+		"entry",
+		entry_id
 	)
 	button.set_meta("grimoire_nav_kind", "entry")
 	button.set_meta("grimoire_nav_id", entry_id)
@@ -6935,8 +7004,10 @@ func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	_grimoire_section_list.move_child(wrapper, _grimoire_nav_buttons.size())
 	preload("res://scripts/grimoire_search_rows.gd").append_navigation_button(self, button)
 
-func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String) -> Button:
+func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String, entry_id: String = "") -> Button:
 	var button := UiTooltipButton.new()
+	if entry_id.begins_with("keyword:"):
+		button.tooltip_source = {"kind": "grimoire", "id": entry_id}
 	var marker: String = "* " if unread else ""
 	button.text = "%s%s" % [marker, label]
 	button.toggle_mode = true
@@ -7902,11 +7973,20 @@ func _animate_drag_cancel_to_source() -> void:
 	if _drag_cancel_in_progress: return
 	# Revoke input/commit ownership before awaiting the visual snapback.
 	_drag_cancel_in_progress = true
-	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.size.length() > 0.0 else _drag_card_source_rect
+	hand_box.apply_layout_immediately()
+	var current_slot: Rect2 = _hand_drag_resting_slot()
+	if current_slot.has_area():
+		_drag_card_cancel_rect = current_slot
+	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.has_area() else _drag_card_source_rect
 	if _drag_card_proxy != null and target_rect.size.length() > 0.0:
 		await _animate_card_proxy_to_rect(_drag_card_proxy, target_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
 	_drag_cancel_in_progress = false
+
+func _hand_drag_resting_slot() -> Rect2:
+	if _drag_card_index < 0 or _drag_card_index >= hand_box.get_child_count():
+		return Rect2()
+	return hand_box.resting_slot_rect(hand_box.get_child(_drag_card_index) as Control)
 
 func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if _drag_cancel_in_progress or _drag_card_index < 0:
@@ -7940,7 +8020,10 @@ func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.
 			await _animate_drag_cancel_to_source()
 		return
 	var hand_index: int = _drag_card_index
+	# A legal release owns confirmation while the hand layout settles.
+	_drag_drop_confirmed = true
 	_pending_drag_play_source_rect = await _prepare_drag_play_source_rect(hand_index)
+	_drag_drop_confirmed = false
 	_finish_drag_play(outcome == CardDragPlayRules.OUTCOME_PLAY_TARGET)
 	if outcome == CardDragPlayRules.OUTCOME_PLAY_TARGETLESS:
 		await _begin_card_preview(hand_index, preview, "", true)
@@ -8245,13 +8328,25 @@ func _set_card_targeting_arrow(source_index: int, endpoint: Vector2, suppress_po
 		return
 	_drag_overlay.visible = true
 	_drag_overlay.move_to_front()
-	var source_rect: Rect2 = _control_visual_global_rect(source_card)
-	var arrow_start: Vector2 = source_rect.position + Vector2(source_rect.size.x * 0.5, 4.0)
-	_drag_target_arrow.set_targeting(arrow_start, endpoint)
+	_drag_target_arrow.set_targeting(_hand_targeting_origin(source_card), endpoint)
 	# Pointer aiming suppresses the forged mouse glyph. Controller aiming uses the
 	# same arrow but hides its analog puck separately, so never leave a stale
 	# pointer-only suppressor behind after a modality handoff.
 	_set_targeting_cursor_suppressed(suppress_pointer_cursor)
+
+func _hand_targeting_origin(card: Control) -> Vector2:
+	var rect: Rect2 = _control_visual_global_rect(card)
+	return rect.position + Vector2(rect.size.x * 0.5, 4.0)
+
+func _on_hand_layout_applied() -> void:
+	if _drag_target_arrow == null or not _drag_overlay.visible or not _targeted_card_aiming_active():
+		return
+	var index: int = _drag_card_index if _drag_targeting_active else _selected_card_index
+	var card: Control = _hand_card_control(index)
+	if card == null or not card.is_visible_in_tree():
+		return
+	var endpoint: Vector2 = _drag_target_arrow.get_global_transform_with_canvas() * _drag_target_arrow.targeting_end()
+	_drag_target_arrow.set_targeting(_hand_targeting_origin(card), endpoint)
 
 func _set_targeting_cursor_suppressed(suppressed: bool) -> void:
 	if bool(get_meta("targeting_cursor_suppressed", false)) == suppressed:
@@ -8576,12 +8671,17 @@ func _rect_from_center(center: Vector2, rect_size: Vector2) -> Rect2:
 	return Rect2(center - rect_size * 0.5, rect_size)
 
 func _hand_receive_rect(index: int, total: int, size_hint: Vector2) -> Rect2:
-	var hand_rect := Rect2(hand_scroll.global_position, hand_scroll.size)
-	var card_gap: float = _hand_layout_gap(total, size_hint)
-	var content_size: Vector2 = HandFanContainer.content_size_for_layout(total, size_hint, card_gap, true)
-	var local_rect: Rect2 = HandFanContainer.card_rect_for_layout(index, total, size_hint, card_gap, true)
-	var origin: Vector2 = hand_rect.get_center() - content_size * 0.5
-	return Rect2(origin + local_rect.position, local_rect.size)
+	var budget: Vector3 = CombatHandBudget.fit(self, total, size_hint)
+	return _draw_hand_slot_rect(index, total, size_hint, budget.y, _draw_hand_origin(total, size_hint, budget))
+
+func _draw_hand_origin(total: int, card_size: Vector2, budget: Vector3) -> Vector2:
+	var content_size: Vector2 = HandFanContainer.content_size_for_layout(total, card_size, budget.y, true)
+	return hand_scroll.get_global_rect().get_center() - content_size * 0.5 + Vector2(budget.z, 0.0)
+
+func _draw_hand_slot_rect(index: int, total: int, card_size: Vector2, gap: float, origin: Vector2) -> Rect2:
+	var rect: Rect2 = HandFanContainer.card_rect_for_layout(index, total, card_size, gap, true)
+	rect.position += origin
+	return rect
 
 func _stage_card_rect(size_hint: Vector2) -> Rect2:
 	var board_rect := Rect2(board_view.global_position, board_view.size)
@@ -9934,6 +10034,7 @@ func _setup_movement_meter() -> void:
 	ui_root.add_child(_movement_meter)
 	_movement_undo_button = MovementUndoButton.new()
 	ui_root.add_child(_movement_undo_button)
+	_movement_undo_button.visibility_changed.connect(_relayout_combat_left_stack, CONNECT_DEFERRED)
 	_movement_undo_button.configure(self)
 	_refresh_player_movement_meter()
 
@@ -10170,7 +10271,8 @@ func _layout_boss_health_overlay_content() -> void:
 func _layout_combat_action_dock() -> void:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_layout_combat_action_dock_content()
-	if _movement_undo_button != null: _movement_undo_button.refresh()
+	if _movement_undo_button != null and (_combat_objective_hud == null or not _combat_objective_hud.intro_active):
+		_movement_undo_button.refresh()
 	_record_runtime_performance_phase("deferred_layout_combat_action_dock", started)
 
 func _layout_combat_action_dock_content() -> void:
@@ -10181,27 +10283,33 @@ func _layout_combat_action_dock_content() -> void:
 	_movement_meter.visible = in_combat
 	if not in_combat:
 		return
-	_layout_combat_objective_hud()
-	_layout_combat_resource_chips()
+	if _combat_objective_hud != null and _combat_objective_hud.visible:
+		_layout_combat_objective_hud()
+	else:
+		_layout_combat_resource_chips()
 
 func _layout_combat_resource_chips() -> void:
 	if _play_meter == null or _movement_meter == null:
 		return
+	var play_position: Vector2
+	var movement_position: Vector2
 	if _combat_objective_hud != null and _combat_objective_hud.visible:
 		var objective: Rect2 = _combat_objective_hud.get_global_rect()
-		# The intro shell is staged at screen center and moves to this home.
-		# Resource chips belong to the settled dock from the first combat frame,
-		# including the arrival hold while that shell is still transparent.
+		# The intro travels independently of the resources at the settled dock.
 		if _combat_objective_hud.intro_active:
-			objective = ui_root.get_global_transform() * _combat_objective_hud_target_rect()
-		_play_meter.global_position = Vector2(objective.position.x, objective.end.y + RESOURCE_CHIP_DOCK_GAP)
-		_movement_meter.global_position = Vector2(objective.position.x, _play_meter.get_global_rect().end.y + RESOURCE_CHIP_DOCK_GAP)
+			objective = ui_root.get_global_transform() * _combat_objective_intro_dock
+		play_position = Vector2(objective.position.x, objective.end.y + RESOURCE_CHIP_DOCK_GAP)
+		movement_position = play_position + Vector2(0.0, _play_meter.size.y + RESOURCE_CHIP_DOCK_GAP)
 	else:
-		# Preserve the existing placement for combat fixtures without an objective.
 		var anchor: Rect2 = _combat_objective_resource_anchor_rect()
-		_play_meter.global_position = anchor.position
-		_movement_meter.global_position = anchor.position + Vector2(0.0, anchor.size.y + RESOURCE_METER_STACK_GAP)
-	if _movement_undo_button != null: _movement_undo_button.refresh()
+		play_position = anchor.position
+		movement_position = anchor.position + Vector2(0.0, anchor.size.y + RESOURCE_METER_STACK_GAP)
+	if _play_meter.global_position.is_equal_approx(play_position) and _movement_meter.global_position.is_equal_approx(movement_position):
+		return
+	_ui33_chip_layouts += 1
+	_play_meter.global_position = play_position
+	_movement_meter.global_position = movement_position
+	if _movement_undo_button != null: _movement_undo_button.place_next_to(_movement_meter)
 
 func _combat_objective_resource_anchor_rect() -> Rect2:
 	# Keep the objective's existing hand-relative home independent of the chips
@@ -10511,33 +10619,39 @@ func _pile_card_style(fill: Color, border: Color, margin: float = 10.0) -> Style
 	style.content_margin_bottom = margin
 	return style
 
-func _prepare_initial_run_state() -> void:
+func _prepare_initial_run_state() -> Dictionary:
 	_defer_initial_run_presentation = true
-	_boot_run()
-	_defer_initial_run_presentation = false
+	return _boot_initial_run(true)
 
 func _boot_run() -> void:
-	preload("res://scripts/run_persistence.gd").flush(self)
+	_boot_initial_run(false)
+
+func _boot_initial_run(stage_graph: bool) -> Dictionary:
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	Persistence.flush(self)
+	var root := get_tree().root
+	var debug_boss: bool = bool(root.get_meta("labyrinth_debug_boss_run", false))
+	if root.has_meta("labyrinth_debug_boss_run"): root.remove_meta("labyrinth_debug_boss_run")
+	var should_resume: bool = bool(root.get_meta("labyrinth_resume_saved_run", false))
+	if root.has_meta("labyrinth_resume_saved_run"): root.remove_meta("labyrinth_resume_saved_run")
+	var saved_run: Dictionary = {}
+	if should_resume and not debug_boss:
+		saved_run = Persistence.load_resumable_checkpoint(true)
+		# The cover reports the failed load when no run was installed.
+		if saved_run.is_empty(): return {}
 	_progression = ProgressionStore.load_data()
 	_reconcile_progression_analytics_outbox()
-	var debug_boss: bool = bool(get_tree().root.get_meta("labyrinth_debug_boss_run", false))
-	if get_tree().root.has_meta("labyrinth_debug_boss_run"):
-		get_tree().root.remove_meta("labyrinth_debug_boss_run")
 	if debug_boss:
 		_start_debug_boss_run()
-		return
-	var should_resume: bool = bool(get_tree().root.get_meta("labyrinth_resume_saved_run", false))
-	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
-		get_tree().root.remove_meta("labyrinth_resume_saved_run")
-	if should_resume and ProgressionStore.has_saved_run():
-		var saved_run: Dictionary = ProgressionStore.load_saved_run()
-		if not saved_run.is_empty():
-			_load_run_state(saved_run)
-			_analytics_log_run_resumed()
-			return
-	_start_run()
+		return {}
+	if should_resume:
+		_load_run_state(saved_run)
+		if has_installed_run(): _analytics_log_run_resumed()
+		return {}
+	return _start_run(stage_graph)
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	var startup_started: int = Time.get_ticks_usec() if _hitch_trace_enabled and _defer_initial_run_presentation and _runtime_performance_instrumentation_enabled else 0
 	_pointer_hand_tucked = false
 	_nonfight_room_preparation.cancel()
 	_burst_playback.reset()
@@ -10549,6 +10663,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_opening_boon_flow.begin_load(self)
 	if is_instance_valid(_magic_purge_overlay): _close_magic_purge(false)
 	_ensure_sfx_bank()
+	if startup_started > 0: startup_started = _record_runtime_performance_phase("startup_state_sfx_bank", startup_started)
 	_sfx_router.baseline(next_run_state.get("combat_state", {}))
 	if board_view != null:
 		board_view.health_ghost_tracker.clear()
@@ -10605,6 +10720,8 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	var merged_run_state: Dictionary = preload("res://scripts/loaded_room_state.gd").merge_profile(migrated_run_state, _progression)
 	merged_run_state = _run_engine.reconcile_progression_revision(merged_run_state, _progression)
 	_run_state = preload("res://scripts/loaded_room_state.gd").finish_repair(self, _run_engine.repair_loaded_run_state(merged_run_state))
+	if has_installed_run(): InitialGraph.remember_installed_seed(_run_state["seed"])
+	if startup_started > 0: startup_started = _record_runtime_performance_phase("startup_state_repair", startup_started)
 	_prune_grimoire_search_rows(_grimoire_known_row_ids())
 	_run_play_clock.reset_play_time()
 	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
@@ -10618,6 +10735,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_repair_legacy_empty_actor_transition()
 	if (
 		(content_migration_required or combat_units_migration_required or surface_migration_required)
+		and has_installed_run()
 		and not bool(_run_state.get("debug_boss_run", false))
 		and not ProgressionStore.save_run_state(_run_state)
 	):
@@ -10641,6 +10759,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
+	if startup_started > 0: _record_runtime_performance_phase("startup_state_install", startup_started)
 	if not _defer_initial_run_presentation: _refresh_ui()
 	if not _defer_initial_run_presentation: _queue_loaded_run_continuation()
 	if _initial_ui_complete:
@@ -10663,7 +10782,9 @@ func _acknowledge_saved_starting_relic_gift(state: Dictionary) -> bool:
 	if ids.is_empty(): return true
 	# Only a durable run may consume a gift. Creation saves the new run first;
 	# loading retries acknowledgment after any interrupted profile write.
-	var saved: Dictionary = ProgressionStore.load_saved_run()
+	var saved: Dictionary = preload("res://scripts/run_persistence.gd").load_resumable_checkpoint()
+	if saved.is_empty() and str(state.get("mode", "")) in ["victory", "defeat"]:
+		saved = ProgressionStore.load_saved_run()
 	if RunEngineScript.run_result_id(saved) != RunEngineScript.run_result_id(state) or (saved.get("starting_relic_gift_ids", []) as Array) != ids: return false
 	var profile: Dictionary = ProgressionStore.load_data()
 	var acknowledged: Dictionary = ProgressionStore.acknowledge_starting_relic_gifts(profile, ids)
@@ -10674,42 +10795,66 @@ func _acknowledge_saved_starting_relic_gift(state: Dictionary) -> bool:
 	_progression = acknowledged
 	return ProgressionStore.save_data(acknowledged)
 
-func _start_run() -> void:
+func _start_run(stage_graph: bool = false) -> Dictionary:
 	preload("res://scripts/run_persistence.gd").flush(self)
 	_opening_boon_flow.close(self)
 	_cancel_deferred_skill_analytics()
-	var previous: Dictionary = ProgressionStore.load_saved_run()
+	var checkpoint: Dictionary = ProgressionStore.read_resumable_checkpoint()
+	if checkpoint["status"] == ProgressionStore.RunFile.UNAVAILABLE: return {}
+	var previous: Dictionary = checkpoint.get("state", {})
+	if previous.is_empty() and checkpoint["status"] != ProgressionStore.RunFile.MISSING:
+		# Preserve the existing New Run profile semantics when replacing an
+		# unreadable run structure or a finalized terminal recovery snapshot.
+		previous = ProgressionStore.load_saved_run()
 	if not previous.is_empty() and not OpeningBoonRecovery.acknowledge_before_replacement(self, previous):
-		_load_run_state(previous)
-		_run_state["notice"] = "The new run could not be saved. Your previous run is available."
-		if not _defer_initial_run_presentation: _refresh_ui()
-		return
+		_restore_after_failed_new_run(previous, "The new run could not be saved. Your previous run is available.")
+		return {}
 	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
-		_load_run_state(previous)
-		_run_state["notice"] = "Could not save the previous run's relic gift. Try again."
-		if not _defer_initial_run_presentation: _refresh_ui()
-		return
+		_restore_after_failed_new_run(previous, "Could not save the previous run's relic gift. Try again.")
+		return {}
 	var starting_profile: Dictionary = ProgressionStore.load_data()
 	# Recovery above durably settles terminal wallets, including old fallbacks
 	# without a marker. Only abandoning a live run loses its held Embers.
-	if not previous.is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat"]: starting_profile = ProgressionStore.set_embers(starting_profile, 0)
+	if not previous.is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat", "abandoned", "embrace"]:
+		starting_profile = ProgressionStore.set_embers(starting_profile, 0)
 	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
-	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
+	var depth: int = ProgressionStore.session_umbra_depth(_progression)
+	var automatic_seed: int = int(_initial_automatic_seed) if stage_graph and _initial_automatic_seed != null else InitialGraph.sample_automatic_seed(previous.get("seed"))
+	var seed: int = InitialGraph.resolve_seed(get_tree().root, automatic_seed)
+	var request: Dictionary = {"seed": seed, "depth": depth, "previous": previous, "automatic_seed": automatic_seed}
+	if stage_graph: return request
+	_commit_new_run(request, {})
+	return {}
+
+func _commit_new_run(request: Dictionary, graph: Dictionary) -> bool:
+	if _initial_loading_cancelled: return false
+	var startup_started: int = Time.get_ticks_usec() if _hitch_trace_enabled and _defer_initial_run_presentation and _runtime_performance_instrumentation_enabled else 0
+	var previous: Dictionary = request["previous"]
+	var new_run_state: Dictionary = _run_engine.create_new_run(request["seed"], _progression, true, -1, graph)
+	if startup_started > 0: startup_started = _record_runtime_performance_phase("startup_state_create", startup_started)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
 	new_run_state = _ensure_run_analytics_metadata(new_run_state)
 	# Never erase the previous run before its replacement is durable. A gift is
 	# stamped into this save before its pending profile entry is acknowledged.
-	if not ProgressionStore.save_new_descent_profile(_progression) or not ProgressionStore.save_run_state(new_run_state):
-		if not previous.is_empty():
-			_load_run_state(previous)
-			_run_state["notice"] = "The new run could not be saved. Your previous run is available."
-			if not _defer_initial_run_presentation: _refresh_ui()
-		else:
-			push_error("Failed to save the new run.")
-		return
+	if not preload("res://scripts/run_persistence.gd").has_checkpoint(new_run_state) or (
+		not ProgressionStore.save_new_descent_profile(_progression)
+		or not ProgressionStore.install_replacement_run(new_run_state)
+	):
+		_restore_after_failed_new_run(previous, "The new run could not be saved. Your previous run is available.")
+		return false
+	if startup_started > 0: _record_runtime_performance_phase("startup_state_save", startup_started)
 	_load_run_state(new_run_state)
 	_analytics_log_run_started()
 	_persist_committed_boundary("run_started")
+	return true
+
+func _restore_after_failed_new_run(previous: Dictionary, notice: String) -> void:
+	# A staged boot returns to the title. Loading the previous state here can
+	# run migrations and write the checkpoint the title is meant to preserve.
+	if not _defer_initial_run_presentation and not previous.is_empty():
+		_load_run_state(previous)
+		_run_state["notice"] = notice
+		_refresh_ui()
 
 func _start_debug_boss_run() -> void:
 	_cancel_deferred_skill_analytics()
@@ -11230,7 +11375,7 @@ func _refresh_relic_bar() -> void:
 				if str(effect.get("type", "")) != "element_time_reserve": continue
 				var capacity: int = int(effect.get("capacity",3))
 				var held: int = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state,relic_id,capacity)
-				frame.tooltip_text += "\nStored Time: %d / %d" % [held,capacity]
+				frame.tooltip_text += "\nStored Time: %d/%d" % [held,capacity]
 				_add_relic_counter(frame, "RelicTimeReserve", held)
 			for effect: Dictionary in relic.get("effects", []):
 				if str(effect.get("type", "")) == "expend_next_attack_damage":
@@ -11405,7 +11550,7 @@ func _update_defiance_badge(frame: Control, remaining: int, capacity: int) -> vo
 	var icon: TextureRect = frame.get_child(0)
 	var count: Label = frame.get_node("DefianceCount")
 	frame.tooltip_text = (
-		"DEFIANCE %d / %d\nLethal health loss spends 1 to restore 25%% max health.\n"
+		"DEFIANCE %d/%d\nLethal Health loss spends 1 to restore 25%% max Health.\n"
 		+ "Every fourth permanent level grants 1. Defiance does not refill during a run."
 	) % [remaining, capacity]
 	frame.set_meta("defiance_remaining", remaining)
@@ -11520,9 +11665,9 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	var summary := Label.new()
 	summary.name = "SkillSigilSummary"
 	summary.text = (
-		"%d READY / %d" % [ready_count, skill_ids.size()]
+		"%d/%d READY" % [ready_count, skill_ids.size()]
 		if compact
-		else "%d READY  ·  %d OWNED" % [ready_count, skill_ids.size()]
+		else "%d READY · %d OWNED" % [ready_count, skill_ids.size()]
 	)
 	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(summary, UiTypography.SIZE_CAPTION)
@@ -11703,7 +11848,7 @@ func _refresh_skill_status_popover(skill_ids: Array[String], refresh_statuses: b
 	_skill_status_selected_id = restore_skill_id
 	var multiple_pages: bool = _skill_status_page_count() > 1
 	if _skill_status_page_label != null:
-		_skill_status_page_label.text = "%d / %d" % [_skill_status_page + 1, _skill_status_page_count()]
+		_skill_status_page_label.text = "%d/%d" % [_skill_status_page + 1, _skill_status_page_count()]
 		_skill_status_page_label.visible = multiple_pages
 	if _skill_status_previous_page != null:
 		_skill_status_previous_page.visible = multiple_pages
@@ -11728,7 +11873,7 @@ func _refresh_skill_status_popover(skill_ids: Array[String], refresh_statuses: b
 		if str(palette_entry.get("status", "")) == "READY":
 			ready_count += 1
 	if _skill_status_summary != null:
-		_skill_status_summary.text = "%d READY  ·  %d OWNED" % [ready_count, _skill_status_skill_ids.size()]
+		_skill_status_summary.text = "%d READY · %d OWNED" % [ready_count, _skill_status_skill_ids.size()]
 	var rebuild_palette: bool = (
 		palette_source != _skill_status_palette_source
 		or _skill_status_tiles.size() != _skill_status_skill_ids.size()
@@ -12250,8 +12395,8 @@ func _setup_combat_objective_hud() -> void:
 	_battlefield_rule_hud = BattlefieldRuleHudScript.new()
 	_battlefield_rule_hud.z_index = 34
 	ui_root.add_child(_battlefield_rule_hud)
-	_combat_objective_hud.item_rect_changed.connect(_place_battlefield_rule_hud)
-	_combat_objective_hud.item_rect_changed.connect(_layout_combat_resource_chips)
+	_battlefield_rule_hud.dock_metrics_changed.connect(_relayout_combat_left_stack, CONNECT_DEFERRED)
+	_combat_objective_hud.minimum_size_changed.connect(_relayout_combat_left_stack, CONNECT_DEFERRED)
 	_combat_objective_hud.visibility_changed.connect(_layout_combat_resource_chips)
 	_combat_objective_hud.visibility_changed.connect(_place_battlefield_rule_hud)
 	_layout_combat_objective_hud()
@@ -12261,6 +12406,7 @@ func _refresh_combat_objective_hud(display_state: Dictionary = {}, board_present
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
+		_combat_objective_dock_home = Rect2()
 		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
@@ -12282,8 +12428,10 @@ func _refresh_battlefield_rule_hud(display_state: Dictionary = {}) -> void:
 	var state: Dictionary = _board_display_state() if display_state.is_empty() else display_state
 	if str(_run_state.get("mode", "room")) != "combat" or state.is_empty():
 		state = {}
-	_battlefield_rule_hud.set_combat_state(state, _combat_engine)
+	var rule_changed: bool = _battlefield_rule_hud.set_combat_state(state, _combat_engine)
 	_battlefield_rule_switch.refresh(self, _combat_state)
+	if rule_changed:
+		_relayout_combat_left_stack()
 	_place_battlefield_rule_hud()
 
 func _place_battlefield_rule_hud() -> void:
@@ -12316,15 +12464,56 @@ func _layout_combat_objective_hud() -> void:
 func _layout_combat_objective_hud_content() -> void:
 	if _combat_objective_hud == null or _combat_hud_layout.holds_layout(self):
 		return
+	var target: Rect2 = _combat_objective_hud_target_rect()
 	if _combat_objective_hud.intro_active:
+		if not _combat_objective_intro_dock.is_equal_approx(target):
+			_combat_objective_intro_dock = target
+			_layout_combat_resource_chips()
 		return
-	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
+	_apply_combat_objective_hud_rect(target)
 
-func _combat_objective_hud_target_rect() -> Rect2:
-	var hud_width: float = _combat_objective_hud.preferred_width()
-	# Use the rendered content height so the dock gap stays exact when the
-	# objective's typography grows past the authored 68 px minimum.
-	var hud_height: float = maxf(68.0, _combat_objective_hud.get_combined_minimum_size().y)
+func _relayout_combat_left_stack() -> void:
+	if not is_instance_valid(_combat_objective_hud) or not _combat_objective_hud.visible or _combat_objective_hud.intro_active:
+		return
+	# The hand keeps its established home during a deal. Rule and Undo changes
+	# can reflow the dock within that home without reopening the hand layout.
+	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect(true))
+
+func _combat_objective_hud_target_rect(reuse_home: bool = false) -> Rect2:
+	if not reuse_home or not _combat_objective_dock_home.has_area():
+		_combat_objective_dock_home = _combat_objective_hud_home_rect()
+	var target: Rect2 = _combat_objective_dock_home
+	if _play_meter == null or _movement_meter == null or _movement_undo_button == null:
+		return target
+	if reuse_home:
+		var size_now: Vector2 = _combat_objective_hud_size()
+		target.position += target.size - size_now
+		target.position.x = maxf(UiTypography.SAFE_MARGIN, target.position.x)
+		target.size = size_now
+	if _battlefield_rule_hud != null and not _battlefield_rule_hud.rule_id.is_empty():
+		var minimum_width: float = _battlefield_rule_hud.minimum_dock_width()
+		if minimum_width > target.size.x:
+			target.position.x = maxf(UiTypography.SAFE_MARGIN, target.end.x - minimum_width)
+			target.size.x = minimum_width
+	var reserve: float = _play_meter.get_combined_minimum_size().y + _movement_meter.get_combined_minimum_size().y + 2.0 * RESOURCE_CHIP_DOCK_GAP
+	reserve += maxf(MovementUndoButton.UNDO_BUTTON_HEIGHT, _movement_undo_button.get_combined_minimum_size().y) + MovementUndoButton.UNDO_BUTTON_GAP
+	var root_y: float = ui_root.global_position.y
+	var viewport_bottom: float = get_viewport_rect().end.y - root_y
+	var canvas_scale_y: float = get_viewport().get_stretch_transform().y.length()
+	var bottom_margin: float = COMBAT_LEFT_STACK_BOTTOM_MARGIN_PX / canvas_scale_y
+	# The release home and the Undo reserve both cap the dock's downward
+	# position. Relics can overlap the dock when their clearance conflicts
+	# with either cap, so they cannot push it down.
+	target.position.y = minf(target.position.y, viewport_bottom - bottom_margin - reserve - target.size.y)
+	return target
+
+func _combat_objective_hud_size() -> Vector2:
+	return _combat_objective_hud.get_combined_minimum_size().max(Vector2(_combat_objective_hud.preferred_width(), 68.0))
+
+func _combat_objective_hud_home_rect() -> Rect2:
+	var hud_size: Vector2 = _combat_objective_hud_size()
+	var hud_width: float = hud_size.x
+	var hud_height: float = hud_size.y
 	var left: float = UiTypography.SAFE_MARGIN
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var top: float = viewport_size.y * 0.60
@@ -12361,7 +12550,10 @@ func _combat_objective_board_bounds() -> Rect2:
 func _apply_combat_objective_hud_rect(rect: Rect2) -> void:
 	if _combat_objective_hud == null:
 		return
-	_combat_objective_hud.set_hud_rect(rect)
+	if not _combat_objective_hud.get_rect().is_equal_approx(rect):
+		_combat_objective_hud.set_hud_rect(rect)
+	_place_battlefield_rule_hud()
+	_layout_combat_resource_chips()
 
 func _animate_combat_objective_intro() -> void:
 	if (
@@ -12373,14 +12565,15 @@ func _animate_combat_objective_intro() -> void:
 	_refresh_combat_objective_hud()
 	if not _combat_objective_hud.visible:
 		return
-	var target_rect: Rect2 = _combat_objective_hud_target_rect()
+	_combat_objective_intro_dock = _combat_objective_hud_target_rect()
+	_layout_combat_resource_chips()
 	await _combat_objective_hud.play_intro(
-		target_rect,
+		_combat_objective_intro_dock,
 		get_viewport_rect().size,
 		_reduced_motion_enabled()
 	)
-	# The objective's intro flag clears without a rect or visibility change; dock the rule now.
-	_place_battlefield_rule_hud()
+	if _combat_objective_hud.visible and not _combat_objective_hud.intro_active:
+		_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
 
 func _prepare_combat_objective_intro() -> void:
 	if (
@@ -12392,10 +12585,12 @@ func _prepare_combat_objective_intro() -> void:
 	_refresh_combat_objective_hud()
 	if not _combat_objective_hud.visible:
 		return
+	_combat_objective_intro_dock = _combat_objective_hud_target_rect()
 	_combat_objective_hud.prepare_intro(
-		_combat_objective_hud_target_rect(),
+		_combat_objective_intro_dock,
 		get_viewport_rect().size
 	)
+	_layout_combat_resource_chips()
 
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
@@ -13607,10 +13802,10 @@ func _refresh_player_movement_meter() -> void:
 		return
 	var remaining: int = _combat_engine.player_movement_remaining(_combat_state)
 	var capacity: int = _combat_engine.player_movement_capacity(_combat_state)
-	_movement_meter_count.text = "%d / %d Movement" % [remaining, capacity]
+	_movement_meter_count.text = "%d/%d Movement" % [remaining, capacity]
 	var tooltip_prefix: String = ActionIcons.tooltip("movement") + "\n"
-	var pointer_text: String = tooltip_prefix + "%d of %d movement remaining. Click your character, then a destination tile." % [remaining, capacity]
-	var controller_text: String = tooltip_prefix + "%d of %d movement remaining. Select your character, then a destination tile." % [remaining, capacity]
+	var pointer_text: String = tooltip_prefix + "%d of %d Movement remaining. Click your character, then a destination tile." % [remaining, capacity]
+	var controller_text: String = tooltip_prefix + "%d of %d Movement remaining. Select your character, then a destination tile." % [remaining, capacity]
 	var enabled: bool = (
 		remaining > 0
 		and _combat_engine.is_player_turn(_combat_state)
@@ -14163,7 +14358,7 @@ func _update_action_context_risk() -> void:
 	elif int(summary.get("defiance_spent", 0)) > 0:
 		var projected_hp: int = int(summary.get("projected_hp", -1))
 		var projected_hp_text: String = str(projected_hp) if projected_hp >= 0 else "?"
-		risk_text = "%s · DEFIANCE -%d · %s HP · %d LEFT%s" % [
+		risk_text = "%s · DEFIANCE −%d · %s HEALTH · %d LEFT%s" % [
 			lead,
 			int(summary.get("defiance_spent", 0)),
 			projected_hp_text,
@@ -14174,11 +14369,11 @@ func _update_action_context_risk() -> void:
 	else:
 		var values: PackedStringArray = []
 		if int(summary.get("stoneskin_loss", 0)) > 0:
-			values.append("-%d SKIN" % int(summary.get("stoneskin_loss", 0)))
+			values.append("−%d SKIN" % int(summary.get("stoneskin_loss", 0)))
 		if int(summary.get("block_loss", 0)) > 0:
-			values.append("-%d BLOCK" % int(summary.get("block_loss", 0)))
+			values.append("−%d BLOCK" % int(summary.get("block_loss", 0)))
 		if int(summary.get("hp_loss", 0)) > 0:
-			values.append("-%d HP" % int(summary.get("hp_loss", 0)))
+			values.append("−%d HEALTH" % int(summary.get("hp_loss", 0)))
 		if bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false)):
 			values.append("+ ? UMBRA")
 			if tone == "safe": tone = "warning"
@@ -14493,7 +14688,7 @@ func _refresh_umbra_subtitle() -> void:
 	if radius < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
 		vision_text = "@pattern(diamond:%d:hero) Personal vision covers these tiles." % radius
 	umbra_subtitle.text = "%s Umbra" % stage_name
-	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your vision or a light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
+	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your vision or a Light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
 		stage_name,
 		vision_text
 	]
@@ -14631,7 +14826,7 @@ func _begin_quick_wits_card_selection(skill_id: String) -> void:
 	var valid_indices: Array[int]
 	for index: int in range(hand.size()):
 		valid_indices.append(index)
-	_begin_hand_skill_card_selection(skill_id, valid_indices, "QUICK WITS  ·  CHOOSE A CARD TO DISCARD")
+	_begin_hand_skill_card_selection(skill_id, valid_indices, "QUICK WITS · CHOOSE A CARD TO DISCARD")
 
 func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 	var before_state: Dictionary = _combat_state.duplicate(true)
@@ -14898,7 +15093,7 @@ func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, cont
 		art_host.set_meta("pass_forecast_art_state", art_state)
 	art_host.modulate = Color(0.56, 0.56, 0.56, 0.92) if disabled else Color.WHITE
 	focus_edge.visible = focused
-	_configure_pass_forecast_panel(chip, _pass_preview_summary() if summary == null else summary)
+	_configure_pass_forecast_panel(chip, preload("res://scripts/retained_pass_preview.gd").summary_for_chip(self, chip) if summary == null else summary)
 	if focus_edge.get_meta("pass_focus_accent", Color.TRANSPARENT) == accent: return
 	focus_edge.set_meta("pass_focus_accent", accent)
 	var style := StyleBoxFlat.new()
@@ -14988,7 +15183,7 @@ func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_ap
 		_pass_preview_source_movement_left = preload("res://scripts/pass_forecast_action_source.gd").movement_left_after_walk(self, (movement["known"] as Dictionary)["state"])
 		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, (movement["known"] as Dictionary)["state"])
 	if not _combat_state.is_empty():
-		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, _surface_preview_information_state(_combat_state))
+		return preload("res://scripts/pass_forecast_action_source.gd").rest_source(self, _combat_state)
 	return {}
 
 func _pass_preview_confirmed_hover_state(target_tile: Variant = null, default_approach: bool = false) -> Dictionary:
@@ -15211,7 +15406,8 @@ func _note_rest_pass_disc_marks(summary: Dictionary) -> Dictionary:
 	if marks == _rest_pass_disc_marks: return summary
 	_rest_pass_disc_marks = marks
 	if _rest_pass_disc_refresh_queued or _animation_lock or board_view == null: return summary
-	if Discs.stale((board_view.get("presentation") as Dictionary).get("threats_at_rest", {}), marks, _combat_preview_revision):
+	var rest: Dictionary = board_view.presentation.get("threats_at_rest", {})
+	if Discs.stale(rest, marks, _combat_preview_revision) or Discs.has_floor_supplements(rest, marks):
 		_rest_pass_disc_refresh_queued = true
 		call_deferred("_refresh_rest_pass_discs")
 	return summary
@@ -15237,7 +15433,9 @@ func _note_hover_red_forecast(key: String, summary: Dictionary) -> void:
 	if _hover_red_forecast_ready or _hover_red_refresh_queued or key != _hover_red_forecast_key or key.is_empty() or board_view == null: return
 	# atk-11: refresh only when the hovered red tiles or discs would change.
 	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
-	if not Discs.stale((board_view.get("presentation") as Dictionary).get("threats_at_rest", {}), Discs.record(summary, _combat_preview_revision), _combat_preview_revision): return
+	var rest: Dictionary = board_view.presentation.get("threats_at_rest", {})
+	var marks: Dictionary = Discs.record(summary, _combat_preview_revision)
+	if not Discs.stale(rest, marks, _combat_preview_revision) and not Discs.has_floor_supplements(rest, marks): return
 	_hover_red_refresh_queued = true
 	call_deferred("_refresh_hover_red_tiles")
 
@@ -15426,21 +15624,21 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	if stoneskin_loss > 0:
 		entries.append({
 			"name": "PassPreviewStoneSkinLoss",
-			"text": "-%d" % stoneskin_loss,
+			"text": "−%d" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
 			"icon_path": PASS_PREVIEW_STONESKIN_ICON_PATH
 		})
 	if block_loss > 0:
 		entries.append({
 			"name": "PassPreviewBlockLoss",
-			"text": "-%d" % block_loss,
+			"text": "−%d" % block_loss,
 			"color": Color("90d9ff"),
 			"icon_path": PASS_PREVIEW_BLOCK_ICON_PATH
 		})
 	if defiance_spent > 0:
 		entries.append({
 			"name": "PassPreviewDefianceSpent",
-			"text": "-%d" % defiance_spent,
+			"text": "−%d" % defiance_spent,
 			"color": Color("f6d77d"),
 			"icon_path": PASS_PREVIEW_DEFIANCE_ICON_PATH
 		})
@@ -15455,7 +15653,7 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	elif hp_loss > 0:
 		entries.append({
 			"name": "PassPreviewHpLoss",
-			"text": "-%d" % hp_loss,
+			"text": "−%d" % hp_loss,
 			"color": Color("f39779"),
 			"icon_path": PASS_PREVIEW_HEALTH_ICON_PATH
 		})
@@ -15499,11 +15697,11 @@ func _pass_preview_risk_tooltip(summary: Dictionary) -> String:
 	for index: int in range(mini(2, repeated.size())):
 		lines.append("%s acts twice before you. Its second move is hidden." % str(repeated[index]))
 	if repeated.size() > 2:
-		lines.append("+%d more foes act twice." % (repeated.size() - 2))
+		lines.append("+%d more enemies act twice." % (repeated.size() - 2))
 	if bool(summary.get("umbra_unknown_before_player", false)):
-		lines.append("Foes hidden in the Umbra may act first.")
+		lines.append("Enemies hidden in the Umbra may act first.")
 	if bool(summary.get("new_arrival_before_player", false)):
-		lines.append("A new foe acts before you.")
+		lines.append("A new enemy acts before you.")
 	if bool(summary.get("forecast_limit_reached", false)):
 		lines.append(preload("res://scripts/pass_forecast_turn_start.gd").FORECAST_LIMIT_WARNING)
 	if int(summary.get("fatigue_loss", 0)) > 0:
@@ -15853,7 +16051,7 @@ func _add_dragon_reward_stack() -> void:
 	var show_shards: bool = not bool(reward.get("legacy_summary", false)) and reward.has("moltshards")
 	if show_payout or show_shards: content.add_child(HSeparator.new())
 	if show_payout:
-		_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward["ember_amount"]), int(reward["healed_amount"])], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
+		_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers · +%d Health recovered" % [int(reward["ember_amount"]), int(reward["healed_amount"])], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
 	if show_shards:
 		_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward["moltshards"]) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
 	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
@@ -16170,14 +16368,14 @@ func _reward_recover_button(heal_amount: int, choice_state: Dictionary = {}) -> 
 	var effective_heal: int = maxi(0, result_hp - current_hp)
 	var wasted_heal: int = maxi(0, heal_amount - effective_heal)
 	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
-	var tooltip: String = "Leave every offered card behind and recover %d HP." % effective_heal
+	var tooltip: String = "Leave every offered card behind and recover %d Health." % effective_heal
 	if _run_engine.has_run_skill(action_state, "deferred_choice"):
-		tooltip = "Choose whether one offered card follows you to the next reward. Health is already full." if fully_wasted else "Recover %d HP, then choose whether one offered card follows you to the next reward." % effective_heal
+		tooltip = "Choose whether one offered card follows you to the next reward. Health is already full." if fully_wasted else "Recover %d Health, then choose whether one offered card follows you to the next reward." % effective_heal
 	elif fully_wasted:
 		tooltip = "Leave every offered card behind. Health is already full."
 	var button: UiTooltipButton = _reward_secondary_button(
 		"RewardRecoverButton",
-		"SKIP  •  HEALTH FULL" if fully_wasted else "SKIP & RECOVER  +%d HP   %d → %d" % [effective_heal, current_hp, result_hp],
+		"SKIP · HEALTH FULL" if fully_wasted else "SKIP & RECOVER · +%d HEALTH · %d → %d" % [effective_heal, current_hp, result_hp],
 		_on_skip_reward_pressed,
 		tooltip
 	)
@@ -16577,7 +16775,7 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	match choice_id:
 		"linger":
 			var gain: int = mini(_run_engine.campfire_linger_heal(_run_state), maxi(0, int(_run_state.get("player_max_hp", 1)) - int(_run_state.get("player_hp", 1))))
-			chips.append({"text": "+%d HP" % gain if gain > 0 else "FULL HEALTH", "tone": "benefit"})
+			chips.append({"text": "+%d Health" % gain if gain > 0 else "FULL HEALTH", "tone": "benefit"})
 		"embrace":
 			chips.append({"text": "%d EMBERS" % _run_engine.held_embers(_run_state), "tone": "cost"})
 		"strength":
@@ -16593,7 +16791,7 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 				chips.append({"text": "NEED %d" % cost, "tone": "locked"})
 				chips.append({"text": "HELD %d" % int(_progression.get("embers", 0)), "tone": "disabled"})
 		"purge":
-			chips.append({"text": "-1 SPELL", "tone": "cost"} if enabled else {"text": "NO SPELLS", "tone": "disabled"})
+			chips.append({"text": "−1 SPELL", "tone": "cost"} if enabled else {"text": "NO SPELLS", "tone": "disabled"})
 	return chips
 
 func _add_campfire_choice_chip(chip_row: HFlowContainer, chip_def: Dictionary, accent: Color, choice_enabled: bool) -> void:
@@ -16873,7 +17071,7 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: 
 			_on_campfire_linger_pressed()
 			var gain: int = int(_run_state.get("player_hp", 0)) - before_hp
 			_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_RECOVER_ID))
-			await _play_campfire_result("+%d HP" % gain if gain > 0 else "Full health", gain > 0)
+			await _play_campfire_result("+%d Health" % gain if gain > 0 else "Full Health", gain > 0)
 		"embrace":
 			await _on_campfire_embrace_pressed(true)
 			if _campfire_embrace_committed: return
@@ -16985,12 +17183,13 @@ func _refresh_hand_panel_content() -> void:
 	if mode == "combat":
 		var layout_hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 		var layout_card_size: Vector2 = _hand_card_size(layout_hand.size(), false)
-		hand_layout_envelope_signature = "%s|%d|%.1f,%.1f|%.2f|%.1f,%.1f" % [
+		var budget: Vector3 = CombatHandBudget.fit(self, layout_hand.size(), layout_card_size)
+		hand_layout_envelope_signature = "%s|%d|%.1f,%.1f|%.2f,%.2f,%.2f|%.1f,%.1f" % [
 			mode,
 			layout_hand.size(),
 			layout_card_size.x,
 			layout_card_size.y,
-			_hand_layout_gap(layout_hand.size(), layout_card_size),
+			budget.x, budget.y, budget.z,
 			hand_scroll.size.x,
 			hand_scroll.size.y
 		]
@@ -17021,7 +17220,7 @@ func _refresh_hand_panel_content() -> void:
 	]
 	signature += "|controller_hand:%d:%d" % [1 if _controller_is_active() else 0, 1 if _controller_hand_focused else 0]
 	signature += "|empowered:%d:%d" % [1 if _selected_card_empowered() else 0, hash(_empower_charge.charged)]
-	if signature == _hand_panel_signature:
+	if signature == _hand_panel_signature and not hand_layout_envelope_changed:
 		return
 	_hand_panel_signature = signature
 	if _animation_lock:
@@ -17168,7 +17367,7 @@ func _refresh_hand_panel_content() -> void:
 			if ready_wave_delay >= 0.0:
 				widget.call_deferred("play_ready_wave", ready_wave_delay)
 		EmpowerUi.sync_widgets(self)
-		hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+		_configure_combat_hand_layout(hand.size(), card_size)
 		call_deferred("_fit_current_hand_layout_to_visible_width", hand_layout_revision)
 		var emphasized_hand_index: int = (
 			_hovered_card_index
@@ -17213,7 +17412,7 @@ func _update_retained_hand_layout() -> void:
 				var scale_factor: float = _card_widget_scale_for_size(card_size)
 				scaler.scale = Vector2.ONE * scale_factor
 				scaler.position = (card_size - CARD_WIDGET_BASE_SIZE * scale_factor) * 0.5
-	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+	_configure_combat_hand_layout(hand.size(), card_size)
 	_hand_layout_revision += 1
 	_hand_layout_pending_revision = _hand_layout_revision
 	call_deferred("_fit_current_hand_layout_to_visible_width", _hand_layout_revision)
@@ -17273,6 +17472,8 @@ func _sync_hand_motion() -> void:
 	hand_box.spread_ease_enabled = not _reduced_motion_enabled()
 	if not hand_box.slide_finished.is_connected(_on_hand_slide_finished):
 		hand_box.slide_finished.connect(_on_hand_slide_finished)
+	if not hand_box.layout_applied.is_connected(_on_hand_layout_applied):
+		hand_box.layout_applied.connect(_on_hand_layout_applied)
 
 func _on_hand_slide_finished() -> void:
 	# Cards moved under a resting pointer; let the card now beneath it take hover.
@@ -17368,7 +17569,7 @@ func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_cou
 	var card_size: Vector2 = first_card.custom_minimum_size
 	if card_size.x <= 0.0 or card_size.y <= 0.0:
 		card_size = first_card.size
-	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+	_configure_combat_hand_layout(hand.size(), card_size)
 	# configure_layout queues both the container minimum-size propagation and its
 	# child sort. Initial presentation and pointer hover still wait for the live
 	# fan; the dock already owns its authored destination independently.
@@ -17389,6 +17590,8 @@ func _complete_hand_layout_pending(expected_revision: int) -> void:
 	if expected_revision != _hand_layout_revision:
 		return
 	_hand_layout_pending_revision = -1
+	if _hand_hud_fit_queued:
+		call_deferred("_fit_hand_to_hud_columns")
 	if _pass_preview_overlay != null:
 		_pass_preview_overlay.visible = _pass_preview_overlay.get_child_count() > 0
 	_layout_combat_action_dock()
@@ -17977,6 +18180,14 @@ func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
 				return
 	if hand_box != null:
 		hand_box.visible = not _opening_hand_draw_in_progress
+		if not _animation_lock and not _draw_hand_transition_cards.is_empty() and _draw_hand_transition_cards == _combat_hand_cards(_combat_state):
+			var poses: Array[Dictionary]
+			for proxy: Control in _draw_hand_transition_proxies:
+				if not _node_is_alive(proxy):
+					break
+				var rect: Rect2 = _card_proxy_visual_rect(proxy)
+				poses.append({"center": rect.get_center(), "size": rect.size, "rotation": proxy.get_global_transform().get_rotation()})
+			hand_box.receive_draw_handoff(poses)
 	for proxy: Control in _draw_hand_transition_proxies:
 		_release_card_proxy(proxy)
 	_draw_hand_transition_proxies.clear()
@@ -18217,9 +18428,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	if _selected_card_index < 0 and not _player_movement_selected and _intent_path_geometry_revision != _combat_preview_revision and board_view.has_method("prepare_intent_path_geometry"):
 		# The displayed intents already own the projected routes. A second
 		# planning pass over the committed snapshot repeated enemy simulation.
-		for threat: Dictionary in presentation.get("threats_at_rest", {}).get("threats", []):
-			if not bool(threat.get("later", false)):
-				board_view.prepare_intent_path_geometry(_vector2i_array(threat.get("plan", {}).get("projected_path", [])))
+		_stage_hover_refresh.prepare_paths(self, presentation)
 		_intent_path_geometry_revision = _combat_preview_revision
 	if performance_phase_started > 0 and board_view.get("_submission_detail_enabled") == true:
 		board_view._record_submission_detail("sections", "stage_intent_path_warmup", Time.get_ticks_usec() - detail_started)
@@ -19167,8 +19376,10 @@ func _adopt_committed_hand_queries() -> void:
 		if _runtime_performance_instrumentation_enabled:
 			_committed_hand_query_diagnostics["adopted_previews"] = int(_committed_hand_query_diagnostics.get("adopted_previews", 0)) + _committed_hand_query_previews.size()
 			_committed_hand_query_diagnostics["adopted_shortcuts"] = int(_committed_hand_query_diagnostics.get("adopted_shortcuts", 0)) + _committed_hand_query_shortcuts.size()
-		if _committed_hand_query_forecast.has("summary"):
-			_combat_forecast_cache.remember(_committed_hand_query_state, _committed_hand_query_forecast["summary"])
+		if _committed_hand_query_forecast.has("source"):
+			var source: Dictionary = _committed_hand_query_forecast["source"]
+			var summary: Dictionary = _pass_preview_summary_for_phase_result(source, _committed_hand_query_forecast["result"])
+			_combat_forecast_cache.remember(source, summary)
 			if _runtime_performance_instrumentation_enabled:
 				_committed_hand_query_diagnostics["adopted_forecasts"] = int(_committed_hand_query_diagnostics.get("adopted_forecasts", 0)) + 1
 		_record_runtime_performance_phase("committed_hand_query_adopt", started)
@@ -20950,11 +21161,11 @@ func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dict
 	if route.size() > 1:
 		var trade_cost: int = int(_combat_engine.trade_movement_cost(before_state, route).get("spent", 0))
 		if trade_cost > route.size() - 1:
-			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % trade_cost, "kind": "status"})
+			chips.append({"tile": risk_tile, "label": "%d Movement · Rubble" % trade_cost, "kind": "status"})
 	elif path_tiles.size() > 1:
 		var cost: int = _combat_engine.movement_cost_for_path(before_state, path_tiles)
 		if cost > path_tiles.size() - 1:
-			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % cost, "kind": "status"})
+			chips.append({"tile": risk_tile, "label": "%d Movement · Rubble" % cost, "kind": "status"})
 	for loot: Dictionary in picked_loot:
 		var pickup_chip: Dictionary = _movement_pickup_chip(loot)
 		if not pickup_chip.is_empty():
@@ -20967,13 +21178,13 @@ func _movement_player_delta_chips(before_state: Dictionary, after_state: Diction
 	var after_player: Dictionary = after_state.get("player", {})
 	var hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
 	if hp_loss > 0:
-		chips.append({"tile": tile, "label": "-%d HP" % hp_loss, "kind": "danger"})
+		chips.append({"tile": tile, "label": "−%d Health" % hp_loss, "kind": "danger"})
 	var block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
 	if block_loss > 0:
-		chips.append({"tile": tile, "label": "-%d Block" % block_loss, "kind": "danger"})
+		chips.append({"tile": tile, "label": "−%d Block" % block_loss, "kind": "danger"})
 	var stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
 	if stoneskin_loss > 0:
-		chips.append({"tile": tile, "label": "-%d Guard" % stoneskin_loss, "kind": "danger"})
+		chips.append({"tile": tile, "label": "−%d Guard" % stoneskin_loss, "kind": "danger"})
 	for label: String in _movement_status_delta_labels(before_state, after_state):
 		chips.append({"tile": tile, "label": label, "kind": "status"})
 	return chips
@@ -21288,7 +21499,7 @@ func _force_aim_rotate_tooltip() -> String:
 	var context: Dictionary = _force_aim_context_for_tile(_force_aim_tile)
 	var action: Dictionary = context.get("action", {}) as Dictionary
 	var pulling: bool = str(action.get("type", "")) == "pull" or (int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0)
-	return "Change pull direction" if pulling else "Change push direction"
+	return "Change pull direction" if pulling else "Change Push direction"
 
 func _sync_force_aim_target(tile: Vector2i) -> void:
 	# Only a legal forced-movement target changes the aimed target. Crossing
@@ -21529,9 +21740,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	_drag_card_options = options.duplicate(false)
 	_drag_hover_zone = ""
 	_drag_card_source_rect = source_rect
-	_drag_card_cancel_rect = _hand_card_global_rect(index)
-	# A card still easing into a new spread is returned to where it settles.
-	_drag_card_cancel_rect.position -= hand_box.slide_remaining(hand_box.get_child(index) as Control)
+	_drag_card_cancel_rect = _hand_drag_resting_slot()
 	_drag_last_pointer_position = drag_pointer
 	_drag_card_grab_ratio = grab_ratio
 	if _drag_card_proxy != null:
@@ -22203,6 +22412,8 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	var _hitch_span: RefCounted
+	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("input:run_scene:open_large_map")
 	if _opening_boon_flow.active(): return
 	if is_instance_valid(_magic_purge_overlay): return
 	if str(_run_state.get("mode", "")) == "event": return
@@ -22272,7 +22483,7 @@ func _refresh_large_map_navigation_hint() -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	var controller_active: bool = router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
 	_large_map_navigation_hint.visible = not controller_active
-	_large_map_navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM  •  M TO CLOSE"
+	_large_map_navigation_hint.text = "DRAG / TWO-FINGER PAN • SCROLL / PINCH TO ZOOM • M TO CLOSE"
 
 func _on_large_map_room_selected(coord: Vector2i) -> void:
 	if not _guided_tutorial_map_room_allowed(coord):
@@ -22876,6 +23087,8 @@ func _animate_staged_draw_hand_fx(
 			incoming_by_target[target_index] = entry
 
 	var target_card_size: Vector2 = _hand_card_size(target_hand.size(), false)
+	var budget: Vector3 = CombatHandBudget.fit(self, target_hand.size(), target_card_size)
+	var hand_origin: Vector2 = _draw_hand_origin(target_hand.size(), target_card_size, budget)
 	var base_duration: float = DRAW_FRAME_SECONDS * (0.62 if _reduced_motion_enabled() else 1.0)
 	var total_duration: float = base_duration + float(maxi(0, draw_entries.size() - 1)) * DRAW_STAGGER_SECONDS
 	var used_source: Array[bool]
@@ -22885,7 +23098,7 @@ func _animate_staged_draw_hand_fx(
 	var completion_tween: Tween = null
 	var draw_order: int = 0
 	for target_index: int in range(target_hand.size()):
-		var target_rect: Rect2 = _hand_receive_rect(target_index, target_hand.size(), target_card_size)
+		var target_rect: Rect2 = _draw_hand_slot_rect(target_index, target_hand.size(), target_card_size, budget.y, hand_origin)
 		var target_rotation: float = HandFanContainer.card_rotation_for_layout(target_index, target_hand.size(), true)
 		var proxy: Control = null
 		var tween: Tween = null
@@ -22984,6 +23197,8 @@ func _animate_draw_cards_fx(
 	if not _card_id_array(hand_transition.get("target_hand", [])).is_empty():
 		await _animate_staged_draw_hand_fx(draw_entries, source_rect, hand_transition)
 		return
+	var receive_size: Vector2 = size_hint * 0.96
+	var receive_budgets: Dictionary = {}
 	var draw_proxies: Array[Control]
 	var draw_tweens: Array[Tween]
 	for draw_index: int in range(draw_entries.size()):
@@ -23006,7 +23221,10 @@ func _animate_draw_cards_fx(
 			return
 		var proxy: Control = _spawn_card_proxy(card_id, source_rect)
 		_mount_card_proxy(proxy, _card_fx_layer, source_rect)
-		var target_rect: Rect2 = _hand_receive_rect(target_index, target_total, size_hint * 0.96)
+		if not receive_budgets.has(target_total):
+			receive_budgets[target_total] = CombatHandBudget.fit(self, target_total, receive_size)
+		var budget: Vector3 = receive_budgets[target_total]
+		var target_rect: Rect2 = _draw_hand_slot_rect(target_index, target_total, receive_size, budget.y, _draw_hand_origin(target_total, receive_size, budget))
 		var target_rotation: float = HandFanContainer.card_rotation_for_layout(target_index, target_total, true)
 		var duration: float = DRAW_FRAME_SECONDS * (0.62 if _reduced_motion_enabled() else 1.0)
 		var reduced_motion: bool = _reduced_motion_enabled()
@@ -23738,7 +23956,7 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 	if total_damage > 0:
 		floats.append(FloatingCombatText.damage_entry(
 			player_tile,
-			"-%d" % total_damage,
+			"−%d" % total_damage,
 			Color("f39779"),
 			{
 				"outline_color": Color("270806"),
@@ -23823,7 +24041,7 @@ func _animate_turn_start_fire(display_state: Dictionary, burn: Dictionary) -> vo
 	_sfx_router.begin_player_action(before_burn, {"kind": "turn_start", "surface_events": [burn]})
 	var tile: Vector2i = hero.get("pos", burn.get("tile", Vector2i.ZERO))
 	var texts: Array[Dictionary]
-	texts.append(FloatingCombatText.damage_entry(tile, "-%d" % lost, Color("f39779"), {
+	texts.append(FloatingCombatText.damage_entry(tile, "−%d" % lost, Color("f39779"), {
 		"outline_color": Color("270806"),
 		"screen_layout_id": FloatingCombatText.ensure_screen_layout_id(burn) + "/damage",
 		"reaction_actor_key": "player", "reaction": "hit"
@@ -24216,7 +24434,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"vision", "truesight", "dispel_umbra":
 			_sfx_router.light()
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
+			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra −%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
 			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": Color("ffe394"),
@@ -25806,11 +26024,19 @@ func _movement_actor_frame_presentation(
 
 func _ensure_sfx_bank() -> void:
 	if _sfx_bank != null: return
-	_sfx_bank = SfxBankScript.new()
-	_sfx_bank.name = "SfxBank"
-	_sfx_bank.presentation_clock = _combat_pacing.presentation_usec
-	add_child(_sfx_bank)
-	_sfx_bank.warm_up(self)
+	var bank: Node = _make_sfx_bank()
+	bank.warm_up(self)
+	_bind_sfx_bank(bank)
+
+func _make_sfx_bank() -> Node:
+	var bank := SfxBankScript.new()
+	bank.name = "SfxBank"
+	bank.presentation_clock = _combat_pacing.presentation_usec
+	add_child(bank)
+	return bank
+
+func _bind_sfx_bank(bank: Node) -> void:
+	_sfx_bank = bank
 	_sfx_bank.prepare_legacy([CARD_DRAW_SFX_ENTRY, CARD_PLAY_SFX_ENTRY, REWARD_CARD_FLIP_SFX_ENTRY, ITEM_EQUIP_SFX_ENTRY, RELIC_CHOICES_OPEN_SFX_ENTRY])
 	_sfx_players = _sfx_bank.players
 	_sfx_router = SfxCueRouterScript.new(_sfx_bank)
@@ -26649,7 +26875,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				if int(step.get("hp_loss", 0)) > 0:
 					floats.append(FloatingCombatText.damage_entry(
 						step.get("to", Vector2i.ZERO),
-						"-%d" % int(step.get("hp_loss", 0)),
+						"−%d" % int(step.get("hp_loss", 0)),
 						Color("f39779"),
 						{"reaction_actor_key": "player", "reaction": "hit"}
 					))
@@ -26657,7 +26883,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"reaction_actor_key": "player", "reaction": "block",
-						"text": "-%d B" % int(step.get("block_loss", 0)),
+						"text": "−%d B" % int(step.get("block_loss", 0)),
 						"color": Color("90d9ff"),
 						"offset": 0.0,
 						"width": 112.0
@@ -26666,7 +26892,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"reaction_actor_key": "player", "reaction": "block",
-						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
+						"text": "−%d S" % int(step.get("stoneskin_loss", 0)),
 						"color": ElementData.accent(ElementData.EARTH),
 						"offset": 0.0,
 						"width": 112.0
@@ -26718,7 +26944,7 @@ func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 	if enemy_losses.is_empty():
 		var legacy_float: Dictionary = FloatingCombatText.damage_entry(
 			step.get("tile", Vector2i.ZERO),
-			"-%d" % int(step.get("amount", 0)),
+			"−%d" % int(step.get("amount", 0)),
 			Color("f39779"),
 			{"reaction_actor_key": str(step.get("actor_key", "")), "reaction": "hit"}
 		)
@@ -26747,7 +26973,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 		if int(loss.get("hp_loss", 0)) > 0:
 			floats.append(FloatingCombatText.damage_entry(
 				tile,
-				"-%d" % int(loss.get("hp_loss", 0)),
+				"−%d" % int(loss.get("hp_loss", 0)),
 				Color("f39779"),
 				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "hit"}
 			))
@@ -26755,7 +26981,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			floats.append({
 				"tile": tile,
 				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
-				"text": "-%d B" % int(loss.get("block_loss", 0)),
+				"text": "−%d B" % int(loss.get("block_loss", 0)),
 				"color": Color("90d9ff"),
 				"offset": 0.0,
 				"width": 112.0
@@ -26764,7 +26990,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			floats.append({
 				"tile": tile,
 				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
-				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
+				"text": "−%d S" % int(loss.get("stoneskin_loss", 0)),
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,
 				"width": 112.0
@@ -26817,7 +27043,7 @@ func _floating_texts_for_terrain_losses(terrain_losses: Array) -> Array[Dictiona
 			continue
 		floats.append(FloatingCombatText.damage_entry(
 			loss.get("tile", Vector2i.ZERO),
-			"-%d" % hp_loss,
+			"−%d" % hp_loss,
 			Color("f0c85c")
 		))
 	return floats
@@ -27466,7 +27692,7 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 	if hp_loss > 0:
 		floats.append(FloatingCombatText.damage_entry(
 			player_tile,
-			"-%d" % hp_loss,
+			"−%d" % hp_loss,
 			Color("f39779"),
 			{"reaction_actor_key": "player", "reaction": "hit"}
 		))
@@ -27474,7 +27700,7 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 		floats.append({
 			"tile": player_tile,
 			"reaction_actor_key": "player", "reaction": "block",
-			"text": "-%d B" % block_loss,
+			"text": "−%d B" % block_loss,
 			"color": Color("90d9ff"),
 			"offset": 0.0,
 			"width": 112.0
@@ -27483,7 +27709,7 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 		floats.append({
 			"tile": player_tile,
 			"reaction_actor_key": "player", "reaction": "block",
-			"text": "-%d S" % stoneskin_loss,
+			"text": "−%d S" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
 			"offset": 0.0,
 			"width": 112.0
@@ -27511,7 +27737,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		if hp_loss > 0:
 			floats.append(FloatingCombatText.damage_entry(
 				enemy.get("pos", Vector2i.ZERO),
-				"-%d" % hp_loss,
+				"−%d" % hp_loss,
 				Color("f39779"),
 				{"reaction_actor_key": _enemy_key(enemy), "reaction": "hit"}
 			))
@@ -27519,7 +27745,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
-				"text": "-%d B" % block_loss,
+				"text": "−%d B" % block_loss,
 				"color": Color("90d9ff"),
 				"offset": 0.0,
 				"width": 112.0
@@ -27528,7 +27754,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
-				"text": "-%d S" % stoneskin_loss,
+				"text": "−%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,
 				"width": 112.0
@@ -28064,7 +28290,10 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_campfire_embrace_committed = true
-	ProgressionStore.clear_saved_run()
+	if ProgressionStore.save_run_state(_run_state):
+		ProgressionStore.clear_saved_run()
+	else:
+		push_error("Failed to persist the terminal checkpoint for campfire Embrace.")
 	if present_feedback:
 		var token: int = _campfire_presentation.generation
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_DEPART_ID))
@@ -28775,11 +29004,10 @@ func _relic_frame_for_id(relic_id: String) -> Control:
 
 func _on_back_to_menu_pressed() -> void:
 	if not _is_debug_boss_run():
-		if not ProgressionStore.save_data(_progression):
+		if not ProgressionStore.save_data(_progression) or not ProgressionStore.clear_saved_run():
 			_run_state["notice"] = "Could not save. Try again before leaving."
 			_refresh_ui()
 			return
-		ProgressionStore.clear_saved_run()
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_restart_pressed() -> void:
@@ -29276,6 +29504,10 @@ func _release_committed_run_state() -> void:
 	_committed_run_state_override.clear()
 
 func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
+	# A live or staged scene may only save after installation. A detached
+	# persistence host can commit an explicitly supplied checkpoint instead.
+	if _initial_loading_cancelled or ((is_inside_tree() or _initial_ui_staging_requested) and not has_installed_run()):
+		return {"state": run_state, "saved": false}
 	if not hold_for_animation and is_same(run_state, _owned_boundary_snapshot):
 		return preload("res://scripts/run_persistence.gd").persist_owned(self, run_state, boundary, _deferred_checkpoint_receipt)
 	return preload("res://scripts/run_persistence.gd").persist(self, run_state, hold_for_animation, boundary)
@@ -29315,19 +29547,21 @@ func _is_debug_boss_run() -> bool:
 	return bool(_run_state.get("debug_boss_run", false))
 
 func _save_run_progress() -> void:
+	if _initial_loading_cancelled or not has_installed_run(): return
 	if _event_view != null: _event_view.finish_result_beats()
 	preload("res://scripts/run_persistence.gd").flush(self)
 	if _campfire_embrace_committed: return
 	if _is_debug_boss_run():
 		return
 	var committed_state: Dictionary = _committed_run_state()
+	if not preload("res://scripts/run_persistence.gd").has_checkpoint(committed_state): return
 	var mode: String = str(committed_state.get("mode", ""))
 	if OpeningBoonRules.heirloom_prompt_pending(committed_state):
 		if not _committed_run_state_override.is_empty() and not OpeningBoonRecovery.persist_held_prompt_before_quit(self, committed_state):
 			return
 		_persist_committed_boundary("heirloom_prompt_resume")
 		return
-	if mode in ["victory", "defeat"] or committed_state.is_empty():
+	if mode in ["victory", "defeat"]:
 		# A failed terminal save preserves the original, unprocessed fallback.
 		# Reconciliation must not replace it with the finalized held snapshot.
 		_cancel_deferred_skill_analytics()
@@ -29350,17 +29584,25 @@ func _save_run_progress() -> void:
 	preload("res://scripts/run_persistence.gd").flush(self)
 
 func _on_save_and_quit_pressed() -> void:
+	const Shutdown = preload("res://scripts/application_shutdown.gd")
+	var tree := get_tree()
+	if not Shutdown.begin_save_to_title(tree): return
+	_leaving_tree = true
 	_close_menu_overlay()
-	_save_run_progress()
-	preload("res://scripts/run_persistence.gd").flush(self)
-	_change_scene_to_file("res://scenes/main_menu.tscn")
+	process_mode = Node.PROCESS_MODE_DISABLED
+	await preload("res://scripts/run_persistence.gd").save_for_departure(self)
+	if Shutdown.finish_save_to_title(tree):
+		_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_exit_to_desktop_pressed() -> void:
+	preload("res://scripts/application_shutdown.gd").request(get_tree(), "exit_to_desktop")
+
+func prepare_application_quit(reason: String) -> void:
+	_leaving_tree = true
 	_close_menu_overlay()
-	_save_run_progress()
-	preload("res://scripts/run_persistence.gd").flush(self)
-	_finalize_performance_telemetry_scene("exit_to_desktop")
-	get_tree().quit()
+	process_mode = Node.PROCESS_MODE_DISABLED
+	await preload("res://scripts/run_persistence.gd").save_for_departure(self)
+	_finalize_performance_telemetry_scene(reason)
 
 func _on_abandon_run_pressed() -> void:
 	_cancel_deferred_skill_analytics()
@@ -29376,7 +29618,10 @@ func _on_abandon_run_pressed() -> void:
 			int(_run_state.get("run_index", 0))
 		)
 		_progression = OpeningBoonRecovery.retaining_events(self, _run_state, _progression)
-		if not ProgressionStore.save_data(_progression):
+		var terminal: Dictionary = _committed_run_state()
+		terminal["mode"] = "abandoned"
+		terminal["progression"] = _progression.duplicate(true)
+		if not ProgressionStore.save_data(_progression) or not ProgressionStore.save_run_state(terminal):
 			_run_state["notice"] = "Could not save the completed run. Try again."
 			_refresh_ui()
 			return
@@ -29573,7 +29818,7 @@ func _open_pile_view(pile_kind: String) -> void:
 		"selection_indices": _combat_skill_card_selection_indices.duplicate() if selecting_discard_card else [],
 	}
 	_pile_dialog_title.text = (
-		"%s  ·  Choose a Card to Return" % SkillTreeLibrary.display_name(_combat_skill_card_selection_skill_id)
+		"%s · Choose a Card to Return" % SkillTreeLibrary.display_name(_combat_skill_card_selection_skill_id)
 		if selecting_discard_card
 		else "%s Pile" % _pile_display_name(pile_kind)
 	)
@@ -30637,19 +30882,19 @@ func _skill_reset_unavailable_reason() -> String:
 
 func _skill_reset_button_text() -> String:
 	if _skill_reset_can_apply():
-		return "Reset Skills  ·  1 Moltshard"
+		return "Reset Skills · 1 Moltshard"
 	if _run_state.is_empty():
-		return "Reset Skills  ·  Start a Run"
+		return "Reset Skills · Start a Run"
 	if ProgressionStore.selected_skill_ids(_progression).is_empty():
-		return "Reset Skills  ·  No Skills Learned"
+		return "Reset Skills · No Skills Learned"
 	if ProgressionStore.moltshard_count(_progression) <= 0:
-		return "Reset Skills  ·  Need 1 Moltshard"
+		return "Reset Skills · Need 1 Moltshard"
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "combat":
-		return "Reset Skills  ·  Unavailable in Combat"
+		return "Reset Skills · Unavailable in Combat"
 	if mode in ["victory", "defeat"]:
-		return "Reset Skills  ·  Run Complete"
-	return "Reset Skills  ·  Finish Current Action"
+		return "Reset Skills · Run Complete"
+	return "Reset Skills · Finish Current Action"
 
 func _skill_reset_panel_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -30721,7 +30966,7 @@ func _build_equipped_items_section() -> Control:
 	section.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	section.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(self, 8.0)))
 	var equipped_items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
-	section.add_child(Menu.section("ITEMS", "%d / %d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]))
+	section.add_child(Menu.section("ITEMS", "%d/%d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]))
 	for index: int in range(GameData.item_loadout_limit()):
 		var card_id: String = str(equipped_items[index]) if index < equipped_items.size() else ""
 		section.add_child(_build_item_card_tile(card_id, "equipped", index, "item/equipped/%d" % index))
@@ -31137,7 +31382,7 @@ func _new_item_card_tile(card_id: String, source_kind: String, index: int, can_c
 	if card_id.is_empty():
 		var empty := PanelContainer.new()
 		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		Menu.empty_row(empty, "Empty item slot")
+		Menu.empty_row(empty, "Empty Item Slot")
 		if register_row and source_kind == "equipped":
 			_item_equipped_tiles[index] = empty
 		return empty
@@ -32475,14 +32720,7 @@ func _dialogue_trigger_key(room: Dictionary) -> String:
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	return "%d,%d|%d" % [coord.x, coord.y, int(_run_state.get("turns_spent", 0))]
 
-func _new_seed() -> int:
-	# Native performance probes enter through the actual New Run button. A
-	# process-local test seed keeps that public route comparable across builds.
-	if get_tree().root.has_meta("labyrinth_performance_probe_seed"):
-		return int(get_tree().root.get_meta("labyrinth_performance_probe_seed"))
-	return int(Time.get_unix_time_from_system()) & 0x7fffffff
-
-func _hand_card_size(card_count: int, reward_mode: bool, force_controller_focus: bool = false) -> Vector2:
+func _hand_card_size(card_count: int, reward_mode: bool, force_controller_focus: bool = false, allow_controller_focus: bool = true) -> Vector2:
 	var available_width: float = maxf(620.0, _hand_available_width())
 	var target_width: float = available_width / float(maxi(1, card_count))
 	if reward_mode:
@@ -32496,7 +32734,7 @@ func _hand_card_size(card_count: int, reward_mode: bool, force_controller_focus:
 		target_width = available_width / maxf(1.0, layout_width_units)
 	var controller_focused_hand: bool = (
 		not reward_mode
-		and (force_controller_focus or (_controller_combat_layout_active() and _controller_hand_focused))
+		and (force_controller_focus or (allow_controller_focus and _controller_combat_layout_active() and _controller_hand_focused))
 	)
 	var max_width: float = 224.0 if reward_mode else (238.0 if controller_focused_hand else 208.0)
 	var min_width: float = 188.0 if reward_mode else 172.0 if card_count >= HAND_CARD_DENSE_COUNT else 190.0
@@ -32508,30 +32746,17 @@ func _hand_card_size(card_count: int, reward_mode: bool, force_controller_focus:
 	return _card_size_from_width(width)
 
 func _hand_layout_gap(card_count: int, card_size: Vector2) -> float:
-	var available_width: float = _hand_available_width()
-	if _combat_objective_hud != null and _combat_objective_hud.visible and hand_scroll != null:
-		# Reserve horizontal room only when the resting fan reaches the objective's
-		# vertical range. Card sizes, hover and the existing overlap rule stay intact.
-		var card: Control = _hand_card_control(0)
-		var badge: Control = card.get_node_or_null("TimeCostBadge") as Control if card != null else null
-		var overhang: float = -minf(0.0, badge.position.y) * card_size.x / card.size.x if badge != null and card.size.x > 0.0 else 0.0
-		var extent: Vector2 = HandFanContainer.resting_vertical_bounds(card_count, card_size, overhang)
-		var fan_height: float = HandFanContainer.content_size_for_layout(card_count, card_size, 0.0, true).y
-		var fan_top: float = hand_scroll.get_global_rect().get_center().y - fan_height * 0.5
-		var objective: Rect2 = _combat_objective_hud.get_global_rect()
-		if fan_top + extent.x < objective.end.y and fan_top + extent.y > objective.position.y:
-			var objective_right: float = maxf(objective.end.x, ui_root.global_position.x + UiTypography.SAFE_MARGIN + _combat_objective_hud.preferred_width())
-			var center: float = hand_scroll.get_global_rect().get_center().x
-			available_width = minf(available_width, maxf(0.0, (center - objective_right) * 2.0))
-	var preferred_gap: float = HandFanContainer.overlap_gap_for_card_width(
-		card_size.x,
-		HandFanContainer.overlap_ratio_for_hand_size(card_count)
-	)
-	return HandFanContainer.card_gap_for_available_width(
-		card_count,
-		card_size,
-		preferred_gap,
-		available_width
+	return CombatHandBudget.fit(self, card_count, card_size).y
+
+func _configure_combat_hand_layout(card_count: int, card_size: Vector2, key: Vector3 = Vector3(INF, INF, -1.0)) -> void:
+	if key.z < 0.0:
+		key = CombatHandBudget.fit_key(self, card_count)
+	var budget: Vector3 = CombatHandBudget.fit(self, card_count, card_size, key)
+	_hand_hud_fit_key = key
+	_sync_hand_motion()
+	hand_box.configure_combat_layout(
+		budget.x, Vector2(budget.z, budget.y - budget.x),
+		card_count, hand_scroll.get_global_rect().get_center().x + budget.z
 	)
 
 func _hand_available_width() -> float:
@@ -33189,27 +33414,10 @@ func _reconcile_run_skill_event_analytics_for_state(run_state: Dictionary, comba
 	var analytics: Dictionary = (next_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var logged_revision: int = int(analytics.get("run_skill_event_revision_logged", 0))
 	var latest_revision: int = logged_revision
-	for event: Dictionary in _run_engine.run_skill_events(next_state):
-		var revision: int = int(event.get("revision", 0))
-		if revision <= logged_revision:
-			continue
-		var skill_id: String = str(event.get("skill_id", ""))
-		var idempotency_key: String = _run_skill_event_idempotency_key(next_state, revision, skill_id)
-		var context: Dictionary = _analytics_context_from_states(next_state, combat_state)
-		var captured: Dictionary = _run_skill_event_contexts.get(idempotency_key, {}) if _run_skill_event_context_scope == _run_skill_event_context_namespace(next_state) else {}
-		if captured.get("event", {}) == event:
-			context = (captured.get("context", {}) as Dictionary).duplicate(true)
-		var wrote_event: bool = _analytics_store.write_event_durable("skill_triggered", context, {
-			"skill_id": skill_id,
-			"activation": SkillTreeLibrary.activation_kind(skill_id),
-			"trigger_revision": revision,
-			"trigger_scope": "run",
-			"turn": int(context.get("turn", 0)),
-			"message": str(event.get("message", ""))
-		}, idempotency_key)
-		if not wrote_event:
+	for receipt: Dictionary in _run_skill_receipts(next_state, combat_state):
+		if not _analytics_store.write_event_durable(receipt["event_type"], receipt["context"], receipt["payload"], receipt["idempotency_key"]):
 			break
-		latest_revision = maxi(latest_revision, revision)
+		latest_revision = maxi(latest_revision, int(receipt["payload"]["trigger_revision"]))
 	if _run_skill_event_context_scope == _run_skill_event_context_namespace(next_state):
 		for key: String in _run_skill_event_contexts.keys():
 			if int((_run_skill_event_contexts[key].get("event", {}) as Dictionary).get("revision", 0)) <= latest_revision:
@@ -33218,6 +33426,29 @@ func _reconcile_run_skill_event_analytics_for_state(run_state: Dictionary, comba
 		analytics["run_skill_event_revision_logged"] = latest_revision
 		next_state["analytics"] = analytics
 	return next_state
+
+func _run_skill_receipts(state: Dictionary, combat_state: Dictionary) -> Array[Dictionary]:
+	var receipts: Array[Dictionary]
+	var logged_revision: int = int(state.get("analytics", {}).get("run_skill_event_revision_logged", 0))
+	for event: Dictionary in _run_engine.run_skill_events(state):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= logged_revision:
+			continue
+		var skill_id: String = str(event.get("skill_id", ""))
+		var idempotency_key: String = _run_skill_event_idempotency_key(state, revision, skill_id)
+		var context: Dictionary = _analytics_context_from_states(state, combat_state)
+		var captured: Dictionary = _run_skill_event_contexts.get(idempotency_key, {}) if _run_skill_event_context_scope == _run_skill_event_context_namespace(state) else {}
+		if captured.get("event", {}) == event:
+			context = (captured.get("context", {}) as Dictionary).duplicate(true)
+		receipts.append({"event_type": "skill_triggered", "context": context, "idempotency_key": idempotency_key, "payload": {
+			"skill_id": skill_id,
+			"activation": SkillTreeLibrary.activation_kind(skill_id),
+			"trigger_revision": revision,
+			"trigger_scope": "run",
+			"turn": int(context.get("turn", 0)),
+			"message": str(event.get("message", ""))
+		}})
+	return receipts
 
 func _run_skill_event_idempotency_key(run_state: Dictionary, revision: int, skill_id: String) -> String:
 	var run_id: String = str((run_state.get("analytics", {}) as Dictionary).get("run_id", ""))
@@ -33875,7 +34106,10 @@ func _sync_combat_state_from_run() -> void:
 	var source: Dictionary = _run_state.get("combat_state", {}) as Dictionary
 	entering_combat = entering_combat or (not source.is_empty() and source.get("room_coord") != _combat_state.get("room_coord"))
 	_combat_state = _combat_engine.normalize_player_movement_pool(source) if not source.is_empty() else {}
-	if entering_combat or str(_run_state.get("mode", "")) != "combat": _combat_hud_layout.clear()
+	if entering_combat or str(_run_state.get("mode", "")) != "combat":
+		_combat_hud_layout.clear()
+		_hand_hud_fit_key = Vector3(INF, INF, -1.0)
+		_hand_hud_fit_queued = false
 	# Ordinary room/pre-battle entry does not go through _load_run_state.
 	_burst_playback.sync_encounter(_combat_state, entering_combat)
 	if _combat_engine is HeroFacingCombat: _combat_engine.persist_hero_facing = SettingsStore.hero_facing_mode(_settings) == "persist"
@@ -34656,7 +34890,7 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 		if bool(loss.get("lethal", false)):
 			chips.append({"tile": tile, "actor_key": key, "label": "%s: Lethal" % name, "kind": "danger"})
 		elif int(loss.get("hp_loss", 0)) > 0:
-			chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d HP" % [name, int(loss["hp_loss"])], "kind": "danger"})
+			chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d Health" % [name, int(loss["hp_loss"])], "kind": "danger"})
 		for defense: String in ["block", "stoneskin"]:
 			if int(loss.get(defense + "_loss", 0)) > 0:
 				var label: String = "Block" if defense == "block" else "Guard"

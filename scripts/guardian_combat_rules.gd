@@ -96,13 +96,29 @@ static func candidates(engine: RefCounted, state: Dictionary, origin: Vector2i, 
 	return result
 
 static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Dictionary) -> Dictionary:
-	var result: Dictionary = intent.duplicate(true)
+	return commit_owned(engine, state, index, intent.duplicate(true))
+
+# A newly scaled declaration already owns its intent and actions. Save
+# migration and other callers keep the copying entry point above.
+static func commit_owned(engine: RefCounted, state: Dictionary, index: int, result: Dictionary) -> Dictionary:
+	var profile: RefCounted = engine.boss_intent_profiler()
+	var restoring_plan: bool = not result.has("committed_plan")
 	result.erase("committed_plan")
 	var enemy: Dictionary = state["enemies"][index]
-	var restoring_plan: bool = not intent.has("committed_plan")
 	if not has_authored_actions(result) and not Areas.selected(enemy, result): return result
 	result["_planning_shape"] = true
-	var plan: Dictionary = pattern_approach(engine,state,index,result,engine.enemy_intent_plan(state,index,result))
+	if profile != null: profile.begin("standard_plan")
+	var fallback: Dictionary = engine.enemy_intent_plan(state,index,result)
+	if profile != null: profile.end()
+	var geometry_board: RefCounted
+	for action: Dictionary in result.get("actions", []):
+		if action.has("pattern_footprint") and shape(action) in DIRECTIONAL_SHAPES:
+			if profile != null: profile.begin("board_geometry")
+			geometry_board = engine.boss_pattern_board(state)
+			if profile != null: profile.end()
+			break
+	var plan: Dictionary = pattern_approach(engine, state, index, result, fallback, geometry_board)
+	if profile != null: profile.begin("area_declaration")
 	result.erase("_planning_shape")
 	var origin: Vector2i = plan.get("destination",enemy["pos"])
 	var target: Vector2i = plan.get("target_tile",state["player"]["pos"])
@@ -119,10 +135,11 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 		if Areas.held(action):
 			affected = Areas.shown(action)
 		elif shape_id in GEOMETRIC_SHAPES:
-			var geometry: Dictionary = action.duplicate(true)
-			geometry["_resolved_path"] = plan.get("path",[origin])
-			geometry = status_range(enemy,geometry)
-			affected = shape_tiles(engine,state,origin,direction,geometry)
+			var geometry: Dictionary = status_range(enemy, action)
+			if shape_id == "swept_path":
+				geometry = geometry.duplicate(false)
+				geometry["_resolved_path"] = plan.get("path", [origin])
+			affected = _declared_shape_tiles(engine, state, geometry_board, origin, direction, geometry)
 		elif shape_id == "surface_snapshot":
 			affected = Fields.source_tiles(state,enemy,action)
 		elif shape_id == "trail_snapshot":
@@ -192,6 +209,7 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	plan["enemy_id"] = int(enemy["id"])
 	plan.erase("enemy_index")
 	result["committed_plan"] = plan
+	if profile != null: profile.end()
 	return result
 
 static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionary, intent: Dictionary, movement_disabled: bool, attack_disabled: bool) -> Dictionary:
@@ -562,63 +580,118 @@ static func shape_tiles(engine: RefCounted, state: Dictionary, origin: Vector2i,
 			if engine._terrain_index_at_tile(state,tile)>=0: break
 	return result
 
-static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, intent: Dictionary, fallback: Dictionary) -> Dictionary:
+static func _declared_shape_tiles(engine: RefCounted, state: Dictionary, board: RefCounted, origin: Vector2i, direction: Vector2i, geometry: Dictionary) -> Array[Vector2i]:
+	if board != null and shape(geometry) in DIRECTIONAL_SHAPES and geometry.has("pattern_footprint") and direction.length_squared() == 1:
+		var size: Vector2i = Patterns.footprint_size(geometry)
+		if Patterns.can_translate_footprint(origin, size):
+			var offsets: Array[Vector2i] = Patterns.footprint_offsets(direction, geometry, size)
+			return board.footprint(origin, offsets, size, bool(geometry.get("preserve_owned_terrain", false))).duplicate()
+	return shape_tiles(engine, state, origin, direction, geometry)
+
+static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, intent: Dictionary, fallback: Dictionary, board: RefCounted = null) -> Dictionary:
 	var pattern: Dictionary = {}
 	var move_range: int = 0
 	var retreat: bool = false
-	for action: Dictionary in intent.get("actions",[]):
-		if shape(action) in GEOMETRIC_SHAPES and pattern.is_empty(): pattern=action
-		if str(action.get("type","")) in ["move_toward","move_away"]:
-			move_range=int(action.get("range",0))
-			retreat=str(action["type"])=="move_away"
+	for action: Dictionary in intent.get("actions", []):
+		if shape(action) in GEOMETRIC_SHAPES and pattern.is_empty(): pattern = action
+		if str(action.get("type", "")) in ["move_toward", "move_away"]:
+			move_range = int(action.get("range", 0))
+			retreat = str(action["type"]) == "move_away"
 	if pattern.is_empty(): return fallback
 	var enemy: Dictionary = state["enemies"][index]
-	var target: Dictionary = engine._closest_enemy_target(state,enemy)
-	var target_tile: Vector2i = target.get("pos",state["player"]["pos"])
+	var target: Dictionary = engine._closest_enemy_target(state, enemy)
+	var target_tile: Vector2i = target.get("pos", state["player"]["pos"])
 	var best_score: int = -999999
-	var best: Dictionary = fallback.duplicate(true)
-	# These shapes ignore facing, so all four scores tie. Preserve the first
-	# authored direction while evaluating that identical candidate only once.
+	# The standard planner already owns this plan. Replace its affected fields
+	# only after a surviving candidate wins.
+	var best: Dictionary = fallback
 	var pattern_shape: String = shape(pattern)
 	var directions: Array[Vector2i] = tiles(Paths.DIRS_4)
 	if Areas.relative(pattern) and pattern.has("declared_direction"): directions = tiles([pattern["declared_direction"]])
 	if pattern_shape in ["cross", "ring", "swept_path"]: directions.resize(1)
-	# Overlapping candidate routes share anchors on this unchanged board. Keep
-	# their radial footprints local to this plan, including its status range.
-	var radial_cache: Dictionary = {}
-	for record: Dictionary in engine._enemy_actual_path_records(state,enemy,move_range):
-		var arrival: Dictionary = engine._enemy_attack_route_prediction(state,enemy,record,move_range)
-		if not bool(arrival.get("survives",true)) or arrival.get("destination",record["tile"])!=record["tile"]: continue
-		var origin: Vector2i = record["tile"]
+	var geometry: Dictionary = status_range(enemy, pattern)
+	var size := Vector2i.ONE
+	var offsets_by_direction: Dictionary = {}
+	if board != null and pattern_shape in DIRECTIONAL_SHAPES and geometry.has("pattern_footprint"):
+		size = Patterns.footprint_size(geometry)
 		for direction: Vector2i in directions:
-			var geometry: Dictionary = status_range(enemy,pattern).duplicate(true)
+			if direction.length_squared() == 1:
+				offsets_by_direction[direction] = Patterns.footprint_offsets(direction, geometry, size)
+	var transparent_stone: bool = bool(geometry.get("preserve_owned_terrain", false))
+	var surface: String = str(pattern.get("surface", ""))
+	var lays_surface: bool = str(pattern.get("type", "")) == "surface"
+	var allies_at: Dictionary = {}
+	for ally: Dictionary in state["enemies"]:
+		if int(ally.get("hp", 0)) > 0 and int(ally["id"]) != int(enemy["id"]):
+			var tile: Vector2i = ally["pos"]
+			allies_at[tile] = int(allies_at.get(tile, 0)) + 1
+	# Swept shapes share radial footprints across overlapping candidate routes.
+	var radial_cache: Dictionary = {}
+	var profile: RefCounted = engine.boss_intent_profiler()
+	if profile != null: profile.begin("candidate_generation")
+	var records: Array[Dictionary] = engine._enemy_actual_path_records(state, enemy, move_range)
+	if profile != null: profile.end()
+	for record: Dictionary in records:
+		var origin: Vector2i = record["tile"]
+		var use_offsets: bool = not offsets_by_direction.is_empty() and Patterns.can_translate_footprint(origin, size)
+		var base_score: int = -int(record.get("trap_cost", 0)) * 60 - int(record.get("steps", 0)) * 3
+		base_score += (1 if retreat else -1) * Paths.manhattan(origin, target_tile) * 4
+		var arrival_checked: bool = false
+		if pattern_shape == "swept_path":
+			geometry = geometry.duplicate(false)
 			geometry["_resolved_path"] = record["path"]
-			var shape: Array[Vector2i]
-			if pattern_shape == "swept_path":
-				shape = Patterns.swept_shape(engine,state,origin,geometry,radial_cache)
+		for direction: Vector2i in directions:
+			if profile != null: profile.begin("area_tiles")
+			var affected: Array[Vector2i]
+			if use_offsets and offsets_by_direction.has(direction):
+				var offsets: Array[Vector2i] = offsets_by_direction[direction]
+				# Occlusion only removes tiles. A non-target tile adds at most
+				# 25, plus up to 3 for a new surface. Omit all penalties in
+				# this upper bound. Equality keeps the earlier declaration.
+				var upper: int = base_score + (28 if lays_surface else 25) * offsets.size()
+				if offsets.has(target_tile - origin): upper += 1000
+				if upper <= best_score:
+					if profile != null: profile.end()
+					continue
+				affected = board.footprint(origin, offsets, size, transparent_stone)
+			elif pattern_shape == "swept_path":
+				affected = Patterns.swept_shape(engine, state, origin, geometry, radial_cache)
 			else:
-				shape = shape_tiles(engine,state,origin,direction,geometry)
-			var nearest: int = 99
-			var score: int = -int(record.get("trap_cost",0))*60-int(record.get("steps",0))*3
-			for tile: Vector2i in shape:
-				var distance: int = Paths.manhattan(tile,target_tile)
-				nearest=mini(nearest,distance)
-				if distance==0: score+=1000
-				elif distance<=2: score+=35-10*distance
-				if str(pattern.get("type",""))=="surface" and not Surfaces.has_surface(state,tile,str(pattern.get("surface",""))): score+=3
-				for ally: Dictionary in state["enemies"]:
-					if int(ally.get("hp",0))>0 and int(ally["id"])!=int(enemy["id"]) and ally["pos"]==tile: score-=30
-			score-=nearest*20
-			score+=(1 if retreat else -1)*Paths.manhattan(origin,target_tile)*4
-			if score<=best_score: continue
-			best_score=score
-			best["path"]=tiles(record["path"])
-			best["destination"]=origin
-			best["target"]=target
-			best["target_key"]=str(target.get("key",""))
-			best["target_tile"]=target_tile
-			best["declared_direction"]=direction
+				affected = shape_tiles(engine, state, origin, direction, geometry)
+			if profile != null:
+				profile.end()
+				profile.begin("scoring")
+			var score: int = base_score + _pattern_score(state, affected, target_tile, lays_surface, surface, allies_at)
+			if profile != null: profile.end()
+			if score <= best_score: continue
+			# Hazard simulation cannot change the score or move an invalid
+			# candidate into contention. Resolve it only for a potential winner.
+			if not arrival_checked:
+				if profile != null: profile.begin("route_arrival")
+				var arrival: Dictionary = engine._enemy_attack_route_prediction(state, enemy, record, move_range)
+				if profile != null: profile.end()
+				if not bool(arrival.get("survives", true)) or arrival.get("destination", origin) != origin: break
+				arrival_checked = true
+			best_score = score
+			best["path"] = tiles(record["path"])
+			best["destination"] = origin
+			best["target"] = target
+			best["target_key"] = str(target.get("key", ""))
+			best["target_tile"] = target_tile
+			best["declared_direction"] = direction
 	return best
+
+static func _pattern_score(state: Dictionary, affected: Array[Vector2i], target: Vector2i, lays_surface: bool, surface: String, allies_at: Dictionary) -> int:
+	var nearest: int = 99
+	var score: int = 0
+	for tile: Vector2i in affected:
+		var distance: int = Paths.manhattan(tile, target)
+		nearest = mini(nearest, distance)
+		if distance == 0: score += 1000
+		elif distance <= 2: score += 35 - 10 * distance
+		if lays_surface and not Surfaces.has_surface(state, tile, surface): score += 3
+		score -= int(allies_at.get(tile, 0)) * 30
+	return score - nearest * 20
 
 static func component_distance(state: Dictionary, origin: Vector2i, target: Vector2i) -> int:
 	var nearest: int = 999
@@ -687,8 +760,11 @@ static func connector_tiles(engine: RefCounted, state: Dictionary, origin: Vecto
 			linked[choices[0]]=true
 	return best
 
+static func uses_coordination(state: Dictionary, enemy: Dictionary) -> bool:
+	return not str(state.get("guardian_id", "")).is_empty() and bool(enemy.get("guardian_helper", false))
+
 static func coordination_score(engine: RefCounted, state: Dictionary, enemy: Dictionary, destination: Vector2i, target: Vector2i) -> int:
-	if str(state.get("guardian_id","")).is_empty() or not bool(enemy.get("guardian_helper",false)): return 0
+	if not uses_coordination(state, enemy): return 0
 	var covered: Dictionary = {}
 	var reserved: Dictionary = {}
 	for ally: Dictionary in state.get("enemies",[]):

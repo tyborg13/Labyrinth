@@ -28,7 +28,7 @@ def movie_clock(directory: Path, godot: str) -> Path:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default="godot")
-    parser.add_argument("--check-only", action="store_true", help="Parse the recorder headlessly; do not record")
+    parser.add_argument("--check-only", action="store_true", help="Check the encoder and fixture semantics headlessly")
     parser.add_argument("--loops", help="Comma-separated registry IDs; default: all recordable loops")
     parser.add_argument("--task-id", default="tip-05", help="Task-local runner identity")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT, help="Task-local recording evidence")
@@ -42,7 +42,11 @@ def main():
     if args.check_only:
         from webp_encode import Encoder
         Encoder() # Fail before a native recording if the offline encoder ABI is unavailable.
-        return subprocess.call(["python3", "tools/godot_task_runner.py", "--task-id", args.task_id, "--stream", "--", args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/record.gd", "--check-only"], cwd=ROOT)
+        return subprocess.call(
+            ["python3", "tools/godot_task_runner.py", "--task-id", args.task_id, "--stream", "--",
+             args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/record.gd", "--", "--semantics-only"],
+            cwd=ROOT, env=dict(os.environ, TOOLTIP_LOOP_IDS=args.loops or ""),
+        )
     env = os.environ.copy()
     output = args.output_dir.resolve()
     env.update(TIP01_OUT=str(output), LABYRINTH_CEL_LOOK="all")

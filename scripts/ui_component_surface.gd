@@ -107,6 +107,8 @@ static func prepare_initial_assets_for(root: Node, present_frame: Callable, stil
 	await AssetLoader.prepare_textures_for(root, {path: false}, present_frame, still_active)
 	if not bool(still_active.call()): return
 	var source: Image = AssetLoader.load_texture(path).get_image() if not _mipmapped_textures.has(path) else null
+	# Headless texture readback can return the renderer's stored image.
+	if source != null: source = source.duplicate() as Image
 	var result: Variant = await AssetLoader.prepare_cpu_value_for(root, _prepare_socket_images.bind(source, _socket_fill == null), present_frame, still_active)
 	if not bool(still_active.call()) or not result is Dictionary: return
 	if _socket_fill == null and result.get("fill") != null: _socket_fill = ImageTexture.create_from_image(result["fill"])

@@ -1,0 +1,25 @@
+{
+  "min_images": 19,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*turn_order_motion_v5_00_stable.png"},
+    {"pattern": "*turn_order_motion_v5_01_turn_exit.png"},
+    {"pattern": "*turn_order_motion_v5_02_turn_collapse.png"},
+    {"pattern": "*turn_order_motion_v5_03_turn_insert.png"},
+    {"pattern": "*turn_order_motion_v5_04_turn_settled.png"},
+    {"pattern": "*turn_order_motion_v5_05_time_reflow.png"},
+    {"pattern": "*turn_order_motion_v5_06_time_settled.png"},
+    {"pattern": "*turn_order_motion_v5_07_enemy_board_death_active.png"},
+    {"pattern": "*turn_order_motion_v6_08_enemy_overlapping_dissolve.png"},
+    {"pattern": "*turn_order_motion_v6_09_enemy_board_settled.png"},
+    {"pattern": "*turn_order_motion_v6_10_enemy_cleanup_settled.png"},
+    {"pattern": "*turn_order_motion_v5_11_enemy_death_settled.png"},
+    {"pattern": "*turn_order_motion_v5_12_reduced_motion_settled.png"},
+    {"pattern": "*turn_order_motion_v5_13_fire_board_death_active.png"},
+    {"pattern": "*turn_order_motion_v6_14_fire_overlapping_dissolve.png"},
+    {"pattern": "*turn_order_motion_v6_15_fire_board_settled.png"},
+    {"pattern": "*turn_order_motion_v5_16_fire_death_settled.png"},
+    {"pattern": "*turn_order_motion_v5_17_player_tie_forecast.png"},
+    {"pattern": "*turn_order_motion_v5_18_player_tie_scheduled.png"}
+  ]
+}

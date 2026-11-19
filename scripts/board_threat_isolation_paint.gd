@@ -45,7 +45,7 @@ static func scene(board: Control) -> void:
 		return
 	board._slice_op("_draw_board_surface", [tile])
 	if board._rule_threat_tiles.has(tile):
-		board._threat_slice_keys = Isolation.tile_keys(board, tile)
+		board._threat_slice_keys = Isolation.tile_keys(board, tile, true)
 		Isolation.rule_outline_operations(board, tile)
 		board._threat_slice_keys.clear()
 	for entry: Array in board._scene_paths_at(tile):
@@ -54,20 +54,15 @@ static func scene(board: Control) -> void:
 			if entry[0] == board._vector2i_array(threat.get("projected_path", [])) and not bool(entry[2]): board._threat_slice_keys.append(str(threat.get("enemy_key", "")))
 		board._slice_op("_draw_isolated_path", [entry, tile])
 	board._threat_slice_keys.clear()
-	for echo: Dictionary in board.presentation.get("illusion_echo_previews", []):
-		if board._ranged_preview_depth_tile(echo) == tile: board._slice_op("_draw_isolated_arrow", [echo])
-	for threat: Dictionary in board.presentation.get("enemy_threat_previews", []):
-		var effect: Dictionary = board._enemy_threat_ranged_effect(threat)
-		if effect.is_empty() or board._ranged_preview_depth_tile(effect) != tile: continue
-		board._threat_slice_keys.append(str(threat.get("enemy_key", "")))
-		board._slice_op("_draw_isolated_arrow", [effect])
-		board._threat_slice_keys.clear()
+	for arrow: Array in board._scene_arrows_at(tile):
+		board._threat_slice_keys.assign(arrow[1])
+		board._slice_op("_draw_isolated_arrow", [arrow[0]])
+	board._threat_slice_keys.clear()
 	board._slice_op("_draw_noctyrax_refuge_tile", [tile])
 	board._slice_op("_draw_isolated_props", [tile], true)
 	var owner: Control = board.get("_render_instrumentation_owner")
 	if is_instance_valid(owner) and is_instance_valid(owner.get("_occlusion_silhouettes")) and bool(owner.get("_occlusion_silhouettes").get("tool_enabled")): return
-	for unit: Dictionary in board._visible_units():
-		if board._effective_unit_tile(unit) != tile: continue
+	for unit: Dictionary in board._scene_isolated_units_at(tile):
 		board._threat_slice_keys = Isolation.owner_keys(unit, board)
 		board._slice_op("_draw_unit_body", [unit], true)
 	board._threat_slice_keys.clear()

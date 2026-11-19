@@ -129,6 +129,8 @@ func refresh_tile(tile: Vector2i) -> void:
 		canvas.set("_idle_elapsed", board.get("_idle_elapsed"))
 		canvas.set("_hover_tile", board.get("_hover_tile"))
 		canvas.set("_controller_focus_tile", board.get("_controller_focus_tile"))
+		var trace: RefCounted = board.get("_board_redraw_trace")
+		if trace != null: trace.inherit_reason(canvas.get_parent(), canvas, false, "unit pose refresh")
 		canvas.queue_redraw()
 		if entries.has(key): _update(key)
 

@@ -54,7 +54,7 @@ static func migrate_save(value: Variant) -> void:
 			if str(key) in ["analytics", "analytics_context", "analytics_events", "progression_analytics_outbox", "completed_run_results", "last_run_result", "log", "surface_events", "elemental_source", "rubble_source"]: continue
 			migrate_save(value[key])
 
-static func declare(engine: RefCounted, state: Dictionary, index: int, intents: Array) -> Dictionary:
+static func declare(engine: RefCounted, state: Dictionary, index: int, owned_intents: Array) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	# Honor a previously saved first-revision Night Coil warning once. Current
 	# data never sets this flag; all newly declared Coils require player relight.
@@ -64,18 +64,18 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 			if not bool(brazier.get("lit",true)): restored.append(brazier["pos"])
 			brazier["lit"] = true
 		Surfaces.record_event(state,{"kind":"dragon_light_restored","tiles":restored,"trigger":"legacy_saved_night_coil","source":{"actor_kind":"enemy","actor_id":enemy["id"]}})
-	var order: Array = engine.GameData.enemy_def(str(enemy["type"])).get("cycle_order", [])
-	_map_cycle(enemy, intents, order)
+	var order: Array = engine.GameData.enemy_property(str(enemy["type"]), "cycle_order", [])
+	_map_cycle(enemy, owned_intents, order)
 	var cycle: int = int(enemy.get("dragon_cycle", -1)) + 1
 	enemy["dragon_cycle"] = cycle
-	var selected: int = posmod(cycle, intents.size())
+	var selected: int = posmod(cycle, owned_intents.size())
 	if not order.is_empty():
 		var id: String = str(order[posmod(cycle, order.size())])
-		for i: int in range(intents.size()):
-			if str(intents[i].get("id", "")) == id:
+		for i: int in range(owned_intents.size()):
+			if str(owned_intents[i].get("id", "")) == id:
 				selected = i
 				break
-	var intent: Dictionary = (intents[selected] as Dictionary).duplicate(true)
+	var intent: Dictionary = owned_intents[selected]
 	for action: Dictionary in intent.get("actions", []):
 		match str(action.get("type", "")):
 			"cinder_marks":
@@ -104,8 +104,8 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 				if not choices.is_empty():
 					action["brazier_id"] = int(choices[0]["id"])
 					enemy["eclipse_brazier_id"] = action["brazier_id"]
-	intent = engine._surface_prepare_enemy_intent(state, enemy, intent)
-	return Committed.commit(engine, state, index, intent)
+	intent = engine._surface_prepare_enemy_intent(state, enemy, intent, true)
+	return Committed.commit_owned(engine, state, index, intent)
 
 # Legacy cycle indexes refer to the unique intent array. Preserve the current
 # warning verbatim, then continue after that id's first slot in the new order.

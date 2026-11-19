@@ -3,6 +3,7 @@ extends RefCounted
 ## focus up front; only a larger draw, a new combat/turn or display change reflows.
 
 const HandFan = preload("res://scripts/hand_fan_container.gd")
+const HandBudget = preload("res://scripts/combat_hand_budget.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 var right_column := preload("res://scripts/combat_hud_right_column.gd").new()
@@ -40,7 +41,7 @@ func hand_bounds(scene: Control) -> Rect2:
 	for count: int in range(1, _dealt_count + 1):
 		for focused: bool in [false, true]:
 			var card_size: Vector2 = scene.call("_hand_card_size", count, false, focused)
-			var gap: float = scene.call("_hand_layout_gap", count, card_size)
+			var gap: float = HandBudget.dock_envelope_gap(scene, count, card_size)
 			var candidate: Vector2 = HandFan.content_size_for_layout(count, card_size, gap, true)
 			envelope = envelope.max(candidate)
 	_held_bounds = Rect2(scroll.get_global_rect().get_center() - envelope * 0.5, envelope)

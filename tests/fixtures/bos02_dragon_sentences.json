@@ -4,8 +4,8 @@
     "at_half_health_sentence": "After every second Vyraketh turn, every Fire tile spreads 1 tile in all four directions."
   },
   "tharokh": {
-    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them.",
-    "at_half_health_sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
+    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+    "at_half_health_sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
   },
   "iskaldra": {
     "sentence": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them.",

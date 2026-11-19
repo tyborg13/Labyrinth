@@ -30,6 +30,8 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 		failures.append(id + ": the production action or turn-start beat could not resolve")
 		return failures
 	var action: Dictionary = beats[0]["action"]
+	if id in [setup.DISCHARGE, setup.SWAP] and (not _plain_room(before) or not _plain_room(after)):
+		failures.append(id + ": demonstration must use clear plain floor, without light, room rules, terrain or traps")
 	for enemy: Dictionary in before["enemies"]:
 		var hp: int = Data.enemy_def(enemy["type"])["max_hp"]
 		if enemy["hp"] != hp or enemy["max_hp"] != hp: failures.append(id + ": enemy Health must come from its definition")
@@ -44,26 +46,27 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 			if not _enemies_lost(before, after, int(action["damage"])) or after["player"]["hp"] != before["player"]["hp"]:
 				failures.append("Detonate must hit each enemy once with the printed damage")
 		setup.DISCHARGE:
-			var engine := Combat.new()
 			var discharges: Array[Dictionary] = events(before, after, "surface_discharge")
-			if engine.is_tile_visible_to_player(before, setup.BRIDGE) or not engine.is_tile_visible_to_player(before, setup.TAIL):
-				failures.append("Discharge must show a visible Electrified tail separated by a dark bridge")
-			if discharges.size() != 1 or not _same_tiles(discharges[0]["tiles"], setup.NETWORK):
-				failures.append("Discharge must use the three visible connected tiles")
-			if not _same_tiles(Surfaces.tiles(after, "electrified"), [setup.BRIDGE, setup.TAIL]):
-				failures.append("Discharge must leave the bridge and disconnected visible tail intact")
+			if setup.NETWORK.size() != 4 or not _same_tiles(Surfaces.tiles(before), setup.NETWORK) or not _same_tiles(Surfaces.tiles(before, "electrified"), setup.NETWORK):
+				failures.append("Discharge must start with only its four Electrified tiles")
+			if discharges.size() != 1 or not _same_tiles(discharges[0]["tiles"], setup.NETWORK) or not after["surfaces"].is_empty():
+				failures.append("Discharge must remove the entire L in one action")
+			if before["enemies"].size() != 2 or not before["illusions"].is_empty() or before["player"]["hp"] != after["player"]["hp"]:
+				failures.append("Discharge must show the unharmed caster and exactly two enemies")
 			if not _enemies_lost(before, after, int(action["damage"])) or Surfaces.has_surface(before, setup.BESIDE_NETWORK, "electrified") or not Surfaces.has_surface(before, setup.ON_NETWORK, "electrified"):
 				failures.append("Discharge must hit one enemy on the network and one beside it, once each")
 		setup.SWAP:
 			var swaps: Array[Dictionary] = events(before, after, IllusionRules.SWAP_EVENT)
-			var arrival: Array[Dictionary] = events(before, after, "surface_damage")
-			var fire: int = Data.fixed_point_amount(Surfaces.FIRE_ENTRY_DAMAGE)
 			if before["illusions"].size() != 1 or after["illusions"].size() != 1 or swaps.size() != 1:
 				failures.append("Swap must exchange the hero and one production illusion")
-			elif after["player"]["pos"] != before["illusions"][0]["pos"] or after["illusions"][0]["pos"] != before["player"]["pos"]:
-				failures.append("Both actors must land on the other actor's original tile")
-			if arrival.size() != 1 or arrival[0].get("actor_kind") != "player" or arrival[0].get("surface") != "fire" or arrival[0].get("trigger") != "entry" or before["player"]["hp"] - after["player"]["hp"] != fire:
-				failures.append("The hero must take the production Fire entry loss on landing")
+			else:
+				var distance: int = Paths.manhattan(before["player"]["pos"], before["illusions"][0]["pos"])
+				if distance not in [2, 3] or after["player"]["pos"] != before["illusions"][0]["pos"] or after["illusions"][0]["pos"] != before["player"]["pos"]:
+					failures.append("Both actors must trade their original tiles, two to three tiles apart")
+				if before["illusions"][0]["hp"] != after["illusions"][0]["hp"]:
+					failures.append("The illusion must swap without a Health change")
+			if not before["enemies"].is_empty() or not after["enemies"].is_empty() or not before["surfaces"].is_empty() or not after["surfaces"].is_empty() or before["player"]["hp"] != after["player"]["hp"]:
+				failures.append("Swap must show only the hero and illusion on plain floor, without a hit")
 		setup.WORLDSPINE:
 			var raised: Dictionary = beats[0]["after"]
 			var spines: Array[Dictionary] = TerrainRules.player_worldspines(Combat.new(), raised)
@@ -76,6 +79,17 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 			if after["turn"] != raised["turn"] + 1 or pulses.size() != 1 or not _same_tiles(pulses[0]["enemy_ids"], [after["enemies"][0]["id"]]) or not _enemies_lost(raised, after, Data.fixed_point_amount(PULSE_DAMAGE)):
 				failures.append("The next player turn must issue one Worldspine pulse and hit once for 3")
 	return failures
+
+static func _plain_room(state: Dictionary) -> bool:
+	var engine := Combat.new()
+	return (
+		engine.effective_umbra_stage(state) == Combat.UMBRA_STAGE_CLEAR
+		and engine.effective_light_sources(state).is_empty()
+		and state.get("battlefield_rule", {}).is_empty()
+		and state["terrain"].is_empty() and state["traps"].is_empty()
+		and state["loot"].is_empty() and state.get("npcs", []).is_empty()
+		and state["grid"].all(func(row: Array) -> bool: return row.all(func(tile: String) -> bool: return tile == "stone"))
+	)
 
 static func _same_tiles(actual: Array, expected: Array) -> bool:
 	return actual.size() == expected.size() and expected.all(func(tile: Variant) -> bool: return actual.has(tile))
@@ -123,12 +137,11 @@ func finish(fixture: Dictionary, result: Dictionary, board: Control, setup: Scri
 	for tile: Vector2i in expected:
 		if not _first_effect_by_tile.get(tile, false): failures.append("%s must submit the effect at %s" % [id, tile])
 	if id == setup.DISCHARGE and not _same_tiles(_first_effect_by_tile.keys(), expected):
-		failures.append("Discharge must submit removal effects only on its connected visible L")
+		failures.append("Discharge must submit removal effects on all four tiles of its L")
 	var before: Dictionary = fixture["state"]
 	var after: Dictionary = result["final"]
 	if id == setup.SWAP:
-		if not board.seen_numbers.has("player:-%d" % (before["player"]["hp"] - after["player"]["hp"])):
-			failures.append("Swap must show the hero's Fire entry loss")
+		if not board.seen_numbers.is_empty(): failures.append("Swap must show the exchange without combat numbers")
 	else:
 		for index: int in range(before["enemies"].size()):
 			var enemy: Dictionary = before["enemies"][index]

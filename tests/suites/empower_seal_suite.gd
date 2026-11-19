@@ -10,6 +10,7 @@ const ROUTED_DRAG_OFFSET := Vector2(20, 0)
 const NEUTRAL_STICK_VALUE: float = 0.1
 const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 5
+const HAND_EMPHASIS_TIMEOUT_MSEC: int = 5000
 const FIXTURE_SEEDS := {"mouse": 60301, "drag": 60302, "blocked": 60303, "multi": 60304, "rotation": 60305, "survivor": 60306}
 
 static func run_live(tree: SceneTree, expect: Callable, include_feedback: bool = true) -> void:
@@ -88,7 +89,11 @@ static func _mouse_and_persistence(tree: SceneTree, expect: Callable, fixtures: 
 	var scene: Node = await fixtures._live_instance(tree, expect, ["kwtest_empower_time"], FIXTURE_SEEDS["mouse"])
 	var card: Control = scene.call("_hand_card_control", 0)
 	await _mouse(tree, card.get_global_transform_with_canvas() * (card.size * 0.5))
-	await _settle(tree)
+	var fan: HandFanContainer = scene.get("hand_box")
+	var deadline: int = Time.get_ticks_msec() + HAND_EMPHASIS_TIMEOUT_MSEC
+	while (fan.is_sliding() or fan.emphasis_strength() < 1.0) and Time.get_ticks_msec() < deadline:
+		await tree.process_frame
+	expect.call(not fan.is_sliding() and is_equal_approx(fan.emphasis_strength(), 1.0), "The hovered card settles before the pointer targets its seal")
 	var hand_seal: Button = _seal(scene)
 	var hand_point: Vector2 = hand_seal.get_global_transform_with_canvas() * (hand_seal.size * 0.5)
 	await _mouse(tree, hand_point, true)
@@ -167,7 +172,7 @@ static func _blocked_and_lock(tree: SceneTree, expect: Callable, fixtures: Scrip
 	await _key(scene)
 	expect.call(_toggle_event_count() == toggles_before, "Blocked attempts do not emit toggle analytics")
 	expect.call(not bool(scene.call("_hand_card_empowered", 0)) and bool(_seal(scene).get("blocked")), "A lethal Empower health cost cannot be charged")
-	expect.call(_seal(scene).tooltip_text == "Not enough health: Empower costs 2 HP." and not _seal(scene).get_node("Badge").visible, "Blocked seal gives the exact health explanation and hides the hint")
+	expect.call(_seal(scene).tooltip_text == "Not enough Health: Empower costs 2 Health." and not _seal(scene).get_node("Badge").visible, "Blocked seal gives the exact health explanation and hides the hint")
 	state["relics"] = ["iron_lung"]
 	(state["player"] as Dictionary)["stoneskin"] = 2
 	scene.call("_mark_combat_preview_state_changed")

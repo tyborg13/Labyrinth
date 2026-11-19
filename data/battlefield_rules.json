@@ -109,7 +109,7 @@
         "length": 5,
         "health": 3
       },
-      "sentence": "After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them."
+      "sentence": "After every second Thornmother turn, its marked tiles rise as Outcrops."
     },
     "prior": {
       "rule": "shadowstep",
@@ -139,7 +139,7 @@
         "pattern": "exit_lane",
         "health": 3
       },
-      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop unless something immovable is on it."
+      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop."
     },
     "snare_fire": {
       "rule": "wildfire",
@@ -321,7 +321,7 @@
         "length": 3,
         "health": 2
       },
-      "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops unless something immovable is on them."
+      "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops."
     },
     "last_lamplighter": {
       "rule": "shadowstep",
@@ -378,13 +378,13 @@
         "length": 5,
         "health": 4
       },
-      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them.",
+      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
       "at_half_health": {
         "cadence": {
           "anchor": "after_player_turn",
           "every": 1
         },
-        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
+        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
       }
     },
     "iskaldra": {

@@ -281,6 +281,8 @@ func _initialize() -> void:
 	# tune-01/gfix-02 add difficulty tiers and cap starters while protecting the
 	# exit Gaoler. ship-02 changes the Upheaval marks, and ship-03 changes area
 	# intent geometry/provenance. The last checkpoint matches b8de863ef exactly.
+	# qa-114: txt-16 capitalizes Block and Health in 13 combat log entries.
+	# The maps, room layouts and all other normalized snapshot fields match.
 	var expected: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/encounter_measurement_golden.json"))
 	check(Sweep.golden(_legacy_wind_metadata) == expected, "release golden maps, rooms, combat transitions and save roundtrips match")
 	check(stripped_wind_announcements > 0, "Legacy golden exercises the separately tested additive wind-lock metadata")

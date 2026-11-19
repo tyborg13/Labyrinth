@@ -159,6 +159,7 @@ var _art_treatment_enabled: bool = true
 const IntentBadges = preload("res://scripts/intent_badges.gd")
 const LastLightRules = preload("res://scripts/last_light_rules.gd")
 const ThreatTiles = preload("res://scripts/threat_tiles.gd")
+const FloorRed = preload("res://scripts/pass_forecast_red_tiles.gd")
 const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
@@ -785,6 +786,9 @@ var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _rest_threat_tile_alphas: Dictionary = {}
 var _rule_threat_tiles: Dictionary = {}
+var _floor_threat_coverage: Dictionary = {}
+var _marker_threat_coverage: Dictionary = {}
+var _threat_paint_inputs_owned: bool = false
 # Borrowed only during one synchronous overlay draw; rebuilt on every draw.
 var _overlay_draw_sources: Dictionary = {}
 var _command_glow_inputs: Array = []
@@ -819,6 +823,7 @@ var _preparing_submission: bool = false
 var _submission_units_valid: bool = false
 var _submission_units: Array[Dictionary]
 var _hover_hud_refresh_pending: bool = false
+var _hover_overlay_refresh_pending: bool = false
 var _units_by_draw_tile_cache: Dictionary = {}
 var _scene_props_by_tile: Dictionary = {}
 var _terrain_by_tile: Dictionary = {}
@@ -1000,6 +1005,12 @@ var _submission_performance_counts: Dictionary = {}
 var _submission_redraws: Dictionary = {}
 var _submission_reuses_effect_plan: bool = false
 var _batching_submission_redraws: bool = false
+const BoardRedrawTrace = preload("res://scripts/board_redraw_trace.gd")
+var _board_redraw_trace: RefCounted
+
+func _board_redraw_baseline() -> bool:
+	return _board_redraw_trace != null and _board_redraw_trace.baseline
+
 var _retained_draw_frame_id: int = -1
 var _retained_draw_frame_total_usec: int = 0
 var _retained_draw_frame_count: int = 0
@@ -1026,8 +1037,15 @@ func _enter_tree() -> void:
 	# on re-entry without requiring another pointer/controller event.
 	if _hover_hud_refresh_pending:
 		call_deferred("_flush_hover_hud_redraw")
+	if _hover_overlay_refresh_pending:
+		call_deferred("_flush_hover_overlay_redraw")
 
 func _ready() -> void:
+	if is_instance_valid(_render_instrumentation_owner):
+		_board_redraw_trace = _render_instrumentation_owner.get("_board_redraw_trace")
+	elif OS.is_debug_build():
+		var trace_mode: String = OS.get_environment(BoardRedrawTrace.ENVIRONMENT)
+		if trace_mode in ["inputs", "timing"]: _board_redraw_trace = BoardRedrawTrace.new(trace_mode)
 	var startup_started: int = Time.get_ticks_usec() if get_tree().root.has_meta("labyrinth_performance_probe_seed") else 0
 	ElementalSpellFx.prepare()
 	startup_started = _record_startup_performance_phase("spell_fx_prepare", startup_started)
@@ -2413,6 +2431,9 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	var layers: Array = _retained_layers_cache
 	var same_layers: bool = _retained_state_layers_revision == _retained_base_layers_revision
 	if fields.is_empty() or not same_layers:
+		if _board_redraw_trace != null and _board_redraw_trace.active:
+			if fields.is_empty(): _board_redraw_trace.reasons.append("STATE_FIELDS: empty field list")
+			if not same_layers: _board_redraw_trace.reasons.append("STATE_FIELDS: layer roster changed")
 		fields = LayerSlices.STATE_FIELDS
 	if layout_changed or visual_framing_changed:
 		for layer: Control in layers:
@@ -2449,13 +2470,29 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 
 	_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 
+func _queue_full_redraw_with_trace(reason: String) -> void:
+	var trace: RefCounted = _board_redraw_trace
+	if trace == null or not trace.active:
+		_queue_dynamic_redraw()
+		return
+	var prior: Array = trace.reasons
+	trace.reasons = prior + [reason]
+	_queue_dynamic_redraw()
+	trace.reasons = prior
+
 func _queue_dynamic_redraw() -> void:
 	_full_dynamic_redraw_count += 1
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		queue_redraw()
 		return
+	var trace: RefCounted = _board_redraw_trace
+	var prior: Array
+	if trace != null and trace.active:
+		prior = trace.reasons
+		trace.reasons = prior + ["_queue_dynamic_redraw"]
 	for layer: Control in _retained_render_layers(false):
 		_queue_render_layer_redraw(layer)
+	if trace != null and trace.active: trace.reasons = prior
 
 var _render_redraw_request_count: int = 0
 
@@ -2465,6 +2502,8 @@ func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> voi
 		_queue_render_layer_redraw(_effects_telegraph_render_layer)
 	if layer == null or not is_instance_valid(layer):
 		return
+	if layer == _overlay_render_layer and not clock_only: _hover_overlay_refresh_pending = false
+	if _board_redraw_trace != null: _board_redraw_trace.note(layer, "clock" if clock_only else "")
 	if _batching_submission_redraws:
 		# Several changed fields can feed the same ordered slice plan. Join their
 		# invalidations within this synchronous submission; an input invalidation
@@ -2490,6 +2529,7 @@ func _queue_render_layer_redraw(layer: Control, clock_only: bool = false) -> voi
 
 func _flush_submission_redraws() -> void:
 	_batching_submission_redraws = false
+	_scene_tile_preparation.begin_redraw_batch(presentation)
 	for layer: Control in _submission_redraws:
 		var started: int = Time.get_ticks_usec() if not _submission_detail_current.is_empty() else 0
 		_queue_render_layer_redraw(layer, bool(_submission_redraws[layer]))
@@ -2498,6 +2538,7 @@ func _flush_submission_redraws() -> void:
 			_record_submission_detail("layers", layer._render_layer_kind, elapsed)
 			_record_submission_detail("slices", layer._render_instrumentation_detail_key(), elapsed)
 	_submission_redraws.clear()
+	_scene_tile_preparation.finish_redraw_batch()
 
 func render_instrumentation_snapshot() -> Dictionary:
 	_commit_retained_draw_frame()
@@ -2705,9 +2746,11 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	if _board_redraw_trace != null: _board_redraw_trace.reasons = ["clock"]
 	var owner: Node = _render_instrumentation_owner if is_instance_valid(_render_instrumentation_owner) else self
 	var started: int = Time.get_ticks_usec() if bool(owner.get("_submission_performance_instrumentation_enabled")) else 0
 	_process_board_frame(delta)
+	if _board_redraw_trace != null: _board_redraw_trace.reasons = []
 	if started > 0: owner.call("_record_render_frame_section", Engine.get_process_frames(), "board_process", Time.get_ticks_usec() - started)
 
 func _process_board_frame(delta: float) -> void:
@@ -3020,7 +3063,7 @@ func set_targeted_tile(tile: Vector2i) -> void:
 			_threat_lift_tile = lift
 			if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
 				_overlay_render_layer.set("_threat_lift_tile", lift)
-				_queue_render_layer_redraw(_overlay_render_layer)
+				_queue_hover_overlay_redraw()
 			else:
 				queue_redraw()
 	_sync_occlusion_reveal_focus()
@@ -3051,7 +3094,7 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	if not _battlefield_presentation_initialized or inputs != _battlefield_presentation_inputs:
 		# Hover changes the enemy rest overlay, not the rule forecast. Cache the
 		# rule's contribution independently, validating all forecast inputs exactly.
-		var decorated: Dictionary = BattlefieldRuleView.presentation_for(state, sight)
+		var decorated: Dictionary = BattlefieldRuleView.presentation_for(state, sight, inputs)
 		_battlefield_presentation_inputs = inputs.duplicate(true)
 		_battlefield_presentation_initialized = true
 		_battlefield_rule_threat = (decorated.get("threats_at_rest", {}) as Dictionary).duplicate(true)
@@ -3103,10 +3146,28 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	next_presentation = _battlefield_rule_presentation_for(next_state, next_presentation, _submission_state_revision)
 	next_presentation = preload("res://scripts/enemy_path_presentation.gd").without_enemy_paths(next_presentation, submitted_paths)
 	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
-	var threats: Array = next_presentation.get("threats_at_rest", {}).get("threats", [])
+	if next_presentation.has(FloorRed.FLOOR_KEY):
+		var floor: Array = next_presentation[FloorRed.FLOOR_KEY]
+		for decoration: Dictionary in next_presentation.get("threats_at_rest", {}).get("threats", []):
+			if decoration["key"] != BattlefieldRuleView.THREAT_KEY and decoration["key"] != SnarePressureView.THREAT_KEY: continue
+			if floor.has(decoration): continue
+			if is_same(floor, next_presentation[FloorRed.FLOOR_KEY]): floor = floor.duplicate()
+			floor.append(decoration)
+		if not is_same(floor, next_presentation[FloorRed.FLOOR_KEY]):
+			next_presentation[FloorRed.FLOOR_KEY] = floor
+	if not trust_same_reference_state:
+		ThreatTiles.own_paint_inputs(next_presentation, presentation, _threat_paint_inputs_owned, FloorRed.FLOOR_KEY)
+	_threat_paint_inputs_owned = not trust_same_reference_state
 	var previous_rule_threat_tiles: Dictionary = _rule_threat_tiles
-	_rest_threat_tile_alphas = ThreatTiles.tile_alphas(threats)
-	_rule_threat_tiles = ThreatTiles.rule_tiles(threats)
+	var legacy: Array = next_presentation.get("threats_at_rest", {}).get("threats", [])
+	if _marker_threat_coverage.is_empty() or legacy != presentation.get("threats_at_rest", {}).get("threats", []):
+		_marker_threat_coverage = ThreatTiles.coverage(legacy)
+	if not next_presentation.has(FloorRed.FLOOR_KEY):
+		_floor_threat_coverage = _marker_threat_coverage
+	elif not presentation.has(FloorRed.FLOOR_KEY) or next_presentation[FloorRed.FLOOR_KEY] != presentation[FloorRed.FLOOR_KEY]:
+		_floor_threat_coverage = ThreatTiles.coverage(next_presentation[FloorRed.FLOOR_KEY])
+	_rest_threat_tile_alphas = _floor_threat_coverage["alphas"]
+	_rule_threat_tiles = _floor_threat_coverage["rules"]
 	submission_phase_started = _record_submission_performance_phase("decorate", submission_phase_started)
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
@@ -3183,6 +3244,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_update_cursor_shape()
 		_record_submission_performance_phase("identical", submission_phase_started)
 		return
+	if _board_redraw_trace != null and _board_redraw_trace.active:
+		_board_redraw_trace.reasons = []
+		for key: String in presentation_changes: _board_redraw_trace.reasons.append("presentation." + key)
+		for key: String in combat_render_changes: _board_redraw_trace.reasons.append("combat_state." + key)
+		for field: Array in [[move_tiles_changed, "move_tiles"], [attack_tiles_changed, "attack_tiles"], [selected_tile_changed, "selected_tile"], [status_changed, "status"], [exit_tiles_changed, "exit_tiles"], [exit_icon_ids_changed, "exit_icon_ids"]]:
+			if field[0]: _board_redraw_trace.reasons.append(field[1])
 	var surface_redraw_tiles: Array[Vector2i] = BoardSurfaceRenderDependencies.changed_tiles(presentation, next_presentation, presentation_changes)
 	var previous_damage_preview: Dictionary = {}
 	var moving_actor_keys: Dictionary = {}
@@ -3600,7 +3667,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if exit_icon_ids_changed:
 			retained_sync_fields.append("exit_icon_ids")
 		if not presentation_changes.is_empty():
-			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas", "_rule_threat_tiles"])
+			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas", "_rule_threat_tiles", "_floor_threat_coverage", "_marker_threat_coverage"])
 			retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		if presentation_changes.has("damage_preview") or presentation_changes.has("effect"):
 			retained_sync_fields.append("_damage_preview_cache")
@@ -3657,7 +3724,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if biome_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
-		_queue_dynamic_redraw()
+		if _board_redraw_trace != null and _board_redraw_trace.active:
+			_queue_full_redraw_with_trace("layout/geometry=%s/%s framing=%s floor=%s moss=%s biome=%s" % [layout_changed, geometry_changed, visual_framing_changed, floor_changed, moss_changed, biome_changed])
+		else:
+			_queue_dynamic_redraw()
 	else:
 		if _submission_cache_combat_changed:
 			_queue_combat_state_change_redraws(
@@ -3698,7 +3768,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		)
 		for surface_tile: Vector2i in surface_redraw_tiles:
 			_queue_scene_render_layer_for_tile(surface_tile)
-		if presentation_changes.has("threats_at_rest"):
+		if presentation_changes.has("threats_at_rest") or presentation_changes.has(FloorRed.FLOOR_KEY):
 			for tile: Vector2i in previous_rule_threat_tiles:
 				_queue_scene_render_layer_for_tile(tile)
 			for tile: Vector2i in _rule_threat_tiles:
@@ -3727,6 +3797,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_preparing_submission = false
 	_submission_units_valid = false
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
+	if _board_redraw_trace != null: _board_redraw_trace.reasons = []
 
 func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
 	_path_draw_cache.record_builds = enabled
@@ -3893,6 +3964,7 @@ func _queue_presentation_change_redraws(
 ) -> void:
 	if changed_keys.is_empty() and not damage_preview_changed:
 		return
+	var baseline: bool = _board_redraw_baseline()
 	var ambient_changed: bool = false
 	var overlay_changed: bool = false
 	var path_changed: bool = false
@@ -3932,6 +4004,9 @@ func _queue_presentation_change_redraws(
 			"effect", "effect_progress":
 				for tile: Vector2i in SceneDirtyTiles.bramble(previous_path_presentation).merged(SceneDirtyTiles.bramble(presentation)):
 					_queue_scene_render_layer_for_tile(tile)
+				# Even a plain move samples the effects canvas and its independent
+				# telegraphs. A live Capacitor arc advances on this submission, even
+				# when its descriptor and nonlethal damage preview are unchanged.
 				effects_changed = effects_changed or changed_keys.has("effect") or LayerRedraws.effects_read_progress(self)
 				action_floor_changed = true
 				overlay_changed = overlay_changed or LayerRedraws.overlay_reads_clock(self) or LayerRedraws.overlay_effect_inputs(previous_path_presentation) != LayerRedraws.overlay_effect_inputs(presentation)
@@ -3992,6 +4067,12 @@ func _queue_presentation_change_redraws(
 				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
 				_feel_surface_tiles = (presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames",{})) as Dictionary).keys()
 				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
+			"board_targeting":
+				if baseline:
+					_unclassified_presentation_redraw_keys["board_targeting"] = int(_unclassified_presentation_redraw_keys.get("board_targeting", 0)) + 1
+					_queue_full_redraw_with_trace("board_targeting")
+					return
+				_queue_targeting_transition_samples(previous_path_presentation)
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
 				pass
@@ -4000,6 +4081,8 @@ func _queue_presentation_change_redraws(
 			"umbra_light_sources", "umbra_stage":
 				_queue_render_layer_redraw(_dynamic_render_layer)
 				foreground_changed = true
+			FloorRed.FLOOR_KEY, ThreatTiles.LOB_AIM_KEY:
+				overlay_changed = true
 			"threats_at_rest":
 				overlay_changed = true
 				hud_changed = true
@@ -4028,7 +4111,10 @@ func _queue_presentation_change_redraws(
 					foreground_changed = true
 					continue
 				_unclassified_presentation_redraw_keys[unclassified_key] = int(_unclassified_presentation_redraw_keys.get(unclassified_key, 0)) + 1
-				_queue_dynamic_redraw()
+				if _board_redraw_trace != null and _board_redraw_trace.active:
+					_queue_full_redraw_with_trace("unclassified: " + unclassified_key)
+				else:
+					_queue_dynamic_redraw()
 				return
 	if ambient_changed:
 		_queue_render_layer_redraw(_ambient_render_layer)
@@ -4068,6 +4154,37 @@ func _queue_presentation_change_redraws(
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
 		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
+
+func _queue_targeting_transition_samples(previous: Dictionary) -> void:
+	# Release also sampled the clock on the input frame. Continuous ticks run
+	# on their own cadence and cannot stand in for this submission.
+	if not is_instance_valid(_dynamic_render_layer) or not _submission_cache_valid:
+		_queue_dynamic_redraw()
+		return
+	if previous.has("isolated_enemy_actor_keys") != presentation.has("isolated_enemy_actor_keys"):
+		# A plan mode change can create or retire children anywhere on the grid.
+		_queue_dynamic_redraw()
+		return
+	var scene_tiles: Dictionary = LayerRedraws.targeting_scene_tiles(self, previous)
+	var depth_effects: bool = false
+	for shown: Dictionary in [previous, presentation]:
+		if not (shown.get("trap_effects", []) as Array).is_empty() or _effect_uses_elemental_scene_depth(shown.get("effect", {})):
+			depth_effects = true
+			break
+	# Keep release's submission order for the retained layers that still paint.
+	for layer: Control in _retained_render_layers(false):
+		match layer._render_layer_kind:
+			RENDER_LAYER_PATH:
+				continue # Scene tiles own the path paint.
+			RENDER_LAYER_WORLD:
+				if str(presentation.get("umbra_stage", "clear")) == "clear": continue
+			RENDER_LAYER_SCENE_TILE:
+				if layer._render_layer_scene_effect_pass == 0:
+					if not scene_tiles.has(layer._render_layer_tile): continue
+				elif not depth_effects:
+					continue
+		_queue_render_layer_redraw(layer)
+
 
 func _queue_combat_state_change_redraws(
 	changed_keys: Dictionary,
@@ -4782,13 +4899,27 @@ func _queue_hover_redraws() -> void:
 	# Hover only changes tile overlays and enemy intent/HUD layout. Ambient,
 	# occupied-tile art, foreground atmosphere, and effects retain their draw
 	# commands while pointer motion remains fully event-driven.
-	_queue_render_layer_redraw(_overlay_render_layer)
+	_queue_hover_overlay_redraw()
 	# RunScene queues its presentation update from tile_hovered first. Resolve
 	# the HUD after that update, in the same deferred flush before rendering,
 	# instead of solving both the old and final presentation for one pointer move.
 	if not _hover_hud_refresh_pending:
 		_hover_hud_refresh_pending = true
 		call_deferred("_flush_hover_hud_redraw")
+
+func _queue_hover_overlay_redraw() -> void:
+	if _board_redraw_trace != null and _board_redraw_trace.active:
+		_board_redraw_trace.note(_overlay_render_layer, "hover %s / focus %s / lift %s" % [_hover_tile, _controller_focus_tile, _threat_lift_tile])
+	if _board_redraw_baseline():
+		_queue_render_layer_redraw(_overlay_render_layer)
+	elif not _hover_overlay_refresh_pending:
+		_hover_overlay_refresh_pending = true
+		call_deferred("_flush_hover_overlay_redraw")
+
+func _flush_hover_overlay_redraw() -> void:
+	if not _hover_overlay_refresh_pending or not is_inside_tree() or is_queued_for_deletion(): return
+	_hover_overlay_refresh_pending = false
+	_queue_render_layer_redraw(_overlay_render_layer)
 
 func _flush_hover_hud_redraw() -> void:
 	if not _hover_hud_refresh_pending or not is_inside_tree() or is_queued_for_deletion(): return
@@ -5014,7 +5145,10 @@ func _submit_pixel_line(points: PackedVector2Array, core: Color, halo: Color, el
 	return true
 
 func _draw() -> void:
-	preload("res://scripts/board_aim_focus.gd").for_board(self).begin_draw(self)
+	var trace: RefCounted = _board_redraw_trace
+	var started: int = Time.get_ticks_usec() if trace != null and (trace.active or trace.resolve_inputs) else 0
+	var aim: RefCounted = preload("res://scripts/board_aim_focus.gd").for_board(self)
+	aim.begin_draw(self)
 	_path_draw_cache.begin_canvas_draw(self)
 	_pixel_fx_draw_transform = Transform2D.IDENTITY
 	if is_instance_valid(_pixel_fx_layer):
@@ -5022,10 +5156,13 @@ func _draw() -> void:
 	if is_instance_valid(_surface_feedback_pixel_layer):
 		_surface_feedback_pixel_layer.begin(self)
 	_draw_board_commands()
+	aim.finish_draw(self)
 	if is_instance_valid(_pixel_fx_layer):
 		_pixel_fx_layer.finish()
 	if is_instance_valid(_surface_feedback_pixel_layer):
 		_surface_feedback_pixel_layer.finish()
+	if started > 0:
+		trace.draw_finished(self, Time.get_ticks_usec() - started)
 
 func _draw_board_commands() -> void:
 	if not _render_slice_ops.is_empty():
@@ -5291,12 +5428,14 @@ func _draw_overlay_render_layer() -> void:
 	# submitted. Share them across tiles without retaining them across frames.
 	_overlay_draw_sources = {
 		"leader": WarbandView.command_leader(self),
-		"lob_marks": LobView.marks(self),
+		"lob_marks": LobView.floor_marks(self),
 		"icefall_marks": IcefallView.marks(self),
 		"burrow_marks": BurrowView.marks(combat_state),
 		"burst_tiles": DeathBurstView.focused_tiles(self),
 		"zone_tags": ThreatTiles.zone_tags((presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	}
+	if _threat_lift_tile.x >= 0:
+		_overlay_draw_sources["marker_paint"] = LayerSlices.threat_paint(self, _threat_lift_tile, {}, PackedVector2Array(), true)
 	var OverlayTiles = preload("res://scripts/board_overlay_tiles.gd")
 	var leader: Dictionary = _overlay_draw_sources["leader"]
 	var meteor_tiles: Dictionary = OverlayTiles.meteor_tiles(combat_state, presentation, _overlay_draw_sources["burrow_marks"], _overlay_draw_sources["burst_tiles"])
@@ -5374,6 +5513,18 @@ func _scene_paths_at(tile: Vector2i) -> Array:
 		return owner._scene_tile_preparation.paths_at(owner, tile, owner._retained_presentation_revision)
 	return _scene_tile_preparation.paths_at(self, tile)
 
+func _scene_arrows_at(tile: Vector2i) -> Array:
+	var owner: Control = _render_instrumentation_owner
+	if is_instance_valid(owner) and is_same(presentation, owner.get("_retained_presentation")):
+		return owner._scene_tile_preparation.arrows_at(owner, tile, owner._retained_presentation_revision)
+	return _scene_tile_preparation.arrows_at(self, tile)
+
+func _scene_isolated_units_at(tile: Vector2i) -> Array:
+	var owner: Control = _render_instrumentation_owner
+	if is_instance_valid(owner) and is_same(presentation, owner.get("_retained_presentation")):
+		return owner._scene_tile_preparation.units_at(self, tile)
+	return _scene_tile_preparation.units_at(self, tile)
+
 func _build_threat_effect_operations() -> void:
 	preload("res://scripts/board_threat_isolation_paint.gd").effects(self)
 
@@ -5425,7 +5576,8 @@ func _draw_isolated_props(tile: Vector2i) -> void:
 func _draw_isolated_path(entry: Array, tile: Vector2i) -> void:
 	_path_depth_tile = tile
 	_path_depth_clip = _tile_polygon(tile)
-	_draw_path_tiles(_vector2i_array(entry[0]), entry[1], entry[2])
+	var path: Array[Vector2i] = entry[0]
+	_draw_path_tiles(path, entry[1], entry[2])
 	_path_depth_clip = PackedVector2Array()
 	_path_depth_tile = Vector2i(-1, -1)
 
@@ -7770,7 +7922,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		if not leader.is_empty():
 			_slice_op("_draw_cached_command_glow", [tile, polygon, leader])
 	if detailed: _record_render_section_time("overlay_banner", started); started = Time.get_ticks_usec()
-	_threat_slice_keys = LayerSlices.tile_keys(self, tile)
+	_threat_slice_keys = LayerSlices.tile_keys(self, tile, true)
 	LayerSlices.threat_operations(self, tile, polygon, _overlay_draw_sources)
 	_threat_slice_keys.clear()
 	if detailed: _record_render_section_time("overlay_rest", started); started = Time.get_ticks_usec()
@@ -9356,7 +9508,7 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	if str(terrain.get("kind", "")) == "ice_pillar": return IcefallView.pillar_tooltip(terrain)
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
-	var text: String = "%s\n%d/%d HP" % [
+	var text: String = "%s\n%d/%d Health" % [
 		label,
 		int(terrain.get("hp", 0)),
 		int(terrain.get("max_hp", 1))
@@ -14314,7 +14466,14 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool
 			else: _submit_path_line(command["line"], command["color"], command["width"], command["antialiased"])
 	else:
 		# Drawing keeps cached meshes private; the cache publishes no mutable data.
-		_path_draw_cache.draw_path(self, _path_cache_inputs(path_tiles, color), func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path), _path_depth_clip, _polygon_can_draw)
+		_path_draw_cache.draw_path(self, _path_cache_inputs(path_tiles, color), func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path), _path_depth_clip, _path_clip_validator())
+
+func _path_clip_validator() -> Callable:
+	# Both timing routes use the same production clip policy. A custom board
+	# painter can still supply its own per-call validator.
+	if get_script().resource_path != "res://scripts/combat_board_view.gd":
+		return _polygon_can_draw
+	return Callable()
 
 func _cached_path_entry(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> Dictionary:
 	return _path_draw_cache.path(_path_cache_inputs(path_tiles, color), func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path))
@@ -14330,7 +14489,7 @@ func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
 	if path.size() < 2: return
 	var clips: Array = []
 	for tile: Vector2i in path: clips.append(_tile_polygon(tile))
-	_path_draw_cache.prepare_path(_path_cache_inputs(path, ENEMY_PATH_PREVIEW_COLOR), func() -> Array: return _capture_unclipped_path(path, ENEMY_PATH_PREVIEW_COLOR, false), clips, _polygon_can_draw)
+	_path_draw_cache.prepare_path(_path_cache_inputs(path, ENEMY_PATH_PREVIEW_COLOR), func() -> Array: return _capture_unclipped_path(path, ENEMY_PATH_PREVIEW_COLOR, false), clips, _path_clip_validator())
 
 func _capture_unclipped_path(path_tiles: Array[Vector2i], color: Color, hero_path: bool) -> Array:
 	var previous_clip: PackedVector2Array = _path_depth_clip

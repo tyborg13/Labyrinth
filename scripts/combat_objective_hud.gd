@@ -9,6 +9,7 @@ const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 
+const MINIMUM_WIDTH: float = 350.0
 const INTRO_START_SCALE: float = 0.88
 const INTRO_POP_SCALE: float = 2.65
 const INTRO_VERTICAL_RATIO: float = 0.28
@@ -69,7 +70,10 @@ func set_combat_state(state: Dictionary) -> bool:
 	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
 	var title_text: String = CombatObjectiveRules.hud_title_for_objective(objective).to_upper()
 	var detail_text: String = _live_detail(state, objective)
-	var next_tooltip: String = "%s\n%s" % [CombatObjectiveRules.title_for_objective(objective), CombatObjectiveRules.description_for_objective(objective)]
+	var next_tooltip: String = CombatObjectiveRules.title_for_objective(objective)
+	var description: String = CombatObjectiveRules.description_for_objective(objective).strip_edges()
+	if not description.is_empty():
+		next_tooltip += "\n" + description
 	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
 	if visible and next_signature == _presentation_signature:
 		return false
@@ -208,8 +212,8 @@ func _draw() -> void:
 	})
 
 func preferred_width() -> float:
-	if _title == null: return 350.0
-	return maxf(350.0, _title.get_theme_font("font").get_string_size(_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 98.0)
+	if _title == null: return MINIMUM_WIDTH
+	return maxf(MINIMUM_WIDTH, _title.get_theme_font("font").get_string_size(_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 98.0)
 
 func set_hud_rect(rect: Rect2) -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -453,20 +457,20 @@ func opening_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
 	var title_font: Font = _intro_title.get_theme_font("font")
 	var title_sizes: Dictionary = {}
 	for requested: int in range(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE + 1):
-		var width: float = title_font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, requested).x
-		var title_size: int = mini(requested, floori(float(requested) * (INTRO_TEXT_SIZE.x - 32.0) / maxf(1.0, width)))
-		if title_sizes.has(title_size): continue
-		title_sizes[title_size] = true
-		jobs.append_array(Glyphs.text_jobs(title + " …", title_font, title_size, _intro_title.get_theme_constant("outline_size"), _intro_title.get_theme_constant("shadow_outline_size"), oversampling, _intro_title.language))
+		var job: Dictionary = Glyphs.text_request(title + " …", title_font, requested, _intro_title.get_theme_constant("outline_size"), _intro_title.get_theme_constant("shadow_outline_size"), oversampling, _intro_title.language)
+		job["fit_text"] = title
+		job["fit_width"] = INTRO_TEXT_SIZE.x - 32.0
+		job["fitted_sizes"] = title_sizes
+		jobs.append(job)
 	# Text assignment first shapes at the retained label size, before the
 	# intro resets/fits it. Warm its fill metrics without changing that label.
-	jobs.append_array(Glyphs.text_jobs(title + " …", title_font, _intro_title.get_theme_font_size("font_size"), 0, 0, oversampling, _intro_title.language))
+	jobs.append(Glyphs.text_request(title + " …", title_font, _intro_title.get_theme_font_size("font_size"), 0, 0, oversampling, _intro_title.language))
 	for requested: int in range(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE + 1):
-		jobs.append_array(Glyphs.text_jobs(_intro_kicker.text, _intro_kicker.get_theme_font("font"), requested, _intro_kicker.get_theme_constant("outline_size"), _intro_kicker.get_theme_constant("shadow_outline_size"), oversampling, _intro_kicker.language))
+		jobs.append(Glyphs.text_request(_intro_kicker.text, _intro_kicker.get_theme_font("font"), requested, _intro_kicker.get_theme_constant("outline_size"), _intro_kicker.get_theme_constant("shadow_outline_size"), oversampling, _intro_kicker.language))
 	var kicker: Label = _title.get_parent().get_child(0) as Label
 	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": CombatObjectiveRules.hud_title_for_objective(objective).to_upper()}, {"label": _detail, "text": _live_detail(state, objective)}]:
 		var label: Label = entry["label"]
-		jobs.append_array(Glyphs.text_jobs(str(entry["text"]) + (" …" if label.clip_text else ""), label.get_theme_font("font"), label.get_theme_font_size("font_size"), label.get_theme_constant("outline_size"), label.get_theme_constant("shadow_outline_size"), oversampling, label.language))
+		jobs.append(Glyphs.text_request(str(entry["text"]) + (" …" if label.clip_text else ""), label.get_theme_font("font"), label.get_theme_font_size("font_size"), label.get_theme_constant("outline_size"), label.get_theme_constant("shadow_outline_size"), oversampling, label.language))
 	return jobs
 
 func _set_intro_shadow_progress(progress: float) -> void:
@@ -528,8 +532,8 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 				# The named boss bar and objective title already identify this foe.
 				# Keep live health facts; ordinary leaders still need their name here.
 				if bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false)):
-					return "%d/%d HP" % [hp, int(enemy.get("max_hp", hp))]
-				return "%s · %d/%d HP" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
+					return "%d/%d Health" % [hp, int(enemy.get("max_hp", hp))]
+				return "%s · %d/%d Health" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
 			return "The leader has fallen"
 		CombatObjectiveRules.SURVIVE:
 			var current_clock: int = int(state.get("initiative_clock", 0))
@@ -553,5 +557,5 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 				if int(enemy.get("hp", 0)) > 0:
 					live_count += 1
 			if filters_hidden_enemies:
-				return "%d known foe%s remaining" % [live_count, "s" if live_count != 1 else ""]
+				return "%d known enem%s remaining" % [live_count, "ies" if live_count != 1 else "y"]
 			return "%d enem%s remaining" % [live_count, "ies" if live_count != 1 else "y"]

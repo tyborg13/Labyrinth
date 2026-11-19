@@ -126,6 +126,7 @@ def declaration(tokens):
 
 def read_script(path, source):
     s = Script(path, source, statements(tokenize(source)))
+    last_line = source.count('\n') + 1
     for n, ts in enumerate(s.lines):
         vals = [t.value for t in ts]
         if vals[:1] == ['class_name']:
@@ -147,8 +148,9 @@ def read_script(path, source):
                 closing += 1
             colon = next(iter(top_indices(ts[closing+1:], {':'})), len(ts)) + closing+1
             ret = joined(ts[closing+1:colon]).removeprefix('->')
-            end = len(source.splitlines())
-            for later in s.lines[n+1:]:
+            end = last_line
+            for following in range(n+1, len(s.lines)):
+                later = s.lines[following]
                 if later[0].column <= ts[0].column:
                     end = later[0].line - 1
                     break
@@ -341,7 +343,7 @@ class Audit:
         if any(t.value in ARRAY_METHODS for t in ts): return 'untyped-transform'
         return 'untyped-source' if typ == 'Array' or typ.startswith('Packed') else 'unresolved-source'
 
-    def run(self):
+    def run(self, paths=None):
         hits = []
         def add(s, f, expr, context, target, line=None):
             if not expr: return
@@ -351,6 +353,8 @@ class Audit:
                 hits.append(Hit(s.path, line, pattern, context, target, joined(expr),
                                 owner_label(s.path, f.name if f else '')))
         for s in self.scripts.values():
+            if paths is not None and s.path not in paths:
+                continue
             for line, _, name, typ, expr, kind in s.declarations:
                 if typ.startswith('Array['): add(s, s.owner(line), expr, kind, name, line)
             for f in s.funcs:
@@ -358,25 +362,37 @@ class Audit:
                     if typ.startswith('Array['): add(s, f, expr, 'parameter-default', name)
             for ts in s.lines:
                 f = s.owner(ts[0].line)
+                function_header = f and f.line == ts[0].line and any(
+                    t.value == 'func' for t in ts[:2]
+                )
+                if function_header:
+                    colons = list(top_indices(ts, {':'}))
+                    body = ts[colons[0]+1:] if colons else []
+                else:
+                    body = ts
                 # Reassignments (including inline if/else bodies).
-                for i in top_indices(ts, {'='}):
-                    lhs = ts[:i]
+                for i in top_indices(body, {'='}):
+                    lhs = body[:i]
                     if any(t.value in ('var', 'const', 'func') for t in lhs): continue
                     colon = list(top_indices(lhs, {':'}))
                     if colon: lhs = lhs[colon[-1]+1:]
                     name = joined(lhs)
                     typ = self.type_of(s, f, lhs, ts[0].line)
-                    if typ.startswith('Array['): add(s, f, ts[i+1:], 'assignment', name)
+                    if typ.startswith('Array['): add(s, f, body[i+1:], 'assignment', name)
                 if f and f.returns.startswith('Array['):
-                    for i, t in enumerate(ts):
-                        if t.value == 'return' and i in set(top_indices(ts, {'return'})) and not any(v.value == 'func' for v in ts[:i]):
-                            add(s, f, ts[i+1:], 'return', f.name)
+                    for i in top_indices(body, {'return'}):
+                        if not any(v.kind == 'name' and v.value == 'func' for v in body[:i]):
+                            add(s, f, body[i+1:], 'return', f.name)
                 # Walk all nested calls; a literal inside an untyped helper is safe.
                 for i, t in enumerate(ts):
                     if t.kind == 'string' or t.value != '(' or i == 0 or ts[i-1].kind != 'name': continue
                     if i >= 2 and ts[i-2].value == 'func': continue
                     start = i-1
                     while start >= 2 and ts[start-1].value == '.' and ts[start-2].kind == 'name': start -= 2
+                    if start >= 3 and ts[start-1].value == '.' and ts[start-2].value == ')':
+                        opening = self.open(ts, start-2)
+                        if opening and ts[opening-1].value in ('preload', 'load'):
+                            start = opening-1
                     sig = self.signature(s, f, ts[start:i], t.line, candidate=True)
                     if not sig: continue
                     end = self.close(ts, i)

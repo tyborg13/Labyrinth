@@ -7,7 +7,8 @@ const RedTiles = preload("res://scripts/pass_forecast_red_tiles.gd")
 static func record(summary: Dictionary, revision: int) -> Dictionary:
 	return {"revision": revision, "activations": summary.get("enemy_activations", {}),
 		"unknown": summary.get("unknown_repeat_keys", {}), "died_first_keys": summary.get("died_first_keys", {}),
-		"relative_red_areas": summary.get("relative_red_areas", {})}
+		"relative_red_areas": summary.get("relative_red_areas", {}),
+		"hero_red_contacts": summary.get("hero_red_contacts", {})}
 
 static func apply(rest: Dictionary, marks: Dictionary, revision: int, at_rest: bool) -> Dictionary:
 	if not at_rest or marks.is_empty() or int(marks.get("revision", -1)) != revision: return rest
@@ -35,3 +36,7 @@ static func apply(rest: Dictionary, marks: Dictionary, revision: int, at_rest: b
 static func stale(board_rest: Dictionary, marks: Dictionary, revision: int) -> bool:
 	var projection: Dictionary = apply(board_rest, marks, revision, true)
 	return projection.get("badges", []) != board_rest.get("badges", []) or projection.get("threats", []) != board_rest.get("threats", [])
+
+# Supplements are published with the same exact-revision forecast as the plates.
+static func has_floor_supplements(rest: Dictionary, marks: Dictionary) -> bool:
+	return marks.get("hero_red_contacts", {}).has(rest.get("hero_tile"))

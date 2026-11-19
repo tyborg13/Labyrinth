@@ -382,7 +382,7 @@ func _build_detail(record: Dictionary) -> void:
 		for feat: Dictionary in record["feats"]:
 			var feat_row := HBoxContainer.new()
 			feat_row.add_child(_label("◆", 17, Palette.GOLD))
-			var text := _label("%s — %s" % [feat["title"], feat["detail"]], 17, Palette.GOLD_BRIGHT)
+			var text := _label("%s — %s" % [feat["title"], preload("res://scripts/run_score_rules.gd").feat_detail_for_display(str(feat["title"]), str(feat["detail"]))], 17, Palette.GOLD_BRIGHT)
 			text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			feat_row.add_child(text)

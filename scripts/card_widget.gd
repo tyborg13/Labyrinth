@@ -750,7 +750,9 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return UiTooltipPanel.make_lines("MODIFIERS", _modifier_tooltip_lines)
 	if for_text.strip_edges().is_empty():
 		return null
-	return InlineIconText.glossary_panel(for_text, {"kind": "hero_card"})
+	var source: Dictionary = {"kind": "hero_card", "id": card_id}
+	var panel: Control = preload("res://scripts/tooltip_loop_context.gd").card_panel_for_text(for_text, source)
+	return panel if panel != null else InlineIconText.glossary_panel(for_text, source)
 
 func _tooltip_for_icon_at(global_point: Vector2) -> String:
 	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point)
@@ -835,7 +837,6 @@ func set_interaction_state(
 ## +Time cost); the badge shows the total and names the surcharge in its detail.
 ## Every call resets it, so pooled widgets never keep another card's surcharge.
 func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = [], summary_rows: Array = [], time_surcharge: int = 0) -> void:
-	var next_rows: Array = summary_rows.duplicate(true)
 	var next_modifier_lines := PackedStringArray()
 	for line_var: Variant in modifier_lines:
 		next_modifier_lines.append(str(line_var))
@@ -844,10 +845,10 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 	_time_surcharge = next_surcharge
 	if surcharge_changed and is_node_ready():
 		_refresh_time_badge(_display_card_def())
-	if _summary_bbcode == summary_bbcode and _summary_rows == next_rows and _modifier_tooltip_lines == next_modifier_lines:
+	if _summary_bbcode == summary_bbcode and _summary_rows == summary_rows and _modifier_tooltip_lines == next_modifier_lines:
 		return
 	_summary_bbcode = summary_bbcode
-	_summary_rows = next_rows
+	_summary_rows = summary_rows.duplicate(true)
 	_modifier_tooltip_lines = next_modifier_lines
 	tooltip_text = "modifiers" if not _modifier_tooltip_lines.is_empty() else ""
 	if is_node_ready():
@@ -1401,9 +1402,9 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var detail: String = ActionIcons.tooltip("time")
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
-	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
-	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\n%s: -%d" % [str(GameData.relic_def(str(card.get("_relic_time_discount_relic", ""))).get("name", "Relic")), int(card["_relic_time_discount"])]
-	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
+	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: −%d" % int(card["_rite_time_discount"])
+	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\n%s: −%d" % [str(GameData.relic_def(str(card.get("_relic_time_discount_relic", ""))).get("name", "Relic")), int(card["_relic_time_discount"])]
+	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: −%d" % int(card["_quicken_discount"])
 	if tempo_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_tempo_time_surcharge_relic", ""))).get("name", "Relic")), tempo_surcharge]
 	if item_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_item_time_surcharge_relic", ""))).get("name", "Relic")), item_surcharge]
 	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower: +%d" % (total_surcharge - tempo_surcharge - item_surcharge)

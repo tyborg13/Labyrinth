@@ -44,6 +44,12 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 	rest["threats"] = threats
 	rest["hero_tile"] = state["player"]["pos"]
 	result["threats_at_rest"] = rest
+	var floor_key: String = preload("res://scripts/pass_forecast_red_tiles.gd").FLOOR_KEY
+	if original.has(floor_key):
+		var floor: Array = (original[floor_key] as Array).filter(func(entry: Dictionary) -> bool:
+			return str(entry.get("key", "")) != key or bool(entry.get("later", false)) or bool(entry.get("hero_hit", false)))
+		floor.append(marked)
+		result[floor_key] = floor
 	return result
 
 static func tooltip(terrain: Dictionary) -> String:

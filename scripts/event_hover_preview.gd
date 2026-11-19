@@ -1,6 +1,8 @@
 extends Control
 const Preview = preload("res://scripts/event_reward_preview.gd")
 const Separation = preload("res://scripts/event_reward_separation.gd")
+const Tooltips = preload("res://scripts/event_reward_tooltips.gd")
+const PAINTING_BRIGHTNESS: float = 0.70
 var view: Control
 var cache: Dictionary = {}
 var current: Control
@@ -25,6 +27,7 @@ const PREPARATION_DRAW_FRAMES: int = 2
 func _ready() -> void:
 	name = "EventHoverPreview"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_viewport().size_changed.connect(_layout_preview, CONNECT_DEFERRED)
 	set_process(false)
 
 func _notification(what: int) -> void:
@@ -38,7 +41,7 @@ func prepare() -> void:
 	if view.page != "choices" or not cache.is_empty(): return
 	for choice: Button in view.choices:
 		if not choice.available: continue
-		var line: Dictionary = Preview.first_concrete(view.cached_preview_lines(choice.choice_id))
+		var line: Dictionary = Preview.hover_line(view.cached_preview_lines(choice.choice_id))
 		if line.is_empty() or cache.has(hash(line)): continue
 		var work: Dictionary = Preview.begin_build(line, view.run_state, false, true)
 		_builds.append(work)
@@ -94,11 +97,13 @@ func _advance_preparation() -> bool:
 	var started: int = Time.get_ticks_usec()
 	var work: Dictionary = _builds[0]
 	if Preview.build_next(work):
-		# Fit while detached, exactly like the synchronous builder. Labels may
-		# acquire a larger wrapped minimum after entering the tree; re-fitting at
-		# that point would change the existing preview's centring and scale.
 		var reward: Control = work.stage
 		_restore_ready_cards(reward)
+		var tooltips: Control = Tooltips.build(reward)
+		if tooltips != null:
+			for tooltip: Control in tooltips.get_children():
+				tooltip.minimum_size_changed.connect(_layout_preview, CONNECT_DEFERRED)
+		reward.get_node("Rewards").minimum_size_changed.connect(_layout_preview, CONNECT_DEFERRED)
 		_preparation_viewport.add_child(reward)
 		reward.position = Vector2.ONE * Separation.POOL_MARGIN
 		_builds.pop_front()
@@ -170,7 +175,7 @@ func show_choice(index: int) -> void:
 	if bool(view.get("_busy")) or _preparing:
 		_pending_index = index
 		return
-	var line: Dictionary = Preview.first_concrete(view.cached_preview_lines(view.choices[index].choice_id))
+	var line: Dictionary = Preview.hover_line(view.cached_preview_lines(view.choices[index].choice_id))
 	if line.is_empty(): conceal(); return
 	if line == current_line and current != null and current.visible: return
 	if _fade != null: _fade.kill()
@@ -180,26 +185,38 @@ func show_choice(index: int) -> void:
 	current = cache[key]
 	current_line = line
 	current.show()
+	_layout_preview()
 	current.modulate.a = 0 if not view.reduced_motion else 1
 	if view.reduced_motion:
-		view.set_preview_brightness(Separation.PAINTING_BRIGHTNESS)
+		view.set_hover_preview_brightness(PAINTING_BRIGHTNESS)
 	else:
 		_fade = create_tween().set_parallel(true)
 		_fade.tween_property(current, "modulate:a", 1.0, Separation.FADE_IN_SECONDS)
-		_fade.tween_method(view.set_preview_brightness, view.preview_brightness, Separation.PAINTING_BRIGHTNESS, Separation.FADE_IN_SECONDS)
+		_fade.tween_method(view.set_hover_preview_brightness, view.preview_brightness, PAINTING_BRIGHTNESS, Separation.FADE_IN_SECONDS)
+
+func _layout_preview() -> void:
+	if not is_instance_valid(current) or not current.is_visible_in_tree(): return
+	Preview.refit(current)
+	current.scale = Vector2.ONE
+	current.position = view.ART_RECT.get_center() - current.size * 0.5
+	var tooltips: Control = current.get_node_or_null("EventRewardTooltips")
+	var art_bounds: Rect2 = view.ART_RECT
+	art_bounds.end.x = minf(art_bounds.end.x, view.column.position.x - Tooltips.GAP)
+	Tooltips.place(current, tooltips, art_bounds, current.get_node("Rewards").scale.x)
 
 func conceal(instant: bool = false) -> void:
 	_pending_index = -1
+	if not instant and not view.reduced_motion and current_line.is_empty(): return
 	if _fade != null: _fade.kill()
 	current_line = {}
 	if current == null or instant or view.reduced_motion:
 		if current != null: current.hide()
-		if not preserve_painting: view.set_preview_brightness(1)
+		if not preserve_painting: view.set_hover_preview_brightness(1)
 		return
 	var previous: Control = current
 	_fade = create_tween().set_parallel(true)
 	_fade.tween_property(previous, "modulate:a", 0.0, Separation.FADE_OUT_SECONDS)
-	if not preserve_painting: _fade.tween_method(view.set_preview_brightness, view.preview_brightness, 1.0, Separation.FADE_OUT_SECONDS)
+	if not preserve_painting: _fade.tween_method(view.set_hover_preview_brightness, view.preview_brightness, 1.0, Separation.FADE_OUT_SECONDS)
 	_fade.chain().tween_callback(previous.hide)
 
 func show_pending() -> void:

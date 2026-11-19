@@ -127,7 +127,7 @@ static func run_result_id(run_state: Dictionary) -> String:
 	Chronicle.stage_terminal_snapshot(run_state)
 	return Chronicle.record_id(run_state)
 
-func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true, requested_depth: int = -1) -> Dictionary:
+func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true, requested_depth: int = -1, prepared_graph: Dictionary = {}) -> Dictionary:
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
 	var selected_depth: int = ProgressionStore.session_umbra_depth(normalized_progression) if requested_depth < 0 else clampi(requested_depth, 0, ProgressionStore.unlocked_umbra_depth(normalized_progression))
 	var depth_state: Dictionary = {DepthRules.STATE_KEY: selected_depth}
@@ -210,7 +210,10 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		run_state["relics"].append(str(gift["relic_id"]))
 		run_state["starting_relic_gift_ids"] = [str(gift["id"])]
 	if section_maps:
-		SectionMapGraph.initialize(run_state)
+		if prepared_graph.is_empty():
+			SectionMapGraph.initialize(run_state)
+		else:
+			run_state.merge(prepared_graph, true)
 		run_state["encounter_history"] = []
 		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
 		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
@@ -1484,7 +1487,7 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 		return next_state
 	var last_door_effect: Dictionary = SkillTreeLibrary.effect("last_door")
 	var return_health: int = GameData.fixed_point_amount(maxi(1, int(last_door_effect.get("minimum_health_visible", 1))))
-	var return_notice: String = "Last Door returns you to the previous chamber at %d health." % return_health
+	var return_notice: String = "Last Door returns you to the previous chamber at %d Health." % return_health
 	_mark_run_skill_used(next_state, "last_door", return_notice)
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	current_room["cleared"] = false

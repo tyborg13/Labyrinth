@@ -1,0 +1,8 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "save-and-quit.png", "regions": [{"rect": [250, 130, 1420, 820], "min_luma_stdev": 4}]},
+    {"pattern": "after-save-title.png", "regions": [{"rect": [250, 130, 1420, 820], "min_luma_stdev": 4}]}
+  ]
+}

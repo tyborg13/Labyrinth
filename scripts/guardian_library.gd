@@ -110,8 +110,8 @@ static func intent_notes(intent: Dictionary) -> String:
 			if preload("res://scripts/enemy_mechanics/snuff.gd").handles(action): notes.append(preload("res://scripts/enemy_mechanics/snuff.gd").INTENT_NOTE)
 			else: notes.append("Braziers relight after Last Procession.")
 		if str(action.get("guardian_kind",""))=="crag_outcrop":
-			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two outcrops; each fuels Groundsplit.")
+			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two Outcrops; each fuels Groundsplit.")
 			elif str(action.get("type",""))=="terrain_burst": notes.append("Overlapping bursts hit once.")
 	if bool(intent.get("restore_braziers",false)):
-		notes.append("Relights braziers and dismisses Snuff’s Shades, even when skipped.")
+		notes.append("Relights braziers and dismisses Snuff's Shades, even when skipped.")
 	return " ".join(notes)

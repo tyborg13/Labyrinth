@@ -85,7 +85,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	name_label.size.x = name_label.custom_minimum_size.x
 	identity.add_child(name_label)
 	var hp: int = int(enemy.get("hp", definition.get("max_hp", 0)))
-	var hp_label := View.label("HP %d/%d" % [hp, int(enemy.get("max_hp", hp))], 17, Palette.DANGER_BRIGHT)
+	var hp_label := View.label("Health %d/%d" % [hp, int(enemy.get("max_hp", hp))], 17, Palette.DANGER_BRIGHT)
 	hp_label.name = "PreBattleEnemyHpLine"
 	identity.add_child(hp_label)
 	var initiative := View.label("Base initiative %d" % int(definition.get("base_initiative", 0)), 17, Palette.STEEL)
@@ -168,7 +168,7 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	row.add_child(text_box)
 	text_box.add_child(View.label(str(intent.get("name", "Move")), 18))
 	var actions: Array = intent.get("actions", []) as Array
-	var summary: String = ActionIcons.plain_text_for_rows(own_rows, true).replace("\n", "  /  ")
+	var summary: String = ActionIcons.plain_text_for_rows(own_rows, true).replace("\n", " · ")
 	for action: Dictionary in actions:
 		if str(action.get("type", "")) in ["lob_mark", "lob_land"]:
 			summary = ActionIcons.lob_diagram_text(action)

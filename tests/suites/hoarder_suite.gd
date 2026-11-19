@@ -32,7 +32,7 @@ const EXPECTED_TITLE: String = "Defeat the Ember Hoarder before it escapes!"
 const EXPECTED_DESCRIPTION: String = "Catch the Hoarder before it slips away."
 const EXPECTED_TOOLTIP: String = "Catch the Ember Hoarder before it slips away with its hoard."
 const EXPECTED_EMBLEM: String = "res://assets/art/icons/map/ember_hoarder.png"
-const EXPECTED_REWARD_LINE: String = "The Hoarder's hoard: +%d embers"
+const EXPECTED_REWARD_LINE: String = "The Hoarder's hoard: +%d Embers"
 const SPECIAL_EMBER_MULTIPLIER: float = 1.5
 const ALLOWED_HOARDER_ACTIONS: Array = ["kindle", "move_away"]
 

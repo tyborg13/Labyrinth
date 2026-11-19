@@ -224,7 +224,7 @@ func _run_shared_tile_movement_case() -> void:
 				if str(slot.get_meta("turn_order_actor_key", "")) != "enemy:enemy_2": continue
 				rail_found = true
 				slot.mouse_entered.emit()
-				_expect((board.get("presentation").get("focus_actor_keys", []) as Array).has("enemy_2"), "Turn-order strip can still focus the sharing Grub")
+				_expect((board.get("presentation").get("expanded_enemy_actor_keys", []) as Array).has("enemy_2"), "Turn-order strip expands the sharing Grub's intent")
 				await _capture("shared_tile_rail.png")
 				slot.mouse_exited.emit()
 				break

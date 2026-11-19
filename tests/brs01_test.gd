@@ -182,7 +182,7 @@ func _objective_titles() -> void:
 		for label: Label in [hud._title, hud._detail]:
 			_expect(label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x <= label.size.x, "Objective label fits: " + label.text)
 		if str(objective.get("special_type", "")) == "ember_hoarder":
-			_expect(hud._title.text == "DEFEAT THE HOARDER" and hud._intro_title.text == "DEFEAT THE EMBER HOARDER BEFORE IT ESCAPES!" and hud._detail.text == "Before it escapes · 24/24 HP", "Hoarder HUD/intro/live detail use their respective titles")
+			_expect(hud._title.text == "DEFEAT THE HOARDER" and hud._intro_title.text == "DEFEAT THE EMBER HOARDER BEFORE IT ESCAPES!" and hud._detail.text == "Before it escapes · 24/24 Health", "Hoarder HUD/intro/live detail use their respective titles")
 	_expect(Objectives.hud_title_for_objective({"type": Objectives.KILL_ALL, "special_type": "ember_hoarder"}) == "Defeat All Enemies", "Escaped Hoarder returns to generic HUD objective")
 	_expect(Objectives.title_for_objective({"type": Objectives.KILL_LEADER, "special_type": "warband", "leader_display_name": "The Thornmother"}) == "Defeat the Thornmother", "Warband keeps the title's article")
 	hud.free()

@@ -7,6 +7,7 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const TooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const Fixture = preload("res://tools/tooltip_loops/fixture.gd")
 const Data = preload("res://scripts/game_data.gd")
+const RecordBoard = preload("res://tools/tooltip_loops/record_board.gd")
 const CARD_CONTEXT_PROOF_ID: String = "shatter" # Debug-only existing card with a Frozen condition.
 const Inspection = preload("res://scripts/pre_battle_inspection_view.gd")
 
@@ -119,7 +120,7 @@ static func _new_contexts(proof: SceneTree) -> void:
 			panel.free()
 			var shown: Dictionary = playback.rule_presentation(scene, result["beats"][1])
 			proof._expect(shown["effect"]["kind"] == "lightning_strikes" and shown["effect"]["tiles"].size() == 2, "Stock lightning painter strikes occupied and empty Electrified tiles")
-			proof._expect(shown["floating_texts"].size() == 1 and shown["floating_texts"][0]["text"] == "-3", "Real room-rule loss number is shown only on the Crawler")
+			proof._expect(shown["floating_texts"].size() == 1 and RecordBoard.audit_number_label(shown["floating_texts"][0]) == "-3", "Real room-rule loss number is shown only on the Crawler")
 		else:
 			var rows: Array = Icons.rows_for_actions(Data.card_def(CARD_CONTEXT_PROOF_ID)["actions"])
 			var stack: Control = scene.get("_card_focus_tooltip_stack")
@@ -141,7 +142,7 @@ static func _new_contexts(proof: SceneTree) -> void:
 					found = true
 			proof._expect(found, "Frozen Bite's real Freeze status plate exists")
 			var texts: Array = scene.call("_player_damage_floating_texts", frozen, result["final"])
-			proof._expect(texts.size() == 1 and texts[0]["text"] == "-18", "30 HP fixture shows the full production tripled hit")
+			proof._expect(texts.size() == 1 and RecordBoard.audit_number_label(texts[0]) == "-18", "30 HP fixture shows the full production tripled hit")
 			print("TIP03 FREEZE: production popup -18; target survives")
 		scene.queue_free()
 		await proof.process_frame

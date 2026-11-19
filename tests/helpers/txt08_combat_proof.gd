@@ -10,6 +10,8 @@ const Stalker = preload("res://tests/suites/sta01_mechanics_suite.gd")
 const Warband = preload("res://tools/warband_inspection.gd")
 const MarkedStrike = preload("res://scripts/enemy_mechanics/marked_strike.gd")
 const Paths = preload("res://scripts/path_utils.gd")
+const Icons = preload("res://scripts/action_icon_library.gd")
+const Patterns = preload("res://scripts/pattern_text.gd")
 
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const SETTLE_SECONDS: float = 0.5
@@ -110,6 +112,32 @@ static func contains_label(node: Control, text: String, frame: Rect2) -> bool:
 		if label.text == text and label.is_visible_in_tree() and label.size.x > 0.0 and frame.encloses(label.get_global_rect()):
 			return true
 	return false
+
+static func contains_tooltip_line(node: Control, markup: String, frame: Rect2) -> bool:
+	var pattern_count: int = Patterns.matches(markup).size()
+	if pattern_count == 0:
+		return contains_label(node, markup.to_upper(), frame)
+	var sentence: String = Patterns.strip(markup)
+	for child: Node in node.find_children("*", "RichTextLabel", true, false):
+		var label := child as RichTextLabel
+		if not label.is_visible_in_tree() or not label.get_global_rect().has_area():
+			continue
+		if not frame.encloses(label.get_global_rect()) or label.get_meta("inline_pattern_count", 0) != pattern_count:
+			continue
+		if label.get_parsed_text().strip_edges() == sentence:
+			return true
+	return false
+
+static func move_row_witness(row: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for token: Dictionary in row:
+		var entry: Dictionary = {"icon": token["icon"]}
+		var value: String = Icons.token_value_text(token)
+		if not value.is_empty(): entry["value"] = value
+		if token.has("diagram_markup"): entry["diagram"] = token["diagram_markup"]
+		if token["icon"] == "aoe" and token.has("tooltip"): entry["detail"] = token["tooltip"]
+		result.append(entry)
+	return result
 
 static func capture(scene: Control, path: String, expect: Callable) -> void:
 	if DisplayServer.get_name() == "headless":

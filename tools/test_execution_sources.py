@@ -14,6 +14,8 @@ PARTITIONED_PROGRAMS = {
         "tests/suites/encounter_rules_program.gd",
         "tests/suites/encounter_placement_0_program.gd",
         "tests/suites/encounter_placement_1_program.gd",
+        "tests/suites/encounter_placement_0_followup_program.gd",
+        "tests/suites/encounter_placement_1_followup_program.gd",
         "tests/suites/encounter_placement_summary_program.gd",
     ),
 }

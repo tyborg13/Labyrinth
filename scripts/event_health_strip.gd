@@ -74,7 +74,7 @@ func _update() -> void:
 	if roundi(hp) != _number_hp or roundi(cap) != _number_cap:
 		_number_hp = roundi(hp)
 		_number_cap = roundi(cap)
-		_numbers.text = "%d / %d" % [_number_hp, _number_cap]
+		_numbers.text = "%d/%d" % [_number_hp, _number_cap]
 		_numbers.size = _numbers.get_combined_minimum_size()
 		_numbers.position = Vector2(WIDTH - _numbers.size.x, (size.y - _numbers.size.y) * 0.5)
 	var origin := Vector2(Typography.SIZE_BODY_LARGE, (size.y - BAR_HEIGHT) * 0.5)
@@ -129,7 +129,7 @@ func beat(kind: String, amount: int, reduced: bool, resolved_hp: float = -1, res
 		else:
 			_motion = create_tween()
 			_motion.tween_method(func(value: float) -> void: set_health(value, cap), hp, target_hp, 0.35)
-	_spawn_number(("%+d max" if kind == "max_hp" else "%+d") % amount, Palette.GOLD if kind == "max_hp" and amount > 0 else Palette.DANGER if amount < 0 else Palette.ALLY, reduced)
+	_spawn_number((("%+d max" if kind == "max_hp" else "%+d") % amount).replace("-", "−"), Palette.GOLD if kind == "max_hp" and amount > 0 else Palette.DANGER if amount < 0 else Palette.ALLY, reduced)
 
 func _spawn_number(text: String, tint: Color, reduced: bool) -> void:
 	var entry: Dictionary = Floating.damage_entry(Vector2i.ZERO, text, tint)

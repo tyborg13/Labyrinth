@@ -192,7 +192,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var actual: Dictionary = hit(before)
 	var floats: Array[Dictionary] = scene._player_action_floating_texts(before, actual)
 	var hero_damage: Array = floats.filter(func(entry: Dictionary) -> bool: return entry.get("reaction_actor_key", "") == "player" and entry.get("kind", "") == "damage")
-	expect.call(hero_damage.size() == 1 and str(hero_damage[0].get("text", "")) == "-3", "Retaliate uses the existing hero hit feedback once")
+	expect.call(hero_damage.size() == 1 and str(hero_damage[0].get("text", "")) == "−3", "Retaliate uses the existing hero hit feedback once")
 	before = state()
 	preload("res://scripts/board_surface_rules.gd").place(before, Vector2i(6, 4), "fire", {})
 	before["deck"]["hand"] = ["cinder_second"]

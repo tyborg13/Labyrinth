@@ -10,6 +10,20 @@ static func text_jobs(text: String, font: Font, size: int, outline: int, shadow_
 	_append_text(jobs, {}, text, font, size, outline, shadow_outline, language, viewport_oversampling)
 	return jobs
 
+static func text_request(text: String, font: Font, size: int, outline: int, shadow_outline: int, oversampling: float, language: String) -> Dictionary:
+	return {"text": text, "font": font, "size": size, "outline": outline, "shadow_outline": shadow_outline,
+		"oversampling": oversampling, "language": language}
+
+static func _fit_text_request(request: Dictionary) -> int:
+	var size: int = request["size"]
+	if not request.has("fit_text"): return size
+	var width: float = request["font"].get_string_size(request["fit_text"], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	size = mini(size, floori(float(size) * float(request["fit_width"]) / maxf(1.0, width)))
+	var fitted: Dictionary = request["fitted_sizes"]
+	if fitted.has(size): return -1
+	fitted[size] = true
+	return size
+
 static func collect_controls(root: Node) -> Array[Dictionary]:
 	var jobs: Array[Dictionary]
 	if not is_instance_valid(root) or root.is_queued_for_deletion() or not root.is_inside_tree(): return jobs
@@ -61,27 +75,50 @@ static func prepare_controls_for(owner: Node, controls: Node, present_frame: Cal
 	if not _active(owner, still_active) or not is_instance_valid(controls): return
 	await prepare_jobs_for(owner, collect_controls(controls), present_frame, still_active)
 
-static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame: Callable, still_active: Callable) -> void:
+static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame: Callable, still_active: Callable, record_slice: Callable = Callable(), started: int = 0) -> void:
 	var server: TextServer = TextServerManager.get_primary_interface()
 	var canvas: RID = RenderingServer.canvas_item_create()
-	var started: int = Time.get_ticks_usec()
-	for job: Dictionary in jobs:
-		if not _active(owner, still_active): break
-		var size: Vector2i = job["size"]
-		var shifts: int = 1 if server.font_get_subpixel_positioning(job["rid"]) == TextServer.SUBPIXEL_POSITIONING_DISABLED else 4
-		for shift: int in range(shifts):
-			var position := Vector2(float(shift) * 0.25, 0.0)
-			if size.y > 0:
-				server.font_draw_glyph_outline(job["rid"], canvas, size.x, size.y, position, job["index"], Color.WHITE, job["oversampling"])
+	if started == 0: started = Time.get_ticks_usec()
+	var cursor: int = 0
+	var glyphs: Array[Dictionary]
+	var request: Dictionary = {}
+	var fitted_size: int
+	# Fitting, shaping and drawing share one budget. Each iteration runs just
+	# one of those operations so an expensive first-use font size can yield.
+	while (cursor < jobs.size() or not glyphs.is_empty() or not request.is_empty()) and _active(owner, still_active):
+		if not glyphs.is_empty():
+			_draw_glyph(server, canvas, glyphs.pop_back())
+		elif not request.is_empty():
+			_append_text(glyphs, {}, request["text"], request["font"], fitted_size, request["outline"], request["shadow_outline"], request["language"], request["oversampling"])
+			glyphs.reverse()
+			request = {}
+		else:
+			var job: Dictionary = jobs[cursor]
+			cursor += 1
+			if job.has("text"):
+				fitted_size = _fit_text_request(job)
+				if fitted_size > 0: request = job
 			else:
-				server.font_draw_glyph(job["rid"], canvas, size.x, position, job["index"], Color.WHITE, job["oversampling"])
+				_draw_glyph(server, canvas, job)
 		if Time.get_ticks_usec() - started >= SLICE_USEC:
 			RenderingServer.free_rid(canvas)
+			if record_slice.is_valid(): record_slice.call("opening_objective_glyph_slice", started)
 			await present_frame.call()
 			if not _active(owner, still_active): return
 			canvas = RenderingServer.canvas_item_create()
 			started = Time.get_ticks_usec()
 	RenderingServer.free_rid(canvas)
+	if record_slice.is_valid(): record_slice.call("opening_objective_glyph_slice", started)
+
+static func _draw_glyph(server: TextServer, canvas: RID, job: Dictionary) -> void:
+	var size: Vector2i = job["size"]
+	var shifts: int = 1 if server.font_get_subpixel_positioning(job["rid"]) == TextServer.SUBPIXEL_POSITIONING_DISABLED else 4
+	for shift: int in range(shifts):
+		var position := Vector2(float(shift) * 0.25, 0.0)
+		if size.y > 0:
+			server.font_draw_glyph_outline(job["rid"], canvas, size.x, size.y, position, job["index"], Color.WHITE, job["oversampling"])
+		else:
+			server.font_draw_glyph(job["rid"], canvas, size.x, position, job["index"], Color.WHITE, job["oversampling"])
 
 static func _active(owner: Variant, still_active: Callable) -> bool:
 	return is_instance_valid(owner) and not owner.is_queued_for_deletion() and bool(still_active.call())

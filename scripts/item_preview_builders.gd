@@ -199,7 +199,7 @@ func with_keywords(preview: Control, card_ids: Array) -> Control:
 			var key: String = str(entry.get("semantic_key", entry["tooltip"]))
 			if seen.has(key): continue
 			seen[key] = true
-			var panel: PanelContainer = Tooltip.make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), str(entry.get("glossary_key", "")) if loops else "", {"kind": "hero_card"})
+			var panel: PanelContainer = Tooltip.make_icon_lines(entry["texture"], entry["title"], PackedStringArray([entry["description"]]), str(entry.get("glossary_key", "")) if loops else "", {"kind": "hero_card", "id": id})
 			panel.set_meta("semantic_key", key)
 			column.add_child(panel)
 	return owner

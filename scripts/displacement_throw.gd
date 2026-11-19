@@ -21,7 +21,7 @@ static func actors(state: Dictionary) -> Dictionary:
 			result[("enemy_" if field == "enemies" else "illusion_") + str(unit["id"])] = unit
 	return result
 
-static func paths(before: Dictionary, after: Dictionary, origins: Array = [], excluded: String = "") -> Array[Dictionary]:
+static func paths(before: Dictionary, after: Dictionary, origins: Array = [], excluded: String = "", removed_actors: Dictionary = {}) -> Array[Dictionary]:
 	var tiles: Array = origins.duplicate()
 	if tiles.is_empty():
 		var sequence: int = int(before.get("surface_event_sequence", 0))
@@ -30,6 +30,7 @@ static func paths(before: Dictionary, after: Dictionary, origins: Array = [], ex
 	var result: Array[Dictionary]
 	var old: Dictionary = actors(before)
 	var next: Dictionary = actors(after)
+	next.merge(removed_actors)
 	for key: String in old:
 		var unit: Dictionary = old[key]
 		if key == excluded or unit.is_empty() or not next.has(key) or int(unit.get("hp", 0)) <= 0: continue
@@ -42,24 +43,28 @@ static func paths(before: Dictionary, after: Dictionary, origins: Array = [], ex
 		if intersects: result.append({"actor_key": key, "from": from, "to": to, "unit": unit.duplicate(true)})
 	return result
 
-static func display_state(before: Dictionary, after: Dictionary, flights: Array[Dictionary], elapsed: float, reduced: bool) -> Dictionary:
-	if reduced or elapsed >= LAND_SECONDS: return after
+static func display_state(before: Dictionary, after: Dictionary, flights: Array[Dictionary], elapsed: float, reduced: bool, launch_seconds: float = LAUNCH_SECONDS) -> Dictionary:
+	if reduced or elapsed >= launch_seconds + FLIGHT_SECONDS or flights.is_empty(): return after
 	var shown: Dictionary = after.duplicate(true)
 	var old: Dictionary = actors(before)
 	var next: Dictionary = actors(shown)
 	for path: Dictionary in flights:
 		var key: String = path["actor_key"]
+		if not next.has(key):
+			var collection: String = "illusions" if key.begins_with("illusion_") else "enemies"
+			shown[collection].append(old[key].duplicate(true))
+			continue
 		next[key].clear()
 		next[key].merge(old[key].duplicate(true), true)
 	return shown
 
-static func decorate(board: Control, flights: Array[Dictionary], elapsed: float, reduced: bool, base: Dictionary = {}) -> Dictionary:
+static func decorate(board: Control, flights: Array[Dictionary], elapsed: float, reduced: bool, base: Dictionary = {}, launch_seconds: float = LAUNCH_SECONDS) -> Dictionary:
 	var shown: Dictionary = base.duplicate(true)
-	if reduced or elapsed >= LAND_SECONDS: return shown
+	if reduced or elapsed >= launch_seconds + FLIGHT_SECONDS: return shown
 	var positions: Dictionary = (shown.get("unit_world_positions", {}) as Dictionary).duplicate()
 	var ground_positions: Dictionary = {}
 	var held_frames: Dictionary = {}
-	var t: float = clampf((elapsed - LAUNCH_SECONDS) / FLIGHT_SECONDS, 0.0, 1.0)
+	var t: float = clampf((elapsed - launch_seconds) / FLIGHT_SECONDS, 0.0, 1.0)
 	for path: Dictionary in flights:
 		var unit: Dictionary = path["unit"].duplicate(true)
 		var key: String = path["actor_key"]
@@ -72,7 +77,7 @@ static func decorate(board: Control, flights: Array[Dictionary], elapsed: float,
 		var to: Vector2 = board.world_position_for_unit_origin(unit, path["to"])
 		var ground: Vector2 = from.lerp(to, t)
 		positions[key] = ground - Vector2(0.0, 4.0 * board._tile_height() * APEX_TILE_HEIGHT * t * (1.0 - t))
-		if elapsed >= LAUNCH_SECONDS:
+		if elapsed >= launch_seconds:
 			ground_positions[key] = ground
 			var renderer: Node = board.unit_cutout_renderer(unit)
 			if is_instance_valid(renderer):
@@ -82,13 +87,32 @@ static func decorate(board: Control, flights: Array[Dictionary], elapsed: float,
 				# All dedicated production cutouts have hit; maquettes declare it.
 				var has_hit: bool = not Maquette.handles(type) or Maquette.data_for(type).get("clips", {}).has("hit")
 				var hit_seconds: float = Maquette.seconds_for(type, "hit") if Maquette.handles(type) and has_hit else Reactions.HIT_SECONDS
-				motions[key] = {"clip": "hit", "phase": clampf((elapsed - LAUNCH_SECONDS) / hit_seconds, 0.0, 1.0)} if has_hit else {"clip": renderer.get("clip"), "phase": renderer.get("phase")}
+				motions[key] = {"clip": "hit", "phase": clampf((elapsed - launch_seconds) / hit_seconds, 0.0, 1.0)} if has_hit else {"clip": renderer.get("clip"), "phase": renderer.get("phase")}
 				shown[motion_key] = motions[key] if key == "player" else motions
 				shown["maquette_explicit_clip"] = true
 	shown["unit_world_positions"] = positions
 	shown["unit_throw_ground_positions"] = ground_positions
 	shown["unit_throw_idle_frames"] = held_frames
 	return shown
+
+## Upheaval's caption is its windup. Launch on the first rise frame and leave
+## landing losses and defeats to battlefield-rule playback.
+static func animate_rise(scene: Control, before: Dictionary, after: Dictionary, flights: Array[Dictionary], rises: Array[Dictionary], base: Dictionary) -> void:
+	var reduced: bool = scene._reduced_motion_enabled()
+	var started: int = scene._combat_pacing.presentation_usec()
+	var events: Array[Dictionary] = Outcome.prepare(rises)
+	var duration: float = maxf(FLIGHT_SECONDS, SURFACE_SECONDS)
+	while true:
+		var elapsed: float = float(scene._combat_pacing.presentation_usec() - started) / 1000000.0
+		var shown: Dictionary = decorate(scene.board_view, flights, elapsed, reduced, base, 0.0)
+		shown["surface_feedback_events"] = events
+		shown["surface_feedback_progress"] = 1.0 if reduced else clampf(elapsed / SURFACE_SECONDS, 0.0, 1.0)
+		var display: Dictionary = display_state(before, after, flights, elapsed, reduced, 0.0)
+		if elapsed >= FLIGHT_SECONDS or reduced:
+			shown = scene._death_hold_presentation(before, after, shown)
+		scene._render_board_state(display, shown)
+		if elapsed >= duration or reduced: break
+		await scene.get_tree().process_frame
 
 static func animate(scene: Control, before: Dictionary, after: Dictionary, flights: Array[Dictionary], base: Dictionary = {}, first_frame: Callable = Callable(), companion: Callable = Callable()) -> void:
 	var reduced: bool = scene._reduced_motion_enabled()

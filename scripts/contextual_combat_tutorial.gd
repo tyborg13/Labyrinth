@@ -133,15 +133,15 @@ const PHASES: Dictionary = {
 	PHASE_INSPECT_ENEMY: {
 		"id": PHASE_INSPECT_ENEMY, "lesson": 2, "lesson_total": 8,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Read the Enemy",
-		"pointer_text": "Point to a foe to reveal its next action.",
-		"controller_text": "Focus a foe to reveal its next action.",
+		"pointer_text": "Point to an enemy to reveal its next action.",
+		"controller_text": "Focus an enemy to reveal its next action.",
 		"controller_action": "controller_move", "action_label": "Inspect",
 	},
 	PHASE_CONFIRM_INTENT: {
 		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 8,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "The Enemy's Plan",
-		"pointer_text": "The preview shows what this foe will do on its turn.",
-		"controller_text": "The preview shows what this foe will do on its turn.",
+		"pointer_text": "The preview shows what this enemy will do on its turn.",
+		"controller_text": "The preview shows what this enemy will do on its turn.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},
@@ -198,8 +198,8 @@ const PHASES: Dictionary = {
 	PHASE_CORE_COMPLETE: {
 		"id": PHASE_CORE_COMPLETE, "lesson": 6, "lesson_total": 8,
 		"icon": "", "kicker": "YOUR TURN", "title": "Finish the Fight",
-		"pointer_text": "Use movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
-		"controller_text": "Use movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
+		"pointer_text": "Use Movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
+		"controller_text": "Use Movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Finish the Fight",
 	},
@@ -242,8 +242,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_CHOOSE_MOVE: {
 		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 10,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Take This Step",
-		"pointer_text": "You begin each turn with 2 movement. Use 1 to move onto the glowing tile.",
-		"controller_text": "You begin each turn with 2 movement. Use 1 to move onto the glowing tile.",
+		"pointer_text": "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile.",
+		"controller_text": "You begin each turn with 2 Movement. Use 1 to move onto the glowing tile.",
 		"controller_action": "controller_accept", "action_label": "Move", "attention_pulse": true,
 	},
 	PHASE_INSPECT_ENEMY: {

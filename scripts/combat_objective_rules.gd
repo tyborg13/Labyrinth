@@ -276,7 +276,10 @@ static func description_for_objective(objective: Dictionary) -> String:
 	if str(objective.get("special_type", "")) == "ember_hoarder" and type == KILL_LEADER: return str(Specials.definition("ember_hoarder")["objective_description"])
 	if str(objective.get("special_type", "")) == "warband":
 		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
-	var title: String = title_for_objective(objective)
-	if type == KILL_LEADER and title != display_name(type):
-		return ""
+	if type == KILL_LEADER:
+		if objective.has("objective_description"):
+			return str(objective["objective_description"])
+		# A saved generic description can be stale. Use authored copy or the current rules.
+		if title_for_objective(objective) != display_name(type):
+			return ""
 	return description(type)

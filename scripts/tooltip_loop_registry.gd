@@ -20,13 +20,24 @@ static func find(term: String, source: Dictionary) -> Dictionary:
 		if term != row["term"] and not (row.get("aliases", []) as Array).has(term): continue
 		var match_source: Dictionary = row["source_match"]
 		if (row.get("global_terms", []) as Array).has(term): return row
+		if source.get("kind") == "grimoire":
+			if (row.get("grimoire_entries", []) as Array).has(source.get("id", "")): return row
+			continue
 		if str(match_source["kind"]) == "*": return row
 		if str(source.get("kind", "")) != str(match_source["kind"]): continue
 		if match_source.has("id") and str(source.get("id", "")) != str(match_source["id"]): continue
+		if match_source.has("ids") and not match_source["ids"].has(source.get("id")): continue
 		if match_source.has("variant") and match_source["variant"] != source.get("variant"): continue
 		if match_source.has("element") and str(source.get("element", "")) != str(match_source["element"]): continue
 		return row
 	return {}
+
+static func grimoire_term(entry_id: String) -> String:
+	for row: Dictionary in entries():
+		if row.has("todo_design") or not row.get("grimoire_entries", []).has(entry_id): continue
+		var term: String = entry_id.get_slice(":", 1)
+		return term if row.get("aliases", []).has(term) else str(row["term"])
+	return ""
 
 static func has_source(source: Dictionary) -> bool:
 	for row: Dictionary in entries():

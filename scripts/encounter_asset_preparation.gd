@@ -76,7 +76,9 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 		if opening_active(scene, generation):
 			var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
 			if _hitch_trace_enabled: _hitch_continuation = null
-			await Glyphs.prepare_jobs_for(scene, scene._combat_objective_hud.opening_glyph_preparation_jobs(opening_objective_hud_state(scene, combat_state)), present_frame.bind(scene.get_tree()), opening_active.bind(scene, generation))
+			var jobs: Array[Dictionary] = scene._combat_objective_hud.opening_glyph_preparation_jobs(opening_objective_hud_state(scene, combat_state))
+			var record_slice: Callable = scene._record_runtime_performance_phase if scene._runtime_performance_instrumentation_enabled else Callable()
+			await Glyphs.prepare_jobs_for(scene, jobs, present_frame.bind(scene.get_tree()), opening_active.bind(scene, generation), record_slice, started)
 			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:7")
 			if opening_active(scene, generation): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
 

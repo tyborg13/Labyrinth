@@ -6,6 +6,7 @@ const Retaliate = preload("res://scripts/retaliate_rules.gd")
 const Tempo = preload("res://scripts/tempo_rules.gd")
 const Maneuver = preload("res://scripts/maneuver_rules.gd")
 const Rites = preload("res://scripts/rite_rules.gd")
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const KEY: String = "hud_forecast"
 const STATUS_FIELDS: Array = ["bleed", "expose", "chilled", "freeze", "petrify", "shock", "immobilize", "frost_armor"]
 var _held: Dictionary = {}
@@ -165,7 +166,7 @@ static func unit(source: Dictionary, presentation: Dictionary) -> Dictionary:
 	var icons: Dictionary = fields.duplicate(false)
 	var badges: Dictionary = pending.get("badges", {})
 	if not badges.is_empty():
-		var merged: Dictionary = badges_by_icon(source.get("keyword_badges", []))
+		var merged: Dictionary = badges_by_icon(TypedArrays.dictionaries(source.get("keyword_badges", [])))
 		merged.merge(badges, true)
 		var entries: Array[Dictionary]
 		for icon: String in pending.get("badge_order", []):

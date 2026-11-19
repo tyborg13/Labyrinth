@@ -27,7 +27,7 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		{"id": "feedback_start", "surface_feedback_events": [{"kind": "surface_created", "surface": "fire", "tile": Vector2i(4, 3)}], "surface_feedback_progress": 0.1},
 		{"id": "feedback_end", "surface_feedback_events": [{"kind": "surface_created", "surface": "fire", "tile": Vector2i(4, 3)}], "surface_feedback_progress": 1.0},
 		{"id": "feedback_removed"},
-		{"id": "friendly_and_status", "friendly_damage_chips": [{"tile": state["player"]["pos"], "actor_key": "player", "label": "You: −2 HP", "kind": "danger"}], "surface_status_preview": {"player": {"chilled": true, "freeze": 0}}},
+		{"id": "friendly_and_status", "friendly_damage_chips": [{"tile": state["player"]["pos"], "actor_key": "player", "label": "You: −2 Health", "kind": "danger"}], "surface_status_preview": {"player": {"chilled": true, "freeze": 0}}},
 		{"id": "hud_cleared"},
 	]
 	var results: Array[Dictionary]

@@ -66,16 +66,34 @@ static func initialize(state: Dictionary, diagnostics: Dictionary = {}) -> void:
 	if revision == 3:
 		_initialize_revision_3(state)
 	else:
-		_initialize_walk_revision(state, revision, diagnostics)
+		_initialize_walk_revision(state, revision, diagnostics, generation_inputs(DepthRules.depth(state), revision))
 
 static func _initialize_revision_4(state: Dictionary) -> void:
-	_initialize_walk_revision(state, 4)
+	_initialize_walk_revision(state, 4, {}, generation_inputs(DepthRules.depth(state), 4))
 
-static func _initialize_walk_revision(state: Dictionary, revision: int, diagnostics: Dictionary = {}) -> void:
+# The map only needs the authored guardian fields. Runtime helper overrides
+# from GameData belong to encounter construction, outside graph generation.
+static func generation_inputs(depth: int, revision: int = LAYOUT_REVISION) -> Dictionary:
+	var guardians: Dictionary = {}
+	for boss_id: String in Guardians.DEFINITIONS:
+		var guardian: Dictionary = Guardians.DEFINITIONS[boss_id]
+		guardians[boss_id] = {"id": guardian["id"], "element": guardian["element"], "relic": guardian["relic"]}
+	return {
+		"guardians": guardians,
+		"guardian_weight": DepthRules.guardian_weight({DepthRules.STATE_KEY: depth}, TYPE_WEIGHTS["guardian"]),
+		"specials": Specials.catalog() if revision >= 6 else {},
+	}
+
+static func initialize_prepared(state: Dictionary, inputs: Dictionary, cancelled: Callable) -> bool:
+	return _initialize_walk_revision(state, LAYOUT_REVISION, {}, inputs, cancelled)
+
+static func _initialize_walk_revision(state: Dictionary, revision: int, diagnostics: Dictionary, inputs: Dictionary, cancelled: Callable = Callable()) -> bool:
 	var seed_value: int = int(state.get("seed", 0))
 	var rooms: Dictionary = {}
 	var sections: Array[Dictionary]
+	var guardian_weight: int = inputs["guardian_weight"]
 	for index: int in range(6):
+		if cancelled.is_valid() and bool(cancelled.call()): return false
 		var section_started: int = Time.get_ticks_usec() if diagnostics.get("enabled", false) else 0
 		var section_diagnostics: Dictionary = {"enabled": true} if diagnostics.get("enabled", false) else {}
 		if diagnostics.get("force_v7_fallback", false): section_diagnostics["force_fallback"] = true
@@ -85,24 +103,27 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 		var boss_id: String = Bosses.boss_id_for_depth(seed_value, (index + 1) * 4)
 		var layout: Dictionary = {}
 		if revision >= 7:
-			layout = _section_layout_v7(rng, seed_value, index, section_diagnostics, state)
+			layout = _section_layout_v7_with_weight(rng, seed_value, index, section_diagnostics, guardian_weight, cancelled)
 		elif revision >= 5:
-			layout = _section_layout_v5(rng, seed_value, index, section_diagnostics, state)
+			layout = _section_layout_v5_with_weight(rng, seed_value, index, section_diagnostics, guardian_weight)
 		else:
 			for attempt: int in range(SECTION_ATTEMPTS):
 				layout = _walk_layout(rng, count)
 				_prepare_types(layout, seed_value, index, count)
 				var repair: Dictionary = {"remaining": TYPE_REPAIR_LIMIT}
-				if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair, state): break
+				if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair, guardian_weight): break
 				layout = {}
 			if layout.is_empty():
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
-		if revision >= 6 and not Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id), {}, revision):
+		if cancelled.is_valid() and bool(cancelled.call()): return false
+		if revision >= 6 and not Specials.place_from_catalog(layout, rng, count, Bosses.element_for_boss(boss_id), inputs["specials"], revision, cancelled):
+			if cancelled.is_valid() and bool(cancelled.call()): return false
 			_diagnostic_v5(section_diagnostics, "fallback")
 			layout = _fallback_layout_v7(seed_value, index) if revision >= 7 else _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 			# Placement mutates the layout, so release builds must execute it
 			# independently of the debug-only assertion.
-			var fallback_placed: bool = Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id), {}, revision)
+			var fallback_placed: bool = Specials.place_from_catalog(layout, rng, count, Bosses.element_for_boss(boss_id), inputs["specials"], revision, cancelled)
+			if cancelled.is_valid() and bool(cancelled.call()): return false
 			assert(fallback_placed, "Revision 6 fallback must place enabled special encounters")
 		var entry: Vector2i = Vector2i.ZERO if index == 0 else Vector2i(-index * 4, 0)
 		var boss := Vector2i((index + 1) * 4, 0)
@@ -136,7 +157,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 				node["mystery_type"] = data["mystery_type"]
 				node["mystery_element"] = data["combat_element"]
 			if type == "guardian":
-				var guardian: Dictionary = Guardians.for_boss(boss_id)
+				var guardian: Dictionary = inputs["guardians"][boss_id]
 				node.merge({"element": guardian["element"], "boss_id": boss_id, "guardian_id": guardian["id"], "guardian_relic": guardian["relic"], "map_landmark": true}, true)
 				guardians.append(coord)
 			if index == 5 and (cell.x in [ceili(count / 2.0), count - 1] or (revision >= 7 and cell.x == V7_MID_HEARTH_STEP)): node["map_landmark"] = true
@@ -168,6 +189,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 	state["rooms"] = rooms
 	rooms[key(Vector2i.ZERO)].merge({"visited": true, "revealed": true, "map_outline": true}, true)
 	refresh_knowledge(state)
+	return true
 
 static func _weighted_roll(rng: RandomNumberGenerator, weights: Dictionary) -> String:
 	var total: int = 0
@@ -192,17 +214,21 @@ const V5_TYPE_NODE_BUDGET: int = 40
 const V5_TYPE_BITS: Dictionary = {"combat": 1, "mystery": 2, "guardian": 4, "scavenger": 8, "graftwright": 16, "event": 32, "treasure": 64, "campfire": 128}
 
 static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}, structure_check: Callable = Callable(), type_node_budget: int = V5_TYPE_NODE_BUDGET) -> Dictionary:
+	var weight: int = DepthRules.guardian_weight(depth_state, TYPE_WEIGHTS["guardian"])
+	return _section_layout_v5_with_weight(rng, seed_value, index, diagnostics, weight, structure_check, type_node_budget)
+
+static func _section_layout_v5_with_weight(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary, guardian_weight: int, structure_check: Callable = Callable(), type_node_budget: int = V5_TYPE_NODE_BUDGET) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
 	for attempt: int in range(SECTION_ATTEMPTS):
 		var layout: Dictionary = _walk_layout_v5(rng, count, diagnostics, structure_check)
 		if layout.is_empty(): continue
-		if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, depth_state, type_node_budget): return layout
+		if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, guardian_weight, type_node_budget): return layout
 	_diagnostic_v5(diagnostics, "fallback")
 	print("SECTION MAP V5 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
 	return _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 
 # Room types for an accepted topology (revisions 5-7 share the solver and its rules).
-static func _assign_types_v5(layout: Dictionary, rng: RandomNumberGenerator, seed_value: int, index: int, count: int, diagnostics: Dictionary, depth_state: Dictionary, type_node_budget: int) -> bool:
+static func _assign_types_v5(layout: Dictionary, rng: RandomNumberGenerator, seed_value: int, index: int, count: int, diagnostics: Dictionary, guardian_weight: int, type_node_budget: int) -> bool:
 	_prepare_types(layout, seed_value, index, count)
 	var domains: Array = []
 	layout["positions"] = {}
@@ -212,7 +238,7 @@ static func _assign_types_v5(layout: Dictionary, rng: RandomNumberGenerator, see
 		if bool(layout["nodes"][cell]["fixed"]): candidates.append(layout["nodes"][cell]["type"])
 		else:
 			var weights: Dictionary = TYPE_WEIGHTS.duplicate()
-			weights["guardian"] = DepthRules.guardian_weight(depth_state, int(weights["guardian"]))
+			weights["guardian"] = guardian_weight
 			while not weights.is_empty():
 				var type: String = _weighted_roll(rng, weights)
 				candidates.append(type)
@@ -262,13 +288,19 @@ const V7_FORBID_DOWN: int = 2
 const V7_MID_HEARTH_STEP: int = 4
 
 static func _section_layout_v7(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}) -> Dictionary:
+	var weight: int = DepthRules.guardian_weight(depth_state, TYPE_WEIGHTS["guardian"])
+	return _section_layout_v7_with_weight(rng, seed_value, index, diagnostics, weight, Callable())
+
+static func _section_layout_v7_with_weight(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary, guardian_weight: int, cancelled: Callable) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
 	# Tests force the fallback through the diagnostics hook.
 	if not diagnostics.get("force_fallback", false):
 		for attempt: int in range(SECTION_ATTEMPTS):
-			var layout: Dictionary = _web_layout_v7(rng, index, count, diagnostics)
+			if cancelled.is_valid() and bool(cancelled.call()): return {}
+			var layout: Dictionary = _web_layout_v7(rng, index, count, diagnostics, cancelled)
 			if layout.is_empty(): continue
-			if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, depth_state, V7_TYPE_NODE_BUDGET): return layout
+			if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, guardian_weight, V7_TYPE_NODE_BUDGET): return layout
+	if cancelled.is_valid() and bool(cancelled.call()): return {}
 	_diagnostic_v5(diagnostics, "fallback")
 	print("SECTION MAP V7 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
 	return _fallback_layout_v7(seed_value, index)
@@ -309,9 +341,10 @@ static func _fallback_cell(text: String) -> Vector2i:
 	var parts: PackedStringArray = text.split(",")
 	return Vector2i(int(parts[0]), int(parts[1]))
 
-static func _web_layout_v7(rng: RandomNumberGenerator, index: int, count: int, diagnostics: Dictionary = {}) -> Dictionary:
+static func _web_layout_v7(rng: RandomNumberGenerator, index: int, count: int, diagnostics: Dictionary = {}, cancelled: Callable = Callable()) -> Dictionary:
 	var mid: int = ceili(count / 2.0)
 	for proposal: int in range(V7_STRUCTURAL_PROPOSALS):
+		if cancelled.is_valid() and bool(cancelled.call()): return {}
 		_diagnostic_v5(diagnostics, "structural_samples")
 		# The threshold fans out up, right and down, so its three doors differ.
 		var top: int = rng.randi_range(0, 1)
@@ -898,7 +931,7 @@ static func _prepare_types(layout: Dictionary, seed_value: int, index: int, coun
 
 # Weighted first rolls, then weighted re-rolls of offending assignments. Prefix
 # bounds summarize EVERY incoming route, including paths created by merges.
-static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count: int, fights: int, position: int, budget: Dictionary, depth_state: Dictionary = {}) -> bool:
+static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count: int, fights: int, position: int, budget: Dictionary, guardian_weight: int) -> bool:
 	if int(budget["remaining"]) <= 0: return false
 	if position == layout["order"].size(): return _complete_types_legal(layout, count, fights)
 	var cell: Vector2i = layout["order"][position]
@@ -908,7 +941,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 		candidates.append(node["type"])
 	else:
 		var weights: Dictionary = TYPE_WEIGHTS.duplicate()
-		weights["guardian"] = DepthRules.guardian_weight(depth_state, int(weights["guardian"]))
+		weights["guardian"] = guardian_weight
 		while not weights.is_empty():
 			var type: String = _weighted_roll(rng, weights)
 			candidates.append(type)
@@ -917,7 +950,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 		budget["remaining"] = int(budget["remaining"]) - 1
 		node["type"] = type
 		_prefix_bounds(layout, cell)
-		if _prefix_type_legal(layout, cell, count, fights) and _repair_types(layout, rng, count, fights, position + 1, budget, depth_state): return true
+		if _prefix_type_legal(layout, cell, count, fights) and _repair_types(layout, rng, count, fights, position + 1, budget, guardian_weight): return true
 		if int(budget["remaining"]) <= 0: break
 	if not bool(node["fixed"]): node["type"] = ""
 	return false

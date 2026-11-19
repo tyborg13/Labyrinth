@@ -147,7 +147,7 @@ static func _test_layouts(expect: Callable) -> void:
 					for type: String in objective["reinforcement_pool"]: pool.append(type)
 					var checks: Dictionary = {
 						"objective": objective["type"] == "survive" and int(objective["target_clock"]) == _target_clock(tier) and int(objective["reinforcement_interval"]) == 16 and int(objective["next_reinforcement_clock"]) == 16,
-						"copy": objective["name"] == "Survive until dawn!" and objective["description"] == "Survive until dawn." and Objectives.title_for_objective(objective) == "Survive until dawn!" and Objectives.description_for_objective(objective) == "Survive until dawn.",
+						"copy": objective["name"] == "Survive Until Dawn!" and objective["description"] == "Survive until dawn." and Objectives.title_for_objective(objective) == "Survive Until Dawn!" and Objectives.description_for_objective(objective) == "Survive until dawn.",
 						"goal": bool(objective["goal_met"]) and objective["special_type"] == "last_light" and objective["special_variant"] == biome,
 						"cast": types == cast and pool == unique,
 						"rule": layout["battlefield_rule"] == Rules.instance_for("last_light"),

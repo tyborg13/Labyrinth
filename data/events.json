@@ -265,7 +265,7 @@
    "min_section": 0,
    "max_section": 5,
    "weight": 10,
-   "body": "A knight in good armour turns slowly on a chain above a pit. The chain groans with every turn, loud enough to carry far down the halls.",
+   "body": "A knight in good armor turns slowly on a chain above a pit. The chain groans with every turn, loud enough to carry far down the halls.",
    "choices": [
     {
      "id": "cut",
@@ -584,7 +584,7 @@
     },
     {
      "id": "armor",
-     "label": "Reforge your armour",
+     "label": "Reforge your armor",
      "requires": [
       {
        "type": "has_equipment",
@@ -1624,7 +1624,7 @@
        "percent": 50
       }
      ],
-     "result": "He is very good. You try not to think about where he practised.",
+     "result": "He is very good. You try not to think about where he practiced.",
      "requires": [
       {
        "type": "embers_at_least",
@@ -2364,7 +2364,7 @@
    "min_section": 5,
    "max_section": 5,
    "weight": 10,
-   "body": "A hearth burns in the dark with nobody beside it, and for the first time in a long while you are warm. You could stay. Everyone here stayed, you realise, looking at the shapes around the fire.",
+   "body": "A hearth burns in the dark with nobody beside it, and for the first time in a long while you are warm. You could stay. Everyone here stayed, you realize, looking at the shapes around the fire.",
    "choices": [
     {
      "id": "warm",

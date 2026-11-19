@@ -2535,7 +2535,7 @@ func _test_bleed_status_badges_and_trigger_floats() -> void:
 	if not bleed_floats.is_empty():
 		var bleed_float: Dictionary = bleed_floats[0] as Dictionary
 		_assert(str(bleed_float.get("icon", "")) == "bleed", "Bleed trigger float should pop the bleed icon")
-		_assert(str(bleed_float.get("text", "")) == "-50", "Bleed trigger float should still show the damage number")
+		_assert(str(bleed_float.get("text", "")) == "−50", "Bleed trigger float should still show the damage number")
 	instance.free()
 
 func _test_enemy_pierce_intents_surface_icons() -> void:
@@ -4569,7 +4569,7 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		"max_hp": 3
 	}))
 	_assert(terrain_tooltip.contains("Wooden crate"), "Terrain tooltips should identify the object")
-	_assert(terrain_tooltip.contains("2/3 HP"), "Terrain tooltips should show HP")
+	_assert(terrain_tooltip.contains("2/3 Health"), "Terrain tooltips should show HP")
 	_assert(not terrain_tooltip.contains("Blocks movement"), "Client terrain tooltips should stay concise")
 	_assert(not terrain_tooltip.contains("Line of sight open"), "Client terrain tooltips should not repeat tactical harness guidance")
 	_assert(not terrain_tooltip.contains("Attack to break"), "Client terrain tooltips should avoid instructional text")
@@ -5787,7 +5787,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	dialogue = dialogue_engine.build_room_dialogue(room, {}, progression)
 	lines = dialogue.get("lines", [])
 	_assert(lines.size() == 3, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
-	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
+	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back... so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(not options.any(func(option: Dictionary) -> bool: return str(option.get("action", "")) == "open_card_upgrades"), "Legacy unlocked progression should not keep the old touch option alive")
 	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
@@ -5811,7 +5811,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var seen_progression: Dictionary = ProgressionStore.mark_umbra_warning_seen(next_run_progression)
 	_assert(not ProgressionStore.umbra_warning_is_due(seen_progression, next_run_index + 1), "The Umbra warning should never repeat after it has been seen")
 	var post_warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index + 1}, seen_progression)
-	_assert(str(((post_warning_dialogue.get("lines", []) as Array)[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Later runs should return to the Emaciated Man's default dialogue")
+	_assert(str(((post_warning_dialogue.get("lines", []) as Array)[0] as Dictionary).get("text", "")) == "Hehehe. You're back... so soon.", "Later runs should return to the Emaciated Man's default dialogue")
 	for merchant_id: String in ["scavenger"]:
 		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
 			"coord": Vector2i(2, 1),
@@ -6521,7 +6521,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
 	_assert(pass_button != null and not pass_button.disabled, "Pass preview should keep the Pass control available")
-	_assert_pass_preview_chip(instance, ["-5"], false, false, "danger pass")
+	_assert_pass_preview_chip(instance, ["−5"], false, false, "danger pass")
 	_assert(instance.find_child("PassPreviewDetail", true, false) == null, "Pass preview should not render the old wordy detail line")
 	var summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(int(summary.get("hp_loss", 0)) == 5, "Pass preview helper should return visible health damage")
@@ -6548,7 +6548,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(not bool(wait_lapping_summary.get("unrevealed_before_player", false)) and (wait_lapping_summary.get("repeated_enemy_names", []) as Array).is_empty(), "A pass at +19 forecasts the enemy's second activation instead of hiding it")
 	_assert(wait_lapping_summary.get("counted_repeats", []) == [{"key": "enemy_1", "name": "Tunnel Crawler", "count": 2}], "Wait lapping counts the crawler's two activations: %s" % str(wait_lapping_summary.get("counted_repeats", [])))
 	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == wait_lapping_live and wait_lapping_live > 5, "Wait lapping totals both activations exactly as live play deals them (%d forecast, %d live)" % [int(wait_lapping_summary.get("hp_loss", 0)), wait_lapping_live])
-	_assert_pass_preview_chip(instance, ["-%d" % wait_lapping_live], false, false, "Wait lapping pass at +19")
+	_assert_pass_preview_chip(instance, ["−%d" % wait_lapping_live], false, false, "Wait lapping pass at +19")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
@@ -6558,18 +6558,18 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("layered"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["-4", "-5"], false, false, "layered pass")
+	_assert_pass_preview_chip(instance, ["−4", "−5"], false, false, "layered pass")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("defiance_followup"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["-1", "4"], false, false, "Defiance plus follow-up damage pass")
+	_assert_pass_preview_chip(instance, ["−1", "4"], false, false, "Defiance plus follow-up damage pass")
 	var defiance_summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(int(defiance_summary.get("defiance_spent", 0)) == 1, "Pass preview should surface the Defiance charge spent by the first lethal hit")
 	_assert(int(defiance_summary.get("projected_hp", -1)) == 4 and int(defiance_summary.get("net_hp_change", 0)) == -1, "Pass preview should retain the resulting HP after a later revealed enemy damages restored health")
 	instance.call("_update_action_context_risk")
 	var defiance_risk_text: String = str((instance.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
-	_assert(defiance_risk_text.contains("DEFIANCE -1") and defiance_risk_text.contains("4 HP") and defiance_risk_text.contains("0 LEFT"), "Action-context risk should show both the spent charge and resulting HP")
+	_assert(defiance_risk_text.contains("DEFIANCE −1") and defiance_risk_text.contains("4 HEALTH") and defiance_risk_text.contains("0 LEFT"), "Action-context risk should show both the spent charge and resulting HP")
 	var defiance_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(defiance_chip != null and defiance_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nBefore your next turn: −7 Health\nDefiance: spend 1 charge and return at 4/24 Health.", "Defiance preview tooltip should retain the exact approved loss and resulting Health explanation")
 
@@ -6581,7 +6581,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(int(mixed_umbra_summary.get("projected_hp", -1)) < 0, "Mixed Umbra preview should not expose a falsely precise ending HP")
 	instance.call("_update_action_context_risk")
 	var mixed_risk_text: String = str((instance.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
-	_assert(mixed_risk_text.contains("? HP") and not mixed_risk_text.contains("0 HP"), "Mixed Umbra Defiance risk should show unknown ending HP instead of a false zero")
+	_assert(mixed_risk_text.contains("? HEALTH") and not mixed_risk_text.contains("0 HEALTH"), "Mixed Umbra Defiance risk should show unknown ending HP instead of a false zero")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("lethal"))
 	await process_frame
@@ -6596,7 +6596,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var repeat_summary: Dictionary = instance.call("_pass_preview_summary")
 	var repeat_live: int = _pass_preview_live_hp_loss(instance.get("_combat_state"))
 	_assert(int(repeat_summary.get("hp_loss", 0)) == repeat_live and repeat_live > 0 and not bool(repeat_summary.get("unrevealed_before_player", false)), "Repeat moves of a visible foe are forecast exactly (%d forecast, %d live)" % [int(repeat_summary.get("hp_loss", 0)), repeat_live])
-	_assert_pass_preview_chip(instance, ["-%d" % repeat_live], false, false, "repeat-activation pass")
+	_assert_pass_preview_chip(instance, ["−%d" % repeat_live], false, false, "repeat-activation pass")
 	var danger_line: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
 	_assert(danger_line.begins_with("+10") and not danger_line.contains("UNKNOWN") and not danger_line.contains("2ND MOVE"), "A counted repeat drops the unknown second-move wording: %s" % danger_line)
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
@@ -6635,7 +6635,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 0, "Selecting Guarded Step should keep the move target pending")
-	_assert_action_context_risk(instance, "-5 HP", "danger", "selected move before hover")
+	_assert_action_context_risk(instance, "−5 HEALTH", "danger", "selected move before hover")
 	var move_target: Vector2i = _pass_preview_chip_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
 	_assert(move_target.x >= 0, "Pass preview move-hover coverage should find a valid Guarded Step target")
 	if move_target.x >= 0:
@@ -6670,7 +6670,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 1, "Selecting Quick Stab should keep the attack target pending")
-	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack before hover")
+	_assert_action_context_risk(instance, "−5 HEALTH", "danger", "selected attack before hover")
 	var attack_target := Vector2i(3, 4)
 	_assert((instance.get("_pending_target_tiles") as Array).has(attack_target), "Pass preview attack-hover coverage should find the adjacent enemy target")
 	instance.call("_on_board_tile_hovered", attack_target)
@@ -6686,7 +6686,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame # Hover presentation coalesces before the next draw.
 	await process_frame
 	await process_frame
-	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack hover cleared")
+	_assert_action_context_risk(instance, "−5 HEALTH", "danger", "selected attack hover cleared")
 	live_state = instance.get("_combat_state")
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected attack pass preview should not commit the selected card")
 	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 6, "Selected attack hover should not damage the live enemy")
@@ -6806,7 +6806,7 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 	var movement_meter: Control = instance.get("_movement_meter") as Control
 	var movement_count: Label = instance.get("_movement_meter_count") as Label
 	var movement_capacity: int = CombatEngine.new().player_movement_capacity(instance.get("_combat_state"))
-	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d Movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
+	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d/%d Movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
 	_assert(not bool(instance.call("_combat_skill_activation_surface_available")), "Manual combat skills should not activate against a cached movement target set")
 	var armed_state: Dictionary = combat_state.duplicate(true)
 	armed_state["skill_ids"] = ["ghost_stride"]
@@ -7191,7 +7191,7 @@ func _test_run_scene_reward_heal_choice_sits_below_cards() -> void:
 		_assert(int(recover_button.get_meta("reward_heal_effective", 0)) == RunEngine.REWARD_HEAL, "Injured Recover should show its effective healing")
 		_assert(int(recover_button.get_meta("reward_heal_wasted", -1)) == 0, "Injured Recover should not report wasted healing when the full amount fits")
 		_assert(recover_button.text.contains("SKIP & RECOVER"), "Recover should explicitly communicate that every card is skipped")
-		_assert(recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Recover should show the offered healing")
+		_assert(recover_button.text.contains("+%d HEALTH" % RunEngine.REWARD_HEAL), "Recover should show the offered healing")
 		_assert(recover_button.text.contains("12 → 15"), "Recover should show exact current-to-clamped HP values")
 	instance.queue_free()
 	await process_frame
@@ -7298,7 +7298,7 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	_assert(instance.find_child("RewardAttunementContext", true, false) == null, "Reward choices should not render attunement/loadout capacity copy")
 	_assert(instance.find_child("RewardDestinationBadge", true, false) == null, "Reward cards should not render destination copy")
 	_assert(recover_button != null and recover_button.text.contains("SKIP & RECOVER"), "The secondary health action should make its skip consequence explicit")
-	_assert(recover_button != null and recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Recover should show the exact offered healing in its button label")
+	_assert(recover_button != null and recover_button.text.contains("+%d HEALTH" % RunEngine.REWARD_HEAL), "Recover should show the exact offered healing in its button label")
 	_assert(recover_button != null and recover_button.text.contains("12 → 15"), "Recover should show the clamped HP projection in its button label")
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_result_hp", -1)) == 15, "Recover metadata should match the visible HP projection")
 	if card_row != null and card_row.get_child_count() > 0:
@@ -7331,7 +7331,7 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_result_hp", -1)) == 24, "Full-health Recover should show unchanged capped health")
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
 	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should retain accurate clamping metadata")
-	_assert(recover_button != null and recover_button.text == "SKIP  •  HEALTH FULL", "Full-health skip should say health is full and promise no healing")
+	_assert(recover_button != null and recover_button.text == "SKIP · HEALTH FULL", "Full-health skip should say health is full and promise no healing")
 	var healed_full: Dictionary = engine.skip_reward_for_heal(full_state)
 	var displayed_full_result: int = int(recover_button.get_meta("reward_heal_result_hp", -2)) if recover_button != null else -2
 	_assert(int(healed_full.get("player_hp", -1)) == displayed_full_result, "Displayed full-health Recover result should match the actual claim result")
@@ -7512,7 +7512,7 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	var found_fatigue_text: bool = false
 	for text_var: Variant in fatigue_texts:
 		var text_entry: Dictionary = text_var
-		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-2"
+		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "−2"
 		found_fatigue_text = found_fatigue_text or str(text_entry.get("text", "")) == "fatigue sets in"
 	_assert(found_damage_number, "Fatigue visual should include the normal floating damage number")
 	_assert(found_fatigue_text, "Fatigue visual should include the fatigue text callout")
@@ -7558,7 +7558,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "Linger") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Draw Strength") != null, "Campfire overlay should label the level-up option")
-	_assert(_label_with_text(relic_overlay, "+6 HP") != null, "Campfire linger choice should show a compact heal chip")
+	_assert(_label_with_text(relic_overlay, "+6 Health") != null, "Campfire linger choice should show a compact heal chip")
 	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
 	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
 	_assert(_label_with_text(relic_overlay, "END RUN") == null, "Campfire abandon choice should not duplicate end-run text in a chip")
@@ -9249,7 +9249,7 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	var dialogue_footer: HBoxContainer = instance.get("_dialogue_footer")
 	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
 	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
-	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon.", "The opening NPC line should match the scripted default dialogue")
+	_assert(text_label != null and text_label.text == "Hehehe. You're back... so soon.", "The opening NPC line should match the scripted default dialogue")
 	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.x <= 1500.0, "The opening NPC dialogue should stay narrower than the full viewport") # dlg-01 v5 band: 1500 wide (owner-approved 2026-11-16)
 	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.y <= 220.0, "The opening NPC dialogue should use a compact spoken-line panel") # dlg-01 v5 line band: 220 tall
 	_assert(dialogue_footer != null and dialogue_footer.custom_minimum_size.y <= 40.0, "The opening NPC dialogue should not reserve choice-button height for a hint-only footer")
@@ -9259,7 +9259,7 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	_assert(text_label != null and text_label.text == "His creations got the best of you again.", "The second NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
-	_assert(text_label != null and text_label.text == "Maybe this time's the one. Then again...probably not.", "The final NPC line should preserve its trailing period")
+	_assert(text_label != null and text_label.text == "Maybe this time's the one. Then again... probably not.", "The final NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(not bool(instance.get("_dialogue_active")) and not bool(instance.call("_has_current_dialogue_options")), "Completing the opening speech should close its narrative without appending service options")
@@ -9698,7 +9698,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The level-up overlay should reuse the skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The level-up tree should show a legal root choice")
 	_assert(_button_with_text(upgrade_scrim, "+") == null and _button_with_text(upgrade_scrim, "-") == null, "The level-up overlay should not expose stat steppers")
-	_assert(_button_with_text(upgrade_scrim, "Learn  ·  1 Point") != null, "The persistent tree should let the focused ability be learned immediately")
+	_assert(_button_with_text(upgrade_scrim, "Learn · 1 Point") != null, "The persistent tree should let the focused ability be learned immediately")
 	instance.queue_free()
 	await process_frame
 
@@ -10054,17 +10054,17 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 		_assert(SettingsStore.load_settings()["edge_smoothing"] == SettingsStore.EDGE_SMOOTHING_OFF and root.msaa_2d == Viewport.MSAA_DISABLED, "Selecting Off should save and apply without restarting")
 	var menu_music: AudioStreamPlayer = menu_instance.get_node("MusicPlayer")
 	_assert(menu_music.bus == SettingsStore.MUSIC_BUS, "Main-menu music should route through the Music bus")
-	var restore_button: Button = _button_with_text(menu_settings_panel, "Restore defaults")
-	_assert(restore_button != null, "Settings should expose Restore defaults")
+	var restore_button: Button = _button_with_text(menu_settings_panel, "Restore Defaults")
+	_assert(restore_button != null, "Settings should expose Restore Defaults")
 	if restore_button != null:
-		_assert_button_text_centered(restore_button, "Settings Restore defaults")
-		_assert(str(restore_button.get_meta("button_variant", "")) == UiSkin.VARIANT_DESTRUCTIVE, "Restore defaults should use the destructive themed variant")
+		_assert_button_text_centered(restore_button, "Settings Restore Defaults")
+		_assert(str(restore_button.get_meta("button_variant", "")) == UiSkin.VARIANT_DESTRUCTIVE, "Restore Defaults should use the destructive themed variant")
 		restore_button.pressed.emit()
 	var confirmation_panel: PanelContainer = menu_settings_panel.get("_confirmation_panel") as PanelContainer
-	_assert(confirmation_panel != null and confirmation_panel.visible, "Restore defaults should require a deliberate confirmation step")
+	_assert(confirmation_panel != null and confirmation_panel.visible, "Restore Defaults should require a deliberate confirmation step")
 	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Opening restore confirmation should not change settings")
-	var confirm_restore: Button = _button_with_text(confirmation_panel, "Reset all")
-	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Reset all action")
+	var confirm_restore: Button = _button_with_text(confirmation_panel, "Reset All")
+	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Reset All action")
 	if confirm_restore != null:
 		_assert_button_text_centered(confirm_restore, "Settings restore confirmation")
 		confirm_restore.pressed.emit()
@@ -11409,7 +11409,7 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
 	var forecast: String = preload("res://tests/helpers/pass_forecast_checks.gd").semantic_line(instance)
 	var summary: Dictionary = instance.call("_pass_preview_summary")
-	var fragment: String = ("+ ? 2ND MOVE" if bool(instance.call("_pass_preview_known_damage_suffix", summary)) else "UNKNOWN") if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
+	var fragment: String = ("+ ? 2ND MOVE" if bool(instance.call("_pass_preview_known_damage_suffix", summary)) else "UNKNOWN") if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HEALTH")
 	_assert(forecast.contains(fragment), "%s summary should retain risk: %s" % [context, fragment])
 	_assert(str(summary.get("tone", "safe")) == expected_tone, "%s should retain its risk tone" % context)
 	var pass_chip: Button = instance.find_child("PassPreviewChip", true, false) as Button

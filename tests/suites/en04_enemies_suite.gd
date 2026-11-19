@@ -348,7 +348,7 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	board.combat_state = state
 	var marks: Dictionary = LobView.marks(board)
 	expect.call(marks.size() == 5 and int(marks[FIXTURE_HERO]["damage"]) == 5 and int(marks[FIXTURE_HERO + Vector2i.LEFT]["damage"]) == 3, "At-rest medallions expose real centre/arm values")
-	expect.call(LobView.mark_tooltip(state, state["enemies"][0]) == "@pattern(cross) Marked tiles take the hit: 5 in the centre, 3 around it, and they become Fire.", "Exact Lob landing tooltip")
+	expect.call(LobView.mark_tooltip(state, state["enemies"][0]) == "@pattern(cross) Marked tiles take the hit: 5 in the center, 3 around it, and they become Fire.", "Exact Lob landing tooltip")
 	expect.call(Compass.descriptor_for_enemy(state["enemies"][0]["intent"])["value"] == 5, "Landing compass exposes centre damage")
 	expect.call(Compass.descriptor_for_enemy(intent("briar_weaver", "thornwall"))["family"] == Compass.FAMILY_SUPPORT, "Thornwall compass is terrain support")
 	expect.call(LobView.arc_point(Vector2.ZERO, Vector2(100, 0), 50, 0.5) == Vector2(50, -110), "Arc apex is exactly 2.2 tiles over midpoint")

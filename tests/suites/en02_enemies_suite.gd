@@ -345,7 +345,7 @@ static func _additional_boundaries(engine: RefCounted, expect: Callable) -> void
 	expect.call(force.get("path", []) == engine._vector2i_values([Vector2i(5, 5), Vector2i(6, 5)]), "Focused Call uses global hazard direction rather than pushing away from the Herald")
 	var scene: Control = SceneScript.new()
 	var feedback: Array[Dictionary] = WindView.damage_texts(scene, {"kind": "push", "target_losses": [{"key": "player", "tile": Vector2i(5, 5), "hp_loss": 2}], "enemy_losses": [{"key": "enemy_2", "tile": Vector2i(6, 5), "hp_loss": 5}]})
-	expect.call(feedback.size() == 2 and feedback[0]["text"] == "-2" and feedback[1]["text"] == "-5", "Mechanic feedback retains player and friendly-fire damage numbers")
+	expect.call(feedback.size() == 2 and feedback[0]["text"] == "−2" and feedback[1]["text"] == "−5", "Mechanic feedback retains player and friendly-fire damage numbers")
 	scene.free()
 
 static func _director_feedback(engine: RefCounted, expect: Callable) -> void:

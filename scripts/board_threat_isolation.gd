@@ -4,6 +4,7 @@ extends "res://scripts/board_layer_slices.gd"
 ## CanvasItem alpha; neither the tween nor a held hover invalidates board paint.
 const DIM_ALPHA: float = 0.30
 const TRANSITION_SECONDS: float = 0.12
+const Red = preload("res://scripts/pass_forecast_red_tiles.gd")
 const HoverActor = preload("res://scripts/board_hover_actor.gd")
 
 static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictionary, allow_reverse: bool = true) -> Array[String]:
@@ -30,6 +31,14 @@ static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, t
 	var intent_state: Dictionary = scene._enemy_intent_preview_state(state) if intent_preview == null else intent_preview
 	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, intent_state, "")
 	var keys: Array[String] = resolve(scene, state, tile, rest, not scene._targeted_card_aiming_active())
+	if scene._player_movement_selected and scene._player_movement_target_tiles.has(tile):
+		# An empty preview aim also wins: a committed cross can be out of range
+		# from the Walk destination.
+		presentation[Threats.LOB_AIM_KEY] = rest.get(Threats.LOB_AIM_KEY, {})
+	if rest.has(Red.FLOOR_KEY):
+		rest = rest.duplicate(false)
+		presentation[Red.FLOOR_KEY] = rest[Red.FLOOR_KEY]
+		rest.erase(Red.FLOOR_KEY)
 	presentation["threats_at_rest"] = rest
 	presentation["isolated_enemy_actor_keys"] = keys
 	presentation["hover_owner_tile"] = scene._hovered_board_tile
@@ -43,10 +52,10 @@ static func alpha_for(keys: Array, selected: Array) -> float:
 		if selected.has(key): return 1.0
 	return DIM_ALPHA
 
-static func tile_keys(board: Control, tile: Vector2i) -> Array[String]:
+static func tile_keys(board: Control, tile: Vector2i, floor: bool = false) -> Array[String]:
+	var coverage: Dictionary = board._floor_threat_coverage if floor else board._marker_threat_coverage
 	var keys: Array[String]
-	for threat: Dictionary in board.presentation.get("threats_at_rest", {}).get("threats", []):
-		if (threat.get("tiles", []) as Array).has(tile): keys.append(str(threat["key"]))
+	keys.assign(coverage.get("owners", {}).get(tile, []))
 	return keys
 
 static func update_rail(scene: Node, keys: Array) -> void:
@@ -156,7 +165,7 @@ func _rebuild(layer: Control) -> void:
 		parent_ops = groups.pop_front()
 		animated.pop_front()
 		owners.pop_front()
-	layer.set("_render_slice_ops", parent_ops)
+	var repaint_parent: bool = _set_plan_ops(layer, layer, parent_ops)
 	# Retain node identities on ordinary changes; discard only unused tail slots.
 	if canvases.size() != groups.size():
 		var owner: Control = layer.get("_render_instrumentation_owner") as Control
@@ -192,7 +201,8 @@ func _rebuild(layer: Control) -> void:
 		canvas.show_behind_parent = kind == "scene_tile"
 		canvas.size = layer.size
 		canvas.material = layer.material
-		canvas.set("_render_slice_ops", groups[index])
+		if not _set_plan_ops(layer, canvas, groups[index], created):
+			_retained_plan_canvases[canvas] = true
 		if created:
 			# Existing slices already receive changed fields through the owner's
 			# normal retained-state/asset binding path. Copy all bindings only once.
@@ -211,7 +221,7 @@ func _rebuild(layer: Control) -> void:
 	_initialized = true
 	layer.set("_slice_operations", [])
 	# Empty parent canvases need one clearing submission after a previous plan.
-	layer.queue_redraw()
+	if repaint_parent: layer.queue_redraw()
 
 
 static func mechanic_keys(board: Control, method: String, tile: Vector2i = Vector2i(-1, -1)) -> Array[String]:
@@ -247,7 +257,7 @@ static func preview_tile_keys(board: Control, tile: Vector2i, field: String) -> 
 	return keys
 
 static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
-	var owners: Array[String] = tile_keys(board, tile)
+	var owners: Array[String] = tile_keys(board, tile, true)
 	var lob: Dictionary = sources.get("lob_marks", {})
 	if lob.has(tile): owners.append("enemy_%d" % int(lob[tile]["enemy"]["id"]))
 	board.set("_threat_slice_keys", owners)

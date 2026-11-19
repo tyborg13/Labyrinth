@@ -59,6 +59,7 @@ const CHAIN_GAIN_DB: float = -5.0
 const BEAST_VOCAL_CHANCE: float = 0.30
 # Returned plays let the hero select another card (au-02 director feedback 1).
 const CARD_PLAY_GAIN_DB: float = -4.0
+const OUTCROP_CUE: String = "spell.earth"
 
 var bank: Node
 var _action: Dictionary = {}
@@ -66,6 +67,8 @@ var _actor: Dictionary = {}
 var _weapon: String = ""
 var _units: Dictionary = {}
 var _terrain: Dictionary = {}
+var _outcrop_serial: int = 0
+var _earth_cue_frame: int = -1
 var _illusions: Dictionary = {}
 var _deaths: Dictionary = {}
 var _dragons: Dictionary = {}
@@ -101,6 +104,7 @@ func _init(cue_bank: Node = null) -> void:
 	bank = cue_bank
 
 func request(cue_id: String, opts: Dictionary = {}) -> void:
+	if cue_id == OUTCROP_CUE: _earth_cue_frame = Engine.get_process_frames()
 	if bank != null: bank.play(cue_id, opts)
 
 func card_play_gain(amount: int) -> void:
@@ -342,6 +346,7 @@ func baseline(state: Dictionary, reset_arrivals: bool = true) -> void:
 	_units = _unit_snapshot(state)
 	_surface_sequence = int(state.get("surface_event_sequence", 0))
 	_terrain = _indexed(state.get("terrain", []), "id")
+	_outcrop_serial = int(state.get("terrain_creation_sequence", 0))
 	_illusions = _indexed(state.get("illusions", []), "id")
 	_deck = (state.get("deck", {}) as Dictionary).duplicate(true)
 	_relic_logs = (state.get("log", []) as Array).duplicate()
@@ -431,6 +436,7 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		var before: Dictionary = _terrain[key]
 		var after: Dictionary = next_terrain.get(key, {})
 		if int(before.get("hp", 0)) > int(after.get("hp", 0)) and str(before.get("kind", before.get("type", ""))) in ["box", "crate"]: crate(int(after.get("hp", 0)) <= 0)
+	_outcrop_arrivals(next_terrain)
 	_terrain = next_terrain
 	var next_illusions: Dictionary = _indexed(state.get("illusions", []), "id")
 	for key: Variant in next_illusions:
@@ -440,6 +446,18 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 	_illusions = next_illusions
 	deck_transition(state.get("deck", {}))
 	relic_outcomes(state.get("log", []))
+
+func _outcrop_arrivals(next_terrain: Dictionary) -> void:
+	var newest: int = _outcrop_serial
+	# Runtime raises have serial Outcrop IDs even in partial playback
+	# snapshots that omit creation events (guardian utility).
+	for id: Variant in next_terrain:
+		if not _terrain.has(id) and str(id).begins_with("outcrop_"):
+			newest = maxi(newest, str(id).trim_prefix("outcrop_").to_int())
+	if newest == _outcrop_serial: return
+	_outcrop_serial = newest
+	# A Gauntlet rise can share the contact of an already audible earth attack.
+	if _earth_cue_frame != Engine.get_process_frames(): request(OUTCROP_CUE)
 
 func deck_transition(deck: Dictionary) -> void:
 	if int(deck.get("cycles", 0)) > int(_deck.get("cycles", 0)): deck_shuffle()

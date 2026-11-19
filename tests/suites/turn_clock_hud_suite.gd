@@ -108,10 +108,10 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	var live_after: Dictionary = Committed.advance_to_player(engine, Committed.finish_player_activation(engine, live_state)).get("state", {})
 	var live_loss: int = int(live_state["player"]["hp"]) - int(live_after.get("player", {}).get("hp", 0))
 	check.call(not bool(summary.get("unrevealed_before_player", false)) and not bool(summary.get("umbra_unknown_before_player", false)) and int(summary.get("hp_loss", 0)) == live_loss and live_loss > 5, "pass_lap_known_damage: the revealed 5 HP hit and the counted second move total the live loss (%d forecast, %d live)" % [int(summary.get("hp_loss", 0)), live_loss])
-	check.call(line == "+10  •  -%d" % live_loss, "pass_lap_known_damage: exact lead and full damage, no 2ND MOVE suffix: %s" % line)
+	check.call(line == "+10  •  −%d" % live_loss, "pass_lap_known_damage: exact lead and full damage, no 2ND MOVE suffix: %s" % line)
 	scene.call("_update_action_context_risk")
 	var risk_text: String = str((scene.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
-	check.call(risk_text == "WAIT +10 · -%d HP" % live_loss, "The action context states the full known HP damage: %s" % risk_text)
+	check.call(risk_text == "WAIT +10 · −%d HEALTH" % live_loss, "The action context states the full known HP damage: %s" % risk_text)
 	await _capture(capture_viewport, check, capture_dir, "pass_lap_known_damage")
 	await _test_preview_visibility(tree, scene, engine, check)
 	_test_forecasts(scene, check)
@@ -393,7 +393,7 @@ static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	var modified: Dictionary = GameData.card_def("quick_stab").duplicate(true)
 	modified["_quicken_discount"] = 1
 	card.call("_refresh_time_badge", modified)
-	expect.call(badge.tooltip_text.ends_with("\nQuickened: -1"), "The Time badge preserves modifier lines")
+	expect.call(badge.tooltip_text.ends_with("\nQuickened: −1"), "The Time badge preserves modifier lines")
 	card.call("_refresh_time_badge", GameData.card_def("quick_stab"))
 
 static func _test_forecasts(scene: Node, expect: Callable) -> void:

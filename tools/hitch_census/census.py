@@ -17,6 +17,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = Path('/private/tmp/labyrinth_codex/perf-109/native')
+DEFAULT_TASK_ID = 'perf-109'
 MIN_FREE_BYTES = 45_000_000_000
 SMOKE_CAP_BYTES = 10_000_000_000
 GUARD_POLL_SECONDS = 1.0
@@ -79,7 +80,7 @@ def clone(source, target):
         shutil.copy2(source, target)
 
 
-def prepare(output, import_cache=None, cel_cache=None):
+def prepare(output, import_cache=None, cel_cache=None, task_id=DEFAULT_TASK_ID):
     output.mkdir(parents=True, exist_ok=True)
     guard(output, SMOKE_CAP_BYTES)
     project = output / 'project'
@@ -107,7 +108,7 @@ def prepare(output, import_cache=None, cel_cache=None):
         'note': 'Frozen source/assets; imported resource cache is not a warmed user shader cache.'})
     write_window_override(project)
     # Intentional import bootstrap in the disposable copy, never an editor parser scan.
-    command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'perf-109', '--project', str(project),
+    command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', task_id, '--project', str(project),
                '--timeout', str(PREPARE_TIMEOUT_SECONDS), '--stream', '--', 'godot', '--headless', '--path', str(project), '--import']
     with (output / 'prepare.log').open('w') as log:
         subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -128,7 +129,7 @@ def command(args, driver, seed, profile, run_id, directory, trace_mode):
         if platform.system() != 'Darwin' or not shutil.which('taskpolicy'):
             raise RuntimeError('background profile requires macOS taskpolicy; refusing a false throttle label')
         prefix = ['taskpolicy', '-c', 'background']
-    cmd = [*prefix, sys.executable, 'tools/godot_task_runner.py', '--task-id', 'perf-109', '--run-id', run_id,
+    cmd = [*prefix, sys.executable, 'tools/godot_task_runner.py', '--task-id', getattr(args, 'task_id', DEFAULT_TASK_ID), '--run-id', run_id,
            '--godot-home-root', str(args.output / 'homes'), '--project', str(args.output / 'project'),
            '--timeout', str(args.seconds + RUNNER_MARGIN_SECONDS), '--stream', '--', 'godot', '--path', str(args.output / 'project'),
            '--resolution', '1280x800', '--windowed', '--position', WINDOW_CORNER_POSITION, '--script', 'res://tools/hitch_census/driver.gd', '--',
@@ -141,7 +142,7 @@ def command(args, driver, seed, profile, run_id, directory, trace_mode):
     return cmd
 
 
-def run_accounting(directory, returncode):
+def run_accounting(directory, returncode, driver=None):
     """Completion evidence wins over exit status (including qa-71 shutdown abort)."""
     result_printed = False
     script_error = False
@@ -151,9 +152,14 @@ def run_accounting(directory, returncode):
             script_error |= 'SCRIPT ERROR' in line
     receipt_path = directory / 'receipt.json'
     receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
-    return dict(returncode=returncode, outcome=receipt.get('outcome'), errors=receipt.get('errors', []),
-                result_printed=result_printed, measured=result_printed and receipt_path.exists() and not script_error,
-                script_error=script_error)
+    measured = result_printed and receipt_path.exists() and not script_error
+    result = dict(returncode=returncode, outcome=receipt.get('outcome'), errors=receipt.get('errors', []),
+                  result_printed=result_printed, measured=measured, script_error=script_error)
+    if driver == 'tour':
+        from report import incomplete_tour_reason
+        result['tour_failure'] = incomplete_tour_reason(receipt)
+        result['measured'] = measured and not result['tour_failure']
+    return result
 
 
 def run_one(args, driver, seed, profile, cache, run_id, trace_mode='on', primer=False):
@@ -171,6 +177,7 @@ def run_one(args, driver, seed, profile, cache, run_id, trace_mode='on', primer=
            'LABYRINTH_CEL_LOOK': 'all', 'SteamDeck': '1', 'LABYRINTH_PROBE_WINDOW': '1', 'LABYRINTH_DEMO': '1' if driver == 'demo' else '0'}
     cmd = command(args, driver, seed, profile, run_id, directory, trace_mode)
     replay_args = ['python3', 'tools/hitch_census/census.py', 'run', '--output', str(args.output),
+                   '--task-id', getattr(args, 'task_id', DEFAULT_TASK_ID),
                    '--drivers', driver, '--seed', str(seed), '--seeds', '1', '--cache', cache,
                    '--profiles', profile, '--seconds', str(args.seconds), '--tag', f'replay-{time.time_ns()}']
     if driver == 'whole':
@@ -208,11 +215,13 @@ def run_one(args, driver, seed, profile, cache, run_id, trace_mode='on', primer=
             process.wait(timeout=15)
             raise
     metadata.update(viewport=read_startup_viewport(directory), returncode=process.returncode, wall_seconds=time.monotonic() - started, cache_after=cache_inventory(home))
-    metadata.update(run_accounting(directory, process.returncode))
+    metadata.update(run_accounting(directory, process.returncode, driver))
     write_json(directory / 'run.json', metadata)
     print(f'HITCH RUN: {name} exit={process.returncode} seconds={metadata["wall_seconds"]:.2f}', flush=True)
     if not metadata['result_printed'] or metadata['script_error']:
         raise RuntimeError(f'failed run (missing RESULT or SCRIPT ERROR): {directory}; see godot.log')
+    if driver == 'tour' and metadata['tour_failure']:
+        raise RuntimeError(f"{metadata['tour_failure']}: {directory}; see godot.log and receipt.json")
     guard(args.output, args.disk_cap_gb * 1e9)
     return directory
 
@@ -230,7 +239,7 @@ def collect(args):
         for seed in seeds:
             for profile in args.profiles:
                 for trace_mode in (['on', 'off'] if args.trace_mode == 'both' else [args.trace_mode]):
-                    run_id = f'perf-109-{args.tag}-{driver}-{seed}-{profile}-{trace_mode}-{time.time_ns()}'
+                    run_id = f'{args.task_id}-{args.tag}-{driver}-{seed}-{profile}-{trace_mode}-{time.time_ns()}'
                     run_one(args, driver, seed, profile, 'cold', run_id, trace_mode, primer=args.cache == 'warm')
                     if args.cache in ('warm', 'both'):
                         run_one(args, driver, seed, profile, 'warm', run_id, trace_mode)
@@ -243,6 +252,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('prepare', 'run', 'smoke', 'calibrate'))
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument('--task-id', default=DEFAULT_TASK_ID)
     parser.add_argument('--import-cache', type=Path)
     parser.add_argument('--cel-cache', type=Path, help='optional existing production cel cache, validated/rebuilt by cel_look.py')
     parser.add_argument('--drivers', nargs='+', choices=('whole', 'demo', 'tour', 'calibration'), default=['whole', 'demo', 'tour'])
@@ -271,7 +281,7 @@ def main():
     if args.mode == 'calibrate':
         args.drivers, args.trace_mode = ['calibration'], 'both'
     try:
-        if args.mode == 'prepare': prepare(args.output, args.import_cache, args.cel_cache)
+        if args.mode == 'prepare': prepare(args.output, args.import_cache, args.cel_cache, args.task_id)
         else: collect(args)
     except (OSError, RuntimeError, subprocess.SubprocessError) as error:
         parser.exit(1, f'HITCH CENSUS STOP: {error}\n')

@@ -259,7 +259,7 @@ func _capture_wrapper_focus(
 		"_begin_hand_skill_card_selection",
 		"quick_wits",
 		valid_indices,
-		"QUICK WITS  ·  CHOOSE A CARD TO DISCARD"
+		"QUICK WITS · CHOOSE A CARD TO DISCARD"
 	)
 	await _settle()
 	var focused_wrapper: Button = hand_box.find_child(

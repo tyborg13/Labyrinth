@@ -94,9 +94,18 @@ func _update_canvases() -> void:
 		_present(record)
 
 func begin_draw(source: Control) -> void:
-	if source.has_meta("rd03_canvas"): return
+	if source.has_meta("rd03_canvas") or not source._board_redraw_baseline(): return
 	for child: Node in source.get_children():
 		if child.has_meta("rd03_canvas"): (child as Control).hide()
+
+func finish_draw(source: Control) -> void:
+	if source.has_meta("rd03_canvas") or source._board_redraw_baseline(): return
+	# A draw that still routes this child can retain its visibility and cached
+	# commands. Retire children whose actor disappeared from this source's paint.
+	for child: Node in source.get_children():
+		if child.has_meta("rd03_canvas"):
+			if child.has_meta("rd03_routed"): child.remove_meta("rd03_routed")
+			else: (child as Control).hide()
 
 func release_room_canvases() -> void:
 	# The source layers may be reused in the next room, but their child
@@ -127,20 +136,19 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 		source.add_child(canvas)
 		record = {"canvas": canvas, "unit": unit, "hud": hud}
 		canvases[id] = record
-	canvas.size = source.size
-	canvas.material = source.material
-	for field: String in Layers.STATE_FIELDS: canvas.set(field, source.get(field))
-	var owner: Control = source.get("_render_instrumentation_owner") as Control
-	if not is_instance_valid(owner): owner = source
-	for field: String in owner.get("_retained_asset_bindings"): canvas.set(field, source.get(field))
-	for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]: canvas.set(field, source.get(field))
-	source.call("_copy_resolved_board_layout_to", canvas)
+	# Keep the ordinal canvas and its aim/outline ownership. The production
+	# ordinal painter is empty, so after initialization it can retain its paint.
+	var retain_empty: bool = (
+		method == "_draw_slice_intent_orders"
+		and source.get_script().resource_path == "res://scripts/combat_board_view.gd"
+		and not source._board_redraw_baseline() and not canvas.get("_render_slice_ops").is_empty()
+	)
+	_bind_canvas(source, canvas, false)
 	canvas.set("_render_slice_ops", [[method, args]])
 	record.unit = unit
 	_present(record)
 	if not hud: canvas.modulate.a = float(body_alphas.get(key, 1.0))
-	canvas.show()
-	canvas.queue_redraw()
+	_queue_canvas(source, canvas, method, retain_empty)
 	return true
 
 const TOP_CANVAS_Z: int = 3
@@ -163,17 +171,35 @@ func route_top(source: Control, method: String, args: Array) -> bool:
 		canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: source.emit_signal("intent_callout_drawn", layout))
 		source.add_child(canvas)
 		canvases[id] = {"canvas": canvas, "unit": {}, "hud": true, "top": true}
+	_bind_canvas(source, canvas, true)
+	canvas.set("_render_slice_ops", [[method, args]])
+	_queue_canvas(source, canvas, method)
+	return true
+
+func _bind_canvas(source: Control, canvas: Control, top: bool) -> void:
 	canvas.size = source.size
 	canvas.material = source.material
 	for field: String in Layers.STATE_FIELDS: canvas.set(field, source.get(field))
 	var owner: Control = source.get("_render_instrumentation_owner") as Control
 	if not is_instance_valid(owner): owner = source
-	for field: String in owner.get("_retained_asset_bindings"): canvas.set(field, source.get(field))
+	var assets: Dictionary = owner.get("_retained_asset_bindings")
+	var baseline: bool = source._board_redraw_baseline()
+	if baseline or not is_same(canvas.get_meta("rd03_asset_bindings", {}), assets):
+		for field: String in assets: canvas.set(field, source.get(field))
+		canvas.set_meta("rd03_asset_bindings", assets)
+	if not top:
+		for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]: canvas.set(field, source.get(field))
 	source.call("_copy_resolved_board_layout_to", canvas)
-	canvas.set("_render_slice_ops", [[method, args]])
+
+func _queue_canvas(source: Control, canvas: Control, method: String, retain: bool = false) -> void:
+	if not source._board_redraw_baseline(): canvas.set_meta("rd03_routed", true)
+	if retain:
+		canvas.show()
+		return
+	var trace: RefCounted = source.get("_board_redraw_trace")
+	if trace != null: trace.inherit_reason(source, canvas, false, "aim painter: " + method)
 	canvas.show()
 	canvas.queue_redraw()
-	return true
 
 func _present(record: Dictionary) -> void:
 	# The callout canvas never dims and keeps its topmost z.

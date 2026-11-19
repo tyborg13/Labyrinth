@@ -5,11 +5,11 @@
   },
   "card_range": {
     "name": "Card Range",
-    "description": "Generated card-part upgrades can increase movement, blink, and attack range."
+    "description": "Generated card-part upgrades can increase Movement, blink, and attack range."
   },
   "card_defense": {
     "name": "Card Defense",
-    "description": "Generated card-part upgrades can increase block, stoneskin, healing, and draw."
+    "description": "Generated card-part upgrades can increase Block, Stoneskin, healing, and draw."
   },
   "card_status": {
     "name": "Card Status",

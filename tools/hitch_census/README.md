@@ -157,6 +157,24 @@ are aggregated by production timers and cannot be counted individually here.
 
 ## Headless proof
 
+The tour replays the v6 fixture set. Pass runs three live rounds each for
+Lightning Storm, Gust, Tharokh and Craghide. The driver checks activation deltas,
+checks the boss intent IDs before each Pass, and verifies the final Difficulty
+table tier. The receipt records each completed stop. A missing stop, a coverage
+mismatch or a timeout exits non-zero. The reducer prints fixture coverage from
+receipts, including headless runs, and excludes incomplete tours from timing
+statistics.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/cen-01 &&
+tour_proof=$(mktemp -d /private/tmp/labyrinth_codex/cen-01.XXXXXX) &&
+LABYRINTH_HITCH_TRACE=1 LABYRINTH_CEL_LOOK=all SteamDeck=1 LABYRINTH_DEMO=0 LABYRINTH_PROBE_WINDOW=1 python3 tools/godot_task_runner.py --task-id cen-01 --timeout 480 --stream -- godot --headless --path . --script tools/hitch_census/driver.gd -- --headless-smoke --driver=tour --seed=83 --seconds=420 --output="$tour_proof/runs/tour" &&
+python3 tools/hitch_census/report.py "$tour_proof" --output "$tour_proof/catalog"
+```
+
+Use `--seconds=5` with a fresh output directory to check the incomplete-tour
+exit and missing-stop diagnostics.
+
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/perf-109 && python3 tools/hitch_census/test_report.py
 cd /Users/borgerding/workspace/Labyrinth.worktrees/perf-109 && LABYRINTH_HITCH_TRACE=1 python3 tools/godot_task_runner.py --task-id perf-109 --stream -- godot --headless --path . --script tools/hitch_census/observer_check.gd -- --output=/private/tmp/labyrinth_codex/perf-109/observer-on
@@ -175,6 +193,18 @@ headless traces remain excluded from the native catalog. Report fixtures test
 the rendered Markdown and native aggregation separately. No full suites.
 
 ## Proof for the design owner (not run here)
+
+For one native tour take with the v6 measurement settings (seed 83, cold,
+normal profile, 1280×800 backing pixels, 115% UI scale), use a fresh output
+directory. The collector writes the trace, viewport and receipt under `runs/`
+and generates the report under `catalog/`.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/cen-01 &&
+tour_native=/private/tmp/labyrinth_codex/cen-01-native &&
+python3 tools/hitch_census/census.py prepare --task-id cen-01 --output "$tour_native" --import-cache .godot &&
+python3 tools/hitch_census/census.py run --task-id cen-01 --output "$tour_native" --drivers tour --seed 83 --cache cold --profiles normal --seconds 420 --tag cen-01
+```
 
 These commands prepare a fresh immutable copy and run **two native takes**:
 seed 84, normal profile, one 240-second cold primer and one 240-second warm

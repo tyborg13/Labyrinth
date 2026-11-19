@@ -9,6 +9,17 @@ const HERO_FILL_ALPHA: float = 0.24
 const PULSE_MIN: float = 0.18
 const PULSE_MAX: float = 0.30
 const PULSE_SECONDS: float = 1.1
+const REST_KEY: String = "threats_at_rest"
+const LOB_AIM_KEY: String = "floor_lob_aim"
+
+# Keep the previous paint payload independent of mutable direct submissions.
+# The decorated outer dictionary already belongs to the board.
+static func own_paint_inputs(shown: Dictionary, previous: Dictionary, previous_owned: bool, floor_key: String) -> void:
+	for key: String in [REST_KEY, floor_key, LOB_AIM_KEY]:
+		if not shown.has(key): continue
+		var value: Variant = shown[key]
+		shown[key] = previous[key] if previous_owned and previous.get(key) == value else value.duplicate(true)
+
 # Announced areas are public warnings. Moving sight or hover must not hide a
 # held mark; this paints only the existing danger diamond, never unseen units.
 static func announced_at(presentation: Dictionary, tile: Vector2i) -> bool:
@@ -38,6 +49,27 @@ static func rule_tiles(threats: Array) -> Dictionary:
 		if not bool(threat.get("rule_outline", false)): continue
 		for tile: Vector2i in threat["tiles"]: result[tile] = true
 	return result
+
+# Floor and target marker each compile their own coverage. Rows retain their
+# stamp identities, while the renderer gets one key per owner on each tile.
+static func coverage(threats: Array) -> Dictionary:
+	var alphas: Dictionary = {}
+	var rules: Dictionary = {}
+	var announced: Dictionary = {}
+	var owners: Dictionary = {}
+	for threat: Dictionary in threats:
+		var key: String = str(threat.get("key", ""))
+		var alpha: float = float(threat.get("alpha", 1.0))
+		var rule: bool = bool(threat.get("rule_outline", false))
+		var public: bool = bool(threat.get("area_announced", threat.get("area_fixed", false)))
+		for tile: Vector2i in threat.get("tiles", []):
+			alphas[tile] = maxf(float(alphas.get(tile, 0.0)), alpha)
+			if rule: rules[tile] = true
+			if public: announced[tile] = true
+			if not key.is_empty():
+				var keys: Array = owners.get_or_add(tile, [])
+				if not keys.has(key): keys.append(key)
+	return {"alphas": alphas, "rules": rules, "announced": announced, "owners": owners}
 
 static func hero_fill_alpha(seconds: float, reduced_motion: bool) -> float:
 	if reduced_motion: return HERO_FILL_ALPHA

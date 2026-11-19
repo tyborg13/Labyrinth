@@ -396,6 +396,6 @@ static func _test_nested_block(engine: CombatEngine, expect: Callable) -> void:
 	retained["player"]["block"] = 5
 	expect.call(engine.prepare_next_player_turn(retained)["player"]["block"] == 3, "Throne allows Iron Buckler's retained relic Block")
 	var paid: Dictionary = Rules.pay_health_cost(engine, state(engine), 2, "Blood")
-	expect.call((paid["log"] as Array).has("Paid 2 health for Blood."), "Health payment preserves original wording without Stoneskin")
+	expect.call((paid["log"] as Array).has("Paid 2 Health for Blood."), "Health payment identifies the cost without Stoneskin")
 	paid = Rules.pay_health_cost(engine, state(engine), 2, "Empower Blood")
-	expect.call((paid["log"] as Array).has("Paid 2 health to Empower Blood."), "Empower health payment preserves original wording without Stoneskin")
+	expect.call((paid["log"] as Array).has("Paid 2 Health to Empower Blood."), "Empower Health payment identifies the cost without Stoneskin")

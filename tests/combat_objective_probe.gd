@@ -13,11 +13,13 @@ const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const TRAVEL_DIRECTION: Vector2i = Vector2i.UP
 
 var _failed: bool = false
+var _headless: bool = DisplayServer.get_name() == "headless"
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	if not _headless:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(PROBE_VIEWPORT)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.content_scale_size = PROBE_VIEWPORT
@@ -89,7 +91,7 @@ func _capture_leader(instance: Node, fixture: Dictionary) -> void:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	var leader_id: int = int(objective.get("leader_id", -1))
 	var leader: Dictionary = _enemy_with_id(combat_state, leader_id)
-	_assert_live_hud(instance, "KILL THE LEADER", "HP")
+	_assert_live_hud(instance, CombatObjectiveRules.hud_title_for_objective(objective).to_upper(), "Health")
 	if leader.is_empty() or not bool(leader.get("is_leader", false)):
 		_fail("Leader combat proof should retain one visibly marked leader")
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
@@ -405,6 +407,8 @@ func _labels_text(node: Node) -> String:
 	return "\n".join(parts)
 
 func _capture(filename: String) -> void:
+	if _headless:
+		return
 	await process_frame
 	await process_frame
 	var image: Image = root.get_viewport().get_texture().get_image()
@@ -439,6 +443,7 @@ func _clear_probe_output(absolute_dir: String) -> void:
 func _finish(instance: Node) -> void:
 	instance.queue_free()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("COMBAT OBJECTIVE PROBE %sRESULT: %s" % ["HEADLESS " if _headless else "", "FAIL" if _failed else "PASS"])
 	quit(1 if _failed else 0)
 
 func _fail(message: String) -> void:

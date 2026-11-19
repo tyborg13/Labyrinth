@@ -6,10 +6,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 AREA_02_UPHEAVAL_SENTENCES = {
     'Warband · The Thornmother': (
-        'After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them.'
+        'After every second Thornmother turn, its marked tiles rise as Outcrops.'
     ),
     'Umbral Snare · earth': (
-        'After each of your turns, a marked tile on your way out rises as an Outcrop unless something immovable is on it.'
+        'After each of your turns, a marked tile on your way out rises as an Outcrop.'
     ),
 }
 

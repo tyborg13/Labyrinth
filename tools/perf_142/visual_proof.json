@@ -1,0 +1,11 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/title.png", "regions": [{"rect": [440, 100, 1040, 650], "min_luma_stdev": 4}]},
+    {"pattern": "*/transition.png", "regions": [{"rect": [650, 460, 620, 160], "min_luma_range": 25}]},
+    {"pattern": "*/first_interactive.png", "regions": [{"rect": [380, 200, 1160, 570], "min_luma_stdev": 4}]},
+    {"pattern": "*/first_map.png", "regions": [{"rect": [150, 120, 1620, 840], "min_luma_stdev": 4}]},
+    {"pattern": "*/map_after_crossfade.png", "regions": [{"rect": [150, 120, 1620, 840], "min_luma_stdev": 4}]}
+  ]
+}

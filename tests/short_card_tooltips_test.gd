@@ -35,6 +35,12 @@ const TRP01_TRAP_BODY: Array = [
 	"Trigger when entered or attacked. Damage the unit on them, then leave their element on their tile and each tile next to it."
 ]
 
+const HOUSE_STYLE_GRIMOIRE := {
+	"skate": "This turn, stepping onto Ice costs no Movement, and Ice doesn't make you Chilled.",
+	"surface_electrified": "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it.",
+	"targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it.",
+}
+
 func _run() -> void:
 	Runtime.apply_from_environment()
 	var copy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(COPY_PATH))
@@ -59,6 +65,8 @@ func _run() -> void:
 	superseding["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
 	# trp-01 (owner 2026-11-16): traps also leave their ground on their own tile; director copy supersedes the tt-era text.
 	superseding["traps"] = "Trigger when entered or attacked: damage the unit on them, then leave their element on their tile and each tile next to it. Air traps push instead."
+	superseding["surface_rubble"] = "Costs 2 Movement to leave."
+	superseding["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
 	_expect((_expectations["owners"] as Dictionary).size() == (copy["entries"] as Array).size(), "Every changed term has an independently specified owning topic")
 	for change: Dictionary in copy["entries"]:
 		var id: String = str(change["id"])
@@ -81,13 +89,13 @@ func _run() -> void:
 			if id == "worldspines":
 				expected_body[0] = str(expected_body[0]).replace(
 					"After every second turn of yours, the marked tiles rise as Outcrops: stone that blocks movement until it is broken.",
-					"After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
+					"After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land."
 				)
 			_expect(entry.get("body", []) == expected_body, "Grimoire retains the approved full rules: " + id)
 		elif id == "traps":
 			_expect(entry.get("body", []) == TRP01_TRAP_BODY, "trp-01 director rules own the trap topic: " + id + " -> " + owner)
 		else:
-			_expect((entry.get("body", []) as Array).has(UMBRA_AREA_BODY if id == "umbra" else change["old"]), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
+			_expect((entry.get("body", []) as Array).has(UMBRA_AREA_BODY if id == "umbra" else HOUSE_STYLE_GRIMOIRE.get(id, change["old"])), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
 	_test_new_entry_schema(changes, entry_map)
 	_test_discovery()
 	var proof := Proof.new()
@@ -108,7 +116,7 @@ func _test_new_entry_schema(changes: Dictionary, entry_map: Dictionary) -> void:
 		_expect(entry.get("section") == "keywords", "New entry remains in Keywords: " + term)
 		_expect(entry.get("title") == glossary["name"], "New entry uses its glossary title: " + term)
 		_expect(entry.has("icon") and entry.get("icon") == icon, "New entry uses its approved icon, including explicit null: " + term)
-		var expected_body: Array = [changes[term]["old"]]
+		var expected_body: Array = [HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"])]
 		var tt02_facts: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/card_panel_grimoire_facts.json"))
 		for fact: Dictionary in tt02_facts.values():
 			if fact["owner"] == "keyword:" + term and fact["appended"]:

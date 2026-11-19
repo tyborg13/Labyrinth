@@ -13,7 +13,10 @@ class Receipt extends RefCounted:
 		finished = true
 
 	func wait_in_tree(tree: SceneTree) -> bool:
-		while not finished: await tree.process_frame
+		var deadline := Time.get_ticks_usec() + Disk.SAVE_DEADLINE_USEC
+		while not finished:
+			Disk.Job.enforce_wait_deadline(deadline)
+			await tree.process_frame
 		return succeeded
 
 var _pending: Array[Dictionary]
@@ -21,6 +24,7 @@ var _active: Disk.Job
 var _active_entry: Dictionary
 var _last_attempt_frame: int = -1
 var _failed: bool = false
+var _draining_in_tree: bool = false
 var completed: int = 0
 var last_write_usec: int = 0
 var last_wait_usec: int = 0
@@ -73,13 +77,24 @@ func flush() -> bool:
 		if not _wait_for_active(): return false
 	return true
 
+func flush_in_tree(tree: SceneTree) -> bool:
+	_draining_in_tree = true
+	if _active != null: await _wait_for_active_in_tree(tree)
+	while not _pending.is_empty():
+		_dispatch(true)
+		if not await _wait_for_active_in_tree(tree):
+			_draining_in_tree = false
+			return false
+	_draining_in_tree = false
+	return true
+
 func collect() -> bool:
-	if _active == null: return true
+	if _active == null or _draining_in_tree: return true
 	var result: Dictionary = _active.result(false)
 	return result.is_empty() or _finish(result)
 
 func can_dispatch() -> bool:
-	return _active == null and not _pending.is_empty()
+	return not _draining_in_tree and _active == null and not _pending.is_empty()
 
 func take_failure() -> bool:
 	var failed: bool = _failed
@@ -137,6 +152,15 @@ func _dispatch(barrier: bool) -> void:
 func _wait_for_active() -> bool:
 	var started: int = Time.get_ticks_usec()
 	var result: Dictionary = _active.result(true)
+	if track_performance: _samples.append({"barrier_wait_usec": Time.get_ticks_usec() - started})
+	return _finish(result)
+
+func _wait_for_active_in_tree(tree: SceneTree) -> bool:
+	var started: int = Time.get_ticks_usec()
+	var active := _active
+	var result := await active.wait_in_tree(tree)
+	# A synchronous reader may already have collected this job.
+	if _active != active: return bool(result["succeeded"])
 	if track_performance: _samples.append({"barrier_wait_usec": Time.get_ticks_usec() - started})
 	return _finish(result)
 

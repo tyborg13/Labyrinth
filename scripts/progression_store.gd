@@ -4,6 +4,7 @@ class_name ProgressionStore
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DemoBuild = preload("res://scripts/demo_build.gd")
 const DemoRules = preload("res://scripts/demo_rules.gd")
+const Checkpoint = preload("res://scripts/run_checkpoint.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -65,6 +66,7 @@ static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
 const PersistenceDisk = preload("res://scripts/persistence_disk_worker.gd")
 const OrderedWriter = preload("res://scripts/ordered_background_writer.gd")
 static var _run_writer := OrderedWriter.new()
+enum RunFile { MISSING, UNAVAILABLE, INVALID, EXCLUDED, READY, TERMINAL }
 
 static func set_storage_path(path: String) -> void:
 	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
@@ -106,10 +108,22 @@ static func default_data() -> Dictionary:
 	}
 
 static func load_data() -> Dictionary:
-	var loaded: Dictionary = _load_profile_dictionary(_storage_path)
+	return _load_data_at(_storage_path)
+
+static func load_data_in_tree(tree: SceneTree) -> Dictionary:
+	var result: Dictionary = {}
+	await PersistenceDisk.run_in_tree(tree, _read_profile_for_departure.bind(_storage_path, result))
+	return result["profile"]
+
+static func _read_profile_for_departure(path: String, result: Dictionary) -> bool:
+	result["profile"] = _load_data_at(path)
+	return true
+
+static func _load_data_at(path: String) -> Dictionary:
+	var loaded: Dictionary = _load_profile_dictionary(path)
 	if not loaded.is_empty():
 		return loaded
-	loaded = _load_profile_dictionary(_profile_backup_path())
+	loaded = _load_profile_dictionary(path + ".backup")
 	return loaded if not loaded.is_empty() else default_data()
 
 static func _load_profile_dictionary(path: String) -> Dictionary:
@@ -457,10 +471,16 @@ static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Di
 	return result
 
 static func save_data(data: Dictionary) -> bool:
+	return PersistenceDisk.run(_prepare_profile_write(data))
+
+static func save_data_in_tree(tree: SceneTree, data: Dictionary) -> bool:
+	return await PersistenceDisk.run_in_tree(tree, _prepare_profile_write(data))
+
+static func _prepare_profile_write(data: Dictionary) -> Callable:
 	var saved_data: Dictionary = _normalized_data(data.duplicate(true))
 	if DemoBuild.is_demo(): saved_data["build_kind"] = "demo"
 	var bytes: PackedByteArray = JSON.stringify(saved_data, "\t").to_utf8_buffer()
-	return PersistenceDisk.run(_write_profile_at.bind(_storage_path, bytes))
+	return _write_profile_at.bind(_storage_path, bytes)
 
 static func _write_profile_at(path: String, bytes: PackedByteArray) -> bool:
 	var temp_path: String = "%s.tmp" % path
@@ -516,35 +536,58 @@ static func has_saved_run() -> bool:
 	return FileAccess.file_exists(_run_storage_path) or FileAccess.file_exists(_run_backup_path())
 
 static func load_saved_run() -> Dictionary:
-	if not has_saved_run():
-		return {}
-	var loaded: Dictionary = _load_run_dictionary(_run_storage_path)
-	if loaded.is_empty():
-		loaded = _load_run_dictionary(_run_backup_path())
-	if loaded.is_empty():
-		return {}
-	# Guard only the selected recoverable save. A rejected live save must never
-	# fall through to an older backup; leave both files untouched for recovery.
-	if DemoBuild.is_demo():
-		if str(loaded.get("build_kind", "")) != "demo" or DemoRules.is_past_cutoff(loaded):
-			print("Demo save guard: rejected unstamped or past-cutoff run.")
-			return {}
-	elif str(loaded.get("build_kind", "")) == "demo":
-		print("Demo save guard: rejected demo run in full build.")
-		return {}
-	return loaded
+	# Low-level Variant reader used by migration and persistence diagnostics.
+	return _read_saved_run(false).get("state", {})
+
+static func read_resumable_checkpoint(recover_terminal_profile: bool = false) -> Dictionary:
+	return _read_saved_run(true, recover_terminal_profile)
+
+static func _read_saved_run(require_structure: bool, recover_terminal_profile: bool = false) -> Dictionary:
+	flush_pending_run_saves()
+	var live: Dictionary = _read_checkpoint_at(_run_storage_path, require_structure, recover_terminal_profile)
+	# A missing or corrupt live file can recover a backup. An inaccessible
+	# live file might hold a newer checkpoint, so retry without rolling back.
+	if live["status"] not in [RunFile.MISSING, RunFile.INVALID]: return live
+	var backup: Dictionary = _read_checkpoint_at(_run_backup_path(), require_structure, recover_terminal_profile)
+	return live if backup["status"] == RunFile.MISSING else backup
+
+static func _read_checkpoint_at(path: String, require_structure: bool, recover_terminal_profile: bool) -> Dictionary:
+	var inspection := _inspect_run_file(path)
+	var status: int = inspection["status"]
+	if status != RunFile.READY: return {"status": status}
+	var state: Dictionary = inspection["state"]
+	# Keep the demo cutoff authoritative so an older backup cannot bypass it.
+	if Checkpoint.past_demo_cutoff(state):
+		return {"status": RunFile.EXCLUDED}
+	if not Checkpoint.build_stamp_allowed(state):
+		return {"status": RunFile.INVALID if require_structure else RunFile.EXCLUDED}
+	var summary: Dictionary = {}
+	if require_structure:
+		summary = Checkpoint.validated_resume_summary(state)
+		if summary.is_empty():
+			if not Checkpoint.is_terminal_record(state): return {"status": RunFile.INVALID}
+			# A run scene already asked to resume may need to repair a bank or
+			# recovery marker whose profile write failed after the heirloom choice.
+			# Title Continue uses the ordinary resume summary.
+			if recover_terminal_profile and _terminal_profile_write_pending(state):
+				return {"status": RunFile.TERMINAL, "state": _migrate_run_dictionary(state)}
+			return {"status": RunFile.TERMINAL}
+	return {"status": RunFile.READY, "state": _migrate_run_dictionary(state), "summary": summary}
+
+static func _terminal_profile_write_pending(state: Dictionary) -> bool:
+	if state.get("mode") not in ["victory", "defeat"]: return false
+	var wallet: Variant = state.get("heirloom_terminal_wallet")
+	var embedded: Variant = state.get("progression")
+	if not wallet is Dictionary or wallet.is_empty() or not embedded is Dictionary: return false
+	var revision: Variant = embedded.get("progression_revision", 0)
+	return revision is int and revision > int(load_data().get("progression_revision", 0))
 
 static func _load_run_dictionary(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
-		return {}
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		return {}
-	var data: Variant = file.get_var(false)
-	file.close()
-	if typeof(data) != TYPE_DICTIONARY:
-		return {}
-	# `get_var()` decodes a fresh Variant graph owned by this call. Returning it
+	var inspection := _inspect_run_file(path)
+	return _migrate_run_dictionary(inspection["state"]) if inspection["status"] == RunFile.READY else {}
+
+static func _migrate_run_dictionary(data: Dictionary) -> Dictionary:
+	# Variant decoding gives this call a fresh, owned graph. Returning it
 	# directly avoids cloning the entire save once more during resume/recovery.
 	preload("res://scripts/arc_thrall_save_migration.gd").migrate(data)
 	preload("res://scripts/enemy_mechanics/retired_intents.gd").migrate(data)
@@ -554,8 +597,9 @@ static func _load_run_dictionary(path: String) -> Dictionary:
 	if data.get("combat_state", {}) is Dictionary:
 		preload("res://scripts/guardian_combat_rules.gd").migrate_saved_combat(data.get("combat_state", {}))
 	preload("res://scripts/dragon_combat_rules.gd").migrate_save(data)
-	preload("res://scripts/boss_area_rules.gd").migrate_combat(data.get("combat_state", {}))
-	return data as Dictionary
+	if data.get("combat_state", {}) is Dictionary:
+		preload("res://scripts/boss_area_rules.gd").migrate_combat(data.get("combat_state", {}))
+	return data
 
 static func _migrate_retired_battlefield_pieces(value: Variant) -> void:
 	if value is Array:
@@ -588,6 +632,12 @@ static func save_run_state(run_state: Dictionary) -> bool:
 	queue_run_state(run_state)
 	return flush_pending_run_saves()
 
+static func install_replacement_run(run_state: Dictionary) -> bool:
+	# An earlier checkpoint keeps its retry policy. A rejected New Run must
+	# never enter that queue, even if the failing file operation later recovers.
+	if not flush_pending_run_saves(): return false
+	return _save_run_state_at(_run_storage_path, run_state)
+
 static func queue_run_state(run_state: Dictionary, failure_boundary: String = "") -> bool:
 	return queue_owned_run_state(run_state.duplicate(true), failure_boundary)
 
@@ -600,14 +650,16 @@ static func queue_owned_run_state(state: Dictionary, failure_boundary: String, r
 		_report_run_write.bind(failure_boundary, request, settled), receipt)
 	return true
 
-static func _prepare_run_state_at(path: String, state: Dictionary, transaction_probe: Callable = Callable()) -> Callable:
+static func _prepare_run_state_at(path: String, state: Dictionary, transaction_probe: Callable = Callable(),
+		force_backup_rotation: bool = false) -> Callable:
 	# FileAccess.store_var(false) writes a little-endian length followed by the
 	# same object-free Variant payload as var_to_bytes(). Keep both finished
 	# buffers separate to avoid copying the full room graph into a second array.
 	var payload: PackedByteArray = var_to_bytes(state)
 	var length: PackedByteArray = [0, 0, 0, 0]
 	length.encode_u32(0, payload.size())
-	return _write_run_state_at.bind(path, length, payload, not state.is_empty(), transaction_probe)
+	var rotate_live: bool = force_backup_rotation or OS.get_name() == "Windows"
+	return _write_run_state_at.bind(path, length, payload, not state.is_empty(), transaction_probe, rotate_live)
 
 static func _report_run_write(saved: bool, failure_boundary: String, request: Dictionary, settled: Callable) -> void:
 	if not saved and not bool(request["reported"]) and not failure_boundary.is_empty():
@@ -624,11 +676,17 @@ static func flush_pending_run_saves() -> bool:
 	_run_writer.take_failure()
 	return succeeded
 
-static func _save_run_state_at(run_path: String, run_state: Dictionary, transaction_probe: Callable = Callable()) -> bool:
-	return PersistenceDisk.run(_prepare_run_state_at(run_path, run_state, transaction_probe))
+static func flush_pending_run_saves_in_tree(tree: SceneTree) -> bool:
+	var succeeded: bool = await _run_writer.flush_in_tree(tree)
+	_run_writer.take_failure()
+	return succeeded
+
+static func _save_run_state_at(run_path: String, run_state: Dictionary, transaction_probe: Callable = Callable(),
+		force_backup_rotation: bool = false) -> bool:
+	return PersistenceDisk.run(_prepare_run_state_at(run_path, run_state, transaction_probe, force_backup_rotation))
 
 static func _write_run_state_at(run_path: String, length: PackedByteArray, payload: PackedByteArray,
-		validate: bool, transaction_probe: Callable) -> bool:
+		validate: bool, transaction_probe: Callable, rotate_live: bool) -> bool:
 	# Reuse this transaction's inspection for migration and crash recovery. Both
 	# used to deserialize the entire previous run independently on every save.
 	# Never cache across transactions: externally restored/corrupt files must be
@@ -643,72 +701,112 @@ static func _write_run_state_at(run_path: String, length: PackedByteArray, paylo
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_buffer(length)
-	file.store_buffer(payload)
+	var written: bool = file.store_buffer(length)
+	if written and transaction_probe.is_valid():
+		file.flush()
+		written = transaction_probe.call("temporary_started")
+	if written: written = file.store_buffer(payload)
 	file.flush()
 	file.close()
-	if validate and not _run_dictionary_is_nonempty(temp_path):
+	if not written or FileAccess.get_size(temp_path) != length.size() + payload.size() or (validate and not _run_dictionary_is_nonempty(temp_path)):
 		_remove_run_file_if_present(temp_path)
 		return false
 	if transaction_probe.is_valid() and not transaction_probe.call("temporary_validated"): return false
 	var live_path: String = ProjectSettings.globalize_path(run_path)
-	var live_exists: bool = bool(live_inspection["exists"])
-	var live_valid: bool = bool(live_inspection["valid"])
-	var backup_valid: bool = false
-	if live_valid:
-		_remove_run_file_if_present(backup_path)
-		if DirAccess.rename_absolute(live_path, ProjectSettings.globalize_path(backup_path)) != OK:
+	var recovery_path: String = ProjectSettings.globalize_path(backup_path) if rotate_live else ""
+	var backup_valid: bool = rotate_live and _inspection_is_authoritative(backup_inspection)
+	# Windows DirAccess removes an existing target before renaming. Rotate a
+	# valid live file first so a process crash leaves it readable as .backup.
+	# On platforms with atomic replacement the live file can stay in place.
+	if rotate_live and _inspection_is_authoritative(live_inspection):
+		if DirAccess.rename_absolute(live_path, recovery_path) != OK:
 			_remove_run_file_if_present(temp_path)
 			return false
 		backup_valid = true
-	else:
-		backup_valid = bool(backup_inspection["valid"])
-		if live_exists:
-			if DirAccess.remove_absolute(live_path) != OK:
-				_remove_run_file_if_present(temp_path)
-				return false
 	if transaction_probe.is_valid() and not transaction_probe.call("recovery_ready"): return false
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
-		if backup_valid and not FileAccess.file_exists(run_path):
-			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)
+		if rotate_live and backup_valid and not FileAccess.file_exists(run_path):
+			DirAccess.rename_absolute(recovery_path, live_path)
 		_remove_run_file_if_present(temp_path)
 		return false
 	if transaction_probe.is_valid() and not transaction_probe.call("promoted"): return false
 	_remove_run_file_if_present(backup_path)
 	return true
 
-static func clear_saved_run() -> void:
+static func clear_saved_run() -> bool:
 	flush_pending_run_saves()
-	if not PersistenceDisk.run(_clear_run_at.bind(_run_storage_path)):
-		push_warning("Could not archive the legacy run; preserving the saved run.")
-		return
-	# An explicitly deleted run must never be resurrected by a failed retry.
 	_run_writer.cancel_pending()
+	return _report_run_clear(PersistenceDisk.run(_clear_run_at.bind(_run_storage_path)))
+
+static func clear_saved_run_in_tree(tree: SceneTree) -> bool:
+	await flush_pending_run_saves_in_tree(tree)
+	_run_writer.cancel_pending()
+	return _report_run_clear(await PersistenceDisk.run_in_tree(tree, _clear_run_at.bind(_run_storage_path)))
+
+static func _report_run_clear(cleared: bool) -> bool:
+	if not cleared: push_warning("Could not clear the saved run.")
+	return cleared
 
 static func _clear_run_at(path: String) -> bool:
 	# A terminal legacy save can reach clearing without another combat write.
 	# Preserve its original bytes before the normal live/recovery cleanup.
 	if not _archive_before_surface_migration(path, false) or not _archive_before_surface_migration(path + ".backup", false):
 		return false
-	_remove_run_file_if_present(path)
-	_remove_run_file_if_present(path + ".tmp")
-	_remove_run_file_if_present(path + ".backup")
+	# Keep the live checkpoint authoritative until both recovery paths are gone.
+	return _delete_run_file(path + ".backup") and _delete_run_file(path + ".tmp") and _delete_run_file(path)
+
+static func _delete_run_file(path: String) -> bool:
+	var absolute := ProjectSettings.globalize_path(path)
+	var parent := DirAccess.open(absolute.get_base_dir())
+	if parent == null: return DirAccess.get_open_error() == ERR_FILE_NOT_FOUND
+	var name := absolute.get_file()
+	if parent.dir_exists(name) and not parent.is_link(name): return false
+	parent.remove(name)
+	# Enumerate the directory to verify absence, including entries whose file
+	# attributes cannot be read or whose symlink target no longer exists.
+	parent.include_hidden = true
+	if parent.list_dir_begin() != OK: return false
+	var entry := parent.get_next()
+	while not entry.is_empty():
+		if entry.nocasecmp_to(name) == 0:
+			parent.list_dir_end()
+			return false
+		entry = parent.get_next()
+	parent.list_dir_end()
 	return true
 
 static func _inspect_run_file(path: String) -> Dictionary:
-	var result: Dictionary = {"exists": FileAccess.file_exists(path), "readable": false, "valid": false, "surface_rules_version": 0}
-	if not result["exists"]:
-		return result
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		return result
-	var raw: Variant = file.get_var(false)
+		var error := FileAccess.get_open_error()
+		if DirAccess.dir_exists_absolute(path): return {"status": RunFile.INVALID}
+		var missing: bool = error == ERR_FILE_NOT_FOUND and not FileAccess.file_exists(path)
+		return {"status": RunFile.MISSING if missing else RunFile.UNAVAILABLE}
+	# Read the stored Variant frame explicitly. A short read of a known-present
+	# byte range is an I/O failure even if the platform reports EOF.
+	var size := file.get_length()
+	if file.get_error() != OK: return {"status": RunFile.UNAVAILABLE}
+	var header := file.get_buffer(4)
+	var read_error := file.get_error()
+	if read_error not in [OK, ERR_FILE_EOF] or (header.size() < 4 and size >= 4):
+		return {"status": RunFile.UNAVAILABLE}
+	if header.size() < 4: return {"status": RunFile.INVALID}
+	if size < 4: return {"status": RunFile.UNAVAILABLE}
+	var length := header.decode_u32(0)
+	if length < 4 or length > size - 4: return {"status": RunFile.INVALID}
+	var payload := file.get_buffer(length)
+	read_error = file.get_error()
 	file.close()
-	result["readable"] = true
-	result["valid"] = typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty()
-	if result["valid"]:
-		result["surface_rules_version"] = int((raw as Dictionary).get("surface_rules_version", 0))
-	return result
+	if read_error != OK or payload.size() != length: return {"status": RunFile.UNAVAILABLE}
+	var raw: Variant = bytes_to_var(payload)
+	if not raw is Dictionary or raw.is_empty(): return {"status": RunFile.INVALID}
+	Checkpoint.normalize_seed(raw)
+	return {"status": RunFile.READY, "state": raw}
+
+static func _inspection_is_authoritative(inspection: Dictionary) -> bool:
+	if inspection["status"] != RunFile.READY: return false
+	var state: Dictionary = inspection["state"]
+	return Checkpoint.is_terminal_record(state) or not Checkpoint.validated_resume_summary(state).is_empty()
 
 # Unlike the rotating crash-recovery backup, this archive survives successful
 # writes and clearing a completed run. The content hash makes retries idempotent
@@ -717,10 +815,9 @@ static func _archive_before_surface_migration(path: String, profile: bool, run_i
 	var version: int = 0
 	if not profile:
 		var inspection: Dictionary = _inspect_run_file(path) if run_inspection.is_empty() else run_inspection
-		if not bool(inspection["exists"]): return true
-		if not bool(inspection["readable"]): return false
-		if not bool(inspection["valid"]): return true
-		version = int(inspection["surface_rules_version"])
+		if inspection["status"] == RunFile.UNAVAILABLE: return false
+		if inspection["status"] != RunFile.READY: return true
+		version = int(inspection["state"].get("surface_rules_version", 0))
 	else:
 		if not FileAccess.file_exists(path): return true
 		var file: FileAccess = FileAccess.open(path, FileAccess.READ)

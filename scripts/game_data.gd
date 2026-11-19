@@ -1331,7 +1331,7 @@ static func _relic_modifier_label(effect: Dictionary, field: String, before_valu
 	if typeof(after_value) == TYPE_BOOL:
 		return "adds %s" % field.capitalize()
 	var amount: int = _relic_modifier_amount(effect, before_value, after_value)
-	return "%+d %s" % [amount, field.replace("_", " ")]
+	return "%s %s" % [("%+d" % amount).replace("-", "−"), field.replace("_", " ")]
 
 static func _relic_effect_source_name(effect: Dictionary) -> String:
 	if effect.has("source_name"):

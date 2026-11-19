@@ -5,12 +5,13 @@ const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const NewDescentPanel = preload("res://scripts/new_descent_panel.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
-const RunEngine = preload("res://scripts/run_engine.gd")
+const RunPersistence = preload("res://scripts/run_persistence.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
+static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const DemoBuild = preload("res://scripts/demo_build.gd")
@@ -59,6 +60,8 @@ const SAVED_RUN_MODE_LABELS := {
 	"campfire": "AT EMBER HEARTH",
 	"treasure": "AT TREASURE",
 	"graftwright": "AT GRAFTWRIGHT",
+	"event": "EVENT",
+	"escape": "REACH EXIT",
 	"victory": "CHOOSING AN HEIRLOOM",
 	"defeat": "CHOOSING AN HEIRLOOM"
 }
@@ -161,6 +164,8 @@ var _chronicle: Control
 var _progression: Dictionary = {}
 var _new_descent_panel: Control
 var _saved_run_preview: Dictionary = {}
+var _saved_run_unavailable: bool = false
+var _saved_seed: Variant
 var _replacement_confirmation_open: bool = false
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
@@ -618,7 +623,7 @@ func _reload_progression() -> void:
 	_progression = ProgressionStore.load_data()
 	_refresh_saved_run_preview()
 	embers_label.text = _profile_text()
-	footer_label.text = "LV %d  |  EMBERS %d  |  SKILLS %d/%d" % [
+	footer_label.text = "LV %d · EMBERS %d · SKILLS %d/%d" % [
 		int(_progression.get("level", 1)),
 		int(_progression.get("embers", 0)),
 		ProgressionStore.selected_skill_ids(_progression).size(),
@@ -626,114 +631,28 @@ func _reload_progression() -> void:
 	]
 
 func _refresh_saved_run_preview() -> void:
-	_saved_run_preview = _build_saved_run_preview(ProgressionStore.load_saved_run())
-	var has_valid_save: bool = not _saved_run_preview.is_empty()
-	if not has_valid_save:
+	var checkpoint: Dictionary = ProgressionStore.read_resumable_checkpoint()
+	var saved_run: Dictionary = checkpoint.get("state", {})
+	_saved_run_preview = _build_saved_run_preview(saved_run, checkpoint.get("summary", {}))
+	_saved_seed = saved_run.get("seed")
+	_saved_run_unavailable = checkpoint["status"] == ProgressionStore.RunFile.UNAVAILABLE
+	var can_continue: bool = _saved_run_unavailable or not _saved_run_preview.is_empty()
+	if _saved_run_preview.is_empty():
 		_replacement_confirmation_open = false
-	continue_button.text = "Continue Run" if has_valid_save else "Continue"
+	continue_button.text = "Continue Run" if can_continue else "Continue"
 	_set_menu_actions_locked(_replacement_confirmation_open)
-	_apply_continue_button_state(has_valid_save)
+	_apply_continue_button_state(can_continue)
 	_apply_preview_text(_saved_run_preview)
 	_sync_context_panels()
 
-func _build_saved_run_preview(run_state: Dictionary) -> Dictionary:
-	if run_state.is_empty():
-		return {}
-	run_state = RunEngine.migrate_combat_units(run_state)
-	var mode_value: Variant = run_state.get("mode", null)
-	var coord_value: Variant = run_state.get("current_room", null)
-	var hp_value: Variant = run_state.get("player_hp", null)
-	var max_hp_value: Variant = run_state.get("player_max_hp", null)
-	var ember_value: Variant = run_state.get("held_embers", run_state.get("unbanked_embers", null))
-	if typeof(mode_value) not in [TYPE_STRING, TYPE_STRING_NAME] or not SAVED_RUN_MODE_LABELS.has(str(mode_value)):
-		return {}
-	if typeof(coord_value) != TYPE_VECTOR2I:
-		return {}
-	if not _is_numeric_value(hp_value) or not _is_numeric_value(max_hp_value) or not _is_numeric_value(ember_value):
-		return {}
-	var player_hp: int = int(hp_value)
-	var player_max_hp: int = int(max_hp_value)
-	var held_embers: int = int(ember_value)
-	if player_max_hp <= 0 or player_hp < 0 or player_hp > player_max_hp or held_embers < 0:
-		return {}
-	var coord: Vector2i = coord_value
-	if not _has_resumable_saved_run_structure(run_state, str(mode_value), coord, player_hp, player_max_hp):
-		return {}
-	var depth: int = _saved_room_depth(run_state, coord)
+func _build_saved_run_preview(run_state: Dictionary, summary: Dictionary = {}) -> Dictionary:
+	if summary.is_empty(): summary = RunPersistence.validated_resume_summary(run_state)
+	if summary.is_empty(): return {}
+	var depth: int = _saved_room_depth(run_state, summary["coord"])
 	return {
-		"location": "DEPTH %d  ·  %s" % [depth, str(SAVED_RUN_MODE_LABELS[str(mode_value)])],
-		"stats": "HP %d / %d  ·  HELD %d EMBERS" % [player_hp, player_max_hp, held_embers]
+		"location": "DEPTH %d · %s" % [depth, str(SAVED_RUN_MODE_LABELS[summary["mode"]])],
+		"stats": "HEALTH %d/%d · HELD %d EMBERS" % [summary["hp"], summary["max_hp"], summary["embers"]]
 	}
-
-func _is_numeric_value(value: Variant) -> bool:
-	return typeof(value) in [TYPE_INT, TYPE_FLOAT]
-
-func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coord: Vector2i, player_hp: int, player_max_hp: int) -> bool:
-	if not _is_numeric_value(run_state.get("seed", null)):
-		return false
-	if typeof(run_state.get("current_room_layout", null)) != TYPE_DICTIONARY or (run_state.get("current_room_layout", {}) as Dictionary).is_empty():
-		return false
-	var rooms_value: Variant = run_state.get("rooms", null)
-	if typeof(rooms_value) != TYPE_DICTIONARY:
-		return false
-	var room_value: Variant = (rooms_value as Dictionary).get("%d,%d" % [coord.x, coord.y], null)
-	if typeof(room_value) != TYPE_DICTIONARY:
-		return false
-	var room: Dictionary = room_value
-	if not _is_numeric_value(room.get("depth", null)) or str(room.get("type", "")).is_empty():
-		return false
-	var room_coord_value: Variant = room.get("coord", null)
-	if typeof(room_coord_value) != TYPE_VECTOR2I or room_coord_value != coord:
-		return false
-	var deck_value: Variant = run_state.get("deck_cards", null)
-	if typeof(deck_value) != TYPE_ARRAY or (deck_value as Array).is_empty():
-		return false
-	match mode:
-		"victory", "defeat":
-			return preload("res://scripts/opening_boon_rules.gd").heirloom_prompt_pending(run_state)
-		"combat":
-			return _has_resumable_combat_structure(run_state, player_hp, player_max_hp)
-		"pre_battle":
-			return bool(run_state.get("pre_battle_pending", false)) and typeof(run_state.get("pre_battle_travel_dir", null)) == TYPE_VECTOR2I
-		"reward":
-			var reward_value: Variant = run_state.get("pending_reward", null)
-			if typeof(reward_value) != TYPE_DICTIONARY:
-				return false
-			var reward: Dictionary = reward_value
-			# A dragon's milestone reward (relic, embers, healing) offers no cards.
-			if str(reward.get("kind", "")) == "dragon":
-				return not str(reward.get("milestone_id", "")).is_empty()
-			return typeof(reward.get("cards", null)) == TYPE_ARRAY and not (reward.get("cards", []) as Array).is_empty()
-		"treasure":
-			var relics_value: Variant = run_state.get("pending_relics", null)
-			return typeof(relics_value) == TYPE_ARRAY and not (relics_value as Array).is_empty()
-		"graftwright":
-			return str(room.get("type", "")) == "graftwright"
-		"room", "campfire":
-			return true
-	return false
-
-func _has_resumable_combat_structure(run_state: Dictionary, player_hp: int, player_max_hp: int) -> bool:
-	var combat_value: Variant = run_state.get("combat_state", null)
-	if typeof(combat_value) != TYPE_DICTIONARY or (combat_value as Dictionary).is_empty():
-		return false
-	var combat_state: Dictionary = combat_value
-	var combat_player_value: Variant = combat_state.get("player", null)
-	if typeof(combat_player_value) != TYPE_DICTIONARY:
-		return false
-	var combat_player: Dictionary = combat_player_value
-	if not _is_numeric_value(combat_player.get("hp", null)) or not _is_numeric_value(combat_player.get("max_hp", null)):
-		return false
-	if int(combat_player.get("hp", -1)) != player_hp or int(combat_player.get("max_hp", -1)) != player_max_hp:
-		return false
-	var combat_deck_value: Variant = combat_state.get("deck", null)
-	var enemies_value: Variant = combat_state.get("enemies", null)
-	return (
-		typeof(combat_deck_value) == TYPE_DICTIONARY
-		and not (combat_deck_value as Dictionary).is_empty()
-		and typeof(enemies_value) == TYPE_ARRAY
-		and not (enemies_value as Array).is_empty()
-	)
 
 func _saved_room_depth(run_state: Dictionary, coord: Vector2i) -> int:
 	var fallback: int = maxi(absi(coord.x), absi(coord.y))
@@ -744,7 +663,7 @@ func _saved_room_depth(run_state: Dictionary, coord: Vector2i) -> int:
 	if typeof(room_value) != TYPE_DICTIONARY:
 		return fallback
 	var depth_value: Variant = (room_value as Dictionary).get("depth", fallback)
-	return maxi(0, int(depth_value)) if _is_numeric_value(depth_value) else fallback
+	return maxi(0, int(depth_value)) if typeof(depth_value) in [TYPE_INT, TYPE_FLOAT] else fallback
 
 func _apply_preview_text(preview: Dictionary) -> void:
 	var location: String = str(preview.get("location", ""))
@@ -760,7 +679,7 @@ func _sync_context_panels() -> void:
 	resume_panel.visible = has_valid_save and not _replacement_confirmation_open and not settings_panel.visible
 
 func _set_menu_actions_locked(locked: bool) -> void:
-	continue_button.disabled = locked or _saved_run_preview.is_empty()
+	continue_button.disabled = locked or (_saved_run_preview.is_empty() and not _saved_run_unavailable)
 	start_button.disabled = locked
 	settings_button.disabled = locked
 	quit_button.disabled = locked
@@ -1039,9 +958,15 @@ func _focusable_menu_buttons() -> Array:
 	return [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button, settings_back_button] + _demo_links
 
 func _on_start_button_pressed() -> void:
+	var _hitch_span: RefCounted
+	if _hitch_trace_enabled:
+		_hitch_span = get_node("/root/PerformanceTelemetry").hitch_phase("input:main_menu:new_run")
 	if _loading_run:
 		return
 	_refresh_saved_run_preview()
+	if _saved_run_unavailable:
+		_on_run_loading_failed()
+		return
 	if not _saved_run_preview.is_empty():
 		_replacement_confirmation_open = true
 		_set_menu_actions_locked(true)
@@ -1113,10 +1038,7 @@ func _prepare_new_game() -> void:
 	_saved_run_preview = {}
 
 func _on_continue_button_pressed() -> void:
-	if _loading_run:
-		return
-	_refresh_saved_run_preview()
-	if continue_button.disabled:
+	if _loading_run or continue_button.disabled:
 		return
 	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_continue)
 
@@ -1203,7 +1125,11 @@ func _on_settings_back_button_pressed() -> void:
 func _on_quit_button_pressed() -> void:
 	if _loading_run:
 		return
-	get_tree().quit()
+	_loading_run = true
+	preload("res://scripts/application_shutdown.gd").request(get_tree(), "title_quit")
+
+func cancel_loading_for_quit() -> void:
+	_loading_run = true
 
 func _on_boss_button_pressed() -> void:
 	if _loading_run:
@@ -1229,7 +1155,8 @@ func _change_scene_to_file(path: String, prepare_run: Callable = Callable()) -> 
 		_controller_prompt_bar.modulate.a = 0.0
 	var transition := MenuRunTransition.new()
 	transition.failed.connect(_on_run_loading_failed)
-	transition.begin(self, path, prepare_run)
+	var new_run_depth: int = ProgressionStore.session_umbra_depth(_progression) if prepare_run == _prepare_new_game else -1
+	transition.begin(self, path, prepare_run, new_run_depth, _saved_seed)
 
 func _on_run_loading_failed() -> void:
 	if _controller_prompt_bar != null:

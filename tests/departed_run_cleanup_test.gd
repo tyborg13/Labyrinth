@@ -56,12 +56,12 @@ func _run() -> void:
 			_check(current_scene != null and current_scene.is_inside_tree(), "scene_changed must expose the attached destination")
 		scene_changed.connect(on_changed, CONNECT_ONE_SHOT)
 		scene._on_save_and_quit_pressed()
-		var saved: Dictionary = Profile.load_saved_run()
-		var progression: Dictionary = Profile.load_data()
 		for frame: int in range(600):
 			await process_frame
 			if current_scene != null and current_scene.scene_file_path == Cleanup.TITLE_PATH: break
 		_check(current_scene != null and current_scene.scene_file_path == Cleanup.TITLE_PATH, "Save and Quit must reach the public title scene")
+		var saved: Dictionary = Profile.load_saved_run()
+		var progression: Dictionary = Profile.load_data()
 		var menu: Node = current_scene
 		_check(_exit_count == 1 and _changed_count == 1, "The departed root must exit once and announce the destination once")
 		_check(not is_instance_valid(scene), "The old root must retain the original scene-change lifetime")

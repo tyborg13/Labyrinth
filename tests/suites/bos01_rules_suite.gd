@@ -20,6 +20,7 @@ static func run(expect: Callable) -> void:
 	_routes(engine, expect)
 	_ground(engine, expect)
 	_default_save_fields(engine, expect)
+	_thornmother_saved_copy(engine, expect)
 	preload("res://tests/suites/bos01_feedback1_suite.gd").run(expect)
 	preload("res://tests/suites/bos01_feedback2_suite.gd").run(expect)
 	preload("res://tests/suites/bos01_bot_policy_suite.gd").run(expect)
@@ -37,6 +38,14 @@ static func _default_save_fields(engine: RefCounted, expect: Callable) -> void:
 		var event: Dictionary = state["surface_events"].filter(func(value: Dictionary) -> bool: return value.get("kind", "") == "battlefield_rule_fired")[0]
 		expect.call(not event.has("half_health_switched") and not state["battlefield_rule"].has("half_health_switched"), "BOS01 default false switch metadata is absent from saved events and instances")
 		expect.call(Analytics.record(event, {}, "bos01-default")["payload"]["half_health_switched"] == false, "BOS01 analytics exports false without adding saved metadata")
+
+static func _thornmother_saved_copy(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = preload("res://tests/suites/warband_suite.gd").battle("earth", 1)
+	var instance: Dictionary = state["battlefield_rule"]
+	var fresh: Dictionary = instance.duplicate(true)
+	instance["sentence"] = "Previous saved Thornmother sentence."
+	Rules.repair_saved_rule(engine, state)
+	expect.call(instance == fresh, "Continuing Thornmother refreshes the rule sentence and preserves its held state")
 
 static func compare(engine: RefCounted, state: Dictionary, expect: Callable) -> Dictionary:
 	Base.mature_fuel(state)

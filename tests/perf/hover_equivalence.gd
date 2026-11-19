@@ -108,7 +108,20 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			expect.call(layers.size() == old_layers.size(), "Same retained layer roster")
 			for index: int in range(mini(layers.size(), old_layers.size())):
 				for field: String in RETAINED_FIELDS:
-					expect.call(layers[index].get(field) == old_layers[index].get(field), "Exact retained binding " + field + ": " + variant + "/" + mutation)
+					# Hover refreshes the HUD and its ordered slices. Other
+					# retained canvases can keep their unused HUD layout binding.
+					if field == "_hud_layout_entries_cache" and layers[index]._render_layer_kind != Board.RENDER_LAYER_HUD:
+						continue
+					var current: Variant = layers[index].get(field)
+					var previous: Variant = old_layers[index].get(field)
+					var matches: bool = _same_presentation(current, previous) if field == "presentation" else current == previous
+					expect.call(matches, "Equivalent retained binding " + field + ": " + variant + "/" + mutation)
+			var hud: Control = candidate._hud_render_layer
+			var old_hud: Control = reference._hud_render_layer
+			expect.call(hud._hud_group_draw_entries(hud._visible_units()) == old_hud._hud_group_draw_entries(old_hud._visible_units()),
+				"Ordered HUD paint entries match: " + variant + "/" + mutation)
+			expect.call(Board.WindView.collision_markers(candidate._effects_render_layer) == Board.WindView.collision_markers(reference._effects_render_layer),
+				"Ordered wind collision paint receipts match: " + variant + "/" + mutation)
 			var descriptors: Dictionary = Badges.build(Arena.Combat.new(), state, state)
 			var badges: Array = descriptors.get("badges", [])
 			expect.call(Badges.layouts(candidate, badges) == BadgeReference.layouts(candidate, badges), "Ordered badge placement/alpha/content equivalence: " + variant + "/" + mutation)
@@ -136,6 +149,17 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		for frame: int in range(3): await tree.process_frame
 	print("PERF04 HOVER EQUIVALENCE: %d complete HUD/badge/retained-state comparisons; submission and catalog mutations detected" % comparisons)
 	Settings._applied_board_health_bars = previous_health_bars
+
+static func _same_presentation(current: Dictionary, previous: Dictionary) -> bool:
+	if current == previous: return true
+	# Wind paint can restore an explicit empty list after using the absent
+	# key's empty default. Compare that input as the collision painters read it.
+	if current.get("collision_markers", []) != previous.get("collision_markers", []): return false
+	var current_fields: Dictionary = current.duplicate(false)
+	var previous_fields: Dictionary = previous.duplicate(false)
+	current_fields.erase("collision_markers")
+	previous_fields.erase("collision_markers")
+	return current_fields == previous_fields
 
 static func _catalog(expect: Callable) -> void:
 	for type: String in Data.enemies():

@@ -134,12 +134,13 @@ func _ready() -> void:
 	add_theme_constant_override("separation", STACK_SEPARATION)
 	set_process(false)
 
-func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_bounds: Callable = Callable()) -> void:
+func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_bounds: Callable = Callable(), card_id: String = "") -> void:
 	hide_stack(true)
 	_relic_layout = relic_layout
 	if target == null or entries.is_empty():
 		return
 	_follow_target = target
+	if card_id.is_empty() and target is CardWidget: card_id = target.card_id
 	if _relic_layout:
 		# Relics can flow across columns; card stacks retain their original VBox.
 		_panel_host = Control.new()
@@ -159,13 +160,7 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_
 			_hand_diagram_bounds = hand_bounds
 		if not description.is_empty():
 			body_lines.append(description)
-		var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
-			icon_texture,
-			str(entry.get("title", "")),
-			body_lines,
-			str(entry.get("glossary_key", "")),
-			{} if relic_layout else {"kind": "hero_card"}
-		) if icon_texture != null else UiTooltipPanel.make_lines(str(entry.get("title", "")), body_lines)
+		var panel: PanelContainer = make_entry_panel(entry, body_lines, relic_layout, card_id)
 		if _relic_layout and description.contains("["):
 			_apply_definition_bbcode(panel, description, icon_texture != null)
 		panel.name = "CardFocusTooltip_%02d_%s" % [
@@ -187,6 +182,14 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_
 	set_process(true)
 	update_minimum_size()
 	_follow_target_now()
+
+static func make_entry_panel(entry: Dictionary, body_lines: PackedStringArray, relic_layout: bool = false, card_id: String = "") -> PanelContainer:
+	var title: String = str(entry.get("title", ""))
+	var icon_texture: Texture2D = entry.get("texture", null) as Texture2D
+	if icon_texture == null:
+		return UiTooltipPanel.make_lines(title, body_lines)
+	var source: Dictionary = {} if relic_layout else ({"kind": "hero_card"} if card_id.is_empty() else {"kind": "hero_card", "id": card_id})
+	return UiTooltipPanel.make_icon_lines(icon_texture, title, body_lines, str(entry.get("glossary_key", "")), source)
 
 static func _apply_definition_bbcode(panel: PanelContainer, description: String, has_icon: bool) -> void:
 	# Reuse the shared panel's body slot and typography; plain definitions and
@@ -250,19 +253,34 @@ func _follow_target_now() -> void:
 		return
 	var stack_size: Vector2 = get_combined_minimum_size()
 	size = stack_size
-	var target_position := Vector2(
-		card_rect.end.x + CARD_GAP,
-		card_rect.get_center().y - stack_size.y * 0.5
-	)
-	target_position.x = clampf(target_position.x, viewport_rect.position.x + SAFE_MARGIN, maxf(viewport_rect.position.x + SAFE_MARGIN, viewport_rect.end.x - SAFE_MARGIN - stack_size.x))
-	target_position.y = clampf(
-		target_position.y,
-		viewport_rect.position.y + SAFE_MARGIN,
-		viewport_rect.end.y - SAFE_MARGIN - stack_size.y
-	)
+	var target_position: Vector2 = side_position(card_rect, stack_size, viewport_rect)
 	if _hand_diagram_bounds.is_valid():
 		target_position.y = _clear_hand(target_position, stack_size, viewport_rect.position.y + SAFE_MARGIN)
 	global_position = target_position
+
+## Events reserve the choice column when there is room on the painting side.
+## Keep the gap even on overflow so the reward never sits under the glossary.
+static func side_position(owner: Rect2, stack: Vector2, viewport: Rect2, art_side: Rect2 = Rect2(), layout_scale: float = 1.0) -> Vector2:
+	var gap: float = CARD_GAP * layout_scale
+	var margin: float = SAFE_MARGIN * layout_scale
+	var safe: Rect2 = viewport.grow(-margin)
+	var right: float = owner.end.x + gap
+	var bottom_limit: float = safe.end.y - stack.y
+	if not art_side.has_area():
+		return Vector2(
+			clampf(right, safe.position.x, maxf(safe.position.x, safe.end.x - stack.x)),
+			clampf(owner.get_center().y - stack.y * 0.5, safe.position.y, bottom_limit)
+		)
+	var left: float = owner.position.x - gap - stack.x
+	var available: Rect2 = safe.intersection(art_side)
+	var left_space: float = owner.position.x - gap - available.position.x
+	var right_space: float = available.end.x - right
+	if maxf(left_space, right_space) < stack.x:
+		# Compare actual clipping at the screen edges when the art side is full.
+		left_space = owner.position.x - gap - viewport.position.x
+		right_space = viewport.end.x - right
+	var top: float = clampf(owner.position.y, viewport.position.y, maxf(viewport.position.y, viewport.end.y - stack.y))
+	return Vector2(left if left_space >= right_space else right, top)
 
 func _clear_hand(proposed: Vector2, stack_size: Vector2, min_top: float) -> float:
 	var stack_rect := Rect2(proposed, stack_size)

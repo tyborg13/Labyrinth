@@ -1,5 +1,5 @@
 {
-  "min_images": 4,
+  "min_images": 5,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -50,6 +50,18 @@
             1600,
             730
           ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*slagmaster_barrage_move_row.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [48, 160, 1600, 730],
           "min_luma_range": 70,
           "min_luma_stdev": 12
         }

@@ -11,6 +11,7 @@ extends RefCounted
 # (5822959d8) adds its actor-anchored offset. All other playback bytes stay pinned.
 # area-01 (bab81dd1a) adds empty area_targeting and area_shown_tiles to
 # enemy_action_resolved payloads for actions without boss area targeting.
+# txt-16 uses a true minus sign on the three negative popup labels.
 const GOLDEN: String = "res://tests/fixtures/fix_14_legacy_presentation.json"
 
 static func resolution(expect: Callable, phase: Dictionary, scene: Control, mode: String) -> void:

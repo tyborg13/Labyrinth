@@ -14,7 +14,9 @@ const FRAME_BUDGET_USEC: int = 20000
 const TIMEOUT_SECONDS: int = 90
 const WORKER_DELAY_MSEC: int = 300
 const WRITE_BUDGET_USEC: int = 2000
-const REQUIRED_PHASES: Array[String] = ["deferred_checkpoint_write", "deferred_analytics_batch", "combat_checkpoint_persist_storage"]
+const REQUIRED_PHASES: Array[String] = Array([
+	"deferred_checkpoint_write", "deferred_analytics_batch", "combat_checkpoint_persist_storage",
+], TYPE_STRING, "", null)
 const SIZE := Vector2i(1920, 1080)
 
 class FramePulse extends Node2D:

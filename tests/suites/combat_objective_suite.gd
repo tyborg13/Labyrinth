@@ -318,19 +318,33 @@ static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Ca
 		hud.set_combat_state(state)
 		var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false)
 		var title: Label = hud.find_child("ObjectiveTitle", true, false)
-		var facts: String = "%d/%d HP" % [hp, hp]
+		var facts: String = "%d/%d Health" % [hp, hp]
 		var expected: String = facts if bool(definition.get("boss_bar", false)) else "%s · %s" % [definition["name"], facts]
 		expect.call(detail.text == expected and detail.visible, enemy_type + " retains health facts and removes only a redundant boss name")
 		expect.call(title.text == CombatObjectiveRules.hud_title_for_objective(objective).to_upper(), enemy_type + " retains its exact objective title")
 		state["enemies"][0]["hp"] = 0
 		hud.set_combat_state(state)
-		expect.call(detail.text.ends_with("0/%d HP" % hp), enemy_type + " retains the zero-health fact during defeat presentation")
+		expect.call(detail.text.ends_with("0/%d Health" % hp), enemy_type + " retains the zero-health fact during defeat presentation")
 		state["visible_enemy_ids"] = []
 		hud.set_combat_state(state)
 		expect.call(detail.text == "Leader concealed", enemy_type + " preserves hidden-enemy privacy")
 	var hoarder: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "ember_hoarder", "special_type": "ember_hoarder"}
 	hud.set_combat_state({"objective": hoarder, "enemies": [{"id": 1, "type": "ember_hoarder", "hp": 1, "max_hp": 2}]})
-	expect.call((hud.find_child("ObjectiveLiveDetail", true, false) as Label).text == "Before it escapes · 1/2 HP", "Hoarder live detail keeps its existing non-name copy")
+	expect.call((hud.find_child("ObjectiveLiveDetail", true, false) as Label).text == "Before it escapes · 1/2 Health", "Hoarder live detail keeps its existing non-name copy")
+	var dragon: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "zekarion"}
+	var dragon_state: Dictionary = {"objective": dragon, "enemies": []}
+	var dragon_title: String = CombatObjectiveRules.title_for_objective(dragon)
+	hud.set_combat_state(dragon_state)
+	expect.call(hud.tooltip_text == dragon_title, "Named leader hover with no description ends at the title")
+	dragon["objective_description"] = "An authored objective sentence."
+	hud.set_combat_state(dragon_state)
+	expect.call(hud.tooltip_text == dragon_title + "\nAn authored objective sentence.", "Named leader hover includes its authored description")
+	for count: int in [0, 1, 2]:
+		var enemies: Array = [{"id": 1, "hp": 1}, {"id": 2, "hp": 1}]
+		hud.set_combat_state({"objective": {"type": CombatObjectiveRules.KILL_ALL}, "enemies": enemies, "visible_enemy_ids": range(1, count + 1)})
+		var detail := hud.find_child("ObjectiveLiveDetail", true, false) as Label
+		var expected: String = "enemy" if count == 1 else "enemies"
+		expect.call(detail.text == "%d known %s remaining" % [count, expected], "Umbra objective uses the known enemy count")
 	hud.free()
 
 static func _room_metadata(depth: int) -> Dictionary:

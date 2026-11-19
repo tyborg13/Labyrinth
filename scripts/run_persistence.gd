@@ -4,12 +4,24 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
 const Writer = preload("res://scripts/ordered_background_writer.gd")
+const Checkpoint = preload("res://scripts/run_checkpoint.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AFTER_DRAW_RESOLUTION_META: String = "persistence_rules_after_draw"
+const DEPARTURE_META := &"persistence_departure"
 var _host: WeakRef
 var _observed_analytics_failure: int = 0
 static var _resolution_frame: int = -1
 static var _write_frame: int = -1
+static var _application_drained: bool = false
+
+static func has_checkpoint(state: Dictionary) -> bool:
+	return Checkpoint.has_checkpoint(state)
+
+static func load_resumable_checkpoint(recover_terminal_profile: bool = false) -> Dictionary:
+	return ProgressionStore.read_resumable_checkpoint(recover_terminal_profile).get("state", {})
+
+static func validated_resume_summary(state: Dictionary) -> Dictionary:
+	return Checkpoint.validated_resume_summary(state)
 
 static func mark_resolution_frame() -> void:
 	_resolution_frame = Engine.get_process_frames()
@@ -39,6 +51,7 @@ func _process(_delta: float) -> void:
 
 func _drain_idle() -> void:
 	var scene: Node = _host.get_ref()
+	if not is_instance_valid(scene) or scene.has_meta(DEPARTURE_META): return
 	var saves: RefCounted = ProgressionStore._run_writer
 	var events: RefCounted = AnalyticsStore._writer
 	saves.collect()
@@ -46,7 +59,7 @@ func _drain_idle() -> void:
 	if _observed_analytics_failure != AnalyticsStore.write_failure_generation():
 		_observed_analytics_failure = AnalyticsStore.write_failure_generation()
 		_invalidate_replay_cursors(scene)
-	if not is_instance_valid(scene) or _write_frame == Engine.get_process_frames(): return
+	if _write_frame == Engine.get_process_frames(): return
 	var idle: bool = _resolution_frame != Engine.get_process_frames() and not scene.has_meta(AFTER_DRAW_RESOLUTION_META)
 	# Preserve the original dispatch order and per-frame cadence. The disk
 	# service runs both stores' accepted transactions in that same order.
@@ -92,7 +105,64 @@ static func _record_samples(scene: Node) -> void:
 					scene._record_persistence_performance_sample(deferred_phase, int(sample["elapsed_usec"]))
 
 func _exit_tree() -> void:
-	flush(_host.get_ref())
+	var scene: Node = _host.get_ref()
+	if not _application_drained and (not is_instance_valid(scene) or not scene.has_meta(DEPARTURE_META)):
+		flush(scene)
+
+static func set_application_drained() -> void:
+	_application_drained = true
+
+static func application_drained() -> bool:
+	return _application_drained
+
+static func _flush_events_in_tree(tree: SceneTree, all_directories: bool = false) -> bool:
+	var writers: Array[RefCounted]
+	writers.append(AnalyticsStore._writer)
+	if all_directories:
+		for writer: RefCounted in AnalyticsStore._writers_by_directory.values():
+			if not writers.has(writer): writers.append(writer)
+	var succeeded := true
+	for writer: RefCounted in writers:
+		if not await writer.flush_in_tree(tree): succeeded = false
+		writer.take_failure()
+	if not succeeded:
+		AnalyticsStore._write_failure_generation += 1
+		AnalyticsStore._storage_generation += 1
+		push_error("Failed to flush queued analytics events.")
+	return succeeded
+
+static func flush_in_tree(tree: SceneTree, scene: Node = null) -> bool:
+	var saved: bool = await ProgressionStore.flush_pending_run_saves_in_tree(tree)
+	var appended: bool = await _flush_events_in_tree(tree, true)
+	if not appended: _invalidate_replay_cursors(scene)
+	if is_instance_valid(scene) and scene.has_meta("perf03_analytics_replay_needed"):
+		scene.remove_meta("perf03_analytics_replay_needed")
+		scene._analytics_flush_surface_events(scene._combat_state, scene._run_state)
+		scene._analytics_flush_map_events(scene._run_state)
+		appended = await _flush_events_in_tree(tree, true)
+		if not appended: _invalidate_replay_cursors(scene)
+	_record_samples(scene)
+	return saved and appended
+
+static func _append_receipts_in_tree(tree: SceneTree, analytics: RefCounted, events: Array) -> bool:
+	if events.is_empty(): return true
+	analytics.hold_ordered_receipts(events)
+	var order: RefCounted = analytics._receipt_order()
+	for event: Dictionary in events:
+		var receipt: Dictionary = order.find_key(str(event["idempotency_key"]))
+		if not receipt.is_empty(): receipt["ready"] = true
+	while order.busy():
+		var batch: Dictionary = order.next_batch()
+		if batch.is_empty(): break
+		var count: int = batch["records"].size()
+		if not bool(batch["submitted"]):
+			if not analytics._append_records_at(str(batch["path"]), batch["records"]): return false
+			order.mark_submitted(count)
+		if not await _flush_events_in_tree(tree): return false
+		order.acknowledge(count)
+	for event: Dictionary in events:
+		if not analytics.has_idempotency_key(str(event["idempotency_key"])): return false
+	return true
 
 static func flush(scene: Node = null) -> bool:
 	# Return the I/O result; transition policy stays with the original callers.
@@ -115,6 +185,97 @@ static func _invalidate_replay_cursors(scene: Node) -> void:
 	scene._map_analytics_revision = 0
 	scene.set_meta("perf03_analytics_replay_needed", true)
 
+static func save_for_departure(scene: Node) -> void:
+	var tree := scene.get_tree()
+	scene.set_meta(DEPARTURE_META, true)
+	scene._cancel_deferred_skill_analytics(true)
+	if scene._event_view != null: scene._event_view.finish_result_beats()
+	var state: Dictionary = {}
+	var held: bool = not scene._committed_run_state_override.is_empty()
+	if not scene._initial_loading_cancelled and scene.has_installed_run() and not scene._campfire_embrace_committed and not scene._is_debug_boss_run():
+		# Freeze the same committed boundary before allowing any animation or
+		# renderer continuation to run during the disk wait.
+		if not held and str(scene._run_state.get("mode", "")) not in ["victory", "defeat"]:
+			scene._stage_skill_analytics_outbox()
+		state = scene._committed_run_state()
+		scene._run_play_clock.sample_scene_play_time(scene, state)
+	await flush_in_tree(tree, scene)
+	if not has_checkpoint(state): return
+	var mode: String = str(state.get("mode", ""))
+	if mode in ["victory", "defeat"]:
+		await _save_terminal_for_departure(tree, scene, state, held)
+	else:
+		await _save_active_for_departure(tree, scene, state)
+	await flush_in_tree(tree, scene)
+
+static func _save_terminal_for_departure(tree: SceneTree, scene: Node, state: Dictionary, held: bool) -> void:
+	var pending: bool = OpeningBoonRules.heirloom_prompt_pending(state)
+	var disk := await ProgressionStore.load_data_in_tree(tree)
+	var retained: Dictionary = ProgressionStore.merge_progression_analytics_outbox(scene._progression, disk)
+	var events := _opening_receipts(scene, state)
+	if not pending or held:
+		if not await _append_receipts_in_tree(tree, scene._analytics_store, events):
+			for event: Dictionary in events:
+				retained = ProgressionStore.queue_progression_analytics_event(retained,
+					event["event_type"], event["idempotency_key"], event["context"], event["payload"])
+		if not await ProgressionStore.save_data_in_tree(tree, retained):
+			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
+			return
+		scene._progression = retained
+	if pending:
+		var fallback := state
+		state = scene._finalize_terminal_committed_state(state)
+		if not await ProgressionStore.save_data_in_tree(tree, scene._progression):
+			await _write_departing_checkpoint(tree, fallback)
+			push_error("Failed to persist committed run boundary: heirloom_prompt_resume")
+			return
+	if not await _write_departing_checkpoint(tree, state): return
+	if pending: await _append_receipts_in_tree(tree, scene._analytics_store, events)
+	scene._analytics_flush_surface_events(state.get("combat_state", {}), state)
+	scene._analytics_flush_map_events(state)
+	if not pending: await ProgressionStore.clear_saved_run_in_tree(tree)
+
+static func _save_active_for_departure(tree: SceneTree, scene: Node, state: Dictionary) -> void:
+	var profile: Dictionary = scene._progression.duplicate(true)
+	var embedded: Dictionary = state.get("progression", {})
+	if not embedded.is_empty(): profile["embers"] = int(embedded.get("embers", 0))
+	var profile_saved := await ProgressionStore.save_data_in_tree(tree, profile)
+	if not await _write_departing_checkpoint(tree, state): return
+	var outbox: Array = ProgressionStore.progression_analytics_outbox(embedded)
+	var run_skill_events: Array = scene._run_skill_receipts(state, state.get("combat_state", {}))
+	var cursor_updated := false
+	if not outbox.is_empty() and await _append_receipts_in_tree(tree, scene._analytics_store, outbox):
+		var keys: Array[String]
+		for event: Dictionary in outbox: keys.append(event["idempotency_key"])
+		var acknowledged := ProgressionStore.acknowledge_progression_analytics_events(profile, keys)
+		if profile_saved and await ProgressionStore.save_data_in_tree(tree, acknowledged):
+			state["progression"] = ProgressionStore.acknowledge_progression_analytics_events(embedded, keys)
+			cursor_updated = true
+	if not run_skill_events.is_empty() and await _append_receipts_in_tree(tree, scene._analytics_store, run_skill_events):
+		var logged: int = 0
+		for event: Dictionary in run_skill_events:
+			logged = maxi(logged, int(event["payload"]["trigger_revision"]))
+		state["analytics"]["run_skill_event_revision_logged"] = logged
+		cursor_updated = true
+	if cursor_updated: await _write_departing_checkpoint(tree, state)
+	await _append_receipts_in_tree(tree, scene._analytics_store, _opening_receipts(scene, state))
+	scene._analytics_flush_surface_events(state.get("combat_state", {}), state)
+	scene._analytics_flush_map_events(state)
+
+static func _opening_receipts(scene: Node, state: Dictionary) -> Array[Dictionary]:
+	var events: Array[Dictionary]
+	var context: Dictionary = scene._analytics_context_from_states(state)
+	var source: Array = state.get(OpeningBoonRules.EVENTS_KEY, [])
+	for index: int in source.size():
+		var event: Dictionary = source[index]
+		events.append({"event_type": event["type"], "idempotency_key": OpeningBoonRules.event_key(context, index, event),
+			"context": context, "payload": event["payload"]})
+	return events
+
+static func _write_departing_checkpoint(tree: SceneTree, state: Dictionary) -> bool:
+	ProgressionStore.queue_owned_run_state(state.duplicate(true), "explicit_save")
+	return await ProgressionStore.flush_pending_run_saves_in_tree(tree)
+
 static func persist(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
 	return _persist_snapshot(scene, run_state, hold_for_animation, boundary, false)
 
@@ -130,7 +291,7 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 	var performance_total_started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
 	var state: Dictionary = run_state if owns_snapshot else SectionMapGraph.checkpoint_copy(run_state)
 	var performance_phase_started: int = scene._record_runtime_performance_phase("combat_checkpoint_persist_input_duplicate", performance_total_started)
-	if state.is_empty() or bool(state.get("debug_boss_run", false)):
+	if not has_checkpoint(state) or bool(state.get("debug_boss_run", false)):
 		return {"state": state, "saved": false}
 	if scene._save_in_progress:
 		return {"state": state, "saved": false}
@@ -156,10 +317,10 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 			saved = ProgressionStore.save_run_state(state)
 		else:
 			saved = ProgressionStore.save_data(scene._progression)
-			if saved and (OpeningBoonRules.heirloom_prompt_pending(state) or state.has(OpeningBoonRules.EVENTS_KEY)):
+			if saved:
+				# Publish the terminal record before cleanup. An interrupted or
+				# blocked clear must leave the terminal state authoritative.
 				saved = ProgressionStore.save_run_state(state)
-			elif saved:
-				ProgressionStore.clear_saved_run()
 			else:
 				ProgressionStore.save_run_state(terminal_resume_state)
 		if run_before_profile and saved: profile_saved = ProgressionStore.save_data(scene._progression)
@@ -199,7 +360,7 @@ static func _finish_combat_receipt(saved: bool, host: WeakRef, state: Dictionary
 		push_error("Failed to persist committed run boundary: %s" % boundary)
 		return
 	var scene: Node = host.get_ref()
-	if is_instance_valid(scene): _after_saved_snapshot(scene, state, "combat", true)
+	if is_instance_valid(scene) and not scene.has_meta(DEPARTURE_META): _after_saved_snapshot(scene, state, "combat", true)
 
 static func _after_saved_snapshot(scene: Node, state: Dictionary, mode: String, profile_saved: bool) -> void:
 	var opening_events_saved: bool = scene._opening_boon_flow.flush_events(scene, state)

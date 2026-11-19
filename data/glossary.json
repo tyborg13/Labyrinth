@@ -60,7 +60,7 @@
     "id": "splits",
     "name": "Splits",
     "icon": "splits",
-    "definition": "When it dies, it splits into smaller foes next to it.",
+    "definition": "When it dies, it splits into smaller enemies next to it.",
     "aliases": [
       "split"
     ]
@@ -108,7 +108,7 @@
     "id": "surface_rubble",
     "name": "Rubble",
     "icon": "surface_rubble",
-    "definition": "Costs 2 movement to leave.",
+    "definition": "Costs 2 Movement to leave.",
     "aliases": []
   },
   {
@@ -404,7 +404,7 @@
     "id": "skate",
     "name": "Skate",
     "icon": "skate",
-    "definition": "This turn, Ice costs no movement and doesn't Chill you.",
+    "definition": "This turn, Ice costs no Movement and doesn't Chill you.",
     "aliases": []
   },
   {

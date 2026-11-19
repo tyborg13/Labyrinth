@@ -43,7 +43,7 @@ static func reconcile(scene: Control, remaining: int, capacity: int, skills: Arr
 	sigil.set_meta("owned_count", skills.size())
 	sigil.set_meta("preview_skill_ids", ids)
 	var summary: Label = sigil.find_child("SkillSigilSummary", true, false)
-	summary.text = "%d READY / %d" % [ready, skills.size()] if compact else "%d READY  ·  %d OWNED" % [ready, skills.size()]
+	summary.text = "%d/%d READY" % [ready, skills.size()] if compact else "%d READY · %d OWNED" % [ready, skills.size()]
 	var previews: Control = sigil.find_child("SkillSigilOwnedPreviews", true, false)
 	var statuses: Dictionary = presentation.get("statuses", {})
 	for child: Control in previews.get_children():

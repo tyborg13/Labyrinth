@@ -40,6 +40,62 @@ class Cue extends Control:
 		draw_texture_rect(halo, Rect2(-halo.get_size() * 0.5, halo.get_size()), false)
 		Frame.draw_solid_diamond(self, Vector2.ZERO, 7.0, Palette.EMBER)
 
+static func prepare_opening_paint_for(root: Node, present: Callable, active: Callable, cancellation: Assets.PreparationCancellation) -> void:
+	var definition: Dictionary = Data.npc_def("emaciated_man")
+	var source: Texture2D = PortraitPaint.source_texture(str(definition.get("art_path", "")))
+	var key: Array = PortraitPaint.portrait_key(definition, source)
+	var bust: Image
+	if not key.is_empty() and not PortraitPaint.has_portrait(key):
+		bust = Assets.texture_source_image(source)
+	await present.call()
+	if not bool(active.call()): return
+	var brush_b: Image = Paint.brush_image("brush_b.png")
+	await present.call()
+	if not bool(active.call()): return
+	var brush_c: Image = Paint.brush_image("brush_c.png")
+	if brush_b == null or brush_c == null: return
+	# The opening uses the same one- and two-line band dimensions as layout.
+	# Keep the ordinary exact-size cache miss for every other dialogue size.
+	var sizes: Array[Vector2i]
+	for lines: int in [1, 2]:
+		var dimensions := Vector2i(roundi(WIDTH), roundi(_line_band_height(lines, false)))
+		if not Paint.has_band(dimensions): sizes.append(dimensions)
+	var region := Rect2i()
+	var portrait_scale: int = 0
+	var center: int = 0
+	if bust != null:
+		region = key[1]
+		portrait_scale = key[2]
+		center = key[3]
+	var value: Variant = await Assets.prepare_cpu_value_for(root, _bake_opening_paint.bind(
+		brush_b, brush_c, not PortraitPaint.has_frame(), sizes, bust, region, portrait_scale, center,
+		cancellation.is_cancelled
+	), present, active, cancellation, &"OpeningDialoguePaintDrain")
+	if not bool(active.call()) or not value is Dictionary: return
+	if value.has("frame"): PortraitPaint.publish_frame(value["frame"])
+	for dimensions: Vector2i in value["bands"]:
+		await present.call()
+		if not bool(active.call()): return
+		Paint.publish_band(dimensions, value["bands"][dimensions])
+	if value.has("portrait"):
+		await present.call()
+		if not bool(active.call()): return
+		PortraitPaint.publish_portrait(key, definition["portrait_bust"], value["portrait"])
+
+static func _bake_opening_paint(brush_b: Image, brush_c: Image, needs_frame: bool, sizes: Array[Vector2i], bust: Image, region: Rect2i, portrait_scale: int, center: int, cancelled: Callable) -> Dictionary:
+	var bands: Dictionary = {}
+	var result: Dictionary = {"bands": bands}
+	if needs_frame: result["frame"] = PortraitPaint.bake_frame(brush_c, cancelled)
+	for dimensions: Vector2i in sizes:
+		if Paint.cancel_requested(cancelled): return {}
+		bands[dimensions] = Paint.bake_band(dimensions, brush_b, brush_c, cancelled)
+	if Paint.cancel_requested(cancelled): return {}
+	if bust != null: result["portrait"] = PortraitPaint.bake_portrait(bust, region, portrait_scale, center, cancelled)
+	return result
+
+static func _line_band_height(lines: int, show_choices: bool) -> float:
+	return (CHOICE_HEIGHT + 35.0 * maxi(0, lines - 2)) if show_choices else LINE_HEIGHT + 35.0 * (lines - 1)
+
 var host: Node
 var panel: PanelContainer
 var portrait_frame: PanelContainer
@@ -300,7 +356,7 @@ func sync_layout() -> void:
 	body.size.x = width - column - BODY_RIGHT_PADDING
 	var lines: int = maxi(1, body.get_line_count())
 	var show_choices: bool = _options and _complete
-	var height: float = (CHOICE_HEIGHT + 35.0 * maxi(0, lines - 2)) if show_choices else LINE_HEIGHT + 35.0 * (lines - 1)
+	var height: float = _line_band_height(lines, show_choices)
 	var band_rise: float = 0.0
 	if seated:
 		height = panel.size.y

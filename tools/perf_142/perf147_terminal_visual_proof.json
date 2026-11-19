@@ -1,0 +1,7 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "terminal-title.png", "regions": [{"rect": [250, 130, 1420, 820], "min_luma_stdev": 4}]}
+  ]
+}

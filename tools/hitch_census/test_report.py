@@ -13,6 +13,15 @@ import census
 import report
 
 FIXTURE = Path(__file__).parent / 'fixtures/report_trace.jsonl'
+TOUR_COVERAGE = {
+    'playback:craghide': {'rounds': 3, 'activations': 4,
+                          'intents_before_pass': ['upheaval', 'groundsplit', 'crushing_rush']},
+    'playback:gust': {'rounds': 3, 'activations': 3},
+    'playback:lightning_storm': {'rounds': 3, 'activations': 3},
+    'playback:tharokh': {'rounds': 3, 'activations': 3,
+                         'intents_before_pass': ['stonewake', 'worldspine_claw', 'bedrock_breath']},
+    'table:difficulty_table': {'depth': 20},
+}
 
 
 class ReportTest(unittest.TestCase):
@@ -27,7 +36,7 @@ class ReportTest(unittest.TestCase):
         raw = FIXTURE.read_text().replace('"native":true', f'"native":{str(native).lower()}')
         (directory / 'frames.jsonl').write_text(raw)
         path = directory / 'run.json'
-        path.write_text(json.dumps(dict(driver='whole', seed=83, cache=name, profile='normal',
+        path.write_text(json.dumps(dict(driver=extra.pop('driver', 'whole'), seed=83, cache=name, profile='normal',
                                         replay='cd /repo && census replay', **extra)))
         return path
 
@@ -61,6 +70,49 @@ class ReportTest(unittest.TestCase):
         result = report.generate([self.run_fixture(native=False)], self.root / 'report')
         self.assertEqual(result['situations'], [])
         self.assertEqual(len(result['rejected']), 1)
+
+    def test_headless_tour_coverage_printed_without_renderer_rows(self):
+        path = self.run_fixture(native=False, driver='tour', ground_fx='off')
+        (path.parent / 'receipt.json').write_text(json.dumps(dict(
+            outcome='tour_complete', coverage=TOUR_COVERAGE)))
+        result = report.generate([path], self.root / 'report')
+        rendered = (self.root / 'report/report.md').read_text()
+        self.assertIn('## Fixture coverage', rendered)
+        for label, coverage in TOUR_COVERAGE.items():
+            self.assertIn(f"| off | {label.split(':', 1)[1]} | {json.dumps(coverage, sort_keys=True)} |", rendered)
+        self.assertEqual(result['situations'], [])
+        self.assertEqual(result['named_hitch_catalog'], [])
+        self.assertIn('headless trace', result['rejected'][0]['reason'])
+
+    def test_tour_missing_fixture_rejected_despite_successful_exit(self):
+        path = self.run_fixture(driver='tour', returncode=0)
+        coverage = {key: value for key, value in TOUR_COVERAGE.items() if key != 'playback:gust'}
+        (path.parent / 'receipt.json').write_text(json.dumps(dict(
+            outcome='tour_complete', coverage=coverage)))
+        result = report.generate([path], self.root / 'report')
+        self.assertEqual(result['named_hitch_catalog'], [])
+        self.assertIn('missing fixture coverage: gust', result['rejected'][0]['reason'])
+
+    def test_collector_stops_and_keeps_failed_tour_receipt(self):
+        from types import SimpleNamespace
+        args = SimpleNamespace(output=self.root, disk_cap_gb=10, tag='test',
+                               seconds=420, first_boss=False, stop_after=0)
+
+        def launch(*unused, **kwargs):
+            directory = next((self.root / 'runs').iterdir())
+            kwargs['stdout'].write('HITCH CENSUS RESULT: tour outcome=time_limit\n')
+            (directory / 'receipt.json').write_text(json.dumps(dict(
+                outcome='time_limit', errors=['Tour stopped with missing coverage'], coverage={})))
+            return SimpleNamespace(returncode=1, poll=lambda: 1)
+
+        with patch.object(census, 'guard'), patch.object(census, 'subprocess') as process:
+            process.Popen.side_effect = launch
+            with self.assertRaisesRegex(RuntimeError, 'tour missing fixture coverage'):
+                census.run_one(args, 'tour', 83, 'normal', 'cold', 'test-run')
+        metadata = json.loads(next((self.root / 'runs').glob('*/run.json')).read_text())
+        self.assertEqual(metadata['outcome'], 'time_limit')
+        self.assertEqual(metadata['returncode'], 1)
+        self.assertFalse(metadata['measured'])
 
     def test_truncated_tail_allowed_but_corrupt_interior_rejected(self):
         path = self.root / 'trace.jsonl'
@@ -97,9 +149,10 @@ class ReportTest(unittest.TestCase):
 
     def test_native_command_uses_required_runner_and_no_fixed_fps(self):
         from types import SimpleNamespace
-        args = SimpleNamespace(output=self.root, seconds=900, first_boss=True, stop_after=3)
+        args = SimpleNamespace(output=self.root, task_id='cen-01', seconds=900, first_boss=True, stop_after=3)
         command = census.command(args, 'whole', 83, 'normal', 'example', self.root / 'run', 'on')
         self.assertIn('tools/godot_task_runner.py', command)
+        self.assertEqual(command[command.index('--task-id') + 1], 'cen-01')
         self.assertIn('--windowed', command)
         self.assertIn('1280x800', command)
         self.assertEqual(command[command.index('--position') + 1], '24,24')

@@ -1,6 +1,6 @@
 extends Node
 
-# The load cover owns this job. CPU decoding can overlap the scene request;
+# The loading cover owns this job. CPU decoding can overlap the scene request;
 # textures/cache entries are still published by the existing main-thread APIs.
 const Assets = preload("res://scripts/asset_loader.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
@@ -8,6 +8,7 @@ const ComponentSurface = preload("res://scripts/ui_component_surface.gd")
 const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
+const GearVisuals = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
 
 var _initial_cpu_asset_holds: Array[RefCounted]
 var complete: bool = false
@@ -15,15 +16,15 @@ var complete: bool = false
 static func owner_is_active(owner: Variant, still_active: Callable) -> bool:
 	return is_instance_valid(owner) and not owner.is_queued_for_deletion() and bool(still_active.call())
 
-static func start_for(cover: Node, present_frame: Callable, still_active: Callable) -> Node:
+static func start_for(cover: Node, present_frame: Callable, still_active: Callable, publish_ready: Callable) -> Node:
 	var job := new()
 	job.name = "InitialRunCpuAssets"
 	job.process_mode = Node.PROCESS_MODE_ALWAYS
 	cover.add_child(job)
-	_prepare_for.call_deferred(job, cover.get_tree().root, present_frame, still_active)
+	_prepare_for.call_deferred(job, cover.get_tree().root, present_frame, still_active, publish_ready)
 	return job
 
-static func _prepare_for(job: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
+static func _prepare_for(job: Node, root: Node, present_frame: Callable, still_active: Callable, publish_ready: Callable) -> void:
 	# Previously these sources were published by the scene/board manifests before
 	# CPU preparation. Keep their decode off the main thread when starting early.
 	var manifest: Dictionary = {}
@@ -33,7 +34,7 @@ static func _prepare_for(job: Node, root: Node, present_frame: Callable, still_a
 		var path: String = MapSkin.Icons.icon_path(id)
 		if not path.is_empty(): manifest[path] = false
 	preload("res://scripts/run_loading_texture_manifest.gd").add_to(manifest)
-	await Assets.prepare_textures_for(root, manifest, present_frame, still_active)
+	await Assets.prepare_textures_for(root, manifest, present_frame, still_active, publish_ready)
 	if not owner_is_active(job, still_active): return
 	await prepare_cpu_assets_for(job, root, present_frame, still_active)
 	if owner_is_active(job, still_active): job.complete = true
@@ -45,6 +46,23 @@ static func finish_for(job: Node, scene: Node, present_frame: Callable, still_ac
 	scene._initial_cpu_asset_holds.append_array(job._initial_cpu_asset_holds)
 	job._initial_cpu_asset_holds.clear()
 	job.queue_free()
+
+static func add_gear_validation_textures(manifest: Dictionary) -> void:
+	# First-use gear validation reads every authored replacement/attachment to
+	# verify dimensions and fallbacks. Prepare those same source textures before
+	# the board asks for the detached protagonist's first gear signature.
+	var catalog: Variant = JSON.parse_string(FileAccess.get_file_as_string(GearVisuals.PATH))
+	if not catalog is Dictionary or not catalog.get("items") is Dictionary: return
+	for item: Variant in catalog["items"].values():
+		if not item is Dictionary or not item.get("facings") is Dictionary: continue
+		for facing: Variant in item["facings"].values():
+			if not facing is Dictionary: continue
+			for kind: String in ["replace", "attach"]:
+				var operations: Variant = facing.get(kind, [])
+				if not operations is Array: continue
+				for operation: Variant in operations:
+					if operation is Dictionary and operation.get("file") is String:
+						manifest[GearVisuals.BASE.path_join(operation["file"])] = true
 
 static func prepare_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
 	var texture_manifest: Dictionary = {}

@@ -141,9 +141,9 @@ func _run_input_proof() -> void:
 		await process_frame
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var hint := panel.find_child("PreBattleFoeHint", true, false) as Label
-	_expect(hint.visible and hint.text == "Focus or select a foe to read its moves", "Foe hint switches to visible controller wording")
+	_expect(hint.visible and hint.text == "Focus or select an enemy to read its moves", "Foe hint switches to visible controller wording")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
-	_expect(hint.visible and hint.text == "Hover or select a foe to read its moves", "Foe hint switches back to unchanged pointer wording")
+	_expect(hint.visible and hint.text == "Hover or select an enemy to read its moves", "Foe hint switches back to unchanged pointer wording")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	await _settle()
 	_assert_foe_fit(panel, (panel.find_child("PreBattleEnemyFlow", true, false) as Control).get_child_count())

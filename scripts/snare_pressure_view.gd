@@ -27,7 +27,9 @@ static func presentation_for(state: Dictionary, original: Dictionary, use_board_
 	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY)
 	threats.append({"key": THREAT_KEY, "area": true, "tiles": forecast["tiles"], "rule_outline": not state.get("battlefield_rule", {}).is_empty()})
 	rest["threats"] = threats
-	rest["hero_tile"] = state["player"]["pos"]
+	# At rest the committed tile is the fallback. An aim preview already owns
+	# the exact tile used by the Pass contact receipt and the floor pulse.
+	rest.get_or_add("hero_tile", state["player"]["pos"])
 	result["threats_at_rest"] = rest
 	# Door art, thresholds, chips and Sealbinders remain outside the fog mask.
 	if result.has("umbra_visible_tiles"):

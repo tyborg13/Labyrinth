@@ -81,6 +81,8 @@ const MIN_CARD_TIME_COST: int = 1
 const MAX_CARD_TIME_COST: int = 10
 const DEFAULT_ENEMY_BASE_INITIATIVE: int = 12
 const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
+const ENEMY_PREVIEW_BUDGET_USEC: int = 4000
+const ENEMY_PREVIEW_DECLARATION_RESERVE_USEC: int = 2000
 const DEFIANCE_RESTORE_FRACTION: float = 0.25
 const DEFIANCE_EVENT_LIMIT: int = 16
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
@@ -125,6 +127,8 @@ const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const CommonRelicRules = preload("res://scripts/common_relic_rules.gd")
 const GuardianRelicRules = preload("res://scripts/guardian_relic_rules.gd")
 const BossAreaRules = preload("res://scripts/boss_area_rules.gd")
+const BossIntentProfile = preload("res://scripts/boss_intent_profile.gd")
+const BossPatternBoard = preload("res://scripts/boss_pattern_board.gd")
 const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
@@ -172,6 +176,9 @@ const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
 
 # Transient presentation capture inherited by recursive deferred death hooks.
 var _surface_death_trace: Dictionary = {}
+# A preview installs its captured mode only while executing a synchronous
+# slice. The live engine setting remains available between slices.
+var _cursor_facing_mode: Variant = null
 
 # Relic ownership is stable throughout a combat, while virtually every action
 # hook asks for the same expanded effect definitions. Keep that immutable
@@ -725,7 +732,7 @@ func arm_carry_the_guard(state: Dictionary) -> Dictionary:
 		return state.duplicate(true)
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "guard_carry_armed", true)
-	_log(next_state, "%s is armed to carry block remaining at turn end." % SkillTreeLibrary.display_name(skill_id))
+	_log(next_state, "%s is armed to carry Block remaining at turn end." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
@@ -1691,17 +1698,17 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
 			CommonRelicRules.block_from_card(self, next_state, resolved_action)
-			_log(next_state, "Gained %d block." % int(resolved_action.get("amount", 0)))
+			_log(next_state, "Gained %d Block." % int(resolved_action.get("amount", 0)))
 		"stoneskin":
 			var stoneskin_before: int = int(player.get("stoneskin", 0))
 			player["stoneskin"] = int(player.get("stoneskin", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
 			next_state = _trigger_stoneskin_relics(next_state, int(player.get("stoneskin", 0)) - stoneskin_before)
-			_log(next_state, "Gained %d stoneskin." % int(resolved_action.get("amount", 0)))
+			_log(next_state, "Gained %d Stoneskin." % int(resolved_action.get("amount", 0)))
 		"heal":
 			var heal_amount: int = int(resolved_action.get("amount", 0))
 			next_state = _heal_player(next_state, heal_amount)
-			_log(next_state, "Recovered %d health." % heal_amount)
+			_log(next_state, "Recovered %d Health." % heal_amount)
 		"draw":
 			var draw_amount: int = int(resolved_action.get("amount", 0))
 			next_state = _draw_cards_in_place(next_state, draw_amount)
@@ -2303,7 +2310,7 @@ func prepare_player_activation_end(state: Dictionary) -> Dictionary:
 			guard_player["stoneskin"] = int(guard_player.get("stoneskin", 0)) + remaining_block
 			next_state["player"] = guard_player
 			next_state = _trigger_stoneskin_relics(next_state, remaining_block)
-			_mark_skill_used(next_state, guard_id, "%s carries remaining block forward as stoneskin." % SkillTreeLibrary.display_name(guard_id))
+			_mark_skill_used(next_state, guard_id, "%s carries remaining Block forward as Stoneskin." % SkillTreeLibrary.display_name(guard_id))
 		_erase_skill_flag(next_state, "guard_carry_armed")
 	next_state = _trigger_activation_end_relics(next_state)
 	TempoRules.expire_activation(next_state)
@@ -2453,7 +2460,7 @@ func finish_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 
 func _finish_revealed_enemy_actions_preview(cursor: Dictionary, performance_total_started: int) -> Dictionary:
 	while not bool(cursor.get("complete", false)):
-		advance_revealed_enemy_actions_preview(cursor)
+		_advance_revealed_enemy_actions_preview(cursor, 0)
 	_record_runtime_performance_phase("enemy_preview_total", performance_total_started)
 	return revealed_enemy_actions_preview_result(cursor)
 
@@ -2463,7 +2470,8 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	if losses_only:
 		var receipt: String = preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER
 		next_state[receipt] = true
-		next_state[BossAreaRules.FORECAST_RECEIPT] = state.get(BossAreaRules.FORECAST_RECEIPT, {}).duplicate(true)
+		if not next_state.has(BossAreaRules.FORECAST_RECEIPT):
+			next_state[BossAreaRules.FORECAST_RECEIPT] = {}
 		preload("res://scripts/pass_forecast_statuses.gd").begin(next_state)
 	else:
 		next_state.erase(BossAreaRules.FORECAST_RECEIPT)
@@ -2483,6 +2491,7 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	return {
 		"state": next_state,
 		"initial_state": state,
+		"facing_mode": _preview_facing_mode(),
 		"steps": [],
 		"player_turn_before_state": {},
 		"initially_visible_enemy_ids": initially_visible_enemy_ids,
@@ -2496,38 +2505,49 @@ func begin_revealed_enemy_actions_preview(state: Dictionary, losses_only: bool =
 	}
 
 func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var started: int = Time.get_ticks_usec()
+	var deadline: int = started + ENEMY_PREVIEW_BUDGET_USEC
+	while not bool(cursor.get("complete", false)):
+		_advance_revealed_enemy_actions_preview(cursor, deadline)
+		if cursor.has("enemy_turn") or Time.get_ticks_usec() >= deadline: break
+	_record_runtime_performance_phase("enemy_preview_slice_total", started)
+	return cursor
+
+func _advance_revealed_enemy_actions_preview(cursor: Dictionary, deadline: int) -> void:
+	var previous_mode: Variant = _cursor_facing_mode
+	_cursor_facing_mode = cursor.get("facing_mode")
+	_advance_preview_actor(cursor, deadline)
+	_cursor_facing_mode = previous_mode
+
+func _advance_preview_actor(cursor: Dictionary, deadline: int) -> void:
 	if bool(cursor.get("complete", false)):
-		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-		return cursor
+		return
+	if cursor.has("enemy_turn"):
+		_resume_preview_enemy_turn(cursor, deadline)
+		return
 	var next_state: Dictionary = cursor.get("state", {}) as Dictionary
 	var safety: int = int(cursor.get("safety", 0))
 	if next_state.is_empty() or combat_outcome(next_state) != "" or safety >= 100:
 		cursor["complete"] = true
-		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-		return cursor
+		return
 	cursor["safety"] = safety + 1
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	# Dequeue only replaces queue/clock/actor fields on this cursor-owned state.
-	# Survival spawns also change nested actors/logs, so only that path needs a
-	# deep rollback snapshot when the preview stops at an unrevealed arrival.
-	var may_spawn_reinforcements: bool = str(next_state.get("objective", {}).get("type", "")) == CombatObjectiveRules.SURVIVE
-	var before_pop_state: Dictionary = next_state.duplicate(may_spawn_reinforcements)
-	_record_runtime_performance_phase("enemy_preview_before_pop_duplicate", performance_phase_started)
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# Ordinary dequeue only replaces initiative fields. Survival arrivals
+	# can change the board itself, so retain the old sight boundary even
+	# when a loss forecast keeps the arrivals.
+	var losses_only: bool = bool(cursor.get("losses_only", false))
+	var survival: bool = str(next_state.get("objective", {}).get("type", "")) == CombatObjectiveRules.SURVIVE
+	var before_pop_state: Dictionary = next_state
+	if survival or not losses_only:
+		before_pop_state = next_state.duplicate(survival)
 	var popped: Dictionary = _pop_next_actor(next_state)
 	_record_runtime_performance_phase("enemy_preview_pop_actor", performance_phase_started)
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	# _pop_next_actor mutates the state the cursor already owns. The enemy-turn
-	# resolver takes its own copy before applying any subsequent actor changes.
 	next_state = popped.get("state", next_state) as Dictionary
-	_record_runtime_performance_phase("enemy_preview_pop_result_duplicate", performance_phase_started)
-	if not (popped.get("reinforcement_steps", []) as Array).is_empty() and not bool(cursor.get("losses_only", false)):
+	if not (popped.get("reinforcement_steps", []) as Array).is_empty() and not losses_only:
 		cursor["unrevealed_before_player"] = true
 		cursor["state"] = before_pop_state
 		cursor["complete"] = true
-		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-		return cursor
+		return
 	if not (popped.get("reinforcement_steps", []) as Array).is_empty():
 		# An unseen arrival can change paths even before its own activation.
 		# Preserve the original information boundary while collecting known costs.
@@ -2540,8 +2560,7 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 		cursor["state"] = next_state
 		cursor["player_turn_before_state"] = next_state.duplicate(true)
 		cursor["complete"] = true
-		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-		return cursor
+		return
 	var entry: Dictionary = popped.get("entry", {}) as Dictionary
 	if entry.is_empty():
 		next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
@@ -2552,8 +2571,7 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 			preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
 			# atk-07: a turn Freeze skips is played on the copy; the span goes on.
 			preload("res://scripts/pass_forecast_frozen_turns.gd").continue_span(self, cursor)
-		_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-		return cursor
+		return
 	match str(entry.get("kind", "")):
 		"player":
 			cursor["state"] = next_state
@@ -2571,11 +2589,10 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 				Repeats.note_hidden_before(cursor, next_state, entry)
 				# atk-03: a visible foe's repeat activation is forecast with the
 				# intent its previous activation rolled on this copy.
-				var known_repeat: bool = bool(cursor.get("losses_only", false)) and revealed_enemy_ids.has(enemy_id) and initially_visible_enemy_ids.has(enemy_id) and not intent.is_empty() and Repeats.known_repeat(cursor, enemy_id)
+				var known_repeat: bool = losses_only and revealed_enemy_ids.has(enemy_id) and initially_visible_enemy_ids.has(enemy_id) and not intent.is_empty() and Repeats.known_repeat(cursor, enemy_id)
 				if known_repeat and not bool(cursor.get("choose_next_intents", true)):
 					Repeats.restart_with_rolls(cursor)
-					_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-					return cursor
+					return
 				if not known_repeat and (not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty()):
 					Repeats.note_skipped(cursor)
 					cursor["unrevealed_before_player"] = true
@@ -2591,46 +2608,83 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 					# the other announced actors and the known next-draw cost instead of
 					# losing that evidence at the first unknown activation.
 					next_state["current_actor"] = {}
-					if not bool(cursor.get("losses_only", false)):
-						next_state = before_pop_state.duplicate(true)
+					if not losses_only:
+						# The popped state's nested containers may still be
+						# held by a caller inspecting the cursor between slices.
+						next_state = before_pop_state if survival else before_pop_state.duplicate(true)
 						cursor["complete"] = true
-
 				else:
 					revealed_enemy_ids[enemy_id] = true
 					cursor["revealed_enemy_ids"] = revealed_enemy_ids
-					performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-					var hero_before: Array = Repeats.hero_mark(next_state)
 					# The PASS-loss copy accepts each action as live play does (the
 					# bos-01 half-Health switch, director 2026-11-13); only the copy
 					# switches. Full-state previews (bot lookahead, frozen measurement
 					# policies) keep their recorded no-switch behaviour.
-					var accepted: Callable = preload("res://scripts/battlefield_rules/committed.gd").callback(self) if bool(cursor.get("losses_only", false)) else Callable()
-					var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, bool(cursor.get("choose_next_intents", true)), preload("res://scripts/pass_forecast_statuses.gd").callback(self, accepted) if bool(cursor.get("losses_only", false)) else accepted)
-					_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
-					var turn_before: Dictionary = next_state
-					# The turn result already owns its state. Keep that ownership across
-					# rendered slices instead of cloning the full snapshot again.
-					next_state = turn_result.get("state", next_state) as Dictionary
-					Repeats.record(cursor, enemy_id, str(entry.get("name", enemy.get("type", ""))), hero_before, next_state)
-					preload("res://scripts/pass_forecast_red_tiles.gd").note(self, cursor, enemy, next_state)
-					# atk-04: did this activation take any unit onto unseen ground?
-					preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, turn_before, next_state, turn_result.get("steps", []))
-					var steps: Array = cursor.get("steps", []) as Array
-					for step_var: Variant in turn_result.get("steps", []):
-						if typeof(step_var) == TYPE_DICTIONARY:
-							steps.append(step_var)
-					cursor["steps"] = steps
-					if combat_outcome(next_state) != "":
-						cursor["complete"] = true
+					var accepted: Callable = preload("res://scripts/battlefield_rules/committed.gd").callback(self) if losses_only else Callable()
+					if losses_only:
+						accepted = preload("res://scripts/pass_forecast_statuses.gd").callback(self, accepted)
+					var rolls: bool = bool(cursor.get("choose_next_intents", true))
+					var name: String = str(entry.get("name", enemy.get("type", "")))
+					var hero_before: Array = Repeats.hero_mark(next_state)
+					var path: String = get_script().resource_path
+					# Tool engines may override the whole resolver. Keep that virtual
+					# entry point for them, as well as for foreground calls.
+					if deadline == 0 or path not in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"]:
+						performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+						var result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false, rolls, accepted)
+						_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
+						_complete_preview_enemy_turn(cursor, next_state, enemy, name, hero_before, result)
 					else:
-						enemy_index = _enemy_index_for_id(next_state, enemy_id)
-						if enemy_index >= 0:
-							enemy = preload("res://scripts/combat_preview_known_losses.gd").enemy_record(self, (next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
-							if int(enemy.get("hp", 0)) > 0:
-								_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
-						next_state["current_actor"] = {}
-		_:
-			pass
+						var turn := EnemyTurn.new(next_state, enemy_index, false, rolls, accepted)
+						turn.sliced = true
+						cursor["enemy_turn"] = {
+							"turn": turn, "before": next_state, "enemy": enemy,
+							"name": name, "hero_before": hero_before,
+						}
+						if Time.get_ticks_usec() < deadline: _resume_preview_enemy_turn(cursor, deadline)
+					return
+	_finish_preview_actor(cursor, next_state)
+
+func _resume_preview_enemy_turn(cursor: Dictionary, deadline: int) -> void:
+	var activation: Dictionary = cursor["enemy_turn"]
+	var turn: EnemyTurn = activation["turn"]
+	while turn.phase != EnemyTurn.Phase.DONE:
+		if deadline != 0 and turn.phase == EnemyTurn.Phase.ROLL and turn.held_declaration:
+			# A new held plan may search several anchors and replay hazardous
+			# arrivals. Give that atomic declaration a fresh slice when most
+			# of this one went to the just-resolved attack.
+			if Time.get_ticks_usec() >= deadline - ENEMY_PREVIEW_DECLARATION_RESERVE_USEC: return
+		_advance_enemy_turn(turn)
+		if deadline != 0 and Time.get_ticks_usec() >= deadline: return
+	var result: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").complete_turn(turn.result())
+	# The scene's facing adapter decorates the resolved state and its receipts
+	# after the reaction trace has attached the final snapshot, as live play does.
+	if bool(_preview_facing_mode()): HeroFacingState.enemy_result(activation["before"], result)
+	cursor.erase("enemy_turn")
+	_complete_preview_enemy_turn(cursor, activation["before"], activation["enemy"], activation["name"], activation["hero_before"], result)
+
+func _complete_preview_enemy_turn(cursor: Dictionary, before: Dictionary, enemy: Dictionary, name: String, hero_before: Array, result: Dictionary) -> void:
+	var next_state: Dictionary = result.get("state", before) as Dictionary
+	var enemy_id: int = int(enemy.get("id", -1))
+	var Repeats: GDScript = preload("res://scripts/pass_forecast_repeats.gd")
+	Repeats.record(cursor, enemy_id, name, hero_before, next_state)
+	preload("res://scripts/pass_forecast_red_tiles.gd").note(self, cursor, enemy, next_state)
+	preload("res://scripts/pass_forecast_unseen_ground.gd").note(cursor, before, next_state, result.get("steps", []))
+	var steps: Array = cursor["steps"]
+	for step_var: Variant in result.get("steps", []):
+		if step_var is Dictionary: steps.append(step_var)
+	if combat_outcome(next_state) != "":
+		cursor["complete"] = true
+	else:
+		var enemy_index: int = _enemy_index_for_id(next_state, enemy_id)
+		if enemy_index >= 0:
+			var resolved_enemy: Dictionary = preload("res://scripts/combat_preview_known_losses.gd").enemy_record(self, next_state["enemies"][enemy_index])
+			if int(resolved_enemy.get("hp", 0)) > 0:
+				_schedule_enemy_after_turn(next_state, resolved_enemy, int(result.get("time_cost", 0)))
+		next_state["current_actor"] = {}
+	_finish_preview_actor(cursor, next_state)
+
+func _finish_preview_actor(cursor: Dictionary, next_state: Dictionary) -> void:
 	if bool(cursor.get("losses_only", false)) and bool(cursor.get("complete", false)) and not (cursor.get("player_turn_before_state", {}) as Dictionary).is_empty():
 		preload("res://scripts/pass_forecast_turn_start.gd").complete(self, cursor)
 		# atk-07: a turn Freeze skips is played on the copy; the span goes on.
@@ -2643,8 +2697,6 @@ func advance_revealed_enemy_actions_preview(cursor: Dictionary) -> Dictionary:
 			cursor["forecast_limit_reached"] = true
 		_log(next_state, "The initiative clock stalls.")
 		cursor["complete"] = true
-	_record_runtime_performance_phase("enemy_preview_slice_total", performance_total_started)
-	return cursor
 
 func revealed_enemy_actions_preview_result(cursor: Dictionary) -> Dictionary:
 	return {
@@ -2668,24 +2720,86 @@ func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true, accepted: Callable = Callable()) -> Dictionary:
 	return preload("res://scripts/reaction_presentation_trace.gd").complete_turn(_resolve_enemy_turn_with_steps(state, enemy_index, include_commit_steps, choose_next_intent, accepted))
 
-func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true, accepted: Callable = Callable()) -> Dictionary:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var next_state: Dictionary = state.duplicate(true)
-	_record_runtime_performance_phase("enemy_turn_initial_duplicate", performance_total_started)
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.state = int(next_state.get("rng_state", 0))
+# Each phase keeps its resolver-local state in the turn, never on the shared
+# engine. A suspended preview can be discarded without leaving a live scope open.
+class EnemyTurn:
+	enum Phase {SETUP, RETREAT, PLAN, ACTION, PRESENT, COMPLETE, ROLL, FINISH, DONE}
+
+	var phase: Phase = Phase.SETUP
+	var state: Dictionary
 	var steps: Array[Dictionary]
+	var rng := RandomNumberGenerator.new()
+	var enemy_index: int
+	var enemy: Dictionary
+	var include_commit_steps: bool
+	var choose_next_intent: bool
+	var accepted: Callable
+	var setup: Dictionary
+	var intent: Dictionary
+	var time_cost: int
+	var intent_resolved: bool
+	var actions: Array
+	var plan: Dictionary
+	var action_index: int
+	var action_before: Dictionary
+	var action_context: Dictionary
+	var bleed_steps: Array[Dictionary]
+	var sliced: bool
+	var held_declaration: bool
+	var before_complete: Dictionary
+	var intent_roll: EnemyIntentRoll
+
+	func _init(source: Dictionary, index: int, commits: bool, rolls: bool, on_accepted: Callable) -> void:
+		state = source
+		enemy_index = index
+		include_commit_steps = commits
+		choose_next_intent = rolls
+		accepted = on_accepted
+
+	func result() -> Dictionary:
+		return {"state": state, "steps": steps, "time_cost": time_cost}
+
+func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true, choose_next_intent: bool = true, accepted: Callable = Callable()) -> Dictionary:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var turn := EnemyTurn.new(state, enemy_index, include_commit_steps, choose_next_intent, accepted)
+	while turn.phase != EnemyTurn.Phase.DONE:
+		_advance_enemy_turn(turn)
+	_record_runtime_performance_phase("enemy_turn_total", started)
+	return turn.result()
+
+func _advance_enemy_turn(turn: EnemyTurn) -> void:
+	match turn.phase:
+		EnemyTurn.Phase.SETUP: _setup_enemy_turn(turn)
+		EnemyTurn.Phase.RETREAT: _retreat_at_enemy_turn_start(turn)
+		EnemyTurn.Phase.PLAN: _plan_enemy_turn(turn)
+		EnemyTurn.Phase.ACTION: _advance_enemy_turn_action(turn)
+		EnemyTurn.Phase.PRESENT: _present_enemy_turn_action(turn)
+		EnemyTurn.Phase.COMPLETE: _complete_enemy_turn(turn)
+		EnemyTurn.Phase.ROLL: _advance_enemy_turn_roll(turn)
+		EnemyTurn.Phase.FINISH: _finish_enemy_turn(turn)
+
+func _setup_enemy_turn(turn: EnemyTurn) -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	turn.state = turn.state.duplicate(true)
+	_record_runtime_performance_phase("enemy_turn_initial_duplicate", started)
+	turn.rng.state = int(turn.state.get("rng_state", 0))
+	var next_state: Dictionary = turn.state
+	var enemy_index: int = turn.enemy_index
+	var steps: Array[Dictionary] = turn.steps
+	var accepted: Callable = turn.accepted
+	var include_commit_steps: bool = turn.include_commit_steps
+	var rng: RandomNumberGenerator = turn.rng
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-		return {"state": next_state, "steps": steps, "time_cost": 0}
+		turn.phase = EnemyTurn.Phase.DONE
+		return
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
-		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-		return {"state": next_state, "steps": steps, "time_cost": 0}
+		turn.phase = EnemyTurn.Phase.DONE
+		return
 	next_state["current_actor"] = _enemy_actor_entry(next_state, enemy, int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	var intent: Dictionary = WarbandRules.current_intent(next_state, enemy, enemy.get("intent", {})).duplicate(true)
-	var turn_time_cost: int = _enemy_intent_time_cost(intent)
+	turn.time_cost = _enemy_intent_time_cost(intent)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_setup: Dictionary = next_state.duplicate(true)
 	var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
@@ -2699,33 +2813,26 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 		if typeof(step_var) == TYPE_DICTIONARY:
 			steps.append(_umbra_marked_enemy_status_step(before_turn_setup, next_state, step_var as Dictionary, int(enemy.get("id", -1))))
 	_record_runtime_performance_phase("enemy_turn_setup_total", performance_phase_started)
+	turn.state = next_state
+	turn.enemy = enemy
+	turn.intent = intent
+	turn.setup = turn_setup
 	if combat_outcome(next_state) != "":
 		next_state["rng_state"] = rng.state
-		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
-	if bool(turn_setup.get("skip_all", false)):
-		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		var before_skip_resolution: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-		next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]), "", accepted)
-		var skip_enemies: Array = next_state.get("enemies", [])
-		if enemy_index >= 0 and enemy_index < skip_enemies.size():
-			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
-			next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
-			if choose_next_intent and int(skip_enemy.get("hp", 0)) > 0:
-				_assign_enemy_intent(next_state, enemy_index, rng)
-		next_state["rng_state"] = rng.state
-		if include_commit_steps:
-			_append_commit_step(steps, before_skip_resolution, next_state, "enemy_turn_complete")
-		var skip_refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
-		if not skip_refresh_step.is_empty():
-			steps.append(skip_refresh_step)
-		_record_runtime_performance_phase("enemy_turn_skipped_complete_total", performance_phase_started)
-		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-		# A Petrified turn still costs its intent's Time; a Frozen one returns sooner.
-		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost if bool(turn_setup.get("petrified", false)) else 0}
-	var shocked: bool = bool(turn_setup.get("shocked", false))
-	var immobilized: bool = bool(turn_setup.get("immobilized", false))
-	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+		turn.phase = EnemyTurn.Phase.DONE
+		return
+	turn.phase = EnemyTurn.Phase.COMPLETE if bool(turn_setup.get("skip_all", false)) else EnemyTurn.Phase.RETREAT
+
+func _retreat_at_enemy_turn_start(turn: EnemyTurn) -> void:
+	var next_state: Dictionary = turn.state
+	var enemy_index: int = turn.enemy_index
+	var steps: Array[Dictionary] = turn.steps
+	var accepted: Callable = turn.accepted
+	var include_commit_steps: bool = turn.include_commit_steps
+	var intent: Dictionary = turn.intent
+	var immobilized: bool = bool(turn.setup.get("immobilized", false))
+	turn.phase = EnemyTurn.Phase.PLAN
+	var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if not immobilized:
 		var retreat: Array[Vector2i] = WarbandRules.retreat_path(self, next_state, enemy)
 		if retreat.is_empty(): retreat = HoarderRules.retreat_path(self, next_state, enemy)
@@ -2749,95 +2856,160 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 			elif not bool(retreat_context.get("bleed_stopped", false)):
 				steps.append(_enemy_action_step(before_retreat, next_state, enemy_index, {"type": "move_away", "range": 1}, retreat_context))
 			enemy = _normalized_enemy(next_state["enemies"][enemy_index])
-			if combat_outcome(next_state) != "": return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
-	intent = WarbandRules.current_intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
-	var intent_resolved: bool = not intent.is_empty() and (intent.get("actions", []) as Array).is_empty() and EnemyActivationRules.empty_intent_allowed(turn_setup)
+			if combat_outcome(next_state) != "": turn.phase = EnemyTurn.Phase.DONE
+	turn.state = next_state
+	turn.enemy = enemy
+
+func _plan_enemy_turn(turn: EnemyTurn) -> void:
+	var next_state: Dictionary = turn.state
+	var enemy: Dictionary = turn.enemy
+	var turn_setup: Dictionary = turn.setup
+	var intent: Dictionary = WarbandRules.current_intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
+	turn.intent = intent
+	turn.intent_resolved = not intent.is_empty() and (intent.get("actions", []) as Array).is_empty() and EnemyActivationRules.empty_intent_allowed(turn_setup)
 	if not intent.is_empty():
-		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
-		var actions: Array = intent.get("actions", [])
-		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked, false)
+		var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		turn.steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
+		turn.actions = intent.get("actions", [])
+		turn.plan = enemy_intent_plan(next_state, turn.enemy_index, intent, bool(turn.setup.get("immobilized", false)), bool(turn.setup.get("shocked", false)), false)
 		_record_runtime_performance_phase("enemy_turn_plan_total", performance_phase_started)
-		for action_index: int in range(actions.size()):
-			var action_var: Variant = actions[action_index]
-			if typeof(action_var) != TYPE_DICTIONARY:
-				continue
-			var action: Dictionary = action_var
-			if combat_outcome(next_state) != "":
-				break
-			if not EnemyActivationRules.action_allowed(self, action, turn_setup):
-				continue
-			intent_resolved = intent_resolved or enemy_action_can_resolve(next_state, action)
-			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-			var before_state: Dictionary = next_state.duplicate(true)
-			var followup_action: Dictionary = {}
-			if not shocked:
-				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
-			var action_context: Dictionary = activation_plan.duplicate(true)
-			action_context["action_index"] = action_index
-			var bleed_steps: Array[Dictionary]
-			var enemy_id: int = int(enemy.get("id", -1))
-			_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
-			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
-			if accepted.is_valid(): accepted.call(next_state)
-			if _enemy_action_is_movement(action): activation_plan["resolved_path"] = action_context.get("resolved_path",_vector2i_values([next_state["enemies"][enemy_index]["pos"]]))
-			_record_runtime_performance_phase("enemy_turn_action_resolve_%s_total" % str(action.get("type", "other")), performance_phase_started)
-			var presentation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-			performance_phase_started = presentation_started
-			var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_state, enemy_id)
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_visibility", performance_phase_started)
-			if not choose_next_intent and not include_commit_steps and not enemy_hidden_before and bleed_steps.is_empty() and (action_context.get("reaction_trace", {}).get("attack_bleed_steps", []) as Array).is_empty():
-				steps.append(_compact_enemy_action_step(before_state, next_state, enemy_index, action, action_context))
-				_record_runtime_performance_phase("enemy_turn_action_compact_loss", performance_phase_started)
-				_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
-				continue
-			_anonymize_hidden_enemy_action_logs(before_state, next_state, enemy_id, action, enemy_hidden_before)
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_anonymize", performance_phase_started)
-			_record_hidden_umbra_attack_damage(before_state, next_state, enemy_id, enemy_hidden_before)
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_hidden_damage", performance_phase_started)
-			next_state["rng_state"] = rng.state
-			if include_commit_steps:
-				_append_commit_step(steps, before_state, next_state, "enemy_action")
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_commit_total", performance_phase_started)
-			for bleed_step: Dictionary in bleed_steps:
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(bleed_step.get("cascade", {}).get("id", enemy.get("id", -1)))))
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_bleed_steps", performance_phase_started)
-			var raw_step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action, action_context)
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_step_build", performance_phase_started)
-			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, raw_step, enemy_id, enemy_hidden_before)
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_umbra_mark", performance_phase_started)
-			for arrival_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").before_attack_steps(self, action_context):
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, arrival_step, int(arrival_step.get("cascade", {}).get("id", enemy_id))))
-			if not step.is_empty():
-				steps.append(step)
-			for reaction_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").presentation_steps(self, before_state, next_state, action_context):
-				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, reaction_step, int(reaction_step["cascade"]["id"]) if reaction_step.has("cascade") else enemy_id))
-			_record_runtime_performance_phase("enemy_turn_action_append", performance_phase_started)
-			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
+	turn.phase = EnemyTurn.Phase.ACTION if not turn.actions.is_empty() else EnemyTurn.Phase.COMPLETE
+
+func _advance_enemy_turn_action(turn: EnemyTurn) -> void:
+	while turn.action_index < turn.actions.size():
+		var action: Variant = turn.actions[turn.action_index]
+		if action is Dictionary:
+			if combat_outcome(turn.state) != "": break
+			if EnemyActivationRules.action_allowed(self, action, turn.setup):
+				_resolve_enemy_turn_action(turn, action)
+				return
+		turn.action_index += 1
+	turn.phase = EnemyTurn.Phase.COMPLETE
+
+func _resolve_enemy_turn_action(turn: EnemyTurn, action: Dictionary) -> void:
+	var next_state: Dictionary = turn.state
+	var enemy_index: int = turn.enemy_index
+	var action_index: int = turn.action_index
+	var activation_plan: Dictionary = turn.plan
+	var rng: RandomNumberGenerator = turn.rng
+	var accepted: Callable = turn.accepted
+	var shocked: bool = bool(turn.setup.get("shocked", false))
+	turn.intent_resolved = turn.intent_resolved or enemy_action_can_resolve(next_state, action)
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var before_state: Dictionary = next_state.duplicate(true)
+	var followup_action: Dictionary = {}
+	if not shocked:
+		followup_action = _next_enemy_followup_attack_action(turn.actions, action_index + 1)
+	var action_context: Dictionary = activation_plan.duplicate(true)
+	action_context["action_index"] = action_index
+	var bleed_steps: Array[Dictionary]
+	_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var before_turn_complete: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-	next_state = BattlefieldRules.complete_source_turn(self, next_state, steps, int(enemy["id"]), str(intent.get("id", "")) if intent_resolved else "", accepted)
-	if combat_outcome(next_state) == "":
-		var post_turn_enemies: Array = next_state.get("enemies", [])
-		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
-			var post_turn_enemy: Dictionary = _normalized_enemy(post_turn_enemies[enemy_index] as Dictionary)
-			if int(post_turn_enemy.get("hp", 0)) > 0:
-				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
-				if choose_next_intent: _assign_enemy_intent(next_state, enemy_index, rng)
+	next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
+	if accepted.is_valid(): accepted.call(next_state)
+	if _enemy_action_is_movement(action): activation_plan["resolved_path"] = action_context.get("resolved_path",_vector2i_values([next_state["enemies"][enemy_index]["pos"]]))
+	_record_runtime_performance_phase("enemy_turn_action_resolve_%s_total" % str(action.get("type", "other")), performance_phase_started)
+	turn.state = next_state
+	turn.action_before = before_state
+	turn.action_context = action_context
+	turn.bleed_steps = bleed_steps
+	turn.phase = EnemyTurn.Phase.PRESENT
+
+func _present_enemy_turn_action(turn: EnemyTurn) -> void:
+	var next_state: Dictionary = turn.state
+	var enemy_index: int = turn.enemy_index
+	var steps: Array[Dictionary] = turn.steps
+	var include_commit_steps: bool = turn.include_commit_steps
+	var choose_next_intent: bool = turn.choose_next_intent
+	var before_state: Dictionary = turn.action_before
+	var action_context: Dictionary = turn.action_context
+	var bleed_steps: Array[Dictionary] = turn.bleed_steps
+	var action: Dictionary = turn.actions[turn.action_index]
+	var enemy_id: int = int(turn.enemy.get("id", -1))
+	var rng: RandomNumberGenerator = turn.rng
+	turn.action_index += 1
+	turn.action_before = {}
+	turn.action_context = {}
+	var empty_bleed: Array[Dictionary]
+	turn.bleed_steps = empty_bleed
+	turn.phase = EnemyTurn.Phase.ACTION if turn.action_index < turn.actions.size() else EnemyTurn.Phase.COMPLETE
+	var presentation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = presentation_started
+	var enemy_hidden_before: bool = _enemy_is_hidden_by_id(before_state, enemy_id)
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_visibility", performance_phase_started)
+	if not choose_next_intent and not include_commit_steps and not enemy_hidden_before and bleed_steps.is_empty() and (action_context.get("reaction_trace", {}).get("attack_bleed_steps", []) as Array).is_empty():
+		steps.append(_compact_enemy_action_step(before_state, next_state, enemy_index, action, action_context))
+		_record_runtime_performance_phase("enemy_turn_action_compact_loss", performance_phase_started)
+		_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
+		return
+	_anonymize_hidden_enemy_action_logs(before_state, next_state, enemy_id, action, enemy_hidden_before)
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_anonymize", performance_phase_started)
+	_record_hidden_umbra_attack_damage(before_state, next_state, enemy_id, enemy_hidden_before)
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_hidden_damage", performance_phase_started)
 	next_state["rng_state"] = rng.state
 	if include_commit_steps:
-		_append_commit_step(steps, before_turn_complete, next_state, "enemy_turn_complete")
-	var refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
-	if not refresh_step.is_empty():
-		steps.append(refresh_step)
-	_record_runtime_performance_phase("enemy_turn_complete_total", performance_phase_started)
-	_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-	return {
-		"state": next_state,
-		"steps": steps,
-		"time_cost": turn_time_cost
-	}
+		_append_commit_step(steps, before_state, next_state, "enemy_action")
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_commit_total", performance_phase_started)
+	for bleed_step: Dictionary in bleed_steps:
+		steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(bleed_step.get("cascade", {}).get("id", enemy_id))))
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_bleed_steps", performance_phase_started)
+	var raw_step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action, action_context)
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_step_build", performance_phase_started)
+	var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, raw_step, enemy_id, enemy_hidden_before)
+	performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_umbra_mark", performance_phase_started)
+	for arrival_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").before_attack_steps(self, action_context):
+		steps.append(_umbra_marked_enemy_status_step(before_state, next_state, arrival_step, int(arrival_step.get("cascade", {}).get("id", enemy_id))))
+	if not step.is_empty():
+		steps.append(step)
+	for reaction_step: Dictionary in preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").presentation_steps(self, before_state, next_state, action_context):
+		steps.append(_umbra_marked_enemy_status_step(before_state, next_state, reaction_step, int(reaction_step["cascade"]["id"]) if reaction_step.has("cascade") else enemy_id))
+	_record_runtime_performance_phase("enemy_turn_action_append", performance_phase_started)
+	_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
+
+func _complete_enemy_turn(turn: EnemyTurn) -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if turn.include_commit_steps: turn.before_complete = turn.state.duplicate(true)
+	var skipped: bool = bool(turn.setup.get("skip_all", false))
+	var intent_id: String = str(turn.intent.get("id", "")) if turn.intent_resolved else ""
+	turn.state = BattlefieldRules.complete_source_turn(self, turn.state, turn.steps, int(turn.enemy["id"]), intent_id, turn.accepted)
+	if skipped and not bool(turn.setup.get("petrified", false)): turn.time_cost = 0
+	turn.phase = EnemyTurn.Phase.FINISH
+	if skipped or combat_outcome(turn.state) == "":
+		var enemies: Array = turn.state.get("enemies", [])
+		if turn.enemy_index >= 0 and turn.enemy_index < enemies.size():
+			var enemy: Dictionary = _normalized_enemy(enemies[turn.enemy_index] as Dictionary)
+			var alive: bool = int(enemy.get("hp", 0)) > 0
+			if skipped or alive: turn.state = _clear_enemy_bleed_after_turn(turn.state, turn.enemy_index)
+			if turn.choose_next_intent and alive:
+				turn.phase = EnemyTurn.Phase.ROLL
+				if turn.sliced:
+					var definition: Dictionary = GameData.enemies().get(str(enemy.get("type", "")), {})
+					turn.held_declaration = bool(definition.get("dragon_cycle", false)) or bool(definition.get("intent_cycle", false))
+	_record_runtime_performance_phase("enemy_turn_skipped_complete_total" if skipped else "enemy_turn_complete_total", started)
+
+func _advance_enemy_turn_roll(turn: EnemyTurn) -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if not turn.sliced:
+		_assign_enemy_intent(turn.state, turn.enemy_index, turn.rng)
+		turn.phase = EnemyTurn.Phase.FINISH
+	elif turn.intent_roll == null:
+		turn.intent_roll = _begin_enemy_intent_roll(turn.state, turn.enemy_index, turn.rng)
+		turn.held_declaration = false
+		if turn.intent_roll == null: turn.phase = EnemyTurn.Phase.FINISH
+	elif _advance_tactical_intent_roll(turn.state, turn.enemy_index, turn.rng, turn.intent_roll):
+		turn.phase = EnemyTurn.Phase.FINISH
+	_record_runtime_performance_phase("enemy_turn_roll_total", started)
+
+func _finish_enemy_turn(turn: EnemyTurn) -> void:
+	turn.state["rng_state"] = turn.rng.state
+	if turn.include_commit_steps:
+		_append_commit_step(turn.steps, turn.before_complete, turn.state, "enemy_turn_complete")
+	var refresh_step: Dictionary = _enemy_intent_refresh_step(turn.state, int(turn.enemy.get("id", -1)))
+	if not refresh_step.is_empty(): turn.steps.append(refresh_step)
+	turn.phase = EnemyTurn.Phase.DONE
+
+func _preview_facing_mode() -> Variant:
+	return _cursor_facing_mode
 
 func hero_facing_direction(state: Dictionary) -> Vector2i:
 	return HeroFacingState.tile_direction(HeroFacingState.current(state))
@@ -2869,14 +3041,17 @@ func _cached_enemy_threat_tiles(state: Dictionary, enemy_index: int, past_sight:
 	# Scaling is pure: compare raw definitions without copying scaled public data.
 	var definitions: Array
 	for enemy: Dictionary in state.get("enemies", []): definitions.append(GameData.enemies().get(str(enemy.get("type", "")), {}))
-	var key: int = hash([state, definitions])
+	var effects: Array[Dictionary] = _relic_effects(state)
+	var facing: Variant = _preview_facing_mode()
+	var key: int = hash([state, definitions, effects, facing])
 	var entry: Dictionary = {}
 	for cached: Dictionary in _threat_preview_cache:
-		if int(cached["key"]) == key and cached["state"] == state and cached["definitions"] == definitions:
+		if int(cached["key"]) == key and cached["facing"] == facing and cached["state"] == state and cached["definitions"] == definitions and cached["effects"] == effects:
 			entry = cached
 			break
 	if entry.is_empty():
-		entry = {"key": key, "state": state.duplicate(true), "definitions": definitions.duplicate(true), "threats": {}}
+		entry = {"key": key, "state": state.duplicate(true), "definitions": definitions.duplicate(true),
+			"effects": effects.duplicate(true), "facing": facing, "threats": {}}
 		if _threat_preview_cache.size() >= THREAT_PREVIEW_CACHE_STATES: _threat_preview_cache.pop_front()
 		_threat_preview_cache.append(entry)
 	var slot: Variant = "%d:past_sight" % enemy_index if past_sight else enemy_index
@@ -3454,7 +3629,7 @@ func _raise_player_outcrops(state: Dictionary, action: Dictionary, target_tile: 
 		if CombatTerrainRules.raise_outcrop(self, state, tile, health, source, fields):
 			raised += 1
 	if raised > 0:
-		_log(state, "Raised %d outcrop%s." % [raised, "" if raised == 1 else "s"])
+		_log(state, "Raised %d Outcrop%s." % [raised, "" if raised == 1 else "s"])
 	return state
 
 func force_direction_options_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
@@ -4519,6 +4694,9 @@ func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: 
 				if not combat_line_of_sight(state, source_pos, target_pos):
 					return false
 				center = target_pos
+				# The default cross contains the target in every orientation.
+				if action.has("committed_shape") and not action.has("pattern") and not bool(action.get("stop_at_blockers", false)):
+					return PathUtils.is_passable(state.get("grid", []), center)
 			var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target_pos)
 			return _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true).has(target_pos)
 	return false
@@ -4791,7 +4969,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		"block":
 			enemy["block"] = int(enemy.get("block", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
-			_log(next_state, "%s braces for %d block." % [
+			_log(next_state, "%s braces for %d Block." % [
 				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
@@ -4801,14 +4979,14 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		"stoneskin":
 			enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
-			_log(next_state, "%s hardens for %d stoneskin." % [
+			_log(next_state, "%s hardens for %d Stoneskin." % [
 				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
 		"heal_self":
 			enemy["hp"] = mini(int(enemy.get("max_hp", 1)), int(enemy.get("hp", 0)) + int(action.get("amount", 0)))
 			enemies[enemy_index] = enemy
-			_log(next_state, "%s recovers %d health." % [
+			_log(next_state, "%s recovers %d Health." % [
 				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
@@ -4822,7 +5000,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			enemies[heal_target_index] = heal_target
 			var healed_amount: int = int(heal_target.get("hp", 0)) - heal_before
 			if healed_amount > 0:
-				_log(next_state, "%s stitches %s for %d health." % [
+				_log(next_state, "%s stitches %s for %d Health." % [
 					_enemy_display_name(enemy),
 					"itself" if heal_target_index == enemy_index else EnemyIdentity.running_name(_enemy_display_name(heal_target)),
 					healed_amount
@@ -4841,7 +5019,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 					guarded_count += 1
 				if guarded_count <= 0:
 					return next_state
-				_log(next_state, "%s guards all other enemies for %d block." % [
+				_log(next_state, "%s guards all other enemies for %d Block." % [
 					_enemy_display_name(enemy),
 					int(action.get("amount", 0))
 				])
@@ -4855,7 +5033,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				if action.has("clear_surface"):
 					for tile: Vector2i in BoardSurfaceRules.footprint_tiles(guard_target):
 						BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
-				_log(next_state, "%s guards %s for %d block." % [
+				_log(next_state, "%s guards %s for %d Block." % [
 					_enemy_display_name(enemy),
 					"itself" if guard_target_index == enemy_index else EnemyIdentity.running_name(_enemy_display_name(guard_target)),
 					int(action.get("amount", 0))
@@ -5072,7 +5250,8 @@ func _clear_remaining_enemies_for_leader_objective(state: Dictionary, leader_id:
 	for enemy: Dictionary in enemies:
 		if bool(enemy.get("objective_cleared", false)): next_state = DeathBurstRules.on_death(self, next_state, enemy)
 	if cleared_count > 0:
-		_log(next_state, "The leader falls. %d bound foe(s) collapse without reward." % cleared_count)
+		var fallen: String = "enemy collapses" if cleared_count == 1 else "enemies collapse"
+		_log(next_state, "The leader falls. %d bound %s without reward." % [cleared_count, fallen])
 	WindRules.clear_dead_source(self, next_state)
 	return next_state
 
@@ -6462,7 +6641,7 @@ func _mark_light_target_skill_trigger(state: Dictionary, action: Dictionary) -> 
 	if _turn_flag(state, flag_key):
 		return
 	_set_turn_flag(state, flag_key, true)
-	_record_skill_event(state, skill_id, "%s exposes a foe in Light." % SkillTreeLibrary.display_name(skill_id))
+	_record_skill_event(state, skill_id, "%s exposes an enemy in Light." % SkillTreeLibrary.display_name(skill_id))
 
 func _trigger_resolved_action_light(
 	state: Dictionary,
@@ -8186,7 +8365,7 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 				fatigue_player["hp"] = reserve_health
 				next_state["player"] = fatigue_player
 				next_state["run_stats"]["killer"] = {}
-				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at %d health." % [SkillTreeLibrary.display_name(reserve_id), reserve_health])
+				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at %d Health." % [SkillTreeLibrary.display_name(reserve_id), reserve_health])
 			fatigue_player = _normalized_player(next_state.get("player", {}))
 			if int(fatigue_player.get("hp", 0)) <= 0:
 				next_state = _trigger_defiance(next_state, "fatigue", fatigue_hp_before)
@@ -8196,7 +8375,7 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 			deck["draw"] = GameData.shuffle_cards(discard, rng)
 			deck["discard"] = []
 			next_state["rng_state"] = rng.state
-			_log(next_state, "Fatigue costs %d health." % fatigue_damage)
+			_log(next_state, "Fatigue costs %d Health." % fatigue_damage)
 			if combat_outcome(next_state) != "":
 				break
 		var draw_pile: Array = deck.get("draw", []).duplicate()
@@ -8395,10 +8574,10 @@ func _terrain_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 	for index: int in range(terrain_entries.size()):
 		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
 			continue
-		var terrain: Dictionary = _normalized_terrain(terrain_entries[index])
-		if not BoardSurfaceRules.terrain_is_live(terrain):
-			continue
-		if terrain.get("pos", Vector2i(-1, -1)) == tile:
+		# Preserve the normalizer's legacy position default. A read-only
+		# lookup has no need to copy the terrain or its provenance payloads.
+		var terrain: Dictionary = terrain_entries[index]
+		if terrain.get("pos", Vector2i.ZERO) == tile and BoardSurfaceRules.terrain_is_live(terrain):
 			return index
 	return -1
 
@@ -8952,29 +9131,86 @@ func _rotated_offset(offset: Vector2i, rotation: int) -> Vector2i:
 		_:
 			return offset
 
+# Only the per-intent tactical evaluations need to persist between slices.
+# Forced declarations and the final weighted roll keep their original order.
+class EnemyIntentRoll:
+	var enemy: Dictionary
+	var intents: Array
+	var profile: Dictionary
+	var evaluated: Array[Dictionary]
+	var next_option: int
+
 func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator) -> void:
+	var roll: EnemyIntentRoll = _begin_enemy_intent_roll(state, enemy_index, rng)
+	if roll == null: return
+	while not _advance_tactical_intent_roll(state, enemy_index, rng, roll):
+		pass
+
+var _boss_intent_profiler: RefCounted = BossIntentProfile.new() if BossIntentProfile.enabled else null
+
+var _boss_pattern_board: RefCounted
+
+func boss_pattern_board(state: Dictionary) -> RefCounted:
+	# Injected engines can define different sight rules. Keep their virtual
+	# geometry path and let the ordinary engine and facing adapter share theirs.
+	if get_script().resource_path not in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"]: return null
+	var grid: Array = state["grid"]
+	var blockers: Dictionary = BossPatternBoard.sight_blockers(self, state)
+	# A hazardous route can declare a spawned foe on its private board while
+	# the outer declaration is still using its geometry. Swap revisions instead
+	# of mutating the snapshot held by the outer call.
+	if _boss_pattern_board == null or not _boss_pattern_board.matches(grid, blockers):
+		_boss_pattern_board = BossPatternBoard.new(grid, blockers)
+	return _boss_pattern_board
+
+func boss_intent_profile_snapshot() -> Dictionary:
+	return _boss_intent_profiler.snapshot() if _boss_intent_profiler != null else {}
+
+func boss_intent_profiler() -> RefCounted:
+	return _boss_intent_profiler if _boss_intent_profiler != null and _boss_intent_profiler.active() else null
+
+func _begin_enemy_intent_roll(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator) -> EnemyIntentRoll:
+	if _boss_intent_profiler == null or _boss_intent_profiler.active():
+		return _prepare_enemy_intent_roll(state, enemy_index, rng)
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return
+		return _prepare_enemy_intent_roll(state, enemy_index, rng)
+	var enemy_type: String = str(enemies[enemy_index].get("type", ""))
+	if enemy_type != DragonBossLibrary.EARTH_BOSS_ID:
+		return _prepare_enemy_intent_roll(state, enemy_index, rng)
+	_boss_intent_profiler.begin_roll()
+	var roll: EnemyIntentRoll = _prepare_enemy_intent_roll(state, enemy_index, rng)
+	_boss_intent_profiler.finish_roll(str(enemies[enemy_index].get("intent", {}).get("id", "")))
+	return roll
+
+func _prepare_enemy_intent_roll(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator) -> EnemyIntentRoll:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return null
+	var profile_timer: RefCounted = boss_intent_profiler()
+	if profile_timer != null: profile_timer.begin("copies")
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if profile_timer != null: profile_timer.end()
 	var enemy_type: String = str(enemy.get("type", ""))
 	if bool(enemy.get("snare_sealbinder", false)):
 		enemy["intent"] = SnareRules.seal_intent(state["objective"], enemy)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	if not bool(definition.get("dragon_cycle",false)) and _enemy_should_summon_wisps(state, enemy):
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, _zekarion_summon_intent())
 		enemies[enemy_index] = enemy
-		return
+		return null
+	if profile_timer != null: profile_timer.begin("candidate_generation")
 	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
 		int(state.get("room_depth", 1)), state, enemy
 	)
+	if profile_timer != null: profile_timer.end()
 	if CapacitorRules.is_capacitor(enemy):
 		enemy["intent"] = CapacitorRules.choose(enemy, intents, state)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	# Declared zero-weight follow-ups are forced; held mechanics survive skips.
 	var following_id: String = str((enemy.get("intent", {}) as Dictionary).get("next_intent", ""))
 	if enemy_type == "hoarfrost_seer" and not (enemy.get("icefall_tiles", []) as Array).is_empty(): following_id = "icefall_land"
@@ -8985,21 +9221,22 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if not following.is_empty() and BurrowRules.available(enemy, following) and MarkedRules.available(self, state, enemy, following):
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, following)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	if bool(definition.get("dragon_cycle", false)) and not intents.is_empty():
 		enemies[enemy_index] = enemy
 		enemy["intent"] = DragonCombatRules.declare(self, state, enemy_index, intents)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	if bool(definition.get("intent_cycle", false)) and not intents.is_empty():
 		GuardianCombatRules.cleanup(state, enemy)
 		var cycle: int = int(enemy.get("guardian_cycle", -1)) + 1
 		enemy["guardian_cycle"] = cycle
 		enemies[enemy_index] = enemy
-		var chosen: Dictionary = _surface_prepare_enemy_intent(state, enemy, SnuffRules.declare(state, enemy, GuardianCombatRules.choose_intent(state, enemy, SnuffRules.cycle_intents(intents), cycle)))
-		enemy["intent"] = GuardianCombatRules.commit(self, state, enemy_index, chosen)
+		var chosen: Dictionary = GuardianCombatRules.choose_intent(state, enemy, SnuffRules.cycle_intents(intents), cycle)
+		chosen = _surface_prepare_enemy_intent(state, enemy, SnuffRules.declare(state, enemy, chosen), true)
+		enemy["intent"] = GuardianCombatRules.commit_owned(self, state, enemy_index, chosen)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	if enemy_type == DragonBossLibrary.FIRE_BOSS_ID and bool(enemy.get("cinder_detonation_pending", false)) and _cinder_fire_entries(state, int(enemy.get("id", -1))).is_empty():
 		enemy["cinder_detonation_pending"] = false
 		enemies[enemy_index] = enemy
@@ -9008,7 +9245,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if not forced_intent.is_empty():
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, forced_intent)
 		enemies[enemy_index] = enemy
-		return
+		return null
 	var available_intents: Array = []
 	for intent_var: Variant in intents:
 		if typeof(intent_var) != TYPE_DICTIONARY:
@@ -9019,24 +9256,35 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
-		return
+		return null
 	if enemy_type in ["hoarfrost_seer", "gale_herald", "glacial_mirror", "gust_shrike", "briar_weaver", "slag_mortar"]:
 		var chosen: Dictionary = WindRules.choose_intent(self, state, enemy_index, intents, rng)
 		if not chosen.is_empty():
 			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, MarkedRules.declare(state, enemy, chosen, rng))
 			enemies[enemy_index] = enemy
-			return
+			return null
 		# Range/LOS can reject every immediate shot after Thornwall fills its
 		# tiles and no ally needs Root Mend. Keep the ordinary authored fallback
 		# below: an unreachable attack has a visible cancelled badge and retains
 		# its printed Time, while an empty intent silently loses both.
-	var tactical_options: Array[Dictionary] = _enemy_tactical_intent_options(
-		state,
-		enemy_index,
-		enemy,
-		definition,
-		intents
-	)
+	var roll := EnemyIntentRoll.new()
+	roll.enemy = enemy
+	roll.intents = intents
+	roll.profile = _enemy_tactical_intent_profile(enemy, definition, intents)
+	return roll
+
+func _advance_tactical_intent_roll(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator, roll: EnemyIntentRoll) -> bool:
+	if not roll.profile.is_empty() and roll.next_option < roll.intents.size():
+		var intent: Dictionary = roll.intents[roll.next_option]
+		roll.evaluated.append(_enemy_tactical_intent_option(state, enemy_index, roll.enemy, roll.profile, intent))
+		roll.next_option += 1
+		return false
+	var options: Array[Dictionary] = _competitive_tactical_intents(state, roll.evaluated)
+	_commit_enemy_intent_roll(state, enemy_index, rng, roll.enemy, roll.intents, options)
+	return true
+
+func _commit_enemy_intent_roll(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator, enemy: Dictionary, intents: Array, tactical_options: Array[Dictionary]) -> void:
+	var enemies: Array = state.get("enemies", [])
 	if not tactical_options.is_empty():
 		var tactical_total_weight: int = 0
 		for option: Dictionary in tactical_options:
@@ -9098,28 +9346,27 @@ func _enemy_tactical_intent_options(
 	definition: Dictionary,
 	intents: Array
 ) -> Array[Dictionary]:
-	if str(enemy.get("type", "")) in ["arc_thrall", "gloam_stalker"]: return TypedArrays.dictionaries([]) # Authored weights; availability is filtered before rolling.
+	var profile: Dictionary = _enemy_tactical_intent_profile(enemy, definition, intents)
+	if profile.is_empty(): return TypedArrays.dictionaries([])
+	var evaluated: Array[Dictionary]
+	for intent: Variant in intents:
+		if intent is Dictionary:
+			evaluated.append(_enemy_tactical_intent_option(state, enemy_index, enemy, profile, intent))
+	return _competitive_tactical_intents(state, evaluated)
+
+func _enemy_tactical_intent_profile(enemy: Dictionary, definition: Dictionary, intents: Array) -> Dictionary:
+	if str(enemy.get("type", "")) in ["arc_thrall", "gloam_stalker"]: return {} # Authored weights; availability is filtered before rolling.
 	for intent: Dictionary in intents:
 		for action: Dictionary in intent.get("actions", []):
-			if BurrowRules.handles(action) or str(action.get("type", "")) == "kindle": return TypedArrays.dictionaries([])
+			if BurrowRules.handles(action) or str(action.get("type", "")) == "kindle": return {}
 	var profile: Dictionary = definition.get("ai_profile", {}) as Dictionary
 	var role: String = str(profile.get("role", ""))
-	if role.is_empty():
-		return TypedArrays.dictionaries([])
-	var evaluated: Array[Dictionary]
+	return {} if role.is_empty() else profile
+
+func _competitive_tactical_intents(state: Dictionary, evaluated: Array[Dictionary]) -> Array[Dictionary]:
 	var best_score: int = -1000000
 	var signature_available: bool = false
-	for intent_var: Variant in intents:
-		if typeof(intent_var) != TYPE_DICTIONARY:
-			continue
-		var option: Dictionary = _enemy_tactical_intent_option(
-			state,
-			enemy_index,
-			enemy,
-			profile,
-			intent_var as Dictionary
-		)
-		evaluated.append(option)
+	for option: Dictionary in evaluated:
 		if bool(option.get("eligible", false)) and bool(option.get("attack_available", false)) and str((option.get("intent", {}) as Dictionary).get("purpose", "")) != "approach":
 			signature_available = true
 	# Fast approaches are dependable when no signature attack connects. Once
@@ -9434,12 +9681,16 @@ func _scaled_enemy_intents(base_intents: Array, room_depth: int, depth_state: Di
 	return intents
 
 func _scale_enemy_intent(base_intent: Dictionary, room_depth: int, depth_state: Dictionary = {}, enemy: Dictionary = {}) -> Dictionary:
-	var intent: Dictionary = base_intent.duplicate(true)
+	var intent: Dictionary = base_intent.duplicate(false)
+	for key: Variant in base_intent:
+		if key == "actions": continue
+		var field: Variant = base_intent[key]
+		if field is Array or field is Dictionary: intent[key] = field.duplicate(true)
 	var actions: Array = []
 	for action_var: Variant in base_intent.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
-		var action: Dictionary = (action_var as Dictionary).duplicate(true)
+		var action: Dictionary = action_var
 		actions.append(DepthRules.damaging_action(depth_state, enemy, _scale_enemy_action_for_depth(action, room_depth, depth_state)))
 	intent["actions"] = actions
 	return intent
@@ -9599,7 +9850,7 @@ func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_overrid
 	# board. Put the small discriminators first so another actor/intent rejects
 	# that fast path without traversing the complete state twice.
 	return memo.resolve([enemy_index, intent, movement_disabled, attack_disabled, plan_state, definitions], func() -> Dictionary:
-		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled), null, true, true)
+		return _enemy_standard_intent_plan(state, enemy_index, enemy, intent, movement_disabled, attack_disabled), null, true, true, boss_intent_profiler())
 
 var _standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
 static var _shared_standard_plan_memo := preload("res://scripts/combat_preview_memo.gd").new()
@@ -9859,7 +10110,7 @@ func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range
 	if get_script().resource_path in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"] and enemy.has("id"):
 		var inputs: Array = IntentPlanInputs.for_enemy_navigation(state, enemy, move_range, occupied, GameData.enemies().get(str(enemy.get("type", "")), {}))
 		return _dictionary_values(_shared_enemy_navigation_memo.resolve(inputs, func() -> Array[Dictionary]:
-			return _compute_enemy_actual_path_records(state, enemy, move_range, occupied)))
+			return _compute_enemy_actual_path_records(state, enemy, move_range, occupied), null, true, false, boss_intent_profiler()))
 	return _compute_enemy_actual_path_records(state, enemy, move_range, occupied)
 
 static var _shared_enemy_navigation_memo := preload("res://scripts/combat_preview_memo.gd").new()
@@ -10055,19 +10306,32 @@ func _best_enemy_direct_attack_candidate(
 ) -> Dictionary:
 	var best: Dictionary = {}
 	var route_predictions: Dictionary = {}
+	var can_bound_by_cost: bool = (
+		attack_action.has("committed_shape")
+		and movement_type != "move_away"
+		and not GuardianCombatRules.uses_coordination(state, enemy)
+	)
+	var profile_timer: RefCounted = boss_intent_profiler()
 	# Reach/scoring queries only read nested actor data. Reuse the private outer
 	# dictionary while varying its anchor, instead of copying its full intent.
 	var candidate_enemy: Dictionary = enemy.duplicate(false)
 	for target: Dictionary in _actor_targets(state):
 		for record: Dictionary in path_records:
 			var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
+			var steps: int = int(record.get("steps", 0))
+			# With a surviving incumbent and coordination disabled, total cost
+			# decides first. Nonnegative hazard cost makes steps a lower bound.
+			# Keep equality so all later tie-breaks still run.
+			if can_bound_by_cost and bool(best.get("route_survives", false)) and steps > int(best["cost"]): continue
 			candidate_enemy["pos"] = destination
 			# Reach checks read the moved enemy plus the unchanged grid/actor targets.
 			# They do not need a deep copy of the combat state at every anchor.
 			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target, planning_queries):
 				continue
 			if not route_predictions.has(destination):
+				if profile_timer != null: profile_timer.begin("route_arrival")
 				route_predictions[destination] = _enemy_attack_route_prediction(state, enemy, record, movement_allowance)
+				if profile_timer != null: profile_timer.end()
 			var prediction: Dictionary = route_predictions[destination]
 			if prediction.get("destination", destination) != destination:
 				continue # A trap or new Rubble stopped the route before attack reach.
@@ -10077,7 +10341,7 @@ func _best_enemy_direct_attack_candidate(
 				"destination": destination,
 				"trap_cost": int(prediction.get("hazard_cost", 0)),
 				"route_survives": bool(prediction.get("survives", true)),
-				"steps": int(record.get("steps", 0)),
+				"steps": steps,
 				"target_distance": _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO)),
 				"separation": _enemy_distance_to_tile(candidate_enemy, target.get("pos", Vector2i.ZERO)),
 				"regression_cost": _enemy_path_regression_cost(
@@ -10089,7 +10353,7 @@ func _best_enemy_direct_attack_candidate(
 				"exit_block_score": _objective_exit_block_score(state, destination),
 				"protector_screen_score": int((protector_screening_context.get("score_by_tile", {}) as Dictionary).get(destination, 0)),
 				"guardian_coordination": GuardianCombatRules.coordination_score(self, state, enemy, destination, target.get("pos", INVALID_TILE)),
-				"cost": int(prediction.get("hazard_cost", 0)) + int(record.get("steps", 0))
+				"cost": int(prediction.get("hazard_cost", 0)) + steps
 			}
 			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
 				best = candidate
@@ -10102,7 +10366,10 @@ func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record
 	# Reuse real arrival rules only for hazardous attack routes. This accounts for
 	# defense, one Fire contact per newly entered footprint, and trap-created ground
 	# without copying/simulating every ordinary navigation node or mutating play.
+	var profile_timer: RefCounted = boss_intent_profiler()
+	if profile_timer != null: profile_timer.begin("copies")
 	var forecast: Dictionary = state.duplicate(true)
+	if profile_timer != null: profile_timer.end()
 	forecast["damage_context"] = {"actor_kind": "enemy", "player_card": false, "source_kind": "forecast"}
 	var context: Dictionary = {}
 	# A trap can add Rubble after planning. Its extra cost may use the action's
@@ -10197,6 +10464,8 @@ func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, at
 	# rescanning terrain, enemies, traps, and actor targets for every neighboring
 	# edge in the search.
 	var context_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var profile_timer: RefCounted = boss_intent_profiler()
+	if profile_timer != null: profile_timer.begin("route_geometry")
 	var actor_targets: Array[Dictionary] = _actor_targets(state)
 	_enemy_future_queries.prepare_future_board(state, actor_targets)
 	var context_key: Array = [int(enemy.get("id", -1)), enemy.get("footprint", Vector2i.ONE)]
@@ -10205,10 +10474,13 @@ func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, at
 		planning_context = _enemy_future_planning_context(state, enemy)
 		_enemy_future_queries.future_contexts[context_key] = planning_context
 	_record_runtime_performance_phase("enemy_future_context", context_started)
+	if profile_timer != null: profile_timer.end()
 	for target: Dictionary in planning_context.get("actor_targets", []):
 		var search_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		if profile_timer != null: profile_timer.begin("future_route_search")
 		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range, planning_context, planning_queries)
 		_record_runtime_performance_phase("enemy_future_search", search_started)
+		if profile_timer != null: profile_timer.end()
 		if route_record.is_empty():
 			continue
 		var candidate: Dictionary = route_record.duplicate(true)
@@ -10300,6 +10572,9 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 	var bound_range: int = -1
 	if str(attack_action.get("type", "")) in ["melee", "ranged", "push", "pull"] and _action_element(attack_action) != "lightning":
 		bound_range = int(attack_action.get("range", 1))
+	elif str(attack_action.get("type", "")) == "aoe" and attack_action.has("committed_shape") and int(attack_action.get("range", 0)) > 0:
+		# A positively ranged AoE must reach its actual target center.
+		bound_range = int(attack_action["range"])
 	var goal_cost: int = 0x7FFFFFFFFFFFFFFF
 	while not open.is_empty():
 		var current: Dictionary = open.pop()
@@ -10923,7 +11198,7 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 			"glass_attack_bonus":
 				if int(player.get("block", 0)) <= 0 and int(player.get("stoneskin", 0)) <= 0:
 					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
-					detail = "No block or stoneskin"
+					detail = "No Block or Stoneskin"
 			"bloodied_glass_attack_bonus":
 				if (
 					int(player.get("hp", 0)) * 2 <= int(player.get("max_hp", 1))
@@ -10931,11 +11206,11 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 					and int(player.get("stoneskin", 0)) <= 0
 				):
 					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
-					detail = "At half health or less with no defense"
+					detail = "At half Health or less with no defense"
 			"bloodied_attack_bonus":
 				if int(player.get("hp", 0)) * 2 <= int(player.get("max_hp", 1)):
 					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
-					detail = "At half health or less"
+					detail = "At half Health or less"
 			"room_element_attack_bonus":
 				var card_element: String = str(action.get("_card_element", ElementData.NONE))
 				if ElementData.is_elemental(card_element) and card_element == str(state.get("room_element", ElementData.NONE)):
@@ -10962,7 +11237,7 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 						"damage",
 						int(effect.get("amount", effect.get("value", 0)))
 					)
-					detail = "While standing on %s" % str(effect["player_surface"]).capitalize() if effect.has("player_surface") else "While you have block"
+					detail = "While standing on %s" % str(effect["player_surface"]).capitalize() if effect.has("player_surface") else "While you have Block"
 		if amount == 0:
 			continue
 		modifiers.append({
@@ -11242,7 +11517,7 @@ func _trigger_activation_end_relics(state: Dictionary) -> Dictionary:
 		player["stoneskin"] = int(player.get("stoneskin", 0)) + stoneskin_gain
 		next_state["player"] = player
 		next_state = _trigger_stoneskin_relics(next_state, stoneskin_gain)
-		_log(next_state, "%s carries %d block forward as stoneskin." % [_relic_effect_source_name(effect), stoneskin_gain])
+		_log(next_state, "%s carries %d Block forward as Stoneskin." % [_relic_effect_source_name(effect), stoneskin_gain])
 	return next_state
 
 func _trigger_blink_relics(state: Dictionary, distance: int = 0) -> Dictionary:
@@ -11465,7 +11740,7 @@ func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dict
 				next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	_log(
 		next_state,
-		"DEFIANCE restores %d health. %d remaining." % [
+		"DEFIANCE restores %d Health. %d remaining." % [
 			int(player.get("hp", restored_hp)),
 			remaining_before - 1
 		]
@@ -11668,7 +11943,7 @@ func _heal_player(state: Dictionary, amount: int) -> Dictionary:
 			if not _turn_flag(next_state, first_key):
 				_set_turn_flag(next_state, first_key, true)
 				next_state = _apply_relic_rewards(next_state, first_conversion_rewards, effect)
-		_log(next_state, "%s hardens %d excess healing into stoneskin." % [_relic_effect_source_name(effect), converted])
+		_log(next_state, "%s hardens %d excess healing into Stoneskin." % [_relic_effect_source_name(effect), converted])
 	return next_state
 
 func _deck_element_card_count(deck_cards: Array, element_id: String) -> int:
@@ -12469,12 +12744,12 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 	unit["pos"] = destination
 	return surface_actor_arrival(state, "illusion", id, origin)
 
-func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary, owned: bool = false) -> Dictionary:
 	intent = WindRules.commit(self, state, enemy, intent)
 	if str(enemy.get("type", "")) == "briar_weaver": intent = BossAreaRules.freeze(self, state, enemy, intent)
 	if GuardianCombatRules.has_authored_actions(intent) and not intent.has("committed_plan") and not bool(GameData.enemy_property(str(enemy["type"]), "dragon_cycle", false)) and not bool(GameData.enemy_property(str(enemy["type"]), "intent_cycle", false)):
 		intent = GuardianCombatRules.commit(self, state, _enemy_index_for_id(state, int(enemy["id"])), intent)
-	var prepared: Dictionary = intent.duplicate(true)
+	var prepared: Dictionary = intent if owned else intent.duplicate(true)
 	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
 	if fuel.is_empty():
 		return prepared
@@ -12768,12 +13043,15 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 	return {"state": state, "pos": _surface_actor(state, "enemy", int(actor.get("id", -1))).get("pos", actor.get("to", INVALID_TILE))}
 
 func combat_line_of_sight(state: Dictionary, start: Vector2i, target: Vector2i) -> bool:
-	var ray: Array[Vector2i] = PathUtils._supercover_line(start,target)
+	if maxi(absi(start.x - target.x), absi(start.y - target.y)) <= 1: return true
+	var ray: Array[Vector2i] = PathUtils._supercover_line(start, target)
+	var grid: Array = state.get("grid", [])
 	for tile: Vector2i in ray:
-		if tile != start and tile != target and not PathUtils.is_passable(state.get("grid", []), tile): return false
-	for terrain: Dictionary in state.get("terrain",[]):
-		var tile: Vector2i = terrain.get("pos",INVALID_TILE)
-		if tile != start and tile != target and BoardSurfaceRules.terrain_is_live(terrain) and bool(terrain.get("blocks_sight", str(terrain.get("kind","")) in ["raised_cover", "crag_outcrop"])) and ray.has(tile): return false
+		if tile != start and tile != target and not PathUtils.is_passable(grid, tile): return false
+	for terrain: Dictionary in state.get("terrain", []):
+		var tile: Vector2i = terrain.get("pos", INVALID_TILE)
+		if tile == start or tile == target or not ray.has(tile): continue
+		if BoardSurfaceRules.terrain_is_live(terrain) and bool(terrain.get("blocks_sight", str(terrain.get("kind", "")) in ["raised_cover", "crag_outcrop"])): return false
 	return true
 
 func illusion_movement_plan(state: Dictionary, illusion_id: int) -> Dictionary:

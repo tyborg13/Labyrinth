@@ -360,9 +360,9 @@ static func _migration(engine: RefCounted, expect: Callable) -> void:
 		var area02_sentences: Dictionary = {
 			"storm_cantor": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4.",
 			"zekarion": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
-			"thornmother": "After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them.",
-			"craghide": "After every second Craghide turn, its marked tiles rise as Outcrops unless something immovable is on them.",
-			"snare_earth": "After each of your turns, a marked tile on your way out rises as an Outcrop unless something immovable is on it.",
+			"thornmother": "After every second Thornmother turn, its marked tiles rise as Outcrops.",
+			"craghide": "After every second Craghide turn, its marked tiles rise as Outcrops.",
+			"snare_earth": "After each of your turns, a marked tile on your way out rises as an Outcrop.",
 		}
 		var approved: bool = sentence == str(dragons[id]["sentence"]) if dragons.has(id) else authored.any(func(line: String) -> bool: return line.ends_with(sentence + " |"))
 		if area02_sentences.has(id): approved = sentence == area02_sentences[id]

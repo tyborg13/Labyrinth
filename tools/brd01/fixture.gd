@@ -7,6 +7,7 @@ const Router = preload("res://scripts/input_router.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Dragon = preload("res://tools/dragon_boss_inspection.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 
 const SEED_START: int = 7262026
@@ -106,5 +107,4 @@ static func coordinates(board: Control, hero_tile: Vector2i) -> Dictionary:
 	}
 
 static func _point(value: Vector2) -> Array[float]:
-	var point: Array[float] = [value.x, value.y]
-	return point
+	return TypedArrays.floats([value.x, value.y])

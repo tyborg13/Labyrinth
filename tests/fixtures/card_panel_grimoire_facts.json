@@ -31,14 +31,14 @@
   "raise_outcrop": {
     "owner": "combat:outcrops",
     "paragraphs": [
-      "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed."
+      "Outcrop cards raise crag Outcrops on empty floor. An Outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed."
     ],
     "appended": false
   },
   "crystal_mantle": {
     "owner": "combat:crystal_armor",
     "paragraphs": [
-      "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it. Your layers last until broken or the combat ends."
+      "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and Health costs bypass it. Your layers last until broken or the combat ends."
     ],
     "appended": false
   },
@@ -109,7 +109,7 @@
   "title_sentence_push_area": {
     "owner": "keyword:push",
     "paragraphs": [
-      "in an area push each enemy moves along its own straight line; stopped lines collide."
+      "In an area Push each enemy moves along its own straight line; stopped lines collide."
     ],
     "appended": true
   },

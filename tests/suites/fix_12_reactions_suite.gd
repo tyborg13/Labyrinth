@@ -113,7 +113,7 @@ static func run_playback(tree: SceneTree, scene: Control, expect: Callable, supp
 		expect.call(defeats == (1 if int(phase["state"]["enemies"][0]["hp"]) <= 0 else 0), "%s: attacker death is presented exactly once" % case["name"])
 		if str(case["name"]).ends_with("collateral"):
 			var crawler: Array = (scene.get("popup_submissions") as Array).filter(func(value: Dictionary) -> bool: return value["entry"].get("reaction_actor_key", "") == "enemy_3" and value["entry"].get("kind", "") == "damage")
-			expect.call(crawler.size() == 1 and crawler[0]["phase"] == "retaliate" and crawler[0]["entry"]["text"] == "-2", "Mimic collateral crawler popup appears once on Retaliate")
+			expect.call(crawler.size() == 1 and crawler[0]["phase"] == "retaliate" and crawler[0]["entry"]["text"] == "−2", "Mimic collateral crawler popup appears once on Retaliate")
 		pacing.call("end_scope")
 
 static func _play(scene: Control, state: Dictionary, steps: Array, completed: Dictionary) -> void:

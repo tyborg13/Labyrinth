@@ -37,7 +37,7 @@ static func _show(trigger: Control, stack: Control, source: Control) -> void:
 	if not is_instance_valid(trigger) or not is_instance_valid(stack) or not is_instance_valid(source) or not trigger.is_visible_in_tree(): return
 	var entries: Array[Dictionary] = entries_for(source)
 	if entries.is_empty(): return
-	stack.call("show_for", trigger, entries)
+	stack.call("show_for", trigger, entries, false, Callable(), source.card_id if source is CardWidget else "")
 
 static func _hide(trigger: Control, stack: Control) -> void:
 	if not is_instance_valid(stack): return

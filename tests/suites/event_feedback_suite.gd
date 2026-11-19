@@ -4,6 +4,8 @@ const Events = preload("res://scripts/event_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Preview = preload("res://scripts/event_reward_preview.gd")
+const Plate = preload("res://scripts/event_reward_plate.gd")
+const TooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const Feedback = preload("res://scripts/event_scene_feedback.gd")
 const Fixtures = preload("res://tests/suites/event_view_suite.gd")
 const Clock = preload("res://tests/helpers/presentation_test_clock.gd")
@@ -121,7 +123,9 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 				expect.call(cold == warm, "Warm-up uses the event's real typography scale: %s cold=%s warm=%s" % [fixture[2], cold, warm])
 				if fixture[0] == "whispering_well": print("EVENT PREVIEW TYPOGRAPHY: cold=%s warm=%s" % [cold, warm])
 			synchronous.free()
-		view.choices[index].mouse_entered.emit()
+		var motion := InputEventMouseMotion.new()
+		motion.position = view.choices[index].get_global_transform_with_canvas() * (view.choices[index].size * 0.5)
+		view.handle_input(motion)
 		var shown: Control = view.hover_preview.current
 		expect.call(shown == prepared and view.hover_preview.cache.size() == prepared_count, "First hover builds no reward widgets: " + fixture[2])
 		expect.call(shown != null and shown.get_meta("preview_line") == line, "Hover shows first concrete line: " + fixture[2])
@@ -136,9 +140,17 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 			if line["kind"] in ["equipment", "reforge"]: expected_ids.append_array(Data.equipment_cards(concrete_id, state))
 		expect.call(rendered_ids == expected_ids, "Actual widgets and icons match concrete ids: " + fixture[2])
 		expect.call(shown.size.x <= Preview.MAX_WIDTH and shown.size.y <= view.ART_RECT.size.y, "Concrete preview fits painting: " + fixture[2] + " " + str(shown.size))
-		expect.call(view.preview_brightness == 0.32, "Reduced hover dims instantly")
+		var stage_rect: Rect2 = TooltipStack._visual_global_rect(shown)
+		expect.call(stage_rect.get_center().is_equal_approx(TooltipStack._visual_global_rect(view.art).get_center()), "Reward group stays centred on the painting: " + fixture[2])
+		var keywords: Control = shown.get_node_or_null("EventRewardTooltips")
+		if keywords != null:
+			for panel: Control in keywords.get_children():
+				var keyword_rect: Rect2 = TooltipStack._visual_global_rect(panel)
+				expect.call(not keyword_rect.intersects(stage_rect) and not keyword_rect.intersects(TooltipStack._visual_global_rect(view.column)), "Keyword panels clear rewards and event copy: " + fixture[2])
+		expect.call(view.preview_brightness == 0.70, "Reduced hover dims instantly")
 		view.choices[index].mouse_exited.emit()
-		view.choices[index].focus_entered.emit()
+		view.choices[index].grab_focus()
+		view.move_focus(0)
 		expect.call(view.hover_preview.current == shown and shown.visible and view.hover_preview.cache.size() == prepared_count, "Focus reuses exact hover widget: " + fixture[2])
 		_expect_ignores_input(shown, expect)
 		expect.call(is_equal_approx(view.health.size.x, 240) and view.health.hp == state["player_hp"], "Choices show current Health")
@@ -161,7 +173,7 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 		expect.call(view.result_beats == null, "Stale visual receipt cannot replay")
 		await tree.process_frame
 	expect.call(kinds.size() == CASES.size(), "Every concrete preview kind is exercised")
-	# Disabled and plain choices never build widgets.
+	# Disabled choices and choices without a reward never build widgets.
 	var blocked: Dictionary = _fixture(fixture_base, "bloodletters_basin")
 	blocked["player_hp"] = 1
 	view.present(blocked, true)
@@ -171,7 +183,13 @@ static func _checks(tree: SceneTree, expect: Callable) -> void:
 	view.present(_fixture(fixture_base, "lost_cartographer"), true)
 	view.finish_animation_for_test()
 	view.preview_choice(0)
-	expect.call(view.hover_preview.cache.is_empty(), "Plain gain has no preview")
+	expect.call(view.hover_preview.current_line.get("kind") == "gain", "An Embers gain has a reward plate")
+	view.preview_choice(1)
+	expect.call(view.hover_preview.current_line.is_empty(), "Surveying without a reward has no preview")
+	view.present(_fixture(fixture_base, "moth_library"), true)
+	view.finish_animation_for_test()
+	view.preview_choice(_choice_index(view, "burn"))
+	expect.call(view.hover_preview.current_line.get("ids") == ["health"], "A Health gain has a reward plate")
 	await _warmup_lifetime(view, tree, expect, fixture_base)
 	await _scaled_preview_typography(view, tree, expect, fixture_base)
 	await _lifecycle(view, tree, expect, fixture_base)
@@ -453,18 +471,13 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 		view.finish_animation_for_test()
 		view.preview_choice(_choice_index(view, fixture[1]))
 		var stage: Control = view.hover_preview.current
-		var panels: Array[Node] = stage.find_children("*", "PanelContainer", true, false)
-		var detail: PanelContainer
-		for node: Node in panels:
-			# Keyword help now nests tooltip panels inside this reward detail.
-			# Identify the owning reward panel, not the last nested definition.
-			if bool(node.get_meta("tooltip_surface", false)) and node.has_meta("reward_id"): detail = node
-		# The shared width is a floor: ui-22's larger granted cards may grow the box.
-		expect.call(detail != null and is_equal_approx(detail.custom_minimum_size.x, 420) and detail.get_combined_minimum_size().x >= 420, "Preview retains the shared 420-pixel tooltip minimum: " + fixture[2])
-		if detail != null:
-			var icon: TextureRect = detail.get_parent().get_child(0)
-			expect.call(icon.custom_minimum_size == Vector2(128, 128) and icon.get_parent() == detail.get_parent(), "128-pixel icon sits above the detail panel")
-			expect.call(detail.z_index + detail.get_node("ThemedInsetOrnament").z_index >= 0, "Embedded tooltip ornament paints above the event painting")
+		var plate: PanelContainer = stage.find_child("EventRewardPlate", true, false)
+		expect.call(plate != null and is_equal_approx(plate.custom_minimum_size.x, Plate.WIDTH), "Preview uses the relic offer plate width: " + fixture[2])
+		if plate != null:
+			var art: Control = plate.get_node("Contents/RewardArt")
+			var icon: TextureRect = art.get_child(1)
+			expect.call(icon.custom_minimum_size == Vector2(128, 128), "Reward plate retains the 128-pixel icon")
+			expect.call(plate.has_node("ChoiceSurfaceFinish") and not plate.get_meta("tooltip_surface", false), "Preview uses the shared choice finish")
 		var line: Dictionary = Preview.first_concrete(view.cached_preview_lines(fixture[1]))
 		var beat: Control = Preview.build(line, state, true)
 		var names: Array[Node] = beat.find_children("*", "Label", true, false)

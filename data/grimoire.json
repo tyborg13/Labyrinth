@@ -111,7 +111,7 @@
       "body": [
         "Cards resolve against board coordinates. A target is legal only when the card's targeting rule, range, line of sight, occupancy, and terrain checks all pass.",
         "Card previews show legal targets, affected tiles, and projected result values before resolution.",
-        "Undo move (Z) takes back free movement until you play a card, unless the move revealed or triggered something.",
+        "Undo move (Z) takes back free Movement until you play a card, unless the move revealed or triggered something.",
         "Enemies show their next attack above them: its damage and the order they act in. Red tiles will be struck before your next turn. Press I for every enemy's full plan.",
         "The 9\u00d79 tile grid where combat happens."
       ]
@@ -128,7 +128,7 @@
       "default": true,
       "icon": "turn_clock",
       "body": [
-        "Each played card adds its printed time to the acting unit's turn delay.",
+        "Each played card adds its printed Time to the acting unit's turn delay.",
         "The turn clock orders actors by current delay and previews the next turns.",
         "Each unit has a next-turn time; the lowest acts next, and you win ties. Spending Time pushes yours later."
       ]
@@ -162,8 +162,8 @@
       "default": true,
       "icon": "health_defense",
       "body": [
-        "Non-piercing damage is applied to Block first, then Stoneskin, then health.",
-        "Block clears before that actor\u2019s turn-start Fire damage. Stoneskin persists and can absorb it.",
+        "Non-piercing damage is applied to Block first, then Stoneskin, then Health.",
+        "Block clears before that actor's turn-start Fire damage. Stoneskin persists and can absorb it.",
         "Chilled and Frozen modify direct attack damage. Fire terrain damage does not gain these bonuses or trigger direct-hit riders.",
         "Damage hits Block first, then Stoneskin, then Health. Pierce skips Block and Stoneskin."
       ]
@@ -176,7 +176,7 @@
       "icon": "defiance",
       "body": [
         "Every fourth permanent level grants one Defiance for each new run.",
-        "Lethal health loss spends one Defiance to restore 25% max health and continue the same combat.",
+        "Lethal Health loss spends one Defiance to restore 25% max Health and continue the same combat.",
         "Defiance never refills during a run. A level milestone reached mid-run adds only the newly earned charge.",
         "Each charge turns lethal damage into 25% Health. You get 1 per 4 levels, refilled each run."
       ]
@@ -189,8 +189,8 @@
       "icon": "targeting",
       "body": [
         "Melee actions target adjacent or pattern-defined nearby tiles. Ranged actions require a legal range and line-of-sight path.",
-        "Area actions resolve over a tile pattern. Push and pull resolve forced movement along a legal direction until distance, blockers, or terrain stop the target.",
-        "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and outcrops block it."
+        "Area actions resolve over a tile pattern. Push and Pull resolve forced movement along a legal direction until distance, blockers, or terrain stop the target.",
+        "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it."
       ]
     },
     {
@@ -201,7 +201,7 @@
       "icon": "fatigue",
       "body": [
         "When a draw request empties the draw pile, the discard pile reshuffles into a new draw pile.",
-        "Each reshuffle increments fatigue. Fatigue deals direct health loss that bypasses block.",
+        "Each reshuffle increments fatigue. Fatigue deals direct Health loss that bypasses Block.",
         "When you must draw from an empty draw pile, reshuffle your discard and lose 2 Health, +1 each time."
       ]
     },
@@ -222,10 +222,10 @@
       "title": "Outcrops",
       "icon": "raise_terrain",
       "body": [
-        "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
-        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away. A Worldspine cage is the one exception: it may seal the single tile it surrounds.",
+        "Outcrop cards raise crag Outcrops on empty floor. An Outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
+        "A tile is legal only when the raise keeps every floor tile connected, so an Outcrop can never seal the hero, an enemy, a pickup or an exit away. A Worldspine cage is the one exception: it may seal the single tile it surrounds.",
         "Powder kegs and Worldspines are raised the same way. A keg blocks movement but not sight; when anything destroys it, it deals its damage to its tile and each tile next to it, setting off other kegs. Your Worldspines pulse at the start of each of your turns, hitting each enemy next to one of them once.",
-        "Rockburst and Worldbreak destroy terrain to blast the enemies next to it, or the line beyond an outcrop you raised.",
+        "Rockburst and Worldbreak destroy terrain to blast the enemies next to it, or the line beyond an Outcrop you raised.",
         "Raises attackable terrain with the shown Health. It blocks movement; some kinds also block sight.",
         "Worldspines block movement, not sight, and leave Rubble when destroyed."
       ]
@@ -262,7 +262,7 @@
       "icon": "umbra",
       "body": [
         "The Umbra hides board tiles beyond your current vision. Enemies concealed within it cannot be directly targeted, and their identities, intents, and threat previews remain hidden.",
-        "Umbra stages grow more severe deeper in the labyrinth. Radiance effects create light, extend your vision, reveal hidden enemies, or reduce the room's Umbra stage.",
+        "Umbra stages grow more severe deeper in the labyrinth. Radiance effects create Light, extend your vision, reveal hidden enemies, or reduce the room's Umbra stage.",
         "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
       ]
     },
@@ -295,7 +295,7 @@
       "default": true,
       "icon": "move",
       "body": [
-        "Walks across reachable tiles using the displayed movement allowance. Walking out of Rubble costs 2 movement instead of 1.",
+        "Walks across reachable tiles using the displayed Movement allowance. Walking out of Rubble costs 2 Movement instead of 1.",
         "Walk up to that many tiles around obstacles, triggering ground and traps you enter. Pick your own tile to stay."
       ]
     },
@@ -306,7 +306,7 @@
       "default": true,
       "icon": "blink",
       "body": [
-        "Teleports to a destination without crossing the tiles between. Landing triggers the destination\u2019s ground and traps.",
+        "Teleports to a destination without crossing the tiles between. Landing triggers the destination's ground and traps.",
         "Teleport to a visible open tile within that many tiles, ignoring anything between. Pick your own tile to stay."
       ]
     },
@@ -392,7 +392,7 @@
       ],
       "body": [
         "An optional extra cost. Charge the card with the Empower seal on its top-right corner (or press E; the right stick on a controller). A charged card glows and stays charged until you play it or your turn ends.",
-        "The cost is paid when the card finishes: extra Time added to your next turn, health paid after the card resolves (Block does not prevent it), or Exhaust.",
+        "The cost is paid when the card finishes: extra Time added to your next turn, Health paid after the card resolves (Block does not prevent it), or Exhaust.",
         "Pay the extra cost as you play this card to gain its bonus. Charge it with the card's seal."
       ]
     },
@@ -420,7 +420,7 @@
       "body": [
         "Creates a stationary decoy with the displayed Health. Enemies can target it.",
         "Some illusions carry an effect while they live: enemies that damage a charged illusion take damage back (once per enemy attack), and a Doppelganger lets your ranged attacks fire from its tile. Mirror Feint places its illusion beside an enemy; Hall of Mirrors fills every empty tile next to you.",
-        "Empty Husk swaps you with one of your illusions and moves your Block onto it as extra health. Shattered Reflection destroys one of your illusions to blast each enemy next to it. Both count as normal arrivals and destruction for illusion effects.",
+        "Empty Husk swaps you with one of your illusions and moves your Block onto it as extra Health. Shattered Reflection destroys one of your illusions to blast each enemy next to it. Both count as normal arrivals and destruction for illusion effects.",
         "Create a decoy with that much Health. Enemies attack it when it's at least as close as you."
       ]
     },
@@ -431,7 +431,7 @@
       "default": true,
       "icon": "immobilize",
       "body": [
-        "Prevents Move and Blink (and the hero\u2019s swaps) on the affected character\u2019s next turn."
+        "Prevents Move and Blink (and the hero's swaps) on the affected character's next turn."
       ]
     },
     {
@@ -453,7 +453,7 @@
       "body": [
         "Until the start of your next turn, an enemy whose melee attack hits you takes the Retaliate amount. Block and Stoneskin absorb it; Chill, Freeze and Expose do not add to it.",
         "Melee means a melee attack or any attack made from a tile next to you. Retaliate triggers once per enemy attack. Several Retaliates add their damage and Bleed; Shock and Push use the largest.",
-        "A foe defeated by Retaliate pays its normal rewards but does not refund a Card Play.",
+        "An enemy defeated by Retaliate pays its normal rewards but does not refund a Card Play.",
         "Until your next turn, each enemy that hits you up close takes that much damage and the listed effects.",
         "an illusion's Retaliate triggers once per enemy attack."
       ]
@@ -518,7 +518,7 @@
       "title": "Bleed",
       "icon": "bleed",
       "body": [
-        "Deals its displayed damage before each movement or attack action. Clears after the affected character\u2019s next turn.",
+        "Deals its displayed damage before each movement or attack action. Clears after the affected character's next turn.",
         "Before each move or attack, it takes damage equal to its Bleed. Clears when its turn ends."
       ]
     },
@@ -539,7 +539,7 @@
       "title": "Shock",
       "icon": "shock",
       "body": [
-        "Cancels the affected character\u2019s next non-movement action.",
+        "Cancels the affected character's next non-movement action.",
         "Chain and conducted hits Shock too."
       ]
     },
@@ -579,11 +579,11 @@
       "title": "Push",
       "icon": "push",
       "body": [
-        "Forces the target away from the attack\u2019s origin in one straight line for the displayed distance. It never turns or slides around anything.",
+        "Forces the target away from the attack's origin in one straight line for the displayed distance. It never turns or slides around anything.",
         "When the target is off to a diagonal, it goes along the longer side by default; Rotate switches to the other side before you commit.",
-        "If a wall, crate, outcrop, character or illusion stops it early, it collides.",
+        "If a wall, crate, Outcrop, character or illusion stops it early, it collides.",
         "Move the target that many tiles straight away from the source. If blocked: Collision.",
-        "in an area push each enemy moves along its own straight line; stopped lines collide."
+        "In an area Push each enemy moves along its own straight line; stopped lines collide."
       ]
     },
     {
@@ -592,7 +592,7 @@
       "title": "Pull",
       "icon": "pull",
       "body": [
-        "Forces the target toward the attack\u2019s origin in one straight line for the displayed distance. It never turns or slides around anything.",
+        "Forces the target toward the attack's origin in one straight line for the displayed distance. It never turns or slides around anything.",
         "When the target is off to a diagonal, it comes along the longer side by default; Rotate switches to the other side before you commit.",
         "A pull that reaches its source simply stops. Anything else that stops it early makes it collide.",
         "Move the target that many tiles straight toward the source. If blocked before reaching it: Collision.",
@@ -605,7 +605,7 @@
       "title": "Collision",
       "icon": "collision",
       "body": [
-        "When forced movement is stopped by a wall, crate, outcrop, character or illusion, the target takes 2 damage for each tile it didn't move, and so does whatever it hit. Walls take nothing.",
+        "When forced movement is stopped by a wall, crate, Outcrop, character or illusion, the target takes 2 damage for each tile it didn't move, and so does whatever it hit. Walls take nothing.",
         "Block and Stoneskin absorb it; Chilled, Frozen and Expose don't add to it.",
         "A stopped Push or Pull deals 2 damage per lost tile to the target and to its blocker."
       ]
@@ -636,7 +636,7 @@
       "title": "Light",
       "icon": "illuminate",
       "body": [
-        "Creates light that reveals nearby Umbra within the displayed radius. Its duration counts down on player turns.",
+        "Creates Light that reveals nearby Umbra within the displayed radius. Its duration counts down on player turns.",
         "Reveals tiles within its radius through the Umbra for the shown number of your turns."
       ]
     },
@@ -646,7 +646,7 @@
       "title": "Vision",
       "icon": "vision",
       "body": [
-        "Expands the light around you for the displayed number of turns.",
+        "Expands the Light around you for the displayed number of turns.",
         "Widen your sight radius by that much for the shown turns. It creates no Light."
       ]
     },
@@ -666,7 +666,7 @@
       "title": "Dispel Umbra",
       "icon": "dispel_umbra",
       "body": [
-        "Reduces the room\u2019s Umbra stage for the rest of combat.",
+        "Reduces the room's Umbra stage for the rest of combat.",
         "Lower the Umbra by that many stages for the rest of this combat."
       ]
     },
@@ -676,8 +676,8 @@
       "enemy_id": "crawler",
       "title": "Tunnel Crawler",
       "body": [
-        "Fast close-range predator that closes distance and opens bleed wounds.",
-        "Its intents favor short movement paths followed by melee bleed attacks."
+        "Fast close-range predator that closes distance and opens Bleed wounds.",
+        "Its intents favor short movement paths followed by melee Bleed attacks."
       ]
     },
     {
@@ -686,7 +686,7 @@
       "enemy_id": "acolyte",
       "title": "Dust Acolyte",
       "body": [
-        "Ranged caster with dust bolt attacks, self-defense actions, and health-draining effects.",
+        "Ranged caster with dust bolt attacks, self-defense actions, and Health-draining effects.",
         "Its intents alternate between line-of-sight damage and preservation."
       ]
     },
@@ -696,7 +696,7 @@
       "enemy_id": "harrier",
       "title": "Bone Harrier",
       "body": [
-        "Mobile ranged skirmisher with pierce and bleed attacks.",
+        "Mobile ranged skirmisher with pierce and Bleed attacks.",
         "Its intents often combine repositioning with a ranged strike."
       ]
     },
@@ -706,8 +706,8 @@
       "enemy_id": "warden",
       "title": "Stone Warden",
       "body": [
-        "Durable front-line guard with heavy melee attacks, block gains, and close area strikes.",
-        "It can absorb damage through defenses before its health is exposed."
+        "Durable front-line guard with heavy melee attacks, Block gains, and close area strikes.",
+        "It can absorb damage through defenses before its Health is exposed."
       ]
     },
     {
@@ -744,7 +744,7 @@
       "title": "Chainbound Gaoler",
       "body": [
         "Air-locked jailer that pulls, pushes, and restricts movement.",
-        "Its intents use forced movement and immobilize to alter reachable tiles."
+        "Its intents use forced movement and Immobilize to alter reachable tiles."
       ]
     },
     {
@@ -790,7 +790,7 @@
       "title": "Worldspines",
       "icon": "worldspines",
       "body": [
-        "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns.",
+        "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns.",
         "Outcrops block Tharokh and its Burrow Grubs too. Break one to open a route."
       ]
     },
@@ -845,7 +845,7 @@
       "title": "Stances",
       "icon": "anchored",
       "body": [
-        "Skate: this turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+        "Skate: this turn, moving onto Ice costs no Movement and Ice doesn't Chill you.",
         "Immobilize: for the rest of this turn you can't Move, Blink or Swap, including your own movement.",
         "Anchored: until your next turn, Push and Pull against you move you 0 tiles and never collide.",
         "Fireproof: Fire doesn't damage you this turn.",
@@ -880,10 +880,10 @@
       "title": "Crystal Mantle",
       "icon": "frost_armor",
       "body": [
-        "Each direct damaging hit breaks one Crystal Mantle layer instead of damaging health. Cheap hits can clear layers before a heavy strike.",
+        "Each direct damaging hit breaks one Crystal Mantle layer instead of damaging Health. Cheap hits can clear layers before a heavy strike.",
         "Each remaining layer extends Shatterstorm by one tile. Break layers during its warning to shrink the danger; the burst breaks the layers that remain.",
         "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus.",
-        "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it. Your layers last until broken or the combat ends.",
+        "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and Health costs bypass it. Your layers last until broken or the combat ends.",
         "Each layer cancels 1 direct hit, then breaks. Ground damage, Bleed, Collision and traps bypass it."
       ]
     },
@@ -916,7 +916,7 @@
       "title": "Tharokh, the Worldspine",
       "body": [
         "Earth dragon that walls you in, with Burrow Grubs at its side.",
-        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns. Break through before the wall closes."
+        "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns. Break through before the wall closes."
       ]
     },
     {
@@ -997,7 +997,7 @@
       "body": [
         "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles.",
         "Frost Circuit turns a connected patch of Ice into Electrified ground. Discharge removes a connected Electrified network and strikes each enemy on or next to it once.",
-        "A Lightning hit that touches it spreads to every foe on connected Electrified tiles. Chain relays through it."
+        "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it."
       ]
     },
     {
@@ -1006,7 +1006,7 @@
       "title": "Rubble",
       "icon": "surface_rubble",
       "body": [
-        "Walking out of Rubble costs 2 movement instead of 1. With movement remaining, the first step is always allowed."
+        "Walking out of Rubble costs 2 Movement instead of 1. With Movement remaining, the first step is always allowed."
       ]
     },
     {
@@ -1117,7 +1117,7 @@
       "title": "Upheaval",
       "icon": "upheaval",
       "body": [
-        "Marked tiles rise as Outcrops when the rule fires. A unit on a rising tile is pushed to a free tile beside it; the tile stays flat if a wall, a trap, a brazier or a unit that can't be pushed off is on it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
+        "Marked tiles rise as Outcrops when the rule fires. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. A unit on a rising tile is pushed to a free tile beside it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
       ]
     },
     {
@@ -1164,7 +1164,7 @@
       "title": "Skate",
       "icon": "skate",
       "body": [
-        "This turn, stepping onto Ice costs no movement, and Ice doesn't make you Chilled."
+        "This turn, stepping onto Ice costs no Movement, and Ice doesn't make you Chilled."
       ]
     },
     {

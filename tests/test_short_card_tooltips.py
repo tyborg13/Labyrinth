@@ -14,6 +14,11 @@ from trap_copy_contract import TRAP_BODY, TRAP_DEFINITION
 ROOT = Path(__file__).resolve().parents[1]
 COPY = ROOT / "spec/peer_benchmark/staged/tt-01/tooltips.json"
 EXPECTATIONS = ROOT / "tests/fixtures/short_card_tooltips_expectations.json"
+HOUSE_STYLE_GRIMOIRE = {
+    "skate": "This turn, stepping onto Ice costs no Movement, and Ice doesn\'t make you Chilled.",
+    "surface_electrified": "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it.",
+    "targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it.",
+}
 UNCHANGED_SHA256 = "17be644b843ba6c56d6fed1fef19d4c98b339b70edf0a8fae91f3f72b2051cd0"
 RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"}  # sta-01/flu-01: keep protected historical copy untouched.
 METADATA_SHA256 = "452541bfabda9d9a177a13e383c14c147a78746c0492e0eace190b58caf3bab2"
@@ -36,6 +41,8 @@ class ShortCardTooltipsTest(unittest.TestCase):
             (ROOT / "spec/peer_benchmark/staged/tt-02/card_panels.json").read_text())["glossary_edits"]}
         self.superseding["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
         self.superseding["traps"] = TRAP_DEFINITION
+        self.superseding["surface_rubble"] = "Costs 2 Movement to leave."
+        self.superseding["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
         self.glossary = json.loads((ROOT / "data/glossary.json").read_text())
         self.grimoire = json.loads((ROOT / "data/grimoire.json").read_text())
 
@@ -82,14 +89,14 @@ class ShortCardTooltipsTest(unittest.TestCase):
                         expected[0] = expected[0].replace(
                             "After every second turn of yours, the marked tiles rise as Outcrops: "
                             "stone that blocks movement until it is broken.",
-                            "After every second turn of yours, Tharokh's marked tiles rise as Outcrops "
-                            "unless something immovable is on them.",
+                            "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. "
+                            "A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land.",
                         )
                     self.assertEqual(entries[owner]["body"], expected)
                 elif change["id"] == "traps":
                     self.assertEqual(entries[owner]["body"], TRAP_BODY)
                 else:
-                    self.assertIn(UMBRA_AREA_BODY if change["id"] == "umbra" else change["old"], entries[owner]["body"],
+                    self.assertIn(UMBRA_AREA_BODY if change["id"] == "umbra" else HOUSE_STYLE_GRIMOIRE.get(change["id"], change["old"]), entries[owner]["body"],
                                   "Former full definition must remain in its owning topic")
 
     def test_every_new_entry_schema(self):
@@ -115,7 +122,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 self.assertEqual(entry["title"], by_id[term]["name"])
                 icon = term if term in ("skill_point", "moltshard") else by_id[term]["icon"]
                 self.assertEqual(entry["icon"], icon)
-                expected_body = [changes[term]["old"]]
+                expected_body = [HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"])]
                 facts = json.loads((ROOT / "tests/fixtures/card_panel_grimoire_facts.json").read_text())
                 for fact in facts.values():
                     if fact["owner"] == entry_id and fact["appended"]:

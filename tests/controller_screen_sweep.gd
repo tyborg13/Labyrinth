@@ -228,7 +228,7 @@ func _menu_screens() -> void:
 	await _settle()
 	var panel: Control = menu.get("settings_panel")
 	await _scan("settings", panel)
-	var restore: Button = _button_text(panel, "Restore defaults")
+	var restore: Button = _button_text(panel, "Restore Defaults")
 	await _navigate(panel, restore, "settings restore")
 	await _joy(JOY_BUTTON_A)
 	var confirmation: Control = panel.get("_confirmation_panel")

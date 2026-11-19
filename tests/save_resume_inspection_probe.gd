@@ -8,6 +8,12 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/save_resume_inspection_20260709_v12"
 
+class FixturePlayClock extends RunScoreRules:
+	const FIXTURE_CLOCK_USEC: int = 0
+
+	func sample_play_time(state: Dictionary, active: bool, _now_usec: int = Time.get_ticks_usec()) -> void:
+		super.sample_play_time(state, active, FIXTURE_CLOCK_USEC)
+
 var _combat_engine: CombatEngine = CombatEngine.new()
 
 func _initialize() -> void:
@@ -17,6 +23,9 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var use_existing_fixture: bool = args.has("--use-existing-fixture")
 	var functional_only: bool = args.has("--functional-only")
+	if functional_only and DisplayServer.get_name() == "headless":
+		# Drive the logical checkpoint playback without claiming renderer proof.
+		process_frame.connect(_headless_draw_boundary)
 	if use_existing_fixture:
 		var existing_fixture: Dictionary = ProgressionStore.load_saved_run()
 		_assert(not existing_fixture.is_empty(), "Existing-fixture mode requires current_run.save")
@@ -134,6 +143,8 @@ func _seed_probe_fixture() -> void:
 	var combat_state: Dictionary = (fixture.get("combat_state", {}) as Dictionary).duplicate(true)
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
 	player["hp"] = maxi(1, int(player.get("max_hp", 1)) - 50)
+	# Continue validates that both copies of combat Health agree.
+	fixture["player_hp"] = player["hp"]
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["patch_up", "quick_stab", "guarded_step", "sidestep_slash"]
@@ -151,6 +162,8 @@ func _resume_run_scene() -> Node:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_assert(packed != null, "Run scene should load")
 	var instance: Node = packed.instantiate()
+	# The simulated enemy phase has no elapsed play time.
+	instance.set("_run_play_clock", FixturePlayClock.new())
 	root.add_child(instance)
 	await process_frame
 	await process_frame
@@ -201,6 +214,9 @@ func _settle_ui() -> void:
 	RenderingServer.force_draw()
 	for _frame: int in range(3):
 		await process_frame
+
+func _headless_draw_boundary() -> void:
+	RenderingServer.frame_post_draw.emit()
 
 func _save_root_screenshot(output_path: String) -> void:
 	var texture: Texture2D = root.get_viewport().get_texture()

@@ -43,9 +43,9 @@ static func _copy_and_panels(expect: Callable) -> void:
 			"enemy:zekarion":
 				expected_body[1] = "When Zekarion uses Overload, lightning strikes every Electrified tile for 6. At half Health, lightning strikes every Electrified tile for 7. Stay off charged ground, or lure its Wisps onto it."
 			"enemy:tharokh":
-				expected_body[1] = "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns. Break through before the wall closes."
+				expected_body[1] = "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns. Break through before the wall closes."
 			"combat:worldspines":
-				expected_body[0] = "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them. At half Health they rise after each of your turns."
+				expected_body[0] = "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns."
 		expect.call(entries[id]["body"] == expected_body, "Grimoire preserves the approved body: " + id)
 		for field: String in reference["identity"]:
 			expect.call(entries[id][field] == reference["identity"][field], "F1 preserves Grimoire " + field + ": " + id)

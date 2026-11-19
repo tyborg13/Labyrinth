@@ -20,9 +20,8 @@ const ICON_TOOLTIP_WIDTH: float = 306.0
 const ICON_SIZE: float = 42.0
 const ICON_BODY_WIDTH: float = 226.0
 
-static func make_text(text: String) -> PanelContainer:
-	# Source-free terms are explicitly opted in by the loop registry.
-	var loop_panel: Control = LoopContext.panel_for_text(text, {})
+static func make_text(text: String, source: Dictionary = {}) -> PanelContainer:
+	var loop_panel: Control = LoopContext.panel_for_text(text, source)
 	if loop_panel != null: return loop_panel as PanelContainer
 	var lines: PackedStringArray = text.split("\n", false)
 	if lines.is_empty():

@@ -180,11 +180,14 @@ func _probe() -> void:
 	for fixture: Array in Suite.CASES:
 		var view: Control = await _present(_fixture(fixture[0]))
 		var index: int = Suite._choice_index(view, fixture[1])
-		view.choices[index].mouse_entered.emit()
+		var motion := InputEventMouseMotion.new()
+		motion.position = view.choices[index].get_global_transform_with_canvas() * (view.choices[index].size * 0.5)
+		view.handle_input(motion)
 		await create_timer(0.12).timeout
 		await _capture("preview_%s_hover.png" % fixture[2])
 		view.choices[index].mouse_exited.emit()
-		view.choices[index].focus_entered.emit()
+		view.choices[index].grab_focus()
+		view.move_focus(0)
 		await create_timer(0.12).timeout
 		await _capture("preview_%s_focus.png" % fixture[2])
 	var view: Control = await _present(_fixture("mirror_of_skins"))

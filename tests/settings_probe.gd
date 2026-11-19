@@ -124,12 +124,12 @@ func _capture_main_menu_settings(scale: float, suffix: String) -> void:
 	await _save_screenshot("%s/main_menu_settings_%s.png" % [OUTPUT_DIR, suffix])
 	if suffix == "100":
 		var before_restore: Dictionary = panel.call("current_settings") as Dictionary
-		var restore_button: Button = _button_with_text(panel, "Restore defaults")
-		_require(restore_button != null, "Restore defaults should be present in the settings footer")
+		var restore_button: Button = _button_with_text(panel, "Restore Defaults")
+		_require(restore_button != null, "Restore Defaults should be present in the settings footer")
 		restore_button.pressed.emit()
 		await process_frame
 		var confirmation: PanelContainer = panel.get("_confirmation_panel") as PanelContainer
-		_require(confirmation != null and confirmation.visible, "Restore defaults should open a confirmation step")
+		_require(confirmation != null and confirmation.visible, "Restore Defaults should open a confirmation step")
 		_require((panel.call("current_settings") as Dictionary) == before_restore, "Restore confirmation should not mutate settings before approval")
 		await _save_screenshot("%s/restore_defaults_confirmation.png" % OUTPUT_DIR)
 	instance.queue_free()

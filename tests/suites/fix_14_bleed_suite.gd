@@ -27,11 +27,11 @@ static func check_status_tick_feedback(scene: Control, expect: Callable) -> void
 	before["player"].merge({"hp": 10, "bleed": STATUS_TICK_AMOUNT, "block": 0, "stoneskin": 0}, true)
 	var after: Dictionary = Base.Combat.new()._trigger_player_bleed_for_action(before.duplicate(true), {"type": "move"})
 	var bleed: Array = scene._player_loss_floating_texts(before, after)
-	expect.call(bleed.size() == 1 and bleed[0].get("icon", "") == "bleed" and bleed[0]["text"] == "-3", "An actual hero Bleed payment carries the Bleed cause icon")
+	expect.call(bleed.size() == 1 and bleed[0].get("icon", "") == "bleed" and bleed[0]["text"] == "−3", "An actual hero Bleed payment carries the Bleed cause icon")
 	var mixed: Dictionary = after.duplicate(true)
 	mixed["player"]["hp"] -= OTHER_HP_LOSS
 	var mixed_floats: Array = scene._player_loss_floating_texts(before, mixed)
-	expect.call(mixed_floats.size() == 2 and mixed_floats[0]["text"] == "-3" and mixed_floats[0].get("icon", "") == "bleed" and mixed_floats[1]["text"] == "-2" and not mixed_floats[1].has("icon"), "Mixed damage attributes only the actual Bleed payment, preserving the total loss")
+	expect.call(mixed_floats.size() == 2 and mixed_floats[0]["text"] == "−3" and mixed_floats[0].get("icon", "") == "bleed" and mixed_floats[1]["text"] == "−2" and not mixed_floats[1].has("icon"), "Mixed damage attributes only the actual Bleed payment, preserving the total loss")
 	var ordinary: Array = scene._player_loss_floating_texts(after, mixed)
 	expect.call(ordinary.size() == 1 and not ordinary[0].has("icon"), "An earlier Bleed payment cannot label later damage")
 	var same_tile: Dictionary = {"kind": "status_damage", "label": "Fire", "actor_key": "enemy_1", "tile": HERO, "reaction_after": {}, "enemy_losses": [{"key": "enemy_1", "tile": HERO, "hp_loss": 3}, {"key": "enemy_2", "tile": HERO, "hp_loss": 1}]}

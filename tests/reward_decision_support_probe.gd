@@ -504,12 +504,12 @@ func _assert_reward_layout(
 	if banner_rect.size.x < 880.0:
 		_fail("%s reward banner should be materially larger than the previous 760px presentation" % label)
 	if full_health:
-		if recover_button.text != "SKIP  •  HEALTH FULL":
+		if recover_button.text != "SKIP · HEALTH FULL":
 			_fail("%s Skip at full health should promise no healing" % label)
 	else:
 		if not recover_button.text.contains("SKIP & RECOVER"):
 			_fail("%s Recover should make the skipped-card consequence explicit" % label)
-		if not recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL) or not recover_button.text.contains("12 → 15"):
+		if not recover_button.text.contains("+%d HEALTH" % RunEngine.REWARD_HEAL) or not recover_button.text.contains("12 → 15"):
 			_fail("%s Recover should show exact healing and 12 → 15" % label)
 	if recover_button.focus_mode != Control.FOCUS_ALL or recover_button.focus_neighbor_top == NodePath():
 		_fail("%s Recover should expose visible focus and return navigation to the cards" % label)

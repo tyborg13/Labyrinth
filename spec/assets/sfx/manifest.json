@@ -2567,7 +2567,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "517195b6acb48783510235fae1b583ae8b93d1ec96222849a80d6cfd5c813654",
+      "output_sha256": "add58a4e2b9012087523d022686faa21ad8e41731be1a53ad864fd47e234e79e",
       "path": "illusion.break/illusion.break_01.ogg",
       "processing": {
         "applied_gain_db": -13.0340761495754,
@@ -2594,7 +2594,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 1.0,
+        "output_duration": 0.42,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -21.990206554482636,
         "output_peak_dbfs": -14.08618748074736,
@@ -2624,7 +2624,19 @@
       "take_end_seconds": 1.0,
       "take_id": "e172ab9cdd69#1",
       "take_start_seconds": 0.0,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "22464dccaad175f3ae1da4a84228d16c20d25e68",
+        "input_sha256": "387ca184925eba9baa161ac56e1f776f0afcf784fa3f81915a4e511282b7ea46",
+        "input_duration": 0.708979,
+        "output_duration": 0.42,
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "vorbis",
+        "keep_seconds": 0.3,
+        "fade_out_seconds": 0.12,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "status",
@@ -2633,7 +2645,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "3f1e03a63b144953c88da3982ff9ccb09c7168436441dad538ab6a266344182a",
+      "output_sha256": "ed4917cd06f663b10c99a6af61f2c5aafd150462039f1e712efe9a824b948891",
       "path": "illusion.spawn/illusion.spawn_01.ogg",
       "processing": {
         "applied_gain_db": -11.43145832520194,
@@ -2660,7 +2672,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 3.09,
+        "output_duration": 0.95,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -21.999859445337382,
         "output_peak_dbfs": -13.934277751000339,
@@ -2690,7 +2702,19 @@
       "take_end_seconds": 3.1,
       "take_id": "5ec6e7f68412#1",
       "take_start_seconds": 0.01,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "6f30d19530d0664fb506f61299ed7fee6c39743f",
+        "input_sha256": "33267fb304af1cf1647991fa74d951a11cf2054b8f0648ed18bb498429f46b0c",
+        "input_duration": 2.5,
+        "output_duration": 0.95,
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "vorbis",
+        "keep_seconds": 0.7,
+        "fade_out_seconds": 0.25,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "ui",
@@ -2897,7 +2921,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "196fb7897fcd3798a6d17fd366be5595e65c8bdc99929f65f917ff2bf456a671",
+      "output_sha256": "8bb6fcbb091fc96b74280be577aa4b5018cf30e26685cb5c911807d951a57be6",
       "path": "omen.bane/omen.bane_01.ogg",
       "processing": {
         "applied_gain_db": -5.978422436916343,
@@ -2924,7 +2948,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 4.21,
+        "output_duration": 1.05,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -16.04404877022374,
         "output_peak_dbfs": -5.674524962535186,
@@ -2953,7 +2977,19 @@
       "take_end_seconds": 4.22,
       "take_id": "236c3f02a8c1#1",
       "take_start_seconds": 0.01,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "a3b0a4c5197012e0f1e64bb177217a3e6f441bd0",
+        "input_sha256": "7859e8c854db535116b653d31f972b3f637668e7aeb4c836b28ee651296713ad",
+        "input_duration": 1.2,
+        "output_duration": 1.05,
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "vorbis",
+        "keep_seconds": 0.8,
+        "fade_out_seconds": 0.25,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "stinger",
@@ -3945,7 +3981,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "7ff073d6493515727930840add9feaacbc707aaf4a866001fa0af400aef0ce61",
+      "output_sha256": "bd62aa36faae7ced42c6de3f8f1f9d79394a0424a164db5660e60c69d60c7488",
       "path": "spell.lightning/spell.lightning_01.ogg",
       "processing": {
         "applied_gain_db": -4.695679271541403,
@@ -3972,7 +4008,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 2.8718958333333333,
+        "output_duration": 0.55,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -17.99477600064549,
         "output_peak_dbfs": -6.677764485871004,
@@ -4002,7 +4038,19 @@
       "take_end_seconds": 2.9018820861678005,
       "take_id": "00013f78ed4c#1",
       "take_start_seconds": 0.03,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "9618f341aa99c43aa9ec78ccc07eaea6298203c0",
+        "input_sha256": "55dcbded837bfbde6c7692a0673dca90ab67afab3942de0fc547dfb3410efe6c",
+        "input_duration": 1.8,
+        "output_duration": 0.55,
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "vorbis",
+        "keep_seconds": 0.4,
+        "fade_out_seconds": 0.15,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "spell",
@@ -4011,7 +4059,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "047e20d175bbba7f93cd33c17516deffb2d25a969deaddd094804e83c5e43319",
+      "output_sha256": "f24cbce1ccaca04cf726e14cad78098370099ea51208a2a49466b93c1f2e1086",
       "path": "spell.shadow/spell.shadow_01.ogg",
       "processing": {
         "applied_gain_db": -0.6214205413724301,
@@ -4038,7 +4086,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 2.41,
+        "output_duration": 0.9,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -17.973343363001803,
         "output_peak_dbfs": -2.595713705966553,
@@ -4068,7 +4116,19 @@
       "take_end_seconds": 2.41,
       "take_id": "dd1d0dd1c90e#1",
       "take_start_seconds": 0.0,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "d882964a17db5044f5a9b7741633562c4e4b7f36",
+        "input_sha256": "64d40a73253f91dd8bac3e5620434f7ffe709d2759ad68525f87f755d1443cdf",
+        "input_duration": 1.8,
+        "output_duration": 0.9,
+        "sample_rate": 48000,
+        "channels": 1,
+        "codec": "vorbis",
+        "keep_seconds": 0.7,
+        "fade_out_seconds": 0.2,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "status",
@@ -4297,7 +4357,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "09d5b5d39c84cf0863aff57fdbac22c1f8e7b4d9c5a73d3184c3f86e05016f9c",
+      "output_sha256": "453d5797108ff48879bdfcbef2bbe4520738d92eb883edd38d57e1f38889f1e5",
       "path": "status.shock/status.shock_01.ogg",
       "processing": {
         "applied_gain_db": -0.1814791669851985,
@@ -4324,7 +4384,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 3.59,
+        "output_duration": 0.32,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -21.982620965924152,
         "output_peak_dbfs": -9.968840866975633,
@@ -4354,7 +4414,19 @@
       "take_end_seconds": 3.61,
       "take_id": "4c27cc0903f7#1",
       "take_start_seconds": 0.02,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "aa2e521803c3295a3b73aeb05a6e9cba997ee098",
+        "input_sha256": "d887c62402395b7ea41edb52852d10fdb1b36e7e8b5eb7de6c1218dce9e5ac0e",
+        "input_duration": 1.2,
+        "output_duration": 0.32,
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "vorbis",
+        "keep_seconds": 0.22,
+        "fade_out_seconds": 0.1,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "status",
@@ -4750,7 +4822,7 @@
       "loop": false,
       "loop_end_seconds": null,
       "loop_start_seconds": null,
-      "output_sha256": "4ac73196eae6ad6524fc2c8d2f9141c94d67900516e55130d1e01fd5710d73bd",
+      "output_sha256": "8f10bd55321f1b2a3692037b713714f0e872c11ab9f4e6cab4ec926f3bd9e870",
       "path": "surface.electric/surface.electric_01.ogg",
       "processing": {
         "applied_gain_db": -0.6036448160651098,
@@ -4777,7 +4849,7 @@
         "muxer": "ffmpeg",
         "normalization": "integrated_lufs",
         "ogg_serial_offset": 0,
-        "output_duration": 9.121333333333334,
+        "output_duration": 0.4,
         "output_loudness_method": "integrated_lufs",
         "output_lufs": -18.002949544012363,
         "output_peak_dbfs": -1.8789285175695012,
@@ -4807,7 +4879,19 @@
       "take_end_seconds": 9.121315192743765,
       "take_id": "7321232dcf97#1",
       "take_start_seconds": 0.0,
-      "variant": 1
+      "variant": 1,
+      "release_trim": {
+        "input_git_blob": "b75eeeb7f92a7d89703d97dc6bf938547806d400",
+        "input_sha256": "6dd7e11cf27542ebf8562d5c49b6cbd7b3b3e71b40a96300c409db955753a895",
+        "input_duration": 1.2,
+        "output_duration": 0.4,
+        "sample_rate": 48000,
+        "channels": 1,
+        "codec": "vorbis",
+        "keep_seconds": 0.28,
+        "fade_out_seconds": 0.12,
+        "fade_curve": "linear"
+      }
     },
     {
       "category": "spell",
@@ -5404,5 +5488,24 @@
       "variant": 1
     }
   ],
-  "schema_version": 1
+  "schema_version": 1,
+  "fallback_outputs": {
+    "assets/audio/sfx/elemental/lightning_attack.wav": {
+      "cue_id": "spell.lightning",
+      "loop": false,
+      "output_sha256": "b4708473adbc95605dfae3f3492f173185cfffaba1c2615df4ea84ac730a6f1d",
+      "release_trim": {
+        "input_git_blob": "f49d566a0c1590b9fc986500209f5295aa6289bc",
+        "input_sha256": "e5698f83dda356be8a84e998c298690a7d631ae8d9e174d38160aec9c31cd279",
+        "input_duration": 1.0,
+        "output_duration": 0.55,
+        "sample_rate": 44100,
+        "channels": 2,
+        "codec": "pcm_s16le",
+        "keep_seconds": 0.4,
+        "fade_out_seconds": 0.15,
+        "fade_curve": "linear"
+      }
+    }
+  }
 }

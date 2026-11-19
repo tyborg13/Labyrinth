@@ -20,14 +20,22 @@ const EMPHASIS_Z_INDEX_BONUS: int = 100
 const EMPHASIS_TRANSITION_SECONDS: float = 0.13
 const CLOSE_SLIDE_SECONDS: float = 0.18
 const SPREAD_EASE_SECONDS: float = 0.12
+const CONTAINER_SNAP_ALLOWANCE: float = 1.0
 
 ## The cards of a slide (a closing gap, or neighbours easing apart or back) reached their slots.
 signal slide_finished
+signal layout_applied
 
 ## False under reduced motion: neighbours then snap to a new spread, as before.
 ## Covers hover moving card to card as well as snapped (click, drag) changes.
 var spread_ease_enabled: bool = true
 var _card_gap: float = 0.0
+var _fan_adjustment := Vector2.ZERO
+var _layout_reflow_pending: bool = false
+var _combat_count: int = 0
+var _fight_center_x: float = 0.0
+var _last_layout_transform := Transform2D.IDENTITY
+var _draw_handoff_poses: Array[Dictionary]
 var _fan_enabled: bool = false
 var _arch_height: float = DEFAULT_ARCH_HEIGHT
 var _max_rotation_degrees: float = DEFAULT_MAX_ROTATION_DEGREES
@@ -98,6 +106,14 @@ func card_index_at_point(global_point: Vector2) -> int:
 func slide_remaining(child: Control) -> Vector2:
 	return get_global_transform().basis_xform((_laid_out.get(child, {}) as Dictionary).get("offset", Vector2.ZERO))
 
+## The resting slot excludes emphasis and any in-progress slide.
+func resting_slot_rect(child: Control) -> Rect2:
+	var pose: Dictionary = _laid_out.get(child, {})
+	if pose.is_empty():
+		return Rect2()
+	var rect_size: Vector2 = _child_layout_size(child)
+	return get_global_transform() * Rect2((pose["resting_center"] as Vector2) - rect_size * 0.5, rect_size)
+
 ## A locked hand dims at once; stop easing the tints so they don't dip under it.
 func settle_close_tint() -> void:
 	for child: Variant in _slide_starts:
@@ -148,7 +164,8 @@ func _begin_spread_ease(children: Array[Control]) -> void:
 		if not _laid_out.has(children[index]):
 			return
 		var spread: Vector2 = _neighbour_spread(index, children.size(), _child_layout_size(children[index]))
-		moved = moved or absf(spread.x - (_laid_out[children[index]]["spread"] as Vector2).x) > 0.5
+		var was: Dictionary = _laid_out[children[index]]
+		moved = moved or absf(spread.x - (was["spread"] as Vector2).x) > 0.5
 		spreads.append(spread)
 	if not moved:
 		return
@@ -172,12 +189,35 @@ func _begin_spread_ease(children: Array[Control]) -> void:
 	set_process(true)
 
 func _neighbour_spread(index: int, total: int, child_size: Vector2) -> Vector2:
-	if index == _emphasized_index:
+	if _emphasized_index < 0 or _emphasized_index >= total or index == _emphasized_index:
 		return Vector2.ZERO
-	var spread_rect: Rect2 = emphasized_card_rect_for_layout(index, total, child_size, _card_gap, _fan_enabled, _emphasized_index, _emphasis_strength, _arch_height, _emphasis_scale, _emphasis_extra_lift)
-	return Vector2(spread_rect.position.x - card_rect_for_layout(index, total, child_size, _card_gap, _fan_enabled, _arch_height).position.x, 0.0)
+	var shift: float = emphasis_side_shift_for_layout(child_size, resting_gap(), _emphasis_strength, _emphasis_scale)
+	return Vector2(-shift if index < _emphasized_index else shift, 0.0)
 
 func configure_layout(card_gap: float, fan_enabled: bool, arch_height: float = DEFAULT_ARCH_HEIGHT, max_rotation_degrees: float = DEFAULT_MAX_ROTATION_DEGREES, bottom_overflow_allowance: float = DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE) -> void:
+	_fan_adjustment = Vector2.ZERO
+	_combat_count = 0
+	_layout_reflow_pending = false
+	_draw_handoff_poses.clear()
+	_configure_layout(card_gap, fan_enabled, arch_height, max_rotation_degrees, bottom_overflow_allowance)
+
+## Keep the container and its minimum size on the screen-centred envelope.
+## Every interaction pose uses the same centre and per-card spacing.
+func configure_combat_layout(card_gap: float, adjustment: Vector2, count: int, center_x: float) -> void:
+	if _combat_count > 0 and spread_ease_enabled and not is_equal_approx(_fight_center_x, center_x):
+		_layout_reflow_pending = true
+	_combat_count = count
+	_fight_center_x = center_x
+	_fan_adjustment = adjustment
+	_configure_layout(card_gap, true, DEFAULT_ARCH_HEIGHT, DEFAULT_MAX_ROTATION_DEGREES, DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE)
+
+func resting_gap() -> float:
+	return _card_gap + _fan_adjustment.y
+
+func receive_draw_handoff(poses: Array[Dictionary]) -> void:
+	_draw_handoff_poses = poses
+
+func _configure_layout(card_gap: float, fan_enabled: bool, arch_height: float, max_rotation_degrees: float, bottom_overflow_allowance: float) -> void:
 	_card_gap = card_gap
 	_fan_enabled = fan_enabled
 	_arch_height = arch_height if fan_enabled else 0.0
@@ -272,6 +312,15 @@ func _notification(what: int) -> void:
 
 func _apply_layout() -> void:
 	var children: Array[Control] = _layout_children()
+	var center_offset: float = _layout_center_offset(children)
+	var has_draw_handoff: bool = spread_ease_enabled and (_layout_reflow_pending or not _fan_adjustment.is_zero_approx()) \
+		and not _draw_handoff_poses.is_empty() and _draw_handoff_poses.size() == children.size()
+	if has_draw_handoff or _layout_reflow_pending:
+		if not is_sliding() or has_draw_handoff:
+			_begin_layout_reflow(children, has_draw_handoff, center_offset)
+		_spread_ease_pending = false
+	_draw_handoff_poses.clear()
+	_layout_reflow_pending = false
 	if _spread_ease_pending:
 		_spread_ease_pending = false
 		_begin_spread_ease(children)
@@ -294,10 +343,13 @@ func _apply_layout() -> void:
 			_emphasis_strength,
 			_arch_height,
 			_emphasis_scale,
-			_emphasis_extra_lift
+			_emphasis_extra_lift,
+			resting_gap()
 		)
 		var start: Dictionary = _slide_starts.get(child, {}) if slide_left > 0.0 else {}
-		var resting_center: Vector2 = card_rect_for_layout(index, children.size(), child_size, _card_gap, _fan_enabled, _arch_height).get_center()
+		var horizontal_offset: float = _slot_horizontal_offset(index, children.size(), center_offset)
+		rect.position.x += horizontal_offset
+		var resting_center: Vector2 = card_rect_for_layout(index, children.size(), child_size, _card_gap, _fan_enabled, _arch_height).get_center() + Vector2(horizontal_offset, 0.0)
 		var resting_rotation: float = card_rotation_for_layout(index, children.size(), _fan_enabled, _max_rotation_degrees)
 		var size_ratio: float = 1.0
 		var offset := Vector2.ZERO
@@ -313,7 +365,7 @@ func _apply_layout() -> void:
 			rotation_offset = (float(start["rotation"]) - resting_rotation) * slide_left
 			if start.has("tint"):
 				child.modulate = (start["tint"] as Color).lerp(Color.WHITE, 1.0 - slide_left)
-		_laid_out[child] = {"center": resting_center + spread + offset, "rotation": resting_rotation + rotation_offset, "size": child_size * size_ratio, "spread": spread, "offset": offset}
+		_laid_out[child] = {"center": resting_center + spread + offset, "resting_center": resting_center, "rotation": resting_rotation + rotation_offset, "size": child_size * size_ratio, "spread": spread, "offset": offset}
 		fit_child_in_rect(child, rect)
 		child.pivot_offset = rect.size * 0.5
 		child.scale = Vector2.ONE * size_ratio * card_scale_for_emphasized_layout(
@@ -338,6 +390,48 @@ func _apply_layout() -> void:
 			_emphasis_strength
 		)
 	_update_title_occluders(children)
+	_last_layout_transform = get_global_transform()
+	layout_applied.emit()
+
+func _layout_center_offset(children: Array[Control]) -> float:
+	if is_zero_approx(_fan_adjustment.x) or children.is_empty():
+		return _fan_adjustment.x
+	# Anchor shifted slots in canvas space despite the container's pixel rounding.
+	var envelope: Vector2 = content_size_for_layout(children.size(), _child_layout_size(children[0]), _card_gap, _fan_enabled, _arch_height, _bottom_overflow_allowance)
+	var transform: Transform2D = get_global_transform()
+	return (_fight_center_x - transform.origin.x) / transform.x.x - envelope.x * 0.5
+
+func _slot_horizontal_offset(index: int, count: int, center_offset: float) -> float:
+	return center_offset + _fan_adjustment.y * (float(index) - float(count - 1) * 0.5)
+
+func _begin_layout_reflow(children: Array[Control], from_draw: bool, center_offset: float) -> void:
+	var transform: Transform2D = get_global_transform()
+	if from_draw:
+		settle_close_tint()
+		_slide_starts.clear()
+		set_process(false)
+	for index: int in range(children.size()):
+		var child: Control = children[index]
+		var previous: Dictionary = _laid_out.get(child, {})
+		if from_draw:
+			var card_size: Vector2 = _child_layout_size(child)
+			var rotation: float = card_rotation_for_layout(index, children.size(), _fan_enabled, _max_rotation_degrees)
+			var center: Vector2 = card_rect_for_layout(index, children.size(), card_size, _card_gap, _fan_enabled, _arch_height).get_center()
+			center.x += _slot_horizontal_offset(index, children.size(), center_offset)
+			var pose: Dictionary = _draw_handoff_poses[index]
+			var pose_size: Vector2 = (pose["size"] as Vector2) / transform.get_scale().abs()
+			# Ignore the same subpixel differences allowed when fitting the columns.
+			if (transform * center).distance_to(pose["center"]) <= CONTAINER_SNAP_ALLOWANCE \
+				and card_size.distance_to(pose_size) <= CONTAINER_SNAP_ALLOWANCE \
+				and is_equal_approx(rotation + transform.get_rotation(), float(pose["rotation"])):
+				continue
+			_slide_starts[child] = {"center": pose["center"], "rotation": float(pose["rotation"]) - transform.get_rotation(), "size": pose_size}
+		elif not previous.is_empty():
+			_slide_starts[child] = {"center": _last_layout_transform * (previous["center"] as Vector2), "rotation": previous["rotation"], "size": previous["size"], "spread": _neighbour_spread(index, children.size(), _child_layout_size(child))}
+	if is_sliding():
+		_slide_elapsed = 0.0
+		_slide_seconds = SPREAD_EASE_SECONDS
+		set_process(true)
 
 func _update_title_occluders(children: Array[Control]) -> void:
 	for index: int in range(children.size()):
@@ -430,13 +524,14 @@ static func emphasized_card_rect_for_layout(
 	emphasis_strength: float,
 	arch_height: float = DEFAULT_ARCH_HEIGHT,
 	emphasis_scale: float = DEFAULT_EMPHASIS_SCALE,
-	emphasis_extra_lift: float = DEFAULT_EMPHASIS_EXTRA_LIFT
+	emphasis_extra_lift: float = DEFAULT_EMPHASIS_EXTRA_LIFT,
+	emphasis_gap: float = INF
 ) -> Rect2:
 	var rect: Rect2 = card_rect_for_layout(index, total, card_size, card_gap, fan_enabled, arch_height)
 	if emphasized_index < 0 or emphasized_index >= total or emphasis_strength <= 0.0:
 		return rect
 	var strength: float = clampf(emphasis_strength, 0.0, 1.0)
-	var side_shift: float = emphasis_side_shift_for_layout(card_size, card_gap, strength, emphasis_scale)
+	var side_shift: float = emphasis_side_shift_for_layout(card_size, emphasis_gap if is_finite(emphasis_gap) else card_gap, strength, emphasis_scale)
 	if index < emphasized_index:
 		rect.position.x -= side_shift
 	elif index > emphasized_index:

@@ -113,13 +113,13 @@ func _health(room_name: String, state: Dictionary, percent: int) -> void:
 		card.free()
 		var dossier: Control = Inspector.build(scene, enemy, true)
 		var dossier_hp: String = dossier.find_child("PreBattleEnemyHpLine", true, false).text
-		var amounts: PackedStringArray = dossier_hp.trim_prefix("HP ").split("/")
+		var amounts: PackedStringArray = dossier_hp.trim_prefix("Health ").split("/")
 		_compare("Dossier Health", room_name + " " + key + " current", amounts[0], str(hp))
 		_compare("Dossier Health", room_name + " " + key + " maximum", amounts[1] if amounts.size() > 1 else "", str(maximum))
 		dossier.free()
 		if int(objective.get("leader_id", -1)) == int(enemy["id"]):
 			var detail: String = objective_hud._live_detail(state, objective)
-			_compare("Objective Health", room_name + " " + key, detail.ends_with("%d/%d HP" % [hp, maximum]), true)
+			_compare("Objective Health", room_name + " " + key, detail.ends_with("%d/%d Health" % [hp, maximum]), true)
 	objective_hud.free()
 
 func _arena(source: Dictionary, kind: String, intent_id: String) -> Dictionary:
@@ -186,7 +186,7 @@ func _forecast(source: Dictionary, context: String) -> void:
 	var entries: Array[Dictionary] = scene._pass_preview_forecast_entries(summary)
 	for entry: Dictionary in entries:
 		if entry["name"] == "PassPreviewHpLoss":
-			_compare(context, "displayed Health loss", entry["text"], "-%d" % amount)
+			_compare(context, "displayed Health loss", entry["text"], "−%d" % amount)
 			return
 	_require(false, context + " must display a Health-loss number")
 
@@ -323,7 +323,7 @@ func _lob(state: Dictionary) -> void:
 			_compare("Lob intent chip", str(center), Chips.build(engine, state, state)["badges"][0]["number"], str(amount))
 		var action: Dictionary = enemy["intent"]["actions"][0]
 		_require(amount > 4, "Lob fixture resolves a tier-boosted hit")
-		_compare("Lob tooltip", str(center), board.enemy_intent_tooltip(engine._enemy_key(enemy)).contains("%d %s" % [amount, "in the centre" if center == HERO else "around it"]), true)
+		_compare("Lob tooltip", str(center), board.enemy_intent_tooltip(engine._enemy_key(enemy)).contains("%d %s" % [amount, "in the center" if center == HERO else "around it"]), true)
 		_require(int(action["center_damage" if center == HERO else "arm_damage"]) == amount, "Lob announced action matches each contact")
 
 func _board_enemy(enemy: Dictionary) -> Dictionary:

@@ -44,6 +44,9 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	router.call("set_modality", "pointer")
 	var card: Control = scene.call("_hand_card_control", 0)
 	await move_pointer(tree, tree.root, card.get_global_transform_with_canvas() * (card.size * 0.5))
+	# The HUD fit may start a fresh hover rest while the fan settles.
+	if bool(scene.get("_hand_hover_rest_pending")):
+		await TestClock.rendered_frames(tree, preload("res://scripts/run_scene.gd").HAND_HOVER_REST_RENDERED_FRAMES)
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	expect.call(stack.is_visible_in_tree() and stack.get_child_count() > 0, "Routed card-body hover displays its keyword stack before visiting the seal")
 	var seal: Button = card.get_node("EmpowerSeal") as Button

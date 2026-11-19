@@ -60,7 +60,7 @@ func _atk04_new_arrivals(scene: Node) -> void:
 		if kind in ["death_spawn", "reinforcements", "reinforcements_after"]:
 			_assert(lit and bool(summary.get("new_arrival_before_player", false)) and bool(summary.get("unrevealed_before_player", false)), kind + ": a visible new foe is flagged as new and still unknown")
 			_assert(rows.contains("turn_clock:?") and not rows.contains("umbra:?"), kind + ": the turn-clock '?' row, not the Umbra row: " + rows)
-			_assert(tooltip.contains("A new foe acts before you.") and not tooltip.contains("Foes hidden in the Umbra"), kind + ": new-foe line only: " + tooltip)
+			_assert(tooltip.contains("A new enemy acts before you.") and not tooltip.contains("Enemies hidden in the Umbra"), kind + ": new-foe line only: " + tooltip)
 			_assert(str(summary.get("tone", "")) != "safe", kind + ": a new foe never reads safe")
 		else:
 			_assert(not bool(summary.get("new_arrival_before_player", false)) and bool(summary.get("umbra_unknown_before_player", false)) and rows.contains("umbra:?"), kind + ": a hidden or already-present unplanned foe keeps the Umbra '?': " + rows)

@@ -30,26 +30,47 @@ const STATE_FIELDS: Array = [
 	"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 	"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache",
 	"_terrain_health_bar_sources",
-	"_hud_layout_entries_cache", "_rest_threat_tile_alphas", "_rule_threat_tiles"
+	"_hud_layout_entries_cache", "_rest_threat_tile_alphas", "_rule_threat_tiles", "_floor_threat_coverage", "_marker_threat_coverage"
 ]
 
 var canvases: Array[Control]
 var _animated: Array[bool]
 var _initialized: bool = false
+var _retained_plan_canvases: Dictionary = {}
+
+# Only operations whose inputs are the literal command arguments qualify. Other
+# callbacks can read late-bound state, shared resources or the presentation clock.
+static func literal_paint(operations: Array) -> bool:
+	for operation: Array in operations:
+		if operation[0] not in ["draw_colored_polygon", "draw_polyline", "draw_line"]: return false
+	return true
+
+func _set_plan_ops(layer: Control, canvas: Control, operations: Array, created: bool = false) -> bool:
+	var previous: Array = canvas.get("_render_slice_ops")
+	canvas.set("_render_slice_ops", operations)
+	if created or not _initialized or layer._board_redraw_baseline(): return true
+	if layer._render_layer_kind not in ["overlays", "scene_tile"]: return true
+	return previous != operations or not literal_paint(operations)
 
 static func supports(kind: String) -> bool:
 	return kind in ["ambient", "overlays", "foreground", "hud"]
 
 func invalidate(layer: Control, clock_only: bool, reuse_plan: bool = false) -> void:
-	if not _initialized or (not clock_only and not reuse_plan):
+	var rebuilt: bool = not _initialized or (not clock_only and not reuse_plan)
+	if rebuilt:
+		_retained_plan_canvases.clear()
 		_rebuild(layer)
 	elif reuse_plan and not clock_only:
 		layer.queue_redraw()
+	var trace: RefCounted = layer.get("_board_redraw_trace")
 	for index: int in range(canvases.size()):
+		var canvas: Control = canvases[index]
+		if rebuilt and _retained_plan_canvases.has(canvas): continue
 		if not clock_only or _animated[index]:
-			var canvas: Control = canvases[index]
 			canvas.set("_idle_elapsed", layer.get("_idle_elapsed"))
+			if trace != null: trace.inherit_reason(layer, canvas, clock_only)
 			canvas.queue_redraw()
+	_retained_plan_canvases.clear()
 
 func _rebuild(layer: Control) -> void:
 	# These two plans contain one argument-free animated callback. Input changes
@@ -89,7 +110,7 @@ func _rebuild(layer: Control) -> void:
 	if not groups.is_empty() and not animated[0]:
 		parent_ops = groups.pop_front()
 		animated.pop_front()
-	layer.set("_render_slice_ops", parent_ops)
+	var repaint_parent: bool = _set_plan_ops(layer, layer, parent_ops)
 	# Retain node identities on ordinary changes; discard only unused tail slots.
 	if canvases.size() != groups.size():
 		var owner: Control = layer.get("_render_instrumentation_owner") as Control
@@ -120,7 +141,8 @@ func _rebuild(layer: Control) -> void:
 			canvases.append(canvas)
 		canvas.size = layer.size
 		canvas.material = layer.material
-		canvas.set("_render_slice_ops", groups[index])
+		if not _set_plan_ops(layer, canvas, groups[index], created):
+			_retained_plan_canvases[canvas] = true
 		if created:
 			# Existing slices already receive changed fields through the owner's
 			# normal retained-state/asset binding path. Copy all bindings only once.
@@ -139,7 +161,7 @@ func _rebuild(layer: Control) -> void:
 	_initialized = true
 	layer.set("_slice_operations", [])
 	# Empty parent canvases need one clearing submission after a previous plan.
-	layer.queue_redraw()
+	if repaint_parent: layer.queue_redraw()
 
 static func _hud_operations(board: Control) -> void:
 	# Match the unsliced HUD without applying forecast values to body rosters.
@@ -177,14 +199,19 @@ static func _hud_operations(board: Control) -> void:
 # The red threat paint of one tile: its alpha, whether it is the hero's pulsing
 # fill, and the inset diamond. Empty when the tile is not red or not seen.
 # atk-09: shared with the targeted tile's repaint above the border.
-static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, polygon: PackedVector2Array = PackedVector2Array()) -> Dictionary:
-	var lob: Dictionary = sources["lob_marks"] if sources.has("lob_marks") else board.LobView.marks(board)
-	var threats: Dictionary = board.get("_rest_threat_tile_alphas")
+static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, polygon: PackedVector2Array = PackedVector2Array(), targeting: bool = false) -> Dictionary:
+	var coverage: Dictionary = board._marker_threat_coverage if targeting else board._floor_threat_coverage
+	if targeting and coverage.get("rules", {}).has(tile): return {}
+	var lob: Dictionary
+	if targeting: lob = board.LobView.marks(board)
+	elif sources.has("lob_marks"): lob = sources["lob_marks"]
+	else: lob = board.LobView.floor_marks(board)
+	var alpha: float = float(coverage.get("alphas", {}).get(tile, -1.0))
 	var hero: Vector2i = board.presentation.get("threats_at_rest", {}).get("hero_tile", Vector2i(-1, -1))
 	if lob.has(tile):
-		threats = {tile: float(threats.get(tile, 1.0))}
+		if alpha < 0.0: alpha = 1.0
 		hero = tile if bool(lob[tile]["center"]) else Vector2i(-1, -1)
-	if not threats.has(tile) or not Threats.visible_at(board, tile): return {}
+	if alpha < 0.0 or not (board._board_tile_is_visible_to_player(tile) or coverage.get("announced", {}).has(tile)): return {}
 	if polygon.is_empty(): polygon = board.call("_tile_polygon", tile)
 	var center: Vector2 = board.call("_tile_center", tile)
 	var inset: float = Threats.OUTLINE_WIDTH * 0.5
@@ -194,14 +221,15 @@ static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, po
 	var inner := PackedVector2Array()
 	for point: Vector2 in polygon:
 		inner.append(center + (point - center) * maxf(0.0, 1.0 - inset / edge_distance))
-	return {"alpha": float(threats[tile]), "hero": tile == hero, "inner": inner, "center": center}
+	return {"alpha": alpha, "hero": tile == hero, "inner": inner, "center": center}
 
 static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
-	# atk-09: the targeted tile's paint is drawn later (lifted_threat_operations, and
-	# its outline above the targeted-tile border by targeted_tile_threat.gd).
-	if tile == board.get("_threat_lift_tile"): return
 	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
 	if paint.is_empty(): return
+	# The lift replaces identical paint. Distinct floor paint keeps its own
+	# position and owners under the release marker.
+	if tile == board.get("_threat_lift_tile") and not board._rule_threat_tiles.has(tile) and paint == _marker_paint(board, tile, polygon, sources):
+		if board._floor_threat_coverage["owners"].get(tile, []) == board._marker_threat_coverage["owners"].get(tile, []): return
 	_threat_fill_operations(board, paint)
 	if not board._rule_threat_tiles.has(tile): _threat_outline_operations(board, paint)
 	_threat_tag_operations(board, tile, paint, sources)
@@ -221,10 +249,13 @@ static func _threat_outline_operations(board: Control, paint: Dictionary) -> voi
 # atk-09: the targeted tile's red fill and zone tag, after its move-range and
 # hover highlights. Its outline is drawn above the targeted-tile border.
 static func lifted_threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
-	var paint: Dictionary = threat_paint(board, tile, sources, polygon)
+	var paint: Dictionary = _marker_paint(board, tile, polygon, sources)
 	if paint.is_empty(): return
 	_threat_fill_operations(board, paint)
 	_threat_tag_operations(board, tile, paint, sources)
+
+static func _marker_paint(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> Dictionary:
+	return sources["marker_paint"] if sources.has("marker_paint") else threat_paint(board, tile, {}, polygon, true)
 
 static func _threat_fill_operations(board: Control, paint: Dictionary) -> void:
 	var alpha: float = float(paint["alpha"])

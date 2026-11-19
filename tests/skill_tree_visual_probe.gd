@@ -123,7 +123,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		"%s Skills dialog should expose current Defiance and the next permanent milestone" % viewport_size
 	)
 	_expect(dialog.find_child("SkillResetHint", true, false) == null, "%s Skills dialog should omit permanent reset-explanation copy" % viewport_size)
-	var reset_button: Button = _button_with_text(dialog, "Reset Skills  ·  1 Moltshard")
+	var reset_button: Button = _button_with_text(dialog, "Reset Skills · 1 Moltshard")
 	_expect(reset_button != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
 	if reset_button != null:
 		_assert_inside(reset_button, viewport_size, "%s whole-tree reset command" % viewport_size, 8.0)

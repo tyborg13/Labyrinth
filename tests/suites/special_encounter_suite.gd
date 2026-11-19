@@ -23,11 +23,14 @@ const DEFERRED_TEST_SEED: int = 1
 const WARBAND_ENTRY_SEED: int = 4
 const DEFERRED_TEST_CARD: String = "guiding_flare"
 const STAGED_THORNMOTHER_SENTENCE: String = "After every second Thornmother turn, the marked tiles rise as Outcrops."
-const APPROVED_THORNMOTHER_SENTENCE: String = "After every second Thornmother turn, its marked tiles rise as Outcrops unless something immovable is on them."
+const APPROVED_THORNMOTHER_SENTENCE: String = "After every second Thornmother turn, its marked tiles rise as Outcrops."
 
 static func approved_catalog_text() -> String:
 	var staged: String = FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/spx/special_encounters.json")
-	return staged.replace(STAGED_THORNMOTHER_SENTENCE, APPROVED_THORNMOTHER_SENTENCE)
+	var approved: String = staged.replace(STAGED_THORNMOTHER_SENTENCE, APPROVED_THORNMOTHER_SENTENCE)
+	approved = approved.replace('"objective_title": "Survive until dawn!"', '"objective_title": "Survive Until Dawn!"')
+	approved = approved.replace('"objective_hud_title": "Survive until dawn"', '"objective_hud_title": "Survive Until Dawn"')
+	return approved.replace("The Hoarder's hoard: +%d embers", "The Hoarder's hoard: +%d Embers")
 
 static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUNT, include_cases: bool = true) -> void:
 	if include_cases:

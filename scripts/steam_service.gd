@@ -331,6 +331,8 @@ func _initialize_steam() -> void:
 func _connect_stats_callbacks() -> void:
 	if _steam == null:
 		return
+	if _steam.has_signal("steam_shutdown") and not _steam.is_connected("steam_shutdown", _on_steam_shutdown):
+		_steam.connect("steam_shutdown", _on_steam_shutdown)
 	if _steam.has_signal("user_stats_received"):
 		var received_callback := Callable(self, "_on_user_stats_received")
 		if not _steam.is_connected("user_stats_received", received_callback):
@@ -340,6 +342,9 @@ func _connect_stats_callbacks() -> void:
 		if not _steam.is_connected("user_stats_stored", stored_callback):
 			_steam.connect("user_stats_stored", stored_callback)
 		_stats_store_callback_connected = true
+
+func _on_steam_shutdown() -> void:
+	preload("res://scripts/application_shutdown.gd").request(get_tree(), "steam_shutdown")
 
 func _request_current_stats() -> void:
 	_stats_request_retry_elapsed = 0.0

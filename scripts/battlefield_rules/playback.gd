@@ -9,6 +9,7 @@ const CAPTION_ICON_GAP: float = 8.0
 const CAPTION_ONLY_HOLD_SECONDS: float = 0.6
 const Hits = preload("res://scripts/battlefield_rules/hit_playback.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
+const Throw = preload("res://scripts/displacement_throw.gd")
 
 class CaptionIcon extends TextureRect:
 	static func rect_for(caption: Label) -> Rect2:
@@ -80,6 +81,8 @@ static func animate(scene: Control, state: Dictionary, beat: Dictionary) -> void
 			await scene._play_timed_animation_frames(1, CAPTION_ONLY_HOLD_SECONDS, func(_frame: int) -> void:
 				scene._render_board_state(state, caption)
 			)
+			if str(beat["rule"]) == "upheaval":
+				await _upheaval(scene, before, after, caption)
 			var losses: Array[Dictionary] = Hits.losses(scene._combat_engine, before, after)
 			if not losses.is_empty():
 				await scene._animate_floating_text_presentation(after, scene._death_hold_presentation(before, after, {"floating_texts": scene._floating_texts_for_target_losses(losses), "impact_actor_keys": scene._combat_engine._target_loss_keys(losses)}))
@@ -92,6 +95,24 @@ static func animate(scene: Control, state: Dictionary, beat: Dictionary) -> void
 	# As a caption child the icon shares its fade/visibility. The next caption
 	# clears it in _set_action_banner; it stays through all numbers and arcs.
 	scene._render_board_state(state, {})
+
+static func _upheaval(scene: Control, before: Dictionary, after: Dictionary, caption: Dictionary) -> void:
+	var rises: Array[Dictionary]
+	var origins: Array[Vector2i]
+	var removed_actors: Dictionary = {}
+	for event: Dictionary in scene._surface_events_between(before, after):
+		if event.get("kind") == "terrain_created" and event.get("terrain_kind") == "crag_outcrop":
+			rises.append(event)
+			origins.append(event["tile"])
+		elif event.get("kind") == "actor_death":
+			# A lethal landing can remove the actor from the settled roster.
+			removed_actors[event["actor_key"]] = event["unit"]
+	if rises.is_empty(): return
+	var flights: Array[Dictionary] = Throw.paths(before, after, origins, "", removed_actors)
+	if not flights.is_empty():
+		scene._ensure_sfx_bank()
+		scene._sfx_router.push()
+	await Throw.animate_rise(scene, before, after, flights, rises, caption)
 
 static func _animate_arrival_defeats(scene: Control, before: Dictionary, after: Dictionary, caption: Dictionary) -> void:
 	# A split arrival can die on contact with a trap before the beat ends.

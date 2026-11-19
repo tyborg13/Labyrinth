@@ -96,9 +96,11 @@ class TextBudgetTest(unittest.TestCase):
         short_copy = {key: text for key, text in short_copy.items() if key not in MARKED_RETIRED}
         short_copy["marked"] = MARKED_DEFINITION
         short_copy.update(TXT13_APPROVED_COPY["glossary_definitions"])
+        short_copy["surface_rubble"] = "Costs 2 Movement to leave."
+        short_copy["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
         # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
         live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
-                          "definition": "When it dies, it splits into smaller foes next to it."}
+                          "definition": "When it dies, it splits into smaller enemies next to it."}
         self.assertEqual(set(self.glossary), set(live))
         self.assertEqual(len(live), 140)
         for key, source in live.items():

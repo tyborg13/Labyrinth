@@ -87,7 +87,7 @@ static func run(expect: Callable) -> void:
 		state["enemies"][0]["intent"] = intent
 		var action: Dictionary = Lob.presentation_action(engine, state, state["enemies"][0], intent["actions"][0])
 		var expected: String = AIM_TEXT if id == "lob_slag" else LAND_TEXT
-		var tooltip: String = AIM_TOOLTIP if id == "lob_slag" else "@pattern(cross) Marked tiles take the hit: 5 in the centre, 3 around it, and they become Fire."
+		var tooltip: String = AIM_TOOLTIP if id == "lob_slag" else "@pattern(cross) Marked tiles take the hit: 5 in the center, 3 around it, and they become Fire."
 		board.combat_state = state
 		expect.call(board.enemy_intent_tooltip("enemy_1") == tooltip, "Complete intent tooltip uses the exact approved sentence")
 		var tokens: Array = Icons.tokens_for_action(action)
@@ -132,7 +132,7 @@ static func _scaled_presentation(engine: RefCounted, expect: Callable) -> void:
 			var enemy: Dictionary = state["enemies"][0]
 			var action: Dictionary = Lob.presentation_action(engine, state, enemy, enemy["intent"]["actions"][0])
 			var expected: String = ("Lob Slag · %d / %d" if landing else "Lob Slag next turn · %d / %d") % [expected_center, expected_arm]
-			var tooltip: String = "@pattern(cross) Marked tiles take the hit: %d in the centre, %d around it, and they become Fire." % [expected_center, expected_arm] if landing else AIM_TOOLTIP
+			var tooltip: String = "@pattern(cross) Marked tiles take the hit: %d in the center, %d around it, and they become Fire." % [expected_center, expected_arm] if landing else AIM_TOOLTIP
 			expect.call(int(action["center_damage"]) == expected_center and int(action["arm_damage"]) == expected_arm, "Depth %d resolves scaled landing values" % depth)
 			board.combat_state = state
 			var rows: Array = View.rows(board, enemy, enemy["intent"])
@@ -174,7 +174,7 @@ static func _cross_count_copy(engine: RefCounted, expect: Callable) -> void:
 			board.combat_state = state
 			var tooltip: String = BARRAGE_TOOLTIP if count == 2 else AIM_TOOLTIP
 			if landing:
-				tooltip = "@pattern(cross) @pattern(cross) Marked tiles take the hit: 6 in each centre, 4 around them, and they become Fire." if count == 2 else "@pattern(cross) Marked tiles take the hit: 6 in the centre, 4 around it, and they become Fire."
+				tooltip = "@pattern(cross) @pattern(cross) Marked tiles take the hit: 6 in each center, 4 around them, and they become Fire." if count == 2 else "@pattern(cross) Marked tiles take the hit: 6 in the center, 4 around it, and they become Fire."
 			expect.call(int(action["lob_cross_count"]) == count, "Copy counts the actual aiming or held landing crosses")
 			expect.call(View.callout(state, "enemy_1", "fallback") == expected, "Exact one/two-cross callout on both turns")
 			expect.call(board.enemy_intent_tooltip("enemy_1") == tooltip, "Exact one/two-cross full tooltip omits the captain Order")

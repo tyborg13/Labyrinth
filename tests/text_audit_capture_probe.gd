@@ -21,6 +21,8 @@ const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/text_audit/1920x1080"
 # Chosen defaults: debug-only seed, settling budget and manual-tooltip position.
 const FIXTURE_SEED: int = 321
+const HOUSE_STYLE_MISSING_HEALTH: int = 10
+const HEARTH_PROOF_TIMEOUT_SECONDS: float = 3.0
 const READY_FRAMES: int = 600
 const SETTLE_FRAMES: int = 5
 const TOOLTIP_POSITION := Vector2(1200, 350)
@@ -48,6 +50,7 @@ const CAPTURES: Array = [
 ]
 
 var _failed: bool = false
+var _record_baseline: bool = OS.get_cmdline_user_args().has("--record-house-style-baseline")
 var _headless: bool = false
 var _viewport: SubViewport
 var _scene: Node
@@ -232,6 +235,9 @@ func _capture_fixtures() -> void:
 	await _capture("06_intent", not intent_text.is_empty() and _tooltip != null, "Live enemy intent token and its exact tooltip")
 	_clear_tooltip()
 	_show_tooltip(_scene.call("_build_pre_battle_enemy_inspection_panel", enemy))
+	var enemy_health := _tooltip.find_child("PreBattleEnemyHpLine", true, false) as Label if _tooltip != null else null
+	_proof_text("enemy inspection", enemy_health.text if enemy_health != null else "",
+		"Health %d/%d" % [int(enemy["hp"]), int(enemy["max_hp"])])
 	await _capture("14_enemy", _tooltip != null and _tooltip.find_child("PreBattleKnownMoves", true, false) != null, "Production enemy inspection with known moves")
 	_clear_tooltip()
 	_show_tooltip(_scene.call("_build_equipment_tooltip_panel", "training_sword"))
@@ -251,11 +257,17 @@ func _capture_fixtures() -> void:
 	_clear_tooltip()
 	var reward: Dictionary = combat_run.duplicate(true)
 	reward["mode"] = "reward"
+	reward["player_hp"] = int(reward["player_max_hp"]) - HOUSE_STYLE_MISSING_HEALTH
+	reward["combat_state"]["player"]["hp"] = reward["player_hp"]
 	reward["pending_reward"] = {"cards": PROOF_HAND.duplicate(), "heal_amount": Run.REWARD_HEAL, "ember_amount": 0}
 	await _load(reward)
 	var reward_card: Control = _first_card(_scene)
 	if reward_card != null:
 		await _pointer(reward_card.get_global_rect().get_center())
+	var recover := _scene.find_child("RewardRecoverButton", true, false) as Button
+	var reward_healing: int = mini(HOUSE_STYLE_MISSING_HEALTH, Run.REWARD_HEAL)
+	_proof_text("reward Skip", recover.text if recover != null else "",
+		"SKIP & RECOVER · +%d HEALTH · %d → %d" % [reward_healing, reward["player_hp"], reward["player_hp"] + reward_healing])
 	await _capture("02_card_reward", str((_scene.get("_run_state") as Dictionary).get("mode")) == "reward" and reward_card != null, "Live card reward and hovered production CardWidget")
 	var treasure: Dictionary = _room_fixture(engine, base, "treasure")
 	treasure["mode"] = "treasure"
@@ -323,8 +335,10 @@ func _capture_fixtures() -> void:
 	_scene.call("_close_card_upgrade_overlay")
 	var campfire: Dictionary = _room_fixture(engine, base, "campfire")
 	campfire["mode"] = "campfire"
+	campfire["player_hp"] = int(campfire["player_max_hp"]) - HOUSE_STYLE_MISSING_HEALTH
 	await _load(campfire)
 	await _capture("25_campfire", str((_scene.get("_run_state") as Dictionary).get("mode")) == "campfire", "Production Ember Hearth choices")
+	await _prove_hearth_result(campfire, board)
 	var pre_battle: Dictionary = engine.move_to_pre_battle(base.duplicate(true), engine.available_moves(base)[0])
 	await _load(pre_battle)
 	await create_timer(PRESENTATION_WAIT_SECONDS).timeout
@@ -354,8 +368,11 @@ func _capture_fixtures() -> void:
 	await _capture("20_main_menu", menu.get_node("MenuColumn").visible, "Production main menu")
 	menu.call("_on_settings_button_pressed")
 	var settings_panel: Control = menu.get_node("SettingsPanel") as Control
+	_proof_button("Settings Restore Defaults", settings_panel.get("_footer_actions"), "Restore Defaults", "Restore defaults")
+	_proof_button("Settings Full Motion", settings_panel, "Off — Full Motion", "Off — full motion")
 	await _capture("12_settings", settings_panel.visible, "Production settings at 100% scale")
 	settings_panel.call("_show_restore_confirmation")
+	_proof_button("Settings Reset All", settings_panel.get("_confirmation_panel"), "Reset All", "Reset all")
 	await _capture("18_confirmation", (settings_panel.get("_confirmation_panel") as Control).visible, "Restore settings confirmation; no destructive action is taken")
 	menu.call("_on_settings_back_button_pressed")
 	var chronicle := preload("res://scripts/chronicle_panel.gd").new()
@@ -367,6 +384,38 @@ func _capture_fixtures() -> void:
 	chronicle.queue_free()
 	menu.queue_free()
 	await process_frame
+
+func _proof_text(surface: String, actual: String, expected: String) -> void:
+	print("TXT16 %s: %s" % [surface, JSON.stringify(actual)])
+	_expect(not actual.is_empty() and (_record_baseline or actual == expected), surface + " matches the house style")
+
+func _proof_button(surface: String, scope: Node, expected: String, baseline: String) -> void:
+	var text: String = ""
+	for node: Node in scope.find_children("*", "Button", true, false):
+		var button := node as Button
+		if button.text in [expected, baseline]:
+			text = button.text
+			break
+	_proof_text(surface, text, expected)
+
+func _prove_hearth_result(campfire: Dictionary, board: Control) -> void:
+	var choices: HBoxContainer = _scene.get("_relic_choice_bar") as HBoxContainer
+	var linger := choices.get_child(0) as PanelContainer
+	var deadline: SceneTreeTimer = create_timer(HEARTH_PROOF_TIMEOUT_SECONDS)
+	while deadline.time_left > 0.0 and not bool(linger.get_meta("choice_revealed", false)):
+		await process_frame
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	_scene.call("_on_campfire_choice_gui_input", click, "linger", linger, Color("efb35f"))
+	while deadline.time_left > 0.0:
+		var presentation: Dictionary = board.get("presentation")
+		for entry: Dictionary in presentation.get("floating_texts", []):
+			var gain: int = int((_scene.get("_run_state") as Dictionary)["player_hp"]) - int(campfire["player_hp"])
+			_proof_text("Ember Hearth result", str(entry["text"]), "+%d Health" % gain)
+			return
+		await process_frame
+	_expect(false, "Ember Hearth renders its production floating result")
 
 func _load(state: Dictionary, close_dialogue: bool = true) -> void:
 	_clear_tooltip()

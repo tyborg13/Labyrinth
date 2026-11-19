@@ -48,35 +48,50 @@ class TextureBoundsLifetime extends RefCounted:
 # tagging and the shared caches stay on the main thread. The drain joins the
 # outstanding task on tree shutdown; cancellation never publishes into a freed
 # scene and every pool task is reclaimed, including interrupted transitions.
+class PreparationCancellation extends RefCounted:
+	var _mutex := Mutex.new()
+	var _requested: bool = false
+
+	func cancel() -> void:
+		_mutex.lock()
+		_requested = true
+		_mutex.unlock()
+
+	func is_cancelled() -> bool:
+		_mutex.lock()
+		var cancelled: bool = _requested
+		_mutex.unlock()
+		return cancelled
+
 class SourceImageResult extends RefCounted:
 	var value: Variant
 	var paths: PackedStringArray
+	var variant_paths: PackedStringArray
+	var variant_failures: Array[String]
+	var source_first: Array[bool]
+	var source_routes: Array[bool]
 	var images: Array[Image]
-	var cancel_mutex := Mutex.new()
-	var cancel_requested: bool = false
-
-	func cancel() -> void:
-		cancel_mutex.lock()
-		cancel_requested = true
-		cancel_mutex.unlock()
-
-	func is_cancelled() -> bool:
-		cancel_mutex.lock()
-		var cancelled: bool = cancel_requested
-		cancel_mutex.unlock()
-		return cancelled
+	var cancellation := PreparationCancellation.new()
 
 class SourceImageDrain extends Node:
 	var task_id: int = -1
 	var group_id: int = -1
 	var result: SourceImageResult
-	# Threaded non-texture requests only (run_loading_audio.gd's AudioStreams).
-	# Texture2D requests stay on the main thread (qa-82).
-	var imports: PackedStringArray
-	var resources: Array[Resource]
+	func _ready() -> void:
+		set_process(false)
 
 	func decode_completed() -> bool:
 		return group_id < 0 or WorkerThreadPool.is_group_task_completed(group_id)
+
+	func reap_when_complete() -> void:
+		if result != null: result.cancellation.cancel()
+		set_process(true)
+
+	func _process(_delta: float) -> void:
+		if task_id >= 0 and not WorkerThreadPool.is_task_completed(task_id): return
+		if not decode_completed(): return
+		join()
+		queue_free()
 
 	func join() -> void:
 		if group_id >= 0:
@@ -86,113 +101,169 @@ class SourceImageDrain extends Node:
 			WorkerThreadPool.wait_for_task_completion(task_id)
 			task_id = -1
 
-		# Requests retain their resources until the ordinary cache publishes
-		# them. Even a removed owner must join every accepted engine request.
-		for path: String in imports:
-			var resource: Resource = ResourceLoader.load_threaded_get(path)
-			if resource != null: resources.append(resource)
-		imports.clear()
-
 	func _exit_tree() -> void:
-		if result != null: result.cancel()
+		# A normal consumer may still be publishing the joined result over
+		# several frames. Only a drain with outstanding work cancels here.
+		if result != null and (task_id >= 0 or group_id >= 0):
+			result.cancellation.cancel()
 		join()
 
-static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame: Callable, still_active: Callable = Callable()) -> void:
-	var _hitch_continuation: RefCounted
+const PREPARATION_STOPPED := &"labyrinth_asset_preparation_stopped"
+
+static func preparation_is_stopping(root: Node) -> bool:
+	return root.has_meta(PREPARATION_STOPPED)
+
+static func cancel_preparation_for(root: Node) -> void:
+	root.set_meta(PREPARATION_STOPPED, true)
+	for child: Node in root.get_children():
+		if child is SourceImageDrain: child.reap_when_complete()
+
+static func has_preparation_drains(root: Node) -> bool:
+	for child: Node in root.get_children():
+		if child is SourceImageDrain: return true
+	return false
+
+const TEXTURE_PREPARATION_SLICE_USEC: int = 4000
+static var _texture_preparation_frame: int = -1
+static var _texture_preparation_usec: int = 0
+
+# Several covered preparation jobs can resume on the same frame. Give their
+# atomic main-thread publications a shared budget.
+static func preparation_slice_full() -> bool:
+	var frame: int = Engine.get_process_frames()
+	if frame != _texture_preparation_frame:
+		_texture_preparation_frame = frame
+		_texture_preparation_usec = 0
+	return _texture_preparation_usec >= TEXTURE_PREPARATION_SLICE_USEC
+
+static func count_preparation_work(started_usec: int) -> void:
+	_texture_preparation_usec += Time.get_ticks_usec() - started_usec
+
+static func _texture_preparation_active(drain: Variant, still_active: Callable) -> bool:
+	return is_instance_valid(drain) and drain.is_inside_tree() and not preparation_is_stopping(drain.get_parent()) and (
+		not still_active.is_valid() or bool(still_active.call())
+	)
+
+static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame: Callable,
+		still_active: Callable = Callable(), publish_ready: Callable = Callable()) -> void:
+	if preparation_is_stopping(root): return
 	var drain := SourceImageDrain.new()
 	drain.name = "SourceImageDecodeDrain"
 	drain.process_mode = Node.PROCESS_MODE_ALWAYS
 	drain.result = SourceImageResult.new()
 	root.add_child(drain)
-	var source_paths: Dictionary = {}
+	if not _texture_preparation_active(drain, still_active):
+		drain.queue_free()
+		return
 	for path: String in manifest:
 		if _texture_cache.has(path): continue
-		var source_first: bool = bool(manifest[path])
-		if FileAccess.file_exists(path) and (source_first or (CelLook.mode != "off" and not CelLook.variant_path(path).is_empty()) or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
-			source_paths[path] = drain.result.paths.size()
-			drain.result.paths.append(path)
-	if not drain.result.paths.is_empty():
+		drain.result.paths.append(path)
+		drain.result.variant_paths.append(CelLook.variant_candidate_path(path))
+		drain.result.source_first.append(bool(manifest[path]))
+	var path_count: int = drain.result.paths.size()
+	if path_count > 0:
 		# Allocate once on the main thread. Each group element owns one slot;
-		# workers never resize the array or publish textures/shared cache entries.
-		drain.result.images.resize(drain.result.paths.size())
-		var worker_count: int = maxi(1, mini(OS.get_processor_count(), drain.result.paths.size()))
-		drain.group_id = WorkerThreadPool.add_group_task(_decode_owned_source_image.bind(drain.result), drain.result.paths.size(), worker_count, false, "Decode initial source images")
-	# Imported Texture2D loads also upload to RenderingDevice on the loading
-	# thread. In Godot 4.6.1, _acquire_transfer_worker can grow the pool while
-	# canvas redraw's free_polygon reads it without the pool mutex (qa-82).
-	# Keep the original imported resource/settings, but load it on the main
-	# thread below, outside redraw. Only private source-image decoding is async.
+		# workers never resize the arrays or publish textures/shared cache entries.
+		drain.result.source_routes.resize(path_count)
+		drain.result.images.resize(path_count)
+		drain.result.variant_failures.resize(path_count)
+		var worker_count: int = maxi(1, mini(OS.get_processor_count(), path_count))
+		drain.group_id = WorkerThreadPool.add_group_task(_decode_owned_source_image.bind(drain.result), path_count, worker_count, false, "Classify and decode texture sources")
+	# Imported Texture2D loads can upload to RenderingDevice on the loader
+	# thread (qa-82). Keep the exact import path on the main thread. A single
+	# import or upload is atomic; after it uses the slice, every caller waits.
 	while not drain.decode_completed():
-		if _hitch_trace_enabled: _hitch_continuation = null
 		await present_frame.call()
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:asset_loader:prepare_textures_for:1")
 		if not is_instance_valid(drain) or not drain.is_inside_tree(): return
-		if still_active.is_valid() and not bool(still_active.call()): drain.result.cancel()
+		if not _texture_preparation_active(drain, still_active):
+			drain.reap_when_complete()
+			return
 	drain.join()
-	var slice_started: int = Time.get_ticks_usec()
-	for path: String in manifest:
-		if still_active.is_valid() and not bool(still_active.call()):
-			drain.result.cancel()
-			break
-		if _texture_cache.has(path) or source_paths.has(path): continue
-		load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
-		if Time.get_ticks_usec() - slice_started >= 4000:
-			if _hitch_trace_enabled: _hitch_continuation = null
+	# The cover can decode sources while the PackedScene loads. Defer worker
+	# results' main-thread imports until the scene dependency loader releases
+	# shared resource and rendering locks.
+	while publish_ready.is_valid() and not bool(publish_ready.call()) and _texture_preparation_active(drain, still_active):
+		await present_frame.call()
+	if not _texture_preparation_active(drain, still_active):
+		if is_instance_valid(drain): drain.queue_free()
+		return
+	for failure: String in drain.result.variant_failures:
+		if not failure.is_empty(): CelLook.warn_missing(failure)
+	var import_jobs: Array[int]
+	var source_jobs: Array[int]
+	for index: int in range(path_count):
+		if drain.result.source_routes[index]: source_jobs.append(index)
+		else: import_jobs.append(index)
+	import_jobs.append_array(source_jobs)
+	for index: int in import_jobs:
+		var path: String = drain.result.paths[index]
+		if not _texture_preparation_active(drain, still_active): break
+		if _texture_cache.has(path): continue
+		while preparation_slice_full() and _texture_preparation_active(drain, still_active):
 			await present_frame.call()
-			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:asset_loader:prepare_textures_for:2")
-			if not is_instance_valid(drain) or not drain.is_inside_tree(): return
-			slice_started = Time.get_ticks_usec()
-	if not drain.result.is_cancelled():
-		slice_started = Time.get_ticks_usec()
-		for path: String in source_paths:
-			if still_active.is_valid() and not bool(still_active.call()): break
-			# Keep an identity published by another main-thread consumer while
-			# decoding, and use the existing fallback on a failed source decode.
-			if not _texture_cache.has(path):
-				var image: Image = drain.result.images[int(source_paths[path])]
-				if image != null:
-					var _hitch_upload: RefCounted
-					if _hitch_trace_enabled: _hitch_upload = _hitch_sink().hitch_load(path)
-					_texture_cache[path] = _tag_texture_source(ImageTexture.create_from_image(image), path)
-				else:
-					load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
-			if Time.get_ticks_usec() - slice_started >= 4000:
-				if _hitch_trace_enabled: _hitch_continuation = null
-				await present_frame.call()
-				if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:asset_loader:prepare_textures_for:3")
-				if not is_instance_valid(drain) or not drain.is_inside_tree(): return
-				slice_started = Time.get_ticks_usec()
-	drain.queue_free()
+		if not _texture_preparation_active(drain, still_active): break
+		if _texture_cache.has(path): continue
+		var started: int = Time.get_ticks_usec()
+		var _hitch_span: RefCounted
+		if drain.result.source_routes[index]:
+			if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("startup:asset_loader:publish_source_texture")
+			var image: Image = drain.result.images[index]
+			if image != null:
+				var _hitch_upload: RefCounted
+				if _hitch_trace_enabled: _hitch_upload = _hitch_sink().hitch_load(path)
+				_texture_cache[path] = _tag_texture_source(ImageTexture.create_from_image(image), path)
+			else:
+				load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
+		else:
+			if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("startup:asset_loader:import_texture")
+			load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
+		_hitch_span = null
+		count_preparation_work(started)
+	while preparation_slice_full() and _texture_preparation_active(drain, still_active):
+		await present_frame.call()
+	if is_instance_valid(drain): drain.queue_free()
 
 # Producers must create private CPU data only: no scene nodes, GPU objects or
 # shared-cache mutation. The main-thread caller owns publication after the join.
-static func prepare_cpu_value_for(root: Node, producer: Callable, present_frame: Callable, still_active: Callable) -> Variant:
-	var _hitch_continuation: RefCounted
+static func prepare_cpu_value_for(root: Node, producer: Callable, present_frame: Callable, still_active: Callable, cancellation: PreparationCancellation = null, job_name: StringName = &"OwnedCpuPreparationDrain") -> Variant:
+	# Graph and paint use distinct root slots. A retry waits for a cancelled
+	# producer to exit its current pass without joining it on the main thread.
+	if cancellation != null:
+		while root.has_node(NodePath(job_name)):
+			if preparation_is_stopping(root) or cancellation.is_cancelled() or not bool(still_active.call()): return null
+			await present_frame.call()
+	if preparation_is_stopping(root) or not bool(still_active.call()) or (cancellation != null and cancellation.is_cancelled()): return null
 	var drain := SourceImageDrain.new()
-	drain.name = "OwnedCpuPreparationDrain"
+	drain.name = job_name
+	drain.process_mode = Node.PROCESS_MODE_ALWAYS
 	drain.result = SourceImageResult.new()
+	if cancellation != null: drain.result.cancellation = cancellation
 	root.add_child(drain)
 	drain.task_id = WorkerThreadPool.add_task(_produce_owned_cpu_value.bind(producer, drain.result), false, "Prepare owned CPU asset")
-	while not WorkerThreadPool.is_task_completed(drain.task_id):
-		if _hitch_trace_enabled: _hitch_continuation = null
+	while true:
+		if not bool(still_active.call()) or drain.result.cancellation.is_cancelled():
+			drain.reap_when_complete()
+			return null
+		if WorkerThreadPool.is_task_completed(drain.task_id): break
 		await present_frame.call()
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:asset_loader:prepare_cpu_value_for:1")
 		if not is_instance_valid(drain) or not drain.is_inside_tree(): return null
-		if not bool(still_active.call()): drain.result.cancel()
+	var _hitch_span: RefCounted
+	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("asset_loader:take_owned_cpu_value")
 	drain.join()
-	var value: Variant = null if drain.result.is_cancelled() else drain.result.value
+	var value: Variant = drain.result.value
 	drain.queue_free()
+	_hitch_span = null
 	return value
 
 static func _produce_owned_cpu_value(producer: Callable, result: SourceImageResult) -> void:
-	if not result.is_cancelled(): result.value = producer.call()
+	if not result.cancellation.is_cancelled(): result.value = producer.call()
 
 static func prepare_audio_for(root: Node, paths: PackedStringArray, present_frame: Callable, still_active: Callable, prepare_loop: bool = false) -> void:
 	for path: String in paths:
 		# Imported streams and warm loop copies can finish synchronously, without
 		# entering the owned-worker cancellation checks. Consult request state
 		# before either path can publish, even when no frame has been presented.
-		if not bool(still_active.call()): return
+		if preparation_is_stopping(root) or not bool(still_active.call()): return
 		if _audio_cache.has(path) and (not prepare_loop or _looping_audio_cache.has(_audio_cache[path])): continue
 		if _audio_cache.has(path):
 			if prepare_loop: looping_audio_copy(_audio_cache[path] as AudioStream)
@@ -229,7 +300,22 @@ static func _new_looping_audio_copy(resource: AudioStream) -> AudioStream:
 	return looped
 
 static func _decode_owned_source_image(index: int, result: SourceImageResult) -> void:
-	if not result.is_cancelled(): result.images[index] = _load_source_image(result.paths[index])
+	if result.cancellation.is_cancelled(): return
+	var path: String = result.paths[index]
+	var variant: String = result.variant_paths[index]
+	var source_exists: bool = FileAccess.file_exists(path)
+	var variant_exists: bool = not variant.is_empty() and FileAccess.file_exists(variant)
+	if variant_exists:
+		result.source_routes[index] = true
+		result.images[index] = _decode_image_file(variant, "png")
+		if result.images[index] != null: return
+		result.variant_failures[index] = path
+	elif not variant.is_empty():
+		result.variant_failures[index] = path.trim_prefix("res://")
+	if source_exists and (variant_exists or result.source_first[index]
+		or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
+		result.source_routes[index] = true
+		result.images[index] = _decode_image_file(path, path.get_extension().to_lower())
 
 static func add_texture_constants(manifest: Dictionary, script: Script) -> void:
 	# Constants are the owning loader's asset manifest. Do not walk preloaded
@@ -344,15 +430,18 @@ static func _load_source_image(path: String, allow_cel: bool = true) -> Image:
 	if allow_cel and CelLook.mode != "off":
 		var variant: String = CelLook.variant_path(path)
 		if not variant.is_empty():
-			var cel := Image.new()
-			if cel.load_png_from_buffer(FileAccess.get_file_as_bytes(variant)) == OK and not cel.is_empty(): return cel
+			var cel: Image = _decode_image_file(variant, "png")
+			if cel != null: return cel
 			CelLook.warn_missing(path)
 	if not FileAccess.file_exists(path):
 		return null
+	return _decode_image_file(path, path.get_extension().to_lower())
+
+static func _decode_image_file(path: String, extension: String) -> Image:
 	var image := Image.new()
 	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
 	var error: Error
-	match path.get_extension().to_lower():
+	match extension:
 		"png":
 			error = image.load_png_from_buffer(bytes)
 		"jpg":

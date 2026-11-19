@@ -354,6 +354,74 @@
       "max_asset_bytes": 1500000,
       "max_recording_frames": 96,
       "min_recording_frames": 36
+    },
+    {
+      "id": "detonate_fire",
+      "term": "detonate",
+      "source_match": {
+        "kind": "hero_card",
+        "ids": [
+          "cinderline_tempo",
+          "inferno_ritual",
+          "wildfire_halo",
+          "phoenix_cleave",
+          "rekindle_edge",
+          "cinder_second",
+          "immolation"
+        ]
+      },
+      "grimoire_entries": [
+        "keyword:detonate"
+      ],
+      "asset_path": "res://assets/tooltip_loops/detonate_fire.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "discharge_network",
+      "term": "discharge",
+      "source_match": {
+        "kind": "hero_card",
+        "id": "discharge"
+      },
+      "grimoire_entries": [
+        "keyword:discharge"
+      ],
+      "asset_path": "res://assets/tooltip_loops/discharge_network.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "swap_landing",
+      "term": "swap",
+      "aliases": [
+        "illusion_swap"
+      ],
+      "source_match": {
+        "kind": "hero_card",
+        "ids": [
+          "changing_winds",
+          "empty_husk"
+        ]
+      },
+      "grimoire_entries": [
+        "combat:swap",
+        "keyword:illusion_swap"
+      ],
+      "asset_path": "res://assets/tooltip_loops/swap_landing.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000
+    },
+    {
+      "id": "worldspine_pulse",
+      "term": "raise_terrain",
+      "source_match": {
+        "kind": "hero_card",
+        "id": "worldspine"
+      },
+      "asset_path": "res://assets/tooltip_loops/worldspine_pulse.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000
     }
   ]
 }

@@ -3,23 +3,35 @@ extends RefCounted
 const Data = preload("res://scripts/game_data.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Builder = preload("res://scripts/item_preview_builders.gd")
-const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Omens = preload("res://scripts/omen_badges.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
+const Plate = preload("res://scripts/event_reward_plate.gd")
 const Separation = preload("res://scripts/event_reward_separation.gd")
 const MAX_WIDTH: float = 940.0
 const ICON_SIZE: float = 128.0
 const GEAR_CARD_SCALE: float = 0.6
 const TRANSFORM_SCALE: float = 0.5
-const DETAIL_PANEL_WIDTH: float = 420.0
 const HOVER_CARD_SCALE: float = 1.35
 
 static func first_concrete(lines: Array) -> Dictionary:
 	for line: Dictionary in lines:
 		if str(line.get("kind", "plain")) != "plain" and not (line.get("ids", []) as Array).is_empty(): return line.duplicate(true)
+	return {}
+
+## The existing concrete reward takes priority over ancillary Health/Ember gains.
+## Plain choice rows already own the exact player-facing gain copy.
+static func hover_line(lines: Array) -> Dictionary:
+	var concrete: Dictionary = first_concrete(lines)
+	if not concrete.is_empty(): return concrete
+	for line: Dictionary in lines:
+		var text: String = str(line.get("text", ""))
+		if text.begins_with("Gain ") and text.ends_with(" Embers."):
+			return {"kind": "gain", "ids": ["ember"], "text": text}
+		if text.contains("@icon(health)") and (text.begins_with("Heal ") or text.begins_with("+")):
+			return {"kind": "gain", "ids": ["health"], "text": text.replace("@icon(health)", Icons.label("health"))}
 	return {}
 
 static func outcome_line(outcome: Dictionary) -> Dictionary:
@@ -53,6 +65,7 @@ static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = f
 	# after the subtree is ready, without inspecting it on the frame path.
 	stage.ready.connect(ignore_input.bind(stage), CONNECT_ONE_SHOT)
 	var row := HBoxContainer.new()
+	row.name = "Rewards"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	stage.add_child(row)
 	var content: Control = row
@@ -60,6 +73,7 @@ static func begin_build(line: Dictionary, state: Dictionary, beat_only: bool = f
 		stage.remove_child(row)
 		row.free()
 		var pairs := VBoxContainer.new()
+		pairs.name = "Rewards"
 		stage.add_child(pairs)
 		content = pairs
 		for index: int in range(0, mini(ids.size(), 6), 2):
@@ -90,7 +104,11 @@ static func build_next(work: Dictionary) -> bool:
 		# Result beats, transform pairs, relics, gear icons and items stay native.
 		if not bool(work.beat_only) and bool(work.hover_cards) and str(work.line.get("kind", "")) in ["card", "card_choice", "equipment"] and str(job.kind) in ["card", "card_choice"]:
 			dimensions_scale = (Builder.CARD_TOOLTIP_SIZE.x / Builder.CARD_BASE_SIZE.x if is_equal_approx(dimensions_scale, 1.0) else dimensions_scale) * HOVER_CARD_SCALE
-		var child: Control = _object(job.kind, job.id, work.state, dimensions_scale, job.beat_only, jobs)
+		var child: Control
+		if job.beat_only or job.get("embedded", false):
+			child = _bare_object(job.kind, job.id, work.state, dimensions_scale, job.beat_only)
+		else:
+			child = _reward_plate(job, work, dimensions_scale)
 		var parent: Control = job.parent
 		parent.add_child(child)
 		parent.move_child(child, mini(int(job.index), parent.get_child_count() - 1))
@@ -108,20 +126,81 @@ static func build_next(work: Dictionary) -> bool:
 	# Negative gain receipts retain their native crush/dissolve presentation.
 	var negative_beat: bool = beat_only and (kind == "lose_item" or (kind == "omen" and not ids.is_empty() and str(Data.omen_def(str(ids[0])).get("kind", "")) == "bane"))
 	if not negative_beat: Separation.decorate(stage)
-	if not beat_only: Separation.pool(stage, Rect2(Vector2.ZERO, stage.size))
 	ignore_input(stage)
 	return true
+
+static func refit(stage: Control) -> void:
+	_fit(stage, stage.get_node("Rewards"))
 
 static func _fit(stage: Control, content: Control) -> void:
 	var extent: Vector2 = content.get_combined_minimum_size()
 	content.size = extent
 	var factor: float = minf(1.0, MAX_WIDTH / maxf(1.0, extent.x))
 	content.scale = Vector2.ONE * factor
-	stage.size = extent * factor
-	stage.custom_minimum_size = stage.size
+	stage.custom_minimum_size = Vector2(minf(extent.x, MAX_WIDTH), extent.y * factor)
+	stage.size = stage.custom_minimum_size
 	stage.pivot_offset = stage.size * 0.5
 
-static func _object(kind: String, id: String, state: Dictionary, scale_hint: float = 1.0, beat_only: bool = false, pending: Variant = null) -> Control:
+static func _reward_plate(job: Dictionary, work: Dictionary, factor: float) -> Control:
+	var kind: String = job.kind
+	var id: String = job.id
+	if kind in ["card", "card_choice", "item", "lose_item"]:
+		# Item rewards are native cards too, with run-specific rules and costs.
+		var plate: PanelContainer = Plate.make()
+		var face: Control = _bare_object(kind, id, work.state, factor)
+		if kind in ["item", "lose_item"]:
+			var card: Control = face.find_child("CardWidget", true, false)
+			var accent := Color(Data.card_def(id).get("accent", Data.card_rarity_accent(Data.card_rarity(id))))
+			card.ready.connect(Plate.add_item_art_light.bind(card, accent), CONNECT_ONE_SHOT)
+		face.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		Plate.contents(plate).add_child(face)
+		return plate
+	if kind == "gain":
+		var accent: Color = Palette.EMBER if id == "ember" else Palette.ALLY
+		return Plate.with_icon(icon_control(Icons.icon_path(id)), str(work.line.text), accent)
+	var definition: Dictionary = _definition(kind, id)
+	var accent: Color = _accent(kind, id, definition)
+	var rarity: String = str(definition.get("rarity", "")).capitalize()
+	var description: String = str(definition.get("description", ""))
+	var subtitle: String = str(definition.get("kind", "")).capitalize() if kind == "omen" else rarity
+	var plate: PanelContainer = Plate.with_icon(icon_control(_icon_path(kind, id, definition)), str(definition.get("name", id)), accent, subtitle, description)
+	plate.set_meta("reward_id", id)
+	plate.set_meta("reward_description", description)
+	var contents: VBoxContainer = Plate.contents(plate)
+	if kind == "omen":
+		contents.add_child(_label("%d fights" % int(definition.get("fights", 3)), Typography.SIZE_BODY, Palette.TEXT_2))
+	if kind == "equipment":
+		var cards := HBoxContainer.new()
+		cards.alignment = BoxContainer.ALIGNMENT_CENTER
+		contents.add_child(cards)
+		var index: int = 0
+		for card_id: String in Data.equipment_cards(id, work.state):
+			var embedded: Dictionary = _object_job(cards, index, "card", card_id, GEAR_CARD_SCALE)
+			embedded["embedded"] = true
+			work.jobs.append(embedded)
+			index += 1
+	return plate
+
+static func _definition(kind: String, id: String) -> Dictionary:
+	match kind:
+		"equipment": return Data.equipment_def(id)
+		"omen": return Data.omen_def(id)
+		"defiance": return {"name": Icons.label("defiance")}
+	return Data.relic_def(id)
+
+static func _accent(kind: String, id: String, definition: Dictionary) -> Color:
+	match kind:
+		"equipment": return Color(Data.equipment_accent(id))
+		"omen": return Palette.EVENT_BLESSING if definition.get("kind") == "blessing" else Palette.EVENT_BANE
+		"defiance": return Palette.GOLD
+	return Color(Data.relic_accent(id))
+
+static func _icon_path(kind: String, id: String, definition: Dictionary) -> String:
+	if kind == "omen": return Omens.icon_path(id)
+	if kind == "defiance": return Icons.icon_path("defiance")
+	return str(definition.get("icon_path", ""))
+
+static func _bare_object(kind: String, id: String, state: Dictionary, scale_hint: float, beat_only: bool = false) -> Control:
 	if kind in ["card", "card_choice", "item", "lose_item"]:
 		var builder := Builder.new()
 		builder.state = state
@@ -138,43 +217,12 @@ static func _object(kind: String, id: String, state: Dictionary, scale_hint: flo
 			column.add_child(_label("You lose this.", Typography.SIZE_BODY, Palette.TEXT))
 			return column
 		return slot
-	var definition: Dictionary = Data.equipment_def(id) if kind == "equipment" else Data.omen_def(id) if kind == "omen" else {"name": Icons.label("defiance")} if kind == "defiance" else Data.relic_def(id)
+	var definition: Dictionary = _definition(kind, id)
 	var column := VBoxContainer.new()
-	var path: String = Omens.icon_path(id) if kind == "omen" else Icons.icon_path("defiance") if kind == "defiance" else str(definition.get("icon_path", ""))
-	column.add_child(icon_control(path))
-	var rarity: String = str(definition.get("rarity", ""))
-	var accent: Color = Color(Data.relic_rarity_accent(rarity))
-	if kind == "omen":
-		var tone: String = str(definition.get("kind", ""))
-		accent = Palette.EVENT_BLESSING if tone == "blessing" else Palette.EVENT_BANE
-	elif kind == "defiance": accent = Palette.GOLD
-	if beat_only:
-		column.add_child(_label(str(definition.get("name", id)).to_upper(), Typography.SIZE_BODY_LARGE, accent))
-		return column
-	var lines := PackedStringArray()
-	if kind != "omen" and not rarity.is_empty(): lines.append(rarity.capitalize())
-	if kind != "equipment": lines.append(str(definition.get("description", "")))
-	var panel: PanelContainer = Tooltip.make_lines(str(definition.get("name", id)), lines, DETAIL_PANEL_WIDTH)
-	Tooltip.append_glossary(panel, str(definition.get("description", "")))
-	panel.set_meta("reward_id", id)
-	# The native tooltip surface has a -1 ornament. Raise this embedded panel
-	# once so that ornament paints above the event's opaque painting/panel.
-	panel.z_index = 1
-	column.add_child(panel)
-	var box: VBoxContainer = panel.get_child(0)
-	(box.get_child(0) as Label).add_theme_color_override("font_color", accent)
-	if kind == "omen":
-		var tone_label := _label(str(definition.get("kind", "")).capitalize(), Typography.SIZE_BODY, accent)
-		box.add_child(tone_label)
-		box.move_child(tone_label, 1)
-		box.add_child(_label("%d fights" % int(definition.get("fights", 3)), Typography.SIZE_BODY, Palette.TEXT_2))
-	if kind == "equipment":
-		var cards := HBoxContainer.new()
-		cards.alignment = BoxContainer.ALIGNMENT_CENTER
-		box.add_child(cards)
-		for card_id: String in Data.equipment_cards(id, state):
-			if pending == null: cards.add_child(_object("card", card_id, state, GEAR_CARD_SCALE))
-			else: pending.append(_object_job(cards, pending.size(), "card", card_id, GEAR_CARD_SCALE))
+	column.add_child(icon_control(_icon_path(kind, id, definition)))
+	# Result beats retain their original rarity tint and icon/name layout.
+	var accent: Color = _accent(kind, id, definition) if kind in ["omen", "defiance"] else Color(Data.relic_rarity_accent(str(definition.get("rarity", ""))))
+	column.add_child(_label(str(definition.get("name", id)).to_upper(), Typography.SIZE_BODY_LARGE, accent))
 	return column
 
 static func icon_control(path: String) -> TextureRect:

@@ -31,7 +31,7 @@ const FLAG_ORDER: Array = [FLAG_NO_MOVE, FLAG_ANCHORED, FLAG_ICE_SKATE, FLAG_FIR
 ## identity the card rows and action steps use (spec/icon_identity_policy.md).
 const FLAG_INFO: Dictionary = {
 	"ice_skate": {"label": "Skate", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
-		"description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you."},
+		"description": "This turn, moving onto Ice costs no Movement and Ice doesn't Chill you."},
 	"no_move": {"label": "Immobilize", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
 		"description": "You can't Move, Blink or Swap for the rest of this turn."},
 	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",

@@ -26,7 +26,7 @@ static func _test_release_fallback(expect: Callable) -> void:
 		if stripped.begins_with("class_name "): continue
 		if stripped.begins_with("assert("):
 			line = line.substr(0, line.find("assert(")) + "pass"
-		elif stripped.begins_with("if revision >= 6 and not Specials.place("):
+		elif stripped.begins_with("if revision >= 6 and not Specials.place_from_catalog("):
 			line = "\t\tif revision >= 6:"
 			forced = true
 		lines.append(line)

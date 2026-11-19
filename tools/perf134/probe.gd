@@ -4,6 +4,8 @@ extends SceneTree
 const Fixture = preload("res://tools/hitch_census/fixtures.gd")
 const View = preload("res://tools/ptf09/real_fixture.gd")
 const Clock = preload("res://scripts/presentation_clock.gd")
+const EncounterPreparation = preload("res://scripts/encounter_asset_preparation.gd")
+const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const SEED: int = 102
 const SIZE := Vector2i(1920, 1080)
 const NORMAL_ENEMIES: String = "crawler,acolyte,harrier"
@@ -49,6 +51,9 @@ var _capture: String
 var _detail: bool
 var _fixtures: Dictionary
 var _fixture_digest: String
+var _glyph_slice_started: int
+var _glyph_longest_slice: int
+var _glyph_slice_count: int
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -110,10 +115,17 @@ func _run() -> void:
 			if not _errors.is_empty(): break
 		_finish()
 		return
+	var controller_route_path: String = _argument("--board-redraw-route=")
+	var controller_route: GDScript = load(controller_route_path) if not controller_route_path.is_empty() else null
 	var results: Dictionary = {}
 	for kind: String in ["normal", "tharokh"]:
 		if not await _open(kind): break
-		results[kind] = await _route()
+		if OS.get_cmdline_user_args().has("--opening-glyphs"):
+			results[kind] = await _measure_opening_glyphs()
+		elif controller_route != null:
+			results[kind] = await controller_route.run(self)
+		else:
+			results[kind] = await _route()
 		_scene.queue_free()
 		await _wait_frames(2)
 	var adapter: GDScript = preload("res://scripts/input_router.gd")
@@ -271,7 +283,8 @@ func _route() -> Dictionary:
 	if _detail and _board.has_method("_begin_stage_submission_detail"):
 		_board.set("_submission_detail_enabled", true)
 	_frames = {}
-	_render_samples = []
+	var empty_render_samples: Array[Array]
+	_render_samples = empty_render_samples
 	_previous_usec = 0
 	_unfocused_frames = 0
 	_sample = not _headless
@@ -329,6 +342,7 @@ func _route() -> Dictionary:
 		"unfocused_frames": _unfocused_frames,
 		"board_submission": _board.call("submission_performance_instrumentation_snapshot"),
 		"stage_submission_top": _board.get("_submission_detail_top") if _detail else [],
+		"runtime_top_frames": _scene.runtime_performance_frame_instrumentation_snapshot()["top_frames"] if _detail else [],
 		"draw_categories": _board.get("_submission_draw_categories") if _detail else {},
 		"enemy_round_clock": _scene.runtime_animation_clock_snapshot(),
 		"enemy_round_elapsed_usec": enemy_round_elapsed,
@@ -338,6 +352,28 @@ func _route() -> Dictionary:
 			"hero_action": submissions_after_card - submissions_before_pass,
 			"enemy_round_and_rest": _board_submission_count() - submissions_after_card},
 		"memory": Performance.get_monitor(Performance.MEMORY_STATIC), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT)}
+
+func _measure_opening_glyphs() -> Dictionary:
+	var state: Dictionary = _scene.get("_combat_state")
+	var hud: Control = _scene.get("_combat_objective_hud")
+	_glyph_longest_slice = 0
+	_glyph_slice_count = 0
+	_glyph_slice_started = Time.get_ticks_usec()
+	var jobs: Array[Dictionary] = hud.opening_glyph_preparation_jobs(EncounterPreparation.opening_objective_hud_state(_scene, state))
+	var collect_usec: int = Time.get_ticks_usec() - _glyph_slice_started
+	await Glyphs.prepare_jobs_for(_scene, jobs, _next_glyph_slice, func() -> bool: return is_instance_valid(_scene))
+	_record_glyph_slice()
+	print("PERF-137 GLYPHS: %s collect=%d us, longest combined slice=%d us, frames=%d" % [state["room_name"], collect_usec, _glyph_longest_slice, _glyph_slice_count])
+	return {"collect_usec": collect_usec, "max_usec": _glyph_longest_slice, "frames": _glyph_slice_count}
+
+func _next_glyph_slice() -> void:
+	_record_glyph_slice()
+	await EncounterPreparation.present_frame(self)
+	_glyph_slice_started = Time.get_ticks_usec()
+
+func _record_glyph_slice() -> void:
+	_glyph_longest_slice = maxi(_glyph_longest_slice, Time.get_ticks_usec() - _glyph_slice_started)
+	_glyph_slice_count += 1
 
 func _board_submission_count() -> int:
 	var counts: Dictionary = _board.get("_submission_performance_counts")

@@ -69,7 +69,9 @@ func _probe() -> void:
 		var state: Dictionary = Fixtures.fixture(proof[0], true)
 		view.present(state, true)
 		view.finish_animation_for_test()
-		view.choices[0].mouse_entered.emit()
+		var motion := InputEventMouseMotion.new()
+		motion.position = view.choices[0].get_global_transform_with_canvas() * (view.choices[0].size * 0.5)
+		view.handle_input(motion)
 		view.choices[0].grab_focus()
 		for button: Button in view.choices:
 			_expect(view.cached_preview_lines(button.choice_id) == Events.preview_lines(state, proof[0], button.choice_id), "Visible choice uses exact cached preview")

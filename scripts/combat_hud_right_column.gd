@@ -62,8 +62,8 @@ func layout(scene: Control) -> void:
 	anchor.size = Vector2(width, total_height)
 	anchor.visible = true
 	var panel: Control = scene._turn_order_panel
+	# The full-rect panel follows the anchor. The minimum also applies during container sort.
 	panel.custom_minimum_size = Vector2(width, total_height)
-	panel.size = panel.custom_minimum_size
 	panel.visible = true
 	scene._turn_order_header_host.custom_minimum_size = Vector2(width, 0.0)
 	var bar: Control = scene._turn_order_bar

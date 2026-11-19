@@ -222,7 +222,7 @@ static func _test_tooltip_entry_modifier_merging(expect: Callable) -> void:
 		expect.call(entries[0]["title"] == ActionIcons.label("stagger") and entries[0]["description"] == "%s\nModified by:\nEmpower +4" % ActionIcons.description("stagger"), "Merged title and description should be rebuilt from the final tooltip")
 	for ordered_tokens: Array in [[empowered, relic, empowered, relic], [relic, empowered, relic, empowered]]:
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([ordered_tokens])
-		var expected_lines: String = "Empower +4\nRelic +1  Fixture relic" if ordered_tokens[0] == empowered else "Relic +1  Fixture relic\nEmpower +4"
+		var expected_lines: String = "Empower +4\nRelic +1 · Fixture relic" if ordered_tokens[0] == empowered else "Relic +1 · Fixture relic\nEmpower +4"
 		expect.call(entries.size() == 1, "Different modifiers of the same keyword should share one entry")
 		expect.call(entries[0]["tooltip"] == "%s\nModified by:\n%s" % [ActionIcons.tooltip("stagger"), expected_lines], "Merged modifier lines should retain reading order, exact wording and spacing, and appear once each")
 	var repeated: Dictionary = ActionIcons.token_for("stagger", 4, "bonus", "", [{"source": "Empower", "amount": 4}, {"source": "Empower", "amount": 4}], 0)

@@ -23,6 +23,12 @@ static func rows(view: Control, unit: Dictionary, intent: Dictionary) -> Array:
 	return result
 
 static func marks(view: Control) -> Dictionary:
+	return _marks(view, null)
+
+static func floor_marks(view: Control) -> Dictionary:
+	return _marks(view, view.presentation.get(DangerTiles.LOB_AIM_KEY))
+
+static func _marks(view: Control, preview_aim: Variant) -> Dictionary:
 	var result: Dictionary = {}
 	var engine := _preview_engine
 	for enemy: Dictionary in view.combat_state.get("enemies", []):
@@ -32,7 +38,7 @@ static func marks(view: Control) -> Dictionary:
 		var affected: Array[Vector2i] = engine._vector2i_values(enemy.get("lob_tiles", []))
 		var centers: Array[Vector2i] = engine._vector2i_values(enemy.get("lob_centers", [enemy.get("lob_center", Vector2i(-1, -1))]))
 		if aiming and affected.is_empty() and engine.is_enemy_visible_to_player(view.combat_state, enemy):
-			var forecast: Dictionary = Rules.aiming_forecast(engine, view.combat_state, enemy)
+			var forecast: Dictionary = Rules.aiming_forecast(engine, view.combat_state, enemy) if preview_aim == null else preview_aim.get(int(enemy["id"]), {})
 			affected = engine._vector2i_values(forecast.get("tiles", []))
 			centers = engine._vector2i_values(forecast.get("centers", []))
 		if affected.is_empty(): continue

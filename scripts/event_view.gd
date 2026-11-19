@@ -95,7 +95,8 @@ var result_beats: Control
 var preview_brightness: float = 1.0
 var _building_column: bool = false
 var _pointer_choice: int = -1
-var _focus_preview_index: int = -1
+enum PreviewInput { NONE, POINTER, FOCUS }
+var _preview_input: PreviewInput = PreviewInput.NONE
 var _result_receipt: Array = []
 
 var _signature: int = 0
@@ -247,7 +248,8 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 func _rebuild() -> void:
 	_building_column = true
 	_pointer_choice = -1
-	_focus_preview_index = -1
+	_preview_input = PreviewInput.NONE
+	_stick_repeat.reset()
 	page = str(run_state.get("event_state", {}).get("page", "choices"))
 	var painting: String = Events.art_path(Events.current_id(run_state))
 	art.texture = Assets.load_texture(painting) if FileAccess.file_exists(painting) or ResourceLoader.exists(painting) else null
@@ -363,19 +365,17 @@ func _build_column() -> void:
 			button.pressed.connect(activate_choice.bind(index, true))
 			button.focus_entered.connect(func() -> void:
 				_focused_index = choices.find(button)
-				if not _building_column:
-					_pointer_choice = -1
-					_focus_preview_index = _focused_index
-					preview_choice(_focused_index)
+				if _preview_input == PreviewInput.FOCUS: _refresh_preview()
 				interaction_changed.emit())
-			button.focus_exited.connect(_preview_focus_left)
+			button.focus_exited.connect(func() -> void:
+				if _preview_input == PreviewInput.FOCUS: _refresh_preview.call_deferred())
 			button.mouse_entered.connect(func() -> void:
 				_pointer_choice = choices.find(button)
-				preview_choice(_pointer_choice))
+				if _preview_input == PreviewInput.POINTER: _refresh_preview())
 			button.mouse_exited.connect(func() -> void:
+				if _pointer_choice != choices.find(button): return
 				_pointer_choice = -1
-				if _focus_preview_index >= 0: preview_choice(_focus_preview_index)
-				else: hover_preview.conceal())
+				if _preview_input == PreviewInput.POINTER: _refresh_preview())
 			choices.append(button)
 			index += 1
 		for focus_index: int in range(choices.size()):
@@ -408,7 +408,9 @@ func controller_action_label() -> String:
 
 func move_focus(direction: int) -> void:
 	if page == "result" or choices.is_empty(): return
+	_preview_input = PreviewInput.FOCUS
 	choices[posmod(focused_choice_index() + direction, choices.size())].grab_focus()
+	_refresh_preview()
 
 func activate_choice(index: int, pointer: bool = false) -> void:
 	if _busy or _request_pending or _closing or page != "choices" or index < 0 or index >= choices.size(): return
@@ -440,6 +442,9 @@ func handle_input(event: InputEvent) -> bool:
 		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null: router.call("record_input_activity", event)
+	if event is InputEventMouseMotion:
+		_preview_pointer_motion(event.position)
+		return false
 	if event is InputEventJoypadMotion:
 		if event.axis == JOY_AXIS_LEFT_Y:
 			_stick_repeat.sample(event.axis, event.axis_value, Router.JOYSTICK_ACTIVITY_THRESHOLD)
@@ -448,7 +453,10 @@ func handle_input(event: InputEvent) -> bool:
 	if page == "result" and result_beats != null:
 		finish_result_beats()
 	if event is InputEventKey and not (event.alt_pressed or event.ctrl_pressed or event.meta_pressed):
-		if event.keycode >= KEY_1 and event.keycode <= KEY_3: activate_choice(event.keycode - KEY_1); return true
+		if event.keycode >= KEY_1 and event.keycode <= KEY_3:
+			_enable_focus_preview()
+			activate_choice(event.keycode - KEY_1)
+			return true
 		if event.keycode == KEY_UP: move_focus(-1); return true
 		if event.keycode == KEY_DOWN: move_focus(1); return true
 		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER: _activate_focused(); return true
@@ -463,12 +471,32 @@ func _process(delta: float) -> void:
 		_stick_repeat.reset()
 		return
 	var router: Node = get_node_or_null("/root/InputRouter")
-	if router == null or bool(router.call("using_controller")):
+	if _preview_input == PreviewInput.FOCUS and (router == null or bool(router.call("using_controller"))):
 		_stick_repeat.advance(delta)
 
 func _activate_focused() -> void:
 	if page == "result": activate_continue()
-	else: activate_choice(focused_choice_index())
+	else:
+		_enable_focus_preview()
+		activate_choice(focused_choice_index())
+
+func _enable_focus_preview() -> void:
+	if page != "choices": return
+	_preview_input = PreviewInput.FOCUS
+	_refresh_preview()
+
+func _preview_pointer_motion(point: Vector2) -> void:
+	if page != "choices" or _preview_input == PreviewInput.POINTER: return
+	_preview_input = PreviewInput.POINTER
+	_pointer_choice = -1
+	# Motion inside a choice can switch modes without emitting a new enter.
+	for index: int in range(choices.size()):
+		var button: Control = choices[index]
+		var local_point: Vector2 = button.get_global_transform_with_canvas().affine_inverse() * point
+		if Rect2(Vector2.ZERO, button.size).has_point(local_point):
+			_pointer_choice = index
+			break
+	_refresh_preview()
 
 func _on_choice_emphasis_refreshed(emphasized: bool, button: Button) -> void:
 	# Rebuild's automatic focus must not consume the first pointer highlight.
@@ -525,28 +553,31 @@ func set_reduced_motion(enabled: bool) -> void:
 	if result_beats != null: finish_result_beats()
 	if hover_preview != null:
 		hover_preview.preserve_painting = false
-		var index: int = _pointer_choice if _pointer_choice >= 0 else focused_choice_index()
+		var index: int = _preview_index()
 		if not hover_preview.current_line.is_empty(): hover_preview.conceal(true); hover_preview.show_choice(index)
 
 func preview_choice(index: int) -> void:
 	if _building_column or _closing: return
 	hover_preview.show_choice(index)
 
-func _preview_focus_left() -> void:
-	if not _building_column:
-		_focus_preview_index = -1
-		_settle_preview_focus.call_deferred()
+func _preview_index() -> int:
+	if _preview_input == PreviewInput.POINTER: return _pointer_choice
+	if _preview_input == PreviewInput.FOCUS: return focused_choice_index()
+	return -1
 
-func _settle_preview_focus() -> void:
-	if _building_column or page != "choices": return
-	var index: int = _pointer_choice if _pointer_choice >= 0 else _focus_preview_index
-	if index < 0: hover_preview.conceal()
-	else: preview_choice(index)
+func _refresh_preview() -> void:
+	if page == "choices": preview_choice(_preview_index())
+
+func set_hover_preview_brightness(value: float) -> void:
+	_set_preview_tone(value, Hover.PAINTING_BRIGHTNESS)
 
 func set_preview_brightness(value: float) -> void:
+	_set_preview_tone(value, Separation.PAINTING_BRIGHTNESS)
+
+func _set_preview_tone(value: float, darkest: float) -> void:
 	preview_brightness = value
 	(art.material as ShaderMaterial).set_shader_parameter("preview_brightness", value)
-	var strength: float = clampf(inverse_lerp(1.0, Separation.PAINTING_BRIGHTNESS, value), 0, 1)
+	var strength: float = clampf(inverse_lerp(1.0, darkest, value), 0, 1)
 	set_painting_tone(lerpf(1.0, Separation.PAINTING_SATURATION, strength), 1.0)
 
 func set_painting_tone(saturation: float, brightness: float) -> void:

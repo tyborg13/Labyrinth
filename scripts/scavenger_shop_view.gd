@@ -765,7 +765,7 @@ func show_dialogue(_dialogue: Dictionary) -> void:
 
 func _sync_dialogue() -> void:
 	if _dialogue_words == null: return
-	_dialogue_words.text = "“Cards, steel, little miracles in bottles. Spend your Embers, or show me what you've brought to sell.”"
+	_dialogue_words.text = "\"Cards, steel, little miracles in bottles. Spend your Embers, or show me what you've brought to sell.\""
 
 
 func _set_pack_mode(selling: bool) -> void:
@@ -953,7 +953,7 @@ func _populate_sell_page() -> void:
 	var signature: String = "%d|%d|%d" % [hash([_sellable_ids, _pack_filter]), _sell_page, page_count]
 	if signature == _sell_page_signature: return
 	_sell_page_signature = signature
-	_sell_heading.text = "YOUR PACK" if page_count == 1 else "YOUR PACK  ·  %d / %d" % [_sell_page + 1, page_count]
+	_sell_heading.text = "YOUR PACK" if page_count == 1 else "YOUR PACK · %d/%d" % [_sell_page + 1, page_count]
 	_sell_previous.disabled = _sell_page <= 0
 	_sell_next.disabled = _sell_page >= page_count - 1
 	_sell_previous.visible = page_count > 1
@@ -1375,7 +1375,7 @@ func _render_detail_card() -> void:
 	var multiple_cards: bool = _detail_card_ids.size() > 1
 	_detail_card_nav.visible = multiple_cards
 	if multiple_cards:
-		_detail_card_counter.text = "%d / %d" % [_detail_card_index + 1, _detail_card_ids.size()]
+		_detail_card_counter.text = "%d/%d" % [_detail_card_index + 1, _detail_card_ids.size()]
 		_detail_card_previous.disabled = false
 		_detail_card_next.disabled = false
 

@@ -179,7 +179,7 @@ func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 	var health := panel.find_child("PreBattleHealthChip", true, false) as Control
 	var defiance_count := health.find_child("PreBattleDefianceCount", true, false) as Label
 	_expect(defiance_count != null and defiance_count.text == "2/3", "Compact health header preserves exact Defiance count")
-	_expect(_labels_text(health).contains("92 / 108"), "Compact health header preserves exact three-digit HP")
+	_expect(_labels_text(health).contains("92/108"), "Compact health header preserves exact three-digit HP")
 	var equipment_header := health.get_parent() as Control
 	_expect((panel.find_child("PreBattleDeckSection", true, false) as Control).get_global_rect().encloses(equipment_header.get_global_rect()), "Health and Defiance must not expand the right column")
 	await _snap("health_defiance")

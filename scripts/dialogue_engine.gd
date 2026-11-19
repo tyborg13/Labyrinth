@@ -95,7 +95,7 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dicti
 	var lines: Array = [
 		{
 			"speaker": speaker,
-			"text": "Hehehe. You're back...so soon."
+			"text": "Hehehe. You're back... so soon."
 		},
 		{
 			"speaker": speaker,
@@ -103,7 +103,7 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dicti
 		},
 		{
 			"speaker": speaker,
-			"text": "Maybe this time's the one. Then again...probably not."
+			"text": "Maybe this time's the one. Then again... probably not."
 		}
 	]
 	return {

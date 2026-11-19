@@ -28,13 +28,13 @@
       "length": 5,
       "health": 4
     },
-    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops unless something immovable is on them.",
+    "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
     "at_half_health": {
       "cadence": {
         "anchor": "after_player_turn",
         "every": 1
       },
-      "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops unless something immovable is on them."
+      "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
     }
   },
   "iskaldra": {

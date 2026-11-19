@@ -27,6 +27,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	biome = str(Fixture.Traps.BIOMES.get(fixture["id"], biome))
 	biome = str(Fixture.Txt13.BIOMES.get(fixture["id"], biome))
 	if Fixture.Tip07.IDS.has(fixture["id"]): biome = Fixture.Tip07.BIOME
+	biome = str(Fixture.Tip06.BIOMES.get(fixture["id"], biome))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:
@@ -91,6 +92,13 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 		elif beat["kind"] == "enemy":
 			pacing.begin_enemies()
 			await scene.call("_animate_enemy_phase_steps", beat["before"].duplicate(true), beat["steps"], beat["after"])
+		elif beat["kind"] == "worldspine_turn_start":
+			# The normal outcome painter uses the resolver's own pulse tiles and
+			# Health deltas. The tooltip records that turn-start beat in isolation.
+			pacing.begin_card()
+			scene.call("_begin_player_popup_timeline")
+			await scene.call("_animate_surface_change", beat["before"], beat["after"])
+			await scene.call("_finish_player_popup_timeline", beat["after"])
 		else:
 			pacing.begin_card()
 			scene.call("_begin_player_popup_timeline")

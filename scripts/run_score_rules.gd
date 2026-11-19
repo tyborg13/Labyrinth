@@ -22,6 +22,10 @@ var _play_last_usec: int = -1
 var _play_active: bool = false
 var play_seconds: float = 0.0
 
+# Historical Chronicle records keep the wording stored when the feat was earned.
+static func feat_detail_for_display(title: String, detail: String) -> String:
+	return detail.replace(" foes", " enemies") if title == "Chain Reaction" else detail
+
 func reset_play_time() -> void:
 	_play_run_id = ""
 	_play_last_usec = -1
@@ -110,7 +114,7 @@ static func score(run_state: Dictionary, outcome: String) -> Dictionary:
 		_append(feats, "overkill", "Overkill", "%d damage in one hit" % hit, 25)
 	var kills: int = int(stats["max_kills_one_card"])
 	if kills >= 3:
-		_append(feats, "chain_reaction", "Chain Reaction", "%d foes slain by one card" % kills, 25)
+		_append(feats, "chain_reaction", "Chain Reaction", "%d enemies slain by one card" % kills, 25)
 	var mysteries: int = int(stats["mystery_rooms_entered"])
 	if mysteries >= 10:
 		_append(feats, "seeker", "Seeker", "%d unknown rooms" % mysteries, 25)

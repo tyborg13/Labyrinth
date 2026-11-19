@@ -8,6 +8,12 @@ var _path_inputs: Array = []
 var _paths: Array = []
 var _paths_by_tile: Dictionary = {}
 var _path_revision: int = -1
+var _arrow_revision: int = -1
+var _arrow_inputs: Array = []
+var _arrows_by_tile: Dictionary = {}
+var _stationary_units_by_tile: Dictionary = {}
+var _stationary_batch: bool = false
+var _stationary_index_ready: bool = false
 var _obstructions: Array = []
 var _tints: Dictionary = {}
 var _cacheable_obstructions: bool = true
@@ -55,6 +61,48 @@ func _sync_paths(board: Control) -> void:
 			visited[tile] = true
 			(_paths_by_tile.get_or_add(tile, []) as Array).append(entry)
 	path_builds += 1
+
+func arrows_at(board: Control, tile: Vector2i, revision: int = -1) -> Array:
+	if revision < 0 or revision != _arrow_revision:
+		_arrow_revision = revision
+		var inputs: Array = [board.presentation.get("illusion_echo_previews", []), board.presentation.get("enemy_threat_previews", [])]
+		if inputs != _arrow_inputs:
+			_arrow_inputs = inputs.duplicate(true)
+			_arrows_by_tile.clear()
+			# Keep echoes before threats and preserve the source order on each tile.
+			for echo: Dictionary in _arrow_inputs[0]:
+				(_arrows_by_tile.get_or_add(board._ranged_preview_depth_tile(echo), []) as Array).append([echo, []])
+			for threat: Dictionary in _arrow_inputs[1]:
+				var effect: Dictionary = board._enemy_threat_ranged_effect(threat)
+				if effect.is_empty(): continue
+				(_arrows_by_tile.get_or_add(board._ranged_preview_depth_tile(effect), []) as Array).append([effect, [str(threat.get("enemy_key", ""))]])
+	return _arrows_by_tile.get(tile, [])
+
+func begin_redraw_batch(shown: Dictionary) -> void:
+	_stationary_batch = (shown.get("unit_footprint_world_positions", {}) as Dictionary).is_empty()
+
+func finish_redraw_batch() -> void:
+	_stationary_batch = false
+	_stationary_index_ready = false
+	_stationary_units_by_tile.clear()
+
+func units_at(layer: Control, tile: Vector2i) -> Array:
+	if _stationary_batch:
+		if not _stationary_index_ready:
+			_index_stationary_units(layer)
+			_stationary_index_ready = true
+		return _stationary_units_by_tile.get(tile, [])
+	# A moving rig can select a host from the layer's resolved depth geometry.
+	var units: Array[Dictionary]
+	for unit: Dictionary in layer._visible_units():
+		if layer._effective_unit_tile(unit) == tile: units.append(unit)
+	return units
+
+func _index_stationary_units(layer: Control) -> void:
+	# Use the same roster order as scene paint, including shared-tile occupants.
+	for unit: Dictionary in layer._visible_units():
+		var tile: Vector2i = layer._effective_unit_tile(unit)
+		(_stationary_units_by_tile.get_or_add(tile, []) as Array).append(unit)
 
 func tint(board: Control, tile_id: String, tile: Vector2i, rect: Rect2, entries: Array) -> Color:
 	if entries != _obstructions:

@@ -5,5 +5,6 @@ extends RefCounted
 # for everything else, including formatting and all gameplay data.
 static func matches(staged: String, live: String) -> bool:
 	var expected: String = staged.replace('"objective_title": "Ember Hoarder",', '"objective_title": "Defeat the Ember Hoarder before it escapes!",\n   "objective_hud_title": "Defeat the Hoarder",')
-	expected = expected.replace('"last_light": {\n', '"last_light": {\n   "objective_title": "Survive until dawn!",\n   "objective_hud_title": "Survive until dawn",\n')
+	expected = expected.replace('"last_light": {\n', '"last_light": {\n   "objective_title": "Survive Until Dawn!",\n   "objective_hud_title": "Survive Until Dawn",\n')
+	expected = expected.replace("+%d embers", "+%d Embers")
 	return live == expected

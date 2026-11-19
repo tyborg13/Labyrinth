@@ -80,6 +80,10 @@ static func reward_embers(room: Dictionary, combat: Dictionary) -> int:
 # hidden mystery, Guardian, or route fight budget is changed by substitution.
 static func place(layout: Dictionary, rng: RandomNumberGenerator, count: int, biome: String, data: Dictionary = {}, layout_revision: int = -1) -> bool:
 	if data.is_empty(): data = catalog()
+	return place_from_catalog(layout, rng, count, biome, data, layout_revision)
+
+# Worker callers supply a private catalog and never enter the lazy loader.
+static func place_from_catalog(layout: Dictionary, rng: RandomNumberGenerator, count: int, biome: String, data: Dictionary, layout_revision: int, cancelled: Callable = Callable()) -> bool:
 	var types: Array[String] = _enabled_types(data, layout_revision)
 	if types.is_empty(): return true
 	var rules: Dictionary = data["placement"]
@@ -104,16 +108,18 @@ static func place(layout: Dictionary, rng: RandomNumberGenerator, count: int, bi
 	for cells: Array in candidates.values(): _shuffle(cells, rng)
 	var selected: Dictionary = {}
 	for target: int in range(wanted, 0, -1):
+		if cancelled.is_valid() and bool(cancelled.call()): return false
 		var search: Dictionary = {"remaining": PLACEMENT_SEARCH_LIMIT}
-		if _search(layout, types, candidates, rules, target, 0, selected, search): break
+		if _search(layout, types, candidates, rules, target, 0, selected, search, cancelled): break
 	# A canonical bounded repair is independent of how far the seeded search
 	# got. Reducing the count only happens when legal slots cap the request.
 	if selected.is_empty():
 		types.sort()
 		for cells: Array in candidates.values(): cells.sort()
 		for target: int in range(wanted, 0, -1):
+			if cancelled.is_valid() and bool(cancelled.call()): return false
 			var search: Dictionary = {"remaining": PLACEMENT_SEARCH_LIMIT}
-			if _search(layout, types, candidates, rules, target, 0, selected, search): break
+			if _search(layout, types, candidates, rules, target, 0, selected, search, cancelled): break
 	if selected.is_empty(): return false
 	for cell: Vector2i in selected:
 		layout["nodes"][cell].merge({"type": "special", "special_type": selected[cell], "special_variant": biome}, true)
@@ -134,7 +140,8 @@ static func _eligible(layout: Dictionary, cell: Vector2i, type: String, count: i
 		if str(layout["nodes"][neighbor]["type"]) == "guardian": return false
 	return true
 
-static func _search(layout: Dictionary, types: Array[String], candidates: Dictionary, rules: Dictionary, target: int, offset: int, selected: Dictionary, search: Dictionary) -> bool:
+static func _search(layout: Dictionary, types: Array[String], candidates: Dictionary, rules: Dictionary, target: int, offset: int, selected: Dictionary, search: Dictionary, cancelled: Callable) -> bool:
+	if cancelled.is_valid() and bool(cancelled.call()): return false
 	if int(search["remaining"]) <= 0: return false
 	search["remaining"] = int(search["remaining"]) - 1
 	if selected.size() == target: return _routes_legal(layout, selected, rules, true)
@@ -143,9 +150,9 @@ static func _search(layout: Dictionary, types: Array[String], candidates: Dictio
 	for cell: Vector2i in candidates[type]:
 		if selected.has(cell): continue
 		selected[cell] = type
-		if _routes_legal(layout, selected, rules, false) and _search(layout, types, candidates, rules, target, offset + 1, selected, search): return true
+		if _routes_legal(layout, selected, rules, false) and _search(layout, types, candidates, rules, target, offset + 1, selected, search, cancelled): return true
 		selected.erase(cell)
-	return _search(layout, types, candidates, rules, target, offset + 1, selected, search)
+	return _search(layout, types, candidates, rules, target, offset + 1, selected, search, cancelled)
 
 static func _routes_legal(layout: Dictionary, selected: Dictionary, rules: Dictionary, complete: bool) -> bool:
 	# Count every recombined route, rather than only the generating walks.

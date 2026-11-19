@@ -11,6 +11,8 @@ const HealthBar = preload("res://scripts/segmented_health_bar.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
 const OUTPUT_ROOT: String = "user://dragon_boss_probe_v4"
+const OBJECTIVE_SETTLE_TIMEOUT_SECONDS: float = 5.0
+const OBJECTIVE_HOVER_TIMEOUT_SECONDS: float = 2.0
 const DEFAULT_RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const BOSS_PROOFS: Array[Dictionary] = [
 	{"id": "tharokh", "depth": 4},
@@ -59,6 +61,9 @@ func _capture_bosses() -> void:
 		await process_frame
 		await create_timer(0.12).timeout
 		_assert_loaded_boss(instance, boss_id, false)
+		if boss_id == "zekarion" and phase_filter == "objective":
+			await _capture_zekarion_objective(instance, depth)
+			continue
 		await _capture("%02d_%s_ready.png" % [depth, boss_id])
 		await _capture_boss_damage_preview(instance, boss_id, depth)
 		await _capture_boss_idle_progression(instance, boss_id, depth)
@@ -113,6 +118,44 @@ func _capture_bosses() -> void:
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
 	quit(1 if _failed else 0)
+
+func _capture_zekarion_objective(instance: Node, depth: int) -> void:
+	var hud: Control = instance.get("_combat_objective_hud") as Control
+	var state: Dictionary = instance.get("_combat_state")
+	var boss_index: int = _boss_index(state)
+	var settle: SceneTreeTimer = create_timer(OBJECTIVE_SETTLE_TIMEOUT_SECONDS)
+	while hud != null and settle.time_left > 0.0 and (bool(hud.get("intro_active")) or not hud.is_visible_in_tree()):
+		await process_frame
+	if hud == null or not hud.is_visible_in_tree() or bool(hud.get("intro_active")) or boss_index < 0:
+		_fail("Zekarion's objective is visible with its live actor")
+		return
+	var boss: Dictionary = state["enemies"][boss_index]
+	var detail := hud.find_child("ObjectiveLiveDetail", true, false) as Label
+	if detail == null or detail.text != "%d/%d Health" % [boss["hp"], boss["max_hp"]]:
+		_fail("Zekarion objective shows its exact Health")
+	var title := hud.find_child("ObjectiveTitle", true, false) as Label
+	var objective: Dictionary = state["objective"]
+	var expected_title: String = preload("res://scripts/combat_objective_rules.gd").title_for_objective(objective)
+	if title == null or title.text != expected_title.to_upper() or hud.tooltip_text != expected_title:
+		_fail("Zekarion's objective hover contains only its title")
+	await _capture("%02d_zekarion_ready.png" % depth)
+	var point: Vector2 = hud.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	root.warp_mouse(point)
+	root.push_input(motion, true)
+	var deadline: SceneTreeTimer = create_timer(OBJECTIVE_HOVER_TIMEOUT_SECONDS)
+	while deadline.time_left > 0.0:
+		for node: Node in root.get_children():
+			if not node is Window or not node.visible or str(node.get("theme_type_variation")) != "TooltipPanel":
+				continue
+			for label: Node in node.find_children("*", "Label", true, false):
+				if (label as Label).text == hud.tooltip_text:
+					await _capture("%02d_zekarion_objective_hover.png" % depth)
+					return
+		await process_frame
+	_fail("Zekarion's objective opens its native hover popup")
 
 func _capture_noctyrax_target_highlight(instance: Node, combat_state: Dictionary) -> void:
 	var action := {"type": "ranged", "damage": 10, "range": 12}

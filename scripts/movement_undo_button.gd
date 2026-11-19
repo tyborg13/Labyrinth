@@ -83,15 +83,19 @@ func _can_interact() -> bool:
 func undo_available() -> bool:
 	return _can_interact() and rules.available(_host.get("_combat_state"))
 
+var _ui33_refreshes: int
+
 func refresh() -> void:
+	_ui33_refreshes += 1
 	if not is_instance_valid(_host): return
 	if not _host.get("_animation_lock"): rules.observe(_host.get("_combat_state"))
 	var meter: Control = _host.get("_movement_meter")
 	visible = undo_available() and is_instance_valid(meter) and meter.visible
-	if is_instance_valid(meter):
-		custom_minimum_size = Vector2(meter.size.x, UNDO_BUTTON_HEIGHT)
-		size = Vector2(meter.size.x, maxf(UNDO_BUTTON_HEIGHT, get_combined_minimum_size().y))
-		global_position = meter.global_position + Vector2(0.0, meter.size.y + UNDO_BUTTON_GAP)
+
+func place_next_to(meter: Control) -> void:
+	custom_minimum_size = Vector2(meter.size.x, UNDO_BUTTON_HEIGHT)
+	size = Vector2(meter.size.x, maxf(UNDO_BUTTON_HEIGHT, get_combined_minimum_size().y))
+	global_position = meter.global_position + Vector2(0.0, meter.size.y + UNDO_BUTTON_GAP)
 
 func consumes_input(event: InputEvent) -> bool:
 	var pressed_now: bool = event.is_action_pressed(Router.ACTION_UNDO_MOVE)

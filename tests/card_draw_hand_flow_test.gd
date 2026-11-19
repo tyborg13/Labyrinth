@@ -16,6 +16,11 @@ const HUD_TURN_TIMEOUT_MS: int = 25000
 const DRAW_MOTION_TIMEOUT_USEC: int = 2000000
 const HUD_FIXTURE_SIZE := Vector2i(1920, 1080)
 const HUD_SETTLE_FRAMES: int = 8
+const HANDOFF_TEST_SLOT_COUNT: int = 2
+const HANDOFF_TEST_SLOT_SIZE := Vector2(200.0, 280.0)
+const HANDOFF_TEST_GAP: float = -100.0
+const HANDOFF_TEST_ADJUSTMENT := Vector2(24.0, 24.0)
+const HANDOFF_TEST_PROXY_OFFSET := Vector2(12.0, 0.0)
 const HUD_MIN_OPACITY: float = 0.999
 const HUD_WIDE_FIXTURE_SIZE := Vector2i(2560, 1080)
 const HUD_REVIEW_UI_SCALE: float = 1.25
@@ -88,6 +93,7 @@ func _initialize() -> void:
 	await _run_keyword_focus_regression()
 	await _run_opening_hand_entry_regression()
 	await _run_transition_regression()
+	_run_shifted_draw_handoff_pose_regression()
 	await _run_resting_pointer_regression()
 	await _run_turn_start_hud_regression()
 	await _run_turn_start_hud_regression(true)
@@ -481,7 +487,7 @@ func _run_transition_regression() -> void:
 	for proxy: Control in instance.get("_draw_hand_transition_proxies") as Array:
 		motion_clock.track(proxy.get_meta("active_card_proxy_tween") as Tween)
 	await process_frame
-	var hand_box: Control = instance.get("hand_box") as Control
+	var hand_box: HandFanContainer = instance.get("hand_box") as HandFanContainer
 	var initial_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 	_expect(hand_box != null and not hand_box.visible, "Staged draw should hide the stale live hand")
 	_expect(initial_proxies.size() == target_hand.size(), "Staged draw should represent every final hand identity from its first frame")
@@ -529,8 +535,14 @@ func _run_transition_regression() -> void:
 	instance.set("_animation_lock", false)
 	instance.set("_hand_panel_signature", "<unset>")
 	instance.call("_refresh_ui")
-	for _frame: int in range(6):
-		await process_frame
+	var fan_adjustment: Vector2 = hand_box.get("_fan_adjustment")
+	if fan_adjustment.is_zero_approx():
+		for _frame: int in range(6):
+			await process_frame
+	else:
+		# Sample the handoff before any required reflow advances. The position
+		# check also applies when the live slots already match the endpoints.
+		hand_box.apply_layout_immediately()
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Authoritative hand refresh should retire every staged proxy")
 	_expect(hand_box.visible, "Authoritative hand should become visible on the same refresh that retires proxies")
 	for target_index: int in range(target_hand.size()):
@@ -547,6 +559,35 @@ func _run_transition_regression() -> void:
 		)
 	instance.queue_free()
 	await process_frame
+
+func _run_shifted_draw_handoff_pose_regression() -> void:
+	var fan := HandFanContainer.new()
+	root.add_child(fan)
+	for _index: int in range(HANDOFF_TEST_SLOT_COUNT):
+		var slot := Control.new()
+		slot.custom_minimum_size = HANDOFF_TEST_SLOT_SIZE
+		fan.add_child(slot)
+	var center_x: float = HUD_FIXTURE_SIZE.x * 0.5
+	fan.configure_combat_layout(HANDOFF_TEST_GAP, HANDOFF_TEST_ADJUSTMENT, HANDOFF_TEST_SLOT_COUNT, center_x)
+	fan.apply_layout_immediately()
+	var poses: Array[Dictionary] = fan.close_slide_origins()
+	fan.receive_draw_handoff(poses.duplicate(true))
+	fan.apply_layout_immediately()
+	_expect(not fan.is_sliding(), "Matching proxy poses should not start a handoff slide in a shifted fan")
+
+	poses[0]["center"] = (poses[0]["center"] as Vector2) + HANDOFF_TEST_PROXY_OFFSET
+	fan.receive_draw_handoff(poses)
+	fan.apply_layout_immediately()
+	_expect(fan.is_sliding(), "A shifted fan should ease a proxy whose pose differs from its slot")
+	var first: Control = fan.get_child(0)
+	var last: Control = fan.get_child(1)
+	var starts: Array[Dictionary] = fan.close_slide_origins()
+	_expect((starts[0]["center"] as Vector2).is_equal_approx(fan.resting_slot_rect(first).get_center() + HANDOFF_TEST_PROXY_OFFSET),
+		"A displaced card should start its handoff at the proxy endpoint")
+	_expect((starts[1]["center"] as Vector2).is_equal_approx(fan.resting_slot_rect(last).get_center()),
+		"A matching neighbour should stay at its slot")
+	fan.queue_free()
+
 
 func _run_pass_preview_warm_invalidation_regression(instance: Node) -> void:
 	# Production begins warming the next-turn Pass forecast before the staged draw.

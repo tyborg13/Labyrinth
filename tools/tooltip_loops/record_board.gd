@@ -64,6 +64,10 @@ func _motion(value: Dictionary) -> bool:
 		if child is Dictionary and _motion(child): return true
 	return false
 
+static func audit_number_label(entry: Dictionary) -> String:
+	# Keep numeric receipts stable when production changes minus-sign typography.
+	return str(entry.get("text", "")).replace("−", "-")
+
 func _observe(state: Dictionary, shown: Dictionary) -> void:
 	if not _observing: return
 	var active: bool = false
@@ -73,7 +77,7 @@ func _observe(state: Dictionary, shown: Dictionary) -> void:
 	for text: Dictionary in shown.get("floating_texts", []):
 		if float(text.get("alpha", 1.0)) <= 0.0: continue
 		active = true
-		var key: String = str(text.get("reaction_actor_key", "")) + ":" + str(text.get("text", ""))
+		var key: String = str(text.get("reaction_actor_key", "")) + ":" + audit_number_label(text)
 		seen_numbers[key] = true
 	var effect: Dictionary = shown.get("effect", {})
 	if not effect.is_empty() and not bool(effect.get("preview", false)) and effect.get("kind", "") != "tooltip_recording_mask": active = true

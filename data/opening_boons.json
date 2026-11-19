@@ -64,7 +64,7 @@
     },
     "vitality": {
       "name": "Vitality",
-      "text": "+6 max @kw(health|HP).",
+      "text": "+6 max @kw(health|Health).",
       "max_hp": 6,
       "current_hp": 6
     },
@@ -75,14 +75,14 @@
     },
     "blood_price": {
       "name": "Blood Price",
-      "text": "Lose 5 max @kw(health|HP). Choose 1 of 5 rare spells.",
+      "text": "Lose 5 max @kw(health|Health). Choose 1 of 5 rare spells.",
       "max_hp": -5,
       "rarity": "rare",
       "count": 5
     },
     "pawned_light": {
       "name": "Pawned Light",
-      "text": "<Relic effect> Start at half @kw(health|HP).",
+      "text": "<Relic effect> Start at half @kw(health|Health).",
       "rarity": "rare",
       "hp_fraction": 0.5
     },

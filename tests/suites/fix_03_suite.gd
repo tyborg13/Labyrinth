@@ -16,7 +16,7 @@ const TEST_DAMAGE: int = 2
 const LATER_CYCLE: int = 2
 const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
-	"burrow": "Burrow", "erupt": "Erupt %d  Push %d  Rubble  Expose %d", "kindle": "Burst +2",
+	"burrow": "Burrow", "erupt": "Erupt %d · Push %d · Rubble · Expose %d", "kindle": "Burst +2",
 	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, range 4, 3 jumps"
 }
 

@@ -82,14 +82,17 @@ func _batches(entry: Dictionary, clip: PackedVector2Array, can_draw: Callable, p
 	return result["batches"]
 
 func _clipped_entry(entry: Dictionary, clip: PackedVector2Array, can_draw: Callable, private_entry: bool = false) -> Dictionary:
-	# Entries are caller-owned. Include their commands so a modified returned
-	# entry cannot poison a later clip hit for the original entry's id.
-	# Internally owned entries have unique monotonic ids and cannot be edited by
-	# a caller. Public entry snapshots must validate the supplied commands too.
-	var inputs: Array = [entry["id"], clip] if private_entry else [entry["id"], entry["commands"], clip]
-	var key: int = hash(inputs)
-	var cached: Dictionary = _clips.get(key, {})
-	if not cached.is_empty() and cached["inputs"] == inputs: return cached
+	# Custom validators may depend on mutable caller state. Only the built-in
+	# triangulation policy can share validated clips across calls.
+	var cacheable: bool = not can_draw.is_valid()
+	var inputs: Array
+	var key: int
+	if cacheable:
+		# A caller can edit a public entry, so validate its commands too.
+		inputs = [entry["id"], clip] if private_entry else [entry["id"], entry["commands"], clip]
+		key = hash(inputs)
+		var cached: Dictionary = _clips.get(key, {})
+		if not cached.is_empty() and cached["inputs"] == inputs: return cached
 	var commands: Array[Dictionary]
 	var source: Array = entry["commands"]
 	var bounds: Array = entry.get("bounds", []) if private_entry else []
@@ -105,15 +108,24 @@ func _clipped_entry(entry: Dictionary, clip: PackedVector2Array, can_draw: Calla
 			continue
 		if command.has("polygon"):
 			for piece: PackedVector2Array in Geometry2D.intersect_polygons(command["polygon"], clip):
-				if can_draw.call(piece): commands.append({"polygon": piece, "color": command["color"]})
+				if can_draw.is_valid():
+					if can_draw.call(piece): commands.append({"polygon": piece, "color": command["color"]})
+				else:
+					# Production clips already validate through this triangulation.
+					# Keep the exact indices for the ordered mesh built below.
+					var indices: PackedInt32Array = Geometry2D.triangulate_polygon(piece)
+					if indices.size() >= 3: commands.append({"polygon": piece, "color": command["color"], "indices": indices})
 		else:
 			for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(command["line"], clip):
 				if piece.size() > 1: commands.append({"line": piece, "color": command["color"], "width": command["width"], "antialiased": command["antialiased"]})
-	if not _clips.has(key):
-		if _clip_order.size() >= CLIP_CAPACITY: _clips.erase(_clip_order.pop_front())
-		_clip_order.append(key)
-	_clips[key] = {"inputs": inputs.duplicate(true), "commands": commands}
-	return _clips[key]
+	var result: Dictionary = {"commands": commands}
+	if cacheable:
+		if not _clips.has(key):
+			if _clip_order.size() >= CLIP_CAPACITY: _clips.erase(_clip_order.pop_front())
+			_clip_order.append(key)
+		result["inputs"] = inputs.duplicate(true)
+		_clips[key] = result
+	return result
 
 static func _geometry_bounds(points: PackedVector2Array) -> Rect2:
 	if points.is_empty(): return Rect2()
@@ -148,7 +160,8 @@ func _append_polygon_batch(result: Array[Dictionary], polygons: Array[Dictionary
 		for point: Vector2 in polygon:
 			vertices.append(Vector3(point.x, point.y, 0.0))
 			colors.append(command["color"])
-		for index: int in Geometry2D.triangulate_polygon(polygon): indices.append(first + index)
+		var triangles: PackedInt32Array = command["indices"] if command.has("indices") else Geometry2D.triangulate_polygon(polygon)
+		for index: int in triangles: indices.append(first + index)
 	polygons.clear()
 	if indices.is_empty(): return
 	var arrays: Array = []

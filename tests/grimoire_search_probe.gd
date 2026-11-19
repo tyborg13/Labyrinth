@@ -10,7 +10,7 @@ const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
 const OUTPUT_DIR: String = "user://grimoire_search_probe"
 const UPHEAVAL_ENTRY: String = "keyword:upheaval"
-const UPHEAVAL_BODY: String = "Marked tiles rise as Outcrops when the rule fires. A unit on a rising tile is pushed to a free tile beside it; the tile stays flat if a wall, a trap, a brazier or a unit that can't be pushed off is on it. Outcrops can be broken like any terrain, so a ring of them can be broken from inside."
+const UPHEAVAL_BODY: String = "Marked tiles rise as Outcrops when the rule fires. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. A unit on a rising tile is pushed to a free tile beside it. Outcrops can be broken like any terrain, even from inside when they surround you."
 
 var _failures: Array[String]
 var _capture_viewport: SubViewport
@@ -140,6 +140,8 @@ func _run_probe() -> void:
 	_expect(str(instance.get("_grimoire_selected_entry")) == UPHEAVAL_ENTRY, "Searching for Upheaval selects its dedicated article")
 	var body: RichTextLabel = instance.get("_grimoire_detail_body") as RichTextLabel
 	_expect(body != null and body.is_visible_in_tree() and body.get_parsed_text() == UPHEAVAL_BODY, "Upheaval article renders the verified sentences verbatim")
+	if body != null:
+		print("UPHEAVAL RENDERED: ", body.get_parsed_text())
 	await _capture("grimoire_search_upheaval.png")
 
 	await _set_query(instance, input, "purple banana")

@@ -102,7 +102,7 @@ func _run() -> void:
 	await _capture("05_boss_wrapped_relics_charge")
 	var charged: Control = instance.call("_relic_frame_for_id", "winters_hour")
 	_expect(charged.get_node("RelicTimeReserve").text == "2" and charged.get_node("RelicTimeReserve").visible, "Stored Time uses the frame badge with its exact value")
-	_expect(charged.tooltip_text.contains("Stored Time: 2 / 3"), "Charge tooltip retains exact reserve rules")
+	_expect(charged.tooltip_text.contains("Stored Time: 2/3"), "Charge tooltip retains exact reserve rules")
 	charged.grab_focus()
 	await _capture("06_charged_relic_focus")
 	await _assert_inspection(instance, charged, router)
@@ -308,7 +308,7 @@ func _assert_movement_label_case(instance: Node) -> void:
 	for remaining: int in range(capacity + 1):
 		combat["player_movement_remaining"] = remaining
 		instance.call("_refresh_player_movement_meter")
-		_expect(instance.get("_movement_meter_count").text == "%d / %d Movement" % [remaining, capacity], "Movement label retains title case at every meter value")
+		_expect(instance.get("_movement_meter_count").text == "%d/%d Movement" % [remaining, capacity], "Movement label retains its compact fraction and title case at every meter value")
 	combat["player_movement_remaining"] = original_remaining
 	instance.call("_refresh_player_movement_meter")
 
