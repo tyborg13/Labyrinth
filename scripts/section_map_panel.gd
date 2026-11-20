@@ -21,6 +21,9 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Fog = preload("res://shaders/section_map_fog.gdshader")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Navigation = preload("res://scripts/section_map_navigation.gd")
+const Router = preload("res://scripts/input_router.gd")
+const FocusTooltip = preload("res://scripts/controller_focus_tooltip.gd")
+const SectionArt = preload("res://scripts/run_section_art.gd")
 
 signal room_selected(coord: Vector2i)
 signal scout_requested(coord: Vector2i)
@@ -57,6 +60,8 @@ var _field: Control
 var _boss_legend_icon: Control
 var _legend: Control
 var _legend_types: Array[String]
+var _legend_navigation: bool = false
+var _legend_return_coord: Vector2i = Graph.INVALID
 const LEGEND_ORDER: Array = ["combat", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]
 const LEGEND_MAX_GAP: float = 40.0
 const LEGEND_MIN_GAP: float = 12.0
@@ -115,13 +120,21 @@ var _covered_board := preload("res://scripts/section_map_covered_board.gd").new(
 
 func _ready() -> void:
 	_build()
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null:
+		router.modality_changed.connect(_on_map_modality_changed)
+		_legend_navigation = router.call("using_controller")
 	resized.connect(_layout_nodes)
 	visibility_changed.connect(_sync_covered_board)
+	visibility_changed.connect(_load_visible_background)
 	_refresh()
 	_sync_covered_board()
 
 func _sync_covered_board() -> void:
 	_covered_board.sync(self)
+
+func _load_visible_background() -> void:
+	if is_visible_in_tree(): _refresh_section_background()
 
 func _exit_tree() -> void:
 	_covered_board.restore()
@@ -245,6 +258,7 @@ func _build() -> void:
 # The section transition matches the live cover-fit rectangle, including the
 # current header/footer and outer-frame layout, rather than duplicating it.
 func transition_backdrop() -> TextureRect:
+	_refresh_section_background()
 	return _background
 
 func _build_legend() -> Control:
@@ -289,6 +303,7 @@ func _add_legend_item(type: String) -> void:
 	var item := LegendItem.new()
 	item.tooltip_text = type_description(type)
 	item.add_theme_constant_override("separation", 8)
+	item.focus_mode = Control.FOCUS_ALL if _legend_navigation else Control.FOCUS_NONE
 	_legend.add_child(item)
 	var icon := Control.new()
 	icon.name = "Legend_" + type
@@ -307,6 +322,7 @@ func _add_legend_item(type: String) -> void:
 	var label: Label = _label(_type_label(type), Typography.ROLE_CAPTION)
 	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	item.add_child(label)
+	FocusTooltip.attach(item, item._make_custom_tooltip, true)
 
 # Keep a single row until the exact measured native labels cannot fit with
 # 12px gaps. Splitting balances the two centred rows without shrinking text.
@@ -344,6 +360,7 @@ func _layout_legend() -> void:
 			item.position = Vector2(x, row * 48.0)
 			item.size = Vector2(widths[index], 48)
 			x += widths[index] + gap
+	_wire_legend_focus()
 
 func _panel() -> PanelContainer:
 	var panel := PanelContainer.new()
@@ -434,11 +451,17 @@ func _refresh() -> void:
 		tab.focus_neighbor_right = tab.get_path_to(right)
 	_close.focus_neighbor_left = _close.get_path_to(_tabs.get_child(Graph.active_section(run_state)))
 	_close.focus_neighbor_bottom = _close.get_path_to(_scout)
-	_background.texture = Assets.load_texture("res://assets/art/backgrounds/sections/%s.png" % str(info.get("boss_id", "tharokh")))
+	if is_visible_in_tree(): _refresh_section_background()
 	_layout_nodes()
 	_refresh_actions()
 	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord):
 		_show_preview(selected_coord)
+
+func _refresh_section_background() -> void:
+	if not _built or not Graph.enabled(run_state): return
+	var path: String = SectionArt.background_path(Graph.section(run_state, viewed_section))
+	if _background.texture == null or _background.texture.get_meta("asset_source_path", "") != path:
+		_background.texture = Assets.load_texture(path)
 
 func available_destinations() -> Array[Vector2i]:
 	var result: Array[Vector2i]
@@ -637,6 +660,7 @@ func _layout_nodes() -> void:
 			button.gui_input.connect(_on_room_input.bind(button))
 			button.focus_entered.connect(_show_preview.bind(coord))
 			button.focus_entered.connect(_keep_room_visible.bind(coord))
+			button.focus_entered.connect(_remember_legend_return.bind(coord))
 			button.focus_exited.connect(_hide_preview_for.bind(coord))
 			button.mouse_entered.connect(_show_preview.bind(coord))
 			button.mouse_exited.connect(_hide_preview_for.bind(coord))
@@ -851,6 +875,11 @@ func _on_room_pressed(coord: Vector2i) -> void:
 # the same frame as a drag's release is never mistaken for that release.
 func _input(event: InputEvent) -> void:
 	if _drag_released and (event is InputEventKey or event is InputEventJoypadButton or event is InputEventAction): _drag_released = false
+	if not is_visible_in_tree() or not _layout.visible: return
+	if event is InputEventKey and event.pressed:
+		_set_legend_navigation(false)
+	elif event is InputEventJoypadButton and event.pressed:
+		_set_legend_navigation(true)
 
 func _scroll_input(event: InputEvent) -> bool:
 	if _scroll_max <= 0.0: return false
@@ -1062,12 +1091,15 @@ func _wire_choice_focus() -> void:
 		if button.focus_mode != Control.FOCUS_NONE and (not scout_targeting or can_activate_room(coord)):
 			candidates.append(button)
 	var tab: Control = _tabs.get_child(viewed_section)
+	var footer_target: Control = _scout
+	if _legend_navigation and _legend.get_child_count() > 0 and not scout_targeting:
+		footer_target = _legend.get_child(0)
 	for button: Control in node_buttons.values():
 		for side: int in [SIDE_TOP, SIDE_BOTTOM, SIDE_LEFT, SIDE_RIGHT]:
 			var direction: Vector2 = {SIDE_TOP: Vector2.UP, SIDE_BOTTOM: Vector2.DOWN, SIDE_LEFT: Vector2.LEFT, SIDE_RIGHT: Vector2.RIGHT}[side]
 			var target: Control = Navigation.nearest(button, direction, candidates)
 			if target == null:
-				target = tab if side == SIDE_TOP else (_scout if side == SIDE_BOTTOM else button)
+				target = tab if side == SIDE_TOP else (footer_target if side == SIDE_BOTTOM else button)
 			button.set_focus_neighbor(side, button.get_path_to(target))
 	# Preserve the established entry/return rooms for tabs and Scout.
 	var choices: Array[Vector2i]
@@ -1079,6 +1111,43 @@ func _wire_choice_focus() -> void:
 	if not choices.is_empty():
 		_scout.focus_neighbor_top = _scout.get_path_to(node_buttons[choices.back()])
 		tab.focus_neighbor_bottom = tab.get_path_to(node_buttons[choices.front()])
+	_wire_legend_focus()
+
+func _on_map_modality_changed(modality: String) -> void:
+	_set_legend_navigation(modality == Router.MODALITY_CONTROLLER)
+
+func _set_legend_navigation(enabled: bool) -> void:
+	if _legend_navigation == enabled: return
+	_legend_navigation = enabled
+	if not is_visible_in_tree() or not _layout.visible or _tabs.get_child_count() == 0: return
+	_wire_choice_focus()
+
+func _remember_legend_return(coord: Vector2i) -> void:
+	_legend_return_coord = coord
+	if _legend_navigation: _wire_legend_focus()
+
+func _wire_legend_focus() -> void:
+	var items: Array[Control]
+	items.assign(_legend.get_children())
+	_scout.focus_neighbor_left = NodePath("")
+	var route: Control = node_buttons.get(_legend_return_coord)
+	if route == null:
+		route = _scout.get_node_or_null(_scout.focus_neighbor_top) as Control
+	if route == null:
+		route = _close
+	for index: int in range(items.size()):
+		var item: Control = items[index]
+		item.focus_mode = Control.FOCUS_ALL if _legend_navigation else Control.FOCUS_NONE
+		if not _legend_navigation: continue
+		var above: Control = Navigation.nearest(item, Vector2.UP, items)
+		var below: Control = Navigation.nearest(item, Vector2.DOWN, items)
+		var right: Control = items[index + 1] if index + 1 < items.size() else _scout
+		item.focus_neighbor_left = item.get_path_to(items[maxi(0, index - 1)])
+		item.focus_neighbor_right = item.get_path_to(right)
+		item.focus_neighbor_top = item.get_path_to(above if above != null else route)
+		item.focus_neighbor_bottom = item.get_path_to(below if below != null else item)
+	if _legend_navigation and not items.is_empty():
+		_scout.focus_neighbor_left = _scout.get_path_to(items.back())
 
 func controller_cancel_label() -> String:
 	if activation_coord != Graph.INVALID: return "Cancel"

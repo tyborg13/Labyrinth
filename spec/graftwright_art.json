@@ -2,7 +2,7 @@
   "generator": "built-in ImageGen",
   "date": "2026-09-16",
   "reference": "User-approved Graftwright concept from equipment-inheritance-concepts/graftwright-encounter-v1.png",
-  "note": "Original NPC, atelier, and map-emblem entries retain their direction briefs. The visual-polish entries preserve exact built-in ImageGen prompts. Every generated output was copied intact; all text, cards, state treatments, occlusion, and animation are rendered in Godot.",
+  "note": "Original NPC, atelier, and map-emblem entries retain their direction briefs. The visual-polish entries preserve exact built-in ImageGen prompts. The ritual clasp and map emblem were resized for runtime. Their original hashes are retained below and their masters are archived under assets/_masters/perf-153/ and assets/_masters/perf-155/. All text, cards, state treatments, occlusion, and animation are rendered in Godot.",
   "assets": [
     {
       "path": "assets/art/npcs/graftwright.png",
@@ -37,7 +37,7 @@
     {
       "path": "assets/art/ui/graftwright/ritual_clasp.png",
       "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-1a9f7154-ff96-4a01-995a-b45c80a0c0f0.png",
-      "sha256": "9432fb0201c8442d769d4b8c1d2c1b2458468bcb40886b8851602e620f0d33ac",
+      "sha256": "6cacc8ebbf62e0bace350b60356d81ee55919fe00483da4bacd694e03ef6ef95",
       "prompt": "Use case: stylized-concept. Asset type: bespoke primary crafting control artwork for a premium gothic fantasy game. A single horizontal ritual clasp, wide 3:1 composition, front-on, genuine transparent background outside its silhouette. Fills canvas width with 4 percent transparent margin, centered. Physical dark plum leather tab clasped in an elegant blackened brass frame; asymmetric fine silver tailor's needles at both short ends, a few taut violet silk threads woven through the ends. The large central 70 percent is completely blank, very dark satin/plum enamel with subtle texture and a tiny top-edge reflected light, reserved for live game text. Thin delicately engraved metal bevels, restrained luminous amethyst thread seams, strong readable silhouette, tactile shadows and beautiful polished highlights. Premium hand-painted dark fantasy production UI art, sophisticated rather than ornate clutter. No words, no letters, no runes, no text, no buttons inside the object, no UI mockup, no background scene, no border around the canvas. This is one complete object, not a sheet of variants."
     }
   ]

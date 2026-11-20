@@ -597,6 +597,7 @@ static func _migrate_run_dictionary(data: Dictionary) -> Dictionary:
 	if data.get("combat_state", {}) is Dictionary:
 		preload("res://scripts/guardian_combat_rules.gd").migrate_saved_combat(data.get("combat_state", {}))
 	preload("res://scripts/dragon_combat_rules.gd").migrate_save(data)
+	preload("res://scripts/worldspine_save_migration.gd").migrate(data)
 	if data.get("combat_state", {}) is Dictionary:
 		preload("res://scripts/boss_area_rules.gd").migrate_combat(data.get("combat_state", {}))
 	return data

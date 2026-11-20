@@ -165,6 +165,11 @@ func _check_reward_copy(engine: RefCounted, combat: RefCounted, source: Dictiona
 	var heading: Control = scene.find_child("PreBattleObjectiveTitle", true, false) as Control
 	_expect(scrim != null and scrim.is_visible_in_tree() and heading != null and heading.tooltip_text.ends_with("\n" + line), "Production pre-battle Objective tooltip shows the shared line")
 	if heading != null:
+		# ui-39: pre-battle controls take focus only once the panel is fully visible (as a player would reach it).
+		var panel: Control = scene.get("_pre_battle_panel") as Control
+		for _frame: int in range(240):
+			if panel == null or panel.focus_behavior_recursive != Control.FOCUS_BEHAVIOR_DISABLED: break
+			await process_frame
 		heading.grab_focus()
 		await process_frame
 		_expect(heading.get_node_or_null("PreBattleObjectiveFocusTooltip") != null, "Pre-battle focus reveals the reward line")

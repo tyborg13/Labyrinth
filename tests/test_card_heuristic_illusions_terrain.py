@@ -77,8 +77,16 @@ class IllusionTerrainHeuristicTests(unittest.TestCase):
         plain = score([{'type': 'outcrop', 'range': 2, 'health': 3}])
         keg = score([{'type': 'outcrop', 'range': 2, 'health': 3, 'kind': 'powder_keg', 'burst_damage': 8}])
         self.assertGreater(keg.offense, plain.offense)
-        spines = score([{'type': 'outcrop', 'range': 3, 'health': 4, 'pattern': ADJ, 'around_target': True, 'kind': 'worldspine', 'pulse_damage': 3}])
-        self.assertAlmostEqual(spines.offense, 3 * WEIGHTS.damage_per_point * WEIGHTS.worldspine_pulse_targets * WEIGHTS.worldspine_expected_pulses, places=4)
+        worldspine = score(
+            [{'type': 'outcrop', 'range': 3, 'health': 4, 'pattern': ADJ, 'around_target': True}],
+            rite={'effects': [{'type': 'turn_start_outcrop_pulse', 'damage': 3}]},
+        )
+        self.assertEqual(worldspine.offense, 0.0)
+        self.assertAlmostEqual(
+            worldspine.rite,
+            3 * WEIGHTS.damage_per_point * WEIGHTS.rite_pulse_targets_per_activation * WEIGHTS.rite_remaining_activations,
+            places=4,
+        )
 
 
 if __name__ == '__main__':

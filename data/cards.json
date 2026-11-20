@@ -8791,7 +8791,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Destroy an adjacent Outcrop or Worldspine you raised to deal 10 across 3 tiles and Stagger 2.",
+    "description": "Destroy an adjacent Outcrop you raised to deal 10 across 3 tiles and Stagger 2.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/worldbreak.png",
     "reward_pool": false,
@@ -8813,9 +8813,19 @@
     "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Exhaust. Raise 4-Health Worldspines within range 3. At the start of each of your turns, they deal 3 damage.",
+    "description": "Exhaust. Raise 4-Health Outcrops on each empty tile around a target within range 3. Rite: at the start of your turn, each enemy next to an Outcrop you raised takes 3.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/worldspine.png",
+    "role_emblem": "attack_ranged",
+    "rite": {
+      "effects": [
+        {
+          "type": "turn_start_outcrop_pulse",
+          "damage": 3,
+          "element": "earth"
+        }
+      ]
+    },
     "actions": [
       {
         "type": "outcrop",
@@ -8839,9 +8849,7 @@
             0
           ]
         ],
-        "around_target": true,
-        "kind": "worldspine",
-        "pulse_damage": 3
+        "around_target": true
       }
     ]
   }

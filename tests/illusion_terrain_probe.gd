@@ -43,7 +43,7 @@ func _initialize() -> void:
 	# Keg at (3, 5); a Worldspine cage around the far crawler at (8, 7).
 	state = combat.apply_player_action(state, combat.card_play_actions("w4c_fx_powder_keg", state)[0], Vector2i(3, 5))
 	(state["player"] as Dictionary)["pos"] = Vector2i(6, 6)
-	state = combat.apply_player_action(state, combat.card_play_actions("w4c_fx_worldspine", state)[0], Vector2i(8, 7))
+	state = combat.apply_player_action(state, combat.card_play_actions("worldspine", state)[0], Vector2i(8, 7))
 	(state["player"] as Dictionary)["pos"] = Vector2i(2, 4)
 	state = combat._create_illusion(state, Vector2i(3, 2), 3, {"on_damaged": {"damage": 4, "element": "lightning", "shock": 1}, "source_name": "Ball Lightning"})
 	state = combat._create_illusion(state, Vector2i(5, 6), 5, {"ranged_origin": true, "source_name": "Doppelganger"})
@@ -74,7 +74,7 @@ func _initialize() -> void:
 	scene.call("_refresh_stage_view")
 	await _capture("04_rockburst_keg_hover")
 	scene.call("_reset_card_resolution")
-	for hand: Array in [["w4c_fx_ball_lightning", "w4c_fx_reflected_threat", "w4c_fx_hall_of_mirrors", "w4c_fx_doppelganger", "w4c_fx_ice_sculpture"], ["w4c_fx_shattered_reflection", "w4c_fx_refraction", "w4c_fx_worldbreak", "w4c_fx_powder_keg", "w4c_fx_worldspine"]]:
+	for hand: Array in [["w4c_fx_ball_lightning", "w4c_fx_reflected_threat", "w4c_fx_hall_of_mirrors", "w4c_fx_doppelganger", "w4c_fx_ice_sculpture"], ["w4c_fx_shattered_reflection", "w4c_fx_refraction", "w4c_fx_worldbreak", "w4c_fx_powder_keg", "worldspine"]]:
 		var hand_state: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
 		(hand_state["deck"] as Dictionary)["hand"] = hand
 		var hand_run: Dictionary = scene.get("_run_state") as Dictionary

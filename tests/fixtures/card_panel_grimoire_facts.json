@@ -24,9 +24,9 @@
   "raise_worldspine": {
     "owner": "combat:outcrops",
     "paragraphs": [
-      "Worldspines block movement, not sight, and leave Rubble when destroyed."
+      "Outcrop cards raise crag Outcrops on empty floor. An Outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed."
     ],
-    "appended": true
+    "appended": false
   },
   "raise_outcrop": {
     "owner": "combat:outcrops",
@@ -50,9 +50,9 @@
     "appended": true
   },
   "worldspine_burst": {
-    "owner": "keyword:terrain_burst",
+    "owner": "keyword:rite",
     "paragraphs": [
-      "it happens at the start of each of your turns, once per enemy however many spires touch it."
+      "Worldspine: at the start of your turn, each enemy next to an Outcrop you raised takes 3."
     ],
     "appended": true
   },

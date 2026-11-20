@@ -6,8 +6,6 @@ extends RefCounted
 ##                        with owned_outcrop_only, the line beyond it (Worldbreak)
 ##   outcrop kind powder_keg   3-HP keg; destroyed by anything it bursts on its tile and
 ##                        neighbors (actors and terrain, chain-reacting)
-##   outcrop kind worldspine   spires around a target; each player turn start pulses
-##                        every enemy next to at least one of them
 ## CombatEngine owns the terrain array, damage and deaths; these helpers are
 ## called from small hooks in its outcrop, terrain-damage and turn-start paths.
 
@@ -18,13 +16,10 @@ const GuardianRules = preload("res://scripts/guardian_combat_rules.gd")
 
 const INVALID := Vector2i(-1, -1)
 const KEG_KIND: String = "powder_keg"
-const WORLDSPINE_KIND: String = "worldspine"
 const OUTCROP_KIND: String = "crag_outcrop"
 const KEG_EVENT: String = "powder_keg_burst"
 const PULSE_EVENT: String = "worldspine_pulse"
 const BURST_EVENT: String = "terrain_shattered"
-## Player-raised kinds Worldbreak may break.
-const OWNED_OUTCROP_KINDS: Array = [OUTCROP_KIND, WORLDSPINE_KIND]
 
 # ------------------------------------------------------------------ outcrop kinds
 
@@ -33,9 +28,6 @@ static func raise_fields(action: Dictionary) -> Dictionary:
 	match str(action.get("kind", "")):
 		KEG_KIND:
 			return {"kind": KEG_KIND, "blocks_sight": false, "surface_on_destroy": "", "burst_damage": maxi(0, int(action.get("burst_damage", 0)))}
-		WORLDSPINE_KIND:
-			# Tharokh's spires: they block movement, not sight, and pulse.
-			return {"kind": WORLDSPINE_KIND, "blocks_sight": false, "surface_on_destroy": "rubble", "pulse_damage": maxi(0, int(action.get("pulse_damage", 0)))}
 	return {}
 
 static func is_around_target(action: Dictionary) -> bool:
@@ -116,67 +108,86 @@ static func explode_keg(engine: RefCounted, state: Dictionary, keg: Dictionary) 
 	state["damage_context"] = previous_context
 	return state
 
-# ------------------------------------------------------------------ worldspines
+# ------------------------------------------------------------------ Outcrop Rite pulse
 
-static func player_worldspines(engine: RefCounted, state: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary]
+## One pulse per Rite instance. An enemy touching multiple Outcrops or
+## touching one with multiple footprint tiles still takes one hit.
+static func apply_outcrop_pulse(engine: RefCounted, state: Dictionary, effect: Dictionary, presentation_steps: Variant = null) -> Dictionary:
+	var amount: int = int(effect.get("damage", 0))
+	if amount <= 0:
+		return state
+	var outcrops: Array[Vector2i]
 	for terrain: Dictionary in engine._live_terrain(state):
-		if str(terrain.get("kind", "")) == WORLDSPINE_KIND and str(terrain.get("owner_kind", "")) == "player":
-			result.append(terrain)
-	return result
-
-## Pulse forecast: {enemy_id: damage}. An enemy next to several spines takes the
-## largest pulse once.
-static func pulse_targets(engine: RefCounted, state: Dictionary) -> Dictionary:
-	var damage_by_enemy: Dictionary = {}
-	var spines: Array[Dictionary] = player_worldspines(engine, state)
-	if spines.is_empty():
-		return damage_by_enemy
+		if is_owned_outcrop(terrain):
+			outcrops.append(terrain["pos"])
+	if outcrops.is_empty():
+		return state
+	var targets: Dictionary = {}
 	for enemy: Dictionary in engine._live_enemies(state):
-		var footprint: Array[Vector2i]
-		footprint.assign(engine._enemy_footprint_tiles(enemy))
-		for spine: Dictionary in spines:
-			var spine_tile: Vector2i = spine.get("pos", INVALID)
+		var footprint: Array = engine._enemy_footprint_tiles(enemy)
+		for source_tile: Vector2i in outcrops:
 			for tile: Vector2i in footprint:
-				if Paths.manhattan(tile, spine_tile) == 1:
-					var enemy_id: int = int(enemy.get("id", -1))
-					damage_by_enemy[enemy_id] = maxi(int(damage_by_enemy.get(enemy_id, 0)), int(spine.get("pulse_damage", 0)))
+				if Paths.manhattan(tile, source_tile) == 1:
+					var id: int = int(enemy["id"])
+					if not targets.has(id): targets[id] = []
+					targets[id].append(source_tile)
 					break
-	return damage_by_enemy
-
-## Player turn start, after Rites: one player-credited, non-direct pulse.
-static func apply_player_turn_start(engine: RefCounted, state: Dictionary) -> Dictionary:
-	var targets: Dictionary = pulse_targets(engine, state)
 	if targets.is_empty():
 		return state
+	var before_pulse: Dictionary = _pulse_board(state) if presentation_steps != null else {}
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
-	var context: Dictionary = {"actor_kind": "player", "actor_id": -1, "source_kind": PULSE_EVENT, "player_card": false, "causal_owner": "player", "element": "earth"}
+	var context: Dictionary = {
+		"actor_kind": "player", "actor_id": -1, "source_kind": PULSE_EVENT,
+		"player_card": false, "causal_owner": "player", "element": str(effect.get("element", "")),
+		"relic_id": str(effect.get("relic_id", ""))
+	}
 	state["damage_context"] = context
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
 	var ids: Array = targets.keys()
 	ids.sort()
-	var hit_ids: Array[int]
-	for id_var: Variant in ids:
-		var amount: int = int(targets[id_var])
-		if amount <= 0:
+	var sources: Dictionary = {}
+	var damage_by_enemy: Dictionary = {}
+	for id: int in ids:
+		var index: int = engine._enemy_index_for_id(state, id)
+		var before: Dictionary = state["enemies"][index]
+		# The pulse is non-direct Earth damage. Ground avoidance does not apply.
+		state = engine._damage_enemy(state, index, amount, false)
+		var after: Dictionary = state["enemies"][index]
+		var damage: int = _durability(before) - _durability(after)
+		if damage <= 0:
 			continue
-		hit_ids.append(int(id_var))
-		state = engine._surface_damage_actor(state, "enemy", int(id_var), amount, false)
-	var spine_tiles: Array[Vector2i]
-	for spine: Dictionary in player_worldspines(engine, state):
-		spine_tiles.append(spine.get("pos", INVALID))
-	Surfaces.record_event(state, {"kind": PULSE_EVENT, "tiles": spine_tiles, "enemy_ids": hit_ids, "damage_by_enemy": targets.duplicate(true), "source": context.duplicate(true)})
+		damage_by_enemy[id] = damage
+		for tile: Vector2i in targets[id]: sources[tile] = true
+	var pulse: Dictionary = {}
+	if not damage_by_enemy.is_empty():
+		pulse = {"kind": PULSE_EVENT, "tiles": sources.keys(), "enemy_ids": damage_by_enemy.keys(), "damage_by_enemy": damage_by_enemy, "source": context.duplicate(true)}
+		Surfaces.record_event(state, pulse)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = engine._flush_surface_deaths(state)
 	state["damage_context"] = previous_context
+	if presentation_steps != null and not pulse.is_empty():
+		presentation_steps.append({
+			"kind": PULSE_EVENT, "trigger": PULSE_EVENT, "action_type": PULSE_EVENT,
+			"actor_key": "player", "actor_name": str(effect.get("source_name", "")),
+			"pulse_before": before_pulse, "pulse_after": _pulse_board(state), "pulse_event": pulse
+		})
 	return state
+
+static func _pulse_board(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for field: String in ["player", "enemies", "illusions", "terrain", "surfaces", "umbra", "death_burst_events"]:
+		if state.has(field): result[field] = state[field]
+	return result.duplicate(true)
+
+static func _durability(enemy: Dictionary) -> int:
+	return int(enemy.get("hp", 0)) + int(enemy.get("block", 0)) + int(enemy.get("stoneskin", 0))
 
 # ------------------------------------------------------------------ burst_terrain
 
 static func is_owned_outcrop(terrain: Dictionary) -> bool:
-	return str(terrain.get("owner_kind", "")) == "player" and OWNED_OUTCROP_KINDS.has(str(terrain.get("kind", "")))
+	return str(terrain.get("owner_kind", "")) == "player" and str(terrain.get("kind", "")) == OUTCROP_KIND
 
 ## Live terrain within range and sight (the target itself never blocks).
 static func burst_targets(engine: RefCounted, state: Dictionary, action: Dictionary, player_pos: Vector2i, visible_lookup: Dictionary) -> Array[Vector2i]:

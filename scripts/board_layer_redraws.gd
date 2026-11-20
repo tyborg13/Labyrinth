@@ -121,7 +121,7 @@ static func overlay_clock_only(changed: Dictionary, previous: Dictionary, shown:
 # A targeting transition used to refresh every scene tile. Keep the tiles
 # with independent paint clocks and any owned operations whose isolation fade
 # can change. Ordinary empty floor and boundary stone have no clock.
-static func targeting_scene_tiles(board: Control, previous: Dictionary) -> Dictionary:
+static func release_targeting_scene_tiles(board: Control, previous: Dictionary) -> Dictionary:
 	var shown: Dictionary = board.presentation
 	var tiles: Dictionary = preload("res://scripts/board_preview_redraws.gd").tiles(board, previous, shown)
 	for sources: Dictionary in [
@@ -141,3 +141,60 @@ static func targeting_scene_tiles(board: Control, previous: Dictionary) -> Dicti
 		if live_surface_paint or board._tile_renders_as_pillar(grid, tile):
 			tiles[tile] = true
 	return tiles
+
+static func blink_preview_active(shown: Dictionary) -> bool:
+	var effect: Dictionary = shown.get("effect", {})
+	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
+
+# The ordinary presentation diff owns surfaces, paths, previews and threats.
+# The targeting edge additionally samples the artists' existing paint clocks.
+static func targeting_clock_tiles(board: Control) -> Dictionary:
+	var tiles: Dictionary = {}
+	var still: bool = bool(board.presentation.get("reduced_motion", false))
+	if not still:
+		for tile: Vector2i in board._animated_surface_tiles:
+			if board._board_tile_is_visible_to_player(tile): tiles[tile] = true
+		for loot: Dictionary in board.combat_state.get("loot", []):
+			if not bool(loot.get("claimed", false)) and board._is_floating_loot(loot):
+				tiles[loot["pos"]] = true
+	for prop: Dictionary in board.presentation.get("scene_props", []):
+		if (board._scene_prop_idle_animation_active(prop) or str(prop.get("kind", "")) == "campfire_bonfire"):
+			tiles[prop.get("tile", Vector2i(-1, -1))] = true
+	if board._pillar_torch_idle_animation_active() or (not still and board._pillar_torch_light_texture != null):
+		var grid: Array = board.combat_state.get("grid", [])
+		for tile: Vector2i in board._rendered_tiles_in_draw_order():
+			if board._tile_renders_as_pillar(grid, tile): tiles[tile] = true
+	return tiles
+
+static func targeting_samples_unit_clock(board: Control, unit: Dictionary) -> bool:
+	if board._unit_impact_shake_strength(unit) > 0.0: return true
+	if not bool(board.presentation.get("reduced_motion", false)):
+		if bool(unit.get("burrowed", false)) or str(unit.get("role", "")) in ["illusion_preview", "enemy_move_preview"]:
+			return true
+	if board._unit_idle_frames(unit).is_empty() or bool(unit.get("death_animation", false)): return false
+	var silhouettes: Node = board._occlusion_silhouettes
+	if not is_instance_valid(silhouettes) or not silhouettes.tool_enabled: return true
+	var canvas: Control = silhouettes.team.bodies.get(str(unit.get("key", "")))
+	return not is_instance_valid(canvas) or board._idle_frame_index(unit) != canvas._idle_frame_index(unit)
+
+static func rule_outline_tiles(board: Control, previous: Dictionary, previous_shown: Dictionary) -> Dictionary:
+	var current: Dictionary = board._floor_threat_coverage
+	var old_rules: Dictionary = previous.get("rules", {})
+	var new_rules: Dictionary = current.get("rules", {})
+	var candidates: Dictionary = old_rules.merged(new_rules)
+	if board._targeting_redraw_baseline(): return candidates
+	var dirty: Dictionary = {}
+	for tile: Vector2i in candidates:
+		var visible: bool = board._board_tile_is_visible_to_player(tile)
+		if _rule_outline_inputs(tile, previous, previous_shown, visible) != _rule_outline_inputs(tile, current, board.presentation, visible):
+			dirty[tile] = true
+	return dirty
+
+static func _rule_outline_inputs(tile: Vector2i, coverage: Dictionary, shown: Dictionary, visible: bool) -> Array:
+	if not coverage.get("rules", {}).has(tile) or not (visible or coverage.get("announced", {}).has(tile)): return []
+	var alpha: float = float(coverage.get("alphas", {}).get(tile, -1.0))
+	if alpha < 0.0: return []
+	if not shown.has("isolated_enemy_actor_keys"): return [alpha]
+	var isolation = preload("res://scripts/board_threat_isolation.gd")
+	var owners: Array = coverage.get("owners", {}).get(tile, [])
+	return [alpha, owners, isolation.alpha_for(owners, shown["isolated_enemy_actor_keys"])]

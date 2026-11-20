@@ -51,7 +51,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.assertEqual(len(self.copy["entries"]), 107)
         for change in self.copy["entries"]:
             with self.subTest(term=change["id"]):
-                if change["id"] in RETIRED_TERMS:
+                if change["id"] in RETIRED_TERMS | {"worldspines"}:
                     self.assertNotIn(change["id"], by_id)
                 elif change["id"] in MARKED_RETIRED:
                     self.assertNotIn(change["id"], by_id)
@@ -60,7 +60,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertEqual(by_id[change["id"]]["definition"], self.superseding.get(change["id"], change["tooltip"]))
         self.assertEqual(by_id["marked"]["definition"], MARKED_DEFINITION)
         expected = json.loads((ROOT / 'tests/goldens/glossary_metadata.json').read_text())
-        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe'}]
+        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe', 'worldspines'}]
         metadata = [{key: value for key, value in entry.items() if key != "definition"}
                     for entry in self.glossary]
         self.assertEqual(metadata, marked_metadata_supersession(expected['metadata']))
@@ -93,6 +93,9 @@ class ShortCardTooltipsTest(unittest.TestCase):
                             "A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land.",
                         )
                     self.assertEqual(entries[owner]["body"], expected)
+                elif change["id"] == "outcrop":
+                    self.assertEqual(owner, "combat:outcrops")
+                    self.assertIn("An Outcrop blocks movement and line of sight", entries[owner]["body"][0])
                 elif change["id"] == "traps":
                     self.assertEqual(entries[owner]["body"], TRAP_BODY)
                 else:
@@ -112,6 +115,10 @@ class ShortCardTooltipsTest(unittest.TestCase):
         for term in self.expectations["new_terms"]:
             with self.subTest(term=term):
                 entry_id = "keyword:" + term
+                if term == "outcrop":
+                    self.assertNotIn(entry_id, entries)
+                    self.assertIn(term, by_id)
+                    continue
                 if term in RETIRED_TERMS | MARKED_RETIRED:
                     self.assertNotIn(entry_id, entries)
                     self.assertNotIn(term, by_id)

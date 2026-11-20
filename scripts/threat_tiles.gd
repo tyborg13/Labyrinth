@@ -10,15 +10,30 @@ const PULSE_MIN: float = 0.18
 const PULSE_MAX: float = 0.30
 const PULSE_SECONDS: float = 1.1
 const REST_KEY: String = "threats_at_rest"
+const MARKER_KEY: String = "marker_threats"
+const FLOOR_HERO_KEY: String = "floor_threat_hero_tile"
 const LOB_AIM_KEY: String = "floor_lob_aim"
 
 # Keep the previous paint payload independent of mutable direct submissions.
 # The decorated outer dictionary already belongs to the board.
 static func own_paint_inputs(shown: Dictionary, previous: Dictionary, previous_owned: bool, floor_key: String) -> void:
-	for key: String in [REST_KEY, floor_key, LOB_AIM_KEY]:
+	for key: String in [REST_KEY, floor_key, MARKER_KEY, LOB_AIM_KEY]:
 		if not shown.has(key): continue
 		var value: Variant = shown[key]
 		shown[key] = previous[key] if previous_owned and previous.get(key) == value else value.duplicate(true)
+
+static func marker_rows(shown: Dictionary) -> Array:
+	return shown.get(MARKER_KEY, shown.get(REST_KEY, {}).get("threats", []))
+
+static func include_decorations(shown: Dictionary, floor_key: String, decoration_keys: Array) -> void:
+	for key: String in [floor_key, MARKER_KEY]:
+		if not shown.has(key): continue
+		var rows: Array = shown[key]
+		for decoration: Dictionary in shown.get(REST_KEY, {}).get("threats", []):
+			if not decoration_keys.has(decoration["key"]) or rows.has(decoration): continue
+			if is_same(rows, shown[key]): rows = rows.duplicate()
+			rows.append(decoration)
+		shown[key] = rows
 
 # Announced areas are public warnings. Moving sight or hover must not hide a
 # held mark; this paints only the existing danger diamond, never unseen units.
@@ -52,7 +67,7 @@ static func rule_tiles(threats: Array) -> Dictionary:
 
 # Floor and target marker each compile their own coverage. Rows retain their
 # stamp identities, while the renderer gets one key per owner on each tile.
-static func coverage(threats: Array) -> Dictionary:
+static func coverage(threats: Array, targeting: bool = false) -> Dictionary:
 	var alphas: Dictionary = {}
 	var rules: Dictionary = {}
 	var announced: Dictionary = {}
@@ -62,7 +77,9 @@ static func coverage(threats: Array) -> Dictionary:
 		var alpha: float = float(threat.get("alpha", 1.0))
 		var rule: bool = bool(threat.get("rule_outline", false))
 		var public: bool = bool(threat.get("area_announced", threat.get("area_fixed", false)))
-		for tile: Vector2i in threat.get("tiles", []):
+		var tiles: Array = threat.get("tiles", [])
+		if targeting: tiles = threat.get("marker_tiles", tiles)
+		for tile: Vector2i in tiles:
 			alphas[tile] = maxf(float(alphas.get(tile, 0.0)), alpha)
 			if rule: rules[tile] = true
 			if public: announced[tile] = true
@@ -76,7 +93,11 @@ static func hero_fill_alpha(seconds: float, reduced_motion: bool) -> float:
 	return HERO_FILL_ALPHA + (PULSE_MAX - PULSE_MIN) * 0.5 * sin(TAU * seconds / PULSE_SECONDS)
 
 static func needs_pulse(presentation: Dictionary, threats: Dictionary) -> bool:
-	return not bool(presentation.get("reduced_motion", false)) and threats.has((presentation.get("threats_at_rest", {}) as Dictionary).get("hero_tile", Vector2i(-1, -1)))
+	return not bool(presentation.get("reduced_motion", false)) and threats.has(hero_tile(presentation))
+
+static func hero_tile(presentation: Dictionary, targeting: bool = false) -> Vector2i:
+	var release: Vector2i = presentation.get(REST_KEY, {}).get("hero_tile", Vector2i(-1, -1))
+	return release if targeting else presentation.get(FLOOR_HERO_KEY, release)
 
 static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, threats: Dictionary, hero_tile: Vector2i, reduced_motion: bool, draw_tags: Variant = null) -> void:
 	if not threats.has(tile) or not visible_at(board, tile):

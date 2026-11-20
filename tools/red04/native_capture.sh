@@ -1,10 +1,10 @@
 #!/bin/sh
 # Native 1920x1080 at 100% UI scale, one semantic before or after per invocation.
 set -eu
-kind=${1:?Provide tharokh, walk or lob}
+kind=${1:?Provide tharokh, walk, lob, followups, feedback or feedback2}
 phase=${2:?Provide before or after}
 case "$phase" in before|after) ;; *) exit 2 ;; esac
-case "$kind:$phase" in tharokh:*|walk:*|lob:after) ;; *) exit 2 ;; esac
+case "$kind:$phase" in tharokh:*|walk:*|lob:after|followups:after|feedback:after|feedback2:after) ;; *) exit 2 ;; esac
 task=${LABYRINTH_RED04_TASK_ID:-red-04}
 contract=tools/qa110/visual_contract.json
 parent="$PWD/tools/qa110/out/$task/native/$kind-$phase"
@@ -18,12 +18,27 @@ case "$kind" in
 		;;
 	walk)
 		script=walk_capture.gd
-		save=${3:?Provide the decision-102 checkpoint directory}
+		save=${3:?Provide the QA-110 Walk checkpoint directory}
 		set -- --save-dir "$save" --tile rest --out "$out/walk.png"
 		;;
 	lob)
 		script=lob_walk_capture.gd
 		contract=tools/red04/lob_walk_contract.json
+		set -- "--out=$out"
+		;;
+	followups)
+		script=followup_capture.gd
+		contract=tools/red04/followup_contract.json
+		set -- "--out=$out"
+		;;
+	feedback)
+		script=feedback_capture.gd
+		contract=tools/red04/feedback_capture_contract.json
+		set -- "--out=$out"
+		;;
+	feedback2)
+		script=feedback2_capture.gd
+		contract=tools/red04/feedback2_capture_contract.json
 		set -- "--out=$out"
 		;;
 	*) exit 2 ;;

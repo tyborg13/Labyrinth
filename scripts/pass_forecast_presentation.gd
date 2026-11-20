@@ -89,6 +89,11 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 	chip.set_meta("pass_ends_turn_preview", final_action)
 	chip.set_meta("pass_action_preview", previewed)
 	chip.set_meta("pass_movement_preview", movement_active(scene))
+	if summary.is_empty() and scene._selected_pass_pending():
+		# Retained rows belong to the previous forecast key. Conceal them
+		# immediately and let publication start the ordinary fade from zero.
+		ForecastPanel.conceal(chip)
+		return
 	# Keep the last destination's rows throughout its fade-out. Visibility alone
 	# never requests a forecast: the caller passes the strip's cached summary.
 	if active or not chip.has_node("PassForecastFocusTooltip"):

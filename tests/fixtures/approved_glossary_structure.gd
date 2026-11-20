@@ -4,6 +4,8 @@ extends RefCounted
 static var _txt02_panels: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt02_approved_card_panels.json"))["panels"]
 
 static func entries(id: String, historical: Dictionary) -> Array:
+	if id == "worldspine":
+		return [{"icon": "rite", "body_lines": 1}, {"icon": "raise_terrain", "body_lines": 1}, {"icon": "range", "body_lines": 1}]
 	if _txt02_panels.has(id):
 		var approved: Array = (_txt02_panels[id] as Array).duplicate(true)
 		# crd-08 (owner-approved 2026-11-08): Spear Thrust pays off Immobilized targets.

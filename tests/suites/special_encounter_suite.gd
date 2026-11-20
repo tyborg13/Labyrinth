@@ -353,7 +353,8 @@ static func _test_names(expect: Callable) -> void:
 		room["special_type"] = type
 		expect.call(Icons.icon_id_for_room(room) == "special_" + type and not Icons.icon_path("special_" + type).is_empty(), "Every special owns its exact approved emblem")
 		var imported: Texture2D = load(Icons.icon_path("special_" + type)) as Texture2D
-		expect.call(imported != null and imported.get_size() == Vector2(1024, 1024), "Approved emblem imports load through Godot’s real resource loader")
+		# Production emblems are right-sized to their draw bounds. The approved asset manifest pins each exact size.
+		expect.call(imported != null and imported.get_width() == imported.get_height() and imported.get_width() >= 128, "Approved emblem imports load through Godot’s real resource loader")
 		var staged: Texture2D = load("res://spec/peer_benchmark/staged/spx/emblems/" + type + ".png") as Texture2D
 		expect.call(staged != null and staged.get_size() == Vector2(1024, 1024), "Director-staged emblem sidecars load through Godot’s real resource loader")
 	var panel := MapPanelScript.new()

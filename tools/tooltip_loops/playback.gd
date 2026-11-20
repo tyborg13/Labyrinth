@@ -27,7 +27,7 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 	biome = str(Fixture.Traps.BIOMES.get(fixture["id"], biome))
 	biome = str(Fixture.Txt13.BIOMES.get(fixture["id"], biome))
 	if Fixture.Tip07.IDS.has(fixture["id"]): biome = Fixture.Tip07.BIOME
-	biome = str(Fixture.Tip06.BIOMES.get(fixture["id"], biome))
+	biome = str(fixture.get("biome", Fixture.Tip06.BIOMES.get(fixture["id"], biome)))
 	Biomes.set_inspection_override(biome)
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	if recording:

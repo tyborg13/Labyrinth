@@ -5,6 +5,8 @@ const Tip06 = Fixture.Tip06
 const Playback = preload("res://tools/tooltip_loops/playback.gd")
 const Clips = preload("res://tools/txt13/clip_capture.gd")
 const Registry = preload("res://scripts/tooltip_loop_registry.gd")
+const TileTooltip = preload("res://scripts/board_tile_tooltip.gd")
+const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const CARD_ICONS: Dictionary = {
 	Tip06.DETONATE: "detonate", Tip06.DISCHARGE: "discharge",
@@ -32,7 +34,8 @@ func _run() -> void:
 	root.size = CLOCK_SINK_SIZE
 	root.content_scale_size = root.size
 	_viewport = Playback.canvas(self)
-	for id: String in Tip06.IDS:
+	var ids: Array = [Tip06.WORLDSPINE] if OS.get_cmdline_user_args().has("--worldspine-only") else Tip06.IDS
+	for id: String in ids:
 		var prior_errors: int = _errors.size()
 		await _prove(id, raw, output)
 		print("TIP06 TOOLTIP %s: %s" % [id, "PASS" if _errors.size() == prior_errors else "FAIL"])
@@ -56,7 +59,7 @@ func _prove(id: String, raw: String, output: String) -> void:
 		_errors.append("Changing Winds must select the same swap recording")
 	if id == Tip06.WORLDSPINE:
 		if not Registry.find("terrain_burst", source).is_empty():
-			_errors.append("Worldspine's Terrain Burst must keep a text-only pop-up")
+			_errors.append("The retired Terrain Burst row must not select the Worldspine recording")
 		if not row.get("grimoire_entries", []).is_empty() or not Registry.grimoire_term("combat:outcrops").is_empty() or not Registry.find(term, {"kind": "grimoire", "id": "combat:outcrops"}).is_empty():
 			_errors.append("Generic Grimoire terrain entries must not show Worldspine's recording")
 	var asset: String = row["asset_path"]
@@ -77,6 +80,8 @@ func _prove(id: String, raw: String, output: String) -> void:
 			_errors.append(id + " must open without an Umbra label")
 		await _hand(scene, id, row["asset_path"], raw, output)
 		await _grimoire(scene, id, fixture["card"], row)
+		if id == Tip06.WORLDSPINE:
+			await _worldspine_board(scene, fixture, output)
 		scene.queue_free()
 		await process_frame
 	row["asset_path"] = asset
@@ -90,9 +95,9 @@ func _hand(scene: Node, id: String, asset: String, raw: String, output: String) 
 		_errors.append(id + " did not attach to the hand keyword pop-up")
 		return
 	if id == Tip06.WORLDSPINE:
-		var burst: Control = stack.find_child("CardFocusTooltip_*_TerrainBurst", true, false)
-		if burst == null or burst.find_child("TooltipLoopWindow", true, false) != null:
-			_errors.append("Worldspine's Terrain Burst row must open a text-only pop-up")
+		var rite: Control = stack.find_child("CardFocusTooltip_*_Rite", true, false)
+		if rite == null or rite.find_child("TooltipLoopWindow", true, false) != null:
+			_errors.append("Worldspine's Rite must open a text-only pop-up")
 		var raise_panel: Control = stack.find_child("CardFocusTooltip_*_RaiseTerrain", true, false)
 		if raise_panel == null or not raise_panel.is_ancestor_of(window):
 			_errors.append("Worldspine's loop must be inside the Raise Terrain pop-up")
@@ -168,6 +173,33 @@ func _grimoire(scene: Node, id: String, card_id: String, row: Dictionary) -> voi
 		if panel != null: panel.free()
 		button.free()
 	scene.call("_close_grimoire_overlay")
+
+func _worldspine_board(scene: Node, fixture: Dictionary, output: String) -> void:
+	var result: Dictionary = Fixture.plan(fixture, Combat.new())
+	var errors: Array[String] = Fixture.validate(fixture, result)
+	if not errors.is_empty():
+		_errors.append_array(errors)
+		return
+	var raised: Dictionary = result["beats"][0]["after"]
+	scene.set("_combat_state", raised)
+	scene.get("_run_state")["combat_state"] = raised
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
+	for frame: int in range(Playback.SETTLE_FRAMES): await process_frame
+	var board: Control = scene.get("board_view")
+	for terrain: Dictionary in raised["terrain"]:
+		var entries: Array[Dictionary] = TileTooltip.entries(board, terrain["pos"])
+		if not entries.any(func(entry: Dictionary) -> bool: return str(entry["description"]).ends_with("At the start of your turn, each enemy next to it takes 3.")):
+			_errors.append("Every raised Outcrop must show the live Rite rule")
+	if _headless or not OS.get_cmdline_user_args().has("--worldspine-only"):
+		return
+	await RenderingServer.frame_post_draw
+	var path: String = output.path_join("worldspine_pulse_board_after_cast_1920x1080.png")
+	var image: Image = _viewport.get_texture().get_image()
+	if image == null or image.get_size() != Playback.SIZE or image.save_png(path) != OK:
+		_errors.append("Could not save " + path)
+	else:
+		print(path)
 
 static func _window(panel: Control, id: String, asset: String) -> Control:
 	if panel == null: return null

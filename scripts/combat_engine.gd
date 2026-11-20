@@ -991,10 +991,9 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 	BattlefieldRules.prepare(self, state)
 	return {"state": state, "rng": rng, "enemy_index": 0, "enemy_count": (state.get("enemies", []) as Array).size(), "complete": false}
 
-# One original enemy assignment per call, followed by the unchanged opening.
-# The cursor owns its state/RNG; callers may prepare it at existing frame
-# boundaries without installing partial state or changing authoritative timing.
-func advance_combat_creation(cursor: Dictionary) -> bool:
+# The covered caller can pause between the existing tactical evaluations.
+# The synchronous path retains the virtual enemy assignment used by tools.
+func advance_combat_creation(cursor: Dictionary, sliced: bool = false) -> bool:
 	if bool(cursor.get("complete", false)): return true
 	# Independent cursors may interleave across a temporary catalog reload.
 	# The owning factory checks its complete definitions before each advance;
@@ -1004,17 +1003,39 @@ func advance_combat_creation(cursor: Dictionary) -> bool:
 	var rng: RandomNumberGenerator = cursor["rng"]
 	var index: int = int(cursor["enemy_index"])
 	if index < int(cursor["enemy_count"]):
-		_assign_enemy_intent(state, index, rng)
+		if sliced and (get_script().resource_path in ["res://scripts/combat_engine.gd", "res://scripts/hero_facing_combat.gd"]):
+			if not _advance_creation_intent(cursor, state, index, rng): return false
+		else:
+			_assign_enemy_intent(state, index, rng)
 		cursor["enemy_index"] = index + 1
 		return false
-	state["rng_state"] = rng.state
-	state = _initialize_initiative_queue(state)
-	ManeuverRules.record_activation_start(state)
-	state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
+	if not cursor.has("initiative_ready"):
+		state["rng_state"] = rng.state
+		state = _initialize_initiative_queue(state)
+		ManeuverRules.record_activation_start(state)
+		cursor["state"] = state
+		cursor["initiative_ready"] = true
+		if sliced: return false
+	if not cursor.has("opening_draw_ready"):
+		state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
+		cursor["state"] = state
+		cursor["opening_draw_ready"] = true
+		if sliced: return false
 	state = DefenseRelicRules.opening_hand(self, state)
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
 	cursor["state"] = state
 	cursor["complete"] = true
+	return true
+
+func _advance_creation_intent(cursor: Dictionary, state: Dictionary, index: int, rng: RandomNumberGenerator) -> bool:
+	var roll: EnemyIntentRoll = cursor.get("intent_roll")
+	if roll == null:
+		roll = _begin_enemy_intent_roll(state, index, rng)
+		if roll == null: return true
+		cursor["intent_roll"] = roll
+		return false
+	if not _advance_tactical_intent_roll(state, index, rng, roll): return false
+	cursor.erase("intent_roll")
 	return true
 
 func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dictionary) -> Dictionary:
@@ -2283,6 +2304,8 @@ func finish_player_activation_with_rule_steps(state: Dictionary, accepted: Calla
 	HoarderRules.begin_round(self, next_state)
 	next_state = BattlefieldRules.after_player_turn(self, next_state, -1, accepted, rule_steps)
 	if room_round_started: SnareRules.start_round(self, next_state, true, true)
+	if state.has(preload("res://scripts/pass_forecast_red_tiles.gd").FORECAST_MARKER):
+		preload("res://scripts/pass_forecast_unseen_ground.gd").track_boundary_arrivals(state, next_state)
 	return next_state
 
 # Owned snapshot immediately before room pressure. Forecasts and completion
@@ -2379,6 +2402,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	var steps: Array[Dictionary]
+	var turn_start_steps: Array[Dictionary]
 	var player_turn_before_state: Dictionary = {}
 	var before_pop_state: Dictionary = next_state.duplicate(true)
 	var popped: Dictionary = _pop_next_actor(next_state)
@@ -2397,22 +2421,22 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 	if entry.is_empty():
 		next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 		player_turn_before_state = next_state.duplicate(true)
-		next_state = prepare_next_player_turn(next_state)
+		next_state = prepare_next_player_turn(next_state, turn_start_steps)
 		if accepted.is_valid(): accepted.call(next_state)
 		if include_commit_steps:
 			_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
-		steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
+		steps.append_array(turn_start_steps)
 		_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 		_record_runtime_performance_phase("enemy_phase_slice_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "player_turn_before_state": player_turn_before_state, "complete": true}
 	match str(entry.get("kind", "")):
 		"player":
 			player_turn_before_state = next_state.duplicate(true)
-			next_state = prepare_next_player_turn(next_state)
+			next_state = prepare_next_player_turn(next_state, turn_start_steps)
 			if accepted.is_valid(): accepted.call(next_state)
 			if include_commit_steps:
 				_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
-			steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
+			steps.append_array(turn_start_steps)
 			_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 			_record_runtime_performance_phase("enemy_phase_slice_total", performance_total_started)
 			return {"state": next_state, "steps": steps, "player_turn_before_state": player_turn_before_state, "complete": true}
@@ -2552,10 +2576,7 @@ func _advance_preview_actor(cursor: Dictionary, deadline: int) -> void:
 		# An unseen arrival can change paths even before its own activation.
 		# Preserve the original information boundary while collecting known costs.
 		cursor["unrevealed_before_player"] = true
-		# atk-04: a reinforcement the player can see is a new foe, not the Umbra.
-		var arrivals: Array = []
-		for spawn_step: Dictionary in popped["reinforcement_steps"]: arrivals.append_array(spawn_step.get("spawned_enemies", []))
-		preload("res://scripts/pass_forecast_unseen_ground.gd").note_unplanned(self, cursor, next_state, arrivals)
+		preload("res://scripts/pass_forecast_unseen_ground.gd").note_reinforcement_spawn(self, cursor, next_state, popped["reinforcement_steps"])
 	if combat_outcome(next_state) != "":
 		cursor["state"] = next_state
 		cursor["player_turn_before_state"] = next_state.duplicate(true)
@@ -2593,13 +2614,11 @@ func _advance_preview_actor(cursor: Dictionary, deadline: int) -> void:
 				if known_repeat and not bool(cursor.get("choose_next_intents", true)):
 					Repeats.restart_with_rolls(cursor)
 					return
-				if not known_repeat and (not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty()):
+				var unplanned: bool = not initially_visible_enemy_ids.has(enemy_id)
+				preload("res://scripts/pass_forecast_unseen_ground.gd").note_arrival_activation(self, cursor, next_state, enemy, unplanned)
+				if not known_repeat and (unplanned or revealed_enemy_ids.has(enemy_id) or intent.is_empty()):
 					Repeats.note_skipped(cursor)
 					cursor["unrevealed_before_player"] = true
-					if not initially_visible_enemy_ids.has(enemy_id):
-						# atk-04: a visible summon or split is a new foe; anything else
-						# keeps the Umbra's opaque marker.
-						preload("res://scripts/pass_forecast_unseen_ground.gd").note_unplanned(self, cursor, next_state, [enemy])
 					if revealed_enemy_ids.has(enemy_id) and is_enemy_visible_to_player(before_pop_state, enemy):
 						(cursor["repeated_enemy_names"] as Array).append(str(entry.get("name", enemy.get("type", ""))))
 						Repeats.note_unknown_repeat(cursor, enemy_id)
@@ -2659,7 +2678,8 @@ func _resume_preview_enemy_turn(cursor: Dictionary, deadline: int) -> void:
 	var result: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").complete_turn(turn.result())
 	# The scene's facing adapter decorates the resolved state and its receipts
 	# after the reaction trace has attached the final snapshot, as live play does.
-	if bool(_preview_facing_mode()): HeroFacingState.enemy_result(activation["before"], result)
+	# The base engine has no facing mode (null): only the facing adapter decorates.
+	if _preview_facing_mode() == true: HeroFacingState.enemy_result(activation["before"], result)
 	cursor.erase("enemy_turn")
 	_complete_preview_enemy_turn(cursor, activation["before"], activation["enemy"], activation["name"], activation["hero_before"], result)
 
@@ -3354,13 +3374,13 @@ func _resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		"steps": steps
 	}
 
-func prepare_next_player_turn(state: Dictionary) -> Dictionary:
-	return _prepare_next_player_turn_in_place(state.duplicate(true))
+func prepare_next_player_turn(state: Dictionary, presentation_steps: Variant = null) -> Dictionary:
+	return _prepare_next_player_turn_in_place(state.duplicate(true), presentation_steps)
 
 # Only callers owning an isolated snapshot may use this entry point. The PASS
 # cursor already retains its pre-turn receipt snapshot; a second clone here
 # copied the same complete board only to throw it away after summing losses.
-func _prepare_next_player_turn_in_place(next_state: Dictionary) -> Dictionary:
+func _prepare_next_player_turn_in_place(next_state: Dictionary, presentation_steps: Variant = null) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
@@ -3400,15 +3420,14 @@ func _prepare_next_player_turn_in_place(next_state: Dictionary) -> Dictionary:
 	next_state = _resolve_player_start_of_turn(next_state)
 	if combat_outcome(next_state) != "":
 		return next_state
-	next_state = SurfaceCardRules.resolve_meteor_marks(self, next_state)
+	next_state = SurfaceCardRules.resolve_meteor_marks(self, next_state, presentation_steps)
 	if combat_outcome(next_state) != "":
 		return next_state
 	# Recorded after Meteorfall so "started your activation on" sees the board
 	# the player takes control of.
 	ManeuverRules.record_activation_start(next_state)
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
-	next_state = RiteRules.apply_player_turn_start(self, next_state)
-	next_state = TerrainCardRules.apply_player_turn_start(self, next_state)
+	next_state = RiteRules.apply_player_turn_start(self, next_state, presentation_steps)
 	if combat_outcome(next_state) != "":
 		return next_state
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
@@ -3607,8 +3626,7 @@ func outcrop_tiles_for_player_action(state: Dictionary, action: Dictionary, targ
 	var probe_terrain: Array = (state.get("terrain", []) as Array).duplicate(false)
 	probe["terrain"] = probe_terrain
 	if around_target and not candidates.is_empty() and TerrainCardRules.center_may_seal(self, state, target_tile):
-		# A Worldspine cage may seal its own center tile (and whoever stands
-		# there); every other floor tile must stay connected.
+		# An around-target raise may seal its center; other floor routes stay open.
 		probe_terrain.append({"id": "_outcrop_center_probe", "kind": "crag_outcrop", "pos": target_tile, "hp": 1, "max_hp": 1})
 	var result: Array[Vector2i]
 	for tile: Vector2i in candidates:

@@ -50,8 +50,8 @@
   },
   "terrain_burst_own": {
     "title": "Terrain Burst",
-    "text": "Destroy an adjacent Outcrop or Worldspine you raised.",
-    "legacy": "Destroy an adjacent Outcrop or Worldspine you raised.",
+    "text": "Destroy an adjacent Outcrop you raised.",
+    "legacy": "Destroy an adjacent Outcrop you raised.",
     "term": "terrain_burst"
   },
   "terrain_burst_any": {
@@ -104,12 +104,18 @@
     "legacy": "Places a powder keg with this much Health on empty floor. It blocks movement, not sight.",
     "term": "raise_terrain"
   },
-  "raise_worldspine": {
+  "raise_outcrop_around_target": {
     "title": "Raise Terrain",
-    "text": "Raises a Worldspine with this much Health on each empty tile around the target.",
-    "legacy": "Raises a Worldspine with this much Health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed.",
+    "text": "Raises an Outcrop with this much Health on each empty tile around the target.",
+    "legacy": "Raises an Outcrop with this much Health on each empty tile around the target. Outcrops block movement and sight and leave Rubble when destroyed.",
     "term": "raise_terrain",
-    "diagram_text": "@pattern(neighbors:origin) Raises a Worldspine with this much Health on each empty one of these tiles around the target."
+    "diagram_text": "@pattern(neighbors:origin) Raises an Outcrop with this much Health on each empty one of these tiles around the target."
+  },
+  "range_outcrop_around_target": {
+    "title": "Range",
+    "text": "Choose a target tile within this range.",
+    "legacy": "Choose a target tile within this range.",
+    "term": "range"
   },
   "range_outcrop": {
     "title": "Range",
@@ -123,13 +129,6 @@
     "legacy": "When the keg is destroyed by anything, it deals {n} to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off.",
     "term": "detonate",
     "diagram_text": "@pattern(cross) When destroyed, the keg deals {n} to everything on these tiles."
-  },
-  "worldspine_burst": {
-    "title": "Terrain Burst",
-    "text": "Each turn, enemies next to your Worldspines take {n}.",
-    "legacy": "At the start of each of your turns, each enemy next to at least one of your Worldspines takes {n}.",
-    "term": "terrain_burst",
-    "diagram_text": "@pattern(neighbors:origin) Each turn, enemies on these tiles around your Worldspines take {n}."
   },
   "quicken": {
     "title": "Quicken",

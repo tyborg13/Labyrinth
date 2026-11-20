@@ -2,6 +2,7 @@ extends Node2D
 
 ## Runtime version of the accepted pass-seven cutout. One instance per painted facing.
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
+const PrepAssets = preload("res://scripts/asset_loader.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
 const GearLayers = preload("res://scripts/protagonist_cutout/gear_layers.gd")
 const BASE: String = "res://assets/units/protagonist_cutout"
@@ -48,16 +49,50 @@ func _texture(path: String) -> Texture2D:
 	return texture
 
 func load_rig() -> bool:
-	if _loaded_facing == facing:
-		return true
+	if _loaded_facing == facing: return true
+	_rig_build_jobs(false)
+	return _loaded_facing == facing
+
+# The same constructors and ordering serve live and covered builds. Cancelled
+# covered rigs stay in their hidden owner until it discards the partial tree.
+static func prepare_rig_for(rig: Variant, present: Callable, alive: Callable, trace_step: Callable = Callable()) -> bool:
+	if rig._loaded_facing == rig.facing: return true
+	var jobs: Array[Callable]
+	await PrepAssets.wait_for_preparation_slice(present, alive, &"_rig_build_jobs")
+	if not bool(alive.call()): return false
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = trace_step.call("setup") if trace_step.is_valid() else null
+	jobs = rig._rig_build_jobs(true)
+	span = null
+	PrepAssets.count_preparation_work(started, &"_rig_build_jobs")
+	for job: Callable in jobs:
+		var step: StringName = job.get_method()
+		await PrepAssets.wait_for_preparation_slice(present, alive, step)
+		if not bool(alive.call()): return false
+		started = Time.get_ticks_usec()
+		span = trace_step.call(step) if trace_step.is_valid() else null
+		job.call()
+		span = null
+		PrepAssets.count_preparation_work(started, step)
+	return rig._loaded_facing == rig.facing
+
+func _before_rig_load() -> void:
+	pass
+
+func _after_rig_load() -> void:
+	pass
+
+func _rig_build_jobs(staged: bool) -> Array[Callable]:
+	var jobs: Array[Callable]
+	_before_rig_load()
 	load_errors.clear()
 	if not has_facing(facing):
 		load_errors.append("No actual cutout layout for facing: " + facing)
-		return false
+		return jobs
 	var prepared: RigData.Data = RigData.load_source(_layout_path(facing))
 	if not prepared.error.is_empty():
 		load_errors.append(prepared.error)
-		return false
+		return jobs
 	for child: Node in get_children():
 		remove_child(child)
 		child.free()
@@ -70,85 +105,105 @@ func load_rig() -> bool:
 	_gear_layers = null
 	_source_data = prepared
 	layout = Motion.prepare_layout(prepared.layout)
-	# Enemy subclasses share this loader, but retain their authored layers.
-	var protagonist_layers: bool = _layout_path(facing).get_base_dir() == BASE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	skeleton = Skeleton2D.new()
 	skeleton.name = "Skeleton"
 	add_child(skeleton)
 	skeleton.owner = self
+	# Enemy subclasses share the loader and keep their own authored layers.
+	var protagonist_layers: bool = _layout_path(facing).get_base_dir() == BASE
 	var joints: Dictionary = layout.get("joints", {})
 	var remaining: Array = joints.keys()
+	var scheduled: Dictionary = {}
 	while not remaining.is_empty():
 		var progressed: bool = false
 		for raw_name: Variant in remaining.duplicate():
 			var bone_name: String = str(raw_name)
-			var definition: Dictionary = joints[bone_name]
-			var parent_value: Variant = definition.get("parent")
-			var parent_name: String = "" if parent_value == null else str(parent_value)
-			if not parent_name.is_empty() and not bones.has(parent_name):
-				continue
-			var bone := Bone2D.new()
-			bone.name = bone_name
-			bone.set_autocalculate_length_and_angle(false)
-			bone.set_length(12.0)
-			var parent_node: Node = skeleton if parent_name.is_empty() else bones[parent_name] as Node
-			var origin: Vector2 = _vector(definition["position"])
-			var parent_origin: Vector2 = Vector2.ZERO if parent_name.is_empty() else _vector((joints[parent_name] as Dictionary)["position"])
-			bone.position = origin - parent_origin
-			bone.rest = bone.transform
-			parent_node.add_child(bone)
-			bone.owner = self
-			bones[bone_name] = bone
-			rest_transforms[bone_name] = bone.transform
+			var parent: Variant = joints[bone_name].get("parent")
+			var parent_name: String = "" if parent == null else str(parent)
+			if not parent_name.is_empty() and not scheduled.has(parent_name): continue
+			if staged: jobs.append(_build_bone.bind(bone_name, parent_name, joints))
+			else: _build_bone(bone_name, parent_name, joints)
+			scheduled[bone_name] = true
 			remaining.erase(raw_name)
 			progressed = true
 		if not progressed:
-			load_errors.append("Cyclic or missing bone parents: " + str(remaining))
-			return false
+			var message: String = "Cyclic or missing bone parents: " + str(remaining)
+			if staged: jobs.append(_invalid_bone_order.bind(message))
+			else: _invalid_bone_order(message)
+			return jobs
 	var use_cape_mesh: bool = layout.get("cape_mesh", {}) is Dictionary and not (layout.get("cape_mesh", {}) as Dictionary).is_empty()
 	var joint_meshes: Array = layout.get("joint_meshes", [])
 	var replaced_parts: Dictionary = {}
 	for mesh: Dictionary in joint_meshes:
 		replaced_parts[str(mesh.get("replaces_part", ""))] = true
-	for raw_part: Variant in layout.get("parts", []):
-		var part: Dictionary = raw_part
-		if use_cape_mesh and bool(part.get("cape_segment", false)):
-			continue
-		if replaced_parts.has(str(part.get("name", ""))):
-			continue
-		var bone_name: String = str(part.get("bone", ""))
-		if not bones.has(bone_name):
-			load_errors.append("Unknown part bone: " + bone_name)
-			continue
-		var sprite := Sprite2D.new()
-		sprite.name = str(part.get("name", "Part"))
-		sprite.set_meta("equipment_slot", str(part.get("equipment_slot", "")))
-		sprite.texture = _texture(str(part["file"]))
-		sprite.centered = false
-		sprite.position = _vector(part["offset"]) - _vector((joints[bone_name] as Dictionary)["position"])
-		sprite.z_index = int(part.get("z_index", 0))
-		if protagonist_layers:
-			sprite.z_index = GearLayers.base_depth(str(part.get("name", "")), facing, sprite.z_index)
-		sprite.z_as_relative = false
-		(bones[bone_name] as Bone2D).add_child(sprite)
-		sprite.owner = self
-		_remember_gear_part(str(part.get("name", "")), sprite)
+	for part: Dictionary in layout.get("parts", []):
+		if use_cape_mesh and bool(part.get("cape_segment", false)): continue
+		if replaced_parts.has(str(part.get("name", ""))): continue
+		if staged: jobs.append(_build_part.bind(part, joints, protagonist_layers))
+		else: _build_part(part, joints, protagonist_layers)
 	if use_cape_mesh:
-		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape", "cape")
+		if staged: jobs.append(_build_mesh.bind(layout["cape_mesh"], "PaintedCape", "cape"))
+		else: _build_mesh(layout["cape_mesh"], "PaintedCape", "cape")
 	for mesh_index: int in range(joint_meshes.size()):
 		var mesh: Dictionary = joint_meshes[mesh_index]
-		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")), "joint:%d" % mesh_index)
+		var mesh_name: String = str(mesh.get("name", "PaintedJoint"))
+		var source_key: String = "joint:%d" % mesh_index
+		if staged: jobs.append(_build_mesh.bind(mesh, mesh_name, source_key))
+		else: _build_mesh(mesh, mesh_name, source_key)
+	if staged: jobs.append(_finish_rig_build.bind(protagonist_layers))
+	else: _finish_rig_build(protagonist_layers)
+	return jobs
+
+func _invalid_bone_order(message: String) -> void:
+	load_errors.append(message)
+
+func _build_bone(bone_name: String, parent_name: String, joints: Dictionary) -> void:
+	var definition: Dictionary = joints[bone_name]
+	var bone := Bone2D.new()
+	bone.name = bone_name
+	bone.set_autocalculate_length_and_angle(false)
+	bone.set_length(12.0)
+	var parent_node: Node = skeleton if parent_name.is_empty() else bones[parent_name] as Node
+	var origin: Vector2 = _vector(definition["position"])
+	var parent_origin: Vector2 = Vector2.ZERO if parent_name.is_empty() else _vector((joints[parent_name] as Dictionary)["position"])
+	bone.position = origin - parent_origin
+	bone.rest = bone.transform
+	parent_node.add_child(bone)
+	bone.owner = self
+	bones[bone_name] = bone
+	rest_transforms[bone_name] = bone.transform
+
+func _build_part(part: Dictionary, joints: Dictionary, protagonist_layers: bool) -> void:
+	var bone_name: String = str(part.get("bone", ""))
+	if not bones.has(bone_name):
+		load_errors.append("Unknown part bone: " + bone_name)
+		return
+	var sprite := Sprite2D.new()
+	sprite.name = str(part.get("name", "Part"))
+	sprite.set_meta("equipment_slot", str(part.get("equipment_slot", "")))
+	sprite.texture = _texture(str(part["file"]))
+	sprite.centered = false
+	sprite.position = _vector(part["offset"]) - _vector((joints[bone_name] as Dictionary)["position"])
+	sprite.z_index = int(part.get("z_index", 0))
+	if protagonist_layers:
+		sprite.z_index = GearLayers.base_depth(str(part.get("name", "")), facing, sprite.z_index)
+	sprite.z_as_relative = false
+	(bones[bone_name] as Bone2D).add_child(sprite)
+	sprite.owner = self
+	_remember_gear_part(str(part.get("name", "")), sprite)
+
+func _finish_rig_build(protagonist_layers: bool) -> void:
 	if protagonist_layers:
 		_gear_layers = GearLayers.new()
 		_gear_layers.setup(self)
 		if not visibility_changed.is_connected(_restore_hidden_weapon):
 			visibility_changed.connect(_restore_hidden_weapon)
 	if not load_errors.is_empty():
-		return false
+		return
 	_loaded_facing = facing
 	apply_pose("idle", 0.0)
-	return true
+	_after_rig_load()
 
 func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> void:
 	# Meshes share the skeleton's source-pixel coordinate space. Parenting them

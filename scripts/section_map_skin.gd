@@ -38,37 +38,45 @@ static func _processed_image(image: Image, name: String) -> Image:
 static func prepare_initial_assets_for(root: Node, present_frame: Callable, still_active: Callable) -> void:
 	for name: String in ["action_frame", "medallion", "panel_frame"]:
 		if _textures.has(name): continue
-		var source: Image = _owned_texture_image(Assets.load_texture(ART + name + ".png"))
-		var image: Image = (await Assets.prepare_cpu_value_for(root, _processed_image.bind(source, name), present_frame, still_active)) as Image
+		await Assets.wait_for_preparation_slice(present_frame, still_active)
 		if not bool(still_active.call()): return
-		if image != null and not _textures.has(name): _textures[name] = ImageTexture.create_from_image(image)
+		var started: int = Time.get_ticks_usec()
+		var source: Image = _owned_texture_image(Assets.load_texture(ART + name + ".png"))
+		Assets.count_preparation_work(started)
+		var image: Image = (await Assets.prepare_cpu_value_for(root, _processed_image.bind(source, name), present_frame, still_active)) as Image
+		await Assets.wait_for_preparation_slice(present_frame, still_active)
+		if not bool(still_active.call()): return
+		if image != null and not _textures.has(name):
+			started = Time.get_ticks_usec()
+			_textures[name] = ImageTexture.create_from_image(image)
+			Assets.count_preparation_work(started)
 
 	# Private CPU copies are obtained on the main thread. A single owned worker makes
 	# every exact 128px map icon; GPU publication remains bounded on the main.
 	var sources: Dictionary = {}
-	var started: int = Time.get_ticks_usec()
 	for id: String in Icons.all_icon_ids():
 		var key: String = "icon_" + id
 		if _textures.has(key): continue
+		await Assets.wait_for_preparation_slice(present_frame, still_active)
+		if not bool(still_active.call()): return
+		var started: int = Time.get_ticks_usec()
 		var texture: Texture2D = Icons.icon_texture(id)
 		if texture != null:
 			var image: Image = _owned_texture_image(texture)
 			if image != null and not image.is_empty(): sources[key] = image
-		if Time.get_ticks_usec() - started >= 4000:
-			await present_frame.call()
-			if not bool(still_active.call()): return
-			started = Time.get_ticks_usec()
+		Assets.count_preparation_work(started)
 	if sources.is_empty(): return
 	var result: Variant = await Assets.prepare_cpu_value_for(root, _process_icon_images.bind(sources), present_frame, still_active)
 	if not bool(still_active.call()) or not result is Dictionary: return
 	var images: Dictionary = result
-	started = Time.get_ticks_usec()
 	for key: String in images:
-		if not _textures.has(key): _textures[key] = ImageTexture.create_from_image(images[key])
-		if Time.get_ticks_usec() - started >= 4000:
-			await present_frame.call()
-			if not bool(still_active.call()): return
-			started = Time.get_ticks_usec()
+		await Assets.wait_for_preparation_slice(present_frame, still_active)
+		if not bool(still_active.call()): return
+		if _textures.has(key): continue
+		var started: int = Time.get_ticks_usec()
+		_textures[key] = ImageTexture.create_from_image(images[key])
+		Assets.count_preparation_work(started)
+	await Assets.wait_for_preparation_slice(present_frame, still_active)
 
 static func _owned_texture_image(texture: Texture2D) -> Image:
 	if texture == null: return null

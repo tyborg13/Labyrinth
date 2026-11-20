@@ -5,6 +5,8 @@ extends RefCounted
 ## See spec/card_mechanics_illusions_terrain.md.
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const Store = preload("res://scripts/progression_store.gd")
+const Rites = preload("res://scripts/rite_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
@@ -16,6 +18,16 @@ const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 
 const NO_TARGET: Vector2i = Vector2i(-1, -1)
+const WORLDSPINE_SAVE_PATH: String = "user://trn-01-mid-fight.save"
+const LEGACY_WORLDSPINE_SAVE_PATH: String = "user://trn-01-legacy.save"
+const LEGACY_WORLDSPINE_ID: String = "legacy_player_spire"
+const WORLDBREAK_HERO := Vector2i(3, 4)
+const WORLDBREAK_TILE := Vector2i(4, 4)
+const RAISE_STONE_TILE := Vector2i(2, 3)
+const RAISE_STONE_ENEMY := Vector2i(2, 2)
+const ENEMY_OUTCROP_TILE := Vector2i(7, 6)
+const WORLDSPINE_CENTER := Vector2i(5, 4)
+const SECOND_WORLDSPINE_CENTER := Vector2i(2, 6)
 const PLAYER_TILE: Vector2i = Vector2i(2, 4)
 const ADJ: Array = [[0, -1], [1, 0], [0, 1], [-1, 0]]
 const CROSS: Array = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
@@ -36,7 +48,6 @@ const FIXTURES: Dictionary = {
 	"w4c_fx_rockburst": {"element": "earth", "time": 4, "actions": [{"type": "burst_terrain", "range": 3, "damage": 6, "surface": "rubble", "surface_pattern": CROSS}]},
 	"w4c_fx_worldbreak": {"element": "earth", "time": 6, "actions": [{"type": "burst_terrain", "range": 1, "owned_outcrop_only": true, "line_damage": 10, "line_length": 3, "stagger": 2}]},
 	"w4c_fx_powder_keg": {"element": "fire", "time": 3, "actions": [{"type": "outcrop", "range": 2, "health": 3, "kind": "powder_keg", "burst_damage": 8}]},
-	"w4c_fx_worldspine": {"element": "earth", "time": 7, "burn": true, "actions": [{"type": "outcrop", "range": 3, "health": 4, "pattern": ADJ, "around_target": true, "kind": "worldspine", "pulse_damage": 3}]},
 	"w4c_fx_rampart": {"element": "earth", "time": 5, "actions": [{"type": "outcrop", "range": 2, "health": 3, "pattern": LINE3, "rotate": true}, {"type": "stoneskin", "amount": 3}]},
 	"w4c_fx_raise": {"element": "earth", "time": 2, "actions": [{"type": "outcrop", "range": 1, "health": 3}]},
 	"w4c_fx_guard": {"time": 1, "actions": [{"type": "block", "amount": 1}]},
@@ -64,6 +75,7 @@ static func run(expect: Callable) -> void:
 	_test_powder_keg(engine, expect)
 	_test_worldspine(engine, expect)
 	_test_worldspine_routes(engine, expect)
+	_test_worldspine_legacy_save(engine, expect)
 	_test_rampart_rotation(engine, expect)
 	_test_presentation_contracts(engine, expect)
 	_test_run_scene_surfaces(engine, expect)
@@ -588,32 +600,64 @@ static func _test_powder_keg(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(_hp(_resolve(engine, large, "w4c_fx_shot", Vector2i(4, 4)), 1) == 32, "A 2x2 enemy touching the blast takes it once")
 
 static func _test_worldspine(engine: CombatEngine, expect: Callable) -> void:
-	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(7, 4)), _enemy(3, Vector2i(7, 7))])
-	var action: Dictionary = _action(engine, state, "w4c_fx_worldspine")
-	expect.call(engine.valid_targets_for_player_action(state, action).has(Vector2i(5, 4)), "Worldspine targets a tile around an enemy")
-	var tiles: Array[Vector2i] = engine.outcrop_tiles_for_player_action(state, action, Vector2i(5, 4))
-	expect.call(_same_tiles(tiles, [Vector2i(5, 3), Vector2i(6, 4), Vector2i(5, 5), Vector2i(4, 4)]), "Four spires cage the target, sealing only its center: %s" % str(tiles))
-	var after: Dictionary = _resolve(engine, state, "w4c_fx_worldspine", Vector2i(5, 4))
-	var spire: Dictionary = _terrain_at(after, Vector2i(6, 4))
-	expect.call(str(spire.get("kind", "")) == TerrainCardRules.WORLDSPINE_KIND and int(spire.get("hp", 0)) == 4 and int(spire.get("pulse_damage", 0)) == 3, "Worldspines are 4-health spires that pulse for 3")
-	var pulsed: Dictionary = TerrainCardRules.apply_player_turn_start(engine, after.duplicate(true))
-	expect.call(_hp(pulsed, 1) == 17 and _hp(pulsed, 2) == 17 and _hp(pulsed, 3) == 20, "Each enemy next to a Worldspine takes 3 once")
-	expect.call(_events(after, pulsed, TerrainCardRules.PULSE_EVENT).size() == 1, "A worldspine_pulse event records the pulse")
+	var state: Dictionary = _state(engine, [
+		_enemy(1, WORLDSPINE_CENTER), _enemy(2, Vector2i(7, 4)),
+		_enemy(3, Vector2i(7, 7)), _enemy(4, RAISE_STONE_ENEMY)
+	])
+	engine.CombatTerrainRules.raise_outcrop(engine, state, ENEMY_OUTCROP_TILE, 4, {"actor_kind": "enemy", "actor_id": 3})
+	state = _play(engine, state, "raise_stone", RAISE_STONE_TILE)
+	expect.call(_terrain_at(state, RAISE_STONE_TILE).get("kind") == "crag_outcrop", "Raise Stone first creates a player Outcrop")
+	expect.call(_events(state, engine.prepare_next_player_turn(state), TerrainCardRules.PULSE_EVENT).is_empty(), "Player Outcrops do not pulse before a Rite is active")
+	var action: Dictionary = _action(engine, state, "worldspine")
+	expect.call(engine.valid_targets_for_player_action(state, action).has(WORLDSPINE_CENTER), "Worldspine targets the center of a raise")
+	var tiles: Array[Vector2i] = engine.outcrop_tiles_for_player_action(state, action, WORLDSPINE_CENTER)
+	expect.call(_same_tiles(tiles, [Vector2i(5, 3), Vector2i(6, 4), Vector2i(5, 5), Vector2i(4, 4)]), "Four Outcrops seal only the selected center: %s" % str(tiles))
+	var after: Dictionary = _play(engine, state, "worldspine", WORLDSPINE_CENTER)
+	var outcrop: Dictionary = _terrain_at(after, Vector2i(6, 4))
+	expect.call(TerrainCardRules.is_owned_outcrop(outcrop) and int(outcrop.get("hp", 0)) == 4 and outcrop.get("blocks_sight") and outcrop.get("surface_on_destroy") == "rubble", "Worldspine makes ordinary 4-Health Outcrops")
+	expect.call(not engine.combat_line_of_sight(after, PLAYER_TILE, WORLDSPINE_CENTER), "Worldspine Outcrops block sight to their center")
+	var burst_state: Dictionary = after.duplicate(true)
+	burst_state["player"]["pos"] = WORLDBREAK_HERO
+	var burst: Dictionary = _action(engine, burst_state, "worldbreak")
+	expect.call(engine.valid_targets_for_player_action(burst_state, burst).has(WORLDBREAK_TILE), "Worldbreak targets a Worldspine-raised Outcrop")
+	burst_state = _resolve(engine, burst_state, "worldbreak", WORLDBREAK_TILE)
+	expect.call(Surface.has_rubble(burst_state, WORLDBREAK_TILE), "Destroying that Outcrop leaves Rubble")
+	expect.call(after["deck"]["burned"].has("worldspine") and Rites.hud_entries(after).size() == 1, "Worldspine Exhausts and starts an ordinary HUD Rite")
 	var next_turn: Dictionary = engine.prepare_next_player_turn(engine.finish_player_activation(after))
-	expect.call(_hp(next_turn, 1) == 17, "The pulse happens at the start of the hero's turn")
-	var weak: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4), 3)])
-	weak = _resolve(engine, weak, "w4c_fx_worldspine", Vector2i(5, 4))
+	expect.call(_hp(next_turn, 1) == 17 and _hp(next_turn, 2) == 17 and _hp(next_turn, 3) == 20 and _hp(next_turn, 4) == 17, "Turn start hits each enemy beside either player's Outcrop source once and skips enemy Outcrops")
+	var pulses: Array[Dictionary] = _events(after, next_turn, TerrainCardRules.PULSE_EVENT)
+	tiles.append(RAISE_STONE_TILE)
+	expect.call(pulses.size() == 1 and _same_tiles(pulses[0]["tiles"], tiles) and pulses[0]["source"]["element"] == "earth", "One Earth pulse event comes from each contributing Outcrop tile")
+	var forecast: Dictionary = {"state": after.duplicate(true), "player_turn_before_state": after, "steps": []}
+	preload("res://scripts/pass_forecast_turn_start.gd").complete(engine, forecast)
+	var forecast_state: Dictionary = forecast["state"]
+	expect.call(_hp(forecast_state, 1) == 17 and _hp(forecast_state, 4) == 17 and _events(after, forecast_state, TerrainCardRules.PULSE_EVENT).size() == 1, "Pass forecast uses the same once-per-enemy Rite pulse")
+	expect.call(Store._save_run_state_at(WORLDSPINE_SAVE_PATH, {"combat_state": after}), "Mid-fight save writes through the production store")
+	var loaded: Dictionary = Store._load_run_dictionary(WORLDSPINE_SAVE_PATH).get("combat_state", {})
+	expect.call(Rites.active_rites(loaded) == Rites.active_rites(after), "The same active Rite survives a mid-fight reload")
+	if not loaded.is_empty():
+		var resumed: Dictionary = engine.prepare_next_player_turn(engine.finish_player_activation(loaded))
+		expect.call(_hp(resumed, 1) == 17 and _hp(resumed, 4) == 17, "Resumed turn start pulses from both Outcrop sources")
+	var stacked: Dictionary = _play(engine, next_turn, "worldspine", SECOND_WORLDSPINE_CENTER)
+	var stacked_turn: Dictionary = engine.prepare_next_player_turn(stacked)
+	var stacked_pulses: Array[Dictionary] = _events(stacked, stacked_turn, TerrainCardRules.PULSE_EVENT)
+	expect.call(Rites.active_rites(stacked).size() == 2 and stacked_pulses.size() == 2 and _hp(stacked_turn, 1) == 11 and _hp(stacked_turn, 4) == 11, "Two Rite instances each pulse once on the next turn")
+	if stacked_pulses.size() == 2:
+		expect.call(stacked_pulses[0]["source"]["relic_id"] != stacked_pulses[1]["source"]["relic_id"], "Stacked pulses keep independent Rite sources")
+
+	var weak: Dictionary = _state(engine, [_enemy(1, WORLDSPINE_CENTER, 3)])
+	weak = _play(engine, weak, "worldspine", WORLDSPINE_CENTER)
 	var weak_bonus: int = int(weak.get("death_bonus_card_plays_this_turn", 0))
-	var weak_pulsed: Dictionary = TerrainCardRules.apply_player_turn_start(engine, weak.duplicate(true))
+	var weak_pulsed: Dictionary = Rites.apply_player_turn_start(engine, weak.duplicate(true))
 	expect.call(_hp(weak_pulsed, 1) == 0 and int(weak_pulsed.get("death_bonus_card_plays_this_turn", 0)) == weak_bonus, "A pulse kill pays rewards but no card play")
 	var crowded: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(6, 4))])
 	expect.call(not engine.outcrop_tiles_for_player_action(crowded, action, Vector2i(5, 4)).has(Vector2i(6, 4)), "An occupied neighbor gets no spire")
 	var large: Dictionary = _state(engine, [_enemy(1, Vector2i(4, 2), 40, Vector2i(2, 2))])
 	var large_tiles: Array[Vector2i] = engine.outcrop_tiles_for_player_action(large, action, Vector2i(4, 3))
 	expect.call(_same_tiles(large_tiles, [Vector2i(4, 4), Vector2i(3, 3)]), "A 2x2 target only gets spires on free outer neighbors: %s" % str(large_tiles))
-	var large_after: Dictionary = _resolve(engine, large, "w4c_fx_worldspine", Vector2i(4, 3))
-	expect.call(_hp(TerrainCardRules.apply_player_turn_start(engine, large_after.duplicate(true)), 1) == 37, "A 2x2 enemy next to two spires takes one pulse")
-	var prepared: Dictionary = _prepared(engine, state, "w4c_fx_worldspine")
+	var large_after: Dictionary = _play(engine, large, "worldspine", Vector2i(4, 3))
+	expect.call(_hp(Rites.apply_player_turn_start(engine, large_after.duplicate(true)), 1) == 37, "A 2x2 enemy next to two spires takes one pulse")
+	var prepared: Dictionary = _prepared(engine, state, "worldspine")
 	expect.call(_preview_matches(engine, prepared["state"], prepared["actions"][0], Vector2i(5, 4)), "Worldspine preview equals resolution")
 
 static func _test_worldspine_routes(engine: CombatEngine, expect: Callable) -> void:
@@ -623,9 +667,28 @@ static func _test_worldspine_routes(engine: CombatEngine, expect: Callable) -> v
 	for y: int in range(1, 8):
 		if y != 4:
 			state["grid"][y][6] = "wall"
-	var action: Dictionary = _action(engine, state, "w4c_fx_worldspine")
+	var action: Dictionary = _action(engine, state, "worldspine")
 	var tiles: Array[Vector2i] = engine.outcrop_tiles_for_player_action(state, action, Vector2i(5, 4))
 	expect.call(_same_tiles(tiles, [Vector2i(5, 3), Vector2i(5, 5)]), "A chokepoint center stays open: spires never cut a route: %s" % str(tiles))
+
+static func _test_worldspine_legacy_save(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = _state(engine, [_enemy(1, WORLDSPINE_CENTER)])
+	state["terrain"] = [{
+		"id": LEGACY_WORLDSPINE_ID, "kind": "worldspine", "owner_kind": "player",
+		"pos": WORLDBREAK_TILE, "hp": 4, "max_hp": 4, "blocks_sight": false,
+		"surface_on_destroy": "rubble", "pulse_damage": 3
+	}]
+	expect.call(Store._save_run_state_at(LEGACY_WORLDSPINE_SAVE_PATH, {"combat_state": state}), "Legacy mid-fight save writes")
+	var run: Dictionary = Store._load_run_dictionary(LEGACY_WORLDSPINE_SAVE_PATH)
+	var loaded: Dictionary = run.get("combat_state", {})
+	if loaded.is_empty():
+		expect.call(false, "Legacy mid-fight save reloads")
+		return
+	var outcrop: Dictionary = _terrain_at(loaded, WORLDBREAK_TILE)
+	expect.call(outcrop.get("id") == LEGACY_WORLDSPINE_ID and TerrainCardRules.is_owned_outcrop(outcrop) and outcrop.get("blocks_sight") and not outcrop.has("pulse_damage"), "Legacy player spire retains identity as an ordinary Outcrop")
+	preload("res://scripts/worldspine_save_migration.gd").migrate(run)
+	expect.call(Rites.active_rites(loaded).size() == 1, "Loading legacy terrain grants one Rite and migration is idempotent")
+	expect.call(_hp(engine.prepare_next_player_turn(loaded), 1) == 17, "Legacy saves retain their turn-start damage")
 
 static func _test_rampart_rotation(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(8, 7))])
@@ -647,7 +710,7 @@ static func _test_rampart_rotation(engine: CombatEngine, expect: Callable) -> vo
 	var oriented: Dictionary = scene.call("_action_with_aoe_aim_orientation", rampart)
 	expect.call(oriented.get("orientation", Vector2i.ZERO) == Vector2i(0, 1), "The shared aim orients a patterned outcrop")
 	# Negative: single outcrops and the fixed Worldspine cage never offer Rotate.
-	var spine: Dictionary = _action(engine, state, "w4c_fx_worldspine")
+	var spine: Dictionary = _action(engine, state, "worldspine")
 	expect.call(not engine.player_action_needs_orientation(spine), "A Worldspine cage has one shape")
 	scene.set("_pending_actions", [_action(engine, state, "w4c_fx_raise")])
 	expect.call(not bool(scene.call("_current_action_supports_rotation")), "A single outcrop offers no Rotate")
@@ -670,12 +733,14 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s resolves through ACTION_ICON_ALIASES" % pair[0])
 	var keg_row: Array = ActionIcons.tokens_for_action((FIXTURES["w4c_fx_powder_keg"] as Dictionary)["actions"][0])
 	expect.call(_row_has_icon(keg_row, "detonate"), "The keg row shows its burst")
-	var spine_row: Array = ActionIcons.tokens_for_action((FIXTURES["w4c_fx_worldspine"] as Dictionary)["actions"][0])
-	expect.call(_row_has_icon(spine_row, "terrain_burst"), "The Worldspine row shows its pulse")
+	var worldspine: Dictionary = GameData.card_def("worldspine")
+	var spine_row: Array = ActionIcons.tokens_for_action(worldspine["actions"][0])
+	expect.call(_row_has_icon(spine_row, "raise_terrain") and not _row_has_icon(spine_row, "terrain_burst"), "Worldspine shows the shared Raise Terrain row")
+	expect.call(ActionIcons.card_is_rite(worldspine) and ActionIcons.rite_face_rules_text(worldspine).replace("\u00a0", " ") == "At the start of your turn, each enemy next to an Outcrop you raised takes 3.", "The card face shows the Rite clause once")
 	var refraction_row: Array = ActionIcons.tokens_for_action((FIXTURES["w4c_fx_refraction"] as Dictionary)["actions"][0])
 	expect.call(_row_has_icon(refraction_row, "illusion"), "Refraction shows its illusion rider")
 	expect.call(ActionIcons.card_role_emblem_key(GameData.card_def("w4c_fx_rockburst")) == "attack_ranged" and ActionIcons.card_role_emblem_key(GameData.card_def("w4c_fx_worldbreak")) == "attack_melee", "Terrain bursts are attacks for the role emblem")
-	for role_pair: Array in [["w4c_fx_powder_keg", "attack_ranged"], ["w4c_fx_worldspine", "attack_ranged"], ["w4c_fx_rampart", "block"], ["w4c_fx_empty_husk", "illusion"]]:
+	for role_pair: Array in [["w4c_fx_powder_keg", "attack_ranged"], ["worldspine", "attack_ranged"], ["w4c_fx_rampart", "block"], ["w4c_fx_empty_husk", "illusion"]]:
 		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(str(role_pair[0]))) == str(role_pair[1]), "%s uses the %s role emblem" % [str(role_pair[0]), str(role_pair[1])])
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4c_fx_rockburst")).has("combat:outcrops"), "Burst cards unlock the Outcrops topic")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4c_fx_empty_husk")).has("keyword:illusion"), "Swap cards unlock the Illusion entry")

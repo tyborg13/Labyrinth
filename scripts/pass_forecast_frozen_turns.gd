@@ -30,10 +30,16 @@ static func continue_span(engine: RefCounted, cursor: Dictionary) -> void:
 		return
 	# Live play: PASS on the frozen turn (RunScene._resolve_enemy_round through
 	# CommittedBattlefieldRules.finish_player_activation).
+	Unseen.track_boundary_arrivals(cursor["player_turn_before_state"], state)
 	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(engine, state, Committed.callback(engine))
 	# The skipped turn's own activation end keeps a receipt, like the first one.
 	(cursor["steps"] as Array).append({"kind": "pass_skipped_turn_end", "target_losses": TurnStart.player_losses(engine, state, scheduled)})
 	Unseen.note(cursor, state, scheduled, [])
+	# The summary still reconciles against the starting Block after this
+	# boundary is replaced. Carry its expiry forward separately from hits.
+	var expired: int = TurnStart.expired_block(engine, cursor["player_turn_before_state"], state)
+	if expired > 0:
+		cursor["skipped_turn_expired_block"] = int(cursor.get("skipped_turn_expired_block", 0)) + expired
 	cursor["skipped_turns"] = int(cursor.get("skipped_turns", 0)) + 1
 	# Foes hidden in the Umbra and due before this later hero entry act in the span.
 	for entry: Dictionary in scheduled.get("turn_queue", []):
@@ -60,4 +66,7 @@ static func _credit_visible_frostbite_progress(cursor: Dictionary, state: Dictio
 	cursor["safety"] = 0
 
 static func result_fields(cursor: Dictionary) -> Dictionary:
-	return {"skipped_turns": int(cursor.get("skipped_turns", 0)), "span_boundary": cursor.get("span_boundary", {})}
+	var result: Dictionary = {"skipped_turns": int(cursor.get("skipped_turns", 0)), "span_boundary": cursor.get("span_boundary", {})}
+	if cursor.has("skipped_turn_expired_block"):
+		result["skipped_turn_expired_block"] = cursor["skipped_turn_expired_block"]
+	return result

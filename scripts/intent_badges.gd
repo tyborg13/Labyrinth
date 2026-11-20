@@ -13,7 +13,9 @@ const Settings = preload("res://scripts/settings_store.gd")
 const HudGroups = preload("res://scripts/board_hud_group_placement.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 const LobRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
-const Maneuvers = preload("res://scripts/maneuver_rules.gd")
+const Lob = preload("res://scripts/enemy_mechanics/lob_view.gd")
+const Stamps = preload("res://scripts/intent_threat_stamps.gd")
+const FLOOR_KEY: String = preload("res://scripts/pass_forecast_red_tiles.gd").FLOOR_KEY
 const LOB_AIM_KEY: String = preload("res://scripts/threat_tiles.gd").LOB_AIM_KEY
 
 const MEDALLION_DIAMETER: float = 32.0
@@ -68,9 +70,14 @@ func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: 
 	var result: Dictionary = build(engine, committed, preview, "", known, _orders_for(engine, preview), null,
 		func(state: Dictionary) -> Dictionary: return _orders_for(engine, state))
 	if not focus_key.is_empty():
-		for field: String in ["badges", "threats"]:
-			for entry: Dictionary in result[field]:
+		for field: String in ["badges", "threats", FLOOR_KEY]:
+			if not result.has(field): continue
+			var rows: Array[Dictionary]
+			for original: Dictionary in result[field]:
+				var entry: Dictionary = original.duplicate(false)
 				if str(entry["key"]) != focus_key: entry["alpha"] = float(entry["alpha"]) * ISOLATED_ALPHA
+				rows.append(entry)
+			result[field] = rows
 	engine._record_runtime_performance_phase("rest_badges_build", started)
 	return result
 
@@ -130,7 +137,9 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		preview_enemies[int(enemy.get("id", -1))] = enemy
 	var badges: Array[Dictionary]
 	var threats: Array[Dictionary]
+	var floor_threats: Array[Dictionary]
 	var lob_aim: Dictionary = {}
+	var project_lob: bool = Lob.preview_changes_lookup(committed, preview)
 	# Visibility is always the committed information boundary. A hover cannot
 	# reveal a concealed enemy or use it to shape a visible attack's geometry.
 	if known_preview.is_empty(): known_preview = preview
@@ -138,12 +147,13 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 	for enemy: Dictionary in committed.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
 		if not engine.is_enemy_visible_to_player(committed, enemy):
-			var held: Array[Vector2i] = _held_tiles(engine, preview, preview_enemies.get(int(enemy["id"]), enemy))
-			if not held.is_empty():
-				threats.append({"key": "enemy_%d" % int(enemy["id"]), "tiles": held, "alpha": 1.0, "area": true, "area_announced": true, "area_signature":Areas.forecast_signature(enemy.get("intent",{})), "order": "", "attacker_tile": enemy["pos"]})
+			var concealed: Dictionary = preview_enemies.get(int(enemy["id"]), enemy)
+			if project_lob: Lob.add_held_marks(lob_aim, engine, preview, concealed)
+			Stamps.append_concealed(engine, preview, enemy, concealed, threats, floor_threats)
 			continue
 		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
+		var held_lob: bool = project_lob and Lob.add_held_marks(lob_aim, engine, known_preview, projected)
 		var intent: Dictionary = projected.get("intent", enemy.get("intent", {})) as Dictionary
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(known_preview, enemy, intent)
 		if intent.is_empty():
@@ -159,12 +169,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 				# atk-06: this foe passed the committed sight check above; a previewed
 				# hero walking out of its sight must not erase its planned attack.
 				threat = engine.committed_enemy_threat_tiles(known_preview, index)
-				if state_changed and str(threat.get("projected_attack_action", {}).get("type", "")) == "lob_mark":
-					var aimed: Array = threat.get("projected_attack", [])
-					if not aimed.is_empty():
-						var attacker: Dictionary = known_enemy.duplicate(false)
-						attacker["pos"] = threat["projected_destination"]
-						lob_aim[id] = {"tiles": aimed.duplicate(), "centers": LobRules.centers(engine, known_preview, attacker)}
+				if project_lob and not held_lob: Lob.add_aim_marks(lob_aim, engine, known_preview, known_enemy, threat)
 				break
 		var repeated_action: Dictionary = {}
 		if WarbandRules.active(known_preview) and is_attack(primary) and not (threat.get("projected_attack_action", {}) as Dictionary).is_empty():
@@ -192,39 +197,15 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			"danger": attacking and acting and not cancelled and (threat.get("projected_attack", []) as Array).has((preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))),
 			"alpha": (1.0 if acting else INACTIVE_ALPHA) * (ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0)}, true)
 		badges.append(badge)
-		# Held stamps follow the forecast source; fixed ground retains its marks.
-		var held: Array[Vector2i] = _visible_announced_tiles(engine, known_preview, projected, intent, threat)
-		if not projected.is_empty() and int(projected.get("hp", 0)) > 0 and not held.is_empty():
-			threats.append({"key": actor_key, "tiles": held, "alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
-				"area": true, "area_announced": true, "area_signature":Areas.forecast_signature(intent), "attacker_tile": projected.get("pos", enemy["pos"]), "plan": threat})
-		if attacking and acting and not cancelled:
-			# A held and a live row may both describe this same plan. Each
-			# row's payload is independently owned.
-			var live_plan: Dictionary = threat if held.is_empty() else threat.duplicate(true)
-			var live: Array[Vector2i]
-			for tile: Vector2i in threat.get("projected_attack", []):
-				if not held.has(tile): live.append(tile)
-			threats.append({"key": actor_key, "tiles": live,
-				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
-				"area": is_area_intent(intent), "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1))), "plan": live_plan})
+		if projected.is_empty() or int(projected.get("hp", 0)) <= 0: continue
+		var alpha: float = ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0
+		var row: Dictionary = {"key": actor_key, "alpha": alpha, "attacker_tile": projected.get("pos", enemy["pos"]), "plan": threat}
+		Stamps.append_visible(engine, known_preview, projected, intent, row, is_same(known_preview, preview),
+			attacking and acting and not cancelled, is_area_intent(intent), threats, floor_threats)
 	var result: Dictionary = {"badges": badges, "threats": threats, "hero_tile": (preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))}
-	if not lob_aim.is_empty(): result[LOB_AIM_KEY] = lob_aim
+	if project_lob: result[LOB_AIM_KEY] = lob_aim
+	if floor_threats != threats: result[FLOOR_KEY] = floor_threats
 	return result
-
-static func _visible_announced_tiles(engine: RefCounted, known: Dictionary, enemy: Dictionary, intent: Dictionary, threat: Dictionary) -> Array[Vector2i]:
-	if enemy.is_empty(): return Areas.pending_tiles(intent)
-	var saved: Dictionary = enemy.get("intent", {})
-	# Use the same status-aware destination as the live stamp. Areas translates
-	# only relative warnings, so fixed marks keep their declared coordinates.
-	if threat.has("projected_destination") and saved.has("committed_plan") and Areas.has_held(saved) and is_same(intent, saved):
-		var anchored: Dictionary = enemy.duplicate(false)
-		anchored["pos"] = threat["projected_destination"]
-		return Areas.announced_tiles(anchored, null, known)
-	return _held_tiles(engine, known, enemy)
-
-static func _held_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
-	var stopped: bool = bool(enemy.get("immobilize", false)) or int(enemy.get("freeze", 0)) > 0 or Maneuvers.is_petrified(enemy)
-	return Areas.announced_tiles(enemy, null if stopped else engine, state)
 
 # Foes visible at the committed boundary that the preview's own sight would hide.
 static func _seen_now_hidden_in(engine: RefCounted, committed: Dictionary, preview: Dictionary) -> Dictionary:

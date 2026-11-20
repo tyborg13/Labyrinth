@@ -2,6 +2,8 @@ extends RefCounted
 const Gate = preload("res://tools/hitch_census/demo/gate.gd")
 const Joy = preload("res://tools/hitch_census/demo/joypad.gd")
 const Nav = preload("res://scripts/controller_navigation.gd")
+const BoardPaths = preload("res://tools/hitch_census/demo/board_paths.gd")
+const BoardProof = preload("res://tools/hitch_census/demo/board_proof.gd")
 const Bot = preload("res://tools/bot_policy.gd")
 const Choices = preload("res://tools/run_curve_choices.gd")
 const RoutePolicy = preload("res://tools/hitch_census/demo/route_policy.gd")
@@ -14,7 +16,6 @@ const CARD_STEP_LIMIT: int = 32
 const CHARACTER_TAB_LIMIT: int = 8
 const SHORT_WAIT_S: float = 0.1
 const READY_SETTLE_S: float = 0.05
-const APPROACH_SPEED_PX_S: float = 600.0
 const FOCUS_LIMIT: int = 128
 const APPROACH_LIMIT: int = 240
 const APPROACH_TOLERANCE_PX: float = 8.0
@@ -37,6 +38,9 @@ var teaser_done: bool = false
 var teaser_pending: bool = false
 var purge_pick: String = ""
 var merchant_plans: Dictionary
+var board_audit_decisions: int = 0
+var board_audit_targets: int = 0
+var board_proof_seen: bool = false
 func _init(owner_session) -> void:
 	s = owner_session
 	pad = Joy.new(s)
@@ -49,7 +53,7 @@ func run() -> void:
 	var family: String = s.root.get_node("InputRouter").controller_family()
 	s.log_event("deck_configuration", {"physical_size": str(s.root.size), "logical_size": str(s.root.get_visible_rect().size), "window_ui_scale": s.root.content_scale_factor, "family": family, "joy_name": Input.get_joy_name(0), "joy_info": Input.get_joy_info(0), "modality": s.root.get_node("InputRouter").modality(), "deck_env": OS.get_environment("SteamDeck"), "settings": settings})
 	if s.input_gate.accepted != int(inputs["joypad_button"]) + int(inputs["joypad_motion"]): s.fail("Proof input gate order mismatch at title"); return
-	if family != "steam_deck" or str(settings["edge_smoothing"]) != "off" or not is_equal_approx(float(settings["ui_scale"]), 1.15): s.fail("Deck configuration mismatch"); return
+	if family != "steam_deck" or str(settings["edge_smoothing"]) != "off" or not is_equal_approx(float(settings["ui_scale"]), s.host.target_ui_scale): s.fail("Deck configuration mismatch"); return
 	await s.hold(READ_S)
 	await control(scene.get("start_button"))
 	await pad.button(JOY_BUTTON_A)
@@ -66,6 +70,10 @@ func run() -> void:
 			var steps: Array = Guide.completed_steps(preload("res://scripts/progression_store.gd").load_data())
 			for step: String in Guide.MILESTONE_ORDER:
 				if not steps.has(step): s.fail("Missing guided lesson: " + step); return
+			if not s.host.demo_board_proof.is_empty() and not board_proof_seen:
+				s.fail("Seed 7 board proof door was not visited")
+				return
+			_report_board_audit()
 			s.finish(true)
 			return
 		if scene.get("_run_state") == null:
@@ -191,12 +199,14 @@ func gui_path(start: Control, target: Control) -> Array:
 func board(tile: Vector2i) -> bool:
 	if str(scene.get("_controller_region")) == "hand": await pad.button(JOY_BUTTON_DPAD_UP)
 	return await candidate_focus("tile:%d:%d" % [tile.x, tile.y])
-func candidate_focus(key: String) -> bool:
+func candidate_focus(key: String, proof_input: String = "") -> bool:
 	var expected: Dictionary = Gate.witness(scene)
+	var audit: bool = not s.host.demo_board_proof.is_empty() and key.begins_with("tile:")
 	for step: int in range(APPROACH_LIMIT):
 		if not is_instance_valid(scene) or scene != s.current_scene or expected != Gate.witness(scene): return false
 		var current: Dictionary = scene.get("_controller_focus_candidate")
-		if str(current.get("key")) == key:
+		var arrived: bool = str(current.get("key")) == key
+		if arrived and not audit:
 			pad.arm_accept()
 			s.log_event("candidate_destination", {"key": key, "point": str(current.get("point")), "witness": expected})
 			return true
@@ -205,31 +215,57 @@ func candidate_focus(key: String) -> bool:
 		for candidate: Dictionary in candidates:
 			if str(candidate.get("key")) == key: target = candidate; break
 		if target.is_empty(): s.fail("Rendered controller candidate absent: " + key); return false
-		# Read-only model of the real directional navigation. Inputs remain joypad.
-		var path: Array = candidate_path(current, target, candidates)
-		if not path.is_empty(): await pad.button(int(path[0])); continue
+		var viewport_size: Vector2 = s.root.get_visible_rect().size
 		var origin: Vector2 = scene.get("_controller_virtual_board_position")
-		if not is_finite(origin.x): origin = s.root.get_visible_rect().size * 0.5
-		var delta: Vector2 = target["point"] - origin
-		await pad.pulse(delta.normalized(), minf(0.08, maxf(1.0 / 60.0, delta.length() / APPROACH_SPEED_PX_S)))
+		if not origin.is_finite(): origin = viewport_size * 0.5
+		var room: bool = bool(scene.call("_controller_custom_room_available"))
+		# Read-only model of the real directional navigation. Inputs remain joypad.
+		var first_buttons: Dictionary
+		if audit or proof_input != "stick":
+			first_buttons = BoardPaths.first_buttons(current, origin, room, candidates, EDGES)
+		if audit:
+			var result: Dictionary = BoardPaths.audit(scene, candidates, first_buttons, viewport_size)
+			result.merge({"target": key, "focus": str(current.get("key", "")), "origin": str(origin),
+				"target_point": str(target["point"]), "witness": expected})
+			s.log_event("board_reachability", result)
+			board_audit_decisions += 1
+			board_audit_targets += result["legal"].size()
+			audit = false
+			if not result["unreachable"].is_empty():
+				s.fail("Board reachability failed: " + str(result["unreachable"]))
+				return false
+		if arrived:
+			if not proof_input.is_empty() and step == 0:
+				s.fail("Board proof needs input from the current cursor")
+				return false
+			pad.arm_accept()
+			s.log_event("candidate_destination", {"key": key, "point": str(current.get("point")), "witness": expected})
+			return true
+		var button: int = int(first_buttons.get(key, -1))
+		if button >= 0 and proof_input != "stick":
+			await pad.button(button)
+		elif proof_input == "dpad":
+			s.fail("Board proof has no D-pad path to " + key)
+			return false
+		else:
+			await _approach_with_stick(origin, target["point"], viewport_size)
 	s.fail("Controller cannot reach candidate: " + key)
 	return false
-func candidate_path(start: Dictionary, target: Dictionary, candidates: Array[Dictionary]) -> Array:
-	if start.is_empty(): return []
-	var queue: Array[Dictionary]
-	queue.append(start)
-	var paths: Dictionary = {str(start["key"]): []}
-	while not queue.is_empty():
-		var current: Dictionary = queue.pop_front()
-		for edge: Array in EDGES:
-			var next: Dictionary = Nav.best_candidate_in_direction(current["point"], edge[2], candidates, str(current["key"]))
-			if next.is_empty() or paths.has(str(next["key"])): continue
-			var path: Array = paths[str(current["key"])].duplicate()
-			path.append(edge[1])
-			if str(next["key"]) == str(target["key"]): return path
-			paths[str(next["key"])] = path
-			queue.append(next)
-	return []
+
+func _approach_with_stick(origin: Vector2, point: Vector2, viewport_size: Vector2) -> void:
+	var delta: Vector2 = BoardPaths.stick_point(point, viewport_size) - origin
+	if delta.length() <= APPROACH_TOLERANCE_PX:
+		# Neutral input cannot reacquire a free cursor already at the target.
+		# Nudge into the viewport for one tick, within the target's magnet.
+		var inward: Vector2 = (viewport_size * 0.5 - origin).normalized()
+		await pad.pulse(inward if inward != Vector2.ZERO else Vector2.RIGHT, 1.0 / Engine.physics_ticks_per_second)
+		return
+	var speed: float = scene.CONTROLLER_BOARD_CURSOR_SPEED * Nav.cursor_velocity(Vector2.RIGHT * Joy.STICK_MAGNITUDE).length()
+	await pad.pulse(delta.normalized(), minf(Joy.STICK_PULSE_S, maxf(1.0 / Engine.physics_ticks_per_second, delta.length() / speed)))
+
+func _report_board_audit() -> void:
+	if board_audit_decisions > 0:
+		print("DEMO BOARD REACHABILITY: PASS (%d decisions, %d legal targets)" % [board_audit_decisions, board_audit_targets])
 
 func tutorial(phase: String) -> bool:
 	if phase_read != phase:
@@ -456,15 +492,27 @@ func travel(state: Dictionary) -> void:
 	var doors: Dictionary = scene.get("_exit_destinations_by_tile")
 	for tile: Vector2i in doors:
 		if doors[tile] != best: continue
+		var proof_input: String = s.host.demo_board_proof if not board_proof_seen and BoardProof.matches(state, best, tile) else ""
 		var candidate: Dictionary = scene.call("_controller_candidate_for_tile", tile)
-		if not await candidate_focus(str(candidate.get("key"))): return
+		if not await candidate_focus(str(candidate.get("key")), proof_input): return
 		await s.hold(READ_S)
+		if not proof_input.is_empty() and not await BoardProof.capture(s, scene): return
 		var expected: Vector2i = state["current_room"]
 		await pad.button(JOY_BUTTON_A)
 		var deadline: int = Engine.get_process_frames() + int(Gate.READY_TIMEOUT_S * 60)
 		while Engine.get_process_frames() < deadline:
-			if scene.get("_run_state").get("current_room") != expected or visible(scene.get("_run_end_recap")):
+			var actual: Vector2i = scene.get("_run_state").get("current_room", expected)
+			if actual != expected or visible(scene.get("_run_end_recap")):
 				s.log_event("route_travel_committed", {"destination": str(best)})
+				if not proof_input.is_empty():
+					if actual != best:
+						s.fail("Board proof door traveled to " + str(actual))
+						return
+					board_proof_seen = true
+					print("DEMO BOARD PROOF: PASS %s tile=%s room=%s destination=%s" % [proof_input, tile, expected, actual])
+					if s.host.demo_board_stop:
+						_report_board_audit()
+						s.finish(true, "demo_board_proof_complete")
 				return
 			await s.process_frame
 		s.fail("Door action never committed destination " + str(best))

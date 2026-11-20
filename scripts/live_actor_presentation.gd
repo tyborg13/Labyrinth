@@ -13,6 +13,7 @@ const Shrike = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const ShrikeMotion = preload("res://scripts/gust_shrike_cutout/motion_data.gd")
 const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 const MaquettePortrait = preload("res://scripts/maquette_cutout_runtime/portrait.gd")
+const Assets = preload("res://scripts/asset_loader.gd")
 
 static var _legacy_frames: Dictionary = {}
 var actor_type: String
@@ -24,6 +25,7 @@ var _frame_seconds: float
 var _elapsed: float = 0.0
 var _frame: int = -1
 var _reduced: bool = false
+var _defer_renderer: bool = false
 
 static func renderer_script(identity: String) -> Script:
 	if identity == "gust_shrike":
@@ -39,7 +41,7 @@ static func legacy_frames(identity: String) -> Array[Texture2D]:
 
 	return TypedArrays.textures(_legacy_frames[identity])
 
-func configure(identity: String, source: TextureRect, slot: int, slot_count: int) -> void:
+func configure(identity: String, source: TextureRect, slot: int, slot_count: int, defer_renderer: bool = false) -> void:
 	actor_type = identity
 	still = source
 	# Distribute one cycle evenly across actual display slots; ids and rebuilds
@@ -47,11 +49,39 @@ func configure(identity: String, source: TextureRect, slot: int, slot_count: int
 	initial_phase = float(posmod(slot, maxi(1, slot_count))) / float(maxi(1, slot_count))
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_defer_renderer = defer_renderer and (identity == "crawler" or MaquettePresentation.handles(identity))
 
 func _ready() -> void:
+	if _defer_renderer:
+		set_process(false)
+		return
+	_begin_presentation(false)
+	_finish_presentation()
+
+static func prepare_hidden_for(actor: Variant, present: Callable, alive: Callable, trace_step: Callable) -> void:
+	if not actor._defer_renderer: return
+	await Assets.wait_for_preparation_slice(present, alive, &"hidden_actor_start")
+	if not bool(alive.call()): return
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = trace_step.call("actor_setup") if trace_step.is_valid() else null
+	actor._begin_presentation(true)
+	span = null
+	Assets.count_preparation_work(started, &"hidden_actor_start")
+	var renderer: Node = actor.renderer
+	if not await renderer.get_script().prepare_rigs_for(renderer, present, alive, trace_step): return
+	await Assets.wait_for_preparation_slice(present, alive, &"hidden_actor_finish")
+	if not bool(alive.call()): return
+	started = Time.get_ticks_usec()
+	span = trace_step.call("actor_finish") if trace_step.is_valid() else null
+	actor._finish_presentation()
+	span = null
+	Assets.count_preparation_work(started, &"hidden_actor_finish")
+
+func _begin_presentation(staged: bool) -> void:
 	var script: Script = renderer_script(actor_type)
 	if script != null:
 		renderer = script.new()
+		if staged: renderer.defer_rig_build = true
 		if Guardian.handles(actor_type): renderer.set("character_id", actor_type)
 		if renderer.has_method("seed_idle_phase"):
 			renderer.call("seed_idle_phase", initial_phase)
@@ -59,8 +89,6 @@ func _ready() -> void:
 			var cycle: float = ShrikeMotion.IDLE_SECONDS if actor_type == "gust_shrike" else float(script.get("IDLE_CYCLE_SECONDS"))
 			renderer.set("_idle_seconds", initial_phase * cycle)
 		add_child(renderer)
-		if MaquettePresentation.handles(actor_type):
-			still.texture = MaquettePortrait.source_texture(renderer, actor_type)
 	else:
 		_frames = legacy_frames(actor_type)
 		if not _frames.is_empty():
@@ -68,6 +96,11 @@ func _ready() -> void:
 			_frame_seconds = float(board.call("_unit_idle_frame_seconds", {"type": actor_type}))
 			board.free()
 			_elapsed = initial_phase * _frames.size() * _frame_seconds
+
+func _finish_presentation() -> void:
+	_defer_renderer = false
+	if is_instance_valid(renderer) and MaquettePresentation.handles(actor_type):
+		still.texture = MaquettePortrait.source_texture(renderer, actor_type)
 	still.visible = renderer == null and _frames.is_empty()
 	_reduced = Settings.applied_reduced_motion_enabled()
 	_present()

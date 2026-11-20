@@ -5,6 +5,7 @@ extends RefCounted
 ## Keep bounded, owned results; exact inputs (not the index) validate every hit.
 
 const Memo = preload("res://scripts/combat_preview_memo.gd")
+const Threats = preload("res://scripts/threat_tiles.gd")
 var _badges := Memo.new()
 var _compasses := Memo.new()
 
@@ -12,7 +13,7 @@ func clear() -> void:
 	_badges = Memo.new()
 	_compasses = Memo.new()
 
-func rest_badges(host: Node, preview: Dictionary, focus: String, committed_override: Variant = null) -> Dictionary:
+func rest_badges(host: Node, preview: Dictionary, focus: String, committed_override: Variant = null, skill_surface_events: Array = []) -> Dictionary:
 	var engine: RefCounted = host._combat_engine
 	var committed: Dictionary = host._combat_state if committed_override == null else committed_override as Dictionary
 	var catalog: Dictionary = host.GameData.enemies()
@@ -44,22 +45,33 @@ func rest_badges(host: Node, preview: Dictionary, focus: String, committed_overr
 		engine._relic_effect_cache_valid = false
 		return host._intent_badges.presentation_for_state(engine, committed, preview,
 			focus, known_source), index, true, true)
-	# Release keeps ownership of plates and hover. Only the floor uses the
-	# original stamps and the approved atk-11 Pass supplements.
+	# Keep Pass corrections on plates and reverse hover. A lifted preview
+	# marker uses the present stamps, and the floor adds atk-11 contacts.
 	if committed_override != null: return badges
 	var Discs: GDScript = preload("res://scripts/pass_forecast_discs.gd")
 	var Red: GDScript = preload("res://scripts/pass_forecast_red_tiles.gd")
 	var revision: int = host._combat_preview_revision
+	var at_rest: bool = is_same(preview, host._combat_state)
+	var hovering_skill: bool = host._hovering_surface_skill()
 	var marks: Dictionary
-	if is_same(preview, host._combat_state):
-		marks = host._rest_pass_disc_marks
-	else:
+	var hovered_marks: Dictionary
+	if hovering_skill or not at_rest:
 		var hovered: Dictionary = host._hover_red_forecast()
-		if not hovered.is_empty(): marks = Discs.record(hovered, revision)
-	if marks.is_empty() or int(marks.get("revision", -1)) != revision: return badges
+		if not hovered.is_empty(): hovered_marks = Discs.record(hovered, revision)
+	marks = host._rest_pass_disc_marks if at_rest or hovering_skill else hovered_marks
+	if int(marks.get("revision", -1)) != revision: marks = {}
 	var result: Dictionary = Discs.apply(badges, marks, revision, true)
-	var floor: Variant = Red.floor_override(badges, result, marks)
-	if floor != null: result[Red.FLOOR_KEY] = floor
+	var floor_marks: Dictionary = marks
+	if hovering_skill:
+		floor_marks = Red.skill_contact_marks(marks, skill_surface_events, hovered_marks.get("hero_red_contacts", {}))
+	var floor: Variant = Red.floor_override(badges, result, floor_marks)
+	var present_rows: Array = badges.get("threats", [])
+	var marker_override: bool = (not at_rest or hovering_skill) and present_rows != result.get("threats", [])
+	if not result.has(Red.FLOOR_KEY) and floor == null and not marker_override: return result
+	if is_same(result, badges): result = result.duplicate(false)
+	if floor == null: result.erase(Red.FLOOR_KEY)
+	else: result[Red.FLOOR_KEY] = floor
+	if marker_override: result[Threats.MARKER_KEY] = present_rows
 	return result
 
 func _append_badge_definitions(definitions: Array, catalog: Dictionary, state: Dictionary) -> void:

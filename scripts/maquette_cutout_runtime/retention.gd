@@ -8,6 +8,7 @@ var current_key: Array = []
 var next_key: Array = []
 var generation: int = -1
 var complete: bool = false
+var defer_opening_until_draw: bool = false
 
 static func for_scene(scene: Node) -> Node:
 	var found: Node = scene.get_node_or_null("MaquetteRoomPreparation")
@@ -38,6 +39,7 @@ func request(state: Dictionary, revision: int) -> void:
 	next_key = room_key(state)
 	next_families = PackedStringArray()
 	complete = false
+	defer_opening_until_draw = false
 	retain()
 
 func commit() -> void:

@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*title.png"},
+    {"pattern": "*transition.png"},
+    {"pattern": "*first_interactive.png"},
+    {"pattern": "*first_map.png"}
+  ]
+}

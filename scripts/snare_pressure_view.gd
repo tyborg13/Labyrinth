@@ -3,6 +3,7 @@ extends RefCounted
 const Combat = preload("res://scripts/combat_engine.gd")
 const Pressure = preload("res://scripts/snare_pressure_rules.gd")
 const SurfaceVisibility = preload("res://scripts/board_surface_visibility.gd")
+const Threats = preload("res://scripts/threat_tiles.gd")
 const THREAT_KEY: String = "snare_pressure"
 static var _memo := preload("res://scripts/combat_preview_memo.gd").new()
 # Initialize on first use in case CombatEngine is still loading this script.
@@ -27,9 +28,12 @@ static func presentation_for(state: Dictionary, original: Dictionary, use_board_
 	threats = threats.filter(func(threat: Dictionary) -> bool: return str(threat.get("key", "")) != THREAT_KEY)
 	threats.append({"key": THREAT_KEY, "area": true, "tiles": forecast["tiles"], "rule_outline": not state.get("battlefield_rule", {}).is_empty()})
 	rest["threats"] = threats
-	# At rest the committed tile is the fallback. An aim preview already owns
-	# the exact tile used by the Pass contact receipt and the floor pulse.
-	rest.get_or_add("hero_tile", state["player"]["pos"])
+	# Release Snare markers use the board's hero tile. The floor pulses on the
+	# preview tile used by the Pass contact receipt.
+	var hero: Vector2i = state["player"]["pos"]
+	var floor_hero: Vector2i = original.get(Threats.FLOOR_HERO_KEY, rest.get("hero_tile", hero))
+	if floor_hero != hero: result[Threats.FLOOR_HERO_KEY] = floor_hero
+	rest["hero_tile"] = hero
 	result["threats_at_rest"] = rest
 	# Door art, thresholds, chips and Sealbinders remain outside the fog mask.
 	if result.has("umbra_visible_tiles"):

@@ -270,7 +270,7 @@ func _source_hashes() -> Dictionary:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	for path: String in [
 		"tools/tooltip_loops/tip06_fixture.gd", "tools/tooltip_loops/tip06_checks.gd",
-		"scripts/surface_card_rules.gd", "scripts/illusion_card_rules.gd", "scripts/terrain_card_rules.gd", "scripts/combat_outcome_feedback.gd",
+		"scripts/surface_card_rules.gd", "scripts/illusion_card_rules.gd", "scripts/terrain_card_rules.gd", "scripts/rite_rules.gd", "scripts/combat_outcome_feedback.gd",
 		"tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd",
 	]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)

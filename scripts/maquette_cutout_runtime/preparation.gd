@@ -22,7 +22,6 @@ static func prepare_encounter_for(scene: Node, state: Dictionary, generation: in
 	window.next_families = Dependencies.families_for(types)
 	window.retain()
 	await prepare_types_for(scene.get_tree().root, types, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
-	if active(scene, generation): window.complete = true
 
 ## Called before committing the destination to the visible board. A slow
 ## worker extends the existing covered travel, never the first visible build.
@@ -61,10 +60,7 @@ static func prepare_loaded_for(scene: Node, present: Callable, alive: Callable) 
 	state = scene._run_engine.repair_loaded_run_state(scene._run_engine.migrate_renamed_content_ids(state))
 	var battle: Dictionary = state.get("combat_state", {})
 	if str(state.get("mode", "")) == "pre_battle":
-		var factory: Dictionary = scene._run_engine.begin_pre_battle_combat_preparation(state)
-		while not factory.is_empty() and bool(alive.call()):
-			if scene._run_engine.advance_pre_battle_combat_preparation(factory): break
-			await present.call()
+		var factory: Dictionary = await load("res://scripts/encounter_asset_preparation.gd").prepare_combat_factory_for(scene, state, present, alive)
 		if not bool(alive.call()): return
 		battle = (scene._run_engine.pre_battle_preview_state(state, factory) as Dictionary).get("combat_state", {})
 	var types: PackedStringArray = Dependencies.types_for(battle)
@@ -74,7 +70,9 @@ static func prepare_loaded_for(scene: Node, present: Callable, alive: Callable) 
 
 static func prepare_types_for(root: Node, types: PackedStringArray, present_frame: Callable, still_active: Callable) -> void:
 	for type: String in types:
+		await Assets.wait_for_preparation_slice(present_frame, still_active, &"maquette_manifest")
 		if not bool(still_active.call()): return
+		var started: int = Time.get_ticks_usec()
 		var renderer: Node = Presentation.renderer_script(type).new()
 		renderer.motion_data()
 		var paths := PackedStringArray()
@@ -83,6 +81,7 @@ static func prepare_types_for(root: Node, types: PackedStringArray, present_fram
 			paths.append(rig._layout_path(view))
 			rig.free()
 		renderer.free()
+		Assets.count_preparation_work(started, &"maquette_manifest")
 		var textures: Dictionary = {}
 		for path: String in paths:
 			if not bool(still_active.call()): return
@@ -94,8 +93,6 @@ static func prepare_types_for(root: Node, types: PackedStringArray, present_fram
 			if source == null: continue
 			textures.merge(RigData.source_texture_manifest(source.data, path))
 		await Assets.prepare_textures_for(root, textures, present_frame, still_active)
-		if not bool(still_active.call()): return
-		await present_frame.call()
 
 static func present_frame(tree: SceneTree) -> void:
 	if DisplayServer.get_name() == "headless": await tree.process_frame

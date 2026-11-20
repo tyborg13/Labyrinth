@@ -108,7 +108,7 @@
     "turns": "keyword:turns",
     "movement": "keyword:movement",
     "item": "keyword:item",
-    "outcrop": "keyword:outcrop"
+    "outcrop": "combat:outcrops"
   },
   "new_terms": [
     "reflect",
@@ -462,6 +462,7 @@
         ]
       },
       "unlocks": [
+        "outcrop",
         "terrain_burst",
         "element_earth"
       ]

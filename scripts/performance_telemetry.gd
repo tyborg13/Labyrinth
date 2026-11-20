@@ -819,12 +819,19 @@ class HitchSpan extends RefCounted:
 func hitch_phase(label: String) -> RefCounted:
 	return HitchSpan.new(_hitch_phases, label)
 
+func hitch_preparation_yield(budget_usec: int) -> void:
+	_hitch_events["preparation:budget_yields"] = int(_hitch_events.get("preparation:budget_yields", 0)) + 1
+	_hitch_events["preparation:budget_usec"] = maxi(int(_hitch_events.get("preparation:budget_usec", 0)), budget_usec)
+
 func hitch_load(path: String) -> RefCounted:
 	return HitchSpan.new(_hitch_events, "load:" + path, true, ResourceLoader.has_cached(path))
 
 func hitch_resource_load(path: String) -> Resource:
 	var _span: RefCounted
-	if hitch_trace_enabled: _span = hitch_load(path)
+	var _import: RefCounted
+	if hitch_trace_enabled:
+		_span = hitch_load(path)
+		_import = hitch_phase("preparation:texture:resource_loader:" + path)
 	return ResourceLoader.load(path)
 
 func take_hitch_events() -> Dictionary:

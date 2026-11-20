@@ -123,21 +123,96 @@ static func has_preparation_drains(root: Node) -> bool:
 		if child is SourceImageDrain: return true
 	return false
 
-const TEXTURE_PREPARATION_SLICE_USEC: int = 4000
-static var _texture_preparation_frame: int = -1
-static var _texture_preparation_usec: int = 0
+const PREPARATION_SLICE_USEC: int = 11000
+const DEFAULT_STEP_ESTIMATE_USEC: int = 250
+const COLD_IMPORT_ESTIMATE_USEC: int = 2000
+const SOURCE_UPLOAD_ESTIMATE_USEC: int = 500
+const ROOM_COVER_INTERVAL_USEC: int = 50000
+const ROOM_RENDER_RESERVE_USEC: int = 10000
+const SLOW_ROOM_OVERHEAD_USEC: int = 16000
+const ROOM_OVERHEAD_RETENTION: float = 0.75
+static var _preparation_frame: int = -1
+static var _preparation_usec: int = 0
+static var _native_preparation_clock: bool = false
+static var _preparation_step_usec: Dictionary = {}
+static var _last_preparation_boundary_usec: int = 0
+static var _room_preparation: WeakRef
+
+class RoomPreparationBudget extends RefCounted:
+	var alive: Callable
+	var slow_overhead_usec: int = 0
+	var saw_slow_frame: bool = false
+
+	func observe(interval_usec: int, preparation_usec: int) -> void:
+		var overhead: int = maxi(0, interval_usec - preparation_usec)
+		# Keep a recent slow sample long enough to batch the next small jobs.
+		# Subtract measured preparation so our own slices do not hold it high.
+		slow_overhead_usec = maxi(overhead, int(slow_overhead_usec * ROOM_OVERHEAD_RETENTION))
+		saw_slow_frame = saw_slow_frame or overhead > SLOW_ROOM_OVERHEAD_USEC
+
+	func allowance_usec() -> int:
+		return clampi(PREPARATION_SLICE_USEC + slow_overhead_usec - SLOW_ROOM_OVERHEAD_USEC,
+			PREPARATION_SLICE_USEC, ROOM_COVER_INTERVAL_USEC - ROOM_RENDER_RESERVE_USEC)
+
+static func begin_room_preparation(alive: Callable) -> RoomPreparationBudget:
+	_refresh_preparation_slice()
+	var budget := RoomPreparationBudget.new()
+	budget.alive = alive
+	_room_preparation = weakref(budget)
+	return budget
+
+static func _active_room_budget() -> RoomPreparationBudget:
+	if _room_preparation == null: return null
+	var budget: RoomPreparationBudget = _room_preparation.get_ref() as RoomPreparationBudget
+	return budget if budget != null and bool(budget.alive.call()) else null
+
+static func _advance_preparation_frame(consecutive: bool = true) -> void:
+	var now: int = Time.get_ticks_usec()
+	var budget: RoomPreparationBudget = _active_room_budget()
+	if consecutive and budget != null and _last_preparation_boundary_usec > 0:
+		budget.observe(now - _last_preparation_boundary_usec, _preparation_usec)
+	_last_preparation_boundary_usec = now
+	_preparation_usec = 0
 
 # Several covered preparation jobs can resume on the same frame. Give their
-# atomic main-thread publications a shared budget.
-static func preparation_slice_full() -> bool:
+# atomic main-thread steps a shared budget.
+static func _refresh_preparation_slice() -> void:
+	if _native_preparation_clock: return
 	var frame: int = Engine.get_process_frames()
-	if frame != _texture_preparation_frame:
-		_texture_preparation_frame = frame
-		_texture_preparation_usec = 0
-	return _texture_preparation_usec >= TEXTURE_PREPARATION_SLICE_USEC
+	if frame != _preparation_frame:
+		var consecutive: bool = frame == _preparation_frame + 1
+		_preparation_frame = frame
+		_advance_preparation_frame(consecutive)
 
-static func count_preparation_work(started_usec: int) -> void:
-	_texture_preparation_usec += Time.get_ticks_usec() - started_usec
+# Native work resumed by post-draw and the following process callbacks belongs
+# to one presentation interval. Headless uses one process-frame interval.
+static func start_presented_preparation_frame() -> void:
+	_native_preparation_clock = true
+	_advance_preparation_frame()
+
+static func preparation_slice_full(step: StringName = &"", estimate: int = DEFAULT_STEP_ESTIMATE_USEC) -> bool:
+	_refresh_preparation_slice()
+	if _preparation_usec == 0: return false
+	var expected: int = maxi(estimate, int(_preparation_step_usec.get(step, 0)))
+	var budget: RoomPreparationBudget = _active_room_budget()
+	var allowance: int = budget.allowance_usec() if budget != null else PREPARATION_SLICE_USEC
+	return _preparation_usec >= allowance or _preparation_usec + expected > allowance
+
+static func count_preparation_work(started_usec: int, step: StringName = &"") -> void:
+	_refresh_preparation_slice()
+	var elapsed: int = Time.get_ticks_usec() - started_usec
+	_preparation_usec += elapsed
+	if not step.is_empty(): _preparation_step_usec[step] = elapsed
+
+static func wait_for_preparation_slice(present: Callable, alive: Callable, step: StringName = &"", estimate: int = DEFAULT_STEP_ESTIMATE_USEC) -> void:
+	while preparation_slice_full(step, estimate) and bool(alive.call()):
+		record_preparation_yield()
+		await present.call()
+
+static func record_preparation_yield() -> void:
+	if not _hitch_trace_enabled: return
+	var budget: RoomPreparationBudget = _active_room_budget()
+	_hitch_sink().hitch_preparation_yield(budget.allowance_usec() if budget != null else PREPARATION_SLICE_USEC)
 
 static func _texture_preparation_active(drain: Variant, still_active: Callable) -> bool:
 	return is_instance_valid(drain) and drain.is_inside_tree() and not preparation_is_stopping(drain.get_parent()) and (
@@ -191,6 +266,9 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 		if not failure.is_empty(): CelLook.warn_missing(failure)
 	var import_jobs: Array[int]
 	var source_jobs: Array[int]
+	# All admitted imports, uploads, covered UI and audio share the frame's
+	# time. Avoid charging wait time or consuming a stale frame after a resume.
+	var alive: Callable = _texture_preparation_active.bind(drain, still_active)
 	for index: int in range(path_count):
 		if drain.result.source_routes[index]: source_jobs.append(index)
 		else: import_jobs.append(index)
@@ -199,28 +277,34 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 		var path: String = drain.result.paths[index]
 		if not _texture_preparation_active(drain, still_active): break
 		if _texture_cache.has(path): continue
-		while preparation_slice_full() and _texture_preparation_active(drain, still_active):
-			await present_frame.call()
+		var is_upload: bool = drain.result.source_routes[index] and drain.result.images[index] != null
+		var estimate: int = SOURCE_UPLOAD_ESTIMATE_USEC if is_upload else COLD_IMPORT_ESTIMATE_USEC
+		await wait_for_preparation_slice(present_frame, alive, &"", estimate)
 		if not _texture_preparation_active(drain, still_active): break
 		if _texture_cache.has(path): continue
 		var started: int = Time.get_ticks_usec()
 		var _hitch_span: RefCounted
+		var _hitch_step: RefCounted
 		if drain.result.source_routes[index]:
 			if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("startup:asset_loader:publish_source_texture")
 			var image: Image = drain.result.images[index]
 			if image != null:
 				var _hitch_upload: RefCounted
-				if _hitch_trace_enabled: _hitch_upload = _hitch_sink().hitch_load(path)
+				if _hitch_trace_enabled:
+					_hitch_upload = _hitch_sink().hitch_load(path)
+					_hitch_step = _hitch_sink().hitch_phase("preparation:texture:source_upload:" + path)
 				_texture_cache[path] = _tag_texture_source(ImageTexture.create_from_image(image), path)
 			else:
+				if _hitch_trace_enabled: _hitch_step = _hitch_sink().hitch_phase("preparation:texture:source_fallback:" + path)
 				load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
 		else:
 			if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("startup:asset_loader:import_texture")
+			if _hitch_trace_enabled: _hitch_step = _hitch_sink().hitch_phase("preparation:texture:import:" + path)
 			load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
+		_hitch_step = null
 		_hitch_span = null
 		count_preparation_work(started)
-	while preparation_slice_full() and _texture_preparation_active(drain, still_active):
-		await present_frame.call()
+	await wait_for_preparation_slice(present_frame, alive, &"", 0)
 	if is_instance_valid(drain): drain.queue_free()
 
 # Producers must create private CPU data only: no scene nodes, GPU objects or
@@ -321,6 +405,16 @@ static func add_texture_constants(manifest: Dictionary, script: Script) -> void:
 	# Constants are the owning loader's asset manifest. Do not walk preloaded
 	# scripts: that would eagerly retain unrelated content and whole enemy rigs.
 	_add_texture_paths(manifest, script.get_script_constant_map())
+
+static func release_cached_texture_families(prefixes: PackedStringArray) -> void:
+	for path: String in _texture_cache.keys():
+		for prefix: String in prefixes:
+			if not path.begins_with(prefix): continue
+			_texture_cache.erase(path)
+			break
+
+static func has_cached_texture(path: String) -> bool:
+	return _texture_cache.has(path)
 
 static func _add_texture_paths(manifest: Dictionary, value: Variant) -> void:
 	if value is String:

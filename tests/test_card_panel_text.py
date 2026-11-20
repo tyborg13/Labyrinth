@@ -16,10 +16,10 @@ class CardPanelTextTest(unittest.TestCase):
         director = read("spec/peer_benchmark/staged/tt-02/card_panels.json")
         templates = read("data/card_panel_text.json")
         straightforward = (
-            "petrify", "keg_detonate", "meteorfall", "raise_worldspine", "raise_outcrop",
+            "petrify", "keg_detonate", "meteorfall", "raise_outcrop",
             "raise_keg", "crystal_mantle", "ice_to_electrified", "only_light", "only_fire",
-            "only_chilled", "only_electrified", "shatter", "worldspine_burst",
-            "terrain_burst_any", "terrain_burst_own", "if_half_health", "if_frozen",
+            "only_chilled", "only_electrified", "shatter",
+            "terrain_burst_any", "if_half_health", "if_frozen",
             "if_in_light", "swap_illusion", "swap", "shatter_illusion", "illusion_block",
             "skate", "empower", "follow_up", "expose", "fireproof", "move_scaling",
             "next_attack_move", "stoneskin_scaling", "quicken", "shock_all_hits",
@@ -36,6 +36,10 @@ class CardPanelTextTest(unittest.TestCase):
                     expected = expected.replace("outcrop", "Outcrop")
                 self.assertEqual(templates[key]["text"], expected)
                 self.assertEqual(templates[key]["title"], rows[key]["title"])
+        self.assertNotIn("worldspine_burst", templates)
+        self.assertEqual(templates["terrain_burst_own"]["text"], "Destroy an adjacent Outcrop you raised.")
+        self.assertEqual(templates["raise_outcrop_around_target"]["text"],
+                         "Raises an Outcrop with this much Health on each empty tile around the target.")
         self.assertEqual(templates["retaliate_illusion"]["text"],
                          "Enemies that damage this illusion take {n}{suffix} damage{suffix2}.")
         for key, expected in (
@@ -54,9 +58,13 @@ class CardPanelTextTest(unittest.TestCase):
         self.assertEqual(set(examples), {row["id"] for row in director["rows"]})
         facts = read("tests/fixtures/card_panel_grimoire_facts.json")
         self.assertEqual(set(facts), {r["id"] for r in director["rows"] if r["grimoire"]})
-        self.assertEqual(sum(f["appended"] for f in facts.values()), 11)
+        self.assertEqual(sum(f["appended"] for f in facts.values()), 10)
         for row in director["rows"]:
-            if row["id"] in facts and facts[row["id"]]["appended"]:
+            if row["id"] == "worldspine_burst":
+                self.assertEqual(facts[row["id"]]["owner"], "keyword:rite")
+                self.assertEqual(facts[row["id"]]["paragraphs"],
+                                 ["Worldspine: at the start of your turn, each enemy next to an Outcrop you raised takes 3."])
+            elif row["id"] in facts and facts[row["id"]]["appended"]:
                 expected = row["grimoire"].split(": ", 1)[1]
                 if row["id"] == "raise_outcrop":
                     expected = expected.replace(" outcrop", " Outcrop")

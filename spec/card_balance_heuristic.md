@@ -977,7 +977,7 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
   penalty. Estimates per activation: Fire damage bonus `amount x 0.45 x 0.60`
   Fire hits; Fire immunity `3 x 0.40 x 0.50` avoided contacts; on-surface turn
   start rewards at `0.50` availability; freeze rewards at `0.50` freezes; surface
-  pulse `damage x 0.45 x 0.80` targets; card Time discount
+  pulse and adjacent player Outcrop pulse `damage x 0.45 x 0.80` targets; card Time discount
   `amount x 0.45 x 2 cards x 0.80` availability; independent movement `0.25` per
   tile; forced-movement bonus `0.28 x 0.60` forced moves; turn-start rewards at
   their ordinary reward values; target-in-Light damage `amount x 0.45 x 0.50`
@@ -1095,8 +1095,13 @@ the base decoy keeps `0.48` per illusion health point and `0.12` per placement r
   the Worldbreak variant needs your own adjacent outcrop (`0.40`) and hits a line (`1.5`
   targets); Stagger at `0.30` per point times availability and targets; the surface rider is
   scored as an ordinary placed surface.
-- Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
-  to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
+- A powder keg adds its burst at `0.45` detonation chance and `1.4` targets to the
+  ordinary outcrop value.
+- Worldspine scores its four 4-Health Outcrop placements as defense and its
+  turn-start pulse as a Rite. Its score stays `6.02`. The former independent
+  spire pulse contributed `3.24` offense, and the Rite now contributes `3.24`.
+  Extra coverage from combining Outcrop cards is a multi-card synergy outside
+  the standalone score.
 
 
 ## Director-authored section enemies E1: en-02

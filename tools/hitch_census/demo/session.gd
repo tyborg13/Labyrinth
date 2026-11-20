@@ -57,9 +57,9 @@ func fail(reason: String) -> void:
 	host.errors.append(reason)
 	finish(false)
 
-func finish(passed: bool) -> void:
+func finish(passed: bool, outcome: String = "demo_complete") -> void:
 	if passed and input_gate.accepted != int(driver.inputs["joypad_button"]) + int(driver.inputs["joypad_motion"]):
 		host.errors.append("Controller input gate count mismatch")
 	var receipt: Dictionary = {"passed": passed and host.errors.is_empty(), "milestones": milestones, "inputs": driver.inputs, "input_gate_accepted": input_gate.accepted, "failure": failure}
 	FileAccess.open(host.output.path_join("route.json"), FileAccess.WRITE).store_string(JSON.stringify(receipt, "\t"))
-	host.finish("demo_complete" if passed else "demo_incomplete")
+	host.finish(outcome if passed else "demo_incomplete")

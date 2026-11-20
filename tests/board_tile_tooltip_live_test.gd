@@ -1,7 +1,7 @@
 extends "res://tests/board_tile_tooltip_probe.gd"
 
 const LIVE_TILE := Vector2i(4, 4)
-const TERRAIN_FIXTURE: Dictionary = {"id": "live_spine", "kind": "worldspine", "pos": LIVE_TILE, "hp": 4, "max_hp": 8, "pulse_damage": 3}
+const TERRAIN_FIXTURE: Dictionary = {"id": "live_outcrop", "kind": "crag_outcrop", "owner_kind": "player", "pos": LIVE_TILE, "hp": 4, "max_hp": 8}
 const MARK_FIXTURE: Dictionary = {"tiles": [LIVE_TILE], "damage": 5, "surface": "fire"}
 
 func _initialize() -> void:
@@ -58,11 +58,11 @@ func _capture(label: String, _frames: int = 8) -> void:
 	state["traps"] = []
 	state["terrain"] = [TERRAIN_FIXTURE.duplicate(true)]
 	await _submit()
-	assert(_titles(cursor.get("_detail_panel")) == ["Fire", "Rubble", "Worldspine"], "Terrain mutation invalidates held details")
+	assert(_titles(cursor.get("_detail_panel")) == ["Fire", "Rubble", "Crag Outcrop"], "Terrain mutation invalidates held details")
 	state = state.duplicate(true)
 	state["meteor_marks"] = [MARK_FIXTURE.duplicate(true)]
 	await _submit()
-	assert(_titles(cursor.get("_detail_panel")) == ["Fire", "Rubble", "Worldspine", "Meteorfall"], "Mark mutation invalidates held details")
+	assert(_titles(cursor.get("_detail_panel")) == ["Fire", "Rubble", "Crag Outcrop", "Meteorfall"], "Mark mutation invalidates held details")
 	print("LIVE TILE DOMAINS: PASS (traps, terrain, marks)")
 	state = state.duplicate(true)
 	var enemy: Dictionary = state["enemies"][0]

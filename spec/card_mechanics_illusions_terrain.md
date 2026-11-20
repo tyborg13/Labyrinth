@@ -86,7 +86,7 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
   outcrop leaves Rubble, a keg bursts), then the blast hits each enemy next to it, then the
   card's surface rider is placed with its pattern around the tile. Event `terrain_shattered`.
 - Worldbreak variant `owned_outcrop_only: true, line_damage: N, line_length: L, stagger: S`
-  (range 1) — only an adjacent crag outcrop or Worldspine the hero raised. The blast hits each
+  (range 1) — only an adjacent Outcrop the hero raised. The blast hits each
   enemy on the L tiles beyond it in the direction hero → outcrop (stopping at a wall) and
   Staggers them S (wave-2 Stagger).
 - Outcrop `kind: "powder_keg", burst_damage: N` — a keg (terrain kind `powder_keg`, blocks
@@ -95,15 +95,16 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
   on its tile and orthogonal neighbors and N to every terrain piece there, so kegs chain. A
   hero-placed keg sets `causal_owner: player`; whether a kill refunds a card play follows the
   triggering context (`player_card`), like any other damage. Event `powder_keg_burst`.
-- Outcrop `kind: "worldspine", pattern: ADJ, around_target: true, pulse_damage: N` — the
-  target is any visible, in-sight floor tile within range except the hero's; spires (terrain
-  kind `worldspine`, Tharokh's spire art, block movement not sight, Rubble on destroy) rise on
-  each empty orthogonal neighbor. Route preservation applies to every spire, except that the
-  caged center may be sealed when it is not a chokepoint (its open neighbors stay connected
-  without it, or it is a dead end); a chokepoint center stays open because the spire that
-  would seal it is skipped. At the start of each hero turn (after Rites) each enemy next to at
-  least one hero Worldspine takes the largest adjacent pulse once, non-direct, player-credited
-  without a card play. Event `worldspine_pulse`.
+- Worldspine uses the around-target Outcrop pattern. Choose visible floor in
+  range and sight. Ordinary 4-Health player Outcrops rise on empty orthogonal
+  neighbors. The existing around-target route check can seal the selected
+  center if it is not a chokepoint.
+- Worldspine also starts a Rite. After the other turn-start Rites, each
+  instance deals 3 non-direct Earth damage once to each enemy next to a live
+  player-raised Outcrop, including Outcrops from other cards. It affects
+  Flying enemies and respects Block and Stoneskin. Kills are player-credited
+  without a card play. Pass keeps the player's own Outcrops in Umbra.
+  Event `worldspine_pulse`.
 - Patterned outcrops with `rotate: true` (Earthen Rampart) rotate with the shared area aim:
   `RunScene.AIM_ROTATABLE_ACTION_TYPES` includes `outcrop`, so the Rotate command, keys and
   sticks orient the pending line, hover shows every raised tile, and the click commits that
@@ -115,8 +116,8 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
   purpose-built `illusion_swap` → `illusion_swap` (Swap Illusion) and `destroy_illusion` →
   `shatter_illusion` (Shatter Illusion), each leading its card row. See
   [icon identity policy](icon_identity_policy.md).
-- Card role emblems: powder kegs and Worldspines are offensive outcrops and follow the
-  attack range rule; crag outcrops stay block; Empty Husk is illusion. Hall of Mirrors
+- Card role emblems: powder kegs follow the attack range rule and Worldspine retains its
+  authored ranged-attack role. Other Outcrop raises use block; Empty Husk is illusion. Hall of Mirrors
   authors `role_emblem: "illusion"` over its Block; Mirror Feint, Reflected Threat and
   Empty Husk are pure illusion cards since wave 4 and need no override.
 - Powder kegs draw `assets/art/tiles/powder_keg.png` (the wooden box's 128px framing) with

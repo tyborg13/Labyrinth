@@ -1,0 +1,8 @@
+{
+  "min_images": 1,
+  "required_images": [
+    {
+      "pattern": "pawned_light_pilgrim_boots.png"
+    }
+  ]
+}

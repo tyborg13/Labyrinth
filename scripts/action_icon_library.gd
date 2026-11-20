@@ -306,10 +306,6 @@ const KEYWORDS: Dictionary = {
 		"label": "The Umbra",
 		"path": "%s/umbra.png" % ICON_ROOT
 	},
-	"worldspines": {
-		"label": "Worldspines",
-		"path": "%s/worldspines.png" % ICON_ROOT
-	},
 	"element_fire": {
 		"label": "Fire",
 		"path": "%s/element_fire.png" % ICON_ROOT
@@ -329,6 +325,14 @@ const KEYWORDS: Dictionary = {
 	"element_earth": {
 		"label": "Earth",
 		"path": "%s/element_earth.png" % ICON_ROOT
+	}
+}
+
+# Reference art for the boss entry without a live glossary keyword.
+const GRIMOIRE_ICONS: Dictionary = {
+	"worldspines": {
+		"label": "Worldspines",
+		"path": "%s/worldspines.png" % ICON_ROOT
 	}
 }
 
@@ -405,7 +409,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"blink": "blink",
 	"block": "block",
 	# Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
-	# Worldbreak burst terrain exactly like the Worldspine pulse.
+	# Worldbreak shares the Terrain Burst icon.
 	"burst_terrain": "terrain_burst",
 	"card_play": "card_play",
 	"cinder_marks": "cinder_marks",
@@ -496,7 +500,7 @@ static func action_icon_key(action: Dictionary) -> String:
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
 ## Outcrop kinds that are thrown at enemies rather than raised as cover.
-const OFFENSIVE_OUTCROP_KINDS: Array = ["powder_keg", "worldspine"]
+const OFFENSIVE_OUTCROP_KINDS: Array = ["powder_keg"]
 ## Self flags that defend in place; the others (Skate, Fireproof) are movement stances.
 const DEFENSIVE_SELF_FLAGS: Array = ["no_move", "anchored"]
 
@@ -586,7 +590,8 @@ static func card_role_emblem_path(card: Dictionary) -> String:
 	return str(CARD_ROLE_EMBLEM_PATHS.get(card_role_emblem_key(card), ""))
 
 static func icon_path(icon_key: String) -> String:
-	return str(_icon_definition(icon_key).get("path", ""))
+	var definition: Dictionary = GRIMOIRE_ICONS.get(icon_key, _icon_definition(icon_key))
+	return str(definition.get("path", ""))
 
 static func icon_texture(icon_key: String, presentation: String = "default") -> Texture2D:
 	# Toolbar variants belong to the same audited identity as their detailed art.
@@ -1169,8 +1174,9 @@ static func card_rules_text(card: Dictionary) -> String:
 ## carries "Rite:" and the cost, so the rules text below starts at the effect.
 static func rite_face_rules_text(card: Dictionary) -> String:
 	var text: String = str(card.get("description", "")).strip_edges()
-	if text.to_lower().begins_with("rite:"):
-		text = text.substr(5).strip_edges()
+	var rite_start: int = text.to_lower().find("rite:")
+	if rite_start >= 0:
+		text = text.substr(rite_start + 5).strip_edges()
 	if not text.is_empty():
 		text = text.substr(0, 1).to_upper() + text.substr(1)
 	text = PatternText.display_rules(text)
@@ -1500,16 +1506,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			var raise_tooltip: Variant = PanelText.copy("raise_outcrop")
 			if outcrop_kind == "powder_keg":
 				raise_tooltip = PanelText.copy("raise_keg")
-			elif outcrop_kind == "worldspine":
-				raise_tooltip = PanelText.copy("raise_worldspine")
+			elif bool(action.get("around_target", false)):
+				raise_tooltip = PanelText.copy("raise_outcrop_around_target")
 			tokens.append(_token_for_action_field(action, "raise_terrain", "health", int(action.get("health", 0)), "neutral", raise_tooltip))
-			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", PanelText.copy("range_outcrop")))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", PanelText.copy("range_outcrop_around_target" if bool(action.get("around_target", false)) else "range_outcrop")))
 			if (action.get("pattern", []) as Array).size() > 1:
 				tokens.append(_aoe_pattern_token(action))
 			if outcrop_kind == "powder_keg":
 				tokens.append(token_for("detonate", int(action.get("burst_damage", 0)), "warning", PanelText.copy("keg_detonate", {"n": int(action.get("burst_damage", 0))})))
-			elif outcrop_kind == "worldspine":
-				tokens.append(token_for("terrain_burst", int(action.get("pulse_damage", 0)), "neutral", PanelText.copy("worldspine_burst", {"n": int(action.get("pulse_damage", 0))})))
 		"raise_terrain":
 			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
 			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))

@@ -388,6 +388,13 @@ func first_use_glyph_batches(state: Dictionary) -> Array[Callable]:
 func prepare_first_use_after_fight(host: Control) -> void:
 	_first_use_preparation.schedule(host, self)
 
+func defeat_portrait_path(killer: Dictionary) -> String:
+	var enemy_type: String = str(killer.get("enemy_type", ""))
+	if enemy_type.is_empty(): return ""
+	var path: String = str(_run_host.call("_combat_portrait_path", enemy_type)) if is_instance_valid(_run_host) else ""
+	if path.is_empty(): path = "res://assets/art/portraits/%s.png" % enemy_type
+	return path if ResourceLoader.exists(path) or FileAccess.file_exists(path) else ""
+
 func _build_children() -> void:
 	_death_shroud = DeathEngulfOverlay.new()
 	_death_shroud.name = "DeathShroud"
@@ -688,14 +695,8 @@ func _apply_model() -> void:
 		layer.text = _title.text
 		layer.add_theme_color_override("font_outline_color", Color(glow_color, layer_alpha))
 	_cause.text = str(_model.get("cause", ""))
-	var killer: Dictionary = _model.get("killer", {}) as Dictionary
-	var enemy_type: String = str(killer.get("enemy_type", ""))
-	var portrait_path: String = "res://assets/art/portraits/%s.png" % enemy_type
-	if _run_host != null:
-		var approved_path: String = str(_run_host.call("_combat_portrait_path", enemy_type))
-		if not approved_path.is_empty():
-			portrait_path = approved_path
-	_portrait.visible = _is_defeat() and (ResourceLoader.exists(portrait_path) or FileAccess.file_exists(portrait_path))
+	var portrait_path: String = defeat_portrait_path(_model.get("killer", {})) if _is_defeat() else ""
+	_portrait.visible = not portrait_path.is_empty()
 	_portrait.set_texture(AssetLoader.load_texture(portrait_path) if _portrait.visible else null)
 	_cause.position.x = 56.0 if _portrait.visible else 0.0
 	_cause.size.x = COLUMN_WIDTH - _cause.position.x

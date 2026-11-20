@@ -420,6 +420,7 @@
         "id": "worldspine"
       },
       "asset_path": "res://assets/tooltip_loops/worldspine_pulse.tlw",
+      "fixture_biome": "vyraketh",
       "speed": "fast",
       "max_asset_bytes": 1500000
     }

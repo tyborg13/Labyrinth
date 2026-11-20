@@ -60,12 +60,12 @@ func _ready() -> void:
 
 func _play_intro() -> void:
 	# Present black before fading, matching the native engine's black splash.
-	await _present_frame()
+	await Shutdown.preparation_signal(get_tree())
 	if _quitting: return
 	_set_phase(&"fade_in")
 	await _fade(seal, 1.0, FADE_IN_SECONDS)
 	if _quitting: return
-	await _present_frame()
+	await Shutdown.preparation_signal(get_tree())
 	if _quitting: return
 	_set_phase(&"hold")
 	# Keep a full second at full opacity, independent of loading and fades.
@@ -94,7 +94,7 @@ func _play_intro() -> void:
 	get_tree().root.add_child(menu)
 	get_tree().current_scene = menu
 	# Startup's opaque black stays behind the menu until the reveal is complete.
-	await _present_frame()
+	await Shutdown.preparation_signal(get_tree())
 	if _quitting: return
 	_set_phase(&"menu_fade_in")
 	await _fade(menu, 1.0, MENU_FADE_SECONDS)
@@ -117,10 +117,6 @@ func _fade(target: CanvasItem, alpha: float, seconds: float) -> void:
 	_fade_duration = duration
 	await tween.finished
 	_fade_tween = null
-
-
-func _present_frame() -> void:
-	await Shutdown.present_preparation(get_tree())
 
 
 func cancel_loading_for_quit() -> void:
@@ -149,6 +145,9 @@ func _release_input() -> void:
 func _exit_tree() -> void:
 	if _menu_scene_pending: SceneLoads.abandon_for(get_tree(), MENU_SCENE_PATH)
 	_release_input()
+	# A scene-bound tween disappears on teardown without emitting finished.
+	# Resolve its continuation while the intro can still observe cancellation.
+	cancel_loading_for_quit()
 	if is_instance_valid(menu):
 		menu.modulate.a = 1.0
 

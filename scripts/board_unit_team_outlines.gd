@@ -125,14 +125,19 @@ func refresh_tile(tile: Vector2i) -> void:
 	if not bool(manager.get("tool_enabled")): return
 	for key: String in bodies:
 		var canvas: Control = bodies[key]
-		if canvas.get("_render_layer_tile") != tile: continue
-		canvas.set("_idle_elapsed", board.get("_idle_elapsed"))
-		canvas.set("_hover_tile", board.get("_hover_tile"))
-		canvas.set("_controller_focus_tile", board.get("_controller_focus_tile"))
-		var trace: RefCounted = board.get("_board_redraw_trace")
-		if trace != null: trace.inherit_reason(canvas.get_parent(), canvas, false, "unit pose refresh")
-		canvas.queue_redraw()
-		if entries.has(key): _update(key)
+		if canvas.get("_render_layer_tile") == tile: refresh_actor(key)
+
+func refresh_actor(key: String) -> bool:
+	var canvas: Control = bodies.get(key)
+	if not is_instance_valid(canvas): return false
+	canvas.set("_idle_elapsed", board.get("_idle_elapsed"))
+	canvas.set("_hover_tile", board.get("_hover_tile"))
+	canvas.set("_controller_focus_tile", board.get("_controller_focus_tile"))
+	var trace: RefCounted = board.get("_board_redraw_trace")
+	if trace != null: trace.inherit_reason(canvas.get_parent(), canvas, false, "unit pose refresh")
+	canvas.queue_redraw()
+	if entries.has(key): _update(key)
+	return true
 
 func refresh_alpha(key: String) -> void:
 	if not entries.has(key): return

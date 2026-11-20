@@ -8,7 +8,14 @@ const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
 const HeirloomChecks = preload("res://tests/helpers/heirloom_checks.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const OUTPUT_ROOT: String = "user://opening_boon_probe/1920x1080"
+const COMPACT_SIZE := Vector2i(1280, 800)
+const COMPACT_UI_SCALE: float = 1.15
+const PAWNED_LIGHT_RELIC: String = "pilgrim_boots"
 var _verify_only: bool = false
+var _sweep_baseline: bool = false
+var _pawned_light_only: bool = false
+var _capture_size: Vector2i = PROBE_VIEWPORT
+var _output_root: String = OUTPUT_ROOT
 var _captures: Array[String]
 var _purge_pair_captured: bool = false
 var _secondary_geometry: Dictionary = {}
@@ -18,15 +25,32 @@ var _heirloom_proof: Dictionary = {}
 
 func _initialize() -> void:
 	_setup()
-	_verify_only = OS.get_cmdline_user_args().has("--verify-only")
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	_verify_only = args.has("--verify-only")
+	_sweep_baseline = args.has("--sweep-baseline")
+	if DisplayServer.get_name() == "headless" and not (_verify_only or _sweep_baseline):
+		_expect(false, "Use --verify-only for headless opening boon proof")
+		quit(1)
+		return
+	_pawned_light_only = args.has("--pawned-light-only") or args.has("--compact")
+	var compact: bool = args.has("--compact")
+	var ui_scale: float = COMPACT_UI_SCALE if compact else 1.0
+	if compact:
+		_capture_size = COMPACT_SIZE
+		_output_root = "user://opening_boon_probe/1280x800"
+		_viewport.size = _capture_size
+		# Reproduce the project's canvas_items/expand window at 115% UI scale.
+		var expand: float = maxf(float(PROBE_VIEWPORT.x) / COMPACT_SIZE.x, float(PROBE_VIEWPORT.y) / COMPACT_SIZE.y)
+		_viewport.size_2d_override = Vector2i((Vector2(COMPACT_SIZE) * expand / ui_scale).round())
+		_viewport.size_2d_override_stretch = true
 	Settings.set_storage_path("user://opening_boon_probe_settings.json")
 	var settings: Dictionary = Settings.default_settings()
-	settings["ui_scale"] = 1.0
+	settings["ui_scale"] = ui_scale
 	Settings.save_settings(settings)
 	Analytics.set_storage_dir("user://opening_boon_probe_analytics")
 	call_deferred("_run")
 
-func _open(scene: Node, state: Dictionary) -> Control:
+func _open(scene: Node, state: Dictionary, check_reference_geometry: bool = true) -> Control:
 	ProgressionStore.save_data(state["progression"])
 	scene.call("_load_run_state", state)
 	scene.call("_speak_to_emaciated_man")
@@ -35,14 +59,20 @@ func _open(scene: Node, state: Dictionary) -> Control:
 	var modal: Control = scene.get("_opening_boon_flow").overlay
 	_expect(modal != null, "Proof opens the actual offer modal")
 	_expect(not bool(scene.get("_large_map_scrim").visible), "Proof keeps the start room behind the modal")
-	if modal != null: Proof.offer(scene, modal, _expect)
+	if modal != null and check_reference_geometry: Proof.offer(scene, modal, _expect)
 	return modal
 
 func _run() -> void:
 	ProgressionStore.save_data(Fixture.profile())
 	var scene: Node = await _instance(Fixture.state())
-	_relic_rules_proof = await preload("res://tests/helpers/opening_boon_relic_proof.gd").run(_viewport, scene, _expect)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_root))
+	var table: String = _output_root + ("/boon_fit_before.csv" if _sweep_baseline else "/boon_fit_after.csv")
+	_relic_rules_proof = await preload("res://tests/helpers/opening_boon_relic_proof.gd").run(_viewport, scene, _expect, table, _sweep_baseline)
 	_maximum_relic_rule_height = int(_relic_rules_proof["maximum_height"])
+	if not _sweep_baseline: await _pawned_light(scene)
+	if _sweep_baseline or _pawned_light_only:
+		await _finish(scene)
+		return
 	for with_heirloom: bool in [false, true]:
 		var modal: Control = await _open(scene, Fixture.state(with_heirloom))
 		if modal == null: continue
@@ -78,6 +108,36 @@ func _run() -> void:
 	file.store_string(JSON.stringify(report, "\t"))
 	file.close()
 	print("BOON PROBE REPORT: " + ProjectSettings.globalize_path(OUTPUT_ROOT + "/semantics.json"))
+	await _finish(scene)
+
+func _pawned_light(scene: Node) -> void:
+	var state: Dictionary = Fixture.state()
+	var offers: Array = state[Boons.STATE_KEY]["offers"]
+	var bargain: Dictionary = Boons.definitions()["columns"][2]
+	offers[2] = {"boon": "pawned_light", "column": bargain["label"], "relic": PAWNED_LIGHT_RELIC}
+	var modal: Control = await _open(scene, state, false)
+	if modal == null: return
+	var row: Control = modal.find_child("OpeningBoonColumns", true, false)
+	var card: Control = row.find_child("Boon_pawned_light", true, false)
+	var rules: RichTextLabel = card.get_node("BoonRules")
+	var button: Control = modal.find_child("DeclineOpeningBoon", true, false)
+	_expect(row.get_child_count() == 3, "Pawned Light appears in a three-card offer")
+	for slot: Control in row.get_children():
+		_expect(slot.size.y == row.size.y and slot.get_child(0).size.y == row.size.y, "All three offer cards and slots share the row height")
+	_expect(row.size.y > preload("res://scripts/opening_boon_card.gd").CARD_SIZE.y, "The Pilgrim Boots row grows past the original height")
+	_expect(rules.get_content_height() <= rules.size.y and card.get_global_rect().encloses(rules.get_global_rect()), "The full Pilgrim Boots description fits inside Pawned Light")
+	_expect(row.get_global_rect().end.y < button.get_global_rect().position.y, "The offer row leaves space for Take nothing")
+	_expect(_viewport.get_visible_rect().encloses(row.get_global_rect()), "The whole row lies inside the logical viewport")
+	await _save("pawned_light_pilgrim_boots.png")
+	button.grab_focus()
+	await _key(KEY_ENTER)
+	await _settle()
+	_expect(not Boons.pending(scene.get("_run_state")), "Take nothing still resolves an expanded offer")
+	scene.call("_complete_current_dialogue_line")
+	scene.call("_advance_dialogue")
+	await _settle()
+
+func _finish(scene: Node) -> void:
 	# Drain the existing two-frame modal-layout refresh before scene disposal.
 	await process_frame
 	await process_frame
@@ -201,8 +261,11 @@ func _heirloom_contact_sheet() -> void:
 
 func _save(name: String) -> void:
 	if _verify_only: return
-	var path: String = OUTPUT_ROOT + "/" + name
-	await _capture(path)
+	var path: String = _output_root + "/" + name
+	await RenderingServer.frame_post_draw
+	var image: Image = _viewport.get_texture().get_image()
+	_expect(image != null and image.get_size() == _capture_size, "Capture matches the selected physical profile")
+	if image != null: _expect(image.save_png(path) == OK, "Capture should save")
 	_captures.append(ProjectSettings.globalize_path(path))
 	print("BOON CAPTURE: " + ProjectSettings.globalize_path(path))
 

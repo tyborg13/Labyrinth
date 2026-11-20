@@ -10,5 +10,11 @@
   "rule": "R2",
   "count": 1,
   "reason": "Director 2026-11-05: perf-35's objective slice repeats combat_board_view.gd's baselined Snare-threshold fill colour so the static/animated split draws the same pixels. Not a new colour."
+ },
+ {
+  "file": "scripts/board_hud_retention.gd",
+  "rule": "R5",
+  "count": 1,
+  "reason": "perf-148 retained HUD: the theme default font is read only as a cache-key input (environment()), so a theme change repaints retained plates; nothing is drawn with it. Director exception 2026-11-19."
  }
 ]

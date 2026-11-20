@@ -1,0 +1,7 @@
+{
+  "min_images": 2,
+  "required_images": [
+    { "pattern": "opening-boon-secondary-tooltip.png" },
+    { "pattern": "opening-boon-card-2.png" }
+  ]
+}

@@ -13,6 +13,7 @@ const Threats = preload("res://scripts/threat_tiles.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Forecast = preload("res://scripts/combat_hud_forecast.gd")
+const HudRetention = preload("res://scripts/board_hud_retention.gd")
 const STATE_FIELDS: Array = [
 	"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
 	"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile", "_controller_focus_tile",
@@ -48,6 +49,7 @@ static func literal_paint(operations: Array) -> bool:
 func _set_plan_ops(layer: Control, canvas: Control, operations: Array, created: bool = false) -> bool:
 	var previous: Array = canvas.get("_render_slice_ops")
 	canvas.set("_render_slice_ops", operations)
+	if layer._render_layer_kind == "hud" and HudRetention.enabled(layer): return false
 	if created or not _initialized or layer._board_redraw_baseline(): return true
 	if layer._render_layer_kind not in ["overlays", "scene_tile"]: return true
 	return previous != operations or not literal_paint(operations)
@@ -63,6 +65,17 @@ func invalidate(layer: Control, clock_only: bool, reuse_plan: bool = false) -> v
 	elif reuse_plan and not clock_only:
 		layer.queue_redraw()
 	var trace: RefCounted = layer.get("_board_redraw_trace")
+	if layer._render_layer_kind == "hud" and HudRetention.enabled(layer):
+		var aim: RefCounted = layer.get("_render_instrumentation_owner").get("_aim_focus")
+		if rebuilt: aim.sync_hud_source(layer)
+		for index: int in range(canvases.size()):
+			if not rebuilt and not _animated[index]: continue
+			var canvas: Control = canvases[index]
+			canvas._idle_elapsed = layer._idle_elapsed
+			if trace != null: trace.inherit_reason(layer, canvas, clock_only)
+			aim.sync_hud_source(canvas)
+		_retained_plan_canvases.clear()
+		return
 	for index: int in range(canvases.size()):
 		var canvas: Control = canvases[index]
 		if rebuilt and _retained_plan_canvases.has(canvas): continue
@@ -203,11 +216,11 @@ static func threat_paint(board: Control, tile: Vector2i, sources: Dictionary, po
 	var coverage: Dictionary = board._marker_threat_coverage if targeting else board._floor_threat_coverage
 	if targeting and coverage.get("rules", {}).has(tile): return {}
 	var lob: Dictionary
-	if targeting: lob = board.LobView.marks(board)
+	if targeting: lob = board.LobView.floor_marks(board)
 	elif sources.has("lob_marks"): lob = sources["lob_marks"]
 	else: lob = board.LobView.floor_marks(board)
 	var alpha: float = float(coverage.get("alphas", {}).get(tile, -1.0))
-	var hero: Vector2i = board.presentation.get("threats_at_rest", {}).get("hero_tile", Vector2i(-1, -1))
+	var hero: Vector2i = Threats.hero_tile(board.presentation, targeting)
 	if lob.has(tile):
 		if alpha < 0.0: alpha = 1.0
 		hero = tile if bool(lob[tile]["center"]) else Vector2i(-1, -1)

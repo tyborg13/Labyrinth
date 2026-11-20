@@ -17,6 +17,7 @@ var _idle_seconds: float:
 	get: return seconds
 	set(value): seconds = value
 var _signature: Array = []
+var defer_rig_build: bool = false
 
 func _ready() -> void:
 	viewport = SubViewport.new()
@@ -25,12 +26,13 @@ func _ready() -> void:
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
 	viewport.world_2d = World2D.new()
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED if defer_rig_build else SubViewport.UPDATE_ONCE
 	add_child(viewport)
 	rig = Rig.new()
 	rigs["front"] = rig
 	rig.position = SOURCE_OFFSET
 	viewport.add_child(rig)
+	if defer_rig_build: return
 	if not rig.load_rig(): push_error("Emaciated Man cutout: " + str(rig.load_errors))
 	present(0.0, false)
 

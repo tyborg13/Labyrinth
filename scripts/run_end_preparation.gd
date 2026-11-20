@@ -3,6 +3,7 @@ extends RefCounted
 static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
+const Assets = preload("res://scripts/asset_loader.gd")
 const SLICE_USEC: int = 4000
 
 var _running: bool = false
@@ -31,6 +32,22 @@ static func _window_open(host: Control) -> bool:
 static func _present_frame(tree: SceneTree) -> void:
 	if DisplayServer.get_name() == "headless": await tree.process_frame
 	else: await RenderingServer.frame_post_draw
+
+static func prepare_during_defeat(host: Variant, terminal: Dictionary, generation: int) -> void:
+	var active: Callable = _defeat_active.bind(host, generation)
+	if not active.call(): return
+	await prepare_defeat_portrait_for(host, terminal, _present_frame.bind(host.get_tree()), active)
+
+static func _defeat_active(host: Variant, generation: int) -> bool:
+	return is_instance_valid(host) and host.is_inside_tree() and not host.is_queued_for_deletion() and host._encounter_preparation_generation == generation
+
+static func prepare_defeat_portrait_for(host: Control, terminal: Dictionary, frame: Callable, active: Callable) -> void:
+	var recap: Control = host._run_end_recap
+	if not is_instance_valid(recap): return
+	var stats: Dictionary = terminal.get("run_stats", {})
+	var path: String = recap.defeat_portrait_path(stats.get("killer", {}))
+	if path.is_empty() or Assets.has_cached_texture(path): return
+	await Assets.prepare_textures_for(host.get_tree().root, {path: false}, frame, active)
 
 static func _wait_for_window(owner: WeakRef, recap_owner: WeakRef, inputs: Array, tree: SceneTree) -> bool:
 	var _hitch_continuation: RefCounted

@@ -165,11 +165,15 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
-	_build_static_scene()
 	resized.connect(_layout_canvas)
 	get_viewport().gui_focus_changed.connect(_on_gui_focus_changed)
-	_layout_canvas()
+	if visible: _ensure_static_scene()
 	set_process(true)
+
+func _ensure_static_scene() -> void:
+	if _canvas != null: return
+	_build_static_scene()
+	_layout_canvas()
 
 func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool, performance_checkpoint: Callable = Callable()) -> void:
 	var started: int = Time.get_ticks_usec() if performance_checkpoint.is_valid() else 0
@@ -185,6 +189,7 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 	_complete_configuration(performance_checkpoint, started)
 
 func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
+	_ensure_static_scene()
 	_hidden_inventory_owner = Callable()
 	_run_state = run_state.duplicate(true)
 	_run_engine = run_engine
@@ -265,6 +270,7 @@ static func _hidden_preparation_active(shop: Variant, still_active: Callable) ->
 	return is_instance_valid(shop) and shop.is_inside_tree() and not shop.is_queued_for_deletion() and not shop.visible and bool(still_active.call())
 
 func present() -> void:
+	_ensure_static_scene()
 	if _inventory_released and _run_engine != null:
 		configure(_run_state, _run_engine, _reduced_motion)
 	_hidden_inventory_owner = Callable()
@@ -279,7 +285,7 @@ func dismiss_immediately() -> void:
 	call_deferred("_clear_purchase_effects_if_closed")
 
 func _clear_purchase_effects_if_closed() -> void:
-	if not visible:
+	if not visible and _canvas != null:
 		_clear_children(_purchase_effects)
 		_release_closed_inventory()
 

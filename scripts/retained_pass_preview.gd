@@ -23,7 +23,7 @@ static func button_art(texture: Texture2D) -> Texture2D:
 static func build(scene: Control) -> Button:
 	var summary: Dictionary = scene._pass_preview_summary()
 	var card_defiance_spent: int = scene._pending_card_defiance_spent()
-	if summary.is_empty():
+	if summary.is_empty() and not scene._selected_pass_pending():
 		return null
 	# This is one actual button: its art, labels, and forecast are visual children
 	# with mouse input ignored, so keyboard and pointer activation share one focus stop.
@@ -129,7 +129,7 @@ static func refresh(scene: Control) -> void:
 		build(scene)
 		return
 	var summary: Dictionary = summary_for_chip(scene, chip)
-	if summary.is_empty():
+	if summary.is_empty() and not scene._selected_pass_pending():
 		chip.hide()
 		return
 	chip.show()

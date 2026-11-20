@@ -1,0 +1,17 @@
+{
+  "min_images": 26,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*continue-start.png", "regions": [{"rect": [400, 200, 1120, 620], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*section-2-entry.png"},
+    {"pattern": "*section-3-entry.png"},
+    {"pattern": "*section-4-entry.png"},
+    {"pattern": "*section-5-entry.png"},
+    {"pattern": "*section-6-entry.png"},
+    {"pattern": "*grimoire.png", "regions": [{"rect": [500, 250, 900, 530], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*chronicle.png", "regions": [{"rect": [450, 220, 1020, 600], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*recap.png", "regions": [{"rect": [100, 100, 750, 480], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*dragon-*.png", "min_count": 6},
+    {"pattern": "*guardian-*.png", "min_count": 6}
+  ]
+}

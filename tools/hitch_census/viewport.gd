@@ -39,7 +39,7 @@ static func capture(window: Window) -> Dictionary:
 		"pixel_size_source": "ViewportTexture.get_image().get_size(): renderer backing image, one startup readback" if native else "unavailable with headless renderer",
 	}
 
-static func validate(snapshot: Dictionary) -> Dictionary:
+static func validate(snapshot: Dictionary, target_size: Vector2i = TARGET_SIZE, target_ui_scale: float = TARGET_UI_SCALE) -> Dictionary:
 	var failure: String = ""
 	var ratio: Variant = null
 	if bool(snapshot["native"]) and snapshot.get("root_pixel_size") == null:
@@ -47,11 +47,11 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	elif bool(snapshot["native"]):
 		var pixels: Array = snapshot["root_pixel_size"]
 		var count: int = int(pixels[0]) * int(pixels[1])
-		var target: int = TARGET_SIZE.x * TARGET_SIZE.y
+		var target: int = target_size.x * target_size.y
 		ratio = float(count) / float(target)
-		if Vector2i(int(pixels[0]), int(pixels[1])) != TARGET_SIZE:
-			failure = "Rendered backing image is not exactly 1280x800"
-	if not is_equal_approx(float(snapshot["content_scale"]), TARGET_UI_SCALE):
-		failure += ("; " if not failure.is_empty() else "") + "UI scale is not 1.15"
+		if Vector2i(int(pixels[0]), int(pixels[1])) != target_size:
+			failure = "Rendered backing image is not exactly %dx%d" % [target_size.x, target_size.y]
+	if not is_equal_approx(float(snapshot["content_scale"]), target_ui_scale):
+		failure += ("; " if not failure.is_empty() else "") + "UI scale is not %s" % target_ui_scale
 	return {"pixel_count_ratio": ratio, "failure": failure,
 		"status": "rejected" if not failure.is_empty() else ("passed" if bool(snapshot["native"]) else "headless_render_unverified")}

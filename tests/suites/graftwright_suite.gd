@@ -93,8 +93,7 @@ static func run(check: Callable) -> void:
 	_test_integration(check, state, grafted)
 	_test_map(check)
 
-static func _test_integration(check: Callable, state: Dictionary, grafted: Dictionary) -> void:
-	var engine := RunEngineScript.new()
+static func approach(state: Dictionary) -> Dictionary:
 	var destination: Vector2i = state["current_room"]
 	var approach: Dictionary = state.duplicate(true)
 	for room: Dictionary in (approach["rooms"] as Dictionary).values():
@@ -103,7 +102,12 @@ static func _test_integration(check: Callable, state: Dictionary, grafted: Dicti
 				approach["current_room"] = room["coord"]
 				room["cleared"] = true
 	approach["mode"] = "room"
-	var entered: Dictionary = engine.move_to_room(approach, destination)
+	return approach
+
+static func _test_integration(check: Callable, state: Dictionary, grafted: Dictionary) -> void:
+	var engine := RunEngineScript.new()
+	var destination: Vector2i = state["current_room"]
+	var entered: Dictionary = engine.move_to_room(approach(state), destination)
 	check.call(entered["mode"] == "graftwright" and entered["combat_state"].is_empty(), "Normal adjacent map travel opens the non-combat encounter")
 	check.call(entered["current_room_layout"]["enemies"].is_empty(), "Graftwright never spawns combat enemies")
 	var onward: Dictionary = engine.leave_graftwright(grafted)

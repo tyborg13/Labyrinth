@@ -3,7 +3,7 @@ extends RefCounted
 ## Keep plain live slots through a deal. Matching cards retain their authored
 ## motion; a changed face gets the same reset/geometry as pooled re-entry, but
 ## avoids exiting/re-entering every descendant and propagating the theme again.
-static func entries(scene: Node, next_hand: Array) -> Dictionary:
+static func entries(scene: Node, next_hand: Array, prefer_prepared_pool: bool = false) -> Dictionary:
 	var result: Dictionary = {}
 	var available: Array = []
 	for child: Node in scene.hand_box.get_children():
@@ -17,8 +17,18 @@ static func entries(scene: Node, next_hand: Array) -> Dictionary:
 			result[index] = entry
 			available.erase(entry)
 			break
+	var prepared: Dictionary = {}
+	if prefer_prepared_pool:
+		for pooled: Dictionary in scene._hand_card_pool:
+			if int(pooled.get("prepared_enemy_round_revision", -1)) != scene._combat_preview_revision: continue
+			var id: String = pooled["card_id"]
+			prepared[id] = int(prepared.get(id, 0)) + 1
 	for index: int in range(next_hand.size()):
 		if result.has(index) or available.is_empty(): continue
+		var id: String = str(next_hand[index])
+		if int(prepared.get(id, 0)) > 0:
+			prepared[id] -= 1
+			continue
 		# The pool's fallback uses the last available slot too. Changed identities
 		# must not inherit pointer/focus ownership from the card that occupied it.
 		var entry: Dictionary = available.pop_back()

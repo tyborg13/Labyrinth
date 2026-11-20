@@ -13,12 +13,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED:
 		preload("stable_paint.gd").follow_root(self)
 
-func load_rig() -> bool:
-	if _loaded_facing != facing:
-		preload("construction.gd").ensure_source(_layout_path(facing))
-	# The inherited same-facing load is a no-op; its live helper map survives.
-	if _loaded_facing != facing: cap_bones.clear()
-	return super.load_rig()
+func _before_rig_load() -> void:
+	preload("construction.gd").ensure_source(_layout_path(facing))
+	cap_bones.clear()
 
 func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> void:
 	if not data.get("rigid_source_alignment", false):

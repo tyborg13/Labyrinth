@@ -40,15 +40,26 @@ static func payload(engine: RefCounted, before: Dictionary, scheduled: Dictionar
 		"enemy_activations_before_next_turn": enemies_before,
 	}
 
-static func stage(engine: RefCounted, run_state: Dictionary, before: Dictionary, scheduled: Dictionary, end_reason: String, context: Dictionary, progression: Dictionary) -> Dictionary:
+static func prepare(engine: RefCounted, before: Dictionary, scheduled: Dictionary, end_reason: String, context: Dictionary) -> Dictionary:
 	var combat_id: String = str((before.get("analytics", {}) as Dictionary).get("combat_id", ""))
 	if combat_id.is_empty() or not engine.is_player_turn(before) or engine.is_player_turn(scheduled):
-		return run_state
+		return {}
 	var actor: Dictionary = before.get("current_actor", {}) as Dictionary
-	var key: String = "player_turn_ended|%s|%d|%d" % [combat_id, int(before.get("turn", 1)), int(actor.get("seq", 0))]
+	return {
+		"key": "player_turn_ended|%s|%d|%d" % [combat_id, int(before.get("turn", 1)), int(actor.get("seq", 0))],
+		"context": context,
+		"payload": payload(engine, before, scheduled, end_reason),
+	}
+
+static func stage_prepared(run_state: Dictionary, progression: Dictionary, receipt: Dictionary) -> Dictionary:
+	if receipt.is_empty():
+		return run_state
 	var next_run: Dictionary = run_state.duplicate(true)
 	var merged: Dictionary = ProgressionStore.merge_progression_analytics_outbox(next_run.get("progression", progression) as Dictionary, progression)
 	next_run["progression"] = ProgressionStore.queue_progression_analytics_event(
-		merged, "player_turn_ended", key, context, payload(engine, before, scheduled, end_reason)
+		merged, "player_turn_ended", receipt["key"], receipt["context"], receipt["payload"]
 	)
 	return next_run
+
+static func stage(engine: RefCounted, run_state: Dictionary, before: Dictionary, scheduled: Dictionary, end_reason: String, context: Dictionary, progression: Dictionary) -> Dictionary:
+	return stage_prepared(run_state, progression, prepare(engine, before, scheduled, end_reason, context))

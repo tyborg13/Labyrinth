@@ -7,12 +7,19 @@ const Fx = preload("res://scripts/elemental_spell_fx.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const DangerTiles = preload("res://scripts/threat_tiles.gd")
+const Data = preload("res://scripts/game_data.gd")
 const ARC_SECONDS: float = 0.45
 const SPLASH_SECONDS: float = 0.25
 const APEX_TILES: float = 2.2
 # Measured kiln centre in the registered approved sprite, refreshed by the
 # asset processor. This is a source landmark, not a new camera/layout choice.
 const KILN_SOURCE_POINT := Vector2(168, 53)
+# Lob uses the current roster, navigation, sight, objective and damage inputs.
+# Card payment and turn-order bookkeeping do not move a committed warning.
+const LOOKUP_FIELDS: PackedStringArray = ["enemies", "grid", "terrain", "traps", "illusions", "surfaces",
+	"surface_revision", "surface_rule_overrides", "objective", "umbra", "guardian_braziers", "relics", "active_rites",
+	"skill_ids", "skill_flags", "snare_pressure", "room_depth", "section_index", "umbra_depth", "difficulty_stats", "rng_state",
+	"_movement_trade_search", "_movement_allowed_endpoints"]
 static var _preview_engine := CombatScript.new()
 
 static func rows(view: Control, unit: Dictionary, intent: Dictionary) -> Array:
@@ -23,31 +30,92 @@ static func rows(view: Control, unit: Dictionary, intent: Dictionary) -> Array:
 	return result
 
 static func marks(view: Control) -> Dictionary:
-	return _marks(view, null)
+	return _retained_marks(view)
 
 static func floor_marks(view: Control) -> Dictionary:
-	return _marks(view, view.presentation.get(DangerTiles.LOB_AIM_KEY))
+	if view.presentation.has(DangerTiles.LOB_AIM_KEY): return view.presentation[DangerTiles.LOB_AIM_KEY]
+	return marks(view)
 
-static func _marks(view: Control, preview_aim: Variant) -> Dictionary:
+static func preview_changes_lookup(committed: Dictionary, preview: Dictionary) -> bool:
+	if is_same(committed, preview) or not (has_lob(committed) or has_lob(preview)): return false
+	if committed.get("player", {}).get("pos") != preview.get("player", {}).get("pos"): return true
+	for field: String in LOOKUP_FIELDS:
+		if committed.get(field) != preview.get(field): return true
+	return false
+
+# The marker, overlay, and retained HUD layers belong to one board. Own the
+# exact inputs so mutable submissions invalidate the lookup as well.
+static func _retained_marks(view: Control) -> Dictionary:
+	var owner: Control = view._render_instrumentation_owner if is_instance_valid(view._render_instrumentation_owner) else view
+	var cache: Dictionary = owner._lob_mark_cache
+	var state: Dictionary = view.combat_state
+	if not has_lob(state):
+		cache.clear()
+		return {}
+	var mortar: Dictionary = Data.enemies().get("slag_mortar", {})
+	# Sight can change through depth or visibility rules outside the snapshot.
+	# Only aimers without a stored landing mark need a sight query.
+	var visible_aimers: Dictionary = _visible_aimers(state)
+	if not cache.is_empty() and cache["state"] == state and cache["mortar"] == mortar and cache["visible_aimers"] == visible_aimers:
+		return cache["marks"]
+	var snapshot: Dictionary = state.duplicate(true)
+	var result: Dictionary = _marks(snapshot, visible_aimers)
+	owner._lob_mark_cache = {"state": snapshot, "mortar": mortar.duplicate(true), "visible_aimers": visible_aimers, "marks": result}
+	return result
+
+static func has_lob(state: Dictionary) -> bool:
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0: continue
+		if not (enemy.get("lob_tiles", []) as Array).is_empty(): return true
+		if (enemy.get("intent", {}).get("actions", []) as Array).any(_aims_lob): return true
+	return false
+
+static func _aims_lob(action: Dictionary) -> bool:
+	return str(action.get("type", "")) == "lob_mark"
+
+static func _visible_aimers(state: Dictionary) -> Dictionary:
+	var visible: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		if not (enemy.get("lob_tiles", []) as Array).is_empty(): continue
+		if not (enemy.get("intent", {}).get("actions", []) as Array).any(_aims_lob): continue
+		if _preview_engine.is_enemy_visible_to_player(state, enemy): visible[enemy["id"]] = true
+	return visible
+
+static func _marks(state: Dictionary, visible_aimers: Variant = null) -> Dictionary:
 	var result: Dictionary = {}
 	var engine := _preview_engine
-	for enemy: Dictionary in view.combat_state.get("enemies", []):
+	var aimers: Dictionary = _visible_aimers(state) if visible_aimers == null else visible_aimers
+	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
-		var intent: Dictionary = enemy.get("intent", {})
-		var aiming: bool = (intent.get("actions", []) as Array).any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "lob_mark")
-		var affected: Array[Vector2i] = engine._vector2i_values(enemy.get("lob_tiles", []))
-		var centers: Array[Vector2i] = engine._vector2i_values(enemy.get("lob_centers", [enemy.get("lob_center", Vector2i(-1, -1))]))
-		if aiming and affected.is_empty() and engine.is_enemy_visible_to_player(view.combat_state, enemy):
-			var forecast: Dictionary = Rules.aiming_forecast(engine, view.combat_state, enemy) if preview_aim == null else preview_aim.get(int(enemy["id"]), {})
-			affected = engine._vector2i_values(forecast.get("tiles", []))
-			centers = engine._vector2i_values(forecast.get("centers", []))
-		if affected.is_empty(): continue
-		var action: Dictionary = Rules.landing_action(engine, view.combat_state, enemy)
-		for tile: Vector2i in affected:
-			var center: bool = centers.has(tile)
-			var mark: Dictionary = {"enemy": enemy, "damage": int(action["center_damage"] if center else action["arm_damage"]), "center": center}
-			if not result.has(tile) or int(mark["damage"]) > int(result[tile]["damage"]): result[tile] = mark
+		if not add_held_marks(result, engine, state, enemy) and aimers.has(enemy["id"]):
+			var forecast: Dictionary = Rules.aiming_forecast(engine, state, enemy)
+			_add_marks(result, engine, state, enemy, forecast.get("tiles", []), forecast.get("centers", []))
 	return result
+
+# Use the already-resolved single-board plan for aiming. Stored landing marks
+# belong to the same previewed enemy snapshot as the rest of the warning.
+static func add_aim_marks(result: Dictionary, engine: RefCounted, state: Dictionary, enemy: Dictionary, plan: Dictionary) -> void:
+	if str(plan.get("projected_attack_action", {}).get("type", "")) != "lob_mark": return
+	var affected: Array = plan.get("projected_attack", [])
+	if affected.is_empty() or int(enemy.get("hp", 0)) <= 0: return
+	var attacker: Dictionary = enemy.duplicate(false)
+	attacker["pos"] = plan["projected_destination"]
+	_add_marks(result, engine, state, enemy, affected, Rules.centers(engine, state, attacker))
+
+static func add_held_marks(result: Dictionary, engine: RefCounted, state: Dictionary, enemy: Dictionary) -> bool:
+	var affected: Array = enemy.get("lob_tiles", [])
+	if affected.is_empty() or int(enemy.get("hp", 0)) <= 0: return false
+	var centers: Array[Vector2i] = engine._vector2i_values(enemy.get("lob_centers", [enemy.get("lob_center", Vector2i(-1, -1))]))
+	_add_marks(result, engine, state, enemy, affected, centers)
+	return true
+
+static func _add_marks(result: Dictionary, engine: RefCounted, state: Dictionary, enemy: Dictionary, affected: Array, centers: Array) -> void:
+	if affected.is_empty(): return
+	var action: Dictionary = Rules.landing_action(engine, state, enemy)
+	for tile: Vector2i in engine._vector2i_values(affected):
+		var center: bool = centers.has(tile)
+		var mark: Dictionary = {"enemy": enemy, "damage": int(action["center_damage"] if center else action["arm_damage"]), "center": center}
+		if not result.has(tile) or int(mark["damage"]) > int(result[tile]["damage"]): result[tile] = mark
 
 static func action_text(state: Dictionary, enemy: Dictionary, action: Dictionary) -> String:
 	return Icons.marked_move_text(Rules.presentation_action(_preview_engine, state, enemy, action))
@@ -98,12 +166,23 @@ static func caption_steps(steps: Array) -> Array[Dictionary]:
 			intent_step["turn_caption"] = Icons.lob_text(action)
 	return result
 
-static func draw_badges(view: Control) -> void:
+static func draw_badges(view: Control, isolated_enemy: Dictionary = {}) -> void:
 	var icon: Texture2D = Icons.icon_texture("lob")
-	var held: Dictionary = marks(view)
+	var state: Dictionary = view.combat_state
+	var held: Dictionary
+	if isolated_enemy.is_empty() or view.presentation.has(DangerTiles.LOB_AIM_KEY):
+		held = floor_marks(view)
+	else:
+		# Retain the individual announced badges. A scoped draw should not
+		# replace the shared committed lookup with a one-enemy snapshot.
+		state = state.duplicate(false)
+		state["enemies"] = [isolated_enemy]
+		held = _marks(state)
 	for tile: Vector2i in held:
 		if not view._board_tile_is_visible_to_player(tile): continue
-		draw_mark_badge(view, tile, icon, mark_tooltip(view.combat_state, held[tile]["enemy"]), held[tile]["damage"])
+		var enemy: Dictionary = held[tile]["enemy"]
+		if not isolated_enemy.is_empty() and enemy.get("id") != isolated_enemy.get("id"): continue
+		draw_mark_badge(view, tile, icon, mark_tooltip(state, enemy), held[tile]["damage"])
 
 static func draw_mark_badge(view: Control, tile: Vector2i, icon: Texture2D, tooltip: String, damage: Variant = null) -> void:
 	var font: Font = view.get_theme_default_font()

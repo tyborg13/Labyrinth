@@ -102,7 +102,6 @@ static func _prepare_full_with_receipt(engine: RefCounted, next_state: Dictionar
 	engine.ManeuverRules.record_activation_start(next_state)
 	next_state = _draw_with_receipt(engine, next_state, cursor)
 	next_state = engine.RiteRules.apply_player_turn_start(engine, next_state)
-	next_state = engine.TerrainCardRules.apply_player_turn_start(engine, next_state)
 	if engine.combat_outcome(next_state) != "":
 		return next_state
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})

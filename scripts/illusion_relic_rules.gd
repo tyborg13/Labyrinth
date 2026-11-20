@@ -145,7 +145,7 @@ static func puppet_collision(engine: RefCounted, state: Dictionary, kind: String
 
 # ------------------------------------------------------------------ Copper-Shod
 static func owned_outcrop(terrain: Dictionary) -> bool:
-	return int(terrain.get("hp", 0)) > 0 and str(terrain.get("owner_kind", "")) == "player" and str(terrain.get("kind", "")) in ["crag_outcrop", "worldspine", "powder_keg"]
+	return int(terrain.get("hp", 0)) > 0 and str(terrain.get("owner_kind", "")) == "player" and str(terrain.get("kind", "")) in ["crag_outcrop", "powder_keg"]
 
 static func virtual_conductor(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
 	if not Cards.illusion_at(engine, state, tile).is_empty(): return true

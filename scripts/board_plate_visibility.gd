@@ -26,6 +26,7 @@ var _entries: Dictionary = {}
 var _observed: Dictionary = {}
 var _scope: Array = []
 var redraw_requests: int = 0
+var opacity_only: bool = false
 var _last_setting: String = Settings.DEFAULT_BOARD_HEALTH_BARS
 
 var _clock: VisibilityClock
@@ -249,7 +250,10 @@ func advance(delta: float) -> void:
 		elif is_equal_approx(next, 1.0): next = 1.0
 		entry["alpha"] = next
 		dirty = dirty or not is_equal_approx(before, float(entry["alpha"]))
-	if dirty: _invalidate()
+	if dirty:
+		opacity_only = true
+		_invalidate()
+		opacity_only = false
 	_set_active()
 
 func _invalidate() -> void:

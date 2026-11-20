@@ -30,11 +30,14 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
 
+static func texture_path(variant_id: String) -> String:
+	return "res://assets/art/ui/visual_pass_4/ink_pool_%s.png" % variant_id
+
 func _draw() -> void:
 	var spotlight_size: float = minf(size.x, size.y) * 1.4
 	var center := Vector2(size.x * 0.5, size.y * 0.62)
 	draw_texture_rect(_spotlight, Rect2(center - Vector2.ONE * spotlight_size * 0.5, Vector2.ONE * spotlight_size), false)
-	var texture: Texture2D = AssetLoader.load_texture("res://assets/art/ui/visual_pass_4/ink_pool_%s.png" % variant)
+	var texture: Texture2D = AssetLoader.load_texture(texture_path(variant))
 	var width: float = Typography.scaled_value(self, figure_width) if figure_width > 0.0 else size.x
 	var dimensions: Vector2 = pool_size * Typography.ui_scale(self) if pool_size != Vector2.ZERO else Vector2(width * 0.92, width * 0.92 * 0.25)
 	if texture != null:

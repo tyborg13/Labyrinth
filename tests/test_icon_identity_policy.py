@@ -463,6 +463,7 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 "undertow_guard": "block",
                 "rimeplate_lock": "block",
                 "gale_ward": "block",
+                "worldspine": "attack_ranged",  # Keeps the attack role on its mixed raise and Rite card.
             },
             "Only genuinely ambiguous mixed cards should need an explicit primary-role override",
         )

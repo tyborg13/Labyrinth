@@ -57,12 +57,12 @@ def prepare_fixtures(base, output, task_id=TASK_ID):
     return bundle
 
 
-def headless_probe(project, output, *args, fixed_fps=False, stand_in=False, task_id=TASK_ID):
+def headless_probe(project, output, *args, fixed_fps=False, stand_in=False, task_id=TASK_ID, environment=None):
     clock = ["--fixed-fps", "60"] if fixed_fps else []
     policy = ["taskpolicy", "-c", "background"] if stand_in else []
     run([*policy, sys.executable, str(TOOLS / "godot_task_runner.py"), "--task-id", task_id,
          "--stream", "--", "godot", "--headless", *clock, "--path", str(project), "--script", str(PROBE),
-         "--", "--headless-check", f"--output={output}", *args], project)
+         "--", "--headless-check", f"--output={output}", *args], project, environment)
 
 
 def timing(project, output, bundle, task_id=TASK_ID):
@@ -200,7 +200,7 @@ def pixel_difference(left, right):
             "masks": []}
 
 
-def capture(projects, output, state, bundle, task_id=TASK_ID):
+def capture(projects, output, state, bundle, task_id=TASK_ID, environments=None, *, enforce=True):
     for side, project in projects.items():
         directory = output / "captures" / side
         directory.mkdir(parents=True, exist_ok=True)
@@ -213,18 +213,25 @@ def capture(projects, output, state, bundle, task_id=TASK_ID):
                  "--proof-contract", str(PROBE.with_name("capture_contract.json")),
                  "--result-manifest", str(directory / f"{state}.json"), "--",
                  f"--output={directory}", f"--capture={state}", f"--fixtures={bundle}", "--fixed-fps", "60"],
-                project, {"PERF134_CAPTURE_MOVIE": str(Path(scratch) / "clock.avi")})
+                project, {**(environments or {}).get(side, {}),
+                          "PERF134_CAPTURE_MOVIE": str(Path(scratch) / "clock.avi")})
     a, b = (output / "captures" / side for side in "AB")
     input_a, input_b = (json.loads((side / f"{state}-state.json").read_text()) for side in (a, b))
     difference = pixel_difference(a / f"{state}.png", b / f"{state}.png")
     difference["mismatched_state_fields"] = mismatched_fields(input_a, input_b)
+    invalid_masks = input_a.get("masks") != [] or input_b.get("masks") != []
+    if invalid_masks:
+        difference["error"] = "This capture contract requires a full-frame comparison"
     diff_path = output / "captures" / f"{state}-diff.json"
     diff_path.write_text(json.dumps(difference, indent=2) + "\n")
-    if input_a.get("masks") != [] or input_b.get("masks") != []:
-        raise ValueError("This capture contract requires a full-frame comparison")
-    if difference["different_pixels"] or difference["mismatched_state_fields"]:
-        raise ValueError(f"Capture mismatch: {difference} ({diff_path})")
-    print(f"PERF-135 PIXELS: {state} has 0 differing pixels across the whole viewport and identical state receipts")
+    if invalid_masks or difference["different_pixels"] or difference["mismatched_state_fields"]:
+        message = f"Capture mismatch: {difference} ({diff_path})"
+        if enforce:
+            raise ValueError(message)
+        print(message, flush=True)
+    else:
+        print(f"PERF-135 PIXELS: {state} has 0 differing pixels across the whole viewport and identical state receipts")
+    return difference
 
 
 def mismatched_fields(left, right):
@@ -232,10 +239,11 @@ def mismatched_fields(left, right):
     return sorted(key for key in left.keys() | right.keys() if left.get(key, missing) != right.get(key, missing))
 
 
-def headless_receipts(projects, output, bundle, task_id=TASK_ID):
+def headless_receipts(projects, output, bundle, task_id=TASK_ID, environments=None):
     directories = [output / "headless-captures" / side for side in projects]
-    for project, directory in zip(projects.values(), directories):
-        headless_probe(project, directory, f"--fixtures={bundle}", "--capture-all", fixed_fps=True, task_id=task_id)
+    for (side, project), directory in zip(projects.items(), directories):
+        headless_probe(project, directory, f"--fixtures={bundle}", "--capture-all", fixed_fps=True,
+                       task_id=task_id, environment=(environments or {}).get(side))
     for state in CAPTURES:
         left, right = (json.loads((directory / f"{state}-state.json").read_text()) for directory in directories)
         fields = mismatched_fields(left, right)

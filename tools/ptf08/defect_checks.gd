@@ -4,6 +4,8 @@ extends "res://tools/ptf08/action_checks.gd"
 # scene helpers; defect 5's selection and stationary pointer use only real input.
 const SETTLE_FRAMES: int = 20
 const HIDDEN_TILE := Vector2i(5, 4)
+const D5_PASS_TIMEOUT_MSEC: int = 10000
+const D5_COMMITTED = preload("res://scripts/battlefield_rules/committed.gd")
 
 func _initialize() -> void:
 	_initialize_test_storage()
@@ -165,25 +167,89 @@ func lifecycle_exits() -> void:
 
 func pointer_confirmation() -> void:
 	await install("brace", 14)
+	await select_brace_with_pointer(root)
+	var panel: Control = chip().get_node("PassForecastFocusTooltip")
+	_assert(bool(scene.call("_pending_card_requires_confirmation")), "D5 real pointer click selects Brace confirmation")
+	_assert(bool(chip().get_meta("pass_forecast_active", false)) and panel.is_visible_in_tree() and is_equal_approx(panel.modulate.a, 1.0), "D5 stationary pointer over Brace shows fully visible panel")
+	var summary: Dictionary = chip().get_meta("pass_forecast_summary", {})
+	var rows: String = d5_panel_rows(panel)
+	var before: Dictionary = scene.get("_combat_state").duplicate(true)
+	var engine: CombatEngine = scene.get("_combat_engine")
+	var passed: Dictionary = D5_COMMITTED.advance_to_player(engine, D5_COMMITTED.finish_player_activation(engine, before))
+	var preview: Dictionary = scene.call("_pending_card_known_forecast_state")
+	var confirmed: Dictionary = D5_COMMITTED.advance_to_player(engine, D5_COMMITTED.finish_player_activation(engine, preview))
+	print("D5 fixture hero=", before["player"], " enemies=", before["enemies"], " queue=", before["turn_queue"])
+	print("D5 pending rows=", rows, " hp_loss=", summary["hp_loss"], " block_loss=", summary["block_loss"], " projected_block_if_played=", preview["player"]["block"])
+	print("D5 Pass steps=", d5_loss_steps(passed), " confirm-then-Pass steps=", d5_loss_steps(confirmed))
+	# atk-09: Claw consumes five of Brace's six Block. The leftover Block expires at turn start.
+	_assert(int(summary["block_loss"]) == 5, "D5 pending Brace shows five Block consumed by Claw")
+	_assert(rows == "time:+5 | block:−5" and int(summary["hp_loss"]) == 0, "D5 panel shows the confirmation forecast")
+	var pass_chip: Button = chip()
+	_assert(pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "D5 Pass chip is unavailable to pointer and keyboard focus")
+	await d5_pointer_click(root, pass_chip.get_global_rect().get_center())
+	_assert(bool(scene.call("_pending_card_requires_confirmation")) and not scene.get("_animation_lock") and scene.get("_combat_state") == before, "D5 clicking disabled Pass keeps Brace pending and the turn unchanged")
+	var post_draw := func() -> void: RenderingServer.frame_post_draw.emit()
+	if DisplayServer.get_name() == "headless": process_frame.connect(post_draw)
+	d5_joy_tap(JOY_BUTTON_Y)
+	await process_frame
+	var blocked: bool = bool(scene.call("_pending_card_requires_confirmation")) and not scene.get("_animation_lock") and scene.get("_combat_state") == before
+	_assert(blocked and chip().get_meta("pass_interaction_state", "") == "disabled", "D5 controller Y keeps Brace pending and matches disabled Pass")
+	d5_joy_tap(JOY_BUTTON_B)
+	await process_frame
+	_assert(int(scene.get("_selected_card_index")) < 0 and scene.get("_combat_state") == before, "D5 controller B cancels Brace without passing")
+	var rest: Dictionary = scene.call("_pass_preview_summary")
+	d5_joy_tap(JOY_BUTTON_Y)
+	var accepted: bool = scene.get("_animation_lock")
+	var deadline: int = Time.get_ticks_msec() + D5_PASS_TIMEOUT_MSEC
+	while scene.get("_animation_lock") and Time.get_ticks_msec() < deadline: await process_frame
+	root.get_node("InputRouter").call("set_modality", "pointer")
+	if process_frame.is_connected(post_draw): process_frame.disconnect(post_draw)
+	var after: Dictionary = scene.get("_combat_state")
+	print("D5 pending Y blocked=", blocked, " B then Y accepted=", accepted, " finished=", not scene.get("_animation_lock"), " hero=", after["player"], " deck=", after["deck"])
+	_assert(accepted and not scene.get("_animation_lock"), "D5 controller Y completes Pass after B")
+	_assert(after["player"] == passed["state"]["player"] and after["deck"] == passed["state"]["deck"] and after["initiative_clock"] == passed["state"]["initiative_clock"], "D5 live Pass resolves from the committed hero, hand and clock")
+	var hit_health: int = int(before["player"]["hp"]) - int(after["player"]["hp"])
+	_assert(hit_health == 5 and int(rest.get("hp_loss", -1)) == hit_health and int(rest.get("block_loss", -1)) == 0, "D5 rest forecast matches the Claw hit after B then Y")
+
+func d5_joy_tap(button: JoyButton) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button
+		event.pressed = pressed
+		root.push_input(event, true)
+
+func select_brace_with_pointer(viewport: Viewport) -> void:
 	var card: Control = scene.call("_hand_card_control", 0) as Control
 	var point: Vector2 = card.get_global_rect().get_center()
 	var motion := InputEventMouseMotion.new()
 	motion.position = point
-	root.push_input(motion, true)
+	viewport.push_input(motion, true)
 	await process_frame
+	await d5_pointer_click(viewport, point)
+	for _frame: int in range(SETTLE_FRAMES): await process_frame
+
+func d5_pointer_click(viewport: Viewport, point: Vector2) -> void:
 	for pressed: bool in [true, false]:
 		var event := InputEventMouseButton.new()
 		event.button_index = MOUSE_BUTTON_LEFT
 		event.position = point
 		event.pressed = pressed
-		root.push_input(event, true)
+		viewport.push_input(event, true)
 		await process_frame
-	for _frame: int in range(SETTLE_FRAMES): await process_frame
-	var panel: Control = chip().get_node("PassForecastFocusTooltip")
-	_assert(bool(scene.call("_pending_card_requires_confirmation")), "D5 real pointer click selects Brace confirmation")
-	_assert(bool(chip().get_meta("pass_forecast_active", false)) and panel.is_visible_in_tree() and is_equal_approx(panel.modulate.a, 1.0), "D5 stationary pointer over Brace shows fully visible panel")
-	_assert(int(scene.call("_pass_preview_summary")["block_loss"]) == 6, "D5 real path retains Block -6 summary")
-	print("D5 selected=", scene.get("_selected_card_index"), " confirm=", scene.call("_pending_card_requires_confirmation"), " active=", chip().get_meta("pass_forecast_active", false), " visible=", panel.is_visible_in_tree(), " alpha=", panel.modulate.a)
+
+func d5_panel_rows(panel: Control) -> String:
+	var parts := PackedStringArray()
+	for row: Dictionary in panel.get_meta("forecast_rows", []):
+		for part: Dictionary in row["parts"]:
+			parts.append("%s:%s" % [part["icon"], part["text"]])
+	return " | ".join(parts)
+
+func d5_loss_steps(phase: Dictionary) -> Dictionary:
+	return {
+		"hits": scene.call("_pass_preview_player_damage_losses", phase["steps"]),
+		"before_expiry": phase["player_turn_before_state"]["player"]["block"],
+		"after_expiry": phase["state"]["player"]["block"],
+	}
 
 # Fixture-only movement budget exposes an unseen intermediate tile as well as
 # the review's original destination. Actual route tiles determine the matrix.

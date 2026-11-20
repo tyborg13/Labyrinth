@@ -136,20 +136,21 @@ static func _history_transitions(expect: Callable) -> void:
 	tree.root.size = Vector2i(1920, 1080)
 	for fixture: String in ["mixed", "air"]:
 		var state: Dictionary = Crowded.mixed_state() if fixture == "mixed" else Crowded.warband_run(fixture)["combat_state"]
+		var enemy_key: String = "enemy_%s" % state["enemies"][0]["id"]
 		var shown: Dictionary = {"reduced_motion": true, "threats_at_rest": Badges.build(Combat.new(), state, state)}
 		var cold := Board.new()
 		cold.size = Vector2(1920, 1080)
 		tree.root.add_child(cold)
 		cold.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
-		await _history_redraw(cold, expect)
-		var expected: Dictionary = {"groups": {}, "entries": cold._hud_layout_entries_cache.duplicate(true), "health": cold._hud_health_rects_cache.duplicate(true), "tooltips": cold._hud_render_layer._tooltip_regions.duplicate(true)}
+		await _history_redraw(cold, enemy_key, expect)
+		var expected: Dictionary = {"groups": {}, "entries": cold._hud_layout_entries_cache.duplicate(true), "health": cold._hud_health_rects_cache.duplicate(true), "tooltips": _status_tooltips(cold).duplicate(true)}
 		for unit: Dictionary in cold._hud_layout_units():
 			expected["groups"][unit["key"]] = cold._status_plate_layout.cached_group(unit["key"]).duplicate(true)
 		var board := Board.new()
 		board.size = Vector2(1920, 1080)
 		tree.root.add_child(board)
 		board.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
-		await _history_redraw(board, expect)
+		await _history_redraw(board, enemy_key, expect)
 		_history_check(board, expected, fixture + "/initial A", expect)
 		var original_entries: Array = board._hud_layout_entries_cache
 		for cycle: int in range(HISTORY_ROUND_TRIPS):
@@ -157,14 +158,14 @@ static func _history_transitions(expect: Callable) -> void:
 			changed["enemies"][0]["freeze"] = 1
 			board.set_combat_state(changed, [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
 			_history_check(board, {}, fixture + "/Freeze before paint", expect)
-			await _history_redraw(board, expect)
+			await _history_redraw(board, enemy_key, expect)
 			_history_check(board, {}, fixture + "/Freeze after paint", expect)
 			board.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
 			expect.call(is_same(original_entries, board._hud_layout_entries_cache), "Historical A uses its existing LRU entry: " + fixture)
 			_history_check(board, expected, fixture + "/restored A before paint", expect)
-			await _history_redraw(board, expect)
+			await _history_redraw(board, enemy_key, expect)
 			_history_check(board, expected, fixture + "/restored A after paint", expect)
-			expect.call(board._hud_render_layer._tooltip_regions == expected["tooltips"], "Historical painted tooltip rects equal cold A: " + fixture)
+		expect.call(_status_tooltips(board) == expected["tooltips"], "Historical painted tooltip rects equal cold A: " + fixture)
 		board.free()
 		cold.free()
 		print("HUD HISTORY ROUND TRIP: %s (%d cycles; real redraws; cold geometry)" % [fixture, HISTORY_ROUND_TRIPS])
@@ -182,7 +183,11 @@ static func _keyword_badge_repaints(expect: Callable) -> void:
 	state["enemies"] = []
 	board.set_combat_state(state.duplicate(true))
 	for frame: int in range(HISTORY_PAINT_FRAMES): await tree.process_frame
-	var layer: Control = board._hud_render_layer
+	var layer: Control = _status_canvases(board).get("player")
+	expect.call(is_instance_valid(layer), "Hero has a retained status canvas")
+	if not is_instance_valid(layer):
+		board.free()
+		return
 	var draws: int = layer._dynamic_draw_count
 	board.set_combat_state(state.duplicate(true))
 	for frame: int in range(HISTORY_PAINT_FRAMES): await tree.process_frame
@@ -201,8 +206,28 @@ static func _keyword_badge_repaints(expect: Callable) -> void:
 		expect.call(layer._dynamic_draw_count > draws, "Hero status row repaints when only %s changes: %s" % [change[0], str(change[1])])
 	board.free()
 
-static func _history_redraw(board: Control, expect: Callable) -> void:
-	var layer: Control = board._hud_render_layer
+static func _status_canvases(board: Control) -> Dictionary:
+	var canvases: Dictionary = {}
+	for record: Dictionary in board._aim_focus.canvases.values():
+		if not record.hud or not is_instance_valid(record.canvas): continue
+		var canvas: Control = record.canvas
+		if not canvas.is_visible_in_tree() or canvas._render_slice_ops.is_empty(): continue
+		if canvas._render_slice_ops[0][0] == "_draw_unit_hud_details":
+			canvases[record.unit["key"]] = canvas
+	return canvases
+
+static func _status_tooltips(board: Control) -> Dictionary:
+	var tooltips: Dictionary = {}
+	var canvases: Dictionary = _status_canvases(board)
+	for key: String in canvases:
+		tooltips[key] = canvases[key]._tooltip_regions
+	return tooltips
+
+static func _history_redraw(board: Control, actor_key: String, expect: Callable) -> void:
+	var layer: Control = _status_canvases(board).get(actor_key)
+	if not is_instance_valid(layer):
+		expect.call(false, "History regression needs a retained status canvas for " + actor_key)
+		return
 	var before: int = layer._dynamic_draw_count
 	layer.queue_redraw()
 	for frame: int in range(HISTORY_PAINT_FRAMES): await (Engine.get_main_loop() as SceneTree).process_frame

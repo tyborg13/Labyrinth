@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Terrain = preload("res://scripts/terrain_card_rules.gd")
+
 # Preview-only payment for ending immediately at an unresolved card boundary.
 # The committed action/confirmation pipeline is untouched.
 static func pay_prefix(scene: Node, state: Dictionary, actions: Array) -> Dictionary:
@@ -48,7 +50,7 @@ static func surface_skill(scene: Node, tile: Vector2i) -> Dictionary:
 # One information boundary for movement, card prefixes, targeted actions, skills
 # and idle PASS. Strip hidden causes BEFORE resolution: removing a picked-up
 # item afterward cannot undo the resulting hand/deck, healing or relic changes.
-# Grid geometry and guardian brazier markers are board-public even in Umbra.
+# Grid geometry, guardian braziers and player-raised Outcrops stay known in Umbra.
 static func information_state(scene: Node, state: Dictionary, information_override: Variant = null) -> Dictionary:
 	if not scene._preview_umbra_is_limited(state, information_override): return state
 	var information: Dictionary = scene._preview_information_state(state) if information_override == null else information_override as Dictionary
@@ -60,7 +62,8 @@ static func information_state(scene: Node, state: Dictionary, information_overri
 		var entries: Array = []
 		for entry: Dictionary in state[collection]:
 			var is_known: bool = scene._combat_engine.is_enemy_visible_to_player(information, entry, visible) if collection == "enemies" else visible.has(entry.get("pos", Vector2i(-1, -1)))
-			if is_known: entries.append(entry.duplicate(true))
+			if is_known or (collection == "terrain" and Terrain.is_owned_outcrop(entry)):
+				entries.append(entry.duplicate(true))
 		known[collection] = entries
 	var ground: Dictionary = known.get("surfaces", {})
 	for tile: Vector2i in BoardSurfaceRules.tiles(state):

@@ -22,6 +22,8 @@ const Motion = preload("res://scripts/settings_store.gd")
 const CARD_SIZE := Vector2(300.0, 400.0)
 const PREVIEW_RECT := Rect2(24.0, 96.0, 252.0, 140.0)
 const RULES_RECT := Rect2(24.0, 256.0, 252.0, 120.0)
+const BODY_RULE_LINES: int = 4
+const SMALL_RULE_LINES: int = 5
 const SOCKET_SIZE: float = 96.0
 const GLYPH_SIZE: float = 64.0
 const TAG_SIZE: int = 16
@@ -90,7 +92,6 @@ func configure(host: Node, offer: Dictionary) -> void:
 	rules.mouse_entered.connect(_pointer_changed)
 	rules.mouse_exited.connect(_pointer_changed)
 	_fit_rules(rules, Rules.text(offer))
-	_fit_rules.call_deferred(rules, Rules.text(offer))
 	gui_input.connect(func(event: InputEvent) -> void:
 		if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or event.is_action_pressed("ui_accept") or event.is_action_pressed(Router.ACTION_ACCEPT):
 			accept_event()
@@ -102,13 +103,25 @@ func configure(host: Node, offer: Dictionary) -> void:
 	focus_exited.connect(_pose)
 
 func _fit_rules(rules: RichTextLabel, text: String) -> void:
-	# Fit at the authored width, never by borrowing the card's side padding.
-	rules.size.x = RULES_RECT.size.x
 	Typography.apply_rich_text_role(rules, Typography.ROLE_BODY)
-	Inline.apply_to(rules, "[center]" + text + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
-	if rules.get_line_count() > 4:
+	var markup: String = "[center]" + text + "[/center]"
+	Inline.apply_to(rules, markup, Inline.DEFAULT_ICON_SCALE, true)
+	if rules.get_line_count() > BODY_RULE_LINES or rules.get_content_height() > rules.size.y:
 		Typography.set_rich_text_size(rules, Typography.SIZE_SMALL)
-		Inline.apply_to(rules, "[center]" + text + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
+		Inline.apply_to(rules, markup, Inline.DEFAULT_ICON_SCALE, true)
+		var height: float = rules.get_content_height()
+		var extra: float = maxf(0.0, height - rules.size.y)
+		if rules.get_line_count() > SMALL_RULE_LINES:
+			# Preserve the authored space around the first five lines and
+			# extend the rules area by the height of any additional lines.
+			extra = maxf(extra, height - rules.get_line_offset(SMALL_RULE_LINES))
+		rules.size.y += ceilf(extra)
+		set_offer_height(CARD_SIZE.y + ceilf(extra))
+
+func set_offer_height(height: float) -> void:
+	custom_minimum_size.y = height
+	size.y = height
+	pivot_offset = size * 0.5
 
 func _tag(text: String) -> void:
 	var accent: Color = Palette.EMBER.lerp(Palette.GOLD_BRIGHT, 0.45)

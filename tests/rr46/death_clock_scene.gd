@@ -9,7 +9,7 @@ var used_shared_clock: bool = false
 
 func _ready() -> void: pass
 func _controller_modal_visible() -> bool: return false
-func _start_terminal_defeat_music_if_needed(_units: Array[Dictionary], _after: Dictionary = {}) -> void: pass
+func _start_terminal_defeat_music_if_needed(_units: Array[Dictionary], _after: Dictionary = {}) -> bool: return false
 func _play_sfx(_entry: Dictionary) -> float: return 0.0
 func _play_death_sequence(clock: Dictionary, render: Callable) -> void:
 	sequence = clock.duplicate(true)

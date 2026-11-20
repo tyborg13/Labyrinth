@@ -8,11 +8,13 @@ extends RefCounted
 ## tile next to a unit. Only the tiles' visibility is read, never their contents,
 ## so nothing leaks; the simulation itself is unchanged.
 ##
-## The same sight also tells a visible new arrival (a summon or split) from a foe
-## hidden in the Umbra: the panel names the first with the turn-clock "?".
+## Enemy-action summons and splits still use this sight boundary. Arrival
+## disclosure is keyed to initiative, so the clock row describes a foe the
+## cursor reaches before the hero can act.
 
 # The decision-time sight (the committed board), carried by the forecast source.
 const VISIBLE_KEY: String = "_pass_forecast_visible"
+const BOUNDARY_ARRIVALS: String = "_pass_forecast_boundary_arrivals"
 # The previewed action itself (a walk, a card's push) already crossed it.
 const CROSSED_KEY: String = "_pass_forecast_unseen_crossed"
 # Step fields that hold the tiles a unit walked or slid along (anchor first).
@@ -112,17 +114,46 @@ static func arrival_visible(engine: RefCounted, state: Dictionary, enemy: Dictio
 		if (visible as Dictionary).has(tile): return true
 	return false
 
-# A foe already on the board when the forecast began keeps the opaque marker:
-# only a summon, split or reinforcement is a new foe.
-static func note_unplanned(engine: RefCounted, cursor: Dictionary, state: Dictionary, enemies: Array) -> void:
-	var present: Dictionary = {}
-	for enemy: Dictionary in (cursor.get("initial_state", {}) as Dictionary).get("enemies", []):
-		present[int(enemy.get("id", -1))] = true
-	for enemy: Variant in enemies:
-		if not enemy is Dictionary or present.has(int((enemy as Dictionary).get("id", -1))) or not arrival_visible(engine, state, enemy):
-			(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
-			return
-	cursor["new_arrival_before_player"] = true
+# Keep turn-boundary arrivals on the forecast copy through skipped hero turns.
+# An announced move can still contribute to the forecast's Health and Block.
+static func track_boundary_arrivals(before: Dictionary, after: Dictionary) -> void:
+	var present: Dictionary = _enemy_ids(before)
+	for enemy: Dictionary in after.get("enemies", []):
+		var id: int = int(enemy["id"])
+		if int(enemy.get("hp", 0)) > 0 and not present.has(id):
+			if not after.has(BOUNDARY_ARRIVALS): after[BOUNDARY_ARRIVALS] = {}
+			after[BOUNDARY_ARRIVALS][id] = true
+
+# A hidden reinforcement can affect known paths as soon as it appears. A
+# visible reinforcement uses the same initiative test as an enemy-action spawn.
+static func note_reinforcement_spawn(engine: RefCounted, cursor: Dictionary, state: Dictionary, spawn_steps: Array) -> void:
+	for step: Dictionary in spawn_steps:
+		for enemy: Dictionary in step.get("spawned_enemies", []):
+			if not arrival_visible(engine, state, enemy):
+				(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
+				return
+
+# Only a reached activation qualifies. A boundary arrival may already have a
+# known move, while an unplanned foe still follows the original Umbra rule.
+static func note_arrival_activation(engine: RefCounted, cursor: Dictionary, state: Dictionary, enemy: Dictionary, unplanned: bool) -> void:
+	var id: int = int(enemy["id"])
+	var arrivals: Dictionary = state.get(BOUNDARY_ARRIVALS, {})
+	if arrivals.has(id): cursor["new_arrival_before_player"] = true
+	if not unplanned: return
+	var present: Dictionary = _enemy_ids(cursor.get("initial_state", {}))
+	if not present.has(id) and arrival_visible(engine, state, enemy):
+		cursor["new_arrival_before_player"] = true
+	else:
+		(cursor["steps"] as Array).append({"kind": "intent", "hidden_by_umbra": true})
+
+static func _enemy_ids(state: Dictionary) -> Dictionary:
+	var ids: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		ids[int(enemy.get("id", -1))] = true
+	return ids
 
 static func result_fields(cursor: Dictionary) -> Dictionary:
-	return {"unseen_ground_crossed": bool(cursor.get("unseen_ground_crossed", false)), "new_arrival_before_player": bool(cursor.get("new_arrival_before_player", false))}
+	return {
+		"unseen_ground_crossed": bool(cursor.get("unseen_ground_crossed", false)),
+		"new_arrival_before_player": bool(cursor.get("new_arrival_before_player", false)),
+	}

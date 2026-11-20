@@ -52,7 +52,7 @@ func _run() -> void:
 	(_expectations["triggers"] as Dictionary).erase("mirror")
 	(_expectations["encounters"]["hollow_mimic"]["unlocks"] as Array).erase("mirror")
 	var entry_map: Dictionary = Grimoire.entry_map()
-	_expect(Glossary.all_entries().size() == 140, "Final glossary contains all 140 live entries")
+	_expect(Glossary.all_entries().size() == 139, "Final glossary contains all 139 live entries")
 	_expect(Glossary.definition("marked") == "These tiles take the hit on this enemy's next turn.", "Marked retains its approved definition")
 	var deferred_copy: String = "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
 	_expect(Glossary.definition("skill_deferred_choice") == deferred_copy and Skills.description("deferred_choice") == deferred_copy, "Deferred Choice uses its exact shared non-boss reward rule")
@@ -78,7 +78,10 @@ func _run() -> void:
 			else:
 				_expect(Glossary.lookup(id).is_empty(), "Retired keyword has no glossary alias: " + id)
 			continue
-		_expect(Glossary.definition(id) == superseding.get(id, change["tooltip"]), "Protected short copy: " + id)
+		if id == "worldspines":
+			_expect(Glossary.lookup(id).is_empty(), "The retired glossary term is absent")
+		else:
+			_expect(Glossary.definition(id) == superseding.get(id, change["tooltip"]), "Protected short copy: " + id)
 		var owner: String = str((_expectations["owners"] as Dictionary).get(id, ""))
 		var entry: Dictionary = entry_map.get(owner, {})
 		_expect(not entry.is_empty(), "Expected owning topic exists: " + id + " -> " + owner)
@@ -92,6 +95,8 @@ func _run() -> void:
 					"After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land."
 				)
 			_expect(entry.get("body", []) == expected_body, "Grimoire retains the approved full rules: " + id)
+		elif id == "outcrop":
+			_expect(owner == "combat:outcrops" and str(entry["body"][0]).contains("An Outcrop blocks movement and line of sight"), "One Outcrops article owns the full rule")
 		elif id == "traps":
 			_expect(entry.get("body", []) == TRP01_TRAP_BODY, "trp-01 director rules own the trap topic: " + id + " -> " + owner)
 		else:
@@ -106,7 +111,9 @@ func _run() -> void:
 	quit(0 if _failures.is_empty() else 1)
 
 func _test_new_entry_schema(changes: Dictionary, entry_map: Dictionary) -> void:
+	_expect(not entry_map.has("keyword:outcrop") and not Glossary.lookup("outcrop").is_empty(), "The Outcrop glossary term remains and only the combat article is listed")
 	for term: String in _expectations["new_terms"]:
+		if term == "outcrop": continue
 		if term in RETIRED_TERMS: continue
 		var entry: Dictionary = entry_map.get("keyword:" + term, {})
 		var glossary: Dictionary = Glossary.lookup(term)
@@ -136,7 +143,7 @@ func _test_discovery() -> void:
 	_expect(triggers.size() == 28, "Each discovered term has a hand-written trigger fixture")
 	for term: String in _expectations["new_terms"]:
 		if term in RETIRED_TERMS: continue
-		var id: String = "keyword:" + term
+		var id: String = _entry_id(term)
 		var entry: Dictionary = entry_map[id]
 		_expect(not entry.has("TODO_DESIGN_GRIMOIRE_DISCOVERY"), "Discovery policy is resolved: " + term)
 		var is_default: bool = _is_default(term)
@@ -164,7 +171,7 @@ func _test_encounter(name: String, encounter: Dictionary) -> void:
 	sync.sync(scene)
 	var expected: Array[String]
 	for term: String in encounter["unlocks"]:
-		if term not in RETIRED_TERMS: expected.append("keyword:" + term)
+		if term not in RETIRED_TERMS: expected.append(_entry_id(term))
 	expected.sort()
 	var actual: Array[String] = _new_discovered_ids(scene._run_state[Grimoire.UNLOCKED_KEY])
 	_expect(actual == expected, "Exact new keyword unlocks for %s: expected=%s actual=%s" % [name, expected, actual])
@@ -174,6 +181,9 @@ func _test_encounter(name: String, encounter: Dictionary) -> void:
 	_expect(scene.unlock_calls == calls, "Unchanged encounter does not repeat discovery: " + name)
 	scene.free()
 
+func _entry_id(term: String) -> String:
+	return "combat:outcrops" if term == "outcrop" else "keyword:" + term
+
 func _is_default(term: String) -> bool:
 	return (_expectations["general_defaults"] as Array).has(term) or (_expectations["fallback_defaults"] as Array).has(term)
 
@@ -181,7 +191,7 @@ func _new_discovered_ids(ids: Array) -> Array[String]:
 	var result: Array[String]
 	for term: String in _expectations["new_terms"]:
 		if term in RETIRED_TERMS: continue
-		if not _is_default(term) and ids.has("keyword:" + term): result.append("keyword:" + term)
+		if not _is_default(term) and ids.has(_entry_id(term)): result.append(_entry_id(term))
 	result.sort()
 	return result
 

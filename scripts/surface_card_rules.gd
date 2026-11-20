@@ -520,11 +520,13 @@ static func place_meteor_marks(engine: RefCounted, state: Dictionary, action: Di
 ## Player turn start, after start-of-turn ground and before the draw: each mark
 ## deals its damage to every occupant of its tiles (enemies, the player,
 ## illusions, terrain), then each tile gains its surface; the marks clear.
-static func resolve_meteor_marks(engine: RefCounted, state: Dictionary) -> Dictionary:
+static func resolve_meteor_marks(engine: RefCounted, state: Dictionary, presentation_steps: Variant = null) -> Dictionary:
 	var marks: Array = meteor_marks(state).duplicate(true)
 	state.erase(METEOR_STATE_KEY)
 	if marks.is_empty():
 		return state
+	var first_step: int = presentation_steps.size() if presentation_steps != null else 0
+	var bursts_before: int = (state.get("death_burst_events", []) as Array).size()
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
@@ -567,61 +569,54 @@ static func resolve_meteor_marks(engine: RefCounted, state: Dictionary) -> Dicti
 		state = engine._damage_terrain_indices(state, engine._terrain_indices_in_tiles(state, tiles), damage)
 		var losses: Array[Dictionary] = engine._enemy_target_losses(before, state)
 		losses.append_array(engine._actor_target_losses(before, state))
-		Surfaces.record_event(state, {"kind": METEOR_IMPACT_EVENT, "tiles": tiles, "damage": damage, "element": element, "surface": str(mark.get("surface", "")), "victims": victim_keys, "losses": losses, "source": context.duplicate(true)})
+		var impact: Dictionary = {"kind": METEOR_IMPACT_EVENT, "tiles": tiles, "damage": damage, "element": element, "surface": str(mark.get("surface", "")), "victims": victim_keys, "losses": losses, "source": context.duplicate(true)}
+		Surfaces.record_event(state, impact)
+		var impact_receipt: Dictionary = state["surface_events"].back()
 		var surface: String = str(mark.get("surface", ""))
 		if not surface.is_empty():
 			var source: Dictionary = (mark.get("source", context) as Dictionary).duplicate(true)
 			for tile: Vector2i in tiles:
 				Surfaces.place(state, tile, surface, source)
+		if presentation_steps != null:
+			presentation_steps.append(_meteor_step(state, impact_receipt, tiles, losses))
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = engine._flush_surface_deaths(state)
 	state["damage_context"] = previous_context
+	if presentation_steps != null and presentation_steps.size() > first_step and (state.get("death_burst_events", []) as Array).size() > bursts_before:
+		presentation_steps.back()["meteor_batch_after"] = state.duplicate(true)
 	return state
 
-## Presentation for the player-turn-start impacts: one status_damage step per
-## resolved mark, carrying losses for floating text (like a Retaliate step).
-static func turn_start_presentation_steps(engine: RefCounted, before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var steps: Array[Dictionary]
-	if meteor_marks(before_state).is_empty():
-		return steps
-	var after_sequence_floor: int = int(before_state.get("surface_event_sequence", 0))
-	for event_var: Variant in after_state.get("surface_events", []):
-		if typeof(event_var) != TYPE_DICTIONARY:
-			continue
-		var event: Dictionary = event_var as Dictionary
-		if int(event.get("sequence", 0)) <= after_sequence_floor or str(event.get("kind", "")) != METEOR_IMPACT_EVENT:
-			continue
-		var tiles: Array[Vector2i] = engine._vector2i_values(event.get("tiles", []))
-		var losses: Array = (event.get("losses", []) as Array).duplicate(true)
-		var impact_keys: Array[String]
-		for loss_var: Variant in losses:
-			if typeof(loss_var) == TYPE_DICTIONARY:
-				impact_keys.append(str((loss_var as Dictionary).get("key", "")))
-		var meteor_surfaces: Dictionary = {}
-		for tile: Vector2i in tiles:
-			meteor_surfaces[Surfaces.tile_key(tile)] = Surfaces.surface_at(after_state, tile).duplicate(true)
-		steps.append({
-			"kind": "status_damage",
-			"label": "Impact",
-			"text": "Meteorfall",
-			"trigger": "meteor_marks",
-			"action_type": "meteor_marks",
-			"actor_key": "player",
-			"actor_name": "Meteorfall",
-			"tile": tiles[0] if not tiles.is_empty() else INVALID,
-			"focus_tiles": tiles,
-			"focus_actor_keys": impact_keys,
-			"element": str(event.get("element", "fire")),
-			"amount": int(event.get("damage", 0)),
-			"enemy_losses": losses,
-			"impact_actor_keys": impact_keys,
-			"enemies_after": (after_state.get("enemies", []) as Array).duplicate(true),
-			"player_after": (after_state.get("player", {}) as Dictionary).duplicate(true),
-			"meteor_surfaces": meteor_surfaces,
-			"meteor_impact": event.duplicate(true)
-		})
-	return steps
+## Capture the state at each landing, before the next mark or turn-start Rite.
+static func _meteor_step(state: Dictionary, event: Dictionary, tiles: Array[Vector2i], losses: Array[Dictionary]) -> Dictionary:
+	var impact_keys: Array[String]
+	for loss: Dictionary in losses:
+		impact_keys.append(str(loss.get("key", "")))
+	var meteor_surfaces: Dictionary = {}
+	for tile: Vector2i in tiles:
+		meteor_surfaces[Surfaces.tile_key(tile)] = Surfaces.surface_at(state, tile).duplicate(true)
+	return {
+		"kind": "status_damage",
+		"label": "Impact",
+		"text": "Meteorfall",
+		"trigger": "meteor_marks",
+		"action_type": "meteor_marks",
+		"actor_key": "player",
+		"actor_name": "Meteorfall",
+		"tile": tiles[0] if not tiles.is_empty() else INVALID,
+		"focus_tiles": tiles,
+		"focus_actor_keys": impact_keys,
+		"element": str(event.get("element", "fire")),
+		"amount": int(event.get("damage", 0)),
+		"enemy_losses": losses,
+		"impact_actor_keys": impact_keys,
+		"enemies_after": (state.get("enemies", []) as Array).duplicate(true),
+		"player_after": (state.get("player", {}) as Dictionary).duplicate(true),
+		"terrain_after": (state.get("terrain", []) as Array).duplicate(true),
+		"umbra_after": (state.get("umbra", {}) as Dictionary).duplicate(true),
+		"meteor_surfaces": meteor_surfaces,
+		"meteor_impact": event.duplicate(true)
+	}
 
 # --------------------------------------------------------- consume_surface
 

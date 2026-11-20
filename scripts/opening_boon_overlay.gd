@@ -90,6 +90,7 @@ func show_offers() -> void:
 	row.position = OFFER_ORIGIN
 	row.size = Vector2(OfferCard.CARD_SIZE.x * 3.0 + OFFER_GAP * 2.0, OfferCard.CARD_SIZE.y)
 	var offers: Array = _state[Rules.STATE_KEY]["offers"]
+	var row_height: float = OfferCard.CARD_SIZE.y
 	for index: int in range(offers.size()):
 		var offer: Dictionary = offers[index]
 		var slot := Control.new()
@@ -101,19 +102,25 @@ func show_offers() -> void:
 		var card := OfferCard.new()
 		slot.add_child(card)
 		card.configure(_host, offer)
+		row_height = maxf(row_height, card.size.y)
 		card.activated.connect(select_offer.bind(offer))
 		card.preview_requested.connect(_preview)
 		card.preview_hidden.connect(_hide_preview)
 		_controls.append(card)
-	_action(str(Rules.definitions()["dialogue"]["decline"]), "DeclineOpeningBoon", func() -> void: chosen.emit("", []))
+	row.size.y = row_height
+	for card: Control in _controls:
+		card.get_parent().size.y = row_height
+		card.set_offer_height(row_height)
+	var action_top: float = ACTION_TOP + row_height - OfferCard.CARD_SIZE.y
+	_action(str(Rules.definitions()["dialogue"]["decline"]), "DeclineOpeningBoon", func() -> void: chosen.emit("", []), action_top)
 	_contain_focus()
 
-func _action(text: String, node_name: String, action: Callable) -> void:
+func _action(text: String, node_name: String, action: Callable, top: float = ACTION_TOP) -> void:
 	# Exact same pill factory as SKIP & RECOVER, without its health icon.
 	var button: Button = _host.call("_reward_secondary_button", node_name, text, action, "")
 	_content.add_child(button)
 	button.size = button.get_combined_minimum_size()
-	button.position = Vector2((1920.0 - button.size.x) * 0.5, ACTION_TOP)
+	button.position = Vector2((1920.0 - button.size.x) * 0.5, top)
 	_controls.append(button)
 
 func select_offer(offer: Dictionary) -> void:
@@ -130,11 +137,11 @@ func select_offer(offer: Dictionary) -> void:
 	rules.name = "BoonSecondaryRules"
 	rules.bbcode_enabled = true
 	rules.scroll_active = false
+	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rules.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Typography.apply_rich_text_role(rules, Typography.ROLE_BODY)
 	_content.add_child(rules)
-	rules.position = Vector2(24.0, SECONDARY_RULES_TOP)
-	rules.size = Vector2(1872.0, Typography.SIZE_BODY * 2.0)
+	rules.position.y = SECONDARY_RULES_TOP
 	Inline.apply_to(rules, "[center]" + Rules.text(offer) + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
 	var spells: Array = Rules.starter_spells(_state) if id == "purge" else offer["spells"]
 	var card_size: Vector2 = _host.call("_reward_choice_card_size", spells.size(), true)
@@ -147,14 +154,33 @@ func select_offer(offer: Dictionary) -> void:
 	_secondary_tooltips = SecondaryTooltips.new()
 	_content.add_child(_secondary_tooltips)
 	_secondary_tooltips.name = "BoonSecondaryTooltipStack"
-	_secondary_tooltips.minimum_top = rules.get_global_rect().end.y + SecondaryLayout.RULES_TO_TOOLTIP
 	_inspection.configure(_secondary_tooltips)
 	for index: int in range(spells.size()):
 		_spell_choice(row, str(spells[index]), index, card_size, gap)
-	var constants: Dictionary = _host.get_script().get_script_constant_map()
-	SecondaryLayout.arrange(row, _controls, card_size, gap, rules, ACTION_TOP, float(constants["REWARD_CARD_HOVER_LIFT"]), float(constants["REWARD_CARD_HOVER_SCALE"]))
+	var layout: Callable = _layout_secondary.bind(row, rules, card_size, gap)
+	layout.call()
+	_content.resized.connect(layout)
+	row.tree_exiting.connect(func() -> void: _content.resized.disconnect(layout))
 	_action(str(Rules.definitions()["dialogue"]["back"]), "BackFromBoonSpellChoice", show_offers)
 	_contain_focus()
+
+func _layout_secondary(row: Control, rules: RichTextLabel, card_size: Vector2, gap: float) -> void:
+	var safe: Rect2 = get_viewport_rect().grow(-Typography.SAFE_MARGIN)
+	var width: float = minf(REWARD_REFERENCE_BANNER_RECT.size.x, safe.size.x)
+	# Keep the current ink aligned to the banner whenever its centre fits.
+	var left: float = clampf(REWARD_REFERENCE_BANNER_RECT.get_center().x - width * 0.5,
+		safe.position.x, safe.end.x - width)
+	rules.position.x = left
+	rules.size.x = width
+	rules.size.y = maxf(Typography.SIZE_BODY * 2.0, rules.get_content_height())
+	_secondary_tooltips.minimum_top = rules.get_global_rect().end.y + SecondaryLayout.RULES_TO_TOOLTIP
+	var constants: Dictionary = _host.get_script().get_script_constant_map()
+	# The action list also contains Back after initial layout. Its geometry is
+	# independent of the spell row.
+	var cards: Array[Control]
+	cards.assign(_controls.slice(0, row.get_child_count()))
+	SecondaryLayout.arrange(row, cards, card_size, gap, rules, ACTION_TOP,
+		float(constants["REWARD_CARD_HOVER_LIFT"]), float(constants["REWARD_CARD_HOVER_SCALE"]))
 
 func _banner(text: String) -> void:
 	var banner: Control = _host.get("_relic_choice_banner").duplicate()

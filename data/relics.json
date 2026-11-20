@@ -2538,7 +2538,6 @@
         "damage": 2,
         "terrain_kinds": [
           "crag_outcrop",
-          "worldspine",
           "powder_keg"
         ]
       }

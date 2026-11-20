@@ -47,8 +47,8 @@ static func _release_cues(h: SceneTree) -> void:
 	var action: Dictionary = Data.card_def("meteorfall")["actions"][0].duplicate(true)
 	action["_card_id"] = "meteorfall"
 	before = engine.apply_player_action(h._state(), action, h._state()["enemies"][0]["pos"])
-	var after: Dictionary = SurfaceCards.resolve_meteor_marks(engine, before.duplicate(true))
-	var steps: Array[Dictionary] = SurfaceCards.turn_start_presentation_steps(engine, before, after)
+	var steps: Array[Dictionary]
+	SurfaceCards.resolve_meteor_marks(engine, before.duplicate(true), steps)
 	if steps.is_empty(): h.failures.append("Meteorfall sync fixture must land an approved mark")
 	h.router.baseline(before)
 	h._invoke("_animate_enemy_phase_steps", [before, steps])

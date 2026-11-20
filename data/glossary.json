@@ -732,13 +732,6 @@
     "aliases": []
   },
   {
-    "id": "worldspines",
-    "name": "Worldspines",
-    "icon": "worldspines",
-    "definition": "Stone spires that block movement but not sight.",
-    "aliases": []
-  },
-  {
     "id": "element_fire",
     "name": "Fire",
     "icon": "element_fire",

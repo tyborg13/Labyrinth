@@ -1,6 +1,6 @@
 # Campfire choice artwork, version two
 
-Three new full-bleed paintings replace the old campfire backing art without altering the choices, geometry or rules. Generated with the built-in image_gen tool on 2026-09-22; no fallback CLI/API path or model override was used. Final images are copied unchanged from the generated originals (1254×1254 opaque RGB PNG). Production loads the versioned assets below; originals are retained.
+Three new full-bleed paintings replace the old campfire backing art without altering the choices, geometry or rules. Generated with the built-in image_gen tool on 2026-09-22; no fallback CLI/API path or model override was used. Production loads the 640×640 versions at the paths below. The 1254×1254 opaque RGB masters and the current production hashes are recorded in [perf-153 texture provenance](../assets/_masters/perf-153/provenance.md).
 
 References: current production `assets/units/protagonist_cutout/front/front_assembled_rest_v9.png` for character identity. Linger also used the native campfire screenshot from `output/premium-visual-polish-pass-2-2026-09-22/after/choices/05_campfire_idle.png` for room lighting/style. Embrace and Strength used the generated Linger illustration as their second style reference. The illustrations do not change the character rig or animation.
 
@@ -12,7 +12,7 @@ Final asset: `assets/art/ui/campfire_choice_linger_v2.png`
 
 Generated original: `exec-1617e901-117c-4ce2-b90a-9964b492a904.png` in the thread’s generated_images directory.
 
-SHA256: `eea8e41083d5943a6829012d773ce88abca31343c8f9dbd87ec8df8abb16d86c`
+Master SHA-256: `eea8e41083d5943a6829012d773ce88abca31343c8f9dbd87ec8df8abb16d86c`
 
 Final generation prompt:
 
@@ -26,7 +26,7 @@ Final asset: `assets/art/ui/campfire_choice_embrace_v2.png`
 
 Generated original: `exec-4c2ab20c-16b9-4376-964a-b56a36479508.png` in the thread’s generated_images directory.
 
-SHA256: `7f602d0b2475466b63cd73a80b88fd2928875b3fa2bda44cf5eae5fac57ec211`
+Master SHA-256: `7f602d0b2475466b63cd73a80b88fd2928875b3fa2bda44cf5eae5fac57ec211`
 
 Final generation prompt:
 
@@ -40,7 +40,7 @@ Final asset: `assets/art/ui/campfire_choice_strength_v2.png`
 
 Generated original: `exec-883c4972-a312-439e-ad02-ee4a33e3bdb9.png` in the thread’s generated_images directory.
 
-SHA256: `57d2682ed0930e8168339af4f28c9159444423ca2a375f34c8b9e686b172cd24`
+Master SHA-256: `57d2682ed0930e8168339af4f28c9159444423ca2a375f34c8b9e686b172cd24`
 
 Final generation prompt:
 
@@ -50,11 +50,11 @@ Use case: stylized-concept. Create one new square full-bleed production campfire
 
 ## Purge
 
-Added 2026-11-01 (polish item pol-01), when the Purge choice was the only one with no painting. Generated through the image job `pol01-purge` with the built-in image generation tool, take B of three, copied unchanged (1254×1254 opaque RGB PNG). References: the three approved paintings above and the current protagonist front rest pose. He stands bent forward, unlike the seated and kneeling poses of the others; the small cold wisp is the spell leaving the page.
+Added 2026-11-01 (polish item pol-01), when the Purge choice was the only one with no painting. Generated through the image job `pol01-purge` with the built-in image generation tool, take B of three, archived unchanged as the 1254×1254 opaque RGB master. References: the three approved paintings above and the current protagonist front rest pose. He stands bent forward, unlike the seated and kneeling poses of the others; the small cold wisp is the spell leaving the page.
 
 Final asset: `assets/art/ui/campfire_choice_purge_v2.png`
 
-SHA256: `67b26215fe7f0e82998a48dff6374c2b231f4b06cda8053d1e9812fc10960896`
+Master SHA-256: `67b26215fe7f0e82998a48dff6374c2b231f4b06cda8053d1e9812fc10960896`
 
 Final generation prompt:
 

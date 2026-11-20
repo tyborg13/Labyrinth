@@ -6,6 +6,10 @@ const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
+const Guardians = preload("res://scripts/guardian_library.gd")
+const LiveActor = preload("res://scripts/live_actor_presentation.gd")
+const MaquettePreparation = preload("res://scripts/maquette_cutout_runtime/preparation.gd")
+const Retention = preload("res://scripts/maquette_cutout_runtime/retention.gd")
 
 # Travel already owns the action's committed destination. Preparation never
 # changes authored travel timing. The room commit waits for unfinished rig
@@ -16,28 +20,77 @@ static func active(scene: Variant, generation: int) -> bool:
 static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	var _hitch_continuation: RefCounted
 	if not active(scene, generation): return
-	preload("res://scripts/room_asset_preparation.gd").begin_for.call_deferred(scene, state, generation)
+	await preload("res://scripts/room_asset_preparation.gd").begin_for(scene, state, generation)
+	if not active(scene, generation): return
 	var combat_state: Dictionary = state.get("combat_state", {})
-	if str(state.get("mode", "")) == "pre_battle":
+	var preview: Dictionary
+	var pre_battle: bool = str(state.get("mode", "")) == "pre_battle"
+	var alive: Callable = active.bind(scene, generation)
+	var present: Callable = present_frame.bind(scene.get_tree())
+	var room_budget: Assets.RoomPreparationBudget
+	if pre_battle and str(scene._run_state.get("mode", "")) == "room":
+		room_budget = Assets.begin_room_preparation(alive)
+	if pre_battle:
 		# RunEngine and its shared definitions remain main-thread-owned.
 		if _hitch_trace_enabled: _hitch_continuation = null
-		var factory: Dictionary = await prepare_combat_factory_for(scene, state, generation)
+		var factory: Dictionary = await prepare_combat_factory_for(scene, state, present, alive)
 		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:1")
 		if not active(scene, generation): return
 		if factory.is_empty():
-			preload("res://scripts/maquette_cutout_runtime/retention.gd").for_scene(scene).complete = true
+			Retention.for_scene(scene).complete = true
 			return
 		scene._prepared_pre_battle_factory = factory
-		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(state, scene._prepared_pre_battle_factory)
+		var started: int = Time.get_ticks_usec()
+		var span: RefCounted = _trace_step("factory:preview")
+		preview = scene._run_engine.pre_battle_preview_state(state, factory)
 		combat_state = preview.get("combat_state", {})
+		span = null
+		Assets.count_preparation_work(started)
 	if _hitch_trace_enabled: _hitch_continuation = null
-	await preload("res://scripts/maquette_cutout_runtime/preparation.gd").prepare_encounter_for(scene, combat_state, generation)
+	await Assets.wait_for_preparation_slice(present, alive)
+	if not bool(alive.call()): return
+	await MaquettePreparation.prepare_encounter_for(scene, combat_state, generation)
+	await Assets.wait_for_preparation_slice(present, alive)
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:2")
 	if not active(scene, generation): return
+	var state_textures: Dictionary = state_texture_manifest(scene, state, combat_state)
+	if pre_battle: state_textures.merge(preload("res://scripts/pre_battle_view.gd").texture_manifest(combat_state))
+	_hitch_continuation = null
+	await prepare_rig_textures_for(scene, combat_state, state_textures, present, alive)
+	if not active(scene, generation): return
+	var window: Node = Retention.for_scene(scene)
+	if not pre_battle:
+		window.complete = true
+		if combat_state.is_empty():
+			await prepare_hidden_shop_for(scene, state, present, alive)
+		return
+	# A slow entry completes the hidden preview before optional work.
+	window.defer_opening_until_draw = room_budget != null and room_budget.saw_slow_frame
+	if not window.defer_opening_until_draw: scene._schedule_opening_hand_pool_preparation(combat_state)
+	await prepare_hidden_pre_battle_for(scene, state, preview, generation, present, alive)
+	if not active(scene, generation): return
+	window.defer_opening_until_draw = room_budget != null and room_budget.saw_slow_frame
+	room_budget = null
+	window.complete = true
+	if not opening_active(scene, generation): return
+	if window.defer_opening_until_draw:
+		await wait_for_room_preview_draw(scene, present, opening_active.bind(scene, generation))
+		if not opening_active(scene, generation): return
+	var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
+	var jobs: Array[Dictionary] = scene._combat_objective_hud.opening_glyph_preparation_jobs(opening_objective_hud_state(scene, combat_state))
+	var record_slice: Callable = scene._record_runtime_performance_phase if scene._runtime_performance_instrumentation_enabled else Callable()
+	await Glyphs.prepare_jobs_for(scene, jobs, present, opening_active.bind(scene, generation), record_slice, started)
+	if opening_active(scene, generation): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
+
+static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, state_textures: Dictionary, frame: Callable, alive: Callable) -> void:
+	var _hitch_continuation: RefCounted
+	var root: Node = scene.get_tree().root
+	var manifest_started: int = Time.get_ticks_usec()
+	var manifest_span: RefCounted = _trace_step("rig_manifest")
 	var manifest: Dictionary = scene.board_view.unit_rig_preparation_manifest(combat_state)
 	var sources: PackedStringArray = manifest["sources"]
 	var textures: Dictionary = manifest["textures"]
-	textures.merge(state_texture_manifest(scene, state, combat_state))
+	textures.merge(state_textures)
 	# Session-owned maquette inputs are already published to the ordinary loader.
 	# Re-parsing them here would discard a second large JSON tree on the main
 	# thread even though the renderer correctly borrowed the first one.
@@ -46,69 +99,82 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 		var cached: RefCounted = preload("res://scripts/maquette_cutout_runtime/construction.gd").cached(path)
 		if cached == null: pending_sources.append(path)
 		else: textures.merge(RigData.source_texture_manifest(cached.data, path))
+	manifest_span = null
+	Assets.count_preparation_work(manifest_started)
 	var result: Variant = []
 	if not pending_sources.is_empty():
 		if _hitch_trace_enabled: _hitch_continuation = null
-		result = await Assets.prepare_cpu_value_for(scene.get_tree().root, _prepare_sources.bind(pending_sources), present_frame.bind(scene.get_tree()), active.bind(scene, generation))
+		result = await Assets.prepare_cpu_value_for(root, _prepare_sources.bind(pending_sources), frame, alive)
 		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:3")
-	if not active(scene, generation) or not result is Array: return
+	if not is_instance_valid(scene) or not bool(alive.call()) or not result is Array: return
 	for entry: Dictionary in result:
+		if _hitch_trace_enabled: _hitch_continuation = null
+		await Assets.wait_for_preparation_slice(frame, alive)
+		if not bool(alive.call()): return
 		var path: String = entry["path"]
+		var started: int = Time.get_ticks_usec()
+		var span: RefCounted = _trace_step("publish_rig:" + path) if _hitch_trace_enabled else null
 		var published: RefCounted = RigData.publish_owned_source(path, entry["data"])
 		if published != null:
 			scene._encounter_cpu_asset_holds.append(published)
 			textures.merge(RigData.source_texture_manifest(published, path))
+		span = null
+		Assets.count_preparation_work(started)
 	if _hitch_trace_enabled: _hitch_continuation = null
-	await Assets.prepare_textures_for(scene.get_tree().root, textures, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
+	await Assets.prepare_textures_for(root, textures, frame, alive)
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:4")
-	if not active(scene, generation): return
-	if pending_sources.is_empty():
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await prepare_hidden_shop_for(scene, state, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:5")
-		if not active(scene, generation): return
-	if str(state.get("mode", "")) == "pre_battle":
-		scene._schedule_opening_hand_pool_preparation(combat_state)
-		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(state, scene._prepared_pre_battle_factory)
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await prepare_hidden_pre_battle_for(scene, state, preview, generation, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:6")
-		if opening_active(scene, generation):
-			var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-			if _hitch_trace_enabled: _hitch_continuation = null
-			var jobs: Array[Dictionary] = scene._combat_objective_hud.opening_glyph_preparation_jobs(opening_objective_hud_state(scene, combat_state))
-			var record_slice: Callable = scene._record_runtime_performance_phase if scene._runtime_performance_instrumentation_enabled else Callable()
-			await Glyphs.prepare_jobs_for(scene, jobs, present_frame.bind(scene.get_tree()), opening_active.bind(scene, generation), record_slice, started)
-			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:7")
-			if opening_active(scene, generation): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
 
 # Keep this factory local across yields. Only the completed owned result can
 # reach the existing full-input preview guard; a canceled or invalid catalog
 # drops the cursor without publishing its partial RNG/combat state.
 
-static func prepare_combat_factory_for(scene: Node, state: Dictionary, generation: int) -> Dictionary:
-	var _hitch_continuation: RefCounted
-	if not active(scene, generation): return {}
-	var tree: SceneTree = scene.get_tree()
-	var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-	var factory: Dictionary = scene._run_engine.begin_pre_battle_combat_preparation(state)
+static func prepare_combat_factory_for(scene: Node, state: Dictionary, present: Callable, alive: Callable) -> Dictionary:
+	await Assets.wait_for_preparation_slice(present, alive)
+	if not bool(alive.call()): return {}
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = _trace_step("factory:begin")
+	var factory: Dictionary = scene._run_engine.begin_pre_battle_combat_preparation(state, true)
 	scene._record_runtime_performance_phase("travel_combat_factory_preparation", started)
+	span = null
+	Assets.count_preparation_work(started)
 	if factory.is_empty(): return {}
-	if _hitch_trace_enabled: _hitch_continuation = null
-	await present_frame(tree)
-	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_combat_factory_for:1")
-	while active(scene, generation):
-		started = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-		var complete: bool = scene._run_engine.advance_pre_battle_combat_preparation(factory)
+	while bool(alive.call()):
+		await Assets.wait_for_preparation_slice(present, alive)
+		if not bool(alive.call()): return {}
+		started = Time.get_ticks_usec()
+		span = _trace_step(_factory_step(factory)) if _hitch_trace_enabled else null
+		var complete: bool = scene._run_engine.advance_pre_battle_combat_preparation(factory, true)
 		scene._record_runtime_performance_phase("travel_combat_factory_preparation", started)
-		if complete: return factory
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await present_frame(tree)
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_combat_factory_for:2")
+		span = null
+		Assets.count_preparation_work(started)
+		if complete:
+			await Assets.wait_for_preparation_slice(present, alive)
+			return factory if bool(alive.call()) else {}
 	return {}
+
+static func _factory_step(factory: Dictionary) -> String:
+	if factory.has("pending_room"): return "factory:layout"
+	if not factory.has("combat_creation"): return "factory:normalize_combat"
+	var cursor: Dictionary = factory["combat_creation"]
+	var index: int = cursor["enemy_index"]
+	if index < int(cursor["enemy_count"]):
+		var roll: Variant = cursor.get("intent_roll")
+		if roll == null: return "factory:enemy_%d:begin_intent" % index
+		if not roll.profile.is_empty() and roll.next_option < roll.intents.size():
+			return "factory:enemy_%d:evaluate_intent_%d" % [index, roll.next_option]
+		return "factory:enemy_%d:commit_intent" % index
+	if not cursor.has("initiative_ready"): return "factory:initiative"
+	if not cursor.has("opening_draw_ready"): return "factory:opening_draw"
+	return "factory:tutorial" if cursor["complete"] else "factory:opening_relics"
 
 static func opening_active(scene: Variant, generation: int) -> bool:
 	return active(scene, generation) and str(scene._run_state.get("mode", "")) != "combat"
+
+static func wait_for_room_preview_draw(scene: Node, present: Callable, alive: Callable) -> void:
+	while bool(alive.call()):
+		if is_instance_valid(scene._pre_battle_scrim) and scene._pre_battle_scrim.is_visible_in_tree(): break
+		await present.call()
+	if bool(alive.call()): await present.call()
 
 # The opening animation displays the committed snapshot under its input lock.
 # Match its Umbra-safe HUD copy while leaving all authoritative data untouched.
@@ -123,32 +189,49 @@ static func hand_active(scene: Variant, generation: int, revision: int) -> bool:
 	return active(scene, generation) and scene._opening_hand_pool_preparation_revision == revision and str(scene._run_state.get("mode", "room")) != "combat"
 
 static func prepare_opening_hand_for(scene: Node, combat_state: Dictionary, generation: int, revision: int) -> void:
-	var _hitch_continuation: RefCounted
 	if not hand_active(scene, generation, revision): return
-	var tree: SceneTree = scene.get_tree()
+	var present: Callable = present_frame.bind(scene.get_tree())
+	var alive: Callable = hand_active.bind(scene, generation, revision)
+	var window: Node = scene.get_node_or_null("MaquetteRoomPreparation")
+	if window != null and window.generation == generation and window.defer_opening_until_draw:
+		await wait_for_room_preview_draw(scene, present, alive)
+	await Assets.wait_for_preparation_slice(present, alive)
+	if not bool(alive.call()): return
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = _trace_step("opening_hand:begin_renderers")
 	var renderer_jobs: Array[Dictionary] = scene.board_view.begin_unit_renderer_preparation(combat_state)
+	span = null
+	Assets.count_preparation_work(started)
+	await Assets.wait_for_preparation_slice(present, alive)
+	if not bool(alive.call()): return
+	started = Time.get_ticks_usec()
+	span = _trace_step("opening_hand:begin_pool")
 	var hand: Array = (combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	preload("res://scripts/run_card_pool_lifetime.gd").prepare_hand(scene, hand)
 	var card_size: Vector2 = scene._hand_card_size(hand.size(), false)
+	span = null
+	Assets.count_preparation_work(started)
 	var copies: Dictionary = {}
 	for card_id: String in hand:
-		if not hand_active(scene, generation, revision): return
-		var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
+		await Assets.wait_for_preparation_slice(present, alive)
+		if not bool(alive.call()): return
+		started = Time.get_ticks_usec()
 		var copy_index: int = int(copies.get(card_id, 0))
+		if _hitch_trace_enabled: span = _trace_step("opening_hand:card:%s:%d" % [card_id, copy_index])
 		scene._prepare_opening_hand_pool_entry(card_id, card_size, combat_state, copy_index)
 		copies[card_id] = copy_index + 1
 		scene._record_runtime_performance_phase("opening_hand_pool_preparation", started)
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await present_frame(tree)
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_opening_hand_for:1")
-	for job: Dictionary in renderer_jobs:
-		if not hand_active(scene, generation, revision): return
-		var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
-		scene.board_view.prepare_unit_renderer(job, scene._reduced_motion_enabled())
+		span = null
+		Assets.count_preparation_work(started)
+	for index: int in range(renderer_jobs.size()):
+		await Assets.wait_for_preparation_slice(present, alive)
+		if not bool(alive.call()): return
+		started = Time.get_ticks_usec()
+		if _hitch_trace_enabled: span = _trace_step("opening_hand:renderer:%d" % index)
+		scene.board_view.prepare_unit_renderer(renderer_jobs[index], scene._reduced_motion_enabled())
 		scene._record_runtime_performance_phase("opening_unit_renderer_preparation", started)
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await present_frame(tree)
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_opening_hand_for:2")
+		span = null
+		Assets.count_preparation_work(started)
 
 static func _prepare_sources(paths: PackedStringArray) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -170,7 +253,12 @@ static func state_texture_manifest(scene: Node, state: Dictionary, combat_state:
 	for equipment: String in state.get("equipment_inventory", []):
 		_add_equipment_textures(textures, equipment, state)
 	for enemy: Dictionary in combat_state.get("enemies", []):
-		_add_path(textures, str(GameData.enemy_def(str(enemy.get("type", ""))).get("art_path", "")))
+		var type: String = str(enemy.get("type", ""))
+		_add_path(textures, str(GameData.enemy_def(type).get("art_path", "")))
+		_add_path(textures, scene._combat_portrait_path(type))
+		# Replacement helpers share the encounter's preparation boundary.
+		for helper: String in Guardians.for_guardian(type).get("helpers", []):
+			_add_path(textures, scene._combat_portrait_path(helper))
 	var room: Dictionary = scene._run_engine.room_metadata(state, state.get("current_room", Vector2i.ZERO))
 	if str(room.get("type", "")) == "scavenger":
 		for id: String in scene._run_engine.merchant_offer_ids(state, "scavenger"):
@@ -200,25 +288,37 @@ static func pre_battle_view_active(scene: Variant, generation: int, revision: in
 	return active(scene, generation) and scene._prepared_pre_battle_view_revision == revision and bool(still_active.call()) and is_instance_valid(scene._pre_battle_scrim) and not scene._pre_battle_scrim.visible
 
 static func prepare_hidden_pre_battle_for(scene: Node, state: Dictionary, preview: Dictionary, generation: int, present: Callable, still_active: Callable) -> void:
-	var _hitch_continuation: RefCounted
-	if not active(scene, generation) or not bool(still_active.call()) or not is_instance_valid(scene._pre_battle_scrim) or scene._pre_battle_scrim.visible or (preview.get("combat_state", {}) as Dictionary).is_empty(): return
-	var revision: int = scene._prepared_pre_battle_view_revision
+	if not active(scene, generation) or (preview.get("combat_state", {}) as Dictionary).is_empty(): return
+	var alive: Callable = pre_battle_view_active.bind(scene, generation, scene._prepared_pre_battle_view_revision, still_active)
+	await Assets.wait_for_preparation_slice(present, alive)
+	if not bool(alive.call()): return
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = _trace_step("hidden_view:begin")
 	var jobs: Array[Callable] = scene._begin_hidden_pre_battle_view(state, preview)
-	var slice_started: int = Time.get_ticks_usec()
-	for job: Callable in jobs:
-		if not pre_battle_view_active(scene, generation, revision, still_active): return
+	span = null
+	Assets.count_preparation_work(started)
+	for index: int in range(jobs.size()):
+		await Assets.wait_for_preparation_slice(present, alive)
+		if not bool(alive.call()): return
+		started = Time.get_ticks_usec()
+		var job: Callable = jobs[index]
+		if _hitch_trace_enabled: span = _trace_step("hidden_view:%d:%s" % [index, job.get_method()])
 		job.call()
-		if _hitch_trace_enabled: _hitch_continuation = null
-		await Glyphs.prepare_controls_for(scene, scene._pre_battle_panel, present, pre_battle_view_active.bind(scene, generation, revision, still_active))
-		if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_hidden_pre_battle_for:1")
-		if not pre_battle_view_active(scene, generation, revision, still_active): return
-		if Time.get_ticks_usec() - slice_started >= 4000:
-			if _hitch_trace_enabled: _hitch_continuation = null
-			await present.call()
-			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:prepare_hidden_pre_battle_for:2")
-			if not pre_battle_view_active(scene, generation, revision, still_active): return
-			slice_started = Time.get_ticks_usec()
-	if pre_battle_view_active(scene, generation, revision, still_active): scene._prepared_pre_battle_view_ready = true
+		span = null
+		Assets.count_preparation_work(started)
+	for actor: Node in scene._pre_battle_panel.find_children("PreBattleEnemyLiveActor", "", true, false):
+		var trace_foe: Callable = _trace_foe_step if _hitch_trace_enabled else Callable()
+		await LiveActor.prepare_hidden_for(actor, present, alive, trace_foe)
+		if not bool(alive.call()): return
+	await Glyphs.prepare_hidden_controls_for(scene, scene._pre_battle_panel, present, alive)
+	await Assets.wait_for_preparation_slice(present, alive)
+	if bool(alive.call()): scene._prepared_pre_battle_view_ready = true
+
+static func _trace_step(label: String) -> RefCounted:
+	return _hitch_sink().hitch_phase("preparation:encounter:" + label) if _hitch_trace_enabled else null
+
+static func _trace_foe_step(label: String) -> RefCounted:
+	return _trace_step("hidden_view:foe:" + label)
 
 # Resolve only on the enabled path; no telemetry preload dependency.
 static func _hitch_sink() -> Node:

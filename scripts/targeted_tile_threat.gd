@@ -28,6 +28,9 @@ func present(board: Control, next_tile: Vector2i, shown: bool) -> void:
 	visible = not paint.is_empty()
 	if changed: queue_redraw()
 
+func has_pulsing_fill() -> bool:
+	return bool(_paint.get("hero", false))
+
 func _draw() -> void:
 	if _paint.is_empty(): return
 	var inner: PackedVector2Array = _paint["inner"]

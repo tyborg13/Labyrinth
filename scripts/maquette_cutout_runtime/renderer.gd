@@ -1,5 +1,7 @@
 extends Node
 
+const PrepAssets = preload("res://scripts/asset_loader.gd")
+
 const CommonRig = preload("rig.gd")
 const Motion = preload("motion.gd")
 const Pixels = preload("pixel_presentation.gd")
@@ -28,8 +30,10 @@ var _render_signature: Array = []
 var _fresh_subclass_state: Dictionary = {}
 var _canvas_geometry_cache: Dictionary = {}
 
+var defer_rig_build: bool = false
+
 func _ready() -> void:
-	var construction_started: int = Time.get_ticks_usec()
+	var started: int = Time.get_ticks_usec()
 	_capture_prepared_subclass_state()
 	viewport = SubViewport.new()
 	viewport.name = "MaquetteCanvas"
@@ -37,18 +41,48 @@ func _ready() -> void:
 	viewport.transparent_bg = true
 	viewport.disable_3d = true
 	viewport.world_2d = World2D.new()
-	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED if defer_rig_build else SubViewport.UPDATE_ONCE
 	add_child(viewport)
 	_render_gate = preload("res://scripts/cutout_render_gate.gd").new(viewport)
+	if defer_rig_build: return
 	for view: String in _rig_views():
-		var rig: Node2D = _new_rig()
-		rig.name = view.capitalize()
-		rig.facing = view
-		viewport.add_child(rig)
-		if not rig.load_rig(): push_error("Maquette cutout could not load: " + str(rig.load_errors))
-		rigs[view] = rig
+		var rig: Node2D = _attach_rig(view)
+		_check_rig(rig, rig.load_rig())
+	_finish_construction(started)
+
+static func prepare_rigs_for(renderer: Variant, present: Callable, alive: Callable, trace_step: Callable) -> bool:
+	for view: String in renderer._rig_views():
+		await PrepAssets.wait_for_preparation_slice(present, alive, &"_attach_cutout_rig")
+		if not bool(alive.call()): return false
+		var started: int = Time.get_ticks_usec()
+		var rig: Node2D = renderer._attach_rig(view)
+		PrepAssets.count_preparation_work(started, &"_attach_cutout_rig")
+		var loaded: bool = await rig.get_script().prepare_rig_for(rig, present, alive, trace_step)
+		if not bool(alive.call()): return false
+		renderer._check_rig(rig, loaded)
+	await PrepAssets.wait_for_preparation_slice(present, alive, &"_finish_cutout")
+	if not bool(alive.call()): return false
+	var started: int = Time.get_ticks_usec()
+	var span: RefCounted = trace_step.call("renderer_pose") if trace_step.is_valid() else null
+	renderer._finish_construction(started)
+	span = null
+	PrepAssets.count_preparation_work(started, &"_finish_cutout")
+	return true
+
+func _attach_rig(view: String) -> Node2D:
+	var rig: Node2D = _new_rig()
+	rig.name = view.capitalize()
+	rig.facing = view
+	viewport.add_child(rig)
+	rigs[view] = rig
+	return rig
+
+func _check_rig(rig: Node2D, loaded: bool) -> void:
+	if not loaded: push_error("Maquette cutout could not load: " + str(rig.load_errors))
+
+func _finish_construction(started: int) -> void:
 	_apply_pose()
-	preload("construction.gd").record_build(construction_started)
+	preload("construction.gd").record_build(started)
 
 ## Optional transparent capacity; the logical painted canvas remains 255px.
 func canvas_geometry() -> Dictionary:

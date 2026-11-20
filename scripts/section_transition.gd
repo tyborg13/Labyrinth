@@ -13,6 +13,7 @@ const Music = preload("res://scripts/music_library.gd")
 const RoomReveal = preload("res://scripts/menu_run_transition.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Reward = preload("res://scripts/section_transition_reward.gd")
+const SectionArt = preload("res://scripts/run_section_art.gd")
 
 const MapPanel = preload("res://scripts/section_map_panel.gd")
 
@@ -81,6 +82,7 @@ var _title: Label
 var _text_band: ColorRect
 var _arrival_start: float = -1.0
 var _entered: bool = false
+var _entry_art_pending: bool = false
 var _map_arrival: bool = false
 var _skipped: bool = false
 var _map_scrim: ColorRect
@@ -180,8 +182,8 @@ func begin(host: Control, target: Vector2i, entry_kind: String) -> void:
 	var focus: Control = host.get_viewport().gui_get_focus_owner()
 	if focus != null: focus.release_focus()
 	_build(Graph.section(host.get("_run_state"), Graph.active_section(host.get("_run_state")) + 1))
-	_prepare_destination()
 	active = true
+	_prepare_destination()
 	_apply()
 
 func _prepare_destination() -> void:
@@ -200,6 +202,21 @@ func _prepare_destination() -> void:
 	var track: Dictionary = Music.entry_for_context("room", room, {}, _map_arrival)
 	var path: String = str(track.get("path", ""))
 	if not path.is_empty(): Assets.load_audio_stream(path, bool(track.get("loop", false)))
+	_entry_art_pending = true
+	_prepare_entry_art.call_deferred(self, projected)
+
+static func _prepare_entry_art(overlay: Node, projected: Dictionary) -> void:
+	if not _preparation_active(overlay): return
+	var tree: SceneTree = overlay.get_tree()
+	await SectionArt.prepare_for(tree.root, projected, _present_frame.bind(tree), _preparation_active.bind(overlay))
+	if _preparation_active(overlay): overlay._entry_art_pending = false
+
+static func _preparation_active(overlay: Variant) -> bool:
+	return is_instance_valid(overlay) and overlay.is_inside_tree() and not overlay.is_queued_for_deletion() and overlay.active
+
+static func _present_frame(tree: SceneTree) -> void:
+	if DisplayServer.get_name() == "headless": await tree.process_frame
+	else: await RenderingServer.frame_post_draw
 
 func _build(info: Dictionary) -> void:
 	_surface = Control.new()
@@ -216,7 +233,7 @@ func _build(info: Dictionary) -> void:
 	_fill(_art, _card)
 	_painting = TextureRect.new()
 	_painting.name = "SectionPainting"
-	_painting.texture = Assets.load_texture("res://assets/art/backgrounds/sections/%s.png" % str(info.get("boss_id", "")))
+	_painting.texture = Assets.load_texture(SectionArt.background_path(info))
 	_painting.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_painting.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_fill(_painting, _art)
@@ -283,6 +300,10 @@ func advance(seconds: float) -> void:
 		_arrival_start = arrival_at(reduced_motion)
 	var entry_delay: float = 0.0 if _map_arrival else ARRIVAL_FADE_SECONDS
 	if _arrival_start >= 0.0 and not _entered and elapsed >= _arrival_start + entry_delay:
+		if _entry_art_pending and is_processing():
+			elapsed = _arrival_start + entry_delay
+			_apply()
+			return
 		_enter()
 		if _return_start >= 0.0:
 			_apply_return()

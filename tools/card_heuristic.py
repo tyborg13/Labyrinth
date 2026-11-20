@@ -642,8 +642,6 @@ class HeuristicWeights:
     burst_line_expected_targets: float = 1.50
     powder_keg_detonation_chance: float = 0.45
     powder_keg_expected_targets: float = 1.40
-    worldspine_expected_pulses: float = 2.0
-    worldspine_pulse_targets: float = 1.20
 
 
 @dataclass
@@ -885,7 +883,7 @@ def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> floa
             reward += amount * {"stoneskin": weights.stoneskin_per_point, "block": weights.block_per_point, "draw": weights.draw_per_point, "heal": weights.heal_per_point, "card_play": weights.card_play_per_point}.get(str(item.get("type", "")), 0.0)
         availability = {"turn_start_on_surface": weights.rite_on_surface_availability, "status_applied_reward": weights.rite_freezes_per_activation}.get(kind, 1.0)
         return reward * availability * turns
-    if kind == "turn_start_surface_pulse":
+    if kind in {"turn_start_surface_pulse", "turn_start_outcrop_pulse"}:
         return int(effect.get("damage", 0)) * weights.damage_per_point * weights.rite_pulse_targets_per_activation * turns
     if kind == "card_time_discount":
         return int(effect.get("amount", 0)) * weights.time_delta_value * weights.rite_discounted_cards_per_activation * turns * weights.rite_discount_availability
@@ -1417,9 +1415,6 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 # A bomb anyone can set off: burst on the keg and its neighbors.
                 breakdown.offense += immediate_damage_value(int(action.get("burst_damage", 0)), weights.powder_keg_detonation_chance, weights.powder_keg_expected_targets, weights) * action_scale
                 has_attack = True
-            elif kind == "worldspine":
-                pulse = int(action.get("pulse_damage", 0))
-                breakdown.offense += pulse * weights.damage_per_point * weights.worldspine_pulse_targets * weights.worldspine_expected_pulses * action_scale
             has_defense = True
             continue
 

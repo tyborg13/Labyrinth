@@ -574,7 +574,8 @@ static func _test_meteor_marks_persistence(engine: CombatEngine, expect: Callabl
 	expect.call(SurfaceCardRules.meteor_marks(untouched).size() == 1 and not Surface.has_surface(untouched, Vector2i(5, 4), "fire"), "Nothing happens if combat ends first")
 	# Presentation: the impact animates as a status_damage step at turn start.
 	var before_turn: Dictionary = engine.finish_player_activation(engine.apply_player_action(_state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(9, 8))]), action, Vector2i(5, 4)))
-	var steps: Array[Dictionary] = SurfaceCardRules.turn_start_presentation_steps(engine, before_turn, engine.prepare_next_player_turn(before_turn))
+	var steps: Array[Dictionary]
+	engine.prepare_next_player_turn(before_turn, steps)
 	expect.call(steps.size() == 1 and str(steps[0].get("kind", "")) == "status_damage" and not (steps[0].get("enemy_losses", []) as Array).is_empty(), "The landing presents as a status_damage step carrying losses")
 
 static func _test_surface_follows_facing(engine: CombatEngine, expect: Callable) -> void:

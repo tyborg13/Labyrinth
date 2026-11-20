@@ -14,13 +14,11 @@ func has_facing(which: String) -> bool:
 func _resolve(path: String) -> String:
 	return path if path.begins_with("res://") else EMACIATED_BASE.path_join(path)
 
-func load_rig() -> bool:
-	var loaded: bool = super.load_rig()
-	if loaded and _ember_overlay == null:
+func _after_rig_load() -> void:
+	if _ember_overlay == null:
 		_ember_overlay = EmberOverlay.new()
 		_ember_overlay.setup(self)
 		apply_pose("idle", 0.0)
-	return loaded
 
 func set_glow_enabled(enabled: bool) -> void:
 	if _ember_overlay != null:

@@ -77,8 +77,8 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"summon_minions": "combat:summons",
 	"outcrop": "combat:outcrops",
 	"burst_terrain": "combat:outcrops",
-	"raise_terrain": "combat:worldspines",
-	"terrain_burst": "combat:worldspines",
+	"raise_terrain": "combat:outcrops",
+	"terrain_burst": "combat:outcrops",
 	"cinder_marks": "combat:cinder_marks",
 	"detonate_cinders": "combat:cinder_marks",
 	"gale_force": "combat:hollow_gale",
@@ -554,6 +554,7 @@ static func _entry_id_set(value: Variant) -> Dictionary:
 	for id_var: Variant in value:
 		var entry_id: String = str(id_var)
 		if entry_id in ["keyword:icefall", "keyword:lob", "keyword:burrow", "keyword:erupt"]: entry_id = "keyword:marked"
+		if entry_id == "keyword:outcrop": entry_id = "combat:outcrops"
 		if not entry_id.is_empty():
 			result[entry_id] = true
 	return result
@@ -762,6 +763,8 @@ static func entry_ids_for_enemy_def(enemy: Dictionary) -> Array[String]:
 	return _ordered_entry_ids_from_set(wanted)
 
 static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictionary) -> void:
+	if str(enemy.get("battlefield_instance", "")) == "tharokh":
+		wanted["combat:worldspines"] = true
 	for field: String in ENEMY_TRAIT_ENTRY_IDS:
 		if bool(enemy.get(field, false)):
 			wanted[ENEMY_TRAIT_ENTRY_IDS[field]] = true

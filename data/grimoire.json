@@ -223,11 +223,10 @@
       "icon": "raise_terrain",
       "body": [
         "Outcrop cards raise crag Outcrops on empty floor. An Outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
-        "A tile is legal only when the raise keeps every floor tile connected, so an Outcrop can never seal the hero, an enemy, a pickup or an exit away. A Worldspine cage is the one exception: it may seal the single tile it surrounds.",
-        "Powder kegs and Worldspines are raised the same way. A keg blocks movement but not sight; when anything destroys it, it deals its damage to its tile and each tile next to it, setting off other kegs. Your Worldspines pulse at the start of each of your turns, hitting each enemy next to one of them once.",
+        "An Outcrop raise keeps floor routes connected. A raise around a target may seal the single tile it surrounds.",
+        "A powder keg blocks movement but not sight; when anything destroys it, it deals its damage to its tile and each tile next to it, setting off other kegs.",
         "Rockburst and Worldbreak destroy terrain to blast the enemies next to it, or the line beyond an Outcrop you raised.",
-        "Raises attackable terrain with the shown Health. It blocks movement; some kinds also block sight.",
-        "Worldspines block movement, not sight, and leave Rubble when destroyed."
+        "Raises attackable terrain with the shown Health. It blocks movement; some kinds also block sight."
       ]
     },
     {
@@ -488,7 +487,8 @@
       "body": [
         "Rite: Exhaust. Lasts for the rest of this combat.",
         "Playing a Rite removes the card for this combat and keeps its rule active until the combat ends, like a relic. Rites never carry into the next combat.",
-        "Its effect lasts for the rest of this combat. Exhaust."
+        "Its effect lasts for the rest of this combat. Exhaust.",
+        "Worldspine: at the start of your turn, each enemy next to an Outcrop you raised takes 3."
       ]
     },
     {
@@ -1230,8 +1230,7 @@
       "title": "Terrain Burst",
       "icon": "terrain_burst",
       "body": [
-        "Hits units around terrain pieces for the shown damage. Some uses destroy the terrain too.",
-        "it happens at the start of each of your turns, once per enemy however many spires touch it."
+        "Hits units around terrain pieces for the shown damage. Some uses destroy the terrain too."
       ]
     },
     {
@@ -1375,15 +1374,6 @@
         "A card equipped in one of your 2 item slots. It joins your deck and has Consume."
       ],
       "default": true
-    },
-    {
-      "id": "keyword:outcrop",
-      "section": "keywords",
-      "title": "Outcrop",
-      "icon": null,
-      "body": [
-        "Attackable terrain that blocks movement. Worldspines and Powder Kegs count as Outcrops. Plain ones also block sight and leave Rubble."
-      ]
     },
     {
       "id": "combat:surface_techniques",

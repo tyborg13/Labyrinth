@@ -1,0 +1,12 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 1,
+  "required_images": [
+    {
+      "pattern": "gfix-19-tile-8-4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [1264, 642, 128, 128], "min_luma_range": 20, "min_luma_stdev": 3}]
+    }
+  ]
+}

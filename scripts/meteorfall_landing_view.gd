@@ -17,11 +17,13 @@ static func handles(step: Dictionary) -> bool:
 
 static func animate(scene: Node, animated_state: Dictionary, step: Dictionary) -> void:
 	var before: Dictionary = animated_state.duplicate(true)
+	if step.has("umbra_after"): before["umbra"] = step["umbra_after"]
+	var visible_before: Dictionary = scene._visible_turn_start_defeat_source(before)
 	var effect: Dictionary = {"kind": "aoe", "enemy_type": "vyraketh", "action_type": "cinder_marks", "tiles": step.get("focus_tiles", []), "from": Vector2i(-1, -1)}
 	var reduced: bool = scene._reduced_motion_enabled()
 	var contact_frame: int = 0 if reduced else ceili((Dragon.CONTACT - START_PROGRESS) / FX_FRAME_PROGRESS)
 	var base: Dictionary = scene._enemy_phase_status_presentation(step)
-	var texts: Array = base.get("floating_texts", [])
+	var texts: Array[Dictionary] = scene._visible_umbra_floating_texts(before, scene._floating_texts_for_target_losses(step.get("enemy_losses", [])), true)
 	base["effect"] = effect
 	var settle_seconds: float = scene._combat_pacing.feedback_duration(texts, FloatingCombatText.total_duration(texts), 0.0)
 	var frames: int = contact_frame + ceili(maxf(settle_seconds, (1.0 - Dragon.CONTACT) / FX_FRAME_PROGRESS * FRAME_SECONDS) / FRAME_SECONDS)
@@ -38,15 +40,19 @@ static func animate(scene: Node, animated_state: Dictionary, step: Dictionary) -
 			# The rock's slam now, the fire's bloom peaking 0.14 s later: one impact.
 			scene._sfx_router.request("push.collision")
 			scene._sfx_router.request("spell.fire", {"gain_db": 3.0})
-			landed.merge(scene._death_hold_presentation(before, animated_state, base))
+			landed.merge(scene._death_hold_presentation(visible_before, animated_state, base))
 		var shown: Dictionary = landed.duplicate(false)
 		shown["effect_progress"] = progress
 		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, (frame - contact_frame) * FRAME_SECONDS, reduced)
 		scene._render_board_state(animated_state, shown)
 	)
-	await scene._animate_turn_order_alongside_defeats(before, animated_state)
+	await scene._animate_turn_order_alongside_defeats(visible_before, animated_state)
+	if step.has("meteor_batch_after"):
+		await scene._burst_playback.finish_resolved_slice(scene, animated_state, step["meteor_batch_after"])
 
 static func _land_ground(state: Dictionary, step: Dictionary) -> void:
+	if step.has("terrain_after"): state["terrain"] = step["terrain_after"].duplicate(true)
+	if step.has("umbra_after"): state["umbra"] = step["umbra_after"].duplicate(true)
 	var surfaces: Dictionary = (state.get("surfaces", {}) as Dictionary).duplicate(true)
 	var landed: Dictionary = step.get("meteor_surfaces", {})
 	for key: String in landed:

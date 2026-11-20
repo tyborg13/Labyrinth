@@ -118,12 +118,12 @@ func _process(delta: float) -> void:
 	_elapsed += delta
 	_update_dots()
 	if _prepared_graph != null: _refresh_prepared_seed()
-	if not _scene_pending and _audio_assets != null and not _audio_assets.complete and not Assets.preparation_slice_full():
+	if not _scene_pending and _audio_assets != null and not _audio_assets.complete and not Assets.preparation_slice_full(&"cover_audio"):
 		var started: int = Time.get_ticks_usec()
 		var _hitch_span: RefCounted
 		if _hitch_trace_enabled: _hitch_span = _trace_phase(get_tree(), "prepare_audio")
 		LoadingAudio.step_for(_audio_assets)
-		Assets.count_preparation_work(started)
+		Assets.count_preparation_work(started, &"cover_audio")
 
 func cancel_loading_for_quit() -> void:
 	_quitting = true
@@ -181,6 +181,7 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		if not _loading_is_active(transition): return
 	if _hitch_trace_enabled: _hitch_span = _trace_phase(tree, "instantiate")
 	performance_started = transition._record_performance_phase("threaded_load_wait", performance_started)
+	var preparation_started: int = Time.get_ticks_usec()
 	var packed := RunPreload.take_for(tree, transition._path) as PackedScene
 	transition._scene_pending = false
 	performance_started = transition._record_performance_phase("threaded_load_get", performance_started)
@@ -204,6 +205,9 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	if transition.destination.has_method("initial_texture_preparation_manifest"):
 		manifest = transition.destination.call("initial_texture_preparation_manifest")
 	_hitch_span = null
+	# The first texture publication can otherwise land in the frame that
+	# consumed the PackedScene, instantiated it and walked its manifest.
+	Assets.count_preparation_work(preparation_started)
 	if not manifest.is_empty():
 		if _hitch_trace_enabled: transition.hitch_wait = "scene_texture_preparation"
 		await Assets.prepare_textures_for(tree.root, manifest, _present_frame_for.bind(tree), _loading_is_active.bind(transition))

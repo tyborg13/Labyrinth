@@ -8,7 +8,8 @@ static func record(summary: Dictionary, revision: int) -> Dictionary:
 	return {"revision": revision, "activations": summary.get("enemy_activations", {}),
 		"unknown": summary.get("unknown_repeat_keys", {}), "died_first_keys": summary.get("died_first_keys", {}),
 		"relative_red_areas": summary.get("relative_red_areas", {}),
-		"hero_red_contacts": summary.get("hero_red_contacts", {})}
+		"hero_red_contacts": summary.get("hero_red_contacts", {}),
+		RedTiles.CONTACT_SOURCES: summary.get(RedTiles.CONTACT_SOURCES, {})}
 
 static func apply(rest: Dictionary, marks: Dictionary, revision: int, at_rest: bool) -> Dictionary:
 	if not at_rest or marks.is_empty() or int(marks.get("revision", -1)) != revision: return rest

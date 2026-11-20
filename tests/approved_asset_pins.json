@@ -1049,24 +1049,24 @@
     "assets/art/icons/lightning_strikes.png": "efe1aa2f1d90286812bc663758713b4daaf55b15",
     "assets/art/icons/loadout.png": "496c1740147b33c635bf3a132a53e7a71a9cbe48",
     "assets/art/icons/lob.png": "170c282cde9d6f2956feadbb089ef9030b1830d2",
-    "assets/art/icons/map/boss_iskaldra.png": "672c0a2d972642633ccb09eaaf2e42c538c49734",
-    "assets/art/icons/map/boss_noctyrax.png": "14eb8da97c1cfc67c6475e11896bf501f8639897",
-    "assets/art/icons/map/boss_tharokh.png": "53b81935b931532a40917627142cad1d010bd4b2",
-    "assets/art/icons/map/boss_vaeloryx.png": "cca7f2c3f7a896165dc8f5b79d7c25e46c905ad4",
-    "assets/art/icons/map/boss_vyraketh.png": "93885a7704db9c4bf6bc1e3312c4bf51ff457019",
-    "assets/art/icons/map/boss_zekarion.png": "c1f8c0313461f0e4091c6a0514faeee9c38a6329",
-    "assets/art/icons/map/campfire.png": "fcd89fa03eb14b5cd733bf2b3117161b248e2010",
-    "assets/art/icons/map/ember_hoarder.png": "dcd037f2bafa2acd1e815c6941127f6c8bd0167f",
-    "assets/art/icons/map/event.png": "a323e486fb403a201b718d473114235750e1d4af",
-    "assets/art/icons/map/fight.png": "e34d08513f5219f422335818746c914a69fcf81f",
-    "assets/art/icons/map/graftwright.png": "605893288c01dad9e7f73b4b25879de7e24c5aec",
-    "assets/art/icons/map/lantern.png": "fd0bd1d89da6a89c780c4c78e8dcee3b672bfee9",
-    "assets/art/icons/map/last_light.png": "72f7f5f464acf999f4cff1340f1c29204e92a6e3",
-    "assets/art/icons/map/relic.png": "812681754b0cf489ffb484daa90a6f64c71ebfe1",
-    "assets/art/icons/map/scavenger.png": "403cad68eacd6de6e2ac9d3bad71e8be3797e260",
-    "assets/art/icons/map/scout.png": "6bf92a4661291cc72d3e1c00e6f7d64712ff5b2b",
-    "assets/art/icons/map/umbral_snare.png": "1c93640a6c8e593ad001e7a4fc9c55f083f1afb6",
-    "assets/art/icons/map/warband.png": "0a1a550f838f67057e3171f794e34641d5935539",
+    "assets/art/icons/map/boss_iskaldra.png": "3d2e50cae23599e9a6f140a1c8678799c10abf61",
+    "assets/art/icons/map/boss_noctyrax.png": "a6864d47d386a7c269c05521500ff52852b8e7e5",
+    "assets/art/icons/map/boss_tharokh.png": "8b2d2797a036bc7530403463ab7e789b297f156f",
+    "assets/art/icons/map/boss_vaeloryx.png": "2e2bb87126bc402d6f617af96fcda82434854fd2",
+    "assets/art/icons/map/boss_vyraketh.png": "530071c56062926a04447b2bc8ff2609cae8a116",
+    "assets/art/icons/map/boss_zekarion.png": "ca72a6940797ac891873f34d78d90e8d49feaf2c",
+    "assets/art/icons/map/campfire.png": "520ee1e2732ace148921c2349637060245d2bdcc",
+    "assets/art/icons/map/ember_hoarder.png": "a8ad3dfd2079c4950b6b87daf269029ebbdfd9dd",
+    "assets/art/icons/map/event.png": "b112f9087c5d731be44d5473176370197cdf61ec",
+    "assets/art/icons/map/fight.png": "15cb5079902b9822f7f87b4b84507d39951c2bb8",
+    "assets/art/icons/map/graftwright.png": "fa951cc7aa4b449a3be75958341c5e3a8dda2355",
+    "assets/art/icons/map/lantern.png": "f2bf64fb96057e44aa73f1fc7ff9bf87273389d9",
+    "assets/art/icons/map/last_light.png": "94ec96af01ac57b63f3d8ee7a7987ef9195312e0",
+    "assets/art/icons/map/relic.png": "3f1d57fc25bff08e025d503b2f1c54c3e7f31c7f",
+    "assets/art/icons/map/scavenger.png": "972250f3ced23aaf832196240570277ae421ceb0",
+    "assets/art/icons/map/scout.png": "158375b1a15a33b75ad045ee5f518ee889e4958a",
+    "assets/art/icons/map/umbral_snare.png": "1aa388372b690f74d661cb2f9624cc31322152d8",
+    "assets/art/icons/map/warband.png": "290edc5cc36398b480ca465b57286bacff443820",
     "assets/art/icons/map_rooms.png": "32528052561bd75191617e186939f805effc3ac1",
     "assets/art/icons/marked.png": "535d4c2e0bb86455f476515f00df57f1c555445d",
     "assets/art/icons/melee.png": "5b6769ff2aa1e790959a37470bbf621aa1a4b5d8",
@@ -1431,12 +1431,12 @@
     "assets/art/traps/trap_lightning_idle.png": "9dc71b6ab60e5852b5da0ba4f00d45545ae8f95c",
     "assets/art/ui/boot_splash_makers_seal.png": "4fa1cfcc470b3672da8916215e23c791eaaa2613",
     "assets/art/ui/campfire_choice_embrace.png": "d2fd90c6f77fd00cc8e5acd3e68f4fbbbf9e285a",
-    "assets/art/ui/campfire_choice_embrace_v2.png": "868941ce0b20b0f468a44d3cab223e3f84009bd1",
+    "assets/art/ui/campfire_choice_embrace_v2.png": "c47b360a69207f119bba89c98b311386a9af5b4d",
     "assets/art/ui/campfire_choice_linger.png": "32eb8be499ff94262b68049f5d6a8253db95d247",
-    "assets/art/ui/campfire_choice_linger_v2.png": "9837df854361212153b7e07d68a1952308dee50a",
-    "assets/art/ui/campfire_choice_purge_v2.png": "34553737d7e9dbd7d253e888253ecccb69f0a2d4",
+    "assets/art/ui/campfire_choice_linger_v2.png": "c57affbcc05a0ff6a02dec60e0a979c7cf8489f3",
+    "assets/art/ui/campfire_choice_purge_v2.png": "0444f6c552075143d13664849ba3f7c5b189cc01",
     "assets/art/ui/campfire_choice_strength.png": "26230b8abd104b70f39241052748020101821839",
-    "assets/art/ui/campfire_choice_strength_v2.png": "4fca7f248325ad3a4d4c6d719fb08d507c3e7afa",
+    "assets/art/ui/campfire_choice_strength_v2.png": "6bb3b8c380b0f7479ee31527d6832956c58eddca",
     "assets/art/ui/card_action_mode_attack_v1.png": "09f0e55f8c14a767c307e2224b88fa4de932aa1b",
     "assets/art/ui/card_action_mode_blink_v1.png": "783c7690da2832c8455fa7179a5178891ceabb25",
     "assets/art/ui/card_action_mode_move_v1.png": "1fa16c5766f7f2f0b508b2f846df81d8a30382d3",
@@ -1475,7 +1475,7 @@
     "assets/art/ui/enemy_intent_compass/support.png": "5d9c8767ab632d53478c8e12ae42be074f2353af",
     "assets/art/ui/graftwright/atelier.png": "6110e2c396ae1d26eddcd4f761df2e7aa736d1fc",
     "assets/art/ui/graftwright/item_cradle.png": "64ee5ad0512efed6ca74669e6ab8d1b9fc13aece",
-    "assets/art/ui/graftwright/ritual_clasp.png": "96d57a1d61b7d0a3c9819a4e538d86db8f008e10",
+    "assets/art/ui/graftwright/ritual_clasp.png": "5704078e0d42ef702bbcbe847adb4b9e1de47d98",
     "assets/art/ui/graftwright/workmat.png": "e7de0ead6a4b1c63b58cb857baa1e3e7d0b251c8",
     "assets/art/ui/health_bars/boss_umbral_dragon_frame_v1.png": "d1aeddd9971428bd6c370424e1aa6af349924108",
     "assets/art/ui/health_bars/enemy_umbra_frame_v1.png": "9983a85bfaf044ab491a1a55de84535c7b371cc2",
@@ -12734,216 +12734,216 @@
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/boss_noctyrax.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/boss_tharokh.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/boss_vaeloryx.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/boss_vyraketh.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/boss_zekarion.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/campfire.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        160,
+        160
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/ember_hoarder.png": {
       "alpha_bounds": [
         0,
         0,
-        1024,
-        1024
+        128,
+        128
       ],
       "size": [
-        1024,
-        1024
+        128,
+        128
       ]
     },
     "assets/art/icons/map/event.png": {
       "alpha_bounds": [
-        0,
-        0,
-        1204,
-        1254
+        15,
+        6,
+        153,
+        153
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/fight.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        160,
+        160
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/graftwright.png": {
       "alpha_bounds": [
-        105,
-        51,
-        1218,
-        1254
+        29,
+        15,
+        140,
+        143
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/lantern.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        288,
+        288
       ],
       "size": [
-        1254,
-        1254
+        288,
+        288
       ]
     },
     "assets/art/icons/map/last_light.png": {
       "alpha_bounds": [
         0,
         0,
-        1024,
-        1024
+        160,
+        160
       ],
       "size": [
-        1024,
-        1024
+        160,
+        160
       ]
     },
     "assets/art/icons/map/relic.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        160,
+        160
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/scavenger.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        160,
+        160
       ],
       "size": [
-        1254,
-        1254
+        160,
+        160
       ]
     },
     "assets/art/icons/map/scout.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        128,
+        128
       ],
       "size": [
-        1254,
-        1254
+        128,
+        128
       ]
     },
     "assets/art/icons/map/umbral_snare.png": {
       "alpha_bounds": [
         0,
         0,
-        1024,
-        1024
+        160,
+        160
       ],
       "size": [
-        1024,
-        1024
+        160,
+        160
       ]
     },
     "assets/art/icons/map/warband.png": {
       "alpha_bounds": [
         0,
         0,
-        1024,
-        1024
+        160,
+        160
       ],
       "size": [
-        1024,
-        1024
+        160,
+        160
       ]
     },
     "assets/art/icons/map_rooms.png": {
@@ -17306,12 +17306,12 @@
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        640,
+        640
       ],
       "size": [
-        1254,
-        1254
+        640,
+        640
       ]
     },
     "assets/art/ui/campfire_choice_linger.png": {
@@ -17330,24 +17330,24 @@
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        640,
+        640
       ],
       "size": [
-        1254,
-        1254
+        640,
+        640
       ]
     },
     "assets/art/ui/campfire_choice_purge_v2.png": {
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        640,
+        640
       ],
       "size": [
-        1254,
-        1254
+        640,
+        640
       ]
     },
     "assets/art/ui/campfire_choice_strength.png": {
@@ -17366,12 +17366,12 @@
       "alpha_bounds": [
         0,
         0,
-        1254,
-        1254
+        640,
+        640
       ],
       "size": [
-        1254,
-        1254
+        640,
+        640
       ]
     },
     "assets/art/ui/card_action_mode_attack_v1.png": {
@@ -17833,13 +17833,13 @@
     "assets/art/ui/graftwright/ritual_clasp.png": {
       "alpha_bounds": [
         0,
-        23,
-        2172,
-        724
+        12,
+        744,
+        245
       ],
       "size": [
-        2172,
-        724
+        744,
+        248
       ]
     },
     "assets/art/ui/graftwright/workmat.png": {

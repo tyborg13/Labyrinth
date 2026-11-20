@@ -6,44 +6,56 @@ const ENVIRONMENT: String = "LABYRINTH_BOARD_REDRAW_TRACE"
 
 var resolve_inputs: bool
 var baseline: bool
+var confirm_baseline: bool
+var targeting_baseline: bool
 var active: bool = false
 var reasons: Array = []
 var _pending: Dictionary = {}
 var _rows: Array[Dictionary]
 var _previous: Dictionary = {}
+var _sites: Dictionary = {}
 
 func _init(mode: String) -> void:
 	resolve_inputs = mode == "inputs"
 	baseline = OS.get_environment("LABYRINTH_BOARD_REDRAW_BASELINE") == "1"
+	confirm_baseline = OS.get_environment("LABYRINTH_PERF148_BASELINE") == "1"
+	targeting_baseline = OS.get_environment("LABYRINTH_PERF157_BASELINE") == "1"
 
 func begin() -> void:
 	_rows.clear()
+	_pending.clear()
+	_sites.clear()
 	active = true
 
 func finish() -> Array[Dictionary]:
 	active = false
 	return _rows.duplicate()
 
-func note(layer: Control, extra: String = "") -> void:
+func note(layer: Control, extra: String = "", site: String = "") -> void:
 	if not active: return
 	var pending: Dictionary = _pending.get_or_add(layer.get_instance_id(), {})
 	for reason: String in reasons: pending[reason] = true
 	if not extra.is_empty(): pending[extra] = true
+	if not site.is_empty(): (_sites.get_or_add(layer.get_instance_id(), {}) as Dictionary)[site] = true
 
 func inherit_reason(source: Control, canvas: Control, clock_only: bool, extra: String = "") -> void:
 	if not active: return
 	note(canvas, "clock" if clock_only else extra)
 	var pending: Dictionary = _pending[canvas.get_instance_id()]
 	pending.merge(_pending.get(source.get_instance_id(), {}))
+	if _sites.has(source.get_instance_id()):
+		(_sites.get_or_add(canvas.get_instance_id(), {}) as Dictionary).merge(_sites[source.get_instance_id()])
 
-func draw_finished(layer: Control, usec: int) -> void:
+func draw_finished(layer: Control, usec: int, operations: Dictionary = {}) -> void:
+	if not active: return
 	var id: int = layer.get_instance_id()
 	var fingerprint: Variant = _resolved_inputs(layer) if resolve_inputs else null
 	var previous: Variant = _previous.get(id)
 	if resolve_inputs: _previous[id] = fingerprint
 	var reason: Array = (_pending.get(id, {}) as Dictionary).keys()
 	_pending.erase(id)
-	if not active: return
+	var sites: Array = (_sites.get(id, {}) as Dictionary).keys()
+	_sites.erase(id)
 	var tile: Vector2i = layer._render_layer_tile
 	var source: Control = layer.get_parent() as Control
 	var kind: String = layer._render_layer_kind
@@ -58,10 +70,20 @@ func draw_finished(layer: Control, usec: int) -> void:
 		"tile": [tile.x, tile.y],
 		"depth_pass": layer._render_layer_scene_effect_pass,
 		"reasons": reason if not reason.is_empty() else ["direct queue_redraw or CanvasItem lifecycle"],
+		"sites": sites,
+		"operations": operations,
 		"usec": usec,
 		"input_hash": fingerprint,
 		"redundant": fingerprint == previous if fingerprint != null and previous != null else null,
 	})
+
+func queue_site() -> String:
+	if not active or not resolve_inputs: return ""
+	for frame: Dictionary in get_stack():
+		var method: String = frame["function"]
+		if method in ["queue_site", "_request_render_layer_redraw", "_queue_render_layer_redraw", "_queue_scene_render_layer_for_tile", "_queue_scene_effect_render_layers_for_tile", "_queue_scene_paint_redraw"]: continue
+		return "%s:%d %s" % [str(frame["source"]).trim_prefix("res://"), frame["line"], method]
+	return ""
 
 func _resolved_inputs(layer: Control) -> Variant:
 	var ops: Array = layer._render_slice_ops

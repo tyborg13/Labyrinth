@@ -5,6 +5,7 @@ const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
 const Tip07 = preload("res://tools/tooltip_loops/tip07_fixture.gd")
+const Registry = preload("res://scripts/tooltip_loop_registry.gd")
 const Tip06 = preload("res://tools/tooltip_loops/tip06_fixture.gd")
 const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
 const Tip04 = preload("res://tools/tooltip_loops/tip04_fixture.gd")
@@ -93,7 +94,12 @@ static func build(id: String) -> Dictionary:
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
 	run["combat_state"] = state
-	return {"run": run, "state": state, "card": card, "id": id, "layout": layout}
+	var fixture: Dictionary = {"run": run, "state": state, "card": card, "id": id, "layout": layout}
+	for row: Dictionary in Registry.entries():
+		if row["id"] == id and row.has("fixture_biome"):
+			fixture["biome"] = row["fixture_biome"]
+			break
+	return fixture
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 	if Tip07.IDS.has(fixture["id"]): return Tip07.plan(fixture, engine)

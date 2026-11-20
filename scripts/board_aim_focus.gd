@@ -4,11 +4,15 @@ extends RefCounted
 ## change renderer state only: no board paint invalidation on animation frames.
 const Layers = preload("res://scripts/board_layer_slices.gd")
 const Context = preload("res://scripts/targeted_tile_context.gd")
+const HudRetention = preload("res://scripts/board_hud_retention.gd")
 const SPRITE_RGB: float = 0.62
 const HUD_ALPHA: float = 0.5
 const TRANSITION_SECONDS: float = 0.12
 # Director feedback 1: quadratic ease-out accepted.
 const EASE_OUT_CURVE: int = Tween.TRANS_QUAD
+const LATE_HUD_BINDINGS: Array = [
+	"_hover_tile", "_controller_focus_tile", "_idle_elapsed", "_hud_health_rects_cache", "_hud_layout_entries_cache",
+]
 var active: bool = false
 var affected_tiles: Dictionary = {}
 var choosing: bool = false
@@ -100,6 +104,7 @@ func begin_draw(source: Control) -> void:
 
 func finish_draw(source: Control) -> void:
 	if source.has_meta("rd03_canvas") or source._board_redraw_baseline(): return
+	if not source._confirm_draw_baseline() and not source.has_meta("rd03_has_children"): return
 	# A draw that still routes this child can retain its visibility and cached
 	# commands. Retire children whose actor disappeared from this source's paint.
 	for child: Node in source.get_children():
@@ -107,15 +112,78 @@ func finish_draw(source: Control) -> void:
 			if child.has_meta("rd03_routed"): child.remove_meta("rd03_routed")
 			else: (child as Control).hide()
 
-func release_room_canvases() -> void:
+func release_room_canvases(keep_unit_sprites: bool = false) -> void:
 	# The source layers may be reused in the next room, but their child
 	# canvases contain this room's actor snapshots and paint commands.
-	for record: Dictionary in canvases.values():
+	for id: String in canvases.keys():
+		var record: Dictionary = canvases[id]
+		if not is_instance_valid(record.canvas):
+			canvases.erase(id)
+			continue
 		var canvas: Control = record.canvas
-		if not is_instance_valid(canvas): continue
+		if keep_unit_sprites and not bool(record.hud) and canvas.is_visible_in_tree() and canvas.get_parent().get("_render_layer_kind") == "unit_body_outline":
+			# A fresh sprite child used to start bright. Reproduce that reset
+			# without removing the already visible CanvasItem or its commands.
+			var tween: Tween = canvas.get_meta("rd03_tween") if canvas.has_meta("rd03_tween") else null
+			if tween != null and tween.is_valid(): tween.kill()
+			canvas.set_meta("rd03_target", Color.WHITE)
+			canvas.self_modulate = Color.WHITE
+			continue
 		canvas.hide()
 		canvas.queue_free()
-	canvases.clear()
+		canvases.erase(id)
+
+func sync_hud_source(source: Control) -> void:
+	# The original slices still own the same ordered operations. Bind their
+	# routed children before requesting draw so an unchanged parent has no
+	# CanvasItem work. A lifecycle draw only submits its own direct paint.
+	var direct: Array = []
+	source._hud_paint_environment = HudRetention.environment(source)
+	for operation: Array in source._render_slice_ops:
+		if not route_operation(source, operation[0], operation[1], direct):
+			direct.append(operation)
+	finish_draw(source)
+	source._hud_direct_ops = direct
+	_sync_direct_hud(source)
+
+func _sync_direct_hud(source: Control) -> void:
+	var inputs: Variant = HudRetention.direct_inputs(source, source._hud_direct_ops)
+	if source._hud_direct_inputs != null and inputs == source._hud_direct_inputs: return
+	source._hud_direct_inputs = inputs.duplicate(true) if inputs != null else null
+	source.queue_redraw()
+
+func update_plate_opacity(hud: Control) -> void:
+	# Keep fade alpha in the original primitives. Canvas modulation would
+	# cull very faint paint and also dim the separately tinted connector.
+	var trace: RefCounted = hud.get("_board_redraw_trace")
+	var live_forecast: bool = HudRetention.has_live_preview_clock(hud)
+	for record: Dictionary in canvases.values():
+		if not bool(record.hud) or not is_instance_valid(record.canvas): continue
+		var canvas: Control = record.canvas
+		if not canvas.visible: continue # Retired, as opposed to a hidden ancestor.
+		var ops: Array = canvas._render_slice_ops
+		if ops.is_empty(): continue
+		var method: String = ops[0][0]
+		if HudRetention.health_method(method):
+			var alpha: float = hud._plate_opacity(record.unit)
+			if not live_forecast and alpha == record.get("plate_opacity"): continue
+			record["plate_opacity"] = alpha
+		if HudRetention.health_method(method) or (live_forecast and method == "_draw_unit_hud_details"):
+			var source: Control = canvas.get_parent() as Control
+			var inputs: Variant = _paint_inputs(source, method, ops[0][1], record.unit)
+			if inputs != null and inputs == record.get("paint_inputs"): continue
+			record["paint_inputs"] = inputs.duplicate(true) if inputs != null else null
+		elif method != "_draw_slice_intent_halo" or bool(canvas.presentation.get("reduced_motion", false)):
+			continue
+		if trace != null and trace.active: trace.note(canvas, "plate clock", trace.queue_site())
+		canvas.queue_redraw()
+	_sync_direct_hud(hud)
+	for source: Control in hud.get("_layer_slices").canvases:
+		if not source._hud_direct_ops.is_empty(): _sync_direct_hud(source)
+
+func _paint_inputs(source: Control, method: String, args: Array, unit: Dictionary) -> Variant:
+	var paint: Variant = HudRetention.piece_inputs(source, method, args, unit)
+	return [source._hud_paint_environment, paint] if paint != null else null
 
 func route(source: Control, method: String, args: Array, unit: Dictionary, hud: bool) -> bool:
 	if source.has_meta("rd03_canvas") or unit.is_empty() or bool(unit.get("death_animation", false)): return false
@@ -124,31 +192,38 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 	var id: String = "%d:%s:%s" % [source.get_instance_id(), method, key]
 	var record: Dictionary = canvases.get(id, {})
 	var canvas: Control = record.get("canvas") as Control
+	var retained_hud: bool = hud and HudRetention.enabled(source)
 	if not is_instance_valid(canvas):
 		canvas = source.get_script().new() as Control
 		canvas.set_meta("rd03_canvas", true)
+		var root_owner: Control = source.get("_render_instrumentation_owner") as Control
 		canvas.set("_is_dynamic_render_layer", true)
 		canvas.set("_is_layer_slice_canvas", true)
-		var root_owner: Control = source.get("_render_instrumentation_owner") as Control
 		canvas.set("_render_instrumentation_owner", root_owner if is_instance_valid(root_owner) else source)
 		canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		canvas.focus_mode = Control.FOCUS_NONE
 		source.add_child(canvas)
+		source.set_meta("rd03_has_children", true)
 		record = {"canvas": canvas, "unit": unit, "hud": hud}
 		canvases[id] = record
 	# Keep the ordinal canvas and its aim/outline ownership. The production
 	# ordinal painter is empty, so after initialization it can retain its paint.
-	var retain_empty: bool = (
+	var retain: bool = (
 		method == "_draw_slice_intent_orders"
 		and source.get_script().resource_path == "res://scripts/combat_board_view.gd"
 		and not source._board_redraw_baseline() and not canvas.get("_render_slice_ops").is_empty()
 	)
+	if retained_hud:
+		var inputs: Variant = _paint_inputs(source, method, args, unit)
+		retain = inputs != null and inputs == record.get("paint_inputs") and canvas.is_visible_in_tree()
+		if not retain: record["paint_inputs"] = inputs.duplicate(true) if inputs != null else null
+		if HudRetention.health_method(method): record["plate_opacity"] = source._plate_opacity(unit)
 	_bind_canvas(source, canvas, false)
-	canvas.set("_render_slice_ops", [[method, args]])
+	canvas._render_slice_ops = [[method, args]]
 	record.unit = unit
 	_present(record)
 	if not hud: canvas.modulate.a = float(body_alphas.get(key, 1.0))
-	_queue_canvas(source, canvas, method, retain_empty)
+	_queue_canvas(source, canvas, method, retain)
 	return true
 
 const TOP_CANVAS_Z: int = 3
@@ -170,26 +245,47 @@ func route_top(source: Control, method: String, args: Array) -> bool:
 		canvas.z_index = TOP_CANVAS_Z
 		canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: source.emit_signal("intent_callout_drawn", layout))
 		source.add_child(canvas)
+		source.set_meta("rd03_has_children", true)
 		canvases[id] = {"canvas": canvas, "unit": {}, "hud": true, "top": true}
-	_bind_canvas(source, canvas, true)
+	var empty: bool = (source.presentation.get("intent_callouts", []) as Array).is_empty()
+	var retain: bool = not source._confirm_draw_baseline() and empty and bool(canvas.get_meta("perf148_empty_callout", false)) and canvas.is_visible_in_tree()
+	canvas.set_meta("perf148_empty_callout", empty)
+	if not retain: _bind_canvas(source, canvas, true)
 	canvas.set("_render_slice_ops", [[method, args]])
-	_queue_canvas(source, canvas, method)
+	_queue_canvas(source, canvas, method, retain)
 	return true
 
 func _bind_canvas(source: Control, canvas: Control, top: bool) -> void:
 	canvas.size = source.size
 	canvas.material = source.material
-	for field: String in Layers.STATE_FIELDS: canvas.set(field, source.get(field))
 	var owner: Control = source.get("_render_instrumentation_owner") as Control
 	if not is_instance_valid(owner): owner = source
-	var assets: Dictionary = owner.get("_retained_asset_bindings")
 	var baseline: bool = source._board_redraw_baseline()
+	if source._render_layer_kind == "hud" and owner != source and not source._confirm_draw_baseline():
+		_bind_hud_state(source, canvas, owner)
+	else:
+		for field: String in Layers.STATE_FIELDS: canvas.set(field, source.get(field))
+	var assets: Dictionary = owner.get("_retained_asset_bindings")
 	if baseline or not is_same(canvas.get_meta("rd03_asset_bindings", {}), assets):
 		for field: String in assets: canvas.set(field, source.get(field))
 		canvas.set_meta("rd03_asset_bindings", assets)
 	if not top:
 		for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]: canvas.set(field, source.get(field))
 	source.call("_copy_resolved_board_layout_to", canvas)
+
+func _bind_hud_state(source: Control, canvas: Control, owner: Control) -> void:
+	var revision: int = owner._hud_binding_revision
+	var previous: int = int(canvas.get_meta("perf148_state_binding_revision", -1))
+	# Each routed canvas stays with its one source. The owner's sync publishes
+	# replaced bindings, while the HUD's clock and deferred hover can also
+	# update a handful of fields before the next full submission.
+	if previous < 0 or revision - previous > 1:
+		for field: String in Layers.STATE_FIELDS: canvas.set(field, source.get(field))
+	elif previous != revision:
+		for field: StringName in owner._hud_changed_bindings:
+			if Layers.STATE_FIELDS.has(str(field)): canvas.set(field, source.get(field))
+	for field: String in LATE_HUD_BINDINGS: canvas.set(field, source.get(field))
+	canvas.set_meta("perf148_state_binding_revision", revision)
 
 func _queue_canvas(source: Control, canvas: Control, method: String, retain: bool = false) -> void:
 	if not source._board_redraw_baseline(): canvas.set_meta("rd03_routed", true)
@@ -205,10 +301,18 @@ func _present(record: Dictionary) -> void:
 	# The callout canvas never dims and keeps its topmost z.
 	if bool(record.get("top", false)): return
 	var canvas: Control = record.canvas
-	var strong: bool = full_strength(canvas, record.unit)
+	var source: Control = canvas
+	var unit: Dictionary = record.unit
+	if record.hud and not source._confirm_draw_baseline() and str(unit.get("role", "")) in ["player", "enemy"]:
+		var inputs: Array = [changes, focus_tile, unit.get("role"), unit.get("pos"), unit.get("footprint"), unit.get("death_animation", false)]
+		if inputs == record.get("aim_presentation", []): return
+		record["aim_presentation"] = inputs
+	else:
+		record.erase("aim_presentation")
+	var strong: bool = full_strength(source, unit)
 	# Body and HUD records share one outline transition per actor on the board.
-	var owner: Control = canvas.get("_render_instrumentation_owner")
-	var key: String = str(record.unit.get("key", ""))
+	var owner: Control = source.get("_render_instrumentation_owner")
+	var key: String = str(unit.get("key", ""))
 	var outline_alpha: float = 1.0 if strong else HUD_ALPHA
 	var outlines: Node2D = owner.get("_occlusion_silhouettes") if is_instance_valid(owner) else null
 	if is_instance_valid(outlines) and _outline_targets.get(key, 1.0) != outline_alpha:
@@ -237,9 +341,9 @@ func _present(record: Dictionary) -> void:
 				tween.parallel().tween_property(child, "modulate", tint, TRANSITION_SECONDS)
 		canvas.set_meta("rd03_tween", tween)
 	if record.hud:
-		canvas.z_index = 2 if canvas.call("_unit_footprint_tiles", record.unit).has(focus_tile) else 1
+		canvas.z_index = 2 if source.call("_unit_footprint_tiles", unit).has(focus_tile) else 1
 
-func route_operation(source: Control, method: String, args: Array) -> bool:
+func route_operation(source: Control, method: String, args: Array, direct: Variant = null) -> bool:
 	if source.has_meta("rd03_canvas"): return false
 	# Intent callouts are the topmost board HUD. Per-unit HUD canvases are
 	# children of this layer, so the callouts get their own child above them.
@@ -247,7 +351,9 @@ func route_operation(source: Control, method: String, args: Array) -> bool:
 	if method == "_draw_unit_hud_details":
 		for unit: Dictionary in args[0]:
 			var one: Array[Dictionary] = preload("res://scripts/typed_arrays.gd").dictionaries([unit])
-			if not route(source, method, [one], unit, true): source.call(method, one)
+			if route(source, method, [one], unit, true): continue
+			if direct == null: source.call(method, one)
+			else: direct.append([method, [one]])
 		return true
 	if method in ["_draw_health_bar_entry", "_draw_health_damage_preview", "_draw_health_bar_text"]:
 		if method == "_draw_health_bar_entry":
@@ -255,6 +361,9 @@ func route_operation(source: Control, method: String, args: Array) -> bool:
 			return route(source, method, args, args[0].unit, true)
 		return route(source, method, args, args[0], true)
 	if method == "_draw_slice_intent_orders":
+		# The production ordinal painter only reserves space in the plan. Its
+		# observer overrides still run through the original routed canvas.
+		if not source._confirm_draw_baseline() and source.get_script().resource_path == "res://scripts/combat_board_view.gd": return true
 		for badge: Dictionary in args[0]:
 			var routed: bool = false
 			for unit: Dictionary in source.call("_visible_units"):

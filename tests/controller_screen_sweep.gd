@@ -16,6 +16,8 @@ const MapGraph = preload("res://scripts/section_map_graph.gd")
 const MapNavigation = preload("res://scripts/section_map_navigation.gd")
 # Debug-only fixtures and bounds, never production tuning.
 const PROOF_SIZE := Vector2i(1920, 1080)
+const DECK_SIZE := Vector2i(1280, 800)
+const DECK_UI_SCALE: float = 1.15
 const FIXTURE_SEED: int = 73491
 const FIXTURE_BUDGET: int = 720
 const UNAFFORDABLE_SHOP_EMBERS: int = 0
@@ -25,6 +27,9 @@ const SETTLE_FRAMES: int = 3
 const NAVIGATION_LIMIT: int = 160
 const CURSOR_TICK_SECONDS: float = 1.0 / 60.0
 const HUD_REBUILD_ENEMY_POSITION := Vector2i(5, 4)
+const REWARD_FIXTURE_ENEMY_HEALTH: int = 1
+const EVENT_DRAFT_ID: String = "moth_library"
+const EVENT_SWEEP_SETTLE_SECONDS: float = 0.3
 const STALE_CONTROL_TEST_SIZE := Vector2(40, 40)
 const SHORTCUT_TOOLTIP_CASES: int = 16
 const SETUP_UNLOCKED_DEPTH: int = 3
@@ -80,6 +85,10 @@ var _regression_checks: Array[Dictionary]
 var _output_dir: String = OUTPUT_DIR
 var _setup_only: bool = false
 var _ui27_clip: bool = false
+var _deck: bool = false
+var _sweep_size: Vector2i = PROOF_SIZE
+var _sweep_ui_scale: float = 1.0
+var _sweep_family: String = Router.FAMILY_XBOX
 
 func _initialize() -> void:
 	Runtime.apply_from_environment()
@@ -87,12 +96,18 @@ func _initialize() -> void:
 	_before = args.has("--before")
 	_setup_only = args.has("--new-run-setup-only")
 	_ui27_clip = args.has("--ui27-clip")
+	_deck = args.has("--deck")
+	if _deck:
+		_sweep_size = DECK_SIZE
+		_sweep_ui_scale = DECK_UI_SCALE
+		_sweep_family = Router.FAMILY_STEAM_DECK
 	if args.has("--output-dir"):
 		_output_dir = args[args.find("--output-dir") + 1]
 	if args.has("--capture-screen"):
 		_capture_screen = args[args.find("--capture-screen") + 1]
 	if args.has("--write-proof-contract"):
-		var contract: Dictionary = {"min_images": 1, "expected_sizes": ["1920x1080"], "required_images": [{"pattern": "*" + _capture_screen + "_focus.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 3}]}]}
+		var size_label: String = "%dx%d" % [_sweep_size.x, _sweep_size.y]
+		var contract: Dictionary = {"min_images": 1, "expected_sizes": [size_label], "required_images": [{"pattern": "*" + _capture_screen + "_focus.png", "width": _sweep_size.x, "height": _sweep_size.y, "regions": [{"rect": [0, 0, _sweep_size.x, _sweep_size.y], "min_luma_range": 20, "min_luma_stdev": 3}]}]}
 		var file := FileAccess.open(args[args.find("--write-proof-contract") + 1], FileAccess.WRITE)
 		file.store_string(JSON.stringify(contract, "\t") + "\n")
 		quit(0)
@@ -106,20 +121,26 @@ func _run() -> void:
 	Settings.set_storage_path("user://kb03_settings.json")
 	Analytics.set_storage_dir("user://kb03_analytics")
 	var settings: Dictionary = Settings.default_settings()
-	settings["ui_scale"] = 1.0
+	settings["ui_scale"] = _sweep_ui_scale
 	settings["reduced_motion"] = true
 	Settings.save_settings(settings)
 	Store.save_data(Store.default_data())
 	Store.clear_saved_run()
 	Router.ensure_input_map()
 	_router = root.get_node("InputRouter")
-	_router.call("set_forced_state_for_test", "controller", "xbox")
+	_router.call("set_forced_state_for_test", "controller", _sweep_family)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	root.size = PROOF_SIZE
+	root.size = _sweep_size
 	root.content_scale_size = PROOF_SIZE
-	root.content_scale_factor = 1.0
+	root.content_scale_factor = _sweep_ui_scale
 	_viewport = SubViewport.new()
-	_viewport.size = PROOF_SIZE
+	_viewport.size = _sweep_size
+	if _deck:
+		# Match the production window's expanded logical envelope at Deck scale.
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+		var fit: float = minf(float(_sweep_size.x) / PROOF_SIZE.x, float(_sweep_size.y) / PROOF_SIZE.y)
+		_viewport.size_2d_override = Vector2i(Vector2(_sweep_size) / (fit * _sweep_ui_scale))
+		_viewport.size_2d_override_stretch = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_viewport)
 	if _ui27_clip:
@@ -137,10 +158,11 @@ func _run() -> void:
 	var regressions_only: bool = OS.get_cmdline_user_args().has("--regressions-only")
 	var tutorial_only: bool = OS.get_cmdline_user_args().has("--tutorial-navigation-only")
 	var reward_only: bool = OS.get_cmdline_user_args().has("--reward-focus-only")
+	var graftwright_only: bool = OS.get_cmdline_user_args().has("--graftwright-focus-only")
 	var shortcuts_only: bool = OS.get_cmdline_user_args().has("--shortcut-tooltips-only")
 	var skill_learn_only: bool = OS.get_cmdline_user_args().has("--skill-learn-focus-only")
 	var ui27_only: bool = OS.get_cmdline_user_args().has("--ui27-only")
-	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only and not shortcuts_only and not skill_learn_only and not ui27_only: await _menu_screens()
+	if not links_only and not combat_only and not regressions_only and not tutorial_only and not reward_only and not graftwright_only and not shortcuts_only and not skill_learn_only and not ui27_only: await _menu_screens()
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
 	_scene.set_script(RunFixture)
 	_scene.set("_defer_initial_run_presentation", true)
@@ -155,6 +177,10 @@ func _run() -> void:
 		await _tutorial_navigation_regression()
 	elif reward_only:
 		await _reward_focus_regression()
+		await _event_reward_focus_regression()
+	elif graftwright_only:
+		await _graftwright_screens(true)
+		if _capture_screen.is_empty(): await _activate_inventory()
 	elif shortcuts_only:
 		await _shortcut_tooltips()
 	elif regressions_only:
@@ -183,11 +209,12 @@ func _run() -> void:
 	await _settle()
 	_scene.queue_free()
 	await _settle()
-	var report: Dictionary = {"regressions": _regression_checks, "screens": _rows, "activation": _pressed_rows, "failures": _failures, "back_rule": BACK_RULE, "back_checks": _back_checks, "search_text_entry_scope": SEARCH_TEXT_ENTRY_SCOPE, "native_capture": _capture_screen}
+	var report: Dictionary = {"regressions": _regression_checks, "screens": _rows, "activation": _pressed_rows, "failures": _failures, "back_rule": BACK_RULE, "back_checks": _back_checks, "search_text_entry_scope": SEARCH_TEXT_ENTRY_SCOPE, "native_capture": _capture_screen, "profile": {"size": "%dx%d" % [_sweep_size.x, _sweep_size.y], "ui_scale": _sweep_ui_scale, "family": _sweep_family}}
 	var filename: String = "sweep_before.json" if _before else "sweep_after.json"
 	if regressions_only: filename = "regressions_%s.json" % ("before" if _before else "after")
 	if tutorial_only: filename = "sweep_tutorial_navigation.json"
 	if reward_only: filename = "sweep_reward_focus.json"
+	if graftwright_only: filename = "sweep_graftwright_focus.json"
 	if skill_learn_only: filename = "sweep_skill_learn_focus.json"
 	if menu_only: filename = "sweep_menu.json"
 	if _setup_only: filename = "sweep_new_run_setup.json"
@@ -238,7 +265,7 @@ func _menu_screens() -> void:
 	await _capture("settings")
 	await _joy(JOY_BUTTON_B)
 	_expect(panel.visible and not confirmation.visible, "Settings B cancels confirmation before leaving settings")
-	_router.call("set_forced_state_for_test", "pointer", "xbox")
+	_router.call("set_forced_state_for_test", "pointer", _sweep_family)
 	panel.call("_show_restore_confirmation")
 	await _settle()
 	# Modal Settings moves focus on open for every input family. Compare the
@@ -248,7 +275,7 @@ func _menu_screens() -> void:
 	await _motion(JOY_AXIS_LEFT_X, 0.0)
 	_expect(_focus() == pointer_focus, "Neutral joypad noise preserves pointer confirmation focus")
 	panel.call("_cancel_restore_confirmation")
-	_router.call("set_forced_state_for_test", "controller", "xbox")
+	_router.call("set_forced_state_for_test", "controller", _sweep_family)
 	await _joy(JOY_BUTTON_B)
 	_expect(not panel.visible, "Settings B returns to title")
 	await _new_run_setup(menu)
@@ -328,10 +355,20 @@ func _load(state: Dictionary) -> void:
 	_scene.call("_close_dialogue")
 	_scene.set("_animation_lock", false)
 	await _settle()
+	var event_view: Control = _scene.get("_event_view")
+	if str(state["mode"]) != "event" and event_view != null and event_view.visible:
+		# EventView's authored dismissal (db94d2120) still owns input during
+		# the fade. Direct fixture loads can jump past the normal map handoff.
+		await _wait_for_event_view_close(event_view)
 	_scene.call("_close_dialogue")
 	_scene.call("_close_large_map")
 	_scene.call("_recover_controller_focus")
 	await _settle()
+
+func _wait_for_event_view_close(view: Control) -> void:
+	var deadline: int = Time.get_ticks_msec() + READY_TIMEOUT_MSEC
+	while view.visible and Time.get_ticks_msec() < deadline: await process_frame
+	_expect(not view.visible, "Event view finishes dismissing")
 
 func _character_state() -> Dictionary:
 	var profile: Dictionary = Store.default_data()
@@ -786,7 +823,7 @@ func _shortcut_tooltips() -> void:
 					if not enabled: await _capture("details_tooltip")
 			for control: Control in [_scene.get("mini_map_overlay"), _scene.get("_section_map_hud_button")]:
 				_expect(control.tooltip_text == map_tooltip, "Map tooltip follows %s/%s" % [modality, family])
-	_router.call("set_forced_state_for_test", "controller", Router.FAMILY_XBOX)
+	_router.call("set_forced_state_for_test", "controller", _sweep_family)
 	_rows.append({"screen": "shortcut_tooltips", "reached": SHORTCUT_TOOLTIP_CASES, "total": SHORTCUT_TOOLTIP_CASES})
 
 func _legacy_room_state() -> Dictionary:
@@ -1036,7 +1073,7 @@ func _analog_volume_regression() -> void:
 	if analog != null: analog.call("_process", 0.95)
 	_expect(is_equal_approx(master.value, 0.55), "Pointer handoff pauses a held analog volume repeat")
 	_send_motion(JOY_AXIS_LEFT_X, 0.0)
-	_router.call("set_forced_state_for_test", "controller", "xbox")
+	_router.call("set_forced_state_for_test", "controller", _sweep_family)
 	# Native GUI focus uses the same timed rule on each axis, preserving its D-pad route.
 	var focus_steps: Array = []
 	var on_focus: Callable = func(control: Control) -> void: focus_steps.append(control.get_instance_id())
@@ -1139,11 +1176,11 @@ func _assert_selection_repeat(surface: Control, axis: int, label: String) -> voi
 	_expect(selections.size() == 1, "%s axis %d jitter selects once" % [label, axis])
 	for tick: int in range(ANALOG_TEST_HOLD_TICKS): surface.call("_process", ANALOG_TEST_TICK_SECONDS)
 	_expect(selections.size() == 6, "%s axis %d 0.95s hold selects 1 + 5 times" % [label, axis])
-	_router.call("set_forced_state_for_test", "pointer", "xbox")
+	_router.call("set_forced_state_for_test", "pointer", _sweep_family)
 	surface.call("_process", 0.95)
 	_expect(selections.size() == 6, label + " pointer handoff pauses analog selection repeats")
 	_send_motion(axis, 0.0)
-	_router.call("set_forced_state_for_test", "controller", "xbox")
+	_router.call("set_forced_state_for_test", "controller", _sweep_family)
 	_viewport.gui_focus_changed.disconnect(on_focus)
 
 func _regression_result(label: String, failures_before: int) -> void:
@@ -1188,20 +1225,56 @@ func _send_motion(axis: int, value: float) -> void:
 	_viewport.push_input(event, true)
 
 func _reward_focus_regression() -> void:
-	var state: Dictionary = _base_state()
-	state["mode"] = "reward"
-	state["pending_reward"] = {"cards": ["quick_stab"], "heal_amount": Run.REWARD_HEAL, "ember_amount": 0}
+	var state: Dictionary = _combat_state()
+	var enemy: Dictionary = state["combat_state"]["enemies"][0]
+	enemy["hp"] = REWARD_FIXTURE_ENEMY_HEALTH
+	enemy["max_hp"] = REWARD_FIXTURE_ENEMY_HEALTH
 	await _load(state)
-	if _focus() != null: _focus().release_focus()
-	var live: Dictionary = _scene.get("_run_state")
-	live["pending_reward"]["intro_pending"] = true
-	_scene.set("_reward_reveal_pending", true)
-	_scene.set("_animation_lock", true)
-	_scene.call("_finish_reward_intro")
+	if str(_scene.get("_controller_region")) != "hand": await _joy(JOY_BUTTON_X)
+	for step: int in range((state["combat_state"]["deck"]["hand"] as Array).size()):
+		if int(_scene.get("_controller_hand_index")) == 0: break
+		await _joy(JOY_BUTTON_DPAD_RIGHT)
+	await _joy(JOY_BUTTON_A)
+	await _joy(JOY_BUTTON_A)
+	await _wait_unlocked()
 	await _settle()
-	await _settle()
-	_expect(_inside(_scene.get("_relic_choice_overlay"), _focus()), "Finishing the reward reveal establishes controller focus without another input")
-	await _capture("reward_focus")
+	var reward: Control = _scene.get("_relic_choice_overlay")
+	var first_card: Control = reward.find_child("CardWidget", true, false)
+	var focused_card: bool = first_card != null and _focus() == first_card
+	_expect(_scene.get("_run_state")["mode"] == "reward", "Controller's final attack wins the fight and opens the reward")
+	_expect(focused_card, "Finishing the reward reveal focuses the first card without another input")
+	if focused_card: await _capture("reward_focus")
+	await _scan("reward", reward)
+
+func _event_reward_focus_regression() -> void:
+	var failures_before: int = _failures.size()
+	await _load(EventFixture.fixture(EVENT_DRAFT_ID))
+	await create_timer(EVENT_SWEEP_SETTLE_SECONDS).timeout
+	var view: Control = _scene.get("_event_view")
+	_assert_opening_focus(view.find_child("Choice1", true, false), "Library choices")
+	await _joy(JOY_BUTTON_A)
+	await create_timer(EVENT_SWEEP_SETTLE_SECONDS).timeout
+	var result: Control = view.find_child("EventContinue", true, false)
+	_assert_opening_focus(result, "Library result")
+	if result != null and _focus() == result:
+		await _joy(JOY_BUTTON_A)
+		await _wait_for_event_view_close(view)
+		# Let the controller's deferred layout and focus recovery run. No
+		# synthetic focus or controller input is sent during this handoff.
+		await _settle()
+		await _settle()
+		var reward: Control = _scene.get("_relic_choice_overlay")
+		var first_card: Control = reward.find_child("CardWidget", true, false)
+		_expect(_scene.get("_run_state").get("pending_reward", {}).get("kind") == "event", "Library Continue opens the event spell draft")
+		_assert_opening_focus(first_card, "Event spell draft")
+		if first_card != null and _focus() == first_card:
+			await _capture("event_reward")
+			var skip: Control = reward.find_child("RewardSkipButton", true, false)
+			if await _navigate(reward, skip, "Event spell draft Skip"):
+				await _capture("event_reward", "skip")
+				await _joy(JOY_BUTTON_A)
+				_expect(_scene.get("_run_state")["mode"] == "room", "Controller can skip the event draft")
+	_regression_result("EVENT_REWARD_FOCUS", failures_before)
 
 func _encounter_screens() -> void:
 	var state: Dictionary = _base_state()
@@ -1211,7 +1284,7 @@ func _encounter_screens() -> void:
 	_surface_states["reward"] = state.duplicate(true)
 	await _scan("reward", _scene.get("_relic_choice_overlay"))
 	await _load(EventFixture.fixture("hanged_knight", true))
-	await create_timer(0.3).timeout
+	await create_timer(EVENT_SWEEP_SETTLE_SECONDS).timeout
 	var view: Control = _scene.get("_event_view")
 	await _scan("event", view)
 	_expect(str(view.get("page")) == "choices", "Event B fixture still requires a choice")
@@ -1222,24 +1295,12 @@ func _encounter_screens() -> void:
 	view.disconnect("choice_requested", on_choice)
 	_expect(choices.is_empty(), "Event B cannot request a choice or continue before choosing")
 	await _joy(JOY_BUTTON_A)
-	await create_timer(0.3).timeout
+	await create_timer(EVENT_SWEEP_SETTLE_SECONDS).timeout
 	await _scan("event_result", view)
 	await _joy(JOY_BUTTON_B)
 	_expect(str(_scene.get("_run_state")["mode"]) != "event", "Event result B continues")
-	state = GraftFixture.fixture()
-	await _load(state)
-	view = _scene.get("_graftwright_view")
-	await _scan("graftwright_intro", view)
-	await _navigate(view, view.find_child("GraftBrowse", true, false), "Graftwright Browse")
-	await _joy(JOY_BUTTON_A)
-	await _scan("graftwright", view)
-	await _navigate(view, view.find_child("ChooseSacrifice", true, false), "Graftwright sacrifice")
-	await _joy(JOY_BUTTON_A)
-	await _scan("graftwright_picker", view)
-	await _joy(JOY_BUTTON_B)
-	_expect(str(view.get("_picker_role")).is_empty(), "Graftwright B closes picker first")
-	await _joy(JOY_BUTTON_B)
-	_expect(str(_scene.get("_run_state")["mode"]) != "graftwright", "Graftwright B leaves")
+	await _graftwright_screens()
+	await _event_reward_focus_regression()
 	await _shop()
 	HearthFixture.setup(_scene, 8, 180, true, false)
 	await create_timer(0.7).timeout
@@ -1251,6 +1312,64 @@ func _encounter_screens() -> void:
 	_scene.call("_recover_controller_focus")
 	_surface_states["ember_hearth"] = (_scene.get("_run_state") as Dictionary).duplicate(true)
 	await _scan("ember_hearth", _scene.get("_relic_choice_overlay"))
+
+func _graftwright_screens(travel: bool = false) -> void:
+	if travel:
+		if not await _travel_to_graftwright(): return
+	else:
+		await _load_graftwright_fixture()
+	var view: Control = _scene.get("_graftwright_view")
+	var browse: Control = view.find_child("GraftBrowse", true, false)
+	_assert_opening_focus(browse, "Graftwright intro")
+	if browse != null and _focus() == browse: await _capture("graftwright_intro")
+	await _scan("graftwright_intro", view)
+	if not await _navigate(view, browse, "Graftwright Browse"): return
+	await _joy(JOY_BUTTON_A)
+	var sacrifice: Control = view.find_child("ChooseSacrifice", true, false)
+	_assert_opening_focus(sacrifice, "Graftwright workbench")
+	await _scan("graftwright", view)
+	if not await _navigate(view, sacrifice, "Graftwright sacrifice"): return
+	await _joy(JOY_BUTTON_A)
+	var picker: Control = view.find_child("EquipmentPicker", true, false)
+	var first_item: Control = picker.find_child("Pick_patched_cloak", true, false) if picker != null else null
+	_assert_opening_focus(first_item, "Graftwright sacrifice picker")
+	if first_item != null and _focus() == first_item: await _capture("graftwright_picker")
+	await _scan("graftwright_picker", picker)
+	var equipment_before: Array = (_scene.get("_run_state")["equipment_inventory"] as Array).duplicate()
+	await _joy(JOY_BUTTON_B)
+	_expect(str(view.get("_picker_role")).is_empty(), "Graftwright B closes picker first")
+	_assert_opening_focus(view.find_child("ChooseSacrifice", true, false), "Graftwright after closing picker")
+	await _joy(JOY_BUTTON_B)
+	_expect(str(_scene.get("_run_state")["mode"]) != "graftwright", "Graftwright B leaves")
+	_expect(_scene.get("_run_state")["equipment_inventory"] == equipment_before, "Browsing and leaving Graftwright consumes no equipment")
+
+func _travel_to_graftwright() -> bool:
+	var encounter: Dictionary = GraftFixture.fixture()
+	var destination: Vector2i = encounter["current_room"]
+	await _load(GraftFixture.approach(encounter))
+	await _joy(JOY_BUTTON_BACK)
+	var map: Control = _scene.get("_large_map_scrim")
+	var map_view: Control = _scene.get("_large_map_view")
+	var room: Control = map_view.get("node_buttons").get(destination)
+	if not await _navigate(map, room, "Graftwright map travel"): return false
+	await _joy(JOY_BUTTON_A)
+	var deadline: int = Time.get_ticks_msec() + READY_TIMEOUT_MSEC
+	while map.visible and Time.get_ticks_msec() < deadline: await process_frame
+	await _wait_unlocked()
+	await _settle()
+	var entered: bool = _scene.get("_run_state")["mode"] == "graftwright"
+	_expect(entered, "Controller enters the Graftwright from the map")
+	return entered
+
+func _load_graftwright_fixture() -> void:
+	var view: Control = _scene.get("_graftwright_view")
+	# The rebuilt Graftwright (566363b82, e97ac78c4) retains choices and picker
+	# by room identity. A sweep replay is an independent visit to the same room.
+	view.set("_room_identity", "")
+	await _load(GraftFixture.fixture())
+
+func _assert_opening_focus(target: Control, label: String) -> void:
+	_expect(target != null and target.is_visible_in_tree() and _focus() == target, label + " focuses its first action without another input")
 
 func _shop() -> void:
 	var engine := Run.new()
@@ -1375,18 +1494,23 @@ func _activate_inventory() -> void:
 		if label in ["combat_hand", "combat_hud", "room_entry", "run_end_recap", "camp", "pause", "skills_reset_confirmation"]: continue
 		var scope: Control = await _restore_surface(label)
 		if scope == null: continue
-		var inventory: Array = _controls(scope).map(func(control: Control) -> StringName: return control.name)
+		var inventory: Array = _controls(scope).map(func(control: Control) -> String: return str(control.name))
 		var count: int = inventory.size()
 		if label.begins_with("grimoire"):
 			_expect(count == int(row["total"]), label + " replay preserves the complete discovered catalog")
+		if label.begins_with("graftwright"):
+			_expect(inventory == row["controls"], label + " replay matches the swept controls")
 		var activated: int = 0
 		var total: int = 0
 		for index: int in range(count):
 			print("Pressing %s %d/%d" % [label, index + 1, count])
 			scope = await _restore_surface(label)
+			if scope == null:
+				_expect(false, label + " replay surface is visible")
+				continue
 			var controls: Array[Control] = _controls(scope)
-			if label in ["character_skills", "scavenger"]:
-				var restored_inventory: Array = controls.map(func(control: Control) -> StringName: return control.name)
+			if label in ["character_skills", "scavenger"] or label.begins_with("graftwright"):
+				var restored_inventory: Array = controls.map(func(control: Control) -> String: return str(control.name))
 				if restored_inventory != inventory:
 					_expect(false, "%s replay inventory after press %d: expected %s, got %s" % [label, index, inventory, restored_inventory])
 					continue
@@ -1517,11 +1641,15 @@ func _restore_surface(label: String) -> Control:
 		await create_timer(0.3).timeout
 		return _scene.get("_event_view")
 	if label.begins_with("graftwright"):
-		await _load(GraftFixture.fixture())
+		await _load_graftwright_fixture()
 		var view: Control = _scene.get("_graftwright_view")
-		if label != "graftwright_intro": view.call("begin_work")
-		if label == "graftwright_picker": view.call("open_picker", "donor")
-		await _settle()
+		if label != "graftwright_intro":
+			if not await _navigate(view, view.find_child("GraftBrowse", true, false), "Graftwright replay Browse"): return null
+			await _joy(JOY_BUTTON_A)
+		if label == "graftwright_picker":
+			if not await _navigate(view, view.find_child("ChooseSacrifice", true, false), "Graftwright replay sacrifice"): return null
+			await _joy(JOY_BUTTON_A)
+			return view.find_child("EquipmentPicker", true, false)
 		return view
 	if label in ["scavenger", "scavenger_sell", "purge", "purge_confirmation"]:
 		var shop: Control = _scene.get("_scavenger_shop_view")
@@ -1721,7 +1849,7 @@ func _capture(screen: String, state: String = "focus") -> void:
 	await _settle()
 	await RenderingServer.frame_post_draw
 	var image: Image = _viewport.get_texture().get_image()
-	_expect(image != null and image.get_size() == PROOF_SIZE, screen + " native proof size")
+	_expect(image != null and image.get_size() == _sweep_size, screen + " native proof size")
 	if image != null:
 		var directory: String = _output_dir.path_join("native_" + screen)
 		DirAccess.make_dir_recursive_absolute(directory)

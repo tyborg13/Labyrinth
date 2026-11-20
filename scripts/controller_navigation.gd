@@ -66,6 +66,15 @@ static func nearest_candidate(point: Vector2, candidates: Array[Dictionary]) -> 
 			best = candidate
 	return best
 
+static func first_room_candidate(origin: Vector2, direction: Vector2, candidates: Array[Dictionary]) -> Dictionary:
+	# A room can inherit a free cursor directly over a door after travel.
+	# Explicit directional input can acquire it while idle Accept stays unarmed.
+	var nearby: Dictionary = nearest_candidate_within_radius(origin, candidates, 0.0)
+	if not nearby.is_empty():
+		return nearby
+	var ahead: Dictionary = best_candidate_in_direction(origin, direction, candidates)
+	return ahead if not ahead.is_empty() else nearest_candidate(origin, candidates)
+
 static func nearest_candidate_within_radius(point: Vector2, candidates: Array[Dictionary], default_radius: float) -> Dictionary:
 	var best: Dictionary = {}
 	var best_distance_squared: float = INF

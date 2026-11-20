@@ -1,0 +1,30 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "confluence-rubble-under-fire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 160, 960, 600], "min_luma_range": 12, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "walk-present-arc-bolt.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 160, 960, 600], "min_luma_range": 12, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "lob-cross-after-sight-change.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 160, 960, 600], "min_luma_range": 12, "min_luma_stdev": 3}
+      ]
+    }
+  ]
+}

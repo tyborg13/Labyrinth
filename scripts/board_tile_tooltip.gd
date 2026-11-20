@@ -35,8 +35,6 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 			match str(terrain.get("kind", "")):
 				"powder_keg":
 					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(cross) When destroyed, deals %d to these tiles." % int(terrain.get("burst_damage", 0))
-				"worldspine":
-					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes %d." % int(terrain.get("pulse_damage", 0))
 			result.append(entry)
 	for loot: Dictionary in state.get("loot", []):
 		if loot.get("pos") != tile or bool(loot.get("claimed", false)): continue

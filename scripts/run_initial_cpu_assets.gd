@@ -66,7 +66,7 @@ static func add_gear_validation_textures(manifest: Dictionary) -> void:
 
 static func prepare_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
 	var texture_manifest: Dictionary = {}
-	for path: String in ["res://assets/units/protagonist_cutout/front.json", "res://assets/units/protagonist_cutout/rear.json", "res://assets/units/scavenger_cutout/front.json"]:
+	for path: String in ["res://assets/units/protagonist_cutout/front.json", "res://assets/units/protagonist_cutout/rear.json"]:
 		var prepared: RefCounted = (await Assets.prepare_cpu_value_for(root, RigData.prepare_owned_source.bind(path), present_frame, still_active)) as RefCounted
 		if not owner_is_active(scene, still_active): return
 		var published: RefCounted = RigData.publish_owned_source(path, prepared)

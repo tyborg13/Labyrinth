@@ -5,13 +5,13 @@ extends RefCounted
 # without resuming a freed RunScene. Normal direct scene loading remains sync.
 const Assets = preload("res://scripts/asset_loader.gd")
 const StateAssets = preload("res://scripts/encounter_asset_preparation.gd")
-const Graph = preload("res://scripts/section_map_graph.gd")
 const InitialGraph = preload("res://scripts/initial_run_graph.gd")
-const Biomes = preload("res://scripts/biome_library.gd")
+const SectionArt = preload("res://scripts/run_section_art.gd")
+const RoomAssets = preload("res://scripts/room_asset_preparation.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const EmaciatedMan = preload("res://scripts/emaciated_man_cutout/renderer.gd")
+const OpeningNpc = preload("res://scripts/emaciated_man_cutout/presentation.gd")
 const SfxBank = preload("res://scripts/sfx_bank.gd")
-const SLICE_USEC: int = 4000
 static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 
 static func owner_is_active(scene: Variant, still_active: Callable) -> bool:
@@ -39,13 +39,20 @@ static func _finish_new_run(scene: Node, request: Dictionary, present: Callable,
 			await present.call()
 			if not owner_is_active(scene, still_active): return false
 			_update_requested_seed(root, request)
+		await Assets.wait_for_preparation_slice(present, owner_is_active.bind(scene, still_active), &"commit_new_run", Assets.PREPARATION_SLICE_USEC)
+		if not owner_is_active(scene, still_active): return false
+		_update_requested_seed(root, request)
 		if job.cancellation.is_cancelled(): return false
 		if not job.matches(request["seed"], request["depth"]): continue
 		scene._initial_run_graph = null
 		if job.graph.is_empty(): return false
+		var work_started: int = Time.get_ticks_usec()
 		var _hitch_span: RefCounted
 		if _hitch_trace_enabled: _hitch_span = _phase("commit_new_run")
-		return scene._commit_new_run(request, job.graph)
+		var installed: bool = scene._commit_new_run(request, job.graph)
+		_hitch_span = null
+		Assets.count_preparation_work(work_started, &"commit_new_run")
+		return installed
 	return false
 
 static func _update_requested_seed(root: Window, request: Dictionary) -> void:
@@ -55,18 +62,29 @@ static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: C
 	var jobs: Array[Callable] = scene._initial_ui_jobs()
 	if not await _run_jobs(scene, jobs, present_frame, still_active): return
 	if not owner_is_active(scene, still_active): return
-	await Assets.prepare_textures_for(scene.get_tree().root, StateAssets.state_texture_manifest(scene, scene._run_state), present_frame, still_active)
+	var combat: Dictionary = scene._combat_state
+	if str(scene._run_state.get("mode", "")) == "pre_battle":
+		var generation: int = scene._encounter_preparation_generation
+		var alive: Callable = func() -> bool:
+			return StateAssets.active(scene, generation) and owner_is_active(scene, still_active)
+		var factory: Dictionary = await StateAssets.prepare_combat_factory_for(scene, scene._run_state, present_frame, alive)
+		if not owner_is_active(scene, still_active): return
+		scene._prepared_pre_battle_factory = factory
+		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(scene._run_state, factory)
+		combat = preview.get("combat_state", {})
+	var state_textures: Dictionary = StateAssets.state_texture_manifest(scene, scene._run_state, combat)
+	await StateAssets.prepare_rig_textures_for(scene, combat, state_textures, present_frame, still_active)
+	if not owner_is_active(scene, still_active): return
+	await RoomAssets.prepare_room_textures_for(scene, scene._run_state, present_frame, still_active)
 	if not owner_is_active(scene, still_active): return
 	await StateAssets.prepare_hidden_shop_for(scene, scene._run_state, present_frame, still_active)
 	if not owner_is_active(scene, still_active): return
 	await _prepare_opening_room_textures(scene, present_frame, still_active)
 	if not owner_is_active(scene, still_active): return
-	# Boss order varies by run. Warm only the actual displayed section after
-	# committing its state, rather than a fixed first-section background.
-	if Graph.enabled(scene._run_state):
-		var section: Dictionary = Graph.section(scene._run_state, Graph.active_section(scene._run_state))
-		var path: String = "res://assets/art/backgrounds/sections/%s.png" % str(section.get("boss_id", "tharokh"))
-		await Assets.prepare_textures_for(scene.get_tree().root, {path: false}, present_frame, still_active)
+	await SectionArt.prepare_for(scene.get_tree().root, scene._run_state, present_frame, still_active)
+	if not owner_is_active(scene, still_active): return
+	if str(scene._run_state.get("mode", "")) == "defeat":
+		await preload("res://scripts/run_end_preparation.gd").prepare_defeat_portrait_for(scene, scene._run_state, present_frame, still_active)
 		if not owner_is_active(scene, still_active): return
 	scene._begin_ui_refresh(true)
 	var refresh: Array[Callable]
@@ -109,17 +127,11 @@ static func _prepare_opening_room_textures(scene: Node, present: Callable, still
 	if str(state.get("mode", "")) != "room": return
 	var root: Node = scene.get_tree().root
 	var room: Dictionary = scene._run_engine.room_metadata(state, state.get("current_room", Vector2i.ZERO))
-	var art_dir: String = Biomes.definition(Biomes.biome_for_run(state, room)).get("art_dir", "")
 	var textures: Dictionary = {}
-	if not art_dir.is_empty():
-		for file: String in ["pillar.png", "light_left.png", "light_right.png", "light_left_idle.png", "light_right_idle.png"]:
-			var path: String = art_dir.path_join(file)
-			if FileAccess.file_exists(path) or ResourceLoader.exists(path): textures[path] = false
-		for variant: String in Biomes.FLOOR_VARIANTS:
-			var path: String = art_dir.path_join("floor_%s.png" % variant)
-			if FileAccess.file_exists(path) or ResourceLoader.exists(path): textures[path] = false
+	var prepare_opening_npc: bool = false
 	for npc: Dictionary in room.get("npcs", []):
 		if str(npc.get("id", "")) != "emaciated_man": continue
+		prepare_opening_npc = true
 		var layout: String = EmaciatedMan.Rig.EMACIATED_BASE.path_join("front.json")
 		var value: Variant = await Assets.prepare_cpu_value_for(root, RigData.prepare_owned_source.bind(layout), present, still_active)
 		if not owner_is_active(scene, still_active): return
@@ -130,6 +142,12 @@ static func _prepare_opening_room_textures(scene: Node, present: Callable, still
 		textures[EmaciatedMan.REST_PATH] = true
 		break
 	await Assets.prepare_textures_for(root, textures, present, still_active)
+	if prepare_opening_npc and owner_is_active(scene, still_active):
+		var trace_npc: Callable = _opening_npc_phase if _hitch_trace_enabled else Callable()
+		await OpeningNpc.prepare_opening_for(scene.board_view, present, owner_is_active.bind(scene, still_active), trace_npc)
+
+static func _opening_npc_phase(step: String) -> RefCounted:
+	return _phase("opening_npc:" + step)
 
 static func prepare_reward_choices_for(scene: Node, present_frame: Callable, still_active: Callable) -> void:
 	if not owner_is_active(scene, still_active) or not scene.is_inside_tree(): return
@@ -145,30 +163,32 @@ static func prepare_reward_choices_for(scene: Node, present_frame: Callable, sti
 	scene.call_deferred("_layout_relic_choice_overlay")
 
 static func _run_jobs(scene: Node, jobs: Array[Callable], present_frame: Callable, still_active: Callable) -> bool:
-	var slice_started: int = Time.get_ticks_usec()
+	var alive: Callable = owner_is_active.bind(scene, still_active)
 	for job: Callable in jobs:
-		if not owner_is_active(scene, still_active) or not scene.is_inside_tree(): return false
+		var step: StringName = job.get_method()
+		# First board submission can exceed a preparation interval even when
+		# its resources are warm. Reserve a fresh presented frame for it.
+		var estimate: int = Assets.PREPARATION_SLICE_USEC if step in [&"_refresh_ui_stage", &"_apply_style"] else Assets.DEFAULT_STEP_ESTIMATE_USEC
+		await Assets.wait_for_preparation_slice(present_frame, alive, step, estimate)
+		if not bool(alive.call()) or not scene.is_inside_tree(): return false
 		if job == scene._ensure_sfx_bank:
 			if scene._sfx_bank == null:
 				var bank: Node = scene._make_sfx_bank()
 				await SfxBank.warm_up_for(bank, scene, present_frame, still_active)
 				if not owner_is_active(scene, still_active): return false
 				scene._bind_sfx_bank(bank)
-			slice_started = Time.get_ticks_usec()
 			continue
-		var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
+		var started: int = Time.get_ticks_usec()
 		var _hitch_span: RefCounted
 		if _hitch_trace_enabled: _hitch_span = _phase(str(job.get_method()))
 		var result: Variant = job.call()
 		_hitch_span = null
 		scene._record_runtime_performance_phase("startup_" + str(job.get_method()), started)
+		Assets.count_preparation_work(started, step)
 		if job == scene._prepare_initial_run_state:
 			if not await _finish_boot(scene, result, present_frame, still_active): return false
-		if Time.get_ticks_usec() - slice_started >= SLICE_USEC:
-			await present_frame.call()
-			if not owner_is_active(scene, still_active): return false
-			slice_started = Time.get_ticks_usec()
-	return true
+	await Assets.wait_for_preparation_slice(present_frame, alive, &"", 0)
+	return bool(alive.call())
 
 static func prepare_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
 	await preload("res://scripts/run_initial_cpu_assets.gd").prepare_cpu_assets_for(scene, root, present_frame, still_active)

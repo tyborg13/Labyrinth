@@ -1124,25 +1124,44 @@ func prepare_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 
 # The complete synchronous factory and future menu preparation share the same
 # ordered creation steps. Incomplete state remains private to its owned cursor.
-func begin_pre_battle_combat_preparation(run_state: Dictionary) -> Dictionary:
+func begin_pre_battle_combat_preparation(run_state: Dictionary, sliced: bool = false) -> Dictionary:
 	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE: return {}
 	var source: Dictionary = run_state.duplicate(true)
 	var room: Dictionary = room_metadata(source, source.get("current_room", Vector2i.ZERO))
 	if not _room_blocks_exit_reveal(room): return {}
-	var travel_dir: Vector2i = source.get("pre_battle_travel_dir", Vector2i.ZERO)
-	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, source)
-	return {"input": source, "definitions": _pre_battle_definitions().duplicate(true), "layout": layout,
-		"combat_creation": _combat_engine.begin_combat_creation(int(source.get("seed", 0)), layout, _player_snapshot(source))}
+	var owned: Dictionary = {"input": source, "definitions": _pre_battle_definitions().duplicate(true), "pending_room": room}
+	if not sliced:
+		_prepare_pre_battle_layout(owned)
+		_begin_pre_battle_creation(owned)
+	return owned
 
-func advance_pre_battle_combat_preparation(owned: Dictionary) -> bool:
-	if owned.is_empty() or not owned.has("combat_creation"): return true
+func _prepare_pre_battle_layout(owned: Dictionary) -> void:
+	var source: Dictionary = owned["input"]
+	var travel_dir: Vector2i = source.get("pre_battle_travel_dir", Vector2i.ZERO)
+	owned["layout"] = _combat_layout_for_room(owned["pending_room"], travel_dir, source)
+	owned.erase("pending_room")
+
+func _begin_pre_battle_creation(owned: Dictionary) -> void:
+	var source: Dictionary = owned["input"]
+	owned["combat_creation"] = _combat_engine.begin_combat_creation(int(source.get("seed", 0)), owned["layout"], _player_snapshot(source))
+
+func advance_pre_battle_combat_preparation(owned: Dictionary, sliced: bool = false) -> bool:
+	if owned.is_empty() or owned.has("combat_state"): return true
 	# Global catalogs can change between main-thread preparation callbacks.
 	# Abort the whole result rather than combining definitions from two moments.
 	if owned["definitions"] != _pre_battle_definitions():
 		owned.clear()
 		return true
+	if owned.has("pending_room"):
+		_prepare_pre_battle_layout(owned)
+		if sliced: return false
+	if not owned.has("combat_creation"):
+		_begin_pre_battle_creation(owned)
+		if sliced: return false
 	var cursor: Dictionary = owned["combat_creation"]
-	if not _combat_engine.advance_combat_creation(cursor): return false
+	if not bool(cursor.get("complete", false)):
+		if not _combat_engine.advance_combat_creation(cursor, sliced): return false
+		if sliced: return false
 	var state: Dictionary = cursor["state"]
 	var source: Dictionary = owned["input"]
 	owned["authored_tutorial"] = GuidedCombatScenario.should_prepare(source, state)

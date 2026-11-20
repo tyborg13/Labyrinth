@@ -101,8 +101,11 @@ class TextBudgetTest(unittest.TestCase):
         # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
         live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
                           "definition": "When it dies, it splits into smaller enemies next to it."}
+        # trn-01 (owner APPROVED 2026-11-19, worldspine-outcrop-1): Worldspine raises ordinary Outcrops, so its
+        # separate glossary entry is retired in favour of the one Outcrop entry.
+        live.pop("worldspines")
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 140)
+        self.assertEqual(len(live), 139)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]

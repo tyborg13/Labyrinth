@@ -99,7 +99,8 @@ const SUMMARY_VALUE_TO_ICON_RATIO: float = 0.62
 const SUMMARY_SEGMENT_VALUE_RATIO: float = 0.58
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
-const TITLE_MIN_SIZE: int = 14
+const TITLE_MIN_SIZE: int = UiTypography.SIZE_CAPTION
+const TITLE_TYPE_STEPS := [UiTypography.SIZE_BODY_LARGE, UiTypography.SIZE_BODY, UiTypography.SIZE_SMALL]
 const TITLE_BADGE_GAP: float = 4.0
 const ART_SHADOW_OFFSET := Vector2(1.5, 3.0)
 const ART_SHADOW_COLOR := Color(0.16, 0.08, 0.03, 0.42)
@@ -657,7 +658,7 @@ func _ready() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	title_label.clip_text = true
 	var text_font: Font = UiTypography.text_font()
 	if text_font != null:
@@ -2210,29 +2211,33 @@ func _fit_title_label(base_size: int) -> void:
 	if title_label == null:
 		return
 	_update_title_inset()
-	var font: Font = UiTypography.ui_font()
-	if font == null:
-		if _retain_hand_refresh_work:
-			RetainedMetrics.label_size(title_label, _relieved_title_size(base_size))
-		else:
-			UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
-		return
-	var available_width: float = _title_nameplate_width()
-	var available_height: float = maxf(_scaled_card_value(28.0, 16.0), title_label.custom_minimum_size.y)
-	var min_title_size: int = _title_min_size()
-	for candidate: int in range(base_size, min_title_size - 1, -1):
-		var render_size: int = _relieved_title_size(candidate)
-		var scaled_size: int = UiTypography.scaled_size(title_label, render_size)
-		if _title_fits(font, title_label.text, scaled_size, available_width, available_height):
-			if _retain_hand_refresh_work:
-				RetainedMetrics.label_size(title_label, render_size)
-			else:
-				UiTypography.set_label_size(title_label, render_size)
-			return
+	var render_size: int = _fitted_title_size(_relieved_title_size(base_size))
+	var overrun: TextServer.OverrunBehavior = TextServer.OVERRUN_NO_TRIMMING
+	if render_size == _title_min_size():
+		var font_size: int = UiTypography.scaled_size(title_label, render_size)
+		if SummaryMeasurements.text_width(title_label.get_theme_font("font"), font_size, title_label.text) > _title_nameplate_width():
+			overrun = TextServer.OVERRUN_TRIM_ELLIPSIS
+	if title_label.text_overrun_behavior != overrun:
+		title_label.text_overrun_behavior = overrun
 	if _retain_hand_refresh_work:
-		RetainedMetrics.label_size(title_label, min_title_size)
+		RetainedMetrics.label_size(title_label, render_size)
 	else:
-		UiTypography.set_label_size(title_label, min_title_size)
+		UiTypography.set_label_size(title_label, render_size)
+
+func _fitted_title_size(initial_size: int) -> int:
+	var font: Font = title_label.get_theme_font("font")
+	var width: float = _title_nameplate_width()
+	var height: float = maxf(_scaled_card_value(28.0, 16.0), title_label.custom_minimum_size.y)
+	var minimum: int = _title_min_size()
+	var candidate: int = initial_size
+	for step: int in TITLE_TYPE_STEPS:
+		if step >= candidate or step <= minimum: continue
+		if _title_fits(font, title_label.text, UiTypography.scaled_size(title_label, candidate), width, height):
+			return candidate
+		candidate = step
+	if _title_fits(font, title_label.text, UiTypography.scaled_size(title_label, candidate), width, height):
+		return candidate
+	return minimum
 
 func _relieved_title_size(candidate: int) -> int:
 	var relief: int = _scaled_card_int(TITLE_FIT_RELIEF, 1)
@@ -2294,13 +2299,8 @@ func _title_nameplate_width() -> float:
 func _title_fits(font: Font, title: String, font_size: int, available_width: float, available_height: float) -> bool:
 	if title.strip_edges().is_empty():
 		return true
-	var longest_word_width: float = 0.0
-	for word: String in title.split(" ", false):
-		longest_word_width = maxf(longest_word_width, SummaryMeasurements.text_width(font, font_size, word))
 	var full_width: float = SummaryMeasurements.text_width(font, font_size, title)
 	var line_height: float = SummaryMeasurements.text_height(font, font_size)
-	if longest_word_width > available_width:
-		return false
 	return full_width <= available_width and line_height <= available_height + 3.0
 
 func _clear_children(node: Node) -> void:

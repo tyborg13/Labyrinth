@@ -193,11 +193,10 @@ static func _test_mason_ownership_and_health(combat: Combat, expect: Callable) -
 	Terrain.raise_outcrop(combat, state, Vector2i(6, 5), 3, {"actor_kind": "player"})
 	after = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Mason two outcrop blockers")
 	expect.call(_hp(after) == 54 and int(after["terrain"][0]["hp"]) == 5 and int(after["terrain"][1]["hp"]) == 5, "Mason grants one damage rider per collision and protects every outcrop blocker")
-	for kind: String in ["worldspine", "powder_keg"]:
-		state = fixture(combat, ["masons_plumb"], [enemy(1, Vector2i(4, 4))])
-		Terrain.raise_outcrop(combat, state, Vector2i(5, 4), 4, {"actor_kind": "player"}, {"kind": kind})
-		after = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Mason %s variant" % kind)
-		expect.call(int(after["terrain"][0]["hp"]) == 6 and _hp(after) == 54, "Mason includes player-raised %s as an offensive outcrop variant" % kind)
+	state = fixture(combat, ["masons_plumb"], [enemy(1, Vector2i(4, 4))])
+	Terrain.raise_outcrop(combat, state, Vector2i(5, 4), 4, {"actor_kind": "player"}, {"kind": "powder_keg"})
+	after = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Mason powder keg variant")
+	expect.call(int(after["terrain"][0]["hp"]) == 6 and _hp(after) == 54, "Mason includes player-raised powder kegs")
 
 
 static func _test_siege_defenses_dragons_and_resume(combat: Combat, expect: Callable) -> void:

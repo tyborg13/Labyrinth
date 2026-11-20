@@ -36,13 +36,21 @@ class FadeDriver extends Node:
 
 	func sample(now_usec: int) -> void:
 		var progress: float = clampf(float(now_usec - started_usec) / (FADE_SECONDS * 1000000.0), 0.0, 1.0)
-		var alpha: float = lerpf(from_alpha, target, progress)
-		panel.modulate.a = alpha
-		chip.set_meta("pass_forecast_alpha", alpha)
-		sync_visibility()
+		_set_alpha(lerpf(from_alpha, target, progress))
 		if progress >= 1.0:
 			set_process(false)
 			if target == 0.0: panel.hide()
+
+	func conceal() -> void:
+		target = 0.0
+		set_process(false)
+		panel.hide()
+		_set_alpha(0.0)
+
+	func _set_alpha(alpha: float) -> void:
+		panel.modulate.a = alpha
+		chip.set_meta("pass_forecast_alpha", alpha)
+		sync_visibility()
 
 	func sync_visibility() -> void:
 		for badge: Control in chip.get_meta("forecast_fade_badges", []):
@@ -107,7 +115,7 @@ static func rows(summary: Dictionary, portraits: Array[Dictionary], inks: Dictio
 	# Any losses above stay as a known minimum, followed by the one Umbra "?" row.
 	if umbra_row:
 		result.append({"parts": [_part("umbra", "?", inks["unknown"])]})
-	# atk-04: a visible new foe (a summon or split) acting first uses the turn-clock "?".
+	# An arrival that acts before the hero uses the turn-clock "?".
 	if clock_row:
 		result.append({"parts": [_part("turn_clock", "?", inks["unknown"])]})
 	return result
@@ -244,6 +252,12 @@ static func _icon(texture: Texture2D, pixels: float) -> TextureRect:
 	return icon
 
 # Only an active fade ticks. Stable destinations and idle controls do no work.
+static func conceal(chip: Button) -> void:
+	var fade: FadeDriver = chip.get_node_or_null("PassForecastFocusTooltip/ForecastFade") as FadeDriver
+	if fade == null: return
+	chip.set_meta("pass_forecast_active", false)
+	fade.conceal()
+
 static func refresh(chip: Button, active: bool) -> void:
 	var panel: Control = chip.get_node_or_null("PassForecastFocusTooltip") as Control
 	if panel == null: return

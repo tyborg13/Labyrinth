@@ -1,0 +1,7 @@
+{
+  "min_images": 2,
+  "required_images": [
+    {"pattern": "treasure_first_focus_*.png"},
+    {"pattern": "treasure_settled_*.png"}
+  ]
+}

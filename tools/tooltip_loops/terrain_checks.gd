@@ -111,13 +111,13 @@ func observe(board: Control, crop: Rect2i) -> void:
 			var key: String = str(terrain.get("id", terrain["pos"]))
 			minimum_margins[key] = minf(float(minimum_margins.get(key, INF)), margin)
 			if margin < Margin.REQUIRED_PIXELS and not failures.has("Terrain lacks 4 px frame margin: " + key): failures.append("Terrain lacks 4 px frame margin: " + key)
-			if terrain.get("kind") in ["crag_outcrop", "worldspine"]:
+			if terrain.get("kind") == "crag_outcrop":
 				var rise: float = float(row["inputs"][3])
 				if not rise_samples.has(rise): rise_samples.append(rise)
 				if rise > 0.0 and rise < 1.0:
 					if board.first_visible_frame < 0: board.first_visible_frame = board.capture_frame
 					board.last_visible_frame = maxi(board.last_visible_frame, board.capture_frame)
-				if terrain.get("kind") == "crag_outcrop" and board.presentation.get("unit_throw_ground_positions", {}).has("enemy_1"):
+				if board.presentation.get("unit_throw_ground_positions", {}).has("enemy_1"):
 					var manager: Node = board.get("_occlusion_silhouettes")
 					if is_instance_valid(manager):
 						var body: Control = manager.get("team").bodies.get("enemy_1")
@@ -159,7 +159,7 @@ func finish(board: Control, fixture: Dictionary, result: Dictionary, crop: Rect2
 			if expected_visible and not drawn: failures.append("Final surface lacks its visible production layer: %s %s" % [kind, tile])
 			if not expected_visible and drawn: failures.append("A dark tile reveals its final surface: %s %s" % [kind, tile])
 	if fixture["id"] == "worldspine_pulse" and not _rise_complete():
-		failures.append("Production Worldspines must animate their rise and finish fully raised")
+		failures.append("Worldspine Outcrops must animate their rise and finish fully raised")
 	if fixture["id"] == "rule_upheaval":
 		var found: bool = (board.combat_state.get("terrain", []) as Array).any(func(t: Dictionary) -> bool: return t.get("pos") == fixture["state"]["enemies"][0]["pos"] and t.get("kind") == "crag_outcrop" and Surfaces.terrain_is_live(t))
 		if not found: failures.append("Final recording board must retain the Outcrop on the marked tile")

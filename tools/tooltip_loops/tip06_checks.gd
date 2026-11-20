@@ -5,11 +5,12 @@ const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const IllusionRules = preload("res://scripts/illusion_card_rules.gd")
+const Rites = preload("res://scripts/rite_rules.gd")
 const TerrainRules = preload("res://scripts/terrain_card_rules.gd")
 const PULSE_DAMAGE: int = 3 # Requirement witness, never supplied to the resolver.
 var _first_effect_by_tile: Dictionary = {}
 var _saw_swap: bool = false
-var _saw_all_spires: bool = false
+var _saw_all_outcrops: bool = false
 var _last_motion_frame: int = -1
 var max_idle_frames: int = 0
 
@@ -69,13 +70,20 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 				failures.append("Swap must show only the hero and illusion on plain floor, without a hit")
 		setup.WORLDSPINE:
 			var raised: Dictionary = beats[0]["after"]
-			var spines: Array[Dictionary] = TerrainRules.player_worldspines(Combat.new(), raised)
+			var outcrops: Array = raised["terrain"]
 			var pulses: Array[Dictionary] = events(raised, after, TerrainRules.PULSE_EVENT)
-			if not before["terrain"].is_empty() or spines.size() != action["pattern"].size() or not _enemies_lost(before, raised, 0):
-				failures.append("Worldspine must raise every spire around the enemy before dealing damage")
-			for spine: Dictionary in spines:
-				if Paths.manhattan(spine["pos"], setup.CAGE_CENTER) != 1 or spine["hp"] != int(action["health"]):
-					failures.append("Each spire must have its printed Health and border the enemy")
+			var raised_tiles: Array = outcrops.map(func(outcrop: Dictionary) -> Vector2i: return outcrop["pos"])
+			if pulses.size() == 1 and not _same_tiles(pulses[0]["tiles"], raised_tiles):
+				failures.append("The pulse must play from each adjacent Outcrop")
+			if fixture.get("biome", "") != setup.PLAIN_FLOOR_BIOME or not _plain_room(before):
+				failures.append("Worldspine must use the plain Detonate floor")
+			if Rites.active_rites(raised).size() != 1:
+				failures.append("Worldspine must start its Rite when the raise is committed")
+			if outcrops.size() != action["pattern"].size() or not _enemies_lost(before, raised, 0):
+				failures.append("Worldspine must raise every Outcrop around the enemy before dealing damage")
+			for outcrop: Dictionary in outcrops:
+				if not TerrainRules.is_owned_outcrop(outcrop) or not outcrop.get("blocks_sight", false) or Paths.manhattan(outcrop["pos"], setup.CAGE_CENTER) != 1 or outcrop["hp"] != int(action["health"]):
+					failures.append("Each Outcrop must block sight, have its printed Health and border the enemy")
 			if after["turn"] != raised["turn"] + 1 or pulses.size() != 1 or not _same_tiles(pulses[0]["enemy_ids"], [after["enemies"][0]["id"]]) or not _enemies_lost(raised, after, Data.fixed_point_amount(PULSE_DAMAGE)):
 				failures.append("The next player turn must issue one Worldspine pulse and hit once for 3")
 	return failures
@@ -115,12 +123,12 @@ func observe(board: Control, setup: Script, id: String) -> void:
 	if id == setup.SWAP and effect.get("kind") == "blink":
 		_saw_swap = true
 	if id == setup.WORLDSPINE and board.combat_state.get("terrain", []).size() >= Paths.DIRS_4.size():
-		_saw_all_spires = true
+		_saw_all_outcrops = true
 	for event: Dictionary in shown.get("surface_feedback_events", []):
 		if id == setup.DISCHARGE and event.get("break_surface") == "electrified":
 			_first_effect_by_tile[event["tile"]] = true
 		if id == setup.WORLDSPINE and event.get("kind") == TerrainRules.PULSE_EVENT and event.get("feedback_element") == "earth":
-			for tile: Vector2i in event["tiles"]: _first_effect_by_tile[tile] = _saw_all_spires
+			for tile: Vector2i in event["tiles"]: _first_effect_by_tile[tile] = _saw_all_outcrops
 
 func finish(fixture: Dictionary, result: Dictionary, board: Control, setup: Script) -> Array[String]:
 	var failures: Array[String]

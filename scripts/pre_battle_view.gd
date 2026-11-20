@@ -22,13 +22,26 @@ const FoeLayout = preload("res://scripts/pre_battle_foe_layout.gd")
 const Lineup = preload("res://scripts/pre_battle_lineup.gd")
 const LiveActor = preload("res://scripts/live_actor_presentation.gd")
 const ObjectiveHeading = preload("res://scripts/pre_battle_objective_heading.gd")
+const PLAYER_PORTRAIT_PATH: String = "res://assets/art/portraits/player_reaver.png"
+
+static func texture_manifest(combat: Dictionary) -> Dictionary:
+	var textures: Dictionary = {objective_icon_path(combat.get("objective", {})): false, PLAYER_PORTRAIT_PATH: false}
+	for enemy: Dictionary in combat.get("enemies", []):
+		if int(enemy.get("hp", 0)) > 0: textures[InkPool.texture_path(foe_ink_variant(enemy))] = false
+	return textures
+
+static func foe_ink_variant(enemy: Dictionary) -> String:
+	return "b" if posmod(int(enemy.get("id", 0)), 2) else "a"
+
+static func objective_icon_path(objective: Dictionary) -> String:
+	return ObjectiveRules.icon_path(str(objective.get("type", ObjectiveRules.KILL_ALL)))
 
 static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}) -> void:
 	for job: Callable in build_jobs(host, panel, room, combat, accent, state): job.call()
 
 # The synchronous path and hidden travel preparation execute the same ordered
 # constructors. Nodes, fonts, and host callbacks remain main-thread-owned.
-static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}) -> Array[Callable]:
+static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}, defer_actors: bool = false) -> Array[Callable]:
 	var jobs: Array[Callable]
 	var margin := MarginContainer.new()
 	for side: String in ["left", "right"]:
@@ -40,34 +53,45 @@ static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, comb
 	content.name = "PreBattleContent"
 	content.add_theme_constant_override("separation", roundi(Typography.scaled_value(panel, 16.0)))
 	margin.add_child(content)
-	jobs.append(func() -> void:
-		var started: int = Time.get_ticks_usec()
-		content.add_child(build_header(host, room, combat, accent))
-		host.call("_record_runtime_performance_phase", "pre_battle_header", started)
-	)
+	jobs.append(_append_header.bind(host, content, room, combat, accent))
 	var body := HBoxContainer.new()
 	body.name = "PreBattleBody"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", roundi(Typography.scaled_value(panel, 16.0)))
 	content.add_child(body)
 	var foe_jobs: Array[Callable]
-	body.add_child(_begin_foes(host, combat, state, foe_jobs))
+	body.add_child(_begin_foes(host, combat, state, foe_jobs, defer_actors))
 	for job: Callable in foe_jobs:
 		jobs.append(_run_foe_job.bind(host, job))
-	jobs.append(func() -> void:
-		var started: int = Time.get_ticks_usec()
-		var divider := Controls.Rule.new()
-		divider.name = "PreBattleColumnDivider"
-		divider.vertical = true
-		divider.custom_minimum_size.x = Typography.scaled_value(panel, 1.0)
-		body.add_child(divider)
-		body.add_child(build_kit(host, state))
-		host.call("_record_runtime_performance_phase", "pre_battle_deck_section", started)
-	)
+	jobs.append(_append_kit_shell.bind(host, panel, body, state))
+	var kit_state: Dictionary = host.get("_run_state") if state.is_empty() else state
+	for group: Dictionary in host.call("_pre_battle_card_groups", kit_state.get("deck_cards", [])):
+		jobs.append(_append_kit_card.bind(host, body, group))
 	# Keep the authored header before the body even though the body shell is
 	# present while a staged build is waiting between its component jobs.
 	jobs.append(func() -> void: content.move_child(body, content.get_child_count() - 1))
 	return jobs
+
+static func _append_header(host: Node, content: Control, room: Dictionary, combat: Dictionary, accent: Color) -> void:
+	var started: int = Time.get_ticks_usec()
+	content.add_child(build_header(host, room, combat, accent))
+	host.call("_record_runtime_performance_phase", "pre_battle_header", started)
+
+static func _append_kit_shell(host: Node, panel: Control, body: Control, state: Dictionary) -> void:
+	var started: int = Time.get_ticks_usec()
+	var divider := Controls.Rule.new()
+	divider.name = "PreBattleColumnDivider"
+	divider.vertical = true
+	divider.custom_minimum_size.x = Typography.scaled_value(panel, 1.0)
+	body.add_child(divider)
+	body.add_child(build_kit(host, state, true))
+	host.call("_record_runtime_performance_phase", "pre_battle_deck_section", started)
+
+static func _append_kit_card(host: Node, body: Control, group: Dictionary) -> void:
+	var started: int = Time.get_ticks_usec()
+	var grid: Node = body.get_node("PreBattleDeckSection/PreBattleDeckScroll/PreBattleDeckFlow")
+	grid.add_child(_card_strip(host, group, "deck"))
+	host.call("_record_runtime_performance_phase", "pre_battle_deck_section", started)
 
 static func _run_foe_job(host: Node, job: Callable) -> void:
 	var started: int = Time.get_ticks_usec()
@@ -204,7 +228,7 @@ static func build_objective(combat: Dictionary) -> Control:
 		var contents := HBoxContainer.new()
 		contents.add_theme_constant_override("separation", 8)
 		plate.add_child(contents)
-		contents.add_child(icon(ObjectiveRules.icon_path(str(objective.get("type", ObjectiveRules.KILL_ALL))), 22.0, "PreBattleObjectiveIcon"))
+		contents.add_child(icon(objective_icon_path(objective), 22.0, "PreBattleObjectiveIcon"))
 		var heading := ObjectiveHeading.new()
 		heading.text = "OBJECTIVE · " + ObjectiveRules.title_for_objective(objective)
 		heading.name = "PreBattleObjectiveTitle"
@@ -237,7 +261,7 @@ static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -
 # Travel executes one complete foe constructor at a time under the hidden
 # scrim. The synchronous fallback uses these same ordered jobs; readiness is
 # published only after the footer, focus links and every foe are complete.
-static func _begin_foes(host: Node, combat: Dictionary, state: Dictionary, jobs: Array[Callable]) -> Control:
+static func _begin_foes(host: Node, combat: Dictionary, state: Dictionary, jobs: Array[Callable], defer_actors: bool = false) -> Control:
 	var foes := VBoxContainer.new()
 	foes.name = "PreBattleEnemySection"
 	foes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -277,12 +301,12 @@ static func _begin_foes(host: Node, combat: Dictionary, state: Dictionary, jobs:
 	for slot: int in range(enemies.size()):
 		var enemy: Dictionary = enemies[slot]
 		var leader: bool = bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"])
-		jobs.append(_append_foe.bind(host, flow, enemy, leader, slot, enemies.size()))
+		jobs.append(_append_foe.bind(host, flow, enemy, leader, slot, enemies.size(), defer_actors))
 	jobs.append(_finish_foes.bind(host, state, foes, header, flow, separation))
 	return foes
 
-static func _append_foe(host: Node, flow: Container, enemy: Dictionary, leader: bool, slot: int, count: int) -> void:
-	var card := build_foe(host, enemy, Vector2.ZERO, leader, slot, count)
+static func _append_foe(host: Node, flow: Container, enemy: Dictionary, leader: bool, slot: int, count: int, defer_actor: bool) -> void:
+	var card := build_foe(host, enemy, Vector2.ZERO, leader, slot, count, defer_actor)
 	flow.add_child(card)
 	var caption := card.get_node("PreBattleFoeCaption") as Control
 	caption.minimum_size_changed.connect(flow.queue_sort)
@@ -320,7 +344,7 @@ static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: C
 	header.item_rect_changed.connect(flow.queue_sort)
 	actions.item_rect_changed.connect(flow.queue_sort)
 
-static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false, slot: int = 0, slot_count: int = 1) -> Control:
+static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false, slot: int = 0, slot_count: int = 1, defer_actor: bool = false) -> Control:
 	var card := Controls.Foe.new()
 	card.name = "PreBattleEnemyCard"
 	card.host = host
@@ -331,7 +355,7 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	var stage := InkPool.new()
 	stage.name = "PreBattleEnemyBrush"
-	stage.variant = "b" if posmod(int(enemy.get("id", 0)), 2) else "a"
+	stage.variant = foe_ink_variant(enemy)
 	card.add_child(stage)
 	var art := icon(str(definition.get("art_path", "")), 0.0, "PreBattleEnemyArt")
 	# The combat board inherits linear filtering and uses the original full canvas.
@@ -340,7 +364,7 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	card.add_child(art)
 	var live := LiveActor.new()
 	live.name = "PreBattleEnemyLiveActor"
-	live.configure(str(enemy.get("type", "")), art, slot, slot_count)
+	live.configure(str(enemy.get("type", "")), art, slot, slot_count, defer_actor)
 	card.add_child(live)
 	var health := Controls.Plate.new()
 	health.name = "PreBattleEnemyHealth"
@@ -478,7 +502,7 @@ static func action(host: Node, node_name: String, text: String, callback: String
 	button.pressed.connect(Callable(host, callback))
 	return button
 
-static func build_kit(host: Node, future_state: Dictionary = {}) -> Control:
+static func build_kit(host: Node, future_state: Dictionary = {}, defer_cards: bool = false) -> Control:
 	var kit := VBoxContainer.new()
 	kit.name = "PreBattleDeckSection"
 	kit.custom_minimum_size.x = Typography.scaled_value(host, 404.0)
@@ -499,7 +523,8 @@ static func build_kit(host: Node, future_state: Dictionary = {}) -> Control:
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.follow_focus = true
 	kit.add_child(scroll)
-	scroll.add_child(card_grid(host, deck, "deck", "PreBattleDeckFlow"))
+	var grid_deck: Array = [] if defer_cards else deck
+	scroll.add_child(card_grid(host, grid_deck, "deck", "PreBattleDeckFlow"))
 	return kit
 
 static func _gear_row(host: Node, future_state: Dictionary = {}) -> Control:
@@ -649,7 +674,7 @@ static func build_health(host: Node, future_state: Dictionary = {}) -> Control:
 	mask.skew = 0.12
 	mask.custom_minimum_size = Vector2(56.0, 56.0) * Typography.ui_scale(host)
 	row.add_child(mask)
-	var portrait := icon("res://assets/art/portraits/player_reaver.png", 0.0, "PreBattlePlayerPortrait")
+	var portrait := icon(PLAYER_PORTRAIT_PATH, 0.0, "PreBattlePlayerPortrait")
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mask.add_child(portrait)

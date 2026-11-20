@@ -41,6 +41,10 @@ var startup_viewport: Dictionary = {}
 var coverage: Dictionary = {}
 var errors: Array[String]
 var decisions: FileAccess
+var target_size: Vector2i = ViewportCheck.TARGET_SIZE
+var target_ui_scale: float = ViewportCheck.TARGET_UI_SCALE
+var demo_board_proof: String = ""
+var demo_board_stop: bool = false
 var calibration_intervals: Array[float]
 var calibration_previous_us: int = 0
 
@@ -59,6 +63,11 @@ func _initialize() -> void:
 		elif arg == "--headless-smoke": headless_smoke = true
 		elif arg == "--validate": validate_only = true
 		elif arg == "--validate-tour": validate_only = true; validate_tour = true
+		elif arg == "--size=1920x1080": target_size = Vector2i(1920, 1080)
+		elif arg == "--ui-scale=1.0": target_ui_scale = 1.0
+		elif arg == "--demo-board-proof=stick": demo_board_proof = "stick"
+		elif arg == "--demo-board-proof=dpad": demo_board_proof = "dpad"
+		elif arg == "--demo-board-stop": demo_board_stop = true
 		else:
 			push_error("HITCH CENSUS: unknown argument " + arg)
 			quit(2)
@@ -78,15 +87,15 @@ func _start() -> void:
 	Recent.set_storage_path(output.path_join("recent.json"))
 	var settings: Dictionary = Settings.default_settings()
 	settings["combat_speed"] = Settings.COMBAT_NORMAL
-	settings["ui_scale"] = 1.15
+	settings["ui_scale"] = target_ui_scale
 	settings["display_mode"] = "windowed"
 	settings["edge_smoothing"] = "off"
 	Settings.save_settings(settings)
 	Store.save_data(Store.default_data() if driver_name == "demo" else Tutorial.complete_tutorial(Store.default_data()))
 	root.mode = Window.MODE_WINDOWED
-	root.size = Vector2i(1280, 800)
+	root.size = target_size
 	root.content_scale_size = Vector2i(1920, 1080)
-	root.content_scale_factor = 1.15
+	root.content_scale_factor = target_ui_scale
 	root.set_meta("labyrinth_performance_probe_seed", run_seed)
 	Engine.max_fps = 0
 	Engine.time_scale = 1.0
@@ -106,7 +115,7 @@ func _start() -> void:
 	var viewport_check_started: int = Time.get_ticks_usec()
 	startup_viewport = ViewportCheck.capture(root)
 	trace.record_driver_cost("startup_viewport_verification", viewport_check_started)
-	startup_viewport.merge(ViewportCheck.validate(startup_viewport))
+	startup_viewport.merge(ViewportCheck.validate(startup_viewport, target_size, target_ui_scale))
 	var viewport_file := FileAccess.open(output.path_join("viewport.json"), FileAccess.WRITE)
 	viewport_file.store_string(JSON.stringify(startup_viewport, "\t"))
 	viewport_file.close()
@@ -248,6 +257,8 @@ func _validate() -> void:
 
 func finish(outcome: String) -> void:
 	if finished: return
+	if outcome == "time_limit" and not demo_board_proof.is_empty():
+		errors.append("Time limit before board proof completed")
 	if validate_tour or (driver_name == "tour" and not validate_only):
 		var missing := Tour.missing_stops(coverage)
 		if not missing.is_empty():

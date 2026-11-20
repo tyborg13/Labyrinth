@@ -11,6 +11,7 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
+const SceneLoads = preload("res://scripts/menu_run_preload.gd")
 static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
 const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
@@ -222,8 +223,12 @@ func _ready() -> void:
 	_build_controller_prompt_bar()
 	_reload_progression()
 	_update_layout()
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and router.call("using_controller"):
+		_using_keyboard_navigation = true
+		_umbra_primary_button.grab_focus()
 	_play_menu_music()
-	preload("res://scripts/menu_run_preload.gd").watch_menu(self)
+	SceneLoads.watch_menu(self)
 
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
@@ -305,10 +310,16 @@ func _refresh_controller_prompts() -> void:
 		return
 	var prompts: Array = [
 		{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
-		{"action": &"controller_dpad", "label": "Navigate"},
 	]
-	if settings_panel.visible or _replacement_confirmation_open:
+	if is_instance_valid(_new_descent_panel):
+		var depth_action: StringName = _new_descent_panel.depth_prompt_action()
+		if not depth_action.is_empty():
+			prompts.append({"action": depth_action, "label": "Umbra Depth"})
 		prompts.append({"action": InputRouterScript.ACTION_CANCEL, "label": "Back"})
+	else:
+		prompts.append({"action": &"controller_dpad", "label": "Navigate"})
+		if settings_panel.visible or _replacement_confirmation_open:
+			prompts.append({"action": InputRouterScript.ACTION_CANCEL, "label": "Back"})
 	_controller_prompt_bar.set_prompts(prompts)
 
 func _apply_style() -> void:
@@ -1011,9 +1022,11 @@ func _open_new_descent() -> void:
 	add_child(_new_descent_panel)
 	_sync_demo_links_visibility()
 	_new_descent_panel.focus_begin()
+	_refresh_controller_prompts()
 
 func _remember_umbra_depth(depth: int) -> void:
 	_progression = ProgressionStore.remember_umbra_depth(ProgressionStore.load_data(), depth)
+	_refresh_controller_prompts()
 
 func _on_depth_begin(depth: int) -> void:
 	_remember_umbra_depth(depth)

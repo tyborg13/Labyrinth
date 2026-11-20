@@ -49,3 +49,11 @@ const PATHS := {
 	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
 	"cinder_droplet": "res://assets/art/portraits/cinder_droplet.png"
 }
+
+const Bosses = preload("res://scripts/dragon_boss_library.gd")
+
+static func remove_encounter_only(manifest: Dictionary) -> void:
+	for type: String in PATHS:
+		var path: String = PATHS[type]
+		if Bosses.is_dragon_boss_id(type) or path.begins_with("res://assets/art/portraits/guardians/"):
+			manifest.erase(path)

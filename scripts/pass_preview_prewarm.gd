@@ -154,6 +154,10 @@ func tick(scene: Node) -> void:
 	if _generation != scene._pass_preview_warm_generation:
 		cancel()
 		return
+	# Give the initial selected aim the preparation frames. Keep the regular
+	# warm lane scheduled so subsequent retargets get the same cache as release.
+	if scene._selected_pass_work.active(scene):
+		return
 	var started: int = clock.call()
 	frames += 1
 	if frames == 1:

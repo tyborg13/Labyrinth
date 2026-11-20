@@ -267,6 +267,13 @@ func change_depth(delta: int) -> void:
 func focus_begin() -> void:
 	_begin.grab_focus()
 
+func depth_prompt_action() -> StringName:
+	if selected_depth > 0 and selected_depth < unlocked_depth:
+		return InputRouter.ACTION_HAND_BUMPERS
+	if selected_depth > 0:
+		return InputRouter.ACTION_HAND_PREVIOUS
+	return InputRouter.ACTION_HAND_NEXT if selected_depth < unlocked_depth else &""
+
 func begin() -> void:
 	_feedback()
 	begin_requested.emit(selected_depth)

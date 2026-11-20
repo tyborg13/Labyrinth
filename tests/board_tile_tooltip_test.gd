@@ -123,14 +123,31 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	var entries: Array[Dictionary] = TileTooltip.entries(board, PROOF_TILE)
 	_check(entries.size() == 1 and entries[0]["description"].ends_with("Stormcoal: also conducts Lightning. Attacks conducted through it Expend it."), "Stormcoal remains in Fire's only panel")
 	Ground.place(state, PROOF_TILE, "rubble")
-	state["terrain"] = [{"id": "proof_spine", "kind": "worldspine", "pos": PROOF_TILE, "hp": 4, "max_hp": 8, "pulse_damage": 3}]
+	state["terrain"] = [{"id": "proof_outcrop", "kind": "crag_outcrop", "owner_kind": "player", "pos": PROOF_TILE, "hp": 4, "max_hp": 8}]
 	state["meteor_marks"] = [{"tiles": [PROOF_TILE], "damage": 5, "surface": "fire"}]
 	board.set_combat_state(state)
 	entries = TileTooltip.entries(board, PROOF_TILE)
-	var worldspine: Dictionary = TileTooltip.from_text(board._terrain_tooltip_text(state["terrain"][0]))
-	worldspine["display_description"] = "4/8 Health\n@pattern(neighbors:origin) At the start of your turn, each enemy on these tiles takes 3."
-	_check(entries.size() == 4 and entries[2] == worldspine, "Worldspine has its own exact terrain panel")
+	var outcrop: Dictionary = TileTooltip.from_text("Crag Outcrop\n4/8 Health\nBlocks sight. Leaves Rubble when destroyed.")
+	_check(entries.size() == 4 and entries[2] == outcrop, "An ordinary Outcrop has no pulse line before Worldspine")
+	var rites = preload("res://scripts/rite_rules.gd")
+	var card: Dictionary = preload("res://scripts/game_data.gd").card_def("worldspine")
+	state = state.duplicate(true)
+	rites.start(state, "worldspine", card)
+	board.set_combat_state(state)
+	entries = TileTooltip.entries(board, PROOF_TILE)
+	outcrop["description"] += "\nAt the start of your turn, each enemy next to it takes 3."
+	_check(entries.size() == 4 and entries[2] == outcrop, "A player Outcrop gains the exact live Rite line")
 	_check(entries[3]["title"] == "Meteorfall" and entries[3]["description"].contains("5 damage and becomes Fire."), "Marked tile has its own panel")
+	var stacked: Dictionary = state.duplicate(true)
+	rites.start(stacked, "worldspine", card)
+	board.set_combat_state(stacked)
+	entries = TileTooltip.entries(board, PROOF_TILE)
+	_check(str(entries[2]["description"]).ends_with("At the start of your turn, each enemy next to your Outcrops takes 6."), "The one Outcrop line reflects both Rite instances")
+	stacked["terrain"][0]["owner_kind"] = "enemy"
+	board.set_combat_state(stacked)
+	entries = TileTooltip.entries(board, PROOF_TILE)
+	_check(not str(entries[2]["description"]).contains("At the start of your turn"), "Enemy Outcrops show no player Rite line")
+	board.set_combat_state(state)
 	board._register_tile_tooltip(Rect2(Vector2.ZERO, Vector2.ONE), "Light Source\nReveals Umbra within 2 tiles.\nLasts for this combat.", PROOF_TILE, "proof_light")
 	entries = TileTooltip.entries(board, PROOF_TILE)
 	_check(entries.size() == 5 and entries[4]["title"] == "Light Source" and str(entries[4]["icon"]).is_empty(), "Existing light details get a title/text panel")

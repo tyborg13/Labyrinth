@@ -1344,11 +1344,16 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
 - `powder_keg_burst` — `tile`, `tiles`, `damage`, `terrain_id`, `owner_kind`, `actor_keys`
   and the triggering `source` with `source_kind: "powder_keg_burst"` (`causal_owner: player`
   for a hero keg). Chained kegs record one event each.
-- `worldspine_pulse` — `tiles` (spires), `enemy_ids`, `damage_by_enemy`, player `source`
-  (`source_kind: "worldspine_pulse"`, `player_card: false`).
+- `worldspine_pulse` — one event per acting Worldspine Rite. `tiles` contains the
+  player-raised Outcrops adjacent to its victims, `enemy_ids` and `damage_by_enemy`
+  list the once-per-enemy hits and their actual combined Health, Block, and
+  Stoneskin losses, including Flying enemies. Player `source` carries `element: "earth"`,
+  `source_kind: "worldspine_pulse"`, `player_card: false` and the Rite instance's
+  `relic_id`.
 
-Player-raised kegs and Worldspines use the existing `terrain_created` event with
-`terrain_kind` `powder_keg` / `worldspine`.
+Player-raised kegs and Outcrops use `terrain_created` with `terrain_kind`
+`powder_keg` / `crag_outcrop`. Older recorded fights may contain `worldspine`
+terrain and pulses without a Rite instance ID.
 
 ### Surface and movement relics (relic pool overhaul U7)
 

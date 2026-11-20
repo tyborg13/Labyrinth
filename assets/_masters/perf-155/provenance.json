@@ -1,0 +1,260 @@
+{
+  "_doc": "Byte-for-byte production masters from 40ba5de6c. Draw sizes captured before resizing. See tools/perf155/measurements.md for use and profile details.",
+  "files": {
+    "boss_iskaldra.png": {
+      "master_sha256": "502ea876121f0bd7c3fa98dff790a0f510fff5dd6a4853b9228faec41b9d7cd0",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "boss_noctyrax.png": {
+      "master_sha256": "3641dd026bac1c654900575cd446dcb23a15626b0814f484a1994dae94854bb4",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "boss_tharokh.png": {
+      "master_sha256": "ffe0f75d11148d8a7ad569454f4c691e54d95451282a19c1fcd249d167ebf47d",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "boss_vaeloryx.png": {
+      "master_sha256": "255b4c44b6f1f1d71bbeec847340d5aa5878ba71785f4a443ab65f2659ac726b",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "boss_vyraketh.png": {
+      "master_sha256": "cf9fb0d5c6cb39de6c9892ee840142e47afb55da06ff35f54b9304fb806017e4",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "boss_zekarion.png": {
+      "master_sha256": "9ece40f6a9eb341d82da663fdc32c8d8ceb00486f4c87b3087864e87e1885738",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        141.0024,
+        141.0024
+      ],
+      "deck_px": [
+        120.08188423153692,
+        120.12984025559105
+      ]
+    },
+    "campfire.png": {
+      "master_sha256": "607c5e5d7b5b2a91f81873269915af21c0d3315f7d464bdddac43fe7da2c15b3",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "event.png": {
+      "master_sha256": "fcd5d2b88c3e7964525b51cfa6abcc6b4abd395d711a2951b20bbc46cbbc1d0a",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "fight.png": {
+      "master_sha256": "bd819ccd36720751d127d1b4f604ab76681ef323eb6fac71f1bac829768f9fe5",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "graftwright.png": {
+      "master_sha256": "0232a198df55ba2fd99310d4a05705d0794dc7e101cbce172937e8184973f8fe",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "lantern.png": {
+      "master_sha256": "2af4858efc2d4aa49cfd57b110c908f3232c3228f33f326a6c555fb2a9a4bfb4",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        129.35999999999999,
+        129.35999999999999
+      ],
+      "deck_px": [
+        110.16686626746507,
+        110.2108626198083
+      ]
+    },
+    "last_light.png": {
+      "master_sha256": "abc6ba13757ff6f2fe0f7ef9e21b7385e9ef1c45e4696480e4b2a53e92ee2ff6",
+      "master_size": [
+        1024,
+        1024
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "relic.png": {
+      "master_sha256": "3bf6ee92f57c4162fb3f97fccb25c407190e4bc1ccd46d4fcd8c5e98a21f56c7",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "scavenger.png": {
+      "master_sha256": "7fa00e38a3f4afcc1c69c4ba60fdfb53ca6b3f24723aa22a71c46f4552932929",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "scout.png": {
+      "master_sha256": "0831fb4745518a10ee6f46e5d2ba2a2f8b25844162400fcfff8d2d3af5e75ac9",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "desktop_px": [
+        28.0,
+        28.0
+      ],
+      "deck_px": [
+        23.845642049234865,
+        23.855165069222576
+      ]
+    },
+    "umbral_snare.png": {
+      "master_sha256": "91acb8228cebd9649fbefb62125dfa2e2cff69d0e7a88281fd2f627486a15ca2",
+      "master_size": [
+        1024,
+        1024
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    },
+    "warband.png": {
+      "master_sha256": "975d3d01f5a1f3bf729ec0165dba11a6b0f1d97dbb7d826d4418585d1a594361",
+      "master_size": [
+        1024,
+        1024
+      ],
+      "desktop_px": [
+        73.7058,
+        73.7058
+      ],
+      "deck_px": [
+        62.77007584830339,
+        62.79514376996805
+      ]
+    }
+  }
+}

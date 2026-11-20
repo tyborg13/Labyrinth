@@ -10,6 +10,8 @@ class_name RiteRules
 
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
+const OUTCROP_PULSE: String = "turn_start_outcrop_pulse"
+
 const ACTIVE_KEY: String = "active_rites"
 const SIGNATURE_KEY: String = "active_rites_signature"
 const RELIC_ID_PREFIX: String = "rite:"
@@ -177,10 +179,21 @@ static func card_time_discount(effects: Array, card: Dictionary = {}) -> int:
 			total += maxi(0, int(effect.get("amount", 0)))
 	return total
 
-## Player turn start, after the ordinary draw: Rite rewards and Electrified
+static func outcrop_pulse_summary(state: Dictionary) -> Dictionary:
+	var damage: int = 0
+	var count: int = 0
+	for rite: Dictionary in active_rites(state):
+		for effect: Dictionary in rite.get("effects", []):
+			if effect.get("type", "") == OUTCROP_PULSE:
+				damage += maxi(0, int(effect.get("damage", 0)))
+				count += 1
+	return {"damage": damage, "count": count}
+
+## Player turn start, after the ordinary draw: Rite rewards and
 ## pulses. Pulse damage is player-credited but is not a card hit.
-static func apply_player_turn_start(engine: RefCounted, state: Dictionary) -> Dictionary:
+static func apply_player_turn_start(engine: RefCounted, state: Dictionary, presentation_steps: Variant = null) -> Dictionary:
 	var next_state: Dictionary = state
+	var outcrop_pulses: Array[Dictionary]
 	for effect: Dictionary in engine._relic_effects(next_state):
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
@@ -192,6 +205,13 @@ static func apply_player_turn_start(engine: RefCounted, state: Dictionary) -> Di
 					next_state = engine._apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 			"turn_start_surface_pulse":
 				next_state = _surface_pulse(engine, next_state, effect)
+			OUTCROP_PULSE:
+				outcrop_pulses.append(effect)
+	# Resolve after every other turn-start Rite, regardless of cast order.
+	for effect: Dictionary in outcrop_pulses:
+		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+			break
+		next_state = engine.TerrainCardRules.apply_outcrop_pulse(engine, next_state, effect, presentation_steps)
 	return next_state
 
 static func _surface_pulse(engine: RefCounted, state: Dictionary, effect: Dictionary) -> Dictionary:

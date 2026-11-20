@@ -13,7 +13,7 @@ const IDS: Array = [DETONATE, DISCHARGE, SWAP, WORLDSPINE]
 const CARDS: Dictionary = {DETONATE: "inferno_ritual", DISCHARGE: "discharge", SWAP: "empty_husk", WORLDSPINE: "worldspine"}
 const ACTION_TYPES: Dictionary = {DETONATE: "detonate", DISCHARGE: "discharge", SWAP: "illusion_swap", WORLDSPINE: "outcrop"}
 const PLAIN_FLOOR_BIOME: String = "vyraketh"
-const BIOMES: Dictionary = {DETONATE: PLAIN_FLOOR_BIOME, DISCHARGE: PLAIN_FLOOR_BIOME, SWAP: PLAIN_FLOOR_BIOME, WORLDSPINE: "tharokh"}
+const BIOMES: Dictionary = {DETONATE: PLAIN_FLOOR_BIOME, DISCHARGE: PLAIN_FLOOR_BIOME, SWAP: PLAIN_FLOOR_BIOME}
 # Fixture positions use the established board patch.
 const HERO := Vector2i(0, 2)
 const SWAP_HERO := Vector2i(1, 2)
@@ -35,7 +35,7 @@ const ILLUSION_CARD: String = "mirror_image"
 static func configure(layout: Dictionary, id: String) -> Dictionary:
 	layout["player_start"] = SWAP_HERO if id == SWAP else HERO
 	layout["element"] = {DETONATE: "fire", DISCHARGE: "lightning", SWAP: "none", WORLDSPINE: "earth"}[id]
-	if id in [DISCHARGE, SWAP]:
+	if id in [DISCHARGE, SWAP, WORLDSPINE]:
 		layout["umbra_stage"] = Combat.UMBRA_STAGE_CLEAR
 		layout.erase("umbra")
 	var units: Array = []
@@ -45,7 +45,7 @@ static func configure(layout: Dictionary, id: String) -> Dictionary:
 		SWAP: layout["objective"] = {"type": Objectives.REACH_EXIT, "exits": []}
 		WORLDSPINE:
 			layout["player_start"] = WORLDSPINE_HERO
-			# The full cage needs a floor path around all four spires.
+			# The full cage needs a floor path around all four Outcrops.
 			var grid: Array = []
 			for y: int in range(WORLDSPINE_PATCH.size.y):
 				var row: Array = []
@@ -82,11 +82,15 @@ static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 			break
 	if action.is_empty() or not engine.player_action_can_resolve(before, action) or (engine.player_action_needs_target(action) and not engine.valid_targets_for_player_action(before, action).has(target)):
 		return {"beats": [], "final": before}
-	var resolution: Dictionary = engine.resolve_player_action_for_presentation(before, action, target)
+	var working: Dictionary = engine.prepare_player_card(before, 0, "play") if id == WORLDSPINE else before
+	var resolution: Dictionary = engine.resolve_player_action_for_presentation(working, action, target)
 	var after: Dictionary = resolution["state"]
 	var beats: Array[Dictionary]
 	beats.append({"kind": "player", "before": before, "after": after, "action": action, "target": target, "chain_hits": resolution.get("chain_hits", []), "card": fixture["card"]})
 	if id == WORLDSPINE:
+		var actions: Array = engine.card_play_actions(fixture["card"], working)
+		after = engine.finish_player_card(after, 0, engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
+		beats[0]["after"] = after
 		var next_turn: Dictionary = engine.prepare_next_player_turn(after)
 		beats.append({"kind": "worldspine_turn_start", "before": after, "after": next_turn})
 		after = next_turn

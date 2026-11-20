@@ -100,9 +100,10 @@ a soft ground shadow. The room you stand in shows the lantern; choosing a room w
 
 ## Revision 6 special encounters (spx-02)
 
-`data/special_encounters.json` and the four map emblems are installed byte for
-byte from `spec/peer_benchmark/staged/spx/`; `assets/art/icons/map/provenance.json`
-retains the approved hashes. `SpecialEncounterLibrary` owns `definition(type)`,
+`data/special_encounters.json` is installed byte for byte from
+`spec/peer_benchmark/staged/spx/`. The four shipped map emblems are downsampled
+from the approved masters. `assets/art/icons/map/provenance.json` retains the
+original approval hashes and links to the archived masters. `SpecialEncounterLibrary` owns `definition(type)`,
 `variant(type, biome)`, `enabled_types()`, `display_name(room)` and
 `tooltip_line(room)`. Definitions and variants are private copies. Warband
 (spx-02), Umbral Snare (spx-05) and Last Light (spx-08) are enabled; disabled

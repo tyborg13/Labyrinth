@@ -6,6 +6,7 @@ const DIM_ALPHA: float = 0.30
 const TRANSITION_SECONDS: float = 0.12
 const Red = preload("res://scripts/pass_forecast_red_tiles.gd")
 const HoverActor = preload("res://scripts/board_hover_actor.gd")
+const Lob = preload("res://scripts/enemy_mechanics/lob_view.gd")
 
 static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictionary, allow_reverse: bool = true) -> Array[String]:
 	var keys: Array[String]
@@ -29,20 +30,25 @@ static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictio
 
 static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, tile: Vector2i, intent_preview: Variant = null) -> void:
 	var intent_state: Dictionary = scene._enemy_intent_preview_state(state) if intent_preview == null else intent_preview
-	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, intent_state, "")
+	var skill_events: Array = presentation.get("surface_preview_events", []) if scene._hovering_surface_skill() else []
+	if not skill_events.is_empty() and Lob.has_lob(scene._combat_state):
+		intent_state = scene._surface_preview_cache["state"]
+	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, intent_state, "", null, skill_events)
 	var keys: Array[String] = resolve(scene, state, tile, rest, not scene._targeted_card_aiming_active())
-	if scene._player_movement_selected and scene._player_movement_target_tiles.has(tile):
-		# An empty preview aim also wins: a committed cross can be out of range
-		# from the Walk destination.
-		presentation[Threats.LOB_AIM_KEY] = rest.get(Threats.LOB_AIM_KEY, {})
-	if rest.has(Red.FLOOR_KEY):
+	if rest.has(Red.FLOOR_KEY) or rest.has(Threats.LOB_AIM_KEY) or rest.has(Threats.MARKER_KEY):
 		rest = rest.duplicate(false)
-		presentation[Red.FLOOR_KEY] = rest[Red.FLOOR_KEY]
-		rest.erase(Red.FLOOR_KEY)
+	for key: String in [Red.FLOOR_KEY, Threats.LOB_AIM_KEY, Threats.MARKER_KEY]:
+		if rest.has(key):
+			presentation[key] = rest[key]
+			rest.erase(key)
 	presentation["threats_at_rest"] = rest
 	presentation["isolated_enemy_actor_keys"] = keys
 	presentation["hover_owner_tile"] = scene._hovered_board_tile
 	presentation["threat_isolation_hero_preview"] = scene._selected_card_index >= 0 or scene._player_movement_selected
+	if bool(presentation.get("board_targeting", false)):
+		# A forecast may omit room_coord; keep the committed room identity for
+		# releasing paint children when aiming hands back to live combat.
+		presentation["board_targeting_room_coord"] = scene._combat_state.get("room_coord", scene._run_state.get("current_room"))
 	if not keys.is_empty(): presentation["expanded_enemy_actor_keys"] = keys
 	update_rail(scene, keys)
 

@@ -4,7 +4,7 @@ extends RefCounted
 const Cards = preload("res://scripts/card_widget.gd")
 const Fan = preload("res://scripts/hand_fan_container.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
-const BoardAudit = preload("res://tools/atk06/audit.gd")
+const LobView = preload("res://scripts/enemy_mechanics/lob_view.gd")
 const Red = preload("res://scripts/pass_forecast_red_tiles.gd")
 const RuleView = preload("res://scripts/battlefield_rule_view.gd")
 const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
@@ -58,6 +58,9 @@ static func card_center(scene: Node, slot: Control, widget: Control) -> Vector2:
 
 static func rail(scene: Node, _selected: bool, checks: Dictionary) -> void:
 	if not scene._turn_order_bar.is_visible_in_tree(): return
+	# RunScene retains the published rail until the hand's rendered rest and
+	# deferred hover refresh finish. The new focus is not its input yet.
+	if scene._hand_hover_rest_pending or scene._hand_hover_refresh_pending: return
 	var state: Dictionary = scene._turn_order_display_state()
 	var limit: int = maxi(scene.TURN_ORDER_DISCLOSURE_LIMIT, state.get("turn_queue", []).size() * 2 + 2)
 	var entries: Array[Dictionary] = scene._combat_engine.current_turn_order(state, limit)
@@ -145,22 +148,25 @@ static func present_red(scene: Node, board: Control, state: Dictionary, selected
 	var preview: Dictionary = scene._enemy_intent_preview_state(display).duplicate(true) if selected else snapshot
 	var known: Callable = scene._surface_preview_information_state.bind(preview, snapshot)
 	var fresh: Dictionary = Badges.new().presentation_for_state(scene._combat_engine, snapshot, preview, "", known)
-	# In-world telegraphs also contribute red; preserve the rule and lob
-	# treatments while leaving sequential Pass corrections out of this oracle.
+	# Red-04 uses present first stamps on the floor. The separate held rows can
+	# retain a saved approach for inspection, even when it is unreachable now.
+	var floor: Dictionary = fresh.duplicate(false)
+	var first_stamps: Array = fresh.get(Red.FLOOR_KEY, fresh.get("threats", []))
+	floor["threats"] = first_stamps
+	# Add the in-world telegraphs to the independently rebuilt floor rows.
 	var live: Dictionary = board.presentation
 	var base: Dictionary = {}
 	for key: String in ["umbra_visible_tiles", "umbra_stage", "visible_enemy_ids"]:
 		if live.has(key): base[key] = live[key]
-	base["threats_at_rest"] = fresh
+	base["threats_at_rest"] = floor
 	var decorated: Dictionary = BrambleView.presentation_for(display, base)
 	decorated = SnareView.presentation_for(display, decorated, true)
 	decorated = RuleView.presentation_for(display, decorated)
-	var expected: Dictionary = ThreatTiles.tile_alphas(decorated.get("threats_at_rest", fresh).get("threats", []))
-	var lob: Dictionary = preload("res://scripts/enemy_mechanics/lob_view.gd").marks(board)
-	for tile: Vector2i in lob: expected[tile] = true
-	var actual: Dictionary = BoardAudit.board_red(board)
-	for tile: Vector2i in board._rest_threat_tile_alphas:
-		if not actual.has(tile) and ThreatTiles.announced_at(live, tile): actual[tile] = ["public_announcement"]
+	var expected: Dictionary = ThreatTiles.tile_alphas(decorated.get("threats_at_rest", floor).get("threats", []))
+	var lob: Dictionary = fresh.get(ThreatTiles.LOB_AIM_KEY, LobView.marks(board))
+	for tile: Vector2i in lob:
+		if board._board_tile_is_visible_to_player(tile): expected[tile] = true
+	var actual: Dictionary = _floor_red(board)
 	var missing: Array = []
 	var extra: Array = []
 	for tile: Vector2i in expected:
@@ -173,7 +179,7 @@ static func present_red(scene: Node, board: Control, state: Dictionary, selected
 		var adjusted: Dictionary = Red.adjust_from_summary(fresh, scene._rest_pass_disc_marks)
 		var adjusted_set: Dictionary = ThreatTiles.tile_alphas(adjusted.get("threats", []))
 		var expected_owners: Dictionary = {}
-		for threat: Dictionary in fresh.get("threats", []):
+		for threat: Dictionary in first_stamps:
 			for tile: Vector2i in threat.get("tiles", []):
 				if not missing.has(str(tile)): continue
 				var owners: Array = expected_owners.get(str(tile), [])
@@ -185,3 +191,21 @@ static func present_red(scene: Node, board: Control, state: Dictionary, selected
 		checks["red"].append({"kind": "tile_set", "missing": missing, "extra": extra, "actual": actual, "selected": selected,
 			"missing_owners": expected_owners, "extra_from_pass_correction": sequential_positions,
 			"removed_before_acting": scene._rest_pass_disc_marks.get("died_first_keys", {})})
+
+static func _floor_red(board: Control) -> Dictionary:
+	# BoardLayerSlices.threat_paint admits public stamps through Umbra using
+	# the floor coverage. The inspection rows can have a different Pass anchor.
+	var coverage: Dictionary = board._floor_threat_coverage
+	var announced: Dictionary = coverage.get("announced", {})
+	var owners: Dictionary = coverage.get("owners", {})
+	var result: Dictionary = {}
+	for tile: Vector2i in coverage.get("alphas", {}):
+		if board._board_tile_is_visible_to_player(tile) or announced.has(tile):
+			result[tile] = owners.get(tile, [])
+	var lob: Dictionary = LobView.floor_marks(board)
+	for tile: Vector2i in lob:
+		if not board._board_tile_is_visible_to_player(tile) and not announced.has(tile): continue
+		var keys: Array = result.get(tile, []).duplicate()
+		keys.append("lob:enemy_%d" % int(lob[tile]["enemy"]["id"]))
+		result[tile] = keys
+	return result

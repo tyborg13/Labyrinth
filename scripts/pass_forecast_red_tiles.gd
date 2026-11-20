@@ -10,6 +10,8 @@ const RULE_KEY: String = "battlefield_rule"
 const FOE_SURFACE_KEY: String = "foe_surface"
 const FLOOR_KEY: String = "floor_threats"
 const BEAT_RECEIPT: String = "_pass_forecast_red_beat_tiles"
+const CONTACT_SOURCES: String = "hero_red_contact_sources"
+const BEAT_CONTACT: String = "battlefield_beat"
 
 # Keep only the first activation's anchor. Even an identical later cast can
 # have a different anchor, for example if another foe moved the caster.
@@ -116,8 +118,10 @@ static func summary_fields(phase_result: Dictionary) -> Dictionary:
 # The full forecast records turn-start contacts separately from attack red.
 static func hero_fields(engine: RefCounted, source: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var contacts: Dictionary = {}
+	var sources: Dictionary = {}
 	for tile: Vector2i in phase_result.get("red_beat_tiles", {}):
 		contacts[tile] = {RULE_KEY: true}
+		sources[tile] = {RULE_KEY: {BEAT_CONTACT: true}}
 	for surface: Dictionary in phase_result.get("red_turn_start_surfaces", []):
 		var laid: Dictionary = surface["source"]
 		var id: int = int(laid.get("actor_id", -1))
@@ -132,10 +136,14 @@ static func hero_fields(engine: RefCounted, source: Dictionary, phase_result: Di
 			continue
 		var owners: Dictionary = contacts.get_or_add(surface["tile"], {})
 		owners[key] = true
-	return {"hero_red_owners": hero_owners(engine, source, phase_result), "hero_red_contacts": contacts}
+		var tile_sources: Dictionary = sources.get_or_add(surface["tile"], {})
+		var owner_sources: Dictionary = tile_sources.get_or_add(key, {})
+		owner_sources[surface["elemental"]] = true
+	return {"hero_red_owners": hero_owners(engine, source, phase_result), "hero_red_contacts": contacts,
+		CONTACT_SOURCES: sources}
 
 static func floor_override(rest: Dictionary, release_rest: Dictionary, marks: Dictionary) -> Variant:
-	var first: Array = rest.get("threats", [])
+	var first: Array = rest.get(FLOOR_KEY, rest.get("threats", []))
 	var hero: Vector2i = rest.get("hero_tile", Vector2i(-1, -1))
 	var contacts: Dictionary = marks.get("hero_red_contacts", {}).get(hero, {})
 	if contacts.is_empty():
@@ -148,6 +156,49 @@ static func floor_override(rest: Dictionary, release_rest: Dictionary, marks: Di
 static func floor_rows(presentation: Dictionary) -> Array:
 	var rest: Dictionary = presentation.get("threats_at_rest", {})
 	return presentation.get(FLOOR_KEY, rest.get("threats", []))
+
+# The shown surface has already changed while its Pass summary is pending.
+# Rubble and elemental ground can share a tile. Keep any untouched cause.
+static func skill_contact_marks(marks: Dictionary, events: Array, exact: Dictionary) -> Dictionary:
+	var contacts: Dictionary = marks.get("hero_red_contacts", {}).duplicate(false)
+	var sources: Dictionary = marks.get(CONTACT_SOURCES, {})
+	var removed: Dictionary = {}
+	for event: Dictionary in events:
+		var surface: String
+		match event.get("kind"):
+			"surface_replaced": surface = event["previous_surface"]
+			"surface_removed": surface = event["surface"]
+			_: continue
+		if not contacts.has(event["tile"]): continue
+		var tile_removals: Dictionary = removed.get_or_add(event["tile"], {})
+		tile_removals[surface] = true
+	for tile: Vector2i in removed:
+		var owners: Dictionary = contacts[tile].duplicate(false)
+		var tile_sources: Dictionary = sources.get(tile, {})
+		var tile_removals: Dictionary = removed[tile]
+		for key: String in tile_sources:
+			var causes: Dictionary = tile_sources[key]
+			if tile_removals.has_all(causes.keys()): owners.erase(key)
+		if owners.is_empty(): contacts.erase(tile)
+		else: contacts[tile] = owners
+	for tile: Vector2i in exact:
+		var owners: Dictionary = contacts.get(tile, {}).duplicate(false)
+		owners.merge(exact[tile])
+		contacts[tile] = owners
+	var result: Dictionary = marks.duplicate(false)
+	result["hero_red_contacts"] = contacts
+	return result
+
+static func floor_contacts_changed(presentation: Dictionary, next_contacts: Dictionary, hero: Vector2i, additions_only: bool = false) -> bool:
+	var current: Dictionary = {}
+	for row: Dictionary in floor_rows(presentation):
+		if bool(row.get("hero_hit", false)) and (row["tiles"] as Array).has(hero): current[row["key"]] = true
+	var next: Dictionary = next_contacts.get(hero, {})
+	if additions_only:
+		for key: String in next:
+			if not current.has(key): return true
+		return false
+	return current != next
 
 static func adjust_from_summary(rest: Dictionary, summary: Dictionary) -> Dictionary:
 	var died_first: Dictionary = summary.get("died_first_keys", {})
