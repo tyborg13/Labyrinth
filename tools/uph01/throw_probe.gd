@@ -241,4 +241,4 @@ func _arrival_damage(engine: RefCounted) -> void:
 	var flying: Array = rows.filter(func(row: Dictionary) -> bool: return row["time"] < Throw.LAND_SECONDS - 0.000001)
 	_expect(flying.all(func(row: Dictionary) -> bool: return int(row["hp"]) == int(before["player"]["hp"]) and (row["texts"] as Array).is_empty()), "Upheaval holds HP and damage number until landing")
 	_expect(flying.all(func(row: Dictionary) -> bool: return not (row["events"] as Array).any(func(event: Dictionary) -> bool: return event.get("kind", "") == "trap_triggered")), "Arrival trap effect starts at landing")
-	_expect(rows.any(func(row: Dictionary) -> bool: return row["time"] >= Throw.LAND_SECONDS and (row["texts"] as Array).any(func(entry: Dictionary) -> bool: return str(entry.get("text", "")) == "-%d" % PROOF_TRAP_DAMAGE)), "Landing shows the exact production damage number")
+	_expect(rows.any(func(row: Dictionary) -> bool: return row["time"] >= Throw.LAND_SECONDS and (row["texts"] as Array).any(func(entry: Dictionary) -> bool: return str(entry.get("text", "")).replace("\u2212", "-") == "-%d" % PROOF_TRAP_DAMAGE)), "Landing shows the exact production damage number")

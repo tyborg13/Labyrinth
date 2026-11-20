@@ -77,7 +77,8 @@ static func run(expect: Callable) -> void:
 
 	for stinger_id: String in [RunSfxLibrary.STINGER_LEVEL_UP_ID, RunSfxLibrary.STINGER_BOSS_DEFEATED_ID]:
 		var stinger: Dictionary = RunSfxLibrary.SFX.get(stinger_id, {})
-		expect.call(str(stinger.get("bus", "")) == SettingsStore.UI_SFX_BUS, "%s should stay dry on the UI path instead of ducking itself on the Music bus" % stinger_id)
+		var expected_bus: String = SettingsStore.SFX_BUS
+		expect.call(str(stinger.get("bus", "")) == expected_bus, "%s should stay dry outside the Music bus" % stinger_id)
 		expect.call(bool(stinger.get("music_duck", false)), "%s should dip the score beneath it" % stinger_id)
 		expect.call(FileAccess.file_exists(str(stinger.get("path", ""))), "%s asset should ship" % stinger_id)
 

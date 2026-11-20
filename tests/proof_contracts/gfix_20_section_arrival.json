@@ -1,0 +1,11 @@
+{
+  "min_images": 1,
+  "required_images": [
+    {
+      "pattern": "section-2-arrival-focus.png",
+      "regions": [
+        {"rect": [0, 0, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 3}
+      ]
+    }
+  ]
+}

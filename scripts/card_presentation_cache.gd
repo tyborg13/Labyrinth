@@ -3,7 +3,7 @@ extends Resource
 # Generated, lossless results of CardWidget's authored pixel transforms. Decode
 # only the requested image; never allocate every cached GPU texture at startup.
 # Regenerate with tools/generate_card_presentation_cache.gd after art or formula
-# edits. Bump frame_v1/emblem_v1 when any transform formula or hardcoded
+# edits. Bump the frame_vN/emblem_vN tag when any transform formula or hardcoded
 # coefficient changes; parameter/source fingerprints alone cannot detect code edits.
 # The equivalence test checks every cached byte against the live fallback.
 const PATH: String = "res://assets/generated/card_presentation_cache.res"

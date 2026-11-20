@@ -11,15 +11,23 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
-# Tall enough to show every row at once; shorter screens scroll.
+# Cap the panel height and keep the existing scroll behavior.
 const PANEL_MINIMUM_SIZE := Vector2(820.0, 836.0)
 const CONTROL_WIDTH: float = 276.0
 const ROW_HEIGHT: float = 56.0
 # The brief supplies the label/options, but no secondary row copy.
 const COMBAT_SPEED_DETAIL: String = "How quickly enemy turns and card effects play out"
+# Controls rows are data, so later units add rows without code: a label, pointer
+# tokens (a phrase string, or {"key": …} for a keycap) and controller action
+# names. See spec/settings.md.
+const CONTROLS_DATA_PATH: String = "res://data/controls.json"
+const CONTROLS_NONE_TEXT: String = "—"
+const ROW_MARGIN_RIGHT: int = 10
+const ROW_SEPARATION: int = 18
 const GOLD := Color("d8a356")
 const PALE_GOLD := Color("f5dfae")
 const MUTED_TEXT := Color("b9a98c")
@@ -93,6 +101,62 @@ class VolumeSlider extends HSlider:
 		draw_polyline(diamond, Palette.INK_0, OUTLINE_WIDTH, true)
 		if has_focus(): draw_style_box(_focus_ring, Rect2(Vector2.ZERO, size))
 
+# A read-only Controls row. Focus exists only so the D-pad and keys scroll the
+# panel through the section (A does nothing); it draws the skin's standard
+# focus ring. Clicks leave the focus hidden, and hover draws nothing: a lit row
+# would read as a button.
+class ControlsRow extends PanelContainer:
+	var _focus_ring: StyleBoxFlat
+
+	func _init(skin: UiSkin) -> void:
+		_focus_ring = skin.make_button_style(UiSkin.VARIANT_STANDARD, UiSkin.STATE_FOCUS)
+		focus_mode = Control.FOCUS_ALL
+		focus_neighbor_left = NodePath(".")
+		focus_neighbor_right = NodePath(".")
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
+
+	func _draw() -> void:
+		if has_focus(true): draw_style_box(_focus_ring, Rect2(Vector2.ZERO, size))
+
+# A keyboard key as InputGlyph's rounded key in its Xbox (dark) styling: 17 pt
+# for a single letter, 13 pt for longer keys (Shift, Esc, 1–9), widened to fit.
+class ControlsKeycap extends "res://scripts/input_glyph.gd":
+	const KEY_SIZE := Vector2(36.0, 27.0) # InputGlyph's rounded key
+	const LABEL_PADDING: float = 12.0 # Each side of a label wider than KEY_SIZE.
+	var key_text: String = ""
+
+	func _init(next_key_text: String) -> void:
+		key_text = next_key_text
+		family = InputRouterScript.FAMILY_XBOX
+
+	func _glyph_text() -> String:
+		return key_text
+
+	func _rounded_key_label_size() -> int:
+		return UiTypography.scaled_size(self, 17 if key_text.length() == 1 else 13)
+
+	func _draw() -> void:
+		_draw_rounded_key(Rect2(Vector2.ZERO, size), key_text)
+
+	func _scaled_preferred_size() -> Vector2:
+		var factor: float = UiTypography.ui_scale(self)
+		var label_width: float = UiTypography.ui_font().get_string_size(key_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, _rounded_key_label_size()).x
+		return Vector2(maxf(KEY_SIZE.x * factor, ceilf(label_width + LABEL_PADDING * 2.0 * factor)), KEY_SIZE.y * factor)
+
+# InputGlyph badge that follows the router's current controller family live.
+class ControlsGlyph extends "res://scripts/input_glyph.gd":
+	func _ready() -> void:
+		super._ready()
+		var router: Node = get_node_or_null("/root/InputRouter")
+		if router != null and not router.controller_family_changed.is_connected(_follow_family):
+			router.controller_family_changed.connect(_follow_family)
+		_follow_family()
+
+	func _follow_family(_family: String = "") -> void:
+		var router: Node = get_node_or_null("/root/InputRouter")
+		configure(action_name, str(router.call("controller_family")) if router != null else InputRouterScript.FAMILY_XBOX)
+
 func _ready() -> void:
 	_update_responsive_minimum_size()
 	get_viewport().size_changed.connect(_update_responsive_minimum_size)
@@ -110,7 +174,7 @@ func refresh_from_disk() -> void:
 	SettingsStore.apply_settings(_settings, get_window())
 	_sync_controls_from_settings()
 	_dismiss_restore_confirmation()
-	_set_status("Saved automatically")
+	_set_save_status("Saved automatically")
 
 func current_settings() -> Dictionary:
 	return _settings.duplicate(true)
@@ -157,6 +221,7 @@ func _build_surface() -> void:
 	sections.add_child(_build_audio_section())
 	sections.add_child(_build_display_section())
 	sections.add_child(_build_accessibility_section())
+	sections.add_child(_build_controls_section())
 	root.add_child(_build_footer())
 	_ui_skin.apply_outer_panel_frame(self, UiSkin.SURFACE_DIALOG)
 
@@ -183,6 +248,17 @@ func _build_audio_section() -> Control:
 	_add_volume_row(rows, "Master", "Everything at once", "master_volume")
 	_add_volume_row(rows, "Music", "Exploration and combat music", "music_volume")
 	_add_volume_row(rows, "Sound effects", "Cards, impacts, and interface", "sfx_volume")
+	_add_volume_row(rows, "Interface", "Cards, menus and rewards", "ui_volume")
+
+	var mute_option := _option_control()
+	mute_option.name = "MuteInBackgroundOption"
+	mute_option.add_item("Off")
+	mute_option.set_item_metadata(0, false)
+	mute_option.add_item("On")
+	mute_option.set_item_metadata(1, true)
+	mute_option.item_selected.connect(_on_option_selected.bind("mute_in_background", mute_option))
+	_controls["mute_in_background"] = mute_option
+	rows.add_child(_setting_row("Mute in background", "Silence the game when its window isn't in front", mute_option))
 	return section
 
 func _build_display_section() -> Control:
@@ -266,6 +342,15 @@ func _build_accessibility_section() -> Control:
 	reduced_button.toggled.connect(_on_reduced_motion_toggled)
 	_controls["reduced_motion"] = reduced_button
 	rows.add_child(_setting_row("Reduced motion", "Fewer entrance, travel and effect animations", reduced_button))
+
+	var vibration_button := Button.new()
+	vibration_button.name = "ControllerVibrationButton"
+	vibration_button.toggle_mode = true
+	vibration_button.custom_minimum_size = Vector2(CONTROL_WIDTH, 44.0)
+	_style_button(vibration_button, CONTROL_WIDTH)
+	vibration_button.toggled.connect(_on_controller_vibration_toggled.bind(vibration_button))
+	_controls["controller_vibration"] = vibration_button
+	rows.add_child(_setting_row("Controller vibration", "", vibration_button))
 	return section
 
 func _reveal_combat_speed(option: Control) -> void:
@@ -274,6 +359,91 @@ func _reveal_combat_speed(option: Control) -> void:
 		parent = parent.get_parent()
 	if parent is ScrollContainer:
 		parent.ensure_control_visible(option)
+
+func _build_controls_section() -> Control:
+	var section := _section_shell("CONTROLS", "What each key and button does.")
+	section.name = "ControlsSection"
+	var rows: VBoxContainer = section.get_meta("rows")
+	var pointer_cells: Array[Control]
+	var controller_cells: Array[Control]
+	# Column headings share the rows' right edge and column gap.
+	var headings_margin := MarginContainer.new()
+	headings_margin.name = "ControlsHeadings"
+	headings_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	headings_margin.size_flags_vertical = Control.SIZE_SHRINK_END
+	headings_margin.add_theme_constant_override("margin_right", ROW_MARGIN_RIGHT)
+	(section.get_meta("header") as HBoxContainer).add_child(headings_margin)
+	var headings := HBoxContainer.new()
+	headings.alignment = BoxContainer.ALIGNMENT_END
+	headings.add_theme_constant_override("separation", ROW_SEPARATION)
+	headings_margin.add_child(headings)
+	var pointer_heading := _caption_label("Keyboard and mouse")
+	var controller_heading := _caption_label("Controller")
+	for heading: Label in [pointer_heading, controller_heading]:
+		heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		headings.add_child(heading)
+	pointer_cells.append(pointer_heading)
+	controller_cells.append(controller_heading)
+	for entry: Dictionary in controls_entries():
+		var row := ControlsRow.new(_ui_skin)
+		row.name = "Controls_%s" % str(entry.get("id", ""))
+		var content: HBoxContainer = _row_frame(row)
+		var title := _row_title(str(entry.get("label", "")))
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		title.size_flags_vertical = Control.SIZE_FILL
+		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		content.add_child(title)
+		var pointer := _controls_cell("PointerBindings")
+		for token: Variant in entry.get("pointer", []):
+			if token is Dictionary:
+				var keycap := ControlsKeycap.new(str((token as Dictionary).get("key", "")))
+				keycap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+				pointer.add_child(keycap)
+			else:
+				pointer.add_child(_caption_label(str(token)))
+		var controller := _controls_cell("ControllerBindings")
+		for action_var: Variant in entry.get("controller", []):
+			var glyph := ControlsGlyph.new()
+			glyph.action_name = StringName(str(action_var))
+			glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			controller.add_child(glyph)
+		for cell: HBoxContainer in [pointer, controller]:
+			if cell.get_child_count() == 0: cell.add_child(_caption_label(CONTROLS_NONE_TEXT))
+			content.add_child(cell)
+		pointer_cells.append(pointer)
+		controller_cells.append(controller)
+		rows.add_child(row)
+	# Glyph sizes and label metrics resolve once the section is in the tree.
+	section.ready.connect(func() -> void:
+		_align_controls_column(pointer_cells)
+		_align_controls_column(controller_cells))
+	return section
+
+static func controls_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary]
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONTROLS_DATA_PATH))
+	if typeof(parsed) != TYPE_ARRAY:
+		push_error("Controls must contain an array of rows")
+		return entries
+	for value: Variant in parsed:
+		if typeof(value) == TYPE_DICTIONARY: entries.append(value)
+	return entries
+
+func _controls_cell(cell_name: String) -> HBoxContainer:
+	var cell := HBoxContainer.new()
+	cell.name = cell_name
+	cell.alignment = BoxContainer.ALIGNMENT_END
+	cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cell.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	return cell
+
+func _align_controls_column(cells: Array[Control]) -> void:
+	var width: float = 0.0
+	for cell: Control in cells:
+		width = maxf(width, cell.get_combined_minimum_size().x)
+	for cell: Control in cells:
+		cell.custom_minimum_size.x = width
 
 func _build_footer() -> Control:
 	# Both states occupy the existing actions row's height. Confirmation must
@@ -370,21 +540,27 @@ func _section_shell(title_text: String, subtitle_text: String) -> PanelContainer
 	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
 	title.add_theme_color_override("font_color", PALE_GOLD)
 	header.add_child(title)
-	var subtitle := Label.new()
-	subtitle.text = subtitle_text
+	var subtitle := _caption_label(subtitle_text)
 	subtitle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_override("font", TEXT_FONT)
-	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
-	subtitle.add_theme_color_override("font_color", MUTED_TEXT)
 	# Section names already say what each group does; taglines only add noise.
 	subtitle.visible = false
 	header.add_child(subtitle)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 2)
 	stack.add_child(rows)
+	panel.set_meta("header", header)
 	panel.set_meta("rows", rows)
 	return panel
+
+# Section captions and row details share one secondary-text style.
+func _caption_label(text: String) -> Label:
+	var caption := Label.new()
+	caption.text = text
+	caption.add_theme_font_override("font", TEXT_FONT)
+	UiTypography.set_label_size(caption, UiTypography.SIZE_SMALL)
+	caption.add_theme_color_override("font_color", MUTED_TEXT)
+	return caption
 
 func _add_volume_row(rows: VBoxContainer, title: String, detail: String, key: String) -> void:
 	var control := HBoxContainer.new()
@@ -413,38 +589,41 @@ func _add_volume_row(rows: VBoxContainer, title: String, detail: String, key: St
 
 func _setting_row(title_text: String, detail_text: String, setting_control: Control) -> PanelContainer:
 	var row := PanelContainer.new()
-	row.custom_minimum_size = Vector2(0.0, ROW_HEIGHT)
-	row.add_theme_stylebox_override("panel", _row_style())
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 13)
-	margin.add_theme_constant_override("margin_top", 7)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 7)
-	row.add_child(margin)
-	var content := HBoxContainer.new()
-	content.add_theme_constant_override("separation", 18)
-	margin.add_child(content)
+	var content: HBoxContainer = _row_frame(row)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 1)
 	content.add_child(copy)
-	var title := Label.new()
-	title.text = title_text
-	title.add_theme_font_override("font", UI_FONT)
-	UiTypography.set_label_size(title, UiTypography.SIZE_BODY_LARGE)
-	title.add_theme_color_override("font_color", Color("f3e7cc"))
-	copy.add_child(title)
-	var detail := Label.new()
-	detail.text = detail_text
-	detail.add_theme_font_override("font", TEXT_FONT)
-	UiTypography.set_label_size(detail, UiTypography.SIZE_SMALL)
-	detail.add_theme_color_override("font_color", MUTED_TEXT)
-	copy.add_child(detail)
+	copy.add_child(_row_title(title_text))
+	copy.add_child(_caption_label(detail_text))
 	setting_control.custom_minimum_size.x = maxf(setting_control.custom_minimum_size.x, CONTROL_WIDTH)
 	setting_control.size_flags_horizontal = Control.SIZE_SHRINK_END
 	setting_control.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	content.add_child(setting_control)
 	return row
+
+# Every settings row shares this frame; returns the row's content line.
+func _row_frame(row: PanelContainer) -> HBoxContainer:
+	row.custom_minimum_size = Vector2(0.0, ROW_HEIGHT)
+	row.add_theme_stylebox_override("panel", _row_style())
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 13)
+	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_right", ROW_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_bottom", 7)
+	row.add_child(margin)
+	var content := HBoxContainer.new()
+	content.add_theme_constant_override("separation", ROW_SEPARATION)
+	margin.add_child(content)
+	return content
+
+func _row_title(text: String) -> Label:
+	var title := Label.new()
+	title.text = text
+	title.add_theme_font_override("font", UI_FONT)
+	UiTypography.set_label_size(title, UiTypography.SIZE_BODY_LARGE)
+	title.add_theme_color_override("font_color", Color("f3e7cc"))
+	return title
 
 func _option_control() -> OptionButton:
 	var option := OptionButton.new()
@@ -476,7 +655,7 @@ func _sync_controls_from_settings() -> void:
 	if _controls.is_empty():
 		return
 	_syncing = true
-	for key: String in ["master_volume", "music_volume", "sfx_volume"]:
+	for key: String in ["master_volume", "music_volume", "sfx_volume", "ui_volume"]:
 		var volume_controls: Dictionary = _controls.get(key, {})
 		var slider: HSlider = volume_controls.get("slider")
 		var value_label: Label = volume_controls.get("label")
@@ -484,6 +663,7 @@ func _sync_controls_from_settings() -> void:
 			slider.value = float(_settings.get(key, 1.0))
 		if value_label != null:
 			value_label.text = _percent_text(float(_settings.get(key, 1.0)))
+	_select_option_value(_controls.get("mute_in_background") as OptionButton, _settings.get("mute_in_background"))
 	_select_option_value(_controls.get("display_mode") as OptionButton, _settings.get("display_mode"))
 	_select_option_value(_controls.get("ui_scale") as OptionButton, _settings.get("ui_scale"))
 	_select_option_value(_controls.get("edge_smoothing") as OptionButton, _settings.get("edge_smoothing"))
@@ -494,6 +674,10 @@ func _sync_controls_from_settings() -> void:
 	if reduced_button != null:
 		reduced_button.button_pressed = bool(_settings.get("reduced_motion", false))
 		_update_reduced_motion_button(reduced_button)
+	var vibration_button: Button = _controls.get("controller_vibration") as Button
+	if vibration_button != null:
+		vibration_button.set_pressed_no_signal(SettingsStore.controller_vibration_enabled(_settings))
+		vibration_button.text = "On" if vibration_button.button_pressed else "Off"
 	_syncing = false
 
 func _select_option_value(option: OptionButton, value: Variant) -> void:
@@ -508,36 +692,45 @@ func _on_volume_changed(value: float, key: String, value_label: Label) -> void:
 	value_label.text = _percent_text(value)
 	if _syncing:
 		return
-	_settings[key] = value
-	_commit_change("Audio updated")
+	_commit_change(key, value, "Audio updated")
 
 func _on_option_selected(index: int, key: String, option: OptionButton) -> void:
 	if _syncing or index < 0:
 		return
-	_settings[key] = option.get_item_metadata(index)
 	var status: String = "Display updated" if key in ["display_mode", "ui_scale", "edge_smoothing", "board_health_bars"] else "Dialogue updated"
-	_commit_change("Saved automatically" if key == "combat_speed" else status)
+	if key == "mute_in_background":
+		status = "Audio updated"
+	elif key == "combat_speed":
+		status = "Saved automatically"
+	_commit_change(key, option.get_item_metadata(index), status)
 
 func _on_reduced_motion_toggled(enabled: bool) -> void:
 	var button: Button = _controls.get("reduced_motion") as Button
 	_update_reduced_motion_button(button)
 	if _syncing:
 		return
-	_settings["reduced_motion"] = enabled
-	_commit_change("Motion preference updated")
+	_commit_change("reduced_motion", enabled, "Motion preference updated")
 
 func _update_reduced_motion_button(button: Button) -> void:
 	if button == null:
 		return
 	button.text = "On — Less Motion" if button.button_pressed else "Off — Full Motion"
 
-func _commit_change(status: String) -> void:
+func _on_controller_vibration_toggled(enabled: bool, button: Button) -> void:
+	button.text = "On" if enabled else "Off"
+	if _syncing:
+		return
+	_commit_change("controller_vibration", enabled, "Saved automatically")
+
+func _commit_change(key: String, value: Variant, status: String) -> void:
+	# A settings file update can arrive while the panel is open.
+	_settings = SettingsStore.load_settings()
+	_settings[key] = value
 	_settings = SettingsStore.normalize_settings(_settings)
-	if SettingsStore.save_settings(_settings):
-		_set_status(status)
-	else:
-		_set_status("Could not save", true)
+	SettingsStore.save_preferences(_settings)
+	_set_save_status(status)
 	SettingsStore.apply_settings(_settings, get_window())
+	_sync_controls_from_settings()
 	settings_changed.emit(_settings.duplicate(true))
 
 func _show_restore_confirmation() -> void:
@@ -596,18 +789,22 @@ func _input(event: InputEvent) -> void:
 
 func _cancel_restore_confirmation() -> void:
 	_dismiss_restore_confirmation()
-	_set_status("Saved automatically")
+	_set_save_status("Saved automatically")
 
 func _confirm_restore_defaults() -> void:
 	_settings = SettingsStore.restore_defaults(get_window())
 	_sync_controls_from_settings()
 	_dismiss_restore_confirmation()
-	_set_status("Defaults restored")
+	_set_save_status("Defaults restored")
 	settings_changed.emit(_settings.duplicate(true))
 
 func _on_back_pressed() -> void:
 	_dismiss_restore_confirmation()
 	back_requested.emit()
+
+func _set_save_status(success_text: String) -> void:
+	var failed: bool = SettingsStore.has_unsaved_preferences()
+	_set_status("Could not save" if failed else success_text, failed)
 
 func _set_status(text: String, warning: bool = false) -> void:
 	if _status_label == null:

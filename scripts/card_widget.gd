@@ -107,7 +107,9 @@ const ART_SHADOW_COLOR := Color(0.16, 0.08, 0.03, 0.42)
 const RARITY_GEM_GLOW := {
 	"uncommon": Color(0.35, 0.62, 1.0, 0.9),
 	"rare": Color(0.35, 0.62, 1.0, 0.9),
-	"epic": Color(0.72, 0.42, 1.0, 0.9),
+	# pol-54: deep amethyst so epic reads darker than rare's ice blue for green-weak
+	# eyes and in grayscale, still lighter than the unlit common gem.
+	"epic": Color(0.34, 0.06, 0.76, 0.9),
 	"legendary": Color(1.0, 0.66, 0.25, 1.0),
 }
 const TITLE_FIT_RELIEF: int = 1
@@ -122,6 +124,17 @@ const ELEMENT_FRAME_TINT_BLEND: float = 0.78
 const FIRE_FRAME_SATURATION_FLOOR: float = 0.68
 const FIRE_FRAME_TINT_BLEND: float = 0.88
 const FIRE_FRAME_VALUE_LIFT: float = 1.035
+# The element tint recolours frame metal only, and the rarity gem's face is
+# not metal. The grey common and tan starter faces are dark and unsaturated
+# enough to pass the metal test in their shaded lower half, so without this
+# mask that half alone took the element hue (pol-55). The shield outline is in
+# frame-art pixel edges (256x352). A pixel belongs to the face when its centre
+# is inside; that is exactly the set of pixels where the rarity frames differ.
+const RARITY_GEM_FACE_ART_SIZE := Vector2(256.0, 352.0)
+const RARITY_GEM_FACE_OUTLINE: Array = [
+	Vector2(120.0, 329.0), Vector2(135.0, 329.0), Vector2(135.0, 340.5), Vector2(132.0, 343.5),
+	Vector2(130.5, 344.0), Vector2(127.5, 347.0), Vector2(120.0, 339.5),
+]
 
 static var _elemental_frame_cache: Dictionary = {}
 static var _card_frame_style_cache: Dictionary = {}
@@ -1184,15 +1197,18 @@ func _card_frame_texture(rarity: String, element_id: String) -> Texture2D:
 	return tinted_texture
 
 func _frame_transform_signature(element_id: String) -> String:
-	return "frame_v1|%s" % str([ELEMENT_FRAME_BAND, ELEMENT_FRAME_VALUE_MAX, ELEMENT_FRAME_SATURATION_MAX, ELEMENT_FRAME_SATURATION_FLOOR, ELEMENT_FRAME_TINT_BLEND, FIRE_FRAME_SATURATION_FLOOR, FIRE_FRAME_TINT_BLEND, FIRE_FRAME_VALUE_LIFT, _element_frame_tint_color(element_id)])
+	return "frame_v2|%s" % str([RARITY_GEM_FACE_OUTLINE, ELEMENT_FRAME_BAND, ELEMENT_FRAME_VALUE_MAX, ELEMENT_FRAME_SATURATION_MAX, ELEMENT_FRAME_SATURATION_FLOOR, ELEMENT_FRAME_TINT_BLEND, FIRE_FRAME_SATURATION_FLOOR, FIRE_FRAME_TINT_BLEND, FIRE_FRAME_VALUE_LIFT, _element_frame_tint_color(element_id)])
 
 func _build_elemental_frame_image(image: Image, element_id: String) -> Image:
 	var tinted_image: Image = image.duplicate()
 	var accent_hsv: Vector3 = _color_to_hsv(_element_frame_tint_color(element_id))
+	var gem_face: PackedVector2Array = _rarity_gem_face_polygon(Vector2(tinted_image.get_width(), tinted_image.get_height()))
 	for y: int in range(tinted_image.get_height()):
 		for x: int in range(tinted_image.get_width()):
 			var pixel: Color = tinted_image.get_pixel(x, y)
 			if not _is_element_frame_metal_pixel(pixel, Vector2i(x, y), Vector2i(tinted_image.get_width(), tinted_image.get_height())):
+				continue
+			if Geometry2D.is_point_in_polygon(Vector2(float(x) + 0.5, float(y) + 0.5), gem_face):
 				continue
 			var pixel_hsv: Vector3 = _color_to_hsv(pixel)
 			var tinted_pixel: Color = Color.from_hsv(
@@ -1203,6 +1219,13 @@ func _build_elemental_frame_image(image: Image, element_id: String) -> Image:
 			)
 			tinted_image.set_pixel(x, y, pixel.lerp(tinted_pixel, _element_frame_tint_blend(element_id)))
 	return tinted_image
+
+func _rarity_gem_face_polygon(image_size: Vector2) -> PackedVector2Array:
+	var art_scale: Vector2 = image_size / RARITY_GEM_FACE_ART_SIZE
+	var polygon := PackedVector2Array()
+	for point: Vector2 in RARITY_GEM_FACE_OUTLINE:
+		polygon.append(point * art_scale)
+	return polygon
 
 func _element_frame_tint_color(element_id: String) -> Color:
 	var accent: Color = ElementData.accent(element_id)

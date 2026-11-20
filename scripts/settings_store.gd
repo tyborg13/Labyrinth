@@ -2,9 +2,14 @@ extends RefCounted
 class_name SettingsStore
 
 const InputRouterScript = preload("res://scripts/input_router.gd")
+const ApplicationSuspend = preload("res://scripts/application_suspend.gd")
+const WindowGeometry = preload("res://scripts/settings_window_geometry.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://settings.json"
 const SETTINGS_SCHEMA: int = 1
+const RUNTIME_GROUP := &"settings_runtime"
+const WINDOWED_APPLIED_META := &"settings_windowed_applied"
+const DESKTOP_SESSION_ENV := ["XDG_CURRENT_DESKTOP", "XDG_SESSION_DESKTOP", "DESKTOP_SESSION"]
 
 const DISPLAY_FULLSCREEN: String = "fullscreen"
 const DISPLAY_WINDOWED: String = "windowed"
@@ -31,6 +36,7 @@ const MUSIC_BUS: String = "Music"
 const SFX_BUS: String = "SFX"
 const WORLD_SFX_BUS: String = "World SFX"
 const UI_SFX_BUS: String = "UI SFX"
+const SILENT_VOLUME_LINEAR: float = 0.0001
 const SFX_HEADROOM_DB: float = -3.0
 
 # A restrained, dark chamber response: enough tail to place attacks in the
@@ -74,17 +80,18 @@ const MUSIC_DUCK_EFFECT_NAME: String = "MusicDuck"
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
 const SUPPORTED_UI_SCALES := [0.90, 1.00, 1.15, 1.25]
-const DEFAULT_WINDOWED_SIZE := Vector2i(1600, 900)
-const MINIMUM_WINDOWED_SIZE := Vector2i(960, 540)
-const WINDOW_SCREEN_MARGIN := Vector2i(64, 64)
 
 static var _storage_path: String = DEFAULT_STORAGE_PATH
+static var _pending_preferences: Dictionary = {}
 # Runtime preference belongs to apply_settings, not disk persistence. Shared
 # decorative controls can check it without polling user:// during rendering.
 static var _applied_reduced_motion: bool = false
 
 static func set_storage_path(path: String) -> void:
-	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
+	var resolved: String = path if not path.is_empty() else DEFAULT_STORAGE_PATH
+	if _storage_path != resolved:
+		_pending_preferences.clear()
+		_storage_path = resolved
 
 static func storage_path() -> String:
 	return _storage_path
@@ -95,6 +102,8 @@ static func default_settings() -> Dictionary:
 		"master_volume": 0.80,
 		"music_volume": 0.70,
 		"sfx_volume": 0.80,
+		"ui_volume": 1.0,
+		"mute_in_background": false,
 		"display_mode": DISPLAY_FULLSCREEN,
 		"ui_scale": default_ui_scale(),
 		"edge_smoothing": default_edge_smoothing(),
@@ -102,7 +111,8 @@ static func default_settings() -> Dictionary:
 		"combat_speed": COMBAT_NORMAL,
 		"hero_facing": "persist",
 		"board_health_bars": DEFAULT_BOARD_HEALTH_BARS,
-		"reduced_motion": false
+		"reduced_motion": false,
+		"controller_vibration": true
 	}
 
 static func default_ui_scale(deck_platform: bool = InputRouterScript.platform_is_steam_deck()) -> float:
@@ -112,28 +122,29 @@ static func default_edge_smoothing() -> String:
 	return STEAM_DECK_EDGE_SMOOTHING_DEFAULT if OS.get_environment("SteamDeck") == "1" else EDGE_SMOOTHING_HIGH
 
 static func normalize_settings(data: Variant) -> Dictionary:
-	var defaults: Dictionary = default_settings()
+	var normalized: Dictionary = default_settings()
 	if typeof(data) != TYPE_DICTIONARY:
-		return defaults
+		return normalized
 	var source: Dictionary = data
-	var normalized: Dictionary = defaults.duplicate(true)
-	normalized["master_volume"] = clampf(_number_or_default(source.get("master_volume"), float(defaults["master_volume"])), 0.0, 1.0)
-	normalized["music_volume"] = clampf(_number_or_default(source.get("music_volume"), float(defaults["music_volume"])), 0.0, 1.0)
-	normalized["sfx_volume"] = clampf(_number_or_default(source.get("sfx_volume"), float(defaults["sfx_volume"])), 0.0, 1.0)
-	var display_mode: String = str(source.get("display_mode", defaults["display_mode"]))
-	if display_mode not in [DISPLAY_FULLSCREEN, DISPLAY_WINDOWED]:
-		display_mode = str(defaults["display_mode"])
-	normalized["display_mode"] = display_mode
-	normalized["ui_scale"] = nearest_supported_ui_scale(_number_or_default(source.get("ui_scale"), float(defaults["ui_scale"])))
-	var edge_smoothing: String = str(source.get("edge_smoothing", defaults["edge_smoothing"]))
-	normalized["edge_smoothing"] = edge_smoothing if edge_smoothing in [EDGE_SMOOTHING_HIGH, EDGE_SMOOTHING_LOW, EDGE_SMOOTHING_OFF] else defaults["edge_smoothing"]
-	var dialogue_speed: String = str(source.get("dialogue_speed", defaults["dialogue_speed"]))
+	for key: String in ["master_volume", "music_volume", "sfx_volume", "ui_volume"]:
+		normalized[key] = clampf(_number_or_default(source.get(key), float(normalized[key])), 0.0, 1.0)
+	normalized["mute_in_background"] = _bool_or_default(source.get("mute_in_background"), false)
+	var mode: String = str(source.get("display_mode", normalized["display_mode"]))
+	if mode in [DISPLAY_FULLSCREEN, DISPLAY_WINDOWED]:
+		normalized["display_mode"] = mode
+	normalized["ui_scale"] = nearest_supported_ui_scale(_number_or_default(source.get("ui_scale"), float(normalized["ui_scale"])))
+	var smoothing: String = str(source.get("edge_smoothing", normalized["edge_smoothing"]))
+	if smoothing in [EDGE_SMOOTHING_HIGH, EDGE_SMOOTHING_LOW, EDGE_SMOOTHING_OFF]:
+		normalized["edge_smoothing"] = smoothing
+	normalized.merge(_normalize_window_geometry(source))
+	var dialogue_speed: String = str(source.get("dialogue_speed", normalized["dialogue_speed"]))
 	if dialogue_speed not in [DIALOGUE_STANDARD, DIALOGUE_FAST, DIALOGUE_INSTANT]:
-		dialogue_speed = str(defaults["dialogue_speed"])
+		dialogue_speed = str(normalized["dialogue_speed"])
 	normalized["dialogue_speed"] = dialogue_speed
 	var combat_speed: String = str(source.get("combat_speed", COMBAT_NORMAL))
 	normalized["combat_speed"] = combat_speed if combat_speed in [COMBAT_NORMAL, COMBAT_FAST, COMBAT_FASTEST] else COMBAT_NORMAL
-	normalized["reduced_motion"] = _bool_or_default(source.get("reduced_motion"), bool(defaults["reduced_motion"]))
+	normalized["reduced_motion"] = _bool_or_default(source.get("reduced_motion"), false)
+	normalized["controller_vibration"] = controller_vibration_enabled(source)
 	var hero_facing: String = str(source.get("hero_facing", "persist"))
 	normalized["hero_facing"] = hero_facing if hero_facing in ["persist", "snap"] else "persist"
 	var board_health: String = str(source.get("board_health_bars", DEFAULT_BOARD_HEALTH_BARS))
@@ -141,16 +152,83 @@ static func normalize_settings(data: Variant) -> Dictionary:
 	normalized["settings_schema"] = SETTINGS_SCHEMA
 	return normalized
 
+static func _normalize_window_geometry(source: Dictionary) -> Dictionary:
+	var size: Variant = source.get("window_size")
+	var position: Variant = source.get("window_position")
+	var screen: Variant = source.get("window_screen")
+	var screen_size: Variant = source.get("window_screen_size")
+	if not _is_window_vector(size, 2) or not _is_window_vector(position, 2) or not _is_window_integer(screen):
+		return {}
+	if screen_size == null:
+		# Earlier geometry records stored absolute coordinates and a full screen rect.
+		var legacy_rect: Variant = source.get("window_screen_rect")
+		if not _is_window_vector(legacy_rect, 4):
+			return {}
+		position = [int(position[0]) - int(legacy_rect[0]), int(position[1]) - int(legacy_rect[1])]
+		screen_size = [legacy_rect[2], legacy_rect[3]]
+	if not _is_window_vector(position, 2) or not _is_window_vector(screen_size, 2):
+		return {}
+	if size[0] <= 0 or size[1] <= 0 or screen < 0 or screen_size[0] <= 0 or screen_size[1] <= 0:
+		return {}
+	var geometry := {
+		"window_size": [int(size[0]), int(size[1])],
+		"window_position": [int(position[0]), int(position[1])],
+		"window_screen": int(screen),
+		"window_screen_size": [int(screen_size[0]), int(screen_size[1])],
+	}
+
+	var neighbors: Variant = source.get("window_screen_neighbors")
+	if neighbors is Array:
+		var valid_neighbors: Array = []
+		for rect: Variant in neighbors:
+			if _is_window_vector(rect, 4) and rect[2] > 0 and rect[3] > 0:
+				valid_neighbors.append([int(rect[0]), int(rect[1]), int(rect[2]), int(rect[3])])
+		geometry["window_screen_neighbors"] = valid_neighbors
+	return geometry
+
+static func _is_window_vector(value: Variant, length: int) -> bool:
+	if not value is Array or value.size() != length:
+		return false
+	for component: Variant in value:
+		if not _is_window_integer(component):
+			return false
+	return true
+
+static func _is_window_integer(value: Variant) -> bool:
+	if not (value is int or value is float):
+		return false
+	var number := float(value)
+	return is_finite(number) and number == floorf(number) and number >= -2147483648.0 and number <= 2147483647.0
+
 static func load_settings() -> Dictionary:
+	var settings: Dictionary = _read_settings()
+	settings.merge(_pending_preferences, true)
+	return settings
+
+static func _read_settings() -> Dictionary:
 	if not FileAccess.file_exists(_storage_path):
 		return default_settings()
 	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.READ)
 	if file == null:
 		return default_settings()
+	var contents: String = file.get_as_text()
+	file.close()
 	var json := JSON.new()
-	if json.parse(file.get_as_text()) != OK:
+	if json.parse(contents) != OK:
 		return default_settings()
 	return normalize_settings(json.data)
+
+static func has_unsaved_preferences() -> bool:
+	return not _pending_preferences.is_empty()
+
+static func save_preferences(settings: Dictionary) -> bool:
+	if save_settings(settings):
+		return true
+	# Geometry can still change independently while a preference save is blocked.
+	var normalized: Dictionary = normalize_settings(settings)
+	for key: String in default_settings():
+		_pending_preferences[key] = normalized[key]
+	return false
 
 static func save_settings(settings: Dictionary) -> bool:
 	var normalized: Dictionary = normalize_settings(settings)
@@ -174,16 +252,20 @@ static func save_settings(settings: Dictionary) -> bool:
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), ProjectSettings.globalize_path(_storage_path)) != OK:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
 		return false
+	_pending_preferences.clear()
 	return true
 
 static func clear_storage() -> void:
+	_pending_preferences.clear()
 	for path: String in [_storage_path, "%s.tmp" % _storage_path]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 static func restore_defaults(window: Window = null) -> Dictionary:
+	var previous: Dictionary = load_settings()
 	var settings: Dictionary = default_settings()
-	save_settings(settings)
+	settings.merge(_normalize_window_geometry(previous))
+	save_preferences(settings)
 	apply_settings(settings, window)
 	return settings
 
@@ -200,7 +282,7 @@ static func apply_settings(settings: Dictionary, window: Window = null, apply_di
 	if window != null:
 		window.content_scale_factor = float(normalized["ui_scale"])
 		if apply_display_mode:
-			_apply_display_mode(str(normalized["display_mode"]))
+			_apply_display_mode(normalized, window)
 	return normalized
 
 static func inherit_edge_smoothing(viewport: SubViewport, source: Viewport) -> void:
@@ -295,9 +377,30 @@ static func _find_bus_effect(bus_index: int, effect_class: String) -> AudioEffec
 static func apply_audio_settings(settings: Dictionary) -> void:
 	var normalized: Dictionary = normalize_settings(settings)
 	ensure_audio_buses()
-	_apply_bus_volume(MASTER_BUS, float(normalized["master_volume"]))
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null:
+		var master: int = AudioServer.get_bus_index(MASTER_BUS)
+		var master_volume: float = float(normalized["master_volume"])
+		AudioServer.set_bus_mute(master, master_volume <= SILENT_VOLUME_LINEAR)
+		ApplicationSuspend.for_tree(tree).apply_audio_settings(tree.root, maxf(master_volume, SILENT_VOLUME_LINEAR), bool(normalized["mute_in_background"]))
+	else:
+		_apply_bus_volume(MASTER_BUS, float(normalized["master_volume"]))
 	_apply_bus_volume(MUSIC_BUS, float(normalized["music_volume"]))
 	_apply_bus_volume(SFX_BUS, float(normalized["sfx_volume"]), SFX_HEADROOM_DB)
+	_apply_bus_volume(UI_SFX_BUS, float(normalized["ui_volume"]))
+
+static func audio_route_is_audible(bus: StringName, gain_db: float) -> bool:
+	var index: int = AudioServer.get_bus_index(bus)
+	while index >= 0:
+		if AudioServer.is_bus_mute(index):
+			return false
+		gain_db += AudioServer.get_bus_volume_db(index)
+		if index == 0:
+			return db_to_linear(gain_db) > SILENT_VOLUME_LINEAR
+		# Godot sends only to earlier buses. An invalid send goes to Master.
+		var send: int = AudioServer.get_bus_index(AudioServer.get_bus_send(index))
+		index = send if send >= 0 and send < index else 0
+	return false
 
 static func nearest_supported_ui_scale(value: float) -> float:
 	var nearest: float = float(SUPPORTED_UI_SCALES[0])
@@ -337,62 +440,95 @@ static func applied_reduced_motion_enabled() -> bool:
 static func reduced_motion_enabled(settings: Dictionary) -> bool:
 	return bool(normalize_settings(settings)["reduced_motion"])
 
+static func controller_vibration_enabled(settings: Dictionary) -> bool:
+	return _bool_or_default(settings.get("controller_vibration"), true)
+
 static func motion_duration(seconds: float, settings: Dictionary) -> float:
 	return 0.0 if reduced_motion_enabled(settings) else maxf(0.0, seconds)
 
 static func safe_windowed_size(requested: Vector2i, usable_screen_size: Vector2i) -> Vector2i:
-	var bounded_usable := Vector2i(maxi(1, usable_screen_size.x), maxi(1, usable_screen_size.y))
-	var margin := Vector2i(
-		mini(WINDOW_SCREEN_MARGIN.x, maxi(0, bounded_usable.x - 640)),
-		mini(WINDOW_SCREEN_MARGIN.y, maxi(0, bounded_usable.y - 360))
-	)
-	var maximum := Vector2i(
-		bounded_usable.x - margin.x,
-		bounded_usable.y - margin.y
-	)
-	var minimum := Vector2i(
-		mini(MINIMUM_WINDOWED_SIZE.x, maximum.x),
-		mini(MINIMUM_WINDOWED_SIZE.y, maximum.y)
-	)
-	var candidate: Vector2i = requested if requested.x > 0 and requested.y > 0 else DEFAULT_WINDOWED_SIZE
-	return Vector2i(
-		clampi(candidate.x, minimum.x, maximum.x),
-		clampi(candidate.y, minimum.y, maximum.y)
+	return WindowGeometry.safe_windowed_size(requested, usable_screen_size)
+
+static func _apply_display_mode(settings: Dictionary, window: Window, display: Object = DisplayServer) -> void:
+	if display.get_name() == "headless" or OS.has_environment("LABYRINTH_PROBE_WINDOW"):
+		return
+	var mode: int = display.window_get_mode()
+	if settings["display_mode"] == DISPLAY_FULLSCREEN:
+		if mode != DisplayServer.WINDOW_MODE_FULLSCREEN:
+			if window.has_meta(WINDOWED_APPLIED_META):
+				if window.is_inside_tree():
+					window.get_tree().call_group(RUNTIME_GROUP, "flush_window_memory")
+				else:
+					save_window_geometry(display)
+			display.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		window.remove_meta(WINDOWED_APPLIED_META)
+		return
+	if window.has_meta(WINDOWED_APPLIED_META) and mode in [
+		DisplayServer.WINDOW_MODE_WINDOWED, DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.WINDOW_MODE_MINIMIZED
+	]:
+		return
+	if mode != DisplayServer.WINDOW_MODE_WINDOWED:
+		display.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	if WindowGeometry.restore_native_window(settings, display):
+		window.set_meta(WINDOWED_APPLIED_META, true)
+
+static func tracks_window_geometry(display: Object = DisplayServer) -> bool:
+	return (
+		display.get_name() != "headless"
+		and not OS.has_environment("LABYRINTH_PROBE_WINDOW")
+		and display.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED
 	)
 
-static func _apply_display_mode(display_mode: String) -> void:
-	if DisplayServer.get_name().to_lower() == "headless":
-		return
-	# Windowed test probes park in a screen corner and must never go fullscreen
-	# (tools/visual_probe_runner.py sets this; shipped builds never do).
-	if OS.has_environment("LABYRINTH_PROBE_WINDOW"):
-		return
-	var current_mode: int = DisplayServer.window_get_mode()
-	if display_mode == DISPLAY_FULLSCREEN:
-		if current_mode != DisplayServer.WINDOW_MODE_FULLSCREEN:
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-		return
-	var requested_size: Vector2i = DisplayServer.window_get_size() if current_mode == DisplayServer.WINDOW_MODE_WINDOWED else DEFAULT_WINDOWED_SIZE
-	if current_mode != DisplayServer.WINDOW_MODE_WINDOWED:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	var screen: int = DisplayServer.window_get_current_screen()
-	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen)
-	var safe_size: Vector2i = safe_windowed_size(requested_size, usable_rect.size)
-	# Reapplying settings during a scene transition must not ask the native
-	# window to resize/reposition when its geometry is already correct.
-	if DisplayServer.window_get_size() != safe_size:
-		DisplayServer.window_set_size(safe_size)
-	var safe_position: Vector2i = usable_rect.position + (usable_rect.size - safe_size) / 2
-	if DisplayServer.window_get_position() != safe_position:
-		DisplayServer.window_set_position(safe_position)
+static func window_geometry_saves_allowed() -> bool:
+	if not OS.get_environment("GAMESCOPE_WAYLAND_DISPLAY").strip_edges().is_empty():
+		return false
+	var has_desktop_session: bool = false
+	for key: String in DESKTOP_SESSION_ENV:
+		var session: String = OS.get_environment(key).strip_edges().to_lower()
+		if "gamescope" in session:
+			return false
+		has_desktop_session = has_desktop_session or not session.is_empty()
+	return has_desktop_session or not InputRouterScript.platform_is_steam_deck()
+
+static func window_geometry_snapshot(display: Object = DisplayServer) -> Dictionary:
+	if not tracks_window_geometry(display) or not window_geometry_saves_allowed():
+		return {}
+	var screen: int = display.window_get_current_screen()
+	var screens: Array[Rect2i] = WindowGeometry.screen_rects(display)
+	if screen < 0 or screen >= screens.size():
+		return {}
+	var screen_rect: Rect2i = screens[screen]
+	var size: Vector2i = display.window_get_size()
+	if not screen_rect.has_area() or size.x <= 0 or size.y <= 0:
+		return {}
+	var position: Vector2i = display.window_get_position() - screen_rect.position
+	return {
+		"window_size": [size.x, size.y],
+		"window_position": [position.x, position.y],
+		"window_screen": screen,
+		"window_screen_size": [screen_rect.size.x, screen_rect.size.y],
+		"window_screen_neighbors": WindowGeometry.screen_neighbors(screens, screen),
+	}
+
+static func save_window_geometry(display: Object = DisplayServer) -> bool:
+	return save_window_geometry_snapshot(window_geometry_snapshot(display))
+
+static func save_window_geometry_snapshot(geometry: Dictionary) -> bool:
+	if geometry.is_empty() or not window_geometry_saves_allowed():
+		return false
+	var settings: Dictionary = load_settings()
+	if _normalize_window_geometry(settings) == geometry:
+		return true
+	settings.merge(geometry, true)
+	return save_settings(settings)
 
 static func _apply_bus_volume(bus_name: String, volume: float, headroom_db: float = 0.0) -> void:
 	var bus_index: int = AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:
 		return
 	var clamped: float = clampf(volume, 0.0, 1.0)
-	AudioServer.set_bus_mute(bus_index, clamped <= 0.0001)
-	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(clamped, 0.0001)) + headroom_db)
+	AudioServer.set_bus_mute(bus_index, clamped <= SILENT_VOLUME_LINEAR)
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(clamped, SILENT_VOLUME_LINEAR)) + headroom_db)
 
 static func _ensure_audio_bus(bus_name: String) -> void:
 	if AudioServer.get_bus_index(bus_name) >= 0:

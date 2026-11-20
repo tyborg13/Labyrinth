@@ -14,6 +14,7 @@ const DemoEnd = preload("res://scripts/demo_end_panel.gd")
 const Clock = preload("res://scripts/presentation_clock.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const SceneLoads = preload("res://scripts/menu_run_preload.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const STATE_META := &"labyrinth_application_shutdown"
 # Leave time for the watchdog thread and OS process exit under throttling.
 const QUIT_DEADLINE_USEC := 2500000
@@ -104,6 +105,11 @@ static func departure_requested(tree: SceneTree) -> bool:
 	var state: QuitState = tree.root.get_meta(STATE_META)
 	return state.requested_usec > 0 or state.saving_to_title
 
+static func quit_requested(tree: SceneTree) -> bool:
+	if not tree.root.has_meta(STATE_META): return false
+	var state: QuitState = tree.root.get_meta(STATE_META)
+	return state.requested_usec > 0
+
 static func finish_save_to_title(tree: SceneTree) -> bool:
 	var state: QuitState = tree.root.get_meta(STATE_META)
 	state.saving_to_title = false
@@ -125,6 +131,7 @@ static func request(tree: SceneTree, reason: String, exit_code: int = 0) -> void
 	# The engine can block in a synchronous filesystem call. The watchdog
 	# owns the deadline independently of the disk worker and the main loop.
 	state.arm()
+	tree.call_group(Settings.RUNTIME_GROUP, "flush_window_memory")
 	tree.root.gui_disable_input = true
 	# Godot cannot hide the primary Window. Minimization dismisses the native
 	# window while the event loop keeps pumping pending cleanup.

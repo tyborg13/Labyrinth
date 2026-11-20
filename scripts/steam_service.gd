@@ -57,6 +57,9 @@ func _enter_tree() -> void:
 		_request_current_stats()
 	set_process(_initialized)
 
+func _ready() -> void:
+	add_child(preload("res://scripts/settings_runtime.gd").new())
+
 func _process(delta: float) -> void:
 	if _steam == null:
 		return

@@ -318,6 +318,10 @@ func _finish() -> void:
 	finished.emit()
 	if is_instance_valid(_host):
 		_host.call("_refresh_ui")
+		# The arrival map opens under the crossfade with focus disabled. Seed
+		# its normal route focus after restoration, before generic recovery.
+		if _entered and _map_arrival and _host.call("_controller_focus_scope") == _host.get("_large_map_scrim"):
+			_host.call("_focus_large_map_for_controller")
 		_host.call_deferred("_recover_controller_focus")
 
 func contain_input(event: InputEvent) -> void:

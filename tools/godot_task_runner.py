@@ -304,7 +304,8 @@ def command_run(args: argparse.Namespace) -> int:
     print("  timeout: %s" % ("%ss" % format_seconds(timeout_seconds) if timeout is not None else "disabled"))
     if args.stream:
         print("  stream: enabled")
-    result = run_task_command(command, project, env, timeout, args.stream)
+    with windowed_hidpi_override(command, project):
+        result = run_task_command(command, project, env, timeout, args.stream)
     combined_output = result.stdout + "\n" + result.stderr
     if result.timed_out:
         print("error: command timed out after %s seconds." % format_seconds(timeout_seconds), file=sys.stderr)
@@ -313,6 +314,34 @@ def command_run(args: argparse.Namespace) -> int:
         print("error: Godot reported script or test failures despite exit code 0.", file=sys.stderr)
         return 1
     return result.returncode
+
+
+def windowed_hidpi_override(command: list[str], project: Path):
+    """A windowed Godot run on the laptop screen alone can't fit a 1920x1080 HiDPI-off window; macOS clips
+    it (1920x833) and every exact-size check rejects it. Same rule as tools/visual_probe_runner.py: allow
+    HiDPI for the run when the window wouldn't fit, so the backing is still exactly the requested pixels."""
+    from contextlib import ExitStack, nullcontext
+    if sys.platform != "darwin" or not command_is_godot(command) or "--headless" in command:
+        return nullcontext()
+    from visual_probe_runner import parse_size, probe_hidpi_override, probe_needs_hidpi, probe_window_override
+    size = (1920, 1080)
+    if "--resolution" in command and command.index("--resolution") + 1 < len(command):
+        try:
+            size = parse_size(command[command.index("--resolution") + 1])
+        except Exception:
+            pass
+    target = project
+    if "--path" in command and command.index("--path") + 1 < len(command):
+        target = Path(command[command.index("--path") + 1]).resolve()
+    stack = ExitStack()
+    if "--windowed" in command:
+        # project.godot starts fullscreen and beats --windowed (perf-167 timing takes opened
+        # fullscreen at 3024x1898): the same temporary override.cfg the probe runner writes.
+        stack.enter_context(probe_window_override(target, True))
+    if probe_needs_hidpi([size]):
+        print("  hidpi: allowed (the window doesn't fit the main display's points)")
+        stack.enter_context(probe_hidpi_override(target, True))
+    return stack
 
 
 def godot_output_has_failure(output: str) -> bool:

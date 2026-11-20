@@ -10,7 +10,6 @@ extends Node2D
 ## the border (combat_board_view.gd).
 const Slices = preload("res://scripts/board_layer_slices.gd")
 const Threats = preload("res://scripts/threat_tiles.gd")
-const Palette = preload("res://scripts/ui_palette.gd")
 
 var tile := Vector2i(-1, -1)
 var _paint: Dictionary = {}
@@ -36,4 +35,4 @@ func _draw() -> void:
 	var inner: PackedVector2Array = _paint["inner"]
 	var outline: PackedVector2Array = inner.duplicate()
 	outline.append(inner[0])
-	draw_polyline(outline, Color(Palette.DANGER, Threats.OUTLINE_ALPHA * float(_paint["alpha"])), Threats.OUTLINE_WIDTH, true)
+	draw_polyline(outline, Color(Threats.OUTLINE_COLOR, Threats.OUTLINE_ALPHA * float(_paint["alpha"])), Threats.OUTLINE_WIDTH, true)

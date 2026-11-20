@@ -1,0 +1,14 @@
+{
+  "min_images": 5,
+  "expected_sizes": [
+    "1920x1080",
+    "1280x800"
+  ],
+  "required_images": [
+    {"pattern": "*ux17_1920x1080_100_pointer.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 3}]},
+    {"pattern": "*ux17_1920x1080_100_controller.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 3}]},
+    {"pattern": "*ux17_1920x1080_150_pointer.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 3}]},
+    {"pattern": "*ux17_1920x1080_125_pointer.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 3}]},
+    {"pattern": "*ux17_1280x800_deck_controller.png", "width": 1280, "height": 800, "regions": [{"rect": [0, 0, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 3}]}
+  ]
+}

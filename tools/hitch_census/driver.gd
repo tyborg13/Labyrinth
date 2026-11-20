@@ -45,6 +45,7 @@ var target_size: Vector2i = ViewportCheck.TARGET_SIZE
 var target_ui_scale: float = ViewportCheck.TARGET_UI_SCALE
 var demo_board_proof: String = ""
 var demo_board_stop: bool = false
+var quick: bool = false
 var calibration_intervals: Array[float]
 var calibration_previous_us: int = 0
 
@@ -68,6 +69,7 @@ func _initialize() -> void:
 		elif arg == "--demo-board-proof=stick": demo_board_proof = "stick"
 		elif arg == "--demo-board-proof=dpad": demo_board_proof = "dpad"
 		elif arg == "--demo-board-stop": demo_board_stop = true
+		elif arg == "--quick": quick = true
 		else:
 			push_error("HITCH CENSUS: unknown argument " + arg)
 			quit(2)
@@ -97,7 +99,7 @@ func _start() -> void:
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.content_scale_factor = target_ui_scale
 	root.set_meta("labyrinth_performance_probe_seed", run_seed)
-	Engine.max_fps = 0
+	Engine.max_fps = Engine.physics_ticks_per_second if quick and headless_smoke else 0
 	Engine.time_scale = 1.0
 	OS.low_processor_usage_mode = false
 	if not validate_only: DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
@@ -105,7 +107,7 @@ func _start() -> void:
 	trace = Trace.new()
 	root.add_child(trace)
 	trace.begin(output.path_join("frames.jsonl"), run_seed, whole_settings() if driver_name == "whole" else {})
-	if headless_smoke:
+	if headless_smoke and not quick:
 		var metadata := FileAccess.open(output.path_join("run.json"), FileAccess.WRITE)
 		metadata.store_string(JSON.stringify({"driver": driver_name, "seed": run_seed, "profile": "headless", "cache": "unmeasured", "trace_mode": "on", "whole_settings": whole_settings()}, "\t"))
 		metadata.close()
@@ -136,7 +138,10 @@ func _start() -> void:
 		session.run()
 	elif driver_name == "tour":
 		var tour := Tour.new()
-		await tour.run(self)
+		if quick:
+			await tour.run_tharokh(self)
+		else:
+			await tour.run(self)
 		finish("tour_complete")
 	elif driver_name == "calibration":
 		await _enter_scene("res://scenes/run_scene.tscn")
@@ -260,7 +265,7 @@ func finish(outcome: String) -> void:
 	if outcome == "time_limit" and not demo_board_proof.is_empty():
 		errors.append("Time limit before board proof completed")
 	if validate_tour or (driver_name == "tour" and not validate_only):
-		var missing := Tour.missing_stops(coverage)
+		var missing := Tour.missing_tharokh(coverage) if quick else Tour.missing_stops(coverage)
 		if not missing.is_empty():
 			errors.append("Tour stopped at %s with missing coverage: %s" % [outcome, ", ".join(missing)])
 		elif outcome == "time_limit":

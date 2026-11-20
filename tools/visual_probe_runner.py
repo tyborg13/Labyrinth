@@ -178,6 +178,9 @@ def probe_window_corner() -> tuple[int, int] | None:
     return (PROBE_WINDOW_MARGIN, PROBE_WINDOW_MARGIN)
 
 
+PROBE_OVERRIDE_MARKER = "; Temporary: tools/visual_probe_runner.py (windowed probe). Safe to delete."
+
+
 @contextmanager
 def probe_window_override(project: Path, active: bool):
     """project.godot starts fullscreen and Godot's --windowed flag loses to it, so a
@@ -185,7 +188,7 @@ def probe_window_override(project: Path, active: bool):
     its run only. A killed run can't clean up, so the file carries a marker and a later
     run replaces and removes a marked leftover; an unmarked override.cfg is left alone."""
     path = project / "override.cfg"
-    marker = "; Temporary: tools/visual_probe_runner.py (windowed probe). Safe to delete."
+    marker = PROBE_OVERRIDE_MARKER
     if path.exists() and not path.read_text().startswith(marker):
         yield
         return
@@ -198,6 +201,70 @@ def probe_window_override(project: Path, active: bool):
         yield
     finally:
         path.unlink(missing_ok=True)
+
+
+PROBE_WINDOW_CHROME = 64  # Points for the title bar and menu bar above a parked window.
+
+
+def main_display_points() -> tuple[int, int, float] | None:
+    """(width, height, backing scale) of the macOS main display in points, or None."""
+    if sys.platform != "darwin":
+        return None
+    try:
+        out = subprocess.run(["system_profiler", "SPDisplaysDataType", "-json"],
+                             capture_output=True, text=True, timeout=15).stdout
+        for gpu in json.loads(out).get("SPDisplaysDataType", []):
+            for screen in gpu.get("spdisplays_ndrvs", []):
+                if screen.get("spdisplays_main") != "spdisplays_yes":
+                    continue
+                points = re.match(r"(\d+) x (\d+)", screen.get("_spdisplays_resolution", ""))
+                pixels = re.match(r"(\d+) x (\d+)", screen.get("_spdisplays_pixels", ""))
+                if points and pixels:
+                    return int(points[1]), int(points[2]), int(pixels[1]) / int(points[1])
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+    return None
+
+
+def probe_needs_hidpi(sizes: list[tuple[int, int]]) -> bool:
+    """True when a HiDPI-off window of the expected size can't fit the main display but a Retina
+    HiDPI window can: the laptop screen alone (1512x982 points) clips 1920x1080 to 1920x833, and
+    every exact-size check rejects it. A HiDPI window shows the same pixels at half the points."""
+    width, height = max(sizes, default=(1920, 1080))
+    display = main_display_points()
+    if display is None:
+        return False
+    points_w, points_h, scale = display
+    fits = (width + PROBE_WINDOW_MARGIN <= points_w
+            and height + PROBE_WINDOW_MARGIN + PROBE_WINDOW_CHROME <= points_h)
+    return not fits and scale >= 2.0
+
+
+@contextmanager
+def probe_hidpi_override(project: Path, active: bool):
+    """Allows HiDPI in override.cfg for one run (see probe_needs_hidpi) and restores the file's
+    exact bytes afterwards. Runs inside probe_window_override, so a fresh file keeps its marker."""
+    if not active:
+        yield
+        return
+    path = project / "override.cfg"
+    original = path.read_bytes() if path.exists() else None
+    # A fresh file carries the marker, so a killed run's leftover is replaced and removed later.
+    text = original.decode() if original is not None else PROBE_OVERRIDE_MARKER + "\n"
+    if re.search(r"window/dpi/allow_hidpi=\w+", text):
+        text = re.sub(r"window/dpi/allow_hidpi=\w+", "window/dpi/allow_hidpi=true", text)
+    elif "[display]\n" in text:
+        text = text.replace("[display]\n", "[display]\nwindow/dpi/allow_hidpi=true\n", 1)
+    else:
+        text += "\n[display]\nwindow/dpi/allow_hidpi=true\n"
+    path.write_text(text)
+    try:
+        yield
+    finally:
+        if original is None:
+            path.unlink(missing_ok=True)
+        else:
+            path.write_bytes(original)
 
 
 def run_process_with_watchdogs(
@@ -302,7 +369,11 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
     if home_dir is not None:
         print("  HOME: %s" % home_dir)
     print("  command: %s" % " ".join(shell_quote(part) for part in cmd))
-    with probe_window_override(Path(args.project).resolve(), corner is not None):
+    hidpi = corner is not None and probe_needs_hidpi(list(args.expect_size))
+    if hidpi:
+        print("  hidpi: allowed (the expected window doesn't fit the main display's points)")
+    with probe_window_override(Path(args.project).resolve(), corner is not None), \
+            probe_hidpi_override(Path(args.project).resolve(), hidpi):
         result = run_process_with_watchdogs(
             cmd,
             cwd=Path(args.project).resolve(),

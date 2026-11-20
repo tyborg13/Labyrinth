@@ -34,6 +34,7 @@ const SCORE_WIDTH: float = 560.0
 const SCORE_VALUE_WITH_BEST_X: float = 250.0
 const ROW_MIN_HEIGHT: float = 38.0
 const ROWS_TOP: float = 246.0
+const RULE_TOP: float = 214.0
 const TITLE_FADE_SECONDS: float = 0.3
 const COPY_DELAY_SECONDS: float = 0.25
 const ROW_REVEAL_SECONDS: float = 0.11
@@ -134,6 +135,8 @@ var _kicker: Label
 var _title: Label
 var _title_glow: Control
 var _cause: Label
+var _depth_unlock: Label
+var _score_rule: GildedRule
 var _portrait: RoundPortrait
 var _ledger: Control
 var _rows: VBoxContainer
@@ -240,7 +243,7 @@ static func result_stats(run_state: Dictionary) -> Dictionary:
 	return metrics
 
 
-static func build_model(run_state: Dictionary, progression: Dictionary, outcome: String, ember_amount: int) -> Dictionary:
+static func build_model(run_state: Dictionary, progression: Dictionary, outcome: String, ember_amount: int, unlocked_depth: int = 0) -> Dictionary:
 	var normalized_outcome: String = outcome if outcome in ["victory", "embrace"] else "defeat"
 	var stats: Dictionary = result_stats(run_state)
 	var boss_result: String
@@ -303,6 +306,8 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	model["score"] = scored
 	model["killer"] = killer
 	model["cause"] = RunScoreRules.cause_text(killer, normalized_outcome, ember_amount)
+	if unlocked_depth > 0 and normalized_outcome == "victory" and not DemoBuild.is_demo() and not bool(run_state.get("debug_boss_run", false)):
+		model["depth_unlock"] = "%s unlocked." % DepthRules.depth_name(unlocked_depth)
 	if DemoBuild.is_demo():
 		model["demo_end_panel_kind"] = DemoRules.end_panel_kind(run_state, normalized_outcome, progression)
 		if model["demo_end_panel_kind"] == "full":
@@ -354,6 +359,12 @@ func _spaced_font(spacing: int) -> FontVariation:
 	font.base_font = UI_FONT
 	font.spacing_glyph = spacing
 	return font
+
+func _cause_label(node_name: String) -> Label:
+	var label := _label(node_name, "", TEXT_FONT, 20, Palette.TEXT, Rect2(56, 148, COLUMN_WIDTH - 56, 44))
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_column.add_child(label)
+	return label
 
 # Prepare only the titles this run can actually select, using the same native
 # face/size/outline RIDs. No model, score ledger, clock, focus or demo flag changes.
@@ -433,15 +444,15 @@ func _build_children() -> void:
 	_portrait.position = Vector2(0, 146)
 	_portrait.size = Vector2(44, 44)
 	_column.add_child(_portrait)
-	_cause = _label("OutcomeCause", "", TEXT_FONT, 20, Palette.TEXT, Rect2(56, 148, COLUMN_WIDTH - 56, 44))
-	_cause.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_column.add_child(_cause)
-	var rule := GildedRule.new()
-	rule.name = "GildedRule"
-	rule.position = Vector2(0, 214)
-	rule.size = Vector2(SCORE_WIDTH, 14)
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_column.add_child(rule)
+	_cause = _cause_label("OutcomeCause")
+	_depth_unlock = _cause_label("DepthUnlock")
+	_depth_unlock.hide()
+	_score_rule = GildedRule.new()
+	_score_rule.name = "GildedRule"
+	_score_rule.position = Vector2(0, RULE_TOP)
+	_score_rule.size = Vector2(SCORE_WIDTH, 14)
+	_score_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_column.add_child(_score_rule)
 	_ledger = Control.new()
 	_ledger.name = "ScoreLedger"
 	_ledger.position = Vector2(0, ROWS_TOP)
@@ -695,11 +706,16 @@ func _apply_model() -> void:
 		layer.text = _title.text
 		layer.add_theme_color_override("font_outline_color", Color(glow_color, layer_alpha))
 	_cause.text = str(_model.get("cause", ""))
+	_depth_unlock.text = str(_model.get("depth_unlock", ""))
+	_depth_unlock.visible = not _depth_unlock.text.is_empty()
 	var portrait_path: String = defeat_portrait_path(_model.get("killer", {})) if _is_defeat() else ""
 	_portrait.visible = not portrait_path.is_empty()
 	_portrait.set_texture(AssetLoader.load_texture(portrait_path) if _portrait.visible else null)
 	_cause.position.x = 56.0 if _portrait.visible else 0.0
 	_cause.size.x = COLUMN_WIDTH - _cause.position.x
+	var extra_line: float = _depth_unlock_line_height()
+	_score_rule.position.y = RULE_TOP + extra_line
+	_ledger.position.y = ROWS_TOP + extra_line
 	for row: Control in _row_controls:
 		row.get_parent().remove_child(row)
 		row.queue_free()
@@ -720,7 +736,7 @@ func _apply_model() -> void:
 	if split:
 		ledger_height = maxf(ledger_height, _feat_rows.get_combined_minimum_size().y)
 	_ledger.size = Vector2(COLUMN_WIDTH if split else SCORE_WIDTH, ledger_height)
-	_total.position = Vector2(0, ROWS_TOP + _ledger.size.y + 14)
+	_total.position = Vector2(0, _ledger.position.y + _ledger.size.y + 14)
 	_embers.position = Vector2(0, _total.position.y + 82)
 	var embers_copy: String = str(_model.get("embers_text", ""))
 	var amount: String = RunScoreRules.grouped_number(int(_model.get("ember_amount", 0)))
@@ -751,6 +767,10 @@ func _layout() -> void:
 	var title_height: float = DISPLAY_FONT.get_height(_title.get_theme_font_size("font_size"))
 	if factor > 0.0 and canvas_scale > 0.0:
 		_cause.position.y = maxf(148.0, _title.position.y + title_height + TITLE_CAUSE_GAP_PX / (factor * canvas_scale))
+	var extra_line: float = _depth_unlock_line_height()
+	if extra_line > 0.0:
+		_depth_unlock.position = _cause.position + Vector2(0, _cause.get_line_count() * extra_line)
+		_depth_unlock.size = Vector2(_cause.size.x, extra_line)
 	if _demo_panel != null and _demo_panel.kind == "full":
 		_demo_panel.layout_plates(factor)
 		return
@@ -759,9 +779,12 @@ func _layout() -> void:
 	var plate: float = _new_run_button.size.x
 	var x: float = COLUMN_ORIGIN.x + (3.0 * plate + 2.0 * gap) * 0.5 - (2.0 * plate + gap) * 0.5
 	for button: Button in [_new_run_button, _main_menu_button]:
-		button.position = Vector2(x, 952) * factor
+		button.position = Vector2(x, 952 + extra_line) * factor
 		button.scale = Vector2.ONE * factor
 		x += plate + gap
+
+func _depth_unlock_line_height() -> float:
+	return float(_cause.get_line_height()) if _depth_unlock.visible else 0.0
 
 # The link's capitals stand CHRONICLE_LINK_GAP below the summary's last baseline.
 func _chronicle_link_top() -> float:
@@ -832,6 +855,7 @@ func _update_presentation() -> void:
 	_title_glow.modulate.a = _title.modulate.a
 	var copy_shown: bool = _elapsed >= TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
 	_cause.modulate.a = 1.0 if copy_shown else 0.0
+	_depth_unlock.modulate.a = _cause.modulate.a
 	_portrait.modulate.a = _cause.modulate.a
 	var row_start: float = TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
 	for index: int in range(_row_controls.size()):

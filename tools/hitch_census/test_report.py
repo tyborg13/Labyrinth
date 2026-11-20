@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 import census
+import host_load
 import report
 
 FIXTURE = Path(__file__).parent / 'fixtures/report_trace.jsonl'
@@ -70,6 +71,80 @@ class ReportTest(unittest.TestCase):
         result = report.generate([self.run_fixture(native=False)], self.root / 'report')
         self.assertEqual(result['situations'], [])
         self.assertEqual(len(result['rejected']), 1)
+
+    def test_quick_headless_tour_catalog_carries_load_condition(self):
+        sample = dict(logical_cpus=8, load_average=[1, 2, 3], other_godot_pids=[22],
+                      census_godot_cpu_share_pct=10, other_godot_cpu_share_pct=3, external_cpu_share_pct=8)
+        path = self.run_fixture(native=False, driver='tour', preset='quick', headless_standin=True,
+                                load_condition=host_load.condition([sample]), host_load_samples=[sample])
+        (path.parent / 'receipt.json').write_text(json.dumps(dict(
+            outcome='tour_complete', coverage={'stop:tharokh': True, 'playback:tharokh': TOUR_COVERAGE['playback:tharokh']})))
+        result = report.generate([path], self.root / 'report', headless_standin=True)
+        self.assertEqual(result['rejected'], [])
+        self.assertTrue(result['named_hitch_catalog'])
+        self.assertEqual(result['load_condition'], 'under load')
+        rendered = (self.root / 'report/report.md').read_text()
+        self.assertIn('All numeric results in this catalog: under load', rendered)
+        self.assertIn('1.00 / 2.00 / 3.00 | 1 | 10.00 / 3.00 / 8.00', rendered)
+        self.assertIn('This stand-in has no renderer timing', rendered)
+        self.assertLess(rendered.index('## Named hitch catalog'), rendered.index('## Capture receipts'))
+        first = json.loads((self.root / 'report/slow_frames.jsonl').read_text().splitlines()[0])
+        self.assertEqual(first['load_condition'], 'under load')
+
+    def test_then_now_uses_subthreshold_cells_and_leaves_unlisted_cells_unknown(self):
+        path = self.run_fixture('warm', load_condition='under load')
+        previous = report.generate([path], self.root / 'old')
+        hitch = previous['named_hitch_catalog'].pop()
+        previous['below_hitch_threshold'].append({
+            **hitch, 'over_ms': {'50.0': 0, '100.0': 0}, 'p99': 20, 'max': 21,
+        })
+        previous['named_hitch_catalog'].append({**hitch, 'profile': 'background'})
+        current = report.generate([path], self.root / 'report', old_catalog=previous)
+        rows = [row for row in current['comparison']['rows'] if row['hitch_id'] == hitch['hitch_id']]
+        self.assertEqual([row['profile'] for row in rows], ['background', 'normal'])
+        self.assertIsNone(rows[0]['now'])
+        self.assertEqual(rows[1]['then'], dict(count_over_50_ms=0, count_over_100_ms=0, p99_ms=20, max_ms=21))
+        self.assertEqual(rows[1]['now']['count_over_50_ms'], hitch['over_ms']['50.0'])
+        self.assertIn('Load, route coverage and capture length can differ',
+                      (self.root / 'report/report.md').read_text())
+
+    def test_quick_native_background_uses_taskpolicy_and_bounded_runner(self):
+        from types import SimpleNamespace
+        args = SimpleNamespace(output=self.root, task_id='cen-02', mode='quick',
+                               seconds=census.QUICK_DEMO_SECONDS, first_boss=False, stop_after=0)
+        with patch.object(census.platform, 'system', return_value='Darwin'), patch.object(census.shutil, 'which', return_value='taskpolicy'):
+            command = census.command(args, 'demo', 7, 'background', 'example', self.root / 'run', 'on')
+        self.assertEqual(command[:3], ['taskpolicy', '-c', 'background'])
+        self.assertIn('--quick', command)
+        self.assertIn('--seed=7', command)
+        self.assertNotIn('--headless-smoke', command)
+        caps = (3 * census.QUICK_DEMO_SECONDS + census.QUICK_TOUR_SECONDS
+                + 4 * census.QUICK_RUNNER_MARGIN_SECONDS)
+        self.assertLessEqual(caps, census.QUICK_DEADLINE_SECONDS)
+        self.assertLess(census.QUICK_DEADLINE_SECONDS, 30 * 60)
+
+    def test_quick_demo_runner_timeout_keeps_valid_prefix(self):
+        from types import SimpleNamespace
+        args = SimpleNamespace(output=self.root, disk_cap_gb=10, task_id='cen-02', tag='quick',
+                               mode='quick', headless_standin=False, demo_seconds=480,
+                               seconds=480, first_boss=False, stop_after=0)
+        (self.root / 'homes/demo').mkdir(parents=True)
+
+        def launch(*unused, **kwargs):
+            directory = next((self.root / 'runs').iterdir())
+            kwargs['stdout'].write('error: command timed out\n')
+            (directory / 'viewport.json').write_text('{"status":"accepted"}')
+            (directory / 'frames.jsonl').write_text(FIXTURE.read_text() + '{"partial":')
+            return SimpleNamespace(pid=4, poll=lambda: 124, returncode=124)
+
+        with patch.object(census.subprocess, 'Popen', side_effect=launch), patch.object(census, 'guard'), \
+                patch.object(census.host_load, 'Sampler'):
+            directory = census.run_one(args, 'demo', 7, 'normal', 'warm', 'demo')
+        result = report.generate([directory / 'run.json'], self.root / 'catalog')
+        self.assertEqual(result['rejected'], [])
+        self.assertEqual(result['runs'][0]['outcome'], 'runner_time_limit')
+        self.assertTrue(result['runs'][0]['partial_trace'])
+        self.assertTrue(result['named_hitch_catalog'])
 
     def test_headless_tour_coverage_printed_without_renderer_rows(self):
         path = self.run_fixture(native=False, driver='tour', ground_fx='off')

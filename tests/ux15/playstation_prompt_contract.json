@@ -1,0 +1,27 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "glyph_sheet_100.png",
+      "regions": [
+        {"rect": [0, 0, 960, 1080], "min_luma_range": 80, "min_luma_stdev": 4},
+        {"rect": [960, 0, 960, 1080], "min_luma_range": 80, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "glyph_sheet_150.png",
+      "regions": [
+        {"rect": [0, 0, 960, 1080], "min_luma_range": 80, "min_luma_stdev": 4},
+        {"rect": [960, 0, 960, 1080], "min_luma_range": 80, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "combat_playstation_cel.png",
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [0, 730, 1920, 350], "min_luma_range": 40, "min_luma_stdev": 5}
+      ]
+    }
+  ]
+}

@@ -114,6 +114,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	check.call(risk_text == "WAIT +10 · −%d HEALTH" % live_loss, "The action context states the full known HP damage: %s" % risk_text)
 	await _capture(capture_viewport, check, capture_dir, "pass_lap_known_damage")
 	await _test_preview_visibility(tree, scene, engine, check)
+	await test_pending_selection_truth(tree, scene, engine, check)
 	_test_forecasts(scene, check)
 	await ReviewSuite.run(tree, scene, engine, check, fixture(engine), _install, _hover, func(phase: String) -> void: await _capture(capture_viewport, check, capture_dir, phase))
 	await BannerSuite.run(tree, scene, fixture(engine), _install, _play, check)
@@ -395,6 +396,195 @@ static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	card.call("_refresh_time_badge", modified)
 	expect.call(badge.tooltip_text.ends_with("\nQuickened: −1"), "The Time badge preserves modifier lines")
 	card.call("_refresh_time_badge", GameData.card_def("quick_stab"))
+
+# gfix-23 (perf-154b review): a fresh controller selection computes its Pass
+# forecast, rail delays and board intents after the first draw. Input during
+# that window must leave each display as a synchronous refresh of the new state
+# would, and publication must never show exact rows beside a stale rail or
+# intent. Each sequence runs on the release synchronous path and the worker.
+const PENDING_WINDOW_FRAMES: int = 40
+const PENDING_SEQUENCES: Dictionary = {
+	# Switch to the mouse: hover and click empty floor while a targetless card awaits confirmation.
+	"mouse_tile": "stone_plate",
+	# RB rotates the fresh aim before the worker publishes the rail.
+	"rotate": "earthen_rampart",
+	# Details on while the default aim's 1 HP Harrier is previewed dead.
+	"details_kill": "pale_spark",
+	# A rail portrait moves the aim to the other foe in range (qa-120 seed 12006).
+	"rail_focus": "pale_spark",
+	# The pointer leaves every target: empty floor, then off the board as a stick
+	# cursor between tiles does (qa-120 seeds 12011, 12016, 12029). The card has
+	# no play there, so the board shows exactly its no-card view.
+	"off_target": "pale_spark",
+	"off_board": "pale_spark",
+}
+const PENDING_NO_PLAY: Dictionary = {"off_target": Vector2i(2, 6), "off_board": Vector2i(-1, -1)}
+# Input that supersedes the pending work paints its displays before the next draw.
+const PENDING_SUPERSEDING: Array = ["rotate", "rail_focus"]
+const PENDING_EMPTY_FLOOR := Vector2i(2, 6)
+const INVALID_TILE := Vector2i(-1, -1)
+const PENDING_KILL_TILE := Vector2i(3, 4)
+const PENDING_SECOND_FOE_TILE := Vector2i(2, 2)
+
+static func test_pending_selection_truth(tree: SceneTree, scene: Node, engine: CombatEngine, expect: Callable) -> void:
+	var router: Node = tree.root.get_node("InputRouter")
+	var old_modality: String = str(router.call("modality"))
+	var old_baseline: bool = bool(scene.get("_selection_forecast_baseline"))
+	var old_details: bool = bool(scene.get("_show_all_enemy_intents"))
+	for sequence: String in PENDING_SEQUENCES:
+		var settled: Array[Dictionary]
+		for sync_arm: bool in [true, false]:
+			scene.set("_selection_forecast_baseline", sync_arm)
+			settled.append(await _pending_sequence(tree, scene, engine, expect, sequence, sync_arm))
+		expect.call(_pending_display(settled[1]) == _pending_display(settled[0]), "%s: the worker settles on the release path's Pass, rail and intents: %s vs %s" % [sequence, settled[1], settled[0]])
+	scene.set("_selection_forecast_baseline", old_baseline)
+	scene.call("_set_show_all_enemy_intents", old_details)
+	router.call("set_modality", old_modality)
+
+static func _pending_sequence(tree: SceneTree, scene: Node, engine: CombatEngine, expect: Callable, sequence: String, sync_arm: bool) -> Dictionary:
+	var phase: String = "%s/%s" % [sequence, "sync" if sync_arm else "worker"]
+	var state: Dictionary = fixture(engine)
+	state["deck"]["hand"] = ["quick_stab", PENDING_SEQUENCES[sequence], "sidestep_slash", "bloody_lunge", "brace"]
+	if sequence in ["details_kill", "rail_focus"]:
+		state["enemies"][0]["hp"] = 1
+	if sequence == "rail_focus":
+		state["enemies"][1]["pos"] = PENDING_SECOND_FOE_TILE
+	await _install(tree, scene, state)
+	scene.call("_set_show_all_enemy_intents", false)
+	var router: Node = tree.root.get_node("InputRouter")
+	router.call("set_modality", "controller")
+	# Both arms enter the board fresh. The release path keeps no hover when the
+	# cursor returns to a stored tile, so a previous sequence's tile is cleared.
+	scene.set("_controller_board_tile", INVALID_TILE)
+	scene.set("_controller_hand_index", 4)
+	scene.call("_controller_cycle_hand", 1)
+	await preload("res://tests/helpers/controller_card_focus_wait.gd").settle(tree, scene, expect, phase)
+	# RB reaches the card and A selects it before the hover rest publishes, so
+	# the rail still shows the hand at rest (two unused Card Plays, +10).
+	_pending_joypad(scene, JOY_BUTTON_RIGHT_SHOULDER)
+	_pending_joypad(scene, JOY_BUTTON_A)
+	expect.call(int(scene.get("_selected_card_index")) == 1 and bool(scene.call("_selected_pass_pending")) != sync_arm, "%s: A selects %s with its forecast %s" % [phase, PENDING_SEQUENCES[sequence], "ready" if sync_arm else "pending"])
+	match sequence:
+		"mouse_tile":
+			router.call("set_modality", "pointer")
+			scene.call("_on_board_tile_hovered", PENDING_EMPTY_FLOOR)
+			await scene.call("_on_board_tile_clicked", PENDING_EMPTY_FLOOR)
+			expect.call(int(scene.get("_selected_card_index")) == 1 and scene.get("_hovered_board_tile") == PENDING_EMPTY_FLOOR, "%s: the floor click keeps the card awaiting confirmation" % phase)
+		"rotate":
+			var orientation: Vector2i = scene.get("_aoe_aim_orientation")
+			_pending_joypad(scene, JOY_BUTTON_RIGHT_SHOULDER)
+			expect.call(scene.get("_aoe_aim_orientation") != orientation, "%s: RB rotates the aim" % phase)
+		"details_kill":
+			expect.call(scene.get("_hovered_board_tile") == PENDING_KILL_TILE, "%s: the default aim is the 1 HP Harrier" % phase)
+			scene.call("_set_show_all_enemy_intents", true)
+		"rail_focus":
+			# The release path enters the board after the press's await. A process
+			# frame without a draw boundary leaves the worker unadvanced.
+			await tree.process_frame
+			var other: Vector2i = PENDING_SECOND_FOE_TILE if scene.get("_hovered_board_tile") == PENDING_KILL_TILE else PENDING_KILL_TILE
+			expect.call((scene.get("_pending_target_tiles") as Array).has(other), "%s: the second foe is in range" % phase)
+			scene.call("_on_turn_order_enemy_hovered", other, "enemy_2" if other == PENDING_SECOND_FOE_TILE else "enemy_1")
+			expect.call(scene.get("_hovered_board_tile") == other, "%s: the rail portrait moves the aim" % phase)
+		"off_target", "off_board":
+			await tree.process_frame
+			router.call("set_modality", "pointer")
+			scene.call("_on_board_tile_hovered", PENDING_NO_PLAY[sequence])
+			expect.call(scene.get("_hovered_board_tile") == PENDING_NO_PLAY[sequence] and not (scene.get("_pending_target_tiles") as Array).has(PENDING_NO_PLAY[sequence]), "%s: the aim has no legal target" % phase)
+	var frames: Array[Dictionary]
+	for _frame: int in range(PENDING_WINDOW_FRAMES):
+		await _pending_drawn_frame(tree)
+		frames.append(_pending_receipt(scene))
+	var receipt: Dictionary = frames.back()
+	if sequence in PENDING_SUPERSEDING:
+		expect.call(_pending_display(frames[0]) == _pending_display(receipt), "%s: the first draw after the input shows the settled displays: %s vs %s" % [phase, frames[0], receipt])
+	if not sync_arm:
+		expect.call(not bool(scene.call("_selected_pass_pending")) and not bool(scene.get("_selected_pass_work").call("active", scene)), "%s: the forecast work settles or retires within %d frames" % [phase, PENDING_WINDOW_FRAMES])
+	if PENDING_NO_PLAY.has(sequence):
+		expect.call(not bool(receipt["active"]) and int(receipt["wait"]) == 5, "%s: Pass shows no rows for an aim with no play; the rail keeps the card's +5: %s" % [phase, receipt])
+		expect.call(bool(receipt["rest_marks"]), "%s: the plates and red floor carry the at-rest exact forecast" % phase)
+		var intents: Dictionary = scene.call("_enemy_intent_preview_state", scene.call("_board_display_state"))
+		expect.call(is_same(intents, scene.get("_combat_state")), "%s: the plates read the committed board, as with no card selected" % phase)
+	else:
+		expect.call(bool(receipt["active"]) and not (receipt["summary"] as Dictionary).is_empty() and int(receipt["wait"]) == 5, "%s: Pass shows its forecast and the rail its one unused Card Play (+5): %s" % [phase, receipt])
+		expect.call(bool(receipt["plates_forecast"]), "%s: the plates and red floor have the exact forecast for the aim" % phase)
+	if sequence == "details_kill":
+		expect.call(not (receipt["threats"] as Array).has("enemy_1") and not (receipt["threats"] as Array).is_empty(), "%s: Details drops the plan of the Harrier the preview kills: %s" % [phase, receipt])
+	# The rail never shows a stale number. Every frame that shows exact rows also
+	# shows the settled intents; a pending frame hides the rows and claims nothing.
+	for index: int in range(frames.size()):
+		var frame: Dictionary = frames[index]
+		expect.call(frame["rail"] == receipt["rail"] and frame["wait"] == receipt["wait"], "%s: frame %d shows the settled rail: %s vs %s" % [phase, index + 1, frame, receipt])
+		if bool(frame["pending"]):
+			expect.call(not bool(frame["active"]) and str(frame["tooltip"]).is_empty(), "%s: pending frame %d hides the rows and the Pass tooltip: %s" % [phase, index + 1, frame])
+			continue
+		if (frame["summary"] as Dictionary).is_empty(): continue
+		expect.call(frame["badges"] == receipt["badges"] and frame["threats"] == receipt["threats"], "%s: frame %d shows exact rows beside the settled intents: %s vs %s" % [phase, index + 1, frame, receipt])
+	# A full synchronous refresh of the settled state changes nothing on screen.
+	scene.call("_refresh_card_preview_ui")
+	await _pending_drawn_frame(tree)
+	expect.call(_pending_display(_pending_receipt(scene)) == _pending_display(receipt), "%s: a synchronous refresh of the settled state shows the same displays: %s vs %s" % [phase, _pending_receipt(scene), receipt])
+	scene.call("_set_show_all_enemy_intents", false)
+	if PENDING_NO_PLAY.has(sequence):
+		# The same aim with no card selected: plates, pips, danger and red match.
+		scene.call("_cancel_card_selection")
+		scene.call("_on_board_tile_hovered", PENDING_NO_PLAY[sequence])
+		for _frame: int in range(8):
+			await _pending_drawn_frame(tree)
+		var rest: Dictionary = _pending_receipt(scene)
+		expect.call(int(scene.get("_selected_card_index")) < 0 and rest["aim"] == receipt["aim"], "%s: the card is put back at the same aim" % phase)
+		expect.call(rest["badges"] == receipt["badges"] and rest["red"] == receipt["red"], "%s: plates, pips, danger and red equal the no-card view: %s vs %s" % [phase, receipt, rest])
+	return receipt
+
+# What the screen can show. A disabled Pass chip with an inactive panel draws no
+# tooltip text, and the remaining flags describe forecast sources, not pixels.
+static func _pending_display(receipt: Dictionary) -> Dictionary:
+	var shown: Dictionary = receipt.duplicate()
+	for key: String in ["plates_forecast", "pending", "rest_marks"]:
+		shown.erase(key)
+	if not bool(shown["active"]):
+		shown.erase("tooltip")
+	return shown
+
+static func _pending_receipt(scene: Node) -> Dictionary:
+	var chip: Button = scene.call("_selected_card_forecast_chip")
+	var board: Control = scene.get("board_view")
+	var badges: Array = (board.presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []).duplicate(true)
+	var threats: Array[String]
+	for threat: Dictionary in board.presentation.get("enemy_threat_previews", []):
+		threats.append(str(threat.get("enemy_key", "")))
+	var rest_marks: Dictionary = scene.get("_rest_pass_disc_marks")
+	return {
+		"aim": scene.get("_hovered_board_tile"),
+		"pending": bool(scene.call("_selected_pass_pending")),
+		"rest_marks": not rest_marks.is_empty() and int(rest_marks.get("revision", -1)) == int(scene.get("_combat_preview_revision")),
+		"red": (board.presentation.get(preload("res://scripts/pass_forecast_red_tiles.gd").FLOOR_KEY, []) as Array).duplicate(true),
+		# Plates and the red floor read the forecast stored under the aim's key.
+		"plates_forecast": (scene.get("_pass_preview_cache") as Dictionary).has(scene.call("_pass_preview_key")),
+		"summary": chip.get_meta("pass_forecast_summary", {}) if chip != null else {},
+		"rows": chip.get_meta("forecast_rows", []) if chip != null else [],
+		"active": chip != null and bool(chip.get_meta("pass_forecast_active", false)),
+		"tooltip": chip.tooltip_text if chip != null else "",
+		"rail": (scene.get("_turn_order_all_entries") as Array).duplicate(true),
+		"wait": int(_projected_hero(scene).get("projected_wait_time", -1)),
+		"badges": badges,
+		"threats": threats,
+	}
+
+static func _pending_joypad(scene: Node, button: JoyButton) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button
+		event.pressed = pressed
+		scene.get_viewport().push_input(event, true)
+
+# The worker advances on renderer post-draw. The dummy renderer needs the
+# explicit boundary that presentation_test_clock models for hover rests.
+static func _pending_drawn_frame(tree: SceneTree) -> void:
+	await tree.process_frame
+	if DisplayServer.get_name() == "headless":
+		RenderingServer.frame_post_draw.emit()
+	else:
+		await RenderingServer.frame_post_draw
 
 static func _test_forecasts(scene: Node, expect: Callable) -> void:
 	var summary: Dictionary = {"unrevealed_before_player": true, "repeated_enemy_names": ["Tunnel Crawler"], "hp_loss": 5, "entries": [{"name": "PassPreviewHpLoss", "text": "-5", "color": Color("f39779")}]}

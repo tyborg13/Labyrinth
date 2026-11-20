@@ -1,0 +1,7 @@
+{
+  "min_images": 2,
+  "required_images": [
+    {"pattern": "victory_with_unlock.png", "regions": [{"rect": [1010, 100, 150, 500], "min_luma_range": 20, "min_luma_stdev": 3}]},
+    {"pattern": "victory_without_unlock.png", "regions": [{"rect": [1010, 100, 150, 500], "min_luma_range": 20, "min_luma_stdev": 3}]}
+  ]
+}

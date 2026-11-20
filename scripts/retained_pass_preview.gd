@@ -4,6 +4,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiTooltipButton = preload("res://scripts/pass_forecast_tooltip_button.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const PassKeyHint = preload("res://scripts/pass_key_hint.gd")
 
 # Director 2026-11-11 (ptf-08 r2): the strip under PASS is gone. Show only the
 # button part (texture rows 0-131) of each authored 540x200 PASS frame.
@@ -38,9 +39,7 @@ static func build(scene: Control) -> Button:
 	chip.flat = true
 	chip.set_disabled_with_tooltip(not scene._pass_preview_action_available())
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
-	var tooltip_text: String = scene._pass_preview_tooltip(summary)
-	if card_defiance_spent > 0:
-		tooltip_text = "Playing this card spends %d Defiance.\n%s" % [card_defiance_spent, tooltip_text]
+	var tooltip_text: String = tooltip(scene, summary, card_defiance_spent)
 	chip.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE if not tooltip_text.is_empty() else Control.CURSOR_ARROW
 	chip.tooltip_text = tooltip_text
 	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
@@ -97,6 +96,10 @@ static func build(scene: Control) -> Button:
 	action_label.add_theme_constant_override("outline_size", 4)
 	action_label.z_index = 5
 	content.add_child(action_label)
+	var key_hint := PassKeyHint.new()
+	key_hint.word = action_label
+	key_hint.art = art_host
+	content.add_child(key_hint)
 	var danger_state: bool = (
 		card_defiance_spent > 0
 		or bool(summary.get("defeat", false))
@@ -115,6 +118,7 @@ static func build(scene: Control) -> Button:
 	chip.button_down.connect(func() -> void: scene._set_pass_preview_pressed(chip, art_host, content, focus_edge, chip.get_meta("panel_surface_accent")))
 	chip.button_up.connect(func() -> void: scene._set_pass_preview_released(chip, art_host, content, focus_edge, chip.get_meta("panel_surface_accent")))
 	scene._refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent, summary)
+	key_hint.refresh()
 
 	if scene._choice_buttons_use_overlay():
 		scene._pass_preview_overlay.add_child(chip)
@@ -136,10 +140,9 @@ static func refresh(scene: Control) -> void:
 	chip.set_disabled_with_tooltip(not scene._pass_preview_action_available())
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
 	var spent: int = scene._pending_card_defiance_spent()
-	var tooltip: String = scene._pass_preview_tooltip(summary)
-	if spent > 0: tooltip = "Playing this card spends %d Defiance.\n%s" % [spent, tooltip]
-	chip.tooltip_text = tooltip
-	chip.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE if not tooltip.is_empty() else Control.CURSOR_ARROW
+	var text: String = tooltip(scene, summary, spent)
+	chip.tooltip_text = text
+	chip.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE if not text.is_empty() else Control.CURSOR_ARROW
 	var content: Control = chip.get_node("PassForecastContent")
 	var action: Label = content.get_node("PassActionLabel")
 	action.text = "CARD COST\nDEFIANCE −%d" % spent if spent > 0 else "PASS"
@@ -150,6 +153,13 @@ static func refresh(scene: Control) -> void:
 	chip.set_meta("panel_selected", danger)
 	if chip.disabled: chip.set_meta("pass_pressed", false)
 	scene._refresh_pass_preview_interaction(chip, chip.get_node("PassForecastFrameArtHost"), content, content.get_node("PassFocusEdgeCue"), accent, summary)
+	(content.get_node("PassKeyHint") as PassKeyHint).refresh()
+
+# gfix-23: a pending selected forecast claims nothing until its exact rows land.
+static func tooltip(scene: Control, summary: Dictionary, spent: int) -> String:
+	var forecast: String = "" if summary.is_empty() and scene._selected_pass_pending() else scene._pass_preview_tooltip(summary)
+	if spent <= 0: return forecast
+	return "Playing this card spends %d Defiance." % spent + ("" if forecast.is_empty() else "\n" + forecast)
 
 static func summary_for_chip(scene: Control, chip: Button) -> Dictionary:
 	if scene._animation_lock and scene._selected_card_index >= 0 and not scene._preview_combat_state.is_empty() and chip.has_node("PassForecastFocusTooltip"):

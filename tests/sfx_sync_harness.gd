@@ -34,6 +34,7 @@ var walk_goals: Dictionary = {}
 var silence_rows: Array[Dictionary]
 var measured_samples: Dictionary = {}
 var assert_onsets: bool = false
+var onsets_only: bool = false
 var supplied_sources: Dictionary = {}
 var source_hashes: Dictionary = {}
 var combat_scale: float = 1.0
@@ -89,6 +90,9 @@ func _run_scale() -> void:
 		if argument.begins_with("--samples="):
 			measured_samples = JSON.parse_string(FileAccess.get_file_as_string(argument.trim_prefix("--samples=")))
 		if argument == "--assert-onsets": assert_onsets = true
+		if argument == "--onsets-only":
+			assert_onsets = true
+			onsets_only = true
 		if argument.begins_with("--sources="):
 			supplied_sources = JSON.parse_string(FileAccess.get_file_as_string(argument.trim_prefix("--sources=")))
 	if assert_onsets and measured_samples.is_empty():
@@ -109,6 +113,10 @@ func _run_scale() -> void:
 	instrumented = instrumented.replace('var _campfire_presentation := EmberHearthPresentation.new()', 'var _campfire_presentation: RefCounted')
 	instrumented = instrumented.replace('preload("res://scripts/dragon_arrival.gd")', '_sfx_sync_arrival')
 	instrumented = instrumented.replace("get_tree().create_timer(", "_sfx_sync_clock.create_timer(")
+	# These providers are dynamic in the harness, so their return types cannot
+	# be inferred from the instrumented source.
+	instrumented = instrumented.replace("var settle := _sfx_sync_clock.create_timer(", "var settle = _sfx_sync_clock.create_timer(")
+	instrumented = instrumented.replace("var bank := SfxBankScript.new()", "var bank: Node = SfxBankScript.new()")
 	instrumented = instrumented.replace("\tboard_view.present_sound_snapshot(display_state, presentation)", "\t_sfx_sync_clock.render(display_state, presentation, get_stack()); board_view.present_sound_snapshot(display_state, presentation)")
 	instrumented = instrumented.replace("\t\t_sfx_router.enemy_arrivals(display_state, presentation)", "\t\t_sfx_sync_clock.render(display_state, presentation, get_stack()); _sfx_router.enemy_arrivals(display_state, presentation)")
 	instrumented += "\nvar _sfx_sync_clock: RefCounted\nvar _sfx_sync_arrival: Script\nfunc _sfx_sync_play_arrival() -> void:\n\t_sfx_sync_arrival.prepare(self)\n\tawait _sfx_sync_arrival.play(self)\n"
@@ -159,7 +167,9 @@ func _run_scale() -> void:
 	_drive_actions()
 	_drive_presentations()
 	await _drive_support()
-	if assert_onsets: Coverage.verify(rows.slice(first_row), silence_rows, bank.data["cues"], failures)
+	# Extra clocks can run onset assertions without introducing a new historical
+	# cue-count baseline. The ordinary audit still runs the full coverage check.
+	if assert_onsets and not onsets_only: Coverage.verify(rows.slice(first_row), silence_rows, bank.data["cues"], failures)
 	clock.observing = false
 	clock.timers.clear()
 	bank.cue_requested.disconnect(_record)

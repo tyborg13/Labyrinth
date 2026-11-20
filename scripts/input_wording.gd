@@ -5,9 +5,6 @@ extends Node
 const Router = preload("res://scripts/input_router.gd")
 const Prompt = preload("res://scripts/input_prompt.gd")
 
-# The existing glyph system has Deck and Xbox families only. Keep its fallback
-# until the design owner supplies the PlayStation family in that shared system.
-const TODO_DESIGN_PLAYSTATION_GLYPHS: String = ""
 const FIRST_CARD_PREVIEW: Dictionary = {
 	"pointer_text": "For this first card, click to preview it.",
 	"controller_text": "For this first card, select to preview it.",

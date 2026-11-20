@@ -269,6 +269,7 @@ static func _run_live_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, e
 	for modifier: String in ["", "ctrl", "meta"]:
 		await walk(scene)
 		var key := InputEventKey.new()
+		key.keycode = KEY_Z
 		key.physical_keycode = KEY_Z
 		key.pressed = true
 		key.ctrl_pressed = modifier == "ctrl"

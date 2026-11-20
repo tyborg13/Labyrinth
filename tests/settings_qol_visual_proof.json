@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080", "1280x800"],
+  "required_images": [
+    {
+      "pattern": "settings_desktop.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [960, 200, 800, 600], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "settings_deck.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [{"rect": [640, 150, 520, 480], "min_luma_range": 8, "min_luma_stdev": 2}]
+    }
+  ]
+}

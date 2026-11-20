@@ -185,7 +185,7 @@ func _layout() -> void:
 	if _panel != null: _panel.position = (size - PANEL_SIZE) * 0.5
 
 func _refresh() -> void:
-	_title.text = "Umbra Depth %d" % selected_depth
+	_title.text = Rules.depth_name(selected_depth)
 	for glow: Label in _title_glow.get_children(): glow.text = _title.text
 	_left.disabled = selected_depth == 0
 	_right.disabled = selected_depth == unlocked_depth

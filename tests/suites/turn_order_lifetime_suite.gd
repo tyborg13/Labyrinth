@@ -4,6 +4,7 @@ const PortraitPaths = preload("res://scripts/turn_order_portraits.gd")
 const Slots = preload("res://scripts/turn_order_slots.gd")
 const Strip = preload("res://scripts/turn_order_landing_strip.gd")
 const STILL_FRAME_COUNT := 30
+const UNKNOWN_PRESENCE_PATH: String = "res://assets/art/icons/umbra_presence.png"
 const REGRESSION_ENEMIES: Array = ["ember_tick", "ashen_reaver", "last_lamplighter", "storm_cantor", "arc_thrall", "frostglass_lancer"]
 ## Rebuilds can retire nodes while a rail animation is suspended on a frame.
 const COMPLETION_TIMEOUT_MSEC: int = 2000
@@ -168,13 +169,32 @@ static func check_still_portraits(tree: SceneTree, scene: Node, expect: Callable
 			samples.append({"portrait": portrait, "texture": portrait.texture, "pixels": pixels, "context": context})
 		check.call(slot.get_meta("turn_order_portrait_texture") == rail_portrait.texture, type + " defeat treatment retains painted texture")
 		check.call(rail_portrait.modulate == scene.call("_turn_order_portrait_modulate", entries[index], index == 0), type + " retains active-slot modulate")
+	var hidden: Dictionary = entries[0].duplicate(true)
+	hidden["hidden_by_umbra"] = true
+	var hidden_slot: Control = Slots.update(scene, hidden, 0)
+	stage.add_child(hidden_slot)
+	strip.call("_add_slot", hidden, "StillHiddenPortrait", "after", 0.0, Callable(scene, "_turn_order_portrait_path"))
+	var hidden_parts: Dictionary = hidden_slot.get_meta("perf03_retained_parts")
+	var hidden_rail: TextureRect = hidden_parts["portrait"]
+	var hidden_strip: TextureRect = strip.get_node("StillHiddenPortrait/LandingStripPortraitCrop/LandingStripPortrait")
+	for portrait: TextureRect in [hidden_rail, hidden_strip]:
+		var context: String = "Unknown Presence %s" % ("rail" if portrait == hidden_rail else "landing strip")
+		# The board's Shadowstep shade can prime AssetLoader's shared cache with a
+		# source-first ImageTexture. Such textures carry the path as metadata.
+		var texture: Texture2D = portrait.texture
+		var uses_unknown_presence: bool = texture != null and str(texture.get_meta("asset_source_path", texture.resource_path)) == UNKNOWN_PRESENCE_PATH
+		check.call(uses_unknown_presence, context + " uses the approved Umbra portrait")
+		check.call(not portrait.has_node("MaquettePortraitRenderer"), context + " has no live portrait renderer")
+		var pixels: PackedByteArray = texture.get_image().get_data() if uses_unknown_presence else PackedByteArray()
+		samples.append({"portrait": portrait, "texture": texture, "pixels": pixels, "context": context})
 	for _frame: int in range(STILL_FRAME_COUNT):
 		await tree.process_frame
 		for sample: Dictionary in samples:
 			var portrait: TextureRect = sample["portrait"]
-			check.call(portrait.texture == sample["texture"], str(sample["context"]) + " keeps identical texture across 30 processed frames")
+			var same_texture: bool = portrait.texture == sample["texture"]
+			check.call(same_texture, str(sample["context"]) + " keeps identical texture across 30 processed frames")
 			if not (sample["pixels"] as PackedByteArray).is_empty():
-				check.call(portrait.texture.get_image().get_data() == sample["pixels"], str(sample["context"]) + " keeps identical pixels across 30 processed frames")
+				check.call(same_texture and portrait.texture.get_image().get_data() == sample["pixels"], str(sample["context"]) + " keeps identical pixels across 30 processed frames")
 	# Reapply changed content and reduced motion through the retained factories.
 	var settings: Dictionary = scene.get("_settings")
 	var previous_reduced: bool = bool(settings.get("reduced_motion", false))
@@ -189,22 +209,14 @@ static func check_still_portraits(tree: SceneTree, scene: Node, expect: Callable
 		var previous: Node = strip.get_node("RetainedLandingStripSlot_%d" % index)
 		strip.call("_add_slot", entry, "StillPortrait_%d" % index, "before", 0.0, Callable(scene, "_turn_order_portrait_path"))
 		check.call(strip.get_node("StillPortrait_%d" % index) == previous, "Landing strip reuses its painted slot in place")
+	check.call(Slots.update(scene, hidden, 0, hidden_slot) == hidden_slot, "Rail reuses its Unknown Presence slot")
+	strip.call("_add_slot", hidden, "StillHiddenPortrait", "after", 0.0, Callable(scene, "_turn_order_portrait_path"))
+	check.call(strip.get_node("StillHiddenPortrait/LandingStripPortraitCrop/LandingStripPortrait") == hidden_strip, "Landing strip reuses its Unknown Presence portrait")
 	strip.get("_slot_reuse").finish(strip)
 	for sample: Dictionary in samples:
-		var portrait: TextureRect = sample["portrait"]
-		check.call(portrait.texture == sample["texture"], str(sample["context"]) + " retains texture when reduced motion changes")
-	var hidden: Dictionary = entries[0].duplicate(true)
-	hidden["hidden_by_umbra"] = true
-	var hidden_slot: Control = Slots.update(scene, hidden, 0)
-	stage.add_child(hidden_slot)
-	strip.call("_add_slot", hidden, "StillHiddenPortrait", "after", 0.0, Callable(scene, "_turn_order_portrait_path"))
-	var hidden_parts: Dictionary = hidden_slot.get_meta("perf03_retained_parts")
-	var hidden_rail: TextureRect = hidden_parts["portrait"]
-	var hidden_strip: TextureRect = strip.get_node("StillHiddenPortrait/LandingStripPortraitCrop/LandingStripPortrait")
-	for portrait: TextureRect in [hidden_rail, hidden_strip]:
-		check.call(portrait.texture.resource_path == "res://assets/art/icons/umbra_presence.png", "Umbra keeps the still Unknown Presence texture")
-		check.call(not portrait.has_node("MaquettePortraitRenderer"), "Umbra has no live portrait renderer")
+		var portrait: Variant = sample["portrait"]
+		check.call(is_instance_valid(portrait) and portrait.texture == sample["texture"], str(sample["context"]) + " retains texture when reduced motion changes")
 	settings["reduced_motion"] = previous_reduced
 	scene.set("_settings", settings)
 	stage.free()
-	print("TURN ORDER STILL PORTRAITS: %s (6 identities; rail + landing strip; 30 processed frames)" % ("PASS" if int(result["failures"]) == 0 else "FAIL"))
+	print("TURN ORDER STILL PORTRAITS: %s (6 identities + Unknown Presence; rail + landing strip; 30 processed frames)" % ("PASS" if int(result["failures"]) == 0 else "FAIL"))

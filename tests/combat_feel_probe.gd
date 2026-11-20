@@ -104,7 +104,7 @@ func _initialize() -> void:
 	check(_canvas.size == VIEWPORT_SIZE and _canvas.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Capture viewport is fixed-size and renders every frame")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	Suite.write_proof_contract()
-	run_scene = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	run_scene = _instantiate_run_scene()
 	if _baseline and not _install_baseline_script():
 		_finish()
 		return
@@ -152,6 +152,9 @@ func _initialize() -> void:
 		await _settings_capture()
 	_finish()
 
+func _instantiate_run_scene() -> Node:
+	return (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+
 func _install_baseline_script() -> bool:
 	# Compare against pace-01's merged pacing, before pace-02's action scale. Keep
 	# the real scene/input/audio pipeline, with no timing approximations.
@@ -161,6 +164,7 @@ func _install_baseline_script() -> bool:
 	# Current scene travel hooks are no-ops in the before version: its action
 	# and movement clocks were already identical. Preserve that exact timing.
 	source += "\nfunc begin_movement(_actor_key: String) -> bool:\n\treturn false\n\nfunc end_movement(_resume_action: bool) -> void:\n\tpass\n"
+	source += "\nfunc observe_hurry_input(_event: InputEvent) -> void:\n\tpass\n"
 	var script := GDScript.new()
 	script.source_code = source
 	if not check(script.reload() == OK,"Load original pacing without changing its timings"): return false

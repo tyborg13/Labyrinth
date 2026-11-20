@@ -91,6 +91,7 @@ func _exercise_source(scene_path: String) -> void:
 	await _settle()
 	_expect(not (_header_instance.get("_grimoire_scrim") as Control).visible, "Controller B returns from grimoire")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
+	await _assert_combat_keys(normal)
 	var options := {"dragon_id": "zekarion", "dragon_depth": 20, "relics": "iron_lung,ember_lens,pilgrim_boots,mirror_shard,phoenix_ember,winters_hour,stormroad_coil"}
 	var boss_profile: Dictionary = profile.duplicate(true)
 	boss_profile["level"] = 5
@@ -136,6 +137,96 @@ func _exercise_source(scene_path: String) -> void:
 	_header_instance.queue_free()
 	await process_frame
 	_viewport.queue_free()
+	await process_frame
+
+# pol-52: P does what the PASS button does and nothing while it is greyed out;
+# 1-9 (and keypad) do what a click on that hand card does, left to right.
+func _assert_combat_keys(state: Dictionary) -> void:
+	var keyed: Dictionary = state.duplicate(true)
+	keyed["combat_state"]["deck"]["hand"] = ["pale_spark", "brace", "brace"]
+	await _load(_header_instance, keyed)
+	await _wait_unlocked()
+	await _pointer(Vector2(960, 500))
+	var cards: Array[Control]
+	for index: int in range(3): cards.append(_header_instance.call("_hand_card_control", index) as Control)
+	_expect(cards[0].get_global_rect().get_center().x < cards[1].get_global_rect().get_center().x and cards[1].get_global_rect().get_center().x < cards[2].get_global_rect().get_center().x, "Hand index order is left to right")
+	var rest: Dictionary = (_header_instance.get("_combat_state") as Dictionary).duplicate(true)
+	var chip: Button = _header_instance.find_child("PassPreviewChip", true, false) as Button
+	var hint: Label = chip.find_child("PassKeyHint", true, false) as Label
+	var word: Label = chip.find_child("PassActionLabel", true, false) as Label
+	_expect(hint != null and hint.visible and hint.text == "P" and not chip.disabled and hint.modulate == Color.WHITE and hint.get_global_rect().position.x > word.get_global_rect().get_center().x, "PASS shows its P key mark beside the word for keyboard/mouse")
+	await _physical_key(KEY_1)
+	_expect(int(_header_instance.get("_selected_card_index")) == 0 and not bool(_header_instance.call("_pending_card_requires_confirmation")), "1 selects the targeted first card")
+	await _physical_key(KEY_P)
+	_expect(chip.disabled and int(_header_instance.get("_selected_card_index")) == 0 and not bool(_header_instance.get("_animation_lock")) and _header_instance.get("_combat_state") == rest, "Card selected, not aimed: P does nothing and the card stays selected")
+	_expect(hint.modulate != Color.WHITE and hint.modulate == (chip.get_node("PassForecastFrameArtHost") as CanvasItem).modulate, "The P mark dims with the greyed-out PASS")
+	await _key(KEY_ESCAPE)
+	await _settle()
+	await _physical_key(KEY_2)
+	var keyed_pick: Dictionary = _selection_snapshot()
+	_expect(int(keyed_pick["index"]) == 1 and bool(keyed_pick["confirm"]), "2 selects the second card, awaiting confirmation")
+	await _physical_key(KEY_P)
+	_expect(bool(_header_instance.call("_pending_card_requires_confirmation")) and not bool(_header_instance.get("_animation_lock")) and _header_instance.get("_combat_state") == rest, "P does not pass while a card awaits confirmation")
+	await _key(KEY_ESCAPE)
+	await _settle()
+	_expect(int(_header_instance.get("_selected_card_index")) < 0, "Escape cancels the keyed selection")
+	await _click(cards[1])
+	await _settle()
+	_expect(_selection_snapshot() == keyed_pick, "2 equals a click on the second card")
+	await _physical_key(KEY_3)
+	_expect(int(_header_instance.get("_selected_card_index")) == 2, "3 switches the selection like a click on the third card")
+	await _physical_key(KEY_KP_3)
+	await _wait_unlocked()
+	var played: Dictionary = _header_instance.get("_combat_state")
+	_expect((played["deck"]["hand"] as Array).size() == 2 and int(played["cards_played_this_turn"]) == 1, "Keypad 3 on the selected Brace confirms it like a second click")
+	var settled: Dictionary = played.duplicate(true)
+	await _physical_key(KEY_3)
+	await _physical_key(KEY_2, true)
+	await _physical_key(KEY_P, true)
+	_expect(_header_instance.get("_combat_state") == settled and int(_header_instance.get("_selected_card_index")) < 0, "A key past the hand and key echo do nothing")
+	await _click(_header_instance.get("grimoire_button") as Button)
+	await _physical_key(KEY_P)
+	await _physical_key(KEY_1)
+	_expect(_header_instance.get("_combat_state") == settled and int(_header_instance.get("_selected_card_index")) < 0, "P and 1-9 do nothing while the Grimoire is open")
+	await _key(KEY_ESCAPE)
+	await _settle()
+	var post_draw := func() -> void: RenderingServer.frame_post_draw.emit()
+	if DisplayServer.get_name() == "headless": process_frame.connect(post_draw)
+	await _physical_key(KEY_P)
+	var accepted: bool = bool(_header_instance.get("_animation_lock"))
+	await _wait_unlocked()
+	if process_frame.is_connected(post_draw): process_frame.disconnect(post_draw)
+	var after: Dictionary = _header_instance.get("_combat_state")
+	_expect(accepted and int(after["turn"]) > int(settled["turn"]), "P passes the turn")
+	root.get_node("InputRouter").call("set_forced_state_for_test", "controller", "xbox")
+	await _settle()
+	_expect(not hint.visible, "Controller hides the P key mark")
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
+
+func _selection_snapshot() -> Dictionary:
+	# Deep copies: cancelling clears the live pending containers in place.
+	return {
+		"index": _header_instance.get("_selected_card_index"),
+		"actions": (_header_instance.get("_pending_actions") as Array).duplicate(true),
+		"action_index": _header_instance.get("_pending_action_index"),
+		"preview": (_header_instance.get("_preview_combat_state") as Dictionary).duplicate(true),
+		"confirm": _header_instance.call("_pending_card_requires_confirmation"),
+		"state": (_header_instance.get("_combat_state") as Dictionary).duplicate(true),
+	}
+
+func _physical_key(key: Key, echo: bool = false) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = key
+		event.physical_keycode = key
+		event.pressed = pressed
+		event.echo = echo and pressed
+		_viewport.push_input(event, true)
+		await process_frame
+
+func _wait_unlocked(timeout_msec: int = 15000) -> void:
+	var deadline: int = Time.get_ticks_msec() + timeout_msec
+	while bool(_header_instance.get("_animation_lock")) and Time.get_ticks_msec() < deadline: await process_frame
 	await process_frame
 
 func _assert_header() -> void:

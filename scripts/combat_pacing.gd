@@ -10,6 +10,7 @@ const PresentationClock = preload("res://scripts/presentation_clock.gd")
 const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
 const ENEMY_ACTION_SPEED_SCALE: float = 0.80
+const ENEMY_HURRY_SPEED_SCALE: float = 2.0
 const ENEMY_ACTION_SETTLE_SECONDS: float = 0.15
 const ENEMY_ACTION_LEAD_SECONDS: float = 0.25
 const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "status_damage", "surface", "summon", "burrow", "erupt"]
@@ -22,12 +23,17 @@ const FLASH_EASE_OUT_EXPONENT: float = 2.0
 static var _flash_shader: Shader
 var scene: Node
 var hit_stop: Node
+var vibration := preload("res://scripts/combat_vibration.gd").new()
+var _window_focused: bool = true
+var _application_paused: bool = false
 var debug_timeline: bool = false
 # Scheduling probe only: observe the original HEAD script without new feel.
 var debug_baseline: bool = false
 var timeline: Array[Dictionary]
 var enemies_active: bool = false
 var _enemy_action_active: bool = false
+var _hurry_inputs: Dictionary = {}
+var _left_press_in_enemy_turn: bool = false
 var _scope: String = ""
 var _base_scale: float = 1.0
 var _applied_scale: float = 1.0
@@ -69,6 +75,7 @@ func install(owner_scene: Node) -> void:
 	hit_stop.scale_changing.connect(_sync_clock)
 	hit_stop.stop_ended.connect(_release_flashes)
 	add_child(hit_stop)
+	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 
 static func impact_flash_shader(source: Shader) -> Shader:
 	if _flash_shader == null:
@@ -133,6 +140,7 @@ func _begin_scope(scope: String) -> void:
 		_base_scale = hit_stop.previous_scale() if hit_stop != null and hit_stop.active else Engine.time_scale
 	_scope = scope
 	_enemy_action_active = false
+	_hurry_inputs.clear()
 	_scale_restored = false
 	_apply_speed()
 
@@ -140,7 +148,50 @@ func current_scale() -> float:
 	if _scope.is_empty() or _scale_restored or not _presentation_allowed():
 		return _base_scale
 	var action_scale: float = ENEMY_ACTION_SPEED_SCALE if _scope == "enemies" and _enemy_action_active else 1.0
-	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary) * action_scale
+	var hurry_scale: float = ENEMY_HURRY_SPEED_SCALE if _scope == "enemies" and not _hurry_inputs.is_empty() else 1.0
+	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary) * action_scale * hurry_scale
+
+func observe_hurry_input(event: InputEvent) -> void:
+	# Observe edges before Pass or GUI dispatch. A button already down when
+	# the enemy scope opens contributes no hold.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_left_press_in_enemy_turn = _scope == "enemies"
+		elif _left_press_in_enemy_turn:
+			# The board turns this release into a click after _input; forget the press once it has.
+			set_deferred("_left_press_in_enemy_turn", false)
+	if _scope != "enemies": return
+	if event is InputEventKey and not event.echo and (event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE):
+		_set_hurry_input(&"space", event.pressed)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_set_hurry_input(&"mouse", event.pressed)
+	elif event is InputEventJoypadButton and event.button_index == JOY_BUTTON_A:
+		_set_hurry_input(event.device, event.pressed)
+
+func _set_hurry_input(source: Variant, pressed: bool) -> void:
+	var was_empty: bool = _hurry_inputs.is_empty()
+	_sync_clock()
+	if pressed: _hurry_inputs[source] = true
+	else: _hurry_inputs.erase(source)
+	if was_empty != _hurry_inputs.is_empty(): _apply_speed()
+
+func _on_joy_connection_changed(device: int, connected: bool) -> void:
+	if not connected and _hurry_inputs.has(device):
+		_set_hurry_input(device, false)
+
+# A left press made during the enemy turn hurries it; its release never becomes a board click, even
+# when the button comes up after the hero's turn has begun.
+func take_enemy_turn_press() -> bool:
+	var pressed_during_enemy_turn: bool = _left_press_in_enemy_turn
+	_left_press_in_enemy_turn = false
+	return pressed_during_enemy_turn
+
+# A held hurry key can't report its release once the window loses focus.
+func _release_hurry_inputs() -> void:
+	if _hurry_inputs.is_empty(): return
+	_sync_clock()
+	_hurry_inputs.clear()
+	_apply_speed()
 
 func _set_enemy_action_active(active: bool) -> void:
 	# Integrate the old clock before changing it. Movement, caption leads and
@@ -221,6 +272,7 @@ func end_scope() -> void:
 	_scope = ""
 	enemies_active = false
 	_enemy_action_active = false
+	_hurry_inputs.clear()
 	_scale_restored = false
 	_close_phase()
 	_flashes.clear()
@@ -248,6 +300,8 @@ func _presentation_allowed() -> bool:
 
 func _process(_delta: float) -> void:
 	_sync_clock()
+	if vibration.has_active_pulse() and vibration.device_id != _vibration_device():
+		vibration.stop()
 	if not _scope.is_empty():
 		if not bool(scene.get("_animation_lock")) or str((scene.get("_run_state") as Dictionary).get("mode", "")) != "combat":
 			end_scope()
@@ -275,8 +329,38 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	_leaving_tree = true
+	vibration.stop()
 	end_scope()
 	_flash_shader = null
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			_window_focused = false
+			vibration.stop()
+			_release_hurry_inputs()
+		NOTIFICATION_WM_WINDOW_FOCUS_IN, NOTIFICATION_APPLICATION_FOCUS_IN:
+			_window_focused = true
+		NOTIFICATION_APPLICATION_PAUSED:
+			_application_paused = true
+			vibration.stop()
+			_release_hurry_inputs()
+		NOTIFICATION_APPLICATION_RESUMED:
+			_application_paused = false
+		NOTIFICATION_PAUSED:
+			vibration.stop()
+
+func _vibration_device() -> int:
+	if _leaving_tree or not _window_focused or _application_paused or not is_instance_valid(scene) or not scene.is_inside_tree() or scene.is_queued_for_deletion() or scene.get("_leaving_tree") == true:
+		return -1
+	if get_tree().paused or (scene.get("_run_state") as Dictionary).get("mode") != "combat" or bool(scene.call("_controller_modal_visible")):
+		return -1
+	if not Settings.controller_vibration_enabled(scene.get("_settings")):
+		return -1
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and router.using_controller():
+		return router.last_joypad_input_device()
+	return -1
 
 static func is_action_step(step: Dictionary) -> bool:
 	return str(step.get("kind", "")) in ENEMY_ACTION_KINDS
@@ -500,6 +584,8 @@ func observe_baseline(state: Dictionary, presentation: Dictionary) -> void:
 func present_hits(presentation: Dictionary) -> float:
 	if debug_baseline: return 0.0
 	var largest: float = 0.0
+	var vibration_amplitude: float = 0.0
+	var hero_vibration_amplitude: float = 0.0
 	for hit: Dictionary in presentation.get("combat_feel_hits", []):
 		var id: String = hit["id"]
 		if _seen_hits.has(id):
@@ -516,9 +602,19 @@ func present_hits(presentation: Dictionary) -> float:
 			var flash: Dictionary = (presentation.get("combat_feel_flash",{}) as Dictionary).duplicate(false)
 			flash.erase(key)
 			presentation["combat_feel_flash"] = flash
-		largest = maxf(largest, shake_pixels(int(hit["damage"]), bool(hit["killed"]), key == "player"))
+		var amplitude: float = shake_pixels(int(hit["damage"]), bool(hit["killed"]), key == "player")
+		largest = maxf(largest, amplitude)
+		if int(hit["damage"]) > 0 or bool(hit["killed"]):
+			vibration_amplitude = maxf(vibration_amplitude, amplitude)
+			if key == "player":
+				hero_vibration_amplitude = maxf(hero_vibration_amplitude, amplitude)
 		if enemies_active and _phase != "impact":
 			_change_phase("impact")
+	if vibration_amplitude > 0.0:
+		var device: int = _vibration_device()
+		if device >= 0:
+			vibration.request(device, clampf(vibration_amplitude / 8.0, 0.2, 1.0),
+				clampf((hero_vibration_amplitude - 2.0) / 6.0, 0.0, 1.0), shake_seconds(vibration_amplitude))
 	return largest
 
 func _release_flashes() -> void:

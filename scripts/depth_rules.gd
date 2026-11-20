@@ -20,6 +20,9 @@ static func data() -> Dictionary:
 static func depth(state: Dictionary) -> int:
 	return clampi(int(state.get(STATE_KEY, 0)), 0, MAX_DEPTH)
 
+static func depth_name(level: int) -> String:
+	return "Umbra Depth %d" % level
+
 static func levels(selected: int) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for level: Dictionary in data().get("levels", []):

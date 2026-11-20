@@ -257,7 +257,7 @@ static func rule_outline_operations(board: Control, tile: Vector2i) -> void:
 static func _threat_outline_operations(board: Control, paint: Dictionary) -> void:
 	var inner: PackedVector2Array = (paint["inner"] as PackedVector2Array).duplicate()
 	inner.append(inner[0])
-	board.call("_slice_op", "draw_polyline", [inner, Color(Palette.DANGER, Threats.OUTLINE_ALPHA * float(paint["alpha"])), Threats.OUTLINE_WIDTH, true])
+	board.call("_slice_op", "draw_polyline", [inner, Color(Threats.OUTLINE_COLOR, Threats.OUTLINE_ALPHA * float(paint["alpha"])), Threats.OUTLINE_WIDTH, true])
 
 # atk-09: the targeted tile's red fill and zone tag, after its move-range and
 # hover highlights. Its outline is drawn above the targeted-tile border.

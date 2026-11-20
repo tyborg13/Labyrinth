@@ -8,6 +8,9 @@ const MODALITY_CONTROLLER: String = "controller"
 
 const FAMILY_XBOX: String = "xbox"
 const FAMILY_STEAM_DECK: String = "steam_deck"
+const FAMILY_PLAYSTATION: String = "playstation"
+const CONTROLLER_FAMILIES = [FAMILY_XBOX, FAMILY_STEAM_DECK, FAMILY_PLAYSTATION]
+const PLAYSTATION_NAME_MARKERS = ["dualsense", "dualshock", "playstation", "ps3", "ps4", "ps5", "sony"]
 
 const ACTION_ACCEPT: StringName = &"controller_accept"
 const ACTION_CANCEL: StringName = &"controller_cancel"
@@ -29,11 +32,15 @@ const POINTER_HANDOFF_GRACE_MSEC: int = 500
 const STEAM_INPUT_TYPE_XBOX360_CONTROLLER: int = 2
 const STEAM_INPUT_TYPE_XBOXONE_CONTROLLER: int = 3
 const STEAM_INPUT_TYPE_GENERIC_XINPUT: int = 4
+const STEAM_INPUT_TYPE_PS4_CONTROLLER: int = 5
+const STEAM_INPUT_TYPE_PS3_CONTROLLER: int = 12
+const STEAM_INPUT_TYPE_PS5_CONTROLLER: int = 13
 const STEAM_INPUT_TYPE_STEAM_DECK_CONTROLLER: int = 14
 
 var _modality: String = MODALITY_POINTER
 var _controller_family: String = FAMILY_XBOX
 var _active_device_id: int = -1
+var _last_joypad_input_device: int = -1
 var _forced_family_for_test: String = ""
 var _forced_modality_for_test: String = ""
 var _last_controller_activity_msec: int = -10000
@@ -67,6 +74,9 @@ func record_input_activity(event: InputEvent) -> void:
 		if absf(motion_event.axis_value) >= JOYSTICK_ACTIVITY_THRESHOLD:
 			mark_controller_device(motion_event.device, motion_event)
 		return
+	if event is InputEventKey and event.pressed:
+		_last_joypad_input_device = -1
+		return
 	if event is InputEventMouseButton:
 		if (event as InputEventMouseButton).pressed:
 			set_modality(MODALITY_POINTER)
@@ -93,11 +103,16 @@ func controller_family() -> String:
 func active_device_id() -> int:
 	return _active_device_id
 
+func last_joypad_input_device() -> int:
+	return _last_joypad_input_device
+
 func set_modality(next_modality: String) -> void:
 	var normalized: String = MODALITY_CONTROLLER if next_modality == MODALITY_CONTROLLER else MODALITY_POINTER
 	if _modality == normalized:
 		return
 	_modality = normalized
+	if _modality == MODALITY_POINTER:
+		_last_joypad_input_device = -1
 	modality_changed.emit(_modality)
 
 func modality_change_action_pressed(action_name: StringName) -> bool:
@@ -108,6 +123,7 @@ func mark_controller_device(device_id: int, event: InputEvent = null) -> void:
 	_modality_change_event = event
 	_last_controller_activity_msec = Time.get_ticks_msec()
 	_active_device_id = device_id
+	_last_joypad_input_device = device_id
 	var next_family: String = family_for_device(device_id)
 	if _controller_family != next_family:
 		_controller_family = next_family
@@ -119,10 +135,13 @@ func family_for_device(device_id: int) -> String:
 	var steam_input_family: String = _family_from_steam_input(device_id)
 	if not steam_input_family.is_empty():
 		return steam_input_family
+	return _family_from_device_name(device_id)
+
+func _family_from_device_name(device_id: int) -> String:
 	var joy_name: String = Input.get_joy_name(device_id)
 	var info: Dictionary = Input.get_joy_info(device_id)
 	var raw_name: String = str(info.get("raw_name", ""))
-	return family_for_device_name("%s %s" % [joy_name, raw_name], platform_is_steam_deck())
+	return family_for_device_name(joy_name, platform_is_steam_deck(), raw_name)
 
 func _family_from_steam_input(device_id: int) -> String:
 	if device_id < 0 or not Engine.has_singleton("Steam"):
@@ -149,7 +168,7 @@ func _family_from_steam_input(device_id: int) -> String:
 	return family_for_steam_input_type(int(steam.call("getInputTypeForHandle", handle)))
 
 func force_family_for_test(family: String) -> void:
-	var normalized: String = family if family in [FAMILY_XBOX, FAMILY_STEAM_DECK] else ""
+	var normalized: String = family if family in CONTROLLER_FAMILIES else ""
 	if _forced_family_for_test == normalized:
 		return
 	_forced_family_for_test = normalized
@@ -159,35 +178,36 @@ func clear_forced_family_for_test() -> void:
 	force_family_for_test("")
 
 func glyph_label(action_name: StringName, family_override: String = "") -> String:
-	var family: String = family_override if family_override in [FAMILY_XBOX, FAMILY_STEAM_DECK] else controller_family()
+	var family: String = family_override if family_override in CONTROLLER_FAMILIES else controller_family()
 	return glyph_label_for_family(action_name, family)
 
 static func glyph_label_for_family(action_name: StringName, family: String) -> String:
+	var uses_numbered_labels: bool = family in [FAMILY_STEAM_DECK, FAMILY_PLAYSTATION]
 	match action_name:
 		ACTION_ACCEPT:
-			return "A"
+			return "✕" if family == FAMILY_PLAYSTATION else "A"
 		ACTION_CANCEL:
-			return "B"
+			return "○" if family == FAMILY_PLAYSTATION else "B"
 		ACTION_HAND_TOGGLE:
-			return "X"
+			return "□" if family == FAMILY_PLAYSTATION else "X"
 		ACTION_PASS:
-			return "Y"
+			return "△" if family == FAMILY_PLAYSTATION else "Y"
 		ACTION_HAND_PREVIOUS:
-			return "L1" if family == FAMILY_STEAM_DECK else "LB"
+			return "L1" if uses_numbered_labels else "LB"
 		ACTION_HAND_NEXT:
-			return "R1" if family == FAMILY_STEAM_DECK else "RB"
+			return "R1" if uses_numbered_labels else "RB"
 		ACTION_HAND_BUMPERS:
-			return "L1·R1" if family == FAMILY_STEAM_DECK else "LB·RB"
+			return "L1·R1" if uses_numbered_labels else "LB·RB"
 		ACTION_MENU:
 			return "≡"
 		ACTION_MAP:
 			return "▣"
 		ACTION_MAP_ZOOM:
-			return "L2·R2" if family == FAMILY_STEAM_DECK else "LT·RT"
+			return "L2·R2" if uses_numbered_labels else "LT·RT"
 		ACTION_EMPOWER:
-			return "R3" if family == FAMILY_STEAM_DECK else "RS"
+			return "R3" if uses_numbered_labels else "RS"
 		ACTION_UNDO_MOVE:
-			return "L2" if family == FAMILY_STEAM_DECK else "LT"
+			return "L2" if uses_numbered_labels else "LT"
 		&"controller_move":
 			return "LS"
 		&"controller_dpad":
@@ -225,6 +245,8 @@ func _on_joy_connection_changed(device_id: int, connected: bool) -> void:
 			_controller_family = next_family
 			controller_family_changed.emit(controller_family())
 		return
+	if device_id == _last_joypad_input_device:
+		_last_joypad_input_device = -1
 	if device_id == _active_device_id:
 		_active_device_id = -1
 		_refresh_connected_family()
@@ -243,10 +265,17 @@ static func platform_is_steam_deck() -> bool:
 static func is_controller_event(event: InputEvent) -> bool:
 	return event is InputEventJoypadButton or event is InputEventJoypadMotion
 
-static func family_for_device_name(device_name: String, deck_platform: bool = false) -> String:
-	var normalized: String = device_name.strip_edges().to_lower()
+static func family_for_device_name(device_name: String, deck_platform: bool = false, raw_name: String = "") -> String:
+	var normalized_name: String = device_name.strip_edges().to_lower()
+	var raw: String = raw_name.strip_edges().to_lower()
+	var normalized: String = ("%s %s" % [normalized_name, raw]).strip_edges()
 	if "xbox" in normalized or "xinput" in normalized or "microsoft" in normalized:
 		return FAMILY_XBOX
+	if normalized_name == "wireless controller" or raw == "wireless controller":
+		return FAMILY_PLAYSTATION
+	for marker: String in PLAYSTATION_NAME_MARKERS:
+		if marker in normalized:
+			return FAMILY_PLAYSTATION
 	if "steam deck" in normalized or "steam virtual" in normalized or "steam controller" in normalized:
 		return FAMILY_STEAM_DECK
 	if deck_platform and (normalized.is_empty() or "gamepad" in normalized or "controller" in normalized):
@@ -254,6 +283,8 @@ static func family_for_device_name(device_name: String, deck_platform: bool = fa
 	return FAMILY_XBOX
 
 static func family_for_steam_input_type(input_type: int) -> String:
+	if input_type in [STEAM_INPUT_TYPE_PS3_CONTROLLER, STEAM_INPUT_TYPE_PS4_CONTROLLER, STEAM_INPUT_TYPE_PS5_CONTROLLER]:
+		return FAMILY_PLAYSTATION
 	if input_type == STEAM_INPUT_TYPE_STEAM_DECK_CONTROLLER:
 		return FAMILY_STEAM_DECK
 	if input_type in [STEAM_INPUT_TYPE_XBOX360_CONTROLLER, STEAM_INPUT_TYPE_XBOXONE_CONTROLLER, STEAM_INPUT_TYPE_GENERIC_XINPUT]:
@@ -262,9 +293,11 @@ static func family_for_steam_input_type(input_type: int) -> String:
 
 static func ensure_input_map() -> void:
 	_ensure_axis_action(ACTION_UNDO_MOVE, JOY_AXIS_TRIGGER_LEFT, 1.0)
+	# The key that types z in the player's layout (as P passes), so the Z
+	# keycap in Settings is true on AZERTY too.
 	for modifier: String in ["", "ctrl", "meta"]:
 		var key := InputEventKey.new()
-		key.physical_keycode = KEY_Z
+		key.keycode = KEY_Z
 		key.ctrl_pressed = modifier == "ctrl"
 		key.meta_pressed = modifier == "meta"
 		if not InputMap.action_has_event(ACTION_UNDO_MOVE, key): InputMap.action_add_event(ACTION_UNDO_MOVE, key)

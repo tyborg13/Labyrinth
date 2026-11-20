@@ -11,15 +11,17 @@ import redraw
 from pathlib import Path
 
 from attribution import attribute, hitch_id, new_catalog_row, add_catalog_frame, finish_catalog, catalog_markdown
+from comparison import compare_catalogs, comparison_markdown, read_catalog
 
 THRESHOLDS_MS = (33.3, 50.0, 100.0)
 TOUR_FIXTURES = ('playback:craghide', 'playback:gust', 'playback:lightning_storm',
                  'playback:tharokh', 'table:difficulty_table')
 
 
-def incomplete_tour_reason(receipt):
+def incomplete_tour_reason(receipt, *, quick=False):
     coverage = receipt.get("coverage", {})
-    missing = [key.split(":", 1)[1] for key in TOUR_FIXTURES if not coverage.get(key)]
+    required = ('stop:tharokh', 'playback:tharokh') if quick else TOUR_FIXTURES
+    missing = sorted({key.split(":", 1)[1] for key in required if not coverage.get(key)})
     if missing:
         return "tour missing fixture coverage: " + ", ".join(missing)
     if receipt.get("outcome") != "tour_complete" or receipt.get("errors"):
@@ -93,7 +95,7 @@ def invalid_viewport_reason(run, directory):
     return None
 
 
-def generate(run_paths, output):
+def generate(run_paths, output, *, headless_standin=False, old_catalog=None):
     output.mkdir(parents=True, exist_ok=True)
     situations = defaultdict(lambda: array("d"))
     raw_situations = defaultdict(lambda: array("d"))
@@ -125,7 +127,7 @@ def generate(run_paths, output):
                 rejected.append({"run": str(run_path), "reason": viewport_failure})
                 continue
             if run.get("driver") == "tour":
-                reason = incomplete_tour_reason(receipt)
+                reason = incomplete_tour_reason(receipt, quick=run.get("preset") == "quick")
                 if reason:
                     rejected.append({"run": str(run_path), "reason": reason})
                     continue
@@ -136,10 +138,13 @@ def generate(run_paths, output):
                 if run.get("trace_mode", "on") == "on": rejected.append({"run": str(run_path), "reason": "missing trace"})
                 continue
             previous_video_bytes = None
+            frame_count = 0
             for header, frame in frames(path):
-                if not header["native"]:
-                    rejected.append({"run": str(run_path), "reason": "headless trace excluded from renderer catalog"})
+                if header["native"] == headless_standin or (headless_standin and not run.get("headless_standin")):
+                    reason = "expected an explicit headless stand-in trace" if headless_standin else "headless trace excluded from renderer catalog"
+                    rejected.append({"run": str(run_path), "reason": reason})
                     break
+                frame_count += 1
                 ctx = frame["context"]
                 duration = float(frame["draw_interval_ms"])
                 if not math.isfinite(duration) or duration < 0:
@@ -155,6 +160,7 @@ def generate(run_paths, output):
                 add_catalog_frame(target[catalog_key], frame, run.get("replay", "unavailable"))
                 if duration > THRESHOLDS_MS[0]:
                     slow.write(json.dumps({**frame, "run": str(run_path), "replay": run.get("replay", "unavailable"),
+                                           "load_condition": run.get("load_condition", "load unknown"),
                                            "loading": is_loading, "over_ms": [t for t in THRESHOLDS_MS if duration > t]}) + "\n")
                 if is_loading: continue
                 if 'redraws' in frame:
@@ -188,6 +194,8 @@ def generate(run_paths, output):
                 group["severity_ms"] += duration - THRESHOLDS_MS[0]
                 for threshold in THRESHOLDS_MS:
                     group["over_ms"][str(threshold)] += int(duration > threshold)
+            if frame_count == 0 and (run.get("preset") == "quick") and not any(row["run"] == str(run_path) for row in rejected):
+                rejected.append({"run": str(run_path), "reason": "empty quick trace"})
     clusters = []
     for group in groups.values():
         group.update(stats(group.pop("values")))
@@ -203,23 +211,74 @@ def generate(run_paths, output):
                                                ("normal:on", "normal:off", "observer_impact")):
             a, b = cells.get(numerator, {}).get("p50"), cells.get(denominator, {}).get("p50")
             ratios.append({"cache": cache, "comparison": label, "p50_ratio": a / b if a is not None and b else None})
-    result = {"metric": "game_ms = max(0, draw_interval_ms - sum(driver_cpu_us)/1000 - observer_previous_us/1000); present proxy, not scanout", "named_hitch_catalog": [row for row in finish_catalog(catalog, stats) if row["max"] > THRESHOLDS_MS[0]], "loading": finish_catalog(loading, stats), "thresholds_ms": THRESHOLDS_MS,
+    timing_basis = "headless process intervals (stand-in)" if headless_standin else "native draw intervals"
+    measured_conditions = {run.get("load_condition", "load unknown") for run in runs if not run.get("primer")}
+    load_condition = ("under load" if "under load" in measured_conditions else
+                      "no load detected" if measured_conditions == {"no load detected"} else "load unknown")
+    named_rows = finish_catalog(catalog, stats)
+    result = {"metric": "game_ms = max(0, draw_interval_ms - sum(driver_cpu_us)/1000 - observer_previous_us/1000)",
+              "timing_basis": timing_basis, "load_condition": load_condition,
+              "named_hitch_catalog": [row for row in named_rows if row["max"] > THRESHOLDS_MS[0]],
+              "below_hitch_threshold": [{key: row[key] for key in ("hitch_id", "profile", "cache", "over_ms", "p99", "max")}
+                                        for row in named_rows if row["max"] <= THRESHOLDS_MS[0]],
+              "loading": finish_catalog(loading, stats), "thresholds_ms": THRESHOLDS_MS,
               "redraw": [dict(profile=k[0], cache=k[1], threshold_ms=k[2],
                               **{name: redraw.finish(cell) for name, cell in cells.items()})
                          for k, cells in sorted(redraw_cells.items())],
               "clusters": clusters, "situations": rows, "runs": runs, "rejected": rejected,
               "calibration": dict(calibration), "calibration_ratios": ratios}
+    if old_catalog is not None:
+        result["comparison"] = compare_catalogs(old_catalog, result)
     (output / "report.json").write_text(json.dumps(result, indent=2) + "\n")
     write_markdown(result, output / "report.md")
     return result
 
 
+def host_load_markdown(runs):
+    header = ["## Host load by take", "",
+              "Start and periodic samples. CPU shares are percentages of total logical CPU capacity over sample windows. External CPU is host busy CPU less census Godot CPU. The process count covers readable processes. Full samples are in report.json.", "",
+              "| Driver / seed / QoS / cache | Condition | Load average (1 / 5 / 15 min; peak) | Visible other Godot processes (peak) | CPU share census Godot / other Godot / all external (peak %) |",
+              "|---|---|---|---|---|"]
+    for run in runs:
+        if "host_load_samples" not in run:
+            continue
+        samples = run["host_load_samples"]
+        averages = [entry["load_average"] for entry in samples if entry.get("load_average")]
+        peaks = " / ".join(f"{max(values):.2f}" for values in zip(*averages)) if averages else "unknown"
+        def peak(key, transform=lambda value: value):
+            return max((transform(entry[key]) for entry in samples if entry.get(key) is not None), default=None)
+        cpu = [peak(key) for key in ("census_godot_cpu_share_pct", "other_godot_cpu_share_pct", "external_cpu_share_pct")]
+        shares = " / ".join(f"{value:.2f}" if value is not None else "unknown" for value in cpu)
+        pids = peak("other_godot_pids", len)
+        primer = " (primer)" if run.get("primer") else ""
+        header.append(f"| {run['driver']} / {run['seed']} / {run['profile']} / {run['cache']}{primer} | {run['load_condition']} | {peaks} | {pids if pids is not None else 'unknown'} | {shares} |")
+    return header + [""] if len(header) > 6 else []
+
+
 def write_markdown(result, path):
-    lines = ["# Hitch census", "", "Metric: game_ms = max(0, raw draw-boundary interval − known driver CPU ms − the previous observer callback). Raw intervals remain alongside game statistics. Native draw boundaries are a present proxy. True display presentation timestamps and separate texture upload timers are unavailable. Load spans and post_draw/input phases are inclusive; explained pre_process is an overlapping estimate capped per frame at pre_process. Boundaries are signal timestamps, not exclusive CPU time. Schema 1/2 and pre-fix schema 3: rolling-peak monitors: not frame-accurate; process/physics/pre_process/draw buckets are n/a. OBJECT_RESOURCE_COUNT deltas are unattributed-load proxies, not load counts. Shader/pipeline counters and instance paths are correlated observations, not proven causal attribution. Thresholds are strict >33.3, >50 and >100 ms; catalog ranking is frames >100 ms then max game_ms; trigger clusters use count × mean game excess over 33.3 ms. Loading is separate. Buckets are CPU/wall proxies, not an exclusive CPU/GPU decomposition. SubViewport CPU is part of draw. Older traces cannot reconstruct signal wall-time buckets. Video memory deltas use consecutive full-trace samples; they are allocation/upload proxies, not proof of uploads. Bucket means use frames >50 ms; event totals and mean video deltas use all row frames. Quantiles use nearest rank.", "", "Every slow frame, including monitors, context, observed events and replay command: `slow_frames.jsonl`.", "", "## Capture receipts", "", "| Driver / seed | Cache / QoS | Exit / outcome / errors | Frames | Observer mean / p99 µs | Known driver mean µs |", "|---|---|---|---:|---:|---:|"]
+    timing_basis = result.get("timing_basis", "native draw intervals")
+    load_condition = result.get("load_condition", "load unknown")
+    timing_note = ("Raw intervals are headless process boundaries. This stand-in has no renderer timing."
+                   if timing_basis.startswith("headless") else "Native draw boundaries are a present proxy.")
+    lines = ["# Hitch census", "", f"**Timing basis:** {timing_basis}. {timing_note}", "",
+             f"**All numeric results in this catalog: {load_condition}.** "
+             "Take-specific conditions appear in the host-load header. Counts and timings depend on route length and contention.", ""]
+    lines += host_load_markdown(result["runs"])
+    lines += ["Metric: game_ms = max(0, raw boundary interval − known driver CPU ms − the previous observer callback). True display presentation timestamps and separate texture upload timers are unavailable. Load spans and post_draw/input phases are inclusive; explained pre_process is an overlapping estimate capped per frame at pre_process. Boundaries are signal timestamps, not exclusive CPU time. Schema 1/2 and pre-fix schema 3: rolling-peak monitors: not frame-accurate; process/physics/pre_process/draw buckets are n/a. OBJECT_RESOURCE_COUNT deltas are unattributed-load proxies, not load counts. Shader/pipeline counters and instance paths are correlated observations, not proven causal attribution. Thresholds are strict >33.3, >50 and >100 ms; catalog ranking is frames >100 ms then max game_ms; trigger clusters use count × mean game excess over 33.3 ms. Loading is separate. Buckets are CPU/wall proxies, not an exclusive CPU/GPU decomposition. SubViewport CPU is part of draw. Older traces cannot reconstruct signal wall-time buckets. Video memory deltas use consecutive full-trace samples; they are allocation/upload proxies, not proof of uploads. Bucket means use frames >50 ms; event totals and mean video deltas use all row frames. Quantiles use nearest rank.", "",
+              "Every slow frame, including monitors, context, observed events and replay command: `slow_frames.jsonl`.", ""]
+    catalog = ["## Named hitch catalog", ""] + catalog_markdown(result["named_hitch_catalog"])
+    catalog += redraw.markdown(result["redraw"])
+    catalog += ["", "## Loading frames", ""] + catalog_markdown(result["loading"])
+    if "comparison" in result:
+        catalog += comparison_markdown(result["comparison"])
+    lines += catalog + ["", "## Capture receipts", "",
+                        "| Driver / seed | Cache / QoS | Exit / outcome / errors | Frames | Observer mean / p99 µs | Known driver mean µs |",
+                        "|---|---|---|---:|---:|---:|"]
     for run in result["runs"]:
         receipt = run["receipt"]
         trace = receipt.get("trace", {})
-        lines.append(f"| {run.get('driver')} / {run.get('seed')} | {run.get('cache')} / {run.get('profile')} | {run.get('returncode')} / {run.get('outcome', 'missing receipt')} / {json.dumps(run.get('errors', []))} | {trace.get('frames', 0)} | {trace.get('observer_mean_us', 'unmeasured')} / {trace.get('observer_sample_p99_us', 'unmeasured')} | {trace.get('known_driver_mean_us', 'unmeasured')} |")
+        frames_count = trace.get('frames', 'partial trace' if run.get('partial_trace') else 0)
+        lines.append(f"| {run.get('driver')} / {run.get('seed')} | {run.get('cache')} / {run.get('profile')} | {run.get('returncode')} / {run.get('outcome', 'missing receipt')} / {json.dumps(run.get('errors', []))} | {frames_count} | {trace.get('observer_mean_us', 'unmeasured')} / {trace.get('observer_sample_p99_us', 'unmeasured')} | {trace.get('known_driver_mean_us', 'unmeasured')} |")
     lines += ["", "Whole-driver settings (recorded per take; unknown for old runs):"]
     for run in result['runs']:
         if run.get('driver') == 'whole':
@@ -230,9 +289,6 @@ def write_markdown(result, path):
         for label, coverage in sorted(run["receipt"].get("coverage", {}).items()):
             if label.startswith(("playback:", "surfaces:", "table:")):
                 lines.append(f"| {run.get('driver')} / {run.get('seed')} | {run.get('ground_fx', 'unknown')} | {label.split(':', 1)[1]} | {json.dumps(coverage, sort_keys=True)} |")
-    lines += ["", "## Named hitch catalog", ""] + catalog_markdown(result["named_hitch_catalog"])
-    lines += redraw.markdown(result["redraw"])
-    lines += ["", "## Loading frames", ""] + catalog_markdown(result["loading"])
     lines += ["", "## Startup viewports", "", "Version 2 render pixels come from one backing-image readback. The texture getter is canvas-transformed and is shown separately; legacy measurements are not physical-pixel proof. The pixel/scale gate runs once before gameplay. Headless render pixels remain unknown.", "", "| Driver / seed / cache / QoS | Backing pixels / texture getter / root size | UI scale / canvas size | HiDPI allowed / screen scale | Check / pixel ratio / startup capture µs |", "|---|---|---|---|---|"]
     def dimensions(value):
         return "x".join(map(str, value)) if value is not None else "unmeasured"
@@ -271,8 +327,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--compare", type=Path, help="previous report.json or its catalog directory")
+    parser.add_argument("--headless-standin", action="store_true", help="reduce explicit quick headless traces only")
     args = parser.parse_args()
-    result = generate(args.root.rglob("run.json"), args.output)
+    result = generate(args.root.rglob("run.json"), args.output, headless_standin=args.headless_standin,
+                      old_catalog=read_catalog(args.compare) if args.compare else None)
     print(f"HITCH REPORT: runs={len(result['runs'])} clusters={len(result['clusters'])} situations={len(result['situations'])} excluded={len(result['rejected'])}")
 
 

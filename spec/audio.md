@@ -37,7 +37,9 @@
 `World` in the director data maps to `SettingsStore.WORLD_SFX_BUS` (room reverb);
 `UI` maps to `SettingsStore.UI_SFX_BUS` (dry). Both feed the existing SFX parent,
 including player volume, global headroom, glue compressor, and Master limiter.
-Music, its duck stage, reverb, and non-overlapping transitions are unchanged.
+The boss-defeat and level-up stingers play directly on the dry SFX parent so Interface
+volume does not control them. Stingers dip the score when the cue and its bus
+route have audible gain.
 
 `SfxBank` reads `data/sfx_cues.json` without modifying it. It preloads streams,
 allocates each cue's voice pool, and rotates variants in order from a random

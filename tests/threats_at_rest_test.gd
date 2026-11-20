@@ -15,6 +15,9 @@ const REASON_CAPTURE_SECONDS: float = 0.20
 const PROOF_PULSE_PEAK_SECONDS: float = 0.55
 const PROOF_MOVE_OFFSET := Vector2i.UP
 const PROOF_AUDIO_DRAIN_SECONDS: float = 0.10
+const UMBRA_PROOF_ENEMY_ID: int = 2
+const UMBRA_PROOF_TILE := Vector2i(7, 1)
+const UNKNOWN_PRESENCE_PATH: String = "res://assets/art/icons/umbra_presence.png"
 var _canvas: SubViewport
 var _visual_proof: bool = false
 var _failures: Array[String]
@@ -156,12 +159,23 @@ func _test_live_stage() -> void:
 	_expect(((board.get("presentation") as Dictionary).get("intent_callouts", []) as Array).is_empty(), "Expired callout clears")
 	state = Suite.staged_state(combat)
 	state["umbra"] = {"stage": "heart", "light_sources": []}
-	(state["enemies"][1] as Dictionary)["pos"] = Vector2i(7, 1)
+	(state["enemies"][1] as Dictionary)["pos"] = UMBRA_PROOF_TILE
 	await _install(scene, state)
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
-	_expect(not combat.visible_enemy_ids(state).has(2), "Umbra proof contains a hidden enemy")
-	for badge: Dictionary in rest.get("badges", []): _expect(badge["key"] != "enemy_2", "Hidden enemy has no live chip/order")
-	for threat: Dictionary in rest.get("threats", []): _expect(threat["key"] != "enemy_2", "Hidden enemy has no live threats")
+	var hidden_key: String = "enemy_%d" % UMBRA_PROOF_ENEMY_ID
+	_expect(not combat.visible_enemy_ids(state).has(UMBRA_PROOF_ENEMY_ID), "Umbra proof contains a hidden enemy")
+	_expect(not (board.call("_visible_units") as Array).any(func(unit: Dictionary) -> bool: return unit["key"] == hidden_key), "Hidden enemy has no board body")
+	for badge: Dictionary in rest.get("badges", []): _expect(badge["key"] != hidden_key, "Hidden enemy has no live chip/order")
+	for threat: Dictionary in rest.get("threats", []): _expect(threat["key"] != hidden_key, "Hidden enemy has no live threats")
+	var rail: Control = scene.get("_turn_order_bar")
+	var hidden_portrait_visible: bool = false
+	for slot: Control in rail.get_children():
+		if slot.get_meta("turn_order_actor_key", "") != "enemy:" + hidden_key: continue
+		var texture: Texture2D = slot.get_meta("turn_order_portrait_texture", null)
+		if texture == null or not slot.is_visible_in_tree(): continue
+		hidden_portrait_visible = str(texture.get_meta("asset_source_path", texture.resource_path)) == UNKNOWN_PRESENCE_PATH
+		if hidden_portrait_visible: break
+	_expect(hidden_portrait_visible, "Umbra capture shows the still Unknown Presence portrait in the live initiative rail")
 	await _capture("07_umbra_hidden_1920x1080")
 	state = Suite.staged_state(combat)
 	await _install(scene, state)

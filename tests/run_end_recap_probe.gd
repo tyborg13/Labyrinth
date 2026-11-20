@@ -8,26 +8,135 @@ const Score = preload("res://scripts/run_score_rules.gd")
 const Overlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CutoutContext = preload("res://scripts/cutout_context.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+const DemoBuild = preload("res://scripts/demo_build.gd")
 
 const EMBER_HEARTH_PROOF_SEED: int = 8821
 const RECOVERY_PROOF_SEED: int = 8822
 const OUTPUT_ROOT: String = "user://run_end_recap_probe_v9"
+const DEPTH_UNLOCK_OUTPUT_ROOT: String = "user://ux_13_depth_unlock"
+const ESCAPE_FIXTURE_ROOM: Vector2i = Vector2i(8, 0)
+const ESCAPE_FIXTURE_EMBERS: int = 1200
+const ESCAPE_FIXTURE_ROOMS: int = 66
+const ESCAPE_FIXTURE_BEST_SCORE: int = 1000000
+const REPEAT_ESCAPE_RUN_OFFSET: int = 1
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
 var _output_dir: String = ""
+var _depth_unlock_only: bool = false
+var _ui_scale: float = 1.0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	_resolution = _requested_resolution()
-	_output_dir = "%s/%dx%d" % [OUTPUT_ROOT, _resolution.x, _resolution.y]
-	_configure_window(_resolution)
+	_depth_unlock_only = OS.get_cmdline_user_args().has("--depth-unlock")
+	if _depth_unlock_only:
+		_ui_scale = 1.15 if _resolution == Vector2i(1280, 800) else 1.0
+		var settings: Dictionary = SettingsStore.default_settings()
+		settings["ui_scale"] = _ui_scale
+		settings["display_mode"] = SettingsStore.DISPLAY_WINDOWED
+		SettingsStore.save_settings(settings)
+		root.mode = Window.MODE_WINDOWED
+		root.size = _resolution
+	else:
+		_configure_window(_resolution)
+	var output_root: String = DEPTH_UNLOCK_OUTPUT_ROOT if _depth_unlock_only else OUTPUT_ROOT
+	_output_dir = "%s/%dx%d" % [output_root, _resolution.x, _resolution.y]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
 	_clear_probe_output(_output_dir)
 	ProgressionStore.set_storage_path("user://run_end_recap_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://run_end_recap_probe_saved_run.save")
 	ProgressionStore.clear_saved_run()
-	call_deferred("_capture_states")
+	call_deferred("_capture_depth_unlock" if _depth_unlock_only else "_capture_states")
+
+func _capture_depth_unlock() -> void:
+	var profile: Dictionary = ProgressionStore.default_data()
+	profile[ProgressionStore.BEST_SCORE_KEY] = ESCAPE_FIXTURE_BEST_SCORE
+	ProgressionStore.save_data(profile)
+	var instance: Node = RUN_SCENE.instantiate()
+	root.add_child(instance)
+	await process_frame
+	root.size = _resolution
+	await process_frame
+	var engine := RunEngine.new()
+	var escape: Dictionary = _terminal_state(engine, profile, ESCAPE_FIXTURE_ROOM, "victory", ESCAPE_FIXTURE_EMBERS, ESCAPE_FIXTURE_ROOMS, {
+		"rooms_explored": ESCAPE_FIXTURE_ROOMS,
+		"dragons_slain": ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"],
+	})
+	await _install_state(instance, profile, escape)
+	var recap: Control = instance.get("_run_end_recap")
+	recap.call("skip_presentation")
+	var unlock: Label = recap.find_child("DepthUnlock", true, false)
+	if not unlock.is_visible_in_tree() or unlock.text != "Umbra Depth 1 unlocked.":
+		_fail("First escape at Depth 0 must show Umbra Depth 1 unlocked.")
+	var committed: Dictionary = ProgressionStore.load_data()
+	if ProgressionStore.unlocked_umbra_depth(committed) != 1:
+		_fail("First escape must record Depth 1 to disk")
+	var with_line: Dictionary = _validate_unlock_geometry(recap, unlock)
+	await _capture("victory_with_unlock.png")
+
+	instance.call("_show_run_end_recap", "victory")
+	if not unlock.is_visible_in_tree() or unlock.text != "Umbra Depth 1 unlocked.":
+		_fail("Reshowing the recap in the same session must keep the line")
+
+	# The profile write won the race against the checkpoint update. Feed the
+	# serialized pre-result checkpoint through the same scene load as Continue.
+	if not ProgressionStore.save_run_state(escape):
+		_fail("Could not stage the pre-result checkpoint")
+	await _install_state(instance, committed, ProgressionStore.load_saved_run())
+	recap.call("skip_presentation")
+	if unlock.is_visible_in_tree() or not unlock.text.is_empty():
+		_fail("Loading the same completed escape must leave the unlock line hidden")
+
+	var repeat: Dictionary = escape.duplicate(true)
+	repeat["run_index"] = int(repeat["run_index"]) + REPEAT_ESCAPE_RUN_OFFSET
+	repeat["progression"] = committed
+	await _install_state(instance, committed, repeat)
+	recap.call("skip_presentation")
+	if unlock.is_visible_in_tree() or not unlock.text.is_empty():
+		_fail("An escape at an already-unlocked Depth must leave the line hidden")
+	var line_step: float = unlock.size.y * (unlock.get_parent() as Control).scale.y
+	for node_name: String in with_line:
+		var part: Control = recap.find_child(node_name, true, false)
+		if not is_equal_approx(float(with_line[node_name]) - part.global_position.y, line_step):
+			_fail("%s must move down by exactly one line only when the unlock shows" % node_name)
+	await _capture("victory_without_unlock.png")
+
+	for outcome: String in ["defeat", "embrace", "abandoned"]:
+		if Overlay.build_model(escape, committed, outcome, 0, 1).has("depth_unlock"):
+			_fail("%s must never show the unlock line" % outcome)
+	OS.set_environment("LABYRINTH_DEMO", "1")
+	if not DemoBuild.is_demo():
+		_fail("Demo clear assertion requires Godot's editor build")
+	elif Overlay.build_model(escape, committed, "victory", 0, 1).has("depth_unlock"):
+		_fail("Demo clears must never show the unlock line")
+	OS.unset_environment("LABYRINTH_DEMO")
+	instance.queue_free()
+	await process_frame
+	print("UX-13 PROOF_DIR=%s" % ProjectSettings.globalize_path(_output_dir))
+	print("UX-13 DEPTH UNLOCK %dx%d @ %d%%: %s" % [_resolution.x, _resolution.y, roundi(_ui_scale * 100.0), "FAIL" if _failed else "PASS"])
+	quit(1 if _failed else 0)
+
+func _validate_unlock_geometry(recap: Control, unlock: Label) -> Dictionary:
+	var cause: Label = recap.find_child("OutcomeCause", true, false)
+	var column: Control = unlock.get_parent()
+	var rule: Control = recap.find_child("GildedRule", true, false)
+	if root.size != _resolution or not is_equal_approx(root.content_scale_factor, _ui_scale):
+		_fail("Recap proof expected %s at %.2f, got %s at %.2f" % [_resolution, _ui_scale, root.size, root.content_scale_factor])
+	if unlock.get_theme_font("font") != cause.get_theme_font("font") or unlock.get_theme_font_size("font_size") != cause.get_theme_font_size("font_size") or unlock.get_theme_color("font_color") != cause.get_theme_color("font_color"):
+		_fail("Unlock must inherit the outcome cause typography")
+	if cause.text != "Noctyrax falls. The way out is open." or not is_equal_approx(unlock.position.y, cause.position.y + cause.get_line_count() * cause.get_line_height()) or unlock.position.x != cause.position.x:
+		_fail("Unlock must sit one baseline below the full escape cause")
+	if not column.get_global_rect().encloses(unlock.get_global_rect()) or unlock.get_global_rect().end.y > rule.global_position.y or unlock.get_line_count() != 1:
+		_fail("Unlock must fit in the recap column above the separator: unlock %s, column %s, separator %s, lines %d" % [unlock.get_global_rect(), column.get_global_rect(), rule.global_position, unlock.get_line_count()])
+	var lower_positions: Dictionary = {}
+	for node_name: String in ["GildedRule", "ScoreLedger", "ScoreTotal", "EmberResult", "ChronicleButton", "NewRunButton", "MainMenuButton"]:
+		var part: Control = recap.find_child(node_name, true, false)
+		lower_positions[node_name] = part.global_position.y
+		if not root.get_visible_rect().encloses(part.get_global_rect()):
+			_fail("%s must stay in the viewport when the line shows" % node_name)
+	return lower_positions
 
 func _capture_states() -> void:
 	await process_frame
@@ -412,10 +521,12 @@ func _capture(filename: String) -> void:
 	await process_frame
 	var instance: Node = root.get_node_or_null("RunScene")
 	var recap: Control = instance.get("_run_end_recap") as Control if instance != null else null
-	if recap != null and recap.visible:
+	if recap != null and recap.visible and not _depth_unlock_only:
 		_validate_score_geometry(recap)
 	if DisplayServer.get_name() == "headless":
 		return
+	if _depth_unlock_only:
+		await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image.get_width() != _resolution.x or image.get_height() != _resolution.y:
 		# macOS exposes the Retina backing texture even though content_scale_size is

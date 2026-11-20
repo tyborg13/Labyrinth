@@ -4,6 +4,10 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const OUTLINE_WIDTH: float = 2.0
 const OUTLINE_ALPHA: float = 0.75
+# pol-54: the outline uses the lighter danger red so protan and deutan eyes still
+# see it on mid-tone earth floors, where DANGER turned the floor's olive-brown
+# (pol-53 audit). The fill stays DANGER.
+const OUTLINE_COLOR: Color = Palette.DANGER_BRIGHT
 const FILL_ALPHA: float = 0.12
 const HERO_FILL_ALPHA: float = 0.24
 const PULSE_MIN: float = 0.18
@@ -115,7 +119,7 @@ static func draw_tile(board: Control, tile: Vector2i, polygon: PackedVector2Arra
 	var fill: float = hero_fill_alpha(float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0, reduced_motion) if tile == hero_tile else FILL_ALPHA
 	board.draw_colored_polygon(inner, Color(Palette.DANGER, fill * alpha))
 	inner.append(inner[0])
-	board.draw_polyline(inner, Color(Palette.DANGER, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)
+	board.draw_polyline(inner, Color(OUTLINE_COLOR, OUTLINE_ALPHA * alpha), OUTLINE_WIDTH, true)
 
 static func draw_zone_tag(_board: Control, _tag: Dictionary, _center: Vector2) -> void:
 	pass

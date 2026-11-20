@@ -103,18 +103,18 @@ const SFX: Dictionary = {
 		"bus": SettingsStore.WORLD_SFX_BUS,
 		"loop": true
 	},
-	# Short musical stingers play as dry UI cues while the score dips beneath them.
+	# Short musical stingers play dry while the score dips beneath them.
 	STINGER_LEVEL_UP_ID: {
 		"path": "res://assets/audio/music/stingers/level_up_v02.ogg",
 		"volume_db": -4.0,
-		"bus": SettingsStore.UI_SFX_BUS,
+		"bus": SettingsStore.SFX_BUS,
 		"pitch_variance": 0.0,
 		"music_duck": true
 	},
 	STINGER_BOSS_DEFEATED_ID: {
 		"path": "res://assets/audio/music/stingers/boss_defeated_v02.ogg",
 		"volume_db": -3.0,
-		"bus": SettingsStore.UI_SFX_BUS,
+		"bus": SettingsStore.SFX_BUS,
 		"pitch_variance": 0.0,
 		"music_duck": true
 	},

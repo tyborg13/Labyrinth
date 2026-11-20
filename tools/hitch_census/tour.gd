@@ -9,6 +9,24 @@ const OVERLAY_FIELDS: Dictionary = {"map": "_large_map_scrim", "character": "_up
 const SITUATION_SECONDS: float = 1.0
 const OVERLAYS: Array = [["map", "_open_large_map", "_close_large_map"], ["character", "_on_loadout_button_pressed", "_close_card_upgrade_overlay"], ["grimoire", "_open_grimoire_overlay", "_close_grimoire_overlay"], ["settings", "_open_settings_overlay", "_close_settings_overlay"]]
 
+func run_tharokh(host: SceneTree) -> void:
+	var builder := Fixtures.new()
+	var release_builder := Callable(builder, "free")
+	host.census_finished.connect(release_builder, CONNECT_ONE_SHOT)
+	var installed: bool = await _install(host, builder, "tharokh")
+	if is_instance_valid(builder):
+		host.census_finished.disconnect(release_builder)
+		builder.free()
+	if installed and not host.finished:
+		host.coverage["stop:tharokh"] = true
+		await CombatStops.play(host, "tharokh")
+
+static func missing_tharokh(coverage: Dictionary) -> PackedStringArray:
+	var missing := PackedStringArray()
+	for key: String in ["stop:tharokh", "playback:tharokh"]:
+		if not coverage.has(key): missing.append(key)
+	return missing
+
 func run(host: SceneTree) -> void:
 	host.mark("title", "tour")
 	await host._enter_scene("res://scenes/main_menu.tscn")

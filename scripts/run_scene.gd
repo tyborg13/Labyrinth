@@ -1489,6 +1489,8 @@ var _force_aim_rotate_shown: bool = false
 var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
+var _recap_depth_unlock_result_id: String = ""
+var _recap_depth_unlocked: int = 0
 var _defeat_lost_amount: int = 0
 var _run_end_board_reframe_active: bool = false
 var _run_end_board_reframe_progress: float = 0.0
@@ -1804,6 +1806,7 @@ var _sfx_router: RefCounted
 var _sfx_pitch_rng := RandomNumberGenerator.new()
 var _ambient_fade_tween: Tween
 var _music_duck_tween: Tween
+var _ducking_stinger: Dictionary = {}
 var _music_stinger_until_msec: int = 0
 var _dialogue_portrait_frame: PanelContainer
 var _dialogue_portrait: TextureRect
@@ -1965,7 +1968,7 @@ var _hud_refresh_layout := preload("res://scripts/hud_refresh_layout.gd").new()
 var _victory_reward_preparation := preload("res://scripts/prepared_victory_reward.gd").new()
 var _reward_reroll_preparation := preload("res://scripts/prepared_reward_choices.gd").new()
 var _opening_query_preparation := preload("res://scripts/opening_query_preparation.gd").new()
-var _application_suspend := preload("res://scripts/application_suspend.gd").new()
+var _application_suspend: RefCounted
 
 func _schedule_encounter_assets(state: Dictionary) -> void:
 	_opening_query_preparation.cancel(self)
@@ -2008,6 +2011,7 @@ func _ready() -> void:
 	preload("res://scripts/run_persistence.gd").attach(self)
 	var prefix_started: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
+	_application_suspend = preload("res://scripts/application_suspend.gd").for_tree(get_tree())
 	_settings = SettingsStore.load_settings()
 	if _combat_engine is HeroFacingCombat: _combat_engine.persist_hero_facing = SettingsStore.hero_facing_mode(_settings) == "persist"
 	SettingsStore.apply_settings(_settings, get_window())
@@ -2255,8 +2259,13 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	_combat_pacing.observe_hurry_input(event)
 	var _hitch_continuation: RefCounted
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_input")
+	# A keyboard-targeted move can land a hit before the router sees the key.
+	if event is InputEventKey and event.pressed:
+		var router: Node = get_node_or_null("/root/InputRouter")
+		if router != null: router.record_input_activity(event)
 	preload("res://scripts/hand_pointer_input.gd").observe(self, event)
 	# kb-01's menu guard must suspend actions without losing the aiming endpoint.
 	EmpowerUi.observe_targeting_pointer(self, event)
@@ -2388,6 +2397,8 @@ func _input(event: InputEvent) -> void:
 		if event.is_action_pressed("ui_cancel"):
 			_cancel_combat_skill_card_selection()
 			get_viewport().set_input_as_handled()
+		else:
+			preload("res://scripts/combat_keyboard_shortcuts.gd").handle_skill_card_selection(self, event)
 		return
 	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
 		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
@@ -2529,6 +2540,7 @@ func _input(event: InputEvent) -> void:
 	if _hitch_input_handled:
 		get_viewport().set_input_as_handled()
 		return
+	if preload("res://scripts/combat_keyboard_shortcuts.gd").handle(self, event): return
 	if _is_map_shortcut_event(event):
 		if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 			_guided_tutorial_reject("The map can wait until the guided action is complete.")
@@ -3639,6 +3651,7 @@ func _refresh_pointer_after_layout(expected_revision: int) -> void:
 func _schedule_controller_modal_refresh() -> void:
 	var modal_visible: bool = _controller_modal_visible()
 	if modal_visible:
+		_combat_pacing.vibration.stop()
 		_invalidate_hand_hover_rest()
 	if _turn_order_landing_strip != null:
 		if _turn_order_landing_strip_allowed():
@@ -3718,6 +3731,8 @@ func _recover_controller_focus() -> void:
 	if _visible_control(_menu_scrim): return # Menu input owns its initial focus.
 	var scope: Control = _controller_focus_scope()
 	if scope == null or (scope == _pre_battle_scrim and _pre_battle_panel.focus_behavior_recursive == Control.FOCUS_BEHAVIOR_DISABLED):
+		return
+	if scope == _large_map_scrim and scope.focus_behavior_recursive == Control.FOCUS_BEHAVIOR_DISABLED:
 		return
 	var current: Control = get_viewport().gui_get_focus_owner()
 	if (
@@ -3955,7 +3970,7 @@ func _notification(what: int) -> void:
 	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_RESUMED]:
 		# Minimizing on native close can deliver suspend while the departing
 		# checkpoint is still in flight. Its save is owned by the quit drain.
-		if not preload("res://scripts/application_shutdown.gd").departure_requested(get_tree()):
+		if _application_suspend != null and not preload("res://scripts/application_shutdown.gd").departure_requested(get_tree()):
 			_application_suspend.handle(self, what)
 	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED]:
 		_run_play_clock.sample_scene_play_time(self)
@@ -3992,7 +4007,6 @@ func _exit_tree() -> void:
 	if str(_run_state.get("mode", "")) == "pre_battle":
 		encounter = _pre_battle_preview_run_state.get("combat_state", {})
 	preload("res://scripts/run_section_art.gd").release_after_run(self, encounter)
-	_application_suspend.dispose()
 	_pass_preview_warm_generation += 1
 	_selected_pass_work.cancel()
 	_pass_preview_prewarm.cancel()
@@ -4014,12 +4028,8 @@ func _exit_tree() -> void:
 	_finalize_performance_telemetry_scene("scene_exit")
 
 func _shutdown_audio() -> void:
-	if _music_duck_tween != null and _music_duck_tween.is_valid():
-		_music_duck_tween.kill()
+	_clear_music_duck()
 	_music_stinger_until_msec = 0
-	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
-	if duck != null:
-		duck.volume_db = 0.0
 	_music_context_refresh_queued = false
 	_cancel_music_context_settle_wait()
 	_stop_music_tween()
@@ -10702,6 +10712,8 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	return _start_run(stage_graph)
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_recap_depth_unlock_result_id = ""
+	_recap_depth_unlocked = 0
 	var startup_started: int = Time.get_ticks_usec() if _hitch_trace_enabled and _defer_initial_run_presentation and _runtime_performance_instrumentation_enabled else 0
 	_pointer_hand_tucked = false
 	_nonfight_room_preparation.cancel()
@@ -11304,6 +11316,9 @@ func _refresh_card_preview_ui() -> void:
 		_board_hover_refresh_pending = false
 		_board_hover_threat_active = false
 		_controller_set_board_tile(_controller_board_tile)
+	# gfix-23: the rail shows no stale number while the Pass rows are pending.
+	# Its stagger delays read the aim resolved by the stage refresh above.
+	if forecast_pending: _refresh_turn_order_bar()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage_total", performance_phase_started)
 	_refresh_hand_panel()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand_total", performance_phase_started)
@@ -12816,6 +12831,7 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 	# _board_presentation is only base chrome: refreshing from it here erases
 	# the forecast just submitted by a card hover or attack-target change.
 	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays()
+	_selected_pass_work.paid(self, "rail")
 	var source_signature: String = "%d|%d|%d|%d|%d|%s" % [
 		_combat_preview_revision,
 		_selected_card_index,
@@ -13301,6 +13317,7 @@ func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
 	if _animation_lock:
 		return
 	_refresh_stage_view()
+	_refresh_turn_order_hover_forecast()
 
 func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
 	var hover_changed: bool = false
@@ -13314,6 +13331,13 @@ func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
 		return
 	if hover_changed:
 		_refresh_stage_view()
+		_refresh_turn_order_hover_forecast()
+
+# gfix-23: a rail portrait moves the aim like a board hover does, so the
+# selected action's Pass forecast follows it.
+func _refresh_turn_order_hover_forecast() -> void:
+	if _pass_preview_hover_can_change() or _player_movement_selected or _surface_aim.active():
+		_refresh_selected_card_forecast()
 
 func _turn_order_entries_from_state(state: Dictionary) -> Array[Dictionary]:
 	var projected: Dictionary = state
@@ -15131,6 +15155,7 @@ func _refresh_selected_card_forecast() -> void:
 
 func _configure_pass_forecast_panel(chip: Button, summary: Dictionary) -> void:
 	preload("res://scripts/pass_forecast_presentation.gd").refresh(self, chip, summary)
+	_selected_pass_work.paid(self, "pass")
 
 func _pass_preview_has_known_losses(summary: Dictionary) -> bool:
 	return int(summary.get("hp_loss", 0)) + int(summary.get("block_loss", 0)) + int(summary.get("stoneskin_loss", 0)) + int(summary.get("defiance_spent", 0)) > 0
@@ -15895,7 +15920,9 @@ func _show_run_end_recap(outcome: String) -> void:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
 	if outcome == "embrace": ember_amount = _run_engine.held_embers(_run_state)
-	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
+	var result_id: String = str(_run_state.get("run_result", {}).get("result_id", ""))
+	var unlocked_depth: int = _recap_depth_unlocked if result_id == _recap_depth_unlock_result_id else 0
+	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount, unlocked_depth)
 	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	_run_end_recap.present(model, window_center)
 	if outcome == "defeat":
@@ -18309,6 +18336,7 @@ func _refresh_stage_view() -> void:
 	_refresh_stage_view_with_state()
 
 func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> void:
+	_selected_pass_work.paid(self, "stage")
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	_exit_destinations_by_tile = _exit_tile_lookup()
@@ -18843,10 +18871,44 @@ func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
 	if _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile):
 		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, _hovered_board_tile)
 		return IntentBadges.movement_preview(_combat_engine, _combat_state, (movement["known"] as Dictionary)["state"])
-	if _selected_card_index < 0 or _preview_combat_state.is_empty() or _selected_pass_pending():
+	# gfix-23: the intents follow the selected aim on its first frame. Only the
+	# Pass rows and the forecast's own marks wait for the selected worker.
+	if _selected_card_index < 0 or _preview_combat_state.is_empty():
 		return display_state
+	# Director (gfix-23): with no legal target at the aim the card cannot be
+	# played there. Plates, repeat pips, danger and red are then exactly those
+	# with no card selected, marked by the at-rest exact forecast.
+	if _selected_aim_has_no_play():
+		_ensure_rest_pass_disc_marks()
+		return _combat_state
 	var current_preview_state: Dictionary = _pass_preview_source_state()
 	return current_preview_state if not current_preview_state.is_empty() else display_state
+
+# The card's next action needs a target and the aim is neither a legal target
+# nor a shortcut. Once an earlier action has chosen a target, the intents keep
+# following that resolved prefix as before. Skipped actions hold placeholders.
+func _selected_aim_has_no_play() -> bool:
+	if _selected_card_index < 0 or _animation_lock or _orientation_pending(): return false
+	if _pending_selected_targets.any(func(tile: Vector2i) -> bool: return tile != INVALID_TARGET_TILE): return false
+	if _pending_action_index < 0 or _pending_action_index >= _pending_actions.size(): return false
+	if not _combat_engine.player_action_needs_target(_pending_actions[_pending_action_index]): return false
+	return not preload("res://scripts/pass_forecast_presentation.gd")._previewed(self)
+
+# The at-rest marks belong to the committed board. Fill them for this revision
+# when a selection returns the board to rest before the idle forecast ran.
+func _ensure_rest_pass_disc_marks() -> void:
+	if int(_rest_pass_disc_marks.get("revision", -1)) == _combat_preview_revision: return
+	if _combat_state.is_empty() or not _combat_engine.is_player_turn(_combat_state): return
+	var source: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").rest_source(self, _combat_state)
+	var remembered: Variant = _combat_forecast_cache.lookup(source)
+	var summary: Dictionary = remembered if remembered != null else {}
+	if remembered == null:
+		var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(_combat_engine, source)
+		var phase: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
+		summary = _pass_preview_summary_for_phase_result(source, phase)
+		_combat_forecast_cache.remember(source, summary)
+	if not summary.is_empty():
+		_rest_pass_disc_marks = preload("res://scripts/pass_forecast_discs.gd").record(summary, _combat_preview_revision)
 
 func _state_has_visible_enemy_at_tile(state: Dictionary, tile: Vector2i) -> bool:
 	if tile.x < 0:
@@ -19640,7 +19702,7 @@ func _invalidate_preview_derived_caches(keep_move_approach: bool = false) -> voi
 	_pending_card_forecast_cache.clear()
 	_pending_card_known_forecast_cache.clear()
 	_pass_preview_warm_generation += 1
-	_selected_pass_work.cancel()
+	_selected_pass_work.supersede(self)
 	_pass_preview_prewarm.cancel()
 	_pass_preview_warm_active = false
 	_pass_preview_warm_key = ""
@@ -19687,6 +19749,9 @@ func _preview_shortcuts_key(preview: Dictionary, defer_safe_move_resolution: boo
 
 func _pass_preview_key(target_tile: Variant = null, default_approach: bool = false) -> String:
 	if target_tile == null: target_tile = _hovered_board_tile
+	# gfix-23: a targetless confirmation's forecast is the same on every tile.
+	# One key lets Pass, the plates and the red floor share it wherever the aim rests.
+	if _pending_card_requires_confirmation() and not _pass_preview_drag_play_active(): target_tile = INVALID_TARGET_TILE
 	# These revisions own and eagerly invalidate every state transition that can
 	# affect this cache. Hashing the full combat snapshot and its nested action
 	# arrays made even a cache hit O(state size) on every pointer move.
@@ -22228,6 +22293,8 @@ func _reject_target_click(tile: Vector2i, state: Dictionary, action: Dictionary)
 	_click_feedback().show_reason(preload("res://scripts/target_click_feedback.gd").reason(_combat_engine, state, action, tile), tile)
 
 func _on_board_tile_clicked(tile: Vector2i) -> void:
+	if _combat_pacing.take_enemy_turn_press():
+		return
 	if not _controller_is_active() and _pointer_over_hand_card():
 		return
 	_flush_hand_hover_before_action()
@@ -22566,6 +22633,7 @@ func _focus_large_map_for_controller() -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if (
 		_large_map_view != null
+		and _large_map_scrim.focus_behavior_recursive != Control.FOCUS_BEHAVIOR_DISABLED
 		and router != null
 		and router.has_method("using_controller")
 		and bool(router.call("using_controller"))
@@ -26297,8 +26365,14 @@ func _play_sfx(entry: Dictionary) -> float:
 	var duration: float = _sfx_bank.play_entry(entry)
 	if is_stinger and duration > 0.0:
 		_music_stinger_until_msec = preload("res://scripts/presentation_clock.gd").ticks_msec(false) + int(maxf(0.0, duration - MUSIC_STINGER_TAIL_SECONDS) * 1000.0)
-		_duck_music_for(duration)
+		if _stinger_is_audible(entry):
+			_ducking_stinger = entry
+			_duck_music_for(duration)
 	return minf(duration, float(entry.get("duration", duration)))
+
+func _stinger_is_audible(entry: Dictionary) -> bool:
+	var bus: String = SfxBankScript.bus_for(str(entry.get("bus", "World")))
+	return SettingsStore.audio_route_is_audible(bus, float(entry.get("volume_db", 0.0)))
 
 # Repeated one-shots (card draws, hits, clicks) get a small random pitch drift
 # so a hand of five draws or a flurry of strikes never sounds machine-gunned.
@@ -26311,6 +26385,14 @@ func _sfx_pitch_for_entry(entry: Dictionary, resource: AudioStream) -> float:
 	if variance <= 0.0:
 		return 1.0
 	return 1.0 + _sfx_pitch_rng.randf_range(-variance, variance)
+
+func _clear_music_duck() -> void:
+	if _music_duck_tween != null and _music_duck_tween.is_valid():
+		_music_duck_tween.kill()
+	_ducking_stinger = {}
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	if duck != null:
+		duck.volume_db = 0.0
 
 # Dip the score under a musical stinger, then let it swell back.
 func _duck_music_for(seconds: float) -> void:
@@ -29405,6 +29487,10 @@ func _close_settings_overlay() -> void:
 
 func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
+	if not SettingsStore.controller_vibration_enabled(_settings):
+		_combat_pacing.vibration.stop()
+	if not _ducking_stinger.is_empty() and not _stinger_is_audible(_ducking_stinger):
+		_clear_music_duck()
 	if _event_view != null: _event_view.set_reduced_motion(_reduced_motion_enabled())
 	if _reduced_motion_enabled():
 		_cancel_pre_battle_entry()
@@ -29853,6 +29939,7 @@ func _on_save_and_quit_pressed() -> void:
 	const Shutdown = preload("res://scripts/application_shutdown.gd")
 	var tree := get_tree()
 	if not Shutdown.begin_save_to_title(tree): return
+	_combat_pacing.vibration.stop()
 	_leaving_tree = true
 	_close_menu_overlay()
 	process_mode = Node.PROCESS_MODE_DISABLED
@@ -29864,6 +29951,7 @@ func _on_exit_to_desktop_pressed() -> void:
 	preload("res://scripts/application_shutdown.gd").request(get_tree(), "exit_to_desktop")
 
 func prepare_application_quit(reason: String) -> void:
+	_combat_pacing.vibration.stop()
 	_leaving_tree = true
 	_close_menu_overlay()
 	process_mode = Node.PROCESS_MODE_DISABLED
@@ -34608,8 +34696,14 @@ func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progre
 	# profile (for example the final dragon claim). Keep the profile authoritative
 	# for currency and progression, and merge only those durable event receipts.
 	var candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(progression, state.get("progression", {}) as Dictionary)
+	var depth_before: int = ProgressionStore.unlocked_umbra_depth(candidate)
 	var recorded: Dictionary = ProgressionStore.record_run_result(candidate, result_id, result_stats)
 	var next_progression: Dictionary = (recorded.get("data", progression) as Dictionary).duplicate(true)
+	var depth_after: int = ProgressionStore.unlocked_umbra_depth(next_progression)
+	# The recap can report only a depth advance observed by this scene.
+	if depth_after > depth_before:
+		_recap_depth_unlock_result_id = result_id
+		_recap_depth_unlocked = depth_after
 	var result: Dictionary = (recorded.get("result", {}) as Dictionary).duplicate(true)
 	state["progression"] = next_progression
 	if not result.is_empty():
@@ -34776,7 +34870,6 @@ func _is_empower_shortcut_event(event: InputEvent) -> bool:
 # Stagger delays for the selected card: the hovered target's resolved preview,
 # or the card's already-resolved automatic actions. Hidden enemies never move.
 func _turn_order_stagger_preview_delays() -> Dictionary:
-	if _selected_pass_pending(): return {}
 	if _animation_lock or (_selected_card_index < 0 and not _player_movement_selected) or _combat_state.is_empty():
 		return {}
 	var resolved: Dictionary = _cached_hover_resolved_preview_state(_hovered_board_tile)

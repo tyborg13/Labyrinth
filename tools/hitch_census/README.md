@@ -157,6 +157,61 @@ are aggregated by production timers and cannot be counted individually here.
 
 ## Headless proof
 
+### Quick census
+
+The quick collector runs one seed-7 demo primer and forks its warmed HOME
+before measuring the same route on normal and background QoS. Both demo takes
+stop after the live Tharokh fight or at eight minutes each. A fresh normal-QoS
+take replays only the existing seed-83 Tharokh tour stop and verifies its three
+rounds, activations, and intents. The tour has a 210-second cap. Quick
+collection and report generation share a wall-clock deadline with time set
+aside for process cleanup. Prepare the project copy once before starting the
+timed collection. The collector takes no GUI lease.
+
+If a blocked frame prevents a measured demo from reaching its in-engine
+deadline, the runner stops it and the catalog labels its validated prefix
+`runner_time_limit`. A tour still requires a complete playback receipt.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/cen-02 &&
+quick_native=$(mktemp -d /private/tmp/labyrinth_codex/cen-02-native.XXXXXX) &&
+python3 tools/hitch_census/census.py prepare --task-id cen-02 --output "$quick_native" --import-cache .godot &&
+tools/hitch_census/census_quick.sh --output "$quick_native"
+```
+
+The native take retains the census's Deck viewport, input, and observer settings.
+The report under `catalog/` opens with host-load samples and named-hitch tables.
+The report marks all numeric results as **under load** when any measured take
+sees another Godot process, at least one logical core's worth of external CPU
+use, or a one-minute load average at least as high as the logical CPU count.
+The JSON retains the observed process IDs, unavailable-process counts and sample
+windows. CPU shares cover the host's total logical CPU capacity. Classification
+applies to the collected sample windows.
+
+Headless workflow proof can reuse the current worktree's imported cache. It
+executes the same take plan and QoS commands with process intervals in place of
+draw intervals and paces the stand-in at the project's physics tick rate.
+`--seconds` can shorten the demo cap for this proof. Headless catalogs have an
+explicit timing-basis label. The ordinary reducer excludes headless takes
+unless stand-in reduction is explicitly requested.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/cen-02 &&
+quick_proof=$(mktemp -d /private/tmp/labyrinth_codex/cen-02-quick.XXXXXX) &&
+tools/hitch_census/census_quick.sh --headless-standin --seconds 24 --output "$quick_proof"
+```
+
+Compare a collection with an earlier catalog by hitch identity, cache and QoS.
+Use the old `report.json` or its containing directory as the comparison input.
+Add `--headless-standin` when reducing a quick headless collection.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/cen-02 &&
+python3 tools/hitch_census/report.py "$quick_native/runs" --output "$quick_native/comparison" --compare "$old_catalog"
+```
+
+### Full tour
+
 The tour replays the v6 fixture set. Pass runs three live rounds each for
 Lightning Storm, Gust, Tharokh and Craghide. The driver checks activation deltas,
 checks the boss intent IDs before each Pass, and verifies the final Difficulty

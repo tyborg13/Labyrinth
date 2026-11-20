@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture pace-02's staged Normal round at 1920x1080/60 fps with game audio.
+"""Capture the staged Normal round at 1920x1080/60 fps with game audio.
 
 The visual-probe runner owns launch isolation, renderer leasing, failure scanning,
 and semantic PNG validation. This adapter adds Godot Movie Maker arguments to
@@ -60,8 +60,10 @@ def encode_command(movie: Path, output: Path, start: int, end: int) -> list[str]
             "-c:a", "aac", "-b:a", AUDIO_BITRATE, "-ar", str(AUDIO_SAMPLE_RATE), "-movflags", "+faststart", str(output)]
 
 
-def probe_arguments(manifest_path: Path, *, before: bool) -> list[str]:
-    arguments = ["tests/combat_feel_probe.gd", "--project", str(ROOT), "--task-id", "pace-02",
+def probe_arguments(manifest_path: Path, *, before: bool, enemy_hurry: str | None = None) -> list[str]:
+    script = "tests/enemy_hurry_round_probe.gd" if enemy_hurry else "tests/combat_feel_probe.gd"
+    task_id = "ux-14" if enemy_hurry else "pace-02"
+    arguments = [script, "--project", str(ROOT), "--task-id", task_id,
                  "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
                  "--timeout", str(CAPTURE_TIMEOUT_SECONDS), "--expect-size", "1920x1080",
                  "--godot-home-root", str(CAPTURE_HOME_ROOT),
@@ -69,12 +71,16 @@ def probe_arguments(manifest_path: Path, *, before: bool) -> list[str]:
                  "--result-manifest", str(manifest_path), "--", "--round-only"]
     if before:
         arguments.append("--baseline")
+    if enemy_hurry == "held":
+        arguments.append("--hurry-from-caption")
     return arguments
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--before", action="store_true", help="Use the exact merged pace-01 pacing (4e874c34f)")
+    variant = parser.add_mutually_exclusive_group()
+    variant.add_argument("--before", action="store_true", help="Use the exact merged pace-01 pacing (4e874c34f)")
+    variant.add_argument("--enemy-hurry", choices=("unheld", "held"), help="Record the ux-14 round, holding Space from the first caption in held mode")
     parser.add_argument("--output-dir", type=Path, required=True, help="Fresh capture directory")
     args = parser.parse_args()
     for executable in ("godot", "ffmpeg", "ffprobe"):
@@ -85,7 +91,7 @@ def main() -> int:
     movie = directory / "round.avi"
     manifest_path = directory / "renderer-manifest.json"
     visual.build_command = lambda opts, driver, log: movie_command(opts, driver, log, movie)
-    if visual.main(probe_arguments(manifest_path, before=args.before)):
+    if visual.main(probe_arguments(manifest_path, before=args.before, enemy_hurry=args.enemy_hurry)):
         return 1
     manifest = json.loads(manifest_path.read_text())
     # The runner preserves the Godot log inside the attempt's isolated HOME.
@@ -95,7 +101,8 @@ def main() -> int:
     source_audio = next(s for s in source["streams"] if s["codec_type"] == "audio")
     if int(source_audio["sample_rate"]) != AUDIO_SAMPLE_RATE:
         raise ValueError("Native movie audio must be 48000 Hz for exact sample/frame alignment")
-    output = directory / ("before.mp4" if args.before else "after.mp4")
+    name = args.enemy_hurry or ("before" if args.before else "after")
+    output = directory / (name + ".mp4")
     subprocess.run(encode_command(movie, output, start, end), check=True)
     metadata = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-show_streams", "-of", "json", str(output)], text=True))
     video = next(s for s in metadata["streams"] if s["codec_type"] == "video")
@@ -106,9 +113,12 @@ def main() -> int:
     peak = re.search(r"max_volume: ([^ ]+) dB", volume.stderr)
     if peak is None or peak[1] == "-inf":
         raise ValueError("Capture must retain audible game audio")
-    (directory / "capture.json").write_text(json.dumps({"before": args.before, "start_frame": start, "end_frame": end,
+    receipt = {"before": args.before, "start_frame": start, "end_frame": end,
         "fps": CAPTURE_FPS, "audio_peak_dbfs": peak[1], "streams": metadata["streams"],
-        "renderer_manifest": str(manifest_path), "mp4": str(output)}, indent=2) + "\n")
+        "renderer_manifest": str(manifest_path), "mp4": str(output)}
+    if args.enemy_hurry:
+        receipt["enemy_hurry"] = args.enemy_hurry
+    (directory / "capture.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(f"PACE ROUND CAPTURE RESULT: PASS; {output}")
     return 0
 

@@ -34,6 +34,7 @@ var target_index: int = 0
 var seen_rooms: Dictionary
 var planned_dest: Vector2i = Vector2i(-999, -999)
 var returning: bool = false
+var quick_tharokh_seen: bool = false
 var teaser_done: bool = false
 var teaser_pending: bool = false
 var purge_pick: String = ""
@@ -80,6 +81,10 @@ func run() -> void:
 			await s.hold(SHORT_WAIT_S)
 			continue
 		var state: Dictionary = scene.get("_run_state")
+		if s.host.quick and quick_tharokh_seen and (str(state.get("mode")) != "combat" or visible(scene.get("_run_end_recap"))):
+			await s.mark("tharokh_fight_end")
+			s.finish(true, "tharokh_fight_end")
+			return
 		if visible(scene.get("_run_end_recap")):
 			await ending()
 			continue
@@ -296,6 +301,12 @@ func tutorial(phase: String) -> bool:
 
 func combat() -> void:
 	var state: Dictionary = scene.get("_combat_state")
+	if s.host.quick and not quick_tharokh_seen:
+		for unit: Dictionary in state.get("enemies", []):
+			if str(unit.get("type")) == "tharokh" and int(unit.get("hp", 0)) > 0:
+				quick_tharokh_seen = true
+				await s.mark("tharokh_fight_start")
+				break
 	var engine = scene.get("_combat_engine")
 	var activation_turn: int = int(state.get("turn", 0))
 	if not engine.is_player_turn(state): await s.hold(SHORT_WAIT_S); return

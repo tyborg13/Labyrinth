@@ -84,9 +84,11 @@ units and props never enter the geometry boundary.
 
 ## 5. Announced threat tiles
 
-Exact attack footprints retain the existing 2px inner DANGER diamond outline at
-75%, fill at 12%, and hero-tile fill at 24%. The hero fill pulses 18%–30% over
-1.1 seconds; reduced motion holds 24%. Overlaps use maximum alpha.
+Exact attack footprints retain the existing 2px inner diamond outline at 75%,
+drawn in DANGER_BRIGHT so protan and deutan eyes still see it on mid-tone
+floors (pol-54), with DANGER fill at 12% and hero-tile fill at 24%. The hero
+fill pulses 18%–30% over 1.1 seconds; reduced motion holds 24%. Overlaps use
+maximum alpha.
 
 Red floor tiles never carry an attacker-order tag: at rest, while aiming,
 in Details, on pointer/controller focus or in isolation. Health-frame order

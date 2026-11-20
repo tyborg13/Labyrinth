@@ -31,6 +31,8 @@ Pausing, leaving combat, opening a blocking overlay or freeing the scene cancels
 
 A hero hit adds 1.5 px. Duration is `0.18 s + 0.02 s × amplitude in px`. Merged hits retain the largest amplitude and the existing kick's progress. Shake falls off quadratically over its duration. Only the board layer moves; the HUD and room backdrops retain their existing registration. Reduced Motion suppresses shake.
 
+HP damage and kills, including explicit terrain HP damage, drive the most recently used controller's vibration from the same shake amplitude and merge window in real time, independently of Reduced Motion.
+
 The struck-unit flash is white, peaks on the first frame after hit-stop (85% enemies, 60% hero) and fades over 140 ms with a quadratic ease-out.
 
 ## Enemy pacing
@@ -43,6 +45,7 @@ The struck-unit flash is white, peaks on the first frame after hit-stop (85% ene
 - Superseded by pace-01 (owner, playtest 10, 2026-10-18: actions were too fast to follow): an enemy action's hit reaction and damage numbers play their full authored duration, then `ENEMY_ACTION_SETTLE_SECONDS` = 0.15 s before the next actor; each acting enemy after the first holds its caption `ENEMY_ACTION_LEAD_SECONDS` = 0.25 s before its wind-up. Move-only turns add no wait. The staged round measured Normal 4.267 → 5.364 s, Fast 3.680 → 4.638 s, Fastest 3.098 → 3.817 s (budget ≤ 9.0 s at Normal).
 - pace-02 (owner enemy-pacing verdict, 2026-10-19): `ENEMY_ACTION_SPEED_SCALE = 0.80` multiplies combat speed from each enemy action's wind-up through its complete hit reaction and damage numbers. Effective Normal / Fast / Fastest action scales are 0.80 / 1.20 / 1.60. This includes attacks, casts, push/pull, AoE, lightning, ally support, status damage, mechanic views and maquette actions. The existing presentation clock supplies the scale; no authored animation is shortened, repeated or retuned.
 - Caption/banner leads and the 0.15 s post-action settle retain ordinary combat speed. Travel, including approach walks embedded in mechanic actions, temporarily restores that speed and resumes the action clock afterward. Hero cards, real-time hit-stop, audio pitch and Reduced Motion behavior retain their existing rules.
+- During the enemy turn, hold Space, the left mouse button, or controller A from a fresh press to double presentation speed until all held hurry inputs are released or the enemy turn ends.
 - (Before pace-01) Floating feedback advanced using a 0.20 s action-advance beat.
 - Turn-clock transitions are serialized and may coalesce pending order updates while actor actions continue. Final order work settles before the hero UI refresh, avoiding stale child/tween references.
 - Independent enemy death dissolves retain their authored durations and overlap subsequent actors. A dying actor or an action targeting its tile waits for the dependency. Hero death retains the established blocking terminal presentation.

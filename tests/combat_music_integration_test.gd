@@ -99,6 +99,7 @@ func _run() -> void:
 		instance.call("_shutdown_audio")
 		_assert(not player.playing and player.stream == null, "Leaving the run scene should stop and release death music")
 	await _check_stingers(instance)
+	_check_stinger_mix(instance)
 	instance.queue_free()
 	await process_frame
 	_finish()
@@ -121,6 +122,42 @@ func _check_stingers(instance: Node) -> void:
 	var level_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
 	_assert(level_length > 2.5 and level_length < 4.5, "After audio shutdown a new stinger should be free to play")
 	instance.call("_shutdown_audio")
+
+func _check_stinger_mix(instance: Node) -> void:
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_volume"] = 0.0
+	SettingsStore.apply_audio_settings(settings)
+	var boss: Dictionary = RunSfxLibrary.entry(RunSfxLibrary.STINGER_BOSS_DEFEATED_ID)
+	instance.call("_play_sfx", boss)
+	var boss_bus: StringName
+	for player: AudioStreamPlayer in instance.get("_sfx_players"):
+		if player.playing and player.get_meta("sfx_id", "") == RunSfxLibrary.STINGER_BOSS_DEFEATED_ID:
+			boss_bus = player.bus
+	_assert(boss_bus == SettingsStore.SFX_BUS and int(instance.get("_music_stinger_until_msec")) > 0, "Boss fanfare stays audible through dry Sound effects and ducks music at 0% Interface")
+	settings["sfx_volume"] = 0.0
+	SettingsStore.apply_audio_settings(settings)
+	instance.call("_on_settings_changed", settings)
+	var fade: Tween = instance.get("_music_duck_tween")
+	_assert(fade == null or not fade.is_valid(), "Muting Sound effects during a fanfare releases the score")
+	instance.call("_shutdown_audio")
+	instance.call("_play_sfx", boss)
+	fade = instance.get("_music_duck_tween")
+	_assert(fade == null or not fade.is_valid(), "The boss fanfare does not duck music when Sound effects is muted upstream")
+	instance.call("_shutdown_audio")
+	settings["sfx_volume"] = SettingsStore.SILENT_VOLUME_LINEAR * 2.0
+	SettingsStore.apply_audio_settings(settings)
+	instance.call("_play_sfx", boss)
+	fade = instance.get("_music_duck_tween")
+	_assert(fade == null or not fade.is_valid(), "Cue and accumulated bus gain can silence the fanfare without the mute flag")
+	instance.call("_shutdown_audio")
+	settings["sfx_volume"] = 1.0
+	settings["master_volume"] = 0.0
+	SettingsStore.apply_audio_settings(settings)
+	instance.call("_play_sfx", boss)
+	fade = instance.get("_music_duck_tween")
+	_assert(fade == null or not fade.is_valid(), "The boss fanfare does not duck music when Master is muted")
+	instance.call("_shutdown_audio")
+	SettingsStore.apply_audio_settings(SettingsStore.default_settings())
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:
