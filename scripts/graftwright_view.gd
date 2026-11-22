@@ -134,11 +134,23 @@ func _layout() -> void:
 	_canvas.scale = Vector2.ONE * factor
 	_canvas.position = (size - SIZE * factor) * 0.5
 
+func _result_input(run: Dictionary) -> Array:
+	var room: Dictionary = Graph.room(run, run.get("current_room", Vector2i.ZERO))
+	var result: Dictionary = room.get("graft_result", run.get("last_graft", {}))
+	var id: String = str(result.get("recipient", ""))
+	return [result, Data.equipment_def(id), Data.equipment_cards(id, run),
+		Typography.ui_scale(self)]
+
 func configure(next_state: Dictionary, motion_reduced: bool) -> void:
 	_ensure_built()
 	if busy: return
-	state = next_state.duplicate(true)
+	var retain_result: bool = (is_instance_valid(_result_mount) and _used() and not _result().is_empty() and reduced_motion == motion_reduced
+		and next_state.get("current_room") == state.get("current_room")
+		and next_state.get("seed") == state.get("seed") and next_state.get("run_index") == state.get("run_index")
+		and _result_input(state) == _result_input(next_state))
+	state = Graph.checkpoint_copy(next_state)
 	reduced_motion = motion_reduced
+	if retain_result: return
 	var identity: String = "%d:%d:%s" % [int(state.get("run_index", 0)), int(state.get("seed", 0)), str(state.get("current_room", Vector2i.ZERO))]
 	if identity != _room_identity:
 		_room_identity = identity
@@ -491,33 +503,44 @@ func _build_picker() -> void:
 	grid.sort_children.connect(_wire_focus)
 
 func _build_result() -> void:
-	var result: Dictionary = _result()
-	_mat(_content, Rect2(730, 120, 900, 765), true)
-	_label(_content, "Graft complete", Rect2(810, 165, 740, 52), 42, GREEN.lerp(IVORY, 0.45), true)
-	_glow(_content, Rect2(1060, 239, 240, 210), Color(VIOLET, 0.35))
-	_result_shadow = _glow(_content, Rect2(1087, 405, 186, 30), Color(0, 0, 0, 0.95))
-	_result_shadow.pivot_offset = Vector2(93, 15)
-	_result_mount = Control.new()
-	_result_mount.name = "CompletedEquipment"
-	_result_mount.position = Vector2(1090, 238)
-	_result_mount.size = Vector2(180, 180)
-	_result_mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_content.add_child(_result_mount)
-	_result_icon = _framed_equipment(_result_mount, recipient, Rect2(0, 0, 180, 180))
-	_label(_content, _item_name(recipient), Rect2(790, 424, 780, 44), 30, IVORY, true)
-	var cards: Array = Data.equipment_cards(recipient, state)
+	_mount_result(_compose_result(_content, state, recipient))
+
+func _compose_result(content: Control, result_state: Dictionary, equipment_id: String) -> Dictionary:
+	var room: Dictionary = Graph.room(result_state, result_state.get("current_room", Vector2i.ZERO))
+	var result: Dictionary = room.get("graft_result", result_state.get("last_graft", {}))
+	_mat(content, Rect2(730, 120, 900, 765), true)
+	_label(content, "Graft complete", Rect2(810, 165, 740, 52), 42, GREEN.lerp(IVORY, 0.45), true)
+	_glow(content, Rect2(1060, 239, 240, 210), Color(VIOLET, 0.35))
+	var shadow: Control = _glow(content, Rect2(1087, 405, 186, 30), Color(0, 0, 0, 0.95))
+	shadow.pivot_offset = Vector2(93, 15)
+	var mount := Control.new()
+	mount.name = "CompletedEquipment"
+	mount.position = Vector2(1090, 238)
+	mount.size = Vector2(180, 180)
+	mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(mount)
+	var icon: Control = _framed_equipment(mount, equipment_id, Rect2(0, 0, 180, 180))
+	_label(content, _item_name(equipment_id), Rect2(790, 424, 780, 44), 30, IVORY, true)
+	var cards: Array = Data.equipment_cards(equipment_id, result_state)
 	var start: float = 1180.0 - (cards.size() * CARD_SIZE.x + (cards.size() - 1) * 24.0) * 0.5
 	for i: int in range(cards.size()):
 		var selected: bool = i == int(result.get("index", -1))
-		var card: Button = _card(_content, str(cards[i]), Vector2(start + i * (CARD_SIZE.x + 24.0), 480), selected, GREEN, func() -> void: pass)
+		var card: Button = _card(content, str(cards[i]), Vector2(start + i * (CARD_SIZE.x + 24.0), 480), selected, GREEN, func() -> void: pass, result_state)
 		card.name = "ResultCard_%d" % i
 		card.set_meta("graft_action_label", "Inspect")
 		card.pressed.connect(func() -> void: _open_inspection(card))
-		if selected: _ribbon(_content, "INHERITED", Rect2(card.position.x, card.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x, 28), GREEN)
-	var consumed: Label = _label(_content, _item_name(str(result.get("donor", ""))) + " destroyed", Rect2(810, 480 + CARD_SIZE.y + 47.4, 740, 30), 18, MUTED, true)
+		if selected: _ribbon(content, "INHERITED", Rect2(card.position.x, card.position.y + CARD_SIZE.y + 10.4, CARD_SIZE.x, 28), GREEN)
+	var consumed: Label = _label(content, _item_name(str(result.get("donor", ""))) + " destroyed", Rect2(810, 480 + CARD_SIZE.y + 47.4, 740, 30), 18, MUTED, true)
 	consumed.name = "ConsumedEquipment"
-	_leave = _action(_content, "Continue", Rect2(997, 922, 365, 120), request_leave)
-	_leave.name = "GraftContinue"
+	var leave: Button = _action(content, "Continue", Rect2(997, 922, 365, 120), request_leave)
+	leave.name = "GraftContinue"
+	return {"shadow": shadow, "mount": mount, "icon": icon, "leave": leave}
+
+func _mount_result(result: Dictionary) -> void:
+	_result_shadow = result["shadow"]
+	_result_mount = result["mount"]
+	_result_icon = result["icon"]
+	_leave = result["leave"]
 
 func _request_graft() -> void:
 	if busy or not Rules.error(state, recipient, donor, donor_index, target_index).is_empty(): return
@@ -532,10 +555,23 @@ func reject(message: String) -> void:
 	_rebuild()
 	focus_first()
 
-func present_result(next_state: Dictionary) -> void:
+func present_result(next_state: Dictionary, observer: Callable = Callable()) -> void:
 	busy = true
 	for child: Node in _content.find_children("*", "Button", true, false): (child as Button).disabled = true
 	_ritual_stage = "prepare"
+	var prepared := Control.new()
+	prepared.size = SIZE
+	prepared.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prepared.process_mode = Node.PROCESS_MODE_DISABLED
+	prepared.hide()
+	_canvas.add_child(prepared)
+	var result: Dictionary
+	var arm_preparation: Callable = func() -> void:
+		if not is_inside_tree() or not is_instance_valid(prepared): return
+		var started: int = Time.get_ticks_usec() if observer.is_valid() else 0
+		result.merge(_compose_result(prepared, next_state, recipient))
+		if observer.is_valid(): observer.call("choice_graft_result_overlay", started)
+	get_tree().process_frame.connect(arm_preparation, CONNECT_ONE_SHOT)
 	if reduced_motion:
 		sound_requested.emit("unpick")
 		await get_tree().create_timer(0.18).timeout
@@ -596,9 +632,27 @@ func present_result(next_state: Dictionary) -> void:
 	if not is_inside_tree(): return
 	_ritual_elapsed = -1.0
 	_ritual_stage = ""
-	state = next_state.duplicate(true)
+	state = Graph.checkpoint_copy(next_state)
 	busy = false
-	_rebuild()
+	if result.is_empty():
+		prepared.queue_free()
+		_rebuild()
+	else:
+		var content_name: StringName = _content.name
+		_canvas.remove_child(_content)
+		_content.queue_free()
+		_content = prepared
+		_content.name = content_name
+		_content.process_mode = Node.PROCESS_MODE_INHERIT
+		_content.show()
+		_source_cards.clear()
+		_target_cards.clear()
+		_source_icon = null
+		_recipient_icon = null
+		_commit = null
+		_consequence = null
+		_mount_result(result)
+		_wire_focus.call_deferred()
 	sound_requested.emit("complete")
 	_leave.grab_focus()
 	if not reduced_motion:
@@ -666,7 +720,7 @@ func _action(parent: Node, title: String, rect: Rect2, action: Callable, font_si
 	button.set_meta("graft_action_label", title)
 	return button
 
-func _card(parent: Node, id: String, position_value: Vector2, selected: bool, color: Color, action: Callable) -> Button:
+func _card(parent: Node, id: String, position_value: Vector2, selected: bool, color: Color, action: Callable, display_state: Dictionary = {}) -> Button:
 	var button: Choice = _choice(parent, Rect2(position_value, CARD_SIZE), action, "card", color)
 	button.chosen = selected
 	button.face_size = CARD_SIZE
@@ -678,7 +732,7 @@ func _card(parent: Node, id: String, position_value: Vector2, selected: bool, co
 	var card: Control = CardScene.instantiate()
 	card.size = Vector2(250, 352)
 	card.call("configure", id, false, false, true, false, false)
-	CardDisplay.bind(card, state)
+	CardDisplay.bind(card, display_state if not display_state.is_empty() else state)
 	composition.add_child(card)
 	_passive(card)
 	button.card_face = card

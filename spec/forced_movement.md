@@ -42,8 +42,11 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   away) never closes the gap, so the level stop does not apply and it travels
   its full straight distance like a push.
 - Collision damage is non-direct, like Fire ground: Block and Stoneskin absorb
-  it; Chilled, Frozen and Expose do not add to it (Expose is not consumed),
-  Crystal Mantle does not break and no on-hit riders apply.
+  it; Chilled and Frozen do not add to it, Crystal Mantle does not break and no
+  on-hit riders apply. Expose does add to it and is spent, for each party
+  separately (pla-01: Expose applies to every damaging hit); the
+  `force_collision` event's `damage` and `blocker_damage` include it, so the
+  collision marker previews each side's true number.
 - The damage keeps the card's damage context (`source_kind` becomes
   `force_collision`), so a collision kill is that card's kill (+1 card play,
   death rewards). Deaths use the surface death batch.

@@ -14,10 +14,15 @@ from trap_copy_contract import TRAP_BODY, TRAP_DEFINITION
 ROOT = Path(__file__).resolve().parents[1]
 COPY = ROOT / "spec/peer_benchmark/staged/tt-01/tooltips.json"
 EXPECTATIONS = ROOT / "tests/fixtures/short_card_tooltips_expectations.json"
+PLA01 = json.loads((ROOT / "tests/fixtures/pla01_exception_strip.json").read_text())
+# pla-02: director-approved Grimoire pages (tooltip sentence + one detail
+# paragraph) supersede every Grimoire body pinned below.
+PLA02_PAGES = json.loads((ROOT / "tests/fixtures/pla02_grimoire_pages.json").read_text())["pages"]
 HOUSE_STYLE_GRIMOIRE = {
     "skate": "This turn, stepping onto Ice costs no Movement, and Ice doesn\'t make you Chilled.",
     "surface_electrified": "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it.",
     "targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it.",
+    "reflect": "Attacks from a non-adjacent tile bounce back to the attacker.",  # pla-01: the rule now matches the tooltip; no exception list.
 }
 UNCHANGED_SHA256 = "17be644b843ba6c56d6fed1fef19d4c98b339b70edf0a8fae91f3f72b2051cd0"
 RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"}  # sta-01/flu-01: keep protected historical copy untouched.
@@ -43,6 +48,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.superseding["traps"] = TRAP_DEFINITION
         self.superseding["surface_rubble"] = "Costs 2 Movement to leave."
         self.superseding["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
+        self.superseding.update(PLA01["glossary"])
         self.glossary = json.loads((ROOT / "data/glossary.json").read_text())
         self.grimoire = json.loads((ROOT / "data/grimoire.json").read_text())
 
@@ -65,7 +71,8 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     for entry in self.glossary]
         self.assertEqual(metadata, marked_metadata_supersession(expected['metadata']))
         unchanged = [entry for entry in self.glossary if entry['id'] in self.copy['unchanged_ids']]
-        self.assertEqual(unchanged, expected['unchanged'])
+        self.assertEqual(unchanged, [dict(entry, definition=PLA01["glossary"].get(entry["id"], entry["definition"]))
+                                     for entry in expected['unchanged']])
 
     def test_full_rules_retained_in_expected_topics(self):
         entries = {entry["id"]: entry for entry in self.grimoire["entries"]}
@@ -77,9 +84,12 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 if change["id"] in RETIRED_TERMS | MARKED_RETIRED:
                     self.assertNotIn(owner, entries)
                     if change["id"] in MARKED_RETIRED:
-                        self.assertEqual(entries["keyword:marked"]["body"], [MARKED_DEFINITION])
+                        self.assertEqual(entries["keyword:marked"]["body"], PLA02_PAGES["keyword:marked"])
                     continue
                 self.assertIn(owner, entries)
+                if owner in PLA02_PAGES:
+                    self.assertEqual(entries[owner]["body"], PLA02_PAGES[owner])
+                    continue
                 # bos-02 supersedes two former dragon rules with director-approved
                 # Grimoire bodies. Keep the retention assertion for every other term.
                 if change["id"] in ("gale_force", "worldspines"):
@@ -110,7 +120,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.assertEqual(entries["keyword:marked"], {
             "id": "keyword:marked", "section": "keywords", "title": "Marked",
             "icon": "marked",
-            "body": [MARKED_DEFINITION], "aliases": MARKED_METADATA["aliases"],
+            "body": PLA02_PAGES["keyword:marked"], "aliases": MARKED_METADATA["aliases"],
         })
         for term in self.expectations["new_terms"]:
             with self.subTest(term=term):
@@ -134,7 +144,8 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 for fact in facts.values():
                     if fact["owner"] == entry_id and fact["appended"]:
                         expected_body.extend(fact["paragraphs"])
-                self.assertEqual(entry["body"], expected_body)
+                expected_body.extend(PLA01["grimoire_appended"].get(entry_id, []))
+                self.assertEqual(entry["body"], PLA02_PAGES.get(entry_id, expected_body))
                 if "default" in entry:
                     self.assertIs(type(entry["default"]), bool)
 

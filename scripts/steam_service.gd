@@ -50,7 +50,10 @@ var _floating_keyboard_open: bool = false
 func _enter_tree() -> void:
 	ParallelRuntime.apply_from_environment()
 	preload("res://scripts/application_shutdown.gd").install(get_tree().root)
+	var started := Time.get_ticks_usec() if OS.get_environment("LABYRINTH_HITCH_TRACE") == "1" else 0
 	_initialize_steam()
+	if started > 0:
+		set_meta(&"startup_steam_init_usec", Time.get_ticks_usec() - started)
 	_apply_steam_user_directory()
 	if _initialized:
 		_restore_queued_stat_deltas()

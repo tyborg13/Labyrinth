@@ -19,6 +19,7 @@ var pipeline_ids: Dictionary = {}
 var monitor_ids: Dictionary = {}
 var frames: int = 0
 var native: bool = false
+var combat_texture_census: bool = false
 var failure: String = ""
 var unfocused_frames: int = 0
 var driver_cpu_us: Dictionary = {}
@@ -206,6 +207,13 @@ func _context() -> Dictionary:
 		var combat: Dictionary = current.get("_combat_state")
 		context["actor"] = combat.get("current_actor", {})
 		context["animation_active"] = current.get("_animation_lock")
+		if combat_texture_census:
+			var live: Dictionary = current.get("_run_state")
+			var pending: Dictionary = current.get("_committed_run_state_override")
+			context["live_mode"] = live.get("mode", "")
+			context["live_room"] = str(live.get("current_room", ""))
+			context["pending_room"] = str(pending.get("current_room", ""))
+			context["room_generation"] = current.get("_encounter_preparation_generation")
 	context.merge({"screen": screen, "action": action, "phase": phase, "seed": seed, "decision": decision}, true)
 	return context
 

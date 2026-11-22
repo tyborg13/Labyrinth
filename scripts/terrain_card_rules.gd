@@ -228,7 +228,9 @@ static func burst_damage(action: Dictionary) -> int:
 
 ## The derived blast attack (shared by resolution and the hand's damage chip).
 static func burst_blast_action(action: Dictionary) -> Dictionary:
-	return IllusionCardRules.blast_action(action, burst_damage(action), {"stagger": int(action.get("stagger", 0))})
+	var blast: Dictionary = IllusionCardRules.blast_action(action, burst_damage(action), {"stagger": int(action.get("stagger", 0))})
+	blast["_reflect_exempt_hit"] = true
+	return blast
 
 static func resolve_burst(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}) -> Dictionary:
 	var index: int = engine._terrain_index_at_tile(state, target)

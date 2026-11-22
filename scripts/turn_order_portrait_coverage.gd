@@ -17,6 +17,12 @@ void fragment() { COLOR = vec4(coverage_flag, 1.0); }
 """
 static var _instances: Dictionary = {}
 static var _shader: Shader
+
+static func coverage_shader() -> Shader:
+	if _shader == null:
+		_shader = Shader.new()
+		_shader.code = COVERAGE_SHADER_CODE
+	return _shader
 var _source_id: int
 var _viewport: SubViewport
 var _entries: Dictionary = {}
@@ -91,11 +97,8 @@ func update(slot: int, mask: Control) -> void:
 		RenderingServer.canvas_item_set_transform(copy, item.get_transform())
 		entry["items"].append(copy)
 		parent = copy
-	if _shader == null:
-		_shader = Shader.new()
-		_shader.code = COVERAGE_SHADER_CODE
 	var material := ShaderMaterial.new()
-	material.shader = _shader
+	material.shader = coverage_shader()
 	var flag := Vector3.ZERO
 	flag[slot / BITS_PER_CHANNEL] = float(1 << (slot % BITS_PER_CHANNEL)) / 255.0
 	material.set_shader_parameter("coverage_flag", flag)

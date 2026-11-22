@@ -3277,6 +3277,7 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 				"blocked_tile": event.get("blocked_tile", INVALID_TILE),
 				"direction": event.get("direction", Vector2i.ZERO),
 				"damage": int(event.get("damage", 0)),
+				"blocker_damage": int(event.get("blocker_damage", event.get("damage", 0))),
 				"actor_key": "player",
 				"tooltip_override": str(event.get("tooltip_override", "")),
 				"blocker_kind": str(event.get("blocker_kind", ""))
@@ -3676,6 +3677,8 @@ func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictiona
 	if context.is_empty():
 		var none: Array[Vector2i]
 		return none
+	if str(context.get("actor_kind", "enemy")) == "enemy" and ReflectRules.reflects(self, state, context["action"], context["source"], _enemy_index_for_id(state, int(context["enemy_id"]))):
+		return TypedArrays.vector2i([])
 	var source_tiles: Dictionary = _force_source_tiles(state, context["source"])
 	var direction: Vector2i = _resolved_force_direction(state, str(context.get("actor_kind", "enemy")), int(context["enemy_id"]), context["action"], context["source"], bool(context["pushing"]), int(context["amount"]), source_tiles)
 	return _force_line_anchors(state, str(context.get("actor_kind", "enemy")), int(context["enemy_id"]), direction, int(context["amount"]), source_tiles, bool(context["pushing"]))
@@ -5292,6 +5295,23 @@ func _sunder_enemy_defense(state: Dictionary, enemy_index: int, amount: int) -> 
 	next_state["enemies"] = enemies
 	return next_state
 
+# pla-01: Expose adds to every damaging hit, Collision and Retaliate included.
+# Returns the unit's Expose and spends it; call only for a hit that deals damage.
+func _spend_expose(state: Dictionary, kind: String, id: int) -> int:
+	match kind:
+		"player":
+			var player: Dictionary = state.get("player", {}) as Dictionary
+			var amount: int = maxi(0, int(player.get("expose", 0)))
+			if amount > 0: player["expose"] = 0
+			return amount
+		"enemy":
+			var index: int = _enemy_index_for_id(state, id)
+			if index < 0: return 0
+			var amount: int = maxi(0, int((state["enemies"][index] as Dictionary).get("expose", 0)))
+			if amount > 0: _consume_enemy_expose(state, index)
+			return amount
+	return 0
+
 func _consume_enemy_expose(state: Dictionary, enemy_index: int) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -6881,6 +6901,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	var impact: Vector2i = target.get("pos", INVALID_TILE)
 	if not _enemy_action_reaches_tile(next_state, enemy, action, impact):
 		impact = _enemy_lightning_component_impact(next_state, enemy, action, impact)
+		resolved["_ranged_relay"] = {"from": enemy["pos"], "relay": impact}
 	next_state = _resolve_board_attack(next_state, resolved, impact, "enemy", int(enemy.get("id", -1)))
 	_log(next_state, "%s %s." % [_enemy_display_name(enemy), verb])
 	return _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
@@ -7529,7 +7550,8 @@ func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vect
 
 func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: int) -> Dictionary:
 	# Non-direct like Fire ground: Block and Stoneskin absorb it; Chilled,
-	# Frozen, Expose, Crystal Mantle and on-hit riders never apply.
+	# Frozen, Crystal Mantle and on-hit riders never apply. Expose does: the
+	# caller (ForcedRelicRules._damage_party) adds and spends it (pla-01).
 	if amount <= 0:
 		return state
 	if kind == "player":
@@ -9880,7 +9902,8 @@ func _enemy_standard_intent_plan(state: Dictionary, enemy_index: int, enemy: Dic
 	if not actions.is_empty() and BurrowRules.handles(actions[0]):
 		var plan: Dictionary = BurrowRules.threat(self, state, enemy_index, intent)
 		if movement_disabled or attack_disabled: plan["projected_attack"] = _vector2i_values([])
-		plan["path"] = plan["projected_path"]
+		# The preview path ends at the landing tile; planning keeps the mound.
+		plan["path"] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 		plan["destination"] = plan["projected_destination"]
 		plan["attack_action"] = actions[0]
 		plan["attack_available"] = not (plan["projected_attack"] as Array).is_empty()
@@ -12480,16 +12503,20 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	var served_components: Dictionary = {}
 	var geometry: Dictionary = state.duplicate(true) if _action_has_forced_movement(action) else state
 	var forecast_action: Dictionary = action.duplicate(true)
-	forecast_action["_group_force_context"] = {"moved_ids":{}}
 	# Delivery can originate at a range relay or a paid remote tile. Forecast
 	# primary displacement from that same origin before looking for Chain hops.
 	var primary_origin: Vector2i = action.get("_origin_tile", (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE))
+	var blocked_ids: Dictionary = {}
+	if reach > 0 and _action_has_forced_movement(action) and GuardianRelicRules.amount(state, "force_enemy_line") > 0:
+		blocked_ids = ReflectRules.hit_ids(self, state, action, primary_origin, hits)
+	forecast_action["_group_force_context"] = {"moved_ids": {}, "blocked_ids": blocked_ids}
 	for head: Dictionary in native:
 		var enemy_hop: int = 0
 		head["enemy_hop"] = 0
 		var route_assisted: bool = false
 		var current_unit: Dictionary = (head["unit"] as Dictionary).duplicate(true)
-		if reach > 0 and _action_has_forced_movement(action):
+		# A bounced Reflect hit moves nothing, so the route continues from where it stands.
+		if reach > 0 and _action_has_forced_movement(action) and not ReflectRules.reflects_hit(self, state, action, primary_origin, head):
 			var forecast: Dictionary = _surface_chain_displacement(geometry, head, forecast_action, primary_origin)
 			geometry = forecast["state"]
 			current_unit["pos"] = forecast["pos"]
@@ -12520,9 +12547,12 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 				current_unit = (node["unit"] as Dictionary).duplicate(true) if node.has("unit") else {"pos": node["to"]}
 				touched[node["to"]] = true
 				if str(node["kind_trace"]) == "actor" and _action_has_forced_movement(action):
-					var forecast: Dictionary = _surface_chain_displacement(geometry, node, forecast_action, node["from"])
-					geometry = forecast["state"]
-					current_unit["pos"] = forecast["pos"]
+					if ReflectRules.reflects_hit(self, state, action, primary_origin, node):
+						blocked_ids[int(node["id"])] = true
+					else:
+						var forecast: Dictionary = _surface_chain_displacement(geometry, node, forecast_action, node["from"])
+						geometry = forecast["state"]
+						current_unit["pos"] = forecast["pos"]
 	# A hit's footprint can contact a component even when its anchor is elsewhere.
 	for hit: Dictionary in hits:
 		if hit.has("unit"):

@@ -1883,7 +1883,9 @@ func _log_run_ended(outcome: String) -> void:
 	var payload: Dictionary = Snapshots.run_ended(_run_engine, _run_state, outcome)
 	# Retain the console's legacy alias alongside canonical held_embers.
 	payload["unbanked_embers"] = int(_run_state.get("unbanked_embers", 0))
-	_analytics_store.write_event("run_ended", _analytics_context(_combat_state), payload)
+	var context: Dictionary = _analytics_context(_combat_state)
+	var receipt: Dictionary = Snapshots.run_ended_receipt(_run_engine, _run_state, outcome, context)
+	_analytics_store.write_event("run_ended", context, payload, receipt["idempotency_key"])
 
 func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, cost: int) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context(_combat_state), {

@@ -92,6 +92,8 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 	state["damage_context"] = context
 	var amount: int = int(total["amount"])
 	if amount > 0:
+		# pla-01: Expose adds to every damaging hit, Retaliate included.
+		amount += engine._spend_expose(state, "enemy", attacker_id)
 		state = engine._damage_enemy(state, index, amount, false, false)
 	var retaliate_hp_loss: int = maxi(0, int(before.get("hp", 0)) - int(engine._surface_actor(state, "enemy", attacker_id).get("hp", 0)))
 	state = DefenseRelicRules.after_retaliate(engine, state, retaliate_hp_loss)
@@ -156,7 +158,8 @@ static func after_player_hits(engine: RefCounted, state: Dictionary, defenders: 
 	return state
 
 ## The shared attack hooks call this once per struck defender, after their hit
-## loop. Non-direct damage uses normal defense but excludes incoming modifiers.
+## loop. Non-direct damage uses normal defense and Expose (pla-01), but no
+## other incoming modifiers.
 static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id: int, action: Dictionary, trace: Dictionary = {}) -> Dictionary:
 	var defender: Dictionary = engine._surface_actor(state, "enemy", defender_id)
 	var total: Dictionary = totals(defender, [])
@@ -167,7 +170,9 @@ static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id:
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = {"actor_kind": "enemy", "actor_id": defender_id, "enemy_type": str(defender.get("type", "")), "intent_id": str((defender.get("intent", {}) as Dictionary).get("id", "")), "source_kind": "retaliate", "player_card": false, "causal_owner": "enemy"}
 	state["damage_context"] = context
-	state = engine._damage_player(state, int(total["amount"]), false, false, "retaliate")
+	var amount: int = int(total["amount"])
+	if amount > 0: amount += engine._spend_expose(state, "player", -1)
+	state = engine._damage_player(state, amount, false, false, "retaliate")
 	var rider: Dictionary = {"type": "retaliate", "bleed": int(total["bleed"]), "shock": int(total["shock"]), "push": int(total["push"])}
 	if int(rider["bleed"]) > 0 or int(rider["shock"]) > 0 or int(rider["push"]) > 0:
 		state = engine._apply_action_keywords_to_target(state, {"kind": "player", "id": -1}, rider, engine._closest_enemy_tile_to(defender, before.get("pos", Vector2i.ZERO)))
@@ -179,7 +184,7 @@ static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id:
 		"actor_key": "player",
 		"target_kind": "player",
 		"attack_type": str(action.get("type", "")),
-		"damage": int(total["amount"]),
+		"damage": amount,
 		"thorns": 0,
 		"hp_loss": maxi(0, int(before["hp"]) - int(after["hp"])),
 		"block_loss": maxi(0, int(before.get("block", 0)) - int(after.get("block", 0))),

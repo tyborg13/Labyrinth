@@ -57,7 +57,11 @@ static func _damage_party(engine: RefCounted, state: Dictionary, kind: String, i
 	var full_amount: int = amount
 	if kind == "enemy":
 		full_amount += damage_bonus(engine, state, engine._surface_actor(state, kind, id), amount)
-	state = engine._force_collision_damage(state, kind, id, amount)
+	# pla-01: Expose adds to every damaging hit, Collision included. The event
+	# damage carries it, so the collision marker previews the true number.
+	var exposed: int = engine._spend_expose(state, kind, id) if amount > 0 else 0
+	full_amount += exposed
+	state = engine._force_collision_damage(state, kind, id, amount + exposed)
 	if kind == "enemy" and not effect(engine, state, "collision_stagger").is_empty():
 		engine._apply_stagger_to_enemy(state, id, full_amount)
 	return {"state": state, "damage": full_amount}

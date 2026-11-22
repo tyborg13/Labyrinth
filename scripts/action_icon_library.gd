@@ -376,11 +376,11 @@ const LOB_NEXT_TURN: String = "Next turn they take the hit and become Fire."
 const MARKED_MOVE_DESCRIPTIONS: Dictionary = {
 	"icefall": "@pattern(icefall:hero) Marks these tiles. Next turn they take the hit and turn to Ice.",
 	"lob": "@pattern(cross:hero) On your tile. " + LOB_NEXT_TURN,
-	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved. Attacks that hit an area still hit buried enemies.",
-	"erupt": "Emerges at its mark, or the nearest free tile.",
+	"burrow": "Burrows and marks your tile; it can't be targeted until it erupts.",
+	"erupt": "Emerges at its mark.",
 }
 const LOB_TWO_CROSS_DESCRIPTION: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. " + LOB_NEXT_TURN
-const FADE_DESCRIPTION: String = "Lands behind you if it can, otherwise next to you; Ambushes next turn."
+const FADE_DESCRIPTION: String = "Blinks behind you, then Ambushes next turn."
 
 const ACTION_ICON_ALIASES: Dictionary = {
 	"upheaval_mark": "upheaval",
@@ -1107,7 +1107,7 @@ static func surface_family_rider_rows(action: Dictionary) -> Array:
 	if typeof(result) == TYPE_DICTIONARY and not (result as Dictionary).is_empty():
 		var when: String = str((result as Dictionary).get("when", ""))
 		var result_text: String = "if it Freezes:" if when == "froze" else "if it kills:" if when == "killed" else "if %s:" % when
-		var result_tooltip: String = "If this hit Freezes the target (it was not Frozen before), also:" if when == "froze" else "If this hit defeats the target, also (on top of the usual Card Play for a kill):"
+		var result_tooltip: String = "If this hit Freezes the target (it was not Frozen before), also:" if when == "froze" else "If this hit kills the target, also:"
 		var result_row: Array = [text_token(result_text, "neutral", result_tooltip)]
 		for reward_var: Variant in (result as Dictionary).get("rewards", []):
 			if typeof(reward_var) != TYPE_DICTIONARY:
@@ -1287,7 +1287,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"erupt":
 			return [token_for("erupt", int(action.get("damage", 0))), token_for("push", int(action.get("push", 1))), surface_token(str(action.get("surface", "rubble"))), token_for("expose", int(action.get("self_expose", 0)))]
 		"kindle":
-			tokens.append(icon_text_token(action_icon_key(action), "Burst +%d" % int(action.get("amount", 0)), "Its Burst hits %d harder, up to +4." % int(action.get("amount", 0))))
+			tokens.append(icon_text_token(action_icon_key(action), "Burst +%d" % int(action.get("amount", 0)), "Its Burst deals %d more." % int(action.get("amount", 0))))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))
@@ -1490,17 +1490,23 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "dispel_umbra", "amount", int(action.get("amount", 1))))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "lightning_strikes", "count", int(action.get("count", 0)), "neutral", "Strikes the marked tiles. The marks stay fixed." if action.has("declared_tiles") else "Random lightning strikes."))
+			tokens.append(_token_for_action_field(action, "lightning_strikes", "count", int(action.get("count", 0)), "neutral", "Strikes the marked tiles." if action.has("declared_tiles") else "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
 			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
 			var count: int = int(action.get("count", 1))
 			var summon_text: String = "Calls %s." % minion_name
-			if action.has("guardian_cap") or action.has("summon_cap"): summon_text += " Up to %d living." % int(action.get("summon_cap", action.get("guardian_cap", 0)))
 			if bool(options.get("granted_card_play", false)):
 				summon_text += "\n" + preload("res://scripts/summon_card_play_rules.gd").TOOLTIP
-			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
-			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
+			# pla-02: a live intent shows what its forecast says arrives; a full
+			# limit or no free tile reads blocked, like the resolved step.
+			if options.has("summon_arrivals"): count = int(options["summon_arrivals"])
+			if count <= 0:
+				tokens.append(token_for("summon_minions", null, "neutral", summon_text + "\nBlocked: none can arrive."))
+				tokens.append(text_token("Summon blocked", "penalty"))
+			else:
+				tokens.append(token_for("summon_minions", null, "neutral", summon_text))
+				tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
 		"outcrop":
 			var outcrop_kind: String = str(action.get("kind", ""))
 			var raise_tooltip: Variant = PanelText.copy("raise_outcrop")
@@ -1537,7 +1543,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action,"frost_armor","amount",int(action.get("amount",0)),"neutral","Forms Crystal Mantle. Each direct damaging hit breaks one layer and prevents its damage; ground and damage over time bypass it."))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and Light protect affected tiles."))
+			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Plunges the room into Eclipse for this many of your turns."))
 		"retaliate":
 			_append_retaliate_tokens(tokens, action, options)
 		"quicken":
@@ -1653,7 +1659,7 @@ static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
 
 static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> void:
 	if str(action.get("force_mode", "")) == "from_center":
-		tokens.append(text_token("from center", "neutral", "Each enemy is pushed away from the pattern's center; the enemy on the center is pushed away from you."))
+		tokens.append(text_token("from center", "neutral", "Pushes each enemy away from the pattern's center."))
 	if bool(action.get("straight_line", false)):
 		tokens.append(text_token("straight line", "neutral", PanelText.copy("unchanged_move_along_one_clear_straight_line")))
 	if not str(action.get("trail_surface", "")).is_empty():
@@ -2039,13 +2045,13 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		var low: int = int(action.get("minimum_range",1))
 		var high: int = int(action.get("range",1))
 		var ring: String = "ring_%d" % low
-		var ring_detail: Dictionary = text_token("Ring %d–%d" % [low, high] if low != high else "Ring %d" % high, "warning", PatternText.diagram(ring, high) + " Distance is measured from the nearest occupied dragon tile.")
+		var ring_detail: Dictionary = text_token("Ring %d–%d" % [low, high] if low != high else "Ring %d" % high, "warning", PatternText.diagram(ring, high))
 		row.append(pattern_detail(ring_detail, ring, "", high))
 		if action.has("range_status"): row.append(text_token("· Mantle fuels range","warning","Each remaining layer adds 1 range, up to %d. Break layers to shrink the warning; Shatterstorm spends the rest." % int(action.get("maximum_range",3))))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "swept_path":
-		row.append(text_token("Along approach +%d" % int(action.get("range",1)),"warning","Hits the tiles it passes and every tile within this distance of its body as it moves, including where it started. The approach direction stays fixed."))
+		row.append(text_token("Along approach +%d" % int(action.get("range",1)),"warning","Hits every tile within this distance of its path."))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "surface_snapshot":
@@ -2118,7 +2124,7 @@ static func brazier_rule_tooltip(action: Dictionary) -> String:
 	# Saved first-revision Eclipse still snuffs immediately before its damage.
 	# Dispatch on the verb so it cannot inherit the Guardian's recovery rule.
 	if str(action.get("type",""))=="umbra_eclipse":
-		return "The marked brazier goes dark before this Eclipse hits. Use another Light source for protection."
+		return "The marked brazier goes dark before this Eclipse hits."
 	if action.has("committed_shape"):
 		return "Night Coil extinguishes the marked brazier. Step onto its tile afterward to relight it before Eclipse."
-	return "Lasts until Last Procession, including a skipped turn."
+	return "Lasts until Last Procession."

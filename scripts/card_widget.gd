@@ -141,6 +141,15 @@ static var _card_frame_style_cache: Dictionary = {}
 static var _empty_panel_style: StyleBoxEmpty = null
 static var _frame_reflection_shader: Shader
 
+static func frame_reflection_shader() -> Shader:
+	if _frame_reflection_shader == null:
+		_frame_reflection_shader = Shader.new()
+		_frame_reflection_shader.code = FRAME_REFLECTION_SHADER
+	return _frame_reflection_shader
+
+static func rarity_glow_shader() -> Shader:
+	return RarityGemGlow.shared_shader()
+
 class CardFrameReflection:
 	extends Control
 
@@ -437,14 +446,17 @@ void fragment() {
 	var _phase: float = 0.0
 	var _sparkle: float = 0.0
 
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		set_anchors_preset(Control.PRESET_FULL_RECT)
+	static func shared_shader() -> Shader:
 		if _shader == null:
 			_shader = Shader.new()
 			_shader.code = SHADER_CODE
+		return _shader
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_anchors_preset(Control.PRESET_FULL_RECT)
 		_material = ShaderMaterial.new()
-		_material.shader = _shader
+		_material.shader = shared_shader()
 		_phase = float(get_instance_id() % 997) * 0.61
 		material = _material
 		visible = false
@@ -1279,7 +1291,7 @@ func _color_to_hsv(color: Color) -> Vector3:
 	var saturation: float = 0.0 if max_channel <= 0.00001 else chroma / max_channel
 	return Vector3(hue, saturation, max_channel)
 
-func _card_frame_path(rarity: String) -> String:
+static func _card_frame_path(rarity: String) -> String:
 	match rarity:
 		"starter":
 			return CARD_FRAME_STARTER_PATH
@@ -2495,11 +2507,8 @@ func _ensure_card_material() -> void:
 	_elevation_shadow_style.draw_center = false
 	_elevation_shadow.add_theme_stylebox_override("panel", _elevation_shadow_style)
 	add_child(_elevation_shadow)
-	if _frame_reflection_shader == null:
-		_frame_reflection_shader = Shader.new()
-		_frame_reflection_shader.code = FRAME_REFLECTION_SHADER
 	_frame_reflection_material = ShaderMaterial.new()
-	_frame_reflection_material.shader = _frame_reflection_shader
+	_frame_reflection_material.shader = frame_reflection_shader()
 	_frame_reflection = CardFrameReflection.new()
 	_frame_reflection.name = "CardFrameReflection"
 	_frame_reflection.mouse_filter = Control.MOUSE_FILTER_IGNORE

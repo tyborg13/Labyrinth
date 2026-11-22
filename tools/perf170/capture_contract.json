@@ -1,0 +1,227 @@
+{
+  "min_images": 68,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "normal-x-open-00.png"
+    },
+    {
+      "pattern": "normal-x-open-01.png"
+    },
+    {
+      "pattern": "normal-x-open-02.png"
+    },
+    {
+      "pattern": "normal-x-open-03.png"
+    },
+    {
+      "pattern": "normal-x-tuck-00.png"
+    },
+    {
+      "pattern": "normal-x-tuck-01.png"
+    },
+    {
+      "pattern": "normal-x-tuck-02.png"
+    },
+    {
+      "pattern": "normal-x-tuck-03.png"
+    },
+    {
+      "pattern": "normal-x-cancel-00.png"
+    },
+    {
+      "pattern": "normal-x-cancel-01.png"
+    },
+    {
+      "pattern": "normal-x-cancel-02.png"
+    },
+    {
+      "pattern": "normal-x-cancel-03.png"
+    },
+    {
+      "pattern": "normal-b-tuck-00.png"
+    },
+    {
+      "pattern": "normal-b-tuck-01.png"
+    },
+    {
+      "pattern": "normal-b-tuck-02.png"
+    },
+    {
+      "pattern": "normal-b-tuck-03.png"
+    },
+    {
+      "pattern": "normal-b-cancel-00.png"
+    },
+    {
+      "pattern": "normal-b-cancel-01.png"
+    },
+    {
+      "pattern": "normal-b-cancel-02.png"
+    },
+    {
+      "pattern": "normal-b-cancel-03.png"
+    },
+    {
+      "pattern": "normal-b-idle-00.png"
+    },
+    {
+      "pattern": "normal-b-idle-01.png"
+    },
+    {
+      "pattern": "normal-b-idle-02.png"
+    },
+    {
+      "pattern": "normal-b-idle-03.png"
+    },
+    {
+      "pattern": "tharokh-x-open-00.png"
+    },
+    {
+      "pattern": "tharokh-x-open-01.png"
+    },
+    {
+      "pattern": "tharokh-x-open-02.png"
+    },
+    {
+      "pattern": "tharokh-x-open-03.png"
+    },
+    {
+      "pattern": "tharokh-x-tuck-00.png"
+    },
+    {
+      "pattern": "tharokh-x-tuck-01.png"
+    },
+    {
+      "pattern": "tharokh-x-tuck-02.png"
+    },
+    {
+      "pattern": "tharokh-x-tuck-03.png"
+    },
+    {
+      "pattern": "tharokh-x-cancel-00.png"
+    },
+    {
+      "pattern": "tharokh-x-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-x-cancel-02.png"
+    },
+    {
+      "pattern": "tharokh-x-cancel-03.png"
+    },
+    {
+      "pattern": "tharokh-b-tuck-00.png"
+    },
+    {
+      "pattern": "tharokh-b-tuck-01.png"
+    },
+    {
+      "pattern": "tharokh-b-tuck-02.png"
+    },
+    {
+      "pattern": "tharokh-b-tuck-03.png"
+    },
+    {
+      "pattern": "tharokh-b-cancel-00.png"
+    },
+    {
+      "pattern": "tharokh-b-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-b-cancel-02.png"
+    },
+    {
+      "pattern": "tharokh-b-cancel-03.png"
+    },
+    {
+      "pattern": "tharokh-b-idle-00.png"
+    },
+    {
+      "pattern": "tharokh-b-idle-01.png"
+    },
+    {
+      "pattern": "tharokh-b-idle-02.png"
+    },
+    {
+      "pattern": "tharokh-b-idle-03.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-x-cancel-01.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-x-cancel-12.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-b-cancel-01.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-b-cancel-12.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-rapid-x-b-01.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-rapid-x-b-12.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-mouse-x-cancel-01.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-mouse-x-cancel-12.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-mouse-b-cancel-01.png"
+    },
+    {
+      "pattern": "normal-intent-tabs-mouse-b-cancel-12.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-x-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-x-cancel-12.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-b-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-b-cancel-12.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-rapid-x-b-01.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-rapid-x-b-12.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-mouse-x-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-mouse-x-cancel-12.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-mouse-b-cancel-01.png"
+    },
+    {
+      "pattern": "tharokh-intent-tabs-mouse-b-cancel-12.png"
+    },
+    {
+      "pattern": "*.png",
+      "regions": [
+        {
+          "rect": [
+            480,
+            220,
+            960,
+            560
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

@@ -22,7 +22,7 @@
     "panels": [
       {
         "title": "Cinder Marks",
-        "text": "At your next turn, the marked tiles take the damage, you included, and turn to Fire."
+        "text": "At your next turn, the marked tiles take the damage and turn to Fire."
       }
     ]
   },

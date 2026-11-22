@@ -58,7 +58,7 @@ static func _finish_new_run(scene: Node, request: Dictionary, present: Callable,
 static func _update_requested_seed(root: Window, request: Dictionary) -> void:
 	request["seed"] = InitialGraph.resolve_seed(root, request["automatic_seed"])
 
-static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: Callable) -> void:
+static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: Callable, fight_textures: Dictionary = {}, loaded_factory: Dictionary = {}) -> void:
 	var jobs: Array[Callable] = scene._initial_ui_jobs()
 	if not await _run_jobs(scene, jobs, present_frame, still_active): return
 	if not owner_is_active(scene, still_active): return
@@ -67,14 +67,26 @@ static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: C
 		var generation: int = scene._encounter_preparation_generation
 		var alive: Callable = func() -> bool:
 			return StateAssets.active(scene, generation) and owner_is_active(scene, still_active)
-		var factory: Dictionary = await StateAssets.prepare_combat_factory_for(scene, scene._run_state, present_frame, alive)
+		# The checkpoint's pre-boot build already named the maquette families.
+		# Reuse it under the ordinary exact-input guard; otherwise build as before.
+		var factory: Dictionary = loaded_factory
+		if not scene._run_engine.prepared_pre_battle_matches_input(factory, scene._run_state):
+			factory = await StateAssets.prepare_combat_factory_for(scene, scene._run_state, present_frame, alive)
 		if not owner_is_active(scene, still_active): return
 		scene._prepared_pre_battle_factory = factory
 		var preview: Dictionary = scene._run_engine.pre_battle_preview_state(scene._run_state, factory)
 		combat = preview.get("combat_state", {})
+	var combat_textures = StateAssets.CombatTextures
+	var prepare_combat_textures: bool = combat_textures.enabled(scene, scene._run_state, combat)
 	var state_textures: Dictionary = StateAssets.state_texture_manifest(scene, scene._run_state, combat)
-	await StateAssets.prepare_rig_textures_for(scene, combat, state_textures, present_frame, still_active)
+	# Room travel's preview manifest: the foes' ink pools draw from this cache.
+	if str(scene._run_state.get("mode", "")) == "pre_battle" and not combat.is_empty():
+		state_textures.merge(preload("res://scripts/pre_battle_view.gd").texture_manifest(combat))
+	await StateAssets.prepare_rig_textures_for(scene, combat, state_textures, present_frame, still_active, fight_textures if prepare_combat_textures else null)
 	if not owner_is_active(scene, still_active): return
+	if prepare_combat_textures:
+		await combat_textures.prepare_for(scene, scene._run_state, combat, present_frame, owner_is_active.bind(scene, still_active), fight_textures)
+		if not owner_is_active(scene, still_active): return
 	await RoomAssets.prepare_room_textures_for(scene, scene._run_state, present_frame, still_active)
 	if not owner_is_active(scene, still_active): return
 	await StateAssets.prepare_hidden_shop_for(scene, scene._run_state, present_frame, still_active)

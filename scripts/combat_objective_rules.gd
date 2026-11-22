@@ -275,7 +275,7 @@ static func description_for_objective(objective: Dictionary) -> String:
 		return description(type) + "\n" + str(SnareRooms.Pressure.definition({"objective": objective})["text"])
 	if str(objective.get("special_type", "")) == "ember_hoarder" and type == KILL_LEADER: return str(Specials.definition("ember_hoarder")["objective_description"])
 	if str(objective.get("special_type", "")) == "warband":
-		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
+		return "Kill the captain and the rest flee." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
 	if type == KILL_LEADER:
 		if objective.has("objective_description"):
 			return str(objective["objective_description"])

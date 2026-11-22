@@ -271,19 +271,51 @@ instances share the barrier within one directory, while other directories remain
 independent. Buffered reservations are never reported as durable receipts.
 These following in-memory records retain the existing hard-termination loss
 policy; durable activation-end receipts still replay from the saved outbox.
-Final-dragon Continue stages `run_ended` with the reward claim in that same
-terminal checkpoint, using `run_ended|<run-result-id>|victory`. Profile recovery
-retries it even after the run save is cleared. The event retains the existing
-post-settlement wallet value and cumulative stats; reward animation, cancellation
-and scene exit cannot suppress or duplicate victory delivery.
-Debug boss Continue emits its existing `run_ended` victory directly at the debug
-transition, without staging or saving progression. Repeated Continue is a no-op.
-Ember Hearth withdrawal similarly queues `run_ended` with its existing authored
-`outcome: embrace` in the profile save that commits banking and score, before
-clearing the run or presenting feedback. Its key is
-`run_ended|<run-result-id>|embrace`; the payload uses the committed withdrawal
-snapshot (including its retained held-Ember value). Failed appends replay from
-the profile outbox without repeating banking or scoring.
+Every run ending uses `run_ended|<run-id>` across outcomes. Replay recognizes
+older JSONL rows by their recorded run ID for `run_ended` and by combat ID for
+`combat_ended`. Pending older run-ending receipts with a run ID use the same
+key on recovery. Checkpoints predating analytics IDs use the legacy
+counter-and-seed identity.
+
+Defeat stages `combat_ended` (keyed by combat ID) followed by `run_ended` in the
+progression outbox carried by the terminal writes. Closing receipts use the
+live JSON encoding before staging, including coordinate objects. Startup
+replays the pair after either profile or terminal checkpoint promotion, even
+when the title cannot offer Continue. Live delivery follows the existing
+defeat presentation. If the terminal writes fail, the staged presentation
+snapshot supplies the closing rows without acknowledging wallet settlement.
+Replay after an append or interrupted acknowledgment uses the same keys.
+Continue from a terminal checkpoint whose wallet is unsettled settles first
+and then delivers the receipts it staged. A delivered `run_ended` never marks
+a run complete; only the settlement-time `run_scored` receipt does.
+
+Abandon commits its keyed closing receipt in the same profile write as
+settlement. A failed attempt may leave a provisional receipt in the active
+checkpoint. That receipt stays outside the deliverable outbox. Successful
+retry stages the current attempt, and ending the resumed descent another way
+uses the actual outcome. A confirmed replacement stages the discarded run's
+completion ID and ending in the installed checkpoint. Delivery waits until
+the profile also owns that completion ID. Once the Abandon row is durably
+appended, the profile acknowledges its receipt, so the title has nothing to
+replay. The title's replay first looks for each pending key in the newest
+logs and loads the full deduplicating writer only when a row is missing.
+
+The final dragon stages `combat_ended` in the reward checkpoint alongside
+the defeated board. The live transition and startup replay use that receipt,
+so interrupting the presentation does not remove the closing row. Continue
+stages `run_ended` with the claim in the terminal checkpoint. Run results
+and scores keep the released `run:N:seed:S` identity, so either build finds
+one result per run; a clone sharing that counter and seed with another run's
+result records under its own random run ID. New dragon milestones use the
+random run ID. Older staged dragon claim keys can be scoped by the run ID in
+their context. Replay also repairs coordinate strings in pending pre-fix
+combat receipts.
+
+Ember Hearth withdrawal publishes a terminal checkpoint before the profile
+bank and score commit. A new build can recover the bank from that checkpoint
+if the profile is still in rotation. The terminal mode also prevents an
+older build from mistaking an already banked withdrawal for live gameplay.
+Debug boss endings use the keyed analytics writer directly.
 
 Burst uses the ordinary `surface_event` stream: `actor_death` identifies each
 lethal transition and its immediate `source`, and the resulting Fire uses
@@ -1295,7 +1327,16 @@ thorns), `thorns`, `hp_loss`, `block_loss`, `stoneskin_loss`, `bleed`, `shock`, 
 `actor_death` record with that source; no card play is granted. The presentation step
 that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"`,
 `trigger: "retaliate"`, `action_type: "retaliate"` (kind `status_damage`, or `status`
-when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
+when only riders applied); analysis should prefer the surface event.
+Reflect (pla-01) adds `reflect_bounced` to the same stream, once per reflecting unit per attack:
+`enemy_id` (the Reflect unit), `attacker_kind`, `attacker_id`, `damage` (the
+returned amount before the attacker's defense), realized `hp_loss`, `block_loss`
+and `stoneskin_loss` on the attacker, and a `source` naming the Reflect unit
+(`source_kind: "direct_attack"`, `player_card: false`). Player `hp_loss` records
+the loss before lethal recovery. The optional `defiance_spent` counts charges
+consumed by the returned hit. For Mirror Triptych, the attacker is the echoing
+illusion and `damage` is the echo's halved damage. The attacker's ordinary
+damage and death records are unchanged. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.
 
@@ -1394,8 +1435,11 @@ Previews emit no analytics. No new event types or card-play fields are introduce
 
 Collision relics retain the existing `force_collision` schema and sequence cursor.
 Per-party `damage`, `target_damage`, `blocker_damage`, `blockers[].damage` and
-`total_damage` include the party's collision modifiers and Quarry's event-time
+`total_damage` include the party's collision modifiers, its spent Expose
+(pla-01: Expose applies to every damaging hit) and Quarry's event-time
 Rubble bonus before Block/Stoneskin. Protected outcrops report zero damage.
+`retaliate_triggered` and `illusion_retort` `damage` likewise include the
+struck unit's spent Expose.
 Battering Yoke records each knock-on collision separately in resolution order;
 card-play collision counts and sums therefore include those events. Knock-on
 kills retain the original card context and normal death/reward records.
@@ -1545,6 +1589,9 @@ progression before creating its successor, including consumed heirlooms and
 settled terminal wallets. Unsettled held Embers still follow abandonment rules.
 No historical JSONL is rewritten, and the existing run/combat event payloads,
 source attribution and progression wallet policy remain in use.
+Completion keeps undelivered boon receipts in the same profile write as the
+settled wallet. If a crash leaves the active checkpoint stale, the existing
+profile outbox can deliver those receipts without resuming the finished run.
 
 ## Umbral Snare escape (spx-05)
 

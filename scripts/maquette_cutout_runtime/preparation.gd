@@ -6,22 +6,23 @@ const Dependencies = preload("dependencies.gd")
 const Retention = preload("retention.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
+const CombatTextures = preload("res://scripts/combat_texture_preparation.gd")
 
 static func active(scene: Variant, generation: int) -> bool:
-	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation
+	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation and not Assets.preparation_is_stopping(scene.get_tree().root)
 
 static func request(scene: Node, state: Dictionary, generation: int) -> void:
 	var window: Node = Retention.for_scene(scene)
 	window.current(scene._run_state, Dependencies.families_for(Dependencies.types_for(scene._combat_state)))
 	window.request(state, generation)
 
-static func prepare_encounter_for(scene: Node, state: Dictionary, generation: int) -> void:
+static func prepare_encounter_for(scene: Node, state: Dictionary, generation: int, fight_textures: Variant = null) -> void:
 	if not active(scene, generation): return
 	var window: Node = Retention.for_scene(scene)
 	var types: PackedStringArray = Dependencies.types_for(state)
 	window.next_families = Dependencies.families_for(types)
 	window.retain()
-	await prepare_types_for(scene.get_tree().root, types, present_frame.bind(scene.get_tree()), active.bind(scene, generation))
+	await prepare_types_for(scene.get_tree().root, types, present_frame.bind(scene.get_tree()), active.bind(scene, generation), Dependencies.placed_types(state), fight_textures)
 
 ## Called before committing the destination to the visible board. A slow
 ## worker extends the existing covered travel, never the first visible build.
@@ -44,31 +45,40 @@ static func finish_for(scene: Node, state: Dictionary, generation: int) -> bool:
 static func prepare_initial_ui_for(scene: Node, present: Callable, still_active: Callable) -> void:
 	var generation: int = scene._encounter_preparation_generation
 	var alive: Callable = loading_active.bind(scene, generation, still_active)
-	await prepare_loaded_for(scene, present, alive)
+	var fight_textures: Dictionary = {}
+	var factory: Dictionary = await prepare_loaded_for(scene, present, alive, fight_textures)
 	if not bool(alive.call()): return
-	await load("res://scripts/run_initial_preparation.gd").prepare_ui_for(scene, present, still_active)
+	await load("res://scripts/run_initial_preparation.gd").prepare_ui_for(scene, present, still_active, fight_textures, factory)
 
 static func loading_active(scene: Variant, generation: int, still_active: Callable) -> bool:
 	return active(scene, generation) and bool(still_active.call())
 
 ## Continue already owns the loading cover here. New Run has no room to
 ## prepare, and must not pay for any maquette family before the first travel.
-static func prepare_loaded_for(scene: Node, present: Callable, alive: Callable) -> void:
-	if not bool(scene.get_tree().root.get_meta("labyrinth_resume_saved_run", false)): return
+## Returns a pre-battle checkpoint's encounter build; the installed run reuses
+## it when its factory input is exactly the same.
+static func prepare_loaded_for(scene: Node, present: Callable, alive: Callable, fight_textures: Dictionary) -> Dictionary:
+	if not bool(scene.get_tree().root.get_meta("labyrinth_resume_saved_run", false)): return {}
 	var state: Dictionary = preload("res://scripts/progression_store.gd").read_resumable_checkpoint().get("state", {})
-	if state.is_empty(): return
-	state = scene._run_engine.repair_loaded_run_state(scene._run_engine.migrate_renamed_content_ids(state))
+	if state.is_empty(): return {}
+	# Migrate exactly as the install does: only an older content schema. The
+	# legacy-vocabulary pass would otherwise rewrite current ids (Ashen Reaver).
+	if scene._run_engine.run_content_migration_required(state): state = scene._run_engine.migrate_renamed_content_ids(state)
+	state = scene._run_engine.repair_loaded_run_state(state)
 	var battle: Dictionary = state.get("combat_state", {})
+	var factory: Dictionary = {}
 	if str(state.get("mode", "")) == "pre_battle":
-		var factory: Dictionary = await load("res://scripts/encounter_asset_preparation.gd").prepare_combat_factory_for(scene, state, present, alive)
-		if not bool(alive.call()): return
+		factory = await load("res://scripts/encounter_asset_preparation.gd").prepare_combat_factory_for(scene, state, present, alive)
+		if not bool(alive.call()): return {}
 		battle = (scene._run_engine.pre_battle_preview_state(state, factory) as Dictionary).get("combat_state", {})
 	var types: PackedStringArray = Dependencies.types_for(battle)
 	var window: Node = Retention.for_scene(scene)
 	window.current(state, Dependencies.families_for(types))
-	await prepare_types_for(scene.get_tree().root, types, present, alive)
+	var scoped: Variant = fight_textures if CombatTextures.enabled(scene, state, battle) else null
+	await prepare_types_for(scene.get_tree().root, types, present, alive, Dependencies.placed_types(battle), scoped)
+	return factory
 
-static func prepare_types_for(root: Node, types: PackedStringArray, present_frame: Callable, still_active: Callable) -> void:
+static func prepare_types_for(root: Node, types: PackedStringArray, present_frame: Callable, still_active: Callable, placed_types: Dictionary, fight_textures: Variant) -> void:
 	for type: String in types:
 		await Assets.wait_for_preparation_slice(present_frame, still_active, &"maquette_manifest")
 		if not bool(still_active.call()): return
@@ -92,7 +102,12 @@ static func prepare_types_for(root: Node, types: PackedStringArray, present_fram
 				source = Construction.publish(path, value as Construction.Source)
 			if source == null: continue
 			textures.merge(RigData.source_texture_manifest(source.data, path))
-		await Assets.prepare_textures_for(root, textures, present_frame, still_active)
+		if fight_textures != null and not placed_types.has(type):
+			# The existing rig source cache can retain CPU data for adjacent rooms.
+			# Only the destination's scope owns textures for creatures yet to spawn.
+			fight_textures.merge(textures)
+		else:
+			await Assets.prepare_textures_for(root, textures, present_frame, still_active)
 
 static func present_frame(tree: SceneTree) -> void:
 	if DisplayServer.get_name() == "headless": await tree.process_frame

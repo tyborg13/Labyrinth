@@ -76,7 +76,7 @@ static func draw_under(view: Control, unit: Dictionary) -> void:
 static func rows(intent: Dictionary) -> Array:
 	for action: Dictionary in intent.get("actions", []):
 		if str(action.get("type", "")) == "kindle":
-			return [[preload("res://scripts/action_icon_library.gd").icon_text_token(KINDLE_ICON, "Burst +%d" % int(action.get("amount", 0)), "Its Burst hits %d harder, up to +4." % int(action.get("amount", 0)))]]
+			return [[preload("res://scripts/action_icon_library.gd").icon_text_token(KINDLE_ICON, "Burst +%d" % int(action.get("amount", 0)), "Its Burst deals %d more." % int(action.get("amount", 0)))]]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:

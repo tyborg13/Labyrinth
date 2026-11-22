@@ -90,7 +90,7 @@ func _capture_umbra_stages_and_cards() -> void:
 		_assert(umbra_subtitle != null and umbra_subtitle.text == expected_subtitle, "%s should show its dedicated Umbra room subtitle" % stage)
 		_assert(umbra_subtitle.visible == not expected_subtitle.is_empty(), "%s should use the expected Umbra subtitle visibility" % stage)
 		if stage != "clear":
-			_assert(umbra_subtitle.tooltip_text.contains("Hidden enemies cannot be targeted"), "%s should explain its targeting and intent rules on hover" % stage)
+			_assert(umbra_subtitle.tooltip_text.contains("Darkness hides enemies outside your sight and Light."), "%s should explain what the darkness hides on hover" % stage)
 		await _save_root_screenshot("%s/stage_%s.png" % [OUTPUT_DIR, stage])
 		if stage == "deep":
 			await create_timer(0.65).timeout
@@ -178,9 +178,9 @@ func _capture_grimoire_entries(instance: Node) -> void:
 	if not discovery_ids.has("combat:umbra"):
 		discovery_ids.append("combat:umbra")
 	instance.call("_unlock_grimoire_entries", discovery_ids)
-	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "Enemies concealed within it", "grimoire_umbra.png")
-	await _capture_grimoire_entry(instance, "keyword:radiance", "Radiance", "Illuminate, Vision, Truesight", "grimoire_radiance.png")
-	await _capture_grimoire_entry(instance, "keyword:truesight", "Truesight", "lets you target them", "grimoire_truesight.png")
+	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "push it back", "grimoire_umbra.png")
+	await _capture_grimoire_entry(instance, "keyword:radiance", "Radiance", "push back the Umbra", "grimoire_radiance.png")
+	await _capture_grimoire_entry(instance, "keyword:truesight", "Truesight", "counts as visible", "grimoire_truesight.png")
 	await _capture_grimoire_entry(instance, "equipment_card:lantern_shot", "Lantern Shot", "School: Radiance", "grimoire_lantern_shot.png")
 
 func _capture_grimoire_entry(instance: Node, entry_id: String, expected_title: String, expected_body: String, file_name: String) -> void:

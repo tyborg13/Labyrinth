@@ -21,9 +21,9 @@ func _show_card_focus_tooltips(index: int) -> void:
 	super._show_card_focus_tooltips(index)
 	FrameTrace.record("card_glossary_construct_and_layout", started, Time.get_ticks_usec(), 25)
 
-func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
+func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}, prepared_entries: Variant = null) -> void:
 	var started: int = Time.get_ticks_usec()
-	super._refresh_turn_order_bar(accepted_display_state)
+	super._refresh_turn_order_bar(accepted_display_state, prepared_entries)
 	FrameTrace.record("turn_order_total", started, Time.get_ticks_usec(), -10)
 
 func _refresh_turn_order_landing_strip() -> void:

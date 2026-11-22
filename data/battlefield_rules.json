@@ -89,8 +89,7 @@
         "intent": "discharge"
       },
       "dials": {
-        "damage": 4,
-        "chain": 0
+        "damage": 4
       },
       "sentence": "When the Dynamo discharges, lightning strikes every Electrified tile for 4."
     },
@@ -194,8 +193,7 @@
         "every": 1
       },
       "dials": {
-        "damage": 3,
-        "chain": 0
+        "damage": 3
       },
       "sentence": "After each of your turns, lightning strikes every Electrified tile for 3."
     },
@@ -285,8 +283,7 @@
         "intent": "peal"
       },
       "dials": {
-        "damage": 4,
-        "chain": 0
+        "damage": 4
       },
       "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4."
     },
@@ -442,8 +439,7 @@
         "intent": "tempest_breath"
       },
       "dials": {
-        "damage": 6,
-        "chain": 0
+        "damage": 6
       },
       "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
       "at_half_health": {

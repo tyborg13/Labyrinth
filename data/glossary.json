@@ -3,7 +3,7 @@
     "id": "reflect",
     "name": "Reflect",
     "icon": "reflect",
-    "definition": "Ranged hits from 2+ tiles away bounce back to the attacker.",
+    "definition": "Attacks from a non-adjacent tile bounce back to the attacker.",
     "aliases": []
   },
   {
@@ -441,7 +441,7 @@
     "id": "all_enemies",
     "name": "Sweeping Strike",
     "icon": "all_enemies",
-    "definition": "Hits every visible enemy that qualifies; no target needed.",
+    "definition": "Hits every visible enemy that meets the shown condition.",
     "aliases": []
   },
   {
@@ -529,7 +529,7 @@
     "id": "health_cost",
     "name": "Health Cost",
     "icon": "health_cost",
-    "definition": "Lose that much Health; Block can't prevent it.",
+    "definition": "Lose that much Health.",
     "aliases": []
   },
   {
@@ -543,7 +543,7 @@
     "id": "summon_minions",
     "name": "Summon",
     "icon": "summon_minions",
-    "definition": "Calls the shown enemy into the fight. When an enemy summons, you gain +1 Card Play on your next turn.",
+    "definition": "Calls the shown enemy into the fight.",
     "aliases": [
       "Summon Minions"
     ]
@@ -604,14 +604,14 @@
     "id": "guard_ally",
     "name": "Guard Ally",
     "icon": "guard_ally",
-    "definition": "Gives Block to its allies, sometimes itself.",
+    "definition": "Gives Block to the shown allies.",
     "aliases": []
   },
   {
     "id": "heal_ally",
     "name": "Heal Ally",
     "icon": "heal_ally",
-    "definition": "Heals a wounded enemy, possibly itself.",
+    "definition": "Heals the shown ally.",
     "aliases": []
   },
   {
@@ -721,7 +721,7 @@
     "id": "traps",
     "name": "Traps",
     "icon": "traps",
-    "definition": "Trigger when entered or attacked: damage the unit on them, then leave their element on their tile and each tile next to it. Air traps push instead.",
+    "definition": "Trigger when entered or attacked, hitting the unit on them and spreading their element around them.",
     "aliases": []
   },
   {
@@ -777,7 +777,7 @@
     "id": "skill_measured_breath",
     "name": "Measured Breath",
     "icon": "skill_measured_breath",
-    "definition": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn. Wait still applies.",
+    "definition": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn.",
     "aliases": []
   },
   {
@@ -917,7 +917,7 @@
     "id": "skill_confluence",
     "name": "Confluence",
     "icon": "skill_confluence",
-    "definition": "Once per combat, @icon(surface_relocate) 1 ground tile. Both tiles must be visible, within @icon(range) 4 of you and each other.",
+    "definition": "Once per combat, @icon(surface_relocate) 1 ground tile within @icon(range) 4.",
     "aliases": []
   },
   {
@@ -1045,7 +1045,7 @@
     "id": "lightning_storm",
     "name": "Lightning Storm",
     "icon": "lightning_storm",
-    "definition": "On its beat, lightning strikes every Electrified tile; some storms Chain on.",
+    "definition": "On its beat, lightning strikes every Electrified tile.",
     "aliases": []
   },
   {

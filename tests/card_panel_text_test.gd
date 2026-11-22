@@ -118,12 +118,19 @@ func _test_examples() -> void:
 func _test_grimoire() -> void:
 	var director: Dictionary = _json(COPY_PATH)
 	var facts: Dictionary = _json("res://tests/fixtures/card_panel_grimoire_facts.json")
+	var pla02_pages: Dictionary = _json("res://tests/fixtures/pla02_grimoire_pages.json")["pages"]
 	var entries: Dictionary = Grimoire.entry_map()
 	var appended: int = 0
 	for row: Dictionary in director["rows"]:
 		if row["grimoire"] == null: continue
 		_expect(facts.has(row["id"]), "Grimoire fact has an owning topic: " + str(row["id"]))
 		var fact: Dictionary = facts[row["id"]]
+		# pla-02: the owner page was rewritten as tooltip sentence + one detail
+		# paragraph; its approved page supersedes the tt-02 paragraph pins.
+		if pla02_pages.has(fact["owner"]):
+			_expect(entries.get(fact["owner"], {}).get("body", []) == pla02_pages[fact["owner"]], "Grimoire keeps the approved pla-02 page: " + str(row["id"]))
+			if fact["appended"]: appended += 1
+			continue
 		for paragraph: String in fact["paragraphs"]:
 			var body: Array = entries.get(fact["owner"], {}).get("body", [])
 			_expect(body.count(paragraph) == 1, "Grimoire retains the fact exactly once: " + str(row["id"]))

@@ -35,7 +35,7 @@ const FLAG_INFO: Dictionary = {
 	"no_move": {"label": "Immobilize", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
 		"description": "You can't Move, Blink or Swap for the rest of this turn."},
 	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
-		"description": "Until your next turn, you can't be pushed or pulled. Push and Pull against you move you 0 tiles and never collide."},
+		"description": "Until your next turn, you can't be pushed or pulled."},
 	"fire_immune_turn": {"label": "Fireproof", "expires": "activation", "fill": "5a2a1c", "border": "ffb38a",
 		"description": "Fire doesn't damage you this turn."}
 }

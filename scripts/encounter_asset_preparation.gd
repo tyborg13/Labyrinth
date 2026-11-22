@@ -4,6 +4,7 @@ static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRAC
 
 const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
+const CombatTextures = preload("res://scripts/combat_texture_preparation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
@@ -15,7 +16,7 @@ const Retention = preload("res://scripts/maquette_cutout_runtime/retention.gd")
 # changes authored travel timing. The room commit waits for unfinished rig
 # preparation behind that cover. CPU workers own source JSON/mesh arrays.
 static func active(scene: Variant, generation: int) -> bool:
-	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation
+	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation and not Assets.preparation_is_stopping(scene.get_tree().root)
 
 static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	var _hitch_continuation: RefCounted
@@ -49,14 +50,18 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	if _hitch_trace_enabled: _hitch_continuation = null
 	await Assets.wait_for_preparation_slice(present, alive)
 	if not bool(alive.call()): return
-	await MaquettePreparation.prepare_encounter_for(scene, combat_state, generation)
+	var prepare_combat_textures: bool = CombatTextures.enabled(scene, state, combat_state)
+	var fight_textures: Dictionary = {}
+	await MaquettePreparation.prepare_encounter_for(scene, combat_state, generation, fight_textures if prepare_combat_textures else null)
 	await Assets.wait_for_preparation_slice(present, alive)
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:encounter_asset_preparation:begin_for:2")
 	if not active(scene, generation): return
 	var state_textures: Dictionary = state_texture_manifest(scene, state, combat_state)
 	if pre_battle: state_textures.merge(preload("res://scripts/pre_battle_view.gd").texture_manifest(combat_state))
 	_hitch_continuation = null
-	await prepare_rig_textures_for(scene, combat_state, state_textures, present, alive)
+	await prepare_rig_textures_for(scene, combat_state, state_textures, present, alive, fight_textures if prepare_combat_textures else null)
+	if not active(scene, generation): return
+	if prepare_combat_textures: await CombatTextures.prepare_for(scene, state, combat_state, present, alive, fight_textures)
 	if not active(scene, generation): return
 	var window: Node = Retention.for_scene(scene)
 	if not pre_battle:
@@ -82,14 +87,17 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	await Glyphs.prepare_jobs_for(scene, jobs, present, opening_active.bind(scene, generation), record_slice, started)
 	if opening_active(scene, generation): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
 
-static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, state_textures: Dictionary, frame: Callable, alive: Callable) -> void:
+static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, state_textures: Dictionary, frame: Callable, still_active: Callable, fight_textures: Variant = null) -> void:
 	var _hitch_continuation: RefCounted
 	var root: Node = scene.get_tree().root
+	var alive: Callable = Assets.preparation_is_active.bind(root, still_active)
+	if not bool(alive.call()): return
 	var manifest_started: int = Time.get_ticks_usec()
 	var manifest_span: RefCounted = _trace_step("rig_manifest")
-	var manifest: Dictionary = scene.board_view.unit_rig_preparation_manifest(combat_state)
+	var manifest: Dictionary = scene.board_view.unit_rig_preparation_manifest(combat_state, fight_textures)
 	var sources: PackedStringArray = manifest["sources"]
 	var textures: Dictionary = manifest["textures"]
+	var scoped_sources: Dictionary = manifest["scoped_sources"]
 	textures.merge(state_textures)
 	# Session-owned maquette inputs are already published to the ordinary loader.
 	# Re-parsing them here would discard a second large JSON tree on the main
@@ -98,7 +106,9 @@ static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, stat
 	for path: String in sources:
 		var cached: RefCounted = preload("res://scripts/maquette_cutout_runtime/construction.gd").cached(path)
 		if cached == null: pending_sources.append(path)
-		else: textures.merge(RigData.source_texture_manifest(cached.data, path))
+		else:
+			var target: Dictionary = fight_textures if scoped_sources.has(path) else textures
+			target.merge(RigData.source_texture_manifest(cached.data, path, fight_textures))
 	manifest_span = null
 	Assets.count_preparation_work(manifest_started)
 	var result: Variant = []
@@ -117,7 +127,8 @@ static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, stat
 		var published: RefCounted = RigData.publish_owned_source(path, entry["data"])
 		if published != null:
 			scene._encounter_cpu_asset_holds.append(published)
-			textures.merge(RigData.source_texture_manifest(published, path))
+			var target: Dictionary = fight_textures if scoped_sources.has(path) else textures
+			target.merge(RigData.source_texture_manifest(published, path, fight_textures))
 		span = null
 		Assets.count_preparation_work(started)
 	if _hitch_trace_enabled: _hitch_continuation = null
@@ -245,6 +256,7 @@ static func present_frame(tree: SceneTree) -> void:
 
 static func state_texture_manifest(scene: Node, state: Dictionary, combat_state: Dictionary = {}) -> Dictionary:
 	var textures: Dictionary = {}
+	# Character inspection can show unequipped gear's full cards during combat.
 	for field: String in ["deck_cards", "magic_inventory", "item_inventory"]:
 		for card: String in state.get(field, []):
 			_add_card_textures(textures, card)

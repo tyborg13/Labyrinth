@@ -1,0 +1,9 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/title.png", "regions": [{"rect": [440, 100, 1040, 650], "min_luma_stdev": 4}]},
+    {"pattern": "*/loading_cover.png", "regions": [{"rect": [650, 460, 620, 160], "min_luma_range": 25}]},
+    {"pattern": "*/first_fight.png", "regions": [{"rect": [380, 200, 1160, 570], "min_luma_stdev": 4}]}
+  ]
+}

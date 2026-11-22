@@ -277,4 +277,5 @@ static func _test_interruptions_and_normal_attacks(check: Callable) -> void:
 	var retaliating: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(), 0)["state"]
 	preload("res://scripts/retaliate_rules.gd").gain(retaliating, {"amount": 3}, "Test fixture")
 	retaliating = engine.resolve_enemy_turn_with_steps(retaliating, 0)["state"]
-	check.call(int(retaliating["enemies"][0]["hp"]) == 9, "Erupt preserves existing Retaliate against the surfaced adjacent attacker")
+	# pla-01: Expose also adds to Retaliate damage, so the surfaced Grub's Expose 2 lands on top of Retaliate 3.
+	check.call(int(retaliating["enemies"][0]["hp"]) == 7, "Erupt preserves existing Retaliate (plus the Grub's Expose) against the surfaced adjacent attacker")

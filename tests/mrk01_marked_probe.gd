@@ -29,7 +29,7 @@ const TXT08_EXPECTED_CASES: int = 4
 const CAP07_EXPECTED_CASES: int = 2
 const TXT09_EXPECTED_CASES: int = 4
 const FADE_PROOF_DIRECTION := Vector2i.RIGHT
-const FADE_TOOLTIP: String = "Lands behind you if it can, otherwise next to you; Ambushes next turn."
+const FADE_TOOLTIP: String = "Blinks behind you, then Ambushes next turn."
 # txt-13 approved move copy and diagram order are recorded in tools/txt13/shape_words.md.
 const BARRAGE_TOOLTIP: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. Next turn they take the hit and become Fire."
 const BARRAGE_ROW: Array = ["aoe_pattern", "aoe_pattern", "marked", "aoe", "surface_fire"]

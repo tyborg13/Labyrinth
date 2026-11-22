@@ -7,6 +7,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RECORD_LIMIT: int = 50
+const RESULT_IDENTITY_KEY: String = "result_identity"
 const PATH_KEY: String = "chronicle_path"
 const UNKNOWN_KILLER_TEXT: String = "The Umbra took your last breath"
 const UNKNOWN_SECTION_NAME: String = "The Labyrinth"
@@ -18,6 +19,12 @@ static var _terminal_snapshots: Dictionary = {}
 # passing score-only metrics to the store. Carry the complete terminal snapshot
 # across that synchronous boundary without changing the legacy metrics contract.
 static func record_id(state: Dictionary) -> String:
+	# Results keep the released run:N:seed:S identity, so a run saved by one
+	# build and finished by the other records one result. A clone that shares
+	# its counter and seed with another run's result stamps its own random ID
+	# at settlement (ProgressionStore.stamp_result_identity).
+	var stamped: Variant = state.get(RESULT_IDENTITY_KEY)
+	if stamped is String and not stamped.is_empty(): return stamped
 	return "run:%d:seed:%d" % [int(state.get("run_index", 0)), int(state.get("seed", 0))]
 
 static func stage_terminal_snapshot(state: Dictionary) -> void:

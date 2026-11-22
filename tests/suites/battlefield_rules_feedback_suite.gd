@@ -40,14 +40,14 @@ static func _hits(engine: RefCounted, battle: Callable, rule: Callable, compare:
 		state["enemies"][0]["expose"] = EXPOSURE
 		var tile: Vector2i = state["enemies"][0]["pos"]
 		Surfaces.place(state, tile, "ice" if id == "frostbite" else "electrified")
-		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "chain": 0}))
+		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE}))
 		var after: Dictionary = compare.call(engine, state, expect)
 		expect.call(int(after["enemies"][0]["hp"]) == 45 and int(after["enemies"][0]["expose"]) == 0, "Shared attack consumes enemy Expose without player bonuses: " + id)
 		state = battle.call(engine)
 		tile = Vector2i(7, 7)
 		Surfaces.place(state, tile, "ice" if id == "frostbite" else "electrified")
 		state["traps"] = [{"id": "test_trap", "pos": tile, "element": "fire", "damage": DAMAGE}]
-		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "chain": 0}))
+		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE}))
 		after = compare.call(engine, state, expect)
 		expect.call(after["traps"].is_empty() and after["surface_events"].any(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "trap_triggered"), "Shared attack triggers struck traps: " + id)
 		# Enemy-sourced beats retain the ordinary on-hit Retaliate path.
@@ -55,7 +55,7 @@ static func _hits(engine: RefCounted, battle: Callable, rule: Callable, compare:
 		state["enemies"][0]["pos"] = Vector2i(5, 4)
 		state["retaliate"] = {"amount": 3}
 		Surfaces.place(state, state["player"]["pos"], "ice" if id == "frostbite" else "electrified")
-		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "chain": 0}, true))
+		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE}, true))
 		after = compare.call(engine, state, expect)
 		expect.call(int(after["enemies"][0]["hp"]) == 47, "Shared attack preserves Retaliate against its source: " + id)
 	relics.erase(BONUS_RELIC)
@@ -72,7 +72,7 @@ static func _burial(engine: RefCounted, battle: Callable, rule: Callable, compar
 		else:
 			Surfaces.place(state, state["enemies"][0]["pos"], "ice" if id == "frostbite" else "electrified")
 			state = engine._surface_contact(state, "enemy", 1, engine.INVALID_TILE, true)
-		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "chain": 0, "blink": 2}))
+		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "blink": 2}))
 		var after: Dictionary = compare.call(engine, state, expect)
 		if id == "frostbite": expect.call(int(after["enemies"][0]["hp"]) == 46 and int(after["enemies"][0]["freeze"]) == 1, "Frostbite uses area targetability for buried units")
 		elif id == "lightning_storm": expect.call(int(after["enemies"][0]["hp"]) == 48 and int(after["enemies"][0]["shock"]) == 0, "Lightning uses area targetability for buried units without Shock")
@@ -83,7 +83,7 @@ static func _memo(battle: Callable, rule: Callable, expect: Callable) -> void:
 	var state: Dictionary = battle.call(engine)
 	for y: int in range(1, 10):
 		for x: int in range(1, 10): Surfaces.place(state, Vector2i(x, y), "electrified")
-	Rules.install(engine, state, rule.call("lightning_storm", {"damage": DAMAGE, "chain": 3}))
+	Rules.install(engine, state, rule.call("lightning_storm", {"damage": DAMAGE}))
 	preload("res://tests/suites/battlefield_rules_suite.gd").mature_fuel(state)
 	var started: int = Time.get_ticks_usec()
 	var first: Dictionary = Rules.forecast(engine, state)
@@ -131,7 +131,7 @@ static func _intents(engine: RefCounted, battle: Callable, rule: Callable, expec
 		elif disabled == "dead_on_start":
 			state["enemies"][0]["hp"] = 1
 			Surfaces.place(state, state["enemies"][0]["pos"], "fire")
-		var instance: Dictionary = rule.call("lightning_storm", {"damage": DAMAGE, "chain": 0}, true)
+		var instance: Dictionary = rule.call("lightning_storm", {"damage": DAMAGE}, true)
 		instance["cadence"] = {"anchor": "on_intent", "intent": "test_discharge"}
 		Rules.install(engine, state, instance)
 		var order: Array[Dictionary] = engine.current_turn_order(state)

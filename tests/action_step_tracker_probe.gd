@@ -57,13 +57,11 @@ func _capture_action_step_tracker_frames() -> void:
 	_assert_tracker_layout(instance, "move-attack selection", piles_y_before)
 	await _save_root_screenshot("%s/move_attack_selected.png" % OUTPUT_DIR)
 
-	await instance.call("_on_card_action_choice_pressed", "move")
 	await _settle_ui()
 	_assert_active_mode(instance, "move", "fallback move selection")
 	_assert_tracker_statuses(instance, ["current"], "fallback move selection")
 	_assert_tracker_layout(instance, "fallback move selection", piles_y_before)
 	await _save_root_screenshot("%s/fallback_move_selected.png" % OUTPUT_DIR)
-	await instance.call("_on_card_action_choice_pressed", "play")
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining"], "restored printed selection")
 

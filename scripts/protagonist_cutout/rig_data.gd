@@ -47,6 +47,10 @@ class Data extends RefCounted:
 
 static var _sources: Dictionary = {}
 
+static func cached_source(path: String) -> Data:
+	var cached: Data = (_sources[path] as WeakRef).get_ref() as Data if _sources.has(path) else null
+	return cached if cached != null and cached.modified == FileAccess.get_modified_time(path) else null
+
 static func load_source(path: String) -> Data:
 	var modified: int = FileAccess.get_modified_time(path)
 	var cached: Data = (_sources[path] as WeakRef).get_ref() as Data if _sources.has(path) else null
@@ -93,7 +97,7 @@ static func publish_owned_source(path: String, prepared: Data) -> Data:
 	_sources[path] = weakref(prepared)
 	return prepared
 
-static func source_texture_manifest(prepared: Data, source_path: String) -> Dictionary:
+static func source_texture_manifest(prepared: Data, source_path: String, fight_textures: Variant = null) -> Dictionary:
 	var manifest: Dictionary = {}
 	if prepared == null or not prepared.error.is_empty(): return manifest
 	var cape: Dictionary = prepared.layout.get("cape_mesh", {}) as Dictionary
@@ -105,6 +109,11 @@ static func source_texture_manifest(prepared: Data, source_path: String) -> Dict
 	for part: Dictionary in prepared.layout.get("parts", []):
 		if (not cape.is_empty() and bool(part.get("cape_segment", false))) or replaced.has(str(part.get("name", ""))): continue
 		_add_source_texture(manifest, str(part.get("file", "")), source_path)
+		if fight_textures != null:
+			var release: Dictionary = part.get("release_texture", {})
+			_add_source_texture(fight_textures, str(release.get("file", "")), source_path)
+	if fight_textures != null:
+		_add_source_texture(fight_textures, str(prepared.layout.get("rest_source", "")), source_path)
 	return manifest
 
 static func _add_source_texture(manifest: Dictionary, path: String, source_path: String) -> void:

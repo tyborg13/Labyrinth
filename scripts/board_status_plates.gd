@@ -25,7 +25,7 @@ const BORDER_WIDTH: int = 2
 const ICON_BORDER_CLEARANCE: float = 1.0
 # Board status producers, keyword-status producers, illusions and defenses.
 # Kept exhaustive by the independent live-producer inventory test.
-const BOARD_ICON_KEYS: PackedStringArray = ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "ranged", "block", "stoneskin"]
+const BOARD_ICON_KEYS: PackedStringArray = ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "ranged", "block", "stoneskin", "stagger", "melee"]
 static var _styles: Dictionary = {}
 static var _icon_visible_bounds: Dictionary = {}
 static var icon_bounds_computations: int = 0

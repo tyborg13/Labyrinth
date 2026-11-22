@@ -64,8 +64,10 @@ static func _test_petrify_keyword(expect: Callable) -> void:
 	expect.call(card.get("description") == "Petrify an enemy within range 3 (not a dragon). It skips its next turn and gains 5 Block.", "Petrify card uses the decided description")
 	expect.call(Glossary.definition("petrify") == "Skips its next turn and gains 5 Block.", "Petrify glossary uses the complete fixed keyword definition")
 	var body: Array = (Grimoire.entry_map()["combat:petrify"] as Dictionary).get("body", []) as Array
-	expect.call(body.slice(0, 2) == ["A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.", "Petrify also gives the enemy 5 Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."], "Petrify grimoire keeps its first paragraph and the decided second paragraph")
-	expect.call(body.has("Skips its next turn, still paying its Time, and gains 5 Block through your next turn. Dragons are immune."), "Petrify Grimoire retains the former full glossary rules")
+	# pla-02 r1 (owner): the page is its tooltip sentence; the dragon rule lives on
+	# the dragons' trait chips and the skipped turn shows in the turn order.
+	var page: Array = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]["combat:petrify"]
+	expect.call(body == page and body == [Glossary.definition("petrify")], "Petrify grimoire is its tooltip sentence")
 
 
 static func _test_shared_tooltip_controls(expect: Callable) -> void:

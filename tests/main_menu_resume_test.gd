@@ -1,7 +1,10 @@
 extends SceneTree
 
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
+const TerminalCrash = preload("res://tests/helpers/terminal_crash_fixture.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
@@ -10,11 +13,26 @@ const DragonBossInspection = preload("res://tools/dragon_boss_inspection.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_resume_test_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_test_run.save"
+const FINISHED_RUN_ID: String = "run_fixture_finished"
+const OTHER_RUN_ID: String = "run_fixture_other"
+const REPLACED_RUN_ID: String = "run_fixture_replacement"
+
+const RECOVERY_ROOM := Vector2i(4, 0)
+const DEFEATED_RUN := 2
+
+class BootHost extends RunScene:
+	func _ready() -> void: pass
+	func _load_run_state(state: Dictionary) -> void: _run_state = state
+	func _analytics_log_run_resumed() -> void: pass
 
 var _failures: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	var args := OS.get_cmdline_user_args()
+	if args.has("--terminal-crash") or args.has("--terminal-relaunch"):
+		await _terminal_crash_phase(args)
+		return
 	ProgressionStore.set_storage_path(PROGRESSION_PATH)
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	_cleanup_storage()
@@ -23,6 +41,11 @@ func _initialize() -> void:
 	await _test_dragon_reward_save_resumes()
 	await _test_no_save_hides_summary()
 	await _test_corrupt_save_is_hidden_and_recoverable()
+	await _test_completed_checkpoint_selection()
+	_test_backup_resume_rotation()
+	_test_interrupted_new_descent_marker()
+	_test_interrupted_descent_then_defeat()
+	_test_terminal_withdrawal_without_profile()
 	_cleanup_storage()
 	await process_frame
 	await process_frame
@@ -40,6 +63,301 @@ func _initialize() -> void:
 	print("TEST RESULT: FAIL — %d main menu resume safety failure(s)" % _failures.size())
 	quit(1)
 
+func _terminal_crash_phase(args: PackedStringArray) -> void:
+	var kind := ""
+	var directory := ""
+	for arg: String in args:
+		if arg.begins_with("--path="): kind = arg.trim_prefix("--path=")
+		if arg.begins_with("--output="): directory = arg.trim_prefix("--output=")
+	if not TerminalCrash.configure(self, directory, kind):
+		TerminalCrash._fail(self, "invalid terminal crash fixture arguments")
+		return
+	var abandon_profile_blocked := kind == "abandon" and args.has("--abandon-profile-blocked")
+	if args.has("--terminal-crash"):
+		if abandon_profile_blocked:
+			TerminalCrash.abandon_while_profile_blocked(self, args.has("--abandon-analytics-blocked"))
+		else:
+			TerminalCrash.crash(self, kind, args.has("--after-terminal-checkpoint"))
+		return
+	var profile_before := ProgressionStore.load_data()
+	var profile_hash: String = FileAccess.get_sha256(ProgressionStore._storage_path)
+	var bank := TerminalCrash.expected_bank(kind)
+	_assert(int(profile_before["embers"]) == bank, "Crash fixture profile must contain the authored terminal bank")
+	var instance: Node = await _instantiate_menu()
+	if instance == null:
+		TerminalCrash._fail(self, "title did not load")
+		return
+	if kind == "defeat":
+		_assert(_defeat_closing_types() == ["combat_ended", "run_ended"], "Title boot must deliver the defeat closing pair")
+		var rows := TerminalCrash.Analytics.load_all_events().filter(func(event: Dictionary) -> bool:
+			return event["run_id"] == TerminalCrash.RUN_ID and event["event_type"] == "combat_ended")
+		if rows.size() == 1:
+			var payload: Dictionary = rows[0]["payload"]
+			_assert(payload["objective_completion_tile"] is Dictionary and payload["objective_completion_tile"] == {"x": -1.0, "y": -1.0}
+				and payload["objective_completion_door"] is Dictionary and payload["objective_completion_door"] == {"x": -1.0, "y": -1.0}
+				and payload["objective_completion_destination"] is Dictionary and payload["objective_completion_destination"] == {"x": 999.0, "y": 999.0},
+				"4 — recovered defeat coordinates retain the live JSON object shape")
+			print("DEFEAT REPLAY COORDINATES: ", JSON.stringify(payload["objective_completion_tile"]))
+	if abandon_profile_blocked:
+		var endings := _run_ended_events(TerminalCrash.RUN_ID)
+		_assert(endings.is_empty(), "1 — relaunch cannot publish an uncommitted Abandon")
+		_assert(not instance.continue_button.disabled and ProgressionStore.load_data() == profile_before,
+			"Failed Abandon must preserve Continue and the profile on relaunch")
+		print("ABANDON RELAUNCH: run_ended=", endings.size(), " continue=", not instance.continue_button.disabled)
+		_stop_menu_music(instance)
+		instance.free()
+		for failure: String in _failures: push_error(failure)
+		print("TEST RESULT: %s — blocked Abandon relaunch" % ["PASS" if _failures.is_empty() else "FAIL"])
+		quit(0 if _failures.is_empty() else 1)
+		return
+	var continue_disabled: bool = instance.continue_button.disabled
+	var profile_intact: bool = ProgressionStore.load_data() == profile_before and FileAccess.get_sha256(ProgressionStore._storage_path) == profile_hash
+	_assert(continue_disabled and not instance.resume_panel.visible, "Finished %s must not offer Continue" % kind)
+	_assert(profile_intact, "Discarding %s must preserve the entire profile" % kind)
+	if args.has("--capture"):
+		await RenderingServer.frame_post_draw
+		_assert(root.size == TerminalCrash.VIEWPORT and is_equal_approx(root.content_scale_factor, 1.0), "Title capture must use 1920×1080 at 100% UI scale")
+		var title: Image = root.get_texture().get_image()
+		var capture_path := directory.path_join("terminal-title.png")
+		_assert(title != null and not title.is_empty() and title.save_png(capture_path) == OK, "Title capture should be saved")
+		print(capture_path)
+	_stop_menu_music(instance)
+	instance.call("_prepare_new_game")
+	instance.free()
+	await _complete_new_game_transition()
+	if kind == "defeat":
+		var types := _defeat_closing_types()
+		print("DEFEAT CLOSING EVENTS: ", types)
+		_assert(types == ["combat_ended", "run_ended"], "Defeat relaunch must deliver the ordered closing pair exactly once")
+	else:
+		var outcome: String = {"embrace": "embrace", "abandon": "abandoned", "escape": "victory", "demo": "victory"}[kind]
+		var endings := _run_ended_events(TerminalCrash.RUN_ID)
+		_assert(endings.size() == 1 and endings[0]["idempotency_key"] == "run_ended|" + TerminalCrash.RUN_ID and endings[0]["payload"]["outcome"] == outcome,
+			"Terminal relaunch must deliver one run-ID-keyed " + outcome)
+		print("RUN END RELAUNCH: outcome=", outcome, " run_ended=", endings.size())
+	var next_profile := ProgressionStore.load_data()
+	var new_run := ProgressionStore.load_saved_run()
+	var bank_preserved: bool = int(next_profile["embers"]) == bank and int(new_run.get("held_embers", -1)) == bank
+	_assert(bank_preserved, "New Descent after %s must keep the bank" % kind)
+	_assert(next_profile["recovery_marker"] == profile_before["recovery_marker"], "New Descent must preserve the recovery marker")
+	_assert(ProgressionStore.completed_run_results(next_profile) == ProgressionStore.completed_run_results(profile_before), "New Descent must preserve completed results")
+	print("TERMINAL RELAUNCH: %s continue=%s profile_intact=%s bank=%d new_bank=%d new_held=%d" % [
+		kind, not continue_disabled, profile_intact, bank, next_profile["embers"], new_run.get("held_embers", -1),
+	])
+	for failure: String in _failures: push_error(failure)
+	print("TEST RESULT: %s — %s terminal crash recovery" % ["PASS" if _failures.is_empty() else "FAIL", kind])
+	quit(0 if _failures.is_empty() else 1)
+
+func _run_ended_events(run_id: String) -> Array:
+	return TerminalCrash.Analytics.load_all_events().filter(func(event: Dictionary) -> bool:
+		return event["event_type"] == "run_ended" and event["run_id"] == run_id)
+
+func _defeat_closing_types() -> Array:
+	var records := TerminalCrash.Analytics.load_all_events().filter(func(event: Dictionary) -> bool:
+		return event["run_id"] == TerminalCrash.RUN_ID and event["event_type"] in ["combat_ended", "run_ended"])
+	return records.map(func(event: Dictionary) -> String: return event["event_type"])
+
+func _test_completed_checkpoint_selection() -> void:
+	var profile := ProgressionStore.default_data()
+	var finished := _valid_combat_run(profile)
+	finished["run_index"] = 0
+	finished["analytics"] = {"run_id": FINISHED_RUN_ID}
+	var completed := ProgressionStore.record_run_completion(profile, finished)
+	_assert(ProgressionStore.record_run_completion(completed, finished) == completed, "Completing one run twice must retain exactly one receipt")
+	_assert(ProgressionStore.save_data(completed), "Completion profile should save")
+
+	var other := finished.duplicate(true)
+	other["analytics"]["run_id"] = OTHER_RUN_ID
+	_assert(ProgressionStore.save_run_state(other), "Cloned-counter and seed fixture should save")
+	_expect_checkpoint("4 — a distinct run with the same seed and counter remains resumable", OTHER_RUN_ID)
+
+	var legacy := finished.duplicate(true)
+	legacy.erase("analytics")
+	_assert(ProgressionStore.save_run_state(legacy), "Legacy checkpoint should save")
+	_expect_checkpoint("4 — a legacy checkpoint without an ID remains resumable", "", "combat")
+	var coarse_profile := ProgressionStore.record_run_result(profile, RunEngine.run_result_id(legacy), {"damage_dealt": 1})["data"] as Dictionary
+	coarse_profile["completed_run_ids"] = [RunEngine.run_result_id(legacy)]
+	_assert(ProgressionStore.save_data(coarse_profile), "Legacy completion profile should save")
+	_expect_checkpoint("4 — old result and completion IDs do not establish a match", "", "combat")
+	_assert(ProgressionStore.save_data(completed), "Restore the finished run's profile")
+
+	_assert(ProgressionStore.save_run_state(finished), "Stale live checkpoint should save")
+	var live_hash := FileAccess.get_sha256(RUN_PATH)
+	var menu: Node = await _instantiate_menu()
+	_assert(menu.continue_button.disabled and not menu.resume_panel.visible, "A matching finished checkpoint must hide Continue")
+	_assert(FileAccess.get_sha256(RUN_PATH) == live_hash, "5 — matching a finished checkpoint must preserve its bytes")
+	_stop_menu_music(menu)
+	menu.free()
+
+	other["run_index"] = 1
+	_assert(ProgressionStore.save_run_state(finished), "Restore the stale live checkpoint")
+	var backup := FileAccess.open(RUN_PATH + ".backup", FileAccess.WRITE)
+	backup.store_var(other)
+	backup.close()
+	var backup_hash := FileAccess.get_sha256(RUN_PATH + ".backup")
+	_expect_checkpoint("5 — a stale live file must allow inspection of the distinct backup", OTHER_RUN_ID)
+	_assert(FileAccess.get_sha256(RUN_PATH) == live_hash and FileAccess.get_sha256(RUN_PATH + ".backup") == backup_hash, "5 — selection must preserve both checkpoint files")
+
+	var terminal := finished.duplicate(true)
+	terminal["mode"] = "defeat"
+	terminal["combat_state"] = {}
+	_assert(ProgressionStore.save_run_state(terminal), "A finalized terminal record should save")
+	backup = FileAccess.open(RUN_PATH + ".backup", FileAccess.WRITE)
+	backup.store_var(other)
+	backup.close()
+	terminal = ProgressionStore.load_saved_run()
+	var terminal_hash := FileAccess.get_sha256(RUN_PATH)
+	_expect_checkpoint("Finalized terminal live file leaves a distinct active backup selectable", OTHER_RUN_ID)
+	_assert(FileAccess.get_sha256(RUN_PATH) == terminal_hash and FileAccess.get_sha256(RUN_PATH + ".backup") == backup_hash,
+		"Selecting the playable backup leaves both terminal and active files intact")
+	var promoted := ProgressionStore.load_checkpoint_for_replacement()
+	_assert(ProgressionStore.completion_run_id(promoted.get("state", {})) == OTHER_RUN_ID
+		and ProgressionStore.completion_run_id(ProgressionStore.load_saved_run()) == OTHER_RUN_ID,
+		"Confirmed replacement promotes the selected backup before its transaction")
+
+	var prompt := HeirloomFixture.equip(finished)
+	prompt["mode"] = "victory"
+	prompt["heirloom_end"] = {"done": false}
+	_assert(ProgressionStore.save_run_state(prompt), "Unprocessed terminal fallback should save")
+	_expect_checkpoint("1 — an unprocessed heirloom fallback wins over the completion receipt", FINISHED_RUN_ID, "victory")
+	prompt["heirloom_terminal_wallet"] = {"victory_carry": 74}
+	completed["run_counter"] = 1
+	_assert(ProgressionStore.save_data(completed) and ProgressionStore.save_run_state(prompt), "Interrupted New Descent fixture should save its settled prompt and advanced profile")
+	_expect_checkpoint("2 — an advanced descent counter must preserve a pending prompt", FINISHED_RUN_ID, "victory")
+
+func _expect_checkpoint(label: String, id: String, mode: String = "combat") -> void:
+	var before := FileAccess.get_sha256(RUN_PATH)
+	var selected: Dictionary = ProgressionStore.read_resumable_checkpoint().get("state", {})
+	print("COMPLETION REGRESSION ", label, " selected=", selected.get("mode", "none"))
+	_assert(selected.get("mode", "") == mode and selected.get("analytics", {}).get("run_id", "") == id, label)
+	_assert(FileAccess.get_sha256(RUN_PATH) == before, label + " (live bytes preserved)")
+
+func _boot_host() -> BootHost:
+	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	instance.set_script(BootHost)
+	root.add_child(instance)
+	return instance as BootHost
+
+func _test_backup_resume_rotation() -> void:
+	var profile := ProgressionStore.default_data()
+	var finished := _valid_combat_run(profile)
+	finished["analytics"] = {"run_id": FINISHED_RUN_ID}
+	var active := _valid_combat_run(profile)
+	active["analytics"] = {"run_id": OTHER_RUN_ID}
+	_assert(ProgressionStore.save_data(ProgressionStore.record_run_completion(profile, finished)), "Backup fixture records the finished live run")
+	_assert(ProgressionStore.save_run_state(finished), "Backup fixture writes the finished live checkpoint")
+	var backup := FileAccess.open(RUN_PATH + ".backup", FileAccess.WRITE)
+	backup.store_var(active)
+	backup.close()
+	var backup_hash := FileAccess.get_sha256(RUN_PATH + ".backup")
+	_expect_checkpoint("2 — title selects the distinct backup", OTHER_RUN_ID)
+
+	var host := _boot_host()
+	root.set_meta("labyrinth_resume_saved_run", true)
+	host._boot_initial_run(false)
+	_assert(host._run_state.get("analytics", {}).get("run_id", "") == OTHER_RUN_ID, "2 — Continue actually installs the backup run")
+	_assert(FileAccess.get_sha256(RUN_PATH) == backup_hash, "2 — actual Continue promotes the exact bytes before any writer can run")
+	_assert(FileAccess.get_sha256(RUN_PATH + ".backup") == backup_hash, "2 — backup remains intact at promotion")
+	var stop_after_rotation := func(stage: String) -> bool: return stage != "recovery_ready"
+	_assert(not ProgressionStore._save_run_state_at(RUN_PATH, active, stop_after_rotation, true), "2 — force Windows rotation and interrupt before promotion")
+	_assert(not FileAccess.file_exists(RUN_PATH), "2 — interruption leaves live missing")
+	_assert(FileAccess.get_sha256(RUN_PATH + ".backup") == backup_hash, "2 — the first interrupted rotation preserves run B")
+	_assert(ProgressionStore.read_resumable_checkpoint().get("state", {}).get("analytics", {}).get("run_id", "") == OTHER_RUN_ID, "2 — a relaunch can still select B after interrupted rotation")
+	host.free()
+	ProgressionStore.clear_saved_run()
+
+func _test_interrupted_new_descent_marker() -> void:
+	var profile := ProgressionStore.default_data()
+	profile["run_counter"] = DEFEATED_RUN
+	profile = ProgressionStore.record_lost_embers(profile, TerminalCrash.HELD, RECOVERY_ROOM, DEFEATED_RUN)
+	_assert(ProgressionStore.save_data(profile), "3 — fixture saves the dropped Embers")
+	var marker: Dictionary = ProgressionStore.recovery_marker(ProgressionStore.load_data())
+	var legacy := profile.duplicate(true)
+	legacy["run_counter"] = DEFEATED_RUN + 1
+	var predecessor := {"mode": "defeat", "run_index": DEFEATED_RUN, "current_room": RECOVERY_ROOM}
+	var legacy_retry := ProgressionStore.prepare_for_new_run(legacy, predecessor)
+	_assert(int(legacy_retry["run_counter"]) == DEFEATED_RUN + 1 and int(ProgressionStore.recovery_marker(legacy_retry).get("amount", 0)) == TerminalCrash.HELD, "3 — an older interrupted descent can recover from the terminal checkpoint that owns its marker")
+	var blocker := ProjectSettings.globalize_path(RUN_PATH + ".tmp")
+	var first := _boot_host()
+	first._defer_initial_run_presentation = true
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "3 — block replacement after the profile advances")
+	_assert(not first._commit_new_run(first._start_run(true), {}), "3 — failed replacement is reported as failed")
+	_assert(int(ProgressionStore.load_data()["run_counter"]) == DEFEATED_RUN + 1 and not ProgressionStore.has_saved_run(), "3 — reservation advanced but no run was installed")
+	_assert(ProgressionStore.recovery_marker(ProgressionStore.load_data()) == marker, "3 — interrupted install keeps its recovery marker")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "3 — remove the checkpoint blocker")
+	first.free()
+
+	var retry := _boot_host()
+	retry._defer_initial_run_presentation = true
+	_assert(retry._commit_new_run(retry._start_run(true), {}), "3 — a fresh scene can retry New Descent")
+	_assert(int(ProgressionStore.load_saved_run().get("run_index", -1)) == DEFEATED_RUN + 1, "3 — retry installs the reserved run counter")
+	_assert(ProgressionStore.recovery_marker(ProgressionStore.load_data()) == marker, "3 — retry keeps the marker for the run the player can now play")
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "3 — block the replacement that would normally expire the marker")
+	_assert(not retry._commit_new_run(retry._start_run(true), {}), "3 — the expiring replacement fails to install")
+	_assert(ProgressionStore.recovery_marker(ProgressionStore.load_data()) == marker, "3 — the marker remains durable until the expiring checkpoint installs")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "3 — remove the second blocker")
+	_assert(retry._commit_new_run(retry._start_run(true), {}), "3 — the next checkpoint now installs")
+	_assert(int(ProgressionStore.load_saved_run().get("run_index", -1)) == DEFEATED_RUN + 2 and ProgressionStore.recovery_marker(ProgressionStore.load_data()).is_empty(), "3 — expiry commits only once the following checkpoint installs")
+	retry.free()
+
+func _test_interrupted_descent_then_defeat() -> void:
+	ProgressionStore.clear_saved_run()
+	const OLD_LOSS := 100
+	var profile := ProgressionStore.record_lost_embers(ProgressionStore.default_data(), OLD_LOSS, RECOVERY_ROOM, DEFEATED_RUN - 1)
+	profile["run_counter"] = DEFEATED_RUN
+	var active := RunEngine.new().create_debug_boss_run(profile)
+	active["debug_boss_run"] = false
+	active["run_index"] = DEFEATED_RUN
+	active["analytics"] = {"run_id": FINISHED_RUN_ID}
+	active = RunEngine.new().set_held_embers(active, TerminalCrash.HELD)
+	_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(active), "5 — save the active run with its earlier marker")
+	var run_blocker := ProjectSettings.globalize_path(RUN_PATH + ".tmp")
+	_assert(DirAccess.make_dir_absolute(run_blocker) == OK, "5 — block the replacement checkpoint")
+	var host := _boot_host()
+	host._defer_initial_run_presentation = true
+	_assert(not host._commit_new_run(host._start_run(true), {}), "5 — interrupt replacement after reservation")
+	_assert(not str(ProgressionStore.load_data().get(ProgressionStore.PENDING_DESCENT_ID_KEY, "")).is_empty(), "5 — the interrupted descent has a reservation")
+	_assert(DirAccess.remove_absolute(run_blocker) == OK, "5 — restore checkpoint writes")
+	host._run_state = ProgressionStore.load_saved_run()
+	host._progression = host._run_state["progression"]
+	var combat: Dictionary = host._run_state["combat_state"].duplicate(true)
+	combat["player"]["hp"] = 0
+	var blocker := ProjectSettings.globalize_path(PROGRESSION_PATH + ".tmp")
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "5 — block defeat profile settlement")
+	var defeated := host._run_state_for_combat_checkpoint(host._run_state, combat)
+	_assert(not bool(host._persist_run_state_snapshot(defeated, false, "enemy_round_complete")["saved"]), "5 — defeat keeps its terminal fallback")
+	_assert(ProgressionStore.load_saved_run().get("mode") == "defeat", "5 — the new loss is recoverable from the checkpoint")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "5 — restore profile writes before New Descent")
+	var request := host._start_run(true)
+	var marker := ProgressionStore.recovery_marker(ProgressionStore.load_data())
+	print("RECOVERY MARKER AFTER INTERRUPTED DESCENT: ", marker.get("amount", 0))
+	_assert(not request.is_empty() and int(marker.get("amount", 0)) == TerminalCrash.HELD, "5 — recovering the new defeat replaces the older marker")
+	host.free()
+
+func _test_terminal_withdrawal_without_profile() -> void:
+	const Recap = preload("res://scripts/run_end_recap_overlay.gd")
+	_cleanup_storage()
+	var profile := ProgressionStore.leave_heirloom(ProgressionStore.default_data(), HeirloomFixture.PROOF_ITEMS[0])
+	profile["run_counter"] = DEFEATED_RUN
+	var engine := RunEngine.new()
+	var active := engine.set_held_embers(engine.create_new_run(TerminalCrash.SEED, profile), TerminalCrash.HELD)
+	active["mode"] = "campfire"
+	active["analytics"] = {"run_id": FINISHED_RUN_ID}
+	var settled_profile := ProgressionStore.set_embers(profile, TerminalCrash.HELD)
+	var withdrawal := Recap.embrace_state(active, settled_profile)
+	withdrawal["embrace_settlement"] = true
+	withdrawal["progression"] = ProgressionStore.record_run_completion(withdrawal["progression"], withdrawal)
+	_assert(ProgressionStore.save_run_state(withdrawal), "Cloud fixture receives only the terminal checkpoint")
+	var host := _boot_host()
+	host._defer_initial_run_presentation = true
+	var request := host._start_run(true)
+	_assert(not request.is_empty() and host._commit_new_run(request, {}), "A fresh profile can recover the withdrawal and start a new descent")
+	var installed := ProgressionStore.load_data()
+	_assert(int(installed["embers"]) == TerminalCrash.HELD and int(installed["run_counter"]) == DEFEATED_RUN + 1
+		and ProgressionStore.heirloom(installed) == HeirloomFixture.PROOF_ITEMS[0],
+		"The terminal checkpoint recovers the bank, descent counter and heirloom together")
+	host.free()
+
 func _test_valid_save_summary_and_replacement_gate() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["embers"] = 91
@@ -48,6 +366,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	progression = ProgressionStore.normalized_data(progression)
 	_assert(ProgressionStore.save_data(progression), "Valid-save fixture should write progression")
 	var run_state: Dictionary = _valid_combat_run(progression)
+	run_state["analytics"] = {"run_id": REPLACED_RUN_ID}
 	_assert(ProgressionStore.save_run_state(run_state), "Valid-save fixture should write the run")
 	var bytes_before: PackedByteArray = _run_file_bytes()
 	var instance: Node = await _instantiate_menu()
@@ -102,6 +421,18 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	await _complete_new_game_transition()
 	_assert(ProgressionStore.has_saved_run() and _run_file_bytes() != bytes_before, "Explicit replacement should durably replace the saved run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Confirmed replacement should preserve the existing New Game ember-reset semantic")
+	var ends := _run_ended_events(REPLACED_RUN_ID)
+	_assert(ends.size() == 1 and ends[0]["idempotency_key"] == "run_ended|" + REPLACED_RUN_ID and ends[0]["payload"]["outcome"] == "abandoned",
+		"Confirmed replacement should end the previous run exactly once")
+	var replacement_bytes := _run_file_bytes()
+	var stale := FileAccess.open(RUN_PATH, FileAccess.WRITE)
+	stale.store_buffer(bytes_before)
+	stale.close()
+	_assert(ProgressionStore.read_resumable_checkpoint().get("state", {}).is_empty(),
+		"The confirmed replacement's discarded checkpoint cannot resume after sync")
+	var restored := FileAccess.open(RUN_PATH, FileAccess.WRITE)
+	restored.store_buffer(replacement_bytes)
+	restored.close()
 	instance.free()
 	await process_frame
 

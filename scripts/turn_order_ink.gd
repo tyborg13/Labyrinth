@@ -33,6 +33,11 @@ static func brush_texture(active: bool, actor_key: String) -> Texture2D:
 	var file: String = HERO_BRUSH if active else QUEUE_BRUSHES[_hash(actor_key) % QUEUE_BRUSHES.size()]
 	return AssetLoader.load_texture(BRUSH_DIR + file)
 
+static func add_brush_textures(manifest: Dictionary) -> void:
+	# Projected slots and later spawns can use any queue brush in this small set.
+	manifest[BRUSH_DIR + HERO_BRUSH] = false
+	for file: String in QUEUE_BRUSHES: manifest[BRUSH_DIR + file] = false
+
 static func ink_color(team: String, active: bool, projected: bool) -> Color:
 	var ink: Color = ACTIVE_INK if active else (ALLY_INK if team == "player" else ENEMY_INK)
 	if projected and not active:

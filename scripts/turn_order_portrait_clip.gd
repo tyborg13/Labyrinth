@@ -52,6 +52,12 @@ func _supported(child: TextureRect) -> bool:
 		ancestor = null if ancestor.is_set_as_top_level() else ancestor.get_parent() as CanvasItem
 	return _mask.self_modulate.a == 1.0
 
+static func portrait_shader() -> Shader:
+	if _shader == null:
+		_shader = Shader.new()
+		_shader.code = SHADER_CODE
+	return _shader
+
 func refresh() -> void:
 	if not is_instance_valid(_mask): return
 	var child: TextureRect = _mask.get_child(0) as TextureRect if _mask.get_child_count() == 1 else null
@@ -68,11 +74,8 @@ func refresh() -> void:
 		if _slot < 0:
 			_coverage = null
 			return
-		if _shader == null:
-			_shader = Shader.new()
-			_shader.code = SHADER_CODE
 		_material = ShaderMaterial.new()
-		_material.shader = _shader
+		_material.shader = portrait_shader()
 		_material.set_shader_parameter("coverage", _coverage.texture())
 		_material.set_shader_parameter("coverage_channel", _slot / Coverage.BITS_PER_CHANNEL)
 		_material.set_shader_parameter("coverage_bit", 1 << (_slot % Coverage.BITS_PER_CHANNEL))

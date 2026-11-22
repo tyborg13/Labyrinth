@@ -3,10 +3,10 @@ extends "res://scripts/run_scene.gd"
 const FrameTrace = preload("res://tests/perf/combat_frame_trace.gd")
 var reference_checkpoint_copy: bool = false
 
-func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary, reason: String = "enemy_round") -> Dictionary:
 	# Reproduce the removed caller copy for the current-base reference workload.
 	var started: int = Time.get_ticks_usec()
-	var result: Dictionary = super._run_state_for_combat_checkpoint(base_run_state.duplicate(true) if reference_checkpoint_copy else base_run_state, combat_state)
+	var result: Dictionary = super._run_state_for_combat_checkpoint(base_run_state.duplicate(true) if reference_checkpoint_copy else base_run_state, combat_state, reason)
 	FrameTrace.record("checkpoint_builder_call", started, Time.get_ticks_usec(), -5)
 	return result
 

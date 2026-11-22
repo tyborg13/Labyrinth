@@ -14,7 +14,7 @@ const HERO_TILE := Vector2i(5, 5)
 static func run(expect: Callable) -> void:
 	var engine := Combat.new()
 	var state: Dictionary = Base.battle(engine)
-	Rules.install(engine, state, Base.rule("lightning_storm", {"damage": PROOF_DAMAGE, "chain": 0}, true))
+	Rules.install(engine, state, Base.rule("lightning_storm", {"damage": PROOF_DAMAGE}, true))
 	Surface.place(state, FIRST_TILE, "electrified", {"actor_kind": "enemy"})
 	state = engine.finish_player_activation(state)
 	for tile: Vector2i in [RELAY_TILE, HERO_TILE]: Surface.place(state, tile, "electrified", {"actor_kind": "enemy"})
@@ -54,7 +54,7 @@ static func _zekarion(expect: Callable) -> void:
 				if Surface.BeatFuel.eligible(before, source): continue
 				witnessed = true
 				expect.call(step["tiles"].has(tile), "Scheduled Overload strikes newly laid Electrified ground")
-			expect.call(before["battlefield_rule"]["dials"]["chain"] == 0, "Scheduled Overload uses Chain 0")
+			expect.call(not before["battlefield_rule"]["dials"].has("chain"), "Scheduled Overload has no Chain dial")
 	expect.call(witnessed, "Zekarion's production scheduler reaches Overload with fresh Electrified ground")
 
 static func _refresh_fresh_candidate(state: Dictionary, engine: RefCounted) -> void:

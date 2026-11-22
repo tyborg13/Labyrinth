@@ -235,6 +235,8 @@ static func _retort(engine: RefCounted, state: Dictionary, attacker_id: int, ill
 	var context: Dictionary = {"actor_kind": "player", "actor_id": -1, "source_kind": RETORT_EVENT, "player_card": false, "causal_owner": "player", "target_enemy_id": attacker_id, "illusion_id": int(illusion.get("id", -1)), "trait": trait_id, "element": element, "card_id": str(illusion.get("source_card_id", ""))}
 	state["damage_context"] = context
 	if amount > 0:
+		# pla-01: Expose adds to every damaging hit, an illusion's Retaliate included.
+		amount += engine._spend_expose(state, "enemy", attacker_id)
 		state = engine._damage_enemy(state, index, amount, false, false)
 	var illusion_tile: Vector2i = entry.get("tile", illusion.get("pos", INVALID))
 	if shock > 0:
@@ -433,6 +435,7 @@ static func append_refraction_hits(engine: RefCounted, state: Dictionary, plan: 
 			hit_ids[enemy_id] = true
 			var hit: Dictionary = actor.duplicate(true)
 			hit["kind_trace"] = REFRACTION_TRACE
+			hit["attack_origin"] = origin
 			hit["from"] = origin
 			hit["to"] = unit.get("pos", INVALID)
 			hits.append(hit)

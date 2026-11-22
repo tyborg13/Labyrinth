@@ -51,7 +51,8 @@ static func run(expect: Callable) -> void:
 	value["player"]["freeze"] = 2
 	value["player"]["expose"] = 7
 	after = hit(value)
-	expect.call(after["player"]["hp"] == hp - 1 and after["player"]["block"] == 0 and after["player"]["stoneskin"] == 0 and after["player"]["expose"] == 7, "Block/Stoneskin absorb Retaliate; Chill/Freeze/Expose do not amplify it")
+	# pla-01: Expose applies to every damaging hit (3 + Expose 7); Chill and Freeze still don't.
+	expect.call(after["player"]["hp"] == hp - 8 and after["player"]["block"] == 0 and after["player"]["stoneskin"] == 0 and int(after["player"].get("expose", 0)) == 0, "Block/Stoneskin absorb Retaliate; Expose adds to it; Chill/Freeze do not")
 	value = state()
 	var events: Array[Dictionary] = Retaliate.events_between(value, hit(value))
 	expect.call(events.size() == 1 and events[0]["kind"] == "retaliate_triggered" and events[0]["source"]["actor_kind"] == "enemy" and events[0]["source"]["source_kind"] == "retaliate", "Enemy Retaliate reuses the event kind with additive ownership")

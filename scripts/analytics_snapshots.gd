@@ -8,14 +8,48 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const INVALID_TARGET_TILE := Vector2i(-1, -1)
 const INVALID_ROOM_COORD := Vector2i(999, 999)
 
+static func run_ended_receipt(engine: RefCounted, state: Dictionary, outcome: String, context_fields: Dictionary) -> Dictionary:
+	var run_id: String = str(context_fields.get("run_id", ""))
+	if run_id.is_empty():
+		# A pre-analytics checkpoint has no random ID to correlate with JSONL.
+		run_id = preload("res://scripts/chronicle_rules.gd").record_id(state)
+	return {
+		"event_type": "run_ended",
+		"idempotency_key": AnalyticsStore.run_ended_key(run_id),
+		"context": context_fields,
+		"payload": run_ended(engine, state, outcome),
+	}
+
 static func stage_run_ended(engine: RefCounted, state: Dictionary, outcome: String, context_fields: Dictionary) -> Dictionary:
 	var next: Dictionary = state.duplicate(true)
-	next["progression"] = ProgressionStore.queue_progression_analytics_event(
-		next.get("progression", {}) as Dictionary, "run_ended",
-		"run_ended|%s|%s" % [RunEngineScript.run_result_id(next), outcome],
-		context_fields, run_ended(engine, next, outcome)
-	)
+	next["progression"] = stage_receipt(next.get("progression", {}), run_ended_receipt(engine, state, outcome, context_fields))
 	return next
+
+static func stage_receipt(progression: Dictionary, receipt: Dictionary) -> Dictionary:
+	return ProgressionStore.queue_progression_analytics_event(
+		progression, receipt["event_type"], receipt["idempotency_key"], AnalyticsStore._sanitize_variant(receipt["context"]), AnalyticsStore._sanitize_variant(receipt["payload"])
+	)
+
+static func stage_combat_end(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary, combat: Dictionary, reason: String) -> void:
+	var combat_context: Dictionary = context(combat_engine, run_engine, {}, state, combat)
+	var combat_id: String = combat_context["combat_id"]
+	if combat_id.is_empty():
+		var run_identity: String = str(combat_context["run_id"])
+		if run_identity.is_empty(): run_identity = preload("res://scripts/chronicle_rules.gd").record_id(state)
+		combat_id = "%s_c%03d" % [run_identity, int(state.get("analytics", {}).get("combat_counter", 0))]
+	var combat_receipt: Dictionary = {
+		"event_type": "combat_ended", "idempotency_key": AnalyticsStore.combat_ended_key(combat_id),
+		"context": combat_context, "payload": combat_ended(combat_engine, combat, reason),
+	}
+	state["progression"] = stage_receipt(state.get("progression", {}), combat_receipt)
+
+static func stage_defeat(combat_engine: RefCounted, run_engine: RefCounted, state: Dictionary, combat: Dictionary, reason: String) -> void:
+	stage_combat_end(combat_engine, run_engine, state, combat, reason)
+	var run_context: Dictionary = context(combat_engine, run_engine, {}, state)
+	var receipt: Dictionary = run_ended_receipt(run_engine, state, "defeat", run_context)
+	# The original defeat emitter ran after the terminal wallet was settled.
+	receipt["payload"]["held_embers"] = 0
+	state["progression"] = stage_receipt(state["progression"], receipt)
 
 static func context(_combat_engine: RefCounted, _run_engine: RefCounted, _progression: Dictionary, run_state: Dictionary, combat_state: Dictionary = {}, card_id: String = "", card_instance_id: String = "") -> Dictionary:
 	var room_meta: Dictionary = {}

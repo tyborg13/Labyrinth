@@ -1,0 +1,362 @@
+{
+  "_doc": "pla-02 Grimoire cleanup (director 2026-11-20; owner feedback 1): every keyword and mechanic page opens with its tooltip sentence (the glossary definition) and keeps a detail paragraph only for how-to-play help. Unit-specific exceptions, hidden caps and edge cases live on trait chips or show in the previews. These pages supersede the Grimoire bodies pinned by the tt-01/tt-02/trp-01/pla-01 fixtures. Read by tests/test_short_card_tooltips.py, tests/short_card_tooltips_test.gd, tests/card_panel_text_test.gd, tests/suites/mrk01_marked_suite.gd, tests/suites/dragon_feedback1_suite.gd and tests/suites/tooltip_consistency_suite.gd; the historical fixtures stay untouched.",
+  "pages": {
+    "basic:run": [
+      "One journey through 6 sections, each ending in a dragon.",
+      "Explore rooms, survive fights and claim rewards on the way to each dragon."
+    ],
+    "basic:map": [
+      "Choose your route through the section's rooms.",
+      "Revealed exits show where you can travel next, and cleared rooms stay open as routes."
+    ],
+    "basic:loadout": [
+      "Your gear, magic, items and skills.",
+      "Gear, magic and items form your deck. Change them outside combat, including before a battle and at an Ember Hearth."
+    ],
+    "basic:rewards": [
+      "After combat, take 1 of 3 cards, or skip to heal 3.",
+      "Gained magic cards go straight into your deck; Purge removes one."
+    ],
+    "basic:relics": [
+      "Passive effects that last the whole run.",
+      "Find them in Relic rooms and win them from dragons and Guardians. Hover relic badges in the top HUD for their current text."
+    ],
+    "combat:board": [
+      "The 9×9 grid where combat happens.",
+      "Card previews show legal targets, affected tiles and the results before you commit. Enemies show their next attack and the order they act in; red tiles will be struck before your next turn. Press I for every enemy's full plan. Undo move (Z) takes back free Movement until you play a card."
+    ],
+    "combat:turn_clock": [
+      "The unit with the lowest Time acts next; you win ties.",
+      "The turn order shows the coming turns."
+    ],
+    "combat:card_plays": [
+      "Each card you play spends one; they refill each turn, and kills give one more.",
+      "The Card Plays counter shows how many you have left this turn."
+    ],
+    "combat:health_defense": [
+      "Damage hits Block, then Stoneskin, then Health."
+    ],
+    "combat:defiance": [
+      "Each charge turns a lethal hit into 25% Health.",
+      "You get 1 charge per 4 permanent levels, refilled at the start of each run."
+    ],
+    "combat:targeting": [
+      "Targets must be visible and in Range; ranged attacks need line of sight.",
+      "Legal targets light up while you aim."
+    ],
+    "combat:fatigue": [
+      "Drawing from an empty pile reshuffles your discard and costs Health.",
+      "A Draw card's preview and the Pass forecast show the Health it will cost."
+    ],
+    "combat:traps": [
+      "Trigger when entered or attacked, hitting the unit on them and spreading their element around them."
+    ],
+    "combat:outcrops": [
+      "Attackable terrain that blocks movement.",
+      "Attack one to break it and open a route."
+    ],
+    "combat:lightning_strikes": [
+      "Strikes the marked tiles, then leaves them Electrified."
+    ],
+    "combat:summons": [
+      "Calls the shown enemy into the fight.",
+      "Its intent shows what will arrive, or Summon blocked when nothing can."
+    ],
+    "combat:umbra": [
+      "Darkness that hides enemies and their intents.",
+      "Light, Vision, Truesight and Dispel Umbra push it back."
+    ],
+    "keyword:melee": [
+      "Damage an adjacent target, or one within the shown Range."
+    ],
+    "keyword:ranged": [
+      "Damage a target in Range and line of sight."
+    ],
+    "keyword:move": [
+      "Walk up to that many tiles.",
+      "Pick your own tile to stay."
+    ],
+    "keyword:blink": [
+      "Teleport up to that many tiles to a visible open tile.",
+      "Pick your own tile to stay."
+    ],
+    "keyword:block": [
+      "Absorbs damage until its holder's next turn."
+    ],
+    "keyword:stoneskin": [
+      "Absorbs damage after Block; lasts until used up."
+    ],
+    "keyword:heal": [
+      "Restore that much Health."
+    ],
+    "keyword:draw": [
+      "Draw that many cards.",
+      "A Draw card's chip shows how many cards will really come."
+    ],
+    "keyword:card_play": [
+      "Each card you play spends one; they refill each turn, and kills give one more."
+    ],
+    "keyword:follow_up": [
+      "Gain the bonus if you already played a card this turn.",
+      "The card's numbers update in your hand while the bonus is active."
+    ],
+    "keyword:empower": [
+      "Pay the extra cost as you play this card to gain its bonus.",
+      "Charge the card with the Empower seal on its top-right corner (or press E; the right stick on a controller). A charged card glows and stays charged until you play it or your turn ends."
+    ],
+    "keyword:stagger": [
+      "Delays the target's next turn by this much Time.",
+      "Hover a Stagger target to preview its new place in the turn order."
+    ],
+    "keyword:illusion": [
+      "A decoy with that much Health; enemies attack it if it's as close as you."
+    ],
+    "keyword:immobilize": [
+      "Can't Move, Blink or Swap during its next turn."
+    ],
+    "keyword:exhaust": [
+      "Leaves your deck for the rest of combat."
+    ],
+    "keyword:retaliate": [
+      "Until its next turn, whoever hits this unit up close takes that much damage."
+    ],
+    "keyword:quicken": [
+      "Your next card this turn costs that much less Time.",
+      "The Time badge shows the discount."
+    ],
+    "keyword:next_attack": [
+      "Your next attack this turn gains the bonus."
+    ],
+    "keyword:rite": [
+      "Its effect lasts the rest of combat and the card Exhausts."
+    ],
+    "keyword:health_cost": [
+      "Lose that much Health."
+    ],
+    "keyword:pierce": [
+      "Ignores Block and Stoneskin."
+    ],
+    "keyword:bleed": [
+      "Takes that much damage before each move or attack."
+    ],
+    "keyword:freeze": [
+      "Skips its next turn and takes triple damage until then."
+    ],
+    "keyword:shock": [
+      "On its next turn, it can only Move or Blink."
+    ],
+    "keyword:expose": [
+      "Its next damaging hit takes that much more damage."
+    ],
+    "keyword:sunder": [
+      "Strips that much Block, then Stoneskin, before damage."
+    ],
+    "keyword:chain": [
+      "Jumps to new targets within that many tiles of each hit."
+    ],
+    "keyword:push": [
+      "Move the target that many tiles straight away; if blocked, Collision.",
+      "When the target is off to a diagonal, Rotate picks which side it goes before you commit."
+    ],
+    "keyword:pull": [
+      "Move the target that many tiles straight closer; if blocked, Collision.",
+      "When the target is off to a diagonal, Rotate picks which side it comes before you commit."
+    ],
+    "keyword:collision": [
+      "A blocked Push or Pull deals 2 damage per tile left, to both units."
+    ],
+    "keyword:consume": [
+      "Gone for the rest of the run once used."
+    ],
+    "keyword:radiance": [
+      "Cards that push back the Umbra."
+    ],
+    "keyword:illuminate": [
+      "Lights tiles within its radius through the Umbra."
+    ],
+    "keyword:vision": [
+      "See that many tiles farther for the shown turns."
+    ],
+    "keyword:truesight": [
+      "Every enemy counts as visible for the shown turns."
+    ],
+    "keyword:dispel_umbra": [
+      "Lower the Umbra by that many stages this combat."
+    ],
+    "combat:worldspines": [
+      "Tharokh marks a line of tiles between you and it, and they rise as Outcrops after every second turn of yours.",
+      "Break an Outcrop to open a route."
+    ],
+    "combat:cinder_marks": [
+      "Marks tiles that take damage and turn to Fire when it lands.",
+      "Replace the Fire to deny Crownfire's blast, or lure the dragon into it."
+    ],
+    "combat:hollow_gale": [
+      "Strikes everywhere within 2 tiles of Vaeloryx and Pushes struck actors 1 tile.",
+      "Escape the outer edge of Eye of the Storm, or step into the eye and face a weaker bite."
+    ],
+    "combat:area_force": [
+      "An area force pushes or pulls every enemy within its radius of a center: you, or a tile you choose."
+    ],
+    "combat:swap": [
+      "Trade places with a visible enemy or your illusion."
+    ],
+    "combat:stances": [
+      "A stance is a rule a card gives you for a while; active stances appear as badges on your character."
+    ],
+    "combat:cleanse": [
+      "Remove the listed statuses from yourself."
+    ],
+    "combat:petrify": [
+      "Skips its next turn and gains 5 Block."
+    ],
+    "combat:crystal_armor": [
+      "Each layer cancels one direct hit.",
+      "Cheap hits can clear layers before a heavy strike."
+    ],
+    "combat:boss_eclipse": [
+      "Hits anyone outside Light, then plunges the room into Eclipse.",
+      "Stand in Light, or walk or Blink onto an unlit brazier to relight it."
+    ],
+    "keyword:surface": [
+      "Place the shown ground on the shown tiles."
+    ],
+    "keyword:surface_fire": [
+      "Entering deals 2 damage; starting a turn here deals 3."
+    ],
+    "keyword:surface_ice": [
+      "Units on it are Chilled."
+    ],
+    "keyword:surface_electrified": [
+      "Lightning hits spread across connected Electrified tiles."
+    ],
+    "keyword:surface_rubble": [
+      "Costs 2 Movement to leave."
+    ],
+    "keyword:chilled": [
+      "Takes 2 more damage from attacks; an Ice attack Freezes it."
+    ],
+    "keyword:detonate": [
+      "Blow up the chosen ground, hitting everyone on and next to it, you included."
+    ],
+    "keyword:surface_consume": [
+      "Remove the shown ground to power this effect."
+    ],
+    "keyword:surface_relocate": [
+      "Move a ground tile to another open tile."
+    ],
+    "keyword:reflect": [
+      "Attacks from a non-adjacent tile bounce back to the attacker."
+    ],
+    "keyword:flying": [
+      "Ignores traps, ground and Collision damage."
+    ],
+    "keyword:marked": [
+      "These tiles take the hit on this enemy's next turn."
+    ],
+    "keyword:charge": [
+      "At 3 Charge it unleashes Arc Burst; Shock removes 1."
+    ],
+    "keyword:wind": [
+      "On its beat, the wind pushes every unit downwind."
+    ],
+    "keyword:upheaval": [
+      "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.",
+      "Break an Outcrop to escape a ring of them."
+    ],
+    "keyword:burst": [
+      "When it dies, it hits every unit next to it and leaves Fire."
+    ],
+    "keyword:range": [
+      "Maximum distance in tiles.",
+      "Count tiles without diagonals."
+    ],
+    "keyword:time": [
+      "Spending Time makes your next turn come later."
+    ],
+    "keyword:eclipse": [
+      "The darkest Umbra: you see only 1 tile around you.",
+      "Light still reveals tiles, and Dispel Umbra lowers it."
+    ],
+    "keyword:skate": [
+      "This turn, Ice costs no Movement and doesn't Chill you."
+    ],
+    "keyword:fireproof": [
+      "This turn, Fire ground doesn't hurt you."
+    ],
+    "keyword:surface_convert": [
+      "Turn the chosen ground into another kind, hitting enemies on it."
+    ],
+    "keyword:discharge": [
+      "Remove a connected Electrified network, hitting enemies on and next to it."
+    ],
+    "keyword:illusion_swap": [
+      "Swap places with one of your illusions."
+    ],
+    "keyword:shatter_illusion": [
+      "Destroy one of your illusions, hitting enemies next to it."
+    ],
+    "keyword:health": [
+      "At 0 Health, a unit is defeated.",
+      "Your Health carries over between rooms."
+    ],
+    "keyword:terrain_burst": [
+      "Hits units around its terrain pieces."
+    ],
+    "keyword:detonate_cinders": [
+      "Detonates the Fire on its last Cinder Marks, hitting everyone caught."
+    ],
+    "keyword:guard_ally": [
+      "Gives Block to the shown allies."
+    ],
+    "keyword:heal_ally": [
+      "Heals the shown ally."
+    ],
+    "keyword:ember": [
+      "Spent on wares and levels; dropped when you die.",
+      "Earn them from kills and victories. Recover dropped Embers on your next run."
+    ],
+    "keyword:element_fire": [
+      "Fire cards place Fire ground and Detonate it."
+    ],
+    "keyword:element_ice": [
+      "Ice cards place Ice and Freeze Chilled targets."
+    ],
+    "keyword:element_lightning": [
+      "Lightning cards place Electrified ground and spread through it."
+    ],
+    "keyword:element_air": [
+      "Air cards push, pull and move units."
+    ],
+    "keyword:element_earth": [
+      "Earth cards leave Rubble, raise terrain and grant Stoneskin."
+    ],
+    "keyword:skill_point": [
+      "Earned by leveling; spend them on skills.",
+      "Spend them in the Character menu."
+    ],
+    "keyword:moltshard": [
+      "Won from your first dragon; trade for Embers or reset your skills."
+    ],
+    "keyword:wait": [
+      "Each of your first 2 unused Card Plays adds 5 Time to your next turn."
+    ],
+    "keyword:turns": [
+      "How many of your turns this effect lasts.",
+      "∞ means it lasts all combat."
+    ],
+    "keyword:movement": [
+      "Tiles you can walk each turn for free."
+    ],
+    "keyword:item": [
+      "A one-use card from your item slots.",
+      "Equip items in your 2 item slots; each one joins your deck."
+    ],
+    "combat:surface_techniques": [
+      "Ground techniques turn the ground under enemies into hits."
+    ],
+    "combat:sweeping_strikes": [
+      "Hits every visible enemy that meets the shown condition."
+    ]
+  }
+}

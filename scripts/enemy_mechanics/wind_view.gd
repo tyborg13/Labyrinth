@@ -459,11 +459,7 @@ static func status_badges(unit: Dictionary) -> Array[Dictionary]:
 	if str(unit.get("type", "")) != "gale_herald": return badges
 	# The wind's source carries the wind sigil (owner, warband-markers-v2).
 	badges.append({"status_class": "trait", "icon": "wind", "count": 0, "fill": Palette.STEEL, "border": Palette.STEEL, "icon_tint": Color.WHITE, "tooltip": SOURCE_TOOLTIP})
-	var anchored: Array[Dictionary] = _query_engine().ManeuverRules.player_badges({"self_flags": {"anchored": {}}})
-	for badge: Dictionary in anchored:
-		badge["tooltip"] = "Anchored: the wind does not move it."
-		badge["status_class"] = "trait"
-	badges.append_array(anchored)
+	# Its Anchored chip comes from UnitTraits with every other anchored unit (pla-01).
 	return badges
 
 static func damage_texts(scene: Control, step: Dictionary) -> Array[Dictionary]:

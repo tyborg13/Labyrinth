@@ -72,10 +72,13 @@ func _install(host: SceneTree, builder: SceneTree, kind: String) -> bool:
 		host.errors.append(kind + ": " + builder.census_error)
 		return false
 	host.mark(kind, "fixture_install")
-	await host._enter_scene("res://scenes/run_scene.tscn")
-	if host.finished: return false
-	host.scene.set("_progression", state["progression"])
-	host.scene.call("_load_run_state", state)
+	if host.staged_tharokh_tour:
+		if not await _resume_on_cover(host, state): return false
+	else:
+		await host._enter_scene("res://scenes/run_scene.tscn")
+		if host.finished: return false
+		host.scene.set("_progression", state["progression"])
+		host.scene.call("_load_run_state", state)
 	host.scene.call("_close_dialogue")
 	await host.settle()
 	if host.finished: return false
@@ -89,6 +92,23 @@ func _install(host: SceneTree, builder: SceneTree, kind: String) -> bool:
 	if installed.get("mode") != state.get("mode") or installed.get("current_room") != state.get("current_room") or installed.get("seed") != state.get("seed"):
 		host.errors.append(kind + ": requested fixture state did not remain installed")
 		return false
+	return true
+
+func _resume_on_cover(host: SceneTree, state: Dictionary) -> bool:
+	if not Store.save_data(state["progression"]) or not Store.save_run_state(state):
+		host.errors.append("Could not write the Tharokh tour checkpoint")
+		return false
+	await host._enter_scene("res://scenes/main_menu.tscn")
+	var started: int = Time.get_ticks_usec()
+	host.scene.call("_on_continue_button_pressed")
+	while not host.finished and is_instance_valid(host.current_scene) and not host.current_scene.has_method("_committed_run_state"):
+		await host.process_frame
+	if host.finished: return false
+	if not is_instance_valid(host.current_scene) or not host.current_scene.has_method("_committed_run_state"):
+		host.errors.append("The Tharokh tour checkpoint did not resume")
+		return false
+	host.scene = host.current_scene
+	host.coverage["tharokh_resume_wall_us"] = Time.get_ticks_usec() - started
 	return true
 
 func _overlay(host: SceneTree, item: Array) -> void:

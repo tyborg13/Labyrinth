@@ -22,6 +22,9 @@ var changes: int = 0
 var _signature: Array = []
 var _outline_targets: Dictionary = {}
 var _outline_tweens: Dictionary = {}
+var _hud_sources_to_reorder: Dictionary = {}
+var _hud_route_order: Array[Control]
+var _record_hud_route_order: bool = false
 # occ-02 focus reveal: body opacity per actor, on each body canvas's modulate
 # (self_modulate keeps the aim dim; HUD canvases never take it).
 var body_alphas: Dictionary = {}
@@ -112,22 +115,44 @@ func finish_draw(source: Control) -> void:
 			if child.has_meta("rd03_routed"): child.remove_meta("rd03_routed")
 			else: (child as Control).hide()
 
-func release_room_canvases(keep_unit_sprites: bool = false) -> void:
+func release_room_canvases(keep_unit_sprites: bool = false, keep_hud: bool = false) -> void:
 	# The source layers may be reused in the next room, but their child
 	# canvases contain this room's actor snapshots and paint commands.
+	_hud_sources_to_reorder.clear()
 	for id: String in canvases.keys():
 		var record: Dictionary = canvases[id]
 		if not is_instance_valid(record.canvas):
 			canvases.erase(id)
 			continue
 		var canvas: Control = record.canvas
-		if keep_unit_sprites and not bool(record.hud) and canvas.is_visible_in_tree() and canvas.get_parent().get("_render_layer_kind") == "unit_body_outline":
-			# A fresh sprite child used to start bright. Reproduce that reset
-			# without removing the already visible CanvasItem or its commands.
+		var source: Control = canvas.get_parent() as Control
+		var layer: String = source.get("_render_layer_kind") if source != null else ""
+		var retain_hud: bool = keep_hud and bool(record.hud) and layer == "hud" and HudRetention.enabled(source)
+		if retain_hud or (
+			keep_unit_sprites and not bool(record.hud) and canvas.is_visible_in_tree() and layer == "unit_body_outline"
+		):
+			# Returning from a coordinate-less forecast keeps the same painter
+			# sources. Start bright, as a fresh canvas would. The submission
+			# rebinds each routed HUD piece and retires any piece it no longer uses.
 			var tween: Tween = canvas.get_meta("rd03_tween") if canvas.has_meta("rd03_tween") else null
 			if tween != null and tween.is_valid(): tween.kill()
 			canvas.set_meta("rd03_target", Color.WHITE)
 			canvas.self_modulate = Color.WHITE
+			if retain_hud:
+				_hud_sources_to_reorder[source.get_instance_id()] = true
+				# Fresh HUD canvases have no tooltip hits before their first draw.
+				# Discard the aim registrations and repaint to publish the new ones.
+				if not canvas._tooltip_regions.is_empty() or not canvas._tile_tooltip_regions.is_empty():
+					canvas._tooltip_regions.clear()
+					canvas._tile_tooltip_regions.clear()
+					record.erase("paint_inputs")
+				for child: Node in canvas.get_children():
+					if child is Control and str(child.name).begins_with("IntentTab_"):
+						# A fresh aim-exit painter recreates its tab on the next
+						# draw. Keep the painter and retire only that animated child.
+						canvas.remove_child(child)
+						child.queue_free()
+						record.erase("paint_inputs")
 			continue
 		canvas.hide()
 		canvas.queue_free()
@@ -138,10 +163,21 @@ func sync_hud_source(source: Control) -> void:
 	# routed children before requesting draw so an unchanged parent has no
 	# CanvasItem work. A lifecycle draw only submits its own direct paint.
 	var direct: Array = []
+	_record_hud_route_order = _hud_sources_to_reorder.erase(source.get_instance_id())
 	source._hud_paint_environment = HudRetention.environment(source)
 	for operation: Array in source._render_slice_ops:
 		if not route_operation(source, operation[0], operation[1], direct):
 			direct.append(operation)
+	if _record_hud_route_order:
+		_record_hud_route_order = false
+		# Fresh canvases would append in this operation order. Restore the same
+		# sibling order when projected health, badges or focus changed the plan.
+		var start: int = source.get_child_count() - _hud_route_order.size()
+		for index: int in range(_hud_route_order.size() - 1, -1, -1):
+			var canvas: Control = _hud_route_order[index]
+			if canvas.get_index() != start + index:
+				source.move_child(canvas, start + index)
+		_hud_route_order.clear()
 	finish_draw(source)
 	source._hud_direct_ops = direct
 	_sync_direct_hud(source)
@@ -271,7 +307,14 @@ func _bind_canvas(source: Control, canvas: Control, top: bool) -> void:
 		canvas.set_meta("rd03_asset_bindings", assets)
 	if not top:
 		for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]: canvas.set(field, source.get(field))
-	source.call("_copy_resolved_board_layout_to", canvas)
+	# The passive hover changes the HUD's paint inputs at the existing board
+	# projection. The source replaces its tile centers on real layout changes.
+	if (
+		not owner._submitting_focus_delta or not canvas._board_layout_cache_valid
+		or canvas._board_layout_cache_size != canvas.size
+		or not is_same(canvas._board_layout_cache_tile_centers, source._board_layout_cache_tile_centers)
+	):
+		source.call("_copy_resolved_board_layout_to", canvas)
 
 func _bind_hud_state(source: Control, canvas: Control, owner: Control) -> void:
 	var revision: int = owner._hud_binding_revision
@@ -289,6 +332,7 @@ func _bind_hud_state(source: Control, canvas: Control, owner: Control) -> void:
 
 func _queue_canvas(source: Control, canvas: Control, method: String, retain: bool = false) -> void:
 	if not source._board_redraw_baseline(): canvas.set_meta("rd03_routed", true)
+	if _record_hud_route_order and not _hud_route_order.has(canvas): _hud_route_order.append(canvas)
 	if retain:
 		canvas.show()
 		return

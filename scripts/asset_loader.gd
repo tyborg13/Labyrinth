@@ -5,6 +5,7 @@ static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRAC
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const CelLook = preload("res://scripts/cel_look.gd")
+const RoomImportImage = preload("res://scripts/room_import_image.gd")
 
 const TEXTURE_EXTENSIONS: PackedStringArray = ["svg", "png", "webp", "jpg"]
 const PNG_FIRST_TEXTURE_EXTENSIONS: PackedStringArray = ["png", "svg", "webp", "jpg"]
@@ -28,6 +29,24 @@ static var _audio_cache: Dictionary = {}
 static var _looping_audio_cache: Dictionary = {}
 static var _font_cache: Dictionary = {}
 static var _texture_cache: Dictionary = {}
+static var _prepared_textures: Dictionary = {}
+
+# The encounter owns the strong references to speculative textures. Consumers
+# keep their ordinary references and look up the same texture through the loader.
+class TexturePreparationScope extends RefCounted:
+	var textures: Dictionary = {}
+
+static func _retain_prepared_texture(scope: TexturePreparationScope, key: String, texture: Texture2D) -> void:
+	if texture == null: return
+	scope.textures[key] = texture
+	_prepared_textures[key] = weakref(texture)
+
+static func _prepared_texture(key: String) -> Texture2D:
+	var reference: WeakRef = _prepared_textures.get(key)
+	if reference == null: return null
+	var texture: Texture2D = reference.get_ref() as Texture2D
+	if texture == null: _prepared_textures.erase(key)
+	return texture
 
 # The source texture owns this guard; the cache holds rectangles only. Atlas
 # keys use the source's instance ID, so keep them until that source is freed,
@@ -71,6 +90,7 @@ class SourceImageResult extends RefCounted:
 	var source_first: Array[bool]
 	var source_routes: Array[bool]
 	var images: Array[Image]
+	var decode_room_imports: bool = false
 	var cancellation := PreparationCancellation.new()
 
 class SourceImageDrain extends Node:
@@ -113,6 +133,12 @@ const PREPARATION_STOPPED := &"labyrinth_asset_preparation_stopped"
 static func preparation_is_stopping(root: Node) -> bool:
 	return root.has_meta(PREPARATION_STOPPED)
 
+static func preparation_is_active(root: Node, still_active: Callable) -> bool:
+	return is_instance_valid(root) and not preparation_is_stopping(root) and (
+		# No guard means active; a guard whose owner was freed means stop.
+		still_active.is_null() or (still_active.is_valid() and bool(still_active.call()))
+	)
+
 static func cancel_preparation_for(root: Node) -> void:
 	root.set_meta(PREPARATION_STOPPED, true)
 	for child: Node in root.get_children():
@@ -127,6 +153,7 @@ const PREPARATION_SLICE_USEC: int = 11000
 const DEFAULT_STEP_ESTIMATE_USEC: int = 250
 const COLD_IMPORT_ESTIMATE_USEC: int = 2000
 const SOURCE_UPLOAD_ESTIMATE_USEC: int = 500
+const ROOM_DECODE_WORKERS: int = 2
 const ROOM_COVER_INTERVAL_USEC: int = 50000
 const ROOM_RENDER_RESERVE_USEC: int = 10000
 const SLOW_ROOM_OVERHEAD_USEC: int = 16000
@@ -215,23 +242,28 @@ static func record_preparation_yield() -> void:
 	_hitch_sink().hitch_preparation_yield(budget.allowance_usec() if budget != null else PREPARATION_SLICE_USEC)
 
 static func _texture_preparation_active(drain: Variant, still_active: Callable) -> bool:
-	return is_instance_valid(drain) and drain.is_inside_tree() and not preparation_is_stopping(drain.get_parent()) and (
-		not still_active.is_valid() or bool(still_active.call())
-	)
+	return is_instance_valid(drain) and drain.is_inside_tree() and preparation_is_active(drain.get_parent(), still_active)
+
+static func present_preparation_frame(tree: SceneTree) -> void:
+	if DisplayServer.get_name() == "headless": await tree.process_frame
+	else: await RenderingServer.frame_post_draw
 
 static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame: Callable,
-		still_active: Callable = Callable(), publish_ready: Callable = Callable()) -> void:
+		still_active: Callable = Callable(), publish_ready: Callable = Callable(), decode_room_imports: bool = false,
+		scope: TexturePreparationScope = null) -> void:
 	if preparation_is_stopping(root): return
 	var drain := SourceImageDrain.new()
 	drain.name = "SourceImageDecodeDrain"
 	drain.process_mode = Node.PROCESS_MODE_ALWAYS
 	drain.result = SourceImageResult.new()
+	drain.result.decode_room_imports = decode_room_imports
 	root.add_child(drain)
 	if not _texture_preparation_active(drain, still_active):
 		drain.queue_free()
 		return
 	for path: String in manifest:
 		if _texture_cache.has(path): continue
+		if _reuse_prepared_texture(path, scope): continue
 		drain.result.paths.append(path)
 		drain.result.variant_paths.append(CelLook.variant_candidate_path(path))
 		drain.result.source_first.append(bool(manifest[path]))
@@ -242,7 +274,8 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 		drain.result.source_routes.resize(path_count)
 		drain.result.images.resize(path_count)
 		drain.result.variant_failures.resize(path_count)
-		var worker_count: int = maxi(1, mini(OS.get_processor_count(), path_count))
+		var worker_limit: int = ROOM_DECODE_WORKERS if decode_room_imports else OS.get_processor_count()
+		var worker_count: int = maxi(1, mini(worker_limit, path_count))
 		drain.group_id = WorkerThreadPool.add_group_task(_decode_owned_source_image.bind(drain.result), path_count, worker_count, false, "Classify and decode texture sources")
 	# Imported Texture2D loads can upload to RenderingDevice on the loader
 	# thread (qa-82). Keep the exact import path on the main thread. A single
@@ -277,11 +310,13 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 		var path: String = drain.result.paths[index]
 		if not _texture_preparation_active(drain, still_active): break
 		if _texture_cache.has(path): continue
+		if _reuse_prepared_texture(path, scope): continue
 		var is_upload: bool = drain.result.source_routes[index] and drain.result.images[index] != null
 		var estimate: int = SOURCE_UPLOAD_ESTIMATE_USEC if is_upload else COLD_IMPORT_ESTIMATE_USEC
 		await wait_for_preparation_slice(present_frame, alive, &"", estimate)
 		if not _texture_preparation_active(drain, still_active): break
 		if _texture_cache.has(path): continue
+		if _reuse_prepared_texture(path, scope): continue
 		var started: int = Time.get_ticks_usec()
 		var _hitch_span: RefCounted
 		var _hitch_step: RefCounted
@@ -290,10 +325,13 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 			var image: Image = drain.result.images[index]
 			if image != null:
 				var _hitch_upload: RefCounted
+				var _hitch_texture: RefCounted
 				if _hitch_trace_enabled:
 					_hitch_upload = _hitch_sink().hitch_load(path)
+					_hitch_texture = _hitch_sink().hitch_texture("texture_load", path)
 					_hitch_step = _hitch_sink().hitch_phase("preparation:texture:source_upload:" + path)
 				_texture_cache[path] = _tag_texture_source(ImageTexture.create_from_image(image), path)
+				drain.result.images[index] = null
 			else:
 				if _hitch_trace_enabled: _hitch_step = _hitch_sink().hitch_phase("preparation:texture:source_fallback:" + path)
 				load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
@@ -303,9 +341,23 @@ static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame
 			load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
 		_hitch_step = null
 		_hitch_span = null
+		if scope != null:
+			_retain_prepared_texture(scope, path, _texture_cache.get(path) as Texture2D)
+			_texture_cache.erase(path)
 		count_preparation_work(started)
 	await wait_for_preparation_slice(present_frame, alive, &"", 0)
 	if is_instance_valid(drain): drain.queue_free()
+
+static func _reuse_prepared_texture(path: String, scope: TexturePreparationScope) -> bool:
+	var texture: Texture2D = _prepared_texture(path)
+	if texture == null: return false
+	if scope == null: _texture_cache[path] = texture
+	else: _retain_prepared_texture(scope, path, texture)
+	return true
+
+static func new_texture_preparation_scope() -> TexturePreparationScope:
+	for key: String in _prepared_textures.keys(): _prepared_texture(key)
+	return TexturePreparationScope.new()
 
 # Producers must create private CPU data only: no scene nodes, GPU objects or
 # shared-cache mutation. The main-thread caller owns publication after the join.
@@ -400,6 +452,11 @@ static func _decode_owned_source_image(index: int, result: SourceImageResult) ->
 		or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
 		result.source_routes[index] = true
 		result.images[index] = _decode_image_file(path, path.get_extension().to_lower())
+	elif result.decode_room_imports:
+		var image: Image = RoomImportImage.decode(path)
+		if image != null:
+			result.images[index] = image
+			result.source_routes[index] = true
 
 static func add_texture_constants(manifest: Dictionary, script: Script) -> void:
 	# Constants are the owning loader's asset manifest. Do not walk preloaded
@@ -414,7 +471,7 @@ static func release_cached_texture_families(prefixes: PackedStringArray) -> void
 			break
 
 static func has_cached_texture(path: String) -> bool:
-	return _texture_cache.has(path)
+	return _texture_cache.has(path) or _prepared_texture(path) != null
 
 static func _add_texture_paths(manifest: Dictionary, value: Variant) -> void:
 	if value is String:
@@ -433,6 +490,10 @@ static func load_texture(path: String) -> Texture2D:
 		return null
 	if _texture_cache.has(path):
 		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
+	var prepared: Texture2D = _prepared_texture(path)
+	if prepared != null: return prepared
+	var _hitch_texture: RefCounted
+	if _hitch_trace_enabled: _hitch_texture = _hitch_sink().hitch_texture("texture_load", path)
 	if (CelLook.mode != "off" and not CelLook.variant_path(path).is_empty()) or _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
 		var source_texture: Texture2D = _load_texture_from_file(path)
 		if source_texture != null:
@@ -446,6 +507,7 @@ static func load_texture(path: String) -> Texture2D:
 			_texture_cache[path] = loaded_texture
 			return loaded_texture
 	var texture: Texture2D = _load_texture_from_file(path)
+	if texture == null and _hitch_texture != null: _hitch_texture.discard()
 	_tag_texture_source(texture, path)
 	_texture_cache[path] = texture
 	return texture
@@ -460,11 +522,16 @@ static func load_texture_source_first(path: String) -> Texture2D:
 		return null
 	if _texture_cache.has(path):
 		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
+	var prepared: Texture2D = _prepared_texture(path)
+	if prepared != null: return prepared
+	var _hitch_texture: RefCounted
+	if _hitch_trace_enabled: _hitch_texture = _hitch_sink().hitch_texture("texture_load", path)
 	var source_texture: Texture2D = _load_texture_from_file(path)
 	if source_texture != null:
 		_tag_texture_source(source_texture, path)
 		_texture_cache[path] = source_texture
 		return source_texture
+	if _hitch_texture != null: _hitch_texture.discard()
 	return load_texture(path)
 
 static func _tag_texture_source(texture: Texture2D, path: String) -> Texture2D:
@@ -509,6 +576,8 @@ static func load_original_texture(path: String, source_first: bool = false) -> T
 	if path.is_empty(): return null
 	var key: String = path + ("|source" if source_first else "|import")
 	if _original_texture_cache.has(key): return _original_texture_cache[key]
+	var _hitch_texture: RefCounted
+	if _hitch_trace_enabled: _hitch_texture = _hitch_sink().hitch_texture("texture_load", path)
 	var texture: Texture2D
 	if source_first or _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
 		var source: Image = _load_source_image(path, false)
@@ -517,6 +586,7 @@ static func load_original_texture(path: String, source_first: bool = false) -> T
 	if texture == null:
 		var source: Image = _load_source_image(path, false)
 		if source != null: texture = ImageTexture.create_from_image(source)
+	if texture == null and _hitch_texture != null: _hitch_texture.discard()
 	_original_texture_cache[key] = _tag_texture_source(texture, path)
 	return texture
 
@@ -626,7 +696,7 @@ static func modulate_texture(texture: Texture2D, multiplier: Color) -> Texture2D
 			))
 	return ImageTexture.create_from_image(tinted_image)
 
-static func flip_texture_h(texture: Texture2D) -> Texture2D:
+static func flip_texture_h(texture: Texture2D, scope: TexturePreparationScope = null) -> Texture2D:
 	var _hitch_span: RefCounted
 	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_load(str(texture.get_meta("asset_source_path", texture.resource_path)) if texture != null else "<null>")
 	if texture == null:
@@ -634,6 +704,13 @@ static func flip_texture_h(texture: Texture2D) -> Texture2D:
 	var cache_key: String = "%s|flip_h" % _texture_processing_cache_key(texture)
 	if _flipped_texture_cache.has(cache_key):
 		return _flipped_texture_cache.get(cache_key, null)
+	var prepared: Texture2D = _prepared_texture(cache_key)
+	if prepared != null:
+		if scope != null: _retain_prepared_texture(scope, cache_key, prepared)
+		return prepared
+	var _hitch_flip: RefCounted
+	if _hitch_trace_enabled:
+		_hitch_flip = _hitch_sink().hitch_texture("texture_flip", str(texture.get_meta("asset_source_path", texture.resource_path)))
 	var image: Image = _texture_to_image(texture)
 	if image == null or image.is_empty():
 		_flipped_texture_cache[cache_key] = texture
@@ -641,7 +718,8 @@ static func flip_texture_h(texture: Texture2D) -> Texture2D:
 	var flipped_image: Image = image.duplicate()
 	flipped_image.flip_x()
 	var flipped_texture: Texture2D = ImageTexture.create_from_image(flipped_image)
-	_flipped_texture_cache[cache_key] = flipped_texture
+	if scope == null: _flipped_texture_cache[cache_key] = flipped_texture
+	else: _retain_prepared_texture(scope, cache_key, flipped_texture)
 	return flipped_texture
 
 static func scale_texture_nearest(texture: Texture2D, scale_factor: int) -> Texture2D:

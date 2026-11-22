@@ -121,6 +121,7 @@ var _tooltip_host: RefCounted
 var _spell_grid: GridContainer
 var _spell_groups: Array[Dictionary]
 var _detail_tiles: Array[Control]
+var _art_revision: int = 0
 
 func _ready() -> void:
 	set_meta("controller_custom_analog_navigation", true)
@@ -258,8 +259,48 @@ func open(profile: Dictionary = {}, log_event: bool = true) -> void:
 		_analytics.write_event("chronicle_opened", {}, {"records": records.size(), "runs": int(totals["runs"])})
 		_play_page_sound(RunSfx.MENU_OPEN_ID)
 	_layout()
+	_art_revision += 1
+	_prepare_record_art(self, _art_revision)
+
+## Choosing an older record draws its spells, relics and gear. After the first
+## frame, prepare every record's textures under the shared preparation budget,
+## then their tile crops through the same cache. A record chosen first keeps
+## its ordinary synchronous load.
+static func _prepare_record_art(panel: Control, revision: int) -> void:
+	if panel.records.is_empty() or not panel.is_inside_tree(): return
+	var tree: SceneTree = panel.get_tree()
+	var present: Callable = preload("res://scripts/room_asset_preparation.gd").present_frame.bind(tree)
+	var alive: Callable = _record_art_active.bind(panel, revision)
+	await present.call()
+	if not bool(alive.call()): return
+	var textures: Dictionary = {}
+	var tiles := PackedStringArray()
+	for record: Dictionary in panel.records:
+		for pair: Array in record["deck"]:
+			var definition: Dictionary = Rules.card_definition(pair[0], record.get("deck_card_definitions", {}))
+			var art: String = CardTile.CARD_BACK_PATH if definition.is_empty() else str(definition.get("art_path", ""))
+			if art.is_empty() or tiles.has(art): continue
+			tiles.append(art)
+			if not Assets.has_cached_texture(art): textures[art] = false
+		for id: String in record["relics"]: _add_record_icon(textures, str(GameData.relic_def(id).get("icon_path", "")))
+		for id: String in record["gear"]: _add_record_icon(textures, str(GameData.equipment_def(id).get("icon_path", "")))
+	if not textures.is_empty(): await Assets.prepare_textures_for(tree.root, textures, present, alive)
+	for art: String in tiles:
+		if CardTile._tile_art_cache.has(art): continue
+		await Assets.wait_for_preparation_slice(present, alive, &"chronicle_tile_art")
+		if not bool(alive.call()): return
+		var started: int = Time.get_ticks_usec()
+		CardTile.tile_art(art)
+		Assets.count_preparation_work(started, &"chronicle_tile_art")
+
+static func _add_record_icon(textures: Dictionary, path: String) -> void:
+	if not path.is_empty() and not textures.has(path) and not Assets.has_cached_texture(path): textures[path] = false
+
+static func _record_art_active(panel: Variant, revision: int) -> bool:
+	return is_instance_valid(panel) and revision == panel._art_revision and panel.is_inside_tree() and panel.is_visible_in_tree()
 
 func close() -> void:
+	_art_revision += 1
 	ScreenCrossfade.play(self, 0.12 if Settings.applied_reduced_motion_enabled() else 0.20)
 	_clear_focus_tooltip()
 	_play_page_sound(RunSfx.MENU_CLOSE_ID)

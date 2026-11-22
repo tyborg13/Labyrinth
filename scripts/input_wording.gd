@@ -9,14 +9,16 @@ const FIRST_CARD_PREVIEW: Dictionary = {
 	"pointer_text": "For this first card, click to preview it.",
 	"controller_text": "For this first card, select to preview it.",
 }
+# Pointer verbs inside Grimoire paragraphs, replaced for a controller (pla-02:
+# a page keeps one detail paragraph, so these are phrases, not whole paragraphs).
 const GRIMOIRE_PARAGRAPHS: Array[Dictionary] = Array([
 	{
-		"pointer_text": "Hover relic badges in the top HUD for their current text.",
-		"controller_text": "Focus relic badges in the top HUD for their current text.",
+		"pointer_text": "Hover relic badges in the top HUD",
+		"controller_text": "Focus relic badges in the top HUD",
 	},
 	{
-		"pointer_text": "Each enemy can be delayed by at most 6 per player turn. Hover a Stagger target to preview its new place in the turn order.",
-		"controller_text": "Each enemy can be delayed by at most 6 per player turn. Focus a Stagger target to preview its new place in the turn order.",
+		"pointer_text": "Hover a Stagger target to preview",
+		"controller_text": "Focus a Stagger target to preview",
 	},
 ], TYPE_DICTIONARY, "", null)
 
@@ -85,10 +87,9 @@ static func grimoire_body(entry: Dictionary, controller: bool) -> String:
 	for paragraph_var: Variant in entry.get("body", []):
 		var paragraph: String = str(paragraph_var).strip_edges()
 		if paragraph.is_empty(): continue
-		for wording: Dictionary in GRIMOIRE_PARAGRAPHS:
-			if paragraph == wording["pointer_text"]:
-				paragraph = str(wording["controller_text"] if controller else wording["pointer_text"])
-				break
+		if controller:
+			for wording: Dictionary in GRIMOIRE_PARAGRAPHS:
+				paragraph = paragraph.replace(str(wording["pointer_text"]), str(wording["controller_text"]))
 		paragraphs.append(paragraph)
 	return "\n\n".join(paragraphs)
 

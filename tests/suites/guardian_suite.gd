@@ -437,8 +437,9 @@ func _test_inspection_rules() -> void:
 	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
 	var procession: Dictionary = data.enemy_def("last_lamplighter")["intents"][2]
 	check(Guardians.intent_notes(snuff).contains("after Last Procession"), "Snuff inspection explains outage duration")
-	check(Guardians.intent_notes(procession).contains("even when skipped") and Guardians.intent_notes(procession).contains("Snuff's Shades"), "Procession inspection explains unconditional light and Shade cleanup")
-	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("Overlapping bursts hit once"), "Groundsplit inspection explains its overlap exception")
+	# pla-01: exception clauses leave the notes; the skipped-turn rule lives in the Grimoire.
+	check(Guardians.intent_notes(procession) == "Relights braziers and dismisses Snuff's Shades.", "Procession inspection explains light and Shade cleanup in one sentence")
+	check(not Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("Overlapping"), "Groundsplit inspection carries no overlap exception (the preview shows one number per unit)")
 
 	var icons = preload("res://scripts/action_icon_library.gd")
 	var summon_text: String = icons.plain_text_for_rows(icons.rows_for_actions(snuff["actions"]))

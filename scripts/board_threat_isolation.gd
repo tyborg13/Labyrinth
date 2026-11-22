@@ -4,9 +4,12 @@ extends "res://scripts/board_layer_slices.gd"
 ## CanvasItem alpha; neither the tween nor a held hover invalidates board paint.
 const DIM_ALPHA: float = 0.30
 const TRANSITION_SECONDS: float = 0.12
+const FOCUS_SPARE_LIMIT: int = 16
 const Red = preload("res://scripts/pass_forecast_red_tiles.gd")
 const HoverActor = preload("res://scripts/board_hover_actor.gd")
 const Lob = preload("res://scripts/enemy_mechanics/lob_view.gd")
+
+var _focus_spares: Array[Control]
 
 static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictionary, allow_reverse: bool = true) -> Array[String]:
 	var keys: Array[String]
@@ -28,12 +31,16 @@ static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictio
 	keys.sort()
 	return keys
 
-static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, tile: Vector2i, intent_preview: Variant = null) -> void:
+static func decorate(scene: Node, state: Dictionary, presentation: Dictionary, tile: Vector2i, intent_preview: Variant = null, prepared_rest: Variant = null) -> void:
 	var intent_state: Dictionary = scene._enemy_intent_preview_state(state) if intent_preview == null else intent_preview
 	var skill_events: Array = presentation.get("surface_preview_events", []) if scene._hovering_surface_skill() else []
 	if not skill_events.is_empty() and Lob.has_lob(scene._combat_state):
 		intent_state = scene._surface_preview_cache["state"]
-	var rest: Dictionary = scene._stage_hover_refresh.rest_badges(scene, intent_state, "", null, skill_events)
+	var rest: Dictionary
+	if prepared_rest != null and is_same(intent_state, scene._combat_state) and not scene._hovering_surface_skill():
+		rest = prepared_rest
+	else:
+		rest = scene._stage_hover_refresh.rest_badges(scene, intent_state, "", null, skill_events)
 	var keys: Array[String] = resolve(scene, state, tile, rest, not scene._targeted_card_aiming_active())
 	if rest.has(Red.FLOOR_KEY) or rest.has(Threats.LOB_AIM_KEY) or rest.has(Threats.MARKER_KEY):
 		rest = rest.duplicate(false)
@@ -104,6 +111,11 @@ static func enemy_at_tile(board: Control, tile: Vector2i) -> Dictionary:
 static func supports(kind: String, shown: Dictionary = {}) -> bool:
 	return kind in ["ambient", "overlays", "foreground", "hud"] or (shown.has("isolated_enemy_actor_keys") and kind in ["scene_tile", "effects", "effect_telegraphs"])
 
+func refresh_alpha(selected: Array) -> void:
+	for canvas: Control in canvases:
+		var keys: Array = canvas.get_meta("threat_actor_keys", [])
+		if not keys.is_empty(): _apply_alpha(canvas, keys, selected)
+
 func _apply_alpha(canvas: Control, keys: Array, selected: Array) -> void:
 	canvas.set_meta("threat_actor_keys", keys.duplicate())
 	# Reused slice slots can change from enemy paint to hero/floor paint.
@@ -124,13 +136,18 @@ func _apply_alpha(canvas: Control, keys: Array, selected: Array) -> void:
 	canvas.set_meta("rd04_tween", tween)
 
 func _rebuild(layer: Control) -> void:
+	var kind: String = str(layer.get("_render_layer_kind"))
+	var owner: Control = layer.get("_render_instrumentation_owner")
+	var profile_overlay: bool = kind == "overlays" and is_instance_valid(owner) and owner._submission_performance_instrumentation_enabled
+	var started: int = Time.get_ticks_usec() if profile_overlay else 0
+	var reuse_focus_canvases: bool = kind == "overlays" and is_instance_valid(owner) and owner._submitting_focus_delta
+	if not reuse_focus_canvases: _discard_focus_spares(layer)
 	if not layer.presentation.has("isolated_enemy_actor_keys"):
 		super._rebuild(layer)
 		return
 	# These two plans contain one argument-free animated callback. Input changes
 	# reach their existing canvases through retained-state bindings; rebuilding
 	# their operation/group arrays cannot change the plan or its paint order.
-	var kind: String = str(layer.get("_render_layer_kind"))
 	var has_state: bool = not (layer.get("combat_state") as Dictionary).is_empty()
 	if _initialized and kind in ["ambient", "foreground"] and has_state == (not canvases.is_empty()):
 		for canvas: Control in canvases:
@@ -153,6 +170,7 @@ func _rebuild(layer: Control) -> void:
 			"effects": layer.call("_build_threat_effect_operations")
 			"effect_telegraphs": layer.call("_build_threat_telegraph_operations")
 	layer.set("_slice_building", false)
+	if profile_overlay: started = owner._record_submission_performance_phase("overlay_plan", started)
 	var groups: Array = []
 	var animated: Array[bool]
 	var owners: Array = []
@@ -171,21 +189,36 @@ func _rebuild(layer: Control) -> void:
 		parent_ops = groups.pop_front()
 		animated.pop_front()
 		owners.pop_front()
+	if profile_overlay: started = owner._record_submission_performance_phase("overlay_group", started)
 	var repaint_parent: bool = _set_plan_ops(layer, layer, parent_ops)
 	# Retain node identities on ordinary changes; discard only unused tail slots.
 	if canvases.size() != groups.size():
-		var owner: Control = layer.get("_render_instrumentation_owner") as Control
 		if is_instance_valid(owner): owner.call("_invalidate_retained_slice_list")
 	while canvases.size() > groups.size():
 		var stale: Control = canvases.pop_back()
-		layer.remove_child(stale)
-		stale.queue_free()
+		if reuse_focus_canvases and canvases.size() < groups.size() + FOCUS_SPARE_LIMIT:
+			var park_started: int = Time.get_ticks_usec() if profile_overlay else 0
+			_park_focus_canvas(stale)
+			if profile_overlay: owner._record_submission_performance_phase("overlay_park", park_started)
+		else:
+			layer.remove_child(stale)
+			stale.queue_free()
+	while _focus_spares.size() > FOCUS_SPARE_LIMIT:
+		var surplus: Control = _focus_spares.pop_back()
+		layer.remove_child(surplus)
+		surplus.queue_free()
 	for index: int in range(groups.size()):
 		var canvas: Control
 		var created: bool = index >= canvases.size()
-		if index < canvases.size():
+		if not created:
 			canvas = canvases[index]
+		elif not _focus_spares.is_empty():
+			var reuse_started: int = Time.get_ticks_usec() if profile_overlay else 0
+			canvas = _focus_spares.pop_front()
+			canvases.append(canvas)
+			if profile_overlay: owner._record_submission_performance_phase("overlay_canvas_reuse", reuse_started)
 		else:
+			var create_started: int = Time.get_ticks_usec() if profile_overlay else 0
 			canvas = layer.get_script().new() as Control
 			canvas.name = "RetainedSlice%d" % index
 			canvas.set("_is_dynamic_render_layer", true)
@@ -200,6 +233,7 @@ func _rebuild(layer: Control) -> void:
 			canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: layer.emit_signal("intent_callout_drawn", layout))
 			layer.add_child(canvas)
 			canvases.append(canvas)
+			if profile_overlay: owner._record_submission_performance_phase("overlay_canvas_create", create_started)
 		_apply_alpha(canvas, owners[index], layer.presentation.get("isolated_enemy_actor_keys", []))
 		# The team-outline unit canvases retain their original child indices.
 		# Paint this tile's floor, paths and props before the original parent and
@@ -214,21 +248,41 @@ func _rebuild(layer: Control) -> void:
 			# normal retained-state/asset binding path. Copy all bindings only once.
 			for field: String in STATE_FIELDS:
 				canvas.set(field, layer.get(field))
-			var owner: Control = layer.get("_render_instrumentation_owner") as Control
-			for field: String in owner.get("_retained_asset_bindings"):
-				canvas.set(field, layer.get(field))
+			var assets: Dictionary = owner._retained_asset_bindings
+			if not is_same(canvas.get_meta("slice_asset_bindings", {}), assets):
+				for field: String in assets: canvas.set(field, layer.get(field))
+				if kind == "overlays" and not owner._focus_submission_baseline:
+					canvas.set_meta("slice_asset_bindings", assets)
 			for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]:
 				canvas.set(field, layer.get(field))
 		for field: String in ["_render_layer_tile", "_render_layer_scene_effect_pass", "_hover_tile", "_controller_focus_tile", "_idle_elapsed", "_hud_health_rects_cache", "_hud_layout_entries_cache"]:
 			canvas.set(field, layer.get(field))
 		if created or not bool(canvas.get("_board_layout_cache_valid")):
 			layer.call("_copy_resolved_board_layout_to", canvas)
+	if profile_overlay: owner._record_submission_performance_phase("overlay_publish", started)
 	_animated = animated
 	_initialized = true
 	layer.set("_slice_operations", [])
 	# Empty parent canvases need one clearing submission after a previous plan.
 	if repaint_parent: layer.queue_redraw()
 
+
+# Leave the ordinal slot in place. CanvasItem clears its prior commands before
+# the queued empty draw, or before drawing the replacement plan if reused in
+# the same frame. The focus handler avoids renderer clears and visibility flips.
+func _park_focus_canvas(canvas: Control) -> void:
+	_apply_alpha(canvas, [], [])
+	canvas._render_slice_ops = []
+	canvas._tooltip_regions.clear()
+	canvas._tile_tooltip_regions.clear()
+	canvas.queue_redraw()
+	_focus_spares.push_front(canvas)
+
+func _discard_focus_spares(layer: Control) -> void:
+	for canvas: Control in _focus_spares:
+		layer.remove_child(canvas)
+		canvas.queue_free()
+	_focus_spares.clear()
 
 static func mechanic_keys(board: Control, method: String, tile: Vector2i = Vector2i(-1, -1)) -> Array[String]:
 	var keys: Array[String]
@@ -263,14 +317,19 @@ static func preview_tile_keys(board: Control, tile: Vector2i, field: String) -> 
 	return keys
 
 static func threat_operations(board: Control, tile: Vector2i, polygon: PackedVector2Array, sources: Dictionary) -> void:
-	var owners: Array[String] = tile_keys(board, tile, true)
+	var owner: Control = board._render_instrumentation_owner
+	var focus_delta: bool = is_instance_valid(owner) and owner._submitting_focus_delta
+	var owners: Array[String] = board._threat_slice_keys if focus_delta else tile_keys(board, tile, true)
 	var lob: Dictionary = sources.get("lob_marks", {})
 	if lob.has(tile): owners.append("enemy_%d" % int(lob[tile]["enemy"]["id"]))
 	board.set("_threat_slice_keys", owners)
-	var local: Dictionary = sources.duplicate(false)
-	local["zone_tags"] = []
+	var tags: Array = sources.get("zone_tags", [])
+	var local: Dictionary = sources
+	if not focus_delta or not sources.has("zone_tags") or not tags.is_empty():
+		local = sources.duplicate(false)
+		local["zone_tags"] = []
 	preload("res://scripts/board_layer_slices.gd").threat_operations(board, tile, polygon, local)
-	for tag: Dictionary in sources.get("zone_tags", []):
+	for tag: Dictionary in tags:
 		if tag["tile"] != tile: continue
 		var tag_owner: Array[String]
 		tag_owner.append(str(tag["key"]))
@@ -298,6 +357,7 @@ static func marked_keys(scene: Node, state: Dictionary, tile: Vector2i) -> Array
 	return keys
 
 func retire(layer: Control) -> void:
+	_discard_focus_spares(layer)
 	if not _initialized: return
 	for canvas: Control in canvases:
 		layer.remove_child(canvas)

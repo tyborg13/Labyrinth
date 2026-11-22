@@ -34,8 +34,6 @@ static func end_panel_kind(run_state: Dictionary, outcome: String, profile: Dict
 	if outcome not in ["defeat", "embrace"] or not reached_hearth(run_state):
 		return "none"
 	var prompted_run_id: String = str(profile.get(LINKS_PROMPT_RUN_KEY, ""))
-	# RunEngine.run_result_id delegates to this exact identity format. Keep this
-	# predicate pure: calling the engine would stage a Chronicle snapshot and
-	# create a preload cycle through progression and scoring.
-	var result_id: String = "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
-	return "links" if prompted_run_id.is_empty() or prompted_run_id == result_id else "none"
+	var legacy_id: String = "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
+	var result_id: String = str(run_state.get("analytics", {}).get("run_id", legacy_id))
+	return "links" if prompted_run_id.is_empty() or prompted_run_id in [result_id, legacy_id] else "none"

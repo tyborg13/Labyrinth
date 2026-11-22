@@ -924,7 +924,7 @@ foes' turn through those changes. Gust pushes live occupants in its installed
 direction, including after a Call in the same foes' turn. Upheaval guards routes
 at marking time. At the rise, a mark stays flat only for impassable terrain,
 a trap, a guardian brazier, or an occupant the throw cannot move. Raised
-Outcrops can be broken. All four storms have Chain 0. Player Chain and card
+Outcrops can be broken. No storm Chains (pla-01 retired the dial). Player Chain and card
 scores retain their existing values.
 
 The ordinary completed-sequence curves still scale boss HP and primary attacks;
@@ -1172,7 +1172,7 @@ are encounter comparisons, without new intrinsic card coefficients.
 
 | Enemy | HP / initiative / Embers | Authored weighted cadence | Reach and counterplay | Existing comparison |
 | --- | --- | --- | --- | --- |
-| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect returns distant single-target ranged damage before its Block; melee/adjacent/area/surface/chain/push work. Four-tile Refraction deals 4 ice + Chilled to both teams; Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Only Anchored prevents Gust. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
+| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect (pla-01) returns a damaging attack from a non-adjacent origin once per Mirror before its Block, including area, Chain and damaging Push/Pull attacks. Use the echo or beam origin where applicable. Adjacent hits, pure status and movement, surfaces and Bursts land. Four-tile Refraction deals 4 ice + Chilled to both teams and returns damage and Chilled to its caster on a bounce. Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Only Anchored prevents Gust. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
 | Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact; ordinary terrain blocks its route and ordinary Push still applies. Move Toward 4 then shared swept_path AoE 4 Air / Push 1; actual held route and existing one-tile reach. Shared Push away from source includes hero; allies block movement without side pushes. Talon Rake Move 2 + melee 3 + Bleed 1; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
 
 Cadence is `base_initiative + sum(weight*time)/sum(weight)` before spawn

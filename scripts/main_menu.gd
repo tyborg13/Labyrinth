@@ -188,10 +188,69 @@ var _demo_links: Array[Button]
 var _settings_input_blocker: Control
 var _settings_menu_input: Dictionary = {}
 var _settings_menu_selection: Button
+var _boot_preparing: bool
+var _boot_step: int
 
 func _ready() -> void:
+	if _boot_preparing: return
+	_apply_menu_settings()
+	_build_menu()
+	_connect_steam_service()
+	_style_menu()
+	_reload_progression(true)
+	_update_layout()
+	_activate_menu()
+
+func stage_for_boot() -> void:
+	_boot_preparing = true
+	# The panel can build its hidden controls at attachment. Apply live
+	# preferences when the menu takes over, as on the direct scene path.
+	get_node("SettingsPanel").defer_initial_refresh()
+	hide()
+
+func prepare_next_boot_step() -> bool:
+	var started := Time.get_ticks_usec()
+	match _boot_step:
+		0: _build_menu()
+		1: _style_menu()
+		2: _update_layout(true)
+		_: return false
+	_boot_step += 1
+	AssetLoader.count_preparation_work(started)
+	return true
+
+func reveal_from_boot(settings: Dictionary) -> void:
+	# An unusually slow load or reduced motion can exhaust the cover. The same
+	# setup still completes before drawing, without waiting on prewarm jobs.
+	while prepare_next_boot_step():
+		pass
+	_boot_preparing = false
+	_refresh_boot_settings(settings)
+	background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
+	show()
+	_install_title_motes()
+	_connect_steam_service()
+	_reload_progression(true)
+	_update_layout()
+	resized.connect(_update_layout)
+	_activate_menu()
+
+func prepare_boot_audio(present: Callable, active: Callable) -> void:
+	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
+	var paths := PackedStringArray([str(entry["path"])])
+	AssetLoader.prepare_audio_for(get_tree().root, paths, present, active)
+
+func _apply_menu_settings() -> void:
+	var _trace := _boot_trace("settings")
 	ParallelRuntime.apply_from_environment()
 	SettingsStore.apply_settings(SettingsStore.load_settings(), get_window())
+
+func _refresh_boot_settings(settings: Dictionary) -> void:
+	var _trace := _boot_trace("settings")
+	settings_panel.apply_saved_settings(settings)
+
+func _build_menu() -> void:
+	var _trace := _boot_trace("hidden_panels")
 	chronicle_button = Button.new()
 	chronicle_button.name = "ChronicleButton"
 	chronicle_button.text = "Chronicle"
@@ -205,7 +264,6 @@ func _ready() -> void:
 	_build_demo_links()
 	_chronicle.visibility_changed.connect(_on_chronicle_visibility_changed)
 	_initialize_title_arrays()
-	_connect_steam_service()
 	settings_back_button = settings_panel.call("back_button") as Button
 	_settings_input_blocker = Control.new()
 	_settings_input_blocker.name = "SettingsModalInputBlocker"
@@ -218,11 +276,15 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_keep_settings_focus)
 	if settings_panel.has_signal("back_requested"):
 		settings_panel.connect("back_requested", Callable(self, "_on_settings_back_button_pressed"))
-	resized.connect(_update_layout)
+
+func _style_menu() -> void:
+	var _trace := _boot_trace("theme_and_controls")
+	if not _boot_preparing: resized.connect(_update_layout)
 	_apply_style()
 	_build_controller_prompt_bar()
-	_reload_progression()
-	_update_layout()
+
+func _activate_menu() -> void:
+	var _trace := _boot_trace("activation")
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.call("using_controller"):
 		_using_keyboard_navigation = true
@@ -232,7 +294,12 @@ func _ready() -> void:
 
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
+func _boot_trace(label: String) -> RefCounted:
+	if not _hitch_trace_enabled: return null
+	return get_node("/root/PerformanceTelemetry").hitch_phase("startup:menu:" + label)
+
 func _input(event: InputEvent) -> void:
+	if _boot_preparing: return
 	if is_instance_valid(_new_descent_panel):
 		if _new_descent_panel.handle_input(event): get_viewport().set_input_as_handled()
 		return
@@ -266,6 +333,7 @@ func _input(event: InputEvent) -> void:
 			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _boot_preparing: return
 	if is_instance_valid(_new_descent_panel): return
 	if _loading_run or (_chronicle != null and _chronicle.visible):
 		return
@@ -323,13 +391,13 @@ func _refresh_controller_prompts() -> void:
 	_controller_prompt_bar.set_prompts(prompts)
 
 func _apply_style() -> void:
-	background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
+	if not _boot_preparing: background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
 	background_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	background_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	background_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
 	left_scrim.visible = false
-	_install_title_motes()
+	if not _boot_preparing: _install_title_motes()
 
 	_configure_title_container(title_shadow_label)
 	_configure_title_container(title_rim_label)
@@ -630,9 +698,10 @@ func _make_context_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
 	style.content_margin_bottom = 15
 	return style
 
-func _reload_progression() -> void:
+func _reload_progression(replay_closing_receipts: bool = false) -> void:
+	var _trace := _boot_trace("profile_and_checkpoint")
 	_progression = ProgressionStore.load_data()
-	_refresh_saved_run_preview()
+	_refresh_saved_run_preview(replay_closing_receipts)
 	embers_label.text = _profile_text()
 	footer_label.text = "LV %d · EMBERS %d · SKILLS %d/%d" % [
 		int(_progression.get("level", 1)),
@@ -641,9 +710,14 @@ func _reload_progression() -> void:
 		ProgressionStore.skill_points_for_level(999)
 	]
 
-func _refresh_saved_run_preview() -> void:
+func _refresh_saved_run_preview(replay_closing_receipts: bool = false) -> void:
 	var checkpoint: Dictionary = ProgressionStore.read_resumable_checkpoint()
 	var saved_run: Dictionary = checkpoint.get("state", {})
+	if replay_closing_receipts:
+		var receipt_source: Dictionary = saved_run
+		if checkpoint["status"] == ProgressionStore.RunFile.TERMINAL:
+			receipt_source = ProgressionStore.read_resumable_checkpoint(false, true).get("state", {})
+		RunPersistence.replay_run_closing_receipts(_progression, receipt_source)
 	_saved_run_preview = _build_saved_run_preview(saved_run, checkpoint.get("summary", {}))
 	_saved_seed = saved_run.get("seed")
 	_saved_run_unavailable = checkpoint["status"] == ProgressionStore.RunFile.UNAVAILABLE
@@ -698,7 +772,8 @@ func _set_menu_actions_locked(locked: bool) -> void:
 	call_deferred("_restore_umbra_selection")
 	_sync_demo_links_visibility()
 
-func _update_layout() -> void:
+func _update_layout(title_only: bool = false) -> void:
+	var _trace := _boot_trace("layout_and_text_measurement")
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
@@ -725,6 +800,9 @@ func _update_layout() -> void:
 	title_face_blend.position = title_label.position
 	title_face_blend.size = title_size
 	_layout_title_lines(title_font_size)
+	# Only title geometry is needed to warm its glyph sizes. Let the full
+	# layout set the other controls' initial minimums at the final viewport.
+	if title_only: return
 
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0) + TITLE_TO_MENU_EXTRA_GAP
 	menu_column.position = Vector2(margin_x, menu_y)
@@ -903,6 +981,7 @@ func _on_steam_status_changed(_active: bool) -> void:
 	embers_label.text = _profile_text()
 
 func _play_menu_music() -> void:
+	var _trace := _boot_trace("audio_player")
 	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
 	var path: String = str(entry.get("path", ""))
 	var stream: AudioStream = AssetLoader.load_audio_stream(path, bool(entry.get("loop", false)))

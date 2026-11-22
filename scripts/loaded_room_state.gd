@@ -46,7 +46,11 @@ static func merge_profile(next_run_state: Dictionary, _progression: Dictionary) 
 # twice more. Keep the original metadata builder and its random-ID boundary.
 static func finish_repair(scene: Node, owned: Dictionary) -> Dictionary:
 	if not owned.is_empty():
+		var minted: bool = str((owned.get("analytics", {}) as Dictionary).get("run_id", "")).is_empty()
 		var metadata: Dictionary = scene._ensure_run_analytics_metadata({"analytics": owned.get("analytics", {})})
+		# A checkpoint saved without a run ID gets a new one on every load, so
+		# that ID cannot tell a cloned run from a reload of the same run.
+		if minted: metadata["analytics"]["run_id_minted_on_load"] = true
 		owned["analytics"] = metadata["analytics"]
 	GrimoireLibrary._ensure_run_state_in_place(owned)
 	return owned

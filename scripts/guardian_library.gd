@@ -102,16 +102,12 @@ static func intent_notes(intent: Dictionary) -> String:
 	var notes: Array[String]
 	for action: Dictionary in intent.get("actions",[]):
 		match str(action.get("guardian_shape","")):
-			"broken_line": notes.append("The second row stays clear.")
 			"connector": notes.append("Extends the existing electrical network toward its target.")
-		if action.has("surface") and str(action.get("guardian_shape","")) in ["line","broken_line","sweep"] and str(action.get("type","")) in ["melee","ranged","aoe"]:
-			notes.append("%s remains even if the strike misses." % str(action["surface"]).capitalize())
 		if bool(action.get("snuff_brazier",false)):
 			if preload("res://scripts/enemy_mechanics/snuff.gd").handles(action): notes.append(preload("res://scripts/enemy_mechanics/snuff.gd").INTENT_NOTE)
 			else: notes.append("Braziers relight after Last Procession.")
 		if str(action.get("guardian_kind",""))=="crag_outcrop":
-			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two Outcrops; each fuels Groundsplit.")
-			elif str(action.get("type",""))=="terrain_burst": notes.append("Overlapping bursts hit once.")
+			if str(action.get("type",""))=="raise_terrain": notes.append("Each Outcrop fuels Groundsplit.")
 	if bool(intent.get("restore_braziers",false)):
-		notes.append("Relights braziers and dismisses Snuff's Shades, even when skipped.")
+		notes.append("Relights braziers and dismisses Snuff's Shades.")
 	return " ".join(notes)

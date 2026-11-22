@@ -139,7 +139,7 @@ func _eligible(scene: Node) -> bool:
 	return scene.is_inside_tree() and not scene._animation_lock and str(scene._run_state.get("mode", "room")) == "combat" and (scene._player_movement_selected or (scene._selected_card_index >= 0 and not scene._preview_combat_state.is_empty())) and scene._combat_engine.is_player_turn(scene._combat_state)
 
 func _inputs(scene: Node) -> Array:
-	return [scene._combat_preview_revision, scene._preview_selection_revision, scene._selected_card_index, scene._pending_action_index, scene._pending_target_tiles.duplicate(), scene._player_movement_selected, scene._player_movement_target_tiles.duplicate(), scene._aoe_aim_orientation, scene._pending_orientation_target_tile, scene._card_action_choice_mode]
+	return [scene._combat_preview_revision, scene._preview_selection_revision, scene._selected_card_index, scene._pending_action_index, scene._pending_target_tiles.duplicate(), scene._player_movement_selected, scene._player_movement_target_tiles.duplicate(), scene._aoe_aim_orientation, scene._pending_orientation_target_tile]
 
 func tick(scene: Node) -> void:
 	if not _eligible(scene):

@@ -24,6 +24,8 @@ static func decorate_step(before: Dictionary, after: Dictionary, action: Diction
 	if str(action.get("type", "")) != "summon_minions": return
 	step["summon_action_index"] = int(context.get("action_index", -1))
 	step["granted_card_play"] = int(after.get(PENDING_FIELD, 0)) > int(before.get(PENDING_FIELD, 0))
+	# pla-02: the forecast names a blocked summon. Arrivals count as grant() does.
+	step["summon_arrivals"] = maxi(0, (after.get("enemies", []) as Array).size() - (before.get("enemies", []) as Array).size())
 
 static func forecast_options(engine: RefCounted, state: Dictionary, unit: Dictionary, action: Dictionary, action_index: int = -1) -> Dictionary:
 	if not eligible(action, unit) or unit.is_empty() or int(unit.get("hp", 0)) <= 0: return {}
@@ -33,7 +35,9 @@ static func forecast_options(engine: RefCounted, state: Dictionary, unit: Dictio
 	if action_index < 0: return {}
 	var grants: Dictionary = _forecast_memo.resolve([state, index, engine.get_script(), Data.enemies()], func() -> Dictionary:
 		return _forecast_grants(engine, state, index))
-	return {"granted_card_play": bool(grants.get(action_index, false))}
+	if not grants.has(action_index): return {"granted_card_play": false}
+	var grant: Dictionary = grants[action_index]
+	return {"granted_card_play": bool(grant["granted"]), "summon_arrivals": int(grant["arrivals"])}
 
 static func _forecast_grants(engine: RefCounted, state: Dictionary, index: int) -> Dictionary:
 	# The production resolver owns a private copy. It runs shared activation-start
@@ -44,7 +48,7 @@ static func _forecast_grants(engine: RefCounted, state: Dictionary, index: int) 
 	var actor_key: String = engine._enemy_key(state["enemies"][index])
 	for step: Dictionary in result.get("steps", []):
 		if str(step.get("actor_key", "")) == actor_key and step.has("summon_action_index"):
-			grants[int(step["summon_action_index"])] = bool(step.get("granted_card_play", false))
+			grants[int(step["summon_action_index"])] = {"granted": bool(step.get("granted_card_play", false)), "arrivals": int(step.get("summon_arrivals", 0))}
 	return grants
 
 static func presentation(scene: Control, state: Dictionary, step: Dictionary) -> Dictionary:

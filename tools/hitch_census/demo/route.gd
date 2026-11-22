@@ -56,7 +56,7 @@ func run() -> void:
 	if s.input_gate.accepted != int(inputs["joypad_button"]) + int(inputs["joypad_motion"]): s.fail("Proof input gate order mismatch at title"); return
 	if family != "steam_deck" or str(settings["edge_smoothing"]) != "off" or not is_equal_approx(float(settings["ui_scale"]), s.host.target_ui_scale): s.fail("Deck configuration mismatch"); return
 	await s.hold(READ_S)
-	await control(scene.get("start_button"))
+	await control(scene.get("continue_button" if s.host.resume_demo else "start_button"))
 	await pad.button(JOY_BUTTON_A)
 	while s.failure.is_empty():
 		await wait_ready()
@@ -351,11 +351,6 @@ func combat() -> void:
 	await s.hold(CARD_READ_S)
 	targets = plan["targets"].duplicate()
 	await pad.button(JOY_BUTTON_A)
-	if bool(scene.call("_controller_card_mode_active")):
-		for step: int in range(CHARACTER_TAB_LIMIT):
-			if str(scene.get("_controller_card_mode")) == "play": break
-			await pad.button(JOY_BUTTON_RIGHT_SHOULDER)
-		await pad.button(JOY_BUTTON_A)
 	await resolve_card()
 
 func move_player(tile: Vector2i) -> bool:

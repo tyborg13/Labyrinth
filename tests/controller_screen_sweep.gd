@@ -89,6 +89,7 @@ var _deck: bool = false
 var _sweep_size: Vector2i = PROOF_SIZE
 var _sweep_ui_scale: float = 1.0
 var _sweep_family: String = Router.FAMILY_XBOX
+var _combat_mode_samples: int = 0
 
 func _initialize() -> void:
 	Runtime.apply_from_environment()
@@ -192,8 +193,12 @@ func _run() -> void:
 		await _shop()
 		if OS.get_cmdline_user_args().has("--activate-screen"): await _activate_inventory()
 	elif combat_only:
+		process_frame.connect(_observe_combat_card_mode)
 		await _room_entry()
 		await _combat_screens()
+		process_frame.disconnect(_observe_combat_card_mode)
+		_expect(_combat_mode_samples > 0, "Card-mode sweep observed combat")
+		print("CARD MODE SWEEP: %d combat frames checked" % _combat_mode_samples)
 	else:
 		await _room_and_character()
 		await _room_entry()
@@ -494,21 +499,6 @@ func _ui27_combat_cancel() -> void:
 	await _ui27_capture("ui27_combat", "card_targeting")
 	await _joy(JOY_BUTTON_B)
 	_expect(int(_scene.get("_selected_card_index")) < 0 and not _scene.get("_menu_scrim").visible, "B cancels the directly previewed card without pause")
-	# Retained card-mode states are staged through their production entry points.
-	_scene.call("_show_card_action_choices", 0, _scene.call("_card_play_options_for_index", 0))
-	_scene.call("_controller_enter_card_mode")
-	_expect(bool(_scene.call("_controller_card_mode_active")), "Card-mode fixture enters the existing mode")
-	await _joy(JOY_BUTTON_B)
-	_expect(not bool(_scene.call("_controller_card_mode_active")) and bool(_scene.get("_controller_hand_focused")), "B leaves card mode before hiding the hand")
-	_scene.call("_show_card_action_choices", 0, _scene.call("_card_play_options_for_index", 0))
-	_scene.call("_controller_enter_card_mode")
-	await _joy(JOY_BUTTON_A)
-	_expect(int(_scene.get("_selected_card_index")) >= 0, "Card-mode A enters targeting")
-	await _joy(JOY_BUTTON_B)
-	_expect(bool(_scene.call("_controller_card_mode_active")), "B cancels targeting back to card mode")
-	await _joy(JOY_BUTTON_B)
-	_expect(int(_scene.get("_selected_card_index")) < 0 and int(_scene.get("_card_action_choice_index")) < 0, "Second B cancels the card selection")
-	await _joy(JOY_BUTTON_B)
 	_scene.call("_begin_player_movement_selection")
 	_expect(bool(_scene.get("_player_movement_selected")), "Movement cancel fixture selects movement")
 	await _joy(JOY_BUTTON_B)
@@ -727,6 +717,16 @@ func _combat_state() -> Dictionary:
 	state["current_room_layout"] = layout
 	state["combat_state"] = combat
 	return state
+
+func _observe_combat_card_mode() -> void:
+	if not is_instance_valid(_scene) or str(_scene.get("_run_state").get("mode")) != "combat":
+		return
+	_combat_mode_samples += 1
+	_expect(_scene.get("_controller_region") != "card_mode", "Routed controller input never enters card mode")
+	var legacy_index: Variant = _scene.get("_card_action_choice_index")
+	_expect(legacy_index == null or legacy_index == -1, "Routed controller input never sets a legacy card choice")
+	var selector: Control = _scene.get("_card_action_mode_selector")
+	_expect(not selector.is_visible_in_tree(), "Routed controller input never shows the retired selector")
 
 func _combat_screens() -> void:
 	await _shortcut_tooltips()

@@ -30,9 +30,9 @@ func _trace_exit(label: String, subject: Control = null) -> void:
 	if _completion_trace_active: _completion_trace_stack.pop_back()
 	_trace_completion(label + ".exit", subject)
 
-func _refresh_hand_panel() -> void:
+func _refresh_hand_panel(handoff: Dictionary = {}) -> void:
 	_trace_enter("hand")
-	super._refresh_hand_panel()
+	super._refresh_hand_panel(handoff)
 	_trace_exit("hand")
 
 func _refresh_stage_view() -> void:
@@ -40,9 +40,9 @@ func _refresh_stage_view() -> void:
 	super._refresh_stage_view()
 	_trace_exit("stage")
 
-func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
+func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}, prepared_entries: Variant = null) -> void:
 	_trace_enter("turnbar")
-	super._refresh_turn_order_bar(accepted_display_state)
+	super._refresh_turn_order_bar(accepted_display_state, prepared_entries)
 	_trace_exit("turnbar")
 
 func _refresh_contextual_combat_tutorial() -> void:

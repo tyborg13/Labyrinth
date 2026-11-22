@@ -14,8 +14,8 @@ const MARKED_DEFINITION: String = "These tiles take the hit on this enemy's next
 const MOVE_COPY: Dictionary = {
 	"icefall": "@pattern(icefall:hero) Marks these tiles. Next turn they take the hit and turn to Ice.",
 	"lob": "@pattern(cross:hero) On your tile. Next turn they take the hit and become Fire.",
-	"burrow": "Burrows and marks your tile. While buried, it can't be targeted or moved. Attacks that hit an area still hit buried enemies.",
-	"erupt": "Emerges at its mark, or the nearest free tile."
+	"burrow": "Burrows and marks your tile; it can't be targeted until it erupts.",
+	"erupt": "Emerges at its mark."
 }
 const MARK_IDS: Dictionary = {"hoarfrost_seer": "icefall", "slag_mortar": "lob_slag", "burrow_grub": "burrow"}
 const OLD_ALIASES = ["icefall", "Icefall", "icefall_mark", "icefall_land", "lob", "Lob Slag", "lob_slag", "lob_mark", "lob_land", "slag_lands", "burrow", "Burrow", "erupt", "Erupt"]
@@ -67,7 +67,10 @@ static func run(expect: Callable, mutation: String = "") -> void:
 static func _catalog(expect: Callable) -> void:
 	expect.call(Glossary.name_for("marked") == "Marked" and Glossary.definition("marked") == MARKED_DEFINITION, "Exact Marked glossary copy")
 	var entry: Dictionary = Grimoire.entry_def("keyword:marked")
-	expect.call(entry["title"] == "Marked" and entry["body"] == [MARKED_DEFINITION], "Exact Marked grimoire copy")
+	# pla-02: the page opens with the Marked definition, then one paragraph with
+	# the Burrow Grub detail that left the Burrow and Erupt tooltips (pla-01).
+	var body: Array = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]["keyword:marked"]
+	expect.call(entry["title"] == "Marked" and entry["body"] == body and str(body[0]) == MARKED_DEFINITION, "Exact Marked grimoire copy")
 	expect.call(Icons.icon_path("marked") == "res://assets/art/icons/marked.png" and Icons.icon_texture("marked") != null, "Marked uses the approved director painting")
 	for alias: String in OLD_ALIASES: expect.call(str(Glossary.lookup(alias).get("id", "")) == "marked", "Marked alias: " + alias)
 	for key: String in MOVE_COPY:

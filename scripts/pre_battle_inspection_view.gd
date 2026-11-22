@@ -113,6 +113,14 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	var burst_trait: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").trait_token(enemy)
 	if not burst_trait.is_empty(): content.add_child(build_trait(burst_trait, LoopContext.enemy_unit(enemy)))
 	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_inspection(content, enemy, func(token: Dictionary) -> Control: return build_trait(token, LoopContext.enemy_unit(enemy)))
+	# pla-01: unit traits (Steadfast, Immune, Anchored, Command) in the same row style.
+	for unit_trait: Dictionary in preload("res://scripts/enemy_mechanics/unit_traits.gd").tokens(enemy, host.get("_pre_battle_preview_run_state").get("combat_state", {})):
+		var trait_row: Control = build_trait(unit_trait, LoopContext.enemy_unit(enemy))
+		for node: Node in trait_row.find_children("EnemyBurstTrait*", "", true, false):
+			node.name = str(node.name).replace("Burst", "Unit")
+		trait_row.name = "EnemyUnitTrait"
+		trait_row.set_meta("unit_trait", str(unit_trait["unit_trait"]))
+		content.add_child(trait_row)
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"

@@ -52,6 +52,14 @@ var _sample_elapsed: float = 0.0
 var _motion_enabled: bool = true
 var _biome_id: String = "stone"
 
+static var _atmosphere_shader: Shader
+
+static func atmosphere_shader() -> Shader:
+	if _atmosphere_shader == null:
+		_atmosphere_shader = Shader.new()
+		_atmosphere_shader.code = ATMOSPHERE_SHADER_CODE
+	return _atmosphere_shader
+
 func _ready() -> void:
 	name = "CombatAtmosphere"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -60,10 +68,8 @@ func _ready() -> void:
 	_shade.name = "AtmosphereShade"
 	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var shader := Shader.new()
-	shader.code = ATMOSPHERE_SHADER_CODE
 	_material = ShaderMaterial.new()
-	_material.shader = shader
+	_material.shader = atmosphere_shader()
 	_shade.material = _material
 	add_child(_shade)
 	var atmosphere: Dictionary = Biomes.atmosphere(_biome_id)

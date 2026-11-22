@@ -34,7 +34,7 @@ static func _rows_and_roster(check: Callable) -> void:
 	var burst: Dictionary = definition["intents"][1]
 	var charge_token: Dictionary = Capacitor.rows(charge)[0][0]
 	var burst_token: Dictionary = Capacitor.rows(burst)[0][0]
-	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge it fires Arc Burst. Shocking it removes 1 Charge.", "Exact director Charge row and tooltip")
+	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge it fires Arc Burst; Shock removes 1.", "Exact director Charge row and tooltip")
 	check.call(burst_token["icon"] == "chain" and burst_token["value"] == "Arc 6, range 4, 3 jumps" and burst_token["tooltip"] == "Hits the nearest target within 4 for 6, then jumps to up to 3 more beside each hit, losing 1 per jump.", "Exact director Arc Burst row and tooltip")
 	var altered: Dictionary = burst.duplicate(true)
 	altered["actions"][0].merge({"damage": 9, "first_range": 7, "jumps": 2, "falloff": 4}, true)

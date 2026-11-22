@@ -307,8 +307,26 @@ static func _test_collision_is_non_direct(combat: CombatEngine, expect: Callable
 	# Displace without a direct hit, so only the collision can touch defenses.
 	var after: Dictionary = combat._move_enemy_in_direction(state.duplicate(true), 0, RIGHT, 1)
 	var enemy: Dictionary = _unit(after, 1)
-	expect.call(int(enemy.get("hp", 0)) == 29 and int(enemy.get("stoneskin", 0)) == 0, "Stoneskin absorbs collision damage; Chilled adds nothing")
-	expect.call(int(enemy.get("expose", 0)) == 3 and int(enemy.get("frost_armor", 0)) == 1, "Collision neither consumes Expose nor breaks Crystal Mantle")
+	# pla-01: Expose applies to every damaging hit, Collision included (2 + Expose 3).
+	expect.call(int(enemy.get("hp", 0)) == 26 and int(enemy.get("stoneskin", 0)) == 0, "Stoneskin absorbs collision damage; Expose adds to it and Chilled adds nothing")
+	expect.call(int(enemy.get("expose", 0)) == 0 and int(enemy.get("frost_armor", 0)) == 1, "Collision spends Expose but never breaks Crystal Mantle")
+	var events: Array = _collisions(state, after)
+	expect.call(events.size() == 1 and int(events[0].get("damage", 0)) == 5, "The collision event (and so its preview marker) carries the Exposed damage")
+	# Both parties: an Exposed blocker takes its own Expose, and a hero pushed into a wall spends hers.
+	var mover: Dictionary = _enemy(1, Vector2i(4, 4))
+	var blocker: Dictionary = _enemy(2, Vector2i(5, 4))
+	blocker["expose"] = 2
+	var pair: Dictionary = combat._move_enemy_in_direction(_state(combat, [mover, blocker]), 0, RIGHT, 1)
+	var pair_events: Array = _collisions(_state(combat, [mover, blocker]), pair)
+	expect.call(int(_unit(pair, 1).get("hp", 0)) == 28 and int(_unit(pair, 2).get("hp", 0)) == 26 and int(_unit(pair, 2).get("expose", 0)) == 0, "An Exposed blocker takes 2 + its Expose; the mover takes 2")
+	expect.call(pair_events.size() == 1 and int(pair_events[0].get("damage", 0)) == 2 and int(pair_events[0].get("blocker_damage", 0)) == 4, "The collision event records each party's own damage")
+	var hero: Dictionary = _state(combat, [])
+	hero["player"]["pos"] = Vector2i(1, 4)
+	hero["player"]["expose"] = 3
+	hero["player"]["block"] = 0
+	var hero_hp: int = int(hero["player"]["hp"])
+	var shoved: Dictionary = combat._force_move_actor(hero.duplicate(true), "player", -1, Vector2i.LEFT, 1, {}, true)
+	expect.call(int(shoved["player"]["hp"]) == hero_hp - 5 and int(shoved["player"].get("expose", 0)) == 0, "A hero pushed into a wall takes 2 + her Expose")
 
 
 static func _test_off_axis_pull_stops_level(combat: CombatEngine, expect: Callable) -> void:

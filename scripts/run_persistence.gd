@@ -8,6 +8,7 @@ const Checkpoint = preload("res://scripts/run_checkpoint.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AFTER_DRAW_RESOLUTION_META: String = "persistence_rules_after_draw"
 const DEPARTURE_META := &"persistence_departure"
+const PENDING_ABANDON_RECEIPT := "pending_abandon_analytics"
 var _host: WeakRef
 var _observed_analytics_failure: int = 0
 static var _resolution_frame: int = -1
@@ -19,6 +20,25 @@ static func has_checkpoint(state: Dictionary) -> bool:
 
 static func load_resumable_checkpoint(recover_terminal_profile: bool = false) -> Dictionary:
 	return ProgressionStore.read_resumable_checkpoint(recover_terminal_profile).get("state", {})
+
+static func replay_run_closing_receipts(profile: Dictionary, checkpoint: Dictionary) -> void:
+	var embedded: Dictionary = checkpoint.get("progression", {}) if checkpoint.get("progression") is Dictionary else {}
+	var outbox_key: String = ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY
+	var pending: Variant = embedded.get(outbox_key)
+	if profile.get(outbox_key, []).is_empty() and (not pending is Array or pending.is_empty()): return
+	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(
+		ProgressionStore.merge_progression_analytics_outbox(profile, embedded)
+	)
+	outbox = ProgressionStore.deliverable_progression_receipts(outbox, profile)
+	for receipt: Dictionary in outbox:
+		if receipt["event_type"] in ["combat_ended", "run_ended"]:
+			# Title boot can deliver immediately. RunScene owns profile
+			# acknowledgment and can safely retry an already appended batch.
+			# A receipt still waiting for that acknowledgment is usually already
+			# in the newest log: check the tail before a full deduplicating load.
+			if AnalyticsStore.has_durable_rows(outbox.map(func(entry: Dictionary) -> String: return entry["idempotency_key"])): return
+			AnalyticsStore.new().write_events_durable(outbox)
+			return
 
 static func validated_resume_summary(state: Dictionary) -> Dictionary:
 	return Checkpoint.validated_resume_summary(state)
@@ -209,39 +229,59 @@ static func save_for_departure(scene: Node) -> void:
 	await flush_in_tree(tree, scene)
 
 static func _save_terminal_for_departure(tree: SceneTree, scene: Node, state: Dictionary, held: bool) -> void:
-	var pending: bool = OpeningBoonRules.heirloom_prompt_pending(state)
 	var disk := await ProgressionStore.load_data_in_tree(tree)
-	var retained: Dictionary = ProgressionStore.merge_progression_analytics_outbox(scene._progression, disk)
+	state = terminal_state_for_departure(state, disk)
+	var pending: bool = OpeningBoonRules.heirloom_prompt_pending(state)
+	if prompt_needs_checkpoint(state) and not await _write_departing_checkpoint(tree, state): return
 	var events := _opening_receipts(scene, state)
+	var append_failed := false
 	if not pending or held:
-		if not await _append_receipts_in_tree(tree, scene._analytics_store, events):
-			for event: Dictionary in events:
-				retained = ProgressionStore.queue_progression_analytics_event(retained,
-					event["event_type"], event["idempotency_key"], event["context"], event["payload"])
-		if not await ProgressionStore.save_data_in_tree(tree, retained):
-			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
-			return
-		scene._progression = retained
-	if pending:
-		var fallback := state
-		state = scene._finalize_terminal_committed_state(state)
-		if not await ProgressionStore.save_data_in_tree(tree, scene._progression):
-			await _write_departing_checkpoint(tree, fallback)
-			push_error("Failed to persist committed run boundary: heirloom_prompt_resume")
-			return
-	if not await _write_departing_checkpoint(tree, state): return
+		append_failed = not await _append_receipts_in_tree(tree, scene._analytics_store, events)
+	var settlement: Dictionary = prepare_terminal_departure(scene, state, disk)
+	var terminal: Dictionary = settlement["state"]
+	var retained: Dictionary = ProgressionStore.merge_progression_analytics_outbox(terminal["progression"], disk)
+	ProgressionStore.merge_run_completion_ids(retained, disk)
+	ProgressionStore.merge_run_completion_ids(retained, state.get("progression", {}))
+	if append_failed:
+		for event: Dictionary in events:
+			retained = ProgressionStore.queue_progression_analytics_event(retained,
+				event["event_type"], event["idempotency_key"], event["context"], event["payload"])
+	if not await ProgressionStore.save_data_in_tree(tree, retained):
+		push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
+		return
+	terminal["progression"] = retained
+	scene._apply_terminal_settlement(settlement)
+	if not await _write_departing_checkpoint(tree, terminal): return
 	if pending: await _append_receipts_in_tree(tree, scene._analytics_store, events)
-	scene._analytics_flush_surface_events(state.get("combat_state", {}), state)
-	scene._analytics_flush_map_events(state)
+	scene._analytics_flush_surface_events(terminal.get("combat_state", {}), terminal)
+	scene._analytics_flush_map_events(terminal)
 	if not pending: await ProgressionStore.clear_saved_run_in_tree(tree)
 
+static func active_departure_profile(active: Dictionary, disk: Dictionary, embedded: Dictionary) -> Dictionary:
+	var source: Dictionary = active if int(active.get("progression_revision", 0)) >= int(disk.get("progression_revision", 0)) else disk
+	var profile := ProgressionStore.merge_progression_analytics_outbox(source, disk)
+	ProgressionStore.merge_run_completion_ids(profile, active)
+	ProgressionStore.merge_depth_progress(profile, disk)
+	ProgressionStore.merge_depth_progress(profile, embedded)
+	# The checkpoint owns this run's held wallet. A profile may have a
+	# different, already settled bank after a cloud conflict.
+	profile["embers"] = int(disk.get("embers", 0))
+	return profile
+
 static func _save_active_for_departure(tree: SceneTree, scene: Node, state: Dictionary) -> void:
-	var profile: Dictionary = scene._progression.duplicate(true)
+	var disk := await ProgressionStore.load_data_in_tree(tree)
+	if ProgressionStore.has_completed_run(disk, state) or preserves_heirloom_fallback(state): return
 	var embedded: Dictionary = state.get("progression", {})
-	if not embedded.is_empty(): profile["embers"] = int(embedded.get("embers", 0))
+	var profile := active_departure_profile(scene._progression, disk, embedded)
+	ProgressionStore.merge_run_completion_ids(profile, disk)
+	ProgressionStore.merge_run_completion_ids(profile, embedded)
+	if state.has("progression"):
+		ProgressionStore.merge_run_completion_ids(embedded, profile)
 	var profile_saved := await ProgressionStore.save_data_in_tree(tree, profile)
 	if not await _write_departing_checkpoint(tree, state): return
-	var outbox: Array = ProgressionStore.progression_analytics_outbox(embedded)
+	var outbox := ProgressionStore.deliverable_progression_receipts(
+		ProgressionStore.progression_analytics_outbox(embedded), profile if profile_saved else disk
+	)
 	var run_skill_events: Array = scene._run_skill_receipts(state, state.get("combat_state", {}))
 	var cursor_updated := false
 	if not outbox.is_empty() and await _append_receipts_in_tree(tree, scene._analytics_store, outbox):
@@ -276,6 +316,49 @@ static func _write_departing_checkpoint(tree: SceneTree, state: Dictionary) -> b
 	ProgressionStore.queue_owned_run_state(state.duplicate(true), "explicit_save")
 	return await ProgressionStore.flush_pending_run_saves_in_tree(tree)
 
+static func prompt_needs_checkpoint(state: Dictionary) -> bool:
+	if not OpeningBoonRules.heirloom_prompt_pending(state): return false
+	var id := ProgressionStore.completion_run_id(state)
+	if id.is_empty(): return false
+	# Publish the unanswered prompt before settling its wallet. The fallback
+	# retains the original amount so it can also recover a failed profile write.
+	var saved := ProgressionStore.load_saved_run()
+	return ProgressionStore.completion_run_id(saved) != id or saved.get("mode") != state.get("mode") or not OpeningBoonRules.heirloom_prompt_pending(saved)
+
+static func terminal_state_for_departure(state: Dictionary, profile: Dictionary) -> Dictionary:
+	if not state.has(OpeningBoonRules.HEIRLOOM_END_KEY): return state
+	var id := ProgressionStore.completion_run_id(state)
+	if id.is_empty(): return state
+	var saved := ProgressionStore.load_saved_run()
+	if ProgressionStore.completion_run_id(saved) == id and ProgressionStore.terminal_profile_write_pending(saved, profile):
+		return saved
+	return state
+
+static func prepare_terminal_departure(scene: Node, state: Dictionary, profile: Dictionary) -> Dictionary:
+	if ProgressionStore.terminal_profile_write_pending(state, profile):
+		return scene._prepare_terminal_settlement(state, true, state["progression"])
+	return scene._prepare_terminal_settlement(state)
+
+static func stage_unsettled_abandon(scene: Node, receipt: Dictionary) -> void:
+	# An active checkpoint may hold an attempt, but only a settled profile
+	# may expose it to the deliverable progression outbox.
+	var fallback: Dictionary = scene._committed_run_state()
+	fallback[PENDING_ABANDON_RECEIPT] = AnalyticsStore._sanitize_variant(receipt)
+	if not ProgressionStore.save_run_state(fallback):
+		push_error("Failed to save the unsettled Abandon attempt.")
+
+static func preserves_heirloom_fallback(state: Dictionary) -> bool:
+	if state.get("mode") != "reward": return false
+	var id := ProgressionStore.completion_run_id(state)
+	if id.is_empty(): return false
+	# A failed profile write can leave the reward scene active after its
+	# unanswered terminal prompt already committed to the checkpoint.
+	var saved := ProgressionStore.load_saved_run()
+	return ProgressionStore.completion_run_id(saved) == id and (
+		OpeningBoonRules.heirloom_prompt_pending(saved)
+		or ProgressionStore.terminal_profile_write_pending(saved, ProgressionStore.load_data())
+	)
+
 static func persist(scene: Node, run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
 	return _persist_snapshot(scene, run_state, hold_for_animation, boundary, false)
 
@@ -303,27 +386,40 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 		scene._cancel_deferred_skill_analytics(true)
 	var saved: bool = false
 	var profile_saved: bool = true
+	var terminal_profile_committed := false
 	var run_before_profile: bool = boundary in ["heirloom_left", "heirloom_confirmed"]
 	if mode in ["victory", "defeat"]:
 		flush(scene)
+		if not run_before_profile and prompt_needs_checkpoint(state) and not ProgressionStore.save_run_state(state):
+			scene._save_in_progress = false
+			push_error("Failed to persist the terminal heirloom checkpoint.")
+			return {"state": state, "saved": false}
 		var terminal_resume_state: Dictionary = state.duplicate(true)
-		state = scene._finalize_terminal_committed_state(state)
+		var settlement: Dictionary = scene._prepare_terminal_settlement(state, run_before_profile)
+		state = settlement["state"]
+		var candidate: Dictionary = state["progression"]
 		if run_before_profile:
 			if not terminal_resume_state.has("heirloom_terminal_wallet"):
-				scene._progression["progression_revision"] = int(scene._progression.get("progression_revision", 0)) + 1
-				state["progression"] = scene._progression.duplicate(true)
+				candidate["progression_revision"] = int(candidate.get("progression_revision", 0)) + 1
 			# Boon choices commit to the run first. A failed run write must not
 			# change the profile; a deferred profile write is recoverable from it.
 			saved = ProgressionStore.save_run_state(state)
-		else:
-			saved = ProgressionStore.save_data(scene._progression)
 			if saved:
+				profile_saved = ProgressionStore.save_data(candidate)
+				if profile_saved: scene._apply_terminal_settlement(settlement)
+				else: push_error("Failed to persist the heirloom profile; the saved choice remains recoverable.")
+			if not saved or not profile_saved: state = terminal_resume_state
+		else:
+			saved = ProgressionStore.save_data(candidate)
+			terminal_profile_committed = saved
+			if saved:
+				scene._apply_terminal_settlement(settlement)
 				# Publish the terminal record before cleanup. An interrupted or
 				# blocked clear must leave the terminal state authoritative.
 				saved = ProgressionStore.save_run_state(state)
 			else:
 				ProgressionStore.save_run_state(terminal_resume_state)
-		if run_before_profile and saved: profile_saved = ProgressionStore.save_data(scene._progression)
+				state = terminal_resume_state
 	else:
 		var durable_boundary: bool = boundary == "explicit_save" or boundary.ends_with("_outbox") or boundary.ends_with("_ack") or boundary.ends_with("_cursor")
 		var failure_boundary: String = "" if durable_boundary else (boundary if not boundary.is_empty() else "unspecified")
@@ -353,7 +449,7 @@ static func _persist_snapshot(scene: Node, run_state: Dictionary, hold_for_anima
 		# A reveal/action may save after its final HUD refresh. Keep that same-run
 		# request alive so unlocking without another refresh still drains it.
 		if resume_run_skill_request: scene._request_run_skill_event_analytics()
-	return {"state": state, "saved": saved}
+	return {"state": state, "saved": saved, "terminal_profile_committed": terminal_profile_committed}
 
 static func _finish_combat_receipt(saved: bool, host: WeakRef, state: Dictionary, boundary: String) -> void:
 	if not saved:

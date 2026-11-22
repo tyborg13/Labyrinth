@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "gfix23_mouse-first.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "gfix23_mouse-settled.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "gfix23_rotate-first.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "gfix23_rotate-settled.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "gfix23_details-first.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "gfix23_details-settled.png", "regions": [{"rect": [480, 220, 960, 560], "min_luma_range": 12, "min_luma_stdev": 3}]}
+  ]
+}

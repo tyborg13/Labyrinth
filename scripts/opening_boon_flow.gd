@@ -197,7 +197,7 @@ func _commit(host: Node, candidate: Dictionary, boundary: String) -> bool:
 	host.call("_release_committed_run_state")
 	# A saved run is authoritative if this second write fails. The existing
 	# embedded-revision recovery repairs the profile before the next descent.
-	if candidate.get("progression", profile) != profile:
+	if candidate.get("mode") not in ["victory", "defeat"] and candidate.get("progression", profile) != profile:
 		if not Store.save_data(host.get("_progression")): push_warning("Opening boon profile write deferred to saved-run recovery.")
 	return true
 

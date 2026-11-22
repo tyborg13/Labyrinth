@@ -26,7 +26,7 @@
   },
   "meteorfall": {
     "title": "Cinder Marks",
-    "text": "At your next turn, the marked tiles take the damage, you included, and turn to Fire.",
+    "text": "At your next turn, the marked tiles take the damage and turn to Fire.",
     "legacy": "Meteorfall\nMarks the shown tiles. At the start of your next turn, before you draw, each marked tile takes the damage (anyone there, including you){ending}.",
     "term": "cinder_marks"
   },
@@ -406,9 +406,9 @@
     "legacy": "Choose an enemy within this range."
   },
   "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": {
-    "text": "Creates one illusion on each empty tile next to you (up to four).",
+    "text": "Creates one illusion on each empty tile next to you.",
     "legacy": "Creates one illusion on each empty tile next to you (up to four).",
-    "diagram_text": "@pattern(neighbors:origin) Creates one illusion on each empty one of these tiles (up to four)."
+    "diagram_text": "@pattern(neighbors:origin) Creates one illusion on each empty one of these tiles."
   },
   "unchanged_applies_if_no_enemy_is_next_to_you_after_the_blink": {
     "text": "Applies if no enemy is next to you after the Blink.",
@@ -539,7 +539,7 @@
     "legacy": "Range\nIgnores line of sight: any enemy you can see within this range."
   },
   "illusion_nearby": {
-    "text": "Also hits each other enemy next to one of your illusions, once each.",
+    "text": "Also hits each other enemy next to one of your illusions.",
     "legacy": "Also hits each other enemy next to one of your illusions, once each."
   },
   "item_once_per_combat": {

@@ -82,7 +82,8 @@ static func prepare_controls_for(owner: Node, controls: Node, present_frame: Cal
 
 # Walk the completed hidden view once. Shaping each Control and warming its
 # bitmaps both draw from the same frame budget as the view's constructors.
-static func prepare_hidden_controls_for(owner: Node, controls: Node, present: Callable, alive: Callable) -> void:
+static func prepare_hidden_controls_for(owner: Node, controls: Node, present: Callable, alive: Callable,
+		include_hidden_children: bool = true, trace_prefix: String = "preparation:encounter:hidden_view") -> void:
 	var jobs: Array[Dictionary]
 	var pending: Array[Node]
 	var seen: Dictionary = {}
@@ -95,15 +96,19 @@ static func prepare_hidden_controls_for(owner: Node, controls: Node, present: Ca
 		if not _active(owner, alive): return
 		var node: Node = pending.pop_back()
 		if not is_instance_valid(node) or node.is_queued_for_deletion() or not node.is_inside_tree(): continue
+		# The staging root itself is hidden. Explicitly hidden panels below
+		# that root can be skipped when only the initial screen needs warming.
+		if not include_hidden_children and node != controls and node is CanvasItem and not node.visible: continue
 		var started: int = Time.get_ticks_usec()
-		if _hitch_trace_enabled and span == null: span = _trace_hidden_glyphs(owner, "shape")
+		if _hitch_trace_enabled and span == null: span = _trace_hidden_glyphs(owner, trace_prefix, "shape")
 		for child: Node in node.get_children(): pending.append(child)
 		_collect_control(node, jobs, seen)
 		Assets.count_preparation_work(started)
 	span = null
-	if _active(owner, alive): await prepare_jobs_for(owner, jobs, present, alive, Callable(), 0, true)
+	if _active(owner, alive): await prepare_jobs_for(owner, jobs, present, alive, Callable(), 0, true, trace_prefix)
 
-static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame: Callable, still_active: Callable, record_slice: Callable = Callable(), started: int = 0, shared_slice: bool = false) -> void:
+static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame: Callable, still_active: Callable, record_slice: Callable = Callable(), started: int = 0, shared_slice: bool = false,
+		trace_prefix: String = "preparation:encounter:hidden_view") -> void:
 	var server: TextServer = TextServerManager.get_primary_interface()
 	var canvas: RID = RenderingServer.canvas_item_create()
 	if started == 0: started = Time.get_ticks_usec()
@@ -123,7 +128,7 @@ static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame
 			canvas = RenderingServer.canvas_item_create()
 			continue
 		var step_started: int = Time.get_ticks_usec() if shared_slice else 0
-		if shared_slice and _hitch_trace_enabled and span == null: span = _trace_hidden_glyphs(owner, "raster")
+		if shared_slice and _hitch_trace_enabled and span == null: span = _trace_hidden_glyphs(owner, trace_prefix, "raster")
 		if not glyphs.is_empty():
 			_draw_glyph(server, canvas, glyphs.pop_back())
 		elif not request.is_empty():
@@ -150,8 +155,8 @@ static func prepare_jobs_for(owner: Node, jobs: Array[Dictionary], present_frame
 	RenderingServer.free_rid(canvas)
 	if record_slice.is_valid(): record_slice.call("opening_objective_glyph_slice", started)
 
-static func _trace_hidden_glyphs(owner: Node, step: String) -> RefCounted:
-	return owner.get_tree().root.get_node("PerformanceTelemetry").hitch_phase("preparation:encounter:hidden_view:glyph_" + step)
+static func _trace_hidden_glyphs(owner: Node, trace_prefix: String, step: String) -> RefCounted:
+	return owner.get_tree().root.get_node("PerformanceTelemetry").hitch_phase(trace_prefix + ":glyph_" + step)
 
 static func _draw_glyph(server: TextServer, canvas: RID, job: Dictionary) -> void:
 	var size: Vector2i = job["size"]

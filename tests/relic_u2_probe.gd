@@ -109,9 +109,6 @@ func _install(scene: Node, value: Dictionary) -> void:
 func _arm(scene: Node) -> void:
 	await scene.call("_on_card_pressed", 0)
 	await _settle()
-	if int(scene.get("_card_action_choice_index")) == 0:
-		await scene.call("_on_card_action_choice_pressed", "play")
-		await _settle()
 
 func _hover(scene: Node, tile: Vector2i) -> void:
 	scene.call("_on_board_tile_hovered", tile)

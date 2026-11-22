@@ -4,6 +4,12 @@ const MAX_HAND_SIZE: int = 7
 
 const GameData = preload("res://scripts/game_data.gd")
 
+static func loot_icon_path(loot: Dictionary) -> String:
+	match str(loot.get("kind", "")):
+		"item": return GameData.item_icon_path(str(loot.get("card_id", "")))
+		"equipment": return str(GameData.equipment_def(str(loot.get("equipment_id", ""))).get("icon_path", ""))
+	return ""
+
 static func normalized_loot(entries: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for entry_var: Variant in entries:

@@ -140,16 +140,18 @@ static func text_font() -> Font:
 
 static var _stone_text_shader: Shader
 
-static func apply_stone_text(control: CanvasItem, texture_strength: float = 0.12, grain_scale: float = 4.0) -> void:
-	if control == null:
-		return
-	# Uniforms belong to each control's material. The immutable program is shared,
-	# so labels with identical art do not create duplicate native pipelines.
+static func stone_text_shader() -> Shader:
 	if _stone_text_shader == null:
 		_stone_text_shader = Shader.new()
 		_stone_text_shader.code = STONE_TEXT_SHADER_CODE
+	return _stone_text_shader
+
+static func apply_stone_text(control: CanvasItem, texture_strength: float = 0.12, grain_scale: float = 4.0) -> void:
+	if control == null:
+		return
+	# Uniforms belong to each control's material. The immutable program is shared.
 	var material := ShaderMaterial.new()
-	material.shader = _stone_text_shader
+	material.shader = stone_text_shader()
 	material.set_shader_parameter("texture_strength", texture_strength)
 	material.set_shader_parameter("grain_scale", grain_scale)
 	control.material = material

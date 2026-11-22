@@ -131,7 +131,7 @@ func _objectives_and_pre_battle() -> void:
 					_expect(labels.has("Kindle") and labels.has("Scuttle") and labels.has("Burst +2"), "Actual hover panel shows both known moves and Kindle's value")
 					var rules: Label = inspection.find_child("EnemyBurstTraitRules", true, false)
 					_expect(rules.size.x <= preload("res://scripts/enemy_mechanics/burst_trait_text.gd").WIDTH, "Pre-battle Burst rules wrap at 420 px")
-				await _capture("14_tick_pre_battle_moves", {"native_hover": true, "trait": "Bursts 4", "moves": ["Kindle", "Scuttle"], "row": "Burst +2", "tooltip": "Its Burst hits 2 harder, up to +4."})
+				await _capture("14_tick_pre_battle_moves", {"native_hover": true, "trait": "Bursts 4", "moves": ["Kindle", "Scuttle"], "row": "Burst +2", "tooltip": "Its Burst deals 2 more."})
 			await _pointer(Vector2.ZERO)
 	await _capacitor_pre_battle()
 	root.get_node("InputRouter").call("clear_forced_state_for_test")

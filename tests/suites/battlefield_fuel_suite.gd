@@ -26,7 +26,7 @@ static func run(expect: Callable) -> void:
 static func fixture(rule: String) -> Dictionary:
 	var engine := Combat.new()
 	var state: Dictionary = Base.battle(engine)
-	var dials: Dictionary = {"lightning_storm": {"damage": PROOF_DAMAGE, "chain": 0}, "frostbite": {"damage": 0}, "wildfire": {"spread": "all"}}[rule]
+	var dials: Dictionary = {"lightning_storm": {"damage": PROOF_DAMAGE}, "frostbite": {"damage": 0}, "wildfire": {"spread": "all"}}[rule]
 	var instance: Dictionary = Base.rule(rule, dials, true)
 	Rules.install(engine, state, instance)
 	return state
@@ -164,7 +164,7 @@ static func roundtrip(state: Dictionary) -> Dictionary:
 static func _catalog(expect: Callable) -> void:
 	for id: String in ["storm_cantor", "zekarion", "dynamo", "snare_lightning"]:
 		var instance: Dictionary = Rules.instance_for(id, 1)
-		expect.call(instance["dials"]["chain"] == 0, id + " has no rule Chain")
+		expect.call(not instance["dials"].has("chain"), id + " has no Chain dial")
 		if instance.has("at_half_health"):
 			Rules.HalfHealth.replace_values(instance, instance["at_half_health"])
-			expect.call(instance["dials"]["chain"] == 0 and instance["dials"]["damage"] == 7, "Half-Health Zekarion merges Damage 7 with Chain 0")
+			expect.call(not instance["dials"].has("chain") and instance["dials"]["damage"] == 7, "Half-Health Zekarion merges Damage 7 and no Chain dial")

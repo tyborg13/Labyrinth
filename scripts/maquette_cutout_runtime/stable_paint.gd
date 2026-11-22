@@ -112,7 +112,11 @@ static func apply(rig: Node2D, clip: String) -> void:
 static func follow_root(rig: Node2D) -> void:
 	if not rig.layout.get("stable_source_raster", false): return
 	for part: Dictionary in rig.layout["parts"]:
-		var sprite: Sprite2D = rig.bones[part["bone"]].get_node_or_null(NodePath(part["name"])) as Sprite2D
+		# Transform notifications can arrive while covered rig construction is
+		# between bone batches. Only mounted paint needs the root transform.
+		var bone: Bone2D = rig.bones.get(part["bone"]) as Bone2D
+		if not is_instance_valid(bone): continue
+		var sprite: Sprite2D = bone.get_node_or_null(NodePath(part["name"])) as Sprite2D
 		if sprite == null: continue
 		var paint: Polygon2D = sprite.get_node_or_null("ExactSourcePaint") as Polygon2D
 		if paint != null: paint.global_transform = rig.global_transform

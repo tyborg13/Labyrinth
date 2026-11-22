@@ -796,6 +796,8 @@ class HitchSpan extends RefCounted:
 	var is_load: bool
 	var cache_hit: bool
 	var destination: Dictionary
+	var discarded: bool = false
+	var trigger_stack: Array[Dictionary]
 
 	func _init(target: Dictionary, span_label: String, load_event: bool = false, cached: bool = false) -> void:
 		destination = target
@@ -805,16 +807,20 @@ class HitchSpan extends RefCounted:
 		started = Time.get_ticks_usec()
 
 	func _notification(what: int) -> void:
-		if what == NOTIFICATION_PREDELETE:
+		if what == NOTIFICATION_PREDELETE and not discarded:
 			var elapsed: int = Time.get_ticks_usec() - started
 			if is_load:
 				var entry: Dictionary = destination.get(label, {"count": 0, "total_us": 0, "godot_cached_at_entry": 0})
 				entry["count"] += 1
 				entry["total_us"] += elapsed
 				entry["godot_cached_at_entry"] += int(cache_hit)
+				if not trigger_stack.is_empty() and not entry.has("trigger_stack"): entry["trigger_stack"] = trigger_stack
 				destination[label] = entry
 			else:
 				destination[label] = int(destination.get(label, 0)) + elapsed
+
+	func discard() -> void:
+		discarded = true
 
 func hitch_phase(label: String) -> RefCounted:
 	return HitchSpan.new(_hitch_phases, label)
@@ -823,8 +829,25 @@ func hitch_preparation_yield(budget_usec: int) -> void:
 	_hitch_events["preparation:budget_yields"] = int(_hitch_events.get("preparation:budget_yields", 0)) + 1
 	_hitch_events["preparation:budget_usec"] = maxi(int(_hitch_events.get("preparation:budget_usec", 0)), budget_usec)
 
+func hitch_combat_texture_scope(generation: int, textures: Dictionary) -> void:
+	var rgba8_bytes: int = 0
+	for texture: Texture2D in textures.values():
+		rgba8_bytes += texture.get_width() * texture.get_height() * 4
+	_hitch_events["combat_texture_scope"] = {"generation": generation, "textures": textures.size(), "rgba8_bytes": rgba8_bytes}
+
 func hitch_load(path: String) -> RefCounted:
 	return HitchSpan.new(_hitch_events, "load:" + path, true, ResourceLoader.has_cached(path))
+
+func hitch_texture(operation: String, path: String) -> RefCounted:
+	if OS.get_thread_caller_id() != OS.get_main_thread_id(): return null
+	var scene: Node = get_tree().current_scene
+	var combat_visible: bool = scene != null and scene.has_method("_committed_run_state") and scene._initial_ui_complete and scene._run_state.get("mode") == "combat"
+	var domain: String = "combat" if combat_visible else "outside_combat"
+	var span := HitchSpan.new(_hitch_events, "%s:%s:%s" % [operation, domain, path], true)
+	if combat_visible:
+		span.trigger_stack.assign(get_stack())
+		span.started = Time.get_ticks_usec()
+	return span
 
 func hitch_resource_load(path: String) -> Resource:
 	var _span: RefCounted

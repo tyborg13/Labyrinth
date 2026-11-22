@@ -307,9 +307,6 @@ func _hover_tile(instance: Node, tile: Vector2i) -> void:
 func _arm_printed_card(instance: Node) -> void:
 	await instance.call("_on_card_pressed", 0)
 	await _settle()
-	if int(instance.get("_card_action_choice_index")) == 0:
-		await instance.call("_on_card_action_choice_pressed", "play")
-		await _settle()
 	_expect(int(instance.get("_selected_card_index")) == 0, "Probe card should enter its printed targeting flow")
 
 

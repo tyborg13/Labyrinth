@@ -1,6 +1,7 @@
 extends RefCounted
 
 ## Existing portrait identities; RunScene retains its public constant alias.
+const UMBRA_PRESENCE_PATH: String = "res://assets/art/icons/umbra_presence.png"
 const PATHS := {
 	"briar_weaver": "res://assets/art/portraits/briar_weaver.png",
 	"slag_mortar": "res://assets/art/portraits/slag_mortar.png",

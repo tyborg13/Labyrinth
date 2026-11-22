@@ -74,6 +74,9 @@ static func run(check: Callable, evidence: Dictionary) -> void:
 	_turn_end_queue(check, evidence)
 	_final_dragon_end(check, evidence)
 	_embrace_end(check, evidence)
+	_legacy_run_end_keys(check)
+	_legacy_combat_end_key(check)
+	_legacy_combat_coordinates(check)
 	_failed_turn_order(check, evidence)
 	_ordered_receipt_batches(check, evidence)
 	_debug_victory(check, evidence)
@@ -341,6 +344,9 @@ static func _player_death(check: Callable, evidence: Dictionary) -> void:
 		var node: Object = host(caller, state)
 		var previous: Dictionary = node.get("_run_state").duplicate(true)
 		var ended: Dictionary = Run.new().finish_combat(previous, after)
+		if caller == "UI":
+			ended = node._run_state_for_combat_checkpoint(previous, after, "death")
+			ended = node._hold_committed_run_state(ended, "enemy_round_complete")
 		node.set("_run_state", ended)
 		node.set("_combat_state", {})
 		if caller == "UI": node._analytics_log_combat_transition(previous, "death", after)
@@ -412,10 +418,57 @@ static func _embrace_end(check: Callable, evidence: Dictionary) -> void:
 	node._on_campfire_embrace_pressed()
 	var records: Array = Store.load_all_events()
 	var ends: Array = records.filter(func(event: Dictionary) -> bool: return event["event_type"] == "run_ended")
-	check.call(ends.size() == 1 and ends[0]["payload"]["outcome"] == "embrace" and int(ends[0]["payload"]["held_embers"]) == 214, "saved Embrace emits its authored outcome and actual held Embers")
+	check.call(ends.size() == 1 and ends[0]["idempotency_key"] == "run_ended|qa28_embrace" and ends[0]["payload"]["outcome"] == "embrace" and int(ends[0]["payload"]["held_embers"]) == 214, "saved Embrace emits its authored outcome and actual held Embers")
 	check.call(Progression.load_data()["embers"] == 214 and not Progression.has_saved_run(), "Embrace instrumentation preserves banking and run clearing")
 	evidence["embrace_end_after"] = records
 	node.free()
+
+static func _legacy_run_end_keys(check: Callable) -> void:
+	Store.clear_storage()
+	const LEGACY_KEY := "run_ended|run:0:seed:611|victory"
+	const FIRST_RUN_ID := "qa28_legacy_run"
+	const SECOND_RUN_ID := "qa28_distinct_run"
+	var first := {"run_id": FIRST_RUN_ID}
+	var second := {"run_id": SECOND_RUN_ID}
+	check.call(Store.new().write_event("run_ended", first, {"outcome": "victory"}, LEGACY_KEY), "Write a legacy keyed run end")
+	var profile := Progression.queue_progression_analytics_event(
+		Progression.default_data(), "run_ended", LEGACY_KEY, first, {"outcome": "victory"})
+	profile = Progression.queue_progression_analytics_event(
+		profile, "run_ended", LEGACY_KEY, second, {"outcome": "victory"})
+	var pending := Progression.progression_analytics_outbox(profile)
+	check.call(pending.size() == 2, "Normalize older closing receipts by run ID instead of a shared score ID")
+	check.call(Store.new().write_events_durable(pending), "Replay older run-ending receipts")
+	var records := Store.load_all_events()
+	check.call(records.size() == 2 and records[0]["run_id"] == FIRST_RUN_ID and records[1]["idempotency_key"] == "run_ended|" + SECOND_RUN_ID,
+		"Legacy JSONL suppresses its own replay and a distinct run still emits")
+	Store.clear_storage()
+	check.call(Store.new().write_event("run_ended", first, {"outcome": "abandoned"}), "Write a legacy unkeyed run end")
+	check.call(Store.new().write_events_durable(pending.slice(0, 1)) and Store.load_all_events().size() == 1,
+		"Legacy unkeyed JSONL also suppresses replay for the same run ID")
+
+static func _legacy_combat_end_key(check: Callable) -> void:
+	Store.clear_storage()
+	var context := {"run_id": "qa28_legacy_run", "combat_id": FIXTURE_COMBAT_ID}
+	check.call(Store.new().write_event("combat_ended", context, {"outcome": "defeat"}), "Write a legacy unkeyed combat end")
+	var receipt := {"event_type": "combat_ended", "idempotency_key": "combat_ended|" + FIXTURE_COMBAT_ID,
+		"context": context, "payload": {"outcome": "defeat"}}
+	check.call(Store.new().write_events_durable([receipt]) and Store.load_all_events().size() == 1,
+		"6 — a legacy combat ID suppresses replay of the same fight")
+
+static func _legacy_combat_coordinates(check: Callable) -> void:
+	Store.clear_storage()
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	var context := {"run_id": "qa28_legacy_shape", "combat_id": FIXTURE_COMBAT_ID}
+	var legacy := {"objective_completion_tile": "(-1, -1)", "objective_completion_door": "(5, -1)",
+		"objective_completion_destination": "(999, 999)", "room_coord": "(4, 3)"}
+	var profile := Progression.queue_progression_analytics_event(
+		Progression.default_data(), "combat_ended", "combat_ended|" + FIXTURE_COMBAT_ID, context, legacy)
+	Persistence.replay_run_closing_receipts(profile, {})
+	Persistence.replay_run_closing_receipts(profile, {})
+	var rows := Store.load_all_events()
+	check.call(rows.size() == 1 and rows[0]["payload"] == {"objective_completion_tile": {"x": -1.0, "y": -1.0},
+		"objective_completion_door": {"x": 5.0, "y": -1.0}, "objective_completion_destination": {"x": 999.0, "y": 999.0},
+		"room_coord": {"x": 4.0, "y": 3.0}}, "Pending legacy combat receipts replay once with the live coordinate shape")
 
 static func _failed_turn_order(check: Callable, evidence: Dictionary) -> void:
 	for caller: String in ["headless", "UI"]:

@@ -46,6 +46,9 @@ var target_ui_scale: float = ViewportCheck.TARGET_UI_SCALE
 var demo_board_proof: String = ""
 var demo_board_stop: bool = false
 var quick: bool = false
+var combat_texture_census: bool = false
+var staged_tharokh_tour: bool = false
+var resume_demo: bool = false
 var calibration_intervals: Array[float]
 var calibration_previous_us: int = 0
 
@@ -70,6 +73,11 @@ func _initialize() -> void:
 		elif arg == "--demo-board-proof=dpad": demo_board_proof = "dpad"
 		elif arg == "--demo-board-stop": demo_board_stop = true
 		elif arg == "--quick": quick = true
+		elif arg == "--combat-texture-census": combat_texture_census = true
+		elif arg == "--combat-texture-baseline":
+			root.set_meta(preload("res://scripts/combat_texture_preparation.gd").BASELINE_META, true)
+		elif arg == "--staged-tharokh-tour": staged_tharokh_tour = true
+		elif arg == "--resume-demo": resume_demo = true
 		else:
 			push_error("HITCH CENSUS: unknown argument " + arg)
 			quit(2)
@@ -79,6 +87,10 @@ func _initialize() -> void:
 func _start() -> void:
 	if output.is_empty() or (DisplayServer.get_name() == "headless" and not validate_only and not headless_smoke):
 		push_error("HITCH CENSUS: output required; measurement requires real renderer")
+		quit(2)
+		return
+	if resume_demo and (not headless_smoke or driver_name != "demo" or not quick or not FileAccess.file_exists(output.path_join("run.save"))):
+		push_error("HITCH CENSUS: --resume-demo requires a saved --headless-smoke --quick demo checkpoint in --output")
 		quit(2)
 		return
 	DirAccess.make_dir_recursive_absolute(output)
@@ -93,7 +105,8 @@ func _start() -> void:
 	settings["display_mode"] = "windowed"
 	settings["edge_smoothing"] = "off"
 	Settings.save_settings(settings)
-	Store.save_data(Store.default_data() if driver_name == "demo" else Tutorial.complete_tutorial(Store.default_data()))
+	if not resume_demo:
+		Store.save_data(Store.default_data() if driver_name == "demo" else Tutorial.complete_tutorial(Store.default_data()))
 	root.mode = Window.MODE_WINDOWED
 	root.size = target_size
 	root.content_scale_size = Vector2i(1920, 1080)
@@ -105,6 +118,7 @@ func _start() -> void:
 	if not validate_only: DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	decisions = FileAccess.open(output.path_join("decisions.jsonl"), FileAccess.WRITE)
 	trace = Trace.new()
+	trace.combat_texture_census = combat_texture_census
 	root.add_child(trace)
 	trace.begin(output.path_join("frames.jsonl"), run_seed, whole_settings() if driver_name == "whole" else {})
 	if headless_smoke and not quick:
@@ -138,7 +152,7 @@ func _start() -> void:
 		session.run()
 	elif driver_name == "tour":
 		var tour := Tour.new()
-		if quick:
+		if quick or staged_tharokh_tour:
 			await tour.run_tharokh(self)
 		else:
 			await tour.run(self)
@@ -265,7 +279,7 @@ func finish(outcome: String) -> void:
 	if outcome == "time_limit" and not demo_board_proof.is_empty():
 		errors.append("Time limit before board proof completed")
 	if validate_tour or (driver_name == "tour" and not validate_only):
-		var missing := Tour.missing_tharokh(coverage) if quick else Tour.missing_stops(coverage)
+		var missing := Tour.missing_tharokh(coverage) if quick or staged_tharokh_tour else Tour.missing_stops(coverage)
 		if not missing.is_empty():
 			errors.append("Tour stopped at %s with missing coverage: %s" % [outcome, ", ".join(missing)])
 		elif outcome == "time_limit":

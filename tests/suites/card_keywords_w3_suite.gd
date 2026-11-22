@@ -188,7 +188,8 @@ static func _test_retaliate_melee_block_first(engine: CombatEngine, expect: Call
 	chilled_state["enemies"][0]["block"] = 0
 	chilled_state["enemies"][0]["expose"] = 3
 	var chilled_after: Dictionary = _enemy_strike(engine, chilled_state, _melee(3))
-	expect.call(int(_enemy(chilled_after).get("hp", 0)) == 16 and int(_enemy(chilled_after).get("expose", 0)) == 3, "Retaliate is not direct damage: no Chilled bonus and no Expose use")
+	# pla-01: Expose applies to every damaging hit, Retaliate included (4 + Expose 3); Chilled still adds nothing.
+	expect.call(int(_enemy(chilled_after).get("hp", 0)) == 13 and int(_enemy(chilled_after).get("expose", 0)) == 0, "Retaliate spends the attacker's Expose; no Chilled bonus")
 
 static func _test_retaliate_ignores_ranged(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _play(engine, _state(engine, Vector2i(5, 4)), "w3_fx_retaliate")

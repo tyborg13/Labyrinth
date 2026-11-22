@@ -2292,12 +2292,6 @@ func _select_card(instance: Node, hand_index: int, play_kind: String = "play") -
 	_expect(hit, "card click must hit the intended card through the viewport GUI router")
 	var handler_ms: float = _routed_left_click(widget, hover_position)
 	await process_frame
-	if int(instance.get("_selected_card_index")) != hand_index and int(instance.get("_card_action_choice_index")) == hand_index:
-		var option_button: Button = instance.find_child("CardActionChoice%s" % play_kind.capitalize(), true, false) as Button
-		_expect(option_button != null and not option_button.disabled, "%s mode must be reachable through its live choice button" % play_kind)
-		if option_button != null and not option_button.disabled:
-			handler_ms += _routed_left_click(option_button, option_button.size * 0.5)
-			await process_frame
 	var selected_index: int = int(instance.get("_selected_card_index"))
 	_expect(
 		selected_index == hand_index,

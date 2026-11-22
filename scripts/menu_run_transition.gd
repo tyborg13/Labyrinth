@@ -9,13 +9,14 @@ const Assets = preload("res://scripts/asset_loader.gd")
 const OpeningDialogue = preload("res://scripts/dialogue_box_view.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const PipelinePrewarm = preload("res://scripts/canvas_pipeline_prewarm.gd")
 const RunPreload = preload("res://scripts/menu_run_preload.gd")
 const InitialGraph = preload("res://scripts/initial_run_graph.gd")
 const InitialCpuAssets = preload("res://scripts/run_initial_cpu_assets.gd")
 const LoadingAudio = preload("res://scripts/run_loading_audio.gd")
 const Shutdown = preload("res://scripts/application_shutdown.gd")
 const RunPersistence = preload("res://scripts/run_persistence.gd")
-const MESSAGE := "Entering the Labyrinth"
+const MESSAGE := PipelinePrewarm.Recipes.COVER_MESSAGE
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
 const MENU_MUSIC_FADE_OUT_SECONDS := 0.2
@@ -60,6 +61,7 @@ func begin(menu: Control, path: String, prepare_run: Callable, new_run_depth: in
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_menu = menu
+	PipelinePrewarm.stop(menu)
 	_menu_parent = menu.get_parent()
 	_menu_process_mode = menu.process_mode
 	_menu_music = menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
@@ -107,7 +109,7 @@ func begin(menu: Control, path: String, prepare_run: Callable, new_run_depth: in
 	UiTypography.apply_label_role(message_label, UiTypography.ROLE_BANNER)
 	message_label.add_theme_color_override("font_color", Color("f4dfb0"))
 	message_label.add_theme_color_override("font_outline_color", Color("170e16"))
-	message_label.add_theme_constant_override("outline_size", 6)
+	message_label.add_theme_constant_override("outline_size", PipelinePrewarm.Recipes.COVER_OUTLINE_SIZE)
 	UiTypography.apply_stone_text(message_label)
 	center.add_child(message_label)
 	_update_dots()
@@ -127,6 +129,7 @@ func _process(delta: float) -> void:
 
 func cancel_loading_for_quit() -> void:
 	_quitting = true
+	PipelinePrewarm.stop(self)
 	if _handed_off: return
 	if _prepared_graph != null: _prepared_graph.cancel()
 	if is_instance_valid(destination):
@@ -165,6 +168,7 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	transition._scene_pending = true
 	var cpu_assets: Node
 	if transition._path == RunPreload.RUN_SCENE_PATH:
+		PipelinePrewarm.start(transition, PipelinePrewarm.Recipes.Phase.LOADING_COVER, transition._new_run_depth < 0)
 		var present := _present_frame_for.bind(tree)
 		var active := _loading_is_active.bind(transition)
 		if transition._new_run_depth >= 0:
@@ -282,6 +286,7 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		await tree.process_frame
 		if not _loading_is_active(transition): return
 	transition._record_performance_phase("presentation_ready_wait", performance_started)
+	PipelinePrewarm.stop(transition)
 	transition._set_phase(&"revealing")
 	if _hitch_trace_enabled: transition.hitch_wait = "reveal_tween"
 	if not _loading_is_active(transition): return
@@ -358,6 +363,7 @@ func _release_input() -> void:
 		_cursor.call("end_loading")
 
 func _fail() -> void:
+	PipelinePrewarm.stop(self)
 	_menu.reparent(_menu_parent, false)
 	_menu.process_mode = _menu_process_mode
 	_restore_menu_music_process_mode()

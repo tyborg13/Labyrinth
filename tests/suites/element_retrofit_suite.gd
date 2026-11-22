@@ -14,7 +14,7 @@ const CONTRACT: Dictionary = {
 	"fire": {"key": "slagmaster", "rule": "wildfire", "dials": {"spread": "toward_player"}, "room_dials": {"spread": "away_from_entry"}},
 	"air": {"key": "stormcaller", "rule": "gust", "dials": {"tiles": 1, "direction": "aimed"}, "room_dials": {"tiles": 1, "direction": "toward_entry"}},
 	"ice": {"key": "oracle", "rule": "frostbite", "dials": {"damage": 2}, "room_dials": {"damage": 1}},
-	"lightning": {"key": "dynamo", "rule": "lightning_storm", "dials": {"damage": 4, "chain": 0}, "room_dials": {"damage": 3, "chain": 0}},
+	"lightning": {"key": "dynamo", "rule": "lightning_storm", "dials": {"damage": 4}, "room_dials": {"damage": 3}},
 	"shadow": {"key": "prior", "rule": "shadowstep", "dials": {"blink": 3}, "room_dials": {"blink": 2}},
 }
 # Chosen defaults: private persistence path and synthetic analytics identity.

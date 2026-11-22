@@ -28,8 +28,7 @@
       "intent": "peal"
     },
     "dials": {
-      "damage": 4,
-      "chain": 0
+      "damage": 4
     },
     "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4."
   },

@@ -20,6 +20,5 @@ static func tokens(state: Dictionary, unit: Dictionary, intent: Dictionary) -> A
 	var dials: Dictionary = instance["dials"]
 	var row: Array = [Icons.token_for(str(instance["rule"]))]
 	row.append(Icons.token_for("lightning_strikes", int(dials["damage"])))
-	if int(dials.get("chain", 0)) > 0: row.append(Icons.token_for("chain", int(dials["chain"])))
 	row.append(Icons.text_token("every Electrified tile"))
 	return row

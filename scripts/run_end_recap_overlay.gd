@@ -266,7 +266,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		var marker_coord: Vector2i = ProgressionStore.recovery_coord(progression)
 		var marker_depth: int = _coord_depth(marker_coord)
 		var marker_amount: int = int(marker.get("amount", 0))
-		var next_progression: Dictionary = ProgressionStore.prepare_for_new_run(progression)
+		var next_progression: Dictionary = ProgressionStore.prepare_for_new_run(progression, run_state)
 		var next_marker: Dictionary = ProgressionStore.recovery_marker(next_progression)
 		if next_marker.is_empty():
 			recovery_status = "Marker expires · %d Embers unrecovered" % marker_amount

@@ -1,0 +1,38 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 8,
+  "required_images": [
+    {
+      "pattern": "rail_focus_change.png",
+      "regions": [{ "rect": [1570, 130, 330, 610] }]
+    },
+    {
+      "pattern": "rail_focus_settled.png",
+      "regions": [{ "rect": [1570, 130, 330, 610] }]
+    },
+    {
+      "pattern": "rail_focus_return.png",
+      "regions": [{ "rect": [1570, 130, 330, 610] }]
+    },
+    {
+      "pattern": "rail_cross_drag.png",
+      "regions": [{ "rect": [1570, 130, 330, 610] }]
+    },
+    {
+      "pattern": "rail_hand_replacement.png",
+      "regions": [{ "rect": [1570, 130, 330, 610] }]
+    },
+    {
+      "pattern": "board_reentry.png",
+      "regions": [{ "rect": [510, 260, 850, 440] }]
+    },
+    {
+      "pattern": "board_move_enemy.png",
+      "regions": [{ "rect": [510, 260, 850, 440] }]
+    },
+    {
+      "pattern": "board_reentry_enemy.png",
+      "regions": [{ "rect": [510, 260, 850, 440] }]
+    }
+  ]
+}

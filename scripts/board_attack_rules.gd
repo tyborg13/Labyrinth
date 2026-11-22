@@ -18,8 +18,6 @@ const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
 static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = TypedArrays.vector2i([])) -> Dictionary:
 	action = action.duplicate(true)
 	var player_bonuses: bool = actor_kind == "player"
-	if actor_kind == "player" and GuardianRelicRules.amount(state,"force_enemy_line") > 0:
-		action["_group_force_context"] = {"moved_ids":{}}
 	if actor_kind == "player" and IllusionRelicRules.puppet_action(engine, state, action) and not IllusionCardRules.illusion_at(engine, state, target).is_empty():
 		state = engine._trigger_player_bleed_for_action(state, action)
 		if engine.combat_outcome(state) == "defeat": return state
@@ -52,8 +50,13 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 		state = engine._trigger_player_bleed_for_action(state, resolved)
 		if engine.combat_outcome(state) == "defeat":
 			return state
-	if actor_kind == "enemy" and ReflectRules.reflects(engine, state, resolved, origin, engine._enemy_index_at_tile(state, target)):
-		return ReflectRules.bounce(engine, state, engine._enemy_index_at_tile(state, target), int(resolved.get("damage", 0)), actor_kind, actor_id)
+	# Explicit enemy shots can hit an ally. A conductor entry tile only delivers
+	# the attack into a network and never makes its occupant an aimed victim.
+	if actor_kind == "enemy" and not resolved.has("_ranged_relay") and str(resolved.get("type", "")) != "aoe" and impact.size() == 1:
+		var aimed_enemy: int = engine._enemy_index_at_tile(state, target)
+		if ReflectRules.reflects(engine, state, resolved, origin, aimed_enemy):
+			var damage: int = ReflectRules.damage_at_mirror(state["enemies"][aimed_enemy], int(resolved.get("damage", 0)))
+			return ReflectRules.bounce(engine, state, aimed_enemy, damage, actor_kind, actor_id)
 	var melee_fuel: Dictionary = CommonRelicRules.consume_melee_target(engine, state, resolved, target, actor_kind == "player" and not echo)
 	var plan: Dictionary = engine._board_attack_plan(state, route_action, impact, actor_kind)
 	if actor_kind == "player" and bool(action.get("also_hits_near_illusions", false)):
@@ -85,6 +88,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	var attack_block_loss: int = 0
 	var struck_illusions: Dictionary = {}
 	var retaliators: Dictionary = {}
+	var reflected_ids: Dictionary = {}
 	var native_trace: Array = []
 	var rebound_route: Array = []
 	var relay: Dictionary = action.get("_ranged_relay",{}) as Dictionary
@@ -98,6 +102,9 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	var from_center: bool = actor_kind == "player" and ManeuverRules.uses_from_center(action)
 	var aoe_center: Vector2i = engine._board_aoe_center(action, target, origin)
 	var ordered_hits: Array = plan["hits"] as Array
+	var group_force: Dictionary = {}
+	if actor_kind == "player" and GuardianRelicRules.amount(state, "force_enemy_line") > 0:
+		group_force = {"moved_ids": {}, "blocked_ids": ReflectRules.hit_ids(engine, state, resolved, origin, ordered_hits)}
 	if from_center:
 		ordered_hits = ManeuverRules.order_from_center_hits(engine, ordered_hits, aoe_center)
 	elif actor_kind == "player" and engine._forced_movement_amount(resolved) > 0:
@@ -145,9 +152,23 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				hit_action = CardKeywordRules.action_with_state_bonus(engine, state, hit_action, index)
 				hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(engine, state, hit_action, hit, index, family_context)
-			if str(hit.get("kind_trace", "")) == "actor" and index == engine._enemy_index_at_tile(state, target) and ReflectRules.reflects(engine, state, hit_action, origin, index):
-				var reflected_damage: int = engine._damage_for_enemy_target(state, hit_action, index) if actor_kind == "player" else int(hit_action.get("damage", 0))
-				state = ReflectRules.bounce(engine, state, index, reflected_damage, actor_kind, actor_id)
+			# Every hit a Reflect unit would take (aimed, area, Chain link or
+			# conducted) bounces once and lands nothing on it: no damage, rider
+			# or movement. The planned route carries on as past any hit that
+			# does not land, and the attack's other hits land as usual.
+			if reflected_ids.has(int(hit["id"])):
+				continue
+			if ReflectRules.reflects_hit(engine, state, hit_action, origin, hit):
+				var reflected_damage: int = engine._damage_for_enemy_target(state, hit_action, index) if player_bonuses else int(hit_action.get("damage", 0))
+				var mirror: Dictionary = state["enemies"][index]
+				reflected_ids[int(hit["id"])] = true
+				if not group_force.is_empty(): group_force["blocked_ids"][int(hit["id"])] = true
+				if echo:
+					reflected_damage = IllusionRelicRules.half(IllusionRelicRules.direct_amount(engine, state, mirror, reflected_damage))
+					state = ReflectRules.bounce(engine, state, index, reflected_damage, "illusion", int(action["_echo_attacker_id"]))
+				else:
+					state = ReflectRules.bounce(engine, state, index, ReflectRules.damage_at_mirror(mirror, reflected_damage), actor_kind, actor_id)
+				if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
 				continue
 			if not echo: state = engine._sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = engine._damage_for_enemy_target(state, hit_action, index, player_bonuses)
@@ -163,7 +184,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 			if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
 			if damage > 0:
 				state = engine._consume_enemy_expose(state, index)
-			if action.has("_group_force_context"): hit_action["_group_force_context"] = action["_group_force_context"]
+			if not group_force.is_empty(): hit_action["_group_force_context"] = group_force
 			# The aimed line belongs to the primary target; Chain hops push from
 			# their hop origin along their own default line.
 			if hit["from"] != hit["to"]: hit_action.erase("force_direction")

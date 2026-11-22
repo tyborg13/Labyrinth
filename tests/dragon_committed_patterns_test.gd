@@ -306,7 +306,7 @@ func _test_storm_marks_conduction_and_cap() -> void:
 	preload("res://scripts/battlefield_rules/committed.gd").accept(combat, bloodied)
 	bloodied = combat.BattlefieldRules.fire(combat, bloodied)
 	expect(bloodied["player"]["hp"] == hp - 7, "Overload's Lightning Storm hits Electrified for seven below half Health")
-	expect(struck["battlefield_rule"]["dials"]["chain"] == 0 and bloodied["battlefield_rule"]["dials"]["chain"] == 0, "Overload has Chain 0 at both Health thresholds")
+	expect(not struck["battlefield_rule"]["dials"].has("chain") and not bloodied["battlefield_rule"]["dials"].has("chain"), "Overload never Chains at either Health threshold")
 	_declare(struck,3)
 	expect((combat.enemy_threat_tiles(struck,0)["summon"] as Array).is_empty(),"A full Wisp cap must not preview another summon")
 	struck = BossSuite._resolve_boss_turn(struck)

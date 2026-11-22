@@ -98,6 +98,8 @@ class TextBudgetTest(unittest.TestCase):
         short_copy.update(TXT13_APPROVED_COPY["glossary_definitions"])
         short_copy["surface_rubble"] = "Costs 2 Movement to leave."
         short_copy["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
+        # pla-01 (exception strip) shortens these definitions; every rewrite only cuts words.
+        short_copy.update(read("tests/fixtures/pla01_exception_strip.json")["glossary"])
         # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
         live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
                           "definition": "When it dies, it splits into smaller enemies next to it."}

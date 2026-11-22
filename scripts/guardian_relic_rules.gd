@@ -91,7 +91,8 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 	if engine._force_actor_anchored(state, "enemy", int(target["id"])): return state
 	var context: Dictionary = action.get("_group_force_context", {})
 	var moved_ids: Dictionary = context.get("moved_ids", {})
-	if moved_ids.has(int(target["id"])): return state
+	var blocked_ids: Dictionary = context.get("blocked_ids", {})
+	if moved_ids.has(int(target["id"])) or blocked_ids.has(int(target["id"])): return state
 	var pushing: bool = int(action.get("push",0))>0
 	var distance: int = int(action.get("push",0)) if pushing else int(action.get("pull",0))
 	var source_tiles: Dictionary = engine._force_source_tiles(state,source)
@@ -108,6 +109,7 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 			if group.has(member_index): continue
 			var member: Dictionary = state["enemies"][member_index]
 			if int(member.get("hp",0))<=0: continue
+			if blocked_ids.has(int(member["id"])): continue
 			if engine._force_actor_anchored(state, "enemy", int(member["id"])): continue
 			var delta: Vector2i = member["pos"]-target["pos"]
 			if (direction.x!=0 and delta.y!=0) or (direction.y!=0 and delta.x!=0): continue

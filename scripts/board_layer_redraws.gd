@@ -1,5 +1,71 @@
 extends RefCounted
 
+# A passive focus submission may add an enemy route and its destination echo.
+# New presentation fields take the full submission path by default.
+const FOCUS_FIELDS: Array = [  # untyped: only read with has() (Windows typed-array rule)
+	"hover_owner_tile", "isolated_enemy_actor_keys", "expanded_enemy_actor_keys",
+	"enemy_threat_previews", "path_tiles", "path_color", "projected_destination",
+	"projected_attack_tiles", "preview_units",
+]
+# These bindings have a single retained paint consumer. The board continues
+# to own the live copies used by navigation, tooltips and the layout solver.
+const FOCUS_LOCAL_BINDINGS: Dictionary = {
+	&"move_tiles": "overlays",
+	&"_move_tiles_lookup_cache": "overlays",
+	&"_attack_tiles_lookup_cache": "overlays",
+	&"_focus_tiles_lookup_cache": "overlays",
+	&"_confirmation_target_tiles_lookup_cache": "overlays",
+	&"_objective_exit_tiles_lookup_cache": "overlays",
+	&"_projected_attack_tiles_lookup_cache": "overlays",
+	&"_summon_tiles_lookup_cache": "overlays",
+	&"_projected_destination_tiles_lookup_cache": "overlays",
+	&"_hud_layout_entries_cache": "hud",
+	&"_foreground_obstruction_geometry_inputs": "foreground",
+}
+
+static func only_focus_fields(changes: Dictionary, previous: Dictionary, shown: Dictionary) -> bool:
+	if not previous.has("isolated_enemy_actor_keys") or not shown.has("isolated_enemy_actor_keys"): return false
+	for key: String in changes:
+		if not FOCUS_FIELDS.has(key): return false
+	for source: Dictionary in [previous, shown]:
+		if bool(source.get("board_targeting", false)): return false
+		for unit: Dictionary in source.get("preview_units", []):
+			if str(unit.get("role", "")) != "enemy_move_preview": return false
+	return true
+
+# _build_visible_units places explicit previews after friendly bodies and
+# before independently generated wind/rule ghosts and committed enemies.
+static func replace_destination_echoes(roster: Array[Dictionary], previous: Array, echoes: Array[Dictionary]) -> Array[Dictionary]:
+	var previous_keys: Dictionary = {}
+	for unit: Dictionary in previous:
+		previous_keys[str(unit.get("key", "illusion_preview"))] = true
+	var result: Array[Dictionary]
+	var inserted: bool = false
+	for unit: Dictionary in roster:
+		if not inserted and str(unit.get("role", "")) not in ["player", "illusion"]:
+			result.append_array(echoes)
+			inserted = true
+		if not previous_keys.has(str(unit.get("key", ""))): result.append(unit)
+	if not inserted: result.append_array(echoes)
+	return result
+
+static func can_retain_focus_effects(board: Control) -> bool:
+	var shown: Dictionary = board.presentation
+	return (
+		is_instance_valid(board._effects_render_layer)
+		and board._effects_render_layer._layer_slices._initialized
+		and not protagonist_effects_active(shown)
+		and not has_lethal_preview(board)
+		and (shown.get("floating_texts", []) as Array).is_empty()
+		and (shown.get("trap_effects", []) as Array).is_empty()
+	)
+
+static func has_chain_preview(shown: Dictionary) -> bool:
+	for threat: Dictionary in shown.get("enemy_threat_previews", []):
+		if str(threat.get("projected_attack_action", {}).get("type", "")) == "chain_discharge" and not (threat.get("chain_hits", []) as Array).is_empty():
+			return true
+	return false
+
 ## Empty retained canvases still need one submission to erase old commands.
 ## Thereafter unrelated write paths can leave them alone. These are sufficient
 ## empty conditions from the existing draw routines, never output hashes. A

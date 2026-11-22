@@ -32,6 +32,10 @@ static func repair_saved_rule(engine: RefCounted, state: Dictionary) -> void:
 	for event: Dictionary in state.get("surface_events", []):
 		event.erase("beat_tiles_frozen_at")
 	var rule: String = str(instance.get("rule", ""))
+	if rule == "lightning_storm":
+		# pla-01 retired the Chain dial: no storm Chains, saved ones included.
+		(instance.get("dials", {}) as Dictionary).erase("chain")
+		if instance.has("at_half_health"): (instance["at_half_health"].get("dials", {}) as Dictionary).erase("chain")
 	if rule not in ["upheaval", "lightning_storm"]: return
 	var source: Dictionary = instance.get("source", {})
 	var id: String = "snare_earth"

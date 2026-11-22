@@ -10,5 +10,5 @@
   "skill_descriptions": {
     "witchlight": "Your @icon(illusion) shed @icon(illuminate) 1 tile farther while they last."
   },
-  "erupt_tooltip": "Erupt\nEmerges at its mark, or the nearest free tile."
+  "erupt_tooltip": "Erupt\nEmerges at its mark."
 }

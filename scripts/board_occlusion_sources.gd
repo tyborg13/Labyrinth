@@ -99,14 +99,18 @@ static func _unit_mask(board: Control, unit: Dictionary) -> Dictionary:
 					# Older dedicated rigs predate rest_source in their layout.
 					# Their renderer still declares the production rest asset.
 					var constants: Dictionary = renderer.get_script().get_script_constant_map()
-					var path: String = str(constants.get("REST_PATH", ""))
-					if path.is_empty(): path = str(rig.call("_layout_path", facing)).get_base_dir().path_join(facing + "/rest.png")
-					elif facing == "rear": path = path.replace("/front/", "/rear/")
+					var rest_path: String = str(constants.get("REST_PATH", ""))
+					var layout_path: String = rig.call("_layout_path", facing) if rest_path.is_empty() else ""
+					var path: String = rest_fallback_path(layout_path, facing, rest_path)
 					if not path.is_empty() and (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
 						texture = Assets.load_texture_source_first(path)
 	elif StaticFacing.handles(str(unit.get("type", ""))):
 		texture = board.call("_texture_for_unit", unit)
 	return {"mask_texture": texture, "mask_flip": mirrored, "mask_pose": "%s:%s:%s" % [facing, str(mirrored), pose_set]}
+
+static func rest_fallback_path(layout_path: String, facing: String, rest_path: String) -> String:
+	if rest_path.is_empty(): return layout_path.get_base_dir().path_join(facing + "/rest.png")
+	return rest_path.replace("/front/", "/rear/") if facing == "rear" else rest_path
 
 static func pose_set_signature(board: Control) -> Array:
 	var signature: Array = []

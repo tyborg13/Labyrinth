@@ -41,8 +41,9 @@ var _retained_plan_canvases: Dictionary = {}
 
 # Only operations whose inputs are the literal command arguments qualify. Other
 # callbacks can read late-bound state, shared resources or the presentation clock.
-static func literal_paint(operations: Array) -> bool:
+static func literal_paint(operations: Array, fixed_projection: bool = false) -> bool:
 	for operation: Array in operations:
+		if fixed_projection and operation[0] == "_draw_tile_ring": continue
 		if operation[0] not in ["draw_colored_polygon", "draw_polyline", "draw_line"]: return false
 	return true
 
@@ -52,7 +53,12 @@ func _set_plan_ops(layer: Control, canvas: Control, operations: Array, created: 
 	if layer._render_layer_kind == "hud" and HudRetention.enabled(layer): return false
 	if created or not _initialized or layer._board_redraw_baseline(): return true
 	if layer._render_layer_kind not in ["overlays", "scene_tile"]: return true
-	return previous != operations or not literal_paint(operations)
+	if previous != operations: return true
+	var owner: Control = layer._render_instrumentation_owner
+	# Passive hover validates the projection. An unchanged ring consumes only
+	# that projection and its arguments, even when its slice alpha changes.
+	var fixed_projection: bool = layer._render_layer_kind == "overlays" and is_instance_valid(owner) and owner._submitting_focus_delta
+	return not literal_paint(operations, fixed_projection)
 
 static func supports(kind: String) -> bool:
 	return kind in ["ambient", "overlays", "foreground", "hud"]
@@ -179,7 +185,12 @@ func _rebuild(layer: Control) -> void:
 static func _hud_operations(board: Control) -> void:
 	# Match the unsliced HUD without applying forecast values to body rosters.
 	var units: Array[Dictionary]
-	for unit: Dictionary in board.call("_visible_units"): units.append(Forecast.unit(unit, board.presentation))
+	var owner: Control = board._render_instrumentation_owner
+	var focus_delta: bool = is_instance_valid(owner) and owner._submitting_focus_delta
+	for unit: Dictionary in board.call("_visible_units"):
+		# Destination echoes participate in depth paint, with no HUD entry.
+		if focus_delta and board._unit_is_preview_echo(unit): continue
+		units.append(Forecast.unit(unit, board.presentation))
 	board.call("_slice_op", "_draw_noctyrax_brazier_markers", [])
 	var font: Font = board.get_theme_default_font()
 	for entry: Dictionary in board.call("_health_bar_draw_entries", units):

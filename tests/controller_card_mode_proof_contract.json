@@ -1,0 +1,9 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "ui27_combat_hand_shown.png"},
+    {"pattern": "ui27_combat_hand_hidden.png"},
+    {"pattern": "ui27_combat_card_targeting.png"},
+    {"pattern": "ui27_combat_menu_closed.png"}
+  ]
+}

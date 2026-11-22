@@ -166,6 +166,12 @@ Recursive: No
 
 Root: WinAppDataRoaming
 Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+Pattern: progression.json.backup
+OS: All OSes
+Recursive: No
+
+Root: WinAppDataRoaming
+Subdirectory: Escape the Umbra/steam/{64BitSteamID}
 Pattern: current_run.save
 OS: All OSes
 Recursive: No
@@ -177,11 +183,11 @@ OS: All OSes
 Recursive: No
 ```
 
-On Windows, a crash during checkpoint replacement can leave the last committed
-run in `current_run.save.backup`. Sync this exact filename so a fresh Steam
-install can offer Continue from that backup. The game checks the live checkpoint
-first and can read the backup when the live file is missing. Temporary files
-and migration archives stay local.
+A crash during replacement can leave the last committed profile in
+`progression.json.backup` or the playable checkpoint in
+`current_run.save.backup`. Sync both exact filenames so a fresh install
+receives settled Embers, unlocks, and a recoverable run. Temporary files and
+migration archives stay local.
 
 Add root overrides for the same subdirectory so the Windows root maps to the native locations on the other supported platforms:
 

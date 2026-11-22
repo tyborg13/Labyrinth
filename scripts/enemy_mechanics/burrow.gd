@@ -184,6 +184,11 @@ static func threat(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	action = preload("res://scripts/warband_combat_rules.gd").action(state, projected, action)
 	var path: Array[Vector2i]
 	path.append(enemy["pos"])
+	# pla-02: the intent preview marks where the Grub surfaces (its mark, or the
+	# nearest free tile when the mark is blocked) with the shared destination
+	# ring and ghost. The engine's own plan path stays the mound (see
+	# CombatEngine._enemy_standard_intent_plan).
+	if destination != enemy["pos"]: path.append(destination)
 	return {"move": [], "attack": tiles, "projected_path": path, "projected_attack": tiles, "projected_destination": destination,
 		"projected_attack_action": action, "projected_attack_element": "earth", "projected_attack_from": enemy["pos"], "projected_attack_target": destination}
 

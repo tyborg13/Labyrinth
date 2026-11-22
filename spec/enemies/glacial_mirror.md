@@ -9,18 +9,36 @@ activation cadence 20.5 before spawn stagger and legality filtering. Closest
 comparisons are Warden's heavy support role and Frostglass Lancer's ice line.
 It is a construct, so the existing wind classification anchors it.
 
-1. Reflect is a permanent badge. Non-adjacent, single-target ranged attacks
-   return the damage before the Mirror's Block through the attacker's ordinary
-   defense. Adjacent/melee, area, surfaces, Chain and forced damage do not reflect.
-   Target-dependent card modifiers are resolved before reflection. The preview
-   uses the real simulated result and places its number/return marker on the hero,
-   with the exact line `Reflected: you take this damage.` The Mirror tooltip is
-   `Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.`
-   The projectile follows the existing arc, flashes white for 0.08 seconds and
-   returns along that curve at 1.5 times its outbound speed.
+1. Reflect is a permanent badge. pla-01 (director, 2026-11-20) made the rule
+   match the owner's sentence, which is the tooltip and the whole Grimoire page:
+   `Attacks from a non-adjacent tile bounce back to the attacker.` Every hit the
+   Mirror would take from a board attack (aimed, area, Chain link, conducted,
+   Push/Pull, melee reach) bounces when the attacker's origin tile is more than
+   1 tile away; adjacent hits land. A bounced hit returns its damage before the
+   Mirror's Block through the attacker's ordinary defense, once, and lands no
+   damage, rider or movement on the Mirror, including movement shared by a
+   group. Use the illusion's tile and halved damage for an echo, and the extra
+   beam's own origin for player Refraction. The attack's other hits land. Chain
+   continues past the bounced hit, and lightning can pass through a Mirror's
+   conductive tile without hitting it.
+   An attack is a hit the game shows with the melee (sword) or ranged (arrow)
+   damage icon (director, pla-01 round 2); those all resolve through the board
+   attack resolver, including derived attacks such as Shattered Reflection.
+   Pure status and movement, selector strikes (Searing Light, Stoke, White
+   Silence), Bursts, Detonate, Discharge, Meteorfall marks, battlefield rules,
+   ground, traps, Collision and Retaliate land.
+   Target-dependent card modifiers are resolved before reflection. Each bounce
+   records a `reflect_bounced` surface event. The preview prefixes the hero's
+   existing loss label with `↶ ` when a visible Mirror returns the hit to the
+   hero, including Block or Defiance loss. The tooltip reads `Reflected: you
+   take this damage.` A bounced Push/Pull omits the travel preview. A lone shot's
+   projectile follows the existing arc, flashes white for 0.08 seconds and
+   returns along that curve at 1.5 times its outbound speed; area, Chain and
+   melee strikes keep their own animation.
 2. Refraction selects the existing cardinal direction toward the hero and hits
    each passable tile in its four-tile line. Damage is 4 ice with the authored
-   Pierce flag; both teams receive persistent Chilled. Forecast and resolution
+   Pierce flag and persistent Chilled. When another Mirror reflects the beam,
+   the damage and rider return to its caster. Forecast and resolution
    share the same geometry. The beam is #9cc8e6, 6-pixel core, 14-pixel glow at
    30% opacity for 0.3 seconds. Friendly-fire death rewards remain the existing
    rules, without a player-card bonus.

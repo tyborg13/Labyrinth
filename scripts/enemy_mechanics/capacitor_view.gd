@@ -46,7 +46,7 @@ static func rows(intent: Dictionary, state: Dictionary = {}, unit: Dictionary = 
 	var token: Dictionary
 	if str(action["type"]) == "gain_charge":
 		var charge: Dictionary = preload("res://scripts/game_data.gd").enemies()["storm_capacitor"]["charge"]
-		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), "At %d Charge it fires Arc Burst. Shocking it removes %d Charge." % [int(charge["max"]), int(charge["lose_on_shock"])])
+		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), "At %d Charge it fires Arc Burst; Shock removes %d." % [int(charge["max"]), int(charge["lose_on_shock"])])
 	else:
 		token = Icons.icon_text_token("chain", "Arc %d, range %d, %d jumps" % [int(action["damage"]), int(action["first_range"]), int(action["jumps"])], "Hits the nearest target within %d for %d, then jumps to up to %d more beside each hit, losing %d per jump." % [int(action["first_range"]), int(action["damage"]), int(action["jumps"]), int(action["falloff"])])
 	token["glossary_key"] = "charge"

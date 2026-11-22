@@ -1268,7 +1268,8 @@ const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
-const TURN_ORDER_PORTRAITS = preload("res://scripts/turn_order_portraits.gd").PATHS
+const TurnOrderPortraits = preload("res://scripts/turn_order_portraits.gd")
+const TURN_ORDER_PORTRAITS = TurnOrderPortraits.PATHS
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 const DEATH_MUSIC_FADE_OUT_SECONDS: float = 0.6
@@ -1340,6 +1341,9 @@ var _skill_analytics_flushing: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
 var _intent_path_geometry_revision: int = -1
+# Debug A/B probe keeps the release hot path available on this same fixture.
+var _hand_cycle_baseline: bool = OS.is_debug_build() and OS.get_environment("LABYRINTH_PERF163_BASELINE") == "1"
+var _controller_press_baseline: bool = OS.is_debug_build() and OS.get_environment("LABYRINTH_PERF170_BASELINE") == "1"
 var _stage_hover_refresh := preload("res://scripts/stage_hover_refresh.gd").new()
 var _board_encounter_key: String = ""
 var _board_encounter_roster: Array[String]
@@ -1400,7 +1404,7 @@ var _pass_preview_source_movement_left: int = -1
 var _pass_preview_warm_generation: int = 0
 var _pass_preview_warm_active: bool = false
 var _enemy_round_preparation_frame: int = -1
-var _adopt_prepared_enemy_round_hand: bool = false
+var _enemy_round_handoff := preload("res://scripts/enemy_round_handoff.gd").new()
 var _pass_preview_warm_key: String = ""
 var _hover_resolved_preview_key: String = ""
 var _intent_badges := IntentBadges.new()
@@ -1434,9 +1438,6 @@ var _player_movement_selected: bool = false
 var _player_movement_action: Dictionary = {}
 var _target_click_feedback: CanvasLayer
 var _player_movement_target_tiles: Array[Vector2i]
-var _card_action_choice_index: int = -1
-var _card_action_choice_options: Dictionary = {}
-var _card_action_choice_mode: String = "play"
 var _hovered_card_index: int = -1:
 	set(index):
 		# Ownership also changes outside pointer enter/leave (modality, hand
@@ -1488,6 +1489,8 @@ var _force_aim_index: int = 0
 var _force_aim_rotate_shown: bool = false
 var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
+# A continued terminal checkpoint settles before its staged receipts deliver.
+var _terminal_receipts_await_settlement: bool = false
 var _victory_carry_amount: int = 0
 var _recap_depth_unlock_result_id: String = ""
 var _recap_depth_unlocked: int = 0
@@ -1618,6 +1621,7 @@ var _defiance_event_revision_seen: int = 0
 var _card_draw_sfx_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
+var _hand_panel_interaction_signature: String = ""
 var _hand_panel_content_signature: String = "<unset>"
 var _hand_card_pool_host: Control
 var _hand_card_pool: Array[Dictionary]
@@ -1934,7 +1938,6 @@ var _pre_battle_card_art_texture_cache: Dictionary = {}
 var _controller_glyph_badges
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
-var _controller_card_mode: String = "play"
 var _controller_board_tile: Vector2i = INVALID_TARGET_TILE
 var _controller_hand_focused: bool = true
 var _pointer_hand_tucked: bool = false
@@ -1952,6 +1955,7 @@ var _board_centering_target := Vector2.INF
 var _board_canvas_size := Vector2.ZERO
 
 var _encounter_preparation_generation: int = 0
+var _combat_texture_scope: AssetLoader.TexturePreparationScope
 var _encounter_cpu_asset_holds: Array[RefCounted]
 var _prepared_pre_battle_factory: Dictionary = {}
 var _equipment_factory_preparation := preload("res://scripts/prepared_equipment_combat.gd").new()
@@ -1964,6 +1968,7 @@ var _opening_hand_pool_preparation_input: Dictionary = {}
 var _opening_hand_pool_preparation_revision: int = 0
 var _nonfight_room_preparation := preload("res://scripts/nonfight_room_preparation.gd").new()
 var _choice_refresh := preload("res://scripts/choice_refresh.gd").new()
+var _refreshing_noncombat_choice: bool = false
 var _hud_refresh_layout := preload("res://scripts/hud_refresh_layout.gd").new()
 var _victory_reward_preparation := preload("res://scripts/prepared_victory_reward.gd").new()
 var _reward_reroll_preparation := preload("res://scripts/prepared_reward_choices.gd").new()
@@ -1998,6 +2003,18 @@ var _burst_playback = preload("res://scripts/enemy_mechanics/burst_playback.gd")
 var _animation_step_requires_submission_validation: bool = false
 var _defer_initial_run_presentation: bool = false
 var _leaving_tree: bool = false
+var _run_abandoned: bool = false
+
+# Legacy proof scripts read these values by name. The retired selector has no
+# mutable card-choice state, and gameplay uses the direct selection fields.
+func _get(property: StringName) -> Variant:
+	match property:
+		&"_card_action_choice_index":
+			return -1
+		&"_card_action_choice_mode":
+			return "play"
+	return null
+
 
 func _init() -> void:
 	_combat_pacing.install(self)
@@ -2250,9 +2267,7 @@ func _physics_process(delta: float) -> void:
 	var step: Vector2 = repeat.get("step", Vector2.ZERO)
 	if step == Vector2.ZERO:
 		return
-	if _controller_card_mode_active():
-		_controller_move_card_mode(1 if step.x > 0.0 or step.y > 0.0 else -1)
-	elif _controller_region == "hand":
+	if _controller_region == "hand":
 		if absf(step.x) >= absf(step.y):
 			_controller_cycle_hand(1 if step.x > 0.0 else -1)
 		elif step.y < 0.0:
@@ -2281,7 +2296,7 @@ func _input(event: InputEvent) -> void:
 		# Pass and a fresh controller selection supersede the pending hover.
 		var pass_replaces_hover: bool = (
 			event is InputEventJoypadButton and event.is_action_pressed(InputRouterScript.ACTION_PASS)
-			and _controller_custom_combat_available() and not _controller_card_mode_active() and _drag_card_index < 0
+			and _controller_custom_combat_available() and _drag_card_index < 0
 		)
 		if not accept_replaces_hover and not pass_replaces_hover:
 			_flush_hand_hover_before_action()
@@ -2651,7 +2666,6 @@ func _on_input_modality_changed(modality: String) -> void:
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
 		call_deferred("_refresh_controller_after_layout")
-	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
 	_start_room_map.refresh_hint(self)
@@ -2749,26 +2763,6 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			return false
 		_controller_move_board(room_direction)
 		return true
-	if _controller_card_mode_active():
-		if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
-			_controller_cancel_card_mode()
-			return true
-		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
-			if _hitch_trace_enabled: _hitch_continuation = null
-			await _controller_activate_card_mode()
-			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_handle_controller_input:4")
-			return true
-		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
-			_controller_move_card_mode(-1)
-			return true
-		if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
-			_controller_move_card_mode(1)
-			return true
-		var mode_direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
-		if mode_direction != Vector2.ZERO:
-			_controller_move_card_mode(1 if mode_direction.x > 0.0 or mode_direction.y > 0.0 else -1)
-			return true
-		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		if EmpowerUi.can_attempt(self, EmpowerUi.index_for_input(self, true)):
 			if _hitch_trace_enabled: _hitch_continuation = null
@@ -2777,14 +2771,13 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+		var was_aiming: bool = _player_movement_selected or _selected_card_index >= 0
 		if _player_movement_selected:
 			if _hitch_trace_enabled: _hitch_continuation = null
 			await _on_cancel_requested(false)
 			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_handle_controller_input:6")
 			_controller_region = "board"
 			_controller_set_hand_focused(false)
-		elif _selected_card_index >= 0 and _card_action_choice_index >= 0:
-			_controller_enter_card_mode()
 		elif _selected_card_index >= 0:
 			if _hitch_trace_enabled: _hitch_continuation = null
 			await _on_cancel_requested(false)
@@ -2792,11 +2785,14 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_region = "board"
 			_controller_set_hand_focused(false)
 		elif _controller_hand_focused:
-			_controller_enter_board(false)
+			_controller_enter_board(false, true, not _controller_press_baseline)
 		else:
 			if _hitch_trace_enabled: _hitch_continuation = null
 			await _on_cancel_requested(false)
 			if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("input:run_scene:_handle_controller_input:8")
+		if was_aiming and not _player_movement_selected and _selected_card_index < 0 and _controller_region == "board":
+			# Cancel clears hover independently of the stored cursor tile.
+			_controller_set_board_tile(_controller_board_tile)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
 		if _guided_tutorial_hard_gate_active():
@@ -2924,103 +2920,16 @@ func _controller_move(direction: Vector2) -> void:
 	if _controller_region == "board":
 		_controller_move_board(direction)
 
-func _controller_card_mode_active() -> bool:
-	return _controller_region == "card_mode" and _card_action_choice_index >= 0 and _controller_custom_combat_available()
-
-func _controller_available_card_modes() -> Array[String]:
-	var modes: Array[String]
-	for mode_name: String in ["play", "attack", "move", "blink"]:
-		var playable_key: String = "printed_playable" if mode_name == "play" else "%s_playable" % mode_name
-		if bool(_card_action_choice_options.get(playable_key, false)):
-			modes.append(mode_name)
-	return modes
-
-func _controller_enter_card_mode() -> void:
-	if _card_action_choice_index < 0:
-		return
-	_controller_region = "card_mode"
-	_controller_card_mode = _card_action_choice_mode
-	var available_modes: Array[String] = _controller_available_card_modes()
-	if not available_modes.has(_controller_card_mode) and not available_modes.is_empty():
-		_controller_card_mode = available_modes[0]
-	_controller_clear_board_focus()
-	_controller_hide_analog_cursor()
-	_controller_reset_stick_repeat()
-	call_deferred("_focus_controller_card_mode")
-	_refresh_controller_prompts()
-
-func _controller_move_card_mode(direction: int) -> void:
-	var modes: Array[String] = _controller_available_card_modes()
-	if modes.is_empty():
-		return
-	var current_index: int = modes.find(_controller_card_mode)
-	_controller_card_mode = modes[ControllerNavigationScript.wrapped_index(current_index, direction, modes.size())]
-	_focus_controller_card_mode()
-	_refresh_controller_prompts()
-
-func _focus_controller_card_mode() -> void:
-	if _card_action_mode_selector == null or not _controller_card_mode_active():
-		return
-	_refresh_controller_card_mode_visuals()
-	for child: Node in _card_action_mode_selector.get_children():
-		var button: Button = child as Button
-		if (
-			button != null
-			and not button.disabled
-			and str(button.get_meta("play_kind", "")) == _controller_card_mode
-		):
-			button.grab_focus()
-			return
-
-func _refresh_controller_card_mode_visuals() -> void:
-	if _card_action_mode_selector == null:
-		return
-	var controller_preview_active: bool = _controller_is_active() and _controller_card_mode_active()
-	var visual_mode: String = _controller_card_mode if controller_preview_active else _card_action_choice_mode
-	for child: Node in _card_action_mode_selector.get_children():
-		var button: Button = child as Button
-		if button == null:
-			continue
-		var play_kind: String = str(button.get_meta("play_kind", ""))
-		var available: bool = bool(button.get_meta("available", false))
-		var active: bool = play_kind == visual_mode
-		button.set_meta("active", active)
-		button.set_pressed_no_signal(active)
-		button.z_index = 4 if active else (3 if play_kind == "play" else (2 if play_kind == "attack" else 1))
-		button.modulate = Color.WHITE if active and available else (Color(0.78, 0.78, 0.78, 1.0) if available else Color(0.52, 0.50, 0.48, 1.0))
-		CardActionContextArt.set_mode_placard_active(button, play_kind, active, available)
-
-func _controller_activate_card_mode() -> void:
-	if not _controller_card_mode_active():
-		return
-	await _on_card_action_choice_pressed(_controller_card_mode)
-	if _selected_card_index < 0:
-		_controller_region = "hand"
-		return
-	if _pending_action_index >= _pending_actions.size():
-		await _on_confirm_card_play_pressed()
-		_controller_region = "hand"
-		_controller_set_hand_index(maxi(0, _controller_hand_index))
-		return
-	_controller_enter_board(true)
-
-func _controller_cancel_card_mode() -> void:
-	var hand_index: int = _card_action_choice_index
-	_cancel_card_action_choice()
-	_controller_region = "hand"
-	_controller_set_hand_focused(true)
-	_controller_set_hand_index(maxi(0, hand_index))
-
 func _controller_toggle_hand_focus() -> void:
 	if _controller_region == "hand" and _controller_hand_focused:
-		_controller_enter_board(false)
+		_controller_enter_board(false, true, not _controller_press_baseline)
 		return
-	if _card_action_choice_index >= 0:
-		_cancel_card_action_choice()
-	elif _selected_card_index >= 0:
-		_cancel_card_selection()
+	if _selected_card_index >= 0:
+		var refresh_hand: bool = _controller_press_baseline or _controller_hand_focused or _guided_tutorial_is_active()
+		_cancel_card_selection(false, true, refresh_hand)
 	_controller_region = "hand"
-	_controller_set_hand_focused(true)
+	var hand: Array = _combat_state.get("deck", {}).get("hand", [])
+	_controller_set_hand_focused(true, true, not _controller_press_baseline, not hand.is_empty())
 	_controller_set_hand_index(maxi(0, _controller_hand_index))
 
 func _controller_cycle_hand(direction: int) -> void:
@@ -3029,7 +2938,9 @@ func _controller_cycle_hand(direction: int) -> void:
 		return
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_controller_set_hand_focused(true)
+	_record_runtime_performance_phase("hand_cycle_row_layout", started)
 	_controller_region = "hand"
 	if (
 		_guided_tutorial_hard_gate_active()
@@ -3043,9 +2954,9 @@ func _controller_cycle_hand(direction: int) -> void:
 		_controller_set_hand_index(guided_indices[next_position])
 		return
 	var next_index: int = ControllerNavigationScript.wrapped_index(_controller_hand_index, direction, hand.size())
-	_controller_set_hand_index(next_index)
+	_controller_set_hand_index(next_index, true)
 
-func _controller_set_hand_index(index: int) -> void:
+func _controller_set_hand_index(index: int, cycling: bool = false) -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if hand.is_empty():
 		_controller_hand_index = -1
@@ -3058,29 +2969,45 @@ func _controller_set_hand_index(index: int) -> void:
 		var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
 		if not guided_indices.is_empty() and not guided_indices.has(clamped_index):
 			clamped_index = guided_indices[0]
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# The departing hover and logical focus own the same Empower seal. Clearing
+	# one owner before switching both cannot change that seal's presentation.
+	var same_seal_owner: bool = cycling and not _hand_cycle_baseline and _controller_hand_focused \
+		and _hovered_card_index >= 0 and _hovered_card_index == _controller_hand_index
 	if _controller_hand_index != clamped_index:
-		_controller_clear_hand_hover()
+		_controller_clear_hand_hover(same_seal_owner)
 	_controller_hand_index = clamped_index
 	_controller_hide_analog_cursor()
 	_controller_clear_board_focus()
+	started = _record_runtime_performance_phase("hand_cycle_focus", started)
 	if _selected_card_index < 0 and _controller_hand_focused and _controller_region == "hand":
 		_on_card_hover_started(_controller_hand_index, false)
+	started = _record_runtime_performance_phase("hand_cycle_dwell", started)
 	_refresh_controller_prompts()
+	_record_runtime_performance_phase("hand_cycle_prompts", started)
 
-func _controller_clear_hand_hover() -> void:
+func _controller_clear_hand_hover(cycling: bool = false) -> void:
 	var had_hover: bool = _hovered_card_index >= 0
 	_hovered_card_index = -1
-	_set_hand_emphasized_index(-1, false)
+	if cycling:
+		_apply_hand_emphasis(-1, false, false)
+		_empower_charge.observe(_combat_state)
+	else:
+		_set_hand_emphasized_index(-1, false)
 	if had_hover and not _animation_lock:
+		var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_refresh_stage_view()
+		started = _record_runtime_performance_phase("hand_cycle_stage_reset", started)
 		_refresh_turn_order_bar()
+		_record_runtime_performance_phase("hand_cycle_rail_reset", started)
 		_refresh_contextual_combat_tutorial()
 
-func _controller_enter_board(prefer_target: bool, refresh_hand: bool = true) -> void:
+func _controller_enter_board(prefer_target: bool, refresh_hand: bool = true, hand_exit_press: bool = false) -> void:
+	_invalidate_hand_hover_rest()
 	_controller_clear_hand_hover()
 	_controller_region = "board"
 	if _controller_custom_combat_available():
-		_controller_set_hand_focused(false, refresh_hand)
+		_controller_set_hand_focused(false, refresh_hand, hand_exit_press)
 	_controller_reset_stick_repeat()
 	if _controller_custom_room_available():
 		# Room navigation deliberately begins in free-cursor space. A door is not a
@@ -3107,7 +3034,11 @@ func _controller_enter_board(prefer_target: bool, refresh_hand: bool = true) -> 
 	var tiles: Array[Vector2i] = _controller_board_tiles()
 	if not tiles.has(candidate_tile) and not tiles.is_empty():
 		candidate_tile = tiles[0]
-	_controller_set_board_tile(candidate_tile)
+	if hand_exit_press:
+		if candidate_tile != INVALID_TARGET_TILE and not tiles.is_empty():
+			_controller_set_validated_board_tile(candidate_tile)
+	else:
+		_controller_set_board_tile(candidate_tile)
 
 func _controller_move_board(direction: Vector2) -> void:
 	if preload("res://scripts/controller_focus_candidates.gd").recover_invalid(self): return
@@ -3188,10 +3119,15 @@ func _controller_process_board_cursor(delta: float) -> void:
 func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true) -> void:
 	if tile == INVALID_TARGET_TILE or not _controller_board_tiles().has(tile):
 		return
+	_controller_set_validated_board_tile(tile, sync_virtual_cursor)
+
+func _controller_set_validated_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true) -> void:
 	var candidate: Dictionary = _controller_candidate_for_tile(tile)
 	if candidate.is_empty():
 		return
-	if tile == _controller_board_tile:
+	# The stored tile survives hand focus, but the renderer's focus and the
+	# scene's hover can be retired independently while the player is away.
+	if tile == _controller_board_tile and board_view._controller_focus_tile == tile and _hovered_board_tile != INVALID_TARGET_TILE:
 		_controller_focus_candidate = candidate
 		if sync_virtual_cursor:
 			_controller_virtual_board_position = candidate.get("point", _controller_board_point(tile))
@@ -3475,7 +3411,7 @@ func _controller_selects_uncommitted_card() -> bool:
 		not _selection_forecast_baseline and _controller_is_active() and _controller_custom_combat_available()
 		and _controller_region == "hand" and _controller_hand_index >= 0
 		and _controller_focus_candidate.get("kind", "") not in ["control", "relic"]
-		and _selected_card_index < 0 and _card_action_choice_index < 0 and _drag_card_index < 0
+		and _selected_card_index < 0 and _drag_card_index < 0
 		and not _surface_aim.active() and not _player_movement_selected and not _guided_tutorial_hard_gate_active()
 	)
 
@@ -3512,9 +3448,7 @@ func _controller_activate_current() -> void:
 			_controller_hand_index = 0
 		var defer_forecast: bool = _controller_selects_uncommitted_card()
 		await _on_card_pressed(_controller_hand_index, defer_forecast)
-		if _card_action_choice_index >= 0:
-			_controller_enter_card_mode()
-		elif _selected_card_index >= 0:
+		if _selected_card_index >= 0:
 			if not defer_forecast or _controller_region == "hand": _controller_enter_board(true)
 			if defer_forecast: _selected_pass_work.schedule_initial_aim(self)
 		else:
@@ -3531,7 +3465,7 @@ func _controller_activate_current() -> void:
 		else:
 			_controller_set_board_tile(_controller_board_tile)
 
-func _controller_set_hand_focused(focused: bool, refresh_hand: bool = true) -> void:
+func _controller_set_hand_focused(focused: bool, refresh_hand: bool = true, focus_press: bool = false, index_follows: bool = false) -> void:
 	var resolved_focus: bool = focused or not _controller_combat_layout_active()
 	if resolved_focus == _controller_hand_focused:
 		# Modality may have changed even though the logical focus bit did not. Reapply
@@ -3547,12 +3481,17 @@ func _controller_set_hand_focused(focused: bool, refresh_hand: bool = true) -> v
 	if not _controller_hand_focused:
 		_controller_clear_hand_hover()
 	if refresh_hand:
-		_hand_panel_signature = "<unset>"
-		_refresh_hand_panel()
+		if focus_press:
+			_refresh_hand_panel_after_layout(true)
+		else:
+			_hand_panel_signature = "<unset>"
+			_refresh_hand_panel()
 	call_deferred("_sync_board_view_rect")
 	call_deferred("_layout_combat_action_dock")
 	call_deferred("_refresh_controller_after_layout", layout_revision)
-	_refresh_controller_prompts()
+	# The index setter publishes prompts with the final focus and geometry.
+	if not focus_press or not index_follows:
+		_refresh_controller_prompts()
 
 func _apply_controller_hand_layout() -> void:
 	if hand_scroll == null or hand_row == null:
@@ -3584,10 +3523,9 @@ func _apply_controller_hand_layout() -> void:
 	# the card crowns instead of letting the screen edge tuck them naturally.
 	hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	hand_scroll.clip_contents = false
-	hand_tuck_margin.add_theme_constant_override(
-		"margin_top",
-		CONTROLLER_UNFOCUSED_HAND_TOP_MARGIN if tucked else 0
-	)
+	var tuck_margin: int = CONTROLLER_UNFOCUSED_HAND_TOP_MARGIN if tucked else 0
+	if _hand_cycle_baseline or previous_tuck != tuck_margin or not hand_tuck_margin.has_theme_constant_override("margin_top"):
+		hand_tuck_margin.add_theme_constant_override("margin_top", tuck_margin)
 	if tucked:
 		hand_scroll.scroll_vertical = 0
 	if previous_height != hand_row.custom_minimum_size.y or previous_tuck != hand_tuck_margin.get_theme_constant("margin_top"):
@@ -3808,10 +3746,6 @@ func _refresh_controller_interface() -> void:
 	if _player_movement_selected or _selected_card_index >= 0:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
-	if _controller_card_mode_active():
-		_controller_suspend_custom_navigation()
-		call_deferred("_focus_controller_card_mode")
-		return
 	if _controller_custom_room_available():
 		_controller_region = "board"
 		if not _controller_focus_candidate.is_empty():
@@ -4006,7 +3940,9 @@ func _exit_tree() -> void:
 	var encounter: Dictionary = _combat_state
 	if str(_run_state.get("mode", "")) == "pre_battle":
 		encounter = _pre_battle_preview_run_state.get("combat_state", {})
-	preload("res://scripts/run_section_art.gd").release_after_run(self, encounter)
+	# Succumbing, a defeat and a victory end the run: no Continue follows.
+	if _run_abandoned or str(_run_state.get("mode", "")) in ["defeat", "victory", "embrace", "demo_clear"]: preload("res://scripts/run_section_art.gd").release_finished_run(self, _run_state)
+	else: preload("res://scripts/run_section_art.gd").release_after_run(self, encounter)
 	_pass_preview_warm_generation += 1
 	_selected_pass_work.cancel()
 	_pass_preview_prewarm.cancel()
@@ -5315,6 +5251,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.set("room_action_filter", Callable(self, "_guided_tutorial_map_room_allowed"))
 	_large_map_view.connect("target_geometry_changed", _refresh_guided_tutorial_path_geometry)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
+	_large_map_view.connect("room_travel_started", _on_large_map_travel_started)
 	_large_map_view.connect("scout_requested", _on_section_map_scout)
 	_large_map_view.connect("door_requested", _on_section_map_door)
 	_large_map_view.connect("event_requested", _on_section_map_event)
@@ -5943,6 +5880,7 @@ func _on_graftwright_sound(cue: String) -> void:
 		"complete": _play_item_equip_sfx()
 
 func _on_graft_requested(recipient: String, donor: String, donor_index: int, target_index: int) -> void:
+	var started: int = _choice_phase_start()
 	var reason: String = GraftwrightView.Rules.error(_run_state, recipient, donor, donor_index, target_index)
 	if not reason.is_empty():
 		_graftwright_view.reject(reason)
@@ -5953,23 +5891,26 @@ func _on_graft_requested(recipient: String, donor: String, donor_index: int, tar
 		return
 	# Persist the entire atomic transaction before presentation. Closing the game
 	# during the ritual resumes its finished result, never a duplicate sacrifice.
+	_record_runtime_performance_phase("choice_graft_rules", started)
 	var persisted: Dictionary = _persist_run_state_snapshot(next, false, "equipment_grafted")
 	if not bool(persisted.get("saved", false)):
 		_graftwright_view.reject("Could not save. Your equipment is unchanged.")
 		return
 	_run_state = next
 	_animation_lock = true
-	await _graftwright_view.present_result(next)
+	await _graftwright_view.present_result(next, _record_runtime_performance_phase if _runtime_performance_instrumentation_enabled else Callable())
 	_animation_lock = false
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	_schedule_controller_modal_refresh()
 
 func _on_graftwright_leave() -> void:
 	if _graftwright_view.busy: return
+	var started: int = _choice_phase_start()
 	_run_state = _run_engine.leave_graftwright(_run_state)
+	_record_runtime_performance_phase("choice_graft_leave_rules", started)
 	_persist_committed_boundary("graftwright_leave")
 	_graftwright_view.hide()
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	_schedule_controller_modal_refresh()
 
 func _build_scavenger_shop_overlay(stage: Control) -> void:
@@ -6511,6 +6452,8 @@ func _grimoire_search_field_style(focused: bool) -> StyleBoxFlat:
 func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	if _grimoire_section_list == null:
 		return
+	# Opening or switching section warms that section's card faces after its first frame.
+	preload("res://scripts/grimoire_texture_preparation.gd").prepare_for.call_deferred(self)
 	var grimoire_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_layout_grimoire_dialog()
 	var preserved_scroll_vertical: int = 0
@@ -9922,22 +9865,12 @@ func _ensure_action_tracker_prewarm_host() -> void:
 func _warm_action_tracker_components() -> void:
 	_ensure_action_tracker_prewarm_host()
 	while not _action_tracker_prewarm_queue.is_empty() and is_inside_tree():
-		if _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or _animation_lock:
+		if _selected_card_index >= 0 or _drag_card_index >= 0 or _animation_lock:
 			await get_tree().process_frame
 			continue
 		var job: Dictionary = _action_tracker_prewarm_queue.pop_front()
 		var component: Control
 		match str(job.get("kind", "")):
-			"mode":
-				var mode: Dictionary = job.get("mode", {}) as Dictionary
-				component = _build_card_action_mode_option(
-					str(mode.get("play_kind", "play")),
-					str(mode.get("text", "")),
-					true,
-					mode.get("accent", Color.WHITE),
-					"",
-					ButtonGroup.new()
-				)
 			"connector":
 				component = CardActionContextArt.make_action_connector(str(job.get("status", "remaining")), 0)
 			"chip":
@@ -10697,7 +10630,7 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	if root.has_meta("labyrinth_resume_saved_run"): root.remove_meta("labyrinth_resume_saved_run")
 	var saved_run: Dictionary = {}
 	if should_resume and not debug_boss:
-		saved_run = Persistence.load_resumable_checkpoint(true)
+		saved_run = ProgressionStore.load_checkpoint_for_resume()
 		# The cover reports the failed load when no run was installed.
 		if saved_run.is_empty(): return {}
 	_progression = ProgressionStore.load_data()
@@ -10714,6 +10647,7 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_recap_depth_unlock_result_id = ""
 	_recap_depth_unlocked = 0
+	_combat_texture_scope = null
 	var startup_started: int = Time.get_ticks_usec() if _hitch_trace_enabled and _defer_initial_run_presentation and _runtime_performance_instrumentation_enabled else 0
 	_pointer_hand_tucked = false
 	_nonfight_room_preparation.cancel()
@@ -10791,7 +10725,14 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
 	_repair_profile_progression_from_run()
-	_reconcile_progression_analytics_outbox()
+	# An unsettled terminal checkpoint staged its closing receipts before the
+	# wallet settled. Delivering them first must not stand in for settlement.
+	_terminal_receipts_await_settlement = (
+		str(_run_state.get("mode", "")) in ["victory", "defeat"] and not _is_debug_boss_run()
+		and not _run_state.has("heirloom_terminal_wallet")
+		and not ProgressionStore.has_completed_run(ProgressionStore.load_data(), _run_state)
+	)
+	if not _terminal_receipts_await_settlement: _reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_sync_combat_state_from_run()
 	_baseline_card_draw_sfx_revision(_combat_state)
@@ -10862,10 +10803,10 @@ func _start_run(stage_graph: bool = false) -> Dictionary:
 	preload("res://scripts/run_persistence.gd").flush(self)
 	_opening_boon_flow.close(self)
 	_cancel_deferred_skill_analytics()
-	var checkpoint: Dictionary = ProgressionStore.read_resumable_checkpoint()
+	var checkpoint: Dictionary = ProgressionStore.load_checkpoint_for_replacement()
 	if checkpoint["status"] == ProgressionStore.RunFile.UNAVAILABLE: return {}
 	var previous: Dictionary = checkpoint.get("state", {})
-	if previous.is_empty() and checkpoint["status"] != ProgressionStore.RunFile.MISSING:
+	if previous.is_empty() and checkpoint["status"] not in [ProgressionStore.RunFile.MISSING, ProgressionStore.RunFile.STALE]:
 		# Preserve the existing New Run profile semantics when replacing an
 		# unreadable run structure or a finalized terminal recovery snapshot.
 		previous = ProgressionStore.load_saved_run()
@@ -10880,11 +10821,15 @@ func _start_run(stage_graph: bool = false) -> Dictionary:
 	# without a marker. Only abandoning a live run loses its held Embers.
 	if not previous.is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat", "abandoned", "embrace"]:
 		starting_profile = ProgressionStore.set_embers(starting_profile, 0)
-	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
+	_progression = ProgressionStore.prepare_for_new_run(starting_profile, previous)
 	var depth: int = ProgressionStore.session_umbra_depth(_progression)
 	var automatic_seed: int = int(_initial_automatic_seed) if stage_graph and _initial_automatic_seed != null else InitialGraph.sample_automatic_seed(previous.get("seed"))
 	var seed: int = InitialGraph.resolve_seed(get_tree().root, automatic_seed)
-	var request: Dictionary = {"seed": seed, "depth": depth, "previous": previous, "automatic_seed": automatic_seed}
+	var request: Dictionary = {
+		"seed": seed, "depth": depth, "previous": previous, "automatic_seed": automatic_seed,
+		"replaces_active_run": not checkpoint.get("summary", {}).is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat"],
+		"recovery_marker": ProgressionStore.recovery_marker(starting_profile),
+	}
 	if stage_graph: return request
 	_commit_new_run(request, {})
 	return {}
@@ -10893,18 +10838,35 @@ func _commit_new_run(request: Dictionary, graph: Dictionary) -> bool:
 	if _initial_loading_cancelled: return false
 	var startup_started: int = Time.get_ticks_usec() if _hitch_trace_enabled and _defer_initial_run_presentation and _runtime_performance_instrumentation_enabled else 0
 	var previous: Dictionary = request["previous"]
+	var replaces_active: bool = bool(request.get("replaces_active_run", false))
 	var new_run_state: Dictionary = _run_engine.create_new_run(request["seed"], _progression, true, -1, graph)
 	if startup_started > 0: startup_started = _record_runtime_performance_phase("startup_state_create", startup_started)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
 	new_run_state = _ensure_run_analytics_metadata(new_run_state)
+	if replaces_active:
+		# Replacement ends the previous descent only once the replacement is
+		# durable. Its embedded outbox survives a crash before startup delivery.
+		var context: Dictionary = _analytics_context_from_states(previous, previous.get("combat_state", {}))
+		var receipt: Dictionary = Snapshots.run_ended_receipt(_run_engine, previous, "abandoned", context)
+		new_run_state["progression"] = Snapshots.stage_receipt(ProgressionStore.record_run_completion(new_run_state["progression"], previous), receipt)
+	var preserved_marker: Dictionary = request.get("recovery_marker", {})
+	var installing_profile: Dictionary = _progression
+	if not preserved_marker.is_empty():
+		installing_profile = _progression.duplicate(true)
+		installing_profile[ProgressionStore.PENDING_DESCENT_ID_KEY] = ProgressionStore.completion_run_id(new_run_state)
+		installing_profile["recovery_marker"] = preserved_marker
 	# Never erase the previous run before its replacement is durable. A gift is
 	# stamped into this save before its pending profile entry is acknowledged.
 	if not preload("res://scripts/run_persistence.gd").has_checkpoint(new_run_state) or (
-		not ProgressionStore.save_new_descent_profile(_progression)
+		not ProgressionStore.save_new_descent_profile(installing_profile)
 		or not ProgressionStore.install_replacement_run(new_run_state)
 	):
 		_restore_after_failed_new_run(previous, "The new run could not be saved. Your previous run is available.")
 		return false
+	if replaces_active:
+		_progression = ProgressionStore.record_run_completion(_progression, previous)
+	if (replaces_active or not preserved_marker.is_empty()) and not ProgressionStore.save_data(_progression):
+		push_warning("Could not finish saving the installed descent profile; Continue can recover it.")
 	if startup_started > 0: _record_runtime_performance_phase("startup_state_save", startup_started)
 	_load_run_state(new_run_state)
 	_analytics_log_run_started()
@@ -10925,6 +10887,14 @@ func _start_debug_boss_run() -> void:
 	var run_state: Dictionary = _run_engine.create_debug_boss_run(_progression)
 	_load_run_state(_ensure_run_analytics_metadata(run_state))
 	_analytics_log_run_started()
+
+func _refresh_choice_result_ui() -> void:
+	# Opening the route map supplies its latest run state before showing it.
+	# Choice receipts leave it covered, so skip its hidden graph/layout pass.
+	var was_refreshing: bool = _refreshing_noncombat_choice
+	_refreshing_noncombat_choice = true
+	_refresh_ui()
+	_refreshing_noncombat_choice = was_refreshing
 
 func _refresh_ui(
 	frame_sliced: bool = false,
@@ -11049,9 +11019,9 @@ func _refresh_ui_header() -> void:
 	relic_bar.visible = relic_bar.visible or _omen_badges.has_visible_badges(_relic_icon_grid)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
 
-func _refresh_ui_navigation() -> void:
+func _refresh_ui_navigation(handoff_entries: Variant = null) -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	_refresh_turn_order_bar()
+	_refresh_turn_order_bar({}, handoff_entries)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_objective", performance_phase_started)
@@ -11061,17 +11031,17 @@ func _refresh_ui_navigation() -> void:
 	if not SectionMapGraph.enabled(_run_state):
 		mini_map.set_run_state(_run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_minimap", performance_phase_started)
-	if _large_map_view != null:
+	if _large_map_view != null and (not _refreshing_noncombat_choice or _visible_control(_large_map_scrim)):
 		_large_map_view.call("set_run_state", _run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_large_map", performance_phase_started)
 	_refresh_pile_counts()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_counts", performance_phase_started)
 
-func _refresh_ui_choices(reward_jobs: Variant = null) -> void:
+func _refresh_ui_choices(reward_jobs: Variant = null, handoff: Dictionary = {}) -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_card_play_meter()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_card_play_meter", performance_phase_started)
-	_refresh_player_movement_meter()
+	_refresh_player_movement_meter(handoff.get("movement_enabled"))
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_movement_meter", performance_phase_started)
 	# Choice refresh updates this after choice layout. The dialogue early return
 	# is the only branch that still needs the standalone tracker update.
@@ -11079,17 +11049,17 @@ func _refresh_ui_choices(reward_jobs: Variant = null) -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker_total", performance_phase_started)
 	_refresh_pile_visuals()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_visuals", performance_phase_started)
-	_refresh_choice_bar(reward_jobs)
+	_refresh_choice_bar(reward_jobs, handoff.get("pass_face", {}))
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_choice_bar_total", performance_phase_started)
 
-func _refresh_ui_stage() -> void:
+func _refresh_ui_stage(handoff: Dictionary = {}) -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	_refresh_stage_view()
+	_refresh_stage_view_with_state({}, handoff)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_stage_total", performance_phase_started)
 
-func _refresh_ui_hand() -> void:
+func _refresh_ui_hand(handoff: Dictionary = {}) -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	_refresh_hand_panel()
+	_refresh_hand_panel(handoff)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand_total", performance_phase_started)
 
 func _refresh_ui_finish() -> void:
@@ -11291,6 +11261,9 @@ func _update_performance_telemetry_context() -> void:
 	})
 
 func _refresh_card_preview_ui() -> void:
+	_refresh_card_preview_ui_content(true)
+
+func _refresh_card_preview_ui_content(refresh_hand: bool) -> void:
 	# Entering, advancing, or cancelling a card preview changes combat interaction
 	# presentation, not run progression, maps, relic ownership, piles, room chrome,
 	# or persistent overlays. The full refresh path re-hashed and rebuilt all of
@@ -11320,7 +11293,8 @@ func _refresh_card_preview_ui() -> void:
 	# Its stagger delays read the aim resolved by the stage refresh above.
 	if forecast_pending: _refresh_turn_order_bar()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage_total", performance_phase_started)
-	_refresh_hand_panel()
+	if refresh_hand:
+		_refresh_hand_panel()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand_total", performance_phase_started)
 	EmpowerUi.sync_widgets(self)
 	_refresh_card_preview_visibility()
@@ -12258,7 +12232,6 @@ func _combat_skill_activation_surface_available() -> bool:
 		and not _guided_tutorial_action_restricted()
 		and _combat_engine.is_player_turn(_combat_state)
 		and _selected_card_index < 0
-		and _card_action_choice_index < 0
 		and _drag_card_index < 0
 		and not _player_movement_selected
 		and not _pending_umbra_commit_locked
@@ -12809,7 +12782,7 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_hp_label.add_theme_constant_override("outline_size", 1)
 	_boss_health_host.add_child(_boss_health_hp_label)
 
-func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
+func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}, prepared_entries: Variant = null) -> void:
 	if _turn_order_panel != null: _refresh_battlefield_rule_hud(accepted_display_state)
 	if _turn_order_landing_strip != null and not _turn_order_landing_strip_allowed():
 		_turn_order_landing_strip.hide_strip()
@@ -12832,10 +12805,12 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 	# the forecast just submitted by a card hover or attack-target change.
 	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays()
 	_selected_pass_work.paid(self, "rail")
+	_retire_replaced_hand_hover()
+	var projection_index: int = _turn_order_projection_card_index()
 	var source_signature: String = "%d|%d|%d|%d|%d|%s" % [
 		_combat_preview_revision,
 		_selected_card_index,
-		_hovered_card_index,
+		projection_index,
 		1 if _animation_lock else 0,
 		1 if _selected_card_empowered() else 0,
 		str(stagger_delays)
@@ -12849,14 +12824,41 @@ func _refresh_turn_order_bar(accepted_display_state: Dictionary = {}) -> void:
 		return
 	_turn_order_source_signature = source_signature
 	var display_state: Dictionary = _turn_order_display_state(stagger_delays) if accepted_display_state.is_empty() else accepted_display_state
-	# The strip needs the end-now hero even beyond the rail's disclosure cap.
-	# Each queued actor can contribute its entry and one follow-up, plus the
-	# active actor and its next turn. Project once, then cap only the rail.
-	var strip_limit: int = maxi(TURN_ORDER_DISCLOSURE_LIMIT, (display_state.get("turn_queue", []) as Array).size() * 2 + 2)
-	var all_entries: Array[Dictionary] = _combat_engine.current_turn_order(display_state, strip_limit)
+	var all_entries: Array[Dictionary]
+	if prepared_entries != null and is_same(display_state, _combat_state):
+		all_entries = prepared_entries
+	else:
+		all_entries = _project_turn_order_entries(display_state)
 	_turn_order_all_entries = all_entries
 	_refresh_turn_order_landing_strip()
 	_set_turn_order_bar_entries(all_entries)
+
+func _project_turn_order_entries(state: Dictionary) -> Array[Dictionary]:
+	# Each queued actor can contribute an entry and a follow-up. Project once
+	# beyond the rail's disclosure cap so the landing strip can also use it.
+	var limit: int = maxi(TURN_ORDER_DISCLOSURE_LIMIT, (state.get("turn_queue", []) as Array).size() * 2 + 2)
+	return _combat_engine.current_turn_order(state, limit)
+
+func _retire_replaced_hand_hover() -> void:
+	if _hovered_card_index < 0 or hand_box == null:
+		return
+	# Navigation refreshes before the hand. An old widget's hover cannot
+	# transfer to a different card that just took its index in the deck.
+	var widget: CardWidget = _hand_card_control(_hovered_card_index) as CardWidget
+	if widget == null or widget.card_id != _card_id_for_hand_index(_hovered_card_index):
+		_hovered_card_index = -1
+
+func _turn_order_projection_card_index() -> int:
+	if _selected_card_index >= 0:
+		return _selected_card_index
+	if _drag_card_index >= 0:
+		return _drag_card_index
+	# Mouse hover pays only for the rail immediately. The stage and keyword
+	# stack still wait for their normal dwell. Controller cycling keeps its
+	# existing unprojected schedule until its deferred preview is ready.
+	if _hand_hover_rest_pending and _controller_is_active():
+		return -1
+	return _hovered_card_index
 
 func _turn_order_landing_strip_allowed(focused_index: int = -1) -> bool:
 	if not TURN_ORDER_LANDING_STRIP_ENABLED:
@@ -12866,6 +12868,8 @@ func _turn_order_landing_strip_allowed(focused_index: int = -1) -> bool:
 	if str(_run_state.get("mode", "room")) != "combat" or _animation_lock or _drag_card_index >= 0 or _combat_state.is_empty() or not _combat_engine.is_player_turn(_combat_state):
 		return false
 	if not _map_shortcut_can_open() or _visible_control(_large_map_scrim) or _loadout_acquisition_in_progress:
+		return false
+	if _selected_card_index < 0 and _hand_hover_rest_pending:
 		return false
 	for blocker: Control in [_skill_choice_scrim, _skill_status_scrim, _skill_reset_confirmation_scrim]:
 		if _visible_control(blocker):
@@ -12907,7 +12911,7 @@ func _turn_order_display_state(accepted_stagger_delays: Variant = null) -> Dicti
 func _turn_order_card_time_preview() -> Dictionary:
 	if _animation_lock or _combat_state.is_empty() or not _combat_engine.is_player_turn(_combat_state):
 		return {}
-	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
+	var index: int = _turn_order_projection_card_index()
 	if index < 0:
 		return {}
 	if not bool(_card_playability_for_index(index).get("any_playable", false)):
@@ -13294,7 +13298,7 @@ func _turn_order_relative_time(entry: Dictionary) -> int:
 
 func _turn_order_portrait_path(entry: Dictionary) -> String:
 	if bool(entry.get("hidden_by_umbra", false)):
-		return "res://assets/art/icons/umbra_presence.png"
+		return TurnOrderPortraits.UMBRA_PRESENCE_PATH
 	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))
 	var portrait_path: String = _combat_portrait_path(key)
 	if not portrait_path.is_empty():
@@ -13307,6 +13311,10 @@ func _turn_order_portrait_path(entry: Dictionary) -> String:
 
 func _combat_portrait_path(identity: String) -> String:
 	return str(TURN_ORDER_PORTRAITS.get(identity, ""))
+
+func _add_combat_hud_textures(paths: Dictionary) -> void:
+	for path: String in [PASS_FORECAST_FRAME_TEXTURE_PATH, PASS_FORECAST_HOVER_TEXTURE_PATH, PASS_FORECAST_PRESSED_TEXTURE_PATH]:
+		paths[path] = false
 
 func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
 	_move_attack_approach.clear()
@@ -13912,7 +13920,7 @@ func _refresh_card_play_meter() -> void:
 	_hud_refresh_layout.request(self, &"_layout_combat_action_dock")
 	_hud_refresh_layout.request(self, &"_sync_hand_side_widths")
 
-func _refresh_player_movement_meter() -> void:
+func _refresh_player_movement_meter(prepared_enabled: Variant = null) -> void:
 	if _movement_meter == null or _movement_meter_count == null:
 		return
 	var active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
@@ -13929,7 +13937,7 @@ func _refresh_player_movement_meter() -> void:
 	var enabled: bool = (
 		remaining > 0
 		and _combat_engine.is_player_turn(_combat_state)
-		and _combat_engine.player_has_movement_target(_combat_state)
+		and (bool(prepared_enabled) if prepared_enabled != null else _combat_engine.player_has_movement_target(_combat_state))
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
 		var rooted_reason: String = ManeuverRules.movement_block_reason(_combat_state)
@@ -13976,28 +13984,6 @@ func _action_step_tracker_state() -> Dictionary:
 		# raster targeting arrow, and board targets. A side instruction block only
 		# competes with those direct cues.
 		return {}
-	if _card_action_choice_index >= 0:
-		var choice_card_id: String = _card_id_for_hand_index(_card_action_choice_index)
-		if choice_card_id.is_empty():
-			return {}
-		var active_preview: Dictionary = _card_action_choice_options.get(_card_action_choice_mode, {})
-		var choice_actions: Array = active_preview.get("actions", [])
-		if choice_actions.is_empty():
-			choice_actions = _combat_engine.card_play_actions(choice_card_id, _combat_state)
-		var choice_action_index: int = int(active_preview.get("action_index", 0))
-		var choice_targets: Array[Vector2i]
-		if _selected_card_index == _card_action_choice_index and not _pending_actions.is_empty():
-			choice_actions = _pending_actions
-			choice_action_index = _pending_action_index
-			choice_targets = _pending_selected_targets
-		return {
-			"active": true,
-			"mode": "choice",
-			"card_id": choice_card_id,
-			"actions": choice_actions,
-			"action_index": choice_action_index,
-			"selected_targets": choice_targets
-		}
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
 	return {
@@ -14229,7 +14215,7 @@ func _action_step_tracker_protected_rects() -> Array:
 		var rect: Rect2 = control.get_global_rect()
 		if rect.size.x > 0.0 and rect.size.y > 0.0:
 			result.append(rect.grow(ACTION_STEP_TRACKER_GAP))
-	var active_card: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+	var active_card: int = _selected_card_index
 	if active_card >= 0:
 		var selected_rect: Rect2 = _hand_card_global_rect(active_card)
 		if selected_rect.has_area(): result.append(selected_rect.grow(ACTION_STEP_TRACKER_GAP))
@@ -14250,7 +14236,7 @@ func _action_step_tracker_anchor_rect() -> Rect2:
 			Vector2(_drag_card_source_rect.get_center().x - 1.0, minf(_hand_visual_top(), _drag_card_source_rect.position.y)),
 			Vector2(2.0, 1.0)
 		)
-	var active_card_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+	var active_card_index: int = _selected_card_index
 	if active_card_index >= 0:
 		var selected_rect: Rect2 = _hand_card_global_rect(active_card_index)
 		if selected_rect.size.x > 0.0 and selected_rect.size.y > 0.0:
@@ -14270,7 +14256,7 @@ func _action_step_tracker_anchor_rect() -> Rect2:
 func _action_step_tracker_connector_target_y(anchor_rect: Rect2) -> float:
 	if _drag_card_index >= 0 and _drag_card_source_rect.size.y > 0.0:
 		return _drag_card_source_rect.position.y
-	var active_card_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+	var active_card_index: int = _selected_card_index
 	if active_card_index >= 0:
 		var selected_rect: Rect2 = _hand_card_global_rect(active_card_index)
 		if selected_rect.size.y > 0.0:
@@ -14319,77 +14305,14 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		return
 	if context_mode == "confirmation":
 		return
-	if context_mode not in ["selection", "choice"]:
+	if context_mode != "selection":
 		return
-	var alongside_mode_tabs: bool = context_mode == "choice"
 	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
-		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
+		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area")
 	elif _force_aim_rotation_available():
 		_force_aim_rotate_shown = true
-		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, _force_aim_rotate_tooltip(), alongside_mode_tabs)
-
-func _refresh_card_action_mode_selector(context_mode: String) -> void:
-	# Card clicks now enter their printed action flow directly; the former mode
-	# selector host stays hidden for save/UI compatibility.
-	return
-
-func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
-	var button := UiTooltipButton.new()
-	var visual_mode: String = _controller_card_mode if _controller_is_active() and _controller_card_mode_active() else _card_action_choice_mode
-	var active: bool = play_kind == visual_mode
-	button.name = "CardActionChoice%s" % play_kind.capitalize()
-	button.text = ""
-	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
-	var option_width: float = 326.0 if play_kind == "play" else (314.0 if play_kind in ["attack", "blink"] else 320.0)
-	button.custom_minimum_size = Vector2(option_width, CARD_ACTION_MODE_OPTION_HEIGHT)
-	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	button.flat = true
-	button.clip_contents = false
-	button.z_index = 4 if active else (3 if play_kind == "play" else (2 if play_kind == "attack" else 1))
-	button.focus_mode = Control.FOCUS_ALL
-	button.toggle_mode = true
-	button.button_group = mode_group
-	button.set_pressed_no_signal(active)
-	button.disabled = not available
-	button.modulate = Color.WHITE if active and available else (Color(0.78, 0.78, 0.78, 1.0) if available else Color(0.52, 0.50, 0.48, 1.0))
-	button.set_meta("play_kind", play_kind)
-	button.set_meta("available", available)
-	button.set_meta("active", active)
-	button.set_meta("mode_icon_key", "card_play" if play_kind == "play" else ("melee" if play_kind == "attack" else play_kind))
-	button.set_meta("selection_cue", "pre_battle_gold_glow")
-	var empty_style := StyleBoxEmpty.new()
-	for style_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
-		button.add_theme_stylebox_override(style_name, empty_style)
-	CardActionContextArt.attach_mode_placard(button, play_kind, accent, active, available)
-	_add_card_action_mode_option_content(button, text, play_kind, available)
-	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
-	return button
-
-func _add_card_action_mode_option_content(button: Button, text: String, play_kind: String, available: bool) -> void:
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.anchor_right = 1.0
-	margin.anchor_bottom = 1.0
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 84)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	button.add_child(margin)
-	var label := Label.new()
-	label.name = "ModeLabel"
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
-	var text_color: Color = Color("362419") if play_kind == "play" else Color("e7d6b9")
-	label.add_theme_color_override("font_color", text_color if available else text_color.darkened(0.48))
-	label.add_theme_color_override("font_outline_color", Color(0.06, 0.035, 0.025, 0.86))
-	label.add_theme_constant_override("outline_size", 1 if play_kind == "play" else 2)
-	margin.add_child(label)
+		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, _force_aim_rotate_tooltip())
 
 func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:
 	if _action_context_command_bar == null:
@@ -14808,7 +14731,7 @@ func _refresh_umbra_subtitle() -> void:
 	if radius < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
 		vision_text = "@pattern(diamond:%d:hero) Personal vision covers these tiles." % radius
 	umbra_subtitle.text = "%s Umbra" % stage_name
-	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your vision or a Light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
+	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nDarkness hides enemies outside your sight and Light." % [
 		stage_name,
 		vision_text
 	]
@@ -14867,7 +14790,6 @@ func _refresh_visibility() -> void:
 		_context_choice_overlay.visible = false
 	for header_control: Control in [stats_label, loadout_button, grimoire_button, menu_button]: header_control.visible = not terminal_recap_visible
 	if mode != "combat":
-		_clear_card_action_choice_state()
 		# This full refresh already reconciles choices/stage/hand. Cancelling
 		# stale drag state must not rebuild the just-created shop/reward a second time.
 		_cancel_drag_play(false)
@@ -14897,8 +14819,8 @@ func _refresh_card_preview_visibility() -> void:
 	left_action_stack.visible = action_step_tracker_visible or choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
-func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
-	_choice_refresh.refresh(self, reward_jobs)
+func _refresh_choice_bar(reward_jobs: Variant = null, prepared_pass: Dictionary = {}) -> void:
+	_choice_refresh.refresh(self, reward_jobs, prepared_pass)
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := UiTooltipButton.new()
@@ -15121,8 +15043,8 @@ func _pending_card_defiance_spent() -> int:
 	if _animation_lock or not _pending_card_requires_confirmation(): return 0
 	return maxi(0, int(_combat_state.get("defiance_remaining", 0)) - int(_pending_card_known_forecast_state().get("defiance_remaining", 0)))
 
-func _add_pass_preview_chip() -> void:
-	preload("res://scripts/retained_pass_preview.gd").refresh(self)
+func _add_pass_preview_chip(prepared_pass: Dictionary = {}) -> void:
+	preload("res://scripts/retained_pass_preview.gd").refresh(self, prepared_pass)
 
 func _selected_card_forecast_chip() -> Button:
 	# Keep the same recursive discovery/child contract, but reuse its live owner
@@ -15172,7 +15094,6 @@ func _pass_preview_action_available() -> bool:
 		and _combat_engine.is_player_turn(_combat_state)
 		and not _animation_lock
 		and _selected_card_index < 0
-		and _card_action_choice_index < 0
 		and _drag_card_index < 0
 		and _combat_skill_card_selection_zone.is_empty()
 	)
@@ -15530,7 +15451,7 @@ func _note_rest_pass_disc_marks(summary: Dictionary) -> Dictionary:
 	var marks: Dictionary = Discs.record(summary, _combat_preview_revision)
 	if marks == _rest_pass_disc_marks: return summary
 	_rest_pass_disc_marks = marks
-	if _rest_pass_disc_refresh_queued or _animation_lock or board_view == null: return summary
+	if _rest_pass_disc_refresh_queued or _animation_lock or _enemy_round_handoff.submitting_stage or board_view == null: return summary
 	var rest: Dictionary = board_view.presentation.get("threats_at_rest", {})
 	if Discs.stale(rest, marks, _combat_preview_revision) or Discs.has_floor_supplements(rest, marks):
 		_rest_pass_disc_refresh_queued = true
@@ -16320,14 +16241,14 @@ func _commit_dragon_reward_continue() -> bool:
 	if _is_debug_boss_run():
 		_run_state = next
 		if str(next.get("mode", "")) == "victory":
-			_analytics_store.write_event("run_ended", _analytics_context_from_states(next), Snapshots.run_ended(_run_engine, next, "victory"))
+			_analytics_log_run_ended("victory")
 		return true
 	# Save the claim receipt in the same boundary that removes the milestone.
 	# The terminal path carries this outbox into the profile before clearing the
 	# run; interrupted appends and acknowledgments replay by milestone ID.
 	next = _stage_dragon_reward_claim(next, reward)
 	var result: Dictionary = _persist_run_state_snapshot(next, false, "dragon_reward_continued")
-	if not bool(result.get("saved", false)):
+	if not bool(result.get("saved", false)) and not bool(result.get("terminal_profile_committed", false)):
 		_run_state["notice"] = "Could not save. Your rewards are still here; try Continue again."
 		return false
 	_run_state = result.get("state", next) as Dictionary
@@ -17218,7 +17139,7 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: 
 	if token != _campfire_presentation.generation: return
 	_set_campfire_choice_action_pending(false)
 	_animation_lock = false
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	_schedule_controller_modal_refresh()
 
 func _play_campfire_result(text: String, heal: bool) -> void:
@@ -17282,7 +17203,6 @@ func _can_queue_hand_ready_wave() -> bool:
 		and str(_run_state.get("mode", "room")) == "combat"
 		and _combat_engine.is_player_turn(_combat_state)
 		and _selected_card_index < 0
-		and _card_action_choice_index < 0
 		and _drag_card_index < 0
 		and _animating_hand_card_index < 0
 	)
@@ -17300,13 +17220,16 @@ func _consume_hand_ready_wave() -> void:
 	_hand_ready_wave_indices.clear()
 	_hand_ready_wave_reason = ""
 
-func _refresh_hand_panel() -> void:
+func _refresh_hand_panel(handoff: Dictionary = {}) -> void:
 	_apply_controller_hand_layout()
+	_refresh_hand_panel_after_layout(false, handoff)
+
+func _refresh_hand_panel_after_layout(focus_press: bool = false, handoff: Dictionary = {}) -> void:
 	var tint_transition: Dictionary = _hand_lock_tint.before_refresh(self)
-	_refresh_hand_panel_content()
+	_refresh_hand_panel_content(focus_press, handoff)
 	_hand_lock_tint.after_refresh(self, tint_transition)
 
-func _refresh_hand_panel_content() -> void:
+func _refresh_hand_panel_content(focus_press: bool = false, handoff: Dictionary = {}) -> void:
 	_card_proxy_preparation.request(self)
 	# Any real hand refresh (draw, resource change, resize, or unlock) invalidates
 	# the frozen image. Restore the controls before their normal update path runs.
@@ -17334,33 +17257,44 @@ func _refresh_hand_panel_content() -> void:
 		hand_layout_envelope_signature += "|controller_focus:%d" % (1 if _controller_hand_focused and _controller_is_active() else 0)
 	var hand_layout_envelope_changed: bool = hand_layout_envelope_signature != _hand_layout_envelope_signature
 	_hand_layout_envelope_signature = hand_layout_envelope_signature
-	var signature: String = "%s|%d|%d|%d|%s|%d|%d|%d|%d|%d|%d|%d|%d|%.1f,%.1f" % [
+	var interaction_signature: String = "%s|%d|%d|%d|play|-1|%d|%d|%d|%d|%d|%d|%d" % [
 		mode,
 		hash(_combat_state),
 		hash(_run_state.get("pending_reward", {})),
 		_selected_card_index,
-		_card_action_choice_mode,
-		_card_action_choice_index,
 		_hovered_card_index,
 		_drag_card_index,
 		_animating_hand_card_index,
 		1 if _animation_lock else 0,
 		_hand_ready_wave_token,
 		hash(_hand_ready_wave_indices),
-		_combat_preview_revision,
-		hand_scroll.size.x,
-		hand_scroll.size.y
+		_combat_preview_revision
 	]
-	signature += "|skill_select:%s:%s:%d" % [
+	interaction_signature += "|skill_select:%s:%s:%d" % [
 		_combat_skill_card_selection_zone,
 		_combat_skill_card_selection_skill_id,
 		hash(_combat_skill_card_selection_indices),
 	]
-	signature += "|controller_hand:%d:%d" % [1 if _controller_is_active() else 0, 1 if _controller_hand_focused else 0]
-	signature += "|empowered:%d:%d" % [1 if _selected_card_empowered() else 0, hash(_empower_charge.charged)]
+	interaction_signature += "|controller:%d" % int(_controller_is_active())
+	interaction_signature += "|empowered:%d:%d" % [1 if _selected_card_empowered() else 0, hash(_empower_charge.charged)]
+	var signature: String = "%s|%d|%.1f,%.1f" % [interaction_signature, int(_controller_hand_focused), hand_scroll.size.x, hand_scroll.size.y]
+	var interactions_unchanged: bool = interaction_signature == _hand_panel_interaction_signature and _hand_panel_signature != "<unset>"
 	if signature == _hand_panel_signature and not hand_layout_envelope_changed:
 		return
 	_hand_panel_signature = signature
+	_hand_panel_interaction_signature = interaction_signature
+	# A focus press changes the fan envelope. The current card faces and
+	# interaction flags can stay when their inputs still match.
+	if (
+		focus_press and interactions_unchanged and mode == "combat" and not _animation_lock
+		and _combat_skill_card_selection_zone.is_empty() and _hand_ready_wave_indices.is_empty()
+		and _selected_card_index < 0
+		and _hovered_card_index < 0 and _drag_card_index < 0 and _animating_hand_card_index < 0
+	):
+		_set_hand_emphasized_index(-1, false)
+		if _hand_hover_refresh_pending: _queue_hover_presentation()
+		if hand_layout_envelope_changed: _update_retained_hand_layout()
+		return
 	if _animation_lock:
 		hand_box.settle_close_tint()
 	var signature_hand: Array = (
@@ -17398,6 +17332,7 @@ func _refresh_hand_panel_content() -> void:
 		_record_runtime_performance_phase("hand_content_signature_changed", Time.get_ticks_usec())
 	_hand_panel_content_signature = hand_content_signature
 	_invalidate_hand_hover_rest()
+	var previous_hover_index: int = _hovered_card_index
 	if mode == "combat" and _combat_skill_card_selection_zone.is_empty():
 		_queue_hand_pointer_resolve()
 	# A newer revision still owns initial-presentation and pointer-rest readiness.
@@ -17408,7 +17343,7 @@ func _refresh_hand_panel_content() -> void:
 	# A play/draw usually changes only one slot. Keep matching plain hand cards
 	# in the live fan; pooled re-entry re-runs every descendant's layout/theme work.
 	# Skill selection owns different wrappers and retains the existing pool path.
-	var retained_entries: Dictionary = _retained_hand_entries(signature_hand, _adopt_prepared_enemy_round_hand) if mode == "combat" and _combat_skill_card_selection_zone.is_empty() else {}
+	var retained_entries: Dictionary = _retained_hand_entries(signature_hand, bool(handoff.get("adopt_faces", false))) if mode == "combat" and _combat_skill_card_selection_zone.is_empty() else {}
 	# Native ownership belongs to the retained widget, not its former array index.
 	var hovered_widget: CardWidget = _hand_card_control(_hovered_card_index) as CardWidget if _hovered_card_index >= 0 else null
 	if hovered_widget != null:
@@ -17430,10 +17365,12 @@ func _refresh_hand_panel_content() -> void:
 			_hand_layout_pending_revision = -1
 		var selecting_skill_card: bool = _combat_skill_card_selection_zone == "hand"
 		var skill_selection_buttons: Array[Button]
-		var active_hand_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+		var active_hand_index: int = _selected_card_index
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		var card_size: Vector2 = _hand_card_size(hand.size(), false)
+		var definitions: Dictionary = handoff.get("hand_definitions", {})
+		var definition_signatures: Dictionary = handoff.get("hand_definition_signatures", {})
 		for index: int in range(hand.size()):
 			var options: Dictionary = _card_playability_for_index(index)
 			var display: Dictionary = _card_widget_display_for_index(index)
@@ -17452,8 +17389,13 @@ func _refresh_hand_panel_content() -> void:
 			var previewed: bool = _hovered_card_index == index and active_hand_index < 0 and _drag_card_index < 0
 			var interactive: bool = not _animation_lock and not selecting_skill_card
 			var printed_playable: bool = valid_skill_target if selecting_skill_card else bool(options.get("printed_playable", false))
-			var card_definition: Dictionary = _card_def(card_id, _combat_state)
-			var definition_signature: int = hash(card_definition)
+			var card_definition: Dictionary = definitions.get(card_id, {})
+			var definition_signature: int
+			if definitions.has(card_id):
+				definition_signature = definition_signatures[card_id]
+			else:
+				card_definition = _card_def(card_id, _combat_state)
+				definition_signature = hash(card_definition)
 			if selecting_skill_card:
 				var selection_button: Button = _build_skill_hand_selection_card(card_slot, index, card_size, valid_skill_target)
 				hand_box.add_child(selection_button)
@@ -17530,6 +17472,8 @@ func _refresh_hand_panel_content() -> void:
 	else:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
 		_set_hand_emphasized_index(-1, false)
+	if previous_hover_index != _hovered_card_index:
+		_refresh_turn_order_bar()
 
 func _update_retained_hand_layout() -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array
@@ -17626,7 +17570,7 @@ func _update_existing_hand_interaction_state() -> bool:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if hand_box.get_child_count() != hand.size():
 		return false
-	var active_hand_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+	var active_hand_index: int = _selected_card_index
 	for index: int in range(hand.size()):
 		var widget: CardWidget = _hand_card_control(index) as CardWidget
 		if widget == null or widget.card_id != str(hand[index]):
@@ -18011,7 +17955,6 @@ func _hand_pointer_hover_allowed() -> bool:
 		or _animation_lock
 		or _player_movement_selected
 		or _selected_card_index >= 0
-		or _card_action_choice_index >= 0
 		or _drag_card_index >= 0
 		or not _combat_skill_card_selection_zone.is_empty()
 		or str(_run_state.get("mode", "room")) != "combat"
@@ -18092,13 +18035,19 @@ func _set_skill_hand_selection_emphasis(
 		_set_hand_emphasized_index(-1)
 
 func _set_hand_emphasized_index(index: int, animated: bool = true) -> void:
+	_apply_hand_emphasis(index, animated, true)
+
+func _apply_hand_emphasis(index: int, animated: bool, sync_empower: bool) -> void:
 	if hand_box == null:
 		return
 	if _board_targeting_suppresses_hand_lift():
 		index = -1
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_sync_hand_motion()
 	hand_box.set_emphasized_index(index, animated and not _reduced_motion_enabled())
-	EmpowerUi.sync_widgets(self)
+	_record_runtime_performance_phase("hand_hover_tween_setup", started)
+	if sync_empower:
+		EmpowerUi.sync_widgets(self)
 	if index < 0:
 		if _card_focus_tooltip_stack != null:
 			_card_focus_tooltip_stack.hide_stack()
@@ -18124,6 +18073,7 @@ func _show_card_focus_tooltips(index: int) -> void:
 	if not _controller_is_active() and seal != null and seal.is_hovered():
 		_card_focus_tooltip_stack.hide_stack()
 		return
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var card: Dictionary = _card_def(card_id, _combat_state)
 	var display: Dictionary = _card_widget_display_for_index(index)
 	var leading_icons: Array = []
@@ -18133,7 +18083,11 @@ func _show_card_focus_tooltips(index: int) -> void:
 		display.get("summary_rows", []) as Array,
 		leading_icons
 	)
-	_card_focus_tooltip_stack.show_for(card_control, entries, false, _card_focus_hand_bounds)
+	_card_focus_tooltip_stack.show_for(
+		card_control, entries, false, _card_focus_hand_bounds, "",
+		not _hand_cycle_baseline and _controller_is_active()
+	)
+	_record_runtime_performance_phase("hand_hover_tooltip", started)
 
 func _card_focus_hand_bounds() -> Array[Rect2]:
 	var bounds: Array[Rect2]
@@ -18335,7 +18289,7 @@ func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
 func _refresh_stage_view() -> void:
 	_refresh_stage_view_with_state()
 
-func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> void:
+func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, handoff: Dictionary = {}, focus_refresh: bool = false) -> void:
 	_selected_pass_work.paid(self, "stage")
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
@@ -18371,7 +18325,9 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	_apply_biome_presentation(presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_base", performance_phase_started)
 	if (str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible) and not display_state.is_empty():
-		var visibility_presentation: Dictionary = _stage_visibility_presentation(visibility_state)
+		var visibility_presentation: Dictionary = handoff.get("visibility", {})
+		if visibility_presentation.is_empty() or not is_same(visibility_state, _combat_state):
+			visibility_presentation = _stage_visibility_presentation(visibility_state)
 		for visibility_key: Variant in visibility_presentation:
 			presentation[visibility_key] = visibility_presentation[visibility_key]
 		presentation.erase("objective_leader_tile")
@@ -18526,8 +18482,13 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 			}
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	if run_mode == "combat":
-		preload("res://scripts/board_threat_isolation.gd").decorate(self, display_state, presentation, _hovered_board_tile, intent_preview_state)
-	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
+		var isolation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		preload("res://scripts/board_threat_isolation.gd").decorate(self, display_state, presentation, _hovered_board_tile, intent_preview_state, handoff.get("rest_badges"))
+		_record_runtime_performance_phase("stage_threat_isolation", isolation_started)
+	if handoff.has("compasses") and is_same(display_state, _combat_state) and is_same(visibility_state, display_state):
+		presentation["enemy_intent_compasses"] = handoff["compasses"]
+	else:
+		presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	_apply_guardian_props(display_state, presentation)
 	_hero_facing.decorate(display_state, presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
@@ -18549,6 +18510,18 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	var _startup_board_span: RefCounted
 	if _hitch_trace_enabled and _initial_ui_staging_requested and not _initial_ui_complete:
 		_startup_board_span = _hitch_sink().hitch_phase("startup:run_scene:first_board_submission")
+	board_view._stage_focus_refresh = focus_refresh
+	var exit_labels: Dictionary
+	var exit_icons: Dictionary
+	if run_mode == "room":
+		exit_labels = _exit_labels_for_board()
+		exit_icons = _exit_icon_ids_for_board()
+	elif handoff.has("objective_exits") and is_same(display_state, _combat_state):
+		exit_labels = handoff["objective_exits"]
+		exit_icons = handoff["objective_icons"]
+	else:
+		exit_labels = _objective_exit_labels_for_board(display_state)
+		exit_icons = _objective_exit_icon_ids_for_board(display_state)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -18556,10 +18529,11 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 		(display_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
 		_board_status_label(preview),
 		_board_status_detail(preview),
-		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_labels_for_board(display_state),
-		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
+		exit_labels,
+		exit_icons,
 		presentation
 	)
+	board_view._stage_focus_refresh = false
 	_startup_board_span = null
 	if performance_phase_started > 0: detail_started = Time.get_ticks_usec()
 	if board_view != null and board_view.has_method("set_targeted_tile_context"):
@@ -18572,7 +18546,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}) -> 
 	if _selected_card_index < 0 and not _player_movement_selected and _intent_path_geometry_revision != _combat_preview_revision and board_view.has_method("prepare_intent_path_geometry"):
 		# The displayed intents already own the projected routes. A second
 		# planning pass over the committed snapshot repeated enemy simulation.
-		_stage_hover_refresh.prepare_paths(self, presentation)
+		_stage_hover_refresh.prepare_paths(self, presentation, _enemy_round_handoff.submitting_stage)
 		_intent_path_geometry_revision = _combat_preview_revision
 	if performance_phase_started > 0 and board_view.get("_submission_detail_enabled") == true:
 		board_view._record_submission_detail("sections", "stage_intent_path_warmup", Time.get_ticks_usec() - detail_started)
@@ -19567,66 +19541,6 @@ func _adopt_committed_hand_queries() -> void:
 		_committed_hand_query_diagnostics["rejected_batches"] = int(_committed_hand_query_diagnostics.get("rejected_batches", 0)) + 1
 	_cancel_committed_hand_queries()
 
-func _show_card_action_choices(index: int, options: Dictionary) -> void:
-	if not bool(options.get("any_playable", false)):
-		return
-	_card_action_choice_index = index
-	# Preview option payloads are immutable cache snapshots. Own only the outer
-	# container so clearing choice state cannot clear the cache; recursively
-	# cloning dense multi-target preview states made a normal card click stall for
-	# hundreds of milliseconds (and multi-step movement cards for seconds).
-	_card_action_choice_options = options.duplicate(false)
-	_card_action_choice_mode = _initial_card_action_choice_mode(options)
-	_hovered_card_index = index
-	_selected_card_label_override = ""
-
-
-func _initial_card_action_choice_mode(options: Dictionary) -> String:
-	var playable_modes: Array[String]
-	if bool(options.get("printed_playable", false)):
-		playable_modes.append("play")
-	if bool(options.get("attack_playable", false)):
-		playable_modes.append("attack")
-	if bool(options.get("move_playable", false)):
-		playable_modes.append("move")
-	if bool(options.get("blink_playable", false)):
-		playable_modes.append("blink")
-	return playable_modes[0] if playable_modes.size() == 1 else "play"
-
-
-func _clear_card_action_choice_state() -> void:
-	_card_action_choice_index = -1
-	_card_action_choice_options.clear()
-	_card_action_choice_mode = "play"
-
-func _cancel_card_action_choice() -> void:
-	if _card_action_choice_index < 0:
-		return
-	if _selected_card_index >= 0:
-		_cancel_card_selection()
-		return
-	_clear_card_action_choice_state()
-	_hovered_card_index = -1
-	_refresh_card_preview_ui()
-
-func _on_card_action_choice_pressed(play_kind: String) -> void:
-	_flush_hand_hover_before_action()
-	if _animation_lock or _card_action_choice_index < 0 or str(_run_state.get("mode", "room")) != "combat":
-		return
-	if play_kind != "play":
-		return
-	var hand_index: int = _card_action_choice_index
-	var options: Dictionary = _card_play_options_for_index(hand_index)
-	var preview: Dictionary = options.get("play", {})
-	if not bool(options.get("printed_playable", false)) or not bool(preview.get("playable", false)):
-		return
-	if _selected_card_index == hand_index:
-		return
-	_card_action_choice_mode = "play"
-	_card_action_choice_options = options.duplicate(false)
-	_clear_active_card_preview_state()
-	await _begin_card_preview(hand_index, preview)
-
 func _card_widget_display_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -19645,7 +19559,8 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 	return display
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
-	return CardDisplay.for_card(card_id, state, _card_def(card_id, state))
+	# pla-02: a hand card's Draw chip shows the count the hand cap and piles allow.
+	return preload("res://scripts/draw_count_preview.gd").apply(CardDisplay.for_card(card_id, state, _card_def(card_id, state)), card_id, state)
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	CardDisplay.consume_preview_damage_modifiers(state, action, _combat_engine)
@@ -19736,14 +19651,13 @@ func _preview_shortcuts_key(preview: Dictionary, defer_safe_move_resolution: boo
 	# snapshots. Hashing the full state and target arrays here made every nominal
 	# cache hit O(state size), and _preview_presentation asks for this result
 	# several times per pointer hover.
-	return "%d|%d|%d|%d|%s|%d|%s|%d" % [
+	return "%d|%d|%d|%d|%s|%d|play|%d" % [
 		_combat_preview_revision,
 		_preview_selection_revision,
 		_selected_card_index,
 		_hovered_card_index,
 		str(preview.get("card_id", "")),
 		int(preview.get("action_index", -1)),
-		_card_action_choice_mode,
 		1 if defer_safe_move_resolution else 0,
 	]
 
@@ -19756,7 +19670,7 @@ func _pass_preview_key(target_tile: Variant = null, default_approach: bool = fal
 	# affect this cache. Hashing the full combat snapshot and its nested action
 	# arrays made even a cache hit O(state size) on every pointer move.
 	var entry: Vector2i = INVALID_TARGET_TILE if default_approach else _pass_preview_prewarm.effective_entry(self, target_tile)
-	var result: String = "%d|%d|%d|%d|%d|%d,%d|%d,%d|%d,%d|%s|%d,%d" % [
+	var result: String = "%d|%d|%d|%d|%d|%d,%d|%d,%d|%d,%d|play|%d,%d" % [
 		_combat_preview_revision,
 		_preview_selection_revision,
 		_selected_card_index,
@@ -19768,7 +19682,6 @@ func _pass_preview_key(target_tile: Variant = null, default_approach: bool = fal
 		_aoe_aim_orientation.y,
 		_pending_orientation_target_tile.x,
 		_pending_orientation_target_tile.y,
-		_card_action_choice_mode,
 		entry.x, entry.y
 	]
 
@@ -19857,6 +19770,7 @@ func _next_enemy_round_preparation_frame() -> void:
 func _finish_pass_preview_cache_warm(generation: int, cache_key: String) -> void:
 	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
 		return
+	_enemy_round_handoff.prepare_pass(self, cache_key)
 	_pass_preview_warm_active = false
 	_pass_preview_warm_key = ""
 
@@ -20261,6 +20175,10 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 		# A patterned raise (Earthen Rampart) shows the exact tiles that will
 		# rise with the same footprint fill and ring as an area attack, so the
 		# Rotate consequence reads at a glance.
+		result["player_aoe_preview_active"] = true
+	if action_type == "meteor_marks" and not focus_tiles.is_empty():
+		# pla-02: Meteorfall's marks use the area footprint too, drawn above the
+		# legal-target wash, so a mark on the hero's own tile reads like the others.
 		result["player_aoe_preview_active"] = true
 	var preview_units: Array = _preview_units_for_action(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_units", performance_phase_started)
@@ -21817,7 +21735,7 @@ func _on_card_pressed(index: int, defer_forecast: bool = false) -> void:
 		else:
 			_cancel_card_selection(true)
 		return
-	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
+	if _selected_card_index >= 0:
 		_reset_card_resolution()
 	var options: Dictionary = _card_play_options_for_index(index)
 	if bool(options.get("printed_playable", false)):
@@ -21859,8 +21777,6 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 		return
 	if _player_movement_selected:
 		_cancel_player_movement_selection(false)
-	if _card_action_choice_index >= 0:
-		_clear_card_action_choice_state()
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	var options: Dictionary = _card_play_options_for_index(index)
@@ -21878,6 +21794,8 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 		)
 	_ensure_sfx_bank()
 	_sfx_router.card_select()
+	_hovered_card_index = -1
+	_hand_hover_refresh_pending = false
 	_drag_card_index = index
 	_set_hand_emphasized_index(-1, false)
 	hand_box.apply_layout_immediately()
@@ -21900,6 +21818,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	_update_drag_overlay_hover(_drag_zone_at(_drag_last_pointer_position))
 	_update_drag_hand_card_visual()
 	_set_drag_source_slot_visible(false)
+	_refresh_turn_order_bar()
 
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false, preserve_aim: bool = false, defer_forecast: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
@@ -22007,10 +21926,10 @@ func _on_confirm_card_play_pressed() -> void:
 		_vector2i_array(_pending_selected_targets)
 	)
 
-func _on_card_hover_started(index: int, _pointer_hover: bool = true) -> void:
+func _on_card_hover_started(index: int, pointer_hover: bool = true) -> void:
 	if _surface_aim.active():
 		return
-	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
+	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if _pointer_hand_tucked and not _controller_is_active():
 		# Reaching the visible card strip gives the pointer the hand again.
@@ -22022,17 +21941,15 @@ func _on_card_hover_started(index: int, _pointer_hover: bool = true) -> void:
 		_sfx_router.card_hover()
 		_hovered_card_index = index
 		_hand_hover_rest_pending = true
-		# Keep the previous projection while resting on the next card. The
-		# normal refresh restores its card-bound guard when the rest completes.
-		if _turn_order_landing_strip != null and _turn_order_landing_strip.visible:
-			_turn_order_landing_strip.set("_allowed", _turn_order_landing_strip_allowed)
 		_wait_for_hand_hover_rest(index, _hand_hover_rest_generation)
 	_hand_hover_refresh_pending = true
 	if not _updating_hand_interactions:
+		if pointer_hover and not _controller_is_active():
+			_refresh_turn_order_bar()
 		_queue_hover_presentation()
 
 func _on_card_hover_ended(index: int) -> void:
-	if _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0:
+	if _player_movement_selected or _selected_card_index >= 0 or _drag_card_index >= 0:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
@@ -22082,6 +21999,8 @@ func _flush_hand_hover_emphasis(generation: int) -> void:
 		_hover_presentation_flush_queued = false
 		if not _updating_hand_interactions:
 			_set_hand_emphasized_index(_hovered_card_index)
+			if not _animation_lock and _controller_is_active():
+				_refresh_turn_order_bar()
 		return
 	_flush_board_hover_presentation(generation)
 
@@ -22175,7 +22094,12 @@ func _refresh_board_hover_presentation() -> void:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(presented_tile)
 		var action_context_can_change: bool = _pass_preview_hover_can_change() or _player_movement_selected or _surface_aim.active()
 		if stage_refresh_needed and not hand_refreshed:
-			_refresh_stage_view()
+			var passive_focus: bool = (
+				str(_run_state.get("mode", "room")) == "combat" and _selected_card_index < 0
+				and _hovered_card_index < 0 and _preview_combat_state.is_empty()
+				and not _player_movement_selected and not _surface_aim.active()
+			)
+			_refresh_stage_view_with_state({}, {}, passive_focus)
 		if _selected_card_index >= 0 or _player_movement_selected:
 			var turn_order_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			_refresh_turn_order_bar() # Stagger targets preview their delayed slot.
@@ -22404,7 +22328,7 @@ func _on_board_cancel_requested() -> void:
 	# Right-click/B on the board is contextual cancellation, never a pause-menu
 	# shortcut. Escape and the dedicated menu action remain the explicit ways to
 	# open/close pause UI.
-	if _surface_aim.active() or _player_movement_selected or _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
+	if _surface_aim.active() or _player_movement_selected or _drag_card_index >= 0 or _selected_card_index >= 0:
 		await _on_cancel_requested()
 
 func _on_cancel_requested(allow_menu: bool = true) -> void:
@@ -22433,6 +22357,8 @@ func _on_cancel_requested(allow_menu: bool = true) -> void:
 	if _large_map_scrim != null and _large_map_scrim.visible:
 		if not bool(_large_map_view.call("cancel_action")):
 			_close_large_map()
+		else:
+			_nonfight_room_preparation.schedule(self)
 		return
 	if _pile_scrim != null and _pile_scrim.visible:
 		_close_pile_view()
@@ -22453,13 +22379,10 @@ func _on_cancel_requested(allow_menu: bool = true) -> void:
 		):
 			_cancel_card_selection()
 			return
-		if _selected_card_index < 0 and not _player_movement_selected and _card_action_choice_index < 0:
+		if _selected_card_index < 0 and not _player_movement_selected:
 			if allow_menu: _open_menu_overlay()
 			return
 		_guided_tutorial_reject()
-		return
-	if _card_action_choice_index >= 0:
-		_cancel_card_action_choice()
 		return
 	if _player_movement_selected:
 		_cancel_player_movement_selection()
@@ -22607,10 +22530,12 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 	call_deferred("_focus_large_map_for_controller")
 	_schedule_controller_modal_refresh()
 	_nonfight_room_preparation.schedule(self)
+	if _large_map_view != null: preload("res://scripts/run_section_art.gd").prepare_history_for.call_deferred(self, _large_map_view)
 
 func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
+	_nonfight_room_preparation.cancel()
 	var was_visible: bool = _large_map_scrim.visible
 	if _large_map_view != null:
 		_large_map_view.call("reset_interaction")
@@ -22656,10 +22581,14 @@ func _on_large_map_room_selected(coord: Vector2i) -> void:
 	if not _guided_tutorial_map_room_allowed(coord):
 		_guided_tutorial_reject()
 		return
+	var prepared: Dictionary = _nonfight_room_preparation.take_selected_move(_run_state, coord)
 	_close_large_map()
-	await _on_map_view_room_selected(coord)
+	await _on_map_view_room_selected(coord, INVALID_TARGET_TILE, false, prepared)
 
-func _cancel_card_selection(resume_pointer_hover: bool = false, refresh_preview: bool = true) -> void:
+func _on_large_map_travel_started(coord: Vector2i) -> void:
+	_nonfight_room_preparation.prioritize(self, coord)
+
+func _cancel_card_selection(resume_pointer_hover: bool = false, refresh_preview: bool = true, refresh_hand: bool = true) -> void:
 	if _selected_card_index < 0:
 		return
 	if _pending_umbra_commit_locked:
@@ -22681,7 +22610,11 @@ func _cancel_card_selection(resume_pointer_hover: bool = false, refresh_preview:
 		hand_box.apply_layout_immediately()
 		pointer_index = _hand_index_under_pointer()
 	if refresh_preview:
-		_refresh_card_preview_ui()
+		# X can immediately expand and refresh the same hand in this input call.
+		if refresh_hand:
+			_refresh_card_preview_ui()
+		else:
+			_refresh_card_preview_ui_content(false)
 	if pointer_index >= 0:
 		# Same owner: retain its silent return, but enter with the normal ease.
 		if _hand_card_control(pointer_index) == deselected:
@@ -22915,7 +22848,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_animation_lock = true
 	_cancel_player_movement_selection(false)
 	_refresh_animation_lock_ui()
-	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state)
+	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state, "player_movement")
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_movement")
 	_schedule_committed_hand_queries(committed_run_state.get("combat_state", {}) as Dictionary)
 	if action.has("_illusion_id"):
@@ -23028,7 +22961,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_log_item_pickups(previous_combat_state, committed_combat_state)
 	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	# The checkpoint builder owns its input copy before changing any fields.
-	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state)
+	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state, "card_play")
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	_schedule_committed_hand_queries(committed_run_state.get("combat_state", {}) as Dictionary)
 	_play_card_play_sfx()
@@ -25180,7 +25113,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		# Forecast one revealed enemy activation per rendered animation frame so the
 		# Pass chip is a cache hit when input unlocks instead of a one-frame AI burst.
 		_schedule_pass_preview_cache_warm(true)
-		_prepare_enemy_round_presentation(_combat_preview_revision)
+		_enemy_round_handoff.prepare(self)
 		var fire_burn: Dictionary = _turn_start_fire_burn(before_draw_state, _combat_state)
 		if not fire_burn.is_empty():
 			if _hitch_trace_enabled: _hitch_continuation = null
@@ -25214,67 +25147,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		_record_runtime_performance_phase("enemy_round_final_refresh_ui_wall_total", finalization_phase_started)
 
 func _finish_enemy_round_player_handoff() -> void:
-	# The authored draw is the preparation window. A short or absent draw uses
-	# the normal synchronous cache fallback and still unlocks this same frame.
-	_finish_pass_preview_cache_warm(_pass_preview_warm_generation, _pass_preview_warm_key)
-	var _hitch_span: RefCounted
-	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_handoff_ready")
-	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	_begin_ui_refresh(false)
-	_refresh_ui_header()
-	_refresh_ui_navigation()
-	_unlock_after_ui_refresh(true)
-	_refresh_ui_choices()
-	_refresh_ui_stage()
-	_adopt_prepared_enemy_round_hand = true
-	_refresh_ui_hand()
-	_adopt_prepared_enemy_round_hand = false
-	_refresh_ui_finish()
-	_end_ui_refresh(false)
-	_record_runtime_performance_phase("enemy_round_final_refresh_ui_wall_total", started)
-
-func _prepare_enemy_round_presentation(combat_revision: int) -> void:
-	# Retain the exact next-turn visibility and intent inputs before the live
-	# stage submission. These are cache writes only, while the draw owns pixels.
-	await _next_enemy_round_preparation_frame()
-	if not _enemy_round_preparation_active(combat_revision): return
-	var _hitch_span: RefCounted
-	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_stage_visibility")
-	var visibility: Dictionary = _stage_visibility_presentation(_combat_state)
-	_enemy_intent_compass_descriptors(_combat_state, visibility.get("visible_enemy_ids", []))
-	_hitch_span = null
-	await _next_enemy_round_preparation_frame()
-	if not _enemy_round_preparation_active(combat_revision): return
-	if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_stage_badges")
-	_stage_hover_refresh.rest_badges(self, _combat_state, "")
-	_hitch_span = null
-	# Only incoming faces need a pool entry. Configure at most one per draw
-	# while the old hand or its flight proxies still own presentation.
-	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
-	var remaining: Array[String] = _draw_hand_card_ids()
-	var incoming: Array[String]
-	for card_id: String in hand:
-		var old_index: int = remaining.find(card_id)
-		if old_index >= 0: remaining.remove_at(old_index)
-		else: incoming.append(card_id)
-	if incoming.is_empty(): return
-	await _next_enemy_round_preparation_frame()
-	if not _enemy_round_preparation_active(combat_revision): return
-	preload("res://scripts/run_card_pool_lifetime.gd").prepare_hand(self, incoming)
-	var card_size: Vector2 = _hand_card_size(hand.size(), false)
-	var copies: Dictionary = {}
-	for card_id: String in incoming:
-		await _next_enemy_round_preparation_frame()
-		if not _enemy_round_preparation_active(combat_revision): return
-		if _hitch_trace_enabled: _hitch_span = _hitch_sink().hitch_phase("post_draw:run_scene:enemy_round_hand_face")
-		var copy_index: int = int(copies.get(card_id, 0))
-		var entry: Dictionary = _prepare_opening_hand_pool_entry(card_id, card_size, _combat_state, copy_index)
-		entry["prepared_enemy_round_revision"] = combat_revision
-		var widget: CardWidget = entry["widget"]
-		var display: Dictionary = _card_widget_display(card_id, _combat_state)
-		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
-		copies[card_id] = copy_index + 1
-		_hitch_span = null
+	_enemy_round_handoff.publish(self)
 
 func _enemy_round_preparation_active(combat_revision: int) -> bool:
 	return is_inside_tree() and _animation_lock and _combat_preview_revision == combat_revision and not _leaving_tree
@@ -28365,7 +28238,7 @@ func _await_opening_hand_draw_layout() -> void:
 		# remains deterministic for the headless regression path.
 		await get_tree().process_frame
 
-func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
+func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false, prepared: Dictionary = {}) -> void:
 	if _animation_lock or _treasure_presentation_busy() or str(_run_state.get("mode", "room")) != "room":
 		return
 	if not _guided_tutorial_map_room_allowed(coord):
@@ -28378,10 +28251,14 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 		return
 	_ensure_sfx_bank()
 	_sfx_router.map_select()
-	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_run_state: Dictionary = _run_state.duplicate(true) if prepared.is_empty() else prepared["previous"]
 	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i(-999, -999))
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
-	var committed_run_state: Dictionary = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
+	var started: int = _choice_phase_start()
+	var committed_run_state: Dictionary = prepared.get("destination", {})
+	if prepared.is_empty():
+		committed_run_state = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
+	_record_runtime_performance_phase("room_move_generate", started)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "room_move")
 	_schedule_encounter_assets(committed_run_state)
 	var preparation_generation: int = _encounter_preparation_generation
@@ -28390,11 +28267,17 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	_reset_card_resolution()
 	_hovered_board_tile = selected_door_tile
 	_refresh_ui()
+	var prewarm = preload("res://scripts/canvas_pipeline_prewarm.gd")
+	if str(committed_run_state.get("mode")) in [RunEngineScript.MODE_PRE_BATTLE, "combat"]:
+		prewarm.start(self, prewarm.Recipes.Phase.ROOM_ENTRY)
 	if selected_door_tile.x >= 0:
 		await _play_door_opening_animation(selected_door_tile)
 	elif map_travel_started:
 		await get_tree().create_timer(_map_travel_animation_seconds()).timeout
-	if not await preload("res://scripts/maquette_cutout_runtime/preparation.gd").finish_for(self, committed_run_state, preparation_generation): return
+	var encounter_ready: bool = await preload("res://scripts/maquette_cutout_runtime/preparation.gd").finish_for(self, committed_run_state, preparation_generation)
+	if not is_instance_valid(self) or _encounter_preparation_generation != preparation_generation: return
+	prewarm.stop(self)
+	if not encounter_ready: return
 	_run_state = committed_run_state
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
@@ -28402,7 +28285,9 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_PATH)
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_COMPLETE, false)
+	started = _choice_phase_start()
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
+	_record_runtime_performance_phase("room_move_analytics", started)
 	_persist_committed_boundary("room_move_analytics")
 	_board_presentation.clear()
 	_reset_card_resolution()
@@ -28523,14 +28408,18 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
 	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
+	_record_runtime_performance_phase("choice_reward_card_rules", rules_started)
 	_sync_combat_state_from_run()
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_REWARD)
 		_guided_tutorial_set_phase("", false)
+	var analytics_started: int = _choice_phase_start()
 	_analytics_log_reward_choice("card", reward_state, card_id, player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
+	_record_runtime_performance_phase("choice_reward_card_analytics", analytics_started)
 	_persist_committed_boundary("reward_card_claimed")
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	# The ray starts at the card, so it needs the card, like the flair: an empty rect's centre is the screen's
 	# top-left corner, and a ray from there flashed across the top bar.
 	if source_rect.has_area():
@@ -28538,7 +28427,7 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	await _continue_pending_escape_after_reward()
 	_animation_lock = false
 	_loadout_acquisition_in_progress = false
-	_refresh_ui()
+	_refresh_choice_result_ui()
 
 func _on_skip_reward_pressed() -> void:
 	if _animation_lock or _loadout_acquisition_in_progress:
@@ -28579,15 +28468,19 @@ func _commit_reward_heal(deferred_card_id: String) -> void:
 		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.skip_reward_for_heal(_run_state, deferred_card_id)
+	_record_runtime_performance_phase("choice_reward_heal_rules", rules_started)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_REWARD)
 		_guided_tutorial_set_phase("", false)
+	var analytics_started: int = _choice_phase_start()
 	_analytics_log_reward_choice("heal_skip", reward_state, "", player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
+	_record_runtime_performance_phase("choice_reward_heal_analytics", analytics_started)
 	_persist_committed_boundary("reward_heal_claimed")
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	await _continue_pending_escape_after_reward()
 
 func _on_reward_reroll_pressed() -> void:
@@ -28598,38 +28491,58 @@ func _on_reward_reroll_pressed() -> void:
 		return
 	var source_was_ready: bool = _reward_reroll_preparation.ready and _reward_reroll_preparation.matches_source(self)
 	var before_state: Dictionary = _run_state.duplicate(true)
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.reroll_card_reward(_run_state)
+	_record_runtime_performance_phase("choice_reward_reroll_rules", rules_started)
 	if _run_state == before_state:
 		return
 	_reward_reroll_preparation.authorize_result(self, _run_state, source_was_ready)
 	_persist_committed_boundary("reward_rerolled")
-	_refresh_ui()
+	_refresh_choice_result_ui()
 
 func _on_campfire_sit_pressed() -> void:
 	_on_campfire_embrace_pressed()
 
 func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
-	_sync_progression_from_run()
+	if _campfire_embrace_committed: return
+	var started: int = _choice_phase_start()
+	var disk: Dictionary = ProgressionStore.load_data()
+	if ProgressionStore.has_completed_run(disk, _run_state): return
 	var held: int = _run_engine.held_embers(_run_state)
-	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
+	var embedded: Dictionary = _run_state.get("progression", {})
+	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression if embedded.is_empty() else embedded, held)
 	committed_progression = ProgressionStore.mark_rested_at_fire(committed_progression)
 	_run_play_clock.sample_scene_play_time(self, _run_state)
+	ProgressionStore.stamp_result_identity(_run_state, committed_progression)
+	ProgressionStore.stamp_result_identity(_run_state, disk)
 	var withdrawal: Dictionary = RunEndRecapOverlay.embrace_state(_run_state, committed_progression)
 	_run_play_clock.sample_scene_play_time(self, withdrawal)
 	withdrawal = Snapshots.stage_run_ended(_run_engine, withdrawal, str(withdrawal["run_result"]["outcome"]), _analytics_context_from_states(withdrawal))
-	committed_progression = withdrawal["progression"]
+	committed_progression = ProgressionStore.record_run_completion(withdrawal["progression"], withdrawal)
+	ProgressionStore.merge_run_completion_ids(committed_progression, disk)
+	committed_progression = OpeningBoonRecovery.retain_pending_events(self, withdrawal, committed_progression)
+	withdrawal["progression"] = committed_progression
+	withdrawal["embrace_settlement"] = true
+	started = _record_runtime_performance_phase("choice_campfire_embrace_rules", started)
+	# Released builds recognize a terminal withdrawal checkpoint. Publish it
+	# before the bank so a downgrade cannot treat a settled withdrawal as active.
+	if not ProgressionStore.save_run_state(withdrawal):
+		push_error("Failed to persist the campfire withdrawal checkpoint.")
+		return
+	started = _record_runtime_performance_phase("choice_campfire_embrace_checkpoint", started)
 	if not ProgressionStore.save_data(committed_progression):
+		ProgressionStore.save_run_state(_run_state)
 		push_error("Failed to persist campfire Embrace; the run remains resumable.")
 		return
+	started = _record_runtime_performance_phase("choice_campfire_embrace_profile", started)
 	_progression = committed_progression
 	_run_state = withdrawal
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
+	started = _record_runtime_performance_phase("choice_campfire_embrace_analytics", started)
 	_campfire_embrace_committed = true
-	if ProgressionStore.save_run_state(_run_state):
-		ProgressionStore.clear_saved_run()
-	else:
-		push_error("Failed to persist the terminal checkpoint for campfire Embrace.")
+	ProgressionStore.clear_saved_run()
+	_record_runtime_performance_phase("choice_campfire_embrace_clear", started)
 	if present_feedback:
 		var token: int = _campfire_presentation.generation
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_DEPART_ID))
@@ -28637,20 +28550,24 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 		if token != _campfire_presentation.generation: return
 	_set_campfire_choice_action_pending(false)
 	_animation_lock = false
-	_refresh_ui()
+	_refresh_choice_result_ui()
 
 func _on_campfire_linger_pressed() -> void:
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
+	_record_runtime_performance_phase("choice_campfire_linger_rules", rules_started)
 	_persist_committed_boundary("campfire_linger")
-	if not _campfire_choice_action_pending: _refresh_ui()
+	if not _campfire_choice_action_pending: _refresh_choice_result_ui()
 
 func _on_campfire_leave_pressed() -> void:
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.leave_campfire(_run_state)
+	_record_runtime_performance_phase("choice_campfire_leave_rules", rules_started)
 	_persist_committed_boundary("campfire_leave")
-	_refresh_ui()
+	_refresh_choice_result_ui()
 
-# Treasure motion is presentation-only: ownership and analytics still commit
-# synchronously in _claim_relic_with_deferred, before any animated delivery.
+# Treasure motion is presentation-only. The claim checkpoint and its
+# analytics receipt precede animated delivery.
 func _record_treasure_presentation_input(event: InputEvent) -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null:
@@ -28828,7 +28745,9 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	var trophy: Dictionary = (_run_state.get("guardian_reward", {}) as Dictionary).duplicate(true)
 	var trophy_context: Dictionary = _analytics_context_from_states(_run_state)
 	var accent := Color(GameData.relic_accent(relic_id))
+	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.claim_relic(_run_state, relic_id, deferred_relic_id)
+	_record_runtime_performance_phase("choice_relic_rules", rules_started)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
@@ -28836,8 +28755,10 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 		_guided_tutorial_set_phase("", false)
 	_persist_committed_boundary("relic_claimed")
 	if not trophy.is_empty() and (_run_state.get("relics", []) as Array).has(relic_id):
+		var started: int = _choice_phase_start()
 		_analytics_store.write_event("reward_choice", trophy_context, {"reward_kind":"guardian_trophy", "relic_id":relic_id, "guardian_id":trophy.get("guardian_id", ""), "choice":"claim"})
-	_refresh_ui()
+		_record_runtime_performance_phase("choice_guardian_trophy_analytics", started)
+	_refresh_choice_result_ui()
 	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	if not _treasure_sequence_is_current(sequence_epoch):
@@ -28867,7 +28788,9 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
 		purchase_origin = _scavenger_shop_view.purchase_origin(item_id, source_row)
 	_close_pinned_tooltip()
+	var started: int = _choice_phase_start()
 	_run_state = _run_engine.buy_merchant_item(_run_state, merchant_kind, item_id)
+	_record_runtime_performance_phase("choice_merchant_buy_rules", started)
 	if _run_state == before_state:
 		return
 	_merchant_trade_animation_active = true
@@ -28880,10 +28803,13 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_buy")
+	started = _choice_phase_start()
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
 	# Ownership, currency and persistence settle before presentation. Purchase
 	# fanfare has its own lifetime and never holds up another trade or Leave.
-	_refresh_ui()
+	_record_runtime_performance_phase("choice_merchant_buy_analytics", started)
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _refresh_choice_result_ui()
+	else: _refresh_ui()
 	_ensure_sfx_bank()
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _sfx_router.shop_buy()
 	else: _play_reward_collect_sfx()
@@ -28905,7 +28831,9 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
 		sale_origin = _scavenger_shop_view.purchase_origin(item_id, source_row)
 	_close_pinned_tooltip()
+	var started: int = _choice_phase_start()
 	_run_state = _run_engine.sell_merchant_item(_run_state, merchant_kind, item_id)
+	_record_runtime_performance_phase("choice_merchant_sell_rules", started)
 	if _run_state == before_state:
 		return
 	_merchant_trade_animation_active = true
@@ -28918,8 +28846,11 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_sell")
+	started = _choice_phase_start()
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
-	_refresh_ui()
+	_record_runtime_performance_phase("choice_merchant_sell_analytics", started)
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _refresh_choice_result_ui()
+	else: _refresh_ui()
 	_ensure_sfx_bank()
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _sfx_router.shop_sell()
 	else: _play_reward_collect_sfx()
@@ -29581,7 +29512,7 @@ func _combat_checkpoint_with_shared_map_events(run_state: Dictionary, combat_sta
 		state["map_events"] = events
 	return state
 
-func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary, reason: String = "enemy_round") -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	# These temporary shells only replace top-level fields. Analytics staging
@@ -29619,6 +29550,8 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 		_record_runtime_performance_phase("combat_checkpoint_total", performance_total_started)
 		return active_state
 	var finished_state: Dictionary = _combat_checkpoint_with_shared_map_events(base_state, checkpoint_combat_state, true)
+	if finished_state.get("mode") == "defeat" and not bool(finished_state.get("debug_boss_run", false)):
+		Snapshots.stage_defeat(_combat_engine, _run_engine, finished_state, checkpoint_combat_state, reason)
 	var finished_progression: Dictionary = (finished_state.get("progression", {}) as Dictionary).duplicate(true)
 	if (
 		not bool(base_state.get("debug_boss_run", false))
@@ -29627,7 +29560,7 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 		var moltshards_before: int = ProgressionStore.moltshard_count(_progression)
 		var moltshards_after: int = ProgressionStore.moltshard_count(finished_progression)
 		if moltshards_after > moltshards_before:
-			var award_id: String = "%s:first_boss_moltshard" % RunEngineScript.run_result_id(finished_state)
+			var award_id: String = "%s:first_boss_moltshard" % RunEngineScript.legacy_result_id(finished_state)
 			var payload: Dictionary = {
 				"amount": moltshards_after - moltshards_before,
 				"source": "first_boss_victory",
@@ -29651,6 +29584,9 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 		_progression
 	)
 	finished_state["progression"] = finished_progression
+	var reward: Dictionary = finished_state.get("pending_reward", {})
+	if bool(reward.get("final_boss", false)) and not _is_debug_boss_run():
+		Snapshots.stage_combat_end(_combat_engine, _run_engine, finished_state, reward["board_state"], reason)
 	return finished_state
 
 func _combat_commit_checkpoints(steps: Array) -> Array:
@@ -29811,6 +29747,8 @@ func _resume_pending_combat_checkpoints() -> void:
 		push_error("Enemy-phase continuation exceeded the 100-activation recovery bound; resetting to one deterministic player activation.")
 		_recover_stalled_enemy_phase_continuation()
 	_release_committed_run_state()
+	if _run_state.get("mode") == "defeat":
+		_replay_committed_defeat_analytics()
 	_board_presentation.clear()
 	_set_action_banner("")
 	if _reward_intro_pending():
@@ -29831,6 +29769,9 @@ func _recover_stalled_enemy_phase_continuation() -> void:
 		"enemy_phase_resume_safety_recovered"
 	)
 	_sync_combat_state_from_run()
+
+func _choice_phase_start() -> int:
+	return Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 
 func _persist_committed_boundary(boundary: String = "") -> bool:
 	# Keep snapshot dispatch (including failure-injection overrides) intact.
@@ -29864,36 +29805,81 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		return preload("res://scripts/run_persistence.gd").persist_owned(self, run_state, boundary, _deferred_checkpoint_receipt)
 	return preload("res://scripts/run_persistence.gd").persist(self, run_state, hold_for_animation, boundary)
 
-func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
-	var state: Dictionary = run_state.duplicate(true)
-	var mode: String = str(state.get("mode", ""))
-	var victory_amount: int = _victory_ember_amount(state) if mode == "victory" else 0
-	if mode in ["victory", "defeat"]:
-		state = _terminal_state_with_recorded_run_result(state, _progression)
-		_progression = (state.get("progression", _progression) as Dictionary).duplicate(true)
-	if mode == "victory":
-		if not _victory_carry_processed:
-			_victory_carry_amount = victory_amount
-			_progression = ProgressionStore.set_embers(_progression, victory_amount)
-			_victory_carry_processed = true
-		state = _run_engine.clear_held_embers(state)
-		state["progression"] = _progression.duplicate(true)
-	elif mode == "defeat":
-		if not _defeat_loss_processed:
-			var lost_amount: int = _run_engine.held_embers(state)
-			_defeat_lost_amount = lost_amount
-			_progression = ProgressionStore.record_lost_embers(
-				_progression,
-				lost_amount,
+func _finalize_terminal_committed_state(run_state: Dictionary, commit_heirloom_choice: bool = false) -> Dictionary:
+	# Fixture helpers use this to stage a recap without writing a profile.
+	if run_state.get("mode") not in ["victory", "defeat"]: return run_state.duplicate(true)
+	var settlement := _prepare_terminal_settlement(run_state, commit_heirloom_choice)
+	_apply_terminal_settlement(settlement)
+	return settlement["state"]
+
+func _prepare_terminal_settlement(run_state: Dictionary, commit_heirloom_choice: bool = false, profile_override: Dictionary = {}) -> Dictionary:
+	var mode: String = str(run_state.get("mode", ""))
+	var victory_amount: int = _victory_ember_amount(run_state) if mode == "victory" else 0
+	var disk: Dictionary = ProgressionStore.load_data()
+	var completed: bool = ProgressionStore.has_completed_run(disk, run_state)
+	var profile: Dictionary = _progression if profile_override.is_empty() else profile_override
+	var victory_processed := _victory_carry_processed
+	var defeat_processed := _defeat_loss_processed
+	var victory_amount_for_recap := _victory_carry_amount
+	var defeat_amount_for_recap := _defeat_lost_amount
+	var state: Dictionary
+	if completed:
+		# A previous profile commit owns the wallet and history. Replaying the
+		# terminal checkpoint can only finish publishing that boundary.
+		state = run_state
+		if mode == "victory" and not victory_processed: victory_amount_for_recap = victory_amount
+		if mode == "defeat" and not defeat_processed: defeat_amount_for_recap = _run_engine.held_embers(state)
+		victory_processed = true
+		defeat_processed = true
+		ProgressionStore.merge_run_completion_ids(disk, profile)
+		ProgressionStore.merge_run_completion_ids(disk, run_state.get("progression", {}))
+		if commit_heirloom_choice:
+			profile = ProgressionStore.set_embers(profile, int(disk["embers"]))
+			profile["recovery_marker"] = ProgressionStore.recovery_marker(disk)
+			ProgressionStore.merge_run_completion_ids(profile, disk)
+			profile = OpeningBoonRecovery.retain_pending_events(self, state, profile)
+		else:
+			profile = disk
+	else:
+		state = _terminal_state_with_recorded_run_result(run_state, profile, disk)
+		profile = state["progression"]
+		if mode == "victory" and not victory_processed:
+			victory_amount_for_recap = victory_amount
+			profile = ProgressionStore.set_embers(profile, victory_amount)
+			victory_processed = true
+		elif mode == "defeat" and not defeat_processed:
+			defeat_amount_for_recap = _run_engine.held_embers(state)
+			profile = ProgressionStore.record_lost_embers(
+				profile,
+				defeat_amount_for_recap,
 				state.get("current_room", Vector2i.ZERO),
 				int(state.get("run_index", 0))
 			)
-			_defeat_loss_processed = true
-		state = _run_engine.clear_held_embers(state)
-		state["progression"] = _progression.duplicate(true)
-	if state.has(OpeningBoonRules.HEIRLOOM_END_KEY):
-		state["heirloom_terminal_wallet"] = {"victory_carry": _victory_carry_amount, "defeat_lost": _defeat_lost_amount}
-	return state
+			defeat_processed = true
+		ProgressionStore.merge_run_completion_ids(profile, disk)
+		profile = ProgressionStore.record_run_completion(profile, state)
+		profile = OpeningBoonRecovery.retain_pending_events(self, state, profile)
+	state = _run_engine.clear_held_embers(state)
+	state["progression"] = profile.duplicate(true)
+	if completed:
+		var recorded: Dictionary = ProgressionStore.run_result_for_id(disk, ChronicleRules.record_id(state))
+		if not recorded.is_empty(): state["run_result"] = recorded
+	if state.has(OpeningBoonRules.HEIRLOOM_END_KEY) and not state.has("heirloom_terminal_wallet"):
+		state["heirloom_terminal_wallet"] = {"victory_carry": victory_amount_for_recap, "defeat_lost": defeat_amount_for_recap}
+	return {
+		"state": state,
+		"victory_processed": victory_processed,
+		"defeat_processed": defeat_processed,
+		"victory_carry": victory_amount_for_recap,
+		"defeat_lost": defeat_amount_for_recap,
+	}
+
+func _apply_terminal_settlement(settlement: Dictionary) -> void:
+	_progression = (settlement["state"]["progression"] as Dictionary).duplicate(true)
+	_victory_carry_processed = settlement["victory_processed"]
+	_defeat_loss_processed = settlement["defeat_processed"]
+	_victory_carry_amount = settlement["victory_carry"]
+	_defeat_lost_amount = settlement["defeat_lost"]
 
 func _is_debug_boss_run() -> bool:
 	return bool(_run_state.get("debug_boss_run", false))
@@ -29907,6 +29893,9 @@ func _save_run_progress() -> void:
 		return
 	var committed_state: Dictionary = _committed_run_state()
 	if not preload("res://scripts/run_persistence.gd").has_checkpoint(committed_state): return
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	var disk := ProgressionStore.load_data()
+	committed_state = Persistence.terminal_state_for_departure(committed_state, disk)
 	var mode: String = str(committed_state.get("mode", ""))
 	if OpeningBoonRules.heirloom_prompt_pending(committed_state):
 		if not _committed_run_state_override.is_empty() and not OpeningBoonRecovery.persist_held_prompt_before_quit(self, committed_state):
@@ -29917,20 +29906,23 @@ func _save_run_progress() -> void:
 		# A failed terminal save preserves the original, unprocessed fallback.
 		# Reconciliation must not replace it with the finalized held snapshot.
 		_cancel_deferred_skill_analytics()
-		var retained: Dictionary = OpeningBoonRecovery.retaining_events(self, committed_state, _progression)
+		var settlement := Persistence.prepare_terminal_departure(self, committed_state, disk)
+		var terminal: Dictionary = settlement["state"]
+		var retained: Dictionary = OpeningBoonRecovery.retaining_events(self, committed_state, terminal["progression"])
 		if ProgressionStore.save_data(retained):
-			_progression = retained
+			terminal["progression"] = retained
+			_apply_terminal_settlement(settlement)
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
+	if ProgressionStore.has_completed_run(ProgressionStore.load_data(), committed_state) or preload("res://scripts/run_persistence.gd").preserves_heirloom_fallback(committed_state): return
 	_reconcile_skill_event_analytics()
 	_flush_run_skill_event_analytics("explicit_run_skill")
 	committed_state = _committed_run_state()
 	var saved_progression: Dictionary = _progression.duplicate(true)
 	var run_progression: Dictionary = (committed_state.get("progression", {}) as Dictionary).duplicate(true)
-	if not run_progression.is_empty():
-		saved_progression["embers"] = int(run_progression.get("embers", 0))
+	saved_progression = Persistence.active_departure_profile(saved_progression, ProgressionStore.load_data(), run_progression)
 	ProgressionStore.save_data(saved_progression)
 	_persist_committed_boundary("explicit_save")
 	preload("res://scripts/run_persistence.gd").flush(self)
@@ -29962,24 +29954,54 @@ func _on_abandon_run_pressed() -> void:
 	_cancel_deferred_skill_analytics()
 	_close_menu_overlay()
 	_reset_card_resolution()
-	_analytics_log_run_ended("abandoned")
-	if not _is_debug_boss_run():
-		_sync_progression_from_run()
-		_progression = ProgressionStore.record_lost_embers(
-			_progression,
-			_run_engine.held_embers(_run_state),
-			_run_state.get("current_room", Vector2i.ZERO),
-			int(_run_state.get("run_index", 0))
-		)
-		_progression = OpeningBoonRecovery.retaining_events(self, _run_state, _progression)
-		var terminal: Dictionary = _committed_run_state()
+	if _is_debug_boss_run():
+		_analytics_log_run_ended("abandoned")
+	else:
+		var disk: Dictionary = ProgressionStore.load_data()
+		var completed: bool = ProgressionStore.has_completed_run(disk, _run_state)
+		var candidate: Dictionary = disk
+		var receipt: Dictionary = {}
+		if not completed:
+			receipt = Snapshots.run_ended_receipt(
+				_run_engine, _run_state, "abandoned", _analytics_context_from_states(_run_state, _combat_state)
+			)
+			var embedded: Dictionary = _run_state.get("progression", {})
+			# Work on a copy: a failed profile write must leave live memory unchanged (gfix-24).
+			candidate = (_progression if embedded.is_empty() else embedded).duplicate(true)
+			candidate = ProgressionStore.record_lost_embers(
+				candidate,
+				_run_engine.held_embers(_run_state),
+				_run_state.get("current_room", Vector2i.ZERO),
+				int(_run_state.get("run_index", 0))
+			)
+			candidate = OpeningBoonRecovery.retaining_events(self, _run_state, candidate)
+			ProgressionStore.merge_run_completion_ids(candidate, disk)
+			candidate = ProgressionStore.record_run_completion(candidate, _run_state)
+			candidate = Snapshots.stage_receipt(candidate, receipt)
+			if not ProgressionStore.save_data(candidate):
+				preload("res://scripts/run_persistence.gd").stage_unsettled_abandon(self, receipt)
+				_run_state["notice"] = "Could not save the completed run. Try again."
+				_refresh_ui()
+				return
+		_progression = candidate
+		# Settlement is durable. Detach the active wallet even if publishing the
+		# terminal checkpoint fails and the title must ignore an older save.
+		var terminal: Dictionary = _run_engine.clear_held_embers(_committed_run_state())
 		terminal["mode"] = "abandoned"
+		terminal.erase(preload("res://scripts/run_persistence.gd").PENDING_ABANDON_RECEIPT)
 		terminal["progression"] = _progression.duplicate(true)
-		if not ProgressionStore.save_data(_progression) or not ProgressionStore.save_run_state(terminal):
-			_run_state["notice"] = "Could not save the completed run. Try again."
-			_refresh_ui()
-			return
-		ProgressionStore.clear_saved_run()
+		_run_state = terminal
+		_combat_state = {}
+		_release_committed_run_state()
+		if ProgressionStore.save_run_state(terminal): ProgressionStore.clear_saved_run()
+		if not receipt.is_empty() and _analytics_store.write_events_durable([receipt]):
+			# The row is durable. Acknowledge it so the title has nothing to replay.
+			var acknowledged: Dictionary = ProgressionStore.acknowledge_progression_analytics_event(_progression, str(receipt["idempotency_key"]))
+			if ProgressionStore.save_data(acknowledged):
+				_progression = acknowledged
+				_run_state["progression"] = acknowledged.duplicate(true)
+	# No Continue follows: teardown keeps none of this run's encounter art.
+	_run_abandoned = true
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _change_scene_to_file(path: String) -> void:
@@ -30390,7 +30412,7 @@ func _exchange_moltshard_at_entrance() -> void:
 	if _molt_exchange_feedback.active or not _run_engine.can_use_emaciated_services(_run_state): return
 	_sync_progression_from_run()
 	var before: Dictionary = _progression.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.transact_run_wallet(before, RunEngineScript.run_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "moltshard_exchange", "emaciated_man")
+	var candidate: Dictionary = ProgressionStore.transact_run_wallet(before, RunEngineScript.legacy_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "moltshard_exchange", "emaciated_man")
 	if candidate == before:
 		_show_emaciated_services("Bring me a Moltshard from a dragon, and I can trade it for Embers.")
 		return
@@ -30419,7 +30441,7 @@ func _exchange_moltshard_at_entrance() -> void:
 		_schedule_controller_modal_refresh()
 
 func _queue_wallet_transaction_analytics(before: Dictionary, after: Dictionary) -> Dictionary:
-	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(after, RunEngineScript.run_result_id(_run_state))
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(after, RunEngineScript.legacy_result_id(_run_state))
 	var kind: String = str(receipt.get("kind", ""))
 	var payload: Dictionary = {"source":receipt.get("source", ""), "transaction_id":receipt.get("id", ""), "held_embers_before":int(before.get("embers", 0)), "held_embers_after":int(after.get("embers", 0)), "room":_run_state.get("current_room", Vector2i.ZERO)}
 	if kind == "level_up":
@@ -30440,12 +30462,16 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 	_cancel_drag_play(false)
 	_close_pile_view()
 	_close_menu_overlay()
+	var started: int = _choice_phase_start() if source == "campfire" else 0
 	var before_progression: Dictionary = _progression.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.transact_run_wallet(_progression, RunEngineScript.run_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "level_up", source)
+	var candidate: Dictionary = ProgressionStore.transact_run_wallet(_progression, RunEngineScript.legacy_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "level_up", source)
 	if candidate == before_progression:
 		return
 	candidate = _queue_wallet_transaction_analytics(before_progression, candidate)
-	if not ProgressionStore.save_data(candidate):
+	if source == "campfire": started = _record_runtime_performance_phase("choice_campfire_strength_rules", started)
+	var profile_saved: bool = ProgressionStore.save_data(candidate)
+	if source == "campfire": _record_runtime_performance_phase("choice_campfire_strength_profile", started)
+	if not profile_saved:
 		_return_to_emaciated_service = source == "emaciated_man"
 		_progression_overlay_mode = "skills"
 		_progression_overlay_notice = "The level could not be saved. No Embers were spent; try again."
@@ -30470,7 +30496,8 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 		if token != _campfire_presentation.generation: return
 		_set_campfire_choice_action_pending(false)
 		_animation_lock = false
-	_refresh_ui()
+	if source == "campfire": _refresh_choice_result_ui()
+	else: _refresh_ui()
 	_progression_overlay_mode = "skills"
 	var defiance_gained: int = (
 		ProgressionStore.defiance_capacity_for_level(int(_progression.get("level", 1)))
@@ -31264,8 +31291,17 @@ func _skill_reset_panel_style(accent: Color) -> StyleBoxFlat:
 func _authoritative_profile_progression() -> Dictionary:
 	var persisted_profile: Dictionary = ProgressionStore.load_data()
 	var active_progression: Dictionary = ProgressionStore.normalized_data(_progression)
+	var disk: Dictionary = persisted_profile.duplicate(false)
+	ProgressionStore.reconcile_descent_reservation(active_progression, disk, _run_state)
+	ProgressionStore.reconcile_descent_reservation(persisted_profile, disk, _run_state)
+	ProgressionStore.merge_depth_progress(active_progression, disk)
+	ProgressionStore.merge_depth_progress(persisted_profile, active_progression)
+	ProgressionStore.merge_synced_profile(active_progression, disk, _run_state)
+	persisted_profile["run_counter"] = maxi(int(persisted_profile.get("run_counter", 0)), int(active_progression.get("run_counter", 0)))
 	if int(active_progression.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
+		ProgressionStore.merge_run_completion_ids(persisted_profile, active_progression)
 		return persisted_profile
+	ProgressionStore.merge_run_completion_ids(active_progression, persisted_profile)
 	# A terminal receipt and its settled wallet must be repaired together.
 	# Otherwise replacement sees the result acknowledged with the old balance.
 	if str(_run_state.get("mode", "")) in ["victory", "defeat"] and _run_state.has("heirloom_terminal_wallet"):
@@ -31281,8 +31317,7 @@ func _repair_profile_progression_from_run() -> void:
 		return
 	var persisted_profile: Dictionary = ProgressionStore.load_data()
 	var repaired_profile: Dictionary = _authoritative_profile_progression()
-	if int(repaired_profile.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
-		return
+	if repaired_profile == persisted_profile: return
 	if not ProgressionStore.save_data(repaired_profile):
 		push_error("Failed to repair profile progression from the newer saved run snapshot.")
 
@@ -33156,7 +33191,6 @@ func _reset_card_resolution() -> void:
 	_hud_forecast.clear()
 	_clear_action_step_resolution_tracker()
 	_clear_active_card_preview_state()
-	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
 	preload("res://scripts/movement_target_keyboard.gd").clear(self)
@@ -33229,7 +33263,7 @@ func _ensure_run_analytics_metadata(run_state: Dictionary) -> Dictionary:
 		return next_state
 	var analytics: Dictionary = (next_state.get("analytics", {}) as Dictionary).duplicate(true)
 	if str(analytics.get("run_id", "")).is_empty():
-		analytics["run_id"] = _analytics_random_id("run")
+		analytics["run_id"] = "run_" + Crypto.new().generate_random_bytes(16).hex_encode()
 	if not analytics.has("combat_counter"):
 		analytics["combat_counter"] = 0
 	next_state["analytics"] = analytics
@@ -33254,6 +33288,11 @@ func _reconcile_progression_analytics_outbox() -> bool:
 		_record_runtime_performance_phase("progression_outbox_no_pending", performance_phase_started)
 		_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
 		return true
+	if outbox.any(func(receipt: Dictionary) -> bool:
+		return receipt["event_type"] == "run_ended" and receipt["payload"].get("outcome") == "abandoned"
+	):
+		outbox = ProgressionStore.deliverable_progression_receipts(outbox, ProgressionStore.load_data())
+		if outbox.is_empty(): return false
 	var events: Array[Dictionary]
 	var idempotency_keys: Array[String]
 	for entry: Dictionary in outbox:
@@ -33292,6 +33331,7 @@ func _reconcile_progression_analytics_outbox() -> bool:
 		return false
 	performance_phase_started = _record_runtime_performance_phase("progression_outbox_save", performance_phase_started)
 	_progression = ProgressionStore.merge_progression_analytics_outbox(active_candidate, disk_candidate)
+	ProgressionStore.merge_run_completion_ids(_progression, disk_candidate)
 	_record_runtime_performance_phase("progression_outbox_active_merge", performance_phase_started)
 	_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
 	return true
@@ -33339,9 +33379,10 @@ func _analytics_log_run_resumed() -> void:
 func _analytics_log_run_ended(outcome: String) -> void:
 	if outcome.is_empty() or _run_state.is_empty():
 		return
-	_analytics_store.write_event("run_ended", _analytics_context_from_states(_run_state, _combat_state), Snapshots.run_ended(_run_engine, _run_state, outcome))
-
-	preload("res://scripts/run_persistence.gd").flush(self)
+	var receipt: Dictionary = Snapshots.run_ended_receipt(
+		_run_engine, _run_state, outcome, _analytics_context_from_states(_run_state, _combat_state)
+	)
+	_analytics_store.write_events_durable([receipt])
 
 func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context_from_states(_run_state, _combat_state), {
@@ -33891,12 +33932,43 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
 		_battlefield_rule_switch.reset(self, transition_combat_state)
 		_card_draw_sfx_revision_seen = 0
-		_analytics_log_combat_ended(transition_combat_state, reason)
+		if next_mode == "defeat" and not _is_debug_boss_run():
+			_analytics_flush_surface_events(transition_combat_state)
+			_replay_committed_defeat_analytics()
+			_reset_analytics_combat_tracker()
+			return
+		var reward: Dictionary = _run_state.get("pending_reward", {})
+		if next_mode == "reward" and bool(reward.get("final_boss", false)) and not _is_debug_boss_run():
+			_analytics_flush_surface_events(transition_combat_state)
+			var staged := ProgressionStore.progression_analytics_outbox(_run_state["progression"])
+			_analytics_store.write_events_durable(staged.filter(func(receipt: Dictionary) -> bool:
+				return receipt["event_type"] == "combat_ended"
+			))
+		else:
+			_analytics_log_combat_ended(transition_combat_state, reason)
 		if next_mode == "reward" or (next_mode == "treasure" and not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty()):
 			_analytics_log_reward_offered(transition_combat_state, reason)
 		elif next_mode in ["victory", "defeat"]:
 			_analytics_log_run_ended(next_mode)
 		_reset_analytics_combat_tracker()
+
+func _replay_committed_defeat_analytics() -> void:
+	var disk: Dictionary = ProgressionStore.load_data()
+	var key: String = Snapshots.run_ended_receipt(_run_engine, _run_state, "defeat", _analytics_context_from_states(_run_state))["idempotency_key"]
+	var staged := ProgressionStore.progression_analytics_outbox(_run_state.get("progression", {}))
+	var staged_closings := staged.filter(func(receipt: Dictionary) -> bool:
+		return receipt["idempotency_key"] == key or receipt["event_type"] == "combat_ended"
+	)
+	var durable := ProgressionStore.progression_analytics_outbox(disk)
+	if not durable.any(func(receipt: Dictionary) -> bool: return receipt["idempotency_key"] == key):
+		# A failed terminal checkpoint can leave only the live presentation
+		# snapshot. Deliver its closing rows without acknowledging settlement.
+		_analytics_store.write_events_durable(staged_closings)
+		return
+	var recovered: Dictionary = ProgressionStore.merge_progression_analytics_outbox(disk, {ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY: staged_closings})
+	_progression = ProgressionStore.merge_progression_analytics_outbox(_progression, recovered)
+	_reconcile_progression_analytics_outbox()
+	_sync_progression_analytics_outbox_to_run()
 
 func _analytics_log_combat_started(reason: String) -> void:
 	_analytics_store.write_event("combat_started", _analytics_context_from_states(_run_state, _combat_state), Snapshots.combat_started(_combat_engine, _run_engine, _run_state, _combat_state, reason))
@@ -34456,6 +34528,7 @@ func _analytics_log_enemy_phase_events(phase_result: Dictionary) -> void:
 	_analytics_store.write_events(events)
 
 func _sync_combat_state_from_run() -> void:
+	if str(_run_state.get("mode", "")) not in ["pre_battle", "combat", "reward"]: _combat_texture_scope = null
 	_invalidate_hand_hover_rest()
 	var entering_combat: bool = _combat_state.is_empty()
 	# Normalization already owns a deep snapshot; avoid making a throwaway copy
@@ -34487,9 +34560,12 @@ func _sync_progression_from_run() -> void:
 	var run_progression: Dictionary = _run_state.get("progression", {}) as Dictionary
 	if run_progression.is_empty():
 		return
-	# Victory has transferred the wallet into the embedded profile. A later
-	# discovery/save must preserve that bank after held Embers have been cleared.
-	_progression = run_progression.duplicate(true) if str(_run_state.get("mode", "")) == "victory" else ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
+	# Terminal settlement owns the wallet after held Embers have been cleared.
+	var mode: String = str(_run_state.get("mode", ""))
+	if mode in ["victory", "abandoned"] or (mode == "defeat" and ProgressionStore.has_completed_run(run_progression, _run_state)):
+		_progression = run_progression.duplicate(true)
+	else:
+		_progression = ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
 func _sync_progression_analytics_outbox_to_run() -> void:
 	if _run_state.is_empty():
@@ -34498,6 +34574,7 @@ func _sync_progression_analytics_outbox_to_run() -> void:
 	if run_progression.is_empty():
 		return
 	run_progression[ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY] = ProgressionStore.progression_analytics_outbox(_progression)
+	ProgressionStore.merge_run_completion_ids(run_progression, _progression)
 	_run_state["progression"] = ProgressionStore.normalized_data(run_progression)
 
 func _sync_umbra_warning_progression() -> void:
@@ -34653,49 +34730,46 @@ func _process_victory_carry() -> void:
 		_victory_carry_amount = _run_engine.held_embers(_run_state)
 		_victory_carry_processed = true
 		return
-	var amount: int = _victory_ember_amount(_run_state)
-	_record_terminal_run_result()
-	_victory_carry_amount = amount
-	_progression = ProgressionStore.set_embers(_progression, amount)
-	ProgressionStore.save_data(_progression)
-	_run_state = _run_engine.clear_held_embers(_run_state)
-	_run_state["progression"] = _progression.duplicate(true)
-	_victory_carry_processed = true
+	_process_terminal_wallet()
 
 func _process_defeat_loss() -> void:
 	if _is_debug_boss_run():
 		_defeat_lost_amount = _run_engine.held_embers(_run_state)
 		_defeat_loss_processed = true
 		return
-	_record_terminal_run_result()
-	var lost_amount: int = _run_engine.held_embers(_run_state)
-	_defeat_lost_amount = lost_amount
-	_progression = ProgressionStore.record_lost_embers(
-		_progression,
-		lost_amount,
-		_run_state.get("current_room", Vector2i.ZERO),
-		int(_run_state.get("run_index", 0))
-	)
-	ProgressionStore.save_data(_progression)
-	_run_state = _run_engine.clear_held_embers(_run_state)
-	_run_state["progression"] = _progression.duplicate(true)
-	_defeat_loss_processed = true
+	_process_terminal_wallet()
 
-func _record_terminal_run_result() -> void:
-	_run_state = _terminal_state_with_recorded_run_result(_run_state, _progression)
-	_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
+func _process_terminal_wallet() -> void:
+	if preload("res://scripts/run_persistence.gd").prompt_needs_checkpoint(_run_state) and not ProgressionStore.save_run_state(_run_state):
+		return
+	var settlement := _prepare_terminal_settlement(_run_state)
+	var settled: Dictionary = settlement["state"]
+	if not ProgressionStore.save_data(settled["progression"]):
+		push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
+		return
+	_apply_terminal_settlement(settlement)
+	# The UI fallback has only written the profile. The checkpoint's marker
+	# belongs to the heirloom transaction and its run-first recovery path.
+	if not _run_state.has("heirloom_terminal_wallet"): settled.erase("heirloom_terminal_wallet")
+	_run_state = settled
+	if _terminal_receipts_await_settlement:
+		_terminal_receipts_await_settlement = false
+		_reconcile_progression_analytics_outbox()
+		_sync_progression_analytics_outbox_to_run()
 
-func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progression: Dictionary) -> Dictionary:
+func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progression: Dictionary, disk: Dictionary = {}) -> Dictionary:
 	var state: Dictionary = terminal_state.duplicate(true)
 	if str(state.get("mode", "")) not in ["victory", "defeat"] or bool(state.get("debug_boss_run", false)):
 		return state
 	_run_play_clock.sample_scene_play_time(self, state)
 	var result_stats: Dictionary = RunEndRecapOverlay.result_stats(state)
-	var result_id: String = RunEngineScript.run_result_id(state)
 	# Terminal commits may carry newly staged receipts absent from the scene's
 	# profile (for example the final dragon claim). Keep the profile authoritative
 	# for currency and progression, and merge only those durable event receipts.
 	var candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(progression, state.get("progression", {}) as Dictionary)
+	ProgressionStore.stamp_result_identity(state, candidate)
+	ProgressionStore.stamp_result_identity(state, disk)
+	var result_id: String = RunEngineScript.run_result_id(state)
 	var depth_before: int = ProgressionStore.unlocked_umbra_depth(candidate)
 	var recorded: Dictionary = ProgressionStore.record_run_result(candidate, result_id, result_stats)
 	var next_progression: Dictionary = (recorded.get("data", progression) as Dictionary).duplicate(true)
@@ -35011,6 +35085,26 @@ func _surface_events_between(before_state: Dictionary, after_state: Dictionary) 
 			events.append(event.duplicate(true))
 	return events
 
+# pla-02: a Draw after a move or blink can reshuffle and pay Fatigue. The piles
+# are known, so the hero's Health bar shows that loss even while limited Umbra
+# keeps the route's other consequences hidden. Only the automatic Draws that
+# follow, before the next choice, run on the unmoved copy.
+func _append_followup_fatigue_preview(result: Dictionary, state: Dictionary) -> void:
+	var after: Dictionary = state
+	var drew: bool = false
+	for cursor: int in range(_pending_action_index + 1, _pending_actions.size()):
+		var next_action: Dictionary = _pending_actions[cursor] as Dictionary
+		if _combat_engine.player_action_needs_target(next_action): break
+		if str(next_action.get("type", "")) == "draw" and _combat_engine.player_action_can_resolve(after, next_action):
+			after = _combat_engine.apply_player_action(after, next_action)
+			drew = true
+	if not drew: return
+	var loss: Dictionary = _damage_preview_between_states(state, after).get("player", {}) as Dictionary
+	if loss.is_empty(): return
+	var losses: Dictionary = (result.get("damage_preview", {}) as Dictionary).duplicate(true)
+	losses["player"] = loss
+	result["damage_preview"] = losses
+
 func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> void:
 	var tile: Vector2i = _hovered_board_tile
 	if tile.x < 0 or not (preview.get("target_tiles", []) as Array).has(tile):
@@ -35021,6 +35115,7 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	# unseen traps, their wake on visible ground, or contacts beyond sight.
 	# Keep the route preview, but do not forecast its hidden consequences.
 	if str(action.get("type", "")) in ["move", "blink"] and _preview_umbra_is_limited(state):
+		_append_followup_fatigue_preview(result, state)
 		return
 	var cache_key: String = "%d:%d:%d:%d:%s:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(tile), hash(_pending_actions), _pending_action_index, str(preview.get("skill_aim", false))]
 	if _surface_preview_cache_key != cache_key:
@@ -35138,6 +35233,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 					"blocked_tile": event.get("blocked_tile", INVALID_TARGET_TILE),
 					"direction": event.get("direction", Vector2i.ZERO),
 					"damage": int(event.get("damage", 0)),
+					"blocker_damage": int(event.get("blocker_damage", event.get("damage", 0))),
 					"actor_key": str(event.get("actor_key", "")),
 					"tooltip_override": str(event.get("tooltip_override", "")),
 					"blocker_kind": str(event.get("blocker_kind", ""))
@@ -35254,6 +35350,8 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 			chips.append({"tile": tile, "actor_key": key, "label": "%s: Lethal" % name, "kind": "danger"})
 		elif int(loss.get("hp_loss", 0)) > 0:
 			chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d Health" % [name, int(loss["hp_loss"])], "kind": "danger"})
+		if int(loss.get("defiance_spent", 0)) > 0:
+			chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d Defiance" % [name, int(loss["defiance_spent"])], "kind": "danger"})
 		for defense: String in ["block", "stoneskin"]:
 			if int(loss.get(defense + "_loss", 0)) > 0:
 				var label: String = "Block" if defense == "block" else "Guard"
@@ -35372,6 +35470,7 @@ func _on_section_map_scout(coord: Vector2i) -> void:
 	_persist_committed_boundary("map_scout")
 	_large_map_view.call("set_run_state", _run_state)
 	_schedule_controller_modal_refresh()
+	_nonfight_room_preparation.schedule(self)
 
 func _on_section_map_event(choice: String) -> void:
 	if _animation_lock:
@@ -35380,10 +35479,16 @@ func _on_section_map_event(choice: String) -> void:
 	_ensure_sfx_bank()
 	if choice != "continue": _sfx_router.event_choose()
 	var before: Dictionary = _run_state
+	var started: int = _choice_phase_start()
 	_run_state = _run_engine.resolve_map_event(_run_state, choice)
+	_record_runtime_performance_phase("choice_event_rules", started)
 	if _persist_committed_boundary("map_event"):
+		started = _choice_phase_start()
 		preload("res://scripts/recent_event_store.gd").record_resolution(before, _run_state)
-	_refresh_ui()
+		_record_runtime_performance_phase("choice_event_history", started)
+	started = _choice_phase_start()
+	_refresh_choice_result_ui()
+	_record_runtime_performance_phase("choice_event_refresh", started)
 	if choice != "continue" and _event_view != null and str(before.get("event_state", {}).get("page", "")) == "choices" and str(_run_state.get("event_state", {}).get("page", "")) == "result":
 		_event_view.play_result_beats(before, preload("res://scripts/event_scene_feedback.gd").destinations(self), _play_event_feedback_cue)
 
@@ -35408,6 +35513,7 @@ func _on_section_map_door(coord: Vector2i) -> void:
 func _analytics_flush_map_events(state: Dictionary) -> void:
 	if not SectionMapGraph.enabled(state) and not state.has("map_events"):
 		return
+	var started: int = _choice_phase_start()
 	var run_id: String = RunEngineScript.run_result_id(state)
 	if run_id != _map_analytics_run_id:
 		_map_analytics_run_id = run_id
@@ -35423,6 +35529,7 @@ func _analytics_flush_map_events(state: Dictionary) -> void:
 		last = maxi(last, revision)
 	if not events.is_empty() and _analytics_store.write_events(events):
 		_map_analytics_revision = last
+	_record_runtime_performance_phase("room_map_analytics_flush", started)
 
 func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -> void:
 	if _animation_lock or _selected_card_index >= 0 or _drag_card_index >= 0 or _surface_aim.active() or str(_run_state.get("mode","")) != "combat": return
@@ -35474,17 +35581,23 @@ func _play_outcome_sounds(events: Array, _primary_element: String = "", _traps: 
 	_ensure_sfx_bank()
 	_sfx_router.outcomes(events)
 
+func _ensure_event_view() -> void:
+	if _event_view != null: return
+	_event_view = preload("res://scripts/event_view.gd").new()
+	_event_view.hide()
+	ui_root.add_child(_event_view)
+	_event_view.choice_requested.connect(_on_section_map_event)
+	_event_view.interaction_changed.connect(_refresh_controller_prompts)
+	_event_view.closed.connect(_on_event_view_closed)
+	_event_view.visibility_changed.connect(_refresh_log_overlay_visibility)
+
 func _refresh_event_view() -> void:
 	if str(_run_state.get("mode", "")) == "event":
+		var started: int = _choice_phase_start()
 		if _large_map_scrim != null and _large_map_scrim.visible: _close_large_map()
-		if _event_view == null:
-			_event_view = preload("res://scripts/event_view.gd").new()
-			ui_root.add_child(_event_view)
-			_event_view.choice_requested.connect(_on_section_map_event)
-			_event_view.interaction_changed.connect(_refresh_controller_prompts)
-			_event_view.closed.connect(_on_event_view_closed)
-			_event_view.visibility_changed.connect(_refresh_log_overlay_visibility)
+		_ensure_event_view()
 		_event_view.present(_run_state, _reduced_motion_enabled(), _play_sfx)
+		_record_runtime_performance_phase("choice_event_overlay", started)
 	elif _event_view != null and _event_view.visible:
 		_event_view.dismiss()
 
@@ -35520,8 +35633,10 @@ func _close_magic_purge(refresh: bool = true) -> void:
 	_schedule_controller_modal_refresh()
 
 func _confirm_magic_purge(card_id: String, source: String) -> void:
+	var started: int = _choice_phase_start()
 	var before: Dictionary = _run_state
 	var next: Dictionary = _run_engine.purge_magic_card(before, card_id, source)
+	_record_runtime_performance_phase("choice_magic_purge_rules", started)
 	if int(next.get("magic_purges_this_run", 0)) == int(before.get("magic_purges_this_run", 0)):
 		_magic_purge_overlay.retry_confirmation()
 		return
@@ -35538,12 +35653,14 @@ func _confirm_magic_purge(card_id: String, source: String) -> void:
 	# Exhaust now awaits its card animation before the final UI refresh. Publish
 	# the committed room's audio context on this frame, not at animation end.
 	_update_ambient_sfx_for_context(str(next.get("mode", "room")))
+	started = _choice_phase_start()
 	_analytics_store.write_event("magic_purged", _analytics_context_from_states(next, _combat_state, card_id), {
 		"card_id": card_id, "source": source, "price": next["last_magic_purge"]["price"],
 		"purge_index": next["magic_purges_this_run"], "held_embers_before": _run_engine.held_embers(before),
 		"held_embers_after": _run_engine.held_embers(next), "deck_cards": next["deck_cards"].duplicate(),
 		"attuned_magic_cards": next["attuned_magic_cards"].duplicate(),
 	})
+	_record_runtime_performance_phase("choice_magic_purge_analytics", started)
 	var hearth_token: int = _campfire_presentation.generation
 	_magic_purge_overlay.play_exhaust()
 	if not await _magic_purge_overlay.exhaust_finished: return
@@ -35569,7 +35686,7 @@ func _play_campfire_purge_result(card_id: String) -> void:
 	if token != _campfire_presentation.generation: return
 	_set_campfire_choice_action_pending(false)
 	_animation_lock = false
-	_refresh_ui()
+	_refresh_choice_result_ui()
 	_schedule_controller_modal_refresh()
 
 # Resolve only on the enabled path; no telemetry preload dependency.

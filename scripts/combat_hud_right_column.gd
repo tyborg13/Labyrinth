@@ -4,6 +4,11 @@ const Layout = preload("res://scripts/turn_order_layout.gd")
 const Slots = preload("res://scripts/turn_order_slots.gd")
 var plan: Dictionary = {}
 var _entries: Array[Dictionary]
+var _entries_signature: String = ""
+# A live rail can alternate between a projected and committed slot count on
+# every hand press. The fit solver's only varying inputs are count and height.
+var _fit_height: float = -1.0
+var _fit_plans: Dictionary = {}
 var _placing: bool = false
 var _signature: String = ""
 const BOTTOM_DOCK_GAP: float = 10.0
@@ -11,8 +16,10 @@ const TOP_BAR_GAP: float = 12.0
 
 func clear() -> void:
 	_entries.clear()
+	_entries_signature = ""
 	_signature = ""
-	plan.clear()
+	plan = {}
+	_fit_plans.clear()
 
 # The next present() reconciles every slot back to its motion baseline, even
 # when the order itself is unchanged (a rail motion cut short, atk-10).
@@ -21,6 +28,7 @@ func invalidate() -> void:
 
 func present(scene: Control, entries: Array[Dictionary]) -> void:
 	_entries = scene._turn_order_array(entries)
+	_entries_signature = ""
 	if entries.is_empty():
 		scene._clear_children(scene._turn_order_bar)
 		scene._set_turn_order_visible(false)
@@ -48,7 +56,7 @@ func layout(scene: Control) -> void:
 	var bottom: float = pass_top - root_origin.y - Layout.DETAILS_PASS_GAP
 	var total_height: float = maxf(0.0, bottom - header_bottom)
 	var available_height: float = maxf(0.0, total_height - scene.ENEMY_INTENT_TOGGLE_HEIGHT - scene.ENEMY_INTENT_TOGGLE_TOP_GAP)
-	plan = Layout.solve(scene, _entries.size(), available_height)
+	plan = _fit_plan(scene, _entries.size(), available_height)
 	var rail_height: float = float(plan.height)
 	total_height = rail_height + scene.ENEMY_INTENT_TOGGLE_TOP_GAP + scene.ENEMY_INTENT_TOGGLE_HEIGHT
 	bottom = header_bottom + total_height
@@ -81,7 +89,9 @@ func layout(scene: Control) -> void:
 	for index: int in range(int(plan.visible)): visible.append(_entries[index])
 	var overflow_entries: Array[Dictionary]
 	for index: int in range(visible.size(), _entries.size()): overflow_entries.append(_entries[index])
-	var signature: String = scene._turn_order_signature(_entries) + str(plan) + str(rail_height)
+	if scene._hand_cycle_baseline or _entries_signature.is_empty():
+		_entries_signature = scene._turn_order_signature(_entries)
+	var signature: String = _entries_signature + str(plan) + str(rail_height)
 	if signature != _signature:
 		_signature = signature
 		# Geometry participates in retention, so resize/scale refreshes redraw the
@@ -94,8 +104,17 @@ func layout(scene: Control) -> void:
 			var badge: Control = slot.find_child("ProjectionPreviewBadge", true, false) as Control
 			if badge != null: badge.position.x = width - Layout.PROJECTION_WIDTH - slot.position.x
 		scene._turn_order_rendered_entries = scene._turn_order_array(_entries)
-		scene._turn_order_render_signature = "%s|overflow:%s" % [scene._turn_order_signature(_entries), scene._turn_order_signature(overflow_entries)]
+		scene._turn_order_render_signature = "%s|overflow:%s" % [_entries_signature, scene._turn_order_signature(overflow_entries)]
 	_placing = false
+
+func _fit_plan(scene: Node, count: int, height: float) -> Dictionary:
+	if scene._hand_cycle_baseline: return Layout.solve(scene, count, height)
+	if height != _fit_height:
+		_fit_height = height
+		_fit_plans.clear()
+	if not _fit_plans.has(count):
+		_fit_plans[count] = Layout.solve(scene, count, height)
+	return _fit_plans[count]
 
 func slot_size(scene: Node, index: int) -> Vector2:
 	var sizes: Array = plan.get("sizes", [])

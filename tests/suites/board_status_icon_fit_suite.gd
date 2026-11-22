@@ -144,9 +144,12 @@ static func _test_inventory(expect: Callable) -> void:
 	for icon: String in Icons.SELF_FLAG_ICON_KEYS.values(): keywords.append({"icon": icon})
 	unit["keyword_badges"] = keywords
 	var shown: Dictionary = {"block": true, "stoneskin": true}
-	for type: String in ["glacial_mirror", "gale_herald", "gust_shrike", "storm_capacitor", "veilbound_acolyte", "burrow_grub", "ember_tick"]:
+	for type: String in ["glacial_mirror", "gale_herald", "gust_shrike", "storm_capacitor", "veilbound_acolyte", "burrow_grub", "ember_tick", "vyraketh"]:
 		unit["type"] = type
 		for badge: Dictionary in board._unit_status_badges(unit): shown[str(badge["icon"])] = true
+	# pla-01 Command chip: a live Warband captain.
+	board.combat_state = {"objective": {"special_type": "warband", "command": {"radius": 2, "damage_bonus": 1}}, "enemies": [{"id": 1, "is_leader": true, "hp": 24}]}
+	for badge: Dictionary in board._unit_status_badges({"id": 1, "type": "crawler", "is_leader": true, "hp": 24}): shown[str(badge["icon"])] = true
 	unit["freeze"] = 0
 	for badge: Dictionary in board._unit_status_badges(unit): shown[str(badge["icon"])] = true
 	for icon: String in shown: expect.call(Fixture.ICON_KEYS.has(icon), "Status fit sheet covers live board icon: " + icon)

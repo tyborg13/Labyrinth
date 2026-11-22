@@ -36,6 +36,8 @@ static func _copy_and_panels(expect: Callable) -> void:
 	var grimoire: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/grimoire.json"))
 	var entries: Dictionary = {}
 	for entry: Dictionary in grimoire["entries"]: entries[str(entry["id"])] = entry
+	# pla-02: mechanic pages open with their tooltip sentence and keep one detail paragraph.
+	var pages: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]
 	for id: String in approved["entries"]:
 		var reference: Dictionary = approved["entries"][id]
 		var expected_body: Array = reference["body"].duplicate()
@@ -46,6 +48,7 @@ static func _copy_and_panels(expect: Callable) -> void:
 				expected_body[1] = "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns. Break through before the wall closes."
 			"combat:worldspines":
 				expected_body[0] = "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns."
+		if pages.has(id): expected_body = (pages[id] as Array).duplicate()
 		expect.call(entries[id]["body"] == expected_body, "Grimoire preserves the approved body: " + id)
 		for field: String in reference["identity"]:
 			expect.call(entries[id][field] == reference["identity"][field], "F1 preserves Grimoire " + field + ": " + id)

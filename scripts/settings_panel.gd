@@ -46,6 +46,7 @@ var _back_button: Button
 var _confirmation_cancel: Button
 var _confirmation_return_focus: Control
 var _confirmation_focus_modes: Dictionary = {}
+var _defer_initial_refresh: bool
 
 # Keep HSlider's native hit testing, drag, wheel and keyboard behaviour. Only
 # its drawing changes; the transparent native grabber reserves its travel size.
@@ -157,20 +158,31 @@ class ControlsGlyph extends "res://scripts/input_glyph.gd":
 		var router: Node = get_node_or_null("/root/InputRouter")
 		configure(action_name, str(router.call("controller_family")) if router != null else InputRouterScript.FAMILY_XBOX)
 
+func _enter_tree() -> void:
+	get_viewport().size_changed.connect(_update_responsive_minimum_size)
+
+func _exit_tree() -> void:
+	get_viewport().size_changed.disconnect(_update_responsive_minimum_size)
+
 func _ready() -> void:
 	_update_responsive_minimum_size()
-	get_viewport().size_changed.connect(_update_responsive_minimum_size)
 	_build_surface()
-	refresh_from_disk()
+	if not _defer_initial_refresh: refresh_from_disk()
 	_build_demo_links()
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
+
+func defer_initial_refresh() -> void:
+	_defer_initial_refresh = true
 
 func open() -> void:
 	refresh_from_disk()
 	visible = true
 
 func refresh_from_disk() -> void:
-	_settings = SettingsStore.load_settings()
+	apply_saved_settings(SettingsStore.load_settings())
+
+func apply_saved_settings(settings: Dictionary) -> void:
+	_settings = settings
 	SettingsStore.apply_settings(_settings, get_window())
 	_sync_controls_from_settings()
 	_dismiss_restore_confirmation()

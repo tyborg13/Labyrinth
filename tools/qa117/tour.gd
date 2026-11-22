@@ -246,7 +246,7 @@ func combat() -> void:
 	await checkpoint("combat/card-tooltip")
 	if await press(JOY_BUTTON_A):
 		await checkpoint("combat/selected")
-		await back("combat/selected", func() -> bool: return int(scene().get("_selected_card_index")) < 0 and not bool(scene().call("_controller_card_mode_active")))
+		await back("combat/selected", func() -> bool: return int(scene().get("_selected_card_index")) < 0)
 	var battle: Dictionary = scene().get("_combat_state")
 	if battle.get("enemies", []).is_empty(): return
 	for enemy: Dictionary in battle["enemies"]:

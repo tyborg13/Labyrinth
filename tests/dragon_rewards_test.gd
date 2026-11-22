@@ -19,6 +19,7 @@ func _initialize() -> void:
 	Store.set_run_storage_path("user://dragon_rewards_run.save")
 	_test_milestones()
 	_test_claim_outbox()
+	_test_final_fight_closes_from_reward_checkpoint()
 	_test_claim_with_pending_heirloom()
 	_test_wallet_recovery()
 	_test_wallet_event_context()
@@ -73,8 +74,9 @@ func _test_milestones() -> void:
 func _claim_fixture(id: String, seed: int) -> Dictionary:
 	var engine := Run.new()
 	var options := {"dragon_id":id, "dragon_depth":24 if id == "noctyrax" else 4, "dragon_case":"reward", "seed":seed}
-	var state: Dictionary = Factory.build(engine, Combat.new(), engine.create_new_run(Factory.seed_for_options(options), Store.default_data()), options)
-	state["analytics"] = {"run_id":"dragon_claim_%d" % seed, "combat_counter":1}
+	var source := engine.create_new_run(Factory.seed_for_options(options), Store.default_data())
+	source["analytics"] = {"run_id":"dragon_claim_%d" % seed, "combat_counter":1}
+	var state: Dictionary = Factory.build(engine, Combat.new(), source, options)
 	# Receipt recovery owns a completed terminal choice; heirloom recovery has
 	# its own pending-choice case below and in opening_boon_recovery_test.
 	state["heirloom_end"] = {"done": true}
@@ -85,6 +87,45 @@ func _claim_host(state: Dictionary) -> RunScene:
 	scene.set("_run_state", state)
 	scene.set("_progression", state.get("progression", Store.load_data()))
 	return scene
+
+func _test_final_fight_closes_from_reward_checkpoint() -> void:
+	const Persistence = preload("res://scripts/run_persistence.gd")
+	const SEED := 919042
+	const RUN_ID := "dragon_reward_checkpoint"
+	var saved_profile := Store.load_data()
+	Analytics.set_storage_dir("user://dragon_reward_checkpoint_events")
+	Analytics.clear_storage()
+	var engine := Run.new()
+	var options := {"dragon_id": "noctyrax", "dragon_depth": Run.MAX_DEPTH, "dragon_case": "encounter", "seed": SEED}
+	var source := engine.create_new_run(Factory.seed_for_options(options), Store.default_data())
+	source["analytics"] = {"run_id": RUN_ID, "combat_counter": 1}
+	var state := Factory.build(engine, Combat.new(), source, options)
+	if not state.get("combat_state", {}) is Dictionary or state["combat_state"].is_empty():
+		expect(false, "The final-fight fixture starts in combat")
+		Analytics.set_storage_dir(Analytics.DEFAULT_STORAGE_DIR)
+		return
+	state["combat_state"]["analytics"] = {"combat_id": RUN_ID + "_c001"}
+	expect(Store.save_data(state["progression"]) and Store.save_run_state(state), "Save the active final fight")
+	var host := _claim_host(state)
+	var combat: Dictionary = state["combat_state"].duplicate(true)
+	for index: int in combat["enemies"].size():
+		if combat["enemies"][index]["type"] == "noctyrax":
+			combat = host._combat_engine._damage_enemy(combat, index, int(combat["enemies"][index]["hp"]) + 1, true, true)
+			break
+	var reward := host._run_state_for_combat_checkpoint(state, combat, "card_play")
+	host._hold_committed_run_state(reward, "player_card")
+	host.free()
+	var restored := Store.load_checkpoint_for_resume()
+	expect(bool(restored.get("pending_reward", {}).get("final_boss", false)), "The final reward is resumable before death presentation")
+	Persistence.replay_run_closing_receipts(Store.load_data(), restored)
+	Persistence.replay_run_closing_receipts(Store.load_data(), restored)
+	var rows := Analytics.load_all_events().filter(func(event: Dictionary) -> bool:
+		return event["event_type"] == "combat_ended" and event["combat_id"] == RUN_ID + "_c001")
+	expect(rows.size() == 1 and rows[0]["payload"]["outcome"] == "victory",
+		"Relaunch before the final fight's presentation appends one victory combat_ended")
+	Store.clear_saved_run()
+	Store.save_data(saved_profile)
+	Analytics.set_storage_dir(Analytics.DEFAULT_STORAGE_DIR)
 
 func _claim_count(key: String) -> int:
 	var count: int = 0

@@ -27,6 +27,8 @@ const OWNED_RELIC_GAP: float = 8.0
 
 var _follow_target: Control
 var _entries: Array[Dictionary]
+var _entry_card_id: String = ""
+var _has_animated_demo: bool = false
 var _relic_layout: bool = false
 var _panel_host: Control
 var _panels: Array[Control]
@@ -134,13 +136,20 @@ func _ready() -> void:
 	add_theme_constant_override("separation", STACK_SEPARATION)
 	set_process(false)
 
-func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_bounds: Callable = Callable(), card_id: String = "") -> void:
+func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_bounds: Callable = Callable(), card_id: String = "", reuse_card: bool = false) -> void:
+	if card_id.is_empty() and target is CardWidget: card_id = target.card_id
+	# Static panels can follow the same owner without replacement. A republished
+	# demo starts from frame zero, including when a one-card hand wraps in place.
+	if reuse_card and visible and not relic_layout and not _relic_layout and _follow_target == target \
+			and not _has_animated_demo and _entry_card_id == card_id and _entries == entries:
+		_follow_target_now()
+		return
 	hide_stack(true)
 	_relic_layout = relic_layout
 	if target == null or entries.is_empty():
 		return
 	_follow_target = target
-	if card_id.is_empty() and target is CardWidget: card_id = target.card_id
+	_entry_card_id = card_id
 	if _relic_layout:
 		# Relics can flow across columns; card stacks retain their original VBox.
 		_panel_host = Control.new()
@@ -161,6 +170,8 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false, hand_
 		if not description.is_empty():
 			body_lines.append(description)
 		var panel: PanelContainer = make_entry_panel(entry, body_lines, relic_layout, card_id)
+		if not _relic_layout and not _has_animated_demo:
+			_has_animated_demo = panel.find_child("TooltipLoopWindow", true, false) != null
 		if _relic_layout and description.contains("["):
 			_apply_definition_bbcode(panel, description, icon_texture != null)
 		panel.name = "CardFocusTooltip_%02d_%s" % [
@@ -214,6 +225,7 @@ func hide_stack(force: bool = false) -> void:
 	_follow_target = null
 	_hand_diagram_bounds = Callable()
 	_entries.clear()
+	_has_animated_demo = false
 	_panels.clear()
 	_layout_signature.clear()
 	_panel_host = null

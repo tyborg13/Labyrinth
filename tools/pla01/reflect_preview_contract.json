@@ -1,0 +1,13 @@
+{
+  "min_images": 7,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "pla01_reflect_a_area_1920x1080.png"},
+    {"pattern": "pla01_reflect_b_chain_1920x1080.png"},
+    {"pattern": "pla01_reflect_c_push_1920x1080.png"},
+    {"pattern": "pla01_reflect_d_adjacent_1920x1080.png"},
+    {"pattern": "pla01_reflect_e_pull_1920x1080.png"},
+    {"pattern": "pla01_reflect_f_block_1920x1080.png"},
+    {"pattern": "pla01_reflect_g_defiance_1920x1080.png"}
+  ]
+}

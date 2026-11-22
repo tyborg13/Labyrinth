@@ -17,7 +17,7 @@ const FIRST_CARD_INDEX: int = 0
 const NEXT_CARD_INDEX: int = 1
 const FIXTURE_COMBAT_ID: String = "perf12_oracle_combat"
 const ACTION_TIMEOUT_FRAMES: int = 1200
-const CASES: Array = ["enter", "enter_another", "leave", "leave_enter", "enter_board", "enter_locked", "leave_locked", "updating", "movement_guard", "selection_guard", "choice_guard", "drag_guard", "click", "drag", "pass", "key", "tutorial"]
+const CASES: Array = ["enter", "enter_another", "leave", "leave_enter", "enter_board", "enter_locked", "leave_locked", "updating", "movement_guard", "selection_guard", "drag_guard", "click", "drag", "pass", "key", "tutorial"]
 const CAPTURE_CASES: Array = ["enter", "leave_enter", "click", "tutorial"]
 const REST_CASES: Array = ["enter", "enter_another", "leave_enter", "enter_board", "updating", "tutorial"]
 var reference: Script
@@ -173,7 +173,6 @@ func _case(scene: Node, side: String, case: String) -> void:
 	if case in ["enter_locked", "leave_locked"]: scene.set("_animation_lock", true)
 	if case == "movement_guard": scene.set("_player_movement_selected", true)
 	if case == "selection_guard": scene.set("_selected_card_index", 0)
-	if case == "choice_guard": scene.set("_card_action_choice_index", 0)
 	if case == "drag_guard": scene.set("_drag_card_index", 0)
 	Trace.reset()
 	Trace.enabled = true

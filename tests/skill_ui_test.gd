@@ -1178,12 +1178,10 @@ func _test_reset_clears_stale_combat_preview(instance: Node) -> void:
 	var stale_preview: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	stale_preview["stale_preview_marker"] = true
 	instance.set("_selected_card_index", 0)
-	instance.set("_card_action_choice_index", 0)
 	instance.set("_preview_combat_state", stale_preview)
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
 	_expect(int(instance.get("_selected_card_index")) == -1, "Opening Character should cancel a selected card before reset")
-	_expect(int(instance.get("_card_action_choice_index")) == -1, "Opening Character should clear pending card action choices before reset")
 	_expect((instance.get("_preview_combat_state") as Dictionary).is_empty(), "Opening Character should discard any resolved combat preview before reset")
 	instance.call("_open_skill_reset_confirmation")
 	_expect(str(instance.get("_progression_overlay_mode")) == "skills", "Combat should allow viewing the tree but not changing the active build")

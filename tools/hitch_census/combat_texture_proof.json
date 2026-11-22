@@ -1,0 +1,15 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 1,
+  "required_images": [
+    {
+      "pattern": "tharokh-combat-1920.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [350, 180, 1100, 660], "min_luma_range": 25, "min_luma_stdev": 3},
+        {"rect": [420, 800, 960, 215], "min_luma_range": 25, "min_luma_stdev": 3}
+      ]
+    }
+  ]
+}

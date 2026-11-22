@@ -49,7 +49,10 @@ and enemy-caused Ember policy are retained.
 
 The renderer uses the Meteorfall wash/ring/front-edge medallion geometry with
 earth `#b98b45`; blocked marks project to the actual fallback landing and show
-zero center damage. The static body rises over the authored 0.25 seconds,
+zero center damage. Hovering the Grub (or Details) rings the tile where it
+surfaces, the mark or its fallback, with the shared enemy destination ring and
+ghost (pla-02): the threat's projected path runs from the mound to that tile,
+while the engine's own plan path stays on the mound. The static body rises over the authored 0.25 seconds,
 clipped at its registered floor baseline, before push/damage state is presented.
 Mound breathing is 1.5 seconds at ±3%, suppressed by reduced motion. The mound
 is 60% tile width × 32% tile height, base `#4a3520`, upper-left 1 px rim

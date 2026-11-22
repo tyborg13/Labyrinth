@@ -152,10 +152,12 @@ func _check_reward_copy(engine: RefCounted, combat: RefCounted, source: Dictiona
 	var line: String = Specials.snare_reward_line()
 	_expect(line == "Normal fight reward, plus 6 Embers per open door.", "Snare uses the approved reward copy")
 	var map: GDScript = preload("res://scripts/section_map_panel.gd")
-	# Director: the map keeps the Snare identity line; the reward line shows before battle and in the Grimoire.
+	# Director: the map keeps the Snare identity line; the reward line shows before battle and on the reward notice.
 	_expect(map.type_description("special_umbral_snare") == "The doors are sealing. Get out before they close.", "Map room tooltip keeps the Snare identity line")
 	var article: Dictionary = preload("res://scripts/grimoire_library.gd").entry_def("basic:rewards")
-	_expect(line in article["body"], "Grimoire Rewards shows the shared Snare line")
+	# pla-02 r1 (owner): room-specific reward rules stay on the room; the general
+	# Rewards page keeps its tooltip sentence and how-to-play help only.
+	_expect(not "\n".join(article["body"]).contains(line), "Grimoire Rewards leaves the Snare reward to the room's own pre-battle line")
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame

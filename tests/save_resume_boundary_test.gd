@@ -1,6 +1,9 @@
 extends SceneTree
 
 # Checkpoints use the live engine, including its additive presentation state.
+const HeirloomFixture = preload("res://tests/helpers/heirloom_fixture.gd")
+const Persistence = preload("res://scripts/run_persistence.gd")
+const TerminalCrash = preload("res://tests/helpers/terminal_crash_fixture.gd")
 const CombatEngine = preload("res://scripts/hero_facing_combat.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -19,6 +22,15 @@ const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const TRAVEL_SOURCE_SEED: int = 1234
 const TRAVEL_REPLACEMENT_SEED: int = 9999
 const TRAVEL_WAIT_FRAMES: int = 360
+const UPDATED_BANK: int = 19
+const ABANDON_RUN_ID: String = "run_fixture_abandoned"
+const EARLIER_RUN_ID: String = "run_fixture_earlier"
+const DISK_RUN_ID: String = "run_fixture_disk"
+const VICTORY_RUN_ID: String = "run_fixture_victory"
+const DRAGON_RETRY_RUN_ID: String = "run_fixture_dragon_retry"
+
+class DepartureHost extends TerminalCrash.Host:
+	func _ready() -> void: pass
 
 class SnapshotDispatchHost extends "res://scripts/run_scene.gd":
 	var observed_boundary: String = ""
@@ -99,6 +111,12 @@ func _initialize() -> void:
 		_test_terminal_boundaries(base_run)
 		_test_terminal_failure_recovery(base_run)
 		_test_campfire_failure_preserves_run(base_run)
+		_test_abandon_failure_preserves_settlement(base_run)
+		_test_abandon_profile_failure(base_run)
+		_test_live_defeat_with_blocked_checkpoint(base_run)
+		_test_completion_ids_survive_revision_reconciliation(base_run)
+	await _test_failed_terminal_profile_then_departure()
+	await _test_confirmed_heirloom_departure(base_run)
 	await _test_cancelled_room_travel()
 	await _test_cancelled_loading_preparation()
 	_run_scene.free()
@@ -724,11 +742,13 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 		victory_enemies[index] = enemy
 	victory_combat["enemies"] = victory_enemies
 	victory_run = _run_engine.finish_combat(victory_run, victory_combat)
+	var dragon_reward := victory_run.duplicate(true)
 	# A boss kill now enters its durable dragon reward; terminal persistence
 	# begins only after the original Continue action completes that reward.
 	victory_run = _run_engine.continue_dragon_reward(victory_run)
 	_assert(str(victory_run.get("mode", "")) == "victory", "Victory persistence fixture must cross the dragon reward boundary")
 	victory_run["debug_boss_run"] = false
+	victory_run["analytics"] = {"run_id": VICTORY_RUN_ID}
 	var expected_banked_embers: int = _run_engine.held_embers(victory_run)
 	_run_scene.set("_progression", ProgressionStore.default_data())
 	_run_scene.set("_victory_carry_processed", false)
@@ -739,6 +759,34 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	_assert(not ProgressionStore.has_saved_run(), "Committed victory should not leave an older resumable combat")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == expected_banked_embers, "Committed victory should bank held embers before clearing the run")
 	_matrix_rows.append("terminal/victory")
+	var newer_profile := ProgressionStore.set_embers(ProgressionStore.load_data(), UPDATED_BANK)
+	_assert(ProgressionStore.save_data(newer_profile), "A later wallet write should succeed")
+	var before_retry := ProgressionStore.load_data()
+	_run_scene.set("_victory_carry_processed", false)
+	_assert(bool(_run_scene.call("_persist_run_state_snapshot", victory_run, false, "terminal_victory_reload_retry").get("saved", false)), "A replay can finish publishing the terminal checkpoint")
+	_assert(ProgressionStore.load_data() == before_retry, "Replaying a completed victory must preserve the entire newer profile and cannot bank its held Embers again")
+	_matrix_rows.append("terminal/wallet_idempotence")
+	_test_dragon_checkpoint_failure(dragon_reward)
+
+func _test_dragon_checkpoint_failure(reward: Dictionary) -> void:
+	reward["debug_boss_run"] = false
+	reward["analytics"] = {"run_id": DRAGON_RETRY_RUN_ID}
+	var profile := ProgressionStore.default_data()
+	_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(reward), "Final reward failure fixture should save")
+	var blocker := ProjectSettings.globalize_path(ProgressionStore._run_storage_path + ".tmp")
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "Block the victory checkpoint after the profile write")
+	var host := TerminalCrash.Host.new()
+	host.set("_run_state", reward)
+	host.set("_progression", profile)
+	_assert(bool(host.call("_commit_dragon_reward_continue")), "A durable victory wallet must finish the scene's dragon reward even when its checkpoint write fails")
+	var settled := ProgressionStore.load_data()
+	_assert(int(settled["embers"]) == _run_engine.held_embers(reward), "Victory must bank before the injected checkpoint failure")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "Unblock the checkpoint before the later progress write")
+	host.call("_persist_grimoire_progression_from_run")
+	_assert(ProgressionStore.load_data() == settled, "A later scene save cannot undo the durable victory settlement")
+	host.free()
+	ProgressionStore.clear_saved_run()
+	_matrix_rows.append("terminal/victory_checkpoint_io_failure")
 
 func _test_terminal_failure_recovery(base_run: Dictionary) -> void:
 	var terminal_cases: Array = [
@@ -766,7 +814,7 @@ func _test_terminal_failure_recovery(base_run: Dictionary) -> void:
 		_assert(fallback == terminal_run, "%s failure fallback must preserve the unprocessed terminal snapshot" % mode)
 		_assert(_run_engine.held_embers(fallback) == held, "%s failure fallback must preserve held embers" % mode)
 		var held_terminal_override: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
-		_assert(str(held_terminal_override.get("mode", "")) == mode and _run_engine.held_embers(held_terminal_override) == 0, "%s animation fixture should hold the finalized terminal snapshot" % mode)
+		_assert(str(held_terminal_override.get("mode", "")) == mode and _run_engine.held_embers(held_terminal_override) == held, "%s animation keeps the wallet unprocessed until its profile commits" % mode)
 		_run_scene.set("_run_state", base_run.duplicate(true))
 		_run_scene.set("_combat_state", (base_run.get("combat_state", {}) as Dictionary).duplicate(true))
 		_run_scene.call("_save_run_progress")
@@ -799,15 +847,215 @@ func _test_campfire_failure_preserves_run(base_run: Dictionary) -> void:
 	_assert(ProgressionStore.save_run_state(campfire_run), "Campfire failure fixture should write a resumable run")
 	ProgressionStore.set_storage_path(UNWRITABLE_PROGRESSION_PATH)
 	_run_scene.call("_release_committed_run_state")
-	_run_scene.set("_progression", ProgressionStore.default_data())
+	var profile_before := ProgressionStore.default_data()
+	_run_scene.set("_progression", profile_before.duplicate(true))
 	_run_scene.set("_run_state", campfire_run.duplicate(true))
 	_run_scene.set("_combat_state", (campfire_run.get("combat_state", {}) as Dictionary).duplicate(true))
 	_run_scene.call("_on_campfire_embrace_pressed")
 	_assert(ProgressionStore.load_saved_run() == campfire_run, "Failed Campfire Embrace must retain the exact resumable run")
-	_assert(not bool((_run_scene.get("_progression") as Dictionary).get("rested_at_fire", false)), "Failed Campfire Embrace must not commit the rest flag in memory")
+	_assert(_run_scene.get("_progression") == profile_before, "Failed Campfire Embrace must preserve the whole live profile")
 	ProgressionStore.set_storage_path(PROGRESSION_PATH)
 	ProgressionStore.clear_saved_run()
 	_matrix_rows.append("campfire/embrace_io_failure")
+
+func _test_abandon_failure_preserves_settlement(base_run: Dictionary) -> void:
+	var state := _run_engine.set_held_embers(base_run, TerminalCrash.HELD)
+	state["analytics"] = {"run_id": ABANDON_RUN_ID}
+	var profile := ProgressionStore.default_data()
+	state["progression"] = profile
+	_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(state), "Abandon failure fixture should save")
+	var blocker := ProjectSettings.globalize_path(ProgressionStore._run_storage_path + ".tmp")
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "Abandon fixture should block the terminal checkpoint")
+	var host := TerminalCrash.Host.new()
+	host.set("_run_state", state)
+	host.set("_combat_state", state.get("combat_state", {}))
+	host.set("_progression", profile)
+	host.call("_on_abandon_run_pressed")
+	var settled := ProgressionStore.load_data()
+	_assert(int(ProgressionStore.recovery_marker(settled).get("amount", 0)) == TerminalCrash.HELD, "Abandon fixture must settle before the injected I/O failure")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "Unblock the checkpoint before the Grimoire save")
+	host.call("_persist_grimoire_progression_from_run")
+	var later := ProgressionStore.load_data()
+	_assert(later == settled, "3 — a later Grimoire save cannot undo the durable Abandon settlement")
+	_assert(ProgressionStore.read_resumable_checkpoint().get("state", {}).is_empty(), "3 — Abandon cannot become resumable after another profile write")
+	host.free()
+	ProgressionStore.clear_saved_run()
+
+func _test_abandon_profile_failure(base_run: Dictionary) -> void:
+	var analytics := TerminalCrash.Analytics
+	analytics.set_storage_dir("user://abandon_profile_failure_analytics")
+	const RETRY_CASES := [false, true]
+	for retry: bool in RETRY_CASES:
+		analytics.clear_storage()
+		var profile := ProgressionStore.default_data()
+		var state := _run_engine.set_held_embers(base_run, TerminalCrash.HELD)
+		state["analytics"] = {"run_id": ABANDON_RUN_ID}
+		state["progression"] = profile
+		_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(state), "Abandon profile fixture should save")
+		var before := ProgressionStore.load_data()
+		var blocker := ProjectSettings.globalize_path(ProgressionStore._storage_path + ".tmp")
+		_assert(DirAccess.make_dir_absolute(blocker) == OK, "Abandon fixture should block progression.json.tmp")
+		var host := TerminalCrash.Host.new()
+		host.set("_run_state", state)
+		host.set("_combat_state", state.get("combat_state", {}))
+		host.set("_progression", profile)
+		host.get("_analytics_store").deferred_writes = true
+		host.call("_on_abandon_run_pressed")
+		_assert(ProgressionStore.load_data() == before, "Failed Abandon must preserve the profile")
+		var fallback := ProgressionStore.load_saved_run()
+		_assert(fallback.get(Persistence.PENDING_ABANDON_RECEIPT, {}).get("idempotency_key") == "run_ended|" + ABANDON_RUN_ID,
+			"1 — the resumable checkpoint keeps a provisional Abandon receipt")
+		_assert(_closing_records(ABANDON_RUN_ID).is_empty(), "1 — failed Abandon emits no ending")
+		Persistence.replay_run_closing_receipts(ProgressionStore.load_data(), ProgressionStore.load_saved_run())
+		_assert(_closing_records(ABANDON_RUN_ID).is_empty(), "1 — title replay cannot publish an unsettled Abandon")
+		_assert(DirAccess.remove_absolute(blocker) == OK, "Unblock progression.json.tmp")
+		if retry:
+			host._on_abandon_run_pressed()
+			Persistence.replay_run_closing_receipts(ProgressionStore.load_data(), ProgressionStore.load_saved_run())
+		else:
+			_commit_test_defeat(host, state)
+		host.free()
+		var expected := "abandoned" if retry else "defeat"
+		var records := _closing_records(ABANDON_RUN_ID).filter(func(event: Dictionary) -> bool: return event["event_type"] == "run_ended")
+		print("ABANDON PROFILE FAILURE: retry=", retry, " run_ended=", records.map(func(event: Dictionary) -> String: return event["payload"]["outcome"]))
+		_assert(records.size() == 1 and records[0]["idempotency_key"] == "run_ended|" + ABANDON_RUN_ID
+			and records[0]["payload"]["outcome"] == expected, "1 — the settled ending owns the run key")
+		ProgressionStore.clear_saved_run()
+	analytics.set_storage_dir(analytics.DEFAULT_STORAGE_DIR)
+	_matrix_rows.append("terminal/abandon_profile_io_retry")
+
+func _closing_records(run_id: String) -> Array:
+	return TerminalCrash.Analytics._read_all_events().filter(func(event: Dictionary) -> bool:
+		return event["run_id"] == run_id and event["event_type"] in ["combat_ended", "run_ended"])
+
+func _commit_test_defeat(host: TerminalCrash.Host, state: Dictionary) -> void:
+	var combat: Dictionary = state["combat_state"].duplicate(true)
+	combat["player"]["hp"] = 0
+	combat["analytics"] = {"combat_id": state["analytics"]["run_id"] + "_c001"}
+	var terminal := host._run_state_for_combat_checkpoint(state, combat)
+	host._run_state = host._hold_committed_run_state(terminal, "enemy_round_complete")
+	host._analytics_log_combat_transition(state, "enemy_round", combat)
+
+func _test_live_defeat_with_blocked_checkpoint(base_run: Dictionary) -> void:
+	var profile := ProgressionStore.default_data()
+	var state := HeirloomFixture.equip(_run_engine.set_held_embers(base_run, TerminalCrash.HELD))
+	state["heirloom_end"] = {"done": false}
+	const RUN_ID := "run_fixture_blocked_defeat"
+	state["analytics"] = {"run_id": RUN_ID}
+	state["progression"] = profile.duplicate(true)
+	_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(state), "3 — save the active eligible heirloom run")
+	var blocker := ProjectSettings.globalize_path(ProgressionStore._run_storage_path + ".tmp")
+	_assert(DirAccess.make_dir_absolute(blocker) == OK, "3 — block the terminal checkpoint")
+	var host := TerminalCrash.Host.new()
+	host._run_state = state
+	host._progression = profile
+	_commit_test_defeat(host, state)
+	host._replay_committed_defeat_analytics()
+	var types := _closing_records(RUN_ID).map(func(event: Dictionary) -> String: return event["event_type"])
+	print("LIVE DEFEAT WITH BLOCKED CHECKPOINT: ", types)
+	_assert(types == ["combat_ended", "run_ended"], "3 — both live defeat rows append once despite checkpoint failure")
+	_assert(not ProgressionStore.has_completed_run(ProgressionStore.load_data(), state), "3 — live analytics must preserve wallet settlement ordering")
+	_assert(DirAccess.remove_absolute(blocker) == OK, "3 — unblock the checkpoint")
+	host.free()
+	ProgressionStore.clear_saved_run()
+
+func _test_confirmed_heirloom_departure(base_run: Dictionary) -> void:
+	const Rules = preload("res://scripts/opening_boon_rules.gd")
+	const RUN_ID := "run_fixture_confirmed_heirloom"
+	var profile := ProgressionStore.default_data()
+	for blocked_on_departure: bool in [false, true]:
+		_assert(ProgressionStore.save_data(profile), "2 — reset the heirloom profile")
+		var terminal := HeirloomFixture.equip(_terminal_run_state(base_run, "defeat", TerminalCrash.HELD))
+		terminal["analytics"] = {"run_id": RUN_ID}
+		terminal["heirloom_end"] = {"done": false}
+		terminal["progression"] = profile.duplicate(true)
+		var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+		instance.set_script(DepartureHost)
+		var host := instance as DepartureHost
+		host._run_state = terminal
+		host._progression = profile.duplicate(true)
+		root.add_child(host)
+		host._run_state = host._persist_run_state_snapshot(terminal, false, "terminal_defeat")["state"]
+		var item := Rules.heirloom_pieces(host._run_state)[0]
+		var blocker := ProjectSettings.globalize_path(PROGRESSION_PATH + ".tmp")
+		_assert(DirAccess.make_dir_absolute(blocker) == OK, "2 — block the heirloom profile save")
+		var chosen := Rules.leave_heirloom(host._run_state, item)
+		chosen["heirloom_end"]["done"] = true
+		_assert(host._opening_boon_flow._commit(host, chosen, "heirloom_confirmed"), "2 — commit the choice to the checkpoint")
+		_assert(ProgressionStore.heirloom(ProgressionStore.load_saved_run()["progression"]) == item
+			and ProgressionStore.heirloom(ProgressionStore.load_data()).is_empty(), "2 — only the checkpoint holds the choice")
+		if not blocked_on_departure: _assert(DirAccess.remove_absolute(blocker) == OK, "2 — restore the profile path for departure")
+		await Persistence.save_for_departure(host)
+		var saved_choice := ProgressionStore.heirloom(ProgressionStore.load_data())
+		var checkpoint_choice := ProgressionStore.heirloom(ProgressionStore.load_saved_run().get("progression", {}))
+		print("CONFIRMED HEIRLOOM DEPARTURE: profile=", saved_choice, " checkpoint=", checkpoint_choice)
+		if blocked_on_departure:
+			_assert(checkpoint_choice == item, "2 — blocked departure retains the confirmed choice")
+			_assert(DirAccess.remove_absolute(blocker) == OK, "2 — unblock the profile before cleanup")
+		else:
+			_assert(saved_choice == item, "2 — departure settles the confirmed heirloom from the checkpoint")
+		host.free()
+		ProgressionStore.clear_saved_run()
+
+func _test_completion_ids_survive_revision_reconciliation(base_run: Dictionary) -> void:
+	var earlier := base_run.duplicate(true)
+	earlier["analytics"] = {"run_id": EARLIER_RUN_ID}
+	var disk_run := base_run.duplicate(true)
+	disk_run["analytics"] = {"run_id": DISK_RUN_ID}
+	disk_run["run_index"] = int(earlier["run_index"]) + 1
+	var profile := ProgressionStore.default_data()
+	var state := base_run.duplicate(true)
+	state["progression"] = ProgressionStore.record_run_completion(profile, earlier)
+	var disk := ProgressionStore.record_run_completion(profile, disk_run)
+	const HIGHER_REVISION := 2
+	for disk_wins: bool in [true, false]:
+		state["progression"]["progression_revision"] = 0 if disk_wins else HIGHER_REVISION
+		disk["progression_revision"] = HIGHER_REVISION if disk_wins else 0
+		var reconciled := _run_engine.reconcile_progression_revision(state, disk)
+		var chosen: Dictionary = reconciled["progression"]
+		_assert(int(chosen["progression_revision"]) == HIGHER_REVISION, "Revision winner should still supply ordinary progression")
+		_assert(ProgressionStore.has_completed_run(chosen, earlier) and ProgressionStore.has_completed_run(chosen, disk_run), "6 — both completion IDs survive revision selection (disk wins: %s)" % disk_wins)
+		_assert(ProgressionStore.save_data(chosen) and ProgressionStore.save_run_state(earlier), "Save the reconciled profile and restore the earlier checkpoint")
+		_assert(ProgressionStore.read_resumable_checkpoint().get("state", {}).is_empty(), "6 — restoring an earlier completion after reconciliation must not enable Continue (disk wins: %s)" % disk_wins)
+	ProgressionStore.clear_saved_run()
+
+func _test_failed_terminal_profile_then_departure() -> void:
+	await process_frame
+	for ending: String in ["dragon", "abandon"]:
+		var profile := ProgressionStore.default_data()
+		var active := _run_engine.create_new_run(TRAVEL_SOURCE_SEED, profile)
+		if ending == "dragon":
+			active = _run_engine.create_debug_boss_run(profile)
+			var combat: Dictionary = active["combat_state"].duplicate(true)
+			for enemy: Dictionary in combat["enemies"]: enemy["hp"] = 0
+			active = HeirloomFixture.equip(_run_engine.finish_combat(active, combat))
+			active["debug_boss_run"] = false
+			active["heirloom_end"] = {"done": false}
+		active = _run_engine.set_held_embers(active, TerminalCrash.HELD)
+		active["analytics"] = {"run_id": "run_fixture_failed_" + ending}
+		_assert(ProgressionStore.save_data(profile) and ProgressionStore.save_run_state(active), "1 — write the " + ending + " fixture")
+		var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+		instance.set_script(DepartureHost)
+		var host := instance as DepartureHost
+		host._run_state = active
+		host._progression = profile.duplicate(true)
+		root.add_child(host)
+		var blocker := ProjectSettings.globalize_path(PROGRESSION_PATH + ".tmp")
+		_assert(DirAccess.make_dir_absolute(blocker) == OK, "1 — block the profile save")
+		if ending == "dragon":
+			_assert(not host._commit_dragon_reward_continue(), "1 — a failed dragon profile write reports failure")
+		else:
+			host._on_abandon_run_pressed()
+			_assert(not str(host._run_state.get("notice", "")).is_empty(), "1 — a failed Abandon reports failure")
+		_assert(host._progression == profile and not host._victory_carry_processed and not host._defeat_loss_processed, "1 — failed " + ending + " preserves in-memory profile and wallet flags")
+		_assert(DirAccess.remove_absolute(blocker) == OK, "1 — restore profile writes before Save & Quit")
+		await Persistence.save_for_departure(host)
+		_assert(not ProgressionStore.has_completed_run(ProgressionStore.load_data(), active), "1 — Save & Quit cannot publish the failed " + ending + " receipt")
+		var saved: Dictionary = ProgressionStore.read_resumable_checkpoint().get("state", {})
+		var expected_mode := "victory" if ending == "dragon" else "room"
+		_assert(saved.get("mode", "") == expected_mode and _run_engine.held_embers(saved) == TerminalCrash.HELD, "1 — Save & Quit retains the heirloom fallback or active Abandon run and all its held Embers")
+		host.free()
+		ProgressionStore.clear_saved_run()
 
 func _terminal_run_state(base_run: Dictionary, mode: String, held: int) -> Dictionary:
 	var terminal_run: Dictionary

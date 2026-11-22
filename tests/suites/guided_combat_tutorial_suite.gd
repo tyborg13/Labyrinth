@@ -75,6 +75,8 @@ class BoardPresentationStub:
 	var submission_count: int = 0
 	var last_presentation: Dictionary = {}
 	var rendered_bounds: Rect2 = Rect2(Vector2(100.0, 120.0), Vector2(1200.0, 720.0))
+	# perf-159: run_scene marks focus-only stage refreshes on the board before submitting.
+	var _stage_focus_refresh: bool = false
 
 	func rendered_visual_bounds() -> Rect2:
 		return rendered_bounds

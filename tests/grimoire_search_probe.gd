@@ -10,7 +10,7 @@ const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
 const OUTPUT_DIR: String = "user://grimoire_search_probe"
 const UPHEAVAL_ENTRY: String = "keyword:upheaval"
-const UPHEAVAL_BODY: String = "Marked tiles rise as Outcrops when the rule fires. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. A unit on a rising tile is pushed to a free tile beside it. Outcrops can be broken like any terrain, even from inside when they surround you."
+const UPHEAVAL_BODY: String = "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.\n\nBreak an Outcrop to escape a ring of them." # pla-02 page: tooltip sentence, then how-to-play help.
 
 var _failures: Array[String]
 var _capture_viewport: SubViewport

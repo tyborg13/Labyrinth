@@ -7,10 +7,15 @@ const Prepared = preload("res://scripts/prepared_reward_choices.gd")
 var _reward_inputs: Dictionary = {}
 var _reward_children: Array = []
 
-func refresh(scene: Control, reward_jobs: Variant = null) -> void:
+func refresh(scene: Control, reward_jobs: Variant = null, prepared_pass: Dictionary = {}) -> void:
 	scene.board_view.set_tooltips_enabled(str(scene._run_state.get("mode", "room")) != "reward")
 	scene._sync_treasure_room_reveal()
-	if scene._scavenger_shop_view != null:
+	scene._sync_merchant_shop_room()
+	var mode: String = str(scene._run_state.get("mode", "room"))
+	var has_dialogue: bool = scene._dialogue_active and scene._dialogue_suppresses_choices
+	var merchant_kind: String = scene._current_room_merchant_kind() if mode == "room" else ""
+	var show_shop: bool = not has_dialogue and not merchant_kind.is_empty() and scene._merchant_shop_open
+	if scene._scavenger_shop_view != null and not show_shop:
 		scene._scavenger_shop_view.dismiss_immediately()
 	var retained_reward: bool = _retain_reward(scene)
 	scene._clear_children(scene.choice_bar)
@@ -23,8 +28,6 @@ func refresh(scene: Control, reward_jobs: Variant = null) -> void:
 		scene._pass_preview_overlay.visible = false
 	scene._clear_context_choice_overlay()
 	if not retained_reward: scene._clear_relic_choice_overlay()
-	scene._sync_merchant_shop_room()
-	var mode: String = str(scene._run_state.get("mode", "room"))
 	if scene._graftwright_view != null and mode != "graftwright": scene._graftwright_view.hide()
 	var relic_offer_sfx_signature: String = ""
 	if mode not in ["victory", "defeat", "embrace"] and scene._run_end_recap != null:
@@ -34,7 +37,7 @@ func refresh(scene: Control, reward_jobs: Variant = null) -> void:
 		scene.choice_bar.visible = false
 		return
 	if mode == "combat" and not scene._combat_state.is_empty() and scene._combat_engine.is_player_turn(scene._combat_state):
-		scene._add_pass_preview_chip()
+		scene._add_pass_preview_chip(prepared_pass)
 	match mode:
 		"graftwright":
 			scene._graftwright_view.configure(scene._run_state, scene._reduced_motion_enabled())
@@ -43,9 +46,8 @@ func refresh(scene: Control, reward_jobs: Variant = null) -> void:
 			if scene._surface_aim.active():
 				scene._add_surface_skill_choices()
 		"room":
-			var merchant_kind: String = scene._current_room_merchant_kind()
 			if not merchant_kind.is_empty():
-				if scene._merchant_shop_open:
+				if show_shop:
 					scene._scavenger_shop_view.configure(scene._run_state, scene._run_engine, scene._reduced_motion_enabled(), scene._record_runtime_performance_phase if scene._runtime_performance_instrumentation_enabled else Callable())
 					scene._scavenger_shop_view.present()
 					preload("res://scripts/magic_purge_overlay.gd").install_scavenger(scene, scene._scavenger_shop_view)

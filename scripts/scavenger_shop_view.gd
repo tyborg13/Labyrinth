@@ -101,6 +101,7 @@ var _selected_is_sell: bool = false
 var _selected_source: Control
 var _room_coord: Vector2i = Vector2i(-999, -999)
 var _entry_played_for_room: bool = false
+var _entry_tween: Tween
 var _ambient_time: float = 0.0
 
 var _canvas: Control
@@ -159,6 +160,7 @@ var _receipt_tween: Tween
 var _intro_open: bool = true
 var _hidden_inventory_owner: Callable
 var _inventory_released: bool = false
+var _trade_art_revision: int = 0
 var _configuration_cache := preload("res://scripts/scavenger_configuration_cache.gd").new()
 
 func _ready() -> void:
@@ -191,7 +193,7 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
 	_ensure_static_scene()
 	_hidden_inventory_owner = Callable()
-	_run_state = run_state.duplicate(true)
+	_run_state = preload("res://scripts/section_map_graph.gd").checkpoint_copy(run_state)
 	_run_engine = run_engine
 	if reduced_motion and not _reduced_motion:
 		for tween: Tween in _slot_tweens.values():
@@ -903,7 +905,7 @@ func _retire_offer_child(child: Node, key: String) -> void:
 
 func _refresh_offer_price(source: Control, item_id: String, selling: bool) -> void:
 	var affordable: bool = _offer_is_affordable(item_id, selling)
-	source.tooltip_text = _offer_tooltip(item_id, selling, affordable)
+	_update_offer_tooltip(source, _offer_tooltip(item_id, selling, affordable))
 	source.set_meta("shop_affordable", affordable)
 	var old: Control = source.find_child("ScavengerPriceTag", true, false) as Control
 	var amount: int = _item_price(item_id, selling)
@@ -923,7 +925,20 @@ func _refresh_shelf_tooltips(ids: Array) -> void:
 	# Prices and tint can stay unchanged while the amount still needed changes.
 	for item_id: String in ids:
 		var offer: Control = _live_cached_control(_offer_sources.get("buy:" + item_id))
-		if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
+		if offer != null: _update_offer_tooltip(offer, _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false)))
+
+func _update_offer_tooltip(offer: Control, text: String) -> void:
+	if offer.tooltip_text == text: return
+	offer.tooltip_text = text
+	if not offer.is_visible_in_tree(): return
+	var hovered: Control = get_viewport().gui_get_hovered_control()
+	if hovered == null or (hovered != offer and not offer.is_ancestor_of(hovered)): return
+	# Godot snapshots tooltip text while the pointer rests. Hiding the
+	# hovered control dismisses its native popup before the next draw.
+	var focused: bool = hovered.has_focus()
+	hovered.hide()
+	hovered.show()
+	if focused: hovered.grab_focus()
 
 func _finish_inventory(performance_checkpoint: Callable = Callable(), started: int = 0) -> void:
 	_all_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
@@ -1259,8 +1274,35 @@ func _select_item(item_id: String, selling: bool, source: Control) -> void:
 	_selected_source = source
 	if selection_changed:
 		_detail_card_index = 0
+		_trade_art_revision += 1
+		if not selling and _offer_is_affordable(item_id, false):
+			_prepare_replacement_art.call_deferred(_trade_art_revision, item_id, _run_state)
 	_update_selection_effects()
 	_sync_detail()
+
+func _replacement_art_is_current(revision: int, source: Dictionary) -> bool:
+	return is_inside_tree() and is_visible_in_tree() and revision == _trade_art_revision and is_same(source, _run_state)
+
+func _prepare_replacement_art(revision: int, item_id: String, source: Dictionary) -> void:
+	var active: Callable = _replacement_art_is_current.bind(revision, source)
+	if not bool(active.call()): return
+	var forecast: Dictionary = _run_engine.buy_merchant_item(source, MERCHANT_KIND, item_id)
+	var current: Array = _run_engine.merchant_offer_ids(source, MERCHANT_KIND)
+	var manifest: Dictionary
+	for id: String in _run_engine.merchant_offer_ids(forecast, MERCHANT_KIND):
+		if current.has(id): continue
+		var icon: String = _icon_path(id)
+		if not icon.is_empty(): manifest[icon] = false
+		if _run_engine.merchant_item_kind(id) == GEAR:
+			for card: String in GameData.equipment_cards(id, forecast):
+				var path: String = str(GameData.card_def(card).get("art_path", ""))
+				if not path.is_empty(): manifest[path] = false
+		else:
+			var path: String = str(GameData.card_def(id).get("art_path", ""))
+			if not path.is_empty(): manifest[path] = false
+	if manifest.is_empty(): return
+	var tree: SceneTree = get_tree()
+	AssetLoader.prepare_textures_for(tree.root, manifest, AssetLoader.present_preparation_frame.bind(tree), active)
 
 func _activate_item(item_id: String, selling: bool, source: Control) -> void:
 	_select_item(item_id, selling, source)
@@ -1392,6 +1434,7 @@ func _turn_detail_card(delta: int) -> void:
 	_render_detail_card()
 
 func _on_detail_action() -> void:
+	_trade_art_revision += 1
 	if _selected_item_id.is_empty() or _selected_source == null:
 		return
 	if _selected_is_sell:
@@ -1416,15 +1459,17 @@ func _icon_path(item_id: String) -> String:
 	return str(GameData.card_def(item_id).get("art_path", ""))
 
 func _play_entry() -> void:
-	if not visible or _canvas == null:
+	if not visible or _canvas == null or _entry_played_for_room:
 		return
 	_entry_played_for_room = true
+	if _entry_tween != null and _entry_tween.is_valid(): _entry_tween.kill()
+	_layout_canvas()
 	if _reduced_motion:
 		_canvas.modulate = Color.WHITE
-		_canvas.scale = Vector2.ONE * _canvas.scale.x
 		_portrait.position = PORTRAIT_BASE_POSITION
 		for group: Control in _animated_groups:
 			group.modulate = Color.WHITE
+			group.position.x = SHELF_LEFT
 		return
 	_canvas.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	var base_scale: Vector2 = _canvas.scale
@@ -1433,8 +1478,9 @@ func _play_entry() -> void:
 	for index: int in range(_animated_groups.size()):
 		var group: Control = _animated_groups[index]
 		group.modulate = Color(1.0, 1.0, 1.0, 0.0)
-		group.position.x += 32.0
+		group.position.x = SHELF_LEFT + 32.0
 	var tween := create_tween().set_parallel(true)
+	_entry_tween = tween
 	tween.tween_property(_canvas, "modulate:a", 1.0, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_canvas, "scale", base_scale, 0.30).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_portrait, "position:x", PORTRAIT_BASE_POSITION.x, 0.34).set_delay(0.05).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)

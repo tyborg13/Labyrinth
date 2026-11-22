@@ -127,7 +127,13 @@ static func build(scene: Control) -> Button:
 
 	return chip
 
-static func refresh(scene: Control) -> void:
+static func face(scene: Control, summary: Dictionary, spent: int) -> Dictionary:
+	var text: String = tooltip(scene, summary, spent)
+	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false))
+	var accent: Color = scene._action_context_risk_color("danger" if danger else str(summary.get("tone", "safe")))
+	return {"summary": summary, "spent": spent, "tooltip": text, "danger": danger, "accent": accent}
+
+static func refresh(scene: Control, prepared_face: Dictionary = {}) -> void:
 	var chip: Button = scene._pass_preview_overlay.get_node_or_null("PassPreviewChip") if scene._pass_preview_overlay != null else scene.choice_bar.get_node_or_null("PassPreviewChip")
 	if chip == null:
 		build(scene)
@@ -140,15 +146,18 @@ static func refresh(scene: Control) -> void:
 	chip.set_disabled_with_tooltip(not scene._pass_preview_action_available())
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
 	var spent: int = scene._pending_card_defiance_spent()
-	var text: String = tooltip(scene, summary, spent)
+	var inputs: Dictionary = prepared_face
+	if not is_same(inputs.get("summary"), summary) or inputs.get("spent") != spent:
+		inputs = face(scene, summary, spent)
+	var text: String = inputs["tooltip"]
 	chip.tooltip_text = text
 	chip.mouse_default_cursor_shape = scene.TOOLTIP_ONLY_CURSOR_SHAPE if not text.is_empty() else Control.CURSOR_ARROW
 	var content: Control = chip.get_node("PassForecastContent")
 	var action: Label = content.get_node("PassActionLabel")
 	action.text = "CARD COST\nDEFIANCE −%d" % spent if spent > 0 else "PASS"
 	UiTypography.set_label_size(action, UiTypography.SIZE_SECTION + 3 if spent <= 0 else UiTypography.SIZE_BODY)
-	var danger: bool = spent > 0 or bool(summary.get("defeat", false)) or bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)) or bool(summary.get("unseen_ground_crossed", false))
-	var accent: Color = scene._action_context_risk_color("danger" if danger else str(summary.get("tone", "safe")))
+	var danger: bool = inputs["danger"]
+	var accent: Color = inputs["accent"]
 	chip.set_meta("panel_surface_accent", accent)
 	chip.set_meta("panel_selected", danger)
 	if chip.disabled: chip.set_meta("pass_pressed", false)

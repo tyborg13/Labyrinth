@@ -13,13 +13,23 @@ static func release_shutdown_callables() -> void:
 	profile_writer = Callable()
 
 static func retaining_events(host: Node, state: Dictionary, profile: Dictionary) -> Dictionary:
-	var next: Dictionary = Store.merge_progression_analytics_outbox(profile, Store.load_data())
+	var disk := Store.load_data()
+	var next: Dictionary = Store.merge_progression_analytics_outbox(profile, disk)
+	Store.merge_run_completion_ids(next, disk)
 	if host.get("_opening_boon_flow").flush_events(host, state): return next
-	var context: Dictionary = host.call("_analytics_context_from_states", state)
+	return retain_pending_events(host, state, next)
+
+static func retain_pending_events(host: Node, state: Dictionary, profile: Dictionary) -> Dictionary:
 	var events: Array = state.get(Rules.EVENTS_KEY, [])
+	if events.is_empty(): return profile
+	var next := profile
+	var context: Dictionary = host.call("_analytics_context_from_states", state)
+	var analytics: RefCounted = host.get("_analytics_store")
 	for index: int in range(events.size()):
 		var event: Dictionary = events[index]
-		next = Store.queue_progression_analytics_event(next, str(event["type"]), Rules.event_key(context, index, event), context, event["payload"])
+		var key: String = Rules.event_key(context, index, event)
+		if not analytics.has_idempotency_key(key):
+			next = Store.queue_progression_analytics_event(next, str(event["type"]), key, context, event["payload"])
 	return next
 
 static func persist_held_prompt_before_quit(host: Node, state: Dictionary) -> bool:
@@ -40,12 +50,37 @@ static func acknowledge_before_replacement(host: Node, state: Dictionary) -> boo
 	# newer than an active save. Only a strictly newer run supersedes its fields.
 	var profile: Dictionary = embedded if int(embedded.get("progression_revision", 0)) > int(disk.get("progression_revision", 0)) else disk
 	profile = Store.merge_progression_analytics_outbox(profile, embedded)
+	Store.merge_run_completion_ids(profile, disk)
+	Store.merge_run_completion_ids(profile, embedded)
 	# Held run currency is not banked on abandonment. A terminal save's wallet
 	# has already settled, so its newer profile balance is authoritative too.
-	if str(state.get("mode", "")) in ["victory", "defeat"]:
+	var mode: String = str(state.get("mode", ""))
+	var settled_loss: bool = mode == "defeat" and not Store.has_completed_run(disk, state)
+	if settled_loss and Store.completion_run_id(state).is_empty():
+		settled_loss = not _recorded(disk, Run.run_result_id(state))
+	if mode in ["victory", "defeat"]:
 		profile = _terminal_profile(host, state, profile, embedded, disk)
+	elif Store.embrace_settlement_pending(state, disk):
+		# Without a synced profile, the terminal checkpoint owns the whole
+		# settled progression, including its run counter and heirloom.
+		if disk == Store.default_data():
+			profile = embedded.duplicate(true)
+		profile = Store.set_embers(profile, int(embedded.get("embers", 0)))
+		profile["run_counter"] = maxi(int(profile.get("run_counter", 0)), int(embedded.get("run_counter", 0)))
+		profile = Store.record_run_completion(profile, state)
+		# A freshly synced terminal checkpoint can be the only copy of the
+		# bank and result if the profile was still in rotation.
+		if Store.run_result_for_id(profile, Run.run_result_id(state)).is_empty():
+			for key: String in [Store.RUN_RESULT_LEDGER_KEY, Store.LAST_RUN_RESULT_KEY, Store.RUN_BESTS_KEY,
+					Store.CHRONICLE_RECORDS_KEY, Store.CHRONICLE_TOTALS_KEY, Store.CHRONICLE_RECEIPTS_KEY]:
+				if embedded.has(key): profile[key] = embedded[key]
 	else:
 		profile = Store.set_embers(profile, int(disk.get("embers", 0)))
+	Store.reconcile_descent_reservation(profile, disk, state, settled_loss)
+	Store.merge_depth_progress(profile, disk)
+	Store.merge_depth_progress(profile, embedded)
+	Store.merge_synced_profile(profile, disk, state)
+	profile["run_counter"] = maxi(int(profile.get("run_counter", 0)), int(embedded.get("run_counter", 0)))
 	profile = retaining_events(host, state, profile)
 	if profile != disk and not profile_writer.call(profile): return false
 	host.set("_progression", profile)
@@ -56,7 +91,8 @@ static func _recorded(profile: Dictionary, id: String) -> bool:
 
 static func _terminal_profile(host: Node, state: Dictionary, profile: Dictionary, embedded: Dictionary, disk: Dictionary) -> Dictionary:
 	var id: String = Run.run_result_id(state)
-	var acknowledged: bool = _recorded(disk, id)
+	var acknowledged: bool = Store.has_completed_run(disk, state)
+	if Store.completion_run_id(state).is_empty(): acknowledged = _recorded(disk, id)
 	var settled: bool = state.has("heirloom_terminal_wallet") or (_recorded(embedded, id) and host.get("_run_engine").held_embers(state) == 0)
 	if settled and not acknowledged:
 		# A failed profile write can leave already-settled currency in a fallback
@@ -74,6 +110,7 @@ static func _terminal_profile(host: Node, state: Dictionary, profile: Dictionary
 	host.set("_defeat_lost_amount", int(wallet.get("defeat_lost", 0)))
 	# Reuse the normal terminal accounting/result receipts for an unprocessed
 	# fallback. No presentation or old live scene bookkeeping escapes this stage.
-	var finalized: Dictionary = host.call("_finalize_terminal_committed_state", state)
+	var choice_pending_profile: bool = settled and int(embedded.get("progression_revision", 0)) > int(disk.get("progression_revision", 0))
+	var settlement: Dictionary = host.call("_prepare_terminal_settlement", state, choice_pending_profile)
 	for field: String in before: host.set(field, before[field])
-	return finalized.get("progression", profile)
+	return settlement["state"]["progression"]

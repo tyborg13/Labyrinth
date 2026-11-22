@@ -732,7 +732,7 @@ class TabWindow extends Control:
 		motion = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		motion.tween_property(self, "reveal", 1.0 if next else 0.0, 0.12)
 
-static func draw_contextual_chip(board: Control, badge: Dictionary, triangle_batch: RefCounted = null) -> void:
+static func present_contextual_tab(board: Control, badge: Dictionary) -> void:
 	var name: String = "IntentTab_" + str(badge["key"])
 	var tab: TabWindow = board.get_node_or_null(NodePath(name)) as TabWindow
 	if tab == null:
@@ -742,4 +742,7 @@ static func draw_contextual_chip(board: Control, badge: Dictionary, triangle_bat
 		tab.modulate = board.get_meta("rd03_target", board.self_modulate)
 	tab.show()
 	tab.configure(badge, _draw_tab, plate_end(badge, Typography.ui_font()))
+
+static func draw_contextual_chip(board: Control, badge: Dictionary, triangle_batch: RefCounted = null) -> void:
+	present_contextual_tab(board, badge)
 	_draw_disc(board, badge, triangle_batch)

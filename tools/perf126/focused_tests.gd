@@ -1,6 +1,6 @@
 extends SceneTree
 const Assets = preload("res://scripts/asset_loader.gd")
-const Manifest = preload("res://scripts/run_loading_texture_manifest.gd")
+const SectionArt = preload("res://scripts/run_section_art.gd")
 const IMPORT_PATH: String = "res://assets/art/ui/campfire_choice_strength_v2.png"
 const SOURCE_PATH: String = "res://assets/art/biomes/tharokh/light_left_idle.png"
 var failures: Array[String]
@@ -24,9 +24,12 @@ func cancel_frame() -> void:
 
 func _run() -> void:
 	var manifest: Dictionary = {}
-	Manifest.add_to(manifest)
-	expect(Manifest.DEMO_FIRST_ROOM_TEXTURES.size() == 2, "Only the two observed biome sheets are added")
-	for path: String in Manifest.DEMO_FIRST_ROOM_TEXTURES:
+	var room := {"section_index": 0}
+	var state := {"section_map_version": SectionArt.Graph.VERSION, "map_sections": [{"boss_id": "tharokh"}]}
+	SectionArt.add_biome_textures(manifest, state, room)
+	var idle_sheets: Array = manifest.keys().filter(func(path: String) -> bool: return path.ends_with("_idle.png"))
+	expect(idle_sheets.size() == 2, "Only the two observed biome sheets are added")
+	for path: String in [SOURCE_PATH, "res://assets/art/biomes/tharokh/light_right_idle.png"]:
 		expect(manifest.has(path) and not manifest[path], "Idle sheets retain ordinary load policy")
 	# Imported-resource identity/settings must remain the engine's original.
 	expect(Assets.CelLook.mode == "off", "Run focused import checks with LABYRINTH_CEL_LOOK=off")

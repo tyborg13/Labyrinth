@@ -129,7 +129,7 @@ static func _test_tokens(expect: Callable) -> bool:
 				if entry["icon"] == "erupt":
 					expect.call(Icons.token_tooltip(token) == txt13["erupt_tooltip"], entry["name"] + " keeps the release Erupt tooltip")
 				if entry["name"] == "intent_gain_charge":
-					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst. Shocking it removes 1 Charge.", "Charge uses its exact numeric rules")
+					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst; Shock removes 1.", "Charge uses its exact numeric rules")
 				if entry["name"] == "intent_chain_discharge":
 					expect.call(Icons.token_tooltip(token) == "Hits the nearest target within 4 for 4, then jumps to up to 3 more beside each hit, losing 1 per jump.", "Arc Burst uses every action-data number")
 			if entry["name"] == "lightning_strikes":

@@ -290,7 +290,9 @@ static func half(amount: int) -> int:
 
 static func resolve_echo(engine: RefCounted, state: Dictionary, choice: Dictionary, trace: Dictionary = {}) -> Dictionary:
 	var action: Dictionary = (choice["action"] as Dictionary).duplicate(true)
+	var illusion_id: int = int(choice["illusion_id"])
 	action["_enemies_only"] = true
+	action["_echo_attacker_id"] = illusion_id
 	var previous: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = engine._surface_source(state, action)
 	context["source_kind"] = "illusion_echo"
@@ -300,11 +302,12 @@ static func resolve_echo(engine: RefCounted, state: Dictionary, choice: Dictiona
 		var impact: Array[Vector2i] = echo_impact(engine, state, action, choice["target"])
 		action["type"] = "aoe"
 		action["no_conduction"] = true
+		action["_reflect_exempt_hit"] = true # The copied Detonate remains a Burst.
 		state = engine._resolve_board_attack(state, action, choice["target"], "player", -1, trace, impact)
 	else:
 		state = engine._resolve_board_attack(state, action, choice["target"], "player", -1, trace)
 	Surface.record_event(state, {"kind": "illusion_echo", "illusion_id": choice["illusion_id"], "from": choice["from"], "target": choice["target"], "source": context})
-	state = engine._damage_illusion(state, int(choice["illusion_id"]), Data.fixed_point_amount(1))
+	state = engine._damage_illusion(state, illusion_id, Data.fixed_point_amount(1))
 	state["damage_context"] = previous
 	return state
 
@@ -312,6 +315,8 @@ static func echo_forces(action: Dictionary) -> Dictionary:
 	var forces: Dictionary = {"type": action["type"], "amount": action.get("amount", 0)}
 	for key: String in ["push", "pull", "force_direction"]:
 		if action.has(key): forces[key] = action[key]
+	if action.has("_group_force_context"):
+		forces["_group_force_context"] = {"blocked_ids": action["_group_force_context"].get("blocked_ids", {})}
 	return forces
 
 # ------------------------------------------------------------------ Storm Crown

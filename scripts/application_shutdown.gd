@@ -13,6 +13,7 @@ const Recovery = preload("res://scripts/opening_boon_recovery.gd")
 const DemoEnd = preload("res://scripts/demo_end_panel.gd")
 const Clock = preload("res://scripts/presentation_clock.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
+const CanvasPrewarm = preload("res://scripts/canvas_pipeline_prewarm.gd")
 const SceneLoads = preload("res://scripts/menu_run_preload.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const STATE_META := &"labyrinth_application_shutdown"
@@ -61,6 +62,8 @@ class QuitState extends RefCounted:
 		if watchdog.is_started(): watchdog.wait_to_finish()
 
 	func on_post_draw() -> void:
+		var tree := Engine.get_main_loop() as SceneTree
+		tree.call_group(CanvasPrewarm.ACTIVE_GROUP, "_after_draw")
 		Assets.start_presented_preparation_frame()
 		preparation_frame.emit()
 
@@ -72,6 +75,7 @@ static func install(root: Window) -> void:
 	root.set_meta(STATE_META, state)
 	root.tree_exiting.connect(_finish_engine_stop.bind(root, state), CONNECT_ONE_SHOT)
 	var tree := root.get_tree()
+	root.set_meta(CanvasPrewarm.DEPARTURE_CHECK_META, departure_requested.bind(tree))
 	tree.set_auto_accept_quit(false)
 	root.close_requested.connect(request.bind(tree, "window_close"))
 	if DisplayServer.get_name() != "headless":
@@ -97,6 +101,7 @@ static func begin_save_to_title(tree: SceneTree) -> bool:
 	if state.requested_usec > 0 or state.saving_to_title: return false
 	state.arm()
 	state.saving_to_title = true
+	tree.call_group(CanvasPrewarm.ACTIVE_GROUP, "cancel")
 	tree.root.gui_disable_input = true
 	return true
 
@@ -127,6 +132,7 @@ static func request(tree: SceneTree, reason: String, exit_code: int = 0) -> void
 	var state: QuitState = tree.root.get_meta(STATE_META)
 	if state.requested_usec > 0: return
 	state.requested_usec = Time.get_ticks_usec()
+	tree.call_group(CanvasPrewarm.ACTIVE_GROUP, "cancel")
 	state.exit_code = exit_code
 	# The engine can block in a synchronous filesystem call. The watchdog
 	# owns the deadline independently of the disk worker and the main loop.

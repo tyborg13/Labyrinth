@@ -96,7 +96,7 @@ func compasses(host: Node, state: Dictionary, visible_ids: Array) -> Dictionary:
 	return _compasses.resolve(inputs, func() -> Dictionary:
 		return host.EnemyIntentCompass.descriptors_for_state(state, visible_ids), null, true, true)
 
-func prepare_paths(host: Node, shown: Dictionary) -> void:
+func prepare_paths(host: Node, shown: Dictionary, slice_hidden: bool = false) -> void:
 	var visible_paths: Array = [host._vector2i_array(shown.get("path_tiles", []))]
 	for path: Array in shown.get("displacement_paths", []):
 		visible_paths.append(host._vector2i_array(path))
@@ -113,13 +113,24 @@ func prepare_paths(host: Node, shown: Dictionary) -> void:
 			hidden_paths.append(path)
 	if hidden_paths.is_empty() or not host.is_inside_tree(): return
 	var revision: int = host._combat_preview_revision
+	if slice_hidden:
+		# The first ready draw needs only its visible paths. Warm one other
+		# route per boundary so a full set cannot land on the new turn frame.
+		for path: Array[Vector2i] in hidden_paths:
+			await host._next_enemy_round_preparation_frame()
+			if not _path_warmup_current(host, revision): return
+			_warm_hidden_paths(host, [path])
+		return
 	await host.get_tree().process_frame
-	if not is_instance_valid(host) or not host.is_inside_tree() or host._combat_preview_revision != revision: return
-	if host._selected_card_index >= 0 or host._player_movement_selected: return
-	# Future hover alternatives use the same exact cache on demand. They
-	# can warm after this submission without affecting its visible paths.
+	if not _path_warmup_current(host, revision): return
+	_warm_hidden_paths(host, hidden_paths)
+
+func _path_warmup_current(host: Node, revision: int) -> bool:
+	return is_instance_valid(host) and host.is_inside_tree() and not host._leaving_tree and host._combat_preview_revision == revision and host._selected_card_index < 0 and not host._player_movement_selected
+
+func _warm_hidden_paths(host: Node, paths: Array) -> void:
 	var started: int = Time.get_ticks_usec() if host._runtime_performance_instrumentation_enabled else 0
-	for path: Array[Vector2i] in hidden_paths:
+	for path: Array[Vector2i] in paths:
 		host.board_view.prepare_intent_path_geometry(path)
 	host._record_runtime_performance_phase("stage_hidden_path_warmup", started)
 

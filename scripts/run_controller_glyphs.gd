@@ -62,7 +62,7 @@ func refresh() -> void:
 			_badges.erase(key)
 
 func _combat() -> void:
-	var pass_button := scene.find_child("PassPreviewChip", true, false) as Button
+	var pass_button: Button = scene.find_child("PassPreviewChip", true, false) as Button if scene._hand_cycle_baseline else scene._selected_card_forecast_chip()
 	var pass_badge: Control = button(pass_button, Router.ACTION_PASS)
 	var phase: String = str(scene._guided_tutorial_phase_id)
 	if is_instance_valid(pass_badge) and phase == "pass_turn": pass_badge.pulse_source = scene._contextual_combat_prompt

@@ -33,7 +33,7 @@ static func _block_fire(engine: RefCounted, battle: Callable, rule: Callable, ex
 		state["enemies"][0]["block"] = SOURCE_BLOCK
 		if petrified: state["enemies"][0]["petrify"] = 1
 		Surfaces.place(state, state["enemies"][0]["pos"], "fire")
-		var instance: Dictionary = rule.call("lightning_storm", {"damage": 0, "chain": 0}, true)
+		var instance: Dictionary = rule.call("lightning_storm", {"damage": 0}, true)
 		instance["cadence"] = {"anchor": "on_intent", "intent": "test_wait"}
 		Rules.install(engine, state, instance)
 		var before: Dictionary = state.duplicate(true)
@@ -71,7 +71,7 @@ static func _illusion_hits(engine: RefCounted, battle: Callable, rule: Callable,
 		state["illusions"] = [ILLUSION.duplicate(true)]
 		Surfaces.place(state, ILLUSION["pos"], "ice" if id == "frostbite" else "electrified")
 		state = engine._surface_contact(state, "illusion", int(ILLUSION["id"]), engine.INVALID_TILE, true)
-		Rules.install(engine, state, rule.call(id, {"damage": 0, "chain": 0}))
+		Rules.install(engine, state, rule.call(id, {"damage": 0}))
 		after = compare.call(engine, state, expect)
 		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == (1 if id == "frostbite" else 0), "Zero-damage battlefield hit retains its illusion status: " + id)
 		if id == "frostbite": expect.call(not Surfaces.has_surface(after, ILLUSION["pos"], "ice"), "Zero-damage battlefield Ice hit expends the illusion's Ice")

@@ -90,7 +90,7 @@ static func forecasts(scene: Node, board: Control, selected: bool, checks: Dicti
 	if not engine.is_player_turn(state) or not engine.combat_outcome(state).is_empty(): return
 	present_red(scene, board, state, selected, checks)
 	var chip: Button = scene.find_child("PassPreviewChip", true, false)
-	var can_pass: bool = not scene._animation_lock and not scene._surface_aim.active() and scene._selected_card_index < 0 and scene._drag_card_index < 0 and scene._card_action_choice_index < 0 and scene._combat_skill_card_selection_zone.is_empty()
+	var can_pass: bool = not scene._animation_lock and not scene._surface_aim.active() and scene._selected_card_index < 0 and scene._drag_card_index < 0 and scene._combat_skill_card_selection_zone.is_empty()
 	checks["pass"] = []
 	if chip == null or not chip.is_visible_in_tree():
 		if can_pass and scene._pass_preview_overlay.is_visible_in_tree():

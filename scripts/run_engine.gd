@@ -127,6 +127,9 @@ static func run_result_id(run_state: Dictionary) -> String:
 	Chronicle.stage_terminal_snapshot(run_state)
 	return Chronicle.record_id(run_state)
 
+static func legacy_result_id(run_state: Dictionary) -> String:
+	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
+
 func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true, requested_depth: int = -1, prepared_graph: Dictionary = {}) -> Dictionary:
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
 	var selected_depth: int = ProgressionStore.session_umbra_depth(normalized_progression) if requested_depth < 0 else clampi(requested_depth, 0, ProgressionStore.unlocked_umbra_depth(normalized_progression))
@@ -1375,11 +1378,13 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var dawn_healed: int = _apply_last_light_dawn_heal(next_state, room, combat_state)
 	if str(room.get("type", "")) == "boss":
 		var boss_id: String = str(room.get("boss_id", combat_state.get("boss_id", "")))
-		var milestone_id: String = "%s:dragon:%s" % [run_result_id(next_state), room_key]
+		# Dragon milestones (claims, relic gifts) keep the random run ID so
+		# cloned same-seed runs stay distinct; results use run:N:seed:S.
+		var milestone_id: String = "%s:dragon:%s" % [Chronicle.Score.identity(next_state), room_key]
 		var boss_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 		var awarded_moltshard: bool = not bool(boss_skill_state.get("moltshard_awarded", false))
 		if awarded_moltshard:
-			next_state["progression"] = ProgressionStore.add_moltshard_for_award(next_state.get("progression", {}) as Dictionary, "%s:first_boss_moltshard" % run_result_id(next_state))
+			next_state["progression"] = ProgressionStore.add_moltshard_for_award(next_state.get("progression", {}) as Dictionary, "%s:first_boss_moltshard" % legacy_result_id(next_state))
 			boss_skill_state["moltshard_awarded"] = true
 			next_state[SKILL_STATE_KEY] = boss_skill_state
 		var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
@@ -2210,7 +2215,7 @@ func can_speak_to_emaciated_man(run_state: Dictionary) -> bool:
 
 func apply_run_wallet_receipt(run_state: Dictionary, profile: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
-	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, run_result_id(next_state))
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, legacy_result_id(next_state))
 	if receipt.is_empty() or int(receipt.get("sequence", 0)) <= int(next_state.get("wallet_transaction_sequence", 0)):
 		return next_state
 	# Read the committed transaction balance, not unrelated later profile Embers.
@@ -2225,7 +2230,17 @@ func reconcile_progression_revision(run_state: Dictionary, profile_progression: 
 	var next_state: Dictionary = run_state.duplicate(true)
 	var embedded: Dictionary = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
 	var profile: Dictionary = ProgressionStore.normalized_data(profile_progression)
-	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, run_result_id(next_state))
+	var settled_wallet: bool = next_state.get("mode") in ["victory", "defeat"] and ProgressionStore.has_completed_run(profile, next_state)
+	ProgressionStore.merge_run_completion_ids(embedded, profile)
+	ProgressionStore.merge_run_completion_ids(profile, embedded)
+	ProgressionStore.merge_depth_progress(embedded, profile)
+	ProgressionStore.merge_depth_progress(profile, embedded)
+	ProgressionStore.merge_synced_profile(embedded, profile, run_state)
+	profile["run_counter"] = maxi(int(profile.get("run_counter", 0)), int(embedded.get("run_counter", 0)))
+	var descent_profile: Dictionary = profile.duplicate(false)
+	ProgressionStore.reconcile_descent_reservation(embedded, descent_profile, run_state)
+	ProgressionStore.reconcile_descent_reservation(profile, descent_profile, run_state)
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, legacy_result_id(next_state))
 	if int(profile.get("progression_revision", 0)) > int(embedded.get("progression_revision", 0)):
 		var legacy_level_advanced: bool = receipt.is_empty() and int(profile.get("level", 1)) > int(embedded.get("level", 1))
 		next_state = apply_progression_update(next_state, profile, not legacy_level_advanced)
@@ -2234,6 +2249,19 @@ func reconcile_progression_revision(run_state: Dictionary, profile_progression: 
 	else:
 		next_state["progression"] = embedded
 		next_state = _repair_skill_dependent_state(next_state)
+	if settled_wallet:
+		next_state["progression"]["embers"] = profile["embers"]
+		next_state["progression"]["recovery_marker"] = ProgressionStore.recovery_marker(profile)
+		# The settled profile also owns this run's result and Chronicle entry,
+		# even when the unsettled checkpoint carries a newer revision.
+		var result_id: String = Chronicle.record_id(next_state)
+		if ProgressionStore.run_result_for_id(next_state["progression"], result_id).is_empty() and not ProgressionStore.run_result_for_id(profile, result_id).is_empty():
+			for key: String in [ProgressionStore.RUN_RESULT_LEDGER_KEY, ProgressionStore.LAST_RUN_RESULT_KEY, ProgressionStore.RUN_BESTS_KEY]:
+				if profile.has(key): next_state["progression"][key] = profile[key]
+		var receipts_key: String = ProgressionStore.CHRONICLE_RECEIPTS_KEY
+		if not (next_state["progression"].get(receipts_key, []) as Array).has(result_id) and (profile.get(receipts_key, []) as Array).has(result_id):
+			for key: String in [ProgressionStore.CHRONICLE_RECORDS_KEY, ProgressionStore.CHRONICLE_TOTALS_KEY, ProgressionStore.CHRONICLE_RECEIPTS_KEY]:
+				if profile.has(key): next_state["progression"][key] = profile[key]
 	return apply_run_wallet_receipt(next_state, profile)
 
 func room_neighbors_with_metadata(run_state: Dictionary) -> Array[Dictionary]:
@@ -2796,7 +2824,26 @@ func _merchant_kind_for_room_type(room_type: String) -> String:
 		return MERCHANT_SCAVENGER
 	return ""
 
-func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = [], deferred_card: String = "") -> Array[String]:
+func room_reward_texture_card_ids(run_state: Dictionary) -> Array[String]:
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = room_metadata(run_state, coord)
+	var kind: String = str(room.get("type", ""))
+	var cards: Array[String]
+	if kind.is_empty() or kind == "boss": return cards
+	if kind == "guardian":
+		var trophy: String = str(preload("res://scripts/guardian_library.gd").for_boss(str(room.get("boss_id", ""))).get("relic", ""))
+		if not trophy.is_empty() and not (run_state.get("relics", []) as Array).has(trophy): return cards
+	# The hidden victory UI can build its offer while the combat board is still
+	# visible. Its room-seeded roll is independent of the encounter RNG.
+	var deferred: String = str((run_state.get(SKILL_STATE_KEY, {}) as Dictionary).get("pending_card", ""))
+	if not deferred.is_empty() and GameData.card_def(deferred).is_empty(): deferred = ""
+	cards = _offer_with_deferred_id(_generate_card_rewards(run_state, coord, 991, [], deferred, false), deferred)
+	if Specials.uses_enhanced_rewards(room):
+		for id: String in _generate_card_rewards(run_state, coord, 991, [], deferred, true):
+			if not cards.has(id): cards.append(id)
+	return cards
+
+func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = [], deferred_card: String = "", goal_met_override: Variant = null) -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, salt)
 	var choices: Array[String]
@@ -2810,7 +2857,8 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	var blocked_general: Array[String] = TypedArrays.strings(excluded.duplicate())
 	blocked_general.append_array(choices)
 	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
-	var special_reward: bool = bool(room.get("special_goal_met", false)) and Specials.uses_enhanced_rewards(room)
+	var goal_met: bool = bool(room.get("special_goal_met", false)) if goal_met_override == null else bool(goal_met_override)
+	var special_reward: bool = goal_met and Specials.uses_enhanced_rewards(room)
 	var count: int = int(Specials.catalog()["rewards"]["card_choices"]) if special_reward else 3
 	# Keep the ordinary first three offers. The fourth is the last elemental
 	# slot in elemental rooms, or another general slot in neutral rooms.

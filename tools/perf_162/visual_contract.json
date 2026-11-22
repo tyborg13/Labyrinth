@@ -1,0 +1,30 @@
+{
+  "expected_sizes": [[1920, 1080]],
+  "min_images": 24,
+  "required_images": [
+    {"pattern": "campfire_linger_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "campfire_linger_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "campfire_strength_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "campfire_strength_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "campfire_embrace_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "campfire_embrace_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "event_choice_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "event_choice_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "event_continue_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "event_continue_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "reward_card_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "reward_card_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "reward_skip_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "reward_skip_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "treasure_claim_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "treasure_claim_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "graft_commit_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "graft_commit_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "graft_continue_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "graft_continue_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "scavenger_buy_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "scavenger_buy_after.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "scavenger_sell_before.png", "regions": [{"rect": [560, 240, 800, 600]}]},
+    {"pattern": "scavenger_sell_after.png", "regions": [{"rect": [560, 240, 800, 600]}]}
+  ]
+}

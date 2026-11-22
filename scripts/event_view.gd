@@ -15,6 +15,7 @@ const Rule = preload("res://scripts/ui_gilded_rule.gd")
 const Router = preload("res://scripts/input_router.gd")
 const Sounds = preload("res://scripts/run_sfx_library.gd")
 const Hover = preload("res://scripts/event_hover_preview.gd")
+const Preview = preload("res://scripts/event_reward_preview.gd")
 const Health = preload("res://scripts/event_health_strip.gd")
 const Beats = preload("res://scripts/event_result_beats.gd")
 const Separation = preload("res://scripts/event_reward_separation.gd")
@@ -110,6 +111,7 @@ var _closing: bool = false
 var _busy: bool = false
 var _request_pending: bool = false
 var _art_started: bool = false
+var _painting_path: String = ""
 var _content_bottom: float = 0
 var _sound: Callable
 var _last_choice_focus_msec: int = -1000
@@ -214,7 +216,7 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 		if str(state.get("event_state", {}).get("page", "choices")) == "choices":
 			for choice: Dictionary in Data.event_def(Events.current_id(state)).get("choices", []):
 				_preview_cache[str(choice["id"])] = Events.preview_lines(state, Events.current_id(state), str(choice["id"]))
-	run_state = state.duplicate(true)
+	run_state = preload("res://scripts/section_map_graph.gd").checkpoint_copy(state)
 	hover_preview.conceal(true)
 	if result_beats != null: finish_result_beats()
 	_closing = false
@@ -244,6 +246,25 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 		_rebuild()
 		_play(Sounds.MENU_OPEN_ID)
 		_open_animation()
+	if page == "choices": _prepare_choice_art.call_deferred(signature)
+
+func _prepare_choice_art(signature: int) -> void:
+	if not _choice_art_is_current(signature): return
+	var manifest: Dictionary
+	for lines: Array in _preview_cache.values():
+		for line: Dictionary in lines:
+			var kind: String = str(line.get("kind", ""))
+			for id: String in line.get("ids", []):
+				var path: String = Preview._icon_path(kind, id, Preview._definition(kind, id))
+				if not path.is_empty(): manifest[path] = false
+				var card: String = str(Data.card_def(id).get("art_path", ""))
+				if not card.is_empty(): manifest[card] = false
+	if manifest.is_empty(): return
+	var tree: SceneTree = get_tree()
+	Assets.prepare_textures_for(tree.root, manifest, Assets.present_preparation_frame.bind(tree), _choice_art_is_current.bind(signature))
+
+func _choice_art_is_current(signature: int) -> bool:
+	return is_inside_tree() and is_visible_in_tree() and signature == _signature and page == "choices" and not _request_pending and not _closing
 
 func _rebuild() -> void:
 	_building_column = true
@@ -252,7 +273,9 @@ func _rebuild() -> void:
 	_stick_repeat.reset()
 	page = str(run_state.get("event_state", {}).get("page", "choices"))
 	var painting: String = Events.art_path(Events.current_id(run_state))
-	art.texture = Assets.load_texture(painting) if FileAccess.file_exists(painting) or ResourceLoader.exists(painting) else null
+	if painting != _painting_path:
+		_painting_path = painting
+		art.texture = Assets.load_texture(painting) if FileAccess.file_exists(painting) or ResourceLoader.exists(painting) else null
 	body_size = 22
 	effect_size = 19
 	_build_column()
@@ -318,7 +341,8 @@ func _build_column() -> void:
 	column.add_child(body)
 	var y: float = body.position.y + Text.height(body) + (30 if result else 32)
 	if result:
-		if not Events.outcome_lines(run_state).is_empty():
+		var lines: Array[String] = Events.outcome_lines(run_state)
+		if not lines.is_empty():
 			var well := Text.OutcomeWell.new()
 			well.name = "OutcomeWell"
 			well.set_meta("panel_safe_inset", 0)
@@ -330,7 +354,7 @@ func _build_column() -> void:
 			rows.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			well.add_child(rows)
 			var row_y: float = 13
-			for line: String in Events.outcome_lines(run_state):
+			for line: String in lines:
 				var row: RichTextLabel = Text.label(line, COLUMN_WIDTH - 36, effect_size, Palette.TEXT_2, false, true)
 				rows.add_child(row)
 				row.position = Vector2(18, row_y)

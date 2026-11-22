@@ -26,6 +26,7 @@ const FocusTooltip = preload("res://scripts/controller_focus_tooltip.gd")
 const SectionArt = preload("res://scripts/run_section_art.gd")
 
 signal room_selected(coord: Vector2i)
+signal room_travel_started(coord: Vector2i)
 signal scout_requested(coord: Vector2i)
 signal door_requested(coord: Vector2i)
 signal event_requested(choice: String)
@@ -554,6 +555,7 @@ func activate_room(coord: Vector2i) -> void:
 	var feedback: Node = get_node_or_null("/root/CursorFeedback")
 	if feedback != null: feedback.call("play_action_confirmation")
 	interaction_changed.emit()
+	if _activation_kind == "room": room_travel_started.emit(coord)
 	# A timer completes even if a resize, close, section change or state refresh
 	# kills the tween. Generation and snapshot checks discard those stale calls.
 	await get_tree().create_timer(seconds).timeout

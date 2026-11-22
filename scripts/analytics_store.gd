@@ -90,6 +90,40 @@ static func _read_all_events() -> Array[Dictionary]:
 				events.append((parser.data as Dictionary).duplicate(true))
 	return events
 
+# Title replay fast path: true when every key already has a complete row on
+# disk. Reads the newest logs first and stops once all are found, so a receipt
+# waiting for its acknowledgment costs a tail read, not a full deduplicating
+# parse. Older row shapes are not matched; callers then use the full writer.
+static func has_durable_rows(keys: Array) -> bool:
+	if not flush_pending_events(): return false
+	var remaining: Dictionary = {}
+	for key: Variant in keys:
+		if not str(key).is_empty(): remaining[str(key)] = true
+	if remaining.is_empty(): return true
+	var absolute_dir: String = ProjectSettings.globalize_path(_storage_dir)
+	if not DirAccess.dir_exists_absolute(absolute_dir): return false
+	var filenames: Array[String]
+	for name: String in DirAccess.get_files_at(absolute_dir):
+		if name.get_extension() == "jsonl": filenames.append(name)
+	filenames.sort()
+	for index: int in range(filenames.size() - 1, -1, -1):
+		var text: String = FileAccess.get_file_as_string(absolute_dir.path_join(filenames[index]))
+		for key: String in remaining.keys():
+			var needle: String = "\"idempotency_key\":" + JSON.stringify(key)
+			var at: int = text.find(needle)
+			while at >= 0:
+				var end: int = text.find("\n", at)
+				# An interrupted tail has no newline and is not a durable row.
+				if end < 0: break
+				var start: int = text.rfind("\n", at) + 1
+				var parser := JSON.new()
+				if parser.parse(text.substr(start, end - start)) == OK and parser.data is Dictionary and parser.data.get("idempotency_key") == key:
+					remaining.erase(key)
+					break
+				at = text.find(needle, end)
+		if remaining.is_empty(): return true
+	return false
+
 func _init() -> void:
 	_install_id = _ensure_installation_id()
 	_session_id = _random_id("session")
@@ -246,6 +280,18 @@ func _ensure_known_idempotency_keys_current() -> void:
 	if _known_idempotency_generation != _storage_generation:
 		_reload_known_idempotency_keys()
 
+static func run_ended_key(run_id: String) -> String:
+	return "run_ended|%s" % run_id
+
+static func combat_ended_key(combat_id: String) -> String:
+	return "combat_ended|%s" % combat_id
+
+static func dragon_claim_key(milestone: String, run_id: String) -> String:
+	var suffix: int = milestone.find(":dragon:")
+	if not run_id.is_empty() and milestone.begins_with("run:") and suffix >= 0:
+		milestone = run_id + milestone.substr(suffix)
+	return "reward_claimed|%s" % milestone
+
 func _reload_known_idempotency_keys() -> void:
 	_known_idempotency_keys.clear()
 	# Refreshing deduplication during an emitter is not a write barrier. In
@@ -254,6 +300,16 @@ func _reload_known_idempotency_keys() -> void:
 		var existing_key: String = str(existing_event.get("idempotency_key", ""))
 		if not existing_key.is_empty():
 			_known_idempotency_keys[existing_key] = true
+		# Earlier releases emitted some endings unkeyed or keyed by score ID.
+		# Index their recorded run identity without rewriting append-only files.
+		var run_id: String = str(existing_event.get("run_id", ""))
+		if existing_event.get("event_type") == "run_ended" and not run_id.is_empty():
+			_known_idempotency_keys[run_ended_key(run_id)] = true
+		var combat_id: String = str(existing_event.get("combat_id", ""))
+		if existing_event.get("event_type") == "combat_ended" and not combat_id.is_empty():
+			_known_idempotency_keys[combat_ended_key(combat_id)] = true
+		if existing_event.get("event_type") == "reward_claimed" and existing_key.begins_with("reward_claimed|"):
+			_known_idempotency_keys[dragon_claim_key(existing_key.trim_prefix("reward_claimed|"), run_id)] = true
 	# Failed batches still own their reservations. A replay cannot manufacture a
 	# second record while the original queued append is waiting to retry.
 	for batch: Dictionary in _pending_batches:

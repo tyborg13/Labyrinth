@@ -30,6 +30,9 @@ const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
 const LAST_RUN_RESULT_KEY: String = "last_run_result"
 const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
+const RUN_COMPLETION_IDS_KEY: String = "completed_run_ids"
+const RUN_RESULT_OWNERS_KEY: String = "completed_result_owners"
+const PENDING_DESCENT_ID_KEY: String = "pending_descent_run_id"
 const RUN_RESULT_LEDGER_LIMIT: int = 32
 const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
 const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
@@ -66,7 +69,7 @@ static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
 const PersistenceDisk = preload("res://scripts/persistence_disk_worker.gd")
 const OrderedWriter = preload("res://scripts/ordered_background_writer.gd")
 static var _run_writer := OrderedWriter.new()
-enum RunFile { MISSING, UNAVAILABLE, INVALID, EXCLUDED, READY, TERMINAL }
+enum RunFile { MISSING, UNAVAILABLE, INVALID, EXCLUDED, READY, TERMINAL, STALE }
 
 static func set_storage_path(path: String) -> void:
 	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
@@ -127,20 +130,24 @@ static func _load_data_at(path: String) -> Dictionary:
 	return loaded if not loaded.is_empty() else default_data()
 
 static func _load_profile_dictionary(path: String) -> Dictionary:
+	var parsed: Variant = _read_profile_json(path)
+	return _normalized_data(parsed) if parsed is Dictionary else {}
+
+static func _read_profile_json(path: String) -> Variant:
 	if not FileAccess.file_exists(path):
-		return {}
+		return null
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		return {}
+		return null
 	var source: String = file.get_as_text()
 	file.close()
 	var parser := JSON.new()
 	if parser.parse(source) != OK:
-		return {}
+		return null
 	var parsed: Variant = parser.data
 	if typeof(parsed) != TYPE_DICTIONARY:
-		return {}
-	return _normalized_data((parsed as Dictionary).duplicate(true))
+		return null
+	return parsed
 
 static func normalized_data(data: Dictionary) -> Dictionary:
 	return _normalized_data(data.duplicate(true))
@@ -244,6 +251,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	if not last_result.is_empty() and _result_index_for_id(completed_results, str(last_result.get("result_id", ""))) < 0:
 		completed_results.append(last_result.duplicate(true))
 	data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
+	if data.has(RUN_COMPLETION_IDS_KEY):
+		data[RUN_COMPLETION_IDS_KEY] = _normalized_string_array(data[RUN_COMPLETION_IDS_KEY])
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
 	if data.has(STARTING_RELIC_GIFTS_KEY):
@@ -453,15 +462,23 @@ static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Di
 		var entry: Dictionary = entry_var as Dictionary
 		var event_type: String = str(entry.get("event_type", "")).strip_edges()
 		var idempotency_key: String = str(entry.get("idempotency_key", "")).strip_edges()
-		if event_type.is_empty() or idempotency_key.is_empty() or seen_keys.has(idempotency_key):
-			continue
-		seen_keys[idempotency_key] = true
 		var context: Dictionary = {}
 		if typeof(entry.get("context", null)) == TYPE_DICTIONARY:
 			context = (entry.get("context", {}) as Dictionary).duplicate(true)
+		idempotency_key = _progression_event_key(event_type, idempotency_key, context)
+		if event_type.is_empty() or idempotency_key.is_empty() or seen_keys.has(idempotency_key):
+			continue
+		seen_keys[idempotency_key] = true
 		var payload: Dictionary = {}
 		if typeof(entry.get("payload", null)) == TYPE_DICTIONARY:
 			payload = (entry.get("payload", {}) as Dictionary).duplicate(true)
+		if event_type == "combat_ended":
+			for field: String in ["objective_completion_tile", "objective_completion_door", "objective_completion_destination", "room_coord"]:
+				var value_at_field: Variant = payload.get(field)
+				if value_at_field is String and value_at_field.begins_with("(") and value_at_field.ends_with(")"):
+					var parts: PackedStringArray = value_at_field.substr(1, value_at_field.length() - 2).split(",")
+					if parts.size() == 2 and parts[0].strip_edges().is_valid_int() and parts[1].strip_edges().is_valid_int():
+						payload[field] = {"x": int(parts[0]), "y": int(parts[1])}
 		result.append({
 			"event_type": event_type,
 			"idempotency_key": idempotency_key,
@@ -539,20 +556,36 @@ static func load_saved_run() -> Dictionary:
 	# Low-level Variant reader used by migration and persistence diagnostics.
 	return _read_saved_run(false).get("state", {})
 
-static func read_resumable_checkpoint(recover_terminal_profile: bool = false) -> Dictionary:
-	return _read_saved_run(true, recover_terminal_profile)
+static func read_resumable_checkpoint(recover_terminal_profile: bool = false, for_replacement: bool = false) -> Dictionary:
+	return _read_saved_run(true, recover_terminal_profile, for_replacement)
 
-static func _read_saved_run(require_structure: bool, recover_terminal_profile: bool = false) -> Dictionary:
+static func load_checkpoint_for_replacement() -> Dictionary:
+	return _read_saved_run(true, false, true, true)
+
+static func load_checkpoint_for_resume() -> Dictionary:
+	return _read_saved_run(true, true, false, true).get("state", {})
+
+static func _read_saved_run(require_structure: bool, recover_terminal_profile: bool = false, for_replacement: bool = false, promote_backup: bool = false) -> Dictionary:
 	flush_pending_run_saves()
-	var live: Dictionary = _read_checkpoint_at(_run_storage_path, require_structure, recover_terminal_profile)
-	# A missing or corrupt live file can recover a backup. An inaccessible
-	# live file might hold a newer checkpoint, so retry without rolling back.
-	if live["status"] not in [RunFile.MISSING, RunFile.INVALID]: return live
-	var backup: Dictionary = _read_checkpoint_at(_run_backup_path(), require_structure, recover_terminal_profile)
+	var profile := _read_completion_profile() if require_structure else {}
+	var live := _read_checkpoint_at(_run_storage_path, require_structure, profile, recover_terminal_profile, for_replacement)
+	# A terminal record owns its outstanding settlement. A finalized record
+	# can coexist with an independently playable backup from a sync conflict.
+	var finalized: bool = live["status"] == RunFile.TERMINAL and not live.get("settlement_pending", false)
+	if not finalized and live["status"] not in [RunFile.MISSING, RunFile.INVALID, RunFile.STALE]: return live
+	var backup := _read_checkpoint_at(_run_backup_path(), require_structure, profile, recover_terminal_profile, for_replacement, promote_backup)
+	if finalized and backup["status"] != RunFile.READY: return live
+	if live["status"] == RunFile.STALE and backup["status"] in [RunFile.INVALID, RunFile.EXCLUDED]:
+		return live
+	if promote_backup and backup.has("state"):
+		if not PersistenceDisk.run(_promote_resume_backup_at.bind(_run_storage_path, backup["bytes"])):
+			push_error("Failed to promote the selected run backup.")
+			return {"status": RunFile.UNAVAILABLE}
+		backup.erase("bytes")
 	return live if backup["status"] == RunFile.MISSING else backup
 
-static func _read_checkpoint_at(path: String, require_structure: bool, recover_terminal_profile: bool) -> Dictionary:
-	var inspection := _inspect_run_file(path)
+static func _read_checkpoint_at(path: String, require_structure: bool, profile: Dictionary, recover_terminal_profile: bool, for_replacement: bool, retain_bytes: bool = false) -> Dictionary:
+	var inspection := _inspect_run_file(path, retain_bytes)
 	var status: int = inspection["status"]
 	if status != RunFile.READY: return {"status": status}
 	var state: Dictionary = inspection["state"]
@@ -565,22 +598,63 @@ static func _read_checkpoint_at(path: String, require_structure: bool, recover_t
 	if require_structure:
 		summary = Checkpoint.validated_resume_summary(state)
 		if summary.is_empty():
-			if not Checkpoint.is_terminal_record(state): return {"status": RunFile.INVALID}
+			if not Checkpoint.is_terminal_record(state):
+				return {"status": RunFile.STALE if has_completed_run(profile, state) else RunFile.INVALID}
 			# A run scene already asked to resume may need to repair a bank or
 			# recovery marker whose profile write failed after the heirloom choice.
 			# Title Continue uses the ordinary resume summary.
-			if recover_terminal_profile and _terminal_profile_write_pending(state):
-				return {"status": RunFile.TERMINAL, "state": _migrate_run_dictionary(state)}
-			return {"status": RunFile.TERMINAL}
-	return {"status": RunFile.READY, "state": _migrate_run_dictionary(state), "summary": summary}
+			var pending := terminal_profile_write_pending(state, profile) or embrace_settlement_pending(state, profile)
+			if state.get("mode") in ["victory", "defeat"] and not completion_run_id(state).is_empty():
+				pending = pending or not has_completed_run(profile, state)
+			if for_replacement or (recover_terminal_profile and pending):
+				inspection["status"] = RunFile.TERMINAL
+				inspection["state"] = _migrate_run_dictionary(state)
+				inspection["settlement_pending"] = pending
+				return inspection
+			return {"status": RunFile.TERMINAL, "settlement_pending": pending}
+		# The release summary already validates an unanswered terminal prompt.
+		# Only active gameplay can be hidden by a matching completion receipt.
+		if summary["mode"] not in ["victory", "defeat"] and has_completed_run(profile, state):
+			return {"status": RunFile.STALE}
+	inspection["state"] = _migrate_run_dictionary(state)
+	inspection["summary"] = summary
+	return inspection
 
-static func _terminal_profile_write_pending(state: Dictionary) -> bool:
+static func _promote_resume_backup_at(path: String, bytes: PackedByteArray) -> bool:
+	if not _archive_before_surface_migration(path, false): return false
+	var temporary := path + ".tmp"
+	_remove_run_file_if_present(temporary)
+	var file := FileAccess.open(temporary, FileAccess.WRITE)
+	if file == null: return false
+	var written := file.store_buffer(bytes)
+	file.flush()
+	file.close()
+	if written and FileAccess.get_file_as_bytes(temporary) == bytes:
+		# Windows may remove the old live file during rename. Keep the
+		# selected backup in place throughout so every cut still owns it.
+		if DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(path)) == OK:
+			return true
+	_remove_run_file_if_present(temporary)
+	return false
+
+static func _read_completion_profile() -> Dictionary:
+	# Match the profile reader's live/backup order without normalizing unrelated
+	# stats, skills and history on each title Continue refresh.
+	var profile: Variant = _read_profile_json(_storage_path)
+	if profile is Dictionary: return profile
+	profile = _read_profile_json(_profile_backup_path())
+	return profile if profile is Dictionary else {}
+
+static func embrace_settlement_pending(state: Dictionary, profile: Dictionary) -> bool:
+	return state.get("mode") == "embrace" and bool(state.get("embrace_settlement", false)) and not has_completed_run(profile, state)
+
+static func terminal_profile_write_pending(state: Dictionary, profile: Dictionary) -> bool:
 	if state.get("mode") not in ["victory", "defeat"]: return false
 	var wallet: Variant = state.get("heirloom_terminal_wallet")
 	var embedded: Variant = state.get("progression")
 	if not wallet is Dictionary or wallet.is_empty() or not embedded is Dictionary: return false
 	var revision: Variant = embedded.get("progression_revision", 0)
-	return revision is int and revision > int(load_data().get("progression_revision", 0))
+	return revision is int and revision > int(profile.get("progression_revision", 0))
 
 static func _load_run_dictionary(path: String) -> Dictionary:
 	var inspection := _inspect_run_file(path)
@@ -776,7 +850,7 @@ static func _delete_run_file(path: String) -> bool:
 	parent.list_dir_end()
 	return true
 
-static func _inspect_run_file(path: String) -> Dictionary:
+static func _inspect_run_file(path: String, retain_bytes: bool = false) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		var error := FileAccess.get_open_error()
@@ -797,12 +871,21 @@ static func _inspect_run_file(path: String) -> Dictionary:
 	if length < 4 or length > size - 4: return {"status": RunFile.INVALID}
 	var payload := file.get_buffer(length)
 	read_error = file.get_error()
-	file.close()
 	if read_error != OK or payload.size() != length: return {"status": RunFile.UNAVAILABLE}
 	var raw: Variant = bytes_to_var(payload)
 	if not raw is Dictionary or raw.is_empty(): return {"status": RunFile.INVALID}
 	Checkpoint.normalize_seed(raw)
-	return {"status": RunFile.READY, "state": raw}
+	var result := {"status": RunFile.READY, "state": raw}
+	if retain_bytes:
+		var trailing_length: int = size - length - 4
+		if trailing_length > 0:
+			var trailing := file.get_buffer(trailing_length)
+			if trailing.size() != trailing_length or file.get_error() != OK: return {"status": RunFile.UNAVAILABLE}
+			payload.append_array(trailing)
+		header.append_array(payload)
+		result["bytes"] = header
+	file.close()
+	return result
 
 static func _inspection_is_authoritative(inspection: Dictionary) -> bool:
 	if inspection["status"] != RunFile.READY: return false
@@ -854,6 +937,100 @@ static func _run_backup_path() -> String:
 static func _remove_run_file_if_present(path: String) -> void:
 	if FileAccess.file_exists(path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+static func completion_run_id(state: Dictionary) -> String:
+	var analytics: Variant = state.get("analytics")
+	if not analytics is Dictionary: return ""
+	var id: Variant = analytics.get("run_id")
+	# The released analytics ID is random. Score and Chronicle identities use
+	# a counter and seed and cannot identify a run across cloned profiles.
+	return id if id is String and not id.strip_edges().is_empty() and not id.begins_with("run:") else ""
+
+static func has_completed_run(profile: Dictionary, state: Dictionary) -> bool:
+	var id := completion_run_id(state)
+	var ids: Variant = profile.get(RUN_COMPLETION_IDS_KEY)
+	if id.is_empty(): return false
+	if ids is Array and ids.has(id): return true
+	# Earlier builds wrote a durable score receipt with the random ID in its
+	# context, but omitted the standalone completion ID. Only settlement queues
+	# run_scored; a run_ended receipt can be staged before the wallet settles.
+	var outbox: Variant = profile.get(PROGRESSION_ANALYTICS_OUTBOX_KEY)
+	if outbox is Array:
+		for receipt: Variant in outbox:
+			if not receipt is Dictionary or receipt.get("event_type") != "run_scored": continue
+			var context: Variant = receipt.get("context")
+			if context is Dictionary and context.get("run_id") == id: return true
+	# The released build records the result as run:N:seed:S with the wallet.
+	# It is this run's unless a newer build attributed it to another run. An
+	# ID minted on load follows the release rules: completion is unknown.
+	var legacy := legacy_result_id(state)
+	if not legacy.is_empty() and not _run_id_minted_on_load(state) and _result_recorded(profile, legacy):
+		return result_owner(profile, legacy) in ["", id]
+	return false
+
+static func _run_id_minted_on_load(state: Dictionary) -> bool:
+	# LoadedRoomState marks an ID minted for a checkpoint saved without one.
+	var analytics: Variant = state.get("analytics")
+	return analytics is Dictionary and bool(analytics.get("run_id_minted_on_load", false))
+
+static func legacy_result_id(state: Dictionary) -> String:
+	if not state.has("seed"): return ""
+	return "run:%d:seed:%d" % [int(state.get("run_index", 0)), int(state.get("seed", 0))]
+
+static func _result_recorded(profile: Dictionary, result_id: String) -> bool:
+	# Raw read: title checks pass the unnormalized profile JSON.
+	var receipts: Variant = profile.get(CHRONICLE_RECEIPTS_KEY)
+	if receipts is Array and receipts.has(result_id): return true
+	var last: Variant = profile.get(LAST_RUN_RESULT_KEY)
+	if last is Dictionary and str(last.get("result_id", "")) == result_id: return true
+	var ledger: Variant = profile.get(RUN_RESULT_LEDGER_KEY)
+	if ledger is Array:
+		for entry: Variant in ledger:
+			if entry is Dictionary and str(entry.get("result_id", "")) == result_id: return true
+	return false
+
+static func result_owner(profile: Dictionary, result_id: String) -> String:
+	var owners: Variant = profile.get(RUN_RESULT_OWNERS_KEY)
+	return str(owners.get(result_id, "")) if owners is Dictionary else ""
+
+static func stamp_result_identity(state: Dictionary, profile: Dictionary) -> void:
+	# Two descents started in the same second from cloned profiles share a
+	# counter and seed. The second to settle records under its random ID.
+	if state.has(Chronicle.RESULT_IDENTITY_KEY) or _run_id_minted_on_load(state): return
+	var id := completion_run_id(state)
+	var legacy := legacy_result_id(state)
+	if id.is_empty() or legacy.is_empty() or not _result_recorded(profile, legacy): return
+	var owner := result_owner(profile, legacy)
+	if not owner.is_empty() and owner != id: state[Chronicle.RESULT_IDENTITY_KEY] = id
+
+static func record_run_completion(profile: Dictionary, state: Dictionary) -> Dictionary:
+	var next := profile.duplicate(true)
+	var id := completion_run_id(state)
+	if id.is_empty(): return next
+	var ids: Array = _normalized_string_array(next.get(RUN_COMPLETION_IDS_KEY, []))
+	if not ids.has(id): ids.append(id)
+	next[RUN_COMPLETION_IDS_KEY] = ids
+	# Attribute a result recorded under the released identity to this run.
+	var legacy := legacy_result_id(state)
+	if not state.has(Chronicle.RESULT_IDENTITY_KEY) and not legacy.is_empty() and _result_recorded(next, legacy) and result_owner(next, legacy).is_empty():
+		var owners: Dictionary = (next.get(RUN_RESULT_OWNERS_KEY, {}) as Dictionary).duplicate() if next.get(RUN_RESULT_OWNERS_KEY) is Dictionary else {}
+		owners[legacy] = id
+		next[RUN_RESULT_OWNERS_KEY] = owners
+	return next
+
+static func merge_run_completion_ids(profile: Dictionary, source: Dictionary) -> void:
+	# The caller owns its candidate profile. A newer embedded revision can
+	# repair progression, but it cannot revoke a durable completion receipt.
+	var source_owners: Variant = source.get(RUN_RESULT_OWNERS_KEY)
+	if source_owners is Dictionary and not source_owners.is_empty():
+		var owners: Dictionary = (profile.get(RUN_RESULT_OWNERS_KEY, {}) as Dictionary).duplicate() if profile.get(RUN_RESULT_OWNERS_KEY) is Dictionary else {}
+		for result_id: Variant in source_owners:
+			if not owners.has(result_id): owners[result_id] = source_owners[result_id]
+		profile[RUN_RESULT_OWNERS_KEY] = owners
+	if not source.has(RUN_COMPLETION_IDS_KEY): return
+	var ids: Array = _normalized_string_array(profile.get(RUN_COMPLETION_IDS_KEY, []))
+	ids.append_array(_normalized_string_array(source[RUN_COMPLETION_IDS_KEY]))
+	profile[RUN_COMPLETION_IDS_KEY] = _normalized_string_array(ids)
 
 static func record_run_result(data: Dictionary, result_id: String, stats_value: Variant, run_state: Dictionary = {}, outcome: String = "") -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
@@ -969,6 +1146,30 @@ static func run_bests(data: Dictionary) -> Dictionary:
 
 static func unlocked_umbra_depth(data: Dictionary) -> int:
 	return clampi(int(data.get(UMBRA_DEPTH_UNLOCKED_KEY, 0)), 0, DepthRules.MAX_DEPTH)
+
+static func merge_depth_progress(candidate: Dictionary, source: Dictionary) -> void:
+	if source.has(UMBRA_DEPTH_UNLOCKED_KEY):
+		candidate[UMBRA_DEPTH_UNLOCKED_KEY] = maxi(unlocked_umbra_depth(candidate), unlocked_umbra_depth(source))
+	if _escaped_depth_twenty(source): candidate["umbra_depth_twenty_escaped"] = true
+	var bests := depth_best_scores(candidate)
+	var saved_bests := depth_best_scores(source)
+	for depth: String in saved_bests:
+		bests[depth] = maxi(int(bests.get(depth, 0)), int(saved_bests[depth]))
+	if not bests.is_empty(): candidate[UMBRA_DEPTH_BESTS_KEY] = bests
+	candidate[BEST_SCORE_KEY] = maxi(int(candidate.get(BEST_SCORE_KEY, 0)), int(source.get(BEST_SCORE_KEY, 0)))
+
+static func merge_synced_profile(candidate: Dictionary, source: Dictionary, run_state: Dictionary) -> void:
+	# A newer profile from another machine can win reconciliation. It never
+	# rolls the descent counter back or drops the other side's left heirloom,
+	# unless this run took that heirloom as its opening boon.
+	candidate["run_counter"] = maxi(int(candidate.get("run_counter", 0)), int(source.get("run_counter", 0)))
+	var left := heirloom(source)
+	if left.is_empty() or not heirloom(candidate).is_empty(): return
+	var boon: Variant = run_state.get("opening_boon")
+	if boon is Dictionary and boon.get("chosen") == "heirloom":
+		for offer: Variant in boon.get("offers", []):
+			if offer is Dictionary and offer.get("boon") == "heirloom" and offer.get("item") == left: return
+	candidate[HEIRLOOM_KEY] = left
 
 static func selected_umbra_depth(data: Dictionary) -> int:
 	return clampi(int(data.get(UMBRA_DEPTH_SELECTED_KEY, 0)), 0, unlocked_umbra_depth(data))
@@ -1331,6 +1532,14 @@ static func progression_analytics_outbox(data: Dictionary) -> Array[Dictionary]:
 		)
 	return _normalized_progression_analytics_outbox(data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, []))
 
+static func _progression_event_key(event_type: String, key: String, context: Dictionary) -> String:
+	var run_id: String = str(context.get("run_id", ""))
+	if event_type == "run_ended" and not run_id.is_empty():
+		return preload("res://scripts/analytics_store.gd").run_ended_key(run_id)
+	if event_type == "reward_claimed" and key.begins_with("reward_claimed|"):
+		return preload("res://scripts/analytics_store.gd").dragon_claim_key(key.trim_prefix("reward_claimed|"), run_id)
+	return key.strip_edges()
+
 static func queue_progression_analytics_event(
 	data: Dictionary,
 	event_type: String,
@@ -1340,7 +1549,7 @@ static func queue_progression_analytics_event(
 ) -> Dictionary:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
 	var safe_event_type: String = event_type.strip_edges()
-	var safe_idempotency_key: String = idempotency_key.strip_edges()
+	var safe_idempotency_key: String = _progression_event_key(safe_event_type, idempotency_key, context)
 	if safe_event_type.is_empty() or safe_idempotency_key.is_empty():
 		return normalized
 	var outbox: Array[Dictionary] = _normalized_progression_analytics_outbox(
@@ -1357,6 +1566,15 @@ static func queue_progression_analytics_event(
 	})
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
 	return normalized
+
+static func deliverable_progression_receipts(outbox: Array[Dictionary], settled_profile: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for entry: Dictionary in outbox:
+		var id: String = str(entry["context"].get("run_id", ""))
+		if entry["event_type"] == "run_ended" and entry["payload"].get("outcome") == "abandoned" and not id.is_empty():
+			if not has_completed_run(settled_profile, {"analytics": {"run_id": id}}): continue
+		result.append(entry)
+	return result
 
 static func acknowledge_progression_analytics_event(data: Dictionary, idempotency_key: String) -> Dictionary:
 	return acknowledge_progression_analytics_events(data, [idempotency_key])
@@ -1376,6 +1594,10 @@ static func acknowledge_progression_analytics_events(data: Dictionary, idempoten
 	):
 		if not acknowledged.has(str(entry.get("idempotency_key", ""))):
 			remaining.append(entry.duplicate(true))
+		elif entry["event_type"] == "run_scored":
+			# Only settlement queues a score. A delivered run_ended can be one a
+			# continued terminal checkpoint staged before its wallet settled.
+			normalized = record_run_completion(normalized, {"analytics": entry["context"]})
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = remaining
 	return normalized
 
@@ -1486,7 +1708,7 @@ static func mark_umbra_warning_seen(data: Dictionary) -> Dictionary:
 	next_data[UMBRA_WARNING_SEEN_KEY] = true
 	return next_data
 
-static func prepare_for_new_run(data: Dictionary) -> Dictionary:
+static func prepare_for_new_run(data: Dictionary, previous_checkpoint: Dictionary = {}) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	if _session_umbra_depth >= 0: next_data[UMBRA_DEPTH_SELECTED_KEY] = session_umbra_depth(next_data)
 	# Tutorial milestones describe one authored encounter. If that run was
@@ -1498,12 +1720,52 @@ static func prepare_for_new_run(data: Dictionary) -> Dictionary:
 		and not ContextualCombatTutorial.completed_steps(next_data).is_empty()
 	):
 		next_data = ContextualCombatTutorial.restart_tutorial(next_data)
-	var next_run_counter: int = int(next_data.get("run_counter", 0)) + 1
-	next_data["run_counter"] = next_run_counter
+	var reserved: String = str(next_data.get(PENDING_DESCENT_ID_KEY, ""))
+	var retry: bool = not reserved.is_empty() and reserved != completion_run_id(previous_checkpoint)
+	var next_run_counter: int = int(next_data.get("run_counter", 0))
 	var marker: Dictionary = recovery_marker(next_data)
+	# Before reservations, a torn install can still be recognized if the
+	# selected terminal checkpoint is the source of the marker for this counter.
+	if reserved.is_empty() and previous_checkpoint.get("mode") in ["defeat", "abandoned"]:
+		retry = (int(marker.get("available_run", -1)) == next_run_counter
+			and int(previous_checkpoint.get("run_index", -2)) + 1 == next_run_counter
+			and previous_checkpoint.get("current_room") == recovery_coord(next_data))
+	if not retry: next_run_counter += 1
+	next_data.erase(PENDING_DESCENT_ID_KEY)
+	next_data["run_counter"] = next_run_counter
 	if not marker.is_empty() and int(marker.get("available_run", 0)) < next_run_counter:
 		next_data["recovery_marker"] = {}
 	return next_data
+
+static func reconcile_descent_reservation(candidate: Dictionary, disk: Dictionary, checkpoint: Dictionary, settled_loss: bool = false) -> void:
+	var reserved: String = str(disk.get(PENDING_DESCENT_ID_KEY, ""))
+	if reserved.is_empty(): return
+	# The profile can advance before a replacement checkpoint exists. A
+	# loaded older checkpoint can still own a prompt but cannot consume the
+	# reserved counter or expire its marker.
+	candidate["run_counter"] = int(disk.get("run_counter", 0))
+	var installed: bool = reserved == completion_run_id(checkpoint)
+	var checkpoint_counter: int = int(checkpoint.get("run_index", -1))
+	var disk_marker := recovery_marker(disk)
+	var reserved_marker: Dictionary = disk_marker
+	if installed:
+		candidate.erase(PENDING_DESCENT_ID_KEY)
+		# The installed descent owns expiry, unless the disk already holds
+		# a loss available after that descent.
+		if int(disk_marker.get("available_run", -1)) <= checkpoint_counter:
+			reserved_marker = recovery_marker(checkpoint.get("progression", {}))
+	else:
+		candidate[PENDING_DESCENT_ID_KEY] = reserved
+	var marker := recovery_marker(candidate)
+	var available_run: int = int(marker.get("available_run", -1))
+	var reserved_available: int = int(reserved_marker.get("available_run", -1))
+	if installed:
+		reserved_available = maxi(reserved_available, checkpoint_counter)
+	# A loss recovered in this transaction supersedes the older marker on
+	# a tie. A zero-Ember loss can clear the marker at the same boundary.
+	if settled_loss and maxi(available_run, checkpoint_counter + 1) >= reserved_available: return
+	if available_run <= reserved_available:
+		candidate["recovery_marker"] = reserved_marker
 
 static func recovery_marker(data: Dictionary) -> Dictionary:
 	var marker: Dictionary = (data.get("recovery_marker", {}) as Dictionary).duplicate(true)
@@ -1526,6 +1788,7 @@ static func recovery_coord(data: Dictionary) -> Vector2i:
 static func record_lost_embers(data: Dictionary, amount: int, coord: Vector2i, current_run: int) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	next_data["embers"] = 0
+	if int(recovery_marker(next_data).get("available_run", -1)) > current_run + 1: return next_data
 	if amount <= 0:
 		next_data["recovery_marker"] = {}
 		return next_data

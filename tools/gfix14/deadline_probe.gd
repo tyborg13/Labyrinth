@@ -28,7 +28,10 @@ func _run() -> void:
 	var loader := DelayedRunSceneLoader.new()
 	loader.delay_msec = STALLED_LOAD_MSEC if watchdog_case else SLOW_LOAD_MSEC
 	ResourceLoader.add_resource_format_loader(loader, true)
-	SceneLoads._request_idle(self)
+	# perf-165: the idle request also starts the title pipeline warm on a menu control.
+	var idle_menu := Control.new()
+	root.add_child(idle_menu)
+	SceneLoads._request_idle(self, idle_menu)
 	if ResourceLoader.load_threaded_get_status(SceneLoads.RUN_SCENE_PATH) != ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		push_error("GFIX14 DEADLINE: delayed load did not start")
 		quit(1)

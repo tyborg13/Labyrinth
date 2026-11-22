@@ -34,6 +34,8 @@ class CardPanelTextTest(unittest.TestCase):
                 expected = rows[key]["text"]
                 if key in outcrop_rows:
                     expected = expected.replace("outcrop", "Outcrop")
+                # pla-01 (exception strip) supersedes these director sentences.
+                expected = read("tests/fixtures/pla01_exception_strip.json")["card_panel_text"].get(key, expected)
                 self.assertEqual(templates[key]["text"], expected)
                 self.assertEqual(templates[key]["title"], rows[key]["title"])
         self.assertNotIn("worldspine_burst", templates)

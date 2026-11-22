@@ -142,6 +142,7 @@ static func _collision_state(hero: Vector2i, nonce: int) -> Dictionary:
 	state.erase("fight_seed") # zek-01 added it to every combat state; the collision predates it.
 	state["balance_revision"] = "dragon_pressure_v3" # The revision it was authored at; card balance bumps it.
 	state.erase("wind")
+	# The pre-pla-01 objective copy, kept verbatim: it is part of the frozen hash collision.
 	state["objective"]["description"] = "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.\n" + Orders.STORMCALLER_ORDER_LINE
 	state["enemies"][0]["intent"] = Wind.commit(Combat.new(), state, state["enemies"][0], Orders.authored(state, "call_the_wind"))
 	state["player"]["pos"] = hero

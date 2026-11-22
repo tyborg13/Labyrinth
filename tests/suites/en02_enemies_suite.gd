@@ -364,7 +364,11 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 		expect.call(WindView.direction_name(axis) == "toward the " + quadrant, "Wind direction words match the isometric screen quadrant for %s" % axis)
 	expect.call(WindView.CHEVRON_STROKE == 2.0 and WindView.GUST_SPEED == 1.5 and WindView.GUST_LENGTH == 2.6 and is_equal_approx(WindView.GUST_FORECAST_ALPHA, 0.4) and is_equal_approx(WindView.GHOST_TINT.a, 0.36) and is_equal_approx(WindView.GHOST_FORECAST_TINT.a, 0.22), "Wind chip arrow, gust streams and landing ghosts use the approved values")
 	var herald_badges: Array[Dictionary] = WindView.status_badges({"type": "gale_herald"})
-	expect.call(herald_badges.size() == 2 and str(herald_badges[0]["icon"]) == "wind" and herald_badges[0]["tooltip"] == "Calls the wind. Defeat it and the wind stops.", "Herald carries the wind sigil with the approved source tooltip")
-	expect.call(herald_badges.size() == 2 and herald_badges[1]["tooltip"] == "Anchored: the wind does not move it.", "Herald Anchored tooltip uses exact approved wording")
+	expect.call(herald_badges.size() == 1 and str(herald_badges[0]["icon"]) == "wind" and herald_badges[0]["tooltip"] == "Calls the wind. Defeat it and the wind stops.", "Herald carries the wind sigil with the approved source tooltip")
+	# pla-01: the Anchored chip is a unit trait shared by every anchored enemy (Herald and Roc),
+	# reading the keyword's own sentence, which is true for them: Push, Pull and Wind can't move it.
+	for anchored_type: String in ["gale_herald", "gallows_roc"]:
+		var anchored_chips: Array[Dictionary] = preload("res://scripts/enemy_mechanics/unit_traits.gd").badges({"type": anchored_type, "hp": 1})
+		expect.call(anchored_chips.size() == 1 and str(anchored_chips[0]["icon"]) == "anchored" and anchored_chips[0]["tooltip"] == "Anchored\nPush, Pull and Wind can't move it.", "Anchored trait chip on " + anchored_type)
 	expect.call(Glossary.definition("icefall") == "These tiles take the hit on this enemy's next turn.", "Icefall aliases the approved Marked keyword")
 	expect.call(Glossary.definition("wind") == "On its beat, the wind pushes every unit downwind.", "Wind icon description uses approved wording")

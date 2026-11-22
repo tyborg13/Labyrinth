@@ -80,10 +80,65 @@ before the resumable slot is cleared. This prevents a close during the terminal
 animation from restoring the last combat or losing ember banking/recovery data.
 If profile persistence fails, the resumable slot keeps the unprocessed terminal
 snapshot, including held embers, so a later resume can retry exactly once.
-Explicit save/quit checks the held committed state during terminal presentation
-and never replaces that unprocessed terminal snapshot with the finalized display state.
+The live profile, settled wallet and completion receipt take effect only after
+the profile write succeeds. When a final-dragon profile write fails after
+publishing an heirloom fallback, Save & Quit preserves that fallback and its
+unprocessed wallet even while the reward remains on screen.
 Campfire Embrace likewise clears the run only after the bank/rest profile write
 succeeds; a failed write leaves the previous resumable run unchanged.
+
+Embrace, defeat, escape, demo completion, and abandonment record the checkpoint's
+unique analytics run ID in `completed_run_ids` in the same profile write that
+settles its Embers. Revision reconciliation unions these IDs from both copies
+of progression. Results, scores and Chronicle entries keep the released
+`run:N:seed:S` identity, so a run saved by one build and finished by the other
+records one result. Without the completion ID, a recorded `run:N:seed:S`
+result counts as this run's settlement unless `completed_result_owners`
+attributes it to another run ID. That run is a clone from a cloned profile
+started in the same second; it records under its own random run ID. For a
+legacy checkpoint without a saved unique ID, the ID minted on load cannot
+tell a clone from a reload, so completion is unknown and the release resume
+rules apply.
+
+Continue from a terminal checkpoint whose wallet is unsettled settles exactly
+as New Descent from the same files would: bank, Depth and one result, or the
+recovery marker. A closing receipt staged in that checkpoint is delivered
+after settlement and never counts as completion. When the profile already
+settled the run, it also owns the result and Chronicle entry if the checkpoint
+carries a newer revision. When a newer embedded profile wins reconciliation,
+it keeps the other copy's left heirloom (unless this run took that heirloom as
+its opening boon), the higher descent counter, Depth progress and the bank.
+
+The resume reader considers a matching active checkpoint stale for selection.
+It independently evaluates a recovery backup when live is stale. The completion
+check leaves the profile, live checkpoint, and backup bytes intact. New Descent
+skips the stale active wallet and replaces the checkpoint through the normal
+install transaction. A settled Abandon detaches the active scene from its old
+wallet even when the terminal checkpoint write fails.
+An actual Continue from the recovery backup stages and promotes its exact
+bytes to live before loading the scene. The backup stays in place during this
+operation, so a crash during promotion or the first subsequent Windows
+rotation still leaves a readable copy of the selected run.
+
+When New Descent has a recovery marker, the profile reserves the intended
+counter and unique checkpoint ID while keeping the original marker. A retry
+reuses the reservation if that checkpoint never installed. Once the matching
+checkpoint is live, its embedded marker determines whether the dropped Embers
+remain recoverable, and the profile releases the reservation. Loading an older
+heirloom choice preserves the reservation and marker through reconciliation.
+For older saves without a reservation, the preceding defeat or abandon
+checkpoint can identify the interrupted counter when it matches the marker's
+run and recovery room.
+
+When a terminal boundary has an unanswered heirloom prompt, the writer publishes
+the unprocessed terminal fallback before the wallet profile. This leaves the
+prompt available on either side of the profile write. The title follows the
+release prompt and run-first choice recovery rules. Resuming the fallback uses
+the settled profile wallet if its unique ID already appears there.
+
+Older builds can read the additive fields but do not enforce this completion
+check. Opening an interrupted newer save on such a build can still offer the
+old checkpoint and lose the bank on New Descent.
 
 ## Ordinary combat analytics scheduling
 
