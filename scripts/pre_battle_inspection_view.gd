@@ -23,15 +23,14 @@ class LoopMovePlate extends Controls.Plate:
 	var loop_source: Dictionary = {}
 	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
-		var panel: Control = LoopContext.panel_for_text(text, loop_source, loop_term)
-		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
+		var panels = load("res://scripts/ui_tooltip_panel.gd")
+		return panels.make_plain_text(text) if loop_term.is_empty() else panels.make_text(text, loop_source, loop_term)
 
 class LoopTraitRow extends HBoxContainer:
 	var loop_source: Dictionary = {}
 	var loop_term: String = ""
 	func _make_custom_tooltip(text: String) -> Object:
-		var panel: Control = LoopContext.panel_for_text(text, loop_source, loop_term)
-		return panel if panel != null else load("res://scripts/ui_tooltip_panel.gd").make_text(text)
+		return load("res://scripts/ui_tooltip_panel.gd").make_text(text, loop_source, loop_term)
 
 static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> Control:
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
@@ -153,7 +152,7 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 	var capacitor: bool = CapacitorView.Rules.handles_intent(intent)
 	var plate := LoopMovePlate.new()
 	plate.loop_source = source
-	plate.loop_term = LoopContext.intent_term(str(intent.get("name", "")), source)
+	plate.loop_term = LoopContext.intent_term(str(intent.get("name", "")), source, own_rows)
 	plate.name = "PreBattleKnownMoveRow"
 	plate.top = Palette.INK_2
 	plate.bottom = Palette.INK_1
@@ -201,7 +200,7 @@ static func build_move(host: Node, intent: Dictionary, source: Dictionary = {}, 
 		for action: Dictionary in actions:
 			if str(action.get("type", "")) in ["burrow", "erupt", "icefall_mark", "icefall_land", "lob_mark", "lob_land"]: plate.tooltip_text = ActionIcons.marked_move_text(action)
 	var details: String = move_tooltip(rows)
-	if plate.tooltip_text.is_empty() and not LoopContext.term_in(details, source).is_empty(): plate.tooltip_text = details
+	if plate.tooltip_text.is_empty() and not plate.loop_term.is_empty(): plate.tooltip_text = details
 	var notes: String = GuardianLibrary.intent_notes(intent)
 	if not notes.is_empty():
 		text_box.add_child(rules_label(notes, "GuardianMoveRules", 410.0))

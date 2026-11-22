@@ -99,6 +99,11 @@ static func draw_effect(board: Control, effect: Dictionary, progress: float) -> 
 		board.draw_line(from, to, COLOR, BEAM_CORE, true)
 		return true
 	if kind != "reflected_projectile": return false
+	var pose: Dictionary = projectile_pose(board, effect, progress)
+	board._draw_projectile_sprite(pose["point"], pose["direction"], board._projectile_element_id(str(effect.get("element", "none"))), pose["travel"])
+	return true
+
+static func projectile_pose(board: Control, effect: Dictionary, progress: float) -> Dictionary:
 	var frame: Dictionary = projectile_frame(progress, float(effect["en05_outbound_seconds"]))
 	var start: Vector2 = board._tile_center(effect["from"]) + Vector2(0.0, -24.0)
 	var end: Vector2 = board._tile_center(effect["to"]) + Vector2(0.0, -24.0)
@@ -107,8 +112,7 @@ static func draw_effect(board: Control, effect: Dictionary, progress: float) -> 
 	var point: Vector2 = board._quadratic_bezier(start, control, end, t)
 	var direction: Vector2 = board._quadratic_bezier(start, control, end, minf(1.0, t + 0.04)) - board._quadratic_bezier(start, control, end, maxf(0.0, t - 0.04))
 	if bool(frame["returning"]): direction = -direction
-	board._draw_projectile_sprite(point, direction, board._projectile_element_id(str(effect.get("element", "none"))), t)
-	return true
+	return {"point": point, "direction": direction, "travel": t}
 
 # The return projectile replaces a lone shot's own animation. Area, Chain and
 # melee strikes keep theirs; the returned damage shows in their hit text.
@@ -121,9 +125,15 @@ static func animate_player(scene: Control, before: Dictionary, after: Dictionary
 	scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_player_action(preload("res://scripts/game_data.gd").card_def(card_id), action))
 	var outbound: float = scene.ATTACK_FRAMES * scene.ATTACK_FRAME_SECONDS * PROJECTILE_TRAVEL_FRACTION
 	var effect: Dictionary = reflected_effect(before, action, target, outbound)
+	await play_projectile(scene, before, after, effect, scene.ATTACK_FRAME_SECONDS)
+	return true
+
+static func play_projectile(scene: Control, before: Dictionary, after: Dictionary, effect: Dictionary, frame_seconds: float) -> void:
+	var outbound: float = effect["en05_outbound_seconds"]
 	var total: float = outbound + FLASH_SECONDS + outbound / RETURN_SPEED
-	var frames: int = ceili(total / scene.ATTACK_FRAME_SECONDS)
-	var key: String = engine._enemy_key(before["enemies"][engine._enemy_index_at_tile(before, target)])
+	var frames: int = ceili(total / frame_seconds)
+	var engine: RefCounted = scene._combat_engine
+	var key: String = engine._enemy_key(before["enemies"][engine._enemy_index_at_tile(before, effect["to"])])
 	await scene._play_timed_animation_frames(frames, total / frames, func(frame: int) -> void:
 		var progress: float = float(frame - 1) / frames
 		var timing: Dictionary = projectile_frame(progress, outbound)
@@ -133,7 +143,6 @@ static func animate_player(scene: Control, before: Dictionary, after: Dictionary
 	var losses: Array[Dictionary] = engine._actor_target_losses(before, after)
 	losses.append_array(engine._enemy_target_losses(before, after))
 	await scene._animate_floating_text_presentation(after, {"floating_texts": scene._floating_texts_for_target_losses(losses)})
-	return true
 
 static func animate_beam(scene: Control, state: Dictionary, step: Dictionary) -> void:
 	scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_step(step))

@@ -8,6 +8,7 @@ const Registry = preload("res://scripts/tooltip_loop_registry.gd")
 const Cache = preload("res://scripts/tooltip_loop_cache.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
+const Context = preload("res://scripts/tooltip_loop_context.gd")
 const CLOCK_SINK_SIZE := Vector2i(16, 16)
 const HOVER_SETTLE_SECONDS: float = 1.2
 const HOVER_EXIT_POINT := Vector2(1, 1)
@@ -17,6 +18,9 @@ const CARD_KEYWORD_LOOPS: Dictionary = {
 	"detonate": Fixture.Tip06.DETONATE,
 	"discharge": Fixture.Tip06.DISCHARGE,
 	"illusion_swap": Fixture.Tip06.SWAP,
+	"reflect": Fixture.Tip09.REFLECT,
+	"pierce": Fixture.Tip09.PIERCE,
+	"stagger": Fixture.Tip10.STAGGER,
 }
 
 var _viewport: SubViewport
@@ -129,11 +133,40 @@ func _prove(id: String, raw: String, output: String) -> void:
 			if _window(panel, id, asset) == null:
 				_errors.append(id + " did not attach to the board keyword pop-up")
 			if panel != null: panel.free()
+			if _headless: await _collision_forecast(scene, fixture, asset)
 		elif not _grimoire_stills:
 			await _show_hand(scene, id, asset, raw, output)
 		await _show_grimoire(scene, id, term, entry_id, equipment_entry, asset, raw, output)
 		scene.queue_free()
 		await process_frame
+
+func _collision_forecast(scene: Node, fixture: Dictionary, asset: String) -> void:
+	var before: Dictionary = fixture["state"]
+	var result: Dictionary = Fixture.plan(fixture, scene.get("_combat_engine"))
+	var shown: Dictionary = {}
+	scene.call("_append_forced_displacement_preview", shown, before, result["final"])
+	if shown.get("collision_markers", []).size() != 1:
+		_errors.append("Collision forecast must produce one marker from the resolver")
+		return
+	scene.call("_render_board_state", before, shown)
+	for frame: int in range(Playback.SETTLE_FRAMES): await process_frame
+	var board: Control = scene.get("board_view")
+	var regions: Array[Dictionary]
+	for layer: Control in Context.tooltip_sources(board):
+		for region: Dictionary in layer.get("_tooltip_regions"):
+			if str(region["tooltip"]).begins_with("Collision:"): regions.append(region)
+	if regions.size() != 2:
+		_errors.append("Collision forecast must register both its medallion and its damage number")
+		return
+	for region: Dictionary in regions:
+		var local: Vector2 = (region["rect"] as Rect2).get_center()
+		board.set("_last_pointer_position", local)
+		var text: String = board.call("_get_tooltip", local)
+		var route: Dictionary = Context.board_route(board, text)
+		var panel: Control = board._make_custom_tooltip(text)
+		if route.get("rect") != region["rect"] or route.get("loop_term") != "collision" or _window(panel, Tip07.COLLISION, asset) == null:
+			_errors.append("Collision forecast hit region must use its explicit key and open collision_push")
+		if panel != null: panel.free()
 
 func _show_hand(scene: Node, id: String, asset: String, raw: String, output: String) -> void:
 	scene.call("_set_hand_emphasized_index", 0, false)

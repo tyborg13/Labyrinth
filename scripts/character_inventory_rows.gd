@@ -242,8 +242,8 @@ static func _preparation_active(scene: Variant, revision: int, still_active: Cal
 
 # A displayed pack never moves into speculation. The other tab uses its own
 # row keys and final-parent dialog, with the same builders and handoff guards.
-static func prepare_other_for(scene: Node, generation: int, present: Callable = Callable()) -> void:
-	if not is_instance_valid(scene) or not scene.is_inside_tree(): return
+static func prepare_other_for(scene: Variant, generation: int, present: Callable = Callable()) -> void:
+	if not is_instance_valid(scene) or not scene.is_inside_tree() or scene.is_queued_for_deletion(): return
 	if not present.is_valid(): present = preload("res://scripts/encounter_asset_preparation.gd").present_frame.bind(scene.get_tree())
 	var live_dialog: Variant = scene._upgrade_dialog
 	var live_mode: String = scene._progression_overlay_mode

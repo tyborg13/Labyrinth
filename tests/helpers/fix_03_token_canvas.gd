@@ -29,6 +29,6 @@ func _draw() -> void:
 		draw_string(UiTypography.ui_font(), Vector2(LABEL_X, origin.y + INTENT_POPUP_ROW_FONT_SIZE), _proof_case, HORIZONTAL_ALIGNMENT_LEFT, -1, INTENT_POPUP_ROW_FONT_SIZE, Palette.TEXT)
 		_draw_token_row(entry["tokens"], origin, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, Palette.TEXT, UiTypography.ui_font(), true)
 
-func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false) -> void:
+func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false, term: String = "") -> void:
 	drawn_icons.append({"case": _proof_case, "icon": icon_key, "rect": rect, "loaded": _keyword_icon_textures.get(icon_key) != null})
-	super._draw_keyword_icon(icon_key, rect, tooltip, tint, embossed)
+	super._draw_keyword_icon(icon_key, rect, tooltip, tint, embossed, term)

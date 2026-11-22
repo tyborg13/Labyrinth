@@ -46,12 +46,16 @@ static func prepare_for(scene: Node, state: Dictionary, combat: Dictionary, pres
 		Assets.count_preparation_work(started, &"combat_overlay_flip")
 	await Assets.wait_for_preparation_slice(present, alive, &"", 0)
 	if not bool(alive.call()): return
+	var board: Control = scene.board_view
+	await board.get_script().prepare_trap_assets_for(board, combat, present, alive)
+	if not bool(alive.call()): return
 	scene._combat_texture_scope = scope
 	wall = null
 	if telemetry != null: telemetry.hitch_combat_texture_scope(scene._encounter_preparation_generation, scope.textures)
 
 static func texture_manifest(scene: Node, state: Dictionary, combat: Dictionary, rewards: Array = []) -> Dictionary:
 	var paths: Dictionary = {}
+	scene.board_view.add_trap_texture_paths(paths, combat)
 	var cards: Dictionary = {}
 	var deck: Dictionary = combat.get("deck", {})
 	for pile: String in ["draw", "hand", "discard", "burned", "consumed"]:
@@ -100,7 +104,17 @@ static func _add_enemy_textures(scene: Node, paths: Dictionary, type: String) ->
 			if FileAccess.file_exists(rest) or ResourceLoader.exists(rest): paths[rest] = true
 
 static func _add_intent_icons(paths: Dictionary, intent: Dictionary) -> void:
-	for action: Dictionary in intent.get("actions", []): _add_action_icons(paths, action)
+	for action: Dictionary in intent.get("actions", []):
+		var type: String = str(action.get("type", ""))
+		if type == "lob_mark":
+			# The raw marking intent has no damage. Its visible row gets the
+			# surface from the paired landing, which is also in the manifest.
+			for key: String in [Icons.action_icon_key(action), "aoe_pattern", "marked", "aoe"]:
+				_add_path(paths, Icons.icon_path(key))
+			continue
+		_add_action_icons(paths, action)
+		if type == "lob_land":
+			_add_path(paths, Icons.icon_path(Icons.surface_icon_key(str(action["surface"]))))
 
 static func _add_action_icons(paths: Dictionary, action: Dictionary) -> void:
 	_add_path(paths, Icons.icon_path(Icons.action_icon_key(action)))

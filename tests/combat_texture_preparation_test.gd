@@ -7,6 +7,7 @@ const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Card = preload("res://scripts/card_widget.gd")
 const Ink = preload("res://scripts/turn_order_ink.gd")
+const Icons = preload("res://scripts/action_icon_library.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Element = preload("res://scripts/element_data.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
@@ -61,8 +62,19 @@ func _run() -> void:
 			{"kind": "item", "card_id": "crimson_draught", "claimed": true}],
 		"enemies": [{"type": "tharokh"}, {"type": "crawler"}, {"type": "cinder_ooze"}],
 		"room_coord": OVERLAY_COORD, "room_element": Element.FIRE, "moss": {"pillar": [PILLAR_TILE]},
+		"traps": [{"element": Element.ICE}, {"element": Element.ICE}, {"element": Element.NONE}],
 	}
 	var manifest: Dictionary = Textures.texture_manifest(host, state, combat)
+	_check_slag_mortar_manifest(host, state)
+	var startup_manifest: Dictionary = board._initial_texture_manifest()
+	var trap_paths: Dictionary = {}
+	board.add_trap_texture_paths(trap_paths, combat)
+	_check(trap_paths.size() == 6, "Room element and distinct placed trap should select exactly two sets")
+	for element: String in Element.all_elements():
+		for suffix: String in ["", "_idle", "_activation"]:
+			var path: String = "res://assets/art/traps/trap_%s%s.png" % [element, suffix]
+			_check(manifest.has(path) == (element in [Element.FIRE, Element.ICE]), "Wrong encounter trap scope: " + path)
+			_check(not startup_manifest.has(path), "Startup requested a room-specific trap: " + path)
 	for path: String in Compass.TEXTURE_PATHS.values():
 		_check(manifest.has(path), "Details compass path absent: " + path)
 	for path: String in [Data.card_def("rockburst")["art_path"], Data.card_def("vortex")["art_path"], Data.card_def("dull_bolt")["art_path"],
@@ -90,6 +102,12 @@ func _run() -> void:
 	_check(Assets.has_cached_texture(inspected_art), "Unequipped gear inspection card was still cold after preparation")
 	_check(not Assets.has_cached_texture(SPLIT_DROPLET_PART), "Speculative body entered the session cache during rig preparation")
 	await Textures.prepare_for(host, state, combat, _present, active, rig_textures)
+	for element: String in [Element.FIRE, Element.ICE]:
+		_check(board._trap_idle_frames_for_element(element).size() == 16, "Prepared trap is missing idle frames")
+		_check(board._trap_activation_frames_for_element(element).size() == 16, "Prepared trap is missing activation frames")
+	_check(not board._trap_textures.has(Element.AIR), "Preparation allocated an unused trap")
+	board._ensure_trap_assets_for_submission({}, {"trap_effects": [{"element": Element.AIR}]})
+	_check(board._trap_activation_frames_for_element(Element.AIR).size() == 16, "An effect-only trap could not use the fallback")
 	_check(Assets.has_cached_texture(SPLIT_DROPLET_PART), "Speculative body was still cold after encounter preparation")
 	for path: String in Compass.TEXTURE_PATHS.values():
 		_check(Assets.has_cached_texture(path), "Details compass still cold after encounter preparation: " + path)
@@ -126,6 +144,16 @@ func _run() -> void:
 
 func _present() -> void:
 	await process_frame
+
+func _check_slag_mortar_manifest(host: EncounterHost, state: Dictionary) -> void:
+	var intents: Array = Data.enemy_def("slag_mortar")["intents"]
+	var mark: Dictionary = intents[0]
+	var landing: Dictionary = intents[1]["actions"][0]
+	var combat: Dictionary = {"enemies": [{"type": "slag_mortar", "intent": mark}]}
+	var paths: Dictionary = Textures.texture_manifest(host, state, combat)
+	for key: String in ["lob", "marked", Icons.surface_icon_key(landing["surface"])]:
+		var path: String = Icons.icon_path(key)
+		_check(not path.is_empty() and paths.has(path), "Lob Slag asset was not prepared: " + key)
 
 func _test_shutdown() -> void:
 	var host := EncounterHost.new()

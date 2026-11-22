@@ -96,7 +96,7 @@ func _render_inputs(scene: Node, state: Dictionary) -> Dictionary:
 		"reveal": scene._reward_reveal_pending
 	}
 
-static func _prepare_for(scene: Node, preparation: RefCounted, token: int) -> void:
+static func _prepare_for(scene: Variant, preparation: RefCounted, token: int) -> void:
 	if not _active(scene, preparation, token): return
 	var tree: SceneTree = scene.get_tree()
 	var host := Control.new()

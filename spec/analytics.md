@@ -988,7 +988,9 @@ Ordinary combat HUD refreshes schedule this three-stage protocol after a rendere
 frame instead of stacking its writes inside card completion. The stages share a
 single coalescing main-thread queue with player-turn warming. New actions pause
 and restart it against current authoritative state; explicit checkpoints flush
-it, and lifecycle/namespace changes invalidate stale requests. Per-action
+it, and lifecycle/namespace changes invalidate stale requests. The queue drops
+its receipt observer when the scene leaves. The checkpoint writer still owns
+any submitted transaction. Per-action
 completion no longer promises that analytics reconciliation is already durable.
 Unfinished work may be lost or replayed after interruption, as authorized by the
 performance contract; accepted jobs are never reported as successful appends.

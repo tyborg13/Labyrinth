@@ -85,7 +85,18 @@ static func install(root: Window) -> void:
 static func _release_frame_signal(state: QuitState) -> void:
 	if RenderingServer.frame_post_draw.is_connected(state.on_post_draw):
 		RenderingServer.frame_post_draw.disconnect(state.on_post_draw)
+	# A lambda without self is owned by its Script resource. RenderingServer
+	# can retain it until after Godot deletes GDScriptLanguage, when releasing
+	# the last script reference crashes even with no pending coroutine.
+	_release_script_observers(RenderingServer.frame_pre_draw)
+	_release_script_observers(RenderingServer.frame_post_draw)
 	state.disarm()
+
+static func _release_script_observers(draw: Signal) -> void:
+	for connection: Dictionary in draw.get_connections():
+		var callback: Callable = connection["callable"]
+		if callback.get_object() is GDScript:
+			draw.disconnect(callback)
 
 static func present_preparation(tree: SceneTree) -> void:
 	await preparation_signal(tree)

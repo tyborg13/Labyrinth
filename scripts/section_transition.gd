@@ -205,7 +205,7 @@ func _prepare_destination() -> void:
 	_entry_art_pending = true
 	_prepare_entry_art.call_deferred(self, projected)
 
-static func _prepare_entry_art(overlay: Node, projected: Dictionary) -> void:
+static func _prepare_entry_art(overlay: Variant, projected: Dictionary) -> void:
 	if not _preparation_active(overlay): return
 	var tree: SceneTree = overlay.get_tree()
 	await SectionArt.prepare_for(tree.root, projected, _present_frame.bind(tree), _preparation_active.bind(overlay))

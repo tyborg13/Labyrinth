@@ -5,57 +5,16 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const ForecastPanel = preload("res://scripts/pass_forecast_focus_tooltip.gd")
+const PassChecks = preload("res://tests/helpers/pass_forecast_checks.gd")
+const PresentationClock = preload("res://tests/helpers/presentation_test_clock.gd")
 
 const OUTPUT_DIR: String = "user://probes/pass_preview"
 const PROBE_VIEWPORT := Vector2i(1920, 1080)
-const PROOF_IMAGE_SIZE: Vector2i = Vector2i(760, 180)
-const PIXEL_GLYPHS: Dictionary = {
-	"0": ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
-	"1": ["00100", "01100", "00100", "00100", "00100", "00100", "01110"],
-	"2": ["01110", "10001", "00001", "00010", "00100", "01000", "11111"],
-	"3": ["11110", "00001", "00001", "01110", "00001", "00001", "11110"],
-	"4": ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
-	"5": ["11111", "10000", "10000", "11110", "00001", "00001", "11110"],
-	"6": ["01110", "10000", "10000", "11110", "10001", "10001", "01110"],
-	"7": ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
-	"8": ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
-	"9": ["01110", "10001", "10001", "01111", "00001", "00001", "01110"],
-	"A": ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
-	"B": ["11110", "10001", "10001", "11110", "10001", "10001", "11110"],
-	"C": ["01111", "10000", "10000", "10000", "10000", "10000", "01111"],
-	"D": ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
-	"E": ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
-	"F": ["11111", "10000", "10000", "11110", "10000", "10000", "10000"],
-	"G": ["01111", "10000", "10000", "10011", "10001", "10001", "01111"],
-	"H": ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
-	"I": ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
-	"J": ["11111", "00010", "00010", "00010", "00010", "10010", "01100"],
-	"K": ["10001", "10010", "10100", "11000", "10100", "10010", "10001"],
-	"L": ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
-	"M": ["10001", "11011", "10101", "10101", "10001", "10001", "10001"],
-	"N": ["10001", "11001", "10101", "10011", "10001", "10001", "10001"],
-	"O": ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
-	"P": ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
-	"Q": ["01110", "10001", "10001", "10001", "10101", "10010", "01101"],
-	"R": ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
-	"S": ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
-	"T": ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
-	"U": ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
-	"V": ["10001", "10001", "10001", "10001", "10001", "01010", "00100"],
-	"W": ["10001", "10001", "10001", "10101", "10101", "10101", "01010"],
-	"X": ["10001", "10001", "01010", "00100", "01010", "10001", "10001"],
-	"Y": ["10001", "10001", "01010", "00100", "00100", "00100", "00100"],
-	"Z": ["11111", "00001", "00010", "00100", "01000", "10000", "11111"],
-	":": ["00000", "00100", "00100", "00000", "00100", "00100", "00000"],
-	"-": ["00000", "00000", "00000", "11111", "00000", "00000", "00000"],
-	"+": ["00000", "00100", "00100", "11111", "00100", "00100", "00000"],
-	"/": ["00001", "00001", "00010", "00100", "01000", "10000", "10000"],
-	"|": ["00100", "00100", "00100", "00100", "00100", "00100", "00100"],
-	",": ["00000", "00000", "00000", "00000", "00100", "00100", "01000"],
-	".": ["00000", "00000", "00000", "00000", "00000", "01100", "01100"],
-	"!": ["00100", "00100", "00100", "00100", "00100", "00000", "00100"],
-	"?": ["01110", "10001", "00001", "00010", "00100", "00000", "00100"]
-}
+# Match the shared Pass test's 11 → 20 Crawler schedule: one move before +19.
+const SINGLE_MOVE_TIME: int = 11
+const FOLLOWUP_MOVE_TIME: int = 12
+const REPEAT_MOVE_TIME: int = 1
 
 var _failed: bool = false
 
@@ -71,20 +30,25 @@ func _initialize() -> void:
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.content_scale_size = PROBE_VIEWPORT
 	root.size = PROBE_VIEWPORT
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	_clear_probe_output(OUTPUT_DIR)
+	if DisplayServer.get_name() != "headless":
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+		_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_pass_preview_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_pass_preview_probe_run.save")
 	ProgressionStore.clear_saved_run()
 	await _capture_pass_preview_states()
-	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("PASS PREVIEW CAPTURES: skipped (headless)" if DisplayServer.get_name() == "headless" else ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
 func _capture_pass_preview_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
+	var viewport := SubViewport.new()
+	viewport.size = PROBE_VIEWPORT
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	viewport.add_child(instance)
 	await process_frame
 	await process_frame
 
@@ -102,21 +66,21 @@ func _capture_pass_preview_states() -> void:
 	_install_pass_preview_probe_state(instance, danger_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "danger")
-	_log_pass_preview_text(instance, "danger")
-	await _save_root_screenshot("%s/danger.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "danger", ["+10", "−5"])
 
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	await process_frame
-	await _save_root_screenshot("%s/selected_card.png" % OUTPUT_DIR)
+	_check_targeting_panel(instance, "selected_card", false)
+	await _save_screenshot(viewport, "selected_card")
 
 	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
+	_expect(move_target.x >= 0, "Guarded Step should offer a move target.")
 	if move_target.x >= 0:
 		instance.call("_on_board_tile_hovered", move_target)
-		await process_frame
-		await process_frame
-		await _save_root_screenshot("%s/selected_move_hover.png" % OUTPUT_DIR)
+		await PresentationClock.rendered_frames(self, 1)
+		_check_targeting_panel(instance, "selected_move_hover", true)
+		await _save_screenshot(viewport, "selected_move_hover")
 
 	var attack_hover_state: Dictionary = _pass_preview_probe_state(base_state, "danger")
 	_weaken_first_enemy_for_pass_preview_probe(attack_hover_state, 8)
@@ -127,69 +91,60 @@ func _capture_pass_preview_states() -> void:
 	await process_frame
 	await process_frame
 	var attack_target := Vector2i(3, 4)
-	if (instance.get("_pending_target_tiles") as Array).has(attack_target):
+	var has_attack_target: bool = (instance.get("_pending_target_tiles") as Array).has(attack_target)
+	_expect(has_attack_target, "Quick Stab should offer the adjacent Crawler as a target.")
+	if has_attack_target:
 		instance.call("_on_board_tile_hovered", attack_target)
-		await process_frame
-		await process_frame
-		await _save_root_screenshot("%s/selected_attack_hover.png" % OUTPUT_DIR)
+		await PresentationClock.rendered_frames(self, 1)
+		_check_targeting_panel(instance, "selected_attack_hover", true)
+		await _save_screenshot(viewport, "selected_attack_hover")
 
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
 	_install_pass_preview_probe_state(instance, after_card_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "after card")
-	_log_pass_preview_text(instance, "after_card")
-	await _save_root_screenshot("%s/after_card.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "after_card", ["+5", "Safe"])
 
 	var safe_state: Dictionary = _pass_preview_probe_state(base_state, "safe")
 	_install_pass_preview_probe_state(instance, safe_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "safe")
-	_log_pass_preview_text(instance, "safe")
-	await _save_root_screenshot("%s/safe.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "safe", ["+10", "Safe"])
 
 	var layered_state: Dictionary = _pass_preview_probe_state(base_state, "layered")
 	_install_pass_preview_probe_state(instance, layered_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "layered")
-	_log_pass_preview_text(instance, "layered")
-	await _save_root_screenshot("%s/layered.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "layered", ["+10", "−3", "−4", "−5"])
 
 	var defiance_state: Dictionary = _pass_preview_probe_state(base_state, "defiance_followup")
 	_install_pass_preview_probe_state(instance, defiance_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "Defiance plus follow-up damage")
-	_log_pass_preview_text(instance, "defiance_followup")
-	await _save_root_screenshot("%s/defiance_followup.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "defiance_followup", ["+10", "−1", "−1 → 4/24"])
 
 	var defiance_umbra_state: Dictionary = _pass_preview_probe_state(base_state, "defiance_umbra")
 	_install_pass_preview_probe_state(instance, defiance_umbra_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "Defiance plus hidden Umbra follow-up")
-	_log_pass_preview_text(instance, "defiance_umbra")
-	await _save_root_screenshot("%s/defiance_umbra.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "defiance_umbra", ["+10", "−1 → ?/?", "?"])
 
-	var unrevealed_state: Dictionary = _pass_preview_probe_state(base_state, "unrevealed")
-	_install_pass_preview_probe_state(instance, unrevealed_state)
+	# atk-03 counts a disclosed Crawler's repeat moves through the forecast horizon.
+	var repeat_state: Dictionary = _pass_preview_probe_state(base_state, "counted_repeat")
+	_install_pass_preview_probe_state(instance, repeat_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "unrevealed")
-	_log_pass_preview_text(instance, "unrevealed")
-	await _save_root_screenshot("%s/unrevealed.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "counted_repeat", ["+10", "−11", "×4", "+2"])
 
 	var lethal_state: Dictionary = _pass_preview_probe_state(base_state, "lethal")
 	_install_pass_preview_probe_state(instance, lethal_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "lethal")
-	_log_pass_preview_text(instance, "lethal")
-	await _save_root_screenshot("%s/lethal.png" % OUTPUT_DIR)
+	await _check_pass_state(instance, viewport, "lethal", ["+10", "−24 → 0"])
 
 	instance.queue_free()
+	await PresentationClock.rendered_frames(self, 1)
+	viewport.queue_free()
 	await process_frame
 
 func _first_available_room_coord_of_type(run_engine: RunEngine, run_state: Dictionary, room_type: String) -> Vector2i:
@@ -214,17 +169,15 @@ func _install_pass_preview_probe_state(instance: Node, combat_state: Dictionary)
 func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictionary:
 	var state: Dictionary = base_state.duplicate(true)
 	var has_defiance_followup: bool = kind in ["defiance_followup", "defiance_umbra"]
+	var counted_repeat: bool = kind == "counted_repeat"
 	var enemy_pos: Vector2i = Vector2i(3, 4)
 	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
-	if kind == "safe":
+	if kind == "safe" or counted_repeat:
 		enemy_pos = Vector2i(6, 4)
-		enemy_intent = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
 	elif kind == "layered":
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
 	elif kind == "lethal":
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
-	elif kind == "unrevealed":
-		enemy_pos = Vector2i(6, 4)
 	elif has_defiance_followup:
 		enemy_intent = {"name": "Lethal Claw", "time": 1, "actions": [{"type": "melee", "damage": 6, "range": 1}]}
 	var starting_hp: int = 5 if has_defiance_followup else 24
@@ -299,7 +252,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	state["cards_played_this_turn"] = 0
 	state["death_bonus_card_plays_this_turn"] = 0
 	state["card_play_bonus_this_turn"] = 0
-	state["player_turn_time_spent"] = 20 if kind == "unrevealed" else 0
+	state["player_turn_time_spent"] = 20 if counted_repeat else 0
 	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
 	state["pending_player_trap_restriction"] = ""
 	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
@@ -321,7 +274,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"type": "crawler",
 		"name": "Tunnel Crawler",
 		"team": "enemy",
-		"time": 1,
+		"time": REPEAT_MOVE_TIME if counted_repeat else SINGLE_MOVE_TIME,
 		"seq": 1,
 		"pos": enemy_pos
 	}]
@@ -334,7 +287,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 			"type": "crawler",
 			"name": "Tunnel Crawler",
 			"team": "enemy",
-			"time": 2,
+			"time": FOLLOWUP_MOVE_TIME,
 			"seq": 2,
 			"pos": followup_queue_pos
 		})
@@ -394,16 +347,15 @@ func _pass_preview_probe_move_target(target_tiles: Array, enemy_pos: Vector2i) -
 			best_tile = tile
 	return best_tile
 
-func _require_pass_preview_chip(instance: Node, label: String) -> void:
-	var chip: Button = _first_node_named(instance, "PassPreviewChip") as Button
+func _check_pass_state(instance: Node, viewport: SubViewport, label: String, expected_values: Array) -> void:
+	PassChecks.assert_rows(instance, _expect, label)
+	var chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	if chip == null:
+		return
 	var meter: Control = instance.get("_play_meter") as Control
 	var card_play_copy: Label = instance.get("_play_meter_count") as Label
 	var turn_rail: Control = instance.get("_turn_order_panel") as Control
-	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
-	if row == null or _pass_preview_probe_damage_text(row).is_empty() or chip == null:
-		_fail("Missing pass preview damage values during %s pass preview probe" % label)
-		return
-	if (not chip.disabled and chip.focus_mode == Control.FOCUS_NONE) or (chip.disabled and chip.focus_mode != Control.FOCUS_NONE) or _first_node_named(chip, "CombinedPassButton") != null:
+	if chip.disabled or chip.focus_mode == Control.FOCUS_NONE or chip.find_child("CombinedPassButton", true, false) != null:
 		_fail("Pass forecast should remain one focusable, actionable end-turn control during %s." % label)
 	var pass_art: TextureRect = chip.get_node_or_null("PassForecastFrameArtHost") as TextureRect
 	if pass_art == null or pass_art.texture == null or pass_art.z_index < 1:
@@ -417,6 +369,27 @@ func _require_pass_preview_chip(instance: Node, label: String) -> void:
 	if turn_rail != null and turn_rail.visible and turn_rail.get_global_rect().intersects(chip.get_global_rect()):
 		_fail("Combined Pass dock should start below, not overlap, the dense turn rail during %s." % label)
 	_assert_pass_interaction_states(chip, label)
+	chip.mouse_entered.emit()
+	var rows: Control = chip.get_node_or_null("PassForecastFocusTooltip/ForecastRows") as Control
+	_expect(bool(chip.get_meta("pass_forecast_active", false)) and rows != null and rows.is_visible_in_tree(), "%s: hovering Pass shows the forecast panel" % label)
+	var texts := PackedStringArray()
+	if rows != null:
+		for row: Node in rows.get_children():
+			for child: Node in row.get_children():
+				if child is RichTextLabel:
+					texts.append((child as RichTextLabel).get_parsed_text())
+	print("%s: %s" % [label, " | ".join(texts)])
+	_expect(texts == PackedStringArray(expected_values), "%s: expected forecast values %s, got %s." % [label, expected_values, texts])
+	await _save_screenshot(viewport, label)
+	chip.mouse_exited.emit()
+
+func _check_targeting_panel(instance: Node, label: String, open: bool) -> void:
+	var chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_expect(chip != null and chip.disabled, "%s: Pass is disabled while a card is selected." % label)
+	if chip == null:
+		return
+	_assert_pass_interaction_states(chip, label)
+	_expect(bool(chip.get_meta("pass_forecast_active", false)) == open, "%s: expected forecast panel active=%s." % [label, open])
 
 func _assert_pass_interaction_states(chip: Button, label: String) -> void:
 	var focus_edge: Control = chip.get_node_or_null("PassForecastContent/PassFocusEdgeCue") as Control
@@ -443,112 +416,15 @@ func _assert_pass_interaction_states(chip: Button, label: String) -> void:
 		_fail("Pass control should expose authored focus art plus a narrow, wash-free keyboard/controller edge during %s." % label)
 	chip.focus_exited.emit()
 
-func _log_pass_preview_text(instance: Node, label: String) -> void:
-	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
-	var damage_text: String = _pass_preview_probe_damage_text(row)
-	var danger_label: Label = _first_node_named(instance, "PassPreviewDanger") as Label
-	var danger_text: String = danger_label.text if danger_label != null else ""
-	print("%s: %s %s" % [label, damage_text, danger_text])
-
-# perf-02 (409a9d1f8) retired action-context risk copy. Selected/hover captures
-# above retain the live Pass forecast and its existing checks.
-
-func _pass_preview_probe_damage_text(row: Node) -> String:
-	if row == null:
-		return ""
-	var parts := PackedStringArray()
-	for label: Label in _pass_preview_probe_damage_labels(row):
-		parts.append(label.text)
-	return " ".join(parts)
-
-func _pass_preview_probe_damage_labels(node: Node) -> Array[Label]:
-	var labels: Array[Label] = []
-	if node is Label and _pass_preview_probe_is_damage_value(node as Label):
-		labels.append(node as Label)
-	for child: Node in node.get_children():
-		labels.append_array(_pass_preview_probe_damage_labels(child))
-	return labels
-
-func _pass_preview_probe_is_damage_value(label: Label) -> bool:
-	return [
-		"PassPreviewStoneSkinLoss",
-		"PassPreviewBlockLoss",
-		"PassPreviewHpLoss",
-		"PassPreviewDefianceSpent",
-		"PassPreviewHpAfterDefiance",
-		"PassPreviewSafe",
-		"PassPreviewUmbraUnknown",
-		"PassPreviewDefeat",
-		"PassPreviewForecastLine"
-	].has(str(label.name))
-
-func _first_node_named(node: Node, node_name: String) -> Node:
-	if node.name == node_name:
-		return node
-	for child: Node in node.get_children():
-		var found: Node = _first_node_named(child, node_name)
-		if found != null:
-			return found
-	return null
-
-func _save_root_screenshot(output_path: String) -> void:
-	var image: Image = null
-	if DisplayServer.get_name() != "headless":
-		var texture = root.get_viewport().get_texture()
-		if texture != null:
-			image = texture.get_image()
-	if image != null and image.get_width() > 0 and image.get_height() > 0:
-		image.save_png(output_path)
+func _save_screenshot(viewport: SubViewport, name: String) -> void:
+	if DisplayServer.get_name() == "headless":
 		return
-	_save_pass_preview_chip_proof(output_path)
-
-func _save_pass_preview_chip_proof(output_path: String) -> void:
-	var row: Node = _first_node_named(root, "PassPreviewDamageRow")
-	var main_text: String = _pass_preview_probe_damage_text(row)
-	if main_text.is_empty():
-		main_text = "0"
-	var danger_label: Label = _first_node_named(root, "PassPreviewDanger") as Label
-	var detail_text: String = danger_label.text if danger_label != null else ""
-	var image := Image.create(PROOF_IMAGE_SIZE.x, PROOF_IMAGE_SIZE.y, false, Image.FORMAT_RGBA8)
-	image.fill(Color("160f0d"))
-	var accent: Color = _pass_preview_proof_accent(main_text, detail_text)
-	image.fill_rect(Rect2i(18, 18, PROOF_IMAGE_SIZE.x - 36, PROOF_IMAGE_SIZE.y - 36), Color("241810"))
-	image.fill_rect(Rect2i(24, 24, PROOF_IMAGE_SIZE.x - 48, PROOF_IMAGE_SIZE.y - 48), Color(0.105, 0.075, 0.055, 0.95))
-	_draw_proof_rect_outline(image, Rect2i(24, 24, PROOF_IMAGE_SIZE.x - 48, PROOF_IMAGE_SIZE.y - 48), accent)
-	image.fill_rect(Rect2i(24, 24, 12, PROOF_IMAGE_SIZE.y - 48), accent.darkened(0.18))
-	_draw_proof_text(image, Vector2i(52, 48), main_text.to_upper(), Color("fff0d0"), 3)
-	_draw_proof_text(image, Vector2i(52, 106), detail_text.to_upper(), Color("d9cdb4"), 2)
-	image.save_png(output_path)
-	print("headless chip proof: %s" % ProjectSettings.globalize_path(output_path))
-
-func _pass_preview_proof_accent(main_text: String, detail_text: String) -> Color:
-	if main_text.contains("DEFEAT") or detail_text.contains("DANGER") or main_text.contains("-"):
-		return Color("d86654")
-	return Color("8fcf7d")
-
-func _draw_proof_rect_outline(image: Image, rect: Rect2i, color: Color) -> void:
-	image.fill_rect(Rect2i(rect.position.x, rect.position.y, rect.size.x, 3), color)
-	image.fill_rect(Rect2i(rect.position.x, rect.position.y + rect.size.y - 3, rect.size.x, 3), color)
-	image.fill_rect(Rect2i(rect.position.x, rect.position.y, 3, rect.size.y), color)
-	image.fill_rect(Rect2i(rect.position.x + rect.size.x - 3, rect.position.y, 3, rect.size.y), color)
-
-func _draw_proof_text(image: Image, position: Vector2i, text: String, color: Color, scale: int) -> void:
-	var cursor_x: int = position.x
-	var max_x: int = image.get_width() - 28
-	for index: int in range(text.length()):
-		var character: String = text.substr(index, 1)
-		if character == " ":
-			cursor_x += 4 * scale
-			continue
-		var glyph: Array = PIXEL_GLYPHS.get(character, PIXEL_GLYPHS.get("?"))
-		for row: int in range(glyph.size()):
-			var pattern: String = str(glyph[row])
-			for column: int in range(pattern.length()):
-				if pattern.substr(column, 1) == "1":
-					image.fill_rect(Rect2i(cursor_x + column * scale, position.y + row * scale, scale, scale), color)
-		cursor_x += 6 * scale
-		if cursor_x >= max_x:
-			break
+	await create_timer(ForecastPanel.FADE_SECONDS).timeout
+	await RenderingServer.frame_post_draw
+	var image: Image = viewport.get_texture().get_image()
+	var path: String = "%s/%s.png" % [OUTPUT_DIR, name]
+	if image == null or image.get_size() != PROBE_VIEWPORT or image.save_png(path) != OK:
+		_fail("Could not save the 1920x1080 Pass preview capture %s." % path)
 
 func _clear_probe_output(output_dir: String) -> void:
 	var absolute_dir: String = ProjectSettings.globalize_path(output_dir)
@@ -572,6 +448,10 @@ func _clear_probe_output_absolute(absolute_dir: String) -> void:
 		else:
 			DirAccess.remove_absolute(child_path)
 	dir.list_dir_end()
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition:
+		_fail(message)
 
 func _fail(message: String) -> void:
 	_failed = true

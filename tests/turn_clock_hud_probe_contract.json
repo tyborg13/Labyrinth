@@ -1,0 +1,25 @@
+{
+  "min_images": 19,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/turn_clock_hud/1920x1080/idle.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/hover_fast.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/hover_heavy.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/mid_turn_act_again.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/both_plays_used.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/controller_focus_fast.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/reduced_motion_fast.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/pass_lap_known_damage.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/hover_map.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/hover_pile.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/hover_menu.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_map.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_map_restored.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_pile.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_pile_restored.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_menu.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/selected_menu_restored.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/tutorial_callout.png", "width": 1920, "height": 1080},
+    {"pattern": "*/turn_clock_hud/1920x1080/beyond_rail_limit.png", "width": 1920, "height": 1080}
+  ]
+}

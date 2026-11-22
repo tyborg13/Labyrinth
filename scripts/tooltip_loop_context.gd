@@ -1,18 +1,18 @@
 extends RefCounted
 const Registry = preload("res://scripts/tooltip_loop_registry.gd")
 const Glossary = preload("res://scripts/glossary.gd")
-const Splits = preload("res://scripts/enemy_mechanics/split_trait_text.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 
 static func enemy(type: String) -> Dictionary:
 	return {"kind": "enemy", "id": type}
 
-static func card_panel_for_text(text: String, source: Dictionary) -> Control:
+static func card_panel_for_text(text: String, source: Dictionary, term_hint: String = "", icon_key: String = "") -> Control:
+	if not term_hint.is_empty(): return panel_for_text(text, source, term_hint, icon_key)
 	var title: String = text.get_slice("\n", 0).strip_edges()
 	var term: String = str(Glossary.lookup(title).get("id", ""))
 	var row: Dictionary = Registry.find(term, source)
 	var match_source: Dictionary = row.get("source_match", {})
-	if not (match_source.has("id") or match_source.has("ids")) or not Registry.media_available(row):
+	if not (row.get("exact_keyword", false) or match_source.has("id") or match_source.has("ids")) or not Registry.media_available(row):
 		return null
 	return panel_for_text(text, source, term)
 
@@ -22,30 +22,21 @@ static func enemy_unit(unit: Dictionary) -> Dictionary:
 	return source
 
 static func term_in(text: String, source: Dictionary) -> String:
-	for term: String in Glossary.ids_in_text(text):
-		if not Registry.find(term, source).is_empty(): return term
-	if source.get("id") == "gloam_stalker" and text.contains(Icons.FADE_DESCRIPTION): return "blink"
-	if source.get("id") == "slag_mortar" and text.contains("@pattern(cross"): return "lob"
-	if source.get("id") == "hoarfrost_seer" and text.contains("@pattern(icefall"): return "marked"
-	if source.get("id") == "burrow_grub" and text.contains(Icons.description("erupt")): return "erupt"
-	# The authored trait sentence uses ordinary lower-case "splits". Preserve
-	# glossary case rules and copy; identify this exact source-owned trait.
-	if source.get("kind") == "enemy" and not Registry.find("splits", source).is_empty():
-		var token: Dictionary = Splits.trait_token({"type": str(source.get("id", ""))})
-		if text == str(token.get("tooltip", "")): return "splits"
-	return ""
+	# A canonical heading identifies the panel. Definitions never affect routing.
+	var title: String = str(Glossary.lookup(text.get_slice("\n", 0).strip_edges()).get("id", ""))
+	return title if not Registry.find(title, source).is_empty() else ""
 
-static func panel_for_text(text: String, source: Dictionary, term_hint: String = "") -> Control:
+static func panel_for_text(text: String, source: Dictionary, term_hint: String = "", icon_key: String = "") -> Control:
 	var started: int = Time.get_ticks_usec()
-	var term: String = term_hint if not Registry.find(term_hint, source).is_empty() else term_in(text, source)
-	if term.is_empty(): return null
+	var term: String = term_hint if not term_hint.is_empty() else term_in(text, source)
 	var row: Dictionary = Registry.find(term, source)
-	if not FileAccess.file_exists(str(row["asset_path"])): return null
+	if row.is_empty() or not FileAccess.file_exists(str(row["asset_path"])): return null
 	var lines: PackedStringArray = text.split("\n", false)
 	var title: String = lines[0] if not lines.is_empty() else ""
 	var body := PackedStringArray()
 	for i: int in range(1, lines.size()): body.append(lines[i])
-	var panel: Control = load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(Icons.icon_texture(term), title, body, term, source)
+	var texture: Texture2D = Icons.icon_texture(icon_key if not icon_key.is_empty() else term)
+	var panel: Control = load("res://scripts/ui_tooltip_panel.gd").make_icon_lines(texture, title, body, term, source)
 	panel.set_meta("tooltip_loop_build_usec", Time.get_ticks_usec() - started)
 	return panel
 
@@ -59,25 +50,25 @@ static func tooltip_sources(view: Control) -> Array:
 	sources.append(view)
 	return sources
 
-static func status_source(view: Control, text: String) -> Dictionary:
+static func _status_route(view: Control, text: String) -> Dictionary:
 	for unit: Dictionary in view.plate_visibility.actors():
 		for entry: Dictionary in view.plate_visibility.status_entries(unit):
 			if str(entry.get("tooltip", "")) == text and (entry["rect"] as Rect2).has_point(view._last_pointer_position):
-				return actor_source(view, str(unit.get("key", "")))
+				return {"loop_source": actor_source(view, str(unit.get("key", ""))), "loop_term": entry.get("icon", "")}
 	return {}
 
 static func board_source(view: Control, text: String) -> Dictionary:
-	# Fixed plates hit-test before retained draw registrations in the board.
+	return board_route(view, text).get("loop_source", {})
+
+static func board_route(view: Control, text: String) -> Dictionary:
 	if view.plate_visibility.tooltip_at(view._last_pointer_position) == text:
-		return status_source(view, text)
-	# Registrations carry the actor at draw time, so identical definitions on
-	# another enemy cannot inherit the hovered actor's loop.
+		return _status_route(view, text)
+	# Follow the same hit order as the native board tooltip.
 	for canvas: Control in tooltip_sources(view):
 		for index: int in range(canvas._tooltip_regions.size() - 1, -1, -1):
 			var region: Dictionary = canvas._tooltip_regions[index]
 			if str(region.get("tooltip", "")) == text and (region.get("rect", Rect2()) as Rect2).has_point(view._last_pointer_position):
-				var source: Dictionary = region.get("loop_source", {})
-				return status_source(view, text) if source.is_empty() else source
+				return _status_route(view, text) if region.get("loop_term", "").is_empty() and region.get("loop_source", {}).is_empty() else region
 	return {}
 
 static func actor_source(view: Control, key: String) -> Dictionary:
@@ -85,17 +76,35 @@ static func actor_source(view: Control, key: String) -> Dictionary:
 		if "enemy_%d" % int(unit.get("id", -1)) == key: return enemy_unit(unit)
 	return {}
 
-static func register_badge(view: Control, badge: Dictionary, source: Dictionary) -> void:
-	if not Registry.has_source(source): return
-	var text: String = view.enemy_intent_tooltip(str(badge.get("key", "")))
-	if not term_in(text, source).is_empty(): view._register_tooltip(badge.get("rect", Rect2()), text)
-
-static func intent_term(title: String, source: Dictionary) -> String:
-	for row: Dictionary in Registry.entries():
-		if row["source_match"].get("kind") != "enemy" or Registry.find(str(row["term"]), source).is_empty(): continue
-		var titles: Variant = row.get("intent_titles", [])
-		if (titles is String and titles == "*") or (titles is Array and titles.has(title)): return str(row["term"])
+static func badge_term(view: Control, key: String, source: Dictionary) -> String:
+	if not Registry.has_source(source): return ""
+	for unit: Dictionary in view.combat_state.get("enemies", []):
+		if "enemy_%d" % int(unit.get("id", -1)) == key:
+			return intent_term(view._intent_display_name(unit.get("intent", {})), source)
 	return ""
+
+static func register_badge(view: Control, badge: Dictionary, source: Dictionary) -> void:
+	var key: String = str(badge.get("key", ""))
+	var term: String = badge_term(view, key, source)
+	if not term.is_empty(): view._register_tooltip(badge.get("rect", Rect2()), view.enemy_intent_tooltip(key), term)
+
+static func intent_term(title: String, source: Dictionary, move_rows: Variant = null) -> String:
+	for row: Dictionary in Registry.entries():
+		if row.get("keyword_only", false) or row["source_match"].get("kind") != "enemy" or Registry.find(str(row["term"]), source).get("id") != row["id"]: continue
+		var titles: Variant = row.get("intent_titles", [])
+		if titles is Array and titles.has(title): return str(row["term"])
+		# In combat the intent includes traits. Known Moves supplies the
+		# move's own rows, so a wildcard clip needs a matching keyword there.
+		if titles is String and titles == "*" and (move_rows == null or _move_shows_loop(move_rows, source, row["id"])):
+			return str(row["term"])
+	return ""
+
+static func _move_shows_loop(rows: Array, source: Dictionary, loop_id: String) -> bool:
+	for tokens: Array in rows:
+		for token: Dictionary in tokens:
+			var term: String = str(token.get("glossary_key", token.get("icon", "")))
+			if Registry.find(term, source).get("id") == loop_id: return true
+	return false
 
 static func register_title(view: Control, rect: Rect2, title: String, source: Dictionary) -> void:
 	var term: String = intent_term(title, source)
@@ -105,13 +114,13 @@ static func register_title(view: Control, rect: Rect2, title: String, source: Di
 		var actor_key: String = str(view.get("_tooltip_loop_actor_key"))
 		var detail: String = view.enemy_intent_tooltip(actor_key)
 		if not detail.is_empty(): text = title + "\n" + detail
-	view._register_tooltip(rect, text)
+	view._register_tooltip(rect, text, term)
 
 static func outer_popup_window(source: Dictionary) -> Control:
 	for row: Dictionary in Registry.entries():
-		if row["source_match"].get("kind") != "enemy": continue
+		if row.get("keyword_only", false) or row["source_match"].get("kind") != "enemy": continue
 		var loop: Dictionary = Registry.find(str(row["term"]), source)
-		if not Registry.media_available(loop): continue
+		if loop.get("keyword_only", false) or not Registry.media_available(loop): continue
 		var window := preload("res://scripts/tooltip_loop_view.gd").new()
 		window.asset_path = str(loop["asset_path"])
 		window.set_meta("tooltip_loop_id", loop["id"])

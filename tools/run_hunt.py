@@ -38,7 +38,12 @@ def write_json(path: Path, data: object) -> None:
 
 
 def command_for(seed: int, directory: Path, args: argparse.Namespace) -> list[str]:
-    command = [sys.executable, "tools/godot_task_runner.py", "--task-id", "qa-85" if getattr(args, "demo", False) else "qa-18", "--timeout", str(args.seed_timeout), "--stream", "--", "godot", "--headless", "--path", ".", "--script", args.script, "--", "--seed", str(seed), "--output-dir", str(directory)]
+    task_id = getattr(args, "task_id", None) or ("qa-85" if getattr(args, "demo", False) else "qa-18")
+    command = [sys.executable, "tools/godot_task_runner.py", "--task-id", task_id,
+               "--timeout", str(args.seed_timeout), "--stream", "--", "godot", "--headless"]
+    if getattr(args, "fixed_fps", 0):
+        command.extend(("--fixed-fps", str(args.fixed_fps)))
+    command.extend(("--path", ".", "--script", args.script, "--", "--seed", str(seed), "--output-dir", str(directory)))
     if args.no_embrace:
         command.extend(("--no-embrace", "true"))
     if args.stop_after:
@@ -150,14 +155,21 @@ def deduplicate(runs: list[dict]) -> list[dict]:
 def replay_command(group: dict, args: argparse.Namespace) -> str:
     seed = group["context"]["seed"]
     point = int(group["context"].get("decision", 0)) + 1
-    command = ["python3", "tools/run_hunt.py", "--seed", str(seed), "--runs", "1", "--processes", "1", "--stop-after", str(point), "--output-dir", f"/private/tmp/labyrinth_codex/qa-18/replay-{seed}-{point}-{time.time_ns()}"]
+    task_id = getattr(args, "task_id", None)
+    if task_id:
+        replay_root = PROJECT / "output" / task_id
+    else:
+        replay_root = Path("/private/tmp/labyrinth_codex") / ("qa-85" if getattr(args, "demo", False) else "qa-18")
+    replay_dir = replay_root / f"replay-{seed}-{point}-{time.time_ns()}"
+    command = ["python3", "tools/run_hunt.py", "--seed", str(seed), "--runs", "1",
+               "--processes", "1", "--stop-after", str(point), "--output-dir", str(replay_dir)]
     if args.no_embrace: command.append("--no-embrace")
     if getattr(args, "demo", False): command.append("--demo")
     if getattr(args, "health", 9999) != 9999: command.extend(("--health", str(args.health)))
-    if getattr(args, "demo", False):
-        command[command.index("--output-dir") + 1] = command[command.index("--output-dir") + 1].replace("/qa-18/", "/qa-85/")
     if getattr(args, "profile_runs", 2) != 2: command.extend(("--profile-runs", str(args.profile_runs)))
     if getattr(args, "defeat_after_hearth", False): command.append("--defeat-after-hearth")
+    if task_id: command.extend(("--task-id", task_id))
+    if getattr(args, "fixed_fps", 0): command.extend(("--fixed-fps", str(args.fixed_fps)))
     script = group.get("replay_script", args.script)
     if script != "tools/run_hunt.gd": command.extend(("--script", script))
     return f"cd {shlex.quote(str(PROJECT))} && LABYRINTH_CEL_LOOK=off {shlex.join(command)}"
@@ -238,6 +250,8 @@ def extra_evidence(paths: list[str]) -> list[dict]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--task-id", help="forward the worktree's task ID to the Godot runner")
+    parser.add_argument("--fixed-fps", type=int, default=0, help="use a fixed Godot simulation frame rate for headless replay")
     parser.add_argument("--demo", action="store_true", help="exercise demo cutoff, end panels, resume and Rise Again on an editor binary")
     parser.add_argument("--profile-runs", type=int, default=2, help="natural demo runs sharing each seeded profile")
     parser.add_argument("--defeat-after-hearth", action="store_true", help="demo: keep override Health until Hearth, then set Health to 1 in the next fight and pass")
@@ -258,6 +272,8 @@ def main() -> int:
         parser.error("minutes must be in (0, 75], seed-timeout positive, runs, stop-after and health nonnegative")
     if args.profile_runs < 1 or (args.defeat_after_hearth and (not args.demo or args.health == 0)):
         parser.error("profile-runs must be positive; defeat-after-hearth requires demo and positive starting Health")
+    if args.fixed_fps < 0:
+        parser.error("fixed-fps must be nonnegative")
     output = args.output_dir.resolve()
     if args.report_only:
         campaign = json.loads((output / "campaign.json").read_text())

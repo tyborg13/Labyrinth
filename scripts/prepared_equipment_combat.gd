@@ -112,7 +112,7 @@ static func _key(id: String, slot: String) -> String:
 static func _active(scene: Variant, prepared: RefCounted, generation: int) -> bool:
 	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._equipment_factory_preparation_generation == generation and scene._equipment_factory_preparation == prepared and scene._progression_overlay_mode == "equipment" and is_instance_valid(scene._upgrade_scrim) and scene._upgrade_scrim.is_visible_in_tree() and scene._combat_state.is_empty() and prepared.matches_source(scene._run_state)
 
-static func prepare_for(scene: Node, prepared: RefCounted, generation: int) -> void:
+static func prepare_for(scene: Variant, prepared: RefCounted, generation: int) -> void:
 	if not _active(scene, prepared, generation): return
 	var tree: SceneTree = scene.get_tree()
 	# Leave the open/rebuild frame and its queued native layout intact. These

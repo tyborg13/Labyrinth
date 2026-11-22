@@ -47,8 +47,7 @@ var _measured_font: Font
 func _make_custom_tooltip(text: String) -> Object:
 	# Rule identity belongs only to this panel, never to an enemy sharing a term.
 	var term: String = str({"lightning_storm": "lightning_strikes", "gust": "wind", "wildfire": "wildfire", "frostbite": "frostbite", "shadowstep": "shadowstep", "upheaval": "upheaval"}.get(rule_id, ""))
-	var panel: Control = preload("res://scripts/tooltip_loop_context.gd").panel_for_text(text, {"kind": "battlefield_rule", "id": rule_id}, term)
-	return panel if panel != null else preload("res://scripts/ui_tooltip_panel.gd").make_text(text)
+	return preload("res://scripts/ui_tooltip_panel.gd").make_text(text, {"kind": "battlefield_rule", "id": rule_id}, term)
 
 func _ready() -> void:
 	_build()

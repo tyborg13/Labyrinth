@@ -16,6 +16,7 @@ func _initialize() -> void:
 	board.set_process(false)
 	var elements: PackedStringArray = ElementData.all_elements()
 	for element_id: String in elements:
+		board._ensure_trap_assets_for_submission({"room_element": element_id}, {})
 		var frames: Array[Texture2D] = board.call("_trap_idle_frames_for_element", element_id) as Array[Texture2D]
 		_expect(frames.size() == 16, "%s trap idle animation should expose all 16 authored frames" % element_id)
 	for _sample: int in range(WARMUP_SAMPLES):

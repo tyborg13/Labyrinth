@@ -34,6 +34,8 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 
 static func texture_manifest(board: Control, state: Dictionary, room: Dictionary) -> Dictionary:
 	var textures: Dictionary = {}
+	if room.get("coord") == state.get("current_room", Vector2i.ZERO):
+		board.add_trap_texture_paths(textures, state.get("current_room_layout", {}))
 	match str(room.get("type", "")):
 		"campfire":
 			for path: String in LoadingManifest.CAMPFIRE_VIEW_TEXTURES: textures[path] = false
@@ -88,7 +90,10 @@ static func prepare_room_textures_for(scene: Node, state: Dictionary, frame: Cal
 	if not bool(alive.call()): return
 	await prepare_art_for(root, textures, frame, alive)
 	if _hitch_trace_enabled: _hitch_continuation = _hitch_sink().hitch_phase("post_draw:room_asset_preparation:begin_for:1")
-	if not bool(alive.call()): return
+	if not bool(alive.call()) or not is_instance_valid(scene): return
+	var board: Control = scene.board_view
+	await board.get_script().prepare_trap_assets_for(board, state.get("current_room_layout", {}), frame, alive)
+	if not bool(alive.call()) or not is_instance_valid(scene): return
 	prepare_overlay(scene, kind)
 
 static func prepare_merchant_rig_for(scene: Node, kind: String, textures: Dictionary, frame: Callable, alive: Callable) -> void:

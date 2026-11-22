@@ -37,6 +37,16 @@ class HuntTests(unittest.TestCase):
         self.assertIn('--health 0', replay)
         self.assertIn('--stop-after 10', replay)
 
+    def test_task_id_and_fixed_step_survive_replay(self):
+        args = options(task_id='qa-127', fixed_fps=30)
+        command = hunt.command_for(21, Path('/tmp/hunt'), args)
+        self.assertEqual(command[command.index('--task-id') + 1], 'qa-127')
+        self.assertEqual(command[command.index('--fixed-fps') + 1], '30')
+        replay = hunt.replay_command({'context': {'seed': 21, 'decision': 9}}, args)
+        self.assertIn('--task-id qa-127', replay)
+        self.assertIn('--fixed-fps 30', replay)
+        self.assertIn('output/qa-127/replay-', replay)
+
     def test_hearth_defeat_and_profile_arguments_survive_replay(self):
         args = options(demo=True, defeat_after_hearth=True, profile_runs=3)
         command = hunt.command_for(31, Path('/tmp/hunt'), args)

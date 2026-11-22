@@ -66,7 +66,10 @@
       "id": "push_card",
       "term": "push",
       "source_match": {
-        "kind": "hero_card"
+        "kind": "hero_card",
+        "also_kinds": [
+          "enemy"
+        ]
       },
       "asset_path": "res://assets/tooltip_loops/push_card.tlw",
       "speed": "fast",
@@ -80,7 +83,10 @@
       "id": "pull_card",
       "term": "pull",
       "source_match": {
-        "kind": "hero_card"
+        "kind": "hero_card",
+        "also_kinds": [
+          "enemy"
+        ]
       },
       "asset_path": "res://assets/tooltip_loops/pull_card.tlw",
       "speed": "fast",
@@ -136,6 +142,9 @@
     {
       "id": "marked_icefall_seer",
       "term": "marked",
+      "aliases": [
+        "icefall"
+      ],
       "source_match": {
         "kind": "enemy",
         "id": "hoarfrost_seer"
@@ -411,6 +420,60 @@
       "asset_path": "res://assets/tooltip_loops/swap_landing.tlw",
       "speed": "fast",
       "max_asset_bytes": 1500000
+    },
+    {
+      "id": "reflect",
+      "term": "reflect",
+      "source_match": {
+        "kind": "enemy",
+        "id": "glacial_mirror"
+      },
+      "keyword_only": true,
+      "grimoire_entries": [
+        "keyword:reflect"
+      ],
+      "asset_path": "res://assets/tooltip_loops/reflect.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000,
+      "min_recording_frames": 65,
+      "max_recording_frames": 124,
+      "pad_to_min_recording_frames": true
+    },
+    {
+      "id": "pierce",
+      "term": "pierce",
+      "source_match": {
+        "kind": "hero_card",
+        "id": "bodkin_arrow"
+      },
+      "grimoire_entries": [
+        "keyword:pierce"
+      ],
+      "asset_path": "res://assets/tooltip_loops/pierce.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000,
+      "min_recording_frames": 65,
+      "max_recording_frames": 124,
+      "pad_to_min_recording_frames": true
+    },
+    {
+      "id": "stagger",
+      "term": "stagger",
+      "source_match": {
+        "kind": "*"
+      },
+      "keyword_only": true,
+      "exact_keyword": true,
+      "grimoire_entries": [
+        "keyword:stagger"
+      ],
+      "asset_path": "res://assets/tooltip_loops/stagger.tlw",
+      "speed": "fast",
+      "max_asset_bytes": 1500000,
+      "min_recording_frames": 68,
+      "max_recording_frames": 124,
+      "hold_seconds": 0.5,
+      "pad_opening_to_min_recording_frames": true
     },
     {
       "id": "worldspine_pulse",

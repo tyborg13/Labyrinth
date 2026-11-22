@@ -17767,7 +17767,9 @@ func _schedule_opening_hand_pool_preparation(combat_state: Dictionary) -> void:
 	if combat_state.is_empty() or combat_state == _opening_hand_pool_preparation_input: return
 	_opening_hand_pool_preparation_input = combat_state.duplicate(true)
 	_opening_hand_pool_preparation_revision += 1
-	preload("res://scripts/encounter_asset_preparation.gd").prepare_opening_hand_for.call_deferred(self, _opening_hand_pool_preparation_input, _encounter_preparation_generation, _opening_hand_pool_preparation_revision)
+	var preparation = preload("res://scripts/encounter_asset_preparation.gd")
+	preparation.prepare_opening_hand_for.call_deferred(self, _opening_hand_pool_preparation_input, _encounter_preparation_generation, _opening_hand_pool_preparation_revision)
+	preparation.prepare_opening_board_for.call_deferred(self, _opening_hand_pool_preparation_input, _encounter_preparation_generation, _opening_hand_pool_preparation_revision)
 
 func _prepare_opening_hand_pool_entry(card_id: String, card_size: Vector2, combat_state: Dictionary, copy_index: int) -> Dictionary:
 	_ensure_hand_card_pool_host()
@@ -33517,23 +33519,22 @@ func _prepare_skill_analytics_outbox() -> bool:
 	_record_runtime_performance_phase("skill_analytics_persist_outbox_total" if saved else "skill_analytics_persist_outbox_failed_total", started)
 	return saved
 
-func _prepare_skill_outbox_over_frames() -> bool:
+func _prepare_skill_outbox_over_frames() -> Variant:
 	if not _stage_skill_analytics_outbox(): return false
-	return await _persist_combat_analytics_receipt("combat_skill_event_outbox")
+	return _persist_combat_analytics_receipt("combat_skill_event_outbox")
 
-func _persist_skill_ack_over_frames() -> bool:
+func _persist_skill_ack_over_frames() -> Variant:
 	if str(_run_state.get("mode", "")) in ["victory", "defeat"]: return true
-	return await _persist_combat_analytics_receipt("combat_skill_event_ack")
+	return _persist_combat_analytics_receipt("combat_skill_event_ack")
 
-func _persist_combat_analytics_receipt(boundary: String) -> bool:
+func _persist_combat_analytics_receipt(boundary: String) -> Variant:
 	# Lend the receipt only to this synchronous snapshot submission. Later
 	# decisions and explicit quit must retain their own persistence semantics.
 	var receipt := PersistenceWriter.Receipt.new()
 	_deferred_checkpoint_receipt = receipt
 	var accepted: bool = _persist_committed_boundary(boundary)
 	_deferred_checkpoint_receipt = null
-	if not accepted or not receipt.queued: return accepted
-	return await receipt.wait_in_tree(get_tree())
+	return receipt if accepted and receipt.queued else accepted
 
 func _append_and_acknowledge_skill_analytics() -> bool:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0

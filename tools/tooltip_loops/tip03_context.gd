@@ -30,7 +30,7 @@ static func verify(proof: SceneTree, path: String) -> void:
 				var split_row: Control = popup.find_child("EnemySplitTrait", true, false)
 				proof._expect(split_row != null, "Production Splits trait row exists")
 				if split_row != null:
-					proof._expect(proof._matches_term(split_row.tooltip_text, row), "Native capture accepts the exact contextual Splits sentence")
+					proof._expect(proof._matches_term(split_row.tooltip_text, row, split_row.loop_term), "Native capture accepts the explicit Splits trait key")
 					var nested: Control = split_row._make_custom_tooltip(split_row.tooltip_text)
 					_expect_loop(proof, nested, row["id"], "Splits trait source")
 					nested.free()
@@ -59,7 +59,10 @@ static func verify(proof: SceneTree, path: String) -> void:
 		var card_panel: Control = Inline.glossary_panel(Icons.tooltip(term), {"kind": "hero_card"})
 		_expect_loop(proof, card_panel, {"push": Fixture.Tip07.PUSH, "pull": Fixture.Tip07.PULL}[term], "card " + term)
 		card_panel.free()
-		proof._expect(Registry.find(term, Context.enemy("crawler")).is_empty() and Registry.find(term, {}).is_empty(), "Push/Pull outside cards stay text-only")
+		var enemy_panel: Control = Context.panel_for_text(Icons.tooltip(term), Context.enemy("crawler"), term)
+		_expect_loop(proof, enemy_panel, {"push": Fixture.Tip07.PUSH, "pull": Fixture.Tip07.PULL}[term], "enemy " + term)
+		if enemy_panel != null: enemy_panel.free()
+		proof._expect(Registry.find(term, {}).is_empty(), "Push/Pull require a card or enemy source")
 	var skybreak: Control = Inline.glossary_panel(Icons.tooltip("lightning_strikes"), Context.enemy("zekarion"))
 	proof._expect(Registry.find("lightning_strikes", Context.enemy("zekarion")).is_empty() and skybreak.find_child("TooltipLoopWindow", true, false) == null, "Enemy Skybreak does not borrow the room-rule loop")
 	skybreak.free()
@@ -86,7 +89,7 @@ static func _status_ownership(proof: SceneTree) -> void:
 			if Context.actor_source(board, unit.get("key", "")) != row["source_match"]: continue
 			for entry: Dictionary in board.plate_visibility.status_entries(unit):
 				var text: String = str(entry.get("tooltip", ""))
-				if Context.term_in(text, row["source_match"]) != row["term"]: continue
+				if entry.get("icon") != row["term"]: continue
 				board._last_pointer_position = (entry["rect"] as Rect2).get_center()
 				proof._expect(board._get_tooltip(board._last_pointer_position) == text, "Real status plate hit-test: " + id)
 				proof._expect(Context.board_source(board, text) == row["source_match"], "Status plate retains enemy identity: " + id)

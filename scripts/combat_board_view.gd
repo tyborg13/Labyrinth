@@ -756,6 +756,7 @@ var _summon_forecast_engine := preload("res://scripts/combat_engine.gd").new()
 var _static_enemy_art: RefCounted = StaticEnemyFacing.new()
 var _unit_assets_loaded: Dictionary = {}
 var _element_textures: Dictionary = {}
+# Trap art belongs to encounter preparation and can be populated before _ready().
 var _trap_textures: Dictionary = {}
 var _trap_idle_frames: Dictionary = {}
 var _trap_activation_frames: Dictionary = {}
@@ -1449,9 +1450,9 @@ func _sync_vaeloryx_renderers() -> void:
 		var renderer: Node = _vaeloryx_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = VaeloryxCutout.new()
+			renderer = _take_prepared_unit_renderer("vaeloryx", int(unit.get("id", -1)), VaeloryxCutout)
 			renderer.name = "VaeloryxCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_vaeloryx_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not player.is_empty():
 			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
@@ -1721,9 +1722,9 @@ func _sync_iskaldra_renderers() -> void:
 		var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = IskaldraCutout.new()
+			renderer = _take_prepared_unit_renderer("iskaldra", int(unit.get("id", -1)), IskaldraCutout)
 			renderer.name = "IskaldraCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_iskaldra_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
@@ -1774,9 +1775,9 @@ func _sync_noctyrax_renderers() -> void:
 		var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = NoctyraxCutout.new()
+			renderer = _take_prepared_unit_renderer("noctyrax", int(unit.get("id", -1)), NoctyraxCutout)
 			renderer.name = "NoctyraxCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_noctyrax_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
@@ -1805,9 +1806,9 @@ func _sync_tharokh_renderers() -> void:
 		var renderer: Node = _tharokh_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = TharokhCutout.new()
+			renderer = _take_prepared_unit_renderer("tharokh", int(unit.get("id", -1)), TharokhCutout)
 			renderer.name = "TharokhCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_tharokh_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i) * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
@@ -1884,9 +1885,9 @@ func _sync_vyraketh_renderers() -> void:
 		var renderer: Node = _vyraketh_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = VyrakethCutout.new()
+			renderer = _take_prepared_unit_renderer("vyraketh", int(unit.get("id", -1)), VyrakethCutout)
 			renderer.name = "VyrakethCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_vyraketh_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
@@ -1933,9 +1934,9 @@ func _sync_zekarion_renderers() -> void:
 		var renderer: Node = _zekarion_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = ZekarionCutout.new()
+			renderer = _take_prepared_unit_renderer("zekarion", int(unit.get("id", -1)), ZekarionCutout)
 			renderer.name = "ZekarionCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_zekarion_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+Vector2i.ONE, player_pos*2)
@@ -3624,6 +3625,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_enemy_hud_side_by_actor.clear()
 		_clear_hud_layout_signature_cache()
 	_navigation_content_signature = next_navigation_content_signature
+	if state_changed or presentation_changes.has("trap_effects") or not _submission_cache_initialized:
+		_ensure_trap_assets_for_submission(combat_state, presentation)
 	if state_changed or presentation_changes.has("death_animation_units") or not _submission_cache_initialized:
 		_unit_draw_rect_cache.clear()
 		_ensure_unit_assets_for_submission(combat_state, presentation)
@@ -5276,9 +5279,6 @@ func tile_tooltip_detail(text: String) -> Dictionary:
 	return {"text": BoardTileTooltip.plain_text(entries), "loot_key": loot_key}
 
 func _make_custom_tooltip(for_text: String) -> Object:
-	var loops = preload("res://scripts/tooltip_loop_context.gd")
-	var loop_panel: Control = loops.panel_for_text(for_text, loops.board_source(self, for_text))
-	if loop_panel != null: return loop_panel
 	if for_text.begins_with(BoardTileTooltip.PREFIX):
 		return BoardTileTooltip.make_stack(BoardTileTooltip.decode(for_text), Callable(self, "_make_custom_tooltip"))
 	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
@@ -5294,7 +5294,8 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		if not equipment_id.is_empty() and equipment_tooltip_builder.is_valid():
 			return equipment_tooltip_builder.call(equipment_id)
 		return UiTooltipPanel.make_text(_equipment_loot_fallback_tooltip(equipment_id))
-	return UiTooltipPanel.make_text(for_text)
+	var route: Dictionary = preload("res://scripts/tooltip_loop_context.gd").board_route(self, for_text)
+	return UiTooltipPanel.make_text(for_text, route.get("loop_source", {}), route.get("loop_term", ""))
 
 func _submit_pixel_fx(element: String, draw_call: Callable, args: Array) -> void:
 	if not is_instance_valid(_pixel_fx_layer):
@@ -10851,7 +10852,7 @@ func _draw_collision_markers() -> void:
 		var blocker_damage: int = int(marker.get("blocker_damage", damage))
 		var tooltip: String = "Collision: %d damage to the target." % damage if str(marker.get("blocker_kind", "")) == "wall" else "Collision: %d damage to the target and to what stops it." % damage if blocker_damage == damage else "Collision: %d damage to the target and %d to what stops it." % [damage, blocker_damage]
 		if not str(marker.get("tooltip_override", "")).is_empty(): tooltip = str(marker["tooltip_override"])
-		_draw_keyword_icon("collision", rect, tooltip)
+		_draw_keyword_icon("collision", rect, tooltip, Color.WHITE, false, "collision")
 		var font: Font = get_theme_default_font()
 		if damage > 0 and font != null:
 			# Per-party collision damage, like a card token's value.
@@ -10860,7 +10861,7 @@ func _draw_collision_markers() -> void:
 			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 			var baseline := Vector2(center.x + radius * 0.52, center.y + radius * 0.98)
 			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
-			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
+			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip, "collision")
 
 func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
@@ -11170,14 +11171,15 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			cursor_x += text_width + 6.0
 			continue
 		var icon_key: String = str(token.get("icon", ""))
+		var term: String = str(token.get("glossary_key", icon_key))
 		var tooltip: String = str(token.get("display_tooltip", ActionIcons.token_tooltip(token)))
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
 		var condition_tint: Color = Color.WHITE
 		if token.has("condition_active") and not bool(token.get("condition_active", false)):
 			condition_tint = Color(0.42, 0.39, 0.36, 0.64)
-		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint, embossed)
+		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint, embossed, term)
 		if ActionIcons.token_is_modified(token) and font != null:
-			_draw_token_modifier_marker(icon_rect, tooltip, font)
+			_draw_token_modifier_marker(icon_rect, tooltip, font, term)
 		cursor_x += icon_size + 3.0
 		var value_text: String = ActionIcons.token_value_text(token)
 		if not value_text.is_empty() and font != null:
@@ -11189,15 +11191,15 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 				_draw_outlined_string(font, value_baseline, value_text, value_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98), INTENT_CONTOUR_ACTION_OUTLINE_SIZE)
 			else:
 				draw_string(font, value_baseline, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, _token_value_color(token, text_color))
-			_register_tooltip(value_rect, tooltip)
+			_register_tooltip(value_rect, tooltip, term)
 			cursor_x += value_width + 6.0
 		else:
 			cursor_x += 5.0
 
-func _draw_token_modifier_marker(icon_rect: Rect2, tooltip: String, font: Font) -> void:
+func _draw_token_modifier_marker(icon_rect: Rect2, tooltip: String, font: Font, term: String) -> void:
 	var marker_rect := Rect2(icon_rect.position + Vector2(icon_rect.size.x - 7.0, -3.0), Vector2(10.0, 10.0))
 	draw_string(font, marker_rect.position + Vector2(0.0, 8.0), "+", HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 10, Color("78c46a"))
-	_register_tooltip(marker_rect.grow(2.0), tooltip)
+	_register_tooltip(marker_rect.grow(2.0), tooltip, term)
 
 func _enemy_intent_popup_width(intent: Dictionary, rows: Array, font: Font) -> float:
 	var popup_width: float = INTENT_POPUP_WIDTH
@@ -11929,7 +11931,7 @@ func _rect_edge_point_toward(rect: Rect2, target: Vector2) -> Vector2:
 	var y_scale: float = half_size.y / absf(direction.y) if absf(direction.y) > 0.0001 else INF
 	return center + direction * minf(x_scale, y_scale)
 
-func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false) -> void:
+func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false, term: String = "") -> void:
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
 	if texture != null:
 		if embossed:
@@ -11942,7 +11944,7 @@ func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tin
 			draw_rect(Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), Color(0.015, 0.01, 0.015, 0.72), true)
 		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.22), true)
 	if not tooltip.is_empty():
-		_register_tooltip(rect, tooltip)
+		_register_tooltip(rect, tooltip, term)
 
 func _register_tile_tooltip(rect: Rect2, tooltip: String, tile: Vector2i, detail_key: String = "", display_tooltip: String = "") -> void:
 	if tooltip.is_empty() or not rect.has_area(): return
@@ -11955,13 +11957,14 @@ func _register_tile_tooltip(rect: Rect2, tooltip: String, tile: Vector2i, detail
 		if owner._tile_tooltip_cache.light_region_changed(get_instance_id(), tile, detail_key, tooltip):
 			owner._queue_tile_tooltip_refresh()
 
-func _register_tooltip(rect: Rect2, tooltip: String) -> void:
+func _register_tooltip(rect: Rect2, tooltip: String, term: String = "") -> void:
 	if tooltip.is_empty() or rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
 	_tooltip_regions.append({
 		"rect": rect,
 		"tooltip": tooltip,
-		"loop_source": _tooltip_loop_source.duplicate()
+		"loop_source": _tooltip_loop_source.duplicate(),
+		"loop_term": term
 	})
 
 func _token_value_color(token: Dictionary, default_color: Color) -> Color:
@@ -16157,7 +16160,7 @@ func _initial_asset_jobs(load_full_unit_roster: bool) -> Array[Callable]:
 	for kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS:
 		jobs.append(_load_terrain_destruction_asset.bind(kind))
 	for element: String in ElementData.all_elements():
-		jobs.append(_load_element_trap_assets.bind(element))
+		jobs.append(_load_element_icon_asset.bind(element))
 	for icon: String in RoomIcons.all_icon_ids():
 		jobs.append(_load_door_icon_asset.bind(icon))
 	for icon: String in ActionIcons.all_icon_keys():
@@ -16303,9 +16306,6 @@ func _load_loot_and_terrain_assets() -> void:
 	}
 	_terrain_destruction_frames_by_kind.clear()
 	_element_textures.clear()
-	_trap_textures.clear()
-	_trap_idle_frames.clear()
-	_trap_activation_frames.clear()
 	_door_icon_textures.clear()
 	_keyword_icon_textures.clear()
 
@@ -16313,11 +16313,47 @@ func _load_terrain_destruction_asset(kind: String) -> void:
 	var frames: Array[Texture2D] = _load_terrain_destruction_frames(kind)
 	if not frames.is_empty(): _terrain_destruction_frames_by_kind[kind] = frames
 
-func _load_element_trap_assets(element: String) -> void:
+func _load_element_icon_asset(element: String) -> void:
 	_element_textures[element] = AssetLoader.load_texture(ElementData.icon_path(element))
-	_trap_textures[element] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element)
-	_trap_idle_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_idle.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
-	_trap_activation_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_activation.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+
+func _trap_asset_elements(state: Dictionary, effects: Array) -> Dictionary:
+	var elements: Dictionary = {}
+	var room_element: String = str(state.get("room_element", state.get("element", "")))
+	if ElementData.is_elemental(room_element): elements[room_element] = true
+	for traps: Array in [state.get("traps", []), effects]:
+		for trap: Dictionary in traps:
+			var element: String = str(trap.get("element", ""))
+			if ElementData.is_elemental(element): elements[element] = true
+	return elements
+
+func add_trap_texture_paths(paths: Dictionary, state: Dictionary) -> void:
+	for element: String in _trap_asset_elements(state, []):
+		for suffix: String in ["", "_idle", "_activation"]:
+			paths[_trap_texture_path(element, suffix)] = false
+
+func _trap_texture_path(element: String, suffix: String) -> String:
+	return "res://assets/art/traps/trap_%s%s.png" % [element, suffix]
+
+func _ensure_trap_assets_for_submission(state: Dictionary, shown: Dictionary) -> void:
+	# Normal entry preloads these textures under the cover. Direct boards, old
+	# saves and effect-only submissions still install the exact same art.
+	for element: String in _trap_asset_elements(state, shown.get("trap_effects", [])):
+		_ensure_trap_element(element)
+
+static func prepare_trap_assets_for(board: Control, state: Dictionary, present: Callable, alive: Callable) -> void:
+	for element: String in board._trap_asset_elements(state, []):
+		if board._trap_textures.has(element): continue
+		await AssetLoader.wait_for_preparation_slice(present, alive, &"trap_frame_geometry")
+		if not bool(alive.call()) or not is_instance_valid(board): return
+		var started: int = Time.get_ticks_usec()
+		board._ensure_trap_element(element)
+		AssetLoader.count_preparation_work(started, &"trap_frame_geometry")
+
+func _ensure_trap_element(element: String) -> void:
+	if _trap_textures.has(element): return
+	_trap_textures[element] = AssetLoader.load_texture(_trap_texture_path(element, ""))
+	_trap_idle_frames[element] = _load_sprite_sheet_frames(_trap_texture_path(element, "_idle"), TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+	_trap_activation_frames[element] = _load_sprite_sheet_frames(_trap_texture_path(element, "_activation"), TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
 
 func _load_door_icon_asset(icon: String) -> void:
 	_door_icon_textures[icon] = RoomIcons.icon_texture(icon)
@@ -16407,6 +16443,15 @@ func unit_rig_preparation_manifest(state: Dictionary, fight_textures: Variant = 
 			target[rest] = true
 	return {"sources": sources, "textures": textures, "scoped_sources": scoped_sources}
 
+const OPENING_DRAGON_RENDERERS: Dictionary = {
+	"iskaldra": IskaldraCutout,
+	"vyraketh": VyrakethCutout,
+	"zekarion": ZekarionCutout,
+	"vaeloryx": VaeloryxCutout,
+	"tharokh": TharokhCutout,
+	"noctyrax": NoctyraxCutout,
+}
+
 # Constructor-only preparation keeps one upcoming encounter's canvases under
 # their final board owner. They stay outside the live roster and cannot render
 # board bodies until the ordinary roster path consumes them.
@@ -16415,7 +16460,7 @@ func begin_unit_renderer_preparation(state: Dictionary) -> Array[Dictionary]:
 	var jobs: Array[Dictionary]
 	for unit: Dictionary in state.get("enemies", []):
 		var type: String = str(unit.get("type", ""))
-		if (type not in ["crawler", "harrier"] and not MaquettePresentation.handles(type) and not GuardianCutout.handles(type)) or int(unit.get("hp", 0)) <= 0: continue
+		if (type not in ["crawler", "harrier"] and not OPENING_DRAGON_RENDERERS.has(type) and not MaquettePresentation.handles(type) and not GuardianCutout.handles(type)) or int(unit.get("hp", 0)) <= 0: continue
 		var key: String = "%s:%d" % [type, int(unit.get("id", -1))]
 		desired[key] = true
 		jobs.append({"key": key, "type": type, "id": int(unit.get("id", -1)), "motion": EnemyCutoutFacing.with_idle_direction({}, unit.get("pos", Vector2i.ZERO), (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))})
@@ -16436,7 +16481,10 @@ func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
 			"crawler": script = CrawlerCutout; prefix = "CrawlerCutout"
 			"harrier": script = HarrierCutout; prefix = "HarrierCutout"
 			_:
-				if GuardianCutout.handles(str(job["type"])):
+				if OPENING_DRAGON_RENDERERS.has(job["type"]):
+					script = OPENING_DRAGON_RENDERERS[job["type"]]
+					prefix = str(job["type"]).capitalize() + "Cutout"
+				elif GuardianCutout.handles(str(job["type"])):
 					script = GuardianCutout
 					prefix = "GuardianCutout"
 				else:
@@ -16450,7 +16498,10 @@ func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
 		_prepared_unit_renderers[key] = renderer
 	# Prepare the actual opening facing, including the rear rig. The canvases
 	# remain outside the live roster and pause at the original initial phase.
-	renderer.call("present", job["motion"], reduced_motion, true)
+	# Dedicated dragons keep their constructor pose until the real roster
+	# supplies the arrival clip and its settled visibility.
+	if not OPENING_DRAGON_RENDERERS.has(job["type"]):
+		renderer.call("present", job["motion"], reduced_motion, true)
 	renderer.set_process(false)
 
 func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) -> Node:
@@ -16458,6 +16509,9 @@ func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) ->
 	var renderer: Node = _prepared_unit_renderers.get(key) as Node
 	_prepared_unit_renderers.erase(key)
 	if is_instance_valid(renderer) and not renderer.is_queued_for_deletion() and renderer.get_parent() == self and renderer.get_script() == script:
+		if OPENING_DRAGON_RENDERERS.has(type):
+			renderer.set_process(true)
+			return renderer
 		if renderer.has_method("reset_prepared_state"):
 			renderer.reset_prepared_state()
 			renderer.set_process(true)
@@ -16479,7 +16533,18 @@ func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) ->
 	if is_instance_valid(renderer): renderer.queue_free()
 	return script.new()
 
+var _prepared_opening_tile_layers: Array[WeakRef]
+
+func prepare_opening_tile(tile: Vector2i) -> void:
+	var layer: Control = _scene_render_layers_by_tile.get(tile)
+	if is_instance_valid(layer) and layer._layer_slices.prepare_opening_tile(layer):
+		_prepared_opening_tile_layers.append(weakref(layer))
+
 func cancel_unit_renderer_preparation() -> void:
+	for reference: WeakRef in _prepared_opening_tile_layers:
+		var layer: Control = reference.get_ref()
+		if is_instance_valid(layer): layer._layer_slices.clear_opening_tile()
+	_prepared_opening_tile_layers.clear()
 	for renderer: Node in _prepared_unit_renderers.values():
 		if is_instance_valid(renderer): renderer.queue_free()
 	_prepared_unit_renderers.clear()

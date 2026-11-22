@@ -101,7 +101,7 @@ func _run() -> void:
 				window.proof_seconds = -1.0
 				await _wait_frame(window, int(cache.header(window.asset_path).get("count", 1)) - 1)
 				await _capture(str(row["id"]) + "_reduced_motion")
-		if row["source_match"].get("kind") == "enemy" and not Fixture.Tip03.IDS.has(row["id"]):
+		if row["source_match"].get("kind") == "enemy" and not row.get("keyword_only", false) and not Fixture.Tip03.IDS.has(row["id"]):
 			await _capture_pre_battle(scene, fixture, row)
 			var outer: Control = _tooltip(scene)
 			await OpenProof.close(self, scene, outer)
@@ -204,10 +204,11 @@ func _open(scene: Node, row: Dictionary) -> Control:
 			var local_point: Vector2 = (candidate["rect"] as Rect2).get_center()
 			await _pointer(board.get_global_transform_with_canvas() * local_point)
 			var game_text: String = board.call("_get_tooltip", local_point)
-			var source: Dictionary = Context.board_source(board, game_text)
+			var route: Dictionary = Context.board_route(board, game_text)
+			var source: Dictionary = route.get("loop_source", {})
 			var owns_hover: bool = viewport.gui_get_hovered_control() == board
 			var matches_source: bool = source.get("id", "") == row["source_match"]["id"]
-			if not owns_hover or not matches_source or not _matches_term(game_text, row): continue
+			if not owns_hover or not matches_source or not _matches_term(game_text, row, route.get("loop_term", "")): continue
 			await create_timer(HOVER_WAIT_SECONDS, true, false, true).timeout
 			var popup: Control = _tooltip(board)
 			if popup != null:
@@ -230,21 +231,21 @@ func _prepare_enemy_inspection(scene: Node) -> void:
 		await process_frame
 	for frame: int in range(OUTER_POPUP_SETTLE_FRAMES): await process_frame
 
-func _matches_term(text: String, row: Dictionary) -> bool:
+func _matches_term(text: String, row: Dictionary, term: String) -> bool:
 	var source: Dictionary = row["source_match"]
-	return Registry.find(Context.term_in(text, source), source).get("term", "") == row["term"]
+	return Registry.find(term if not term.is_empty() else Context.term_in(text, source), source).get("id") == row["id"]
 
 func _enemy_hover_candidates(board: Control, row: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for layer: Control in Context.tooltip_sources(board):
 		for region: Dictionary in layer._tooltip_regions:
 			if region.get("loop_source", {}).get("id", "") != row["source_match"]["id"]: continue
-			if not _matches_term(str(region.get("tooltip", "")), row): continue
+			if not _matches_term(str(region.get("tooltip", "")), row, region.get("loop_term", "")): continue
 			result.append({"rect": region["rect"], "canvas": str(layer.get_path()), "routed_hud": layer.has_meta("rd03_canvas")})
 	for unit: Dictionary in board.plate_visibility.actors():
 		if Context.actor_source(board, str(unit.get("key", ""))) != row["source_match"]: continue
 		for entry: Dictionary in board.plate_visibility.status_entries(unit):
-			if not _matches_term(str(entry.get("tooltip", "")), row): continue
+			if not _matches_term(str(entry.get("tooltip", "")), row, entry.get("icon", "")): continue
 			result.append({"rect": entry["rect"], "canvas": "status_plate", "routed_hud": false})
 	return result
 
@@ -306,7 +307,7 @@ func _semantics() -> void:
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
 	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 22 + Fixture.Tip07.IDS.size() + Fixture.Tip06.IDS.size(), "Existing loops plus the forced movement and card mechanic recordings")
+	_expect(Registry.entries().size() == 32, "Exactly 32 registered tooltip loops")
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -319,7 +320,7 @@ func _semantics() -> void:
 		var packed_file := FileAccess.open(entry["asset_path"], FileAccess.READ)
 		# New recordings are director-owned native work; no synthetic footage ships.
 		var id: String = entry["id"]
-		var native_fixture: bool = id in Fixture.Tip03.IDS or id in Fixture.Tip04.IDS or id in Fixture.Tip05.IDS or id in Fixture.Traps.IDS or id in Fixture.Txt13.IDS or id in Fixture.Tip07.IDS or id in Fixture.Tip06.IDS
+		var native_fixture: bool = id in Fixture.Tip03.IDS or id in Fixture.Tip04.IDS or id in Fixture.Tip05.IDS or id in Fixture.Traps.IDS or id in Fixture.Txt13.IDS or id in Fixture.Tip07.IDS or id in Fixture.Tip06.IDS or id in Fixture.Tip09.IDS or id in Fixture.Tip10.IDS
 		if not native_fixture: _expect(packed_file != null, "Registered asset exists: " + id)
 		if packed_file == null: continue
 		var packed_header: Dictionary = Format.header(packed_file)
@@ -412,8 +413,8 @@ func _routed_hover_semantics() -> void:
 		var enemy: Dictionary = fixture["state"]["enemies"][0]
 		var source: Dictionary = Context.enemy(str(enemy["type"]))
 		var term: String = "splits" if id == "splits_cinder_ooze" else "burst" if id == "burst_ember_tick" else "marked"
-		var tooltip_text: String = str(Context.Splits.trait_token(enemy)["tooltip"]) if term == "splits" else Icons.tooltip(term)
-		var row: Dictionary = {"term": term, "source_match": source}
+		var tooltip_text: String = str(preload("res://scripts/enemy_mechanics/split_trait_text.gd").trait_token(enemy)["tooltip"]) if term == "splits" else Icons.tooltip(term)
+		var row: Dictionary = Registry.find(term, source)
 		# Dummy rendering cannot populate native draw registrations. Reproduce
 		# the real per-actor routing boundary using the production board script,
 		# registration, native hit-test and custom tooltip builder.
@@ -424,7 +425,7 @@ func _routed_hover_semantics() -> void:
 		routed.set_meta("rd03_canvas", true)
 		board.add_child(routed)
 		routed._tooltip_loop_source = source
-		routed._register_tooltip(ROUTE_PROOF_RECT, tooltip_text)
+		routed._register_tooltip(ROUTE_PROOF_RECT, tooltip_text, term)
 		board._aim_focus.canvases["tooltip_route_proof"] = {"canvas": routed, "unit": enemy, "hud": true}
 		_expect(not board._retained_render_layers().has(routed), "Reproduces HUD canvas omitted by the old capture route")
 		var routed_path: String = str(routed.get_path())

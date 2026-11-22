@@ -5,6 +5,10 @@ const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
 const Tip07 = preload("res://tools/tooltip_loops/tip07_fixture.gd")
+const Tip09 = preload("res://tools/tooltip_loops/tip09_fixture.gd")
+const Tip09Checks = preload("res://tools/tooltip_loops/tip09_checks.gd")
+const Tip10 = preload("res://tools/tooltip_loops/tip10_fixture.gd")
+const Tip10Checks = preload("res://tools/tooltip_loops/tip10_checks.gd")
 const Registry = preload("res://scripts/tooltip_loop_registry.gd")
 const Tip06 = preload("res://tools/tooltip_loops/tip06_fixture.gd")
 const Tip05 = preload("res://tools/tooltip_loops/tip05_fixture.gd")
@@ -58,6 +62,14 @@ static func build(id: String) -> Dictionary:
 		var config: Dictionary = Tip06.configure(layout, id)
 		units = config["units"]
 		card = config["card"]
+	elif Tip09.IDS.has(id):
+		var config: Dictionary = Tip09.configure(layout, id)
+		units = config["units"]
+		card = config["card"]
+	elif Tip10.IDS.has(id):
+		var config: Dictionary = Tip10.configure(layout)
+		units = config["units"]
+		card = config["card"]
 	if Tip04.IDS.has(id):
 		var config: Dictionary = Tip04.configure(layout, id)
 		units = config["units"]
@@ -90,11 +102,14 @@ static func build(id: String) -> Dictionary:
 	if Tip04.IDS.has(id): Tip04.prepare(state, id)
 	if Tip05.IDS.has(id): Tip05.prepare(state, id)
 	if Tip06.IDS.has(id): state = Tip06.prepare(state, id)
+	elif Tip09.IDS.has(id): Tip09.prepare(state, id)
+	elif Tip10.IDS.has(id): state = Tip10.prepare(state)
 	if Txt13.IDS.has(id): Txt13.prepare(state, id)
 	run["mode"] = "combat"
 	run["current_room_layout"] = layout
 	run["combat_state"] = state
 	var fixture: Dictionary = {"run": run, "state": state, "card": card, "id": id, "layout": layout}
+	if Tip09.IDS.has(id) or Tip10.IDS.has(id): fixture["biome"] = Tip06.PLAIN_FLOOR_BIOME
 	for row: Dictionary in Registry.entries():
 		if row["id"] == id and row.has("fixture_biome"):
 			fixture["biome"] = row["fixture_biome"]
@@ -102,8 +117,10 @@ static func build(id: String) -> Dictionary:
 	return fixture
 
 static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
+	if Tip10.IDS.has(fixture["id"]): return Tip10.plan(fixture, engine)
 	if Tip07.IDS.has(fixture["id"]): return Tip07.plan(fixture, engine)
 	if Tip06.IDS.has(fixture["id"]): return Tip06.plan(fixture, engine)
+	if Tip09.IDS.has(fixture["id"]): return Tip09.plan(fixture, engine)
 	if Txt13.IDS.has(fixture["id"]): return Txt13.plan(fixture, engine)
 	if Traps.IDS.has(fixture["id"]): return Traps.plan(fixture, engine)
 	if Tip05.IDS.has(fixture["id"]): return Tip05.plan(fixture, engine)
@@ -133,10 +150,12 @@ static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 
 static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	var failures: Array[String] = _validate_mechanics(fixture, result)
+	if Tip09.IDS.has(fixture["id"]): failures.append_array(Tip09Checks.validate(fixture, result))
 	failures.append_array(PatchChecks.tiles(fixture, result, crop_tiles(fixture["id"])))
 	return failures
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Tip10.IDS.has(fixture["id"]): return Tip10Checks.validate(fixture, result)
 	if Tip07.IDS.has(fixture["id"]): return Tip07.validate(fixture, result)
 	if Tip06.IDS.has(fixture["id"]): return Tip06.Checks.validate(fixture, result, Tip06)
 	if Txt13.IDS.has(fixture["id"]): return Txt13.validate(fixture, result)
@@ -167,6 +186,7 @@ static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Arra
 	return failures
 
 static func crop_tiles(id: String) -> Rect2i:
+	if id == Tip10.STAGGER: return Tip10.CAMERA_TILES
 	if Tip07.IDS.has(id): return Tip07.PATCH
 	if id == Tip06.WORLDSPINE: return Tip06.WORLDSPINE_PATCH
 	return Txt13.BARRAGE_PATCH if id == Txt13.BARRAGE else PatchChecks.PATCH

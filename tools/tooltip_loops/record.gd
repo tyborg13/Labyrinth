@@ -38,17 +38,25 @@ func _run() -> void:
 	root.size = Vector2i(16, 16) # The MovieWriter clock sink; footage comes from the full SubViewport.
 	root.content_scale_size = root.size
 	var viewport: SubViewport = Playback.canvas(self) if not semantics_only else null
-	for row: Dictionary in selected_entries():
+	var rows: Array = selected_entries()
+	var has_tip10: bool = rows.any(func(row: Dictionary) -> bool: return Fixture.Tip10.IDS.has(row["id"]))
+	if semantics_only and (has_tip10 or rows.any(func(row: Dictionary) -> bool: return Fixture.Tip09.IDS.has(row["id"]))):
+		var trim_ok: bool = Fixture.Tip09Checks.verify_trim(trim_raw)
+		if has_tip10: trim_ok = Fixture.Tip09Checks.verify_trim(trim_raw, true) and trim_ok
+		print("%s RAW TRIM: %s" % ["TIP10" if has_tip10 else "TIP09", "PASS" if trim_ok else "FAIL"])
+		if not trim_ok: failures.append("A trimmed recording must pad only the terminal frame")
+	for row: Dictionary in rows:
 		var fixture: Dictionary = Fixture.build(str(row["id"]))
 		var engine := Combat.new()
 		var result: Dictionary = Fixture.plan(fixture, engine)
-		failures.append_array(Fixture.validate(fixture, result))
-		print("TIP01 SEMANTICS %s: %s" % [row["id"], "FAIL" if not Fixture.validate(fixture, result).is_empty() else "TODO_DESIGN" if not str(result.get("todo_design", "")).is_empty() else "PASS"])
+		var checked: Array[String] = Fixture.validate(fixture, result)
+		failures.append_array(checked)
+		print("TIP01 SEMANTICS %s: %s" % [row["id"], "FAIL" if not checked.is_empty() else "TODO_DESIGN" if not str(result.get("todo_design", "")).is_empty() else "PASS"])
 		if not str(result.get("todo_design", "")).is_empty():
 			design_pending += 1
 			print(result["todo_design"])
 			continue
-		if not semantics_only and Fixture.validate(fixture, result).is_empty(): await _record(viewport, fixture, result, row)
+		if not semantics_only and checked.is_empty(): await _record(viewport, fixture, result, row)
 	for failure: String in failures: push_error(failure)
 	print("TIP01 %s RESULT: %s (%d failures)" % ["SEMANTICS" if semantics_only else "REHEARSAL" if rehearsal else "RECORD", "PASS" if failures.is_empty() else "FAIL", failures.size()])
 	print("TIP03 DESIGN PENDING: %d loops (excluded from recording)" % design_pending)
@@ -65,11 +73,27 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	var board: Control = scene.get("board_view")
 	var patch: Rect2i = Fixture.crop_tiles(fixture["id"])
 	var crop: Rect2i = Playback.crop_rect(board, patch)
+	var has_rail: bool = row["id"] == Fixture.Tip10.STAGGER
+	var rail_pre_draw: Callable
+	if has_rail:
+		crop = Playback.Tip10Rail.crop(scene, crop)
+		# Deferred HUD layout can run after process_frame. Keep the production
+		# rail in the capture pose and mask its unrelated dock at submission.
+		if recording:
+			rail_pre_draw = Playback.Tip10Rail.place.bind(scene)
+			RenderingServer.frame_pre_draw.connect(rail_pre_draw)
+			await RenderingServer.frame_post_draw
 	var audit := PatchChecks.new()
 	var force_audit: RefCounted
 	if Fixture.Tip07.IDS.has(row["id"]): force_audit = Playback.Tip07Playback.new()
 	var card_audit: RefCounted
 	if Fixture.Tip06.IDS.has(row["id"]): card_audit = Fixture.Tip06.Checks.new()
+	var rare_audit: RefCounted
+	if Fixture.Tip09.IDS.has(row["id"]): rare_audit = Fixture.Tip09Checks.new()
+	var keyword_audit: RefCounted
+	if has_rail: keyword_audit = Fixture.Tip10Checks.new()
+	var reflect_audit: RefCounted
+	if recording and row["id"] == Fixture.Tip09.REFLECT: reflect_audit = Playback.Tip09Reflect.new()
 	audit.drawn_floor(board, fixture["state"], fixture["id"], "start", patch)
 	var frames: int = 0
 	var terminal_frames: int = 0
@@ -94,6 +118,9 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	Playback.play(scene, result, completion)
 	while frames < PLAYBACK_WATCHDOG_FRAMES:
 		board.capture_frame = frames
+		if has_rail:
+			Playback.Tip10Rail.place(scene)
+			if scene.get("_turn_order_animating"): board.mark_visible_frame()
 		if bool(completion["done"]):
 			terminal_frames += 1
 			if terminal_frames > 1: break
@@ -106,6 +133,8 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		if not recording:
 			audit.observe(board, crop, fixture["id"])
 			if force_audit != null: force_audit.observe(board, fixture, result, frames)
+			if rare_audit != null: rare_audit.observe(board, fixture, result, frames)
+			if keyword_audit != null: keyword_audit.observe(scene, board, fixture, result, crop, frames)
 		if row["id"] == "marked_lob_slag":
 			for unit: Dictionary in board._visible_units():
 				if unit.get("role") != "player": continue
@@ -116,22 +145,36 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			# Frame-margin proof observes the pose actually submitted for this image.
 			audit.observe(board, crop, fixture["id"])
 			if force_audit != null: force_audit.observe(board, fixture, result, frames)
+			if rare_audit != null: rare_audit.observe(board, fixture, result, frames)
+			if keyword_audit != null: keyword_audit.observe(scene, board, fixture, result, crop, frames)
 			var image: Image = viewport.get_texture().get_image()
 			if image == null or image.get_size() != Playback.SIZE:
 				failures.append("Recorder requires a real 1920x1080 renderer image"); valid_recording = false; break
 			if not Rect2i(Vector2i.ZERO, Playback.SIZE).encloses(crop):
 				failures.append("The capture crop must fit inside the SubViewport"); valid_recording = false; break
 			if frames == 0 and not background_is_settled(image, crop, background):
-				failures.append("%s frame zero still has an unsettled background; recording rejected" % row["id"])
+				var proof: String = proof_dir.path_join(str(row["id"]) + "_rejected_frame_zero_1920x1080.png")
+				image.save_png(proof)
+				print(proof)
+				failures.append("%s frame zero has an unsettled background in %s; expected %s, saw %s" % [
+					row["id"], crop, background.to_html(), _background_corner_colors(image, crop),
+				])
 				valid_recording = false
 				break
-			last_picture = image
+			if not has_rail or keyword_audit.first_frame("hero_ahead") == frames:
+				last_picture = image
 			if frames == 0 or (int(board.first_visible_frame) >= 0 and not source_first_motion_saved):
 				var label: String = "source_start" if frames == 0 else "source_first_motion"
 				if frames != 0: source_first_motion_saved = true
 				var proof: String = proof_dir.path_join("%s_%s_1920x1080.png" % [row["id"], label])
 				image.save_png(proof)
 				print(proof)
+			if keyword_audit != null:
+				for witness: String in Fixture.Tip10Checks.WITNESSES[row["id"]]:
+					if keyword_audit.first_frame(witness) != frames: continue
+					var proof: String = proof_dir.path_join("%s_source_%s_1920x1080.png" % [row["id"], witness])
+					image.save_png(proof)
+					print(proof)
 			if force_audit != null and force_audit.impact_frame == frames:
 				var proof: String = proof_dir.path_join(str(row["id"]) + "_source_impact_1920x1080.png")
 				image.save_png(proof)
@@ -140,6 +183,12 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			picture.resize(282, 168, Image.INTERPOLATE_LANCZOS)
 			picture.convert(Image.FORMAT_RGB8)
 			bake_vignette(picture)
+			if reflect_audit != null:
+				var leg: String = reflect_audit.observe_pixels(board, crop, picture, frames)
+				if not leg.is_empty():
+					var proof: String = proof_dir.path_join("reflect_source_%s_1920x1080.png" % leg)
+					image.save_png(proof)
+					print(proof)
 			file.store_buffer(picture.get_data())
 		frames += 1
 		await process_frame
@@ -165,17 +214,44 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		visibility["card_mechanic"] = {"failures": card_failures, "max_idle_frames": card_audit.max_idle_frames}
 		if card_audit.max_idle_frames > roundi(LoopView.HOLD_SECONDS * FPS):
 			audit.failures.append("%s has a longer internal idle than the shared end hold" % row["id"])
+	if rare_audit != null:
+		visibility["rare_keyword_frames"] = rare_audit.report(row["id"], audit.failures)
+		if recording and row["id"] == Fixture.Tip09.PIERCE:
+			visibility["keyword_plates"] = rare_audit.keyword_plate_report(fixture, result, board.keyword_plate_draws, crop, audit.failures)
+	if keyword_audit != null:
+		visibility["keyword_mechanic"] = keyword_audit.report(fixture, board, crop, recording, audit.failures)
+		print("TIP10 PLAYBACK RECEIPT %s: %s" % [row["id"], JSON.stringify(visibility["keyword_mechanic"])])
+	if reflect_audit != null:
+		visibility["reflect_pixels"] = reflect_audit.report(FPS, audit.failures)
 	failures.append_array(audit.failures)
 	if not audit.failures.is_empty(): valid_recording = false
 	print("TIP04 PATCH VISIBILITY %s: %s %s" % [fixture["id"], "PASS" if audit.failures.is_empty() else "FAIL", JSON.stringify(visibility)])
 	var source_frames: int = frames
 	var first: int = maxi(0, int(board.first_visible_frame) - MAX_LEAD_FRAMES)
 	var last: int = mini(frames - 1, int(board.last_visible_frame) + 1)
+	if has_rail:
+		first = 0
+		last = maxi(first, keyword_audit.first_frame("hero_ahead"))
 	if int(board.first_visible_frame) < 0:
 		failures.append("No visible action observed: " + str(row["id"]))
 		valid_recording = false
-	frames = maxi(1, last - first + 1)
-	var timing: Dictionary = {"id": row["id"], "source_frames": source_frames, "recording_frames": frames, "action_seconds": float(frames) / FPS, "first_visible_frame": int(board.first_visible_frame), "last_visible_frame": int(board.last_visible_frame), "trim_start_frames": first, "trim_end_frames": source_frames - last - 1, "first_motion_seconds": float(int(board.first_visible_frame) - first) / FPS, "tail_seconds": float(last - int(board.last_visible_frame)) / FPS, "seen_numbers": board.seen_numbers.keys(), "hero_crop_ok": hero_crop_ok, "patch_visibility": visibility}
+	var retained_frames: int = maxi(1, last - first + 1)
+	var minimum_frames: int = int(row.get("min_recording_frames", 1))
+	var remaining: int = maxi(0, minimum_frames - retained_frames)
+	var opening_hold: int = remaining if row.get("pad_opening_to_min_recording_frames", false) else 0
+	var terminal_hold: int = remaining if row.get("pad_to_min_recording_frames", false) else 0
+	var hold_seconds: float = float(row.get("hold_seconds", LoopView.HOLD_SECONDS))
+	frames = retained_frames + opening_hold + terminal_hold
+	var last_visible: int = last if has_rail else int(board.last_visible_frame)
+	var timing: Dictionary = {"id": row["id"], "source_frames": source_frames, "recording_frames": frames, "action_seconds": float(frames) / FPS, "first_visible_frame": int(board.first_visible_frame), "last_visible_frame": last_visible, "trim_start_frames": first, "trim_end_frames": source_frames - last - 1, "first_motion_seconds": float(opening_hold + int(board.first_visible_frame) - first) / FPS, "tail_seconds": float(last - last_visible) / FPS, "seen_numbers": board.seen_numbers.keys(), "hero_crop_ok": hero_crop_ok, "patch_visibility": visibility}
+	if row.get("pad_to_min_recording_frames", false):
+		timing["terminal_hold_frames"] = terminal_hold
+		timing["total_loop_seconds"] = float(frames) / FPS + hold_seconds + LoopView.CROSSFADE_SECONDS
+	if has_rail:
+		timing["opening_hold_frames"] = opening_hold
+		timing["terminal_hold_frames"] = terminal_hold
+		timing["hold_seconds"] = hold_seconds
+		timing["total_loop_seconds"] = float(frames) / FPS + hold_seconds + LoopView.CROSSFADE_SECONDS
 	if row["id"] == "rule_upheaval" and (float(timing["tail_seconds"]) > 0.2 or float(timing["action_seconds"]) > 4.5):
 		failures.append("Upheaval must end <=0.2 s after settling, with action <=4.5 s")
 		valid_recording = false
@@ -195,7 +271,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			valid_recording = false
 	var completed: bool = bool(completion["done"])
 	var limit: int = mini(action_frame_limit(str(row.get("speed", "normal"))), int(row.get("max_recording_frames", FAST_MAX_ACTION_FRAMES)))
-	if frames < int(row.get("min_recording_frames", 1)):
+	if frames < minimum_frames:
 		failures.append("Recording is shorter than the authored minimum: " + str(row["id"]))
 		valid_recording = false
 	if completed and frames > limit:
@@ -205,10 +281,8 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		# Keep the scene alive until its real coroutines finish, outside the asset.
 		while not bool(completion["done"]): await process_frame
 	if recording:
-		file.seek(16)
-		file.store_32(frames)
 		file.close()
-		if completed and valid_recording and not trim_raw(temporary, first, frames):
+		if completed and valid_recording and frames <= limit and not trim_raw(temporary, first, retained_frames, terminal_hold, opening_hold):
 			failures.append("Could not retain the contiguous recording window: " + str(row["id"]))
 			valid_recording = false
 		if last_picture != null:
@@ -223,11 +297,12 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 				"renderer": {"engine": Engine.get_version_info(), "method": RenderingServer.call("get_current_rendering_method") if RenderingServer.has_method("get_current_rendering_method") else ProjectSettings.get_setting("rendering/renderer/rendering_method"), "launch_arguments": OS.get_cmdline_args(), "driver": RenderingServer.get_video_adapter_name(), "viewport": [1920, 1080], "ui_scale": 1.0, "cel_look": preload("res://scripts/cel_look.gd").mode},
 				"commit": OS.get_environment("TIP01_COMMIT"), "source_dirty": OS.get_environment("TIP01_DIRTY"),
 				"source_sha256": _source_hashes(), "crop": var_to_str(crop), "fps": FPS,
-				"background_settled_before_frame_zero": valid_recording, "motion_timing": timing, "action_frames": frames, "timing_within_brief": frames <= limit, "action_frame_limit": limit, "hold_seconds": 0.6, "crossfade_seconds": 0.25,
+				"background_settled_before_frame_zero": valid_recording, "motion_timing": timing, "action_frames": frames, "timing_within_brief": frames <= limit, "action_frame_limit": limit, "hold_seconds": hold_seconds, "crossfade_seconds": LoopView.CROSSFADE_SECONDS,
 				"speed": row.get("speed", "normal"), "action_seconds": float(frames) / FPS, "format": "TLP1 lossless RGB8, streamed", "vignette_baked": true, "vignette": {"ink": Palette.INK_0.to_html(), "corner_alpha": 0.45, "curve": "squared radial distance"}, "asset_sha256": FileAccess.get_sha256(raw_path)}
 			FileAccess.open(raw_path + ".json", FileAccess.WRITE).store_string(JSON.stringify(provenance, "\t"))
 		else: DirAccess.remove_absolute(ProjectSettings.globalize_path(temporary))
 	print("TIP02 PLAYBACK %s: %s (%d frames at 30 fps; %.3f s; speed=%s)" % [row["id"], "PASS" if completed and valid_recording and frames <= limit else "FAIL", frames, float(frames) / FPS, row.get("speed", "normal")])
+	if rail_pre_draw.is_valid(): RenderingServer.frame_pre_draw.disconnect(rail_pre_draw)
 	scene.queue_free()
 	await process_frame
 
@@ -257,10 +332,23 @@ static func bake_vignette(picture: Image) -> void:
 static func background_is_settled(image: Image, crop: Rect2i, expected: Color) -> bool:
 	# The patch is inset from all four corners; these are production board fill,
 	# not units/floor. Reject the SubViewport's grey clear frame before saving it.
-	for point: Vector2i in [crop.position, crop.position + Vector2i(crop.size.x - 1, 0), crop.position + Vector2i(0, crop.size.y - 1), crop.end - Vector2i.ONE]:
+	for point: Vector2i in _background_corners(crop):
 		var pixel: Color = image.get_pixelv(point)
 		if absf(pixel.r - expected.r) > BACKGROUND_CHANNEL_TOLERANCE or absf(pixel.g - expected.g) > BACKGROUND_CHANNEL_TOLERANCE or absf(pixel.b - expected.b) > BACKGROUND_CHANNEL_TOLERANCE: return false
 	return true
+
+static func _background_corners(crop: Rect2i) -> Array[Vector2i]:
+	var corners: Array[Vector2i] = [
+		crop.position, Vector2i(crop.end.x - 1, crop.position.y),
+		Vector2i(crop.position.x, crop.end.y - 1), crop.end - Vector2i.ONE,
+	]
+	return corners
+
+static func _background_corner_colors(image: Image, crop: Rect2i) -> PackedStringArray:
+	var colors := PackedStringArray()
+	for point: Vector2i in _background_corners(crop):
+		colors.append(image.get_pixelv(point).to_html())
+	return colors
 
 func _source_hashes() -> Dictionary:
 	var hashes: Dictionary = {}
@@ -272,32 +360,57 @@ func _source_hashes() -> Dictionary:
 		"tools/tooltip_loops/tip06_fixture.gd", "tools/tooltip_loops/tip06_checks.gd",
 		"scripts/surface_card_rules.gd", "scripts/illusion_card_rules.gd", "scripts/terrain_card_rules.gd", "scripts/rite_rules.gd", "scripts/combat_outcome_feedback.gd",
 		"tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd",
+		"tools/tooltip_loops/tip09_fixture.gd", "tools/tooltip_loops/tip09_checks.gd",
+		"tools/tooltip_loops/tip09_reflect.gd", "scripts/enemy_mechanics/reflect_view.gd",
+		"tools/tooltip_loops/tip10_fixture.gd", "tools/tooltip_loops/tip10_checks.gd",
+		"tools/tooltip_loops/tip10_rail.gd",
+		"scripts/card_keyword_rules.gd", "scripts/card_widget.gd", "scripts/tooltip_loop_context.gd",
 	]:
 		hashes[path] = FileAccess.get_sha256("res://" + path)
 	return hashes
 
-static func trim_raw(path: String, first: int, count: int) -> bool:
+static func trim_raw(path: String, first: int, count: int, terminal_hold: int = 0, opening_hold: int = 0) -> bool:
 	# Contiguous leading/trailing idle only. No action frames are resampled.
 	var file := FileAccess.open(path, FileAccess.READ_WRITE)
 	const HEADER_BYTES: int = 20
 	const STRIDE: int = 282 * 168 * 3
 	const COPY_BYTES: int = 1024 * 1024 # Debug/offline IO chunk only.
 	if file == null: return false
-	if first < 0 or count <= 0 or HEADER_BYTES + (first + count) * STRIDE > file.get_length():
+	if mini(first, mini(terminal_hold, opening_hold)) < 0 or count <= 0 or HEADER_BYTES + (first + count) * STRIDE > file.get_length():
 		file.close()
 		return false
 	var copied: int = 0
+	var reverse: bool = opening_hold > first
 	while copied < count * STRIDE:
-		file.seek(HEADER_BYTES + first * STRIDE + copied)
-		var chunk: PackedByteArray = file.get_buffer(mini(COPY_BYTES, count * STRIDE - copied))
-		if chunk.is_empty():
+		var length: int = mini(COPY_BYTES, count * STRIDE - copied)
+		var offset: int = count * STRIDE - copied - length if reverse else copied
+		file.seek(HEADER_BYTES + first * STRIDE + offset)
+		var chunk: PackedByteArray = file.get_buffer(length)
+		if chunk.size() != length:
 			file.close()
 			return false
-		file.seek(HEADER_BYTES + copied)
+		file.seek(HEADER_BYTES + opening_hold * STRIDE + offset)
 		file.store_buffer(chunk)
 		copied += chunk.size()
-	file.resize(HEADER_BYTES + count * STRIDE)
+	if opening_hold > 0:
+		file.seek(HEADER_BYTES + opening_hold * STRIDE)
+		var first_frame: PackedByteArray = file.get_buffer(STRIDE)
+		if first_frame.size() != STRIDE:
+			file.close()
+			return false
+		file.seek(HEADER_BYTES)
+		for frame: int in range(opening_hold): file.store_buffer(first_frame)
+	if terminal_hold > 0:
+		file.seek(HEADER_BYTES + (opening_hold + count - 1) * STRIDE)
+		var final_frame: PackedByteArray = file.get_buffer(STRIDE)
+		if final_frame.size() != STRIDE:
+			file.close()
+			return false
+		for frame: int in range(terminal_hold): file.store_buffer(final_frame)
+	var total: int = opening_hold + count + terminal_hold
+	var resized: Error = file.resize(HEADER_BYTES + total * STRIDE)
 	file.seek(16)
-	file.store_32(count)
+	file.store_32(total)
+	var written: Error = file.get_error()
 	file.close()
-	return true
+	return resized == OK and written == OK

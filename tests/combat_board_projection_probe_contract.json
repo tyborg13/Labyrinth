@@ -1,0 +1,24 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01_combat_default.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 180, 960, 580], "min_luma_range": 12, "min_luma_stdev": 4}]
+    },
+    {
+      "pattern": "*02_combat_wheel_zoom.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 180, 960, 580], "min_luma_range": 12, "min_luma_stdev": 4}]
+    },
+    {
+      "pattern": "*03_combat_resumed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 180, 960, 580], "min_luma_range": 12, "min_luma_stdev": 4}]
+    }
+  ]
+}

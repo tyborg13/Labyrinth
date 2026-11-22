@@ -51,7 +51,9 @@ static var _history_revision: int = 0
 ## the map's first frame, decode them on the existing worker and publish the
 ## same cache entries; a tab chosen before its painting publishes keeps the
 ## ordinary synchronous load.
-static func prepare_history_for(owner: Node, map: Control) -> void:
+static func prepare_history_for(owner: Variant, map: Variant) -> void:
+	# The deferred queue can outlive either Node. Validate before accessing them.
+	if not _history_visible(owner, map): return
 	_history_revision += 1
 	var revision: int = _history_revision
 	var state: Dictionary = owner._run_state
@@ -66,13 +68,19 @@ static func prepare_history_for(owner: Node, map: Control) -> void:
 	if textures.is_empty(): return
 	var tree: SceneTree = owner.get_tree()
 	var present: Callable = preload("res://scripts/room_asset_preparation.gd").present_frame.bind(tree)
-	var alive: Callable = _history_active.bind(revision, map)
+	var alive: Callable = _history_active.bind(revision, owner, map)
 	await present.call()
 	if not bool(alive.call()): return
 	await Assets.prepare_textures_for(tree.root, textures, present, alive)
 
-static func _history_active(revision: int, map: Variant) -> bool:
-	return revision == _history_revision and is_instance_valid(map) and map.is_visible_in_tree()
+static func _history_active(revision: int, owner: Variant, map: Variant) -> bool:
+	return revision == _history_revision and _history_visible(owner, map)
+
+static func _history_visible(owner: Variant, map: Variant) -> bool:
+	return (
+		is_instance_valid(owner) and owner.is_inside_tree() and not owner.is_queued_for_deletion()
+		and is_instance_valid(map) and not map.is_queued_for_deletion() and map.is_visible_in_tree()
+	)
 
 static func release_after_run(owner: Node, encounter: Dictionary = {}) -> void:
 	for scene: Node in owner.get_tree().get_nodes_in_group(RUN_GROUP):

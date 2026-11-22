@@ -625,6 +625,7 @@ var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
 var _external_highlighted: bool = false
 var _native_tooltips_enabled: bool = true
+var _native_tooltip_route: Dictionary = {}
 var _hover_lift: float = HOVER_LIFT
 var _hover_scale: float = HOVER_SCALE
 var _pose_tween: Tween
@@ -757,6 +758,7 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 func _get_tooltip(at_position: Vector2) -> String:
+	_native_tooltip_route.clear()
 	if not _native_tooltips_enabled:
 		return ""
 	# Godot supplies a card-local query point. Resolve that point through the
@@ -764,7 +766,8 @@ func _get_tooltip(at_position: Vector2) -> String:
 	var global_point: Vector2 = get_global_transform() * at_position
 	if _time_badge != null and _time_badge.visible and _time_badge.get_global_rect().has_point(global_point):
 		return _time_badge.tooltip_text
-	var icon_tooltip: String = _tooltip_for_icon_at(global_point)
+	var icon_tooltip: String = _tooltip_for_icon_at(global_point, _native_tooltip_route)
+	_native_tooltip_route["text"] = icon_tooltip
 	if not icon_tooltip.is_empty():
 		return icon_tooltip
 	return "modifiers" if not _modifier_tooltip_lines.is_empty() else ""
@@ -777,25 +780,29 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	if for_text.strip_edges().is_empty():
 		return null
 	var source: Dictionary = {"kind": "hero_card", "id": card_id}
-	var panel: Control = preload("res://scripts/tooltip_loop_context.gd").card_panel_for_text(for_text, source)
-	return panel if panel != null else InlineIconText.glossary_panel(for_text, source)
+	var route: Dictionary = _native_tooltip_route if _native_tooltip_route.get("text") == for_text else {}
+	var term: String = route.get("term", "")
+	var panel: Control = preload("res://scripts/tooltip_loop_context.gd").card_panel_for_text(for_text, source, term, route.get("icon", ""))
+	return panel if panel != null else InlineIconText.glossary_panel(for_text, source, term)
 
-func _tooltip_for_icon_at(global_point: Vector2) -> String:
-	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point)
-	return summary_tooltip if not summary_tooltip.is_empty() else _tooltip_for_control_at(desc_label, global_point)
+func _tooltip_for_icon_at(global_point: Vector2, route: Dictionary = {}) -> String:
+	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point, route)
+	return summary_tooltip if not summary_tooltip.is_empty() else _tooltip_for_control_at(desc_label, global_point, route)
 
-func _tooltip_for_control_at(node: Node, global_point: Vector2) -> String:
+func _tooltip_for_control_at(node: Node, global_point: Vector2, route: Dictionary, inherited_route: Dictionary = {}) -> String:
 	if node == null or not (node is Control):
 		return ""
 	var control: Control = node
 	if not control.visible or not control.get_global_rect().has_point(global_point):
 		return ""
+	var token_route: Dictionary = control.get_meta("tooltip_loop_route", inherited_route)
 	for child: Node in control.get_children():
-		var child_tooltip: String = _tooltip_for_control_at(child, global_point)
+		var child_tooltip: String = _tooltip_for_control_at(child, global_point, route, token_route)
 		if not child_tooltip.is_empty():
 			return child_tooltip
 	if control is RichTextLabel:
 		return (control as RichTextLabel).get_tooltip(control.get_global_transform().affine_inverse() * global_point)
+	if not control.tooltip_text.is_empty(): route.merge(token_route, true)
 	return str(control.tooltip_text)
 
 func set_native_tooltips_enabled(enabled: bool) -> void:
@@ -1761,6 +1768,10 @@ func _center_precise_summary_groups() -> void:
 					row.position.x = (group.size.x - row.size.x) * 0.5
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
+	var icon_key: String = str(token.get("icon", ""))
+	var term: String = str(token.get("card_term", ""))
+	if term.is_empty(): term = str(token.get("glossary_key", icon_key))
+	var tooltip_route: Dictionary = {"term": term, "icon": icon_key}
 	var tooltip: String = ActionIcons.token_tooltip(token)
 	if not str(token.get("diagram_tooltip", "")).is_empty():
 		var modifier_start: int = tooltip.find("\nModified by:\n")
@@ -1769,6 +1780,7 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		if tooltip.is_empty(): tooltip = AREA_PATTERN_TOOLTIP
 		var pattern_view := AoePatternView.new()
 		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
+		pattern_view.set_meta("tooltip_loop_route", tooltip_route)
 		row.add_child(pattern_view)
 		return
 	if str(token.get("kind", "")) == "rules_text":
@@ -1779,6 +1791,7 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		condition_group.name = "SurfaceCondition"
 		# The keyword spans icon, label and their gap as one hover target.
 		condition_group.tooltip_text = tooltip
+		condition_group.set_meta("tooltip_loop_route", tooltip_route)
 		condition_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		condition_group.add_theme_constant_override("separation", 3)
 		if not str(token.get("prefix", "if")).is_empty():
@@ -1787,15 +1800,18 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		surface_icon.custom_minimum_size = Vector2(icon_size, icon_size)
 		surface_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		surface_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		surface_icon.texture = ActionIcons.icon_texture(str(token.get("icon", "surface")))
+		var condition_icon: String = str(token.get("icon", "surface"))
+		surface_icon.texture = ActionIcons.icon_texture(condition_icon)
 		surface_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		surface_icon.tooltip_text = ActionIcons.tooltip(str(token.get("icon", "surface")))
+		surface_icon.tooltip_text = ActionIcons.tooltip(condition_icon)
+		surface_icon.set_meta("tooltip_loop_route", {"term": condition_icon, "icon": condition_icon})
 		condition_group.add_child(surface_icon)
 		condition_group.add_child(_summary_value_label(str(token.get("suffix", ":")), tooltip, label_size, token))
 		row.add_child(condition_group)
 		return
 	if str(token.get("kind", "")) == "text":
 		var text_label := _summary_value_label(ActionIcons.token_value_text(token), tooltip, label_size, token, conditional)
+		text_label.set_meta("tooltip_loop_route", tooltip_route)
 		row.add_child(text_label)
 		return
 	var layout: Dictionary = _summary_token_layout(token, icon_size, label_size)
@@ -1806,6 +1822,7 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	token_group.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	token_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	token_group.tooltip_text = tooltip
+	token_group.set_meta("tooltip_loop_route", tooltip_route)
 	token_group.set_meta("summary_token", true)
 	row.add_child(token_group)
 	var icon := TextureRect.new()

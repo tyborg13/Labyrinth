@@ -23,8 +23,10 @@ static func find(term: String, source: Dictionary) -> Dictionary:
 		if source.get("kind") == "grimoire":
 			if (row.get("grimoire_entries", []) as Array).has(source.get("id", "")): return row
 			continue
-		if str(match_source["kind"]) == "*": return row
-		if str(source.get("kind", "")) != str(match_source["kind"]): continue
+		var kind: String = str(match_source["kind"])
+		if kind == "*": return row
+		var source_kind: String = str(source.get("kind", ""))
+		if source_kind != kind and not match_source.get("also_kinds", []).has(source_kind): continue
 		if match_source.has("id") and str(source.get("id", "")) != str(match_source["id"]): continue
 		if match_source.has("ids") and not match_source["ids"].has(source.get("id")): continue
 		if match_source.has("variant") and match_source["variant"] != source.get("variant"): continue
@@ -41,6 +43,6 @@ static func grimoire_term(entry_id: String) -> String:
 
 static func has_source(source: Dictionary) -> bool:
 	for row: Dictionary in entries():
-		if row.has("todo_design"): continue
+		if row.has("todo_design") or row.get("keyword_only", false): continue
 		if row["source_match"].get("kind") == "enemy" and row["source_match"].get("id") == source.get("id") and source.get("kind") == "enemy": return true
 	return false

@@ -63,7 +63,8 @@ static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: C
 	if not await _run_jobs(scene, jobs, present_frame, still_active): return
 	if not owner_is_active(scene, still_active): return
 	var combat: Dictionary = scene._combat_state
-	if str(scene._run_state.get("mode", "")) == "pre_battle":
+	var pre_battle: bool = str(scene._run_state.get("mode", "")) == "pre_battle"
+	if pre_battle:
 		var generation: int = scene._encounter_preparation_generation
 		var alive: Callable = func() -> bool:
 			return StateAssets.active(scene, generation) and owner_is_active(scene, still_active)
@@ -120,6 +121,9 @@ static func prepare_ui_for(scene: Node, present_frame: Callable, still_active: C
 	if not owner_is_active(scene, still_active): return
 
 	scene._end_ui_refresh(true)
+	if pre_battle:
+		var opening_active: Callable = StateAssets.hand_active.bind(scene, scene._encounter_preparation_generation, scene._opening_hand_pool_preparation_revision)
+		StateAssets.prepare_opening_objective_for.call_deferred(scene, combat, present_frame, opening_active)
 	# The ordinary refresh commits the final progression display inputs. Future
 	# Character dialogs must use that ready-state snapshot, not the earlier
 	# state which would force a full rebuild on the first public open.

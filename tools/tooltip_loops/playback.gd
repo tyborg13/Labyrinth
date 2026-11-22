@@ -4,6 +4,8 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Biomes = preload("res://scripts/biome_library.gd")
 const Fixture = preload("res://tools/tooltip_loops/fixture.gd")
 const Tip07Playback = preload("res://tools/tooltip_loops/tip07_playback.gd")
+const Tip09Reflect = preload("res://tools/tooltip_loops/tip09_reflect.gd")
+const Tip10Rail = preload("res://tools/tooltip_loops/tip10_rail.gd")
 const SETTLE_FRAMES: int = 12 # Debug warmup, outside recording.
 const READY_FRAME_LIMIT: int = 300 # Debug startup/centering watchdog.
 const MASK_SETTLE_FRAMES: int = 3 # Renderer submissions after the recording mask.
@@ -47,9 +49,16 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 		await tree.process_frame
 	if recording:
 		var board: Control = scene.get("board_view")
+		if fixture["id"] == Fixture.Tip09.PIERCE:
+			board.capture_id = fixture["id"]
 		# Keep only the production board subtree. Mask the surrounding HUD and
 		# backdrop, preserving ancestor transforms and every board child/VFX.
-		_hide_except(scene, board)
+		var rail: Control = scene.get("_turn_order_bar") if fixture["id"] == Fixture.Tip10.STAGGER else null
+		_hide_except(scene, board, rail)
+		if rail != null:
+			var plan: Dictionary = Fixture.plan(fixture, scene.get("_combat_engine"))
+			scene.call("_set_turn_order_bar_entries", scene.call("_turn_order_entries_from_state", plan["beats"][0]["rail_before"]))
+			Tip10Rail.mask_dock(scene)
 		board.set_tooltips_enabled(false)
 		board.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		scene.set_process_input(false)
@@ -62,10 +71,11 @@ static func instance(tree: SceneTree, viewport: SubViewport, fixture: Dictionary
 			if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
 	return scene
 
-static func _hide_except(node: Node, board: Node) -> void:
-	if node == board: return
+static func _hide_except(node: Node, board: Node, rail: Node = null) -> void:
+	if node == board or node == rail: return
 	for child: Node in node.get_children():
-		if child == board or child.is_ancestor_of(board): _hide_except(child, board)
+		if child == board or child.is_ancestor_of(board) or (rail != null and (child == rail or child.is_ancestor_of(rail))):
+			_hide_except(child, board, rail)
 		elif child is CanvasItem: child.hide()
 		elif child is CanvasLayer: child.visible = false
 
@@ -104,9 +114,13 @@ static func play(scene: Node, result: Dictionary, completion: Dictionary) -> voi
 			scene.call("_begin_player_popup_timeline")
 			if result.has("force_loop"):
 				await Tip07Playback.play(scene, beat)
+			elif beat["kind"] == Fixture.Tip09.REFLECT:
+				await Tip09Reflect.play(scene, beat)
 			else:
 				await scene.call("_animate_player_action_step", beat["before"], beat["after"], str(beat.get("card", "")), beat["action"], beat["target"], beat["chain_hits"])
 			await scene.call("_finish_player_popup_timeline", beat["after"])
+		if beat.get("turn_order", false):
+			await scene.call("_animate_turn_order_transition_between_states", beat.get("rail_before", beat["before"]), beat.get("rail_after", beat["after"]))
 		scene.call("_render_board_state", beat["after"], {})
 		if beat["kind"] in ["enemy", "rule", "room_rule", "trap"]: await pacing.finish_enemies()
 		else: pacing.end_scope()

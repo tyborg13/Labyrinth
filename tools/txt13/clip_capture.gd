@@ -48,7 +48,7 @@ static func record(tree: SceneTree, viewport: SubViewport, window: Control, crop
 	var file := FileAccess.open(path + ".rgb", FileAccess.WRITE)
 	if file == null: return "could not open raw footage"
 	var count: int = int(Cache.shared().header(window.asset_path)["count"])
-	var period: float = float(count) / FPS + Loop.HOLD_SECONDS + Loop.CROSSFADE_SECONDS
+	var period: float = float(count) / FPS + window.hold_seconds + Loop.CROSSFADE_SECONDS
 	var loop_rect := Rect2i(surface_bounds(window, window.window_rect()))
 	var previous: PackedByteArray
 	var motion: bool = false

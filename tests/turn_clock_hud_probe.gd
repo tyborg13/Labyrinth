@@ -17,13 +17,13 @@ func _initialize() -> void:
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = 1.0
 	SettingsStore.save_settings(settings)
-	var path: String = ProjectSettings.globalize_path(OUTPUT)
-	DirAccess.make_dir_recursive_absolute(path)
-	# Suite asserts each state's absent strip/caption, projection, plate and size
-	# before the named SubViewport captures. Failed
-	# states are recorded while the remaining states continue to be captured.
+	var path: String = ""
+	if DisplayServer.get_name() != "headless":
+		path = ProjectSettings.globalize_path(OUTPUT)
+		DirAccess.make_dir_recursive_absolute(path)
+	# An empty capture directory runs the same HUD assertions in headless mode.
 	await Suite.run(self, Callable(self, "_expect"), path)
-	print(path)
+	print("TURN CLOCK HUD CAPTURES: skipped (headless)" if path.is_empty() else path)
 	for failure: String in _failures:
 		push_error(failure)
 	print("TURN CLOCK HUD PROBE RESULT: PASS" if _failures.is_empty() else "TURN CLOCK HUD PROBE RESULT: FAIL (%d failures)" % _failures.size())

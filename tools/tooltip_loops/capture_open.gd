@@ -27,6 +27,9 @@ static func prepare(proof: SceneTree, scene: Node, row: Dictionary) -> Dictionar
 		scene.call("_close_dialogue")
 		timings["load_run_state_usec"] = Time.get_ticks_usec() - stage
 		route["source_match"] = Context.enemy("crawler")
+	var id: String = row["id"]
+	if Fixture.Tip10.IDS.has(id):
+		route["source_match"] = Fixture.Tip10.source(id)
 	if route["source_match"].get("kind") == "enemy": await proof._prepare_enemy_inspection(scene)
 	await proof._frame_max(proof.OUTER_POPUP_SETTLE_FRAMES)
 	timings["total_usec"] = Time.get_ticks_usec() - started

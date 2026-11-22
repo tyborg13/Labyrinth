@@ -83,14 +83,12 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	_sync_disabled_tooltip()
 	if (dismiss_tooltip_when_disabled and _tooltip_requires_reentry) or for_text.strip_edges().is_empty():
 		return null
-	var panel: Control
 	var entry_id: String = str(get_meta("grimoire_nav_id", ""))
+	var source: Dictionary = tooltip_source
+	var term: String = ""
 	if not entry_id.is_empty():
-		var registry = preload("res://scripts/tooltip_loop_registry.gd")
-		var term: String = registry.grimoire_term(entry_id)
-		var source: Dictionary = {"kind": "grimoire", "id": entry_id}
-		if registry.media_available(registry.find(term, source)):
-			panel = preload("res://scripts/tooltip_loop_context.gd").panel_for_text(for_text, source, term)
-	if panel == null: panel = UiTooltipPanel.make_text(for_text, tooltip_source)
+		term = preload("res://scripts/tooltip_loop_registry.gd").grimoire_term(entry_id)
+		source = {"kind": "grimoire", "id": entry_id}
+	var panel: Control = UiTooltipPanel.make_text(for_text, source, term)
 	_active_tooltip = weakref(panel)
 	return panel

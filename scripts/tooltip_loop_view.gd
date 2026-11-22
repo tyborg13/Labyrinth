@@ -12,6 +12,7 @@ var lease_usec: int = 0
 var fit_content_width: bool = false
 var displayed_frame: int = -1
 var asset_path: String
+var hold_seconds: float = HOLD_SECONDS
 var proof_seconds: float = -1.0
 var _elapsed: float = 0.0
 var _fade: float = 0.0
@@ -81,7 +82,7 @@ func _process(delta: float) -> void:
 	var info: Dictionary = _cache.header(asset_path)
 	var count: int = int(info.get("count", 1))
 	var duration: float = float(count) / 30.0
-	var period: float = duration + HOLD_SECONDS + CROSSFADE_SECONDS
+	var period: float = duration + hold_seconds + CROSSFADE_SECONDS
 	var at: float = fmod(proof_seconds if proof_seconds >= 0.0 else _elapsed, period)
 	var index: int = count - 1 if reduced_motion else mini(int(at * 30.0), count - 1)
 	var next: Texture2D = _first if index == 0 and _first != null else _cache.frame(asset_path, index)
@@ -94,7 +95,7 @@ func _process(delta: float) -> void:
 	if _texture != null and not info.is_empty():
 		_elapsed += delta
 		_fade = minf(FADE_IN_SECONDS, _fade + delta)
-	_blend = clampf((at - duration - HOLD_SECONDS) / CROSSFADE_SECONDS, 0.0, 1.0) if not reduced_motion else 0.0
+	_blend = clampf((at - duration - hold_seconds) / CROSSFADE_SECONDS, 0.0, 1.0) if not reduced_motion else 0.0
 	queue_redraw()
 
 func _draw() -> void:

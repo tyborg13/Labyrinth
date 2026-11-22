@@ -5,11 +5,14 @@ extends "res://scripts/board_layer_slices.gd"
 const DIM_ALPHA: float = 0.30
 const TRANSITION_SECONDS: float = 0.12
 const FOCUS_SPARE_LIMIT: int = 16
+const OPENING_TILE_SLICE_COUNT: int = 2
+const SLICE_ASSET_BINDINGS: StringName = &"slice_asset_bindings"
 const Red = preload("res://scripts/pass_forecast_red_tiles.gd")
 const HoverActor = preload("res://scripts/board_hover_actor.gd")
 const Lob = preload("res://scripts/enemy_mechanics/lob_view.gd")
 
 var _focus_spares: Array[Control]
+var _opening_canvases: Array[Control]
 
 static func resolve(scene: Node, state: Dictionary, tile: Vector2i, rest: Dictionary, allow_reverse: bool = true) -> Array[String]:
 	var keys: Array[String]
@@ -219,19 +222,8 @@ func _rebuild(layer: Control) -> void:
 			if profile_overlay: owner._record_submission_performance_phase("overlay_canvas_reuse", reuse_started)
 		else:
 			var create_started: int = Time.get_ticks_usec() if profile_overlay else 0
-			canvas = layer.get_script().new() as Control
-			canvas.name = "RetainedSlice%d" % index
-			canvas.set("_is_dynamic_render_layer", true)
-			canvas.set("_is_layer_slice_canvas", true)
-			canvas.set("_render_layer_kind", layer.get("_render_layer_kind"))
-			canvas.set("_render_instrumentation_owner", layer.get("_render_instrumentation_owner"))
-			canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			canvas.focus_mode = Control.FOCUS_NONE
-			# Set before entering the tree: _ready must never construct a board.
-			canvas.set("_render_slice_ops", groups[index])
-			# Observers bind to the original HUD node, including first-paint proof.
-			canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: layer.emit_signal("intent_callout_drawn", layout))
-			layer.add_child(canvas)
+			# A room board's reserved opening-tile canvas, else a new one.
+			canvas = _take_opening_canvas(layer, index, groups[index])
 			canvases.append(canvas)
 			if profile_overlay: owner._record_submission_performance_phase("overlay_canvas_create", create_started)
 		_apply_alpha(canvas, owners[index], layer.presentation.get("isolated_enemy_actor_keys", []))
@@ -248,11 +240,17 @@ func _rebuild(layer: Control) -> void:
 			# normal retained-state/asset binding path. Copy all bindings only once.
 			for field: String in STATE_FIELDS:
 				canvas.set(field, layer.get(field))
+			# One record of the bindings a canvas holds: an opening-tile canvas copies
+			# them when reserved, a parked focus spare when first created. The owner
+			# replaces _retained_asset_bindings whenever a binding changes.
 			var assets: Dictionary = owner._retained_asset_bindings
-			if not is_same(canvas.get_meta("slice_asset_bindings", {}), assets):
+			if not is_same(canvas.get_meta(SLICE_ASSET_BINDINGS, {}), assets):
 				for field: String in assets: canvas.set(field, layer.get(field))
 				if kind == "overlays" and not owner._focus_submission_baseline:
-					canvas.set_meta("slice_asset_bindings", assets)
+					canvas.set_meta(SLICE_ASSET_BINDINGS, assets)
+			# Only overlay spares consult the record again; live slices receive changes
+			# through the owner's ordinary binding path.
+			if kind != "overlays" and canvas.has_meta(SLICE_ASSET_BINDINGS): canvas.remove_meta(SLICE_ASSET_BINDINGS)
 			for field: String in ["plate_visibility", "_status_plate_layout", "health_ghost_tracker", "status_pop_tracker", "_art_treatment", "_art_treatment_enabled"]:
 				canvas.set(field, layer.get(field))
 		for field: String in ["_render_layer_tile", "_render_layer_scene_effect_pass", "_hover_tile", "_controller_focus_tile", "_idle_elapsed", "_hud_health_rects_cache", "_hud_layout_entries_cache"]:
@@ -283,6 +281,51 @@ func _discard_focus_spares(layer: Control) -> void:
 		layer.remove_child(canvas)
 		canvas.queue_free()
 	_focus_spares.clear()
+
+# A room board has these tile owners already. Reserve the usual two unowned
+# combat slices (static paint and animated props) with no paint or input until
+# the first real combat submission computes their operations and bindings.
+func prepare_opening_tile(layer: Control) -> bool:
+	if not canvases.is_empty() or not _opening_canvases.is_empty(): return false
+	var asset_bindings: Dictionary = layer._render_instrumentation_owner._retained_asset_bindings
+	for index: int in range(OPENING_TILE_SLICE_COUNT):
+		var canvas: Control = _new_canvas(layer)
+		canvas.hide()
+		for field: String in asset_bindings: canvas.set(field, layer.get(field))
+		canvas.set_meta(SLICE_ASSET_BINDINGS, asset_bindings)
+		layer.add_child(canvas)
+		_opening_canvases.append(canvas)
+	return true
+
+func clear_opening_tile() -> void:
+	for canvas: Control in _opening_canvases: canvas.queue_free()
+	_opening_canvases.clear()
+
+func _take_opening_canvas(layer: Control, index: int, operations: Array) -> Control:
+	var canvas: Control
+	if not _opening_canvases.is_empty():
+		canvas = _opening_canvases.pop_front()
+		# Match add_child's order even if the tile acquired other children idle.
+		layer.move_child(canvas, -1)
+	else:
+		canvas = _new_canvas(layer)
+	canvas.name = "RetainedSlice%d" % index
+	canvas.set("_render_slice_ops", operations)
+	if canvas.get_parent() == null: layer.add_child(canvas)
+	canvas.show()
+	return canvas
+
+func _new_canvas(layer: Control) -> Control:
+	var canvas: Control = layer.get_script().new()
+	canvas.set("_is_dynamic_render_layer", true)
+	canvas.set("_is_layer_slice_canvas", true)
+	canvas.set("_render_layer_kind", layer.get("_render_layer_kind"))
+	canvas.set("_render_instrumentation_owner", layer.get("_render_instrumentation_owner"))
+	canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.focus_mode = Control.FOCUS_NONE
+	canvas.connect("intent_callout_drawn", func(layout: Dictionary) -> void: layer.emit_signal("intent_callout_drawn", layout))
+	return canvas
+
 
 static func mechanic_keys(board: Control, method: String, tile: Vector2i = Vector2i(-1, -1)) -> Array[String]:
 	var keys: Array[String]
@@ -358,7 +401,10 @@ static func marked_keys(scene: Node, state: Dictionary, tile: Vector2i) -> Array
 
 func retire(layer: Control) -> void:
 	_discard_focus_spares(layer)
+	# Room redraws also call retire before the first combat plan exists. Keep the
+	# hidden reservations until Begin or an explicit preparation cancellation.
 	if not _initialized: return
+	clear_opening_tile()
 	for canvas: Control in canvases:
 		layer.remove_child(canvas)
 		canvas.queue_free()

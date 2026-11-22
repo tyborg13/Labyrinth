@@ -130,6 +130,11 @@ func refresh_tile(tile: Vector2i) -> void:
 func refresh_actor(key: String) -> bool:
 	var canvas: Control = bodies.get(key)
 	if not is_instance_valid(canvas): return false
+	# Navigation can redraw the tile before the deferred coverage sync. The body
+	# (and its routed sprite) must paint shadows and art with the current floor
+	# projection on that first draw.
+	if not is_same(canvas.get("_board_layout_cache_tile_centers"), board.get("_board_layout_cache_tile_centers")):
+		board.call("_copy_resolved_board_layout_to", canvas)
 	canvas.set("_idle_elapsed", board.get("_idle_elapsed"))
 	canvas.set("_hover_tile", board.get("_hover_tile"))
 	canvas.set("_controller_focus_tile", board.get("_controller_focus_tile"))

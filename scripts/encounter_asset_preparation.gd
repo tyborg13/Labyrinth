@@ -18,7 +18,7 @@ const Retention = preload("res://scripts/maquette_cutout_runtime/retention.gd")
 static func active(scene: Variant, generation: int) -> bool:
 	return is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and scene._encounter_preparation_generation == generation and not Assets.preparation_is_stopping(scene.get_tree().root)
 
-static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
+static func begin_for(scene: Variant, state: Dictionary, generation: int) -> void:
 	var _hitch_continuation: RefCounted
 	if not active(scene, generation): return
 	await preload("res://scripts/room_asset_preparation.gd").begin_for(scene, state, generation)
@@ -81,11 +81,15 @@ static func begin_for(scene: Node, state: Dictionary, generation: int) -> void:
 	if window.defer_opening_until_draw:
 		await wait_for_room_preview_draw(scene, present, opening_active.bind(scene, generation))
 		if not opening_active(scene, generation): return
+	await prepare_opening_objective_for(scene, combat_state, present, opening_active.bind(scene, generation))
+
+static func prepare_opening_objective_for(scene: Variant, combat_state: Dictionary, present: Callable, alive: Callable) -> void:
+	if not is_instance_valid(scene) or combat_state.is_empty() or not bool(alive.call()): return
 	var started: int = Time.get_ticks_usec() if scene._runtime_performance_instrumentation_enabled else 0
 	var jobs: Array[Dictionary] = scene._combat_objective_hud.opening_glyph_preparation_jobs(opening_objective_hud_state(scene, combat_state))
 	var record_slice: Callable = scene._record_runtime_performance_phase if scene._runtime_performance_instrumentation_enabled else Callable()
-	await Glyphs.prepare_jobs_for(scene, jobs, present, opening_active.bind(scene, generation), record_slice, started)
-	if opening_active(scene, generation): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
+	await Glyphs.prepare_jobs_for(scene, jobs, present, alive, record_slice, started)
+	if is_instance_valid(scene) and bool(alive.call()): scene._record_runtime_performance_phase("opening_objective_glyph_preparation", started)
 
 static func prepare_rig_textures_for(scene: Node, combat_state: Dictionary, state_textures: Dictionary, frame: Callable, still_active: Callable, fight_textures: Variant = null) -> void:
 	var _hitch_continuation: RefCounted
@@ -199,7 +203,7 @@ static func opening_objective_hud_state(scene: Node, combat_state: Dictionary) -
 static func hand_active(scene: Variant, generation: int, revision: int) -> bool:
 	return active(scene, generation) and scene._opening_hand_pool_preparation_revision == revision and str(scene._run_state.get("mode", "room")) != "combat"
 
-static func prepare_opening_hand_for(scene: Node, combat_state: Dictionary, generation: int, revision: int) -> void:
+static func prepare_opening_hand_for(scene: Variant, combat_state: Dictionary, generation: int, revision: int) -> void:
 	if not hand_active(scene, generation, revision): return
 	var present: Callable = present_frame.bind(scene.get_tree())
 	var alive: Callable = hand_active.bind(scene, generation, revision)
@@ -243,6 +247,31 @@ static func prepare_opening_hand_for(scene: Node, combat_state: Dictionary, gene
 		scene._record_runtime_performance_phase("opening_unit_renderer_preparation", started)
 		span = null
 		Assets.count_preparation_work(started)
+
+
+static func prepare_opening_board_for(scene: Variant, combat_state: Dictionary, generation: int, revision: int) -> void:
+	if not hand_active(scene, generation, revision): return
+	var present: Callable = present_frame.bind(scene.get_tree())
+	var alive: Callable = hand_active.bind(scene, generation, revision)
+	await wait_for_room_preview_draw(scene, present, alive)
+	if not bool(alive.call()): return
+	var board: Control = scene.board_view
+	var room_type: String = str(combat_state.get("room_type", ""))
+	if room_type not in ["guardian", "boss"]: return
+	await Assets.wait_for_preparation_slice(present, alive, &"opening_unit_shadows")
+	if not bool(alive.call()): return
+	var shadow_started: int = Time.get_ticks_usec()
+	board.prepare_unit_shadows_for_state(combat_state)
+	Assets.count_preparation_work(shadow_started, &"opening_unit_shadows")
+	var grid: Array = combat_state.get("grid", [])
+	var tiles: Array = board._scene_render_layers_by_tile.keys()
+	for tile: Vector2i in tiles:
+		if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size(): continue
+		await Assets.wait_for_preparation_slice(present, alive, &"opening_tile_canvas")
+		if not bool(alive.call()): return
+		var started: int = Time.get_ticks_usec()
+		board.prepare_opening_tile(tile)
+		Assets.count_preparation_work(started, &"opening_tile_canvas")
 
 static func _prepare_sources(paths: PackedStringArray) -> Array[Dictionary]:
 	var result: Array[Dictionary]

@@ -68,10 +68,11 @@ static func chip_inputs(badge: Dictionary) -> Array:
 static func badge_tooltip(source: Control, badge: Dictionary) -> Array:
 	var key: String = str(badge.get("key", ""))
 	var loop_source: Dictionary = Tooltip.actor_source(source, key)
-	if not Tooltip.Registry.has_source(loop_source): return []
+	var term: String = Tooltip.badge_term(source, key, loop_source)
+	if term.is_empty(): return []
 	var label: String = source.enemy_intent_tooltip(key)
-	if Tooltip.term_in(label, loop_source).is_empty(): return []
-	return [{"rect": badge.get("rect", Rect2()), "tooltip": label, "loop_source": loop_source}] if (badge.get("rect", Rect2()) as Rect2).has_area() else []
+	if label.is_empty(): return []
+	return [{"rect": badge.get("rect", Rect2()), "tooltip": label, "loop_source": loop_source, "loop_term": term}] if (badge.get("rect", Rect2()) as Rect2).has_area() else []
 
 static func environment(source: Control) -> Array:
 	return [source.get_theme_default_font(), Typography.ui_font(), Typography.heavy_ui_font(), Typography.display_font(),

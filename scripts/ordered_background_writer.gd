@@ -12,13 +12,6 @@ class Receipt extends RefCounted:
 		succeeded = result
 		finished = true
 
-	func wait_in_tree(tree: SceneTree) -> bool:
-		var deadline := Time.get_ticks_usec() + Disk.SAVE_DEADLINE_USEC
-		while not finished:
-			Disk.Job.enforce_wait_deadline(deadline)
-			await tree.process_frame
-		return succeeded
-
 var _pending: Array[Dictionary]
 var _active: Disk.Job
 var _active_entry: Dictionary

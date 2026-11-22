@@ -1,5 +1,7 @@
 extends "res://scripts/combat_board_view.gd"
 ## Recorder-only presentation mask. Production rendering and animation are inherited.
+const Tip09 = preload("res://tools/tooltip_loops/tip09_fixture.gd")
+
 func set_combat_state(state: Dictionary, _moves: Array = [], _attacks: Array = [], _selected: Vector2i = Vector2i(-1, -1), _label: String = "", _detail: String = "", _exits: Dictionary = {}, _icons: Dictionary = {}, shown: Dictionary = {}, stable: bool = false) -> void:
 	var clean: Dictionary = shown.duplicate()
 	for key: String in ["threats_at_rest", "enemy_threat_previews", "focus_actor_keys", "focus_tiles", "path_tiles", "attack_reach_tiles", "intent_callouts", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hover_owner_tile"]: clean.erase(key)
@@ -16,11 +18,25 @@ func set_combat_state(state: Dictionary, _moves: Array = [], _attacks: Array = [
 	super.set_combat_state(recorded, [], [], Vector2i(-1, -1), "", "", {}, {}, clean, stable)
 
 func _draw_health_bar_entry(_entry: Dictionary) -> void: pass
-func _draw_unit_hud_details(_units: Array[Dictionary]) -> void: pass
+
+func _draw_unit_hud_details(units: Array[Dictionary]) -> void:
+	# Retain only the production defense plate needed to read Pierce.
+	var owner: Node = _render_instrumentation_owner if is_instance_valid(_render_instrumentation_owner) else self
+	if owner.capture_id != Tip09.PIERCE: return
+	for unit: Dictionary in units:
+		if unit.get("key") != Tip09.TARGET_KEY: continue
+		var frame: Rect2 = _unit_health_bar_rect(unit, _unit_center(unit))
+		var layout: Dictionary = _status_plate_layout.resolve(self, unit, frame)
+		var phase: String = "before_hit" if int(unit["hp"]) == int(unit["max_hp"]) else "after_hit"
+		for entry: Dictionary in layout["defenses"]:
+			var icon: String = entry["icon"]
+			if icon != "block": continue
+			StatusPlates.draw_entry(self, entry, _keyword_icon_textures.get(icon), 1.0, -1.0, false, presentation)
+			var bounds: Rect2 = get_global_transform_with_canvas() * (entry["rect"] as Rect2)
+			owner._audit_keyword_plate(phase + ":" + icon, str(entry.get("label", "")), bounds)
 func _draw_slice_hud_chips() -> void: pass
 func _draw_slice_intent_chip(_badge: Dictionary) -> void: pass
 func _draw_slice_intent_halo(_badge: Dictionary) -> void: pass
-func _draw_slice_callouts() -> void: pass
 func _draw_unit_focus(_unit: Dictionary, _center: Vector2) -> void: pass
 func _draw_scene_props_for_tile(_tile: Vector2i, _obstructions: Array = []) -> void: pass
 # Tile props include committed terrain and its rise/destruction animation.
@@ -36,6 +52,7 @@ var capture_id: String = ""
 var first_visible_frame: int = -1
 var last_visible_frame: int = -1
 var seen_numbers: Dictionary = {}
+var keyword_plate_draws: Dictionary = {}
 var _observing: bool = false
 var _state_signature: String = ""
 var _arc_started: bool = false
@@ -49,6 +66,13 @@ func begin_capture(id: String) -> void:
 	_arc_started = false
 	_state_signature = _visible_state(combat_state)
 	_observing = true
+
+func _audit_keyword_plate(key: String, label: String, bounds: Rect2) -> void:
+	if not keyword_plate_draws.has(key):
+		keyword_plate_draws[key] = {"bounds": bounds, "labels": {}}
+	var receipt: Dictionary = keyword_plate_draws[key]
+	receipt["bounds"] = (receipt["bounds"] as Rect2).merge(bounds)
+	receipt["labels"][label] = true
 
 func _visible_state(state: Dictionary) -> String:
 	var actors: Array = [state.get("player", {}).get("pos")]
@@ -85,9 +109,11 @@ func _observe(state: Dictionary, shown: Dictionary) -> void:
 		if key.ends_with("_motion") and shown[key] is Dictionary and _motion(shown[key]): active = true
 	for key: String in ["unit_world_positions", "death_animation_units", "surface_feedback_events", "en01_erupt", "en01_erupt_dust", "en01_burrow"]:
 		if shown.has(key) and not shown[key].is_empty(): active = true
-	if active:
-		if first_visible_frame < 0: first_visible_frame = capture_frame
-		last_visible_frame = capture_frame
+	if active: mark_visible_frame()
+
+func mark_visible_frame() -> void:
+	if first_visible_frame < 0: first_visible_frame = capture_frame
+	last_visible_frame = capture_frame
 
 func _recording_state(state: Dictionary, shown: Dictionary) -> Dictionary:
 	var result: Dictionary = state

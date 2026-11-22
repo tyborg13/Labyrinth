@@ -24,6 +24,12 @@
     "path": "tests/suites/full_scene_interaction_followup_program.gd"
   },
   {
+    "path": "tests/section_history_preparation_test.gd"
+  },
+  {
+    "path": "tests/board_preparation_lifetime_test.gd"
+  },
+  {
     "path": "tests/threats_at_rest_test.gd",
     "perf_checks": true
   },

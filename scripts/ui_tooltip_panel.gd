@@ -20,9 +20,12 @@ const ICON_TOOLTIP_WIDTH: float = 306.0
 const ICON_SIZE: float = 42.0
 const ICON_BODY_WIDTH: float = 226.0
 
-static func make_text(text: String, source: Dictionary = {}) -> PanelContainer:
-	var loop_panel: Control = LoopContext.panel_for_text(text, source)
+static func make_text(text: String, source: Dictionary = {}, term: String = "") -> PanelContainer:
+	var loop_panel: Control = LoopContext.panel_for_text(text, source, term)
 	if loop_panel != null: return loop_panel as PanelContainer
+	return make_plain_text(text)
+
+static func make_plain_text(text: String) -> PanelContainer:
 	var lines: PackedStringArray = text.split("\n", false)
 	if lines.is_empty():
 		return make_lines(text.strip_edges(), PackedStringArray())
@@ -59,6 +62,7 @@ static func make_icon_lines(
 		panel.add_child(column)
 		var window := LoopView.new()
 		window.asset_path = str(loop["asset_path"])
+		window.hold_seconds = float(loop.get("hold_seconds", LoopView.HOLD_SECONDS))
 		window.set_meta("tooltip_loop_id", loop["id"])
 		column.add_child(window)
 		column.add_child(row)
