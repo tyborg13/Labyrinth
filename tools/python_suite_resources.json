@@ -62,6 +62,7 @@
     "test_recolour_lab": [],
     "test_relic_pt13_01": [],
     "test_runner_cancellation": [],
+    "test_rules_text_lint": [],
     "test_sb02_movement": [
       "sb02-proof"
     ],

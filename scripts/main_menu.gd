@@ -326,8 +326,10 @@ func _input(event: InputEvent) -> void:
 		# Pointer ownership begins only when the cursor enters an enabled action.
 		pass
 	elif event is InputEventMouseButton:
-		_using_keyboard_navigation = false
 		var mouse_button := event as InputEventMouseButton
+		if settings_panel.visible and not settings_panel.contains_pointer_position(mouse_button.position):
+			return
+		_using_keyboard_navigation = false
 		# Releasing focus on mouse-down can cancel Button's press/release click path.
 		if not mouse_button.pressed:
 			call_deferred("_clear_menu_keyboard_focus")

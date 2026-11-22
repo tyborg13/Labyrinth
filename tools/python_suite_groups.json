@@ -22,6 +22,7 @@
         "test_python_suite_runner_feedback",
         "test_relic_pt13_01",
         "test_runner_cancellation",
+        "test_rules_text_lint",
         "test_short_card_tooltips",
         "test_text_budget"
       ],

@@ -1,12 +1,14 @@
 extends SceneTree
 
-# Run with a real renderer: this verifies the production frame_post_draw queue.
-# A bounded timeout also fails cleanly if invoked with the dummy renderer.
+# The default verifies the production frame_post_draw queue with a real renderer.
+# --simulate-draw exercises the queue and disk checks headless with signal pulses.
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RunPersistence = preload("res://scripts/run_persistence.gd")
 const STORAGE_ROOT: String = "user://deferred_skill_analytics_test"
+const SIMULATE_DRAW_ARG: String = "--simulate-draw"
 
 class TestHost:
 	extends "res://scripts/run_scene.gd"
@@ -64,9 +66,11 @@ var _checks: int = 0
 var _errors: Array[String]
 var _results: Array[Dictionary]
 var _finished: bool = false
+var _simulate_draw: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	_simulate_draw = OS.get_cmdline_user_args().has(SIMULATE_DRAW_ARG)
 	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(640, 360)
 	OS.low_processor_usage_mode = false
@@ -308,26 +312,32 @@ func _test_terminal_failure_preserves_fallback(mode: String, held: int) -> void:
 	var failed: Dictionary = _host.call("_persist_run_state_snapshot", terminal_run, true, "terminal_" + mode + "_forced_failure") as Dictionary
 	var fallback: Dictionary = ProgressionStore.load_saved_run()
 	var fallback_hash: String = FileAccess.get_sha256(ProgressionStore._run_storage_path)
-	_expect(not bool(failed.get("saved", true)) and fallback == terminal_run, mode + ": failed profile save persists the original terminal fallback")
-	_expect(engine.held_embers(_host.call("_committed_run_state") as Dictionary) == 0 and engine.held_embers(fallback) == held, mode + ": finalized held state differs from the recoverable fallback")
+	# The writer stamps play time onto its owned snapshot before attempting the
+	# profile. A failed profile commit leaves both copies unsettled.
+	_expect(not bool(failed.get("saved", true)) and fallback == failed.get("state", {}) and fallback.get("mode") == mode, mode + ": failed profile save persists the sampled terminal fallback")
+	_expect(engine.held_embers(_host.call("_committed_run_state") as Dictionary) == held and engine.held_embers(fallback) == held and not _host._victory_carry_processed and not _host._defeat_loss_processed, mode + ": both held and on-disk terminal states remain unsettled")
 	_host.set("_run_state", live_run)
 	_host.set("_combat_state", live_combat)
 	_host.set("_animation_lock", true)
-	_host.call("_save_run_progress")
+	await RunPersistence.save_for_departure(_host)
 	var call_count: int = _host.calls.size()
-	_expect(not _busy() and ProgressionStore.load_saved_run() == terminal_run, mode + ": Save & Quit preserves the unprocessed fallback despite the pending outbox")
+	_expect(not _busy() and ProgressionStore.load_saved_run() == fallback, mode + ": Save & Quit preserves the unprocessed fallback despite the pending outbox")
 	await _frames(3)
 	_expect(_host.calls.size() == call_count and FileAccess.get_sha256(ProgressionStore._run_storage_path) == fallback_hash, mode + ": canceled analytics cannot later overwrite the fallback")
 	_expect(_event_count() == 0 and _disk_outbox_count() == 1, mode + ": failed terminal checkpoint keeps the trigger replayable")
 	ProgressionStore.set_storage_path(writable_profile)
-	_host.call("_save_run_progress")
+	await RunPersistence.save_for_departure(_host)
 	var recovered: Dictionary = ProgressionStore.load_data()
 	_expect(not ProgressionStore.has_saved_run(), mode + ": recovered profile checkpoint clears the fallback")
 	if mode == "victory":
 		_expect(int(recovered.get("embers", -1)) == held, "victory recovery banks the original held amount exactly once")
 	else:
 		_expect(int(ProgressionStore.recovery_marker(recovered).get("amount", -1)) == held, "defeat recovery preserves the original lost amount")
-	_expect(_pending_count(recovered) == 1, mode + ": successful terminal checkpoint retains pending analytics in the durable profile")
+	var receipt_types: Array[String]
+	for receipt: Dictionary in ProgressionStore.progression_analytics_outbox(recovered):
+		receipt_types.append(str(receipt["event_type"]))
+	receipt_types.sort()
+	_expect(receipt_types == _strings(["run_scored", "skill_triggered"]), mode + ": retry retains the skill trigger and one settlement score receipt in the durable profile")
 	_record_case("terminal_" + mode)
 
 func _configure(label: String, cancel_previous: bool = true) -> void:
@@ -421,8 +431,11 @@ func _busy() -> bool:
 
 func _frames(count: int) -> void:
 	for index: int in range(count):
-		_pulse.pulse()
-		await RenderingServer.frame_post_draw
+		if _simulate_draw:
+			RenderingServer.frame_post_draw.emit()
+		else:
+			_pulse.pulse()
+			await RenderingServer.frame_post_draw
 		await process_frame
 
 func _record_case(label: String) -> void:

@@ -158,6 +158,9 @@
     "perf_checks": true
   },
   {
+    "path": "tests/settings_modal_input_test.gd"
+  },
+  {
     "path": "tests/warband_ui_test.gd"
   },
   {

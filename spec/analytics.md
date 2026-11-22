@@ -1586,6 +1586,13 @@ and retained receipts before replacing the unprocessed fallback with that held
 snapshot. A failed profile write leaves the original fallback unchanged; a
 successful retry keeps the unanswered prompt resumable and settles the wallet
 exactly once.
+If the run-first heirloom choice reaches disk while the profile write fails,
+a departure retry uses the wallet already settled in that checkpoint. The
+retry preserves the original defeat recovery marker even though the checkpoint
+has zero held Embers and the live scene still has unprocessed wallet flags.
+If Continue repairs the profile from that checkpoint, it carries the pending
+run result and personal bests into the disk history before acknowledging the
+score receipt.
 Replacement also reconciles and durably acknowledges the saved run's newer
 progression before creating its successor, including consumed heirlooms and
 settled terminal wallets. Unsettled held Embers still follow abandonment rules.

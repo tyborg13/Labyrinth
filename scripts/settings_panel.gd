@@ -194,6 +194,10 @@ func current_settings() -> Dictionary:
 func back_button() -> Button:
 	return _back_button
 
+func contains_pointer_position(viewport_position: Vector2) -> bool:
+	var local_position: Vector2 = get_global_transform_with_canvas().affine_inverse() * viewport_position
+	return Rect2(Vector2.ZERO, size).has_point(local_position)
+
 func _update_responsive_minimum_size() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	custom_minimum_size = Vector2(
@@ -778,6 +782,11 @@ func _release_confirmation_focus(restore: bool) -> void:
 
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree(): return
+	if event is InputEventMouseButton and not contains_pointer_position(event.position):
+		# The menu backdrop blocks GUI input. Stop new outside presses before
+		# cursor audio, and let releases through to finish an in-panel drag.
+		if event.pressed: get_viewport().set_input_as_handled()
+		return
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null: router.call("record_input_activity", event)
 	if _confirmation_panel != null and _confirmation_panel.visible:

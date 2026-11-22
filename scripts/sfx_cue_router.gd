@@ -43,9 +43,9 @@ const DEATH_FAMILIES: Dictionary = {
 }
 const WEAPON_FAMILIES: Dictionary = {
 	"sword": "blade", "dagger": "blade", "knife": "blade", "knives": "blade", "rapier": "blade", "axe": "blade",
-	"hatchet": "blade", "halberd": "blade", "scythe": "blade", "glass spear edge": "blade",
+	"hatchet": "blade", "halberd": "blade", "scythe": "blade", "cleaver": "blade", "glass spear edge": "blade",
 	"mace": "blunt", "maul": "blunt", "hammer": "blunt", "club": "blunt", "flail": "blunt",
-	"shield": "blunt", "staff": "blunt", "spear": "pierce", "lance": "pierce",
+	"shield": "blunt", "kite": "blunt", "staff": "blunt", "spear": "pierce", "lance": "pierce",
 	"bow": "pierce", "crossbow": "pierce", "repeater": "pierce", "sling": "pierce"
 }
 const HEAVY_TYPES: Array[String] = Array(["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"], TYPE_STRING, "", null)

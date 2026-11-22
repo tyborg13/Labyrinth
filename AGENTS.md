@@ -26,6 +26,12 @@ Assignments to `Array[T]` must use a typed helper or explicitly typed temporary.
 
 For player-facing UI, use `$create-labyrinth-ui` and the shared visual language in [the visual design system](spec/visual_design_system.md). New UI must pass the [UI identity gate](spec/ui_identity_gate.md): `python3 tests/test_ui_identity_lint.py` (a ratchet — counts of raw boxes, colour literals, outline boxes, bare bars, ad-hoc fonts and tiny captions may only fall) and an independent judge review of the 1920×1080 capture. Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
 
+Rules text (card faces and descriptions, glossary and tooltips, the Grimoire, relics, skills, enemy intents and
+traits, battlefield rules) follows [the card text style](spec/card_text_style.md): rules R1–R25, the definition
+template and the fixed vocabulary from the owner-approved peer study. No pronoun unless its noun comes earlier in the
+same sentence; game verbs only; never improvise wording outside the templates. Run
+`python3 tests/test_rules_text_lint.py` when rules text changes (a ratchet: listed existing hits may only disappear).
+
 For segmented character art, skeletal cutouts, or new cutout animations/equipment variants, use `$create-labyrinth-cutout`. Start from the current production baseline or a fresh creature case; historical experiment builders are revision-specific.
 
 New or repainted board art (enemies, guardians, NPC bodies, standing props) must pass the [visual identity gate](spec/visual_identity_gate.md). Use references only from its canon, prompts only from `tools/art_identity_gate.py kit`, and approve only from its review sheet after an independent judge pass. Never approve art at generation size. Run `python3 tests/test_art_identity_gate.py` when board art or `spec/art_identity/` changes.

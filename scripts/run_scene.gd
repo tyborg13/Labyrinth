@@ -29824,6 +29824,14 @@ func _prepare_terminal_settlement(run_state: Dictionary, commit_heirloom_choice:
 	var defeat_processed := _defeat_loss_processed
 	var victory_amount_for_recap := _victory_carry_amount
 	var defeat_amount_for_recap := _defeat_lost_amount
+	var wallet: Dictionary = run_state.get("heirloom_terminal_wallet", {})
+	if not wallet.is_empty():
+		# A run-first heirloom write may have settled this snapshot while the
+		# profile write failed and the live scene kept its old wallet flags.
+		victory_processed = true
+		defeat_processed = true
+		victory_amount_for_recap = int(wallet.get("victory_carry", 0))
+		defeat_amount_for_recap = int(wallet.get("defeat_lost", 0))
 	var state: Dictionary
 	if completed:
 		# A previous profile commit owns the wallet and history. Replaying the
