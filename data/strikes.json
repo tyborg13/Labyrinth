@@ -1,0 +1,157 @@
+{
+ "frames": 10,
+ "fps": 30,
+ "contact_frame": {
+  "lightning": 2,
+  "meteor": 6,
+  "ice_spear": 4
+ },
+ "strike_for_element": {
+  "lightning": "lightning",
+  "fire": "meteor",
+  "ice": "ice_spear"
+ },
+ "reduced_motion_seconds": 0.18,
+ "palette": [
+  "00000000",
+  "5a3a9aff",
+  "9a7ae0ff",
+  "ffffffff",
+  "d0c0ffff",
+  "1a1210ff",
+  "33251eff",
+  "342620ff",
+  "523c2eff",
+  "665042ff",
+  "745842ff",
+  "8a2a10ff",
+  "d0581cff",
+  "f29a3aff",
+  "ffe6a8ff",
+  "4c3a30ff",
+  "142c4cff",
+  "2a5c8eff",
+  "589cceff",
+  "9cd8f4ff",
+  "f2fdffff"
+ ],
+ "rows": {
+  "lightning_front": 0,
+  "meteor_front": 1,
+  "ice_spear_front": 2
+ },
+ "sizes": [
+  {
+   "tile_cells": [
+    44,
+    22.0
+   ],
+   "frame_cells": [
+    60,
+    155
+   ],
+   "tile_centre_cell": [
+    30,
+    140
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_44.png",
+   "sha256_pixels": "0da90b9f5ae375a551f4e6a4782533ea0151f173721f14ff56115924fcb7380e"
+  },
+  {
+   "tile_cells": [
+    52,
+    26.0
+   ],
+   "frame_cells": [
+    72,
+    182
+   ],
+   "tile_centre_cell": [
+    36,
+    165
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_52.png",
+   "sha256_pixels": "332472ab35dad979ce770a5fa6d855444fc8c2f5cadf92c17d056d8bade01e9d"
+  },
+  {
+   "tile_cells": [
+    60,
+    30.0
+   ],
+   "frame_cells": [
+    82,
+    211
+   ],
+   "tile_centre_cell": [
+    41,
+    191
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_60.png",
+   "sha256_pixels": "e1a5615208959e3113464fe9ec113898d78699a4eb6fd3d1641640065741bf33"
+  },
+  {
+   "tile_cells": [
+    68,
+    34.0
+   ],
+   "frame_cells": [
+    92,
+    238
+   ],
+   "tile_centre_cell": [
+    46,
+    216
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_68.png",
+   "sha256_pixels": "f3e58eae2ae0d77def2b60ae39297620543f343781faa48e57a6877d75daff96"
+  },
+  {
+   "tile_cells": [
+    76,
+    38.0
+   ],
+   "frame_cells": [
+    104,
+    266
+   ],
+   "tile_centre_cell": [
+    52,
+    241
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_76.png",
+   "sha256_pixels": "287d5477298d80400af39f155391bb6a3ca9dbcd95065679792930abe6676d5b"
+  },
+  {
+   "tile_cells": [
+    84,
+    42.0
+   ],
+   "frame_cells": [
+    114,
+    293
+   ],
+   "tile_centre_cell": [
+    57,
+    266
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_84.png",
+   "sha256_pixels": "07e22a33955c9655e7c63b0837dd1fa26729a2018b57447257ffff12f82cca63"
+  },
+  {
+   "tile_cells": [
+    92,
+    46.0
+   ],
+   "frame_cells": [
+    124,
+    322
+   ],
+   "tile_centre_cell": [
+    62,
+    292
+   ],
+   "atlas": "res://assets/art/effects/strikes/strike_92.png",
+   "sha256_pixels": "b32d636c154a40fc00d260c5231670462f659b9928be719cdcbfd055717750d4"
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 extends RefCounted
 
 ## Wave-4 family B: area forces, Squall, Swap, Fire trails, self flags, Cleanse,
-## Block to Stoneskin, Move/Blink riders, Petrify and the player's Crystal Mantle.
+## Block to Stoneskin, Move/Blink riders, Stagger and the player's Crystal Mantle.
 ## Fixture cards copy the shapes in spec/card_pool_overhaul/card_defs.py;
 ## data/cards.json is untouched. See spec/card_mechanics_maneuver.md.
 
@@ -35,8 +35,8 @@ const FIXTURES: Dictionary = {
 	"w4b_rooted_stance": {"actions": [{"type": "stoneskin", "amount": 6}, {"type": "self_flag", "flag": "no_move"}], "time": 3},
 	"w4b_windbreak": {"actions": [{"type": "block", "amount": 6}, {"type": "self_flag", "flag": "anchored"}], "time": 3},
 	"w4b_cinder_trail": {"actions": [{"type": "self_flag", "flag": "fire_immune_turn"}, {"type": "move", "range": 3, "trail_surface": "fire"}], "time": 3},
-	"w4b_unpick": {"actions": [{"type": "cleanse", "statuses": ["bleed", "immobilize", "chilled"]}, {"type": "block", "amount": 4}, {"type": "draw", "amount": 1}], "time": 2},
-	"w4b_smelling_salts": {"actions": [{"type": "cleanse", "statuses": ["immobilize", "shock", "chilled"]}, {"type": "move", "range": 2}], "time": 3},
+	"w4b_unpick": {"actions": [{"type": "cleanse", "statuses": ["immobilize", "shock"]}, {"type": "block", "amount": 4}, {"type": "draw", "amount": 1}], "time": 2},
+	"w4b_smelling_salts": {"actions": [{"type": "cleanse", "statuses": ["immobilize", "shock"]}, {"type": "move", "range": 2}], "time": 3},
 	"w4b_shrug_off": {"actions": [{"type": "convert_block_to_stoneskin"}, {"type": "draw", "amount": 1}], "time": 2},
 	"w4b_glide": {"actions": [{"type": "move", "range": 3, "origin_surface": "ice"}], "time": 2},
 	"w4b_catch_the_wind": {"actions": [{"type": "move", "range": 3, "block_per_tile": 1}], "time": 2},
@@ -47,7 +47,6 @@ const FIXTURES: Dictionary = {
 	"w4b_grapple": {"actions": [{"type": "blink", "range": 4, "destination_adjacent_to": ["enemy", "terrain"]}], "time": 3},
 	"w4b_voidsilk_molt": {"actions": [{"type": "blink", "range": 3, "illusion_at_origin": 4}, {"type": "draw", "amount": 1}], "time": 4},
 	"w4b_cloudstep_loop": {"actions": [{"type": "blink", "range": 3, "if_no_adjacent_enemies": [{"type": "card_play", "amount": 1}]}], "time": 3},
-	"w4b_petrify": {"actions": [{"type": "petrify", "range": 3}], "time": 6},
 	"w4b_crystal_mantle": {"burn": true, "actions": [{"type": "mantle", "amount": 2}], "time": 6},
 }
 
@@ -294,7 +293,7 @@ static func _test_swap(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(not targets.has(Vector2i(9, 5)), "Swap respects its range")
 	var after: Dictionary = _resolve(engine, state, "w4b_changing_winds", [Vector2i(4, 5)])
 	expect.call(_player(after).get("pos") == Vector2i(4, 5) and _pos(after, 1) == PLAYER, "Swap exchanges the hero and the enemy")
-	expect.call(bool(_player(after).get("chilled", false)), "The hero arrives normally (Ice Chills on entry)")
+	expect.call(int(_player(after).get("expose", 0)) == 2, "Swap onto Ice applies Expose 2 on arrival")
 	expect.call(_hp(after, 1) < 30, "The enemy arrives normally (Fire burns on entry)")
 	var with_illusion: Dictionary = _resolve(engine, state, "w4b_changing_winds", [Vector2i(2, 7)])
 	expect.call(_player(with_illusion).get("pos") == Vector2i(2, 7) and ((with_illusion["illusions"] as Array)[0] as Dictionary).get("pos") == PLAYER, "Swap exchanges the hero and an illusion without dispelling it")
@@ -317,10 +316,10 @@ static func _test_sleet_squall_ordering(engine: CombatEngine, expect: Callable) 
 	Surface.place(state, Vector2i(6, 5), "ice", {"actor_kind": "player"})
 	var after: Dictionary = _resolve(engine, state, "w4b_sleet_squall", [Vector2i(4, 5)])
 	expect.call(_pos(after, 1) == Vector2i(6, 5), "Sleet Squall's push resolves first")
-	expect.call(int(_unit(after, 1).get("freeze", 0)) > 0, "Shoved onto Ice the target is Chilled on entry, and the Ice hit Freezes it")
-	expect.call(_hp(after, 1) == 30 - 3 - 2, "The follow-up hit lands on the pushed target with the Chilled bonus")
+	expect.call(int(_unit(after, 1).get("expose", 0)) == 0, "The follow-up hit spends Expose from the forced entry onto Ice")
+	expect.call(_hp(after, 1) == 30 - 3 - 2, "The follow-up hit lands on the pushed target with the Expose bonus")
 	var no_ice: Dictionary = _resolve(engine, _state(engine, [_enemy(1, Vector2i(4, 5))], Vector2i(2, 5)), "w4b_sleet_squall", [Vector2i(4, 5)])
-	expect.call(_hp(no_ice, 1) == 27 and int(_unit(no_ice, 1).get("freeze", 0)) == 0, "Without Ice the follow-up still hits the moved target but does not Freeze")
+	expect.call(_hp(no_ice, 1) == 27 and int(_unit(no_ice, 1).get("expose", 0)) == 0, "Off Ice, the follow-up deals the printed damage")
 
 # ------------------------------------------------------------------ self flags
 
@@ -334,11 +333,11 @@ static func _test_skate(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(ManeuverRules.player_skating(skating), "Skate sets its flag")
 	expect.call(engine.valid_targets_for_player_action(skating, move).has(Vector2i(8, 5)), "With Skate, stepping onto Ice costs no movement")
 	var moved: Dictionary = engine.apply_player_action(skating, move, Vector2i(8, 5))
-	expect.call(_player(moved).get("pos") == Vector2i(8, 5) and not bool(_player(moved).get("chilled", false)), "Skate's move ends past the Ice and Ice doesn't Chill")
+	expect.call(_player(moved).get("pos") == Vector2i(8, 5) and int(_player(moved).get("expose", 0)) == 0, "Skate crosses Ice without gaining Expose")
 	var stand: Dictionary = engine.apply_player_action(skating, move, Vector2i(6, 5))
-	expect.call(not bool(_player(stand).get("chilled", false)), "Stopping on Ice while skating does not Chill")
+	expect.call(int(_player(stand).get("expose", 0)) == 0, "Skate ends on Ice without gaining Expose")
 	var plain: Dictionary = engine.apply_player_action(state, move, Vector2i(4, 5))
-	expect.call(bool(_player(plain).get("chilled", false)), "Without Skate, entering Ice Chills")
+	expect.call(int(_player(plain).get("expose", 0)) == 2, "Entering Ice without Skate applies Expose 2")
 	var ended: Dictionary = engine.finish_player_activation(skating)
 	expect.call(not ManeuverRules.player_skating(ended), "Skate ends with the activation")
 
@@ -401,27 +400,26 @@ static func _test_cleanse(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(9, 2))], Vector2i(2, 5))
 	Surface.place(state, PLAYER, "ice", {"actor_kind": "enemy"})
 	var player: Dictionary = _player(state)
-	player["bleed"] = 2
-	player["chilled"] = true
+	player["shock"] = 1
 	player["immobilize"] = true
 	state["player"] = player
-	state["player_turn_restrictions"] = {"immobilized": true}
+	state["player_turn_restrictions"] = {"immobilized": true, "shocked": true}
 	var cleaned: Dictionary = _resolve(engine, state, "w4b_unpick")
 	var p: Dictionary = _player(cleaned)
-	expect.call(int(p.get("bleed", 0)) == 0 and not bool(p.get("chilled", false)) and not bool(p.get("immobilize", false)), "Unpick removes Bleed, Chilled and Immobilize")
+	expect.call(int(p.get("shock", 0)) == 0 and not bool(p.get("immobilize", false)), "Unpick removes Immobilize and Shock")
 	expect.call(not bool((cleaned.get("player_turn_restrictions", {}) as Dictionary).get("immobilized", false)), "Cleansing Immobilize lifts this turn's restriction")
 	expect.call(int(p.get("block", 0)) == 4, "Unpick still grants its Block")
 	expect.call(engine.player_action_can_resolve(cleaned, {"type": "move", "range": 2}), "After Unpick you can move again")
-	expect.call(Surface.has_surface(cleaned, PLAYER, "ice") and not bool(_player(cleaned).get("chilled", false)), "Removing Chilled on Ice keeps you unchilled while you stay")
-	var rechill: Dictionary = cleaned.duplicate(true)
-	Surface.place(rechill, Vector2i(2, 4), "ice", {"actor_kind": "enemy"})
-	var stepped: Dictionary = engine.apply_player_action(rechill, {"type": "move", "range": 1}, Vector2i(2, 4))
-	expect.call(bool(_player(stepped).get("chilled", false)), "Entering Ice again Chills as usual")
+	expect.call(not bool(cleaned["player_turn_restrictions"].get("shocked", false)), "Cleansing Shock lifts the current turn restriction")
+	var with_ice: Dictionary = cleaned.duplicate(true)
+	Surface.place(with_ice, Vector2i(2, 4), "ice", {"actor_kind": "enemy"})
+	var stepped: Dictionary = engine.apply_player_action(with_ice, {"type": "move", "range": 1}, Vector2i(2, 4))
+	expect.call(int(_player(stepped).get("expose", 0)) == 2, "Moving onto Ice after Unpick applies Expose 2")
 	var shocked: Dictionary = state.duplicate(true)
 	shocked["player_turn_restrictions"] = {"shocked": true, "immobilized": true}
 	var salts: Dictionary = _action(engine, "w4b_smelling_salts", 0)
 	expect.call(engine.player_action_can_resolve(shocked, salts), "A cleanse that removes Shock can be played while Shocked")
-	expect.call(not engine.player_action_can_resolve(shocked, _action(engine, "w4b_unpick", 0)), "A cleanse without Shock still obeys the Shock restriction")
+	expect.call(engine.player_action_can_resolve(shocked, _action(engine, "w4b_unpick", 0)), "Unpick can be played while Shocked")
 	var after_salts: Dictionary = _resolve(engine, shocked, "w4b_smelling_salts", [Vector2i(3, 5)])
 	expect.call(_player(after_salts).get("pos") == Vector2i(3, 5), "Smelling Salts removes Immobilize and Shock, then its Move resolves")
 	var clean_state: Dictionary = _state(engine, [_enemy(1, Vector2i(9, 2))])
@@ -507,63 +505,17 @@ static func _test_blink_riders(engine: CombatEngine, expect: Callable) -> void:
 	var crowded: Dictionary = _resolve(engine, state, "w4b_cloudstep_loop", [Vector2i(5, 5)])
 	expect.call(int(crowded.get("card_play_bonus_this_turn", 0)) == 0, "Cloudstep Loop: ending next to an enemy gains nothing")
 
-# ------------------------------------------------------------------ petrify
+# ------------------------------------------------------------------ Petrify card
 
 static func _test_petrify(engine: CombatEngine, expect: Callable) -> void:
-	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(4, 5)), _enemy(2, Vector2i(7, 2), 30, true)], Vector2i(2, 5))
-	var action: Dictionary = _action(engine, "w4b_petrify")
-	var targets: Array[Vector2i] = engine.valid_targets_for_player_action(state, action)
-	expect.call(targets.has(Vector2i(4, 5)), "Petrify targets a visible enemy in range")
-	var dragon_state: Dictionary = state.duplicate(true)
-	dragon_state["enemies"][1]["type"] = "tharokh"
-	dragon_state["enemies"][1]["pos"] = Vector2i(4, 3)
-	expect.call(not engine.valid_targets_for_player_action(dragon_state, action).has(Vector2i(4, 3)), "Dragons cannot be Petrified")
-	var immune: Dictionary = ManeuverRules.apply_petrify(engine, dragon_state.duplicate(true), action, Vector2i(4, 3))
-	expect.call(not ManeuverRules.is_petrified(_unit(immune, 2)) and int(_unit(immune, 2).get("block", 0)) == 0 and (immune.get("surface_events", []) as Array).is_empty(), "Direct Petrify resolution also leaves dragons unchanged without an event")
-	var large_state: Dictionary = state.duplicate(true)
-	large_state["enemies"][1]["pos"] = Vector2i(3, 2)
-	expect.call(engine.valid_targets_for_player_action(large_state, action).has(Vector2i(4, 2)), "A non-dragon 2x2 enemy is targetable by any footprint tile")
-	var petrified: Dictionary = _resolve(engine, state, "w4b_petrify", [Vector2i(4, 5)])
-	var live_action: Dictionary = engine.card_play_actions("petrify", state)[0]
-	var live_cast: Dictionary = engine.apply_player_action(state, live_action, Vector2i(4, 5))
-	expect.call(int(_unit(live_cast, 1).get("block", 0)) == 5 and ManeuverRules.is_petrified(_unit(live_cast, 1)), "The production Petrify card grants 5 Block and the status without an action Block field")
-	var recast: Dictionary = engine.apply_player_action(live_cast, live_action, Vector2i(4, 5))
-	expect.call(int(_unit(recast, 1).get("block", 0)) == 5 and ManeuverRules.is_petrified(_unit(recast, 1)), "Recasting Petrify on a Petrified enemy adds no Block")
-	var enemy: Dictionary = _unit(petrified, 1)
-	expect.call(int(enemy.get("block", 0)) == 5 and ManeuverRules.is_petrified(enemy), "Petrify grants 5 Block and marks the enemy")
-	expect.call(int(enemy.get("freeze", 0)) == 0, "Petrify is not Freeze")
-	var legacy: Dictionary = ManeuverRules.apply_petrify(engine, state.duplicate(true), {"block": 8}, Vector2i(4, 5))
-	expect.call(int(_unit(legacy, 1).get("block", 0)) == 5, "Petrify always grants the keyword Block even for a legacy action value")
-	var events: Array = petrified.get("surface_events", []) as Array
-	expect.call(events.size() == 1 and events[0].get("kind") == "petrified" and int(events[0].get("block", 0)) == 5 and (events[0].get("source", {}) as Dictionary).get("card_id") == "w4b_petrify", "Card Petrify records exactly one existing event with its card source")
-	var entries: Array[Dictionary] = engine.current_turn_order(petrified)
-	var marked: bool = false
-	for entry: Dictionary in entries:
-		if str(entry.get("kind", "")) == "enemy" and int(entry.get("enemy_id", -1)) == 1 and bool(entry.get("petrified", false)):
-			marked = true
-	expect.call(marked, "The turn order marks the Petrified enemy's next activation")
-	var index: int = engine._enemy_index_for_id(petrified, 1)
-	var intent_time: int = engine._enemy_intent_time_cost((enemy.get("intent", {}) as Dictionary))
-	var skipped: Dictionary = engine.resolve_enemy_turn_with_steps(petrified, index)
-	var skipped_state: Dictionary = skipped["state"] as Dictionary
-	expect.call(int(skipped.get("time_cost", -1)) == intent_time and intent_time > 0, "A Petrified skip still costs its normal intent Time")
-	expect.call(int(_unit(skipped_state, 1).get("block", 0)) == 5 and _hp(skipped_state, 1) == 30, "Petrify Block survives the skipped activation")
-	expect.call(not ManeuverRules.is_petrified(_unit(skipped_state, 1)), "Petrify is consumed by the skipped activation")
-	expect.call(_player(skipped_state).get("pos") == PLAYER and int(_player(skipped_state).get("hp", 0)) == 40, "The Petrified enemy takes no action")
-	var labels: Array = []
-	for step: Dictionary in skipped.get("steps", []):
-		labels.append(str(step.get("label", "")))
-	expect.call(labels.has("Petrified"), "The skipped activation shows a Petrified status step")
-	var frozen: Dictionary = state.duplicate(true)
-	frozen["enemies"][0]["freeze"] = 1
-	var frozen_skip: Dictionary = engine.resolve_enemy_turn_with_steps(frozen, 0)
-	expect.call(int(frozen_skip.get("time_cost", -1)) == 0, "Freeze keeps its existing early return (time cost 0)")
-	var next_real: Dictionary = engine.resolve_enemy_turn_with_steps(skipped_state, engine._enemy_index_for_id(skipped_state, 1))
-	expect.call(int(_unit(next_real["state"] as Dictionary, 1).get("block", 0)) < 5, "The next real activation clears the Petrify Block like any enemy Block")
-	var as_frozen: Dictionary = petrified.duplicate(true)
-	as_frozen["enemies"][index]["petrify"] = 0
-	as_frozen["enemies"][index]["freeze"] = 1
-	expect.call(engine.enemy_threat_tiles(petrified, index) == engine.enemy_threat_tiles(as_frozen, index), "A Petrified enemy's threat preview plans like a Frozen one")
+	var target := Vector2i(4, 5)
+	var state: Dictionary = _state(engine, [_enemy(1, target)], Vector2i(2, 5))
+	var action: Dictionary = _action(engine, "petrify")
+	expect.call(engine.valid_targets_for_player_action(state, action).has(target), "The Petrify card targets a visible enemy in range")
+	var delayed: Dictionary = engine.apply_player_action(state, action, target)
+	expect.call(int(engine.stagger_delays_between(state, delayed).get(1, 0)) == 6, "The Petrify card applies Stagger 6")
+	expect.call(_hp(delayed, 1) == 30 and int(_unit(delayed, 1).get("block", 0)) == 0, "The Petrify card changes the queue without dealing damage or granting Block")
+	expect.call(engine.enemy_threat_tiles(delayed, 0) == engine.enemy_threat_tiles(state, 0), "Stagger preserves the enemy's announced threat")
 
 # ------------------------------------------------------------------ mantle
 
@@ -582,8 +534,6 @@ static func _test_player_mantle(engine: CombatEngine, expect: Callable) -> void:
 	Surface.place(burned, Vector2i(2, 4), "fire", {"actor_kind": "enemy"})
 	burned = engine.apply_player_action(burned, {"type": "move", "range": 1}, Vector2i(2, 4))
 	expect.call(int(_player(burned).get("hp", 0)) < 40 and int(_player(burned).get("frost_armor", 0)) == 2, "Fire ignores Mantle")
-	var bled: Dictionary = engine._damage_player(mantled.duplicate(true), 3, false, false, "bleed")
-	expect.call(int(_player(bled).get("frost_armor", 0)) == 2 and int(_player(bled).get("hp", 0)) == 37, "Bleed ignores Mantle")
 	var collided: Dictionary = engine._damage_player(mantled.duplicate(true), 4, false, false, "collision")
 	expect.call(int(_player(collided).get("frost_armor", 0)) == 2, "Collision ignores Mantle")
 	var fatigue: Dictionary = engine._lose_player_health(mantled.duplicate(true), 2, true, true, "fatigue", true)
@@ -601,7 +551,7 @@ static func _test_preview_equals_resolution(engine: CombatEngine, expect: Callab
 		["w4b_vortex", Vector2i(4, 5), [_enemy(1, Vector2i(6, 5)), _enemy(2, Vector2i(4, 3))]],
 		["w4b_squall", Vector2i(5, 5), [_enemy(1, Vector2i(5, 5)), _enemy(2, Vector2i(5, 4))]],
 		["w4b_changing_winds", Vector2i(4, 5), [_enemy(1, Vector2i(4, 5))]],
-		["w4b_petrify", Vector2i(4, 5), [_enemy(1, Vector2i(4, 5))]],
+		["petrify", Vector2i(4, 5), [_enemy(1, Vector2i(4, 5))]],
 		["w4b_fan_the_flames", Vector2i(4, 5), [_enemy(1, Vector2i(4, 5)), _enemy(2, Vector2i(7, 5))]],
 		["w4b_cyclone_seal", Vector2i(4, 5), [_enemy(1, Vector2i(6, 5)), _enemy(2, Vector2i(7, 5))]],
 	]
@@ -624,10 +574,10 @@ static func _test_preview_equals_resolution(engine: CombatEngine, expect: Callab
 # ------------------------------------------------------------------ icons, rows, grimoire
 
 static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable) -> void:
-	for action_type: String in ["force_area", "swap", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify"]:
+	for action_type: String in ["force_area", "swap", "cleanse", "convert_block_to_stoneskin", "mantle", "stagger"]:
 		var key: String = str(ActionIcons.ACTION_ICON_ALIASES.get(action_type, ""))
 		expect.call(not key.is_empty() and ActionIcons.KEYWORDS.has(key), "%s maps to a registered icon" % action_type)
-	for pair: Array in [["swap", "swap"], ["cleanse", "cleanse"], ["petrify", "petrify"]]:
+	for pair: Array in [["swap", "swap"], ["cleanse", "cleanse"], ["stagger", "stagger"]]:
 		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s uses its purpose-built %s icon" % [pair[0], pair[1]])
 	var flag_icons: Dictionary = {"ice_skate": "skate", "no_move": "immobilize", "anchored": "anchored", "fire_immune_turn": "fireproof"}
 	for flag: String in ManeuverRules.FLAG_ORDER:
@@ -642,11 +592,11 @@ static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable
 	expect.call(badge_icons == ["immobilize", "anchored", "skate", "fireproof"], "Player stance badges share the card-row self_flag icons")
 	var skate_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_skate", 0))
 	expect.call(skate_row.size() == 1 and str((skate_row[0] as Dictionary).get("icon", "")) == "skate", "A self_flag row is its purpose-built icon alone, with no placeholder label")
-	var petrify_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_petrify", 0))
-	expect.call(str((petrify_row[0] as Dictionary).get("icon", "")) == "petrify" and str((petrify_row[1] as Dictionary).get("kind", "")) != "text", "Petrify leads with its own icon and no placeholder label")
-	expect.call(petrify_row.size() == 2 and str((petrify_row[1] as Dictionary).get("icon", "")) == "range" and int((petrify_row[1] as Dictionary).get("value", 0)) == 3, "Petrify shows only its keyword icon and range 3")
+	var petrify_row: Array = ActionIcons.tokens_for_action(_action(engine, "petrify", 0))
+	expect.call(petrify_row.any(func(token: Dictionary) -> bool: return token.get("icon") == "stagger" and int(token.get("value", 0)) == 6), "The Petrify card displays Stagger 6")
+	expect.call(petrify_row.any(func(token: Dictionary) -> bool: return token.get("icon") == "range" and int(token.get("value", 0)) == 3), "The Petrify card displays range 3")
 	var role_cases: Dictionary = {
-		"w4b_changing_winds": "mobility", "w4b_petrify": "attack_ranged", "w4b_skate": "mobility", "w4b_rooted_stance": "block",
+		"w4b_changing_winds": "mobility", "petrify": "attack_ranged", "w4b_skate": "mobility", "w4b_rooted_stance": "block",
 		"w4b_windbreak": "block", "w4b_unpick": "block", "w4b_smelling_salts": "mobility", "w4b_crystal_mantle": "block",
 		"w4b_shrug_off": "block", "w4b_vortex": "attack_ranged", "w4b_bottled_gale": "attack_melee",
 	}
@@ -663,7 +613,7 @@ static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable
 	var wanted: Dictionary = {}
 	GrimoireLibrary._collect_entry_ids_for_card_def(GameData.card_def("w4b_cyclone_seal"), wanted)
 	expect.call(wanted.has("combat:area_force") and wanted.has("keyword:pull"), "Cyclone Seal teaches area forces and Pull")
-	for pair: Array in [["w4b_changing_winds", "combat:swap"], ["w4b_skate", "combat:stances"], ["w4b_unpick", "combat:cleanse"], ["w4b_petrify", "combat:petrify"], ["w4b_crystal_mantle", "combat:crystal_armor"], ["w4b_shrug_off", "keyword:stoneskin"], ["w4b_cinder_trail", "keyword:surface_fire"], ["w4b_squall", "combat:area_force"]]:
+	for pair: Array in [["w4b_changing_winds", "combat:swap"], ["w4b_skate", "combat:stances"], ["w4b_unpick", "combat:cleanse"], ["petrify", "keyword:stagger"], ["w4b_crystal_mantle", "combat:crystal_armor"], ["w4b_shrug_off", "keyword:stoneskin"], ["w4b_cinder_trail", "keyword:surface_fire"], ["w4b_squall", "combat:area_force"]]:
 		var ids: Dictionary = {}
 		GrimoireLibrary._collect_entry_ids_for_card_def(GameData.card_def(str(pair[0])), ids)
 		expect.call(ids.has(str(pair[1])), "%s links grimoire entry %s" % [str(pair[0]), str(pair[1])])
@@ -674,8 +624,6 @@ static func _test_analytics_fields(engine: CombatEngine, expect: Callable) -> vo
 	var swapped: Dictionary = _resolve(engine, state, "w4b_changing_winds", [Vector2i(4, 5)])
 	var fields: Dictionary = ManeuverRules.analytics_fields(state, swapped)
 	expect.call(str(fields.get("swapped_with", "")) == "enemy", "Analytics records the swap partner kind")
-	var petrified: Dictionary = ManeuverRules.analytics_fields(state, _resolve(engine, state, "w4b_petrify", [Vector2i(4, 5)]))
-	expect.call((petrified.get("petrified_enemy_ids", []) as Array) == [1], "Analytics records Petrified enemy ids")
 	var flagged: Dictionary = ManeuverRules.analytics_fields(state, _resolve(engine, state, "w4b_windbreak"))
 	expect.call((flagged.get("self_flags_gained", []) as Array) == ["anchored"], "Analytics records gained self flags")
 	var mantle: Dictionary = ManeuverRules.analytics_fields(state, _resolve(engine, state, "w4b_crystal_mantle"))
@@ -694,7 +642,7 @@ static func _test_run_scene_presentation(engine: CombatEngine, expect: Callable)
 	expect.call((result.get("displacement_paths", []) as Array).size() == 2, "The forced-movement preview draws each pulled enemy's straight path")
 	expect.call((result.get("preview_units", []) as Array).size() == 2, "The forced-movement preview shows a ghost at each landing tile")
 	expect.call((result.get("collision_markers", []) as Array).size() == 1, "The forced-movement preview shows the collision")
-	for card_id: String in ["w4b_vortex", "w4b_petrify", "w4b_skate", "w4b_changing_winds", "w4b_crystal_mantle"]:
+	for card_id: String in ["w4b_vortex", "petrify", "w4b_skate", "w4b_changing_winds", "w4b_crystal_mantle"]:
 		var display: Dictionary = scene.call("_card_widget_display", card_id, state)
 		expect.call(not (display.get("summary_rows", []) as Array).is_empty(), "%s shows icon rows in hand" % card_id)
 	var rooted: Dictionary = state.duplicate(true)

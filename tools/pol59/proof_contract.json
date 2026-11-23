@@ -1,0 +1,15 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 37,
+  "required_images": [
+    {"pattern": "normal_000.png", "width": 1920, "height": 1080},
+    {"pattern": "normal_*.png", "min_count": 16, "width": 1920, "height": 1080},
+    {"pattern": "meteorfall_000.png", "width": 1920, "height": 1080},
+    {"pattern": "meteorfall_*.png", "min_count": 16, "width": 1920, "height": 1080},
+    {"pattern": "door.png", "width": 1920, "height": 1080},
+    {"pattern": "event_reward.png", "width": 1920, "height": 1080},
+    {"pattern": "watermarks.png", "width": 1920, "height": 1080},
+    {"pattern": "caption_short.png", "width": 1920, "height": 1080},
+    {"pattern": "caption_long.png", "width": 1920, "height": 1080}
+  ]
+}

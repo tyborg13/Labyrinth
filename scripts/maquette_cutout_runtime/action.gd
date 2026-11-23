@@ -100,6 +100,9 @@ static func contact_phase(progress: float, boundary: float, contact: float) -> f
 	if progress <= boundary: return contact * clampf(progress / maxf(boundary, 0.000001), 0.0, 1.0)
 	return lerpf(contact, 1.0, clampf((progress - boundary) / maxf(1.0 - boundary, 0.000001), 0.0, 1.0))
 
+static func is_mimic_bolt(type: String, clip: String, step: Dictionary) -> bool:
+	return type == "hollow_mimic" and clip == "bolt" and step.get("kind") == "ranged" and step.get("element") == "shadow"
+
 static func actor_for(state: Dictionary, key: String) -> Dictionary:
 	for unit: Dictionary in state.get("enemies", []):
 		if key == "enemy_%d" % int(unit.get("id", -1)): return unit

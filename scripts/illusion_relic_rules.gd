@@ -116,12 +116,10 @@ static func resolve_puppet(engine: RefCounted, state: Dictionary, action: Dictio
 	var pushing: bool = engine._forced_movement_pushes(action)
 	var amount: int = engine._forced_movement_amount(action)
 	var direction: Vector2i = engine._resolved_force_direction(state, "illusion", int(illusion["id"]), action, origin, pushing, amount, sources)
-	return engine._force_move_actor(state, "illusion", int(illusion["id"]), direction, amount, sources, pushing)
+	return engine._force_move_actor(state, "illusion", int(illusion["id"]), direction, amount, sources, pushing, true, copper_active(engine, state, action, "player"))
 
 static func puppet_collision(engine: RefCounted, state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> bool:
-	if kind != "illusion" or effect(engine, state, "force_owned_illusion").is_empty(): return false
 	var cause: Dictionary = state.get("damage_context", {}) as Dictionary
-	if str(cause.get("actor_kind", "")) != "player" or str(cause.get("source_kind", "")) in ["trap", "surface_fire"]: return false
 	var enemy_blocker: Dictionary = {}
 	for blocker: Dictionary in contact.get("blockers", []):
 		if str(blocker.get("kind", "")) == "enemy": enemy_blocker = blocker; break
@@ -156,6 +154,11 @@ static func virtual_conductor(engine: RefCounted, state: Dictionary, tile: Vecto
 static func copper_active(engine: RefCounted, state: Dictionary, action: Dictionary, actor_kind: String) -> bool:
 	return actor_kind == "player" and engine._action_element(action) == "lightning" and not effect(engine, state, "lightning_owned_construct_relays").is_empty()
 
+static func unprotected_terrain_targets(engine: RefCounted, state: Dictionary, action: Dictionary, actor_kind: String, targets: Array[int]) -> Array[int]:
+	if copper_active(engine, state, action, actor_kind):
+		targets.assign(targets.filter(func(index: int) -> bool: return not owned_outcrop(state["terrain"][index])))
+	return targets
+
 ## Geometry-only copy: virtual Electrified never repaints or consumes real ground.
 ## Opening outcrop can_place is limited to conduction; sight remains unchanged.
 static func conduction_state(engine: RefCounted, state: Dictionary, action: Dictionary, actor_kind: String) -> Dictionary:
@@ -186,7 +189,7 @@ static func note_attack(engine: RefCounted, state: Dictionary, action: Dictionar
 	if effect(engine, state, "first_attack_illusion_echo").is_empty(): return
 	var echo: Dictionary = {}
 	# Only the attack geometry, damage, defense piercing and forces repeat.
-	for key: String in ["type", "range", "pattern", "rotate", "chain", "push", "pull", "amount", "pierce", "element", "ignore_los", "force_direction", "_detonate_surface", "_card_element", "_card_id"]:
+	for key: String in ["type", "range", "pattern", "rotate", "chain", "push", "pull", "amount", "pierce", "element", "ignore_los", "force_direction", "_detonate_surface", "detonate_surface", "_card_element", "_card_id", "status_only"]:
 		if action.has(key): echo[key] = action[key]
 	echo["damage"] = engine.final_damage_for_player_action(state, action)
 	echo["_illusion_echo"] = true
@@ -233,8 +236,8 @@ static func echo_choices(engine: RefCounted, state: Dictionary) -> Array[Diction
 	return choices
 
 ## Damage footprint of a legal echo, including areas that reach beyond the
-## targeting range. Detonate needs real fuel but its echo neither consumes it
-## nor creates ground: only the enemy damage footprint repeats.
+## targeting range. A Burst needs real fuel but its echo neither consumes it
+## nor creates ground: only the enemy damage footprint (the cross) repeats.
 static func echo_impact(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	var tiles: Array[Vector2i]
 	if str(action.get("type", "")) == "aoe": return engine._best_aoe_tiles_for_target(state, action, target, false)
@@ -248,9 +251,8 @@ static func echo_impact(engine: RefCounted, state: Dictionary, action: Dictionar
 					if not selected.has(tile): selected.append(tile)
 		for tile: Vector2i in selected:
 			if not Surface.has_surface(state, tile, fuel): continue
-			if not tiles.has(tile): tiles.append(tile)
-			for neighbor: Vector2i in Cards.neighbor_tiles(state, tile):
-				if not tiles.has(neighbor): tiles.append(neighbor)
+			for covered: Vector2i in preload("res://scripts/burst_rules.gd").cross(state, tile):
+				if not tiles.has(covered): tiles.append(covered)
 		return tiles
 	tiles.append(target)
 	return tiles
@@ -275,14 +277,12 @@ static func finish_echoes(engine: RefCounted, state: Dictionary, trace: Dictiona
 		# Echoes can Expend ground after the ordinary action collector ran.
 		state = preload("res://scripts/surface_variety_relic_rules.gd").collect_removals(state, surface_sequence, engine._relic_effects(state))
 		if trace.has("echoes"):
-			(trace["echoes"] as Array).append({"before": before, "state": state.duplicate(true), "choice": choice, "chain_hits": attack_trace["chain_hits"]})
+			(trace["echoes"] as Array).append({"before": before, "state": state.duplicate(true), "choice": choice, "chain_hits": attack_trace["chain_hits"], "burst_tiles": attack_trace.get("burst_tiles", [])})
 	state.erase(PENDING)
 	return state
 
 static func direct_amount(engine: RefCounted, state: Dictionary, enemy: Dictionary, amount: int) -> int:
 	if amount <= 0: return 0
-	if int(enemy.get("freeze", 0)) > 0: amount *= Surface.FROZEN_MULTIPLIER
-	elif bool(enemy.get("chilled", false)): amount += Data.fixed_point_amount(Surface.CHILLED_BONUS)
 	return amount + preload("res://scripts/forced_relic_rules.gd").damage_bonus(engine, state, enemy, amount)
 
 static func half(amount: int) -> int:
@@ -300,6 +300,7 @@ static func resolve_echo(engine: RefCounted, state: Dictionary, choice: Dictiona
 	state["damage_context"] = context
 	if str(action.get("type", "")) == "detonate":
 		var impact: Array[Vector2i] = echo_impact(engine, state, action, choice["target"])
+		trace["burst_tiles"] = impact
 		action["type"] = "aoe"
 		action["no_conduction"] = true
 		action["_reflect_exempt_hit"] = true # The copied Detonate remains a Burst.
@@ -332,7 +333,7 @@ static func rebound(engine: RefCounted, state: Dictionary, action: Dictionary, r
 		var hit: Dictionary = route[i]
 		var beat: Dictionary = {"kind": "rebound", "from": at, "to": hit.get("to", INVALID)}
 		at = hit.get("to", INVALID)
-		if hit.has("enemy_id"):
+		if hit.has("enemy_id") and not bool(hit.get("reflected", false)):
 			var index: int = engine._enemy_index_for_id(state, int(hit["enemy_id"]))
 			if index >= 0 and int(engine._surface_actor(state, "enemy", int(hit["enemy_id"])).get("hp", 0)) > 0:
 				state = engine._damage_enemy(state, index, half(int(hit.get("damage", 0))), false, false, false)

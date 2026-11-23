@@ -25,10 +25,13 @@ const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
+const BRANCH_HEADER_FONT_SIZE: int = 17
 const DETAIL_WIDTH: float = 320.0
 const COMPACT_DETAIL_WIDTH: float = 370.0
 const COMPACT_LAYOUT_WIDTH: float = 1300.0
 const LINK_BRIDGE_HALF_GAP: float = 10.0
+const LINK_STATE_WIDTH: float = 2.0
+const LINK_FOCUS_GLOW_EXTRA_WIDTH: float = 6.0
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -73,18 +76,17 @@ class SkillLinkLayer:
 				continue
 			var color: Color = link.get("color", Color("4a434d"))
 			var width: float = float(link.get("width", 3.0))
-			var under_color := Color(0.025, 0.02, 0.027, 0.95)
+			var under_color := Color(0.025, 0.02, 0.027, minf(0.95, color.a))
 			var bridge_gaps: Array = link.get("bridge_gaps", []) as Array
-			if bool(link.get("highlighted", false)):
-				var glow := color
-				glow.a = 0.20
-				_draw_routed_line(points, bridge_gaps, glow, width + 8.0)
+			var glow: Color = link.get("glow", Color.TRANSPARENT)
+			if glow.a > 0.0:
+				_draw_routed_line(points, bridge_gaps, glow, width + LINK_FOCUS_GLOW_EXTRA_WIDTH)
 			_draw_routed_line(points, bridge_gaps, under_color, width + 3.0)
 			_draw_routed_line(points, bridge_gaps, color, width)
 			# A committed learn briefly warms only its incoming prerequisite rails.
 			# Reuse the routed geometry and bridge gaps; no moving or extra branches.
 			if str(link.get("to_id", "")) == confirmation_skill_id and confirmation_strength > 0.0:
-				_draw_routed_line(points, bridge_gaps, Color(1.0, 0.87, 0.57, confirmation_strength * 0.65), width)
+				_draw_routed_line(points, bridge_gaps, Color(1.0, 0.87, 0.57, confirmation_strength * 0.65), LINK_STATE_WIDTH)
 
 		_geometry.flush(self)
 
@@ -162,7 +164,7 @@ class SkillLinkOverlayLayer:
 				continue
 			var color: Color = link.get("color", Color("4a434d"))
 			var width: float = float(link.get("width", 3.0))
-			var under_color := Color(0.025, 0.02, 0.027, 0.98)
+			var under_color := Color(0.025, 0.02, 0.027, minf(0.98, color.a))
 			var target_start: int = maxi(0, points.size() - 2)
 			var source_direction: Vector2 = points[1] - points[0]
 			var source_overlay_end: Vector2 = points[0]
@@ -174,11 +176,10 @@ class SkillLinkOverlayLayer:
 				continue
 			var direction: Vector2 = incoming.normalized()
 			var target_overlay_start: Vector2 = target - direction * minf(ARROW_LENGTH + 2.0, incoming.length())
-			if bool(link.get("highlighted", false)):
-				var glow := color
-				glow.a = 0.22
-				_geometry.line(points[0], source_overlay_end, glow, width + 8.0, true)
-				_geometry.line(target_overlay_start, target, glow, width + 8.0, true)
+			var glow: Color = link.get("glow", Color.TRANSPARENT)
+			if glow.a > 0.0:
+				_geometry.line(points[0], source_overlay_end, glow, width + LINK_FOCUS_GLOW_EXTRA_WIDTH, true)
+				_geometry.line(target_overlay_start, target, glow, width + LINK_FOCUS_GLOW_EXTRA_WIDTH, true)
 			_geometry.line(points[0], source_overlay_end, under_color, width + 3.0, true)
 			_geometry.line(points[0], source_overlay_end, color, width, true)
 			_geometry.line(target_overlay_start, target, under_color, width + 3.0, true)
@@ -974,6 +975,7 @@ func _build_branch_headers() -> void:
 		var label := Label.new()
 		label.name = "SkillBranchHeader_%s" % branch_id.capitalize()
 		label.text = branch_id.to_upper()
+		label.visible = branch_id != "radiance"
 		label.position = Vector2(_node_center(root_id).x - 48.0, 1.0)
 		label.size = Vector2(96.0, 20.0)
 		label.custom_minimum_size = label.size
@@ -981,6 +983,7 @@ func _build_branch_headers() -> void:
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
+		UiTypography.set_label_size(label, BRANCH_HEADER_FONT_SIZE)
 		label.add_theme_color_override("font_color", _branch_color(branch_id).lightened(0.12))
 		_graph_canvas.add_child(label)
 
@@ -1265,14 +1268,12 @@ func _refresh_links() -> void:
 		elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
 			relationship = "ancestor"
 		var link_state: String = _link_state(prerequisite_id, skill_id)
-		var visual: Dictionary = _link_visual(link_state)
 		var link: Dictionary = geometry.duplicate(false)
 		link["relationship"] = relationship
 		link["highlighted"] = relationship in ["prerequisite", "dependent", "ancestor"]
 		link["draw_priority"] = _link_draw_priority(link_state, relationship)
-		link["color"] = visual.get("color", Color("413b43"))
-		link["width"] = float(visual.get("width", 3.0))
-		link["under_width"] = float(link.get("width", 3.0)) + 3.0
+		link.merge(_link_visual(link_state, relationship))
+		link["under_width"] = float(link["width"]) + 3.0
 		links.append(link)
 	_link_layer.set_links(links)
 	if _link_overlay_layer != null:
@@ -1621,13 +1622,20 @@ func _link_state(source_id: String, target_id: String) -> String:
 		return STATE_EXCLUDED
 	return STATE_LOCKED
 
-func _link_visual(link_state: String) -> Dictionary:
+func _link_visual(link_state: String, relationship: String) -> Dictionary:
+	match relationship:
+		"prerequisite", "dependent":
+			return {"color": UiPalette.EMBER, "width": 3.0, "glow": Color(UiPalette.EMBER, 0.30)}
+		"ancestor":
+			return {"color": UiPalette.GOLD_BRIGHT, "width": 2.5}
 	var color: Color = UiPalette.GOLD_DIM
 	if link_state == STATE_OWNED:
 		color = UiPalette.GOLD
 	elif link_state == STATE_AVAILABLE:
 		color = UiPalette.ALLY
-	return {"color": color, "width": 2.0}
+	if not _focused_id.is_empty():
+		color.a = 0.55
+	return {"color": color, "width": LINK_STATE_WIDTH}
 
 func _link_draw_priority(link_state: String, relationship: String) -> int:
 	var state_priority: int = 0

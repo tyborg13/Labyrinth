@@ -13,10 +13,10 @@ static func handles(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["burrow", "erupt"]
 
 static func targetable(enemy: Dictionary, action: Dictionary) -> bool:
-	return not bool(enemy.get("burrowed", false)) or str(action.get("type", "")) not in ["melee", "ranged", "push", "pull", "swap", "petrify"]
+	return not bool(enemy.get("burrowed", false)) or str(action.get("type", "")) not in ["melee", "ranged", "push", "pull", "swap", "stagger"]
 
 static func legal_target(engine: RefCounted, state: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
-	if str(action.get("type", "")) not in ["swap", "petrify"]: return true
+	if str(action.get("type", "")) not in ["swap", "stagger"]: return true
 	if str(action.get("type", "")) == "swap":
 		for illusion: Dictionary in state.get("illusions", []):
 			if int(illusion.get("hp", 0)) > 0 and illusion.get("pos") == tile: return true
@@ -31,7 +31,7 @@ static func available(enemy: Dictionary, intent: Dictionary) -> bool:
 		if bool(enemy.get("burrowed", false)) and str(action.get("type", "")) != "erupt": return false
 	return true
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([]), action_context: Dictionary = {}) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if str(action.get("type", "")) == "burrow":
 		enemy["burrowed"] = true
@@ -45,8 +45,6 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	var destination: Vector2i = landing_tile(engine, state, enemy)
 	if destination == engine.INVALID_TILE:
 		return state
-	state = engine._trigger_enemy_bleed_for_resolved_action(state, index, action, bleed_steps)
-	if engine._enemy_cannot_continue_after_bleed(state, index): return state
 	enemy = state["enemies"][index]
 	var blocked: bool = not Paths.is_passable(state.get("grid", []), marked) or engine._terrain_index_at_tile(state, marked) >= 0
 	var occupants: Array[Dictionary] = engine._surface_actor_records(state)

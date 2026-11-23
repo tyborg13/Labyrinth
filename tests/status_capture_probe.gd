@@ -34,13 +34,13 @@ func _director_run() -> Dictionary:
 	var engine := Run.new()
 	var run: Dictionary = Fixture.build(engine, Combat.new(), engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()), {"warband_biome": "earth", "warband_tier": 2})
 	var state: Dictionary = run["combat_state"]
-	state["player"].merge({"block": 6, "stoneskin": 4, "bleed": 2, "expose": 1}, true)
+	state["player"].merge({"block": 6, "stoneskin": 4, "shock": 2, "expose": 1}, true)
 	# The protected mock also shows Stoneskin 3 on the right-hand knight.
 	var looks: Array = [
-		{"block": 5, "stoneskin": 3, "chilled": true, "shock": 1},
-		{"stoneskin": 3, "bleed": 3, "expose": 2, "immobilize": true},
-		{"freeze": 1, "block": 8},
-		{"petrify": 1, "stoneskin": 2, "bleed": 1},
+		{"block": 5, "stoneskin": 3, "immobilize": true, "shock": 1},
+		{"stoneskin": 3, "shock": 3, "expose": 2, "immobilize": true},
+		{"shock": 1, "block": 8},
+		{"immobilize": true, "stoneskin": 2, "expose": 1},
 	]
 	var index: int = 0
 	for enemy: Dictionary in state.get("enemies", []):
@@ -197,25 +197,26 @@ func _tooltip_lines(node: Node) -> PackedStringArray:
 
 func _catalog_capture(scene: Node, run: Dictionary) -> void:
 	var state: Dictionary = run["combat_state"].duplicate(true)
-	state["player"].merge({"freeze": 1, "shock": 1, "immobilize": true, "frost_armor": CATALOG_COUNT}, true)
+	state["player"].merge({"shock": 1, "immobilize": true, "frost_armor": CATALOG_COUNT}, true)
 	state["retaliate"] = {"amount": CATALOG_COUNT}
 	state["turn_flags"] = {"quicken_pending": CATALOG_COUNT, "next_attack_buffs": [{"damage": CATALOG_COUNT}]}
 	state["self_flags"] = {"ice_skate": {}, "anchored": {}, "fire_immune_turn": {}}
 	var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
-	umbra["truesight_activations"] = -1
+	umbra["vision_activations"] = -1
 	state["umbra"] = umbra
-	var presentation: Dictionary = {"reduced_motion": true, "umbra_truesight_activations": -1, "surface_status_preview": {"player": {"chilled": true, "shock": 2}}}
+	var presentation: Dictionary = {"reduced_motion": true, "umbra_vision_activations": -1, "surface_status_preview": {"player": {"expose": 2, "shock": 2}}}
 	_show_constructed_state(scene, state, presentation)
 	await _capture(scene.get("board_view"), "statuses_all")
 	var shown: Dictionary = {}
 	for actor: Dictionary in _captures.back()["actors"]:
 		for entry: Dictionary in actor["statuses"]: shown[entry["icon"]] = true
-	for icon: String in ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof"]:
+	for icon: String in ["shock", "immobilize", "expose", "vision", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof"]:
 		_expect(shown.has(icon), "Coverage capture contains " + icon)
 
 func _wrapped_capture(scene: Node, run: Dictionary) -> void:
 	var state: Dictionary = run["combat_state"].duplicate(true)
-	state["player"].merge({"freeze": 1, "shock": 1, "immobilize": true, "frost_armor": CATALOG_COUNT}, true)
+	state["player"].merge({"shock": 1, "immobilize": true, "frost_armor": CATALOG_COUNT}, true)
+	state["retaliate"] = {"amount": CATALOG_COUNT}
 	_show_constructed_state(scene, state, {"reduced_motion": true})
 	await _capture(scene.get("board_view"), "statuses_wrapped")
 	var rows: Array[float]

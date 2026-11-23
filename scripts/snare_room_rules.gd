@@ -238,6 +238,7 @@ static func start_round(engine: RefCounted, state: Dictionary, rule_dispatched: 
 		hunter["snare_hunter"] = true
 		hunter["reward_embers"] = 0
 		state["enemies"].append(hunter)
+		preload("res://scripts/ice_contact_rules.gd").contact_on_placement(engine, state, "enemy", hunter)
 		engine._assign_enemy_intent(state, state["enemies"].size() - 1, rng)
 		engine._schedule_enemy_after_spawn(state, state["enemies"].back(), 0)
 		state["rng_state"] = rng.state

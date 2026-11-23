@@ -71,6 +71,7 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 	settings["window"] = window
 	var kind: String = settings["kind"]
 	var renderer: Node = board.unit_cutout_renderer(source)
+	if bool(settings.get("requires_rig", false)) and not is_instance_valid(renderer): return empty
 	_live.begin(renderer,effect,progress)
 	var swing: Dictionary = {}
 	if bool(settings.get("live_weapon",false)) and is_instance_valid(renderer) and board.presentation.has("strike_trail_effect"):

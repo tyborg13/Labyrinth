@@ -73,14 +73,14 @@ func _run() -> void:
 	scene._close_large_map()
 	await _settle()
 	var enemy: Dictionary = combat["enemies"][0]
-	_expect(enemy["intent"]["id"] == "discharge" and enemy["intent"]["name"] == "Arc Burst", "Arc Burst keeps its saved intent id")
+	_expect(enemy["intent"]["id"] == "discharge" and enemy["intent"]["name"] == "Arc Lash", "Arc Lash keeps its saved intent id")
 	scene._on_board_tile_hovered(enemy["pos"])
 	await _settle()
 	var badge: Dictionary = scene.board_view._unit_status_badges(enemy)[0]
 	_expect(badge["tooltip"] == Icons.tooltip("charge") + "\n3/3", "Live Charge status uses glossary plus live count")
 	await _tooltip(scene.board_view, badge["tooltip"], "status_charge")
 	var intent_text: String = scene.board_view.enemy_intent_tooltip("enemy_1")
-	_expect(intent_text.contains("Arc Burst") and intent_text.contains(Icons.description("charge")), "Live Arc Burst intent explains Charge")
+	_expect(intent_text.contains("Arc Lash") and intent_text.contains(Icons.description("charge")), "Live Arc Lash intent explains Charge")
 	await _tooltip(scene.board_view, intent_text, "intent_arc_burst")
 	var meter: Control = scene.get("_movement_meter") as Control
 	_expect(meter.visible and meter.mouse_filter != Control.MOUSE_FILTER_IGNORE, "Live Movement meter receives tooltip hover")

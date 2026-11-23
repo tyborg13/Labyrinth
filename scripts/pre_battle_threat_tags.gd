@@ -23,8 +23,6 @@ static func from_intents(intents: Array) -> Array:
 			_append(tags, seen, _word(action), ActionIcons.action_icon_key(action))
 			if bool(action.get("pierce", false)):
 				_append(tags, seen, ActionIcons.label("pierce"), "pierce")
-			if int(action.get("bleed", 0)) > 0:
-				_append(tags, seen, ActionIcons.label("bleed"), "bleed")
 	if tags.is_empty():
 		tags.append({"text": "Inspect known moves", "icon_key": ""})
 	return tags
@@ -46,7 +44,7 @@ static func _append(tags: Array, seen: Dictionary, word: String, icon_key: Strin
 	tags.append({"text": word, "icon_key": icon_key if not ActionIcons.icon_path(icon_key).is_empty() else ""})
 
 static func _word(action: Dictionary) -> String:
-	if str(action.get("type", "")) == "chain_discharge": return "Arc Burst"
+	if str(action.get("type", "")) == "chain_discharge": return "Arc Lash"
 	if str(action.get("type", "")) == "surface" and action.has("guardian_shape"):
 		return ActionIcons.label(ActionIcons.action_icon_key(action))
 	if str(action.get("type", "")) not in ["upheaval_mark", "lob_mark", "lob_land", "melee", "ranged", "aoe", "lightning_strikes", "block", "guard_ally", "stoneskin", "heal", "heal_self", "heal_ally", "move_away", "pull", "push", "summon_minions", "raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "frost_armor", "umbra_eclipse", "split"]:

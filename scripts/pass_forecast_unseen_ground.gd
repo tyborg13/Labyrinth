@@ -1,12 +1,10 @@
 extends RefCounted
 ## atk-04 (director 2026-11-13): the forecast never says "Safe" when the Umbra
-## could change the outcome. Forecasts play the enemy phase on the board the
-## player can see; unseen terrain, traps and surfaces are left out
-## (pass_forecast_action_source.gd information_state). Flag the forecast
+## could change the outcome. The forecast keeps the true board for forced
+## movement (pass_forecast_action_source.gd). Flag the forecast
 ## "unseen_ground_crossed" when any unit (a foe, a summon, the hero) enters or is
 ## forced onto a tile the player can't see, or an area effect targets an unseen
-## tile next to a unit. Only the tiles' visibility is read, never their contents,
-## so nothing leaks; the simulation itself is unchanged.
+## tile next to a unit. This flag reads the decision-time visibility.
 ##
 ## Enemy-action summons and splits still use this sight boundary. Arrival
 ## disclosure is keyed to initiative, so the clock row describes a foe the
@@ -46,6 +44,7 @@ static func moved_onto_unseen(visible: Dictionary, before: Dictionary, after: Di
 		start[int(enemy.get("id", -1))] = enemy.get("pos", INVALID)
 	for enemy: Dictionary in after.get("enemies", []):
 		var id: int = int(enemy.get("id", -1))
+		if start.has(id) and before.has("_pass_forecast_disclosed_actors") and not before["_pass_forecast_disclosed_actors"].has("enemy_%d" % id): continue
 		if start.has(id) and start[id] == enemy.get("pos", INVALID): continue
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(enemy):
 			if unseen(after, visible, tile): return true

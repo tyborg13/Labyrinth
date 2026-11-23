@@ -1,0 +1,92 @@
+# id | rule | exact wording | contextual assessment
+reinforced_shield | R17 | While you have Stoneskin | Condition leads the base effect.
+reinforced_shield | R18 | 3 more | Bonus is written as a comparative.
+iron_buckler | R21 | keep | Keep is outside the resource retention verbs in the spec.
+flint_edge | R18 | 3 more damage | Bonus is written as a comparative.
+static_soles | R16 | Your first Move or Blink each turn | Turn timing follows the subject.
+mossbound_wraps | R16 | The first Earth card you play while you have Block each turn | Turn timing is buried in the trigger and could attach to having Block.
+mossbound_wraps | R21 | grants | Grant is outside the approved verbs.
+tailwind_fletching | R18 | 1 more damage; 1 tile farther | Two comparative bonuses.
+tailwind_fletching | R23 | Air Push and Pull | The Air qualifier is read from card family.
+storm_capacitor | R23 | Lightning Ranged attacks | Lightning is read from card family.
+gale_tabi | R16 | After you Blink; your next attack this turn | Uses an after-trigger and embeds the turn window after the subject.
+anchor_chain | R17 | While you have Block | Condition leads the base effect.
+anchor_chain | R18 | 2 more damage; 1 tile farther | Two comparative bonuses.
+bloodglass_knife | R6 | half Health | Uses a word for the numerical threshold.
+bloodglass_knife | R17 | While you are at half Health or less | Condition leads the base effect.
+bloodglass_knife | R18 | 7 more damage | Bonus is written as a comparative.
+cold_mirror | R21 | trade | Trade is outside the spend and gain vocabulary.
+obsidian_heart | R18 | 1 fewer card | Adjustment is explained as a comparative rather than a signed number.
+obsidian_heart | R21 | convert | Conversion is narrated instead of using the approved lose/gain verbs.
+storm_crown | R6 | half damage | Uses a word for the damage fraction.
+phoenix_ember | R21 | saves you | Narrated description of a Defiance trigger.
+ion_spool | R16 | The first Lightning attack each turn | Turn timing follows the subject.
+ion_spool | R21 | grants | Grant is outside the approved verbs.
+ion_spool | R23 | Lightning attack | The Lightning qualifier is a card family.
+tectonic_abacus | R17 | While 3 or more Lights are active; with 6 or more | Conditions lead both effect clauses.
+black_sun_dial | R16 | your next attack | The timing is embedded after the trigger rather than leading the damage rule.
+duelist_whetstone | R18 | 1 more damage; up to 3 more | Bonus and cap are comparative.
+hollow_die | R21 | grants | Grant is outside the approved verbs.
+chorus_mask | R18 | 2 more damage; 2 more Block | Two comparative bonuses.
+widow_thread | R17 | While you have an Illusion | Condition leads the base effect.
+widow_thread | R21 | apply | Apply is outside the status receiving verbs in the spec.
+bloodmoon_chalice | R18 | 2 more damage; up to 8 more | Bonus and cap are comparative.
+moonless_compass | R6 | Stoneskin 6 and Card Play 2 | Resource quantities use face order rather than numbered prose.
+beaconrunner_spurs | R16 | during a Move; up to 2 each turn | Timing and turn cap follow the tile clause.
+beaconrunner_spurs | R21 | refunds | Refunds is outside the Movement receiving verbs.
+true_north | R6 | Range +1 | Prose puts the number after the resource.
+dawnstitch_cord | R6 | Block 4 | Uses face order for a prose resource quantity.
+dawnstitch_cord | R16 | The first card each turn | Turn timing follows the subject.
+dawnstitch_cord | R21 | grants | Grant is outside the approved verbs.
+witchglass_lantern | R18 | 2 tiles farther | Increased radius is written as a comparative.
+witchglass_lantern | R21 | shed | Shed is outside the Light-placement verbs.
+sunlit_edge | R17 | While you stand in Light | Condition leads the base effect.
+winters_spur | R21 | Turning starts a new stretch | Movement timing is expressed as a narrative metaphor.
+resonant_clapper | R18 | 25% more damage per enemy | Bonus lacks explicit signed notation.
+crowncoal_heart | R6 | 2+ Fire | Abbreviated threshold with no tile unit.
+crowncoal_heart | R16 | once per turn | The second effect puts the turn window last.
+unbound_pinion | R21 | refill | Refill is outside the Movement receiving verbs.
+winters_hour | R21 | refills | Refill is outside the resource receiving verbs.
+stormroad_coil | R21 | relay | Relay is used as an effect verb outside the approved verb list.
+eclipse_mantle | R16 | Your first Blink each turn | Turn timing follows the subject.
+millstone_fob | R21 | becomes Rubble | Describes the tile changing rather than placing ground.
+pocket_sundial | R17 | If your turn ends with no Wait | Effect follows a leading condition.
+pocket_sundial | R21 | your next turn comes | Scheduling is expressed through a non-game verb.
+pitch_gloves | R18 | 1 less damage; 1 more | Adjustments use comparatives.
+hobnail_cleats | R17 | While you stand on Ice | Condition leads the base effect.
+rubblewalker_greaves | R17 | if you stand on Rubble | Condition leads the gain.
+rubblewalker_greaves | R21 | doesn't slow you | Slow is outside the movement-cost verbs.
+quick_draw_bandolier | R18 | 1 more Time | Surcharge uses a comparative.
+briar_vambrace | R16 | once per card | Per-card trigger limit comes last.
+fencers_gloves | R16 | Your second card each turn | Timing follows the subject.
+fencers_gloves | R18 | 1 less Time | Cost adjustment uses a comparative.
+feint_ribbon | R17 | If you've traveled 2 or more tiles this turn | Condition leads the effect.
+feint_ribbon | R21 | traveled; counts as | Outside the Move and effect verbs.
+pendulum_weight | R16 | per-turn limit | Uses a general per-turn qualifier in place of the fixed timing vocabulary.
+martyrs_gorget | R21 | damages an attacker | Does not use the approved deal/take damage construction.
+reliquary_box | R17 | if you have one | Conditional exclusion follows the opening-hand claim rather than expressing the added effect.
+reliquary_box | R18 | 1 less Time | Cost adjustment uses a comparative.
+changelings_rattle | R21 | suffers | Not a status-receiving verb in the fixed list.
+copper_shod_staff | R23 | For your Lightning | Lightning is a card/action family in this rule.
+bonded_set | R18 | 1 more damage; 1 more Block | Two comparative bonuses.
+fetter_spikes | R6 | double Collision damage | Multiplier is expressed as a word.
+masons_plumb | R18 | 2 more Health; 2 more damage | Two comparative bonuses.
+echoing_blade | R18 | 2 more damage | Bonus is written as a comparative.
+alchemists_retort | R6 | increased by half | Multiplier is expressed as a word.
+mirror_triptych | R6 | half damage | Fraction is expressed as a word.
+mirror_triptych | R13 | Each hits the nearest reachable enemy | Each implicitly refers to Illusions named only in the previous sentence.
+mirror_triptych | R16 | your first attack each turn | Turn timing follows the subject.
+pyre_keepers_urn | R21 | return | Return is outside the enumerated card movement verbs.
+briar_throne | R18 | grows by 1 | Bonus lacks signed notation.
+briar_throne | R21 | expires; grows | Narrated duration and damage growth.
+whirling_sash | R18 | 1 extra Card Play; 2 more Time | Bonus and surcharge use comparatives.
+resonant_clapper | R25 | enemy it already hit | Bare back-reference to Chain.
+pilgrim_boots | R16 | Gain 1 Movement each turn | Turn timing follows the effect.
+briar_winch | R15 | move that enemy in any of the 4 directions | The text names direction and leaves force distance implicit.
+worldheart | R21 | convert | Conversion is described through a verb outside the fixed list.
+worldroot_idol | R22 | The game chooses the tile | The sentence narrates automatic selection.
+hollow_puppet | R25 | its remaining Health | Uses a possessive back-reference.
+breaking_wheel | R20 | Fire: +3 damage. Ice: Stagger 6. Electrified: Shock the target and each enemy blocker. Rubble: Stagger 3. | The fragments leave the order of damage, riders and removal implicit.
+fivefold_knot | R6 | At 4, add Chain 1. At 5 | The threshold digits have no noun.
+winters_hour | R16 | Your first Ice card each turn | Turn timing follows the subject.
+crown_of_surplus | R13 | This excludes Rites and Items | This has no noun in the sentence.

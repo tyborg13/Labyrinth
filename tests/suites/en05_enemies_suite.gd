@@ -33,7 +33,7 @@ const REVIEW_ARC_CHAIN_HOPS: int = 1
 const REVIEW_TRAP_DAMAGE: int = 4
 const REVIEW_CRATE_HEALTH: int = 3
 const REVIEW_BEAM_SHOCK: int = 1
-const REVIEW_BLEED_DAMAGE: int = 2
+const REVIEW_FIRE_DAMAGE: int = 2
 const REVIEW_LETHAL_HEALTH: int = 1
 const REVIEW_DEFIANCE_CHARGES: int = 1
 const REVIEW_MANTLE_LAYERS: int = 1
@@ -85,9 +85,17 @@ static func run(expect: Callable) -> void:
 	for id: String in ["glacial_mirror", "gust_shrike"]:
 		var current: Dictionary = production[id].duplicate(true)
 		var authored: Dictionary = staged[id].duplicate(true)
+		if id == "glacial_mirror":
+			var refraction: Dictionary = authored["intents"][0]["actions"][0]
+			refraction.erase("chilled")
+			refraction["surface_bonus"] = {"surface": "ice", "subject": "target", "present": true, "stagger": 6.0}
 		if id == "gust_shrike":
-			# sta-01 replaces Dive only; all other authored fields remain exact.
+			# Dive uses the current movement shape. Talon Rake gains 1 damage.
 			authored["intents"][0]["actions"] = current["intents"][0]["actions"].duplicate(true)
+			for intent: Dictionary in authored["intents"]:
+				if intent["id"] != "talon_rake": continue
+				for action: Dictionary in intent["actions"]:
+					if action.erase("bleed"): action["damage"] += 1.0
 			for field: String in ["art_scale", "art_rear_path"]:
 				current.erase(field)
 				authored.erase(field)
@@ -130,7 +138,7 @@ static func run(expect: Callable) -> void:
 	var fake_scene: Control = RunScene.new()
 	var preview: Dictionary = {}
 	ReflectView.decorate_preview(fake_scene, preview, before, after, shot(), Vector2i(4, 4))
-	expect.call(preview["en05_reflect_preview"]["damage"] == 5 and preview["en05_reflect_preview"]["tooltip"] == Reflect.PREVIEW_TOOLTIP, "Reflect preview matches resolved total and exact tooltip")
+	expect.call(preview["en05_reflect_preview"]["damage"] == 5 and preview["en05_reflect_preview"]["tooltip"] == "Reflect\nYou take 5 damage.\nYou lose 3 Health.\nYou lose 2 Block.", "Reflect preview matches resolved total and exact tooltip")
 	var stone_before: Dictionary = before.duplicate(true)
 	stone_before["player"]["block"] = 0; stone_before["player"]["stoneskin"] = TEST_BLOCK
 	var stone_after: Dictionary = engine.apply_player_action(stone_before, shot(), Vector2i(4, 4))
@@ -145,13 +153,13 @@ static func run(expect: Callable) -> void:
 	var beam_before: Dictionary = before.duplicate(true); beam_before["enemies"][0]["pos"] = Vector2i(5, 4); beam_before["enemies"][1]["pos"] = Vector2i(3, 4); beam_before["player"]["block"] = 0
 	var action: Dictionary = beam_before["enemies"][0]["intent"]["actions"][0]
 	var rows: Array = ReflectView.intent_rows(beam_before["enemies"][0]["intent"])
-	expect.call(rows[0].any(func(token: Dictionary) -> bool: return token.get("icon") == "chilled"), "Refraction pill explicitly shows Chilled")
+	expect.call(rows.size() == 2 and rows[1].any(func(token: Dictionary) -> bool: return token.get("icon") == "stagger"), "Refraction explicitly shows its Ice Stagger rider")
 	expect.call(rows[0].any(func(token: Dictionary) -> bool: return token.get("kind") == "aoe_pattern" and token.get("pattern", []).size() == 4), "Refraction pill shows the four-tile line rather than a missing pattern")
 	var tiles: Array[Vector2i] = Reflect.line(engine, beam_before, 0, action)
 	var beam_after: Dictionary = engine._resolve_enemy_action(beam_before.duplicate(true), 0, action)
 	expect.call(tiles.size() == 4 and tiles.has(beam_before["player"]["pos"]) and tiles.has(beam_before["enemies"][1]["pos"]), "Refraction forecasts the four tiles toward hero")
 	expect.call(beam_after["player"]["hp"] == beam_before["player"]["hp"] - 4 and beam_after["enemies"][1]["hp"] == beam_before["enemies"][1]["hp"] - 4, "Refraction damage includes friendly fire")
-	expect.call(beam_after["player"]["chilled"] and beam_after["enemies"][1]["chilled"], "Refraction applies persistent Chilled to both teams")
+	expect.call(int(beam_after["player"].get("expose", 0)) == 0 and int(beam_after["enemies"][1].get("expose", 0)) == 0, "Refraction applies no status on bare stone")
 	expect.call(engine.enemy_threat_tiles(beam_before, 0)["projected_attack"] == tiles, "Refraction telegraph tiles equal resolution tiles")
 	var lethal: Dictionary = beam_before.duplicate(true); lethal["enemies"][1]["hp"] = 1
 	var lethal_after: Dictionary = engine._resolve_enemy_action(lethal.duplicate(true), 0, action)
@@ -169,7 +177,7 @@ static func run(expect: Callable) -> void:
 	_test_dive(expect, engine)
 	_test_integer_intents(expect)
 	var serialized: Dictionary = save_round_trip(beam_after)
-	expect.call(serialized == beam_after, "Reflect and Chilled state serialize losslessly")
+	expect.call(serialized == beam_after, "Reflect state serializes losslessly")
 	var order: Array = engine.current_turn_order(shrike())
 	for id: int in [1, 2, 3]: expect.call(order.any(func(slot: Dictionary) -> bool: return int(slot.get("enemy_id", -1)) == id), "Turn clock retains enemy %d" % id)
 	expect.call(ReflectView.badges({"type": "glacial_mirror"})[0]["icon"] == "reflect" and DiveView.badges({"type": "gust_shrike"})[0]["icon"] == "flying", "Permanent passive badges use distinct approved identities")
@@ -239,16 +247,19 @@ static func _test_reflect_review_echoes(expect: Callable, engine: RefCounted) ->
 	detonate = engine._create_illusion(detonate, REVIEW_DETONATE_ORIGIN, REVIEW_ILLUSION_HEALTH)
 	Surface.place(detonate, REVIEW_ILLUSION_TILE, "fire")
 	Surface.place(detonate, REVIEW_ECHO_MIRROR_TILE, "fire")
-	var blast: Dictionary = Data.card_def("cinder_second")["actions"][1].duplicate(true)
+	var blast: Dictionary = Data.card_def("cinder_second")["actions"][2].duplicate(true)
 	blast["_card_id"] = "cinder_second"
 	var primed: Dictionary = engine.apply_player_action(detonate, blast, REVIEW_ILLUSION_TILE)
 	var echoed: Dictionary = Echoes.finish_echoes(engine, primed.duplicate(true))
-	expect.call(echoed["enemies"][0]["hp"] == primed["enemies"][0]["hp"] - Echoes.half(int(blast["damage"])) and Reflect.bounces_between(primed, echoed).is_empty(), "Review 3: Echoed Cinder Second Detonate lands without reflecting")
-	var rockburst: Dictionary = Data.card_def("rockburst")["actions"][0]
+	expect.call(echoed["enemies"][0]["hp"] == primed["enemies"][0]["hp"] - Echoes.half(int(blast["damage"])) and Reflect.bounces_between(primed, echoed).is_empty(), "Review 3: Echoed Cinder Second Burst lands without reflecting")
+	var rockburst: Array = Data.card_def("rockburst")["actions"]
 	var burst: Dictionary = Fixtures.state([Fixtures.enemy("glacial_mirror", 1, REVIEW_MIRROR_TILE)], REVIEW_HERO_TILE)
 	burst["terrain"] = [{"id": "review_crate", "kind": "wooden_crate", "pos": REVIEW_ILLUSION_TILE, "hp": REVIEW_CRATE_HEALTH, "max_hp": REVIEW_CRATE_HEALTH}]
-	var burst_after: Dictionary = engine.apply_player_action(burst, rockburst, REVIEW_ILLUSION_TILE)
-	expect.call(burst_after["enemies"][0]["hp"] == burst["enemies"][0]["hp"] - int(rockburst["damage"]) and Reflect.bounces_between(burst, burst_after).is_empty(), "Review 3: Rockburst's derived area damage retains its Burst exemption")
+	burst["deck"]["hand"].append("rockburst")
+	var prepared: Dictionary = engine.prepare_player_card(burst, burst["deck"]["hand"].size() - 1)
+	var struck: Dictionary = engine.apply_player_action(prepared, rockburst[0], REVIEW_ILLUSION_TILE)
+	var burst_after: Dictionary = engine.apply_player_action(struck, rockburst[1], REVIEW_ILLUSION_TILE)
+	expect.call(burst_after["enemies"][0]["hp"] == burst["enemies"][0]["hp"] - int(rockburst[1]["damage"]) and Reflect.bounces_between(burst, burst_after).is_empty(), "Review 3: Rockburst's follow-up Burst lands without reflecting")
 
 static func _test_reflect_review_moves(expect: Callable, engine: RefCounted) -> void:
 	var before: Dictionary = Fixtures.state([Fixtures.enemy("glacial_mirror", 1, REVIEW_MIRROR_TILE)], REVIEW_FORCE_HERO_TILE)
@@ -279,18 +290,20 @@ static func _test_reflect_review_moves(expect: Callable, engine: RefCounted) -> 
 	var flint: Dictionary = before.duplicate(true)
 	flint["relics"] = ["flint_edge"]
 	Surface.place(flint, REVIEW_MIRROR_TILE, "ice")
-	flint["enemies"][0]["chilled"] = true
 	var whip: Dictionary = engine.apply_player_action(flint, Data.card_def("crack_the_whip")["actions"][0], REVIEW_MIRROR_TILE)
-	expect.call(Reflect.bounces_between(flint, whip).size() == 1 and Surface.element_at(whip, REVIEW_MIRROR_TILE).is_empty() and not whip["enemies"][0].get("chilled", false), "Review 8: Flint Edge clears temporary Chilled after a bounce consumes Ice")
+	var whip_bounces: Array[Dictionary] = Reflect.bounces_between(flint, whip)
+	expect.call(whip_bounces.size() == 1 and Surface.element_at(whip, REVIEW_MIRROR_TILE).is_empty() and whip["enemies"][0]["hp"] == flint["enemies"][0]["hp"], "Review 8: Flint Edge removes Ice and Reflect returns the empowered hit")
 
 static func _test_reflect_review_beams(expect: Callable, engine: RefCounted) -> void:
 	var mirrors: Dictionary = Fixtures.state([Fixtures.enemy("glacial_mirror", 1, REVIEW_ECHO_MIRROR_TILE, "refraction"), Fixtures.enemy("glacial_mirror", 2, REVIEW_ILLUSION_TILE)], REVIEW_HERO_TILE)
 	var beam: Dictionary = mirrors["enemies"][0]["intent"]["actions"][0].duplicate(true)
 	beam["shock"] = REVIEW_BEAM_SHOCK
+	Surface.place(mirrors, REVIEW_ILLUSION_TILE, "ice")
 	var after: Dictionary = engine._resolve_enemy_action(mirrors.duplicate(true), 0, beam)
 	var bounces: Array[Dictionary] = Reflect.bounces_between(mirrors, after)
 	expect.call(bounces.size() == 1 and bounces[0].get("attacker_id") == 1 and after["enemies"][0]["hp"] == mirrors["enemies"][0]["hp"] - int(beam["damage"]) and after["enemies"][1]["hp"] == mirrors["enemies"][1]["hp"], "Review 4: A Mirror hit by enemy Refraction returns damage to the casting Mirror")
-	expect.call(after["enemies"][0].get("relic_chilled", false) and int(after["enemies"][0].get("shock", 0)) == int(beam["shock"]) and not after["enemies"][1].get("chilled", false) and int(after["enemies"][1].get("shock", 0)) == 0 and after["player"].get("relic_chilled", false), "Review 4: Chilled and the attack rider return to the caster while the hero's hit still lands")
+	var delays: Dictionary = engine.stagger_delays_between(mirrors, after)
+	expect.call(int(delays.get(1, 0)) == int(beam["surface_bonus"]["stagger"]) and int(delays.get(2, 0)) == 0 and int(after["enemies"][0].get("shock", 0)) == int(beam["shock"]) and int(after["enemies"][1].get("shock", 0)) == 0 and int(after["player"]["hp"]) < int(mirrors["player"]["hp"]), "Review 4: The Ice Stagger and Shock riders return to the caster while the hero's hit still lands")
 
 	var extra_tile: Vector2i = REVIEW_ECHO_MIRROR_TILE + Vector2i.DOWN
 	var extra: Dictionary = Fixtures.state([Fixtures.enemy("crawler", 1, REVIEW_ILLUSION_TILE), Fixtures.enemy("glacial_mirror", 2, extra_tile)], REVIEW_HERO_TILE)
@@ -340,17 +353,16 @@ static func _test_reflect_review_preview(expect: Callable, engine: RefCounted) -
 	var board := ReflectPreviewBoard.new()
 	ReflectView.decorate_preview(scene, board.presentation, mantle, absorbed, shot(), REVIEW_MIRROR_TILE)
 	ReflectView.draw_preview(board)
-	expect.call(board.labels.is_empty(), "Review 10: A Crystal Mantle bounce never draws a zero-damage chip")
+	expect.call(board.presentation.get("friendly_damage_chips", []).is_empty() and board.labels.is_empty(), "Review 10: A Crystal Mantle bounce never draws a zero-damage chip")
 	board.free()
 
-	var bleeding: Dictionary = before.duplicate(true)
-	bleeding["player"]["bleed"] = REVIEW_BLEED_DAMAGE
-	var combined: Dictionary = engine.apply_player_action(bleeding, shot(), REVIEW_MIRROR_TILE)
-	preview = {"friendly_damage_chips": scene._friendly_damage_preview_chips(bleeding, scene._damage_preview_between_states(bleeding, combined))}
-	ReflectView.decorate_preview(scene, preview, bleeding, combined, shot(), REVIEW_MIRROR_TILE)
+	var combined: Dictionary = engine.apply_player_action(before, shot(), REVIEW_MIRROR_TILE)
+	combined = engine._surface_damage_actor(combined, "player", -1, REVIEW_FIRE_DAMAGE)
+	preview = {"friendly_damage_chips": scene._friendly_damage_preview_chips(before, scene._damage_preview_between_states(before, combined))}
+	ReflectView.decorate_preview(scene, preview, before, combined, shot(), REVIEW_MIRROR_TILE)
 	chips = preview["friendly_damage_chips"]
 	var reflected: Dictionary = preview.get("en05_reflect_preview", {})
-	expect.call(chips.size() == 1 and chips[0]["label"] == "↶ You: −%d Health" % (TEST_RANGED_DAMAGE + REVIEW_BLEED_DAMAGE) and reflected.get("damage") == TEST_RANGED_DAMAGE and not reflected.get("hero_tooltip", true), "Review 10: The hero's label includes Bleed without attributing it to Reflect")
+	expect.call(chips.size() == 2 and chips[0]["label"] == "↶ You: −%d Health" % TEST_RANGED_DAMAGE and chips[1]["label"] == "You: −%d Health" % REVIEW_FIRE_DAMAGE and reflected.get("damage") == TEST_RANGED_DAMAGE, "Review 10: Only reflected Health loss carries the Reflect attribution")
 	scene.free()
 
 static func _test_integer_intents(expect: Callable) -> void:

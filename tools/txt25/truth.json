@@ -1,0 +1,1547 @@
+{
+  "candidate": {
+    "branch": "codex/txt-25",
+    "head": "b8c417d681da42543b988797c966d13e440e5b15",
+    "base": "codex/mrg-14",
+    "risk_tier": "low"
+  },
+  "coverage": {
+    "catalog_ids": 309,
+    "live_cards": 305,
+    "catalog_panels": 952,
+    "unique_panel_bodies_and_diagrams": 203,
+    "hand_variants": 40,
+    "ledger_variants": 22,
+    "legacy_starter_variants": 8,
+    "embedded_panel_differences": 86,
+    "retort_variants": 13,
+    "strings_scanned_for_raw_markup": 4080,
+    "markup_findings": 0,
+    "inventory": "inventory.json"
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "card_id": "lodestone_reversal",
+      "name": "Lodestone Reversal",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Pull the target 2 tiles at Range 2 for 3 damage, leave Electrified at the destination, then gain 5 Block.",
+      "diagrams": [],
+      "behavior": "The Pull moves the enemy. The ground rider uses the original aim tile.",
+      "scenario": "Pull an enemy from (4,4) to (3,4). Electrified appears only on (4,4).",
+      "sources": [
+        "scripts/board_attack_rules.gd:189",
+        "scripts/board_attack_rules.gd:251"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F01 PASS {\"electrified\":[\"(4, 4)\"],\"enemy_destination\":\"(3, 4)\"}"
+      }
+    },
+    {
+      "id": "F02",
+      "card_id": "ember_guard",
+      "name": "Ember Guard",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Gain 10 Block, then leave Fire on each enemy's tile.",
+      "diagrams": [],
+      "behavior": "The effect places Fire on visible enemy footprint tiles orthogonally adjacent to you.",
+      "scenario": "With enemies one and three tiles away, cast the card. Only the adjacent enemy's tile gains Fire.",
+      "sources": [
+        "scripts/surface_card_rules.gd:104",
+        "scripts/surface_card_rules.gd:118"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F02 PASS {\"adjacent\":\"(3, 4)\",\"card\":\"ember_guard\",\"distant\":\"(5, 4)\",\"painted\":[\"(3, 4)\"]}"
+      }
+    },
+    {
+      "id": "F03",
+      "card_id": "ember_ward",
+      "name": "Ember Ward",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Gain 5 Block, then leave Fire on each enemy's tile.",
+      "diagrams": [],
+      "behavior": "The effect places Fire on visible enemy footprint tiles orthogonally adjacent to you.",
+      "scenario": "With enemies one and three tiles away, cast the card. Only the adjacent enemy's tile gains Fire.",
+      "sources": [
+        "scripts/surface_card_rules.gd:104",
+        "scripts/surface_card_rules.gd:118"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F03 PASS {\"adjacent\":\"(3, 4)\",\"card\":\"ember_ward\",\"distant\":\"(5, 4)\",\"painted\":[\"(3, 4)\"]}"
+      }
+    },
+    {
+      "id": "F04",
+      "card_id": "static_ward",
+      "name": "Static Ward",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Gain 5 Block, then leave Electrified on your tile and each enemy's tile.",
+      "diagrams": [],
+      "behavior": "The effect places Electrified on visible enemy footprint tiles orthogonally adjacent to you and on your tile.",
+      "scenario": "With enemies one and three tiles away, cast the card. Only the adjacent enemy's tile gains Electrified and your tile also gains Electrified.",
+      "sources": [
+        "scripts/surface_card_rules.gd:104",
+        "scripts/surface_card_rules.gd:118"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F04 PASS {\"adjacent\":\"(3, 4)\",\"card\":\"static_ward\",\"distant\":\"(5, 4)\",\"painted\":[\"(2, 4)\",\"(3, 4)\"]}"
+      }
+    },
+    {
+      "id": "F05",
+      "card_id": "stone_ward",
+      "name": "Stone Ward",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Gain 5 Block, then leave Rubble on each enemy's tile.",
+      "diagrams": [],
+      "behavior": "The effect places Rubble on visible enemy footprint tiles orthogonally adjacent to you.",
+      "scenario": "With enemies one and three tiles away, cast the card. Only the adjacent enemy's tile gains Rubble.",
+      "sources": [
+        "scripts/surface_card_rules.gd:104",
+        "scripts/surface_card_rules.gd:118"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F05 PASS {\"adjacent\":\"(3, 4)\",\"card\":\"stone_ward\",\"distant\":\"(5, 4)\",\"painted\":[\"(3, 4)\"]}"
+      }
+    },
+    {
+      "id": "F06",
+      "card_id": "cinderweave_guard",
+      "name": "Cinderweave Guard",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Gain 5 Block, then Strike for 2 and leave Fire on the target's tile.",
+      "diagrams": [],
+      "behavior": "The Strike is a targetless attack on the four adjacent tiles. The same area gains Fire, including empty floor.",
+      "scenario": "Play between two adjacent enemies on open floor. Each loses 2 Health and all four neighboring tiles gain Fire.",
+      "sources": [
+        "data/cards.json:3441",
+        "scripts/board_attack_rules.gd:255",
+        "scripts/combat_engine.gd:12076"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F06 PASS {\"enemy_hp\":[38,38],\"fire\":[\"(2, 3)\",\"(1, 4)\",\"(3, 4)\",\"(2, 5)\"]}"
+      }
+    },
+    {
+      "id": "F07",
+      "card_id": "bottled_gale",
+      "name": "Bottled Gale",
+      "frequency": "common",
+      "surface": "Inspection sentence",
+      "rendered_text": "Consume. Push the target 3 tiles.",
+      "diagrams": [],
+      "behavior": "A targetless, self-centered area Pushes each adjacent enemy 3 tiles away.",
+      "scenario": "Play with enemies east and north of you. Both move 3 tiles and the card accepts zero target selections.",
+      "sources": [
+        "data/cards.json:7246",
+        "scripts/maneuver_rules.gd:185",
+        "scripts/maneuver_rules.gd:288"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F07 PASS {\"aims\":0,\"end\":[\"(6, 4)\",\"(2, 1)\"],\"start\":[\"(3, 4)\",\"(2, 3)\"]}"
+      }
+    },
+    {
+      "id": "F08",
+      "card_id": "caltrops",
+      "name": "Caltrops",
+      "frequency": "common",
+      "surface": "Face sentence",
+      "rendered_text": "Tile [range] 2\n[consume] Consume tile. Leave [surface_rubble] Rubble and [expose] Expose 2 each enemy hit.[diagram 1]",
+      "diagrams": [
+        {
+          "offsets": [
+            [
+              0,
+              -1
+            ],
+            [
+              -1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "origin_reference": false
+        }
+      ],
+      "behavior": "The word “tile” is part of the visible command. The card consumes the item copy and keeps the target tile, placing Rubble there.",
+      "scenario": "Aim at a stone tile while an enemy is in the area. The board tile stays stone with Rubble and the card enters the consumed pile.",
+      "sources": [
+        "data/card_faces.json:560",
+        "scripts/board_attack_rules.gd:243",
+        "scripts/combat_engine.gd:2066"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F08 PASS {\"item_consumed\":true,\"rubble\":true,\"tile\":\"stone\"}"
+      }
+    },
+    {
+      "id": "F09",
+      "card_id": "powder_keg",
+      "name": "Powder Keg",
+      "frequency": "common",
+      "surface": "Range panel",
+      "rendered_text": "Place the Outcrop within Range.",
+      "diagrams": [],
+      "behavior": "Placement raises a powder keg. A keg blocks movement but has `blocks_sight = false`.",
+      "scenario": "Place the card on any legal nearby floor tile. The resulting terrain kind is `powder_keg` and line of sight through the tile is preserved.",
+      "sources": [
+        "data/card_panel_text.json:113",
+        "scripts/terrain_card_rules.gd:31",
+        "scripts/combat_engine.gd:1771"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F09 PASS {\"blocks_sight\":false,\"burst_damage\":6,\"hp\":3,\"id\":\"outcrop_1\",\"kind\":\"powder_keg\",\"max_hp\":3,\"owner_id\":-1,\"owner_kind\":\"player\",\"pos\":\"(3, 4)\",\"surface_on_destroy\":\"\"}"
+      }
+    },
+    {
+      "id": "F10",
+      "card_id": "grounding",
+      "name": "Grounding",
+      "frequency": "common",
+      "surface": "Expend panel",
+      "rendered_text": "Remove the named ground from the target's tile to use this effect.",
+      "diagrams": [],
+      "behavior": "The card has no selected target for Expend. It removes eligible Electrified within 2 tiles of you, including empty tiles.",
+      "scenario": "Put Electrified on an empty adjacent tile and play the card. The ground is removed and you gain 6 Stoneskin.",
+      "sources": [
+        "scripts/combat_engine.gd:12062",
+        "scripts/combat_engine.gd:12668",
+        "scripts/combat_engine.gd:12677"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F10 PASS {\"empty_ground_removed\":true,\"stoneskin\":6}"
+      }
+    },
+    {
+      "id": "F11",
+      "card_id": "spike_mantle",
+      "name": "Spike Mantle",
+      "frequency": "common",
+      "surface": "Expend panel",
+      "rendered_text": "Remove the named ground from the target's tile to use this effect.",
+      "diagrams": [],
+      "behavior": "The card has no selected target for Expend. It removes eligible Rubble on the four adjacent tiles, including empty tiles.",
+      "scenario": "Put Rubble on an empty adjacent tile and play the card. The ground is removed and you gain 4 Stoneskin.",
+      "sources": [
+        "scripts/combat_engine.gd:12062",
+        "scripts/combat_engine.gd:12668",
+        "scripts/combat_engine.gd:12677"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F11 PASS {\"empty_ground_removed\":true,\"stoneskin\":4}"
+      }
+    },
+    {
+      "id": "F12",
+      "card_id": "seek_the_light",
+      "name": "Seek the Light",
+      "frequency": "common",
+      "surface": "Blink panel",
+      "rendered_text": "Move to a visible open tile up to 2 tiles away, ignoring intervening tiles.",
+      "diagrams": [],
+      "behavior": "The ordinary destination limit is 2. The card's alternate limit for open Light destinations is 5.",
+      "scenario": "Create Light on open floor five tiles away and use Seek the Light to land there.",
+      "sources": [
+        "data/cards.json:8446",
+        "scripts/combat_engine.gd:1244",
+        "scripts/maneuver_rules.gd:700"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F12 PASS {\"blink_distance\":5,\"landed\":\"(7, 4)\"}"
+      }
+    },
+    {
+      "id": "F13",
+      "card_id": "sleet_squall",
+      "name": "Sleet Squall",
+      "frequency": "common",
+      "surface": "Ranged panel",
+      "rendered_text": "Deal 3 damage to a target within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "Range 3 applies to the Push aim. The automatic Ranged action follows the moved enemy and does not require a new Range or sight check.",
+      "scenario": "Aim at an enemy three tiles away on a clear line. The enemy ends five tiles away and still takes 3 damage.",
+      "sources": [
+        "data/cards.json:8648",
+        "scripts/combat_engine.gd:1612",
+        "scripts/combat_engine.gd:1623"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F13 PASS {\"aim_distance\":3,\"enemy_hp\":37,\"hit_distance\":5}"
+      }
+    },
+    {
+      "id": "F14",
+      "card_id": "snare_coil",
+      "name": "Snare Coil",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Deal 2 damage at Range 3 and Pull the target 3 tiles, then Immobilize.",
+      "diagrams": [],
+      "behavior": "The same hit applies Immobilize before resolving the Pull and its collision.",
+      "scenario": "With Fetter Spikes, Pull an initially un-Immobilized enemy into another enemy. The mover takes 12 Collision damage instead of 6 because it is already Immobilized.",
+      "sources": [
+        "scripts/combat_engine.gd:6753",
+        "scripts/combat_engine.gd:6764",
+        "scripts/forced_relic_rules.gd:49"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F14 PASS {\"collision_with_fetter_spikes\":12,\"ordinary_collision\":6}"
+      }
+    },
+    {
+      "id": "F15",
+      "card_id": "skybolt",
+      "name": "Skybolt",
+      "frequency": "edge",
+      "surface": "Ranged panel",
+      "rendered_text": "Deal 8 damage to a target within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "The card's ranged route explicitly ignores line of sight to a visible target.",
+      "scenario": "Target a visible enemy on the other side of a wall. There is no line of sight and the enemy still takes 8 damage.",
+      "sources": [
+        "scripts/dragon_trophy_rules.gd:62",
+        "scripts/combat_engine.gd:1325"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F15 PASS {\"enemy_hp\":32,\"line_of_sight\":false}"
+      }
+    },
+    {
+      "id": "F16",
+      "card_id": "thunderstone",
+      "name": "Thunderstone",
+      "frequency": "edge",
+      "surface": "Ranged panel",
+      "rendered_text": "Deal 5 damage to a target within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "The card's ranged route explicitly ignores line of sight to a visible target.",
+      "scenario": "Target a visible enemy on the other side of a wall. There is no line of sight and the enemy still takes 5 damage.",
+      "sources": [
+        "scripts/dragon_trophy_rules.gd:62",
+        "scripts/combat_engine.gd:1325"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F16 PASS {\"enemy_hp\":35,\"line_of_sight\":false}"
+      }
+    },
+    {
+      "id": "F17",
+      "card_id": "meteorfall",
+      "name": "Meteorfall",
+      "frequency": "edge",
+      "surface": "Ranged panel",
+      "rendered_text": "Deal 8 damage to a target within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "The cast aims a center. At impact the damage uses saved Marked tiles and checks occupants without measuring fresh Range or sight.",
+      "scenario": "Aim at distance 4 with an enemy standing on the far end of the mark line at distance 5. The saved mark hits that enemy for 8.",
+      "sources": [
+        "scripts/combat_engine.gd:1360",
+        "scripts/surface_card_rules.gd:503",
+        "scripts/surface_card_rules.gd:536"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F17 PASS {\"aim_distance\":4,\"enemy_distance\":5,\"enemy_hp\":32,\"marks\":[\"(5, 4)\",\"(6, 4)\",\"(7, 4)\"]}"
+      }
+    },
+    {
+      "id": "F18",
+      "card_id": "meteorfall",
+      "name": "Meteorfall",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Mark 3 tiles within Range 4. At the start of your next turn, deal 8 damage on each Marked tile, then leave Fire.",
+      "diagrams": [],
+      "behavior": "Range 4 is the center selection limit. The saved marks extend beyond the center.",
+      "scenario": "In an open corridor aim at distance 4. The three marked tiles lie at distances 3, 4 and 5.",
+      "sources": [
+        "scripts/combat_engine.gd:1360",
+        "scripts/combat_engine.gd:8948",
+        "scripts/surface_card_rules.gd:503"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F18 PASS {\"aim_distance\":4,\"marks\":[\"(5, 4)\",\"(6, 4)\",\"(7, 4)\"]}"
+      }
+    },
+    {
+      "id": "F19",
+      "card_id": "meteorfall",
+      "name": "Meteorfall",
+      "frequency": "edge",
+      "surface": "Range panel",
+      "rendered_text": "Mark tiles within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "Range and line of sight constrain center selection. The other marked tiles are taken from the area at that center.",
+      "scenario": "Select the legal distance-4 center. A tile at distance 5 is marked.",
+      "sources": [
+        "data/card_panel_text.json:506",
+        "scripts/combat_engine.gd:1360",
+        "scripts/surface_card_rules.gd:503"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F19 PASS {\"aim_distance\":4,\"mark_at_distance_5\":\"(7, 4)\"}"
+      }
+    },
+    {
+      "id": "F20",
+      "card_id": "cinder_wall",
+      "name": "Cinder Wall",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Leave Fire on 4 tiles within Range 2, then gain 4 Block. On Fire: +4 Block.",
+      "diagrams": [],
+      "behavior": "The Range 2 check applies to the aim tile. The pattern can place Fire on floor farther away.",
+      "scenario": "Aim straight down an open corridor at distance 2. The resulting Fire occupies distances 1 through 4.",
+      "sources": [
+        "scripts/combat_engine.gd:1227",
+        "scripts/combat_engine.gd:8835",
+        "scripts/combat_engine.gd:12062"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F20 PASS {\"affected\":[\"(3, 4)\",\"(4, 4)\",\"(5, 4)\",\"(6, 4)\"],\"aim\":\"(4, 4)\",\"card\":\"cinder_wall\",\"out_of_range\":\"(5, 4)\"}"
+      }
+    },
+    {
+      "id": "F21",
+      "card_id": "frost_lane",
+      "name": "Frost Lane",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Leave Ice on 3 tiles within Range 3, then Draw 1.",
+      "diagrams": [],
+      "behavior": "The Range 3 check applies to the aim tile. The pattern can place Ice on floor farther away.",
+      "scenario": "Aim straight down an open corridor at distance 3. The resulting Ice occupies distances 2 through 4.",
+      "sources": [
+        "scripts/combat_engine.gd:1227",
+        "scripts/combat_engine.gd:8835",
+        "scripts/combat_engine.gd:12062"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F21 PASS {\"affected\":[\"(4, 4)\",\"(5, 4)\",\"(6, 4)\"],\"aim\":\"(5, 4)\",\"card\":\"frost_lane\",\"out_of_range\":\"(6, 4)\"}"
+      }
+    },
+    {
+      "id": "F22",
+      "card_id": "lamp_oil",
+      "name": "Lamp Oil",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Consume. Leave Fire on 3 tiles within Range 3.",
+      "diagrams": [],
+      "behavior": "The Range 3 check applies to the aim tile. The pattern can place Fire on floor farther away.",
+      "scenario": "Aim straight down an open corridor at distance 3. The resulting Fire occupies distances 2 through 4.",
+      "sources": [
+        "scripts/combat_engine.gd:1227",
+        "scripts/combat_engine.gd:8835",
+        "scripts/combat_engine.gd:12062"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F22 PASS {\"affected\":[\"(4, 4)\",\"(5, 4)\",\"(6, 4)\"],\"aim\":\"(5, 4)\",\"card\":\"lamp_oil\",\"out_of_range\":\"(6, 4)\"}"
+      }
+    },
+    {
+      "id": "F23",
+      "card_id": "earthen_rampart",
+      "name": "Earthen Rampart",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Raise Outcrops on 3 tiles within Range 2, then gain 3 Stoneskin. Empower for Exhaust: 5 tiles.",
+      "diagrams": [],
+      "behavior": "Range 2 limits the aim. The individual Outcrop locations are taken from the line around that aim.",
+      "scenario": "On open floor aim along a row at distance 2. The card raises Outcrops at distances 1, 2 and 3.",
+      "sources": [
+        "data/cards.json:6197",
+        "scripts/combat_engine.gd:1283",
+        "scripts/combat_engine.gd:1771"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F23 PASS {\"aim\":\"(4, 4)\",\"out_of_range\":\"(5, 4)\",\"outcrops\":[\"(3, 4)\",\"(4, 4)\",\"(5, 4)\"]}"
+      }
+    },
+    {
+      "id": "F24",
+      "card_id": "grapple",
+      "name": "Grapple",
+      "frequency": "edge",
+      "surface": "Inspection sentence",
+      "rendered_text": "Blink to a tile adjacent to an enemy, Outcrop or crate within Range 4.",
+      "diagrams": [],
+      "behavior": "The destination check accepts adjacency to any live terrain. The current game includes player-placed powder kegs.",
+      "scenario": "Place a keg and Blink to a tile adjacent only to that keg, with no enemy, crate or Outcrop adjacent to the destination.",
+      "sources": [
+        "scripts/maneuver_rules.gd:700",
+        "scripts/maneuver_rules.gd:713",
+        "scripts/terrain_card_rules.gd:31"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F24 PASS {\"landed\":\"(4, 4)\",\"only_adjacent_target\":\"powder_keg\"}"
+      }
+    },
+    {
+      "id": "F25",
+      "card_id": "jaw_trap",
+      "name": "Jaw Trap",
+      "frequency": "edge",
+      "surface": "Inspection sentence with Alchemist’s Retort",
+      "rendered_text": "Deal 2 damage at Range 3 and Immobilize.",
+      "diagrams": [],
+      "behavior": "The relic increases the damage to 3 and leaves Range at 2. The inspection binder places the Range value in the damage slot and damage in the Range slot.",
+      "scenario": "Equip Alchemist’s Retort. Read Jaw Trap in the item detail and play it on a distance-2 crawler. The face and runtime are damage 3 and Range 2.",
+      "sources": [
+        "data/relics.json:2628",
+        "scripts/item_rules_text.gd:16",
+        "scripts/item_rules_text.gd:52",
+        "scripts/run_scene.gd:30987",
+        "scripts/combat_engine.gd:1325"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F25 PASS {\"enemy_hp\":37,\"inspection\":\"Consume. Deal 2 damage at Range 3 and Immobilize.\",\"range\":2.0}"
+      }
+    },
+    {
+      "id": "F26",
+      "card_id": "frost_circuit",
+      "name": "Frost Circuit",
+      "frequency": "edge",
+      "surface": "Ranged panel",
+      "rendered_text": "Deal 2 damage to a target within Range and line of sight.",
+      "diagrams": [],
+      "behavior": "The chosen tile has Range 3. Converting a connected Ice component hits each enemy touching the converted tiles without a new Range or sight check.",
+      "scenario": "Aim at adjacent Ice while a continuous Ice line leads to a hidden enemy four tiles away. The far tile converts and the enemy takes 2 damage.",
+      "sources": [
+        "scripts/surface_card_rules.gd:44",
+        "scripts/surface_card_rules.gd:313",
+        "scripts/surface_card_rules.gd:333",
+        "scripts/surface_card_rules.gd:346"
+      ],
+      "proof": {
+        "status": "headless",
+        "log": "probe.log",
+        "marker": "TXT25 WITNESS F26 PASS {\"aim_distance\":1,\"enemy_hp\":38,\"hit_distance\":4}"
+      }
+    }
+  ],
+  "borderline": [
+    {
+      "cards": [
+        "immolation",
+        "phoenix_cleave",
+        "rekindle_edge",
+        "shatter_swing",
+        "worldbreak"
+      ],
+      "reason": "The generic Burst panel highlights the source plus four neighbors. The card face or sentence says the card spares you. The diagram asserts an area and no longer says you are among the direct victims. A separate keg or trap can still hit you.",
+      "sources": [
+        "scripts/burst_rules.gd:54",
+        "scripts/combat_engine.gd:12574",
+        "scripts/combat_engine.gd:12643"
+      ]
+    },
+    {
+      "cards": [
+        "discharge",
+        "flashsteam",
+        "immolation",
+        "inferno_ritual",
+        "phoenix_cleave",
+        "plasma_arc",
+        "wildfire_halo"
+      ],
+      "reason": "Each named fuel tile supplies a Burst footprint. A unit in two footprints takes one hit for the combined area under the default rules. The current wording names each source without promising a repeated hit when footprints overlap.",
+      "sources": [
+        "scripts/burst_rules.gd:39",
+        "scripts/burst_rules.gd:54",
+        "scripts/combat_engine.gd:12566"
+      ]
+    },
+    {
+      "cards": [
+        "salamander_heart",
+        "cinder_trail"
+      ],
+      "reason": "Under R23, Fire is the ground term in these sentences. Fire-ground contact really does no damage while protected. A broad reading that includes a separate Burst fueled by Fire would conflict with the resolver. Candidate 4's sentences give that attack its own Burst term.",
+      "sources": [
+        "spec/card_text_style.md:59",
+        "scripts/rite_rules.gd:136",
+        "scripts/combat_engine.gd:12598"
+      ]
+    },
+    {
+      "cards": [
+        "cinderline_tempo",
+        "frost_heave",
+        "hush_of_winter",
+        "plasma_arc",
+        "pyroclasm",
+        "shatter",
+        "skybolt",
+        "thunderstone"
+      ],
+      "reason": "Enemy chips and enemy-first Range help describe the ordinary aim. Ranged also accepts selectable terrain or traps, and Lightning can offer a conductive aim tile. Treat the extra board targets as omissions in the short copy. The affirmative line-of-sight restriction on the two trophies is separately listed.",
+      "sources": [
+        "scripts/combat_engine.gd:1325",
+        "scripts/combat_engine.gd:1412"
+      ]
+    },
+    {
+      "cards": [
+        "cyclone_seal"
+      ],
+      "reason": "The Ranged 9 panel can be read as an independent sight or Range gate on the final hit. The card does require sight and Range 3 to choose its center. The two diagrams and the sentence tie the hit to that center instead of a new target selection.",
+      "sources": [
+        "scripts/maneuver_rules.gd:254",
+        "scripts/combat_engine.gd:1612",
+        "scripts/combat_engine.gd:1352"
+      ]
+    },
+    {
+      "cards": [
+        "eye_of_the_storm",
+        "static_mantle",
+        "barbed_mail",
+        "battle_rhythm",
+        "brace_the_spear",
+        "bristle",
+        "deflect",
+        "riposte_lunge",
+        "spike_check",
+        "undertaker_stand"
+      ],
+      "reason": "The cards use “in melee.” Retaliate treats melee attacks and attacks launched from adjacent tiles as melee contact. An adjacent ranged hit can trigger it. Read “in melee” as in melee contact in the short panels, with the glossary supplying the precise test.",
+      "sources": [
+        "data/glossary.json:315",
+        "scripts/retaliate_rules.gd:61"
+      ]
+    },
+    {
+      "cards": [
+        "borrowed_spark",
+        "glassbone_guard",
+        "phoenix_cleave",
+        "reprise",
+        "thorn_crown_pact"
+      ],
+      "reason": "The Health cost is presented first and paid at commitment after the effects. The sentences use a separate cost command without “then” to specify an execution order.",
+      "sources": [
+        "scripts/combat_engine.gd:2050",
+        "scripts/combat_engine.gd:2104"
+      ]
+    },
+    {
+      "cards": [
+        "glacier_salts",
+        "spark_focus",
+        "hoarfrost_shell",
+        "molten_reach",
+        "volt_surge",
+        "windlass_volley"
+      ],
+      "reason": "“At Range N” on a patterned action conventionally describes the aim. Glacier Salts says “within Range 3” without attaching a tile count, so it can still describe where you can aim. The findings distinguish sentences that put an explicit number of affected tiles within the Range limit.",
+      "sources": [
+        "scripts/combat_engine.gd:1227",
+        "scripts/combat_engine.gd:8925"
+      ]
+    },
+    {
+      "cards": [
+        "thorn_crown_pact"
+      ],
+      "reason": "“Gain Retaliate 4 each turn” describes the effective ongoing amount. Runtime adds a persistent +4 when totaling Retaliate instead of depositing a fresh stack each turn. It is already effective the turn you play the Rite.",
+      "sources": [
+        "scripts/retaliate_rules.gd:41",
+        "scripts/rite_rules.gd:32"
+      ]
+    },
+    {
+      "cards": [
+        "vortex",
+        "cyclone_seal"
+      ],
+      "reason": "The diagram marks the center as a reference. The prose “within” includes the center geometrically, but an enemy at the center has no direction toward it. There is no promise to move that enemy elsewhere.",
+      "sources": [
+        "scripts/maneuver_rules.gd:190"
+      ]
+    }
+  ],
+  "crd28_rejudgement": [
+    {
+      "row": 1,
+      "old_label": "P010 · Card Play",
+      "label": "P010 · Card Play",
+      "verdict": "omission only",
+      "reason": "Ordinary plays spend one and eligible player-card kills award one. Waivers, kill credit and summoned enemies are exceptions.",
+      "sources": [
+        "scripts/combat_engine.gd:2096"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 2,
+      "old_label": "P057 · Petrify",
+      "label": "P057 · Petrify",
+      "verdict": "fixed",
+      "reason": "The card and its panel now describe Stagger, with no Skip or Block promise.",
+      "sources": [
+        "scripts/combat_engine.gd:1799"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 3,
+      "old_label": "P068 · Quicken",
+      "label": "P068 · Quicken 1",
+      "verdict": "omission only",
+      "reason": "The 1-Time floor limits the discount.",
+      "sources": [
+        "scripts/tempo_rules.gd:52"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 4,
+      "old_label": "P069 · Quicken",
+      "label": "P069 · Quicken 2",
+      "verdict": "omission only",
+      "reason": "The 1-Time floor limits the discount.",
+      "sources": [
+        "scripts/tempo_rules.gd:52"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 5,
+      "old_label": "P070 · Quicken",
+      "label": "P070 · Quicken 3",
+      "verdict": "omission only",
+      "reason": "The 1-Time floor limits the discount.",
+      "sources": [
+        "scripts/tempo_rules.gd:52"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 6,
+      "old_label": "P071 · Quicken",
+      "label": "P071 · Quicken 4",
+      "verdict": "omission only",
+      "reason": "The 1-Time floor limits the discount.",
+      "sources": [
+        "scripts/tempo_rules.gd:52"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 7,
+      "old_label": "P105 · Shock",
+      "label": "P105 · Skybolt Shock",
+      "verdict": "omission only",
+      "reason": "Surviving eligible enemies are Shocked. Defeat and Shock immunity are exceptions. The former custom panel has also been replaced by a Shock definition.",
+      "sources": [
+        "scripts/surface_card_rules.gd:198",
+        "scripts/combat_engine.gd:6735"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 8,
+      "old_label": "P123 · Ice",
+      "label": "P123 · Frost Circuit Ice",
+      "verdict": "fixed",
+      "reason": "The connected Ice traversal includes concealed tiles. The old conversion body is also gone from the focus column.",
+      "sources": [
+        "scripts/surface_card_rules.gd:313"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 9,
+      "old_label": "P124 · Ice",
+      "label": "P124 · Ice",
+      "verdict": "fixed",
+      "reason": "The panel now says Ice gives Expose 2 on entry or turn start. It makes no Chilled claim and no immediate-placement promise.",
+      "sources": [
+        "scripts/board_surface_rules.gd:166",
+        "data/glossary.json:101"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 10,
+      "old_label": "Panel P088 · `caltrops`, `flash_powder`",
+      "label": "P088 · Caltrops, Flash Powder",
+      "verdict": "fixed",
+      "reason": "Caltrops omits the zero-damage Ranged panel. Flash Powder creates Light directly and has no Ranged panel.",
+      "sources": [
+        "scripts/card_area_presentation.gd:35",
+        "data/cards.json:4653",
+        "data/cards.json:7500"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 11,
+      "old_label": "Panel P088 · `skybolt`, `thunderstone`",
+      "label": "P088 · Skybolt, Thunderstone",
+      "verdict": "still false",
+      "reason": "Both retain a generic line-of-sight restriction in the Ranged panel.",
+      "sources": [
+        "scripts/dragon_trophy_rules.gd:62"
+      ],
+      "finding_ids": [
+        "F15",
+        "F16"
+      ]
+    },
+    {
+      "row": 12,
+      "old_label": "Panel P088 · `sleet_squall`",
+      "label": "P088 · Sleet Squall",
+      "verdict": "still false",
+      "reason": "The follow-up still hits the moved enemy after the Push takes the enemy past Range 3.",
+      "sources": [
+        "scripts/combat_engine.gd:1612"
+      ],
+      "finding_ids": [
+        "F13"
+      ]
+    },
+    {
+      "row": 13,
+      "old_label": "Panel P017 · `immolation`",
+      "label": "P017 · Immolation",
+      "verdict": "fixed",
+      "reason": "The Burst panel no longer says “you included.” The card explicitly says “sparing you” and the direct Burst skips you.",
+      "sources": [
+        "data/glossary.json:69",
+        "scripts/burst_rules.gd:54"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 14,
+      "old_label": "Panel P087 · `powder_keg`, `worldspine`",
+      "label": "P087 · Powder Keg, Worldspine",
+      "verdict": "still false",
+      "reason": "Powder Keg still says Outcrop. Worldspine is fixed by its own aim-tile panel.",
+      "sources": [
+        "data/card_panel_text.json:107",
+        "data/card_panel_text.json:113"
+      ],
+      "finding_ids": [
+        "F09"
+      ]
+    },
+    {
+      "row": 15,
+      "old_label": "Inspection sentence · `lodestone_reversal`",
+      "label": "Lodestone Reversal · inspection",
+      "verdict": "still false",
+      "reason": "Electrified still goes on the original target tile.",
+      "sources": [
+        "scripts/board_attack_rules.gd:243"
+      ],
+      "finding_ids": [
+        "F01"
+      ]
+    },
+    {
+      "row": 16,
+      "old_label": "Face · `empty_husk`",
+      "label": "Empty Husk · face",
+      "verdict": "omission only",
+      "reason": "“any illusion” still requires a visible target. A hidden tile is an omitted targeting exception under this brief.",
+      "sources": [
+        "scripts/illusion_card_rules.gd:329"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 17,
+      "old_label": "Inspection sentence · `snare_coil`",
+      "label": "Snare Coil · inspection",
+      "verdict": "still false",
+      "reason": "The explicit “then” still reverses the Immobilize and Pull order.",
+      "sources": [
+        "scripts/combat_engine.gd:6753",
+        "scripts/combat_engine.gd:6764"
+      ],
+      "finding_ids": [
+        "F14"
+      ]
+    },
+    {
+      "row": 18,
+      "old_label": "Inspection sentence · `white_silence`",
+      "label": "White Silence · inspection",
+      "verdict": "fixed",
+      "reason": "The card now selects enemies on Ice and Staggers them. It no longer promises Freeze.",
+      "sources": [
+        "scripts/surface_card_rules.gd:425",
+        "scripts/surface_card_rules.gd:408"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 19,
+      "old_label": "Face and inspection sentence · `salamander_heart`",
+      "label": "Salamander Heart · face and inspection",
+      "verdict": "omission only",
+      "reason": "Fire in Candidate 4 names a ground. The immunity works for Fire contact. Other damage sources are outside that claim. See Borderline for the broader reading.",
+      "sources": [
+        "scripts/rite_rules.gd:136"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 20,
+      "old_label": "Inspection sentence · `cinder_trail`",
+      "label": "Cinder Trail · inspection",
+      "verdict": "omission only",
+      "reason": "Fireproof works for Fire contact this turn. A separate attack or Burst is a different source. See Borderline.",
+      "sources": [
+        "scripts/combat_engine.gd:12598",
+        "scripts/rite_rules.gd:136"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 21,
+      "old_label": "Inspection sentence · `skybolt`",
+      "label": "Skybolt · inspection",
+      "verdict": "omission only",
+      "reason": "Eligible direct and conducted hits carry Shock. Death and immunity are exceptions.",
+      "sources": [
+        "scripts/surface_card_rules.gd:198",
+        "scripts/combat_engine.gd:6735"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 22,
+      "old_label": "Inspection sentence · `frost_circuit`",
+      "label": "Frost Circuit · inspection",
+      "verdict": "fixed",
+      "reason": "The old traversal cutoff is gone. Immunity and defeat can still prevent Shock and are omissions under this brief.",
+      "sources": [
+        "scripts/surface_card_rules.gd:313",
+        "scripts/surface_card_rules.gd:394"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 23,
+      "old_label": "Inspection sentence · `petrify`",
+      "label": "Petrify · inspection",
+      "verdict": "fixed",
+      "reason": "The inspection now reads “Stagger 6 an enemy within Range 3.” The normal Stagger cap and dragon reduction are exceptions.",
+      "sources": [
+        "scripts/combat_engine.gd:1799",
+        "scripts/card_keyword_rules.gd:218"
+      ],
+      "finding_ids": []
+    },
+    {
+      "row": 24,
+      "old_label": "Inspection sentence · `galvanize`, `stolen_moment`, `hourglass_sand`",
+      "label": "Galvanize, Stolen Moment, Hourglass Sand · inspection",
+      "verdict": "omission only",
+      "reason": "The current sentences now use the Quicken keyword. The 1-Time floor remains an exception in the shared definition.",
+      "sources": [
+        "scripts/tempo_rules.gd:52"
+      ],
+      "finding_ids": []
+    }
+  ],
+  "crd28_card_crosswalk": [
+    {
+      "card_id": "bitter_tonic",
+      "name": "Bitter Tonic",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "borrowed_spark",
+      "name": "Borrowed Spark",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "caltrops",
+      "name": "Caltrops",
+      "verdict": "fixed",
+      "rows": [
+        10
+      ]
+    },
+    {
+      "card_id": "charged_orb",
+      "name": "Charged Orb",
+      "verdict": "omission only",
+      "rows": [
+        4
+      ]
+    },
+    {
+      "card_id": "cinder_trail",
+      "name": "Cinder Trail",
+      "verdict": "omission only",
+      "rows": [
+        20
+      ]
+    },
+    {
+      "card_id": "cloudstep_loop",
+      "name": "Cloudstep Loop",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "crank_reload",
+      "name": "Crank Reload",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "daybreak",
+      "name": "Daybreak",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "empty_husk",
+      "name": "Empty Husk",
+      "verdict": "omission only",
+      "rows": [
+        16
+      ]
+    },
+    {
+      "card_id": "flash_powder",
+      "name": "Flash Powder",
+      "verdict": "fixed",
+      "rows": [
+        10
+      ]
+    },
+    {
+      "card_id": "flashsteam",
+      "name": "Flashsteam",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frost_circuit",
+      "name": "Frost Circuit",
+      "verdict": "fixed",
+      "rows": [
+        8,
+        22
+      ]
+    },
+    {
+      "card_id": "frost_heave",
+      "name": "Frost Heave",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frost_lane",
+      "name": "Frost Lane",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frost_nova",
+      "name": "Frost Nova",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frost_snare",
+      "name": "Frost Snare",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frostbolt",
+      "name": "Frostbolt",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "frozen_bite",
+      "name": "Frozen Bite",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "galvanize",
+      "name": "Galvanize",
+      "verdict": "omission only",
+      "rows": [
+        4,
+        24
+      ]
+    },
+    {
+      "card_id": "gathering_rhythm",
+      "name": "Gathering Rhythm",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "glacier_pin",
+      "name": "Glacier Pin",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "glacier_salts",
+      "name": "Glacier Salts",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "glide",
+      "name": "Glide",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "guarded_step",
+      "name": "Guarded Step",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "headsmans_toll",
+      "name": "Headsman's Toll",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "hoarfrost_shell",
+      "name": "Hoarfrost Shell",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "hoarfrost_wall",
+      "name": "Hoarfrost Wall",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "hoarfrost_ward",
+      "name": "Hoarfrost Ward",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "hourglass_sand",
+      "name": "Hourglass Sand",
+      "verdict": "omission only",
+      "rows": [
+        6,
+        24
+      ]
+    },
+    {
+      "card_id": "ice_sculpture",
+      "name": "Ice Sculpture",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "immolation",
+      "name": "Immolation",
+      "verdict": "fixed",
+      "rows": [
+        13
+      ]
+    },
+    {
+      "card_id": "kept_breath",
+      "name": "Kept Breath",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "loaded_toss",
+      "name": "Loaded Toss",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "locket_chill",
+      "name": "Locket Chill",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "lodestone_reversal",
+      "name": "Lodestone Reversal",
+      "verdict": "still false",
+      "rows": [
+        15
+      ]
+    },
+    {
+      "card_id": "overclock",
+      "name": "Overclock",
+      "verdict": "omission only",
+      "rows": [
+        1
+      ]
+    },
+    {
+      "card_id": "petrify",
+      "name": "Petrify",
+      "verdict": "fixed",
+      "rows": [
+        2,
+        23
+      ]
+    },
+    {
+      "card_id": "powder_keg",
+      "name": "Powder Keg",
+      "verdict": "still false",
+      "rows": [
+        14
+      ]
+    },
+    {
+      "card_id": "rime_hack",
+      "name": "Rime Hack",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "rime_shard",
+      "name": "Rime Shard",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "rime_step",
+      "name": "Rime Step",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "rimefang",
+      "name": "Rimefang",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "rimeplate_lock",
+      "name": "Rimeplate Lock",
+      "verdict": "fixed",
+      "rows": [
+        9
+      ]
+    },
+    {
+      "card_id": "salamander_heart",
+      "name": "Salamander Heart",
+      "verdict": "omission only",
+      "rows": [
+        19
+      ]
+    },
+    {
+      "card_id": "skybolt",
+      "name": "Skybolt",
+      "verdict": "still false",
+      "rows": [
+        7,
+        11,
+        21
+      ]
+    },
+    {
+      "card_id": "sleet_squall",
+      "name": "Sleet Squall",
+      "verdict": "still false",
+      "rows": [
+        12
+      ]
+    },
+    {
+      "card_id": "snare_coil",
+      "name": "Snare Coil",
+      "verdict": "still false",
+      "rows": [
+        17
+      ]
+    },
+    {
+      "card_id": "spur_spark",
+      "name": "Spur Spark",
+      "verdict": "omission only",
+      "rows": [
+        3
+      ]
+    },
+    {
+      "card_id": "static_rush",
+      "name": "Static Rush",
+      "verdict": "omission only",
+      "rows": [
+        4
+      ]
+    },
+    {
+      "card_id": "stolen_moment",
+      "name": "Stolen Moment",
+      "verdict": "omission only",
+      "rows": [
+        5,
+        24
+      ]
+    },
+    {
+      "card_id": "thunderstone",
+      "name": "Thunderstone",
+      "verdict": "still false",
+      "rows": [
+        11
+      ]
+    },
+    {
+      "card_id": "white_silence",
+      "name": "White Silence",
+      "verdict": "fixed",
+      "rows": [
+        18
+      ]
+    },
+    {
+      "card_id": "worldspine",
+      "name": "Worldspine",
+      "verdict": "fixed",
+      "rows": [
+        14
+      ]
+    }
+  ],
+  "style": [
+    {
+      "cards": [
+        "worldroot_stride"
+      ],
+      "surface": "Inspection sentence",
+      "text": "Leave Rubble under you.",
+      "rule": "R25",
+      "reason": "The fixed vocabulary uses “your tile.”"
+    },
+    {
+      "cards": [
+        "vortex"
+      ],
+      "surface": "Inspection sentence",
+      "text": "Pull each enemy within 2 tiles of the chosen tile 2 tiles toward that tile.",
+      "rule": "R12 and R25",
+      "reason": "“The chosen tile” is reserved for definitions. The card sentence uses the selected tile as its target."
+    },
+    {
+      "cards": [
+        "frost_circuit"
+      ],
+      "surface": "Face and inspection sentence",
+      "text": "On Ice: do the same on each connected Ice tile.",
+      "rule": "R21",
+      "reason": "“Do the same” substitutes a general verb for the repeated game actions."
+    },
+    {
+      "cards": [
+        "serrated_slip"
+      ],
+      "surface": "Face sentence",
+      "text": "If the target is already Exposed: ++4.",
+      "rule": "R18",
+      "reason": "The authored text adds a leading plus and the renderer adds another before the bonus damage icon. The intended number is still 4."
+    }
+  ],
+  "skipped_ids": [
+    {
+      "card_id": "bone_dart",
+      "replacement": "pale_spark",
+      "reason": "Retired definition. The live resolver returns the replacement definition."
+    },
+    {
+      "card_id": "ember_jab",
+      "replacement": "backhand_nick",
+      "reason": "Retired definition. The live resolver returns the replacement definition."
+    },
+    {
+      "card_id": "cinderburst",
+      "replacement": "ember_rain",
+      "reason": "Retired definition. The live resolver returns the replacement definition."
+    },
+    {
+      "card_id": "gate_gambit",
+      "replacement": "trapdoor",
+      "reason": "Retired definition. The live resolver returns the replacement definition."
+    }
+  ],
+  "todo_design": [],
+  "chosen_defaults": [
+    "The semantic export instantiates the existing 250×352 CardWidget to resolve sentence faces.",
+    "The probes use the existing Surface Test room and seed, a clear floor position at (2,4), 40-Health Tunnel Crawlers, and authored cards. Scenario positions are local constants in probe_claims.gd."
+  ],
+  "open_issues": [
+    "Geometry and text were checked headlessly. Pixel layout, clipping and tooltip-loop video are outside this audit.",
+    "A diagnostic export produced 1,846 numeric-upgrade previews across 281 non-item IDs. The live launcher opens Skills, purchasing is disabled and combat definitions ignore legacy card_mods. The exported diagnostic previews are unreachable.",
+    "The variant review includes authored Follow-up and Empower copy, saved-run starters and the two item relics named in the inventory. Other interactions were examined where a claim required them."
+  ],
+  "proof": {
+    "inventory": [
+      "TXT25 INVENTORY: 305 live cards, 4 retired IDs, 952 catalog panels, 40 hand differences, 22 item variants",
+      "TXT25 LEGACY: 8 resumable starter variants"
+    ],
+    "runtime": [
+      "TXT25 WITNESS RESULT: PASS (29 witnesses, 0 failures)"
+    ],
+    "python": [
+      "INPUT GROUP default: always run",
+      "SELECTED MODULES: 23 of 59",
+      "Ran 196 tests in 31.294s",
+      "OK"
+    ],
+    "lint": [
+      "Ran 3 tests in 0.047s",
+      "OK",
+      "PASS: Rules text lint (16 existing hits)",
+      "Hits by rule: sentence_start=1, pronoun=11, hedge=0, semicolon=2, spaced_dash=0, article=0, vocabulary=2"
+    ]
+  }
+}

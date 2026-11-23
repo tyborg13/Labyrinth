@@ -86,7 +86,7 @@ func _run_layout_proof() -> void:
 	_expect(leader != null, "Boss must be marked LEADER")
 	var objective: Dictionary = instance.get("_pre_battle_preview_run_state")["combat_state"]["objective"]
 	var plate := panel.find_child("PreBattleObjectiveChip", true, false) as Control
-	_expect(str(plate.get_meta("objective_title")) == preload("res://scripts/combat_objective_rules.gd").title_for_objective(objective), "Boss name must preserve the live objective title")
+	_expect(str(plate.get_meta("objective_title")) == preload("res://scripts/combat_objective_rules.gd").hud_title_for_objective(objective), "Boss name must preserve the live objective title")
 	await _layout_capture(instance, "boss")
 	instance.queue_free()
 	await process_frame

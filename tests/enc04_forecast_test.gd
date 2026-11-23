@@ -116,7 +116,7 @@ func _compare(engine: RefCounted, state: Dictionary, label: String) -> void:
 	var action: Dictionary = Lob.landing_action(engine, committed, enemy)
 	var numbers: Array = [int(action["center_damage"]), int(action["arm_damage"])]
 	var aiming_expected: String = "Lob Slag next turn · %d / %d" % numbers
-	var aiming_rule: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. Next turn they take the hit and become Fire." if count > 1 else "@pattern(cross:hero) On your tile. Next turn they take the hit and become Fire."
+	var aiming_rule: String = "@pattern(cross:hero) @pattern(cross) On your tile and 2 tiles away. On this enemy's next turn, this enemy hits each Marked tile and leaves Fire." if count > 1 else "@pattern(cross:hero) On your tile. On this enemy's next turn, this enemy hits each Marked tile and leaves Fire."
 	var landing_expected: String = "Lob Slag · %d / %d" % numbers
 	_expect(aiming_copy == aiming_expected and aiming_tooltip == aiming_rule, label + ": aiming copy counts what commits")
 	_expect(board.enemy_intent_tooltip("enemy_%d" % int(enemy["id"])) == aiming_rule, label + ": full tooltip counts what commits and omits the separate order")

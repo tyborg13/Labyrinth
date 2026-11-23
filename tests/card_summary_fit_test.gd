@@ -62,7 +62,7 @@ func _run() -> void:
 		# warm-up only: no geometry is measured here. Every measured batch below
 		# must independently satisfy the unchanged three-frame / three-second cap.
 		var warmup: Dictionary = await Settle.wait_for(self, faces)
-		var summary: Dictionary = {"context": context["id"], "warmup_settled": warmup["settled"], "samples": 0, "worst_margin_px": null, "floor_failures": 0, "overflow_count": 0, "vertical_overflow_count": 0, "changed_samples": 0}
+		var summary: Dictionary = {"context": context["id"], "warmup_settled": warmup["settled"], "samples": 0, "worst_margin_px": null, "floor_failures": 0, "overflow_count": 0, "vertical_overflow_count": 0, "changed_samples": 0, "sentence_faces": 0}
 		# This layout contract deliberately exercises base AND upgraded definitions
 		# even on ID-only builders, without claiming their production provenance.
 		for start: int in range(0, entries.size(), pool.workers.size()):
@@ -84,7 +84,7 @@ func _run() -> void:
 				# upgraded CardWidget faces are covered in the graftwright context;
 				# there is no summary row in this popover to override or wrap.
 				var definition: Dictionary = Audit.Data.card_def(entry["id"]) if context["factory"] == "rules_tooltip" else entry["definition"]
-				var measured: Dictionary = Measure.measure(faces[index], definition)
+				var measured: Dictionary = Measure.measure(faces[index], definition, context)
 				samples[key] = measured
 				context_samples[key] = measured
 				summary["samples"] += 1
@@ -94,17 +94,20 @@ func _run() -> void:
 				_expect(float(measured["overflow_y"]) <= Audit.EPSILON, "Complete item bounds stay inside the card: " + key + " overflow_y=" + str(measured["overflow_y"]))
 				summary["vertical_overflow_count"] += int(float(measured["overflow_y"]) > Audit.EPSILON)
 				var margin: Variant = measured["margin_px"]
-				var fits: bool = margin == null or float(margin) + Audit.EPSILON >= Measure.EDGE_INSET_PX
+				var fits: bool = Measure.fits(measured)
+				var sentence_face: bool = measured["layout"] == "sentence face"
+				summary["sentence_faces"] += int(sentence_face)
 				if margin != null:
 					summary["worst_margin_px"] = margin if summary["worst_margin_px"] == null else minf(summary["worst_margin_px"], margin)
 				if not fits:
 					summary["overflow_count"] += 1
 					if Baseline.NAMED_CARDS.has(entry["id"]):
 						regression_failures[entry["id"]] = true
-				if not baseline: _expect(fits, key + " parchment margin: " + str(margin))
+				if not baseline:
+					_expect(fits, key + (" sentence face fit: " + str(measured["sentence"]) if sentence_face else " parchment margin: " + str(margin)))
 				if not baseline and Baseline.pinned(key):
 					_expect(before.has(key), "Committed before sample exists: " + key)
-					if before.has(key):
+					if before.has(key) and not sentence_face:
 						var previous: Dictionary = before[key]
 						var identical: bool = previous["layout"] == measured["layout"]
 						if not identical:
@@ -118,7 +121,7 @@ func _run() -> void:
 		summary["validation_failure_count"] = failures.size() - context_failure_start
 		var checkpoint: Dictionary = {"baseline": baseline, "widget_sha256": (Audit.Card as Script).source_code.sha256_text(), "harness_sha256": (get_script() as Script).source_code.sha256_text(), "pool_sha256": (Pool as Script).source_code.sha256_text(), "catalog_sha256": catalog_sha256, "expected_contexts": expected_contexts, "definitions": entries.size(), "context": summary, "samples": context_samples, "regression_failures": regression_failures, "changed_card_ids": changed.keys(), "checks": checks - context_check_start, "failures": failures.slice(context_failure_start)}
 		_save_json(output + ".contexts/" + str(context["id"]) + ".json", checkpoint)
-		print("CARD SUMMARY CONTEXT: %s samples=%d worst_margin_px=%s overflow=%d floor_failures=%d changed=%d" % [summary["context"], summary["samples"], str(summary["worst_margin_px"]), summary["overflow_count"], summary["floor_failures"], summary["changed_samples"]])
+		print("CARD SUMMARY CONTEXT: %s samples=%d worst_margin_px=%s overflow=%d floor_failures=%d changed=%d sentence_faces=%d" % [summary["context"], summary["samples"], str(summary["worst_margin_px"]), summary["overflow_count"], summary["floor_failures"], summary["changed_samples"], summary["sentence_faces"]])
 		print("CARD SUMMARY CONTEXT RUNTIME: %s %.3fs" % [summary["context"], float(Time.get_ticks_msec() - context_started) / 1000.0])
 	if baseline and _argument("--only-context").is_empty():
 		for id: String in Baseline.NAMED_CARDS:

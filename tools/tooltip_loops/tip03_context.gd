@@ -8,7 +8,6 @@ const TooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const Fixture = preload("res://tools/tooltip_loops/fixture.gd")
 const Data = preload("res://scripts/game_data.gd")
 const RecordBoard = preload("res://tools/tooltip_loops/record_board.gd")
-const CARD_CONTEXT_PROOF_ID: String = "shatter" # Debug-only existing card with a Frozen condition.
 const Inspection = preload("res://scripts/pre_battle_inspection_view.gd")
 
 static func verify(proof: SceneTree, path: String) -> void:
@@ -106,48 +105,20 @@ static func _status_ownership(proof: SceneTree) -> void:
 static func _new_contexts(proof: SceneTree) -> void:
 	var playback = preload("res://tools/tooltip_loops/playback.gd")
 	var viewport: SubViewport = playback.canvas(proof)
-	for id: String in ["lightning_strikes", "freeze_status"]:
-		var fixture: Dictionary = Fixture.build(id)
-		var result: Dictionary = Fixture.plan(fixture, preload("res://scripts/hero_facing_combat.gd").new())
-		var scene: Node = await playback.instance(proof, viewport, fixture, false)
-		var term: String = "freeze" if id == "freeze_status" else "lightning_strikes"
-		var global: Control = TooltipPanel.make_text(Icons.tooltip(term))
-		if id == "freeze_status": _expect_loop(proof, global, id, "global keyword")
-		else: proof._expect(global.find_child("TooltipLoopWindow", true, false) == null, "Anonymous Lightning Strikes stays text-only")
-		global.free()
-		if id == "lightning_strikes":
-			var hud: Control = scene.get("_battlefield_rule_hud")
-			proof._expect(hud.rule_id == "lightning_storm" and hud.visible, "Real battlefield rule HUD is present")
-			var panel: Control = hud._make_custom_tooltip(hud.tooltip_text)
-			_expect_loop(proof, panel, id, "battlefield rule HUD")
-			panel.free()
-			var shown: Dictionary = playback.rule_presentation(scene, result["beats"][1])
-			proof._expect(shown["effect"]["kind"] == "lightning_strikes" and shown["effect"]["tiles"].size() == 2, "Stock lightning painter strikes occupied and empty Electrified tiles")
-			proof._expect(shown["floating_texts"].size() == 1 and RecordBoard.audit_number_label(shown["floating_texts"][0]) == "-3", "Real room-rule loss number is shown only on the Crawler")
-		else:
-			var rows: Array = Icons.rows_for_actions(Data.card_def(CARD_CONTEXT_PROOF_ID)["actions"])
-			var stack: Control = scene.get("_card_focus_tooltip_stack")
-			stack.show_for(scene.call("_hand_card_control", 0), Icons.tooltip_entries_for_rows(rows))
-			_expect_loop(proof, stack, id, "Existing Frozen-condition card keyword stack")
-			stack.hide_stack()
-			var frozen: Dictionary = result["beats"][0]["after"]
-			scene.call("_render_board_state", frozen, {})
-			var board: Control = scene.get("board_view")
-			var found: bool = false
-			for unit: Dictionary in board.plate_visibility.actors():
-				for entry: Dictionary in board.plate_visibility.status_entries(unit):
-					var text: String = str(entry.get("tooltip", ""))
-					if Context.term_in(text, {}) != "freeze": continue
-					board._last_pointer_position = (entry["rect"] as Rect2).get_center()
-					var panel: Control = board._make_custom_tooltip(text)
-					_expect_loop(proof, panel, id, "Frozen status plate")
-					panel.free()
-					found = true
-			proof._expect(found, "Frozen Bite's real Freeze status plate exists")
-			var texts: Array = scene.call("_player_damage_floating_texts", frozen, result["final"])
-			proof._expect(texts.size() == 1 and RecordBoard.audit_number_label(texts[0]) == "-18", "30 HP fixture shows the full production tripled hit")
-			print("TIP03 FREEZE: production popup -18; target survives")
-		scene.queue_free()
-		await proof.process_frame
+	var id: String = "lightning_strikes"
+	var fixture: Dictionary = Fixture.build(id)
+	var result: Dictionary = Fixture.plan(fixture, preload("res://scripts/hero_facing_combat.gd").new())
+	var scene: Node = await playback.instance(proof, viewport, fixture, false)
+	var global_panel: Control = TooltipPanel.make_text(Icons.tooltip(id))
+	proof._expect(global_panel.find_child("TooltipLoopWindow", true, false) == null, "Anonymous Lightning Strikes stays text-only")
+	global_panel.free()
+	var hud: Control = scene.get("_battlefield_rule_hud")
+	proof._expect(hud.rule_id == "lightning_storm" and hud.visible, "Real battlefield rule HUD is present")
+	var panel: Control = hud._make_custom_tooltip(hud.tooltip_text)
+	_expect_loop(proof, panel, id, "battlefield rule HUD")
+	panel.free()
+	var shown: Dictionary = playback.rule_presentation(scene, result["beats"][1])
+	proof._expect(shown["effect"]["kind"] == "lightning_strikes" and shown["effect"]["tiles"].size() == 2, "Stock lightning painter strikes occupied and empty Electrified tiles")
+	proof._expect(shown["floating_texts"].size() == 1 and RecordBoard.audit_number_label(shown["floating_texts"][0]) == "-3", "Real room-rule loss number is shown only on the Crawler")
 	viewport.queue_free()
 	await proof.process_frame

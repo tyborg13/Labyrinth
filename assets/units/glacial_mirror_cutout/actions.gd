@@ -8,7 +8,7 @@ const Floating = preload("res://scripts/floating_combat_text.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 
 static func clip_for(step: Dictionary, actor: Dictionary) -> String:
-	# Existing resolver snapshots call the beam "refraction" and address a
+	# Existing resolver snapshots call the attack "refraction" and address a
 	# single-target ward to its recipient. Normalize selection only; render
 	# and apply the untouched resolver step.
 	var selector: Dictionary = step.duplicate(false)
@@ -32,6 +32,14 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var reduced: bool = scene._reduced_motion_enabled()
 	var count: int = 1 if reduced else Action.frames_for(type, clip)
 	var before: Dictionary = state.duplicate(true)
+	var flight: Reflect.RefractionFlight
+	var contact_frame: int
+	var release_frame: int
+	if clip == "refraction":
+		contact_frame = 1 if reduced else 1 + ceili(contact * maxi(1, count - 1))
+		release_frame = Reflect.refraction_release_frame(step, count, contact_frame)
+		flight = Reflect.RefractionFlight.new(scene.board_view, before, step)
+		Reflect.move_refraction_reservation(scene._tile_burst_adapter_contact, step)
 	var key: String = str(step.get("source_actor_key", step["actor_key"]))
 	var direction: Vector2i = step.get("to", step.get("tile", state["player"]["pos"])) - step.get("from", actor.get("pos", Vector2i.ZERO))
 	var feedback: Dictionary = scene._enemy_phase_status_presentation(step)
@@ -49,12 +57,18 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 			scene._play_sfx(Sfx.entry_for_enemy_step(step))
 		var presentation: Dictionary = {"maquette_explicit_clip": true,
 			type + "_motion": {key: {"clip": clip, "phase": phase, "direction": direction}}}
+		var travel: float = -1.0
+		if flight != null and frame <= contact_frame:
+			travel = flight.travel_at(frame, release_frame, contact_frame)
+			flight.present(presentation, travel, reduced)
 		if phase >= contact:
 			presentation["floating_texts"] = Floating.animate_entries(texts, elapsed, reduced)
 			if clip == "guard" or reduced or elapsed < Reflect.BEAM_SECONDS:
 				presentation["effect"] = step
 				presentation["effect_progress"] = 0.0 if reduced else elapsed / (Reflect.BEAM_SECONDS if clip == "refraction" else Floating.ANIMATION_DURATION_SECONDS)
 		scene._render_board_state(state, scene._attack_feedback_death_hold_presentation(before, state, presentation), true)
+		if flight != null:
+			flight.land(scene.board_view, 1.0 if phase >= contact else travel, reduced)
 	)
 	if not texts.is_empty():
 		await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, {"floating_texts": texts}), duration * (1.0 - contact))

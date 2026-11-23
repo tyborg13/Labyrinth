@@ -22,7 +22,7 @@
     "panels": [
       {
         "title": "Cinder Marks",
-        "text": "At your next turn, the marked tiles take the damage and turn to Fire."
+        "text": "Next turn before you Draw, deal 8 damage and leave Fire on each Marked tile."
       }
     ]
   },
@@ -31,7 +31,7 @@
     "panels": [
       {
         "title": "Raise Terrain",
-        "text": "Raises an Outcrop with this much Health on each empty tile around the target."
+        "text": "Raise an Outcrop with 4 Health on each empty tile adjacent to the target."
       }
     ]
   },
@@ -40,7 +40,7 @@
     "panels": [
       {
         "title": "Raise Terrain",
-        "text": "Raises an Outcrop with this much Health that blocks movement and sight."
+        "text": "Raise an Outcrop with 3 Health that blocks movement and line of sight."
       }
     ]
   },
@@ -49,7 +49,7 @@
     "panels": [
       {
         "title": "Raise Terrain",
-        "text": "Places a powder keg with this much Health that blocks movement, not sight."
+        "text": "Place a powder keg with 3 Health that blocks movement."
       }
     ]
   },
@@ -76,7 +76,7 @@
     "panels": [
       {
         "title": "Ice",
-        "text": "The chosen Ice and all Ice connected to it become Electrified."
+        "text": "The chosen Ice tile and each Ice tile connected to that tile become Electrified."
       }
     ]
   },
@@ -85,7 +85,7 @@
     "panels": [
       {
         "title": "Light",
-        "text": "Only enemies standing in Light are hit."
+        "text": "Hit each visible enemy in Light."
       }
     ]
   },
@@ -94,7 +94,7 @@
     "panels": [
       {
         "title": "Fire",
-        "text": "Only enemies standing on Fire are hit."
+        "text": "Hit each visible enemy on Fire."
       }
     ]
   },
@@ -112,7 +112,7 @@
     "panels": [
       {
         "title": "Electrified",
-        "text": "Only enemies standing on Electrified ground are hit."
+        "text": "Hit each visible enemy on Electrified."
       }
     ],
     "definition": {
@@ -133,7 +133,22 @@
         "title": "Shatter",
         "text": "If the target was Frozen, deal 5 to each enemy next to it."
       }
-    ]
+    ],
+    "definition": {
+      "name": "Shatter",
+      "element": "ice",
+      "rarity": "epic",
+      "time": 5,
+      "actions": [
+        {
+          "type": "ranged",
+          "damage": 5,
+          "range": 3,
+          "element": "ice",
+          "frozen_splash": 5
+        }
+      ]
+    }
   },
   "worldspine_burst": {
     "card": "worldspine",
@@ -178,7 +193,22 @@
         "title": "If Frozen",
         "text": "This bonus applies if the target is Frozen."
       }
-    ]
+    ],
+    "definition": {
+      "name": "Shatter",
+      "element": "ice",
+      "rarity": "epic",
+      "time": 5,
+      "actions": [
+        {
+          "type": "ranged",
+          "damage": 5,
+          "range": 3,
+          "element": "ice",
+          "frozen_splash": 5
+        }
+      ]
+    }
   },
   "if_in_light": {
     "card": "blinding_bash",
@@ -221,7 +251,7 @@
     "panels": [
       {
         "title": "Block",
-        "text": "Your illusion takes all your Block as extra Health."
+        "text": "Give your Block to the Illusion as extra Health."
       }
     ]
   },
@@ -230,7 +260,7 @@
     "panels": [
       {
         "title": "Retaliate",
-        "text": "Enemies that damage this illusion take 4 Lightning damage and are Shocked."
+        "text": "Enemies that damage this Illusion take 4 damage and gain Shock."
       }
     ]
   },
@@ -239,7 +269,7 @@
     "panels": [
       {
         "title": "Retaliate",
-        "text": "Enemies that damage this illusion take that much damage too."
+        "text": "Enemies that damage this Illusion take the same damage."
       }
     ]
   },
@@ -248,7 +278,7 @@
     "panels": [
       {
         "title": "Retaliate",
-        "text": "Until your next turn, enemies that hit you in melee take 3."
+        "text": "Until your next turn, each enemy that hits you in melee takes 3 damage."
       }
     ]
   },
@@ -266,12 +296,12 @@
     "panels": [
       {
         "title": "Empower",
-        "glossary": "empower"
+        "text": "Empower for 1 Health: Expose 6."
       }
     ]
   },
   "follow_up": {
-    "card": "quick_stab",
+    "card": "bodkin_arrow",
     "panels": [
       {
         "title": "Follow-up",
@@ -284,7 +314,8 @@
     "panels": [
       {
         "title": "Expose",
-        "glossary": "expose"
+        "glossary": "expose",
+        "amount": 3
       }
     ]
   },
@@ -302,7 +333,7 @@
     "panels": [
       {
         "title": "Move",
-        "text": "Deals 1 more for each tile you moved this turn, up to 5 more."
+        "text": "Deal +1 damage per tile you moved this turn, up to +5."
       }
     ]
   },
@@ -311,7 +342,7 @@
     "panels": [
       {
         "title": "Next Attack",
-        "text": "Your next attack this turn deals 1 more per tile you moved, up to 4 more."
+        "text": "Your next attack this turn deals +1 damage per tile you moved, up to +4."
       }
     ]
   },
@@ -320,7 +351,7 @@
     "panels": [
       {
         "title": "Stoneskin",
-        "text": "Deals 1 more for each Stoneskin you have, up to 6 more."
+        "text": "Deal +1 damage for each Stoneskin you have, up to +6."
       }
     ]
   },
@@ -342,11 +373,12 @@
     "panels": [
       {
         "title": "Next Attack",
-        "text": "Your next Lightning attack this turn gains Chain 2."
+        "text": "Your next Lightning card this turn gains Chain 2."
       },
       {
         "title": "Chain",
-        "glossary": "chain"
+        "glossary": "chain",
+        "amount": 2
       }
     ]
   },
@@ -355,7 +387,7 @@
     "panels": [
       {
         "title": "Block",
-        "text": "Turn all your Block into Stoneskin."
+        "text": "Turn your Block into Stoneskin."
       },
       {
         "title": "Stoneskin",
@@ -377,7 +409,7 @@
     "panels": [
       {
         "title": "Shock",
-        "text": "Every enemy this hits is Shocked."
+        "text": "Shocked units can only Move or Blink on their next turn."
       }
     ]
   },
@@ -386,7 +418,7 @@
     "panels": [
       {
         "title": "Range",
-        "text": "Choose an Ice tile within this range and line of sight."
+        "text": "Choose an Ice tile within Range and line of sight."
       }
     ]
   },
@@ -395,7 +427,7 @@
     "panels": [
       {
         "title": "Range",
-        "text": "Place the Light within this range."
+        "text": "Place Light within Range."
       }
     ]
   },
@@ -404,7 +436,7 @@
     "panels": [
       {
         "title": "Range",
-        "text": "Place the illusion within this range."
+        "text": "Place the Illusion within Range."
       }
     ]
   },
@@ -413,7 +445,7 @@
     "panels": [
       {
         "title": "Range",
-        "text": "Place the Outcrop within this range."
+        "text": "Place the Outcrop within Range."
       }
     ]
   },
@@ -422,16 +454,58 @@
     "panels": [
       {
         "title": "Expend",
-        "text": "Removes the Ice on each pattern tile."
+        "text": "After the hit, remove Ice on each tile in the area."
       }
-    ]
+    ],
+    "definition": {
+      "name": "Flashsteam",
+      "element": "fire",
+      "rarity": "rare",
+      "time": 4,
+      "actions": [
+        {
+          "type": "aoe",
+          "damage": 3,
+          "range": 3,
+          "pattern": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              -1,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              -1
+            ]
+          ],
+          "rotate": false,
+          "element": "fire",
+          "consume": {
+            "surface": "ice",
+            "bonus_damage": 4
+          }
+        }
+      ]
+    }
   },
   "light_trail": {
     "card": "sunpath_stride",
     "panels": [
       {
         "title": "Light",
-        "text": "Creates Light of this radius on each tile you enter."
+        "glossary": "illuminate",
+        "amount": 1
       }
     ]
   },
@@ -440,7 +514,8 @@
     "panels": [
       {
         "title": "Light",
-        "text": "Creates Light of this radius at the target."
+        "glossary": "illuminate",
+        "amount": 1
       }
     ]
   },
@@ -449,7 +524,8 @@
     "panels": [
       {
         "title": "Light",
-        "text": "Creates Light of this radius where you land."
+        "glossary": "illuminate",
+        "amount": 1
       }
     ]
   },
@@ -458,7 +534,7 @@
     "panels": [
       {
         "title": "Cleanse",
-        "text": "Remove Bleed, Immobilize and Chilled from yourself."
+        "text": "Remove Immobilize and Chilled from yourself."
       }
     ]
   },
@@ -467,7 +543,8 @@
     "panels": [
       {
         "title": "Light",
-        "text": "Creates Light of this radius."
+        "glossary": "illuminate",
+        "amount": 2
       }
     ]
   },
@@ -476,7 +553,7 @@
     "panels": [
       {
         "title": "Push",
-        "text": "Pushes each enemy within 3 of you 3 tiles away."
+        "text": "Push each enemy within 3 tiles of you 3 tiles away."
       }
     ]
   },
@@ -485,7 +562,7 @@
     "panels": [
       {
         "title": "Pull",
-        "text": "Pulls each enemy within 3 of the chosen tile 3 tiles toward it."
+        "text": "Pull each enemy within 3 tiles of the tile 3 tiles toward that tile."
       }
     ]
   },
@@ -503,16 +580,39 @@
     "panels": [
       {
         "title": "Range",
-        "text": "Destroy terrain within this range."
+        "text": "Destroy terrain within Range."
       }
-    ]
+    ],
+    "definition": {
+      "name": "Rockburst",
+      "element": "earth",
+      "rarity": "common",
+      "time": 4,
+      "actions": [
+        {
+          "type": "burst_terrain",
+          "range": 3,
+          "damage": 6
+        }
+      ]
+    }
   },
   "title_sentence_range_illusion": {
     "card": "shattered_reflection",
+    "definition": {
+      "name": "Shattered Reflection",
+      "actions": [
+        {
+          "type": "destroy_illusion",
+          "range": 6,
+          "damage": 6
+        }
+      ]
+    },
     "panels": [
       {
         "title": "Range",
-        "text": "Destroy an illusion within this range."
+        "text": "Destroy an Illusion within Range."
       }
     ]
   },
@@ -521,16 +621,18 @@
     "panels": [
       {
         "title": "Melee",
-        "glossary": "melee"
+        "glossary": "melee",
+        "amount": 5
       }
     ]
   },
   "aoe_plain": {
-    "card": "meteorfall",
+    "card": "ember_rain",
     "panels": [
       {
         "title": "Ranged",
-        "glossary": "ranged"
+        "glossary": "ranged",
+        "amount": 3
       }
     ]
   }

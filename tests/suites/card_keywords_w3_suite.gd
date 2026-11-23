@@ -23,9 +23,9 @@ const ADJACENT_TILE: Vector2i = Vector2i(3, 4)
 
 const FIXTURES: Dictionary = {
 	"w3_fx_retaliate": {"actions": [{"type": "block", "amount": 2}, {"type": "retaliate", "amount": 4}], "time": 3},
-	"w3_fx_retaliate_riders": {"actions": [{"type": "retaliate", "amount": 2, "bleed": 1, "shock": 1, "push": 2}], "time": 3},
+	"w3_fx_retaliate_riders": {"actions": [{"type": "retaliate", "amount": 2, "shock": 1, "push": 2}], "time": 3},
 	"w3_fx_retaliate_push_only": {"actions": [{"type": "retaliate", "amount": 0, "push": 2}], "time": 5},
-	"w3_fx_retaliate_bleed": {"actions": [{"type": "retaliate", "amount": 1, "bleed": 2, "push": 1}], "time": 3},
+	"w3_fx_retaliate_push": {"actions": [{"type": "retaliate", "amount": 1, "push": 1}], "time": 3},
 	"w3_fx_quicken": {"actions": [{"type": "draw", "amount": 1}, {"type": "quicken", "amount": 2}], "time": 2},
 	"w3_fx_quicken_first": {"actions": [{"type": "quicken", "amount": 2}], "time": 3},
 	"w3_fx_quicken_double": {"actions": [{"type": "quicken", "amount": 1}, {"type": "quicken", "amount": 2}], "time": 2},
@@ -44,16 +44,14 @@ const FIXTURES: Dictionary = {
 	"w3_fx_melee_push": {"actions": [{"type": "melee", "damage": 1, "range": 1, "element": "none", "push": 1}], "time": 3},
 	# Sleet Squall's shape: a zero-damage push, then an Ice hit on the moved target.
 	"w3_fx_sleet": {"element": "ice", "actions": [{"type": "push", "damage": 0, "range": 3, "amount": 2, "element": "ice"}, {"type": "ranged", "damage": 3, "range": 3, "element": "ice", "target": "previous_target"}], "time": 5},
-	"w3_fx_ice_strike": {"element": "ice", "actions": [{"type": "melee", "damage": 2, "range": 1, "element": "ice"}], "time": 3},
 	"w3_fx_rite_pyre": {"burn": true, "actions": [], "time": 5, "description": "Rite: your Fire tiles deal 2 more damage.", "rite": {"effects": [{"type": "surface_damage_bonus", "surface": "fire", "amount": 2}]}},
 	"w3_fx_rite_salamander": {"burn": true, "actions": [], "time": 6, "rite": {"effects": [{"type": "surface_immunity", "surface": "fire"}, {"type": "turn_start_on_surface", "surface": "fire", "rewards": [{"type": "stoneskin", "amount": 3}, {"type": "draw", "amount": 1}]}]}},
-	"w3_fx_rite_hoarfrost": {"burn": true, "actions": [], "time": 4, "rite": {"effects": [{"type": "status_applied_reward", "status": "freeze", "rewards": [{"type": "block", "amount": 3}, {"type": "draw", "amount": 1}]}]}},
 	"w3_fx_rite_storm": {"burn": true, "actions": [], "time": 5, "rite": {"effects": [{"type": "turn_start_surface_pulse", "surface": "electrified", "damage": 2, "element": "lightning"}]}},
 	"w3_fx_rite_tempest": {"burn": true, "actions": [], "time": 6, "rite": {"effects": [{"type": "card_time_discount", "amount": 1}]}},
 	"w3_fx_rite_tailwinds": {"burn": true, "actions": [], "time": 4, "rite": {"effects": [{"type": "independent_movement_bonus", "amount": 1}, {"type": "forced_movement_bonus", "amount": 1}]}},
 	"w3_fx_rite_mountain": {"burn": true, "actions": [], "time": 5, "rite": {"effects": [{"type": "turn_start_reward", "rewards": [{"type": "stoneskin", "amount": 3}]}]}},
 	"w3_fx_rite_noon": {"burn": true, "actions": [], "time": 5, "rite": {"effects": [{"type": "player_light_aura", "radius": 2}, {"type": "target_state_action_mod", "conditions": {"target_in_light": true}, "add": {"damage": 2}}]}},
-	"w3_fx_rite_thorns": {"burn": true, "health_cost": 2, "actions": [], "time": 5, "description": "Rite: enemies that hit you in melee take 3 and Bleed 1.", "rite": {"effects": [{"type": "thorns", "damage": 3, "bleed": 1}]}},
+	"w3_fx_rite_thorns": {"burn": true, "health_cost": 2, "actions": [], "time": 5, "description": "Rite: enemies that hit you in melee take 3.", "rite": {"effects": [{"type": "thorns", "damage": 3}]}},
 	"w3_fx_rite_relic_probe": {"burn": true, "actions": [], "time": 3, "rite": {"effects": [{"type": "conductive_fire"}, {"type": "chain_hop_damage", "amount": 50}]}}
 }
 
@@ -76,7 +74,7 @@ static func run(expect: Callable) -> void:
 	_test_next_attack_per_tile_moved(engine, expect)
 	_test_next_attack_skips_forced_movement(engine, expect)
 	_test_rite_fire(engine, expect)
-	_test_rite_freeze_reward(engine, expect)
+	_test_rite_ice_stagger_reward(engine, expect)
 	_test_rite_turn_start_effects(engine, expect)
 	_test_rite_time_discount(engine, expect)
 	_test_rite_tailwinds(engine, expect)
@@ -213,13 +211,13 @@ static func _test_retaliate_stacking_and_riders(engine: CombatEngine, expect: Ca
 	expect.call(int(_enemy(stacked).get("hp", 0)) == 12, "Stacked Retaliate should deal the summed amount once per attack")
 	var riders: Dictionary = _state(engine)
 	riders = _play(engine, riders, "w3_fx_retaliate_riders")
-	riders = _play(engine, riders, "w3_fx_retaliate_bleed")
+	riders = _play(engine, riders, "w3_fx_retaliate_push")
 	var totals: Dictionary = RetaliateRules.totals(riders, [])
-	expect.call(int(totals["amount"]) == 3 and int(totals["bleed"]) == 3 and int(totals["shock"]) == 1 and int(totals["push"]) == 2, "Retaliate riders stack: amounts and Bleed add, Shock and Push take the maximum")
+	expect.call(int(totals["amount"]) == 3 and int(totals["shock"]) == 1 and int(totals["push"]) == 2, "Retaliate riders stack: damage adds and Shock and Push take the maximum")
 	var rider_after: Dictionary = _enemy_strike(engine, riders, _melee(2))
 	var enemy: Dictionary = _enemy(rider_after)
 	expect.call(int(enemy.get("hp", 0)) == 17, "Retaliate damage lands before its riders")
-	expect.call(int(enemy.get("bleed", 0)) == 3 and int(enemy.get("shock", 0)) == 1, "Retaliate should apply Bleed and Shock to the attacker")
+	expect.call(int(enemy.get("shock", 0)) == 1, "Retaliate should apply Shock to the attacker")
 	expect.call(Vector2i(enemy.get("pos", Vector2i.ZERO)) == Vector2i(5, 4), "Retaliate Push should move the attacker 2 tiles away from the player through normal forced movement")
 
 static func _test_retaliate_expiry(engine: CombatEngine, expect: Callable) -> void:
@@ -417,16 +415,15 @@ static func _test_rite_fire(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(int(_player(next_turn).get("hp", 0)) == 24 and int(_player(next_turn).get("stoneskin", 0)) == 3, "Turn start on Fire grants 3 Stoneskin without Fire damage")
 	expect.call(((next_turn["deck"] as Dictionary).get("hand", []) as Array).size() == hand_before + int(next_turn.get("draw_per_turn", 0)) + 1, "Turn start on Fire also draws 1 extra card")
 
-static func _test_rite_freeze_reward(engine: CombatEngine, expect: Callable) -> void:
-	var state: Dictionary = _play(engine, _state(engine), "w3_fx_rite_hoarfrost")
+static func _test_rite_ice_stagger_reward(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = _play(engine, _state(engine), "rite_of_hoarfrost")
 	Surface.place(state, ADJACENT_TILE, "ice", {"actor_kind": "player"})
-	state["enemies"][0]["chilled"] = true
 	var hand_before: int = ((state["deck"] as Dictionary).get("hand", []) as Array).size()
 	var block_before: int = int(_player(state).get("block", 0))
-	var after: Dictionary = _play(engine, state, "w3_fx_ice_strike", ADJACENT_TILE)
-	expect.call(int(_enemy(after).get("freeze", 0)) > 0, "The Ice hit should Freeze the Chilled enemy")
-	expect.call(int(_player(after).get("block", 0)) == block_before + 3, "Rite of Hoarfrost: freezing an enemy grants 3 Block")
-	expect.call(((after["deck"] as Dictionary).get("hand", []) as Array).size() == hand_before + 1, "Rite of Hoarfrost: freezing an enemy draws 1")
+	var after: Dictionary = _play(engine, state, "frostbolt", ADJACENT_TILE)
+	expect.call(int(engine.stagger_delays_between(state, after).get(1, 0)) == 6, "Frostbolt Staggers an enemy on Ice")
+	expect.call(int(_player(after).get("block", 0)) == block_before + 3, "An Ice card that Staggers triggers Rite of Hoarfrost for 3 Block")
+	expect.call(((after["deck"] as Dictionary).get("hand", []) as Array).size() == hand_before + 1, "An Ice card that Staggers triggers Rite of Hoarfrost for 1 draw")
 
 static func _test_rite_turn_start_effects(engine: CombatEngine, expect: Callable) -> void:
 	var storm: Dictionary = _play(engine, _state(engine, Vector2i(5, 4)), "w3_fx_rite_storm")
@@ -473,15 +470,15 @@ static func _test_thorns_stack_with_retaliate(engine: CombatEngine, expect: Call
 	var state: Dictionary = _play(engine, _state(engine), "w3_fx_rite_thorns")
 	expect.call(int(_player(state).get("hp", 0)) == 22, "A Rite with a health cost pays it as usual")
 	var thorns_only: Dictionary = _enemy_strike(engine, state, _melee(3))
-	expect.call(int(_enemy(thorns_only).get("hp", 0)) == 17 and int(_enemy(thorns_only).get("bleed", 0)) == 1, "Thorns: enemies that hit you in melee take 3 and Bleed 1")
+	expect.call(int(_enemy(thorns_only).get("hp", 0)) == 17, "Thorns: enemies that hit you in melee take 3")
 	var next_turn: Dictionary = engine.prepare_next_player_turn(engine.finish_player_activation(state))
 	var persists: Dictionary = _enemy_strike(engine, next_turn, _melee(3))
 	expect.call(int(_enemy(persists).get("hp", 0)) == 17, "Thorns lasts for the rest of combat")
 	var stacked: Dictionary = _play(engine, next_turn, "w3_fx_retaliate")
 	var stacked_after: Dictionary = _enemy_strike(engine, stacked, _melee(3))
-	expect.call(int(_enemy(stacked_after).get("hp", 0)) == 13 and int(_enemy(stacked_after).get("bleed", 0)) == 1, "Thorns stacks with Retaliate (3 + 4)")
+	expect.call(int(_enemy(stacked_after).get("hp", 0)) == 13, "Thorns stacks with Retaliate (3 + 4)")
 	var badges: Array[Dictionary] = RetaliateRules.player_badges(stacked, RiteRules.effects(stacked))
-	expect.call(badges.size() == 1 and str(badges[0].get("icon", "")) == "retaliate" and int(badges[0].get("count", 0)) == 7 and str(badges[0].get("tooltip", "")).contains("Bleed 1"), "The player badge shows the combined Retaliate amount and lists riders")
+	expect.call(badges.size() == 1 and str(badges[0].get("icon", "")) == "retaliate" and int(badges[0].get("count", 0)) == 7, "The player badge shows the combined Retaliate amount")
 
 static func _test_rites_are_combat_scoped(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _play(engine, _state(engine), "w3_fx_rite_tempest")
@@ -498,7 +495,7 @@ static func _test_rites_visible_to_relic_rule_readers(engine: CombatEngine, expe
 	expect.call(GameData.relic_effects_for_state(state).size() == 2, "GameData.relic_effects_for_state merges relics and Rites")
 
 static func _test_presentation_contracts(engine: CombatEngine, expect: Callable) -> void:
-	var retaliate_row: Array = ActionIcons.tokens_for_action({"type": "retaliate", "amount": 3, "bleed": 1})
+	var retaliate_row: Array = ActionIcons.tokens_for_action({"type": "retaliate", "amount": 3})
 	expect.call(not retaliate_row.is_empty() and str((retaliate_row[0] as Dictionary).get("icon", "")) == "retaliate", "Retaliate renders with its own icon")
 	var quicken_row: Array = ActionIcons.tokens_for_action({"type": "quicken", "amount": 2})
 	expect.call(not quicken_row.is_empty() and str((quicken_row[0] as Dictionary).get("icon", "")) == "quicken", "Quicken renders with its own icon")
@@ -514,9 +511,9 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	var thorn_rows: Array = ActionIcons.rows_for_card(thorn_card)
 	var thorn_cost_row: Array = thorn_rows[0] as Array if not thorn_rows.is_empty() else []
 	expect.call(thorn_rows.size() == 2 and thorn_cost_row.size() == 2 and str((thorn_cost_row[0] as Dictionary).get("icon", "")) == "rite" and str((thorn_cost_row[1] as Dictionary).get("icon", "")) == "health_cost" and str((thorn_cost_row[1] as Dictionary).get("value", "")) == "−2", "A Rite card leads with a labelled Rite keyword row and its health cost")
-	expect.call(ActionIcons.token_tooltip(thorn_cost_row[0] as Dictionary if not thorn_cost_row.is_empty() else {}) == "Rite\nIts effect lasts the rest of combat and the card Exhausts.", "The Rite keyword token explains Exhaust and duration")
+	expect.call(ActionIcons.token_tooltip(thorn_cost_row[0] as Dictionary if not thorn_cost_row.is_empty() else {}) == "Rite\nThis card's effect lasts for the rest of combat, and this card Exhausts.", "The Rite keyword token explains Exhaust and duration")
 	var thorn_text: Dictionary = (thorn_rows[1] as Array)[0] as Dictionary if thorn_rows.size() > 1 else {}
-	expect.call(str(thorn_text.get("kind", "")) == "rules_text" and str(thorn_text.get("value", "")) == "Enemies that hit you in melee take 3 and Bleed\u00a01.", "The Rite's rules text follows its keyword row without repeating Rite or the cost, its last two words kept together")
+	expect.call(str(thorn_text.get("kind", "")) == "rules_text" and str(thorn_text.get("value", "")) == "Enemies that hit you in melee take\u00a03.", "The rules text follows the Rite keyword row and health cost, with the last two words kept together")
 	expect.call(ActionIcons.tooltip_entries_for_rows(thorn_rows, ["rite"]).size() == 2, "Rite focus tooltips list Rite once plus the health cost")
 	expect.call(ActionIcons.card_rules_text(thorn_card).ends_with("Health cost 2."), "Rite rules text keeps the health cost")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(thorn_card).has("keyword:rite"), "Rite cards unlock the Rite grimoire entry")

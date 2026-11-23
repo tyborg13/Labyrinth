@@ -1,0 +1,254 @@
+{
+ "frames": 13,
+ "fps": 30,
+ "max_delay_seconds": 0.08,
+ "delay_per_tile_seconds": 0.033,
+ "reduced_motion_frame": 3,
+ "reduced_motion_seconds": 0.18,
+ "burst_for_element": {
+  "none": "steel",
+  "fire": "fire",
+  "ice": "ice",
+  "earth": "earth",
+  "air": "air",
+  "lightning": "lightning",
+  "shadow": "shadow"
+ },
+ "burst_for_card": {
+  "waning_pulse": "light",
+  "ember_rain": "light",
+  "windlass_volley": "volley",
+  "fan_of_knives": "volley",
+  "nail_bomb": "shrapnel",
+  "cinderburst": "shrapnel",
+  "tombsplitter": "impact"
+ },
+ "burst_for_intent": {
+  "crushing_step": "impact",
+  "bile_burst": "earth"
+ },
+ "replace_targeted": [
+  "ice",
+  "earth",
+  "air",
+  "lightning",
+  "shadow"
+ ],
+ "palette": [
+  "00000000",
+  "544639ff",
+  "82705aff",
+  "ac987cff",
+  "2e2620ff",
+  "4a1c0eff",
+  "963c14ff",
+  "e0863aff",
+  "ffc884ff",
+  "fff4dcff",
+  "3a3430ff",
+  "6e6660ff",
+  "a89e94ff",
+  "dcd4c8ff",
+  "fffbf0ff",
+  "8a2a10ff",
+  "d0581cff",
+  "f29a3aff",
+  "3a1208ff",
+  "342620ff",
+  "4c3a30ff",
+  "665042ff",
+  "1c1412ff",
+  "ffe6a8ff",
+  "201812ff",
+  "6c543aff",
+  "423224ff",
+  "9c7e58ff",
+  "142c4cff",
+  "2a5c8eff",
+  "589cceff",
+  "9cd8f4ff",
+  "f2fdffff",
+  "caae82ff",
+  "3a8474ff",
+  "78c2acff",
+  "b8ecd8ff",
+  "1c4a42ff",
+  "f4fffaff",
+  "5a3a9aff",
+  "9a7ae0ff",
+  "d0c0ffff",
+  "ffffffff",
+  "a86c1cff",
+  "e6ae44ff",
+  "ffde8cff",
+  "fffbe4ff",
+  "0e0816ff",
+  "26143aff",
+  "4a2a72ff",
+  "8a5cc4ff",
+  "e0ccffff"
+ ],
+ "rows": {
+  "steel_hit_rear": 0,
+  "steel_hit_front": 1,
+  "steel_floor_rear": 2,
+  "steel_floor_front": 3,
+  "volley_hit_rear": 4,
+  "volley_hit_front": 5,
+  "volley_floor_rear": 6,
+  "volley_floor_front": 7,
+  "shrapnel_hit_rear": 8,
+  "shrapnel_hit_front": 9,
+  "shrapnel_floor_rear": 10,
+  "shrapnel_floor_front": 11,
+  "impact_hit_rear": 12,
+  "impact_hit_front": 13,
+  "impact_floor_rear": 14,
+  "impact_floor_front": 15,
+  "fire_hit_rear": 16,
+  "fire_hit_front": 17,
+  "fire_floor_rear": 18,
+  "fire_floor_front": 19,
+  "ice_hit_rear": 20,
+  "ice_hit_front": 21,
+  "ice_floor_rear": 22,
+  "ice_floor_front": 23,
+  "earth_hit_rear": 24,
+  "earth_hit_front": 25,
+  "earth_floor_rear": 26,
+  "earth_floor_front": 27,
+  "air_hit_rear": 28,
+  "air_hit_front": 29,
+  "air_floor_rear": 30,
+  "air_floor_front": 31,
+  "lightning_hit_rear": 32,
+  "lightning_hit_front": 33,
+  "lightning_floor_rear": 34,
+  "lightning_floor_front": 35,
+  "light_hit_rear": 36,
+  "light_hit_front": 37,
+  "light_floor_rear": 38,
+  "light_floor_front": 39,
+  "shadow_hit_rear": 40,
+  "shadow_hit_front": 41,
+  "shadow_floor_rear": 42,
+  "shadow_floor_front": 43
+ },
+ "sizes": [
+  {
+   "tile_cells": [
+    44,
+    22
+   ],
+   "frame_cells": [
+    56,
+    55
+   ],
+   "tile_centre_cell": [
+    28,
+    41
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_44.png",
+   "sha256_pixels": "8046964fb390993069ea304f19a835aaf7086f70c2b45c6064ded83a63f1184e"
+  },
+  {
+   "tile_cells": [
+    52,
+    26
+   ],
+   "frame_cells": [
+    66,
+    66
+   ],
+   "tile_centre_cell": [
+    33,
+    49
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_52.png",
+   "sha256_pixels": "d4b284a7fa35855d0b89b5d5c6b5354916abf9b3868c9f623b6d0384ffca86c6"
+  },
+  {
+   "tile_cells": [
+    60,
+    30
+   ],
+   "frame_cells": [
+    74,
+    75
+   ],
+   "tile_centre_cell": [
+    37,
+    56
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_60.png",
+   "sha256_pixels": "6111b7722187a8850078d03032a19f7e50acb73a01fc786757b3777be3803430"
+  },
+  {
+   "tile_cells": [
+    68,
+    34
+   ],
+   "frame_cells": [
+    84,
+    84
+   ],
+   "tile_centre_cell": [
+    42,
+    63
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_68.png",
+   "sha256_pixels": "3c21053d50b8f136883750bdf6c796ef7d319353fa66a8eec055007ccf6f3662"
+  },
+  {
+   "tile_cells": [
+    76,
+    38
+   ],
+   "frame_cells": [
+    94,
+    94
+   ],
+   "tile_centre_cell": [
+    47,
+    70
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_76.png",
+   "sha256_pixels": "710f8d47d4af14e62913f1f07f749c7795e24eb1970bb55d93040f1a0067eedc"
+  },
+  {
+   "tile_cells": [
+    84,
+    42
+   ],
+   "frame_cells": [
+    104,
+    104
+   ],
+   "tile_centre_cell": [
+    52,
+    78
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_84.png",
+   "sha256_pixels": "4f8553e5c51830f009b112140bea8c0a81e7da5df125784b6def0e6fe6f7312f"
+  },
+  {
+   "tile_cells": [
+    92,
+    46
+   ],
+   "frame_cells": [
+    114,
+    114
+   ],
+   "tile_centre_cell": [
+    57,
+    85
+   ],
+   "atlas": "res://assets/art/effects/bursts/tile_burst_92.png",
+   "sha256_pixels": "b98f7b15c186dc26c961fd0833d65f2b7e6ed1800e040823218b8f793520c21e"
+  }
+ ],
+ "reduced_motion_frame_by_burst": {
+  "shadow": 4
+ }
+}

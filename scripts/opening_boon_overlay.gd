@@ -89,7 +89,7 @@ func show_offers() -> void:
 	_content.add_child(row)
 	row.position = OFFER_ORIGIN
 	row.size = Vector2(OfferCard.CARD_SIZE.x * 3.0 + OFFER_GAP * 2.0, OfferCard.CARD_SIZE.y)
-	var offers: Array = _state[Rules.STATE_KEY]["offers"]
+	var offers: Array = Rules.available_offers(_state)
 	var row_height: float = OfferCard.CARD_SIZE.y
 	for index: int in range(offers.size()):
 		var offer: Dictionary = offers[index]

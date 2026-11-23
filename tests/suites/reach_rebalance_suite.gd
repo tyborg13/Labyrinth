@@ -16,7 +16,8 @@ const Ground = preload("res://scripts/board_surface_rules.gd")
 # pol-42 (1abde7ccc) also grants Updraft its explicit range-4 identity.
 const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current", "sunlance", "hurl_spear", "updraft"]
 const UNLIMITED_SHOT_CARD_IDS: Array[String] = ["skybolt", "thunderstone"]
-const LONG_MOVE_CARD_IDS: Array[String] = ["headlong", "joust", "sunpath_stride"]
+# Gear-02 gives Shadow Step Move 4 in place of Blink and Draw.
+const LONG_MOVE_CARD_IDS: Array[String] = Array(["headlong", "joust", "sunpath_stride", "shadow_step"], TYPE_STRING, "", null)
 
 static func run(expect: Callable) -> void:
 	_test_reach_contract(expect)

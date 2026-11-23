@@ -1029,14 +1029,12 @@ func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, o
 	var pickup_tiles: Array[Vector2i]
 	var equipment_id: String = str(room.get("equipment_drop", ""))
 	if room_type == "combat" and not equipment_id.is_empty():
-		var equipment_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng, pickup_tiles)
-		if equipment_tile.x >= 0:
+		var pickup: Dictionary = _equipment_pickup(equipment_id, candidates, occupied_pickups, rng)
+		if not pickup.is_empty():
+			var equipment_tile: Vector2i = pickup["pos"]
 			occupied_pickups[equipment_tile] = true
 			pickup_tiles.append(equipment_tile)
-			loot.append({
-				"id": "loot_equipment_%s_%d_%d" % [equipment_id, equipment_tile.x, equipment_tile.y],
-				"kind": "equipment", "equipment_id": equipment_id, "pos": equipment_tile
-			})
+			loot.append(pickup)
 	var count_roll: int = rng.randi_range(1, 100)
 	var item_count: int = 0 if count_roll <= ITEM_ZERO_CHANCE_PERCENT else (2 if count_roll > 100 - ITEM_TWO_CHANCE_PERCENT else 1)
 	var item_ids: Array = GameData.item_card_ids()
@@ -1049,6 +1047,18 @@ func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, o
 		pickup_tiles.append(tile)
 		loot.append({"id": "loot_item_%d_%d_%d" % [index, tile.x, tile.y], "kind": "item", "card_id": card_id, "pos": tile})
 	return loot
+
+func equipment_pickup(grid: Array, equipment_id: String, rng: RandomNumberGenerator, occupied: Dictionary) -> Dictionary:
+	return _equipment_pickup(equipment_id, _floor_tiles(grid), occupied, rng)
+
+func _equipment_pickup(equipment_id: String, candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	var tile: Vector2i = _pick_pickup_tile(candidates, occupied, rng)
+	if tile.x < 0:
+		return {}
+	return {
+		"id": "loot_equipment_%s_%d_%d" % [equipment_id, tile.x, tile.y],
+		"kind": "equipment", "equipment_id": equipment_id, "pos": tile
+	}
 
 func _roll_item_pickup(item_ids: Array, rng: RandomNumberGenerator) -> String:
 	var total_weight: int = 0

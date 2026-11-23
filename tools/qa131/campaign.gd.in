@@ -1,0 +1,79 @@
+extends "whole_run.gd"
+## Template materialized alongside the pinned QA-129 whole-run observer.
+
+const FIRST_NORMAL_SEED: int = 131002
+const CENSUS_SIZE := Vector2i(1920, 1080)
+var _section_samples: Dictionary = {}
+var _section_combat_samples: Dictionary = {}
+
+func _enter_scene(resume: bool) -> void:
+	var settings: Dictionary = Settings.load_settings()
+	settings["reduced_motion"] = hunt_seed < FIRST_NORMAL_SEED
+	if DisplayServer.get_name() != "headless":
+		settings["display_mode"] = Settings.DISPLAY_WINDOWED
+		settings["ui_scale"] = 1.0
+	Settings.save_settings(settings)
+	super._enter_scene(resume)
+
+func _run_side(kind: String) -> void:
+	# Keep the seed's selected motion mode for the entire run.
+	if kind == "reduced_motion":
+		busy = false
+		return
+	await super._run_side(kind)
+
+func _check_boundary() -> void:
+	if scene._run_state.get("mode") == "combat" and not scene._combat_state.is_empty():
+		var section: int = int(_context()["section"])
+		if not _section_combat_samples.has(section):
+			_section_combat_samples[section] = true
+			_sample_growth("first_combat")
+	super._check_boundary()
+
+func _check_room_leaks(sample: Dictionary) -> void:
+	super._check_room_leaks(sample)
+	var section: int = int(sample["section"])
+	if _section_samples.has(section): return
+	_section_samples[section] = true
+	_sample_growth("section_entry")
+
+func _sample_growth(boundary: String) -> void:
+	var board: Node = scene.board_view
+	var pools: Dictionary = {}
+	var atlas_texels: Dictionary = {}
+	if is_instance_valid(board) and board.get("_tile_bursts") != null:
+		pools["tile_burst"] = board.get("_tile_bursts").get("_stamps").size()
+		pools["self_burst"] = board.get("_self_bursts").get("_stamps").size()
+		var shots: RefCounted = board.get("_single_shot_fx")
+		var supports: Array = [shots.get("_shadow"), shots.get("_links")]
+		pools["shot"] = shots.get("_heads").size() + shots.get("_hits").size() + supports.size()
+		atlas_texels = {
+			"tile_burst": _atlas_texels(board.get("_tile_bursts").get("ink")),
+			"self_burst": _atlas_texels(board.get("_self_bursts").get("ink")),
+			"shot": _atlas_texels(shots.get("_ink"))
+		}
+	_emit("qa131_growth", {"context": _context(),
+		"boundary": boundary, "reduced_motion": scene._reduced_motion_enabled(),
+		"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+		"tree_nodes": _tree_count(root),
+		"orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)),
+		"texture_bytes": int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED)),
+		"pools": pools, "bound_atlas_texels": atlas_texels})
+	if boundary == "section_entry" and DisplayServer.get_name() != "headless":
+		_capture_section(_context())
+
+func _capture_section(context: Dictionary) -> void:
+	await RenderingServer.frame_post_draw
+	var image: Image = root.get_texture().get_image()
+	var path: String = output.path_join("section_%d.png" % (int(context["section"]) + 1))
+	if image == null or image.get_size() != CENSUS_SIZE or image.save_png(path) != OK:
+		push_error("QA131 native census could not capture " + path + " at 1920x1080")
+		return
+	print(path)
+	_emit("qa131_native_census", {"context": context, "capture": path,
+		"texture_bytes": int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))})
+
+func _atlas_texels(material: ShaderMaterial) -> int:
+	if material == null: return 0
+	var texture: Texture2D = material.get_shader_parameter("atlas")
+	return texture.get_width() * texture.get_height() if texture != null else 0

@@ -1,0 +1,17 @@
+Python default group
+INPUT GROUP default: always run
+SELECTED MODULES: 23 of 59
+SHARD 4 COMPLETE: 95 tests; 16.955s
+SHARD 2 COMPLETE: 37 tests; 18.131s
+SHARD 3 COMPLETE: 22 tests; 18.540s
+SHARD 1 COMPLETE: 42 tests; 31.052s
+Ran 196 tests in 31.294s
+OK
+INPUT GROUP TIME default: 23 modules; 84.677 module-seconds; 31.052s maximum attributed shard work
+Cannot update untracked timing cache /Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/python-suite.json: [Errno 1] Operation not permitted: '/Users/borgerding/workspace/Labyrinth/.git/labyrinth-test-timings/tmp0wtzaysy'
+
+Rules-text lint
+Ran 3 tests in 0.047s
+OK
+PASS: Rules text lint (16 existing hits)
+Hits by rule: sentence_start=1, pronoun=11, hedge=0, semicolon=2, spaced_dash=0, article=0, vocabulary=2

@@ -14,10 +14,6 @@ const MOUND_DARK: Color = Color("2e2116")
 const MOUND_SPECK_COUNT: int = 7
 const RISE_SECONDS: float = 0.25
 const DUST_SECONDS: float = 0.35
-const DUST_PARTICLES: int = 10
-const DUST_PARTICLE_DIAMETER: float = 5.0
-const DUST_ALPHA: float = 0.70
-const DUST_TRAVEL_TILE_WIDTH: float = 0.60
 const BREATH_SECONDS: float = 1.5
 const BREATH_SCALE: float = 0.03
 const MOUND_TILE_WIDTH: float = 0.60
@@ -25,7 +21,6 @@ const MOUND_TILE_HEIGHT: float = 0.32
 static var _preview_engine := Combat.new()
 
 static func draw_body(view: Control, unit: Dictionary) -> bool:
-	draw_dust(view, unit)
 	var effect: Dictionary = view.presentation.get("en01_erupt", {})
 	if str(effect.get("actor_key", "")) == str(unit.get("key", "")) and not effect.is_empty():
 		var texture: Texture2D = view._texture_for_unit(unit)
@@ -170,15 +165,3 @@ static func marks(state: Dictionary) -> Array[Dictionary]:
 		var marked: Vector2i = enemy.get("erupt_tile", landing)
 		result.append({"tile": marked, "damage": erupt_damage(enemy), "enemy_id": int(enemy["id"])})
 	return result
-
-static func draw_dust(view: Control, unit: Dictionary) -> void:
-	if DUST_PARTICLE_DIAMETER <= 0.0: return
-	var effect: Dictionary = view.presentation.get("en01_erupt_dust", {})
-	if effect.is_empty() or str(effect.get("actor_key", "")) != str(unit.get("key", "")): return
-	var progress: float = float(effect.get("progress", float(preload("res://scripts/presentation_clock.gd").ticks_msec() - int(effect.get("started_msec", 0))) / (DUST_SECONDS * 1000.0)))
-	if progress < 0.0 or progress >= 1.0: return
-	var center: Vector2 = view._tile_center(effect["tile"])
-	for index: int in range(DUST_PARTICLES):
-		var angle: float = TAU * float(index) / float(DUST_PARTICLES)
-		var offset: Vector2 = Vector2(cos(angle), sin(angle)) * view._tile_width() * DUST_TRAVEL_TILE_WIDTH * progress
-		view.draw_circle(center + offset, DUST_PARTICLE_DIAMETER * 0.5, Color(EARTH, DUST_ALPHA * (1.0 - progress)))

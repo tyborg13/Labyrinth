@@ -15,6 +15,7 @@ const HUD_PROOF_HEIGHT: float = 88.0
 const FIXTURE_BURST_TILE := Vector2i(3, 3)
 const FIXTURE_EAST_TILE := Vector2i(4, 3)
 const FIXTURE_WEST_TILE := Vector2i(2, 3)
+const FIXTURE_SOUTH_TILE := Vector2i(3, 4)
 const PREVIEW_CARD_DAMAGE: int = 6
 const POP_PEAK_SAMPLE_SECONDS: float = 0.125
 var failures: Array[String]
@@ -61,6 +62,7 @@ func _glow_geometry() -> void:
 
 func _preview_and_copy() -> void:
 	var state: Dictionary = En01.fixture(["ember_tick", "crawler", "crawler"])
+	state["player"]["pos"] = FIXTURE_SOUTH_TILE
 	state["enemies"][0]["pos"] = FIXTURE_BURST_TILE
 	state["enemies"][1]["pos"] = FIXTURE_EAST_TILE
 	state["enemies"][2]["pos"] = FIXTURE_WEST_TILE
@@ -79,13 +81,13 @@ func _preview_and_copy() -> void:
 		for bonus: int in [0, 2, 4]:
 			var unit: Dictionary = {"type": type, "kindled_bonus": bonus}
 			var token: Dictionary = Burst.trait_token(unit)
-			_expect(token["value"] == "Bursts %d" % (4 + bonus) and token["tooltip"] == "When it dies, it hits every unit next to it for %d and leaves Fire." % (4 + bonus), "Live Burst trait copy " + type)
+			_expect(token["value"] == "Burst %d" % (4 + bonus) and token["tooltip"] == "When this enemy dies, this enemy Bursts %d, leaving Fire." % (4 + bonus), "Live Burst trait copy " + type)
 			var tags: Array = preload("res://scripts/pre_battle_threat_tags.gd").build(type, unit)
 			_expect(tags.size() == 1 and tags[0]["icon_key"] == "burst" and tags[0]["text"] == token["value"], "Pre-battle Burst caption " + type)
 			var rows: Array = board._intent_rows_for_unit(unit, Data.enemy_def(type)["intents"][0])
 			var rules := PackedStringArray()
 			for index: int in range(1, preload("res://scripts/enemy_mechanics/burst_trait_text.gd").title_index(rows)): rules.append(str(rows[index].back()["value"]))
-			_expect(rows[0][0] == token and " ".join(rules) == str(token["display_tooltip"]).trim_prefix("@pattern(surround:origin) "), "Combat trait above moves " + type)
+			_expect(rows[0][0] == token and " ".join(rules) == str(token["display_tooltip"]).trim_prefix("@pattern(cross:origin) "), "Combat trait above moves " + type)
 	var kindle_action: Dictionary = {"type": "kindle", "amount": 2}
 	var token: Dictionary = Icons.tokens_for_action(kindle_action)[0]
 	_expect(token["icon"] == "burst" and token["value"] == "Burst +2" and token["tooltip"] == "Its Burst deals 2 more.", "Exact Kindle row and tooltip")
@@ -98,7 +100,7 @@ func _preview_and_copy() -> void:
 	_expect(existing.tooltip_text.is_empty(), "Other known-move tooltip behavior stays unchanged")
 	existing.free()
 	var trait_row: Control = inspection.build_trait(Burst.trait_token({"type": "ember_tick", "kindled_bonus": 2}))
-	_expect(trait_row.find_child("EnemyBurstTraitTitle", true, false).text == "Bursts 6", "Actual pre-battle trait shows live number")
+	_expect(trait_row.find_child("EnemyBurstTraitTitle", true, false).text == "Burst 6", "Actual pre-battle trait shows live number")
 	trait_row.free()
 	board.free()
 	scene.free()
@@ -182,7 +184,7 @@ func _objective_titles() -> void:
 		for label: Label in [hud._title, hud._detail]:
 			_expect(label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x <= label.size.x, "Objective label fits: " + label.text)
 		if str(objective.get("special_type", "")) == "ember_hoarder":
-			_expect(hud._title.text == "DEFEAT THE HOARDER" and hud._intro_title.text == "DEFEAT THE EMBER HOARDER BEFORE IT ESCAPES!" and hud._detail.text == "Before it escapes · 24/24 Health", "Hoarder HUD/intro/live detail use their respective titles")
+			_expect(hud._title.text == "DEFEAT THE HOARDER" and hud._intro_title.text == "DEFEAT THE HOARDER" and hud._detail.text == "Before it escapes · 24/24 Health", "Hoarder HUD and intro share one title (pol-63); live detail keeps the escape clause")
 	_expect(Objectives.hud_title_for_objective({"type": Objectives.KILL_ALL, "special_type": "ember_hoarder"}) == "Defeat All Enemies", "Escaped Hoarder returns to generic HUD objective")
 	_expect(Objectives.title_for_objective({"type": Objectives.KILL_LEADER, "special_type": "warband", "leader_display_name": "The Thornmother"}) == "Defeat the Thornmother", "Warband keeps the title's article")
 	hud.free()

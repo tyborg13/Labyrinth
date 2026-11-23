@@ -6,11 +6,12 @@ const Glossary = preload("res://scripts/glossary.gd")
 const Rules = preload("res://scripts/enemy_mechanics/death_burst.gd")
 const Data = preload("res://scripts/game_data.gd")
 const BURST_ICON: String = "burst"
+const BURST_SHAPE: String = "cross"
 const BURST_CHAIN_SECONDS: float = 0.18
 const FIRE: Color = Color("e8722c")
+const TileBurst = preload("res://scripts/tile_burst_fx.gd")
 const TileGlow = preload("res://scripts/tile_glow.gd")
 const Fx = preload("res://scripts/enemy_mechanics/burst_fx.gd")
-const EMPTY_EFFECTS: Array = []
 const PREVIEW_CENTRE_ALPHA: float = 0.34
 const PREVIEW_CORNER_ALPHA: float = 0.08
 # Existing generic dissolve duration, used by standalone preview/proof callers.
@@ -23,20 +24,20 @@ static func badges(unit: Dictionary) -> Array[Dictionary]:
 	if int(unit.get("hp", 0)) > 0 and Data.enemies().get(str(unit.get("type", "")), {}).has("death_burst"):
 		var amount: int = Rules.damage(unit)
 		result.append({"status_class": "trait", "icon": BURST_ICON, "count": amount, "icon_tint": Color.WHITE, "fill": FIRE, "border": FIRE,
-			"tooltip": Glossary.name_for("burst") + "\n" + Glossary.definition("burst") + "\n%d damage" % amount})
+			"tooltip": Glossary.name_for("burst") + "\n" + rules_sentence(amount)})
 	return result
 
 static func trait_token(unit: Dictionary) -> Dictionary:
 	if not Data.enemies().get(str(unit.get("type", "")), {}).has("death_burst"): return {}
 	var amount: int = Rules.damage(unit)
-	var token: Dictionary = preload("res://scripts/action_icon_library.gd").icon_text_token(BURST_ICON, "Bursts %d" % amount, "When it dies, it hits every unit next to it for %d and leaves Fire." % amount)
+	var token: Dictionary = preload("res://scripts/action_icon_library.gd").icon_text_token(BURST_ICON, "Burst %d" % amount, rules_sentence(amount))
 	token["burst_trait"] = true
-	token["display_tooltip"] = "@pattern(surround:origin) " + rules_sentence(amount)
+	token["display_tooltip"] = preload("res://scripts/pattern_text.gd").diagram(BURST_SHAPE, 0, "origin") + " " + rules_sentence(amount)
 	token["diagram_tooltip"] = token["display_tooltip"]
 	return token
 
 static func rules_sentence(amount: int) -> String:
-	return "When it dies, it hits every unit on these tiles for %d and leaves Fire." % amount
+	return "When this enemy dies, this enemy Bursts %d, leaving Fire." % amount
 
 static func focused_tiles(view: Control) -> Array[Vector2i]:
 	var result: Array[Vector2i]
@@ -164,15 +165,25 @@ static func play_cue(scene: Node, before: Dictionary, after: Dictionary, progres
 	scene.set_meta("en01_last_burst_cue", slot)
 	scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_action({"type": "aoe", "element": "fire"}))
 
-# Called in the floor pass; overlapping chain events retain their own age.
-static func draw_glows(view: Control, tile: Vector2i) -> void:
-	for effect: Dictionary in view.presentation.get("burst_effects", EMPTY_EFFECTS):
-		if not (effect.get("tiles", EMPTY_EFFECTS) as Array).has(tile): continue
-		var alpha: float = Fx.glow_alpha(float(effect["elapsed"]))
-		if alpha > 0.0: TileGlow.draw(view, view._tile_polygon(tile), FIRE, alpha, Fx.GLOW_CORNER_ALPHA * alpha / Fx.GLOW_PEAK_ALPHA)
-
-static func draw_flames(view: Control) -> void:
-	if bool(view.presentation.get("reduced_motion", false)): return
-	for effect: Dictionary in view.presentation.get("burst_effects", EMPTY_EFFECTS):
-		if effect["tile"].x < 0 or not view._board_tile_is_visible_to_player(effect["tile"]): continue
-		Fx.draw(view, effect)
+# The board has resolved the current visibility by the time this runs. Match
+# the existing feedback entries by source so retained samples do not restart
+# a sheet and separate FIFO Bursts can still overlap.
+static func present_contacts(view: Control, previous_state: Dictionary, previous: Dictionary) -> void:
+	var effects: Array = view.presentation.get("burst_effects", [])
+	if effects.is_empty(): return
+	var old_effects: Array = previous.get("burst_effects", [])
+	var reduced: bool = bool(view.presentation.get("reduced_motion", false))
+	for event: Dictionary in effects:
+		var center: Vector2i = event["tile"]
+		if center == TileBurst.INVALID or not event.has("id"): continue
+		if old_effects.any(func(old: Dictionary) -> bool: return old.get("id") == event["id"]): continue
+		var before: Dictionary = event.get("before", previous_state)
+		var after: Dictionary = event.get("after", view.combat_state)
+		var hits: Dictionary = TileBurst.step_hit_tiles(before, after, view._resolved_unit_footprint)
+		hits[center] = true
+		view.present_tile_bursts([{
+			"name": TileBurst.for_element(str(event.get("element", "fire"))),
+			"center": center,
+			"tiles": event["tiles"],
+			"contact_hits": hits,
+		}], {}, view.combat_state, reduced)

@@ -123,7 +123,7 @@ static func _test_order_and_tiles(expect: Callable) -> void:
 	var rest: Dictionary = Badges.build(combat, state, state)
 	expect.call((rest["badges"] as Array).size() == 4, "All four visible known intents have at-rest chips")
 	var expected: Dictionary = {"enemy_1": "1", "enemy_3": "2", "enemy_2": "3", "enemy_4": "4"}
-	var damage: Dictionary = {"enemy_1": "4", "enemy_3": "6", "enemy_2": "5", "enemy_4": "4"}
+	var damage: Dictionary = {"enemy_1": "5", "enemy_3": "6", "enemy_2": "5", "enemy_4": "5"}
 	for badge: Dictionary in rest["badges"]:
 		expect.call(str(badge["order"]) == expected[badge["key"]], "Mockup numeral for %s" % badge["key"])
 		expect.call(str(badge["number"]) == damage[badge["key"]], "Mockup damage for %s" % badge["key"])
@@ -323,24 +323,24 @@ static func _test_style_and_overlap(expect: Callable) -> void:
 	board.free()
 
 static func _test_chip_content(expect: Callable) -> void:
-	var multi: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "hits": 2, "bleed": 1})
-	expect.call(multi["number"] == "4×2" and multi["secondary_icon"] == "bleed" and multi["secondary_number"] == "1", "Multi-hit and single rider formatting follows the brief")
+	var multi: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "hits": 2, "expose": 1})
+	expect.call(multi["number"] == "4×2" and multi["secondary_icon"] == "expose" and multi["secondary_number"] == "1", "Multi-hit and single rider formatting follows the brief")
 	for action: Dictionary in [{"type": "melee", "damage": 4}, {"type": "ranged", "damage": 5}, {"type": "aoe", "damage": 6}, {"type": "block", "amount": 3}, {"type": "heal_self", "amount": 2}, {"type": "summon_minions", "count": 2}, {"type": "move_away", "range": 3}]:
 		var chip: Dictionary = Badges.descriptor(action)
 		expect.call(chip["icon"] == Badges.Icons.action_icon_key(action), "%s uses its existing primary action icon" % action["type"])
 		expect.call(chip["number"] == str(action.get("damage", action.get("amount", action.get("count", "")))), "%s retains its primary number" % action["type"])
 		var family: String = str(chip["family"])
 		expect.call(Badges.ring_color(chip) == (Badges.Palette.GOLD_DIM if family in ["defense", "support", "movement"] else Badges.Palette.GOLD), "%s uses its approved normal ring" % action["type"])
-	var priority: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "bleed": 1, "shock": 1, "freeze": 1, "immobilize": true, "push": 2})
+	var priority: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "expose": 1, "shock": 1, "freeze": 1, "immobilize": true, "push": 2})
 	expect.call(priority["secondary_icon"] == "push" and priority["secondary_number"] == "2", "Push distance wins over all lower-priority riders")
 	var candidates: Array[Dictionary]
-	for icon: String in ["stagger", "expose", "bleed", "shock", "chilled", "freeze", "immobilize", "pull", "push"]:
+	for icon: String in ["stagger", "expose", "shock", "chilled", "freeze", "immobilize", "pull", "push"]:
 		candidates.append({"icon": icon})
 	for icon: String in Badges.SECONDARY_PRIORITY:
 		expect.call(Badges.secondary_rider(candidates).get("icon", "") == icon, "%s is the first present secondary" % icon)
 		for index: int in range(candidates.size() - 1, -1, -1):
 			if candidates[index]["icon"] == icon: candidates.remove_at(index)
-	var icon_only: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "immobilize": true, "bleed": 1})
+	var icon_only: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "immobilize": true, "expose": 1})
 	expect.call(icon_only["secondary_icon"] == "immobilize" and icon_only["secondary_number"] == "", "Unnumbered secondary is icon-only")
 	var font: Font = Typography.ui_font()
 	var chip: Dictionary = {"number": "4", "secondary_icon": "push", "secondary_number": "2"}

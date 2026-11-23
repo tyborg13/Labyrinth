@@ -4,10 +4,19 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Frame = preload("res://scripts/ui_gilded_frame.gd")
 const ComponentSurface = preload("res://scripts/ui_component_surface.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 static var _socket_glow: Texture2D = ComponentSurface.radial_texture(Color(Palette.EMBER, 0.55))
+# Matches the focusable Controls list rows in Settings.
+static var row_focus_style: StyleBoxFlat = UiSkin.new().make_button_style(UiSkin.VARIANT_STANDARD, UiSkin.STATE_FOCUS)
 
 var kind: String = "rule"
+var uses_row_focus: bool = false
+var row_focused: bool = false:
+	set(value):
+		if row_focused == value: return
+		row_focused = value
+		queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -34,6 +43,11 @@ func _draw() -> void:
 			draw_line(Vector2(20.0 * unit, size.y - unit), Vector2(size.x - 20.0 * unit, size.y - unit), Color(Palette.EMBER, 0.12), 8.0 * unit, true)
 			draw_line(Vector2(20.0 * unit, size.y - unit), Vector2(size.x - 20.0 * unit, size.y - unit), Palette.EMBER, 2.0 * unit, true)
 		"highlight":
+			if row_focused:
+				# PanelContainer fits this feedback control to its content box.
+				# Draw relative to the enclosing row without resizing that box.
+				draw_style_box(row_focus_style, Rect2(-position, (get_parent() as Control).size))
+				return
 			var style := StyleBoxFlat.new()
 			style.bg_color = Color.TRANSPARENT
 			style.border_color = Color(Palette.GOLD_BRIGHT, 0.7)

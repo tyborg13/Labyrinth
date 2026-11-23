@@ -31,7 +31,7 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 		failures.append(id + ": the production action or turn-start beat could not resolve")
 		return failures
 	var action: Dictionary = beats[0]["action"]
-	if id in [setup.DISCHARGE, setup.SWAP] and (not _plain_room(before) or not _plain_room(after)):
+	if id == setup.SWAP and (not plain_room(before) or not plain_room(after)):
 		failures.append(id + ": demonstration must use clear plain floor, without light, room rules, terrain or traps")
 	for enemy: Dictionary in before["enemies"]:
 		var hp: int = Data.enemy_def(enemy["type"])["max_hp"]
@@ -46,16 +46,6 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 				failures.append("Detonate needs one overlap victim and one single-blast victim")
 			if not _enemies_lost(before, after, int(action["damage"])) or after["player"]["hp"] != before["player"]["hp"]:
 				failures.append("Detonate must hit each enemy once with the printed damage")
-		setup.DISCHARGE:
-			var discharges: Array[Dictionary] = events(before, after, "surface_discharge")
-			if setup.NETWORK.size() != 4 or not _same_tiles(Surfaces.tiles(before), setup.NETWORK) or not _same_tiles(Surfaces.tiles(before, "electrified"), setup.NETWORK):
-				failures.append("Discharge must start with only its four Electrified tiles")
-			if discharges.size() != 1 or not _same_tiles(discharges[0]["tiles"], setup.NETWORK) or not after["surfaces"].is_empty():
-				failures.append("Discharge must remove the entire L in one action")
-			if before["enemies"].size() != 2 or not before["illusions"].is_empty() or before["player"]["hp"] != after["player"]["hp"]:
-				failures.append("Discharge must show the unharmed caster and exactly two enemies")
-			if not _enemies_lost(before, after, int(action["damage"])) or Surfaces.has_surface(before, setup.BESIDE_NETWORK, "electrified") or not Surfaces.has_surface(before, setup.ON_NETWORK, "electrified"):
-				failures.append("Discharge must hit one enemy on the network and one beside it, once each")
 		setup.SWAP:
 			var swaps: Array[Dictionary] = events(before, after, IllusionRules.SWAP_EVENT)
 			if before["illusions"].size() != 1 or after["illusions"].size() != 1 or swaps.size() != 1:
@@ -75,7 +65,7 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 			var raised_tiles: Array = outcrops.map(func(outcrop: Dictionary) -> Vector2i: return outcrop["pos"])
 			if pulses.size() == 1 and not _same_tiles(pulses[0]["tiles"], raised_tiles):
 				failures.append("The pulse must play from each adjacent Outcrop")
-			if fixture.get("biome", "") != setup.PLAIN_FLOOR_BIOME or not _plain_room(before):
+			if fixture.get("biome", "") != setup.PLAIN_FLOOR_BIOME or not plain_room(before):
 				failures.append("Worldspine must use the plain Detonate floor")
 			if Rites.active_rites(raised).size() != 1:
 				failures.append("Worldspine must start its Rite when the raise is committed")
@@ -88,7 +78,7 @@ static func validate(fixture: Dictionary, result: Dictionary, setup: Script) -> 
 				failures.append("The next player turn must issue one Worldspine pulse and hit once for 3")
 	return failures
 
-static func _plain_room(state: Dictionary) -> bool:
+static func plain_room(state: Dictionary) -> bool:
 	var engine := Combat.new()
 	return (
 		engine.effective_umbra_stage(state) == Combat.UMBRA_STAGE_CLEAR
@@ -125,8 +115,6 @@ func observe(board: Control, setup: Script, id: String) -> void:
 	if id == setup.WORLDSPINE and board.combat_state.get("terrain", []).size() >= Paths.DIRS_4.size():
 		_saw_all_outcrops = true
 	for event: Dictionary in shown.get("surface_feedback_events", []):
-		if id == setup.DISCHARGE and event.get("break_surface") == "electrified":
-			_first_effect_by_tile[event["tile"]] = true
 		if id == setup.WORLDSPINE and event.get("kind") == TerrainRules.PULSE_EVENT and event.get("feedback_element") == "earth":
 			for tile: Vector2i in event["tiles"]: _first_effect_by_tile[tile] = _saw_all_outcrops
 
@@ -136,7 +124,6 @@ func finish(fixture: Dictionary, result: Dictionary, board: Control, setup: Scri
 	var expected: Array = []
 	match id:
 		setup.DETONATE: expected = setup.FIRE_TILES
-		setup.DISCHARGE: expected = setup.NETWORK
 		setup.SWAP:
 			if not _saw_swap: failures.append("Swap must submit the production exchange effect")
 		setup.WORLDSPINE:
@@ -144,8 +131,6 @@ func finish(fixture: Dictionary, result: Dictionary, board: Control, setup: Scri
 				expected = event["tiles"]
 	for tile: Vector2i in expected:
 		if not _first_effect_by_tile.get(tile, false): failures.append("%s must submit the effect at %s" % [id, tile])
-	if id == setup.DISCHARGE and not _same_tiles(_first_effect_by_tile.keys(), expected):
-		failures.append("Discharge must submit removal effects on all four tiles of its L")
 	var before: Dictionary = fixture["state"]
 	var after: Dictionary = result["final"]
 	if id == setup.SWAP:

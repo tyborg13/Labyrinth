@@ -1,0 +1,77 @@
+[
+ {
+  "file": "data/cards.json",
+  "old": "\"Gain 10 Block, then leave Fire on each enemy's tile.\"",
+  "new": "\"Gain 10 Block, then leave Fire on each adjacent enemy's tile.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Gain 5 Block, then leave Fire on each enemy's tile.\"",
+  "new": "\"Gain 5 Block, then leave Fire on each adjacent enemy's tile.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Gain 5 Block, then leave Electrified on your tile and each enemy's tile.\"",
+  "new": "\"Gain 5 Block, then leave Electrified on your tile and each adjacent enemy's tile.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Gain 5 Block, then leave Rubble on each enemy's tile.\"",
+  "new": "\"Gain 5 Block, then leave Rubble on each adjacent enemy's tile.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Gain 5 Block, then Strike for 2 and leave Fire on the target's tile.\"",
+  "new": "\"Gain 5 Block, then deal 2 damage and leave Fire on each adjacent tile.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Consume. Push the target 3 tiles.\"",
+  "new": "\"Consume. Push each adjacent enemy 3 tiles away from you.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Leave Fire on 4 tiles within Range 2, then gain 4 Block. On Fire: +4 Block.\"",
+  "new": "\"Leave Fire on 4 tiles, then gain 4 Block. On Fire: +4 Block.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Leave Ice on 3 tiles within Range 3, then Draw 1.\"",
+  "new": "\"Leave Ice on 3 tiles, then Draw 1.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Consume. Leave Fire on 3 tiles within Range 3.\"",
+  "new": "\"Consume. Leave Fire on 3 tiles.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Raise Outcrops on 3 tiles within Range 2, then gain 3 Stoneskin. Empower for Exhaust: 5 tiles.\"",
+  "new": "\"Raise Outcrops on 3 tiles, then gain 3 Stoneskin. Empower for Exhaust: 5 tiles.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Mark 3 tiles within Range 4. At the start of your next turn, deal 8 damage on each Marked tile, then leave Fire.\"",
+  "new": "\"Mark 3 tiles. At the start of your next turn, deal 8 damage on each Marked tile, then leave Fire.\""
+ },
+ {
+  "file": "data/cards.json",
+  "old": "\"Blink to a tile adjacent to an enemy, Outcrop or crate within Range 4.\"",
+  "new": "\"Blink to a tile adjacent to an enemy, Outcrop, Powder Keg or crate within Range 4.\""
+ },
+ {
+  "file": "data/glossary.json",
+  "old": "\"definition\": \"Remove the named ground from the target's tile to use this effect.\"",
+  "new": "\"definition\": \"Remove the named ground to use this effect.\""
+ },
+ {
+  "file": "data/grimoire.json",
+  "old": "\"Remove the named ground from the target's tile to use this effect.\"",
+  "new": "\"Remove the named ground to use this effect.\""
+ },
+ {
+  "file": "data/card_panel_text.json",
+  "old": "\"text\": \"Mark tiles within Range and line of sight.\",\n    \"legacy\": \"Range\\nMark tiles within Range and line of sight.\"",
+  "new": "\"text\": \"Aim within Range and line of sight.\",\n    \"legacy\": \"Range\\nAim within Range and line of sight.\""
+ }
+]

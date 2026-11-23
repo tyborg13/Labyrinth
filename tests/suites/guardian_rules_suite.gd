@@ -24,7 +24,11 @@ const COMMITTED_ACTOR_FIXTURE: Dictionary = {
 }
 
 static func acceptance() -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos04_guardian_acceptance.json"))
+	var rows: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos04_guardian_acceptance.json"))
+	var copy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_battlefield_copy.json"))
+	for id: String in rows:
+		rows[id]["sentence"] = copy[id]["sentence"]
+	return rows
 
 static func run(expect: Callable) -> void:
 	committed_actor_after_removal(expect)
@@ -47,6 +51,7 @@ static func run(expect: Callable) -> void:
 		match id:
 			"ashen_reaver": Surfaces.place(state,TEST_FIRE_TILE,"fire",{"actor_kind":"enemy","actor_id":1})
 			"rimejaw":
+				state["turn_queue"].append(engine._player_actor_entry(0, engine._claim_activation_seq(state)))
 				for index: int in [-1,1]:
 					var unit: Dictionary = state["player"] if index < 0 else state["enemies"][index]
 					Surfaces.place(state,unit["pos"],"ice")
@@ -65,7 +70,12 @@ static func run(expect: Callable) -> void:
 		adapter.combat_outcome(after)
 		expect.call(int(adapter.final_metrics["beats_fired"])==1,id+" measurement counts only one committed beat")
 		if id=="rimejaw":
-			expect.call(int(after["player"]["freeze"])==1 and int(after["enemies"][1]["freeze"])==1,"Rimejaw zero-damage beat Freezes Chilled hero and helper")
+			var queue: Array = after["turn_queue"]
+			var hero_slots: Array = queue.filter(func(entry: Dictionary) -> bool: return entry.get("kind") == "player")
+			var helper_id: int = int(after["enemies"][1]["id"])
+			var helper_slots: Array = queue.filter(func(entry: Dictionary) -> bool: return int(entry.get("enemy_id", -1)) == helper_id)
+			expect.call(hero_slots.size() == 1 and int(hero_slots[0].get("stagger_delay", 0)) == 6, "Rimejaw's zero-damage beat applies Stagger 6 to the hero on Ice")
+			expect.call(helper_slots.size() == 1 and int(helper_slots[0].get("stagger_delay", 0)) == 6, "Rimejaw's zero-damage beat applies Stagger 6 to the helper on Ice")
 			expect.call(after["player"]["hp"]==state["player"]["hp"] and after["enemies"][1]["hp"]==state["enemies"][1]["hp"],"Rimejaw zero-damage beat loses no HP")
 		if id=="gallows_roc": expect.call(after["enemies"][0]["pos"]==state["enemies"][0]["pos"] and engine._force_actor_anchored(state,"enemy",1),"Roc holds Anchored in its own wind")
 		if id=="last_lamplighter":

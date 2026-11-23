@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Bursts = preload("res://scripts/tile_burst_fx.gd")
 const Ownership = preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd")
 
 static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void:
@@ -17,12 +18,23 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 	await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, presentation))
 	await scene._animate_turn_order_alongside_defeats(before, state)
 
-# Hidden cascades retain only visible affected tiles. Never submit the concealed
-# source, its identity or its snapshots to ribbon/smoke presentation.
-static func decorate_hidden_feedback(scene: Control, state: Dictionary, step: Dictionary, presentation: Dictionary) -> void:
+# Keep the board's anonymous feedback receipt for the existing clock. The
+# private contact callback carries the real centre for the Ground schedule.
+static func decorate_hidden_feedback(scene: Control, state: Dictionary, step: Dictionary, presentation: Dictionary, before: Dictionary = {}) -> Callable:
 	if str(step.get("action_type", "")) != "death_burst" or not step.has("cascade") or bool(step.get("cascade_continuation", false)) or bool(step.get("cascade_bookkeeping", false)):
-		return
-	var visible_tiles: Array[Vector2i] = scene._visible_umbra_action_tiles(state, step["cascade"].get("tiles", []))
-	if visible_tiles.is_empty(): return
+		return Callable()
+	var event: Dictionary = step["cascade"]
+	var visible_tiles: Array[Vector2i] = scene._visible_umbra_action_tiles(state, event.get("tiles", []))
+	if visible_tiles.is_empty(): return Callable()
 	presentation["en01_burst"] = {"tile": Vector2i(-1, -1), "tiles": visible_tiles}
 	presentation["en01_burst_progress"] = 0.0
+	var spec: Dictionary = burst_spec(scene.board_view, event, before, state)
+	spec["tiles"] = visible_tiles
+	return scene.board_view.present_tile_bursts.bind([spec], {}, state, scene._reduced_motion_enabled())
+
+static func burst_spec(board: Control, event: Dictionary, before: Dictionary, after: Dictionary) -> Dictionary:
+	var center: Vector2i = event["tile"]
+	var hits: Dictionary = Bursts.step_hit_tiles(event.get("before", before), event.get("after", after), board._resolved_unit_footprint)
+	hits[center] = true
+	return {"name": Bursts.for_element(str(event.get("element", "fire"))), "center": center,
+		"tiles": event["tiles"], "contact_hits": hits}

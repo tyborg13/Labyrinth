@@ -59,7 +59,7 @@ static func sample(unit: Dictionary, elapsed: float, clock: Dictionary) -> void:
 	unit["death_frame"] = frame
 	unit["death_progress"] = progress
 
-static func play(scene: Node, clock: Dictionary, render: Callable) -> void:
+static func play(scene: Node, clock: Dictionary, render: Callable) -> Variant:
 	var schedule: Array = clock.get("schedule_usec", [])
 	var legacy: bool = not clock.has("unit_clocks")
 	var hold_end_usec: int = int(clock.get("hold_end_usec", 0))
@@ -80,8 +80,9 @@ static func play(scene: Node, clock: Dictionary, render: Callable) -> void:
 				required.append(index)
 				break
 	var started: int = Time.get_ticks_usec()
-	var rendered: int = await PlaybackSamples.play(scene, schedule, hold_end_usec, func(index: int) -> void:
+	var sample_frame: Callable = func(index: int) -> void:
 		var progress: float = float(index) / float(maxi(1, schedule.size() - 1)) if legacy else float(schedule[index]) / 1000000.0 / float(clock["duration"])
 		render.call(progress)
-	, required)
-	scene._record_runtime_animation_clock(schedule.size(), rendered, hold_end_usec, Time.get_ticks_usec() - started)
+	var record_clock: Callable = func(rendered: int) -> void:
+		scene._record_runtime_animation_clock(schedule.size(), rendered, hold_end_usec, Time.get_ticks_usec() - started)
+	return PlaybackSamples.new(schedule, hold_end_usec, required, sample_frame, record_clock).play(scene._combat_pacing)

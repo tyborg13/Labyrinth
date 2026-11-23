@@ -6,6 +6,7 @@ extends RefCounted
 ## the outcome, and the step carries each tile's committed ground.
 const Dragon = preload("res://scripts/dragon_presentation.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const TileBurstFx = preload("res://scripts/tile_burst_fx.gd")
 
 const FRAME_SECONDS: float = 1.0 / 60.0
 ## Same clock as Vyraketh's 66-frame area spell, entered just before its release.
@@ -22,6 +23,7 @@ static func animate(scene: Node, animated_state: Dictionary, step: Dictionary) -
 	var effect: Dictionary = {"kind": "aoe", "enemy_type": "vyraketh", "action_type": "cinder_marks", "tiles": step.get("focus_tiles", []), "from": Vector2i(-1, -1)}
 	var reduced: bool = scene._reduced_motion_enabled()
 	var contact_frame: int = 0 if reduced else ceili((Dragon.CONTACT - START_PROGRESS) / FX_FRAME_PROGRESS)
+	var strike: TileBurstFx.StrikeCue = TileBurstFx.strike_frame_cue(effect, contact_frame, FRAME_SECONDS, reduced)
 	var base: Dictionary = scene._enemy_phase_status_presentation(step)
 	var texts: Array[Dictionary] = scene._visible_umbra_floating_texts(before, scene._floating_texts_for_target_losses(step.get("enemy_losses", [])), true)
 	base["effect"] = effect
@@ -29,10 +31,11 @@ static func animate(scene: Node, animated_state: Dictionary, step: Dictionary) -
 	var frames: int = contact_frame + ceili(maxf(settle_seconds, (1.0 - Dragon.CONTACT) / FX_FRAME_PROGRESS * FRAME_SECONDS) / FRAME_SECONDS)
 	var landed: Dictionary = {}
 	scene._set_action_banner("%s: %s" % [str(step.get("actor_name", "Meteorfall")), str(step.get("label", ""))])
-	await scene._play_timed_animation_frames(frames, FRAME_SECONDS, func(frame: int) -> void:
+	await scene._play_strike_animation_frames(frames, FRAME_SECONDS, func(frame: int) -> void:
 		var progress: float = minf(START_PROGRESS + frame * FX_FRAME_PROGRESS, 1.0)
 		if frame < contact_frame:
 			scene._render_board_state(before, {"effect": effect, "effect_progress": progress})
+			scene.board_view.present_sky_strike(strike, false, before, before)
 			return
 		if landed.is_empty():
 			scene._apply_animation_step(animated_state, step)
@@ -45,7 +48,8 @@ static func animate(scene: Node, animated_state: Dictionary, step: Dictionary) -
 		shown["effect_progress"] = progress
 		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, (frame - contact_frame) * FRAME_SECONDS, reduced)
 		scene._render_board_state(animated_state, shown)
-	)
+		scene.board_view.present_sky_strike(strike, true, before, animated_state)
+	, strike)
 	await scene._animate_turn_order_alongside_defeats(visible_before, animated_state)
 	if step.has("meteor_batch_after"):
 		await scene._burst_playback.finish_resolved_slice(scene, animated_state, step["meteor_batch_after"])

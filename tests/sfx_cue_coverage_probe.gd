@@ -120,7 +120,7 @@ func _drive() -> void:
 	after["player"].merge({"block": 3, "stoneskin": 2, "bleed": 1, "freeze": 1, "shock": 1, "stagger": 1}, true)
 	router.baseline(before)
 	router.presentation(after, {})
-	_check(["block.gain", "stoneskin.gain", "status.bleed", "status.freeze", "status.shock", "status.stagger"], "status and defense gains")
+	_check(["block.gain", "stoneskin.gain", "status.bleed", "status.shock", "status.stagger"], "status and defense gains")
 	router.blink()
 	router.push()
 	router.begin_player_action(_state(), {"type": "push"})

@@ -34,6 +34,26 @@ static func hover_line(lines: Array) -> Dictionary:
 			return {"kind": "gain", "ids": ["health"], "text": text.replace("@icon(health)", Icons.label("health"))}
 	return {}
 
+static func can_build_hover_line(line: Dictionary) -> bool:
+	var kind: String = str(line.get("kind", ""))
+	var ids: Array = line.get("ids", [])
+	if ids.is_empty(): return false
+	# A failed transform may supply only its source. The paired presentation
+	# needs a complete pair to build any reward for that choice.
+	if kind in ["transform", "reforge"] and ids.size() % 2 != 0: return false
+	for id: String in ids:
+		match kind:
+			"card", "card_choice", "transform", "item", "lose_item":
+				if Data.card_def(id).is_empty(): return false
+			"equipment", "reforge":
+				if Data.equipment_def(id).is_empty(): return false
+			"relic", "omen", "defiance":
+				if _definition(kind, id).is_empty(): return false
+			"gain":
+				if id not in ["ember", "health"]: return false
+			_: return false
+	return true
+
 static func outcome_line(outcome: Dictionary) -> Dictionary:
 	var kind: String = str(outcome.get("type", "plain"))
 	if kind == "transform_magic": kind = "transform"
@@ -106,7 +126,7 @@ static func build_next(work: Dictionary) -> bool:
 			dimensions_scale = (Builder.CARD_TOOLTIP_SIZE.x / Builder.CARD_BASE_SIZE.x if is_equal_approx(dimensions_scale, 1.0) else dimensions_scale) * HOVER_CARD_SCALE
 		var child: Control
 		if job.beat_only or job.get("embedded", false):
-			child = _bare_object(job.kind, job.id, work.state, dimensions_scale, job.beat_only)
+			child = _bare_object(job.kind, job.id, work.state, dimensions_scale, job.beat_only, work.line.get("kind") == "transform")
 		else:
 			child = _reward_plate(job, work, dimensions_scale)
 		var parent: Control = job.parent
@@ -137,6 +157,8 @@ static func _fit(stage: Control, content: Control) -> void:
 	content.size = extent
 	var factor: float = minf(1.0, MAX_WIDTH / maxf(1.0, extent.x))
 	content.scale = Vector2.ONE * factor
+	for card: Node in content.find_children("CardWidget", "", true, false):
+		card.call("set_title_outer_scale", factor)
 	stage.custom_minimum_size = Vector2(minf(extent.x, MAX_WIDTH), extent.y * factor)
 	stage.size = stage.custom_minimum_size
 	stage.pivot_offset = stage.size * 0.5
@@ -147,7 +169,7 @@ static func _reward_plate(job: Dictionary, work: Dictionary, factor: float) -> C
 	if kind in ["card", "card_choice", "item", "lose_item"]:
 		# Item rewards are native cards too, with run-specific rules and costs.
 		var plate: PanelContainer = Plate.make()
-		var face: Control = _bare_object(kind, id, work.state, factor)
+		var face: Control = _bare_object(kind, id, work.state, factor, false, work.line.get("kind") == "transform")
 		if kind in ["item", "lose_item"]:
 			var card: Control = face.find_child("CardWidget", true, false)
 			var accent := Color(Data.card_def(id).get("accent", Data.card_rarity_accent(Data.card_rarity(id))))
@@ -200,13 +222,13 @@ static func _icon_path(kind: String, id: String, definition: Dictionary) -> Stri
 	if kind == "defiance": return Icons.icon_path("defiance")
 	return str(definition.get("icon_path", ""))
 
-static func _bare_object(kind: String, id: String, state: Dictionary, scale_hint: float, beat_only: bool = false) -> Control:
+static func _bare_object(kind: String, id: String, state: Dictionary, scale_hint: float, beat_only: bool = false, title_thumbnail: bool = false) -> Control:
 	if kind in ["card", "card_choice", "item", "lose_item"]:
 		var builder := Builder.new()
 		builder.state = state
 		builder.use_run_display = true
 		var dimensions: Vector2 = Builder.CARD_BASE_SIZE * scale_hint if scale_hint != 1.0 else Builder.CARD_TOOLTIP_SIZE
-		var slot: Control = builder.card_preview(id, dimensions)
+		var slot: Control = builder.card_preview(id, dimensions, false, title_thumbnail)
 		slot.set_meta("reward_id", id)
 		if kind == "lose_item":
 			var art: TextureRect = slot.get_node("CardScaleFrame/CardWidget/Margin/VBox/ArtBleed/ArtFrame/Art") as TextureRect

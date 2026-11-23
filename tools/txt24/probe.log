@@ -1,0 +1,42 @@
+Running task-local command:
+  task: txt-24
+  run: txt-24-1795436030928603000-35862
+  HOME: /private/tmp/labyrinth-godot-home/txt-24-1795436030928603000-35862
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/txt-24-1795436030928603000-35862/godot.log --headless --path . --script tools/txt24/probe.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TXT24 REPRODUCED sure_footed_air | Arc Flash triggered the Air trap at (4, 4), player went from (3, 4) to (2, 4), skill spent=false.
+TXT24 REPRODUCED traps_air_ground | Walking into the Air trap consumed it and left 0 ground tiles.
+TXT24 REPRODUCED ghost_stride_range | With 1 Movement remaining: the armed move is blink 1 and the open visible tile (5, 4) is absent from [(3, 3), (2, 4), (4, 4), (3, 5)].
+TXT24 REPRODUCED borrowed_time_empower | Empowered Chain Bolt used the banked play and Borrowed Time; Time paid=2.
+TXT24 REPRODUCED arc_lash_diagonal | This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage. Hero at (3, 4) lost 6 Health; Arc Thrall at (4, 5) lost 5.
+TXT24 REPRODUCED marked_thornwall | Thornwall tooltip=Marked Marked tiles are hit on this enemy's next turn. Upheaval On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles. Marked tiles=[(4, 3), (4, 4), (4, 5)], Outcrops=3, player Health=100.
+TXT24 REPRODUCED electrified_hidden | Jolt hit the visible Crawler for 2; hidden=true and HP loss=0 on the connected tile (5, 4).
+TXT24 REPRODUCED wick_shade_snuff_duration | Lasts until Last Procession, including a skipped turn. Brazier lit after Snuff=false; Shade now at (4, 3); player at (3, 3); brazier now lit=true.
+TXT24 REPRODUCED ember_tick_burst_diagram | Details diagram=@pattern(surround:origin) (8 highlighted offsets), actual hit tiles=[(4, 4), (3, 5), (4, 5), (5, 5), (4, 6)], player at (3, 4) kept 100 Health.
+TXT24 REPRODUCED ember_hoarder_burst_diagram | Details diagram=@pattern(surround:origin) (8 highlighted offsets), actual hit tiles=[(4, 4), (3, 5), (4, 5), (5, 5), (4, 6)], player at (3, 4) kept 100 Health.
+TXT24 REPRODUCED gloam_stalker_fade_fallback | Player=(3, 4), blocked behind tile=(2, 4), Fade landed at (3, 3).
+TXT24 REPRODUCED burrow_grub_erupt_fallback | Burrow marked (3, 4); Raise Stone occupied that tile=true. Grub emerged at (2, 4).
+TXT24 REPRODUCED ashen_reaver_wildfire_axis | Player=(3, 4), source=(2, 4), initial Fire=(4, 4), Fire after beat=[(4, 4), (5, 4)]. On each Wildfire beat, after every second turn of yours, each Fire tile spreads 1 tile toward you.
+TXT24 REPRODUCED slagmaster_wildfire_axis | Player=(3, 4), source=(2, 4), initial Fire=(4, 4), Fire after beat=[(4, 4), (5, 4)]. On each Wildfire beat, after every second Slagmaster turn, each Fire tile spreads 1 tile toward you.
+TXT24 REPRODUCED slagmaster_order_fire | Order: After every second Slagmaster turn, its Fire spreads 1 tile toward you. Player-owned Fire at (4, 4) produced a new tile at (5, 4).
+TXT24 REPRODUCED gallows_roc_axis | Roc=(5, 4), Fledgling (6, 4) -> (7, 4). On each Gust beat, after your turn, each unit is Pushed 1 tile toward the Roc.
+TXT24 REPRODUCED prior_shadowstep_distance | On each Shadowstep beat, after every second Prior turn, each hidden follower Blinks 3 tiles toward you. Target (5, 3) -> (3, 3), actual distance=2.
+TXT24 REPRODUCED snare_shadow_shadowstep_distance | On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you. Target (6, 4) -> (5, 4), actual distance=1.
+TXT24 REPRODUCED last_light_shadowstep_distance | On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you. Target (7, 4) -> (6, 4), actual distance=1.
+TXT24 REPRODUCED noctyrax_shadowstep_distance | On each Shadowstep beat, when Noctyrax uses Void Claw, each hidden Veilbound Acolyte Blinks 3 tiles toward you. Target (5, 3) -> (3, 3), actual distance=2.
+TXT24 REPRODUCED dynamo_storm_ground | Damage=4; ground unchanged=true. Intent tooltip=This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage. / Lightning Storm / On each Lightning Storm beat, each unit on an Electrified tile takes 4 damage. / Lightning Strikes / This enemy hits each Marked tile, then leaves Electrified on each Marked tile.
+TXT24 REPRODUCED storm_cantor_storm_ground | Damage=4; ground unchanged=true. Intent tooltip=Lightning Storm / On each Lightning Storm beat, each unit on an Electrified tile takes 4 damage. / Lightning Strikes / This enemy hits each Marked tile, then leaves Electrified on each Marked tile.
+TXT24 REPRODUCED zekarion_storm_ground | Damage=6; ground unchanged=true. Intent tooltip=Takes half Stagger. / Lightning Storm / On each Lightning Storm beat, each unit on an Electrified tile takes 6 damage. / Lightning Strikes / This enemy hits each Marked tile, then leaves Electrified on each Marked tile.
+TXT24 REPRODUCED dynamo_intent_name | On each Lightning Storm beat, when the Dynamo uses Discharge, each unit on Electrified takes 4 damage. Committed intent name=Arc Lash; beats fired=1.
+TXT24 REPRODUCED heirloom_last_run | Left duelist_rapier in run 2, declined in run 3 and left nothing, then run 4 said: Start with your Duelist Rapier, left here last run.
+TXT24 REPRODUCED ossuary_gamblers_cost | Choice=Stake 50 Embers; printed cost=Pay 65 Embers.; actual debit=65.
+TXT24 REPRODUCED whispering_well_cost | Choice=Drop an Ember in; printed cost=Pay 25 Embers.; actual debit=25.
+TXT24 REPRODUCED event_hover_deferred_choice | Printed=Choose 1: Immolation, Pyroclasm or Wildfire Halo. Hover=["immolation", "pyroclasm", "wildfire_halo"]; the actual reward offered=["immolation", "pyroclasm", "shatterline"].
+TXT24 REPRODUCED deferred_choice_event_skip | Skipping the event reward with shatterline offered left skill state unchanged=true and closed the reward.
+TXT24 WITNESSES: 29 reproduced, 0 failed

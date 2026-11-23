@@ -142,5 +142,5 @@ func _test_surface_subject_prefixes() -> void:
 				if not affected.has(id): affected.append(id)
 	affected.sort()
 	# crd-09 (owner-approved 2026-11-08) moved Hotfoot onto the same player-subject check.
-	_expect(affected == ["cinder_wall", "hearth_rush", "hotfoot", "polar_guard", "worldroot_stride"], "All live player-subject surface faces are covered")
+	_expect(affected == ["cinder_wall", "hearth_rush", "hotfoot", "polar_guard"], "All live player-subject surface faces are covered")
 	print("CRD18 PLAYER-SUBJECT FACES: " + ", ".join(affected))

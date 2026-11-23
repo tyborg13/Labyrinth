@@ -15,6 +15,7 @@ const RUN_ELIGIBILITY_KEY: String = "guided_combat_scenario_eligible"
 const VERSION: int = 3
 const TARGET_ENEMY_ID: int = 7101
 const SUPPORT_ENEMY_ID: int = 7102
+# Kept for old guided checkpoint migration and pre-gear-02 runs.
 const TARGET_HP: int = 12
 const SUPPORT_FIRST_ACTIVATION_TIME: int = 13
 const PREVIEW_CARD_ID: String = "pale_spark"
@@ -66,7 +67,7 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 	)
 	support_crawler["intent"] = _tutorial_support_intent()
 	next_state["enemies"] = [
-		_authored_crawler(TARGET_ENEMY_ID, target_tile, TARGET_HP, 0),
+		_authored_crawler(TARGET_ENEMY_ID, target_tile, _target_hp(run_state), 0),
 		support_crawler,
 	]
 	next_state["traps"] = []
@@ -116,6 +117,14 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 		"refund_card_id": REFUND_CARD_ID,
 	}
 	return next_state
+
+static func _target_hp(run_state: Dictionary) -> int:
+	if bool(run_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)):
+		return TARGET_HP
+	# Preserve the authored two-card kill with the printed starter damage.
+	var preview: Dictionary = GameData.card_def(PREVIEW_CARD_ID)["actions"][0]
+	var finishing_hit: Dictionary = GameData.card_def(KILL_CARD_ID)["actions"][0]
+	return int(preview["damage"]) + int(finishing_hit["damage"])
 
 static func should_prepare(run_state: Dictionary, combat_state: Dictionary) -> bool:
 	if combat_state.is_empty() or combat_state.has(STATE_KEY) or bool(run_state.get("debug_boss_run", false)):
@@ -220,7 +229,6 @@ static func _authored_crawler(enemy_id: int, tile: Vector2i, hp: int, intent_ind
 		"max_hp": hp,
 		"block": 0,
 		"stoneskin": 0,
-		"bleed": 0,
 		"expose": 0,
 		"freeze": 0,
 		"shock": 0,
@@ -229,7 +237,7 @@ static func _authored_crawler(enemy_id: int, tile: Vector2i, hp: int, intent_ind
 	}
 
 static func _tutorial_support_intent() -> Dictionary:
-	# Use the production payload, including Bleed, to keep the pre-fight and
+	# Use the production payload to keep the pre-fight and
 	# guided intent identical.
 	return (GameData.enemy_def("crawler")["intents"][0] as Dictionary).duplicate(true)
 

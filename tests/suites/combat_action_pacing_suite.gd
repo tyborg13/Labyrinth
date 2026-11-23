@@ -1,5 +1,5 @@
 extends RefCounted
-## Production step-routing regressions for support, bleed, and clipped Umbra.
+## Production step-routing regressions for support and clipped Umbra.
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const TestClock = preload("res://tests/helpers/presentation_test_clock.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
@@ -8,8 +8,6 @@ const FIXTURE_SUPPORT_AMOUNT: int = 3
 const FIXTURE_MISSING_HP: int = 5
 const FIXTURE_SUPPORT_RANGE: int = 5
 const FIXTURE_ALLY_TILE: Vector2i = Vector2i(4, 3)
-const FIXTURE_BLEED_AMOUNT: int = 1
-const FIXTURE_NEXT_TILE: Vector2i = Vector2i(6, 3)
 const FIXTURE_HIDDEN_TILE: Vector2i = Vector2i(6, 4)
 const FIXTURE_HIDDEN_RANGE: int = 6
 const CLOCK_TOLERANCE_SECONDS: float = 0.08
@@ -25,8 +23,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 static func _run_scoped(_globals: TestClock.GlobalScope, tree: SceneTree, expect: Callable) -> void:
 	await Clocks.run(tree, expect)
 	await ally_support(tree, expect)
-	await _bleed_settle(tree, expect, false)
-	await _bleed_settle(tree, expect, true)
 	for reduced: bool in [false, true]: await _clipped_umbra_settle(tree, expect, reduced)
 	print("COMBAT ACTION PACING SUITE: complete")
 
@@ -75,45 +71,6 @@ static func _ally_support_scoped(_globals: TestClock.GlobalScope, tree: SceneTre
 		var stat: String = "hp" if action_type == "heal_ally" else "block"
 		expect.call(int(before["enemies"][1][stat]) == int(after["enemies"][1][stat]), "Ally support presentation preserves the engine's target outcome")
 		print("COMBAT PACING ALLY SUPPORT %s: leads=%d settles=%d caption=%s" % [action_type, leads.size(), _rows(pacing, "post-action settle").size(), scene.get("action_banner").text])
-	await _dispose(tree, scene)
-
-static func _bleed_settle(tree: SceneTree, expect: Callable, with_surface: bool) -> void:
-	var scene: Node = await _scene(tree)
-	var engine := Combat.new()
-	var before: Dictionary = scene.get("_combat_state").duplicate(true)
-	before["surfaces"] = {}
-	var dying: Dictionary = before["enemies"][0]
-	# Death itself emits actor_death in surface_events. Nonlethal bleed takes
-	# the ordinary feedback path; lethal bleed takes the early surface branch.
-	dying["hp"] = FIXTURE_BLEED_AMOUNT if with_surface else FIXTURE_BLEED_AMOUNT * 2
-	dying["bleed"] = FIXTURE_BLEED_AMOUNT
-	var walker: Dictionary = dying.duplicate(true)
-	walker["id"] = 2
-	walker["hp"] = int(walker["max_hp"])
-	walker["bleed"] = 0
-	walker["pos"] = FIXTURE_HIDDEN_TILE
-	before["enemies"] = [dying, walker]
-	var bleed: Dictionary = engine._trigger_enemy_bleed_for_action(before.duplicate(true), 0, {"type":"melee"})
-	var after: Dictionary = bleed["state"]
-	var step: Dictionary = engine._enemy_status_damage_step(bleed["step"], before, after)
-	var expected_hp: int = 0 if with_surface else FIXTURE_BLEED_AMOUNT
-	expect.call(str(step.get("kind", "")) == "status_damage" and str(step.get("trigger", "")) == "action" and int(after["enemies"][0]["hp"]) == expected_hp, "Bleed fixture is engine-generated action-triggered feedback")
-	var has_surface_events: bool = not (step.get("surface_events", []) as Array).is_empty()
-	expect.call(has_surface_events == with_surface, "Bleed fixture exercises the requested surface-event branch (surface=%s events=%d)" % [with_surface, (step.get("surface_events", []) as Array).size()])
-	var intent: Dictionary = engine._enemy_intent_step_for_player(before, dying, {"name":"Fixture bleed"})
-	var next_intent: Dictionary = engine._enemy_intent_step_for_player(after, walker, {"name":"Fixture walk"})
-	var move: Dictionary = {"kind":"move", "actor_key":"enemy_2", "actor_name":next_intent["actor_name"], "from":walker["pos"], "to":FIXTURE_NEXT_TILE, "path":[walker["pos"], FIXTURE_NEXT_TILE]}
-	_start(scene, before)
-	var pacing: Node = scene.get("_combat_pacing")
-	await scene.call("_animate_enemy_phase_steps", before, [intent, step, next_intent, move])
-	pacing.end_scope()
-	_expect_one_settle(pacing, expect, "Action bleed (surface=%s)" % with_surface)
-	var settles: Array[Dictionary] = _rows(pacing, "post-action settle")
-	for caption: Dictionary in _rows(pacing, "caption"):
-		if str(caption["actor"]) == "enemy_2" and settles.size() == 1:
-			expect.call(float(caption["clock_start"]) >= float(settles[0]["clock_end"]), "Action bleed settles before the next move-only activation")
-	expect.call(int(before["enemies"][0]["hp"]) == expected_hp and before["enemies"][1]["pos"] == FIXTURE_NEXT_TILE, "Bleed/death/move presentation preserves the resolved outcomes")
-	print("COMBAT PACING ACTION BLEED surface=%s: settles=%d" % [with_surface, settles.size()])
 	await _dispose(tree, scene)
 
 static func _clipped_umbra_settle(tree: SceneTree, expect: Callable, reduced: bool) -> void:

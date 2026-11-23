@@ -72,25 +72,16 @@ MOVE_ACTIONS = {"move"}
 PROJECT = Path(__file__).resolve().parents[2]
 
 
-def _bleed_sources() -> tuple[set[str], set[str]]:
-    """Intents (and, for logs without intent ids, foe names) whose attacks apply Bleed."""
-    intents: set[str] = set()
-    names: set[str] = set()
-    try:
-        enemies = json.loads((PROJECT / "data" / "enemies.json").read_text())
-    except (OSError, ValueError):
-        return {"skitter_strike", "pelt"}, {"Tunnel Crawler", "Bone Harrier"}
-    for enemy in enemies.values() if isinstance(enemies, dict) else []:
-        if not isinstance(enemy, dict):
-            continue
-        for intent in enemy.get("intents", []) or []:
-            if any(int(action.get("bleed", 0) or 0) > 0 for action in intent.get("actions", []) or []):
-                intents.add(str(intent.get("id", "")))
-                names.add(str(enemy.get("name", "")))
-    return intents, names
-
-
-BLEED_INTENTS, BLEED_FOES = _bleed_sources()
+# Base catalog before the pla-07 cut. Older logs may omit intent ids.
+LEGACY_BLEED_SOURCES = {
+    "skitter_strike": "Tunnel Crawler",
+    "pelt": "Bone Harrier",
+    "razor_dive": "Vaeloryx, the Hollow Gale",
+    "grave_dive": "Gallows Roc",
+    "lash_of_thorns": "Briar Weaver",
+    "talon_rake": "Gust Shrike",
+}
+LEGACY_BLEED_FOES = frozenset(LEGACY_BLEED_SOURCES.values())
 
 
 def _spawned_types() -> tuple[set[str], set[str]]:
@@ -650,13 +641,13 @@ def bleed_hit(round_window: dict | None) -> str:
         if event.get("event_type") != "enemy_action_resolved":
             continue
         payload = event.get("payload", {})
-        if not any(float(l.get("amount", 0) or 0) > 0 for l in hero_losses(payload)):
+        if payload.get("status_riders_retired") or not any(float(l.get("amount", 0) or 0) > 0 for l in hero_losses(payload)):
             continue
         intent = str(payload.get("intent_id", "") or "")
         if intent:
-            if intent in BLEED_INTENTS:
+            if intent in LEGACY_BLEED_SOURCES:
                 return str(payload.get("actor_name", ""))
-        elif str(payload.get("actor_name", "")) in BLEED_FOES:
+        elif str(payload.get("actor_name", "")) in LEGACY_BLEED_FOES:
             return str(payload.get("actor_name", ""))
     return ""
 

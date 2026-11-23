@@ -2,8 +2,23 @@ extends RefCounted
 class_name FloatingCombatText
 
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
+const Elements = preload("res://scripts/element_data.gd")
+const Assets = preload("res://scripts/asset_loader.gd")
 const KIND_DAMAGE: String = "damage"
 const KIND_EFFECT: String = "effect"
+const HOLD_EFFECT_BEAT_KEY: String = "hold_floating_effect_beat"
+const IMPACT_DAMAGE_KEY: String = "impact_damage"
+const POPUP_ONLY_KEY: String = "popup_only"
+
+const RESOURCE_COLORS: Dictionary = {
+	"block": 0x90d9ffff,
+	"heal": 0x9ee27eff,
+	"draw": 0xf1d18bff,
+	"card_play": 0xffe27aff,
+}
+# Effect typography was selected from the previous label length. Keep its
+# peak, settle and exit sizes when the suffix becomes an icon.
+const RESOURCE_SUFFIX_LENGTHS: Dictionary = {"stoneskin": 2, "draw": 5, "card_play": 10}
 
 const GENERIC_PRESENTATION_SECONDS: float = 0.18
 const ANIMATION_DURATION_SECONDS: float = 0.48
@@ -38,6 +53,13 @@ const EFFECT_PEAK_FONT_SIZE: int = 48
 const EFFECT_EXIT_FONT_SIZE: int = 20
 const EFFECT_REDUCED_MOTION_FONT_SIZE: int = 28
 const EFFECT_OUTLINE_SIZE: int = 3
+const ICON_HEIGHT_RATIO: float = 1.15
+const ICON_GAP_RATIO: float = 0.16
+
+static var _digit_centers: Dictionary = {}
+static var _outline_offsets: Dictionary = {}
+static var _icon_silhouettes: Dictionary = {}
+static var _icon_outlines: Dictionary = {}
 
 
 static var _next_screen_layout_id: int = 0
@@ -81,6 +103,26 @@ static func damage_entry(
 	return entry
 
 
+static func resource_entry(kind: String, tile: Vector2i, signed_amount: int, overrides: Dictionary = {}) -> Dictionary:
+	var text: String = "%s%d" % ["−" if signed_amount < 0 else "+", absi(signed_amount)]
+	var suffix_length: int = int(RESOURCE_SUFFIX_LENGTHS.get(kind, 0))
+	if kind == "block" and signed_amount < 0:
+		suffix_length = 2
+	var entry: Dictionary = {
+		"kind": KIND_EFFECT,
+		"resource_kind": kind,
+		"tile": tile,
+		"icon": kind,
+		"text": text,
+		"color": Elements.accent(Elements.EARTH) if kind == "stoneskin" else Color.hex(RESOURCE_COLORS[kind]),
+		"style_text_length": text.length() + suffix_length,
+	}
+	if signed_amount > 0 and kind in ["block", "stoneskin", "heal"]:
+		entry["gain"] = kind
+	entry.merge(overrides, true)
+	return entry
+
+
 # A bigger hit throws a bigger number. These are the hit-stop's and the screen
 # shake's damage steps, so the number, the freeze and the shake agree on a hit.
 static func damage_hit_scale(amount: int) -> float:
@@ -99,9 +141,24 @@ static func is_popup_entry(entry: Dictionary) -> bool:
 	return is_damage_entry(entry) or is_effect_entry(entry)
 
 
+## The first displayed gain starts its tile's batch. Later floats keep their
+## existing stagger while the body effects use the authored ordering and clock.
+static func _gain_batches(base_entries: Array) -> Dictionary:
+	var batches: Dictionary
+	for value: Variant in base_entries:
+		if not value is Dictionary or not value.has("gain"): continue
+		var entry: Dictionary = value
+		var tile: Vector2i = entry["tile"]
+		if not batches.has(tile):
+			batches[tile] = {"id": ensure_screen_layout_id(entry), "gains": []}
+		batches[tile]["gains"].append(entry["gain"])
+	return batches
+
+
 static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced_motion: bool) -> Array[Dictionary]:
 	var animated: Array[Dictionary]
 	var sequence_count_by_anchor: Dictionary = {}
+	var gain_batches: Dictionary = _gain_batches(base_entries)
 	for base_var: Variant in base_entries:
 		if typeof(base_var) != TYPE_DICTIONARY:
 			continue
@@ -116,6 +173,8 @@ static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced
 		var local_progress: float = clampf(local_elapsed / ANIMATION_DURATION_SECONDS, 0.0, 1.0)
 		var entry: Dictionary = animate_entry(base_entry, local_progress, reduced_motion)
 		entry["screen_layout_key"] = ensure_screen_layout_id(base_entry)
+		if entry.has("gain"):
+			entry["gain_batch"] = gain_batches[entry["tile"]]
 		entry["sequence_index"] = sequence_index
 		entry["sequence_delay_seconds"] = delay_seconds
 		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
@@ -214,6 +273,140 @@ static func rendered_font_size(entry: Dictionary) -> float:
 	return float(entry.get("font_size", 0)) * float(entry.get("font_scale", 1.0))
 
 
+static func icon_rect(texture: Texture2D, font: Font, font_size: int) -> Rect2:
+	if texture == null or texture.get_height() <= 0:
+		return Rect2()
+	var height: float = float(font_size) * ICON_HEIGHT_RATIO
+	var width: float = height * texture.get_width() / texture.get_height()
+	return Rect2(0.0, _digit_center(font, font_size) - height * 0.5, width, height)
+
+
+static func icon_advance(rect: Rect2, font_size: int) -> float:
+	return rect.size.x + float(font_size) * ICON_GAP_RATIO if rect.has_area() else 0.0
+
+
+static func _digit_center(font: Font, font_size: int) -> float:
+	var key: Array = [font, font_size]
+	if not _digit_centers.has(key):
+		var center: float = -font.get_ascent(font_size) * 0.5
+		var server := TextServerManager.get_primary_interface()
+		for rid: RID in font.get_rids():
+			var digit: int = server.font_get_glyph_index(rid, font_size, 0x30, 0)
+			var points: PackedVector3Array = server.font_get_glyph_contours(rid, font_size, digit).get("points", PackedVector3Array())
+			if points.is_empty():
+				continue
+			var top: float = points[0].y
+			var bottom: float = top
+			for point: Vector3 in points:
+				top = minf(top, point.y)
+				bottom = maxf(bottom, point.y)
+			center = (top + bottom) * 0.5
+			break
+		_digit_centers[key] = center
+	return _digit_centers[key]
+
+
+static func outline_offsets(outline_size: int) -> Array[Vector2]:
+	if not _outline_offsets.has(outline_size):
+		var offsets: Array[Vector2]
+		for y: int in range(-outline_size, outline_size + 1):
+			for x: int in range(-outline_size, outline_size + 1):
+				var offset := Vector2(x, y)
+				if offset != Vector2.ZERO and offset.length() <= float(outline_size) + 0.35:
+					offsets.append(offset)
+		_outline_offsets[outline_size] = offsets
+	return _outline_offsets[outline_size]
+
+
+static func uses_nearest_filter(source_size: Vector2, screen_size: Vector2) -> bool:
+	var ratio: Vector2 = screen_size / source_size
+	return ratio.x >= 1.0 and ratio.y >= 1.0 and ratio.is_equal_approx(ratio.round())
+
+
+static func _icon_ink(texture: Texture2D, rect: Rect2, outline_size: int) -> Dictionary:
+	var size: Vector2i = Vector2i(rect.size.round()).max(Vector2i.ONE)
+	var key: Array = [texture, size, outline_size]
+	if not _icon_outlines.has(key):
+		var ink: Dictionary = {}
+		if not _icon_silhouettes.has(texture):
+			var image: Image = Assets.texture_source_image(texture)
+			if image == null or image.is_empty():
+				return ink
+			if image.is_compressed() and image.decompress() != OK:
+				return ink
+			image.convert(Image.FORMAT_RGBA8)
+			# Keep the source alpha and use white so both ink passes accept tint.
+			var bytes: PackedByteArray = image.get_data()
+			for index: int in range(0, bytes.size(), 4):
+				bytes[index] = 255
+				bytes[index + 1] = 255
+				bytes[index + 2] = 255
+			var mask := Image.create_from_data(image.get_width(), image.get_height(), false, Image.FORMAT_RGBA8, bytes.slice(0, image.get_width() * image.get_height() * 4))
+			_icon_silhouettes[texture] = {"image": mask, "texture": ImageTexture.create_from_image(mask)}
+		var silhouette: Dictionary = _icon_silhouettes[texture]
+		ink["shadow"] = silhouette["texture"]
+		if outline_size > 0:
+			var mask: Image = (silhouette["image"] as Image).duplicate()
+			mask.resize(size.x, size.y, Image.INTERPOLATE_BILINEAR)
+			var pad := Vector2i(outline_size, outline_size)
+			var baked := Image.create_empty(size.x + pad.x * 2, size.y + pad.y * 2, false, Image.FORMAT_RGBA8)
+			for offset: Vector2 in outline_offsets(outline_size):
+				baked.blend_rect(mask, Rect2i(Vector2i.ZERO, size), pad + Vector2i(offset))
+			ink["outline"] = ImageTexture.create_from_image(baked)
+		_icon_outlines[key] = ink
+	return _icon_outlines[key]
+
+
+# A float adds at most three icon rectangles regardless of outline radius.
+static func paint_icon(canvas: IconCanvas, owner: CanvasItem, popup: Dictionary, origin: Vector2, alpha: float, shadow_color: Color, outline_color: Color) -> int:
+	var rect: Rect2 = popup["icon_rect"]
+	if not rect.has_area():
+		return 0
+	var texture: Texture2D = popup["icon_texture"]
+	var entry: Dictionary = popup["entry"]
+	var scale: float = popup["font_scale"]
+	var screen: Transform2D = owner.get_viewport().get_final_transform() * owner.get_global_transform_with_canvas()
+	var nearest: bool = uses_nearest_filter(texture.get_size(), rect.size * scale * screen.get_scale().abs())
+	var item: RID = canvas.item_for_filter(owner, nearest)
+	var ink: Dictionary = _icon_ink(texture, rect, int(entry.get("outline_size", 2)))
+	rect.position.x += float(popup["glyph_inset"])
+	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+	var submissions: int = 1
+	if ink.has("shadow") and not shadow_offset.is_zero_approx():
+		var shadow_rect := Rect2(origin + (rect.position + shadow_offset) * scale, rect.size * scale)
+		RenderingServer.canvas_item_add_texture_rect(item, shadow_rect, (ink["shadow"] as Texture2D).get_rid(), false, shadow_color)
+		submissions += 1
+	if ink.has("outline"):
+		var outline_rect := Rect2(origin + rect.position * scale, rect.size * scale).grow(float(entry.get("outline_size", 2)) * scale)
+		RenderingServer.canvas_item_add_texture_rect(item, outline_rect, (ink["outline"] as Texture2D).get_rid(), false, outline_color)
+		submissions += 1
+	var tint: Color = entry.get("icon_tint", Color.WHITE)
+	tint.a *= alpha
+	RenderingServer.canvas_item_add_texture_rect(item, Rect2(origin + rect.position * scale, rect.size * scale), texture.get_rid(), false, tint)
+	return submissions
+
+# Each filter has its own canvas item because Godot exposes one filter per item.
+class IconCanvas:
+	var _items: Dictionary = {}
+
+	func clear() -> void:
+		for item: RID in _items.values():
+			RenderingServer.canvas_item_clear(item)
+
+	func item_for_filter(owner: CanvasItem, nearest: bool) -> RID:
+		if not _items.has(nearest):
+			var created: RID = RenderingServer.canvas_item_create()
+			RenderingServer.canvas_item_set_parent(created, owner.get_canvas_item())
+			RenderingServer.canvas_item_set_default_texture_filter(created, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_NEAREST if nearest else RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR)
+			_items[nearest] = created
+		return _items[nearest]
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_PREDELETE:
+			for item: RID in _items.values():
+				RenderingServer.free_rid(item)
+
+
 static func animate_entry(base_entry: Dictionary, progress: float, reduced_motion: bool) -> Dictionary:
 	ensure_screen_layout_id(base_entry)
 	var entry: Dictionary = base_entry.duplicate(true)
@@ -252,13 +445,12 @@ static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: b
 	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
 	entry["outline_size"] = roundi(6.0 * sqrt(hit_scale))
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
-	_prepare_scaled_icon(entry, hit_scale * float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
 
 
 static func _animate_effect_entry(entry: Dictionary, t: float, reduced_motion: bool) -> Dictionary:
 	entry["kind"] = KIND_EFFECT
-	var text_length: int = str(entry.get("text", "")).length()
+	var text_length: int = int(entry.get("style_text_length", str(entry.get("text", "")).length()))
 	var default_base_size: int = EFFECT_BASE_FONT_SIZE if text_length <= 7 else (22 if text_length <= 16 else 18)
 	var default_peak_size: int = EFFECT_PEAK_FONT_SIZE if text_length <= 7 else (39 if text_length <= 16 else 31)
 	var default_exit_size: int = EFFECT_EXIT_FONT_SIZE if text_length <= 7 else (18 if text_length <= 16 else 16)
@@ -285,7 +477,6 @@ static func _animate_effect_entry(entry: Dictionary, t: float, reduced_motion: b
 	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
 	entry["outline_size"] = 4
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
-	_prepare_scaled_icon(entry, float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
 
 
@@ -329,13 +520,6 @@ static func _motion_offset(entry: Dictionary, progress: float, reduced_motion: b
 		)
 		y = lerpf(-ARC_RISE_HEIGHT, ARC_END_DROP, smoothstep(0.0, 1.0, fall_t))
 	return Vector2(x, y)
-
-
-static func _prepare_scaled_icon(entry: Dictionary, peak_scale: float) -> void:
-	if str(entry.get("icon", "")).is_empty():
-		return
-	var base_icon_size: float = float(entry.get("base_icon_size", entry.get("icon_size", 22.0)))
-	entry["icon_size"] = clampf(base_icon_size * peak_scale, 18.0, 42.0)
 
 
 static func _alpha_for_progress(progress: float, fade_start: float) -> float:

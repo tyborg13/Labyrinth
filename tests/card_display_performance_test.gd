@@ -81,14 +81,14 @@ func _run() -> void:
 			calculations = Bindings.calculations
 			signals["count"] = 0
 			for sample: int in range(SAMPLES):
-				status_state["player_bleed"] = sample + 1
+				status_state["player_expose"] = sample + 1
 				var start: int = Time.get_ticks_usec()
 				Display.refresh(host, status_state)
 				unchanged_status.append(Time.get_ticks_usec() - start)
-				_expect(_snapshot(host) == before, "Bleed changes no definition, text, rows or badge")
+				_expect(_snapshot(host) == before, "Expose changes no definition, text, rows or badge")
 				await process_frame
-			_expect(Bindings.calculations == calculations and signals["count"] == 0, "Unchanged Bleed performs zero projections and emits zero display signals")
-			print("CARD DISPLAY BLEED NO TEXT CHANGE count=%d layout=%s extra_projections=%d display_signals=%d" % [count, layout, Bindings.calculations - calculations, signals["count"]])
+			_expect(Bindings.calculations == calculations and signals["count"] == 0, "Unchanged Expose performs zero projections and emits zero display signals")
+			print("CARD DISPLAY EXPOSE NO TEXT CHANGE count=%d layout=%s extra_projections=%d display_signals=%d" % [count, layout, Bindings.calculations - calculations, signals["count"]])
 			for sample: int in range(SAMPLES):
 				var health: Dictionary = FIXTURE.duplicate(true)
 				health["player_hp"] = 12 if sample % 2 == 0 else 24
@@ -104,7 +104,7 @@ func _run() -> void:
 				var start: int = Time.get_ticks_usec()
 				Display.definition_signature(cards, FIXTURE)
 				pile.append(Time.get_ticks_usec() - start)
-			for row: Array in [["general", general], ["irrelevant_ui", irrelevant], ["hidden_health", hidden], ["visible_health_unchanged_text", no_text_change], ["visible_bleed_unchanged_text", unchanged_status], ["visible_health_changed_text", changed], ["pile_signature", pile]]:
+			for row: Array in [["general", general], ["irrelevant_ui", irrelevant], ["hidden_health", hidden], ["visible_health_unchanged_text", no_text_change], ["visible_expose_unchanged_text", unchanged_status], ["visible_health_changed_text", changed], ["pile_signature", pile]]:
 				var timings: Array = row[1]
 				timings.sort()
 				print("CARD DISPLAY CPU count=%d layout=%s case=%s median_us=%d max_us=%d samples=%d" % [count, layout, row[0], timings[timings.size()/2], timings[-1], timings.size()])

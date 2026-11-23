@@ -96,15 +96,14 @@ static func _test_grounding(engine: Combat, scene: Node, expect: Callable) -> vo
 		var state: Dictionary = fixture(engine, ["grounding"])
 		Surface.place(state, OUTSIDE, "electrified")
 		for index: int in range(count): Surface.place(state, tiles[index], "electrified")
-		_check_legality(engine, scene, state, "grounding", count > 0, expect, "Grounding %d in pattern, one outside" % count)
-		if count == 0: continue
+		_check_legality(engine, scene, state, "grounding", true, expect, "Grounding %d in pattern, one outside" % count)
 		var after: Dictionary = _play(engine, scene, state, "grounding", expect)
-		expect.call(int(after["player"].get("stoneskin", 0)) == mini(count * 3, 9), "Grounding grants 3 Stoneskin per tile, capped at 9 (crd-14)")
+		expect.call(int(after["player"].get("stoneskin", 0)) == mini(3 + count * 3, 9), "Grounding grants 3 Stoneskin plus 3 per tile, capped at 9")
 		for index: int in range(count): expect.call(not Surface.has_surface(after, tiles[index], "electrified"), "Grounding removes selected tile")
 		expect.call(Surface.has_surface(after, OUTSIDE, "electrified"), "Grounding leaves out-of-pattern fuel")
 	var wrong: Dictionary = fixture(engine, ["grounding"])
 	Surface.place(wrong, PLAYER, "fire")
-	_check_legality(engine, scene, wrong, "grounding", false, expect, "Grounding ignores another surface")
+	_check_legality(engine, scene, wrong, "grounding", true, expect, "Grounding's baseline works on another surface")
 	var threshold: Dictionary = _action(engine, wrong, "grounding").duplicate(true)
 	threshold["min_consumed"] = 2
 	Surface.place(wrong, PLAYER, "electrified")
@@ -117,19 +116,20 @@ static func _test_selectors(engine: Combat, scene: Node, expect: Callable) -> vo
 		var bare: Dictionary = fixture(engine, [card_id], false)
 		_check_legality(engine, scene, bare, card_id, false, expect, card_id + " empty board")
 		var state: Dictionary = fixture(engine, [card_id])
-		_check_legality(engine, scene, state, card_id, false, expect, card_id + " nonmatching enemy")
-		if card_id == "white_silence": state["enemies"][0]["chilled"] = true
+		_check_legality(engine, scene, state, card_id, card_id == "stoke", expect, card_id + " visible enemy off matching ground")
+		if card_id == "white_silence": Surface.place(state, ENEMY, "ice")
 		elif card_id == "searing_light": state = engine._create_umbra_light_source(state, ENEMY, {"radius": 0, "duration": 2})
 		else:
 			Surface.place(state, ENEMY + Vector2i.RIGHT, "fire")
-			_check_legality(engine, scene, state, card_id, false, expect, "Stoke beside Fire")
+			_check_legality(engine, scene, state, card_id, true, expect, "Stoke beside Fire")
+			var off_fire: Dictionary = _play(engine, scene, state, card_id, expect)
+			expect.call(int(off_fire["enemies"][0]["hp"]) == FIXTURE_HP - 2, "Stoke deals 2 to a visible enemy beside Fire")
 			Surface.place(state, ENEMY, "fire")
 		_check_legality(engine, scene, state, card_id, true, expect, card_id + " matching visible enemy")
 		var after: Dictionary = _play(engine, scene, state, card_id, expect)
-		# Release White Silence is 4 Ice plus the existing +2 against Chilled.
-		var damage: int = {"white_silence": 6, "searing_light": 5, "stoke": 5}[card_id]  # crd-14: Stoke deals 5
-		expect.call(int(after["enemies"][0]["hp"]) == FIXTURE_HP - damage, card_id + " unchanged release damage")
-		if card_id == "white_silence": expect.call(int(after["enemies"][0].get("freeze", 0)) > 0, "White Silence still Freezes Chilled enemies")
+		var damage: int = {"white_silence": 6, "searing_light": 5, "stoke": 5}[card_id]
+		expect.call(int(after["enemies"][0]["hp"]) == FIXTURE_HP - damage, card_id + " damage on matching ground")
+		if card_id == "white_silence": expect.call(int(engine.stagger_delays_between(state, after).get(int(after["enemies"][0]["id"]), 0)) == 6, "White Silence delays enemies on Ice")
 		if card_id == "stoke": expect.call(Surface.has_surface(after, ENEMY, "fire"), "Stoke leaves Fire unchanged")
 		var hidden: Dictionary = state.duplicate(true)
 		hidden["umbra"]["stage"] = "heart"
@@ -209,19 +209,18 @@ static func _test_spike_mantle(engine: Combat, scene: Node, expect: Callable) ->
 			expect.call(int(after["player"].get("stoneskin", 0)) == 0, label + " grants no Stoneskin without Rubble")
 
 static func _test_refresh(engine: Combat, scene: Node, expect: Callable) -> void:
-	var state: Dictionary = fixture(engine, ["grounding", "spark_focus"])
+	var state: Dictionary = fixture(engine, ["spike_mantle", "caltrops"])
+	state["enemies"][0]["pos"] = OUTSIDE
 	scene.set("_combat_state", state)
 	scene.call("_mark_combat_preview_state_changed")
-	expect.call(not bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Grounding initially unavailable in warm hand cache")
-	# Use Spark Focus's production painter mid-turn; preserve the Grounding slot.
-	var spark: Dictionary = _action(engine, state, "spark_focus").duplicate(true)
-	spark["orientation"] = Vector2i.RIGHT
-	state = engine.apply_player_action(state, spark, PLAYER + Vector2i.UP)
-	expect.call(Surface.has_surface(state, PLAYER + Vector2i.UP, "electrified"), "Spark Focus actually paints qualifying fuel")
+	expect.call(not bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Spike Mantle initially unavailable in warm hand cache")
+	# Paint via the production card action while keeping Spike Mantle in hand.
+	state = engine.apply_player_action(state, _action(engine, state, "caltrops"), PLAYER + Vector2i.UP)
+	expect.call(Surface.has_surface(state, PLAYER + Vector2i.UP, "rubble"), "Caltrops paints qualifying Rubble")
 	scene.set("_combat_state", state)
 	scene.call("_mark_combat_preview_state_changed")
-	expect.call(bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Grounding refreshes through ordinary board revision invalidation")
-	state = engine.apply_player_action(state, _action(engine, state, "grounding"), NO_TARGET)
+	expect.call(bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Spike Mantle refreshes through ordinary board revision invalidation")
+	state = engine.apply_player_action(state, _action(engine, state, "spike_mantle", 1), NO_TARGET)
 	scene.set("_combat_state", state)
 	scene.call("_mark_combat_preview_state_changed")
-	expect.call(not bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Grounding becomes unavailable after its in-pattern fuel is expended")
+	expect.call(not bool((scene.call("_card_playability_for_index", 0) as Dictionary).get("any_playable", false)), "Spike Mantle becomes unavailable after the adjacent Rubble is Expended")

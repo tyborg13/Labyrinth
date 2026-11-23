@@ -108,10 +108,10 @@ static func _validation(expect: Callable) -> void:
 	omen.clear()
 	omen.merge(original_omen)
 	var vision: Dictionary = Data.omen_def("lantern_sight")["effect"]
-	var radius: int = int(vision["radius"])
-	vision.erase("radius")
-	expect.call(not Events.validate_data().is_empty(), "Vision omens must author their radius")
-	vision["radius"] = radius
+	var turns: int = int(vision["amount"])
+	vision.erase("amount")
+	expect.call(not Events.validate_data().is_empty(), "Vision omens require a duration")
+	vision["amount"] = turns
 	expect.call(Events.validate_data().is_empty(), "Validation fixtures restore protected catalog in memory")
 
 static func _selection(engine: RefCounted, expect: Callable) -> void:
@@ -172,11 +172,13 @@ static func _requirements(engine: RefCounted, expect: Callable) -> void:
 		expect.call(not Events.choice_available(state, "test_requirements", "choice") and Events.choice_block_reason(state, "test_requirements", "choice") == fixture[4], "Requirement blocks at its boundary with exact copy")
 		state[fixture[1]] = fixture[3]
 		expect.call(Events.choice_available(state, "test_requirements", "choice"), "Each requirement admits a valid choice")
+	var equipped_fixture: Dictionary = Data.starting_equipped_equipment()
+	equipped_fixture["trinket"] = "bone_dice"
 	for slot: String in Data.EQUIPMENT_SLOTS:
 		choice["requires"] = [{"type": "has_equipment", "slot": slot}]
 		state["equipped_equipment"][slot] = ""
 		expect.call(Events.choice_block_reason(state, "test_requirements", "choice") == "Requires an equipped %s." % Events.slot_name(slot), "Equipment requirements use the authored slot names")
-		state["equipped_equipment"][slot] = Data.STARTING_EQUIPMENT_BY_SLOT[slot]
+		state["equipped_equipment"][slot] = equipped_fixture[slot]
 		expect.call(Events.choice_available(state, "test_requirements", "choice"), "Equipped pieces satisfy each slot requirement")
 	choice["requires"] = [{"type": "has_item"}]
 	state["item_inventory"] = []
@@ -545,12 +547,13 @@ static func _omens(engine: RefCounted, expect: Callable) -> void:
 				var hit: Dictionary = combat._damage_player(created.duplicate(true), 2, false)
 				expect.call(hit["player"]["hp"] == created["player"]["hp"] - 2 - amount and hit["player"]["expose"] == 0, "Player Expose increases exactly the next hit")
 			"start_vision_turns":
-				expect.call(created["umbra"]["vision_bonus_activations"] == amount and created["umbra"]["vision_bonus"] == int(effect["radius"]), "Lantern Sight applies the authored Vision radius and duration")
+				expect.call(created["umbra"]["vision_activations"] == amount, "Lantern Sight applies the authored Vision duration")
 				var visible: Dictionary = created.duplicate(true)
 				visible["umbra"]["stage"] = "heart"
 				var without_vision: Dictionary = visible.duplicate(true)
-				without_vision["umbra"]["vision_bonus"] = 0
-				expect.call(combat.effective_umbra_radius(visible) == combat.effective_umbra_radius(without_vision) + int(effect["radius"]), "Lantern Sight expands the actual Umbra visibility radius")
+				without_vision["umbra"]["vision_activations"] = 0
+				expect.call(combat.effective_umbra_radius(visible) == combat.effective_umbra_radius(without_vision), "Lantern Sight grants Vision without expanding the lit radius")
+				expect.call(combat.visible_enemy_ids(visible).size() == (visible["enemies"] as Array).size(), "Lantern Sight reveals every enemy in Umbra")
 			"first_turn_card_plays":
 				expect.call(combat.cards_remaining_this_turn(created) == combat.cards_remaining_this_turn(base) + amount and combat.pending_wait_time(created) == combat.pending_wait_time(base), "Omen bonus plays never increase Wait")
 				var next_turn: Dictionary = combat.prepare_next_player_turn(created)

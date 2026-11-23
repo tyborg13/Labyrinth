@@ -2,7 +2,6 @@ extends "res://scripts/combat_engine.gd"
 ## Passive branch-local observations: speculative hits never enter another
 ## branch, and only the last committed outcome query exports the observations.
 const OBSERVATION: String = "_shadow_observation"
-const BLEED_SOURCES: String = "_shadow_bleed_sources"
 const RETALIATE_SOURCES: String = "_shadow_retaliate_sources"
 const ATTRIBUTION_VERSION: String = "source_origin_v1"
 var attack_reduction: int = 0
@@ -78,7 +77,7 @@ func _resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include
 
 func source(state: Dictionary, context: Dictionary, cause: String) -> Dictionary:
 	var kind: String = str(context.get("source_kind", cause))
-	if cause in ["bleed", "fatigue"]: return {"enemy_type": "non_enemy", "intent_id": cause, "kind": cause}
+	if cause == "fatigue": return {"enemy_type": "non_enemy", "intent_id": cause, "kind": cause}
 	if kind == "retaliate" or cause == "retaliate":
 		var granted: Dictionary = (state.get(RETALIATE_SOURCES, {}) as Dictionary).get(str(int(context.get("actor_id", -1))), {})
 		if not granted.is_empty(): return granted.duplicate(true)
@@ -101,29 +100,7 @@ func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_in
 	var after: Dictionary = super._damage_player(state, damage, bypass_block, apply_incoming_hit_effects, cause, defer_defiance)
 	var lost: int = int(after.get("run_stats", {}).get("damage_received", 0)) - previous
 	if lost <= 0: return after
-	var sources: Array = []
-	if cause == "bleed" and not (after.get(BLEED_SOURCES, []) as Array).is_empty():
-		var total: int = 0
-		for item: Dictionary in after[BLEED_SOURCES]: total += int(item["amount"])
-		for item: Dictionary in after[BLEED_SOURCES]:
-			var attributed: Dictionary = item["source"].duplicate(true)
-			attributed["kind"] = "bleed"
-			attributed["hp_lost"] = float(lost) * float(item["amount"]) / float(total)
-			sources.append(attributed)
-	else:
-		var attributed: Dictionary = source(after, context, cause)
-		attributed["hp_lost"] = lost
-		sources.append(attributed)
-	observation(after)["hits"].append({"turn": int(after.get("turn", 1)), "clock": int(after.get("initiative_clock", 0)), "hp_lost": lost, "lethal": int(after["player"]["hp"]) <= 0, "sources": sources})
-	return after
-
-func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
-	if int(action.get("bleed", 0)) > 0:
-		if not state.has(BLEED_SOURCES): state[BLEED_SOURCES] = []
-		state[BLEED_SOURCES].append({"amount": int(action["bleed"]), "source": source(state, state.get("damage_context", {}), "damage")})
-	return super._apply_action_keywords_to_player(state, action, source_pos)
-
-func _clear_player_bleed_after_turn(state: Dictionary) -> Dictionary:
-	var after: Dictionary = super._clear_player_bleed_after_turn(state)
-	after.erase(BLEED_SOURCES)
+	var attributed: Dictionary = source(after, context, cause)
+	attributed["hp_lost"] = lost
+	observation(after)["hits"].append({"turn": int(after.get("turn", 1)), "clock": int(after.get("initiative_clock", 0)), "hp_lost": lost, "lethal": int(after["player"]["hp"]) <= 0, "sources": [attributed]})
 	return after

@@ -14,6 +14,6 @@ func _play_sfx(entry: Dictionary) -> float:
 	if feedback_trace_enabled: feedback_sound_ids.append(str(entry.get("id", "")))
 	return super._play_sfx(entry)
 
-func _animate_floating_text_presentation(display_state: Dictionary, presentation: Dictionary, initial_elapsed_seconds: float = 0.0, overlap_with_next_action: bool = false, companion_completion: Dictionary = {}) -> void:
+func _animate_floating_text_presentation(display_state: Dictionary, presentation: Dictionary, initial_elapsed_seconds: float = 0.0, overlap_with_next_action: bool = false, companion_completion: Dictionary = {}, _on_contact: Callable = Callable()) -> void:
 	if feedback_trace_enabled: feedback_presentations.append(presentation.duplicate(true))
 	await super._animate_floating_text_presentation(display_state, presentation, initial_elapsed_seconds, overlap_with_next_action, companion_completion)

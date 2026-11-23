@@ -1,0 +1,1003 @@
+{
+  "glossary_definitions": {
+    "reflect": "A single-target ranged hit on this enemy from 2 or more tiles away hits the attacker instead.",
+    "flying": "Flying units ignore traps, ground and Collision damage.",
+    "marked": "Marked tiles are hit on this enemy's next turn.",
+    "charge": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+    "wind": "On each Gust beat, each unit is Pushed downwind.",
+    "splits": "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.",
+    "burst": "Destroy the target, then deal X damage on that tile and each adjacent tile.",
+    "surface": "Place the named ground on each tile in the area.",
+    "surface_fire": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+    "surface_ice": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
+    "surface_electrified": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+    "surface_rubble": "Leaving Rubble costs 2 Movement.",
+    "surface_consume": "Remove the named ground to use this effect.",
+    "surface_relocate": "Move the ground on one tile to another open tile.",
+    "melee": "Deal X damage to an adjacent target or a target within the card's Range.",
+    "ranged": "Deal X damage to a target within Range and line of sight.",
+    "pierce": "Damage from this attack ignores Block and Stoneskin.",
+    "move": "Walk up to X tiles.",
+    "retreat": "This enemy moves up to X tiles away from its target.",
+    "blink": "Move to a visible open tile up to X tiles away, ignoring intervening tiles.",
+    "range": "Maximum distance to the target in tiles, counted without diagonals.",
+    "block": "Block absorbs damage until the start of the holder's next turn.",
+    "stoneskin": "Stoneskin absorbs damage after Block and stays until used up.",
+    "heal": "Restore X Health.",
+    "draw": "Draw X cards.",
+    "card_play": "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
+    "follow_up": "Gain the Follow-up bonus if you already played a card this turn.",
+    "empower": "Pay the Empower cost as you play this card to gain the Empower bonus.",
+    "stagger": "Delay the target's next turn by X Time.",
+    "illusion": "A decoy with X Health that enemies target when at least as close as you.",
+    "illuminate": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "vision": "For X turns, each hidden enemy is visible to you.",
+    "eclipse": "The darkest Umbra stage, where you see only your tile and each adjacent tile.",
+    "expose": "The next hit that damages an Exposed unit deals X more damage.",
+    "exhaust": "This card leaves your deck until the end of combat.",
+    "consume": "This item leaves your deck for the rest of the run once played.",
+    "retaliate": "Until the holder's next turn, melee hits and hits from adjacent tiles deal X damage back.",
+    "quicken": "Your next card this turn costs X less Time.",
+    "rite": "This card's effect lasts for the rest of combat, and this card Exhausts.",
+    "next_attack": "Your next attack this turn gains the named bonus.",
+    "swap": "Trade places with a visible enemy or one of your illusions.",
+    "skate": "This turn, Ice costs you no Movement and doesn't Expose you.",
+    "anchored": "Anchored units can't be moved by Push, Pull or Gust.",
+    "fireproof": "This turn, Fire doesn't damage you.",
+    "surface_convert": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles.",
+    "all_enemies": "Hit each visible enemy that meets the named condition.",
+    "illusion_swap": "Trade places with one of your illusions.",
+    "shock": "Shocked units can only Move or Blink on their next turn.",
+    "immobilize": "Immobilized units can't Move, Blink or Swap on their next turn.",
+    "chain": "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
+    "push": "Move the target X tiles straight away from the source, causing a Collision if blocked.",
+    "pull": "Move the target X tiles straight toward the source, causing a Collision if blocked.",
+    "collision": "A blocked Push or Pull deals 2 damage per unmoved tile to the mover and blocker.",
+    "health_cost": "Lose X Health.",
+    "lightning_strikes": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+    "summon_minions": "This enemy adds the named enemy to combat.",
+    "raise_terrain": "Raise the named terrain, which blocks movement.",
+    "terrain_burst": "This enemy damages each unit adjacent to terrain this enemy raised.",
+    "cinder_marks": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+    "detonate_cinders": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
+    "gale_force": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.",
+    "frost_armor": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks.",
+    "guard_ally": "This enemy gives X Block to each shown ally.",
+    "heal_ally": "This enemy restores X Health to the named ally.",
+    "umbra_eclipse": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for X turns.",
+    "ember": "Currency spent on wares and levels, and dropped when you die.",
+    "turn_clock": "The unit with the lowest Time acts next, and you act first on a tie.",
+    "defiance": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+    "targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+    "fatigue": "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
+    "traps": "A trap triggers when entered or attacked, damaging the unit on the trap, then leaving the trap's element on that tile and each adjacent tile.",
+    "umbra": "Darkness that hides enemies and enemy intents.",
+    "element_fire": "Fire cards place Fire and Burst that Fire.",
+    "element_ice": "Ice cards place Ice and Burst that Ice.",
+    "element_lightning": "Lightning cards place Electrified and spread through Electrified tiles.",
+    "element_air": "Air cards Push, Pull and move units.",
+    "element_earth": "Earth cards leave Rubble, raise terrain and give Stoneskin.",
+    "skill_quick_wits": "Once per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time).",
+    "skill_measured_breath": "At turn end, bank up to one unused @icon(card_play) for your next turn.",
+    "skill_ghost_stride": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
+    "skill_discerning_eye": "Once between bosses, replace each card in a non-boss combat reward.",
+    "skill_rehearsed_escape": "Once per combat, activate to discard your next non-item card with @icon(exhaust) instead.",
+    "skill_makeshift_tool": "Once per combat, activate to discard your next @kw(item) instead of using @icon(consume).",
+    "skill_carry_the_guard": "Once per combat, activate while you have @icon(block). At the end of your turn, that Block becomes @icon(stoneskin).",
+    "skill_pain_remembers": "After your first @icon(health) loss each combat, return the next non-item discard to your hand if there's room.",
+    "skill_sure_footed": "Once per combat, ignore the first @icon(traps) hit or Air @icon(traps) @icon(push) against you.",
+    "skill_afterimage": "Once per combat, your first @icon(blink) leaves @icon(illusion) 2 on the tile you Blinked from.",
+    "skill_deferred_choice": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card.",
+    "skill_plunderers_step": "The first @icon(move) or @icon(blink) card that collects loot each combat refunds that card's @icon(card_play).",
+    "skill_prismatic_instinct": "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
+    "skill_curators_patience": "After choosing a relic, save one unchosen relic for your next relic offer.",
+    "skill_living_shadow": "Once between turns, when your @icon(illusion) is removed, return your latest non-item discard to hand or draw pile if full.",
+    "skill_confluence": "Once per combat, move ground between 2 visible tiles within @icon(range) 4 of you and each other.",
+    "skill_witchlight": "Each of your @icon(illusion|Illusions) creates @icon(illuminate) 1 while that Illusion lasts.",
+    "skill_dawnbrand": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
+    "skill_afterglow": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 on that Illusion's tile.",
+    "skill_point": "Earned by leveling up and spent on skills.",
+    "moltshard": "Won from your first dragon, then traded for Embers or spent to reset your skills.",
+    "outcrop": "Terrain that blocks movement and can be attacked.",
+    "wildfire": "On each Wildfire beat, Fire spreads from each Fire tile to the next tile in the named direction.",
+    "frostbite": "On each Frostbite beat, each unit on Ice takes X damage.",
+    "lightning_storm": "On each Lightning Storm beat, each unit on an Electrified tile takes X damage.",
+    "upheaval": "On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
+    "shadowstep": "On each Shadowstep beat, each hidden enemy Blinks toward you."
+  },
+  "relic_descriptions": {
+    "iron_lung": "Pay @term(health_cost) and @kw(empower) costs in @term(stoneskin) first. Each @term(health) costs 2 @kw(stoneskin).",
+    "pilgrim_boots": "Gain 1 @kw(movement) each turn. Moving without attacking leaves @term(illuminate) 1 on tiles you enter. @kw(blink) creates Light at both ends.",
+    "mirror_shard": "When one of your @term(illusion|illusions) is destroyed, deal 3 damage to each enemy adjacent to that illusion.",
+    "reinforced_shield": "While you have @term(stoneskin), cards that give @term(block) give 3 more.",
+    "flint_edge": "Your @kw(melee) attacks remove the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under the target to deal 3 more damage.",
+    "static_soles": "Your first @kw(move) or @kw(blink) each turn leaves @term(surface_electrified) on the tile you left and gives you @term(vision) for 2 turns.",
+    "frost_prism": "When an Ice card @term(stagger|Staggers) an enemy on @term(surface_ice), leave @term(surface_rubble) on that enemy's tile and each adjacent tile.",
+    "gale_tabi": "After you @kw(blink), your next attack this turn deals +1 damage per tile, up to +4. A later Blink replaces this bonus.",
+    "venom_signet": "Enemies on @term(surface_rubble) take +1 damage from attacks, @kw(collision), @term(surface_fire) and @kw(retaliate).",
+    "thawing_charm": "Excess healing becomes @term(stoneskin), up to 8 each turn. The first conversion each turn creates @term(illuminate) 1 on your tile.",
+    "ember_siphon": "When an enemy dies on @term(surface_fire), leave Fire on each adjacent tile without Fire, @term(surface_ice) or @term(surface_electrified).",
+    "cold_mirror": "When your Ice card @term(stagger|Staggers) an enemy and you have 4+ @term(block), trade your Block for 1 @term(frost_armor) layer per 4 Block, up to 2.",
+    "thunder_relay": "Your @kw(chain) attacks can swap the first and last enemies hit if both survive.",
+    "thornmail_brooch": "Your single-target @kw(melee) attacks can spend 4 @term(stoneskin) to hit the area instead and leave @term(surface_rubble) on each tile.",
+    "vaulting_sigil": "During @kw(move), pass through enemies and @kw(stagger) each enemy you pass through by 2. End on an open tile.",
+    "obsidian_heart": "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert your @term(block) into @term(stoneskin).",
+    "storm_crown": "After the last @kw(chain) hit, hit each enemy on the route again in reverse order for half damage, rounded down.",
+    "phoenix_ember": "Gain 1 @term(defiance). When @kw(defiance) saves you, create @term(illuminate) 3 on your tile, place @term(surface_fire) under each enemy, @kw(draw) 3 and gain 3 @term(card_play|Card Plays).",
+    "worldroot_idol": "On @term(surface_rubble), your @kw(melee) and @kw(ranged) attacks can start from a connected Rubble tile, removing that Rubble. The game chooses the tile.",
+    "rimecatcher_vial": "When your Ice card @term(stagger|Staggers) an enemy on @term(surface_ice), you can move that Ice to an adjacent tile.",
+    "updraft_bottle": "Your @kw(push) and @kw(pull) can move @term(surface_fire), @term(surface_ice) or @term(surface_electrified) along with the target.",
+    "coalheart_crucible": "@term(surface_fire) also conducts hits from your Lightning cards. Those hits remove the Fire on each tile the hits conduct through.",
+    "tectonic_abacus": "While 3 or more @term(illuminate|Lights) are active, @kw(umbra|the Umbra) is 1 stage lower. With 6 or more, the Umbra is 2 stages lower.",
+    "overflow_censer": "When Fire, Ice or Electrified replaces another of those grounds, place the new ground on each adjacent tile without Fire, Ice or Electrified.",
+    "black_sun_dial": "Each ground tile you remove with @kw(surface_consume) or @kw(burst) gives your next attack +3 damage, up to +9.",
+    "chorus_mask": "A card whose element differs from the last card you played this turn deals 2 more damage and gives 2 more @term(block).",
+    "funeral_bell": "When an enemy with 2 or more different statuses dies, each enemy adjacent to that enemy gains those statuses.",
+    "fivefold_knot": "Play 3 different card families this combat to gain @kw(pierce) on attacks. At 4, add @kw(chain) 1. At 5, each card gives 3 @term(block).",
+    "borrowed_hourglass": "Once per combat, end your turn with an unused @term(card_play) to take an extra turn. This turn's @term(time) carries into that extra turn.",
+    "briar_winch": "Your @kw(push) and @kw(pull) can remove @term(surface_rubble) under an enemy to move that enemy in any of the 4 directions.",
+    "glassway_compass": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions) to @kw(swap) with that illusion, skipping the tiles between.",
+    "unclouded_sun": "When you @kw(move), the centers of your @term(illuminate|Lights) count as adjacent to each other.",
+    "ashen_brand": "Your @kw(burst) destroys each connected @term(surface_fire) tile. A target hit by several Bursts takes 25% more damage per extra Burst.",
+    "galehook_talon": "Your @kw(push) and @kw(pull) also move each enemy lined up against the target in that direction. Only the front enemy collides.",
+    "cragbound_gauntlet": "Your Earth cards with @kw(ranged) or area attacks also raise an @kw(outcrop) with @term(health) 3 on an empty floor target.",
+    "crowncoal_heart": "Once per turn, your single-target hit on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified) places @kw(surface_fire). @kw(burst|Bursting) 2+ @kw(surface_fire) gives 6 @term(stoneskin), once per turn.",
+    "worldheart": "At turn end, convert up to 2 @term(block) into @term(stoneskin). Deal half the Stoneskin gained to each adjacent enemy, rounded down, up to 4.",
+    "unbound_pinion": "Once per turn, when your @kw(push) or @kw(pull) moves an enemy 2+ tiles or causes a @kw(collision), refill @kw(movement) and @kw(draw) 1.",
+    "winters_hour": "Your first Ice card each turn refills 3 stored @term(time) for the rest of combat. Other cards spend that Time and cost at least 1.",
+    "eclipse_mantle": "Your first @kw(blink) each turn leaves an @term(illusion) with @term(health) 2 on the tile you left. Your Illusions create @term(illuminate) 2.",
+    "millstone_fob": "When an enemy you @kw(push) or @kw(pull) collides, that enemy's tile becomes @term(surface_rubble).",
+    "tallow_candle": "At the start of combat, create @term(illuminate) 2 on your tile.",
+    "hobnail_cleats": "@term(surface_ice) doesn't @term(expose) you. While you stand on Ice, your Ice cards deal +2 damage.",
+    "waxen_effigy": "At the start of combat, create an @term(illusion) with @term(health) 2 on the empty tile adjacent to you nearest an enemy.",
+    "battering_yoke": "When your @kw(push) or @kw(pull) moves an enemy into a blocking enemy, move the blocking enemy 1 tile in the same direction, with @kw(collision).",
+    "pendulum_weight": "Each point of @kw(stagger) past an enemy's per-turn limit deals 1 damage to that enemy instead.",
+    "martyrs_gorget": "When your @kw(retaliate) damages an attacker, gain @term(block) equal to the damage dealt.",
+    "copper_shod_staff": "For your Lightning cards, your @kw(outcrop|Outcrops) and @term(illusion|Illusions) count as @term(surface_electrified) and take no damage from those cards.",
+    "ashen_phylactery": "When you @kw(exhaust) a non-@kw(item) card, gain @term(stoneskin) equal to the Time you paid for that card, up to 5.",
+    "bonded_set": "Cards from an equipment piece that shares an element with another equipped piece deal 1 more damage and give 1 more @term(block).",
+    "breaking_wheel": "When an enemy collides, remove the ground. @term(surface_fire): +3 damage. @term(surface_ice): @kw(stagger) 6. @term(surface_electrified): @term(shock) the target and each enemy blocker. @term(surface_rubble): @kw(stagger) 3.",
+    "hollow_puppet": "Your @kw(push) and @kw(pull) can move your @term(illusion|Illusions) safely. On enemy @kw(collision), destroy that Illusion and deal its remaining @term(health) to that enemy.",
+    "toll_late_bell": "Your attacks deal +3 damage to each enemy set to act after your next turn on the @kw(turn_clock).",
+    "siege_ram_totem": "When an enemy takes @kw(collision) damage, also @kw(stagger) that enemy by the same number.",
+    "crown_of_surplus": "Cards without @kw(empower) gain Empower. Empower for +3 @term(time): repeat this card's first action. This excludes @kw(rite|Rites) and @kw(item|Items).",
+    "pyre_keepers_urn": "At the start of your turn, return your last @kw(exhaust|Exhausted) card to your hand, unless that card is a @kw(rite) or heals.",
+    "briar_throne": "Your @kw(retaliate) no longer expires and grows by 1 whenever your Retaliate deals damage. Cards can't give you @term(block).",
+    "quartermasters_ledger": "Your @kw(item|Items) @kw(exhaust) instead of @kw(consume), except items that heal. Use each eligible item once per combat."
+  },
+  "grimoire_bodies": {
+    "basic:run": [
+      "Explore rooms, win combats and claim rewards before the next boss.",
+      "Held Embers stay with the run until banked, spent, recovered or lost.",
+      "A run spans 6 sections, each ending in a dragon. The run ends at the last dragon, at defeat or by Embrace."
+    ],
+    "basic:loadout": [
+      "Your loadout includes equipment, magic, items, relics and skills. Equipment, magic and items form your deck.",
+      "Change your loadout outside combat, including at an Ember Hearth."
+    ],
+    "basic:rewards": [
+      "After combat, choose 1 of 3 magic cards or skip to heal 3. Dragons and Guardians also give relics.",
+      "A magic card you gain goes straight into your deck. Purge removes a card."
+    ],
+    "basic:relics": [
+      "Relics are passive effects that last for the rest of the run. Relics come from Relic rooms, dragons and Guardians.",
+      "Hover a relic badge in the top HUD to see that relic's current text."
+    ],
+    "combat:board": [
+      "Cards target board tiles. Each legal target meets the card's Range, line of sight, occupancy and terrain rules.",
+      "Card previews show legal targets, affected tiles and projected results.",
+      "Press Z to undo free Movement before you play a card. Movement that reveals or triggers something cannot be undone.",
+      "Each enemy shows the damage of its next attack and its place in the turn order. Red tiles will be hit before your next turn. Press I to see each enemy's full plan.",
+      "The 9×9 grid where combat happens."
+    ],
+    "combat:turn_clock": [
+      "The unit with the lowest Time acts next, and you act first on a tie.",
+      "Playing a card adds the card's Time to the acting unit's turn delay.",
+      "A beat is a battlefield rule's slot on the turn rail."
+    ],
+    "combat:card_plays": [
+      "Playing a card spends 1 Card Play unless the card says otherwise. Card Plays refill at the start of your turn.",
+      "Extra Card Plays expire at the end of your turn."
+    ],
+    "combat:health_defense": [
+      "Damage hits Block, then Stoneskin, then Health. Pierce skips Block and Stoneskin.",
+      "At the start of a unit's turn, Block clears before Fire deals damage. Stoneskin persists and absorbs Fire damage."
+    ],
+    "combat:defiance": [
+      "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+      "Gain 1 Defiance per 4 permanent levels at the start of a run. Reaching a milestone during a run adds the new charge. Defiance does not refill during a run."
+    ],
+    "combat:targeting": [
+      "A target must be visible and within Range. Walls and Outcrops block the line of sight required by ranged attacks.",
+      "Area actions hit the tiles shown in the preview. Push and Pull move the target from or toward the source until the target reaches the distance or stops."
+    ],
+    "combat:fatigue": [
+      "When you Draw from an empty draw pile, shuffle your discard pile into your draw pile and lose 2 Health, +1 each time. Fatigue bypasses Block."
+    ],
+    "combat:traps": [
+      "A trap triggers when entered or attacked, damaging the unit on the trap, then leaving the trap's element on that tile and each adjacent tile.",
+      "An Air trap Pushes each adjacent unit 1 tile away instead of leaving ground."
+    ],
+    "combat:outcrops": [
+      "Raise Outcrops on empty floor. An Outcrop blocks movement and line of sight. When an Outcrop is destroyed, leave Rubble on that tile.",
+      "Raising an Outcrop keeps routes connected. Outcrops raised on tiles adjacent to the target may close off the target tile.",
+      "A powder keg blocks movement and leaves line of sight open. When the keg is destroyed, the keg Bursts and can destroy other kegs.",
+      "When Rockburst hits an Outcrop or crate, Rockburst Bursts that terrain. Worldbreak Bursts an adjacent Outcrop you raised."
+    ],
+    "combat:lightning_strikes": [
+      "This enemy hits each Marked tile, then leaves Electrified on each Marked tile. A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles."
+    ],
+    "combat:summons": [
+      "A summoner's intent shows the enemy that will arrive, or Summon blocked when no enemy can arrive.",
+      "When an enemy summons, gain +1 Card Play on your next turn. Killing a summon gives no Card Play."
+    ],
+    "combat:umbra": [
+      "The Umbra hides tiles beyond your sight. Hidden enemies show no intent and can't be targeted directly. Area attacks still hit hidden enemies in the area.",
+      "Light reveals tiles within its range. Vision makes hidden enemies visible."
+    ],
+    "keyword:melee": [
+      "Deal X damage to an adjacent target, or to a target within the card's Range."
+    ],
+    "keyword:ranged": [
+      "Deal X damage to a target within Range and line of sight."
+    ],
+    "keyword:move": [
+      "Walk up to X tiles. Ground and traps trigger on entry. Choose your tile to stay in place.",
+      "Leaving Rubble costs 2 Movement instead of 1."
+    ],
+    "keyword:blink": [
+      "Move to a visible open tile up to X tiles away, ignoring the tiles between. Ground and traps trigger on arrival. Choose your tile to stay in place."
+    ],
+    "keyword:block": [
+      "Block absorbs damage until the start of the holder's next turn."
+    ],
+    "keyword:stoneskin": [
+      "Stoneskin absorbs damage after Block and stays until used up or combat ends."
+    ],
+    "keyword:heal": [
+      "Restore X Health, up to your maximum Health."
+    ],
+    "keyword:draw": [
+      "Draw X cards. Your hand holds at most 7 cards."
+    ],
+    "keyword:card_play": [
+      "Playing a card spends 1 Card Play. Card Plays refill each turn. Killing an enemy on your turn gives 1 more, except summons."
+    ],
+    "keyword:follow_up": [
+      "Gain the Follow-up bonus if you already played a card this turn. Follow-up is checked when the card starts. Your hand shows the bonus while Follow-up is active."
+    ],
+    "keyword:empower": [
+      "Pay the Empower cost as you play this card to gain the Empower bonus.",
+      "Charge a card with the seal in the upper right, E, or the controller's right stick. A charged card glows until you play that card or your turn ends.",
+      "Pay the Empower cost after the card resolves. Extra Time delays your next turn. Block does not prevent a Health cost. An Exhaust cost removes this card for the rest of combat."
+    ],
+    "keyword:stagger": [
+      "Delay the target's next turn by X Time.",
+      "Hover a Stagger target to preview that target's new place in the turn order. Each unit takes up to 6 Stagger per turn."
+    ],
+    "keyword:illusion": [
+      "Create a stationary decoy with X Health. Enemies attack the Illusion when the Illusion is at least as close as you.",
+      "An enemy that damages a charged Illusion takes damage once per attack. Doppelganger lets ranged attacks come from the Illusion's tile.",
+      "Mirror Feint places an Illusion adjacent to an enemy. Hall of Mirrors creates an Illusion on each empty tile adjacent to you.",
+      "Empty Husk swaps you with an Illusion and gives that Illusion your Block as extra Health. Shattered Reflection Bursts one of your Illusions. Swap triggers arrival effects, and Burst triggers Illusion destruction effects."
+    ],
+    "keyword:immobilize": [
+      "Immobilized units can't Move, Blink or Swap on their next turn."
+    ],
+    "keyword:exhaust": [
+      "This card leaves your deck until the end of combat."
+    ],
+    "keyword:retaliate": [
+      "Until the holder's next turn, each unit that hits the holder in melee or from an adjacent tile takes X damage.",
+      "Retaliate triggers once per enemy attack. Add Retaliate damage together and use the largest Shock and Push values.",
+      "Block and Stoneskin absorb Retaliate damage. Expose does not increase Retaliate damage. An enemy defeated by Retaliate gives the usual rewards and no Card Play.",
+      "An Illusion's Retaliate triggers once per enemy attack."
+    ],
+    "keyword:quicken": [
+      "Your next card this turn costs X less Time, to a minimum of 1. Quicken only applies to a later card.",
+      "Quicken adds together. Unused Quicken ends with your turn. The Time badge shows the discount."
+    ],
+    "keyword:next_attack": [
+      "Your next attack on a later card this turn gains the shown bonus. A bonus that names a card family waits for a card of that family.",
+      "Bonuses add together and are spent by the same attack. Unused bonuses end with your turn."
+    ],
+    "keyword:rite": [
+      "This card's effect lasts for the rest of combat, and this card Exhausts.",
+      "With Worldspine, at the start of your turn, each enemy adjacent to an Outcrop you raised takes 3 damage."
+    ],
+    "keyword:health_cost": [
+      "Lose X Health when the card finishes. Block and Stoneskin don't prevent the loss."
+    ],
+    "keyword:pierce": [
+      "Damage from this attack ignores Block and Stoneskin."
+    ],
+    "keyword:shock": [
+      "Shocked units can only Move or Blink on their next turn.",
+      "When a card Shocks on each hit, Chain and conducted hits also Shock."
+    ],
+    "keyword:expose": [
+      "The next hit that damages an Exposed unit deals X more damage."
+    ],
+    "keyword:chain": [
+      "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
+      "Each enemy is hit at most once by Chain. Lightning cards also hit through connected Electrified tiles."
+    ],
+    "keyword:push": [
+      "Move the target X tiles straight away from the source. A blocked Push causes a Collision.",
+      "A card Push starts from you unless the card names a tile. If the target is diagonal, the longer direction is chosen by default. Rotate to choose the other direction before you commit.",
+      "In an area Push, each enemy moves straight away from the source and collides if blocked."
+    ],
+    "keyword:pull": [
+      "Move the target X tiles straight toward the source. A blocked Pull causes a Collision.",
+      "If the target is diagonal, the longer direction is chosen by default. Rotate to choose the other direction before you commit.",
+      "A target that reaches the source stops without a Collision. In an area Pull, each enemy moves straight toward the source and collides if blocked."
+    ],
+    "keyword:collision": [
+      "A blocked Push or Pull deals 2 damage per unmoved tile to the moving unit and the blocking unit or terrain. Walls take no damage.",
+      "Block and Stoneskin absorb Collision damage. Expose does not increase Collision damage."
+    ],
+    "keyword:consume": [
+      "This item leaves your deck for the rest of the run once played."
+    ],
+    "keyword:illuminate": [
+      "Light reveals each tile within X tiles of the Light for the rest of combat. At the start of an enemy's turn, that enemy gains Expose 2 if in Light."
+    ],
+    "keyword:vision": [
+      "For X turns, each hidden enemy is visible to you."
+    ],
+    "enemy:acolyte": [
+      "A ranged enemy whose intents alternate between damage, defense and Health loss."
+    ],
+    "enemy:harrier": [
+      "The Harrier often moves before a ranged attack with Pierce."
+    ],
+    "enemy:warden": [
+      "The Stone Warden uses melee attacks and gains Block. The Stone Warden's Block absorbs damage before Health."
+    ],
+    "enemy:cinder_ooze": [
+      "The Cinder Ooze leaves Fire. Slag Shell removes adjacent Fire for extra Block. When this enemy dies, this enemy splits into Cinder Droplets."
+    ],
+    "enemy:cinder_droplet": [
+      "A Cinder Droplet spawns when a Cinder Ooze dies. Cinder Droplet attacks leave Fire."
+    ],
+    "enemy:bile_bloomer": [
+      "The Bile Bloomer's attacks leave Rubble on hit tiles and Expose targets. Shale Shell removes adjacent Rubble for extra Stoneskin."
+    ],
+    "enemy:chainbound_gaoler": [
+      "The Chainbound Gaoler uses Push, Pull and Immobilize to restrict movement."
+    ],
+    "enemy:grave_surgeon": [
+      "The Grave Surgeon heals allies and gives Block. The guard removes elemental ground from the target's tile."
+    ],
+    "enemy:frostglass_lancer": [
+      "The Frostglass Lancer leaves Ice. Refract Guard removes Ice from the Lancer's tile."
+    ],
+    "enemy:zekarion": [
+      "Zekarion is supported by Lightning Wisps. Skybreak and Storm Lash leave Electrified.",
+      "When Zekarion uses Overload, each unit on Electrified takes 6 damage. At half Health, each unit on Electrified takes 7 damage. Stay off Electrified or lure Zekarion's Wisps onto Electrified."
+    ],
+    "enemy:lightning_wisp": [
+      "The Lightning Wisp leaves Electrified. Capacitor Arc Shocks targets hit through Electrified."
+    ],
+    "combat:worldspines": [
+      "Tharokh Marks tiles between you and Tharokh. After every second turn of yours, the Marked tiles become Outcrops. At half Health, Tharokh's Marked tiles become Outcrops after each of your turns.",
+      "A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. Outcrops also block Tharokh and Burrow Grubs. Destroy an Outcrop to open a route."
+    ],
+    "combat:cinder_marks": [
+      "Meteorfall hits each Marked tile and leaves Fire. Whenever Vyraketh breathes, Fire spreads to each adjacent tile.",
+      "Crownfire Bursts Vyraketh's Marked Fire while Vyraketh moves toward you. Replace that Fire to stop Crownfire's Burst, or lure the dragon into the Burst.",
+      "The Meteorfall card leaves Marked tiles through enemy turns. At the start of your next turn before you Draw, deal damage to each unit on a Marked tile, then leave Fire on each Marked tile."
+    ],
+    "combat:hollow_gale": [
+      "Hollow Gale damages each unit within 2 tiles of Vaeloryx, then Pushes each unit hit away.",
+      "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise.",
+      "Vaeloryx retreats before Eye of the Storm. Leave the area or move closer to take less damage."
+    ],
+    "combat:area_force": [
+      "An area Push or Pull moves each enemy in the area in a straight line away from or toward the source. The source is you or the tile the card names. An enemy at the source of a Pull stays in place.",
+      "A Push starts with the farthest enemy. A Pull starts with the nearest enemy. A Collision deals 2 damage per unmoved tile to the moving unit and each blocker hit.",
+      "Squall Shot Pushes each enemy hit 2 tiles away from you."
+    ],
+    "combat:swap": [
+      "Swap with a visible enemy that occupies 1 tile or one of your Illusions within Range and line of sight.",
+      "Both units trigger ground and traps on arrival. You collect loot on the arrival tile. Anchored allows Swap. Swap causes no Collision."
+    ],
+    "combat:stances": [
+      "Skate: This turn, Ice costs you no Movement and doesn't Expose you.",
+      "Immobilize: This turn, you can't Move, Blink or Swap.",
+      "Anchored: Until your next turn, Push, Pull and Gust can't move you or cause a Collision.",
+      "Fireproof: This turn, Fire doesn't damage you.",
+      "Active stances appear as badges on your unit."
+    ],
+    "combat:crystal_armor": [
+      "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks. Ground, Collision, traps and Health costs bypass Crystal Mantle.",
+      "Each layer extends Shatterstorm by 1 tile. Break layers before Shatterstorm to reduce the area. Shatterstorm breaks the remaining layers.",
+      "Ice on Iskaldra's tile gives Iskaldra an extra layer. Remove that Ice before Iskaldra's turn.",
+      "Crystal Mantle cards give you layers that last until broken or combat ends."
+    ],
+    "combat:boss_eclipse": [
+      "Night Coil puts out a Marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto that brazier's tile to relight the brazier.",
+      "Light blocks Eclipse's darkness. Relight a brazier or create Light, then avoid or guard against the Marked tiles.",
+      "Noctyrax replaces defeated Acolytes, up to 2 alive. Light and Vision reveal hidden Acolytes.",
+      "Last Eclipse hits you and your Illusions on Marked tiles, then starts Eclipse for 2 turns."
+    ],
+    "enemy:veilbound_acolyte": [
+      "The Umbra hides the Veilbound Acolyte's tile. Light and Vision reveal the Acolyte before the Acolyte attacks."
+    ],
+    "enemy:tharokh": [
+      "Earth dragon supported by Burrow Grubs.",
+      "After every second turn of yours, Tharokh's Marked tiles become Outcrops. A Marked tile stays flat if the unit on that tile cannot be moved to an open tile. At half Health, Tharokh's Marked tiles become Outcrops after each of your turns."
+    ],
+    "enemy:vyraketh": [
+      "Fire dragon that creates Marked Fire. Cinder Droplets also leave Fire.",
+      "Whenever Vyraketh breathes, Fire spreads to each adjacent tile. At half Health, Fire spreads after every second Vyraketh turn. Crownfire Bursts Vyraketh's Marked Fire. Vyraketh's bite Marks tiles again."
+    ],
+    "enemy:vaeloryx": [
+      "Air dragon that strikes from the sky and dives at you, supported by Gust Shrikes.",
+      "After each Vaeloryx turn, Gust Pushes each unit 1 tile, then turns a quarter clockwise. At half Health, Gust Pushes 2 tiles. Move closer to Vaeloryx after the retreat to take less damage from Eye of the Storm."
+    ],
+    "enemy:iskaldra": [
+      "Ice dragon protected by Crystal Mantle layers. Rime Spitters leave Ice.",
+      "When Iskaldra uses Rime Talon, Frostbite deals 3 damage to each unit on Ice. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Crystal Mantle layers to shrink Shatterstorm's area."
+    ],
+    "enemy:noctyrax": [
+      "Shadow dragon and final boss of depth 24, supported by Veilbound Acolytes.",
+      "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you. Night Coil puts out a brazier. Enter that brazier's tile to relight the brazier. Light blocks Eclipse's darkness."
+    ],
+    "keyword:surface": [
+      "A tile holds Rubble and 1 of Fire, Ice or Electrified. Ground stays until destroyed, replaced, removed or combat ends."
+    ],
+    "keyword:surface_fire": [
+      "A unit that enters Fire takes 2 damage, and a unit that starts its turn on Fire takes 3."
+    ],
+    "keyword:surface_ice": [
+      "A unit that enters Ice or starts its turn on Ice gains Expose 2."
+    ],
+    "keyword:surface_electrified": [
+      "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles. Chain relays through Electrified tiles.",
+      "Frost Circuit turns connected Ice tiles into Electrified. Discharge Bursts connected Electrified tiles."
+    ],
+    "keyword:surface_rubble": [
+      "Leaving Rubble costs 2 Movement instead of 1. The first step is allowed if you have Movement remaining."
+    ],
+    "keyword:surface_consume": [
+      "Remove the shown ground to use the listed effect.",
+      "If the card hits, remove the ground after the hit."
+    ],
+    "keyword:surface_relocate": [
+      "Move the ground on one tile to another open tile."
+    ],
+    "keyword:reflect": [
+      "A single-target ranged hit on this enemy from 2 or more tiles away hits the attacker instead. Melee, area and Chain hits land."
+    ],
+    "keyword:flying": [
+      "Flying units ignore traps, ground and Collision damage. Push, Pull and Gust still move Flying units."
+    ],
+    "keyword:marked": [
+      "Marked tiles are hit on this enemy's next turn."
+    ],
+    "keyword:charge": [
+      "This enemy gains Charge each use. At 3 Charge, the next intent is Arc Lash, which Chains between units. Shock removes 1 Charge."
+    ],
+    "keyword:wind": [
+      "On each Gust beat, each unit is Pushed downwind. Anchored units stay in place."
+    ],
+    "keyword:upheaval": [
+      "On each Upheaval beat, each Marked tile becomes an Outcrop and moves the unit to a free adjacent tile. The tile stays flat if the unit cannot be moved.",
+      "Destroy an Outcrop to open a route."
+    ],
+    "keyword:burst": [
+      "Destroy the named ground, terrain, Illusion or enemy, then deal X damage to each unit on that tile and each adjacent tile.",
+      "Hover the card to see each tile the Burst hits."
+    ],
+    "keyword:range": [
+      "Maximum distance to the target in tiles, counted without diagonals."
+    ],
+    "keyword:time": [
+      "Spending Time makes your next turn come later. Each of your first 2 unused Card Plays adds 5 Time."
+    ],
+    "keyword:eclipse": [
+      "The darkest Umbra stage, where you see only your tile and each adjacent tile. Light still reveals tiles."
+    ],
+    "keyword:skate": [
+      "This turn, Ice costs you no Movement and doesn't Expose you."
+    ],
+    "keyword:fireproof": [
+      "This turn, Fire doesn't damage you."
+    ],
+    "keyword:surface_convert": [
+      "Change the chosen ground into the shown ground, then hit each enemy on the changed tiles. The card shows whether connected tiles change too."
+    ],
+    "keyword:illusion_swap": [
+      "Swap with one of your visible Illusions, anywhere unless the card shows a Range.",
+      "Both units trigger ground and traps on arrival."
+    ],
+    "keyword:terrain_burst": [
+      "This enemy damages each unit adjacent to terrain this enemy raised."
+    ],
+    "keyword:detonate_cinders": [
+      "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks. Each unit is hit once."
+    ],
+    "keyword:guard_ally": [
+      "This enemy gives X Block to each shown ally. The enemy may also guard itself."
+    ],
+    "keyword:heal_ally": [
+      "This enemy restores X Health to the named ally. The target can be this enemy."
+    ],
+    "keyword:ember": [
+      "Earn Embers from kills and victories. Spend Embers on wares and levels. On death, drop your Embers and recover those Embers on your next run."
+    ],
+    "keyword:element_fire": [
+      "Fire cards place Fire and Burst that Fire."
+    ],
+    "keyword:element_ice": [
+      "Ice cards place Ice and Burst that Ice."
+    ],
+    "keyword:element_lightning": [
+      "Lightning cards place Electrified and spread through Electrified tiles."
+    ],
+    "keyword:element_air": [
+      "Air cards Push, Pull and move units."
+    ],
+    "keyword:element_earth": [
+      "Earth cards leave Rubble, raise terrain and give Stoneskin."
+    ],
+    "keyword:skill_point": [
+      "Earn Skill Points as you level up. Spend Skill Points in the Character menu."
+    ],
+    "keyword:turns": [
+      "At the start of your turn, reduce Turns by 1. The effect ends at 0. An effect marked ∞ lasts for the rest of combat."
+    ],
+    "keyword:movement": [
+      "Walk up to your Movement without spending a Card Play or Time. At the start of your turn, refill your Movement. Base Movement is 2."
+    ],
+    "keyword:item": [
+      "An Item from either of your 2 slots joins your deck and has Consume."
+    ],
+    "combat:surface_techniques": [
+      "Expend removes ground to use the listed effect. Burst destroys ground and deals damage.",
+      "Frost Circuit leaves Electrified on the tile, then deals 2 damage and Shocks the enemy on the tile. On Ice, Frost Circuit does the same on each connected Ice tile.",
+      "Discharge Bursts the Electrified tile and each connected Electrified tile.",
+      "Wards leave ground on each adjacent enemy's tile. Ice gives Expose on entry and on turn start."
+    ],
+    "combat:sweeping_strikes": [
+      "Hit each visible enemy that meets the shown condition and Range. Select no target.",
+      "The condition may require Fire, Ice, Electrified or Light.",
+      "Each hit is a direct hit. Play the card only if at least 1 enemy qualifies."
+    ]
+  },
+  "panel_rows": {
+    "shock_all_hits": {
+      "title": "Shock",
+      "text": "Shocked units can only Move or Blink on their next turn.",
+      "legacy": "Shock\nShock each enemy hit, including Chain and conducted hits.",
+      "term": "shock"
+    },
+    "range_ice": {
+      "title": "Range",
+      "text": "Choose an Ice tile within Range and line of sight.",
+      "legacy": "Range\nChoose an Ice tile within Range and line of sight.",
+      "term": "range"
+    },
+    "meteorfall": {
+      "title": "Cinder Marks",
+      "text": "Next turn before you Draw, deal {n} damage and leave Fire on each Marked tile.",
+      "legacy": "Next turn before you Draw, deal {n} damage and leave Fire on each Marked tile.",
+      "term": "cinder_marks"
+    },
+    "illusion_block": {
+      "title": "Block",
+      "text": "Give your Block to the Illusion as extra Health.",
+      "legacy": "Give your Block to the Illusion as extra Health.",
+      "term": "block"
+    },
+    "terrain_burst_any": {
+      "title": "Burst",
+      "text": "Destroy an Outcrop, crate or other terrain within Range and line of sight.",
+      "legacy": "Destroy an Outcrop, crate or other terrain within Range and line of sight.",
+      "term": "burst"
+    },
+    "title_sentence_range_illusion": {
+      "title": "Range",
+      "text": "Destroy an Illusion within Range.",
+      "legacy": "Destroy an Illusion within Range.",
+      "term": "range"
+    },
+    "title_sentence_range_terrain": {
+      "title": "Range",
+      "text": "Destroy terrain within Range.",
+      "legacy": "Destroy terrain within Range.",
+      "term": "range"
+    },
+    "title_sentence_light": {
+      "title": "Light",
+      "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "term": "illuminate",
+      "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
+    },
+    "title_sentence_light_self": {
+      "title": "Light",
+      "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "term": "illuminate",
+      "diagram_text": "@pattern(diamond:{r}:hero) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
+    },
+    "range_light": {
+      "title": "Range",
+      "text": "Place Light within Range.",
+      "legacy": "Place Light within Range.",
+      "term": "range"
+    },
+    "raise_outcrop": {
+      "title": "Raise Terrain",
+      "text": "Raise an Outcrop with X Health that blocks movement and line of sight.",
+      "legacy": "Raise an Outcrop with X Health that blocks movement and line of sight.",
+      "term": "raise_terrain"
+    },
+    "raise_keg": {
+      "title": "Raise Terrain",
+      "text": "Place a powder keg with X Health that blocks movement.",
+      "legacy": "Place a powder keg with X Health that blocks movement.",
+      "term": "raise_terrain"
+    },
+    "raise_outcrop_around_target": {
+      "title": "Raise Terrain",
+      "text": "Raise an Outcrop with X Health on each empty tile adjacent to the target.",
+      "legacy": "Raise an Outcrop with X Health on each empty tile adjacent to the target.",
+      "term": "raise_terrain",
+      "diagram_text": "@pattern(neighbors:origin) Raise an Outcrop with X Health on each empty tile adjacent to the target."
+    },
+    "range_outcrop_around_target": {
+      "title": "Range",
+      "text": "Choose a tile within Range.",
+      "legacy": "Choose a tile within Range.",
+      "term": "range"
+    },
+    "range_outcrop": {
+      "title": "Range",
+      "text": "Place the Outcrop within Range.",
+      "legacy": "Place the Outcrop within Range.",
+      "term": "range"
+    },
+    "keg_detonate": {
+      "title": "Detonate",
+      "text": "When the keg is destroyed, the keg Bursts {n}.",
+      "legacy": "When the keg is destroyed, the keg Bursts {n}.",
+      "term": "detonate",
+      "diagram_text": "@pattern(cross) When the keg is destroyed, the keg Bursts {n}."
+    },
+    "block_to_stoneskin": {
+      "title": "Block",
+      "text": "Turn your Block into Stoneskin.",
+      "legacy": "Turn your Block into Stoneskin.",
+      "term": "block"
+    },
+    "light_trail": {
+      "title": "Light",
+      "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "term": "illuminate",
+      "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
+    },
+    "range_illusion": {
+      "title": "Range",
+      "text": "Place the Illusion within Range.",
+      "legacy": "Place the Illusion within Range.",
+      "term": "range"
+    },
+    "retaliate_illusion": {
+      "title": "Retaliate",
+      "text": "Enemies that damage this Illusion take {n} damage{suffix2}.",
+      "legacy": "Enemies that damage this Illusion take {n} damage{suffix2} once per enemy attack.",
+      "term": "retaliate"
+    },
+    "retaliate_illusion_reflect": {
+      "title": "Retaliate",
+      "text": "Enemies that damage this Illusion take the same damage.",
+      "legacy": "Reflect\nEnemies that damage this Illusion take the same damage.",
+      "term": "retaliate"
+    },
+    "light_target": {
+      "title": "Light",
+      "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "term": "illuminate",
+      "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
+    },
+    "light_land": {
+      "title": "Light",
+      "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+      "term": "illuminate",
+      "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
+    },
+    "only_fire": {
+      "title": "Fire",
+      "text": "Hit each visible enemy on Fire.",
+      "legacy": "Each Enemy on Fire\nHit each visible enemy on Fire.",
+      "term": "surface_fire"
+    },
+    "only_ice": {
+      "title": "Ice",
+      "text": "Hit each visible enemy on Ice.",
+      "legacy": "Each Enemy on Ice\nHit each visible enemy on Ice.",
+      "term": "surface_ice"
+    },
+    "only_light": {
+      "title": "Light",
+      "text": "Hit each visible enemy in Light.",
+      "legacy": "Each Enemy in Light\nHit each visible enemy in Light.",
+      "term": "illuminate"
+    },
+    "only_electrified": {
+      "title": "Electrified",
+      "text": "Hit each visible enemy on Electrified.",
+      "legacy": "Each Enemy on Electrified\nHit each visible enemy on Electrified.",
+      "term": "surface_electrified"
+    },
+    "anchored_turn": {
+      "title": "Anchored",
+      "text": "Until your next turn, Push and Pull can't move you.",
+      "legacy": "Anchored\nUntil your next turn, Push and Pull can't move you.",
+      "term": "anchored"
+    },
+    "stoneskin_scaling": {
+      "title": "Stoneskin",
+      "text": "Deal +1 damage for each Stoneskin you have, up to +{n}.",
+      "legacy": "Deal +1 damage for each Stoneskin you have, up to +{n}.",
+      "term": "stoneskin"
+    },
+    "move_scaling": {
+      "title": "Move",
+      "text": "Deal +1 damage per tile you moved this turn, up to +{n}.",
+      "legacy": "Deal +1 damage per tile you moved this turn, up to +{n}.",
+      "term": "move"
+    },
+    "title_sentence_pull_area": {
+      "title": "Pull",
+      "text": "Pull each enemy within {r} tiles of the tile {n} tiles toward that tile.",
+      "legacy": "Pull each enemy within {r} tiles of the tile {n} tiles toward that tile.",
+      "term": "pull",
+      "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pull each enemy within {r} tiles of the tile {n} tiles toward that tile."
+    },
+    "title_sentence_push_area_target": {
+      "title": "Push",
+      "text": "Push each enemy within {r} tiles of the tile {n} tiles away from that tile.",
+      "legacy": "Push each enemy within {r} tiles of the tile {n} tiles away from that tile.",
+      "term": "push",
+      "diagram_text": "@pattern(hollow_diamond:{r}:origin) Push each enemy within {r} tiles of the tile {n} tiles away from that tile."
+    },
+    "title_sentence_push_area": {
+      "title": "Push",
+      "text": "Push each enemy within {r} tiles of you {n} tiles away.",
+      "legacy": "Push each enemy within {r} tiles of you {n} tiles away.",
+      "term": "push",
+      "diagram_text": "@pattern(hollow_diamond:{r}:origin) Push each enemy within {r} tiles of you {n} tiles away."
+    },
+    "expend_after_hit": {
+      "title": "Expend",
+      "text": "After the hit, remove {ground} {where}.",
+      "legacy": "Expend\nAfter the hit, remove {ground} {where}.",
+      "term": "surface_consume"
+    },
+    "expend_beneath_you": {
+      "title": "Expend",
+      "text": "Remove {ground} from your tile.",
+      "legacy": "Remove {ground} from your tile.",
+      "term": "surface_consume"
+    },
+    "ice_to_electrified": {
+      "title": "Ice",
+      "text": "The chosen Ice tile and each Ice tile connected to that tile become Electrified.",
+      "legacy": "{legacy}",
+      "term": "surface_ice"
+    },
+    "empower": {
+      "title": "Empower",
+      "text": null,
+      "legacy": "Empower{active}\nPay the Empower cost as you play this card to gain the Empower bonus.",
+      "term": "empower"
+    },
+    "next_attack_move": {
+      "title": "Next Attack",
+      "text": "Your next attack this turn deals +1 damage per tile you moved, up to +{n}.",
+      "legacy": "{legacy}",
+      "term": "next_attack"
+    },
+    "next_attack_chain": {
+      "title": "Next Attack",
+      "text": "Your next Lightning card this turn gains Chain {n}.",
+      "legacy": "{legacy}",
+      "term": "next_attack"
+    },
+    "unchanged_applies_only_to_hits_carried_by_a_conductive_connection": {
+      "text": "Apply this effect to hits spread by Electrified tiles.",
+      "legacy": "Apply this effect to hits spread by Electrified tiles."
+    },
+    "unchanged_while_this_illusion_lives_your_ranged_attacks_may_fire_from_its_tile": {
+      "text": "While this Illusion lasts, your ranged attacks can come from this Illusion's tile.",
+      "legacy": "While this Illusion lasts, your ranged attacks can come from this Illusion's tile."
+    },
+    "unchanged_enemies_that_damage_this_illusion_are_shocked": {
+      "text": "Enemies that damage this Illusion gain Shock.",
+      "legacy": "Enemies that damage this Illusion gain Shock."
+    },
+    "unchanged_each_empty_tile_next_to_the_illusion": {
+      "text": "Each empty tile adjacent to the Illusion.",
+      "legacy": "Each empty tile adjacent to the Illusion.",
+      "diagram_text": "@pattern(neighbors:origin) Each empty tile adjacent to the Illusion."
+    },
+    "unchanged_the_illusion_appears_on_the_free_tile_next_to_the_chosen_enemy_that_is_nearest_you": {
+      "text": "Place the Illusion on the open tile adjacent to the target that is nearest you.",
+      "legacy": "Place the Illusion on the open tile adjacent to the target that is nearest you."
+    },
+    "unchanged_choose_an_enemy_within_this_range": {
+      "text": "Choose an enemy within Range.",
+      "legacy": "Choose an enemy within Range."
+    },
+    "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": {
+      "text": "Create 1 Illusion on each empty tile adjacent to you.",
+      "legacy": "Create 1 Illusion on each empty tile adjacent to you.",
+      "diagram_text": "@pattern(neighbors:origin) Create 1 Illusion on each empty tile adjacent to you."
+    },
+    "unchanged_applies_if_no_enemy_is_next_to_you_after_the_blink": {
+      "text": "If no enemy is adjacent to you after the Blink, gain this bonus.",
+      "legacy": "If no enemy is adjacent to you after the Blink, gain this bonus."
+    },
+    "unchanged_leaves_an_illusion_with_this_much_health_where_you_stood": {
+      "text": "Leave an Illusion with X Health on the tile you left.",
+      "legacy": "Leave an Illusion with X Health on the tile you left."
+    },
+    "unchanged_the_destination_must_be_next_to_an_enemy_outcrop_or_crate": {
+      "text": "The destination must be adjacent to an enemy, Outcrop or crate.",
+      "legacy": "The destination must be adjacent to an enemy, Outcrop or crate."
+    },
+    "unchanged_gain_this_much_block_for_each_tile_you_move": {
+      "text": "Gain X Block for each tile you Move.",
+      "legacy": "Gain X Block for each tile you Move."
+    },
+    "unchanged_expends_this_ground_on_the_chosen_tile_first": {
+      "text": "Remove this ground from the tile before the effect.",
+      "legacy": "Remove this ground from the tile before the effect."
+    },
+    "unchanged_raises_an_outcrop_with_this_much_hp_at_an_empty_ground_target": {
+      "text": "Raise an Outcrop with X Health on an empty tile.",
+      "legacy": "Raise an Outcrop with X Health on an empty tile."
+    },
+    "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_terrain": {
+      "text": "Hit each enemy adjacent to the destroyed terrain.",
+      "legacy": "Hit each enemy adjacent to the destroyed terrain.",
+      "diagram_text": "@pattern(neighbors:origin) Hit each enemy adjacent to the destroyed terrain."
+    },
+    "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_illusion": {
+      "text": "Hit each enemy adjacent to the destroyed Illusion.",
+      "legacy": "Hit each enemy adjacent to the destroyed Illusion.",
+      "diagram_text": "@pattern(neighbors:origin) Hit each enemy adjacent to the destroyed Illusion."
+    },
+    "unchanged_you_take_no_damage_from_this_detonate": {
+      "text": "This Burst spares you.",
+      "legacy": "This Burst spares you."
+    },
+    "unchanged_each_other_enemy_next_to_the_target": {
+      "text": "Each other enemy adjacent to the target.",
+      "legacy": "Each other enemy adjacent to the target.",
+      "diagram_text": "@pattern(neighbors:origin) Each other enemy adjacent to the target."
+    },
+    "unchanged_empower_repeat_this_card_s_first_action": {
+      "text": "repeat this card's first action.",
+      "legacy": "repeat this card's first action."
+    },
+    "unchanged_empower_cost_exhaust_this_card": {
+      "text": "This card Exhausts after resolving.",
+      "legacy": "This card Exhausts after resolving."
+    },
+    "retaliate_melee_damage_riders": {
+      "title": "Retaliate",
+      "text": "Until your next turn, each melee attacker takes {n} damage and is affected by {riders}.",
+      "legacy": "Retaliate\nUntil your next turn, each melee attacker takes {n} damage and is affected by {riders}.",
+      "term": "retaliate"
+    },
+    "retaliate_melee_damage": {
+      "title": "Retaliate",
+      "text": "Until your next turn, each enemy that hits you in melee takes {n} damage.",
+      "legacy": "Retaliate\nUntil your next turn, each enemy that hits you in melee takes {n} damage.",
+      "term": "retaliate"
+    },
+    "retaliate_melee_riders": {
+      "title": "Retaliate",
+      "text": "Until your next turn, apply {riders} to each enemy that hits you in melee.",
+      "legacy": "Retaliate\nUntil your next turn, apply {riders} to each enemy that hits you in melee.",
+      "term": "retaliate"
+    },
+    "next_attack_element": {
+      "title": "",
+      "text": "Only a {element} card uses this bonus.",
+      "legacy": "Only a {element} card uses this bonus."
+    },
+    "empower_health": {
+      "title": "",
+      "text": "Lose {n} Health after the card resolves.",
+      "legacy": "Lose {n} Health after the card resolves."
+    },
+    "empower_time": {
+      "title": "",
+      "text": "Add {n} Time to your next turn.",
+      "legacy": "Add {n} Time to your next turn."
+    },
+    "range_electrified": {
+      "text": "Choose an Electrified tile within Range and line of sight.",
+      "legacy": "Range\nChoose an Electrified tile within Range and line of sight."
+    },
+    "range_meteor": {
+      "text": "Aim within Range and line of sight.",
+      "legacy": "Range\nAim within Range and line of sight."
+    },
+    "range_unlimited": {
+      "text": "Choose a visible enemy, ignoring Range and line of sight.",
+      "legacy": "Range\nChoose a visible enemy, ignoring Range and line of sight."
+    },
+    "range_ignore_los": {
+      "text": "Choose a visible enemy within Range, ignoring line of sight.",
+      "legacy": "Range\nChoose a visible enemy within Range, ignoring line of sight."
+    },
+    "illusion_nearby": {
+      "text": "This attack also hits each other enemy adjacent to one of your Illusions once.",
+      "legacy": "This attack also hits each other enemy adjacent to one of your Illusions once."
+    },
+    "item_once_per_combat": {
+      "text": "This item can be used once per combat and returns next combat.",
+      "legacy": "This item can be used once per combat and returns next combat."
+    },
+    "keg_burst": {
+      "title": "Burst",
+      "text": "When the keg is destroyed, the keg Bursts {n}.",
+      "legacy": "When the keg is destroyed, the keg Bursts {n}.",
+      "term": "burst"
+    },
+    "burst_ground": {
+      "text": "This Burst destroys the named ground.",
+      "legacy": "This Burst destroys the named ground."
+    },
+    "burst_leaves_ground": {
+      "text": "This Burst leaves the named ground on each tile the Burst hits.",
+      "legacy": "This Burst leaves the named ground on each tile the Burst hits."
+    },
+    "burst_connected_electrified": {
+      "text": "Burst the tile and each Electrified tile connected to that tile.",
+      "legacy": "Burst the tile and each Electrified tile connected to that tile."
+    },
+    "burst_illusion_condition": {
+      "text": "This Burst happens only when one of your Illusions is on the tile.",
+      "legacy": "This Burst happens only when one of your Illusions is on the tile."
+    },
+    "burst_terrain_condition": {
+      "text": "This Burst happens only when the target is an Outcrop or crate.",
+      "legacy": "This Burst happens only when the target is an Outcrop or crate."
+    },
+    "burst_spares_you": {
+      "text": "This Burst spares you.",
+      "legacy": "This Burst spares you."
+    },
+    "burst_on_ground": {
+      "text": "This Burst happens only on {ground}.",
+      "legacy": "This Burst happens only on {ground}."
+    },
+    "burst_outcrop_you_raised": {
+      "title": "Outcrop",
+      "text": "Burst an adjacent Outcrop you raised.",
+      "legacy": "Burst an adjacent Outcrop you raised.",
+      "term": "outcrop"
+    },
+    "burst_leaves_ground_destroyed": {
+      "text": "This Burst leaves the named ground on the destroyed target's tile.",
+      "legacy": "This Burst leaves the named ground on the destroyed target's tile."
+    },
+    "empower_for": {
+      "title": "Empower",
+      "text": "Empower for {cost}: {bonus}.",
+      "legacy": "Empower{active}\nEmpower for {cost}: {bonus}.",
+      "term": "empower"
+    }
+  }
+}

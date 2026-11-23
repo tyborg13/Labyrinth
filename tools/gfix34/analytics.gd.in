@@ -1,0 +1,80 @@
+extends "res://tools/qa131/live_effects.gd"
+## Use QA-131's exact interruption points and play matched uninterrupted controls.
+
+const MATRIX := ["save_shot", "save_area"]
+const ROW_ENVELOPE := ["event_id", "install_id", "session_id", "timestamp_utc"]
+
+var _interrupt: bool
+var _menu: bool
+
+func _probe() -> void:
+	var output: String = OS.get_environment("LABYRINTH_QA131_LIVE_OUT")
+	_menu = "--save-menu" in OS.get_cmdline_user_args()
+	if output.is_empty():
+		push_error("Set LABYRINTH_QA131_LIVE_OUT to an empty proof directory")
+		quit(2)
+		return
+	for label: String in MATRIX:
+		_case = label
+		var control: Array[Dictionary] = await _take_case(output.path_join("control"), false)
+		var interrupted: Array[Dictionary] = await _take_case(output.path_join("interrupted"), true)
+		var kills: int = 1 if label == "save_area" else 0
+		var equal: bool = control.size() == 1 and interrupted.size() == 1 and _play_fields(control[0]) == _play_fields(interrupted[0])
+		_check(equal, "quit row fields match uninterrupted control")
+		_check(equal and interrupted[0]["payload"]["kills_secured"] == kills, "kills_secured matches the resolver")
+		print("GFIX-34 ANALYTICS %s control=%d quit=%d fields_equal=%s kills_secured=%d" % [
+			label, control.size(), interrupted.size(), equal, interrupted[0]["payload"]["kills_secured"] if interrupted.size() == 1 else -1,
+		])
+	for failure: String in _failures: push_error(failure)
+	print("GFIX-34 ANALYTICS %s: %d checks, %d failures" % ["MENU" if _menu else "APPLICATION", _checks, _failures.size()])
+	quit(0 if _failures.is_empty() else 1)
+
+func _take_case(directory: String, interrupt: bool) -> Array[Dictionary]:
+	_directory = directory
+	_interrupt = interrupt
+	_decision = 0
+	var rows: Array[Dictionary]
+	if await _open(_case):
+		if _case == "save_shot":
+			await _save_shot()
+		else:
+			await _area(true)
+		rows = _rows()
+	await _leave()
+	return rows
+
+func _save_resume(held: Dictionary, _family: String) -> void:
+	if not _interrupt:
+		var cutoff: int = Time.get_ticks_msec() + WATCHDOG_MSEC
+		while _playing and Time.get_ticks_msec() < cutoff: await process_frame
+		_check(not _playing, "uninterrupted control finishes")
+		return
+	_check(_scene._animation_lock and _rows().is_empty(), "quit begins before card_played")
+	if _menu:
+		await _scene._on_save_and_quit_pressed()
+	else:
+		await _scene.prepare_application_quit("gfix34_in_flight")
+	var rows: Array[Dictionary] = _rows()
+	_check(rows.size() == 1, "quit writes exactly one row before returning")
+	_check(_combat_receipt(ProgressionStore.load_saved_run().get("combat_state", {})) == _combat_receipt(held),
+		"quit preserves committed state")
+	await _leave()
+	if await _enter():
+		_check(_combat_receipt(_scene._combat_state) == _combat_receipt(held), "resume preserves committed state")
+		_check(_rows() == rows, "resume writes no additional card_played row")
+		print("GFIX-34 RESUME %s additional_card_played=%d" % [_case, _rows().size() - rows.size()])
+
+func _rows() -> Array[Dictionary]:
+	var rows: Array[Dictionary]
+	for row: Dictionary in Analytics.load_all_events():
+		if row["event_type"] == "card_played": rows.append(row)
+	return rows
+
+func _play_fields(row: Dictionary) -> Dictionary:
+	var fields: Dictionary = row.duplicate(false)
+	for key: String in ROW_ENVELOPE: fields.erase(key)
+	# Matched runs are separately created and receive distinct run namespaces.
+	var run_id: String = row["run_id"]
+	for key: String in ["run_id", "combat_id", "card_instance_id"]:
+		fields[key] = str(fields[key]).replace(run_id, "fixture")
+	return fields

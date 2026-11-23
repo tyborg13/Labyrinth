@@ -1,17 +1,14 @@
 extends RefCounted
 
-## pol-52 combat keys (director 2026-11-20). P is the PASS button: it does
-## nothing while the button is greyed out and exactly what a click does when it
-## is clickable. 1-9 (top row or keypad) pick hand cards left to right and do
-## exactly what a click on that card does. P is the key that types p in the
-## player's layout (the key mark shows P). Digits are the keys that type 1-9; on
-## layouts whose top row types symbols (AZERTY) the top-row positions count, but a
-## key that types a letter is always that letter (Dvorak's m stays the map). Key
-## echo, modifier chords and typing in a text field never act.
+const KeyBindings = preload("res://scripts/key_bindings.gd")
+
+## Pass and 1–9 do exactly what a click does when their controls are clickable.
+## Digits follow the layout with a top-row position fallback for symbol rows
+## such as AZERTY. Letter keys never count as card picks.
 
 static func handle(scene: Control, event: InputEvent) -> bool:
 	if _typing(scene): return false
-	if _key_press(event, KEY_P):
+	if KeyBindings.pressed(KeyBindings.PASS, event):
 		if not _pass_clickable(scene): return false
 		scene.get_viewport().set_input_as_handled()
 		# The chip's pressed handler, as a click runs it.
@@ -40,10 +37,6 @@ static func hand_index(event: InputEvent) -> int:
 	if key.keycode >= KEY_A and key.keycode <= KEY_Z: return -1
 	if key.physical_keycode >= KEY_1 and key.physical_keycode <= KEY_9: return key.physical_keycode - KEY_1
 	return -1
-
-static func _key_press(event: InputEvent, letter: Key) -> bool:
-	var key := event as InputEventKey
-	return _plain_press(key) and key.keycode == letter
 
 static func _typing(scene: Control) -> bool:
 	var focus: Control = scene.get_viewport().gui_get_focus_owner()

@@ -11,17 +11,21 @@ const Keywords = preload("res://scripts/card_keyword_rules.gd")
 const ItemRules = preload("res://scripts/item_relic_rules.gd")
 const Card = preload("res://scripts/card_widget.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
+const FaceLayout = preload("res://scripts/card_face_layout.gd")
 const Previews = preload("res://scripts/item_preview_builders.gd")
 const Fan = preload("res://scripts/hand_fan_container.gd")
 const Shop = preload("res://scripts/scavenger_shop_view.gd")
 const Pile = preload("res://scripts/pile_dialog_view.gd")
 const Graft = preload("res://scripts/graftwright_view.gd")
 const Chronicle = preload("res://scripts/chronicle_panel.gd")
+const Grimoire = preload("res://scripts/grimoire_panel.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Sources = preload("res://tests/helpers/card_legibility_sources.gd")
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const TEXT_FLOOR: float = 14.0
 const ICON_FLOOR: float = 16.0
+const SENTENCE_HAND_ICON_FLOOR: float = 12.0
+const SENTENCE_HOVER_ICON_FLOOR: float = 15.0
 const SETTLE_FRAMES: int = 5
 const EPSILON: float = 0.02
 # Director-approved exceptions. New contexts must pass unless named here.
@@ -81,8 +85,8 @@ func contexts() -> Array:
 	result.append({"id": "scavenger_receipt", "factory": "shop", "size": Vector2(69, 97)})
 	result.append({"id": "scavenger_detail", "factory": "shop", "size": Shop.NATIVE_CARD_SIZE})
 	result.append({"id": "deck_view", "factory": "deck", "size": Pile.CARD_SIZE})
-	result.append({"id": "grimoire", "factory": "preview", "size": constants["GRIMOIRE_CARD_PREVIEW_SIZE"]})
-	result.append({"id": "grimoire_equipment", "factory": "preview", "size": constants["GRIMOIRE_EQUIPMENT_CARD_SIZE"]})
+	result.append({"id": "grimoire", "factory": "preview", "size": Grimoire.GRIMOIRE_CARD_PREVIEW_SIZE})
+	result.append({"id": "grimoire_equipment", "factory": "preview", "size": Grimoire.GRIMOIRE_EQUIPMENT_CARD_SIZE})
 	for id: String in ["card_tooltip", "chronicle_card"]:
 		result.append({"id": id, "factory": "tooltip", "size": Previews.CARD_TOOLTIP_SIZE})
 	for id: String in ["equipment_tooltip", "chronicle_equipment"]:
@@ -237,7 +241,93 @@ static func measure(widget: Control, definition: Dictionary = {}) -> Dictionary:
 		var local_end: Vector2 = inverse * (node.get_global_transform_with_canvas() * node.size)
 		bottom = maxf(bottom, local_end.y)
 	result["overflow_px"]["y"] = maxf(0.0, bottom - (Card.BASE_CARD_SIZE.y - 14.0)) * widget.get_global_transform_with_canvas().get_scale().abs().y
+	var plan: Dictionary = widget.sentence_face_plan()
+	if not plan.is_empty():
+		var view: Control = widget.get("_sentence_face")
+		if view.is_visible_in_tree(): _measure_sentence_face(widget, view, plan, result)
 	return result
+
+static func _measure_sentence_face(widget: CardWidget, view: Control, plan: Dictionary, result: Dictionary) -> void:
+	var metrics: Dictionary = widget.call("_sentence_face_metrics")
+	var layout_scale: float = metrics["scale"]
+	var screen_scale: Vector2 = view.get_global_transform_with_canvas().get_scale().abs()
+	var face_to_card: Transform2D = widget.get_global_transform_with_canvas().affine_inverse() * view.get_global_transform_with_canvas()
+	var center := Vector2(view.size.x * 0.5, 0.0)
+	var card_center: float = widget.size.x * 0.5
+	var text_scale: float = minf(screen_scale.x, screen_scale.y)
+	var sentence: Dictionary = {
+		"fits": bool(plan["fits"]), "line_count": plan["lines"].size(), "margin_px": null,
+		"text_px": null, "chip_text_px": null,
+		"inline_icon_px": null, "chip_icon_px": null, "inline_pattern_px": null, "diagram_px": null,
+		"text_floor_px": float(metrics["text_sizes"].back()) * text_scale,
+		# The widget resolves the UI caption token at the current card and UI scales.
+		"chip_text_floor_px": float(metrics["chip_size"]) * text_scale,
+	}
+	var items: Array = []
+	var chip: Dictionary = plan["chip"]
+	if not chip.is_empty():
+		var chip_y: float = chip["y"]
+		var chip_rect := Rect2(-float(chip["width"]) * 0.5, chip_y, float(chip["width"]), float(chip["height"]))
+		items.append({"kind": "chip", "rect": chip_rect})
+		for item: Dictionary in chip["items"]:
+			items.append(_sentence_item(item, "chip", chip_y, metrics["ui_font"], chip["text_size"]))
+	for line: Dictionary in plan["lines"]:
+		for item: Dictionary in line["pieces"]:
+			items.append(_sentence_item(item, "line", 0.0, metrics["text_font"], plan["text_size"]))
+	for item: Dictionary in plan["under"].get("items", []):
+		items.append(_sentence_item(item, "under", 0.0, metrics["text_font"], plan["text_size"]))
+	var bottom: float = plan["height"]
+	for item: Dictionary in items:
+		var rect: Rect2 = item["rect"]
+		bottom = maxf(bottom, rect.end.y)
+		var card_rect: Rect2 = face_to_card * Rect2(rect.position + center, rect.size)
+		var allowed: float = FaceLayout.allowed_half_width(card_rect.position.y, card_rect.end.y, layout_scale)
+		var margin: float = (allowed - maxf(card_center - card_rect.position.x, card_rect.end.x - card_center)) * screen_scale.x
+		_minimum(sentence, "margin_px", margin)
+		var kind: String = item["kind"]
+		if kind in ["text", "number", "arrow"]:
+			var px: float = float(item["font_size"]) * text_scale
+			item["px"] = px
+			if item["region"] == "chip":
+				item["role"] = "caption"
+				_minimum(sentence, "chip_text_px", px)
+			else:
+				var role: String = "token_number" if kind == "number" else "rules"
+				item["role"] = role
+				_minimum(sentence, "text_px", px)
+				_minimum(result["text_px"], role, px)
+				result["content_text_runs"] += 1
+		elif kind in ["icon", "pattern"]:
+			# Compare the icon's drawn height, as for textures in icon rows.
+			var px: float = rect.size.y * screen_scale.y
+			var key: String = "chip_icon_px" if item["region"] == "chip" else "inline_icon_px"
+			if kind == "pattern":
+				key = "diagram_px" if item["region"] == "under" else "inline_pattern_px"
+			item["px"] = px
+			_minimum(sentence, key, px)
+			_minimum(result, "icon_px", px)
+		item["rect"] = [card_rect.position.x, card_rect.position.y, card_rect.size.x, card_rect.size.y]
+		item["margin_px"] = margin
+		result["runs"].append(item)
+	# The planner's available height limits the line count through the sum
+	# of the line heights, chip, and diagrams rather than a fixed line cap.
+	var height: float = float(metrics["details_height"]) - FaceLayout.VERTICAL_PADDING * layout_scale
+	var overflow_y: float = maxf(0.0, bottom - height) * screen_scale.y
+	var overflow_x: float = maxf(0.0, -float(sentence["margin_px"]))
+	sentence["fits"] = sentence["fits"] and maxf(overflow_x, overflow_y) <= EPSILON
+	result["sentence"] = sentence
+	result["overflow_px"] = {"x": overflow_x, "y": overflow_y}
+
+static func _sentence_item(piece: Dictionary, region: String, offset_y: float, font: Font, font_size: int) -> Dictionary:
+	var kind: String = piece["kind"]
+	var item: Dictionary = {"kind": kind, "region": region, "text": piece.get("text", piece.get("icon", piece.get("pattern", "")))}
+	if kind in ["icon", "pattern"]:
+		item["rect"] = Rect2(float(piece["x"]), offset_y + float(piece["y"]), float(piece["w"]), float(piece["h"]))
+	else:
+		var ascent: float = font.get_ascent(font_size)
+		item["font_size"] = font_size
+		item["rect"] = Rect2(float(piece["x"]), offset_y + float(piece["baseline"]) - ascent, float(piece["w"]), font.get_height(font_size))
+	return item
 
 static func _expects_icons(widget: Control) -> bool:
 	if not widget is Card: return false
@@ -380,8 +470,10 @@ static func sample_errors(measurement: Dictionary, entry: Dictionary, context: D
 	if rows.is_empty(): needs_content = not str(entry["definition"].get("description", "")).is_empty()
 	if needs_content and int(measurement.get("content_text_runs", 0)) == 0: errors.append("missing rules content nodes")
 	if needs_icon and context.get("factory") != "rules_tooltip" and (measurement.get("icon_px") == null or not is_finite(float(measurement["icon_px"])) or float(measurement["icon_px"]) <= 0.0): errors.append("missing expected icon measurement")
-	if not context.get("exempt", false): errors.append_array(floor_errors(measurement))
+	if not context.get("exempt", false): errors.append_array(floor_errors(measurement, context))
 	else: errors.append_array(measurement.get("rules_body_errors", []))
+	if not measurement.get("sentence", {}).get("fits", true):
+		errors.append("sentence face exceeds the parchment or line space")
 	return errors
 
 static func coverage_errors(context: Dictionary, count: int) -> Array:
@@ -395,7 +487,7 @@ static func _has_letters(text: String) -> bool:
 static func _minimum(target: Dictionary, key: String, value: float) -> void:
 	if target[key] == null or value < float(target[key]): target[key] = value
 
-static func floor_errors(measurement: Dictionary) -> Array:
+static func floor_errors(measurement: Dictionary, context: Dictionary = {}) -> Array:
 	var errors: Array = measurement.get("rules_body_errors", []).duplicate()
 	if not measurement.get("visible", false): errors.append("sample face hidden")
 	var text: Dictionary = measurement.get("text_px", {})
@@ -404,6 +496,20 @@ static func floor_errors(measurement: Dictionary) -> Array:
 	for role: String in text:
 		var px: Variant = text[role]
 		if px != null and float(px) + EPSILON < TEXT_FLOOR: errors.append("%s %.3f < 14" % [role, px])
-	if measurement.get("icon_px") != null and float(measurement["icon_px"]) + EPSILON < ICON_FLOOR: errors.append("icon %.3f < 16" % measurement["icon_px"])
+	if measurement.has("sentence"):
+		var sentence: Dictionary = measurement["sentence"]
+		var icon_floor: float = SENTENCE_HOVER_ICON_FLOOR if context.get("pose") in ["hovered", "focused"] else SENTENCE_HAND_ICON_FLOOR
+		_check_floor(errors, "sentence text", sentence["text_px"], sentence["text_floor_px"])
+		_check_floor(errors, "chip caption", sentence["chip_text_px"], sentence["chip_text_floor_px"])
+		_check_floor(errors, "inline icon", sentence["inline_icon_px"], icon_floor)
+		_check_floor(errors, "chip icon", sentence["chip_icon_px"], icon_floor)
+		_check_floor(errors, "inline pattern", sentence["inline_pattern_px"], icon_floor)
+		_check_floor(errors, "under-diagram", sentence["diagram_px"], ICON_FLOOR)
+	elif measurement.get("icon_px") != null and float(measurement["icon_px"]) + EPSILON < ICON_FLOOR:
+		errors.append("icon %.3f < 16" % measurement["icon_px"])
 	if measurement.get("shrunk", false): errors.append("rules text shrunk")
 	return errors
+
+static func _check_floor(errors: Array, label: String, measured: Variant, floor_px: float) -> void:
+	if measured != null and float(measured) + EPSILON < floor_px:
+		errors.append("%s %.3f < %s" % [label, measured, str(floor_px)])

@@ -83,6 +83,7 @@ func _render_inputs(scene: Node, state: Dictionary) -> Dictionary:
 		ownership[card_id] = scene._reward_card_choice_context(card_id, state)
 	return {
 		"cards": cards.duplicate(true), "definitions": current_definitions, "ownership": ownership,
+		"deck_element": scene._reward_deck_caption_element(state),
 		"heal": maxi(0, int(reward.get("heal_amount", 0))),
 		"hp": int(state.get("player_hp", 0)), "max_hp": int(state.get("player_max_hp", 0)),
 		"deferred_choice": scene._run_engine.has_run_skill(state, "deferred_choice"),

@@ -2,10 +2,13 @@ extends RefCounted
 
 ## Terrain card family (card pool overhaul wave 4, spec/card_mechanics_illusions_terrain.md).
 ##
-##   burst_terrain        destroy a live terrain piece, blast its neighbors (Rockburst) or,
-##                        with owned_outcrop_only, the line beyond it (Worldbreak)
-##   outcrop kind powder_keg   3-HP keg; destroyed by anything it bursts on its tile and
-##                        neighbors (actors and terrain, chain-reacting)
+##   burst_terrain        Burst a live terrain piece: destroy it, then hit every unit
+##                        in its cross (BurstRules). Worldbreak: owned_outcrop_only.
+##                        Rockburst: a follow-up at the previous target (an
+##                        Outcrop or crate its attack hit), leaving Rubble on
+##                        each tile hit.
+##   outcrop kind powder_keg   3-HP keg; destroyed by anything; it Bursts its cross
+##                        (units and terrain, chain-reacting; traps there trigger)
 ## CombatEngine owns the terrain array, damage and deaths; these helpers are
 ## called from small hooks in its outcrop, terrain-damage and turn-start paths.
 
@@ -13,6 +16,7 @@ const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const GuardianRules = preload("res://scripts/guardian_combat_rules.gd")
+const BurstRules = preload("res://scripts/burst_rules.gd")
 
 const INVALID := Vector2i(-1, -1)
 const KEG_KIND: String = "powder_keg"
@@ -66,42 +70,36 @@ static func after_terrain_destroyed(engine: RefCounted, state: Dictionary, terra
 	return explode_keg(engine, state, terrain)
 
 static func keg_blast_tiles(state: Dictionary, center: Vector2i) -> Array[Vector2i]:
-	var tiles: Array[Vector2i]
-	tiles.append(center)
-	tiles.append_array(IllusionCardRules.neighbor_tiles(state, center))
-	return tiles
+	return BurstRules.cross(state, center)
 
-## Burst N on the keg tile and its neighbors: every actor (hero, illusions,
-## enemies; footprint-aware) and every terrain piece, so kegs chain. Non-direct.
-## A hero-placed keg is player-credited (causal_owner player); card plays for
-## kills follow the triggering context's player_card, like any other damage.
+## Burst N on the keg's cross: every actor (hero, illusions, enemies;
+## footprint-aware) and every terrain piece, so kegs chain; traps there
+## trigger. Direct damage. A hero-placed keg is player-credited (causal_owner
+## player); card plays for kills follow the triggering context's player_card,
+## like any other damage.
 static func explode_keg(engine: RefCounted, state: Dictionary, keg: Dictionary) -> Dictionary:
 	var center: Vector2i = keg.get("pos", INVALID)
 	var amount: int = maxi(0, int(keg.get("burst_damage", 0)))
 	if center == INVALID or amount <= 0:
 		return state
-	var tiles: Array[Vector2i] = keg_blast_tiles(state, center)
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = previous_context.duplicate(true)
 	context["source_kind"] = KEG_EVENT
+	context["burst"] = true
 	context["terrain_id"] = str(keg.get("id", ""))
 	if str(keg.get("owner_kind", "")) == "player":
 		context["causal_owner"] = "player"
 	state["damage_context"] = context
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
-	var hit_keys: Array = []
-	for actor: Dictionary in engine._surface_actor_records(state):
-		if not engine._surface_unit_intersects(actor["unit"] as Dictionary, tiles):
-			continue
-		hit_keys.append(str(actor.get("key", "")))
-		state = engine._surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), amount, false)
-	Surfaces.record_event(state, {"kind": KEG_EVENT, "tile": center, "tiles": tiles, "damage": amount, "terrain_id": str(keg.get("id", "")), "owner_kind": str(keg.get("owner_kind", "")), "actor_keys": hit_keys, "source": context.duplicate(true)})
-	# Remaining terrain on the blast takes the same damage; another keg bursts in turn.
-	var terrain_indices: Array[int]
-	terrain_indices.assign(engine._terrain_indices_in_tiles(state, tiles))
-	for index: int in terrain_indices:
-		state = engine._damage_terrain(state, index, amount)
+	var sources: Array[Vector2i]
+	sources.append(center)
+	var hit: Callable = func(next_state: Dictionary, actor: Dictionary, damage: int) -> Dictionary:
+		return engine._surface_damage_actor(next_state, str(actor["kind"]), int(actor["id"]), damage, true)
+	# The event lands after the unit hits and before the chained terrain, so a
+	# chain's keg events stay in order. Traps caught in the Burst trigger.
+	var event: Dictionary = {"kind": KEG_EVENT, "tile": center, "tiles": BurstRules.area(state, sources), "damage": amount, "terrain_id": str(keg.get("id", "")), "owner_kind": str(keg.get("owner_kind", "")), "source": context.duplicate(true)}
+	state = BurstRules.resolve(engine, state, sources, amount, hit, {"event": event, "hit_terrain": true, "trigger_traps": true})["state"]
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = engine._flush_surface_deaths(state)
@@ -206,42 +204,45 @@ static func burst_targets(engine: RefCounted, state: Dictionary, action: Diction
 			targets.append(tile)
 	return targets
 
-## Tiles the blast hits: the four neighbors, or (Worldbreak) the line of
-## `line_length` tiles beyond the target, away from the hero, stopping at walls.
-static func burst_impact_tiles(state: Dictionary, action: Dictionary, target: Vector2i) -> Array[Vector2i]:
-	if not bool(action.get("owned_outcrop_only", false)) or int(action.get("line_length", 0)) <= 0:
-		return IllusionCardRules.neighbor_tiles(state, target)
-	var tiles: Array[Vector2i]
-	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
-	var direction: Vector2i = _cardinal(target - player_pos)
-	if direction == Vector2i.ZERO:
-		return tiles
-	for step: int in range(1, int(action.get("line_length", 3)) + 1):
-		var tile: Vector2i = target + direction * step
-		if not Paths.is_passable(state.get("grid", []), tile):
-			break
-		tiles.append(tile)
-	return tiles
+## Tiles the Burst hits: the piece's tile and the four tiles next to it.
+static func burst_impact_tiles(state: Dictionary, _action: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	return BurstRules.cross(state, target)
 
 static func burst_damage(action: Dictionary) -> int:
 	return int(action.get("line_damage", 0)) if bool(action.get("owned_outcrop_only", false)) and action.has("line_damage") else int(action.get("damage", 0))
 
-## The derived blast attack (shared by resolution and the hand's damage chip).
+## The derived card Burst (shared by resolution and the hand's damage chip): an
+## area hit that takes attack bonuses but no next-attack buff, on every unit in
+## the cross (the hero included).
 static func burst_blast_action(action: Dictionary) -> Dictionary:
-	var blast: Dictionary = IllusionCardRules.blast_action(action, burst_damage(action), {"stagger": int(action.get("stagger", 0))})
+	var blast: Dictionary = IllusionCardRules.burst_action(action, burst_damage(action), {"stagger": int(action.get("stagger", 0))})
 	blast["_reflect_exempt_hit"] = true
+	if not str(action.get("leave_surface", "")).is_empty():
+		blast["leave_surface"] = str(action["leave_surface"])
+		blast["leave_surface_on"] = str(action.get("leave_surface_on", ""))
+	if bool(action.get("spare_player", false)):
+		blast["spare_player"] = true
 	return blast
 
+## Burst the piece: destroy it, then resolve the card's Burst.
+## A follow-up at the previous target (Rockburst) Bursts when an Outcrop or
+## crate stood there when the card's attack began, even if that hit broke it.
 static func resolve_burst(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}) -> Dictionary:
 	var index: int = engine._terrain_index_at_tile(state, target)
-	if index < 0:
+	var follow_up: bool = str(action.get("target", "")) == "previous_target"
+	if follow_up and BurstRules.terrain_kind_before(state, target) not in [OUTCROP_KIND, "crate", "wooden_crate"]:
 		return state
-	var terrain: Dictionary = engine._normalized_terrain((state.get("terrain", []) as Array)[index])
+	if index < 0 and not follow_up:
+		return state
 	var impact: Array[Vector2i] = burst_impact_tiles(state, action, target)
-	state = engine._damage_terrain(state, index, int(terrain.get("hp", 0)))
-	Surfaces.record_event(state, {"kind": BURST_EVENT, "tile": target, "tiles": impact, "terrain_id": str(terrain.get("id", "")), "terrain_kind": str(terrain.get("kind", "")), "source": engine._surface_source(state, action)})
-	if burst_damage(action) > 0 and not impact.is_empty():
-		state = engine._resolve_board_attack(state, burst_blast_action(action), target, "player", -1, trace, impact)
+	if index >= 0:
+		var terrain: Dictionary = engine._normalized_terrain((state.get("terrain", []) as Array)[index])
+		state = engine._damage_terrain(state, index, int(terrain.get("hp", 0)))
+		Surfaces.record_event(state, {"kind": BURST_EVENT, "tile": target, "tiles": impact, "terrain_id": str(terrain.get("id", "")), "terrain_kind": str(terrain.get("kind", "")), "burst": true, "source": engine._surface_source(state, action)})
+	if burst_damage(action) > 0:
+		var sources: Array[Vector2i]
+		sources.append(target)
+		state = engine._resolve_board_detonate(state, burst_blast_action(action), target, trace, sources)
 	engine._log(state, "The terrain bursts.")
 	return state
 

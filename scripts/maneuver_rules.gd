@@ -1,7 +1,7 @@
 extends RefCounted
 class_name ManeuverRules
 
-## Wave-4 family B: area forces (`force_area`), Squall's from-center push,
+## Wave-4 family B: area forces (`force_area`), area Push origins,
 ## Swap, forced-movement Fire trails, player self flags (Skate, Rooted,
 ## Anchored, Fireproof), Cleanse, Block to Stoneskin, Move and Blink riders,
 ## Petrify and the player's Crystal Mantle. See spec/card_mechanics_maneuver.md.
@@ -17,6 +17,7 @@ const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const DragonBosses = preload("res://scripts/dragon_boss_library.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const FloatingText = preload("res://scripts/floating_combat_text.gd")
 
 const INVALID: Vector2i = Vector2i(-1, -1)
 const DIRECTIONS: Array = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
@@ -31,7 +32,7 @@ const FLAG_ORDER: Array = [FLAG_NO_MOVE, FLAG_ANCHORED, FLAG_ICE_SKATE, FLAG_FIR
 ## identity the card rows and action steps use (spec/icon_identity_policy.md).
 const FLAG_INFO: Dictionary = {
 	"ice_skate": {"label": "Skate", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
-		"description": "This turn, moving onto Ice costs no Movement and Ice doesn't Chill you."},
+		"description": "This turn Ice costs you no Movement and doesn't Expose you."},
 	"no_move": {"label": "Immobilize", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
 		"description": "You can't Move, Blink or Swap for the rest of this turn."},
 	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
@@ -39,7 +40,7 @@ const FLAG_INFO: Dictionary = {
 	"fire_immune_turn": {"label": "Fireproof", "expires": "activation", "fill": "5a2a1c", "border": "ffb38a",
 		"description": "Fire doesn't damage you this turn."}
 }
-const CLEANSE_LABELS: Dictionary = {"bleed": "Bleed", "immobilize": "Immobilize", "chilled": "Chilled", "shock": "Shock"}
+const CLEANSE_LABELS: Dictionary = {"immobilize": "Immobilize", "shock": "Shock"}
 const PETRIFY_FIELD: String = "petrify"
 const MANTLE_FIELD: String = "frost_armor"
 const DIRECT_HIT_CAUSES: Array = ["enemy_attack", "direct_attack"]
@@ -332,10 +333,15 @@ static func apply_force_area(engine: RefCounted, state: Dictionary, action: Dict
 		state = engine._flush_surface_deaths(state)
 	return state
 
-# ------------------------------------------------------------------ Squall (aoe force_mode from_center)
+# ------------------------------------------------------------------ Area force origins
 
 static func uses_from_center(action: Dictionary) -> bool:
 	return str(action.get("type", "")) == "aoe" and str(action.get("force_mode", "")) == "from_center"
+
+static func hit_force_source(state: Dictionary, action: Dictionary, delivery_source: Vector2i) -> Vector2i:
+	if str(action.get("force_mode", "")) == "from_player":
+		return (state.get("player", {}) as Dictionary).get("pos", delivery_source)
+	return delivery_source
 
 ## The enemy standing on the pattern center is pushed away from the player;
 ## every other enemy in the pattern is pushed away from that center.
@@ -489,20 +495,11 @@ static func apply_cleanse(engine: RefCounted, state: Dictionary, action: Diction
 	var removed: Array = []
 	for status_var: Variant in action.get("statuses", []):
 		match str(status_var):
-			"bleed":
-				if int(player.get("bleed", 0)) > 0:
-					player["bleed"] = 0
-					removed.append("bleed")
 			"immobilize":
 				if bool(player.get("immobilize", false)) or bool(restrictions.get("immobilized", false)):
 					player["immobilize"] = false
 					restrictions["immobilized"] = false
 					removed.append("immobilize")
-			"chilled":
-				# Ice re-chills only on a later entry or turn start (BoardSurfaceRules).
-				if bool(player.get("chilled", false)):
-					player["chilled"] = false
-					removed.append("chilled")
 			"shock":
 				if int(player.get("shock", 0)) > 0 or bool(restrictions.get("shocked", false)):
 					player["shock"] = 0
@@ -568,14 +565,19 @@ static func is_petrified(enemy: Dictionary) -> bool:
 static func petrify_immune(enemy: Dictionary) -> bool:
 	return DragonBosses.is_dragon_boss_id(str(enemy.get("type", "")))
 
-static func petrify_targets(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
+## pla-06: the former Petrify card's targets (every visible enemy within
+## range, dragons included: they take half Stagger).
+static func stagger_targets(engine: RefCounted, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	return petrify_targets(engine, state, action, false)
+
+static func petrify_targets(engine: RefCounted, state: Dictionary, action: Dictionary, dragons_immune: bool = true) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
 	var reach: int = maxi(0, int(action.get("range", 1)))
 	var lookup: Dictionary = engine.umbra_visible_tile_lookup(state)
 	for raw_enemy: Dictionary in engine._live_enemies(state):
 		var enemy: Dictionary = engine._normalized_enemy(raw_enemy)
-		if petrify_immune(enemy) or not engine.is_enemy_visible_to_player(state, enemy, lookup):
+		if (dragons_immune and petrify_immune(enemy)) or not engine.is_enemy_visible_to_player(state, enemy, lookup):
 			continue
 		var reachable: bool = false
 		for tile: Vector2i in engine._enemy_footprint_tiles(enemy):
@@ -637,7 +639,6 @@ static func move_action_with_trail_light(action: Dictionary) -> Dictionary:
 	# Reuse the Pilgrim Boots / Sunpath path-light machinery.
 	var resolved: Dictionary = action.duplicate(true)
 	resolved["illuminate_radius"] = maxi(1, int((trail as Dictionary).get("radius", 1)))
-	resolved["illuminate_duration"] = int((trail as Dictionary).get("duration", 2))
 	resolved["illuminate_position_mode"] = "path"
 	return resolved
 
@@ -656,12 +657,10 @@ static func after_player_move(engine: RefCounted, state: Dictionary, action: Dic
 	var per_tile: int = maxi(0, int(action.get("block_per_tile", 0)))
 	var block_tiles: int = travelled if travelled >= 0 else moved_tiles
 	if per_tile > 0 and block_tiles > 0:
-		var player: Dictionary = engine._normalized_player(state.get("player", {}))
-		player["block"] = int(player.get("block", 0)) + per_tile * block_tiles
-		state["player"] = player
+		preload("res://scripts/common_relic_rules.gd").give_player_block(engine, state, action, per_tile * block_tiles)
 	var started: Variant = action.get("if_started_on_surface", null)
 	if typeof(started) == TYPE_DICTIONARY and started_activation_on(state, str((started as Dictionary).get("surface", ""))):
-		state = engine._apply_relic_rewards(state, (started as Dictionary).get("rewards", []), {"source_name": engine._action_card_name(action)})
+		state = engine._apply_relic_rewards(state, (started as Dictionary).get("rewards", []), {"source_name": engine._action_card_name(action), "card_id": str(action.get("_card_id", ""))})
 	return state
 
 ## Joust: destinations on a clear straight cardinal line from the hero.
@@ -699,6 +698,11 @@ static func straight_line_navigation(engine: RefCounted, state: Dictionary, unit
 static func blink_destination_allowed(engine: RefCounted, state: Dictionary, action: Dictionary, tile: Vector2i, lookup: Dictionary = {}) -> bool:
 	if bool(action.get("destination_requires_light", false)) and not engine._light_source_covers_tile(state, tile):
 		return false
+	var light_range: int = int(action.get("range_in_light", 0))
+	if light_range > 0:
+		var origin: Vector2i = state.get("player", {}).get("pos", INVALID)
+		if Paths.manhattan(origin, tile) > int(action.get("range", 0)) and not engine._light_source_covers_tile(state, tile):
+			return false
 	var adjacent_to: Array = action.get("destination_adjacent_to", []) as Array
 	if not adjacent_to.is_empty() and not _tile_next_to(engine, state, tile, adjacent_to, lookup):
 		return false
@@ -730,10 +734,23 @@ static func after_player_blink(engine: RefCounted, state: Dictionary, action: Di
 	if typeof(rewards) == TYPE_ARRAY and not (rewards as Array).is_empty():
 		var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
 		if not _tile_next_to(engine, state, player_pos, ["enemy"], engine.umbra_visible_tile_lookup(state)):
-			state = engine._apply_relic_rewards(state, rewards, {"source_name": engine._action_card_name(action)})
+			state = engine._apply_relic_rewards(state, rewards, {"source_name": engine._action_card_name(action), "card_id": str(action.get("_card_id", ""))})
 	return state
 
 # ------------------------------------------------------------------ presentation and analytics
+
+static func presentation_entry(before_state: Dictionary, after_state: Dictionary, action: Dictionary, tile: Vector2i) -> Dictionary:
+	var kind: String = str(action.get("type", ""))
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	if kind == "convert_block_to_stoneskin":
+		var gained: int = int(after_player.get("stoneskin", 0)) - int(before_player.get("stoneskin", 0))
+		if gained > 0:
+			return FloatingText.resource_entry("stoneskin", tile, gained, {"offset": -6.0})
+	var entry: Dictionary = {"tile": tile, "text": presentation_text(before_state, after_state, action), "color": Color.hex(0xd6edffff), "offset": -6.0}
+	if kind == "mantle" and int(after_player.get(MANTLE_FIELD, 0)) > int(before_player.get(MANTLE_FIELD, 0)):
+		entry["gain"] = "mantle"
+	return entry
 
 ## One short line for the action banner beat of targetless family-B actions.
 static func presentation_text(before_state: Dictionary, after_state: Dictionary, action: Dictionary) -> String:
@@ -750,8 +767,7 @@ static func presentation_text(before_state: Dictionary, after_state: Dictionary,
 						removed.append(str(CLEANSE_LABELS.get(str(status_var), str(status_var))))
 			return "Cleansed %s" % _joined(removed) if not removed.is_empty() else "Nothing to cleanse"
 		"convert_block_to_stoneskin":
-			var gained: int = int(after_player.get("stoneskin", 0)) - int(before_player.get("stoneskin", 0))
-			return "+%d S" % gained if gained > 0 else "No Block"
+			return "No Block"
 		"mantle":
 			return "Mantle +%d" % maxi(0, int(after_player.get(MANTLE_FIELD, 0)) - int(before_player.get(MANTLE_FIELD, 0)))
 		"petrify":

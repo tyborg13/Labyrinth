@@ -42,8 +42,8 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   away) never closes the gap, so the level stop does not apply and it travels
   its full straight distance like a push.
 - Collision damage is non-direct, like Fire ground: Block and Stoneskin absorb
-  it; Chilled and Frozen do not add to it, Crystal Mantle does not break and no
-  on-hit riders apply. Expose does add to it and is spent, for each party
+  it. Crystal Mantle and on-hit riders are unaffected. Expose adds to Collision
+  damage and is spent for each party
   separately (pla-01: Expose applies to every damaging hit); the
   `force_collision` event's `damage` and `blocker_damage` include it, so the
   collision marker previews each side's true number.
@@ -81,10 +81,9 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
 destination, collision}` when an intent's planned attack (from
 `enemy_threat_tiles`) Pushes or Pulls the hero, measured by the real mover on
 a copy with the enemy at its projected destination and the hero in place.
-The run scene computes it only for the focused enemy and passes the player's
-known state (`_surface_preview_information_state`), so enemies, terrain and
-traps hidden in the Umbra never shape the line. Focusing that enemy draws the
-hero's straight line, rings the landing tile and shows the collision marker.
+The run scene computes it for the focused enemy using the same blockers and
+arrival hazards as combat resolution. Focusing that enemy draws the hero's
+straight line, rings the landing tile and shows the collision marker.
 
 ## Targeting
 
@@ -108,6 +107,11 @@ least one tile of travel, or a collision.
   ring, sized with the tile, and the per-party collision damage beside it. Collision
   damage on both parties appears through the ordinary simulated damage
   preview. At commit the same event drives the board feedback flash.
+- Hover, confirmation and Pass simulate forced movement against the true
+  board. The committed sight boundary still controls which units, terrain
+  and traps can be identified in the preview. A concealed blocker can stop
+  movement and contribute collision damage without showing its identity.
+  Pass continues to disclose only announced enemy activations.
 
 ## Rationale
 

@@ -16,6 +16,15 @@ static func has_effect(effects: Array, kind: String) -> bool:
 static func free_rite(card: Dictionary, effects: Array) -> bool:
 	return Rites.is_rite_card(card) and has_effect(effects, "rite_no_card_play")
 
+static func player_state_modifier_matches_action(effect: Dictionary, action: Dictionary) -> bool:
+	var relic_id: String = str(effect.get("relic_id", ""))
+	if relic_id == "hobnail_cleats":
+		return int(action.get("damage", 0)) > 0 and not bool(action.get("status_only", false))
+	if relic_id == "reinforced_shield":
+		return str(action.get("type", "")) == "block" or int(action.get("block_per_tile", 0)) > 0
+	var types: Array = effect.get("action_types", [])
+	return types.is_empty() or types.has(str(action.get("type", "")))
+
 static func suppress_card_block(action: Dictionary, effects: Array) -> Dictionary:
 	if not has_effect(effects, "prevent_card_block"):
 		return action

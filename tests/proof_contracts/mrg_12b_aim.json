@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "molten_reach_mouse_opening.png", "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "molten_reach_controller_opening.png", "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "molten_reach_mouse_clear_veil.png", "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "molten_reach_controller_clear_veil.png", "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]}
+  ]
+}

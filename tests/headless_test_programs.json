@@ -197,6 +197,9 @@
     "path": "tests/encounter_analytics_test.gd"
   },
   {
+    "path": "tests/deck_element_reward_test.gd"
+  },
+  {
     "path": "tests/element_retrofit_test.gd"
   },
   {
@@ -360,6 +363,9 @@
     "path": "tests/magic_deck_test.gd"
   },
   {
+    "path": "tests/gear_02_rules_test.gd"
+  },
+  {
     "path": "tests/board_tile_tooltip_test.gd"
   },
   {
@@ -424,6 +430,12 @@
   },
   {
     "path": "tests/surface_parent_review_test.gd"
+  },
+  {
+    "path": "tests/burst_rules_test.gd"
+  },
+  {
+    "path": "tests/ice_stagger_merge_rules_test.gd"
   },
   {
     "path": "tests/petrify_tooltip_test.gd"

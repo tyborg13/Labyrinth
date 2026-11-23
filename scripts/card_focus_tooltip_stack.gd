@@ -16,6 +16,7 @@ class RelicOwner extends "res://scripts/ui_tooltip_panel_container.gd":
 
 const CARD_GAP: float = 14.0
 const SAFE_MARGIN: float = 18.0
+const MIN_CARD_VERTICAL_MARGIN: float = 8.0
 const STACK_SEPARATION: int = 7
 const RELIC_CHOICE_GAP: float = 12.0
 const RELIC_CHOICE_SIDE_CLEARANCE: float = 24.0
@@ -117,7 +118,7 @@ func show_relic(owner: Control, relic: Dictionary) -> void:
 		var title: String = ActionIcons.label(id)
 		entries.append({
 			"icon": icon, "title": title,
-			"description": Glossary.definition(id, title), "semantic_key": id,
+			"description": Glossary.definition(id, title, Glossary.amount_in_text(id, description)), "semantic_key": id,
 			"texture": AssetLoader.load_texture(icon) if icon.begins_with("res://") else ActionIcons.icon_texture(icon),
 		})
 	show_for(owner, entries, true)
@@ -264,6 +265,16 @@ func _follow_target_now() -> void:
 			_layout_owned(card_rect, viewport_rect)
 		return
 	var stack_size: Vector2 = get_combined_minimum_size()
+	# Recover space from gaps first when the panels exceed the viewport.
+	var gap_count: int = get_child_count() - 1
+	if gap_count > 0:
+		var separation: int = get_theme_constant("separation")
+		var panels_height: float = stack_size.y - separation * gap_count
+		var available: float = viewport_rect.size.y - 2.0 * MIN_CARD_VERTICAL_MARGIN
+		var fitted_separation: int = clampi(floori((available - panels_height) / gap_count), 0, STACK_SEPARATION)
+		if fitted_separation != separation:
+			add_theme_constant_override("separation", fitted_separation)
+			stack_size.y = panels_height + fitted_separation * gap_count
 	size = stack_size
 	var target_position: Vector2 = side_position(card_rect, stack_size, viewport_rect)
 	if _hand_diagram_bounds.is_valid():
@@ -279,9 +290,13 @@ static func side_position(owner: Rect2, stack: Vector2, viewport: Rect2, art_sid
 	var right: float = owner.end.x + gap
 	var bottom_limit: float = safe.end.y - stack.y
 	if not art_side.has_area():
+		var top_limit: float = safe.position.y
+		if bottom_limit < top_limit:
+			top_limit = viewport.position.y + MIN_CARD_VERTICAL_MARGIN * layout_scale
+			bottom_limit = maxf(top_limit, viewport.end.y - MIN_CARD_VERTICAL_MARGIN * layout_scale - stack.y)
 		return Vector2(
 			clampf(right, safe.position.x, maxf(safe.position.x, safe.end.x - stack.x)),
-			clampf(owner.get_center().y - stack.y * 0.5, safe.position.y, bottom_limit)
+			clampf(owner.get_center().y - stack.y * 0.5, top_limit, bottom_limit)
 		)
 	var left: float = owner.position.x - gap - stack.x
 	var available: Rect2 = safe.intersection(art_side)

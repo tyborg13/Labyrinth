@@ -110,7 +110,7 @@ static func _ice(expect: Callable) -> void:
 	state.erase("snare_pressure")
 	state["player"]["pos"] = Vector2i(3, 1)
 	Pressure.initialize(Combat.new(), state)
-	expect.call(bool(state["player"].get("chilled", false)), "An alternate opening start on threshold Ice receives normal start Chill")
+	expect.call(int(state["player"].get("expose", 0)) == 2, "An opening start on threshold Ice applies Expose 2")
 	print("Snare Ice: exact approach tiles, shortest path/x/y ties and post-seal persistence checked")
 
 static func thrall_battle() -> Dictionary:

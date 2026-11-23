@@ -12,11 +12,16 @@ New Chronicle records carry additive `end_title`, chosen with the recap's
 built. The Chronicle reads that stored title; old records without the field
 retain their existing default title. No historical record is backfilled.
 
-Status-popup attribution uses additive combat-state `player_bleed_loss_totals`
-(cumulative Health, Block and Stoneskin losses). Snapshot deltas identify the
-hero's paid Bleed losses separately from other damage in the same action;
-older snapshots without the counters start at zero. This presentation receipt
-changes no damage, timing, event payload or local append-only JSONL writer.
+### Retired combat statuses (pla-07)
+
+New events omit `sunder_actions`, the Bleed members of status-application
+deltas, and the `bleed` Retaliate rider. The removed status no longer produces
+`enemy_status_tick` records or action-payment receipts. Historical JSONL and
+embedded event history keep their original fields and remain readable. When
+comparing runs, old `enemy_status_tick` Bleed events identify an action charge
+with `trigger: "action"` and `action_type`. New `enemy_action_resolved` payloads
+set `status_riders_retired: true` so the historical damage report can avoid
+attributing current hits to retired status riders. Expose keeps the existing deltas.
 
 Runtime frame-time/render-load collection is specified separately in [performance_telemetry.md](performance_telemetry.md). Gameplay analytics and performance telemetry use distinct files and schemas so high-frequency performance sampling cannot inflate or destabilize the append-only gameplay-event contract below.
 
@@ -28,7 +33,11 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Default path: `user://analytics/events-YYYY-MM-DD.jsonl`
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
-- `balance_revision`: loaded content revision (`dragon_pressure_v3` for coupled dragon pressure, trophies, and milestones).
+- `balance_revision`: loaded content revision. `pla_rollout_2026_11` identifies the
+  merged Burst, Ice, Light and Vision rules, the retired statuses, and the
+  director tuning for Lantern Shot, Blessed Salve, Rockburst, Spark Focus and
+  White Silence. Earlier revisions include `dragon_pressure_v3` for coupled
+  dragon pressure, trophies and milestones.
 - `balance_transition`: empty for fresh encounters; resumed older combats record
   `{from, to, saved_intents_preserved: true}`. Already committed intents and paid
   checkpoints retain their saved payload until the next ordinary selection.
@@ -157,6 +166,15 @@ full-escape awards as specified in [run_end.md](run_end.md).
 - `combat_resumed`
 - `combat_ended`
 - `reward_offered`
+  - `deck_element` is the most common elemental card element in the compiled deck at the offer,
+    including gear cards. The starter copy of Buffet is excluded from this count. Copies added
+    during the run count as Air. A gear-02 playtest save without the slot marker treats the
+    oldest Buffet as the starter if the deck has more copies than Buffet reward receipts.
+    The most recently added surviving copy among the tied elements breaks a tie. The value
+    is JSON `null` when the deck has no eligible elemental cards.
+  - `deck_match` contains one boolean per `offered_cards` entry in the same order. An entry is
+    `true` when its card has `deck_element`. All entries are `false` when `deck_element` is `null`,
+    and rewards without card offers have an empty array. Older records may omit both fields.
 - `reward_choice`
 - `reward_claimed`
 - `card_drawn`
@@ -223,13 +241,13 @@ retains its legacy `driver: manual_headless`, `unbanked_embers` run-end alias,
 `surfaces_before`/`surfaces_after` card snapshots and `chilled` status-delta keys.
 Its run-end record also supplies the canonical `held_embers`, `depth` and
 performance totals. Card records include the same targeting, recovered Ember,
-Sunder, Radiance and Umbra fields as RunScene, as well as Bleed/Expose deltas.
+Radiance and Umbra fields as RunScene, as well as Expose deltas.
 Both paths include immediate `chilled` deltas alongside the other statuses.
 `card_time` is printed/effective-card Time; `turn_time_spent_after` minus
 `turn_time_spent_before` is the actual paid Time after runtime discounts/costs.
 
 `enemy_action_analytics.gd` preserves the resolver's action/status order, including
-embedded approach moves, action Bleed payments, reactions and deferred deaths.
+embedded approach moves, reactions and deferred deaths.
 The following are ordinary `enemy_action_resolved` records, never duplicated as
 timed status ticks: Guardian status-shaped mechanics, authored status gains,
 Charge and Kindle. Burrow and Erupt retain `presentation_kind`/`action_type`
@@ -322,7 +340,8 @@ lethal transition and its immediate `source`, and the resulting Fire uses
 ordinary surface placement records. The initiating card kill has
 `player_card: true`; chained kills use `source_kind: death_burst` and
 `player_card: false`. FIFO death order is retained before combat/run outcomes.
-There is no separate top-level Burst event. Burst animation snapshots stay out
+There is no separate top-level Burst event (pla-04 keeps it that way; see "Burst merge"
+below). Burst animation snapshots stay out
 of JSONL; traced enemy-phase cascades retain the status/loss arrays described
 below. Card-level damage/kills may include the completed chain, while
 `death_bonus_card_plays_gained` counts only qualifying card kills.
@@ -417,13 +436,17 @@ and Brace spending that refunded play. Their normal `card_played` records remain
 the source of truth for damage and `death_bonus_card_plays_gained`.
 
 The guided setup stages Pale Spark, Quick Stab and Brace from the real starting
-loadout, then builds its draw pile from that loadout's remaining copies. It no
+loadout, then builds its draw pile from that loadout's remaining copies. For new
+gear-02 runs Pale Spark deals 3 and Quick Stab deals the remaining 6 Health on
+the teaching target. It no
 longer injects Backhand Nick or duplicate equipment grants. Existing
 `combat_started.opening_hand`, `combat_started.deck_cards` and `card_drawn`
 records describe this state without new fields or events. Its support crawler
-uses the production Skitter Strike payload (Move 2, Melee 4, Bleed 1).
+uses the production Skitter Strike payload (Move 2, Melee 5).
 
-`run_started` includes the compiled starting deck plus the equipment model used
+`run_started` includes the compiled starting deck and `starting_deck_hash`, the
+hex SHA-256 of the compact JSON array of card IDs in recorded order. It also
+includes the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
 `collected_equipment`. It also includes recovery marker fields when a previous
 death dropped embers for the new run: `recovery_marker_active`,
@@ -443,6 +466,7 @@ the chosen target resolves all automatic effects. A blocked damaging Push/Pull
 records its actual damage and zero forced movement; cancelled previews emit no
 play, payment, movement or surface events. Existing append-only payload fields
 and event boundaries are unchanged.
+If the player quits during playback, departure writes any pending `card_played` row for the committed play before saving.
 
 ## Card Metrics Supported
 
@@ -473,7 +497,7 @@ movement, and surface creation/consumption payoffs during the resolved transitio
 
 - enemy HP, realized block, and stoneskin removed; future guard intents do not
   count as removable block until that enemy resolves the block action
-- pierce actions resolved, sunder actions resolved, and enemy defense bypassed
+- pierce actions resolved and enemy defense bypassed
   by observed HP damage
 - terrain HP damage and terrain destroyed from the full resolved transition,
   including incidental AOE damage; trap wakes create ground without adjacent direct damage; traps triggered,
@@ -510,8 +534,7 @@ movement, and surface creation/consumption payoffs during the resolved transitio
   `surface_events` and the `surface_event` stream with direction, blocked tile,
   target and blocker keys ([forced movement](forced_movement.md))
 - illusions created and their total created health
-- immediate status application deltas for bleed, expose, chilled, freeze, shock,
-  and immobilize
+- Immediate status application deltas for Expose, Shock, and Immobilize.
 - actual resolved action list and chosen targets
 - `play_mode`, retained as an additive compatibility field and always recorded
   as `printed` now that cards no longer have basic Attack or Move modes
@@ -580,8 +603,7 @@ resolved action as `orientation`; legal push and pull direction choices are
 additive as `force_direction`. These runtime direction fields do not change the
 card's printed-play classification.
 
-`enemy_status_tick` captures remaining timed status resolution. Bleed uses
-`trigger: "action"` plus `action_type` for a resolved move or attack. Fire is
+`enemy_status_tick` captures remaining timed status resolution. Fire is
 terrain damage, recorded with `source_kind: "surface_fire"` and entry/start phase;
 it must not be mislabeled as a persistent unit status.
 
@@ -641,16 +663,6 @@ Fire damage in traced arrival and cascade status steps carries the existing
 Fire sound. Owner-local surface-event slices used to identify Fire remain
 transient; event boundaries, realized loss arrays and append-only history are
 unchanged.
-Each Bleed payment in these traced turns owns its immediate board and realized
-losses: the move payment precedes movement, and the attack payment follows all
-arrival/cascade/resumed-movement steps immediately before the attack. The
-attack's loss baseline is after that payment. Lethal Bleed emits its defeat
-on that payment and suppresses the actor's subsequent move or attack. These
-remain ordinary `enemy_status_tick` Bleed events (`trigger: "action"` and the
-charged `action_type`), with the trace-only loss arrays above; transient
-payment markers and snapshots are not serialized. When Bleed needs an ordered
-boundary, the movement is emitted as the same ordered top-level legs used for
-arrival cascades.
 Trace capture also starts before Mimic's approach.
 If an arrival triggers a synchronous death cascade, the trace splits the walk
 at that tile: arrival-owned losses remain on `move`, the burst owns its own
@@ -660,7 +672,7 @@ A resumed burst fragment has `cascade_continuation: true`; it applies only its
 remaining board/losses and never restarts that source's ring or cue. A
 surface-only continuation is bookkeeping, with no extra feedback beat.
 All traced owners use the same immediate capture function, before death hooks
-flush: arrival effects, move/attack/retreat Bleed, activation-start Fire, the
+flush: arrival effects, activation-start Fire, the
 action and each Retaliate/reflection. The flush seals the current owner before
 it drains deaths; each resulting surface-death/burst retains its own losses,
 board and source. Payment/activation cascades are inserted directly after that
@@ -746,8 +758,14 @@ the existing objective fields. See [encounters.md](encounters.md).
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and
-visible enemy count. Survive is temporarily excluded from new room generation;
-existing saved Survive encounters retain their objective and analytics fields.
+visible enemy count. The opening equipment guarantee selects from eligible
+weapons, offhands, armor, and boots. If that pool is empty, `equipment_drops`
+can report a trinket from the ordinary pool. A victory with the placed pickup
+resolves the guarantee, including a trinket placed when the non-trinket pool
+was empty. Subsequent rooms use the ordinary drop rules.
+
+Survive is temporarily excluded from new room generation. Existing saved
+Survive encounters retain their objective and analytics fields.
 Objective analysis uses the additive `objective_type`,
 `objective_target_clock`, `objective_leader_type`, `objective_exit_count`, and
 `objective_initial_enemy_count` start fields. `combat_ended` records the final
@@ -1113,8 +1131,7 @@ Existing sequence-based append-only event deduplication applies unchanged.
 Historical v4 events and source metadata are preserved when a save upgrades.
 
 A validated independent movement request now includes `resolved: true` in
-`last_player_movement`. A request can resolve without a step when Bleed kills
-the player first or an unseen actor interrupts travel. Commit that state; do
+`last_player_movement`. A request can resolve without a step when an unseen actor interrupts travel. Commit that state; do
 not infer non-resolution from zero distance. These zero-spend requests emit
 `player_movement_interrupted`; successful movement still emits `player_moved`.
 Both include the requested target, actual endpoint and movement expenditure.
@@ -1210,6 +1227,13 @@ A guardian victory records `reward_offered` with `reward_kind: guardian_trophy`
 and `offered_relics`. Claiming the exclusive trophy records `reward_choice` with
 `choice: claim`, `relic_id` and `guardian_id` after the saved claim boundary.
 Room completion and ownership prevent duplicate awards on replay.
+
+For ordinary, Guardian, and dragon victories, `combat_ended` and
+`reward_offered` record `awarded_equipment` as the IDs granted automatically
+at victory. This includes the first-Umbra Cracked Lantern. `combat_ended`
+also includes those IDs in `collected_equipment` alongside battlefield
+collections. The pending reward carries the award IDs across saves. The run's
+permanent receipt prevents another Lantern award after sale or destruction.
 
 Treasure chest opening and relic delivery are presentation-only. Relic ownership,
 the saved `relic_claimed` boundary, and the existing guardian `reward_choice`
@@ -1323,7 +1347,7 @@ the `turn_time_spent_*` delta reports the actual discounted Time;
 
 Retaliate uses the existing append-only `surface_event` stream. `retaliate_triggered`
 records `enemy_id`, `actor_key`, `attack_type`, `damage` (total Retaliate including Rite
-thorns), `thorns`, `hp_loss`, `block_loss`, `stoneskin_loss`, `bleed`, `shock`, `push`,
+thorns), `thorns`, `hp_loss`, `block_loss`, `stoneskin_loss`, `shock`, `push`,
 `from`/`to` tiles, `killed`, `attacker_before`, `sources` and a player `source`
 (`source_kind: "retaliate"`, `player_card: false`). Kills keep their ordinary
 `actor_death` record with that source; no card play is granted. The presentation step
@@ -1332,13 +1356,14 @@ that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"
 when only riders applied); analysis should prefer the surface event.
 Reflect (pla-01) adds `reflect_bounced` to the same stream, once per reflecting unit per attack:
 `enemy_id` (the Reflect unit), `attacker_kind`, `attacker_id`, `damage` (the
-returned amount before the attacker's defense), realized `hp_loss`, `block_loss`
+damage the attack would deal to the Mirror before defense), realized `hp_loss`, `block_loss`
 and `stoneskin_loss` on the attacker, and a `source` naming the Reflect unit
 (`source_kind: "direct_attack"`, `player_card: false`). Player `hp_loss` records
-the loss before lethal recovery. The optional `defiance_spent` counts charges
-consumed by the returned hit. For Mirror Triptych, the attacker is the echoing
-illusion and `damage` is the echo's halved damage. The attacker's ordinary
-damage and death records are unchanged. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
+the loss before lethal recovery. `net_hp_loss` records the Health lost after
+that hit's recovery for preview display. The optional `defiance_spent` counts charges
+consumed by the returned hit. Player returns also record `lethal` after any recovery.
+For Mirror Triptych, the attacker is the echoing illusion and `damage` is the
+echo's halved damage. Any illusion retaliation follows in its own event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.
 
@@ -1365,6 +1390,13 @@ player card `source`), `meteor_impact` at the next player turn start (`tiles`, `
 `discharge`, `detonate`). A Meteorfall landing also animates as an enemy-phase
 `status_damage` step with `trigger: "meteor_marks"`; analysis should prefer the surface event.
 
+Frost Circuit's `surface_converted.from_surface` records the prior elemental
+surface of the chosen tile, with an empty string for no elemental surface.
+For Stoke, `selector_strike.damage` is the base hit. `bonus_enemy_ids` and
+`bonus_damage` record the selected enemies that receive the Fire bonus and the
+damage added to each hit. Grounding's baseline Stoneskin changes the player
+snapshot even when there are zero removal events.
+
 ### Wave-4 illusion and terrain cards
 
 New action types (`illusion_swap`, `destroy_illusion`, `burst_terrain`) and the new
@@ -1382,8 +1414,9 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
   attack fired from a Doppelganger.
 - `illusion_swapped` — `illusion_id`, `illusion_key`, `from`, `to`, `block_transferred`.
 - `illusion_shattered` — `illusion_id`, `tile`, `tiles` (blast tiles); the illusion's own
-  `actor_death` precedes it.
-- `terrain_shattered` — `tile`, `tiles`, `terrain_id`, `terrain_kind` (Rockburst/Worldbreak).
+  `actor_death` precedes it. `tiles` is the Burst cross and the Burst follows as `detonate`.
+- `terrain_shattered` — `tile`, `tiles`, `terrain_id`, `terrain_kind` (Rockburst/Worldbreak);
+  `tiles` is the Burst cross, and the Burst's hits follow as a `detonate` record.
 - `powder_keg_burst` — `tile`, `tiles`, `damage`, `terrain_id`, `owner_kind`, `actor_keys`
   and the triggering `source` with `source_kind: "powder_keg_burst"` (`causal_owner: player`
   for a hero keg). Chained kegs record one event each.
@@ -1393,6 +1426,70 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
   Stoneskin losses, including Flying enemies. Player `source` carries `element: "earth"`,
   `source_kind: "worldspine_pulse"`, `player_card: false` and the Rite instance's
   `relic_id`.
+
+### Burst merge (pla-04)
+
+One verb, one shape (spec/card_mechanics_surfaces.md "Burst"): every Burst hits the source tile and its four orthogonal neighbors. No event type is renamed or added; the old kinds stay readable and gain
+additive fields:
+
+- `surface_event` kinds `detonate` (card and enemy Bursts, including Discharge, Rockburst,
+  Worldbreak, Shattered Reflection and Crownfire), `powder_keg_burst`, `surface_discharge`,
+  `terrain_shattered` and `illusion_shattered` add `burst: true`. Faultline also adds
+  these fields to its existing `dragon_spire_pulse` kind. `detonate`, `powder_keg_burst`
+  and Faultline carry `burst_shape: "cross"`, `burst_sources` (source tiles),
+  `burst_tiles` (the union of their crosses, equal to `tiles`), `burst_damage` and
+  `spares_player`. Their `actor_keys` record victims that lost Health, Block or Stoneskin
+  to the Burst itself. Historical Burst records can have `burst_shape: "square3"` or omit these fields.
+- `detonate.surface` is the fuel (`fire`, `ice`, `rubble`, `electrified`) or empty for a
+  terrain/illusion Burst; `consumed` lists the ground actually destroyed. If a card
+  or enemy Burst hits the hero, `player_losses` records `hp_loss` before recovery,
+  `net_hp_loss` after recovery, `block_loss`, `stoneskin_loss`, `defiance_spent`
+  and `lethal` for the Burst hit.
+- The damage context copied into `actor_death.source` and `surface_removed.source` adds
+  `burst: true` for card Bursts, kegs and the enemies' death Burst. Ground a player Burst
+  destroys always carries `burst: true` on its `surface_removed.source` (Black Sun Dial
+  counts it like an Expend; `damage_added` records the grant as before). Removal reasons stay
+  `detonate` (card Bursts) and `discharge` is no longer written (Discharge removes its network
+  with reason `detonate`).
+- Relic removals keep `removal_relic_id` and derive `surface_consume` from the
+  removing effect. Changing a relic description leaves both fields intact.
+- `card_played` action lists carry the migrated actions unchanged in shape; new optional
+  action fields are `sources: "hits"`, `after_attack`, `fuel_optional`, `any_tile` and
+  `leave_surface` on `burst_terrain`. Expend-with-damage (`consume.bonus_damage`) and
+  `frozen_splash` no longer appear in production card plays; `attack_consumed_surface` and
+  `frozen_splash` events stop for those cards.
+
+### Ice, Freeze, Chilled and Petrify merge (pla-06)
+
+Freeze, Chilled and Petrify are cut: no rule, card, enemy or relic applies them, so they stop
+appearing in new records. Old records stay readable; no event type is renamed, removed or added.
+
+- Ice ground applies the existing Expose status on entry, placement of a unit, and turn
+  start. When the value increases, a `surface_event` of kind `status_applied` records
+  `surface: "ice"`, `status: "expose"`, `amount` (2), `expose_before`, and `trigger`
+  (`entry` or `start`). Records with `status: "chilled"` predate pla-06.
+- `status_applied` with `status: "freeze"` (and its `consumed_ice`) is no longer written; an
+  Ice hit never removes the Ice under its target any more.
+- When one of your Ice cards Staggers an enemy, a `status_applied` record is written with
+  `status: "stagger"`, `element: "ice"`, `amount` (the delay actually added after dragon
+  halving and the target's per-turn cap), the enemy `id`/`actor_key`/`tile` and the card
+  `source`. An attack against an enemy on Ice also records `impact_tiles` and
+  `impact_ice_tiles` from before displacement. Shatterglass Prism and Rimecatcher
+  Vial read that contact. The card play's `stagger_applied` summary counts the delay.
+  Each unit that takes turns has one 6 Time allowance across all sources,
+  including card and enemy hits, battlefield beats, relics and skills. The
+  next queued turn carries the total spent and reflects only the applied delay.
+- `card_played` keeps its `enemy_status_applied` and `player_status_applied` keys for
+  compatibility; `chilled` and `freeze` are always 0 from pla-06 on. Expose from Ice entered
+  during the play counts in `expose`.
+- `card_result_reward.when` is `on_ice` (the target stood on Ice when hit) where it was
+  `froze`; `killed` is unchanged.
+- Petrify: the `petrified` surface event and the `petrified_enemy_ids` summary stop for new
+  plays (the Petrify card is `type: "stagger"`, counted by `stagger_applied`).
+- `player_turn_ended.end_reason` `frozen` and the enemy no-action reasons `frozen` and
+  `petrified` no longer occur for new combats.
+- Breaking Wheel's Ice collision now adds Stagger 6 (inside `stagger_applied`) instead of a
+  Freeze event.
 
 Player-raised kegs and Outcrops use `terrain_created` with `terrain_kind`
 `powder_keg` / `crag_outcrop`. Older recorded fights may contain `worldspine`
@@ -1474,16 +1571,18 @@ are unchanged.
 
 No new event kinds or payload fields are introduced. Retaliate damage and its
 actual health loss retain the existing `retaliate_triggered` event; Gorget's
-Block is measured from damage before force riders. Chalice uses the existing
-`next_attack_bonus_used` field and includes pre-hit Bleed in that hit's bonus.
+Block is measured from damage before force riders. Briar Throne grows only
+when a Retaliate damage hit has a positive pre-defense amount. A rider-only
+reaction still records the ordinary event with zero damage. Chalice uses the existing
+`next_attack_bonus_used` field for the bonus.
 Printed health and Empower cost fields retain their meaning; the ordinary
 health/Stoneskin state deltas and damage-received totals reflect the actual
 Iron Lung payment. Liturgy's ordinary `card_plays_spent` is zero for Rites, while
 paid Time remains recorded. Urn's hand return uses the normal turn draw and
 `draw_revision` accounting. Exhaust Time rewards use the physical card's final
 payment and do not turn item Consume into Exhaust. Additive runtime action
-annotations `_card_plays_spent` and `_player_bleed_paid` share the payment and
-pre-hit timing with previews; preview copies never append gameplay analytics.
+annotation `_card_plays_spent` shares the payment with previews. Preview copies
+never append gameplay analytics.
 
 ### Illusion and Lightning relics (relic pool overhaul U6)
 
@@ -1495,10 +1594,17 @@ credit; illusion-death blast damage uses `source_kind: illusion_relic_shatter`,
 uses `source_kind: illusion_force_shatter`; its existing `force_collision` event
 reports the illusion health as marker `damage`, `target_damage: 0`, and that
 health as `blocker_damage`/`total_damage`. Destruction is a separate actor death.
+A wall or other non-enemy collision during a protected Push or Pull keeps the
+normal collision record with zero mover damage. Fire entry during that movement
+has no damage event. Eclipse Mantle records reveal deltas through the ordinary
+lasting Light source created when the Illusion appears.
 Glassway reuses `illusion_swapped` without changing its fields. Rattle changes
 normal Expose and Stagger state/summary. Copper's `surface_conducted` events gain
 optional `virtual: true` and report `surface: electrified` for owned construct
-relays; they do not imply creation or consumption of actual ground. Storm Crown
+relays. Discharge includes virtual conductors in its network and Burst geometry
+and lists them in `virtual_tiles`. Lightning card force keeps ordinary collision
+records, with no blocker damage to protected constructs. The existing removal events and Burst
+`consumed` field still identify actual Electrified ground removed. Storm Crown
 return deaths use `source_kind: chain_rebound` and the original card context.
 Forecast copies and presentation append no external analytics.
 
@@ -1512,8 +1618,10 @@ loading a result page, or reduced motion cannot grant anything again. The
 ordinary `map_event_resolved`, `omen_gained`, `omen_expired` and `reward_choice`
 payloads and local-first append-only writer are unchanged. A previously saved
 Deferred Choice card may replace an event card when its chooser opens. The
-map-event receipt retains the authored outcome and the later reward-choice
-receipt records the card actually chosen.
+same live offer feeds the choice rows, hover, and reward chooser. The map-event
+receipt retains the authored outcome and the later reward-choice receipt records
+the card actually chosen. A skipped event offer can save a card by the same
+Deferred Choice rule as a skipped combat offer.
 
 evt-02 feedback 1 records `omen_start_applied_ids` in newly created combat
 snapshots solely for presentation. The resolver records only actual stat,
@@ -1800,6 +1908,28 @@ for either kind. `area_targeting`, `area_source_id`, `area_announcement_origin`
 and `area_planned_origin` distinguish the stamp and its planned movement offset.
 `area_origin_basis` says `stored_announcement` when the saved path/origin was
 available, otherwise `current_position_fallback`. Legacy stored tiles, including
-empty sets, are never re-aimed or reshaped. Fixed detonations without a footprint
-snapshot saved fuel/refuges once; pending Thornwall retains its saved marks.
-Numbers, victims, status timing and rule beats are unchanged.
+empty sets, remain anchored. Fixed detonations without a footprint snapshot saved
+fuel/refuges once. Pending legacy Crownfire crosses expand around their original Fire
+marks on load. Crownfire's `resolved_tiles` cover the marks still fueled by their
+declared Fire, while `area_shown_tiles` records the announced area. Pending Thornwall
+retains its saved marks.
+
+### Lasting Light and Vision (pla-08)
+
+Combat summaries add `light_expose_applications` (enemy activations in which
+Light raised the enemy's current Expose to 2) and `vision_enemies_revealed`
+(enemies newly visible when Vision was applied). Card plays add the per-play
+`vision_enemies_revealed` delta. Existing `umbra_enemies_revealed` includes
+Vision and Light, while `umbra_tiles_illuminated` never counts Vision.
+Phoenix Ember places Light 3 on the hero's tile when Defiance triggers. The
+source contributes through the existing Light counters.
+
+New action lists use `vision` with a duration and no amount, and Light
+actions omit duration. Historical `truesight`, `dispel_umbra`, and
+`radiance_card` entries remain readable in append-only JSONL. The legacy
+`radiance_card` boolean retains its cohort meaning for longitudinal analysis.
+Live and headless card-play events both read `light_vision_family` and report
+the same per-play Vision reveal delta.
+Resumed combat maps remaining Vision and Truesight turns to one Vision counter,
+retains recorded reveal totals, and promotes active placed Light to battle-long
+sources. Previously applied Umbra stage reductions persist in resumed fights.

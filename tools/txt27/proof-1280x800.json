@@ -1,0 +1,348 @@
+{
+  "expected_sizes": [
+    "1280x800"
+  ],
+  "min_images": 20,
+  "required_images": [
+    {
+      "pattern": "*gallows_roc_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*ashen_reaver_pre_battle.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*ashen_reaver_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*slagmaster_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*slagmaster_order.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*dynamo_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*prior_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*noctyrax_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*snare_shadow_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*last_light_battlefield.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*whispering_well.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*ossuary_gamblers.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*cinder_supplicant.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*heirloom.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*ember_tick_burst.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*fire_trap_hover.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*marked_glossary.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*traps_glossary.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*combat_traps_grimoire.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*keyword_marked_grimoire.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            160,
+            100,
+            960,
+            600
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

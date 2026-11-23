@@ -1,0 +1,19 @@
+{
+  "min_images": 12,
+  "expected_sizes": ["1920x1080", "640x480"],
+  "required_images": [
+    {
+      "pattern": "hop-*-contact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 240, 960, 440], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    },
+    {"pattern": "hop-*-contact-2x.png", "width": 640, "height": 480},
+    {"pattern": "hop-*-column-0.png", "width": 640, "height": 480},
+    {"pattern": "hop-*-column-1.png", "width": 640, "height": 480},
+    {"pattern": "hop-*-column-2.png", "width": 640, "height": 480},
+    {"pattern": "hop-*-column-3.png", "width": 640, "height": 480}
+  ]
+}

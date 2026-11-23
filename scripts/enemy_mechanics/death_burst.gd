@@ -2,6 +2,7 @@ extends RefCounted
 
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const BurstRules = preload("res://scripts/burst_rules.gd")
 
 static func damage(enemy: Dictionary) -> int:
 	return int((Data.enemy_def(str(enemy.get("type", ""))).get("death_burst", {}) as Dictionary).get("damage", 0)) + int(enemy.get("kindled_bonus", 0))
@@ -10,22 +11,11 @@ static func damage_actor(engine: RefCounted, state: Dictionary, actor: Dictionar
 	if str(actor["kind"]) != "enemy":
 		return engine._damage_actor_target(state, actor, amount, false, {"type": "aoe"})
 	var index: int = engine._enemy_index_for_id(state, int(actor["id"]))
-	if index < 0: return state
-	var exposed: int = int(state["enemies"][index].get("expose", 0))
-	state = engine._damage_enemy(state, index, amount + exposed, true, false, false)
-	if amount > 0: state = engine._consume_enemy_expose(state, index)
-	return state
+	return engine._damage_enemy_hit(state, index, amount, false, false)
 
+## The same floor tiles for the Burst, animation and hover warning.
 static func tiles(state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
-	var result: Array[Vector2i]
-	var center: Vector2i = enemy.get("pos", Vector2i(-1, -1))
-	var grid: Array = state.get("grid", [])
-	for y: int in range(-1, 2):
-		for x: int in range(-1, 2):
-			var tile: Vector2i = center + Vector2i(x, y)
-			if (x != 0 or y != 0) and tile.y >= 0 and tile.y < grid.size() and tile.x >= 0 and tile.x < (grid[tile.y] as Array).size():
-				result.append(tile)
-	return result
+	return BurstRules.cross(state, enemy.get("pos", Vector2i(-1, -1)))
 
 # The death hook queues first. Nested deaths append to this same FIFO; they
 # never recursively detonate before the current burst has hit every occupant.
@@ -51,11 +41,15 @@ static func on_death(engine: RefCounted, state: Dictionary, enemy: Dictionary) -
 		engine._resolver_journal("begin", state, {"kind": "death_burst", "id": source["id"]})
 		var owner: Dictionary = preload("res://scripts/reaction_presentation_trace.gd").cascade_begin(engine, state, {"action_type": "death_burst", "id": source["id"], "tile": source["pos"], "tiles": affected, "damage": amount})
 		state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(source["id"]), "source_kind": "death_burst", "player_card": false}
+		state["damage_context"]["burst"] = true
 		var before: Dictionary = state.duplicate(true)
-		for actor: Dictionary in engine._surface_actor_records(state):
-			if not engine._surface_unit_intersects(actor["unit"], affected):
-				continue
-			state = damage_actor(engine, state, actor, amount)
+		# The shared Burst: every unit on the cross once (units only; terrain and
+		# traps are untouched, as before).
+		var sources: Array[Vector2i]
+		sources.append(source["pos"])
+		var hit: Callable = func(next_state: Dictionary, actor: Dictionary, damage: int) -> Dictionary:
+			return damage_actor(engine, next_state, actor, damage)
+		state = BurstRules.resolve(engine, state, sources, amount, hit)["state"]
 		Surfaces.place(state, source["pos"], "fire", state["damage_context"])
 		var events: Array = state.get("death_burst_events", [])
 		events.append({"id": int(source["id"]), "tile": source["pos"], "tiles": affected, "damage": amount,

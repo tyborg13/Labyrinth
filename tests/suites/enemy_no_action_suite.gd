@@ -85,7 +85,9 @@ static func run(expect: Callable) -> void:
 			expect.call(events.size() == 1 and events[0]["text"] == EXPECTED[reason], "%s: exactly one reason with exact text" % reason)
 			if events.size() == 1:
 				expect.call(events[0]["icon"] == Callouts.REASON_ICONS.get(reason, ""), "%s: glossary identity, or no status icon" % reason)
-				if Callouts.REASON_ICONS.has(reason): expect.call(Icons.icon_texture(events[0]["icon"]) != null, "%s: existing approved icon loads" % reason)
+				if Callouts.REASON_ICONS.has(reason):
+					var retired: bool = reason in ["frozen", "petrified"]
+					expect.call((Icons.icon_texture(events[0]["icon"]) == null) == retired, "%s loads an icon only for active statuses" % reason)
 			var telemetry: Array[Dictionary] = analytics._analytics_enemy_action_events(phase, {})
 			expect.call(telemetry.any(func(event: Dictionary) -> bool: return event["payload"].get("no_action_reason") == reason and event["payload"]["target_losses"].is_empty()), "%s: additive enemy-action reason without fabricated losses" % reason)
 			expect.call(state == before, "%s: resolving and decorating leave the caller's state unchanged" % reason)

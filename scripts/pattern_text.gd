@@ -35,13 +35,14 @@ static func offsets(shape: String, extent: int = 0) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	if shape.begins_with("ring_"): return radial_offsets(int(shape.trim_prefix("ring_")), extent, Vector2i(2, 2))
 	match shape:
-		"cross", "neighbors":
+		"cross":
+			result.assign(preload("res://scripts/burst_rules.gd").OFFSETS)
+		"neighbors":
 			result.assign([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
-			if shape == "cross": result.append(Vector2i.ZERO)
-		"surround":
+		"surround", "square":
 			for y: int in range(-1, 2):
 				for x: int in range(-1, 2):
-					if x != 0 or y != 0: result.append(Vector2i(x, y))
+					if shape == "square" or x != 0 or y != 0: result.append(Vector2i(x, y))
 		"diamond", "hollow_diamond":
 			for y: int in range(-extent, extent + 1):
 				var span: int = extent - absi(y)

@@ -49,7 +49,7 @@ const SUPPORTED_EFFECT_TYPES := [
   "start_combat_adjacent_illusion",
   "start_combat_light",
   "start_combat_stoneskin",
-  "surface_chill_immunity",
+  "ice_expose_immunity",
   "surface_damage_bonus",
   "turn_start_surface_stoneskin",
   "bloodied_glass_attack_bonus",
@@ -59,8 +59,8 @@ const SUPPORTED_EFFECT_TYPES := [
   "defiance_capacity",
   "defiance_trigger_reward",
   "end_turn_block_to_stoneskin",
-  "freeze_relocate_ice",
-  "frozen_kill_rubble",
+  "ice_stagger_relocate_ice",
+  "ice_stagger_rubble",
   "illusion_damage_cap",
   "illusion_death_damage",
   "illusion_enemy_destroy_status",
@@ -132,7 +132,9 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 		expect.call(int(raw_relic.get("design_version", 0)) >= 3, "%s should be migrated to the complete-set relic design version" % relic_id)
 		expect.call(int(raw_relic.get("condition_tier", 0)) == tier, "%s conditionality should match its rarity tier" % relic_id)
 		expect.call(int(raw_relic.get("upside_tier", 0)) == tier, "%s upside should match its rarity tier" % relic_id)
-		expect.call((raw_relic.get("build_tags", []) as Array).size() >= 2, "%s should identify at least two build hooks" % relic_id)
+		var hooks: Array = raw_relic.get("build_tags", [])
+		var minimum_hooks: int = 1 if relic_id in ["tallow_candle", "unclouded_sun"] else 2
+		expect.call(hooks.size() >= minimum_hooks and not hooks.has("radiance"), "%s describes its active build hooks" % relic_id)
 		expect.call(str(raw_relic.get("accent", "")) == GameData.relic_rarity_accent(rarity), "%s should use its rarity accent" % relic_id)
 		var description: String = str(relic.get("description", ""))
 		expect.call(not description.contains("{") and not description.contains("}"), "%s should resolve every rules-text placeholder" % relic_id)
@@ -180,8 +182,9 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	expect.call(int(widow_attack.get("expose", 0)) == 1, "Widow Thread should make attacks expose while an illusion exists")
 	var shield_state: Dictionary = _state(combat, ["reinforced_shield"])
 	(shield_state.get("player", {}) as Dictionary)["stoneskin"] = 1
-	var shield_action: Dictionary = combat.call("_action_with_player_state_relic_modifiers", shield_state, {"type": "block", "amount": 4, "_card_action_types": ["block"]})
-	expect.call(int(shield_action.get("amount", 0)) == 7, "Reinforced Shield should improve Block actions while Stoneskin is active")
+	var shield_action: Dictionary = {"type": "block", "amount": 4, "_card_id": "brace"}
+	var shield_after: Dictionary = combat.apply_player_action(shield_state, shield_action)
+	expect.call(int(shield_after["player"]["block"]) - int(shield_state["player"]["block"]) == 7, "Reinforced Shield should improve card Block while Stoneskin is active")
 
 static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -250,13 +253,13 @@ static func _test_light_reveal_delta_equivalence(expect: Callable) -> void:
 	limited_state = _expect_light_reveal_matches_generic(expect, combat, limited_state, Vector2i(6, 4), 3, "larger refreshed source")
 	limited_state = _expect_light_reveal_matches_generic(expect, combat, limited_state, Vector2i(5, 5), 2, "overlapping source")
 
-	var truesight_state: Dictionary = _state(combat, [])
-	var truesight_umbra: Dictionary = (truesight_state.get("umbra", {}) as Dictionary).duplicate(true)
-	truesight_umbra["stage"] = CombatEngine.UMBRA_STAGE_ECLIPSE
-	truesight_umbra["truesight_activations"] = 2
-	truesight_state["umbra"] = truesight_umbra
-	truesight_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
-	_expect_light_reveal_matches_generic(expect, combat, truesight_state, Vector2i(6, 4), 2, "Truesight enemy visibility")
+	var vision_state: Dictionary = _state(combat, [])
+	var vision_umbra: Dictionary = (vision_state.get("umbra", {}) as Dictionary).duplicate(true)
+	vision_umbra["stage"] = CombatEngine.UMBRA_STAGE_ECLIPSE
+	vision_umbra["vision_activations"] = 2
+	vision_state["umbra"] = vision_umbra
+	vision_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
+	_expect_light_reveal_matches_generic(expect, combat, vision_state, Vector2i(6, 4), 2, "Vision enemy visibility")
 
 	var open_sky_state: Dictionary = _state(combat, [])
 	open_sky_state["skill_ids"] = ["open_sky"]
@@ -326,7 +329,7 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var soles_state: Dictionary = _state(combat, ["static_soles"])
 	soles_state = combat.apply_player_action(soles_state, {"type": "blink", "range": 3}, Vector2i(4, 4))
-	expect.call(Surface.has_surface(soles_state, Vector2i(2, 4), "electrified") and int((soles_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Static Soles should leave a conductor at the movement origin and grant two-turn Vision")
+	expect.call(Surface.has_surface(soles_state, Vector2i(2, 4), "electrified") and int((soles_state.get("umbra", {}) as Dictionary).get("vision_activations", 0)) == 2, "Static Soles should leave a conductor at the movement origin and grant two-turn Vision")
 
 	var thaw_state: Dictionary = _state(combat, ["thawing_charm"])
 	thaw_state = combat.apply_player_action(thaw_state, {"type": "heal", "amount": 3})
@@ -351,7 +354,14 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	phoenix_state["defiance_capacity"] = 1
 	phoenix_state["defiance_remaining"] = 1
 	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
-	expect.call(int((phoenix_state.get("umbra", {}) as Dictionary).get("stage_reduction", 0)) == 2, "Phoenix Ember should add Dispel Umbra 2 to its existing Defiance comeback")
+	expect.call(combat.effective_umbra_stage(phoenix_state) == CombatEngine.UMBRA_STAGE_DEEP, "Phoenix Ember does not reduce the Umbra stage")
+	var lights: Array = phoenix_state["umbra"]["light_sources"]
+	expect.call(lights.size() == 1, "Defiance places one Phoenix Ember Light source")
+	if lights.size() == 1:
+		var source: Dictionary = lights[0]
+		expect.call(source["pos"] == phoenix_state["player"]["pos"] and int(source["radius"]) == 3, "Phoenix Ember places Light 3 on the hero's tile")
+		phoenix_state = combat._tick_umbra_player_activation(phoenix_state)
+		expect.call(phoenix_state["umbra"]["light_sources"] == lights and int(source["remaining_activations"]) == -1, "Phoenix Ember Light persists across activations")
 
 static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -463,16 +473,18 @@ static func _test_surface_transformations(expect: Callable) -> void:
 	kiln = combat.apply_player_action(kiln, {"type": "detonate", "damage": 3, "range": 5, "element": "fire", "_surface_relic_modes": ["crush"]}, Vector2i(4, 4))
 	expect.call(int(kiln["enemies"][0]["hp"]) == 17 and not Surface.has_surface(kiln, Vector2i(4, 4), "rubble") and Surface.has_surface(kiln, Vector2i(4, 4), "fire"), "Basalt Kiln turns consumed Rubble into a blast and fresh delayed Fire")
 	var shatter: Dictionary = _state(combat, ["frost_prism"])
-	shatter["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(6, 2), 4)
-	shatter["enemies"][0]["freeze"] = 1
-	shatter = combat.apply_player_action(shatter, {"type": "ranged", "damage": 2, "range": 5}, Vector2i(4, 4))
-	expect.call(Surface.has_surface(shatter, Vector2i(4, 4), "rubble") and Surface.has_surface(shatter, Vector2i(4, 3), "rubble"), "Shatterglass Prism converts a direct Frozen kill into local Rubble")
+	shatter["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(6, 2), 20)
+	Surface.place(shatter, Vector2i(4, 4), "ice")
+	var shatter_action: Dictionary = combat.card_play_actions("frostbolt", shatter)[0]
+	shatter = combat.apply_player_action(shatter, shatter_action, Vector2i(4, 4))
+	expect.call(Surface.has_surface(shatter, Vector2i(4, 4), "rubble") and Surface.has_surface(shatter, Vector2i(4, 3), "rubble"), "Shatterglass Prism paints Rubble after an Ice attack Staggers an enemy on Ice")
 	var rime: Dictionary = _state(combat, ["rimecatcher_vial"])
 	rime["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(6, 2), 20)
 	Surface.place(rime, Vector2i(4, 4), "ice")
-	rime["enemies"][0]["chilled"] = true
-	rime = combat.apply_player_action(rime, {"type": "ranged", "damage": 1, "range": 5, "element": "ice", "_ice_spill_direction": Vector2i.UP}, Vector2i(4, 4))
-	expect.call(int(rime["enemies"][0].get("freeze", 0)) == 1 and not Surface.has_surface(rime, Vector2i(4, 4), "ice") and Surface.has_surface(rime, Vector2i(4, 3), "ice"), "Rimecatcher Vial redeploys one consumed Ice tile after a real Freeze")
+	var rime_action: Dictionary = combat.card_play_actions("frostbolt", rime)[0]
+	rime_action["_ice_spill_direction"] = Vector2i.UP
+	rime = combat.apply_player_action(rime, rime_action, Vector2i(4, 4))
+	expect.call(not Surface.has_surface(rime, Vector2i(4, 4), "ice") and Surface.has_surface(rime, Vector2i(4, 3), "ice"), "Rimecatcher Vial moves an Ice tile after a real Ice Stagger")
 	var swap: Dictionary = _state(combat, ["thunder_relay"])
 	swap["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 20)
 	swap = combat.apply_player_action(swap, {"type": "ranged", "damage": 1, "range": 5, "chain": 1, "element": "lightning", "_surface_relic_modes": ["swap"]}, Vector2i(4, 4))

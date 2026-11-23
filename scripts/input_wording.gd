@@ -2,6 +2,7 @@ extends Node
 
 ## Owns device-specific copy without rewriting authored source data. A binding
 ## lives under its label, so router connections retire with the visible surface.
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const Router = preload("res://scripts/input_router.gd")
 const Prompt = preload("res://scripts/input_prompt.gd")
 
@@ -21,6 +22,14 @@ const GRIMOIRE_PARAGRAPHS: Array[Dictionary] = Array([
 		"controller_text": "Focus a Stagger target to preview",
 	},
 ], TYPE_DICTIONARY, "", null)
+
+# Match the Grimoire's authored sentences and use the approved Controls copy
+# when a key is unbound.
+const GRIMOIRE_KEY_SENTENCES := {
+	"Press I to see each enemy's full plan.": [KeyBindings.ENEMY_INTENTS, "Press %s to see each enemy's full plan.", "Select Details on the turn rail for every enemy's full plan."],
+	"Press Z to undo free Movement before you play a card.": [KeyBindings.UNDO_WALK, "Press %s to undo free Movement before you play a card.", "Undo move takes back free Movement until you play a card."],
+	"Charge a card with the seal in the upper right, E, or the controller's right stick.": [KeyBindings.EMPOWER, "Charge a card with the seal in the upper right, %s, or the controller's right stick.", "Charge the card with the Empower seal on its top-right corner (or the right stick on a controller)."],
+}
 
 var _label: Control
 var _property: StringName = &"text"
@@ -87,6 +96,10 @@ static func grimoire_body(entry: Dictionary, controller: bool) -> String:
 	for paragraph_var: Variant in entry.get("body", []):
 		var paragraph: String = str(paragraph_var).strip_edges()
 		if paragraph.is_empty(): continue
+		for sentence: String in GRIMOIRE_KEY_SENTENCES:
+			if sentence in paragraph:
+				var binding: Array = GRIMOIRE_KEY_SENTENCES[sentence]
+				paragraph = paragraph.replace(sentence, KeyBindings.sentence(binding[0], binding[1], binding[2]))
 		if controller:
 			for wording: Dictionary in GRIMOIRE_PARAGRAPHS:
 				paragraph = paragraph.replace(str(wording["pointer_text"]), str(wording["controller_text"]))

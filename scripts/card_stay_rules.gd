@@ -25,6 +25,6 @@ static func is_stay(state: Dictionary, action: Dictionary, target: Vector2i) -> 
 static func apply_starting_state_reward(engine: RefCounted, state: Dictionary, action: Dictionary) -> Dictionary:
 	var started: Dictionary = action.get("if_started_on_surface", {}) as Dictionary
 	if not started.is_empty() and ManeuverRules.started_activation_on(state, str(started.get("surface", ""))):
-		return engine._apply_relic_rewards(state, started.get("rewards", []), {"source_name": engine._action_card_name(action)})
+		return engine._apply_relic_rewards(state, started.get("rewards", []), {"source_name": engine._action_card_name(action), "card_id": str(action.get("_card_id", ""))})
 	return state
 

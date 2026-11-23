@@ -3,6 +3,7 @@ extends Node
 signal modality_changed(modality: String)
 signal controller_family_changed(family: String)
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const MODALITY_POINTER: String = "pointer"
 const MODALITY_CONTROLLER: String = "controller"
 
@@ -215,7 +216,7 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 	return "?"
 
 func empower_glyph_label() -> String:
-	return glyph_label(ACTION_EMPOWER) if using_controller() else "E"
+	return glyph_label(ACTION_EMPOWER) if using_controller() else KeyBindings.label(KeyBindings.EMPOWER)
 
 func set_forced_state_for_test(next_modality: String, family: String) -> void:
 	_forced_modality_for_test = MODALITY_CONTROLLER if next_modality == MODALITY_CONTROLLER else MODALITY_POINTER
@@ -293,9 +294,8 @@ static func family_for_steam_input_type(input_type: int) -> String:
 
 static func ensure_input_map() -> void:
 	_ensure_axis_action(ACTION_UNDO_MOVE, JOY_AXIS_TRIGGER_LEFT, 1.0)
-	# The key that types z in the player's layout (as P passes), so the Z
-	# keycap in Settings is true on AZERTY too.
-	for modifier: String in ["", "ctrl", "meta"]:
+	# Keep the fixed logical Ctrl/Cmd+Z shortcuts alongside the remappable key.
+	for modifier: String in ["ctrl", "meta"]:
 		var key := InputEventKey.new()
 		key.keycode = KEY_Z
 		key.ctrl_pressed = modifier == "ctrl"

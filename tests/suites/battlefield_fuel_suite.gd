@@ -55,7 +55,7 @@ static func _geometry(expect: Callable, rule: String) -> void:
 		expect.call(after["player"]["hp"] == state["player"]["hp"] and after["enemies"][0]["hp"] == state["enemies"][0]["hp"] - PROOF_DAMAGE, "Storm hits the foe on fresh Electrified and leaves the former tile safe")
 		expect.call(steps[0]["tiles"] == [NEW_TILE] and not steps[0]["chain_hits"].any(func(hit: Dictionary) -> bool: return hit.get("from") != hit.get("to")), "Storm playback shows the live strike without Chain")
 	elif rule == "frostbite":
-		expect.call(after["player"]["freeze"] == 0 and after["enemies"][0]["freeze"] == 1, "Frostbite Freezes the occupant of fresh Ice")
+		expect.call(after["player"]["hp"] == state["player"]["hp"] and after["enemies"][0]["hp"] == state["enemies"][0]["hp"] - int(state["battlefield_rule"]["dials"]["damage"]) and Surface.has_surface(after, NEW_TILE, "ice"), "Frostbite hits the occupant of fresh Ice and leaves its ground")
 	else:
 		for tile: Vector2i in present: expect.call(Surface.element_at(after, tile) == "fire", "Wildfire spreads from fresh Fire")
 		expect.call(Surface.element_at(after, Vector2i(4, 5)).is_empty(), "Removed fuel does not spread")

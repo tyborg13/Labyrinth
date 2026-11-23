@@ -5,10 +5,12 @@ extends RefCounted
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Plates = preload("res://scripts/board_status_plates.gd")
 const Groups = preload("res://scripts/board_hud_group_placement.gd")
+const Clearance = preload("res://scripts/board_hero_hud_clearance.gd")
 const MAX_ACTORS: int = 128
 var fixed_order_rects: Array[Rect2]
 var group_obstacles: Dictionary = {}
 var _actors: Dictionary = {}
+var _protected_groups: Dictionary = {}
 var _group_order: Array[String]
 var _previous_order_rects: Array[Rect2]
 var _intent_obstacles: Dictionary = {}
@@ -66,7 +68,7 @@ func prepare_groups(view: Control, units: Array[Dictionary]) -> void:
 		_group_order.append(key)
 		group_obstacles[key] = occupied.duplicate()
 		var frame: Rect2 = view._unit_health_bar_rect(unit, view._unit_center(unit))
-		var group: Dictionary = resolve(view, unit, frame, true)
+		var group: Dictionary = _resolve_group(view, unit, frame, true)
 		occupied.append_array(group["group_rects"])
 	pass_usec = Time.get_ticks_usec() - started
 
@@ -74,20 +76,74 @@ static func _has_group(unit: Dictionary) -> bool:
 	return str(unit.get("role", "")) != "npc" and not bool(unit.get("boss_bar", false)) and not bool(unit.get("death_animation", false))
 
 func cached_group(key: String) -> Dictionary:
+	return _protected_groups.get(key, _actors.get(key, {}))
+
+# The regular bounded layout remains the input to interpolation and to the
+# hero-clearance pass. The painted group can take another row above that seat.
+func base_group(key: String) -> Dictionary:
 	return _actors.get(key, {})
+
+func protect_hero(units: Array[Dictionary], discs: Dictionary, half_tile: float, chip_height: float) -> Dictionary:
+	var previous: Dictionary = _protected_groups
+	_protected_groups = {}
+	var affected: Dictionary = {}
+	var hero: Array[Rect2]
+	hero.assign(_actors.get("player", {}).get("group_rects", []))
+	var enemies: Dictionary = {}
+	var other: Array[Rect2]
+	if not hero.is_empty():
+		for unit: Dictionary in units:
+			var key: String = str(unit.get("key", ""))
+			var disc: Rect2 = discs.get(key, Rect2())
+			if unit.get("role") == "enemy" and _has_group(unit) and _actors.has(key):
+				var pieces: Array[Rect2] = _actors[key]["group_rects"].duplicate()
+				pieces[0] = _actors[key]["frame"]
+				if disc.has_area(): pieces.append(disc)
+				enemies[key] = pieces
+			elif unit.get("role") != "player":
+				if disc.has_area(): other.append(disc)
+				if _actors.has(key): other.append_array(_actors[key]["group_rects"])
+		var offsets: Dictionary = Clearance.offsets(hero, enemies, half_tile, chip_height, other, board_area, reserved_ui)
+		for key: String in offsets:
+			var base: Dictionary = _actors[key]
+			var offset: Vector2 = offsets[key]
+			var old: Dictionary = previous.get(key, {})
+			if old.get("hero_clearance_offset") == offset and is_same(old["raw"], base["raw"]) and old["anchor_frame"] == base["anchor_frame"] and old["frame"] == Rect2((base["frame"] as Rect2).position + offset, (base["frame"] as Rect2).size) and old["compacted"] == base["compacted"]:
+				_protected_groups[key] = old
+				continue
+			var group: Dictionary = base.duplicate(false)
+			group["hero_clearance_offset"] = offset
+			group["offset"] = (base["frame"] as Rect2).position + offset - (base["anchor_frame"] as Rect2).position
+			for field: String in ["frame", "group_bounds"]:
+				var rect: Rect2 = base[field]
+				group[field] = Rect2(rect.position + offset, rect.size)
+			for field: String in ["group_rects", "pip_rects", "defense_rects", "status_rects"]:
+				group[field] = Groups.translate_rects(base[field], offset)
+			for field: String in ["defenses", "statuses"]:
+				var entries: Array[Dictionary]
+				entries.assign(base[field].duplicate(true))
+				Groups.translate_entries(entries, offset)
+				group[field] = entries
+			_protected_groups[key] = group
+			affected[key] = true
+	for key: String in previous:
+		if not _protected_groups.has(key): affected[key] = true
+	return affected
+
 
 # A historical HUD entry owns an isolated copy of the exact group plan that
 # produced it. Paint resolves against this same plan, never a newer history.
 func snapshot_groups() -> Dictionary:
 	return {"actors": _actors, "order": _group_order, "obstacles": group_obstacles,
 		"fixed_order_rects": fixed_order_rects, "previous_order_rects": _previous_order_rects,
-		"intent_obstacles": _intent_obstacles, "board_area": board_area, "reserved_ui": reserved_ui}.duplicate(true)
+		"intent_obstacles": _intent_obstacles, "protected_groups": _protected_groups, "board_area": board_area, "reserved_ui": reserved_ui}.duplicate(true)
 
 func restore_groups(snapshot: Dictionary) -> void:
 	# Detach the live mutable cache from the LRU's immutable snapshot. Future
 	# status changes and paint queries must not alter any historical plan.
 	var restored: Dictionary = snapshot.duplicate(true)
 	_actors = restored["actors"]
+	_protected_groups = restored["protected_groups"]
 	_group_order.assign(restored["order"])
 	group_obstacles = restored["obstacles"]
 	fixed_order_rects.assign(restored["fixed_order_rects"])
@@ -147,7 +203,7 @@ func refresh_moving(view: Control, units: Array[Dictionary], moving: Dictionary,
 		var frame: Rect2 = view._unit_health_bar_rect(unit, view._unit_center(unit))
 		var obstacles: Array[Rect2] = _other_groups(key, frame, true)
 		group_obstacles[key] = obstacles
-		var group: Dictionary = resolve(view, unit, frame, true)
+		var group: Dictionary = _resolve_group(view, unit, frame, true)
 		touched.append_array(group["group_rects"])
 	var touched_bounds: Rect2 = view._rects_bounds(touched)
 	for unit: Dictionary in units:
@@ -162,7 +218,7 @@ func refresh_moving(view: Control, units: Array[Dictionary], moving: Dictionary,
 		if not intersects: continue
 		last_updated_keys[key] = true
 		group_obstacles[key] = _other_groups(key)
-		resolve(view, unit, view._unit_health_bar_rect(unit, view._unit_center(unit)), true)
+		_resolve_group(view, unit, view._unit_health_bar_rect(unit, view._unit_center(unit)), true)
 	# Changed discs were included in the touched set above. Unaffected groups
 	# retain their actual geometry and identity; acknowledge the new fixed input
 	# so a later paint query cannot accidentally rebuild every actor again.
@@ -226,14 +282,20 @@ func _source_inputs(view: Control, unit: Dictionary, frame: Rect2) -> Array:
 	var preview: Dictionary = view._unit_damage_preview(unit)
 	var presentation: Dictionary = view.presentation
 	return [frame, unit.get("role"), unit.get("type"), unit.get("hp"), unit.get("death_animation", false),
-		unit.get("block", 0), unit.get("stoneskin", 0), unit.get("bleed", 0), unit.get("expose", 0), unit.get("chilled", false),
+		unit.get("block", 0), unit.get("stoneskin", 0), unit.get("expose", 0), unit.get("chilled", false),
 		unit.get("freeze", 0), unit.get("petrify", 0), unit.get("shock", 0), unit.get("immobilize", false), unit.get("frost_armor", 0),
 		unit.get("charge", 0), unit.get("burrowed", false), unit.get("kindled_bonus", 0), unit.get("keyword_badges", []), unit.get("hud_forecast_fields", {}), unit.get("hud_forecast_icons", {}),
 		preview.get("block", unit.get("block", 0)), preview.get("stoneskin", unit.get("stoneskin", 0)), preview.get("block_loss", 0), preview.get("stoneskin_loss", 0),
-		presentation.get("umbra_truesight_activations", 0), presentation.get("umbra_truesight_conditional", false),
+		presentation.get("umbra_vision_activations", 0), presentation.get("umbra_vision_conditional", false),
 		(presentation.get("surface_status_preview", {}) as Dictionary).get(key, {}), unit.get("is_leader", false)]
 
 func resolve(view: Control, unit: Dictionary, frame: Rect2, anchor_input: bool = false) -> Dictionary:
+	var projected: Dictionary = _protected_groups.get(str(unit.get("key", "")), {})
+	if not anchor_input and not projected.is_empty() and (frame == projected["anchor_frame"] or frame == projected["frame"]):
+		return projected
+	return _resolve_group(view, unit, frame, anchor_input)
+
+func _resolve_group(view: Control, unit: Dictionary, frame: Rect2, anchor_input: bool) -> Dictionary:
 	var key: String = str(unit.get("key", ""))
 	var cached: Dictionary = _actors.get(key, {})
 	# Render/collision consumers may pass the placed frame. Normalize it to the

@@ -27,9 +27,25 @@ func before_refresh(scene: Control) -> Dictionary:
 	_initialized = true
 	_locked = locked
 	if (changed or running) and not scene.call("_reduced_motion_enabled"):
-		return {"starts": starts, "changed": changed, "seconds": SECONDS if changed else remaining}
+		var transition: Dictionary = {"starts": starts, "changed": changed, "seconds": SECONDS if changed else remaining}
+		if changed and not locked:
+			transition["deal_starts"] = _deal_starts(scene)
+		return transition
 	_stop()
 	return {}
+
+func _deal_starts(scene: Control) -> Array[Color]:
+	var starts: Array[Color]
+	var cards: Array = scene.get("_draw_hand_transition_cards")
+	var proxies: Array = scene.get("_draw_hand_transition_proxies")
+	if cards.is_empty() or cards.size() != proxies.size() or cards != scene.call("_combat_hand_cards", scene.get("_combat_state")):
+		return starts
+	for proxy: Control in proxies:
+		if not is_instance_valid(proxy) or not proxy.is_visible_in_tree():
+			starts.clear()
+			break
+		starts.append(proxy.modulate)
+	return starts
 
 func _stop() -> void:
 	if _tween != null and _tween.is_valid(): _tween.kill()
@@ -40,6 +56,13 @@ func after_refresh(scene: Control, transition: Dictionary) -> void:
 	if transition.is_empty(): return
 	var hand: Control = scene.get("hand_box")
 	var starts: Dictionary = transition["starts"]
+	if transition.has("deal_starts"):
+		# A settled deal owns the visible pixels until the live hand replaces it.
+		# Match by final slot so newly drawn and retained faces both carry over.
+		var deal_starts: Array[Color] = transition["deal_starts"]
+		for index: int in range(mini(hand.get_child_count(), deal_starts.size())):
+			var widget: Control = scene.call("_hand_card_control", index)
+			if widget != null: starts[widget] = deal_starts[index]
 	var targets: Dictionary = {}
 	for entry: Variant in starts:
 		if not is_instance_valid(entry): continue

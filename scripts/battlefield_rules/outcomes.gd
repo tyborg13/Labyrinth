@@ -2,7 +2,7 @@ extends RefCounted
 ## Resolver snapshots stay private. Only this filtered projection reaches views.
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const SurfaceVisibility = preload("res://scripts/board_surface_visibility.gd")
-const STATUS_FIELDS: Array = ["freeze", "shock", "chilled", "bleed", "expose", "immobilize"]
+const STATUS_FIELDS: Array = ["freeze", "shock", "chilled", "expose", "immobilize"]
 
 static func project(engine: RefCounted, before: Dictionary, after: Dictionary, player_visible: bool = true, board_sight: Dictionary = {}) -> Dictionary:
 	var result: Dictionary = {"moves": [], "tiles": {"catch": [], "freeze": [], "strike": [], "rise": []}, "hits": [], "collision_markers": [], "emergences": []}

@@ -1,0 +1,13 @@
+{
+  "min_images": 7,
+  "expected_sizes": ["1920x1080", "1600x240", "640x480"],
+  "required_images": [
+    {"pattern": "fade-000.png", "width": 1920, "height": 1080},
+    {"pattern": "fade-025.png", "width": 1920, "height": 1080},
+    {"pattern": "fade-050.png", "width": 1920, "height": 1080},
+    {"pattern": "fade-075.png", "width": 1920, "height": 1080},
+    {"pattern": "fade-100.png", "width": 1920, "height": 1080},
+    {"pattern": "strip.png", "width": 1600, "height": 240},
+    {"pattern": "tile-2x.png", "width": 640, "height": 480}
+  ]
+}

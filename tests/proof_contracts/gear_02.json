@@ -1,0 +1,30 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*/01_run_start_deck.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [260, 220, 1400, 620], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*/02_first_win_pickup.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 130, 960, 620], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*/03_starter_card_faces.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 220, 960, 620], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*/04_starter_card_faces_scrolled.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [480, 220, 960, 620], "min_luma_range": 12, "min_luma_stdev": 3}]
+    }
+  ]
+}

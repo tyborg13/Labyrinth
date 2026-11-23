@@ -1,0 +1,25 @@
+{
+  "palette": {
+    "halo": "#5a3a9a",
+    "body": "#d0c0ff",
+    "core": "#ffffff"
+  },
+  "width_cells": {
+    "halo": 3,
+    "body": 2,
+    "core": 1
+  },
+  "halo_coverage": 0.60,
+  "kink_interval_px": 12,
+  "kink_offset_px": 6,
+  "straight_end_px": 8,
+  "fork_over_tiles": 2,
+  "fork_start_fraction": [0.35, 0.65],
+  "fork_length_fraction": 0.25,
+  "fork_angle_degrees": [25, 40],
+  "fps": 30,
+  "full_frames": 2,
+  "rejag_frame": 3,
+  "fade_frames": 3,
+  "reduced_motion_seconds": 0.10
+}

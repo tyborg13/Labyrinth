@@ -1,4 +1,4 @@
-# Card mechanics, wave 4 family B: movement, forces, self flags, Petrify, Mantle
+# Card mechanics, wave 4 family B
 
 Owning spec for the wave-4 family B mechanics of the
 [card pool overhaul](card_pool_overhaul/README.md). Data shapes:
@@ -48,12 +48,14 @@ Devil, Vortex, Cyclone Seal, Unsealed Gale, Bottled Gale).
   A targetless card in its confirmation stage shows its resolved board plus
   the same paths and collision markers (no ghosts).
 
-## Squall (`force_mode: "from_center"`)
+## Area Push origin
 
-On an AOE with `push`: each enemy in the pattern is pushed away from the
-pattern's center tile; the enemy whose footprint covers the center is pushed
-away from the attacker. Hits (and their pushes) resolve farthest from the
-center first.
+Squall uses `force_mode: "from_player"`. The selected tile centers the damage pattern.
+Direct hits resolve farthest from the hero first. All hits, including Chain hops,
+push away from the hero. Chain forecasts use the resulting position to find the
+next hop. An explicit `force_mode: "from_center"` measures Push from the
+pattern center except for the enemy whose footprint covers that tile, which
+is pushed away from the attacker.
 
 ## Swap (`swap`)
 
@@ -76,11 +78,10 @@ damage from its own trail but stands on it.
 
 ## Sleet Squall ordering and `previous_target`
 
-Card actions resolve in order: the Push fully resolves (arrival on Ice Chills)
-before the Ice hit, which then Freezes. A follow-up attack at
-`target: previous_target` follows the enemy that was targeted (its new anchor
-plus the original footprint offset) when that enemy is alive; Detonate,
-surface and consume follow-ups keep the impact tile (Cinderline Tempo).
+The Push resolves before the Ice hit. Arrival on Ice applies Expose 2 and the
+hit Staggers a target on Ice by 6. A follow-up attack with `target: previous_target`
+follows a living enemy at the new anchor plus the original footprint offset.
+Burst, surface and consume follow-ups keep the impact tile, as on Cinderline Tempo.
 
 ## Self flags (`self_flag`)
 
@@ -89,18 +90,16 @@ surface and consume follow-ups keep the impact tile (Cinderline Tempo).
 
 | Flag | Card | Effect | Ends |
 | --- | --- | --- | --- |
-| `ice_skate` | Skate | A step onto Ice costs 0 movement (player navigation uses the Ice-aware search, as with Winter's Spur); entering Ice does not Chill; Ice is not a pathing hazard. | `finish_player_activation` |
+| `ice_skate` | Skate | A step onto Ice costs 0 Movement (the same path search as Winter's Spur). Free steps remain available at 0 shared Movement, including after the last card play. Ice contact applies no Expose while Skate is active. Ice is excluded from pathing hazards. | `finish_player_activation` |
 | `no_move` | Rooted Stance, Shield Wall | Move, Blink and both swaps cannot resolve, including independent movement; the movement meter dims with a Rooted reason; Move/Blink/Swap cards become unplayable. | `finish_player_activation` |
 | `anchored` | Windbreak | Forced movement against the hero has 0 distance and never collides (Air traps and enemy shoves included). The hero can still block others. | start of the next player turn |
 | `fire_immune_turn` | Cinder Trail | Fire tile damage to the hero is 0 and Fire is not a pathing hazard. | `finish_player_activation` |
 
 ## Cleanse (`cleanse`)
 
-`{"type": "cleanse", "statuses": [...]}` (Unpick, Smelling Salts). Removes
-from the hero: `bleed`, `immobilize` (the stored status and this turn's
-restriction), `chilled`, `shock` (stored Shock and this turn's restriction). A
-cleanse that lists Shock may resolve while Shocked. Removing Chilled on Ice
-keeps the hero unchilled until a later Ice entry or turn start. Event
+Unpick and Smelling Salts use `{"type": "cleanse", "statuses": [...]}` to remove
+Immobilize and Shock from the hero, including the current turn restrictions.
+A cleanse that lists Shock may resolve while Shocked. The event is
 `statuses_cleansed {statuses}`.
 
 ## Block to Stoneskin (`convert_block_to_stoneskin`)
@@ -133,37 +132,22 @@ Shrug Off: all current Block becomes Stoneskin (Stoneskin relics trigger).
 - `if_no_adjacent_enemies: [rewards]`: rewards when no visible enemy is
   orthogonally next to the hero after the Blink.
 
-## Petrify (`petrify`)
+## Targeted Stagger (`stagger`)
 
-`{"type": "petrify", "range": R}`. Target: a visible enemy (any
-footprint tile in range, line of sight beyond 1); dragons are illegal. The enemy
-gains `petrify: 1` and, only if it was not already Petrified, adds the keyword's
-fixed 5 Block (`ManeuverRules.PETRIFY_BLOCK`) to any existing Block. Reapplying
-Petrify from any source adds no Block while the status remains active. Card
-casts and Funeral Bell's `death_status_spread` use the same
-`ManeuverRules.petrify_enemy` helper for status, Block and event recording.
-Its next activation start keeps its Block (the
-ordinary reset is skipped), consumes Petrify (and Freeze, if also Frozen), takes
-no action and reschedules after its normal intent Time (Freeze keeps its
-time-cost-0 return). The Block therefore lasts through the player's following
-turn and clears at the enemy's next real activation. It is not Freeze: no damage
-multiplier, no Chill, and Freeze immunity does not apply. Threat previews treat
-it like Freeze. UI: enemy badge, turn-order `Skips` marker and tooltip line,
-status step `Petrified`. The badge and queued-turn tooltip use shared wording
-from `ManeuverRules.petrified_tooltip`, with the latter specific to this queued
-turn. Event `petrified {enemy_id, actor_key, tile, block, source}` records actual
-Block gained (5 for a newly Petrified enemy, 0 for reapplication). Card sources
-retain their damage context; relic spread identifies `source.relic_id` with
-`source_kind: relic`. Card row: exactly two tokens, the Petrify icon and range;
-the icon's tooltip explains the complete keyword, including its 5 Block.
+The Time 3 card uses `{"type": "stagger", "range": 3, "stagger": 6}`.
+`ManeuverRules.stagger_targets` accepts visible enemies, including dragons,
+with a footprint tile in range and line of sight beyond range 1.
+The Stagger resolves through `CombatEngine._apply_card_stagger` (the ordinary
+Stagger rule: the next queued turn moves later, dragons take half, at most 6
+per enemy between its turns, including other Stagger sources). The card row shows the Stagger amount and range.
 
 ## Crystal Mantle for the hero (`mantle`)
 
 `{"type": "mantle", "amount": N}`: N layers in `player.frost_armor`, Iskaldra's
 field. A direct hit (`_damage_player` with the direct multiplier and cause
 `enemy_attack` or `direct_attack`) breaks one layer before Block and deals no
-damage (event `crystal_mantle_broken`, actor `player`). Fire, Bleed, collisions,
-traps, fatigue and health costs ignore it. Layers last until broken or the
+damage (event `crystal_mantle_broken`, actor `player`). Fire, collisions,
+traps, fatigue and health costs bypass Crystal Mantle. Layers last until broken or the
 combat ends. `_actor_target_losses` reports `mantle_loss`, so a fully absorbed
 enemy attack still builds its step and animates; the floating text reads
 `Mantle N → M`. The board shows the shared Crystal Mantle badge.
@@ -172,15 +156,14 @@ enemy attack still builds its step and animates; the floating text reads
 
 Icons (`ActionIcons.ACTION_ICON_ALIASES`): `force_area` → Push (Pull when it
 pulls), `mantle` → Crystal Mantle, `convert_block_to_stoneskin` → Stoneskin,
-and the purpose-built `swap`, `cleanse` and `petrify`. `self_flag` resolves per
+and the purpose-built `swap` and `cleanse`. `self_flag` resolves per
 flag through `ActionIcons.SELF_FLAG_ICON_KEYS` (Skate, Anchored, Fireproof;
 Rooted uses the exact Immobilize icon), shared by card rows, action steps (named
-by the flag label) and the player's stance badges. The enemy Petrify badge uses
-the Petrify icon. See the [icon identity policy](icon_identity_policy.md).
+by the flag label) and the player's stance badges. See the [icon identity policy](icon_identity_policy.md).
 Grimoire: `combat:area_force`, `combat:swap`, `combat:stances` (Anchored icon),
-`combat:cleanse`, `combat:petrify`, and the extended `combat:crystal_armor`.
+`combat:cleanse` and `combat:crystal_armor`.
 Card role emblems: Swap and Skate/Fireproof are mobility; Rooted/Anchored,
-Crystal Mantle and Shrug Off are block; Petrify and area forces follow the
+Crystal Mantle and Shrug Off are block. Targeted Stagger and area forces follow the
 attack range rule; Cleanse chooses block only when nothing else on the card has
 a role. Gale Ward authors `role_emblem: "block"`: its damage-free shove is a rider
 on the Ward's Block, like its Fire, Ice, Rubble and Electrified siblings.
@@ -189,14 +172,14 @@ on the Ward's Block, like its Fire, Ice, Rubble and Electrified siblings.
 
 Additive `card_played` fields (RunScene and `tools/headless_playtest.gd`,
 `ManeuverRules.analytics_fields`): `self_flags_gained`, `statuses_cleansed`,
-`mantle_gained`, `petrified_enemy_ids`, `swapped_with` (`enemy`/`illusion`/null),
-`force_area_displaced`. New surface events (`force_area`, `swap`, `petrified`,
+`mantle_gained`, `swapped_with` (`enemy`/`illusion`/null),
+`force_area_displaced`. Surface events (`force_area`, `swap`,
 `statuses_cleansed`, `mantle_gained`, player `crystal_mantle_broken`) use the
 existing append-only `surface_event` stream.
 
 ## Heuristic
 
-See "Wave-4 movement, forces, flags, Petrify and Mantle" in the
+See "Wave-4 movement, forces, flags, Stagger and Mantle" in the
 [card balance heuristic](card_balance_heuristic.md).
 
 ## Deferred

@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "ash_confessional_01_some.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [160, 210, 1000, 680], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "ash_confessional_02_all.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [160, 210, 1000, 680], "min_luma_range": 12, "min_luma_stdev": 3}]
+    }
+  ]
+}

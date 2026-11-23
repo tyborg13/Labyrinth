@@ -25,8 +25,9 @@ It is a construct, so the existing wind classification anchors it.
    damage icon (director, pla-01 round 2); those all resolve through the board
    attack resolver, including derived attacks such as Shattered Reflection.
    Pure status and movement, selector strikes (Searing Light, Stoke, White
-   Silence), Bursts, Detonate, Discharge, Meteorfall marks, battlefield rules,
-   ground, traps, Collision and Retaliate land.
+   Silence), Bursts, Meteorfall marks, battlefield rules, ground, traps,
+   Collision and Retaliate land. Flashsteam's direct attack reflects from
+   a non-adjacent tile and the follow-up Burst still hits the Mirror.
    Target-dependent card modifiers are resolved before reflection. Each bounce
    records a `reflect_bounced` surface event. The preview prefixes the hero's
    existing loss label with `↶ ` when a visible Mirror returns the hit to the
@@ -36,9 +37,9 @@ It is a construct, so the existing wind classification anchors it.
    returns along that curve at 1.5 times its outbound speed; area, Chain and
    melee strikes keep their own animation.
 2. Refraction selects the existing cardinal direction toward the hero and hits
-   each passable tile in its four-tile line. Damage is 4 ice with the authored
-   Pierce flag and persistent Chilled. When another Mirror reflects the beam,
-   the damage and rider return to its caster. Forecast and resolution
+   each passable tile in its four-tile line for 4 damage and Staggers targets on
+   Ice by 6. When another Mirror reflects the beam, the damage and riders
+   return to the caster. Forecast and resolution
    share the same geometry. The beam is #9cc8e6, 6-pixel core, 14-pixel glow at
    30% opacity for 0.3 seconds. Friendly-fire death rewards remain the existing
    rules, without a player-card bonus.

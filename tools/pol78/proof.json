@@ -1,0 +1,15 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 9,
+  "required_images": [
+    {"pattern": "normal_max.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "normal_3.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "normal_1.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "normal_0.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "objective_max.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "objective_3.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "objective_1.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "objective_0.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "guardian_max.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]}
+  ]
+}

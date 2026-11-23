@@ -14,6 +14,14 @@ RECORD_TIMEOUT_SECONDS = 240  # GPU-backed recordings plus production asset warm
 FPS = 30
 
 
+def selected_rows(registry, loop_ids):
+    rows = registry["loops"]
+    if loop_ids is not None:
+        rows = rows + registry.get("pending_recordings", [])
+    return [row for row in rows
+            if not row.get("todo_design") and (loop_ids is None or row["id"] in loop_ids)]
+
+
 def movie_clock(directory: Path, godot: str) -> Path:
     """Drive the renderer at a fixed rate while the probe reads its own SubViewport."""
     wrapper = directory / "godot-clock.sh"
@@ -98,16 +106,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default="godot")
     parser.add_argument("--check-only", action="store_true", help="Check the encoder and fixture semantics headlessly")
-    parser.add_argument("--loops", help="Comma-separated registry IDs; default: all recordable loops")
+    parser.add_argument("--loops", help="Comma-separated registry IDs, including pending recordings; default: active loops")
     parser.add_argument("--task-id", default="tip-05", help="Task-local runner identity")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT, help="Task-local recording evidence")
     parser.add_argument("--proof-contract", type=Path, help="Optional exact source-image contract")
     parser.add_argument("--keep-passing", action="store_true",
                         help="Record, validate and install each selected loop independently")
     args = parser.parse_args()
-    registry = json.loads((ROOT / "data/tooltip_loops.json").read_text())["loops"]
+    registry = json.loads((ROOT / "data/tooltip_loops.json").read_text())
     selected_ids = set(args.loops.split(",")) if args.loops else None
-    rows = [row for row in registry if not row.get("todo_design") and (selected_ids is None or row["id"] in selected_ids)]
+    rows = selected_rows(registry, selected_ids)
     if selected_ids is not None and selected_ids != {row["id"] for row in rows}:
         parser.error("Unknown or TODO_DESIGN loop selected")
     if args.keep_passing and not args.loops:

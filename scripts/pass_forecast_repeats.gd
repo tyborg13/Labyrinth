@@ -49,7 +49,7 @@ static func restart_with_rolls(cursor: Dictionary) -> void:
 	cursor["safety"] = 0
 	cursor["complete"] = false
 	# atk-07: a span through a skipped turn (and its Fatigue sum) starts over too; so do the presentation and surface-contact records.
-	for field: String in ["rng_unknown", "roll_known", "least_frozen_health", "enemy_activations", "enemy_hits", "enemy_names", "unknown_repeat_ids", "unseen_ground_crossed", "new_arrival_before_player", "skipped_turns", "skipped_turn_expired_block", "span_boundary", "fatigue_loss", "red_announced_areas", "red_died_first", "red_turn_start_surfaces"]:
+	for field: String in ["rng_unknown", "roll_known", "least_frozen_health", "enemy_activations", "enemy_hits", "enemy_names", "enemy_stagger_limits", "unknown_repeat_ids", "unseen_ground_crossed", "new_arrival_before_player", "skipped_turns", "skipped_turn_expired_block", "span_boundary", "fatigue_loss", "red_announced_areas", "red_died_first", "red_turn_start_surfaces"]:
 		cursor.erase(field)
 
 # A visible foe whose later move stays unknown keeps the "×2 ?" disclosure.

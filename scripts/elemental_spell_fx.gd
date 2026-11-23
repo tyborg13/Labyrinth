@@ -693,21 +693,23 @@ static func release(
 	ground_point: Vector2,
 	s: float,
 	t: float,
-	alpha: float
+	alpha: float,
+	show_ribbons: bool = true
 ) -> void:
-	if PixelFxLayer.route(c, element, release, [element, p, ground_point, s, t, alpha]):
+	if PixelFxLayer.route(c, element, release, [element, p, ground_point, s, t, alpha, show_ribbons]):
 		return
 	var col := color_for(element)
 	var e: float = smoothstep(0.0, 0.22, t) * alpha
 	_glow(c, ground_point, Vector2(s * 0.9, s * 0.3), _tint(col, e * 0.24))
-	for i: int in range(7):
-		var points := PackedVector2Array()
-		for k: int in range(13):
-			var u: float = float(k) / 12.0
-			var radius: float = s * (0.08 + (1.0 - t) * 0.3) * (1.0 - u * 0.65)
-			var angle: float = float(i) * TAU / 7.0 + u * 1.7 + t * 1.1
-			points.append(p + Vector2(cos(angle), sin(angle) * 0.65) * radius)
-		_ribbon(c, points, s * 0.014, _tint(col, e * 0.60))
+	if show_ribbons:
+		for i: int in range(7):
+			var points := PackedVector2Array()
+			for k: int in range(13):
+				var u: float = float(k) / 12.0
+				var radius: float = s * (0.08 + (1.0 - t) * 0.3) * (1.0 - u * 0.65)
+				var angle: float = float(i) * TAU / 7.0 + u * 1.7 + t * 1.1
+				points.append(p + Vector2(cos(angle), sin(angle) * 0.65) * radius)
+			_ribbon(c, points, s * 0.014, _tint(col, e * 0.60))
 	_glow(c, p, Vector2.ONE * s * (0.20 + t * 0.16), _tint(col.lightened(0.65), e * 0.65))
 
 
@@ -772,9 +774,6 @@ static func travel(
 static func pixel_bounds(draw_call: Callable, args: Array) -> Rect2:
 	var method: String = draw_call.get_method()
 	if method == "draw_line_command": return PixelFxLayer.line_bounds(args[0])
-	if method == "draw_hop": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]))
-	if method == "flame": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]) * 0.1)
-	if method == "smoke": return Rect2(args[0] - Vector2.ONE * float(args[1]), Vector2.ONE * float(args[1]) * 2.0)
 	var p: Vector2 = args[1]
 	if method == "floor_light":
 		var size: float = args[2]

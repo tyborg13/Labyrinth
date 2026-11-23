@@ -1,6 +1,56 @@
 extends RefCounted
 
 const Terrain = preload("res://scripts/terrain_card_rules.gd")
+const Data = preload("res://scripts/game_data.gd")
+const Retaliate = preload("res://scripts/retaliate_rules.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const FORCE_BOARD: String = "_preview_force_board"
+
+static func retain_force_board(state: Dictionary) -> Dictionary:
+	var result: Dictionary = state.duplicate(false)
+	result[FORCE_BOARD] = true
+	return result
+
+static func actions_use_force(engine: RefCounted, actions: Array) -> bool:
+	for action: Dictionary in actions:
+		if engine._action_has_forced_movement(action) or str(action.get("type", "")) in ["swap", "illusion_swap", "erupt", "call_wind", "wind_push"]:
+			return true
+	return false
+
+static func automatic_followup_uses_force(engine: RefCounted, actions: Array, index: int) -> bool:
+	for cursor: int in range(index + 1, actions.size()):
+		var action: Dictionary = actions[cursor]
+		if engine.player_action_needs_target(action) and not bool(action.get("reuse_previous_target", false)):
+			break
+		if actions_use_force(engine, [action]): return true
+	return false
+
+static func indirect_force_triggered(before: Dictionary, after: Dictionary) -> bool:
+	var sequence: int = int(before.get("surface_event_sequence", 0))
+	for event: Dictionary in after.get("surface_events", []):
+		if int(event.get("sequence", 0)) <= sequence: continue
+		if event.get("kind") == "trap_triggered" and event.get("element") == "air": return true
+		if event.get("kind") == Retaliate.EVENT_KIND and int(event.get("push", 0)) > 0: return true
+	return false
+
+static func phase_uses_force(scene: Node, state: Dictionary, information: Dictionary) -> bool:
+	if state.get("battlefield_rule", {}).get("rule") == "gust" or not state.get("wind", {}).is_empty(): return true
+	for trap: Dictionary in state.get("traps", []):
+		if trap.get("element") == "air": return true
+	var engine: RefCounted = scene._combat_engine
+	if int(Retaliate.totals(state.get("player", {}), engine._relic_effects(state)).get("push", 0)) > 0: return true
+	var visible: Dictionary = engine.umbra_visible_tile_lookup(information)
+	var announced: Dictionary = {}
+	for enemy: Dictionary in information.get("enemies", []):
+		if engine.is_enemy_visible_to_player(information, enemy, visible): announced[int(enemy.get("id", -1))] = true
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0 or not announced.has(int(enemy.get("id", -1))): continue
+		if actions_use_force(engine, enemy.get("intent", {}).get("actions", [])): return true
+		if int(Retaliate.totals(enemy, []).get("push", 0)) > 0: return true
+		# A revealed foe can roll a different move before the hero acts again.
+		for intent: Dictionary in Data.enemies().get(str(enemy.get("type", "")), {}).get("intents", []):
+			if actions_use_force(engine, intent.get("actions", [])): return true
+	return false
 
 # Preview-only payment for ending immediately at an unresolved card boundary.
 # The committed action/confirmation pipeline is untouched.
@@ -23,10 +73,30 @@ static func drag_play(scene: Node) -> Dictionary:
 	if engine.effective_umbra_radius(scene._combat_state) < preload("res://scripts/combat_engine.gd").UMBRA_UNLIMITED_RADIUS:
 		var modifiers: Dictionary = played.get(preload("res://scripts/card_keyword_rules.gd").PLAY_MODIFIERS_KEY, {}) as Dictionary
 		var empowered: bool = scene._hand_card_empowered(index) or (bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == scene._card_id_for_hand_index(index))
-		var prepared: Dictionary = engine.prepare_player_card(scene._surface_preview_information_state(scene._combat_state), index, "empower" if empowered else "play")
-		var no_targets: Array[Vector2i]
-		played = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(engine, prepared, actions, actions.size(), no_targets)
+		var committed: Dictionary = scene._combat_state
+		var force_board: bool = actions_use_force(engine, actions) or indirect_force_triggered(committed, played) or phase_uses_force(scene, committed, committed)
+		if force_board:
+			played = retain_force_board(played)
+		else:
+			var prepared: Dictionary = engine.prepare_player_card(information_state(scene, committed, null, true), index, "empower" if empowered else "play")
+			var no_targets: Array[Vector2i]
+			played = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(engine, prepared, actions, actions.size(), no_targets)
 	return visibility_safe(scene, engine.finish_player_card(played, index, engine.card_plays_spent_for_actions(actions), {"play_mode": "play"}))
+
+# Keep the true contact geometry for force during or after the walk. Walk
+# trap and ground costs use decision-time sight.
+static func walk_force_preview(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var visible: Dictionary = engine.umbra_visible_tile_lookup(state)
+	var input: Dictionary = state.duplicate(false)
+	input[engine.WALK_FORECAST_SIGHT] = visible
+	var result: Dictionary = engine.surface_preview_for_player_action(input, action, target, true)
+	var walked: Dictionary = retain_force_board(result["state"])
+	walked.erase(engine.WALK_FORECAST_SIGHT)
+	walked["surfaces"] = _visible_ground(walked, visible)
+	walked["traps"] = (walked.get("traps", []) as Array).filter(func(trap: Dictionary) -> bool: return visible.has(trap.get("pos")))
+	result["state"] = walked
+	result["single_state"] = walked
+	return result
 
 # atk-02: the hover resolution of a hero walk leaves the movement pool unpaid
 # (the forecast rows never read it). Mirror apply_player_movement's payment on
@@ -44,15 +114,16 @@ static func surface_skill(scene: Node, tile: Vector2i) -> Dictionary:
 	var key: String = scene._pass_preview_key(tile)
 	if scene._surface_preview_cache.get("forecast_key", "") == key:
 		return visibility_safe(scene, scene._surface_preview_cache["state"])
-	var known: Dictionary = scene._surface_preview_information_state(scene._combat_state)
+	var before: Dictionary = scene._combat_state
+	var force_board: bool = scene._preview_umbra_is_limited(before) and phase_uses_force(scene, before, before)
+	var known: Dictionary = information_state(scene, before, null, false, force_board)
 	return visibility_safe(scene, scene._surface_aim.resolved(scene._combat_engine, known, tile))
 
-# One information boundary for movement, card prefixes, targeted actions, skills
-# and idle PASS. Strip hidden causes BEFORE resolution: removing a picked-up
-# item afterward cannot undo the resulting hand/deck, healing or relic changes.
-# Grid geometry, guardian braziers and player-raised Outcrops stay known in Umbra.
-static func information_state(scene: Node, state: Dictionary, information_override: Variant = null) -> Dictionary:
+# Ordinary scouting keeps its disclosed inputs. Force resolves with true
+# contact geometry and arrivals, and the presentation then applies sight.
+static func information_state(scene: Node, state: Dictionary, information_override: Variant = null, retain_ground: bool = false, retain_board: bool = false) -> Dictionary:
 	if not scene._preview_umbra_is_limited(state, information_override): return state
+	if retain_board or bool(state.get(FORCE_BOARD, false)): return retain_force_board(state)
 	var information: Dictionary = scene._preview_information_state(state) if information_override == null else information_override as Dictionary
 	var visible: Dictionary = scene._combat_engine.umbra_visible_tile_lookup(information)
 	var known: Dictionary = state.duplicate(true)
@@ -65,10 +136,10 @@ static func information_state(scene: Node, state: Dictionary, information_overri
 			if is_known or (collection == "terrain" and Terrain.is_owned_outcrop(entry)):
 				entries.append(entry.duplicate(true))
 		known[collection] = entries
-	var ground: Dictionary = known.get("surfaces", {})
-	for tile: Vector2i in BoardSurfaceRules.tiles(state):
-		if not visible.has(tile): ground.erase(BoardSurfaceRules.tile_key(tile))
-	known["surfaces"] = ground
+	# Card actions resolve against real ground. Disclosure happens after the
+	# action, so a concealed tile can still change damage to a known unit.
+	if not retain_ground:
+		known["surfaces"] = _visible_ground(known, visible)
 	# Marks can straddle the sight boundary. Preserve their visible portion;
 	# hidden tiles cannot land damage or create ground during the forecast.
 	if state.has("meteor_marks"):
@@ -89,18 +160,87 @@ static func information_state(scene: Node, state: Dictionary, information_overri
 		known["surface_events"] = events
 	return known
 
-# Hidden actors never enter numeric simulation, including support targeting,
-# occupancy and status hooks. Retain only queue ordering for the '?' horizon.
-# This snapshot is preview-only; the engine's opaque-board contract is intact.
+static func disclose_ground(scene: Node, state: Dictionary) -> Dictionary:
+	if not scene._preview_umbra_is_limited(state): return state
+	var result: Dictionary = state.duplicate(false)
+	result["surfaces"] = _visible_ground(state, scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(state)))
+	return result
+
+static func disclose_card_state(scene: Node, state: Dictionary) -> Dictionary:
+	var result: Dictionary = disclose_ground(scene, state)
+	if not bool(result.get(FORCE_BOARD, false)): return result
+	result.erase(FORCE_BOARD)
+	var hidden: Dictionary = hidden_actor_keys(scene, state)
+	for collection: String in ["enemies", "illusions"]:
+		var prefix: String = "enemy_" if collection == "enemies" else "illusion_"
+		result[collection] = (state.get(collection, []) as Array).filter(func(unit: Dictionary) -> bool:
+			return not hidden.has(prefix + str(unit.get("id", -1))))
+	return result
+
+static func hidden_actor_keys(scene: Node, state: Dictionary) -> Dictionary:
+	var limited: bool = scene._preview_umbra_is_limited(state)
+	var information: Dictionary = scene._combat_state if not scene._combat_state.is_empty() else state
+	var engine: RefCounted = scene._combat_engine
+	var visible: Dictionary = engine.umbra_visible_tile_lookup(information) if limited else {}
+	var actors: Dictionary = scene._surface_preview_units_by_key(state)
+	actors.merge(scene._surface_preview_units_by_key(information), true)
+	var hidden: Dictionary = {}
+	for key: String in actors:
+		var actor: Dictionary = actors[key]
+		if key.begins_with("enemy_") and not engine.is_enemy_visible_to_player(information, actor, visible):
+			hidden[key] = true
+		if limited and key.begins_with("illusion_") and not visible.has(actor.get("pos")):
+			hidden[key] = true
+	return hidden
+
+static func _visible_ground(state: Dictionary, visible: Dictionary) -> Dictionary:
+	var ground: Dictionary = {}
+	for tile: Vector2i in BoardSurfaceRules.tiles(state):
+		if visible.has(tile): ground[BoardSurfaceRules.tile_key(tile)] = BoardSurfaceRules.surface_at(state, tile)
+	return ground
+
+# Conversions can follow concealed ground without showing it. Burst events
+# retain their footprint because the card forecasts the explosion itself.
+static func disclose_surface_events(scene: Node, state: Dictionary, events: Array[Dictionary]) -> Array[Dictionary]:
+	if events.is_empty(): return events
+	var limited: bool = scene._preview_umbra_is_limited(state)
+	var visible: Dictionary = scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(state)) if limited else {}
+	var hidden: Dictionary = hidden_actor_keys(scene, state)
+	if not limited and hidden.is_empty(): return events
+	var result: Array[Dictionary]
+	for event: Dictionary in events:
+		var kind: String = str(event.get("kind", ""))
+		if limited and kind in ["force_area", "force_collision", "guardian_line_step"]: continue # Dedicated markers and paths own force disclosure.
+		if limited and kind in ["surface_created", "surface_replaced", "surface_removed", "surface_conducted", "trap_triggered"] and not visible.has(event.get("tile")):
+			continue
+		if limited and kind == "surface_converted":
+			var tiles: Array[Vector2i]
+			for tile: Vector2i in event.get("tiles", []):
+				if visible.has(tile): tiles.append(tile)
+			event = event.duplicate(false)
+			event["tiles"] = tiles
+		if hidden.has(str(event.get("actor_key", ""))) or (event.has("enemy_id") and hidden.has("enemy_%d" % int(event["enemy_id"]))):
+			continue
+		if event.has("actor_keys") or event.has("enemy_ids"):
+			event = event.duplicate(false)
+			if event.has("actor_keys"):
+				event["actor_keys"] = (event["actor_keys"] as Array).filter(func(key: Variant) -> bool: return not hidden.has(str(key)))
+			if event.has("enemy_ids"):
+				event["enemy_ids"] = (event["enemy_ids"] as Array).filter(func(id: Variant) -> bool: return not hidden.has("enemy_%d" % int(id)))
+		result.append(event)
+	return result
+
 static func rest_source(scene: Node, committed: Dictionary) -> Dictionary:
-	return visibility_safe(scene, information_state(scene, committed, committed), committed)
+	var force_board: bool = scene._preview_umbra_is_limited(committed, committed) and phase_uses_force(scene, committed, committed)
+	return visibility_safe(scene, information_state(scene, committed, committed, false, force_board), committed)
 
 static func visibility_safe(scene: Node, known: Dictionary, rest_boundary: Variant = null) -> Dictionary:
 	var at_rest: bool = rest_boundary is Dictionary
 	var committed: Dictionary = rest_boundary if at_rest else scene._combat_state
-	var result: Dictionary = known if at_rest else scene._visibility_safe_preview_display_state(known)
+	var keep_board: bool = bool(known.get(FORCE_BOARD, false)) and phase_uses_force(scene, known, committed)
+	var result: Dictionary = known if at_rest or keep_board else disclose_ground(scene, scene._visibility_safe_preview_display_state(known))
 	# Retain the initial Health only when the action changed it. This covers
-	# lethal Bleed before scheduling, without changing unchanged source identity.
+	# the resolved movement before scheduling, preserving its source identity.
 	var before_hp: int = int(committed.get("player", {}).get("hp", known.get("player", {}).get("hp", 0)))
 	if before_hp != int(known.get("player", {}).get("hp", 0)):
 		result = result.duplicate(false)
@@ -120,20 +260,28 @@ static func visibility_safe(scene: Node, known: Dictionary, rest_boundary: Varia
 		player[field] = known.get("player", {}).get(field, player.get(field, 0))
 	result["player"] = player
 	result["defiance_remaining"] = known.get("defiance_remaining", result.get("defiance_remaining", 0))
-	# The display helper retains committed board objects. Forecasts retain the
-	# already-filtered/resolved collections, including known pickup removals.
-	for collection: String in ["traps", "loot"]:
-		if known.has(collection): result[collection] = known[collection]
+	var visible: Dictionary = scene._combat_engine.umbra_visible_tile_lookup(committed)
+	# Force effects on known actors survive the card. If no upcoming force
+	# needs the full board, ordinary enemy forecasts keep the disclosed inputs.
+	var disclosed_board: Dictionary = known
+	if not keep_board and bool(known.get(FORCE_BOARD, false)):
+		result.erase(FORCE_BOARD)
+		var resolved_board: Dictionary = known.duplicate(false)
+		resolved_board.erase(FORCE_BOARD)
+		disclosed_board = information_state(scene, resolved_board, committed)
+	for collection: String in ["traps", "terrain", "loot", "illusions", "npcs", "meteor_marks", "surface_events"]:
+		if disclosed_board.has(collection): result[collection] = disclosed_board[collection]
 	var disclosed: Dictionary = {}
 	var living: Dictionary = {}
-	for enemy: Dictionary in committed.get("enemies", []):
+	for enemy: Dictionary in known.get("enemies", []) if known.get(FORCE_BOARD, false) else committed.get("enemies", []):
 		if int(enemy.get("hp", 0)) > 0: living[int(enemy.get("id", -1))] = true
-		if scene._combat_engine.is_enemy_visible_to_player(committed, enemy):
+	for enemy: Dictionary in committed.get("enemies", []):
+		if scene._combat_engine.is_enemy_visible_to_player(committed, enemy, visible):
 			disclosed[int(enemy.get("id", -1))] = true
 	var enemies: Array = []
 	for enemy: Dictionary in known.get("enemies", []):
 		if disclosed.has(int(enemy.get("id", -1))): enemies.append(enemy)
-	result["enemies"] = enemies
+	result["enemies"] = known.get("enemies", []) if keep_board else enemies
 	var actors: Dictionary = {}
 	for enemy: Dictionary in enemies: actors["enemy_%d" % int(enemy.get("id", -1))] = true
 	result["_pass_forecast_disclosed_actors"] = actors
@@ -150,8 +298,10 @@ static func visibility_safe(scene: Node, known: Dictionary, rest_boundary: Varia
 	result["_pass_forecast_hidden_queue"] = hidden_queue
 	result["_pass_forecast_limited"] = true
 	# atk-04: the decision-time sight, so the forecast can say when any unit
-	# enters unseen ground (tile visibility only; contents stay stripped).
-	preload("res://scripts/pass_forecast_unseen_ground.gd").attach(result, scene._combat_engine.umbra_visible_tile_lookup(scene._preview_information_state(known, committed)), committed, known)
+	# enters unseen ground at the decision-time sight boundary.
+	var public_after: Dictionary = known.duplicate(false)
+	public_after["enemies"] = enemies
+	preload("res://scripts/pass_forecast_unseen_ground.gd").attach(result, visible, committed, public_after)
 	# Known victory must stop end-turn effects. Its presentation remains unknown
 	# under limited sight, independently of whether any hidden enemy exists.
 	result.erase("_preview_opaque_enemies")
@@ -170,6 +320,7 @@ static func hidden_horizon(source: Dictionary, phase: Dictionary) -> bool:
 	for entry: Dictionary in source.get("_pass_forecast_hidden_queue", []):
 		# atk-04: a dead foe's stale queue entry is not a foe hidden in the Umbra.
 		if not bool(entry.get("alive", true)): continue
-		if int(entry["time"]) < int(boundary["time"]) or (int(entry["time"]) == int(boundary["time"]) and int(entry["seq"]) < int(boundary.get("seq", 0))):
+		# The hero wins exact clock ties, even after Stagger reschedules the hero.
+		if int(entry["time"]) < int(boundary["time"]):
 			return true
 	return false

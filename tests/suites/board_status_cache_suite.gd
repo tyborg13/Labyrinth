@@ -19,7 +19,7 @@ static func run(expect: Callable) -> void:
 	board.size = Vector2(1920, 1080)
 	var unit: Dictionary = {"key": "stable", "role": "player", "type": "player", "hp": 24}
 	_compare(board, unit, FRAME, "empty", expect)
-	var transitions: Dictionary = {"freeze": [1, 2, 0], "petrify": [1, 2, 0], "shock": [1, 2, 0], "immobilize": [true, false], "chilled": [true, false], "bleed": [2, 5, 0], "expose": [1, 4, 0], "frost_armor": [1, 3, 0], "block": [1, 12, 0], "stoneskin": [1, 15, 0], "veiled": [true, false], "burrowed": [true, false], "death_animation": [true, false], "hp": [0, 24], "is_leader": [true, false], "role": ["enemy", "illusion", "player"], "type": ["gale_herald", "storm_capacitor", "ember_tick", "player"]}
+	var transitions: Dictionary = {"shock": [1, 2, 0], "immobilize": [true, false], "expose": [1, 4, 0], "frost_armor": [1, 3, 0], "block": [1, 12, 0], "stoneskin": [1, 15, 0], "veiled": [true, false], "burrowed": [true, false], "death_animation": [true, false], "hp": [0, 24], "is_leader": [true, false], "role": ["enemy", "illusion", "player"], "type": ["gale_herald", "storm_capacitor", "ember_tick", "player"]}
 	for field: String in transitions:
 		var present: bool = unit.has(field)
 		var original: Variant = unit.get(field)
@@ -41,13 +41,13 @@ static func run(expect: Callable) -> void:
 	unit.erase("keyword_badges")
 	_compare(board, unit, FRAME, "keyword remove", expect)
 	for duration: int in [2, -1, 0]:
-		board.presentation["umbra_truesight_activations"] = duration
-		_compare(board, unit, FRAME, "Truesight duration " + str(duration), expect)
+		board.presentation["umbra_vision_activations"] = duration
+		_compare(board, unit, FRAME, "Vision duration " + str(duration), expect)
 	for conditional: bool in [true, false]:
-		board.presentation["umbra_truesight_conditional"] = conditional
-		_compare(board, unit, FRAME, "conditional Truesight " + str(conditional), expect)
+		board.presentation["umbra_vision_conditional"] = conditional
+		_compare(board, unit, FRAME, "conditional Vision " + str(conditional), expect)
 	board.presentation.clear()
-	_compare(board, unit, FRAME, "Truesight remove", expect)
+	_compare(board, unit, FRAME, "Vision remove", expect)
 	var neighbour: Array[Rect2]
 	neighbour.append(FRAME)
 	board._status_plate_layout.group_obstacles["stable"] = neighbour
@@ -80,7 +80,7 @@ static func _live_transitions(expect: Callable) -> void:
 	var state: Dictionary = Fixture.staged_state(Combat.new())
 	state["enemies"] = []
 	var frame := Rect2()
-	for field: String in ["freeze", "block", "stoneskin"]:
+	for field: String in ["shock", "block", "stoneskin"]:
 		for value: int in [0, 1, 12, 0]:
 			state["player"][field] = value
 			var submitted: Dictionary = state.duplicate(true)
@@ -96,16 +96,17 @@ static func _live_transitions(expect: Callable) -> void:
 		var player: Dictionary = board._hud_layout_units()[0]
 		_compare(board, player, Badges.health_rect(board, player), "live keyword " + str(amount), expect)
 	for duration: int in [2, -1, 0]:
-		board.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, {"umbra_truesight_activations": duration})
+		board.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, {"umbra_vision_activations": duration})
 		var player: Dictionary = board._hud_layout_units()[0]
-		_compare(board, player, Badges.health_rect(board, player), "live Truesight " + str(duration), expect)
+		_compare(board, player, Badges.health_rect(board, player), "live Vision " + str(duration), expect)
 	board.free()
 
 static func _compact_envelope(expect: Callable) -> void:
 	var board := Board.new()
 	var cache := Cache.new()
-	var unit: Dictionary = {"key": "wide", "role": "enemy", "hp": 24, "freeze": 1, "immobilize": true,
-		"bleed": COMPACT_TEST_COUNT, "expose": COMPACT_TEST_COUNT, "frost_armor": COMPACT_TEST_COUNT}
+	var unit: Dictionary = {"key": "wide", "role": "enemy", "hp": 24, "shock": 1, "immobilize": true,
+		"expose": COMPACT_TEST_COUNT, "frost_armor": COMPACT_TEST_COUNT,
+		"keyword_badges": [{"icon": "retaliate", "count": COMPACT_TEST_COUNT}]}
 	var group: Dictionary = cache.resolve(board, unit, FRAME)
 	var raw: Dictionary = group["raw"]
 	var normal: Rect2 = cache.Groups.pieces_bounds(raw["pieces"])
@@ -129,7 +130,7 @@ static func _compact_envelope(expect: Callable) -> void:
 	board.free()
 
 # Port of the review's cache_paint reproduction: production descriptors stay
-# fixed while Freeze is added and removed, with real retained HUD redraws.
+# fixed while Shock is added and removed, with real retained HUD redraws.
 static func _history_transitions(expect: Callable) -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	var original_size: Vector2i = tree.root.size
@@ -155,11 +156,11 @@ static func _history_transitions(expect: Callable) -> void:
 		var original_entries: Array = board._hud_layout_entries_cache
 		for cycle: int in range(HISTORY_ROUND_TRIPS):
 			var changed: Dictionary = state.duplicate(true)
-			changed["enemies"][0]["freeze"] = 1
+			changed["enemies"][0]["shock"] = 1
 			board.set_combat_state(changed, [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
-			_history_check(board, {}, fixture + "/Freeze before paint", expect)
+			_history_check(board, {}, fixture + "/Shock before paint", expect)
 			await _history_redraw(board, enemy_key, expect)
-			_history_check(board, {}, fixture + "/Freeze after paint", expect)
+			_history_check(board, {}, fixture + "/Shock after paint", expect)
 			board.set_combat_state(state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
 			expect.call(is_same(original_entries, board._hud_layout_entries_cache), "Historical A uses its existing LRU entry: " + fixture)
 			_history_check(board, expected, fixture + "/restored A before paint", expect)
@@ -245,7 +246,12 @@ static func _history_check(board: Control, expected: Dictionary, phase: String, 
 		var delta: Vector2 = frame.position - anchor.position
 		expect.call(entry["health_rect"] == frame and board._hud_health_rects_cache[key] == frame, "History entries, focus and plan agree: " + phase + "/" + key)
 		expect.call(group["anchor_frame"] == anchor and group["offset"] == delta, "History group retains its true actor anchor: " + phase + "/" + key)
-		expect.call(absf(delta.x) <= 24.0 and absf(delta.y) <= anchor.size.y + 4.0, "History draw stays bounded: %s/%s anchor=%s frame=%s delta=%s" % [phase, key, anchor, frame, delta])
+		var clearance: Vector2 = group.get("hero_clearance_offset", Vector2.ZERO)
+		var base_delta: Vector2 = board._status_plate_layout.base_group(key)["offset"]
+		var clearance_limits := Vector2(board._tile_width() * 0.5, anchor.size.y + board.IntentBadges.MEDALLION_DIAMETER)
+		expect.call(absf(base_delta.x) <= 24.0 and absf(base_delta.y) <= anchor.size.y + 4.0
+			and absf(clearance.x) <= clearance_limits.x and clearance.y <= 0.0 and -clearance.y <= clearance_limits.y,
+			"History base slot and hero clearance stay within their own bounds: %s/%s base=%s clearance=%s" % [phase, key, base_delta, clearance])
 		if expected.is_empty(): continue
 		for field: String in ["frame", "group_rects", "defense_rects", "status_rects", "pip_rects"]:
 			expect.call(group[field] == expected["groups"][key][field], "History drawn rects equal cold A: " + phase + "/" + key + "/" + field)

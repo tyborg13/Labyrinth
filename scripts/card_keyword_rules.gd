@@ -26,11 +26,16 @@ const STATE_BONUS_FIELDS: Array = ["damage", "stagger"]
 # ---------------------------------------------------------------- Follow-up / Empower
 
 # Cheap pre-check on the shared data cache (no copy) for hot preview paths.
-static func card_id_may_have_keywords(card_id: String) -> bool:
+static func card_id_may_have_keywords(card_id: String, state: Dictionary) -> bool:
 	var raw: Dictionary = GameData.cards().get(card_id, {}) as Dictionary
 	if bool(raw.get("retired", false)):
 		raw = GameData.cards().get(str(raw.get("replacement_id", "")), {}) as Dictionary
-	return raw.has("follow_up") or raw.has("empower")
+	if raw.has("follow_up") or raw.has("empower"):
+		return true
+	if bool(state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)):
+		var legacy: Dictionary = GameData.LegacyStarterCards.DEFINITIONS.get(card_id, {})
+		return legacy.has("follow_up") or legacy.has("empower")
+	return false
 
 static func has_follow_up(card: Dictionary) -> bool:
 	return _keyword_spec_present(card.get("follow_up", null))
@@ -77,7 +82,7 @@ static func actions_for_play(card: Dictionary, card_id: String, state: Dictionar
 # Mods index the printed action list. Follow-up applies before Empower; both use
 # the state captured at the card's start, so Flurry repeats share one result.
 static func actions_with_modifiers(card: Dictionary, modifiers: Dictionary) -> Array:
-	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	var actions: Array = (card.get("_unpriced_actions", card.get("actions", [])) as Array).duplicate(true)
 	var printed_count: int = actions.size()
 	if bool(modifiers.get("follow_up", false)) and has_follow_up(card):
 		actions = _apply_keyword_spec(actions, card.get("follow_up", {}) as Dictionary, printed_count, "Follow-up", FOLLOW_UP_FLAG)
@@ -92,6 +97,9 @@ static func actions_with_modifiers(card: Dictionary, modifiers: Dictionary) -> A
 		# now-illegal repeat. Insert before later printed/Follow-up actions.
 		repeated["reuse_previous_target"] = true
 		actions.insert(1, repeated)
+	if card.has("_priced_action_effects"):
+		var surcharge: int = maxi(0, int(empower_cost(card).get("time", 0))) if bool(modifiers.get("empowered", false)) else 0
+		actions = GameData.actions_with_play_time_modifiers(card, actions, GameData.card_time_cost_from_def(card) + surcharge)
 	return actions
 
 static func _apply_keyword_spec(actions: Array, spec: Dictionary, printed_count: int, source: String, flag: String) -> Array:
@@ -204,72 +212,97 @@ static func stagger_delay(enemy_type: String, amount: int, applied_this_turn: in
 	return clampi(delay, 0, maxi(0, STAGGER_TURN_CAP - maxi(0, applied_this_turn)))
 
 static func stagger_applied_this_turn(state: Dictionary, enemy_id: int) -> int:
-	var applied: Dictionary = (state.get("turn_flags", {}) as Dictionary).get(STAGGER_TURN_FLAG, {}) as Dictionary
-	return int(applied.get(str(enemy_id), 0))
+	var key: String = str(enemy_id)
+	var applied: Dictionary = state.get("turn_flags", {}).get(STAGGER_TURN_FLAG, {})
+	# The slot or pending delay outlives hero turn flags. Keep the legacy flag
+	# as a fallback for saved states that supplied only the running total.
+	return maxi(int(applied.get(key, 0)), _actor_stagger_delay(state, "enemy", enemy_id, key))
 
-# Returns the delay actually added. Only the enemy's next queued turn moves; the
-# initiative clock never changes. An unqueued enemy (the current actor) keeps the
-# delay until it is next scheduled.
 static func apply_stagger(engine: RefCounted, state: Dictionary, enemy_id: int, amount: int) -> int:
 	if amount <= 0:
 		return 0
 	var enemy_index: int = engine._enemy_index_for_id(state, enemy_id)
 	if enemy_index < 0:
 		return 0
-	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index] as Dictionary
+	var enemy: Dictionary = state["enemies"][enemy_index]
 	if int(enemy.get("hp", 0)) <= 0:
 		return 0
-	var delay: int = stagger_delay(str(enemy.get("type", "")), amount, stagger_applied_this_turn(state, enemy_id))
-	var before_cap: int = maxi(0, amount)
-	if DragonBossLibrary.is_dragon_boss_id(str(enemy.get("type", ""))):
-		before_cap = int(before_cap / 2)
+	var enemy_type: String = str(enemy.get("type", ""))
+	var before_cap: int = int(amount / 2) if DragonBossLibrary.is_dragon_boss_id(enemy_type) else amount
+	var applied: int = stagger_applied_this_turn(state, enemy_id)
+	var delay: int = stagger_delay(enemy_type, amount, applied)
 	TempoRelicRules.stagger_overflow(engine, state, enemy_index, before_cap - delay, GameData.relic_effects_for_state(state))
 	if delay <= 0:
 		return 0
-	var flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)
-	var applied: Dictionary = (flags.get(STAGGER_TURN_FLAG, {}) as Dictionary).duplicate(true)
-	applied[str(enemy_id)] = int(applied.get(str(enemy_id), 0)) + delay
-	flags[STAGGER_TURN_FLAG] = applied
+	var flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(false)
+	var totals: Dictionary = (flags.get(STAGGER_TURN_FLAG, {}) as Dictionary).duplicate(false)
+	totals[str(enemy_id)] = applied + delay
+	flags[STAGGER_TURN_FLAG] = totals
 	state["turn_flags"] = flags
 	state[STAGGER_TOTAL_KEY] = int(state.get(STAGGER_TOTAL_KEY, 0)) + delay
-	var queue: Array = (state.get("turn_queue", []) as Array).duplicate(true)
-	var target_index: int = -1
+	_delay_actor(engine, state, "enemy", enemy_id, str(enemy_id), delay, applied)
+	engine._log(state, "%s is staggered by %d." % [engine._enemy_display_name(enemy), delay])
+	return delay
+
+static func stagger_player(engine: RefCounted, state: Dictionary, amount: int) -> void:
+	if amount <= 0 or int(state.get("player", {}).get("hp", 0)) <= 0:
+		return
+	var applied: int = player_stagger_delay(state)
+	var delay: int = stagger_delay("", amount, applied)
+	if delay > 0:
+		_delay_actor(engine, state, "player", -1, "player", delay, applied)
+
+static func player_stagger_delay(state: Dictionary) -> int:
+	return _actor_stagger_delay(state, "player", -1, "player")
+
+static func _actor_stagger_delay(state: Dictionary, kind: String, id: int, key: String) -> int:
+	var queue: Array = state.get("turn_queue", [])
+	var index: int = _stagger_queue_index(queue, kind, id)
+	if index >= 0:
+		return int(queue[index].get(STAGGER_DELAY_KEY, 0))
+	return int(state.get(STAGGER_PENDING_KEY, {}).get(key, 0))
+
+static func _stagger_queue_index(queue: Array, kind: String, id: int) -> int:
+	var next_index: int = -1
 	for index: int in range(queue.size()):
 		if typeof(queue[index]) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = queue[index]
-		if str(entry.get("kind", "")) != "enemy" or int(entry.get("enemy_id", -1)) != enemy_id:
+		if str(entry.get("kind", "")) != kind or (kind == "enemy" and int(entry.get("enemy_id", -1)) != id):
 			continue
-		if target_index < 0 or int(entry.get("time", 0)) < int((queue[target_index] as Dictionary).get("time", 0)):
-			target_index = index
-	if target_index >= 0:
-		var delayed: Dictionary = (queue[target_index] as Dictionary).duplicate(true)
-		delayed["time"] = int(delayed.get("time", 0)) + delay
-		# The delayed slot owns this condition until it is popped for activation.
-		# Turn flags only enforce the cap; they can reset before this slot runs.
-		delayed[STAGGER_DELAY_KEY] = int(delayed.get(STAGGER_DELAY_KEY, 0)) + delay
-		delayed["seq"] = engine._claim_activation_seq(state)
-		queue[target_index] = delayed
-		state["turn_queue"] = engine._sorted_turn_queue(queue)
-	else:
-		var pending: Dictionary = (state.get(STAGGER_PENDING_KEY, {}) as Dictionary).duplicate(true)
-		pending[str(enemy_id)] = int(pending.get(str(enemy_id), 0)) + delay
+		if next_index < 0 or int(entry.get("time", 0)) < int(queue[next_index].get("time", 0)):
+			next_index = index
+	return next_index
+
+static func _delay_actor(engine: RefCounted, state: Dictionary, kind: String, id: int, key: String, delay: int, applied: int) -> void:
+	var queue: Array = state.get("turn_queue", [])
+	var index: int = _stagger_queue_index(queue, kind, id)
+	if index < 0:
+		var pending: Dictionary = (state.get(STAGGER_PENDING_KEY, {}) as Dictionary).duplicate(false)
+		pending[key] = applied + delay
 		state[STAGGER_PENDING_KEY] = pending
-	engine._log(state, "%s is staggered by %d." % [engine._enemy_display_name(enemy), delay])
-	return delay
+		return
+	var delayed: Dictionary = queue[index].duplicate(false)
+	delayed["time"] = int(delayed.get("time", 0)) + delay
+	delayed[STAGGER_DELAY_KEY] = applied + delay
+	delayed["seq"] = engine._claim_activation_seq(state)
+	queue = queue.duplicate()
+	queue[index] = delayed
+	state["turn_queue"] = engine._sorted_turn_queue(queue)
 
 static func consume_pending_stagger(state: Dictionary, entry: Dictionary) -> Dictionary:
-	if str(entry.get("kind", "")) != "enemy":
+	var kind: String = str(entry.get("kind", ""))
+	if kind not in ["enemy", "player"]:
 		return entry
+	var key: String = str(int(entry.get("enemy_id", -1))) if kind == "enemy" else "player"
 	var pending: Dictionary = state.get(STAGGER_PENDING_KEY, {}) as Dictionary
-	var key: String = str(int(entry.get("enemy_id", -1)))
 	if not pending.has(key):
 		return entry
-	var delayed: Dictionary = entry.duplicate(true)
+	var delayed: Dictionary = entry.duplicate(false)
 	var delay: int = maxi(0, int(pending.get(key, 0)))
 	delayed["time"] = int(delayed.get("time", 0)) + delay
 	delayed[STAGGER_DELAY_KEY] = int(delayed.get(STAGGER_DELAY_KEY, 0)) + delay
-	var remaining: Dictionary = pending.duplicate(true)
+	var remaining: Dictionary = pending.duplicate(false)
 	remaining.erase(key)
 	if remaining.is_empty():
 		state.erase(STAGGER_PENDING_KEY)
@@ -277,14 +310,28 @@ static func consume_pending_stagger(state: Dictionary, entry: Dictionary) -> Dic
 		state[STAGGER_PENDING_KEY] = remaining
 	return delayed
 
+static func clear_activated_stagger(state: Dictionary, entry: Dictionary) -> void:
+	if str(entry.get("kind", "")) != "enemy":
+		return
+	var flags: Dictionary = state.get("turn_flags", {})
+	var totals: Dictionary = flags.get(STAGGER_TURN_FLAG, {})
+	var key: String = str(int(entry.get("enemy_id", -1)))
+	if not totals.has(key):
+		return
+	totals = totals.duplicate(false)
+	totals.erase(key)
+	flags = flags.duplicate(false)
+	flags[STAGGER_TURN_FLAG] = totals
+	state["turn_flags"] = flags
+
 static func stagger_delays_between(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var before: Dictionary = (before_state.get("turn_flags", {}) as Dictionary).get(STAGGER_TURN_FLAG, {}) as Dictionary
-	var after: Dictionary = (after_state.get("turn_flags", {}) as Dictionary).get(STAGGER_TURN_FLAG, {}) as Dictionary
+	var after: Dictionary = after_state.get("turn_flags", {}).get(STAGGER_TURN_FLAG, {})
 	var result: Dictionary = {}
-	for key_var: Variant in after.keys():
-		var delta: int = int(after[key_var]) - int(before.get(key_var, 0))
-		if delta != 0:
-			result[int(str(key_var))] = delta
+	for key: String in after:
+		var enemy_id: int = int(key)
+		var delta: int = int(after[key]) - stagger_applied_this_turn(before_state, enemy_id)
+		if delta > 0:
+			result[enemy_id] = delta
 	return result
 
 # Transient turn-order projection only: the committed queue is untouched.
@@ -316,10 +363,8 @@ static func state_condition_met(engine: RefCounted, state: Dictionary, condition
 				if engine._light_source_covers_tile(state, tile):
 					return true
 			return false
-		"frozen":
-			return int(enemy.get("freeze", 0)) > 0
-		"bleeding":
-			return int(enemy.get("bleed", 0)) > 0
+		"exposed":
+			return int(enemy.get("expose", 0)) > 0
 		"immobilized":
 			return bool(enemy.get("immobilize", false))
 		"staggered":

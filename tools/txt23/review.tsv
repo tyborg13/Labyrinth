@@ -1,0 +1,101 @@
+# id | candidate source ranges (scripts/ and .gd implied) | observed rule path
+iron_lung | combat_engine:2104-2119 defense_relic_rules:68-87 | The conversion spends two Stoneskin per Health of base or Empower Health costs. Time and Exhaust Empower costs follow separate paths.
+ember_lens | combat_engine:6561-6595 board_attack_rules:39-45 | Adds Chain 1 to the route of a ranged attack against an enemy whose footprint intersects Light.
+pilgrim_boots | combat_engine:1939-1952 combat_engine:1973-1979 combat_engine:6688-6695 combat_engine:3433-3437 | Adds one Movement capacity and creates radius-1 Light at entered Move tiles or both Blink endpoints. The attack-card exclusion applies to both.
+mirror_shard | illusion_relic_rules:22-39 | Illusion destruction pulses for 3 against each living enemy with a tile adjacent to the illusion.
+coffin_nails | common_relic_rules:128-139 board_attack_rules:200-212 board_attack_rules:260-264 | An enemy attack with positive Block loss and zero Health loss gives its attacker Expose 2.
+reinforced_shield | combat_engine:6510-6539 combat_engine:1731-1735 maneuver_rules:647-665 | At one or more Stoneskin the relic adds 3 to the Block action amount. It misses Move's inline per-tile Block.
+iron_buckler | common_relic_rules:50-55 combat_engine:3379-3430 | At player turn reset, retain the smaller of the existing Block and the relic's cap of 3.
+flint_edge | common_relic_rules:93-126 board_attack_rules:55-56 board_attack_rules:143-148 | Removes an elemental layer under the selected visible enemy's footprint before routing and adds 3 on the native hit.
+static_soles | surface_relic_rules:356-364 surface_relic_rules:443-452 combat_engine:11770-11772 | A qualifying displacement claims the turn flag, paints origin Electrified, and applies Vision for two activations.
+tailwind_fletching | game_data:1270-1298 game_data:1364-1367 game_data:1418-1427 | Air Push and Pull actions gain 1 damage and distance. Existing force riders on other actions gain the distance.
+frost_prism | combat_engine:6213-6239 surface_relic_rules:250-269 pattern_text:34-41 | After successful Ice Stagger, the Rubble cross is repeated for each tile in the enemy footprint.
+storm_capacitor | game_data:1270-1298 game_data:1418-1427 game_data:1447-1454 | A Lightning Ranged action with base or conditional Chain has 1 added to its Chain field.
+gale_tabi | surface_variety_relic_rules:129-138 tempo_rules:182-210 | Each successful Blink replaces the pending bonus with its distance capped at 4. The next qualifying attack can use it in the same card.
+anchor_chain | combat_engine:6510-6547 | While Block is positive, native Push and Pull actions gain 2 damage and 1 distance. Inline force riders receive distance.
+venom_signet | forced_relic_rules:16-23 combat_engine:5189-5203 board_attack_rules:159-179 | Positive enemy damage on Rubble gains 1, including the four named sources.
+thawing_charm | combat_engine:11855-11888 combat_engine:11773-11779 | Converts excess Healing to Stoneskin up to a running 8 this turn. The first positive conversion creates Light 1.
+ember_siphon | surface_variety_relic_rules:140-148 board_surface_rules:88-95 | The death reaction of an enemy on Fire spreads to cardinal neighbors outside its footprint that have no elemental ground.
+bloodglass_knife | combat_engine:11136-11154 | Attack damage gains 7 at no more than half Health and with zero Block and Stoneskin.
+cold_mirror | combat_engine:6213-6227 combat_engine:11563-11576 combat_engine:11753-11760 | A successful Ice-card Stagger with 4 or more Block spends the whole Block pool. The payout is one Crystal Mantle layer per 4 Block, up to two.
+thunder_relay | surface_relic_rules:73-74 surface_relic_rules:283-318 | The optional technique exchanges the first and last living native enemy contacts if the units and landing tiles permit the swap.
+thornmail_brooch | surface_relic_rules:67-70 surface_relic_rules:85-95 surface_relic_rules:165-168 surface_relic_rules:186-188 pattern_text:34-39 | The optional mode spends 4 Stoneskin, changes melee to an area cross centered on the chosen tile, then places Rubble on the same five offsets where legal.
+vaulting_sigil | surface_variety_relic_rules:200-220 combat_engine:7650-7657 | Move may travel through enemies and requests Stagger 2 once per traversed enemy. Occupied tiles remain unavailable as ordinary endpoints.
+obsidian_heart | combat_engine:1035-1038 combat_engine:11455-11470 | The opening deal has a -1 draw adjustment. End of turn converts remaining Block 1:1.
+storm_crown | board_attack_rules:218-227 illusion_relic_rules:321-341 illusion_relic_rules:285-286 | The recorded Chain route is traversed backward and surviving, unreflected contacts take half the recorded hit damage rounded down.
+phoenix_ember | combat_engine:11654-11696 combat_engine:11730-11735 combat_engine:11773-11779 combat_engine:12319-12323 | Adds a Defiance charge. A Defiance recovery grants Light 3, Fire under live footprints, Draw 3 and 3 Card Plays with normal resource rules.
+worldroot_idol | surface_relic_rules:75-76 surface_relic_rules:102-123 combat_engine:1455-1469 surface_relic_rules:172-173 | While on Rubble, the engine chooses the first connected origin that can deliver a selected Melee/Ranged shot. Resolution expends that origin.
+rimecatcher_vial | surface_relic_rules:234-269 surface_relic_rules:271-281 | A selected direction moves one surviving Ice tile when an Ice-card Stagger was recorded on that footprint.
+updraft_bottle | surface_relic_rules:54-66 surface_relic_rules:152-164 surface_relic_rules:200-232 | An opted-in native Push or Pull transfers surviving elemental ground from the original footprint by the target's actual displacement.
+basalt_calendar | surface_relic_rules:71-72 surface_relic_rules:98-100 surface_relic_rules:189-192 combat_engine:12575-12585 | The crush option changes a ground-fuel Burst to Rubble and paints Fire on each tile whose Rubble was actually removed.
+coalheart_crucible | surface_relic_rules:13-18 board_surface_rules:43-48 combat_engine:12381-12393 combat_engine:12453-12491 board_attack_rules:69-78 | Fire is a conductor with this relic and used Fire is consumed. The override is global, including enemy Lightning.
+tectonic_abacus | combat_engine:336-343 combat_engine:443-474 combat_engine:524-537 | Effective Light source counts of three and six lower effective Umbra by one and two stages, bounded by Clear.
+overflow_censer | surface_relic_rules:13-18 board_surface_rules:88-115 pattern_text:40-41 | A player-owned elemental overwrite paints the four adjacent otherwise element-free tiles without recursion.
+black_sun_dial | surface_variety_relic_rules:100-126 tempo_rules:182-210 | Counts source-tagged player Expend and Burst removals and adds 3 per event up to 9 pending. A new grant is unavailable within the granting card.
+duelist_whetstone | common_relic_rules:84-90 combat_engine:11104-11131 combat_engine:11164-11166 | Qualifying attacks on Move or Blink cards gain one damage per tile already traveled this turn, capped at three.
+chorus_mask | surface_variety_relic_rules:33-44 surface_variety_relic_rules:61-84 | Two different tracked elemental families enable the damage and Block bonus. A neutral play clears the sequence.
+hourglass_splinter | combat_engine:2113-2122 tempo_relic_rules:86-91 | Finished card payments of at least six Time give Quicken 2, using the Time actually charged.
+widow_thread | combat_engine:6510-6539 combat_engine:6553-6554 board_attack_rules:178-190 | With a living illusion, the supported attack types add Expose 1 as a rider.
+funeral_bell | surface_variety_relic_rules:14-15 surface_variety_relic_rules:140-157 | Two distinct persistent status fields among Expose, Shock and Immobilize spread to adjacent enemies. Stagger is stored separately as an initiative delay.
+bloodmoon_chalice | defense_relic_rules:90-109 combat_engine:1657-1659 tempo_rules:182-210 | Positive actual Health loss during the active turn queues +2 per Health up to +8 for the next qualifying attack this turn.
+fivefold_knot | surface_variety_relic_rules:56-88 surface_variety_relic_rules:90-98 | Counts unique elemental families including the current card. Pierce starts at three, Chain rises to at least one at four, and Block 3 is appended at five.
+borrowed_hourglass | tempo_relic_rules:17-42 combat_engine:2343-2350 | The first eligible turn end with an unused Card Play inserts a same-clock turn and carries former Time plus any Wait.
+briar_winch | surface_relic_rules:65-66 surface_relic_rules:96-97 surface_relic_rules:146-149 surface_relic_rules:169-171 | The redirect option requires Rubble under the targeted enemy, removes it, and admits sideward force directions.
+hourglass_awl | game_data:168-179 game_data:1364-1393 | Pierce threshold checks authored Time before the runtime price transforms.
+beaconrunner_spurs | surface_variety_relic_rules:161-189 combat_engine:7640-7647 | A paid step into active player-owned placed Light refunds one Movement while the turn refund count is below two.
+witchglass_carapace | combat_engine:4887-4909 | For enemy Ranged hits, the cap of 1 is applied to illusion damage after Expose.
+sunlit_edge | combat_engine:6510-6559 combat_engine:6478-6479 | Effective Light at the hero adds Pierce to native attack types.
+glassway_compass | illusion_relic_rules:42-87 combat_engine:1680-1688 combat_engine:7584-7601 | Eligible Move or Blink to an owned illusion trades endpoints without traversing the route.
+unclouded_sun | surface_variety_relic_rules:166-180 combat_engine:12212-12215 | Active player-owned placed Light centers become one-step Move links.
+ashen_brand | combat_engine:12528-12564 combat_engine:12604-12611 guardian_relic_rules:17-36 | Fire-ground Burst expands selected seeds to connected Fire. Overlapping crosses boost one hit by 25% of base per extra overlap, using the largest tile overlap on a footprint.
+winters_spur | guardian_relic_rules:38-48 board_surface_rules:170-178 combat_engine:3496-3515 | A straight Ice-to-Ice continuation subtracts one from the normal step cost. The initial step and Rubble departure costs can make the straight stretch cost more than one.
+resonant_clapper | board_attack_rules:126-131 combat_engine:12422-12439 combat_engine:12469-12486 guardian_relic_rules:17-18 | Planned native enemy hops add 25% per prior enemy hop. Empty relays and conduction-only contacts receive no hop count.
+galehook_talon | guardian_relic_rules:87-146 | Moves a touching, axis-aligned, eligible chain of enemies together. The front blocked member receives the mover-side collision.
+cragbound_gauntlet | game_data:1270-1298 game_data:1418-1427 board_attack_rules:26-26 board_attack_rules:256-259 | Earth Ranged and targeted area attacks get a 3-Health Outcrop rider on empty floor. Targetless self-centered areas do not select an empty floor target.
+procession_lantern | guardian_relic_rules:162-196 | An owned illusion can use the hero's remaining Movement through its normal navigation and spends the path's cost.
+crowncoal_heart | board_attack_rules:232-257 combat_engine:12506-12518 surface_relic_rules:399-406 | Once each turn a native enemy hit on eligible bare ground paints Fire. Terrain hits do not qualify. A separate turn charge rewards 2+ actual Fire tile removals in one Burst.
+worldheart | combat_engine:11455-11469 combat_engine:11508-11524 combat_engine:1736-1741 combat_engine:12292-12315 | Converts up to 2 Block at turn end. The damage pulse also runs on other positive Stoneskin gains and deals half the gain rounded down, capped at 4.
+unbound_pinion | surface_relic_rules:380-398 surface_relic_rules:432-452 combat_engine:11730-11737 | A qualifying enemy displacement of 2+ or a player-card collision claims a turn charge and refills Movement and draws 1.
+winters_hour | dragon_trophy_rules:11-28 dragon_trophy_rules:30-54 | The first normally played Ice card per turn refills a persistent reserve capped at three. Other card prices spend it down to a minimum of one.
+stormroad_coil | dragon_trophy_rules:56-81 dragon_trophy_rules:102-110 combat_engine:1642-1645 | If direct delivery fails, one visible Electrified relay is considered with normal range on both legs.
+eclipse_mantle | combat_engine:1981-1994 combat_engine:455-467 combat_engine:486-522 | The first successful Blink creates a 2-Health origin decoy if it can. Decoys emit radius-2 tethered Light while alive.
+recoil_plates | forced_relic_rules:45-54 forced_relic_rules:91-112 forced_relic_rules:136-138 | The hero's base Collision damage is 1 per lost tile as either party. Each qualifying contact grants 3 Block after collision damage.
+millstone_fob | forced_relic_rules:31-34 forced_relic_rules:127-135 | A hero-caused enemy mover collision lays Rubble at the stopping footprint after other collision effects.
+tallow_candle | common_relic_rules:11-15 combat_engine:5614-5640 | Creates a combat-lasting Light 2 source centered on the start tile.
+pocket_sundial | tempo_relic_rules:21-30 combat_engine:3539-3548 | When no normal Wait payment would be charged, the next queued turn is two Time earlier.
+leaden_pommel | game_data:168-179 game_data:1364-1393 board_attack_rules:174-190 | Adds one Stagger using the card's authored Time threshold, before final price adjustments.
+pitch_gloves | combat_engine:12153-12165 rite_rules:140-165 | Contact Fire applies the global -1 for the hero and +1 to enemies when the Fire source is player-owned.
+hobnail_cleats | combat_engine:12185-12186 combat_engine:6510-6519 combat_engine:1812-1813 surface_card_rules:391-415 | Ignores Ice contact Expose. The damage bonus checks the action type, which excludes White Silence.
+grounding_pin | combat_engine:6561-6595 board_attack_rules:39-45 | Native positive-damage single-target hits against an enemy on Electrified receive +1 Chain in the route.
+rubblewalker_greaves | surface_relic_rules:13-18 board_surface_rules:170-178 common_relic_rules:57-63 | Clears Rubble's extra departure cost for the hero and awards Stoneskin 1 on Rubble at turn start.
+grave_dirt | combat_engine:874-883 | Adds four Stoneskin to the initial player snapshot.
+waxen_effigy | common_relic_rules:16-46 | At opening picks the adjacent empty tile nearest a visible enemy, with a center-seeking fallback when none is visible.
+quick_draw_bandolier | item_relic_rules:15-27 combat_engine:2096-2096 combat_engine:2193-2196 | Items cost zero Card Plays and pay +1 Time after base discounts.
+briar_vambrace | common_relic_rules:65-82 combat_engine:1731-1735 combat_engine:11738-11746 maneuver_rules:657-662 | Pays Retaliate 1 once via the direct Block and selected reward hooks. Per-tile Block from Move bypasses those hooks.
+fencers_gloves | tempo_rules:52-75 | The second completed card's preview discounts its base Time by one down to the normal minimum.
+feint_ribbon | tempo_relic_rules:65-67 card_keyword_rules:55-78 | Two tiles traveled allow the first card to qualify for an authored Follow-up bonus.
+battering_yoke | forced_relic_rules:140-143 forced_relic_rules:169-183 | A hero-forced collision can move a surviving blocking enemy one more tile along the same direction and resolve normal collision.
+pendulum_weight | card_keyword_rules:218-242 tempo_relic_rules:103-110 | Damage equals the Stagger overflow above the cap after the target's standard Stagger resistance.
+martyrs_gorget | retaliate_rules:91-99 defense_relic_rules:111-115 | Block equals net Health removed by Retaliate's immediate damage step.
+reliquary_box | defense_relic_rules:117-136 rite_rules:174-181 tempo_rules:52-75 | Swaps a Rite into the opening deal if drawn outside it. Rites receive the one-Time discount.
+changelings_rattle | illusion_relic_rules:22-39 | An enemy credited with destroying an owned illusion gains requested Stagger 3 and Expose 2, subject to status rules.
+copper_shod_staff | illusion_relic_rules:147-175 board_attack_rules:232-238 surface_card_rules:367-377 combat_engine:12622-12642 | Normal Lightning attack routing virtualizes owned constructs and protects owned terrain. Discharge only reads real Electrified and still damages constructs in its Burst.
+ashen_phylactery | combat_engine:2119-2123 defense_relic_rules:138-144 | A non-Item card sent to the Exhaust pile awards Stoneskin equal to charged Time capped at five.
+bonded_set | surface_variety_relic_rules:45-55 surface_variety_relic_rules:61-79 | A card granted by equipped elemental gear gains +1 damage and Block when another equipped piece matches.
+overclock_coil | tempo_relic_rules:86-95 | A successfully Empowered card grants Quicken 2 at payment.
+fetter_spikes | forced_relic_rules:45-54 forced_relic_rules:56-64 | Doubles the base Collision damage against an Immobilized enemy, before independent Expose or other damage riders.
+masons_plumb | forced_relic_rules:25-43 forced_relic_rules:85-106 | Player-built outcrop kinds gain two Health. As protected blockers of an enemy collision, they take zero and add two damage to the enemy.
+breaking_wheel | forced_relic_rules:81-90 forced_relic_rules:127-130 forced_relic_rules:150-166 | The moving enemy's impact ground modifies the hit and applies listed riders. Then the elemental layer and Rubble are removed.
+hollow_puppet | illusion_relic_rules:92-129 illusion_relic_rules:130-144 combat_engine:7520-7535 | Legal aimed force avoids the attack's normal hit on the illusion. An enemy blocking the moved illusion triggers the Health shatter. A wall leaves normal collision damage in effect.
+toll_late_bell | tempo_relic_rules:25-30 tempo_relic_rules:44-63 | Adds 3 when the enemy is strictly after the projected normal player turn. The late test ignores Borrowed Hourglass's immediate next turn.
+rosary_of_vows | defense_relic_rules:164-169 | Grants two Block per active Rite at player turn reset.
+siege_ram_totem | forced_relic_rules:56-67 forced_relic_rules:107-110 | Requests Stagger equal to the calculated collision damage for the mover and any enemy blockers.
+echoing_blade | tempo_relic_rules:95-101 tempo_rules:182-210 tempo_rules:368-384 | After Follow-up, gives Quicken 1 and queues +2 for attack actions on the next card of the same turn.
+alchemists_retort | item_relic_rules:28-32 item_relic_rules:43-63 | Scales the named Item attack and resource values by 3/2 and rounds up.
+crown_of_surplus | tempo_relic_rules:81-84 card_keyword_rules:90-98 combat_engine:1610-1611 | Adds a three-Time Empower that repeats the first action where legal. Authored Empower, Rites, Items and legacy Flurry are excluded.
+mirror_triptych | illusion_relic_rules:179-194 illusion_relic_rules:196-233 illusion_relic_rules:257-309 board_attack_rules:159-161 | Chooses up to three live decoys that can reach a target, replays the first qualifying attack at half damage rounded down, and takes one Health per used decoy.
+liturgy_of_ash | defense_relic_rules:14-15 combat_engine:1126-1129 combat_engine:2096-2096 | Rites still resolve and pay Time, but cost zero Card Plays.
+pyre_keepers_urn | defense_relic_rules:138-140 defense_relic_rules:164-195 | Looks at the last unreturned non-Item Exhaust record. If eligible, it moves to the hand, or the draw pile at the hand cap.
+briar_throne | retaliate_rules:37-39 retaliate_rules:91-100 defense_relic_rules:17-66 combat_engine:11738-11740 | Preserves and grows Retaliate. Card and active Rite Block grants are suppressed by the defense transforms.
+whirling_sash | combat_engine:936-936 tempo_relic_rules:69-80 | Raises the Card Play capacity by one. Cards after two completed cards pay the two-Time surcharge.
+quartermasters_ledger | item_relic_rules:33-40 combat_engine:2073-2086 | Non-healing Items exhaust the physical card for combat instead of using it up permanently.

@@ -4,6 +4,7 @@ extends RefCounted
 ## integer rule results, never hashes standing in for equality. Player inputs
 ## are selected per definition; an unrelated status is not a text dependency.
 const Combat = preload("res://scripts/combat_engine.gd")
+const DefenseRules = preload("res://scripts/defense_relic_rules.gd")
 const Keywords = preload("res://scripts/card_keyword_rules.gd")
 const SPATIAL_FIELDS: Array = ["surfaces", "grid", "umbra", "illusions", "surface_rule_overrides"]
 const ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks", "destroy_illusion", "burst_terrain"]
@@ -34,7 +35,7 @@ static func for_definition(card: Dictionary, effects: Array) -> Array:
 	# Include possible keyword action edits; activation itself is in source.
 	actions.append_array(Keywords.actions_with_modifiers(card, {"follow_up": true, "empowered": true}))
 	for original: Dictionary in actions:
-		if str(original.get("type", "")) not in ATTACK_TYPES: continue
+		var attack: bool = str(original.get("type", "")) in ATTACK_TYPES
 		var blast: Dictionary = _engine().blast_action_for_player_action(original)
 		var action: Dictionary = original if blast.is_empty() else blast
 		var scale: Dictionary = action.get("scale_bonus", {})
@@ -48,15 +49,17 @@ static func for_definition(card: Dictionary, effects: Array) -> Array:
 			_add(dependencies, {"input": "cross", "action": original})
 		for effect: Dictionary in effects:
 			match str(effect.get("type", "")):
-				"glass_attack_bonus": _add(dependencies, {"input": "unprotected"})
-				"bloodied_attack_bonus": _add(dependencies, {"input": "half_health"})
-				"bloodied_glass_attack_bonus": _add(dependencies, {"input": "bloodied_glass"})
+				"glass_attack_bonus":
+					if attack: _add(dependencies, {"input": "unprotected"})
+				"bloodied_attack_bonus":
+					if attack: _add(dependencies, {"input": "half_health"})
+				"bloodied_glass_attack_bonus":
+					if attack: _add(dependencies, {"input": "bloodied_glass"})
 				"room_element_attack_bonus":
-					if str(action.get("_card_element", "none")) in ["fire", "ice", "lightning", "air", "earth"]:
+					if attack and str(action.get("_card_element", "none")) in ["fire", "ice", "lightning", "air", "earth"]:
 						_add(dependencies, {"input": "room_element"})
 				"player_state_action_mod":
-					var types: Array = effect.get("action_types", [])
-					if not types.is_empty() and not types.has(str(action.get("type", ""))): continue
+					if not DefenseRules.player_state_modifier_matches_action(effect, action): continue
 					if effect.has("element") and str(action.get("element", action.get("_card_element", "none"))) != str(effect["element"]): continue
 					var required: String = str(effect.get("requires_field", ""))
 					if not required.is_empty() and int(action.get(required, 0)) <= 0: continue

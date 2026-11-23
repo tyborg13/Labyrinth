@@ -9,6 +9,7 @@ const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
 const LAYOUT_REVISION: int = 7
+const SCOUT_MODES: Array = ["room", "combat", "pre_battle"]
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const ROOM_COUNTS: Array[int] = Array([10, 11, 11, 11, 11, 12], TYPE_INT, "", null)
@@ -1338,7 +1339,7 @@ static func scout_options(state: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	if not enabled(state) or int(section(state, active_section(state)).get("scouts", 0)) <= 0:
 		return result
-	if str(state.get("mode", "")) not in ["room", "combat", "pre_battle"]:
+	if str(state.get("mode", "")) not in SCOUT_MODES:
 		return result
 	for coord: Vector2i in descendants(state, state.get("current_room", Vector2i.ZERO)):
 		var node: Dictionary = room(state, coord)

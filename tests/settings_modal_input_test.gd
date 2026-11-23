@@ -117,16 +117,22 @@ func _test_pause() -> void:
 	await process_frame
 
 func _check_confirmation(context: String, panel: Control, background: Button) -> void:
-	_find_button(panel, "Restore Defaults").grab_focus()
+	var restore: Button = _find_button(panel, "Restore Defaults")
+	restore.grab_focus()
 	await _joy(JOY_BUTTON_A)
 	var confirmation: Control = panel.get("_confirmation_panel")
 	_expect(confirmation.is_visible_in_tree(), context + ": A opens Restore Defaults confirmation")
-	await _check_modal(context + " confirmation", panel, background, confirmation)
+	await _check_modal(context + " confirmation", panel, background, restore)
+	await _joy(JOY_BUTTON_A)
+	_expect(confirmation.is_visible_in_tree(), context + ": A reopens confirmation before B")
 	await _joy(JOY_BUTTON_B)
-	_expect(panel.visible and not confirmation.visible, context + ": B cancels confirmation and keeps Settings open")
+	_expect(panel.visible and not confirmation.visible and restore.has_focus(), context + ": B dismisses only confirmation and restores focus")
+	await _joy(JOY_BUTTON_A)
+	_expect(confirmation.is_visible_in_tree(), context + ": A reopens confirmation before Esc")
+	await _key(KEY_ESCAPE)
+	_expect(panel.visible and not confirmation.visible and restore.has_focus(), context + ": Esc dismisses only confirmation and restores focus")
 
-func _check_modal(context: String, panel: Control, background: Button, focus_scope: Control = null) -> void:
-	if focus_scope == null: focus_scope = panel
+func _check_modal(context: String, panel: Control, background: Button, restore: Button = null) -> void:
 	var counters := {"hover": 0, "focus": 0, "press": 0}
 	var hovered := func() -> void: counters["hover"] += 1
 	var focused := func() -> void: counters["focus"] += 1
@@ -134,6 +140,10 @@ func _check_modal(context: String, panel: Control, background: Button, focus_sco
 	background.mouse_entered.connect(hovered)
 	background.focus_entered.connect(focused)
 	background.pressed.connect(pressed)
+	var confirmation: Control = null
+	if restore != null:
+		confirmation = panel.get("_confirmation_panel")
+		await _check_controller_focus(context, confirmation, background, counters)
 
 	var point: Vector2 = background.get_global_rect().get_center()
 	_expect(root.get_visible_rect().has_point(point) and not panel.get_global_rect().has_point(point),
@@ -158,8 +168,17 @@ func _check_modal(context: String, panel: Control, background: Button, focus_sco
 	_expect(not hover_state and not highlight and counters["hover"] == 0 and counters["press"] == 0 and hover_cues == 0,
 		context + ": pointer hover and click must leave the background button inert")
 	_expect(valid_cues == 0 and invalid_cues == 0, context + ": outside clicks must be silent")
-	_expect(focus_after_hover == focus_before and focus_after_click == focus_before, context + ": outside pointer events must preserve focus")
+	if confirmation != null:
+		_expect(focus_after_hover == focus_before and focus_after_click == restore, context + ": backdrop hover preserves focus and click restores focus to Restore Defaults")
+		_expect(panel.visible and not confirmation.visible, context + ": backdrop click dismisses only confirmation")
+	else:
+		_expect(focus_after_hover == focus_before and focus_after_click == focus_before, context + ": outside pointer events must preserve focus")
+		await _check_controller_focus(context, panel, background, counters)
+	background.mouse_entered.disconnect(hovered)
+	background.focus_entered.disconnect(focused)
+	background.pressed.disconnect(pressed)
 
+func _check_controller_focus(context: String, focus_scope: Control, background: Button, counters: Dictionary) -> void:
 	var focus_moved: bool = false
 	var controller_inside: bool = true
 	for button: JoyButton in [JOY_BUTTON_DPAD_UP, JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]:
@@ -171,10 +190,7 @@ func _check_modal(context: String, panel: Control, background: Button, focus_sco
 	print("%s / %s controller: moved=%s inside=%s background_focus=%d pressed=%d" %
 		[context, background.name, focus_moved, controller_inside, counters["focus"], counters["press"]])
 	_expect(focus_moved and controller_inside and counters["focus"] == 0 and counters["press"] == 0,
-		context + ": controller moves focus within Settings without activating the background")
-	background.mouse_entered.disconnect(hovered)
-	background.focus_entered.disconnect(focused)
-	background.pressed.disconnect(pressed)
+		context + ": controller moves focus within the active modal without activating the background")
 
 func _find_button(scope: Control, label: String) -> Button:
 	for button: Button in scope.find_children("*", "Button", true, false):

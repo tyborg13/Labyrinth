@@ -7,7 +7,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = Path("/private/tmp/labyrinth_codex/tip-05/capture")
-LOOPS = ("burst_ember_tick", "marked_burrow_grub", "chain_card", "splits_cinder_ooze", "collision_push", "retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "freeze_status", "rule_gust", "rule_frostbite", "rule_wildfire", "rule_shadowstep", "rule_upheaval")
+LOOPS = ("burst_ember_tick", "marked_burrow_grub", "chain_card", "splits_cinder_ooze", "collision_push", "retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "stagger", "rule_gust", "rule_wildfire", "rule_shadowstep", "rule_upheaval")
 CAPTURE_TIMEOUT_SECONDS = 180  # Two opens per scene, sixteen loops and the unchanged ten-second expiry.
 
 
@@ -17,9 +17,9 @@ def main():
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
     if args.check_only:
-        return subprocess.call(["python3", "tools/godot_task_runner.py", "--task-id", "tip-05", "--stream", "--", args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/capture.gd", "--check-only"], cwd=ROOT)
+        return subprocess.call(["python3", "tools/godot_task_runner.py", "--task-id", "tip-05", "--stream", "--", args.godot, "--headless", "--path", ".", "--script", "tools/tooltip_loops/capture.gd", "--", "--semantics-only"], cwd=ROOT)
     codes = []
-    for order in ("freeze-first", "freeze-last"):
+    for order in ("stagger-first", "stagger-last"):
         destination = OUTPUT / order
         env = os.environ.copy()
         env.update(TOOLTIP_LOOP_IDS=",".join(LOOPS), TOOLTIP_LOOP_ORDER=order, TOOLTIP_LOOP_CAPTURE_OUT=str(destination))

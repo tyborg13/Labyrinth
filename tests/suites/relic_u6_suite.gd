@@ -86,7 +86,7 @@ static func _test_puppet(e: RefCounted, check: Callable) -> void:
 	wall["player"]["pos"] = Vector2i(3, 2)
 	wall = e._create_illusion(wall, Vector2i(2, 2), 9)
 	wall = preview_commit(e, wall, action, Vector2i(2, 2), check, "Puppet wall")
-	check.call(hp(e, wall, "illusion", 1) == 7 and wall["illusions"][0]["pos"] == Vector2i(1, 2), "Puppet wall collision obeys normal lost-tile damage")
+	check.call(hp(e, wall, "illusion", 1) == 9 and wall["illusions"][0]["pos"] == Vector2i(1, 2), "Puppet wall collision leaves the moved Illusion unharmed")
 static func _test_glassway(e: RefCounted, check: Callable) -> void:
 	for type: String in ["move", "blink"]:
 		var s: Dictionary = state(e, ["glassway_compass"])
@@ -181,14 +181,14 @@ static func _test_triptych(e: RefCounted, check: Callable) -> void:
 	var s: Dictionary = state(e, ["mirror_triptych"])
 	for tile: Vector2i in [Vector2i(3, 3), Vector2i(3, 5), Vector2i(6, 5), Vector2i(1, 1)]: s = e._create_illusion(s, tile, 3)
 	s["deck"]["hand"] = ["w4c_fx_shot", "w4c_fx_shot"]
-	var action: Dictionary = {"type": "ranged", "range": 3, "damage": 5, "bleed": 9, "surface": "fire", "_card_id": "w4c_fx_shot"}
+	var action: Dictionary = {"type": "ranged", "range": 3, "damage": 5, "surface": "fire", "_card_id": "w4c_fx_shot"}
 	var resolved: Dictionary = preview_commit(e, s, action, Vector2i(4, 4), check, "Triptych primary")
 	var trace: Dictionary = {"echoes": []}
 	var forecast: Dictionary = Rules.finish_echoes(e, resolved.duplicate(true), trace)
 	var commit: Dictionary = e.finish_player_card(resolved, 0)
 	check.call(hp(e, forecast, "enemy", 1) == hp(e, commit, "enemy", 1) and trace["echoes"].size() == 3, "Triptych forecasts three sequential half-damage echoes")
 	check.call(hp(e, commit, "illusion", 1) == 2 and hp(e, commit, "illusion", 2) == 2 and hp(e, commit, "illusion", 3) == 2 and hp(e, commit, "illusion", 4) == 3, "Triptych nearest illusions wear down; cap excludes distant fourth")
-	check.call(hp(e, commit, "enemy", 1) == 21 and hp(e, commit, "enemy", 2) == 28, "Triptych nearest targets take floor(5/2), without extra Fire or Bleed")
+	check.call(hp(e, commit, "enemy", 1) == 21 and hp(e, commit, "enemy", 2) == 28, "Triptych nearest targets take floor(5/2), without extra Fire")
 	var resumed: Dictionary = bytes_to_var(var_to_bytes(commit)) as Dictionary
 	resumed = e.apply_player_action(resumed, action, Vector2i(4, 4))
 	resumed = e.finish_player_card(resumed, 0)
@@ -230,10 +230,11 @@ static func _test_copper(e: RefCounted, check: Callable) -> void:
 static func _test_rebound(e: RefCounted, check: Callable) -> void:
 	var s: Dictionary = state(e, ["storm_crown"])
 	s["enemies"][1]["pos"] = Vector2i(5, 4); s["enemies"][2]["pos"] = Vector2i(6, 4)
-	var action: Dictionary = {"type": "ranged", "range": 3, "damage": 5, "chain": 1, "bleed": 2, "element": "lightning"}
+	var action: Dictionary = {"type": "ranged", "range": 3, "damage": 5, "chain": 1, "expose": 2, "shock": 2, "element": "lightning"}
 	var result: Dictionary = preview_commit(e, s, action, Vector2i(4, 4), check, "Crown")
 	for id: int in [1,2,3]:
-		check.call(hp(e, result, "enemy", id) == 23 and int(e._surface_actor(result, "enemy", id).get("bleed", 0)) == 2, "Crown rebounds once per enemy at floor half without reapplying riders")
+		var enemy: Dictionary = e._surface_actor(result, "enemy", id)
+		check.call(hp(e, result, "enemy", id) == 23 and int(enemy.get("expose", 0)) == 2 and int(enemy.get("shock", 0)) == 2, "Crown rebounds once per enemy at floor half, leaving Expose and Shock in place")
 	var trace: Array = e.resolve_player_action_for_presentation(s, action, Vector2i(4, 4))["chain_hits"]
 	check.call(trace.size() == 6 and int(trace[3].get("enemy_id", -1)) == 3 and int(trace[-1].get("enemy_id", -1)) == 1, "Crown animation trace reverses route")
 	var ordinary: Dictionary = action.duplicate(true); ordinary.erase("chain")
@@ -254,21 +255,21 @@ static func _test_integration_edges(e: RefCounted, check: Callable) -> void:
 	s = e._create_illusion(s, Vector2i(3, 4), 1)
 	s = e._damage_illusion(s, 1, 1)
 	check.call(hp(e, s, "enemy", 1) == 27, "Mirror Shard large footprints take one shatter hit")
-	# Pull uses ordinary direction choice; health spent en route reduces its payload.
+	# Pull uses ordinary direction choice and preserves the payload through Fire.
 	s = state(e, ["hollow_puppet", "mirror_shard"])
 	s["enemies"][0]["pos"] = Vector2i(5, 3)
 	s = e._create_illusion(s, Vector2i(7, 3), 7)
 	Surface.place(s, Vector2i(6, 3), "fire")
 	var pull: Dictionary = {"type": "pull", "range": 7, "amount": 3, "damage": 99, "force_direction": Vector2i.LEFT}
 	s = preview_commit(e, s, pull, Vector2i(7, 3), check, "Puppet Pull through Fire")
-	check.call(hp(e, s, "illusion", 1) == 0 and hp(e, s, "enemy", 1) == 22, "Puppet collision uses five remaining health plus separate three-point Shard")
-	# Illusion blockers still get the ordinary collision, and AOE has no extra targets.
+	check.call(hp(e, s, "illusion", 1) == 0 and hp(e, s, "enemy", 1) == 20, "Puppet collision uses seven remaining Health plus the separate three-point Shard")
+	# Illusion blockers still take collision damage. The moved Illusion is protected.
 	s = state(e, ["hollow_puppet"])
 	s["enemies"][0]["pos"] = Vector2i(4, 2)
 	s = e._create_illusion(s, Vector2i(3, 4), 9)
 	s = e._create_illusion(s, Vector2i(4, 4), 9)
 	s = preview_commit(e, s, {"type": "push", "range": 3, "amount": 2}, Vector2i(3, 4), check, "Puppet illusion blocker")
-	check.call(hp(e, s, "illusion", 1) == 5 and hp(e, s, "illusion", 2) == 5, "Puppet preserves ordinary collision against another illusion")
+	check.call(hp(e, s, "illusion", 1) == 9 and hp(e, s, "illusion", 2) == 5, "Puppet protects the moved Illusion during an Illusion collision")
 	# Swap ordering is observable in Fire contact events, even when the illusion dies.
 	s = state(e, ["glassway_compass", "mirror_shard"])
 	s = e._create_illusion(s, Vector2i(3, 4), 1)
@@ -322,23 +323,24 @@ static func _test_integration_edges(e: RefCounted, check: Callable) -> void:
 	check.call(hp(e, s, "illusion", 1) == 4, "Triptych waits until all actions finish")
 	s = e.finish_player_card(s, 0)
 	check.call(hp(e, s, "enemy", 1) == 23 and hp(e, s, "enemy", 2) == 21 and hp(e, s, "illusion", 1) == 3, "Triptych repeats only the first attack of a multiple-attack card")
-	# Half after target damage modifiers; Expose and Freeze do not apply twice.
+	# The echo halves damage after adding Expose once.
 	s = state(e, ["mirror_triptych"])
 	s["enemies"][1]["pos"] = Vector2i(5, 5)
-	s["enemies"][1]["expose"] = 2; s["enemies"][1]["freeze"] = 1
+	s["enemies"][1]["expose"] = 2
 	s = e._create_illusion(s, Vector2i(5, 6), 2)
 	s["deck"]["hand"] = ["w4c_fx_shot"]
 	s = e.finish_player_card(e.apply_player_action(s, attack, Vector2i(4, 4)), 0)
-	check.call(hp(e, s, "enemy", 2) == 20, "Triptych halves full (5+2)*3 damage with floor rounding")
+	check.call(hp(e, s, "enemy", 2) == 27, "Triptych halves 5 plus Expose 2 with floor rounding")
 	# No surface or status rider is duplicated, but first-action forces are.
 	s = state(e, ["mirror_triptych"])
 	s["enemies"][0]["pos"] = Vector2i(4, 3)
 	s = e._create_illusion(s, Vector2i(3, 3), 3)
 	s["deck"]["hand"] = ["w4c_fx_shot"]
 	var forced: Dictionary = attack.duplicate(true)
-	forced["push"] = 1; forced["bleed"] = 4; forced["surface"] = "fire"
+	forced["push"] = 1; forced["expose"] = 4; forced["shock"] = 1; forced["surface"] = "fire"
 	s = e.finish_player_card(e.apply_player_action(s, forced, Vector2i(4, 3)), 0)
-	check.call(s["enemies"][0]["pos"] == Vector2i(6, 3) and int(s["enemies"][0].get("bleed", 0)) == 4 and not Surface.has_surface(s, Vector2i(5, 3), "fire"), "Triptych echoes Push once, without Bleed or Fire rider")
+	check.call(s["enemies"][0]["pos"] == Vector2i(6, 3) and int(s["enemies"][0].get("expose", 0)) == 0 and not Surface.has_surface(s, Vector2i(5, 3), "fire"), "Triptych echoes Push once and spends Expose without restoring Expose or placing Fire")
+	check.call(int(s["enemies"][0].get("shock", 0)) == 1, "Triptych applies Shock only on the primary hit")
 	# Chain relay gaps require both virtual constructs; no real ground is authored.
 	s = state(e, ["copper_shod_staff"])
 	s["enemies"][1]["pos"] = Vector2i(8, 4)
@@ -360,10 +362,11 @@ static func _test_integration_edges(e: RefCounted, check: Callable) -> void:
 	# No direct-hit amplification, riders or hop growth apply to the return.
 	s = state(e, ["storm_crown", "resonant_clapper"])
 	s["enemies"][1]["pos"] = Vector2i(5, 4); s["enemies"][2]["pos"] = Vector2i(6, 4)
-	s["enemies"][0]["expose"] = 2; s["enemies"][0]["freeze"] = 1
+	s["enemies"][0]["expose"] = 2
 	bolt["damage"] = 5; bolt["chain"] = 1
 	result = preview_commit(e, s, bolt, Vector2i(4, 4), check, "Crown exact return")
-	check.call(hp(e, result, "enemy", 1) == 0 and hp(e, result, "enemy", 2) == 21 and hp(e, result, "enemy", 3) == 18, "Crown half-damage return preserves original hop scaling and does not amplify again")
+	var return_health: Array[int] = [hp(e, result, "enemy", 1), hp(e, result, "enemy", 2), hp(e, result, "enemy", 3)]
+	check.call(return_health == [20, 21, 18], "Crown half-damage return preserves hop scaling and spends Expose once (Health %s)" % str(return_health))
 	# Pure conduction without native Chain never rebounds.
 	s = state(e, ["storm_crown"])
 	Surface.place(s, Vector2i(4, 4), "electrified")

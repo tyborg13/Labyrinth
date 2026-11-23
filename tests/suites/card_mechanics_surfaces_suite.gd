@@ -10,6 +10,9 @@ const Surface = preload("res://scripts/board_surface_rules.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
+const FaceSpec = preload("res://scripts/card_face_spec.gd")
+const SurfaceVarietyRules = preload("res://scripts/surface_variety_relic_rules.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 
 const NO_TARGET: Vector2i = Vector2i(-1, -1)
@@ -38,13 +41,8 @@ const FIXTURES: Dictionary = {
 	"w4a_fx_frost_circuit": {"element": "ice", "actions": [{"type": "convert_surface", "range": 3, "surface": "ice", "to": "electrified", "connected": true, "damage": 2, "element": "lightning", "shock": 1}], "time": 3},
 	"w4a_fx_discharge": {"element": "lightning", "actions": [{"type": "discharge", "range": 4, "damage": 4, "element": "lightning"}], "time": 5},
 	"w4a_fx_grounding": {"element": "earth", "actions": [{"type": "consume_surface", "surface": "electrified", "target": "player", "pattern": DIAMOND2, "min_consumed": 1, "rewards": [{"type": "stoneskin", "amount": 2, "per_tile": true, "max": 8}]}], "time": 3},
-	"w4a_fx_hush": {"element": "ice", "actions": [{"type": "ranged", "damage": 5, "range": 4, "element": "ice", "on_result": {"when": "froze", "rewards": [{"type": "draw", "amount": 2}]}}], "time": 5},
-	"w4a_fx_frozen_bite": {"element": "ice", "actions": [{"type": "melee", "damage": 4, "range": 1, "element": "ice", "on_result": {"when": "froze", "rewards": [{"type": "card_play", "amount": 1}]}}], "time": 3},
 	"w4a_fx_headsman": {"actions": [{"type": "ranged", "damage": 3, "range": 3, "element": "none", "on_result": {"when": "killed", "rewards": [{"type": "card_play", "amount": 1}, {"type": "draw", "amount": 1}]}}], "time": 2},
-	"w4a_fx_shatter": {"element": "ice", "actions": [{"type": "ranged", "damage": 5, "range": 3, "element": "ice", "frozen_splash": 5}], "time": 5},
-	"w4a_fx_shatter_swing": {"actions": [{"type": "melee", "damage": 8, "range": 1, "element": "none", "frozen_splash": 4}], "time": 6},
 	"w4a_fx_stoke": {"element": "fire", "actions": [{"type": "all_enemies", "selector": "on_fire", "damage": 3, "element": "fire"}], "time": 4},
-	"w4a_fx_white_silence": {"element": "ice", "actions": [{"type": "all_enemies", "selector": "chilled", "damage": 4, "element": "ice"}], "time": 8},
 	"w4a_fx_searing": {"actions": [{"type": "all_enemies", "selector": "in_light", "damage": 3}], "time": 5},
 	"w4a_fx_glare": {"actions": [{"type": "all_enemies", "selector": "in_light", "range": 4, "damage": 0, "expose": 3}, {"type": "draw", "amount": 1}], "time": 3},
 	"w4a_fx_static_sweep": {"element": "lightning", "actions": [{"type": "all_enemies", "selector": "on_electrified", "damage": 2, "element": "lightning"}], "time": 3},
@@ -55,7 +53,7 @@ const FIXTURES: Dictionary = {
 	"w4a_fx_fault_strike": {"element": "earth", "actions": [{"type": "melee", "damage": 9, "range": 1, "element": "earth", "surface": "rubble", "surface_pattern": LINE3, "surface_follows_facing": true}], "time": 6},
 	"w4a_fx_fault_plain": {"element": "earth", "actions": [{"type": "melee", "damage": 9, "range": 1, "element": "earth", "surface": "rubble", "surface_pattern": LINE3}], "time": 6},
 	"w4a_fx_flash_powder": {"actions": [{"type": "aoe", "damage": 0, "range": 3, "pattern": DIAMOND2, "rotate": false, "element": "none", "expose": 2, "illuminate_radius": 3, "illuminate_duration": 2}], "time": 3},
-	"w4a_fx_caltrops": {"element": "earth", "actions": [{"type": "aoe", "damage": 0, "range": 2, "pattern": CROSS, "rotate": false, "element": "earth", "bleed": 2, "surface": "rubble"}], "time": 3},
+	"w4a_fx_caltrops": {"element": "earth", "actions": [{"type": "aoe", "damage": 0, "range": 2, "pattern": CROSS, "rotate": false, "element": "earth", "expose": 2, "status_only": true, "surface": "rubble"}], "time": 3},
 }
 
 static func run(expect: Callable) -> void:
@@ -73,9 +71,9 @@ static func run(expect: Callable) -> void:
 	_test_convert_surface(engine, expect)
 	_test_discharge(engine, expect)
 	_test_consume_surface_per_tile(engine, expect)
-	_test_on_result_froze(engine, expect)
+	_test_on_result_on_ice(engine, expect)
 	_test_on_result_killed(engine, expect)
-	_test_frozen_splash(engine, expect)
+	_test_ice_burst(engine, expect)
 	_test_all_enemies_selectors(engine, expect)
 	_test_all_enemies_visibility_and_range(engine, expect)
 	_test_ignore_los_and_shock_all_hits(engine, expect)
@@ -85,6 +83,17 @@ static func run(expect: Callable) -> void:
 	_test_zero_damage_areas(engine, expect)
 	_test_presentation_contracts(engine, expect)
 	_test_run_scene_contracts(engine, expect)
+	_test_squall_card(engine, expect)
+	_test_tectonic_maul_card(engine, expect)
+	_test_worldroot_stride_card(engine, expect)
+	_test_frost_circuit_card(engine, expect)
+	_test_grounding_card(engine, expect)
+	_test_skate_card(engine, expect)
+	_test_stoke_card(engine, expect)
+	_test_squall_chain_origin(engine, expect)
+	_test_frost_circuit_umbra_hover(engine, expect)
+	_test_stoke_umbra_confirmation(engine, expect)
+	_test_skate_at_zero_movement(engine, expect)
 	_remove_fixtures()
 
 # ------------------------------------------------------------------ fixtures
@@ -200,6 +209,227 @@ static func _preview_matches(engine: CombatEngine, state: Dictionary, action: Di
 		and preview.get("illusions", []) == committed.get("illusions", [])
 	)
 
+static func _test_squall_card(engine: CombatEngine, expect: Callable) -> void:
+	var center: Vector2i = PLAYER + RIGHT * 2
+	var state: Dictionary = _state(engine, [_enemy(1, center - RIGHT), _enemy(2, center), _enemy(3, center + RIGHT)])
+	var action: Dictionary = _action(engine, "squall_shot")
+	var after: Dictionary = _play(engine, state, "squall_shot", [center])
+	for id: int in [1, 2, 3]:
+		expect.call(_unit(after, id).get("pos") == center + RIGHT * id and _hp(after, id) == 28,
+			"Squall hits enemy %d once and pushes away from the player, farthest first" % id)
+	expect.call(_preview_matches(engine, state, action, center), "Squall preview agrees with player-origin Push")
+
+static func _test_tectonic_maul_card(engine: CombatEngine, expect: Callable) -> void:
+	var target: Vector2i = PLAYER + RIGHT
+	var state: Dictionary = _state(engine, [_enemy(1, target, 60)])
+	var actions: Array = engine.card_play_actions("tectonic_maul", state)
+	expect.call(actions.size() == 1 and actions[0].get("type") == "melee", "Tectonic Maul has no Move step")
+	for on_rubble: bool in [false, true]:
+		var before: Dictionary = state.duplicate(true)
+		if on_rubble:
+			Surface.place(before, target, "rubble")
+			(before["enemies"][0] as Dictionary)["expose"] = 2
+		var after: Dictionary = _play(engine, before, "tectonic_maul", [target])
+		expect.call(_hp(after, 1) == (41 if on_rubble else 47), "Tectonic Maul strikes once for 13, with +4 on existing Rubble before Expose")
+		expect.call(after["player"]["pos"] == PLAYER and Surface.has_surface(after, target + RIGHT, "rubble"),
+			"Tectonic Maul leaves the Rubble cross without moving the player")
+		expect.call(_preview_matches(engine, before, actions[0], target), "Tectonic Maul preview includes the same damage and Rubble")
+
+static func _test_worldroot_stride_card(engine: CombatEngine, expect: Callable) -> void:
+	var destination: Vector2i = PLAYER + RIGHT * 3
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(8, 8))])
+	for on_rubble: bool in [false, true]:
+		var before: Dictionary = state.duplicate(true)
+		if on_rubble:
+			Surface.place(before, destination, "rubble")
+		var after: Dictionary = _play(engine, before, "worldroot_stride", [destination])
+		expect.call(after["player"]["pos"] == destination and int(after["player"]["stoneskin"]) == 6,
+			"Worldroot Stride moves 3 and grants exactly 6 Stoneskin on either ground")
+		expect.call(Surface.has_surface(after, destination, "rubble") and not Surface.has_surface(after, PLAYER, "rubble"),
+			"Worldroot Stride leaves Rubble at the destination")
+
+static func _test_frost_circuit_card(engine: CombatEngine, expect: Callable) -> void:
+	var target: Vector2i = PLAYER + RIGHT * 2
+	var connected: Vector2i = target + RIGHT * 2
+	var separate: Vector2i = target + DOWN * 2
+	var state: Dictionary = _state(engine, [_enemy(1, target), _enemy(2, connected), _enemy(3, separate)])
+	_paint(state, [target + RIGHT, connected, separate], "ice")
+	var action: Dictionary = _action(engine, "frost_circuit")
+	var targets: Array[Vector2i] = engine.valid_targets_for_player_action(state, action)
+	expect.call(targets.has(target) and not targets.has(connected), "Frost Circuit can target bare ground while retaining range 3")
+	var bare: Dictionary = _play(engine, state, "frost_circuit", [target])
+	expect.call(Surface.has_surface(bare, target, "electrified") and _hp(bare, 1) == 28 and int(_unit(bare, 1).get("shock", 0)) == 1,
+		"Frost Circuit Electrifies, deals 2 and Shocks on bare ground")
+	expect.call(Surface.has_surface(bare, connected, "ice") and _hp(bare, 2) == 30, "Bare Frost Circuit does not spread into adjacent Ice")
+	expect.call(_preview_matches(engine, state, action, target), "Bare Frost Circuit preview matches resolution")
+	var fire: Dictionary = state.duplicate(true)
+	Surface.place(fire, target, "fire")
+	fire = _play(engine, fire, "frost_circuit", [target])
+	expect.call(Surface.has_surface(fire, target, "electrified") and not Surface.has_surface(fire, target, "fire"),
+		"Frost Circuit replaces Fire on the chosen tile")
+	var conversion: Dictionary = (fire["surface_events"] as Array).back()
+	expect.call(conversion.get("kind") == "surface_converted" and conversion.get("from_surface") == "fire",
+		"Frost Circuit conversion records the prior surface")
+	Surface.place(state, target, "ice")
+	var ice: Dictionary = _play(engine, state, "frost_circuit", [target])
+	expect.call(Surface.has_surface(ice, connected, "electrified") and _hp(ice, 2) == 28 and int(_unit(ice, 2).get("shock", 0)) == 1,
+		"Frost Circuit spreads damage and Shock over connected Ice beyond casting range")
+	expect.call(Surface.has_surface(ice, separate, "ice") and _hp(ice, 3) == 30, "Frost Circuit leaves disconnected Ice alone")
+	expect.call(_preview_matches(engine, state, action, target), "Connected Frost Circuit preview matches resolution")
+
+static func _test_grounding_card(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(8, 8))])
+	var action: Dictionary = _action(engine, "grounding")
+	var outside: Vector2i = PLAYER + RIGHT * 3
+	Surface.place(state, outside, "electrified")
+	expect.call(engine.player_action_can_resolve(state, action), "Grounding can be played without Electrified in range")
+	for count: int in range(4):
+		if count > 0:
+			Surface.place(state, PLAYER + [RIGHT, DOWN, -RIGHT][count - 1], "electrified")
+		var after: Dictionary = _play(engine, state, "grounding")
+		expect.call(int(after["player"]["stoneskin"]) == mini(3 + count * 3, 9), "Grounding gains 3 plus 3 per removed tile, capped at 9 (%d tiles)" % count)
+		expect.call(Surface.tiles(after, "electrified") == [outside], "Grounding removes all Electrified within 2 even at the cap")
+		expect.call(_preview_matches(engine, state, action, NO_TARGET), "Grounding preview agrees for %d tiles" % count)
+
+static func _test_skate_card(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(8, 8))])
+	var destination: Vector2i = PLAYER + RIGHT * 4
+	for x: int in range(1, 5):
+		Surface.place(state, PLAYER + RIGHT * x, "ice")
+	var after: Dictionary = _play(engine, state, "skate", [destination])
+	expect.call(ManeuverRules.player_skating(after) and after["player"]["pos"] == destination,
+		"Skate sets its turn flag before moving across free Ice")
+	expect.call(int(after["player"].get("expose", 0)) == 0, "Ice entry applies no Expose during Skate")
+	var flags_active: Dictionary = engine._surface_contact(after, "player", -1, destination, true)
+	expect.call(int(flags_active["player"].get("expose", 0)) == 0,
+		"Skate guards Ice contact, including the start-contact path, while active")
+	var ended: Dictionary = engine.prepare_player_activation_end(flags_active)
+	expect.call(not ManeuverRules.player_skating(ended), "Skate expires when the activation ends")
+	ended = engine._surface_contact(ended, "player", -1, destination, true)
+	expect.call(int(ended["player"].get("expose", 0)) == Surface.ICE_EXPOSE, "Ice applies Expose again after Skate ends")
+	expect.call(FaceSpec.faces().has("skate"), "Skate has the v5 sentence face for Ice Expose immunity")
+
+static func _test_stoke_card(engine: CombatEngine, expect: Callable) -> void:
+	var bare: Vector2i = PLAYER + RIGHT
+	var burning: Vector2i = PLAYER + DOWN
+	var large: Vector2i = Vector2i(5, 5)
+	var state: Dictionary = _state(engine, [_enemy(1, bare), _enemy(2, burning), _large(3, large)])
+	var action: Dictionary = _action(engine, "stoke")
+	expect.call(engine.player_action_can_resolve(state, action), "Stoke is playable with visible enemies on bare ground")
+	_paint(state, [burning, large + RIGHT, large + DOWN], "fire")
+	(state["enemies"][1] as Dictionary)["expose"] = 2
+	var after: Dictionary = _play(engine, state, "stoke")
+	expect.call(_hp(after, 1) == 28 and _hp(after, 2) == 23 and _hp(after, 3) == 35,
+		"Stoke deals 2 off Fire and 5 on Fire, including a large enemy spanning two Fire tiles")
+	expect.call(Surface.has_surface(after, burning, "fire"), "Stoke preserves the Fire")
+	expect.call(_preview_matches(engine, state, action, NO_TARGET), "Stoke preview agrees on both damage totals")
+	var strike: Dictionary = (after["surface_events"] as Array).back()
+	expect.call(strike.get("kind") == "selector_strike" and strike.get("damage") == 2
+		and strike.get("bonus_enemy_ids") == [2, 3] and strike.get("bonus_damage") == 3,
+		"Stoke records which enemies took the additive Fire bonus")
+	state["enemies"][1]["type"] = "iskaldra"
+	state["enemies"][1]["frost_armor"] = 1
+	var guarded: Dictionary = _play(engine, state, "stoke")
+	expect.call(_hp(guarded, 2) == 30 and int(_unit(guarded, 2).get("frost_armor", -1)) == 0,
+		"One Crystal Mantle layer absorbs Stoke's entire Fire hit")
+
+static func _test_squall_chain_origin(engine: CombatEngine, expect: Callable) -> void:
+	var hero := Vector2i(2, 4)
+	var target := Vector2i(3, 5)
+	var hop := Vector2i(5, 5)
+	var next_hop := Vector2i(7, 4)
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(3, 4)), _enemy(2, hop), _enemy(3, next_hop)], hero)
+	state["relics"] = ["fivefold_knot"]
+	state[SurfaceVarietyRules.KNOTS] = ["fire", "ice", "earth"]
+	var action: Dictionary = _action(engine, "squall_shot", 0, state)
+	expect.call(int(action.get("chain", 0)) == 1, "Fivefold Knot gives Squall Chain 1 in the fixture")
+	var forecast: Dictionary = engine.surface_preview_for_player_action(state, action, target)["state"]
+	var cast: Dictionary = _play(engine, state, "squall_shot", [target])
+	expect.call(_unit(forecast, 2).get("pos") == hop + RIGHT * 2 and _unit(cast, 2).get("pos") == hop + RIGHT * 2,
+		"Squall's chained Push is away from the hero in forecast and resolution")
+	expect.call(_hp(forecast, 3) == 28 and _hp(cast, 3) == 28,
+		"Squall's Chain forecast searches for the next hop from the hero-origin push destination")
+
+static func _test_frost_circuit_umbra_hover(engine: CombatEngine, expect: Callable) -> void:
+	var hero := Vector2i(3, 3)
+	var target := Vector2i(5, 3)
+	var visible_enemy := Vector2i(3, 5)
+	var hidden_enemy := Vector2i(5, 5)
+	var hidden_spread := Vector2i(6, 3)
+	var bridge: Array = [Vector2i(5, 4), hidden_enemy, Vector2i(4, 5)]
+	var state: Dictionary = _state(engine, [_enemy(1, visible_enemy), _enemy(2, hidden_enemy)], hero)
+	state["umbra"]["stage"] = "heart"
+	state["relics"] = ["overflow_censer"]
+	_paint(state, [target, visible_enemy] + bridge, "ice")
+	expect.call(engine.is_enemy_visible_to_player(state, _unit(state, 1)) and not engine.is_enemy_visible_to_player(state, _unit(state, 2)),
+		"Frost Circuit fixture has one visible enemy and one concealed on the Ice bridge")
+	var scene := RunSceneScript.new()
+	scene.set("_combat_state", state)
+	scene.set("_hovered_board_tile", target)
+	var action: Dictionary = _action(engine, "frost_circuit")
+	var presentation: Dictionary = {}
+	scene.call("_append_surface_action_preview", presentation, {"state": state, "action": action, "target_tiles": [target], "actions": [action], "action_index": 0})
+	var damage: Dictionary = presentation.get("damage_preview", {})
+	var statuses: Dictionary = presentation.get("surface_status_preview", {})
+	expect.call(int(damage.get("enemy_1", {}).get("hp_loss", 0)) == 2 and int(statuses.get("enemy_1", {}).get("shock", 0)) == 1,
+		"Frost Circuit hover shows 2 damage and Shock across a concealed Ice bridge")
+	expect.call(not damage.has("enemy_2") and not statuses.has("enemy_2"), "Frost Circuit hover hides the concealed enemy")
+	for tile: Vector2i in bridge:
+		expect.call(not (presentation.get("focus_tiles", []) as Array).has(tile), "Frost Circuit hover does not outline concealed Ice")
+	for event: Dictionary in presentation.get("surface_preview_events", []):
+		expect.call(not (event.get("enemy_ids", []) as Array).has(2) and event.get("tile") != hidden_spread,
+			"Frost Circuit hover events conceal hidden victims and surface spread")
+	var cast: Dictionary = _play(engine, state, "frost_circuit", [target])
+	expect.call(_hp(cast, 1) == 28 and _hp(cast, 2) == 28, "Frost Circuit cast hits both enemies on the full network")
+	expect.call(Surface.has_surface(cast, hidden_spread, "electrified"), "The Frost Circuit cast exercises overwrite spread outside sight")
+	scene.free()
+
+static func _test_stoke_umbra_confirmation(engine: CombatEngine, expect: Callable) -> void:
+	var hero := Vector2i(3, 3)
+	var enemy := Vector2i(5, 3)
+	var fire := Vector2i(6, 4)
+	var state: Dictionary = _state(engine, [_large(1, enemy)], hero)
+	state["umbra"]["stage"] = "heart"
+	state["deck"]["hand"] = ["stoke"]
+	Surface.place(state, fire, "fire")
+	expect.call(engine.is_enemy_visible_to_player(state, _unit(state, 1)) and not engine.is_tile_visible_to_player(state, fire),
+		"Stoke fixture conceals the Fire beneath a visible enemy's corner")
+	var actions: Array = engine.card_play_actions("stoke", state)
+	var prepared: Dictionary = engine.prepare_player_card(state, 0)
+	var cast: Dictionary = engine.apply_player_action(prepared, actions[0])
+	var scene := RunSceneScript.new()
+	scene.set("_combat_state", state)
+	scene.set("_selected_card_index", 0)
+	scene.set("_preview_combat_state", cast)
+	scene.set("_pending_actions", actions)
+	scene.set("_pending_action_index", actions.size())
+	var forecast: Dictionary = scene.call("_pending_card_known_forecast_state")
+	var damage: Dictionary = scene.call("_damage_preview_between_states", state, forecast)
+	expect.call(int(damage.get("enemy_1", {}).get("hp_loss", 0)) == 5 and _hp(cast, 1) == 35,
+		"Stoke's confirmation includes the Fire bonus from any footprint tile")
+	expect.call(not Surface.has_surface(forecast, fire, "fire"), "Stoke's confirmation keeps the Fire tile concealed")
+	scene.free()
+
+static func _test_skate_at_zero_movement(engine: CombatEngine, expect: Callable) -> void:
+	var landing: Vector2i = PLAYER + RIGHT
+	var free_step: Vector2i = landing + RIGHT
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(8, 8))])
+	state["player_movement_remaining"] = 0
+	_paint(state, [landing, free_step, free_step + RIGHT], "ice")
+	var after: Dictionary = _play(engine, state, "skate", [landing])
+	after["cards_played_this_turn"] += engine.cards_remaining_this_turn(after)
+	var targets: Array[Vector2i] = engine.player_movement_targets(after)
+	expect.call(engine.player_has_movement_target(after) and targets.has(free_step + RIGHT) and not targets.has(landing + DOWN),
+		"At zero Movement Skate offers free Ice paths and rejects paid steps")
+	expect.call(engine.player_action_has_valid_target(after, engine.player_movement_action(after)), "Zero-budget Move existence check uses the legal Ice steps")
+	expect.call(not engine.player_turn_resources_exhausted(after), "Auto-pass leaves a zero-cost Ice step available after the last card play")
+	var moved: Dictionary = engine.apply_player_movement(after, free_step)
+	expect.call(moved["player"]["pos"] == free_step and engine.player_movement_remaining(moved) == 0 and bool(moved.get("last_player_movement", {}).get("resolved", false)),
+		"Independent movement commits the free Ice step with zero Movement spent")
+	moved["player_turn_restrictions"]["immobilized"] = true
+	expect.call(not engine.player_has_movement_target(moved) and engine.player_turn_resources_exhausted(moved),
+		"An immobilized hero has no free step and can still auto-pass")
+
 # ---------------------------------------------------- surface_adjacent_enemies
 
 static func _test_surface_adjacent_enemies(engine: CombatEngine, expect: Callable) -> void:
@@ -214,7 +444,7 @@ static func _test_surface_adjacent_enemies(engine: CombatEngine, expect: Callabl
 	var static_after: Dictionary = _play(engine, state, "w4a_fx_static_ward")
 	expect.call(Surface.has_surface(static_after, PLAYER, "electrified") and Surface.has_surface(static_after, Vector2i(3, 4), "electrified"), "include_self also Electrifies the player's tile")
 	var icy: Dictionary = _play(engine, state, "w4a_fx_hoarfrost_ward")
-	expect.call(Surface.has_surface(icy, Vector2i(3, 4), "ice") and not bool(_unit(icy, 1).get("chilled", false)), "Ice placed under an enemy does not Chill it on placement")
+	expect.call(Surface.has_surface(icy, Vector2i(3, 4), "ice") and int(_unit(icy, 1).get("expose", 0)) == 0, "Ice placement alone does not Expose the occupant")
 	var lonely: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 6))])
 	var lonely_after: Dictionary = _play(engine, lonely, "w4a_fx_ember_ward")
 	expect.call((lonely_after.get("surfaces", {}) as Dictionary).is_empty() and int((lonely_after["player"] as Dictionary).get("block", 0)) == 5, "With no adjacent enemy the ward only grants Block")
@@ -243,12 +473,11 @@ static func _test_consume_single_target(engine: CombatEngine, expect: Callable) 
 	expect.call(_preview_matches(engine, state, action, Vector2i(5, 4)), "Consume preview equals resolution")
 
 static func _test_consume_area(engine: CombatEngine, expect: Callable) -> void:
-	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4), 30, {"chilled": true}), _enemy(2, Vector2i(6, 4))])
+	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4), 30, {"expose": 2}), _enemy(2, Vector2i(6, 4))])
 	_paint(state, [Vector2i(5, 4), Vector2i(5, 5), Vector2i(8, 4)], "ice")
-	(state["enemies"][0] as Dictionary)["chilled"] = true
 	var action: Dictionary = _action(engine, "w4a_fx_flashsteam")
 	var after: Dictionary = engine.apply_player_action(state, action, Vector2i(5, 4))
-	expect.call(_hp(after, 1) == 21, "An enemy that stood on consumed Ice takes 3 + 4 (+2 Chilled) from the Fire area")
+	expect.call(_hp(after, 1) == 21, "An enemy that stood on consumed Ice takes 3 + 4 (+2 Expose) from the Fire area")
 	expect.call(_hp(after, 2) == 27, "An enemy hit off the Ice takes only the base damage")
 	expect.call(not Surface.has_surface(after, Vector2i(5, 4), "ice") and not Surface.has_surface(after, Vector2i(5, 5), "ice"), "The area consumes Ice on every pattern tile, occupied or not")
 	expect.call(Surface.has_surface(after, Vector2i(8, 4), "ice"), "Ice outside the pattern stays")
@@ -294,11 +523,8 @@ static func _test_detonate_rubble_and_leave_fire(engine: CombatEngine, expect: C
 	expect.call(_hp(after, 1) == 25, "The enemy on the consumed Rubble takes 5")
 	expect.call(_hp(after, 2) == 35, "A 2x2 enemy touching the blast through a neighbor tile takes 5 once")
 	expect.call(not Surface.has_surface(after, Vector2i(5, 4), "rubble"), "The Rubble is consumed")
-	var fire_tiles: Array = [Vector2i(5, 4), Vector2i(4, 4), Vector2i(6, 4), Vector2i(5, 3), Vector2i(5, 5)]
-	var all_fire: bool = true
-	for tile: Vector2i in fire_tiles:
-		all_fire = all_fire and Surface.has_surface(after, tile, "fire")
-	expect.call(all_fire, "leave_surface places Fire on the consumed tile and its four neighbors")
+	# pla-04: Fire is left only on the tile the Burst destroyed.
+	expect.call(Surface.has_surface(after, Vector2i(5, 4), "fire") and not Surface.has_surface(after, Vector2i(4, 4), "fire") and not Surface.has_surface(after, Vector2i(5, 3), "fire"), "leave_surface places Fire on the destroyed tile only")
 	expect.call(Surface.has_surface(after, Vector2i(5, 6), "fire"), "Unrelated Fire is not detonated by a Rubble Detonate")
 	expect.call(_preview_matches(engine, state, action, Vector2i(5, 4)), "Rubble Detonate preview equals resolution")
 
@@ -368,29 +594,22 @@ static func _test_consume_surface_per_tile(engine: CombatEngine, expect: Callabl
 
 # ------------------------------------------------------------------ on_result
 
-static func _test_on_result_froze(engine: CombatEngine, expect: Callable) -> void:
+static func _test_on_result_on_ice(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(4, 6))])
 	_paint(state, [Vector2i(5, 4)], "ice")
-	(state["enemies"][0] as Dictionary)["chilled"] = true
-	var after: Dictionary = _play(engine, state, "w4a_fx_hush", [Vector2i(5, 4)])
-	expect.call(int(_unit(after, 1).get("freeze", 0)) > 0, "Hush of Winter Freezes the Chilled target")
-	expect.call(_hand_size(after) == 2, "Freezing the target draws 2")
-	var miss: Dictionary = _play(engine, state, "w4a_fx_hush", [Vector2i(4, 6)])
-	expect.call(_hand_size(miss) == 0, "A hit that does not Freeze draws nothing")
-	var frozen: Dictionary = state.duplicate(true)
-	(frozen["enemies"][0] as Dictionary)["freeze"] = 1
-	(frozen["enemies"][0] as Dictionary)["chilled"] = false
-	var already: Dictionary = _play(engine, frozen, "w4a_fx_hush", [Vector2i(5, 4)])
-	expect.call(_hand_size(already) == 0, "A target that was already Frozen does not count as Frozen by this hit")
+	var after: Dictionary = _play(engine, state, "hush_of_winter", [Vector2i(5, 4)])
+	expect.call(int(engine.stagger_delays_between(state, after).get(1, 0)) == 6, "Hush of Winter Staggers 6 on Ice")
+	expect.call(_hand_size(after) == 2, "A hit on Ice draws 2")
+	var miss: Dictionary = _play(engine, state, "hush_of_winter", [Vector2i(4, 6)])
+	expect.call(_hand_size(miss) == 0, "A hit off Ice draws nothing")
 	var bite_state: Dictionary = _state(engine, [_enemy(1, Vector2i(3, 4))])
 	_paint(bite_state, [Vector2i(3, 4)], "ice")
-	(bite_state["enemies"][0] as Dictionary)["chilled"] = true
-	var bitten: Dictionary = _play(engine, bite_state, "w4a_fx_frozen_bite", [Vector2i(3, 4)])
-	expect.call(int(bitten.get("card_play_bonus_this_turn", 0)) == 1, "Frozen Bite grants 1 card play when it Freezes")
-	var hush_action: Dictionary = _action(engine, "w4a_fx_hush")
-	expect.call(_preview_matches(engine, state, hush_action, Vector2i(5, 4)), "on_result preview equals resolution")
+	var bitten: Dictionary = _play(engine, bite_state, "frozen_bite", [Vector2i(3, 4)])
+	expect.call(int(bitten.get("card_play_bonus_this_turn", 0)) == 1 and _hand_size(bitten) == 1, "Frozen Bite grants 1 Card Play and draws 1 on Ice")
+	var hush_action: Dictionary = _action(engine, "hush_of_winter")
+	expect.call(_preview_matches(engine, state, hush_action, Vector2i(5, 4)), "The on-Ice reward preview equals resolution")
 	var events: Array = (after.get("surface_events", []) as Array).filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "card_result_reward")
-	expect.call(events.size() == 1 and str((events[0] as Dictionary).get("when", "")) == "froze", "The reward records a card_result_reward surface event")
+	expect.call(events.size() == 1 and str((events[0] as Dictionary).get("when", "")) == "on_ice", "The reward records the on-Ice trigger in a card_result_reward surface event")
 
 static func _test_on_result_killed(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4), 3), _enemy(2, Vector2i(4, 5), 20)])
@@ -402,24 +621,22 @@ static func _test_on_result_killed(engine: CombatEngine, expect: Callable) -> vo
 	expect.call(int(survived.get("card_play_bonus_this_turn", 0)) == 0 and _hand_size(survived) == 0, "No kill, no reward")
 	expect.call(_preview_matches(engine, state, _action(engine, "w4a_fx_headsman"), Vector2i(5, 4)), "Kill reward preview equals resolution")
 
-# -------------------------------------------------------------- frozen_splash
+# ------------------------------------------------------------------ Ice Burst
 
-static func _test_frozen_splash(engine: CombatEngine, expect: Callable) -> void:
-	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4), 30, {"freeze": 1}), _enemy(2, Vector2i(6, 4), 30, {"freeze": 1}), _enemy(3, Vector2i(5, 5)), _enemy(4, Vector2i(7, 4)), _large(5, Vector2i(3, 2))])
-	# The 2x2 at (3,2) covers (4,3): diagonal to (5,4), so it is not adjacent.
-	var action: Dictionary = _action(engine, "w4a_fx_shatter")
-	var after: Dictionary = engine.apply_player_action(state, action, Vector2i(5, 4))
-	expect.call(_hp(after, 1) == 15, "The Frozen target takes the tripled hit")
-	expect.call(_hp(after, 2) == 25 and _hp(after, 3) == 25, "Each other enemy next to it takes 5, not tripled even if Frozen")
-	expect.call(_hp(after, 4) == 30 and _hp(after, 5) == 40, "Enemies not orthogonally adjacent to the target are untouched")
-	var thawed: Dictionary = state.duplicate(true)
-	(thawed["enemies"][0] as Dictionary)["freeze"] = 0
-	var plain: Dictionary = engine.apply_player_action(thawed, action, Vector2i(5, 4))
-	expect.call(_hp(plain, 2) == 30 and _hp(plain, 3) == 30, "No splash when the target was not Frozen before the hit")
-	var large_state: Dictionary = _state(engine, [_enemy(1, Vector2i(3, 4), 30, {"freeze": 1}), _large(2, Vector2i(4, 3))])
-	var swung: Dictionary = engine.apply_player_action(large_state, _action(engine, "w4a_fx_shatter_swing"), Vector2i(3, 4))
-	expect.call(_hp(swung, 2) == 36, "A 2x2 neighbor is splashed once")
-	expect.call(_preview_matches(engine, state, action, Vector2i(5, 4)), "Shatter preview equals resolution")
+static func _test_ice_burst(engine: CombatEngine, expect: Callable) -> void:
+	var target := Vector2i(5, 4)
+	var state: Dictionary = _state(engine, [_enemy(1, target), _enemy(2, Vector2i(6, 4)), _enemy(3, Vector2i(5, 5)), _enemy(4, Vector2i(7, 4)), _large(5, Vector2i(3, 2))])
+	var plain: Dictionary = _play(engine, state, "shatter", [target])
+	expect.call(_hp(plain, 1) == 25 and _hp(plain, 2) == 30 and _hp(plain, 3) == 30, "Shatter off Ice deals only the primary hit")
+	_paint(state, [target], "ice")
+	var after: Dictionary = _play(engine, state, "shatter", [target])
+	expect.call(_hp(after, 1) == 20, "Shatter hits the center with the strike and Burst")
+	expect.call(_hp(after, 2) == 25 and _hp(after, 3) == 25, "Shatter Bursts each cardinal neighbor for 5")
+	expect.call(_hp(after, 4) == 30 and _hp(after, 5) == 40, "Enemies outside the Burst cross are untouched")
+	var large_state: Dictionary = _state(engine, [_enemy(1, Vector2i(3, 4)), _large(2, Vector2i(4, 3))])
+	_paint(large_state, [Vector2i(3, 4)], "ice")
+	var swung: Dictionary = _play(engine, large_state, "shatter_swing", [Vector2i(3, 4)])
+	expect.call(_hp(swung, 2) == 34 and int(swung["player"]["hp"]) == int(large_state["player"]["hp"]), "Shatter Swing Bursts a large neighbor once and spares the hero")
 
 # ------------------------------------------------------------------ selectors
 
@@ -436,13 +653,13 @@ static func _test_all_enemies_selectors(engine: CombatEngine, expect: Callable) 
 	var bare: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4))])
 	expect.call(not engine.player_action_can_resolve(bare, stoke), "With no matching enemy the selector cannot resolve")
 	expect.call(engine.player_action_can_resolve(state, stoke), "With a matching enemy the selector resolves")
-	var chill: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(5, 6))])
-	_paint(chill, [Vector2i(5, 4)], "ice")
-	(chill["enemies"][0] as Dictionary)["chilled"] = true
-	var silenced: Dictionary = engine.apply_player_action(chill, _action(engine, "w4a_fx_white_silence"), NO_TARGET)
-	expect.call(_hp(silenced, 1) == 24 and int(_unit(silenced, 1).get("freeze", 0)) > 0, "White Silence deals 4 Ice (+2 Chilled) to each Chilled enemy and Freezes it")
-	expect.call(_hp(silenced, 2) == 30, "A non-Chilled enemy is untouched")
-	expect.call(_preview_matches(engine, chill, _action(engine, "w4a_fx_white_silence"), NO_TARGET), "White Silence preview equals resolution")
+	var icy: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(5, 6))])
+	_paint(icy, [Vector2i(5, 4)], "ice")
+	var silence: Dictionary = _action(engine, "white_silence")
+	var silenced: Dictionary = engine.apply_player_action(icy, silence, NO_TARGET)
+	expect.call(_hp(silenced, 1) == 24 and int(engine.stagger_delays_between(icy, silenced).get(1, 0)) == 6, "White Silence deals 6 and Staggers 6 on Ice")
+	expect.call(_hp(silenced, 2) == 30, "White Silence skips enemies off Ice")
+	expect.call(_preview_matches(engine, icy, silence, NO_TARGET), "White Silence preview equals resolution")
 	var lit: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 4)), _enemy(2, Vector2i(6, 8))])
 	lit = engine._create_umbra_light_source(lit, Vector2i(6, 4), {"radius": 1, "duration": 2})
 	var seared: Dictionary = engine.apply_player_action(lit, _action(engine, "w4a_fx_searing"), NO_TARGET)
@@ -606,7 +823,7 @@ static func _test_zero_damage_areas(engine: CombatEngine, expect: Callable) -> v
 	var spike_state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4)), _enemy(2, Vector2i(9, 8))])
 	expect.call(engine.valid_targets_for_player_action(spike_state, caltrops).has(Vector2i(4, 4)), "Caltrops can target an empty tile")
 	var spiked: Dictionary = engine.apply_player_action(spike_state, caltrops, Vector2i(4, 4))
-	expect.call(int(_unit(spiked, 1).get("bleed", 0)) == 2 and _hp(spiked, 1) == 30, "Caltrops Bleeds enemies in the cross without damage")
+	expect.call(int(_unit(spiked, 1).get("expose", 0)) == 2 and _hp(spiked, 1) == 30, "Caltrops Exposes enemies in the cross without damage")
 	expect.call(Surface.has_surface(spiked, Vector2i(4, 4), "rubble") and Surface.has_surface(spiked, Vector2i(5, 4), "rubble") and Surface.has_surface(spiked, Vector2i(4, 3), "rubble"), "Caltrops leaves Rubble across the cross")
 	expect.call(_preview_matches(engine, spike_state, caltrops, Vector2i(4, 4)), "Zero-damage area preview equals resolution")
 
@@ -625,10 +842,11 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 		expect.call(not ActionIcons.action_icon_key(action).is_empty(), "%s resolves through ACTION_ICON_ALIASES" % str(action.get("type", "")))
 		expect.call(not ActionIcons.tokens_for_action(action).is_empty(), "%s renders icon tokens" % str(action.get("type", "")))
 	expect.call(ActionIcons.action_icon_key({"type": "meteor_marks"}) == "cinder_marks", "Meteorfall shares the dragon Meteorfall identity")
-	for pair: Array in [["convert_surface", "surface_convert"], ["discharge", "discharge"], ["all_enemies", "all_enemies"]]:
+	for pair: Array in [["convert_surface", "surface_convert"], ["discharge", "burst"], ["all_enemies", "all_enemies"]]:
 		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s uses its purpose-built %s icon" % [pair[0], pair[1]])
 	var discharge_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_discharge"))
-	expect.call(str((discharge_row[0] as Dictionary).get("icon", "")) == "discharge", "Discharge rows lead with the Discharge icon")
+	# pla-04: Discharge Bursts its network; the row names the ground, then Burst N.
+	expect.call(str((discharge_row[0] as Dictionary).get("icon", "")) == "surface_electrified" and not _token_with_icon([discharge_row], "burst").is_empty(), "Discharge rows show the Electrified network and the Burst")
 	for role_pair: Array in [["w4a_fx_stoke", "attack_ranged"], ["w4a_fx_discharge", "attack_ranged"], ["w4a_fx_frost_circuit", "attack_ranged"], ["w4a_fx_meteorfall", "attack_ranged"], ["w4a_fx_ember_ward", "block"], ["w4a_fx_rime_step", "mobility"]]:
 		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(str(role_pair[0]))) == str(role_pair[1]), "%s uses the %s role emblem" % [str(role_pair[0]), str(role_pair[1])])
 	var ward_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_ember_ward", 1))
@@ -639,8 +857,8 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	expect.call(not _token_with_icon(consume_rows, "surface_consume").is_empty(), "Consume riders render a Consume Surface token")
 	var result_rows: Array = ActionIcons.keyword_rider_rows(_action(engine, "w4a_fx_headsman"))
 	expect.call(not _token_with_icon(result_rows, "card_play").is_empty() and not _token_with_icon(result_rows, "draw").is_empty(), "on_result rows list their rewards")
-	var splash_rows: Array = ActionIcons.keyword_rider_rows(_action(engine, "w4a_fx_shatter"))
-	expect.call(not _token_with_icon(splash_rows, "ranged").is_empty(), "frozen_splash renders its splash damage")
+	var burst_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("shatter").get("actions", []))
+	expect.call(not _token_with_icon(burst_rows, "burst").is_empty(), "Shatter renders the Burst damage")
 	var sky_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_skybolt"))
 	expect.call(str(_token_with_icon([sky_row], "range").get("value", "")) == "∞", "Unlimited ignore_los range shows as infinite")
 	var vent_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_magma_vent"))
@@ -653,7 +871,7 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	expect.call(surface_tokens == 1, "Own-surface types render their surface once, not as a trailing rider")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4a_fx_frost_circuit")).has("combat:surface_techniques"), "Frost Circuit unlocks Surface Techniques")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4a_fx_discharge")).has("keyword:surface_electrified"), "Discharge unlocks Electrified Tiles")
-	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4a_fx_white_silence")).has("combat:sweeping_strikes"), "Selector cards unlock Sweeping Strikes")
+	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("white_silence")).has("combat:sweeping_strikes"), "Selector cards unlock Sweeping Strikes")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4a_fx_meteorfall")).has("combat:cinder_marks"), "Meteorfall unlocks the Meteorfall entry")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4a_fx_pyroclasm")).has("combat:surface_techniques"), "Consume riders unlock Surface Techniques")
 	for entry_id: String in ["combat:surface_techniques", "combat:sweeping_strikes"]:
@@ -665,7 +883,7 @@ static func _test_run_scene_contracts(engine: CombatEngine, expect: Callable) ->
 	var stoke_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_stoke", state)
 	expect.call(int(_token_with_icon(stoke_display.get("summary_rows", []) as Array, "all_enemies").get("value", 0)) == 3, "The hand row shows the selector damage")
 	var discharge_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_discharge", state)
-	expect.call(int(_token_with_icon(discharge_display.get("summary_rows", []) as Array, "ranged").get("value", 0)) == 4, "The hand row shows Discharge damage")
+	expect.call(int(_token_with_icon(discharge_display.get("summary_rows", []) as Array, "burst").get("value", 0)) == 4, "The hand row shows Discharge's Burst damage")
 	var meteor_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_meteorfall", state)
 	expect.call(not _token_with_icon(meteor_display.get("summary_rows", []) as Array, "cinder_marks").is_empty(), "The hand row shows the Meteorfall mark")
 	var meteor: Dictionary = _action(engine, "w4a_fx_meteorfall")
@@ -675,7 +893,7 @@ static func _test_run_scene_contracts(engine: CombatEngine, expect: Callable) ->
 	var hover_tiles: Array = scene.call("_aoe_tiles_for_action", state, aimed, Vector2i(4, 5))
 	var committed: Dictionary = engine.apply_player_action(state, aimed, Vector2i(4, 5))
 	expect.call(_typed_tiles(hover_tiles) == SurfaceCardRules.meteor_mark_tiles(engine, committed), "The hover footprint equals the committed marks")
-	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Cinder Marks" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Discharge", "Action context names the new steps")
+	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Cinder Marks" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Burst", "Action context names the new steps")
 	scene.free()
 
 static func _same_tiles(actual: Array, expected: Array) -> bool:

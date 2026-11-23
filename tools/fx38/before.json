@@ -1,0 +1,6 @@
+{
+  "required_images": [
+    {"pattern": "kindled_full.png", "width": 1920, "height": 1080},
+    {"pattern": "kindled_*_3x.png", "width": 540, "height": 540, "min_count": 3}
+  ]
+}

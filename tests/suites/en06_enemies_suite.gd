@@ -69,8 +69,8 @@ static func _schema(expect: Callable) -> void:
 			expected["intents"][2]["actions"].resize(1) # Director feedback 1 removes Recede's Block.
 		if id == "storm_capacitor":
 			for intent: Dictionary in expected["intents"]:
-				if intent["id"] == "discharge": intent["name"] = "Arc Burst"
-		expect.call(expected == production[id], "%s equals the protected staged entry plus the approved Echo and Arc Burst changes" % id)
+				if intent["id"] == "discharge": intent["name"] = "Arc Lash"
+		expect.call(expected == production[id], "%s equals the protected staged entry plus the approved Echo and Arc Lash changes" % id)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]:
 			expect.call(production[id].has(field), "%s has required field %s" % [id, field])
 		var sprite: Texture2D = Assets.load_texture(production[id]["art_path"])
@@ -98,7 +98,7 @@ static func _presentation_numbers_and_pips(expect: Callable) -> void:
 		var value: Dictionary = capacitor(charge)
 		var badge: Dictionary = Badges.build(engine, value, value)["badges"][0]
 		expect.call(badge["number"] == ("6" if charge == 3 else "+1"), "Real scaled Charge/Discharge intent pill displays integer text")
-	var computed: Dictionary = {"type": "ranged", "damage": 6.0, "chilled": 2.0}
+	var computed: Dictionary = {"type": "ranged", "damage": 6.0, "expose": 2.0}
 	var descriptor: Dictionary = Badges.descriptor(computed)
 	expect.call(descriptor["number"] == "6" and descriptor["secondary_number"] == "2", "Shared primary and rider badge paths normalize computed floats")
 	expect.call(Badges.descriptor({"type": "gain_charge", "amount": 1.0})["number"] == "+1", "Charge pill keeps its positive sign with float input")
@@ -131,24 +131,29 @@ static func _charge_and_grounded(expect: Callable) -> void:
 	var turn_result: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0)
 	expect.call(turn_result["state"]["enemies"][0]["charge"] == 0 and turn_result["state"]["enemies"][0]["intent"]["id"] == "charge", "Discharge resets Charge and selects Charge afterward")
 	var badge: Dictionary = CapacitorView.badges(value["enemies"][0])[0]
-	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nAt 3 Charge it unleashes Arc Burst; Shock removes 1.\n3/3", "Charge status shares the intent icon and exact tooltip")
+	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n3/3", "Charge status shares the intent icon and exact tooltip")
 	var frozen: Dictionary = value.duplicate(true)
 	frozen["enemies"][0]["freeze"] = 1
-	expect.call(engine.resolve_enemy_turn_with_steps(frozen, 0)["state"]["enemies"][0]["charge"] == 3, "Skipped frozen activation preserves pips")
+	expect.call(engine.resolve_enemy_turn_with_steps(frozen, 0)["state"]["enemies"][0]["charge"] == 3, "A legacy skipped activation preserves Charge")
+
 
 static func _chain(expect: Callable) -> void:
 	var engine := Combat.new()
 	var value: Dictionary = capacitor()
+	var diagonal: Dictionary = resolve_action(value)
+	var diagonal_hits: Array = diagonal["step"].get("chain_hits", [])
+	expect.call(diagonal_hits.size() == 3 and diagonal["state"]["enemies"][3]["hp"] == value["enemies"][3]["hp"], "A diagonal-only target is outside Discharge's hop range")
+	value["enemies"][3]["pos"] = Vector2i(6, 4)
 	var result: Dictionary = resolve_action(value)
-	var hits: Array = result["context"]["chain_hits"]
+	var hits: Array = result["step"].get("chain_hits", [])
 	expect.call(hits.size() == 4, "Discharge reaches one target plus up to three jumps")
 	var expected_keys: Array = ["enemy_2", "player", "enemy_3", "enemy_4"]
 	var resolved_tiles: Array[Vector2i]
 	for index: int in range(hits.size()):
-		expect.call(hits[index]["target_key"] == expected_keys[index] and hits[index]["damage"] == 6 - index, "Nearest eight-neighbour hops have damage 6, 5, 4, 3")
+		expect.call(hits[index]["target_key"] == expected_keys[index] and hits[index]["damage"] == 6 - index, "Side-adjacent hops have damage 6, 5, 4, 3")
 		resolved_tiles.append(hits[index]["to"])
 	expect.call(result["state"]["player"]["hp"] == TEST_HERO_HP - 5 and result["state"]["enemies"][2]["hp"] == value["enemies"][2]["hp"] - 4, "Discharge hurts the hero and enemies with the right falloff")
-	expect.call(engine.enemy_threat_tiles(value, 0)["projected_attack"] == resolved_tiles, "Telegraphed path equals actual struck tiles including diagonal hop")
+	expect.call(engine.enemy_threat_tiles(value, 0)["projected_attack"] == resolved_tiles, "Telegraphed path equals actual struck tiles")
 	expect.call(result["step"]["chain_hits"].size() == hits.size() and Capacitor.HOP_SECONDS == 0.12, "Presentation retains every resolved hop at 0.12 seconds")
 	var tied: Dictionary = state([enemy("storm_capacitor", 1, Vector2i(3, 3), "discharge"), enemy("crawler", 9, Vector2i(2, 3)), enemy("crawler", 2, Vector2i(3, 2))], Vector2i(4, 3))
 	tied["enemies"][0]["charge"] = 3
@@ -262,7 +267,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	Profile.mark("capacitor_hover")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view._damage_preview_map().get("enemy_2", {}).get("hp", -1) == int(value["enemies"][1]["hp"]) - 6, "Live RunScene shows capacitor friendly-fire HP preview")
-	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nAt 3 Charge it unleashes Arc Burst; Shock removes 1.\n3/3", "Live board exposes exact Charge badge tooltip")
+	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n3/3", "Live board exposes exact Charge badge tooltip")
 	var animated: Dictionary
 	value = capacitor()
 	Fixtures.install(scene, value)

@@ -64,7 +64,7 @@ func observe(state: Dictionary, source: Dictionary) -> void:
 		var signature: Array = [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))]
 		# Only real durability/status producers; position, animation and preview
 		# dictionaries cannot masquerade as a change event.
-		for field: String in ["block", "stoneskin", "bleed", "expose", "freeze", "petrify", "shock", "frost_armor", "charge", "kindled_bonus", "reflect", "retaliate", "wind"]:
+		for field: String in ["block", "stoneskin", "expose", "freeze", "petrify", "shock", "frost_armor", "charge", "kindled_bonus", "reflect", "retaliate", "wind"]:
 			signature.append(unit.get(field, 0))
 		for field: String in ["chilled", "immobilize", "burrowed", "flying"]:
 			signature.append(bool(unit.get(field, false)))
@@ -72,8 +72,8 @@ func observe(state: Dictionary, source: Dictionary) -> void:
 		if key == "player":
 			signature.append(preload("res://scripts/combat_hud_forecast.gd").keyword_badges(state))
 			if is_instance_valid(board): signature.append(board.call("_player_display_statuses", unit, state.get("player_turn_restrictions", {})))
-			signature.append(source.get("umbra_truesight_activations", 0))
-			signature.append(source.get("umbra_truesight_conditional", false))
+			signature.append(source.get("umbra_vision_activations", 0))
+			signature.append(source.get("umbra_vision_conditional", false))
 		elif key.begins_with("illusion_"):
 			signature.append(preload("res://scripts/illusion_card_rules.gd").illusion_badges(unit))
 		# Props reveal for real Health changes only; their status icons remain

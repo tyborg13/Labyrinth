@@ -1,0 +1,18 @@
+{
+  "min_images": 12,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*area_clear.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*area_umbra.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*area_fog_mask.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*miss_ground.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_4.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_5.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_6.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_7.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_8.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_9.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_10.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*heading_11.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

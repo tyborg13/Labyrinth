@@ -23,16 +23,16 @@ func _compact_enemy_action_step(before: Dictionary, after: Dictionary, index: in
 		compact["hero_facing_delta"] = HeroFacing.source_delta(before, _enemy_action_step(before, after, index, action, context))
 	return compact
 
-func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup: Dictionary = {}, bleed: Array[Dictionary] = TypedArrays.dictionaries([]), context: Dictionary = {}) -> Dictionary:
-	if not bool(_preview_facing_mode()): return super._resolve_enemy_action(state, index, action, rng, followup, bleed, context)
+func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup: Dictionary = {}, reserved_status_steps: Array[Dictionary] = TypedArrays.dictionaries([]), context: Dictionary = {}) -> Dictionary:
+	if not bool(_preview_facing_mode()): return super._resolve_enemy_action(state, index, action, rng, followup, reserved_status_steps, context)
 	var previous: Dictionary = _direct_hit_context
 	_direct_hit_context = context
 	_direct_hit_context["direct_player_hits"] = []
-	var result: Dictionary = super._resolve_enemy_action(state, index, action, rng, followup, bleed, context)
+	var result: Dictionary = super._resolve_enemy_action(state, index, action, rng, followup, reserved_status_steps, context)
 	_direct_hit_context = previous
 	return result
 
-func _damage_player(state: Dictionary, damage: int, bypass: bool, incoming: bool = true, cause: String = "damage", defer_defiance: bool = false) -> Dictionary:
+func _damage_player(state: Dictionary, damage: int, bypass: bool, incoming: bool = true, cause: String = "damage", defer_defiance: bool = false, apply_expose: bool = true) -> Dictionary:
 	var source: Dictionary = state.get("damage_context", {})
 	# Trap/surface/status damage can inherit an enemy id. Only an executed
 	# direct hit owns facing; aggregate step loss cannot establish that cause.
@@ -40,7 +40,7 @@ func _damage_player(state: Dictionary, damage: int, bypass: bool, incoming: bool
 		var index: int = _enemy_index_for_id(state, int(source.get("actor_id", -1)))
 		if index >= 0:
 			_direct_hit_context["direct_player_hits"].append({"source_actor_key": _enemy_key(state["enemies"][index]), "source_tile": state["enemies"][index]["pos"], "target_key": "player", "target_tile": state["player"]["pos"], "damage": damage})
-	return super._damage_player(state, damage, bypass, incoming, cause, defer_defiance)
+	return super._damage_player(state, damage, bypass, incoming, cause, defer_defiance, apply_expose)
 
 func _enemy_action_step(before: Dictionary, after: Dictionary, index: int, action: Dictionary, context: Dictionary = {}) -> Dictionary:
 	var step: Dictionary = super._enemy_action_step(before, after, index, action, context)

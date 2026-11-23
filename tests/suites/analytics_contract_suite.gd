@@ -43,7 +43,7 @@ class PartialAppendStore:
 
 class DebugVictoryHost:
 	extends "res://scripts/run_scene.gd"
-	func _animate_relic_acquisition_flourish(_id: String, _rect: Rect2, _accent: Color, _dest: Control = null) -> void: pass
+	func _animate_relic_acquisition_flourish(_id: String, _rect: Rect2, _accent: Color, _dest: Control = null, _launch_burst: Callable = Callable()) -> void: pass
 	func _animate_relic_acquired(_id: String) -> void: pass
 	func _play_reward_collect_sfx() -> void: pass
 	func _treasure_sequence_is_current(_epoch: int) -> bool: return true
@@ -66,6 +66,7 @@ static func run(check: Callable, evidence: Dictionary) -> void:
 	_context_and_snapshots(check, evidence)
 	_phase_order(check, evidence)
 	_burst(check, evidence)
+	_ice_entry_during_card(check, evidence)
 	_summon_and_wait(check, evidence)
 	_rule_beats(check, evidence)
 	_wait_delivery_and_movement(check, evidence)
@@ -111,13 +112,14 @@ static func _context_and_snapshots(check: Callable, evidence: Dictionary) -> voi
 			for status: String in expected_card[field]: check.call(actual_card[field].get(status) == expected_card[field][status], "headless card status " + status)
 		else: check.call(actual_card.get(field) == expected_card[field], "headless card_played." + field)
 	evidence["headless_card"] = actual_card
-	var chilled: Dictionary = state.duplicate(true)
-	preload("res://scripts/board_surface_rules.gd").place(chilled, chilled["enemies"][0]["pos"], "ice")
-	chilled = Combat.new()._surface_contact(chilled, "enemy", int(chilled["enemies"][0]["id"]), Vector2i(-1, -1), true)
-	check.call(bool(chilled["enemies"][0].get("chilled", false)), "Ice contact oracle actually chills the enemy")
-	var chill_payload: Dictionary = ui._analytics_card_play_payload("frostbite", state, chilled, [], targets)
-	check.call(chill_payload["enemy_status_applied"].get("chilled") == 1, "UI card summary includes the documented Chilled delta")
-	evidence["chilled_after"] = chill_payload["enemy_status_applied"]
+	var exposed: Dictionary = state.duplicate(true)
+	preload("res://scripts/board_surface_rules.gd").place(exposed, exposed["enemies"][0]["pos"], "ice")
+	exposed = Combat.new()._surface_contact(exposed, "enemy", int(exposed["enemies"][0]["id"]), Vector2i(-1, -1), true)
+	check.call(int(exposed["enemies"][0].get("expose", 0)) == 2, "Ice contact applies Expose 2")
+	var ice_payload: Dictionary = ui._analytics_card_play_payload("frostbolt", state, exposed, [], targets)
+	var statuses: Dictionary = ice_payload["enemy_status_applied"]
+	check.call(statuses.get("expose") == 2 and statuses.get("chilled") == 0 and statuses.get("freeze") == 0, "Card analytics records Expose and keeps retired Ice deltas at zero")
+	evidence["ice_contact_after"] = statuses
 	ui.free()
 	console.free()
 
@@ -127,7 +129,7 @@ static func _phase_order(check: Callable, evidence: Dictionary) -> void:
 	# Losses and identity are fixed oracle values, independent of the adapter.
 	var steps: Array = [
 		{"kind": "move", "actor_key": "enemy_1", "intent_id": "test", "path": [Vector2i(2, 4), Vector2i(3, 4)]},
-		{"kind": "status_damage", "actor_key": "enemy_1", "label": "Bleed", "amount": 2, "trigger": "action", "action_type": "melee"},
+		{"kind": "status_damage", "actor_key": "enemy_1", "label": "Fire", "amount": 2, "trigger": "turn_start"},
 		{"kind": "melee", "actor_key": "enemy_1", "target_losses": [{"key": "player", "hp_loss": 3}]},
 		{"kind": "status", "action_type": "gain_charge", "actor_key": "enemy_2", "amount": 1},
 		{"kind": "status", "guardian_mechanic": true, "action_type": "guardian_light_restore", "actor_key": "enemy_3"},
@@ -146,7 +148,8 @@ static func _phase_order(check: Callable, evidence: Dictionary) -> void:
 		for index: int in range(mini(records.size(), expected_types.size())):
 			check.call(records[index]["event_type"] == expected_types[index], caller + " preserves resolver action/status order " + str(index))
 		if records.size() == expected_types.size():
-			check.call(records[1]["payload"].get("trigger") == "action" and records[1]["payload"].get("amount") == 2, caller + " owns Bleed timing and amount")
+			check.call(records[1]["payload"].get("trigger") == "turn_start" and records[1]["payload"].get("amount") == 2, caller + " preserves Fire timing and amount")
+			check.call(records[2]["payload"].get("status_riders_retired", false), caller + " marks current hits for historical attribution")
 			check.call(records[2]["payload"]["target_losses"].size() == 1 and records[2]["payload"]["target_losses"][0]["key"] == "player" and int(records[2]["payload"]["target_losses"][0]["hp_loss"]) == 3, caller + " owns attack losses")
 		node.free()
 
@@ -162,7 +165,7 @@ static func _burst(check: Callable, evidence: Dictionary) -> void:
 	state["player"]["block"] = 3
 	state["damage_context"] = {"actor_kind": "player", "player_card": true}
 	var after: Dictionary = engine._damage_enemy(state.duplicate(true), 0, 6)
-	check.call(after["player"]["hp"] == 21 and after["death_bonus_card_plays_this_turn"] == 1, "Burst oracle retains actual damage and single card kill credit")
+	check.call(after["player"]["hp"] == 29 and after["death_bonus_card_plays_this_turn"] == 1, "Only the cardinal Burst reaches the hero. Only the direct kill grants a Card Play")
 	for caller: String in ["UI", "headless"]:
 		Store.clear_storage()
 		var node: Object = host(caller, after)
@@ -185,6 +188,36 @@ static func _burst(check: Callable, evidence: Dictionary) -> void:
 		elif resumed.has_method("_flush_surface_analytics"): resumed._flush_surface_analytics(after)
 		check.call(Store.load_all_events().size() == records.size(), caller + " surface retry/restart is idempotent")
 		resumed.free()
+		node.free()
+
+static func _ice_entry_during_card(check: Callable, evidence: Dictionary) -> void:
+	var engine := Combat.new()
+	var before: Dictionary = Tick.fixture(["crawler"])
+	var target: Vector2i = before["player"]["pos"] + Vector2i.LEFT
+	var landing: Vector2i = target + Vector2i.LEFT * 2
+	before["enemies"][0]["pos"] = target
+	before["enemies"][0]["hp"] = 20
+	before["deck"]["hand"] = ["sleet_squall"]
+	BoardSurfaceRules.place(before, landing, "ice")
+	var prepared: Dictionary = engine.prepare_player_card(before, 0)
+	var actions: Array = engine.card_play_actions("sleet_squall", prepared)
+	var pushed: Dictionary = engine.apply_player_action(prepared, actions[0], target)
+	var after: Dictionary = engine.apply_player_action(pushed, actions[1])
+	var targets: Array[Vector2i] = [target]
+	check.call(after["enemies"][0]["pos"] == landing and int(after["enemies"][0].get("expose", 0)) == 0 and int(after["enemies"][0]["hp"]) == 15,
+		"Sleet Squall pushes onto Ice and spends Expose 2 in its follow-up")
+	for caller: String in ["UI", "headless"]:
+		var node: Object = host(caller, before)
+		var payload: Dictionary = node._analytics_card_play_payload("sleet_squall", before, after, actions, targets) if caller == "UI" else node._card_play_payload("sleet_squall", before, after, actions, targets)
+		evidence[caller + "_sleet_squall"] = payload
+		check.call(int(payload["enemy_status_applied"]["expose"]) == 2, caller + " card_played counts Ice Expose spent by Sleet Squall")
+		var ice: Dictionary = preload("res://scripts/analytics_snapshots.gd").card_play_expose(before, pushed, engine._surface_events_since(before, pushed))
+		check.call(ice["enemy"] == 2, caller + " does not double count unspent Ice Expose")
+		var followup: Dictionary = actions[1].duplicate(true)
+		followup["expose"] = 1
+		var reapplied: Dictionary = engine.apply_player_action(pushed, followup)
+		var both: Dictionary = preload("res://scripts/analytics_snapshots.gd").card_play_expose(before, reapplied, engine._surface_events_since(before, reapplied))
+		check.call(int(reapplied["enemies"][0].get("expose", 0)) == 1 and both["enemy"] == 3, caller + " counts spent Ice Expose and a later direct Expose")
 		node.free()
 
 static func _summon_and_wait(check: Callable, evidence: Dictionary) -> void:

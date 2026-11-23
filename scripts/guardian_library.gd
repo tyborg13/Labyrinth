@@ -105,7 +105,8 @@ static func intent_notes(intent: Dictionary) -> String:
 			"connector": notes.append("Extends the existing electrical network toward its target.")
 		if bool(action.get("snuff_brazier",false)):
 			if preload("res://scripts/enemy_mechanics/snuff.gd").handles(action): notes.append(preload("res://scripts/enemy_mechanics/snuff.gd").INTENT_NOTE)
-			else: notes.append("Braziers relight after Last Procession.")
+			elif str(action.get("type", "")) == "summon_minions" and str(action.get("minion_type", "")) == "wick_shade":
+				notes.append("Braziers relight after Last Procession.")
 		if str(action.get("guardian_kind",""))=="crag_outcrop":
 			if str(action.get("type",""))=="raise_terrain": notes.append("Each Outcrop fuels Groundsplit.")
 	if bool(intent.get("restore_braziers",false)):

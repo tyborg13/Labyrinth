@@ -161,6 +161,8 @@ static func _true_bearing(expect: Callable) -> void:
 			for link: Dictionary in parent["connections"]:
 				if link["coord"] == study["room"]:
 					parent["cleared"] = true
+					# The fixture skips the parent combat and its opening gear award.
+					state[Run.FIRST_COMBAT_WON_KEY] = true
 					state["current_room"] = parent["coord"]
 					found = true
 					break

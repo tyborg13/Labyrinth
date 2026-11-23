@@ -4,7 +4,7 @@ class_name RetaliateRules
 ## Retaliate: until the start of the player's next turn, an enemy whose melee
 ## attack (melee action, or any attack from an adjacent tile) hits the player
 ## takes the Retaliate amount as non-direct damage (Block/Stoneskin absorb; no
-## Chill/Freeze multiplier or Expose) and the riders (Bleed adds, Shock and
+## Chill/Freeze multiplier or Expose) and the riders (Shock and
 ## Push). Rite `thorns` effects are a permanent Retaliate that stacks with it.
 ## Enemy owners use the same lifetime and flat-damage rules against hero
 ## attacks, with no relic thorns. Each owner clears at its own turn start.
@@ -13,6 +13,7 @@ class_name RetaliateRules
 
 const Data = preload("res://scripts/game_data.gd")
 const Glossary = preload("res://scripts/glossary.gd")
+const PanelText = preload("res://scripts/card_panel_text.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
@@ -25,7 +26,6 @@ static func gain(state: Dictionary, action: Dictionary, source_name: String = ""
 	var current: Dictionary = (state.get(STATE_KEY, {}) as Dictionary).duplicate(true) if typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY else {}
 	# Combat units are natural whole numbers (GameData.FIXED_POINT_SCALE == 1).
 	current["amount"] = int(current.get("amount", 0)) + maxi(0, int(action.get("amount", 0)))
-	current["bleed"] = int(current.get("bleed", 0)) + maxi(0, int(action.get("bleed", 0)))
 	current["shock"] = maxi(int(current.get("shock", 0)), maxi(0, int(action.get("shock", 0))))
 	current["push"] = maxi(int(current.get("push", 0)), maxi(0, int(action.get("push", 0))))
 	var sources: Array = (current.get("sources", []) as Array).duplicate()
@@ -42,7 +42,6 @@ static func totals(state: Dictionary, effects: Array) -> Dictionary:
 	var current: Dictionary = state.get(STATE_KEY, {}) as Dictionary if typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY else {}
 	var total: Dictionary = {
 		"amount": maxi(0, int(current.get("amount", 0))),
-		"bleed": maxi(0, int(current.get("bleed", 0))),
 		"shock": maxi(0, int(current.get("shock", 0))),
 		"push": maxi(0, int(current.get("push", 0))),
 		"sources": (current.get("sources", []) as Array).duplicate(),
@@ -51,13 +50,12 @@ static func totals(state: Dictionary, effects: Array) -> Dictionary:
 	for effect: Dictionary in RiteRules.effects_of_type(effects, "thorns"):
 		total["amount"] = int(total["amount"]) + maxi(0, int(effect.get("damage", effect.get("amount", 0))))
 		total["thorns"] = int(total["thorns"]) + maxi(0, int(effect.get("damage", effect.get("amount", 0))))
-		total["bleed"] = int(total["bleed"]) + maxi(0, int(effect.get("bleed", 0)))
 		total["shock"] = maxi(int(total["shock"]), maxi(0, int(effect.get("shock", 0))))
 		total["push"] = maxi(int(total["push"]), maxi(0, int(effect.get("push", 0))))
 		var name: String = str(effect.get("source_name", ""))
 		if not name.is_empty() and not (total["sources"] as Array).has(name):
 			(total["sources"] as Array).append(name)
-	total["active"] = int(total["amount"]) > 0 or int(total["bleed"]) > 0 or int(total["shock"]) > 0 or int(total["push"]) > 0
+	total["active"] = int(total["amount"]) > 0 or int(total["shock"]) > 0 or int(total["push"]) > 0
 	return total
 
 static func is_melee_hit(engine: RefCounted, state: Dictionary, attacker: Dictionary, action: Dictionary, struck_tile: Vector2i = Vector2i(-999999, -999999)) -> bool:
@@ -97,15 +95,16 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 		state = engine._damage_enemy(state, index, amount, false, false)
 	var retaliate_hp_loss: int = maxi(0, int(before.get("hp", 0)) - int(engine._surface_actor(state, "enemy", attacker_id).get("hp", 0)))
 	state = DefenseRelicRules.after_retaliate(engine, state, retaliate_hp_loss)
-	for effect: Dictionary in DefenseRelicRules.effects_of_type(engine._relic_effects(state), "persistent_retaliate"):
-		gain(state, {"amount": int(effect.get("growth", 1))}, engine._relic_effect_source_name(effect))
-	var rider: Dictionary = {"type": "retaliate", "bleed": int(total["bleed"]), "shock": int(total["shock"]), "push": int(total["push"])}
+	if amount > 0:
+		for effect: Dictionary in DefenseRelicRules.effects_of_type(engine._relic_effects(state), "persistent_retaliate"):
+			gain(state, {"amount": int(effect.get("growth", 1))}, engine._relic_effect_source_name(effect))
+	var rider: Dictionary = {"type": "retaliate", "shock": int(total["shock"]), "push": int(total["push"])}
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	if int(rider["push"]) > 0:
 		# Straight away from the player, like any directed push; the engine's
 		# normal forced-movement entry point owns blocking and collisions.
 		rider["force_direction"] = engine._cardinal_direction(engine._closest_enemy_tile_to(before, player_pos) - player_pos)
-	if int(rider["bleed"]) > 0 or int(rider["shock"]) > 0 or int(rider["push"]) > 0:
+	if int(rider["shock"]) > 0 or int(rider["push"]) > 0:
 		state = engine._apply_action_keywords_to_enemy(state, index, rider, player_pos, true)
 	var after: Dictionary = engine._surface_actor(state, "enemy", attacker_id)
 	var event: Dictionary = {
@@ -118,7 +117,6 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 		"hp_loss": maxi(0, int(before.get("hp", 0)) - int(after.get("hp", 0))),
 		"block_loss": maxi(0, int(before.get("block", 0)) - int(after.get("block", 0))),
 		"stoneskin_loss": maxi(0, int(before.get("stoneskin", 0)) - int(after.get("stoneskin", 0))),
-		"bleed": int(rider["bleed"]),
 		"shock": int(rider["shock"]),
 		"push": int(rider["push"]),
 		"from": before.get("pos", Vector2i.ZERO),
@@ -173,8 +171,8 @@ static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id:
 	var amount: int = int(total["amount"])
 	if amount > 0: amount += engine._spend_expose(state, "player", -1)
 	state = engine._damage_player(state, amount, false, false, "retaliate")
-	var rider: Dictionary = {"type": "retaliate", "bleed": int(total["bleed"]), "shock": int(total["shock"]), "push": int(total["push"])}
-	if int(rider["bleed"]) > 0 or int(rider["shock"]) > 0 or int(rider["push"]) > 0:
+	var rider: Dictionary = {"type": "retaliate", "shock": int(total["shock"]), "push": int(total["push"])}
+	if int(rider["shock"]) > 0 or int(rider["push"]) > 0:
 		state = engine._apply_action_keywords_to_target(state, {"kind": "player", "id": -1}, rider, engine._closest_enemy_tile_to(defender, before.get("pos", Vector2i.ZERO)))
 	var after: Dictionary = state["player"]
 	var event: Dictionary = {
@@ -189,7 +187,6 @@ static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id:
 		"hp_loss": maxi(0, int(before["hp"]) - int(after["hp"])),
 		"block_loss": maxi(0, int(before.get("block", 0)) - int(after.get("block", 0))),
 		"stoneskin_loss": maxi(0, int(before.get("stoneskin", 0)) - int(after.get("stoneskin", 0))),
-		"bleed": int(rider["bleed"]),
 		"shock": int(rider["shock"]),
 		"push": int(rider["push"]),
 		"from": before["pos"],
@@ -211,8 +208,9 @@ static func after_player_hit(engine: RefCounted, state: Dictionary, defender_id:
 static func enemy_badges(enemy: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = player_badges(enemy, [])
 	for badge: Dictionary in badges:
+		var amount: int = int(badge.get("count", 0))
 		badge["status_class"] = "buff"
-		badge["tooltip"] = "Retaliate %d\n%s" % [int(totals(enemy, [])["amount"]), Glossary.definition("retaliate")]
+		badge["tooltip"] = "Retaliate %d\n%s" % [amount, Glossary.definition("retaliate", "", amount)]
 	return badges
 
 static func events_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
@@ -296,31 +294,29 @@ static func player_badges(state: Dictionary, effects: Array) -> Array[Dictionary
 	if not bool(total.get("active", false)):
 		return badges
 	var riders: PackedStringArray = []
-	if int(total["bleed"]) > 0:
-		riders.append("Bleed %d" % int(total["bleed"]))
 	if int(total["shock"]) > 0:
 		riders.append("Shock")
 	if int(total["push"]) > 0:
-		riders.append("Push %d" % int(total["push"]))
+		riders.append("Push %s" % PanelText.tiles(int(total["push"])))
 	var lines: PackedStringArray = ["Retaliate %d" % int(total["amount"]) if int(total["amount"]) > 0 else "Retaliate"]
-	var effect_text: String = "Enemies that hit you in melee"
+	var effect_text: String = "Each enemy that hits you in melee"
 	if int(total["amount"]) > 0:
-		effect_text += " take %d" % int(total["amount"])
+		effect_text += " takes %d damage" % int(total["amount"])
 		if not riders.is_empty():
 			effect_text += " and"
 	if not riders.is_empty():
-		effect_text += " suffer %s" % ", ".join(riders)
+		effect_text += " is affected by %s" % ", ".join(riders)
 	lines.append(effect_text + ".")
 	var has_card_retaliate: bool = typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY and not (state[STATE_KEY] as Dictionary).is_empty()
 	var has_thorns: bool = not RiteRules.effects_of_type(effects, "thorns").is_empty()
 	if DefenseRelicRules.has_effect(effects, "persistent_retaliate"):
-		lines.append("Lasts for this combat; grows after every trigger.")
+		lines.append("Your Retaliate lasts for the rest of combat and grows whenever Retaliate deals damage.")
 	elif has_card_retaliate and has_thorns:
-		lines.append("Rite thorns last for this combat; card Retaliate lasts until your next turn.")
+		lines.append("Rite Retaliate lasts for the rest of combat. Card Retaliate lasts until your next turn.")
 	elif has_thorns:
-		lines.append("Rite: lasts for the rest of this combat.")
+		lines.append("Rite Retaliate lasts for the rest of combat.")
 	else:
-		lines.append("Lasts until your next turn.")
+		lines.append("Retaliate lasts until your next turn.")
 	var sources: Array = total.get("sources", []) as Array
 	if not sources.is_empty():
 		lines.append("From: %s" % ", ".join(PackedStringArray(sources)))

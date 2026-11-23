@@ -26,8 +26,8 @@ const BRAZIERS: int = 3
 const BRAZIER_DISTANCE: int = 3
 const HEAL_PER_BRAZIER: int = 2
 const HEAL_CAP: int = 6
-const SENTENCE: String = "After each of your turns, every enemy hidden in the dark Blinks 2 tiles toward you."
-const TOOLTIP: String = "Brazier: lights 2 tiles around it. A Wick Shade's Snuff puts it out; step onto it to relight it."
+const SENTENCE: String = "On each Shadowstep beat, after your turn, each hidden enemy Blinks up to 2 tiles toward you."
+const TOOLTIP: String = "Brazier: Light reaches 2 tiles. A Wick Shade's Snuff puts out the brazier. Enter the brazier's tile to relight the brazier."
 const MAP_LINE: String = "Survive until dawn in the dark. Keep the braziers lit."
 const REWARD_LINE: String = "+2 Health per brazier still lit at dawn"
 const FIXTURE_SEEDS: Array = [83, 7, 19]
@@ -66,7 +66,7 @@ static func _test_data(expect: Callable) -> void:
 	expect.call(data["bonus"]["kind"] == "heal_per_lit_brazier" and int(data["bonus"]["amount"]) == HEAL_PER_BRAZIER and int(data["bonus"]["max"]) == HEAL_CAP and data["bonus"]["reward_line"] == REWARD_LINE, "Dawn bonus kind, amount, cap and reward line")
 	expect.call(int(data["sight_radius"]) == SIGHT and int(data["braziers"]["count"]) == BRAZIERS and int(data["braziers"]["distance_from_start"]) == BRAZIER_DISTANCE and data["braziers"]["tooltip"] == TOOLTIP, "Sight, brazier count, distance and tooltip")
 	var approved: String = preload("res://tests/suites/special_encounter_suite.gd").approved_catalog_text()
-	expect.call(approved == raw, "Live catalog matches the staged bytes with the approved Thornmother sentence")
+	expect.call(approved == raw, "Live catalog matches the staged bytes with the approved copy edits")
 	var instance: Dictionary = Rules.data()["instances"]["last_light"]
 	expect.call(instance == _json({"rule": "shadowstep", "source": {"kind": "room"}, "cadence": {"anchor": "after_player_turn", "every": 1}, "dials": {"blink": 2, "who": "all_hidden"}, "sentence": SENTENCE}), "The Last Light Shadowstep instance is exact")
 	var intents: Array = _shade_intents()
@@ -206,7 +206,7 @@ static func _test_darkness_and_rule(expect: Callable) -> void:
 	expect.call(not engine.is_tile_visible_to_player(open, CENTER + Vector2i(0, -2)), "A snuffed brazier gives no Light")
 	var shade: Dictionary = open["enemies"][0]
 	expect.call(not engine.is_enemy_visible_to_player(open, shade), "An enemy past sight and Light is hidden")
-	open["umbra"]["truesight_activations"] = 1
+	open["umbra"]["vision_activations"] = 1
 	expect.call(engine.is_enemy_visible_to_player(open, shade), "Truesight still reveals hidden enemies")
 	var panel: Dictionary = Rules.panel(state)
 	var snare: Dictionary = state.duplicate(true)
@@ -253,9 +253,9 @@ static func _test_depth_sight(expect: Callable) -> void:
 	# Light's three lit braziers supply its three-Light threshold.
 	deep_state["relics"] = ["tectonic_abacus"]
 	expect.call(engine.effective_light_source_count(deep_state) == 3 and engine.effective_umbra_radius(deep_state) == 4, "Active Light still raises Last Light sight above 3 at Umbra depth 11")
-	deep_state = engine._apply_umbra_vision(deep_state, {"amount": 1, "duration": 1})
-	expect.call(engine.effective_umbra_radius(deep_state) == 5, "Vision still adds to Light in Last Light")
-	print("Last Light depth sight: 126 generated section/depth cases; Light and Vision raise sight")
+	deep_state = engine._apply_umbra_vision(deep_state, {"duration": 1})
+	expect.call(engine.effective_umbra_radius(deep_state) == 4 and engine.player_has_vision(deep_state), "Vision reveals enemies without changing Last Light sight")
+	print("Last Light depth sight: 126 generated section/depth cases; Light raises sight and Vision reveals enemies")
 
 static func _snuff_intent(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Dictionary:
 	var intents: Array = engine._scaled_enemy_intents(GameData.enemy_def("wick_shade")["intents"], int(state["room_depth"]), state, enemy)

@@ -1,0 +1,17 @@
+{
+  "default_seed": 7262026,
+  "shots": [
+    {
+      "shot": "cinderburst",
+      "scenario": "combat",
+      "state": "aim",
+      "card": "cinderburst",
+      "flags": [
+        "--enemy-types", "crawler,acolyte,harrier,warden",
+        "--player-position", "2:4",
+        "--enemy-positions", "4:4,5:2,5:5,4:6",
+        "--hand", "cinderburst,quick_stab,guarded_step,sidestep_slash"
+      ]
+    }
+  ]
+}

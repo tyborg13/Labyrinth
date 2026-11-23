@@ -1916,8 +1916,8 @@ func _log_combat_transition(previous_run_state: Dictionary, reason: String, tran
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
-		_analytics_store.write_event("combat_ended", _analytics_context(transition_combat_state), Snapshots.combat_ended(_combat_engine, transition_combat_state, reason))
-		if next_mode == "reward":
+		_analytics_store.write_event("combat_ended", _analytics_context(transition_combat_state), Snapshots.combat_ended(_combat_engine, transition_combat_state, reason, _run_state))
+		if next_mode == "reward" or (next_mode == "treasure" and not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty()):
 			_analytics_store.write_event("reward_offered", _analytics_context(transition_combat_state), Snapshots.reward_offered(_run_engine, _run_state, reason))
 		elif next_mode in ["victory", "defeat"]:
 			_log_run_ended(next_mode)
@@ -2133,8 +2133,6 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"target_decision_count": 1,
 		"target_decision_tile": target_decision_tile,
 		"embers_recovered": maxi(0, int(resolved_state.get("recovered_embers_total", 0)) - int(before_state.get("recovered_embers_total", 0))),
-		"sunder_actions": _attack_keyword_action_count(actions, "sunder"),
-		"radiance_card": bool(printed_card.get("radiance", false)),
 		"umbra_stage_before": _combat_engine.effective_umbra_stage(before_state),
 		"umbra_stage_after": _combat_engine.effective_umbra_stage(resolved_state),
 		"umbra_radius_before": _combat_engine.effective_umbra_radius(before_state),
@@ -2194,14 +2192,10 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"selected_targets": targets.duplicate(true),
 		"actions": actions.duplicate(true)
 	}
-	var after_enemies: Dictionary = _enemies_by_id(resolved_state)
-	for status: String in ["bleed", "expose"]:
-		payload["player_status_applied"][status] = maxi(0, int(after_player.get(status, 0)) - int(before_player.get(status, 0)))
-		var gained: int = 0
-		for enemy: Dictionary in before_state.get("enemies", []):
-			var after_enemy: Dictionary = after_enemies.get(int(enemy.get("id", -1)), {})
-			gained += maxi(0, int(after_enemy.get(status, 0)) - int(enemy.get(status, 0)))
-		payload["enemy_status_applied"][status] = gained
+	var expose_applied: Dictionary = Snapshots.card_play_expose(before_state, resolved_state, surface_events)
+	payload["player_status_applied"]["expose"] = expose_applied["player"]
+	payload["enemy_status_applied"]["expose"] = expose_applied["enemy"]
+	payload.merge(Snapshots.card_play_light_and_vision(printed_card, before_umbra, after_umbra))
 	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
 	return payload
 

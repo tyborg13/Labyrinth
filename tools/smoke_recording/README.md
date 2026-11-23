@@ -22,7 +22,8 @@ completion flag to reach ordinary combat with the starter kit. All recorded
 actions enter the game as mouse or controller events. The fight policy reads
 a snapshot to choose free movement and card inputs during the connecting
 fights. The live engine commits each action, rolls encounters and rewards,
-and determines Health.
+and determines Health within a fight. The route refills Health before each room,
+so a weak starter deck can't stop it from reaching the later screens.
 
 The output contains `recording.mp4` with embedded chapter markers,
 `chapters.md`, `contact-sheet.png`, the five chapter stills, `timing.md`,

@@ -1,0 +1,29 @@
+{
+  "retired_glossary_terms": [
+    "bleed",
+    "sunder"
+  ],
+  "retired_grimoire_entries": [
+    "keyword:bleed",
+    "keyword:sunder"
+  ],
+  "grimoire_bodies": {
+    "combat:cleanse": [
+      "Cleanse removes the listed statuses from you at once: Immobilize or Shock. Removing Immobilize or Shock frees you for the rest of this turn, and a Shock cleanse can be played while Shocked."
+    ],
+    "keyword:retaliate": [
+      "Until the start of your next turn, an enemy whose melee attack hits you takes the Retaliate amount. Block and Stoneskin absorb Retaliate damage. Expose does not increase Retaliate damage.",
+      "Melee means a melee attack or any attack made from a tile next to you. Retaliate triggers once per enemy attack. Several Retaliates add damage together. Shock and Push use the largest amounts.",
+      "An enemy defeated by Retaliate pays its normal rewards but does not refund a Card Play.",
+      "Until your next turn, each enemy that hits you up close takes that much damage and the listed effects.",
+      "an illusion's Retaliate triggers once per enemy attack."
+    ]
+  },
+  "grimoire_paragraphs": {
+    "frost_armor": "Each layer cancels 1 direct hit, then breaks. Ground damage, Collision and traps bypass Crystal Mantle."
+  },
+  "relic_descriptions": {
+    "funeral_bell": "When an enemy dies with 2 or more different statuses, such as @term(expose) and @term(shock), each adjacent enemy gains the same statuses.",
+    "coffin_nails": "When an enemy attack hits your @term(block) and deals no @term(health) damage, the attacker gains @term(expose) 2."
+  }
+}

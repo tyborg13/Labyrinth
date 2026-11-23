@@ -1,0 +1,92 @@
+diff --git a/tests/combat_hud_buttons_test.gd b/tests/combat_hud_buttons_test.gd
+--- a/tests/combat_hud_buttons_test.gd
++++ b/tests/combat_hud_buttons_test.gd
+@@ -256,11 +256,11 @@
+ 		var label: Label = badge.get_child(0) as Label
+ 		var font: Font = label.get_theme_font("font")
+ 		var old_font: int = Typography.scaled_size(label, 8)
+-		var approved_font: int = Typography.scaled_size(label, 12)
+-		# sd-02 (33ecad294): grow the old 18px badge by the 8→12px text-metric
+-		# difference, keeping its padding and top-right anchor exactly intact.
++		var approved_font: int = Typography.scaled_size(label, 14)
++		# POL-68 increases the count size and keeps the original badge padding
++		# and the top-right anchor established by SD-02.
+ 		var expected_size: Vector2 = Vector2(18, 18) + Vector2(font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, approved_font).x - font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, old_font).x, font.get_height(approved_font) - font.get_height(old_font))
+-		_expect(label.get_theme_font_size("font_size") == approved_font, "Notification counts use sd-02's approved 12px text")
++		_expect(label.get_theme_font_size("font_size") == approved_font, "Notification counts use POL-68's approved 14px text")
+ 		_expect(badge.custom_minimum_size.is_equal_approx(expected_size) and badge.size.is_equal_approx(expected_size), "Notification badges preserve their original padding around the larger text (expected=%s actual=%s)" % [expected_size, badge.size])
+ 		_expect(badge.anchor_left == 1.0 and badge.anchor_right == 1.0 and absf(badge.offset_left + expected_size.x) <= BADGE_RECT_TOLERANCE and absf(badge.offset_top + 3.0) <= BADGE_RECT_TOLERANCE and absf(badge.offset_right) <= BADGE_RECT_TOLERANCE and absf(badge.offset_bottom - (expected_size.y - 3.0)) <= BADGE_RECT_TOLERANCE, "Notification badges grow left/down from the original top-right anchor")
+ 
+diff --git a/tools/gfix32/verify.gd b/tools/gfix32/verify.gd
+--- a/tools/gfix32/verify.gd
++++ b/tools/gfix32/verify.gd
+@@ -181,6 +181,8 @@
+ 
+ func _map(scene: Node) -> void:
+ 	scene.call("_close_dialogue")
++	# Consume the automatic map presentation before measuring manual reopen.
++	scene.call("_maybe_present_section_map", false)
+ 	scene.call("_close_large_map")
+ 	await _settle()
+ 	var title: Label = scene.get("room_title")
+diff --git a/tools/pol69/capture.gd b/tools/pol69/capture.gd
+--- a/tools/pol69/capture.gd
++++ b/tools/pol69/capture.gd
+@@ -258,21 +258,21 @@
+ 	# actual retained board entry, including the production icon scaling.
+ 	if not await _wait(func() -> bool: return not scene._animation_lock, "Pass playback returns control"): return
+ 	var enemy: Dictionary = scene._animation_actor_unit(scene._combat_state, enemy_key)
+-	var bleed_step: Dictionary = {
+-		"kind": "status_damage", "status_id": "bleed", "actor_key": enemy_key,
++	var reference_step: Dictionary = {
++		"kind": "status_damage", "status_id": "frostbite", "actor_key": enemy_key,
+ 		"tile": enemy["pos"], "amount": hero_frame["health_lost"],
+ 	}
+-	var bleed_presentation: Dictionary = scene._enemy_phase_status_presentation(bleed_step)
+-	bleed_presentation["floating_texts"] = FloatingText.animate_entries(bleed_presentation["floating_texts"], 0.0, false)
+-	scene._render_board_state(scene._combat_state, bleed_presentation)
++	var reference: Dictionary = scene._enemy_phase_status_presentation(reference_step)
++	reference["floating_texts"] = FloatingText.animate_entries(reference["floating_texts"], 0.0, false)
++	scene._render_board_state(scene._combat_state, reference)
+ 	for entry: Dictionary in scene.board_view.presentation.get("floating_texts", []):
+-		if entry.get("icon") != "bleed": continue
+-		var bleed_peak: Dictionary = _float_frame(entry)
+-		print("POL69 FIRE Bleed-style reference %s" % JSON.stringify(bleed_peak))
++		if entry.get("icon") != "frostbite": continue
++		var reference_peak: Dictionary = _float_frame(entry)
++		print("POL69 FIRE Frostbite-style reference %s" % JSON.stringify(reference_peak))
+ 		for field: String in ["icon_size", "width", "x_offset"]:
+-			_check(hero_frame[field] == bleed_peak[field] and (not expect_enemy_icon or enemy_frame.get(field) == bleed_peak[field]), "Fire and Bleed use the same popup " + field)
+-		return
+-	_check(false, "Existing Bleed status popup reached the board")
++			_check(hero_frame[field] == reference_peak[field] and (not expect_enemy_icon or enemy_frame.get(field) == reference_peak[field]), "Fire and Frostbite use the same popup " + field)
++		return
++	_check(false, "Frostbite reference status popup reached the board")
+ 
+ 
+ func _record_fire_frame(enemy_key: String, observed: Dictionary) -> Dictionary:
+diff --git a/tools/pol74/shop_readability.gd.in b/tools/pol74/shop_readability.gd.in
+--- a/tools/pol74/shop_readability.gd.in
++++ b/tools/pol74/shop_readability.gd.in
+@@ -233,7 +233,8 @@
+ 	var second := str(Data.equipment_cards(GEAR)[1])
+ 	_expect(_panel_card() != null and _panel_card().card_id == second, "The selected ware's navigator opens its second card.")
+ 	var action: Button = _shop.get("_detail_action")
+-	_expect(action.text == "Sell", "The selected pack ware shows Sell with the value only on the tile.")
++	var sell_value: int = _shop.call("_item_price", GEAR, true)
++	_expect(action.text == "Sell · %d Embers" % sell_value, "The selected pack ware shows Sell with its Ember value.")
+ 	_move(_center(item))
+ 	await _frames()
+ 	_expect(_matches_panel(ITEM), "Hover can inspect an Item while a Gear ware is selected.")
+diff --git a/scripts/run_scene.gd b/scripts/run_scene.gd
+--- a/scripts/run_scene.gd
++++ b/scripts/run_scene.gd
+@@ -11449,7 +11449,7 @@
+ 
+ func _layout_combat_objective_hud_content() -> void:
+ 	if _combat_objective_hud == null or (
+-		_combat_objective_dock_home.has_area()
++		(_combat_objective_dock_home.has_area() or not _combat_objective_hud.visible)
+ 		and _combat_objective_hud.visibility_layer != 0
+ 		and _combat_hud_layout.holds_layout(self)
+ 	):

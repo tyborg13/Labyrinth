@@ -1,0 +1,13 @@
+{
+  "required_images": [
+    {"pattern": "kindled_full.png", "width": 1920, "height": 1080},
+    {"pattern": "kindled_*_3x.png", "width": 540, "height": 540, "min_count": 3},
+    {"pattern": "pulse_*_full.png", "width": 1920, "height": 1080, "min_count": 13},
+    {"pattern": "pulse_*_3x.png", "width": 540, "height": 540, "min_count": 39},
+    {"pattern": "pulse_strip.png", "width": 7020, "height": 540},
+    {"pattern": "hit_flash_full.png", "width": 1920, "height": 1080},
+    {"pattern": "hit_flash_*_3x.png", "width": 540, "height": 540},
+    {"pattern": "death_*_full.png", "width": 1920, "height": 1080, "min_count": 3},
+    {"pattern": "death_*_3x.png", "width": 540, "height": 540, "min_count": 3}
+  ]
+}

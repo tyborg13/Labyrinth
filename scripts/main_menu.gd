@@ -161,6 +161,10 @@ void fragment() {
 @onready var replacement_confirm_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton
 
 var chronicle_button: Button
+var grimoire_button: Button
+var _grimoire: ColorRect
+var _grimoire_pointer_down: bool = false
+var _grimoire_prompt_z: int
 var _chronicle: Control
 var _progression: Dictionary = {}
 var _new_descent_panel: Control
@@ -257,6 +261,12 @@ func _build_menu() -> void:
 	menu_column.add_child(chronicle_button)
 	menu_column.move_child(chronicle_button, settings_button.get_index())
 	chronicle_button.pressed.connect(_on_chronicle_button_pressed)
+	grimoire_button = Button.new()
+	grimoire_button.name = "GrimoireButton"
+	grimoire_button.text = "Grimoire"
+	menu_column.add_child(grimoire_button)
+	menu_column.move_child(grimoire_button, settings_button.get_index())
+	grimoire_button.pressed.connect(_on_grimoire_button_pressed)
 	_chronicle = ChroniclePanel.new()
 	_chronicle.name = "ChroniclePanel"
 	add_child(_chronicle)
@@ -291,6 +301,7 @@ func _activate_menu() -> void:
 		_umbra_primary_button.grab_focus()
 	_play_menu_music()
 	SceneLoads.watch_menu(self)
+	_warm_grimoire_after_first_frame.call_deferred()
 
 	preload("res://scripts/controller_gui_navigation.gd").install(self)
 
@@ -300,6 +311,20 @@ func _boot_trace(label: String) -> RefCounted:
 
 func _input(event: InputEvent) -> void:
 	if _boot_preparing: return
+	var grimoire_open: bool = _grimoire != null and _grimoire.visible
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		# A scrim click closes on press. Consume the matching release so the
+		# title's pointer handler cannot clear the newly restored opener focus.
+		if not event.pressed and _grimoire_pointer_down and not grimoire_open:
+			_grimoire_pointer_down = false
+			get_viewport().set_input_as_handled()
+			return
+		_grimoire_pointer_down = grimoire_open and event.pressed
+	if grimoire_open:
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_grimoire.call("close")
+			get_viewport().set_input_as_handled()
+		return
 	if is_instance_valid(_new_descent_panel):
 		if _new_descent_panel.handle_input(event): get_viewport().set_input_as_handled()
 		return
@@ -337,6 +362,7 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _boot_preparing: return
 	if is_instance_valid(_new_descent_panel): return
+	if _grimoire != null and _grimoire.visible: return
 	if _loading_run or (_chronicle != null and _chronicle.visible):
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
@@ -414,7 +440,7 @@ func _apply_style() -> void:
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	_umbra_normal_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_NORMAL)
 	_umbra_selected_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_SELECTED)
-	for button: Button in [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button]:
+	for button: Button in [continue_button, start_button, chronicle_button, grimoire_button, settings_button, quit_button, boss_button]:
 		_apply_menu_button_style(button)
 	_connect_umbra_selection_signals()
 	_apply_confirmation_button_style(replacement_cancel_button, false)
@@ -597,6 +623,7 @@ func _umbra_menu_buttons() -> Array[Button]:
 	buttons.append(continue_button)
 	buttons.append(start_button)
 	buttons.append(chronicle_button)
+	buttons.append(grimoire_button)
 	buttons.append(settings_button)
 	buttons.append(quit_button)
 	buttons.append(boss_button)
@@ -768,6 +795,7 @@ func _sync_context_panels() -> void:
 func _set_menu_actions_locked(locked: bool) -> void:
 	continue_button.disabled = locked or (_saved_run_preview.is_empty() and not _saved_run_unavailable)
 	start_button.disabled = locked
+	grimoire_button.disabled = locked
 	settings_button.disabled = locked
 	quit_button.disabled = locked
 	boss_button.disabled = locked
@@ -780,6 +808,7 @@ func _update_layout(title_only: bool = false) -> void:
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
 	_layout_title_motes()
+	if _grimoire != null: _grimoire.call("layout")
 	var margin_x: float = clampf(viewport_size.x * 0.04, 30.0, 72.0)
 	var title_y: float = clampf(viewport_size.y * 0.052, 26.0, 62.0)
 	var menu_width: float = clampf(viewport_size.x * 0.22, MENU_BUTTON_MIN_WIDTH, MENU_BUTTON_MAX_WIDTH)
@@ -809,7 +838,7 @@ func _update_layout(title_only: bool = false) -> void:
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0) + TITLE_TO_MENU_EXTRA_GAP
 	menu_column.position = Vector2(margin_x, menu_y)
 	menu_column.size = Vector2(menu_width, _menu_column_height(button_height))
-	for button: Button in [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button]:
+	for button: Button in [continue_button, start_button, chronicle_button, grimoire_button, settings_button, quit_button, boss_button]:
 		button.custom_minimum_size = Vector2(menu_width, button_height)
 
 	var context_width: float = clampf(viewport_size.x * 0.18, CONTEXT_PANEL_MIN_WIDTH, CONTEXT_PANEL_MAX_WIDTH)
@@ -883,7 +912,7 @@ func _layout_title_line(labels: Array[Label], index: int, position: Vector2, siz
 	label.add_theme_font_size_override("font_size", font_size)
 
 func _menu_column_height(button_height: float) -> float:
-	var visible_buttons: int = 5
+	var visible_buttons: int = 6
 	return float(visible_buttons) * button_height + float(visible_buttons - 1) * float(MENU_SEPARATION)
 
 func _fitted_title_font_size(max_width: float, max_height: float) -> int:
@@ -1047,7 +1076,7 @@ func _focus_default_keyboard_target() -> void:
 	target.grab_focus()
 
 func _focusable_menu_buttons() -> Array:
-	return [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button, settings_back_button] + _demo_links
+	return [continue_button, start_button, chronicle_button, grimoire_button, settings_button, quit_button, boss_button, settings_back_button] + _demo_links
 
 func _on_start_button_pressed() -> void:
 	var _hitch_span: RefCounted
@@ -1157,6 +1186,48 @@ func _on_chronicle_closed() -> void:
 		_controller_prompt_bar.modulate.a = 1
 	_using_keyboard_navigation = true
 	chronicle_button.grab_focus()
+
+func _warm_grimoire_after_first_frame() -> void:
+	if DisplayServer.get_name() == "headless":
+		await get_tree().process_frame
+		await get_tree().process_frame
+	else:
+		await RenderingServer.frame_post_draw
+	if is_visible_in_tree() and not _loading_run and _grimoire == null:
+		_ensure_grimoire_panel()
+		_grimoire.call("prepare_title_catalog", _progression)
+
+func _ensure_grimoire_panel() -> void:
+	if _grimoire != null: return
+	var panel: ColorRect = load("res://scripts/grimoire_panel.gd").new()
+	_grimoire = panel
+	add_child(panel)
+	panel.call("build")
+	panel.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_ENABLED
+	panel.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
+	panel.connect("closed", _on_grimoire_closed)
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null: router.modality_changed.connect(_refresh_grimoire_input_wording)
+
+func _on_grimoire_button_pressed() -> void:
+	if _loading_run or (_grimoire != null and _grimoire.visible): return
+	_ensure_grimoire_panel()
+	# Keep the title visible under the shared scrim, with its controls inert.
+	focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
+	if _controller_prompt_bar != null:
+		_grimoire_prompt_z = _controller_prompt_bar.z_index
+		_controller_prompt_bar.z_index = _grimoire.z_index - 1
+	_grimoire.call("open_from_title", ProgressionStore.load_data(), grimoire_button)
+
+func _on_grimoire_closed() -> void:
+	if _controller_prompt_bar != null: _controller_prompt_bar.z_index = _grimoire_prompt_z
+	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_INHERITED
+	focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED
+	_using_keyboard_navigation = true
+
+func _refresh_grimoire_input_wording(_modality: String) -> void:
+	_grimoire.call("refresh_input_wording")
 
 func _sync_settings_modality() -> void:
 	# Block the backdrop without changing the menu's enabled/disabled artwork.

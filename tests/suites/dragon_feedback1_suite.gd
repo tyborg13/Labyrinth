@@ -8,6 +8,7 @@ const Boss = preload("res://tests/suites/dragon_boss_suite.gd")
 const Elements = preload("res://tests/suites/dragon_element_rules_suite.gd")
 const Burrow = preload("res://scripts/enemy_mechanics/burrow.gd")
 const COPY_STONE_ANCHOR := Vector2i(3, 3)
+const RETIRED_RIDER_DAMAGE: Dictionary = {"worldspine_claw": 1, "razor_dive": 1}
 
 static func run(expect: Callable) -> void:
 	_approved_tuning(expect)
@@ -28,11 +29,14 @@ static func _approved_tuning(expect: Callable) -> void:
 			if not reference["actions"].has(str(intent["id"])): continue
 			for field: String in reference["actions"][str(intent["id"])]:
 				var values: Array = intent["actions"].filter(func(action: Dictionary) -> bool: return action.has(field))
-				expect.call(not values.is_empty() and int(values[0][field]) == int(reference["actions"][str(intent["id"])][field]), "F1 approved " + field + ": " + id + "/" + str(intent["id"]))
+				var expected: int = int(reference["actions"][str(intent["id"])][field])
+				if field == "damage": expected += int(RETIRED_RIDER_DAMAGE.get(str(intent["id"]), 0))
+				expect.call(not values.is_empty() and int(values[0][field]) == expected, "F1 approved " + field + ": " + id + "/" + str(intent["id"]))
 	expect.call(int(Rules.instance_for("tharokh", 1)["dials"]["health"]) == 4, "F1 Tharokh stops before the Outcrop-Health rung")
 
 static func _copy_and_panels(expect: Callable) -> void:
 	var approved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_feedback1_grimoire.json"))
+	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_rules_copy.json"))
 	var grimoire: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/grimoire.json"))
 	var entries: Dictionary = {}
 	for entry: Dictionary in grimoire["entries"]: entries[str(entry["id"])] = entry
@@ -40,22 +44,15 @@ static func _copy_and_panels(expect: Callable) -> void:
 	var pages: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]
 	for id: String in approved["entries"]:
 		var reference: Dictionary = approved["entries"][id]
-		var expected_body: Array = reference["body"].duplicate()
-		match id:
-			"enemy:zekarion":
-				expected_body[1] = "When Zekarion uses Overload, lightning strikes every Electrified tile for 6. At half Health, lightning strikes every Electrified tile for 7. Stay off charged ground, or lure its Wisps onto it."
-			"enemy:tharokh":
-				expected_body[1] = "After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns. Break through before the wall closes."
-			"combat:worldspines":
-				expected_body[0] = "Tharokh marks a line of tiles between you and it. After every second turn of yours, Tharokh's marked tiles rise as Outcrops. A marked tile stays flat if the unit on it can't be pushed off or has nowhere to land. At half Health they rise after each of your turns."
-		if pages.has(id): expected_body = (pages[id] as Array).duplicate()
+		var expected_body: Array = pages.get(id, copy20["grimoire_bodies"].get(id, reference["body"]))
 		expect.call(entries[id]["body"] == expected_body, "Grimoire preserves the approved body: " + id)
 		for field: String in reference["identity"]:
 			expect.call(entries[id][field] == reference["identity"][field], "F1 preserves Grimoire " + field + ": " + id)
+	# txt-20 approves a battlefield sentence and a separate Grimoire body.
+	var panels: Dictionary = Elements.approved_sentences()
 	for id: String in Elements.IDS:
 		var state: Dictionary = Boss._boss_combat_state(id)
-		var body: String = "\n".join(entries["enemy:" + id]["body"])
-		expect.call(body.contains(str(Rules.panel(state)["sentence"])), "F1 Grimoire repeats the in-fight panel word for word: " + id)
+		expect.call(Rules.panel(state)["sentence"] == panels[id]["sentence"], "In-fight panel uses the approved battlefield sentence: " + id)
 
 static func _outcrop_occupancy(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -73,7 +70,7 @@ static func _outcrop_occupancy(expect: Callable) -> void:
 	expect.call(engine._terrain_index_at_tile(state, COPY_STONE_ANCHOR) >= 0, "F1 the next Upheaval does not expire an unbroken Outcrop")
 
 static func _gale_numbers(expect: Callable) -> void:
-	expect.call(preload("res://scripts/glossary.gd").definition("gale_force") == "Strikes everywhere within 2 tiles of Vaeloryx and Pushes struck actors 1 tile.", "F2 Hollow Gale tooltip is verbatim and matches its own Push 1")
+	expect.call(preload("res://scripts/glossary.gd").definition("gale_force") == "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.", "F2 Hollow Gale tooltip is verbatim and matches its own Push 1")
 	var gale: Dictionary = {}
 	var eye: Dictionary = {}
 	for intent: Dictionary in Data.enemy_def("vaeloryx")["intents"]:
@@ -96,7 +93,6 @@ static func _light_blocks_eclipse(expect: Callable) -> void:
 	var action: Dictionary = {}
 	for intent: Dictionary in Data.enemy_def("noctyrax")["intents"]:
 		if intent["id"] == "last_eclipse": action = intent["actions"][0]
-	var steps: Array[Dictionary]
-	state = engine._enemy_umbra_eclipse(state, 0, action, steps)
+	state = engine._enemy_umbra_eclipse(state, 0, action)
 	expect.call(int(state["player"]["hp"]) == hp, "F1 a lit brazier protects against Eclipse damage")
 	expect.call(not engine._umbra_eclipse_threat_tiles(state).has(brazier["pos"]), "F1 Eclipse's warning also respects Light")

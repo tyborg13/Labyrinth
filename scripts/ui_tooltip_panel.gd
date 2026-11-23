@@ -184,4 +184,5 @@ static func append_glossary(panel: Control, markup: String) -> void:
 	for id: String in InlineIconText.concept_keys(markup):
 		if box.has_meta("glossary_" + id): continue
 		box.set_meta("glossary_" + id, true)
-		box.add_child(InlineIconText.glossary_panel(InlineIconText.ActionIcons.tooltip(id)))
+		var term: String = str(InlineIconText.Glossary.lookup(id).get("id", id))
+		box.add_child(InlineIconText.glossary_panel_for_term(id, InlineIconText.Glossary.amount_in_text(term, markup)))

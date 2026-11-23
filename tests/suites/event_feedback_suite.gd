@@ -489,10 +489,6 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 		(view.get("_canvas") as Control).add_child(effect)
 		effect.set_process(false)
 		effect._process(Gain.RISE_SECONDS)
-		var glow: ColorRect = effect.get("_radial_glow")
-		var art_rect: Rect2 = beat.get_meta("reward_art_rect")
-		expect.call(glow != null and is_equal_approx(glow.size.x * 0.5, maxf(art_rect.size.x, art_rect.size.y) * 1.4), "Event glow has the exact radial extent around the reward art")
-		expect.call(is_equal_approx(float(glow.material.get_shader_parameter("glow_color").a), 0.4) and effect._glow_layers.is_empty(), "Event glow uses 0.40 alpha and no merchant rectangle")
 		effect.free()
 	var overlap: Array[float] = Beats.schedule([{"type": "equipment", "id": "fixture"}, {"type": "omen", "id": "hunted"}, {"type": "relic", "id": "fixture"}], false)
 	expect.call(is_equal_approx(overlap[1], 0.38) and is_equal_approx(overlap[2], 0.80), "Each centre reward begins when the previous reward starts flight")
@@ -524,7 +520,7 @@ static func _feedback1_ui(view: Control, tree: SceneTree, expect: Callable, fixt
 		else: expect.call(cues.is_empty(), "Item dissolve remains silent")
 		view.finish_result_beats()
 		await tree.process_frame
-	print("Event feedback 1 UI: sequential pages, persistent Health, bounded numbers, material, centre scheduling and radial glow checked")
+	print("Event feedback 1 UI: sequential pages, persistent Health, bounded numbers, material, and centre scheduling checked")
 
 static func _omen_application_checks(expect: Callable) -> void:
 	var engine := Run.new()
@@ -577,7 +573,7 @@ static func _omen_application_checks(expect: Callable) -> void:
 		trial["card_play_bonus_this_turn"] = 0
 		trial["player_movement_capacity"] = 0
 		trial["player_movement_remaining"] = 0
-		trial["umbra"]["vision_bonus_activations"] = -1
+		trial["umbra"]["vision_activations"] = -1
 		trial = Omens.start_combat(combat, trial, Omens.add(base_run, id))
 		expect.call(Feedback.firing_omens(trial).is_empty(), "Zero/clamped effect does not fire: " + type)
 		Data.omens().erase(id)

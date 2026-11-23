@@ -3,6 +3,7 @@ extends RefCounted
 ## Floor art uses the same textured smoke, shaded fragments and tapered light
 ## ribbons as live spells. The board owns depth, visibility and redraw cadence.
 const Rules = preload("res://scripts/board_surface_rules.gd")
+const Glossary = preload("res://scripts/glossary.gd")
 const SpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const StaticBatch = preload("res://scripts/board_surface_static_batch.gd")
 const BREAK_FADE_END: float = 0.55
@@ -41,18 +42,14 @@ static func tooltip_entries(state: Dictionary, tile: Vector2i) -> Array[Dictiona
 	var lines := PackedStringArray()
 	var kind: String = Rules.element_at(state, tile)
 	if not kind.is_empty():
-		match kind:
-			"fire":
-				lines.append("Deals 3 damage at turn start and 2 damage when entered.")
-				if Rules.is_conductive(state, tile):
-					lines.append("Stormcoal: also conducts Lightning. Attacks conducted through it Expend it.")
-			"ice":
-				lines.append("Entering or starting a turn on Ice applies Chilled.")
-			"electrified":
-				lines.append("Lightning attacks travel through connected Electrified tiles, hitting enemies on them.")
+		lines.append(Glossary.definition("surface_" + kind))
+		if kind == "fire" and Rules.is_conductive(state, tile):
+			lines.append("Stormcoal: Your Lightning cards conduct through Fire and remove that Fire.")
+		if kind == "electrified":
+			lines.append("Electrified tiles also relay Chain.")
 		entries.append({"icon": "surface_" + kind, "title": title_for(kind), "description": "\n".join(lines)})
 	if Rules.has_rubble(state, tile):
-		entries.append({"icon": "surface_rubble", "title": "Rubble", "description": "Walking out of Rubble costs 2 Movement."})
+		entries.append({"icon": "surface_rubble", "title": "Rubble", "description": Glossary.definition("surface_rubble")})
 	return entries
 
 static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, center: Vector2, width: float, time: float, reduced_motion: bool, draw_rubble: bool = true, draw_elemental: bool = true, draw_electric: bool = true) -> void:
@@ -619,20 +616,6 @@ static func draw_preview(canvas: CanvasItem, tile: Vector2i, center: Vector2, wi
 			var b: Vector2 = polygon[(edge + 1) % 4]
 			canvas.draw_line(a.lerp(b, 0.15), a.lerp(b, 0.84), Color(tint, 0.7), maxf(1.0, width * 0.012), true)
 
-static func _draw_collision_feedback(canvas: CanvasItem, center: Vector2, width: float, event: Dictionary, progress: float, reduced: bool) -> void:
-	# A stopped Push/Pull flashes on the shared edge between target and blocker.
-	var direction: Vector2i = event.get("direction", Vector2i.ZERO)
-	var contact: Vector2 = center + Vector2(float(direction.x - direction.y) * width * 0.25, float(direction.x + direction.y) * width * 0.125) - Vector2(0.0, width * 0.16)
-	var t: float = 0.5 if reduced else clampf(progress, 0.0, 1.0)
-	var alpha: float = 0.8 if reduced else sin(t * PI)
-	var tint := Color("ffd9a0")
-	_floor_glow(canvas, contact, Vector2(width * (0.20 + t * 0.22), width * (0.12 + t * 0.12)), Color(tint, alpha * 0.55))
-	for spoke: int in range(8):
-		var angle: float = float(spoke) * TAU / 8.0 + 0.2
-		var inner: Vector2 = contact + Vector2(cos(angle), sin(angle) * 0.62) * width * (0.05 + t * 0.06)
-		var outer: Vector2 = contact + Vector2(cos(angle), sin(angle) * 0.62) * width * (0.12 + t * 0.14)
-		canvas.draw_line(inner, outer, Color(tint, alpha), maxf(1.2, width * 0.018), true)
-
 ## How much of a surface that a feedback beat breaks on `tile` still shows. The
 ## old layer fades over the start of the beat while the new ground arrives, and
 ## is gone well before the beat ends.
@@ -644,35 +627,7 @@ static func leaving_alpha(tile: Vector2i, kind: String, events: Array, progress:
 			return 1.0 - smoothstep(0.0, BREAK_FADE_END, clampf(progress, 0.0, 1.0))
 	return 0.0
 
-static func _draw_surface_break(canvas: CanvasItem, kind: String, center: Vector2, width: float, progress: float, reduced: bool) -> void:
-	SpellFx.prepare()
-	match kind:
-		"ice":
-			if not reduced: SpellFx.ground(canvas, "ice", center, width * 0.60, progress, 0.8)
-			SpellFx.impact(canvas, "ice", center, width * 0.62, progress, 0.8, reduced, false)
-			SpellFx.impact(canvas, "ice", center, width * 0.62, progress, 0.8, reduced, true)
-		"rubble":
-			if not reduced: SpellFx.ground(canvas, "earth", center, width * 0.60, progress, 0.8)
-			SpellFx.impact(canvas, "earth", center, width * 0.58, progress, 0.75, reduced, false)
-			SpellFx.impact(canvas, "earth", center, width * 0.58, progress, 0.75, reduced, true)
-		"electrified":
-			# The stored charge discharges along the floor.
-			SpellFx.ground(canvas, "lightning", center, width * 0.62, 0.4 if reduced else progress, 0.85)
-		"fire":
-			_draw_fire_burnout(canvas, center, width, 0.4 if reduced else clampf(progress, 0.0, 1.0))
-
-static func _draw_fire_burnout(canvas: CanvasItem, center: Vector2, width: float, t: float) -> void:
-	# Doused Fire leaves a rising smudge of smoke and a few dying embers.
-	var fade: float = sin(t * PI)
-	for i: int in range(5):
-		var angle: float = float(i) * 2.4 + 0.3
-		var base: Vector2 = center + Vector2(cos(angle), sin(angle) * 0.42) * width * 0.16
-		var at: Vector2 = base + Vector2(cos(angle) * width * 0.10 * t, -width * (0.04 + 0.24 * t))
-		_floor_glow(canvas, at, Vector2(width * (0.11 + 0.07 * t), width * (0.07 + 0.05 * t)), Color(0.13, 0.11, 0.10, 0.50 * fade))
-	for i: int in range(4):
-		var angle: float = float(i) * 1.7 + 0.9
-		var at: Vector2 = center + Vector2(cos(angle) * width * 0.20, sin(angle) * width * 0.08) - Vector2(0.0, width * 0.30 * t)
-		_floor_glow(canvas, at, Vector2(width * 0.022, width * 0.022), Color(1.0, 0.55, 0.22, 0.85 * (1.0 - t)))
+const CONTACT_REPLACED: String = "contact_burst_replaced"
 
 static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, width: float, events: Array, progress: float, reduced: bool = false) -> void:
 	if progress >= 1.0 and not reduced: return
@@ -680,10 +635,8 @@ static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, w
 		if typeof(event_var) != TYPE_DICTIONARY: continue
 		var event: Dictionary = event_var as Dictionary
 		if event.get("tile", Vector2i(-1, -1)) != tile and not (event.get("tiles", []) as Array).has(tile): continue
-		# The leaving surface breaks first, so arriving ground draws on top.
+		if event.has(CONTACT_REPLACED): continue
 		var broken: String = str(event.get("break_surface", ""))
-		if not broken.is_empty() and event.get("tile", Vector2i(-1, -1)) == tile:
-			_draw_surface_break(canvas, broken, center, width, progress, reduced)
 		var element: String = str(event.get("feedback_element", ""))
 		if not element.is_empty():
 			SpellFx.prepare()
@@ -691,15 +644,7 @@ static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, w
 			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,false)
 			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,true)
 		var kind: String = str(event.get("kind", ""))
-		if kind == "force_collision":
-			if event.get("tile", Vector2i(-1, -1)) == tile: _draw_collision_feedback(canvas, center, width, event, progress, reduced)
-			continue
-		if not element.is_empty() or not broken.is_empty() or kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
+		if not element.is_empty() or not broken.is_empty() or kind not in ["surface_created", "surface_replaced"]: continue
 		var tint: Color = color_for(str(event.get("surface", "fire")))
 		var alpha: float = sin(clampf(progress, 0.0, 1.0) * PI) * 0.55
 		_floor_glow(canvas, center, Vector2(width * (0.5 + progress * 0.8), width * (0.18 + progress * 0.28)), Color(tint, alpha))
-		if kind == "surface_removed":
-			for i: int in range(4):
-				var angle: float = float(i) * 1.5708 + float(tile.x + tile.y) * 0.2
-				var at: Vector2 = center + Vector2(cos(angle), sin(angle) * 0.46) * width * progress * 0.34
-				_floor_glow(canvas, at - Vector2(0, width * progress * 0.08), Vector2(width * 0.09, width * 0.05), Color(tint, alpha))

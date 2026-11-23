@@ -330,7 +330,7 @@ static func _clock_and_escape(expect: Callable) -> void:
 			var ended: Dictionary = engine.finish_player_activation(state)
 			expect.call(not Rules.at_large(ended) and bool(ended["objective"]["hoarder_escaped"]), "Slips away at the end of player turn %d: %s" % [clock, context])
 			expect.call(dissolve_clean(before, ended), "Sealbinder dissolve: no death burst, no reward: " + context)
-			expect.call(ended["objective"]["type"] == "kill_all" and Objectives.title_for_objective(ended["objective"]) == "Defeat All Enemies" and Objectives.description_for_objective(ended["objective"]) == "Defeat every enemy.", "Fight continues as Defeat All: " + context)
+			expect.call(ended["objective"]["type"] == "kill_all" and Objectives.title_for_objective(ended["objective"]) == "Defeat All Enemies" and Objectives.description_for_objective(ended["objective"]) == "Defeat each enemy.", "Fight continues as Defeat All: " + context)
 			expect.call(engine.combat_outcome(ended) == "" and not bool(ended["objective"]["goal_met"]), "Remaining brood keep the fight going: " + context)
 			var silent: Dictionary = preload("res://scripts/snare_room_rules.gd").sound_snapshot(ended, {})
 			expect.call(not (silent["state"]["enemies"] as Array).any(func(enemy: Dictionary) -> bool: return str(enemy["type"]) == "ember_hoarder"), "Slipping away is silent: " + context)

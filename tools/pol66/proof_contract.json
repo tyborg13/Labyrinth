@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080", "1280x800"],
+  "required_images": [
+    {"pattern": "1920x1080_quick_wits.png", "width": 1920, "height": 1080},
+    {"pattern": "1920x1080_living_shadow.png", "width": 1920, "height": 1080},
+    {"pattern": "1920x1080_open_sky.png", "width": 1920, "height": 1080},
+    {"pattern": "1280x800_quick_wits.png", "width": 1280, "height": 800},
+    {"pattern": "1280x800_living_shadow.png", "width": 1280, "height": 800},
+    {"pattern": "1280x800_open_sky.png", "width": 1280, "height": 800}
+  ]
+}

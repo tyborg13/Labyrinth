@@ -2,6 +2,7 @@ extends Control
 
 static var _hitch_trace_enabled: bool = OS.get_environment("LABYRINTH_HITCH_TRACE") == "1"
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Snapshots = preload("res://scripts/analytics_snapshots.gd")
 
@@ -17,6 +18,7 @@ const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
 const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
+const PushContactFeedback = preload("res://scripts/push_contact_feedback.gd")
 const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
@@ -31,6 +33,7 @@ const IskaldraCutout = preload("res://scripts/iskaldra_cutout/renderer.gd")
 const IskaldraAction = preload("res://scripts/iskaldra_cutout/action.gd")
 const TharokhCutout = preload("res://scripts/tharokh_cutout/renderer.gd")
 const VaeloryxCutout = preload("res://scripts/vaeloryx_cutout/renderer.gd")
+const VaeloryxWind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
 const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
@@ -40,6 +43,14 @@ const PlayerTurnAnalytics = preload("res://scripts/player_turn_analytics.gd")
 const DeferredReconciliationQueue = preload("res://scripts/deferred_reconciliation_queue.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const ShotFx = preload("res://scripts/shot_fx.gd")
+const TileBurstFx = preload("res://scripts/tile_burst_fx.gd")
+const AcquisitionBurst = preload("res://scripts/acquisition_burst.gd")
+const ResolvedContactBursts = preload("res://scripts/resolved_contact_bursts.gd")
+const ChainAttackFeedback = preload("res://scripts/chain_attack_feedback.gd")
+const ContactVisibility = preload("res://scripts/board_surface_visibility.gd")
+const DragonSpell = preload("res://scripts/dragon_spell_presentation.gd")
+const MirrorFx = preload("res://scripts/enemy_mechanics/reflect_view.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const SfxBankScript = preload("res://scripts/sfx_bank.gd")
 const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")
@@ -72,6 +83,7 @@ const RunEngineScript = preload("res://scripts/run_engine.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const EmberHearthPresentation = preload("res://scripts/ember_hearth_presentation.gd")
 const ScreenCrossfade = preload("res://scripts/screen_crossfade.gd")
+const LargeMapBackdrop = preload("res://scripts/large_map_backdrop.gd")
 const MoltExchangeFeedback = preload("res://scripts/molt_exchange_feedback.gd")
 const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
@@ -83,6 +95,8 @@ const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RunDeck = preload("res://scripts/run_deck.gd")
+const RewardActionCaption = preload("res://scripts/reward_action_caption.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
@@ -90,7 +104,7 @@ const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
-const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
+const GrimoirePanel = preload("res://scripts/grimoire_panel.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const PerformancePhasePartitionerScript = preload("res://scripts/performance_phase_partitioner.gd")
@@ -897,50 +911,6 @@ class RelicAcquisitionMote:
 			alpha
 		)
 
-class LoadoutAcquisitionBurst:
-	extends Control
-
-	const START_RADIUS: float = 22.0
-	const END_RADIUS: float = 94.0
-
-	var accent: Color = Color("f0c978")
-	var kind: String = "magic"
-	# Scales the start and end radius together; the curve, thickness and timing stay.
-	var radius_scale: float = 1.0
-	var progress: float = 0.0:
-		set(value):
-			progress = clampf(value, 0.0, 1.0)
-			queue_redraw()
-
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		if progress <= 0.0 or progress >= 1.0:
-			return
-		var center: Vector2 = size * 0.5
-		var flare: float = sin(progress * PI)
-		var radius: float = lerpf(START_RADIUS, END_RADIUS, 1.0 - pow(1.0 - progress, 3.0)) * radius_scale
-		var ring_color := Color(accent.r, accent.g, accent.b, 0.72 * flare)
-		var core_color := Color(1.0, 0.96, 0.78, 0.92 * flare)
-		draw_arc(center, radius, 0.0, TAU, 64, ring_color, 4.0 if kind == "equipment" else 2.5, true)
-		if kind == "magic":
-			draw_arc(center, radius * 0.68, progress * 2.8, progress * 2.8 + PI * 1.45, 40, core_color, 2.0, true)
-			for index: int in range(12):
-				var angle: float = TAU * float(index) / 12.0 - progress * 2.2
-				var rune_center: Vector2 = center + Vector2(cos(angle), sin(angle)) * radius * 0.82
-				var tangent := Vector2(-sin(angle), cos(angle))
-				var radial := Vector2(cos(angle), sin(angle))
-				draw_line(rune_center - tangent * 5.0, rune_center + radial * 6.0, ring_color, 2.0, true)
-		else:
-			for index: int in range(8):
-				var angle: float = TAU * float(index) / 8.0 + 0.18
-				var direction := Vector2(cos(angle), sin(angle))
-				var start: Vector2 = center + direction * radius * 0.48
-				var finish: Vector2 = center + direction * radius * (0.88 + 0.10 * float(index % 2))
-				draw_line(start, finish, ring_color, 5.0, true)
-				draw_line(start, finish, core_color, 1.5, true)
-
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -1028,6 +998,7 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = Array([
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
 ], TYPE_VECTOR2I, "", null)
+const AreaTargetAim = preload("res://scripts/area_target_aim.gd")
 const HAND_CARD_GAP: float = 14.0
 const HAND_CARD_DENSE_COUNT: int = 8
 const HAND_CARD_DENSE_MAX_WIDTH: float = 180.0
@@ -1044,15 +1015,14 @@ const PILE_STACK_LAYERS: int = 3
 const PILE_ICON_SIZE: Vector2 = Vector2(88.0, 88.0)
 const PILE_HUD_EDGE_MARGIN: float = 12.0
 const COMBAT_OBJECTIVE_DOCK_GAP: float = 12.0
+const COMBAT_OBJECTIVE_DOCK_FRAME_LIMIT: int = 30
 # The battlefield rule panel sits this far above the objective, its twin in one column.
 const BATTLEFIELD_RULE_DOCK_GAP: float = 8.0
 const COMBAT_LEFT_STACK_BOTTOM_MARGIN_PX: float = 8.0
 const DIALOGUE_PORTRAIT_SIZE: Vector2 = DialogueBoxView.PORTRAIT_SIZE
 const TURN_BANNER_Z_INDEX: int = 66
-# The action caption sits centred at the top of the stage. It keeps its old
-# 360 px minimum and grows to fit longer captions at the heading size.
+# The action caption sits centred at the top of the stage and fits its text.
 const ACTION_BANNER_HEIGHT: float = 38.0
-const ACTION_BANNER_MIN_WIDTH: float = 360.0
 const ACTION_BANNER_SIDE_PADDING: float = 12.0
 # Room Noctyrax's brazier labels leave for a caption before it appears. Its own
 # moves caption the move alone; this still holds a full "Name, the Epithet:
@@ -1158,7 +1128,6 @@ const TREASURE_CHEST_OPEN_SECONDS: float = 0.74
 const TREASURE_CHEST_REDUCED_SECONDS: float = 0.12
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
-const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
 const LOADOUT_ACQUISITION_RAY_SECONDS: float = 0.42
 const LOADOUT_ACQUISITION_MOTES: int = 10
 const DIALOGUE_DIALOG_WIDTH: float = DialogueBoxView.WIDTH
@@ -1174,13 +1143,6 @@ const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
-const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1120.0, 640.0)
-const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(820.0, 520.0)
-const GRIMOIRE_LEFT_PAGE_WIDTH: float = 300.0
-const GRIMOIRE_DETAIL_PAGE_WIDTH: float = 620.0
-const GRIMOIRE_ENTRY_BUTTON_HEIGHT: float = 44.0
-const GRIMOIRE_CARD_PREVIEW_SIZE: Vector2 = Vector2(240.0, 337.92)
-const GRIMOIRE_EQUIPMENT_CARD_SIZE := Vector2(maxf(176.0, CardWidget.MIN_READABLE_CARD_SIZE.x), maxf(246.4, CardWidget.MIN_READABLE_CARD_SIZE.y))
 const GRIMOIRE_BADGE_SIZE: Vector2 = Vector2(18.0, 18.0)
 const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const CHARACTER_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
@@ -1208,6 +1170,8 @@ const BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH: float = 780.0
 const BOSS_HEALTH_OVERLAY_MIN_WIDTH: float = 700.0
 const BOSS_HEALTH_OVERLAY_HEIGHT: float = 134.0
 const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
+const BOSS_HEALTH_OVERLAY_SIDE_CLEARANCE: float = 24.0
+const BOSS_HEALTH_OVERLAY_NAME_SIDE_PADDING: float = 18.0
 const BOSS_HEALTH_FRAME_TOP: float = 10.0
 const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 90.0)
 const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(48.0, 38.0, 48.0, 17.0)
@@ -1349,6 +1313,7 @@ var _board_encounter_key: String = ""
 var _board_encounter_roster: Array[String]
 var _board_encounter_started: bool = false
 var _board_hud_budget := preload("res://scripts/board_hud_budget.gd").new()
+var _restored_board_hud_budget := preload("res://scripts/board_hud_budget.gd").new()
 var _board_hud_budget_queued: bool = false
 var _boss_health_candidate_revision: int = -1
 var _boss_health_candidate_id: int = -1
@@ -1432,6 +1397,7 @@ var _runtime_enemy_slice_budget_usec: int = 8000
 var _runtime_animation_clock_stats: Dictionary = {}
 var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
+var _pending_card_play_analytics: Callable
 var _analytics_combat_tracker: Dictionary = {}
 var _selected_card_index: int = -1
 var _player_movement_selected: bool = false
@@ -1481,6 +1447,7 @@ var _pending_selected_targets: Array[Vector2i]
 var _pending_umbra_commit_locked: bool = false
 var _pending_orientation_target_tile: Vector2i = INVALID_TARGET_TILE
 var _aoe_aim_orientation: Vector2i = Vector2i(1, 0)
+var _aoe_aim_target_tile: Vector2i = INVALID_TARGET_TILE
 # Push/Pull aim (spec/forced_movement.md): the aimed target is the last hovered
 # legal forced-movement target; Rotate cycles its straight-line candidates.
 var _force_aim_key: String = ""
@@ -1505,6 +1472,7 @@ var _animation_lock: bool = false
 var _escape_transition_in_progress: bool = false
 var _board_presentation: Dictionary = {}
 var _hud_forecast := preload("res://scripts/combat_hud_forecast.gd").new()
+var _push_contact_feedback := PushContactFeedback.new()
 var _player_popup_timeline_active: bool = false
 var _player_popup_timeline_started_usec: int = 0
 var _player_popup_timeline_groups: Array[Dictionary]
@@ -1513,44 +1481,11 @@ var _menu_scrim: ColorRect
 var _menu_focus: Node
 var _menu_dialog: PanelContainer
 var _settings_panel: PanelContainer
-var _grimoire_scrim: ColorRect
-var _grimoire_dialog: PanelContainer
-var _grimoire_search_input: LineEdit
-var _grimoire_search_clear_button: Button
-var _grimoire_search_status: Label
-var _grimoire_section_list: VBoxContainer
-var _grimoire_entry_scroll: ScrollContainer
-var _grimoire_entry_list: VBoxContainer
-var _grimoire_detail_panel: PanelContainer
-var _grimoire_detail_icon: TextureRect
-var _grimoire_detail_kicker: Label
-var _grimoire_detail_title: Label
-var _grimoire_detail_body: RichTextLabel
-var _grimoire_detail_content: VBoxContainer
+var _grimoire_scrim: GrimoirePanel
 var _grimoire_badge: PanelContainer
 var _grimoire_badge_label: Label
 var _loadout_badge: PanelContainer
 var _loadout_badge_label: Label
-var _grimoire_selected_section: String = ""
-var _grimoire_selected_group: String = ""
-var _grimoire_selected_entry: String = ""
-var _grimoire_nav_scroll_revision: int = 0
-var _grimoire_search_query: String = ""
-var _grimoire_search_index: Array[Dictionary]
-var _grimoire_search_index_unlocked: Array[String]
-var _grimoire_cached_result_query: String = ""
-var _grimoire_cached_results_valid: bool = false
-var _grimoire_cached_results: Array[Dictionary]
-var _grimoire_search_results: Array[Dictionary]
-var _grimoire_search_result_buttons: Array[Button]
-var _grimoire_search_retained_rows: Dictionary = {}
-var _grimoire_row_preparation_revision: int = 0
-var _grimoire_row_preparation_running_revision: int = -1
-var _grimoire_nav_buttons: Array[Button]
-var _grimoire_search_restore_selection: Dictionary = {}
-var _grimoire_search_restore_scroll: int = 0
-var _grimoire_restore_focus: Control
-var _grimoire_restore_navigation_focus: bool = true
 var _header_icon_textures: Dictionary = {}
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
@@ -1695,6 +1630,10 @@ var _combat_objective_hud: PanelContainer
 var _battlefield_rule_switch = preload("res://scripts/battlefield_rules/switch_presentation.gd").new()
 var _battlefield_rule_hud: PanelContainer
 var _combat_objective_dock_home := Rect2()
+var _combat_objective_dock_display := Vector3.ZERO
+var _combat_objective_dock_wait_frames: int = -1
+var _combat_objective_dock_revision: int = 0
+signal _combat_objective_dock_wait_finished
 var _combat_objective_intro_dock := Rect2()
 var _ui33_chip_layouts: int
 var _victory_cleared_hud: Dictionary = {}
@@ -1709,6 +1648,7 @@ var _boss_status_row: HBoxContainer
 var _boss_status_cells: Dictionary = {}
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
+var _turn_order_hover_shows_light: bool = true
 var _show_all_enemy_intents: bool = false
 var _turn_order_panel_locked_width: float = -1.0
 var _turn_order_source_signature: String = "<unset>"
@@ -1770,7 +1710,7 @@ var _section_map_presented_key: String = ""
 var _section_map_presentation_queued: bool = false
 var _map_analytics_revision: int = 0
 var _map_analytics_run_id: String = ""
-var _large_map_scrim: ColorRect
+var _large_map_scrim: LargeMapBackdrop
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
 var _large_map_navigation_hint: Label
@@ -1797,6 +1737,7 @@ var _drag_hover_zone: String = ""
 var _drag_targeting_active: bool = false
 var _targeting_cursor_suppressor_key: String = ""
 var _card_fx_layer: Control
+var _acquisition_bursts: AcquisitionBurst
 var _card_proxy_preparation := preload("res://scripts/card_proxy_preparation.gd").new()
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control]
@@ -2000,6 +1941,13 @@ var _initial_ui_complete: bool = false
 var _initial_cpu_asset_holds: Array[RefCounted]
 var _combat_pacing = preload("res://scripts/combat_pacing.gd").new()
 var _burst_playback = preload("res://scripts/enemy_mechanics/burst_playback.gd").new()
+var _tile_burst_adapter_contact: Dictionary = {}
+var _chain_contact_before: Dictionary = {}
+var _icefall_cutout_strike: Dictionary = {}
+var _timed_strike: TileBurstFx.StrikeCue
+var _resolved_contact_bursts := ResolvedContactBursts.new()
+var _summon_adapter_clock: Dictionary
+var _blink_transits: Array[Dictionary]
 var _animation_step_requires_submission_validation: bool = false
 var _defer_initial_run_presentation: bool = false
 var _leaving_tree: bool = false
@@ -2013,7 +1961,18 @@ func _get(property: StringName) -> Variant:
 			return -1
 		&"_card_action_choice_mode":
 			return "play"
+	if _grimoire_scrim != null and String(property).begins_with("_grimoire_"):
+		return _grimoire_scrim.get(property)
 	return null
+
+func _set(property: StringName, value: Variant) -> bool:
+	if _grimoire_scrim != null and property in [
+		&"_grimoire_selected_section", &"_grimoire_selected_group", &"_grimoire_selected_entry",
+		&"_grimoire_row_preparation_revision", &"_grimoire_row_preparation_running_revision",
+	]:
+		_grimoire_scrim.set(property, value)
+		return true
+	return false
 
 
 func _init() -> void:
@@ -2179,6 +2138,7 @@ func has_installed_run() -> bool:
 	return preload("res://scripts/run_persistence.gd").has_checkpoint(_run_state)
 
 func _on_hand_viewport_size_changed() -> void:
+	_prepare_acquisition_bursts()
 	_combat_hud_layout.viewport_changed(self)
 	_hud_refresh_layout.request(self, &"_layout_combat_objective_hud")
 	call_deferred("_refresh_hand_panel_after_viewport_change")
@@ -2352,14 +2312,7 @@ func _input(event: InputEvent) -> void:
 		_treasure_reveal_navigation = false
 	elif event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD:
 		_treasure_reveal_navigation = true
-	if _grimoire_scrim != null and _grimoire_scrim.visible:
-		# Search receives focus even for pointer browsing. Return focus only when
-		# navigation is still in use; a mouse/touch dismissal must not latch the
-		# opener's focus highlight after the pointer has moved elsewhere.
-		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
-			_grimoire_restore_navigation_focus = false
-		elif (event is InputEventKey or event is InputEventAction or event is InputEventJoypadButton) and event.is_pressed():
-			_grimoire_restore_navigation_focus = true
+	if _visible_control(_grimoire_scrim): _grimoire_scrim.track_navigation_intent(event)
 	if _graftwright_view != null and _graftwright_view.visible:
 		if _graftwright_view.busy:
 			get_viewport().set_input_as_handled()
@@ -2602,12 +2555,12 @@ func _build_controller_interface() -> void:
 		router.modality_changed.connect(_on_input_modality_changed)
 	_refresh_controller_prompts()
 
+func _refresh_grimoire_input_wording() -> void:
+	if _grimoire_scrim != null: _grimoire_scrim.refresh_input_wording()
+
 func _on_input_modality_changed(modality: String) -> void:
 	_refresh_enemy_intent_toggle()
-	if _grimoire_detail_body != null and _grimoire_detail_body.visible:
-		var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
-		if not entry.is_empty() and str(entry.get("card_id", "")).is_empty():
-			InlineIconText.apply_to(_grimoire_detail_body, _grimoire_body_text(entry), InlineIconText.DEFAULT_ICON_SCALE, true)
+	_refresh_grimoire_input_wording()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if modality == InputRouterScript.MODALITY_CONTROLLER and _drag_card_index >= 0 and router != null and router.modality_change_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		# Right-stick Empower edits the held card; it does not transfer the drag
@@ -3029,6 +2982,8 @@ func _controller_enter_board(prefer_target: bool, refresh_hand: bool = true, han
 		candidate_tile = _surface_skill_tiles[0]
 	if prefer_target and not _pending_target_tiles.is_empty():
 		candidate_tile = _pending_target_tiles[0]
+		if _current_action_supports_rotation() and _pending_target_tiles.has(_aoe_aim_target_tile):
+			candidate_tile = _aoe_aim_target_tile
 	if candidate_tile == INVALID_TARGET_TILE:
 		candidate_tile = (_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	var tiles: Array[Vector2i] = _controller_board_tiles()
@@ -3847,28 +3802,50 @@ func _board_fit_rect() -> Rect2:
 	# framing unit fixtures). Retain their established rectangular fallback.
 	if not is_inside_tree():
 		return _legacy_board_fit_rect()
-	if is_inside_tree() and _board_hud_budget.key != _board_hud_budget.environment(self) and not _board_hud_budget_queued:
+	var budget: RefCounted = _active_board_hud_budget()
+	if budget.key != _board_hud_budget.environment(self) and not _board_hud_budget_queued:
 		_board_hud_budget_queued = true
 		call_deferred("_freeze_board_hud_budget")
-	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(1920, 1080)
+	var viewport_size: Vector2 = get_viewport_rect().size
 	if not _compact_board_layout():
 		return Rect2(Vector2.ZERO, Vector2(viewport_size.x,
-			maxf(1.0, _board_hud_budget.desktop_hand_top - _board_hud_budget.HAND_BOTTOM_GAP)))
+			maxf(1.0, budget.desktop_hand_top - _board_hud_budget.HAND_BOTTOM_GAP)))
 	return Rect2(Vector2.ZERO, Vector2(viewport_size.x,
-		maxf(1.0, viewport_size.y - _board_hud_budget.collapsed_strip - _board_hud_budget.HAND_BOTTOM_GAP)))
+		maxf(1.0, viewport_size.y - budget.collapsed_strip - _board_hud_budget.HAND_BOTTOM_GAP)))
+
+func _active_board_hud_budget() -> RefCounted:
+	if _board_hud_budget.can_restore(self) \
+		and not preload("res://scripts/emaciated_man_cutout/presentation.gd").uses_waypoint_room_fit(_run_state):
+		return _restored_board_hud_budget
+	return _board_hud_budget
+
+func _queue_board_hud_budget() -> void:
+	if _board_hud_budget_queued or _board_hud_budget.key == _board_hud_budget.environment(self):
+		return
+	_board_hud_budget_queued = true
+	call_deferred("_freeze_board_hud_budget")
 
 func _freeze_board_hud_budget() -> void:
 	_board_hud_budget_queued = false
-	if not is_inside_tree() or str(_run_state.get("mode", "")) not in ["combat", "room"] or _hand_layout_pending_revision >= 0:
+	if not is_inside_tree() or _hand_layout_pending_revision >= 0:
 		return
-	if _board_hud_budget.key == _board_hud_budget.environment(self):
+	var budget: RefCounted = _active_board_hud_budget()
+	var restore: bool = budget == _restored_board_hud_budget
+	var capture: bool = str(_run_state.get("mode", "")) in ["combat", "room"]
+	var environment: Array = _board_hud_budget.environment(self)
+	if (not capture or _board_hud_budget.key == environment) and (not restore or budget.key == environment):
 		return
-	_layout_combat_piles_content()
-	_layout_turn_order_anchor_content()
-	_board_hud_budget.capture(self)
+	if capture and _board_hud_budget.key != environment:
+		_layout_combat_piles_content()
+		_layout_turn_order_anchor_content()
+		_board_hud_budget.capture(self)
+	if restore and budget.key != environment:
+		_restored_board_hud_budget.restore(self)
 	if board_view != null and not (board_view.combat_state as Dictionary).is_empty():
-		board_view.set_room_framing(_board_fit_rect(), _board_hud_budget.exclusions, _legacy_board_fit_rect())
+		board_view.set_room_framing(_board_fit_rect(), budget.exclusions, _legacy_board_fit_rect())
 		_sync_board_view_rect()
+		if str(_run_state.get("mode", "")) == "combat" and not _combat_objective_dock_home.has_area():
+			_layout_combat_objective_hud()
 
 func _legacy_board_fit_rect() -> Rect2:
 	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(1920, 1080)
@@ -3937,6 +3914,7 @@ func _window_notifications_allowed() -> bool:
 
 func _exit_tree() -> void:
 	_leaving_tree = true
+	_reset_combat_objective_dock()
 	var encounter: Dictionary = _combat_state
 	if str(_run_state.get("mode", "")) == "pre_battle":
 		encounter = _pre_battle_preview_run_state.get("combat_state", {})
@@ -4052,7 +4030,7 @@ func _apply_style() -> void:
 	mini_map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	mini_map_overlay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mini_map_overlay.set_meta("cursor_feedback_context_provider", _mini_map_cursor_feedback_context)
-	mini_map_overlay.tooltip_text = preload("res://scripts/device_shortcut_tooltips.gd").text(self, "Map", "M")
+	mini_map_overlay.tooltip_text = preload("res://scripts/device_shortcut_tooltips.gd").text(self, "Map", KeyBindings.MAP)
 	if not mini_map_overlay.gui_input.is_connected(_on_mini_map_overlay_gui_input):
 		mini_map_overlay.gui_input.connect(_on_mini_map_overlay_gui_input)
 	var log_style := StyleBoxFlat.new()
@@ -4213,7 +4191,7 @@ func _ensure_grimoire_badge() -> void:
 	_grimoire_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_grimoire_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_grimoire_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_grimoire_badge_label, 12)
+	UiTypography.set_label_size(_grimoire_badge_label, UiTypography.SIZE_CAPTION)
 	_grimoire_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
 	_grimoire_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
 	_grimoire_badge_label.add_theme_constant_override("outline_size", 1)
@@ -4245,7 +4223,7 @@ func _ensure_loadout_badge() -> void:
 	_loadout_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_loadout_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_loadout_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_loadout_badge_label, 12)
+	UiTypography.set_label_size(_loadout_badge_label, UiTypography.SIZE_CAPTION)
 	_loadout_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
 	_loadout_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
 	_loadout_badge_label.add_theme_constant_override("outline_size", 1)
@@ -4255,6 +4233,7 @@ func _ensure_loadout_badge() -> void:
 
 func _header_icon_texture(icon_kind: String) -> Texture2D:
 	if icon_kind == "map_rooms": return ActionIcons.icon_texture("map_rooms", "toolbar")
+	if icon_kind == "book": return GrimoirePanel.book_icon()
 	if _header_icon_textures.has(icon_kind):
 		return _header_icon_textures[icon_kind]
 	var image := Image.create(HEADER_ICON_TEXTURE_SIZE, HEADER_ICON_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)
@@ -4266,24 +4245,11 @@ func _header_icon_texture(icon_kind: String) -> Texture2D:
 		"loadout":
 			_draw_header_loadout_icon(image, ink)
 		_:
-			_draw_header_book_icon(image, ink)
+			return GrimoirePanel.book_icon()
 	var texture := ImageTexture.create_from_image(image)
 	_header_icon_textures[icon_kind] = texture
 	return texture
 
-func _draw_header_book_icon(image: Image, ink: Color) -> void:
-	_draw_image_line(image, Vector2i(11, 15), Vector2i(23, 11), ink, 3)
-	_draw_image_line(image, Vector2i(23, 11), Vector2i(23, 36), ink, 3)
-	_draw_image_line(image, Vector2i(23, 36), Vector2i(11, 32), ink, 3)
-	_draw_image_line(image, Vector2i(11, 32), Vector2i(11, 15), ink, 3)
-	_draw_image_line(image, Vector2i(25, 11), Vector2i(37, 15), ink, 3)
-	_draw_image_line(image, Vector2i(37, 15), Vector2i(37, 32), ink, 3)
-	_draw_image_line(image, Vector2i(37, 32), Vector2i(25, 36), ink, 3)
-	_draw_image_line(image, Vector2i(25, 36), Vector2i(25, 11), ink, 3)
-	_draw_image_line(image, Vector2i(15, 19), Vector2i(20, 17), ink.darkened(0.18), 2)
-	_draw_image_line(image, Vector2i(15, 24), Vector2i(20, 23), ink.darkened(0.18), 2)
-	_draw_image_line(image, Vector2i(28, 17), Vector2i(33, 19), ink.darkened(0.18), 2)
-	_draw_image_line(image, Vector2i(28, 23), Vector2i(33, 24), ink.darkened(0.18), 2)
 
 func _draw_header_gear_icon(image: Image, ink: Color) -> void:
 	var center := Vector2i(24, 24)
@@ -4291,7 +4257,7 @@ func _draw_header_gear_icon(image: Image, ink: Color) -> void:
 		var angle: float = TAU * float(tooth_index) / 8.0
 		var start := Vector2i(roundi(float(center.x) + cos(angle) * 12.0), roundi(float(center.y) + sin(angle) * 12.0))
 		var finish := Vector2i(roundi(float(center.x) + cos(angle) * 18.0), roundi(float(center.y) + sin(angle) * 18.0))
-		_draw_image_line(image, start, finish, ink, 4)
+		GrimoirePanel.draw_icon_line(image, start, finish, ink, 4)
 	_draw_image_ring(image, center, 10.0, 14.0, ink)
 	_draw_image_ring(image, center, 3.8, 6.0, ink)
 
@@ -4299,19 +4265,19 @@ func _draw_header_loadout_icon(image: Image, ink: Color) -> void:
 	# A compact paper-doll silhouette paired with a sword reads as character loadout
 	# at header scale while keeping the same hand-drawn line weight as its neighbors.
 	_draw_image_ring(image, Vector2i(20, 14), 4.5, 7.5, ink)
-	_draw_image_line(image, Vector2i(9, 37), Vector2i(12, 27), ink, 3)
-	_draw_image_line(image, Vector2i(12, 27), Vector2i(17, 23), ink, 3)
-	_draw_image_line(image, Vector2i(17, 23), Vector2i(20, 27), ink, 3)
-	_draw_image_line(image, Vector2i(20, 27), Vector2i(23, 23), ink, 3)
-	_draw_image_line(image, Vector2i(23, 23), Vector2i(29, 27), ink, 3)
-	_draw_image_line(image, Vector2i(29, 27), Vector2i(31, 37), ink, 3)
-	_draw_image_line(image, Vector2i(9, 37), Vector2i(31, 37), ink, 3)
-	_draw_image_line(image, Vector2i(14, 31), Vector2i(26, 31), ink.darkened(0.12), 2)
-	_draw_image_line(image, Vector2i(38, 8), Vector2i(38, 33), ink, 3)
-	_draw_image_line(image, Vector2i(38, 8), Vector2i(35, 13), ink, 2)
-	_draw_image_line(image, Vector2i(38, 8), Vector2i(41, 13), ink, 2)
-	_draw_image_line(image, Vector2i(33, 31), Vector2i(43, 31), ink, 3)
-	_draw_image_line(image, Vector2i(38, 33), Vector2i(38, 40), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(9, 37), Vector2i(12, 27), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(12, 27), Vector2i(17, 23), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(17, 23), Vector2i(20, 27), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(20, 27), Vector2i(23, 23), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(23, 23), Vector2i(29, 27), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(29, 27), Vector2i(31, 37), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(9, 37), Vector2i(31, 37), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(14, 31), Vector2i(26, 31), ink.darkened(0.12), 2)
+	GrimoirePanel.draw_icon_line(image, Vector2i(38, 8), Vector2i(38, 33), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(38, 8), Vector2i(35, 13), ink, 2)
+	GrimoirePanel.draw_icon_line(image, Vector2i(38, 8), Vector2i(41, 13), ink, 2)
+	GrimoirePanel.draw_icon_line(image, Vector2i(33, 31), Vector2i(43, 31), ink, 3)
+	GrimoirePanel.draw_icon_line(image, Vector2i(38, 33), Vector2i(38, 40), ink, 3)
 	_draw_image_ring(image, Vector2i(38, 42), 1.0, 3.0, ink)
 
 func _draw_image_ring(image: Image, center: Vector2i, inner_radius: float, outer_radius: float, color: Color) -> void:
@@ -4325,30 +4291,7 @@ func _draw_image_ring(image: Image, center: Vector2i, inner_radius: float, outer
 			if distance >= inner_radius and distance <= outer_radius:
 				image.set_pixel(x, y, color)
 
-func _draw_image_line(image: Image, from_point: Vector2i, to_point: Vector2i, color: Color, width: int = 1) -> void:
-	var delta: Vector2i = to_point - from_point
-	var steps: int = maxi(abs(delta.x), abs(delta.y))
-	if steps <= 0:
-		_draw_image_point(image, from_point, color, width)
-		return
-	for step: int in range(steps + 1):
-		var t: float = float(step) / float(steps)
-		var point := Vector2i(
-				roundi(lerpf(float(from_point.x), float(to_point.x), t)),
-				roundi(lerpf(float(from_point.y), float(to_point.y), t))
-		)
-		_draw_image_point(image, point, color, width)
 
-func _draw_image_point(image: Image, point: Vector2i, color: Color, width: int = 1) -> void:
-	var radius: int = maxi(0, int(floor(float(width) * 0.5)))
-	for y: int in range(point.y - radius, point.y + radius + 1):
-		if y < 0 or y >= image.get_height():
-			continue
-		for x: int in range(point.x - radius, point.x + radius + 1):
-			if x < 0 or x >= image.get_width():
-				continue
-			if Vector2(float(x), float(y)).distance_to(Vector2(float(point.x), float(point.y))) <= float(radius) + 0.65:
-				image.set_pixel(x, y, color)
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
@@ -5228,7 +5171,8 @@ func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
 	return choice_rect.position.y > 0.0
 
 func _build_large_map_overlay() -> void:
-	_large_map_scrim = ColorRect.new()
+	_large_map_scrim = LargeMapBackdrop.new()
+	_large_map_scrim.room_title = room_title
 	_large_map_scrim.name = "LargeMapScrim"
 	_large_map_scrim.visible = false
 	_large_map_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -5261,7 +5205,7 @@ func _build_large_map_overlay() -> void:
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
 	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
-	_setup_header_icon_button(_section_map_hud_button, "map_rooms", preload("res://scripts/device_shortcut_tooltips.gd").text(self, "Map", "M"))
+	_setup_header_icon_button(_section_map_hud_button, "map_rooms", preload("res://scripts/device_shortcut_tooltips.gd").text(self, "Map", KeyBindings.MAP))
 	# Modal and animation blockers are transient. Check them at activation;
 	# caching them in disabled would strand this control after an overlay closes.
 	_section_map_hud_button.pressed.connect(func() -> void:
@@ -5922,6 +5866,7 @@ func _build_scavenger_shop_overlay(stage: Control) -> void:
 	_scavenger_shop_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shop_host: Control = ui_root if ui_root != null else stage
 	shop_host.add_child(_scavenger_shop_view)
+	_scavenger_shop_view.burst_layer = _acquisition_bursts.gain_layer()
 	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
 	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
 	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
@@ -5992,7 +5937,7 @@ func _layout_relic_choice_overlay() -> void:
 			if mode == "reward":
 				var row := _relic_choice_bar.find_child("RewardSecondaryActions", true, false) as HBoxContainer
 				if row != null:
-					preload("res://scripts/reward_action_caption.gd").fit_row(row, width, REWARD_ACTION_BUTTON_MIN_WIDTH)
+					RewardActionCaption.fit_row(row, width, REWARD_ACTION_BUTTON_MIN_WIDTH)
 			width = maxf(width, _relic_choice_bar.get_combined_minimum_size().x)
 		var left: float = (stage_size.x - width) * 0.5
 		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -6023,6 +5968,10 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchors_preset = Control.PRESET_FULL_RECT
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
+	_acquisition_bursts = AcquisitionBurst.new()
+	_acquisition_bursts.name = "AcquisitionBursts"
+	# The pickup ray shares the burst's z index and draws on top of it.
+	ui_root.add_child(_acquisition_bursts)
 	ui_root.add_child(_card_fx_layer)
 	_card_proxy_pool_host = Control.new()
 	_card_proxy_pool_host.name = "CardProxyPool"
@@ -6131,1122 +6080,70 @@ func _build_menu_overlay() -> void:
 	_menu_focus.configure(self, _menu_scrim, _menu_dialog, _settings_panel)
 
 func _build_grimoire_overlay() -> void:
-	_grimoire_scrim = ColorRect.new()
-	_grimoire_scrim.name = "GrimoireScrim"
-	_grimoire_scrim.visible = false
-	_grimoire_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
-	_grimoire_scrim.color = Color(0.025, 0.018, 0.014, 0.72)
-	_grimoire_scrim.anchors_preset = Control.PRESET_FULL_RECT
-	_grimoire_scrim.anchor_right = 1.0
-	_grimoire_scrim.anchor_bottom = 1.0
-	_grimoire_scrim.z_index = 255
-	_grimoire_scrim.z_as_relative = false
-	_grimoire_scrim.set_meta("cursor_feedback_context_provider", _grimoire_scrim_cursor_feedback_context)
-	_grimoire_scrim.gui_input.connect(_on_grimoire_scrim_gui_input)
+	_grimoire_scrim = GrimoirePanel.new()
+	_grimoire_scrim.catalog_source = _grimoire_catalog_for_display
+	_grimoire_scrim.card_preview = _build_card_preview_widget
+	_grimoire_scrim.detail_icon = _grimoire_entry_icon
+	_grimoire_scrim.performance_phase = _record_runtime_performance_phase
+	_grimoire_scrim.opening.connect(_on_grimoire_opening)
+	_grimoire_scrim.closed.connect(_on_grimoire_closed)
 	ui_root.add_child(_grimoire_scrim)
+	_grimoire_scrim.build()
+	_grimoire_scrim.set_catalog(_run_state)
 
-	var center := CenterContainer.new()
-	center.anchors_preset = Control.PRESET_FULL_RECT
-	center.anchor_right = 1.0
-	center.anchor_bottom = 1.0
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_grimoire_scrim.add_child(center)
+func _grimoire_catalog_for_display() -> Dictionary:
+	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
+	return _run_state
 
-	_grimoire_dialog = PanelContainer.new()
-	_grimoire_dialog.name = "GrimoireDialog"
-	_grimoire_dialog.custom_minimum_size = GRIMOIRE_DIALOG_SIZE
-	_grimoire_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
-	_grimoire_dialog.add_theme_stylebox_override("panel", _grimoire_cover_style())
-	center.add_child(_grimoire_dialog)
+func _grimoire_entry_icon(entry: Dictionary) -> Texture2D:
+	return GrimoirePanel.entry_icon(entry, func(icon_key: String) -> Texture2D: return ActionIcons.icon_texture(icon_key))
 
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
-	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
-	_grimoire_dialog.add_child(margin)
-
-	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(root)
-
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	root.add_child(header)
-
-	var title_stack := VBoxContainer.new()
-	title_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_stack.add_theme_constant_override("separation", 0)
-	header.add_child(title_stack)
-
-	var title := Label.new()
-	title.text = "Grimoire"
-	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
-	title.add_theme_color_override("font_color", Color("f3ddb0"))
-	title.add_theme_color_override("font_outline_color", Color("2b1a10"))
-	title.add_theme_constant_override("outline_size", 2)
-	title_stack.add_child(title)
-
-	var subtitle := Label.new()
-	subtitle.text = "Collected field notes"
-	UiTypography.apply_label_role(subtitle, UiTypography.ROLE_BODY)
-	subtitle.add_theme_color_override("font_color", Color("c9ad7c"))
-	title_stack.add_child(subtitle)
-
-	var close_button := UiTooltipButton.new()
-	close_button.text = "Close"
-	close_button.tooltip_text = "Close Grimoire"
-	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(close_button, Color("f7dfad"))
-	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
-	close_button.custom_minimum_size = Vector2(104.0, 36.0)
-	close_button.pressed.connect(_close_grimoire_overlay)
-	header.add_child(close_button)
-
-	var book_row := HBoxContainer.new()
-	book_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	book_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	book_row.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
-	root.add_child(book_row)
-
-	var left_page := PanelContainer.new()
-	left_page.name = "GrimoireLeftPage"
-	left_page.custom_minimum_size = Vector2(GRIMOIRE_LEFT_PAGE_WIDTH, 0.0)
-	left_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left_page.add_theme_stylebox_override("panel", _grimoire_page_style(false))
-	book_row.add_child(left_page)
-	_ui_skin.apply_surface_finish(left_page, "paper_left")
-
-	var left_margin := MarginContainer.new()
-	left_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	left_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
-	left_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
-	left_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
-	left_page.add_child(left_margin)
-
-	var left_stack := VBoxContainer.new()
-	left_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left_stack.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	left_margin.add_child(left_stack)
-
-	var search_row := HBoxContainer.new()
-	search_row.name = "GrimoireSearchRow"
-	search_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	search_row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	left_stack.add_child(search_row)
-
-	_grimoire_search_input = LineEdit.new()
-	_grimoire_search_input.name = "GrimoireSearchInput"
-	_grimoire_search_input.placeholder_text = "Search discovered entries"
-	_grimoire_search_input.tooltip_text = "Search every discovered Grimoire entry by name, rule, category, or familiar term. Close spellings are accepted."
-	_grimoire_search_input.max_length = 64
-	_grimoire_search_input.clear_button_enabled = false
-	_grimoire_search_input.custom_minimum_size = Vector2(0.0, 42.0)
-	_grimoire_search_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_search_input.focus_mode = Control.FOCUS_ALL
-	_grimoire_search_input.add_theme_font_override("font", UiTypography.text_font())
-	_grimoire_search_input.add_theme_font_size_override("font_size", UiTypography.scaled_size(_grimoire_search_input, UiTypography.SIZE_BODY))
-	_grimoire_search_input.add_theme_color_override("font_color", Color("3b2818"))
-	_grimoire_search_input.add_theme_color_override("font_placeholder_color", Color(0.30, 0.21, 0.13, 0.72))
-	_grimoire_search_input.add_theme_color_override("caret_color", Color("70431f"))
-	_grimoire_search_input.add_theme_color_override("selection_color", Color(0.54, 0.32, 0.14, 0.34))
-	_grimoire_search_input.add_theme_stylebox_override("normal", _grimoire_search_field_style(false))
-	_grimoire_search_input.add_theme_stylebox_override("focus", _grimoire_search_field_style(true))
-	_grimoire_search_input.text_changed.connect(_on_grimoire_search_text_changed)
-	_grimoire_search_input.text_submitted.connect(_on_grimoire_search_submitted)
-	_grimoire_search_input.gui_input.connect(_on_grimoire_search_gui_input)
-	search_row.add_child(_grimoire_search_input)
-	preload("res://scripts/controller_focus_tooltip.gd").attach(_grimoire_search_input)
-	preload("res://scripts/grimoire_search_keyboard.gd").attach(_grimoire_search_input)
-	_grimoire_search_input.focus_neighbor_top = _grimoire_search_input.get_path_to(close_button)
-	close_button.focus_neighbor_bottom = close_button.get_path_to(_grimoire_search_input)
-
-	_grimoire_search_clear_button = UiTooltipButton.new()
-	_grimoire_search_clear_button.name = "GrimoireSearchClear"
-	_grimoire_search_clear_button.text = "Clear"
-	_grimoire_search_clear_button.tooltip_text = "Clear search and return to section browsing"
-	_grimoire_search_clear_button.visible = false
-	_grimoire_search_clear_button.focus_mode = Control.FOCUS_ALL
-	_ui_skin.apply_button_stylebox_overrides(_grimoire_search_clear_button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(_grimoire_search_clear_button, Color("f7dfad"))
-	UiTypography.apply_button_role(_grimoire_search_clear_button, UiTypography.ROLE_CAPTION)
-	_grimoire_search_clear_button.custom_minimum_size = Vector2(66.0, 42.0)
-	_grimoire_search_clear_button.pressed.connect(_clear_grimoire_search)
-	search_row.add_child(_grimoire_search_clear_button)
-
-	_grimoire_search_status = Label.new()
-	_grimoire_search_status.name = "GrimoireSearchStatus"
-	_grimoire_search_status.text = "Discovered entries"
-	_grimoire_search_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_grimoire_search_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.apply_label_role(_grimoire_search_status, UiTypography.ROLE_CAPTION)
-	_grimoire_search_status.add_theme_color_override("font_color", Color(0.28, 0.18, 0.10, 0.82))
-	left_stack.add_child(_grimoire_search_status)
-
-	_grimoire_entry_scroll = ScrollContainer.new()
-	_grimoire_entry_scroll.name = "GrimoireNavScroll"
-	_grimoire_entry_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_entry_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_entry_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_grimoire_entry_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_grimoire_entry_scroll.follow_focus = true
-	_grimoire_entry_scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	left_stack.add_child(_grimoire_entry_scroll)
-
-	_grimoire_section_list = VBoxContainer.new()
-	_grimoire_section_list.name = "GrimoireNavList"
-	_grimoire_section_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_section_list.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
-	_grimoire_entry_scroll.add_child(_grimoire_section_list)
-	_grimoire_entry_list = _grimoire_section_list
-
-	var binding := ColorRect.new()
-	binding.custom_minimum_size = Vector2(3.0, 0.0)
-	binding.color = Color(0.25, 0.14, 0.07, 0.72)
-	binding.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	book_row.add_child(binding)
-
-	_grimoire_detail_panel = PanelContainer.new()
-	_grimoire_detail_panel.name = "GrimoireDetailPage"
-	_grimoire_detail_panel.custom_minimum_size = Vector2(GRIMOIRE_DETAIL_PAGE_WIDTH, 0.0)
-	_grimoire_detail_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_panel.add_theme_stylebox_override("panel", _grimoire_page_style(true))
-	book_row.add_child(_grimoire_detail_panel)
-	_ui_skin.apply_surface_finish(_grimoire_detail_panel, "paper_right")
-
-	var detail_margin := MarginContainer.new()
-	detail_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	detail_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
-	detail_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
-	detail_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
-	_grimoire_detail_panel.add_child(detail_margin)
-
-	var detail_stack := VBoxContainer.new()
-	detail_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_stack.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	detail_margin.add_child(detail_stack)
-
-	var detail_header := HBoxContainer.new()
-	detail_header.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
-	detail_stack.add_child(detail_header)
-
-	var icon_frame := PanelContainer.new()
-	icon_frame.custom_minimum_size = Vector2(86.0, 86.0)
-	icon_frame.add_theme_stylebox_override("panel", _grimoire_icon_frame_style())
-	detail_header.add_child(icon_frame)
-
-	var icon_margin := MarginContainer.new()
-	icon_margin.add_theme_constant_override("margin_left", 3)
-	icon_margin.add_theme_constant_override("margin_top", 3)
-	icon_margin.add_theme_constant_override("margin_right", 3)
-	icon_margin.add_theme_constant_override("margin_bottom", 3)
-	icon_frame.add_child(icon_margin)
-
-	_grimoire_detail_icon = TextureRect.new()
-	_grimoire_detail_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_grimoire_detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_grimoire_detail_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_grimoire_detail_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_margin.add_child(_grimoire_detail_icon)
-
-	var detail_title_stack := VBoxContainer.new()
-	detail_title_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_title_stack.add_theme_constant_override("separation", 1)
-	detail_header.add_child(detail_title_stack)
-
-	_grimoire_detail_kicker = Label.new()
-	UiTypography.apply_label_role(_grimoire_detail_kicker, UiTypography.ROLE_CAPTION)
-	_grimoire_detail_kicker.add_theme_color_override("font_color", Color("a97546"))
-	detail_title_stack.add_child(_grimoire_detail_kicker)
-
-	_grimoire_detail_title = Label.new()
-	_grimoire_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.apply_label_role(_grimoire_detail_title, UiTypography.ROLE_TITLE)
-	_grimoire_detail_title.add_theme_color_override("font_color", Color("3a2416"))
-	_grimoire_detail_title.add_theme_color_override("font_outline_color", Color(1.0, 0.88, 0.64, 0.20))
-	_grimoire_detail_title.add_theme_constant_override("outline_size", 1)
-	detail_title_stack.add_child(_grimoire_detail_title)
-
-	var rule := ColorRect.new()
-	rule.custom_minimum_size = Vector2(0.0, 2.0)
-	rule.color = Color(0.45, 0.27, 0.13, 0.46)
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	detail_stack.add_child(rule)
-
-	_grimoire_detail_body = RichTextLabel.new()
-	_grimoire_detail_body.bbcode_enabled = false
-	_grimoire_detail_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_grimoire_detail_body.fit_content = true
-	_grimoire_detail_body.scroll_active = true
-	_grimoire_detail_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_rich_text_role(_grimoire_detail_body, UiTypography.ROLE_BODY)
-	_grimoire_detail_body.add_theme_color_override("default_color", Color("4a3320"))
-	detail_stack.add_child(_grimoire_detail_body)
-
-	_grimoire_detail_content = VBoxContainer.new()
-	_grimoire_detail_content.name = "GrimoireDetailContent"
-	_grimoire_detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	detail_stack.add_child(_grimoire_detail_content)
-	_ui_skin.apply_outer_panel_frame(_grimoire_dialog, UiSkin.SURFACE_PARCHMENT)
-
-func _grimoire_cover_style() -> StyleBoxFlat:
-	var style := _ui_skin.make_plain_card_style(Color(0.12, 0.065, 0.035, 0.98), Color("7c4a24"), 18.0)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_size = 22
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	return style
-
-func _grimoire_page_style(right_page: bool) -> StyleBoxFlat:
-	var base: Color = Color("d8c08f") if right_page else Color("ccb07c")
-	var style := _ui_skin.make_plain_card_style(base, Color(0.54, 0.33, 0.16, 0.74), 14.0)
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	style.shadow_size = 6
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
-	return style
-
-func _grimoire_icon_frame_style() -> StyleBoxFlat:
-	var style := _ui_skin.make_plain_card_style(Color(0.25, 0.14, 0.075, 0.88), Color("8b5b2e"), 8.0)
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.shadow_size = 4
-	return style
-
-func _grimoire_search_field_style(focused: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("ead7aa") if focused else Color("e2ca98")
-	style.border_color = Color("9a632f") if focused else Color(0.42, 0.26, 0.12, 0.62)
-	style.border_width_left = 2 if focused else 1
-	style.border_width_top = 2 if focused else 1
-	style.border_width_right = 2 if focused else 1
-	style.border_width_bottom = 2 if focused else 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	style.content_margin_left = UiTypography.SPACE_MEDIUM
-	style.content_margin_top = UiTypography.SPACE_SMALL
-	style.content_margin_right = UiTypography.SPACE_MEDIUM
-	style.content_margin_bottom = UiTypography.SPACE_SMALL
-	style.shadow_color = Color(0.24, 0.13, 0.06, 0.22) if focused else Color.TRANSPARENT
-	style.shadow_size = 4 if focused else 0
-	return style
+func _layout_grimoire_dialog() -> void:
+	if _grimoire_scrim != null: _grimoire_scrim._layout_grimoire_dialog()
 
 func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
-	if _grimoire_section_list == null:
-		return
-	# Opening or switching section warms that section's card faces after its first frame.
-	preload("res://scripts/grimoire_texture_preparation.gd").prepare_for.call_deferred(self)
-	var grimoire_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	_layout_grimoire_dialog()
-	var preserved_scroll_vertical: int = 0
-	if _grimoire_entry_scroll != null:
-		preserved_scroll_vertical = _grimoire_entry_scroll.scroll_vertical
-	_grimoire_nav_scroll_revision += 1
-	var scroll_revision: int = _grimoire_nav_scroll_revision
-	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
-	var unlocked: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
-	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
-	var sections: Array = GrimoireLibrary.sections()
-	_grimoire_search_result_buttons.clear()
-	_grimoire_nav_buttons.clear()
-	grimoire_started = _record_runtime_performance_phase("grimoire_catalog_prepare", grimoire_started)
-	if _grimoire_search_active():
-		_rebuild_grimoire_search_results(unlocked, unread, sections, preserved_scroll_vertical, scroll_revision)
-		return
-	var entries_by_section: Dictionary = _grimoire_entries_by_section(unlocked)
-	_grimoire_search_results.clear()
-	_update_grimoire_search_chrome(unlocked.size())
-	if _grimoire_selected_section.is_empty() or _grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section).is_empty():
-		_grimoire_selected_section = _first_unlocked_grimoire_section_from(sections, entries_by_section)
-	_grimoire_sync_selected_entry(_grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section))
-	_clear_grimoire_browse_controls()
-	var selected_index: int = 0
-	for section_var: Variant in sections:
-		if typeof(section_var) != TYPE_DICTIONARY:
-			continue
-		var section: Dictionary = section_var as Dictionary
-		var section_id: String = str(section.get("id", ""))
-		var section_entries: Array[Dictionary] = _grimoire_entries_for_section_map(entries_by_section, section_id)
-		if section_entries.is_empty():
-			continue
-		var section_selected: bool = section_id == _grimoire_selected_section
-		var section_button := _grimoire_nav_button(
-			"%s · %d" % [str(section.get("title", section_id)), section_entries.size()],
-			0,
-			section_selected,
-			_grimoire_section_has_unread(section_id, unread),
-			str(section.get("summary", "")),
-			"section"
-		)
-		section_button.set_meta("grimoire_nav_kind", "section")
-		section_button.set_meta("grimoire_nav_id", section_id)
-		section_button.pressed.connect(_on_grimoire_section_pressed.bind(section_id))
-		_add_grimoire_nav_button(section_button, 0)
-		if section_selected and _grimoire_selected_entry.is_empty():
-			selected_index = _grimoire_nav_buttons.size() - 1
-		if not section_selected:
-			continue
-		var groups: Array[String] = _grimoire_group_ids_for_entries(section_entries)
-		if groups.is_empty():
-			for entry: Dictionary in section_entries:
-				var entry_index: int = _add_grimoire_entry_tab(entry, unread, 1)
-				if str(entry.get("id", "")) == _grimoire_selected_entry:
-					selected_index = entry_index
-			continue
-		for group_id: String in groups:
-			var group_entries: Array[Dictionary] = _grimoire_entries_for_group(section_entries, group_id)
-			var group_selected: bool = group_id == _grimoire_selected_group
-			var group_button := _grimoire_nav_button(
-				"%s · %d" % [_grimoire_group_title(group_entries, group_id), group_entries.size()],
-				1,
-				group_selected,
-				_grimoire_group_has_unread(group_entries, unread),
-				"",
-				"group"
-			)
-			group_button.set_meta("grimoire_nav_kind", "group")
-			group_button.set_meta("grimoire_nav_id", "%s:%s" % [section_id, group_id])
-			group_button.pressed.connect(_on_grimoire_group_pressed.bind(section_id, group_id))
-			_add_grimoire_nav_button(group_button, 1)
-			if not group_selected:
-				continue
-			for entry: Dictionary in group_entries:
-				var entry_index: int = _add_grimoire_entry_tab(entry, unread, 2)
-				if str(entry.get("id", "")) == _grimoire_selected_entry:
-					selected_index = entry_index
-	if scroll_to_selection:
-		call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
-	else:
-		call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
-	grimoire_started = _record_runtime_performance_phase("grimoire_browse_build", grimoire_started)
-	_refresh_grimoire_detail()
-	_record_runtime_performance_phase("grimoire_detail_build", grimoire_started)
-	_refresh_grimoire_badge()
-
-func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[String], sections: Array, preserved_scroll_vertical: int, scroll_revision: int) -> void:
-	var grimoire_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	if _grimoire_search_index.is_empty() or unlocked != _grimoire_search_index_unlocked:
-		var unlocked_entries: Array = []
-		var unlocked_lookup: Dictionary = {}
-		for entry_id: String in unlocked: unlocked_lookup[entry_id] = true
-		for entry_var: Variant in GrimoireLibrary.entries():
-			if typeof(entry_var) == TYPE_DICTIONARY and unlocked_lookup.has(str((entry_var as Dictionary).get("id", ""))):
-				unlocked_entries.append(entry_var)
-		_grimoire_search_index = GrimoireSearch.build_index(unlocked_entries, sections)
-		_grimoire_search_index_unlocked.assign(unlocked)
-		_grimoire_cached_results_valid = false
-	grimoire_started = _record_runtime_performance_phase("grimoire_search_catalog", grimoire_started)
-	if not _grimoire_cached_results_valid or _grimoire_cached_result_query != _grimoire_search_query:
-		_grimoire_cached_results = GrimoireSearch.search_index(_grimoire_search_index, _grimoire_search_query)
-		_grimoire_cached_result_query = _grimoire_search_query
-		_grimoire_cached_results_valid = true
-	# Browsing clears its visible array; preserve a separate owned outer array
-	# so selection/unread changes can reuse the same immutable ranking.
-	_grimoire_search_results.assign(_grimoire_cached_results)
-	grimoire_started = _record_runtime_performance_phase("grimoire_search_score", grimoire_started)
-	var selected_still_matches: bool = false
-	for result: Dictionary in _grimoire_search_results:
-		var result_entry: Dictionary = result.get("entry", {}) as Dictionary
-		if str(result_entry.get("id", "")) == _grimoire_selected_entry:
-			selected_still_matches = true
-			break
-	if not selected_still_matches:
-		_grimoire_selected_entry = "" if _grimoire_search_results.is_empty() else str((_grimoire_search_results[0].get("entry", {}) as Dictionary).get("id", ""))
-	_reconcile_grimoire_search_rows(unread)
-	_update_grimoire_search_chrome(unlocked.size())
-	if _grimoire_search_results.is_empty():
-		call_deferred("_restore_grimoire_entry_list_scroll", 0, 0, scroll_revision)
-	else:
-		var selected_index: int = 0
-		for index: int in range(_grimoire_search_results.size()):
-			var result_entry: Dictionary = _grimoire_search_results[index].get("entry", {}) as Dictionary
-			if str(result_entry.get("id", "")) == _grimoire_selected_entry:
-				selected_index = index
-				break
-		if preserved_scroll_vertical > 0:
-			call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
-		else:
-			call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
-	grimoire_started = _record_runtime_performance_phase("grimoire_result_controls", grimoire_started)
-	_refresh_grimoire_detail()
-	_record_runtime_performance_phase("grimoire_detail_build", grimoire_started)
+	if _grimoire_scrim == null: return
+	_grimoire_scrim._rebuild_grimoire_overlay(scroll_to_selection)
 	_refresh_grimoire_badge()
 
 func _grimoire_known_row_ids() -> Array[String]:
 	return GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
 
-func _grimoire_row_preparation_key() -> Dictionary:
-	return {"ids": _grimoire_known_row_ids(), "common": [get_viewport_rect().size, UiTypography.ui_scale(self)]}
-
 func _prepare_known_grimoire_rows() -> void:
-	await preload("res://scripts/grimoire_search_rows.gd").prepare_current_for(self, _grimoire_row_preparation_revision, preload("res://scripts/encounter_asset_preparation.gd").present_frame.bind(get_tree()), func() -> bool: return true)
-
-func _grimoire_search_row_input(result: Dictionary, unread: Array[String], common: Array) -> Array:
-	var entry: Dictionary = result.get("entry", {}) as Dictionary
-	var id: String = str(entry.get("id", ""))
-	return [str(entry.get("title", id)), unread.has(id), id == _grimoire_selected_entry, _grimoire_search_result_context(result), _grimoire_search_result_tooltip(result), common]
-
-func _park_grimoire_search_row(wrapper: Control) -> void:
-	var button: Button = wrapper.get_child(0) as Button
-	if button.has_focus(): button.release_focus()
-	button.focus_mode = Control.FOCUS_NONE
-	wrapper.hide()
-	wrapper.process_mode = Node.PROCESS_MODE_DISABLED
-
-func _clear_grimoire_browse_controls() -> void:
-	for child: Node in _grimoire_section_list.get_children():
-		var id: String = str(child.get_meta("grimoire_prepared_search_row", ""))
-		if _grimoire_search_retained_rows.get(id, {}).get("node") == child:
-			_park_grimoire_search_row(child as Control)
-		else:
-			_prepare_node_for_immediate_free(child)
-			_grimoire_section_list.remove_child(child)
-			child.queue_free()
-
-	preload("res://scripts/grimoire_search_rows.gd").trim_hidden(self)
+	if _grimoire_scrim != null: await _grimoire_scrim._prepare_known_grimoire_rows()
 
 func _prune_grimoire_search_rows(ids: Array[String]) -> void:
-	for id: String in _grimoire_search_retained_rows.keys():
-		var node: Variant = _grimoire_search_retained_rows[id].get("node")
-		if ids.has(id) and _node_is_alive(node): continue
-		_grimoire_search_retained_rows.erase(id)
-		if _node_is_alive(node):
-			_prepare_node_for_immediate_free(node)
-			if node.get_parent() != null: node.get_parent().remove_child(node)
-			node.queue_free()
+	_grimoire_scrim._prune_grimoire_search_rows(ids)
+
+func _grimoire_row_preparation_key() -> Dictionary:
+	return _grimoire_scrim._grimoire_row_preparation_key()
 
 func _prepare_grimoire_search_row(document: Dictionary) -> void:
-	var entry: Dictionary = document["entry"]
-	var id: String = str(entry["id"])
-	var common: Array = [get_viewport_rect().size, UiTypography.ui_scale(self)]
-	var cached: Variant = _grimoire_search_retained_rows.get(id, {}).get("node")
-	if _node_is_alive(cached):
-		# Published rows may already be in use. Preparation never replaces a
-		# visible row or changes any live selection, focus, or search results.
-		if cached.visible or _grimoire_search_retained_rows[id]["input"][5] == common: return
-		_grimoire_search_retained_rows.erase(id)
-		_prepare_node_for_immediate_free(cached)
-		cached.get_parent().remove_child(cached)
-		cached.queue_free()
-	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
-	var result: Dictionary = {"entry": entry, "breadcrumb": document.get("breadcrumb", ""), "match_kind": "title"}
-	var button: Button = _new_grimoire_search_result(result, unread)
-	var wrapper := MarginContainer.new()
-	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	wrapper.add_theme_constant_override("margin_left", 0)
-	wrapper.add_theme_constant_override("margin_right", 0)
-	wrapper.add_child(button)
-	wrapper.set_meta("grimoire_prepared_search_row", id)
-	_park_grimoire_search_row(wrapper)
-	# Its final parent/theme/layout context is ready before publication. No
-	# continuation owns or discards this row after a rendered boundary.
-	_grimoire_section_list.add_child(wrapper)
-	_grimoire_search_retained_rows[id] = {"node": wrapper, "input": _grimoire_search_row_input(result, unread, common).duplicate(true)}
+	_grimoire_scrim._prepare_grimoire_search_row(document)
 
-func _reconcile_grimoire_search_rows(unread: Array[String]) -> void:
-	# Only discovered entries have prepared controls. Keep hidden rows after the
-	# ordered visible rows under their final parent, avoiding native theme setup
-	# when a broad query first exposes hundreds of results.
-	_prune_grimoire_search_rows(_grimoire_known_row_ids())
-	var next: Dictionary = _grimoire_search_retained_rows.duplicate()
-	var ordered: Array[Control]
-	var common: Array = [get_viewport_rect().size, UiTypography.ui_scale(self)]
-	for result: Dictionary in _grimoire_search_results:
-		var id: String = str((result.get("entry", {}) as Dictionary).get("id", ""))
-		var input: Array = _grimoire_search_row_input(result, unread, common)
-		var previous: Dictionary = _grimoire_search_retained_rows.get(id, {})
-		var cached: Variant = previous.get("node")
-		var wrapper: Control
-		if _node_is_alive(cached) and cached.get_parent() == _grimoire_section_list and (previous.get("input", []) as Array).size() == input.size() and previous["input"][5] == common:
-			var button: Button = cached.get_child(0) as Button
-			# A visible row with active pointer state takes the original fallback.
-			# Hidden prepared rows have no gesture and normalize selection at use.
-			if not cached.visible or button.get_draw_mode() not in [BaseButton.DRAW_HOVER, BaseButton.DRAW_HOVER_PRESSED, BaseButton.DRAW_PRESSED]:
-				wrapper = cached
-				if button.has_focus(): button.release_focus()
-				_update_grimoire_search_result(button, previous["input"], input)
-				button.focus_mode = Control.FOCUS_ALL
-				wrapper.process_mode = Node.PROCESS_MODE_INHERIT
-				wrapper.show()
-				preload("res://scripts/grimoire_search_rows.gd").append_navigation_button(self, button)
-				_grimoire_search_result_buttons.append(button)
-		if wrapper == null:
-			var button: Button = _new_grimoire_search_result(result, unread)
-			_add_grimoire_nav_button(button, 0)
-			_grimoire_search_result_buttons.append(button)
-			wrapper = button.get_parent() as Control
-			wrapper.set_meta("grimoire_prepared_search_row", id)
-		next[id] = {"node": wrapper, "input": input.duplicate(true)}
-		ordered.append(wrapper)
-	for child: Node in _grimoire_section_list.get_children():
-		if ordered.has(child): continue
-		var id: String = str(child.get_meta("grimoire_prepared_search_row", ""))
-		if next.get(id, {}).get("node") == child:
-			_park_grimoire_search_row(child as Control)
-		else:
-			_prepare_node_for_immediate_free(child)
-			_grimoire_section_list.remove_child(child)
-			child.queue_free()
-	for index: int in ordered.size(): _grimoire_section_list.move_child(ordered[index], index)
-	_grimoire_search_retained_rows = next
-	preload("res://scripts/grimoire_search_rows.gd").trim_hidden(self)
+func _on_grimoire_entry_pressed(entry_id: String) -> void:
+	_grimoire_scrim._on_grimoire_entry_pressed(entry_id)
 
-
-func _update_grimoire_search_result(button: Button, previous: Array, input: Array) -> void:
-	var content: VBoxContainer = button.get_child(0) as VBoxContainer
-	var title: Label = content.get_child(0) as Label
-	var breadcrumb: Label = content.get_child(1) as Label
-	var selected: bool = bool(input[2])
-	# Native accessibility activation may toggle before emitting pressed. Match
-	# a freshly constructed result even when presentation inputs did not change.
-	button.set_pressed_no_signal(selected)
-	if previous[0] != input[0] or previous[1] != input[1]:
-		title.text = "%s%s" % ["* " if bool(input[1]) else "", str(input[0])]
-	if previous[3] != input[3]: breadcrumb.text = str(input[3])
-	if previous[4] != input[4]: button.tooltip_text = str(input[4])
-	if previous[2] != input[2]:
-		button.add_theme_stylebox_override("normal", _grimoire_tab_style(1, selected, false, false, "search"))
-		button.add_theme_stylebox_override("hover", _grimoire_tab_style(1, selected, true, false, "search"))
-		button.add_theme_stylebox_override("focus", _grimoire_tab_style(1, selected, true, false, "search"))
-		var color: Color = Color("2f1d10") if selected else Color("3d2818")
-		for role: String in ["font_color", "font_pressed_color", "font_focus_color"]: button.add_theme_color_override(role, color)
-		title.add_theme_color_override("font_color", color)
-
-func _new_grimoire_search_result(result: Dictionary, unread: Array[String]) -> Button:
-	var entry: Dictionary = result.get("entry", {}) as Dictionary
-	var entry_id: String = str(entry.get("id", ""))
-	var selected: bool = entry_id == _grimoire_selected_entry
-	var button := _grimoire_nav_button(
-		"",
-		1,
-		selected,
-		false,
-		_grimoire_search_result_tooltip(result),
-		"search",
-		entry_id
-	)
-	button.custom_minimum_size.y = 60.0
-	button.focus_mode = Control.FOCUS_ALL
-	button.set_meta("grimoire_nav_kind", "entry")
-	button.set_meta("grimoire_nav_id", entry_id)
-	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
-	var content := VBoxContainer.new()
-	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	content.offset_left = UiTypography.SPACE_MEDIUM
-	content.offset_top = UiTypography.SPACE_TIGHT
-	content.offset_right = -UiTypography.SPACE_SMALL
-	content.offset_bottom = -UiTypography.SPACE_TIGHT
-	content.add_theme_constant_override("separation", 0)
-	button.add_child(content)
-	var title := Label.new()
-	title.text = "%s%s" % ["* " if unread.has(entry_id) else "", str(entry.get("title", entry_id))]
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.clip_text = true
-	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(title, UiTypography.ROLE_BODY)
-	title.add_theme_color_override("font_color", Color("2f1d10") if selected else Color("3d2818"))
-	content.add_child(title)
-	var breadcrumb := Label.new()
-	breadcrumb.text = _grimoire_search_result_context(result)
-	breadcrumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	breadcrumb.clip_text = true
-	breadcrumb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	breadcrumb.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	UiTypography.apply_label_role(breadcrumb, UiTypography.ROLE_CAPTION)
-	breadcrumb.add_theme_color_override("font_color", Color(0.28, 0.18, 0.10, 0.76))
-	content.add_child(breadcrumb)
-	return button
-
-func _grimoire_search_result_context(result: Dictionary) -> String:
-	var breadcrumb: String = str(result.get("breadcrumb", ""))
-	var match_label: String = {
-		"alias": "common term",
-		"topic": "category",
-		"rules": "rules text",
-		"close": "close spelling"
-	}.get(str(result.get("match_kind", "title")), "")
-	if breadcrumb.is_empty():
-		return match_label
-	return breadcrumb if match_label.is_empty() else "%s · %s" % [breadcrumb, match_label]
-
-func _grimoire_search_result_tooltip(result: Dictionary) -> String:
-	var entry: Dictionary = result.get("entry", {}) as Dictionary
-	var context: String = _grimoire_search_result_context(result)
-	return str(entry.get("title", "")) if context.is_empty() else "%s\n%s" % [str(entry.get("title", "")), context.capitalize()]
-
-func _update_grimoire_search_chrome(unlocked_count: int) -> void:
-	var active: bool = _grimoire_search_active()
-	if _grimoire_search_clear_button != null:
-		_grimoire_search_clear_button.visible = active
-	if _grimoire_search_status == null:
-		return
-	if not active:
-		_grimoire_search_status.text = "%d discovered %s" % [unlocked_count, "entry" if unlocked_count == 1 else "entries"]
-	elif _grimoire_search_results.is_empty():
-		_grimoire_search_status.text = "No matches in discovered entries"
-	else:
-		var close_count: int = 0
-		for result: Dictionary in _grimoire_search_results:
-			if str(result.get("match_kind", "")) == "close":
-				close_count += 1
-		if close_count == _grimoire_search_results.size():
-			_grimoire_search_status.text = "%d close %s" % [close_count, "match" if close_count == 1 else "matches"]
-		else:
-			_grimoire_search_status.text = "%d %s across all sections" % [_grimoire_search_results.size(), "match" if _grimoire_search_results.size() == 1 else "matches"]
-
-func _grimoire_search_active() -> bool:
-	return not GrimoireSearch.normalize(_grimoire_search_query).is_empty()
+func _on_grimoire_section_pressed(section_id: String) -> void:
+	_grimoire_scrim._on_grimoire_section_pressed(section_id)
 
 func _on_grimoire_search_text_changed(next_query: String) -> void:
-	var was_active: bool = _grimoire_search_active()
-	var will_be_active: bool = not GrimoireSearch.normalize(next_query).is_empty()
-	var browse_scroll_to_restore: int = -1
-	if not was_active and will_be_active:
-		_grimoire_search_restore_selection = {
-			"section": _grimoire_selected_section,
-			"group": _grimoire_selected_group,
-			"entry": _grimoire_selected_entry
-		}
-		_grimoire_search_restore_scroll = _grimoire_entry_scroll.scroll_vertical if _grimoire_entry_scroll != null else 0
-	elif was_active and not will_be_active:
-		browse_scroll_to_restore = _grimoire_search_restore_scroll
-		_restore_grimoire_browse_selection()
-	_grimoire_search_query = next_query
-	_rebuild_grimoire_overlay(false)
-	if browse_scroll_to_restore >= 0:
-		call_deferred("_restore_grimoire_entry_list_scroll", browse_scroll_to_restore, 0, _grimoire_nav_scroll_revision)
-		_grimoire_search_restore_scroll = 0
-
-func _on_grimoire_search_submitted(_query: String) -> void:
-	if _grimoire_search_results.is_empty():
-		return
-	var first_entry: Dictionary = _grimoire_search_results[0].get("entry", {}) as Dictionary
-	_on_grimoire_entry_pressed(str(first_entry.get("id", "")))
-	call_deferred("_focus_selected_grimoire_search_result")
+	_grimoire_scrim._on_grimoire_search_text_changed(next_query)
 
 func _on_grimoire_search_gui_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_down") and not _grimoire_nav_buttons.is_empty():
-		_grimoire_nav_buttons[0].grab_focus()
-		_grimoire_search_input.accept_event()
-
-func _focus_selected_grimoire_search_result() -> void:
-	for index: int in range(_grimoire_search_results.size()):
-		var entry: Dictionary = _grimoire_search_results[index].get("entry", {}) as Dictionary
-		if str(entry.get("id", "")) == _grimoire_selected_entry and index < _grimoire_search_result_buttons.size():
-			_grimoire_search_result_buttons[index].grab_focus()
-			return
-
-func _clear_grimoire_search() -> void:
-	if _grimoire_search_input == null:
-		return
-	_grimoire_search_input.text = ""
-	# Programmatic LineEdit text changes do not emit text_changed.
-	_on_grimoire_search_text_changed("")
-	_grimoire_search_input.grab_focus()
-
-func _restore_grimoire_browse_selection() -> void:
-	if _grimoire_search_restore_selection.is_empty():
-		return
-	_grimoire_selected_section = str(_grimoire_search_restore_selection.get("section", _grimoire_selected_section))
-	_grimoire_selected_group = str(_grimoire_search_restore_selection.get("group", _grimoire_selected_group))
-	_grimoire_selected_entry = str(_grimoire_search_restore_selection.get("entry", _grimoire_selected_entry))
-	_grimoire_search_restore_selection.clear()
-
-func _reset_grimoire_search() -> void:
-	if _grimoire_search_active():
-		_restore_grimoire_browse_selection()
-	_grimoire_search_query = ""
-	_grimoire_search_results.clear()
-	_grimoire_search_result_buttons.clear()
-	_grimoire_search_restore_selection.clear()
-	_grimoire_search_restore_scroll = 0
-	if _grimoire_search_input != null:
-		_grimoire_search_input.set_block_signals(true)
-		_grimoire_search_input.text = ""
-		_grimoire_search_input.set_block_signals(false)
-	if _grimoire_search_clear_button != null:
-		_grimoire_search_clear_button.visible = false
-
-func _grimoire_entries_by_section(unlocked: Array[String]) -> Dictionary:
-	var unlocked_lookup: Dictionary = {}
-	for entry_id: String in unlocked:
-		unlocked_lookup[entry_id] = true
-	var result: Dictionary = {}
-	for entry_var: Variant in GrimoireLibrary.entries():
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = entry_var as Dictionary
-		var entry_id: String = str(entry.get("id", ""))
-		if entry_id.is_empty() or not bool(unlocked_lookup.get(entry_id, false)):
-			continue
-		var section_id: String = str(entry.get("section", ""))
-		if section_id.is_empty():
-			continue
-		if not result.has(section_id):
-			result[section_id] = []
-		var section_entries: Array = result.get(section_id, [])
-		section_entries.append(entry)
-		result[section_id] = section_entries
-	return result
-
-func _grimoire_entries_for_section_map(entries_by_section: Dictionary, section_id: String) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	for entry_var: Variant in entries_by_section.get(section_id, []):
-		if typeof(entry_var) == TYPE_DICTIONARY:
-			result.append(entry_var as Dictionary)
-	return result
-
-func _first_unlocked_grimoire_section_from(sections: Array, entries_by_section: Dictionary) -> String:
-	for section_var: Variant in sections:
-		if typeof(section_var) != TYPE_DICTIONARY:
-			continue
-		var section_id: String = str((section_var as Dictionary).get("id", ""))
-		if not _grimoire_entries_for_section_map(entries_by_section, section_id).is_empty():
-			return section_id
-	return ""
-
-func _select_first_unread_grimoire_entry() -> void:
-	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
-	if unread.is_empty():
-		return
-	var entry: Dictionary = GrimoireLibrary.entry_def(unread[0])
-	if entry.is_empty():
-		return
-	_grimoire_selected_section = str(entry.get("section", ""))
-	_grimoire_selected_group = _grimoire_entry_group_id(entry)
-	_grimoire_selected_entry = unread[0]
-
-func _grimoire_section_has_unread(section_id: String, unread: Array[String]) -> bool:
-	for entry_id: String in unread:
-		var entry: Dictionary = GrimoireLibrary.entry_def(entry_id)
-		if str(entry.get("section", "")) == section_id:
-			return true
-	return false
-
-func _layout_grimoire_dialog() -> void:
-	if _grimoire_dialog == null:
-		return
-	var dialog_size: Vector2 = UiTypography.modal_size(_grimoire_dialog, GRIMOIRE_DIALOG_SIZE, GRIMOIRE_MIN_DIALOG_SIZE)
-	_grimoire_dialog.custom_minimum_size = dialog_size
-	_grimoire_dialog.size = dialog_size
-
-func _grimoire_sync_selected_entry(entries_for_section: Array[Dictionary]) -> void:
-	if entries_for_section.is_empty():
-		_grimoire_selected_entry = ""
-		_grimoire_selected_group = ""
-		return
-	var groups: Array[String] = _grimoire_group_ids_for_entries(entries_for_section)
-	var selected_in_section: bool = false
-	for entry: Dictionary in entries_for_section:
-		if str(entry.get("id", "")) == _grimoire_selected_entry:
-			selected_in_section = true
-			break
-	if not selected_in_section:
-		_grimoire_selected_entry = ""
-	if groups.is_empty():
-		_grimoire_selected_group = ""
-		if _grimoire_selected_entry.is_empty():
-			_grimoire_selected_entry = str(entries_for_section[0].get("id", ""))
-		return
-	if _grimoire_selected_group.is_empty() or not groups.has(_grimoire_selected_group):
-		_grimoire_selected_group = _grimoire_entry_group_id(GrimoireLibrary.entry_def(_grimoire_selected_entry))
-	if _grimoire_selected_group.is_empty() or not groups.has(_grimoire_selected_group):
-		_grimoire_selected_group = groups[0]
-	var group_entries: Array[Dictionary] = _grimoire_entries_for_group(entries_for_section, _grimoire_selected_group)
-	var selected_in_group: bool = false
-	for entry: Dictionary in group_entries:
-		if str(entry.get("id", "")) == _grimoire_selected_entry:
-			selected_in_group = true
-			break
-	if not selected_in_group and not group_entries.is_empty():
-		_grimoire_selected_entry = str(group_entries[0].get("id", ""))
-
-func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: int) -> int:
-	var entry_id: String = str(entry.get("id", ""))
-	var button := _grimoire_nav_button(
-		str(entry.get("title", entry_id)),
-		depth,
-		entry_id == _grimoire_selected_entry,
-		unread.has(entry_id),
-		str(entry.get("title", entry_id)),
-		"entry",
-		entry_id
-	)
-	button.set_meta("grimoire_nav_kind", "entry")
-	button.set_meta("grimoire_nav_id", entry_id)
-	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
-	_add_grimoire_nav_button(button, depth)
-	return _grimoire_nav_buttons.size() - 1
-
-func _add_grimoire_nav_button(button: Button, depth: int) -> void:
-	var wrapper := MarginContainer.new()
-	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	wrapper.add_theme_constant_override("margin_left", depth * UiTypography.SPACE_LARGE)
-	wrapper.add_theme_constant_override("margin_right", 0)
-	wrapper.add_child(button)
-	_grimoire_section_list.add_child(wrapper)
-	_grimoire_section_list.move_child(wrapper, _grimoire_nav_buttons.size())
-	preload("res://scripts/grimoire_search_rows.gd").append_navigation_button(self, button)
-
-func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String, entry_id: String = "") -> Button:
-	var button := UiTooltipButton.new()
-	if entry_id.begins_with("keyword:"):
-		button.tooltip_source = {"kind": "grimoire", "id": entry_id}
-	var marker: String = "* " if unread else ""
-	button.text = "%s%s" % [marker, label]
-	button.toggle_mode = true
-	button.button_pressed = selected
-	button.clip_text = true
-	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	button.tooltip_text = tooltip if not tooltip.is_empty() else label
-	button.custom_minimum_size = Vector2(0.0, 44.0 if depth == 0 else 38.0 if kind == "group" else GRIMOIRE_ENTRY_BUTTON_HEIGHT)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_stylebox_override("normal", _grimoire_tab_style(depth, selected, false, false, kind))
-	button.add_theme_stylebox_override("hover", _grimoire_tab_style(depth, selected, true, false, kind))
-	button.add_theme_stylebox_override("pressed", _grimoire_tab_style(depth, true, false, true, kind))
-	button.add_theme_stylebox_override("focus", _grimoire_tab_style(depth, selected, true, false, kind))
-	button.add_theme_stylebox_override("disabled", _grimoire_tab_style(depth, false, false, false, kind))
-	var text_color: Color = Color("fff1cf") if selected and depth == 0 else Color("3d2818")
-	if selected and kind == "group":
-		text_color = Color("fff1cf")
-	elif selected and depth > 0:
-		text_color = Color("2f1d10")
-	elif depth == 2:
-		text_color = Color("4c3522")
-	button.add_theme_color_override("font_color", text_color)
-	button.add_theme_color_override("font_hover_color", Color("26170d"))
-	button.add_theme_color_override("font_pressed_color", text_color)
-	button.add_theme_color_override("font_focus_color", text_color)
-	UiTypography.apply_button_role(button, UiTypography.ROLE_BODY if depth <= 1 else UiTypography.ROLE_CAPTION)
-	return button
-
-func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool, kind: String) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	if depth == 0:
-		style.bg_color = Color("5d351d") if selected else Color(0.72, 0.55, 0.32, 0.22)
-		style.border_color = Color("d1a35e") if selected or hover else Color(0.39, 0.24, 0.12, 0.42)
-	elif kind == "group":
-		style.bg_color = Color("8a5628") if selected else Color(0.72, 0.53, 0.29, 0.22)
-		style.border_color = Color("d6a057") if selected or hover else Color(0.48, 0.29, 0.13, 0.52)
-	else:
-		style.bg_color = Color("d7b16d") if selected else Color(0.98, 0.88, 0.66, 0.18)
-		style.border_color = Color("8a5628") if selected or hover else Color(0.53, 0.34, 0.16, 0.34)
-	style.border_width_left = 3 if selected and depth > 0 else 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	if hover and not selected:
-		style.bg_color = style.bg_color.lightened(0.16)
-	elif hover and selected:
-		style.border_color = style.border_color.lightened(0.24)
-		style.border_width_top = 2
-		style.border_width_right = 2
-		style.border_width_bottom = 2
-	if pressed:
-		style.bg_color = style.bg_color.darkened(0.10)
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_right = 4
-	style.corner_radius_bottom_left = 4
-	style.content_margin_left = UiTypography.SPACE_MEDIUM
-	style.content_margin_top = UiTypography.SPACE_TIGHT
-	style.content_margin_right = UiTypography.SPACE_SMALL
-	style.content_margin_bottom = UiTypography.SPACE_TIGHT
-	return style
-
-func _restore_grimoire_entry_list_scroll(scroll_position: int, attempt: int = 0, revision: int = 0) -> void:
-	if revision != _grimoire_nav_scroll_revision:
-		return
-	if _grimoire_entry_scroll == null:
-		return
-	var scroll_bar: VScrollBar = _grimoire_entry_scroll.get_v_scroll_bar()
-	var layout_not_ready: bool = _grimoire_entry_scroll.size.y <= 0.0 \
-			or (_grimoire_entry_list != null and _grimoire_entry_list.size.y <= 0.0) \
-			or (scroll_position > 0 and scroll_bar != null and scroll_bar.max_value <= scroll_bar.page)
-	if layout_not_ready and attempt < 4:
-		call_deferred("_restore_grimoire_entry_list_scroll", scroll_position, attempt + 1, revision)
-		return
-	_grimoire_entry_scroll.scroll_vertical = maxi(0, scroll_position)
-
-func _scroll_grimoire_entry_list_to_index(index: int, attempt: int = 0, revision: int = 0) -> void:
-	if revision != _grimoire_nav_scroll_revision:
-		return
-	if _grimoire_entry_scroll == null:
-		return
-	if _grimoire_entry_list == null or _grimoire_entry_list.get_child_count() <= 0:
-		return
-	var safe_index: int = clampi(index, 0, _grimoire_entry_list.get_child_count() - 1)
-	var child: Control = _grimoire_entry_list.get_child(safe_index) as Control
-	if child == null:
-		return
-	if (child.size.y <= 0.0 or _grimoire_entry_scroll.size.y <= 0.0) and attempt < 4:
-		call_deferred("_scroll_grimoire_entry_list_to_index", safe_index, attempt + 1, revision)
-		return
-	var target: int = maxi(0, int(child.position.y - _grimoire_entry_scroll.size.y * 0.45 + child.size.y * 0.5))
-	_grimoire_entry_scroll.scroll_vertical = target
-	_grimoire_entry_scroll.ensure_control_visible(child)
-
-func _grimoire_group_ids_for_entries(entries: Array[Dictionary]) -> Array[String]:
-	var found: Array[String]
-	for entry: Dictionary in entries:
-		var group_id: String = _grimoire_entry_group_id(entry)
-		if group_id.is_empty() or found.has(group_id):
-			continue
-		found.append(group_id)
-	if found.size() <= 1:
-		return found
-	var ordered: Array[String]
-	for preferred: String in ["none", "fire", "ice", "lightning", "air", "earth", "weapon", "offhand", "armor", "boots", "trinket"]:
-		if found.has(preferred):
-			ordered.append(preferred)
-	for group_id: String in found:
-		if not ordered.has(group_id):
-			ordered.append(group_id)
-	return ordered
-
-func _grimoire_entry_group_id(entry: Dictionary) -> String:
-	return str(entry.get("group", ""))
-
-func _grimoire_entries_for_group(entries: Array[Dictionary], group_id: String) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	for entry: Dictionary in entries:
-		if _grimoire_entry_group_id(entry) == group_id:
-			result.append(entry)
-	return result
-
-func _grimoire_group_title(entries: Array[Dictionary], group_id: String) -> String:
-	for entry: Dictionary in entries:
-		var title: String = str(entry.get("group_title", ""))
-		if not title.is_empty():
-			return title
-	return group_id.capitalize()
-
-func _grimoire_group_has_unread(entries: Array[Dictionary], unread: Array[String]) -> bool:
-	for entry: Dictionary in entries:
-		if unread.has(str(entry.get("id", ""))):
-			return true
-	return false
+	_grimoire_scrim._on_grimoire_search_gui_input(event)
 
 func _refresh_grimoire_detail() -> void:
-	if _grimoire_detail_title == null or _grimoire_detail_body == null:
-		return
-	if _grimoire_detail_content != null:
-		_clear_children_now(_grimoire_detail_content)
-	var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
-	if entry.is_empty():
-		_grimoire_detail_kicker.text = "SEARCH" if _grimoire_search_active() else ""
-		_grimoire_detail_title.text = "No known match" if _grimoire_search_active() else "No entries"
-		_grimoire_detail_body.text = "Try a name, common term, rule, character, or creature." if _grimoire_search_active() else ""
-		_grimoire_detail_body.visible = true
-		_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		_grimoire_detail_icon.texture = _header_icon_texture("book")
-		return
-	var section: Dictionary = GrimoireLibrary.section_def(str(entry.get("section", "")))
-	_grimoire_detail_kicker.text = str(section.get("title", ""))
-	_grimoire_detail_title.text = str(entry.get("title", _grimoire_selected_entry))
-	_grimoire_detail_icon.texture = _grimoire_entry_icon(entry)
-	var body_text: String = _grimoire_body_text(entry)
-	var card_id: String = str(entry.get("card_id", ""))
-	var equipment_id: String = str(entry.get("equipment_id", ""))
-	if not card_id.is_empty():
-		_grimoire_detail_body.text = ""
-		_grimoire_detail_body.visible = false
-		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		_populate_grimoire_card_detail(card_id)
-	elif not equipment_id.is_empty():
-		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
-		_grimoire_detail_body.visible = not body_text.is_empty()
-		_grimoire_detail_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		_populate_grimoire_equipment_detail(equipment_id)
-	else:
-		InlineIconText.apply_to(_grimoire_detail_body, body_text, InlineIconText.DEFAULT_ICON_SCALE, true)
-		_grimoire_detail_body.visible = true
-		_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_grimoire_scrim._refresh_grimoire_detail()
 
 func _populate_grimoire_card_detail(card_id: String) -> void:
-	if _grimoire_detail_content == null:
-		return
-	var center := CenterContainer.new()
-	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	center.add_child(_build_card_preview_widget(card_id, GRIMOIRE_CARD_PREVIEW_SIZE, true))
-	_grimoire_detail_content.add_child(center)
+	_grimoire_scrim._populate_grimoire_card_detail(card_id)
 
 func _populate_grimoire_equipment_detail(equipment_id: String) -> void:
-	if _grimoire_detail_content == null:
-		return
-	var card_ids: Array = GameData.equipment_cards(equipment_id)
-	if card_ids.is_empty():
-		return
-	var label := Label.new()
-	label.text = "Granted Cards"
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
-	label.add_theme_color_override("font_color", Color("6a3e1f"))
-	label.add_theme_color_override("font_outline_color", Color(1.0, 0.88, 0.64, 0.18))
-	label.add_theme_constant_override("outline_size", 1)
-	_grimoire_detail_content.add_child(label)
-	var row := ItemPreviewBuilders.granted_card_row()
-	_grimoire_detail_content.add_child(row)
-	for card_id_var: Variant in card_ids:
-		row.add_child(_build_card_preview_widget(str(card_id_var), GRIMOIRE_EQUIPMENT_CARD_SIZE, true))
+	_grimoire_scrim._populate_grimoire_equipment_detail(equipment_id)
 
 func _grimoire_body_text(entry: Dictionary) -> String:
-	return preload("res://scripts/input_wording.gd").grimoire_body(entry, _controller_is_active())
-
-func _grimoire_entry_icon(entry: Dictionary) -> Texture2D:
-	var card_id: String = str(entry.get("card_id", ""))
-	if not card_id.is_empty():
-		var card: Dictionary = GameData.card_def(card_id)
-		var card_art_path: String = str(card.get("art_path", ""))
-		var card_texture: Texture2D = AssetLoader.load_texture(card_art_path)
-		if card_texture != null:
-			return card_texture
-	var equipment_id: String = str(entry.get("equipment_id", ""))
-	if not equipment_id.is_empty():
-		var equipment: Dictionary = GameData.equipment_def(equipment_id)
-		var equipment_texture: Texture2D = AssetLoader.load_texture(str(equipment.get("icon_path", "")))
-		if equipment_texture != null:
-			return equipment_texture
-	var npc_id: String = str(entry.get("npc_id", ""))
-	if not npc_id.is_empty():
-		var npc: Dictionary = GameData.npc_def(npc_id)
-		var npc_texture: Texture2D = AssetLoader.load_texture(str(npc.get("art_path", "")))
-		if npc_texture != null:
-			return npc_texture
-	var enemy_id: String = str(entry.get("enemy_id", ""))
-	if not enemy_id.is_empty():
-		var enemy: Dictionary = GameData.enemy_def(enemy_id)
-		var enemy_art_path: String = str(enemy.get("art_path", ""))
-		var enemy_texture: Texture2D = AssetLoader.load_texture(enemy_art_path)
-		if enemy_texture != null:
-			return enemy_texture
-	var icon_key: String = str(entry.get("icon", ""))
-	if not icon_key.is_empty():
-		var action_icon: Texture2D = ActionIcons.icon_texture(icon_key)
-		if action_icon != null:
-			return action_icon
-	return _header_icon_texture("book")
+	return _grimoire_scrim._grimoire_body_text(entry)
 
 func _refresh_grimoire_badge() -> void:
 	if _grimoire_badge == null:
@@ -7266,72 +6163,6 @@ func _refresh_loadout_badge() -> void:
 		_loadout_badge_label.text = str(mini(9, unread_count))
 		preload("res://scripts/header_count_badge_sizing.gd").fit(_loadout_badge, _loadout_badge_label, GRIMOIRE_BADGE_SIZE, 8)
 
-func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
-	for section_var: Variant in GrimoireLibrary.sections():
-		if typeof(section_var) != TYPE_DICTIONARY:
-			continue
-		var section_id: String = str((section_var as Dictionary).get("id", ""))
-		if GrimoireLibrary.section_has_unlocked_entries(section_id, unlocked):
-			return section_id
-	return ""
-
-func _on_grimoire_section_pressed(section_id: String) -> void:
-	var restore_nav_focus: bool = _grimoire_nav_has_focus()
-	_grimoire_selected_section = section_id
-	_grimoire_selected_group = ""
-	_grimoire_selected_entry = ""
-	_rebuild_grimoire_overlay()
-	if restore_nav_focus:
-		call_deferred("_focus_grimoire_nav_item", "section", section_id)
-
-func _on_grimoire_group_pressed(section_id: String, group_id: String) -> void:
-	var restore_nav_focus: bool = _grimoire_nav_has_focus()
-	_grimoire_selected_section = section_id
-	_grimoire_selected_group = group_id
-	_grimoire_selected_entry = ""
-	_rebuild_grimoire_overlay()
-	if restore_nav_focus:
-		call_deferred("_focus_grimoire_nav_item", "group", "%s:%s" % [section_id, group_id])
-
-func _on_grimoire_entry_pressed(entry_id: String) -> void:
-	var restore_nav_focus: bool = _grimoire_nav_has_focus()
-	var entry: Dictionary = GrimoireLibrary.entry_def(entry_id)
-	if not entry.is_empty():
-		_grimoire_selected_section = str(entry.get("section", _grimoire_selected_section))
-	_grimoire_selected_entry = entry_id
-	_grimoire_selected_group = _grimoire_entry_group_id(entry)
-	_rebuild_grimoire_overlay()
-	if restore_nav_focus:
-		call_deferred("_focus_grimoire_nav_item", "entry", entry_id)
-
-func _grimoire_nav_has_focus() -> bool:
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	if not focus_owner is Button:
-		return false
-	return _grimoire_nav_buttons.has(focus_owner as Button)
-
-func _focus_grimoire_nav_item(kind: String, item_id: String) -> void:
-	for button: Button in _grimoire_nav_buttons:
-		if str(button.get_meta("grimoire_nav_kind", "")) == kind \
-				and str(button.get_meta("grimoire_nav_id", "")) == item_id:
-			button.grab_focus()
-			return
-
-func _on_grimoire_scrim_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var mouse_event: InputEventMouseButton = event
-		if _grimoire_dialog != null and _grimoire_dialog.get_global_rect().has_point(mouse_event.global_position):
-			return
-		_close_grimoire_overlay()
-		accept_event()
-
-func _grimoire_scrim_cursor_feedback_context(local_position: Vector2) -> String:
-	if _grimoire_scrim == null or not _grimoire_scrim.visible:
-		return "inert"
-	var global_position: Vector2 = _grimoire_scrim.get_global_transform_with_canvas() * local_position
-	if _grimoire_dialog != null and _grimoire_dialog.get_global_rect().has_point(global_position):
-		return "inert"
-	return "action"
 
 func _build_dialogue_overlay() -> void:
 	var view := DialogueBoxView.new()
@@ -8072,6 +6903,7 @@ func _set_drag_hover_tile(tile: Vector2i) -> void:
 	if _hovered_board_tile == tile: return
 	_move_attack_approach.observe(tile, self)
 	_hovered_board_tile = tile
+	_sync_aoe_aim_target(tile)
 	_refresh_stage_view()
 	_refresh_selected_card_forecast()
 
@@ -8384,7 +7216,7 @@ func _prepare_drag_play_source_rect(hand_index: int) -> Rect2:
 	await get_tree().process_frame
 	return _hand_card_global_rect(hand_index)
 
-func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
+func _spawn_card_proxy(card_id: String, rect: Rect2, title_source: CardWidget = null, title_rest_size: Vector2 = Vector2.ZERO) -> Control:
 	var proxy: Control = _take_pooled_card_proxy()
 	if proxy == null:
 		proxy = Control.new()
@@ -8409,7 +7241,7 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	proxy.modulate = Color.WHITE
 	proxy.self_modulate = Color.WHITE
 	proxy.set_meta("scaled_card_proxy", true)
-	var widget: Control = proxy.get_child(0) as Control if proxy.get_child_count() > 0 else null
+	var widget: CardWidget = proxy.get_child(0) as CardWidget if proxy.get_child_count() > 0 else null
 	if widget == null:
 		widget = CardWidgetScene.instantiate()
 		proxy.add_child(widget)
@@ -8417,6 +7249,12 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	widget.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_prepare_native_card_widget(widget)
 	_reset_card_proxy_widget_transients(widget)
+	if is_instance_valid(title_source):
+		widget.copy_title_layout(title_source)
+	else:
+		widget.set_title_occluder(INF)
+		var title_size: Vector2 = title_rest_size if title_rest_size != Vector2.ZERO else rect.size
+		widget.set_title_layout(_card_widget_scale_for_size(_normalized_card_size(title_size)))
 	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id, _card_display_state()))
 	var empower_index: int = _drag_card_index if _drag_card_index >= 0 else _selected_card_index
 	var charged: bool = empower_index >= 0 and _card_id_for_hand_index(empower_index) == card_id and (_hand_card_empowered(empower_index) or (empower_index == _selected_card_index and _selected_card_empowered()))
@@ -8782,15 +7620,20 @@ func _layout_combat_piles() -> void:
 func _layout_combat_piles_content() -> void:
 	if piles_bar == null or not piles_bar.is_inside_tree():
 		return
-	var pile_size: Vector2 = piles_bar.get_combined_minimum_size()
-	if pile_size.x <= 0.0 or pile_size.y <= 0.0:
+	var dock: Rect2 = _combat_pile_dock_rect()
+	if not dock.has_area():
 		return
-	piles_bar.size = pile_size
+	piles_bar.size = dock.size
+	piles_bar.global_position = dock.position
+
+func _combat_pile_dock_rect() -> Rect2:
+	var pile_size: Vector2 = piles_bar.get_combined_minimum_size()
 	var viewport_size: Vector2 = get_viewport_rect().size
-	piles_bar.global_position = Vector2(
+	var dock_position := Vector2(
 		maxf(PILE_HUD_EDGE_MARGIN, viewport_size.x - pile_size.x - PILE_HUD_EDGE_MARGIN),
 		maxf(PILE_HUD_EDGE_MARGIN, viewport_size.y - pile_size.y - PILE_HUD_EDGE_MARGIN)
 	)
+	return Rect2(dock_position, pile_size)
 
 func _setup_contextual_combat_tutorial() -> void:
 	_contextual_combat_prompt_host = Control.new()
@@ -8969,7 +7812,11 @@ func _refresh_contextual_combat_tutorial() -> void:
 		return
 	_guided_tutorial_reconcile_phase()
 	_active_contextual_combat_prompt_id = _guided_tutorial_phase_id
-	var prompt: Dictionary = ContextualCombatTutorial.phase_definition(_guided_tutorial_phase_id, _guided_tutorial_path_uses_map())
+	var prompt: Dictionary = ContextualCombatTutorial.phase_definition(
+		_guided_tutorial_phase_id,
+		_guided_tutorial_path_uses_map(),
+		bool(_combat_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false))
+	)
 	var spotlight_rects: Array = _guided_tutorial_spotlight_rects(_guided_tutorial_phase_id)
 	if (
 		prompt.is_empty()
@@ -10229,22 +9076,60 @@ func _layout_boss_health_overlay() -> void:
 func _layout_boss_health_overlay_content() -> void:
 	if _boss_health_overlay == null:
 		return
+	# Container sorts also cover readout and button shifts that leave the
+	# viewport and title-column sizes unchanged.
+	if not top_bar.sort_children.is_connected(_layout_boss_health_overlay):
+		top_bar.sort_children.connect(_layout_boss_health_overlay)
+		title_box.sort_children.connect(_layout_boss_health_overlay)
+		_boss_health_overlay.visibility_changed.connect(_layout_boss_health_overlay, CONNECT_DEFERRED)
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var overlay_width: float = clampf(viewport_size.x * 0.40625, BOSS_HEALTH_OVERLAY_MIN_WIDTH, BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH)
-	# The authored 1920px layout lands at 780px wide (x=570): clear of the
-	# left title column and the right-side utility/initiative rail while keeping
-	# the encounter identity deliberately centered over the board.
 	overlay_width = minf(overlay_width, maxf(BOSS_HEALTH_OVERLAY_MIN_WIDTH, viewport_size.x - 720.0))
+	var overlay_left: float = clampf((viewport_size.x - overlay_width) * 0.5, 32.0, maxf(32.0, viewport_size.x - overlay_width - 32.0))
+	var name_padding: float = BOSS_HEALTH_OVERLAY_NAME_SIDE_PADDING * 2.0
+	var show_room_title: bool = str(_run_state.get("mode", "room")) not in ["victory", "defeat", "embrace"]
+	if _boss_health_name != null and not _boss_health_name.text.is_empty() and stats_label.is_visible_in_tree():
+		var title_left: float = title_box.get_global_rect().position.x
+		var other_lines_right: float = title_left
+		for child: Node in title_box.get_children():
+			var line := child as Label
+			if line == null or line == room_title or not line.is_visible_in_tree() or line.text.is_empty():
+				continue
+			var rect: Rect2 = line.get_global_rect()
+			if rect.end.y > BOSS_HEALTH_OVERLAY_TOP and rect.position.y < BOSS_HEALTH_OVERLAY_TOP + BOSS_HEALTH_OVERLAY_HEIGHT:
+				# Left-aligned labels fill the title container beyond their text.
+				var line_right: float = rect.position.x + line.get_minimum_size().x * line.get_global_transform().x.length()
+				other_lines_right = maxf(other_lines_right, line_right)
+		var clearance: float = BOSS_HEALTH_OVERLAY_SIDE_CLEARANCE / get_viewport().get_stretch_transform().x.length()
+		var free_right: float = stats_label.get_global_rect().position.x - clearance
+		var name_width: float = _boss_health_name.get_minimum_size().x + name_padding
+		# A hidden title keeps its intrinsic text width. Include it in each
+		# decision so a container sort cannot toggle it back on.
+		var room_title_right: float = title_left + room_title.get_minimum_size().x * room_title.get_global_transform().x.length()
+		var title_right: float = maxf(other_lines_right, room_title_right)
+		if _boss_health_overlay.is_visible_in_tree() and free_right - (title_right + clearance) < name_width:
+			show_room_title = false
+			title_right = other_lines_right
+		var free_left: float = title_right + clearance
+		var free_width: float = free_right - free_left
+		# Preserve the full-size authored composition where it clears both
+		# sides. Too little room for the untrimmed name keeps the legacy layout.
+		var keeps_authored_placement: bool = (
+			is_equal_approx(overlay_width, BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH)
+			and overlay_left >= free_left and overlay_left + overlay_width <= free_right
+		)
+		if free_width >= name_width and not keeps_authored_placement:
+			overlay_width = minf(overlay_width, free_width)
+			overlay_left = free_left + (free_width - overlay_width) * 0.5
+	if room_title.visible != show_room_title:
+		room_title.visible = show_room_title
 	var overlay_size := Vector2(overlay_width, BOSS_HEALTH_OVERLAY_HEIGHT)
 	_boss_health_overlay.size = overlay_size
-	_boss_health_overlay.global_position = Vector2(
-		clampf((viewport_size.x - overlay_size.x) * 0.5, 32.0, maxf(32.0, viewport_size.x - overlay_size.x - 32.0)),
-		BOSS_HEALTH_OVERLAY_TOP
-	)
+	_boss_health_overlay.global_position = Vector2(overlay_left, BOSS_HEALTH_OVERLAY_TOP)
 	_layout_action_banner()
 	if _boss_health_name != null:
-		_boss_health_name.position = Vector2(18.0, 0.0)
-		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - 36.0), 36.0)
+		_boss_health_name.position = Vector2(BOSS_HEALTH_OVERLAY_NAME_SIDE_PADDING, 0.0)
+		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - name_padding), 36.0)
 	if _boss_status_row != null:
 		_boss_status_row.position = Vector2(0.0,98.0)
 		_boss_status_row.size = Vector2(overlay_width,32.0)
@@ -10285,6 +9170,17 @@ func _layout_combat_action_dock_content() -> void:
 func _layout_combat_resource_chips() -> void:
 	if _play_meter == null or _movement_meter == null:
 		return
+	# Keep the provisional geometry available to the board's fit pass. The
+	# stack cannot paint until that fit has supplied its actual home.
+	var waiting_for_home: bool = (
+		str(_run_state.get("mode", "")) == "combat"
+		and not (_combat_state.get("objective", {}) as Dictionary).is_empty()
+		and not _combat_objective_dock_home.has_area()
+	)
+	var visibility_layer: int = 0 if waiting_for_home else 1
+	if _play_meter.visibility_layer != visibility_layer:
+		for control: Control in [_combat_objective_hud, _battlefield_rule_hud, _play_meter, _movement_meter, _movement_undo_button]:
+			if control != null: control.visibility_layer = visibility_layer
 	var play_position: Vector2
 	var movement_position: Vector2
 	if _combat_objective_hud != null and _combat_objective_hud.visible:
@@ -10645,6 +9541,14 @@ func _boot_initial_run(stage_graph: bool) -> Dictionary:
 	return _start_run(stage_graph)
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	if is_instance_valid(_acquisition_bursts): _acquisition_bursts.clear()
+	_tile_burst_adapter_contact.clear()
+	_icefall_cutout_strike.clear()
+	_timed_strike = null
+	_blink_transits.clear()
+	_resolved_contact_bursts.clear()
+	if is_instance_valid(board_view): board_view.clear_tile_bursts()
+	_reset_combat_objective_dock()
 	_recap_depth_unlock_result_id = ""
 	_recap_depth_unlocked = 0
 	_combat_texture_scope = null
@@ -10668,7 +9572,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_reward_reroll_preparation.cancel()
 	_cancel_equipment_factory_preparation()
 	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
-	_grimoire_row_preparation_revision += 1
+	if _grimoire_scrim != null: _grimoire_scrim._grimoire_row_preparation_revision += 1
 	_character_row_preparation_revision += 1
 	_live_character_view_key.clear()
 	_encounter_preparation_generation += 1
@@ -10719,7 +9623,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_run_state = preload("res://scripts/loaded_room_state.gd").finish_repair(self, _run_engine.repair_loaded_run_state(merged_run_state))
 	if has_installed_run(): InitialGraph.remember_installed_seed(_run_state["seed"])
 	if startup_started > 0: startup_started = _record_runtime_performance_phase("startup_state_repair", startup_started)
-	_prune_grimoire_search_rows(_grimoire_known_row_ids())
+	if _grimoire_scrim != null:
+		_grimoire_scrim.set_catalog(_run_state)
+		_grimoire_scrim._prune_grimoire_search_rows(_grimoire_known_row_ids())
 	_run_play_clock.reset_play_time()
 	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
 	_baseline_run_skill_event_cursors()
@@ -10948,6 +9854,7 @@ func _unlock_after_ui_refresh(queue_hand_ready_wave: bool) -> void:
 		_show_turn_banner(true)
 
 func _begin_ui_refresh(frame_sliced: bool) -> void:
+	_prepare_acquisition_bursts()
 	_consume_pending_card_draw_sfx(_combat_state)
 	if _hud_seat_scrim != null:
 		_hud_seat_scrim.show_bottom_band = str(_run_state.get("mode", "room")) == "combat"
@@ -11158,6 +10065,7 @@ func _lock_existing_pass_preview(retain_summary: bool = false) -> void:
 	if chip == null:
 		return
 	(chip as UiTooltipButton).set_disabled_with_tooltip(true)
+	if retain_summary: chip.dismiss_forecast_for_turn()
 	chip.focus_mode = Control.FOCUS_NONE
 	chip.set_meta("pass_pressed", false)
 	chip.set_meta("pass_keyboard_focus", false)
@@ -12490,7 +11398,7 @@ func _refresh_combat_objective_hud(display_state: Dictionary = {}, board_present
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
-		_combat_objective_dock_home = Rect2()
+		_reset_combat_objective_dock()
 		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
@@ -12546,34 +11454,49 @@ func _layout_combat_objective_hud() -> void:
 	_record_runtime_performance_phase("deferred_layout_combat_objective_hud", started)
 
 func _layout_combat_objective_hud_content() -> void:
-	if _combat_objective_hud == null or _combat_hud_layout.holds_layout(self):
+	if _combat_objective_hud == null or (
+		(_combat_objective_dock_home.has_area() or not _combat_objective_hud.visible)
+		and _combat_objective_hud.visibility_layer != 0
+		and _combat_hud_layout.holds_layout(self)
+	):
 		return
 	var target: Rect2 = _combat_objective_hud_target_rect()
 	if _combat_objective_hud.intro_active:
 		if not _combat_objective_intro_dock.is_equal_approx(target):
 			_combat_objective_intro_dock = target
-			_layout_combat_resource_chips()
+		_layout_combat_resource_chips()
 		return
 	_apply_combat_objective_hud_rect(target)
 
 func _relayout_combat_left_stack() -> void:
 	if not is_instance_valid(_combat_objective_hud) or not _combat_objective_hud.visible or _combat_objective_hud.intro_active:
 		return
-	# The hand keeps its established home during a deal. Rule and Undo changes
-	# can reflow the dock within that home without reopening the hand layout.
-	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect(true))
+	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
 
-func _combat_objective_hud_target_rect(reuse_home: bool = false) -> Rect2:
-	if not reuse_home or not _combat_objective_dock_home.has_area():
-		_combat_objective_dock_home = _combat_objective_hud_home_rect()
+func _combat_objective_hud_target_rect() -> Rect2:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var display := Vector3(viewport_size.x, viewport_size.y, get_window().content_scale_factor)
+	if display != _combat_objective_dock_display:
+		_combat_objective_dock_display = display
+		_combat_objective_dock_home = Rect2()
+		# UI scale can change even when the logical viewport size stays fixed.
+		if str(_run_state.get("mode", "")) == "combat":
+			_queue_board_hud_budget()
 	var target: Rect2 = _combat_objective_dock_home
+	if not target.has_area():
+		target = _combat_objective_hud_home_rect()
+		if _combat_objective_hud.visible and str(_run_state.get("mode", "")) == "combat":
+			if _combat_objective_dock_wait_frames >= COMBAT_OBJECTIVE_DOCK_FRAME_LIMIT or _combat_objective_board_is_framed():
+				_combat_objective_dock_home = target
+			elif _combat_objective_dock_wait_frames < 0:
+				_combat_objective_dock_wait_frames = 0
+				_combat_objective_dock_frame_signal().connect(_retry_combat_objective_dock)
 	if _play_meter == null or _movement_meter == null or _movement_undo_button == null:
 		return target
-	if reuse_home:
-		var size_now: Vector2 = _combat_objective_hud_size()
-		target.position += target.size - size_now
-		target.position.x = maxf(UiTypography.SAFE_MARGIN, target.position.x)
-		target.size = size_now
+	var size_now: Vector2 = _combat_objective_hud_size()
+	target.position += target.size - size_now
+	target.position.x = maxf(UiTypography.SAFE_MARGIN, target.position.x)
+	target.size = size_now
 	if _battlefield_rule_hud != null and not _battlefield_rule_hud.rule_id.is_empty():
 		var minimum_width: float = _battlefield_rule_hud.minimum_dock_width()
 		if minimum_width > target.size.x:
@@ -12590,6 +11513,48 @@ func _combat_objective_hud_target_rect(reuse_home: bool = false) -> Rect2:
 	# with either cap, so they cannot push it down.
 	target.position.y = minf(target.position.y, viewport_bottom - bottom_margin - reserve - target.size.y)
 	return target
+
+func _combat_objective_dock_frame_signal() -> Signal:
+	# Apply the placement before the frame is drawn. Headless gameplay tests
+	# also need progress when they do not submit renderer frames.
+	return get_tree().process_frame if DisplayServer.get_name() == "headless" else RenderingServer.frame_pre_draw
+
+func _retry_combat_objective_dock() -> void:
+	if _combat_objective_hud.visible and str(_run_state.get("mode", "")) == "combat":
+		if not _combat_objective_dock_home.has_area():
+			_combat_objective_dock_wait_frames += 1
+		_layout_combat_objective_hud()
+		if not _combat_objective_dock_home.has_area() and _combat_objective_dock_wait_frames < COMBAT_OBJECTIVE_DOCK_FRAME_LIMIT:
+			return
+	_finish_combat_objective_dock_wait()
+
+func _finish_combat_objective_dock_wait() -> void:
+	if _combat_objective_dock_wait_frames < 0:
+		return
+	_combat_objective_dock_wait_frames = -1
+	var frame_signal: Signal = _combat_objective_dock_frame_signal()
+	if frame_signal.is_connected(_retry_combat_objective_dock):
+		frame_signal.disconnect(_retry_combat_objective_dock)
+	_combat_objective_dock_wait_finished.emit()
+
+func _reset_combat_objective_dock() -> void:
+	_combat_objective_dock_home = Rect2()
+	_combat_objective_dock_revision += 1
+	_finish_combat_objective_dock_wait()
+
+func _combat_objective_board_is_framed() -> bool:
+	# The budget publishes its key before its exclusions reach the board. An
+	# earlier rect can describe the right room at its provisional startup scale.
+	return (
+		str(_run_state.get("mode", "")) == "combat"
+		and _hand_layout_pending_revision < 0
+		and hand_scroll.is_visible_in_tree() and hand_scroll.size.x > 0.0 and hand_scroll.size.y > 0.0
+		and board_view.size.is_equal_approx(get_viewport_rect().size)
+		and board_view.presentation.get("board_framing_mode") == "combat"
+		and board_view.combat_state.get("room_coord") == _combat_state.get("room_coord")
+		and _board_hud_budget.key == _board_hud_budget.environment(self)
+		and is_same(board_view.presentation.get("board_fit_exclusions"), _board_hud_budget.exclusions)
+	)
 
 func _combat_objective_hud_size() -> Vector2:
 	return _combat_objective_hud.get_combined_minimum_size().max(Vector2(_combat_objective_hud.preferred_width(), 68.0))
@@ -12649,6 +11614,15 @@ func _animate_combat_objective_intro() -> void:
 	_refresh_combat_objective_hud()
 	if not _combat_objective_hud.visible:
 		return
+	if not _combat_objective_dock_home.has_area():
+		var revision: int = _combat_objective_dock_revision
+		_layout_combat_objective_hud()
+		if not _combat_objective_dock_home.has_area():
+			await _combat_objective_dock_wait_finished
+		if revision != _combat_objective_dock_revision:
+			return
+	if not _card_fx_can_continue_combat() or not _combat_objective_dock_home.has_area():
+		return
 	_combat_objective_intro_dock = _combat_objective_hud_target_rect()
 	_layout_combat_resource_chips()
 	await _combat_objective_hud.play_intro(
@@ -12704,7 +11678,7 @@ func _setup_boss_health_overlay() -> void:
 	_boss_status_row.add_theme_constant_override("separation",18)
 	_boss_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_overlay.add_child(_boss_status_row)
-	for status: String in ["frost_armor","block","stoneskin","chilled","freeze","shock","bleed","expose","immobilize"]:
+	for status: String in ["frost_armor","block","stoneskin","shock","expose","immobilize"]:
 		var cell := HBoxContainer.new()
 		cell.name = status.capitalize().replace(" ","")
 		cell.add_theme_constant_override("separation",5)
@@ -12920,10 +11894,11 @@ func _turn_order_card_time_preview() -> Dictionary:
 	if card_id.is_empty():
 		return {}
 	var card: Dictionary = _card_def(card_id, _combat_state)
-	var empower_time: int = int(CardKeywordRules.empower_cost(card).get("time", 0)) if _hand_card_empowered(index) or (index == _selected_card_index and _selected_card_empowered()) else 0
+	var empowered: bool = _hand_card_empowered(index) or (index == _selected_card_index and _selected_card_empowered())
+	var plays_spent: int = _combat_engine.card_plays_spent(card_id, _combat_state)
 	return {
-		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
-		"plays_spent": _combat_engine.card_plays_spent(card_id, _combat_state),
+		"time": _combat_engine.preview_card_time_cost(_combat_state, card, plays_spent, empowered),
+		"plays_spent": plays_spent,
 		"name": str(card.get("name", card_id))
 	}
 
@@ -13038,7 +12013,7 @@ func _refresh_boss_status_row(boss: Dictionary) -> void:
 		var entry: Dictionary = _boss_status_cells[key]
 		var count: int = int(boss.get(key,0))
 		(entry["cell"] as Control).visible = count > 0
-		(entry["label"] as Label).text = ActionIcons.label(key) if key in ["chilled","immobilize"] else "%s %d" % [ActionIcons.label(key),count]
+		(entry["label"] as Label).text = ActionIcons.label(key) if key == "immobilize" else "%s %d" % [ActionIcons.label(key),count]
 		(entry["cell"] as Control).tooltip_text = ActionIcons.tooltip(key)
 
 func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
@@ -13238,7 +12213,7 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	return style
 
 func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
-	# Enemy hover keeps rail focus/highlighting without opening a second panel.
+	# Rail hover expands the same board intent rows as direct enemy hover.
 	if str(entry.get("kind", "")) == "enemy": return ""
 	var clock: int = int(entry.get("time", 0))
 	var eta: int = _turn_order_relative_time(entry)
@@ -13258,6 +12233,9 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		lines.append("Projected next turn")
 	if int(entry.get("stagger_preview", 0)) > 0:
 		lines.append("Staggered +%d by this card" % int(entry.get("stagger_preview", 0)))
+	var stagger: int = int(entry.get(CardKeywordRules.STAGGER_DELAY_KEY, 0))
+	if stagger > 0:
+		lines.append("Stagger +%d" % stagger)
 	if bool(entry.get("petrified", false)):
 		lines.append(ManeuverRules.petrified_tooltip(true))
 	if entry.has("hp") and entry.has("max_hp") and not bool(entry.get("hidden_by_umbra", false)):
@@ -13316,11 +12294,12 @@ func _add_combat_hud_textures(paths: Dictionary) -> void:
 	for path: String in [PASS_FORECAST_FRAME_TEXTURE_PATH, PASS_FORECAST_HOVER_TEXTURE_PATH, PASS_FORECAST_PRESSED_TEXTURE_PATH]:
 		paths[path] = false
 
-func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
+func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String, show_light: bool = true) -> void:
 	_move_attack_approach.clear()
 	if tile.x < 0:
 		return
 	_turn_order_hovered_enemy_key = actor_key
+	_turn_order_hover_shows_light = show_light
 	_hovered_board_tile = tile
 	if _animation_lock:
 		return
@@ -13331,6 +12310,7 @@ func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
 	var hover_changed: bool = false
 	if _turn_order_hovered_enemy_key == actor_key:
 		_turn_order_hovered_enemy_key = ""
+		_turn_order_hover_shows_light = true
 		hover_changed = true
 	if _hovered_board_tile == tile:
 		_hovered_board_tile = Vector2i(-1, -1)
@@ -13407,7 +12387,7 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			str(entry.get("pos", Vector2i.ZERO)),
 			int(entry.get("hp", -1)),
 			int(entry.get("max_hp", -1)),
-			("P" if bool(entry.get("petrified", false)) else "") + str(entry.get("late_relic_id", ""))
+			("P" if bool(entry.get("petrified", false)) else "") + str(entry.get("late_relic_id", "")) + str(entry.get("light_start_expose", "")) + ("L" if bool(entry.get("next_enemy_turn", false)) else "")
 		])
 		if str(entry.get("kind", "")) == "player":
 			parts.append("projection:%s:%s:%d:%d:%d:%d" % [str(entry.get("projection_kind", "")), str(entry.get("projected_extra_turn", false)), int(entry.get("projected_carried_time", 0)), int(entry.get("projected_wait_time", 0)), int(entry.get("turn_time_spent", 0)), int(entry.get("projected_time_delta", 0))])
@@ -13520,7 +12500,8 @@ func _turn_order_shadow_dissolve_slot(slot: Control) -> Dictionary:
 	return {
 		"slot": slot,
 		"effect": effect,
-		"texture": portrait_texture,
+		# The effect owns the texture. Suspended rail samples borrow it.
+		"texture_id": portrait_texture.get_instance_id(),
 		"source_rect": source_rect,
 		"seed": seed,
 		"visual_states": visual_states
@@ -13547,12 +12528,11 @@ func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary], sup
 				continue
 			var slot: Control = slot_value as Control
 			var effect: Control = effect_value as Control
-			var texture: Texture2D = dissolve_slot.get("texture", null) as Texture2D
-			if slot == null or effect == null or texture == null:
+			if slot == null or effect == null:
 				continue
 			effect.call(
 				"configure",
-				texture,
+				instance_from_id(int(dissolve_slot["texture_id"])) as Texture2D,
 				dissolve_slot.get("source_rect", Rect2(Vector2.ZERO, slot.size)) as Rect2,
 				progress,
 				float(dissolve_slot.get("seed", 0.137)),
@@ -13579,7 +12559,7 @@ func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary], sup
 				visual.modulate = shadowed
 		if progress >= 1.0:
 			break
-		await get_tree().process_frame
+		await _combat_pacing.next_playback_frame()
 
 func _turn_order_instance_signatures(entries: Array[Dictionary], excluded_indices: Array = []) -> Dictionary:
 	var signatures: Dictionary = {}
@@ -13729,7 +12709,7 @@ func _animate_turn_order_transition(
 	var previous_signatures: Dictionary = _turn_order_instance_signatures(working_order, removed_indices)
 	var after_keys: Array[String] = _turn_order_instance_keys(after_order)
 	_set_turn_order_bar_entries(after_order)
-	await get_tree().process_frame
+	await _combat_pacing.next_playback_frame()
 	if supersede != _turn_order_supersede_serial:
 		return
 	var reflow_tween: Tween = null
@@ -13984,6 +12964,8 @@ func _action_step_tracker_state() -> Dictionary:
 		# raster targeting arrow, and board targets. A side instruction block only
 		# competes with those direct cues.
 		return {}
+	if _pending_card_requires_confirmation() and SurfaceRelicRules.targetless_ice_spill_index(_combat_engine, _combat_state, _pending_actions) >= 0:
+		return {"mode": "confirmation"}
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
 	return {
@@ -14020,7 +13002,8 @@ func _action_step_tracker_damage_options(tracker_state: Dictionary) -> Array:
 
 func _action_step_damage_options(state: Dictionary, actions: Array, selected_targets: Array) -> Array:
 	var result: Array = []
-	var working: Dictionary = _surface_preview_information_state(state).duplicate(true)
+	var use_board: bool = preload("res://scripts/pass_forecast_action_source.gd").actions_use_force(_combat_engine, actions)
+	var working: Dictionary = _surface_preview_information_state(state, null, true, use_board).duplicate(true)
 	var target_cursor: int = 0
 	var unresolved_target: bool = false
 	for action_var: Variant in actions:
@@ -14304,6 +13287,9 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
 	if context_mode == "confirmation":
+		var spill_index: int = SurfaceRelicRules.targetless_ice_spill_index(_combat_engine, _combat_state, _pending_actions)
+		if spill_index >= 0:
+			_add_ice_spill_command(_pending_actions[spill_index], spill_index)
 		return
 	if context_mode != "selection":
 		return
@@ -14731,7 +13717,7 @@ func _refresh_umbra_subtitle() -> void:
 	if radius < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
 		vision_text = "@pattern(diamond:%d:hero) Personal vision covers these tiles." % radius
 	umbra_subtitle.text = "%s Umbra" % stage_name
-	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nDarkness hides enemies outside your sight and Light." % [
+	umbra_subtitle.tooltip_text = "%s Umbra\n%s\nTiles outside your sight or a Light source are obscured. Hidden enemies cannot be targeted and show no intents.\nVision shows hidden enemies." % [
 		stage_name,
 		vision_text
 	]
@@ -14771,7 +13757,8 @@ func _refresh_visibility() -> void:
 	_layout_mini_map_overlay()
 	if section_map:
 		_queue_section_map_presentation()
-	room_title.visible = not terminal_recap_visible
+	if terminal_recap_visible or _boss_health_overlay == null or not _boss_health_overlay.visible:
+		room_title.visible = not terminal_recap_visible
 	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
 	# occupies a permanent board corner. Explicit event messages reveal briefly.
@@ -14889,7 +13876,7 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 	_refresh_animation_lock_ui()
 	var discard_proxy: Control = null
 	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
-		discard_proxy = _spawn_card_proxy(card_id, source_rect)
+		discard_proxy = _spawn_card_proxy(card_id, source_rect, _hand_card_control(hand_index) as CardWidget)
 		_mount_card_proxy(discard_proxy, _card_fx_layer, source_rect)
 	if not _stage_combat_skill_state(next_state, skill_id):
 		_release_card_proxy(discard_proxy)
@@ -15213,7 +14200,7 @@ func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_ap
 			_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
 			return safe_hovered_state
 		_pass_preview_source_completes_card = _pending_card_requires_confirmation()
-		var known_prefix_state: Dictionary = _pending_card_known_forecast_state()
+		var known_prefix_state: Dictionary = _pass_preview_card_prefix()
 		if _pending_target_tiles.has(target_tile) and _pending_action_index < _pending_actions.size() and _umbra_hover_preview_would_reveal_information(_preview_combat_state, _pending_actions[_pending_action_index]):
 			known_prefix_state = preload("res://scripts/pass_forecast_action_source.gd").pay_prefix(self, known_prefix_state, _pending_actions)
 		var safe_preview_state: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, known_prefix_state)
@@ -15225,8 +14212,9 @@ func _build_pass_preview_source_state_for_tile(target_tile: Vector2i, default_ap
 		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, target_tile)
 		# A hero walk is one click; nothing is left to choose after it.
 		_pass_preview_source_completes_card = true
-		_pass_preview_source_movement_left = preload("res://scripts/pass_forecast_action_source.gd").movement_left_after_walk(self, (movement["known"] as Dictionary)["state"])
-		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, (movement["known"] as Dictionary)["state"])
+		var walked: Dictionary = (movement["known"] as Dictionary)["state"]
+		_pass_preview_source_movement_left = preload("res://scripts/pass_forecast_action_source.gd").movement_left_after_walk(self, walked)
+		return preload("res://scripts/pass_forecast_action_source.gd").visibility_safe(self, walked)
 	if not _combat_state.is_empty():
 		return preload("res://scripts/pass_forecast_action_source.gd").rest_source(self, _combat_state)
 	return {}
@@ -15257,7 +14245,7 @@ func _pass_preview_confirmed_hover_state(target_tile: Variant = null, default_ap
 		return {}
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var known_prefix: bool = _unconfirmed_preview_must_preserve_umbra_information()
-	var prefix: Dictionary = _pending_card_known_forecast_state() if known_prefix else _preview_combat_state
+	var prefix: Dictionary = _pass_preview_card_prefix(action) if known_prefix else _preview_combat_state
 	var resolved_state: Dictionary = {} if known_prefix else _cached_hover_resolved_preview_state(target_tile, default_approach)
 	if resolved_state.is_empty():
 		var resolved: Dictionary = _surface_resolution_for_preview(prefix, action, target_tile)["known"]
@@ -15284,7 +14272,7 @@ func _pass_preview_confirmed_orientation_state(click_tile: Vector2i) -> Dictiona
 	if direction == Vector2i.ZERO:
 		return {}
 	var oriented_action: Dictionary = _action_with_pending_orientation(action, direction)
-	var prefix: Dictionary = _pending_card_known_forecast_state() if _unconfirmed_preview_must_preserve_umbra_information() else _preview_combat_state
+	var prefix: Dictionary = _pass_preview_card_prefix(oriented_action) if _unconfirmed_preview_must_preserve_umbra_information() else _preview_combat_state
 	if not _combat_engine.valid_targets_for_player_action(prefix, oriented_action).has(_pending_orientation_target_tile):
 		return {}
 	var resolved: Dictionary = _surface_resolution_for_preview(prefix, oriented_action, _pending_orientation_target_tile)["known"]
@@ -15308,6 +14296,8 @@ func _pass_preview_confirmed_shortcut_state(preview: Dictionary, shortcut_plan: 
 	var resolved_state: Dictionary = _cached_hover_resolved_preview_state(target_tile, default_approach)
 	if resolved_state.is_empty():
 		resolved_state = _combat_engine.apply_prevalidated_player_action(action_state, action, target_tile)
+	if _pass_phase_uses_force(resolved_state) or _combat_engine._action_has_forced_movement(action):
+		resolved_state = _surface_preview_information_state(resolved_state, null, true, true)
 	return _pass_preview_state_after_resolved_target(resolved_state, actions, action_index + 1, true)
 
 func _pass_preview_state_after_movement_only(resolved_state: Dictionary, actions: Array, next_action_index: int, pay_prefix: bool = false) -> Dictionary:
@@ -15383,26 +14373,41 @@ func _pending_card_forecast_state() -> Dictionary:
 		)
 	return _pending_card_forecast_cache
 
-func _pending_card_known_forecast_state() -> Dictionary:
+func _pass_phase_uses_force(state: Dictionary) -> bool:
+	return _preview_umbra_is_limited(state) and preload("res://scripts/pass_forecast_action_source.gd").phase_uses_force(self, state, _combat_state)
+
+func _pass_preview_card_prefix(aimed_action: Dictionary = {}) -> Dictionary:
+	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+	var aim_uses_force: bool = not aimed_action.is_empty() and (source.actions_use_force(_combat_engine, [aimed_action]) or source.automatic_followup_uses_force(_combat_engine, _pending_actions, _pending_action_index))
+	if _pass_phase_uses_force(_preview_combat_state) or aim_uses_force:
+		return _surface_preview_information_state(_pending_card_forecast_state(), null, true, true)
+	return _pending_card_known_forecast_state(true)
+
+func _pending_card_known_forecast_state(retain_ground: bool = false) -> Dictionary:
 	if _animation_lock or not _unconfirmed_preview_must_preserve_umbra_information():
 		return _pending_card_forecast_state()
 	if _pending_card_known_forecast_cache.is_empty():
-		# Hidden causes must not affect retained poses or cumulative feedback,
-		# including while a later action still awaits its target. Reuse the exact
-		# resolved prefix and its selected/skipped target slots, without payment.
-		var known: Dictionary = _surface_preview_information_state(_combat_state)
-		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
-		_pending_card_known_forecast_cache = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(
-			_combat_engine, prepared, _pending_actions, _pending_action_index, _pending_selected_targets
-		)
-		if _pending_card_requires_confirmation():
-			_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
-				_pending_card_known_forecast_cache,
-				_selected_card_index,
-				_combat_engine.card_plays_spent_for_actions(_pending_actions),
-				{"play_mode": "play"}
+		var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+		var use_board: bool = source.actions_use_force(_combat_engine, _pending_actions.slice(0, _pending_action_index)) or source.indirect_force_triggered(_combat_state, _preview_combat_state)
+		var resolved: Dictionary
+		if use_board:
+			resolved = source.retain_force_board(_pending_card_forecast_state())
+		else:
+			# Replay ordinary scouting with the original selected/skipped slots.
+			var known: Dictionary = _surface_preview_information_state(_combat_state, null, true)
+			var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
+			resolved = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(
+				_combat_engine, prepared, _pending_actions, _pending_action_index, _pending_selected_targets
 			)
-	return _pending_card_known_forecast_cache
+			if _pending_card_requires_confirmation():
+				resolved = _combat_engine.finish_player_card(
+					resolved, _selected_card_index, _combat_engine.card_plays_spent_for_actions(_pending_actions), {"play_mode": "play"}
+				)
+		_pending_card_known_forecast_cache = {
+			"resolved": resolved,
+			"disclosed": source.disclose_card_state(self, resolved),
+		}
+	return _pending_card_known_forecast_cache["resolved" if retain_ground else "disclosed"]
 
 func _pass_preview_summary() -> Dictionary:
 	if _selected_pass_pending(): return {}
@@ -15577,6 +14582,7 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	var summary: Dictionary = {
 		"wait_time": _combat_engine.pending_wait_time(source_state),
 		"status_gains": phase_result.get("status_gains", {}),
+		"enemy_stagger_limits": phase_result.get("enemy_stagger_limits", {}),
 		"tone": tone,
 		"entries": entries,
 		"defeat": defeat,
@@ -16137,7 +15143,7 @@ func _on_dragon_reward_continue() -> void:
 		return
 	var reward: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var relic_id: String = str(reward.get("relic_id", ""))
-	var artwork: Control = find_child("DragonRewardArtwork", true, false) as Control
+	var artwork: TextureRect = find_child("DragonRewardArtwork", true, false) as TextureRect
 	var source_rect: Rect2 = artwork.get_global_rect() if artwork != null else Rect2()
 	var gift_destination: Control = find_child("DragonRewardDestination", true, false) as Control if bool(reward.get("next_descent", false)) else null
 	_relic_claim_in_progress = true
@@ -16145,7 +15151,14 @@ func _on_dragon_reward_continue() -> void:
 		_relic_claim_in_progress = false
 		_refresh_ui()
 		return
+	var launch_burst := Callable()
+	if _node_is_alive(artwork) and artwork.is_visible_in_tree():
+		artwork.z_index += 1
+		launch_burst = _acquisition_bursts.gain_layer().dragon_launch(
+			_relic_choice_host, artwork, AcquisitionBurst.gain_accent("relic", relic_id), _reduced_motion_enabled())
 	if not bool(reward.get("final_boss", false)) and SectionMapGraph.enabled(_run_state):
+		# The section transition replaces delivery on this path.
+		if launch_burst.is_valid(): launch_burst.call()
 		_relic_claim_in_progress = false
 		_begin_section_transition("auto_transition")
 		return
@@ -16155,7 +15168,7 @@ func _on_dragon_reward_continue() -> void:
 	_play_reward_collect_sfx()
 	# Ownership and the claim receipt are already saved. Keep the reward visible
 	# while the same beam/motes used by relic rooms deliver it to its destination.
-	await _animate_relic_acquisition_flourish(relic_id, source_rect, Color(GameData.relic_accent(relic_id)), gift_destination)
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, Color(GameData.relic_accent(relic_id)), gift_destination, launch_burst)
 	if not _treasure_sequence_is_current(sequence_epoch): return
 	_relic_delivery_phase = "settlement"
 	await _animate_relic_acquired(relic_id)
@@ -16173,10 +15186,8 @@ func _on_dragon_reward_continue() -> void:
 	_maybe_present_section_map(false)
 	if _large_map_scrim != null and _large_map_scrim.visible:
 		_relic_claim_in_progress = true
-		_large_map_scrim.modulate.a = 0.0
-		var map_fade: Tween = create_tween()
+		var map_fade: Tween = _large_map_scrim.fade_in(_large_map_fade_seconds())
 		_treasure_sequence_tweens.append(map_fade)
-		map_fade.tween_property(_large_map_scrim, "modulate:a", 1.0, 0.12 if _reduced_motion_enabled() else 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		if not await _await_treasure_tween(map_fade, sequence_epoch): return
 	_relic_delivery_phase = ""
 	_relic_delivery_id = ""
@@ -16288,8 +15299,15 @@ func _build_reward_choice_stack(destination: Control, choice_state: Dictionary, 
 		card_row.add_theme_constant_override("separation", int(REWARD_CHOICE_CARD_GAP))
 		stack.add_child(card_row)
 		var reward_card_size: Vector2 = _reward_choice_card_size(reward_cards.size(), heal_amount > 0)
+		var deck_element: String = _reward_deck_caption_element(choice_state)
+		var caption_space: float = 0.0
+		if not deck_element.is_empty() and reward_cards.any(func(id: String) -> bool: return GameData.card_element(id) == deck_element):
+			# Reserve room for the existing focus/hover lift and keep every card aligned.
+			var lift: float = -REWARD_CARD_HOVER_LIFT * _card_widget_scale_for_size(reward_card_size)
+			var growth: float = reward_card_size.y * (REWARD_CARD_HOVER_SCALE - 1.0) * 0.5
+			caption_space = ceilf(lift + growth + UiTypography.scaled_value(card_row, RewardActionCaption.CARD_PLATE_HEIGHT + UiTypography.SPACE_TIGHT))
 		for card_id_var: Variant in reward_cards:
-			var job: Callable = _add_reward_choice_card.bind(card_row, str(card_id_var), reward_card_size, focusable_cards, definitions.get(str(card_id_var), {}), choice_state)
+			var job: Callable = _add_reward_choice_card.bind(card_row, str(card_id_var), reward_card_size, focusable_cards, definitions.get(str(card_id_var), {}), choice_state, deck_element, caption_space)
 			if reward_jobs is Array: reward_jobs.append(job)
 			else: job.call()
 
@@ -16298,7 +15316,7 @@ func _build_reward_choice_stack(destination: Control, choice_state: Dictionary, 
 	else: finish.call()
 	return stack
 
-func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_card_size: Vector2, focusable_cards: Array[Control], definition: Dictionary = {}, choice_state: Dictionary = {}) -> void:
+func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_card_size: Vector2, focusable_cards: Array[Control], definition: Dictionary = {}, choice_state: Dictionary = {}, deck_element: String = "", caption_space: float = 0.0) -> void:
 	var widget = CardWidgetScene.instantiate()
 	widget.custom_minimum_size = reward_card_size
 	widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id) if definition.is_empty() else definition)
@@ -16307,7 +15325,12 @@ func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_ca
 	widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
 	CardKeywordHover.bind(widget, _card_focus_tooltip_stack)
 	var card_slot: Control = _reward_card_choice_slot(widget, card_id, reward_card_size, choice_state)
+	if caption_space > 0.0:
+		card_slot.custom_minimum_size.y += caption_space
+		(card_slot.get_node("CardScaleFrame") as Control).position.y += caption_space
 	card_row.add_child(card_slot)
+	if not deck_element.is_empty() and GameData.card_element(card_id) == deck_element:
+		RewardActionCaption.add_deck_match(widget, _card_widget_scale_for_size(reward_card_size), deck_element, _ui_skin, _reward_card_badge_style(UiPalette.GOLD))
 	widget.focus_mode = Control.FOCUS_ALL
 	widget.focus_entered.connect(widget.set_external_highlighted.bind(true))
 	widget.focus_exited.connect(widget.set_external_highlighted.bind(false))
@@ -16350,7 +15373,7 @@ func _finish_reward_choice_stack(stack: VBoxContainer, heal_amount: int, focusab
 		var recover_button: UiTooltipButton = _reward_recover_button(heal_amount, action_state)
 		action_row.add_child(recover_button)
 		action_buttons.append(recover_button)
-		preload("res://scripts/reward_action_caption.gd").fit_row(action_row, _reward_action_panel_width(stage_root.size.x), REWARD_ACTION_BUTTON_MIN_WIDTH)
+		RewardActionCaption.fit_row(action_row, _reward_action_panel_width(stage_root.size.x), REWARD_ACTION_BUTTON_MIN_WIDTH)
 	_configure_reward_choice_focus(focusable_cards, action_buttons)
 	if _reward_reveal_pending:
 		PostCombatRewardSequence.prepare_secondary_actions(action_row)
@@ -16429,7 +15452,7 @@ func _reward_recover_button(heal_amount: int, choice_state: Dictionary = {}) -> 
 	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
 	var tooltip: String = "Leave every offered card behind and recover %d Health." % effective_heal
 	if _run_engine.has_run_skill(action_state, "deferred_choice"):
-		tooltip = "Choose whether one offered card follows you to the next reward. Health is already full." if fully_wasted else "Recover %d Health, then choose whether one offered card follows you to the next reward." % effective_heal
+		tooltip = "Choose whether one offered card follows you to the next reward. Health is already full." if fully_wasted else "Recover %d Health and choose whether one offered card follows you to the next reward." % effective_heal
 	elif fully_wasted:
 		tooltip = "Leave every offered card behind. Health is already full."
 	var button: UiTooltipButton = _reward_secondary_button(
@@ -16603,13 +15626,12 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	var description := RichTextLabel.new()
 	description.name = "RelicChoiceDescription_%s" % relic_id
 	description.bbcode_enabled = false
-	description.fit_content = false
+	description.fit_content = true
 	description.scroll_active = false
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	# Exact rules text always gets the remaining height: 130 px holds the longest
-	# current relic (126 px) and grows with the panel if copy ever gets longer.
+	# Long descriptions grow the offer while preserving its type size and padding.
 	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, RELIC_OFFER_DESCRIPTION_MIN_HEIGHT)
 	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -17854,6 +16876,8 @@ func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2, ret
 	if not widget_geometry_is_native:
 		_prepare_native_card_widget(widget)
 		widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if widget is CardWidget:
+		widget.set_title_layout(scale_factor)
 
 func _hand_card_index_for_widget(widget: CardWidget) -> int:
 	if widget == null or hand_box == null:
@@ -17877,7 +16901,8 @@ func _on_hand_card_widget_hover_started(widget: CardWidget) -> void:
 	if _controller_is_active() or _hand_pointer_resolve_queued or not _hand_pointer_position_valid: return
 	var index: int = _hand_card_index_for_widget(widget)
 	if index >= 0 and index == _hand_index_under_pointer():
-		_on_card_hover_started(index)
+		# GUI enter can also come from a layout or cursor-state refresh.
+		_on_card_hover_started(index, true, false)
 
 func _on_hand_empower_hover_changed(hovered: bool, widget: CardWidget) -> void:
 	if _controller_is_active(): return
@@ -17947,7 +16972,7 @@ func _resolve_hand_pointer() -> void:
 		_set_hand_emphasized_index(-1, false)
 		hand_box.apply_layout_immediately()
 	if index >= 0:
-		_on_card_hover_started(index)
+		_on_card_hover_started(index, true, false)
 	else:
 		_on_card_hover_ended(_hovered_card_index)
 
@@ -18148,10 +17173,14 @@ func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vecto
 			"RewardOwnershipBadge",
 			str(context.get("status", "new")).to_upper(),
 			Vector2(12.0, 62.0),
-			Vector2(76.0 if bool(context.get("owned", false)) else 58.0, 26.0),
+			Vector2(76.0 if bool(context.get("owned", false)) else 58.0, RewardActionCaption.CARD_PLATE_HEIGHT),
 			UiPalette.TEXT_2 if bool(context.get("owned", false)) else UiPalette.EMBER.lerp(UiPalette.GOLD_BRIGHT, 0.45)
 		)
 	return slot
+
+func _reward_deck_caption_element(choice_state: Dictionary) -> String:
+	if str(choice_state.get("pending_reward", {}).get("kind", "")) == "event": return ""
+	return RunDeck.element(choice_state)
 
 func _reward_card_choice_context(card_id: String, choice_state: Dictionary = {}) -> Dictionary:
 	var ownership_state: Dictionary = _run_state if choice_state.is_empty() else choice_state
@@ -18179,7 +17208,7 @@ func _add_reward_card_badge(parent: Control, badge_name: String, text: String, p
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, 12)
+	UiTypography.set_label_size(label, RewardActionCaption.CARD_BADGE_TEXT_SIZE)
 	label.add_theme_color_override("font_color", accent.lightened(0.20))
 	label.add_theme_color_override("font_outline_color", Color("130d0a"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -18220,6 +17249,8 @@ func _scaled_card_slot(widget: Control, card_size: Vector2, interactive: bool = 
 	scaler.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	slot.add_child(scaler)
 	_prepare_native_card_widget(widget)
+	if widget is CardWidget:
+		widget.set_title_layout(scaler.scale.y)
 	scaler.add_child(widget)
 	widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return slot
@@ -18318,7 +17349,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
-	presentation["board_fit_exclusions"] = _board_hud_budget.exclusions
+	presentation["board_fit_exclusions"] = _active_board_hud_budget().exclusions
 	presentation["board_legacy_fit_rect"] = _legacy_board_fit_rect()
 	presentation["board_targeting"] = _board_targeting_active()
 	presentation["plate_aim_actor_keys"] = _board_plate_aim.affected(self, _active_card_preview())
@@ -18419,6 +17450,7 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 				if not threat_preview.is_empty():
 					threat_previews.append(threat_preview)
 			if not threat_previews.is_empty():
+				_apply_turn_order_light_hover(threat_previews)
 				presentation["enemy_threat_previews"] = threat_previews
 				var destination_previews: Array[Dictionary] = _enemy_destination_preview_units(
 					intent_preview_state,
@@ -18536,6 +17568,8 @@ func _refresh_stage_view_with_state(accepted_display_state: Dictionary = {}, han
 		presentation
 	)
 	board_view._stage_focus_refresh = false
+	if run_mode == "combat" and not _combat_objective_dock_home.has_area():
+		_layout_combat_objective_hud()
 	_startup_board_span = null
 	if performance_phase_started > 0: detail_started = Time.get_ticks_usec()
 	if board_view != null and board_view.has_method("set_targeted_tile_context"):
@@ -18846,7 +17880,9 @@ func _commit_runtime_performance_frame() -> void:
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
 	if _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile):
 		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, _hovered_board_tile)
-		return IntentBadges.movement_preview(_combat_engine, _combat_state, (movement["known"] as Dictionary)["state"])
+		var walked: Dictionary = (movement["known"] as Dictionary)["state"]
+		if bool(walked.get(preload("res://scripts/pass_forecast_action_source.gd").FORCE_BOARD, false)): return _pass_preview_source_state()
+		return IntentBadges.movement_preview(_combat_engine, _combat_state, walked)
 	# gfix-23: the intents follow the selected aim on its first frame. Only the
 	# Pass rows and the forecast's own marks wait for the selected worker.
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
@@ -18904,30 +17940,45 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 	return _enemy_threat_at_tile(display_state, _hovered_board_tile)
 
 func _enemy_threat_at_tile(display_state: Dictionary, tile: Vector2i) -> Dictionary:
+	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+	var force_board: bool = bool(display_state.get(source.FORCE_BOARD, false))
+	var hidden: Dictionary = source.hidden_actor_keys(self, display_state) if force_board else {}
 	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
 		var enemy: Dictionary = (display_state.get("enemies", []) as Array)[enemy_index]
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if not _combat_engine.is_enemy_visible_to_player(display_state, enemy):
+		var key: String = _enemy_key(enemy)
+		if hidden.has(key) or (not force_board and not _combat_engine.is_enemy_visible_to_player(display_state, enemy)):
 			continue
 		if not _enemy_footprint_tiles(enemy).has(tile):
 			continue
-		var threat: Dictionary = _combat_engine.enemy_threat_tiles(display_state, enemy_index)
-		threat["enemy_key"] = _enemy_key(enemy)
+		var threat: Dictionary = _combat_engine.committed_enemy_threat_tiles(display_state, enemy_index) if force_board else _combat_engine.enemy_threat_tiles(display_state, enemy_index)
+		threat["enemy_key"] = key
 		return threat
 	return {}
 
+func _apply_turn_order_light_hover(threat_previews: Array[Dictionary]) -> void:
+	if _turn_order_hover_shows_light:
+		return
+	for threat: Dictionary in threat_previews:
+		if str(threat.get("enemy_key", "")) == _turn_order_hovered_enemy_key:
+			threat.erase("light_start_expose")
+
 func _visible_enemy_threat_previews(display_state: Dictionary) -> Array[Dictionary]:
 	var previews: Array[Dictionary]
+	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+	var force_board: bool = bool(display_state.get(source.FORCE_BOARD, false))
+	var hidden: Dictionary = source.hidden_actor_keys(self, display_state) if force_board else {}
 	var enemies: Array = display_state.get("enemies", []) as Array
 	for enemy_index: int in range(enemies.size()):
 		var enemy: Dictionary = enemies[enemy_index]
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if not _combat_engine.is_enemy_visible_to_player(display_state, enemy):
+		var key: String = _enemy_key(enemy)
+		if hidden.has(key) or (not force_board and not _combat_engine.is_enemy_visible_to_player(display_state, enemy)):
 			continue
-		var threat: Dictionary = _combat_engine.enemy_threat_tiles(display_state, enemy_index)
-		threat["enemy_key"] = _enemy_key(enemy)
+		var threat: Dictionary = _combat_engine.committed_enemy_threat_tiles(display_state, enemy_index) if force_board else _combat_engine.enemy_threat_tiles(display_state, enemy_index)
+		threat["enemy_key"] = key
 		previews.append(threat)
 	return previews
 
@@ -19117,6 +18168,8 @@ func _player_action_primary_display_state(
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
 		return _combat_state
+	if _selected_card_index >= 0 and preload("res://scripts/warband_combat_rules.gd").order_for_objective(_combat_state.get("objective", {})).get("id", "") == "prior_veil":
+		return _combat_state
 	return display_state
 
 func _visibility_safe_preview_display_state(preview_state: Dictionary, completed_card_durability: bool = false) -> Dictionary:
@@ -19151,8 +18204,7 @@ func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
 	)
 
 func _preview_umbra_is_limited(state: Dictionary = {}, information_override: Variant = null) -> bool:
-	# Preview state may already contain a simulated move, light source, Vision,
-	# True Sight, or Dispel Umbra result. Information gating must always use the
+	# Preview state may already contain a simulated move, light source, or Vision result. Information gating must always use the
 	# committed state until the card resolution actually starts.
 	var committed: Dictionary = information_override as Dictionary if typeof(information_override) == TYPE_DICTIONARY else _combat_state
 	if not committed.is_empty():
@@ -19185,7 +18237,7 @@ func _preview_target_tiles_for_action(state: Dictionary, action: Dictionary, raw
 
 func _preview_target_is_known_for_action(tile: Vector2i, state: Dictionary, information_state: Dictionary, action: Dictionary, visible_lookup: Dictionary) -> bool:
 	match str(action.get("type", "")):
-		"move", "illuminate", "vision", "truesight", "dispel_umbra":
+		"move", "illuminate", "vision":
 			# These decisions can intentionally scout an unknown coordinate.
 			return true
 		"melee", "ranged", "push", "pull":
@@ -19253,7 +18305,7 @@ func _active_card_preview() -> Dictionary:
 			"skip_allowed": false,
 			"movement_pool": true
 		}
-	if _drag_card_index >= 0:
+	if _drag_card_index >= 0 and (not _drag_targeting_active or not _current_action_supports_rotation()):
 		if bool(_drag_card_options.get("printed_playable", false)):
 			return _sanitize_preview_for_umbra_information(_drag_card_options.get("play", {}) as Dictionary)
 		return {}
@@ -19265,7 +18317,7 @@ func _active_card_preview() -> Dictionary:
 			if orientation_pending:
 				action = _pending_oriented_action()
 				target_tiles = _vector2i_array([_pending_orientation_target_tile])
-			elif str(action.get("type", "")) in ["aoe", "meteor_marks", "outcrop"]:
+			else:
 				action = _action_with_aoe_aim_orientation(action)
 			if target_tiles.has(_hovered_board_tile):
 				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
@@ -19628,9 +18680,10 @@ func _invalidate_preview_derived_caches(keep_move_approach: bool = false) -> voi
 	_pass_preview_cache.clear()
 	_pass_preview_cache_order.clear()
 	_hover_resolved_preview_key = ""
-	_hover_resolved_preview_state.clear()
+	_hover_resolved_preview_state = {}
 	_board_preview_display_cache_key = ""
-	_board_preview_display_cache.clear()
+	# The board retains this snapshot until the next deferred hover submission.
+	_board_preview_display_cache = {}
 	_pass_preview_prewarm.restart(self)
 
 func _cache_hover_resolved_preview_state(resolved_state: Dictionary) -> void:
@@ -19930,7 +18983,6 @@ func _card_preview_from_state(
 				movement_plan = _combat_engine.movement_plan_for_player_action(working_state, action, candidate_targets)
 				can_use_position_only_move = (
 					use_position_only_move_legality
-					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
 					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
@@ -20046,7 +19098,6 @@ func _card_preview_continuation_is_playable(
 				movement_plan = _combat_engine.movement_plan_for_player_action(working_state, action, candidate_targets)
 				can_use_position_only_move = (
 					use_position_only_move_legality
-					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
 					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
@@ -20150,7 +19201,7 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	var action_type: String = str(action.get("type", ""))
 	result["attack_reach_tiles"] = preload("res://scripts/target_click_feedback.gd").reach_tiles(_combat_engine, preview.get("state", {}), action)
 	result["attack_reach_color"] = Color(PLAYER_ATTACK_FOCUS, 0.18)
-	result["focus_actor_color"] = Color("ffe394") if action_type in ["illuminate", "vision", "truesight", "dispel_umbra"] else PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "illusion"] else PLAYER_ATTACK_FOCUS
+	result["focus_actor_color"] = Color("ffe394") if action_type in ["illuminate", "vision"] else PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "illusion"] else PLAYER_ATTACK_FOCUS
 	var focus_tiles: Array[Vector2i] = _focus_tiles_for_preview(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_focus", performance_phase_started)
 	if not focus_tiles.is_empty():
@@ -20280,7 +19331,9 @@ func _illusion_terrain_focus_tiles(state: Dictionary, action: Dictionary, target
 			if action.has("pattern"):
 				tiles = _combat_engine.outcrop_tiles_for_player_action(state, action, target_tile)
 		"destroy_illusion", "burst_terrain":
+			# The Burst's cross (it includes the chosen tile), source first.
 			tiles = _combat_engine.blast_tiles_for_player_action(state, action, target_tile)
+			tiles.erase(target_tile)
 			tiles.push_front(target_tile)
 		"illusion":
 			if str(action.get("place", "")) == "adjacent_to_enemy":
@@ -20422,17 +19475,33 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	_record_runtime_performance_phase("preview_damage_for_action_total", performance_phase_started)
 	return damage
 
-func _surface_resolution_for_preview(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+func _surface_resolution_for_preview(state: Dictionary, action: Dictionary, target: Vector2i, retain_board: bool = false) -> Dictionary:
 	# One immutable result feeds damage, route/surface feedback and turn risk.
 	# Include the source state and action: orientation and shortcut previews can
 	# resolve a different state within the same selection revision.
-	var cache_key: String = "%d:%d:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(target)]
+	var cache_key: String = "%d:%d:%d:%d:%s:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(target), str(retain_board)]
 	if _surface_resolution_cache_key != cache_key:
 		var actual: Dictionary = _combat_engine.surface_preview_for_player_action(state, action, target, true)
-		var known_state: Dictionary = _surface_preview_information_state(state)
+		var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+		var independent_walk: bool = bool(action.get("_movement_pool", false))
+		var use_board: bool = _preview_umbra_is_limited(state) and (
+			(bool(actual.get("walk_forced", false)) or _pass_phase_uses_force(state)) if independent_walk else
+			(retain_board or bool(state.get(source.FORCE_BOARD, false)) or source.actions_use_force(_combat_engine, [action]) or source.indirect_force_triggered(state, actual["state"]))
+		)
+		var known_state: Dictionary = state
 		var damage: Dictionary = actual
 		var known: Dictionary = actual
-		if known_state != state:
+		if use_board:
+			if independent_walk:
+				known = source.walk_force_preview(_combat_engine, state, action, target)
+			else:
+				known = actual.duplicate(false)
+				for field: String in ["state", "single_state"]:
+					known[field] = source.retain_force_board(actual[field])
+			damage = known
+		else:
+			known_state = _surface_preview_information_state(state, null, str(action.get("type", "")) not in ["move", "blink"])
+		if not use_board and not is_same(known_state, state):
 			# Filtering hidden causes can change legality. Damage historically
 			# uses the prevalidated action while surface feedback validates the
 			# information-safe state; share them only when that target stays legal.
@@ -20443,21 +19512,20 @@ func _surface_resolution_for_preview(state: Dictionary, action: Dictionary, targ
 		_surface_resolution_cache_key = cache_key
 	return _surface_resolution_cache
 
-func _surface_preview_information_state(state: Dictionary, information_override: Variant = null) -> Dictionary:
-	return preload("res://scripts/pass_forecast_action_source.gd").information_state(self, state, information_override)
+func _surface_preview_information_state(state: Dictionary, information_override: Variant = null, retain_ground: bool = false, retain_board: bool = false) -> Dictionary:
+	return preload("res://scripts/pass_forecast_action_source.gd").information_state(self, state, information_override, retain_ground, retain_board)
 
 func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_preview: Dictionary) -> Dictionary:
-	if source_preview.is_empty() or not _preview_umbra_is_limited(state):
+	if source_preview.is_empty():
 		return source_preview
+	var limited: bool = _preview_umbra_is_limited(state)
+	var hidden: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").hidden_actor_keys(self, state)
+	if not limited and hidden.is_empty(): return source_preview
+	var preview: Dictionary = source_preview.duplicate()
+	for key: String in hidden: preview.erase(key)
+	if not limited: return preview
 	var information_state: Dictionary = _preview_information_state(state)
 	var visible_lookup: Dictionary = _combat_engine.umbra_visible_tile_lookup(information_state)
-	var preview: Dictionary = source_preview.duplicate(true)
-	for enemy_var: Variant in state.get("enemies", []):
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = enemy_var
-		if not _combat_engine.is_enemy_visible_to_player(information_state, enemy, visible_lookup):
-			preview.erase(_enemy_key(enemy))
 	for terrain_var: Variant in state.get("terrain", []):
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
@@ -20468,9 +19536,6 @@ func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_pr
 	for trap: Dictionary in state.get("traps", []):
 		if not _combat_engine.is_tile_visible_to_player(information_state, trap.get("pos", INVALID_TARGET_TILE), visible_lookup):
 			preview.erase("trap_%s" % str(trap.get("id", "")))
-	for illusion: Dictionary in state.get("illusions", []):
-		if not _combat_engine.is_tile_visible_to_player(information_state, illusion.get("pos", INVALID_TARGET_TILE), visible_lookup):
-			preview.erase("illusion_%d" % int(illusion.get("id", -1)))
 	return preview
 
 func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
@@ -20851,7 +19916,6 @@ func _preview_immediate_attack_shortcuts(
 			defer_safe_move_resolution
 			and not skip_move
 			and str(attack_action.get("type", "")) in ["melee", "ranged"]
-			and _shortcut_move_bleed_is_survivable(preview_state)
 			and not _movement_variety_requires_resolution(preview_state)
 			and not _shortcut_path_has_live_trap(preview_state, path_tiles)
 		)
@@ -20925,15 +19989,6 @@ func _shortcut_path_has_live_trap(state: Dictionary, path_tiles: Array[Vector2i]
 		if not bool(trap.get("triggered", false)) and path_tiles.has(trap.get("pos", INVALID_TARGET_TILE)):
 			return true
 	return false
-
-func _shortcut_move_bleed_is_survivable(state: Dictionary) -> bool:
-	var player: Dictionary = state.get("player", {}) as Dictionary
-	var bleed_damage: int = int(player.get("bleed", 0))
-	return bleed_damage < (
-		int(player.get("hp", 0))
-		+ int(player.get("block", 0))
-		+ int(player.get("stoneskin", 0))
-	)
 
 func _annotate_deferred_shortcut_plans(
 	plans: Dictionary,
@@ -21175,7 +20230,7 @@ func _hovered_stay_forecast() -> Dictionary:
 		return {}
 	if not preload("res://scripts/card_stay_rules.gd").is_stay(_preview_combat_state, _pending_actions[_pending_action_index], _hovered_board_tile):
 		return {}
-	var known_state: Dictionary = _surface_preview_information_state(_preview_combat_state)
+	var known_state: Dictionary = _surface_preview_information_state(_preview_combat_state, null, false, _pass_phase_uses_force(_preview_combat_state))
 	var stayed: Dictionary = _combat_engine.apply_player_action(known_state, _pending_actions[_pending_action_index], _hovered_board_tile)
 	return _pass_preview_state_after_movement_only(stayed, _pending_actions, _pending_action_index + 1)
 
@@ -21251,7 +20306,7 @@ func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictio
 	var after_player: Dictionary = after_state.get("player", {})
 	var labels := PackedStringArray()
 	var seen: Dictionary = {}
-	for key: String in ["chilled", "freeze", "shock"]:
+	for key: String in ["expose", "shock"]:
 		if int(after_player.get(key, 0)) > int(before_player.get(key, 0)):
 			var label: String = key.capitalize()
 			labels.append(label)
@@ -21402,10 +20457,43 @@ func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
 		oriented.erase("orientation")
 	return oriented
 
-func _reset_aoe_aim_orientation_for_action(action: Dictionary) -> void:
-	var direction: Vector2i = _cardinal_direction(action.get("orientation", Vector2i(1, 0)))
-	_aoe_aim_orientation = direction if direction != Vector2i.ZERO else Vector2i(1, 0)
-	_aoe_aim_orientation = preload("res://scripts/line_opening_aim.gd").direction(_combat_engine, _surface_preview_information_state(_preview_combat_state), action, _aoe_aim_orientation)
+func _reset_aoe_aim_orientation_for_action(action: Dictionary, use_hover: bool = true) -> void:
+	_aoe_aim_target_tile = INVALID_TARGET_TILE
+	_aoe_aim_orientation = _default_aoe_aim_orientation(action)
+	if not _current_action_supports_rotation():
+		return
+	var centers: Array[Vector2i] = _pending_target_tiles
+	if use_hover and centers.has(_hovered_board_tile):
+		_aoe_aim_target_tile = _hovered_board_tile
+		centers = _vector2i_array([_hovered_board_tile])
+	var placement: Dictionary = _best_aoe_aim_placement(action, centers)
+	_aoe_aim_orientation = placement["direction"]
+	if _aoe_aim_target_tile == INVALID_TARGET_TILE:
+		_aoe_aim_target_tile = placement["center"]
+
+func _default_aoe_aim_orientation(action: Dictionary) -> Vector2i:
+	var direction: Vector2i = _cardinal_direction(action.get("orientation", Vector2i.RIGHT))
+	return direction if direction != Vector2i.ZERO else Vector2i.RIGHT
+
+func _best_aoe_aim_placement(action: Dictionary, centers: Array[Vector2i]) -> Dictionary:
+	var board: Dictionary = _surface_preview_information_state(_preview_combat_state, null, false, _combat_engine._action_has_forced_movement(action))
+	var information: Dictionary = _combat_state if not _combat_state.is_empty() else board
+	return AreaTargetAim.placement(_combat_engine, board, information, action, centers, _default_aoe_aim_orientation(action))
+
+func _sync_aoe_aim_target(tile: Vector2i) -> void:
+	# Leaving the board, including to reach the Rotate button, keeps the last aim.
+	if tile.x < 0 or tile == _aoe_aim_target_tile or _orientation_pending() or not _current_action_supports_rotation():
+		return
+	if not _pending_target_tiles.has(tile):
+		return
+	_aoe_aim_target_tile = tile
+	var placement: Dictionary = _best_aoe_aim_placement(_pending_actions[_pending_action_index], _vector2i_array([tile]))
+	var direction: Vector2i = placement["direction"]
+	if direction == _aoe_aim_orientation:
+		return
+	_aoe_aim_orientation = direction
+	_refresh_pending_aoe_target_tiles()
+	_mark_preview_selection_changed()
 
 func _refresh_pending_aoe_target_tiles() -> void:
 	if not _current_action_is_aimed_aoe():
@@ -21809,7 +20897,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	_drag_card_grab_ratio = grab_ratio
 	if _drag_card_proxy != null:
 		_release_card_proxy(_drag_card_proxy)
-	_drag_card_proxy = _spawn_card_proxy(_card_id_for_hand_index(index), source_rect)
+	_drag_card_proxy = _spawn_card_proxy(_card_id_for_hand_index(index), source_rect, _hand_card_control(index) as CardWidget)
 	_mount_card_proxy(_drag_card_proxy, _drag_overlay, source_rect)
 	_drag_card_base_scale = _drag_card_proxy.scale * CARD_DRAG_FOLLOW_SCALE
 	# A drag may start before the hover-enter tween finishes. Never shrink its
@@ -21871,7 +20959,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	if not preserve_aim: _reset_force_aim()
 	if _pending_action_index < _pending_actions.size():
-		if not preserve_aim: _reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
+		if not preserve_aim: _reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index], not _controller_is_active())
 		_refresh_pending_aoe_target_tiles()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_targets", performance_phase_started)
 	_append_skipped_target_placeholders(0, _pending_action_index)
@@ -21881,7 +20969,6 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 
 func _present_initial_card_selection(defer_forecast: bool) -> void:
 	if defer_forecast:
-		_selected_pass_work.begin(self)
 		# The first render includes the same default controller aim the release
 		# route chooses. The existing board still supplies the tile geometry.
 		if _preview_combat_state.get("grid") == board_view.combat_state.get("grid"):
@@ -21890,6 +20977,7 @@ func _present_initial_card_selection(defer_forecast: bool) -> void:
 			# Restore the hover owner so its card effect appears immediately.
 			if board_view._controller_focus_tile.x >= 0 and _hovered_board_tile != board_view._controller_focus_tile:
 				_on_board_tile_hovered(board_view._controller_focus_tile)
+		_selected_pass_work.begin(self)
 	_refresh_card_preview_ui()
 
 func _selected_pass_pending() -> bool:
@@ -21928,7 +21016,7 @@ func _on_confirm_card_play_pressed() -> void:
 		_vector2i_array(_pending_selected_targets)
 	)
 
-func _on_card_hover_started(index: int, pointer_hover: bool = true) -> void:
+func _on_card_hover_started(index: int, pointer_hover: bool = true, play_hover_cue: bool = true) -> void:
 	if _surface_aim.active():
 		return
 	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
@@ -21939,8 +21027,9 @@ func _on_card_hover_started(index: int, pointer_hover: bool = true) -> void:
 		_apply_controller_hand_layout()
 	var owner_changed: bool = _hovered_card_index != index
 	if owner_changed:
-		_ensure_sfx_bank()
-		_sfx_router.card_hover()
+		if play_hover_cue:
+			_ensure_sfx_bank()
+			_sfx_router.card_hover()
 		_hovered_card_index = index
 		_hand_hover_rest_pending = true
 		_wait_for_hand_hover_rest(index, _hand_hover_rest_generation)
@@ -22071,6 +21160,7 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CONFIRM_INTENT)
 	if _animation_lock:
 		return
+	_sync_aoe_aim_target(presented_tile)
 	_sync_force_aim_target(presented_tile)
 	# Input can deliver several pointer moves and a click before the next draw.
 	# Commit targeting immediately, but render only the final hover presentation.
@@ -22175,6 +21265,7 @@ func _on_board_tile_dragged(start_tile: Vector2i, current_tile: Vector2i) -> voi
 		return
 	var direction: Vector2i = _direction_from_tiles(start_tile, current_tile)
 	if direction != Vector2i.ZERO:
+		_aoe_aim_target_tile = current_tile
 		_set_aoe_aim_orientation(direction)
 	_hovered_board_tile = current_tile
 	_refresh_stage_view()
@@ -22187,6 +21278,7 @@ func _on_board_tile_drag_released(start_tile: Vector2i, current_tile: Vector2i) 
 		return
 	var direction: Vector2i = _direction_from_tiles(start_tile, current_tile)
 	if direction != Vector2i.ZERO:
+		_aoe_aim_target_tile = current_tile
 		_set_aoe_aim_orientation(direction)
 	_hovered_board_tile = current_tile
 	await _on_board_tile_clicked(current_tile)
@@ -22283,6 +21375,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if _orientation_pending():
 		await _confirm_pending_orientation(tile)
 		return
+	_sync_aoe_aim_target(tile)
 	var preview: Dictionary = _active_card_preview()
 	var shortcut_plan: Dictionary = {}
 	var preview_action_type: String = ""
@@ -22305,7 +21398,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var action: Dictionary = _combat_engine.action_with_automatic_origin(_preview_combat_state, _pending_actions[_pending_action_index], tile)
 	_pending_actions[_pending_action_index] = action
 	var previous_action_index: int = _pending_action_index
-	if str(action.get("type", "")) in ["aoe", "meteor_marks", "outcrop"]:
+	if _action_uses_aoe_aim(action):
 		action = _action_with_aoe_aim_orientation(action)
 		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
 			return
@@ -22413,24 +21506,10 @@ func _mini_map_cursor_feedback_context(_local_position: Vector2) -> String:
 	return "action" if not _dialogue_active and not _animation_lock and _large_map_scrim != null else "inert"
 
 func _is_map_shortcut_event(event: InputEvent) -> bool:
-	if not (event is InputEventKey):
-		return false
-	var key_event: InputEventKey = event
-	if not key_event.pressed or key_event.echo:
-		return false
-	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
-		return false
-	return key_event.keycode == KEY_M or key_event.physical_keycode == KEY_M
+	return KeyBindings.pressed(KeyBindings.MAP, event)
 
 func _is_enemy_intent_shortcut_event(event: InputEvent) -> bool:
-	if not (event is InputEventKey):
-		return false
-	var key_event: InputEventKey = event
-	if not key_event.pressed or key_event.echo:
-		return false
-	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
-		return false
-	return key_event.keycode == KEY_I or key_event.physical_keycode == KEY_I
+	return KeyBindings.pressed(KeyBindings.ENEMY_INTENTS, event)
 
 func _enemy_intent_shortcut_can_toggle() -> bool:
 	if str(_run_state.get("mode", "room")) != "combat" or _combat_state.is_empty() or _animation_lock or _drag_card_index >= 0:
@@ -22477,11 +21556,12 @@ func _refresh_enemy_intent_toggle() -> void:
 	_enemy_intent_toggle_button.visible = in_combat
 	_enemy_intent_toggle_button.disabled = not in_combat or _animation_lock
 	_enemy_intent_toggle_button.set_pressed_no_signal(_show_all_enemy_intents)
-	_enemy_intent_toggle_button.text = "DETAILS [I]"
+	_enemy_intent_toggle_button.text = KeyBindings.with_mark("DETAILS", KeyBindings.ENEMY_INTENTS)
+	_enemy_intent_toggle_button.call("refresh_key")
 	_enemy_intent_toggle_button.call("refresh_state")
 	_enemy_intent_toggle_button.tooltip_text = preload("res://scripts/device_shortcut_tooltips.gd").text(
 		self, "Hide full plans" if _show_all_enemy_intents else "Show every enemy's full plan",
-		"I"
+		KeyBindings.ENEMY_INTENTS
 	)
 
 func _map_shortcut_can_open() -> bool:
@@ -22621,7 +21701,7 @@ func _cancel_card_selection(resume_pointer_hover: bool = false, refresh_preview:
 		# Same owner: retain its silent return, but enter with the normal ease.
 		if _hand_card_control(pointer_index) == deselected:
 			_hovered_card_index = pointer_index
-		_on_card_hover_started(pointer_index)
+		_on_card_hover_started(pointer_index, true, false)
 	if completes_tutorial_cancel:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_CANCEL)
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD)
@@ -22843,8 +21923,8 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	var movement_result: Dictionary = committed_combat_state.get("last_player_movement", {}) as Dictionary
 	var previous_position: Vector2i = (previous_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	var committed_position: Vector2i = (committed_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
-	# A validated walk can end before its first step: Bleed may defeat the
-	# player, or hidden occupancy may interrupt it. Those outcomes still commit.
+	# A validated walk interrupted by hidden occupancy still commits, even
+	# when it ends before its first step.
 	if not bool(movement_result.get("resolved", int(movement_result.get("spent", 0)) > 0)):
 		return
 	_animation_lock = true
@@ -22937,7 +22017,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	# the first render boundary. Avoid constructing it twice; dialogue is the
 	# choice-bar early-return case and retains the immediate refresh.
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets, _dialogue_active and _dialogue_suppresses_choices)
-	_hud_forecast.begin(self, resolved_state)
+	_hud_forecast.begin(self)
 	_animation_lock = true
 	if returning_from_board_targeting:
 		# Aiming has ended. Measure the launch at the restored hand home, not
@@ -22965,9 +22045,10 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	# The checkpoint builder owns its input copy before changing any fields.
 	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state, "card_play")
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
+	_pending_card_play_analytics = _analytics_log_card_played.bind(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
 	_schedule_committed_hand_queries(committed_run_state.get("combat_state", {}) as Dictionary)
 	_play_card_play_sfx()
-	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
+	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size, _hand_card_control(hand_index) as CardWidget)
 	# The center beat confirms the committed card. Its flight to the pile is
 	# bookkeeping that can finish alongside the first visible board consequence.
 	var pile_completion: Dictionary = {"done": false}
@@ -23018,7 +22099,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	card_finish_started = _record_runtime_performance_phase("card_finish_sync_and_draw_analytics", card_finish_started)
-	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
+	_emit_pending_card_play(_run_state)
 	card_finish_started = _record_runtime_performance_phase("card_finish_played_analytics", card_finish_started)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
@@ -23070,10 +22151,10 @@ func _card_destination_pile(card_id: String) -> String:
 		return "consume"
 	return "burn" if bool(_card_def(card_id, _combat_state).get("burn", false)) else "discard"
 
-func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2) -> Control:
+func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2, title_source: CardWidget = null) -> Control:
 	if _card_fx_layer == null or card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		return null
-	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	var proxy: Control = _spawn_card_proxy(card_id, source_rect, title_source)
 	_mount_card_proxy(proxy, _card_fx_layer, source_rect)
 	proxy.z_index = 1500
 	proxy.modulate = Color.WHITE
@@ -23167,12 +22248,12 @@ func _animate_staged_draw_hand_fx(
 			var source_card_rect: Rect2 = _hand_card_global_rect(source_index)
 			if source_card_rect.size.x <= 0.0 or source_card_rect.size.y <= 0.0:
 				continue
-			var retained_proxy: Control = _spawn_card_proxy(source_hand[source_index], source_card_rect)
+			var source_widget: Control = _hand_card_control(source_index)
+			var retained_proxy: Control = _spawn_card_proxy(source_hand[source_index], source_card_rect, source_widget as CardWidget)
 			_mount_card_proxy(retained_proxy, _card_fx_layer, source_card_rect)
 			var source_slot: Control = hand_box.get_child(source_index) as Control if source_index < hand_box.get_child_count() else null
 			if source_slot != null:
 				retained_proxy.rotation = source_slot.get_global_transform_with_canvas().get_rotation()
-			var source_widget: Control = _hand_card_control(source_index)
 			if source_widget != null:
 				retained_proxy.modulate = source_widget.modulate
 			source_cards.append(source_hand[source_index])
@@ -23208,7 +22289,7 @@ func _animate_staged_draw_hand_fx(
 		if incoming_by_target.has(target_index):
 			var incoming_entry: Dictionary = incoming_by_target[target_index] as Dictionary
 			var incoming_card_id: String = str(incoming_entry.get("card_id", target_hand[target_index]))
-			proxy = _spawn_card_proxy(incoming_card_id, source_rect)
+			proxy = _spawn_card_proxy(incoming_card_id, source_rect, null, target_card_size)
 			_mount_card_proxy(proxy, _card_fx_layer, source_rect)
 			var reduced_motion: bool = _reduced_motion_enabled()
 			if not reduced_motion:
@@ -23242,7 +22323,7 @@ func _animate_staged_draw_hand_fx(
 					0.0,
 					total_duration,
 					target_rotation,
-					Color.WHITE
+					proxy.modulate if bool(hand_transition.get("keep_locked_tint", false)) else Color.WHITE
 				)
 				if completion_tween == null:
 					completion_tween = tween
@@ -23322,7 +22403,7 @@ func _animate_draw_cards_fx(
 			card_id = str(entry)
 		if card_id.is_empty() or not _card_fx_can_continue_combat():
 			return
-		var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+		var proxy: Control = _spawn_card_proxy(card_id, source_rect, null, _hand_card_size(target_total, false))
 		_mount_card_proxy(proxy, _card_fx_layer, source_rect)
 		if not receive_budgets.has(target_total):
 			receive_budgets[target_total] = CombatHandBudget.fit(self, target_total, receive_size)
@@ -23523,7 +22604,7 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 	if gained_embers > 0:
 		await _animate_ember_reward(Vector2i.ZERO, gained_embers, displayed_embers, displayed_embers + gained_embers)
 	while not bool(card_play_completion.get("done", false)):
-		await get_tree().process_frame
+		await _combat_pacing.next_playback_frame()
 	_ember_count_override = -1
 
 func _animate_death_rewards_and_complete(before_state: Dictionary, after_state: Dictionary, completion: Dictionary) -> void:
@@ -23611,7 +22692,8 @@ func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int,
 		from_count,
 		to_count,
 		_reduced_motion_enabled(),
-		Callable(self, "_set_ember_reward_display_count")
+		Callable(self, "_set_ember_reward_display_count"),
+		_combat_pacing.next_playback_frame
 	)
 
 func _set_ember_reward_display_count(value: int) -> void:
@@ -23622,6 +22704,7 @@ func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
 func _begin_player_popup_timeline() -> void:
+	_push_contact_feedback.clear()
 	_player_popup_timeline_active = true
 	_player_popup_timeline_started_usec = _combat_pacing.presentation_usec()
 	_player_popup_timeline_groups.clear()
@@ -23671,7 +22754,8 @@ func _animate_floating_text_presentation(
 	base_presentation: Dictionary,
 	initial_elapsed_seconds: float = 0.0,
 	overlap_with_next_action: bool = false,
-	companion_completion: Dictionary = {}
+	companion_completion: Dictionary = {},
+	on_contact: Callable = Callable()
 ) -> void:
 	# Numbers first drawn after contact inside an attack's frame steps keep their
 	# full life: their clock starts at that first drawn frame (atk-10). The rest
@@ -23681,25 +22765,29 @@ func _animate_floating_text_presentation(
 		base_presentation = base_presentation.duplicate(false)
 		base_presentation.erase(FLOATING_TEXT_DELAY_KEY)
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
+	var hold_effect_beat: bool = bool(base_presentation.get(FloatingCombatText.HOLD_EFFECT_BEAT_KEY, false))
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
 	var terrain_destruction_units: Array = (base_presentation.get("terrain_destruction_units", []) as Array).duplicate(true)
 	var use_player_timeline: bool = (
 		overlap_with_next_action
 		and _player_popup_timeline_active
-		and not base_texts.is_empty()
+		and (not base_texts.is_empty() or hold_effect_beat)
 	)
-	if use_player_timeline:
+	if use_player_timeline and not base_texts.is_empty():
 		_queue_player_popup_group(base_texts, initial_elapsed_seconds - text_delay_seconds)
 	var duration_seconds: float = (
 		FloatingCombatText.action_advance_duration(base_texts)
 		if use_player_timeline
 		else FloatingCombatText.total_duration(base_texts) + (0.0 if base_texts.is_empty() else text_delay_seconds)
 	)
+	if hold_effect_beat:
+		duration_seconds = FloatingCombatText.ACTION_ADVANCE_SECONDS if use_player_timeline else FloatingCombatText.ANIMATION_DURATION_SECONDS
 	duration_seconds = _combat_pacing.feedback_duration(base_texts, duration_seconds, initial_elapsed_seconds)
 	duration_seconds = preload("res://scripts/enemy_mechanics/burst_fx.gd").feedback_duration(base_presentation, duration_seconds)
-	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty() and not base_presentation.has("surface_feedback_events") and not base_presentation.has("en01_burst"):
+	if base_texts.is_empty() and not hold_effect_beat and base_decals.is_empty() and trap_effects.is_empty() and not base_presentation.has("surface_feedback_events") and not base_presentation.has("en01_burst"):
 		_render_board_state(display_state, base_presentation)
+		if on_contact.is_valid(): on_contact.call()
 		await get_tree().create_timer(duration_seconds).timeout
 		return
 	var reduced_motion: bool = _reduced_motion_enabled()
@@ -23730,6 +22818,7 @@ func _animate_floating_text_presentation(
 			else FloatingCombatText.animate_entries(base_texts, elapsed_seconds - text_delay_seconds, reduced_motion)
 		)
 		_render_board_state(display_state, presentation, state_validated_for_animation)
+		if not state_validated_for_animation and on_contact.is_valid(): on_contact.call()
 		state_validated_for_animation = true
 		var companion_finished: bool = (
 			companion_completion.is_empty()
@@ -23844,14 +22933,58 @@ func _carry_floating_text_birth(presentation: Dictionary, birth: Dictionary) -> 
 func _attack_feedback_waits_for_trap(effect: Dictionary) -> bool:
 	return not (effect.get("triggered_traps", []) as Array).is_empty()
 
+## A placed Light's beat (illuminate cards, and Shattered Reflection without an
+## illusion to Burst).
+func _animate_light_creation(primary_display_state: Dictionary, card_id: String, action: Dictionary, before_state: Dictionary, target_tile: Vector2i, radius: int) -> void:
+	_sfx_router.light()
+	_set_action_banner(_player_action_label(card_id, action, before_state))
+	await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+		var t: float = float(frame_number) / float(ATTACK_FRAMES)
+		_render_board_state(primary_display_state, {
+			"focus_actor_keys": ["player"],
+			"focus_actor_color": Color("ffe394"),
+			"focus_tiles": [target_tile],
+			"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
+		}, true)
+	)
+	await _animate_floating_text_presentation(primary_display_state, {
+		"focus_tiles": [target_tile],
+		"focus_color": Color(1.0, 0.84, 0.42, 0.30),
+		"floating_texts": [{
+			"tile": target_tile,
+			"text": "Light %d" % radius,
+			"icon": "illuminate",
+			"color": Color("ffe394"),
+			"offset": -8.0
+		}]
+	}, 0.0, true)
+
+func _play_strike_animation_frames(frame_count: int, frame_seconds: float, render_frame: Callable, strike: TileBurstFx.StrikeCue) -> void:
+	_timed_strike = strike
+	await _play_timed_animation_frames(frame_count, frame_seconds, render_frame)
+	if _timed_strike == strike: _timed_strike = null
+
 func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render_frame: Callable) -> void:
+	var cue: Callable
+	if not _summon_adapter_clock.is_empty() and frame_count == _summon_adapter_clock["frames"] and is_equal_approx(frame_seconds, float(_summon_adapter_clock["seconds"])):
+		cue = _summon_adapter_clock["cue"]
+		_summon_adapter_clock.clear()
+	var strike: TileBurstFx.StrikeCue = _timed_strike
+	_timed_strike = null
+	if strike == null and frame_count == _icefall_cutout_strike.get("frames") and frame_seconds == _icefall_cutout_strike.get("seconds"):
+		strike = _icefall_cutout_strike["cue"]
+	await _play_sampled_animation_frames(frame_count, frame_seconds, render_frame, cue, strike)
+
+func _play_sampled_animation_frames(frame_count: int, frame_seconds: float, render_frame: Callable, sample_clock: Callable, strike: TileBurstFx.StrikeCue = null) -> void:
 	var safe_frame_count: int = maxi(0, frame_count)
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
 	var started_usec: int = Time.get_ticks_usec()
 	var presentation_started_usec: int = _combat_pacing.presentation_usec()
+	if strike != null: strike.begin(presentation_started_usec, _combat_pacing.presentation_usec)
 	var rendered_frames: int = 0
 	if frame_seconds <= 0.0:
+		if sample_clock.is_valid(): sample_clock.call(0.0)
 		render_frame.call(safe_frame_count)
 		rendered_frames = 1
 		await get_tree().process_frame
@@ -23867,11 +23000,13 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	var last_rendered_frame: int = 0
 	while true:
 		var elapsed_usec: int = _combat_pacing.presentation_usec() - presentation_started_usec
+		var resubmit: bool = sample_clock.is_valid() and sample_clock.call(float(elapsed_usec) / 1000000.0) == true
 		var due_frame: int = clampi(1 + int(elapsed_usec / frame_duration_usec), 1, safe_frame_count)
-		if due_frame > last_rendered_frame:
+		if due_frame > last_rendered_frame or resubmit:
 			render_frame.call(due_frame)
-			rendered_frames += 1
-			last_rendered_frame = due_frame
+			if due_frame > last_rendered_frame:
+				rendered_frames += 1
+				last_rendered_frame = due_frame
 		if elapsed_usec >= authored_duration_usec:
 			break
 		await get_tree().process_frame
@@ -24153,7 +23288,7 @@ func _animate_turn_start_fire(display_state: Dictionary, burn: Dictionary) -> vo
 		"screen_layout_id": FloatingCombatText.ensure_screen_layout_id(burn) + "/damage",
 		"reaction_actor_key": "player", "reaction": "hit"
 	}))
-	_decorate_bleed_damage_float(texts[0], "surface_fire")
+	_decorate_status_damage_float(texts[0], "surface_fire")
 	var duration_seconds: float = FloatingCombatText.total_duration(texts)
 	var started_usec: int = _combat_pacing.presentation_usec()
 	var validated: bool = false
@@ -24240,6 +23375,7 @@ func _animate_missed_equipment_resolution(victory_state: Dictionary, salvaged_eq
 		_render_board_state(resolved_state, {})
 		return resolved_state
 	_show_combat_log_message(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
+	var pickup_pose_msec: int = preload("res://scripts/presentation_clock.gd").ticks_msec()
 	await _play_timed_animation_frames(
 		MISSED_EQUIPMENT_FRAMES + 1,
 		MISSED_EQUIPMENT_FRAME_SECONDS,
@@ -24247,6 +23383,7 @@ func _animate_missed_equipment_resolution(victory_state: Dictionary, salvaged_eq
 			var progress: float = float(frame_number - 1) / float(MISSED_EQUIPMENT_FRAMES)
 			_render_board_state(presentation_state, {
 				"missed_equipment_ids": missed_equipment,
+				"missed_equipment_pose_msec": pickup_pose_msec,
 				"missed_equipment_progress": progress
 			})
 	)
@@ -24306,15 +23443,22 @@ func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Arr
 		return decals
 	var element_id: String = str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 	var tiles: Array[Vector2i] = _impact_decal_tiles(effect, floating_texts)
+	var strike_tiles: Array[Vector2i]
+	if not TileBurstFx.strike_element(effect).is_empty():
+		strike_tiles = preload("res://scripts/dragon_presentation.gd").tiles(effect)
 	var count: int = mini(tiles.size(), IMPACT_DECAL_MAX_TILES)
 	for index: int in range(count):
 		var tile: Vector2i = tiles[index]
-		decals.append({
+		if ResolvedContactBursts.suppresses_decal(effect, tile): continue
+		var decal: Dictionary = {
 			"tile": tile,
 			"element": element_id,
 			"kind": kind,
-			"seed": _impact_decal_seed(tile, element_id, kind)
-		})
+			"seed": _impact_decal_seed(tile, element_id, kind),
+		}
+		# The decal list also controls the existing feedback tail.
+		if strike_tiles.has(tile): decal["baked_strike"] = true
+		decals.append(decal)
 	return decals
 
 func _impact_decal_tiles(effect: Dictionary, floating_texts: Array) -> Array[Vector2i]:
@@ -24362,7 +23506,85 @@ func _impact_element_seed(element_id: String) -> int:
 		_:
 			return 7
 
-func _animate_player_ground_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary, primary_effect: Dictionary = {}, primary_sound_element: String = "") -> bool:
+func _tile_burst_contact(specs: Array, before: Dictionary, after: Dictionary) -> Callable:
+	_resolved_contact_bursts.include_outcome(before, after)
+	var selected: Array[Dictionary] = _ordered_tile_bursts(specs, after)
+	if selected.is_empty(): return Callable()
+	_reserve_tile_bursts(selected, after)
+	return board_view.present_tile_bursts.bind(selected, before, after, _reduced_motion_enabled())
+
+func _ordered_tile_bursts(specs: Array, state: Dictionary) -> Array[Dictionary]:
+	return _resolved_contact_bursts.ordered_specs(specs, state.get("grid", []),
+		func(tile: Vector2i) -> bool: return _combat_engine.is_tile_visible_to_player(state, tile))
+
+func _reserve_tile_bursts(specs: Array, state: Dictionary) -> void:
+	if specs.is_empty(): return
+	_resolved_contact_bursts.reserve(specs, state.get("grid", []), func(tile: Vector2i) -> bool: return _combat_engine.is_tile_visible_to_player(state, tile))
+
+func _begin_chain_contact_step(before: Dictionary, after: Dictionary, ground_events: Array) -> Dictionary:
+	_chain_contact_before = before
+	# A return relay can land on the opening tile in a later beat. Only
+	# reservations on this beat compete with its Lightning contact.
+	_resolved_contact_bursts.begin(before, {}, false)
+	if ground_events.is_empty(): return {}
+	# Find other contacts on the beat before any interior row can start. Use
+	# the same observer without advancing the live contact or surface state.
+	var contacts := ResolvedContactBursts.new()
+	contacts.begin(before, {}, false)
+	contacts.observe({"surface_feedback_events": ground_events}, after,
+		func(tile: Vector2i) -> bool: return _combat_engine.is_tile_visible_to_player(after, tile))
+	return contacts._covered
+
+func _chain_hop_burst(shown: Dictionary, state: Dictionary) -> Callable:
+	if _chain_contact_before.is_empty() or not shown.has(ChainAttackFeedback.CONTACT_TILES): return Callable()
+	var before: Dictionary = _chain_contact_before
+	_chain_contact_before = {}
+	var effect: Dictionary = shown.get("effect", {})
+	if effect.get("element") != "lightning": return Callable()
+	var descriptor: Dictionary = effect
+	if effect.has("protagonist_origin") and not effect.has("base_card_id") and not effect.has("card_id"):
+		descriptor = effect.duplicate(false)
+		var base_id: String = GameData.upgrade_card_id(_action_step_resolution_card_id)
+		descriptor["base_card_id"] = _action_step_resolution_card_id if base_id.is_empty() else base_id
+	var shot: String = ShotFx.resolve(descriptor)
+	var shot_tile: Vector2i = effect.get("umbra_original_to", effect.get("to", INVALID_TARGET_TILE))
+	var shot_has_contact: bool = ShotFx.has_hit(shot) and not ShotFx.is_ranged_area(effect) and not ShotFx.is_chain_hop(effect)
+	var hits: Dictionary = TileBurstFx.step_hit_tiles(before, state, board_view._resolved_unit_footprint)
+	var specs: Array[Dictionary]
+	for tile: Vector2i in shown[ChainAttackFeedback.CONTACT_TILES]:
+		if _resolved_contact_bursts._covered.has(tile) or (shot_has_contact and tile == shot_tile): continue
+		specs.append(ResolvedContactBursts.spec("lightning", tile, hits.has(tile)))
+	return _tile_burst_contact(specs, before, state)
+
+func _append_contact_burst(specs: Array, effect: Dictionary, before: Dictionary, after: Dictionary, shot_effect: Dictionary = {}) -> void:
+	if shot_effect.get("enemy_type") == "cinder_ooze" and effect.get("intent_id") == "cinder_bloom" and effect.get(TileBurstFx.ACTIVE, false) and not specs.is_empty():
+		var terrain_losses: Array = effect.get("terrain_losses", [])
+		if not terrain_losses.is_empty():
+			# The shared area player already detects defeated terrain. Bloom also
+			# uses the hit row when a prop survives the loss of Health.
+			var hits: Dictionary = TileBurstFx.hit_tiles(before, after, board_view._resolved_unit_footprint)
+			for loss: Dictionary in terrain_losses:
+				hits[loss["tile"]] = true
+			specs[0]["contact_hits"] = hits
+	specs.assign(_ordered_tile_bursts(specs, after))
+	_reserve_tile_bursts(specs, after)
+	var wind: bool = VaeloryxWind.handles(effect)
+	if wind:
+		# The scheduled Air line owns the wind. Direct force descriptors can
+		# otherwise select a generic Blade or Hook on top of the line.
+		effect[ShotFx.RESOLVED_KEY] = ""
+		if not shot_effect.is_empty(): shot_effect[ShotFx.RESOLVED_KEY] = ""
+	if ShotFx.is_ranged_area(effect):
+		effect[ShotFx.RESOLVED_KEY] = ShotFx.resolve(shot_effect if not shot_effect.is_empty() else effect)
+	_resolved_contact_bursts.append_attack(specs, effect, before, after,
+		func(tile: Vector2i) -> bool: return _combat_engine.is_tile_visible_to_player(after, tile), shot_effect)
+	if wind:
+		var covered: Dictionary = effect.get_or_add(ResolvedContactBursts.CONTACT_TILES, {})
+		# The floating text follows the displaced target. Its legacy decal
+		# would show a second impact at the destination of that target.
+		covered[effect.get("to", TileBurstFx.INVALID)] = true
+
+func _animate_player_ground_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary, primary_effect: Dictionary = {}, primary_sound_element: String = "", burst_specs: Array = [], split_push_contact: bool = false) -> bool:
 	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state, after_state), primary_effect)
 	if trap_effects.is_empty() and ground_events.is_empty():
 		return false
@@ -24370,11 +23592,15 @@ func _animate_player_ground_result(after_state: Dictionary, before_state: Dictio
 	_play_outcome_sounds(ground_events, primary_sound_element, trap_effects)
 	var presentation: Dictionary = base_presentation.duplicate(true)
 	presentation["surface_feedback_events"] = ground_events
-	presentation["trap_effects"] = trap_effects
-	presentation["floating_texts"] = _player_action_floating_texts(before_state, after_state)
+	presentation["trap_effects"] = TileBurstFx.mark_traps(trap_effects)
+	presentation["floating_texts"] = _player_action_floating_texts(before_state, after_state, split_push_contact)
 	presentation["impact_actor_keys"] = _player_action_impact_actor_keys(before_state, after_state)
 	presentation = _death_hold_presentation(before_state, after_state, presentation)
-	await _animate_floating_text_presentation(after_state, presentation)
+	var specs: Array = burst_specs.duplicate()
+	if primary_effect.is_empty():
+		specs.append_array(TileBurstFx.trap_specs(trap_effects, before_state))
+		specs.append_array(TileBurstFx.event_specs(ground_events, true))
+	await _animate_floating_text_presentation(after_state, presentation, 0.0, false, {}, _tile_burst_contact(specs, before_state, after_state))
 	return true
 
 # Tiles of illusions that exist after a step but not before (creation order).
@@ -24393,6 +23619,68 @@ func _created_illusion_tiles(before_state: Dictionary, after_state: Dictionary) 
 		tiles.append(illusion.get("pos", INVALID_TARGET_TILE))
 	return tiles
 
+func _visible_summon_arrivals(state: Dictionary, candidates: Array) -> Array[Dictionary]:
+	var occupied_ids: Dictionary
+	for enemy: Dictionary in state.get("enemies", []):
+		occupied_ids[int(enemy["id"])] = true
+	var arrivals: Array[Dictionary]
+	for enemy: Dictionary in candidates:
+		if occupied_ids.has(int(enemy["id"])): continue
+		if _combat_engine.is_enemy_visible_to_player(state, enemy) and is_instance_valid(board_view) and board_view._board_tile_is_visible_to_player(enemy["pos"]):
+			arrivals.append(enemy)
+	return arrivals
+
+func _play_body_reveal(effect: String, units: Array, reduced: bool) -> void:
+	for unit: Dictionary in units:
+		board_view.present_self_burst(effect, unit, reduced)
+
+func _body_reveal_cue(effect: String, units: Array, reveal_at: float, reduced: bool) -> Callable:
+	if units.is_empty(): return Callable()
+	var started: Array[bool] = [false]
+	var start_at: float = maxf(0.0, reveal_at - TileBurstFx.reveal_seconds(effect, reduced))
+	return func(elapsed: float) -> void:
+		if not started[0] and TileBurstFx.reveal_reached(elapsed, start_at):
+			started[0] = true
+			_play_body_reveal(effect, units, reduced)
+
+func _illusion_windup(tiles: Array[Vector2i]) -> Callable:
+	var units: Array[Dictionary]
+	for tile: Vector2i in tiles:
+		if board_view._board_tile_is_visible_to_player(tile): units.append({"pos": tile})
+	return _body_reveal_cue("illusion", units, ATTACK_FRAMES * ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+
+func _summon_step_candidates(step: Dictionary) -> Array:
+	if step.has("guardian_board_after"): return step["guardian_board_after"].get("enemies", [])
+	return step.get("spawned_enemies", [])
+
+func _summon_prelude(state: Dictionary, step: Dictionary) -> bool:
+	var arrivals: Array[Dictionary] = _visible_summon_arrivals(state, _summon_step_candidates(step))
+	if arrivals.is_empty(): return false
+	var reduced: bool = _reduced_motion_enabled()
+	_play_body_reveal("summon", arrivals, reduced)
+	var lead: float = TileBurstFx.reveal_seconds("summon", reduced)
+	if lead > 0.0:
+		var started: int = _combat_pacing.presentation_usec()
+		while not TileBurstFx.reveal_reached(float(_combat_pacing.presentation_usec() - started) / 1000000.0, lead):
+			await get_tree().process_frame
+	return true
+
+func _prepare_summon_adapter_clock(state: Dictionary, step: Dictionary, actor: Dictionary) -> void:
+	if step.get("kind") != "summon": return
+	var arrivals: Array[Dictionary] = _visible_summon_arrivals(state, _summon_step_candidates(step))
+	if arrivals.is_empty(): return
+	# The contact adapter applies the snapshot on its authored release frame.
+	# Bind to that timed playback, so any preceding move is outside this clock.
+	var reduced: bool = _reduced_motion_enabled()
+	var type: String = actor["type"]
+	var clip: String = MaquetteAction.clip_for(step, actor)
+	var definition: Dictionary = MaquetteAction.data_for(type)["clips"].get(clip, {})
+	if not definition.has("contact"): return
+	var frames: int = 1 if reduced else MaquetteAction.frames_for(type, clip)
+	var seconds: float = 0.0 if reduced else float(definition["seconds"]) / frames
+	var reveal_at: float = ceili(float(definition["contact"]) * maxi(1, frames - 1)) * seconds
+	_summon_adapter_clock = {"frames": frames, "seconds": seconds, "cue": _body_reveal_cue("summon", arrivals, reveal_at, reduced)}
+
 func _has_electrical_trace(hits: Array) -> bool:
 	for hit: Dictionary in hits:
 		if str(hit.get("kind", "")) in ["relay", "conduction", "rebound"]:
@@ -24401,7 +23689,37 @@ func _has_electrical_trace(hits: Array) -> bool:
 			return true
 	return false
 
+func _player_attack_effect(before_state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	var origin: Vector2i = before_state.get("player", {}).get("pos", Vector2i.ZERO)
+	var is_echo: bool = bool(action.get("_illusion_echo", false))
+	var equipment: Dictionary = _equipped_equipment_for_board()
+	return {
+		"kind": "ranged" if action_type in ["push", "pull"] else action_type,
+		"action_type": action_type,
+		"illusion_echo": is_echo,
+		"protagonist_melee": not is_echo and AttackFxLibrary.protagonist_uses_melee_motion(action),
+		"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(equipment),
+		"protagonist_ranged_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").ranged_motion(equipment),
+		"protagonist_ranged": "" if is_echo else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
+		"protagonist_origin": origin,
+		"from": action.get("_origin_tile", origin),
+		"to": target,
+		"range": int(action.get("range", 0)),
+		"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
+	}
+
+func _reflected_shot_descriptor(before_state: Dictionary, action: Dictionary, target: Vector2i, card_id: String) -> Dictionary:
+	var shot: Dictionary = _player_attack_effect(before_state, action, target)
+	var base: String = GameData.upgrade_card_id(card_id)
+	shot["base_card_id"] = card_id if base.is_empty() else base
+	var shot_id: String = ShotFx.resolve(shot)
+	if shot_id.is_empty(): return {}
+	shot[ShotFx.RESOLVED_KEY] = shot_id
+	return shot
+
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
+	_resolved_contact_bursts.begin(before_state, {}, not _has_electrical_trace(chain_hits))
 	_burst_playback.prepare(before_state, after_state)
 	action = SurfaceRelicRules.resolve_action(before_state, action)
 	if preload("res://scripts/card_stay_rules.gd").is_stay(before_state, action, target_tile) and int(after_state.get("card_stay_sequence", 0)) > int(before_state.get("card_stay_sequence", 0)):
@@ -24413,6 +23731,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	_sfx_router.begin_player_action(before_state, action, _sfx_router.weapon_for_card(card_id, _run_state))
 	if await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_player(self, before_state, after_state, action, target_tile, card_id): return
 	var action_type: String = str(action.get("type", ""))
+	var split_push_contact: bool = _combat_engine._action_has_forced_movement(action) and _combat_engine._forced_movement_pushes(action)
 	if action_type in ["push", "pull", "force_area"]: _sfx_router.push()
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
 		return
@@ -24461,7 +23780,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"blink", "illusion_swap":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var blink_effect: Dictionary = _player_blink_effect(player_before_tile, player_after_tile, _illusion_exchange_event(before_state, after_state))
-			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+			var illusions: Array[Vector2i] = _created_illusion_tiles(before_state, after_state)
+			var cue: Callable = _illusion_windup(illusions)
+			var reserved: Dictionary = _blink_self_burst_tiles(before_state, after_state)
+			for tile: Vector2i in illusions: reserved[tile] = true
+			var transit: Dictionary = _queue_blink_transit(blink_effect, player_before, player_after, ATTACK_FRAMES * ATTACK_FRAME_SECONDS, reserved)
+			await _play_sampled_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
 					"focus_actor_keys": ["player"],
@@ -24471,7 +23795,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"effect": blink_effect,
 					"effect_progress": t
 				}, true)
-			)
+			, cue)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -24480,6 +23804,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect": blink_effect,
 				"effect_progress": 1.0
 			}))
+			_blink_transits.erase(transit)
 			await get_tree().create_timer(0.14).timeout
 			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, {
 				"focus_actor_keys": ["player"],
@@ -24488,19 +23813,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_color": Color(0.53, 0.48, 0.92, 0.24)
 			})
 		"illusion":
-			var focus_tiles: Array[Vector2i] = _created_illusion_tiles(before_state, after_state)
-			if focus_tiles.is_empty():
-				focus_tiles = _vector2i_array([target_tile])
-			var illusion_texts: Array = []
-			for illusion_tile: Vector2i in focus_tiles:
-				illusion_texts.append({
-					"tile": illusion_tile,
-					"text": "+%d illusion" % int(action.get("health", action.get("amount", 0))),
-					"color": Color("9beeff"),
-					"offset": -6.0
-				})
+			var created: Array[Vector2i] = _created_illusion_tiles(before_state, after_state)
+			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile]) if created.is_empty() else _vector2i_array(created.filter(
+				func(tile: Vector2i) -> bool: return not board_view._board_tile_is_visible_to_player(tile)
+			))
+			var cue: Callable = _illusion_windup(created)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+			await _play_sampled_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
 					"focus_actor_keys": ["player"],
@@ -24508,46 +23827,25 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_tiles": focus_tiles,
 					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
 				}, true)
-			)
+			, cue)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": focus_tiles,
 				"focus_color": Color(0.40, 0.86, 0.94, 0.26),
-				"floating_texts": illusion_texts
+				FloatingCombatText.HOLD_EFFECT_BEAT_KEY: true
 			}), 0.0, true)
 		"illuminate":
+			await _animate_light_creation(primary_display_state, card_id, action, before_state, target_tile, int(action.get("radius", action.get("amount", 1))))
+		"vision":
 			_sfx_router.light()
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
-				var t: float = float(frame_number) / float(ATTACK_FRAMES)
-				_render_board_state(primary_display_state, {
-					"focus_actor_keys": ["player"],
-					"focus_actor_color": Color("ffe394"),
-					"focus_tiles": [target_tile],
-					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
-				}, true)
-			)
-			await _animate_floating_text_presentation(primary_display_state, {
-				"focus_tiles": [target_tile],
-				"focus_color": Color(1.0, 0.84, 0.42, 0.30),
-				"floating_texts": [{
-					"tile": target_tile,
-					"text": "Light %d" % int(action.get("radius", action.get("amount", 1))),
-					"color": Color("ffe394"),
-					"offset": -8.0
-				}]
-			}, 0.0, true)
-		"vision", "truesight", "dispel_umbra":
-			_sfx_router.light()
-			_set_action_banner(_player_action_label(card_id, action, before_state))
-			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra −%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
 			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": Color("ffe394"),
 				"floating_texts": [{
 					"tile": player_after_tile,
-					"text": light_text,
+					"text": "Vision",
 					"color": Color("ffe394"),
 					"offset": -8.0
 				}]
@@ -24565,43 +23863,37 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
 			if action_type == "aoe":
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
-			elif action_type in ["destroy_illusion", "burst_terrain"]:
-				focus_tiles.append_array(_combat_engine.blast_tiles_for_player_action(before_state, action, target_tile))
-			elif action_type == "detonate":
+			elif action_type in ["detonate", "destroy_illusion", "burst_terrain"]:
+				# Every Burst erupts on the cross its resolver recorded.
 				focus_tiles.clear()
+				var burst_center: Vector2i = INVALID_TARGET_TILE
 				if bool(action.get("_illusion_echo", false)):
 					focus_tiles.append_array(IllusionRelicRules.echo_impact(_combat_engine, before_state, action, target_tile))
 				for event: Dictionary in _surface_events_between(before_state, after_state):
 					if str(event.get("kind", "")) == "detonate":
 						focus_tiles.append_array(_vector2i_array(event.get("tiles", [])))
+						var sources: Array[Vector2i] = _vector2i_array(event.get("burst_sources", []))
+						if burst_center.x < 0 and not sources.is_empty(): burst_center = sources[0]
 				if focus_tiles.is_empty():
+					if action_type == "destroy_illusion" and int(action.get("illuminate_radius", 0)) > 0:
+						# Shattered Reflection without an illusion: only its Light.
+						await _animate_light_creation(primary_display_state, card_id, action, before_state, target_tile, int(action.get("illuminate_radius", 1)))
+						return
 					await _animate_surface_change(before_state, after_state, base_presentation)
 					return
-				if effect_target_tile.x < 0: effect_target_tile = focus_tiles[0]
-			var effect := {
-				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
-				"action_type": action_type,
-				"illusion_echo": bool(action.get("_illusion_echo", false)),
-				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
-				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_equipped_equipment_for_board()),
-				"protagonist_ranged_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").ranged_motion(_equipped_equipment_for_board()),
-				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
-				"protagonist_origin": player_before_tile,
-				"from": action.get("_origin_tile", player_before_tile),
-				"to": effect_target_tile,
-				"center": effect_target_tile,
-				"tiles": focus_tiles,
-				"range": int(action.get("range", 0)),
-				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
-				"force_tiles": _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
-			}
+				if action_type != "detonate" and burst_center.x >= 0: effect_target_tile = burst_center
+				if effect_target_tile.x < 0: effect_target_tile = burst_center if burst_center.x >= 0 else focus_tiles[0]
+			var effect: Dictionary = _player_attack_effect(before_state, action, effect_target_tile)
+			effect["center"] = effect_target_tile
+			effect["tiles"] = focus_tiles
+			effect["force_tiles"] = _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
 			if action_type == "detonate":
 				# Detonation erupts on its consumed ground, with no second projectile.
 				effect["kind"] = "aoe"
 				effect["action_type"] = "aoe"
 				effect["range"] = 1
 				effect["from"] = effect_target_tile
-				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+				effect["element"] = preload("res://scripts/burst_rules.gd").fx_element(action)
 				effect["ground_burst"] = true
 				effect["burst_tiles"] = focus_tiles.duplicate()
 			elif action_type in ["destroy_illusion", "burst_terrain"]:
@@ -24621,7 +23913,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var primary_sound: Dictionary = AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action)
 
 			if _has_electrical_trace(chain_hits):
-				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
+				await ChainAttackFeedback.play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled(), split_push_contact)
+				_chain_contact_before = {}
 			else:
 				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
 				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
@@ -24631,10 +23924,31 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(effect)
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
 				if not trap_detonation_follows:
-					attack_floating_texts = _player_action_floating_texts(before_state, after_state)
+					attack_floating_texts = _player_action_floating_texts(before_state, after_state, split_push_contact)
 				var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
 				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 				var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state,after_state),effect)
+				var burst_name: String = TileBurstFx.select_player(_card_def(card_id, before_state), card_id, action, effect)
+				var burst_specs: Array[Dictionary] = TileBurstFx.event_specs(ground_events, not bool(effect.get("ground_burst", false)))
+				if not burst_name.is_empty():
+					effect[TileBurstFx.ACTIVE] = true
+					if not bool(effect.get("ground_burst", false)):
+						effect[TileBurstFx.REPLACE_TARGETED] = AttackFxLibrary.uses_authored_elemental_attack(effect)
+					var facing: Vector2i = preload("res://scripts/hero_facing_state.gd").tile_direction(_hero_facing.current)
+					var primary_spec: Dictionary = TileBurstFx.player_spec(burst_name, effect, action, facing)
+					if action_type == "aoe" and bool(action.get("_illusion_echo", false)):
+						var echo_center: Vector2i = target_tile if target_tile.x >= 0 else effect_target_tile
+						primary_spec["center"] = echo_center
+						primary_spec["tiles"] = IllusionRelicRules.echo_impact(_combat_engine, before_state, action, echo_center)
+					burst_specs.push_front(primary_spec)
+				if trap_detonation_follows:
+					burst_specs.append_array(TileBurstFx.trap_specs(triggered_traps, before_state))
+				var shot_effect: Dictionary = effect.duplicate(false)
+				shot_effect["card_id"] = card_id
+				shot_effect["base_card_id"] = _card_def(card_id, before_state).get("base_card_id", card_id)
+				_append_contact_burst(burst_specs, effect, before_state, after_state, shot_effect)
+				var burst_contact: Callable = _tile_burst_contact(burst_specs, before_state, after_state)
+				var burst_started: Array[bool] = [false]
 				var ground_sound: Dictionary = {"played":false}
 				var text_birth: Dictionary = {"seconds": -1.0}
 				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
@@ -24684,6 +23998,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 								_attack_terrain_destruction_progress(effect, t)
 							)
 					_render_board_state(effect_display_state, presentation, true)
+					if feedback_elapsed_seconds >= 0.0 and not burst_started[0] and burst_contact.is_valid():
+						burst_started[0] = true
+						burst_contact.call()
 				)
 				var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 					effect,
@@ -24699,7 +24016,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_color": Color(0.95, 0.62, 0.37, 0.22),
 				}
 				if trap_detonation_follows:
-					await _animate_player_ground_result(after_state, before_state, triggered_traps, impact_presentation, effect, OutcomeFeedback.sound_element(primary_sound))
+					await _animate_player_ground_result(after_state, before_state, triggered_traps, impact_presentation, effect, OutcomeFeedback.sound_element(primary_sound), burst_specs, split_push_contact)
 				else:
 					impact_presentation["effect"] = effect
 					impact_presentation["effect_progress"] = 1.0
@@ -24715,7 +24032,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 							1.0
 						),
 						final_feedback_elapsed_seconds,
-						true
+						true,
+						{},
+						Callable() if burst_started[0] else burst_contact
 					)
 		"force_area", "swap":
 			# Area forces and swaps resolve through the shared mover; the surface
@@ -24723,21 +24042,16 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_surface_change(before_state, after_state, base_presentation, func() -> void:
 				if action_type == "swap": _sfx_router.blink()
-			)
-		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
+			, split_push_contact)
+		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "stagger":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var maneuver_tile: Vector2i = player_after_tile
-			if action_type == "petrify" and target_tile.x >= 0:
+			if action_type == "stagger" and target_tile.x >= 0:
 				maneuver_tile = target_tile
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
-				"floating_texts": [{
-					"tile": maneuver_tile,
-					"text": ManeuverRules.presentation_text(before_state, after_state, action),
-					"color": Color("d6edff"),
-					"offset": -6.0
-				}]
+				"floating_texts": [ManeuverRules.presentation_entry(before_state, after_state, action, maneuver_tile)]
 			}), 0.0, true)
 		"retaliate", "quicken", "next_attack":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -24751,12 +24065,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "block", "tile": player_after_tile},
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": "+%d" % block_gain,
-					"color": Color("90d9ff"),
-					"offset": -6.0
-				}]
+				"floating_texts": [FloatingCombatText.resource_entry("block", player_after_tile, block_gain, {"offset": -6.0})]
 			}), 0.0, true)
 		"stoneskin":
 			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
@@ -24765,12 +24074,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "stoneskin", "tile": player_after_tile},
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": "+%d S" % skin_gain,
-					"color": ElementData.accent(ElementData.EARTH),
-					"offset": -6.0
-				}]
+				"floating_texts": [FloatingCombatText.resource_entry("stoneskin", player_after_tile, skin_gain, {"offset": -6.0})]
 			}), 0.0, true)
 		"heal":
 			var heal_amount: int = int(player_after.get("hp", 0)) - int(player_before.get("hp", 0))
@@ -24779,12 +24083,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "heal", "tile": player_after_tile},
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": "+%d" % heal_amount,
-					"color": Color("9ee27e"),
-					"offset": -6.0
-				}]
+				"floating_texts": [FloatingCombatText.resource_entry("heal", player_after_tile, heal_amount, {"offset": -6.0})]
 			}), 0.0, true)
 		"draw":
 			# atk-08: a draw that reshuffles the deck pays Fatigue mid-turn. Present
@@ -24810,12 +24109,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": "+%d draw" % maxi(1, draw_amount),
-					"color": Color("f1d18b"),
-					"offset": -6.0
-				}]
+				"floating_texts": [FloatingCombatText.resource_entry("draw", player_after_tile, maxi(1, draw_amount), {"offset": -6.0})]
 			}), 0.0, true)
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
@@ -24826,16 +24120,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": "+%d Card Play" % maxi(1, card_plays_gained),
-					"color": Color("ffe27a"),
-					"offset": -6.0
-				}]
+				"floating_texts": [FloatingCombatText.resource_entry("card_play", player_after_tile, maxi(1, card_plays_gained), {"offset": -6.0})]
 			}), 0.0, true, card_play_reward_completion)
 	if action_type in ["move", "blink"] and not movement_ground_feedback_presented and _player_took_loss(before_state, after_state):
 		# Surface/trap contact already presents the whole action outcome. Pure
-		# Bleed still needs a loss beat, including lethal damage before a step.
+		# Stationary damage still needs a loss beat.
 		var movement_loss_presentation: Dictionary = base_presentation.duplicate(true)
 		movement_loss_presentation["floating_texts"] = _player_loss_floating_texts(before_state, after_state)
 		movement_loss_presentation["impact_actor_keys"] = ["player"]
@@ -25124,6 +24413,9 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 			if _hitch_trace_enabled: _hitch_continuation = null
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
 		var draw_transition: Dictionary = _draw_hand_transition_between_states(before_draw_state, _combat_state)
+		# Keep retained faces dim through the deal. The unlock tint begins when
+		# the live hand takes over, using the colors the proxies just rendered.
+		draw_transition["keep_locked_tint"] = true
 		if _hitch_trace_enabled: _hitch_continuation = null
 		await _animate_draw_cards_fx(
 			draw_transition.get("draw_entries", []) as Array,
@@ -25187,6 +24479,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 		if str(dragon_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
 			step["enemy_type"] = dragon_actor["type"]
 			if not step.has("intent_id"): step["intent_id"] = dragon_actor.get("intent",{}).get("id","")
+		_resolved_contact_bursts.begin(animated_state, step, not bool(step.get("hidden_by_umbra", false)) or step.get("kind", "") in ["burrow", "erupt"])
 		if str(step.get("kind", "")) == "commit":
 			continue
 		if turn_completion != null and is_same(step_var, turn_completion):
@@ -25212,7 +24505,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			await IntentCallouts.play(self, animated_state, step)
 			continue
 		if bool(step.get("battlefield_rule_step", false)):
+			var transits: Array[Dictionary] = _queue_shadowstep_transits(step)
 			await preload("res://scripts/battlefield_rules/playback.gd").animate(self, animated_state, step)
+			for transit: Dictionary in transits: _blink_transits.erase(transit)
 			continue
 		_ensure_sfx_bank()
 		await _combat_pacing.before_step(step, steps)
@@ -25227,7 +24522,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			continue
 		if bool(step.get("traced_charge", false)):
-			await preload("res://scripts/enemy_mechanics/traced_bleed_view.gd").animate(self, animated_state, step)
+			await preload("res://scripts/enemy_mechanics/traced_status_view.gd").animate(self, animated_state, step)
 			await _combat_pacing.after_step(step)
 			continue
 		if step.has("cascade") or (bool(step.get("traced_arrival", false)) and str(step.get("kind", "")) != "move"):
@@ -25237,11 +24532,21 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 		var case_actor: Dictionary = _animation_actor_unit(animated_state, str(step.get("source_actor_key", step.get("actor_key", ""))))
 		var case_actions: Script = MaquetteAction.playback_adapter(step, case_actor)
 		if case_actions != null:
+			_tile_burst_adapter_contact = TileBurstFx.adapter_contact(step, animated_state)
+			if _tile_burst_adapter_contact.is_empty() and step.get("kind", "") in ["melee", "ranged", "aoe"] and not step.has("en04_mechanic") and not step.has("en02_mechanic"):
+				var adapter_before: Dictionary = animated_state.duplicate(true)
+				adapter_before.merge(step.get("move_after", {}), true)
+				_tile_burst_adapter_contact = {"step": step, "before": adapter_before, "specs": []}
+			_prepare_summon_adapter_clock(animated_state, step, case_actor)
+			var transit: Dictionary = _queue_stalker_transit(step, case_actor, true)
 			await case_actions.animate(self, animated_state, step, case_actor)
+			_blink_transits.erase(transit)
+			_summon_adapter_clock.clear()
+			_tile_burst_adapter_contact.clear()
 			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en05_after"):
-			await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)
+			await MirrorFx.animate_beam(self, animated_state, step)
 			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en04_mechanic"):
@@ -25251,17 +24556,17 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			continue
 		if str(step.get("action_type", "")) == "chain_discharge":
 			var capacitor_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
-			if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, capacitor_actor):
-				await preload("res://assets/units/storm_capacitor_cutout/actions.gd").animate(self, animated_state, step, capacitor_actor)
-				await _combat_pacing.after_step(step)
-				continue
-			await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
+			await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step, capacitor_actor)
 			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en02_mechanic"):
+			if step.get("en02_mechanic") == "icefall_land":
+				_resolved_contact_bursts.reserve_strike(TileBurstFx.strike_cue(step, 0, _reduced_motion_enabled()))
 			var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
 			if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
+				_icefall_cutout_strike = preload("res://scripts/enemy_mechanics/icefall_view.gd").cutout_strike(step, animated_state, rr07_actor, _reduced_motion_enabled())
 				await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+				_icefall_cutout_strike.clear()
 				await _combat_pacing.after_step(step)
 				continue
 			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
@@ -25269,7 +24574,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 			await _combat_pacing.after_step(step)
 			continue
 		if bool(step.get("en03_veil", false)):
+			var transit: Dictionary = _queue_stalker_transit(step, _animation_actor_unit(animated_state, str(step["actor_key"])), false)
 			await preload("res://scripts/enemy_mechanics/stalker_view.gd").animate(self, animated_state, step)
+			_blink_transits.erase(transit)
 			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("kind", "")) in ["burrow", "erupt"]:
@@ -25316,10 +24623,15 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 					await preload("res://scripts/summon_card_play_rules.gd").present(self, animated_state, step)
 					await _combat_pacing.after_step(step)
 					continue
+				var showed_prelude: bool = false
 				if (step.get("spawned_enemies", []) as Array).is_empty(): continue
 				if not preload("res://scripts/dragon_presentation.gd").profile(step).is_empty():
-					await _animate_dragon_utility(animated_state,step)
+					await _animate_dragon_utility(animated_state, step)
+				else:
+					showed_prelude = await _summon_prelude(animated_state, step)
 				_apply_animation_step(animated_state, step)
+				if showed_prelude and not bool(step.get("granted_card_play", false)):
+					_render_board_state(animated_state, {})
 				await preload("res://scripts/summon_card_play_rules.gd").present(self, animated_state, step)
 			"surface":
 				if step.has("guardian_board_after"):
@@ -25441,13 +24753,41 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 				var attack_feedback_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(attack_feedback_state, step)
 				var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(step.get("surface_events",[]),step)
+				var strike_contact_frame: int = ceili((_attack_feedback_start_progress(step) - 0.0001) * attack_frame_count)
+				var strike: TileBurstFx.StrikeCue = TileBurstFx.strike_frame_cue(step, strike_contact_frame, attack_frame_seconds, _reduced_motion_enabled())
+				_resolved_contact_bursts.reserve_strike(strike)
+				var dragon_burst: DragonSpell.BurstCue
+				if VaeloryxWind.handles(step):
+					dragon_burst = VaeloryxWind.burst_cue(step, dragon_actor, animated_state, attack_feedback_state, _reduced_motion_enabled(), strike)
+				else:
+					dragon_burst = DragonSpell.burst_cue(step, dragon_actor, animated_state, attack_feedback_state, _reduced_motion_enabled(), [], strike)
+				if dragon_burst != null:
+					_resolved_contact_bursts.reserve_dragon(dragon_burst.schedule, attack_feedback_state.get("grid", []),
+						func(tile: Vector2i) -> bool: return _combat_engine.is_tile_visible_to_player(attack_feedback_state, tile))
+				var burst_name: String = TileBurstFx.select_enemy(step)
+				var dragon_profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(step)
+				var allow_bursts: bool = dragon_profile.is_empty() or (dragon_profile.get("element") != "shadow" and dragon_profile.get("enemy") != "noctyrax")
+				var burst_specs: Array[Dictionary]
+				if allow_bursts:
+					burst_specs = TileBurstFx.event_specs(ground_events, true)
+					if not burst_name.is_empty():
+						step[TileBurstFx.ACTIVE] = true
+						step[TileBurstFx.REPLACE_TARGETED] = TileBurstFx.replaces_elemental_area(step)
+						if strike == null: burst_specs.push_front(TileBurstFx.area_spec(burst_name, step))
+					if trap_detonation_follows:
+						burst_specs.append_array(TileBurstFx.trap_specs(step.get("triggered_traps", []), animated_state))
+					var shot_effect: Dictionary = step.duplicate(false)
+					shot_effect["enemy_type"] = dragon_actor.get("type", "")
+					_append_contact_burst(burst_specs, step, animated_state, attack_feedback_state, shot_effect)
+				var burst_contact: Callable = _tile_burst_contact(burst_specs, animated_state, attack_feedback_state)
+				var burst_started: Array[bool] = [false]
 				var ground_sound: Dictionary = {"played":false}
 				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(
 					animated_state,
 					attack_feedback_state
 				)
 				var text_birth: Dictionary = {"seconds": -1.0}
-				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
+				await _play_strike_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
 					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 						step,
@@ -25500,7 +24840,13 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 								_attack_terrain_destruction_progress(step, t)
 							)
 					_render_board_state(effect_display_state, presentation, true)
-				)
+					if dragon_burst != null: dragon_burst.present(board_view, t)
+					if strike != null:
+						board_view.present_sky_strike(strike, _reduced_motion_enabled() or frame_number >= strike_contact_frame, animated_state, attack_feedback_state)
+					if feedback_elapsed_seconds >= 0.0 and not burst_started[0] and burst_contact.is_valid():
+						burst_started[0] = true
+						burst_contact.call()
+				, strike)
 				var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 					step,
 					1.0,
@@ -25521,11 +24867,14 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 					_play_trap_sfx(step.get("triggered_traps", []))
 					_play_outcome_sounds(ground_events, OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_enemy_step(step)), step.get("triggered_traps", []))
 					impact_presentation["surface_feedback_events"] = ground_events
-					impact_presentation["trap_effects"] = step.get("triggered_traps", [])
+					var traps: Array = step.get("triggered_traps", [])
+					impact_presentation["trap_effects"] = TileBurstFx.mark_traps(traps) if allow_bursts else traps
 					impact_presentation["floating_texts"] = _floating_texts_for_step(step)
 					await _animate_floating_text_presentation(
 						animated_state,
-						_death_hold_presentation(before_attack_step_state, animated_state, impact_presentation)
+						_death_hold_presentation(before_attack_step_state, animated_state, impact_presentation),
+						0.0, false, {},
+						_tile_burst_contact(burst_specs, before_attack_step_state, animated_state)
 					)
 				else:
 					impact_presentation["effect"] = step
@@ -25540,7 +24889,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, resolv
 							_attack_impact_presentation(impact_presentation),
 							1.0
 						),
-						final_feedback_elapsed_seconds
+						final_feedback_elapsed_seconds, false, {},
+						Callable() if burst_started[0] else burst_contact
 					)
 				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
 		await _combat_pacing.after_step(step)
@@ -25565,9 +24915,15 @@ func _animate_dragon_utility(animated_state: Dictionary, step: Dictionary) -> vo
 	var reduced: bool = _reduced_motion_enabled()
 	var count: int = 1 if reduced else 48
 	var contact: float = preload("res://scripts/dragon_presentation.gd").CONTACT
+	var frame_seconds: float = 0.22 if reduced else 1.0 / 60.0
+	var base_texts: Array[Dictionary] = _floating_texts_for_step(step)
+	var cue: Callable
+	if step.get("kind") == "summon":
+		var reveal_at: float = 0.0 if reduced else (ceili(contact * count) - 1) * frame_seconds
+		cue = _body_reveal_cue("summon", _visible_summon_arrivals(animated_state, after.get("enemies", [])), reveal_at, reduced)
 	var feedback: Dictionary = {"released":false}
 	_set_action_banner("%s: %s" % [str(step.get("actor_name","Enemy")),str(step.get("label",""))])
-	await _play_timed_animation_frames(count,0.22 if reduced else 1.0/60.0,func(frame: int) -> void:
+	await _play_sampled_animation_frames(count,frame_seconds,func(frame: int) -> void:
 		var progress: float = float(frame)/float(count)
 		var released: bool = reduced or progress >= contact
 		var shown: Dictionary = {"effect":step,"effect_progress":progress,"focus_actor_keys":[actor_key]}
@@ -25577,11 +24933,11 @@ func _animate_dragon_utility(animated_state: Dictionary, step: Dictionary) -> vo
 				_play_outcome_sounds(events)
 			shown["surface_feedback_events"] = events
 			shown["surface_feedback_progress"] = .38 if reduced else clampf((progress-contact)/(1.0-contact),0.0,1.0)
-			shown["floating_texts"] = FloatingCombatText.animate_entries(_floating_texts_for_step(step),maxf(0.0,progress-contact)*.8,reduced)
+			shown["floating_texts"] = FloatingCombatText.animate_entries(base_texts,maxf(0.0,progress-contact)*.8,reduced)
 		_render_board_state(after if released else animated_state,shown,true)
-	)
+	, cue)
 	_apply_animation_step(animated_state,step)
-	await _animate_floating_text_presentation(animated_state,{"floating_texts":_floating_texts_for_step(step)},.38 if not reduced else 0.0)
+	await _animate_floating_text_presentation(animated_state,{"floating_texts":base_texts},.38 if not reduced else 0.0)
 
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
@@ -25599,8 +24955,17 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 		frame_count = maxi(frame_count, _enemy_death_frame_count_for_unit(enemy))
 		frame_seconds = minf(frame_seconds, _enemy_death_frame_seconds_for_unit(enemy))
 	frame_count = maxi(1, frame_count)
+	# Reverse dissolve has just one transparent opening frame. Use the existing
+	# arrival beat for the lead, keeping the dissolve and audio clocks intact.
+	var reduced: bool = _reduced_motion_enabled()
+	var arrivals: Array[Dictionary] = _visible_summon_arrivals(animated_state, spawned)
+	var hide_arrivals: Dictionary
+	for enemy: Dictionary in arrivals: hide_arrivals[_enemy_key(enemy)] = true
+	var lead: float = TileBurstFx.reveal_seconds("summon", reduced)
+	var elapsed: Array[float] = [0.0]
+	var cue: Callable = _body_reveal_cue("summon", arrivals, lead, reduced)
 	var state_validated_for_animation: bool = false
-	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
+	var render_arrival: Callable = func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var animated_units: Array[Dictionary]
@@ -25616,10 +24981,16 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 			animated_units.append(enemy)
 		_render_board_state(animated_state, {
 			"death_animation_units": animated_units,
+			"self_burst_hide_arrivals": hide_arrivals if not TileBurstFx.reveal_reached(elapsed[0], lead) else {},
 			"focus_tiles": [((spawned[0] as Dictionary).get("pos", Vector2i.ZERO))],
 			"focus_color": Color(0.50, 0.26, 0.62, 0.22)
 		}, state_validated_for_animation)
 		state_validated_for_animation = true
+	await _play_sampled_animation_frames(frame_count, frame_seconds, render_arrival, func(seconds: float) -> bool:
+		var crossed: bool = not TileBurstFx.reveal_reached(elapsed[0], lead) and TileBurstFx.reveal_reached(seconds, lead)
+		elapsed[0] = seconds
+		if cue.is_valid(): cue.call(seconds)
+		return crossed and not hide_arrivals.is_empty()
 	)
 	animated_state.clear()
 	animated_state.merge(final_state, true)
@@ -25645,6 +25016,7 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 			# identical to revealed attacks without disclosing the hidden actor.
 			await _animate_enemy_phase_steps(animated_state, [visible_action_step])
 		return
+	if kind == "summon": await _summon_prelude(animated_state, step)
 	var before_step_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if bool(step.get("revealed_after_action", false)):
@@ -25666,8 +25038,10 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		"impact_actor_keys": impact_actor_keys,
 		"floating_texts": _visible_umbra_floating_texts(animated_state, _floating_texts_for_step(step))
 	}
-	preload("res://scripts/enemy_mechanics/deferred_death_view.gd").decorate_hidden_feedback(self, animated_state, step, hidden_feedback)
-	await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_step_state, animated_state, hidden_feedback))
+	var burst_contact: Callable = preload("res://scripts/enemy_mechanics/deferred_death_view.gd").decorate_hidden_feedback(
+		self, animated_state, step, hidden_feedback, before_step_state)
+	await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_step_state, animated_state, hidden_feedback),
+		0.0, false, {}, burst_contact)
 	await preload("res://scripts/summon_card_play_rules.gd").present(self, animated_state, step)
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
@@ -25699,6 +25073,8 @@ func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictiona
 	if visible_line.is_empty() and visible_tiles.is_empty():
 		return {}
 	var visible_attack: Dictionary = step.duplicate(true)
+	if not DragonSpell.burst_name(preload("res://scripts/dragon_presentation.gd").profile(step)).is_empty():
+		visible_attack[DragonSpell.UNCLIPPED_AREA] = step
 	visible_attack.erase("hidden_by_umbra")
 	visible_attack["actor_name"] = "Unknown Presence"
 	visible_attack["umbra_action_clipped"] = true
@@ -25895,16 +25271,19 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	if not ground_events.is_empty() or not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
 		_play_trap_sfx(step.get("triggered_traps", []))
 		_play_outcome_sounds(ground_events,"",step.get("triggered_traps",[]))
+		var traps: Array = step.get("triggered_traps", [])
+		var burst_specs: Array[Dictionary] = TileBurstFx.trap_specs(traps, before_move_state)
+		burst_specs.append_array(TileBurstFx.event_specs(ground_events, true))
 		await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_move_state, animated_state, {
 			"surface_feedback_events":ground_events,
 			"focus_actor_keys": step.get("impact_actor_keys", [actor_key]),
 			"focus_actor_color": PLAYER_ATTACK_FOCUS,
 			"focus_tiles": [to_tile],
 			"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-			"trap_effects": step.get("triggered_traps", []),
+			"trap_effects": TileBurstFx.mark_traps(traps),
 			"impact_actor_keys": step.get("impact_actor_keys", []),
 			"floating_texts": _floating_texts_for_step(step)
-		}))
+		}), 0.0, false, {}, _tile_burst_contact(burst_specs, before_move_state, animated_state))
 		await _animate_turn_order_alongside_defeats(
 			before_move_state,
 			animated_state,
@@ -25941,7 +25320,9 @@ func _animate_player_move_path(before_state: Dictionary, after_state: Dictionary
 		if segment.has("walk"):
 			await _animate_actor_along_path(before_state, "player", _vector2i_array(segment["walk"]), presentation)
 		else:
-			await _animate_player_blink_step(before_state, segment["blink_from"], segment["blink_to"], segment["exchange"], presentation)
+			var blink_presentation: Dictionary = presentation.duplicate(false)
+			blink_presentation["blink_self_burst_tiles"] = _blink_self_burst_tiles(before_state, after_state)
+			await _animate_player_blink_step(before_state, segment["blink_from"], segment["blink_to"], segment["exchange"], blink_presentation)
 
 ## Splits a Move path into walked runs ({"walk": tiles}) and blinked steps
 ## ({"blink_from", "blink_to", "exchange"}). `exchange` is the Move's Illusion
@@ -25981,11 +25362,14 @@ func _animate_player_blink_step(display_state: Dictionary, from: Vector2i, to: V
 		board_view.draw_tile_for_unit_origin(player, from),
 		to
 	)
-	# The rift replaces the walked route line while the hero crosses it.
+	# Relays and trades have no walked route between their endpoints.
 	frame_base.erase("path_tiles")
 	frame_base["focus_tiles"] = [to]
 	frame_base["focus_color"] = Color(0.53, 0.48, 0.92, 0.24)
 	frame_base["effect"] = _player_blink_effect(from, to, exchange)
+	var reserved: Dictionary = frame_base.get("blink_self_burst_tiles", {})
+	frame_base.erase("blink_self_burst_tiles")
+	_queue_blink_transit(frame_base["effect"], player, player, ATTACK_FRAMES * ATTACK_FRAME_SECONDS, reserved)
 	await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 		var frame: Dictionary = frame_base.duplicate(false)
 		frame["effect_progress"] = float(frame_number) / float(ATTACK_FRAMES)
@@ -26000,6 +25384,151 @@ func _player_blink_effect(from: Vector2i, to: Vector2i, exchange: Dictionary) ->
 		effect["exchange_from"] = exchange.get("to", to)
 		effect["exchange_to"] = exchange.get("from", from)
 	return effect
+
+func _blink_self_burst_tiles(before: Dictionary, after: Dictionary) -> Dictionary:
+	var tiles: Dictionary
+	# Within a Blink step, Expose is the fx-13 pool feedback that can be
+	# generated by arrival. Its badge gain owns the tile.
+	var player: Dictionary = after.get("player", {})
+	if int(player.get("hp", 0)) > 0 and int(player.get("expose", 0)) > int(before.get("player", {}).get("expose", 0)):
+		tiles[player["pos"]] = true
+	for group: String in ["enemies", "illusions"]:
+		var previous: Dictionary
+		for unit: Dictionary in before.get(group, []): previous[unit["id"]] = int(unit.get("expose", 0))
+		for unit: Dictionary in after.get(group, []):
+			if previous.has(unit["id"]) and int(unit.get("hp", 0)) > 0 and int(unit.get("expose", 0)) > int(previous[unit["id"]]):
+				tiles[unit["pos"]] = true
+	return tiles
+
+func _queue_blink_transit(effect: Dictionary, departing: Dictionary, landing: Dictionary, duration: float, reserved: Dictionary, shadowstep: bool = false) -> Dictionary:
+	var from: Vector2i = effect.get("from", INVALID_TARGET_TILE)
+	var to: Vector2i = effect.get("to", INVALID_TARGET_TILE)
+	if from.x < 0 or to.x < 0 or from == to: return {}
+	# Keep each tear anchored to its tile as the body moves away or enters.
+	var transit: Dictionary = {
+		"actor": effect.get("actor_key", "player"),
+		"effect_from": from, "effect_to": to,
+		"origin": {"pos": from, "footprint": board_view._resolved_unit_footprint(departing)},
+		"arrival": {"pos": to, "footprint": board_view._resolved_unit_footprint(landing)},
+		"duration": duration, "reserved": reserved, "shadowstep": shadowstep, "started": false,
+	}
+	_blink_transits.append(transit)
+	return transit
+
+func _queue_stalker_transit(step: Dictionary, actor: Dictionary, cutout: bool) -> Dictionary:
+	if not bool(step.get("en03_veil", false)): return {}
+	var duration: float = ATTACK_FRAMES * ATTACK_FRAME_SECONDS
+	if cutout:
+		if not step.has("strike_step"):
+			duration = 0.0 if _reduced_motion_enabled() else _stalker_fade_transit_seconds(step, actor, duration)
+		elif not _reduced_motion_enabled():
+			duration += _stalker_ambush_contact_seconds(step["strike_step"], actor)
+	var landing: Dictionary = _animation_actor_unit(step.get("blink_after", {}), step["actor_key"])
+	var landing_tile: Vector2i = landing.get("pos", step["to"])
+	var reserved: Dictionary = {}
+	if int(landing.get("expose", 0)) > int(actor.get("expose", 0)): reserved[landing_tile] = true
+	var transit: Dictionary = _queue_blink_transit(step, actor, landing, duration, reserved)
+	if not transit.is_empty():
+		# Umbra can clip the submitted effect to a visible span. Its endpoints
+		# still match that submission, while the tears use the resolver's tiles.
+		transit["origin"]["pos"] = step.get("umbra_original_from", step["from"])
+		transit["arrival"]["pos"] = landing_tile
+	return transit
+
+func _stalker_ambush_contact_seconds(strike: Dictionary, actor: Dictionary) -> float:
+	if not strike.has("kind") or not strike.has("actor_key"): return 0.0
+	# The travel snapshot is merged in place. The Ambush contact adapter
+	# first invalidates the retained body placement when it applies the hit.
+	var type: String = actor["type"]
+	var action: Dictionary = strike.duplicate(false)
+	action["intent_id"] = actor.get("intent", {}).get("id", "ambush")
+	var clip: String = MaquetteAction.clip_for(action, actor)
+	var definition: Dictionary = MaquetteAction.data_for(type)["clips"][clip]
+	var count: int = MaquetteAction.frames_for(type, clip)
+	var frame: int = ceili(float(definition["contact"]) * maxi(1, count - 1))
+	return frame * (float(definition["seconds"]) / count)
+
+func _stalker_fade_transit_seconds(step: Dictionary, actor: Dictionary, travel: float) -> float:
+	# Fade starts Blink on the authored contact sample. Follow its phase
+	# mapping to the sample that first applies blink_after, or the clip tail.
+	var type: String = actor["type"]
+	var clip: String = MaquetteAction.clip_for(step, actor)
+	var definition: Dictionary = MaquetteAction.data_for(type)["clips"][clip]
+	var seconds: float = float(definition["seconds"])
+	var contact: float = float(definition["contact"])
+	var count: int = MaquetteAction.frames_for(type, clip)
+	var intervals: int = maxi(1, count - 1)
+	var contact_frame: int = ceili(contact * intervals)
+	var boundary: float = float(contact_frame) / intervals
+	for frame: int in range(contact_frame, count):
+		var phase: float = MaquetteAction.contact_phase(float(frame) / intervals, boundary, contact)
+		if (phase - contact) * seconds >= travel:
+			return (frame - contact_frame) * (seconds / count)
+	return (count - contact_frame) * (seconds / count)
+
+func _queue_shadowstep_transits(step: Dictionary) -> Array[Dictionary]:
+	var transits: Array[Dictionary]
+	if step.get("rule") != "shadowstep": return transits
+	var before: Dictionary = step["before"]
+	var after: Dictionary = step["after"]
+	var reserved: Dictionary = _blink_self_burst_tiles(before, after)
+	var duration: float = preload("res://scripts/battlefield_rules/playback.gd").CAPTION_ONLY_HOLD_SECONDS
+	var origins: Dictionary
+	for unit: Dictionary in before.get("enemies", []): origins[unit["id"]] = unit
+	var arrivals: Array = (after.get("enemies", []) as Array).duplicate()
+	for event: Dictionary in _surface_events_between(before, after):
+		if event.get("kind") == "actor_death" and event.get("actor_kind") == "enemy":
+			var defeated: Dictionary = event["unit"]
+			if not arrivals.any(func(unit: Dictionary) -> bool: return unit["id"] == defeated["id"]):
+				arrivals.append(defeated)
+	for landing: Dictionary in arrivals:
+		var origin: Dictionary = origins.get(landing["id"], {})
+		if origin.is_empty() or origin["pos"] == landing["pos"]: continue
+		var effect: Dictionary = {"from": origin["pos"], "to": landing["pos"], "actor_key": _enemy_key(origin)}
+		transits.append(_queue_blink_transit(effect, origin, landing, duration, reserved, true))
+	return transits
+
+func _present_blink_transits(shown: Dictionary) -> void:
+	var effect: Dictionary = shown.get("effect", {})
+	var positions: Dictionary = shown.get("unit_world_positions", {})
+	var reduced: bool = _reduced_motion_enabled()
+	for transit: Dictionary in _blink_transits.duplicate():
+		var origin: Dictionary = transit["origin"]
+		var arrival: Dictionary = transit["arrival"]
+		var actor: String = transit["actor"]
+		var reserved: Dictionary = transit["reserved"]
+		if not transit["started"]:
+			if transit["shadowstep"]:
+				if shown.get("battlefield_rule_caption", {}).get("rule") != "shadowstep": continue
+			elif effect.get("kind") != "blink" or effect.get("preview", false) or effect.get("actor_key", "player") != actor or effect.get("from") != transit["effect_from"] or effect.get("to") != transit["effect_to"]:
+				continue
+			transit["started"] = true
+			transit["origin_world"] = positions.get(actor)
+			if not reserved.has(origin["pos"]):
+				board_view.present_self_burst("summon", origin, reduced)
+				reserved[origin["pos"]] = true
+			if not reduced:
+				if not reserved.has(arrival["pos"]):
+					var delay: float = maxf(0.0, float(transit["duration"]) - TileBurstFx.reveal_seconds("summon", false))
+					board_view.present_self_burst("summon", arrival, false, delay)
+					reserved[arrival["pos"]] = true
+				_blink_transits.erase(transit)
+				continue
+		if reserved.has(arrival["pos"]):
+			_blink_transits.erase(transit)
+			continue
+		# Use the submitted body override for walk/relay composites. The
+		# resolver's player tile can still be the original action origin.
+		var origin_world: Variant = transit["origin_world"]
+		var landed: bool = (
+			not (positions[actor] as Vector2).is_equal_approx(origin_world)
+			if positions.has(actor) and origin_world != null else board_view._visible_units_cache.any(
+				func(unit: Dictionary) -> bool: return unit.get("key") == actor and unit.get("pos") == arrival["pos"])
+		)
+		if not landed: continue
+		board_view.present_self_burst("summon", arrival, true)
+		reserved[arrival["pos"]] = true
+		_blink_transits.erase(transit)
 
 func _illusion_exchange_event(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	for event: Dictionary in _surface_events_between(before_state, after_state):
@@ -26569,6 +26098,17 @@ func _apply_guardian_props(display_state: Dictionary, target_presentation: Dicti
 		target_presentation["scene_props"] = props
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
+	var resolved_state: Dictionary = display_state
+	var adapter_burst: Callable
+	if not _tile_burst_adapter_contact.is_empty() and is_same(presentation.get("effect"), _tile_burst_adapter_contact["step"]):
+		var adapter_specs: Array = _tile_burst_adapter_contact["specs"]
+		var adapter_before: Dictionary = _tile_burst_adapter_contact["before"]
+		var adapter_step: Dictionary = _tile_burst_adapter_contact["step"]
+		var shot_effect: Dictionary = adapter_step.duplicate(false)
+		shot_effect["enemy_type"] = _animation_actor_unit(adapter_before, str(adapter_step.get("actor_key", ""))).get("type", "")
+		_append_contact_burst(adapter_specs, adapter_step, adapter_before, display_state, shot_effect)
+		adapter_burst = _tile_burst_contact(adapter_specs, adapter_before, display_state)
+		_tile_burst_adapter_contact.clear()
 	display_state = _burst_playback.display_state(display_state, presentation)
 	presentation = _burst_playback.hold_pending_deaths(display_state, presentation)
 	_ensure_sfx_bank()
@@ -26699,9 +26239,11 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
 			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 		rendered_presentation["noctyrax_motion"] = noctyrax_motions
-		var noctyrax_effect: Dictionary = cutout_effect.duplicate(false)
-		noctyrax_effect["noctyrax_breath"] = str(cutout_effect.get("kind", "")) == "ranged"
-		rendered_presentation["effect"] = noctyrax_effect
+		if not bool(cutout_effect.get("preview", false)) and DragonSpell.is_eclipse(preload("res://scripts/dragon_presentation.gd").profile(cutout_effect, effect_actor)):
+			# The Eclipse darkening already shows the area, even on a miss.
+			var eclipse_effect: Dictionary = cutout_effect.duplicate(false)
+			eclipse_effect[TileBurstFx.ACTIVE] = true
+			rendered_presentation["effect"] = eclipse_effect
 	if not effect_actor_key.is_empty() and TharokhCutout.uses_attack(cutout_effect, effect_actor):
 		var tharokh_motions: Dictionary = (presentation.get("tharokh_motion", {}) as Dictionary).duplicate(false)
 		tharokh_motions[effect_actor_key] = {"clip": "attack", "action": TharokhCutout.action_clip(cutout_effect, effect_actor),
@@ -26767,7 +26309,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not boss_unit.is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
-	rendered_presentation["board_fit_exclusions"] = _board_hud_budget.exclusions
+	rendered_presentation["board_fit_exclusions"] = _active_board_hud_budget().exclusions
 	rendered_presentation["board_legacy_fit_rect"] = _legacy_board_fit_rect()
 	rendered_presentation["board_targeting"] = _board_targeting_active()
 	rendered_presentation["plate_aim_actor_keys"] = _board_plate_aim.affected(self, _active_card_preview())
@@ -26786,6 +26328,10 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			}
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	_sfx_router.enemy_arrivals(display_state, rendered_presentation)
+	var hidden_arrivals: Dictionary = rendered_presentation.get("self_burst_hide_arrivals", {})
+	if not hidden_arrivals.is_empty():
+		rendered_presentation["death_animation_units"] = (rendered_presentation["death_animation_units"] as Array).filter(
+			func(unit: Dictionary) -> bool: return not hidden_arrivals.has(unit["key"]))
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
 	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
@@ -26824,6 +26370,18 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	_queue_board_view_rect_sync()
 	rendered_presentation = _hud_forecast.decorate(self, display_state, rendered_presentation)
+	if _player_popup_timeline_active:
+		_push_contact_feedback.play_cues(rendered_presentation.get("floating_texts", []), _sfx_router.surface)
+	# Custom clocks such as Meteorfall and Icefall also submit directly here.
+	# Claim their strike tiles before observing overlapping surface contacts.
+	if not TileBurstFx.strike_element(cutout_effect).is_empty():
+		var strike_tiles: Array[Vector2i] = preload("res://scripts/dragon_presentation.gd").tiles(cutout_effect)
+		_resolved_contact_bursts.reserve_strike_tiles(strike_tiles)
+		ResolvedContactBursts.mask_strike_decals(rendered_presentation, strike_tiles)
+	var resolved_specs: Array[Dictionary] = _resolved_contact_bursts.observe(rendered_presentation, display_state,
+		func(tile: Vector2i) -> bool: return ContactVisibility.tile_is_drawn(display_state, tile, rendered_presentation.get("umbra_visible_tiles")))
+	var chain_burst: Callable = _chain_hop_burst(presentation, resolved_state)
+	rendered_presentation.erase(ChainAttackFeedback.CONTACT_TILES)
 	board_view.set_combat_state(
 		display_state,
 		[],
@@ -26837,6 +26395,13 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		state_stable_since_last_submission and not _animation_step_requires_submission_validation
 	)
 	_animation_step_requires_submission_validation = false
+	if not _blink_transits.is_empty(): _present_blink_transits(rendered_presentation)
+	if chain_burst.is_valid(): chain_burst.call()
+	if adapter_burst.is_valid(): adapter_burst.call()
+	if not _icefall_cutout_strike.is_empty() and cutout_effect.get("en02_mechanic") == "icefall_land":
+		board_view.present_sky_strike(_icefall_cutout_strike["cue"], cutout_effect.get("icefall_phase") == "puff", _icefall_cutout_strike["before"], display_state)
+	if not resolved_specs.is_empty():
+		board_view.present_tile_bursts(resolved_specs, display_state, display_state, _reduced_motion_enabled())
 	_refresh_boss_health_overlay(display_state, rendered_presentation)
 	_refresh_combat_objective_hud(display_state, rendered_presentation)
 
@@ -27040,34 +26605,18 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				if typeof(target_var) != TYPE_DICTIONARY:
 					continue
 				var block_target: Dictionary = target_var as Dictionary
-				block_floats.append({
-					"tile": block_target.get("tile", Vector2i.ZERO),
-					"text": "+%d" % int(block_target.get("amount", 0)),
-					"color": Color("90d9ff"),
-					"offset": -6.0
-				})
+				block_floats.append(FloatingCombatText.resource_entry(
+					"block", block_target.get("tile", Vector2i.ZERO), int(block_target.get("amount", 0)), {"offset": -6.0}
+				))
 			if not block_floats.is_empty():
 				return block_floats
-			return TypedArrays.dictionaries([{
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "+%d" % int(step.get("amount", 0)),
-				"color": Color("90d9ff"),
-				"offset": -6.0
-			}])
-		"stoneskin":
-			return TypedArrays.dictionaries([{
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "+%d S" % int(step.get("amount", 0)),
-				"color": ElementData.accent(ElementData.EARTH),
-				"offset": -6.0
-			}])
-		"heal":
-			return TypedArrays.dictionaries([{
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "+%d" % int(step.get("amount", 0)),
-				"color": Color("9ee27e"),
-				"offset": -6.0
-			}])
+			return TypedArrays.dictionaries([FloatingCombatText.resource_entry(
+				"block", step.get("tile", Vector2i.ZERO), int(step.get("amount", 0)), {"offset": -6.0}
+			)])
+		"stoneskin", "heal":
+			return TypedArrays.dictionaries([FloatingCombatText.resource_entry(
+				str(step["kind"]), step.get("tile", Vector2i.ZERO), int(step.get("amount", 0)), {"offset": -6.0}
+			)])
 		"status":
 			return TypedArrays.dictionaries([{
 				"tile": step.get("tile", Vector2i.ZERO),
@@ -27092,23 +26641,15 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 						{"reaction_actor_key": "player", "reaction": "hit"}
 					))
 				if int(step.get("block_loss", 0)) > 0:
-					floats.append({
-						"tile": step.get("to", Vector2i.ZERO),
-						"reaction_actor_key": "player", "reaction": "block",
-						"text": "−%d B" % int(step.get("block_loss", 0)),
-						"color": Color("90d9ff"),
-						"offset": 0.0,
-						"width": 112.0
-					})
+					floats.append(FloatingCombatText.resource_entry(
+						"block", step.get("to", Vector2i.ZERO), -int(step.get("block_loss", 0)),
+						{"reaction_actor_key": "player", "reaction": "block", "offset": 0.0, "width": 112.0}
+					))
 				if int(step.get("stoneskin_loss", 0)) > 0:
-					floats.append({
-						"tile": step.get("to", Vector2i.ZERO),
-						"reaction_actor_key": "player", "reaction": "block",
-						"text": "−%d S" % int(step.get("stoneskin_loss", 0)),
-						"color": ElementData.accent(ElementData.EARTH),
-						"offset": 0.0,
-						"width": 112.0
-					})
+					floats.append(FloatingCombatText.resource_entry(
+						"stoneskin", step.get("to", Vector2i.ZERO), -int(step.get("stoneskin_loss", 0)),
+						{"reaction_actor_key": "player", "reaction": "block", "offset": 0.0, "width": 112.0}
+					))
 				if not str(step.get("status_text", "")).is_empty():
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
@@ -27150,7 +26691,7 @@ func _enemy_phase_damage_feedback_element(step: Dictionary) -> String:
 func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 	if step.has("death_burst_events_after"):
 		step = _burst_playback.status_step(_combat_engine, step)
-	if step.has("reaction_after") and not bool(step.get("traced_bleed", false)):
+	if step.has("reaction_after"):
 		return preload("res://scripts/status_tick_feedback.gd").decorate(self, step, preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").floating_texts(self, step))
 	var enemy_losses: Array = step.get("enemy_losses", [])
 	if enemy_losses.is_empty():
@@ -27162,16 +26703,11 @@ func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 		)
 		return preload("res://scripts/status_tick_feedback.gd").decorate(self, step, TypedArrays.dictionaries([legacy_float]))
 	var floats: Array[Dictionary] = _floating_texts_for_target_losses(enemy_losses)
-	if bool(step.get("traced_bleed", false)):
-		floats.append_array(_floating_texts_for_target_losses(step.get("target_losses", [])))
-		floats.append_array(_floating_texts_for_terrain_losses(step.get("terrain_losses", [])))
 	return preload("res://scripts/status_tick_feedback.gd").decorate(self, step, floats)
 
-func _decorate_bleed_damage_float(float_entry: Dictionary, cause_icon: String = "bleed") -> void:
+func _decorate_status_damage_float(float_entry: Dictionary, cause_icon: String) -> void:
 	float_entry["icon"] = cause_icon
 	float_entry["icon_tint"] = Color("ffe9df")
-	float_entry["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
-	float_entry["icon_border"] = Color("ff8a76")
 	float_entry["width"] = 70.0
 	float_entry["x_offset"] = -26.0
 
@@ -27190,23 +26726,15 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "hit"}
 			))
 		if int(loss.get("block_loss", 0)) > 0:
-			floats.append({
-				"tile": tile,
-				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
-				"text": "−%d B" % int(loss.get("block_loss", 0)),
-				"color": Color("90d9ff"),
-				"offset": 0.0,
-				"width": 112.0
-			})
+			floats.append(FloatingCombatText.resource_entry(
+				"block", tile, -int(loss.get("block_loss", 0)),
+				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block", "offset": 0.0, "width": 112.0}
+			))
 		if int(loss.get("stoneskin_loss", 0)) > 0:
-			floats.append({
-				"tile": tile,
-				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
-				"text": "−%d S" % int(loss.get("stoneskin_loss", 0)),
-				"color": ElementData.accent(ElementData.EARTH),
-				"offset": 0.0,
-				"width": 112.0
-			})
+			floats.append(FloatingCombatText.resource_entry(
+				"stoneskin", tile, -int(loss.get("stoneskin_loss", 0)),
+				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block", "offset": 0.0, "width": 112.0}
+			))
 		if int(loss.get("mantle_loss", 0)) > 0:
 			var mantle_left: int = int(loss.get("mantle_remaining", 0))
 			floats.append({
@@ -27228,9 +26756,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				"offset": 0.0,
 				"width": 184.0,
 				"icon": "defiance",
-				"icon_tint": Color("fff3c4"),
-				"icon_fill": Color(0.14, 0.08, 0.20, 0.96),
-				"icon_border": Color("d6aa5e")
+				"icon_tint": Color("fff3c4")
 			})
 		if str(loss.get("kind", "")) == "player":
 			status_tile = tile
@@ -27674,11 +27200,11 @@ func _layout_action_banner() -> void:
 		top = maxf(top, _boss_health_overlay.get_global_rect().end.y + 4.0 - (action_banner.get_parent() as Control).global_position.y)
 	action_banner.offset_top = top
 	action_banner.offset_bottom = top + ACTION_BANNER_HEIGHT
-	var half_width: float = ACTION_BANNER_MIN_WIDTH * 0.5
+	var half_width: float = ACTION_BANNER_SIDE_PADDING
 	var font: Font = action_banner.get_theme_font("font")
 	if font != null and not action_banner.text.is_empty():
 		var text_width: float = font.get_string_size(action_banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, action_banner.get_theme_font_size("font_size")).x
-		half_width = maxf(half_width, ceilf(text_width * 0.5) + ACTION_BANNER_SIDE_PADDING)
+		half_width += text_width * 0.5
 	action_banner.offset_left = -half_width
 	action_banner.offset_right = half_width
 
@@ -27749,8 +27275,6 @@ func _board_status_label(preview: Dictionary) -> String:
 		return ""
 	if mode == "campfire":
 		return "" # The room header already names the hearth.
-	if mode == "treasure":
-		return "Relic"
 	if mode == "victory":
 		return "" # ESCAPED in the recap is the victory screen's only title.
 	if mode == "defeat":
@@ -27802,11 +27326,14 @@ func _player_action_label(card_id: String, _action: Dictionary, _state: Dictiona
 		return "Ghost Stride" if str(_action.get("type", "")) == "blink" else "Movement"
 	return str(_card_def(card_id, _state).get("name", card_id))
 
-func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary, split_push_contact: bool = false) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	var events: Array[Dictionary] = _surface_events_between(before_state, after_state)
+	if split_push_contact:
+		floats = PushContactFeedback.split(self, floats, events, after_state)
 	floats.append_array(preload("res://scripts/enemy_mechanics/capacitor_view.gd").grounded_texts(before_state, after_state))
 	floats.append_array(_stagger_floating_texts(before_state, after_state))
-	for event: Dictionary in _surface_events_between(before_state,after_state):
+	for event: Dictionary in events:
 		if str(event.get("kind","")) != "crystal_mantle_broken": continue
 		var remaining: int = int(event.get("layers_remaining",0))
 		floats.append({"tile":event.get("tile",Vector2i.ZERO),"text":"Mantle %d → %d" % [remaining+1,remaining],"color":Color("b9f3ff"),"offset":-24.0})
@@ -27909,24 +27436,16 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 			{"reaction_actor_key": "player", "reaction": "hit"}
 		))
 	if block_loss > 0:
-		floats.append({
-			"tile": player_tile,
-			"reaction_actor_key": "player", "reaction": "block",
-			"text": "−%d B" % block_loss,
-			"color": Color("90d9ff"),
-			"offset": 0.0,
-			"width": 112.0
-		})
+		floats.append(FloatingCombatText.resource_entry(
+			"block", player_tile, -block_loss,
+			{"reaction_actor_key": "player", "reaction": "block", "offset": 0.0, "width": 112.0}
+		))
 	if stoneskin_loss > 0:
-		floats.append({
-			"tile": player_tile,
-			"reaction_actor_key": "player", "reaction": "block",
-			"text": "−%d S" % stoneskin_loss,
-			"color": ElementData.accent(ElementData.EARTH),
-			"offset": 0.0,
-			"width": 112.0
-		})
-	return preload("res://scripts/status_tick_feedback.gd").player_losses(self, before_state, after_state, floats)
+		floats.append(FloatingCombatText.resource_entry(
+			"stoneskin", player_tile, -stoneskin_loss,
+			{"reaction_actor_key": "player", "reaction": "block", "offset": 0.0, "width": 112.0}
+		))
+	return floats
 
 func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	after_state = preload("res://scripts/enemy_mechanics/burst_playback.gd").before_bursts(before_state, after_state)
@@ -27954,23 +27473,15 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 				{"reaction_actor_key": _enemy_key(enemy), "reaction": "hit"}
 			))
 		if block_loss > 0:
-			floats.append({
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
-				"text": "−%d B" % block_loss,
-				"color": Color("90d9ff"),
-				"offset": 0.0,
-				"width": 112.0
-			})
+			floats.append(FloatingCombatText.resource_entry(
+				"block", enemy.get("pos", Vector2i.ZERO), -block_loss,
+				{"reaction_actor_key": _enemy_key(enemy), "reaction": "block", "offset": 0.0, "width": 112.0}
+			))
 		if stoneskin_loss > 0:
-			floats.append({
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
-				"text": "−%d S" % stoneskin_loss,
-				"color": ElementData.accent(ElementData.EARTH),
-				"offset": 0.0,
-				"width": 112.0
-			})
+			floats.append(FloatingCombatText.resource_entry(
+				"stoneskin", enemy.get("pos", Vector2i.ZERO), -stoneskin_loss,
+				{"reaction_actor_key": _enemy_key(enemy), "reaction": "block", "offset": 0.0, "width": 112.0}
+			))
 	return floats
 
 var _grimoire_discovery_sync := preload("res://scripts/grimoire_discovery_sync.gd").new()
@@ -27986,9 +27497,10 @@ func _unlock_grimoire_entries(candidate_ids: Array) -> Array[String]:
 	if progression_changed:
 		_persist_grimoire_progression_from_run()
 	if not added.is_empty():
-		_grimoire_row_preparation_revision += 1
+		if _grimoire_scrim != null: _grimoire_scrim._grimoire_row_preparation_revision += 1
 		if _initial_ui_complete: call_deferred("_prepare_known_grimoire_rows")
 		_refresh_grimoire_badge()
+		if _grimoire_scrim != null: _grimoire_scrim.set_catalog(_run_state)
 		if _grimoire_scrim != null and _grimoire_scrim.visible:
 			_rebuild_grimoire_overlay()
 	return added
@@ -28210,7 +27722,10 @@ func _present_opening_hand_after_combat_entry() -> void:
 	else: preload("res://scripts/dragon_arrival.gd").finish(self)
 	if _card_fx_can_continue_combat(): preload("res://scripts/event_scene_feedback.gd").combat_start(self)
 	if _card_fx_can_continue_combat():
+		var dock_revision: int = _combat_objective_dock_revision
 		await _animate_combat_objective_intro()
+		if dock_revision != _combat_objective_dock_revision:
+			return
 	if draw_entries.is_empty():
 		_animation_lock = false
 		_queue_hand_ready_wave("combat_start")
@@ -28437,15 +27952,13 @@ func _on_skip_reward_pressed() -> void:
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_reject()
 		return
-	if str(_run_state.get("pending_reward", {}).get("kind", "")) == "event":
-		_commit_reward_heal("")
-		return
 	var offered_cards: Array = ((_run_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
 	if _run_engine.has_run_skill(_run_state, "deferred_choice") and not offered_cards.is_empty():
-		var heals: bool = int(_run_state.get("player_hp", 0)) < int(_run_state.get("player_max_hp", 0))
+		var event_reward: bool = str(_run_state.get("pending_reward", {}).get("kind", "")) == "event"
+		var heals: bool = not event_reward and int(_run_state.get("player_hp", 0)) < int(_run_state.get("player_max_hp", 0))
 		var options: Array = [{
 			"text": "Heal without saving a card" if heals else "Leave every card behind",
-			"detail": "Take the healing reward and leave every offered card behind." if heals else "Save nothing. Health is already full.",
+			"detail": "Save nothing." if event_reward else ("Take the healing reward and leave every offered card behind." if heals else "Save nothing. Health is already full."),
 			"callback": _commit_reward_heal.bind("")
 		}]
 		for card_id_var: Variant in offered_cards:
@@ -28673,7 +28186,7 @@ func _await_treasure_tween(tween: Tween, sequence_epoch: int) -> bool:
 	return _treasure_sequence_is_current(sequence_epoch)
 
 func _cancel_treasure_presentation() -> void:
-	if _large_map_scrim != null: _large_map_scrim.modulate = Color.WHITE
+	if _large_map_scrim != null: _large_map_scrim.set_fade_alpha(1.0)
 	if _relic_choice_host != null: _relic_choice_host.modulate = Color.WHITE
 	_treasure_sequence_epoch += 1
 	for tween: Tween in _treasure_sequence_tweens:
@@ -28747,6 +28260,12 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	var trophy: Dictionary = (_run_state.get("guardian_reward", {}) as Dictionary).duplicate(true)
 	var trophy_context: Dictionary = _analytics_context_from_states(_run_state)
 	var accent := Color(GameData.relic_accent(relic_id))
+	var offer: Node = _relic_choice_bar.get_node_or_null("RelicChoice_%s" % relic_id)
+	var icon: Control = offer.find_child("RelicChoiceIcon", true, false) as Control if offer != null else null
+	var launch_burst := Callable()
+	if _node_is_alive(icon) and icon.is_visible_in_tree():
+		var relic: Dictionary = GameData.relic_def(relic_id)
+		launch_burst = _acquisition_bursts.relic_launch(icon, str(relic.get("accent", "")))
 	var rules_started: int = _choice_phase_start()
 	_run_state = _run_engine.claim_relic(_run_state, relic_id, deferred_relic_id)
 	_record_runtime_performance_phase("choice_relic_rules", rules_started)
@@ -28762,7 +28281,7 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 		_record_runtime_performance_phase("choice_guardian_trophy_analytics", started)
 	_refresh_choice_result_ui()
 	_play_reward_collect_sfx()
-	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent, null, launch_burst)
 	if not _treasure_sequence_is_current(sequence_epoch):
 		return
 	_relic_delivery_phase = "settlement"
@@ -28865,6 +28384,32 @@ func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
 	await _on_merchant_sell_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
 
 
+func _prepare_acquisition_bursts() -> void:
+	if not is_instance_valid(_acquisition_bursts): return
+	_acquisition_bursts.enter_room(_run_state.get("current_room", INVALID_ROOM_COORD))
+	var mode: String = str(_run_state.get("mode", ""))
+	var reward_size := Vector2.ZERO
+	if mode == "reward":
+		var reward: Dictionary = _run_state.get("pending_reward", {})
+		var cards: Array = reward.get("cards", [])
+		if not cards.is_empty():
+			reward_size = _reward_choice_card_size(cards.size(), int(reward.get("heal_amount", 0)) > 0)
+	var relic_size := Vector2.ZERO
+	if mode == "treasure" and not (_run_state.get("pending_relics", []) as Array).is_empty():
+		relic_size = Vector2.ONE * RELIC_OFFER_ICON_SIZE
+	_acquisition_bursts.prepare(mode in ["pre_battle", "combat"], reward_size, REWARD_CARD_HOVER_SCALE, relic_size)
+	var gains: AcquisitionBurst = _acquisition_bursts.gain_layer()
+	if mode == "event":
+		preload("res://scripts/event_result_beats.gd").prepare_bursts(gains, preload("res://scripts/event_view.gd").REFERENCE_SIZE)
+	else:
+		gains.clear_gains_for(_event_view)
+	if mode == "room" and _run_engine.merchant_kind_for_current_room(_run_state) == RunEngineScript.MERCHANT_SCAVENGER and is_instance_valid(_scavenger_shop_view):
+		_scavenger_shop_view.prepare_bursts()
+	elif _run_engine.is_dragon_reward(_run_state):
+		# Matches the 96 px artwork height in the milestone stack.
+		const DRAGON_ART_SIZE := Vector2(96, 96)
+		gains.prepare_gains(Vector2.ZERO, PackedVector2Array([DRAGON_ART_SIZE]))
+
 func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		return
@@ -28875,28 +28420,19 @@ func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2
 	proxy.z_index = 1602
 	proxy.pivot_offset = proxy.size * 0.5
 	var base_scale: Vector2 = proxy.scale
-	# The ring frames the popped card from above it. At its gear-pickup size it sat inside the card's face, over the
-	# art, so here its start and end radius grow together until the end clears the popped card's corners by 12 px.
-	var popped_half_diagonal: float = (proxy.size * base_scale * 1.20).length() * 0.5
-	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "magic", (popped_half_diagonal + 12.0) / LoadoutAcquisitionBurst.END_RADIUS)
-	burst.z_as_relative = false
-	burst.z_index = proxy.z_index + 1
+	var burst: AcquisitionBurst.Stamp = _acquisition_bursts.spawn_card(center, accent, proxy)
 	proxy.rotation = -0.055
-	var burst_tween: Tween = create_tween()
-	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	var tween: Tween = create_tween()
-	tween.tween_property(proxy, "scale", base_scale * 1.20, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy, "scale", base_scale * AcquisitionBurst.CARD_POP_SCALE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(proxy, "rotation", 0.035, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(proxy, "modulate", Color(1.20, 1.16, 0.96, 1.0), 0.10)
 	tween.tween_property(proxy, "scale", base_scale * 1.03, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(proxy, "rotation", 0.0, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(proxy, "position", proxy.position + Vector2(0.0, -28.0), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	# The ring rides the lift in the same step, so it stays centred on the card.
-	tween.parallel().tween_property(burst, "position", burst.position + Vector2(0.0, -28.0), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(proxy, "modulate", Color.WHITE, 0.20)
 	await tween.finished
+	if is_instance_valid(burst): burst.stop_following()
 	_release_card_proxy(proxy)
-	_queue_free_node_now(burst)
 
 func _animate_board_pickup_acquisitions(before_state: Dictionary, after_state: Dictionary) -> void:
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
@@ -28951,9 +28487,7 @@ func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pi
 		_queue_free_node_now(icon)
 		_queue_free_node_now(banner)
 		return
-	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
-	var burst_tween: Tween = create_tween()
-	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_acquisition_bursts.spawn_pickup(center, accent)
 	var banner_tween: Tween = create_tween()
 	banner.modulate.a = 0.0
 	banner_tween.tween_property(banner, "modulate:a", 1.0, 0.08)
@@ -28969,7 +28503,6 @@ func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pi
 	await tween.finished
 	await _animate_loadout_acquisition_ray(icon.get_global_rect().get_center(), accent, ray_destination, icon)
 	_queue_free_node_now(icon)
-	_queue_free_node_now(burst)
 	_queue_free_node_now(banner)
 
 func _spawn_pickup_destination_receipt(destination: Dictionary, accent: Color) -> Label:
@@ -28989,18 +28522,6 @@ func _spawn_pickup_destination_receipt(destination: Dictionary, accent: Color) -
 		clampf(center.y - receipt.size.y * 0.5, bounds.position.y + 8.0, bounds.end.y - receipt.size.y - 8.0)
 	)
 	return receipt
-
-func _spawn_loadout_acquisition_burst(center: Vector2, accent: Color, kind: String, radius_scale: float = 1.0) -> LoadoutAcquisitionBurst:
-	var burst := LoadoutAcquisitionBurst.new()
-	burst.name = "LoadoutAcquisitionBurst"
-	burst.radius_scale = radius_scale
-	burst.size = Vector2(220.0, 220.0) * radius_scale
-	burst.position = center - burst.size * 0.5
-	burst.accent = accent
-	burst.kind = kind
-	burst.z_index = 1600
-	_card_fx_layer.add_child(burst)
-	return burst
 
 func _spawn_loadout_acquisition_banner(text: String, center: Vector2, accent: Color) -> Label:
 	var banner := Label.new()
@@ -29156,8 +28677,11 @@ func _animate_acquisition_destination_arrival(control: Control, accent: Color) -
 	control.scale = Vector2.ONE
 	control.modulate = Color.WHITE
 
-func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color, destination: Control = null) -> void:
-	if _card_fx_layer == null or _reduced_motion_enabled():
+func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color, destination: Control = null, launch_burst: Callable = Callable()) -> void:
+	if _card_fx_layer == null:
+		return
+	if _reduced_motion_enabled():
+		if launch_burst.is_valid(): launch_burst.call()
 		return
 	var sequence_epoch: int = _treasure_sequence_epoch
 	if not _treasure_sequence_is_current(sequence_epoch): return
@@ -29178,6 +28702,7 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
+	if launch_burst.is_valid(): launch_burst.call()
 	_treasure_sequence_nodes.append(beam)
 	var beam_tween: Tween = create_tween().set_parallel(true)
 	_treasure_sequence_tweens.append(beam_tween)
@@ -29419,7 +28944,10 @@ func _close_settings_overlay() -> void:
 	_schedule_controller_modal_refresh()
 
 func _on_settings_changed(settings: Dictionary) -> void:
+	var previous_bindings: Dictionary = _settings.get(KeyBindings.SETTING, {})
 	_settings = SettingsStore.normalize_settings(settings)
+	if _settings[KeyBindings.SETTING] != previous_bindings:
+		_refresh_key_binding_display()
 	if not SettingsStore.controller_vibration_enabled(_settings):
 		_combat_pacing.vibration.stop()
 	if not _ducking_stinger.is_empty() and not _stinger_is_audible(_ducking_stinger):
@@ -29434,59 +28962,53 @@ func _on_settings_changed(settings: Dictionary) -> void:
 	if _run_end_board_reframe_active and _reduced_motion_enabled():
 		_seek_run_end_board_reframe(1.0)
 
+func _refresh_key_binding_display() -> void:
+	_refresh_enemy_intent_toggle()
+	if _pass_preview_overlay != null:
+		var pass_hint := _pass_preview_overlay.find_child("PassKeyHint", true, false)
+		if pass_hint != null: pass_hint.call("refresh")
+	if _movement_undo_button != null: _movement_undo_button.refresh_key()
+	EmpowerUi.sync_widgets(self)
+	_start_room_map.refresh_hint(self)
+	_refresh_grimoire_input_wording()
+
 func _reduced_motion_enabled() -> bool:
 	return SettingsStore.reduced_motion_enabled(_settings)
 
+
+
+
 func _open_grimoire_overlay() -> void:
-	if is_instance_valid(_magic_purge_overlay): return
-	if _grimoire_scrim == null:
-		return
+	if is_instance_valid(_magic_purge_overlay) or _grimoire_scrim == null: return
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_card_upgrade_overlay()
 	_close_large_map()
 	_close_menu_overlay()
-	_grimoire_restore_focus = get_viewport().gui_get_focus_owner()
-	_grimoire_restore_navigation_focus = true
-	_reset_grimoire_search()
-	_select_first_unread_grimoire_entry()
-	_rebuild_grimoire_overlay(true)
-	if not _grimoire_scrim.visible:
-		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
-	_grimoire_scrim.visible = true
-	_grimoire_scrim.move_to_front()
+	_grimoire_scrim.set_catalog(_run_state)
+	_grimoire_scrim.open(get_viewport().gui_get_focus_owner())
 	_update_performance_telemetry_context()
-	call_deferred("_focus_grimoire_after_open")
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
 	_schedule_controller_modal_refresh()
 
 func _close_grimoire_overlay() -> void:
-	var was_visible: bool = _grimoire_scrim != null and _grimoire_scrim.visible
-	if _grimoire_scrim != null:
-		_grimoire_scrim.visible = false
-	_reset_grimoire_search()
-	preload("res://scripts/grimoire_search_rows.gd").release_closed(self)
-	if not was_visible:
-		return
+	if _grimoire_scrim != null: _grimoire_scrim.close()
+
+func _on_grimoire_opening() -> void:
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
+
+func _on_grimoire_closed() -> void:
 	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_CLOSE_ID))
 	_run_state = GrimoireLibrary.clear_unread(_run_state)
 	_persist_grimoire_progression_from_run()
+	_grimoire_scrim.set_catalog(_run_state)
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
-	if _grimoire_restore_navigation_focus and _can_restore_gui_focus(_grimoire_restore_focus):
-		_grimoire_restore_focus.grab_focus()
-	_grimoire_restore_focus = null
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
-
-func _focus_grimoire_after_open() -> void:
-	if _grimoire_scrim == null or not _grimoire_scrim.visible:
-		return
-	if _grimoire_search_input != null:
-		_grimoire_search_input.grab_focus()
 
 func _committed_run_state() -> Dictionary:
 	if not _committed_run_state_override.is_empty():
@@ -29941,11 +29463,7 @@ func _on_save_and_quit_pressed() -> void:
 	const Shutdown = preload("res://scripts/application_shutdown.gd")
 	var tree := get_tree()
 	if not Shutdown.begin_save_to_title(tree): return
-	_combat_pacing.vibration.stop()
-	_leaving_tree = true
-	_close_menu_overlay()
-	process_mode = Node.PROCESS_MODE_DISABLED
-	await preload("res://scripts/run_persistence.gd").save_for_departure(self)
+	await _save_for_quit()
 	if Shutdown.finish_save_to_title(tree):
 		_change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -29953,12 +29471,16 @@ func _on_exit_to_desktop_pressed() -> void:
 	preload("res://scripts/application_shutdown.gd").request(get_tree(), "exit_to_desktop")
 
 func prepare_application_quit(reason: String) -> void:
+	await _save_for_quit()
+	_finalize_performance_telemetry_scene(reason)
+
+func _save_for_quit() -> void:
 	_combat_pacing.vibration.stop()
 	_leaving_tree = true
 	_close_menu_overlay()
 	process_mode = Node.PROCESS_MODE_DISABLED
+	_emit_pending_card_play(_committed_run_state_override)
 	await preload("res://scripts/run_persistence.gd").save_for_departure(self)
-	_finalize_performance_telemetry_scene(reason)
 
 func _on_abandon_run_pressed() -> void:
 	_cancel_deferred_skill_analytics()
@@ -31454,7 +30976,7 @@ func _build_equipment_inventory_column(keep_parent: bool = false) -> Control:
 	var item_ids: Array = _item_inventory_ids()
 	var panel: PanelContainer = _character_inventory_rows.take_panel("equipment", _character_row_common_input(), func() -> PanelContainer:
 		var created := preload("res://scripts/character_menu_view.gd").column("EquipmentInventoryPanel", 400.0, "PACK")
-		var list := preload("res://scripts/character_menu_view.gd").scroll_list(created)
+		var list := preload("res://scripts/character_menu_view.gd").scroll_list(created, "", "", true)
 		var gear_rows := VBoxContainer.new()
 		gear_rows.name = "EquipmentInventoryRows"
 		gear_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -31718,7 +31240,7 @@ func _new_equipment_inventory_tile(equipment_id: String, can_change: bool, regis
 	tile.tooltip_text = "equipment:%s" % equipment_id
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", Menu.row_style())
-	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
+	_configure_controller_loadout_focus(tile, UiPalette.GOLD, true)
 	tile.add_child(Menu.row_body(AssetLoader.load_texture(str(item.get("icon_path", ""))), "%s · %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))], str(item.get("name", equipment_id)), _equipment_card_summary(equipment_id)))
 	Menu.pack_actions(tile, self, _equip_equipment_from_overlay.bind(equipment_id), can_change)
 	if register_row: _equipment_inventory_tiles[equipment_id] = tile
@@ -31797,7 +31319,7 @@ func _new_item_card_tile(card_id: String, source_kind: String, index: int, can_c
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", Menu.row_style())
 	tile.add_child(_build_item_card_tile_body(card_id))
-	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
+	_configure_controller_loadout_focus(tile, UiPalette.GOLD, source_kind == "inventory")
 	if source_kind == "equipped":
 		if register_row: _item_equipped_tiles[index] = tile
 	else:
@@ -32411,9 +31933,9 @@ func _apply_item_drag_highlights() -> void:
 			else:
 				tile.modulate = Color.WHITE
 
-func _configure_controller_loadout_focus(tile: PanelContainer, accent: Color) -> void:
+func _configure_controller_loadout_focus(tile: PanelContainer, accent: Color, uses_row_focus: bool = false) -> void:
 	tile.set_meta("controller_focus_accent", accent)
-	preload("res://scripts/character_menu_view.gd").tile_feedback(tile, self)
+	preload("res://scripts/character_menu_view.gd").tile_feedback(tile, self, uses_row_focus)
 	tile.focus_entered.connect(_on_controller_loadout_focus_changed.bind(tile, true))
 	tile.focus_exited.connect(_on_controller_loadout_focus_changed.bind(tile, false))
 
@@ -32660,7 +32182,6 @@ func _build_item_pickup_tooltip_panel(card_id: String) -> Control:
 
 func _item_preview_builder() -> RefCounted:
 	var builder := ItemPreviewBuilders.new()
-	builder.definition_resolver = _card_def
 	builder.state = _card_display_state()
 	builder.use_run_display = true
 	builder.equipment_locked = not _equipment_overlay_can_change()
@@ -33191,7 +32712,7 @@ func _card_id_for_hand_index(index: int) -> String:
 	return str(hand[index])
 
 func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
-	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods") or state.has("skill_ids") or state.has("relics")):
+	if not state.is_empty() and (state.has(GameData.LEGACY_STARTER_CARDS_KEY) or state.has("card_upgrades") or state.has("card_mods") or state.has("skill_ids") or state.has("relics")):
 		return GameData.card_def_for_progression(card_id, state)
 	if not _progression.is_empty():
 		return GameData.card_def_for_progression(card_id, _progression)
@@ -33218,6 +32739,7 @@ func _clear_active_card_preview_state() -> void:
 	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	_aoe_aim_orientation = Vector2i(1, 0)
+	_aoe_aim_target_tile = INVALID_TARGET_TILE
 	_reset_force_aim()
 	_preview_combat_state.clear()
 	_pending_drag_play_source_rect = Rect2()
@@ -33986,7 +33508,7 @@ func _analytics_log_combat_started(reason: String) -> void:
 
 func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> void:
 	_analytics_flush_surface_events(combat_state)
-	_analytics_store.write_event("combat_ended", _analytics_context_from_states(_run_state, combat_state), Snapshots.combat_ended(_combat_engine, combat_state, reason))
+	_analytics_store.write_event("combat_ended", _analytics_context_from_states(_run_state, combat_state), Snapshots.combat_ended(_combat_engine, combat_state, reason, _run_state))
 
 func _analytics_log_reward_offered(combat_state: Dictionary, reason: String) -> void:
 	_analytics_store.write_event("reward_offered", _analytics_context_from_states(_run_state, combat_state), Snapshots.reward_offered(_run_engine, _run_state, reason))
@@ -34214,16 +33736,24 @@ func _analytics_log_playable_cards() -> void:
 	_record_runtime_performance_phase("analytics_playable_write", performance_phase_started)
 	_record_runtime_performance_phase("analytics_playable_total", performance_total_started)
 
-func _analytics_log_card_played(card_id: String, card_instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
+func _emit_pending_card_play(run_state: Dictionary) -> void:
+	if not _pending_card_play_analytics.is_valid(): return
+	# The departure save drains buffered analytics before writing the checkpoint.
+	# Consume this receipt here so a resumed animation cannot emit it again.
+	var receipt: Callable = _pending_card_play_analytics
+	_pending_card_play_analytics = Callable()
+	receipt.call(run_state)
+
+func _analytics_log_card_played(run_state: Dictionary, card_id: String, card_instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	if card_id.is_empty():
 		return
-	_analytics_flush_surface_events(resolved_state)
+	_analytics_flush_surface_events(resolved_state, run_state)
 	var payload: Dictionary = _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets)
 	# Additive wave-3 keyword fields: quicken_spent, next_attack_bonus_used, rite_started.
 	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
 	# Additive wave-4 family B fields (spec/analytics.md).
 	payload.merge(ManeuverRules.analytics_fields(before_state, resolved_state), true)
-	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), payload)
+	_analytics_store.write_event("card_played", _analytics_context_from_states(run_state, before_state, card_id, card_instance_id), payload)
 
 func _stage_player_turn_ended_analytics(run_state: Dictionary, before_state: Dictionary, scheduled_state: Dictionary, end_reason: String) -> Dictionary:
 	var staged: Dictionary = PlayerTurnAnalytics.stage(
@@ -34263,8 +33793,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_block_removed: int = 0
 	var enemy_stoneskin_removed: int = 0
 	var kills_secured: int = 0
-	var enemy_bleed_applied: int = 0
-	var enemy_expose_applied: int = 0
 	var enemy_chilled_applied: int = 0
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
@@ -34281,8 +33809,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_stoneskin_removed += maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
 		if int(before_enemy.get("hp", 0)) > 0 and int(after_enemy.get("hp", 0)) <= 0:
 			kills_secured += 1
-		enemy_bleed_applied += maxi(0, int(after_enemy.get("bleed", 0)) - int(before_enemy.get("bleed", 0)))
-		enemy_expose_applied += maxi(0, int(after_enemy.get("expose", 0)) - int(before_enemy.get("expose", 0)))
 		enemy_chilled_applied += maxi(0, int(after_enemy.get("chilled", false)) - int(before_enemy.get("chilled", false)))
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
@@ -34308,8 +33834,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		terrain_hp_damage += terrain_loss
 		if terrain_loss > 0 and int(after_terrain.get("hp", 0)) <= 0:
 			terrain_destroyed += 1
-	var player_bleed_applied: int = maxi(0, int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0)))
-	var player_expose_applied: int = maxi(0, int(after_player.get("expose", 0)) - int(before_player.get("expose", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_immobilize_applied: int = 1 if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)) else 0
@@ -34346,6 +33870,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 			target_decision_tile = selected_targets[target_index]
 			break
 	var played_surface_events: Array[Dictionary] = _surface_events_between(before_state, resolved_state)
+	var expose_applied: Dictionary = Snapshots.card_play_expose(before_state, resolved_state, played_surface_events)
 	var collisions: Dictionary = _combat_engine.force_collision_summary(played_surface_events)
 	var payload: Dictionary = {
 		"play_mode": play_mode,
@@ -34389,10 +33914,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"turn_time_spent_after": int(resolved_state.get("player_turn_time_spent", int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card))),
 		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"pierce_actions": _analytics_pierce_action_count(actions),
-		"sunder_actions": _analytics_attack_keyword_action_count(actions, "sunder"),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
-		"radiance_card": bool(printed_card.get("radiance", false)),
 		"umbra_stage_before": _combat_engine.effective_umbra_stage(before_state),
 		"umbra_stage_after": _combat_engine.effective_umbra_stage(resolved_state),
 		"umbra_radius_before": _combat_engine.effective_umbra_radius(before_state),
@@ -34408,16 +33931,14 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"umbra_suppression_stages_after": _combat_engine.light_source_umbra_suppression(resolved_state),
 		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"enemy_status_applied": {
-			"bleed": enemy_bleed_applied,
-			"expose": enemy_expose_applied,
+			"expose": expose_applied["enemy"],
 			"chilled": enemy_chilled_applied,
 			"freeze": enemy_freeze_applied,
 			"shock": enemy_shock_applied,
 			"immobilize": enemy_immobilize_applied,
 		},
 		"player_status_applied": {
-			"bleed": player_bleed_applied,
-			"expose": player_expose_applied,
+			"expose": expose_applied["player"],
 			"chilled": maxi(0, int(after_player.get("chilled", false)) - int(before_player.get("chilled", false))),
 			"freeze": player_freeze_applied,
 			"shock": player_shock_applied,
@@ -34426,6 +33947,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
 	}
+	payload.merge(Snapshots.card_play_light_and_vision(printed_card, before_umbra, after_umbra))
 	# Additive keyword fields: follow_up_active, empowered, empower_cost, stagger_applied.
 	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
 	return payload
@@ -34546,10 +34068,14 @@ func _sync_combat_state_from_run() -> void:
 	entering_combat = entering_combat or (not source.is_empty() and source.get("room_coord") != _combat_state.get("room_coord"))
 	_combat_state = _combat_engine.normalize_player_movement_pool(source) if not source.is_empty() else {}
 	if entering_combat or str(_run_state.get("mode", "")) != "combat":
+		_reset_combat_objective_dock()
 		_combat_hud_layout.clear()
 		_hand_hud_fit_key = Vector3(INF, INF, -1.0)
 		_hand_hud_fit_queued = false
 	# Ordinary room/pre-battle entry does not go through _load_run_state.
+	if is_instance_valid(board_view) and (entering_combat or _combat_state.is_empty()):
+		board_view.clear_tile_bursts()
+		_resolved_contact_bursts.clear()
 	_burst_playback.sync_encounter(_combat_state, entering_combat)
 	if _combat_engine is HeroFacingCombat: _combat_engine.persist_hero_facing = SettingsStore.hero_facing_mode(_settings) == "persist"
 	_hero_facing.reset(_combat_state, SettingsStore.hero_facing_mode(_settings) == "persist")
@@ -34913,6 +34439,7 @@ func _commit_surface_skill_tile(tile: Vector2i) -> void:
 	# Prepare read-only hand/forecast queries across those existing frames;
 	# commit and persistence still occur at their original post-animation point.
 	_schedule_committed_hand_queries(next)
+	_resolved_contact_bursts.begin(before)
 	await _animate_surface_change(before, next)
 	_animation_lock = false
 	_commit_combat_skill_state(next, skill_id, true)
@@ -34941,14 +34468,7 @@ func _toggle_pending_empower(source: String = "keyboard") -> void:
 	await EmpowerUi.toggle(self, EmpowerUi.index_for_input(self, source == "controller"), source)
 
 func _is_empower_shortcut_event(event: InputEvent) -> bool:
-	if not (event is InputEventKey):
-		return false
-	var key_event: InputEventKey = event
-	if not key_event.pressed or key_event.echo:
-		return false
-	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
-		return false
-	return key_event.keycode == KEY_E or key_event.physical_keycode == KEY_E
+	return KeyBindings.pressed(KeyBindings.EMPOWER, event)
 
 # Stagger delays for the selected card: the hovered target's resolved preview,
 # or the card's already-resolved automatic actions. Hidden enemies never move.
@@ -34963,7 +34483,7 @@ func _turn_order_stagger_preview_delays() -> Dictionary:
 			var forecast: Dictionary = _surface_resolution_for_preview(preview.get("state", _combat_state), action, _hovered_board_tile)
 			resolved = (forecast["known"] as Dictionary)["state"]
 	if resolved.is_empty():
-		resolved = _preview_combat_state
+		resolved = _pending_card_known_forecast_state() if _selected_card_index >= 0 else _preview_combat_state
 	var delays: Dictionary = _combat_engine.stagger_delays_between(_combat_state, resolved)
 	if delays.is_empty():
 		return delays
@@ -35004,9 +34524,7 @@ func _stagger_floating_texts(before_state: Dictionary, after_state: Dictionary) 
 			"offset": -30.0,
 			"width": 150.0,
 			"icon": "stagger",
-			"icon_tint": Color("fff3cf"),
-			"icon_fill": Color(0.16, 0.10, 0.04, 0.94),
-			"icon_border": Color("d6aa5e")
+			"icon_tint": Color("fff3cf")
 		})
 	return floats
 
@@ -35022,12 +34540,8 @@ func _add_surface_relic_commands() -> void:
 		if variant.has("_ice_spill_direction") and label.begins_with("Spill Ice"):
 			if spill_added: continue
 			spill_added = true
-			var direction: Vector2i = action.get("_ice_spill_direction", Vector2i.ZERO)
-			var direction_name: String = "off"
-			var directions: Array[Vector2i] = _vector2i_array([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
-			var direction_index: int = directions.find(direction)
-			if direction_index >= 0: direction_name = ["north", "east", "south", "west"][direction_index]
-			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where to place the Ice Expended by Freeze.", true)
+			var tooltip: String = InlineIconText.plain_text(str(GameData.relic_def("rimecatcher_vial").get("description", "")))
+			_add_ice_spill_command(action, _pending_action_index, tooltip)
 			continue
 		var current_modes: Array = action.get("_surface_relic_modes", []) as Array
 		var next_modes: Array = variant.get("_surface_relic_modes", []) as Array
@@ -35048,15 +34562,27 @@ func _add_surface_relic_commands() -> void:
 			if str(option.get("_surface_relic_label", "")) != "Crush Rubble": continue
 			_add_action_context_button(("✓ " if SurfaceRelicRules.mode_enabled(future, "crush") else "") + "Crush Rubble", _select_surface_relic_variant.bind(option, future_index), "Use Rubble for this card's Detonate, leaving Fire behind.", true)
 
-func _cycle_surface_ice_spill() -> void:
-	if _pending_action_index >= _pending_actions.size(): return
-	var action: Dictionary = (_pending_actions[_pending_action_index] as Dictionary).duplicate(true)
+func _add_ice_spill_command(action: Dictionary, index: int, tooltip: String = "Choose a direction for Ice moved by Rimecatcher Vial.") -> void:
+	var direction_index: int = PathUtils.DIRS_4.find(action.get("_ice_spill_direction", Vector2i.ZERO))
+	var direction_name: String = ["north", "east", "south", "west"][direction_index] if direction_index >= 0 else "off"
+	_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill.bind(index), tooltip, true)
+
+func _cycle_surface_ice_spill(index: int) -> void:
+	if index < 0 or index >= _pending_actions.size() or _animation_lock: return
+	var action: Dictionary = (_pending_actions[index] as Dictionary).duplicate(true)
 	var directions: Array[Vector2i] = _vector2i_array([Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
 	var current: int = directions.find(action.get("_ice_spill_direction", Vector2i.ZERO))
 	var next: Vector2i = directions[posmod(current + 1, directions.size())]
 	if next == Vector2i.ZERO: action.erase("_ice_spill_direction")
 	else: action["_ice_spill_direction"] = next
-	_select_surface_relic_variant(action)
+	if index == _pending_action_index:
+		_select_surface_relic_variant(action)
+	elif _pending_card_requires_confirmation():
+		var card_id: String = _card_id_for_hand_index(_selected_card_index)
+		var prepared: Dictionary = _combat_engine.prepare_player_card(_combat_state, _selected_card_index, "empower" if _selected_card_empowered() else "play")
+		_pending_actions[index] = action
+		_load_pending_preview_state(_card_preview_from_state(card_id, prepared, _pending_actions, 0))
+		_refresh_card_preview_ui()
 
 func _select_surface_relic_variant(variant: Dictionary, action_index: int = -1) -> void:
 	if _pending_action_index >= _pending_actions.size() or _animation_lock: return
@@ -35120,49 +34646,73 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		return
 	var state: Dictionary = preview.get("state", _combat_state) as Dictionary
 	var action: Dictionary = preview.get("action", {}) as Dictionary
-	# Match movement-risk privacy: resolving a walk in limited Umbra can reveal
-	# unseen traps, their wake on visible ground, or contacts beyond sight.
-	# Keep the route preview, but do not forecast its hidden consequences.
-	if str(action.get("type", "")) in ["move", "blink"] and _preview_umbra_is_limited(state):
+	var actions: Array = preview.get("actions", _pending_actions)
+	var action_index: int = int(preview.get("action_index", _pending_action_index))
+	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
+	var movement: bool = str(action.get("type", "")) in ["move", "blink"]
+	var known_movement: Dictionary = _surface_resolution_for_preview(state, action, tile)["known"] if movement and _preview_umbra_is_limited(state) else {}
+	# Ordinary scouting discloses only the Ice status. An Air trap's forced
+	# movement follows the same outcome projection as other forced movement.
+	if not known_movement.is_empty() and not source.indirect_force_triggered(state, known_movement["state"]):
+		var after_move: Dictionary = known_movement["state"]
+		var player: Dictionary = after_move.get("player", {}) as Dictionary
+		var expose: int = int(player.get("expose", 0))
+		if int(player.get("hp", 0)) > 0 and expose > int(state.get("player", {}).get("expose", 0)):
+			for event: Dictionary in _surface_events_between(state, after_move):
+				if event.get("status") == "expose" and event.get("surface") == "ice" and event.get("actor_kind") == "player":
+					result["surface_status_preview"] = {"player": {"expose": expose}}
+					break
 		_append_followup_fatigue_preview(result, state)
 		return
-	var cache_key: String = "%d:%d:%d:%d:%s:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(tile), hash(_pending_actions), _pending_action_index, str(preview.get("skill_aim", false))]
+	var cache_key: String = "%d:%d:%d:%d:%s:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(tile), hash(actions), action_index, str(preview.get("skill_aim", false))]
 	if _surface_preview_cache_key != cache_key:
 		_surface_preview_cache_key = cache_key
 		if bool(preview.get("skill_aim", false)):
-			state = _surface_preview_information_state(state)
+			state = _surface_preview_information_state(state, null, false, _pass_phase_uses_force(state))
 			_surface_preview_cache = {"state": _surface_aim.resolved(_combat_engine, state, tile), "chain_hits": []}
 		else:
-			var resolved: Dictionary = _surface_resolution_for_preview(state, action, tile)
+			var retain_board: bool = source.automatic_followup_uses_force(_combat_engine, actions, action_index)
+			var resolved: Dictionary = _surface_resolution_for_preview(state, action, tile, retain_board)
 			state = resolved["before"]
 			# Follow-ups must not change the shared single-action result used for risk.
 			_surface_preview_cache = (resolved["known"] as Dictionary).duplicate(false)
-			# Prior-impact Detonate and consumption are part of this same click.
-			# Include automatic follow-ups, stopping before the next player choice.
-			var cursor: int = _pending_action_index + 1
+			# The single-action preview already ran an immediate Empower repeat.
+			# Continue through automatic follow-ups and reused targets.
+			var cursor: int = action_index + 1
 			var followup: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
-			while cursor < _pending_actions.size():
-				var next_action: Dictionary = _pending_actions[cursor] as Dictionary
-				if _combat_engine.player_action_needs_target(next_action): break
+			if bool(action.get("_empower_repeat_available", false)) and cursor < actions.size() and bool(actions[cursor].get("_empower_repeat_first", false)):
+				cursor += 1
+			while cursor < actions.size():
+				var next_action: Dictionary = actions[cursor] as Dictionary
+				var next_target: Vector2i = INVALID_TARGET_TILE
+				if _combat_engine.player_action_needs_target(next_action):
+					if not bool(next_action.get("reuse_previous_target", false)): break
+					next_target = followup.get("last_action_target", tile)
 				if _combat_engine.player_action_can_resolve(followup, next_action):
-					followup = _combat_engine.apply_player_action(followup, next_action)
+					followup = _combat_engine.apply_player_action(followup, next_action, next_target)
 				cursor += 1
 			var echo_trace: Dictionary = {"echoes": []}
-			_surface_preview_cache["state"] = IllusionRelicRules.finish_echoes(_combat_engine, followup, echo_trace)
+			if followup.has(IllusionRelicRules.PENDING):
+				followup = IllusionRelicRules.finish_echoes(_combat_engine, followup.duplicate(true), echo_trace)
+			_surface_preview_cache["state"] = followup
 			_surface_preview_cache["echoes"] = echo_trace["echoes"]
 		_surface_preview_cache["before"] = state
 	state = _surface_preview_cache.get("before", state) as Dictionary
 	var after: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
 	if bool(preview.get("skill_aim", false)): _surface_preview_cache["forecast_key"] = _pass_preview_key(tile)
-	result["surface_preview_events"] = _surface_events_between(state, after)
+	var hidden: Dictionary = source.hidden_actor_keys(self, state)
+	result["surface_preview_events"] = source.disclose_surface_events(self, state, _surface_events_between(state, after))
 	var arcs: Array[Dictionary]
 	for hit: Dictionary in _surface_preview_cache.get("chain_hits", []):
+		if hidden.has(_combat_engine._surface_actor_key(str(hit.get("actor_kind", "")), int(hit.get("id", -1)))): continue
 		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
 	result["surface_preview_arcs"] = arcs
 	var echo_curves: Array[Dictionary]
+	var burst_focus: Array[Vector2i]
 	for echo: Dictionary in _surface_preview_cache.get("echoes", []):
 		var choice: Dictionary = echo["choice"]
 		echo_curves.append({"kind": "ranged", "preview": true, "from": choice["from"], "to": choice["target"], "element": choice["action"].get("element", choice["action"].get("_card_element", "none")), "range": choice["action"].get("range", 1)})
+		burst_focus.append_array(_vector2i_array(echo.get("burst_tiles", [])))
 	result["illusion_echo_previews"] = echo_curves
 	_append_preview_trap_triggers(result, state, after)
 	_append_guardian_displacement_preview(result, state, after)
@@ -35175,26 +34725,25 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	# including fully absorbed hits; movement already has its own player chips.
 	result["friendly_damage_chips"] = _friendly_damage_preview_chips(state, losses, str(action.get("type", "")) in ["move", "blink"])
 	for event: Dictionary in result.get("surface_preview_events", []):
-		# Discharge and Frost Circuit outline their struck area like a Detonate.
-		if str(event.get("kind", "")) in ["detonate", "surface_discharge", "surface_converted"]:
-			var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
-			for blast_tile: Vector2i in _vector2i_array(event.get("area", event.get("tiles", []))):
-				if not focus.has(blast_tile): focus.append(blast_tile)
-			result["focus_tiles"] = focus
-			result["focus_color"] = Color(0.95, 0.62, 0.37, 0.22)
+		# Every Burst (cards, Discharge, kegs) outlines its cross; Frost Circuit its area.
+		if str(event.get("kind", "")) in ["detonate", "surface_discharge", "surface_converted", "powder_keg_burst"]:
+			burst_focus.append_array(_vector2i_array(event.get("area", event.get("tiles", []))))
+	if not burst_focus.is_empty():
+		var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
+		for blast_tile: Vector2i in burst_focus:
+			if not focus.has(blast_tile): focus.append(blast_tile)
+		result["focus_tiles"] = focus
+		result["focus_color"] = Color(0.95, 0.62, 0.37, 0.22)
 	var status_previews: Dictionary = {}
 	var before_units: Dictionary = _surface_preview_units_by_key(state)
 	var after_units: Dictionary = _surface_preview_units_by_key(after)
 	for key_var: Variant in before_units:
 		var key: String = str(key_var)
+		if hidden.has(key): continue
 		var old: Dictionary = before_units[key] as Dictionary
 		var current: Dictionary = after_units.get(key, {}) as Dictionary
 		if current.is_empty() or int(current.get("hp", 0)) <= 0: continue
-		var predicted: Dictionary = {}
-		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
-			predicted = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
-		if int(old.get("shock", 0)) != int(current.get("shock", 0)):
-			predicted["shock"] = int(current.get("shock", 0))
+		var predicted: Dictionary = preload("res://scripts/combat_hud_forecast.gd").status_changes(old, current)
 		if not predicted.is_empty():
 			status_previews[key] = predicted
 	result["surface_status_preview"] = status_previews
@@ -35211,9 +34760,11 @@ func _append_preview_trap_triggers(result: Dictionary, before: Dictionary, after
 
 func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
 	var paths: Dictionary = {}
+	var hidden: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").hidden_actor_keys(self, before)
 	for event: Dictionary in _surface_events_between(before,after):
 		if str(event.get("kind","")) != "guardian_line_step": continue
 		var key: String = "enemy_%d" % int(event["enemy_id"])
+		if hidden.has(key): continue
 		if not paths.has(key): paths[key] = [event["from"]]
 		(paths[key] as Array).append(event["to"])
 	if paths.is_empty(): return
@@ -35230,6 +34781,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 	# line from its old anchor to its resolved anchor on the same simulated
 	# result the damage forecast uses. Collisions come from their board events.
 	var events: Array[Dictionary] = _surface_events_between(before, after)
+	var hidden: Dictionary = preload("res://scripts/pass_forecast_action_source.gd").hidden_actor_keys(self, before)
 	var grouped: Dictionary = {}
 	var markers: Array = []
 	for event: Dictionary in events:
@@ -35237,6 +34789,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 			"guardian_line_step":
 				grouped["enemy_%d" % int(event.get("enemy_id", -1))] = true
 			"force_collision":
+				if hidden.has(str(event.get("actor_key", ""))): continue
 				markers.append({
 					"tile": event.get("tile", INVALID_TARGET_TILE),
 					"blocked_tile": event.get("blocked_tile", INVALID_TARGET_TILE),
@@ -35257,6 +34810,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		if typeof(enemy_var) != TYPE_DICTIONARY or int((enemy_var as Dictionary).get("hp", 0)) <= 0:
 			continue
 		var key: String = _enemy_key(enemy_var as Dictionary)
+		if hidden.has(key): continue
 		var moved: Dictionary = after_by_key.get(key, {}) as Dictionary
 		if grouped.has(key) or moved.is_empty():
 			continue
@@ -35273,6 +34827,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 	var illusion_ghosts: Array = []
 	for illusion: Dictionary in before.get("illusions", []):
 		if int(illusion.get("hp", 0)) <= 0: continue
+		if hidden.has("illusion_%d" % int(illusion["id"])): continue
 		var moved: Dictionary = _combat_engine._surface_actor(after, "illusion", int(illusion["id"]))
 		var from: Vector2i = illusion.get("pos", INVALID_TARGET_TILE)
 		var to: Vector2i = moved.get("pos", from)
@@ -35305,11 +34860,11 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictionary, state: Dictionary) -> void:
 	# A focused enemy whose planned attack Pushes or Pulls the hero shows the
 	# hero's straight line, landing ring and any collision, drawn like a card's
-	# forecast. Only what the player can see shapes the line.
+	# forecast.
 	var enemy_id: int = int(str(threat.get("enemy_key", "")).trim_prefix("enemy_")) if str(threat.get("enemy_key", "")).begins_with("enemy_") else -1
 	if enemy_id < 0 or str(threat.get("projected_target_key", "")) != "player" or (threat.get("projected_attack_action", {}) as Dictionary).is_empty():
 		return
-	var force: Dictionary = _combat_engine.projected_player_force(_surface_preview_information_state(state), enemy_id, threat)
+	var force: Dictionary = _combat_engine.projected_player_force(state, enemy_id, threat)
 	if force.is_empty():
 		return
 	# The board view rings the landing tile from the focused threat.
@@ -35330,7 +34885,7 @@ func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictio
 func _append_confirmation_force_preview(presentation: Dictionary) -> void:
 	# Cumulative consequences remain visible both at confirmation and while a
 	# later choice is pending. Lethal bodies retain their committed positions.
-	var known: Dictionary = _pending_card_known_forecast_state()
+	var known: Dictionary = _pending_card_known_forecast_state(true)
 	_append_preview_trap_triggers(presentation, _combat_state, known)
 	var forced: Dictionary = {}
 	_append_forced_displacement_preview(forced, _combat_state, known)
@@ -35367,18 +34922,32 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 				chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d %s" % [name, int(loss[defense + "_loss"]), label], "kind": "danger"})
 	return chips
 
-func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}, first_frame: Callable = Callable()) -> void:
-	var throws: Array[Dictionary] = preload("res://scripts/displacement_throw.gd").paths(before, after)
-	if not throws.is_empty():
-		await preload("res://scripts/displacement_throw.gd").animate(self, before, after, throws, base, first_frame)
-		return
-	if _combat_pacing.overlap_surface(before, after, base): return
+func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}, first_frame: Callable = Callable(), split_push_contact: bool = false) -> void:
 	var events: Array[Dictionary] = _surface_events_between(before, after)
 	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))
+	var throws: Array[Dictionary] = preload("res://scripts/displacement_throw.gd").paths(before, after)
+	if not throws.is_empty():
+		_resolved_contact_bursts.include_outcome(before, after)
+		var pending: Array[Dictionary] = _ordered_tile_bursts(TileBurstFx.event_specs(events, true, before), after)
+		_reserve_tile_bursts(pending, after)
+		var companion: Callable
+		if not pending.is_empty():
+			companion = func(shown: Dictionary, _elapsed: float) -> void:
+				for index: int in range(pending.size() - 1, -1, -1):
+					if not shown["throw_surface_frames"].has(pending[index]["center"]): continue
+					board_view.present_tile_bursts([pending[index]], before, after, _reduced_motion_enabled())
+					pending.remove_at(index)
+		await preload("res://scripts/displacement_throw.gd").animate(self, before, after, throws, base, first_frame, companion, split_push_contact)
+		return
+	var burst_contact: Callable = _tile_burst_contact(TileBurstFx.event_specs(events, true, before), before, after)
+	if _combat_pacing.overlap_surface(before, after, base):
+		if burst_contact.is_valid(): burst_contact.call()
+		return
 	events = OutcomeFeedback.prepare(events)
 	_play_outcome_sounds(events)
-	var texts: Array[Dictionary] = _player_action_floating_texts(before, after)
+	var texts: Array[Dictionary] = _player_action_floating_texts(before, after, split_push_contact)
 	var frames: int = 1 if _reduced_motion_enabled() else 18
+	var burst_started: Array[bool] = [false]
 	await _play_timed_animation_frames(frames, 0.1 if _reduced_motion_enabled() else 0.02, func(frame: int) -> void:
 		var t: float = float(frame) / float(frames)
 		var shown: Dictionary = base.duplicate(true)
@@ -35391,6 +34960,9 @@ func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictio
 		# Units this change killed stay standing through the beat, as in every
 		# other hit path; without the hold they vanish until their deaths play.
 		_render_board_state(after, _death_hold_presentation(before, after, shown))
+		if not burst_started[0] and burst_contact.is_valid():
+			burst_started[0] = true
+			burst_contact.call()
 	)
 	_queue_player_popup_group(texts, 0.36)
 	_render_board_state(after, _death_hold_presentation(before, after, {}))
@@ -35466,8 +35038,13 @@ func _maybe_present_section_map(crossfade: bool = true) -> void:
 		return
 	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
 	_start_room_map.map_presented(self)
-	if crossfade: ScreenCrossfade.play(self, 0.12 if _reduced_motion_enabled() else 0.32)
 	_open_large_map()
+	# Fade the real backdrop so the room title never paints over the map as
+	# part of a captured frame. Input still transfers on the opening frame.
+	if crossfade and _large_map_scrim.visible: _large_map_scrim.fade_in(_large_map_fade_seconds())
+
+func _large_map_fade_seconds() -> float:
+	return LargeMapBackdrop.REDUCED_FADE_SECONDS if _reduced_motion_enabled() else LargeMapBackdrop.FADE_SECONDS
 
 func _on_section_map_scout(coord: Vector2i) -> void:
 	if _animation_lock:
@@ -35560,31 +35137,40 @@ func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -
 func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: String) -> void:
 	var actor: Dictionary = _animation_actor_unit(state,actor_key)
 	var action: String = GuardianCutout.action_clip(step,actor)
-	if action.is_empty(): return
+	if action.is_empty():
+		if step.get("kind") == "summon": await _summon_prelude(state, step)
+		return
 	_set_action_banner("%s: %s" % [str(step.get("actor_name","Enemy")),str(step.get("label",""))])
 	var after: Dictionary = state.duplicate(true)
 	_apply_animation_step(after,step)
 	var events: Array[Dictionary] = _surface_events_between(state,after)
 	if events.is_empty(): events=_dictionary_array(step.get("surface_events",[]))
 	events = OutcomeFeedback.prepare(events)
-	if _reduced_motion_enabled():
+	var reduced: bool = _reduced_motion_enabled()
+	var arrivals: Array[Dictionary]
+	if step.get("kind") == "summon": arrivals = _visible_summon_arrivals(state, after.get("enemies", []))
+	if reduced:
+		_play_body_reveal("summon", arrivals, true)
 		await _animate_surface_change(state,after,{"surface_feedback_events":events})
 		return
 	var ground_sound: Dictionary = {"played":false}
 	var frames: int = GuardianCutout.action_frames(step,actor)
-	await _play_timed_animation_frames(frames,GuardianCutout.ATTACK_FRAME_SECONDS,func(frame: int)->void:
+	var contact: float = 0.46
+	var reveal_at: float = (ceili(contact * (frames - 1)) - 1) * GuardianCutout.ATTACK_FRAME_SECONDS
+	var cue: Callable = _body_reveal_cue("summon", arrivals, reveal_at, false)
+	await _play_sampled_animation_frames(frames,GuardianCutout.ATTACK_FRAME_SECONDS,func(frame: int)->void:
 		var progress: float = float(frame)/float(frames-1)
-		var released: bool = progress>=0.46
-		var shown: Dictionary = {"guardian_motion":{actor_key:GuardianCutout.action_motion(step,actor,progress,0.46)},
+		var released: bool = progress>=contact
+		var shown: Dictionary = {"guardian_motion":{actor_key:GuardianCutout.action_motion(step,actor,progress,contact)},
 			"focus_actor_keys":[actor_key],"focus_tiles":step.get("declared_tiles",[]),"focus_color":Color(0.95,0.62,0.37,0.18)}
 		if released:
 			if not ground_sound["played"]:
 				_play_outcome_sounds(events)
 				ground_sound["played"] = true
 			shown["surface_feedback_events"]=events
-			shown["surface_feedback_progress"]=(progress-0.46)/0.54
+			shown["surface_feedback_progress"]=(progress-contact)/0.54
 		_render_board_state(after if released else state,shown,true)
-	)
+	, cue)
 
 func _play_outcome_sounds(events: Array, _primary_element: String = "", _traps: Array = []) -> void:
 	_ensure_sfx_bank()
@@ -35593,6 +35179,7 @@ func _play_outcome_sounds(events: Array, _primary_element: String = "", _traps: 
 func _ensure_event_view() -> void:
 	if _event_view != null: return
 	_event_view = preload("res://scripts/event_view.gd").new()
+	_event_view.set_meta(preload("res://scripts/event_result_beats.gd").BURST_LAYER_META, _acquisition_bursts.gain_layer())
 	_event_view.hide()
 	ui_root.add_child(_event_view)
 	_event_view.choice_requested.connect(_on_section_map_event)

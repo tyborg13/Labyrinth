@@ -31,11 +31,15 @@ func _initialize() -> void:
 	view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	view.msaa_2d = Viewport.MSAA_4X
 	root.add_child(view)
-	_test_patterns()
-	await _test_cards()
-	await _test_all_condition_cards()
-	await _test_shale_intent()
-	await _test_drag()
+	if OS.get_cmdline_user_args().has("--caltrops-only"):
+		await _test_caltrops_preview()
+	else:
+		_test_patterns()
+		await _test_cards()
+		await _test_all_condition_cards()
+		await _test_shale_intent()
+		await _test_caltrops_preview()
+		await _test_drag()
 	for failure: String in failures: push_error(failure)
 	print("SURFACE FEEDBACK UI TEST RESULT: %s" % ("PASS" if failures.is_empty() else "FAIL"))
 	if _capture_requested(): print(ProjectSettings.globalize_path(OUTPUT))
@@ -89,7 +93,7 @@ func _test_cards() -> void:
 			var segments: Array = widget.call("_summary_token_segments", tokens)
 			_expect(segments.size() == 2, "Ground-and-Light attacks use two compact rows")
 			_expect(str(segments[0].back().get("icon", "")).begins_with("surface_"), "The created surface stays with the attack")
-			_expect(segments[1].size() == 2 and str(segments[1][0].get("icon", "")) == "illuminate" and str(segments[1][1].get("icon", "")) == "time", "Light radius and duration stay together")
+			_expect(segments[1].size() == 1 and str(segments[1][0].get("icon", "")) == "illuminate", "The second row shows the radius of lasting Light")
 		await _settle()
 		_expect(widget.size.is_equal_approx(Vector2(240, 336)), "Card keeps its authored size: %s" % id)
 		var summary: Control = widget.get("_summary_icon_box") as Control
@@ -98,7 +102,7 @@ func _test_cards() -> void:
 			_expect(false, "Surface condition must not restore the old colored panel: %s" % id)
 		_check_summary_bounds(summary, _parchment_bounds(widget), id)
 	for index: int in range(6):
-		var key: String = ["surface_fire", "surface_ice", "surface_electrified", "surface_rubble", "chilled", "detonate"][index]
+		var key: String = ["surface_fire", "surface_ice", "surface_electrified", "surface_rubble", "expose", "burst"][index]
 		var tooltip: Control = Tooltip.make_text(Icons.tooltip(key))
 		tooltip.position = Vector2(155 + (index % 3) * 530, 480 + (index / 3) * 190)
 		canvas.add_child(tooltip)
@@ -154,12 +158,37 @@ func _test_shale_intent() -> void:
 	board.queue_free()
 	await process_frame
 
+func _test_caltrops_preview() -> void:
+	var fixture = preload("res://tests/suites/movement_undo_suite.gd")
+	var host: Node = load("res://scenes/run_scene.tscn").instantiate()
+	view.add_child(host)
+	await _settle()
+	var state: Dictionary = preload("res://tests/suites/en01_enemies_suite.gd").fixture(["crawler"])
+	var target: Vector2i = state["player"]["pos"] + Vector2i.RIGHT
+	state["enemies"][0]["pos"] = target
+	state["current_actor"] = {"kind": "player", "key": "player"}
+	fixture.install(host, state)
+	host.get("_combat_state")["deck"]["hand"] = ["caltrops"]
+	host.call("_refresh_ui")
+	await _settle()
+	await host._on_card_pressed(0)
+	host._on_board_tile_hovered(target)
+	await _settle()
+	var board: Node = host.get("board_view")
+	var presentation: Dictionary = board.get("presentation")
+	var forecast: Dictionary = presentation.get("surface_status_preview", {}).get("enemy_1", {})
+	_expect(int(forecast.get("expose", 0)) == 2, "Caltrops hover forwards Expose 2 to the board")
+	var projected: Dictionary = preload("res://scripts/combat_hud_forecast.gd").unit({"key": "enemy_1", "hp": 14}, presentation)
+	var badges: Array = board._unit_status_badges(projected)
+	_expect(badges.any(func(badge: Dictionary) -> bool: return badge.get("icon") == "expose" and badge.get("count") == 2 and badge.get("predicted", false)), "Board displays the forecast Expose arrow pill")
+	await _capture("caltrops_expose_preview.png")
+	host.queue_free()
+	await process_frame
+
 func _test_drag() -> void:
 	scene = load("res://scenes/run_scene.tscn").instantiate()
 	view.add_child(scene)
 	await _settle()
-	_expect(bool(scene.call("_shortcut_move_bleed_is_survivable", {"player": {"hp": 5, "bleed": 3, "freeze": 1, "chilled": true}})), "Movement shortcut does not multiply passive Bleed by Frozen or Chilled")
-	_expect(not bool(scene.call("_shortcut_move_bleed_is_survivable", {"player": {"hp": 3, "bleed": 3}})), "Movement shortcut still rejects lethal Bleed")
 	var state: Dictionary = Run.new().create_new_run(9142, Progression.default_data())
 	state["mode"] = "room"
 	state["equipment_inventory"] = ["duelist_rapier"]
@@ -248,4 +277,4 @@ func _expect(condition: bool, detail: String) -> void:
 	if not condition: failures.append(detail)
 
 func _capture_requested() -> bool:
-	return false
+	return DisplayServer.get_name() != "headless" and OS.get_cmdline_user_args().has("--capture")

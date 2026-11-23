@@ -90,14 +90,14 @@ static func _test_combat_start(expect: Callable) -> void:
 	var value: Dictionary = state(engine, ["tallow_candle", "grave_dirt", "waxen_effigy"])
 	expect.call(int(value["player"]["stoneskin"]) == 4, "Grave Dirt opens combat with four Stoneskin")
 	var sources: Array = value["umbra"]["light_sources"]
-	expect.call(sources.size() == 1 and sources[0]["pos"] == Vector2i(2, 4) and int(sources[0]["radius"]) == 2 and int(sources[0]["remaining_activations"]) == 3, "Tallow Candle creates ordinary radius-two three-turn Light")
+	expect.call(sources.size() == 1 and sources[0]["pos"] == Vector2i(2, 4) and int(sources[0]["radius"]) == 2 and int(sources[0]["remaining_activations"]) == -1, "Tallow Candle creates lasting Light 2")
 	var illusions: Array = value["illusions"]
 	expect.call(illusions.size() == 1 and illusions[0]["pos"] == Vector2i(2, 3) and int(illusions[0]["hp"]) == 2, "Waxen Effigy picks the nearest legal tile, stable row-major tie")
 	value = engine.prepare_next_player_turn(_resume(value, expect))
 	expect.call(int(value["player"]["stoneskin"]) == 4 and (value["illusions"] as Array).size() == 1 and (value["umbra"]["light_sources"] as Array).size() == 1, "Combat opening relics never repeat at turn start/resume")
 	value = engine.prepare_next_player_turn(value)
 	value = engine.prepare_next_player_turn(value)
-	expect.call((value["umbra"]["light_sources"] as Array).is_empty(), "Tallow Candle Light expires after three turns")
+	expect.call((value["umbra"]["light_sources"] as Array).size() == 1, "Tallow Candle Light lasts beyond three turns")
 	var plain: Dictionary = state(engine, [])
 	expect.call(int(plain["player"]["stoneskin"]) == 0 and (plain["illusions"] as Array).is_empty() and (plain["umbra"]["light_sources"] as Array).is_empty(), "Absent combat relics grant no opening resources")
 	var blocked: Dictionary = room()
@@ -170,7 +170,7 @@ static func _test_hobnail_cleats(expect: Callable) -> void:
 	expect.call(int(_forecast(engine, value, ice, Vector2i(3, 4), expect)["enemies"][0]["hp"]) == 97, "Cleats idle off Ice")
 	var plain: Dictionary = state(engine, [])
 	Surface.place(plain, Vector2i(2, 3), "ice")
-	expect.call(bool(engine.apply_player_action(plain, {"type": "move", "range": 1}, Vector2i(2, 3))["player"].get("chilled", false)), "Ice still Chills without Cleats")
+	expect.call(int(engine.apply_player_action(plain, {"type": "move", "range": 1}, Vector2i(2, 3))["player"].get("expose", 0)) == 2, "Ice applies Expose 2 without Cleats")
 
 static func _test_pitch_gloves(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -293,26 +293,26 @@ static func _test_duelist_whetstone(expect: Callable) -> void:
 
 static func _test_coffin_nails(expect: Callable) -> void:
 	var engine := Combat.new()
-	for setup: Dictionary in [{"block": 3, "stoneskin": 0, "damage": 3, "bleed": 1}, {"block": 2, "stoneskin": 0, "damage": 3, "bleed": 0}, {"block": 0, "stoneskin": 3, "damage": 3, "bleed": 0}, {"block": 3, "stoneskin": 0, "damage": 0, "bleed": 0}, {"block": 1, "stoneskin": 2, "damage": 3, "bleed": 1}]:
+	for setup: Dictionary in [{"block": 3, "stoneskin": 0, "damage": 3, "expose": 2}, {"block": 2, "stoneskin": 0, "damage": 3, "expose": 0}, {"block": 0, "stoneskin": 3, "damage": 3, "expose": 0}, {"block": 3, "stoneskin": 0, "damage": 0, "expose": 0}, {"block": 1, "stoneskin": 2, "damage": 3, "expose": 2}]:
 		var value: Dictionary = state(engine, ["coffin_nails"])
 		value["player"]["block"] = setup["block"]
 		value["player"]["stoneskin"] = setup["stoneskin"]
 		value = _resume(value, expect)
 		engine._resolve_board_attack(value, {"type": "ranged", "range": 3, "damage": setup["damage"]}, Vector2i(2, 4), "enemy", 1)
-		expect.call(int(value["enemies"][0].get("bleed", 0)) == int(setup["bleed"]), "Coffin Nails needs no health loss and actual Block absorption: %s" % str(setup))
+		expect.call(int(value["enemies"][0].get("expose", 0)) == int(setup["expose"]), "Coffin Nails needs no health loss and actual Block absorption: %s" % str(setup))
 	var value: Dictionary = state(engine, ["coffin_nails"])
 	value["player"]["block"] = 20
 	engine._resolve_board_attack(value, {"type": "aoe", "damage": 3, "range": 1, "pattern": [[0, 0], [0, 0], [0, 1]]}, Vector2i(2, 4), "enemy", 1)
-	expect.call(int(value["enemies"][0].get("bleed", 0)) == 1, "Coffin Nails triggers once even if attack tiles repeat")
+	expect.call(int(value["enemies"][0].get("expose", 0)) == 2, "Coffin Nails triggers once even if attack tiles repeat")
 	var rescued: Dictionary = state(engine, ["coffin_nails"])
 	rescued["player"]["hp"] = 1
 	rescued["player"]["block"] = 1
 	rescued["defiance_capacity"] = 1
 	rescued["defiance_remaining"] = 1
 	engine._resolve_board_attack(rescued, {"type": "melee", "range": 1, "damage": 4}, Vector2i(2, 4), "enemy", 1)
-	expect.call(int(rescued.get("defiance_remaining", 1)) == 0 and int(rescued["enemies"][0].get("bleed", 0)) == 0, "Defiance recovery cannot masquerade as a fully blocked hit")
+	expect.call(int(rescued.get("defiance_remaining", 1)) == 0 and int(rescued["enemies"][0].get("expose", 0)) == 0, "Defiance recovery cannot masquerade as a fully blocked hit")
 	var player_attack: Dictionary = _attack(engine, "quick_stab", value)
-	expect.call(int((engine._resolved_surface_action(value, player_attack) as Dictionary).get("bleed", 0)) == 0, "Coffin Nails no longer adds Bleed to hero attacks")
+	expect.call(int((engine._resolved_surface_action(value, player_attack) as Dictionary).get("expose", 0)) == 0, "Coffin Nails no longer adds Expose to hero attacks")
 
 static func _test_briar_vambrace(expect: Callable) -> void:
 	Flurry.install()
@@ -352,15 +352,14 @@ static func _test_flint_edge(expect: Callable) -> void:
 		var value: Dictionary = state(engine, ["flint_edge"])
 		if not surface.is_empty():
 			Surface.place(value, Vector2i(3, 4), surface)
-		value["enemies"][0]["chilled"] = surface == "ice"
+		value["enemies"][0]["expose"] = 2 if surface == "ice" else 0
 		var attack: Dictionary = {"type": "melee", "range": 1, "damage": 3, "element": "ice"}
 		var hit: Dictionary = _forecast(engine, value, attack, Vector2i(3, 4), expect)
 		var consumes: bool = surface in ["fire", "ice", "electrified"]
 		expect.call(int(hit["enemies"][0]["hp"]) == (92 if surface == "ice" else (94 if consumes else 97)), "Flint Edge consumes elemental fuel before damage: %s" % surface)
 		expect.call(Surface.element_at(hit, Vector2i(3, 4)).is_empty(), "Flint Edge forecast shows consumed elemental tile")
-		expect.call(int(hit["enemies"][0].get("freeze", 0)) == 0, "Flint Edge consumed Ice cannot Freeze")
 		if surface == "ice":
-			expect.call(not bool(hit["enemies"][0].get("chilled", false)), "Flint keeps the attack-start Chill bonus and clears Chill after the hit")
+			expect.call(int(hit["enemies"][0].get("expose", 0)) == 0, "Consuming Ice preserves existing Expose through the hit, which spends Expose")
 		if surface == "rubble":
 			expect.call(Surface.has_rubble(hit, Vector2i(3, 4)), "Flint Edge preserves Rubble")
 	var ranged: Dictionary = state(engine, ["flint_edge"])
@@ -371,9 +370,8 @@ static func _test_flint_edge(expect: Callable) -> void:
 	big["enemies"][0]["footprint"] = Vector2i(1, 2)
 	Surface.place(big, Vector2i(3, 4), "ice")
 	Surface.place(big, Vector2i(3, 5), "ice")
-	big["enemies"][0]["chilled"] = true
 	hit = _forecast(engine, big, {"type": "melee", "range": 1, "damage": 3, "element": "ice"}, Vector2i(3, 4), expect)
-	expect.call(Surface.has_surface(hit, Vector2i(3, 5), "ice") and int(hit["enemies"][0].get("freeze", 0)) == 0, "Flint Edge consumes only selected footprint tile and suppresses Freeze")
+	expect.call(Surface.has_surface(hit, Vector2i(3, 5), "ice") and not Surface.has_surface(hit, Vector2i(3, 4), "ice"), "Flint Edge consumes only the selected footprint tile")
 	var chain: Dictionary = state(engine, ["flint_edge"])
 	chain["enemies"].append({"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 100, "max_hp": 100})
 	Surface.place(chain, Vector2i(3, 4), "fire")

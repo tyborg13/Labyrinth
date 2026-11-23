@@ -25,8 +25,9 @@ Hush of Winter, Shiver Shot, Pinning Quarrel, Yank, Skybreak Current, Sunlance a
 Hurl Spear retain explicit range-4 identities; Skybolt and Thunderstone strike any visible
 enemy, ignoring range and line of sight. Targeted
 AOE centers use range 2–3; preserve pattern shapes and inspect the affected union.
-Offensive movement is 1–2, except Iron Wheel's move-3 charge. Pure movement is 2–3;
-Headlong's move-4 dash, Joust's straight-line move 4, Sunpath Stride's lit move 4,
+Offensive movement is 1–2, except Iron Wheel's move-3 charge. Pure movement is
+usually 2–3. Shadow Step moves 4. Headlong's move-4 dash, Joust's straight-line
+move 4, Sunpath Stride's lit move 4,
 and Shadow Gate's and Grapple's blink 4 (gear without an attack of their own) and Trapdoor
 retain premium 4-tile reach; Seek the Light's blink 5 must land in Light. Illusion and surface
 placement stays within 2–3. True North adds one ranged range during Truesight.

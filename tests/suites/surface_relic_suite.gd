@@ -23,7 +23,7 @@ static func run(check: Callable) -> void:
 	state = engine.apply_player_action(state, {"type": "push", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i.RIGHT, "_surface_relic_modes": ["transport"]}, Vector2i(4, 3))
 	check.call(state["enemies"][0]["pos"] == Vector2i(5, 3) and int(state["enemies"][0]["hp"]) == 998, "Transport first resolves the landing Fire contact")
 	check.call(Ground.element_at(state, Vector2i(4, 3)).is_empty() and Ground.element_at(state, Vector2i(5, 3)) == "ice" and Ground.has_rubble(state, Vector2i(4, 3)), "Updraft moves one elemental layer, leaves Rubble")
-	check.call(not bool(state["enemies"][0].get("chilled", false)), "Transporting Ice beneath an occupant is placement, not immediate Chill")
+	check.call(int(state["enemies"][0].get("expose", 0)) == 0, "Transported Ice applies Expose only on contact")
 	state = fixture(engine, ["briar_winch"])
 	Ground.place(state, Vector2i(4, 3), "rubble")
 	state = engine.apply_player_action(state, {"type": "pull", "range": 5, "amount": 1, "force_direction": Vector2i.DOWN, "_surface_relic_modes": ["redirect"]}, Vector2i(4, 3))
@@ -35,17 +35,7 @@ static func run(check: Callable) -> void:
 	state = engine.apply_player_action(state, {"type": "melee", "range": 1, "damage": 5, "_surface_relic_modes": ["cross"]}, Vector2i(4, 3))
 	check.call(int(state["player"]["stoneskin"]) == 0 and int(state["enemies"][0]["hp"]) == 995 and int(state["enemies"][1]["hp"]) == 995, "Faultline spends four Stoneskin on one cross attack")
 	check.call(Ground.tiles(state, "rubble").size() == 5, "Faultline leaves its paid cross as Rubble")
-	state = fixture(engine, ["frost_prism"])
-	state["enemies"][0]["hp"] = 8
-	state["enemies"][0]["freeze"] = 1
-	Ground.place(state, Vector2i(4, 3), "fire")
-	state = engine.apply_player_action(state, {"type": "ranged", "range": 5, "damage": 4}, Vector2i(4, 3))
-	check.call(Ground.tiles(state, "rubble").size() == 5 and Ground.element_at(state, Vector2i(4, 3)) == "fire", "Shatterglass direct Frozen kill leaves cardinal Rubble, keeps elemental ground")
-	state = fixture(engine, ["rimecatcher_vial"])
-	Ground.place(state, Vector2i(4, 3), "ice")
-	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4, 2))
-	state = engine.apply_player_action(state, {"type": "ranged", "range": 5, "damage": 2, "element": "ice", "_ice_spill_direction": Vector2i.DOWN}, Vector2i(4, 3))
-	check.call(int(state["enemies"][0].get("freeze", 0)) == 1 and Ground.element_at(state, Vector2i(4, 3)).is_empty() and Ground.element_at(state, Vector2i(4, 4)) == "ice", "Rimecatcher spills one consumed Freeze tile outside the body")
+	_test_prism_and_vial(engine, check)
 	state = fixture(engine, ["worldroot_idol"])
 	state["enemies"][0]["pos"] = Vector2i(6, 3)
 	for x: int in range(2, 6):
@@ -70,6 +60,40 @@ static func run(check: Callable) -> void:
 	_test_black_sun_event_time_underlay(engine, check)
 	_test_updraft_original_ground_survival(engine, check)
 	_test_stormcoal_mixed_reuse(engine, check)
+
+static func _test_prism_and_vial(engine: Combat, check: Callable) -> void:
+	var target := Vector2i(4, 3)
+	var state: Dictionary = fixture(engine, ["frost_prism"])
+	var frostbolt: Dictionary = engine.card_play_actions("frostbolt", state)[0]
+	var dry: Dictionary = engine.apply_player_action(state, frostbolt, target)
+	check.call(Ground.tiles(dry, "rubble").is_empty(), "Shatterglass requires Ice under the target at impact")
+	Ground.place(state, target, "ice")
+	var hit: Dictionary = engine.apply_player_action(state, frostbolt, target)
+	check.call(int(hit["enemies"][0]["hp"]) > 0 and int(engine.stagger_delays_between(state, hit).get(1, 0)) == 6, "Shatterglass triggers on applied Stagger while the enemy survives")
+	check.call(Ground.tiles(hit, "rubble").size() == 5 and Ground.has_surface(hit, target, "ice"), "Shatterglass paints the struck footprint and cardinal neighbors")
+
+	for card_id: String in ["frostbolt", "cold_shoulder", "white_silence"]:
+		state = fixture(engine, ["rimecatcher_vial"])
+		state["player"]["pos"] = target + Vector2i.LEFT
+		Ground.place(state, target, "ice")
+		var attack: Dictionary = engine.card_play_actions(card_id, state)[0]
+		var spill: Dictionary = {}
+		for option: Dictionary in Relics.action_variants(state, attack):
+			if option.get("_ice_spill_direction") == Vector2i.DOWN:
+				spill = option
+				break
+		check.call(not spill.is_empty(), "Rimecatcher offers an Ice move for " + card_id)
+		if spill.is_empty(): continue
+		if card_id == "white_silence":
+			check.call(Relics.targetless_ice_spill_index(engine, state, [attack]) == 0, "White Silence can choose an Ice move at confirmation")
+		var after: Dictionary
+		if card_id == "white_silence":
+			after = engine.apply_player_action(state, spill)
+		else:
+			after = engine.apply_player_action(state, spill, target)
+		var final_tile: Vector2i = target + 2 * Vector2i.RIGHT if card_id == "cold_shoulder" else target
+		check.call(after["enemies"][0]["pos"] == final_tile and int(engine.stagger_delays_between(state, after).get(1, 0)) == 6, "Rimecatcher preserves the attack and Stagger from " + card_id)
+		check.call(not Ground.has_surface(after, target, "ice") and Ground.has_surface(after, target + Vector2i.DOWN, "ice"), "Rimecatcher moves the original impact Ice after " + card_id)
 
 static func _test_faultline_native_primary(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = fixture(engine, ["thornmail_brooch"])

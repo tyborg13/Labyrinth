@@ -58,14 +58,12 @@ var _acolyte_renderers: Dictionary = {}
 const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
 const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
 const CinderOozePresentation = preload("res://scripts/cinder_ooze_cutout/presentation.gd")
-const CinderOozeActionFx = preload("res://scripts/cinder_ooze_cutout/action_fx.gd")
 const HarrierCutout = preload("res://scripts/harrier_cutout/renderer.gd")
 const IskaldraCutout = preload("res://scripts/iskaldra_cutout/renderer.gd")
 const TharokhCutout = preload("res://scripts/tharokh_cutout/renderer.gd")
 const VaeloryxCutout = preload("res://scripts/vaeloryx_cutout/renderer.gd")
 const VaeloryxWind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
 const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
-const VeilboundAcolyteFx = preload("res://scripts/veilbound_acolyte_cutout/fx.gd")
 const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 const StaticEnemyFacing = preload("res://scripts/static_enemy_facing.gd")
 var _warden_renderers: Dictionary = {}
@@ -77,7 +75,6 @@ const GuardianPool = preload("res://scripts/guardian_cutout/pool.gd")
 var _guardian_renderers: Dictionary = {}
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
-const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
 var _bile_bloomer_renderers: Dictionary = {}
 const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 const ShaleMaquette = preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd")
@@ -112,6 +109,8 @@ const BiomeLighting = preload("res://scripts/combat_lighting_profiles.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const PixelFxLayer = preload("res://scripts/pixel_fx_layer.gd")
+const TileBurstFx = preload("res://scripts/tile_burst_fx.gd")
+const ResolvedContactBursts = preload("res://scripts/resolved_contact_bursts.gd")
 const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
@@ -123,6 +122,8 @@ const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_laye
 const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const BoardSurfaceVisibility = preload("res://scripts/board_surface_visibility.gd")
+const BoardPixelSurfaceLayer = preload("res://scripts/board_pixel_surface_layer.gd")
+const PixelContactShadow = preload("res://scripts/board_pixel_contact_shadow.gd")
 const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
@@ -299,9 +300,7 @@ const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
 const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
 const TERRAIN_BAR_FILL: Color = Color("a8874c")
-const STATUS_BLEED: Color = Color("b84646")
 const STATUS_EXPOSE: Color = Color("d9b36a")
-const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(142.0, 32.0)
@@ -564,21 +563,14 @@ const AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS: int = 4
 const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
 const AMBIENT_AIR_WISP_FULL_FRAME_INDEX: int = 16
 const AMBIENT_AIR_WISP_VARIANTS: int = 4
-const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
-const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
 const ELEMENTAL_PERFORMANCE_MIN_SIZE: float = 218.0
 const ELEMENTAL_PERFORMANCE_MAX_SIZE: float = 342.0
 const ELEMENTAL_COMPACT_DETONATION_SCALE: float = 0.50
-const TRAP_ELEMENTAL_DETONATION_SCALE: float = 1.15
 const EARTH_PATH_SPIKE_COUNT: int = 6
 const EARTH_IMPACT_SIZE_SCALE: float = 2.08
 const AIR_GUST_IMPACT_SIZE_SCALE: float = 2.62
 const LIGHTNING_IMPACT_SIZE_SCALE: float = 2.76
 const ICE_IMPACT_SIZE_SCALE: float = 2.04
-const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
-const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
-const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
-const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
 const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
 # Reduced motion holds the preview steady at the pulse mean: sin(0) = 0, so pulse = 0.55.
 const DAMAGE_PREVIEW_REDUCED_MOTION_TIME_SECONDS: float = 0.0
@@ -589,10 +581,6 @@ const LETHAL_DEATH_MARK_MAX_SCALE: float = 1.08
 const LETHAL_DEATH_MARK_MIN_ALPHA: float = 0.80
 const LETHAL_DEATH_MARK_MAX_ALPHA: float = 0.98
 const BLINK_RIFT_PREVIEW_TEXTURE_PATH: String = "res://assets/art/effects/blink_rift_preview.png"
-const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
-const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
-const DEFENSE_HEAL_CASTS_ROWS: int = 3
-const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
@@ -681,9 +669,6 @@ var _scene_prop_idle_frames: Dictionary = {}
 var _pillar_torch_idle_frames: Dictionary = {}
 var _pillar_torch_light_texture: GradientTexture2D = null
 var _effect_textures: Dictionary = {}
-var _effect_frames: Dictionary = {}
-var _projectile_atlas: Texture2D = null
-var _projectile_textures: Dictionary = {}
 var _ambient_particle_atlas: Texture2D = null
 var _ambient_particle_glow_atlas: Texture2D = null
 var _ambient_fire_soft_atlas: Texture2D = null
@@ -788,6 +773,8 @@ var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
 var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
 var _enemy_shadow_dissolve_spare_effect: Control = null
+const ShotFx = preload("res://scripts/shot_fx.gd")
+var _single_shot_fx: ShotFx
 var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _rest_threat_tile_alphas: Dictionary = {}
@@ -897,6 +884,10 @@ var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
 var _render_instrumentation_owner: Node = null
+var _pixel_ground: BoardPixelSurfaceLayer
+var _pixel_ground_enabled: bool
+var _lifted_ground_focus: bool
+var _pixel_contact_shadow: PixelContactShadow
 var _surface_rubble_floor_layer: Node2D
 var _surface_rubble_layer: Node2D
 var _animated_surface_tiles: Array[Vector2i]
@@ -919,6 +910,10 @@ var _action_floor_render_layer: Control = null
 var _surface_base_drawing: Node2D
 var _surface_feedback_pixel_layer: Node2D
 var _effects_telegraph_render_layer: Control
+var _tile_bursts: TileBurstFx
+var _self_bursts: TileBurstFx
+var _sky_strikes: TileBurstFx
+var _burst_players: Array[TileBurstFx]
 var _pixel_fx_layer: Node2D
 var _pixel_fx_draw_transform := Transform2D.IDENTITY
 var _scene_render_layers_by_tile: Dictionary = {}
@@ -966,6 +961,7 @@ var _fixed_visual_rects := FixedVisualRects.new()
 var _enemy_strike_trail: RefCounted = EnemyStrikeTrail.new()
 var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary]
+var _floating_icon_canvas := FloatingCombatText.IconCanvas.new()
 var _foreground_obstruction_entries_cache: Array[Dictionary]
 var _foreground_obstruction_geometry_inputs: Dictionary = {}
 var _static_draw_count: int = 0
@@ -1119,11 +1115,15 @@ func _ready() -> void:
 	if not _initial_assets_prepared:
 		_load_assets(false)
 	startup_started = _record_startup_performance_phase("load_assets", startup_started)
+	ShotFx.warm_shader(get_tree().root)
 	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	startup_started = _record_startup_performance_phase("shadow_shader_prewarm", startup_started)
 	_ensure_art_treatment()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
+	if not combat_state.is_empty():
+		_ensure_board_layout_cache()
+		_single_shot_fx.submit(true)
 	_record_startup_performance_phase("retained_layers", startup_started)
 
 # Integration seam for rd-03; this task does not alter aim focus or body tint.
@@ -1949,6 +1949,9 @@ func _sync_zekarion_renderers() -> void:
 			renderer.queue_free()
 
 func _exit_tree() -> void:
+	clear_tile_bursts()
+	if _single_shot_fx != null:
+		_single_shot_fx.close()
 	if _unit_shadow_prewarm_thread != null and _unit_shadow_prewarm_thread.is_started():
 		_unit_shadow_prewarm_thread.wait_to_finish()
 	_unit_shadow_prewarm_thread = null
@@ -1964,6 +1967,11 @@ func _on_board_resized() -> void:
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
 	_sync_static_render_cache()
+	_sync_tile_burst_size()
+	_sync_burst_placement()
+	if _pixel_ground_enabled:
+		_sync_pixel_ground(false, true)
+		_pixel_ground.sync_contacts(self)
 	_sync_targeted_tile_geometry()
 	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.invalidate()
 	queue_redraw()
@@ -1973,6 +1981,8 @@ func _ensure_art_treatment() -> void:
 	if _art_treatment == null:
 		_art_treatment = CombatArtTreatment.new()
 		_art_treatment.material.shader = CombatPacingScript.impact_flash_shader(CombatArtTreatment.SHADER)
+		# The board and retained actor canvases share the material built from the prewarmed shader.
+		KindleView.configure_sprite_shader(_art_treatment.material)
 		_art_treatment.set_enabled(_art_treatment_enabled)
 	material = _art_treatment.material
 
@@ -2107,7 +2117,14 @@ func _create_dynamic_render_layer() -> void:
 	_ensure_art_treatment()
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		return
+	_pixel_ground_enabled = BoardPixelSurfaceLayer.enabled()
 	_ambient_render_layer = _create_retained_render_layer("AmbientRenderLayer", RENDER_LAYER_AMBIENT)
+	if _pixel_ground_enabled:
+		_animated_surface_tiles.clear()
+		_pixel_ground = BoardPixelSurfaceLayer.new()
+		_pixel_ground.name = "PixelGround"
+		add_child(_pixel_ground)
+		_sync_pixel_ground(true, true)
 	_overlay_render_layer = _create_retained_render_layer("OverlayRenderLayer", RENDER_LAYER_OVERLAYS)
 	_ground_render_layer = _create_retained_render_layer("GroundRenderLayer", RENDER_LAYER_GROUND)
 	_path_render_layer = _create_retained_render_layer("PathRenderLayer", RENDER_LAYER_PATH)
@@ -2120,6 +2137,8 @@ func _create_dynamic_render_layer() -> void:
 	_effects_telegraph_render_layer = _create_retained_render_layer("EffectsTelegraphs", RENDER_LAYER_TELEGRAPHS)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
+	_single_shot_fx = ShotFx.new()
+	_single_shot_fx.attach(self, _impact_floor_render_layer, _effects_render_layer)
 	# After the silhouettes: their frame's source refresh precedes the reveal's.
 	_occlusion_reveal = preload("res://scripts/board_occlusion_reveal.gd").new()
 	_occlusion_reveal.attach(self)
@@ -2133,6 +2152,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.name = layer_name
 	layer.set("_is_dynamic_render_layer", true)
 	layer.set("_render_layer_kind", layer_kind)
+	if _pixel_ground_enabled: layer.set("_pixel_ground_enabled", true)
 	layer.set("_render_instrumentation_owner", self)
 	layer.set("health_ghost_tracker", health_ghost_tracker)
 	layer.set("status_pop_tracker", status_pop_tracker)
@@ -2183,6 +2203,50 @@ func _retained_render_layers(include_slices: bool = true) -> Array:
 	_retained_layers_cache_valid = true
 	return (ordered if include_slices else layers).duplicate(false)
 
+func present_tile_bursts(specs: Array, before: Dictionary, after: Dictionary, reduced: bool) -> void:
+	if _tile_bursts != null:
+		_tile_bursts.spawn(self, specs, before, after, reduced)
+
+func present_self_burst(effect: String, unit: Dictionary, reduced: bool, delay: float = 0.0) -> void:
+	if _self_bursts != null:
+		_self_bursts.spawn_self(self, effect, unit, delay, reduced)
+
+func present_sky_strike(cue: TileBurstFx.StrikeCue, contacted: bool, before: Dictionary, after: Dictionary) -> void:
+	if cue == null or _sky_strikes == null or not cue.clock.is_valid() or cue.contact_usec >= 0: return
+	if contacted: cue.land()
+	_sky_strikes.spawn_strikes(self, cue)
+	if not contacted: return
+	_sky_strikes.sync_placement(self)
+	present_tile_bursts([{
+		"name": TileBurstFx.for_element(cue.element), "center": cue.tiles[0],
+		"tiles": cue.tiles, "simultaneous": true,
+	}], before, after, cue.reduced)
+
+func clear_tile_bursts() -> void:
+	for player: TileBurstFx in _burst_players:
+		player.clear()
+
+func _sync_burst_placement() -> void:
+	for player: TileBurstFx in _burst_players:
+		if player.has_active(): player.sync_placement(self)
+
+func _sync_tile_burst_size() -> void:
+	if not is_inside_tree() or (combat_state.get("grid", []) as Array).is_empty(): return
+	if _tile_bursts == null:
+		_tile_bursts = TileBurstFx.new()
+		_self_bursts = TileBurstFx.new(true)
+		_sky_strikes = TileBurstFx.new(false, true)
+		_burst_players.append(_tile_bursts)
+		_burst_players.append(_self_bursts)
+		_burst_players.append(_sky_strikes)
+		get_viewport().size_changed.connect(_tile_burst_viewport_resized)
+	for player: TileBurstFx in _burst_players:
+		player.sync_size(self)
+
+func _tile_burst_viewport_resized() -> void:
+	_sync_tile_burst_size()
+	_sync_burst_placement()
+
 func _sync_scene_render_layers() -> void:
 	_place_targeted_tile_floor_layer()
 	var desired_tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
@@ -2203,6 +2267,8 @@ func _sync_scene_render_layers() -> void:
 			var stale_layer: Control = layers_by_tile.get(tile_var, null) as Control
 			layers_by_tile.erase(tile_var)
 			if stale_layer != null and is_instance_valid(stale_layer):
+				if _single_shot_fx != null:
+					_single_shot_fx.release_depth_parent(stale_layer)
 				remove_child(stale_layer)
 				stale_layer.queue_free()
 	_scene_render_layers.clear()
@@ -2239,9 +2305,9 @@ func _sync_scene_render_layers() -> void:
 func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 	if not is_inside_tree() or not is_instance_valid(_action_floor_render_layer):
 		return false
-	if is_instance_valid(_targeted_tile_highlight) and _targeted_tile_highlight.get_index() != _action_floor_render_layer.get_index() + 1:
+	if _targeted_tile_is_on_floor(_targeted_tile_highlight) and _targeted_tile_highlight.get_index() != _action_floor_render_layer.get_index() + 1:
 		return false
-	if is_instance_valid(_targeted_tile_threat) and (not is_instance_valid(_targeted_tile_highlight) or _targeted_tile_threat.get_index() != _targeted_tile_highlight.get_index() + 1):
+	if _targeted_tile_is_on_floor(_targeted_tile_threat) and (not _targeted_tile_is_on_floor(_targeted_tile_highlight) or _targeted_tile_threat.get_index() != _targeted_tile_highlight.get_index() + 1):
 		return false
 	if _scene_render_layers.size() != tiles.size() * 3:
 		return false
@@ -2265,10 +2331,19 @@ func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
 	return true
 
 func _scene_render_layers_start_index() -> int:
-	return _action_floor_render_layer.get_index() + 1 + (1 if is_instance_valid(_targeted_tile_highlight) else 0) + (1 if is_instance_valid(_targeted_tile_threat) else 0)
+	return _action_floor_render_layer.get_index() + 1 + int(_targeted_tile_is_on_floor(_targeted_tile_highlight)) + int(_targeted_tile_is_on_floor(_targeted_tile_threat))
+
+func _targeted_tile_is_on_floor(layer: CanvasItem) -> bool:
+	return is_instance_valid(layer) and layer.get_parent() == self
 
 func _place_targeted_tile_floor_layer() -> void:
 	if not is_instance_valid(_targeted_tile_highlight) or not is_instance_valid(_action_floor_render_layer): return
+	var highlight_host: CanvasItem = _foreground_render_layer if _lifted_ground_focus else self
+	for layer: CanvasItem in [_targeted_tile_highlight, _targeted_tile_threat]:
+		if is_instance_valid(layer) and layer.get_parent() != highlight_host:
+			layer.reparent(highlight_host, false)
+	if _lifted_ground_focus:
+		return
 	var floor_index: int = _action_floor_render_layer.get_index()
 	var border_index: int = _targeted_tile_highlight.get_index()
 	if border_index != floor_index + 1:
@@ -2396,8 +2471,8 @@ func _sync_dynamic_render_assets() -> void:
 	for field: String in [
 			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants", "_biome_id", "_biome_light_color",
 			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
-			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures", "_effect_frames",
-			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
+			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures",
+			"_ambient_particle_atlas",
 			"_ambient_particle_glow_atlas", "_ambient_fire_soft_atlas", "_ambient_air_wisp_atlas",
 			"_ambient_air_wisp_soft_atlas", "_ambient_air_wisp_glow_atlas",
 			"_ambient_particle_textures", "_ambient_particle_glow_textures",
@@ -2806,6 +2881,11 @@ func _process(delta: float) -> void:
 	if started > 0: owner.call("_record_render_frame_section", Engine.get_process_frames(), "board_process", Time.get_ticks_usec() - started)
 
 func _process_board_frame(delta: float) -> void:
+	for player: TileBurstFx in _burst_players:
+		if player.advance(delta, Engine.get_process_frames()):
+			player.sync_placement(self)
+	if _single_shot_fx != null:
+		_single_shot_fx.advance(delta)
 	if status_pop_tracker.advance(delta):
 		if is_instance_valid(_hud_render_layer): _queue_render_layer_redraw(_hud_render_layer)
 		else: queue_redraw()
@@ -2813,6 +2893,7 @@ func _process_board_frame(delta: float) -> void:
 		for enemy: Dictionary in combat_state.get("enemies", []):
 			if int(enemy.get("hp", 0)) > 0 and bool(enemy.get("burrowed", false)): _queue_scene_render_layer_for_tile(enemy["pos"])
 	if _art_treatment != null and not _is_dynamic_render_layer and not _is_static_render_cache_layer:
+		KindleView.update_pulse(_art_treatment.material, combat_state.get("enemies", []), bool(presentation.get("reduced_motion", false)))
 		if _art_treatment.advance(delta, bool(presentation.get("reduced_motion", false))):
 			for effect: Control in _enemy_shadow_dissolve_effects_by_key.values():
 				_art_treatment.apply_motion_to(effect.material as ShaderMaterial)
@@ -2867,7 +2948,7 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		or not _confirmation_target_tiles_lookup_cache.is_empty()
 	):
 		_queue_render_layer_redraw(_overlay_render_layer, true)
-	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
+	if not skip_impact and LayerRedraws.world_has_paint(presentation):
 		_queue_render_layer_redraw(_dynamic_render_layer)
 	if not skip_impact and _impact_animation_active():
 		_queue_render_layer_redraw(_impact_floor_render_layer)
@@ -2875,8 +2956,9 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 	if (
 		_campfire_atmosphere_active()
 		or _pillar_torch_ember_motes_active()
-		or str(presentation.get("umbra_stage", "clear")) != "clear"
+		or LayerRedraws.world_has_paint(presentation)
 		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+		or (_lifted_ground_focus and exit_tiles.has(_controller_focus_tile))
 	):
 		_queue_render_layer_redraw(_foreground_render_layer, true)
 	_queue_continuously_animated_scene_redraws(skip_impact)
@@ -3009,7 +3091,7 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if _equipment_pickup_beacon_active():
 		return true
-	if str(presentation.get("umbra_stage", "clear")) != "clear":
+	if LayerRedraws.world_has_paint(presentation):
 		return true
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
@@ -3180,14 +3262,16 @@ func _battlefield_rule_presentation_for(state: Dictionary, original: Dictionary,
 	return result
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	if _single_shot_fx != null:
+		_single_shot_fx.bind_effect(next_presentation, owner)
 	var focus_refresh: bool = _stage_focus_refresh
 	_stage_focus_refresh = false
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	if not _is_dynamic_render_layer:
 		var plate_state: Dictionary = next_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state
 		if not trust_same_reference_state or not is_same(plate_state, _plate_observed_state) or (
-			next_presentation.get("umbra_truesight_activations", 0) != presentation.get("umbra_truesight_activations", 0)
-			or next_presentation.get("umbra_truesight_conditional", false) != presentation.get("umbra_truesight_conditional", false)
+			next_presentation.get("umbra_vision_activations", 0) != presentation.get("umbra_vision_activations", 0)
+			or next_presentation.get("umbra_vision_conditional", false) != presentation.get("umbra_vision_conditional", false)
 		):
 			plate_visibility.observe(plate_state, next_presentation)
 			_plate_observed_state = plate_state
@@ -3452,7 +3536,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		for layer: Node in _scene_render_layers:
 			layer.call("_release_room_surface_layers")
 	combat_state = next_state
-	if not _submission_cache_initialized or combat_render_changes.has("surfaces"):
+	if not _pixel_ground_enabled and (not _submission_cache_initialized or combat_render_changes.has("surfaces")):
 		_animated_surface_tiles.clear()
 		for surface_tile: Vector2i in BoardSurfaceRules.tiles(next_state):
 			# Rubble's authored material is static. Elemental layers keep the
@@ -3675,12 +3759,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			if not previous_units_by_key.has(actor_key_var) or current_units_by_key.get(actor_key_var) != previous_units_by_key.get(actor_key_var):
 				moving_actor_keys[str(actor_key_var)] = true
 	var group_ui_changed: bool = _status_plate_layout.Groups.screen_reservations(self) != _hud_health_rects_source_snapshot.get("group_reserved_ui", [])
-	var hud_layout_inputs_changed: bool = state_changed or layout_changed or visual_framing_changed or _hud_layout_entries_cache.is_empty() or group_ui_changed
+	var light_expose_changed: bool = presentation_changes.has("enemy_threat_previews") and _light_expose_previews(previous_path_presentation) != _light_expose_previews(presentation)
+	var hud_layout_inputs_changed: bool = state_changed or layout_changed or visual_framing_changed or _hud_layout_entries_cache.is_empty() or group_ui_changed or light_expose_changed
 	for hud_key: String in [
 		"expanded_enemy_actor_keys", "expand_enemy_intents", "show_all_enemy_intents",
 		"unit_draw_tiles", "unit_world_positions", "preview_units", "death_animation_units",
 		"visible_enemy_ids", "surface_status_preview", HudForecast.KEY, "damage_preview", "effect",
-		"umbra_truesight_activations", "umbra_truesight_conditional", "threats_at_rest", "boss_health_frame_global_rect"
+		"umbra_vision_activations", "umbra_vision_conditional", "threats_at_rest", "boss_health_frame_global_rect"
 	]:
 		if presentation_changes.has(hud_key):
 			hud_layout_inputs_changed = true
@@ -3688,6 +3773,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if hud_layout_inputs_changed:
 		var structural_hud_change: bool = (
 			group_ui_changed
+			or light_expose_changed
 			or state_changed
 			or layout_changed
 			or visual_framing_changed
@@ -3701,8 +3787,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			or presentation_changes.has(HudForecast.KEY)
 			or presentation_changes.has("damage_preview")
 			or presentation_changes.has("effect")
-			or presentation_changes.has("umbra_truesight_activations")
-			or presentation_changes.has("umbra_truesight_conditional")
+			or presentation_changes.has("umbra_vision_activations")
+			or presentation_changes.has("umbra_vision_conditional")
 			or presentation_changes.has("threats_at_rest")
 			or presentation_changes.has("boss_health_frame_global_rect")
 		)
@@ -3729,6 +3815,15 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
+		_sync_tile_burst_size()
+	if (combat_state.get("grid", []) as Array).is_empty():
+		clear_tile_bursts()
+	elif layout_changed or state_changed or not moving_actor_keys.is_empty() or presentation_changes.has("umbra_visible_tiles") or presentation_changes.has("death_animation_units"):
+		_sync_burst_placement()
+	if presentation.has("burst_effects"):
+		DeathBurstView.present_contacts(self, previous_transition_state, previous_path_presentation)
+	if _self_bursts != null:
+		_self_bursts.present_feedback(self, state_changed or not combat_render_changes.is_empty())
 	# Warmup restores the live hover layout. Publish that final result with the
 	# retained bindings, including obstacle-only submissions.
 	# Contextual intent expansion can reuse the warmed layout's inspected-actor
@@ -3884,6 +3979,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_foreground_obstruction_geometry_inputs", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		_queue_render_layer_redraw(_hud_render_layer)
 		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
+	if _pixel_ground_enabled:
+		var field_changed: bool = (
+			layout_changed or floor_changed or _pixel_ground.field.seed != int(combat_state.get("fight_seed", 0))
+			or combat_render_changes.has("surfaces") or combat_render_changes.has("surface_rule_overrides")
+			or presentation_changes.has("umbra_visible_tiles")
+			or (presentation.has("umbra_visible_tiles") and (combat_render_changes.has("objective") or combat_render_changes.has("enemies")))
+		)
+		_sync_pixel_ground(field_changed, field_changed or geometry_changed or visual_framing_changed)
 	if not _enemy_shadow_dissolve_effects_by_key.is_empty() or not (presentation.get("death_animation_units", []) as Array).is_empty():
 		_sync_enemy_shadow_dissolve_effects()
 	var retained_strike_frame: bool = (
@@ -3901,6 +4004,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		LayerRedraws.bind_retained_strike_frame(self, _effects_render_layer)
 	if is_instance_valid(_occlusion_silhouettes):
 		_occlusion_silhouettes.submission_changed(state_changed or layout_changed or visual_framing_changed or biome_changed, presentation_changes, registration_changes)
+	if _single_shot_fx != null:
+		_single_shot_fx.submit(true)
+	if _pixel_ground_enabled:
+		_pixel_ground.sync_contacts(self)
+		_sync_ground_focus_depth()
 	_preparing_submission = false
 	_submission_units_valid = false
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
@@ -4084,6 +4192,7 @@ func _queue_presentation_change_redraws(
 	var foreground_changed: bool = false
 	var hud_changed: bool = false
 	var effects_changed: bool = false
+	var retained_shot_progress: bool = not changed_keys.has("effect") and changed_keys.has("effect_progress") and not ShotFx.resolve(presentation.get("effect", {})).is_empty()
 	for key_var: Variant in changed_keys:
 		match str(key_var):
 			"surface_preview_events", "surface_preview_arcs", "surface_feedback_events", "surface_feedback_progress":
@@ -4117,10 +4226,12 @@ func _queue_presentation_change_redraws(
 				# Even a plain move samples the effects canvas and its independent
 				# telegraphs. A live Capacitor arc advances on this submission, even
 				# when its descriptor and nonlethal damage preview are unchanged.
-				effects_changed = effects_changed or changed_keys.has("effect") or LayerRedraws.effects_read_progress(self)
+				effects_changed = effects_changed or (not retained_shot_progress and (changed_keys.has("effect") or LayerRedraws.effects_read_progress(self)))
 				if not _targeting_redraw_baseline() and LayerRedraws.blink_preview_active(previous_path_presentation) != LayerRedraws.blink_preview_active(presentation):
 					path_changed = true
-				action_floor_changed = true
+				action_floor_changed = action_floor_changed or not retained_shot_progress \
+					or not _shot_replaces_elemental_painter(presentation.get("effect", {})) \
+					or not (presentation.get("trap_effects", []) as Array).is_empty()
 				overlay_changed = overlay_changed or LayerRedraws.overlay_reads_clock(self) or LayerRedraws.overlay_effect_inputs(previous_path_presentation) != LayerRedraws.overlay_effect_inputs(presentation)
 				# Noctyrax's anchored labels solve around the animated actor and
 				# action banner. Retaining the pre-cast HUD until damage changes
@@ -4168,7 +4279,11 @@ func _queue_presentation_change_redraws(
 				# Walk/idle poses update their own texture and floor registration.
 				# The effects canvas only reads the hero's charge/socket when a
 				# charge, attack, or lethal marker is actually present.
-				effects_changed = effects_changed or LayerRedraws.protagonist_effects_active(previous_path_presentation) or LayerRedraws.protagonist_effects_active(presentation) or LayerRedraws.has_lethal_preview(self)
+				var charge_was_visible: bool = float(previous_path_presentation.get("protagonist_motion", {}).get("charge", 0.0)) > 0.0
+				var charge_visible: bool = float(presentation.get("protagonist_motion", {}).get("charge", 0.0)) > 0.0
+				effects_changed = effects_changed or charge_was_visible or charge_visible or LayerRedraws.has_lethal_preview(self)
+				if not retained_shot_progress:
+					effects_changed = effects_changed or LayerRedraws.protagonist_effects_active(previous_path_presentation) or LayerRedraws.protagonist_effects_active(presentation)
 			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "tharokh_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Pose textures retain their RID; pixel/floor registration can move.
 				unit_movement_changed = true
@@ -4240,6 +4355,8 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if overlay_changed:
 		_queue_render_layer_redraw(_overlay_render_layer, LayerRedraws.overlay_clock_only(changed_keys, previous_path_presentation, presentation))
+		if _lifted_ground_focus:
+			_queue_render_layer_redraw(_foreground_render_layer)
 	if path_changed:
 		if not focus_delta: _queue_render_layer_redraw(_path_render_layer)
 		for tile: Vector2i in PreviewRedraws.tiles(self, previous_path_presentation, presentation, focus_delta):
@@ -4306,7 +4423,7 @@ func _queue_targeting_transition_samples(previous: Dictionary) -> void:
 			RENDER_LAYER_PATH:
 				continue # Scene tiles own the path paint.
 			RENDER_LAYER_WORLD:
-				if str(presentation.get("umbra_stage", "clear")) == "clear": continue
+				if not LayerRedraws.world_has_paint(presentation): continue
 			RENDER_LAYER_SCENE_TILE:
 				if layer._render_layer_scene_effect_pass == 0:
 					if not scene_tiles.has(layer._render_layer_tile): continue
@@ -4564,11 +4681,6 @@ func _update_umbra_return_transition(previous_state: Dictionary, previous_presen
 		var source_pos: Vector2i = source.get("pos", Vector2i(-1, -1))
 		if source_pos.x >= 0:
 			centers.append(source_pos)
-	var previous_vision_duration: int = int(previous_presentation.get("umbra_vision_bonus_activations", 0))
-	var next_vision_duration: int = int(next_presentation.get("umbra_vision_bonus_activations", 0))
-	if previous_vision_duration != 0 and next_vision_duration == 0:
-		var player: Dictionary = next_state.get("player", {})
-		centers.append(player.get("pos", Vector2i.ZERO))
 	if centers.is_empty():
 		return
 	var maximum_distance: int = 0
@@ -5057,6 +5169,8 @@ func _queue_hover_redraws() -> void:
 	# occupied-tile art, foreground atmosphere, and effects retain their draw
 	# commands while pointer motion remains fully event-driven.
 	_queue_hover_overlay_redraw()
+	if _lifted_ground_focus:
+		_queue_render_layer_redraw(_foreground_render_layer)
 	# RunScene queues its presentation update from tile_hovered first. Resolve
 	# the HUD after that update, in the same deferred flush before rendering,
 	# instead of solving both the old and final presentation for one pointer move.
@@ -5115,6 +5229,11 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	if is_instance_valid(_effects_render_layer):
 		_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 	_sync_static_render_cache()
+	_sync_tile_burst_size()
+	_sync_burst_placement()
+	if _pixel_ground_enabled:
+		_sync_pixel_ground(false, true)
+		_pixel_ground.sync_contacts(self)
 	_sync_targeted_tile_geometry()
 	if is_instance_valid(_occlusion_silhouettes): _occlusion_silhouettes.invalidate()
 	queue_redraw()
@@ -5380,7 +5499,6 @@ func _draw_board_commands() -> void:
 		if _render_layer_kind == "unit_body_outline":
 			var unit_started: int = Time.get_ticks_usec()
 			_dynamic_draw_count += 1
-			KindleView.clear_glows(self)
 			_draw_unit_body(_unit_outline_actor)
 			_record_dynamic_draw_time(unit_started)
 			return
@@ -5844,6 +5962,14 @@ func _draw_foreground_render_layer() -> void:
 	section_started_usec = Time.get_ticks_usec()
 	_draw_campfire_ember_motes()
 	_record_render_section_time("foreground_campfire_motes", section_started_usec)
+	var owner: Control = _render_instrumentation_owner
+	if is_instance_valid(owner) and owner._lifted_ground_focus:
+		if _player_aoe_preview_active():
+			for target: Vector2i in _focus_tiles_lookup_cache:
+				_draw_aoe_footprint_highlight(target)
+		var tile: Vector2i = owner._controller_focus_tile if owner._controller_focus_tile.x >= 0 else owner._hover_tile
+		if tile.x >= 0:
+			_draw_ground_focus_tile(tile, _tile_polygon(tile), owner._hover_tile, owner._controller_focus_tile)
 	_record_dynamic_draw_time(started_usec)
 
 func _draw_hud_render_layer() -> void:
@@ -5855,7 +5981,11 @@ func _draw_hud_render_layer() -> void:
 		_record_dynamic_draw_time(started_usec)
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
-	var units_to_draw: Array[Dictionary] = _visible_units()
+	var units_to_draw: Array[Dictionary]
+	var hero: Array[Dictionary]
+	for unit: Dictionary in _visible_units():
+		if unit.get("role") == "player" and not bool(unit.get("death_animation", false)): hero.append(unit)
+		else: units_to_draw.append(unit)
 	_draw_noctyrax_brazier_markers()
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
@@ -5870,6 +6000,14 @@ func _draw_hud_render_layer() -> void:
 			if bool(badge["above_everything"]) != on_top: continue
 			if bool(badge.get("danger", false)): _draw_slice_intent_halo(badge)
 			_draw_slice_intent_chip(badge)
+	if not hero.is_empty():
+		var unit: Dictionary = HudForecast.unit(hero[0], presentation)
+		if not bool(unit.get("death_animation", false)) and _umbra_actor_clip_for_unit(unit).is_empty():
+			var center: Vector2 = _unit_center(unit)
+			var frame: Rect2 = _hud_health_rects_cache.get("player", _unit_health_bar_rect(unit, center))
+			_draw_health_bar_entry({"unit": unit, "rect": frame, "terrain": false})
+			_draw_unit_damage_preview_overlays(TypedArrays.dictionaries([unit]))
+			_draw_unit_statuses(unit, frame)
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	# Intent results are the topmost board HUD, above every bar, pip and badge.
 	section_started_usec = Time.get_ticks_usec()
@@ -5886,6 +6024,7 @@ func _draw_effects_render_layer() -> void:
 	_tooltip_regions.clear()
 	_tile_tooltip_regions.clear()
 	if combat_state.is_empty():
+		_floating_icon_canvas.clear()
 		_record_dynamic_draw_time(started_usec)
 		return
 	var total_section_started_usec: int = Time.get_ticks_usec()
@@ -6008,7 +6147,12 @@ func _record_render_frame_section(frame_id: int, section: String, elapsed_usec: 
 
 func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
-	if stage_id == "clear" or tiles.is_empty():
+	if tiles.is_empty() or not LayerRedraws.world_has_paint(presentation):
+		return
+	if stage_id == "clear":
+		_begin_umbra_shape_batch(true)
+		_draw_umbra_light_sources(_umbra_visual_time_seconds())
+		_flush_umbra_shape_batch()
 		return
 	var phase_started_usec: int = Time.get_ticks_usec()
 	_begin_umbra_shape_batch(true)
@@ -6469,7 +6613,6 @@ func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> 
 	)
 
 func _draw_umbra_light_source_markers(time_seconds: float) -> void:
-	var font: Font = get_theme_default_font()
 	_begin_umbra_shape_batch(true)
 	for source_var: Variant in presentation.get("umbra_light_sources", []):
 		if typeof(source_var) != TYPE_DICTIONARY:
@@ -6481,7 +6624,6 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		if tile.x < 0:
 			continue
 		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
-		var remaining: int = int(source.get("remaining_activations", 0))
 		var source_seed: float = _umbra_light_source_seed(source)
 		if bool(source.get("tethered", false)):
 			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
@@ -6492,15 +6634,9 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
 		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
 		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
-		# Counters are text-bearing HUD details. Flush the batched glow underneath
-		# before drawing their native font and outline commands on top.
-		_flush_umbra_shape_batch()
-		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
-		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
-		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
-		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
-		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
-		var diagram: String = "Light Source\n@pattern(diamond:%d) Reveals these tiles through the Umbra.\n%s" % [radius_tiles, duration_text]
+		var marker_rect := Rect2(orb_center - Vector2.ONE * orb_radius * 1.65, Vector2.ONE * orb_radius * 3.3)
+		var tooltip: String = ActionIcons.tooltip("illuminate")
+		var diagram: String = "@pattern(diamond:%d) %s" % [radius_tiles, tooltip]
 		_register_tile_tooltip(marker_rect, tooltip, tile, str(source.get("id", "light")), diagram)
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
@@ -6532,7 +6668,7 @@ func _noctyrax_brazier_markers() -> Array[Dictionary]:
 		var lit: bool = bool(brazier.get("lit", true))
 		var label: String = "Snuff incoming" if threatened else "Light · Radius 2" if lit else "Unlit brazier"
 		var detail: String = "Relight after Night Coil" if threatened else "Blocks Eclipse darkness" if lit else "Step here to relight"
-		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Its Light protects the tiles within 2 from Eclipse." if lit else "Step onto this brazier's tile to relight it and restore Light radius 2."
+		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Light blocks Eclipse darkness within 2 tiles of the brazier. Attacks still hit Marked tiles." if lit else "Enter the brazier's tile to relight the brazier and restore Light 2."
 		if threatened and snuffs_before_hit:
 			label = "Dark before Eclipse"
 			detail = "Use another Light"
@@ -6752,29 +6888,6 @@ func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_
 			Color(1.0, 0.92, 0.56, mote_alpha),
 			8
 		)
-
-func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
-	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
-	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
-	# The caller flushes the orb first, so the chip glow can use its own pooled
-	# translucent batch while the label remains a native text draw above it.
-	if _umbra_shape_batch_enabled:
-		_begin_umbra_shape_batch()
-	_draw_campfire_soft_ellipse(
-		chip_center,
-		chip_radius * 1.85 * pulse,
-		Vector2.ONE,
-		0.0,
-		Color(1.0, 0.67, 0.18, 0.28),
-		10
-	)
-	if _umbra_shape_batch_enabled:
-		_flush_umbra_shape_batch()
-	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
-	if font != null:
-		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
-		draw_string(font, Vector2(chip_rect.position.x, chip_center.y + 4.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff9db"))
-	return chip_rect
 
 func _draw_empty_state() -> void:
 	var font: Font = get_theme_default_font()
@@ -7977,12 +8090,13 @@ func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WH
 		return
 	CombatArtTreatment.draw_rect(self, texture, rect, tint, profile, source)
 
-func _draw_contact_pool(center: Vector2, width: float, height: float, alpha: float) -> void:
+func _draw_contact_pool(center: Vector2, width: float, height: float, alpha: float, multiplier: PixelContactShadow = null) -> void:
 	if _art_treatment == null or not _art_treatment_enabled:
 		return
 	var extent := Vector2(width, height)
 	var command: Array = ["texture", _art_treatment.contact_texture, Rect2(center - extent * 0.5, extent), Color(0.055, 0.035, 0.028, alpha)]
-	if _prop_command_cache.recording: _prop_command_cache.commands.append(command)
+	if multiplier != null: multiplier.draw_texture_rect(command[1], command[2], false, command[3])
+	elif _prop_command_cache.recording: _prop_command_cache.commands.append(command)
 	else: _submit_prop_command(command)
 
 func _draw_floor_contact_shading(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
@@ -8165,15 +8279,26 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if detailed: _record_render_section_time("overlay_icefall", started); started = Time.get_ticks_usec()
 	if detailed: _record_render_section_time("overlay_lob", started); started = Time.get_ticks_usec()
 	if detailed: _record_render_section_time("overlay_wind", started)
-	if draw_aoe_footprint:
+	var owner: Control = _render_instrumentation_owner
+	var lifted_ground_focus: bool = is_instance_valid(owner) and owner._lifted_ground_focus
+	if draw_aoe_footprint and not lifted_ground_focus:
 		# Keep every legal center visible, then layer the concrete consequence on
 		# top so it remains the unmistakable primary targeting signal.
 		_slice_op("_draw_aoe_footprint_highlight", [tile])
 	if tile == selected_tile:
 		_slice_op("draw_colored_polygon", [polygon, SELECT_HIGHLIGHT])
-	if tile == _hover_tile and _controller_focus_tile.x < 0:
+	if not lifted_ground_focus:
+		_draw_ground_focus_tile(tile, polygon, _hover_tile, _controller_focus_tile)
+	# atk-09: the targeted tile's red fill sits above its move-range and hover highlights.
+	if tile == _threat_lift_tile:
+		_threat_slice_keys = LayerSlices.tile_keys(self, tile)
+		LayerSlices.lifted_threat_operations(self, tile, polygon, _overlay_draw_sources)
+		_threat_slice_keys.clear()
+
+func _draw_ground_focus_tile(tile: Vector2i, polygon: PackedVector2Array, hover_tile: Vector2i, controller_tile: Vector2i) -> void:
+	if tile == hover_tile and controller_tile.x < 0:
 		_slice_op("draw_colored_polygon", [polygon, HOVER_HIGHLIGHT])
-	if tile == _controller_focus_tile:
+	if tile == controller_tile:
 		if not _board_tile_is_visible_to_player(tile):
 			_slice_op("draw_colored_polygon", [polygon, HOVER_HIGHLIGHT])
 		elif exit_tiles.has(tile):
@@ -8182,11 +8307,6 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		else:
 			_slice_op("draw_colored_polygon", [polygon, Color(0.98, 0.79, 0.37, 0.16)])
 			_slice_op("_draw_tile_ring", [tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90])
-	# atk-09: the targeted tile's red fill sits above its move-range and hover highlights.
-	if tile == _threat_lift_tile:
-		_threat_slice_keys = LayerSlices.tile_keys(self, tile)
-		LayerSlices.lifted_threat_operations(self, tile, polygon, _overlay_draw_sources)
-		_threat_slice_keys.clear()
 
 # Player Meteorfall marks persist through enemy turns and land at the start of
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
@@ -8198,7 +8318,6 @@ func _draw_meteor_mark(tile: Vector2i) -> void:
 func _draw_slice_meteor_mark(tile: Vector2i, burrow_marks: Variant, burst_tiles: Variant) -> void:
 	BurrowView.draw_mark(self, tile, burrow_marks)
 	DeathBurstView.draw_preview(self, tile, burst_tiles)
-	DeathBurstView.draw_glows(self, tile)
 	# Floor glow only; the icon and damage are drawn above units by
 	# `_draw_meteor_mark_badges`.
 	var marked: bool = false
@@ -8212,7 +8331,6 @@ func _draw_slice_meteor_mark(tile: Vector2i, burrow_marks: Variant, burst_tiles:
 
 func _draw_meteor_mark_badges(include_burrow: bool = true) -> void:
 	if include_burrow: BurrowView.draw_badges(self)
-	DeathBurstView.draw_flames(self)
 	# Meteorfall's icon and incoming damage sit on a medallion at each marked
 	# tile's front edge in the effects layer, above units, so a mark under an
 	# enemy (or under the hero) stays readable without hovering.
@@ -9306,14 +9424,17 @@ func _loot_renders_below_path(loot: Dictionary) -> bool:
 	return not _is_floating_loot(loot)
 
 func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
+	var disintegration_progress: float = _missed_equipment_disintegration_progress(loot)
+	var pose_msec: int = int(presentation.get("missed_equipment_pose_msec", -1)) if disintegration_progress >= 0.0 else -1
+	var pulse: float = _equipment_pickup_pulse(tile, loot, pose_msec)
+	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
+	if disintegration_progress >= 0.0:
+		var opacity: float = 1.0 - disintegration_progress
+		if opacity > 0.0:
+			_draw_world_texture(loot_texture, bobbed_rect, Color(Color.WHITE, opacity))
+		return
 	var accent: Color = _equipment_loot_accent(loot)
 	var glow_color: Color = _equipment_pickup_glow_color(accent)
-	var pulse: float = _equipment_pickup_pulse(tile, loot)
-	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
-	var disintegration_progress: float = _missed_equipment_disintegration_progress(loot)
-	if disintegration_progress >= 0.0:
-		_draw_missed_equipment_disintegration(tile, bobbed_rect, loot_texture, loot, disintegration_progress)
-		return
 	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
 	_draw_loot_contact_shadow(tile, loot_rect, loot_texture, true)
 	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
@@ -9324,58 +9445,6 @@ func _missed_equipment_disintegration_progress(loot: Dictionary) -> float:
 	if equipment_id.is_empty() or not (presentation.get("missed_equipment_ids", []) as Array).has(equipment_id):
 		return -1.0
 	return clampf(float(presentation.get("missed_equipment_progress", 0.0)), 0.0, 1.0)
-
-func _draw_missed_equipment_disintegration(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary, progress: float) -> void:
-	var corruption: float = smoothstep(0.0, 0.58, progress)
-	var fade: float = 1.0 - smoothstep(0.28, 1.0, progress)
-	var jitter: float = sin(progress * 31.0 + _equipment_loot_phase(tile, loot)) * _tile_width() * 0.018 * corruption
-	var corrupted_rect: Rect2 = Rect2(loot_rect.position + Vector2(jitter, -progress * _tile_height() * 0.05), loot_rect.size)
-	_draw_tile_diamond_fill(tile, Color(0.18, 0.10, 0.17, 0.18 * (1.0 - progress)), 0.64 - progress * 0.12)
-	_draw_rect_ground_shadow(tile, loot_rect, 0.48 * fade, 0.14, 0.08)
-	if fade > 0.01:
-		var tint: Color = Color(1.0, 1.0, 1.0, fade).lerp(Color(0.24, 0.16, 0.22, fade), corruption)
-		_draw_disintegrating_equipment_texture(loot_texture, corrupted_rect, tint, progress)
-	_draw_missed_equipment_cinders(tile, loot_rect, loot, progress)
-
-func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2, tint: Color, progress: float) -> void:
-	var source_size: Vector2 = texture.get_size()
-	if source_size.x <= 0.0 or source_size.y <= 0.0:
-		return
-	var slice_count: int = 7
-	for index: int in range(slice_count):
-		var source_y: float = source_size.y * float(index) / float(slice_count)
-		var next_source_y: float = source_size.y * float(index + 1) / float(slice_count)
-		var dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index) / float(slice_count)
-		var next_dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index + 1) / float(slice_count)
-		var slice_progress: float = clampf((progress - float(index) * 0.035) / 0.78, 0.0, 1.0)
-		var side: float = -1.0 if index % 2 == 0 else 1.0
-		var drift := Vector2(side * draw_rect.size.x * 0.12 * slice_progress, -draw_rect.size.y * 0.16 * slice_progress * slice_progress)
-		var slice_tint: Color = tint
-		slice_tint.a *= 1.0 - smoothstep(0.52, 1.0, slice_progress)
-		_draw_world_texture(
-			texture,
-			Rect2(Vector2(draw_rect.position.x, dest_y) + drift, Vector2(draw_rect.size.x, next_dest_y - dest_y + 1.0)),
-			slice_tint, CombatArtTreatment.PROP,
-			Rect2(Vector2(0.0, source_y), Vector2(source_size.x, next_source_y - source_y))
-		)
-
-func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
-	var center: Vector2 = loot_rect.get_center()
-	var phase: float = _equipment_loot_phase(tile, loot)
-	for index: int in range(24):
-		var start: float = float(index % 9) / 12.0
-		var particle_progress: float = clampf((progress - start * 0.42) / 0.72, 0.0, 1.0)
-		if particle_progress <= 0.0:
-			continue
-		var angle: float = phase + float(index) * 2.399
-		var spread: float = loot_rect.size.x * (0.10 + float((index * 7) % 13) / 13.0 * 0.44)
-		var drift := Vector2(cos(angle) * spread * particle_progress, -loot_rect.size.y * (0.12 + 0.80 * particle_progress))
-		drift.x += sin(particle_progress * 8.0 + angle) * loot_rect.size.x * 0.08
-		var particle_size: float = maxf(3.0, loot_rect.size.x * (0.035 + float(index % 4) * 0.010)) * (1.0 - particle_progress * 0.38)
-		var alpha: float = sin(particle_progress * PI) * (0.72 + float(index % 3) * 0.12)
-		var cinder_color: Color = Color("c05b38").lerp(Color("4a3a43"), particle_progress)
-		cinder_color.a = alpha
-		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), cinder_color)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
 	var center: Vector2 = _tile_center(tile)
@@ -9430,22 +9499,12 @@ func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_c
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, -offset_px), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, offset_px), outline_rect.size), false, outline_tint)
 
-func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
-	var center: Vector2 = _tile_center(tile)
-	var tile_width: float = _tile_width() * scale
-	var tile_height: float = _tile_height() * scale
-	var points := PackedVector2Array([
-		center + Vector2(0.0, -tile_height * 0.5),
-		center + Vector2(tile_width * 0.5, 0.0),
-		center + Vector2(0.0, tile_height * 0.5),
-		center + Vector2(-tile_width * 0.5, 0.0)
-	])
-	draw_colored_polygon(points, color)
-
-func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary) -> float:
+func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary, pose_msec: int = -1) -> float:
 	if bool(presentation.get("reduced_motion", false)):
 		return 0.5
-	var time_seconds: float = float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0
+	if pose_msec < 0:
+		pose_msec = preload("res://scripts/presentation_clock.gd").ticks_msec()
+	var time_seconds: float = float(pose_msec) / 1000.0
 	return 0.5 + 0.5 * sin(time_seconds * 2.65 + _equipment_loot_phase(tile, loot))
 
 func _equipment_pickup_bob_offset(pulse: float) -> Vector2:
@@ -9530,7 +9589,6 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		_prop_command_cache.paint(self, "terrain:" + str(terrain.get("id", tile)),
 			[tile, terrain_rect, terrain_kind, rise, tint.a, _tile_width(), _tile_center(tile), _art_treatment != null, _art_treatment_enabled],
 			_draw_procedural_terrain_body.bind(tile, terrain_rect, terrain_kind, rise, tint.a))
-	if terrain_kind == "bramble": BrambleView.draw_flecks(self, tile, texture)
 	if terrain_kind == "powder_keg":
 		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
 	_register_tile_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain), tile)
@@ -9694,12 +9752,12 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	]
 
 	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
-	if terrain_kind == "powder_keg": text += "\nWhen destroyed, deals %d to its tile and each tile next to it." % int(terrain.get("burst_damage", 0))
+	if terrain_kind == "powder_keg": text += "\nWhen the keg is destroyed, the keg Bursts %d." % int(terrain.get("burst_damage", 0))
 	if TerrainCardRules.is_owned_outcrop(terrain):
 		var pulse: Dictionary = RiteRules.outcrop_pulse_summary(combat_state)
 		if int(pulse["damage"]) > 0:
-			var target: String = "your Outcrops" if int(pulse["count"]) > 1 else "it"
-			text += "\nAt the start of your turn, each enemy next to %s takes %d." % [target, pulse["damage"]]
+			var target: String = "your Outcrops" if int(pulse["count"]) > 1 else "this Outcrop"
+			text += "\nAt the start of your turn, each enemy adjacent to %s takes %d damage." % [target, pulse["damage"]]
 	return text
 
 func _visible_units() -> Array[Dictionary]:
@@ -9741,8 +9799,6 @@ func _append_preview_units(units_to_draw: Array[Dictionary]) -> void:
 			"max_hp": maxi(1, int(preview_unit.get("max_hp", preview_hp))),
 			"block": 0,
 			"stoneskin": 0,
-			"bleed": 0,
-			"freeze": 0,
 			"shock": 0,
 			"immobilize": false,
 			"intent": {},
@@ -9765,7 +9821,6 @@ func _build_visible_units() -> Array[Dictionary]:
 			"block": int(player.get("block", 0)),
 			"stoneskin": int(player.get("stoneskin", 0)),
 			"chilled": bool(player.get("chilled", false)),
-		"bleed": int(player_statuses.get("bleed", 0)),
 			"expose": int(player_statuses.get("expose", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
@@ -9789,7 +9844,6 @@ func _build_visible_units() -> Array[Dictionary]:
 			"max_hp": int(illusion.get("max_hp", illusion.get("hp", 1))),
 			"block": int(illusion.get("block", 0)),
 			"stoneskin": int(illusion.get("stoneskin", 0)),
-			"bleed": 0,
 			"chilled": bool(illusion.get("chilled", false)),
 			"freeze": int(illusion.get("freeze", 0)),
 			"shock": 0,
@@ -9823,7 +9877,6 @@ func _build_visible_units() -> Array[Dictionary]:
 			"stoneskin": int(enemy.get("stoneskin", 0)),
 			"frost_armor": int(enemy.get("frost_armor", 0)),
 			"chilled": bool(enemy.get("chilled", false)),
-		"bleed": int(enemy.get("bleed", 0)),
 			"expose": int(enemy.get("expose", 0)),
 			"charge": int(enemy.get("charge", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
@@ -9906,7 +9959,6 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 	return units
 
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
-	KindleView.clear_glows(self)
 	# Per-unit retained children keep each body and its team rim together.
 	if is_instance_valid(_render_instrumentation_owner) and is_instance_valid(_render_instrumentation_owner.get("_occlusion_silhouettes")) and bool(_render_instrumentation_owner.get("_occlusion_silhouettes").get("tool_enabled")):
 		return
@@ -9920,8 +9972,6 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
-	# Keep the existing additive glow behind the whole original tile canvas.
-	KindleView.draw_under(get_parent() if _render_layer_kind == "unit_body_outline" else self, unit)
 	if BurrowView.draw_body(self, unit):
 		_draw_enemy_intent_compass(unit)
 		return
@@ -9937,7 +9987,9 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	if detailed_sections:
 		_record_render_section_time("unit_body_compass", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
-	if umbra_clip.is_empty() and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(str(unit.get("key", ""))):
+	if is_instance_valid(_pixel_contact_shadow) and _pixel_contact_shadow.visible:
+		_pixel_contact_shadow.queue_redraw()
+	elif umbra_clip.is_empty() and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(str(unit.get("key", ""))):
 		_draw_unit_shadow(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_shadow", phase_started_usec)
@@ -9993,7 +10045,7 @@ func _draw_unit_sprite(unit: Dictionary) -> void:
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
-		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview", WindView.GHOST_ROLE] else CombatArtTreatment.actor_profile(unit, texture))
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview", WindView.GHOST_ROLE] else KindleView.sprite_profile(unit, CombatArtTreatment.actor_profile(unit, texture)))
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
@@ -10312,6 +10364,14 @@ func _rebuild_hud_health_rects_cache() -> bool:
 		_hud_layout_cache_by_signature.erase(stale_signature)
 	return true
 
+static func _light_expose_previews(shown: Dictionary) -> Dictionary:
+	var previews: Dictionary = {}
+	for threat: Dictionary in shown.get("enemy_threat_previews", []):
+		var amount: int = int(threat.get("light_start_expose", 0))
+		if amount > 0:
+			previews[str(threat.get("enemy_key", ""))] = amount
+	return previews
+
 func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 	# Framing and safe-rect changes can move the board without changing its
 	# Control size. Resolve first: layout can also update the default zoom/pan.
@@ -10343,8 +10403,9 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 		"status_preview": presentation.get("surface_status_preview", {}),
 		"hud_forecast": presentation.get(HudForecast.KEY, {}),
 		"defense_preview": _hud_defense_layout_inputs(hud_units),
-		"truesight_activations": presentation.get("umbra_truesight_activations", 0),
-		"truesight_conditional": presentation.get("umbra_truesight_conditional", false),
+		"light_expose_previews": _light_expose_previews(presentation),
+		"vision_activations": presentation.get("umbra_vision_activations", 0),
+		"vision_conditional": presentation.get("umbra_vision_conditional", false),
 		"order_badges": (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []),
 		"boss_health_frame": presentation.get("boss_health_frame_global_rect", Rect2())
 	}
@@ -10368,6 +10429,7 @@ func _refresh_moving_hud_geometry(moving_actor_keys: Dictionary) -> bool:
 	_status_plate_layout.fixed_order_rects = IntentBadges.fixed_order_rects(self, hud_units)
 	var moving_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	var affected: Dictionary = _status_plate_layout.refresh_moving(self, hud_units, moving_actor_keys)
+	affected.merge(_status_plate_layout.protect_hero(hud_units, IntentBadges.fixed_order_by_key(self, hud_units), _tile_width() * 0.5, IntentBadges.MEDALLION_DIAMETER))
 	moving_started = _record_submission_performance_phase("hud_move_groups", moving_started)
 	var units_by_key: Dictionary = _units_by_key(hud_units)
 	var next_entries: Array = _hud_layout_entries_cache.duplicate(false)
@@ -10467,6 +10529,7 @@ func _clear_hud_layout_signature_cache() -> void:
 func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 	_status_plate_layout.fixed_order_rects = IntentBadges.fixed_order_rects(self, units_to_draw)
 	_status_plate_layout.prepare_groups(self, units_to_draw)
+	_status_plate_layout.protect_hero(units_to_draw, IntentBadges.fixed_order_by_key(self, units_to_draw), _tile_width() * 0.5, IntentBadges.MEDALLION_DIAMETER)
 	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	var health_rects: Dictionary = {}
 	var entries: Array = []
@@ -11550,7 +11613,7 @@ func _enemy_hud_actor_key(unit: Dictionary) -> String:
 
 func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
 	if _enemy_intent_expanded(unit):
-		return _intent_rows_for_unit(unit, intent)
+		return _move_rows_for_unit(unit, intent)
 	return []
 
 func _enemy_intent_expanded(unit: Dictionary) -> bool:
@@ -12057,30 +12120,6 @@ func status_text_local_bounds() -> Rect2:
 	var detail_bounds: Rect2 = layout.get("detail", Rect2()) as Rect2
 	return label_bounds.merge(detail_bounds)
 
-func _draw_projectile_diamond(center: Vector2, direction: Vector2, color: Color, size: float = 5.0) -> void:
-	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
-	var perp: Vector2 = Vector2(-dir.y, dir.x)
-	draw_colored_polygon(PackedVector2Array([
-		center + dir * size,
-		center + perp * size * 0.6,
-		center - dir * size,
-		center - perp * size * 0.6
-	]), color)
-
-func _draw_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float) -> void:
-	_draw_partial_bezier_glow(from_point, control, to_point, color, width, 1.0)
-
-func _draw_partial_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float, progress: float) -> void:
-	var points: Array[Vector2] = _sample_quadratic_points(from_point, control, to_point, 10)
-	var clamped_progress: float = clampf(progress, 0.0, 1.0)
-	if points.size() < 2 or clamped_progress <= 0.0:
-		return
-	var segment_count: int = mini(points.size() - 1, maxi(1, int(ceil(float(points.size() - 1) * clamped_progress))))
-	for idx: int in range(segment_count):
-		var segment_alpha: float = color.a * (0.40 + 0.60 * float(idx + 1) / float(segment_count))
-		draw_line(points[idx], points[idx + 1], Color(0.0, 0.0, 0.0, segment_alpha * 0.18), width + 2.0, true)
-		draw_line(points[idx], points[idx + 1], Color(color.r, color.g, color.b, segment_alpha), width, true)
-
 func _quadratic_bezier(from_point: Vector2, control: Vector2, to_point: Vector2, t: float) -> Vector2:
 	var u: float = 1.0 - t
 	return u * u * from_point + 2.0 * u * t * control + t * t * to_point
@@ -12107,8 +12146,9 @@ func _draw_impact_decals() -> void:
 		if typeof(decal_var) != TYPE_DICTIONARY:
 			continue
 		var decal: Dictionary = decal_var
+		if bool(decal.get("baked_strike", false)): continue
 		var tile: Vector2i = decal.get("tile", Vector2i(-1, -1))
-		if tile.x < 0:
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 			continue
 		var element_id: String = str(decal.get("element", ElementData.NONE))
 		var kind: String = str(decal.get("kind", ""))
@@ -12183,24 +12223,6 @@ func _draw_impact_radial_marks(center: Vector2, seed: int, count: int, color: Co
 		direction = direction.normalized()
 		draw_line(center + direction * inner_radius, center + direction * outer_radius, color, line_width, true)
 
-func _draw_impact_crack_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
-	for idx: int in range(count):
-		var angle: float = _ambient_hash01(seed + idx * 29) * TAU
-		var direction := Vector2(cos(angle), sin(angle) * y_scale)
-		if direction.length_squared() <= 0.001:
-			continue
-		direction = direction.normalized()
-		var start: Vector2 = center + direction * inner_radius
-		var finish: Vector2 = center + direction * outer_radius
-		var perpendicular := Vector2(-direction.y, direction.x)
-		var kink: Vector2 = start.lerp(finish, 0.54) + perpendicular * lerpf(-5.0, 5.0, _ambient_hash01(seed + idx * 29 + 7))
-		draw_line(start, kink, color, line_width, true)
-		draw_line(kink, finish, color, maxf(1.0, line_width - 0.35), true)
-
-func _impact_offset(seed: int, radius_x: float, radius_y: float) -> Vector2:
-	var angle: float = _ambient_hash01(seed) * TAU
-	return Vector2(cos(angle) * radius_x, sin(angle) * radius_y)
-
 func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
 	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
 
@@ -12225,7 +12247,15 @@ func _dragon_full_area_fx(effect: Dictionary) -> bool:
 	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
 	return preload("res://scripts/dragon_presentation.gd").area_fx(effect) or (str(profile.get("geometry","")) == "physical" and str(effect.get("kind","")) == "aoe")
 
+func _shot_replaces_elemental_painter(effect: Dictionary) -> bool:
+	if ShotFx.resolve(effect).is_empty(): return false
+	# Area shots replace flight. Keep any existing contact that does not
+	# already belong to a tile burst or to the fx-23 Fire/Lightning path.
+	return not ShotFx.is_ranged_area(effect) or bool(effect.get(TileBurstFx.REPLACE_TARGETED, false)) \
+		or AttackFxLibrary.style_for_effect(effect) in [AttackFxLibrary.STYLE_FIREBALL, AttackFxLibrary.STYLE_LIGHTNING_BOLT]
+
 func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
+	if _shot_replaces_elemental_painter(effect): return false
 	if effect.has("en02_mechanic") or effect.has("en04_mechanic"): return false
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return true
 	return (
@@ -12246,10 +12276,6 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 		var threat_effect: Dictionary = _enemy_threat_ranged_effect(threat_var as Dictionary)
 		if not threat_effect.is_empty():
 			_elemental_append_unique_depth_tile(tiles, _ranged_preview_depth_tile(threat_effect))
-	for trap_var: Variant in source_presentation.get("trap_effects", []):
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		_elemental_append_unique_depth_tile(tiles, (trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
 	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return tiles
@@ -12328,12 +12354,6 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 		var empty: Array[Dictionary]
 		_strike_trail_layer.submit(empty)
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
-	for trap_var: Variant in presentation.get("trap_effects", []):
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		var trap: Dictionary = trap_var as Dictionary
-		if trap.get("pos", Vector2i(-1, -1)) == tile:
-			_draw_trap_elemental_depth_effect(trap, _trap_elemental_effect_progress(trap, progress), foreground_pass)
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return
@@ -12344,23 +12364,13 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not depth_tiles.has(tile):
 		return
-	if bool(effect.get("ground_burst",false)):
-		var reduced: bool = bool(presentation.get("reduced_motion",false))
-		var phase: float = 0.42 if reduced else AttackFxLibrary.impact_progress_for_style(style,progress)
-		if not reduced and progress<AttackFxLibrary.travel_end_progress(style): return
-		var point: Vector2 = _tile_center(tile)
-		var fade: float = 1.0 if reduced else _elemental_impact_volume_fade(style,phase)
-		ElementalSpellFx.impact(self,_elemental_style_id(style),point,_elemental_performance_size(style,phase)*0.88,phase,fade,reduced,foreground_pass)
+	if foreground_pass or bool(effect.get("ground_burst", false)):
 		return
 	var current_depth_tile: Vector2i = _elemental_scene_depth_tile_for_effect(effect, progress)
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	var from_point: Vector2 = _tile_center(from_tile)
 	var to_point: Vector2 = _tile_center(to_tile)
-	if foreground_pass:
-		if tile == current_depth_tile:
-			_draw_elemental_foreground_depth_effect(effect, style, progress, to_point)
-		return
 	if style != AttackFxLibrary.STYLE_EARTH_SPIKES and tile != current_depth_tile:
 		return
 	_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
@@ -12369,8 +12379,11 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 	if not _board_tile_is_visible_to_player(tile): return
 	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
 	if str(effect.get("kind", "")) == "lightning_strikes":
+		if bool(effect.get(TileBurstFx.ACTIVE, false)): return
 		if not preload("res://scripts/lightning_strike_presentation.gd").revealed(effect, progress, bool(presentation.get("reduced_motion", false))): return
 		profile = preload("res://scripts/lightning_strike_presentation.gd").profile()
+	var spell: Script = preload("res://scripts/dragon_spell_presentation.gd")
+	if not spell.burst_name(profile).is_empty(): return
 	var targets: Array[Vector2i] = preload("res://scripts/dragon_presentation.gd").tiles(effect)
 	var origin: Vector2i = effect.get("from", Vector2i(-1,-1))
 	var source_visible: bool = not bool(effect.get("umbra_action_clipped",false)) and _board_tile_is_visible_to_player(origin)
@@ -12378,14 +12391,12 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 	var source: Vector2 = _dragon_spell_source(str(effect.get("actor_key","")),ground-Vector2(0,_tile_width()*.4))
 	var reduced: bool = bool(presentation.get("reduced_motion",false))
 	if str(profile.get("geometry","")) == "physical":
-		if foreground and targets.has(tile):
-			if str(profile.get("enemy", "")) == "vyraketh":
-				_draw_vyraketh_bite_effect(ground, _tile_center(tile), progress)
-			elif is_instance_valid(_strike_trail_layer):
-				_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
+		if foreground and targets.has(tile) and profile.get("enemy") != "vyraketh" and is_instance_valid(_strike_trail_layer):
+			_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
 		return
 	if tile == origin and source_visible and not foreground and not reduced:
-		preload("res://scripts/dragon_spell_presentation.gd").draw_source(self,str(profile["element"]),source,ground,_tile_width(),progress)
+		var skybreak: bool = effect.get("enemy_type") == "zekarion" and effect.get("kind") == "lightning_strikes"
+		spell.draw_source(self,profile,source,ground,_tile_width(),progress,not skybreak)
 	if not targets.has(tile): return
 	# Only the outer edge emits long trails; every declared cell gets its own
 	# impact. This makes a fan read as a filled area instead of dozens of bolts.
@@ -12396,7 +12407,7 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 		if Vector2(other).distance_squared_to(Vector2(origin)) > distance and ray.dot((Vector2(other)-Vector2(origin)).normalized()) > .94:
 			endpoint = false
 			break
-	preload("res://scripts/dragon_spell_presentation.gd").draw_target(self,profile,source,ground,_tile_center(tile),_tile_width(),progress,reduced,foreground,endpoint,source_visible,tile.x*101+tile.y*307)
+	spell.draw_target(self,profile,source,ground,_tile_center(tile),_tile_width(),progress,reduced,foreground,endpoint,source_visible,tile.x*101+tile.y*307)
 
 func _dragon_spell_source(actor_key: String, fallback: Vector2) -> Vector2:
 	var renderer: Node
@@ -12426,57 +12437,10 @@ func _dragon_spell_source(actor_key: String, fallback: Vector2) -> Vector2:
 			return body.position + (canvas_point-Vector2(128,128)) * body.size / Vector2(255,255)
 	return fallback
 
-func _draw_trap_elemental_depth_effect(trap: Dictionary, progress: float, foreground_pass: bool) -> void:
-	var element_id: String = str(trap.get("element", ElementData.NONE))
-	var style: String = _elemental_style_for_element(element_id)
-	if style == AttackFxLibrary.STYLE_DEFAULT:
-		return
-	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var impact_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)
-	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
-	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
-	if core_fade <= 0.0 and volume_fade <= 0.0:
-		return
-	var tile_center: Vector2 = _tile_center(trap.get("pos", Vector2i(-1, -1)))
-	var ground_point: Vector2 = _elemental_ground_point(tile_center)
-	var scale_ratio: float = _trap_elemental_scale_ratio(style)
-	_draw_scaled_elemental_begin(ground_point, scale_ratio)
-	if foreground_pass:
-		_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
-	else:
-		match style:
-			AttackFxLibrary.STYLE_EARTH_SPIKES:
-				_draw_earth_impact(ground_point, impact_progress, 1.0, reduced_motion)
-			AttackFxLibrary.STYLE_AIR_GUST:
-				_draw_air_gust_impact(_elemental_air_point(tile_center, 0.56), ground_point, impact_progress, 1.0, reduced_motion)
-			AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-				_draw_lightning_impact(_elemental_air_point(tile_center, 0.58), ground_point, impact_progress, 1.0, reduced_motion)
-			AttackFxLibrary.STYLE_ICE_SHARDS:
-				_draw_ice_icicle_impact(ground_point, impact_progress, 1.0, reduced_motion)
-			_:
-				_draw_fireball_impact_frame(ground_point, ground_point, impact_progress, 1.0, reduced_motion)
-	_draw_scaled_elemental_end()
-
-func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, progress: float, target_point: Vector2) -> void:
-	if bool(effect.get("preview", false)):
-		return
-	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-	if not reduced_motion and progress < travel_end:
-		return
-	var impact_progress: float = 0.52 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
-	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
-	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
-	if core_fade <= 0.0 and volume_fade <= 0.0:
-		return
-	var ground_point: Vector2 = _elemental_ground_point(target_point)
-	_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
-
-func _draw_elemental_foreground_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, _elemental_performance_size(style, impact_progress), impact_progress, alpha, reduced_motion, true)
-
 func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
+	if bool(effect.get(TileBurstFx.REPLACE_TARGETED, false)) or (bool(effect.get("ground_burst", false)) and bool(effect.get(TileBurstFx.ACTIVE, false))): return
+	if _shot_replaces_elemental_painter(effect): return
 	if effect.has("en02_mechanic") or effect.has("en04_mechanic"): return
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
@@ -12509,7 +12473,6 @@ func _draw_elemental_trap_floor_overlay() -> void:
 	if trap_effects.is_empty():
 		return
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
-	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
 	for trap_var: Variant in trap_effects:
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -12522,13 +12485,6 @@ func _draw_elemental_trap_floor_overlay() -> void:
 		if style == AttackFxLibrary.STYLE_DEFAULT:
 			continue
 		var trap_progress: float = _trap_elemental_effect_progress(trap, progress)
-		var ground_point: Vector2 = _elemental_ground_point(_tile_center(trap_pos))
-		var style_progress: float = lerpf(AttackFxLibrary.travel_end_progress(style), 1.0, trap_progress)
-		var scale_ratio: float = _trap_elemental_scale_ratio(style)
-		_draw_scaled_elemental_begin(ground_point, scale_ratio)
-		_draw_elemental_spell_scene(style, style_progress, ground_point, reduced_motion)
-		_draw_scaled_elemental_end()
-		_draw_trap_elemental_footprint(trap, element_id, trap_progress, reduced_motion)
 		var activation_texture: Texture2D = _trap_activation_texture(trap, trap_progress)
 		if activation_texture != null:
 			if PixelFxLayer.enabled() and is_instance_valid(_pixel_fx_layer):
@@ -12577,17 +12533,16 @@ func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
 		_record_render_section_time("effect_overlay", started)
 
 func _draw_effect_overlay() -> void:
-	_draw_protagonist_charge()
 	var effect: Dictionary = presentation.get("effect", {})
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
 	if BrambleView.draw_effect(self, effect, progress) or LobView.draw_effect(self, effect, progress): return
-	if IcefallView.draw_effect(self, effect, progress): return
+	if IcefallView.handles_landing(effect): return
 	if str(effect.get("en02_mechanic", "")) in ["call_wind", "wind_push"]: return
 	if ReflectView.draw_effect(self, effect, progress): return
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
-	_draw_bile_bloomer_fragments(effect, progress)
+	if not ShotFx.resolve(effect).is_empty(): return
 	var kind: String = str(effect.get("kind", ""))
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
@@ -12599,161 +12554,38 @@ func _draw_effect_overlay() -> void:
 		"move":
 			return
 		"blink":
-			if from_tile.x < 0 or to_tile.x < 0:
+			if not bool(effect.get("preview", false)) or from_tile.x < 0 or to_tile.x < 0:
 				return
-			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
-			# A traded Illusion (Glassway Compass, Empty Husk) blinks the other way.
+			_draw_blink_rift_effect(from_tile, to_tile, progress)
 			var exchange_from: Vector2i = effect.get("exchange_from", Vector2i(-1, -1))
 			var exchange_to: Vector2i = effect.get("exchange_to", Vector2i(-1, -1))
 			if exchange_from.x >= 0 and exchange_to.x >= 0 and exchange_from != exchange_to:
-				_draw_blink_rift_effect(exchange_from, exchange_to, progress, bool(effect.get("preview", false)))
+				_draw_blink_rift_effect(exchange_from, exchange_to, progress)
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			if bool(effect.get("umbra_action_clipped", false)):
-				_draw_umbra_clipped_ranged_effect(effect, progress)
-			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
+			if not bool(effect.get("umbra_action_clipped", false)) and (not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer):
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 		"melee":
 			if to_tile.x < 0:
 				return
-			if str(effect.get("cinder_ooze_action", "")) == "attack":
-				CinderOozeActionFx.draw_contact(self, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
-				return
 			if bool(effect.get("grave_surgeon_melee", false)):
-				GraveSurgeonAttackFx.draw_jab(self, from_point, to_point, progress, _tile_width(), bool(presentation.get("reduced_motion", false)))
+				if not ResolvedContactBursts.suppresses_decal(effect, to_tile):
+					GraveSurgeonAttackFx.draw_jab(self, from_point, to_point, progress, _tile_width(), bool(presentation.get("reduced_motion", false)))
 				return
-			if bool(effect.get("veilbound_acolyte_melee", false)):
-				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
-				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
-				return
-			if bool(effect.get("cinder_droplet_melee", false)):
-				var reduced: bool = bool(presentation.get("reduced_motion", false))
-				var impact_phase: float = .38 if reduced else CinderDropletCutout.spatter_impact_phase(progress)
-				if impact_phase < 0.0:
-					return
-				ElementalSpellFx.impact(self, "fire", to_point - Vector2(0.0, _tile_width() * .12),
-					_tile_width() * .28, impact_phase, .85, reduced, true)
-				return
-			if bool(effect.get("vyraketh_maw", false)):
-				_draw_vyraketh_bite_effect(from_point, to_point, progress)
 			# Hero/enemy light is submitted to the additive child at state sync.
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
 			if VaeloryxWind.handles(effect):
-				_draw_vaeloryx_wind_feedback(effect, progress)
 				return
 			var force_from: Vector2i = effect.get("umbra_original_from", from_tile)
 			var force_to: Vector2i = effect.get("umbra_original_to", to_tile)
 			var force_distance: int = absi(force_from.x - force_to.x) + absi(force_from.y - force_to.y)
-			if bool(effect.get("umbra_action_clipped", false)) and force_distance > 1:
-				_draw_umbra_clipped_ranged_effect(effect, progress)
-			elif force_distance > 1:
+			if not bool(effect.get("umbra_action_clipped", false)) and force_distance > 1:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 		"aoe":
 			_draw_aoe_cast_preview(effect, from_point, center_point)
-			if str(effect.get("cinder_ooze_action", "")) == "bloom":
-				CinderOozeActionFx.draw_bloom(self, from_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
-		"chain":
-			_draw_surface_chain_effect(effect, progress)
-		"block":
-			var block_tiles: Array[Vector2i] = _vector2i_array(effect.get("focus_tiles", []))
-			if block_tiles.is_empty():
-				block_tiles = _vector2i_array([effect.get("tile", Vector2i(-1, -1))])
-			for block_tile: Vector2i in block_tiles:
-				if block_tile.x >= 0:
-					_draw_block_cast_effect(block_tile, progress)
-		"heal":
-			var heal_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
-			if heal_tile.x < 0:
-				return
-			_draw_heal_cast_effect(heal_tile, progress)
-		"stoneskin":
-			var stoneskin_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
-			if stoneskin_tile.x < 0:
-				return
-			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
-
-func _draw_vaeloryx_wind_feedback(effect: Dictionary, progress: float) -> void:
-	var actor_key: String = str(effect.get("actor_key", ""))
-	for unit: Dictionary in _visible_units():
-		if str(unit.get("key", "")) != actor_key:
-			continue
-		var ground: Vector2 = _unit_center(unit)
-		var body: Rect2 = _unit_draw_rect_for_center(unit, ground)
-		var target: Vector2i = effect.get("player_from", effect.get("to", Vector2i.ZERO))
-		var target_ground: Vector2 = _tile_center(target)
-		VaeloryxWind.draw(self, effect, progress, body.position + body.size * Vector2(0.5, 0.52),
-			target_ground - Vector2(0.0, _tile_height() * 0.70), ground, target_ground,
-			_tile_width(), bool(presentation.get("reduced_motion", false)))
-		return
-
-func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
-	_draw_cast_icon_effect("block", tile, progress, -0.30, 0.50)
-
-func _draw_heal_cast_effect(tile: Vector2i, progress: float) -> void:
-	var normalized_progress: float = clampf(progress, 0.0, 1.0)
-	var tile_width: float = _tile_width()
-	var base: Vector2 = _tile_center(tile) + Vector2(0.0, -tile_width * 0.08)
-	var plus_offsets := [
-		Vector2(-0.18, 0.02),
-		Vector2(0.14, -0.02),
-		Vector2(-0.03, 0.08),
-		Vector2(0.24, 0.05),
-		Vector2(-0.26, 0.09)
-	]
-	for index: int in range(plus_offsets.size()):
-		var local_progress: float = clampf(normalized_progress * 1.30 - float(index) * 0.12, 0.0, 1.0)
-		if local_progress <= 0.0 or local_progress >= 1.0:
-			continue
-		var texture: Texture2D = _defense_heal_cast_frame(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + (index % DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))
-		if texture == null:
-			continue
-		var fade: float = clampf(sin(local_progress * PI) * 1.08, 0.0, 1.0)
-		var rise: float = tile_width * lerpf(0.03, 0.34, local_progress)
-		var drift: Vector2 = plus_offsets[index]
-		var point: Vector2 = base + Vector2(tile_width * drift.x, tile_width * drift.y - rise)
-		var size: float = tile_width * (0.20 + 0.025 * sin(float(index) * 1.7))
-		_draw_ambient_particle_sprite(texture, point, Vector2.ONE * size, 0.0, fade)
-
-func _draw_stoneskin_cast_effect(tile: Vector2i, progress: float) -> void:
-	_draw_cast_icon_effect("stoneskin", tile, progress, -0.26, 0.56)
-
-func _draw_cast_icon_effect(effect_id: String, tile: Vector2i, progress: float, y_offset_scale: float, size_scale: float) -> void:
-	var frame_index: int = _cast_effect_frame_index(effect_id, progress)
-	var texture: Texture2D = _defense_heal_cast_frame(frame_index)
-	if texture == null:
-		return
-	var normalized_progress: float = clampf(progress, 0.0, 1.0)
-	var fade_in: float = clampf(normalized_progress / 0.18, 0.0, 1.0)
-	var fade_out: float = clampf((1.0 - normalized_progress) / 0.24, 0.0, 1.0)
-	var alpha: float = minf(fade_in, fade_out)
-	var pop: float = 1.0 - pow(1.0 - fade_in, 2.0)
-	var settle: float = 1.0 + 0.06 * sin(normalized_progress * PI)
-	var tile_width: float = _tile_width()
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, tile_width * y_offset_scale)
-	var draw_size: Vector2 = Vector2.ONE * tile_width * size_scale * lerpf(0.72, 1.0, pop) * settle
-	_draw_ambient_particle_sprite(texture, center, draw_size, 0.0, alpha)
-
-func _cast_effect_frame_index(effect_id: String, progress: float) -> int:
-	var row: int = 0
-	match effect_id:
-		"heal":
-			row = 1
-		"stoneskin":
-			row = 2
-		_:
-			row = 0
-	var local_progress: float = clampf(progress, 0.0, 0.999)
-	var column: int = clampi(int(floor(local_progress * float(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))), 0, DEFENSE_HEAL_CASTS_FRAMES_PER_KIND - 1)
-	return row * DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + column
-
-func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
-	var frames: Array = _effect_frames.get("defense_heal_casts", [])
-	if frame_index < 0 or frame_index >= frames.size():
-		return null
-	return frames[frame_index] as Texture2D
 
 func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
 	var player: Dictionary = combat_state.get("player", {})
@@ -12848,15 +12680,6 @@ func _bile_bloomer_socket_world(effect: Dictionary) -> Variant:
 			return body.position + body.size * (renderer.call("source_socket") as Vector2) / BileBloomerCutout.SOURCE_SIZE
 	return null
 
-func _draw_bile_bloomer_fragments(effect: Dictionary, progress: float) -> void:
-	if bool(presentation.get("reduced_motion", false)):
-		return
-	var socket: Variant = _bile_bloomer_socket_world(effect)
-	if not socket is Vector2:
-		return
-	var target: Vector2 = _elemental_ground_point(_tile_center(effect.get("to", Vector2i.ZERO)))
-	BileBloomerFx.draw_fragments(self, socket, target, progress, str(effect.get("kind", "")) == "aoe", bile_bloomer_source_pixel_scale())
-
 func _cutout_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
 	return preload("res://scripts/maquette_cutout_runtime/effect_sockets.gd").launch_point(self, effect, _protagonist_launch_point(effect, fallback))
 
@@ -12886,416 +12709,30 @@ func _iskaldra_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
 		return body.position + body.size * Vector2(renderer.call("source_socket", true)) / IskaldraCutout.SOURCE_SIZE
 	return fallback
 
-func _draw_protagonist_charge() -> void:
-	var motion: Dictionary = presentation.get("protagonist_motion", {})
-	var amount: float = float(motion.get("charge", 0.0))
-	if amount <= 0.0 or bool(presentation.get("reduced_motion", false)) or not is_instance_valid(_protagonist_renderer):
-		return
-	var center: Vector2 = _protagonist_socket_world(false)
-	var scale: float = protagonist_source_pixel_scale()
-	var accent: Color = _projectile_accent(str(motion.get("element", "none")))
-	var radius: float = lerpf(10.0, 4.0, amount) * scale
-	draw_circle(center, 4.0 * scale, Color(accent, amount * 0.23))
-	draw_arc(center, radius, amount * 2.0, amount * 2.0 + TAU * 0.76, 18, Color(accent, amount * 0.85), maxf(1.0, scale), true)
-	for index: int in range(4):
-		var ray: Vector2 = Vector2.from_angle(float(index) * TAU / 4.0 + amount * 1.6)
-		draw_line(center + ray * (radius + 3.0 * scale), center + ray * radius, Color(accent, amount), maxf(1.0, scale), true)
-	draw_circle(center, 1.4 * scale, Color(1.0, 0.97, 0.85, amount))
+func _draw_ranged_projectile_effect(effect: Dictionary, _progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	if bool(effect.get("preview", false)) and _target_preview_curve_visible(effect):
+		_draw_ranged_target_preview_curve(effect, from_point, to_point)
 
-func _noctyrax_maw_point(actor_key: String, fallback: Vector2) -> Vector2:
-	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
-	if not is_instance_valid(renderer):
-		return fallback
-	for unit: Dictionary in _visible_units():
-		if str(unit.get("key", "")) == actor_key:
-			var logical: Rect2 = _unit_draw_rect(unit)
-			return logical.position + (Vector2(renderer.call("maw_canvas_position")) - NoctyraxCutout.SOURCE_OFFSET) * logical.size / NoctyraxCutout.SOURCE_SIZE
-	return fallback
-
-func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	if bool(effect.get("preview", false)):
-		if _target_preview_curve_visible(effect):
-			_draw_ranged_target_preview_curve(effect, from_point, to_point)
-		return
-	if bool(effect.get("noctyrax_breath", false)):
-		_draw_noctyrax_breath(effect, progress, from_point, to_point)
-		return
-	var style: String = AttackFxLibrary.style_for_effect(effect)
-	match style:
-		AttackFxLibrary.STYLE_FIREBALL:
-			_draw_fireball_attack_effect(effect, progress, from_point, to_point)
-			return
-		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			_draw_earth_spike_attack_effect(effect, progress, from_point, to_point)
-			return
-		AttackFxLibrary.STYLE_AIR_GUST:
-			_draw_air_gust_attack_effect(effect, progress, from_point, to_point)
-			return
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			_draw_lightning_attack_effect(effect, progress, from_point, to_point)
-			return
+func _single_shot_endpoints(effect: Dictionary, from: Vector2, to: Vector2) -> Vector4:
+	var start: Vector2
+	var end: Vector2
+	match AttackFxLibrary.style_for_effect(effect):
 		AttackFxLibrary.STYLE_ICE_SHARDS:
-			_draw_ice_shard_attack_effect(effect, progress, from_point, to_point)
-			return
-	var element_id: String = _projectile_element_id(_effect_element(effect))
-	var accent: Color = _projectile_accent(element_id)
-	var secondary: Color = _projectile_secondary(element_id)
-	var start: Vector2 = _veilbound_acolyte_launch_point(effect, _cutout_launch_point(effect, from_point + Vector2(0.0, -24.0)))
-	var end: Vector2 = to_point + Vector2(0.0, -24.0)
-	var control: Vector2 = _arc_control_point(start, end)
-	if bool(effect.get("veilbound_acolyte_ranged", false)):
-		VeilboundAcolyteFx.ranged(self,progress,start,control,end,_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
-		return
-	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
-	var arc_alpha: float = 0.11 + 0.08 * warmup_progress
-	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
-	var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
-	if travel_progress > 0.0:
-		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary)
-		var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
-		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
-		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
-		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
-
-func _draw_noctyrax_breath(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	# Starless Breath is exhaled shadow, not the default physical projectile.
-	# Keep the resolver's 18% launch and 66% impact boundaries. Hidden intervals
-	# still use the common Umbra-clipped fragment path below.
-	var start: Vector2 = _noctyrax_maw_point(str(effect.get("actor_key", "")), from_point + Vector2(0.0, -24.0))
-	var end: Vector2 = to_point + Vector2(0.0, -24.0)
-	var scale: float = clampf(_tile_width() / 96.0, 0.65, 1.5)
-	var reduced: bool = bool(presentation.get("reduced_motion", false))
-	if progress >= 0.66 or reduced:
-		var impact: float = 0.45 if reduced else clampf((progress - 0.66) / 0.34, 0.0, 1.0)
-		var alpha: float = 0.75 if reduced else 1.0 - impact
-		draw_circle(end, (5.0 + 12.0 * impact) * scale, Color(0.12, 0.04, 0.22, alpha * 0.72))
-		draw_arc(end, (7.0 + 16.0 * impact) * scale, 0.0, TAU, 28, Color(0.65, 0.40, 0.90, alpha), 2.0 * scale, true)
-		return
-	if bool(effect.get("umbra_action_clipped", false)):
-		return
-	if progress < 0.18:
-		var charge: float = clampf(progress / 0.18, 0.0, 1.0)
-		draw_circle(start, (2.0 + charge * 3.0) * scale, Color(0.61, 0.32, 0.88, charge * 0.60))
-		return
-	var travel: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
-	if travel <= 0.001:
-		return
-	var direction: Vector2 = (end - start).normalized()
-	var normal := Vector2(-direction.y, direction.x)
-	var upper := PackedVector2Array()
-	var lower := PackedVector2Array()
-	var spine := PackedVector2Array()
-	for index: int in range(19):
-		var along: float = float(index) / 18.0
-		var t: float = along * travel
-		var wave: float = sin(along * TAU * 2.5 - travel * TAU * 2.0)
-		var center: Vector2 = start.lerp(end, t) + normal * wave * 2.2 * along * scale
-		var width: float = (1.5 + 6.5 * along + 1.4 * sin(along * TAU * 4.0 - travel * 9.0)) * scale
-		upper.append(center + normal * width)
-		lower.append(center - normal * width)
-		spine.append(center)
-	lower.reverse()
-	upper.append_array(lower)
-	draw_colored_polygon(upper, Color(0.16, 0.055, 0.27, 0.88))
-	draw_polyline(spine, Color(0.48, 0.23, 0.70, 0.66), 4.0 * scale, true)
-	for index: int in range(1, 7):
-		var t: float = travel * float(index) / 7.0
-		var center: Vector2 = start.lerp(end, t)
-		center += normal * sin(float(index) * 2.4 - travel * 11.0) * (2.0 + 7.0 * t) * scale
-		draw_circle(center, (1.0 + 1.7 * t) * scale, Color(0.75, 0.52, 0.93, 0.62))
-	var tip: Vector2 = spine[spine.size() - 1]
-	draw_circle(tip, 8.0 * scale, Color(0.28, 0.09, 0.43, 0.88))
-	draw_arc(tip, 7.0 * scale, direction.angle() - PI * 0.65, direction.angle() + PI * 0.65, 14, Color(0.77, 0.51, 0.96, 0.90), 2.0 * scale, true)
-
-func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> void:
-	var original_from: Vector2i = effect.get("umbra_original_from", Vector2i(-1, -1))
-	var original_to: Vector2i = effect.get("umbra_original_to", Vector2i(-1, -1))
-	var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
-	if original_from.x < 0 or original_to.x < 0 or segments.is_empty():
-		return
-	var full_start: Vector2 = _tile_center(original_from)
-	var full_end: Vector2 = _tile_center(original_to)
-	var style: String = AttackFxLibrary.style_for_effect(effect)
-	var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
-	var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
-	var target_visible: bool = _board_tile_is_visible_to_player(original_to)
-	var impact_in_scene: bool = _is_dynamic_render_layer and _effect_uses_elemental_scene_depth(effect)
-	if bool(presentation.get("reduced_motion", false)):
-		for segment_index: int in range(segments.size()):
-			var reduced_segment: Dictionary = segments[segment_index] as Dictionary
-			var reduced_start: float = clampf(float(reduced_segment.get("start", 0.0)), 0.0, 1.0)
-			var reduced_end: float = clampf(float(reduced_segment.get("end", 1.0)), reduced_start, 1.0)
-			var reduced_segment_start: Vector2 = full_start.lerp(full_end, reduced_start)
-			var reduced_segment_end: Vector2 = full_start.lerp(full_end, reduced_end)
-			if target_visible and segment_index == segments.size() - 1:
-				if not impact_in_scene:
-					_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
-			else:
-				_draw_umbra_projectile_fragment(effect, reduced_segment_start, reduced_segment_end, 0.5, reduced_segment)
-		return
-	if progress < travel_start:
-		return
-	if progress > travel_end:
-		if target_visible and not impact_in_scene:
-			var impact_segment: Dictionary = segments[segments.size() - 1] as Dictionary
-			_draw_ranged_projectile_effect(
-				effect,
-				progress,
-				full_start.lerp(full_end, float(impact_segment.get("start", 0.0))),
-				full_end
-			)
-		return
-	var spatial_progress: float = _umbra_ranged_spatial_progress(style, progress, travel_start, travel_end)
-	for segment_var: Variant in segments:
-		if typeof(segment_var) != TYPE_DICTIONARY:
-			continue
-		var segment: Dictionary = segment_var as Dictionary
-		var segment_start: float = clampf(float(segment.get("start", 0.0)), 0.0, 1.0)
-		var segment_end: float = clampf(float(segment.get("end", 1.0)), segment_start, 1.0)
-		if spatial_progress + 0.0001 < segment_start or spatial_progress - 0.0001 > segment_end:
-			continue
-		var segment_span: float = maxf(0.0001, segment_end - segment_start)
-		var local_spatial_progress: float = clampf((spatial_progress - segment_start) / segment_span, 0.0, 1.0)
-		_draw_umbra_projectile_fragment(
-			effect,
-			full_start.lerp(full_end, segment_start),
-			full_start.lerp(full_end, segment_end),
-			local_spatial_progress,
-			segment
-		)
-		return
-
-func _draw_umbra_projectile_fragment(
-	effect: Dictionary,
-	segment_start: Vector2,
-	segment_end: Vector2,
-	segment_progress: float,
-	clip_segment: Dictionary
-) -> void:
-	# Large authored projectile sheets extend well behind their logical center.
-	# Build a compact elemental streak whose longitudinal vertices are clamped to
-	# the visible interval, so neither its head nor tail can paint into Umbra.
-	var lifted_start: Vector2 = segment_start + Vector2(0.0, -24.0)
-	var lifted_end: Vector2 = segment_end + Vector2(0.0, -24.0)
-	var segment_delta: Vector2 = lifted_end - lifted_start
-	var segment_length: float = segment_delta.length()
-	if segment_length <= 0.01:
-		return
-	var direction: Vector2 = segment_delta / segment_length
-	var normal := Vector2(-direction.y, direction.x)
-	var local_progress: float = clampf(segment_progress, 0.0, 1.0)
-	var center: Vector2 = lifted_start.lerp(lifted_end, local_progress)
-	var available_before: float = segment_length * local_progress
-	var available_after: float = segment_length * (1.0 - local_progress)
-	var tail_length: float = minf(minf(_tile_width() * 0.42, segment_length * 0.58), available_before)
-	var head_length: float = minf(minf(_tile_width() * 0.16, segment_length * 0.24), available_after)
-	var shoulder_length: float = minf(_tile_width() * 0.07, available_before)
-	var back: Vector2 = center - direction * tail_length
-	var shoulder: Vector2 = center - direction * shoulder_length
-	var tip: Vector2 = center + direction * head_length
-	var half_width: float = minf(_tile_width() * 0.060, maxf(2.5, segment_length * 0.10))
-	var element_id: String = _projectile_element_id(_effect_element(effect))
-	var accent: Color = Color(0.65, 0.40, 0.90) if bool(effect.get("noctyrax_breath", false)) else _projectile_accent(element_id)
-	var secondary: Color = Color(0.20, 0.055, 0.32) if bool(effect.get("noctyrax_breath", false)) else _projectile_secondary(element_id)
-	var outer := PackedVector2Array([
-		back,
-		shoulder + normal * half_width * 1.35,
-		tip,
-		shoulder - normal * half_width * 1.35,
-	])
-	var texture: Texture2D = _umbra_projectile_fragment_texture(effect, local_progress)
-	if texture == null:
-		var inner := PackedVector2Array([
-			back,
-			shoulder + normal * half_width,
-			tip,
-			shoulder - normal * half_width,
-		])
-		_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.18), clip_segment)
-		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.72), clip_segment)
-		var core := PackedVector2Array([
-			back,
-			shoulder + normal * half_width * 0.26,
-			tip,
-			shoulder - normal * half_width * 0.26,
-		])
-		var core_color: Color = accent.lightened(0.55)
-		core_color.a = 0.88
-		_draw_umbra_clipped_colored_polygon(core, core_color, clip_segment)
-		return
-	_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.20), clip_segment)
-	var texture_size := Vector2(
-		clampf(_tile_width() * 0.82, 70.0, 112.0),
-		clampf(_tile_width() * 0.48, 40.0, 72.0)
-	)
-	_draw_umbra_clipped_oriented_texture(
-		texture,
-		center,
-		direction,
-		texture_size * 1.12,
-		available_before,
-		available_after,
-		Color(secondary.r, secondary.g, secondary.b, 0.24),
-		clip_segment
-	)
-	_draw_umbra_clipped_oriented_texture(
-		texture,
-		center,
-		direction,
-		texture_size,
-		available_before,
-		available_after,
-		Color.WHITE,
-		clip_segment
-	)
-
-func _umbra_projectile_fragment_texture(effect: Dictionary, _progress: float) -> Texture2D:
-	# Elemental spells use clipped material geometry, including when only a short
-	# visible interval crosses Umbra. Do not resurrect the removed spell atlases.
-	if bool(effect.get("noctyrax_breath", false)) or AttackFxLibrary.uses_authored_elemental_attack(effect):
-		return null
-	return _projectile_texture(_projectile_element_id(_effect_element(effect)))
-
-func _draw_umbra_clipped_oriented_texture(
-	texture: Texture2D,
-	center: Vector2,
-	direction: Vector2,
-	draw_size: Vector2,
-	available_before: float,
-	available_after: float,
-	tint: Color,
-	clip_segment: Dictionary
-) -> void:
-	var destination := Rect2(-draw_size * 0.5, draw_size)
-	var clipped_x_start: float = maxf(destination.position.x, -available_before)
-	var clipped_x_end: float = minf(destination.end.x, available_after)
-	if clipped_x_end - clipped_x_start <= 0.01:
-		return
-	var x_ratio_start: float = (clipped_x_start - destination.position.x) / destination.size.x
-	var x_ratio_end: float = (clipped_x_end - destination.position.x) / destination.size.x
-	var source_size := Vector2(texture.get_size())
-	var clipped_destination := Rect2(
-		Vector2(clipped_x_start, destination.position.y),
-		Vector2(clipped_x_end - clipped_x_start, destination.size.y)
-	)
-	var source := Rect2(
-		Vector2(source_size.x * x_ratio_start, 0.0),
-		Vector2(source_size.x * (x_ratio_end - x_ratio_start), source_size.y)
-	)
-	var normal := Vector2(-direction.y, direction.x)
-	var polygon_vertices: Array[Dictionary] = _umbra_dictionary_array([
-		{
-			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.position.y,
-			"uv": Vector2(source.position.x / source_size.x, source.position.y / source_size.y),
-		},
-		{
-			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.position.y,
-			"uv": Vector2(source.end.x / source_size.x, source.position.y / source_size.y),
-		},
-		{
-			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.end.y,
-			"uv": Vector2(source.end.x / source_size.x, source.end.y / source_size.y),
-		},
-		{
-			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.end.y,
-			"uv": Vector2(source.position.x / source_size.x, source.end.y / source_size.y),
-		},
-	])
-	polygon_vertices = _umbra_clip_polygon_vertices(polygon_vertices, clip_segment)
-	if polygon_vertices.size() < 3:
-		return
-	var points := PackedVector2Array()
-	var colors := PackedColorArray()
-	var uvs := PackedVector2Array()
-	for vertex: Dictionary in polygon_vertices:
-		points.append(vertex.get("point", Vector2.ZERO))
-		colors.append(tint)
-		uvs.append(vertex.get("uv", Vector2.ZERO))
-	draw_polygon(points, colors, uvs, texture)
-
-func _draw_umbra_clipped_colored_polygon(points: PackedVector2Array, color: Color, clip_segment: Dictionary) -> void:
-	var vertices: Array[Dictionary] = _umbra_dictionary_array([])
-	for point: Vector2 in points:
-		vertices.append({"point": point, "uv": Vector2.ZERO})
-	vertices = _umbra_clip_polygon_vertices(vertices, clip_segment)
-	if vertices.size() < 3:
-		return
-	var clipped_points := PackedVector2Array()
-	for vertex: Dictionary in vertices:
-		clipped_points.append(vertex.get("point", Vector2.ZERO))
-	draw_colored_polygon(clipped_points, color)
-
-func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = vertices
-	for plane: Dictionary in _umbra_clip_planes_for_segment(clip_segment):
-		if result.is_empty():
-			break
-		var clipped: Array[Dictionary] = _umbra_dictionary_array([])
-		var plane_point: Vector2 = plane.get("point", Vector2.ZERO)
-		var plane_normal: Vector2 = plane.get("normal", Vector2.ZERO)
-		for vertex_index: int in range(result.size()):
-			var current: Dictionary = result[vertex_index]
-			var next: Dictionary = result[(vertex_index + 1) % result.size()]
-			var current_point: Vector2 = current.get("point", Vector2.ZERO)
-			var next_point: Vector2 = next.get("point", Vector2.ZERO)
-			var current_distance: float = (current_point - plane_point).dot(plane_normal)
-			var next_distance: float = (next_point - plane_point).dot(plane_normal)
-			var current_inside: bool = current_distance >= -0.001
-			var next_inside: bool = next_distance >= -0.001
-			if current_inside:
-				clipped.append(current)
-			if current_inside == next_inside:
-				continue
-			var denominator: float = current_distance - next_distance
-			if absf(denominator) <= 0.0001:
-				continue
-			var interpolation: float = clampf(current_distance / denominator, 0.0, 1.0)
-			clipped.append({
-				"point": current_point.lerp(next_point, interpolation),
-				"uv": (current.get("uv", Vector2.ZERO) as Vector2).lerp(next.get("uv", Vector2.ZERO) as Vector2, interpolation),
-			})
-		result = clipped
-	return result
-
-func _umbra_dictionary_array(values: Array) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	for value: Variant in values:
-		if typeof(value) == TYPE_DICTIONARY:
-			result.append(value as Dictionary)
-	return result
-
-func _umbra_clip_planes_for_segment(segment: Dictionary) -> Array[Dictionary]:
-	var planes: Array[Dictionary] = _umbra_dictionary_array([])
-	for boundary_group: Dictionary in [
-		{
-			"boundaries": segment.get("start_clip_boundaries", []),
-			"hidden": segment.get("start_hidden_tile", Vector2i(-1, -1)),
-			"visible": segment.get("start_visible_tile", Vector2i(-1, -1)),
-		},
-		{
-			"boundaries": segment.get("end_clip_boundaries", []),
-			"hidden": segment.get("end_hidden_tile", Vector2i(-1, -1)),
-			"visible": segment.get("end_visible_tile", Vector2i(-1, -1)),
-		},
-	]:
-		var boundaries: Array = boundary_group.get("boundaries", []) as Array
-		if boundaries.is_empty():
-			var hidden_tile: Vector2i = boundary_group.get("hidden", Vector2i(-1, -1))
-			var visible_tile: Vector2i = boundary_group.get("visible", Vector2i(-1, -1))
-			if hidden_tile.x >= 0 and visible_tile.x >= 0:
-				boundaries = [{"hidden_tile": hidden_tile, "visible_tile": visible_tile}]
-		for boundary_var: Variant in boundaries:
-			if typeof(boundary_var) != TYPE_DICTIONARY:
-				continue
-			var boundary: Dictionary = boundary_var as Dictionary
-			var hidden_tile: Vector2i = boundary.get("hidden_tile", Vector2i(-1, -1))
-			var visible_tile: Vector2i = boundary.get("visible_tile", Vector2i(-1, -1))
-			if hidden_tile.x < 0 or visible_tile.x < 0:
-				continue
-			var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
-			if not plane.is_empty():
-				planes.append(plane)
-	return planes
+			start = _iskaldra_launch_point(effect, _cutout_launch_point(effect, _elemental_air_point(from, 0.60)))
+			end = _elemental_air_point(to, 0.40)
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			start = _elemental_ground_point(from)
+			var socket: Variant = _bile_bloomer_socket_world(effect)
+			if socket is Vector2: start = socket
+			elif ShotFx.is_ranged_area(effect): start = _cutout_launch_point(effect, start)
+			end = _elemental_ground_point(to)
+		AttackFxLibrary.STYLE_AIR_GUST:
+			start = _cutout_launch_point(effect, _elemental_air_point(from, 0.62))
+			end = _elemental_air_point(to, 0.56)
+		_:
+			start = _veilbound_acolyte_launch_point(effect, _cutout_launch_point(effect, from + Vector2(0.0, -24.0)))
+			end = to + Vector2(0.0, -24.0)
+	return Vector4(start.x, start.y, end.x, end.y)
 
 func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -> Dictionary:
 	var visible_center: Vector2 = _tile_center(visible_tile)
@@ -13325,11 +12762,6 @@ func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -
 	if normal.length_squared() <= 0.001:
 		return {}
 	return {"point": midpoint, "normal": normal.normalized()}
-
-func _umbra_ranged_spatial_progress(style: String, progress: float, travel_start: float, travel_end: float) -> float:
-	if style == AttackFxLibrary.STYLE_DEFAULT:
-		return clampf((progress - travel_start) / maxf(0.001, travel_end - travel_start), 0.0, 1.0)
-	return AttackFxLibrary.travel_progress_for_style(style, progress)
 
 func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
@@ -13539,26 +12971,9 @@ func _elemental_style_for_element(element_id: String) -> String:
 		"element": element_id,
 	})
 
-func _trap_elemental_scale_ratio(style: String) -> float:
-	return TRAP_ELEMENTAL_DETONATION_SCALE / maxf(0.001, _elemental_detonation_scale(style))
-
-func _draw_scaled_elemental_begin(ground_point: Vector2, scale_ratio: float) -> void:
-	var clamped_ratio: float = maxf(0.001, scale_ratio)
-	_pixel_fx_draw_transform = Transform2D(0.0, Vector2.ONE * clamped_ratio, 0.0, ground_point * (1.0 - clamped_ratio))
-	draw_set_transform_matrix(_pixel_fx_draw_transform)
-
-func _draw_scaled_elemental_end() -> void:
-	_pixel_fx_draw_transform = Transform2D.IDENTITY
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-func _draw_elemental_spell_scene(style: String, progress: float, target_ground: Vector2, reduced_motion: bool) -> void:
-	if not reduced_motion and progress < AttackFxLibrary.travel_end_progress(style):
-		return
-	var t: float = 0.38 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
-	ElementalSpellFx.ground(self, _elemental_style_id(style), target_ground, _elemental_performance_size(style, t), t, 0.65 if reduced_motion else 1.0)
-
-func _draw_elemental_release(style: String, start: Vector2, ground_start: Vector2, end: Vector2, release_progress: float, alpha: float = 1.0) -> void:
-	ElementalSpellFx.release(self, _elemental_style_id(style), start, ground_start, _tile_width(), release_progress, alpha)
+func _draw_elemental_spell_scene(_style: String, _progress: float, _target_ground: Vector2, _reduced_motion: bool) -> void:
+	# The retained tile player owns the resolved floor contact.
+	pass
 
 func _elemental_performance_size_scale(style: String) -> float:
 	match style:
@@ -13597,262 +13012,31 @@ func _elemental_impact_volume_fade(style: String, impact_progress: float) -> flo
 		return 1.0 - smoothstep(0.76, 1.0, impact_progress)
 	return _elemental_impact_core_fade(style, impact_progress)
 
-func _draw_elemental_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> float:
-	var draw_size: float = _elemental_performance_size(style, impact_progress)
-	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, draw_size, impact_progress, alpha, reduced_motion, false)
-	return draw_size
+func _draw_elemental_performance(style: String, _ground_point: Vector2, impact_progress: float, _alpha: float, _reduced_motion: bool) -> float:
+	# The legacy ranged painters still call this; contact is owned by the tile player.
+	return _elemental_performance_size(style, impact_progress)
 
-func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	var style: String = AttackFxLibrary.STYLE_EARTH_SPIKES
-	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
-	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
-	var start: Vector2 = _elemental_ground_point(from_point)
-	var end: Vector2 = _elemental_ground_point(to_point)
-	if bool(presentation.get("reduced_motion", false)):
-		if _render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile:
-			_draw_earth_impact(end, 0.52, 1.0, true)
-		return
-	if bool(effect.get("preview", false)):
-		var phase: float = wrapf((float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-		_draw_earth_spike_path(start, end, phase, 0.62, from_tile, to_tile)
-		return
-	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
-	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
-	if progress <= anticipation_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == from_tile):
-		_draw_elemental_release(style, _cutout_launch_point(effect, start), start, end, AttackFxLibrary.release_progress_for_style(style, progress))
-	if progress >= anticipation_end and progress <= travel_end:
-		_draw_earth_spike_path(start, end, travel_progress, 1.0, from_tile, to_tile)
-	if progress >= travel_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile):
-		_draw_earth_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
-
-func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float, from_tile: Vector2i = Vector2i(-1, -1), to_tile: Vector2i = Vector2i(-1, -1)) -> void:
-	for burst: int in range(EARTH_PATH_SPIKE_COUNT):
-		var phase: float = lerpf(0.10, 0.96, float(burst) / float(EARTH_PATH_SPIKE_COUNT - 1))
-		if _render_layer_kind == RENDER_LAYER_SCENE_TILE and from_tile.x >= 0 and _render_layer_tile != _elemental_lerp_depth_tile(from_tile, to_tile, phase):
-			continue
-		var age: float = (travel_progress - phase) / 0.55
-		if age <= 0.0 or age >= 1.0:
-			continue
-		var point: Vector2 = start.lerp(end, phase)
-		ElementalSpellFx.ground(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82)
-		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, false)
-		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, true)
-
-func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	_draw_elemental_performance(AttackFxLibrary.STYLE_EARTH_SPIKES, point, impact_progress, alpha, reduced_motion)
-
-func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	var style: String = AttackFxLibrary.STYLE_AIR_GUST
-	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.62))
-	var end: Vector2 = _elemental_air_point(to_point, 0.56)
-	var ground_start: Vector2 = _elemental_ground_point(from_point)
-	var ground_end: Vector2 = _elemental_ground_point(to_point)
-	if bool(presentation.get("reduced_motion", false)):
-		_draw_air_gust_impact(end, ground_end, 0.52, 1.0, true)
-		return
-	if bool(effect.get("preview", false)):
-		var phase: float = wrapf((float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.64
-		_draw_air_gust_travel(start, end, ground_start, ground_end, lerpf(0.05, 0.95, phase), preview_alpha)
-		return
-	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
-	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-	if progress <= anticipation_end:
-		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
-	if progress >= anticipation_end and progress <= travel_end:
-		_draw_air_gust_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
-	if progress >= travel_end:
-		_draw_air_gust_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
-
-func _draw_air_gust_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	ElementalSpellFx.travel(self, "air", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
-
-func _draw_air_gust_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	_draw_elemental_performance(AttackFxLibrary.STYLE_AIR_GUST, ground_center, impact_progress, alpha, reduced_motion)
-
-func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
-	var start: Vector2 = _zekarion_effect_socket(effect, "maw", _cutout_launch_point(effect, _elemental_air_point(from_point, 0.66)))
-	var end: Vector2 = _elemental_air_point(to_point, 0.58)
-	var ground_start: Vector2 = _elemental_ground_point(from_point)
-	var ground_end: Vector2 = _elemental_ground_point(to_point)
-	if bool(presentation.get("reduced_motion", false)):
-		_draw_lightning_impact(end, ground_end, 0.52, 1.0, true)
-		return
-	if bool(effect.get("preview", false)):
-		var phase: float = wrapf((float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0) / 1.35, 0.0, 1.0)
-		var preview_alpha: float = clampf(minf(phase / 0.10, (1.0 - phase) / 0.10), 0.0, 1.0) * 0.66
-		_draw_lightning_travel(start, end, ground_start, ground_end, lerpf(0.06, 0.96, phase), preview_alpha)
-		return
-	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
-	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-	if progress <= anticipation_end:
-		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
-	if progress >= anticipation_end and progress <= travel_end:
-		_draw_lightning_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
-	if progress >= travel_end:
-		_draw_lightning_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
-
-func _draw_lightning_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	ElementalSpellFx.travel(self, "lightning", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
-
-func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	_draw_elemental_performance(AttackFxLibrary.STYLE_LIGHTNING_BOLT, ground_center, impact_progress, alpha, reduced_motion)
-
-func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
-	var start: Vector2 = _iskaldra_launch_point(effect, _cutout_launch_point(effect, _elemental_air_point(from_point, 0.60)))
-	var end: Vector2 = _elemental_air_point(to_point, 0.40)
-	var ground_start: Vector2 = _elemental_ground_point(from_point)
-	var ground_end: Vector2 = _elemental_ground_point(to_point)
-	if bool(presentation.get("reduced_motion", false)):
-		_draw_ice_icicle_impact(ground_end, 0.52, 1.0, true)
-		return
-	if bool(effect.get("preview", false)):
-		var phase: float = wrapf((float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.66
-		_draw_ice_shard_travel(start, end, ground_start, ground_end, lerpf(0.05, 0.95, phase), preview_alpha)
-		return
-	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
-	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
-	if progress <= anticipation_end:
-		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
-	if progress >= anticipation_end and progress <= travel_end:
-		_draw_ice_shard_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
-	if progress >= travel_end:
-		_draw_ice_icicle_impact(ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
-
-func _draw_ice_shard_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	ElementalSpellFx.travel(self, "ice", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
-
-func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	_draw_elemental_performance(AttackFxLibrary.STYLE_ICE_SHARDS, point, impact_progress, alpha, reduced_motion)
-
-func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	var style: String = AttackFxLibrary.STYLE_FIREBALL
-	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.72))
-	var end: Vector2 = _elemental_air_point(to_point, 0.66)
-	var ground_start: Vector2 = _elemental_ground_point(from_point)
-	var ground_end: Vector2 = _elemental_ground_point(to_point)
-	if bool(presentation.get("reduced_motion", false)):
-		_draw_fireball_impact_frame(end, ground_end, 0.52, 1.0, true)
-		return
-	if bool(effect.get("preview", false)):
-		var preview_phase: float = wrapf((float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-		var preview_travel: float = lerpf(0.06, 0.94, preview_phase)
-		var preview_alpha: float = clampf(minf(preview_phase / 0.14, (1.0 - preview_phase) / 0.14), 0.0, 1.0) * 0.66
-		_draw_fireball_travel_composite(start, end, ground_start, ground_end, preview_travel, preview_alpha, true)
-		return
-	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
-	var travel_progress: float = AttackFxLibrary.fireball_travel_progress(progress)
-	if progress <= anticipation_end:
-		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
-	if progress >= anticipation_end and progress <= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
-		_draw_fireball_travel_composite(start, end, ground_start, ground_end, travel_progress, 1.0, false)
-	var impact_progress: float = AttackFxLibrary.fireball_impact_progress(progress)
-	if progress >= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
-		_draw_fireball_impact_frame(end, ground_end, impact_progress, 1.0, false)
-
-func _draw_fireball_travel_composite(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float, preview: bool) -> void:
-	ElementalSpellFx.travel(self, "fire", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
-
-func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	_draw_elemental_performance(AttackFxLibrary.STYLE_FIREBALL, ground_center, impact_progress, alpha, reduced_motion)
-
-func _draw_elemental_projectile_trail(
-	start: Vector2,
-	control: Vector2,
-	end: Vector2,
-	travel_progress: float,
-	element_id: String,
-	accent: Color,
-	secondary: Color,
-	alpha_multiplier: float = 1.0
-) -> void:
-	var points: Array[Vector2] = _sample_quadratic_points(start, control, end, 16)
-	if points.size() < 2:
-		return
-	var last_index: int = clampi(int(floor(float(points.size() - 1) * travel_progress)), 1, points.size() - 1)
-	var first_index: int = maxi(0, last_index - _projectile_trail_segment_count(element_id))
-	var segment_total: int = maxi(1, last_index - first_index)
-	for index: int in range(first_index, last_index):
-		var local_t: float = float(index - first_index + 1) / float(segment_total)
-		var alpha: float = (0.16 + 0.62 * local_t) * clampf(travel_progress * 1.25, 0.0, 1.0) * alpha_multiplier
-		var width: float = lerpf(1.4, _projectile_trail_width(element_id), local_t)
-		draw_line(points[index], points[index + 1], Color(0.0, 0.0, 0.0, alpha * 0.18), width + 4.5, true)
-		draw_line(points[index], points[index + 1], Color(secondary.r, secondary.g, secondary.b, alpha * 0.62), width + 1.8, true)
-		draw_line(points[index], points[index + 1], Color(accent.r, accent.g, accent.b, alpha), width, true)
-
-func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float, alpha_multiplier: float = 1.0) -> void:
-	var dir: Vector2 = direction.normalized() if direction.length_squared() > 0.01 else Vector2.RIGHT
-	var texture: Texture2D = _projectile_texture(element_id)
-	var draw_size: float = clampf(_tile_width() * PROJECTILE_DRAW_TILE_SCALE, PROJECTILE_DRAW_MIN_SIZE, PROJECTILE_DRAW_MAX_SIZE)
-	var alpha: float = clampf((0.68 + sin(travel_progress * PI) * 0.30) * alpha_multiplier, 0.0, 1.0)
-	if texture == null:
-		var fallback_color: Color = _projectile_secondary(element_id)
-		fallback_color.a = alpha
-		_draw_projectile_diamond(center, dir, fallback_color, draw_size * 0.18)
-		return
-	var shadow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.28)
-	var glow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.14)
-	var sprite_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.0)
-	draw_set_transform(center + Vector2(2.5, 4.0), dir.angle(), Vector2.ONE)
-	draw_texture_rect(texture, shadow_rect, false, Color(0.0, 0.0, 0.0, 0.28 * alpha))
-	draw_set_transform(center, dir.angle(), Vector2.ONE)
-	var glow_color: Color = _projectile_secondary(element_id)
-	draw_texture_rect(texture, glow_rect, false, Color(glow_color.r, glow_color.g, glow_color.b, 0.26 * alpha))
-	draw_texture_rect(texture, sprite_rect, false, Color(1.0, 1.0, 1.0, alpha))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-func _projectile_sprite_rect(draw_size: float, element_id: String, scale: float = 1.0) -> Rect2:
-	var sprite_size := Vector2(draw_size, draw_size) * scale
-	var anchor: Vector2 = _projectile_sprite_anchor(element_id)
-	return Rect2(
-		Vector2(-sprite_size.x * anchor.x, -sprite_size.y * anchor.y),
-		sprite_size
-	)
-
-func _projectile_sprite_anchor(element_id: String) -> Vector2:
-	match _projectile_element_id(element_id):
-		ElementData.LIGHTNING:
-			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.38)
-		ElementData.AIR:
-			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.34)
-		ElementData.EARTH:
-			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.46)
-		_:
-			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.50)
-
-func _projectile_texture(element_id: String) -> Texture2D:
-	if _projectile_atlas == null:
-		return null
-	var row: int = _projectile_atlas_row(element_id)
-	var cache_key: String = str(row)
-	if _projectile_textures.has(cache_key):
-		return _projectile_textures.get(cache_key, null)
-	var atlas_size: Vector2 = _projectile_atlas.get_size()
-	var cell_size := Vector2(atlas_size.x, atlas_size.y / float(ELEMENTAL_PROJECTILE_ATLAS_ROWS))
-	var atlas_texture := AtlasTexture.new()
-	atlas_texture.atlas = _projectile_atlas
-	atlas_texture.region = Rect2(Vector2(0.0, cell_size.y * float(row)), cell_size)
-	_projectile_textures[cache_key] = atlas_texture
-	return atlas_texture
-
-func _projectile_atlas_row(element_id: String) -> int:
-	match _projectile_element_id(element_id):
-		ElementData.FIRE:
-			return 1
-		ElementData.ICE:
-			return 2
-		ElementData.LIGHTNING:
-			return 3
-		ElementData.AIR:
-			return 4
-		ElementData.EARTH:
-			return 5
-		_:
-			return 0
+# Reflect still uses the candidate 4 sheet when a ranged action has no baked
+# flight. Keep that raster path independent of the retired attack painters.
+func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float) -> void:
+	const ATLAS: String = "res://assets/art/effects/elemental_projectiles.png"
+	const ROWS: Array[String] = [ElementData.NONE, ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH]
+	const ANCHOR_Y: Array[float] = [0.50, 0.50, 0.50, 0.38, 0.34, 0.46]
+	var atlas: Texture2D = AssetLoader.load_texture(ATLAS)
+	if atlas == null: return
+	var row: int = maxi(0, ROWS.find(element_id))
+	var cell := Vector2(atlas.get_width(), atlas.get_height() / float(ROWS.size()))
+	var source := Rect2(Vector2(0.0, cell.y * row), cell)
+	var extent := Vector2.ONE * clampf(_tile_width() * 0.34, 30.0, 48.0)
+	var rect := Rect2(-extent * Vector2(0.78, ANCHOR_Y[row]), extent)
+	var alpha: float = 0.68 + sin(travel_progress * PI) * 0.30
+	var angle: float = direction.angle() if direction.length_squared() > 0.01 else 0.0
+	draw_set_transform(center + Vector2(2.5, 4.0), angle)
+	draw_texture_rect_region(atlas, Rect2(rect.position * 1.28, rect.size * 1.28), source, Color(0.0, 0.0, 0.0, 0.28 * alpha))
+	draw_set_transform(center, angle)
+	draw_texture_rect_region(atlas, Rect2(rect.position * 1.14, rect.size * 1.14), source, Color(_projectile_secondary(element_id), 0.26 * alpha))
+	draw_texture_rect_region(atlas, rect, source, Color(Color.WHITE, alpha))
+	draw_set_transform(Vector2.ZERO)
 
 func _projectile_element_id(element_id: String) -> String:
 	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
@@ -13887,33 +13071,7 @@ func _projectile_secondary(element_id: String) -> Color:
 		_:
 			return Color("dcc59c")
 
-func _projectile_trail_segment_count(element_id: String) -> int:
-	match _projectile_element_id(element_id):
-		ElementData.AIR:
-			return 7
-		ElementData.LIGHTNING:
-			return 4
-		ElementData.EARTH:
-			return 3
-		_:
-			return 5
-
-func _projectile_trail_width(element_id: String) -> float:
-	match _projectile_element_id(element_id):
-		ElementData.FIRE:
-			return 4.1
-		ElementData.ICE:
-			return 3.2
-		ElementData.LIGHTNING:
-			return 2.6
-		ElementData.AIR:
-			return 2.8
-		ElementData.EARTH:
-			return 4.4
-		_:
-			return 3.0
-
-func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float, preview: bool = false) -> void:
+func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float) -> void:
 	var from_point: Vector2 = _tile_center(from_tile)
 	var to_point: Vector2 = _tile_center(to_tile)
 	var path: Vector2 = to_point - from_point
@@ -13923,65 +13081,14 @@ func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: f
 	var tile_width: float = _tile_width()
 	var tile_height: float = _tile_height()
 	var clamped_progress: float = clampf(progress, 0.0, 1.0)
-	var eased_progress: float = _blink_rift_ease(clamped_progress)
 	var distance_tiles: float = maxf(1.0, path_length / maxf(1.0, tile_width * 0.56))
-	var preview_scale: float = 0.78 if preview else 1.0
-	var rift_alpha_scale: float = 0.96 if preview else 1.0
+	var preview_scale: float = 0.78
+	var rift_alpha_scale: float = 0.96
 	var band_width: float = clampf(tile_width * (0.15 + distance_tiles * 0.012), 8.0, 19.0) * preview_scale
 	var path_lift := Vector2(0.0, -tile_height * 0.28)
 	var from_lifted: Vector2 = from_point + path_lift
 	var to_lifted: Vector2 = to_point + path_lift
-	var current_point: Vector2 = from_point.lerp(to_point, eased_progress)
-	var wash_reveal: float = 1.0 if preview else clampf(eased_progress + 0.22, 0.0, 1.0)
-
-	if preview:
-		_draw_blink_preview_integrated_rift(from_lifted, to_lifted, direction, normal, band_width, rift_alpha_scale, clamped_progress * TAU)
-		return
-
-	_draw_blink_smoke_wash(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
-	draw_line(from_lifted, to_lifted, Color(0.018, 0.012, 0.034, 0.15 * rift_alpha_scale), band_width * 1.75, true)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, wash_reveal, band_width * 0.70, Color(0.08, 0.055, 0.13, 0.13 * rift_alpha_scale), clamped_progress * TAU)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, eased_progress, band_width, Color(0.18, 0.12, 0.27, 0.45 * rift_alpha_scale), clamped_progress * TAU * 1.35)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, 0.30 * rift_alpha_scale), clamped_progress * TAU * 1.75)
-	_draw_blink_rift_edge_strokes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
-	_draw_blink_rift_motes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
-
-	var source_alpha: float = lerpf(0.68, 0.20, eased_progress) * preview_scale
-	var destination_alpha: float = lerpf(0.18, 0.74, eased_progress) * preview_scale
-	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), 2.4 * preview_scale, lerpf(0.82, 1.02, eased_progress))
-	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), 2.5 * preview_scale, lerpf(0.78, 0.98, eased_progress))
-	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08, preview)
-	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58, preview)
-
-	var settle_fade: float = 1.0 - clampf((clamped_progress - 0.86) / 0.14, 0.0, 1.0)
-	for puff_index: int in range(4):
-		var trail_t: float = clampf(eased_progress - float(puff_index) * 0.17, 0.0, 1.0)
-		if trail_t <= 0.0 and clamped_progress < 0.16:
-			continue
-		var puff_alpha: float = (0.20 - float(puff_index) * 0.035) * (0.55 + 0.45 * clamped_progress) * preview_scale * settle_fade
-		if puff_alpha <= 0.01:
-			continue
-		var wave_offset: Vector2 = normal * sin(trail_t * TAU * 1.7 + float(puff_index) * 0.9) * tile_width * 0.065
-		var puff_center: Vector2 = from_point.lerp(to_point, trail_t) + path_lift * 0.84 + wave_offset
-		var puff_radius: float = clampf(tile_width * (0.10 + float(puff_index) * 0.025), 6.0, 15.0)
-		draw_circle(puff_center, puff_radius, Color(0.025, 0.018, 0.045, puff_alpha))
-		draw_circle(puff_center + normal * tile_width * 0.03, puff_radius * 0.55, Color(0.18, 0.12, 0.26, puff_alpha * 0.48))
-
-	var ghost_fade: float = 1.0 - clampf((clamped_progress - 0.80) / 0.20, 0.0, 1.0)
-	_draw_blink_afterimage_ghost(from_point, maxf(0.0, 0.20 * (1.0 - eased_progress)) * ghost_fade, 0.96)
-	for ghost_index: int in range(4):
-		var ghost_t: float = clampf(eased_progress - float(ghost_index) * 0.13, 0.0, 1.0)
-		if ghost_t <= 0.02:
-			continue
-		var ghost_center: Vector2 = from_point.lerp(to_point, ghost_t)
-		ghost_center += normal * sin(ghost_t * TAU * 1.25 + float(ghost_index) * 0.65) * tile_width * 0.035
-		var ghost_alpha: float = (0.28 - float(ghost_index) * 0.045) * (0.38 + 0.62 * clamped_progress) * ghost_fade
-		_draw_blink_afterimage_ghost(ghost_center, ghost_alpha, 0.98 - float(ghost_index) * 0.045)
-	_draw_blink_afterimage_ghost(current_point, (0.14 + 0.18 * clamped_progress) * ghost_fade, 1.04)
-
-func _blink_rift_ease(progress: float) -> float:
-	var t: float = clampf(progress, 0.0, 1.0)
-	return t * t * (3.0 - 2.0 * t)
+	_draw_blink_preview_integrated_rift(from_lifted, to_lifted, direction, normal, band_width, rift_alpha_scale, clamped_progress * TAU)
 
 func _draw_blink_preview_integrated_rift(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, width: float, alpha_scale: float, phase: float) -> void:
 	var texture: Texture2D = _effect_textures.get("blink_rift_preview", null)
@@ -14026,34 +13133,6 @@ func _draw_blink_preview_endpoint_smudge(center: Vector2, direction: Vector2, no
 	if points.size() >= 3:
 		draw_colored_polygon(points, color)
 
-func _draw_blink_smoke_wash(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
-	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
-	if clamped_reveal <= 0.0 or width <= 0.0:
-		return
-	if preview:
-		_draw_blink_preview_rift_ribbon(from_point, to_point, direction, normal, clamped_reveal, width, alpha_scale, phase)
-		return
-	var path_length: float = from_point.distance_to(to_point)
-	var lobe_count: int = mini(18, maxi(6, int(ceil(path_length / maxf(width * 0.85, 1.0)))))
-	var base_alpha: float = 0.088
-	for lobe_index: int in range(lobe_count):
-		var t: float = (float(lobe_index) + 0.5) / float(lobe_count)
-		if t > clamped_reveal:
-			continue
-		var reveal_fade: float = clampf((clamped_reveal - t) * float(lobe_count), 0.0, 1.0)
-		var center_fade: float = 0.38 + 0.62 * sin(t * PI)
-		var drift: float = sin(t * TAU * 2.15 + phase * 0.58) * width * 0.78
-		drift += sin(t * TAU * 5.0 + phase * 0.21) * width * 0.22
-		var pull: float = cos(t * TAU * 1.4 + phase * 0.35) * width * 0.24
-		var center: Vector2 = from_point.lerp(to_point, t) + normal * drift + direction * pull
-		center += Vector2(0.0, sin(t * PI) * width * 0.13)
-		var rough: float = 0.84 + 0.16 * sin(t * TAU * 6.0 + phase)
-		var radius: float = width * ((1.48 if preview else 1.18) + 0.44 * sin(t * TAU * 2.8 + phase * 0.42)) * rough
-		var alpha: float = base_alpha * alpha_scale * center_fade * reveal_fade
-		draw_circle(center + normal * width * 0.18, radius * 1.36, Color(0.010, 0.008, 0.025, alpha * 0.46))
-		draw_circle(center, radius, Color(0.055, 0.035, 0.085, alpha))
-		draw_circle(center + direction * width * 0.24 - normal * width * 0.10, radius * 0.56, Color(0.20, 0.145, 0.29, alpha * 0.52))
-
 func _draw_blink_preview_rift_ribbon(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float) -> void:
 	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
 	if clamped_reveal <= 0.0:
@@ -14090,148 +13169,20 @@ func _draw_blink_preview_ribbon_layer(from_point: Vector2, to_point: Vector2, di
 	if polygon.size() >= 3:
 		draw_colored_polygon(polygon, color)
 
-func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vector2, progress: float, width: float, color: Color, phase: float) -> void:
-	var clamped_progress: float = clampf(progress, 0.0, 1.0)
-	if clamped_progress <= 0.0 or width <= 0.0:
-		return
-	var segment_count: int = 16
-	var visible_segments: int = maxi(2, int(ceil(float(segment_count) * clamped_progress)))
-	var previous_point := Vector2.ZERO
-	for point_index: int in range(visible_segments + 1):
-		var t: float = clamped_progress * float(point_index) / float(visible_segments)
-		var wave: float = sin(t * TAU * 1.7 + phase) * width * 0.42
-		wave += sin(t * TAU * 3.4 + phase * 0.55) * width * 0.18
-		var sag: float = sin(t * PI) * width * 0.12
-		var point: Vector2 = from_point.lerp(to_point, t) + normal * wave + Vector2(0.0, sag)
-		if point_index > 0:
-			var segment_t: float = float(point_index) / float(visible_segments)
-			var center_fade: float = 0.34 + 0.66 * sin(t * PI)
-			var rough: float = 0.78 + 0.22 * sin(t * TAU * 5.6 + phase * 0.37)
-			var alpha: float = color.a * (0.38 + 0.62 * segment_t) * center_fade * rough
-			var segment_width: float = width * (0.55 + 0.35 * center_fade + 0.10 * rough)
-			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), segment_width, true)
-		previous_point = point
-
-func _draw_blink_rift_edge_strokes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
-	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
-	if clamped_reveal <= 0.0 or width <= 0.0:
-		return
-	var path_length: float = from_point.distance_to(to_point)
-	var stroke_count: int = mini(22, maxi(8, int(ceil(path_length / maxf(width * 0.58, 1.0)))))
-	var base_alpha: float = 0.31 if preview else 0.22
-	for stroke_index: int in range(stroke_count):
-		var t: float = (float(stroke_index) + 0.36) / float(stroke_count)
-		if t > clamped_reveal:
-			continue
-		var side: float = -1.0 if stroke_index % 2 == 0 else 1.0
-		var edge_offset: float = width * (0.70 + 0.34 * sin(t * TAU * 3.1 + phase)) * side
-		var center: Vector2 = from_point.lerp(to_point, t) + normal * edge_offset
-		center += direction * sin(t * TAU * 4.4 + phase * 0.33) * width * 0.20
-		var tangent_length: float = width * (0.34 + 0.18 * sin(t * TAU * 5.3 + phase * 0.44))
-		var curl: Vector2 = normal * side * width * 0.20 * sin(t * TAU * 2.2 + phase)
-		var stroke_alpha: float = base_alpha * alpha_scale * (0.48 + 0.52 * sin(t * PI))
-		var start_point: Vector2 = center - direction * tangent_length + curl
-		var end_point: Vector2 = center + direction * tangent_length - curl * 0.36
-		draw_line(start_point, end_point, Color(0.020, 0.014, 0.040, stroke_alpha * 0.88), 1.45 if preview else 1.9, true)
-		draw_line(start_point.lerp(end_point, 0.34), end_point, Color(0.48, 0.42, 0.66, stroke_alpha * 0.38), 0.75 if preview else 1.05, true)
-
-func _draw_blink_rift_motes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
-	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
-	if clamped_reveal <= 0.0 or width <= 0.0:
-		return
-	var path_length: float = from_point.distance_to(to_point)
-	var mote_count: int = mini(28, maxi(9, int(ceil(path_length / maxf(width * 0.42, 1.0)))))
-	var base_alpha: float = 0.22 if preview else 0.18
-	for mote_index: int in range(mote_count):
-		var t: float = (float(mote_index) + 0.24) / float(mote_count)
-		if t > clamped_reveal:
-			continue
-		var offset: float = sin(t * TAU * 7.0 + phase * 0.49) * width * 1.28
-		var lift: float = cos(t * TAU * 4.0 + phase * 0.31) * width * 0.26
-		var center: Vector2 = from_point.lerp(to_point, t) + normal * offset + direction * lift
-		var center_fade: float = 0.28 + 0.72 * sin(t * PI)
-		var alpha: float = base_alpha * alpha_scale * center_fade * (0.56 + 0.44 * sin(t * TAU * 5.5 + phase))
-		var radius: float = 0.75 + 1.15 * (0.5 + 0.5 * sin(t * TAU * 6.3 + phase * 0.62))
-		if preview:
-			var mote_direction: Vector2 = direction * radius * 1.55 + normal * sin(t * TAU * 3.4 + phase) * radius * 0.70
-			draw_line(center - mote_direction * 0.35, center + mote_direction, Color(0.58, 0.52, 0.76, alpha * 0.74), 0.85, true)
-			draw_line(center + Vector2(0.0, 0.8), center + mote_direction * 0.72 + Vector2(0.0, 0.8), Color(0.025, 0.018, 0.045, alpha * 0.18), 1.2, true)
-		else:
-			draw_circle(center, radius, Color(0.58, 0.52, 0.76, alpha))
-			draw_circle(center + Vector2(0.0, 0.8), radius * 1.7, Color(0.025, 0.018, 0.045, alpha * 0.22))
-
-func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float, preview: bool = false) -> void:
-	if alpha <= 0.0:
-		return
-	var tile_width: float = _tile_width()
-	var tile_height: float = _tile_height()
-	var mouth_center: Vector2 = center + Vector2(0.0, -tile_height * 0.20)
-	var pulse: float = 0.5 + 0.5 * sin((progress + phase) * TAU)
-	var mouth_scale: float = 0.88 if preview else 1.0
-	draw_circle(mouth_center + Vector2(0.0, tile_height * 0.04), tile_width * (0.18 + 0.03 * pulse) * mouth_scale, Color(0.010, 0.008, 0.024, alpha * 0.16))
-	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse) * mouth_scale, Color(0.015, 0.010, 0.030, alpha * 0.46))
-	draw_circle(mouth_center + Vector2(tile_width * 0.018, -tile_height * 0.018), tile_width * (0.058 + 0.018 * pulse) * mouth_scale, Color(0.20, 0.14, 0.30, alpha * 0.28))
-	for ring_index: int in range(4):
-		var radius: float = tile_width * (0.12 + float(ring_index) * 0.044 + pulse * 0.016) * mouth_scale
-		var start_angle: float = phase * TAU + progress * TAU * (0.62 + float(ring_index) * 0.16) + float(ring_index) * 0.74
-		var end_angle: float = start_angle + PI * (0.74 + float(ring_index) * 0.13)
-		var ring_alpha: float = alpha * (0.56 - float(ring_index) * 0.09)
-		draw_arc(mouth_center, radius, start_angle, end_angle, 14, Color(0.18, 0.12, 0.28, ring_alpha), 1.25 if preview else 1.6)
-		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.22, end_angle, 7, Color(0.58, 0.52, 0.78, ring_alpha * 0.34), 0.9 if preview else 1.2)
-
-func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -> void:
-	if alpha <= 0.0:
-		return
-	var unit: Dictionary = _blink_player_unit_snapshot()
-	var texture: Texture2D = _texture_for_unit(unit)
-	if texture == null:
-		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
-		return
-	var ghost_rect: Rect2 = _unit_texture_draw_rect(unit, center, scale)
-	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
-	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
-	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(-2.0, -2.0), ghost_rect.size), false, Color(0.018, 0.012, 0.035, alpha * 0.72))
-	draw_texture_rect(texture, ghost_rect, false, Color(0.48, 0.40, 0.68, alpha))
-	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(2.0, 1.0), ghost_rect.size), false, Color(0.08, 0.04, 0.12, alpha * 0.30))
-
-func _blink_player_unit_snapshot() -> Dictionary:
-	var actor: Dictionary = presentation.get("effect", {})
-	if str(actor.get("actor_key", "")).begins_with("enemy_"):
-		for unit: Dictionary in _visible_units():
-			if str(unit.get("key", "")) == str(actor["actor_key"]): return unit
-	var player: Dictionary = combat_state.get("player", {})
-	return {
-		"key": "player",
-		"role": "player",
-		"type": "player",
-		"name": "Player",
-		"pos": player.get("pos", Vector2i.ZERO),
-		"hp": int(player.get("hp", 1)),
-		"max_hp": int(player.get("max_hp", maxi(1, int(player.get("hp", 1))))),
-		"block": int(player.get("block", 0)),
-		"stoneskin": int(player.get("stoneskin", 0)),
-		"freeze": int(player.get("freeze", 0)),
-		"shock": int(player.get("shock", 0)),
-		"immobilize": bool(player.get("immobilize", false)),
-	}
-
-# Director feedback 1: force tiles use a 30% centre wash.
-const FORCE_TILE_GLOW_ALPHA: float = 0.30
+const FORCE_PREVIEW_GLOW_ALPHA: float = 0.30
 
 func _draw_action_ground_markings() -> void:
-	# Tactical diamonds describe the floor, including while the attack resolves.
-	# Keep soft tile glows beside preview highlights, beneath trap
-	# sprites, loot, paths, Umbra and raised scenery. Light effects have their own
-	# later floor pass; they must not lift tactical diamonds above ground objects.
+	# Keep tactical markings and the authored dragon wash beside the preview
+	# highlights, beneath trap sprites, loot, paths, Umbra and raised scenery.
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	var kind: String = str(effect.get("kind", ""))
-	if kind == "aoe" and not bool(effect.get("preview", false)):
+	if kind == "aoe" and not bool(effect.get("preview", false)) and not preload("res://scripts/dragon_presentation.gd").profile(effect).is_empty():
 		var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 		_draw_aoe_resolution_footprint(effect, progress)
-	elif kind == "ranged" and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
+	elif kind == "ranged" and bool(effect.get("preview", false)) and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
 		for force_tile: Vector2i in effect.get("force_tiles", []):
 			if _board_tile_is_visible_to_player(force_tile):
-				TileGlow.draw_wash(self, _tile_polygon(force_tile), Color(0.72, 0.95, 1.0), FORCE_TILE_GLOW_ALPHA)
+				TileGlow.draw_wash(self, _tile_polygon(force_tile), Color(0.72, 0.95, 1.0), FORCE_PREVIEW_GLOW_ALPHA)
 
 func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_point: Vector2) -> void:
 	if not bool(effect.get("preview", false)) or (effect.get("tiles", []) as Array).is_empty():
@@ -14242,6 +13193,7 @@ func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_poin
 		_draw_ranged_target_preview_curve(effect, from_point, center_point)
 
 func _draw_aoe_resolution_footprint(effect: Dictionary, progress: float) -> void:
+	if bool(effect.get(TileBurstFx.ACTIVE, false)): return
 	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
 	if visibility <= 0.0:
 		return
@@ -14271,56 +13223,46 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
+	_floating_icon_canvas.clear()
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return
 	_floating_text_last_layout = _floating_text_screen_layout(default_font)
 	for popup: Dictionary in _floating_text_last_layout:
-		var entry: Dictionary = popup["entry"]
-		var font: Font = popup["font"] as Font
-		var label_width: float = float(popup["label_width"])
-		var font_scale: float = float(popup["font_scale"])
-		var text_pos: Vector2 = (popup["origin"] as Vector2) + (popup.get("layout_offset", Vector2.ZERO) as Vector2)
-		var color: Color = entry.get("color", Color("f8f0da"))
-		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
-		var font_size: int = int(entry.get("font_size", 16))
-		var text: String = str(entry.get("text", ""))
-		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
-		draw_set_transform(text_pos, 0.0, Vector2(font_scale, font_scale))
-		var local_text_pos := Vector2.ZERO
-		var icon_key: String = str(entry.get("icon", ""))
-		if not icon_key.is_empty():
-			var icon_size: float = float(entry.get("icon_size", 18.0))
-			var icon_rect := Rect2(Vector2(0.0, -icon_size + 2.0), Vector2(icon_size, icon_size))
-			var icon_fill: Color = entry.get("icon_fill", Color(0.12, 0.06, 0.05, 0.90))
-			icon_fill.a *= color.a
-			var icon_border: Color = entry.get("icon_border", color)
-			icon_border.a *= color.a
-			var icon_tint: Color = entry.get("icon_tint", Color.WHITE)
-			icon_tint.a *= color.a
-			draw_circle(icon_rect.get_center(), icon_size * 0.56, icon_fill)
-			draw_arc(icon_rect.get_center(), icon_size * 0.56, 0.0, TAU, 20, icon_border, 1.3)
-			_draw_keyword_icon(icon_key, icon_rect.grow(-2.0), "", icon_tint)
-			local_text_pos.x += icon_size + 4.0
-			label_width = maxf(0.0, label_width - icon_size - 4.0)
-		var outline_size: int = int(entry.get("outline_size", 2))
-		var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
-		if not shadow_offset.is_zero_approx():
-			var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
-			shadow_color.a *= color.a
-			draw_string(font, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
-		if outline_size > 0:
-			var outline_color: Color = entry.get("outline_color", Color("200806"))
-			outline_color.a *= color.a
-			for outline_y: int in range(-outline_size, outline_size + 1):
-				for outline_x: int in range(-outline_size, outline_size + 1):
-					if outline_x == 0 and outline_y == 0:
-						continue
-					if Vector2(outline_x, outline_y).length() > float(outline_size) + 0.35:
-						continue
-					draw_string(font, local_text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
-		draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		_draw_floating_text_popup(popup)
+
+func _draw_floating_text_popup(popup: Dictionary) -> int:
+	var entry: Dictionary = popup["entry"]
+	var font: Font = popup["font"] as Font
+	var label_width: float = float(popup["label_width"])
+	var font_scale: float = float(popup["font_scale"])
+	var text_pos: Vector2 = (popup["origin"] as Vector2) + (popup.get("layout_offset", Vector2.ZERO) as Vector2)
+	var color: Color = entry.get("color", Color("f8f0da"))
+	color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
+	var font_size: int = int(entry.get("font_size", 16))
+	var text: String = str(entry.get("text", ""))
+	var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
+	var local_text_pos := Vector2.ZERO
+	if (popup["icon_rect"] as Rect2).has_area():
+		local_text_pos.x = float(popup["glyph_inset"]) + float(popup["icon_advance"])
+		alignment = HORIZONTAL_ALIGNMENT_LEFT
+		label_width = -1.0
+	var outline_color: Color = entry.get("outline_color", Color("200806"))
+	outline_color.a *= color.a
+	var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
+	shadow_color.a *= color.a
+	var submissions: int = FloatingCombatText.paint_icon(_floating_icon_canvas, self, popup, text_pos, color.a, shadow_color, outline_color)
+	draw_set_transform(text_pos, 0.0, Vector2(font_scale, font_scale))
+	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+	if not shadow_offset.is_zero_approx():
+		draw_string(font, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
+		submissions += 1
+	var outline_offsets: Array[Vector2] = FloatingCombatText.outline_offsets(int(entry.get("outline_size", 2)))
+	for offset: Vector2 in outline_offsets:
+		draw_string(font, local_text_pos + offset, text, alignment, label_width, font_size, outline_color)
+	draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	return submissions + outline_offsets.size() + 1
 
 func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 	var popups: Array[Dictionary]
@@ -14334,14 +13276,23 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		var font: Font = UiTypography.display_font() if FloatingCombatText.is_damage_entry(entry) else default_font
 		if font == null:
 			font = default_font
-		var label_width: float = _floating_text_rendered_width(entry, font)
+		var font_size: int = int(entry.get("font_size", 16))
+		var icon_texture: Texture2D = _floating_text_icon_texture(entry)
+		var icon_rect: Rect2 = FloatingCombatText.icon_rect(icon_texture, font, font_size)
+		var icon_advance: float = FloatingCombatText.icon_advance(icon_rect, font_size)
+		var label_width: float = _floating_text_rendered_width(entry, font, icon_advance)
 		var automatic_anchor: bool = FloatingCombatText.is_popup_entry(entry) and bool(entry.get("automatic_anchor", false))
 		var reduced_motion: bool = bool(entry.get("animation_reduced_motion", presentation.get("reduced_motion", false)))
 		var key: String = "%s|%s" % [str(reduced_motion), str(entry.get("screen_layout_key", "%s|%s|%d" % [tile, str(entry.get("text", "")), popups.size()]))]
 		var anchor: Vector2 = _floating_text_local_origin(tile, label_width) if automatic_anchor else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
-		var font_size: int = int(entry.get("font_size", 16))
-		var natural_rect := Rect2(anchor - Vector2(0.0, font.get_ascent(font_size)), Vector2(label_width, font.get_height(font_size)))
-		popups.append({"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width, "automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect})
+		var top: float = minf(-font.get_ascent(font_size), icon_rect.position.y)
+		var bottom: float = maxf(font.get_height(font_size) - font.get_ascent(font_size), icon_rect.end.y)
+		var natural_rect := Rect2(anchor + Vector2(0.0, top), Vector2(label_width, bottom - top))
+		popups.append({
+			"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width,
+			"automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect,
+			"icon_texture": icon_texture, "icon_rect": icon_rect, "icon_advance": icon_advance,
+		})
 	var actor_centers: Array[Vector2]
 	var actor_center_by_tile: Dictionary = {}
 	var actor_body_by_tile: Dictionary = {}
@@ -14381,16 +13332,23 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		if not bool(popup["reduced_motion"]):
 			motion *= motion_scale
 		var anchor: Vector2 = _floating_text_local_origin(tile, label_width * layout_scale) if bool(popup["automatic_anchor"]) else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
-		var origin: Vector2 = _floating_text_local_origin(tile, label_width * font_scale) if bool(popup["automatic_anchor"]) else anchor
 		if bool(popup["automatic_anchor"]):
 			motion.x = absf(motion.x)
 		var extra_offset := Vector2(0.0, float(entry.get("offset", 0.0)))
-		origin += motion + extra_offset
-		var glyph_width: float = _floating_text_glyph_width(entry, font)
-		if not str(entry.get("icon", "")).is_empty():
-			glyph_width += float(entry.get("icon_size", 18.0)) + 4.0
+		var icon_rect: Rect2 = popup["icon_rect"]
+		var glyph_width: float = _floating_text_glyph_width(entry, font, float(popup["icon_advance"]))
 		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
 		var glyph_inset: float = maxf(0.0, label_width - glyph_width) * (0.5 if alignment == HORIZONTAL_ALIGNMENT_CENTER else (1.0 if alignment == HORIZONTAL_ALIGNMENT_RIGHT else 0.0))
+		popup["glyph_inset"] = glyph_inset
+		var glyph_center_x: float = glyph_inset + glyph_width * 0.5
+		var origin: Vector2 = anchor
+		if icon_rect.has_area():
+			# Scale the entire icon and number around its peak center, even when
+			# the peak anchor had to clamp to a viewport edge.
+			origin.x += glyph_center_x * (layout_scale - font_scale)
+		elif bool(popup["automatic_anchor"]):
+			origin = _floating_text_local_origin(tile, label_width * font_scale)
+		origin += motion + extra_offset
 		# The 140px label width includes alignment padding. Collision space belongs
 		# to visible glyphs, otherwise adjacent actors push their results off-board.
 		var ascent: float = font.get_ascent(font_size)
@@ -14398,7 +13356,8 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		if FloatingCombatText.is_damage_entry(entry):
 			ascent = float(font_size) * 0.80
 			descent = float(font_size) * 0.12
-		ascent = maxf(ascent, float(entry.get("icon_size", 0.0)))
+		ascent = maxf(ascent, -icon_rect.position.y)
+		descent = maxf(descent, icon_rect.end.y)
 		var outline: float = float(entry.get("outline_size", 2))
 		var shadow: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
 		var peak_origin: Vector2 = anchor + (motion if bool(popup["reduced_motion"]) else Vector2(motion.x, 0.0)) + extra_offset
@@ -14434,7 +13393,10 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 				var glyph_center := Vector2(glyph_inset + glyph_width * 0.5 + absf(shadow.x) * 0.5, (descent - ascent + absf(shadow.y)) * 0.5)
 				var small_scale: float = 0.1 * layout_scale
 				var peak_center: Vector2 = anchor + extra_offset + glyph_center * layout_scale
-				var small_center: Vector2 = _floating_text_local_origin(tile, label_width * small_scale) + extra_offset + glyph_center * small_scale
+				var small_origin: Vector2 = _floating_text_local_origin(tile, label_width * small_scale)
+				if icon_rect.has_area():
+					small_origin.x = anchor.x + glyph_center_x * (layout_scale - small_scale)
+				var small_center: Vector2 = small_origin + extra_offset + glyph_center * small_scale
 				centers = Rect2(peak_center, Vector2.ZERO).expand(small_center)
 				centers = centers.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, FloatingCombatText.ARC_LATERAL_DRIFT * motion_scale, FloatingCombatText.ARC_END_DROP * motion_scale)
 			popup["actor_association"] = {"target": actor_center_by_tile[tile], "centers": centers, "neighbors": actor_centers}
@@ -14462,33 +13424,31 @@ func _floating_text_own_bar_drop(envelope: Rect2, own_bar: Rect2, body: Rect2, p
 	var room: float = body.position.y + body.size.y * FLOATING_TEXT_OWN_BAR_BODY_LIMIT - peak_glyph_y
 	return clampf(needed, 0.0, maxf(0.0, room))
 
-func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
-	var resolved_font: Font = font
-	if resolved_font == null:
-		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
-	if resolved_font == null:
-		return float(entry.get("width", 48.0))
-	var text: String = str(entry.get("text", ""))
-	var font_size: int = int(entry.get("font_size", 16))
+func _floating_text_icon_texture(entry: Dictionary) -> Texture2D:
+	var icon_key: String = str(entry.get("icon", ""))
+	if icon_key.is_empty():
+		return null
+	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
+	return texture if texture != null else ActionIcons.icon_texture(icon_key)
+
+func _floating_text_rendered_width(entry: Dictionary, font: Font = null, icon_advance: float = -1.0) -> float:
+	var glyph_width: float = _floating_text_glyph_width(entry, font, icon_advance)
 	var outline_size: int = int(entry.get("outline_size", 2))
 	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
-	var text_width: float = resolved_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
-	# draw_string's width bounds the glyph layout. Reserve its outline and shadow
-	# as well, so short status words such as Draw and Play cannot lose their final
-	# glyph at the impact scale.
-	var required_width: float = ceilf(text_width) + float(outline_size * 2) + absf(shadow_offset.x)
-	var icon_key: String = str(entry.get("icon", ""))
-	if not icon_key.is_empty():
-		required_width += float(entry.get("icon_size", 18.0)) + 4.0
+	var required_width: float = ceilf(glyph_width) + float(outline_size * 2) + absf(shadow_offset.x)
 	return maxf(float(entry.get("width", 48.0)), required_width)
 
-func _floating_text_glyph_width(entry: Dictionary, font: Font = null) -> float:
+func _floating_text_glyph_width(entry: Dictionary, font: Font = null, icon_advance: float = -1.0) -> float:
 	var resolved_font: Font = font
 	if resolved_font == null:
 		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
 	if resolved_font == null:
 		return 0.0
-	return resolved_font.get_string_size(str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(entry.get("font_size", 16))).x
+	var font_size: int = int(entry.get("font_size", 16))
+	if icon_advance < 0.0:
+		var icon_rect: Rect2 = FloatingCombatText.icon_rect(_floating_text_icon_texture(entry), resolved_font, font_size)
+		icon_advance = FloatingCombatText.icon_advance(icon_rect, font_size)
+	return icon_advance + resolved_font.get_string_size(str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 
 func _floating_text_local_origin(tile: Vector2i, rendered_width: float) -> Vector2:
 	var target_rect: Rect2 = _floating_text_target_rect(tile)
@@ -14515,20 +13475,6 @@ func _floating_text_target_rect(tile: Vector2i) -> Rect2:
 	var width: float = _tile_width() * 0.72
 	var height: float = _tile_height() * 0.92
 	return Rect2(center - Vector2(width * 0.5, height * 0.72), Vector2(width, height))
-
-func _draw_vyraketh_bite_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
-	var phase: float = VyrakethCutout.bite_trail_phase(progress)
-	if phase < 0.0 and not bool(presentation.get("reduced_motion", false)):
-		return
-	phase = 0.5 if phase < 0.0 else phase
-	var forward: Vector2 = (to_point-from_point).normalized()
-	var side: Vector2 = forward.orthogonal()
-	var spread: float = 7.0 + 14.0 * absf(phase-0.35)
-	var color := Color(1.0, 0.36, 0.07, 0.82*(1.0-phase))
-	for sign: float in [-1.0, 1.0]:
-		var points := PackedVector2Array([to_point-forward*15.0+side*spread*sign,
-			to_point-forward*3.0+side*4.0*sign, to_point+forward*13.0+side*spread*sign])
-		draw_polyline(points, color, 2.0, true)
 
 func _draw_path_depth_pass(tile: Vector2i) -> void:
 	if (
@@ -15610,8 +14556,12 @@ func _draw_friendly_damage_chips() -> void:
 		var health: Rect2 = _hud_health_rects_cache.get(str(chip.get("actor_key", "")), Rect2())
 		if health.size.x <= 0.0: continue
 		var label: String = str(chip.get("label", ""))
-		var width: float = clampf(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12).x + 14.0, 38.0, 184.0)
+		var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12).x
+		var width: float = clampf(text_width + 14.0, 38.0, 184.0)
+		var fit_label: bool = bool(chip.get("fit_label", false))
+		if fit_label: width = minf(size.x, maxf(width, text_width + 14.0))
 		var rect := Rect2(Vector2(health.get_center().x - width * 0.5, health.position.y - 28.0), Vector2(width, 22.0))
+		if fit_label: rect.position.x = clampf(rect.position.x, 0.0, maxf(0.0, size.x - width))
 		# Keep explicit self/friendly costs out of health bars and neighboring chips.
 		# Search above and below so a crowded top edge never sends warnings offscreen.
 		rect.position.y = clampf(rect.position.y, 4.0, maxf(4.0, size.y - rect.size.y - 4.0))
@@ -15624,7 +14574,9 @@ func _draw_friendly_damage_chips() -> void:
 			rect = candidate
 			break
 		occupied.append(rect)
-		_draw_movement_risk_chip(font, rect.get_center(), label, "danger", 12, 22.0)
+		_draw_movement_risk_chip(font, rect.get_center(), label, "danger", 12, 22.0, width)
+		var tooltip: String = str(chip.get("tooltip", ""))
+		if not tooltip.is_empty(): _register_tooltip(rect, tooltip)
 
 func _draw_movement_risk_chips() -> void:
 	var chips: Array = presentation.get("movement_risk_chips", [])
@@ -15649,11 +14601,12 @@ func _draw_movement_risk_chips() -> void:
 		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.92 - float(slot) * (MOVE_RISK_CHIP_HEIGHT + MOVE_RISK_CHIP_GAP))
 		_draw_movement_risk_chip(font, center, label, str(chip.get("kind", "")))
 
-func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String, font_size: int = MOVE_RISK_CHIP_FONT_SIZE, height: float = MOVE_RISK_CHIP_HEIGHT) -> void:
+func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String, font_size: int = MOVE_RISK_CHIP_FONT_SIZE, height: float = MOVE_RISK_CHIP_HEIGHT, width: float = 0.0) -> void:
 	var colors: Dictionary = _movement_risk_chip_colors(kind)
-	var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
-	var chip_width: float = clampf(text_width + 14.0, 38.0, 184.0)
-	var rect := Rect2(center - Vector2(chip_width * 0.5, height * 0.5), Vector2(chip_width, height))
+	if width <= 0.0:
+		var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+		width = clampf(text_width + 14.0, 38.0, 184.0)
+	var rect := Rect2(center - Vector2(width * 0.5, height * 0.5), Vector2(width, height))
 	draw_rect(rect.grow(1.5), Color(0.0, 0.0, 0.0, 0.34), true)
 	draw_rect(rect, colors.get("fill", Color("241914")), true)
 	draw_rect(rect, colors.get("border", Color("d8b96f")), false, 1.4)
@@ -16080,6 +15033,7 @@ static func prepare_initial_assets_for(board: Control, present_frame: Callable, 
 		return
 	board._startup_asset_profiling = instrument
 	if root != null:
+		ShotFx.warm_shader(root)
 		await AssetLoader.prepare_textures_for(root, board._initial_texture_manifest(), present_frame, func() -> bool: return is_instance_valid(board))
 		if not is_instance_valid(board): return
 	var slice_started: int = Time.get_ticks_usec()
@@ -16106,6 +15060,8 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 
 func _initial_texture_manifest() -> Dictionary:
 	var manifest: Dictionary = {}
+	if BoardPixelSurfaceLayer.enabled():
+		BoardPixelSurfaceLayer.Sheet.add_texture_manifest(manifest)
 	AssetLoader.add_texture_constants(manifest, get_script())
 	manifest.erase(CAMPFIRE_BONFIRE_PATH)
 	manifest.erase(CAMPFIRE_BONFIRE_IDLE_PATH)
@@ -16145,7 +15101,6 @@ func _initial_asset_jobs(load_full_unit_roster: bool) -> Array[Callable]:
 	jobs.append(_load_board_effect_assets)
 	jobs.append(_reset_particle_assets)
 	for source: Array in [
-		["_projectile_atlas", ELEMENTAL_PROJECTILE_ATLAS_PATH],
 		["_ambient_particle_atlas", AMBIENT_PARTICLE_ATLAS_PATH],
 		["_ambient_particle_glow_atlas", AMBIENT_PARTICLE_GLOW_ATLAS_PATH],
 		["_ambient_fire_soft_atlas", AMBIENT_FIRE_SOFT_ATLAS_PATH]
@@ -16258,20 +15213,14 @@ func _load_pillar_idle_assets() -> void:
 	}
 
 func _load_board_effect_assets() -> void:
+	if BoardPixelSurfaceLayer.enabled():
+		BoardPixelSurfaceLayer.Sheet.prepare_textures()
 	_effect_textures = {
 		"lethal_death_mark": AssetLoader.load_texture(LETHAL_DEATH_MARK_EFFECT_PATH),
 		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
 	}
-	_effect_frames = {
-		"defense_heal_casts": _load_sprite_sheet_frames(
-			DEFENSE_HEAL_CASTS_PATH,
-			DEFENSE_HEAL_CASTS_COLUMNS,
-			DEFENSE_HEAL_CASTS_ROWS
-		)
-	}
 
 func _reset_particle_assets() -> void:
-	_projectile_textures.clear()
 	_ambient_particle_textures.clear()
 	_ambient_particle_glow_textures.clear()
 	_ambient_fire_soft_textures.clear()
@@ -17801,7 +16750,22 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 			return tile
 	return Vector2i(-1, -1)
 
-func _draw_unit_shadow(unit: Dictionary) -> void:
+func _sync_pixel_contact_shadow(enabled: bool) -> void:
+	if enabled and not is_instance_valid(_pixel_contact_shadow):
+		_pixel_contact_shadow = PixelContactShadow.new()
+		_pixel_contact_shadow.name = "PixelContactShadow"
+		add_child(_pixel_contact_shadow)
+	if is_instance_valid(_pixel_contact_shadow) and _pixel_contact_shadow.visible != enabled:
+		_pixel_contact_shadow.visible = enabled
+		queue_redraw()
+
+func _draw_pixel_ground_shadow(canvas: PixelContactShadow) -> void:
+	var unit: Dictionary = _unit_outline_actor
+	if _umbra_actor_clip_for_unit(unit).is_empty() and not (presentation.get("unit_throw_ground_positions", {}) as Dictionary).has(str(unit.get("key", ""))):
+		_draw_unit_shadow(unit, canvas)
+
+func _draw_unit_shadow(unit: Dictionary, multiplier: PixelContactShadow = null) -> void:
+	var canvas: CanvasItem = self if multiplier == null else multiplier
 	if bool(unit.get("burrowed", false)) or str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
 		return
 	var detailed_sections: bool = _unit_shadow_detailed_instrumentation_enabled()
@@ -17809,14 +16773,14 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
-	_draw_unit_ground_contact(unit, shadow_alpha_scale)
+	_draw_unit_ground_contact(unit, shadow_alpha_scale, multiplier)
 	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_texture", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	if texture == null:
 		_record_unit_shadow_cache_metric("fallback", str(unit.get("type", "")))
-		_draw_unit_shadow_fallback(unit)
+		_draw_unit_shadow_fallback(unit, multiplier)
 		if detailed_sections:
 			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
@@ -17828,7 +16792,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 		phase_started_usec = Time.get_ticks_usec()
 	if shadow_geometry.is_empty():
 		_record_unit_shadow_cache_metric("fallback", unit_type)
-		_draw_unit_shadow_fallback(unit)
+		_draw_unit_shadow_fallback(unit, multiplier)
 		if detailed_sections:
 			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
@@ -17838,20 +16802,27 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 		phase_started_usec = Time.get_ticks_usec()
 	if shadow_mesh == null:
 		_record_unit_shadow_cache_metric("fallback", unit_type)
-		_draw_unit_shadow_fallback(unit)
+		_draw_unit_shadow_fallback(unit, multiplier)
 		if detailed_sections:
 			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
 	var shadow_bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
 	var shadow_origin: Vector2 = _unit_shadow_foot_point(texture, draw_rect, shadow_bounds, unit_type)
 	shadow_origin += Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
-	_draw_contact_pool(shadow_origin, _tile_width() * 0.48, _tile_height() * 0.34, 0.48 * shadow_alpha_scale)
-	_submitted_shadow_meshes.append(shadow_mesh)
-	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
+	_draw_contact_pool(shadow_origin, _tile_width() * 0.48, _tile_height() * 0.34, 0.48 * shadow_alpha_scale, multiplier)
+	_keep_unit_shadow_mesh(shadow_mesh, multiplier)
+	canvas.draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_submit", phase_started_usec)
 
-func _draw_unit_ground_contact(unit: Dictionary, alpha_scale: float) -> void:
+func _keep_unit_shadow_mesh(mesh: ArrayMesh, multiplier: PixelContactShadow) -> void:
+	if multiplier == null:
+		_submitted_shadow_meshes.append(mesh)
+	else:
+		multiplier.meshes.append(mesh)
+
+func _draw_unit_ground_contact(unit: Dictionary, alpha_scale: float, multiplier: PixelContactShadow) -> void:
+	var canvas: CanvasItem = self if multiplier == null else multiplier
 	var unit_type: String = str(unit.get("type", ""))
 	if not ActorPresentation.GROUND_CONTACT.has(unit_type): return
 	var renderer: Node = unit_cutout_renderer(unit)
@@ -17866,8 +16837,8 @@ func _draw_unit_ground_contact(unit: Dictionary, alpha_scale: float) -> void:
 	var rig: Variant = (rigs as Dictionary).get(facing) if rigs is Dictionary else null
 	var body_alpha: float = (rig.bones["root"] as CanvasItem).modulate.a if rig != null and rig.bones.has("root") else 1.0
 	if body_alpha <= 0.001: return
-	_submitted_shadow_meshes.append(mesh)
-	draw_mesh(mesh, null, _unit_ground_contact.root_transform(center, mirrored), Color(1, 1, 1, alpha_scale * body_alpha))
+	_keep_unit_shadow_mesh(mesh, multiplier)
+	canvas.draw_mesh(mesh, null, _unit_ground_contact.root_transform(center, mirrored), Color(1, 1, 1, alpha_scale * body_alpha))
 
 func _unit_shadow_detailed_instrumentation_enabled() -> bool:
 	return (
@@ -18049,7 +17020,7 @@ func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type:
 	_unit_shadow_draw_geometry_cache[cache_key] = geometry
 	return geometry
 
-func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
+func _draw_unit_shadow_fallback(unit: Dictionary, multiplier: PixelContactShadow = null) -> void:
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
@@ -18057,7 +17028,7 @@ func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
 	var center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y - _tile_height() * 0.03)
 	var width: float = clampf(draw_rect.size.x * 0.54, _tile_width() * 0.26, _tile_width() * 0.68)
 	var height: float = clampf(_tile_height() * 0.34, _tile_height() * 0.20, _tile_height() * 0.44)
-	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale)
+	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale, multiplier)
 
 func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
 	return _packed_vector2_array_array(_unit_shadow_data_for_texture(texture).get("polygons", []))
@@ -18265,7 +17236,7 @@ func _draw_wall_segment_shadow(tile: Vector2i, orientation: String, draw_rect: R
 	_draw_iso_ground_shadow(base_center + cast_offset, width, height, skew, float(SHADOW_COLOR.a) * 0.32)
 	_draw_iso_ground_shadow(base_center, width * 0.56, height * 0.58, skew * 0.45, float(SHADOW_COLOR.a) * 0.46)
 
-func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew: float, alpha: float) -> void:
+func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew: float, alpha: float, multiplier: PixelContactShadow = null) -> void:
 	if width <= 0.0 or height <= 0.0 or alpha <= 0.0:
 		return
 	var points := PackedVector2Array()
@@ -18273,7 +17244,9 @@ func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew:
 		var angle: float = TAU * float(step) / float(SHADOW_POINT_COUNT)
 		var unit_y: float = sin(angle)
 		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
-	if _prop_command_cache.recording:
+	if multiplier != null:
+		multiplier.draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
+	elif _prop_command_cache.recording:
 		_prop_command_cache.commands.append(["colored_polygon", points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha)])
 	else:
 		draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
@@ -18509,18 +17482,19 @@ func _prop_size() -> Vector2:
 	return Vector2(tile_width * 0.92, tile_width * 1.14)
 
 func _has_burst_trait_rows(rows: Array) -> bool:
-	return rows.size() >= 2 and not (rows[0] as Array).is_empty() and str(rows[0][0].get("icon", "")) == "burst" and str(rows[0][0].get("value", "")).begins_with("Bursts ")
+	return rows.size() >= 2 and not (rows[0] as Array).is_empty() and str(rows[0][0].get("icon", "")) == "burst" and str(rows[0][0].get("value", "")).begins_with("Burst ")
 
 func _intent_rows(intent: Dictionary) -> Array:
 	return _intent_rows_for_unit({}, intent)
 
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	# The inspection tooltip includes traits and start-of-turn forecasts.
 	var result: Array = []
 	var burst_trait: Dictionary = DeathBurstView.trait_token(unit)
 	if not burst_trait.is_empty():
 		result.append([burst_trait])
 		var sentence: String = DeathBurstView.rules_sentence(DeathBurstView.Rules.damage(unit))
-		var diagram: Dictionary = ActionIcons.pattern_detail(ActionIcons.text_token(""), "surround", "origin")
+		var diagram: Dictionary = ActionIcons.pattern_detail(ActionIcons.text_token(""), DeathBurstView.BURST_SHAPE, "origin")
 		var diagram_row: bool = true
 		var usable_width: float = BurstTraitText.WIDTH - _aoe_token_size(diagram, INTENT_POPUP_ICON_SIZE).x
 		for line: String in BurstTraitText.lines(sentence, UiTypography.ui_font(), INTENT_POPUP_ROW_FONT_SIZE, usable_width):
@@ -18532,12 +17506,27 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 				diagram_row = false
 			else:
 				result.append([token])
+	var steadfast: Dictionary = preload("res://scripts/enemy_mechanics/unit_traits.gd").steadfast_token(unit)
+	if not steadfast.is_empty():
+		result.append([steadfast])
+	var light_expose: int = 0
+	if str(unit.get("role", "")) == "enemy":
+		for threat: Dictionary in presentation.get("enemy_threat_previews", []):
+			if str(threat.get("enemy_key", "")) == _enemy_hud_actor_key(unit):
+				light_expose = int(threat.get("light_start_expose", 0))
+				break
+		if light_expose > 0:
+			result.append([ActionIcons.token_for("illuminate"), ActionIcons.token_for("expose", light_expose, "neutral", ActionIcons.tooltip("illuminate"))])
 	result.append_array(_move_rows_for_unit(unit, intent))
 	preload("res://scripts/enemy_mechanics/split_trait_text.gd").append_rows(result, unit, INTENT_POPUP_ROW_FONT_SIZE)
 	return result
 
 func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = _own_move_rows_for_unit(unit, intent)
+	var limits: Dictionary = presentation.get("threats_at_rest", {}).get("enemy_stagger_limits", {})
+	var actor_key: String = _enemy_hud_actor_key(unit)
+	if limits.has(actor_key):
+		preload("res://scripts/pass_forecast_statuses.gd").limit_stagger_rows(rows, int(limits[actor_key]))
 	var beat_row: Array = preload("res://scripts/battlefield_rules/intent_rows.gd").tokens(combat_state, unit, intent)
 	if not beat_row.is_empty(): rows.append(beat_row)
 	return rows
@@ -18545,8 +17534,12 @@ func _move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 func _own_move_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	intent = preload("res://scripts/warband_intent_presentation.gd").intent(_summon_forecast_engine, combat_state, unit, intent)
 	intent = preload("res://scripts/boss_area_rules.gd").presentation_intent(str(unit.get("type", "")), intent)
-	var refraction_rows: Array = ReflectView.intent_rows(intent)
-	if not refraction_rows.is_empty(): return refraction_rows
+	if str(intent.get("id", "")) == "refraction":
+		var actor_key: String = _enemy_hud_actor_key(unit)
+		for threat: Dictionary in presentation.get("enemy_threat_previews", []):
+			if str(threat.get("enemy_key", "")) == actor_key:
+				return ReflectView.intent_rows(intent, int(threat.get("reflect_return_damage", 0)))
+		return ReflectView.intent_rows(intent)
 	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
@@ -18754,25 +17747,16 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	badges.append_array(preload("res://scripts/enemy_mechanics/unit_traits.gd").badges(unit, combat_state))
 	for mechanic_badge: Dictionary in badges: mechanic_badge["status_class"] = "trait"
 	badges.append_array(RetaliateRules.enemy_badges(unit))
-	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
-	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
-	if str(unit.get("role", "")) == "player" and (truesight_activations != 0 or conditional_truesight):
-		var duration_text: String = "Active while standing in Light." if conditional_truesight else "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
+	var vision_activations: int = int(presentation.get("umbra_vision_activations", 0))
+	var conditional_vision: bool = bool(presentation.get("umbra_vision_conditional", false))
+	if str(unit.get("role", "")) == "player" and (vision_activations != 0 or conditional_vision):
 		badges.append({
-			"status_class": "buff", "icon": "truesight",
-			"count_text": "" if conditional_truesight else "∞" if truesight_activations < 0 else str(truesight_activations),
+			"status_class": "buff", "icon": "vision",
+			"count_text": "" if conditional_vision else "∞" if vision_activations < 0 else str(vision_activations),
 			"fill": Color("3c285f"),
 			"border": Color("8eefff"),
 			"icon_tint": Color.WHITE,
-			"tooltip": "Truesight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
-		})
-	if int(unit.get("bleed", 0)) > 0:
-		badges.append({
-			"status_class": "vulnerable", "icon": "bleed",
-			"count": int(unit.get("bleed", 0)),
-			"fill": STATUS_BLEED,
-			"border": STATUS_BLEED.lightened(0.22),
-			"icon_tint": Color("ffe9df")
+			"tooltip": ActionIcons.tooltip("vision", vision_activations if vision_activations > 0 and not conditional_vision else null)
 		})
 	if int(unit.get("expose", 0)) > 0:
 		badges.append({
@@ -18781,17 +17765,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_EXPOSE,
 			"border": STATUS_EXPOSE.lightened(0.18)
 		})
-	if bool(unit.get("chilled", false)) and int(unit.get("freeze", 0)) <= 0:
-		badges.append({"status_class": "vulnerable", "status_word": "Chilled", "icon": "chilled", "count": 0, "fill": Color("30586c"), "border": Color("a0e6ef"), "icon_tint": Color.WHITE})
-	if predicted.has("chilled"): badges.append(predicted["chilled"])
-	if int(unit.get("freeze", 0)) > 0:
-		badges.append({
-			"status_class": "control", "status_word": "Frozen", "icon": "freeze",
-			"count": 0,
-			"fill": STATUS_FREEZE,
-			"border": STATUS_FREEZE.lightened(0.20)
-		})
-	if predicted.has("freeze"): badges.append(predicted["freeze"])
+	# pla-06: entering or starting a turn on Ice Exposes 2; the preview shows it.
+	if predicted.has("expose"): badges.append(predicted["expose"])
 	if int(unit.get("frost_armor", 0)) > 0:
 		badges.append({
 			"status_class": "buff", "icon": "frost_armor",
@@ -18799,16 +17774,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": Color("274864"),
 			"border": Color("b9f3ff"),
 			"icon_tint": Color.WHITE,
-			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
-		})
-	if int(unit.get("petrify", 0)) > 0:
-		badges.append({
-			"status_class": "control", "status_word": "Petrified", "icon": "petrify",
-			"count": 0,
-			"fill": Color("4b4639"),
-			"border": Color("d8cfb4"),
-			"icon_tint": Color.WHITE,
-			"tooltip": ManeuverRules.petrified_tooltip()
+			"tooltip": ActionIcons.tooltip("frost_armor")
 		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
@@ -18837,15 +17803,13 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	return badges
 
 func _unit_predicted_status_badges(unit: Dictionary) -> Dictionary:
-	# Insert each prediction at its ordinary producer slot before class partitioning.
-	# Appending all predictions would move Frozen/Shocked when they become real.
+	# Insert predicted Expose and Shock at the normal status positions.
 	var badges: Dictionary = {}
 	var predicted: Dictionary = (presentation.get("surface_status_preview", {}) as Dictionary).get(str(unit.get("key", "")), {}) as Dictionary
 	if not predicted.is_empty():
-		var frozen: bool = int(predicted.get("freeze", 0)) > 0
-		var chilled: bool = bool(predicted.get("chilled", false))
-		if frozen or chilled:
-			badges["freeze" if frozen else "chilled"] = {"status_class": "control" if frozen else "vulnerable", "status_word": "Frozen" if frozen else "Chilled", "icon": "freeze" if frozen else "chilled", "count_text": "→", "predicted": true, "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")}
+		var exposed: int = int(predicted.get("expose", 0))
+		if exposed > int(unit.get("expose", 0)):
+			badges["expose"] = {"status_class": "vulnerable", "icon": "expose", "count": exposed, "predicted": true, "fill": STATUS_EXPOSE, "border": STATUS_EXPOSE.lightened(0.18), "tooltip": "After this action: Expose %d" % exposed}
 		if int(predicted.get("shock", 0)) > int(unit.get("shock", 0)):
 			badges["shock"] = {"status_class": "control", "status_word": "Shocked", "icon": "shock", "count_text": "→", "predicted": true, "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"}
 	return badges
@@ -18861,7 +17825,6 @@ func _player_keyword_badges() -> Array[Dictionary]:
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:
 	return {
 		"chilled": bool(player.get("chilled", false)),
-		"bleed": int(player.get("bleed", 0)),
 		"expose": int(player.get("expose", 0)),
 		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
 		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
@@ -18949,7 +17912,7 @@ func _trap_tooltip_text(trap: Dictionary) -> String:
 	var element: String = str(trap.get("element", ElementData.NONE))
 	var damage: int = _summon_forecast_engine.trap_damage(combat_state, trap)
 	var ground: String = {"fire": "@term(surface_fire)", "ice": "@term(surface_ice)", "lightning": "@term(surface_electrified)", "earth": "@term(surface_rubble)"}.get(element, "")
-	var wake: String = "@kw(push) each unit next to this tile 1 tile away." if element == "air" else "Leaves %s on this tile and each tile next to it." % ground
+	var wake: String = "@kw(push) each unit adjacent to the trap 1 tile away." if element == "air" else "The trap leaves %s on the trap’s tile and each adjacent tile." % ground
 	return "%s Trap\nTriggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [ElementData.name(element), damage, wake]
 
 
@@ -18957,19 +17920,47 @@ func _surface_tooltip_for_tile(tile: Vector2i) -> String:
 	if preload("res://scripts/board_aim_focus.gd").for_board(self).choosing: return ""
 	return _tile_tooltip_cache.encoded_for_tile(self, tile)
 
+func _sync_pixel_ground(field_changed: bool, projection_changed: bool) -> void:
+	if not is_instance_valid(_pixel_ground):
+		return
+	if field_changed:
+		_pixel_ground.present_field(combat_state, _rendered_tiles_in_draw_order(), _board_tile_is_visible_to_player)
+	if projection_changed and not _pixel_ground.field.tiles.is_empty():
+		_pixel_ground.present_projection(_tile_center(Vector2i.ZERO), _tile_width())
+
+func _sync_ground_focus_depth() -> void:
+	var lifted: bool = (_pixel_ground.field.kind_mask & 0b1010) != 0
+	if lifted == _lifted_ground_focus:
+		return
+	_lifted_ground_focus = lifted
+	_place_targeted_tile_floor_layer()
+	_queue_render_layer_redraw(_overlay_render_layer)
+	_queue_render_layer_redraw(_foreground_render_layer)
+
 func _draw_board_surface(tile: Vector2i) -> void:
-	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
+	# The pixel field and sheets belong to the root. Slices paint transient
+	# surface effects without acquiring a pixel field of their own.
+	var legacy_ground: bool = not _pixel_ground_enabled and not (
+		_is_layer_slice_canvas and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_pixel_ground_enabled"))
+	)
+	var retained_surface: bool = legacy_ground and BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
 	# Ground a feedback beat replaces, consumes or breaks keeps its retained
 	# layer for the start of the beat, fading out as the new ground arrives.
 	var feedback_frame: Dictionary = (presentation.get("throw_surface_frames", presentation.get("combat_feel_surface_frames", EMPTY_FEEL_FRAME)) as Dictionary).get(tile, EMPTY_FEEL_FRAME)
 	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
 	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
+	var effect: Dictionary = presentation.get("effect", {})
+	if not feedback_events.is_empty() and (effect.get("tiles", []) as Array).has(tile):
+		var strike_element: String = TileBurstFx.strike_element(effect)
+		if not strike_element.is_empty() or bool(effect.get(TileBurstFx.REPLACE_TARGETED, false)):
+			feedback_events = TileBurstFx.without_replaced_impacts(feedback_events, tile, strike_element if not strike_element.is_empty() else str(effect.get("element", "")))
 	var surface: Dictionary = (combat_state.get("surfaces", {}) as Dictionary).get(_tile_paint_inputs.surface_key(tile), {})
 	# Empty floor has no commands to prepare. A previous retained child must
 	# still take the normal cleanup path; feedback/preview/chain inputs must
 	# still reach their live painters even when the persistent surface is empty.
 	if (
-		surface.is_empty() and feedback_events.is_empty()
+		(not legacy_ground or surface.is_empty()) and feedback_events.is_empty()
 		and (presentation.get("surface_preview_events", []) as Array).is_empty()
 		and (presentation.get("surface_preview_arcs", []) as Array).is_empty()
 		and str((presentation.get("effect", {}) as Dictionary).get("kind", "")) != "chain"
@@ -18982,7 +17973,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var element: String = BoardSurfaceRules.kind(str(surface.get("elemental", "")))
 	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
 	var split_rubble: bool = element == "ice" or ice_leaving > 0.0
-	if retained_rubble:
+	if retained_surface:
 		var has_rubble: bool = bool(surface.get("rubble", false))
 		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)
 		var show_rubble: bool = visible_tile and (has_rubble or rubble_leaving > 0.0)
@@ -19019,7 +18010,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		return
 	var time: float = float(presentation.get("ambient_time_seconds", float(preload("res://scripts/presentation_clock.gd").ticks_msec()) / 1000.0))
 	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var retained_ice: bool = retained_rubble and (element == "ice" or ice_leaving > 0.0)
+	var retained_ice: bool = retained_surface and (element == "ice" or ice_leaving > 0.0)
 	if retained_ice and _surface_ice_layer == null:
 		_surface_ice_layer = BoardSurfaceIceLayer.new()
 		_surface_ice_layer.name = "SurfaceIce"
@@ -19036,10 +18027,10 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			move_child(_surface_ice_layer, get_child_count() - 1)
 	# Chunks sit after both Ice plates and shimmer, including leaving Ice.
 	# Reordering retained children changes no draw commands or redraw cadence.
-	if retained_rubble and _surface_rubble_layer != null:
+	if retained_surface and _surface_rubble_layer != null:
 		move_child(_surface_rubble_layer, get_child_count() - 1)
 	var fire_leaving: float = 0.0 if element == "fire" else BoardSurfacePresentation.leaving_alpha(tile, "fire", feedback_events, feedback_progress)
-	var retained_fire: bool = retained_rubble and (element == "fire" or fire_leaving > 0.0)
+	var retained_fire: bool = retained_surface and (element == "fire" or fire_leaving > 0.0)
 	if retained_fire and _surface_fire_layer == null:
 		_surface_fire_layer = BoardSurfaceFireLayer.new()
 		_surface_fire_layer.name = "SurfaceFire"
@@ -19055,7 +18046,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			move_child(_surface_fire_layer, get_child_count() - 1)
 	var conductive: bool = element == "electrified" or (element == "fire" and bool((combat_state.get("surface_rule_overrides", {}) as Dictionary).get("conductive_fire", false)))
 	var electric_leaving: float = 0.0 if conductive else BoardSurfacePresentation.leaving_alpha(tile, "electrified", feedback_events, feedback_progress)
-	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and (conductive or electric_leaving > 0.0)
+	var retained_electric: bool = retained_surface and BoardSurfacePresentation.retained_electric_enabled and (conductive or electric_leaving > 0.0)
 	if retained_electric and _surface_electric_layer == null:
 		_surface_electric_layer = BoardSurfaceElectricLayer.new()
 		_surface_electric_layer.name = "SurfaceElectric"
@@ -19072,22 +18063,22 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			move_child(_surface_electric_layer, get_child_count() - 1)
 	if not _is_dynamic_render_layer:
 		# The non-retained fallback still draws synchronously in its tile loop.
-		BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, true, true, true)
+		if legacy_ground:
+			BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion)
 		BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 		_draw_surface_connection_preview(tile, self)
-		_draw_surface_conduction_floor(tile, self)
 		BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), feedback_events, feedback_progress, reduced_motion)
 		return
-	var conduction: bool = str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "chain" and _surface_conduction_alpha() > 0.0 and BoardSurfaceRenderDependencies.changed_tiles({}, presentation, {"effect": true}).has(tile)
 	var tile_events: Array[Dictionary]
 	if feedback_progress < 1.0 or reduced_motion:
 		for event_var: Variant in feedback_events:
 			if not event_var is Dictionary: continue
 			var event: Dictionary = event_var
 			if event.get("tile", Vector2i(-1, -1)) == tile or (event.get("tiles", []) as Array).has(tile): tile_events.append(event)
-	if not conduction and tile_events.is_empty():
+	if tile_events.is_empty():
 		_release_surface_feedback_layers()
-		BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
+		if legacy_ground:
+			BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_surface, not retained_ice and not retained_fire, not retained_electric)
 		BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 		_draw_surface_connection_preview(tile, self)
 		return
@@ -19100,7 +18091,8 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	_surface_base_drawing.material = material
 	var commands: Array = _surface_base_drawing.commands
 	commands.clear()
-	commands.append({"draw": BoardSurfacePresentation.draw_tile, "args": [combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric], "transform": Transform2D.IDENTITY})
+	if legacy_ground:
+		commands.append({"draw": BoardSurfacePresentation.draw_tile, "args": [combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_surface, not retained_ice and not retained_fire, not retained_electric], "transform": Transform2D.IDENTITY})
 	commands.append({"draw": BoardSurfacePresentation.draw_preview, "args": [tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", [])], "transform": Transform2D.IDENTITY})
 	commands.append({"draw": _draw_surface_connection_on, "args": [tile], "transform": Transform2D.IDENTITY})
 	_surface_base_drawing.queue_redraw()
@@ -19115,16 +18107,8 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	move_child(_surface_feedback_pixel_layer, get_child_count() - 1)
 	var width: float = _tile_width()
 	var bounds := Rect2(_tile_center(tile) - Vector2(width * 2.0, width * 2.0), Vector2.ONE * width * 4.0)
-	if conduction:
-		_submit_surface_feedback("lightning", _draw_surface_conduction_on, [tile], bounds)
-	for original: Dictionary in tile_events:
-		var event: Dictionary = original
-		var broken: String = str(event.get("break_surface", ""))
-		if not broken.is_empty() and event.get("tile", Vector2i(-1, -1)) == tile:
-			_submit_surface_feedback(_surface_pixel_element(broken), BoardSurfacePresentation._draw_surface_break, [broken, _tile_center(tile), width, feedback_progress, reduced_motion], bounds)
-			event = event.duplicate()
-			event.erase("break_surface")
-			if str(event.get("feedback_element", "")).is_empty() and str(event.get("kind", "")) != "force_collision": continue
+	for event: Dictionary in tile_events:
+		if event.has(ResolvedContactBursts.REPLACED): continue
 		var feedback_element: String = str(event.get("feedback_element", ""))
 		if feedback_element.is_empty(): feedback_element = str(event.get("surface", ""))
 		_submit_surface_feedback(_surface_pixel_element(feedback_element), BoardSurfacePresentation.draw_feedback, [tile, _tile_center(tile), width, [event], feedback_progress, reduced_motion], bounds)
@@ -19144,13 +18128,10 @@ func _submit_surface_feedback(element: String, draw_call: Callable, args: Array,
 		_surface_feedback_pixel_layer.submit_raw(draw_call, args)
 
 func _surface_pixel_element(surface: String) -> String:
-	return str(PixelFxLayer.style()["surface_ramps"].get(surface, surface))
+	return PixelFxLayer.surface_ramp_id(surface)
 
 func _draw_surface_connection_on(canvas: CanvasItem, tile: Vector2i) -> void:
 	_draw_surface_connection_preview(tile, canvas)
-
-func _draw_surface_conduction_on(canvas: CanvasItem, tile: Vector2i) -> void:
-	_draw_surface_conduction_floor(tile, canvas)
 
 func _draw_surface_connection_preview(tile: Vector2i, canvas: CanvasItem) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):
@@ -19161,55 +18142,14 @@ func _draw_surface_connection_preview(tile: Vector2i, canvas: CanvasItem) -> voi
 		for edge: int in range(1, path.size()):
 			_draw_surface_floor_line(tile, path[edge - 1], path[edge], true, 1.0, canvas)
 
-func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, dashed: bool, alpha: float, canvas: CanvasItem) -> void:
+func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, _dashed: bool, alpha: float, canvas: CanvasItem) -> void:
 	if from.x < 0 or to.x < 0 or from == to: return
 	var steps: int = BoardSurfaceRenderDependencies.floor_line_steps(from, to)
 	for index: int in range(steps):
-		if BoardSurfaceRenderDependencies.floor_line_depth_tile(from, to, index, steps) != tile or (dashed and index % 3 == 2): continue
+		if BoardSurfaceRenderDependencies.floor_line_depth_tile(from, to, index, steps) != tile or index % 3 == 2: continue
 		var a: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index) / float(steps))
 		var b: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index + 1) / float(steps))
-		if dashed:
-			canvas.draw_line(a, b, Color(0.79, 0.70, 1.0, alpha * 0.75), maxf(1.1, _tile_width() * 0.014), true)
-		else:
-			var middle: Vector2 = a.lerp(b, 0.5) + Vector2(0, sin(float(index) * 2.3) * _tile_width() * 0.015)
-			var bolt := PackedVector2Array([a, middle, b])
-			if PixelFxLayer.line(canvas, bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), Color(0.55, 0.34, 1.0, alpha * 0.26)): continue
-			canvas.draw_polyline(bolt, Color(0.55, 0.34, 1.0, alpha * 0.26), _tile_width() * 0.046, true)
-			canvas.draw_polyline(bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), maxf(1.0, _tile_width() * 0.011), true)
-
-func _surface_conduction_alpha() -> float:
-	var t: float = float(presentation.get("effect_progress", 0.0))
-	return sin(t / 0.8 * PI) if t > 0.0 and t < 0.8 else 0.0
-
-func _draw_surface_conduction_floor(tile: Vector2i, canvas: CanvasItem) -> void:
-	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
-	if str(effect.get("kind", "")) != "chain": return
-	var alpha: float = _surface_conduction_alpha()
-	var branches: Array = effect.get("branches", []) as Array
-	if branches.is_empty(): branches = [effect]
-	for branch: Dictionary in branches:
-		var path: Array = branch.get("path", []) as Array
-		for edge: int in range(1, path.size()):
-			_draw_surface_floor_line(tile, path[edge - 1], path[edge], false, alpha, canvas)
-
-func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
-	var branches: Array = effect.get("branches", []) as Array
-	if branches.is_empty(): branches = [effect]
-	for branch_var: Variant in branches:
-		var branch: Dictionary = branch_var as Dictionary
-		var path: Array = branch.get("path", []) as Array
-		if path.size() >= 2:
-			continue # Conductive paths are drawn on the depth-sorted floor.
-		else:
-			var from_tile: Vector2i = branch.get("from", Vector2i(-1, -1))
-			var to_tile: Vector2i = branch.get("to", Vector2i(-1, -1))
-			if from_tile.x < 0 or to_tile.x < 0: continue
-			var to: Vector2 = _tile_center(to_tile)
-			if bool(effect.get("relay", false)): to.y += _tile_width() * 0.23
-			var hop: Callable = preload("res://scripts/chain_attack_fx.gd").draw_hop
-			var args: Array = [_tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false))]
-			if not PixelFxLayer.route(self, "lightning", hop, args): hop.callv([self] + args)
-
+		canvas.draw_line(a, b, Color(0.79, 0.70, 1.0, alpha * 0.75), maxf(1.1, _tile_width() * 0.014), true)
 
 func _snare_sealing_threshold(tile: Vector2i) -> bool:
 	if not SnareRules.active(combat_state): return false

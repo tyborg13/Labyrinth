@@ -7,9 +7,9 @@ import json
 from pathlib import Path
 import struct
 from PIL import Image, ImageChops
+from record import ROOT, selected_rows
 from webp_encode import Encoder
 
-ROOT = Path(__file__).resolve().parents[2]
 NEAR_LEVELS = (60, 40)
 NEAR_CAP_BYTES = 1500000
 LOSSLESS_CAP_BYTES = 3000000
@@ -104,7 +104,7 @@ def main():
     encoder, reports, outputs = Encoder(args.libwebp), [], []
     registry = json.loads((ROOT / "data/tooltip_loops.json").read_text())
     selected_ids = set(args.loops.split(",")) if args.loops else None
-    rows = [row for row in registry["loops"] if not row.get("todo_design") and (selected_ids is None or row["id"] in selected_ids)]
+    rows = selected_rows(registry, selected_ids)
     if selected_ids is not None and selected_ids != {row["id"] for row in rows}:
         raise ValueError("Unknown or TODO_DESIGN loop selected")
     if not rows:

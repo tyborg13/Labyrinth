@@ -4,8 +4,8 @@ const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Retaliate = preload("res://scripts/retaliate_rules.gd")
 const Rules = preload("res://scripts/battlefield_rules/dispatcher.gd")
-const IDS: Array = ["retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "freeze_status", "splits_cinder_ooze"]
-const BIOMES: Dictionary = {"retaliate_hollow_mimic": "noctyrax", "charge_storm_capacitor": "zekarion", "lightning_strikes": "zekarion", "marked_icefall_seer": "iskaldra", "marked_lob_slag": "tharokh", "freeze_status": "iskaldra", "splits_cinder_ooze": "vyraketh"}
+const IDS: Array = ["retaliate_hollow_mimic", "charge_storm_capacitor", "lightning_strikes", "marked_icefall_seer", "marked_lob_slag", "splits_cinder_ooze"]
+const BIOMES: Dictionary = {"retaliate_hollow_mimic": "noctyrax", "charge_storm_capacitor": "zekarion", "lightning_strikes": "zekarion", "marked_icefall_seer": "iskaldra", "marked_lob_slag": "tharokh", "splits_cinder_ooze": "vyraketh"}
 const TODO_DESIGN_lob_slag_one_tile: String = "A real centered Lob Slag plus includes every legal one-tile step. Closest no-hit script walks two tiles horizontally inside the patch."
 const SPLITS_OOZE := Vector2i(1, 2) # Spawn tiles (1,1)/(2,2), both to the hero's right.
 const SPLITS_HERO := Vector2i(0, 2)
@@ -43,22 +43,10 @@ static func configure(layout: Dictionary, id: String) -> Dictionary:
 			layout["objective"] = {"type": preload("res://scripts/combat_objective_rules.gd").KILL_ALL}
 			units = [["crawler", Vector2i(1, 0)]]
 			layout["element"] = "lightning"
-		"freeze_status":
-			units = [["crawler", Vector2i(1, 1)]]
-			card = "frozen_bite"
-			layout["element"] = "ice"
 	return {"units": units, "card": card}
 
 static func prepare(state: Dictionary, id: String) -> void:
 	if id == "splits_cinder_ooze": state["enemies"][0]["hp"] = 1
-	if id == "freeze_status":
-		state["enemies"][0]["hp"] = 30
-		state["enemies"][0]["max_hp"] = 30
-		state["enemies"][0]["chilled"] = true
-		var hand: Array[String]
-		hand.append("frozen_bite")
-		hand.append("quick_stab")
-		state["deck"]["hand"] = hand
 	if id == "lightning_strikes":
 		var engine := preload("res://scripts/hero_facing_combat.gd").new()
 		Rules.install(engine, state, Rules.instance_for(LIGHTNING_RULE))
@@ -93,10 +81,6 @@ static func plan(fixture: Dictionary, engine: RefCounted) -> Dictionary:
 		var steps: Array[Dictionary]
 		var after: Dictionary = Rules.dispatch(engine, state.duplicate(true), "after_player_turn", -1, "", steps)
 		beats.append({"kind": "rule", "before": state, "after": after, "tiles": tiles})
-	elif id == "freeze_status":
-		for card: String in ["frozen_bite", "quick_stab"]:
-			beats.append(player_beat(engine, state, engine.card_play_actions(card, state)[0], state["enemies"][0]["pos"], card))
-			state = beats.back()["after"]
 	elif id == "charge_storm_capacitor":
 		beats.append(enemy_beat(engine, state))
 	elif id in ["marked_icefall_seer", "marked_lob_slag"]:
@@ -137,14 +121,6 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 			if int(before["enemies"][0]["hp"]) - int(after["enemies"][0]["hp"]) != damage: failures.append("Crawler takes the existing rule's real strike damage")
 			if int(after["battlefield_rule"].get("beats_fired", 0)) != 1: failures.append("Exactly one rule beat must fire")
 			if after["surfaces"] != before["surfaces"]: failures.append("Rule must preserve the two existing Electrified tiles without creating ground")
-		"freeze_status":
-			var frozen: Dictionary = result["beats"][0]["after"]["enemies"][0]
-			if not bool(before["enemies"][0].get("chilled", false)) or int(frozen.get("freeze", 0)) <= 0 or int(frozen["hp"]) <= 0: failures.append("Frozen Bite must Freeze the initially Chilled living Crawler")
-			var stab: Dictionary = result["beats"][1]
-			var raw_damage: int = int(after.get("run_stats", {}).get("max_single_hit", 0))
-			if raw_damage != int(stab["action"]["damage"]) * Surfaces.FROZEN_MULTIPLIER: failures.append("Quick Stab must resolve triple real damage against Freeze")
-			if int(after["enemies"][0]["hp"]) <= 0: failures.append("30 HP fixture Crawler must survive the full tripled hit")
-			if int(after["enemies"][0]["hp"]) != maxi(0, int(frozen["hp"]) - raw_damage): failures.append("Real HP loss must respect the Crawler's remaining HP")
 		"retaliate_hollow_mimic":
 			if int(before["player"]["hp"]) - int(after["player"]["hp"]) != 3: failures.append("Retaliate must hit the hero for exactly 3")
 			if int(before["enemies"][0]["hp"]) - int(after["enemies"][0]["hp"]) != 6: failures.append("Quick Stab must hit the Mimic for 6")

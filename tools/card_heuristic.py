@@ -43,11 +43,10 @@ pull/immobilize control anchors without stacking with wardens in their seeded
 compositions. Grave surgeons join frontline pools as low-damage support enemies
 that heal or guard the most injured/threatened nearby enemy on the same support
 scaling curve as enemy block/healing. Warden Bulwark grants its scaled Block to
-every other living enemy but not the Warden, making focus fire, Pierce, Sunder,
+every other living enemy but not the Warden, making focus fire, Pierce,
 and broad damage especially valuable in Warden compositions without changing
 their intrinsic coefficients. Shale bloomers join earth rooms as Rubble and Expose controllers. Generic enemies keep their printed intent actions
-instead of being rewritten to match the room element. Tunnel Crawler claw
-attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+instead of being rewritten to match the room element. Eight enemy intent attacks gain one point of immediate damage (pla-07).
 Normal enemies refresh intents through explicit frontliner, artillery,
 skirmisher, protector, controller, or support profiles. Tactically dead options
 such as stationary out-of-range shots, irrelevant retreats, unavailable heals,
@@ -70,8 +69,7 @@ actually near instead of producing an early U-shaped movement.
 Conservative threat unions are supplemented by the exact current route,
 destination, and projected attack, including action-denying statuses and
 deterministic lightning-strike tiles.
-Bleed pressure only opens on resolved move or attack actions, not skipped or
-blocked no-op action entries. Later sequences keep the local curve while raising
+Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
 sequences. Zekarion's 2x2 footprint makes printed reach feel larger. Its
@@ -89,8 +87,9 @@ hit for scoring.
 Elemental rooms seed 2-3 single-use traps. Direct damage only hits the
 center occupant; center and four cardinal neighbors receive Fire, Ice, Rubble or Electrified.
 Air traps push cardinal neighbors outward. Shared permanent surfaces replace
-intensity: Fire deals 2 on entry and 3 on actor start; Ice activates Chill on entry
-or start and an Ice hit can consume it to Freeze. Rubble costs 2 to leave with a
+intensity: Fire deals 2 on entry and 3 on actor start; Ice Exposes 2 a unit on
+entry or eligible actor start. Cards with "On Ice: also Stagger 6" delay
+eligible targets by 6. Rubble costs 2 to leave with a
 fresh-allowance minimum-progress rule. Electrified supports immediate cardinal
 component discharge and optional intrinsic Chain relays. Setup is finite geometry,
 not permanent uptime. The scorer values expected useful contact, connectivity,
@@ -131,10 +130,9 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BALANCE_REVISION = "crd18_fire_synergy_v1"
+BALANCE_REVISION = "pla_rollout_2026_11"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
-PETRIFY_BLOCK = 5
 
 DEPTHS_PER_SEQUENCE = 4
 SEQUENCES_PER_RUN = 6
@@ -176,10 +174,10 @@ SOURCE_FILTERS = (
 
 BOSS_ENCOUNTER_ROLES = {
     "zekarion": "HP62; two Wisps and capped Call Wisps; Skybreak5 on nine separated scatter tiles; cycle Skybreak, Storm Lash, Call Wisps, Skybreak, Overload; Storm Lash4; Overload shot3 plus Lightning Storm damage5 Chain1, Chain2 at half Health",
-    "tharokh": "HP72; two finite Burrow Grubs; Stonewake damage6, Claw damage14, Bedrock damage10; guarded source-owned length5 health4 Upheaval every second hero turn, each hero turn at half Health; radius1 consuming Faultline8 plus shot4",
+    "tharokh": "HP72; two finite Burrow Grubs; Stonewake damage6, Claw damage15, Bedrock damage10; guarded source-owned length5 health4 Upheaval every second hero turn, each hero turn at half Health; radius1 consuming Faultline8 plus shot4",
     "vyraketh": "HP52; one finite Cinder Droplet; Cinder Maw8, Breath6; seven-cell Fire renewal; Wildfire spreads all on Breath, every second source turn at half Health; Crownfire detonates only remembered marks",
-    "vaeloryx": "HP50; one finite Gust Shrike; live Skyhook4, swept Dive6, ring Gale6 Push1 and Eye8/bite4; clockwise Gust after each source turn, Push1 then Push2 at half Health; no recorded wake",
-    "iskaldra": "two finite Rime Spitters; Mantle, Shatter and crossed Ice; Frostbite3 on Talon, every second source turn at half Health; Mantle absorbs the hit and Freeze immunity remains",
+    "vaeloryx": "HP50; one finite Gust Shrike; live Skyhook4, swept Dive7, ring Gale6 Push1 and Eye8/bite4; clockwise Gust after each source turn, Push1 then Push2 at half Health; no recorded wake",
+    "iskaldra": "two finite Rime Spitters; Mantle, Shatter and crossed Ice; Frostbite3 on Talon, every second source turn at half Health; Mantle absorbs the hit and extends Shatterstorm",
     "noctyrax": "HP64, Void Claw10; two Acolytes and capped Last Eclipse replacement; snuff, darkness, braziers and live pursuit; Void Claw Blinks hidden Acolytes3; no half-Health change or player-anchored sweeps",
 }
 
@@ -192,7 +190,7 @@ SECTION_ENEMY_ROSTER = {
                     "counterplay": "leave the mark, place an enemy on it, punish self-Expose"},
     "ember_tick": {"section": "fire", "hp": 6, "initiative": 8, "reward_embers": 6,
                    "first_weighted_cadence": 12.0, "repeat_weighted_cadence": 12.0,
-                   "reach": "Scuttle Move 3 + melee 2; death Burst hits eight surrounding tiles for 4",
+                   "reach": "Scuttle Move 3 and melee 2. The death Burst deals 4 on the source tile and four orthogonal neighbors.",
                    "support": "Kindle adds 2 until death, max bonus 4; death leaves Fire; breadth-first chains",
                    "counterplay": "kill at range, push beside allies, block burst damage"},
 }
@@ -213,7 +211,7 @@ GUARDIAN_ASSUMPTIONS = {
     "clock": "Guardians initiative 9–12 plus Time 4–7; Cantor 11, Roc 9; Guardian Tender/Fledgling 12, Wisp 19; other helpers 8–10 plus Time 4–6; ordinary Wisp remains 7 plus 4",
     "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
     "cohort_pressure": "initial helpers are finite; only authored Call the Spark and Snuff renew Wisps/Shades within their data-authored living-kind caps, paying one Card Play per successful summon; helpers advance on each intent and prefer complementary safe flanks; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
-    "ground_pressure": "each Guardian installs data-authored beat cadence and dials; Reaver adds Fire after empty sword strikes; Cantor/Tender extend a shared network and Peal fires Lightning Storm; Frostbite deals zero damage and Freezes occupants of live Ice tiles, retaining existing immunities; Roc is Anchored; Craghide raises owned 2-HP Outcrops counted by Groundsplit; only hidden Wick Shades Shadowstep",
+    "ground_pressure": "each Guardian installs data-authored beat cadence and dials; Reaver adds Fire after empty sword strikes; Cantor/Tender extend a shared network and Peal fires Lightning Storm; Rimejaw's Frostbite Staggers occupants of Ice by 6; Roc is Anchored; Craghide raises owned 2-HP Outcrops counted by Groundsplit; only hidden Wick Shades Shadowstep",
     "director_tuning": "feedback 3 plus owner area-02 storm update: Rimejaw HP 34/Pounce 6; Cantor HP 66/Choir 6 fresh linked tiles when legal space permits/Broken Rhythm 11/Wisp cap 2/Peal 4 Chain 0/Guardian Tender Staff Bolt 4 (ordinary 3); Lamplighter HP 30/Procession 6/one initial Shade/Shade cap 1/Hook 3/Guardian Shade melee 1; ordinary Shade melee 2; enemy intents have no intrinsic player-card score",
     "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
     "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
@@ -259,7 +257,7 @@ def encounter_assumptions() -> dict[str, Any]:
         },
         "equipment_balance_crd03": {
             "revision": "crd03_gear_v1",
-            "rimebite_hatchet": "Rime Hack Time3 damage7; Frozen Bite Time2 damage5, Freeze rewards Card Play1 then draw1; Shatter Swing Time4 damage10 splash6",
+            "rimebite_hatchet": "Rime Hack Time3 damage7; Frozen Bite Time2 damage5, On Ice: Stagger6 and rewards Card Play1 then draw1; Shatter Swing Time4 damage10 splash6",
             "grave_greatsword": "Grave Cleave Time4 damage8; Blood Price Time5 damage14, unchanged Empower; Tombsplitter Time6 damage14",
             "quarrymail": "Quarry Plating Time3 Stoneskin6; Shrug Off Block3 before conversion, unchanged draw1",
             "glacial_bulwark": "Hoarfrost Wall Time3 Block8; Cold Shoulder Time2 damage6 Push2",
@@ -292,10 +290,10 @@ def encounter_assumptions() -> dict[str, Any]:
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
             "summon_reaction": "newly summoned helpers cannot activate before the next already-scheduled player activation",
-            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout replaces its previous crossed two-wide range-3 Ice trail; Talon pursues up to three steps, then Frostbite hits Ice for3 and Freezes; at half Health the beat follows every second source turn",
+            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout replaces its previous crossed two-wide range-3 Ice trail; Talon pursues up to three steps, then Frostbite hits Ice for3; at half Health the beat follows every second source turn",
             "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage; player-anchored sweeps are removed; Void Claw Shadowstep Blinks only hidden Veilbound Acolytes3; no automatic cleanup",
             "pressure": "director feedback1 tunes base HP, primary damage and boss-only helper counts from matched 50-run ladders; normal repeat intervals unchanged; all six open at clock12; one element rule replaces bespoke riders; one finite Cinder Droplet/Gust Shrike and two finite Burrow Grubs/Rime Spitters use the existing dragon slots; Wisps/Acolytes and existing summon intents remain; only the five elemental dragons switch at half Health",
-            "earth_cycle": "Stonewake lane damage6/range4, Claw crescent damage14, Bedrock lane damage10; Upheaval source-owned Outcrops length5 health4; Faultline radius1 burst8 consumes only the source stone, then live shot4; no paired raise or Claw/Breath pulses",
+            "earth_cycle": "Stonewake lane damage6/range4, Claw crescent damage15, Bedrock lane damage10; Upheaval source-owned Outcrops length5 health4; Faultline Bursts only the source stone for 8 in a cross, then live shot4; no paired raise or Claw/Breath pulses",
             "earth_approach": "line_between marks use the shared floor-connectivity and two whole-body-exit guard; preserve_owned_terrain spares Tharokh stone from lane damage and retains sight through it; player and foreign Outcrops remain ordinary blockers; excluded from intrinsic card scores",
             "worldheart": "at most 2 leftover Block becomes Stoneskin per turn; half-gain adjacent pulse remains capped at 4",
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
@@ -323,8 +321,8 @@ def encounter_assumptions() -> dict[str, Any]:
         "en05_enemies": {
             "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
             "glacial_mirror": {"hp": 20, "base_initiative": 15, "reward_embers": 13, "weighted_cycle": 15 + (3 * 6 + 2 * 5 + 5) / 6,
-                               "reflect": "pla-01: once per Mirror per damaging attack from a non-adjacent origin (including echoes, area, Chain and damaging Push/Pull); return damage before Mirror Block through attacker defense; adjacent hits, pure status and movement, surfaces, battlefield rules, Bursts and selector strikes land",
-                               "refraction": "four cardinal tiles toward hero; 4 ice + persistent Chilled; friendly fire and ordinary death rewards; bounces return damage and Chilled to the caster",
+                               "reflect": "once per Mirror per damaging attack from a non-adjacent origin, including echoes, area, Chain and damaging Push or Pull; adjacent hits, pure status and movement, surfaces, battlefield rules, Bursts and selector strikes land",
+                               "refraction": "Four cardinal tiles toward the hero. Refraction deals 4 damage and Staggers targets on Ice by 6. A bounce returns damage and riders to the caster. Friendly fire uses ordinary death rewards.",
                                "crystal_guard": "6 Block to adjacent ally with least Block, self only without adjacent ally", "construct": True},
             "gust_shrike": {"hp": 9, "base_initiative": 9, "reward_embers": 8, "weighted_cycle": 9 + (3 * 5 + 2 * 4 + 4) / 6,
                             "flying": "ignores surface/trap contact and costs; ordinary terrain blocks its route and landing; normal Push",
@@ -337,7 +335,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "briar_weaver": {"hp": 14, "initiative": 12, "embers": 11,
                 "weighted_cycle": 12 + (3 * 6 + 2 * 5 + 5) / 6,
                 "thornwall": "three perpendicular front tiles; marks occupied tiles; next source turn uses Upheaval to raise health-3 Outcrops with displacement",
-                "lash": "3 earth + Bleed 1 at range 3", "root_mend": "most missing HP among other living allies within 3; heal 4 capped at max; otherwise Lash",
+                "lash": "4 Earth damage at range 3", "root_mend": "most missing HP among other living allies within 3; heal 4 capped at max; otherwise Lash",
                 "counterplay": "leave the marks before the rise or destroy Outcrops"},
             "slag_mortar": {"keyword": "marked", "hp": 18, "initiative": 14, "embers": 13,
                 "override_source": "data/enemies.json (enc-03)",
@@ -355,10 +353,10 @@ def encounter_assumptions() -> dict[str, Any]:
             "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
             "storm_capacitor": {"hp": 22, "initiative": 16, "embers": 13, "cycle": (3 * (16 + 4) + (16 + 5)) / 4,
                                 "charge": "persistent 0..3; three Charge activations then Discharge; becoming Shocked removes one",
-                                "discharge": "nearest hero/enemy within Manhattan 4; every tie: hero, lowest current HP, tile y, tile x; nearest eight-neighbour unstruck target; 6/5/4/3 damage; ordinary friendly-fire rewards",
+                                "discharge": "nearest hero/enemy within Manhattan 4; every tie: hero, lowest current HP, tile y, tile x; nearest side-adjacent unstruck target; 6/5/4/3 damage; ordinary friendly-fire rewards",
                                 "movement": "immobile; force and wind anchored"},
             "hollow_mimic": {"source": "spec/enemies/hollow_mimic.md (mim-01)", "hp": 14, "initiative": 12, "embers": 11, "authored_weighted_cycle": 12 + (3 * 6 + 2 * 4 + 4) / 6,
-                             "echo": "3 shadow, range 4, then Retaliate 3 until own next turn; melee or adjacent hero attack once per attack; Block/Stoneskin absorb; Expose adds; no Chill/Freeze; distant ranged/area avoid",
+                             "echo": "3 shadow, range 4, then Retaliate 3 until own next turn; melee or adjacent hero attack once per attack; Block and Stoneskin absorb; Expose adds; distant ranged or area avoid",
                              "shade_bolt": "4 shadow, range 4", "recede": "Move away 2; no Block"},
             "spawns": "director adds the authored lightning/shadow encounter groups after merge",
             "card_coefficients": "unchanged; positional exposure and kill order are encounter context",
@@ -373,6 +371,12 @@ def encounter_assumptions() -> dict[str, Any]:
                               "ambush": "forced following Fade; re-Blink if needed; melee 7; impossible strike falls back to Slash",
                               "slash": "Move 2 + melee 4"},
             "encounters": "Encounter tables are unchanged; no intrinsic card coefficient change",
+        },
+        "pla07_enemy_hits": {
+            "intent_ids": ["skitter_strike", "pelt", "worldspine_claw", "razor_dive",
+                           "grave_dive", "crushing_rush", "lash_of_thorns", "talon_rake"],
+            "damage_delta": 1,
+            "pressure_policy": "one landed hit on the hero, using damage and defense-bypass coefficients",
         },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
@@ -438,11 +442,11 @@ def encounter_assumptions() -> dict[str, Any]:
             "shared_hazards": True,
             "fire_entry_damage": 2,
             "fire_start_damage": 3,
-            "chill_timing": "actual entry or eligible actor activation start",
-            "freeze_cost": "consume all Ice under the successfully Frozen actor",
+            "ice_expose_timing": "Actual entry or eligible actor activation start",
+            "ice_expose": 2,
+            "ice_card_stagger": "On Ice: also Stagger 6 printed per card; dragons take half",
+            "stagger_cap": "6 Time per hero or enemy between turns across sources. Printed-card scores value uncapped delay.",
             "rubble_exit_cost": 2,
-            "chilled_direct_damage_bonus": 2,
-            "frozen_direct_damage_multiplier": 3,
             "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; Stormcoal Fire is consumed",
             "trap_shape": "center-only direct damage; center and cardinal ground; Air cardinal push only",
             "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost",
@@ -478,12 +482,16 @@ class HeuristicWeights:
     surface_effective_tile_cap: float = 4.0
     surface_connection_value: float = 0.18
     surface_setup_availability: float = 0.50
-    ice_contact_availability: float = 0.30
     lightning_network_availability: float = 0.35
     lightning_extra_occupants: float = 0.55
     surface_fuel_cost_per_tile: float = 0.35
     repeated_consumption_availability: float = 0.35
     detonate_shared_hazard_cost: float = 0.45
+    # One source: its own unit plus 0.35 from its four neighbors.
+    # Extra useful fuel tiles add 0.30 expected targets each.
+    burst_cross_targets: float = 1.35
+    burst_extra_source_targets: float = 0.30
+    burst_max_targets: float = 2.50
     displacement_hazard_value_per_tile: float = 0.24
     # Collision: 2 damage per lost tile to target and blocker, available on
     # roughly a third of forced-movement plays, at damage weight (~0.30/tile).
@@ -499,9 +507,10 @@ class HeuristicWeights:
     illuminate_radius_per_tile: float = 0.55
     illuminate_duration_per_activation: float = 0.25
     illuminate_range_per_tile: float = 0.06
-    vision_per_radius_activation: float = 0.50
-    truesight_per_activation: float = 1.40
-    dispel_umbra_per_stage: float = 2.20
+    vision_per_activation: float = 1.40
+    light_expose: int = 2
+    light_exposed_targets_per_activation: float = 0.50
+    light_reference_radius: int = 2
     umbra_relevance: float = 0.75
     pure_move_per_tile: float = 0.25
     pure_blink_per_tile: float = 0.33
@@ -515,10 +524,7 @@ class HeuristicWeights:
     aoe_rotatable_orientation_bonus: float = 0.05
     chain_extra_targets: float = 0.45
     pierce_value: float = 0.75
-    bleed_damage_value: float = 0.65
     expose_value_per_point: float = 0.32
-    sunder_value_per_point: float = 0.20
-    freeze_value: float = 4.8
     shock_value: float = 2.5
     immobilize_value: float = 1.7
     push_value_per_tile: float = 0.28
@@ -542,7 +548,7 @@ class HeuristicWeights:
     # priced below Time (0.45/pt) because it moves one enemy, not every actor.
     stagger_value_per_point: float = 0.30
     state_bonus_light_availability: float = 0.40
-    state_bonus_frozen_availability: float = 0.30
+    state_bonus_availability: float = 0.30
     state_bonus_half_hp_availability: float = 0.45
     scale_stoneskin_expected_points: float = 2.5
     scale_tiles_moved_expected_independent: float = 1.5
@@ -554,7 +560,6 @@ class HeuristicWeights:
     # Wave-3 keywords (spec/card_keywords_wave3.md). Retaliate already folds in
     # the chance that an enemy strikes you in melee before your next turn.
     retaliate_per_point: float = 0.35
-    retaliate_bleed_per_point: float = 0.30
     retaliate_shock_value: float = 1.0
     retaliate_push_per_tile: float = 0.20
     quicken_per_time: float = 0.40
@@ -567,7 +572,8 @@ class HeuristicWeights:
     rite_fire_hits_per_activation: float = 0.60
     rite_fire_contacts_avoided_per_activation: float = 0.50
     rite_on_surface_availability: float = 0.50
-    rite_freezes_per_activation: float = 0.50
+    # An Ice card that adds Stagger can trigger a Rite reward.
+    rite_ice_staggers_per_activation: float = 0.50
     rite_pulse_targets_per_activation: float = 0.80
     rite_discounted_cards_per_activation: float = 2.0
     rite_discount_availability: float = 0.80
@@ -595,9 +601,6 @@ class HeuristicWeights:
     # A layer cancels one whole direct hit (~6 damage) after Block and lasts
     # until broken, so it is priced above 6 Block.
     mantle_per_layer: float = 1.60
-    # A skipped activation ~= Stagger of one enemy cycle (12 x 0.30).
-    petrify_skip_value: float = 3.60
-    petrify_enemy_block_cost_share: float = 0.50
     move_trail_tile_share: float = 0.67
     started_on_surface_availability: float = 0.25
     straight_line_mobility_factor: float = 0.75
@@ -609,14 +612,17 @@ class HeuristicWeights:
     adjacent_enemies_expected: float = 0.90
     convert_expected_tiles: float = 2.0
     convert_targets: float = 1.20
+    convert_single_tile_targets: float = 1.0
     discharge_expected_network_tiles: float = 2.0
+    # Union of the crosses in a typical two-tile network.
     discharge_targets: float = 1.60
     per_tile_expected_tiles: float = 2.0
-    on_result_freeze_availability: float = 0.30
+    # On-Ice rewards require a target standing on Ice when hit.
+    on_result_on_ice_availability: float = 0.30
     on_result_kill_availability: float = 0.35
-    frozen_splash_neighbors: float = 0.80
+    selector_visible_targets: float = 2.0
     selector_on_fire_targets: float = 0.90
-    selector_chilled_targets: float = 0.80
+    selector_on_ice_targets: float = 0.80
     selector_in_light_targets: float = 1.00
     selector_on_electrified_targets: float = 0.80
     selector_prepared_bonus: float = 0.20
@@ -726,6 +732,12 @@ def immediate_damage_value(damage: int, playability: float, targets: float, weig
     return base_value + kill_proxy * weights.kill_card_play_value
 
 
+def enemy_hit_pressure(action: dict[str, Any], weights: HeuristicWeights) -> float:
+    """Score one aimed enemy hit before scaling, without player-card rewards."""
+    damage = int(action.get("damage", 0)) * weights.damage_per_point
+    return damage + (weights.pierce_value if action.get("pierce") else 0.0)
+
+
 def surface_kind(value: Any) -> str:
     return {"earth": "rubble", "lightning": "electrified"}.get(str(value), str(value))
 
@@ -766,11 +778,10 @@ def surface_availability(condition: dict[str, Any], prepared: set[str], weights:
 def state_bonus_availability(state: str, weights: HeuristicWeights) -> float:
     return {
         "light": weights.state_bonus_light_availability,
-        "frozen": weights.state_bonus_frozen_availability,
-        "bleeding": weights.state_bonus_frozen_availability,
-        "immobilized": weights.state_bonus_frozen_availability,
-        "staggered": weights.state_bonus_frozen_availability,
-        "shocked": weights.state_bonus_frozen_availability,
+        "exposed": weights.state_bonus_availability,
+        "immobilized": weights.state_bonus_availability,
+        "staggered": weights.state_bonus_availability,
+        "shocked": weights.state_bonus_availability,
         "half_hp": weights.state_bonus_half_hp_availability,
     }.get(state, 0.0)
 
@@ -849,7 +860,6 @@ def illusion_extra_value(action: dict[str, Any], weights: HeuristicWeights) -> d
 def retaliate_value(action: dict[str, Any], weights: HeuristicWeights) -> tuple[float, float]:
     """(offense, control) for one Retaliate or Rite thorns payload."""
     offense = int(action.get("amount", action.get("damage", 0))) * weights.retaliate_per_point
-    offense += int(action.get("bleed", 0)) * weights.retaliate_bleed_per_point
     control = (weights.retaliate_shock_value if int(action.get("shock", 0)) > 0 else 0.0)
     control += int(action.get("push", 0)) * weights.retaliate_push_per_tile
     return offense, control
@@ -868,6 +878,20 @@ def next_attack_value(action: dict[str, Any], move_tiles: float, weights: Heuris
     return value
 
 
+def light_value(radius: int, weights: HeuristicWeights, placement_range: int = 0) -> float:
+    turns = weights.rite_remaining_activations
+    sight = radius * weights.illuminate_radius_per_tile + turns * weights.illuminate_duration_per_activation
+    sight += placement_range * weights.illuminate_range_per_tile
+    targets = weights.light_exposed_targets_per_activation * min(1.0, radius / weights.light_reference_radius)
+    exposure = turns * targets * weights.light_expose * weights.expose_value_per_point
+    return sight * weights.umbra_relevance + exposure
+
+
+def vision_value(duration: int, weights: HeuristicWeights) -> float:
+    turns = weights.rite_remaining_activations if duration < 0 else max(0, duration)
+    return turns * weights.vision_per_activation * weights.umbra_relevance
+
+
 def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> float:
     """Expected value of one Rite effect over the assumed remaining activations."""
     turns = weights.rite_remaining_activations
@@ -881,7 +905,7 @@ def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> floa
         for item in effect.get("rewards", []):
             amount = int(item.get("amount", 0))
             reward += amount * {"stoneskin": weights.stoneskin_per_point, "block": weights.block_per_point, "draw": weights.draw_per_point, "heal": weights.heal_per_point, "card_play": weights.card_play_per_point}.get(str(item.get("type", "")), 0.0)
-        availability = {"turn_start_on_surface": weights.rite_on_surface_availability, "status_applied_reward": weights.rite_freezes_per_activation}.get(kind, 1.0)
+        availability = {"turn_start_on_surface": weights.rite_on_surface_availability, "status_applied_reward": weights.rite_ice_staggers_per_activation}.get(kind, 1.0)
         return reward * availability * turns
     if kind in {"turn_start_surface_pulse", "turn_start_outcrop_pulse"}:
         return int(effect.get("damage", 0)) * weights.damage_per_point * weights.rite_pulse_targets_per_activation * turns
@@ -892,7 +916,7 @@ def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> floa
     if kind == "forced_movement_bonus":
         return int(effect.get("amount", 0)) * weights.push_value_per_tile * weights.rite_forced_moves_per_activation * turns
     if kind == "player_light_aura":
-        return (int(effect.get("radius", 0)) * weights.illuminate_radius_per_tile + turns * weights.illuminate_duration_per_activation) * weights.umbra_relevance
+        return light_value(int(effect.get("radius", 0)), weights)
     if kind == "target_state_action_mod":
         added = effect.get("add", {})
         damage = int(added.get("damage", 0)) if isinstance(added, dict) else int(effect.get("amount", 0))
@@ -968,7 +992,7 @@ def reward_actions_value(card_id: str, rewards: list[dict[str, Any]], weights: H
 def selector_expected_targets(action: dict[str, Any], prepared: set[str], weights: HeuristicWeights) -> float:
     selector = str(action.get("selector", ""))
     targets = getattr(weights, f"selector_{selector}_targets", 0.0)
-    painted = {"on_fire": "fire", "on_electrified": "electrified", "chilled": "ice"}.get(selector, "")
+    painted = {"on_fire": "fire", "on_electrified": "electrified", "on_ice": "ice"}.get(selector, "")
     if painted and painted in prepared:
         targets += weights.selector_prepared_bonus
     if int(action.get("range", 0)) > 0:
@@ -982,6 +1006,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     card_element = str(card.get("element", "none"))
     prepared: set[str] = set()
     previous_attack_playability = 0.60
+    # pla-04: a Burst at a melee target's tile always covers your own tile.
+    previous_attack_adjacent = False
     # Extra Flurry copies can find different fuel, but cannot reuse consumed
     # ground. Track only payoffs lacking an earlier explicit painter.
     fuel_limited: dict[str, float] = {}
@@ -1023,21 +1049,29 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         if action_type == "consume_surface":
             availability = surface_availability({"surface": surface}, prepared, weights)
             rewards = []
+            baseline_rewards = []
             expected_tiles = max(1, int(action.get("min_consumed", 1)))
             for raw_reward in action.get("rewards", []):
                 reward_action = dict(raw_reward)
                 if bool(reward_action.get("per_tile", False)):
-                    expected = int(reward_action.get("amount", 0)) * weights.per_tile_expected_tiles
+                    base = int(reward_action.get("base_amount", 0))
+                    expected = base + int(reward_action.get("amount", 0)) * weights.per_tile_expected_tiles
                     if "max" in reward_action:
-                        expected = min(float(int(reward_action.get("max", 0))), expected)
+                        cap = int(reward_action["max"])
+                        base = min(base, cap)
+                        expected = min(cap, expected)
+                    if base and int(action.get("min_consumed", 1)) == 0:
+                        baseline_rewards.append(dict(reward_action, amount=base))
+                        expected -= base
                     reward_action["amount"] = expected
                     expected_tiles = max(expected_tiles, weights.per_tile_expected_tiles)
                 rewards.append(reward_action)
             reward_card = {"actions": rewards, "element": card_element, "time": weights.baseline_card_time}
             reward = score_card(card_id + ":surface_reward", reward_card, weights)
+            baseline = score_card(card_id + ":surface_baseline", dict(reward_card, actions=baseline_rewards), weights) if baseline_rewards else ScoreBreakdown()
             for field in ("offense", "control", "defense", "flow", "surfaces", "mobility", "radiance", "synergy"):
                 value = getattr(reward, field) * availability
-                setattr(breakdown, field, getattr(breakdown, field) + value)
+                setattr(breakdown, field, getattr(breakdown, field) + getattr(baseline, field) + value)
                 add_fuel_limited(field, value, surface)
             cost = expected_tiles * weights.surface_fuel_cost_per_tile * availability
             breakdown.surface_fuel_cost += cost
@@ -1045,16 +1079,34 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             prepared.discard(surface)
             continue
         if action_type == "detonate":
+            # Burst: destroy the fuel, then hit every unit in its cross (you
+            # included unless spare_player). A follow-up inherits its attack's
+            # reach; a Burst at a melee target or around you always hits you.
             fuel_kind = surface_kind(action.get("detonate_surface", "fire"))
             availability = surface_availability({"surface": fuel_kind}, prepared, weights)
-            fuel = min(2.5, 1 + (len(surface_footprint(action)) - 1) * 0.25)
-            targets = min(2.0, 1.35 + (fuel - 1) * 0.25)
+            follow_up = action.get("target") == "previous_target"
+            if str(action.get("sources", "")) == "hits":
+                fuel = 1.25
+            else:
+                fuel = min(2.5, 1 + (len(surface_footprint(action)) - 1) * 0.25)
+            targets = min(weights.burst_max_targets, weights.burst_cross_targets + (fuel - 1) * weights.burst_extra_source_targets)
             playability = ranged_playability(int(action.get("range", 0))) if int(action.get("range", 0)) > 0 else 0.60
-            if action.get("target") == "previous_target":
+            if follow_up:
                 playability = previous_attack_playability
-            payoff = immediate_damage_value(int(action.get("damage", 6)), playability, targets, weights) * availability
-            # spare_player removes the shared-hazard risk of standing in the blast.
-            hazard = 0.0 if bool(action.get("spare_player", False)) else weights.detonate_shared_hazard_cost
+            elif int(action.get("range", 0)) > 0:
+                previous_attack_playability = playability
+            damage = int(action.get("damage", 6))
+            payoff = immediate_damage_value(damage, playability, targets, weights) * availability
+            around_you = int(action.get("range", 0)) <= 0 and not follow_up and all(
+                abs(int(offset[0])) <= 1 and abs(int(offset[1])) <= 1 for offset in action.get("pattern", [[0, 0]]))
+            always_self = not bool(action.get("spare_player", False)) and ((follow_up and previous_attack_adjacent) or around_you)
+            if bool(action.get("spare_player", False)):
+                hazard = 0.0
+            elif always_self:
+                # The Burst lands on you: its damage as a Health cost.
+                hazard = damage * weights.health_cost_per_point * playability
+            else:
+                hazard = weights.detonate_shared_hazard_cost
             cost = (fuel * weights.surface_fuel_cost_per_tile + hazard) * availability
             breakdown.offense += payoff
             breakdown.surface_fuel_cost += cost
@@ -1063,8 +1115,9 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             prepared.discard(fuel_kind)
             leave = surface_kind(action.get("leave_surface", ""))
             if leave:
-                # Each consumed tile and its four neighbors (a cross per fuel tile).
-                breakdown.surfaces += surface_value({"surface": leave, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]}, weights) * availability
+                # The destroyed tile, or every tile the Burst hits ("tiles_hit").
+                pattern = [[x, y] for y in (-1, 0, 1) for x in (-1, 0, 1)] if action.get("leave_surface_on") == "tiles_hit" else [[0, 0]]
+                breakdown.surfaces += surface_value({"surface": leave, "pattern": pattern}, weights) * availability
                 prepared.add(leave)
             has_attack = True
             continue
@@ -1084,9 +1137,16 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             availability = surface_availability({"surface": source_kind}, prepared, weights) * action_scale
             playability = ranged_playability(int(action.get("range", 0)))
             damage = int(action.get("damage", 0))
-            breakdown.offense += immediate_damage_value(damage, playability, weights.convert_targets, weights) * availability
-            breakdown.control += int(action.get("shock", 0)) * weights.shock_value * playability * weights.convert_targets * availability
-            breakdown.surfaces += surface_value({"surface": result_kind, "pattern": [[0, 0], [1, 0]]}, weights) * availability
+            targets = weights.convert_targets * availability
+            offense = immediate_damage_value(damage, playability, weights.convert_targets, weights) * availability
+            surfaces = surface_value({"surface": result_kind, "pattern": [[0, 0], [1, 0]]}, weights) * availability
+            if action.get("source_optional", False):
+                targets += weights.convert_single_tile_targets * (action_scale - availability)
+                offense += immediate_damage_value(damage, playability, weights.convert_single_tile_targets, weights) * (action_scale - availability)
+                surfaces += surface_value({"surface": result_kind}, weights) * (action_scale - availability)
+            breakdown.offense += offense
+            breakdown.control += int(action.get("shock", 0)) * weights.shock_value * playability * targets
+            breakdown.surfaces += surfaces
             breakdown.surface_fuel_cost += weights.convert_expected_tiles * weights.surface_fuel_cost_per_tile * availability
             prepared.discard(source_kind)
             prepared.add(result_kind)
@@ -1097,7 +1157,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             availability = surface_availability({"surface": "electrified"}, prepared, weights) * action_scale
             playability = ranged_playability(int(action.get("range", 0)))
             payoff = immediate_damage_value(int(action.get("damage", 0)), playability, weights.discharge_targets, weights) * availability
-            cost = weights.discharge_expected_network_tiles * weights.surface_fuel_cost_per_tile * availability
+            # pla-04: the network Bursts, so you may stand in it too.
+            cost = (weights.discharge_expected_network_tiles * weights.surface_fuel_cost_per_tile + weights.detonate_shared_hazard_cost) * availability
             breakdown.offense += payoff
             breakdown.surface_fuel_cost += cost
             add_fuel_limited("offense", payoff, "electrified")
@@ -1109,11 +1170,20 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             targets = selector_expected_targets(action, prepared, weights)
             damage = int(action.get("damage", 0))
             breakdown.offense += immediate_damage_value(damage, 1.0, targets, weights) * action_scale
+            bonus = action.get("surface_bonus", {})
+            if bonus.get("subject") == "target" and bonus.get("damage", 0):
+                surface_selector = {"fire": "on_fire", "electrified": "on_electrified"}.get(surface_kind(bonus.get("surface")))
+                on_surface = targets * surface_availability(dict(bonus, present=True), prepared, weights)
+                if surface_selector:
+                    on_surface = min(targets, selector_expected_targets(dict(action, selector=surface_selector), prepared, weights))
+                bonus_targets = on_surface if bonus.get("present", True) else targets - on_surface
+                total = immediate_damage_value(damage + int(bonus["damage"]), 1.0, bonus_targets, weights)
+                base = immediate_damage_value(damage, 1.0, bonus_targets, weights)
+                breakdown.offense += (total - base) * action_scale
             breakdown.control += int(action.get("expose", 0)) * weights.expose_value_per_point * targets * action_scale
-            if action_element == "ice" and damage > 0 and str(action.get("selector", "")) == "chilled":
-                # Every selected enemy is Chilled, so each Ice strike Freezes.
-                breakdown.control += weights.freeze_value * targets * action_scale
-            has_status = has_status or int(action.get("expose", 0)) > 0
+            # pla-06: White Silence prints its own Stagger for each enemy on Ice.
+            breakdown.control += int(action.get("stagger", 0)) * weights.stagger_value_per_point * targets * action_scale
+            has_status = has_status or int(action.get("expose", 0)) > 0 or int(action.get("stagger", 0)) > 0
             continue
 
         if action_type == "meteor_marks":
@@ -1127,12 +1197,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
 
         illuminate_radius = max(0, int(action.get("illuminate_radius", 0)))
         if illuminate_radius > 0:
-            illuminate_duration = int(action.get("illuminate_duration", 1))
-            illuminate_duration_value = 3 if illuminate_duration < 0 else max(1, illuminate_duration)
-            breakdown.radiance += (
-                illuminate_radius * weights.illuminate_radius_per_tile
-                + illuminate_duration_value * weights.illuminate_duration_per_activation
-            ) * weights.umbra_relevance * action_scale
+            breakdown.radiance += light_value(illuminate_radius, weights) * action_scale
 
         if action_type == "move":
             if has_illusion:
@@ -1164,10 +1229,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             trail_light = action.get("trail_light")
             if isinstance(trail_light, dict):
                 radius = max(1, int(trail_light.get("radius", 1)))
-                duration = max(1, int(trail_light.get("duration", 2)))
-                breakdown.radiance += (
-                    radius * weights.illuminate_radius_per_tile + duration * weights.illuminate_duration_per_activation
-                ) * (1 + max(0.0, expected_tiles - 1) * weights.trail_light_extra_tile_retention) * weights.umbra_relevance
+                retained_tiles = 1 + max(0.0, expected_tiles - 1) * weights.trail_light_extra_tile_retention
+                breakdown.radiance += light_value(radius, weights) * retained_tiles * action_scale
             if surface:
                 prepared.add(surface)
             continue
@@ -1180,8 +1243,11 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 blink_factor *= weights.light_destination_factor
             if action.get("destination_adjacent_to"):
                 blink_factor *= weights.adjacent_destination_factor
-            blink_tiles += int(action.get("range", 0)) * action_scale * blink_factor
-            pre_attack_reach += int(round((int(action.get("range", 0)) + 1) * action_scale))
+            blink_range = int(action.get("range", 0))
+            lit_extension = max(0, int(action.get("range_in_light", 0)) - blink_range)
+            effective_range = blink_range + lit_extension * weights.light_destination_factor
+            blink_tiles += effective_range * action_scale * blink_factor
+            pre_attack_reach += int(round((effective_range + 1) * action_scale))
             has_move = True
             if int(action.get("illusion_at_origin", 0)) > 0:
                 breakdown.defense += int(action.get("illusion_at_origin", 0)) * weights.illusion_health_per_point * action_scale
@@ -1198,6 +1264,9 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
 
         if action_type == "force_area":
             control, fuel = force_area_value(action, weights)
+            if action.get("target") == "previous_target":
+                # Dust Devil: centred on the tile its Burst chose.
+                control *= previous_attack_playability
             breakdown.control += control * action_scale
             breakdown.surface_fuel_cost += fuel * action_scale
             if int(action.get("expose", 0)) > 0:
@@ -1236,10 +1305,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             has_defense = True
             continue
 
-        if action_type == "petrify":
+        if action_type == "stagger":
+            # A targeted Stagger uses the printed range.
             playability = ranged_playability(int(action.get("range", 1)))
-            breakdown.control += weights.petrify_skip_value * playability * action_scale
-            breakdown.control -= int(action.get("block", PETRIFY_BLOCK)) * weights.block_per_point * weights.petrify_enemy_block_cost_share * playability * action_scale
+            breakdown.control += int(action.get("stagger", 0)) * weights.stagger_value_per_point * playability * action_scale
             has_status = True
             continue
 
@@ -1251,6 +1320,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if bool(action.get("ignore_los", False)):
                 playability = min(1.0, playability + weights.ignore_los_playability_bonus)
             previous_attack_playability = playability
+            previous_attack_adjacent = action_type == "melee" and base_range <= 1
             targets = target_multiplier(action, weights)
             damage = int(action.get("damage", 0))
 
@@ -1260,27 +1330,11 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if bool(action.get("pierce", False)) and damage > 0:
                 breakdown.offense += weights.pierce_value * playability * targets * action_scale
 
-            sunder = int(action.get("sunder", 0))
-            if sunder > 0:
-                breakdown.control += sunder * weights.sunder_value_per_point * playability * targets * action_scale
-
-            bleed = int(action.get("bleed", 0))
-            if bleed > 0:
-                breakdown.control += bleed * weights.bleed_damage_value * playability * targets * action_scale
-                has_status = True
-
             expose = int(action.get("expose", 0))
             if expose > 0:
                 breakdown.control += expose * weights.expose_value_per_point * playability * targets * action_scale
                 has_status = True
 
-            freeze = 1 if action_element == "ice" and damage > 0 else int(action.get("freeze", 0))
-            if freeze > 0:
-                freeze_value = weights.freeze_value * freeze * weights.ice_contact_availability * playability * targets * action_scale
-                breakdown.control += freeze_value
-                # Painting during the card cannot activate fresh Chill.
-                fuel_limited["control"] = fuel_limited.get("control", 0.0) + freeze_value
-                has_status = True
 
             shock = int(action.get("shock", 0))
             if shock > 0:
@@ -1315,12 +1369,9 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
 
             on_result = action.get("on_result", {}) or {}
             if on_result:
-                availability = weights.on_result_freeze_availability if str(on_result.get("when", "")) == "froze" else weights.on_result_kill_availability
+                availability = weights.on_result_on_ice_availability if str(on_result.get("when", "")) == "on_ice" else weights.on_result_kill_availability
                 breakdown.flow += reward_actions_value(card_id, list(on_result.get("rewards", [])), weights) * availability * playability * action_scale
 
-            splash = int(action.get("frozen_splash", 0))
-            if splash > 0:
-                breakdown.offense += splash * weights.damage_per_point * weights.frozen_splash_neighbors * weights.state_bonus_frozen_availability * playability * action_scale
 
             scale_bonus = action.get("scale_bonus", {}) or {}
             if scale_bonus:
@@ -1364,8 +1415,12 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 bonus_damage = int(bonus.get("damage", 0))
                 damage_value = max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability
                 shock_value = int(bonus.get("shock", 0)) * weights.shock_value * playability * targets * availability
+                # pla-06: "On Ice: also Stagger N" (the Ice under the target is the setup).
+                stagger_value = int(bonus.get("stagger", 0)) * weights.stagger_value_per_point * playability * targets * availability
                 breakdown.offense += damage_value
-                breakdown.control += shock_value
+                breakdown.control += shock_value + stagger_value
+                if stagger_value > 0:
+                    has_status = True
                 breakdown.control += int(bonus.get("amount", 0)) * weights.push_value_per_tile * playability * targets * availability if action_type in {"push", "pull"} else 0
             if surface:
                 prepared.add(surface)
@@ -1439,21 +1494,42 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             continue
 
         if action_type == "destroy_illusion":
+            # Burst one of your illusions (its cross, you included).
+            # Shattered Reflection's any_tile Light happens without one too.
             availability = weights.illusion_on_board_availability * action_scale
-            breakdown.offense += immediate_damage_value(int(action.get("damage", 0)), availability, weights.destroy_illusion_expected_targets, weights)
+            breakdown.offense += immediate_damage_value(int(action.get("damage", 0)), availability, weights.burst_cross_targets, weights)
+            breakdown.surface_fuel_cost += weights.detonate_shared_hazard_cost * availability
             has_attack = True
             continue
 
         if action_type == "burst_terrain":
+            # Burst a terrain piece (its cross, you included). Worldbreak's
+            # Outcrop is next to you, so its Burst always hits you; Rockburst's
+            # follow-up Bursts only when its attack targeted an Outcrop or crate.
             owned_only = bool(action.get("owned_outcrop_only", False))
+            follow_up = action.get("target") == "previous_target"
             availability = (weights.owned_outcrop_availability if owned_only else weights.burst_terrain_availability) * action_scale
-            targets = weights.burst_line_expected_targets if owned_only else weights.burst_terrain_expected_targets
-            damage = int(action.get("line_damage", 0)) if owned_only else int(action.get("damage", 0))
+            if follow_up:
+                availability *= previous_attack_playability
+            targets = weights.burst_cross_targets
+            damage = int(action.get("line_damage", action.get("damage", 0))) if owned_only else int(action.get("damage", 0))
             breakdown.offense += immediate_damage_value(damage, availability, targets, weights)
+            if bool(action.get("spare_player", False)):
+                pass
+            elif owned_only and int(action.get("range", 1)) <= 1:
+                # Charged with the other Burst hazards (health_cost is the card's own).
+                breakdown.surface_fuel_cost += damage * weights.health_cost_per_point * availability
+            else:
+                breakdown.surface_fuel_cost += weights.detonate_shared_hazard_cost * availability
             stagger = int(action.get("stagger", 0))
             if stagger > 0:
                 breakdown.control += stagger * weights.stagger_value_per_point * availability * targets
                 has_status = True
+            leave = surface_kind(action.get("leave_surface", ""))
+            if leave:
+                pattern = [[x, y] for y in (-1, 0, 1) for x in (-1, 0, 1)] if action.get("leave_surface_on") == "tiles_hit" else [[0, 0]]
+                breakdown.surfaces += surface_value({"surface": leave, "pattern": pattern}, weights) * availability
+                prepared.add(leave)
             has_attack = True
             if surface:
                 prepared.add(surface)
@@ -1461,30 +1537,12 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
 
         if action_type == "illuminate":
             radius = max(1, int(action.get("radius", action.get("amount", 1))))
-            duration = int(action.get("duration", 1))
-            duration_value = 3 if duration < 0 else max(1, duration)
-            breakdown.radiance += (
-                radius * weights.illuminate_radius_per_tile
-                + duration_value * weights.illuminate_duration_per_activation
-                + int(action.get("range", 0)) * weights.illuminate_range_per_tile
-            ) * weights.umbra_relevance
+            placement_range = int(action.get("range", 0))
+            breakdown.radiance += light_value(radius, weights, placement_range) * action_scale
             continue
 
         if action_type == "vision":
-            amount = max(0, int(action.get("amount", 0)))
-            duration = int(action.get("duration", 1))
-            duration_value = 3 if duration < 0 else max(1, duration)
-            breakdown.radiance += amount * duration_value * weights.vision_per_radius_activation * weights.umbra_relevance
-            continue
-
-        if action_type == "truesight":
-            duration = int(action.get("duration", action.get("amount", 1)))
-            duration_value = 3 if duration < 0 else max(1, duration)
-            breakdown.radiance += duration_value * weights.truesight_per_activation * weights.umbra_relevance
-            continue
-
-        if action_type == "dispel_umbra":
-            breakdown.radiance += max(0, int(action.get("amount", 1))) * weights.dispel_umbra_per_stage * weights.umbra_relevance
+            breakdown.radiance += vision_value(int(action.get("duration", 1)), weights) * action_scale
             continue
 
         if action_type == "retaliate":

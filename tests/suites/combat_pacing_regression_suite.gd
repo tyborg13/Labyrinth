@@ -30,6 +30,7 @@ class RemovalOwner:
 	extends Node
 	var _settings: Dictionary = Settings.default_settings()
 	var _run_state: Dictionary = {"mode": "combat"}
+	var _runtime_performance_instrumentation_enabled: bool = false
 	var _animation_lock: bool = true
 	var _drag_card_index: int = -1
 	var detached_refreshes: int = 0
@@ -221,8 +222,8 @@ static func _last_action_overlays(tree: SceneTree, expect: Callable, death: bool
 	var actor: Dictionary = state["enemies"][0]
 	actor["pos"] = VICTORY_ENEMY_TILE
 	if death: actor["hp"] = VICTORY_ENEMY_HP
-	actor["bleed"] = VICTORY_ENEMY_HP if death else 0
-	actor["intent"] = {"id": "fixture_bleed_on_action", "name": "Fixture", "time": LAST_ACTION_INTENT_TIME, "actions": [{"type": "melee", "range": 1, "damage": ENEMY_PHASE_DAMAGE}]}
+	if death: preload("res://scripts/board_surface_rules.gd").place(state, VICTORY_ENEMY_TILE, "fire")
+	actor["intent"] = {"id": "fixture_enemy_activation", "name": "Fixture", "time": LAST_ACTION_INTENT_TIME, "actions": [{"type": "melee", "range": 1, "damage": ENEMY_PHASE_DAMAGE}]}
 	state["turn_queue"] = [Combat.new()._enemy_actor_entry(state, actor, ENEMY_PHASE_FIRST_TIME, 1)]
 	scene.get("_settings")["combat_speed"] = "fastest"
 	scene.get("_run_state")["combat_state"] = state

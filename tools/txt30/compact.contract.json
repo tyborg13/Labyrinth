@@ -1,0 +1,7 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1280x800"],
+  "required_images": [
+    {"pattern": "lodestone_reversal_inspection.png", "regions": [{"rect": [24, 144, 200, 65], "min_luma_range": 16, "min_luma_stdev": 3}]}
+  ]
+}

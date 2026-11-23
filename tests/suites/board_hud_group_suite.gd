@@ -76,8 +76,8 @@ static func _foe(type: String, id: int, tile: Vector2i) -> Dictionary:
 	return {"id": id, "type": type, "pos": tile, "hp": 24, "max_hp": 24, "intent": Data.enemy_def(type)["intents"][0]}
 
 static func _decorate(state: Dictionary) -> void:
-	state["player"].merge({"block": 6, "stoneskin": 4, "freeze": 1, "shock": 1, "immobilize": true, "bleed": 2, "expose": 1, "frost_armor": 3}, true)
-	for enemy: Dictionary in state["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "bleed": 3, "expose": 2}, true)
+	state["player"].merge({"block": 6, "stoneskin": 4, "freeze": 1, "shock": 1, "immobilize": true, "expose": 1, "frost_armor": 3}, true)
+	for enemy: Dictionary in state["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "expose": 2}, true)
 
 static func _sweep(fixture: Dictionary, expanded: bool, expect: Callable) -> void:
 	var board := Board.new()
@@ -122,13 +122,13 @@ static func _sweep(fixture: Dictionary, expanded: bool, expect: Callable) -> voi
 		if bool(layout["above_everything"]): elements.back()["chip_fallback"] = true
 		_add(elements, layout["key"], "disc", layout["order_rect"])
 		var unit: Dictionary = by_key[layout["key"]]
-		expect.call(layout["order_rect"] == Badges.order_rect(Badges.order_anchor_rect(board, unit), str(layout["order"]), preload("res://scripts/ui_typography.gd").ui_font()), "Order discs remain fixed while complete HUD groups move")
+		expect.call(layout["order_rect"] == Badges.order_rect(Badges.order_anchor_rect(board, unit), str(layout["order"]), preload("res://scripts/ui_typography.gd").ui_font()), "Order discs follow the hero-clearance offset of their own HUD group")
 	var compacted: Array[String]
 	var forced: Array[String]
 	for unit: Dictionary in units:
 		if unit.get("boss_bar", false): continue
 		var group: Dictionary = board._status_plate_layout.cached_group(str(unit["key"]))
-		_check_group(board, unit, group, expect)
+		_check_group(board, unit, board._status_plate_layout.base_group(str(unit["key"])), expect)
 		if group["compacted"]: compacted.append(str(unit["key"]))
 		expect.call(group["placement"]["legal"], "Every fixture has a director-allowed bounded placement")
 		if float(group["placement"]["overlap_area"]) > 0: forced.append(str(unit["key"]))

@@ -71,16 +71,6 @@ func _resolve_enemy_action(state: Dictionary, index: int, action: Dictionary, rn
 	journal_active = false
 	return result
 
-func _trigger_enemy_bleed_for_resolved_action(state: Dictionary, index: int, action: Dictionary, steps: Array[Dictionary]) -> Dictionary:
-	journal_active = preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").traced_intent(state["enemies"][index].get("intent", {}))
-	journal_live_state = state
-	var enemy: Dictionary = state["enemies"][index]
-	var pays: bool = _enemy_action_triggers_bleed(action) and int(enemy.get("bleed", 0)) > 0 and int(enemy.get("hp", 0)) > 0
-	var result: Dictionary = super._trigger_enemy_bleed_for_resolved_action(state, index, action, steps)
-	if pays and _enemy_cannot_continue_after_bleed(result, index): journal_bleed_stopped = true
-	if journal_active: journal_live_state = result # This resolver helper returns an owned duplicate.
-	return result
-
 func _move_enemy_along_planned_path(state: Dictionary, index: int, path: Array[Vector2i], context: Dictionary, allowance: int = -1) -> Dictionary:
 	var first: int = journal.events.size()
 	var paid: bool = journal.bleed_paid

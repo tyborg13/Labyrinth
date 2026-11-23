@@ -40,7 +40,7 @@ static func _test_shipped_pool(expect: Callable) -> void:
 		for paragraph: String in entry.get("body", []):
 			expect.call(not paragraph.to_lower().contains("flurry"), "Generated Grimoire copy has no Flurry: %s" % entry.get("id", ""))
 	var crown: Dictionary = GameData.relics()["crown_of_surplus"]
-	expect.call(str(crown["description"]).ends_with("@kw(rite|Rites) and @kw(item|Items) are excluded."), "Crown uses the decided exclusion copy")
+	expect.call(str(crown["description"]).ends_with("This excludes @kw(rite|Rites) and @kw(item|Items)."), "Crown uses the decided exclusion copy")
 
 static func expected_actions() -> Dictionary:
 	return {
@@ -50,7 +50,7 @@ static func expected_actions() -> Dictionary:
 		"razor_gale": [{"type": "ranged", "damage": 4, "range": 3, "push": 2, "element": "air"}],
 		"blade_dance": [{"type": "block", "amount": 4}, {"type": "melee", "damage": 7, "range": 1, "element": "none"}],
 		"windlass_volley": [{"type": "aoe", "damage": 4, "range": 3, "pattern": [[0, 0], [1, 0]], "rotate": true, "element": "none"}],
-		"sawtooth_flurry": [{"type": "melee", "damage": 5, "range": 1, "element": "none", "bleed": 2}]
+		"sawtooth_flurry": [{"type": "melee", "damage": 5, "range": 1, "element": "none", "expose": 2}]
 	}
 
 static func _printed_actions(card: Dictionary) -> Array:
@@ -111,7 +111,7 @@ static func _test_legacy_save_ids(expect: Callable) -> void:
 			"cinder_fusillade": expect.call(BoardSurfaceRules.element_at(working, TARGET_TILE) == "fire", "Resumed Cinder Fusillade leaves Fire")
 			"razor_gale": expect.call(working["enemies"][0]["pos"] == TARGET_TILE + Vector2i(2, 0), "Resumed Razor Gale pushes two")
 			"blade_dance": expect.call(int(working["player"]["block"]) == GameData.fixed_point_amount(4), "Resumed Blade Dance gains four Block")
-			"sawtooth_flurry": expect.call(int(working["enemies"][0].get("bleed", 0)) == GameData.fixed_point_amount(2), "Resumed Sawtooth Rake applies Bleed two")
+			"sawtooth_flurry": expect.call(int(working["enemies"][0].get("expose", 0)) == GameData.fixed_point_amount(2), "Resumed Sawtooth Rake applies Expose 2")
 	Store.clear_saved_run()
 	Store.set_run_storage_path(previous_path)
 

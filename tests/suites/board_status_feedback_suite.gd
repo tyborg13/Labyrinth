@@ -68,14 +68,14 @@ static func _test_live_charge_and_cache(expect: Callable) -> void:
 	var before: Rect2 = board._unit_status_pill_entries(unit, CACHE_FRAME)[0]["rect"]
 	var moved := Rect2(CACHE_FRAME.position + Vector2.ONE, CACHE_FRAME.size)
 	expect.call((board._unit_status_pill_entries(unit, moved)[0]["rect"] as Rect2).position == before.position + Vector2.ONE, "Frame motion invalidates cached rectangles")
-	board.presentation["surface_status_preview"] = {str(unit["key"]): {"freeze": 1}}
-	expect.call(board._unit_status_pill_entries(unit, CACHE_FRAME).any(func(entry: Dictionary) -> bool: return entry["label"] == "→ Frozen"), "Predicted statuses invalidate cached pills")
+	board.presentation["surface_status_preview"] = {str(unit["key"]): {"expose": 2}}
+	expect.call(board._unit_status_pill_entries(unit, CACHE_FRAME).any(func(entry: Dictionary) -> bool: return entry["icon"] == "expose" and str(entry["label"]).begins_with("→")), "Predicted statuses invalidate cached pills")
 	board.presentation["surface_status_preview"][str(unit["key"])] = {"shock": 1}
 	expect.call(board._unit_status_pill_entries(unit, CACHE_FRAME).any(func(entry: Dictionary) -> bool: return entry["label"] == "→ Shocked"), "In-place prediction changes are compared against an owned signature")
 	board.presentation["damage_preview"] = {str(unit["key"]): {"block": 4, "block_loss": 2}}
 	board.set("_submission_cache_valid", false)
 	expect.call(board._unit_defense_plate_entries(unit, CACHE_FRAME)[0]["label"] == "4", "Defense previews invalidate cached plate amounts")
-	var disc_unit: Dictionary = {"key": "disc_cache", "role": "enemy", "type": "crawler", "hp": 10, "bleed": 3}
+	var disc_unit: Dictionary = {"key": "disc_cache", "role": "enemy", "type": "crawler", "hp": 10, "expose": 3}
 	var original: Rect2 = board._unit_status_pill_entries(disc_unit, CACHE_FRAME)[0]["rect"]
 	board._status_plate_layout.fixed_order_rects.append(Rect2(original.position + Vector2(20, 0), Vector2(24, 24)))
 	var moved_group: Dictionary = board._status_plate_layout.resolve(board, disc_unit, CACHE_FRAME)
@@ -98,16 +98,16 @@ static func _test_palette_and_styles(expect: Callable) -> void:
 static func _test_real_collision_cases(expect: Callable) -> void:
 	var combat := Combat.new()
 	var burrowed: Dictionary = Fixture.staged_state(combat)
-	burrowed["enemies"] = [{"id": 1, "type": "burrow_grub", "pos": Vector2i(4, 3), "hp": 10, "max_hp": 10, "burrowed": true, "immobilize": true, "bleed": 3, "expose": 2, "intent": Data.enemy_def("burrow_grub")["intents"][0]}]
+	burrowed["enemies"] = [{"id": 1, "type": "burrow_grub", "pos": Vector2i(4, 3), "hp": 10, "max_hp": 10, "burrowed": true, "immobilize": true, "expose": 2, "intent": Data.enemy_def("burrow_grub")["intents"][0]}]
 	_check_collision_case(burrowed, "burrowed grub", expect)
 	var engine := Run.new()
 	var run: Dictionary = Warband.build(engine, combat, engine.create_new_run(83, Store.default_data()), {"warband_biome": "air", "warband_tier": 2})
-	for enemy: Dictionary in run["combat_state"]["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "bleed": 3, "expose": 2}, true)
+	for enemy: Dictionary in run["combat_state"]["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "expose": 2}, true)
 	_check_collision_case(run["combat_state"], "Air Warband seed 83", expect)
 	var boss: Dictionary = Fixture.staged_state(combat)
 	boss["enemies"] = [{"id": 1, "type": "tharokh", "pos": Vector2i(2, 2), "hp": 100, "max_hp": 100, "footprint": Vector2i(2, 2), "intent": Data.enemy_def("tharokh")["intents"][0]}, {"id": 2, "type": "crawler", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "intent": Data.enemy_def("crawler")["intents"][0]}]
-	boss["player"].merge({"block": 6, "stoneskin": 4, "freeze": 1, "shock": 1, "immobilize": true, "bleed": 2, "expose": 1, "frost_armor": 3}, true)
-	for enemy: Dictionary in boss["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "bleed": 3, "expose": 2}, true)
+	boss["player"].merge({"block": 6, "stoneskin": 4, "freeze": 1, "shock": 1, "immobilize": true, "expose": 1, "frost_armor": 3}, true)
+	for enemy: Dictionary in boss["enemies"]: enemy.merge({"block": 8, "stoneskin": 3, "immobilize": true, "expose": 2}, true)
 	_check_collision_case(boss, "crowded 2x2 boss", expect)
 
 static func _check_collision_case(state: Dictionary, label: String, expect: Callable) -> void:

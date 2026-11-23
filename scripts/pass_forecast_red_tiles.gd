@@ -97,13 +97,15 @@ static func note_turn_start_surface(engine: RefCounted, cursor: Dictionary, cont
 
 # Walking onto fire is a separate cost, outside this contact receipt. At turn
 # start, a foe's ground still belongs to that foe even if it was laid earlier.
-static func hero_owners(engine: RefCounted, _source: Dictionary, phase_result: Dictionary) -> Dictionary:
+static func hero_owners(engine: RefCounted, source: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var started: int = Time.get_ticks_usec() if engine._runtime_performance_instrumentation_enabled else 0
 	var owners: Dictionary = {}
 	for surface: Dictionary in phase_result.get("red_turn_start_surfaces", []):
 		var laid: Dictionary = surface["source"]
 		if str(laid.get("source_kind", "")) != RULE_KEY and str(laid.get("actor_kind", "")) == "enemy" and int(laid.get("actor_id", -1)) >= 0:
-			owners["enemy_%d" % int(laid["actor_id"])] = true
+			var key: String = "enemy_%d" % int(laid["actor_id"])
+			if source.has("_pass_forecast_disclosed_actors") and not source["_pass_forecast_disclosed_actors"].has(key): continue
+			owners[key] = true
 	engine._record_runtime_performance_phase(HIT_PHASE, started)
 	return owners
 
@@ -131,7 +133,10 @@ static func hero_fields(engine: RefCounted, source: Dictionary, phase_result: Di
 		elif str(laid.get("actor_kind", "")) == "enemy":
 			var index: int = engine._enemy_index_for_id(source, id)
 			var enemies: Array = source.get("enemies", [])
-			key = "enemy_%d" % id if index >= 0 and engine.is_enemy_visible_to_player(source, enemies[index]) else FOE_SURFACE_KEY
+			var actor_key: String = "enemy_%d" % id
+			var known: Variant = source.get("_pass_forecast_disclosed_actors")
+			var visible: bool = known.has(actor_key) if known is Dictionary else index >= 0 and engine.is_enemy_visible_to_player(source, enemies[index])
+			key = actor_key if visible else FOE_SURFACE_KEY
 		else:
 			continue
 		var owners: Dictionary = contacts.get_or_add(surface["tile"], {})

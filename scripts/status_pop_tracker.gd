@@ -51,6 +51,14 @@ func observe(actor_key: String, entries: Array) -> void:
 			_gone.erase(key)
 	_seen[actor_key] = current
 
+# The same count already occupied a visible forecast pill through card flight.
+func acknowledge_preview(actor_key: String, icon: String, count: int, count_text: String = "") -> void:
+	if not _seen.has(actor_key): _seen[actor_key] = {}
+	_seen[actor_key][icon] = _count({"count": count, "count_text": count_text})
+	var key: String = actor_key + "|" + icon
+	_pops.erase(key)
+	_gone.erase(key)
+
 func advance(delta: float) -> bool:
 	for key: String in _gone.keys():
 		_gone[key]["elapsed"] = float(_gone[key]["elapsed"]) + maxf(delta, 0.0)

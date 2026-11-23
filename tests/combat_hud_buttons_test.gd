@@ -256,11 +256,11 @@ func _assert_header() -> void:
 		var label: Label = badge.get_child(0) as Label
 		var font: Font = label.get_theme_font("font")
 		var old_font: int = Typography.scaled_size(label, 8)
-		var approved_font: int = Typography.scaled_size(label, 12)
-		# sd-02 (33ecad294): grow the old 18px badge by the 8→12px text-metric
-		# difference, keeping its padding and top-right anchor exactly intact.
+		var approved_font: int = Typography.scaled_size(label, 14)
+		# POL-68 increases the count size and keeps the original badge padding
+		# and the top-right anchor established by SD-02.
 		var expected_size: Vector2 = Vector2(18, 18) + Vector2(font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, approved_font).x - font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, old_font).x, font.get_height(approved_font) - font.get_height(old_font))
-		_expect(label.get_theme_font_size("font_size") == approved_font, "Notification counts use sd-02's approved 12px text")
+		_expect(label.get_theme_font_size("font_size") == approved_font, "Notification counts use POL-68's approved 14px text")
 		_expect(badge.custom_minimum_size.is_equal_approx(expected_size) and badge.size.is_equal_approx(expected_size), "Notification badges preserve their original padding around the larger text (expected=%s actual=%s)" % [expected_size, badge.size])
 		_expect(badge.anchor_left == 1.0 and badge.anchor_right == 1.0 and absf(badge.offset_left + expected_size.x) <= BADGE_RECT_TOLERANCE and absf(badge.offset_top + 3.0) <= BADGE_RECT_TOLERANCE and absf(badge.offset_right) <= BADGE_RECT_TOLERANCE and absf(badge.offset_bottom - (expected_size.y - 3.0)) <= BADGE_RECT_TOLERANCE, "Notification badges grow left/down from the original top-right anchor")
 

@@ -8,6 +8,12 @@ const PATTERN_ORIGIN_FILL: Color = Color("e9dcc6")
 const PATTERN_ORIGIN_BORDER: Color = Color("5a493b")
 const PATTERN_HIT_FILL: Color = Color("d95f4a")
 const PATTERN_HIT_BORDER: Color = Color("7b2f25")
+# Sentence card faces (pla-03): the card title ink, and the target chip's plate
+# in the nameplate's colours (dark border, tan rim, light fill, sampled from it).
+const CARD_TITLE_INK: Color = Color("39271b")
+const CARD_CHIP_BORDER: Color = Color("392415")
+const CARD_CHIP_RIM: Color = Color("af8356")
+const CARD_CHIP_FILL: Color = Color("d3b693")
 
 const INK_0 := Color("0b0908")
 const INK_1 := Color("15110e")

@@ -210,6 +210,7 @@ static func build_room_chip(host: Node, room: Dictionary, combat: Dictionary, ac
 
 static func build_objective(combat: Dictionary) -> Control:
 	var objective: Dictionary = combat.get("objective", {}) as Dictionary
+	var title: String = ObjectiveRules.hud_title_for_objective(objective)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	for side: int in range(2):
@@ -222,7 +223,7 @@ static func build_objective(combat: Dictionary) -> Control:
 			continue
 		var plate := Controls.Plate.new()
 		plate.name = "PreBattleObjectiveChip"
-		plate.set_meta("objective_title", ObjectiveRules.title_for_objective(objective))
+		plate.set_meta("objective_title", title)
 		plate.set_meta("objective_description", ObjectiveRules.description_for_objective(objective))
 		row.add_child(plate)
 		var contents := HBoxContainer.new()
@@ -230,11 +231,11 @@ static func build_objective(combat: Dictionary) -> Control:
 		plate.add_child(contents)
 		contents.add_child(icon(objective_icon_path(objective), 22.0, "PreBattleObjectiveIcon"))
 		var heading := ObjectiveHeading.new()
-		heading.text = "OBJECTIVE · " + ObjectiveRules.title_for_objective(objective)
+		heading.text = "OBJECTIVE · " + title
 		heading.name = "PreBattleObjectiveTitle"
 		Surface.label_style(heading, 19, Palette.TEXT)
 		heading.mouse_filter = Control.MOUSE_FILTER_STOP
-		heading.tooltip_text = ("%s\n%s" % [ObjectiveRules.title_for_objective(objective), ObjectiveRules.description_for_objective(objective)]).strip_edges()
+		heading.tooltip_text = ("%s\n%s" % [title, ObjectiveRules.description_for_objective(objective)]).strip_edges()
 		if str(objective.get("special_type", "")) == "umbral_snare":
 			heading.tooltip_text += "\n" + preload("res://scripts/special_encounter_library.gd").snare_reward_line()
 		contents.add_child(heading)
@@ -317,7 +318,7 @@ static func _finish_foes(host: Node, state: Dictionary, foes: Control, header: C
 		"pointer_text": "Hover or select an enemy to read its moves",
 		"controller_text": "Focus or select an enemy to read its moves",
 	})
-	Typography.apply_eyebrow(hint, 13, Palette.TEXT_3)
+	Typography.apply_eyebrow(hint, Typography.SIZE_CAPTION, Palette.TEXT_3)
 	hint.name = "PreBattleFoeHint"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var hint_slot := Control.new()

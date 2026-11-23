@@ -99,6 +99,15 @@ static func ui_font() -> Font:
 static func heavy_ui_font() -> Font:
 	return display_font()
 
+static var _tight_card_title_font: FontVariation
+
+static func tight_card_title_font() -> Font:
+	if _tight_card_title_font == null:
+		_tight_card_title_font = FontVariation.new()
+		_tight_card_title_font.base_font = ui_font()
+		_tight_card_title_font.spacing_glyph = -1
+	return _tight_card_title_font
+
 static var _eyebrow_font: FontVariation
 
 # Letter-spaced small capitals for kickers and section eyebrows ("DEPTH 1").

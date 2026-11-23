@@ -13,7 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_lancer_lane(combat, expect)
 	_test_worldspine_denial(combat, expect)
 	_test_crownfire_shared_denial(combat, expect)
-	_test_iskaldra_two_step_freeze(combat, expect)
+	_test_iskaldra_ice_contact(combat, expect)
 	_test_specialist_shock_fuel(combat, expect)
 	_test_legacy_overload_surface_denial(combat, expect)
 	_test_electrical_opponent_sets(combat, expect)
@@ -87,28 +87,25 @@ static func _test_surgeon_ice_counterplay(combat: Combat, expect: Callable) -> v
 	initial = combat.surface_actor_arrival(initial, "enemy", 2, Vector2i(3, 4))
 	var action: Dictionary = _intent(combat, "grave_surgeon", "field_brace")["actions"][1]
 	var cleared: Dictionary = combat._resolve_enemy_action(initial.duplicate(true), 0, action)
-	expect.call(not bool(cleared["enemies"][1].get("chilled", false)) and Ground.element_at(cleared, Vector2i(3, 3)).is_empty() and Ground.has_rubble(cleared, Vector2i(3, 3)), "Surgeon removes prepared Ice and its Chill while preserving independent Rubble")
-	var frozen: Dictionary = initial.duplicate(true)
-	frozen["enemies"][1]["freeze"] = 1
-	frozen = combat._resolve_enemy_action(frozen, 0, action)
-	expect.call(int(frozen["enemies"][1]["freeze"]) == 1, "Clearing Ice never cleanses an already Frozen ally")
+	expect.call(int(cleared["enemies"][1].get("expose", 0)) == 2 and Ground.element_at(cleared, Vector2i(3, 3)).is_empty() and Ground.has_rubble(cleared, Vector2i(3, 3)), "Surgeon removes Ice while preserving earned Expose and independent Rubble")
 	initial["enemies"][0]["pos"] = Vector2i(8, 6)
 	var displaced: Dictionary = combat._resolve_enemy_action(initial, 0, action)
-	expect.call(Ground.element_at(displaced, Vector2i(3, 3)) == "ice" and bool(displaced["enemies"][1]["chilled"]), "Displacing Surgeon out of support range preserves the prepared Ice target")
+	expect.call(Ground.element_at(displaced, Vector2i(3, 3)) == "ice", "Displacing Surgeon out of support range preserves the prepared Ice")
 
 static func _test_lancer_lane(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = _state(combat, "frostglass_lancer")
 	var lunge: Dictionary = _intent(combat, "frostglass_lancer", "glass_lunge")["actions"][1]
 	state = combat._resolve_enemy_action(state, 0, lunge)
-	expect.call(Ground.element_at(state, state["player"]["pos"]) == "ice" and not bool(state["player"].get("chilled", false)), "Lancer paints its attack lane after the hit without immediate Chill")
+	expect.call(Ground.element_at(state, state["player"]["pos"]) == "ice" and int(state["player"].get("expose", 0)) == 0, "Lancer paints the attack lane without applying Expose on placement")
 	state = combat.apply_player_movement(state, Vector2i(2, 4))
-	state = combat._resolve_enemy_action(state, 0, _intent(combat, "frostglass_lancer", "frost_pin")["actions"][0])
-	expect.call(int(state["player"].get("freeze", 0)) == 0, "Leaving the Lancer's Ice lane avoids the later Ice conversion")
+	state = combat._resolve_player_start_of_turn(state)
+	expect.call(int(state["player"].get("expose", 0)) == 0, "Leaving the Lancer's Ice lane avoids Expose at turn start")
 	Ground.place(state, Vector2i(3, 3), "ice")
 	state = combat._move_enemy_in_direction(state, 0, Vector2i.LEFT, 1, true)
-	expect.call(bool(state["enemies"][0].get("chilled", false)), "Pushing the Lancer into shared Ice activates its own Chill")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 2, "Pushing the Lancer onto Ice applies Expose 2")
+	var hp_before: int = int(state["enemies"][0]["hp"])
 	state = combat.apply_player_action(state, {"type": "ranged", "range": 5, "damage": 1, "element": "ice"}, Vector2i(3, 3))
-	expect.call(int(state["enemies"][0].get("freeze", 0)) == 1, "The player can convert the Lancer's shared Ice setup into Freeze")
+	expect.call(int(state["enemies"][0]["hp"]) == hp_before - 3 and int(state["enemies"][0].get("expose", 0)) == 0, "The next hit on the Lancer spends Expose and deals two extra damage")
 
 static func _test_worldspine_denial(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = _state(combat, "tharokh")
@@ -149,21 +146,20 @@ static func _test_crownfire_shared_denial(combat: Combat, expect: Callable) -> v
 	expect.call(int(displaced["enemies"][0]["hp"]) == before - int(action["damage"]) and int(displaced["player"]["hp"]) == 1000 - int(action["damage"]), "Displacing Vyraketh into the selected union makes its own Crownfire hit boss and player once each")
 	expect.call(Ground.element_at(displaced, Vector2i(5,3)).is_empty() and Ground.element_at(displaced, Vector2i(8,5)) == "fire", "Crownfire consumes only the surviving selected Fire")
 
-static func _test_iskaldra_two_step_freeze(combat: Combat, expect: Callable) -> void:
+static func _test_iskaldra_ice_contact(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = _state(combat, "iskaldra")
 	state["player"]["pos"] = Vector2i(3, 3) # One of the two painted edge cells.
 	var intent: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, state, 0, _intent(combat, "iskaldra", "whiteout_lance"))
 	state["enemies"][0]["intent"] = intent
 	var attack: Dictionary = intent["actions"][0]
 	state = combat._resolve_enemy_action(state, 0, attack)
-	expect.call(not bool(state["player"].get("chilled", false)) and int(state["player"].get("freeze", 0)) == 0, "Iskaldra's first Ice painter cannot skip the shared setup rule")
+	expect.call(Ground.has_surface(state, state["player"]["pos"], "ice") and int(state["player"].get("expose", 0)) == 0, "Whiteout Lance lays Ice without applying Expose on placement")
 	state = combat._resolve_player_start_of_turn(state)
+	expect.call(int(state["player"].get("expose", 0)) == 2, "Starting a turn on Whiteout Lance's Ice applies Expose 2")
 	state = combat._resolve_enemy_action(state, 0, attack)
-	expect.call(int(state["player"].get("freeze", 0)) == 1, "Iskaldra converts Ice only after the player's contact activation")
-	state = combat._resolve_enemy_action(state, 0, attack)
+	expect.call(int(state["player"].get("expose", 0)) == 0, "The next Whiteout Lance hit spends Expose")
 	state = combat._resolve_player_start_of_turn(state)
-	state = combat._resolve_enemy_action(state, 0, attack)
-	expect.call(int(state["player"].get("freeze", 0)) == 0 and not bool(state["player"].get("chilled", false)), "Repeated Ice hits cannot immediately re-freeze through the skipped activation's protected contact window")
+	expect.call(int(state["player"].get("expose", 0)) == 2, "A later turn start on Ice restores Expose 2")
 
 static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> void:
 	for record: Array in [["lightning_wisp", "blinding_arc"]]:
@@ -172,7 +168,7 @@ static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> voi
 		Ground.place(initial, Vector2i(2,3), "electrified")
 		Ground.place(initial, Vector2i(3,3), "electrified")
 		var attack: Dictionary = _intent(combat, id, str(record[1]))["actions"][-1]
-		var connected: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
+		var connected: Dictionary = combat._resolve_enemy_action(initial.duplicate(true), 0, attack)
 		expect.call(int(connected["player"].get("shock", 0)) == 1 and Ground.tiles(connected, "electrified").size() == 2, "%s's actual specialist shot gains Shock through shared conductive ground without consuming it" % id)
 		initial["player"]["pos"] = Vector2i(3,4)
 		var avoided: Dictionary = combat._resolve_enemy_action(initial, 0, attack)

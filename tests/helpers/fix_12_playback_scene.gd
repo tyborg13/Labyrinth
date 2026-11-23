@@ -48,7 +48,7 @@ func _animate_move_step(state: Dictionary, step: Dictionary) -> void:
 	await super._animate_move_step(state, step)
 	feedback_phase = "beam"
 
-func _animate_floating_text_presentation(state: Dictionary, presentation: Dictionary, initial_elapsed_seconds: float = 0.0, overlap_with_next_action: bool = false, companion_completion: Dictionary = {}) -> void:
+func _animate_floating_text_presentation(state: Dictionary, presentation: Dictionary, initial_elapsed_seconds: float = 0.0, overlap_with_next_action: bool = false, companion_completion: Dictionary = {}, _on_contact: Callable = Callable()) -> void:
 	for entry: Dictionary in presentation.get("floating_texts", []):
 		popup_submissions.append({"phase": feedback_phase, "source_id": feedback_source_id, "entry": entry.duplicate(true), "actor_hp": state["enemies"][0]["hp"], "actor_tile": state["enemies"][0]["pos"], "hero_hp": state["player"]["hp"]})
 	await super._animate_floating_text_presentation(state, presentation, initial_elapsed_seconds, overlap_with_next_action, companion_completion)

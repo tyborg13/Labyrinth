@@ -37,7 +37,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 		return errors
 	var beat: Dictionary = beats[0]
 	for state: Dictionary in [beat["before"], beat["after"], result["final"]]:
-		if not Setup.Tip06.Checks._plain_room(state) or not state["surfaces"].is_empty() or state["enemies"].size() != 1 or not state["illusions"].is_empty():
+		if not Setup.Tip06.Checks.plain_room(state) or not state["surfaces"].is_empty() or state["enemies"].size() != 1 or not state["illusions"].is_empty():
 			errors.append("Stagger requires two actors on plain floor with no Umbra, Light or hazards")
 			return errors
 	var engine := Setup.Combat.new()

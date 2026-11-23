@@ -5,6 +5,7 @@ extends RefCounted
 ## secondary choice before applying any cost or consuming the one run choice.
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Data = preload("res://scripts/game_data.gd")
+const RunDeck = preload("res://scripts/run_deck.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
@@ -35,12 +36,13 @@ static func initialize(state: Dictionary) -> void:
 	if not Store.emaciated_services_unlocked(profile) or int(state.get("run_index", 0)) <= 1 or Tutorial.is_active(profile): return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(state["seed"])
+	var heirloom: String = Store.heirloom(profile)
 	var offers: Array[Dictionary]
 	var columns: Array = definitions()["columns"]
 	for index: int in range(columns.size()):
 		var candidates: Array[Dictionary]
-		if index == 0 and not Store.heirloom(profile).is_empty():
-			candidates.append({"boon": "heirloom", "item": Store.heirloom(profile)})
+		if index == 0 and not heirloom.is_empty() and Data.equipment_is_pool_eligible(heirloom):
+			candidates.append({"boon": "heirloom", "item": heirloom})
 		else:
 			for id: String in columns[index]["boons"]:
 				var rolled: Dictionary = roll(id, state, rng)
@@ -66,11 +68,11 @@ static func spell_pool(rarity: String, element: String = "") -> Array[String]:
 
 static func equipment_pool(state: Dictionary) -> Dictionary:
 	var slots: Dictionary = {}
-	var starters: Dictionary = Data.starting_equipped_equipment()
+	var starters: Dictionary = Data.starting_equipped_equipment(bool(state.get(Data.LEGACY_STARTER_CARDS_KEY, false)))
 	for id: String in Data.equipment_ids():
-		if str(Data.equipment_def(id).get("rarity", "common")) != str(definitions()["boons"]["armory"]["rarity"]) or bool(Data.equipment_def(id).get("starter", false)): continue
+		if not Data.equipment_is_pool_eligible(id) or str(Data.equipment_def(id).get("rarity", "common")) != str(definitions()["boons"]["armory"]["rarity"]) or bool(Data.equipment_def(id).get("starter", false)): continue
 		var slot: String = Data.equipment_slot(id)
-		if not starters.has(slot) or state.get("equipped_equipment", {}).get(slot, "") != starters[slot]: continue
+		if str(starters.get(slot, "")).is_empty() or state.get("equipped_equipment", {}).get(slot, "") != starters[slot]: continue
 		if not slots.has(slot): slots[slot] = []
 		slots[slot].append(id)
 	return slots
@@ -104,6 +106,8 @@ static func roll(id: String, state: Dictionary, rng: RandomNumberGenerator) -> D
 			if elements.is_empty(): return {}
 			result["element"] = elements[rng.randi_range(0, elements.size() - 1)]
 			result["spells"] = _draw(spell_pool(str(spec["rarity"]), result["element"]), int(spec["count"]), rng)
+			if id == "focus":
+				result["starter_count"] = Data.starting_magic_cards(bool(state.get(Data.LEGACY_STARTER_CARDS_KEY, false))).size()
 		"blood_price":
 			var pool: Array[String] = spell_pool(str(spec["rarity"]))
 			if pool.size() < int(spec["count"]): return {}
@@ -126,18 +130,23 @@ static func roll(id: String, state: Dictionary, rng: RandomNumberGenerator) -> D
 static func pending(state: Dictionary) -> bool:
 	return not (state.get(STATE_KEY, {}) as Dictionary).is_empty() and not bool(state[STATE_KEY].get("resolved", false)) and not bool(state.get("guided_combat_scenario_eligible", false))
 
+static func available_offers(state: Dictionary) -> Array:
+	return (state.get(STATE_KEY, {}).get("offers", []) as Array).filter(func(row: Dictionary) -> bool:
+		return Data.equipment_is_pool_eligible(str(row.get("item", "")))
+	)
+
 static func offer(state: Dictionary) -> Dictionary:
 	var next: Dictionary = state.duplicate(true)
 	if not pending(next) or str(next.get("mode", "")) != "room": return next
 	if not bool(next[STATE_KEY].get("offered", false)):
 		next[STATE_KEY]["offered"] = true
-		_event(next, "run_start_boon_offered", {"columns": definitions()["columns"].map(func(column: Dictionary) -> String: return str(column["label"])), "rolled_contents": next[STATE_KEY]["offers"].duplicate(true)})
+		_event(next, "run_start_boon_offered", {"columns": definitions()["columns"].map(func(column: Dictionary) -> String: return str(column["label"])), "rolled_contents": available_offers(next).duplicate(true)})
 	return next
 
 static func starter_spells(state: Dictionary) -> Array[String]:
 	var available: Array = (state.get("attuned_magic_cards", []) as Array).duplicate()
 	var result: Array[String]
-	for id: String in Data.starting_magic_cards():
+	for id: String in Data.starting_magic_cards(bool(state.get(Data.LEGACY_STARTER_CARDS_KEY, false))):
 		if available.has(id):
 			result.append(id)
 			available.erase(id)
@@ -146,7 +155,7 @@ static func starter_spells(state: Dictionary) -> Array[String]:
 static func choose(engine: RefCounted, state: Dictionary, id: String, choices: Array = []) -> Dictionary:
 	if not pending(state) or not engine.can_speak_to_emaciated_man(state): return state.duplicate(true)
 	var selected: Dictionary = {}
-	for row: Dictionary in state[STATE_KEY]["offers"]:
+	for row: Dictionary in available_offers(state):
 		if str(row["boon"]) == id: selected = row
 	if not id.is_empty() and selected.is_empty(): return state.duplicate(true)
 	var spec: Dictionary = definitions()["boons"].get(id, {})
@@ -171,7 +180,8 @@ static func choose(engine: RefCounted, state: Dictionary, id: String, choices: A
 			if Data.equipment_def(item).is_empty(): return state.duplicate(true)
 			var slot: String = Data.equipment_slot(item)
 			var old: String = str(next["equipped_equipment"].get(slot, ""))
-			if id == "armory" and (old != str(selected.get("starter", "")) or old != str(Data.starting_equipped_equipment().get(slot, ""))): return state.duplicate(true)
+			var legacy: bool = bool(state.get(Data.LEGACY_STARTER_CARDS_KEY, false))
+			if id == "armory" and (old.is_empty() or old != str(selected.get("starter", "")) or old != str(Data.starting_equipped_equipment(legacy).get(slot, ""))): return state.duplicate(true)
 			next["equipped_equipment"][slot] = item
 			next["equipment_inventory"].erase(old)
 			next["collected_equipment"].erase(old)
@@ -182,7 +192,8 @@ static func choose(engine: RefCounted, state: Dictionary, id: String, choices: A
 			if id == "heirloom": next["progression"] = Store.take_heirloom(next["progression"], item)
 		"purge", "focus":
 			var removals: Array = choices if id == "purge" else starter_spells(next)
-			for card: String in removals: next["attuned_magic_cards"].erase(card)
+			for card: String in removals:
+				RunDeck.change_magic_slot(next, next["attuned_magic_cards"].find(card))
 			if id == "focus":
 				for card: String in selected["spells"]: next = engine.grant_magic_to_deck(next, card)
 		"vitality":
@@ -195,7 +206,7 @@ static func choose(engine: RefCounted, state: Dictionary, id: String, choices: A
 		"debt":
 			next = engine.set_held_embers(next, engine.held_embers(next) + int(spec["embers"]))
 			next["boon_debt"] = {"pending": true}
-	next["deck_cards"] = Data.compile_deck_cards(next["equipped_equipment"], next["attuned_magic_cards"], next.get("equipped_items", []), next)
+	RunDeck.rebuild(next, state if id in ["armory", "heirloom"] else {})
 	next[STATE_KEY]["resolved"] = true
 	next[STATE_KEY]["chosen"] = id
 	next[STATE_KEY]["choices"] = choices.duplicate()
@@ -223,7 +234,7 @@ static func heirloom_pieces(state: Dictionary) -> Array[String]:
 	var starters: Array = Data.starter_equipment_ids()
 	for slot: String in Data.equipment_slots():
 		var item: String = str(state.get("equipped_equipment", {}).get(slot, ""))
-		if not item.is_empty() and not starters.has(item): result.append(item)
+		if not item.is_empty() and Data.equipment_is_pool_eligible(item) and not starters.has(item): result.append(item)
 	return result
 
 static func heirloom_prompt_pending(state: Dictionary) -> bool:
@@ -248,6 +259,8 @@ static func _event(state: Dictionary, type: String, payload: Dictionary) -> void
 static func text(row: Dictionary) -> String:
 	var value: String = str(definitions()["boons"][row["boon"]]["text"])
 	value = value.replace("<Count>", str(purge_count()))
+	if row["boon"] == "focus":
+		value = value.replace("<Starter count>", str(row.get("starter_count", Data.starting_magic_cards(true).size())))
 	value = value.replace("<Relic effect>", str(Data.relic_def(str(row.get("relic", ""))).get("description", "")))
 	value = value.replace("<Element>", str(ELEMENT_TERMS.get(str(row.get("element", "")), "")))
 	value = value.replace("<Item>", str(Data.equipment_def(str(row.get("item", ""))).get("name", "")))

@@ -105,7 +105,7 @@ static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
 	state["enemies"][0]["intent"] = intent("briar_weaver", "root_mend")
 	rest = Badges.build(engine, state, state)
 	chip = rest["badges"][0]
-	expect.call(chip["icon"] == Icons.action_icon_key(intent("briar_weaver", "lash_of_thorns")["actions"][0]) and chip["number"] == "3" and chip["secondary_icon"] == "bleed", "Root Mend fallback is expressed by the actual Lash feet chip")
+	expect.call(chip["icon"] == Icons.action_icon_key(intent("briar_weaver", "lash_of_thorns")["actions"][0]) and chip["number"] == "4" and str(chip["secondary_icon"]).is_empty(), "Root Mend fallback is expressed by the actual Lash feet chip")
 	state = fixture(engine, "slag_mortar")
 	state["enemies"][0]["intent"] = intent("slag_mortar", "lob_slag")
 	_rest_clock(state)
@@ -169,6 +169,9 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 		if type == "briar_weaver":
 			for entry: Dictionary in expected["intents"]:
 				for action: Dictionary in entry["actions"]:
+					if str(entry["id"]) == "lash_of_thorns" and str(action["type"]) == "ranged":
+						action.erase("bleed")
+						action["damage"] = float(action["damage"]) + 1.0
 					if str(action["type"]) == "grow_bramble":
 						action.clear()
 						action.merge({"type": "upheaval_mark", "pattern": "line_between", "length": 3.0, "health": 3.0})
@@ -255,7 +258,7 @@ static func _mend(engine: RefCounted, expect: Callable) -> void:
 	state["enemies"][0]["intent"] = intent("briar_weaver", "root_mend")
 	expect.call(Bramble.effective_intent(engine, state, state["enemies"][0], state["enemies"][0]["intent"])["id"] == "lash_of_thorns", "Missing wounded ally falls back to Lash")
 	after = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
-	expect.call(int(after["player"]["hp"]) == 47 and int(after["player"].get("bleed", 0)) == 1, "Held Root Mend executes Lash fallback with exact damage/Bleed")
+	expect.call(int(after["player"]["hp"]) == 46, "Held Root Mend executes Lash fallback with 4 damage")
 
 static func _lob(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine, "slag_mortar")
@@ -317,9 +320,6 @@ static func _gating(engine: RefCounted, expect: Callable) -> void:
 	state["enemies"][0]["shock"] = 1
 	state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
 	expect.call(state["enemies"][0]["intent"]["id"] == "slag_lands" and state["enemies"][0].has("lob_tiles"), "Shock skip preserves marks and forced landing")
-	state["enemies"][0]["freeze"] = 1
-	state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
-	expect.call(state["enemies"][0]["intent"]["id"] == "slag_lands" and state["enemies"][0].has("lob_tiles"), "Freeze skip also preserves forced landing")
 
 static func _save(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine, "slag_mortar")
@@ -348,7 +348,7 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	board.combat_state = state
 	var marks: Dictionary = LobView.marks(board)
 	expect.call(marks.size() == 5 and int(marks[FIXTURE_HERO]["damage"]) == 5 and int(marks[FIXTURE_HERO + Vector2i.LEFT]["damage"]) == 3, "At-rest medallions expose real centre/arm values")
-	expect.call(LobView.mark_tooltip(state, state["enemies"][0]) == "@pattern(cross) Marked tiles take the hit: 5 in the center, 3 around it, and they become Fire.", "Exact Lob landing tooltip")
+	expect.call(LobView.mark_tooltip(state, state["enemies"][0]) == "@pattern(cross) Deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.", "Exact Lob landing tooltip")
 	expect.call(Compass.descriptor_for_enemy(state["enemies"][0]["intent"])["value"] == 5, "Landing compass exposes centre damage")
 	expect.call(Compass.descriptor_for_enemy(intent("briar_weaver", "thornwall"))["family"] == Compass.FAMILY_SUPPORT, "Thornwall compass is terrain support")
 	expect.call(LobView.arc_point(Vector2.ZERO, Vector2(100, 0), 50, 0.5) == Vector2(50, -110), "Arc apex is exactly 2.2 tiles over midpoint")
@@ -358,7 +358,7 @@ static func _integration_boundaries(engine: RefCounted, expect: Callable) -> voi
 	var state: Dictionary = fixture(engine)
 	state["enemies"][0]["intent"] = intent("briar_weaver", "root_mend")
 	var compass: Dictionary = Compass.descriptors_for_state(state)
-	expect.call(compass["enemy_1"]["action_type"] == "ranged" and int(compass["enemy_1"]["value"]) == 3, "Live Root Mend fallback compass matches Lash")
+	expect.call(compass["enemy_1"]["action_type"] == "ranged" and int(compass["enemy_1"]["value"]) == 4, "Live Root Mend fallback compass matches Lash for 4 damage")
 	var board: Control = Board.new()
 	board.combat_state = state
 	for unit: Dictionary in board._visible_units():
@@ -392,13 +392,6 @@ static func _integration_boundaries(engine: RefCounted, expect: Callable) -> voi
 	state["enemies"][1]["footprint"] = Vector2i(2, 2)
 	after = engine._resolve_enemy_action(state.duplicate(true), 0, land)
 	expect.call(int(after["enemies"][1]["hp"]) == 15, "Large actor intersecting centre/arms takes one highest-value hit")
-	state["enemies"][0]["bleed"] = 1
-	after = engine._resolve_enemy_action(state.duplicate(true), 0, land)
-	expect.call(int(after["enemies"][0]["hp"]) == 17 and not after["enemies"][0].has("lob_tiles"), "Landing pays existing attack Bleed before firing")
-	state["enemies"][0]["hp"] = 1
-	after = engine._resolve_enemy_action(state.duplicate(true), 0, land)
-	expect.call(int(after["enemies"][0]["hp"]) == 0 and int(after["enemies"][1]["hp"]) == 20 and Surfaces.tiles(after).is_empty(), "Bleed defeat cancels landing before damage or Fire")
-	expect.call(Lob.animation_step(engine, state, after, 0, land).is_empty(), "Cancelled landing has no phantom arc/splash")
 	for depth: int in [1, 2, 3, 6]:
 		var scaled: Dictionary = engine._scale_enemy_action_for_depth(land, depth)
 		var mark_state: Dictionary = fixture(engine, "slag_mortar")

@@ -23,12 +23,15 @@ Data: action field `stagger: N` on `melee`, `ranged`, `aoe`, `push`, `pull`
 - When a hit lands on an enemy that is still alive after the hit, that enemy's
   next queued `turn_queue` entry moves `N` later (`time += N`, new `seq`). The
   initiative clock never changes. Chain hits stagger each enemy they hit.
-- An enemy with no queued entry (the current actor) keeps the delay in
-  `stagger_pending` and receives it when `_schedule_actor` next schedules it.
+- A unit with no queued entry keeps the delay in `stagger_pending` until
+  `_schedule_actor` schedules that unit's next turn.
 - Dragons (`DragonBossLibrary.is_dragon_boss_id`) take half, rounded down.
-- At most 6 total delay per enemy per player activation. The running total is
-  `turn_flags.stagger_applied[enemy_id]`, so it resets with the turn flags.
-  `stagger_applied_total` is a monotonic combat counter for analytics.
+- Each hero or enemy turn has a 6 Time allowance across all sources of
+  Stagger. The next queued entry's `stagger_delay` tracks the allowance
+  spent. Activating that unit starts a fresh allowance for its next turn.
+  `stagger_applied_total` counts enemy delay for card analytics.
+- Pass uses the same queue and reports the Time added. Announced enemy
+  Stagger riders show the remaining hero allowance when it is known.
 - UI: `stagger` token (value N) in the action row, before Push/Pull. While a
   selected card's Stagger target is hovered, the turn-order rail shows the
   enemy at its delayed slot with a `Stagger +N` badge (transient

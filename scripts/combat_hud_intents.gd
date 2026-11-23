@@ -1,5 +1,6 @@
 extends Button
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const HudSkin = preload("res://scripts/ui_skin.gd")
@@ -49,7 +50,6 @@ func _init() -> void:
 	title.add_theme_color_override("font_color", Palette.TEXT)
 	row.add_child(title)
 	_key.name = "IntentKey"
-	_key.text = "I"
 	_key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_key.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_key.add_theme_font_override("font", Typography.ui_font())
@@ -61,8 +61,8 @@ func _init() -> void:
 func _ready() -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null:
-		router.modality_changed.connect(_refresh_key)
-	_refresh_key()
+		router.modality_changed.connect(refresh_key)
+	refresh_key()
 	refresh_state()
 
 func refresh_state() -> void:
@@ -83,9 +83,10 @@ func refresh_state() -> void:
 		add_theme_stylebox_override(state, style)
 	queue_redraw()
 
-func _refresh_key(_modality: String = "") -> void:
+func refresh_key(_modality: String = "") -> void:
 	var router: Node = get_node_or_null("/root/InputRouter") if is_inside_tree() else null
-	_key.visible = router == null or str(router.call("modality")) == InputRouter.MODALITY_POINTER
+	_key.text = KeyBindings.label(KeyBindings.ENEMY_INTENTS)
+	_key.visible = not _key.text.is_empty() and (router == null or str(router.call("modality")) == InputRouter.MODALITY_POINTER)
 
 func _draw() -> void:
 	if _rail_docked:

@@ -731,6 +731,7 @@ func _card(parent: Node, id: String, position_value: Vector2, selected: bool, co
 	button.art().add_child(composition)
 	var card: Control = CardScene.instantiate()
 	card.size = Vector2(250, 352)
+	card.call("set_title_layout", CARD_SCALE, false, self, SIZE)
 	card.call("configure", id, false, false, true, false, false)
 	CardDisplay.bind(card, display_state if not display_state.is_empty() else state)
 	composition.add_child(card)

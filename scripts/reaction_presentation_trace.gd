@@ -29,7 +29,7 @@ static func apply_snapshot(state: Dictionary, after: Dictionary, complete: bool 
 	state.merge(after.duplicate(true), true)
 	state.merge(deferred, true)
 
-# Turn cleanup (Bleed, next intent, RNG and restored resolver scopes) has no
+# Turn cleanup (next intent, RNG and restored resolver scopes) has no
 # extra feedback beat. Ordinary turns keep their exact historical payloads.
 static func complete_turn(result: Dictionary) -> Dictionary:
 	var steps: Array = result.get("steps", [])
@@ -83,7 +83,7 @@ static func reaction_finished(engine: RefCounted, trace: Dictionary, owner: Dict
 	steps.append(owner)
 	trace["reactions"] = steps
 
-# Scoped HP charges (Bleed, activation Fire) enter the same owner stack as
+# Scoped HP charges (such as activation Fire) enter the same owner stack as
 # arrivals and cascades. A synchronous flush seals the charge before its child.
 static func charge_started(engine: RefCounted, state: Dictionary, trace: Dictionary, id: int) -> Dictionary:
 	var scope: Dictionary = {"previous_trace": engine._surface_death_trace}

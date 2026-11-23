@@ -365,7 +365,9 @@ func _apply_layout() -> void:
 			rotation_offset = (float(start["rotation"]) - resting_rotation) * slide_left
 			if start.has("tint"):
 				child.modulate = (start["tint"] as Color).lerp(Color.WHITE, 1.0 - slide_left)
-		_laid_out[child] = {"center": resting_center + spread + offset, "resting_center": resting_center, "rotation": resting_rotation + rotation_offset, "size": child_size * size_ratio, "spread": spread, "offset": offset}
+		var title_transform := Transform2D(resting_rotation, resting_center)
+		title_transform = title_transform.translated_local(-child_size * 0.5)
+		_laid_out[child] = {"center": resting_center + spread + offset, "resting_center": resting_center, "rotation": resting_rotation + rotation_offset, "size": child_size * size_ratio, "spread": spread, "offset": offset, "title_transform": title_transform}
 		fit_child_in_rect(child, rect)
 		child.pivot_offset = rect.size * 0.5
 		child.scale = Vector2.ONE * size_ratio * card_scale_for_emphasized_layout(
@@ -435,14 +437,25 @@ func _begin_layout_reflow(children: Array[Control], from_draw: bool, center_offs
 
 func _update_title_occluders(children: Array[Control]) -> void:
 	for index: int in range(children.size()):
-		var card: Control = _title_card(children[index])
+		var slot: Control = children[index]
+		var card: Control = _title_card(slot)
 		if card == null: continue
-		var badge: Control
+		var left_edge: float = INF
 		if index + 1 < children.size():
-			var next: Control = _title_card(children[index + 1])
-			if next != null and children[index + 1].z_index > children[index].z_index:
-				badge = next.get_node_or_null("TimeCostBadge") as Control
-		card.call("set_title_occluder", badge)
+			var next_slot: Control = children[index + 1]
+			var next: Control = _title_card(next_slot)
+			var badge: Control = next.get_node_or_null("TimeCostBadge") as Control if next != null else null
+			if badge != null and badge.visible and card_z_index_for_layout(index + 1, children.size()) > card_z_index_for_layout(index, children.size()):
+				var to_card: Transform2D = _title_rest_transform(slot, card).affine_inverse() * _title_rest_transform(next_slot, badge)
+				left_edge = (to_card * Rect2(Vector2.ZERO, badge.size)).position.x
+		card.call("set_title_occluder", left_edge)
+
+func _title_rest_transform(slot: Control, node: Control) -> Transform2D:
+	var local := Transform2D.IDENTITY
+	while node != slot:
+		local = node.get_transform() * local
+		node = node.get_parent() as Control
+	return (_laid_out[slot]["title_transform"] as Transform2D) * local
 
 func _title_card(node: Control) -> Control:
 	if node.has_method("set_title_occluder"): return node

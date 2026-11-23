@@ -139,9 +139,6 @@ func _hover(tile: Vector2i) -> void:
 func _select(index: int) -> void:
 	await scene.call("_on_card_pressed", index)
 	await _settle()
-	if int(scene.get("_card_action_choice_index")) == index:
-		await scene.call("_on_card_action_choice_pressed", "play")
-		await _settle()
 
 func _cancel() -> void:
 	scene.call("_on_board_tile_hovered", Vector2i(-1, -1))

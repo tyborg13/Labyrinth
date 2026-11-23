@@ -1,0 +1,22 @@
+{
+  "min_images": 1,
+  "required_images": [
+    {
+      "pattern": "reward-acquisition.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

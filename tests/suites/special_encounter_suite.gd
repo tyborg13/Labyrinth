@@ -30,6 +30,19 @@ static func approved_catalog_text() -> String:
 	var approved: String = staged.replace(STAGED_THORNMOTHER_SENTENCE, APPROVED_THORNMOTHER_SENTENCE)
 	approved = approved.replace('"objective_title": "Survive until dawn!"', '"objective_title": "Survive Until Dawn!"')
 	approved = approved.replace('"objective_hud_title": "Survive until dawn"', '"objective_hud_title": "Survive Until Dawn"')
+	var ice: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla06_ice_copy.json"))
+	var sentences: Dictionary = ice["battlefield_sentences"]
+	approved = approved.replace("After every second Oracle turn, Frostbite hits everyone on Ice for 2 and Freezes them.", sentences["oracle"])
+	approved = approved.replace("After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.", sentences["snare_ice"])
+	approved = approved.replace("Normal fight reward, plus %d Embers per open door.", "Normal combat reward, plus %d Embers per open door.")
+	approved = approved.replace(
+		"Brazier: lights 2 tiles around it. A Wick Shade's Snuff puts it out; step onto it to relight it.",
+		"Brazier: Light reaches 2 tiles. A Wick Shade's Snuff puts out the brazier. Enter the brazier's tile to relight the brazier."
+	)
+	var edits: Array = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/txt-27/text_edits.json"))
+	for edit: Dictionary in edits:
+		if edit["file"] == "data/special_encounters.json":
+			approved = approved.replace(str(edit["old"]), str(edit["new"]))
 	return approved.replace("The Hoarder's hoard: +%d embers", "The Hoarder's hoard: +%d Embers")
 
 static func run(expect: Callable, seed_begin: int = 0, seed_end: int = SEED_COUNT, include_cases: bool = true) -> void:

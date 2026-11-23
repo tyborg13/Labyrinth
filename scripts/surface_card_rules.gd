@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## Action types: surface_adjacent_enemies, convert_surface, discharge,
 ## all_enemies, meteor_marks. Action riders: consume, on_result,
-## frozen_splash, ignore_los, shock_all_hits, surface_follows_facing, the
+## ignore_los, shock_all_hits, surface_follows_facing, the
 ## Detonate options detonate_surface / leave_surface / spare_player and the
 ## consume_surface per-tile reward. The combat engine calls these helpers from
 ## small hooks; hover previews run the same resolver on a copy, so preview and
@@ -13,12 +13,13 @@ extends RefCounted
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
+const Burst = preload("res://scripts/burst_rules.gd")
 
 const INVALID: Vector2i = Vector2i(-999999, -999999)
 const TARGETED_TYPES: Array = ["convert_surface", "discharge", "meteor_marks"]
 ## Types whose `surface` field is their own payload, never a trailing rider.
 const OWN_SURFACE_TYPES: Array = ["surface_adjacent_enemies", "convert_surface", "meteor_marks"]
-const SELECTORS: Array = ["on_fire", "chilled", "in_light", "on_electrified"]
+const SELECTORS: Array = ["visible", "on_fire", "on_ice", "in_light", "on_electrified"]
 const METEOR_STATE_KEY: String = "meteor_marks"
 const METEOR_IMPACT_EVENT: String = "meteor_impact"
 
@@ -38,15 +39,19 @@ static func source_surface_for(action: Dictionary) -> String:
 			return "electrified"
 	return ""
 
-## Legal tiles for convert_surface / discharge: a visible tile holding the
-## source surface within range and line of sight.
+## Legal tiles for convert_surface / discharge: a visible tile within range
+## and line of sight, with the source surface when required.
 static func ground_targets(engine: RefCounted, state: Dictionary, action: Dictionary, origin: Vector2i, visible_lookup: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	var surface: String = source_surface_for(action)
 	if surface.is_empty():
 		return result
+	var source_optional: bool = bool(action.get("source_optional", false))
+	var fuel_board: Dictionary = engine.lightning_card_conduction_state(state, action) if surface == "electrified" else state
 	for tile: Vector2i in Paths.diamond_tiles(origin, int(action.get("range", 0)), state.get("grid", [])):
-		if not Surfaces.has_surface(state, tile, surface):
+		if source_optional and not Surfaces.can_place(state, tile):
+			continue
+		if not source_optional and not Surfaces.has_surface(fuel_board, tile, surface):
 			continue
 		if not engine.is_tile_visible_to_player(state, tile, visible_lookup):
 			continue
@@ -63,8 +68,9 @@ static func can_resolve(engine: RefCounted, state: Dictionary, action: Dictionar
 	return true
 
 ## Post-filters the ordinary target list: a `consume.required` attack is legal
-## only against enemies standing on the surface; a Detonate with an authored
-## `detonate_surface` is legal only where its pattern covers that fuel.
+## only against enemies standing on the surface; a Burst with an authored
+## `detonate_surface` is legal only where its pattern covers that fuel, unless
+## `fuel_optional` (Dust Devil: any tile, the Burst only on Rubble).
 static func filter_targets(engine: RefCounted, state: Dictionary, action: Dictionary, targets: Array[Vector2i]) -> Array[Vector2i]:
 	var consume: Dictionary = consume_spec(action)
 	if not consume.is_empty() and bool(consume.get("required", false)):
@@ -77,7 +83,7 @@ static func filter_targets(engine: RefCounted, state: Dictionary, action: Dictio
 			if Surfaces.unit_on(state, engine._normalized_enemy((state.get("enemies", []) as Array)[index]), surface):
 				kept.append(tile)
 		return kept
-	if str(action.get("type", "")) == "detonate" and action.has("detonate_surface"):
+	if str(action.get("type", "")) == "detonate" and action.has("detonate_surface") and not bool(action.get("fuel_optional", false)):
 		var fuel: String = detonate_fuel(action)
 		var fueled: Array[Vector2i]
 		for tile: Vector2i in targets:
@@ -90,7 +96,7 @@ static func filter_targets(engine: RefCounted, state: Dictionary, action: Dictio
 
 static func filters_targets(action: Dictionary) -> bool:
 	var consume: Dictionary = consume_spec(action)
-	return (not consume.is_empty() and bool(consume.get("required", false))) or (str(action.get("type", "")) == "detonate" and action.has("detonate_surface"))
+	return (not consume.is_empty() and bool(consume.get("required", false))) or (str(action.get("type", "")) == "detonate" and action.has("detonate_surface") and not bool(action.get("fuel_optional", false)))
 
 # ---------------------------------------------------------- surface placement
 
@@ -116,7 +122,7 @@ static func apply_surface_adjacent_enemies(engine: RefCounted, state: Dictionary
 		return state
 	var source: Dictionary = engine._surface_source(state, action)
 	# Ordinary placement: replacements follow the board rules and Ice placed
-	# under a unit does not Chill it until it enters or starts a turn there.
+	# under a unit does not Expose it until it enters or starts a turn there.
 	for tile: Vector2i in adjacent_enemy_tiles(engine, state, action):
 		Surfaces.place(state, tile, surface, source)
 	return state
@@ -147,21 +153,19 @@ static func consume_spec(action: Dictionary) -> Dictionary:
 static func _hit_is_primary(hit: Dictionary) -> bool:
 	return str(hit.get("kind_trace", "")) == "actor" and hit.get("from", INVALID) == hit.get("to", INVALID)
 
-## Per-attack context for consume, on_result, frozen_splash and shock_all_hits.
+## Per-attack context for consume, on_result and shock_all_hits.
 ## Empty (and every hook a no-op) unless the player's action uses one.
 static func begin_attack(engine: RefCounted, state: Dictionary, action: Dictionary, impact: Array[Vector2i], actor_kind: String) -> Dictionary:
 	if actor_kind != "player":
 		return {}
 	var consume: Dictionary = consume_spec(action)
 	var result: Dictionary = action.get("on_result", {}) as Dictionary if typeof(action.get("on_result", null)) == TYPE_DICTIONARY else {}
-	var splash: int = maxi(0, int(action.get("frozen_splash", 0)))
 	var shock_all: bool = bool(action.get("shock_all_hits", false))
-	if consume.is_empty() and result.is_empty() and splash <= 0 and not shock_all:
+	if consume.is_empty() and result.is_empty() and not shock_all:
 		return {}
 	var context: Dictionary = {
 		"consume": consume,
 		"on_result": result,
-		"frozen_splash": splash,
 		"shock_all_hits": shock_all,
 		"pending_rewards": [],
 		"result_triggered": "",
@@ -215,9 +219,8 @@ static func before_enemy_hit(engine: RefCounted, state: Dictionary, hit_action: 
 	context["hit_snapshot"] = {
 		"id": enemy_id,
 		"primary": primary,
-		"frozen_before": int(enemy.get("freeze", 0)) > 0,
+		"on_ice_before": Surfaces.unit_on(state, enemy, "ice"),
 		"alive_before": int(enemy.get("hp", 0)) > 0,
-		"footprint": engine._enemy_footprint_tiles(enemy),
 		"consume_tiles": consumed_here,
 	}
 	return result
@@ -245,38 +248,16 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, hit_action: D
 		var spec: Dictionary = context.get("on_result", {}) as Dictionary
 		if not spec.is_empty() and str(context.get("result_triggered", "")).is_empty():
 			var when: String = str(spec.get("when", ""))
-			var froze: bool = not bool(snapshot.get("frozen_before", false)) and int(enemy.get("freeze", 0)) > 0 and int(enemy.get("hp", 0)) > 0
+			# pla-06: "On Ice: also ..." judges the target's ground when it was hit
+			# (Freeze is cut, so the old "if this Freezes" trigger is gone).
+			var on_ice: bool = bool(snapshot.get("on_ice_before", false))
 			var killed: bool = bool(snapshot.get("alive_before", false)) and int(enemy.get("hp", 0)) <= 0
-			if (when == "froze" and froze) or (when == "killed" and killed):
+			if (when == "on_ice" and on_ice) or (when == "killed" and killed):
 				context["result_triggered"] = when
 				context["result_enemy_id"] = int(snapshot.get("id", -1))
 				context["pending_rewards"] = (spec.get("rewards", []) as Array).duplicate(true)
-		var splash: int = int(context.get("frozen_splash", 0))
-		if splash > 0 and bool(snapshot.get("frozen_before", false)):
-			state = _frozen_splash(engine, state, int(snapshot.get("id", -1)), engine._vector2i_values(snapshot.get("footprint", [])), splash)
 	return state
 
-## Shatter: N damage to each other enemy orthogonally adjacent to the target's
-## footprint. Not a direct hit, so it is never tripled by Freeze.
-static func _frozen_splash(engine: RefCounted, state: Dictionary, target_id: int, footprint: Array[Vector2i], amount: int) -> Dictionary:
-	var around: Dictionary = {}
-	for tile: Vector2i in footprint:
-		for direction: Vector2i in Paths.DIRS_4:
-			if not footprint.has(tile + direction):
-				around[tile + direction] = true
-	var around_tiles: Array[Vector2i] = engine._sorted_tiles_from_lookup(around)
-	var hit_ids: Array[int]
-	for enemy: Dictionary in engine._live_enemies(state):
-		if int(enemy.get("id", -1)) != target_id and engine._surface_unit_intersects(enemy, around_tiles):
-			hit_ids.append(int(enemy.get("id", -1)))
-	for enemy_id: int in hit_ids:
-		var index: int = engine._enemy_index_for_id(state, enemy_id)
-		if index >= 0:
-			state = engine._damage_enemy(state, index, amount, false, false)
-	Surfaces.record_event(state, {"kind": "frozen_splash", "target_id": target_id, "enemy_ids": hit_ids, "damage": amount, "tiles": around_tiles, "source": (state.get("damage_context", {}) as Dictionary).duplicate(true)})
-	return state
-
-## After all hits, before trailing surface riders: an area consumes its pattern.
 static func after_attack_hits(engine: RefCounted, state: Dictionary, context: Dictionary) -> Dictionary:
 	if context.is_empty():
 		return state
@@ -316,32 +297,25 @@ static func finish_attack(engine: RefCounted, state: Dictionary, context: Dictio
 static func detonate_fuel(action: Dictionary) -> String:
 	return Surfaces.kind(str(action.get("_detonate_surface", action.get("detonate_surface", "fire"))))
 
-## leave_surface: after the blast, each consumed tile and its four passable
-## neighbors gain the surface (ordinary placement).
-static func leave_detonate_surface(engine: RefCounted, state: Dictionary, action: Dictionary, consumed: Array[Vector2i]) -> Dictionary:
+## leave_surface: after the Burst, the tiles it destroyed gain the surface
+## (Magma Vent: "Burst 7, leaving Fire"), or every tile it hit with
+## `leave_surface_on: "tiles_hit"` (Rockburst's Rubble). Ordinary placement.
+static func leave_detonate_surface(engine: RefCounted, state: Dictionary, action: Dictionary, burst_tiles: Array[Vector2i]) -> Dictionary:
 	var surface: String = str(action.get("leave_surface", ""))
-	if surface.is_empty() or consumed.is_empty():
+	if surface.is_empty() or burst_tiles.is_empty():
 		return state
-	var lookup: Dictionary = {}
-	for tile: Vector2i in consumed:
-		lookup[tile] = true
-		for direction: Vector2i in Paths.DIRS_4:
-			if Paths.is_passable(state.get("grid", []), tile + direction):
-				lookup[tile + direction] = true
 	var source: Dictionary = engine._surface_source(state, action)
-	for tile: Vector2i in engine._sorted_tiles_from_lookup(lookup):
+	for tile: Vector2i in burst_tiles:
 		Surfaces.place(state, tile, surface, source)
 	return state
 
 # ---------------------------------------------------------- convert / discharge
 
-## Cardinally connected tiles holding `surface`, starting at `start`, over
-## tiles the player can see (the same visible ground conduction uses).
+## Cardinally connected ground of one kind, including concealed tiles.
 static func connected_surface_tiles(engine: RefCounted, state: Dictionary, start: Vector2i, surface: String) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	if not Surfaces.has_surface(state, start, surface):
 		return result
-	var visible_lookup: Dictionary = engine.umbra_visible_tile_lookup(state)
 	var queue: Array[Vector2i]
 	queue.append(start)
 	var seen: Dictionary = {start: true}
@@ -354,18 +328,19 @@ static func connected_surface_tiles(engine: RefCounted, state: Dictionary, start
 			var next: Vector2i = tile + direction
 			if seen.has(next) or not Surfaces.has_surface(state, next, surface) or not Surfaces.can_place(state, next):
 				continue
-			if not engine.is_tile_visible_to_player(state, next, visible_lookup):
-				continue
 			seen[next] = true
 			queue.append(next)
 	return engine._sorted_tiles_from_lookup(seen)
 
 static func convert_surface_tiles(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	var surface: String = source_surface_for(action)
-	if bool(action.get("connected", false)):
-		return connected_surface_tiles(engine, state, target, surface)
+	var source_optional: bool = bool(action.get("source_optional", false))
+	var fuel_board: Dictionary = engine.lightning_card_conduction_state(state, action) if surface == "electrified" else state
+	var on_source: bool = Surfaces.has_surface(fuel_board, target, surface)
+	if on_source and bool(action.get("connected", false)):
+		return connected_surface_tiles(engine, fuel_board, target, surface)
 	var single: Array[Vector2i]
-	if Surfaces.has_surface(state, target, surface):
+	if on_source or (source_optional and Surfaces.can_place(state, target)):
 		single.append(target)
 	return single
 
@@ -374,33 +349,43 @@ static func apply_convert_surface(engine: RefCounted, state: Dictionary, action:
 	if tiles.is_empty():
 		return state
 	var to: String = Surfaces.kind(str(action.get("to", "electrified")))
+	var from_surface: String = Surfaces.element_at(state, target) if bool(action.get("source_optional", false)) else source_surface_for(action)
 	var source: Dictionary = engine._surface_source(state, action)
 	for tile: Vector2i in tiles:
 		Surfaces.place(state, tile, to, source)
 	var victims: Array[int] = _enemy_ids_touching(engine, state, tiles)
-	Surfaces.record_event(state, {"kind": "surface_converted", "surface": to, "from_surface": source_surface_for(action), "tiles": tiles, "enemy_ids": victims, "damage": int(action.get("damage", 0)), "source": source})
+	Surfaces.record_event(state, {"kind": "surface_converted", "surface": to, "from_surface": from_surface, "tiles": tiles, "enemy_ids": victims, "damage": int(action.get("damage", 0)), "source": source})
 	return strike_enemies(engine, state, action, victims, target)
 
-static func discharge_area(engine: RefCounted, state: Dictionary, target: Vector2i) -> Dictionary:
-	var network: Array[Vector2i] = connected_surface_tiles(engine, state, target, "electrified")
-	var area: Dictionary = {}
-	for tile: Vector2i in network:
-		area[tile] = true
-		for direction: Vector2i in Paths.DIRS_4:
-			area[tile + direction] = true
-	return {"network": network, "area": engine._sorted_tiles_from_lookup(area)}
+## Discharge: Burst this Electrified tile and every Electrified tile connected
+## to it. `area` is the union of the network's crosses.
+static func discharge_area(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var fuel_board: Dictionary = engine.lightning_card_conduction_state(state, action)
+	var network: Array[Vector2i] = connected_surface_tiles(engine, fuel_board, target, "electrified")
+	return {"network": network, "area": Burst.area(state, network)}
 
+## The network is the Burst's sources: each unit in the union is hit once, the
+## hero included (BurstRules via the engine's card Burst resolver). Discharge is
+## not an attack type, so attack relic bonuses and next-attack buffs never apply.
 static func apply_discharge(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
-	var shape: Dictionary = discharge_area(engine, state, target)
-	var network: Array[Vector2i] = engine._vector2i_values(shape.get("network", []))
+	var plan: Dictionary = discharge_area(engine, state, action, target)
+	var network: Array[Vector2i] = plan["network"]
 	if network.is_empty():
 		return state
-	var area: Array[Vector2i] = engine._vector2i_values(shape.get("area", []))
-	var victims: Array[int] = _enemy_ids_touching(engine, state, area)
-	state = strike_enemies(engine, state, action, victims, target)
+	var area: Array[Vector2i] = plan["area"]
+	var virtual_tiles: Array[Vector2i]
 	for tile: Vector2i in network:
-		Surfaces.remove(state, tile, "electrified", "discharge")
-	Surfaces.record_event(state, {"kind": "surface_discharge", "surface": "electrified", "tiles": network, "area": area, "enemy_ids": victims, "damage": int(action.get("damage", 0)), "source": engine._surface_source(state, action)})
+		if not Surfaces.has_surface(state, tile, "electrified"):
+			virtual_tiles.append(tile)
+	var victims: Array[int] = _enemy_ids_touching(engine, state, area)
+	var burst: Dictionary = action.duplicate(true)
+	burst["detonate_surface"] = "electrified"
+	burst["_burst_sources_given"] = true
+	state = engine._resolve_board_detonate(state, burst, target, {}, network)
+	var event: Dictionary = {"kind": "surface_discharge", "surface": "electrified", "tiles": network, "area": area, "enemy_ids": victims, "damage": int(action.get("damage", 0)), "burst": true, "source": engine._surface_source(state, action)}
+	if not virtual_tiles.is_empty():
+		event["virtual_tiles"] = virtual_tiles
+	Surfaces.record_event(state, event)
 	return state
 
 static func _enemy_ids_touching(engine: RefCounted, state: Dictionary, tiles: Array[Vector2i]) -> Array[int]:
@@ -411,10 +396,10 @@ static func _enemy_ids_touching(engine: RefCounted, state: Dictionary, tiles: Ar
 	return ids
 
 ## One direct card hit per enemy: Expose and damage-vs-status apply, then the
-## action's riders (Shock, Expose; an Ice hit Freezes a Chilled target). These
+## action's riders (Shock, Expose, Stagger). These
 ## types are not ATTACK_ACTION_TYPES, so attack relic bonuses and next-attack
 ## buffs never apply.
-static func strike_enemies(engine: RefCounted, state: Dictionary, action: Dictionary, enemy_ids: Array[int], source_tile: Vector2i) -> Dictionary:
+static func strike_enemies(engine: RefCounted, state: Dictionary, action: Dictionary, enemy_ids: Array[int], source_tile: Vector2i, damage_bonuses: Dictionary = {}) -> Dictionary:
 	if enemy_ids.is_empty():
 		return state
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
@@ -428,12 +413,17 @@ static func strike_enemies(engine: RefCounted, state: Dictionary, action: Dictio
 		var index: int = engine._enemy_index_for_id(state, enemy_id)
 		if index < 0 or int(engine._surface_actor(state, "enemy", enemy_id).get("hp", 0)) <= 0:
 			continue
-		if printed_damage > 0:
+		var damage_bonus: int = int(damage_bonuses.get(enemy_id, 0))
+		if not damage_bonuses.is_empty():
+			hit_action["damage"] = printed_damage + damage_bonus
+		var contact: Dictionary = engine._ice_card_stagger_contact(state, state["enemies"][index], hit_action)
+		if printed_damage + damage_bonus > 0:
 			var damage: int = engine._damage_for_enemy_target(state, hit_action, index)
 			state = engine._damage_enemy(state, index, damage, true, engine._action_pierces_defense(hit_action))
 			if damage > 0:
 				state = engine._consume_enemy_expose(state, index)
 		state = engine._apply_action_keywords_to_enemy(state, index, hit_action, source_tile)
+		state = engine._apply_card_stagger(state, enemy_id, hit_action, "player", contact)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = engine._flush_surface_deaths(state)
@@ -443,12 +433,14 @@ static func strike_enemies(engine: RefCounted, state: Dictionary, action: Dictio
 
 static func selector_matches(engine: RefCounted, state: Dictionary, selector: String, enemy: Dictionary, enemy_index: int) -> bool:
 	match selector:
+		"visible":
+			return true
 		"on_fire":
 			return Surfaces.unit_on(state, enemy, "fire")
 		"on_electrified":
 			return Surfaces.unit_on(state, enemy, "electrified")
-		"chilled":
-			return bool(enemy.get("chilled", false)) and int(enemy.get("freeze", 0)) <= 0
+		"on_ice":
+			return Surfaces.unit_on(state, enemy, "ice")
 		"in_light":
 			return CardKeywordRules.state_condition_met(engine, state, "light", enemy_index)
 	return false
@@ -464,23 +456,46 @@ static func selected_enemy_ids(engine: RefCounted, state: Dictionary, action: Di
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID)
 	var visible_lookup: Dictionary = engine.umbra_visible_tile_lookup(state)
 	var enemies: Array = state.get("enemies", []) as Array
+	var selector_board: Dictionary = engine.lightning_card_conduction_state(state, action) if selector == "on_electrified" else state
 	for index: int in range(enemies.size()):
 		var enemy: Dictionary = engine._normalized_enemy(enemies[index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0 or not engine.is_enemy_visible_to_player(state, enemy, visible_lookup):
 			continue
 		if reach > 0 and engine._enemy_distance_to_tile(enemy, player_pos) > reach:
 			continue
-		if selector_matches(engine, state, selector, enemy, index):
+		if selector_matches(engine, selector_board, selector, enemy, index):
 			ids.append(int(enemy.get("id", -1)))
 	return ids
+
+static func _target_damage_bonuses(engine: RefCounted, state: Dictionary, ids: Array[int], bonus: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	var surface: String = str(bonus.get("surface", ""))
+	var present: bool = bool(bonus.get("present", true))
+	for enemy_id: int in ids:
+		var unit: Dictionary = engine._surface_actor(state, "enemy", enemy_id)
+		if not unit.is_empty() and Surfaces.unit_on(state, unit, surface) == present:
+			result[enemy_id] = int(bonus["damage"])
+	return result
 
 static func apply_all_enemies(engine: RefCounted, state: Dictionary, action: Dictionary) -> Dictionary:
 	# Select first, then strike: earlier hits never change who was chosen.
 	var ids: Array[int] = selected_enemy_ids(engine, state, action)
 	if ids.is_empty():
 		return state
-	Surfaces.record_event(state, {"kind": "selector_strike", "selector": str(action.get("selector", "")), "enemy_ids": ids, "damage": int(action.get("damage", 0)), "element": engine._action_element(action), "source": engine._surface_source(state, action)})
-	return strike_enemies(engine, state, action, ids, (state.get("player", {}) as Dictionary).get("pos", INVALID))
+	var event: Dictionary = {"kind": "selector_strike", "selector": str(action.get("selector", "")), "enemy_ids": ids, "damage": int(action.get("damage", 0)), "element": engine._action_element(action), "source": engine._surface_source(state, action)}
+	var damage_bonuses: Dictionary = {}
+	var bonus: Dictionary = action.get("surface_bonus", {}) as Dictionary
+	var bonus_damage: int = int(bonus.get("damage", 0))
+	if str(bonus.get("subject", "")) == "target" and bonus_damage != 0:
+		damage_bonuses = _target_damage_bonuses(engine, state, ids, bonus)
+		var bonus_ids: Array[int]
+		for enemy_id: int in ids:
+			if damage_bonuses.has(enemy_id):
+				bonus_ids.append(enemy_id)
+		event["bonus_enemy_ids"] = bonus_ids
+		event["bonus_damage"] = bonus_damage
+	Surfaces.record_event(state, event)
+	return strike_enemies(engine, state, action, ids, (state.get("player", {}) as Dictionary).get("pos", INVALID), damage_bonuses)
 
 # --------------------------------------------------------------- meteor marks
 
@@ -626,10 +641,11 @@ static func scaled_consume_reward(reward: Dictionary, consumed_count: int) -> Di
 	if not bool(reward.get("per_tile", false)):
 		return reward
 	var scaled: Dictionary = reward.duplicate(true)
-	var amount: int = int(reward.get("amount", 0)) * maxi(0, consumed_count)
+	var amount: int = int(reward.get("base_amount", 0)) + int(reward.get("amount", 0)) * maxi(0, consumed_count)
 	if reward.has("max"):
 		amount = mini(amount, maxi(0, int(reward.get("max", 0))))
 	scaled["amount"] = amount
 	scaled.erase("per_tile")
+	scaled.erase("base_amount")
 	scaled.erase("max")
 	return scaled

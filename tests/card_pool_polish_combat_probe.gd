@@ -77,7 +77,7 @@ func _capture(packed: PackedScene) -> void:
 	_assert(_badge_value(instance) == printed_time + 2, "With Empower +2 Time the badge shows %d" % (printed_time + 2))
 	_assert(int(preview.get("time", -1)) == _badge_value(instance), "The card badge and turn-order preview agree on the Empowered Time")
 	var badge: Control = _badge(instance)
-	_assert(badge != null and str(badge.tooltip_text).contains("Empower: +2"), "The badge detail names the Empower surcharge")
+	_assert(badge != null and str(badge.tooltip_text).contains("Empower adds 2 Time."), "The badge detail names the Empower surcharge")
 	_save(viewport, "04_empower_on_time_badge.png")
 	await instance.call("_toggle_pending_empower")
 	await _settle()

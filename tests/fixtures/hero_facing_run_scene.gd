@@ -18,7 +18,7 @@ func _play_timed_animation_frames(count: int, seconds: float, render_frame: Call
 	for frame: int in range(count if seconds <= 0.0 else 1, count + 1):
 		render_frame.call(frame)
 
-func _animate_floating_text_presentation(state: Dictionary, base: Dictionary, initial: float = 0.0, _overlap: bool = false, _companion: Dictionary = {}) -> void:
+func _animate_floating_text_presentation(state: Dictionary, base: Dictionary, initial: float = 0.0, _overlap: bool = false, _companion: Dictionary = {}, _on_contact: Callable = Callable()) -> void:
 	for frame: int in range(PROOF_POPUP_FRAMES + 1):
 		var shown: Dictionary = base.duplicate(true)
 		shown["floating_texts"] = FloatingCombatText.animate_entries(base.get("floating_texts", []), initial + float(frame) / PROOF_POPUP_FRAMES, _reduced_motion_enabled())

@@ -46,7 +46,7 @@
         "tiles": 1,
         "direction": "aimed"
       },
-      "sentence": "After each of the Stormcaller's turns, its wind Pushes everyone 1 tile."
+      "sentence": "On each Gust beat, after the Stormcaller's turn, each unit is Pushed 1 tile downwind."
     },
     "slagmaster": {
       "rule": "wildfire",
@@ -61,7 +61,7 @@
       "dials": {
         "spread": "toward_player"
       },
-      "sentence": "After every second Slagmaster turn, its Fire spreads 1 tile toward you."
+      "sentence": "On each Wildfire beat, after every second Slagmaster turn, each Fire tile spreads 1 tile in the direction from the Slagmaster to you."
     },
     "oracle": {
       "rule": "frostbite",
@@ -76,7 +76,7 @@
       "dials": {
         "damage": 2
       },
-      "sentence": "After every second Oracle turn, Frostbite hits everyone on Ice for 2 and Freezes them."
+      "sentence": "On each Frostbite beat, after every second Oracle turn, each unit on Ice takes 2 damage."
     },
     "dynamo": {
       "rule": "lightning_storm",
@@ -91,7 +91,7 @@
       "dials": {
         "damage": 4
       },
-      "sentence": "When the Dynamo discharges, lightning strikes every Electrified tile for 4."
+      "sentence": "On each Lightning Storm beat, when the Dynamo uses Arc Lash, each unit on Electrified takes 4 damage."
     },
     "thornmother": {
       "rule": "upheaval",
@@ -108,7 +108,7 @@
         "length": 5,
         "health": 3
       },
-      "sentence": "After every second Thornmother turn, its marked tiles rise as Outcrops."
+      "sentence": "On each Upheaval beat, after every second Thornmother turn, each Marked tile becomes an Outcrop."
     },
     "prior": {
       "rule": "shadowstep",
@@ -123,7 +123,7 @@
       "dials": {
         "blink": 3
       },
-      "sentence": "After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you."
+      "sentence": "On each Shadowstep beat, after every second Prior turn, each hidden follower Blinks up to 3 tiles toward you."
     },
     "snare_earth": {
       "rule": "upheaval",
@@ -138,7 +138,7 @@
         "pattern": "exit_lane",
         "health": 3
       },
-      "sentence": "After each of your turns, a marked tile on your way out rises as an Outcrop."
+      "sentence": "On each Upheaval beat, after your turn, a Marked tile on the way out becomes an Outcrop."
     },
     "snare_fire": {
       "rule": "wildfire",
@@ -152,7 +152,7 @@
       "dials": {
         "spread": "away_from_entry"
       },
-      "sentence": "After each of your turns, the Fire spreads 1 tile away from the entry."
+      "sentence": "On each Wildfire beat, after your turn, each Fire tile spreads 1 tile away from the entry."
     },
     "snare_air": {
       "rule": "gust",
@@ -167,7 +167,7 @@
         "tiles": 1,
         "direction": "toward_entry"
       },
-      "sentence": "After each of your turns, a headwind Pushes everyone 1 tile toward the entry."
+      "sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the entry."
     },
     "snare_ice": {
       "rule": "frostbite",
@@ -181,7 +181,7 @@
       "dials": {
         "damage": 1
       },
-      "sentence": "After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them."
+      "sentence": "On each Frostbite beat, after your turn, each unit on Ice takes 1 damage."
     },
     "snare_lightning": {
       "rule": "lightning_storm",
@@ -195,7 +195,7 @@
       "dials": {
         "damage": 3
       },
-      "sentence": "After each of your turns, lightning strikes every Electrified tile for 3."
+      "sentence": "On each Lightning Storm beat, after your turn, each unit on Electrified takes 3 damage."
     },
     "snare_shadow": {
       "rule": "shadowstep",
@@ -209,7 +209,7 @@
       "dials": {
         "blink": 2
       },
-      "sentence": "After each of your turns, enemies hidden in the dark Blink 2 tiles toward you."
+      "sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks up to 2 tiles toward you."
     },
     "last_light": {
       "rule": "shadowstep",
@@ -224,7 +224,7 @@
         "blink": 2,
         "who": "all_hidden"
       },
-      "sentence": "After each of your turns, every enemy hidden in the dark Blinks 2 tiles toward you."
+      "sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks up to 2 tiles toward you."
     },
     "gale_herald": {
       "rule": "gust",
@@ -240,7 +240,7 @@
         "tiles": 1,
         "direction": "aimed"
       },
-      "sentence": "After each of the Gale Herald's turns, its wind Pushes everyone 1 tile."
+      "sentence": "On each Gust beat, after the Gale Herald's turn, each unit is Pushed 1 tile downwind."
     },
     "ashen_reaver": {
       "rule": "wildfire",
@@ -255,7 +255,7 @@
       "dials": {
         "spread": "toward_player"
       },
-      "sentence": "After every second turn of yours, the Reaver's Fire spreads 1 tile toward you."
+      "sentence": "On each Wildfire beat, after every second turn of yours, each Fire tile spreads 1 tile in the direction from the Reaver to you."
     },
     "rimejaw": {
       "rule": "frostbite",
@@ -268,9 +268,10 @@
         "every": 1
       },
       "dials": {
-        "damage": 0
+        "damage": 0,
+        "stagger": 6
       },
-      "sentence": "After each of your turns, Rimejaw's Frostbite Freezes everyone standing on Ice."
+      "sentence": "On each Frostbite beat, after your turn, each unit on Ice takes Stagger 6."
     },
     "storm_cantor": {
       "rule": "lightning_storm",
@@ -285,7 +286,7 @@
       "dials": {
         "damage": 4
       },
-      "sentence": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4."
+      "sentence": "On each Lightning Storm beat, when the Cantor uses Peal, each unit on Electrified takes 4 damage."
     },
     "gallows_roc": {
       "rule": "gust",
@@ -301,7 +302,7 @@
         "tiles": 1,
         "direction": "toward_source"
       },
-      "sentence": "After each of your turns, the Roc's wind Pushes everyone 1 tile toward it."
+      "sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile in the direction from you to the Roc."
     },
     "craghide": {
       "rule": "upheaval",
@@ -318,7 +319,7 @@
         "length": 3,
         "health": 2
       },
-      "sentence": "After every second Craghide turn, its marked tiles rise as Outcrops."
+      "sentence": "On each Upheaval beat, after every second Craghide turn, each Marked tile becomes an Outcrop."
     },
     "last_lamplighter": {
       "rule": "shadowstep",
@@ -336,7 +337,7 @@
           "wick_shade"
         ]
       },
-      "sentence": "After each of your turns, hidden Wick Shades Blink 1 tile toward you."
+      "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you."
     },
     "vyraketh": {
       "rule": "wildfire",
@@ -351,13 +352,13 @@
       "dials": {
         "spread": "all"
       },
-      "sentence": "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+      "sentence": "On each Wildfire beat, when Vyraketh breathes, each Fire tile spreads to each adjacent tile.",
       "at_half_health": {
         "cadence": {
           "anchor": "after_source_turn",
           "every": 2
         },
-        "sentence": "After every second Vyraketh turn, every Fire tile spreads 1 tile in all four directions."
+        "sentence": "On each Wildfire beat, after every second Vyraketh turn, each Fire tile spreads to each adjacent tile."
       }
     },
     "tharokh": {
@@ -375,13 +376,13 @@
         "length": 5,
         "health": 4
       },
-      "sentence": "After every second turn of yours, Tharokh's marked tiles rise as Outcrops.",
+      "sentence": "On each Upheaval beat, after every second turn of yours, each Marked tile becomes an Outcrop.",
       "at_half_health": {
         "cadence": {
           "anchor": "after_player_turn",
           "every": 1
         },
-        "sentence": "After each of your turns, Tharokh's marked tiles rise as Outcrops."
+        "sentence": "On each Upheaval beat, after your turn, each Marked tile becomes an Outcrop."
       }
     },
     "iskaldra": {
@@ -397,13 +398,13 @@
       "dials": {
         "damage": 3
       },
-      "sentence": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them.",
+      "sentence": "On each Frostbite beat, when Iskaldra uses Rime Talon, each unit on Ice takes 3 damage.",
       "at_half_health": {
         "cadence": {
           "anchor": "after_source_turn",
           "every": 2
         },
-        "sentence": "After every second Iskaldra turn, Frostbite hits everyone on Ice for 3 and Freezes them."
+        "sentence": "On each Frostbite beat, after every second Iskaldra turn, each unit on Ice takes 3 damage."
       }
     },
     "vaeloryx": {
@@ -420,12 +421,12 @@
         "tiles": 1,
         "direction": "turn_clockwise"
       },
-      "sentence": "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise.",
+      "sentence": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 1 tile downwind, then Gust turns a quarter clockwise.",
       "at_half_health": {
         "dials": {
           "tiles": 2
         },
-        "sentence": "After each Vaeloryx turn, its wind Pushes everyone 2 tiles, then turns a quarter clockwise."
+        "sentence": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 2 tiles downwind, then Gust turns a quarter clockwise."
       }
     },
     "zekarion": {
@@ -441,12 +442,12 @@
       "dials": {
         "damage": 6
       },
-      "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
+      "sentence": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 6 damage.",
       "at_half_health": {
         "dials": {
           "damage": 7
         },
-        "sentence": "When Zekarion uses Overload, lightning strikes every Electrified tile for 7."
+        "sentence": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 7 damage."
       }
     },
     "noctyrax": {
@@ -465,7 +466,7 @@
           "veilbound_acolyte"
         ]
       },
-      "sentence": "When Noctyrax uses Void Claw, hidden Veilbound Acolytes Blink 3 tiles toward you."
+      "sentence": "On each Shadowstep beat, when Noctyrax uses Void Claw, each hidden Veilbound Acolyte Blinks up to 3 tiles toward you."
     }
   }
 }

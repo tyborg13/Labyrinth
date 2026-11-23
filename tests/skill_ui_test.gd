@@ -24,7 +24,7 @@ const DEFERRED_TEST_CARD_IDS: Array = ["rime_shard", "static_lash", "gust_step"]
 const DEFERRED_TEST_SKILLS: Array = ["quick_wits", "discerning_eye", "deferred_choice"]
 const DEFERRED_TEST_DIALOG_COPY: String = "Fixture"
 const DEFERRED_PROOF_PATH: String = "user://txt08_deferred_choice.png"
-const DEFERRED_RULE: String = "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
+const DEFERRED_RULE: String = "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card."
 
 var _failures: Array[String]
 

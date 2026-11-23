@@ -3,13 +3,15 @@ extends RefCounted
 ## Only inputs read by card definitions, keyword pricing and untargeted hand
 ## damage projection. Logs, currency, deck order and unrelated UI state do not
 ## invalidate card faces. Spatial inputs remain relevant to surface/light rules.
+const Data = preload("res://scripts/game_data.gd")
 const FIELDS: Array = [
+	Data.LEGACY_STARTER_CARDS_KEY,
 	"player", "relics", "active_rites", "skill_ids", "card_upgrades", "card_mods",
 	"equipped_equipment", "equipment_grafts", "turn_flags", "card_play_modifiers",
 	"current_actor", "room_element", "surfaces", "grid", "umbra", "illusions",
 	"surface_rule_overrides", "relic_element_knots", "relic_time_reserve"
 ]
-const STATUS_FIELDS: Array = ["block", "stoneskin", "bleed", "expose", "freeze", "shock", "immobilize", "chilled", "petrify", "truesight"]
+const STATUS_FIELDS: Array = ["block", "stoneskin", "expose", "freeze", "shock", "immobilize", "chilled", "petrify"]
 
 static func normalise(state: Dictionary) -> Dictionary:
 	# Real combat state is already authoritative, including its statuses/position.

@@ -7,7 +7,11 @@ const ELEMENTAL_KINDS: Array = ["fire", "ice", "electrified"]
 const RULES_VERSION: int = 5
 const FIRE_ENTRY_DAMAGE: int = 2
 const FIRE_START_DAMAGE: int = 3
-const CHILLED_BONUS: int = 2
+# pla-06: Ice Exposes 2 a unit that enters it or starts its turn on it.
+const ICE_EXPOSE: int = 2
+# Chilled and Freeze are cut. Kept only for the dormant legacy paths that still
+# read old saves' fields; no rule applies either status.
+const CHILLED_BONUS: int = ICE_EXPOSE
 const FROZEN_MULTIPLIER: int = 3
 const EVENT_LIMIT: int = 256
 
@@ -81,7 +85,9 @@ static func record_event(state: Dictionary, event: Dictionary) -> void:
 		events.pop_front()
 	state["surface_events"] = events
 
-static func place(state: Dictionary, tile: Vector2i, surface: String, source: Dictionary = {}) -> Dictionary:
+static func place(state: Dictionary, tile: Vector2i, surface: String, source: Dictionary = {}, visible_tiles: Dictionary = {}) -> Dictionary:
+	if not visible_tiles.is_empty() and not visible_tiles.has(tile):
+		return state
 	var normalized: String = kind(surface)
 	if (not ELEMENTAL_KINDS.has(normalized) and normalized != "rubble") or not can_place(state, tile):
 		return state
@@ -101,13 +107,12 @@ static func place(state: Dictionary, tile: Vector2i, surface: String, source: Di
 	state["surfaces"] = surfaces
 	state["surface_revision"] = int(state.get("surface_revision", 0)) + 1
 	record_event(state, {"kind": "surface_created" if previous.is_empty() else "surface_replaced", "tile": tile, "surface": normalized, "previous_surface": previous, "source": source})
-	sync_chilled(state)
 	var hero_placement: bool = str(source.get("actor_kind", "")) == "player" or str(source.get("causal_owner", "")) == "player"
 	if normalized in ELEMENTAL_KINDS and previous in ELEMENTAL_KINDS and normalized != previous and hero_placement and not bool(source.get("spread", false)) and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("elemental_overwrite_spread", false)):
 		var spread_source: Dictionary = source.duplicate(true)
 		spread_source["spread"] = true
 		for direction: Vector2i in PathUtils.DIRS_4:
-			if element_at(state, tile + direction).is_empty(): place(state, tile + direction, normalized, spread_source)
+			if element_at(state, tile + direction).is_empty(): place(state, tile + direction, normalized, spread_source, visible_tiles)
 	return state
 
 static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String = "all", reason: String = "", removal_source: Dictionary = {}) -> Dictionary:
@@ -139,7 +144,6 @@ static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String =
 	var source: Dictionary = state.get("damage_context", {}) as Dictionary if removal_source.is_empty() else removal_source
 	for removed_kind: String in removed:
 		record_event(state, {"kind": "surface_removed", "tile": tile, "surface": removed_kind, "reason": reason, "rubble_underlay": rubble_underlay, "source": source.duplicate(true)})
-	sync_chilled(state)
 	return state
 
 static func footprint_tiles(unit: Dictionary, anchor: Vector2i = Vector2i(-99999, -99999)) -> Array[Vector2i]:
@@ -162,15 +166,7 @@ static func unit_on(state: Dictionary, unit: Dictionary, surface: String) -> boo
 			return true
 	return false
 
-static func sync_chilled(state: Dictionary) -> void:
-	var player: Dictionary = state.get("player", {}) as Dictionary
-	if not player.is_empty() and (int(player.get("freeze", 0)) > 0 or (not unit_on(state, player, "ice") and not bool(player.get("relic_chilled", false)))):
-		player["chilled"] = false
-	for collection: String in ["enemies", "illusions"]:
-		for unit: Dictionary in state.get(collection, []):
-			if int(unit.get("freeze", 0)) > 0 or (not unit_on(state, unit, "ice") and not bool(unit.get("relic_chilled", false))):
-				unit["chilled"] = false
-
+## pla-06: Chilled is cut. Clears any legacy flag an old save still carries.
 static func movement_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i) -> int:
 	if bool(preload("res://scripts/game_data.gd").enemies().get(str(unit.get("type", "")), {}).get("flying", false)): return 1
 	if not unit.has("id") and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("player_ignores_rubble", false)):

@@ -5,6 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const ShotFx = preload("res://scripts/shot_fx.gd")
 
 const OUTPUT_DIR: String = "user://probes/umbra_action_animation_v1"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
@@ -172,7 +173,11 @@ func _capture_hidden_ranged_attack(instance: Node, reduced_motion: bool, capture
 			await _wait_for_animation()
 			instance.call("_render_board_state", state, frozen_impact)
 			await _settle_ui()
-			_expect((board.call("_elemental_scene_depth_tiles_for_presentation", frozen_impact) as Array).has(PLAYER_TILE), "Reduced Umbra impact must use the normal target scene-depth composition")
+			var shot_fx: ShotFx = board.get("_single_shot_fx")
+			var hit_visible: bool = false
+			for hit: ShotFx.Stamp in shot_fx._hits:
+				hit_visible = hit_visible or (hit.visible and hit.hit_tile == PLAYER_TILE)
+			_expect(hit_visible and not shot_fx._heads[0].visible, "Reduced Umbra impact shows only the retained hit at the visible target")
 			await _save_root_screenshot("%s/07_ranged_reduced_motion_impact.png" % OUTPUT_DIR)
 			captured_frame = true
 			break

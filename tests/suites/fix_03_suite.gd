@@ -17,7 +17,7 @@ const LATER_CYCLE: int = 2
 const EXPECTED_TOKEN_CASES: int = 10
 const TOKEN_CAPTIONS: Dictionary = {
 	"burrow": "Burrow", "erupt": "Erupt %d · Push %d · Rubble · Expose %d", "kindle": "Burst +2",
-	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, range 4, 3 jumps"
+	"gain_charge": "Charge +1", "chain_discharge": "Arc 4, Range 4, 3 extra hits"
 }
 
 static func run(expect: Callable) -> bool:
@@ -29,7 +29,7 @@ static func run(expect: Callable) -> bool:
 
 static func _test_fatigue(expect: Callable) -> bool:
 	var engine := Combat.new()
-	for statuses: Dictionary in [{}, {"expose": TEST_EXPOSE}, {"chilled": true}, {"freeze": 1}, {"expose": TEST_EXPOSE, "chilled": true, "freeze": 1}]:
+	for statuses: Dictionary in [{}, {"expose": TEST_EXPOSE}, {"shock": 1}, {"expose": TEST_EXPOSE, "shock": 1}]:
 		for cycle: int in [0, LATER_CYCLE]:
 			var state: Dictionary = SkillFixture._state(engine, [], ["quick_stab"])
 			state["player"].merge(statuses, true)
@@ -58,10 +58,10 @@ static func _test_fatigue(expect: Callable) -> bool:
 	mantle_state = engine._draw_cards_in_place(mantle_state, 1)
 	expect.call(mantle_hp - int(mantle_state["player"]["hp"]) == Combat.FATIGUE_BASE_DAMAGE and mantle_state["player"][Mantle.MANTLE_FIELD] == 1, "Fatigue is health loss and leaves Crystal Mantle intact")
 	var attacked: Dictionary = SkillFixture._state(engine, [], ["quick_stab"])
-	attacked["player"].merge({"expose": TEST_EXPOSE, "chilled": true, "freeze": 1}, true)
+	attacked["player"].merge({"expose": TEST_EXPOSE}, true)
 	var attack_hp: int = attacked["player"]["hp"]
 	attacked = engine._damage_player(attacked, TEST_DAMAGE, true)
-	expect.call(attack_hp - int(attacked["player"]["hp"]) == (TEST_DAMAGE + TEST_EXPOSE) * preload("res://scripts/board_surface_rules.gd").FROZEN_MULTIPLIER, "Attack amplification remains unchanged")
+	expect.call(attack_hp - int(attacked["player"]["hp"]) == TEST_DAMAGE + TEST_EXPOSE, "A direct attack adds the current Expose amount")
 	expect.call(attacked["player"]["expose"] == 0, "An attack still consumes Expose")
 	return true
 
@@ -129,9 +129,9 @@ static func _test_tokens(expect: Callable) -> bool:
 				if entry["icon"] == "erupt":
 					expect.call(Icons.token_tooltip(token) == txt13["erupt_tooltip"], entry["name"] + " keeps the release Erupt tooltip")
 				if entry["name"] == "intent_gain_charge":
-					expect.call(Icons.token_tooltip(token) == "At 3 Charge it fires Arc Burst; Shock removes 1.", "Charge uses its exact numeric rules")
+					expect.call(Icons.token_tooltip(token) == "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.", "Charge uses its exact numeric rules")
 				if entry["name"] == "intent_chain_discharge":
-					expect.call(Icons.token_tooltip(token) == "Hits the nearest target within 4 for 4, then jumps to up to 3 more beside each hit, losing 1 per jump.", "Arc Burst uses every action-data number")
+					expect.call(Icons.token_tooltip(token) == "This enemy hits the nearest target within 4 tiles for 4 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.", "Arc Lash uses every action-data number")
 			if entry["name"] == "lightning_strikes":
 				expect.call(token.get("icon", "") != "shock", "Lightning Strikes count does not imply Shock")
 		expect.call(found, entry["name"] + " includes its concept icon")

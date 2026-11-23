@@ -1,0 +1,24 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*/deck_element_reward/fire_deck_air_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [470, 270, 980, 540], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*/deck_element_reward/fire_deck_fire_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [470, 270, 980, 540], "min_luma_range": 8, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*/deck_element_reward/neutral_deck.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [470, 270, 980, 540], "min_luma_range": 8, "min_luma_stdev": 2}]
+    }
+  ]
+}

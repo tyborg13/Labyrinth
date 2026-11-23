@@ -21,7 +21,7 @@ static func run(check: Callable) -> void:
 static func _approved_values(check: Callable) -> void:
 	check.call(is_equal_approx(BurstFx.RIBBON_WIDTH_RATIO, 0.07) and is_equal_approx(BurstFx.RIBBON_ALPHA, 0.85), "Director's ribbon width and opacity")
 	check.call(is_equal_approx(BurstFx.SMOKE_SIZE_RATIO, 0.22) and is_equal_approx(BurstFx.SMOKE_ALPHA, 0.55) and is_equal_approx(BurstFx.SMOKE_SECONDS, 0.30), "Director's smoke size, opacity and lifetime")
-	check.call(is_equal_approx(BurstFx.GLOW_CORNER_ALPHA, 0.12) and is_equal_approx(Kindle.BADGE_POP_PEAK_PROGRESS, 0.5) and is_equal_approx(Board.FORCE_TILE_GLOW_ALPHA, 0.30), "Director's remaining glow/pop values")
+	check.call(is_equal_approx(BurstFx.GLOW_CORNER_ALPHA, 0.12) and is_equal_approx(Kindle.BADGE_POP_PEAK_PROGRESS, 0.5), "Director's remaining glow/pop values (the force tile glow retired with fx-32)")
 	var board := Board.new()
 	var sink := board.WarbandView.CommandCapture.new()
 	preload("res://scripts/tile_glow.gd").draw_wash(sink, board._tile_polygon(SOURCE_TILE), Color.WHITE, 0.20)
@@ -34,12 +34,12 @@ static func _rows_and_roster(check: Callable) -> void:
 	var burst: Dictionary = definition["intents"][1]
 	var charge_token: Dictionary = Capacitor.rows(charge)[0][0]
 	var burst_token: Dictionary = Capacitor.rows(burst)[0][0]
-	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge it fires Arc Burst; Shock removes 1.", "Exact director Charge row and tooltip")
-	check.call(burst_token["icon"] == "chain" and burst_token["value"] == "Arc 6, range 4, 3 jumps" and burst_token["tooltip"] == "Hits the nearest target within 4 for 6, then jumps to up to 3 more beside each hit, losing 1 per jump.", "Exact director Arc Burst row and tooltip")
+	check.call(charge_token["icon"] == "charge" and charge_token["value"] == "Charge +1" and charge_token["tooltip"] == "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.", "Exact director Charge row and tooltip")
+	check.call(burst_token["icon"] == "chain" and burst_token["value"] == "Arc 6, Range 4, 3 extra hits" and burst_token["tooltip"] == "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.", "Exact director Arc Lash row and tooltip")
 	var altered: Dictionary = burst.duplicate(true)
 	altered["actions"][0].merge({"damage": 9, "first_range": 7, "jumps": 2, "falloff": 4}, true)
 	var live: Dictionary = Capacitor.rows(altered)[0][0]
-	check.call(live["value"] == "Arc 9, range 7, 2 jumps" and live["tooltip"] == "Hits the nearest target within 7 for 9, then jumps to up to 2 more beside each hit, losing 4 per jump.", "Every Arc Burst number follows its action data")
+	check.call(live["value"] == "Arc 9, Range 7, 2 extra hits" and live["tooltip"] == "This enemy hits the nearest target within 7 tiles for 9 damage, then hits up to 2 more, each adjacent to the prior target and taking 4 less damage.", "Every Arc Lash number follows its action data")
 	var host := preload("res://scripts/run_scene.gd").new()
 	for intent: Dictionary in [charge, burst]:
 		var plate: Control = Inspection.build_move(host, intent)
@@ -75,7 +75,7 @@ static func _wrapping_and_anchor(check: Callable) -> void:
 		var line: String = str(rows[index].back()["value"])
 		joined.append(line)
 		check.call(board.get_theme_default_font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, board.INTENT_POPUP_ROW_FONT_SIZE).x <= Text.WIDTH, "Every drawn Burst line fits 420 px with the board font")
-	check.call(" ".join(joined) == "When it dies, it hits every unit on these tiles for 6 and leaves Fire.", "Wrapping preserves exact live rules")
+	check.call(" ".join(joined) == "When this enemy dies, this enemy Bursts 6, leaving Fire.", "Wrapping preserves exact live rules")
 	var line_rects: Array[Rect2] = board._enemy_intent_contour_line_rects(Rect2(400, 200, 100, 150), rows, "Scuttle", Typography.ui_font(), "right")
 	for index: int in range(1, title_index): check.call(is_equal_approx(line_rects[index].position.x, line_rects[0].position.x + board.INTENT_POPUP_ICON_SIZE + 3.0), "Wrapped rules align with Bursts title glyphs")
 	board.presentation["burst_intent_obstacle_global_rect"] = RAIL_PROOF_RECT

@@ -1,5 +1,5 @@
 extends SceneTree
-## pla-01 proof only (not a test): the Reflect attack preview on a real Glacial
+## Reflect semantic check and capture on a real Glacial
 ## Mirror fight. The ice_mirror pair (Glacial Mirror + Rime Spitter) stands in
 ## the production run scene on a Rime Hall board; each still selects a real
 ## card from data and aims it at the Mirror so the live preview shows:
@@ -27,6 +27,7 @@ const HeroCombat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Reflect = preload("res://scripts/enemy_mechanics/reflect.gd")
+const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const DEFAULT_OUT: String = "output/pla-01r3/reflect-preview"
 const BIOME: String = "iskaldra" # Rime Hall, the ice_mirror encounter's biome.
 const BOARD := Vector2i(8, 5)
@@ -35,7 +36,12 @@ const SPITTER_TILE := Vector2i(4, 1)
 const HAND: Array = ["ember_rain", "chain_bolt", "updraft", "pale_spark"]
 const SETTLE_FRAMES: int = 12
 const DEFENDED_BLOCK: int = 6
+const MIXED_BLOCK: int = 1
+const MIXED_GUARD: int = 1
 const LETHAL_START_HEALTH: int = 1
+const FLASHSTEAM_HERO_TILE := Vector2i(2, 2)
+const FLASHSTEAM_DIRECT_DAMAGE: int = 3
+const FLASHSTEAM_BURST_DAMAGE: int = 4
 const CASES: Array = [
 	{"id": "a_area", "card": "ember_rain", "hero": Vector2i(1, 2), "bounce": true, "spitter_hit": true},
 	{"id": "b_chain", "card": "chain_bolt", "hero": Vector2i(1, 2), "bounce": true, "spitter_hit": true},
@@ -44,7 +50,9 @@ const CASES: Array = [
 	{"id": "e_pull", "card": "lodestone_reversal", "hero": Vector2i(2, 2), "bounce": true, "spitter_hit": false},
 	{"id": "f_block", "card": "pale_spark", "hero": Vector2i(2, 2), "bounce": true, "spitter_hit": false, "block": DEFENDED_BLOCK},
 	{"id": "g_defiance", "card": "pale_spark", "hero": Vector2i(2, 2), "bounce": true, "spitter_hit": false, "defiance": true},
+	{"id": "h_flashsteam_ice", "card": "flashsteam", "hero": FLASHSTEAM_HERO_TILE, "bounce": true, "spitter_hit": true, "ice": true},
 ]
+const MIXED_CASE: Dictionary = {"id": "mixed_defiance", "card": "pale_spark", "hero": Vector2i(2, 2), "bounce": true, "spitter_hit": false, "defiance": true, "block": MIXED_BLOCK, "stoneskin": MIXED_GUARD}
 var _viewport: SubViewport
 var _headless: bool = false
 var _out: String = ProjectSettings.globalize_path("res://").path_join(DEFAULT_OUT)
@@ -64,7 +72,9 @@ func _run() -> void:
 	root.size = Playback.SIZE
 	root.content_scale_size = root.size
 	_viewport = Playback.canvas(self)
-	for spec: Dictionary in CASES: await _case(spec)
+	var cases: Array = CASES
+	if OS.get_cmdline_user_args().has("--mixed"): cases = [MIXED_CASE]
+	for spec: Dictionary in cases: await _case(spec)
 	_report["cel_look"] = OS.get_environment("LABYRINTH_CEL_LOOK")
 	_report["renderer"] = DisplayServer.get_name()
 	var file := FileAccess.open(_out.path_join("reflect_preview.json"), FileAccess.WRITE)
@@ -72,7 +82,7 @@ func _run() -> void:
 	file.close()
 	print(_out.path_join("reflect_preview.json"))
 	for failure: String in _errors: push_error(failure)
-	print("PLA-01 REFLECT PREVIEW TEST RESULT: %s (%d cases, %d images, %d failures%s)" % ["PASS" if _errors.is_empty() else "FAIL", CASES.size(), _images, _errors.size(), "; headless, no images" if _headless else ""])
+	print("PLA-01 REFLECT PREVIEW TEST RESULT: %s (%d cases, %d images, %d failures%s)" % ["PASS" if _errors.is_empty() else "FAIL", cases.size(), _images, _errors.size(), "; headless, no images" if _headless else ""])
 	quit(0 if _errors.is_empty() else 1)
 
 # ---------------------------------------------------------------- fixture
@@ -102,7 +112,9 @@ static func _battle(spec: Dictionary) -> Dictionary:
 		var definition: Dictionary = Data.enemy_def(entry[0])
 		layout["enemies"].append({"id": layout["enemies"].size() + 1, "type": entry[0], "pos": entry[1], "hp": definition["max_hp"], "max_hp": definition["max_hp"]})
 	var state: Dictionary = HeroCombat.new().create_combat(Fixture.SEED, layout, runs._player_snapshot(run))
+	if bool(spec.get("ice", false)): Surfaces.place(state, MIRROR_TILE, "ice")
 	state["player"]["block"] = int(spec.get("block", 0))
+	state["player"]["stoneskin"] = int(spec.get("stoneskin", 0))
 	if bool(spec.get("defiance", false)): state["player"]["hp"] = LETHAL_START_HEALTH
 	var hand: Array[String]
 	for card: String in HAND: hand.append(card)
@@ -163,29 +175,48 @@ func _case(spec: Dictionary) -> void:
 		if outcome.get("actor_key") == "player": hero_labels.append(str(outcome.get("label", "")))
 	var force_tiles: Array = presentation.get("effect", {}).get("force_tiles", [])
 	var defiance_spent: int = int(live.get("defiance_remaining", 0)) - int(after.get("defiance_remaining", 0))
+	var bounces: Array[Dictionary] = Reflect.bounces_between(cache.get("before", live), after)
 	var row: Dictionary = {"card": spec["card"], "hero": str(spec["hero"]), "target": str(MIRROR_TILE), "distance": engine._enemy_distance_to_tile(live["enemies"][0], spec["hero"]),
 		"reflect_chip": chip.get("damage", null), "hero_loss": hero_loss, "mirror_loss": _loss(losses.get(mirror_key, {})), "spitter_loss": _loss(losses.get(spitter_key, {})),
-		"mirror_tile_after": str(mirror_after.get("pos", Vector2i(-1, -1))), "bounces": Reflect.bounces_between(cache.get("before", live), after).size(),
+		"mirror_tile_after": str(mirror_after.get("pos", Vector2i(-1, -1))), "bounces": bounces.size(),
 		"hero_labels": hero_labels, "force_tiles": force_tiles.size(), "defiance_spent": defiance_spent}
 	_report[id] = row
 	print("PLA-01 CASE %s: %s" % [id, JSON.stringify(row)])
 	if bool(spec["bounce"]):
-		_check(bool(chip.get("merged", false)) and not hero_labels.is_empty() and hero_labels[0].begins_with("↶ "), id + ": the hero's existing chip carries the return marker")
+		_check((chip.get("mirror_keys", []) as Array).has(mirror_key) and row["bounces"] == 1, id + ": the resolved return belongs to the Mirror")
+		if bounces.size() == 1:
+			_check(chip.get("damage") == bounces[0].get("damage"), id + ": Reflect metadata records the resolved return")
+		_check(not hero_labels.is_empty() and hero_labels[0].begins_with("↶ "), id + ": the hero's existing chip carries the return marker")
 		if bool(spec.get("defiance", false)):
-			_check(defiance_spent == 1 and hero_labels.has("↶ You: −1 Defiance"), id + ": the hero previews the Defiance charge")
-		else:
-			_check(int(chip.get("damage", -1)) == hero_loss and hero_loss > 0, id + ": the chip equals the hero's previewed loss")
-		if spec.has("block"):
+			var expected: String = "↶ You: −1 Defiance"
+			if id == MIXED_CASE["id"]: expected += ", −1 Block, −1 Guard"
+			_check(defiance_spent == 1 and int(losses.get("player", {}).get("hp_loss", 0)) == 0 and hero_labels == [expected], id + ": one plate shows the actual resource losses")
+			if bounces.size() == 1: _check(bounces[0].get("hp_loss") == LETHAL_START_HEALTH, id + ": the analytics receipt retains the pre-recovery loss")
+		elif spec.has("block"):
 			_check(hero_labels.has("↶ You: −%d Block" % hero_loss), id + ": the hero previews the Block lost")
+		else:
+			_check(hero_loss > 0 and hero_labels == ["↶ You: −%d Health" % hero_loss], id + ": the hero previews the Health lost")
 		if spec["card"] in ["updraft", "lodestone_reversal"]:
 			_check(force_tiles.is_empty() and presentation.get("displacement_paths", []).is_empty(), id + ": bounced force previews no travel or destination")
-		_check(not losses.has(mirror_key), id + ": no damage previewed on the Mirror")
+		if spec.get("ice", false):
+			_check(hero_loss == FLASHSTEAM_DIRECT_DAMAGE and row["mirror_loss"] == FLASHSTEAM_BURST_DAMAGE and row["bounces"] == 1, id + ": preview shows 3 reflected damage on the hero and Burst 4 on the Mirror")
+		else:
+			_check(not losses.has(mirror_key), id + ": no damage previewed on the Mirror")
 		_check(mirror_after.get("pos") == MIRROR_TILE, id + ": the Mirror stays on its tile")
 	else:
 		_check(chip.is_empty(), id + ": no reflection chip for an adjacent hit")
 		_check(_loss(losses.get(mirror_key, {})) > 0 and hero_loss == 0, id + ": the hit lands on the Mirror")
 	_check(losses.has(spitter_key) == bool(spec["spitter_hit"]), id + ": the Rime Spitter is %shit" % ("" if bool(spec["spitter_hit"]) else "not "))
 	await _shot("pla01_reflect_%s" % id)
+	if spec.get("ice", false):
+		if not row.has("commit_matches"): await scene.call("_on_board_tile_clicked", MIRROR_TILE)
+		var committed: Dictionary = scene.get("_combat_state")
+		row["committed_hero_loss"] = int(live["player"]["hp"]) - int(committed["player"]["hp"])
+		row["committed_mirror_loss"] = int(live["enemies"][0]["hp"]) - int(committed["enemies"][0]["hp"])
+		row["committed_bounces"] = Reflect.bounces_between(live, committed).size()
+		row["ice_removed"] = not Surfaces.has_surface(committed, MIRROR_TILE, "ice")
+		_check(row["committed_hero_loss"] == FLASHSTEAM_DIRECT_DAMAGE and row["committed_mirror_loss"] == FLASHSTEAM_BURST_DAMAGE and row["committed_bounces"] == 1 and row["ice_removed"], id + ": committed Flashsteam matches both previewed hits and Bursts the Ice")
+		print("MRG-11E FLASHSTEAM: " + JSON.stringify(row))
 	scene.call("_on_cancel_requested")
 	scene.queue_free()
 	for frame: int in range(3): await process_frame

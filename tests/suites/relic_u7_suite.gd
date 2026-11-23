@@ -28,8 +28,7 @@ static func _run_scoped(_globals: TestClock.GlobalScope, check: Callable) -> voi
 	_test_vault(engine, check)
 	_test_sun(engine, check)
 	_test_funeral(engine, check)
-	_test_funeral_petrify(engine, check)
-	_test_funeral_petrify_reapplication(engine, check)
+	_test_funeral_legacy_petrify(engine, check)
 	_test_review_regressions(engine, check)
 	_test_navigation_performance(engine, check)
 	_test_navigation_preferences(engine, check)
@@ -84,7 +83,7 @@ static func _test_overflow(engine: Combat, check: Callable) -> void:
 	Surface.place(state, Vector2i(5, 3), "electrified")
 	state = _preview(engine, state, {"type": "surface", "surface": "ice", "range": 5}, Vector2i(4, 3), check, "Overflow Censer")
 	check.call(Surface.tiles(state, "ice").size() == 4 and Surface.has_rubble(state, Vector2i(4, 2)), "Overflow spreads onto Rubble, preserves occupied elemental neighbors and does not chain")
-	check.call(not bool(state["enemies"][0].get("chilled", false)), "Overflow Ice placement does not Chill occupants")
+	check.call(int(state["enemies"][0].get("expose", 0)) == 0, "Overflow Ice placement does not apply Expose")
 	for original: String in ["ice", "rubble", ""]:
 		state = _state(engine, ["overflow_censer"])
 		if not original.is_empty(): Surface.place(state, Vector2i(4, 3), original)
@@ -218,7 +217,7 @@ static func _test_gale(engine: Combat, check: Callable) -> void:
 	check.call(engine.final_damage_for_player_action(state, attack) == 1, "Gale expires at the next turn")
 
 static func _light(state: Dictionary, tile: Vector2i, owner: String = "player", radius: int = 0) -> void:
-	state["umbra"]["light_sources"].append({"pos": tile, "radius": radius, "owner": owner, "remaining_activations": 3})
+	state["umbra"]["light_sources"].append({"pos": tile, "radius": radius, "owner": owner, "remaining_activations": -1})
 
 static func _test_beacon(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])
@@ -304,87 +303,41 @@ static func _test_sun(engine: Combat, check: Callable) -> void:
 static func _test_funeral(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["funeral_bell"])
 	state["enemies"][0]["hp"] = 1
-	state["enemies"][0]["bleed"] = 2
 	state["enemies"][0]["expose"] = 3
 	state["enemies"][0]["shock"] = 1
 	state["enemies"][0]["footprint"] = Vector2i(2, 1)
 	state["enemies"].append(Base.enemy(2, Vector2i(6, 3)))
-	state["enemies"][1]["bleed"] = 1
 	state["enemies"][1]["expose"] = 5
-	state["enemies"][1]["shock"] = 2
 	state["enemies"].append(Base.enemy(3, Vector2i(7, 4)))
 	state = _preview(engine, state, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Funeral")
-	check.call(int(state["enemies"][1]["bleed"]) == 3 and int(state["enemies"][1]["expose"]) == 5 and int(state["enemies"][1]["shock"]) == 2, "Funeral spreads all statuses to footprint neighbors; Bleed adds and Expose/Shock take the larger value")
-	check.call(int(state["enemies"][2].get("bleed", 0)) == 0, "Funeral does not spread beyond adjacent enemies")
+	var neighbor: Dictionary = state["enemies"][1]
+	check.call(int(neighbor["expose"]) == 5 and int(neighbor.get("shock", 0)) == 1, "Funeral spreads Shock and keeps the larger Expose on a footprint neighbor")
+	check.call(int(state["enemies"][2].get("shock", 0)) == 0, "Funeral does not spread Shock beyond adjacent enemies")
 	var idle: Dictionary = _state(engine, ["funeral_bell"])
 	idle["enemies"][0]["hp"] = 1
-	idle["enemies"][0]["bleed"] = 2
+	idle["enemies"][0]["shock"] = 1
 	idle["enemies"].append(Base.enemy(2, Vector2i(5, 3)))
 	idle = engine.apply_player_action(idle, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3))
-	check.call(int(idle["enemies"][1].get("bleed", 0)) == 0, "Funeral is idle below two different statuses")
+	check.call(int(idle["enemies"][1].get("shock", 0)) == 0, "Funeral requires two different statuses")
 	var passive: Dictionary = _state(engine, ["funeral_bell"])
 	passive["enemies"][0]["hp"] = 1
-	passive["enemies"][0]["chilled"] = true
-	passive["enemies"][0]["relic_chilled"] = true
+	passive["enemies"][0]["expose"] = 2
 	passive["enemies"][0]["immobilize"] = true
 	passive["enemies"].append(Base.enemy(2, Vector2i(5, 3)))
 	Surface.place(passive, Vector2i(4, 3), "fire", {"actor_kind": "enemy"})
 	passive = (engine.call("_resolve_enemy_start_of_turn", passive, 0) as Dictionary)["state"]
-	check.call(bool(passive["enemies"][1]["chilled"]) and bool(passive["enemies"][1]["immobilize"]), "Funeral also spreads boolean statuses on passive deaths without requiring supporting Ice")
+	check.call(int(passive["enemies"][1].get("expose", 0)) == 2 and bool(passive["enemies"][1].get("immobilize", false)), "Funeral spreads Expose and Immobilize from passive deaths")
 
-static func _test_funeral_petrify(engine: Combat, check: Callable) -> void:
+static func _test_funeral_legacy_petrify(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["funeral_bell"])
-	state["enemies"][0]["hp"] = 1
-	state["enemies"][0]["petrify"] = 1
-	state["enemies"][0]["expose"] = 1
-	state["enemies"][0]["footprint"] = Vector2i(2, 1)
-	state["enemies"].append(Base.enemy(2, Vector2i(6, 3)))
-	state["enemies"].append(Base.enemy(3, Vector2i(4, 4)))
-	state["enemies"][2]["type"] = "tharokh"
-	state["enemies"].append(Base.enemy(4, Vector2i(7, 4)))
-	var after: Dictionary = _preview(engine, state, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Funeral Petrify")
-	check.call(int(after["enemies"][1].get("petrify", 0)) == 1 and int(after["enemies"][1].get("block", 0)) == 5, "Funeral spreads the full Petrify keyword with 5 Block to an adjacent enemy")
-	check.call(int(after["enemies"][2].get("petrify", 0)) == 0 and int(after["enemies"][2].get("block", 0)) == 0, "Dragons remain immune to Funeral Petrify and gain no Block")
-	check.call(int(after["enemies"][3].get("petrify", 0)) == 0 and int(after["enemies"][3].get("block", 0)) == 0, "Funeral Petrify does not reach a nonadjacent enemy")
-	var events: Array = []
-	for event: Dictionary in after.get("surface_events", []):
-		if event.get("kind") == "petrified": events.append(event)
-	check.call(events.size() == 1, "Funeral records exactly one petrified event for the eligible adjacent enemy")
-	if events.size() == 1:
-		var source: Dictionary = events[0].get("source", {}) as Dictionary
-		check.call(int(events[0].get("enemy_id", -1)) == 2 and int(events[0].get("block", 0)) == 5 and source.get("relic_id") == "funeral_bell" and source.get("source_kind") == "relic" and not bool(source.get("player_card", true)), "Funeral Petrify event attributes the status and Block to the relic")
-
-static func _funeral_petrify_reapplication_state(engine: Combat) -> Dictionary:
-	var state: Dictionary = _state(engine, ["funeral_bell"])
-	state["enemies"][0]["hp"] = 1
-	state["enemies"][0]["petrify"] = 1
-	state["enemies"][0]["expose"] = 1
-	state["enemies"].append(Base.enemy(2, Vector2i(5, 3)))
-	return state
-
-static func _test_funeral_petrify_reapplication(engine: Combat, check: Callable) -> void:
-	var state: Dictionary = _funeral_petrify_reapplication_state(engine)
-	var petrify: Dictionary = engine.card_play_actions("petrify", state)[0]
-	state = _preview(engine, state, petrify, Vector2i(5, 3), check, "Petrify before Funeral spread")
-	check.call(int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "The card newly Petrifies Funeral's adjacent target with 5 Block")
-	var kill: Dictionary = {"type": "ranged", "range": 5, "damage": 1}
-	state = _preview(engine, state, kill, Vector2i(4, 3), check, "Funeral after card Petrify")
-	check.call(int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "Card then Funeral spread keeps the same enemy at 5 Block")
-	state = _funeral_petrify_reapplication_state(engine)
-	var second_source: Dictionary = Base.enemy(3, Vector2i(6, 3))
-	second_source["hp"] = 1
-	second_source["petrify"] = 1
-	second_source["expose"] = 1
-	state["enemies"].append(second_source)
-	var turn: int = int(state.get("turn", 0))
-	state = _preview(engine, state, kill, Vector2i(4, 3), check, "First Funeral Petrify spread")
-	check.call(int(state["enemies"][1].get("block", 0)) == 5, "The first Funeral spread grants 5 Block")
-	state = _preview(engine, state, kill, Vector2i(6, 3), check, "Second Funeral Petrify spread")
-	check.call(int(state.get("turn", 0)) == turn and int(state["enemies"][1].get("block", 0)) == 5 and int(state["enemies"][1].get("petrify", 0)) == 1, "Two Funeral spreads in one turn keep the same enemy at 5 Block")
-	state = _funeral_petrify_reapplication_state(engine)
-	state["enemies"][1]["block"] = 7
-	state = _preview(engine, state, kill, Vector2i(4, 3), check, "Funeral Petrify with unrelated Block")
-	check.call(int(state["enemies"][1].get("block", 0)) == 12 and int(state["enemies"][1].get("petrify", 0)) == 1, "New Funeral Petrify adds 5 to 7 unrelated Block without overwriting it")
+	state["enemies"][0].merge({"hp": 1, "petrify": 1, "expose": 2}, true)
+	var neighbor: Dictionary = Base.enemy(2, Vector2i(5, 3))
+	neighbor["block"] = 7
+	state["enemies"].append(neighbor)
+	var after: Dictionary = _preview(engine, state, {"type": "ranged", "range": 5, "damage": 1}, Vector2i(4, 3), check, "Funeral with retired Petrify")
+	var survivor: Dictionary = after["enemies"][1]
+	check.call(int(survivor.get("expose", 0)) == 0 and int(survivor.get("block", 0)) == 7 and not survivor.has("petrify"), "Retired Petrify does not count toward Funeral Bell or grant Block")
+	check.call(not (after.get("surface_events", []) as Array).any(func(event: Dictionary) -> bool: return event.get("kind") == "petrified"), "Funeral produces no retired Petrify event")
 
 static func _test_review_regressions(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])

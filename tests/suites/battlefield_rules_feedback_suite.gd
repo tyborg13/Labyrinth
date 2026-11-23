@@ -74,7 +74,7 @@ static func _burial(engine: RefCounted, battle: Callable, rule: Callable, compar
 			state = engine._surface_contact(state, "enemy", 1, engine.INVALID_TILE, true)
 		Rules.install(engine, state, rule.call(id, {"damage": DAMAGE, "blink": 2}))
 		var after: Dictionary = compare.call(engine, state, expect)
-		if id == "frostbite": expect.call(int(after["enemies"][0]["hp"]) == 46 and int(after["enemies"][0]["freeze"]) == 1, "Frostbite uses area targetability for buried units")
+		if id == "frostbite": expect.call(int(after["enemies"][0]["hp"]) == 46 and int(after["enemies"][0].get("expose", 0)) == 0, "Frostbite uses area targetability and spends Expose on buried units")
 		elif id == "lightning_storm": expect.call(int(after["enemies"][0]["hp"]) == 48 and int(after["enemies"][0]["shock"]) == 0, "Lightning uses area targetability for buried units without Shock")
 		else: expect.call(after["enemies"][0]["pos"] == Vector2i(5, 4) and bool(after["enemies"][0]["burrowed"]), "Shadowstep uses existing Blink targetability for buried units")
 

@@ -2288,10 +2288,10 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
+   "text": "Each ground tile you Expend or Burst gives your next attack +3 damage (up to +9).",
    "was": "Once per combat, your first elemental consume on Rubble deals 6 to everyone in a cross and grants 6 Stoneskin.",
    "intrinsic": "Nothing without surfaces to spend.",
-   "extrinsic": "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
+   "extrinsic": "Each ground tile you Expend or Burst gives your next attack +3 damage (up to +9).",
    "combos": [
     "relic:flint_edge",
     "relic:overflow_censer",

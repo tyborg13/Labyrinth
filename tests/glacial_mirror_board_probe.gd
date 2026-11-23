@@ -19,7 +19,7 @@ const SETTLE_SECONDS: float = 0.5
 const REGISTRATION_EPSILON_PX: float = 0.01
 const EXPECTED_VIEWS: Array = ["front", "rear_mirrored", "rear", "front_mirrored"]
 const LEGACY_ANCHORS: Array = [Vector2(127.0, 231.46), Vector2(130.0, 231.46)]
-const CURRENT_ANCHORS: Array = [Vector2(113.64, 221.74), Vector2(109.90, 221.71)]
+const CURRENT_ANCHORS: Array = [Vector2(122.57, 224.82), Vector2(125.81, 226.23)]
 
 var _proof_errors: Array[String]
 var _proof_scene: Node

@@ -17,9 +17,10 @@
       "every": 1
     },
     "dials": {
-      "damage": 0
+      "damage": 0,
+      "stagger": 6
     },
-    "sentence": "After each of your turns, Rimejaw's Frostbite Freezes everyone standing on Ice."
+    "sentence": "After each of your turns, Rimejaw's Frostbite Staggers everyone on Ice by 6."
   },
   "storm_cantor": {
     "rule": "lightning_storm",

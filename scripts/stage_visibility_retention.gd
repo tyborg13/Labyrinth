@@ -39,16 +39,15 @@ func _build(engine: RefCounted, state: Dictionary) -> Dictionary:
 	for tile: Vector2i in visible_tiles:
 		lookup[tile] = true
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	var truesight: bool = engine.player_has_truesight(state)
-	var activations: int = int(umbra.get("truesight_activations", 0))
+	var vision: bool = engine.player_has_vision(state)
+	var activations: int = int(umbra.get("vision_activations", 0))
 	return {
 		"umbra_stage": engine.effective_umbra_stage(state),
 		"umbra_radius": engine.effective_umbra_radius(state),
 		"umbra_visible_tiles": visible_tiles,
 		"visible_enemy_ids": engine.visible_enemy_ids(state, lookup),
 		"umbra_light_sources": engine.effective_light_sources(state),
-		"umbra_truesight_activations": activations,
-		"umbra_truesight": truesight,
-		"umbra_vision_bonus_activations": int(umbra.get("vision_bonus_activations", 0)),
-		"umbra_truesight_conditional": truesight and activations == 0,
+		"umbra_vision_activations": activations,
+		"umbra_vision": vision,
+		"umbra_vision_conditional": vision and activations == 0,
 	}

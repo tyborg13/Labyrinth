@@ -25,30 +25,23 @@ import pool_data as overhaul  # noqa: E402  (card pool overhaul design record)
 OVERHAUL_CUT_IDS = {entry["id"] for entry in overhaul.CARDS if entry["status"] == "cut"}
 OVERHAUL_NEW_CARDS = {entry["id"]: entry for entry in overhaul.CARDS if entry["status"] == "new"}
 OVERHAUL_PIECE_IDS = {piece["id"] for piece in overhaul.PIECES}
-# Illusions belong to the Radiance school after the overhaul (Mirror Charm).
-RADIANCE_MECHANICS = {"vision", "truesight", "illuminate", "dispel_umbra", "illusion"}
-# Waves 2-3: Light payoffs (a target-in-Light state bonus) and Rites that radiate
-# Light or reward attacks into it are Radiance mechanics too.
-RADIANCE_RITE_EFFECTS = {"player_light_aura"}
-# Wave 4 (spec/card_mechanics_surfaces.md, card_mechanics_maneuver.md,
-# card_mechanics_illusions_terrain.md): illusion actions and payoffs, Light
-# selectors, lit trails and Light-gated Blinks.
-RADIANCE_MECHANICS |= {"illusion_swap", "destroy_illusion"}
-RADIANCE_ACTION_FIELDS = {"also_hits_near_illusions", "trail_light", "destination_requires_light"}
+LIGHT_VISION_TAG = "light_vision_family"
+LIGHT_VISION_MECHANICS = {"vision", "illuminate", "illusion", "illusion_swap", "destroy_illusion"}
+LIGHT_VISION_ACTION_FIELDS = {"also_hits_near_illusions", "trail_light", "range_in_light", "destination_requires_light"}
 
 
-def has_radiance_mechanic(card: dict) -> bool:
+def has_light_vision_mechanic(card: dict) -> bool:
     for action in card["actions"]:
-        if action.get("type") in RADIANCE_MECHANICS or action.get("illuminate_radius", 0):
+        if action.get("type") in LIGHT_VISION_MECHANICS or action.get("illuminate_radius", 0):
             return True
         if action.get("type") == "all_enemies" and action.get("selector") == "in_light":
             return True
-        if any(action.get(field) for field in RADIANCE_ACTION_FIELDS):
+        if any(action.get(field) for field in LIGHT_VISION_ACTION_FIELDS):
             return True
         if any(isinstance(bonus, dict) and bonus.get("state") == "light" for bonus in action.get("state_bonus", [])):
             return True
     for effect in (card.get("rite") or {}).get("effects", []):
-        if effect.get("type") in RADIANCE_RITE_EFFECTS or (effect.get("conditions") or {}).get("target_in_light"):
+        if effect.get("type") == "player_light_aura" or (effect.get("conditions") or {}).get("target_in_light"):
             return True
     return False
 
@@ -58,7 +51,7 @@ REMOVED_FIELDS = {"intensity", "intensity_bonus", "requires_intensity", "intensi
 TRANSFORMATIONS = {
     "coalheart_crucible": "conductive_fire", "updraft_bottle": "transport_surface",
     "briar_winch": "rubble_redirect", "thornmail_brooch": "stoneskin_melee_cross",
-    "frost_prism": "frozen_kill_rubble", "rimecatcher_vial": "freeze_relocate_ice",
+    "frost_prism": "ice_stagger_rubble", "rimecatcher_vial": "ice_stagger_relocate_ice",
     "worldroot_idol": "rubble_attack_origin", "basalt_calendar": "rubble_detonate",
     "thunder_relay": "chain_swap_endpoints",
 }
@@ -127,7 +120,7 @@ def support_card_counts(cards: dict) -> dict:
     for field in ("chain", "shock"):
         counts[field] = sum(any(node.get(field, 0) > 0 for node in rule_nodes(card["actions"])) for card in live)
     counts["damaging_ice"] = sum(any(node.get("element") == "ice" and node.get("damage", 0) > 0 for node in rule_nodes(card["actions"])) for card in live)
-    counts["radiance"] = sum(bool(card.get("radiance", False)) for card in live)
+    counts["radiance"] = sum(bool(card.get(LIGHT_VISION_TAG, False)) for card in live)
     return counts
 
 
@@ -159,8 +152,8 @@ def main() -> int:
         errors.append(f"Equipment IDs are not in the card pool overhaul gear record: {unknown_gear}")
     for card_id, card in cards.items():
         walk_rules(card["actions"], card_id, errors)
-        if card.get("radiance") and not has_radiance_mechanic(card):
-            errors.append(f"{card_id}: Radiance tag has no Light mechanic")
+        if card.get(LIGHT_VISION_TAG) and not has_light_vision_mechanic(card):
+            errors.append(f"{card_id}: Light/Vision tag has no matching mechanic")
         for action in card["actions"]:
             if action.get("surface") == "electrified" and len(action.get("surface_pattern", action.get("pattern", []))) > 1:
                 if not connected(action.get("surface_pattern", action.get("pattern", []))):

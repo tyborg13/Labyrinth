@@ -60,7 +60,7 @@ func _initialize() -> void:
 	instance.call("_close_menu_overlay")
 	await process_frame
 	var source := preload("res://scripts/ui_tooltip_button.gd").new()
-	var tooltip: Control = source.call("_make_custom_tooltip", "QUICK WITS\nOnce per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).") as Control
+	var tooltip: Control = source.call("_make_custom_tooltip", "QUICK WITS\nOnce per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time).") as Control
 	_require_material(tooltip != null, "Production tooltip should build")
 	if tooltip != null:
 		tooltip.position = Vector2(760.0, 430.0)

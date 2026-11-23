@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "serrated_slip_face.png"},
+    {"pattern": "frost_circuit_face.png"},
+    {"pattern": "vortex_inspection.png", "regions": [{"rect": [24, 144, 200, 65], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "worldroot_stride_inspection.png", "regions": [{"rect": [24, 144, 200, 65], "min_luma_range": 16, "min_luma_stdev": 3}]},
+    {"pattern": "pre_battle.png"},
+    {"pattern": "new_run.png"}
+  ]
+}

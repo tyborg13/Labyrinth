@@ -1,0 +1,89 @@
+{
+ "frames": 16,
+ "fps": 30,
+ "reduced_motion_frame": 4,
+ "reduced_motion_seconds": 0.18,
+ "sizes": [
+  {
+   "radius_cells": 48,
+   "frame_cells": [
+    96,
+    96
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_048.png",
+   "sha256_pixels": "fb6a9373d898bee95351a4991abaea12406e3b57050ce96f4ca07b27ea109286"
+  },
+  {
+   "radius_cells": 60,
+   "frame_cells": [
+    120,
+    120
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_060.png",
+   "sha256_pixels": "1e1aa1a1674b19b83d5637f02c40a820d4ae55ce8ec17fe9cb54e906bf61799d"
+  },
+  {
+   "radius_cells": 72,
+   "frame_cells": [
+    144,
+    144
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_072.png",
+   "sha256_pixels": "0507df38cd3e852001620dd4433870bd1fc8409c55395204c9d70e0903af522f"
+  },
+  {
+   "radius_cells": 88,
+   "frame_cells": [
+    176,
+    176
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_088.png",
+   "sha256_pixels": "2e331e1204f6adf85eb12af64d4c4bef196f70ac4f989a38eae5dc804c1cb358"
+  },
+  {
+   "radius_cells": 104,
+   "frame_cells": [
+    208,
+    208
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_104.png",
+   "sha256_pixels": "5f922cc452fdb972cb24b489c999f64ad221f20e4689f8404d8d4827deb496e3"
+  },
+  {
+   "radius_cells": 124,
+   "frame_cells": [
+    248,
+    248
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_124.png",
+   "sha256_pixels": "65be2d997ef0aa5162b4f85d6abb51751ba323c150564b79214e8b5ee849f380"
+  },
+  {
+   "radius_cells": 148,
+   "frame_cells": [
+    296,
+    296
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_148.png",
+   "sha256_pixels": "1589511a9080c6793b28fdcee31511c0657f55a90888af78367b3c811ef02b18"
+  },
+  {
+   "radius_cells": 176,
+   "frame_cells": [
+    352,
+    352
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_176.png",
+   "sha256_pixels": "a3c7adfb585bc0a6d9cd278579bb352424ffdfc3fb29d35a7226bf649c621143"
+  },
+  {
+   "radius_cells": 208,
+   "frame_cells": [
+    416,
+    416
+   ],
+   "atlas": "res://assets/art/effects/bursts/acquisition_burst_208.png",
+   "sha256_pixels": "7ba150cdf736ea7a4b983133a77b9395a7d8130a068e316df207ade2fd3142e1"
+  }
+ ]
+}

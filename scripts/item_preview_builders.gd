@@ -4,6 +4,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
 
 const CardDisplay = preload("res://scripts/card_display_overrides.gd")
+const DisplayState = preload("res://scripts/card_display_state.gd")
 
 # Shared run/Chronicle presentation. The caller owns rules and progression;
 # the builder needs only definitions and equipment state, never a RunScene.
@@ -20,13 +21,14 @@ const CARD_TOOLTIP_SIZE := Vector2(224, 224 * 352.0 / 250.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE := Vector2(224, 224 * 352.0 / 250.0)
 
 var definitions: Dictionary = {}
-var definition_resolver: Callable
 var state: Dictionary = {}
 var equipment_locked: bool = false
 var use_run_display: bool = false
 
 func card_definition(id: String) -> Dictionary:
-	return definition_resolver.call(id) if definition_resolver.is_valid() else definitions.get(id, GameData.card_def(id))
+	if use_run_display:
+		return GameData.card_def_for_progression(id, DisplayState.normalise(state))
+	return definitions.get(id, GameData.card_def(id))
 
 func card_tooltip(card_id: String, interactive: bool = false, destination: String = "") -> Control:
 	var panel := PanelContainer.new()
@@ -116,7 +118,7 @@ func equipment_tooltip(equipment_id: String, interactive: bool = false, board_pi
 		vbox.add_child(locked_label)
 	return with_keywords(panel, GameData.equipment_cards(equipment_id, state))
 
-func card_preview(card_id: String, card_size: Vector2, interactive: bool = false) -> Control:
+func card_preview(card_id: String, card_size: Vector2, interactive: bool = false, title_thumbnail: bool = false) -> Control:
 	# Load the card scene only when a preview is requested, outside menu boot.
 	var widget: Control = load("res://scenes/card_widget.tscn").instantiate()
 	widget.focus_mode = Control.FOCUS_NONE
@@ -125,6 +127,7 @@ func card_preview(card_id: String, card_size: Vector2, interactive: bool = false
 	if use_run_display:
 		CardDisplay.bind(widget, state)
 	var factor: float = minf(card_size.x / CARD_BASE_SIZE.x, card_size.y / CARD_BASE_SIZE.y)
+	widget.set_title_layout(factor, title_thumbnail)
 	var slot := Control.new()
 	slot.custom_minimum_size = CARD_BASE_SIZE * factor
 	slot.size = slot.custom_minimum_size

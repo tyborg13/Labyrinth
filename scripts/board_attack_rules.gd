@@ -2,6 +2,7 @@ extends RefCounted
 ## Shared attack resolution: player, enemy and team-neutral board attacks.
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const BurstRules = preload("res://scripts/burst_rules.gd")
 const BurrowRules = preload("res://scripts/enemy_mechanics/burrow.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
@@ -19,8 +20,6 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	action = action.duplicate(true)
 	var player_bonuses: bool = actor_kind == "player"
 	if actor_kind == "player" and IllusionRelicRules.puppet_action(engine, state, action) and not IllusionCardRules.illusion_at(engine, state, target).is_empty():
-		state = engine._trigger_player_bleed_for_action(state, action)
-		if engine.combat_outcome(state) == "defeat": return state
 		state = IllusionRelicRules.resolve_puppet(engine, state, action, target)
 		if int(action.get("damage", 0)) > 0: engine._mark_first_attack_used(state)
 		return state
@@ -44,19 +43,15 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				continue
 			var target_action: Dictionary = engine._action_with_target_state_relic_modifiers(state, resolved, index)
 			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
-	# Illusion echoes repeat damage only: no Bleed payment and no Flint fuel.
+	# Illusion echoes repeat damage only: no Flint fuel.
 	var echo: bool = bool(action.get("_illusion_echo", false))
-	if actor_kind == "player" and not echo:
-		state = engine._trigger_player_bleed_for_action(state, resolved)
-		if engine.combat_outcome(state) == "defeat":
-			return state
 	# Explicit enemy shots can hit an ally. A conductor entry tile only delivers
 	# the attack into a network and never makes its occupant an aimed victim.
 	if actor_kind == "enemy" and not resolved.has("_ranged_relay") and str(resolved.get("type", "")) != "aoe" and impact.size() == 1:
 		var aimed_enemy: int = engine._enemy_index_at_tile(state, target)
 		if ReflectRules.reflects(engine, state, resolved, origin, aimed_enemy):
-			var damage: int = ReflectRules.damage_at_mirror(state["enemies"][aimed_enemy], int(resolved.get("damage", 0)))
-			return ReflectRules.bounce(engine, state, aimed_enemy, damage, actor_kind, actor_id)
+			var damage: int = engine._damage_for_enemy_target(state, resolved, aimed_enemy, false)
+			return ReflectRules.bounce(engine, state, aimed_enemy, damage, actor_kind, actor_id, resolved, trace)
 	var melee_fuel: Dictionary = CommonRelicRules.consume_melee_target(engine, state, resolved, target, actor_kind == "player" and not echo)
 	var plan: Dictionary = engine._board_attack_plan(state, route_action, impact, actor_kind)
 	if actor_kind == "player" and bool(action.get("also_hits_near_illusions", false)):
@@ -97,8 +92,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 		if capture_states: relay_hit["state"] = state.duplicate(true)
 		native_trace.append(relay_hit)
 	performance_started = engine._record_runtime_performance_phase("board_attack_conduction", performance_started)
-	# Squall: every enemy in the pattern is pushed away from its center (the one
-	# on the center away from the attacker), farthest first.
+	# Explicit center-origin forces keep the center-tile exception.
 	var from_center: bool = actor_kind == "player" and ManeuverRules.uses_from_center(action)
 	var aoe_center: Vector2i = engine._board_aoe_center(action, target, origin)
 	var ordered_hits: Array = plan["hits"] as Array
@@ -110,7 +104,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	elif actor_kind == "player" and engine._forced_movement_amount(resolved) > 0:
 		# Wind Shear and friends: farthest first for pushes, nearest first for
 		# pulls, so no target collides with one about to move out of the way.
-		ordered_hits = ManeuverRules.order_force_hits(engine, ordered_hits, origin, engine._forced_movement_pushes(resolved))
+		ordered_hits = ManeuverRules.order_force_hits(engine, ordered_hits, ManeuverRules.hit_force_source(state, action, origin), engine._forced_movement_pushes(resolved))
 	for hit: Dictionary in ordered_hits:
 		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
 		if not relay.is_empty() and hit["from"] == hit["to"]:
@@ -136,7 +130,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 			trace_hit["enemy_hop"] = int(hit["enemy_hop"])
 			trace_hit["chain_bonus_damage"] = int(hit_action["damage"])-int(trace_hit["base_damage"])
 		var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
-		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and engine._surface_condition_met(state, bonus, hit["to"])
+		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and engine._surface_condition_met(state, bonus, hit["to"], engine._surface_actor(state, hit["kind"], hit["id"]))
 		var assisted_bonus: bool = str(bonus.get("subject", "")) == "conducted" and bool(hit.get("electrically_assisted", false))
 		if target_bonus or assisted_bonus:
 			for field: String in engine.SURFACE_BONUS_FIELDS:
@@ -152,47 +146,48 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 				hit_action = CardKeywordRules.action_with_state_bonus(engine, state, hit_action, index)
 				hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(engine, state, hit_action, hit, index, family_context)
+			if player_bonuses and not echo:
+				var footprint_unit: Dictionary = engine._surface_actor(state, "enemy", int(hit["id"]))
+				var impact_tile: Vector2i = target if str(hit["kind_trace"]) == "actor" and BoardSurfaceRules.footprint_tiles(footprint_unit).has(target) else hit["to"]
+				BurstRules.remember_hit(state, footprint_unit, impact_tile)
 			# Every hit a Reflect unit would take (aimed, area, Chain link or
 			# conducted) bounces once and lands nothing on it: no damage, rider
 			# or movement. The planned route carries on as past any hit that
 			# does not land, and the attack's other hits land as usual.
 			if reflected_ids.has(int(hit["id"])):
 				continue
-			if ReflectRules.reflects_hit(engine, state, hit_action, origin, hit):
-				var reflected_damage: int = engine._damage_for_enemy_target(state, hit_action, index) if player_bonuses else int(hit_action.get("damage", 0))
-				var mirror: Dictionary = state["enemies"][index]
+			var damage: int = engine._damage_for_enemy_target(state, hit_action, index, player_bonuses)
+			var hit_damage: int = IllusionRelicRules.direct_amount(engine, state, state["enemies"][index], damage) if player_bonuses else damage
+			if echo: hit_damage = IllusionRelicRules.half(hit_damage)
+			if hit_damage > 0 and ReflectRules.reflects_hit(engine, state, hit_action, origin, hit):
 				reflected_ids[int(hit["id"])] = true
 				if not group_force.is_empty(): group_force["blocked_ids"][int(hit["id"])] = true
-				if echo:
-					reflected_damage = IllusionRelicRules.half(IllusionRelicRules.direct_amount(engine, state, mirror, reflected_damage))
-					state = ReflectRules.bounce(engine, state, index, reflected_damage, "illusion", int(action["_echo_attacker_id"]))
-				else:
-					state = ReflectRules.bounce(engine, state, index, ReflectRules.damage_at_mirror(mirror, reflected_damage), actor_kind, actor_id)
-				if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
+				state = ReflectRules.bounce(engine, state, index, hit_damage, "illusion" if echo else actor_kind, int(action["_echo_attacker_id"]) if echo else actor_id, hit_action, trace)
+				# Preserve the delivery route, including the undamaged Rebound stop.
+				trace_hit["reflected"] = true
+				trace_hit["hidden_direct"] = bool(hit.get("hidden_direct", false))
+				rebound_route.append(trace_hit.duplicate())
+				if not trace_hit["hidden_direct"]:
+					if capture_states: trace_hit["state"] = state.duplicate(true)
+					native_trace.append(trace_hit)
 				continue
-			if not echo: state = engine._sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
-			var damage: int = engine._damage_for_enemy_target(state, hit_action, index, player_bonuses)
-			if actor_kind == "player" and not echo and damage > 0:
+			var contact: Dictionary = engine._ice_card_stagger_contact(state, state["enemies"][index], hit_action, actor_kind) if not echo else {}
+			if player_bonuses and not echo and damage > 0:
 				RetaliateRules.collect_player_hit(engine, state, retaliators, int(hit["id"]), hit_action, origin, damage)
-			trace_hit["damage"] = IllusionRelicRules.direct_amount(engine, state, engine._surface_actor(state, "enemy", int(hit["id"])), damage) if player_bonuses else damage
-			if echo:
-				damage = IllusionRelicRules.half(int(trace_hit["damage"]))
-				trace_hit["damage"] = damage
-				state = engine._damage_enemy(state, index, damage, true, engine._action_pierces_defense(hit_action), false, false)
-			else:
-				state = engine._damage_enemy(state, index, damage, true, engine._action_pierces_defense(hit_action), player_bonuses)
-			if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
-			if damage > 0:
-				state = engine._consume_enemy_expose(state, index)
+			trace_hit["damage"] = hit_damage
+			if not bool(hit_action.get("status_only", false)):
+				state = engine._damage_enemy(state, index, hit_damage, true, engine._action_pierces_defense(hit_action), false)
+				if (hit_damage if echo else damage) > 0:
+					state = engine._consume_enemy_expose(state, index)
 			if not group_force.is_empty(): hit_action["_group_force_context"] = group_force
-			# The aimed line belongs to the primary target; Chain hops push from
-			# their hop origin along their own default line.
+			# Chain hops use their delivery line unless the action fixes the force origin.
 			if hit["from"] != hit["to"]: hit_action.erase("force_direction")
-			var force_source: Vector2i = origin if hit["from"] == hit["to"] else hit["from"]
+			var delivery_source: Vector2i = origin if hit["from"] == hit["to"] else hit["from"]
+			var force_source: Vector2i = ManeuverRules.hit_force_source(state, action, delivery_source)
 			if from_center:
 				force_source = ManeuverRules.from_center_source(engine, state, int(hit["id"]), aoe_center, origin)
 			state = engine._apply_action_keywords_to_enemy(state, index, IllusionRelicRules.echo_forces(hit_action) if echo else hit_action, force_source, player_bonuses)
-			if not echo: engine._apply_stagger_to_enemy(state, int(hit["id"]), int(hit_action.get("stagger", 0)))
+			if not echo: state = engine._apply_card_stagger(state, int(hit["id"]), hit_action, actor_kind, contact)
 			state = SurfaceCardRules.after_enemy_hit(engine, state, hit_action, family_context)
 			if player_bonuses and not echo: engine._mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
@@ -237,9 +232,7 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 	if actor_kind == "player":
 		var terrain_damage: int = engine.final_damage_for_player_action(state, resolved)
 		if not enemies_only:
-			var terrain_targets: Array[int] = engine._terrain_indices_in_tiles(state, impact)
-			if IllusionRelicRules.copper_active(engine, state, action, actor_kind):
-				terrain_targets.assign(terrain_targets.filter(func(index: int) -> bool: return not IllusionRelicRules.owned_outcrop(state["terrain"][index])))
+			var terrain_targets: Array[int] = IllusionRelicRules.unprotected_terrain_targets(engine, state, action, actor_kind, engine._terrain_indices_in_tiles(state, impact))
 			state = engine._damage_terrain_indices(state, terrain_targets, terrain_damage)
 		if int(resolved.get("damage", 0)) > 0:
 			engine._mark_first_attack_used(state)
@@ -253,8 +246,8 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 		state = engine._damage_terrain_indices(state, terrain_targets, int(resolved.get("damage", 0)))
 	if not enemies_only:
 		state = engine._trigger_traps_on_tiles(state, engine._trap_tiles_in_tiles(state, impact))
-	if str(resolved.get("type", "")) == "push" and resolved.has("surface"):
-		var destination: Vector2i = _push_surface_destination(engine, state, plan, target)
+	if str(resolved.get("type", "")) in ["push", "pull"] and resolved.has("surface"):
+		var destination: Vector2i = _force_surface_destination(engine, state, plan, target)
 		state = engine._place_action_surface(state, resolved, destination, TypedArrays.vector2i([destination]))
 	else:
 		state = engine._place_action_surface(state, resolved, engine._board_aoe_center(action, target, origin) if str(action.get("type", "")) == "aoe" else target, impact)
@@ -280,13 +273,13 @@ static func resolve(engine: RefCounted, state: Dictionary, action: Dictionary, t
 		var ground_hit: Dictionary = {"kind":"actor","from":relay["relay"],"to":relay["to"],"relay_delivery":true}
 		if capture_states: ground_hit["state"] = state.duplicate(true)
 		native_trace.append(ground_hit)
-	trace["chain_hits"] = native_trace if capture_route else []
+	trace["chain_hits"] = native_trace if capture_route or (trace.has("chain_hits") and action.has("state_bonus")) else []
 	engine._record_runtime_performance_phase("board_attack_finish_total", performance_started)
 	return state
 
-static func _push_surface_destination(engine: RefCounted, state: Dictionary, plan: Dictionary, target: Vector2i) -> Vector2i:
-	# Rooted Kick leaves ground under its target after displacement. Collision
-	# shortens the push; a pre-move death retains its occupied tile. Deaths are
+static func _force_surface_destination(engine: RefCounted, state: Dictionary, plan: Dictionary, target: Vector2i) -> Vector2i:
+	# The ground follows the aimed footprint tile. Collision shortens the
+	# displacement, and a pre-move death retains its occupied tile. Deaths are
 	# still batched here, so the actor's final position remains available.
 	for hit: Dictionary in plan.get("hits", []):
 		var before: Dictionary = hit.get("unit", {}) as Dictionary

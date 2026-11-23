@@ -13,6 +13,8 @@ func _initialize() -> void:
 	var engine = preload("res://scripts/run_engine.gd").new()
 	var legacy: Dictionary = engine.create_new_run(Suite.TEST_SEED, profile.default_data())
 	legacy.erase(engine.MAGIC_DECK_SAVE_VERSION_KEY)
+	legacy.erase(engine.FIRST_COMBAT_WON_KEY)
+	legacy["attuned_magic_cards"] = preload("res://scripts/game_data.gd").starting_magic_cards(true)
 	legacy["magic_inventory"] = ["spark_dart", "spark_dart", "frostbolt"]
 	_expect(profile.save_run_state(legacy), "Legacy reserve save writes")
 	var migrated: Dictionary = engine.repair_loaded_run_state(profile.load_saved_run())

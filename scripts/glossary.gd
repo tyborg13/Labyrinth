@@ -11,6 +11,10 @@ static var _aliases: Dictionary = {}
 static var _terms: Array[Dictionary]
 static var _loaded: bool = false
 static var _missing_definitions: Dictionary = {}
+static var _amount_placeholder := RegEx.create_from_string("\\bX\\b")
+static var _amount_article := RegEx.create_from_string("\\b([Aa])n? X\\b")
+static var _following_amount := RegEx.create_from_string("^\\s+[+]?(\\d+)(?![\\w%]|\\.\\d)")
+static var _preceding_amount := RegEx.create_from_string("(?<![\\w.-])[+]?(\\d+)\\s+$")
 
 static func _ensure_loaded() -> void:
 	if _loaded:
@@ -65,16 +69,76 @@ static func all_entries() -> Array:
 	_ensure_loaded()
 	return _entries.values().duplicate(true)
 
-static func definition(id: String, fallback_label: String = "") -> String:
+static func definition(id: String, fallback_label: String = "", amount: Variant = null) -> String:
 	var entry: Dictionary = _entry(id)
 	var text: String = str(entry.get("definition", "")).strip_edges()
 	if not text.is_empty():
-		return text
+		return fill_amount(text, amount)
 	var key: String = str(entry.get("id", id)).to_lower()
 	if not _missing_definitions.has(key):
 		_missing_definitions[key] = true
 		push_warning("Missing glossary definition: " + key)
 	return name_for(id, fallback_label)
+
+## Replace the standalone rules placeholder without changing names or markup.
+static func fill_amount(text: String, amount: Variant) -> String:
+	if not text.contains("X"):
+		return text
+	var number: String = ""
+	match typeof(amount):
+		TYPE_INT, TYPE_FLOAT:
+			number = str(int(amount)) if float(amount) == floorf(float(amount)) else str(amount)
+		TYPE_STRING:
+			var numeric: String = str(amount).replace("−", "-")
+			if numeric.is_valid_int(): number = str(int(numeric))
+	if number.is_empty():
+		return text
+	if number == "1":
+		for unit: String in ["tile", "card", "turn"]:
+			text = text.replace("X %ss" % unit, "X %s" % unit)
+	var articles: Array[RegExMatch] = _amount_article.search_all(text)
+	for index: int in range(articles.size() - 1, -1, -1):
+		var found: RegExMatch = articles[index]
+		text = text.substr(0, found.get_start()) + with_article(number, found.get_string(1) == "A") + text.substr(found.get_end())
+	return _amount_placeholder.sub(text, number, true)
+
+## Dynamic rules terms are English names or displayed numbers.
+static func with_article(phrase: String, capitalized: bool = false) -> String:
+	var first: String = phrase.to_lower().get_slice(" ", 0)
+	var spoken: String = first.trim_prefix("+").trim_prefix("-").trim_prefix("−")
+	var vowel: bool = not spoken.is_empty() and spoken[0] in "aeiou"
+	if spoken.get_slice(".", 0).is_valid_int():
+		vowel = spoken.begins_with("8") or spoken.get_slice(".", 0) in ["11", "18"]
+	elif spoken == "x" or spoken.begins_with("hour") or spoken.begins_with("honest"):
+		vowel = true
+	elif spoken.begins_with("one") or spoken.begins_with("unit") or spoken.begins_with("uniq") or spoken.begins_with("use"):
+		vowel = false
+	var article: String = "an" if vowel else "a"
+	return (article.capitalize() if capitalized else article) + " " + phrase
+
+## Read a term's printed amount in authored relic copy. Competing amounts
+## leave the shared definition generic.
+static func amount_in_text(id: String, text: String) -> Variant:
+	if not str(_entry(id).get("definition", "")).contains("X"):
+		return null
+	var amounts: Dictionary = {}
+	var plain: String = text
+	for token: RegExMatch in TokenSyntax.tokens(text):
+		if str(_entry(token.get_string(2)).get("id", "")) == id:
+			_collect_text_amount(text, token, amounts)
+		plain = plain.substr(0, token.get_start()) + " ".repeat(token.get_end() - token.get_start()) + plain.substr(token.get_end())
+	for term: Dictionary in _terms:
+		if term["id"] != id: continue
+		for token: RegExMatch in (term["pattern"] as RegEx).search_all(plain):
+			_collect_text_amount(text, token, amounts)
+	return amounts.keys()[0] if amounts.size() == 1 else null
+
+static func _collect_text_amount(text: String, token: RegExMatch, amounts: Dictionary) -> void:
+	var after: RegExMatch = _following_amount.search(text.substr(token.get_end()))
+	var before: RegExMatch = _preceding_amount.search(text.substr(0, token.get_start()))
+	var found: RegExMatch = after if after != null else before
+	if found != null:
+		amounts[int(found.get_string(1))] = true
 
 static func name_for(id: String, fallback_label: String = "") -> String:
 	var label: String = str(_entry(id).get("name", "")).strip_edges()

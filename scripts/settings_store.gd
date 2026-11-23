@@ -3,6 +3,7 @@ class_name SettingsStore
 
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const ApplicationSuspend = preload("res://scripts/application_suspend.gd")
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const WindowGeometry = preload("res://scripts/settings_window_geometry.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://settings.json"
@@ -112,7 +113,8 @@ static func default_settings() -> Dictionary:
 		"hero_facing": "persist",
 		"board_health_bars": DEFAULT_BOARD_HEALTH_BARS,
 		"reduced_motion": false,
-		"controller_vibration": true
+		"controller_vibration": true,
+		KeyBindings.SETTING: KeyBindings.defaults(),
 	}
 
 static func default_ui_scale(deck_platform: bool = InputRouterScript.platform_is_steam_deck()) -> float:
@@ -149,6 +151,7 @@ static func normalize_settings(data: Variant) -> Dictionary:
 	normalized["hero_facing"] = hero_facing if hero_facing in ["persist", "snap"] else "persist"
 	var board_health: String = str(source.get("board_health_bars", DEFAULT_BOARD_HEALTH_BARS))
 	normalized["board_health_bars"] = board_health if board_health in [BOARD_HEALTH_ALWAYS, BOARD_HEALTH_CONTEXTUAL] else DEFAULT_BOARD_HEALTH_BARS
+	normalized[KeyBindings.SETTING] = KeyBindings.normalize(source.get(KeyBindings.SETTING))
 	normalized["settings_schema"] = SETTINGS_SCHEMA
 	return normalized
 
@@ -271,6 +274,7 @@ static func restore_defaults(window: Window = null) -> Dictionary:
 
 static func apply_settings(settings: Dictionary, window: Window = null, apply_display_mode: bool = true) -> Dictionary:
 	var normalized: Dictionary = normalize_settings(settings)
+	KeyBindings.apply(normalized[KeyBindings.SETTING])
 	_applied_reduced_motion = bool(normalized["reduced_motion"])
 	_applied_board_health_bars = str(normalized["board_health_bars"])
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree

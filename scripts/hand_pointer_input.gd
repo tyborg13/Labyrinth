@@ -6,6 +6,10 @@ extends RefCounted
 static func observe(scene: Node, event: InputEvent) -> void:
 	if not event is InputEventMouse:
 		return
+	var moved: bool = event is InputEventMouseMotion and (
+		not event.relative.is_zero_approx()
+		or (scene._hand_pointer_position_valid and not event.position.is_equal_approx(scene._hand_pointer_position))
+	)
 	scene._hand_pointer_position = event.position
 	scene._hand_pointer_position_valid = true
 	var cursor: Node = scene.get_node_or_null("/root/CursorFeedback")
@@ -22,6 +26,6 @@ static func observe(scene: Node, event: InputEvent) -> void:
 	if index == scene._hovered_card_index:
 		return
 	if index >= 0:
-		scene._on_card_hover_started(index)
+		scene._on_card_hover_started(index, true, moved)
 	else:
 		scene._on_card_hover_ended(scene._hovered_card_index)

@@ -13,7 +13,7 @@ static func prior_revealed(state: Dictionary, enemy: Dictionary) -> bool:
 	return str(rules.order_for_objective(state.get("objective", {})).get("id", "")) == "prior_veil" and rules.broken(state)
 
 static func prior_hidden(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> bool:
-	if not prior_follower(state, enemy) or engine._enemy_distance_to_tile(enemy, state["player"]["pos"]) <= 2 or engine.player_has_truesight(state): return false
+	if not prior_follower(state, enemy) or engine._enemy_distance_to_tile(enemy, state["player"]["pos"]) <= 2 or engine.player_has_vision(state): return false
 	for tile: Vector2i in engine._enemy_footprint_tiles(enemy):
 		if engine._light_source_covers_tile(state, tile): return false
 	return true

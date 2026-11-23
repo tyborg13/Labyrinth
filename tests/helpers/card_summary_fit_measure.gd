@@ -5,9 +5,13 @@ const EDGE_INSET_PX: float = 2.0
 # The native-composition lower inset used by the existing pt13-03 audit.
 const LOWER_INSET: float = 14.0
 
-static func measure(face: Control, definition: Dictionary) -> Dictionary:
+static func measure(face: Control, definition: Dictionary, context: Dictionary = {}) -> Dictionary:
 	var legibility: Dictionary = Audit.measure(face, definition)
-	var result: Dictionary = {"margin_px": null, "row_count": 0, "continuation_errors": [], "floor_errors": Audit.floor_errors(legibility), "overflow_y": legibility["overflow_px"]["y"], "text_px": legibility["text_px"], "icon_px": legibility["icon_px"]}
+	var result: Dictionary = {"margin_px": null, "row_count": 0, "continuation_errors": [], "floor_errors": Audit.floor_errors(legibility, context), "overflow_y": legibility["overflow_px"]["y"], "text_px": legibility["text_px"], "icon_px": legibility["icon_px"]}
+	if legibility.has("sentence"):
+		result["layout"] = "sentence face"
+		result["sentence"] = legibility["sentence"]
+		return result
 	if not face is Audit.Card:
 		result["layout"] = "text-only"
 		return result
@@ -38,6 +42,12 @@ static func measure(face: Control, definition: Dictionary) -> Dictionary:
 		layout.append(_geometry(region))
 	result["layout"] = JSON.stringify(layout).sha256_text()
 	return result
+
+static func fits(measured: Dictionary) -> bool:
+	if measured["layout"] == "sentence face":
+		return measured["sentence"]["fits"]
+	var margin: Variant = measured["margin_px"]
+	return margin == null or float(margin) + Audit.EPSILON >= EDGE_INSET_PX
 
 static func _full_item_bounds(summary: Control, inverse: Transform2D) -> Rect2:
 	var bounds := Rect2()

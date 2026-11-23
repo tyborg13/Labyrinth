@@ -55,7 +55,7 @@ static func player_action(engine: RefCounted, before: Dictionary, after: Diction
 	var current: Dictionary = ensure(before.duplicate(false))
 	var delta: Vector2i = action_delta(engine, before, action, target)
 	if str(action.get("type", "")) == "move" and not action.has("_illusion_id"):
-		# Use the actual endpoint: Bleed, hidden occupancy and exchanges can stop
+		# Use the actual endpoint: Hidden occupancy and exchanges can stop
 		# a requested route before its target. The final walked step owns facing.
 		var origin: Vector2i = before.get("player", {}).get("pos", Vector2i.ZERO)
 		var endpoint: Vector2i = after.get("player", {}).get("pos", origin)

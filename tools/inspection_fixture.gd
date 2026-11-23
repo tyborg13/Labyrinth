@@ -752,8 +752,6 @@ func _build_reward_run(progression: Dictionary) -> Dictionary:
 	pending_reward["heal_amount"] = RunEngine.REWARD_HEAL
 	pending_reward["intro_pending"] = true
 	state["pending_reward"] = pending_reward
-	if str(_options.get("notice", "")).is_empty():
-		state["notice"] = "Inspection fixture: post-combat reward reveal."
 	return state
 
 # An event room on its real choices page: --event-id picks one, otherwise the seed does.
@@ -778,8 +776,6 @@ func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 	state = _run_state_for_room(state, coord, mode, Vector2i(1, 0))
 	if mode == "campfire":
 		state["player_hp"] = _option_or_default("player_hp", mini(8, int(state.get("player_max_hp", 24))))
-		if str(_options.get("notice", "")).is_empty():
-			state["notice"] = "Inspection fixture: campfire."
 	elif mode == "treasure":
 		var relic_choices: Array[String] = _string_list(str(_options.get("relic_choices", "")))
 		if relic_choices.is_empty():
@@ -787,8 +783,6 @@ func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 		if not _validate_relic_ids(relic_choices, "--relic-choices"):
 			return state
 		state["pending_relics"] = relic_choices
-		if str(_options.get("notice", "")).is_empty():
-			state["notice"] = "Inspection fixture: relic cache."
 	return _apply_room_overrides(state)
 
 func _build_graftwright_run(progression: Dictionary) -> Dictionary:
@@ -832,6 +826,17 @@ func _build_merchant_run(progression: Dictionary, merchant_kind: String) -> Dict
 	if coord == INVALID_COORD:
 		_fail("Could not find a %s room for inspection." % merchant_kind)
 		return state
+	if merchant_kind == RunEngine.MERCHANT_SCAVENGER:
+		var generated_room: Dictionary = _run_engine.room_metadata(state, coord)
+		if str(generated_room.get("type", "")) == merchant_kind:
+			var route = preload("res://tools/scn02/entry_route.gd")
+			var path: Array[Vector2i] = route.find(state, coord)
+			var previous: Dictionary = route.before_last(_run_engine, state, path)
+			if previous.is_empty():
+				_fail("Could not reach the generated Scavenger room at %s." % coord)
+				return state
+			return _apply_room_overrides(_run_engine.move_to_pre_battle(previous, coord))
+	# Keep explicit synthetic merchant coordinates available to fixture callers.
 	state = _run_state_for_room(state, coord, "room", Vector2i(1, 0))
 	var room: Dictionary = _run_engine.room_metadata(state, coord).duplicate(true)
 	room["type"] = merchant_kind

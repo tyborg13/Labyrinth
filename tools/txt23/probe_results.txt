@@ -1,0 +1,19 @@
+TXT23_CASE iron_lung_time PASS {"base_time":6,"paid_time":8,"stoneskin_spent":0}
+TXT23_CASE pilgrim_boots_blink PASS {"landed":true,"light_sources":0}
+TXT23_CASE worldheart_midturn PASS {"block":0,"enemy_health_loss":3,"player_turn":true,"stoneskin_gain":6}
+TXT23_CASE eclipse_tether PASS {"blink_light_radius":2,"illusion_health_after_hit":0,"illusion_health_before_hit":2,"light_sources_after_hit":0,"tile_visible_after_hit":false,"tile_visible_before_hit":true}
+TXT23_CASE hobnail_white_silence PASS {"enemy_health_loss":6}
+TXT23_CASE frost_prism_footprint PASS {"diagram_has_anchor_plus_2_east":false,"diagram_tiles":5,"rubble_at_anchor_plus_2_east":true,"rubble_tiles":12}
+TXT23_CASE reinforced_shield_move_block PASS {"block":2,"stoneskin":6,"tiles_moved":2}
+TXT23_CASE briar_vambrace_move_block PASS {"block":2,"retaliate":0}
+TXT23_CASE hollow_puppet_wall PASS {"illusion_health_after_push":0,"wall":"(6, 4)"}
+TXT23_CASE copper_shod_discharge PASS {"enemy_health_loss_beyond_real_source":0,"illusion_health_after":0,"illusion_health_before":2,"seed_destroyed":true}
+TXT23_CASE hourglass_awl_price PASS {"discounted_paid":4,"discounted_pierce":true,"discounted_time":4,"surcharged_paid":6,"surcharged_pierce":false,"surcharged_time":6}
+TXT23_CASE leaden_pommel_price PASS {"discounted_paid":4,"discounted_stagger":1,"discounted_time":4,"surcharged_paid":6,"surcharged_stagger":0,"surcharged_time":6}
+TXT23_CASE winters_spur_rubble PASS {"movement_spent":2,"reached":true}
+TXT23_CASE crowncoal_terrain_hit PASS {"fire_on_hit_tile":false,"terrain_destroyed":true}
+TXT23_CASE waxen_effigy_hidden PASS {"illusion_tile":"(3, 4)","nearest_adjacent_tile":"(2, 3)","visible_enemies":0}
+TXT23_CASE overflow_censer_enemy_overwrite PASS {"electrified_tiles":1,"under_hero":"electrified"}
+TXT23_CASE toll_late_bell_extra_turn PASS {"enemy_health_loss":6,"enemy_turn_time":5,"next_actor":"player","next_actor_time":0}
+TXT23_CASE briar_throne_zero_damage PASS {"enemy_health_loss":0,"retaliate_after":1,"retaliate_before":0}
+TXT23 truth probe PASS: 18 counterexamples reproduced, 0 failed

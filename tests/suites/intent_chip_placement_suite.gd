@@ -152,15 +152,19 @@ static func check_board(board: Control, label: String, expect: Callable) -> Dict
 		obstacles.append(callout["rect"])
 	var fallbacks: int = 0
 	var maximum: float = 0.0
+	var silhouettes: Array[Dictionary] = Solver.rest_silhouettes(board, board._visible_units())
+	var sole_check: Dictionary = SoleAssertions.check(board, badges, layouts, silhouettes, label, expect)
 	for layout: Dictionary in layouts:
 		var origins: Array[Vector2] = homes(board, layout)
-		var center: Vector2 = layout["center"]
+		var center: Vector2 = layout["center"] - layout.get("hero_clearance_offset", Vector2.ZERO)
 		var distance: float = minf(center.distance_to(origins[0]), center.distance_to(origins[1]))
 		maximum = maxf(maximum, distance)
-		expect.call(distance <= MAX_DISTANCE + DISTANCE_EPSILON, label + ": chip stays within 24px of a home: " + str(layout["key"]))
+		expect.call(distance <= MAX_DISTANCE + DISTANCE_EPSILON, label + ": chip stays within 24px of a home before hero HUD clearance: " + str(layout["key"]))
 		if layout["above_everything"]:
 			fallbacks += 1
-			expect.call(center == origins[0] or center == origins[1], label + ": fallback stays exactly at a home")
+			var home: Vector2 = origins[1] if layout["placement"] == "lower_left" else origins[0]
+			var center_before_title: Vector2 = sole_check["diagnostics"][layout["key"]]["before_title_center"]
+			expect.call(center_before_title.distance_to(home) <= DISTANCE_EPSILON, label + ": fallback stays at the chosen home before title clearance")
 			continue
 		var rect: Rect2 = layout["rect"]
 		expect.call(board._enemy_hud_viewport_bounds().encloses(rect), label + ": clear chip stays in viewport")
@@ -168,7 +172,6 @@ static func check_board(board: Control, label: String, expect: Callable) -> Dict
 		for other: Dictionary in layouts:
 			if layout["key"] == other["key"] or other["above_everything"]: continue
 			expect.call(not rect.intersects(other["rect"], false), label + ": nonfallback chips avoid one another")
-	var silhouettes: Array[Dictionary] = Solver.rest_silhouettes(board, board._visible_units())
 	var before: Array[Dictionary] = Pt13.layouts(board, badges)
 	var coverage_before: float = 0.0
 	var coverage_after: float = 0.0
@@ -177,7 +180,6 @@ static func check_board(board: Control, label: String, expect: Callable) -> Dict
 	for layout: Dictionary in layouts:
 		coverage_after += Solver.coverage(layout["rect"], silhouettes, layout["key"])
 		if (layout["center"] as Vector2).distance_squared_to(homes(board, layout)[1]) < (layout["center"] as Vector2).distance_squared_to(homes(board, layout)[0]): mirrors += 1
-	var sole_check: Dictionary = SoleAssertions.check(board, badges, layouts, silhouettes, label, expect)
 	# Hard sole clearance supersedes soft coverage only for legitimately moved
 	# chips. Preserve the original assertion for every unchanged fixture, and
 	# independently retain pt14's coverage policy before the sole obstacle.

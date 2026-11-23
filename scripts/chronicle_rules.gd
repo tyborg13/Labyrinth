@@ -137,7 +137,7 @@ static func killer_text(killer: Dictionary, outcome: String) -> String:
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
-	var enemy_text: String = "Felled by a %s" % str(enemy["name"])
+	var enemy_text: String = "Felled by %s" % preload("res://scripts/glossary.gd").with_article(str(enemy["name"]))
 	return enemy_text if intent_name.is_empty() else "%s's %s" % [enemy_text, intent_name]
 
 # Old Chronicle records store their printed text, not the original killer.

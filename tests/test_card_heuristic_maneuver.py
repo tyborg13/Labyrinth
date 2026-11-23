@@ -47,24 +47,12 @@ class ManeuverHeuristicTests(unittest.TestCase):
         self.assertGreater(self.score([{'type': 'convert_block_to_stoneskin'}]).defense, 0.0)
         self.assertAlmostEqual(self.score([{'type': 'cleanse', 'statuses': ['bleed', 'shock']}]).defense, 2 * weights.cleanse_value_per_status)
 
-    def test_petrify_pays_for_the_block_it_grants(self):
-        cheap = self.score([{'type': 'petrify', 'range': 3, 'block': 0}])
-        armored = self.score([{'type': 'petrify', 'range': 3, 'block': 8}])
-        self.assertGreater(cheap.control, armored.control)
-        self.assertGreater(armored.control, 0.0)
-
-    def test_petrify_default_block_matches_runtime_constant(self):
-        rules_path = Path(__file__).resolve().parents[1] / 'scripts/maneuver_rules.gd'
-        declaration = re.search(r'^const PETRIFY_BLOCK\s*:=\s*(\d+)\s*$', rules_path.read_text(), re.MULTILINE)
-        self.assertIsNotNone(declaration, 'ManeuverRules must declare the Petrify keyword Block')
-        self.assertEqual(heuristic.PETRIFY_BLOCK, int(declaration.group(1)))
-
-    def test_petrify_defaults_to_the_keyword_block(self):
-        default = self.score([{'type': 'petrify', 'range': 3}])
-        explicit = self.score([{'type': 'petrify', 'range': 3, 'block': 5}])
-        self.assertEqual(default, explicit)
-        self.assertGreater(self.score([{'type': 'petrify', 'range': 3, 'block': 0}]).control, default.control)
-        self.assertLess(self.score([{'type': 'petrify', 'range': 3, 'block': 8}]).control, default.control)
+    def test_former_petrify_card_is_a_stagger(self):
+        # pla-06: Petrify is "Stagger 6 an enemy within range 3".
+        weights = heuristic.HeuristicWeights()
+        stagger = self.score([{'type': 'stagger', 'range': 3, 'stagger': 6}])
+        self.assertAlmostEqual(stagger.control, 6 * weights.stagger_value_per_point * heuristic.ranged_playability(3))
+        self.assertLess(self.score([{'type': 'stagger', 'range': 3, 'stagger': 3}]).control, stagger.control)
 
     def test_move_and_blink_riders(self):
         plain = self.score([{'type': 'move', 'range': 3}])

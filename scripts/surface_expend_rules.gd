@@ -5,6 +5,12 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const Tokens = preload("res://scripts/inline_token_syntax.gd")
 const KEYWORD: String = "surface_consume"
 const CARD_TAG: String = "_card_surface_consume"
+# These effects spend ground. Movement of ground and destruction by Burst have
+# separate source identities, even when the triggering card can Expend.
+const EXPEND_RELIC_EFFECTS: Array[String] = [
+	"melee_consume_elemental_damage", "conductive_fire", "rubble_redirect",
+	"rubble_attack_origin", "collision_break_surfaces",
+]
 static var _expend_word: RegEx
 
 static func is_trap_source(source: Dictionary) -> bool:
@@ -32,10 +38,10 @@ static func card_source(source: Dictionary, definition: Dictionary, action: Dict
 	if tagged: result[KEYWORD] = true
 	return result
 
-static func relic_source(source: Dictionary, effect: Dictionary, definition: Dictionary) -> Dictionary:
+static func relic_source(source: Dictionary, effect: Dictionary) -> Dictionary:
 	var result: Dictionary = source.duplicate(true)
 	# Preserve the triggering card/source fields; identify the actual remover
 	# additively, and override its tag even when the triggering card uses Expend.
 	result["removal_relic_id"] = str(effect.get("relic_id", ""))
-	result[KEYWORD] = definition_uses_expend(definition)
+	result[KEYWORD] = str(effect.get("type", "")) in EXPEND_RELIC_EFFECTS
 	return result

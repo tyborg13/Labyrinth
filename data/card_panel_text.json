@@ -1,15 +1,8 @@
 {
-  "shatter": {
-    "title": "Shatter",
-    "text": "If the target was Frozen, deal {n} to each enemy next to it.",
-    "legacy": "Shatter\nIf the target was Frozen before the hit, deal {n} to each other enemy next to it (not tripled).",
-    "term": "shatter",
-    "diagram_text": "@pattern(neighbors:origin) If the target was Frozen, deal {n} to each enemy on these tiles."
-  },
   "shock_all_hits": {
     "title": "Shock",
-    "text": "Every enemy this hits is Shocked.",
-    "legacy": "Shock\nEvery enemy this hits is Shocked, including Chain and conducted hits.",
+    "text": "Shocked units can only Move or Blink on their next turn.",
+    "legacy": "Shock\nShock each enemy hit, including Chain and conducted hits.",
     "term": "shock"
   },
   "title_sentence_push_any": {
@@ -20,14 +13,14 @@
   },
   "range_ice": {
     "title": "Range",
-    "text": "Choose an Ice tile within this range and line of sight.",
-    "legacy": "Range\nChoose a {ground} tile within this range and line of sight.",
+    "text": "Choose an Ice tile within Range and line of sight.",
+    "legacy": "Range\nChoose an Ice tile within Range and line of sight.",
     "term": "range"
   },
   "meteorfall": {
     "title": "Cinder Marks",
-    "text": "At your next turn, the marked tiles take the damage and turn to Fire.",
-    "legacy": "Meteorfall\nMarks the shown tiles. At the start of your next turn, before you draw, each marked tile takes the damage (anyone there, including you){ending}.",
+    "text": "Next turn before you Draw, deal {n} damage and leave Fire on each Marked tile.",
+    "legacy": "Next turn before you Draw, deal {n} damage and leave Fire on each Marked tile.",
     "term": "cinder_marks"
   },
   "swap_illusion": {
@@ -38,8 +31,8 @@
   },
   "illusion_block": {
     "title": "Block",
-    "text": "Your illusion takes all your Block as extra Health.",
-    "legacy": "The illusion gains all your Block as extra Health. You lose that Block.",
+    "text": "Give your Block to the Illusion as extra Health.",
+    "legacy": "Give your Block to the Illusion as extra Health.",
     "term": "block"
   },
   "shatter_illusion": {
@@ -49,86 +42,92 @@
     "term": "shatter_illusion"
   },
   "terrain_burst_own": {
-    "title": "Terrain Burst",
+    "title": "Burst",
     "text": "Destroy an adjacent Outcrop you raised.",
     "legacy": "Destroy an adjacent Outcrop you raised.",
-    "term": "terrain_burst"
+    "term": "burst"
   },
   "terrain_burst_any": {
-    "title": "Terrain Burst",
-    "text": "Destroy an Outcrop, crate or other terrain in range and sight.",
-    "legacy": "Destroy an Outcrop, crate or other terrain within range and sight.",
-    "term": "terrain_burst"
+    "title": "Burst",
+    "text": "Destroy an Outcrop, crate or other terrain within Range and line of sight.",
+    "legacy": "Destroy an Outcrop, crate or other terrain within Range and line of sight.",
+    "term": "burst"
   },
   "title_sentence_range_illusion": {
     "title": "Range",
-    "text": "Destroy an illusion within this range.",
-    "legacy": "Range to the illusion you destroy.",
+    "text": "Destroy an Illusion within Range.",
+    "legacy": "Destroy an Illusion within Range.",
     "term": "range"
   },
   "title_sentence_range_terrain": {
     "title": "Range",
-    "text": "Destroy terrain within this range.",
-    "legacy": "Range to the terrain you destroy.",
+    "text": "Destroy terrain within Range.",
+    "legacy": "Destroy terrain within Range.",
     "term": "range"
   },
   "title_sentence_light": {
     "title": "Light",
-    "text": "Creates Light of this radius.",
-    "legacy": "Light radius in tiles.",
+    "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "term": "illuminate",
-    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles."
+    "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
   },
   "title_sentence_light_self": {
     "title": "Light",
-    "text": "Creates Light of this radius around you.",
-    "legacy": "Light radius in tiles, centered on you.",
+    "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "term": "illuminate",
-    "diagram_text": "@pattern(diamond:{r}:hero) Creates Light on these tiles around you."
+    "diagram_text": "@pattern(diamond:{r}:hero) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
   },
   "range_light": {
     "title": "Range",
-    "text": "Place the Light within this range.",
-    "legacy": "Light placement range.",
+    "text": "Place Light within Range.",
+    "legacy": "Place Light within Range.",
     "term": "range"
   },
   "raise_outcrop": {
     "title": "Raise Terrain",
-    "text": "Raises an Outcrop with this much Health that blocks movement and sight.",
-    "legacy": "Raises an Outcrop with this much Health on empty floor. It blocks movement and sight and leaves Rubble when destroyed.",
+    "text": "Raise an Outcrop with X Health that blocks movement and line of sight.",
+    "legacy": "Raise an Outcrop with X Health that blocks movement and line of sight.",
     "term": "raise_terrain"
   },
   "raise_keg": {
     "title": "Raise Terrain",
-    "text": "Places a powder keg with this much Health that blocks movement, not sight.",
-    "legacy": "Places a powder keg with this much Health on empty floor. It blocks movement, not sight.",
+    "text": "Place a powder keg with X Health that blocks movement.",
+    "legacy": "Place a powder keg with X Health that blocks movement.",
     "term": "raise_terrain"
   },
   "raise_outcrop_around_target": {
     "title": "Raise Terrain",
-    "text": "Raises an Outcrop with this much Health on each empty tile around the target.",
-    "legacy": "Raises an Outcrop with this much Health on each empty tile around the target. Outcrops block movement and sight and leave Rubble when destroyed.",
+    "text": "Raise an Outcrop with X Health on each empty tile adjacent to the target.",
+    "legacy": "Raise an Outcrop with X Health on each empty tile adjacent to the target.",
     "term": "raise_terrain",
-    "diagram_text": "@pattern(neighbors:origin) Raises an Outcrop with this much Health on each empty one of these tiles around the target."
+    "diagram_text": "@pattern(neighbors:origin) Raise an Outcrop with X Health on each empty tile adjacent to the target."
   },
   "range_outcrop_around_target": {
     "title": "Range",
-    "text": "Choose a target tile within this range.",
-    "legacy": "Choose a target tile within this range.",
+    "text": "Choose a tile within Range.",
+    "legacy": "Choose a tile within Range.",
     "term": "range"
   },
   "range_outcrop": {
     "title": "Range",
-    "text": "Place the Outcrop within this range.",
-    "legacy": "Outcrop placement range.",
+    "text": "Place the Outcrop within Range.",
+    "legacy": "Place the Outcrop within Range.",
+    "term": "range"
+  },
+  "range_keg": {
+    "title": "Range",
+    "text": "Place the Powder Keg within Range.",
+    "legacy": "Range\nPlace the Powder Keg within Range.",
     "term": "range"
   },
   "keg_detonate": {
     "title": "Detonate",
-    "text": "When destroyed, the keg deals {n} to everything on and next to it.",
-    "legacy": "When the keg is destroyed by anything, it deals {n} to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off.",
+    "text": "When the keg is destroyed, the keg Bursts {n}.",
+    "legacy": "When the keg is destroyed, the keg Bursts {n}.",
     "term": "detonate",
-    "diagram_text": "@pattern(cross) When destroyed, the keg deals {n} to everything on these tiles."
+    "diagram_text": "@pattern(cross) When the keg is destroyed, the keg Bursts {n}."
   },
   "quicken": {
     "title": "Quicken",
@@ -144,33 +143,27 @@
   },
   "block_to_stoneskin": {
     "title": "Block",
-    "text": "Turn all your Block into Stoneskin.",
-    "legacy": "Turn all your Block into Stoneskin.",
+    "text": "Turn your Block into Stoneskin.",
+    "legacy": "Turn your Block into Stoneskin.",
     "term": "block"
   },
   "crystal_mantle": {
     "title": "Crystal Mantle",
     "text": null,
-    "legacy": "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and Health costs bypass it.",
+    "legacy": "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, collisions, traps and Health costs bypass Crystal Mantle.",
     "term": "frost_armor"
-  },
-  "petrify": {
-    "title": "Petrify",
-    "text": "Skips its next turn and gains {n} Block.",
-    "legacy": "Petrify\nThe enemy turns to stone: it skips its next turn (the skipped turn still costs its Time) and gains {n} Block, which lasts through your next turn. Dragons are immune.",
-    "term": "petrify"
   },
   "light_trail": {
     "title": "Light",
-    "text": "Creates Light of this radius on each tile you enter.",
-    "legacy": "Creates Light on each tile you enter. Radius in tiles.",
+    "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "term": "illuminate",
-    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles centered on each tile you enter."
+    "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
   },
   "range_illusion": {
     "title": "Range",
-    "text": "Place the illusion within this range.",
-    "legacy": "Illusion placement range.",
+    "text": "Place the Illusion within Range.",
+    "legacy": "Place the Illusion within Range.",
     "term": "range"
   },
   "expose": {
@@ -181,29 +174,29 @@
   },
   "retaliate_illusion": {
     "title": "Retaliate",
-    "text": "Enemies that damage this illusion take {n}{suffix} damage{suffix2}.",
-    "legacy": "Enemies that damage this illusion take {n}{suffix} damage{suffix2}. Once per enemy attack.",
+    "text": "Enemies that damage this Illusion take {n} damage{suffix2}.",
+    "legacy": "Enemies that damage this Illusion take {n} damage{suffix2} once per enemy attack.",
     "term": "retaliate"
   },
   "retaliate_illusion_reflect": {
     "title": "Retaliate",
-    "text": "Enemies that damage this illusion take that much damage too.",
-    "legacy": "Reflect\nEnemies that damage this illusion take that much damage too. Once per enemy attack.",
+    "text": "Enemies that damage this Illusion take the same damage.",
+    "legacy": "Reflect\nEnemies that damage this Illusion take the same damage.",
     "term": "retaliate"
   },
   "light_target": {
     "title": "Light",
-    "text": "Creates Light of this radius at the target.",
-    "legacy": "Creates Light at the target. Radius in tiles.",
+    "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "term": "illuminate",
-    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles at the target."
+    "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
   },
   "light_land": {
     "title": "Light",
-    "text": "Creates Light of this radius where you land.",
-    "legacy": "Creates Light where you land. Radius in tiles.",
+    "text": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+    "legacy": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "term": "illuminate",
-    "diagram_text": "@pattern(diamond:{r}) Creates Light on these tiles where you land."
+    "diagram_text": "@pattern(diamond:{r}) Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2."
   },
   "if_in_light": {
     "title": "If in Light",
@@ -211,15 +204,9 @@
     "legacy": "If Target in Light\nApplies if the target stands in Light.",
     "term": "if_in_light"
   },
-  "if_frozen": {
-    "title": "If Frozen",
-    "text": "This bonus applies if the target is Frozen.",
-    "legacy": "If Target Frozen\nApplies if the target is Frozen before the hit.",
-    "term": "if_frozen"
-  },
-  "if_bleeding": {
-    "title": "If Bleeding",
-    "text": "This bonus applies if the target is Bleeding."
+  "if_exposed": {
+    "title": "If Exposed",
+    "text": "This bonus applies if the target is already Exposed."
   },
   "if_immobilized": {
     "title": "If Immobilized",
@@ -241,32 +228,32 @@
   },
   "only_fire": {
     "title": "Fire",
-    "text": "Only enemies standing on Fire are hit.",
-    "legacy": "Each Enemy on Fire\nHits every enemy you can see that stands on Fire. There is no target to choose.",
+    "text": "Hit each visible enemy on Fire.",
+    "legacy": "Each Enemy on Fire\nHit each visible enemy on Fire.",
     "term": "surface_fire"
   },
-  "only_chilled": {
-    "title": "Chilled",
-    "text": "Only Chilled enemies are hit.",
-    "legacy": "Each Chilled Enemy\nHits every Chilled enemy you can see. There is no target to choose.",
-    "term": "chilled"
+  "only_ice": {
+    "title": "Ice",
+    "text": "Hit each visible enemy on Ice.",
+    "legacy": "Each Enemy on Ice\nHit each visible enemy on Ice.",
+    "term": "surface_ice"
   },
   "only_light": {
     "title": "Light",
-    "text": "Only enemies standing in Light are hit.",
-    "legacy": "Each Enemy in Light\nHits every enemy you can see that stands in Light. There is no target to choose.",
+    "text": "Hit each visible enemy in Light.",
+    "legacy": "Each Enemy in Light\nHit each visible enemy in Light.",
     "term": "illuminate"
   },
   "only_electrified": {
     "title": "Electrified",
-    "text": "Only enemies standing on Electrified ground are hit.",
-    "legacy": "Each Enemy on Electrified\nHits every enemy you can see that stands on Electrified ground. There is no target to choose.",
+    "text": "Hit each visible enemy on Electrified.",
+    "legacy": "Each Enemy on Electrified\nHit each visible enemy on Electrified.",
     "term": "surface_electrified"
   },
   "skate": {
     "title": "Skate",
     "text": null,
-    "legacy": "Skate\nThis turn, moving onto Ice costs no Movement and Ice doesn't Chill you.",
+    "legacy": "Skate\nThis turn Ice costs you no Movement and doesn't Expose you.",
     "term": "skate"
   },
   "fireproof": {
@@ -283,20 +270,20 @@
   },
   "anchored_turn": {
     "title": "Anchored",
-    "text": "Until your next turn, you can't be pushed or pulled.",
-    "legacy": "Anchored\nUntil your next turn, you can't be pushed or pulled.",
+    "text": "Until your next turn, Push and Pull can't move you.",
+    "legacy": "Anchored\nUntil your next turn, Push and Pull can't move you.",
     "term": "anchored"
   },
   "stoneskin_scaling": {
     "title": "Stoneskin",
-    "text": "Deals 1 more for each Stoneskin you have, up to {n} more.",
-    "legacy": "Deals {d} more damage for each {detail} (maximum {n} more).",
+    "text": "Deal +1 damage for each Stoneskin you have, up to +{n}.",
+    "legacy": "Deal +1 damage for each Stoneskin you have, up to +{n}.",
     "term": "stoneskin"
   },
   "move_scaling": {
     "title": "Move",
-    "text": "Deals 1 more for each tile you moved this turn, up to {n} more.",
-    "legacy": "Deals {d} more damage for each {detail} (maximum {n} more).",
+    "text": "Deal +1 damage per tile you moved this turn, up to +{n}.",
+    "legacy": "Deal +1 damage per tile you moved this turn, up to +{n}.",
     "term": "move"
   },
   "cleanse": {
@@ -307,40 +294,40 @@
   },
   "title_sentence_pull_area": {
     "title": "Pull",
-    "text": "Pulls each enemy within {r} of the chosen tile {n} tiles toward it.",
-    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "text": "Pull each enemy within {r} tiles of the tile {n} tiles toward that tile.",
+    "legacy": "Pull each enemy within {r} tiles of the tile {n} tiles toward that tile.",
     "term": "pull",
-    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pulls each enemy on these tiles {n} tiles toward the chosen tile."
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pull each enemy within {r} tiles of the tile {n} tiles toward that tile."
   },
   "title_sentence_push_area_target": {
     "title": "Push",
-    "text": "Pushes each enemy within {r} of the chosen tile {n} tiles away from it.",
-    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "text": "Push each enemy within {r} tiles of the tile {n} tiles away from that tile.",
+    "legacy": "Push each enemy within {r} tiles of the tile {n} tiles away from that tile.",
     "term": "push",
-    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pushes each enemy on these tiles {n} tiles away from the chosen tile."
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Push each enemy within {r} tiles of the tile {n} tiles away from that tile."
   },
   "title_sentence_push_area": {
     "title": "Push",
-    "text": "Pushes each enemy within {r} of you {n} tiles away.",
-    "legacy": "{verb} Each moves along its own straight line; stopped lines collide.",
+    "text": "Push each enemy within {r} tiles of you {n} tiles away.",
+    "legacy": "Push each enemy within {r} tiles of you {n} tiles away.",
     "term": "push",
-    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Pushes each enemy on these tiles {n} tiles away from you."
+    "diagram_text": "@pattern(hollow_diamond:{r}:origin) Push each enemy within {r} tiles of you {n} tiles away."
   },
   "expend_after_hit": {
     "title": "Expend",
-    "text": "Removes the {ground} {where}.",
-    "legacy": "Expend\nRemoves the {ground} {where} after the hit.",
+    "text": "After the hit, remove {ground} {where}.",
+    "legacy": "Expend\nAfter the hit, remove {ground} {where}.",
     "term": "surface_consume"
   },
   "expend_beneath_you": {
     "title": "Expend",
-    "text": "Removes the Fire beneath you.",
-    "legacy": "Remove {old_ground} beneath you.",
+    "text": "Remove {ground} from your tile.",
+    "legacy": "Remove {ground} from your tile.",
     "term": "surface_consume"
   },
   "ice_to_electrified": {
     "title": "Ice",
-    "text": "The chosen Ice and all Ice connected to it become Electrified.",
+    "text": "The chosen Ice tile and each Ice tile connected to that tile become Electrified.",
     "legacy": "{legacy}",
     "term": "surface_ice"
   },
@@ -353,12 +340,12 @@
   "empower": {
     "title": "Empower",
     "text": null,
-    "legacy": "Empower{active}\nOptional: pay the extra cost while playing this card for the bonus.",
+    "legacy": "Empower{active}\nPay the Empower cost as you play this card to gain the Empower bonus.",
     "term": "empower"
   },
   "next_attack_move": {
     "title": "Next Attack",
-    "text": "Your next attack this turn deals 1 more per tile you moved, up to {n} more.",
+    "text": "Your next attack this turn deals +1 damage per tile you moved, up to +{n}.",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
@@ -370,7 +357,7 @@
   },
   "next_attack_chain": {
     "title": "Next Attack",
-    "text": "Your next Lightning attack this turn gains Chain {n}.",
+    "text": "Your next Lightning card this turn gains Chain {n}.",
     "legacy": "{legacy}",
     "term": "next_attack"
   },
@@ -381,54 +368,54 @@
     "term": "next_attack"
   },
   "unchanged_applies_only_to_hits_carried_by_a_conductive_connection": {
-    "text": "Applies only to hits carried by a conductive connection.",
-    "legacy": "Applies only to hits carried by a conductive connection."
+    "text": "Apply this effect to hits spread by Electrified tiles.",
+    "legacy": "Apply this effect to hits spread by Electrified tiles."
   },
   "unchanged_while_this_illusion_lives_your_ranged_attacks_may_fire_from_its_tile": {
-    "text": "While this illusion lives, your ranged attacks may fire from its tile.",
-    "legacy": "While this illusion lives, your ranged attacks may fire from its tile."
+    "text": "While this Illusion lasts, your ranged attacks can come from this Illusion's tile.",
+    "legacy": "While this Illusion lasts, your ranged attacks can come from this Illusion's tile."
   },
   "unchanged_enemies_that_damage_this_illusion_are_shocked": {
-    "text": "Enemies that damage this illusion are Shocked.",
-    "legacy": "Enemies that damage this illusion are Shocked."
+    "text": "Enemies that damage this Illusion gain Shock.",
+    "legacy": "Enemies that damage this Illusion gain Shock."
   },
   "unchanged_each_empty_tile_next_to_the_illusion": {
-    "text": "Each empty tile next to the illusion.",
-    "legacy": "Each empty tile next to the illusion.",
-    "diagram_text": "@pattern(neighbors:origin) Each empty one of these tiles next to the illusion."
+    "text": "Each empty tile adjacent to the Illusion.",
+    "legacy": "Each empty tile adjacent to the Illusion.",
+    "diagram_text": "@pattern(neighbors:origin) Each empty tile adjacent to the Illusion."
   },
   "unchanged_the_illusion_appears_on_the_free_tile_next_to_the_chosen_enemy_that_is_nearest_you": {
-    "text": "The illusion appears on the free tile next to the chosen enemy that is nearest you.",
-    "legacy": "The illusion appears on the free tile next to the chosen enemy that is nearest you."
+    "text": "Place the Illusion on the open tile adjacent to the target that is nearest you.",
+    "legacy": "Place the Illusion on the open tile adjacent to the target that is nearest you."
   },
   "unchanged_choose_an_enemy_within_this_range": {
-    "text": "Choose an enemy within this range.",
-    "legacy": "Choose an enemy within this range."
+    "text": "Choose an enemy within Range.",
+    "legacy": "Choose an enemy within Range."
   },
   "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": {
-    "text": "Creates one illusion on each empty tile next to you.",
-    "legacy": "Creates one illusion on each empty tile next to you (up to four).",
-    "diagram_text": "@pattern(neighbors:origin) Creates one illusion on each empty one of these tiles."
+    "text": "Create 1 Illusion on each empty tile adjacent to you.",
+    "legacy": "Create 1 Illusion on each empty tile adjacent to you.",
+    "diagram_text": "@pattern(neighbors:origin) Create 1 Illusion on each empty tile adjacent to you."
   },
   "unchanged_applies_if_no_enemy_is_next_to_you_after_the_blink": {
-    "text": "Applies if no enemy is next to you after the Blink.",
-    "legacy": "Applies if no enemy is next to you after the Blink."
+    "text": "If no enemy is adjacent to you after the Blink, gain this bonus.",
+    "legacy": "If no enemy is adjacent to you after the Blink, gain this bonus."
   },
   "unchanged_leaves_an_illusion_with_this_much_health_where_you_stood": {
-    "text": "Leaves an illusion with this much Health where you stood.",
-    "legacy": "Leaves an illusion with this much Health where you stood."
+    "text": "Leave an Illusion with X Health on the tile you left.",
+    "legacy": "Leave an Illusion with X Health on the tile you left."
   },
   "unchanged_the_destination_must_be_next_to_an_enemy_outcrop_or_crate": {
-    "text": "The destination must be next to an enemy, Outcrop or crate.",
-    "legacy": "The destination must be next to an enemy, Outcrop or crate."
+    "text": "The destination must be adjacent to an enemy, Outcrop or crate.",
+    "legacy": "The destination must be adjacent to an enemy, Outcrop or crate."
   },
   "unchanged_the_destination_must_be_in_light": {
     "text": "The destination must be in Light.",
     "legacy": "The destination must be in Light."
   },
   "unchanged_gain_this_much_block_for_each_tile_you_move": {
-    "text": "Gain this much Block for each tile you move.",
-    "legacy": "Gain this much Block for each tile you move."
+    "text": "Gain X Block for each tile you Move.",
+    "legacy": "Gain X Block for each tile you Move."
   },
   "unchanged_move_along_one_clear_straight_line": {
     "text": "Move along one clear straight line.",
@@ -439,26 +426,26 @@
     "legacy": "Choose a tile within this range."
   },
   "unchanged_expends_this_ground_on_the_chosen_tile_first": {
-    "text": "Expends this ground on the chosen tile first.",
-    "legacy": "Expends this ground on the chosen tile first."
+    "text": "Remove this ground from the tile before the effect.",
+    "legacy": "Remove this ground from the tile before the effect."
   },
   "unchanged_places_ground_on_the_nearest_affected_tiles_beginning_at_the_dragon": {
     "text": "Places ground on the nearest affected tiles, beginning at the dragon.",
     "legacy": "Places ground on the nearest affected tiles, beginning at the dragon."
   },
   "unchanged_raises_an_outcrop_with_this_much_hp_at_an_empty_ground_target": {
-    "text": "Raises an Outcrop with this much Health at an empty ground target.",
-    "legacy": "Raises an Outcrop with this much Health at an empty ground target."
+    "text": "Raise an Outcrop with X Health on an empty tile.",
+    "legacy": "Raise an Outcrop with X Health on an empty tile."
   },
   "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_terrain": {
-    "text": "Hits each enemy on the four tiles next to the destroyed terrain.",
-    "legacy": "Hits each enemy on the four tiles next to the destroyed terrain.",
-    "diagram_text": "@pattern(neighbors:origin) Hits each enemy on these tiles next to the destroyed terrain."
+    "text": "Hit each enemy adjacent to the destroyed terrain.",
+    "legacy": "Hit each enemy adjacent to the destroyed terrain.",
+    "diagram_text": "@pattern(neighbors:origin) Hit each enemy adjacent to the destroyed terrain."
   },
   "unchanged_hits_each_enemy_on_the_four_tiles_next_to_the_destroyed_illusion": {
-    "text": "Hits each enemy on the four tiles next to the destroyed illusion.",
-    "legacy": "Hits each enemy on the four tiles next to the destroyed illusion.",
-    "diagram_text": "@pattern(neighbors:origin) Hits each enemy on these tiles next to the destroyed illusion."
+    "text": "Hit each enemy adjacent to the destroyed Illusion.",
+    "legacy": "Hit each enemy adjacent to the destroyed Illusion.",
+    "diagram_text": "@pattern(neighbors:origin) Hit each enemy adjacent to the destroyed Illusion."
   },
   "unchanged_any_of_your_illusions_on_the_board": {
     "text": "Any of your illusions on the board.",
@@ -469,81 +456,137 @@
     "legacy": "Swap range."
   },
   "unchanged_you_take_no_damage_from_this_detonate": {
-    "text": "You take no damage from this Detonate.",
-    "legacy": "You take no damage from this Detonate."
+    "text": "This Burst spares you.",
+    "legacy": "This Burst spares you."
   },
   "unchanged_each_other_enemy_next_to_the_target": {
-    "text": "Each other enemy next to the target.",
-    "legacy": "Each other enemy next to the target.",
-    "diagram_text": "@pattern(neighbors:origin) Each other enemy on these tiles next to the target."
+    "text": "Each other enemy adjacent to the target.",
+    "legacy": "Each other enemy adjacent to the target.",
+    "diagram_text": "@pattern(neighbors:origin) Each other enemy adjacent to the target."
   },
   "unchanged_empower_repeat_this_card_s_first_action": {
-    "text": "Empower: repeat this card's first action.",
-    "legacy": "Empower: repeat this card's first action."
+    "text": "repeat this card's first action.",
+    "legacy": "repeat this card's first action."
   },
   "unchanged_empower_cost_exhaust_this_card": {
-    "text": "Empower cost: Exhaust this card.",
-    "legacy": "Empower cost: Exhaust this card."
+    "text": "This card Exhausts after resolving.",
+    "legacy": "This card Exhausts after resolving."
   },
   "retaliate_melee_damage_riders": {
     "title": "Retaliate",
-    "text": "Until your next turn, enemies that hit you in melee take {n} and suffer {riders}.",
-    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee take {n} and suffer {riders}.",
+    "text": "Until your next turn, each melee attacker takes {n} damage and is affected by {riders}.",
+    "legacy": "Retaliate\nUntil your next turn, each melee attacker takes {n} damage and is affected by {riders}.",
     "term": "retaliate"
   },
   "retaliate_melee_damage": {
     "title": "Retaliate",
-    "text": "Until your next turn, enemies that hit you in melee take {n}.",
-    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee take {n}.",
+    "text": "Until your next turn, each enemy that hits you in melee takes {n} damage.",
+    "legacy": "Retaliate\nUntil your next turn, each enemy that hits you in melee takes {n} damage.",
     "term": "retaliate"
   },
   "retaliate_melee_riders": {
     "title": "Retaliate",
-    "text": "Until your next turn, enemies that hit you in melee suffer {riders}.",
-    "legacy": "Retaliate\nUntil your next turn, enemies that hit you in melee suffer {riders}.",
+    "text": "Until your next turn, apply {riders} to each enemy that hits you in melee.",
+    "legacy": "Retaliate\nUntil your next turn, apply {riders} to each enemy that hits you in melee.",
     "term": "retaliate"
   },
   "next_attack_element": {
     "title": "",
-    "text": "Only a {element} attack uses this bonus.",
-    "legacy": "Only a {element} attack uses this bonus."
+    "text": "Only a {element} card uses this bonus.",
+    "legacy": "Only a {element} card uses this bonus."
   },
   "empower_health": {
     "title": "",
-    "text": "Empower cost: lose {n} Health after the card resolves.",
-    "legacy": "Empower cost: pay {n} Health after the card resolves."
+    "text": "Lose {n} Health after the card resolves.",
+    "legacy": "Lose {n} Health after the card resolves."
   },
   "empower_time": {
     "title": "",
-    "text": "Empower cost: {n} more Time.",
-    "legacy": "Empower cost: {n} more Time."
+    "text": "Add {n} Time to your next turn.",
+    "legacy": "Add {n} Time to your next turn."
   },
   "range_electrified": {
-    "text": "Choose an Electrified tile within this range and line of sight.",
-    "legacy": "Range\nChoose an Electrified tile within this range and line of sight."
+    "text": "Choose an Electrified tile within Range and line of sight.",
+    "legacy": "Range\nChoose an Electrified tile within Range and line of sight."
   },
   "range_meteor": {
-    "text": "Mark tiles within this range and line of sight.",
-    "legacy": "Range\nMark tiles within this range and line of sight."
+    "text": "Aim within Range and line of sight.",
+    "legacy": "Range\nAim within Range and line of sight."
   },
   "range_all": {
     "text": "Only enemies within this distance of you.",
     "legacy": "Range\nOnly enemies within this distance of you."
   },
   "range_unlimited": {
-    "text": "Any enemy you can see, ignoring range and line of sight.",
-    "legacy": "Range\nAny enemy you can see, ignoring range and line of sight."
+    "text": "Choose a visible enemy, ignoring Range and line of sight.",
+    "legacy": "Range\nChoose a visible enemy, ignoring Range and line of sight."
   },
   "range_ignore_los": {
-    "text": "Ignores line of sight: any enemy you can see within this range.",
-    "legacy": "Range\nIgnores line of sight: any enemy you can see within this range."
+    "text": "Choose a visible enemy within Range, ignoring line of sight.",
+    "legacy": "Range\nChoose a visible enemy within Range, ignoring line of sight."
+  },
+  "ranged_ignore_los": {
+    "title": "Ranged",
+    "text": "Deal {n} damage to a visible target within Range.",
+    "legacy": "Ranged\nDeal {n} damage to a visible target within Range.",
+    "term": "ranged"
   },
   "illusion_nearby": {
-    "text": "Also hits each other enemy next to one of your illusions.",
-    "legacy": "Also hits each other enemy next to one of your illusions, once each."
+    "text": "This attack also hits each other enemy adjacent to one of your Illusions once.",
+    "legacy": "This attack also hits each other enemy adjacent to one of your Illusions once."
   },
   "item_once_per_combat": {
-    "text": "Usable once per combat; it returns next combat.",
-    "legacy": "Once per combat. This item returns at the next combat."
+    "text": "This item can be used once per combat and returns next combat.",
+    "legacy": "This item can be used once per combat and returns next combat."
+  },
+  "keg_burst": {
+    "title": "Burst",
+    "text": "When the keg is destroyed, the keg Bursts {n}.",
+    "legacy": "When the keg is destroyed, the keg Bursts {n}.",
+    "term": "burst"
+  },
+  "burst_ground": {
+    "text": "This Burst destroys the named ground.",
+    "legacy": "This Burst destroys the named ground."
+  },
+  "burst_leaves_ground": {
+    "text": "This Burst leaves the named ground on each tile the Burst hits.",
+    "legacy": "This Burst leaves the named ground on each tile the Burst hits."
+  },
+  "burst_connected_electrified": {
+    "text": "Burst the tile and each Electrified tile connected to that tile.",
+    "legacy": "Burst the tile and each Electrified tile connected to that tile."
+  },
+  "burst_illusion_condition": {
+    "text": "This Burst happens only when one of your Illusions is on the tile.",
+    "legacy": "This Burst happens only when one of your Illusions is on the tile."
+  },
+  "burst_terrain_condition": {
+    "text": "This Burst happens only when the target is an Outcrop or crate.",
+    "legacy": "This Burst happens only when the target is an Outcrop or crate."
+  },
+  "burst_spares_you": {
+    "text": "This Burst spares you.",
+    "legacy": "This Burst spares you."
+  },
+  "burst_on_ground": {
+    "text": "This Burst happens only on {ground}.",
+    "legacy": "This Burst happens only on {ground}."
+  },
+  "burst_outcrop_you_raised": {
+    "title": "Outcrop",
+    "text": "Burst an adjacent Outcrop you raised.",
+    "legacy": "Burst an adjacent Outcrop you raised.",
+    "term": "outcrop"
+  },
+  "burst_leaves_ground_destroyed": {
+    "text": "This Burst leaves the named ground on the destroyed target's tile.",
+    "legacy": "This Burst leaves the named ground on the destroyed target's tile."
+  },
+  "empower_for": {
+    "title": "Empower",
+    "text": "Empower for {cost}: {bonus}.",
+    "legacy": "Empower{active}\nEmpower for {cost}: {bonus}.",
+    "term": "empower"
   }
 }

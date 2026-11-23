@@ -25,6 +25,10 @@ const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SummaryMeasurements = preload("res://scripts/card_summary_measurements.gd")
+const CardFaceSpec = preload("res://scripts/card_face_spec.gd")
+const CardFaceLayout = preload("res://scripts/card_face_layout.gd")
+const CardFaceSentenceView = preload("res://scripts/card_face_sentence_view.gd")
+const UiPalette = preload("res://scripts/ui_palette.gd")
 
 const FRAME_REFLECTION_SECONDS: float = 0.28
 # The authored frame supplies both its alpha and its metal detail. Masking the
@@ -100,6 +104,7 @@ const SUMMARY_SEGMENT_VALUE_RATIO: float = 0.58
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = UiTypography.SIZE_CAPTION
+const TITLE_FULL_NAME_MIN_PX: int = 12
 const TITLE_TYPE_STEPS := [UiTypography.SIZE_BODY_LARGE, UiTypography.SIZE_BODY, UiTypography.SIZE_SMALL]
 const TITLE_BADGE_GAP: float = 4.0
 const ART_SHADOW_OFFSET := Vector2(1.5, 3.0)
@@ -644,6 +649,9 @@ var _summary_layout_cache: Dictionary = {}
 var _summary_active_layout: float = -1.0
 var _summary_active_art_height: float = 0.0
 var _summary_active_details_height: float = 0.0
+var _sentence_face: Control
+static var _printed_face_rows: Dictionary = {}
+static var _numeric_value_text: RegEx
 var _role_emblem: DebossedRoleEmblem
 var _empower_seal: Button
 var _empower_rim: Control
@@ -653,6 +661,16 @@ var _empower_charged: bool = false
 var _time_badge: TimeCostBadge
 var _title_right_limit: float = INF
 var _title_inset: StyleBoxEmpty
+var _title_rest_scale: float = 1.0
+var _title_outer_scale: float = 1.0
+var _title_thumbnail: bool = false
+var _title_shelf: bool = false
+var _title_scale_host: Control
+var _title_reference_size: Vector2
+var _title_base_font: Font
+var _title_inputs: Array
+var _title_fit_step: int = 0
+var _title_fit_count: int = 0
 var _elevation_shadow: Panel
 var _elevation_shadow_style: StyleBoxFlat
 var _frame_reflection: CardFrameReflection
@@ -678,6 +696,7 @@ func _ready() -> void:
 	var ui_font: Font = UiTypography.ui_font()
 	if ui_font != null:
 		title_label.add_theme_font_override("font", ui_font)
+	_title_base_font = title_label.get_theme_font("font")
 	title_label.add_theme_color_override("font_color", Color("39271b"))
 	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	title_label.add_theme_constant_override("outline_size", 2)
@@ -710,7 +729,6 @@ func _ready() -> void:
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
 	_apply_configuration()
-	_queue_title_refit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
@@ -1004,7 +1022,6 @@ func _apply_configuration_content() -> void:
 	var element_id: String = GameData.card_element_from_def(card)
 	title_label.text = str(card.get("name", card_id))
 	_fit_title_label(_base_title_size())
-	_queue_title_refit()
 	_refresh_summary_display(card)
 	_refresh_role_emblem(card)
 	_refresh_time_badge(card)
@@ -1450,7 +1467,7 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: −%d" % int(card["_quicken_discount"])
 	if tempo_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_tempo_time_surcharge_relic", ""))).get("name", "Relic")), tempo_surcharge]
 	if item_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_item_time_surcharge_relic", ""))).get("name", "Relic")), item_surcharge]
-	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower: +%d" % (total_surcharge - tempo_surcharge - item_surcharge)
+	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower adds %d Time." % (total_surcharge - tempo_surcharge - item_surcharge)
 	# A card's own cost, before anything passing lowers it. Upgrades change the card itself, so they stay plain.
 	var own_cost: int = maxi(printed_cost, maxi(int(card.get("_time_discount_base", 0)), int(card.get("_time_reserve_base", 0))))
 	_time_badge.setup(time_cost, detail, own_cost)
@@ -1509,11 +1526,214 @@ func _refresh_summary_display(card: Dictionary) -> void:
 	desc_label.visible = false
 	desc_label.text = ""
 	_summary_icon_box.visible = true
+	var sentence_face: Dictionary = _resolved_sentence_face(rows)
+	if not sentence_face.is_empty():
+		if _rules_text_face:
+			_rules_text_face = false
+			_update_layout_metrics()
+		_render_sentence_face(sentence_face)
+		return
 	var rules_face: bool = _rows_have_rules_text(rows)
 	if rules_face != _rules_text_face:
 		_rules_text_face = rules_face
 		_update_layout_metrics()
-	_render_summary_icon_rows(rows)
+	_render_summary_icon_rows(CardFaceSpec.ordered_icon_rows(card_id, CardFaceSpec.display_icon_rows(CardFaceSpec.spec_for(card_id), rows)))
+
+# ---------------------------------------------------------------- sentence faces
+# A card listed in data/card_faces.json shows its approved sentence face
+# (target chip + one sentence with inline icons) instead of icon rows, as long
+# as its live rows have the printed card's shape. Numbers follow the live rows:
+# a modified value shows its live number in the rows' bonus/penalty ink. Any
+# other change (an added rider, a changed area) falls back to the icon rows,
+# which are generated from the live card and stay true.
+
+func _resolved_sentence_face(rows: Array) -> Dictionary:
+	var spec: Dictionary = CardFaceSpec.spec_for(card_id)
+	if not spec.has("sentence") or UiTypography.text_font() == null or UiTypography.ui_font() == null:
+		return {}
+	var printed_tokens: Array = []
+	var printed_shape: Array = _face_rows_shape(_printed_rows_for_face(), printed_tokens)
+	var live_tokens: Array = []
+	if _face_rows_shape(rows, live_tokens) != printed_shape:
+		return {}
+	var face: Dictionary = spec.duplicate(true)
+	var used: Dictionary = {}
+	var sentence: Array = face.get("sentence", []) as Array
+	for index: int in range(sentence.size()):
+		var segment: Dictionary = sentence[index]
+		if segment.has("pattern"):
+			segment["tooltip"] = AREA_PATTERN_TOOLTIP
+			continue
+		if segment.has("duration"):
+			var duration_index: int = _match_face_token(printed_tokens, used, "time", false, int(segment["duration"]))
+			if duration_index >= 0:
+				used[duration_index] = true
+				_bind_face_value(segment, "time", int(segment["duration"]), printed_tokens[duration_index], live_tokens[duration_index])
+			continue
+		if not (segment.has("term") or segment.has("damage")):
+			continue
+		var icon_key: String = str(segment.get("term", segment.get("damage", "")))
+		segment["tooltip"] = ActionIcons.tooltip(icon_key, segment.get("number"))
+		segment["tone"] = "neutral"
+		if segment.get("number", null) == null:
+			var context_index: int = live_tokens.find_custom(func(token: Dictionary) -> bool: return token.get("icon") == icon_key and token.has("tooltip_amount"))
+			if context_index >= 0:
+				segment["tooltip"] = ActionIcons.token_tooltip(live_tokens[context_index], true)
+			continue
+		segment["display"] = str(int(segment["number"]))
+		if bool(segment.get("bonus", false)):
+			continue
+		var match_index: int = _match_face_token(printed_tokens, used, icon_key, segment.has("damage"), int(segment["number"]))
+		if match_index < 0:
+			continue
+		used[match_index] = true
+		_bind_face_value(segment, icon_key, int(segment["number"]), printed_tokens[match_index], live_tokens[match_index])
+	var chip: Variant = face.get("chip", null)
+	if typeof(chip) == TYPE_DICTIONARY:
+		var chip_dict: Dictionary = chip
+		chip_dict["display"] = str(int(chip_dict.get("range", 0)))
+		chip_dict["tooltip"] = ActionIcons.tooltip("range", chip_dict.get("range"))
+		chip_dict["tone"] = "neutral"
+		var range_index: int = _match_face_token(printed_tokens, used, "range", false, int(chip_dict.get("range", 0)))
+		if range_index >= 0:
+			_bind_face_value(chip_dict, "range", int(chip_dict.get("range", 0)), printed_tokens[range_index], live_tokens[range_index])
+	return face
+
+func _bind_face_value(target: Dictionary, icon_key: String, printed_number: int, printed: Dictionary, live: Dictionary) -> void:
+	if typeof(live.get("value", null)) not in [TYPE_INT, TYPE_FLOAT]:
+		return
+	var delta: int = int(live["value"]) - int(printed["value"])
+	target["display"] = str(printed_number + delta).replace("-", "−")
+	target["tone"] = str(live.get("tone", "neutral"))
+	var base: String = ActionIcons.token_tooltip(live, true) if str(live.get("icon", "")) == icon_key else ActionIcons.tooltip(icon_key, printed_number + delta)
+	if str(live.get("icon", "")) != icon_key:
+		base = ActionIcons.token_tooltip({"tooltip": base, "modifiers": live.get("modifiers", [])})
+	target["tooltip"] = base
+
+func _printed_rows_for_face() -> Array:
+	var source: Variant = GameData.cards().get(card_id, {})
+	var key: Array = [card_id, hash(source)]
+	if not _printed_face_rows.has(key):
+		if _printed_face_rows.size() >= 64:
+			_printed_face_rows.clear()
+		_printed_face_rows[key] = ActionIcons.rows_for_card(GameData.card_def(card_id))
+	return _printed_face_rows[key]
+
+## The rows' structure with numbers left out; fills `tokens` with the
+## dictionary tokens in order, so equal shapes align token for token.
+static func _face_rows_shape(rows: Array, tokens: Array) -> Array:
+	if _numeric_value_text == null:
+		_numeric_value_text = RegEx.create_from_string("^[+\\-\u2212]?\\d+$")
+	var shape: Array = []
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row_shape: Array = []
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = token_var
+			tokens.append(token)
+			var value: Variant = token.get("value", null)
+			var value_shape: Variant = null
+			if typeof(value) == TYPE_STRING and _numeric_value_text.search(str(value)) == null:
+				value_shape = value
+			row_shape.append([str(token.get("kind", "")), str(token.get("icon", "")), str(token.get("field", "")),
+				str(token.get("surface", "")), str(token.get("prefix", "")), str(token.get("suffix", "")),
+				str(token.get("keyword_segment", "")), str(token.get("state_condition", "")),
+				str(token.get("pattern", "")), bool(token.get("show_origin", false)), value_shape])
+		shape.append(row_shape)
+	return shape
+
+## The printed token a face number stands for: damage numbers match the card's
+## damage fields (Burst included), other terms their own icon.
+static func _match_face_token(tokens: Array, used: Dictionary, icon_key: String, damage: bool, number: int) -> int:
+	for index: int in range(tokens.size()):
+		if used.has(index):
+			continue
+		var token: Dictionary = tokens[index]
+		var value: Variant = token.get("value", null)
+		if typeof(value) not in [TYPE_INT, TYPE_FLOAT] or int(value) != number:
+			continue
+		var damage_field: bool = str(token.get("field", "")) == "damage"
+		if (damage or icon_key == "burst") and damage_field:
+			return index
+		if icon_key == "health" and token.get("field") == "health":
+			return index
+		if not damage and str(token.get("icon", "")) == icon_key and not damage_field:
+			return index
+	return -1
+
+func _sentence_face_metrics() -> Dictionary:
+	var floor_size: int = _rules_text_font_size()
+	var sizes: Array = []
+	for text_size: int in range(maxi(floor_size, UiTypography.scaled_size(self, floor_size)), floor_size - 1, -1):
+		sizes.append(text_size)
+	var extra_art_relief: float = _scaled_card_value(float(CardFaceSpec.spec_for(card_id).get("extra_art_relief", 0.0)))
+	return {
+		"text_font": UiTypography.text_font(),
+		"ui_font": UiTypography.ui_font(),
+		"text_sizes": sizes,
+		"chip_size": UiTypography.scaled_size(self, _scaled_card_font_size(UiTypography.SIZE_CAPTION, 9)),
+		"scale": _card_layout_scale(),
+		"rows_top": _summary_rows_top(),
+		"details_height": details_panel.custom_minimum_size.y,
+		"max_relief": _available_art_relief(extra_art_relief),
+	}
+
+## Card y of the rows box before any art lend: the margins and separations
+## _apply_scaled_node_metrics sets above it.
+func _summary_rows_top() -> float:
+	var art_bleed: float = float(_scaled_card_int(2, 1) + _scaled_card_int(1, 1))
+	return float(_scaled_card_int(14, 5) + 2 * _scaled_card_int(7, 2) + _scaled_card_int(3, 1)) + _scaled_card_value(40.0, 22.0) + art_frame.custom_minimum_size.y - art_bleed
+
+func _sentence_face_style(face: Dictionary) -> Dictionary:
+	var tones: Dictionary = {}
+	var tooltips: Dictionary = {}
+	var sentence: Array = face.get("sentence", []) as Array
+	for index: int in range(sentence.size()):
+		var segment: Dictionary = sentence[index]
+		if segment.has("tooltip"):
+			tooltips[index] = str(segment["tooltip"])
+		if segment.has("tone"):
+			tones[index] = _token_value_color(segment)
+	var chip: Dictionary = face.get("chip", {}) if typeof(face.get("chip", null)) == TYPE_DICTIONARY else {}
+	var style: Dictionary = {
+		"text_font": UiTypography.text_font(), "ui_font": UiTypography.ui_font(), "scale": _card_layout_scale(),
+		"ink": RULES_TEXT_COLOR, "title_ink": UiPalette.CARD_TITLE_INK,
+		"number_ink": _token_value_color({}), "number_outline": _token_outline_color(false), "number_outline_size": 3,
+		"tones": tones, "tooltips": tooltips, "pattern_tooltip": AREA_PATTERN_TOOLTIP,
+		"chip_tooltip": str(chip.get("tooltip", "")),
+	}
+	if str(chip.get("tone", "neutral")) in ["bonus", "penalty"]:
+		style["chip_tone"] = _token_value_color(chip)
+	return style
+
+func _render_sentence_face(face: Dictionary) -> void:
+	var started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
+	# The icon-row fitter's caches describe other trees; a later row face rebuilds.
+	_clear_summary_layout_cache()
+	_summary_layout_inputs.clear()
+	_summary_active_layout = -1.0
+	_summary_fit_inset = _summary_screen_inset()
+	var face_plan: Dictionary = CardFaceLayout.plan(face, _sentence_face_metrics())
+	for child: Node in _summary_icon_box.get_children():
+		if child != _sentence_face:
+			_summary_icon_box.remove_child(child)
+			child.queue_free()
+	if _sentence_face == null or not is_instance_valid(_sentence_face) or _sentence_face.get_parent() != _summary_icon_box:
+		_sentence_face = CardFaceSentenceView.new()
+		_summary_icon_box.add_child(_sentence_face)
+	_sentence_face.call("apply", face_plan, _sentence_face_style(face))
+	var lend: float = float(face_plan.get("lend", 0.0))
+	_remember_summary_layout(art_frame.custom_minimum_size.y - lend, details_panel.custom_minimum_size.y + lend)
+	_record_layout_probe("sentence_face", started)
+
+## The current sentence face's plan (empty for icon-row faces); for checks.
+func sentence_face_plan() -> Dictionary:
+	if _sentence_face != null and is_instance_valid(_sentence_face) and _sentence_face.get_parent() == _summary_icon_box:
+		return _sentence_face.call("plan")
+	return {}
 
 func _render_summary_icon_rows(rows: Array) -> void:
 	var started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
@@ -1949,7 +2169,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	# Spend the existing art allowance before reducing summary icons. Rules and
 	# numeric type keep the context's rules size even when a row cannot fit.
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height + _available_art_relief() - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
-	var available_width: float = _summary_available_width()
+	var available_width: float = _summary_parchment_width() - 2.0 * _summary_screen_inset()
 	# Sparse cards earn bold, scan-level icons; dense cards still step down to fit.
 	var base_candidates: Array = [42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [46.0, 44.0, 42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
@@ -2004,10 +2224,10 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 func _summary_min_label_size() -> int:
 	return _rules_text_font_size()
 
-func _available_art_relief() -> float:
+func _available_art_relief(extra_art_relief: float = 0.0) -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	var minimum: float = _scaled_card_value(68.0 if width <= COMPACT_CARD_WIDTH else ART_MIN_HEIGHT, 36.0)
-	return maxf(0.0, art_frame.custom_minimum_size.y - minimum)
+	return maxf(0.0, art_frame.custom_minimum_size.y - maxf(0.0, minimum - extra_art_relief))
 
 func _lend_art_height_to_rules(required_height: float) -> void:
 	var relief: float = minf(_available_art_relief(), maxf(0.0, required_height - details_panel.custom_minimum_size.y))
@@ -2255,29 +2475,92 @@ func _base_title_size() -> int:
 	# Fit relief takes one step off, so full-size cards render at the 19 px cap.
 	return _scaled_card_font_size(20, 9)
 
-func _queue_title_refit() -> void:
+## Layout owners pass the scale of the resting face. Animation transforms never
+## participate in title fitting. Thumbnail contexts retain the legacy fitter.
+func set_title_layout(rest_scale: float, thumbnail: bool = false, host: Control = null, reference_size: Vector2 = Vector2.ZERO, shelf: bool = false) -> void:
+	if _title_scale_host != host:
+		if is_instance_valid(_title_scale_host):
+			_title_scale_host.resized.disconnect(_refit_title)
+		_title_scale_host = host
+		if host != null:
+			host.resized.connect(_refit_title)
+	_title_rest_scale = rest_scale
+	_title_thumbnail = thumbnail
+	_title_reference_size = reference_size
+	_title_shelf = shelf
+	_refit_title()
+
+func set_title_outer_scale(rest_scale: float) -> void:
+	_title_outer_scale = rest_scale
+	_refit_title()
+
+func _title_layout_scale() -> float:
+	var scale_factor: float = _title_rest_scale * _title_outer_scale
+	if is_instance_valid(_title_scale_host) and _title_scale_host.size.x > 0.0 and _title_scale_host.size.y > 0.0:
+		scale_factor *= minf(_title_scale_host.size.x / _title_reference_size.x, _title_scale_host.size.y / _title_reference_size.y)
+	return scale_factor
+
+## A flight uses the source's resting layout, including the hand watch inset.
+func copy_title_layout(source: CardWidget) -> void:
+	_title_right_limit = source._title_right_limit
+	_title_outer_scale = 1.0
+	set_title_layout(source._title_layout_scale(), source._title_thumbnail, null, Vector2.ZERO, source._title_shelf)
+
+func _refit_title() -> void:
 	if is_node_ready():
-		call_deferred("_fit_title_label", _base_title_size())
+		_fit_title_label(_base_title_size())
 
 func _fit_title_label(base_size: int) -> void:
 	if title_label == null:
 		return
+	var width: float = _title_nameplate_width()
+	var height: float = title_label.custom_minimum_size.y
+	var scale_factor: float = _title_layout_scale()
+	var inputs: Array = [title_label.text, width, height, base_size, UiTypography.ui_scale(title_label), scale_factor, _title_thumbnail, _title_shelf]
+	if _title_inputs == inputs:
+		return
+	_title_inputs = inputs
+	_title_fit_count += 1
 	_update_title_inset()
-	var render_size: int = _fitted_title_size(_relieved_title_size(base_size))
+
+	var font: Font = _title_base_font
+	var legacy_size: int = _fitted_title_size(_relieved_title_size(base_size), font)
+	var source_px: int = UiTypography.scaled_size(title_label, legacy_size)
 	var overrun: TextServer.OverrunBehavior = TextServer.OVERRUN_NO_TRIMMING
-	if render_size == _title_min_size():
-		var font_size: int = UiTypography.scaled_size(title_label, render_size)
-		if SummaryMeasurements.text_width(title_label.get_theme_font("font"), font_size, title_label.text) > _title_nameplate_width():
+	_title_fit_step = 0
+	if _title_thumbnail:
+		if legacy_size == _title_min_size() and SummaryMeasurements.text_width(font, source_px, title_label.text) > width:
 			overrun = TextServer.OVERRUN_TRIM_ELLIPSIS
+	else:
+		var minimum: int = ceili(float(TITLE_FULL_NAME_MIN_PX) / scale_factor)
+		var preferred: int = maxi(source_px, ceili(float(TITLE_MIN_SIZE) / scale_factor))
+		var last_size: int = mini(preferred, minimum)
+		_title_fit_step = 1
+		source_px = preferred
+		while source_px > last_size and not _full_title_fits(font, source_px, width, height):
+			source_px -= 1
+			_title_fit_step = 2
+		if not _full_title_fits(font, source_px, width, height):
+			# Prefer a tight full name at the last size before reporting overflow.
+			font = UiTypography.tight_card_title_font()
+			_title_fit_step = 3 if _full_title_fits(font, source_px, width, height) else 4
+			if _title_fit_step == 4 and _title_shelf:
+				# Shelf previews keep the full name through the hover lift.
+				_title_fit_step = 5
+				while source_px > 1 and not _full_title_fits(font, source_px, width, height):
+					source_px -= 1
+
+	if title_label.get_theme_font("font") != font:
+		title_label.add_theme_font_override("font", font)
 	if title_label.text_overrun_behavior != overrun:
 		title_label.text_overrun_behavior = overrun
-	if _retain_hand_refresh_work:
-		RetainedMetrics.label_size(title_label, render_size)
-	else:
-		UiTypography.set_label_size(title_label, render_size)
+	RetainedMetrics.font_size_override(title_label, &"font_size", source_px)
 
-func _fitted_title_size(initial_size: int) -> int:
-	var font: Font = title_label.get_theme_font("font")
+func _full_title_fits(font: Font, font_size: int, width: float, height: float) -> bool:
+	return SummaryMeasurements.text_height(font, font_size) <= height \
+		and SummaryMeasurements.text_width(font, font_size, title_label.text) <= width
+
+func _fitted_title_size(initial_size: int, font: Font) -> int:
 	var width: float = _title_nameplate_width()
 	var height: float = maxf(_scaled_card_value(28.0, 16.0), title_label.custom_minimum_size.y)
 	var minimum: int = _title_min_size()
@@ -2316,18 +2599,15 @@ func _title_nameplate_left() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	return (width - maxf(72.0, width * TITLE_NAMEPLATE_WIDTH_RATIO)) * 0.5
 
-## The fan supplies the next card's watch, whose left edge can cover this name.
-## Keeping the limit in card coordinates preserves the inset through hover scale.
-func set_title_occluder(badge: Control) -> void:
-	var limit: float = INF
-	if badge != null and badge.visible:
-		var transform: Transform2D = get_global_transform().affine_inverse() * badge.get_global_transform()
-		var badge_rect: Rect2 = transform * Rect2(Vector2.ZERO, badge.size)
-		limit = badge_rect.position.x - TITLE_BADGE_GAP
+## The fan supplies the next watch's left edge in resting card coordinates.
+func set_title_occluder(left_edge: float) -> void:
+	var limit: float = left_edge - TITLE_BADGE_GAP
 	if is_equal_approx(limit, _title_right_limit) or (is_inf(limit) and is_inf(_title_right_limit)):
 		return
 	_title_right_limit = limit
-	_queue_title_refit()
+	if is_node_ready():
+		_update_title_inset()
+		_refit_title()
 
 func _update_title_inset() -> void:
 	if _title_inset == null:

@@ -12,7 +12,7 @@ const KNOTS := "relic_element_knots"
 const LAST := "variety_last_card_element"
 const REFUNDS := "light_move_refunds"
 const ELEMENTS: Array = ["fire", "ice", "lightning", "air", "earth"]
-const STATUSES: Array = ["bleed", "expose", "shock", "freeze", "chilled", "immobilize", "petrify"]
+const STATUSES: Array = ["expose", "shock", "immobilize"]
 
 static func effect(effects: Array, type: String) -> Dictionary:
 	for entry: Dictionary in effects:
@@ -105,9 +105,10 @@ static func collect_removals(state: Dictionary, since_sequence: int, effects: Ar
 			if int(event.get("sequence", 0)) <= seen: continue
 			var source: Dictionary = event.get("source", {}) as Dictionary
 			if str(source.get("actor_kind", "")) != "player" or Expend.is_trap_source(source): continue
-			if str(event.get("kind", "")) != "surface_removed" or not bool(source.get(Expend.KEYWORD, false)): continue
-			# The removing card/relic's displayed Expend identity is authoritative;
-			# removal reasons are analytics only. Old stored saves are ignored.
+			if str(event.get("kind", "")) != "surface_removed" or not (bool(source.get(Expend.KEYWORD, false)) or bool(source.get("burst", false))): continue
+			# The removing card/relic's displayed Expend identity, or a Burst that
+			# destroyed the ground (pla-04), is authoritative; removal reasons are
+			# analytics only. Old stored saves are ignored.
 			var pending: int = pending_dial_damage(state)
 			var added: int = mini(int(dial.get("damage", 3)), maxi(0, int(dial.get("max", 9)) - pending))
 			if added > 0:
@@ -154,18 +155,7 @@ static func death(engine: RefCounted, state: Dictionary, enemy: Dictionary, effe
 		if int(other.get("hp", 0)) <= 0 or not Surface.footprint_tiles(other).any(func(tile: Vector2i) -> bool: return adjacent.has(tile)): continue
 		var index: int = engine._enemy_index_for_id(state, int(other["id"]))
 		state = engine._apply_action_keywords_to_enemy(state, index, statuses, enemy.get("pos", Vector2i.ZERO))
-		other = state["enemies"][index]
-		for status: String in ["freeze", "chilled", "immobilize", "petrify"]:
-			if not statuses.has(status) or engine._enemy_is_immune_to_status(other, status): continue
-			if status == "freeze":
-				other["freeze"] = maxi(int(other.get("freeze", 0)), int(statuses[status]))
-				other["chilled"] = false
-				other.erase("relic_chilled")
-			elif status == "chilled" and int(other.get("freeze", 0)) <= 0:
-				other["chilled"] = true
-				other["relic_chilled"] = true
-			elif status == "immobilize": other["immobilize"] = true
-			elif status == "petrify": engine.ManeuverRules.petrify_enemy(engine, state, other, {"actor_kind": "player", "causal_owner": "player", "source_kind": "relic", "player_card": false, "relic_id": str(spread.get("relic_id", ""))})
+
 	return state
 
 static func hero_light(state: Dictionary, tile: Vector2i) -> bool:

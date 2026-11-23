@@ -76,7 +76,7 @@ func _capture_additional(after: Dictionary, chain_presentation: Dictionary) -> v
 	var peak: Dictionary = {"en01_burst": chain_presentation["en01_burst"]}
 	Fx.decorate(peak, PROOF_GLOW_PEAK_SECONDS)
 	await _show(after, peak)
-	await _capture("11_burst_peak", {"elapsed": PROOF_GLOW_PEAK_SECONDS, "centre_alpha": 0.55, "ribbons": 8, "smoke_puffs": 1})
+	await _capture("11_burst_peak", {"elapsed": PROOF_GLOW_PEAK_SECONDS, "centre_alpha": 0.55, "ribbons": 4, "smoke_puffs": 1})
 	var aoe_state: Dictionary = Suite.fixture(["ember_tick", "crawler"])
 	var tiles: Array[Vector2i]
 	tiles.assign([Vector2i(3, 3), Vector2i(3, 4), Vector2i(4, 3), Vector2i(4, 4)])
@@ -221,6 +221,6 @@ func _capacitor_pre_battle() -> void:
 		if inspection != null:
 			var labels := PackedStringArray()
 			for label: Label in inspection.find_children("*", "Label", true, false): labels.append(label.text)
-			_expect(labels.has("Charge") and labels.has("Arc Burst") and labels.has("+1") and labels.has("6") and not labels.has("Special action"), "Native Capacitor panel shows the approved numeric move rows")
-		await _capture("16_capacitor_pre_battle_moves", {"native_hover": true, "moves": ["Charge", "Arc Burst"], "rows": ["+1", "6"]})
+			_expect(labels.has("Charge") and labels.has("Arc Lash") and labels.has("+1") and labels.has("6") and not labels.has("Special action"), "Native Capacitor panel shows the approved numeric move rows")
+		await _capture("16_capacitor_pre_battle_moves", {"native_hover": true, "moves": ["Charge", "Arc Lash"], "rows": ["+1", "6"]})
 	await _pointer(Vector2.ZERO)

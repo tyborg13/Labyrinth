@@ -320,7 +320,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	model["new_best_score"] = bool(run_result.get("new_best_score", int(scored["total"]) > int(progression.get("best_score", 0))))
 	model["embers_text"] = "Embers carried %s." % RunScoreRules.grouped_number(ember_amount)
 	if normalized_outcome == "defeat":
-		model["embers_text"] = "Embers lost %s. They wait where you fell, in Section %s of your next run." % [RunScoreRules.grouped_number(ember_amount), RunScoreRules.roman(int(location["section"]))] if ember_amount > 0 else "No marker · no Embers left behind"
+		model["embers_text"] = "Embers lost %s. They wait in Section %s of your next run." % [RunScoreRules.grouped_number(ember_amount), RunScoreRules.roman(int(location["section"]))] if ember_amount > 0 else "No marker · no Embers left behind"
 		if int(location["section"]) <= 0 and ember_amount > 0:
 			model["embers_text"] = "%s %d\n%s" % [model["ember_label"], ember_amount, recovery_status]
 	return model

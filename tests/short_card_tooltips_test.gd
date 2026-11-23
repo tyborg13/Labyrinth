@@ -6,8 +6,14 @@ const Grimoire = preload("res://scripts/grimoire_library.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const Skills = preload("res://scripts/skill_tree_library.gd")
 const DiscoverySync = preload("res://scripts/grimoire_discovery_sync.gd")
-const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe"] # sta-01/mrk-01/flu-01; protected copy stays intact.
+const RETIRED_TERMS: PackedStringArray = ["dive", "veil", "lob", "icefall", "burrow", "erupt", "flurry", "aoe", "detonate", "discharge", "shatter_illusion", "freeze", "chilled", "petrify", "bleed", "sunder", "truesight", "dispel_umbra", "radiance"] # sta-01/mrk-01/flu-01/pla-04; protected copy stays intact.
+## pla-04 (Burst merge): the approved copy superseding the protected records.
+const PLA08_COPY_PATH: String = "res://tests/fixtures/pla08_light_vision_copy.json"
+const PLA04_COPY_PATH: String = "res://tests/fixtures/pla04_burst_copy.json"
+const PLA07_COPY_PATH: String = "res://tests/fixtures/pla07_status_copy.json"
+const PLA06_COPY_PATH: String = "res://tests/fixtures/pla06_ice_copy.json"
 const UMBRA_AREA_BODY: String = "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted. Attacks that hit an area hit hidden enemies on those tiles too."
+const TXT20_COPY_PATH: String = "res://tests/fixtures/txt20_rules_copy.json"
 const COPY_PATH: String = "res://spec/peer_benchmark/staged/tt-01/tooltips.json"
 const EXPECTATIONS_PATH: String = "res://tests/fixtures/short_card_tooltips_expectations.json"
 var _failures: Array[String]
@@ -37,7 +43,7 @@ const TRP01_TRAP_BODY: Array = [
 ]
 
 const HOUSE_STYLE_GRIMOIRE := {
-	"skate": "This turn, stepping onto Ice costs no Movement, and Ice doesn't make you Chilled.",
+	"skate": "This turn Ice costs you no Movement and doesn't Expose you.",
 	"surface_electrified": "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it.",
 	"targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it.",
 	"reflect": "Attacks from a non-adjacent tile bounce back to the attacker.", # pla-01: the rule now matches the tooltip; no exception list.
@@ -53,15 +59,27 @@ func _run() -> void:
 	(_expectations["new_terms"] as Array).erase("mirror")
 	(_expectations["triggers"] as Dictionary).erase("mirror")
 	(_expectations["encounters"]["hollow_mimic"]["unlocks"] as Array).erase("mirror")
+	# pla-04 (Burst merge): Discharge, Shattered Reflection and Rockburst unlock
+	# Burst; Groundsplit (the terrain_burst entry) is taught by Craghide.
+	var pla04_encounters: Dictionary = _expectations["encounters"]
+	pla04_encounters["discharge"]["unlocks"] = ["burst", "element_lightning"]
+	pla04_encounters["shattered_reflection"]["unlocks"] = ["burst"]
+	pla04_encounters["rockburst"]["unlocks"] = ["burst", "element_earth"]
+	pla04_encounters["craghide"] = {"combat": {"enemies": [{"type": "craghide"}]}, "unlocks": ["terrain_burst", "outcrop"]}
+	(_expectations["triggers"] as Dictionary)["terrain_burst"] = "craghide"
 	var entry_map: Dictionary = Grimoire.entry_map()
-	_expect(Glossary.all_entries().size() == 139, "Final glossary contains all 139 live entries")
-	_expect(Glossary.definition("marked") == "These tiles take the hit on this enemy's next turn.", "Marked retains its approved definition")
-	var deferred_copy: String = "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward."
+	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(TXT20_COPY_PATH))
+	var pla04: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA04_COPY_PATH))
+	_expect(Glossary.all_entries().size() == 128, "Final glossary contains all 128 live entries")
+	_expect(Glossary.definition("marked") == "Marked tiles show where this enemy acts on its next turn.", "Marked retains its approved definition")
+	var deferred_copy: String = "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card."
 	_expect(Glossary.definition("skill_deferred_choice") == deferred_copy and Skills.description("deferred_choice") == deferred_copy, "Deferred Choice uses its exact shared non-boss reward rule")
 	var pla01: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla01_exception_strip.json"))
 	# pla-02: director-approved Grimoire pages (tooltip sentence + one detail
 	# paragraph) supersede every Grimoire body pinned below.
 	var pla02_pages: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]
+	pla02_pages["keyword:marked"][0] = "Marked tiles show where this enemy acts on its next turn."
+	pla02_pages["combat:traps"][0] = "Traps hit when entered or attacked."
 	_pla02_pages = pla02_pages
 	_expect(entry_map["keyword:marked"]["body"] == pla02_pages["keyword:marked"] and str(pla02_pages["keyword:marked"][0]) == Glossary.definition("marked"), "Marked owns the definition replacing the four retired topics, plus its Burrow detail")
 	var changes: Dictionary = {}
@@ -73,9 +91,19 @@ func _run() -> void:
 	# trp-01 (owner 2026-11-16): traps also leave their ground on their own tile; director copy supersedes the tt-era text.
 	superseding["traps"] = "Trigger when entered or attacked: damage the unit on them, then leave their element on their tile and each tile next to it. Air traps push instead."
 	superseding["surface_rubble"] = "Costs 2 Movement to leave."
-	superseding["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
-	# pla-01 (exception strip) supersedes these short lines.
+	superseding["skate"] = "This turn Ice costs you no Movement and doesn't Expose you."
+	superseding.merge(pla04["glossary_definitions"], true)
+	var pla06: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA06_COPY_PATH))
+	superseding.merge(pla06["glossary_definitions"], true)
+	(pla04["grimoire_bodies"] as Dictionary).merge(pla06["grimoire_bodies"], true)
+	var status: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA07_COPY_PATH))
+	(pla04["grimoire_bodies"] as Dictionary).merge(status["grimoire_bodies"], true)
+	preload("res://tests/fixtures/approved_glossary_structure.gd").apply_pla09_copy(superseding, pla04["grimoire_bodies"])
+	var pla08: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PLA08_COPY_PATH))
+	superseding.merge(pla08["definitions"], true)
+	superseding.merge(copy20["glossary_definitions"], true)
 	superseding.merge(pla01["glossary"], true)
+	superseding["traps"] = "Traps hit when entered or attacked."
 	_expect((_expectations["owners"] as Dictionary).size() == (copy["entries"] as Array).size(), "Every changed term has an independently specified owning topic")
 	for change: Dictionary in copy["entries"]:
 		var id: String = str(change["id"])
@@ -84,6 +112,8 @@ func _run() -> void:
 			_expect(not Glossary.all_entries().any(func(entry: Dictionary) -> bool: return entry["id"] == id) and not entry_map.has("keyword:" + id), "Retired glossary and Grimoire identity stays absent: " + id)
 			if id in ["lob", "icefall", "burrow", "erupt"]:
 				_expect(Glossary.lookup(id).get("id", "") == "marked", "Retired marked move resolves to the shared Marked topic: " + id)
+			elif id in (pla04["retired_glossary_terms"] as Array):
+				_expect(Glossary.lookup(id).get("id", "") == "burst", "Retired Burst-family term resolves to Burst: " + id)
 			else:
 				_expect(Glossary.lookup(id).is_empty(), "Retired keyword has no glossary alias: " + id)
 			continue
@@ -96,7 +126,8 @@ func _run() -> void:
 		_expect(not entry.is_empty(), "Expected owning topic exists: " + id + " -> " + owner)
 		if pla02_pages.has(owner):
 			_expect(entry.get("body", []) == pla02_pages[owner], "pla-02 page owns the rules: " + id + " -> " + owner)
-		# bos-02 replaces these two retired dragon rules with approved full bodies.
+		elif copy20["grimoire_bodies"].has(owner):
+			_expect(entry.get("body", []) == copy20["grimoire_bodies"][owner], "Template rules own the topic: " + id + " -> " + owner)
 		elif id in ["gale_force", "worldspines"]:
 			var approved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_feedback1_grimoire.json"))
 			var expected_body: Array = approved["entries"][owner]["body"]
@@ -110,9 +141,15 @@ func _run() -> void:
 			_expect(owner == "combat:outcrops" and str(entry["body"][0]).contains("An Outcrop blocks movement and line of sight"), "One Outcrops article owns the full rule")
 		elif id == "traps":
 			_expect(entry.get("body", []) == TRP01_TRAP_BODY, "trp-01 director rules own the trap topic: " + id + " -> " + owner)
+		elif (pla04["grimoire_bodies"] as Dictionary).has(owner):
+			_expect(entry.get("body", []) == pla04["grimoire_bodies"][owner], "Playability rules own the topic: " + id + " -> " + owner)
+		elif pla08["grimoire_bodies"].has(owner):
+			_expect(entry.get("body") == pla08["grimoire_bodies"][owner], "pla-08 Grimoire copy: " + id)
 		else:
-			_expect((entry.get("body", []) as Array).has(UMBRA_AREA_BODY if id == "umbra" else HOUSE_STYLE_GRIMOIRE.get(id, change["old"])), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
-	_test_new_entry_schema(changes, entry_map, pla01["grimoire_appended"])
+			var expected: String = pla08["grimoire_line_updates"].get(id, UMBRA_AREA_BODY if id == "umbra" else HOUSE_STYLE_GRIMOIRE.get(id, status["grimoire_paragraphs"].get(id, change["old"])))
+			_expect((entry.get("body", []) as Array).has(expected), "Full rules remain in their expected owning topic: " + id + " -> " + owner)
+	var bodies: Dictionary = (pla04["grimoire_bodies"] as Dictionary).merged(copy20["grimoire_bodies"], true)
+	_test_new_entry_schema(changes, entry_map, bodies, pla08, pla01["grimoire_appended"])
 	_test_discovery()
 	var proof := Proof.new()
 	await proof.run(self, _expect, OS.get_cmdline_user_args().has("--capture"))
@@ -121,7 +158,7 @@ func _run() -> void:
 	print("SHORT CARD TOOLTIPS TEST RESULT: %s (%d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _checks, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)
 
-func _test_new_entry_schema(changes: Dictionary, entry_map: Dictionary, pla01_appended: Dictionary) -> void:
+func _test_new_entry_schema(changes: Dictionary, entry_map: Dictionary, playability_bodies: Dictionary, pla08: Dictionary, pla01_appended: Dictionary) -> void:
 	_expect(not entry_map.has("keyword:outcrop") and not Glossary.lookup("outcrop").is_empty(), "The Outcrop glossary term remains and only the combat article is listed")
 	for term: String in _expectations["new_terms"]:
 		if term == "outcrop": continue
@@ -134,13 +171,18 @@ func _test_new_entry_schema(changes: Dictionary, entry_map: Dictionary, pla01_ap
 		_expect(entry.get("section") == "keywords", "New entry remains in Keywords: " + term)
 		_expect(entry.get("title") == glossary["name"], "New entry uses its glossary title: " + term)
 		_expect(entry.has("icon") and entry.get("icon") == icon, "New entry uses its approved icon, including explicit null: " + term)
-		var expected_body: Array = [HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"])]
+		if _pla02_pages.has("keyword:" + term):
+			_expect(entry.get("body") == _pla02_pages["keyword:" + term], "Merged keyword page: " + term)
+			continue
+		if playability_bodies.has("keyword:" + term):
+			_expect(entry.get("body") == playability_bodies["keyword:" + term], "Playability entry body: " + term)
+			continue
+		var expected_body: Array = [pla08["grimoire_line_updates"].get(term, HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"]))]
 		var tt02_facts: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/card_panel_grimoire_facts.json"))
 		for fact: Dictionary in tt02_facts.values():
 			if fact["owner"] == "keyword:" + term and fact["appended"]:
 				expected_body.append_array(fact["paragraphs"])
 		expected_body.append_array(pla01_appended.get("keyword:" + term, []))
-		if _pla02_pages.has("keyword:" + term): expected_body = _pla02_pages["keyword:" + term]
 		_expect(entry.get("body") == expected_body, "New entry has its own full definition paragraph: " + term)
 		_expect(not entry.has("default") or typeof(entry["default"]) == TYPE_BOOL, "New entry default flag is boolean when present: " + term)
 

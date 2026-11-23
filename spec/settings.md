@@ -39,21 +39,30 @@ a window on another display.
 
 ## Controls section
 
-Settings ends with a read-only **CONTROLS** section after Accessibility (`_build_controls_section` in
-`scripts/settings_panel.gd`). It lists what each key and button does. Like every section, it uses `_section_shell`;
-its tagline ("What each key and button does.") stays hidden like the others. Rebinding is not part of it.
+Settings ends with **CONTROLS** after Accessibility (`_build_controls_section` in
+`scripts/settings_panel.gd`). It lists what each key and button does. The six editable keyboard
+actions are Pass (P), Hurry (Space), Empower (E), Undo a walk (Z), Show enemy intents (I), and Map (M).
+Controller mappings stay with Steam Input.
+
+`key_bindings` in `user://settings.json` maps action IDs to Godot physical keycodes. Zero unbinds an
+action. Missing and invalid entries use the default key. The default letter positions are resolved
+from the system layout at launch when available. Custom bindings retain their physical positions
+across launches, and their labels reflect the active layout. Loading an unreadable settings file
+uses defaults and does not write the file. Binding changes are ordinary preferences, stored
+independently of run saves and the profile.
 
 ### Data: `data/controls.json`
 
 The rows are data, in display order, so later units add or change a row without code. The file is an array of rows:
 
 ```json
-{"id": "pass", "label": "Pass the turn", "pointer": ["Pass button", {"key": "P"}], "controller": ["controller_pass"]}
+{"id": "pass", "label": "Pass the turn", "pointer": ["Pass button", {"key": "P", "rebind": "pass"}], "controller": ["controller_pass"]}
 ```
 
 - `label`: the action, in the settings row label style.
-- `pointer`: keyboard and mouse tokens, in order. `{"key": "P"}` draws a keycap. A plain string is a phrase and draws
-  as caption text (`Left click`, `Mouse`, `Pass button`). An empty list shows `—`.
+- `pointer`: keyboard and mouse tokens, in order. A `key` token draws a keycap. Add `rebind` with
+  its action ID to draw an editable keycap using the current binding. A plain string draws as
+  caption text (`Left click`, `Mouse`, `Pass button`). An empty list shows `—`.
 - `controller`: InputRouter action names (`controller_accept`, `combat_undo_move`, `controller_dpad`, …), drawn as
   `InputGlyph` badges at `InputGlyph.preferred_size`. An empty list shows `—`.
 
@@ -64,8 +73,9 @@ row. The rows that were left out in ux-17:
 - Pin a tooltip. Shift pins only over the Scavenger's wares, so the row would claim too much.
 - Controller bindings for "Pick a card" and "Show enemy intents". They have none.
 
-Letter keys follow the player's layout. P and 1–9 use `combat_keyboard_shortcuts.gd`. The undo InputMap event
-matches the key that types z (`keycode`, plus Ctrl/Cmd+Z). Each keycap is therefore true on AZERTY.
+`scripts/key_bindings.gd` resolves the six editable actions and supplies their layout-aware labels.
+The fixed hand shortcuts 1–9 continue to use `combat_keyboard_shortcuts.gd`. Ctrl/Cmd+Z remains a
+separate undo shortcut on the key that types z.
 
 ### Look and input
 
@@ -78,11 +88,16 @@ matches the key that types z (`keycode`, plus Ctrl/Cmd+Z). Each keycap is theref
   use the caption style.
 - Controller badges use the router's current family, which is Xbox until a pad is seen. They switch live on
   `controller_family_changed`.
-- Rows can take focus, so the D-pad, arrow keys and Tab scroll the panel through the section. Accept does nothing.
-  Navigation focus draws the skin's standard focus ring. Hover draws nothing, since a lit row would read as a
-  button. A click leaves the focus hidden. The wheel still scrolls the panel over a row.
+- The D-pad, arrow keys and Tab navigate the section. Read-only rows take focus for scrolling.
+  The editable keycap takes focus in each rebindable row. Click, Enter, or controller A starts
+  listening. The cap shows `Press a key` in the selection style and widens within the existing row.
+- Esc, a mouse click, or controller B cancels listening. Backspace and Delete clear the binding and
+  the keycap displays `—`. Digits 1–9 on either number bank, Enter, Tab, Shift, Ctrl, Alt, Cmd/Meta
+  and Caps Lock leave the cap listening. A conflict swaps the two bindings with a single selection
+  pulse on each cap. If the edited action was unbound, the other action becomes unbound.
+- **Restore default keys** uses the shared confirmation. The button is disabled when all six
+  bindings are at their defaults. Confirming restores those keys and keeps the other preferences.
 
-Proof: `tools/ux17/capture.gd`. With `--headless-check`, it runs the binding, layout, keycap, family, navigation and
-pointer checks. A windowed run through `tools/visual_probe_runner.py` with `tools/ux17/proof_contract.json` adds
-exact-size SubViewport captures at 1920x1080 (100% pointer and controller, 125%, and a forced 150%) and 1280x800
-(Deck, 115%, Steam Deck glyphs).
+Proof runs through `tools/ux19/native.sh`. The `--dry-run` mode exercises Settings, gameplay
+handlers, and a second Godot process for persistence. The `--windowed` mode creates exact-size
+SubViewport captures with cel look active and validates them against `tools/ux19/proof_contract.json`.

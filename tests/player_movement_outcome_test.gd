@@ -36,8 +36,8 @@ func _initialize() -> void:
 	await create_timer(0.2).timeout
 	await _test_stale_requests()
 	await _test_hidden_collision()
-	await _test_bleed(false)
-	await _test_bleed(true)
+	await _test_fire_contact(false)
+	await _test_fire_contact(true)
 	scene.queue_free()
 	view.queue_free()
 	await process_frame
@@ -93,38 +93,40 @@ func _test_hidden_collision() -> void:
 	_expect(int(after["umbra"].get("movement_interrupted_total", 0)) == 1, "Hidden collision accounting survives UI commit")
 	_expect(int(after["last_player_movement"].get("spent", 0)) == 1, "Hidden collision spends only the traversed step")
 
-func _test_bleed(lethal: bool) -> void:
+func _test_fire_contact(lethal: bool) -> void:
 	var state: Dictionary = Fixture._state(combat)
 	state["player"]["hp"] = 1 if lethal else 8
-	state["player"]["bleed"] = 1
+	preload("res://scripts/board_surface_rules.gd").place(state, Vector2i(3, 4), "fire")
 	await _load_fixture(state)
 	scene.call("_begin_player_movement_selection")
 	scene.call("_on_board_tile_hovered", Vector2i(3, 4))
-	if lethal: await _capture("lethal_bleed_before.png")
+	if lethal: await _capture("lethal_fire_before.png")
 	var before_events: int = Analytics.load_all_events().size()
 	var completion: Dictionary = {"done": false}
 	_commit_and_complete(completion)
-	await create_timer(0.16).timeout
-	if lethal:
-		var board: Node = scene.get("board_view") as Node
-		var presentation: Dictionary = board.get("presentation") as Dictionary
-		_expect(not (presentation.get("floating_texts", []) as Array).is_empty(), "Lethal pre-step Bleed displays player damage in place")
-		await _capture("lethal_bleed_feedback.png")
-	while not bool(completion["done"]): await process_frame
+	var damage_displayed: bool = false
+	while not bool(completion["done"]):
+		if lethal and not damage_displayed:
+			var board: Node = scene.get("board_view") as Node
+			var presentation: Dictionary = board.get("presentation") as Dictionary
+			damage_displayed = not (presentation.get("floating_texts", []) as Array).is_empty()
+			if damage_displayed: await _capture("lethal_fire_feedback.png")
+		await process_frame
+	if lethal: _expect(damage_displayed, "Lethal Fire contact displays player damage")
 	var run: Dictionary = scene.get("_run_state") as Dictionary
 	if lethal:
-		_expect(str(run.get("mode")) == "defeat" and int(run.get("player_hp", -1)) == 0, "Pre-step Bleed defeat commits despite zero movement spent")
+		_expect(str(run.get("mode")) == "defeat" and int(run.get("player_hp", -1)) == 0, "Lethal Fire contact commits the defeat")
 		_expect(not bool(scene.get("_player_movement_selected")) and not bool(scene.get("_animation_lock")), "Interrupted movement clears selection and completes animation")
-		await _capture("lethal_bleed_defeat.png")
+		await _capture("lethal_fire_defeat.png")
 	else:
 		var after: Dictionary = scene.get("_combat_state") as Dictionary
-		_expect(after["player"]["hp"] == 7 and after["player"]["pos"] == Vector2i(3, 4), "Surviving Bleed retains damage and ordinary movement")
-		await _capture("surviving_bleed_after.png")
+		_expect(after["player"]["hp"] == 6 and after["player"]["pos"] == Vector2i(3, 4), "Fire contact resolves damage at the movement endpoint")
+		await _capture("surviving_fire_after.png")
 	var events: Array = Analytics.load_all_events().slice(before_events)
 	var movement_events: Array = events.filter(func(event: Dictionary) -> bool: return str(event.get("event_type")) in ["player_moved", "player_movement_interrupted"])
 	_expect(movement_events.size() == 1, "Each movement outcome emits one movement event")
 	if not movement_events.is_empty():
-		_expect(str(movement_events[0].get("event_type")) == ("player_movement_interrupted" if lethal else "player_moved"), "Interrupted attempts are separate from completed moves in analytics")
+		_expect(str(movement_events[0].get("event_type")) == "player_moved", "Stepping into Fire records the traversed move")
 
 func _commit_and_complete(completion: Dictionary) -> void:
 	await scene.call("_commit_player_movement", Vector2i(3, 4))

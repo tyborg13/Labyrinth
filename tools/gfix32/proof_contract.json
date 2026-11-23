@@ -1,0 +1,11 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*01_settings_closed.png", "regions": [{"rect": [978, 209, 820, 715], "min_luma_range": 20, "min_luma_stdev": 2}]},
+    {"pattern": "*02_settings_confirm.png", "regions": [{"rect": [978, 886, 840, 46], "min_luma_range": 20, "min_luma_stdev": 2}]},
+    {"pattern": "*03_room_closed.png", "regions": [{"rect": [0, 0, 960, 120], "min_luma_range": 20, "min_luma_stdev": 2}]},
+    {"pattern": "*04_map_open.png", "regions": [{"rect": [320, 180, 1280, 720], "min_luma_range": 20, "min_luma_stdev": 2}]},
+    {"pattern": "*05_event_open.png", "regions": [{"rect": [170, 190, 840, 680], "min_luma_range": 20, "min_luma_stdev": 2}]}
+  ]
+}

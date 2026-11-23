@@ -12,13 +12,14 @@ const KILL_LEADER: String = "kill_leader"
 const SURVIVE: String = "survive"
 const REACH_EXIT: String = "reach_exit"
 const ONBOARDING_ROOM_KEY: String = "objective_onboarding"
+const STANDARD_KILL_ALL_REVISION: int = 6
 
 const ICON_ROOT: String = "res://assets/art/icons/objectives/"
 const DEFINITIONS := {
 	KILL_ALL: {
 		"name": "Defeat All Enemies",
 		"short_name": "Defeat All",
-		"description": "Defeat every enemy.",
+		"description": "Defeat each enemy.",
 		"icon_path": ICON_ROOT + "kill_all_enemies.png"
 	},
 	KILL_LEADER: {
@@ -94,7 +95,7 @@ static func short_name(objective_type: String) -> String:
 	return str(definition(objective_type).get("short_name", "Defeat All"))
 
 static func description(objective_type: String) -> String:
-	return str(definition(objective_type).get("description", "Defeat every enemy."))
+	return str(definition(objective_type).get("description", "Defeat each enemy."))
 
 static func icon_path(objective_type: String) -> String:
 	return str(definition(objective_type).get("icon_path", ICON_ROOT + "kill_all_enemies.png"))
@@ -167,6 +168,9 @@ static func is_control_intent(intent: Dictionary) -> bool:
 				return true
 	return false
 
+static func is_completed_encounter(room: Dictionary) -> bool:
+	return str(room.get("type", "combat")) in ["combat", "boss", "guardian", "special"] and bool(room.get("cleared", false))
+
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))
 	if SnareRooms.is_room(room): return REACH_EXIT
@@ -178,7 +182,7 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 		return KILL_LEADER
 	if room_type != "combat":
 		return KILL_ALL
-	if int(room.get("section_map_layout_revision", 0)) >= 6:
+	if int(room.get("section_map_layout_revision", 0)) >= STANDARD_KILL_ALL_REVISION:
 		return KILL_ALL
 	if bool(room.get(ONBOARDING_ROOM_KEY, false)):
 		return KILL_ALL
@@ -264,8 +268,17 @@ static func title_for_objective(objective: Dictionary) -> String:
 static func hud_title_for_objective(objective: Dictionary) -> String:
 	if objective.has("objective_hud_title"): return str(objective["objective_hud_title"])
 	var special: String = str(objective.get("special_type", ""))
-	if special == LastLightRooms.TYPE or (special == "ember_hoarder" and str(objective.get("type", KILL_ALL)) == KILL_LEADER):
+	var type: String = str(objective.get("type", KILL_ALL))
+	if special == LastLightRooms.TYPE or (special == "ember_hoarder" and type == KILL_LEADER):
 		return str(Specials.definition(special).get("objective_hud_title", title_for_objective(objective)))
+	if type == KILL_LEADER and special != "warband":
+		var leader_type: String = str(objective.get("leader_type", ""))
+		var definition: Dictionary = preload("res://scripts/game_data.gd").enemy_def(leader_type)
+		var name: String = str(definition.get("name", leader_type.capitalize()))
+		if bool(definition.get("guardian", false)):
+			return "Defeat the %s" % name
+		if preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(leader_type):
+			return "Defeat %s" % name.get_slice(",", 0)
 	return title_for_objective(objective)
 
 static func description_for_objective(objective: Dictionary) -> String:
@@ -275,7 +288,7 @@ static func description_for_objective(objective: Dictionary) -> String:
 		return description(type) + "\n" + str(SnareRooms.Pressure.definition({"objective": objective})["text"])
 	if str(objective.get("special_type", "")) == "ember_hoarder" and type == KILL_LEADER: return str(Specials.definition("ember_hoarder")["objective_description"])
 	if str(objective.get("special_type", "")) == "warband":
-		return "Kill the captain and the rest flee." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
+		return "Defeat the captain to make each follower flee." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
 	if type == KILL_LEADER:
 		if objective.has("objective_description"):
 			return str(objective["objective_description"])

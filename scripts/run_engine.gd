@@ -21,6 +21,7 @@ const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RunDeck = preload("res://scripts/run_deck.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -52,8 +53,14 @@ const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
 const RELIC_ROOM_CANDIDATE_PERCENT: int = 47
 const MERCHANT_ROOM_CANDIDATE_PERCENT: int = 22
 const MERCHANT_ROOM_MIN_DEPTH: int = 2
+# Arm C reserves one pickup in eligible fights until the first victory.
+const SECTION_ONE_EQUIPMENT_DROP_PERCENT: int = 55
 const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
+# Persisted key. A victory fulfills the opening reserve once gear was placed.
+const FIRST_COMBAT_WON_KEY: String = "first_combat_won"
+const UMBRA_LANTERN_REWARD_KEY: String = "umbra_lantern_reward_resolved"
+const AWARDED_EQUIPMENT_KEY: String = "awarded_equipment"
 const MAX_VISITED_ROOMS_BEFORE_OUTWARD_OFFER: int = 3
 const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles into dust."
 const ESCAPE_MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear will be left behind."
@@ -170,6 +177,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		"deck_cards": GameData.compile_deck_cards(equipped_equipment, attuned_magic_cards, equipped_items),
 		"reward_cards": reward_cards,
 		"attuned_magic_cards": attuned_magic_cards,
+		RunDeck.STARTER_BUFFET_SLOT_KEY: attuned_magic_cards.find(RunDeck.STARTER_BUFFET_ID),
 		MAGIC_DECK_SAVE_VERSION_KEY: MAGIC_DECK_SAVE_VERSION,
 		"magic_inventory": magic_inventory,
 		"item_inventory": [],
@@ -182,6 +190,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		NEW_LOADOUT_EQUIPMENT_KEY: [],
 		NEW_LOADOUT_MAGIC_KEY: [],
 		"equipment_drop_misses": 0,
+		FIRST_COMBAT_WON_KEY: false,
 		"relics": [],
 		"player_hp": DepthRules.start_hp(depth_state, max_hp),
 		"player_max_hp": max_hp,
@@ -257,7 +266,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var relics: Array[String]
 	for relic_id: String in ["iron_lung", "ember_lens", "pilgrim_boots"]:
 		relics.append(relic_id)
-	var debug_equipped: Dictionary = GameData.starting_equipped_equipment()
+	var debug_equipped: Dictionary = GameData.starting_equipped_equipment(true)
 	var debug_reward_cards: Array = _migrated_reward_cards_from_deck(deck_cards, debug_equipped)
 	var debug_magic_state: Dictionary = _magic_loadout_from_collected_rewards(debug_reward_cards)
 	var debug_attuned_magic: Array = debug_magic_state.get("attuned_magic_cards", []) as Array
@@ -304,8 +313,9 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"equipped_items": debug_equipped_items,
 		"equipment_inventory": [],
 		"equipped_equipment": debug_equipped,
-		"collected_equipment": GameData.starter_equipment_ids(),
+		"collected_equipment": debug_equipped.values(),
 		"equipment_drop_misses": 0,
+		FIRST_COMBAT_WON_KEY: true,
 		"relics": relics,
 		"player_hp": current_hp,
 		"player_max_hp": max_hp,
@@ -336,6 +346,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	var legacy_starter: bool = not next_state.has(FIRST_COMBAT_WON_KEY)
+	if legacy_starter:
+		next_state[GameData.LEGACY_STARTER_CARDS_KEY] = true
 	if not next_state.has("event_memory"): next_state["event_memory"] = []
 	# Older section saves start with no picks. Do not add fields to legacy runs:
 	# their complete serialized state remains compatible byte for byte.
@@ -362,6 +375,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		var board_state: Dictionary = (reward.get("board_state", {}) as Dictionary).duplicate(true)
 		if board_state.has("relics"):
 			board_state["relics"] = GameData.normalized_relic_ids(board_state["relics"])
+		if legacy_starter and not board_state.is_empty():
+			board_state[GameData.LEGACY_STARTER_CARDS_KEY] = true
+		if not board_state.is_empty() or reward.has("board_state"):
 			reward["board_state"] = board_state
 		if not reward.is_empty():
 			next_state[reward_key] = reward
@@ -385,6 +401,8 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not repaired_combat_state.is_empty():
+		if legacy_starter:
+			repaired_combat_state[GameData.LEGACY_STARTER_CARDS_KEY] = true
 		if not repaired_combat_state.has("score_wallet_base"):
 			repaired_combat_state["score_wallet_base"] = held_embers(next_state) - int(repaired_combat_state.get("recovered_embers_total", 0))
 		var known_wallet: int = held_embers(next_state) + int(repaired_combat_state.get("room_embers", 0)) + maxi(0, int(repaired_combat_state.get("recovered_embers_total", 0)) - int(next_state.get("recovered_embers_total", 0)))
@@ -409,6 +427,8 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
 	_repair_equipment_state_in_place(next_state)
+	if not bool(next_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)) and not bool(next_state.get("debug_boss_run", false)):
+		RunDeck.restore_starter_buffet_slot(next_state)
 	next_state = BattlefieldItemRules.repair_loaded_run(next_state)
 	next_state = _repair_skill_dependent_state(next_state)
 	next_state = _repair_pending_escape(next_state)
@@ -602,7 +622,7 @@ static func _migrated_legacy_combat_state_units(combat_state: Dictionary) -> Dic
 			if typeof(trap_var) != TYPE_DICTIONARY:
 				continue
 			var trap: Dictionary = (trap_var as Dictionary).duplicate(true)
-			for field: String in ["damage", "base_damage", "burn", "bleed", "poison"]:
+			for field: String in ["damage", "base_damage", "burn", "poison"]:
 				if trap.has(field):
 					trap[field] = _legacy_survivor_units(int(trap.get(field, 0)))
 			traps.append(trap)
@@ -638,7 +658,7 @@ static func _migrated_legacy_combat_state_units(combat_state: Dictionary) -> Dic
 
 static func _migrated_legacy_unit(unit: Dictionary) -> Dictionary:
 	var next_unit: Dictionary = unit.duplicate(true)
-	for field: String in ["hp", "max_hp", "block", "stoneskin", "burn", "bleed", "expose", "sunder"]:
+	for field: String in ["hp", "max_hp", "block", "stoneskin", "burn", "expose"]:
 		if next_unit.has(field):
 			next_unit[field] = _legacy_survivor_units(int(next_unit.get(field, 0)))
 	if typeof(next_unit.get("poison", null)) == TYPE_DICTIONARY:
@@ -658,12 +678,12 @@ static func _migrated_legacy_action_tree(value: Variant) -> Variant:
 				migrated[key] = _migrated_legacy_action_tree(source.get(key))
 			var action_type: String = str(source.get("type", ""))
 			if not action_type.is_empty():
-				for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+				for field: String in ["damage", "self_damage", "burn", "expose", "poison", "amount", "health"]:
 					if migrated.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
 						migrated[field] = _legacy_survivor_units(int(migrated.get(field, 0)))
 				if typeof(migrated.get("intensity_bonus", null)) == TYPE_DICTIONARY:
 					var bonus: Dictionary = (migrated.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-					for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+					for field: String in ["damage", "self_damage", "burn", "expose", "poison", "amount", "health"]:
 						if bonus.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
 							bonus[field] = _legacy_survivor_units(int(bonus.get(field, 0)))
 					migrated["intensity_bonus"] = bonus
@@ -1033,13 +1053,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
 			if Specials.uses_enhanced_rewards(room): SectionMapGraph.room(next_state, destination)["special_starting_reward_embers"] = Specials.starting_embers(layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
-			var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
-			# The deterministic teaching room deliberately has no loot. Do not let a
-			# hidden generated roll consume or advance equipment pity when its result
-			# will be replaced before the player can ever see it.
-			if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
-				next_state = _record_equipment_drop_attempt(next_state, layout)
-			combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
+			combat_state = _prepare_guided_combat(next_state, combat_state)
+			if _tracks_equipment_attempt(next_state, room, combat_state):
+				next_state = _record_equipment_drop_attempt(next_state, combat_state)
 			_record_encounter_pick(next_state, layout)
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
@@ -1167,8 +1183,8 @@ func advance_pre_battle_combat_preparation(owned: Dictionary, sliced: bool = fal
 		if sliced: return false
 	var state: Dictionary = cursor["state"]
 	var source: Dictionary = owned["input"]
-	owned["authored_tutorial"] = GuidedCombatScenario.should_prepare(source, state)
-	owned["combat_state"] = GuidedCombatScenario.prepare_for_run(source, state)
+	owned["combat_state"] = _prepare_guided_combat(source, state)
+	owned["authored_tutorial"] = GuidedCombatScenario.is_authored(owned["combat_state"])
 	owned.erase("combat_creation")
 	return true
 
@@ -1255,8 +1271,8 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
 	if owned.is_empty(): return next_state
 	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
-	if _equipment_drop_can_attempt(next_state, room) and not bool(owned["authored_tutorial"]):
-		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
+	if _tracks_equipment_attempt(next_state, room, owned["combat_state"]):
+		next_state = _record_equipment_drop_attempt(next_state, owned["combat_state"])
 	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
 	_record_encounter_pick(next_state, owned["layout"])
 	if Specials.uses_enhanced_rewards(room):
@@ -1290,9 +1306,12 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	# Combat owns pickup/consumption transactions, including duplicate copies.
 	# Copying the snapshot is idempotent across checkpoints, finish and reload.
 	if combat_state.has("equipped_items"):
-		next_state["equipped_items"] = _item_card_array(combat_state.get("equipped_items", []))
+		var previous: Array = next_state.get("equipped_items", [])
+		var equipped: Array = _item_card_array(combat_state.get("equipped_items", []))
+		var retained_slots: Array = BattlefieldItemRules.retained_slots(run_state.get("combat_state", {}), combat_state, previous, equipped)
+		if equipped != previous or (not retained_slots.is_empty() and retained_slots != range(previous.size())):
+			RunDeck.set_items(next_state, equipped, -1, retained_slots)
 		next_state["item_inventory"] = _item_card_array(combat_state.get("item_inventory", []))
-		_rebuild_deck_cards_in_place(next_state)
 		for loot: Dictionary in BattlefieldItemRules.pickups_between(run_state.get("combat_state", {}), combat_state):
 			var card_id: String = str(loot.get("card_id", ""))
 			if next_state["equipped_items"].has(card_id) or next_state["item_inventory"].has(card_id):
@@ -1302,8 +1321,9 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
 	var finished_room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
-	if outcome == "victory" and str(finished_room.get("type", "")) in ["guardian", "boss", "special"] and bool(finished_room.get("cleared", false)):
-		return run_state.duplicate(true)
+	if outcome == "victory" and bool(finished_room.get("cleared", false)):
+		if str(run_state.get("mode", "")) == "reward" or str(finished_room.get("type", "")) in ["guardian", "boss", "special"]:
+			return run_state.duplicate(true)
 	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
 	if outcome == "victory":
@@ -1352,6 +1372,10 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		next_state["mode"] = "combat"
 		next_state["combat_state"] = combat_state.duplicate(true)
 		return next_state
+	if _reserves_first_combat_equipment(next_state):
+		var non_trinket_only: bool = _available_equipment_drop_ids(run_state).any(_is_non_trinket_equipment)
+		if _layout_has_equipment_drop(combat_state, true, non_trinket_only):
+			next_state[FIRST_COMBAT_WON_KEY] = true
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	var current_room: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var room_key: String = _room_key(current_room)
@@ -1412,14 +1436,14 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		next_state["victory"] = false
 		next_state["mode"] = "reward"
 		next_state["notice"] = MISSED_EQUIPMENT_NOTICE if not missed_equipment.is_empty() else ""
-		return next_state
+		return _grant_first_umbra_equipment(next_state, combat_state)
 	if str(room.get("type", "")) == "guardian":
 		var trophy: String = str(preload("res://scripts/guardian_library.gd").for_boss(str(room.get("boss_id", ""))).get("relic", ""))
 		if not trophy.is_empty() and not (next_state.get("relics", []) as Array).has(trophy):
 			next_state["pending_relics"] = [trophy]
 			next_state["guardian_reward"] = {"guardian_id":room.get("guardian_id", ""),"relic_id":trophy,"room":current_room,"claimed":false}
 			next_state["mode"] = "treasure"
-			return next_state
+			return _grant_first_umbra_equipment(next_state, combat_state)
 	var pending_card: String = str(next_state.get(SKILL_STATE_KEY, {}).get("pending_card", ""))
 	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room, 991, [], pending_card)
 	next_state["pending_reward"] = {
@@ -1439,7 +1463,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	if not bonus_line.is_empty():
 		next_state["pending_reward"]["special_bonus_line"] = bonus_line
 		next_state["notice"] = bonus_line if str(next_state.get("notice", "")).is_empty() else str(next_state["notice"]) + "\n" + bonus_line
-	return next_state
+	return _grant_first_umbra_equipment(next_state, combat_state)
 
 # Last Light's bonus: Health per brazier lit at dawn, capped by the catalog and
 # by max Health. Paid once, inside the completed-room guard of finish_combat.
@@ -1575,13 +1599,8 @@ func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 func grant_magic_to_deck(run_state: Dictionary, card_id: String) -> Dictionary:
 	var next: Dictionary = _repair_equipment_state(run_state)
 	if not GameData.magic_card_is_purgeable(card_id): return next
-	var rewards: Array = next.get("reward_cards", []).duplicate()
-	rewards.append(card_id)
-	next["reward_cards"] = rewards
-	var magic: Array = next.get("attuned_magic_cards", []).duplicate()
-	magic.append(card_id)
-	next["attuned_magic_cards"] = magic
-	return _rebuild_deck_cards(_mark_loadout_unread(next, "magic", card_id))
+	RunDeck.add_magic(next, card_id)
+	return _mark_loadout_unread(next, "magic", card_id)
 
 func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionary:
 	# Compatibility entry point for existing event scripts. No reserve remains.
@@ -1599,12 +1618,11 @@ func purge_magic_card(run_state: Dictionary, card_id: String, source: String) ->
 	# Validate the original state first; rejected requests do not mutate a save.
 	if not can_purge_magic(run_state, source) or not GameData.magic_card_is_purgeable(card_id): return run_state.duplicate(true)
 	var next: Dictionary = _repair_equipment_state(run_state)
-	var magic: Array = next.get("attuned_magic_cards", []).duplicate()
-	if not magic.has(card_id): return run_state.duplicate(true)
+	var slot: int = (next.get("attuned_magic_cards", []) as Array).find(card_id)
+	if slot < 0: return run_state.duplicate(true)
 	var price: int = scavenger_purge_price(next) if source == "scavenger" else 0
 	if held_embers(next) < price: return run_state.duplicate(true)
-	magic.erase(card_id)
-	next["attuned_magic_cards"] = magic
+	RunDeck.change_magic_slot(next, slot)
 	next = spend_held_embers(next, price)
 	next["magic_purges_this_run"] = int(next.get("magic_purges_this_run", 0)) + 1
 	# Only paid Scavenger services advance the price; Campfire is a free choice.
@@ -1684,8 +1702,9 @@ func equip_equipment(run_state: Dictionary, equipment_id: String, target_slot: S
 		inventory.append(current_id)
 	equipped[slot] = equipment_id
 	next_state["equipment_inventory"] = inventory
+	var previous_loadout: Dictionary = next_state.duplicate(false)
 	next_state["equipped_equipment"] = equipped
-	next_state = _rebuild_deck_cards(next_state)
+	RunDeck.rebuild(next_state, previous_loadout)
 	if wild_trinket_equip:
 		_record_run_skill_event(
 			next_state,
@@ -1709,7 +1728,9 @@ func equip_item_card(run_state: Dictionary, inventory_index: int, equipped_index
 	if equipped_index >= GameData.item_loadout_limit():
 		return next_state
 	inventory.remove_at(inventory_index)
+	var target_slot: int = equipped.size()
 	if equipped_index >= 0 and equipped_index < equipped.size():
+		target_slot = equipped_index
 		var outgoing_card_id: String = str(equipped[equipped_index])
 		equipped[equipped_index] = incoming_card_id
 		if not outgoing_card_id.is_empty():
@@ -1723,8 +1744,7 @@ func equip_item_card(run_state: Dictionary, inventory_index: int, equipped_index
 		next_state["notice"] = "Item slots are full."
 		return next_state
 	next_state["item_inventory"] = inventory
-	next_state["equipped_items"] = equipped
-	next_state = _rebuild_deck_cards(next_state)
+	RunDeck.set_items(next_state, equipped, target_slot)
 	next_state["notice"] = "Equipped %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
 	return next_state
 
@@ -1740,9 +1760,8 @@ func unequip_item_card(run_state: Dictionary, equipped_index: int) -> Dictionary
 	var inventory: Array = next_state.get("item_inventory", []).duplicate()
 	if not card_id.is_empty():
 		inventory.append(card_id)
-	next_state["equipped_items"] = equipped
 	next_state["item_inventory"] = inventory
-	next_state = _rebuild_deck_cards(next_state)
+	RunDeck.set_items(next_state, equipped, equipped_index)
 	next_state["notice"] = "Stowed %s." % str(GameData.card_def(card_id).get("name", card_id))
 	return next_state
 
@@ -1759,8 +1778,7 @@ func consume_equipped_item_card(run_state: Dictionary, card_id: String) -> Dicti
 	if consumed_index < 0:
 		return next_state
 	equipped.remove_at(consumed_index)
-	next_state["equipped_items"] = equipped
-	next_state = _rebuild_deck_cards(next_state)
+	RunDeck.set_items(next_state, equipped, consumed_index)
 	next_state["notice"] = "Used %s." % str(GameData.card_def(card_id).get("name", card_id))
 	return next_state
 
@@ -1971,10 +1989,6 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
 	var pending_reward: Dictionary = next_state.get("pending_reward", {}) as Dictionary
-	if str(pending_reward.get("kind", "")) == "event":
-		next_state["pending_reward"] = {}
-		next_state["mode"] = "room"
-		return next_state
 	var offered_cards: Array = pending_reward.get("cards", []) as Array
 	if has_run_skill(next_state, "deferred_choice") and not deferred_card_id.is_empty() and offered_cards.has(deferred_card_id):
 		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
@@ -1982,6 +1996,10 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 			skill_state["pending_card"] = deferred_card_id
 			next_state[SKILL_STATE_KEY] = skill_state
 			_record_run_skill_event(next_state, "deferred_choice", "Saved a card for the next reward.")
+	if str(pending_reward.get("kind", "")) == "event":
+		next_state["pending_reward"] = {}
+		next_state["mode"] = "room"
+		return next_state
 	var heal_amount: int = int(pending_reward.get("heal_amount", 0))
 	next_state["player_hp"] = mini(int(next_state.get("player_max_hp", 1)), int(next_state.get("player_hp", 0)) + heal_amount)
 	next_state["pending_reward"] = {}
@@ -2185,6 +2203,8 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
 			continue
 		var checkpoint_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
+		if bool(next_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)):
+			checkpoint_state[GameData.LEGACY_STARTER_CARDS_KEY] = true
 		checkpoint_state = _mark_balance_transition(checkpoint_state)
 		checkpoint_state["skill_ids"] = skill_ids
 		checkpoint_state.erase("stats")
@@ -2301,11 +2321,11 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 
 func _repair_equipment_state_in_place(next_state: Dictionary) -> void:
 	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
-	if equipped.is_empty():
-		equipped = GameData.starting_equipped_equipment()
 	for slot: String in GameData.equipment_slots():
 		if not equipped.has(slot):
-			equipped[slot] = str(GameData.starting_equipped_equipment().get(slot, ""))
+			# In deck-only saves Lantern Shot identifies the originally equipped trinket.
+			var legacy_lantern: bool = slot == "trinket" and (next_state.get("deck_cards", []) as Array).has("lantern_shot")
+			equipped[slot] = GameData.starting_equipped_equipment(legacy_lantern)[slot]
 	next_state["equipped_equipment"] = equipped
 	if not next_state.has("equipment_inventory"):
 		next_state["equipment_inventory"] = []
@@ -2373,7 +2393,8 @@ func _stow_invalid_wild_trinket(run_state: Dictionary) -> Dictionary:
 	equipped["trinket"] = replacement
 	next_state["equipment_inventory"] = inventory
 	next_state["equipped_equipment"] = equipped
-	return _rebuild_deck_cards(next_state)
+	RunDeck.rebuild(next_state, run_state)
+	return next_state
 
 func _repair_magic_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -2413,6 +2434,7 @@ func _repair_item_state_in_place(next_state: Dictionary) -> void:
 			inventory.append(str(equipped[index]))
 		while equipped.size() > limit:
 			equipped.pop_back()
+	if equipped != next_state.get("equipped_items", []): next_state.erase(RunDeck.ITEM_SLOT_ORDER_KEY)
 	next_state["item_inventory"] = inventory
 	next_state["equipped_items"] = equipped
 	return
@@ -2461,13 +2483,7 @@ func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
 	return next_state
 
 func _rebuild_deck_cards_in_place(next_state: Dictionary) -> void:
-	next_state["deck_cards"] = GameData.compile_deck_cards(
-		next_state.get("equipped_equipment", {}) as Dictionary,
-		next_state.get("attuned_magic_cards", []) as Array,
-		next_state.get("equipped_items", []) as Array,
-		next_state
-	)
-	return
+	RunDeck.rebuild(next_state)
 
 func _run_has_equipment(run_state: Dictionary, equipment_id: String) -> bool:
 	if equipment_id.is_empty():
@@ -2486,6 +2502,7 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
+		GameData.LEGACY_STARTER_CARDS_KEY: bool(run_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false)),
 		"equipped_equipment": (run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_grafts": (run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"equipped_items": run_state.get("equipped_items", []).duplicate(),
@@ -2651,7 +2668,7 @@ func _run_has_completed_combat(run_state: Dictionary) -> bool:
 		if typeof(room_var) != TYPE_DICTIONARY:
 			continue
 		var room: Dictionary = room_var
-		if str(room.get("type", "combat")) in ["combat", "boss", "guardian", "special"] and bool(room.get("cleared", false)):
+		if CombatObjectiveRules.is_completed_encounter(room):
 			return true
 	return false
 
@@ -2837,7 +2854,7 @@ func room_reward_texture_card_ids(run_state: Dictionary) -> Array[String]:
 	# visible. Its room-seeded roll is independent of the encounter RNG.
 	var deferred: String = str((run_state.get(SKILL_STATE_KEY, {}) as Dictionary).get("pending_card", ""))
 	if not deferred.is_empty() and GameData.card_def(deferred).is_empty(): deferred = ""
-	cards = _offer_with_deferred_id(_generate_card_rewards(run_state, coord, 991, [], deferred, false), deferred)
+	cards = _generate_card_rewards(run_state, coord, 991, [], deferred, false)
 	if Specials.uses_enhanced_rewards(room):
 		for id: String in _generate_card_rewards(run_state, coord, 991, [], deferred, true):
 			if not cards.has(id): cards.append(id)
@@ -2856,7 +2873,9 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, blocked_elemental, run_state))
 	var blocked_general: Array[String] = TypedArrays.strings(excluded.duplicate())
 	blocked_general.append_array(choices)
-	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
+	var deck_element: String = RunDeck.element(run_state)
+	var general_filter: String = deck_element if deck_element != room_element else ""
+	choices.append_array(_draw_reward_cards_for_element(rng, general_filter, 1, blocked_general, run_state))
 	var goal_met: bool = bool(room.get("special_goal_met", false)) if goal_met_override == null else bool(goal_met_override)
 	var special_reward: bool = goal_met and Specials.uses_enhanced_rewards(room)
 	var count: int = int(Specials.catalog()["rewards"]["card_choices"]) if special_reward else 3
@@ -2864,23 +2883,22 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	# slot in elemental rooms, or another general slot in neutral rooms.
 	var special_filter: String = room_element if ElementData.is_elemental(room_element) else ""
 	if choices.size() < count:
-		var blocked: Array[String] = TypedArrays.strings(choices.duplicate())
-		if special_reward: blocked.append_array(excluded)
+		var blocked: Array[String] = TypedArrays.strings(excluded.duplicate())
+		blocked.append_array(choices)
 		var filter: String = special_filter if special_reward else ""
 		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
 	if special_reward:
 		choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
-		if not deferred_card.is_empty() and not GameData.card_def(deferred_card).is_empty() and not choices.has(deferred_card):
-			# Off-element cards belong in the sole general slot. Other deferrals
-			# use the first compatible slot, reserving the last slot for the floor.
-			var deferred_slot: int = 2 if not special_filter.is_empty() and GameData.card_element(deferred_card) != special_filter else 0
-			choices[deferred_slot] = deferred_card
-		# Deferral can replace the only Rare offer. Recheck after insertion;
-		# the last slot stays available without erasing the deferred card.
-		choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter)
+	if not excluded.has(deferred_card):
+		var deferred_slot: int = choices.size() - 1
+		if special_reward:
+			# The legacy enhanced placement is used when deck matching gives no preference.
+			deferred_slot = 2 if not special_filter.is_empty() and GameData.card_element(deferred_card) != special_filter else 0
+		if _insert_deferred_card(choices, deferred_card, deck_element, deferred_slot) and special_reward:
+			choices = _special_rarity_floor(rng, choices, excluded, run_state, special_filter, deferred_card)
 	return choices
 
-func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary, element_filter: String = "") -> Array[String]:
+func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary, element_filter: String = "", protected_card: String = "") -> Array[String]:
 	var floor_rarity: String = str(Specials.catalog()["rewards"]["guaranteed_min_rarity_one_choice"])
 	var floor_index: int = GameData.CARD_RARITY_TIERS.find(floor_rarity)
 	for id: String in choices:
@@ -2897,8 +2915,29 @@ func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], e
 	var weighted: Array[String]
 	for id: String in pool[rarity]:
 		for _weight: int in range(GameData.reward_offer_weight(id)): weighted.append(id)
-	if not weighted.is_empty(): choices[choices.size() - 1] = weighted[rng.randi_range(0, weighted.size() - 1)]
+	if weighted.is_empty(): return choices
+	var upgrade: String = weighted[rng.randi_range(0, weighted.size() - 1)]
+	var deck_element: String = RunDeck.element(run_state)
+	var preserve_match: bool = not deck_element.is_empty() and GameData.card_element(upgrade) != deck_element and choices.filter(func(id: String) -> bool: return GameData.card_element(id) == deck_element).size() == 1
+	for slot: int in range(choices.size() - 1, -1, -1):
+		if choices[slot] == protected_card: continue
+		if preserve_match and GameData.card_element(choices[slot]) == deck_element: continue
+		choices[slot] = upgrade
+		break
 	return choices
+
+func _insert_deferred_card(choices: Array, pending: String, deck_element: String, fallback_slot: int) -> bool:
+	if choices.is_empty() or pending.is_empty() or choices.has(pending) or GameData.card_def(pending).is_empty(): return false
+	if not deck_element.is_empty():
+		for slot: int in range(choices.size() - 1, -1, -1):
+			if GameData.card_element(choices[slot]) == deck_element: continue
+			choices[slot] = pending
+			return true
+	if choices.size() == 1 and not deck_element.is_empty() and GameData.card_element(pending) != deck_element:
+		choices.append(pending)
+	else:
+		choices[mini(fallback_slot, choices.size() - 1)] = pending
+	return true
 
 func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array[String]:
 	var choices: Array[String] = _string_array_typed(choices_value)
@@ -2910,6 +2949,11 @@ func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array
 		choices.append(deferred_id)
 	return choices
 
+func preview_deferred_card_reward(run_state: Dictionary, offered: Array) -> Array:
+	var choices: Array = offered.duplicate()
+	_insert_deferred_card(choices, str(_normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))["pending_card"]), RunDeck.element(run_state), choices.size() - 1)
+	return choices
+
 func _apply_deferred_card_reward(run_state: Dictionary) -> void:
 	var reward: Dictionary = run_state.get("pending_reward", {})
 	var choices: Array = reward.get("cards", [])
@@ -2917,9 +2961,8 @@ func _apply_deferred_card_reward(run_state: Dictionary) -> void:
 	var skills: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
 	var pending: String = skills["pending_card"]
 	if pending.is_empty(): return
-	# Successful special rewards already place the card in its compatible slot.
-	if not choices.has(pending) and not GameData.card_def(pending).is_empty():
-		choices[choices.size() - 1] = pending
+	# Generated combat offers already include a valid deferral. Event offers insert it here.
+	reward["cards"] = preview_deferred_card_reward(run_state, choices)
 	skills["pending_card"] = ""
 	run_state[SKILL_STATE_KEY] = skills
 
@@ -2972,11 +3015,54 @@ func _equipment_drop_for_room(run_state: Dictionary, room: Dictionary) -> String
 	var available: Array = _available_equipment_drop_ids(run_state)
 	if available.is_empty():
 		return ""
+	var first_combat_reserve: bool = _reserves_first_combat_equipment(run_state)
+	if first_combat_reserve:
+		var non_trinkets: Array = available.filter(_is_non_trinket_equipment)
+		if not non_trinkets.is_empty():
+			available = non_trinkets
 	var special_bonus: String = str(Specials.definition(str(room.get("special_type", ""))).get("bonus", {}).get("kind", "")) if str(room.get("type", "")) == "special" else ""
-	var forced_drop: bool = special_bonus == "equipment_drop" or int(run_state.get("equipment_drop_misses", 0)) >= EQUIPMENT_DROP_PITY_MISSES
-	if not forced_drop and (_coord_hash(int(run_state.get("seed", 0)), coord, 1201) % 100) >= EQUIPMENT_ROOM_DROP_PERCENT:
+	var legacy_section: int = int((maxi(1, int(room.get("depth", _room_depth(coord)))) - 1) / DEPTHS_PER_SEQUENCE)
+	var section_one: bool = int(room.get("section_index", legacy_section)) == 0
+	var forced_drop: bool = (
+		first_combat_reserve
+		or special_bonus == "equipment_drop"
+		or int(run_state.get("equipment_drop_misses", 0)) >= EQUIPMENT_DROP_PITY_MISSES
+	)
+	var drop_percent: int = SECTION_ONE_EQUIPMENT_DROP_PERCENT if run_state.has(FIRST_COMBAT_WON_KEY) and section_one else EQUIPMENT_ROOM_DROP_PERCENT
+	if not forced_drop and (_coord_hash(int(run_state.get("seed", 0)), coord, 1201) % 100) >= drop_percent:
 		return ""
 	return _weighted_equipment_drop_for_room(run_state, coord, available)
+
+func _reserves_first_combat_equipment(run_state: Dictionary) -> bool:
+	return not bool(run_state.get(FIRST_COMBAT_WON_KEY, true))
+
+func _is_non_trinket_equipment(equipment_id: String) -> bool:
+	var slot: String = GameData.equipment_slot(equipment_id)
+	return not slot.is_empty() and slot != "trinket"
+
+func _prepare_guided_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	var prepared: Dictionary = GuidedCombatScenario.prepare_for_run(run_state, combat_state)
+	if not GuidedCombatScenario.is_authored(prepared) or not _reserves_first_combat_equipment(run_state):
+		return prepared
+	for loot: Dictionary in combat_state.get("loot", []):
+		if str(loot.get("kind", "")) != "equipment":
+			continue
+		var occupied: Dictionary = {
+			prepared["player"]["pos"]: true,
+			GuidedCombatScenario.move_tile(prepared): true,
+		}
+		for enemy: Dictionary in prepared["enemies"]:
+			occupied[enemy["pos"]] = true
+		var loot_rng := RandomNumberGenerator.new()
+		loot_rng.seed = _room_generator._room_seed(int(run_state.get("seed", 0)), combat_state["room_coord"], Specials.EQUIPMENT_LOOT_SEED_SALT)
+		var pickup: Dictionary = _room_generator.equipment_pickup(prepared["grid"], str(loot["equipment_id"]), loot_rng, occupied)
+		if not pickup.is_empty(): prepared["loot"].append(pickup)
+		break
+	return prepared
+
+func _tracks_equipment_attempt(run_state: Dictionary, room: Dictionary, combat_state: Dictionary) -> bool:
+	# Only the opening reserve carries equipment into the authored teaching room.
+	return (not GuidedCombatScenario.is_authored(combat_state) or _reserves_first_combat_equipment(run_state)) and _equipment_drop_can_attempt(run_state, room)
 
 func _weighted_equipment_drop_for_room(run_state: Dictionary, coord: Vector2i, available: Array) -> String:
 	var total_weight: int = 0
@@ -2997,16 +3083,20 @@ func _record_equipment_drop_attempt(run_state: Dictionary, layout: Dictionary) -
 	var next_state: Dictionary = run_state.duplicate(true)
 	if _layout_has_equipment_drop(layout):
 		next_state["equipment_drop_misses"] = 0
-	else:
+	elif not _reserves_first_combat_equipment(run_state):
 		next_state["equipment_drop_misses"] = int(next_state.get("equipment_drop_misses", 0)) + 1
 	return next_state
 
-func _layout_has_equipment_drop(layout: Dictionary) -> bool:
+func _layout_has_equipment_drop(layout: Dictionary, include_claimed: bool = false, non_trinket_only: bool = false) -> bool:
 	for loot_var: Variant in layout.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
-		if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
+		if str(loot.get("kind", "")) != "equipment":
+			continue
+		if non_trinket_only and not _is_non_trinket_equipment(str(loot.get("equipment_id", ""))):
+			continue
+		if include_claimed or not bool(loot.get("claimed", false)):
 			return true
 	return false
 
@@ -3023,7 +3113,7 @@ func _available_equipment_drop_ids(run_state: Dictionary) -> Array:
 	var result: Array = []
 	for equipment_id_var: Variant in GameData.equipment_ids():
 		var equipment_id: String = str(equipment_id_var)
-		if owned.has(equipment_id):
+		if not GameData.equipment_is_pool_eligible(equipment_id) or owned.has(equipment_id):
 			continue
 		if GameData.equipment_slot(equipment_id).is_empty():
 			continue
@@ -3102,7 +3192,7 @@ func _inject_reserved_merchant_offer(run_state: Dictionary, coord: Vector2i, mer
 	return next_state
 
 func _merchant_item_is_valid(merchant_kind: String, item_id: String) -> bool:
-	return merchant_kind == MERCHANT_SCAVENGER and not merchant_item_kind(item_id).is_empty()
+	return merchant_kind == MERCHANT_SCAVENGER and GameData.equipment_is_pool_eligible(item_id) and not merchant_item_kind(item_id).is_empty()
 
 func _merchant_item_name(_merchant_kind: String, item_id: String) -> String:
 	if merchant_item_kind(item_id) == MERCHANT_ITEM_KIND_GEAR:
@@ -3261,7 +3351,7 @@ func _available_merchant_equipment_ids(run_state: Dictionary) -> Array:
 	var result: Array = []
 	for equipment_id_var: Variant in GameData.equipment_ids():
 		var equipment_id: String = str(equipment_id_var)
-		if owned.has(equipment_id):
+		if not GameData.equipment_is_pool_eligible(equipment_id) or owned.has(equipment_id):
 			continue
 		if GameData.equipment_slot(equipment_id).is_empty():
 			continue
@@ -3945,6 +4035,31 @@ func _apply_collected_equipment_to_owned_state(next_state: Dictionary, combat_st
 	if not added_names.is_empty():
 		next_state["notice"] = "Found %s." % ", ".join(added_names)
 	return next_state
+
+func _grant_first_umbra_equipment(state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	if not state.has(FIRST_COMBAT_WON_KEY) or bool(state.get(UMBRA_LANTERN_REWARD_KEY, false)):
+		return state
+	var umbra: Dictionary = combat_state.get("umbra", {})
+	if str(umbra.get("stage", CombatEngineScript.UMBRA_STAGE_CLEAR)) == CombatEngineScript.UMBRA_STAGE_CLEAR:
+		return state
+	state[UMBRA_LANTERN_REWARD_KEY] = true
+	var item: String = GameData.UMBRA_REWARD_EQUIPMENT_ID
+	if _run_has_equipment(state, item) or (state.get("collected_equipment", []) as Array).has(item):
+		return state
+	var notice: String = str(state.get("notice", ""))
+	var next: Dictionary = _apply_collected_equipment_to_owned_state(state, {"collected_equipment": [item]})
+	var reward_key: String = "guardian_reward" if next["mode"] == "treasure" else "pending_reward"
+	next[reward_key][AWARDED_EQUIPMENT_KEY] = [item]
+	for packet_key: String in ["pending_reward", "pending_escape"]:
+		var board: Dictionary = next.get(packet_key, {}).get("board_state", {})
+		if board.is_empty(): continue
+		var collected: Array = board.get("collected_equipment", [])
+		if not collected.has(item): collected.append(item)
+		board["collected_equipment"] = collected
+		board[AWARDED_EQUIPMENT_KEY] = [item]
+	if not notice.is_empty():
+		next["notice"] = str(next["notice"]) + "\n" + notice
+	return next
 
 func loadout_unread_ids(run_state: Dictionary, mode: String) -> Array:
 	var key: String = _loadout_unread_key(mode)

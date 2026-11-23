@@ -38,6 +38,18 @@
       "category": "vfx",
       "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
     },
+    "assets/art/effects/ground/fire_decals.png": {
+      "category": "vfx",
+      "reason": "Indexed ground decal atlas. The renderer maps one texel to one vfx-01 cell and needs the original ramp indices."
+    },
+    "assets/art/effects/ground/ice_decals.png": {
+      "category": "vfx",
+      "reason": "Indexed ground decal atlas. The renderer maps one texel to one vfx-01 cell and needs the original ramp indices."
+    },
+    "assets/art/effects/ground/rubble_decals.png": {
+      "category": "vfx",
+      "reason": "Indexed ground decal atlas. The renderer maps one texel to one vfx-01 cell and needs the original ramp indices."
+    },
     "assets/art/effects/lethal_death_mark.png": {
       "category": "vfx",
       "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."

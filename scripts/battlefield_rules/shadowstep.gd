@@ -16,7 +16,7 @@ static func resolve_beat(engine: RefCounted, state: Dictionary, instance: Dictio
 	var who: Variant = instance["dials"].get("who", "all_hidden")
 	var enemies: Array[Dictionary]
 	for enemy: Dictionary in state.get("enemies", []):
-		# Primitive: the existing Umbra/Truesight/Light visibility predicate.
+		# Primitive: the existing Umbra/Vision/Light visibility predicate.
 		if int(enemy.get("hp", 0)) <= 0 or not Burrow.targetable(enemy, {"type": "blink"}) or engine.is_enemy_visible_to_player(state, enemy, visible): continue
 		if engine._force_actor_anchored(state, "enemy", int(enemy["id"])): continue
 		if who is Array and not who.has(str(enemy["type"])): continue

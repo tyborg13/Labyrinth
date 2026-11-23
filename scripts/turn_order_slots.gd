@@ -57,7 +57,7 @@ static func reconcile(scene: Node, entries: Array[Dictionary]) -> void:
 
 static func _shape(scene: Node, entry: Dictionary) -> Array:
 	return [entry.get("kind"), entry.get("actor_key"), entry.get("pos"), entry.get("type"), entry.get("hidden_by_umbra", false),
-		entry.get("late_relic_id", ""), entry.has("hp") and entry.has("max_hp"), scene._turn_order_is_card_preview_projection(entry), entry.get("petrified", false), scene._reduced_motion_enabled(), scene._turn_order_portrait_path(entry)]
+		entry.get("late_relic_id", ""), entry.get("next_enemy_turn", false), entry.has("hp") and entry.has("max_hp"), scene._turn_order_is_card_preview_projection(entry), entry.get("petrified", false), scene._reduced_motion_enabled(), scene._turn_order_portrait_path(entry)]
 
 static func _inputs(scene: Node, entry: Dictionary, index: int) -> Array:
 	return [entry, index, scene._reduced_motion_enabled(), scene._turn_order_relative_time(entry), scene._turn_order_portrait_path(entry), scene._turn_order_slot_size(index, bool(entry.get("active", false)))]
@@ -94,6 +94,7 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
 	frame.set_meta("turn_order_art_hook", scene.TURN_ORDER_INK_ART_HOOK)
+	frame.set_meta("light_start_expose", int(entry.get("light_start_expose", 0)))
 	frame.set_meta("turn_order_team", str(entry.get("team", "enemy")))
 	var team_name: String = str(entry.get("team", "enemy"))
 	var projected_entry: bool = scene._turn_order_is_card_preview_projection(entry)
@@ -251,9 +252,10 @@ static func update(scene: Node, entry: Dictionary, index: int, frame: Control = 
 	if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)):
 		var tile: Vector2i = entry.get("pos", Vector2i(-1, -1))
 		var actor_key: String = str(entry.get("actor_key", ""))
-		if not frame.focus_entered.is_connected(scene._on_turn_order_enemy_hovered.bind(tile, actor_key)): frame.focus_entered.connect(scene._on_turn_order_enemy_hovered.bind(tile, actor_key))
+		var enter: Callable = scene._on_turn_order_enemy_hovered.bind(tile, actor_key, bool(entry.get("next_enemy_turn", false)))
+		if not frame.focus_entered.is_connected(enter): frame.focus_entered.connect(enter)
 		if not frame.focus_exited.is_connected(scene._on_turn_order_enemy_unhovered.bind(tile, actor_key)): frame.focus_exited.connect(scene._on_turn_order_enemy_unhovered.bind(tile, actor_key))
-		if not frame.mouse_entered.is_connected(scene._on_turn_order_enemy_hovered.bind(tile, actor_key)): frame.mouse_entered.connect(scene._on_turn_order_enemy_hovered.bind(tile, actor_key))
+		if not frame.mouse_entered.is_connected(enter): frame.mouse_entered.connect(enter)
 		if not frame.mouse_exited.is_connected(scene._on_turn_order_enemy_unhovered.bind(tile, actor_key)): frame.mouse_exited.connect(scene._on_turn_order_enemy_unhovered.bind(tile, actor_key))
 	return frame
 
@@ -344,6 +346,8 @@ static func overflow(scene: Node, entries: Array[Dictionary], index: int) -> Con
 	representative.erase("stagger_preview")
 	representative.erase("petrified")
 	representative.erase("late_relic_id")
+	representative.erase("next_enemy_turn")
+	representative.erase("light_start_expose")
 	representative["projected"] = false
 	representative["active"] = false
 	var frame: Control = update(scene, representative, index)

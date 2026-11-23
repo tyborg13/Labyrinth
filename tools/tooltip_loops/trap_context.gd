@@ -19,11 +19,11 @@ static func verify(proof: SceneTree, media_path: String) -> void:
 		var entries: Array[Dictionary] = Tiles.entries(board, Fixture.Traps.CENTER)
 		proof._expect(entries.size() == 1 and entries[0].get("icon") == "traps" and entries[0].get("loop_source") == source, "Tile detail keeps trap icon and exact element")
 		var expected: Dictionary = {
-			"fire": "Leaves @term(surface_fire) on this tile and each tile next to it.",
-			"ice": "Leaves @term(surface_ice) on this tile and each tile next to it.",
-			"lightning": "Leaves @term(surface_electrified) on this tile and each tile next to it.",
-			"earth": "Leaves @term(surface_rubble) on this tile and each tile next to it.",
-			"air": "@kw(push) each unit next to this tile 1 tile away."
+			"fire": "The trap leaves @term(surface_fire) on the trap’s tile and each adjacent tile.",
+			"ice": "The trap leaves @term(surface_ice) on the trap’s tile and each adjacent tile.",
+			"lightning": "The trap leaves @term(surface_electrified) on the trap’s tile and each adjacent tile.",
+			"earth": "The trap leaves @term(surface_rubble) on the trap’s tile and each adjacent tile.",
+			"air": "@kw(push) each unit adjacent to the trap 1 tile away."
 		}
 		proof._expect(entries[0]["description"] == "Triggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [fixture["state"]["traps"][0]["base_damage"], expected[source["element"]]], "Trap copy matches all three brief lines exactly")
 		var original: String = row["asset_path"]

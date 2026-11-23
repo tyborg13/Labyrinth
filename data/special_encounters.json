@@ -103,7 +103,7 @@
      ],
      "order": {
       "id": "slagmaster_barrage",
-      "text": "After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+      "text": "After every second Slagmaster turn, each Fire tile spreads 1 tile in the direction from the Slagmaster to you.",
       "battlefield_instance": "slagmaster",
       "lob_crosses": 2
      }
@@ -136,7 +136,7 @@
      ],
      "order": {
       "id": "oracle_icewall",
-      "text": "After every second Oracle turn, Frostbite hits everyone on Ice for 2 and Freezes them.",
+      "text": "After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
       "battlefield_instance": "oracle"
      }
     },
@@ -180,7 +180,7 @@
    "emblem": "res://assets/art/icons/map/umbral_snare.png",
    "reward_profile": "combat",
    "tooltip_line": "The doors are sealing. Get out before they close.",
-   "reward_line": "Normal fight reward, plus %d Embers per open door.",
+   "reward_line": "Normal combat reward, plus %d Embers per open door.",
    "objective": "reach_exit",
    "bonus": {
     "kind": "embers_per_open_door",
@@ -238,7 +238,7 @@
      "start_hunters": 3,
      "pressure": {
       "id": "frost_thresholds",
-      "text": "After each of your turns, Frostbite hits everyone on Ice for 1 and Freezes them.",
+      "text": "After each of your turns, Frostbite hits everyone on Ice for 1.",
       "battlefield_instance": "snare_ice"
      }
     },
@@ -331,7 +331,7 @@
    "braziers": {
     "count": 3,
     "distance_from_start": 3,
-    "tooltip": "Brazier: lights 2 tiles around it. A Wick Shade's Snuff puts it out; step onto it to relight it."
+    "tooltip": "Brazier: Light reaches 2 tiles. A Wick Shade's Snuff puts out the brazier. Enter the brazier's tile to relight the brazier."
    },
    "wick_shades": 2,
    "battlefield_instance": "last_light",

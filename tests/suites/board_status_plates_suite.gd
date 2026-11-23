@@ -3,13 +3,14 @@ extends RefCounted
 const Plates = preload("res://scripts/board_status_plates.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const ThreatFixture = preload("res://tests/suites/threats_at_rest_suite.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const CalloutLayout = preload("res://scripts/intent_callout_layout.gd")
-const EXPECTED_WORDS: Dictionary = {"freeze": "Frozen", "petrify": "Petrified", "shock": "Shocked", "immobilize": "Immobilized", "chilled": "Chilled"}
+const EXPECTED_WORDS: Dictionary = {"shock": "Shocked", "immobilize": "Immobilized"}
 const EXPECTED_CLASS_BORDERS: Dictionary = {"control": Palette.EMBER, "vulnerable": Palette.DANGER_BRIGHT, "buff": Palette.GOLD_BRIGHT, "trait": Palette.TEXT_2}
 const ThreatBadges = preload("res://scripts/intent_badges.gd")
 # Test-only geometry; no production tuning.
@@ -59,24 +60,26 @@ static func run(expect: Callable) -> void:
 
 static func _test_classes_and_labels(expect: Callable) -> void:
 	var board := Board.new()
-	board.presentation = {"umbra_truesight_activations": -1}
-	var unit: Dictionary = {"role": "player", "type": "glacial_mirror", "freeze": 1, "petrify": 1, "shock": 1, "immobilize": true,
-		"bleed": 2, "expose": 3, "frost_armor": 4, "keyword_badges": [{"icon": "retaliate", "count": 5}, {"icon": "quicken", "count": 6}, {"icon": "next_attack", "count": 7}, {"icon": "anchored", "count": 0}]}
+	board.presentation = {"umbra_vision_activations": -1}
+	var unit: Dictionary = {"role": "player", "type": "glacial_mirror", "shock": 1, "immobilize": true,
+		"expose": 3, "frost_armor": 4, "keyword_badges": [{"icon": "retaliate", "count": 5}, {"icon": "quicken", "count": 6}, {"icon": "next_attack", "count": 7}, {"icon": "anchored", "count": 0}]}
 	var badges: Array[Dictionary] = board._unit_status_presentation_badges(unit)
 	var icons: Array[String]
 	for badge: Dictionary in badges: icons.append(str(badge["icon"]))
-	expect.call(icons == _strings(["freeze", "petrify", "shock", "immobilize", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "reflect"]), "Classes are stable-partitioned control / vulnerable / buff / trait without changing within-class order")
+	expect.call(icons == _strings(["shock", "immobilize", "expose", "vision", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "reflect"]), "Classes are stable-partitioned control / vulnerable / buff / trait without changing within-class order")
 	for badge: Dictionary in badges:
 		var kind: String = str(badge["status_class"])
 		expect.call(badge["presentation_border"] == EXPECTED_CLASS_BORDERS[kind], "Class border uses the approved palette token: " + str(badge["icon"]))
 		if EXPECTED_WORDS.has(badge["icon"]):
 			expect.call(badge["label"] == EXPECTED_WORDS[badge["icon"]] and badge["label_font_size"] == 14, "Control status has its exact word at 14 px")
-	expect.call(badges[4]["label"] == "2" and badges[5]["label"] == "3" and badges[4]["label_font_size"] == 15, "Bleed and Expose show counts at 15 px")
-	expect.call(badges[6]["label"] == "∞" and badges[6]["label_font_size"] == 15, "Permanent Truesight preserves infinity")
-	expect.call(badges[7]["label"] == "4" and badges[8]["label"] == "5" and badges[9]["label"] == "6" and badges[10]["label"] == "7", "Crystal Mantle and keyword buffs preserve counts")
-	expect.call(badges[11]["label"] == "" and badges[12]["label"] == "", "Uncounted buffs and traits are icon only")
-	var chilled: Array[Dictionary] = board._unit_status_presentation_badges({"chilled": true})
-	expect.call(chilled[0]["label"] == "Chilled" and chilled[0]["status_class"] == "vulnerable", "Chilled is a vulnerable word pill")
+	var by_icon: Dictionary = {}
+	for badge: Dictionary in badges:
+		by_icon[badge["icon"]] = badge
+	expect.call(by_icon.get("expose", {}).get("label") == "3" and by_icon.get("expose", {}).get("label_font_size") == 15, "Expose shows the count at 15 px")
+	expect.call(by_icon.get("vision", {}).get("label") == "∞" and by_icon.get("vision", {}).get("label_font_size") == 15, "Permanent Vision shows infinity")
+	for icon: String in ["frost_armor", "retaliate", "quicken", "next_attack"]:
+		expect.call(by_icon.get(icon, {}).get("label") == str(4 + ["frost_armor", "retaliate", "quicken", "next_attack"].find(icon)), "Buff retains the count: " + icon)
+	expect.call(by_icon.get("anchored", {}).get("label") == "" and by_icon.get("reflect", {}).get("label") == "", "Uncounted buffs and traits are icon only")
 	var trait_icons: Dictionary = {"gale_herald": "wind", "gust_shrike": "flying", "storm_capacitor": "charge", "burrow_grub": "burrow", "ember_tick": "burst"}
 	for type: String in trait_icons:
 		var traits: Array[Dictionary] = board._unit_status_presentation_badges({"type": type, "burrowed": true, "hp": 10, "charge": 2})
@@ -88,13 +91,14 @@ static func _test_classes_and_labels(expect: Callable) -> void:
 
 static func _test_prediction(expect: Callable) -> void:
 	var board := Board.new()
-	for frozen: bool in [false, true]:
-		board.presentation = {"surface_status_preview": {"player": {"freeze": 1 if frozen else 0, "chilled": true, "shock": 1}}}
-		var badges: Array[Dictionary] = board._unit_status_presentation_badges({"key": "player"})
-		expect.call(badges.size() == 2, "Preview retains both its cold and Shock statuses")
-		for badge: Dictionary in badges:
-			expect.call(badge["label"] == "→ " + str(EXPECTED_WORDS[badge["icon"]]) and is_equal_approx(badge["presentation_alpha"], 0.7), "Prediction prefixes the exact word and fades the whole pill")
-			expect.call(str(badge["tooltip"]) == "After this action: " + str(EXPECTED_WORDS[badge["icon"]]), "Prediction keeps its existing tooltip")
+	board.presentation = {"surface_status_preview": {"player": {"expose": 2, "shock": 1}}}
+	var badges: Array[Dictionary] = board._unit_status_presentation_badges({"key": "player"})
+	var expected: Dictionary = {"shock": {"label": "Shocked", "tooltip": "Shocked"}, "expose": {"label": "2", "tooltip": "Expose 2"}}
+	expect.call(badges.size() == expected.size(), "Preview shows Expose and Shock together")
+	for badge: Dictionary in badges:
+		var copy: Dictionary = expected.get(badge["icon"], {})
+		expect.call(badge["label"] == "→ " + str(copy.get("label", "")) and is_equal_approx(badge["presentation_alpha"], 0.7), "Prediction uses one arrow and fades the whole pill")
+		expect.call(str(badge["tooltip"]) == "After this action: " + str(copy.get("tooltip", "")), "Prediction describes the resulting status")
 	board.free()
 
 static func _test_geometry_and_paint(expect: Callable) -> void:
@@ -107,7 +111,7 @@ static func _test_geometry_and_paint(expect: Callable) -> void:
 	expect.call(is_equal_approx(block.size.x, 36.0 + font.get_string_size("6", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 17).x) and stone.position.x == block.end.x + 3.0, "Defense width uses 20 px icon, exact number width and specified padding/gap")
 	var spent: Array[Dictionary] = Plates.defense_entries({"block": 6}, TEST_FRAME, {"block": -2, "block_loss": 8})
 	expect.call(spent.size() == 1 and spent[0]["label"] == "-2" and spent[0]["presentation_border"] == Palette.DANGER, "Spent/negative defense retains a plate and danger border")
-	var ordered: Array[Dictionary] = Plates.ordered_badges(_holder_badges([{"icon": "bleed", "count": 2}, {"icon": "expose", "count": 1}, {"icon": "chilled"}]))
+	var ordered: Array[Dictionary] = Plates.ordered_badges(_holder_badges([{"icon": "expose", "count": 2}, {"icon": "frost_armor", "count": 1}, {"icon": "vision"}]))
 	var pills: Array[Dictionary] = Plates.status_entries(ordered, TEST_FRAME, true)
 	var first: Rect2 = pills[0]["rect"]
 	var second: Rect2 = pills[1]["rect"]
@@ -115,15 +119,15 @@ static func _test_geometry_and_paint(expect: Callable) -> void:
 	expect.call(second.position.x == first.end.x + 4.0 and first.size.x == 32.0 + font.get_string_size("2", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15).x, "Pills retain label at x+24 and use the mock's outer padding with four-pixel separation")
 	var enemies: Array[Dictionary] = Plates.status_entries(ordered, TEST_FRAME, false)
 	expect.call((enemies[0]["rect"] as Rect2).position == Vector2(TEST_FRAME.position.x - 10.0, TEST_FRAME.end.y + 9.0), "Enemy row uses the mock's fill-left minus 10")
-	var crowded: Array[Dictionary] = Plates.ordered_badges(_holder_badges([{"icon": "freeze"}, {"icon": "shock"}, {"icon": "immobilize"}, {"icon": "bleed", "count": 2}, {"icon": "expose", "count": 1}, {"icon": "retaliate", "count": 3}]))
+	var crowded: Array[Dictionary] = Plates.ordered_badges(_holder_badges([{"icon": "shock"}, {"icon": "immobilize"}, {"icon": "expose", "count": 2}, {"icon": "retaliate", "count": 3}, {"icon": "frost_armor", "count": 3}]))
 	var wrapped: Array[Dictionary] = Plates.status_entries(crowded, TEST_WRAP_FRAME, true)
-	expect.call((wrapped[2]["rect"] as Rect2).position == Vector2(TEST_WRAP_FRAME.position.x - 4.0, first.position.y + 22.0 + 3.0), "A row wider than 260 px wraps with the approved three-pixel row gap")
+	expect.call(wrapped.any(func(entry: Dictionary) -> bool: return (entry["rect"] as Rect2).position == Vector2(TEST_WRAP_FRAME.position.x - 4.0, first.position.y + 22.0 + 3.0)), "A row wider than 260 px wraps with the approved three-pixel row gap")
 	var enlarged: Array[Dictionary] = Plates.status_entries(ordered, TEST_WRAP_FRAME, true)
 	expect.call((enlarged[1]["rect"] as Rect2).position.y == first.position.y, "Wrap is independent of the fill width and defense plates' right end")
 	for entry: Dictionary in wrapped:
 		expect.call((entry["rect"] as Rect2).end.x <= TEST_WRAP_FRAME.position.x - 4.0 + 260.0, "Each wrapped row stays within the approved 260 px")
-	var top_enemy: Array[Dictionary] = Plates.status_entries(Plates.ordered_badges(_holder_badges([{"icon": "immobilize"}, {"icon": "bleed", "count": 3}, {"icon": "expose", "count": 2}])), TEST_WRAP_FRAME, false)
-	expect.call((top_enemy[0]["rect"] as Rect2).position.y == (top_enemy[2]["rect"] as Rect2).position.y, "Immobilized, Bleed 3 and Expose 2 stay on one row")
+	var top_enemy: Array[Dictionary] = Plates.status_entries(Plates.ordered_badges(_holder_badges([{"icon": "immobilize"}, {"icon": "frost_armor", "count": 3}, {"icon": "expose", "count": 2}])), TEST_WRAP_FRAME, false)
+	expect.call((top_enemy[0]["rect"] as Rect2).position.y == (top_enemy[2]["rect"] as Rect2).position.y, "Immobilize, Expose and Crystal Mantle stay on one row")
 	var recorder := PaintRecorder.new()
 	var entries: Array[Dictionary] = defenses.duplicate()
 	entries.append_array(pills)
@@ -144,8 +148,8 @@ static func _test_collision_consumers(expect: Callable) -> void:
 	var board := Board.new()
 	board.size = Vector2(1920, 1080)
 	var state: Dictionary = ThreatFixture.staged_state(Combat.new())
-	state["player"].merge({"block": 6, "stoneskin": 4, "bleed": 2, "expose": 1}, true)
-	state["enemies"][0].merge({"block": 8, "stoneskin": 3, "freeze": 1, "bleed": 2, "expose": 2}, true)
+	state["player"].merge({"block": 6, "stoneskin": 4, "shock": 1, "expose": 1}, true)
+	state["enemies"][0].merge({"block": 8, "stoneskin": 3, "immobilize": true, "expose": 2}, true)
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"show_all_enemy_intents": true, "reduced_motion": true})
 	var units: Array[Dictionary] = board._hud_layout_units()
 	var reserved: Array[Rect2] = board._enemy_hud_reserved_rects(units, font_for_tests())
@@ -159,25 +163,27 @@ static func _test_collision_consumers(expect: Callable) -> void:
 			expect.call(entries.any(func(entry: Dictionary) -> bool: return entry["icon"] == "expose"), "Expose reaches the live hero/enemy pills from combat state")
 		for entry: Dictionary in entries:
 			expect.call(geometry.has(entry["rect"]) and reserved.has(entry["rect"]), "Every painted plate/pill enters the shared HUD obstacle geometry")
-			var callout: Dictionary = CalloutLayout.place({"text": "Frozen", "actor_key": unit.get("key", "")}, frame, [], geometry, font_for_tests(), 20, 2.0)
+			var callout: Dictionary = CalloutLayout.place({"text": "Shocked", "actor_key": unit.get("key", "")}, frame, [], geometry, font_for_tests(), 20, 2.0)
 			expect.call(not (callout["rect"] as Rect2).intersects(entry["rect"], false), "Callout avoids plate/pill obstacles")
 		if unit.get("role") == "enemy":
 			var layout: Dictionary = board._enemy_hud_layout(unit, board._unit_center(unit), reserved, font_for_tests())
 			for line: Rect2 in layout["line_rects"]:
 				for entry: Dictionary in entries: expect.call(not line.intersects(entry["rect"], false), "Expanded intent avoids its own plates and pills")
 	var source_before: Dictionary = board._hud_layout_source(units)
-	board.presentation["surface_status_preview"] = {"player": {"freeze": 1}}
+	board.presentation["surface_status_preview"] = {"player": {"expose": 2}}
 	expect.call(source_before != board._hud_layout_source(units), "Predicted-status geometry invalidates cached HUD layout")
 	board.free()
 
 static func _test_threat_marker_hud_avoidance(expect: Callable) -> void:
+	var previous: String = Settings._applied_board_health_bars
+	Settings._applied_board_health_bars = Settings.BOARD_HEALTH_ALWAYS
 	var font: Font = Typography.ui_font()
 	var badge: Dictionary = {"key": "enemy_1", "order": "1", "icon": "melee", "number": "5"}
 	var default_rect: Rect2 = ThreatBadges.place_chip(TEST_THREAT_ANCHOR, badge, font, [], [])["rect"]
 	for defense: bool in [true, false]:
 		var board := ThreatGeometryBoard.new()
 		board.size = Vector2(1920, 1080)
-		var carrier: Dictionary = {"key": "carrier", "role": "player", "type": "player", "block": 6 if defense else 0, "bleed": 0 if defense else 2}
+		var carrier: Dictionary = {"key": "carrier", "role": "player", "type": "player", "block": 6 if defense else 0, "expose": 0 if defense else 2}
 		board.fixture_units = _badges([{"key": "enemy_1", "role": "enemy", "type": "crawler", "proof_center": TEST_THREAT_ANCHOR}, carrier])
 		var prototype: Array[Dictionary] = board._unit_defense_plate_entries(carrier, TEST_CARRIER_FRAME) if defense else board._unit_status_pill_entries(carrier, TEST_CARRIER_FRAME)
 		var frame := Rect2(TEST_CARRIER_FRAME.position + default_rect.position + TEST_OBSTACLE_INSET - (prototype[0]["rect"] as Rect2).position, TEST_CARRIER_FRAME.size)
@@ -191,6 +197,7 @@ static func _test_threat_marker_hud_avoidance(expect: Callable) -> void:
 		expect.call(placed.size() == 1 and not placed[0]["above_everything"] and placed[0]["rect"] != default_rect, "Threat marker chooses its clear alternate placement around a %s" % ("plate" if defense else "pill"))
 		expect.call(not (placed[0]["rect"] as Rect2).intersects(obstacle), "Threat marker avoids the whole %s rect" % ("plate" if defense else "pill"))
 		board.free()
+	Settings._applied_board_health_bars = previous
 
 static func font_for_tests() -> Font: return Typography.heavy_ui_font()
 static func _badges(values: Array) -> Array[Dictionary]:
@@ -207,13 +214,13 @@ static func _holder_badges(values: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary] = _badges(values)
 	for badge: Dictionary in result:
 		var icon: String = str(badge["icon"])
-		badge["status_class"] = "control" if icon in ["freeze", "petrify", "shock", "immobilize"] else "vulnerable" if icon in ["chilled", "bleed", "expose"] else "buff"
+		badge["status_class"] = "control" if icon in ["shock", "immobilize"] else "vulnerable" if icon == "expose" else "buff"
 		badge["status_word"] = str(EXPECTED_WORDS.get(icon, ""))
 	return result
 
 static func _test_burst_total(expect: Callable) -> void:
 	var board := Board.new()
-	var unit: Dictionary = {"key": "tick", "role": "enemy", "type": "ember_tick", "hp": 24, "max_hp": 24, "freeze": 1, "bleed": 2}
+	var unit: Dictionary = {"key": "tick", "role": "enemy", "type": "ember_tick", "hp": 24, "max_hp": 24, "shock": 1, "expose": 2}
 	for bonus: int in [0, 2, 0]:
 		unit["kindled_bonus"] = bonus
 		var source: Array[Dictionary] = board._unit_status_badges(unit)
@@ -221,10 +228,10 @@ static func _test_burst_total(expect: Callable) -> void:
 		expect.call(burst["count"] == 4 + bonus and burst["status_class"] == "trait" and not burst.has("label"), "Burst raw source retains its total and source contract")
 		var entries: Array[Dictionary] = board._unit_status_pill_entries(unit, TEST_FRAME)
 		expect.call(entries.back()["icon"] == "burst" and entries.back()["label"] == str(4 + bonus), "Burst total survives normal/Kindled pill layout and cache changes")
-		expect.call(entries[0]["icon"] == "freeze" and entries[1]["icon"] == "bleed" and entries.back()["status_class"] == "trait", "Burst retains trait class and follows control/vulnerable pills")
+		expect.call(entries[0]["icon"] == "shock" and entries[1]["icon"] == "expose" and entries.back()["status_class"] == "trait", "Burst retains trait class and follows control/vulnerable pills")
 		var recorder := PaintRecorder.new()
 		Plates.draw_entry(recorder, entries.back(), Assets.load_texture(Icons.icon_path("burst")))
-		expect.call(recorder.labels[0]["text"] == str(4 + bonus) and str(recorder.regions[0]["tooltip"]).ends_with("%d damage" % (4 + bonus)), "The drawn Burst number and tooltip both show its complete total")
+		expect.call(recorder.labels[0]["text"] == str(4 + bonus) and str(recorder.regions[0]["tooltip"]).contains("When this enemy dies, this enemy Bursts %d, leaving Fire." % (4 + bonus)), "The drawn Burst number and tooltip both show its complete total")
 	unit["hp"] = 0
 	expect.call(not board._unit_status_badges(unit).any(func(badge: Dictionary) -> bool: return badge.get("icon") == "burst"), "Dead ticks omit the living Burst trait")
 	board.free()

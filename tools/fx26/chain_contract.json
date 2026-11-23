@@ -1,0 +1,132 @@
+{
+  "min_images": 20,
+  "expected_sizes": [
+    "1920x1080",
+    "3840x1440",
+    "640x480"
+  ],
+  "required_images": [
+    {
+      "pattern": "*native-evidence.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            480,
+            240,
+            960,
+            440
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            480,
+            760,
+            960,
+            300
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*strip.png",
+      "width": 3840,
+      "height": 1440
+    },
+    {
+      "pattern": "*/release.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/flight-33.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/flight-66.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/contact.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/contact-100ms.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/contact-233ms.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-release.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-flight-33.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-flight-66.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-contact.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-contact-100ms.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-1-contact-233ms.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-release.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-flight-33.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-flight-66.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-contact.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-contact-100ms.png",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "pattern": "*/hop-2-contact-233ms.png",
+      "width": 640,
+      "height": 480
+    }
+  ]
+}

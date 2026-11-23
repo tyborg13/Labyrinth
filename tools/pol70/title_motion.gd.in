@@ -1,0 +1,229 @@
+extends RefCounted
+## Drive the real hand hover, drag and card FX, sampling at the render boundary.
+
+const MAX_FRAMES: int = 90
+const STRIP_EVERY: int = 2
+const STRIP_COLUMNS: int = 4
+const STRIP_ZOOM: int = 2
+const NEUTRAL_POINT := Vector2(82, 1032)
+
+var tree: SceneTree
+var input: RefCounted
+var host: Control
+var viewport: SubViewport
+var headless: bool
+var _samples: Dictionary
+var _tiles: Array[Image]
+var _done: bool
+var _id: String
+
+
+func _init(owner: SceneTree, actions: RefCounted, screen: Control, capture_viewport: SubViewport, dry: bool) -> void:
+	tree = owner
+	input = actions
+	host = screen
+	viewport = capture_viewport
+	headless = dry
+
+
+func run(id: String, strip_path: String = "") -> Dictionary:
+	_id = id
+	var hand: Control = host.get("hand_box")
+	var widget: Control = _hand_card(id)
+	if widget == null:
+		return {"error": "Motion card is absent from the installed hand: " + id}
+	var index: int = int(host.call("_hand_card_index_for_widget", widget))
+	await input._move(NEUTRAL_POINT)
+	_begin("hover_in", widget)
+	input._dispatch_motion(_center(widget))
+	if not await _hover_until(widget, hand, index, true, not strip_path.is_empty()):
+		return {"error": "Hover in did not settle for " + id}
+	if not strip_path.is_empty() and not headless and not _save_strip(strip_path):
+		return {"error": "Could not save the 2x hover strip."}
+	_begin("hover_out", widget)
+	input._dispatch_motion(NEUTRAL_POINT)
+	if not await _hover_until(widget, hand, index, false, false):
+		return {"error": "Hover out did not settle for " + id}
+	if strip_path.is_empty():
+		var total: int = hand.get_child_count()
+		_deal(index, total)
+		var proxy: Control = _fx_proxy()
+		if proxy == null:
+			return {"error": "Deal did not create a card proxy."}
+		_begin("deal", proxy.get_child(0))
+		if not await _until_done("deal", proxy):
+			return {"error": "Deal did not finish."}
+		host.call("_release_card_proxy", proxy)
+		await _frame()
+		if not await _drag(widget):
+			return {"error": "Drag did not begin and finish on the real hand."}
+		widget = _hand_card(id)
+		var rect: Rect2 = host.call("_hand_card_global_rect", host.call("_hand_card_index_for_widget", widget))
+		_play(widget, rect)
+		proxy = _fx_proxy()
+		if proxy == null:
+			return {"error": "Play did not create a card proxy."}
+		_begin("play", proxy.get_child(0))
+		if not await _until_done("play", proxy):
+			return {"error": "Play did not finish."}
+	return {"actions": _samples, "strip_frames": (_samples["hover_in"].size() - 1) / STRIP_EVERY}
+
+
+func _center(widget: Control) -> Vector2:
+	var title: Label = widget.get("title_label")
+	return title.get_global_transform_with_canvas() * (title.size * 0.5)
+
+
+func _hand_card(id: String) -> Control:
+	var hand: Control = host.get("hand_box")
+	for index: int in range(hand.get_child_count()):
+		var widget: Control = host.call("_hand_card_control", index)
+		if is_instance_valid(widget) and widget.get("card_id") == id:
+			return widget
+	return null
+
+
+func _hover_until(widget: Control, hand: Control, index: int, entering: bool, strip: bool) -> bool:
+	var sequence: String = "hover_in" if entering else "hover_out"
+	var initial: int = _fit_count(widget)
+	for frame: int in range(1, MAX_FRAMES):
+		await _frame()
+		_sample(sequence, widget, initial)
+		if strip and frame % STRIP_EVERY == 0 and not headless:
+			_collect_tile(widget)
+		var hovered: int = int(host.get("_hovered_card_index"))
+		var strength: float = float(hand.call("emphasis_strength"))
+		if frame >= STRIP_EVERY and (hovered == index and strength >= 0.999 if entering else hovered < 0 and strength <= 0.001):
+			return true
+	return false
+
+
+func _deal(index: int, total: int) -> void:
+	_done = false
+	await host.call("_animate_draw_cards_fx", [{"card_id": _id, "index": index, "total": total}])
+	_done = true
+
+
+func _play(widget: Control, rect: Rect2) -> void:
+	_done = false
+	var proxy: Control
+	if host.get_method_argument_count("_animate_card_play_fx") == 4:
+		proxy = await host.call("_animate_card_play_fx", _id, rect, rect.size, widget)
+	else:
+		proxy = await host.call("_animate_card_play_fx", _id, rect, rect.size)
+	await host.call("_animate_card_to_pile_fx", _id, "discard", rect.size, proxy)
+	_done = true
+
+
+func _until_done(action: String, proxy: Control) -> bool:
+	var initial: int = _fit_count(proxy.get_child(0))
+	for frame: int in MAX_FRAMES:
+		await _frame()
+		if _done:
+			return true
+		if is_instance_valid(proxy) and proxy.is_visible_in_tree():
+			_sample(action, proxy.get_child(0), initial)
+	return false
+
+
+func _drag(widget: Control) -> bool:
+	_begin("drag", widget)
+	var origin: Vector2 = _center(widget)
+	await input._move(origin)
+	host.call("_on_card_drag_started", host.call("_hand_card_index_for_widget", widget), origin)
+	var proxy: Control = host.get("_drag_card_proxy")
+	if proxy == null:
+		return false
+	var initial: int = _fit_count(proxy.get_child(0))
+	var lower := Vector2(origin.x, NEUTRAL_POINT.y)
+	input._dispatch_motion(lower)
+	for step: int in range(4):
+		input._dispatch_motion(lower.lerp(NEUTRAL_POINT, float(step + 1) / 4.0))
+		await _frame()
+		if not is_instance_valid(proxy):
+			return false
+		_sample("drag", proxy.get_child(0), initial)
+	_button(NEUTRAL_POINT, false)
+	for frame: int in MAX_FRAMES:
+		await _frame()
+		if host.get("_drag_card_index") == -1:
+			return true
+		if is_instance_valid(proxy):
+			_sample("drag", proxy.get_child(0), initial)
+	return false
+
+
+func _button(point: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = pressed
+	viewport.push_input(event, true)
+
+
+func _fx_proxy() -> Control:
+	var layer: Control = host.get("_card_fx_layer")
+	for proxy: Node in layer.get_children():
+		if proxy is Control and proxy.is_visible_in_tree() and proxy.name.begins_with("CardProxy") and proxy.get_child(0).get("card_id") == _id:
+			return proxy
+	return null
+
+
+func _frame() -> void:
+	if headless:
+		await tree.process_frame
+	else:
+		await RenderingServer.frame_post_draw
+
+
+func _fit_count(widget: Control) -> int:
+	return int(widget.get("_title_fit_count")) if widget.has_method("set_title_layout") else -1
+
+
+func _begin(action: String, widget: Control) -> void:
+	_samples[action] = []
+	_sample(action, widget, _fit_count(widget))
+
+
+func _sample(action: String, widget: Control, start: int) -> void:
+	var title: Label = widget.get("title_label")
+	var source: int = title.get_theme_font_size("font_size")
+	var refits: int = _fit_count(widget) - start if start >= 0 else -1
+	var frame: int = _samples[action].size()
+	var transform: Transform2D = title.get_global_transform_with_canvas()
+	_samples[action].append({"source_px": source, "refits": refits, "scale": transform.y.length(),
+		"x": transform.origin.x, "y": transform.origin.y})
+	print("POL70 MOTION card=%s action=%s frame=%d source_px=%d refits=%d scale=%.4f position=(%.2f,%.2f)" % [
+		_id, action, frame, source, refits, transform.y.length(), transform.origin.x, transform.origin.y,
+	])
+
+
+func _collect_tile(widget: Control) -> void:
+	var title: Label = widget.get("title_label")
+	var bounds: Rect2 = (title.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, title.size)).grow(6.0)
+	bounds = bounds.intersection(viewport.get_visible_rect())
+	var start := Vector2i(bounds.position.floor())
+	var region := Rect2i(start, Vector2i(bounds.end.ceil()) - start)
+	var tile: Image = viewport.get_texture().get_image().get_region(region)
+	tile.resize(tile.get_width() * STRIP_ZOOM, tile.get_height() * STRIP_ZOOM, Image.INTERPOLATE_NEAREST)
+	_tiles.append(tile)
+
+
+func _save_strip(path: String) -> bool:
+	if _tiles.is_empty():
+		return false
+	var extent := Vector2i.ZERO
+	for tile: Image in _tiles:
+		extent = extent.max(tile.get_size())
+	var columns: int = mini(STRIP_COLUMNS, _tiles.size())
+	var rows: int = ceili(float(_tiles.size()) / columns)
+	var strip := Image.create_empty(extent.x * columns, extent.y * rows, false, _tiles[0].get_format())
+	for index: int in _tiles.size():
+		var tile: Image = _tiles[index]
+		var cell := Vector2i(index % columns, floori(float(index) / columns))
+		strip.blit_rect(tile, Rect2i(Vector2i.ZERO, tile.get_size()), cell * extent)
+	if strip.save_png(path) != OK:
+		return false
+	print(path)
+	return true

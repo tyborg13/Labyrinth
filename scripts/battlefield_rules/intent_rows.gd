@@ -18,7 +18,10 @@ static func tokens(state: Dictionary, unit: Dictionary, intent: Dictionary) -> A
 	if str(instance.get("rule", "")) != "lightning_storm": return []
 	# The installed instance owns effective dials, including the half-health merge.
 	var dials: Dictionary = instance["dials"]
-	var row: Array = [Icons.token_for(str(instance["rule"]))]
-	row.append(Icons.token_for("lightning_strikes", int(dials["damage"])))
-	row.append(Icons.text_token("every Electrified tile"))
+	var sentence: String = str(instance["sentence"])
+	var rule: Dictionary = Icons.token_for(str(instance["rule"]), null, "neutral", sentence)
+	rule["tooltip_amount"] = int(dials["damage"])
+	var row: Array = [rule]
+	row.append(Icons.token_for("lightning_strikes", int(dials["damage"]), "neutral", sentence))
+	row.append(Icons.text_token("each Electrified tile"))
 	return row

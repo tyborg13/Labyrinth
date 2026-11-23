@@ -5,6 +5,7 @@ const PREVIEW_ABSOLUTE_Z: int = 1290
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
+const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
@@ -61,6 +62,9 @@ var _field: Control
 var _boss_legend_icon: Control
 var _legend: Control
 var _legend_types: Array[String]
+var _combat_legend_item: Control
+var _current_objective: Dictionary
+var _first_completed_encounter: Dictionary
 var _legend_navigation: bool = false
 var _legend_return_coord: Vector2i = Graph.INVALID
 const LEGEND_ORDER: Array = ["combat", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]
@@ -285,11 +289,14 @@ func _refresh_legend() -> void:
 	for type: String in LEGEND_ORDER:
 		if present.has(type): types.append(type)
 	if types != _legend_types:
+		_combat_legend_item = null
 		for child: Node in _legend.get_children():
 			_legend.remove_child(child)
 			child.queue_free()
 		_legend_types = types
 		for type: String in types: _add_legend_item(type)
+	if is_instance_valid(_combat_legend_item):
+		_combat_legend_item.tooltip_text = _combat_legend_description()
 	if is_instance_valid(_boss_legend_icon):
 		_boss_legend_icon.set_meta("room_icon_id", "boss_" + str(Graph.section(run_state, viewed_section).get("boss_id", "tharokh")))
 		_boss_legend_icon.queue_redraw()
@@ -302,7 +309,8 @@ class LegendItem:
 
 func _add_legend_item(type: String) -> void:
 	var item := LegendItem.new()
-	item.tooltip_text = type_description(type)
+	item.tooltip_text = _combat_legend_description() if type == "combat" else type_description(type)
+	if type == "combat": _combat_legend_item = item
 	item.add_theme_constant_override("separation", 8)
 	item.focus_mode = Control.FOCUS_ALL if _legend_navigation else Control.FOCUS_NONE
 	_legend.add_child(item)
@@ -391,14 +399,23 @@ func _full_field(control: Control) -> void:
 	_field.add_child(control)
 
 func set_run_state(source: Dictionary) -> void:
-	var objective: Dictionary = (source.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
-	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), objective.get("type", "")])
+	var combat: Dictionary = source.get("combat_state", {})
+	var objective: Dictionary = combat.get("objective", {})
+	var revision: int = int(source.get("section_map_layout_revision", Graph.section(source, 0).get("lane_count", 0)))
+	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), source.get("seed"), revision,
+		objective.get("type", ""), objective.get("objective_description", ""), objective.get("leader_type", ""), combat.get("room_coord")])
 	if next_signature == _signature:
 		return
 	_cancel_activation()
 	var previous_current: Vector2i = run_state.get("current_room", Graph.INVALID)
 	_signature = next_signature
-	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "section_map_layout_revision": source.get("section_map_layout_revision", Graph.section(source, 0).get("lane_count", 0)), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
+	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "section_map_layout_revision": revision, "reach_exit": str(objective.get("type", "")) == Objectives.REACH_EXIT}
+	_current_objective = objective if combat.get("room_coord") == run_state["current_room"] else {}
+	_first_completed_encounter = {}
+	if revision < Objectives.STANDARD_KILL_ALL_REVISION:
+		for node: Dictionary in (run_state["rooms"] as Dictionary).values():
+			if Objectives.is_completed_encounter(node) and (_first_completed_encounter.is_empty() or _encounter_precedes(node, _first_completed_encounter)):
+				_first_completed_encounter = node
 	if previous_current != run_state.get("current_room", Graph.INVALID):
 		viewed_section = Graph.active_section(run_state)
 		reset_interaction()
@@ -973,7 +990,7 @@ static func type_description(type: String) -> String:
 		return Specials.tooltip_line({"special_type": type.trim_prefix("special_")})
 	match type:
 		"start": return "Where this section begins."
-		"combat": return "Defeat every enemy."
+		"combat": return "Defeat each enemy."
 		"guardian": return "A tough enemy holds this room. Richer rewards."
 		"event": return "A choice, often with a cost."
 		"scavenger": return "Trade Embers for supplies."
@@ -982,6 +999,39 @@ static func type_description(type: String) -> String:
 		"campfire": return "Rest to heal, or bank your Embers and end the run."
 		"boss": return "The section's dragon."
 	return "Anything could be here. Scout reveals it."
+
+static func _encounter_precedes(a: Dictionary, b: Dictionary) -> bool:
+	var section_a: int = int(a.get("section_index", 0))
+	var section_b: int = int(b.get("section_index", 0))
+	if section_a != section_b: return section_a < section_b
+	return int(a.get("map_step", 0)) < int(b.get("map_step", 0))
+
+func _combat_room_description(node: Dictionary) -> String:
+	var revision: int = int(run_state.get("section_map_layout_revision", 0))
+	if revision >= Objectives.STANDARD_KILL_ALL_REVISION:
+		return type_description("combat")
+	var objective: Dictionary = _current_objective if node["coord"] == run_state.get("current_room") else {}
+	if objective.is_empty():
+		var room: Dictionary = node.duplicate(false)
+		room["type"] = "combat"
+		room["section_map_layout_revision"] = revision
+		# For rooms ahead, the next encounter is the first only until combat
+		# has been cleared. For history, the first cleared room keeps that rule.
+		room[Objectives.ONBOARDING_ROOM_KEY] = _first_completed_encounter.is_empty() or node["coord"] == _first_completed_encounter.get("coord")
+		objective = {"type": Objectives._type_for_room(int(run_state.get("seed", 0)), room)}
+	return Objectives.description_for_objective(objective)
+
+func _combat_legend_description() -> String:
+	if int(run_state.get("section_map_layout_revision", 0)) >= Objectives.STANDARD_KILL_ALL_REVISION:
+		return type_description("combat")
+	var descriptions := PackedStringArray()
+	for node: Dictionary in (run_state["rooms"] as Dictionary).values():
+		if int(node.get("section_index", -1)) != viewed_section or not bool(node.get("revealed", false)):
+			continue
+		if Graph.display_type(node) == "combat":
+			var description: String = _combat_room_description(node)
+			if not descriptions.has(description): descriptions.append(description)
+	return "\n".join(descriptions)
 
 func room_description(coord: Vector2i) -> String:
 	var node: Dictionary = Graph.room(run_state, coord)
@@ -1003,7 +1053,8 @@ func room_description(coord: Vector2i) -> String:
 		return "%s · Guardian combat\n%s\n%s" % [guardian.get("name","Guardian"), type_description("guardian"), detail]
 	if str(node.get("type", "")) == "special" and bool(node.get("revealed", false)):
 		return Specials.display_name(node) + "\n" + Specials.tooltip_line(node) + "\n" + detail
-	var description: String = type_description(Graph.display_type(node) if bool(node.get("revealed", false)) else "unknown")
+	var type: String = Graph.display_type(node) if bool(node.get("revealed", false)) else "unknown"
+	var description: String = _combat_room_description(node) if type == "combat" else type_description(type)
 	return _room_label(node) + ("\n" + description if not description.is_empty() else "") + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:
@@ -1051,17 +1102,17 @@ func _hide_preview() -> void:
 
 func _refresh_actions() -> void:
 	var active: bool = viewed_section == Graph.active_section(run_state)
-	var mode: String = str(run_state.get("mode", ""))
+	var mode_allows_scout: bool = str(run_state.get("mode", "")) in Graph.SCOUT_MODES
 	var uses: int = int(Graph.section(run_state, viewed_section).get("scouts", 0))
 	var has_targets: bool = not Graph.scout_options(run_state).is_empty()
-	_scout.disabled = not active or uses <= 0 or not has_targets or mode not in ["room", "combat", "pre_battle"]
+	_scout.disabled = not active or uses <= 0 or not mode_allows_scout or not has_targets
 	if _scout.disabled: scout_targeting = false
 	_scout.text = "Cancel Scout" if scout_targeting else "Scout · %d/2" % uses
 	_scout.tooltip_text = "Reveal an unknown room."
 	if uses <= 0: _scout.tooltip_text = "No Scouts remaining."
 	elif not active: _scout.tooltip_text = "Completed section."
+	elif not mode_allows_scout: _scout.tooltip_text = "Resolve the current room first."
 	elif not has_targets: _scout.tooltip_text = "No unknown rooms in sight."
-	elif mode not in ["room", "combat", "pre_battle"]: _scout.tooltip_text = "Resolve the current room first."
 	_scout_hint.visible = scout_targeting
 	for coord: Vector2i in node_buttons:
 		var button: Button = node_buttons[coord]

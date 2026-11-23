@@ -1,0 +1,190 @@
+{
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "required_images": [
+    {
+      "pattern": "hand_hush_of_winter.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_white_silence.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_threadbare_guard.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_rite_of_hoarfrost.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_frozen_bite.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_hoarfrost_ward.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_rime_step.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hand_smelling_salts.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_hush_of_winter.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_white_silence.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_threadbare_guard.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_rite_of_hoarfrost.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_frozen_bite.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_hoarfrost_ward.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_rime_step.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "hover_smelling_salts.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_frostbolt.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_icebound_chains.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_rime_shard.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_cold_grasp.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_icicle_lance.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_shatterline.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_glacier_pin.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_rimeplate_lock.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_locket_chill.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_frost_snare.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_cold_shoulder.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_frost_nova.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_rime_hack.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_shiver_shot.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_rimefang.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_petrify.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "rows_sleet_squall.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "deck_grid.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_move_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_enemy_turn_start.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

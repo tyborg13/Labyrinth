@@ -80,6 +80,9 @@ static func retain_empty(board: Control, layer: Control) -> bool:
 	layer.set("_retained_commands_empty", empty)
 	return empty and was_empty
 
+static func world_has_paint(shown: Dictionary) -> bool:
+	return str(shown.get("umbra_stage", "clear")) != "clear" or not (shown.get("umbra_light_sources", []) as Array).is_empty()
+
 static func is_empty(board: Control, layer: Control) -> bool:
 	var shown: Dictionary = board.presentation
 	match str(layer.get("_render_layer_kind")):
@@ -93,7 +96,7 @@ static func is_empty(board: Control, layer: Control) -> bool:
 			# The authored path is drawn inside each scene tile's depth pass.
 			return true
 		"world":
-			return str(shown.get("umbra_stage", "clear")) == "clear"
+			return not world_has_paint(shown)
 		"impact_floor":
 			return (shown.get("impact_decals", []) as Array).is_empty()
 		"ground":

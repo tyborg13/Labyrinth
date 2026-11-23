@@ -12,6 +12,8 @@ func _initialize() -> void:
 	await preload("res://tests/helpers/pile_viewer_duplicate_fixture.gd").run(self, _expect)
 	var engine := RunEngine.new()
 	var state: Dictionary = Fixture.shop_fixture(engine)
+	# The text-fit mutation exercises a real badge for two owned copies.
+	state = engine.grant_magic_to_deck(state, "pale_spark")
 	for id: String in Presentation.EXTRA_SPELLS: state = engine.grant_magic_to_deck(state, id)
 	var instance: Node = await _instance(state)
 	await preload("res://tests/helpers/pile_copy_badge_checks.gd").assert_count_cases(instance, _viewport, _expect)

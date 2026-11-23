@@ -1,0 +1,96 @@
+{
+  "_doc": "pla-04 (owner-approved playability plan 2026-11-20, Burst merge): copy that supersedes the protected historical records. One verb, one shape: Burst replaces Detonate, Expend-with-damage, Discharge, Terrain Burst and Shatter Illusion; the Storm Capacitor's Arc Burst is Arc Lash; Terrain Burst's remaining enemy use is Craghide's Groundsplit.",
+  "relic_descriptions": {
+    "basalt_calendar": "Your @kw(burst) can destroy @term(surface_rubble) instead of @term(surface_fire), leaving @kw(surface_fire) on the destroyed tiles.",
+    "ashen_brand": "Your @kw(burst) destroys all connected @term(surface_fire). A target hit by several Bursts takes 25% more damage per extra Burst.",
+    "crowncoal_heart": "Once per turn, your single-target hit on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified) places @kw(surface_fire). @kw(burst|Bursting) 2+ @kw(surface_fire) grants 6 @term(stoneskin), once per turn.",
+    "black_sun_dial": "Each ground tile you @kw(surface_consume|Expend) or @kw(burst) gives your next attack +3 damage (up to +9)."
+  },
+  "glossary_definitions": {
+    "burst": "Destroys it and deals this damage to every unit on or next to its tile.",
+    "charge": "At 3 Charge it unleashes Arc Lash; Shock removes 1.",
+    "detonate_cinders": "Bursts the Fire on its last Cinder Marks, the dragon included.",
+    "element_fire": "Fire cards place Fire ground and Burst it.",
+    "terrain_burst": "Hits units around its terrain pieces."
+  },
+  "glossary_names": {
+    "burst": "Burst",
+    "terrain_burst": "Groundsplit"
+  },
+  "glossary_aliases": {
+    "burst": [
+      "kindle",
+      "Bursts",
+      "detonate",
+      "discharge",
+      "shatter_illusion",
+      "destroy_illusion",
+      "burst_terrain"
+    ],
+    "terrain_burst": []
+  },
+  "retired_glossary_terms": [
+    "detonate",
+    "discharge",
+    "shatter_illusion"
+  ],
+  "retired_grimoire_entries": [
+    "keyword:detonate",
+    "keyword:discharge",
+    "keyword:shatter_illusion"
+  ],
+  "grimoire_titles": {
+    "keyword:burst": "Burst",
+    "keyword:terrain_burst": "Groundsplit"
+  },
+  "grimoire_bodies": {
+    "keyword:burst": [
+      "Destroys it and deals this damage to every unit on or next to its tile.",
+      "Hover the card to see every tile it hits, yours included."
+    ],
+    "keyword:terrain_burst": [
+      "Hits units around its Outcrops for the shown damage."
+    ],
+    "keyword:detonate_cinders": [
+      "Burst the Fire on its last Cinder Marks. Everyone caught is hit once, the dragon included."
+    ],
+    "keyword:element_fire": [
+      "Card element. Fire cards mostly place Fire ground and Burst it."
+    ],
+    "combat:outcrops": [
+      "Outcrop cards raise crag Outcrops on empty floor. An Outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
+      "An Outcrop raise keeps floor routes connected. A raise around a target may seal the single tile it surrounds.",
+      "A powder keg blocks movement but not sight; when anything destroys it, it Bursts, setting off other kegs.",
+      "Rockburst and Worldbreak Burst terrain: Rockburst an Outcrop or crate it hits, Worldbreak an Outcrop you raised.",
+      "Raises attackable terrain with the shown Health. It blocks movement; some kinds also block sight."
+    ],
+    "combat:cinder_marks": [
+      "Meteorfall strikes marked tiles and leaves Fire. When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions.",
+      "Crownfire Bursts Vyraketh's own marked Fire while it pursues you. Replace the Fire to deny the Burst, or lure the dragon into it.",
+      "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire.",
+      "Marks the shown tiles. When it lands, they take the shown damage and become Fire."
+    ],
+    "enemy:vyraketh": [
+      "Fire dragon that lays marked Fire, with Cinder Droplets that leave more of it.",
+      "When Vyraketh breathes, every Fire tile spreads 1 tile in all four directions. At half Health its Fire spreads after every second Vyraketh turn. Crownfire Bursts its own marked Fire, and its bite renews the marks."
+    ],
+    "keyword:surface_electrified": [
+      "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles.",
+      "Frost Circuit turns a connected patch of Ice into Electrified ground. Discharge Bursts a connected Electrified network.",
+      "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it."
+    ],
+    "combat:surface_techniques": [
+      "Expend: a card that Expends a ground removes the shown ground to gain its effect. A Burst destroys ground instead (see Burst).",
+      "Convert: Frost Circuit turns the chosen Ice tile and all Ice connected to it into Electrified ground, then strikes and Shocks each enemy on the converted tiles.",
+      "Discharge: choose an Electrified tile to Burst it and every Electrified tile connected to it.",
+      "Wards leave a ground beneath each enemy next to you. Ice placed this way Chills an enemy only when it starts a turn on or enters the Ice."
+    ],
+    "keyword:charge": [
+      "Gains Charge each use. At 3, its next intent is Arc Lash: lightning jumping between nearby units. Shock removes 1."
+    ]
+  },
+  "panel_titles": {
+    "terrain_burst_own": "Burst",
+    "terrain_burst_any": "Burst"
+  }
+}

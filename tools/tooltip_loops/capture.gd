@@ -9,6 +9,7 @@ const Cache = preload("res://scripts/tooltip_loop_cache.gd")
 const Format = preload("res://scripts/tooltip_loop_format.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const OpenProof = preload("res://tools/tooltip_loops/capture_open.gd")
+const Checks = preload("res://tools/tooltip_loops/capture_checks.gd")
 const OUT: String = "/private/tmp/labyrinth_codex/tip-05/capture"
 const SAMPLE_FRAMES: int = 60 # Debug timing sample count per cold open.
 const READY_FRAME_LIMIT: int = 300 # Debug IO/readiness timeout.
@@ -37,7 +38,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	if OS.get_cmdline_user_args().has("--lifecycle-only"):
-		await preload("res://tools/tooltip_loops/capture_checks.gd").order(self)
+		await Checks.order(self)
 		_finish("LIFECYCLE"); return
 	if OS.get_cmdline_user_args().has("--semantics-only"):
 		await _semantics()
@@ -63,8 +64,8 @@ func _run() -> void:
 		var provenance: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str(row["asset_path"]) + ".json"))
 		_expect(not bool(provenance.get("requires_native_rerecord", true)), "Native proof requires re-recorded footage: " + str(row["id"]))
 		var timing: Dictionary = provenance.get("motion_timing", {})
-		_expect(not timing.is_empty(), "Native proof requires the new unpadded recording: " + str(row["id"]))
-		_expect(float(timing.get("first_motion_seconds", INF)) <= 0.4 and float(timing.get("tail_seconds", INF)) <= 0.2, "Recording lead-in and settled tail meet the director limits: " + str(row["id"]))
+		_expect(not timing.is_empty(), "Native proof requires a recording timing receipt: " + str(row["id"]))
+		_expect(Checks.recording_timing_matches(row["id"], timing), "Recording lead-in and settled tail meet the director limits: " + str(row["id"]))
 		_expect(proof_file.get_length() <= int(row.get("max_asset_bytes", 1500000)), "Compressed recording fits its size cap: " + str(row["id"]))
 		_expect(provenance.get("speed", "normal") == row.get("speed", "normal"), "Recording speed matches registry: " + str(row["id"]))
 		Registry.proof_media_disabled = true
@@ -123,12 +124,12 @@ func output_dir() -> String:
 func ordered_entries() -> Array:
 	var rows: Array = preload("res://tools/tooltip_loops/record.gd").selected_entries().duplicate()
 	var order: String = OS.get_environment("TOOLTIP_LOOP_ORDER")
-	if order in ["freeze-first", "freeze-last"]:
+	if order in ["stagger-first", "stagger-last"]:
 		for index: int in range(rows.size()):
-			if rows[index]["id"] != "freeze_status": continue
-			var freeze: Dictionary = rows.pop_at(index)
-			if order == "freeze-first": rows.push_front(freeze)
-			else: rows.append(freeze)
+			if rows[index]["id"] != Fixture.Tip10.STAGGER: continue
+			var stagger: Dictionary = rows.pop_at(index)
+			if order == "stagger-first": rows.push_front(stagger)
+			else: rows.append(stagger)
 			break
 	return rows
 
@@ -306,8 +307,7 @@ func _semantics() -> void:
 	_expect(Fixture.BIOMES.get("chain_card") == "zekarion", "Chain defaults to Zekarion floor and light")
 	var recorder = preload("res://tools/tooltip_loops/record.gd")
 	_expect(recorder.action_frame_limit("fast") == 165 and recorder.action_frame_limit("normal") == 126 and recorder.action_frame_limit() == 126, "Fast actions cap at 5.5 seconds; normal actions at 4.2 seconds")
-	_expect(Registry.entries()[1].get("speed") == "fast" and Registry.entries()[0].get("speed", "normal") == "normal" and Registry.entries()[2].get("speed", "normal") == "normal", "The original three recording speeds are preserved")
-	_expect(Registry.entries().size() == 32, "Exactly 32 registered tooltip loops")
+	Checks.verify_registry(self)
 	_expect(Registry.find("marked", Context.enemy("hoarfrost_seer")).get("id") == "marked_icefall_seer", "Seer has its own recording")
 	_expect(Registry.find("marked", {}).is_empty() and Registry.find("chain", {}).is_empty(), "No anonymous/global matching")
 	_expect(Registry.find("burrow", Context.enemy("burrow_grub")).get("id") == "marked_burrow_grub", "Burrow alias resolves by source")
@@ -326,6 +326,7 @@ func _semantics() -> void:
 		var packed_header: Dictionary = Format.header(packed_file)
 		_expect(not packed_header.is_empty(), "Registered asset index validates: " + str(entry["id"]))
 		if packed_header.is_empty(): continue
+		if Fixture.Tip13.IDS.has(id): Checks.verify_burst_recording(self, entry, int(packed_header["count"]))
 		for index: int in range(int(packed_header["count"])):
 			_expect(Format.read_frame(packed_file, packed_header, index) != null, "Godot decodes actual frame %s:%d" % [entry["id"], index])
 	await _routed_hover_semantics()
@@ -366,14 +367,16 @@ func _semantics() -> void:
 	decoded.convert(Image.FORMAT_RGB8)
 	_expect(decoded.get_data() == bytes, "Godot WebP decode preserves fixture RGB exactly")
 	file.close()
-	var row: Dictionary = Registry.entries()[2]
-	var original: String = row["asset_path"]
-	row["asset_path"] = path
-	var panel: Control = preload("res://scripts/ui_tooltip_panel.gd").make_icon_lines(Icons.icon_texture("chain"), Icons.label("chain"), PackedStringArray([Icons.description("chain")]), "chain", {"kind": "hero_card"})
+	var chain_source: Dictionary = {"kind": "hero_card"}
+	var row: Dictionary = Registry.find("chain", chain_source)
+	var original: String = row.get("asset_path", "")
+	if not row.is_empty(): row["asset_path"] = path
+	var panel: Control = preload("res://scripts/ui_tooltip_panel.gd").make_icon_lines(Icons.icon_texture("chain"), Icons.label("chain"), PackedStringArray([Icons.description("chain")]), "chain", chain_source)
 	root.add_child(panel)
 	var window: Control = panel.find_child("TooltipLoopWindow", true, false)
 	_expect(window != null and window.custom_minimum_size == Vector2(282, 168) and window.window_rect().size == Vector2(282, 168), "Non-pre-battle loop stays 282x168")
-	if window != null:
+	_expect(window != null and window.asset_path == path, "Chain tooltip leases the two-frame proof recording")
+	if window != null and window.asset_path == path:
 		_expect(window.material == null and window.get_child_count() == 0, "Runtime loop has no custom shader or overlay setup")
 		window.proof_seconds = 0.0
 		for frame: int in range(READY_FRAME_LIMIT):
@@ -387,17 +390,17 @@ func _semantics() -> void:
 		_expect(window.displayed_frame == 1, "Reduced motion presents final frame")
 		_expect(Cache.shared().resident_bound_bytes() < RESIDENT_BUDGET, "Conservative stream memory bound below 12 MB")
 		panel.hide()
-		_expect(Cache.shared().streams[path]["users"] == 0, "Hidden tooltip relinquishes its stream")
+		_expect(Cache.diagnostics_if_present().get(path, {}).get("users", -1) == 0, "Hidden tooltip relinquishes its stream")
 		panel.show()
 		_expect(window._elapsed == 0.0, "Reopen restarts playback")
 	panel.queue_free()
 	await process_frame
-	row["asset_path"] = original
+	if not row.is_empty(): row["asset_path"] = original
 	await _outer_popup_semantics(path)
 	await preload("res://tools/tooltip_loops/tip03_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/tip04_context.gd").verify(self, path)
 	await preload("res://tools/tooltip_loops/trap_context.gd").verify(self, path)
-	await preload("res://tools/tooltip_loops/capture_checks.gd").verify(self)
+	Checks.verify(self)
 	# 0.6 s margin: the last panel can close a frame or two after this point on a loaded machine.
 	await create_timer(10.6, true, false, true).timeout
 	_expect(Cache.shared().streams.is_empty(), "Real-time cache expires ten seconds after last close")
@@ -457,18 +460,21 @@ func _routed_hover_semantics() -> void:
 func _outer_popup_semantics(path: String) -> void:
 	var inspection = preload("res://scripts/pre_battle_inspection_view.gd")
 	var host: Node = preload("res://scenes/run_scene.tscn").instantiate()
-	var row: Dictionary = Registry.entries()[0]
-	var original: String = row["asset_path"]
 	var enemy: Dictionary = Fixture.build("burst_ember_tick")["state"]["enemies"][0]
+	var row: Dictionary = Registry.find("burst", Context.enemy_unit(enemy))
+	var original: String = row.get("asset_path", "")
+	Registry.proof_media_disabled = true
 	var text_only: Control = inspection.build(host, enemy)
+	Registry.proof_media_disabled = false
 	var expected_text: String = _popup_text(text_only)
+	_expect(text_only.find_child("TooltipLoopWindow", true, false) == null, "Outer popup control disables the loop")
 	text_only.free()
-	row["asset_path"] = path
+	if not row.is_empty(): row["asset_path"] = path
 	var popup: Control = inspection.build(host, enemy)
 	root.add_child(popup)
 	for frame: int in range(OUTER_POPUP_SETTLE_FRAMES): await process_frame
 	var window: Control = popup.find_child("TooltipLoopWindow", true, false)
-	_expect(window != null, "Existing outer foe-hover popup contains the recording")
+	_expect(window != null and window.asset_path == path, "Ember Tick outer foe-hover popup contains its proof recording")
 	if window != null:
 		var header_host: Control = window.get_parent()
 		var original_header: Control = header_host.get_child(1)
@@ -488,7 +494,7 @@ func _outer_popup_semantics(path: String) -> void:
 	popup.queue_free()
 	host.free()
 	await process_frame
-	row["asset_path"] = original
+	if not row.is_empty(): row["asset_path"] = original
 
 func _assert_outer_window(window: Control, context: String) -> void:
 	var rect: Rect2 = window.window_rect()

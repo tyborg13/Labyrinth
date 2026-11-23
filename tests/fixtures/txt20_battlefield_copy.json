@@ -1,0 +1,85 @@
+{
+  "stormcaller": {
+    "sentence": "On each Gust beat, after the Stormcaller's turn, each unit is Pushed 1 tile downwind."
+  },
+  "slagmaster": {
+    "sentence": "On each Wildfire beat, after every second Slagmaster turn, each Fire tile spreads 1 tile in the direction from the Slagmaster to you."
+  },
+  "oracle": {
+    "sentence": "On each Frostbite beat, after every second Oracle turn, each unit on Ice takes 2 damage."
+  },
+  "dynamo": {
+    "sentence": "On each Lightning Storm beat, when the Dynamo uses Arc Lash, each unit on Electrified takes 4 damage."
+  },
+  "thornmother": {
+    "sentence": "On each Upheaval beat, after every second Thornmother turn, each Marked tile becomes an Outcrop."
+  },
+  "prior": {
+    "sentence": "On each Shadowstep beat, after every second Prior turn, each hidden follower Blinks up to 3 tiles toward you."
+  },
+  "snare_earth": {
+    "sentence": "On each Upheaval beat, after your turn, a Marked tile on the way out becomes an Outcrop."
+  },
+  "snare_fire": {
+    "sentence": "On each Wildfire beat, after your turn, each Fire tile spreads 1 tile away from the entry."
+  },
+  "snare_air": {
+    "sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the entry."
+  },
+  "snare_ice": {
+    "sentence": "On each Frostbite beat, after your turn, each unit on Ice takes 1 damage."
+  },
+  "snare_lightning": {
+    "sentence": "On each Lightning Storm beat, after your turn, each unit on Electrified takes 3 damage."
+  },
+  "snare_shadow": {
+    "sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you."
+  },
+  "last_light": {
+    "sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you."
+  },
+  "gale_herald": {
+    "sentence": "On each Gust beat, after the Gale Herald's turn, each unit is Pushed 1 tile downwind."
+  },
+  "ashen_reaver": {
+    "sentence": "On each Wildfire beat, after every second turn of yours, each Fire tile spreads 1 tile in the direction from the Reaver to you."
+  },
+  "rimejaw": {
+    "sentence": "On each Frostbite beat, after your turn, each unit on Ice takes Stagger 6."
+  },
+  "storm_cantor": {
+    "sentence": "On each Lightning Storm beat, when the Cantor uses Peal, each unit on Electrified takes 4 damage."
+  },
+  "gallows_roc": {
+    "sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile in the direction from you to the Roc."
+  },
+  "craghide": {
+    "sentence": "On each Upheaval beat, after every second Craghide turn, each Marked tile becomes an Outcrop."
+  },
+  "last_lamplighter": {
+    "sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you."
+  },
+  "vyraketh": {
+    "sentence": "On each Wildfire beat, when Vyraketh breathes, each Fire tile spreads to each adjacent tile.",
+    "at_half_health_sentence": "On each Wildfire beat, after every second Vyraketh turn, each Fire tile spreads to each adjacent tile."
+  },
+  "tharokh": {
+    "sentence": "On each Upheaval beat, after every second turn of yours, each Marked tile becomes an Outcrop.",
+    "at_half_health_sentence": "On each Upheaval beat, after your turn, each Marked tile becomes an Outcrop."
+  },
+  "iskaldra": {
+    "sentence": "On each Frostbite beat, when Iskaldra uses Rime Talon, each unit on Ice takes 3 damage.",
+    "at_half_health_sentence": "On each Frostbite beat, after every second Iskaldra turn, each unit on Ice takes 3 damage."
+  },
+  "vaeloryx": {
+    "sentence": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 1 tile downwind, then Gust turns a quarter clockwise.",
+    "at_half_health_sentence": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 2 tiles downwind, then Gust turns a quarter clockwise."
+  },
+  "zekarion": {
+    "sentence": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 6 damage.",
+    "at_half_health_sentence": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 7 damage."
+  },
+  "noctyrax": {
+    "sentence": "On each Shadowstep beat, when Noctyrax uses Void Claw, each hidden Veilbound Acolyte Blinks up to 3 tiles toward you."
+  }
+}

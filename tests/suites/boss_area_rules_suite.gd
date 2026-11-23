@@ -8,6 +8,7 @@ const Base = preload("res://tests/suites/battlefield_rules_suite.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const PROOF_NULL_SAVE_PATH: String = "user://area01-null-combat.save"
 const PROOF_PARTIAL_SAVE_PATH: String = "user://area01-partial-plan.save"
+const PROOF_BURST_SAVE_PATH: String = "user://pla-04r3-pending-burst.save"
 const PROOF_WALL_SAVE_PATH: String = "user://area05-pending-thornwall.save"
 const Badges = preload("res://scripts/intent_badges.gd")
 const PROOF_SOURCE := Vector2i(5, 3)
@@ -82,6 +83,8 @@ static func run(expect: Callable) -> void:
 				Areas.migrate_combat(legacy)
 				expect.call(same(Areas.pending_tiles(legacy["enemies"][0]["intent"]), Areas.pending_tiles(intent)), id+"/"+move+" old save uses stored marks after displacement")
 	_detonations(engine, expect)
+	_legacy_burst_stamps(engine, expect)
+	_faultline_victims(engine, expect)
 	_skybreak(engine, expect)
 	_burrow(engine, expect)
 	_followup(engine, expect)
@@ -106,8 +109,19 @@ static func _detonations(engine: RefCounted, expect: Callable) -> void:
 	Ground.place(state, Vector2i(6, 5), "fire", {"actor_kind":"player"})
 	var hp: int = state["player"]["hp"]
 	state = engine._resolve_enemy_action(state, 0, action)
-	expect.call(shown.has(state["player"]["pos"]) and state["player"]["hp"] == hp-int(action["damage"]), "Crownfire strikes its original union even after all fuel is removed")
+	expect.call(shown.has(state["player"]["pos"]) and state["player"]["hp"] == hp, "Replacing the marked Fire denies the held Crownfire Burst")
 	expect.call(Ground.has_surface(state, fuel, "ice") and Ground.has_surface(state, Vector2i(6,5), "fire"), "Crownfire preserves replacements and later Fire")
+	state = fixture("vyraketh")
+	var other_mark := Vector2i(6, 5)
+	state["enemies"][0]["cinder_tiles"] = engine._vector2i_values([fuel, other_mark])
+	for tile: Vector2i in state["enemies"][0]["cinder_tiles"]:
+		Ground.place(state, tile, "fire", {"actor_kind": "enemy", "actor_id": 1})
+	declare(engine, state, "crownfire")
+	action = state["enemies"][0]["intent"]["actions"][0]
+	Ground.place(state, fuel, "ice", {"actor_kind": "player"})
+	hp = state["player"]["hp"]
+	state = engine._resolve_enemy_action(state, 0, action)
+	expect.call(state["player"]["hp"] == hp and not Ground.has_surface(state, other_mark, "fire"), "Crownfire only Bursts from the mark whose Fire survived")
 	state = fixture("tharokh")
 	state["terrain"].append({"id":"original", "kind":"crag_outcrop", "owner_kind":"enemy", "owner_id":1, "pos":fuel, "hp":4})
 	declare(engine, state, "faultline")
@@ -117,6 +131,62 @@ static func _detonations(engine: RefCounted, expect: Callable) -> void:
 	hp = state["player"]["hp"]
 	state = engine._resolve_enemy_action(state, 0, action)
 	expect.call(state["player"]["hp"] == hp-int(action["damage"]) and state["terrain"][0]["hp"] == 4, "Faultline keeps its blast and leaves later rock for the next announcement")
+
+static func _legacy_burst_stamps(engine: RefCounted, expect: Callable) -> void:
+	var source := Vector2i(3, 3)
+	var cross: Array[Vector2i] = engine._vector2i_values([source + Vector2i.UP, source + Vector2i.LEFT, source, source + Vector2i.RIGHT, source + Vector2i.DOWN])
+	var square: Array[Vector2i]
+	for dy: int in range(-1, 2):
+		for dx: int in range(-1, 2):
+			square.append(source + Vector2i(dx, dy))
+	var fire: Dictionary = fixture("vyraketh")
+	fire["enemies"][0]["cinder_tiles"] = engine._vector2i_values([source])
+	Ground.place(fire, source, "fire", {"actor_kind": "enemy", "actor_id": 1})
+	declare(engine, fire, "crownfire")
+	fire["enemies"][0]["intent"]["actions"][0][Areas.FIELD] = square.duplicate()
+	var stone: Dictionary = fixture("tharokh")
+	stone["terrain"].append({"id": "spent_spire", "kind": "crag_outcrop", "owner_kind": "enemy", "owner_id": 1, "pos": source, "hp": 4})
+	declare(engine, stone, "faultline")
+	stone["enemies"][0]["intent"]["actions"][0][Areas.FIELD] = square.duplicate()
+	stone["terrain"].clear()
+
+	var previous: String = Store._run_storage_path
+	Store.set_run_storage_path(PROOF_BURST_SAVE_PATH)
+	var saved: Dictionary = {"mode": "combat", "combat_state": fire, "pending_combat_checkpoints": [{"state": stone}]}
+	expect.call(Store.save_run_state(saved), "Pending square Bursts save through the production store")
+	var loaded: Dictionary = Store.load_saved_run()
+	expect.call(not loaded.is_empty(), "Pending square Bursts load through the production store")
+	if not loaded.is_empty():
+		expect.call(Store.save_run_state(loaded) and Store.load_saved_run() == loaded, "Migrating a saved Burst stamp is idempotent")
+		for combat: Dictionary in [loaded["combat_state"], loaded["pending_combat_checkpoints"][0]["state"]]:
+			var action: Dictionary = combat["enemies"][0]["intent"]["actions"][0]
+			var move: String = combat["enemies"][0]["intent"]["id"]
+			expect.call(same(Areas.shown(action), cross), "Pending %s loads with its original source's cross" % move)
+			var resolved: Dictionary = engine._resolve_enemy_action(combat.duplicate(true), 0, action)
+			expect.call(resolved["player"]["hp"] == PROOF_HEALTH, "Migrated %s skips the diagonal hero" % move)
+			combat["player"]["pos"] = source + Vector2i.LEFT
+			resolved = engine._resolve_enemy_action(combat, 0, action)
+			expect.call(resolved["player"]["hp"] == PROOF_HEALTH - int(action["damage"]), "Migrated %s hits the adjacent hero" % move)
+	Store.clear_saved_run()
+	Store.set_run_storage_path(previous)
+
+static func _faultline_victims(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = fixture("tharokh")
+	var stone := Vector2i(3, 3)
+	var crawler := Vector2i(4, 3)
+	var diagonal := Vector2i(4, 2)
+	state["enemies"].append({"id": 2, "type": "crawler", "pos": crawler, "hp": PROOF_HEALTH, "max_hp": PROOF_HEALTH})
+	state["enemies"].append({"id": 3, "type": "crawler", "pos": diagonal, "hp": PROOF_HEALTH, "max_hp": PROOF_HEALTH})
+	state["terrain"].append({"id": "worldspine", "kind": "crag_outcrop", "owner_kind": "enemy", "owner_id": 1, "pos": stone, "hp": 4})
+	state["traps"].append({"id": "trap", "pos": Vector2i(3, 2), "element": "earth", "damage": 1})
+	state["traps"].append({"id": "diagonal_trap", "pos": Vector2i(2, 2), "element": "earth", "damage": 1})
+	declare(engine, state, "faultline")
+	var action: Dictionary = state["enemies"][0]["intent"]["actions"][0]
+	state = engine._resolve_enemy_action(state, 0, action)
+	var damage: int = int(action["damage"])
+	expect.call(state["enemies"][1]["hp"] <= PROOF_HEALTH - damage, "Faultline damages the adjacent enemy")
+	expect.call(state["player"]["hp"] == PROOF_HEALTH and state["enemies"][2]["hp"] == PROOF_HEALTH, "Faultline spares units on diagonals")
+	expect.call(state["traps"].size() == 1 and state["traps"][0]["id"] == "diagonal_trap", "Faultline triggers the adjacent trap and leaves the diagonal trap")
 
 static func _skybreak(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = fixture("zekarion")

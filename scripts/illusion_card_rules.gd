@@ -13,6 +13,7 @@ extends RefCounted
 ## chooses tiles and routes through those engine entry points from small hooks.
 
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const BurstRules = preload("res://scripts/burst_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Data = preload("res://scripts/game_data.gd")
 const SurfaceRelics = preload("res://scripts/surface_relic_rules.gd")
@@ -181,7 +182,7 @@ static func illusion_badges(illusion: Dictionary) -> Array[Dictionary]:
 		text += " and are Shocked." if int(on_damaged.get("shock", 0)) > 0 else "."
 		badges.append({"icon": "shock" if int(on_damaged.get("shock", 0)) > 0 else "retaliate", "fill": Color("2c2a14"), "border": Color("f0d36a"), "icon_tint": Color.WHITE, "tooltip": _badge_tooltip(source, text)})
 	if bool(illusion.get("reflect", false)):
-		badges.append({"icon": "retaliate", "fill": Color("23202c"), "border": Color("b9a8f0"), "icon_tint": Color.WHITE, "tooltip": _badge_tooltip(source, "Enemies that damage this illusion take that much damage too.")})
+		badges.append({"icon": "retaliate", "fill": Color("23202c"), "border": Color("b9a8f0"), "icon_tint": Color.WHITE, "tooltip": _badge_tooltip(source, "Enemies that damage this Illusion take the same damage.")})
 	if bool(illusion.get("ranged_origin", false)):
 		badges.append({"icon": "ranged", "fill": Color("1d2630"), "border": Color("9beeff"), "icon_tint": Color.WHITE, "tooltip": _badge_tooltip(source, "While it lives, your ranged attacks may fire from this tile.")})
 	return badges
@@ -328,6 +329,16 @@ static func presentation_steps(engine: RefCounted, before_state: Dictionary, aft
 static func own_illusion_targets(engine: RefCounted, state: Dictionary, action: Dictionary, player_pos: Vector2i, visible_lookup: Dictionary) -> Array[Vector2i]:
 	var targets: Array[Vector2i]
 	var reach: int = int(action.get("range", 0))
+	if bool(action.get("any_tile", false)):
+		# Shattered Reflection: any floor tile in range and sight; the Burst
+		# happens only on one of your illusions.
+		for tile: Vector2i in Paths.diamond_tiles(player_pos, reach, state.get("grid", [])):
+			if not Paths.is_passable(state.get("grid", []), tile) or not engine.is_tile_visible_to_player(state, tile, visible_lookup):
+				continue
+			if tile != player_pos and not engine.combat_line_of_sight(state, player_pos, tile):
+				continue
+			targets.append(tile)
+		return targets
 	for illusion: Dictionary in engine._live_illusions(state):
 		var tile: Vector2i = illusion.get("pos", INVALID)
 		if Paths.manhattan(player_pos, tile) > reach or not engine.is_tile_visible_to_player(state, tile, visible_lookup):
@@ -371,20 +382,36 @@ static func resolve_swap(engine: RefCounted, state: Dictionary, action: Dictiona
 
 ## Shattered Reflection: destroy the illusion (normal destruction hooks), then a
 ## player-card blast on its orthogonal neighbors, then Light on its tile.
+## Burst one of your illusions: destroy it, then the card's Burst on every
+## unit in its cross (BurstRules; the hero included). Its Light rider follows on
+## the chosen tile; with any_tile the Light happens without an illusion too.
 static func resolve_destroy(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}) -> Dictionary:
 	var found: Dictionary = illusion_at(engine, state, target)
-	if found.is_empty():
+	if found.is_empty() and not bool(action.get("any_tile", false)):
 		return state
-	var tile: Vector2i = found.get("pos", INVALID)
-	var impact: Array[Vector2i] = neighbor_tiles(state, tile)
-	state = engine._damage_illusion(state, int(found.get("id", -1)), int(found.get("hp", 0)))
-	Surfaces.record_event(state, {"kind": SHATTER_EVENT, "illusion_id": int(found.get("id", -1)), "tile": tile, "tiles": impact, "source": engine._surface_source(state, action)})
-	var damage: int = int(action.get("damage", 0))
-	if damage > 0 and not impact.is_empty():
-		state = engine._resolve_board_attack(state, blast_action(action, damage), tile, "player", -1, trace, impact)
+	var tile: Vector2i = target
+	if not found.is_empty():
+		tile = found.get("pos", INVALID)
+		var impact: Array[Vector2i] = BurstRules.cross(state, tile)
+		state = engine._damage_illusion(state, int(found.get("id", -1)), int(found.get("hp", 0)))
+		Surfaces.record_event(state, {"kind": SHATTER_EVENT, "illusion_id": int(found.get("id", -1)), "tile": tile, "tiles": impact, "burst": true, "source": engine._surface_source(state, action)})
+		var damage: int = int(action.get("damage", 0))
+		if damage > 0:
+			var sources: Array[Vector2i]
+			sources.append(tile)
+			state = engine._resolve_board_detonate(state, burst_action(action, damage), tile, trace, sources)
 	if int(action.get("illuminate_radius", 0)) > 0:
-		state = engine._create_umbra_light_source(state, tile, {"radius": int(action.get("illuminate_radius", 1)), "duration": int(action.get("illuminate_duration", 1)), "silent": true})
+		state = engine._create_umbra_light_source(state, tile, {"radius": int(action.get("illuminate_radius", 1)), "silent": true})
 	return state
+
+## The card Burst a non-attack action derives: attack bonuses apply, the
+## next-attack buff does not; every unit in the cross is hit.
+static func burst_action(action: Dictionary, damage: int, extra: Dictionary = {}) -> Dictionary:
+	var burst: Dictionary = blast_action(action, damage, extra)
+	burst.erase("_enemies_only")
+	burst["detonate_surface"] = ""
+	burst["_burst_sources_given"] = true
+	return burst
 
 ## Passable orthogonal neighbors of `tile`.
 static func neighbor_tiles(state: Dictionary, tile: Vector2i) -> Array[Vector2i]:

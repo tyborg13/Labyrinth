@@ -26,9 +26,8 @@
           },
           {
             "type": "melee",
-            "damage": 4,
+            "damage": 5,
             "range": 1,
-            "bleed": 1,
             "element": "none"
           }
         ]
@@ -183,10 +182,9 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 4,
+            "damage": 5,
             "range": 3,
             "pierce": true,
-            "bleed": 1,
             "element": "none"
           }
         ]
@@ -856,7 +854,13 @@
             "orient_toward_target": true,
             "stop_at_blockers": true,
             "element": "ice",
-            "surface": "ice"
+            "surface": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -901,7 +905,13 @@
             "type": "ranged",
             "damage": 5,
             "range": 3,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -984,7 +994,7 @@
           },
           {
             "type": "aoe",
-            "damage": 14,
+            "damage": 15,
             "range": 1,
             "element": "earth",
             "committed_shape": "crescent",
@@ -992,7 +1002,6 @@
               2,
               2
             ],
-            "sunder": 1,
             "preserve_owned_terrain": true
           }
         ]
@@ -1234,15 +1243,14 @@
           },
           {
             "type": "aoe",
-            "damage": 6,
+            "damage": 7,
             "range": 1,
             "element": "air",
             "committed_shape": "swept_path",
             "pattern_footprint": [
               2,
               2
-            ],
-            "bleed": 1
+            ]
           }
         ]
       },
@@ -1330,9 +1338,6 @@
       2
     ],
     "boss_bar": true,
-    "status_immunities": [
-      "freeze"
-    ],
     "intents": [
       {
         "id": "crystal_mantle",
@@ -1349,7 +1354,13 @@
             "type": "ranged",
             "damage": 4,
             "range": 4,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ],
         "surface_fuel": {
@@ -1406,7 +1417,13 @@
               2
             ],
             "surface": "ice",
-            "replace_previous_trail": true
+            "replace_previous_trail": true,
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -1424,7 +1441,13 @@
             "type": "melee",
             "damage": 10,
             "range": 1,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ],
         "live_body": true
@@ -1936,7 +1959,13 @@
             "range": 1,
             "damage": 6,
             "element": "ice",
-            "surface": "ice"
+            "surface": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -1954,7 +1983,13 @@
             "type": "melee",
             "range": 1,
             "damage": 6,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       }
@@ -2110,8 +2145,7 @@
           {
             "type": "melee",
             "range": 1,
-            "damage": 8,
-            "bleed": 1
+            "damage": 9
           }
         ]
       }
@@ -2173,8 +2207,7 @@
           {
             "type": "melee",
             "range": 1,
-            "damage": 7,
-            "sunder": 1
+            "damage": 8
           }
         ]
       }
@@ -2350,7 +2383,13 @@
             "type": "melee",
             "range": 1,
             "damage": 2,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       }
@@ -2405,7 +2444,13 @@
             "type": "ranged",
             "range": 3,
             "damage": 2,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       }
@@ -2707,7 +2752,13 @@
             "type": "icefall_land",
             "damage": 5,
             "element": "ice",
-            "surface": "ice"
+            "surface": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -2721,8 +2772,13 @@
             "type": "ranged",
             "damage": 3,
             "range": 4,
-            "chilled": true,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -3131,7 +3187,7 @@
       },
       {
         "id": "discharge",
-        "name": "Arc Burst",
+        "name": "Arc Lash",
         "time": 5,
         "weight": 0,
         "when_charge_at_least": 3,
@@ -3250,9 +3306,8 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 3,
-            "bleed": 1,
             "element": "earth"
           }
         ]
@@ -3381,9 +3436,14 @@
             "range": 0,
             "pattern_line": 4,
             "pierce": true,
-            "chilled": true,
             "orient_toward_target": true,
-            "element": "ice"
+            "element": "ice",
+            "surface_bonus": {
+              "surface": "ice",
+              "subject": "target",
+              "present": true,
+              "stagger": 6
+            }
           }
         ]
       },
@@ -3466,9 +3526,8 @@
           },
           {
             "type": "melee",
-            "damage": 3,
+            "damage": 4,
             "range": 1,
-            "bleed": 1,
             "element": "air"
           }
         ]

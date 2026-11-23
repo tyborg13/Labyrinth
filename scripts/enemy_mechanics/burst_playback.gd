@@ -129,21 +129,19 @@ static func steps_for_playback(engine: RefCounted, before: Dictionary, steps: Ar
 		var owner: Dictionary = result[index]
 		if not owner.has("death_burst_events_after"): continue
 		var after: Dictionary = {"death_burst_events": owner["death_burst_events_after"]}
-		# Legacy Bleed is already settled when the canceled action is applied.
 		# Legacy Retaliate follows the attack whose totals include its Bursts.
 		# Keep the original step and clock; change only its already-owned losses.
-		var direction: int = 1 if str(owner.get("label", "")) == "Bleed" else -1
 		if owner.has("burst_snapshot_after"):
 			prior = owner["death_burst_events_after"]
 			continue
-		var candidate: int = index + direction
+		var candidate: int = index - 1
 		while candidate >= 0 and candidate < result.size():
 			var step: Dictionary = result[candidate]
 			if str(step.get("kind", "")) in ["intent", "intent_refresh", "intent_callout"] or step.has("death_burst_events_after"): break
 			if str(step.get("actor_key", "")) == str(owner.get("actor_key", "")) and str(step.get("kind", "")) in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
 				result[candidate] = without_burst_losses(engine, step, {"death_burst_events": prior}, after)
 				break
-			candidate += direction
+			candidate -= 1
 		prior = owner["death_burst_events_after"]
 	return result
 

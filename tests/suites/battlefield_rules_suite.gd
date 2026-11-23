@@ -55,11 +55,15 @@ static func _intent_rows(engine: RefCounted, expect: Callable) -> void:
 	instance["at_half_health"] = {"dials": {"damage": INTENT_ROW_DAMAGE}, "sentence": "Test half-health storm."}
 	Rules.install(engine, state, instance)
 	var original_dials: Dictionary = instance["dials"].duplicate(true)
-	expect.call(IntentRows.tokens(state, unit, intent) == [Icons.token_for("lightning_storm"), Icons.token_for("lightning_strikes", int(original_dials["damage"])), Icons.text_token("every Electrified tile")], "Storm row reads installed dials before the half-health switch")
+	var original_token: Dictionary = Icons.token_for("lightning_storm", null, "neutral", instance["sentence"])
+	original_token["tooltip_amount"] = int(original_dials["damage"])
+	expect.call(IntentRows.tokens(state, unit, intent) == [original_token, Icons.token_for("lightning_strikes", int(original_dials["damage"]), "neutral", instance["sentence"]), Icons.text_token("each Electrified tile")], "Storm row reads installed dials and sentence before the half-health switch")
 	unit["hp"] = int(unit["max_hp"]) / 2
 	preload("res://scripts/battlefield_rules/committed.gd").accept(engine, state)
 	var before: Dictionary = state.duplicate(true)
-	expect.call(IntentRows.tokens(state, unit, intent) == [Icons.token_for("lightning_storm"), Icons.token_for("lightning_strikes", INTENT_ROW_DAMAGE), Icons.text_token("every Electrified tile")], "Storm row reads merged half-health damage (storms never Chain)")
+	var half_health_token: Dictionary = Icons.token_for("lightning_storm", null, "neutral", instance["at_half_health"]["sentence"])
+	half_health_token["tooltip_amount"] = INTENT_ROW_DAMAGE
+	expect.call(IntentRows.tokens(state, unit, intent) == [half_health_token, Icons.token_for("lightning_strikes", INTENT_ROW_DAMAGE, "neutral", instance["at_half_health"]["sentence"]), Icons.text_token("each Electrified tile")], "Storm row reads merged half-health damage and sentence")
 	expect.call(state == before and instance["dials"] == original_dials, "Intent rows leave live and authored dials unchanged")
 	expect.call(IntentRows.tokens(state, unit, {"id": "other"}).is_empty(), "Storm row applies only to its cadence intent")
 	for source_type: String in Rules.data()["instances"]:
@@ -158,16 +162,17 @@ static func _frostbite(engine: RefCounted, expect: Callable) -> void:
 		state["enemies"].append(Fixtures.enemy(2, Vector2i(7, 7)))
 		Rules.install(engine, state, rule("frostbite", {"damage": damage}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
-		expect.call(int(after["player"]["freeze"]) == 1 and int(after["enemies"][0]["freeze"]) == 1 and Surfaces.tiles(after, "ice").is_empty(), "Frostbite Ice hit Freezes and expends Ice, including zero damage")
-		expect.call(after["enemies"][1]["hp"] == state["enemies"][1]["hp"] and int(after["enemies"][1].get("freeze", 0)) == 0, "Frostbite leaves off-Ice units untouched")
-		expect.call(after["player"]["hp"] == state["player"]["hp"] - (damage + 2 if damage > 0 else 0), "Frostbite uses ordinary Chilled damage")
+		var expected_expose: int = 0 if damage > 0 else 2
+		expect.call(int(after["player"].get("expose", 0)) == expected_expose and int(after["enemies"][0].get("expose", 0)) == expected_expose and Surfaces.tiles(after, "ice").size() == 2, "Damaging Frostbite spends Expose and leaves all Ice")
+		expect.call(after["enemies"][1]["hp"] == state["enemies"][1]["hp"], "Frostbite leaves off-Ice units untouched")
+		expect.call(after["player"]["hp"] == state["player"]["hp"] - (damage + 2 if damage > 0 else 0), "Frostbite spends the usual Expose on a damaging hit")
 	var state: Dictionary = battle(engine)
 	Surfaces.place(state, Vector2i(5, 5), "ice")
 	state["self_flags"] = {"ice_skate": {}}
 	state = engine._surface_contact(state, "player", -1, engine.INVALID_TILE, true)
 	Rules.install(engine, state, rule("frostbite", {"damage": 0}))
 	var after: Dictionary = resolve_and_compare(engine, state, expect)
-	expect.call(int(after["player"].get("freeze", 0)) == 0 and Surfaces.unit_on(after, after["player"], "ice"), "Frostbite preserves existing Skate protection from Chill")
+	expect.call(int(after["player"].get("expose", 0)) == 0 and Surfaces.unit_on(after, after["player"], "ice"), "Skate prevents Ice contact from applying Expose")
 	expect.call(not Rules.error_for(state, rule("frostbite", {"damage": -1})).is_empty(), "Frostbite rejects negative damage")
 
 static func _lightning(engine: RefCounted, expect: Callable) -> void:
@@ -355,28 +360,20 @@ static func _migration(engine: RefCounted, expect: Callable) -> void:
 	var before: Dictionary = state.duplicate(true)
 	state = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
 	expect.call(state["player"]["pos"] == before["player"]["pos"] and state["wind"]["rounds_left"] == before["wind"]["rounds_left"], "Gust migration never fires after a follower's turn")
-	expect.call(Rules.panel(state) == {"rule": "gust", "name": "Gust", "icon": "wind", "sentence": "After each of the Gale Herald's turns, its wind Pushes everyone 1 tile."}, "Gust panel returns exact approved instance sentence")
+	expect.call(Rules.panel(state) == {"rule": "gust", "name": "Gust", "icon": "wind", "sentence": "On each Gust beat, after the Gale Herald's turn, each unit is Pushed 1 tile downwind."}, "Gust panel returns exact approved instance sentence")
 	var events: Array = state["surface_events"].filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "battlefield_rule_fired")
 	expect.call(events.size() == 1, "Only actual cadence beats record battlefield analytics")
 	var record: Dictionary = Analytics.record(events[0], {}, "test_combat")
 	expect.call(record["event_type"] == "battlefield_rule_fired" and record["payload"].size() == 9 and record["payload"]["source_type"] == "gale_herald" and record["payload"]["beat_index"] == 1, "Battlefield analytics has exact additive payload")
-	var authored: Array = FileAccess.get_file_as_string("res://spec/peer_benchmark/element_rules/design.md").split("\n")
-	authored.append_array(FileAccess.get_file_as_string("res://spec/peer_benchmark/encounter_redesign/bos_03_implementation.md").split("\n"))
-	# bos-02 adds owner-approved dragon sentences after the original fixture
-	# table. Its brief overrides the draft's broader Noctyrax wording.
-	var dragons: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_dragon_sentences.json"))
+	var copy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_battlefield_copy.json"))
+	var edits: Array = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/txt-27/text_edits.json"))
 	for id: String in Rules.data()["instances"]:
-		var sentence: String = Rules.data()["instances"][id]["sentence"]
-		var area02_sentences: Dictionary = {
-			"storm_cantor": "When the Cantor uses Peal, lightning strikes every Electrified tile for 4.",
-			"zekarion": "When Zekarion uses Overload, lightning strikes every Electrified tile for 6.",
-			"thornmother": "After every second Thornmother turn, its marked tiles rise as Outcrops.",
-			"craghide": "After every second Craghide turn, its marked tiles rise as Outcrops.",
-			"snare_earth": "After each of your turns, a marked tile on your way out rises as an Outcrop.",
-		}
-		var approved: bool = sentence == str(dragons[id]["sentence"]) if dragons.has(id) else authored.any(func(line: String) -> bool: return line.ends_with(sentence + " |"))
-		if area02_sentences.has(id): approved = sentence == area02_sentences[id]
-		expect.call(approved, "Panel sentence is verbatim director data: " + id)
+		var sentence: String = str(copy.get(id, {}).get("sentence", ""))
+		for edit: Dictionary in edits:
+			if edit["file"] == "data/battlefield_rules.json":
+				sentence = sentence.replace(str(edit["old"]), str(edit["new"]))
+		expect.call(Rules.data()["instances"][id]["sentence"] == sentence, "Panel sentence is verbatim director data: " + id)
+
 
 static func _primitive_edges(engine: RefCounted, expect: Callable) -> void:
 	# Fireproof protects ordinary ground entry during a Gust, never by rule name.
@@ -394,18 +391,20 @@ static func _primitive_edges(engine: RefCounted, expect: Callable) -> void:
 		state = engine._surface_contact(state, "illusion", 7, engine.INVALID_TILE, true)
 		Rules.install(engine, state, rule(id, {"damage": TEST_DAMAGE}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
-		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == (1 if id == "frostbite" else 0), "Battlefield hits include illusion statuses: " + id)
+		var extra_damage: int = 2 if id == "frostbite" else 0
+		expect.call(int(after["illusions"][0]["hp"]) == 20 - TEST_DAMAGE - extra_damage, "Battlefield damage to illusions includes their Expose: " + id)
+		expect.call(int(after["illusions"][0].get("expose", 0)) == 0, "The battlefield hit spends the illusion's Expose: " + id)
 	for damage: int in [3, 4]:
 		var state: Dictionary = battle(engine)
 		Surfaces.place(state, state["player"]["pos"], "electrified")
 		Rules.install(engine, state, rule("lightning_storm", {"damage": damage}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
 		expect.call(int(after["player"]["hp"]) == 50 - damage, "Lightning Storm supports each first-wave damage dial")
-	for protection: String in ["light", "truesight"]:
+	for protection: String in ["light", "vision"]:
 		var state: Dictionary = battle(engine)
 		state["umbra"] = {"stage": "heart", "light_sources": []}
 		state["enemies"][0]["pos"] = Vector2i(5, 1)
-		if protection == "truesight": state["umbra"]["truesight_activations"] = 1
+		if protection == "vision": state["umbra"]["vision_activations"] = 1
 		else: state["umbra"]["light_sources"] = [{"pos": Vector2i(5, 1), "radius": 0, "activations_left": 1}]
 		Rules.install(engine, state, rule("shadowstep", {"blink": 2}))
 		var after: Dictionary = resolve_and_compare(engine, state, expect)
@@ -487,5 +486,5 @@ static func _intent_beats(engine: RefCounted, expect: Callable) -> void:
 	var source: Dictionary = frozen.duplicate(true)
 	var scheduled: Dictionary = preload("res://scripts/pass_forecast_red_tiles.gd").schedule(engine, frozen)
 	var forecast: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled, true)
-	expect.call(int(forecast.get("status_gains", {}).get("freeze", 0)) == 1 and int(forecast.get("skipped_turns", 0)) == 1, "PASS retains a rule's gained Freeze after the skipped turn consumes it")
+	expect.call(int(forecast.get("status_gains", {}).get("freeze", 0)) == 0 and int(forecast.get("skipped_turns", 0)) == 0, "A damage-only Frostbite never skips the hero's forecast turn")
 	expect.call(frozen == source and not frozen.has(preload("res://scripts/pass_forecast_statuses.gd").KEY), "Status receipts stay on the forecast copy")

@@ -212,22 +212,22 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 	starter_cards.sort()
 	expect.call(actual_cards == starter_cards, "Tutorial hand and draw preserve every real starter copy with no injected cards")
 	var support_intent: Dictionary = _enemy_for_id(state, GuidedCombatScenario.SUPPORT_ENEMY_ID)["intent"]
-	expect.call(support_intent == preload("res://scripts/game_data.gd").enemy_def("crawler")["intents"][0], "Tutorial Skitter Strike uses production Move 2, Melee 4 and Bleed 1")
+	expect.call(support_intent == preload("res://scripts/game_data.gd").enemy_def("crawler")["intents"][0], "Tutorial Skitter Strike uses production Move 2 and Melee 5")
 	var target_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID)
-	expect.call(int(target_before.get("hp", 0)) == 12, "The authored target should have the exact 12 HP needed by the scripted two-card kill")
+	expect.call(int(target_before.get("hp", 0)) == 9, "The authored target has the exact 9 Health needed by the scripted two-card kill")
 
 	state = combat.apply_player_movement(state, move_tile)
 	expect.call((state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) == move_tile, "The authored move should resolve through the normal movement pool")
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.PREVIEW_CARD_ID, target_tile)
 	expect.call(
-		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 9
+		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 6
 		and combat.cards_remaining_this_turn(state) == 1,
 		"Pale Spark should deal 3 and visibly spend the first of two card plays"
 	)
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.KILL_CARD_ID, target_tile)
 	expect.call(
 		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 0,
-		"Quick Stab should deal the exact remaining 9 damage and kill the authored target"
+		"Quick Stab should deal the exact remaining 6 damage and kill the authored target"
 	)
 	expect.call(
 		int(state.get("death_bonus_card_plays_this_turn", 0)) == 1
@@ -270,14 +270,14 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		if (
 			str(step.get("kind", "")) == "melee"
 			and str(step.get("actor_key", "")) == "enemy_%d" % GuidedCombatScenario.SUPPORT_ENEMY_ID
-			and int(step.get("block_loss", 0)) == 4
+			and int(step.get("block_loss", 0)) == 5
 		):
 			support_attack_used_block = true
 	expect.call(
 		support_attack_used_block
 		and int(player_after_enemy.get("hp", 0)) == int((state.get("player", {}) as Dictionary).get("hp", 0))
 		and int(player_after_enemy.get("block", 0)) == 0,
-		"Passing should let the inspected crawler consume 4 Block, leave Health unchanged, then clear the remaining Block at the next turn"
+		"Passing lets the inspected crawler consume 5 Block. Health stays unchanged and any remaining Block clears on the next turn"
 	)
 	expect.call(str(combat.combat_outcome(state)).is_empty(), "A support crawler should remain alive for the free-play handoff")
 
@@ -294,6 +294,8 @@ static func _test_authored_scenario_preserves_equipment_pity(expect: Callable) -
 	var engine := RunEngine.new()
 	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
 	var eligible_run: Dictionary = engine.create_new_run(90211, progression)
+	# A checkpoint from before the opening reserve still keeps the original lesson.
+	eligible_run.erase(RunEngine.FIRST_COMBAT_WON_KEY)
 	eligible_run["equipment_drop_misses"] = RunEngine.EQUIPMENT_DROP_PITY_MISSES
 	eligible_run = GuidedCombatScenario.mark_run_eligible(eligible_run)
 	var combat_coord := Vector2i(999, 999)
@@ -817,7 +819,7 @@ static func _test_forced_tutorial_blocks_skill_surfaces(expect: Callable) -> voi
 	var combat_state: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
 	combat_state["skill_ids"] = ["rehearsed_escape"]
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["patch_up"]
+	deck["hand"] = ["field_suture"]
 	combat_state["deck"] = deck
 	scene.set("_combat_state", combat_state)
 	scene.set("_preview_combat_state", combat_state.duplicate(true))
@@ -941,7 +943,9 @@ static func _test_path_map_targets_and_surface_switching(expect: Callable) -> vo
 	var board := PathBoardStub.new()
 	scene.add_child(board)
 	scene.set("board_view", board)
-	var scrim := ColorRect.new()
+	var scrim := RunScene.LargeMapBackdrop.new()
+	scrim.room_title = Label.new()
+	scrim.add_child(scrim.room_title)
 	scene.add_child(scrim)
 	scene.set("_large_map_scrim", scrim)
 	var panel := SectionMapPanel.new()

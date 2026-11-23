@@ -8,6 +8,7 @@ const PassForecast = preload("res://scripts/pass_forecast_red_tiles.gd")
 const CASES = ["safe", "danger", "defiance", "defiance_twice", "defiance_umbra", "fatigue", "fatigue_lethal", "fatigue_defiance", "fatigue_full_hand", "fatigue_empty", "fatigue_cycles", "fatigue_heal", "block_start", "expose", "chilled", "bleed", "burn", "reinforcements", "reinforcements_after", "summon", "death_spawn", "safety_limit", "second_move", "many_repeats", "later_known", "meteor", "activation_end", "activation_end_lethal", "dead_queue", "dead_actor", "missing_intent", "player_tie", "umbra"]
 const TEST_SECOND_LETHAL_DAMAGE: int = 7
 const LIVE_SKIPPED_TURN_LIMIT: int = 100
+const DEATH_SPAWN_FIXTURE_HP: int = 1
 var failures: int = 0
 var checks: int = 0
 
@@ -175,8 +176,9 @@ static func fixture(kind: String) -> Dictionary:
 		state["objective"] = {"type": "survive", "target_clock": 100, "reinforcement_interval": 10, "next_reinforcement_clock": 10, "reinforcement_pool": ["crawler"]}
 	if kind == "death_spawn":
 		state["enemies"][0]["type"] = "cinder_ooze"
-		state["enemies"][0]["hp"] = 5
-		state["enemies"][0]["bleed"] = 5
+		state["enemies"][0]["hp"] = DEATH_SPAWN_FIXTURE_HP
+		# Turn-start Fire kills the Ooze during its activation, before the player returns.
+		Ground.place(state, state["enemies"][0]["pos"], "fire")
 		state["player_turn_time_spent"] = 20
 	if kind == "safety_limit":
 		state["player_turn_time_spent"] = 1000

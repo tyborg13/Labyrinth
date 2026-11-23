@@ -52,9 +52,9 @@ func _run() -> void:
 	var unit: Dictionary = state["enemies"][0]
 	var token: Dictionary = Split.trait_token(unit)
 	_expect(token.get("value") == "Splits 2", "Trait count comes from death_spawn")
-	_expect(token.get("tooltip") == "When it dies, it splits into 2 Cinder Droplets within 1 tile.", "Exact contextual rules and pluralised data name")
+	_expect(token.get("tooltip") == "When this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.", "Exact contextual rules and pluralised data name")
 	_expect(Glossary.lookup("split").get("id") == "splits", "Singular alias resolves")
-	_expect(Glossary.definition("splits") == "When it dies, it splits into smaller enemies next to it.", "Exact glossary definition")
+	_expect(Glossary.definition("splits") == "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.", "Exact glossary definition")
 	_expect(Icons.icon_texture("splits") != null, "Approved icon loads")
 	var tags: Array = preload("res://scripts/pre_battle_threat_tags.gd").build("cinder_ooze", unit)
 	var moves: Array = preload("res://scripts/pre_battle_threat_tags.gd").from_intents(Data.enemy_def("cinder_ooze")["intents"])

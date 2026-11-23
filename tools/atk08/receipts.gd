@@ -89,7 +89,7 @@ static func hooked_scene_script() -> GDScript:
 		return null
 	_hooked_script = script
 	return script
-const BleedReceipts = preload("res://scripts/status_tick_receipts.gd")
+const LEGACY_BLEED_RECEIPTS: String = "player_bleed_loss_totals"
 const INVALID := Vector2i(-1, -1)
 const OVERLAP_MIN_FRACTION: float = 0.15
 const OCCLUDER_MIN_FRACTION: float = 0.10
@@ -509,7 +509,7 @@ func _rect_json(rect: Rect2) -> Array:
 
 func _hero_summary(state: Dictionary) -> Dictionary:
 	var player: Dictionary = state.get("player", {})
-	var bleed: Dictionary = state.get(BleedReceipts.PLAYER_BLEED_KEY, {})
+	var bleed: Dictionary = state.get(LEGACY_BLEED_RECEIPTS, {})
 	var deck: Dictionary = state.get("deck", {})
 	return {"hp": int(player.get("hp", 0)), "max_hp": int(player.get("max_hp", 0)), "block": int(player.get("block", 0)), "stoneskin": int(player.get("stoneskin", 0)),
 		"pos": player.get("pos", INVALID), "bleed_hp": int(bleed.get("hp", 0)), "bleed_block": int(bleed.get("block", 0)), "bleed_stoneskin": int(bleed.get("stoneskin", 0)),

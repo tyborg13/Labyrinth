@@ -107,7 +107,7 @@ func test_override_production_pricing() -> void:
 			authored["empower"] = Game.cards()["chain_bolt"]["empower"].duplicate(true)
 			engine.field_overrides["empower"] = authored["empower"].duplicate(true)
 		if follow_up:
-			authored["follow_up"] = Game.cards()["quick_stab"]["follow_up"].duplicate(true)
+			authored["follow_up"] = Game.LegacyStarterCards.DEFINITIONS["quick_stab"]["follow_up"].duplicate(true)
 			engine.field_overrides["follow_up"] = authored["follow_up"].duplicate(true)
 		var state: Dictionary = policy_fixture(["skybolt"])
 		state["turn_flags"]["quicken_pending"] = PRICING_FIXTURE["quicken"]

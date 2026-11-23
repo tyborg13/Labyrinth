@@ -81,7 +81,8 @@ static func refresh(scene: Node, chip: Button, summary: Dictionary) -> void:
 	var core: bool = allowed(scene, true) and _previewed(scene)
 	var final_action: bool = not summary.is_empty() and ends_turn(scene, core)
 	var previewed: bool = (core and allowed(scene)) or final_action
-	var pass_active: bool = not chip.disabled and (chip.has_focus() or bool(chip.get_meta("pass_keyboard_focus", false)) or bool(chip.get_meta("pass_pointer_hover", false)))
+	var pointer_active: bool = bool(chip.get_meta("pass_pointer_hover", false)) and not bool(chip.get_meta("pass_forecast_requires_pointer_reentry", false))
+	var pass_active: bool = not chip.disabled and (chip.has_focus() or bool(chip.get_meta("pass_keyboard_focus", false)) or pointer_active)
 	var active: bool = allowed(scene, final_action) and chip.is_visible_in_tree() and not summary.is_empty() and (previewed or pass_active)
 	lifecycle.previewed = previewed
 	lifecycle.ends_turn = final_action

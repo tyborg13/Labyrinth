@@ -151,7 +151,7 @@ func _initialize() -> void:
 	dialog = _instance.get("_upgrade_dialog") as Control
 	_require((dialog.find_child("ProgressionDefianceChip", true, false).get_node("Caption") as Label).text == "DEFIANCE · NEXT 8", "Defiance caption refreshes the next level threshold")
 	var learn: Button = tree.find_child("SkillDetailAction", true, false) as Button
-	_require(not learn.disabled and learn.text == "Learn  ·  1 Point", "Points enable the native primary Learn action")
+	_require(not learn.disabled and learn.text == "Learn · 1 Point", "Points enable the native primary Learn action")
 	await _save_screenshot("10_skills_points_available.png")
 	var tab: Control = dialog.find_child("CharacterSkillsTab", true, false) as Control
 	tab.grab_focus()

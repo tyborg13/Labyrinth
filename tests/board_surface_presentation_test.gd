@@ -158,7 +158,7 @@ func _test_detonate_card_damage(scene: Node, combat: RefCounted) -> void:
 		state["player"]["hp"] = health
 		var display: Dictionary = scene.call("_card_widget_display", "rekindle_edge", state)
 		var expected: int = combat.final_damage_for_player_action(state, action)
-		assert((str(display["summary_bbcode"])).contains("Detonate %d" % expected), "Detonate card values must reflect active and inactive conditional damage bonuses")
+		assert((str(display["summary_bbcode"])).contains("Burst %d" % expected), "Burst card values must reflect active and inactive conditional damage bonuses")
 		var values: Array = scene.call("_action_step_damage_options", state, preload("res://scripts/game_data.gd").card_def("rekindle_edge")["actions"], [])
 		assert(int(values[1]["final_damage"]) == expected, "Action strip and card agree for active and inactive conditional bonuses")
 

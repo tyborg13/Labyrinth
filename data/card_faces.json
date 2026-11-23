@@ -1,0 +1,915 @@
+{
+  "dust_devil": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"term": "push", "word": "Push", "number": 2},
+      {"text": " each enemy in "},
+      {"pattern": "neighbors"},
+      {"text": " away from the tile. On "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 5},
+      {"text": " that "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " before the Push."}
+    ]
+  },
+  "magma_vent": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 4},
+      {"text": ". On "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 7},
+      {"text": " that "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": ", leaving "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "discharge": {
+    "chip": {"icon": "surface_electrified", "word": "Electrified", "range": 4},
+    "sentence": [
+      {"term": "burst", "word": "Burst", "number": 7},
+      {"text": " the tile and each "},
+      {"term": "surface_electrified", "word": "Electrified", "number": null},
+      {"text": " tile connected to that tile."}
+    ]
+  },
+  "beacon": {
+    "chip": {"icon": null, "word": "Tile", "range": 4},
+    "sentence": [
+      {"text": "Create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "worldroot_stride": {
+    "chip": null,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 3},
+      {"text": " and gain "},
+      {"term": "stoneskin", "word": "Stoneskin", "number": 6},
+      {"text": ". Leave "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " on your tile."}
+    ]
+  },
+  "frost_heave": {
+    "chip": {"icon": null, "word": "Enemy", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 3},
+      {"text": " and "},
+      {"term": "immobilize", "word": "Immobilize", "number": null},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 6},
+      {"text": " that "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": "."}
+    ]
+  },
+  "shatter": {
+    "chip": {"icon": null, "word": "Enemy", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 5},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 5},
+      {"text": " that "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": "."}
+    ]
+  },
+  "cyclone_seal": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". "},
+      {"term": "pull", "word": "Pull", "number": 3},
+      {"text": " each enemy in "},
+      {"pattern": "diamond3"},
+      {"text": " toward the tile, then "},
+      {"damage": "ranged", "number": 9},
+      {"text": " in "},
+      {"pattern": "neighbors"},
+      {"text": "."}
+    ]
+  },
+  "squall_shot": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 2},
+      {"text": " and "},
+      {"term": "push", "word": "Push", "number": 2},
+      {"text": " tiles per enemy hit."},
+      {"pattern": "cross"}
+    ]
+  },
+  "tectonic_maul": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 13},
+      {"text": " and "},
+      {"term": "stagger", "word": "Stagger", "number": 3},
+      {"text": ". On "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": ": +"},
+      {"damage": "melee", "number": 4},
+      {"text": ". Leave "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " "},
+      {"pattern": "cross"},
+      {"text": "."}
+    ]
+  },
+  "cinderline_tempo": {
+    "chip": {"icon": null, "word": "Enemy", "range": 2},
+    "sentence": [
+      {"damage": "ranged", "number": 2},
+      {"text": ". On "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 6},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "inferno_ritual": {
+    "chip": {"icon": null, "word": "Tile", "range": 2},
+    "sentence": [
+      {"damage": "ranged", "number": 3},
+      {"text": " "},
+      {"pattern": "cross"},
+      {"text": ". Each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile hit: also "},
+      {"term": "burst", "word": "Burst", "number": 9},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "wildfire_halo": {
+    "chip": {"icon": null, "word": "Tile", "range": 2},
+    "sentence": [
+      {"damage": "ranged", "number": 4},
+      {"text": " "},
+      {"pattern": "diamond2"},
+      {"text": ". Each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile hit: also "},
+      {"term": "burst", "word": "Burst", "number": 10},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "phoenix_cleave": {
+    "chip": null,
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". Lose "},
+      {"term": "health", "word": "Health", "number": 1},
+      {"text": ". "},
+      {"damage": "melee", "number": 10},
+      {"text": " "},
+      {"pattern": "neighbors"},
+      {"text": ". Each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile hit: also "},
+      {"term": "burst", "word": "Burst", "number": 10},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ", sparing you."}
+    ]
+  },
+  "rekindle_edge": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 8},
+      {"text": ". On "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 8},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ", sparing you."}
+    ]
+  },
+  "cinder_second": {
+    "chip": {"icon": null, "word": "Tile", "range": 2},
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "block", "word": "Block", "number": 2},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": ". On "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 4},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "flashsteam": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 3},
+      {"text": " "},
+      {"pattern": "cross"},
+      {"text": ". Each "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": " tile hit: also "},
+      {"term": "burst", "word": "Burst", "number": 4},
+      {"text": " that "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": "."}
+    ]
+  },
+  "plasma_arc": {
+    "chip": {"icon": null, "word": "Enemy", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 3},
+      {"text": " with "},
+      {"term": "chain", "word": "Chain", "number": 2},
+      {"text": ". Each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile hit: also "},
+      {"term": "burst", "word": "Burst", "number": 4},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "powder_keg": {
+    "chip": {"icon": null, "word": "Tile", "range": 2},
+    "sentence": [
+      {"term": "consume", "word": "Consume", "number": null},
+      {"text": ". Place a keg with "},
+      {"term": "health", "word": "Health", "number": 3},
+      {"text": ". When the keg is destroyed, the keg "},
+      {"term": "burst", "word": "Bursts", "number": 6},
+      {"text": "."}
+    ]
+  },
+  "pyroclasm": {
+    "chip": {"icon": null, "word": "Enemy", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 9},
+      {"text": ". On "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 6},
+      {"text": " that "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": "."}
+    ]
+  },
+  "shatter_swing": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 10},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 6},
+      {"text": " that "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ", sparing you."}
+    ]
+  },
+  "shattered_reflection": {
+    "chip": {"icon": null, "word": "Tile", "range": 6},
+    "sentence": [
+      {"text": "Create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": ". On one of your "},
+      {"term": "illusion", "word": "Illusions", "number": null},
+      {"text": ": also "},
+      {"term": "burst", "word": "Burst", "number": 6},
+      {"text": " that "},
+      {"term": "illusion", "word": "Illusion", "number": null},
+      {"text": " before the "},
+      {"term": "illuminate", "word": "Light", "number": null},
+      {"text": "."}
+    ]
+  },
+  "hush_of_winter": {
+    "chip": {"icon": null, "word": "Enemy", "range": 4},
+    "sentence": [
+      {"damage": "ranged", "number": 5},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also "},
+      {"term": "stagger", "word": "Stagger", "number": 6},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 2},
+      {"text": "."}
+    ]
+  },
+  "white_silence": {
+    "chip": null,
+    "sentence": [
+      {"damage": "ranged", "number": 6},
+      {"text": " and "},
+      {"term": "stagger", "word": "Stagger", "number": 6},
+      {"text": " each enemy you can see on "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": "."}
+    ]
+  },
+  "frozen_bite": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 5},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also "},
+      {"term": "stagger", "word": "Stagger", "number": 6},
+      {"text": ", gain "},
+      {"term": "card_play", "word": "Card Play", "number": 1},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "threadbare_guard": {
+    "compact_grimoire": true,
+    "chip": null,
+    "sentence": [
+      {"text": "Remove "},
+      {"term": "immobilize", "word": "Immobilize", "number": null},
+      {"text": " and "},
+      {"term": "shock", "word": "Shock", "number": null},
+      {"text": " from yourself. Gain "},
+      {"term": "block", "word": "Block", "number": 4},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "rite_of_hoarfrost": {
+    "chip": null,
+    "sentence": [
+      {"term": "rite", "word": "Rite", "number": null},
+      {"text": ". When one of your Ice cards "},
+      {"term": "stagger", "word": "Staggers", "number": null},
+      {"text": " an enemy, gain "},
+      {"term": "block", "word": "Block", "number": 3},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "hoarfrost_ward": {
+    "chip": null,
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "block", "word": "Block", "number": 5},
+      {"text": ". Leave "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": " on each adjacent enemy’s tile."}
+    ]
+  },
+  "rime_step": {
+    "chip": null,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 3},
+      {"text": ". Leave "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": " on each adjacent enemy’s tile."}
+    ]
+  },
+  "smelling_salts": {
+    "chip": null,
+    "sentence": [
+      {"term": "consume", "word": "Consume", "number": null},
+      {"text": ". Remove "},
+      {"term": "immobilize", "word": "Immobilize", "number": null},
+      {"text": " and "},
+      {"term": "shock", "word": "Shock", "number": null},
+      {"text": " from yourself. "},
+      {"term": "move", "word": "Move", "number": 2},
+      {"text": "."}
+    ]
+  },
+  "frostbolt": {"simple": true},
+  "icebound_chains": {
+    "rows": [
+      [{"icon": "ranged", "number": 5}, {"icon": "range", "number": 2}, {"icon": "immobilize", "number": null}],
+      [{"icon": "surface_ice", "number": null}, {"icon": "stagger", "number": 6}],
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}]
+    ]
+  },
+  "rime_shard": {"simple": true},
+  "cold_grasp": {"simple": true},
+  "icicle_lance": {"simple": true},
+  "shatterline": {"simple": true},
+  "glacier_pin": {"simple": true},
+  "rimeplate_lock": {"simple": true},
+  "locket_chill": {"simple": true},
+  "frost_snare": {"simple": true},
+  "cold_shoulder": {"simple": true},
+  "frost_nova": {"simple": true},
+  "rime_hack": {"simple": true},
+  "shiver_shot": {"simple": true},
+  "rimefang": {"simple": true},
+  "petrify": {"simple": true},
+  "sleet_squall": {"simple": true},
+  "cleaver_hook": {
+    "compact_grimoire": true,
+    "icon_rows": [["melee", "pierce"]]
+  },
+  "sawtooth_flurry": {
+    "compact_grimoire": true,
+    "icon_rows": [["melee", "expose"]]
+  },
+  "serrated_slip": {
+    "compact_grimoire": true,
+    "chip": null,
+    "sentence": [
+      {
+        "term": "move",
+        "word": "Move",
+        "number": 2
+      },
+      {"text": ". "},
+      {
+        "damage": "melee",
+        "number": 3
+      },
+      {"text": ". If the target is already "},
+      {
+        "term": "expose",
+        "word": "Exposed",
+        "number": null
+      },
+      {"text": ": "},
+      {
+        "damage": "melee",
+        "number": 4,
+        "bonus": true
+      },
+      {"text": ". Then "},
+      {
+        "term": "expose",
+        "word": "Expose",
+        "number": 3
+      },
+      {"text": "."}
+    ]
+  },
+  "backhand_nick": {
+    "compact_grimoire": true,
+    "icon_rows": [["melee", "expose"], ["draw"]]
+  },
+  "hookspine_reap": {
+    "compact_grimoire": true,
+    "icon_rows": [["melee", "range", "pull"]]
+  },
+  "sweeping_haft": {
+    "compact_grimoire": true,
+    "icon_rows": [["melee", "pierce", "aoe_pattern"]]
+  },
+  "nail_parry": {
+    "compact_grimoire": true,
+    "icon_rows": [["block"], ["melee", "pierce"]]
+  },
+  "anchor_slam": {
+    "compact_grimoire": true,
+    "icon_rows": [["stoneskin"], ["ranged", "range", "pull", "immobilize"]]
+  },
+  "rooted_kick": {
+    "compact_grimoire": true,
+    "chip": null,
+    "sentence": [
+      {
+        "term": "move",
+        "word": "Move",
+        "number": 2
+      },
+      {
+        "text": ". "
+      },
+      {
+        "damage": "melee",
+        "number": 8
+      },
+      {
+        "text": " and "
+      },
+      {
+        "term": "push",
+        "word": "Push",
+        "number": 1
+      },
+      {
+        "text": " tile. Leave "
+      },
+      {
+        "term": "surface_rubble",
+        "word": "Rubble",
+        "number": null
+      },
+      {
+        "text": " where the target lands."
+      }
+    ]
+  },
+  "thorn_crown_pact": {
+    "compact_grimoire": true,
+    "chip": null,
+    "sentence": [
+      {
+        "term": "rite",
+        "word": "Rite",
+        "number": null
+      },
+      {"text": ". Lose "},
+      {
+        "term": "health_cost",
+        "word": "Health",
+        "number": 1
+      },
+      {"text": ". Gain "},
+      {
+        "term": "retaliate",
+        "word": "Retaliate",
+        "number": 4
+      },
+      {"text": " each turn."}
+    ]
+  },
+  "royal_bramble": {
+    "compact_grimoire": true,
+    "icon_rows": [["ranged", "range", "pull"], ["empower", "health_cost", ":", "expose"]]
+  },
+  "nail_bomb": {
+    "compact_grimoire": true,
+    "icon_rows": [["consume"], ["ranged", "range", "pierce", "aoe_pattern"]]
+  },
+  "caltrops": {
+    "compact_grimoire": true,
+    "chip": {
+      "icon": null,
+      "word": "Tile",
+      "range": 2
+    },
+    "sentence": [
+      {
+        "term": "consume",
+        "word": "Consume",
+        "number": null
+      },
+      {
+        "text": ". Leave "
+      },
+      {
+        "term": "surface_rubble",
+        "word": "Rubble",
+        "number": null
+      },
+      {
+        "text": " and "
+      },
+      {
+        "term": "expose",
+        "word": "Expose",
+        "number": 2
+      },
+      {
+        "text": " each enemy hit."
+      },
+      {"pattern": "cross"}
+    ]
+  },
+  "barbed_mail": {
+    "compact_grimoire": true,
+    "icon_rows": [["block", "retaliate"]]
+  },
+  "glowstone_ward": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"text": "Create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": " and gain "},
+      {"term": "stoneskin", "word": "Stoneskin", "number": 4},
+      {"text": "."}
+    ]
+  },
+  "daybreak": {
+    "chip": null,
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". Create "},
+      {"term": "illuminate", "word": "Light", "number": 4},
+      {"text": " on your tile. "},
+      {"term": "draw", "word": "Draw", "number": 2},
+      {"text": " and gain "},
+      {"term": "card_play", "word": "Card Play", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "threaded_path": {
+    "chip": null,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 3},
+      {"text": " and create "},
+      {"term": "illuminate", "word": "Light", "number": 1},
+      {"text": " where you arrive. "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "ember_rain": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 3},
+      {"text": " "},
+      {"pattern": "cross"},
+      {"text": " and create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": "."}
+    ]
+  },
+  "spark_focus": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"text": "Leave "},
+      {"term": "surface_electrified", "word": "Electrified", "number": null},
+      {"text": ". "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": " and gain "},
+      {"term": "vision", "word": "Vision", "number": null},
+      {"text": " for "},
+      {"duration": 2},
+      {"text": " turns."},
+      {"pattern": "line3"}
+    ]
+  },
+  "blessed_salve": {
+    "chip": null,
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". "},
+      {"term": "heal", "word": "Heal", "number": 3},
+      {"text": " and create "},
+      {"term": "illuminate", "word": "Light", "number": 1},
+      {"text": " on your tile."}
+    ]
+  },
+  "break_the_veil": {
+    "chip": null,
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". Create "},
+      {"term": "illuminate", "word": "Light", "number": 3},
+      {"text": " on your tile and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": "."}
+    ]
+  },
+  "censer_swing": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 5},
+      {"text": " "},
+      {"pattern": "neighbors"},
+      {"text": ". Create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": " on your tile."}
+    ]
+  },
+  "sun_flash": {
+    "chip": null,
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "block", "word": "Block", "number": 5},
+      {"text": " and create "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": " on your tile."}
+    ]
+  },
+  "rite_of_noon": {
+    "chip": null,
+    "sentence": [
+      {"term": "rite", "word": "Rite", "number": null},
+      {"text": ": "},
+      {"term": "illuminate", "word": "Light", "number": 2},
+      {"text": " follows you."}
+    ]
+  },
+  "flash_powder": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"term": "consume", "word": "Consume", "number": null},
+      {"text": ". Create "},
+      {"term": "illuminate", "word": "Light", "number": 3},
+      {"text": "."}
+    ]
+  },
+  "seek_the_light": {
+    "chip": null,
+    "sentence": [
+      {"term": "blink", "word": "Blink", "number": 2},
+      {"text": ". On "},
+      {"term": "illuminate", "word": "Light", "number": null},
+      {"text": ": also target tiles within "},
+      {"term": "range", "word": "Range", "number": 5},
+      {"text": "."}
+    ]
+  },
+  "sunpath_stride": {
+    "chip": null,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 4},
+      {"text": ", leaving "},
+      {"term": "illuminate", "word": "Light", "number": 1},
+      {"text": " on each tile you enter."}
+    ]
+  },
+  "lantern_shot": {
+    "rows": [
+      [{"icon": "ranged", "number": 3}, {"icon": "range", "number": 3}, {"icon": "illuminate", "number": 1}],
+      [{"icon": "draw", "number": 1}]
+    ]
+  },
+  "guiding_flare": {
+    "rows": [
+      [{"icon": "ranged", "number": 3}, {"icon": "range", "number": 3}],
+      [{"icon": "surface_fire", "number": null}, {"icon": "illuminate", "number": 2}]
+    ]
+  },
+  "dawnstep": {
+    "rows": [
+      [{"icon": "move", "number": 3}],
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}]
+    ]
+  },
+  "prism_sight": {
+    "rows": [
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}],
+      [{"icon": "block", "number": 4}],
+      [{"icon": "draw", "number": 1}]
+    ]
+  },
+  "storm_beacon": {
+    "rows": [
+      [{"icon": "ranged", "number": 3}, {"icon": "chain", "number": 2}, {"icon": "range", "number": 3}],
+      [{"icon": "surface_electrified", "number": null}, {"icon": "illuminate", "number": 2}]
+    ]
+  },
+  "trapdoor": {
+    "rows": [
+      [{"icon": "blink", "number": 4}],
+      [{"icon": "block", "number": 5}],
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}]
+    ]
+  },
+  "spark_dart": {
+    "rows": [
+      [{"icon": "ranged", "number": 4}, {"icon": "range", "number": 3}],
+      [{"icon": "surface_electrified", "number": null}, {"icon": "illuminate", "number": 1}]
+    ]
+  },
+  "incense_haze": {
+    "rows": [
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}],
+      [{"icon": "block", "number": 3}]
+    ]
+  },
+  "seekers_mark": {
+    "rows": [
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}],
+      [{"icon": "draw", "number": 1}]
+    ]
+  },
+  "seers_candle": {
+    "rows": [
+      [{"icon": "consume", "number": null}],
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 3}]
+    ]
+  },
+  "vigil": {
+    "rows": [
+      [{"icon": "block", "number": 5}],
+      [{"icon": "vision", "number": null}, {"icon": "time", "number": 2}]
+    ]
+  },
+  "frost_circuit": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "sentence": [
+      {"text": "Leave "},
+      {"term": "surface_electrified", "word": "Electrified", "number": null},
+      {"text": ", then "},
+      {"damage": "ranged", "number": 2},
+      {"text": " and "},
+      {"term": "shock", "word": "Shock", "number": null},
+      {"text": ". On "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": ": also on each connected "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": " tile."}
+    ]
+  },
+  "grounding": {
+    "chip": null,
+    "sentence": [
+      {"text": "Gain "},
+      {"term": "stoneskin", "word": "Stoneskin", "number": 3},
+      {"text": ". Remove each "},
+      {"term": "surface_electrified", "word": "Electrified", "number": null},
+      {"text": " tile within 2 tiles: +"},
+      {"term": "stoneskin", "word": "Stoneskin", "number": 3},
+      {"text": " per tile, up to 9 total."}
+    ]
+  },
+  "skate": {
+    "chip": null,
+    "sentence": [
+      {"term": "move", "word": "Move", "number": 3},
+      {"text": " and "},
+      {"term": "draw", "word": "Draw", "number": 1},
+      {"text": ". This turn "},
+      {"term": "surface_ice", "word": "Ice", "number": null},
+      {"text": " costs you no Movement and doesn't "},
+      {"term": "expose", "word": "Expose", "number": null},
+      {"text": " you."}
+    ]
+  },
+  "stoke": {
+    "chip": null,
+    "sentence": [
+      {"damage": "ranged", "number": 2},
+      {"text": " each enemy you can see. On "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": ": +"},
+      {"damage": "ranged", "number": 3},
+      {"text": "."}
+    ]
+  },
+  "rockburst": {
+    "chip": {"icon": null, "word": "Target", "range": 3},
+    "sentence": [
+      {"damage": "ranged", "number": 4},
+      {"text": ". On an Outcrop or crate: also "},
+      {"term": "burst", "word": "Burst", "number": 4},
+      {"text": " that terrain, leaving "},
+      {"term": "surface_rubble", "word": "Rubble", "number": null},
+      {"text": " on each tile hit."}
+    ]
+  },
+  "worldbreak": {
+    "chip": {"icon": "raise_terrain", "word": "Outcrop", "range": 1},
+    "sentence": [
+      {"term": "burst", "word": "Burst", "number": 10},
+      {"text": " an Outcrop you raised, sparing you. "},
+      {"term": "stagger", "word": "Stagger", "number": 2},
+      {"text": " each enemy hit."}
+    ]
+  },
+  "immolation": {
+    "chip": null,
+    "sentence": [
+      {"damage": "melee", "number": 3},
+      {"text": " "},
+      {"pattern": "neighbors"},
+      {"text": ". "},
+      {"term": "burst", "word": "Burst", "number": 8},
+      {"text": " each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile in "},
+      {"pattern": "cross"},
+      {"text": ", sparing you. "},
+      {"term": "empower", "word": "Empower", "number": null},
+      {"text": " for "},
+      {"term": "health", "word": "Health", "number": 2},
+      {"text": ": each "},
+      {"term": "surface_fire", "word": "Fire", "number": null},
+      {"text": " tile within 2 tiles instead."}
+    ]
+  },
+  "worldspine": {
+    "chip": {"icon": null, "word": "Tile", "range": 3},
+    "extra_art_relief": 13.0,
+    "sentence": [
+      {"term": "exhaust", "word": "Exhaust", "number": null},
+      {"text": ". Raise "},
+      {"term": "raise_terrain", "word": "Outcrop", "number": 4},
+      {"text": " in "},
+      {"pattern": "neighbors"},
+      {"text": ". "},
+      {"term": "rite", "word": "Rite", "number": null},
+      {"text": ": at the start of your turn, deal 3 damage to each enemy adjacent to your Outcrops."}
+    ]
+  }
+}

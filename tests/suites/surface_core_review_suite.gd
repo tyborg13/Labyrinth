@@ -27,9 +27,9 @@ static func _test_large_ice_trap_arrival(combat: Combat, expect: Callable) -> vo
 	state["traps"] = [{"id": "new_ice_wake", "pos": Vector2i(5, 3), "element": "ice", "damage": 10}]
 	state = combat.surface_actor_arrival(state, "enemy", 1, Vector2i(3, 3))
 	expect.call((state["traps"] as Array).is_empty() and Ground.element_at(state, Vector2i(5, 4)) == "ice", "Large actor fixture enters the Ice trap and receives its new wake beneath its footprint")
-	expect.call(not bool(state["enemies"][0].get("chilled", false)), "Large actor entering an Ice trap must not gain Chill from the newly painted wake during that same arrival")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 0, "Ice painted by the trap does not Expose the arriving actor")
 	state = (combat._resolve_enemy_start_of_turn(state, 0) as Dictionary)["state"]
-	expect.call(bool(state["enemies"][0].get("chilled", false)), "The large actor's next start activates Chill from the Ice trap wake")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 2, "The large actor starts the next turn on Ice and gains Expose 2")
 
 static func _test_detonate_trap_event(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -147,7 +147,7 @@ static func _test_authored_specialist_shock_fuel(combat: Combat, expect: Callabl
 				state["enemies"][0]["type"] = enemy_id
 				Ground.place(state, Vector2i(2,3), "electrified")
 				Ground.place(state, Vector2i(3,3), "electrified")
-				var connected: Dictionary = combat._resolve_enemy_action(state, 0, action)
+				var connected: Dictionary = combat._resolve_enemy_action(state.duplicate(true), 0, action)
 				expect.call(int(connected["player"].get("shock", 0)) == 1 and Ground.tiles(connected, "electrified").size() == 2, "%s gains specialist Shock through a reusable component" % enemy_id)
 				Ground.remove(state, Vector2i(2,3), "electrified", "denied_by_player")
 				var denied: Dictionary = combat._resolve_enemy_action(state, 0, action)

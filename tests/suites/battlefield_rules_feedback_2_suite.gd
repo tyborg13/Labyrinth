@@ -65,7 +65,7 @@ static func _illusion_hits(engine: RefCounted, battle: Callable, rule: Callable,
 	Rules.install(engine, state, rule.call("frostbite", {"damage": 0}))
 	var action: Dictionary = {"type": "ranged", "damage": 0, "element": "ice"}
 	after = engine._resolve_board_attack(state.duplicate(true), action, ILLUSION["pos"], "enemy", 1)
-	expect.call(after["illusions"] == state["illusions"] and after["surfaces"] == state["surfaces"], "Ordinary zero-damage Ice preserves a Chilled illusion and its Ice even with an active rule")
+	expect.call(after["illusions"] == state["illusions"] and after["surfaces"] == state["surfaces"], "Ordinary zero-damage Ice preserves an Exposed illusion and its Ice even with an active rule")
 	for id: String in ["frostbite", "lightning_storm"]:
 		state = battle.call(engine)
 		state["illusions"] = [ILLUSION.duplicate(true)]
@@ -73,8 +73,8 @@ static func _illusion_hits(engine: RefCounted, battle: Callable, rule: Callable,
 		state = engine._surface_contact(state, "illusion", int(ILLUSION["id"]), engine.INVALID_TILE, true)
 		Rules.install(engine, state, rule.call(id, {"damage": 0}))
 		after = compare.call(engine, state, expect)
-		expect.call(int(after["illusions"][0].get("freeze" if id == "frostbite" else "shock", 0)) == (1 if id == "frostbite" else 0), "Zero-damage battlefield hit retains its illusion status: " + id)
-		if id == "frostbite": expect.call(not Surfaces.has_surface(after, ILLUSION["pos"], "ice"), "Zero-damage battlefield Ice hit expends the illusion's Ice")
+		expect.call(int(after["illusions"][0].get("expose" if id == "frostbite" else "shock", 0)) == (2 if id == "frostbite" else 0), "A zero-damage beat never spends Expose: " + id)
+		if id == "frostbite": expect.call(Surfaces.has_surface(after, ILLUSION["pos"], "ice"), "Zero-damage Frostbite leaves the illusion's Ice")
 
 # el-02 feedback: each Anchored case has an otherwise identical movable control.
 static func _anchored_upheaval(engine: RefCounted, battle: Callable, rule: Callable, compare: Callable, expect: Callable) -> void:

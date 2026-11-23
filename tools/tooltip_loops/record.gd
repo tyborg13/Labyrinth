@@ -20,7 +20,10 @@ var design_pending: int = 0
 
 static func selected_entries() -> Array:
 	var ids: PackedStringArray = OS.get_environment("TOOLTIP_LOOP_IDS").split(",", false)
-	return Registry.entries().filter(func(row: Dictionary) -> bool: return ids.is_empty() or ids.has(str(row["id"])))
+	var rows: Array = Registry.entries()
+	if ids.is_empty(): return rows
+	var registry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Registry.PATH))
+	return (rows + registry.get("pending_recordings", [])).filter(func(row: Dictionary) -> bool: return ids.has(str(row["id"])))
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -39,6 +42,8 @@ func _run() -> void:
 	root.content_scale_size = root.size
 	var viewport: SubViewport = Playback.canvas(self) if not semantics_only else null
 	var rows: Array = selected_entries()
+	for id: String in OS.get_environment("TOOLTIP_LOOP_IDS").split(",", false):
+		if not rows.any(func(row: Dictionary) -> bool: return row["id"] == id): failures.append("Unknown tooltip loop selected: " + id)
 	var has_tip10: bool = rows.any(func(row: Dictionary) -> bool: return Fixture.Tip10.IDS.has(row["id"]))
 	if semantics_only and (has_tip10 or rows.any(func(row: Dictionary) -> bool: return Fixture.Tip09.IDS.has(row["id"]))):
 		var trim_ok: bool = Fixture.Tip09Checks.verify_trim(trim_raw)
@@ -49,14 +54,14 @@ func _run() -> void:
 		var fixture: Dictionary = Fixture.build(str(row["id"]))
 		var engine := Combat.new()
 		var result: Dictionary = Fixture.plan(fixture, engine)
-		var checked: Array[String] = Fixture.validate(fixture, result)
-		failures.append_array(checked)
-		print("TIP01 SEMANTICS %s: %s" % [row["id"], "FAIL" if not checked.is_empty() else "TODO_DESIGN" if not str(result.get("todo_design", "")).is_empty() else "PASS"])
+		var fixture_failures: Array[String] = Fixture.validate(fixture, result)
+		failures.append_array(fixture_failures)
+		print("TIP01 SEMANTICS %s: %s" % [row["id"], "FAIL" if not fixture_failures.is_empty() else "TODO_DESIGN" if not str(result.get("todo_design", "")).is_empty() else "PASS"])
 		if not str(result.get("todo_design", "")).is_empty():
 			design_pending += 1
 			print(result["todo_design"])
 			continue
-		if not semantics_only and checked.is_empty(): await _record(viewport, fixture, result, row)
+		if not semantics_only and fixture_failures.is_empty(): await _record(viewport, fixture, result, row)
 	for failure: String in failures: push_error(failure)
 	print("TIP01 %s RESULT: %s (%d failures)" % ["SEMANTICS" if semantics_only else "REHEARSAL" if rehearsal else "RECORD", "PASS" if failures.is_empty() else "FAIL", failures.size()])
 	print("TIP03 DESIGN PENDING: %d loops (excluded from recording)" % design_pending)
@@ -86,8 +91,13 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	var audit := PatchChecks.new()
 	var force_audit: RefCounted
 	if Fixture.Tip07.IDS.has(row["id"]): force_audit = Playback.Tip07Playback.new()
+	var burst_audit: RefCounted
+	if Fixture.Tip13.IDS.has(row["id"]): burst_audit = Fixture.Tip13.new()
 	var card_audit: RefCounted
 	if Fixture.Tip06.IDS.has(row["id"]): card_audit = Fixture.Tip06.Checks.new()
+	var min_action_frames: int = 1
+	if burst_audit != null:
+		min_action_frames = ceili((Fixture.Tip13.MIN_LOOP_SECONDS - LoopView.HOLD_SECONDS - LoopView.CROSSFADE_SECONDS) * FPS)
 	var rare_audit: RefCounted
 	if Fixture.Tip09.IDS.has(row["id"]): rare_audit = Fixture.Tip09Checks.new()
 	var keyword_audit: RefCounted
@@ -123,7 +133,8 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			if scene.get("_turn_order_animating"): board.mark_visible_frame()
 		if bool(completion["done"]):
 			terminal_frames += 1
-			if terminal_frames > 1: break
+			# Retain settled production frames when the action plus the shared hold is too short.
+			if terminal_frames > 1 and frames >= maxi(0, int(board.first_visible_frame) - MAX_LEAD_FRAMES) + min_action_frames: break
 		if bool(board.presentation.get("board_backdrop_visible", true)):
 			failures.append("%s frame %d lacks the production dark-background paint contract" % [row["id"], frames])
 			valid_recording = false
@@ -133,6 +144,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		if not recording:
 			audit.observe(board, crop, fixture["id"])
 			if force_audit != null: force_audit.observe(board, fixture, result, frames)
+			if burst_audit != null: burst_audit.observe(board, fixture, result, frames)
 			if rare_audit != null: rare_audit.observe(board, fixture, result, frames)
 			if keyword_audit != null: keyword_audit.observe(scene, board, fixture, result, crop, frames)
 		if row["id"] == "marked_lob_slag":
@@ -145,6 +157,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 			# Frame-margin proof observes the pose actually submitted for this image.
 			audit.observe(board, crop, fixture["id"])
 			if force_audit != null: force_audit.observe(board, fixture, result, frames)
+			if burst_audit != null: burst_audit.observe(board, fixture, result, frames)
 			if rare_audit != null: rare_audit.observe(board, fixture, result, frames)
 			if keyword_audit != null: keyword_audit.observe(scene, board, fixture, result, crop, frames)
 			var image: Image = viewport.get_texture().get_image()
@@ -175,7 +188,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 					var proof: String = proof_dir.path_join("%s_source_%s_1920x1080.png" % [row["id"], witness])
 					image.save_png(proof)
 					print(proof)
-			if force_audit != null and force_audit.impact_frame == frames:
+			if (force_audit != null and force_audit.impact_frame == frames) or (burst_audit != null and burst_audit.impact_frame == frames):
 				var proof: String = proof_dir.path_join(str(row["id"]) + "_source_impact_1920x1080.png")
 				image.save_png(proof)
 				print(proof)
@@ -208,6 +221,9 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	if force_audit != null:
 		visibility["forced_movement"] = force_audit.report(fixture, result, board, audit.failures)
 		print("TIP07 PLAYBACK RECEIPT %s: %s" % [row["id"], JSON.stringify(visibility["forced_movement"])])
+	if burst_audit != null:
+		visibility["burst"] = burst_audit.finish(fixture, result, audit.failures)
+		print("TIP13 PLAYBACK RECEIPT %s: %s" % [row["id"], JSON.stringify(visibility["burst"])])
 	if card_audit != null:
 		var card_failures: Array[String] = card_audit.finish(fixture, result, board, Fixture.Tip06)
 		audit.failures.append_array(card_failures)
@@ -228,7 +244,7 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	print("TIP04 PATCH VISIBILITY %s: %s %s" % [fixture["id"], "PASS" if audit.failures.is_empty() else "FAIL", JSON.stringify(visibility)])
 	var source_frames: int = frames
 	var first: int = maxi(0, int(board.first_visible_frame) - MAX_LEAD_FRAMES)
-	var last: int = mini(frames - 1, int(board.last_visible_frame) + 1)
+	var last: int = mini(frames - 1, maxi(int(board.last_visible_frame) + 1, first + min_action_frames - 1))
 	if has_rail:
 		first = 0
 		last = maxi(first, keyword_audit.first_frame("hero_ahead"))
@@ -252,6 +268,12 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 		timing["terminal_hold_frames"] = terminal_hold
 		timing["hold_seconds"] = hold_seconds
 		timing["total_loop_seconds"] = float(frames) / FPS + hold_seconds + LoopView.CROSSFADE_SECONDS
+	if burst_audit != null:
+		var loop_seconds: float = float(frames) / FPS + hold_seconds + LoopView.CROSSFADE_SECONDS
+		timing["loop_seconds"] = loop_seconds
+		if loop_seconds < Fixture.Tip13.MIN_LOOP_SECONDS or loop_seconds > Fixture.Tip13.MAX_LOOP_SECONDS:
+			failures.append("%s must loop for 2–6 seconds including the hold and crossfade" % row["id"])
+			valid_recording = false
 	if row["id"] == "rule_upheaval" and (float(timing["tail_seconds"]) > 0.2 or float(timing["action_seconds"]) > 4.5):
 		failures.append("Upheaval must end <=0.2 s after settling, with action <=4.5 s")
 		valid_recording = false
@@ -265,10 +287,6 @@ func _record(viewport: SubViewport, fixture: Dictionary, result: Dictionary, row
 	if row["id"] == "rule_frostbite" and not board.seen_numbers.has("enemy_1:-%d" % (int(fixture["state"]["enemies"][0]["hp"]) - int(result["final"]["enemies"][0]["hp"]))):
 		failures.append("Frostbite must show the production Ice hit number")
 		valid_recording = false
-	if row["id"] == "freeze_status":
-		if not board.seen_numbers.has("enemy_1:-7") or not board.seen_numbers.has("enemy_1:-18"):
-			failures.append("Freeze must show Frozen Bite and full tripled Quick Stab numbers")
-			valid_recording = false
 	var completed: bool = bool(completion["done"])
 	var limit: int = mini(action_frame_limit(str(row.get("speed", "normal"))), int(row.get("max_recording_frames", FAST_MAX_ACTION_FRAMES)))
 	if frames < minimum_frames:
@@ -360,6 +378,7 @@ func _source_hashes() -> Dictionary:
 		"tools/tooltip_loops/tip06_fixture.gd", "tools/tooltip_loops/tip06_checks.gd",
 		"scripts/surface_card_rules.gd", "scripts/illusion_card_rules.gd", "scripts/terrain_card_rules.gd", "scripts/rite_rules.gd", "scripts/combat_outcome_feedback.gd",
 		"tools/tooltip_loops/tip07_fixture.gd", "tools/tooltip_loops/tip07_playback.gd",
+		"tools/tooltip_loops/tip13_checks.gd", "scripts/burst_rules.gd", "scripts/enemy_mechanics/death_burst.gd", "scripts/enemy_mechanics/death_burst_view.gd",
 		"tools/tooltip_loops/tip09_fixture.gd", "tools/tooltip_loops/tip09_checks.gd",
 		"tools/tooltip_loops/tip09_reflect.gd", "scripts/enemy_mechanics/reflect_view.gd",
 		"tools/tooltip_loops/tip10_fixture.gd", "tools/tooltip_loops/tip10_checks.gd",

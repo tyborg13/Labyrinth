@@ -22,9 +22,8 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 			entry["loop_term"] = "traps"
 			var parts: PackedStringArray = str(entry["description"]).rsplit("\n", true, 1)
 			var air: bool = trap.get("element") == "air"
-			var diagram: String = "@pattern(neighbors:origin) " if air else "@pattern(cross) "
-			var wake: String = parts[1].replace("next to this tile", "on these tiles") if air else parts[1].replace("on this tile and each tile next to it", "on these tiles")
-			entry["display_description"] = parts[0] + "\n" + diagram + wake
+			var wake: String = preload("res://scripts/pattern_text.gd").display_rules("An Air trap Pushes each adjacent unit 1 tile away instead of leaving ground.") if air else "@pattern(cross) This trap leaves its element as ground on these tiles."
+			entry["display_description"] = parts[0] + "\n" + wake
 			entry["loop_source"] = {"kind": "trap", "element": str(trap.get("element", ""))}
 			result.append(entry)
 	# Preserve the controller's existing terrain-before-loot traversal. Surface
@@ -34,7 +33,7 @@ static func build_entries(view: Control, tile: Vector2i, marks: Dictionary, ligh
 			var entry: Dictionary = from_text(view._terrain_tooltip_text(terrain))
 			match str(terrain.get("kind", "")):
 				"powder_keg":
-					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(cross) When destroyed, deals %d to these tiles." % int(terrain.get("burst_damage", 0))
+					entry["display_description"] = str(entry["description"]).get_slice("\n", 0) + "\n@pattern(cross) When the keg is destroyed, the keg Bursts %d." % int(terrain.get("burst_damage", 0))
 			result.append(entry)
 	for loot: Dictionary in state.get("loot", []):
 		if loot.get("pos") != tile or bool(loot.get("claimed", false)): continue

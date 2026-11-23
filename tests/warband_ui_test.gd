@@ -43,7 +43,8 @@ func _run() -> void:
 		var units: Array[Dictionary] = board._build_visible_units()
 		_expect(units.any(func(unit: Dictionary) -> bool: return unit.get("name", "") == title), "Board names/tooltips resolve captain title: " + biome)
 		_expect(board._support_enemy_unit(captain)["name"] == title, "Support tooltip resolves captain title: " + biome)
-		_expect(hud._live_detail(state, state["objective"]).begins_with(title + " · "), "Objective HP detail resolves title: " + biome)
+		var health: String = "%d/%d Health" % [captain["hp"], captain["max_hp"]]
+		_expect(hud._live_detail(state, state["objective"]) == health, "Objective detail shows Health once the title names the captain: " + biome)
 		var foe: Control = View.build_foe(host, captain, TEST_FOE_CARD_SIZE, true)
 		_expect((foe.find_child("PreBattleEnemyName", true, false) as Label).text == title, "Pre-battle foe card resolves title: " + biome)
 		foe.free()

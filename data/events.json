@@ -38,8 +38,7 @@
    "description": "Start each combat with 3 turns of @icon(vision).",
    "effect": {
     "type": "start_vision_turns",
-    "amount": 3,
-    "radius": 2
+    "amount": 3
    }
   },
   "ember_tithe": {
@@ -326,7 +325,7 @@
     },
     {
      "id": "ember",
-     "label": "Drop an Ember in",
+     "label": "Drop Embers in",
      "requires": [
       {
        "type": "embers_at_least",

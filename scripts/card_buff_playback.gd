@@ -23,6 +23,7 @@ static func presentation(before: Dictionary, after: Dictionary, action: Dictiona
 			"tile": (after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
 			"text": text,
 			"icon": badge["icon"],
+			"gain": kind,
 			"color": badge["border"],
 			"offset": BLOCK_FLOAT_OFFSET,
 		}

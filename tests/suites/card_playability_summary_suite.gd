@@ -163,8 +163,8 @@ static func _test_root_summary_edges(expect: Callable) -> void:
 		dangerous["player"]["hp"] = 3
 		dangerous["traps"] = [{"id": "required_route", "pos": Vector2i(3, 4), "element": "fire", "damage": 20}]
 		_assert_root_matches_full_walk(scene, dangerous, mandatory, expect, "Required trap route charge spent=%s" % str(spent))
-		dangerous["player"]["bleed"] = 4
-		_assert_root_matches_full_walk(scene, dangerous, mandatory, expect, "Required movement with lethal Bleed charge spent=%s" % str(spent))
+		Surface.place(dangerous, Vector2i(3, 4), "fire")
+		_assert_root_matches_full_walk(scene, dangerous, mandatory, expect, "Required movement across Fire with Sure Footed spent=%s" % str(spent))
 
 	var surfaces: Dictionary = _fixture(combat, "surface_ready")
 	var surface_cases: Array = [
@@ -416,7 +416,6 @@ static func _fixture(combat: CombatEngine, name: String) -> Dictionary:
 		state["skill_ids"] = ["sure_footed"]
 		state["skill_flags"] = {"used:sure_footed": name == "surface_spent"}
 		state["player"]["stoneskin"] = 4
-		state["player"]["bleed"] = 2
 		state["traps"] = [{"id": "summary_trap", "pos": Vector2i(2, 3), "element": "fire", "damage": 30}]
 		var large: Dictionary = _enemy(3, Vector2i(5, 5))
 		large["footprint"] = Vector2i(2, 2)

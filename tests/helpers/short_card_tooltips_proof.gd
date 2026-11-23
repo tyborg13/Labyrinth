@@ -22,6 +22,7 @@ const FIXTURE := {"room_size": 8, "coord": Vector2i(4, 3), "hero_hp": 24, "hero_
 var _tree: SceneTree
 var _expect: Callable
 var _copy: Dictionary
+var _live_definitions: Dictionary
 var _viewport: SubViewport
 
 func run(tree: SceneTree, expect: Callable, capture: bool) -> void:
@@ -29,7 +30,9 @@ func run(tree: SceneTree, expect: Callable, capture: bool) -> void:
 	_expect = expect
 	_copy = JSON.parse_string(FileAccess.get_file_as_string(COPY_PATH))
 	# Retired identities (including dormant Flurry) and new shared copy are outside the tt-01 comparison.
-	_copy["entries"] = (_copy["entries"] as Array).filter(func(entry: Dictionary) -> bool: return entry["id"] not in ["mirror", "retaliate", "flurry", "aoe", "worldspines"])
+	_copy["entries"] = (_copy["entries"] as Array).filter(func(entry: Dictionary) -> bool: return entry["id"] not in ["mirror", "retaliate", "flurry", "aoe", "worldspines", "chilled", "freeze", "petrify"])
+	for entry: Dictionary in Glossary.all_entries():
+		_live_definitions[entry["id"]] = entry["definition"]
 	if capture and DisplayServer.get_name().to_lower() == "headless":
 		_expect.call(false, "Captures require a real windowed renderer")
 		return
@@ -72,13 +75,8 @@ func run(tree: SceneTree, expect: Callable, capture: bool) -> void:
 func _set_copy(before: bool) -> void:
 	Glossary.all_entries()
 	for change: Dictionary in _copy["entries"]:
-		if str(change["id"]) in ["dive", "veil", "lob", "icefall", "burrow", "erupt"]: continue # sta-01/mrk-01 retired identities.
-		Glossary._entries[str(change["id"])]["definition"] = change["old"] if before else change["tooltip"]
-	if not before:
-		var tt02: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/tt-02/card_panels.json"))
-		for edit: Dictionary in tt02["glossary_edits"]:
-			if edit["id"] == "retaliate": continue
-			Glossary._entries[str(edit["id"])]["definition"] = edit["text"]
+		if not Glossary._entries.has(str(change["id"])): continue
+		Glossary._entries[str(change["id"])]["definition"] = change["old"] if before else _live_definitions[change["id"]]
 
 func _rank_baseline() -> Array[Dictionary]:
 	_set_copy(true)
@@ -162,7 +160,7 @@ func _hover_pair(id: String, capture: bool) -> Dictionary:
 	_expect.call(int(result["after_panels"]) == int(result["before_panels"]) - 1, id + " loses only the automatic Time panel")
 	_expect.call(float(result["after_height_px"]) < float(result["before_height_px"]), id + " has a shorter stack")
 	if id == "lantern_shot":
-		_expect.call((result["after_icons"] as Array).count("time") == 1, "Lantern Shot retains duration despite its shared Time icon")
+		_expect.call(not (result["after_icons"] as Array).has("time"), "Lantern Shot has no duration panel for lasting Light")
 	print("TT01 STACK %s: %s -> %s px; %s -> %s panels" % [id, result["before_height_px"], result["after_height_px"], result["before_panels"], result["after_panels"]])
 	scene.free()
 	_set_copy(false)

@@ -79,7 +79,7 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 		return {"enemy_index": index, "enemy_key": engine._enemy_key(enemy), "path": engine._vector2i_values([enemy["pos"]]), "route": engine._vector2i_values([enemy["pos"]]), "destination": enemy["pos"], "projected_attack": affected, "attack_available": not affected.is_empty(), "attack_action": action, "attack_action_index": 0, "movement_action_index": -1, "target_tile": enemy.get("lob_center", state["player"]["pos"]) if is_lob(action) else state["player"]["pos"], "target_key": "player"}
 	return {}
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary] = TypedArrays.dictionaries([])) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if str(action["type"]).ends_with("_mark"):
 		if is_lob(action) and not available(engine, state, enemy, {"actions": [action]}): return state
@@ -88,7 +88,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 			enemy["lob_center"] = state["player"]["pos"]
 			if cross_count(state, enemy) > 1: enemy["lob_centers"] = centers(engine, state, enemy)
 		return state
-	return _resolve_lob_land(engine, state, index, action, bleed_steps) if is_lob(action) else _resolve_icefall_land(engine, state, index, action)
+	return _resolve_lob_land(engine, state, index, action) if is_lob(action) else _resolve_icefall_land(engine, state, index, action)
 
 static func declare(state: Dictionary, enemy: Dictionary, intent: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	if cross_count(state, enemy) <= 1: return intent
@@ -213,21 +213,26 @@ static func _resolve_icefall_land(engine: RefCounted, state: Dictionary, index: 
 		for tile: Vector2i in Surfaces.footprint_tiles(actor["unit"]):
 			if affected.has(tile): hit = true
 		if not hit or int(actor["unit"].get("hp", 0)) <= 0: continue
-		if str(actor["kind"]) == "enemy":
-			state = engine._damage_enemy(state, engine._enemy_index_for_id(state, int(actor["id"])), icefall_damage(action), true, false, false)
+		var kind: String = str(actor["kind"])
+		var id: int = int(actor["id"])
+		var bonus: Dictionary = action.get("surface_bonus", {}) as Dictionary
+		var stagger: int = int(bonus.get("stagger", 0)) if Surfaces.unit_on(state, actor["unit"], "ice") else 0
+		if kind == "enemy":
+			var target_index: int = engine._enemy_index_for_id(state, id)
+			state = engine._damage_enemy_hit(state, target_index, icefall_damage(action), false, false)
+			engine._apply_stagger_to_enemy(state, id, stagger)
 		else:
-			state = engine._surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), icefall_damage(action), true)
-		state = engine._surface_freeze_actor(state, str(actor["kind"]), int(actor["id"]), action)
+			state = engine._damage_actor_target(state, actor, icefall_damage(action), false, action)
+			if kind == "player":
+				preload("res://scripts/card_keyword_rules.gd").stagger_player(engine, state, stagger)
 	for tile: Vector2i in affected:
 		state = engine._place_action_surface(state, {"type": "surface", "surface": str(action.get("surface", "ice")), "_enemy_id": int(enemy["id"])}, tile)
 	state["enemies"][index].erase("icefall_tiles")
 	return state
 
-static func _resolve_lob_land(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+static func _resolve_lob_land(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	if (enemy.get("lob_tiles", []) as Array).is_empty(): return state
-	state = engine._trigger_enemy_bleed_for_resolved_action(state, index, action, bleed_steps)
-	if engine._enemy_cannot_continue_after_bleed(state, index): return state
 	var affected: Array[Vector2i] = tiles(engine, state, enemy, action)
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
@@ -242,7 +247,7 @@ static func _resolve_lob_land(engine: RefCounted, state: Dictionary, index: int,
 		var hit: Dictionary = action.duplicate(true)
 		hit["damage"] = amount
 		if str(actor["kind"]) == "enemy":
-			state = engine._damage_enemy(state, engine._enemy_index_for_id(state, int(actor["id"])), amount, true, false, false)
+			state = engine._damage_enemy_hit(state, engine._enemy_index_for_id(state, int(actor["id"])), amount, false, false)
 		else:
 			if str(actor["kind"]) == "player": struck_hero = true
 			else: preload("res://scripts/illusion_card_rules.gd").note_enemy_hit(engine, state, struck_illusions, actor, hit)

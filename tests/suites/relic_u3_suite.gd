@@ -166,9 +166,9 @@ static func _test_fetter_both_parties(combat: Combat, expect: Callable) -> void:
 	expect.call(_hp(after, 1) == 52 and _hp(after, 2) == 52, "Fetter doubles collision damage independently for immobilized mover and blocker")
 	state["enemies"][0]["immobilize"] = false
 	state["enemies"][1]["immobilize"] = false
-	state["enemies"][0]["freeze"] = 1
+	state["enemies"][0]["shock"] = 1
 	after = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Fetter idle")
-	expect.call(_hp(after, 1) == 56 and _hp(after, 2) == 56, "Fetter requires Immobilize, not Frozen")
+	expect.call(_hp(after, 1) == 56 and _hp(after, 2) == 56, "Shock alone does not trigger Fetter")
 
 static func _test_mason_ownership_and_health(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = fixture(combat, ["masons_plumb"], [enemy(1, Vector2i(4, 4))])
@@ -210,8 +210,9 @@ static func _test_siege_defenses_dragons_and_resume(combat: Combat, expect: Call
 	after = combat.apply_player_action(after, _push(), Vector2i(4, 4))
 	expect.call(_delay(after, 1) == 6 and _delay(after, 2) == 6, "Siege shares the normal six-delay cap across save/resume")
 	after["turn_flags"] = {}
+	var capped_queue: Array = (after["turn_queue"] as Array).duplicate(true)
 	after = combat.apply_player_action(after, _push(), Vector2i(4, 4))
-	expect.call(_delay(after, 1) == 5, "Siege limit resets with the next player activation")
+	expect.call(after["turn_queue"] == capped_queue, "Siege cannot add delay after the hero's flags reset before either enemy acts")
 	state = fixture(combat, ["siege_ram_totem"], [enemy(1, Vector2i(4, 4))], [Base._crate("stop", Vector2i(5, 4), 40)])
 	state["enemies"][0]["type"] = "vaeloryx"
 	state["enemies"][0]["footprint"] = Vector2i.ONE
@@ -230,29 +231,21 @@ static func _test_wheel_layers_and_immunity(combat: Combat, expect: Callable) ->
 		Surface.place(state, Vector2i(4, 4), element)
 		Surface.place(state, Vector2i(4, 4), "rubble")
 		var after: Dictionary = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Wheel %s plus Rubble" % element)
-		expect.call(Surface.surface_at(after, Vector2i(4, 4)).is_empty() and _delay(after) == 3, "Wheel consumes both layers and Rubble Staggers three with %s" % element)
+		expect.call(Surface.surface_at(after, Vector2i(4, 4)).is_empty() and _delay(after) == (6 if element == "ice" else 3), "Wheel consumes both ground layers and caps combined Ice and Rubble Stagger at 6")
 		if element == "fire":
 			expect.call(_hp(after) == 53 and _hp(after, 2) == 56, "Wheel Fire adds three collision damage only to the mover")
 		elif element == "ice":
-			expect.call(int(_unit(after).get("freeze", 0)) == 1 and _hp(after) == 56, "Wheel Ice applies normal Freeze even on a fully blocked, un-Chilled target")
+			expect.call(_hp(after) == 56, "Wheel Ice adds delay without extra damage")
 			var resumed: Dictionary = _resume(expect, after)
-			expect.call(int(_unit(resumed).get("freeze", 0)) == 1, "Wheel Freeze survives save/resume")
+			expect.call(int(combat.stagger_delays_between(state, resumed).get(1, 0)) == 6, "Wheel Stagger survives save and resume")
 		else:
 			expect.call(int(_unit(after).get("shock", 0)) == 1 and int(_unit(after, 2).get("shock", 0)) == 1, "Wheel Electrified Shocks mover and enemy blocker")
-	var state: Dictionary = fixture(combat, ["breaking_wheel"], [enemy(1, Vector2i(4, 4))], [Base._crate("stop", Vector2i(5, 4), 40)])
-	state["enemies"][0]["type"] = "frostbound_guardian"
-	# Use an actual content immunity rather than an invented actor field.
-	for type: String in Data.enemies():
-		if (Data.enemy_def(type).get("status_immunities", []) as Array).has("freeze"):
-			state["enemies"][0]["type"] = type
-			break
-	Surface.place(state, Vector2i(4, 4), "ice")
-	var after: Dictionary = _forecast(combat, expect, state, _push(), Vector2i(4, 4), "Wheel Freeze immunity")
-	expect.call(int(_unit(after).get("freeze", 0)) == 0 and not Surface.has_surface(after, Vector2i(4, 4), "ice"), "Wheel respects Freeze immunity and still consumes the broken Ice")
+	var state: Dictionary
+	var after: Dictionary
 	state = fixture(combat, ["breaking_wheel"], [enemy(1, Vector2i(4, 4))])
 	Surface.place(state, Vector2i(4, 4), "ice")
 	after = combat.apply_player_action(state, _push(), Vector2i(4, 4))
-	expect.call(Surface.has_surface(after, Vector2i(4, 4), "ice") and int(_unit(after).get("freeze", 0)) == 0, "Wheel stays idle when there is no collision")
+	expect.call(Surface.has_surface(after, Vector2i(4, 4), "ice") and _delay(after) == 0, "Wheel adds no Stagger without a collision")
 	state = fixture(combat, ["breaking_wheel"], [enemy(1, Vector2i(4, 4)), enemy(2, Vector2i(5, 4))])
 	Surface.place(state, Vector2i(5, 4), "fire")
 	after = combat.apply_player_action(state, _push(), Vector2i(4, 4))
@@ -263,11 +256,11 @@ static func _test_quarry_all_damage_sources(combat: Combat, expect: Callable) ->
 	Surface.place(state, Vector2i(4, 4), "rubble")
 	var after: Dictionary = _forecast(combat, expect, state, {"type": "ranged", "damage": 3, "range": 8}, Vector2i(4, 4), "Quarry attack")
 	expect.call(_hp(after) == 56, "Quarry replaces the old attack-only +2 with +1")
-	state["enemies"][0]["freeze"] = 1
+	state["enemies"][0]["expose"] = 2
 	after = combat.apply_player_action(state, {"type": "ranged", "damage": 3, "range": 8}, Vector2i(4, 4))
-	expect.call(_hp(after) == 50, "Quarry is one per damage event after Frozen multiplies the attack")
-	state["enemies"][0]["freeze"] = 0
-	for source: String in ["force_collision", "surface_fire", "trap", "bleed", "retaliate", "relic"]:
+	expect.call(_hp(after) == 54, "Quarry adds one after the Expose bonus")
+	state["enemies"][0]["expose"] = 0
+	for source: String in ["force_collision", "surface_fire", "trap", "retaliate", "relic"]:
 		var trial: Dictionary = state.duplicate(true)
 		trial["damage_context"] = {"actor_kind": "enemy", "source_kind": source, "player_card": false}
 		trial = combat._surface_damage_actor(trial, "enemy", 1, 3, false)
@@ -276,9 +269,6 @@ static func _test_quarry_all_damage_sources(combat: Combat, expect: Callable) ->
 	Surface.place(state, Vector2i(4, 4), "fire")
 	after = combat._surface_contact(state.duplicate(true), "enemy", 1, Vector2i(-1, -1), true)
 	expect.call(_hp(after) == 60 - Surface.FIRE_START_DAMAGE - 1, "Quarry amplifies actual Fire contact")
-	state["enemies"][0]["bleed"] = 2
-	after = combat._trigger_enemy_bleed_for_action(state.duplicate(true), 0, {"type": "move_toward"})["state"]
-	expect.call(_hp(after) == 57, "Quarry amplifies actual Bleed damage")
 	state["retaliate"] = {"amount": 2}
 	after = Retaliate.after_enemy_hit(combat, state.duplicate(true), 1, {"type": "melee", "damage": 1})
 	expect.call(_hp(after) == 57, "Quarry amplifies actual Retaliate damage")

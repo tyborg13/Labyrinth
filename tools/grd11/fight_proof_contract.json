@@ -1,0 +1,19 @@
+{
+  "min_images": 174,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/fight/0000.png"},
+    {"pattern": "*/fight/0048.png"},
+    {"pattern": "*/fight/0095.png"},
+    {"pattern": "pixel-0012.png"},
+    {"pattern": "pixel-0036.png"},
+    {"pattern": "pixel-0060.png"},
+    {"pattern": "off-0012.png"},
+    {"pattern": "off-0036.png"},
+    {"pattern": "off-0060.png"},
+    {"pattern": "*/walk/0000.png"},
+    {"pattern": "*/walk/0018.png"},
+    {"pattern": "*/walk/0048.png"},
+    {"pattern": "*/walk/0071.png"}
+  ]
+}

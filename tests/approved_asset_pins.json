@@ -160,6 +160,9 @@
         ".png",
         ".json"
       ],
+      "data/ground_fx_atlas.json": [
+        ".json"
+      ],
       "fonts": [
         ".ttf",
         ".tres"
@@ -169,7 +172,8 @@
     "rr52": "Owner-approved take-three Lamplighter paintings, protected rr-52 motion and whole underlays. Source cuts and derived density records; native rig proof pending director. Earlier asset pins preserved.",
     "rr53": "Owner-approved Reaver paint and motion from rr-48. rr-53 feedback 1 withdraws clipping and restores r3 hidden supply/masks byte-for-byte. Integration pins remain unchanged.",
     "guard02": "Director-authored guard-02 challenge clips for the three production humanoid_v2 guardians; compiled with the existing compiler. Prior clip values and all paint remain unchanged. Native challenge proof remains director-owned.",
-    "emac_02": "Director judged 2026-11-15: approved take 1; emac-02 brief authorizes adoption and cutout integration. Owner inbox approval and native rest rebake remain pending in spec/art_identity/registry.json."
+    "emac_02": "Director judged 2026-11-15: approved take 1; emac-02 brief authorizes adoption and cutout integration. Owner inbox approval and native rest rebake remain pending in spec/art_identity/registry.json.",
+    "grd03": "Director-wired Fire, Ice and Rubble ramp-index atlases from 8592ea81e. Approval sources and derivation are recorded in assets/art/effects/ground/PROVENANCE.md."
   },
   "cel_outputs": {
     "files": [],
@@ -772,6 +776,29 @@
     "assets/art/effects/ambient_particles.png": "5a481fdc2d442bc5b9cb54ea8c0f02dc72b3ce69",
     "assets/art/effects/ambient_particles_glow.png": "9339fbf7c8b153a305681c98bbeade951639182f",
     "assets/art/effects/blink_rift_preview.png": "e3a5679577ef7a44af07af0cd029aea19e5afb89",
+    "assets/art/effects/bursts/acquisition_burst_048.png": "7ef895e68dd73293c76e57c8a54e82296daca0ce",
+    "assets/art/effects/bursts/acquisition_burst_060.png": "6eb29942299d41c8d450270e45d1307886283f21",
+    "assets/art/effects/bursts/acquisition_burst_072.png": "9a329a1e3191773804678424a588a47319e20dd3",
+    "assets/art/effects/bursts/acquisition_burst_088.png": "d43c239e8bdd49de894ce3243de25eb60a648577",
+    "assets/art/effects/bursts/acquisition_burst_104.png": "74e70a25c75132be4caf9a234d031935c8e47c9b",
+    "assets/art/effects/bursts/acquisition_burst_124.png": "ecf560f3be789e3a04b9f2634710ef19d433fd1d",
+    "assets/art/effects/bursts/acquisition_burst_148.png": "b99d8973b4370614f4ddeaf03c05cdd3c5d5fdbf",
+    "assets/art/effects/bursts/acquisition_burst_176.png": "6fe7bca79ae52bf648b452896f155b0569f58386",
+    "assets/art/effects/bursts/acquisition_burst_208.png": "d1ed109fffbcad7f2f343273a7b0e8f153cdc33b",
+    "assets/art/effects/bursts/self_burst_44.png": "a5e8008865f6236841e0af2e3f1e3f5bac656032",
+    "assets/art/effects/bursts/self_burst_52.png": "c251da06c47f57747d86a09f1162efef01fc9c9f",
+    "assets/art/effects/bursts/self_burst_60.png": "7d2398405275fc046e288d4781edb36ef4855df5",
+    "assets/art/effects/bursts/self_burst_68.png": "40da67c17c07a184109714f788d399d32cefc505",
+    "assets/art/effects/bursts/self_burst_76.png": "658b77ae80208240929610f11fdffe29bea1080b",
+    "assets/art/effects/bursts/self_burst_84.png": "38fbc40404e8c65da4901466545c0b3768648577",
+    "assets/art/effects/bursts/self_burst_92.png": "5ac5497d5a4d0fb76c49d0819207846f53fca745",
+    "assets/art/effects/bursts/tile_burst_44.png": "328d7ec61b80f0b0ef498590a76d20f9ca85a736",
+    "assets/art/effects/bursts/tile_burst_52.png": "e6b5ffdda6e93ee6c540a07defb7e6b81c6d73d9",
+    "assets/art/effects/bursts/tile_burst_60.png": "953d17bd21f222146fd417d81f2b28ec52bbf860",
+    "assets/art/effects/bursts/tile_burst_68.png": "db402eda12afd1453c78b86b395611c9027c572e",
+    "assets/art/effects/bursts/tile_burst_76.png": "1883a5a5ec2cdb434e86699b16689eedd342b66b",
+    "assets/art/effects/bursts/tile_burst_84.png": "fd1cc53ec22b89c5b72e3d4b424233b749365807",
+    "assets/art/effects/bursts/tile_burst_92.png": "350dc11958e5740102885e176ced9ed8b82d3be4",
     "assets/art/effects/defense_heal_casts.png": "dee3cf9b303be63db92ab882d3de8703c81a2dfb",
     "assets/art/effects/earth_ground_layer_sheet.png": "7dfc557d299d6b28c4fb18b04ce6cdd3a4df87da",
     "assets/art/effects/earth_spike_impact_sheet.png": "858763ebcf979e5fcf11a77251337f04034ccf6d",
@@ -793,6 +820,16 @@
     "assets/art/effects/fireball_impact_sheet.png": "698de0377bb8efd2f5b5f411126b01122214641e",
     "assets/art/effects/fireball_travel_sheet.png": "5245a5490370aa37598827046838ea3c85149346",
     "assets/art/effects/fireball_wake_sheet.png": "0ca3f7218713a49fb5b95be6fffce57a68735c02",
+    "assets/art/effects/ground/fire_decals.png": "9018283b1a862f4c40bf0fc71648fd8aa1fb716d",
+    "assets/art/effects/ground/ground_fx_44.png": "7cdfc259b2b08657ab77f5c2a843a6acbc9ef172",
+    "assets/art/effects/ground/ground_fx_52.png": "57f4aa339e37221d6d970ecb251e8180268c3374",
+    "assets/art/effects/ground/ground_fx_60.png": "16e242f24c3810d293fbefea083ddf6eb60487ef",
+    "assets/art/effects/ground/ground_fx_68.png": "b9dc65c85ae055b7faf332050f5f195d45afa57c",
+    "assets/art/effects/ground/ground_fx_76.png": "21160284587b767e76bf3c38f1f4e8b76b2a87fd",
+    "assets/art/effects/ground/ground_fx_84.png": "15fb3828843708c674befa90eaa56616d663f887",
+    "assets/art/effects/ground/ground_fx_92.png": "f1770ec5ec90d77d027a3ac680f5484300179b7a",
+    "assets/art/effects/ground/ice_decals.png": "d802b6a5779bbded6c57a4011a6f1947e3fc85df",
+    "assets/art/effects/ground/rubble_decals.png": "4a3e6d661a696eb6c3c8808c516d7c3138433b31",
     "assets/art/effects/ice_ground_layer_sheet.png": "8c80c8e8f600d7a6e266eeb62b97af1a70931f98",
     "assets/art/effects/ice_icicle_impact_sheet.png": "b278bdf7795f0299351d51e88a17bbbbe2f2c4a7",
     "assets/art/effects/ice_icicle_impact_sheet_v2.png": "270ccbb9d57dd5963ec0c86f541c9beee9d642d2",
@@ -806,6 +843,20 @@
     "assets/art/effects/relic_acquisition_mote.png": "548bae314c1619a2cf626f8df4683e8abddfb541",
     "assets/art/effects/relic_choice_glint.png": "bb0c8ea0e6f7af507daa8b8ba9683cc6cf002ddf",
     "assets/art/effects/relic_choice_rune_halo.png": "877a251e2fa257a7d96bd684b2cff28c84a504b2",
+    "assets/art/effects/shots/shot_44.png": "4fba2cb5eec0762bde459ed27b3342328a7f7eb7",
+    "assets/art/effects/shots/shot_52.png": "2c09c195bd943e96d6e325913e9e3e1ec00f0f27",
+    "assets/art/effects/shots/shot_60.png": "e59bd33e751470987b6b2fed927e225094d305bb",
+    "assets/art/effects/shots/shot_68.png": "3691bc194339e0758d7eec7b87f071d43251953e",
+    "assets/art/effects/shots/shot_76.png": "973ae8ef314761faea25f12bd9fcd7a8302699a9",
+    "assets/art/effects/shots/shot_84.png": "8f7b48078d1f5c843183ddfa8b56c3d5ebca605c",
+    "assets/art/effects/shots/shot_92.png": "be5098876dd86d1c54029a473533930001caa244",
+    "assets/art/effects/strikes/strike_44.png": "6636c7107e261711d2a9cab3303b4455d4111054",
+    "assets/art/effects/strikes/strike_52.png": "4016c90f4497b8eb8d864dcbcca9ce9eb6ce781c",
+    "assets/art/effects/strikes/strike_60.png": "a64626c33871bb4dbee402a626d33ff4044dc0c5",
+    "assets/art/effects/strikes/strike_68.png": "fe6a43dce0dcf0e058e59c85acd2362b3205886f",
+    "assets/art/effects/strikes/strike_76.png": "717489b24fc9ce47192add08d8a296127b233684",
+    "assets/art/effects/strikes/strike_84.png": "7f89434079b8ee8de70507ddc9d0bf6c5a1038f6",
+    "assets/art/effects/strikes/strike_92.png": "2c8b8d23c80770abc0b610f4b94786aba4096199",
     "assets/art/effects/trap_blast_air.png": "caca511eee649e339958cac03bbe4458933801e0",
     "assets/art/effects/trap_blast_earth.png": "7273a32f9f62c5e52a2476a2417bb5053fe73edf",
     "assets/art/effects/trap_blast_fire.png": "b21417f7c45e6de041c637d78faac4577c436b06",
@@ -988,8 +1039,8 @@
     "assets/art/icons/anchored.png": "cfc5b2481f0cdec4cc52954dcbf868d6b309e32d",
     "assets/art/icons/aoe.png": "568f6e75bbc8e72bb9515ec81281116b4a065072",
     "assets/art/icons/bleed.png": "04499829677c86e8c73ad1287b83e35e46eaeeea",
-    "assets/art/icons/blink.png": "c903a3311d871f59f31b00dc394cd7d65e70462c",
-    "assets/art/icons/block.png": "92bad9d3d86f792d642014e2b8d45bca2b15ed55",
+    "assets/art/icons/blink.png": "f5f9457c2abfa85ede4508b282a49593cce34dfb",
+    "assets/art/icons/block.png": "1def31a84e3d306c842da70ec3dff6e088a60790",
     "assets/art/icons/bramble.png": "c8af59644020fe4da2dd11ff69d6343fbd4da474",
     "assets/art/icons/burn.png": "046dfa288db37501c52bebccb80b14ad0ebaefea",
     "assets/art/icons/burrow.png": "a8ea3e67c791421821ee967e0323263cc42cdc01",
@@ -998,14 +1049,14 @@
     "assets/art/icons/chain.png": "be56098c7f9b9dcd264657140602e5f3b7122956",
     "assets/art/icons/charge.png": "4d5a3ce2804e703711294ba269ea9341f1f2ca2e",
     "assets/art/icons/chilled.png": "02829f1d140c798f79779d2a83d58da120e20158",
-    "assets/art/icons/cinder_marks.png": "19bfcf936f38ffd439efbcb27940ec4af86cf02c",
+    "assets/art/icons/cinder_marks.png": "70e62fbd5f8eba8b2b523766bfacd345397a596b",
     "assets/art/icons/cleanse.png": "33ea7272a1e4056f2e921ad63727ab79d3cf66ef",
     "assets/art/icons/collision.png": "3f605bc01a6c6dc5556b1099b92ab13cbe66c3c5",
     "assets/art/icons/combat_board.png": "4eb8e97f845e04c825e6a26b84d167b069e0cbda",
     "assets/art/icons/consume.png": "1968a6c9b1731654248af8bd0780552ce9651694",
     "assets/art/icons/defiance.png": "54180f3a2d24fbc40f33580e6906a3429f2c8fbd",
     "assets/art/icons/detonate.png": "457ee717c52c9c32882df48280fefc89e3a36e77",
-    "assets/art/icons/detonate_cinders.png": "cc9d9c2374075e31603ef60a68338e3d82e4b0f6",
+    "assets/art/icons/detonate_cinders.png": "fb87671ecd8f7bda0328e2d821edbb1ff88553f2",
     "assets/art/icons/discharge.png": "342cb195c53eb12849d2b12eaac6bec49a785e7a",
     "assets/art/icons/dispel_umbra.png": "6cbdc4bba71666ab9239c27519656aa364244409",
     "assets/art/icons/dive.png": "0a4596f89fcb8ce54848ebb5d367992ecd130205",
@@ -1022,13 +1073,13 @@
     "assets/art/icons/erupt.png": "7265b620b57890e4c5bb1ffd0494e63106e460e0",
     "assets/art/icons/exhaust.png": "cffd9047478f2e703dc4e41683142fa87429fdb6",
     "assets/art/icons/expose.png": "ec578451cfa38539612636934f71a717f016b70c",
-    "assets/art/icons/fatigue.png": "f3d6a5896749c3f7d9aa605a53c7d4a4a8cef9be",
+    "assets/art/icons/fatigue.png": "09a5b89f124842131d267f90c78b76a50c81d1a8",
     "assets/art/icons/fireproof.png": "951f3ea25966d4a8a32b73333e6773ee748036da",
     "assets/art/icons/flurry.png": "8d67733b2eb9516bec1c24a4014d6e30d3900a63",
     "assets/art/icons/flying.png": "e4b04e2a19d7751e4d62a251a178db276b427694",
     "assets/art/icons/follow_up.png": "863e3342aaa7b79f9f9da4218c320298e4d1695e",
     "assets/art/icons/freeze.png": "772a9166cca1221ea51fb70d82f624fc316d4f1d",
-    "assets/art/icons/frost_armor.png": "dab7d575dd433259e05c5419805794a7d4a0d922",
+    "assets/art/icons/frost_armor.png": "9de622d3cf37d648c98c1f3a5615c2c27d49ec92",
     "assets/art/icons/frostbite.png": "72363c2fae6acfb4b3e6f8b440c9e39bb59611a2",
     "assets/art/icons/gale_force.png": "354e07738a064718c2249723a133bbc6666b7204",
     "assets/art/icons/guard_ally.png": "10047b686463df958bae3d081c00b6216e888b1f",
@@ -1047,7 +1098,7 @@
     "assets/art/icons/immobilize.png": "569d9d7d6db8b766325c6042fefaa4d0fcd78ea2",
     "assets/art/icons/lightning_storm.png": "60724d587bada3349502371f74e6da501608a936",
     "assets/art/icons/lightning_strikes.png": "efe1aa2f1d90286812bc663758713b4daaf55b15",
-    "assets/art/icons/loadout.png": "496c1740147b33c635bf3a132a53e7a71a9cbe48",
+    "assets/art/icons/loadout.png": "08fb629460196ce75959599f3417292eb2ef1467",
     "assets/art/icons/lob.png": "170c282cde9d6f2956feadbb089ef9030b1830d2",
     "assets/art/icons/map/boss_iskaldra.png": "3d2e50cae23599e9a6f140a1c8678799c10abf61",
     "assets/art/icons/map/boss_noctyrax.png": "a6864d47d386a7c269c05521500ff52852b8e7e5",
@@ -1096,16 +1147,16 @@
     "assets/art/icons/push.png": "db31f53caeebad7472fda9f8491248ab35b7ec33",
     "assets/art/icons/quicken.png": "966200388f06850ee074b4e2dd2196480c307a8a",
     "assets/art/icons/radiance.png": "466c4dddc1efb9343e8ab574295cae6b3631cec8",
-    "assets/art/icons/raise_terrain.png": "144a650626acbf58a967725215699149b6e2a915",
+    "assets/art/icons/raise_terrain.png": "bec4e9bf622a92c2ad0f59b1dbf0f1312cb627a6",
     "assets/art/icons/range.png": "8b65191a4e386a590f236dcab56682c1226923fa",
-    "assets/art/icons/ranged.png": "3c162176fcdfcafd22dc203715ac1de22cdb1836",
+    "assets/art/icons/ranged.png": "d3f7ecc341ab8f1eccf9c120fe4b4b02673d8439",
     "assets/art/icons/reflect.png": "499fc5c31a3a6b66086c7fe1f84d2d30661aa116",
     "assets/art/icons/relics.png": "21c7dde4de63c9447b7bfc0192ae82d02b025d27",
     "assets/art/icons/retaliate.png": "40a0e647dff36281a7736e0d5127d1aff743391e",
     "assets/art/icons/retreat.png": "e7099507201f9e34debe6c5ea283564107ef35f2",
-    "assets/art/icons/rewards.png": "73c4168e13275000ec6b6b9a524c4625641a7795",
+    "assets/art/icons/rewards.png": "6289187f120554f6a72ba59cf8feee4415f675bb",
     "assets/art/icons/rite.png": "df26663c31935d47d03268b1309edc9c4e89cd8e",
-    "assets/art/icons/run.png": "b5392c2fba8a216d76e1a0de15d8b265b0f8f1f5",
+    "assets/art/icons/run.png": "a73b24682baef50a6f58d076e70695cdbcafbd77",
     "assets/art/icons/shadowstep.png": "8d5b5e295b8abd66811ff363d908e2ab589914bb",
     "assets/art/icons/shatter_illusion.png": "770906ba3f74f77fc5d3044e613b9ec47912757c",
     "assets/art/icons/shock.png": "bff0b9559e15c7848875f55a564f54f8ef5f70e1",
@@ -1135,11 +1186,11 @@
     "assets/art/icons/surface_relocate.png": "cfb7453f669f2b06683df9a4bedde45d1a739131",
     "assets/art/icons/surface_rubble.png": "e14ae7e12740f102f4d107bd2fdc51c2e294ee19",
     "assets/art/icons/swap.png": "93310e09817a2e57f89a6374d5d55c8df4334528",
-    "assets/art/icons/targeting.png": "d4c432fe9e26f7a22fcd93d16a29615b42da400c",
-    "assets/art/icons/terrain_burst.png": "045dc1a26364b4f65e93585b453a515baa005f32",
+    "assets/art/icons/targeting.png": "fdcdf70f148821dc8920a63381aa6a31a1b7da26",
+    "assets/art/icons/terrain_burst.png": "ca945871b9bd587ed909864b453ca82b28c2b07a",
     "assets/art/icons/tether.png": "86703178d3f9e081d5c5d02abbddcf78bcb94343",
     "assets/art/icons/time.png": "12c9990cab8fb14a283733a6ff4dc2ad5f9484fa",
-    "assets/art/icons/traps.png": "5b6ed49dc596fa606dc85741753bddd955544752",
+    "assets/art/icons/traps.png": "52c3b52914526500c5b37ceb40c1ad1934e5cfff",
     "assets/art/icons/truesight.png": "342d7086ffe519efcc95282390f3aa1e0e7c881d",
     "assets/art/icons/turn_clock.png": "6cb9cbe100e9c767fded6b72bb6539091aecf676",
     "assets/art/icons/ui/map_toolbar.svg": "c816cca77b86ba929037d85ebed4389d4b991ff0",
@@ -4631,6 +4682,7 @@
     "assets/units/zekarion_cutout/rear/torso.png": "b0ca415c3bedde5247c1456c628af2b5beaae079",
     "assets/units/zekarion_cutout/rear/wing_far.png": "d3b98ba9066117a646fe6f9a8c1d8265ac161a0c",
     "assets/units/zekarion_cutout/rear/wing_near.png": "5ed55f58b582370619de9cf21a3a9328c6c69e95",
+    "data/ground_fx_atlas.json": "cdf52384ef0f6c2a939637178eea539e803a6f46",
     "fonts/LabyrinthCrumble-Display.tres": "ea21187a1ef307643ae0796d48805b7bb12a6a6e",
     "fonts/LabyrinthCrumble-Display.ttf": "8c31bd454de33506b0086750dc8383e4ed0c952b",
     "fonts/LabyrinthCrumble-Text.tres": "72f1333ebafd2f4f95f54c87361d7f05831f06c8",
@@ -4743,7 +4795,8 @@
     "assets/units/emaciated_man_cutout/front/near_upper_arm.png": "883b2c73e507315d23cfe39194f3bcfe69e2464d",
     "assets/units/emaciated_man_cutout/front/rest.png": "8ee268a93bc1c97995007a6aa1fdb5867f5d160f",
     "assets/units/emaciated_man_cutout/front/robe_torso.png": "1bd73ecb1660a43047428465a08c8b3e5e51aa38",
-    "assets/units/emaciated_man_cutout/front.json": "0e7db26fc471b3d630d39f3174da34b0a4e18efd"
+    "assets/units/emaciated_man_cutout/front.json": "0e7db26fc471b3d630d39f3174da34b0a4e18efd",
+    "assets/art/effects/ground/electrified_decals.png": "a1963bcd28e3acdb9cf75851ff4c128c55967c6d"
   },
   "ground_contact": {
     "burrow_grub": {
@@ -9670,6 +9723,126 @@
         1024
       ]
     },
+    "assets/art/effects/ground/fire_decals.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        547,
+        40
+      ],
+      "size": [
+        547,
+        40
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_44.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        896,
+        792
+      ],
+      "size": [
+        896,
+        792
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_52.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1024,
+        900
+      ],
+      "size": [
+        1024,
+        900
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_60.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1152,
+        1044
+      ],
+      "size": [
+        1152,
+        1044
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_68.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1280,
+        1152
+      ],
+      "size": [
+        1280,
+        1152
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_76.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1408,
+        1296
+      ],
+      "size": [
+        1408,
+        1296
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_84.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1536,
+        1440
+      ],
+      "size": [
+        1536,
+        1440
+      ]
+    },
+    "assets/art/effects/ground/ground_fx_92.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        1664,
+        1548
+      ],
+      "size": [
+        1664,
+        1548
+      ]
+    },
+    "assets/art/effects/ground/ice_decals.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        509,
+        42
+      ],
+      "size": [
+        509,
+        42
+      ]
+    },
+    "assets/art/effects/ground/rubble_decals.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        166,
+        15
+      ],
+      "size": [
+        166,
+        15
+      ]
+    },
     "assets/art/effects/ice_ground_layer_sheet.png": {
       "alpha_bounds": [
         28,
@@ -12012,9 +12185,9 @@
     },
     "assets/art/icons/blink.png": {
       "alpha_bounds": [
+        11,
         4,
-        4,
-        60,
+        53,
         59
       ],
       "size": [
@@ -12024,10 +12197,10 @@
     },
     "assets/art/icons/block.png": {
       "alpha_bounds": [
-        16,
+        10,
         4,
-        47,
-        60
+        53,
+        59
       ],
       "size": [
         64,
@@ -12132,10 +12305,10 @@
     },
     "assets/art/icons/cinder_marks.png": {
       "alpha_bounds": [
-        6,
-        3,
-        57,
-        61
+        4,
+        8,
+        60,
+        54
       ],
       "size": [
         64,
@@ -12216,10 +12389,10 @@
     },
     "assets/art/icons/detonate_cinders.png": {
       "alpha_bounds": [
-        13,
-        3,
-        59,
-        46
+        4,
+        7,
+        60,
+        57
       ],
       "size": [
         64,
@@ -12408,10 +12581,10 @@
     },
     "assets/art/icons/fatigue.png": {
       "alpha_bounds": [
-        3,
-        3,
-        61,
-        60
+        4,
+        6,
+        59,
+        56
       ],
       "size": [
         64,
@@ -12480,10 +12653,10 @@
     },
     "assets/art/icons/frost_armor.png": {
       "alpha_bounds": [
-        3,
-        3,
-        47,
-        47
+        4,
+        4,
+        59,
+        59
       ],
       "size": [
         64,
@@ -12708,10 +12881,10 @@
     },
     "assets/art/icons/loadout.png": {
       "alpha_bounds": [
-        8,
-        3,
+        4,
+        5,
         60,
-        51
+        57
       ],
       "size": [
         64,
@@ -13296,10 +13469,10 @@
     },
     "assets/art/icons/raise_terrain.png": {
       "alpha_bounds": [
-        9,
-        3,
-        54,
-        61
+        5,
+        4,
+        59,
+        59
       ],
       "size": [
         64,
@@ -13320,10 +13493,10 @@
     },
     "assets/art/icons/ranged.png": {
       "alpha_bounds": [
+        5,
         4,
-        10,
-        60,
-        54
+        59,
+        60
       ],
       "size": [
         64,
@@ -13380,9 +13553,9 @@
     },
     "assets/art/icons/rewards.png": {
       "alpha_bounds": [
-        3,
+        7,
         5,
-        61,
+        56,
         58
       ],
       "size": [
@@ -13404,10 +13577,10 @@
     },
     "assets/art/icons/run.png": {
       "alpha_bounds": [
-        5,
-        3,
-        55,
-        61
+        4,
+        4,
+        59,
+        59
       ],
       "size": [
         64,
@@ -13765,9 +13938,9 @@
     "assets/art/icons/targeting.png": {
       "alpha_bounds": [
         7,
-        3,
+        8,
         57,
-        61
+        56
       ],
       "size": [
         64,
@@ -13777,9 +13950,9 @@
     "assets/art/icons/terrain_burst.png": {
       "alpha_bounds": [
         4,
-        3,
+        4,
         59,
-        61
+        58
       ],
       "size": [
         64,
@@ -13813,9 +13986,9 @@
     "assets/art/icons/traps.png": {
       "alpha_bounds": [
         3,
-        4,
+        11,
         61,
-        59
+        53
       ],
       "size": [
         64,
@@ -52177,6 +52350,18 @@
         0,
         107,
         118
+      ]
+    },
+    "assets/art/effects/ground/electrified_decals.png": {
+      "alpha_bounds": [
+        0,
+        0,
+        640,
+        64
+      ],
+      "size": [
+        640,
+        64
       ]
     }
   },

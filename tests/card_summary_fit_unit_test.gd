@@ -16,6 +16,9 @@ const FIXTURE_LEGACY_GAP: int = 3
 const CONTINUATION_GLYPH_WIDTH: float = 15.0
 const CONTINUATION_ITEM_WIDTH: float = 153.0
 const TALL_ICON_HEIGHT: float = 400.0
+const SENTENCE_FIXTURE_CARD: String = "squall_shot"
+const OUTSIDE_PARCHMENT_X: float = Card.BASE_CARD_SIZE.x
+const EXTRA_LINE_Y: float = Card.BASE_CARD_SIZE.y
 var failures: Array[String]
 var checks: int = 0
 
@@ -117,9 +120,42 @@ func _run() -> void:
 	await Settle.wait_for(self, [card])
 	_expect(float(Measure.measure(card, {})["overflow_y"]) > 0.0, "Vertical audit includes an icon extending beyond its token and text bounds")
 	frame.free()
+	await _sentence_face_fit()
 	for failure: String in failures: push_error(failure)
 	print("CARD SUMMARY FIT UNIT RESULT: %s (%d checks, %d failures)" % ["PASS" if failures.is_empty() else "FAIL", checks, failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func _sentence_face_fit() -> void:
+	var card: CardWidget = CardScene.instantiate()
+	root.add_child(card)
+	card.configure(SENTENCE_FIXTURE_CARD, false, false, true, false, false)
+	await Settle.wait_for(self, [card])
+	var measured: Dictionary = Measure.measure(card, {})
+	_expect(measured["layout"] == "sentence face", "A live sentence face is identified separately from row layout hashes")
+	_expect(Measure.fits(measured), "The unmodified sentence plan clears the parchment and fits the line space: " + str(measured.get("sentence")))
+	_expect(measured.get("sentence", {}).get("chip_icon_px") != null, "The sentence measurement includes the target chip icon")
+	_expect(measured.get("sentence", {}).get("diagram_px") != null, "The sentence measurement includes the under-diagram")
+	var original: Dictionary = card.sentence_face_plan()
+	if original.is_empty():
+		card.free()
+		return
+	var face: Control = card.get("_sentence_face")
+	var style: Dictionary = face.get("_style")
+	var outside: Dictionary = original.duplicate(true)
+	var diagram: Dictionary = outside["under"]["items"][0]
+	diagram["x"] = OUTSIDE_PARCHMENT_X
+	face.apply(outside, style)
+	_expect(not Measure.fits(Measure.measure(card, {})), "An under-diagram outside the parchment fails with the original fits flag")
+	var extra_line: Dictionary = original.duplicate(true)
+	var appended: Dictionary = extra_line["lines"].back().duplicate(true)
+	for piece: Dictionary in appended["pieces"]:
+		var y: String = "y" if piece.has("y") else "baseline"
+		piece[y] = float(piece[y]) + EXTRA_LINE_Y
+	extra_line["lines"].append(appended)
+	face.apply(extra_line, style)
+	var beyond: Dictionary = Measure.measure(card, {})
+	_expect(not Measure.fits(beyond) and float(beyond["overflow_y"]) > 0.0, "An extra line extending past available space fails with the original fits flag")
+	card.free()
 
 func _row(item_width: float) -> HBoxContainer:
 	var row := HBoxContainer.new()

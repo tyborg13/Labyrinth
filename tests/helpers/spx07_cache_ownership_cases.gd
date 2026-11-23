@@ -14,10 +14,12 @@ const Data = preload("res://scripts/game_data.gd")
 # sta-01 re-finds only these fixture nonces after Dive changes the held intent.
 # qa-18 (67a5e1906) replaces the Shrike plan's array index with its actor id.
 # tune-01 changes the frozen tier fields and capped roster in the source battle.
-# Re-find the deliberate collision; keep unequal hero states and exact-cache checks.
-const COLLISION_NONCE_A: int = 44317
-const COLLISION_NONCE_B: int = 19616
-const COLLISION_HASH: int = 2167225729
+# pla-rollout changes the shape of canonical combat snapshots.
+# gear-02 changes the opening deck in the combat snapshot. Re-find the
+# deliberate collision; keep unequal hero states and exact-cache checks.
+const COLLISION_NONCE_A: int = 56206
+const COLLISION_NONCE_B: int = 27962
+const COLLISION_HASH: int = 2902166017
 const COLLISION_HERO_A := Vector2i(2, 3)
 const COLLISION_HERO_B := Vector2i(8, 8)
 const COLLISION_MARKER_HERO := Vector2i(2, 1)

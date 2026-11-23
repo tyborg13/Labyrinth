@@ -41,7 +41,7 @@ class FloatDispatchScene:
 		# Authored guardians now dispatch through their real contact callbacks.
 		# Run every callback without a SceneTree or wall-clock wait in this host.
 		for frame: int in range(1, frame_count + 1): render_frame.call(frame)
-	func _animate_floating_text_presentation(_state: Dictionary, presentation: Dictionary, _elapsed: float = 0.0, _overlap: bool = false, _companion: Dictionary = {}) -> void:
+	func _animate_floating_text_presentation(_state: Dictionary, presentation: Dictionary, _elapsed: float = 0.0, _overlap: bool = false, _companion: Dictionary = {}, _on_contact: Callable = Callable()) -> void:
 		# Contact playback may submit an empty hold; it contains no reward float.
 		if not (presentation.get("floating_texts", []) as Array).is_empty(): dispatched.append(presentation.duplicate(true))
 	func _play_sfx(entry: Dictionary) -> float:
@@ -90,8 +90,8 @@ static func run(expect: Callable) -> void:
 			expect.call(summon_tooltip(board, before).ends_with(Rules.TOOLTIP), label + " real intent tooltip includes the exact line")
 			expect.call(Icons.tokens_for_action(action(before), options).size() == Icons.tokens_for_action(action(before)).size(), label + " keeps the intent signals unchanged")
 			var feedback: Dictionary = Rules.presentation(scene, after, step)
-			var heal: Array = scene._floating_texts_for_step({"kind": "heal", "amount": 1, "tile": after["player"]["pos"]})
-			expect.call(feedback["floating_texts"][0]["text"] == "+1 Card Play" and feedback["floating_texts"][0]["color"] == heal[0]["color"] and feedback["floating_texts"][0]["tile"] == after["player"]["pos"], label + " uses exact positive floating text over the hero")
+			var entry: Dictionary = feedback["floating_texts"][0]
+			expect.call(entry["text"] == "+1" and entry["icon"] == "card_play" and entry["color"] == Color("ffe27a") and entry["tile"] == after["player"]["pos"], label + " shows the gold Card Play icon and +1 over the hero")
 			expect.call((after.get("log", []) as Array).has(Rules.LOG_LINE), label + " logs exact next-turn copy")
 	_stacking_and_save(engine, scene, expect)
 	_blocked(engine, scene, board, expect)
@@ -249,7 +249,7 @@ static func run_dispatch(expect: Callable) -> void:
 		var floats: Array[Dictionary]
 		for feedback: Dictionary in host.dispatched:
 			for entry: Dictionary in feedback.get("floating_texts", []): floats.append(entry)
-		expect.call(floats.size() == 1 and floats[0].get("text", "") == "+1 Card Play" and floats[0].get("tile") == before["player"]["pos"], type + " production dispatcher submits exactly one +1 Card Play over the hero")
+		expect.call(floats.size() == 1 and floats[0].get("text") == "+1" and floats[0].get("icon") == "card_play" and floats[0].get("tile") == before["player"]["pos"], type + " production dispatcher submits exactly one Card Play icon and +1 over the hero")
 		expect.call(host.sound_ids.is_empty(), type + " reward dispatch adds no sound")
 		host.dispatched.clear()
 		var unpaid: Dictionary = summons[0].duplicate(true)

@@ -127,12 +127,7 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 		instance,
 		viewport,
 		combat_state,
-		[{
-			"tile": Vector2i(3, 3),
-			"text": "+1 play",
-			"color": Color("ffe27a"),
-			"offset": -6.0,
-		}],
+		[FloatingCombatText.resource_entry("card_play", Vector2i(3, 3), 1, {"offset": -6.0})],
 		0.0,
 		false,
 		["player"],
@@ -248,16 +243,8 @@ func _capture_multi_effect_card_timelines(
 		FloatingCombatText.timeline_group([
 			FloatingCombatText.damage_entry(Vector2i(5, 3), "-3", Color("f39779")),
 		], 0.0),
-		FloatingCombatText.timeline_group([{
-			"tile": player_tile,
-			"text": "+1 draw",
-			"color": Color("f1d18b"),
-		}], FloatingCombatText.ACTION_ADVANCE_SECONDS),
-		FloatingCombatText.timeline_group([{
-			"tile": player_tile,
-			"text": "+1 play",
-			"color": Color("ffe27a"),
-		}], FloatingCombatText.ACTION_ADVANCE_SECONDS * 2.0),
+		FloatingCombatText.timeline_group([FloatingCombatText.resource_entry("draw", player_tile, 1)], FloatingCombatText.ACTION_ADVANCE_SECONDS),
+		FloatingCombatText.timeline_group([FloatingCombatText.resource_entry("card_play", player_tile, 1)], FloatingCombatText.ACTION_ADVANCE_SECONDS * 2.0),
 	]
 	for capture: Dictionary in [
 		{
@@ -293,16 +280,8 @@ func _capture_multi_effect_card_timelines(
 			"text": "Truesight",
 			"color": Color("ffe394"),
 		}], 0.0),
-		FloatingCombatText.timeline_group([{
-			"tile": player_tile,
-			"text": "+4 block",
-			"color": Color("90d9ff"),
-		}], FloatingCombatText.ACTION_ADVANCE_SECONDS),
-		FloatingCombatText.timeline_group([{
-			"tile": player_tile,
-			"text": "+1 draw",
-			"color": Color("f1d18b"),
-		}], FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.29),
+		FloatingCombatText.timeline_group([FloatingCombatText.resource_entry("block", player_tile, 4)], FloatingCombatText.ACTION_ADVANCE_SECONDS),
+		FloatingCombatText.timeline_group([FloatingCombatText.resource_entry("draw", player_tile, 1)], FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.29),
 	]
 	for capture: Dictionary in [
 		{
@@ -489,7 +468,7 @@ func _capture_animated_popup_state(
 				var allocated_width: float = float(board.call("_floating_text_rendered_width", entry))
 				_expect(
 					allocated_width >= glyph_width + float(int(entry.get("outline_size", 0)) * 2),
-					"%s should allocate every Draw/Play glyph plus its outline at this animation state" % path
+					"%s should allocate the full icon and number plus their outline at this animation state" % path
 				)
 		var effects: Control = board.get("_effects_render_layer") as Control
 		var layouts: Array = effects.get("_floating_text_last_layout") as Array

@@ -8,6 +8,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SEED: int = 73021
 const FIRST_ROOM: Vector2i = Vector2i(1, 0)
 const FIRST_BOSS_ROOM: Vector2i = Vector2i(4, 0)
+const OPEN_ARSENAL_TRINKET: String = "bone_dice"
 
 static func run(expect: Callable) -> void:
 	_test_new_run_ignores_retired_growth(expect)
@@ -275,11 +276,12 @@ static func _test_curators_patience(expect: Callable) -> void:
 static func _test_open_arsenal(expect: Callable) -> void:
 	var engine = RunEngineScript.new()
 	var state: Dictionary = _new_run(engine, ["open_arsenal"])
-	var original_trinket: String = str((state.get("equipped_equipment", {}) as Dictionary).get("trinket", ""))
-	state["equipment_inventory"] = ["stitcher_apron"]
+	var original_trinket: String = OPEN_ARSENAL_TRINKET
+	state["equipment_inventory"] = ["stitcher_apron", original_trinket]
 	var collected: Array = state.get("collected_equipment", []).duplicate()
-	collected.append("stitcher_apron")
+	collected.append_array(state["equipment_inventory"])
 	state["collected_equipment"] = collected
+	state = engine.equip_equipment(state, original_trinket, "trinket")
 	var native_state: Dictionary = state.duplicate(true)
 	(native_state.get("equipment_inventory", []) as Array).append("ember_pendant")
 	(native_state.get("collected_equipment", []) as Array).append("ember_pendant")
@@ -307,7 +309,7 @@ static func _test_open_arsenal(expect: Callable) -> void:
 	var repaired_after_sale: Dictionary = engine.apply_progression_update(sold_state, without_skill)
 	expect.call(str((repaired_after_sale.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == "", "Removing Open Arsenal must leave the trinket slot empty when every native trinket was sold")
 	expect.call((repaired_after_sale.get("equipment_inventory", []) as Array).has("stitcher_apron"), "Removing Open Arsenal after a sale should still stow the off-slot equipment")
-	expect.call(not (repaired_after_sale.get("equipment_inventory", []) as Array).has(original_trinket) and not (repaired_after_sale.get("collected_equipment", []) as Array).has(original_trinket), "Removing Open Arsenal must not recreate sold starter equipment")
+	expect.call(not (repaired_after_sale.get("equipment_inventory", []) as Array).has(original_trinket) and not (repaired_after_sale.get("collected_equipment", []) as Array).has(original_trinket), "Removing Open Arsenal must not recreate the sold trinket")
 	var reloaded_after_sale: Dictionary = engine.repair_loaded_run_state(repaired_after_sale)
 	expect.call(str((reloaded_after_sale.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == "", "An intentionally empty trinket slot should remain empty after save repair")
 	expect.call(not (reloaded_after_sale.get("equipment_inventory", []) as Array).has(original_trinket), "Save repair must not recreate a sold native trinket")

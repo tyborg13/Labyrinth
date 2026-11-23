@@ -1,0 +1,725 @@
+{
+  "base": "a0094c7804a204dd3f06a15d7ef62e85fb42527f",
+  "method": [
+    "The [rendered inventory](rendered_inventory.json) uses production formatters. Icon-only terms are transcribed using their names, and diagrams are omitted from prose. The two incorrect Burst diagrams are described in their findings. The rows distinguish printed base amounts from live damage after defenses, Expose and difficulty scaling.",
+    "The scan checks the rendered strings for raw keyword, icon and diagram markup, unresolved format placeholders and radius notation. Sight, blocked or invalid targets, Health caps and explicit status or item exceptions are discussed under Borderline where the usual rule still holds.",
+    "Relic descriptions embedded in boons and event hovers are checked for interpolation and reward identity. Relic behavior belongs to txt-23. Card mechanics are consulted only where they establish a counterexample to an audited claim."
+  ],
+  "coverage": {
+    "Skills": "All 30 IDs considered, with 29 live descriptions and the corresponding 29 requirement blocks. Requirements match prerequisites, the five keystones' 8 other skills, exclusivity, and the distinct status or reason line for skill points, demo and build completion. Compared data and skill-tree copy with scripts/skill_tree_library.gd:153–252, scripts/skill_tree_view.gd:1295–1303 and :1525–1553, combat skill activation and resolution, and scripts/run_engine.gd:838–903, :1223–1266, :1333–1358, :1514–1565, :1681–1715, :1969–2047, :2863–2962 and :4140–4150.",
+    "Opening boons and upgrades": "All 10 boons checked against roll, selection, payment, equipment, replacement, and persistent storage. Checked the five upgrade IDs for a live player-facing path. The boon renderer reads scripts/opening_boon_rules.gd:259–268 and resolves the same offer the dispatcher commits at :155–214. Debt pricing checks the tracked Scavenger room at :216–227.",
+    "Event choices": "45 events and 128 choices, plus all 11 omen definitions. Followed generated cost and reward lines, hover selection and committed outcomes per available fixture choice, then checked event continuation and the effect handlers for later state changes. Transaction routing is scripts/event_rules.gd:124–195 and :197–351, item and rarity selectors :354–454, printed copy :459–498, hover routing scripts/event_reward_preview.gd:19–55 and :164–202, and the omen application/expiry in scripts/omen_rules.gd:10–124.",
+    "Enemy text": "All 44 roster IDs, all 137 authored intent IDs, the six Guardians, the six dragons, six Warband captain variants with 19 authored intent rows, and the runtime Seal title and body. Reviewed shared token, target, damage, support, condition, and pattern paths plus trait chips and their engine hooks. Runtime entry points are scripts/combat_board_view.gd:5331–5360, :18435–18515 and :18682–18703. Pre-battle entry points are scripts/pre_battle_inspection_view.gd:105–133 and :147–255. data/strikes.json has eight animation-data keys and no intent text.",
+    "Battlefield rules": "Six rule families, all 26 installed instances, and all five half-Health replacements. Traced each caption through scripts/battlefield_rules/dispatcher.gd:175–250 and :318–324, the latch in scripts/battlefield_rules/half_health.gd:6–29, and the six resolvers (Gust, Wildfire, Frostbite, Lightning Storm, Upheaval and Shadowstep).",
+    "Glossary": "All 128 entries, including 29 skill mirrors. Compared action and target terms with combat legality and action resolution, defenses and statuses with damage and activation boundaries, ground with contact and conduction, enemy terms with trait/intent handlers, and progression terms with room, reward, and wallet flows. Used scripts/glossary.gd:72–103 for static and amount-filled definitions and scripts/pattern_text.gd:10–27 for rewrites."
+  },
+  "findings": [
+    {
+      "surface": "Skills",
+      "id": "sure_footed",
+      "name": "Sure-Footed",
+      "rendered": "Once per combat, ignore the first Traps hit or Air Traps Push against you.",
+      "behavior": "The charge guards a hit on the trap center. An Air wake pushes the adjacent player and leaves the charge unused.",
+      "scenario": "Stand adjacent to an Air trap with Sure-Footed ready and hit the trap with Arc Flash. The hero moves one tile away.",
+      "frequency": "common",
+      "sources": [
+        "data/skills.json:182",
+        "scripts/combat_engine.gd:7865",
+        "scripts/combat_engine.gd:7876"
+      ],
+      "witness": "sure_footed_air"
+    },
+    {
+      "surface": "Skills",
+      "id": "ghost_stride",
+      "name": "Ghost Stride",
+      "rendered": "Once per combat, activate to turn your next movement into Blink 2.",
+      "behavior": "The Blink range is clamped to remaining Movement.",
+      "scenario": "Spend one of two Movement, then arm Ghost Stride. An open, visible destination two tiles away stays unavailable.",
+      "frequency": "common",
+      "sources": [
+        "scripts/combat_engine.gd:3458",
+        "scripts/combat_engine.gd:3464"
+      ],
+      "witness": "ghost_stride_range"
+    },
+    {
+      "surface": "Skills",
+      "id": "deferred_choice",
+      "name": "Deferred Choice",
+      "rendered": "Skip a card reward to save 1 offered card.",
+      "behavior": "The event reward returns before the deferral logic. It can receive a previously deferred card, which makes the difference visible on the same reward surface.",
+      "scenario": "Resolve a spell-choice event and skip its spell reward while Deferred Choice is learned. No card from that reward is saved.",
+      "frequency": "common",
+      "sources": [
+        "scripts/run_engine.gd:1988",
+        "scripts/run_engine.gd:1997",
+        "scripts/run_engine.gd:4140"
+      ],
+      "witness": "deferred_choice_event_skip"
+    },
+    {
+      "surface": "Skills",
+      "id": "borrowed_time",
+      "name": "Borrowed Time",
+      "rendered": "The first card paid for with a banked Card Play each combat adds no Time.",
+      "behavior": "The skill zeroes the printed Time, then the card pays any Time surcharge from Empower.",
+      "scenario": "Spend the first banked play on an empowered Chain Bolt. It adds 2 Time.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/combat_engine.gd:2113",
+        "scripts/combat_engine.gd:2118",
+        "scripts/card_keyword_rules.gd:161"
+      ],
+      "witness": "borrowed_time_empower"
+    },
+    {
+      "surface": "Opening boons and upgrades",
+      "id": "heirloom",
+      "name": "Heirloom",
+      "rendered": "Start with your Duelist Rapier, left here last run.",
+      "behavior": "Leaving nothing keeps the last stored piece. The next offer is built from that stored item, irrespective of when it was left.",
+      "scenario": "Leave the Duelist Rapier in one run, decline it in the next and end that run without leaving a new item. The following run still says the Rapier was left last run.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/opening_boon_rules.gd:33",
+        "scripts/opening_boon_rules.gd:243",
+        "scripts/progression_store.gd:1672",
+        "scripts/progression_store.gd:1676"
+      ],
+      "witness": "heirloom_last_run"
+    },
+    {
+      "surface": "Event choices",
+      "id": "cinder_supplicant/hand",
+      "name": "The Cinder Supplicant · Offer your hand",
+      "rendered": "Choose 1: Immolation, Pyroclasm or Wildfire Halo.",
+      "behavior": "The cost screen and hover use the original seeded outcomes. Continue applies Deferred Choice before the live reward is displayed. The same path is used by all seven spell-choice effects, including Moth Library, Tempest Choir, Twin Doors, Blind Scribe, Kiln of Names and Howling Gallery.",
+      "scenario": "Defer Shatterline, then accept the Supplicant offer. The hover includes Wildfire Halo, which the actual picker replaces with Shatterline.",
+      "frequency": "common",
+      "sources": [
+        "scripts/event_rules.gd:469",
+        "scripts/event_preview.gd:31",
+        "scripts/event_reward_preview.gd:26",
+        "scripts/run_engine.gd:4140",
+        "scripts/run_engine.gd:2952"
+      ],
+      "witness": "event_hover_deferred_choice"
+    },
+    {
+      "surface": "Event choices",
+      "id": "whispering_well/ember",
+      "name": "The Whispering Well · Drop an Ember in",
+      "rendered": "Drop an Ember in",
+      "behavior": "The verbatim choice title names one Ember. The printed cost and actual debit are 25 Embers at base depth.",
+      "scenario": "Pay the Well at base depth with at least 25 Embers.",
+      "frequency": "common",
+      "sources": [
+        "scripts/event_view_choice.gd:43",
+        "scripts/event_rules.gd:219",
+        "scripts/event_rules.gd:490"
+      ],
+      "witness": "whispering_well_cost"
+    },
+    {
+      "surface": "Event choices",
+      "id": "ossuary_gamblers/wager_embers",
+      "name": "The Ossuary Gamblers · Stake 50 Embers",
+      "rendered": "Stake 50 Embers",
+      "behavior": "At Umbra depth 15, the scaled debit is 65 Embers and the generated effect row correctly says “Pay 65 Embers.” The title remains 50.",
+      "scenario": "Take the Ember wager on depth 15 with enough Embers.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/event_view_choice.gd:43",
+        "scripts/depth_rules.gd:118",
+        "scripts/event_rules.gd:219"
+      ],
+      "witness": "ossuary_gamblers_cost"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "storm_capacitor/discharge",
+      "name": "Storm Capacitor · Arc Lash",
+      "rendered": "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.",
+      "behavior": "The first hit uses Manhattan range. Subsequent hops accept all eight neighboring cells. The style spec defines adjacent as side-sharing only.",
+      "scenario": "At base strength, the Capacitor first hits the hero at (3,4) for 6, then hits the Thrall at (4,5) for 5.",
+      "frequency": "common",
+      "sources": [
+        "scripts/enemy_mechanics/capacitor_view.gd:51",
+        "scripts/enemy_mechanics/capacitor.gd:35",
+        "scripts/enemy_mechanics/capacitor.gd:55",
+        "scripts/enemy_mechanics/capacitor.gd:81"
+      ],
+      "witness": "arc_lash_diagonal"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "briar_weaver/thornwall",
+      "name": "Briar Weaver · Thornwall",
+      "rendered": "Marked tiles are hit on this enemy's next turn.",
+      "behavior": "The Marked tooltip is attached to a warning that raises Outcrops. Terrain placement may displace a unit. The rise does not make a damage hit.",
+      "scenario": "Let a Weaver mark open floor, then reach the rise. The marked cells gain Outcrops without a strike.",
+      "frequency": "common",
+      "sources": [
+        "scripts/action_icon_library.gd:1282",
+        "scripts/enemy_mechanics/bramble.gd:60",
+        "scripts/enemy_mechanics/bramble.gd:90"
+      ],
+      "witness": "marked_thornwall"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "wick_shade/snuff",
+      "name": "Wick Shade · Snuff",
+      "rendered": "Lasts until Last Procession, including a skipped turn.",
+      "behavior": "Wick Shade Snuff is available only where the player can relight braziers. It uses the generic Guardian snuff tooltip, although Last Procession belongs to the Last Lamplighter.",
+      "scenario": "A Wick Shade extinguishes a Last Light brazier. Step on the brazier next turn and it lights again, with no Last Procession.",
+      "frequency": "common",
+      "sources": [
+        "scripts/action_icon_library.gd:2172",
+        "scripts/enemy_mechanics/snuff.gd:55",
+        "scripts/dragon_combat_rules.gd:221"
+      ],
+      "witness": "wick_shade_snuff_duration"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "ember_tick/death_burst",
+      "name": "Ember Tick · Burst trait in Details",
+      "rendered": "When this enemy dies, this enemy Bursts 4, leaving Fire.",
+      "behavior": "The diagram beside the sentence highlights the eight surrounding tiles and omits the center. The actual hit uses the source and the four side neighbors. The trait hover and pre-battle diagram use the cross.",
+      "scenario": "Kill a base-strength Ember Tick while standing diagonally from it. Details highlights that diagonal tile, but the hero takes no Burst damage.",
+      "frequency": "common",
+      "sources": [
+        "scripts/combat_board_view.gd:18435",
+        "scripts/action_icon_library.gd:1936",
+        "scripts/pattern_text.gd:45",
+        "scripts/enemy_mechanics/death_burst.gd:17",
+        "scripts/enemy_mechanics/death_burst_view.gd:35"
+      ],
+      "witness": "ember_tick_burst_diagram"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "ember_hoarder/death_burst",
+      "name": "Ember Hoarder · Burst trait in Details",
+      "rendered": "When this enemy dies, this enemy Bursts 4, leaving Fire.",
+      "behavior": "The diagram beside the sentence highlights the eight surrounding tiles and omits the center. The actual hit uses the source and the four side neighbors. The trait hover and pre-battle diagram use the cross.",
+      "scenario": "Kill a base-strength Ember Hoarder while standing diagonally from it. Details highlights that diagonal tile, but the hero takes no Burst damage.",
+      "frequency": "common",
+      "sources": [
+        "scripts/combat_board_view.gd:18435",
+        "scripts/action_icon_library.gd:1936",
+        "scripts/pattern_text.gd:45",
+        "scripts/enemy_mechanics/death_burst.gd:17",
+        "scripts/enemy_mechanics/death_burst_view.gd:35"
+      ],
+      "witness": "ember_hoarder_burst_diagram"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "storm_capacitor/discharge:dynamo",
+      "name": "The Dynamo · Arc Lash",
+      "rendered": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+      "behavior": "The Lightning Storm addendum uses the Lightning Strikes glossary tooltip. Storm hits the existing Electrified tiles and has no ground-placement rider. The Lightning Strikes definition itself is appropriate on Skybreak.",
+      "scenario": "Put the hero on Electrified during the intent-triggered storm. The beat deals 4 damage without creating or replacing the field.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/intent_rows.gd:16",
+        "data/glossary.json:464",
+        "scripts/battlefield_rules/lightning_storm.gd:11"
+      ],
+      "witness": "dynamo_storm_ground"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "storm_cantor/peal",
+      "name": "Storm Cantor · Peal",
+      "rendered": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+      "behavior": "The Lightning Storm addendum uses the Lightning Strikes glossary tooltip. Storm hits the existing Electrified tiles and has no ground-placement rider. The Lightning Strikes definition itself is appropriate on Skybreak.",
+      "scenario": "Put the hero on Electrified during the intent-triggered storm. The beat deals 4 damage without creating or replacing the field.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/intent_rows.gd:16",
+        "data/glossary.json:464",
+        "scripts/battlefield_rules/lightning_storm.gd:11"
+      ],
+      "witness": "storm_cantor_storm_ground"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "zekarion/tempest_breath",
+      "name": "Zekarion · Overload",
+      "rendered": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+      "behavior": "The Lightning Storm addendum uses the Lightning Strikes glossary tooltip. Storm hits the existing Electrified tiles and has no ground-placement rider. The Lightning Strikes definition itself is appropriate on Skybreak.",
+      "scenario": "Put the hero on Electrified during the intent-triggered storm. The beat deals 6 damage without creating or replacing the field.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/intent_rows.gd:16",
+        "data/glossary.json:464",
+        "scripts/battlefield_rules/lightning_storm.gd:11"
+      ],
+      "witness": "zekarion_storm_ground"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "slag_mortar:slagmaster_barrage",
+      "name": "The Slagmaster · Order",
+      "rendered": "Order: After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+      "behavior": "The board scans all Fire. No owner filter restricts it to the Slagmaster’s Fire.",
+      "scenario": "Paint Fire with the hero in the Slagmaster fight. The player-owned tile spreads on the next Wildfire beat.",
+      "frequency": "common",
+      "sources": [
+        "data/special_encounters.json:106",
+        "scripts/warband_combat_rules.gd:29",
+        "scripts/combat_board_view.gd:5356",
+        "scripts/battlefield_rules/geometry.gd:27"
+      ],
+      "witness": "slagmaster_order_fire"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "gloam_stalker/fade",
+      "name": "Gloam Stalker · Fade",
+      "rendered": "This enemy Blinks behind you, then Ambushes on this enemy’s next turn.",
+      "behavior": "Behind the player is a preference. The destination selector picks another legal side when the behind tile is unavailable.",
+      "scenario": "Face away from a wall with the behind tile blocked and an open flank in range. Fade lands at the flank.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/action_icon_library.gd:357",
+        "scripts/enemy_mechanics/stalker.gd:22",
+        "scripts/enemy_mechanics/stalker.gd:61"
+      ],
+      "witness": "gloam_stalker_fade_fallback"
+    },
+    {
+      "surface": "Enemy text",
+      "id": "burrow_grub/erupt",
+      "name": "Burrow Grub · Erupt",
+      "rendered": "This enemy emerges on the Marked tile.",
+      "behavior": "The marked strike is retained, but the Grub itself emerges on the nearest valid fallback if the mark is obstructed.",
+      "scenario": "Step off the Burrow mark and raise an Outcrop on it before Erupt. The Grub erupts on nearby open floor.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/action_icon_library.gd:354",
+        "scripts/enemy_mechanics/burrow.gd:43",
+        "scripts/enemy_mechanics/burrow.gd:138"
+      ],
+      "witness": "burrow_grub_erupt_fallback"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "ashen_reaver",
+      "name": "Ashen Reaver · Wildfire",
+      "rendered": "On each Wildfire beat, after every second turn of yours, each Fire tile spreads 1 tile toward you.",
+      "behavior": "Every Fire tile uses the same cardinal axis from the caster toward the hero. The resolver does not aim from the individual Fire tile.",
+      "scenario": "With caster (2,4), hero (3,4) and existing Fire (4,4), the Fire grows onto (5,4), farther from the hero.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/geometry.gd:6",
+        "scripts/battlefield_rules/geometry.gd:21",
+        "scripts/battlefield_rules/wildfire.gd:14"
+      ],
+      "witness": "ashen_reaver_wildfire_axis"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "slagmaster",
+      "name": "The Slagmaster · Wildfire",
+      "rendered": "On each Wildfire beat, after every second Slagmaster turn, each Fire tile spreads 1 tile toward you.",
+      "behavior": "Every Fire tile uses the same cardinal axis from the caster toward the hero. The resolver does not aim from the individual Fire tile.",
+      "scenario": "With caster (2,4), hero (3,4) and existing Fire (4,4), the Fire grows onto (5,4), farther from the hero.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/geometry.gd:6",
+        "scripts/battlefield_rules/geometry.gd:21",
+        "scripts/battlefield_rules/wildfire.gd:14"
+      ],
+      "witness": "slagmaster_wildfire_axis"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "gallows_roc",
+      "name": "Gallows Roc · Gust",
+      "rendered": "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the Roc.",
+      "behavior": "The rule locks one cardinal direction based on the player and the Roc. The same direction pushes all eligible units.",
+      "scenario": "Stand west of the Roc while a Fledgling is east of it. The Gust pushes the Fledgling farther east.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/gust.gd:231",
+        "scripts/battlefield_rules/gust.gd:126",
+        "scripts/battlefield_rules/gust.gd:273"
+      ],
+      "witness": "gallows_roc_axis"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "dynamo",
+      "name": "The Dynamo · Lightning Storm",
+      "rendered": "On each Lightning Storm beat, when the Dynamo uses Discharge, each unit on Electrified takes 4 damage.",
+      "behavior": "The anchor ID is discharge. The live move title for that ID is Arc Lash.",
+      "scenario": "Let the Dynamo reach 3 Charge and use the intent labeled Arc Lash. The Lightning Storm beat fires.",
+      "frequency": "common",
+      "sources": [
+        "data/battlefield_rules.json:81",
+        "data/enemies.json:3190",
+        "scripts/enemy_mechanics/capacitor.gd:23",
+        "scripts/battlefield_rules/dispatcher.gd:186"
+      ],
+      "witness": "dynamo_intent_name"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "prior",
+      "name": "The Hollow Prior · Shadowstep",
+      "rendered": "On each Shadowstep beat, after every second Prior turn, each hidden follower Blinks 3 tiles toward you.",
+      "behavior": "The printed distance is a maximum. The rule chooses the closest valid, visible landing to the hero from within that range.",
+      "scenario": "A hidden follower at (5,3) Blinks to (3,3), 2 tiles away.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/shadowstep.gd:13",
+        "scripts/battlefield_rules/shadowstep.gd:29"
+      ],
+      "witness": "prior_shadowstep_distance"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "noctyrax",
+      "name": "Noctyrax · Shadowstep",
+      "rendered": "On each Shadowstep beat, when Noctyrax uses Void Claw, each hidden Veilbound Acolyte Blinks 3 tiles toward you.",
+      "behavior": "The printed distance is a maximum. The rule chooses the closest valid, visible landing to the hero from within that range.",
+      "scenario": "During Eclipse the hidden Acolyte at (5,3) Blinks to (3,3), 2 tiles away.",
+      "frequency": "common",
+      "sources": [
+        "scripts/battlefield_rules/shadowstep.gd:13",
+        "scripts/battlefield_rules/shadowstep.gd:29"
+      ],
+      "witness": "noctyrax_shadowstep_distance"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "snare_shadow",
+      "name": "Shadow Umbral Snare · Shadowstep",
+      "rendered": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you.",
+      "behavior": "The printed distance is a maximum. The rule chooses the closest valid, visible landing to the hero from within that range.",
+      "scenario": "A pillar blocks the farther landing. The hidden enemy at (6,4) lands at (5,4), 1 tile away.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/battlefield_rules/shadowstep.gd:13",
+        "scripts/battlefield_rules/shadowstep.gd:29"
+      ],
+      "witness": "snare_shadow_shadowstep_distance"
+    },
+    {
+      "surface": "Battlefield rules",
+      "id": "last_light",
+      "name": "Last Light · Shadowstep",
+      "rendered": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you.",
+      "behavior": "The printed distance is a maximum. The rule chooses the closest valid, visible landing to the hero from within that range.",
+      "scenario": "A pillar blocks the farther landing. The hidden Wick Shade at (7,4) lands at (6,4), 1 tile away.",
+      "frequency": "edge",
+      "sources": [
+        "scripts/battlefield_rules/shadowstep.gd:13",
+        "scripts/battlefield_rules/shadowstep.gd:29"
+      ],
+      "witness": "last_light_shadowstep_distance"
+    },
+    {
+      "surface": "Glossary",
+      "id": "traps",
+      "name": "Traps",
+      "rendered": "Traps hit when entered or attacked, then leave ground on these tiles.",
+      "behavior": "The cross diagram is shown with the generic definition. Air traps use a Push wake and place no ground at all.",
+      "scenario": "Walk onto an Air trap. It is consumed without painting its tile or any side neighbor.",
+      "frequency": "common",
+      "sources": [
+        "data/pattern_rule_text.json:5",
+        "scripts/combat_engine.gd:7874",
+        "scripts/combat_engine.gd:7957"
+      ],
+      "witness": "traps_air_ground"
+    },
+    {
+      "surface": "Glossary",
+      "id": "surface_electrified",
+      "name": "Electrified",
+      "rendered": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+      "behavior": "Conduction skips enemies hidden from the player even when their tiles share the same connected component.",
+      "scenario": "Jolt a visible enemy on Electrified with a hidden enemy on the adjoining Electrified tile. Only the visible enemy is hit.",
+      "frequency": "common",
+      "sources": [
+        "data/glossary.json:110",
+        "scripts/combat_engine.gd:12453",
+        "scripts/combat_engine.gd:12469"
+      ],
+      "witness": "electrified_hidden"
+    },
+    {
+      "surface": "Glossary",
+      "id": "marked",
+      "name": "Marked",
+      "rendered": "Marked tiles are hit on this enemy's next turn.",
+      "behavior": "The term also labels Thornwall, where a later activation raises terrain instead of making a hit. A tile warning alone does not define one uniform outcome.",
+      "scenario": "Inspect Marked on Thornwall and let the marked floor become Outcrops.",
+      "frequency": "common",
+      "sources": [
+        "data/glossary.json:17",
+        "scripts/action_icon_library.gd:1282",
+        "scripts/enemy_mechanics/bramble.gd:70",
+        "scripts/enemy_mechanics/bramble.gd:90"
+      ],
+      "witness": "marked_thornwall"
+    },
+    {
+      "surface": "Glossary",
+      "id": "skill_sure_footed",
+      "name": "Sure-Footed (glossary mirror)",
+      "rendered": "Once per combat, ignore the first Traps hit or Air Traps Push against you.",
+      "behavior": "The charge guards a hit on the trap center. An Air wake pushes the adjacent player and leaves the charge unused.",
+      "scenario": "Stand adjacent to an Air trap with Sure-Footed ready and hit the trap with Arc Flash. The hero moves one tile away.",
+      "frequency": "common",
+      "sources": [
+        "data/glossary.json:748",
+        "scripts/combat_engine.gd:7865",
+        "scripts/combat_engine.gd:7876"
+      ],
+      "witness": "sure_footed_air"
+    },
+    {
+      "surface": "Glossary",
+      "id": "skill_ghost_stride",
+      "name": "Ghost Stride (glossary mirror)",
+      "rendered": "Once per combat, activate to turn your next movement into Blink 2.",
+      "behavior": "The Blink range is clamped to remaining Movement.",
+      "scenario": "Spend one of two Movement, then arm Ghost Stride. An open, visible destination two tiles away stays unavailable.",
+      "frequency": "common",
+      "sources": [
+        "data/glossary.json:706",
+        "scripts/combat_engine.gd:3458",
+        "scripts/combat_engine.gd:3464"
+      ],
+      "witness": "ghost_stride_range"
+    },
+    {
+      "surface": "Glossary",
+      "id": "skill_deferred_choice",
+      "name": "Deferred Choice (glossary mirror)",
+      "rendered": "Skip a card reward to save 1 offered card.",
+      "behavior": "The event reward returns before the deferral logic. It can receive a previously deferred card, which makes the difference visible on the same reward surface.",
+      "scenario": "Resolve a spell-choice event and skip its spell reward while Deferred Choice is learned. No card from that reward is saved.",
+      "frequency": "common",
+      "sources": [
+        "data/glossary.json:762",
+        "scripts/run_engine.gd:1988",
+        "scripts/run_engine.gd:1997",
+        "scripts/run_engine.gd:4140"
+      ],
+      "witness": "deferred_choice_event_skip"
+    },
+    {
+      "surface": "Glossary",
+      "id": "skill_borrowed_time",
+      "name": "Borrowed Time (glossary mirror)",
+      "rendered": "The first card paid for with a banked Card Play each combat adds no Time.",
+      "behavior": "The skill zeroes the printed Time, then the card pays any Time surcharge from Empower.",
+      "scenario": "Spend the first banked play on an empowered Chain Bolt. It adds 2 Time.",
+      "frequency": "edge",
+      "sources": [
+        "data/glossary.json:776",
+        "scripts/combat_engine.gd:2113",
+        "scripts/combat_engine.gd:2118",
+        "scripts/card_keyword_rules.gd:161"
+      ],
+      "witness": "borrowed_time_empower"
+    }
+  ],
+  "borderline": [
+    {
+      "id": "curators_patience",
+      "reason": "“Next relic offer” reads naturally as the next multi-choice treasure. The pending relic is consumed there. Guardians offer a fixed prize, and event relics are granted directly. Their exceptions leave the multi-choice claim intact.",
+      "sources": [
+        "scripts/run_engine.gd:1030",
+        "scripts/run_engine.gd:1440",
+        "scripts/event_rules.gd:228"
+      ]
+    },
+    {
+      "id": "sunpath",
+      "reason": "Blink produces Light at the two endpoints. Blink’s own definition says it ignores intervening tiles, so the word “path” does not establish an intermediate walking route. A four-tile Blink can leave a dark gap.",
+      "sources": [
+        "scripts/combat_engine.gd:1953",
+        "scripts/combat_engine.gd:1973"
+      ]
+    },
+    {
+      "id": "pain_remembers / quick_wits",
+      "reason": "A full hand and the special Quick Wits ordering can delay recall. The sentence expressly requires room. This does not supply a different ordinary trigger.",
+      "sources": [
+        "scripts/combat_engine.gd:652",
+        "scripts/combat_engine.gd:844"
+      ]
+    },
+    {
+      "id": "ember_shaft/offer",
+      "reason": "“Throw one in” is an ambiguous narrative title without a named currency unit. The choice cost is explicit and agrees with the debit.",
+      "sources": [
+        "scripts/event_rules.gd:219",
+        "scripts/event_rules.gd:490"
+      ]
+    },
+    {
+      "id": "event healing and percentages",
+      "reason": "Amount and percentage lines are gross healing. At or near max Health the result reports the actual clamped gain. Max Health and integer rounding are general rules.",
+      "sources": [
+        "scripts/event_rules.gd:208",
+        "scripts/event_rules.gd:486",
+        "scripts/event_rules.gd:507"
+      ]
+    },
+    {
+      "id": "lantern_sight / deepening_dark",
+      "reason": "Long Dawn extends finite Vision and Umbra cannot deepen past the ordinary stage cap. These modifiers leave the omen’s base dials intact.",
+      "sources": [
+        "scripts/omen_rules.gd:74",
+        "scripts/omen_rules.gd:83",
+        "scripts/combat_engine.gd:5684"
+      ]
+    },
+    {
+      "id": "cinder_ooze/splits",
+      "reason": "The nominal count assumes legal adjacent destinations. Occupancy can curtail spawning, which is the ordinary placement exception.",
+      "sources": [
+        "scripts/enemy_mechanics/split_trait_text.gd:10",
+        "scripts/combat_engine.gd:8675"
+      ]
+    },
+    {
+      "id": "steadfast / stagger",
+      "reason": "Halving is a base dragon trait. Integer rounding and the per-interval cap can make actual delay smaller. The live preview has a separate limit and the trait tooltip omits it.",
+      "sources": [
+        "scripts/enemy_mechanics/unit_traits.gd:27",
+        "scripts/card_keyword_rules.gd:205",
+        "scripts/combat_board_view.gd:18468"
+      ]
+    },
+    {
+      "id": "summon_minions",
+      "reason": "At a cap or blocked tiles, the broad “adds” definition is accompanied by the live “Summon blocked” and “No enemies arrive” lines. The bonus-play promise appears only when the forecast finds a real arrival.",
+      "sources": [
+        "scripts/action_icon_library.gd:1541",
+        "scripts/summon_card_play_rules.gd:15",
+        "scripts/summon_card_play_rules.gd:30"
+      ]
+    },
+    {
+      "id": "detonate_cinders",
+      "reason": "Crownfire cannot Burst Fire the player has removed since the warning. The base claim holds for surviving marked Fire. This is the established counterplay for the fixed warning.",
+      "sources": [
+        "scripts/combat_engine.gd:7106",
+        "scripts/boss_area_rules.gd:142"
+      ]
+    },
+    {
+      "id": "gale_herald / stormcaller / gust",
+      "reason": "Gust says “each unit” while the Gale Herald/Stormcaller carries an explicit Anchored immunity, which excludes it from Gale Herald and Stormcaller pushes. Board blockers can also shorten a push and trigger Collision.",
+      "sources": [
+        "scripts/battlefield_rules/gust.gd:91",
+        "scripts/battlefield_rules/gust.gd:105",
+        "scripts/combat_engine.gd:7475"
+      ]
+    },
+    {
+      "id": "frostbite / rimejaw",
+      "reason": "Ice-contact Expose and defense may change Health loss from nominal hit damage. Illusions have no scheduled activation to delay. The Rimejaw tooltip names only Stagger rather than a damage amount.",
+      "sources": [
+        "scripts/battlefield_rules/frostbite.gd:11",
+        "scripts/board_attack_rules.gd:174",
+        "scripts/combat_engine.gd:4912"
+      ]
+    },
+    {
+      "id": "upheaval",
+      "reason": "The ordinary rule rises on its marks. A new blocking terrain piece or a unit that cannot be displaced can invalidate a held mark before the beat. The selection and rise both enforce those placement constraints.",
+      "sources": [
+        "scripts/battlefield_rules/upheaval.gd:45",
+        "scripts/battlefield_rules/upheaval_rise.gd:23"
+      ]
+    },
+    {
+      "id": "rewards",
+      "reason": "The 3-card and Heal 3 line is the base regular combat rule. Enhanced special combat offers can carry 4 cards. Guardian and dragon rewards use dedicated flows. The picker displays those actual outcomes.",
+      "sources": [
+        "scripts/run_engine.gd:1403",
+        "scripts/run_engine.gd:1440",
+        "scripts/run_engine.gd:1449",
+        "scripts/run_engine.gd:2879"
+      ]
+    },
+    {
+      "id": "card_play / fatigue / shock / eclipse",
+      "reason": "Summoned kills and kills without player credit have no Card Play bonus. An empty discard cannot be reshuffled. A designated Cleanse can resolve through Shock. Light can reveal tiles beyond Eclipse’s base sight. These are omitted exceptions to otherwise accurate base rules.",
+      "sources": [
+        "scripts/combat_engine.gd:5236",
+        "scripts/combat_engine.gd:8292",
+        "scripts/maneuver_rules.gd:116",
+        "scripts/combat_engine.gd:356"
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "ids": [
+        "layaway"
+      ],
+      "reason": "Retired skill. No live detail panel or glossary entry.",
+      "sources": [
+        "scripts/skill_tree_library.gd:70",
+        "scripts/run_engine.gd:838"
+      ]
+    },
+    {
+      "ids": [
+        "card_damage",
+        "card_range",
+        "card_defense",
+        "card_status",
+        "card_area"
+      ],
+      "reason": "Legacy upgrade categories. All five lack a card ID and are excluded from purchasable upgrades. No live player-facing description consumer was found.",
+      "sources": [
+        "data/upgrades.json:1",
+        "scripts/game_data.gd:537"
+      ]
+    },
+    {
+      "ids": [
+        "dive_line",
+        "ends_veil",
+        "freeze",
+        "chilled",
+        "detonate"
+      ],
+      "reason": "Legacy action, flags or terminology. Saved Dive and Veil convert to live actions, Ice status retirement strips legacy riders, and detonate is a live resolver key or glossary alias for Burst rather than a separate displayed definition.",
+      "sources": [
+        "scripts/enemy_mechanics/retired_intents.gd:16",
+        "scripts/ice_contact_rules.gd:52",
+        "data/glossary.json:65"
+      ]
+    }
+  ],
+  "proof": [
+    "[Inventory console log](inventory.log) and [headless witness log](probe.log). `TXT24 WITNESSES: 29 reproduced, 0 failed`. Every finding links a reproduced witness. Some witnesses cover more than one surface.",
+    "Python default group selected 23 of 59 modules. `Ran 196 tests in 30.691s` and `OK`. The post-run timing cache write was refused by the read-only Git metadata sandbox. Test execution completed.",
+    "Standalone lint reported `Ran 3 tests in 0.044s`, `OK` and `PASS: Rules text lint (16 existing hits)`.",
+    "The brief requires headless proof. There are no windowed capture or inspection fixture commands for this report."
+  ],
+  "chosen_defaults": [
+    "The headless combat fixture uses seed 24, a 9×9 floor with perimeter walls and 100 test Health to survive the sampled outcomes. Named constants define the hero, source, blocker and target positions.",
+    "The inventory uses an existing rich event fixture, positions it in an eligible section where possible, and uses the catalogue’s actual action/effect values. Glossary amount slots are also rendered at sample amount 3. Warband uses fixture tier 1 and the Seal example uses a 2-turn countdown.",
+    "The witnesses use known cards and a seeded event, the authored Umbra depth 15 price modifier, an existing Duelist Rapier fixture and explicit partial-combat states. Probes use the runner’s default timeout."
+  ],
+  "open_issues": [
+    "The findings are report-only. Candidate content and mechanics are unchanged.",
+    "No TODO_DESIGN placeholders were introduced."
+  ]
+}

@@ -1,0 +1,388 @@
+{
+ "director_note": "Owner approved 2026-11-23 (ground-fx-motion-2). LABYRINTH_GROUND_FX=off or LABYRINTH_GROUND_FX=pixel overrides the data default.",
+ "default_mode": "pixel",
+ "edge": {
+  "inset_cells": [
+   6,
+   12
+  ],
+  "fringe_cells": 4
+ },
+ "fire": {
+  "atlas": {
+   "path": "res://assets/art/effects/ground/fire_decals.png",
+   "rects": [
+    [
+     0,
+     0,
+     39,
+     35
+    ],
+    [
+     40,
+     0,
+     38,
+     34
+    ],
+    [
+     79,
+     0,
+     40,
+     37
+    ],
+    [
+     120,
+     0,
+     36,
+     32
+    ],
+    [
+     157,
+     0,
+     42,
+     40
+    ],
+    [
+     200,
+     0,
+     37,
+     34
+    ],
+    [
+     238,
+     0,
+     40,
+     36
+    ],
+    [
+     279,
+     0,
+     39,
+     34
+    ],
+    [
+     319,
+     0,
+     54,
+     17
+    ],
+    [
+     374,
+     0,
+     58,
+     19
+    ],
+    [
+     433,
+     0,
+     56,
+     16
+    ],
+    [
+     490,
+     0,
+     57,
+     17
+    ]
+   ]
+  },
+  "fixture_atlas": {
+   "path": "output/grd-03/atlases/fire.png",
+   "rects": [
+    [
+     0,
+     0,
+     9,
+     9
+    ],
+    [
+     9,
+     0,
+     9,
+     9
+    ],
+    [
+     18,
+     0,
+     9,
+     9
+    ]
+   ]
+  },
+  "decals_per_tile": 3,
+  "min_spacing_cells": 10,
+  "cycle_fps": 8,
+  "cycle_span": 1,
+  "scorch_coverage": 0.0,
+  "stormcoal_overlay_coverage": 0.75
+ },
+ "electrified": {
+  "atlas": {
+   "path": "res://assets/art/effects/ground/electrified_decals.png",
+   "rects": [
+    [
+     0,
+     0,
+     106,
+     54
+    ],
+    [
+     107,
+     0,
+     106,
+     57
+    ],
+    [
+     214,
+     0,
+     105,
+     64
+    ],
+    [
+     320,
+     0,
+     104,
+     62
+    ],
+    [
+     425,
+     0,
+     107,
+     56
+    ],
+    [
+     533,
+     0,
+     107,
+     55
+    ]
+   ]
+  },
+  "fixture_atlas": {
+   "path": "output/grd-03/atlases/electrified.png",
+   "rects": [
+    [
+     0,
+     0,
+     85,
+     43
+    ],
+    [
+     86,
+     0,
+     85,
+     43
+    ],
+    [
+     172,
+     0,
+     85,
+     43
+    ]
+   ]
+  },
+  "decals_per_tile": 1,
+  "fps": 12,
+  "strike_interval_range": [
+   0.9,
+   1.6
+  ],
+  "crawl_frames": 3,
+  "flash_frames": 1,
+  "fade_frames": 3,
+  "sector_count": 8,
+  "sector_chance": 0.55,
+  "rest_core_pulse_fps": 2
+ },
+ "ice": {
+  "atlas": {
+   "path": "res://assets/art/effects/ground/ice_decals.png",
+   "rects": [
+    [
+     0,
+     0,
+     84,
+     42
+    ],
+    [
+     85,
+     0,
+     84,
+     42
+    ],
+    [
+     170,
+     0,
+     84,
+     42
+    ],
+    [
+     255,
+     0,
+     84,
+     42
+    ],
+    [
+     340,
+     0,
+     84,
+     42
+    ],
+    [
+     425,
+     0,
+     84,
+     42
+    ]
+   ]
+  },
+  "fixture_atlas": {
+   "path": "output/grd-03/atlases/ice.png",
+   "rects": [
+    [
+     0,
+     0,
+     11,
+     9
+    ],
+    [
+     11,
+     0,
+     11,
+     9
+    ],
+    [
+     22,
+     0,
+     11,
+     9
+    ]
+   ]
+  },
+  "decals_per_tile": 1,
+  "min_spacing_cells": 0,
+  "fps": 6,
+  "sheet_coverage": 0.0,
+  "glint_steps": 3,
+  "glint_interval_seconds": 1.5,
+  "glint_sweep_axis": [
+   1,
+   1
+  ],
+  "sparkle_count_range": [
+   1,
+   2
+  ],
+  "sparkle_frames": 3,
+  "sparkle_fps": 8,
+  "sparkle_reseed_seconds": 0.6,
+  "rim_depth_texels": 2,
+  "rim_cycle_seconds": 2.4,
+  "rim_max_coverage": 0.5
+ },
+ "rubble": {
+  "atlas": {
+   "path": "res://assets/art/effects/ground/rubble_decals.png",
+   "rects": [
+    [
+     0,
+     0,
+     6,
+     5
+    ],
+    [
+     7,
+     0,
+     6,
+     5
+    ],
+    [
+     14,
+     0,
+     8,
+     6
+    ],
+    [
+     23,
+     0,
+     7,
+     4
+    ],
+    [
+     31,
+     0,
+     12,
+     9
+    ],
+    [
+     44,
+     0,
+     11,
+     9
+    ],
+    [
+     56,
+     0,
+     12,
+     7
+    ],
+    [
+     69,
+     0,
+     12,
+     9
+    ],
+    [
+     82,
+     0,
+     20,
+     13
+    ],
+    [
+     103,
+     0,
+     19,
+     14
+    ],
+    [
+     123,
+     0,
+     22,
+     12
+    ],
+    [
+     146,
+     0,
+     20,
+     15
+    ]
+   ]
+  },
+  "fixture_atlas": {
+   "path": "output/grd-03/atlases/rubble.png",
+   "rects": [
+    [
+     0,
+     0,
+     7,
+     7
+    ],
+    [
+     7,
+     0,
+     7,
+     7
+    ],
+    [
+     14,
+     0,
+     7,
+     7
+    ]
+   ]
+  },
+  "decals_per_tile": 6,
+  "min_spacing_cells": 6,
+  "dust_coverage": 0.0
+ }
+}

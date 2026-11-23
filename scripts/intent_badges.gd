@@ -10,6 +10,7 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const ChipPlacement = preload("res://scripts/intent_chip_placement.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const HudGroupsHero = preload("res://scripts/board_hero_hud_clearance.gd")
 const HudGroups = preload("res://scripts/board_hud_group_placement.gd")
 const BurstTraitText = preload("res://scripts/enemy_mechanics/burst_trait_text.gd")
 const LobRules = preload("res://scripts/enemy_mechanics/marked_strike.gd")
@@ -50,7 +51,7 @@ const PULSE_SECONDS: float = 1.1
 # Numerical integration bounds; does not change the approved 6px blur radius.
 const GAUSSIAN_KERNEL_SIGMAS: int = 3
 const CIRCLE_SEGMENTS: int = 64
-const SECONDARY_PRIORITY: Array = ["push", "pull", "immobilize", "freeze", "chilled", "shock", "bleed", "expose", "stagger"]
+const SECONDARY_PRIORITY: Array = ["push", "pull", "immobilize", "shock", "expose", "stagger"]
 static var _halo_cache: Dictionary = {}
 
 # The frozen reference subclasses this script for drawing and still runs its
@@ -140,14 +141,14 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 	var floor_threats: Array[Dictionary]
 	var lob_aim: Dictionary = {}
 	var project_lob: bool = Lob.preview_changes_lookup(committed, preview)
-	# Visibility is always the committed information boundary. A hover cannot
-	# reveal a concealed enemy or use it to shape a visible attack's geometry.
+	# Visibility is always the committed information boundary. Force geometry
+	# still takes its blockers and hazards from the simulation board.
 	if known_preview.is_empty(): known_preview = preview
-	var known_enemies: Array = known_preview.get("enemies", []) as Array
+	var source: GDScript = preload("res://scripts/pass_forecast_action_source.gd")
 	for enemy: Dictionary in committed.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
 		if not engine.is_enemy_visible_to_player(committed, enemy):
-			var concealed: Dictionary = preview_enemies.get(int(enemy["id"]), enemy)
+			var concealed: Dictionary = enemy if bool(preview.get(source.FORCE_BOARD, false)) else preview_enemies.get(int(enemy["id"]), enemy)
 			if project_lob: Lob.add_held_marks(lob_aim, engine, preview, concealed)
 			Stamps.append_concealed(engine, preview, enemy, concealed, threats, floor_threats)
 			continue
@@ -163,12 +164,14 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			continue
 		var actor_key: String = "enemy_%d" % id
 		var threat: Dictionary = {}
+		var plan_state: Dictionary = preview if source.actions_use_force(engine, intent.get("actions", [])) else known_preview
+		var known_enemies: Array = plan_state.get("enemies", [])
 		for index: int in range(known_enemies.size()):
 			var known_enemy: Dictionary = known_enemies[index]
 			if int(known_enemy.get("id", -2)) == id:
 				# atk-06: this foe passed the committed sight check above; a previewed
 				# hero walking out of its sight must not erase its planned attack.
-				threat = engine.committed_enemy_threat_tiles(known_preview, index)
+				threat = engine.committed_enemy_threat_tiles(plan_state, index)
 				if project_lob and not held_lob: Lob.add_aim_marks(lob_aim, engine, known_preview, known_enemy, threat)
 				break
 		var repeated_action: Dictionary = {}
@@ -251,9 +254,8 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}, repeated_act
 			number += "×%d" % repeats
 	var riders: Array[Dictionary]
 	for token: Dictionary in Icons.tokens_for_action(action):
-		if str(token.get("icon", "")) in ["bleed", "chilled", "push", "pull", "shock", "freeze", "immobilize", "expose", "stagger"] and (str(token.get("icon", "")) != Icons.action_icon_key(action) or (kind in ["push", "pull"] and int(action.get("damage", 0)) > 0)):
+		if str(token.get("icon", "")) in ["push", "pull", "shock", "immobilize", "expose", "stagger"] and (str(token.get("icon", "")) != Icons.action_icon_key(action) or (kind in ["push", "pull"] and int(action.get("damage", 0)) > 0)):
 			riders.append(token)
-	if int(action.get("chilled", 0)) > 0: riders.append({"icon": "chilled", "value": action["chilled"]})
 	var condition: String = ""
 	for token: Dictionary in Icons.tokens_for_surface_bonus(action):
 		if str(token.get("kind", "")) == "surface_condition": condition = str(token.get("icon", ""))
@@ -316,6 +318,11 @@ static func health_rect(board: Control, unit: Dictionary) -> Rect2:
 	return board.get("_status_plate_layout").resolve(board, unit, anchor)["frame"]
 
 static func order_anchor_rect(board: Control, unit: Dictionary) -> Rect2:
+	var anchor: Rect2 = _fixed_order_anchor_rect(board, unit)
+	anchor.position += board._status_plate_layout.cached_group(str(unit.get("key", ""))).get("hero_clearance_offset", Vector2.ZERO)
+	return anchor
+
+static func _fixed_order_anchor_rect(board: Control, unit: Dictionary) -> Rect2:
 	if bool(unit.get("boss_bar", false)):
 		var global_frame: Rect2 = (board.get("presentation") as Dictionary).get("boss_health_frame_global_rect", Rect2())
 		if global_frame.has_area():
@@ -346,18 +353,21 @@ static func place_chip(anchor: Vector2, badge: Dictionary, font: Font, obstacles
 
 static func fixed_order_rects(board: Control, units: Array, badges: Array = []) -> Array[Rect2]:
 	var result: Array[Rect2]
+	result.assign(fixed_order_by_key(board, units, badges).values())
+	return result
+
+static func fixed_order_by_key(board: Control, units: Array, badges: Array = []) -> Dictionary:
+	var result: Dictionary = {}
 	if badges.is_empty(): badges = (board.get("presentation") as Dictionary).get("threats_at_rest", {}).get("badges", [])
 	if badges.is_empty(): return result
-	var by_key: Dictionary = {}
-	for unit: Dictionary in units: by_key[str(unit.get("key", ""))] = unit
+	var by_key: Dictionary = board.call("_units_by_key", units)
+	var font: Font = Typography.ui_font()
 	for badge: Dictionary in badges:
-		var unit: Dictionary = by_key.get(str(badge.get("key", "")), {})
+		var key: String = str(badge.get("key", ""))
+		var unit: Dictionary = by_key.get(key, {})
 		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
-		# Health frames remain anchored. Do not consult last submission's cache
-		# while building this submission's fixed geometry.
-		var frame: Rect2 = order_anchor_rect(board, unit)
-		var rect: Rect2 = order_rect(frame, str(badge.get("order", "")), Typography.ui_font())
-		if rect.has_area(): result.append(rect)
+		var rect: Rect2 = order_rect(_fixed_order_anchor_rect(board, unit), str(badge.get("order", "")), font)
+		if rect.has_area(): result[key] = rect
 	return result
 
 static func _overlaps(rect: Rect2, obstacles: Array, previous: Array) -> bool:
@@ -413,11 +423,15 @@ static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	# sb-01: the same plates/pills that reserve callout and intent space.
 	var hud_rects: Array[Rect2]
 	hud_rects.append_array(HudGroups.screen_reservations(board))
-	hud_rects.append_array(fixed_order_rects(board, units, sorted_badges))
+	var units_by_key: Dictionary = board.call("_units_by_key", units)
+	for source: Dictionary in sorted_badges:
+		var unit: Dictionary = units_by_key.get(str(source.get("key", "")), {})
+		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
+		var disc: Rect2 = order_rect(order_anchor_rect(board, unit), str(source.get("order", "")), font)
+		if disc.has_area(): hud_rects.append(disc)
 	hud_rects.append_array(terrain_health_rects(board))
 	var boss_frame: Rect2 = boss_health_rect(board)
 	if boss_frame.has_area(): hud_rects.append(boss_frame)
-	var units_by_key: Dictionary = board.call("_units_by_key", units)
 	var hud_entries: Array = board.get("_hud_layout_entries_cache")
 	if hud_entries.is_empty(): hud_entries = board.call("_build_hud_layout_data", board.call("_hud_layout_units"))["entries"]
 	var hud_by_key: Dictionary = {}
@@ -455,6 +469,7 @@ static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 		_clear_title_overlap(layout, layout["rect"], titles, result)
 		layout["order_rect"] = order_rect(order_anchor_rect(board, unit), str(badge.get("order", "")), font)
 		result.append(layout)
+	_protect_hero_from_chips(board, result, hud_rects)
 	return result
 
 static func _first_order(order: String) -> int:
@@ -689,7 +704,43 @@ static func contextual_layouts(board: Control, badges: Array) -> Array[Dictionar
 	if not titles.is_empty():
 		for badge: Dictionary in result:
 			_clear_title_overlap(badge, chip_rect(badge["center"], badge, font), titles, result)
+	_protect_hero_from_chips(board, result, titles, true)
 	return result
+
+static func _protect_hero_from_chips(board: Control, layouts: Array[Dictionary], obstacles: Array[Rect2], contextual: bool = false) -> void:
+	var hero: Array[Rect2]
+	hero.assign(board._status_plate_layout.cached_group("player").get("group_rects", []))
+	if hero.is_empty(): return
+	var font: Font = Typography.ui_font()
+	var bounds: Rect2 = board._enemy_hud_viewport_bounds()
+	var occupied: Array[Rect2] = obstacles.duplicate()
+	occupied.append_array(hero)
+	if contextual:
+		for unit: Dictionary in board._hud_layout_units():
+			if unit.get("role") == "player" or bool(unit.get("death_animation", false)): continue
+			occupied.append_array(board._status_plate_layout.cached_group(str(unit["key"])).get("group_rects", []))
+	var units: Dictionary = board._units_by_key(board._hud_layout_units())
+	var half_tile: float = board._tile_width() * 0.5
+	for badge: Dictionary in layouts:
+		# The contextual tab animates independently of the medallion. Reserve
+		# its full extent even while closed, so opening it never crosses the hero.
+		var rect: Rect2 = chip_rect(badge["center"], badge, font) if contextual else badge["rect"]
+		if not _overlaps(rect, hero, []): continue
+		var peers: Array[Rect2]
+		for neighbor: Dictionary in layouts:
+			if neighbor["key"] == badge["key"]: continue
+			peers.append(chip_rect(neighbor["center"], neighbor, font) if contextual else neighbor["rect"])
+		var pieces: Array[Rect2]
+		pieces.append(rect)
+		var limits := Vector2(half_tile, health_rect(board, units[badge["key"]]).size.y + rect.size.y)
+		var offset: Vector2 = HudGroupsHero.nearest(pieces, hero, {}, peers, bounds, occupied, limits)
+		if offset == Vector2.ZERO: continue
+		badge["hero_clearance_offset"] = offset
+		var hit: Rect2 = badge["rect"]
+		hit.position += offset
+		badge["rect"] = hit
+		badge["center"] += offset
+		badge["above_everything"] = false
 
 class TabInk extends Control:
 	var badge: Dictionary = {}

@@ -87,7 +87,7 @@
     "enemy:iskaldra": {
       "body": [
         "Ice dragon protected by visible Crystal Mantle layers, with Rime Spitters laying Ice around it.",
-        "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3 and Freezes them. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Mantle layers to shrink Shatterstorm's reach."
+        "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Mantle layers to shrink Shatterstorm's reach."
       ],
       "identity": {
         "id": "enemy:iskaldra",

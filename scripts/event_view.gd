@@ -194,7 +194,8 @@ func _layout_canvas() -> void:
 func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = Callable()) -> void:
 	_build()
 	var event_key: Array = [state.get("seed", 0), state.get("current_room", Vector2i.ZERO), Events.current_id(state)]
-	var signature: int = hash([event_key, state.get("event_state", {}), state.get("player_hp"), state.get("player_max_hp"), state.get("held_embers"), state.get("unbanked_embers"), state.get("equipped_equipment"), state.get("item_inventory"), state.get("equipped_items"), state.get("attuned_magic_cards"), state.get("rooms")])
+	var offer_inputs: Array = [state.get("umbra_depth"), Events.RunDeck.element(state), state.get("skill_state", {}).get("pending_card")]
+	var signature: int = hash([event_key, state.get("event_state", {}), state.get("player_hp"), state.get("player_max_hp"), state.get("held_embers"), state.get("unbanked_embers"), state.get("equipped_equipment"), state.get("item_inventory"), state.get("equipped_items"), state.get("attuned_magic_cards"), state.get("rooms"), offer_inputs])
 	set_reduced_motion(motion_reduced)
 	if visible and not _closing and signature == _signature:
 		release_request()
@@ -382,7 +383,9 @@ func _build_column() -> void:
 		for choice_def: Dictionary in definition.get("choices", []):
 			var button := Choice.new()
 			column.add_child(button)
-			button.configure(index, choice_def, cached_preview_lines(str(choice_def["id"])), Events.choice_block_reason(run_state, Events.current_id(run_state), str(choice_def["id"])), effect_size)
+			var display_choice: Dictionary = choice_def.duplicate()
+			display_choice["label"] = Events.choice_label(run_state, choice_def)
+			button.configure(index, display_choice, cached_preview_lines(str(choice_def["id"])), Events.choice_block_reason(run_state, Events.current_id(run_state), str(choice_def["id"])), effect_size)
 			button.emphasis_refreshed.connect(_on_choice_emphasis_refreshed.bind(button))
 			button.position.y = y
 			y += button.size.y + CHOICE_GAP
@@ -510,16 +513,19 @@ func _enable_focus_preview() -> void:
 	_refresh_preview()
 
 func _preview_pointer_motion(point: Vector2) -> void:
-	if page != "choices" or _preview_input == PreviewInput.POINTER: return
-	_preview_input = PreviewInput.POINTER
-	_pointer_choice = -1
-	# Motion inside a choice can switch modes without emitting a new enter.
+	if page != "choices": return
+	var hovered: int = -1
+	# Viewport motion arrives before GUI enter/exit signals. Resolve the live
+	# choice even when the GUI has not emitted a new enter for it.
 	for index: int in range(choices.size()):
 		var button: Control = choices[index]
 		var local_point: Vector2 = button.get_global_transform_with_canvas().affine_inverse() * point
 		if Rect2(Vector2.ZERO, button.size).has_point(local_point):
-			_pointer_choice = index
+			hovered = index
 			break
+	if _preview_input == PreviewInput.POINTER and _pointer_choice == hovered: return
+	_preview_input = PreviewInput.POINTER
+	_pointer_choice = hovered
 	_refresh_preview()
 
 func _on_choice_emphasis_refreshed(emphasized: bool, button: Button) -> void:

@@ -1,0 +1,15 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080", "3840x640"],
+  "required_images": [
+    {
+      "pattern": "native-evidence.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 240, 960, 440], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    },
+    {"pattern": "strip.png", "width": 3840, "height": 640}
+  ]
+}

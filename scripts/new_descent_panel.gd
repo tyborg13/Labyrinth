@@ -20,6 +20,7 @@ const FOOTER_TOP: float = 680.0
 const MOCKUP_ROW_HEIGHT: float = 44.0
 const DENSE_ROW_PITCH: float = 30.0
 const DENSE_COLUMN_GAP: float = 40.0
+const NEW_TAG_SIZE := Vector2(58, 20)
 const UNLOCK_HINT_FONT_SIZE: int = 17
 
 class DialogMaterial extends Control:
@@ -235,10 +236,10 @@ func _refresh() -> void:
 			tag_style.set_corner_radius_all(2)
 			tag.add_theme_stylebox_override("panel", tag_style)
 			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			tag.position = Vector2(x + column_width - 52, y + (row_height - 18) * 0.5)
-			tag.size = Vector2(52, 18)
+			tag.position = Vector2(x + column_width - NEW_TAG_SIZE.x, y + (row_height - NEW_TAG_SIZE.y) * 0.5)
+			tag.size = NEW_TAG_SIZE
 			_list.add_child(tag)
-			var tag_text: Label = _label("DepthNewText", "NEW", _spaced_font(3), 12, Color("1b0f06"), Rect2(0, 0, 52, 18), tag)
+			var tag_text: Label = _label("DepthNewText", "NEW", _spaced_font(3), Typography.SIZE_CAPTION, Color("1b0f06"), Rect2(Vector2.ZERO, NEW_TAG_SIZE), tag)
 			tag_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			tag_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		var divider := ColorRect.new()

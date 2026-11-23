@@ -1,0 +1,15 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 9,
+  "required_images": [
+    {"pattern": "ember_tick_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "ember_tick_intent_2x.png"},
+    {"pattern": "cinder_ooze_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "cinder_ooze_intent_2x.png"},
+    {"pattern": "hollow_mimic_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "hollow_mimic_intent_2x.png"},
+    {"pattern": "ember_hoarder_frame.png", "width": 1920, "height": 1080},
+    {"pattern": "ember_hoarder_intent_2x.png"},
+    {"pattern": "ember_tick_details_frame.png", "width": 1920, "height": 1080}
+  ]
+}

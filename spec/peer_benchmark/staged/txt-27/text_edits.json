@@ -1,0 +1,72 @@
+[
+ {
+  "file": "data/events.json",
+  "old": "\"label\": \"Drop an Ember in\"",
+  "new": "\"label\": \"Drop Embers in\""
+ },
+ {
+  "file": "data/opening_boons.json",
+  "old": "\"text\": \"Start with your <Item>, left here last run.\"",
+  "new": "\"text\": \"Start with the <Item> you left here.\""
+ },
+ {
+  "file": "data/glossary.json",
+  "old": "\"definition\": \"Marked tiles are hit on this enemy's next turn.\"",
+  "new": "\"definition\": \"Marked tiles show where this enemy acts on its next turn.\""
+ },
+ {
+  "file": "data/grimoire.json",
+  "old": "\"Marked tiles are hit on this enemy's next turn.\"",
+  "new": "\"Marked tiles show where this enemy acts on its next turn.\""
+ },
+ {
+  "file": "data/glossary.json",
+  "old": "\"definition\": \"Traps hit when entered or attacked, then leave ground on that tile and each adjacent tile.\"",
+  "new": "\"definition\": \"Traps hit when entered or attacked.\""
+ },
+ {
+  "file": "data/grimoire.json",
+  "old": "\"Traps hit when entered or attacked, then leave ground on that tile and each adjacent tile.\",",
+  "new": "\"Traps hit when entered or attacked.\","
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "each hidden follower Blinks 3 tiles toward you.",
+  "new": "each hidden follower Blinks up to 3 tiles toward you."
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "each hidden Veilbound Acolyte Blinks 3 tiles toward you.",
+  "new": "each hidden Veilbound Acolyte Blinks up to 3 tiles toward you."
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "each hidden enemy Blinks 2 tiles toward you.",
+  "new": "each hidden enemy Blinks up to 2 tiles toward you."
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "when the Dynamo uses Discharge, each unit",
+  "new": "when the Dynamo uses Arc Lash, each unit"
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "after every second Slagmaster turn, each Fire tile spreads 1 tile toward you.",
+  "new": "after every second Slagmaster turn, each Fire tile spreads 1 tile in the direction from the Slagmaster to you."
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "after every second turn of yours, each Fire tile spreads 1 tile toward you.",
+  "new": "after every second turn of yours, each Fire tile spreads 1 tile in the direction from the Reaver to you."
+ },
+ {
+  "file": "data/battlefield_rules.json",
+  "old": "each unit is Pushed 1 tile toward the Roc.",
+  "new": "each unit is Pushed 1 tile in the direction from you to the Roc."
+ },
+ {
+  "file": "data/special_encounters.json",
+  "old": "\"text\": \"After every second Slagmaster turn, its Fire spreads 1 tile toward you.\"",
+  "new": "\"text\": \"After every second Slagmaster turn, each Fire tile spreads 1 tile in the direction from the Slagmaster to you.\""
+ }
+]

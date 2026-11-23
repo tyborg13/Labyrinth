@@ -10,14 +10,14 @@
     "id": "flying",
     "name": "Flying",
     "icon": "flying",
-    "definition": "Ignores traps, ground and Collision damage.",
+    "definition": "Flying units ignore traps, ground and Collision damage.",
     "aliases": []
   },
   {
     "id": "marked",
     "name": "Marked",
     "icon": "marked",
-    "definition": "These tiles take the hit on this enemy's next turn.",
+    "definition": "Marked tiles show where this enemy acts on its next turn.",
     "aliases": [
       "icefall",
       "Icefall",
@@ -39,7 +39,7 @@
     "id": "charge",
     "name": "Charge",
     "icon": "charge",
-    "definition": "At 3 Charge it unleashes Arc Burst; Shock removes 1.",
+    "definition": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
     "aliases": [
       "gain_charge",
       "reset_charge",
@@ -50,7 +50,7 @@
     "id": "wind",
     "name": "Gust",
     "icon": "wind",
-    "definition": "On its beat, the wind pushes every unit downwind.",
+    "definition": "On each Gust beat, each unit is Pushed downwind.",
     "aliases": [
       "call_wind",
       "gust"
@@ -60,25 +60,31 @@
     "id": "splits",
     "name": "Splits",
     "icon": "splits",
-    "definition": "When it dies, it splits into smaller enemies next to it.",
+    "definition": "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.",
     "aliases": [
       "split"
     ]
   },
   {
     "id": "burst",
-    "name": "Bursts",
+    "name": "Burst",
     "icon": "burst",
-    "definition": "When it dies, it hits every unit next to it and leaves Fire.",
+    "definition": "Destroy the target, then deal X damage on that tile and each adjacent tile.",
     "aliases": [
-      "kindle"
+      "kindle",
+      "Bursts",
+      "detonate",
+      "discharge",
+      "shatter_illusion",
+      "destroy_illusion",
+      "burst_terrain"
     ]
   },
   {
     "id": "surface",
     "name": "Shape Ground",
     "icon": "surface",
-    "definition": "Place the shown ground on the shown tiles.",
+    "definition": "Place the named ground on each tile in the area.",
     "aliases": [
       "surface_adjacent_enemies"
     ]
@@ -87,49 +93,35 @@
     "id": "surface_fire",
     "name": "Fire",
     "icon": "surface_fire",
-    "definition": "Entering deals 2 damage; starting a turn here deals 3.",
+    "definition": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
     "aliases": []
   },
   {
     "id": "surface_ice",
     "name": "Ice",
     "icon": "surface_ice",
-    "definition": "Units on it are Chilled.",
+    "definition": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
     "aliases": []
   },
   {
     "id": "surface_electrified",
     "name": "Electrified",
     "icon": "surface_electrified",
-    "definition": "Lightning hits spread across connected Electrified tiles.",
+    "definition": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
     "aliases": []
   },
   {
     "id": "surface_rubble",
     "name": "Rubble",
     "icon": "surface_rubble",
-    "definition": "Costs 2 Movement to leave.",
-    "aliases": []
-  },
-  {
-    "id": "chilled",
-    "name": "Chilled",
-    "icon": "chilled",
-    "definition": "Takes 2 more damage from attacks; an Ice attack Freezes it.",
-    "aliases": []
-  },
-  {
-    "id": "detonate",
-    "name": "Detonate",
-    "icon": "detonate",
-    "definition": "Blow up the chosen ground, hitting everyone on and next to it, you included.",
+    "definition": "Leaving Rubble costs 2 Movement.",
     "aliases": []
   },
   {
     "id": "surface_consume",
     "name": "Expend",
     "icon": "surface_consume",
-    "definition": "Remove the shown ground to power this effect.",
+    "definition": "Remove the named ground to use this effect.",
     "aliases": [
       "consume_surface",
       "Expends",
@@ -143,35 +135,35 @@
     "id": "surface_relocate",
     "name": "Relocate Ground",
     "icon": "surface_relocate",
-    "definition": "Move a ground tile to another open tile.",
+    "definition": "Move the ground on one tile to another open tile.",
     "aliases": []
   },
   {
     "id": "melee",
     "name": "Melee",
     "icon": "melee",
-    "definition": "Damage an adjacent target, or one within the shown Range.",
+    "definition": "Deal X damage to an adjacent target or a target within the card's Range.",
     "aliases": []
   },
   {
     "id": "ranged",
     "name": "Ranged",
     "icon": "ranged",
-    "definition": "Damage a target in Range and line of sight.",
+    "definition": "Deal X damage to a target within Range and line of sight.",
     "aliases": []
   },
   {
     "id": "pierce",
     "name": "Pierce",
     "icon": "pierce",
-    "definition": "Ignores Block and Stoneskin.",
+    "definition": "Damage from this attack ignores Block and Stoneskin.",
     "aliases": []
   },
   {
     "id": "move",
     "name": "Move",
     "icon": "move",
-    "definition": "Walk up to that many tiles.",
+    "definition": "Walk up to X tiles.",
     "aliases": [
       "move_toward"
     ]
@@ -180,7 +172,7 @@
     "id": "retreat",
     "name": "Retreat",
     "icon": "retreat",
-    "definition": "Moves up to that many tiles away from its target.",
+    "definition": "This enemy moves up to X tiles away from its target.",
     "aliases": [
       "move_away"
     ]
@@ -189,28 +181,28 @@
     "id": "blink",
     "name": "Blink",
     "icon": "blink",
-    "definition": "Teleport up to that many tiles to a visible open tile.",
+    "definition": "Move to a visible open tile up to X tiles away, ignoring intervening tiles.",
     "aliases": []
   },
   {
     "id": "range",
     "name": "Range",
     "icon": "range",
-    "definition": "Maximum distance in tiles.",
+    "definition": "Maximum distance to the target in tiles, counted without diagonals.",
     "aliases": []
   },
   {
     "id": "block",
     "name": "Block",
     "icon": "block",
-    "definition": "Absorbs damage until its holder's next turn.",
+    "definition": "Block absorbs damage until the start of the holder's next turn.",
     "aliases": []
   },
   {
     "id": "stoneskin",
     "name": "Stoneskin",
     "icon": "stoneskin",
-    "definition": "Absorbs damage after Block; lasts until used up.",
+    "definition": "Stoneskin absorbs damage after Block and stays until used up.",
     "aliases": [
       "convert_block_to_stoneskin"
     ]
@@ -219,7 +211,7 @@
     "id": "heal",
     "name": "Heal",
     "icon": "heal",
-    "definition": "Restore that much Health.",
+    "definition": "Restore X Health.",
     "aliases": [
       "heal_self"
     ]
@@ -228,14 +220,14 @@
     "id": "draw",
     "name": "Draw",
     "icon": "draw",
-    "definition": "Draw that many cards.",
+    "definition": "Draw X cards.",
     "aliases": []
   },
   {
     "id": "card_play",
     "name": "Card Play",
     "icon": "card_play",
-    "definition": "Each card you play spends one; they refill each turn, and kills give one more.",
+    "definition": "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
     "aliases": [
       "Card Plays"
     ]
@@ -244,21 +236,21 @@
     "id": "follow_up",
     "name": "Follow-up",
     "icon": "follow_up",
-    "definition": "Gain the bonus if you already played a card this turn.",
+    "definition": "Gain the Follow-up bonus if you already played a card this turn.",
     "aliases": []
   },
   {
     "id": "empower",
     "name": "Empower",
     "icon": "empower",
-    "definition": "Pay the extra cost as you play this card to gain its bonus.",
+    "definition": "Pay the Empower cost as you play this card to gain the Empower bonus.",
     "aliases": []
   },
   {
     "id": "stagger",
     "name": "Stagger",
     "icon": "stagger",
-    "definition": "Delays the target's next turn by this much Time.",
+    "definition": "Delay the target's next turn by X Time.",
     "aliases": []
   },
   {
@@ -272,14 +264,14 @@
     "id": "illusion",
     "name": "Illusion",
     "icon": "illusion",
-    "definition": "A decoy with that much Health; enemies attack it if it's as close as you.",
+    "definition": "A decoy with X Health that enemies target when at least as close as you.",
     "aliases": []
   },
   {
     "id": "illuminate",
     "name": "Light",
     "icon": "illuminate",
-    "definition": "Lights tiles within its radius through the Umbra.",
+    "definition": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
     "aliases": [
       "Illuminate"
     ]
@@ -288,110 +280,71 @@
     "id": "vision",
     "name": "Vision",
     "icon": "vision",
-    "definition": "See that many tiles farther for the shown turns.",
-    "aliases": []
-  },
-  {
-    "id": "truesight",
-    "name": "Truesight",
-    "icon": "truesight",
-    "definition": "Every enemy counts as visible for the shown turns.",
-    "aliases": [
-      "True Sight"
-    ]
-  },
-  {
-    "id": "dispel_umbra",
-    "name": "Dispel Umbra",
-    "icon": "dispel_umbra",
-    "definition": "Lower the Umbra by that many stages this combat.",
+    "definition": "For X turns, each hidden enemy is visible to you.",
     "aliases": []
   },
   {
     "id": "eclipse",
     "name": "Eclipse",
     "icon": "eclipse",
-    "definition": "The darkest Umbra: you see only 1 tile around you.",
-    "aliases": []
-  },
-  {
-    "id": "bleed",
-    "name": "Bleed",
-    "icon": "bleed",
-    "definition": "Takes that much damage before each move or attack.",
+    "definition": "The darkest Umbra stage, where you see only your tile and each adjacent tile.",
     "aliases": []
   },
   {
     "id": "expose",
     "name": "Expose",
     "icon": "expose",
-    "definition": "Its next damaging hit takes that much more damage.",
-    "aliases": []
-  },
-  {
-    "id": "sunder",
-    "name": "Sunder",
-    "icon": "sunder",
-    "definition": "Strips that much Block, then Stoneskin, before damage.",
+    "definition": "The next hit that damages an Exposed unit deals X more damage.",
     "aliases": []
   },
   {
     "id": "exhaust",
     "name": "Exhaust",
     "icon": "exhaust",
-    "definition": "Leaves your deck for the rest of combat.",
+    "definition": "This card leaves your deck until the end of combat.",
     "aliases": []
   },
   {
     "id": "consume",
     "name": "Consume",
     "icon": "consume",
-    "definition": "Gone for the rest of the run once used.",
+    "definition": "This item leaves your deck for the rest of the run once played.",
     "aliases": []
   },
   {
     "id": "retaliate",
     "name": "Retaliate",
     "icon": "retaliate",
-    "definition": "Until its next turn, whoever hits this unit up close takes that much damage.",
+    "definition": "Until the holder's next turn, melee hits and hits from adjacent tiles deal X damage back.",
     "aliases": []
   },
   {
     "id": "quicken",
     "name": "Quicken",
     "icon": "quicken",
-    "definition": "Your next card this turn costs that much less Time.",
+    "definition": "Your next card this turn costs X less Time.",
     "aliases": []
   },
   {
     "id": "rite",
     "name": "Rite",
     "icon": "rite",
-    "definition": "Its effect lasts the rest of combat and the card Exhausts.",
+    "definition": "This card's effect lasts for the rest of combat, and this card Exhausts.",
     "aliases": []
   },
   {
     "id": "next_attack",
     "name": "Next Attack",
     "icon": "next_attack",
-    "definition": "Your next attack this turn gains the bonus.",
+    "definition": "Your next attack this turn gains the named bonus.",
     "aliases": []
   },
   {
     "id": "swap",
     "name": "Swap",
     "icon": "swap",
-    "definition": "Trade places with a visible enemy or your illusion.",
+    "definition": "Trade places with a visible enemy or one of your illusions.",
     "aliases": []
-  },
-  {
-    "id": "petrify",
-    "name": "Petrify",
-    "icon": "petrify",
-    "definition": "Skips its next turn and gains 5 Block.",
-    "aliases": [
-      "Petrified"
-    ]
   },
   {
     "id": "cleanse",
@@ -404,76 +357,51 @@
     "id": "skate",
     "name": "Skate",
     "icon": "skate",
-    "definition": "This turn, Ice costs no Movement and doesn't Chill you.",
+    "definition": "This turn, Ice costs you no Movement and doesn't Expose you.",
     "aliases": []
   },
   {
     "id": "anchored",
     "name": "Anchored",
     "icon": "anchored",
-    "definition": "Push, Pull and Wind can't move it.",
+    "definition": "Anchored units can't be moved by Push, Pull or Gust.",
     "aliases": []
   },
   {
     "id": "fireproof",
     "name": "Fireproof",
     "icon": "fireproof",
-    "definition": "This turn, Fire ground doesn't hurt you.",
+    "definition": "This turn, Fire doesn't damage you.",
     "aliases": []
   },
   {
     "id": "surface_convert",
     "name": "Convert Ground",
     "icon": "surface_convert",
-    "definition": "Turn the chosen ground into another kind, hitting enemies on it.",
+    "definition": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles.",
     "aliases": [
       "convert_surface"
     ]
   },
   {
-    "id": "discharge",
-    "name": "Discharge",
-    "icon": "discharge",
-    "definition": "Remove a connected Electrified network, hitting enemies on and next to it.",
-    "aliases": []
-  },
-  {
     "id": "all_enemies",
     "name": "Sweeping Strike",
     "icon": "all_enemies",
-    "definition": "Hits every visible enemy that meets the shown condition.",
+    "definition": "Hit each visible enemy that meets the named condition.",
     "aliases": []
   },
   {
     "id": "illusion_swap",
     "name": "Swap Illusion",
     "icon": "illusion_swap",
-    "definition": "Swap places with one of your illusions.",
+    "definition": "Trade places with one of your illusions.",
     "aliases": []
-  },
-  {
-    "id": "shatter_illusion",
-    "name": "Shatter Illusion",
-    "icon": "shatter_illusion",
-    "definition": "Destroy one of your illusions, hitting enemies next to it.",
-    "aliases": [
-      "destroy_illusion"
-    ]
-  },
-  {
-    "id": "freeze",
-    "name": "Freeze",
-    "icon": "freeze",
-    "definition": "Skips its next turn and takes triple damage until then.",
-    "aliases": [
-      "Frozen"
-    ]
   },
   {
     "id": "shock",
     "name": "Shock",
     "icon": "shock",
-    "definition": "On its next turn, it can only Move or Blink.",
+    "definition": "Shocked units can only Move or Blink on their next turn.",
     "aliases": [
       "Shocked"
     ]
@@ -482,7 +410,7 @@
     "id": "immobilize",
     "name": "Immobilize",
     "icon": "immobilize",
-    "definition": "Can't Move, Blink or Swap during its next turn.",
+    "definition": "Immobilized units can't Move, Blink or Swap on their next turn.",
     "aliases": [
       "Immobilized",
       "Rooted"
@@ -492,14 +420,14 @@
     "id": "chain",
     "name": "Chain",
     "icon": "chain",
-    "definition": "Jumps to new targets within that many tiles of each hit.",
+    "definition": "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
     "aliases": []
   },
   {
     "id": "push",
     "name": "Push",
     "icon": "push",
-    "definition": "Move the target that many tiles straight away; if blocked, Collision.",
+    "definition": "Move the target X tiles straight away from the source, causing a Collision if blocked.",
     "aliases": [
       "force_area"
     ]
@@ -508,14 +436,14 @@
     "id": "pull",
     "name": "Pull",
     "icon": "pull",
-    "definition": "Move the target that many tiles straight closer; if blocked, Collision.",
+    "definition": "Move the target X tiles straight toward the source, causing a Collision if blocked.",
     "aliases": []
   },
   {
     "id": "collision",
     "name": "Collision",
     "icon": "collision",
-    "definition": "A blocked Push or Pull deals 2 damage per tile left, to both units.",
+    "definition": "A blocked Push or Pull deals 2 damage per unmoved tile to the mover and blocker.",
     "aliases": []
   },
   {
@@ -529,21 +457,21 @@
     "id": "health_cost",
     "name": "Health Cost",
     "icon": "health_cost",
-    "definition": "Lose that much Health.",
+    "definition": "Lose X Health.",
     "aliases": []
   },
   {
     "id": "lightning_strikes",
     "name": "Lightning Strikes",
     "icon": "lightning_strikes",
-    "definition": "Strikes the marked tiles, then leaves them Electrified.",
+    "definition": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
     "aliases": []
   },
   {
     "id": "summon_minions",
     "name": "Summon",
     "icon": "summon_minions",
-    "definition": "Calls the shown enemy into the fight.",
+    "definition": "This enemy adds the named enemy to combat.",
     "aliases": [
       "Summon Minions"
     ]
@@ -552,23 +480,21 @@
     "id": "raise_terrain",
     "name": "Raise Terrain",
     "icon": "raise_terrain",
-    "definition": "Raises terrain that blocks movement.",
+    "definition": "Raise the named terrain, which blocks movement.",
     "aliases": []
   },
   {
     "id": "terrain_burst",
-    "name": "Terrain Burst",
+    "name": "Groundsplit",
     "icon": "terrain_burst",
-    "definition": "Hits units around its terrain pieces.",
-    "aliases": [
-      "burst_terrain"
-    ]
+    "definition": "This enemy damages each unit adjacent to terrain this enemy raised.",
+    "aliases": []
   },
   {
     "id": "cinder_marks",
     "name": "Cinder Marks",
     "icon": "cinder_marks",
-    "definition": "Marks tiles that take damage and turn to Fire when it lands.",
+    "definition": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
     "aliases": [
       "meteor_marks",
       "Kindle Ground"
@@ -578,14 +504,14 @@
     "id": "detonate_cinders",
     "name": "Crownfire",
     "icon": "detonate_cinders",
-    "definition": "Detonates the Fire on its last Cinder Marks, hitting everyone caught.",
+    "definition": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
     "aliases": []
   },
   {
     "id": "gale_force",
     "name": "Hollow Gale",
     "icon": "gale_force",
-    "definition": "Strikes everywhere within 2 tiles of Vaeloryx and Pushes struck actors 1 tile.",
+    "definition": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.",
     "aliases": [
       "The Hollow Gale",
       "Arena Gale"
@@ -595,7 +521,7 @@
     "id": "frost_armor",
     "name": "Crystal Mantle",
     "icon": "frost_armor",
-    "definition": "Each layer cancels one direct hit.",
+    "definition": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks.",
     "aliases": [
       "mantle"
     ]
@@ -604,37 +530,30 @@
     "id": "guard_ally",
     "name": "Guard Ally",
     "icon": "guard_ally",
-    "definition": "Gives Block to the shown allies.",
+    "definition": "This enemy gives X Block to each shown ally.",
     "aliases": []
   },
   {
     "id": "heal_ally",
     "name": "Heal Ally",
     "icon": "heal_ally",
-    "definition": "Heals the shown ally.",
+    "definition": "This enemy restores X Health to the named ally.",
     "aliases": []
   },
   {
     "id": "umbra_eclipse",
     "name": "Last Eclipse",
     "icon": "umbra_eclipse",
-    "definition": "Hits anyone outside Light, then plunges the room into Eclipse.",
+    "definition": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for X turns.",
     "aliases": [
       "The Last Eclipse"
     ]
   },
   {
-    "id": "radiance",
-    "name": "Radiance",
-    "icon": "radiance",
-    "definition": "Cards that push back the Umbra.",
-    "aliases": []
-  },
-  {
     "id": "ember",
     "name": "Embers",
     "icon": "ember",
-    "definition": "Spent on wares and levels; dropped when you die.",
+    "definition": "Currency spent on wares and levels, and dropped when you die.",
     "aliases": []
   },
   {
@@ -686,7 +605,7 @@
     "id": "turn_clock",
     "name": "Turn Clock",
     "icon": "turn_clock",
-    "definition": "The unit with the lowest Time acts next; you win ties.",
+    "definition": "The unit with the lowest Time acts next, and you act first on a tie.",
     "aliases": []
   },
   {
@@ -700,147 +619,147 @@
     "id": "defiance",
     "name": "Defiance",
     "icon": "defiance",
-    "definition": "Each charge turns a lethal hit into 25% Health.",
+    "definition": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
     "aliases": []
   },
   {
     "id": "targeting",
     "name": "Targeting",
     "icon": "targeting",
-    "definition": "Targets must be visible and in Range; ranged attacks need line of sight.",
+    "definition": "Targets must be visible and within Range. Ranged attacks also need line of sight.",
     "aliases": []
   },
   {
     "id": "fatigue",
     "name": "Fatigue",
     "icon": "fatigue",
-    "definition": "Drawing from an empty pile reshuffles your discard and costs Health.",
+    "definition": "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
     "aliases": []
   },
   {
     "id": "traps",
     "name": "Traps",
     "icon": "traps",
-    "definition": "Trigger when entered or attacked, hitting the unit on them and spreading their element around them.",
+    "definition": "Traps hit when entered or attacked.",
     "aliases": []
   },
   {
     "id": "umbra",
     "name": "The Umbra",
     "icon": "umbra",
-    "definition": "Darkness that hides enemies and their intents.",
+    "definition": "Darkness that hides enemies and enemy intents.",
     "aliases": []
   },
   {
     "id": "element_fire",
     "name": "Fire",
     "icon": "element_fire",
-    "definition": "Fire cards place Fire ground and Detonate it.",
+    "definition": "Fire cards place Fire and Burst that Fire.",
     "aliases": []
   },
   {
     "id": "element_ice",
     "name": "Ice",
     "icon": "element_ice",
-    "definition": "Ice cards place Ice and Freeze Chilled targets.",
+    "definition": "Ice cards place Ice and Burst that Ice.",
     "aliases": []
   },
   {
     "id": "element_lightning",
     "name": "Lightning",
     "icon": "element_lightning",
-    "definition": "Lightning cards place Electrified ground and spread through it.",
+    "definition": "Lightning cards place Electrified and spread through Electrified tiles.",
     "aliases": []
   },
   {
     "id": "element_air",
     "name": "Air",
     "icon": "element_air",
-    "definition": "Air cards push, pull and move units.",
+    "definition": "Air cards Push, Pull and move units.",
     "aliases": []
   },
   {
     "id": "element_earth",
     "name": "Earth",
     "icon": "element_earth",
-    "definition": "Earth cards leave Rubble, raise terrain and grant Stoneskin.",
+    "definition": "Earth cards leave Rubble, raise terrain and give Stoneskin.",
     "aliases": []
   },
   {
     "id": "skill_quick_wits",
     "name": "Quick Wits",
     "icon": "skill_quick_wits",
-    "definition": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
+    "definition": "Once per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time).",
     "aliases": []
   },
   {
     "id": "skill_measured_breath",
     "name": "Measured Breath",
     "icon": "skill_measured_breath",
-    "definition": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn.",
+    "definition": "At turn end, bank up to one unused @icon(card_play) for your next turn.",
     "aliases": []
   },
   {
     "id": "skill_ghost_stride",
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "definition": "Once per combat, activate to make your next free move a @icon(blink) of up to 2 tiles.",
+    "definition": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
     "aliases": []
   },
   {
     "id": "skill_discerning_eye",
     "name": "Discerning Eye",
     "icon": "skill_discerning_eye",
-    "definition": "Once between bosses, replace every card in a non-boss combat reward with new ones.",
+    "definition": "Once between bosses, replace each card in a non-boss combat reward.",
     "aliases": []
   },
   {
     "id": "skill_rehearsed_escape",
     "name": "Rehearsed Escape",
     "icon": "skill_rehearsed_escape",
-    "definition": "Once per combat, activate to send your next non-item @icon(exhaust) card to your discard instead.",
+    "definition": "Once per combat, activate to discard your next non-item card with @icon(exhaust) instead.",
     "aliases": []
   },
   {
     "id": "skill_makeshift_tool",
     "name": "Makeshift Tool",
     "icon": "skill_makeshift_tool",
-    "definition": "Once per combat, activate to send your next item to your discard instead of @icon(consume).",
+    "definition": "Once per combat, activate to discard your next @kw(item) instead of using @icon(consume).",
     "aliases": []
   },
   {
     "id": "skill_carry_the_guard",
     "name": "Carry the Guard",
     "icon": "skill_carry_the_guard",
-    "definition": "Once per combat, activate while you have @icon(block): at the end of your turn, it becomes @icon(stoneskin).",
+    "definition": "Once per combat, activate while you have @icon(block). At the end of your turn, that Block becomes @icon(stoneskin).",
     "aliases": []
   },
   {
     "id": "skill_pain_remembers",
     "name": "Pain Remembers",
     "icon": "skill_pain_remembers",
-    "definition": "The first time each combat you lose @icon(health), the next non-item card put in your discard returns to your hand.",
+    "definition": "After your first @icon(health) loss each combat, return the next non-item discard to your hand if there's room.",
     "aliases": []
   },
   {
     "id": "skill_sure_footed",
     "name": "Sure-Footed",
     "icon": "skill_sure_footed",
-    "definition": "Once per combat, take no damage from the first @icon(traps) that hits you.",
+    "definition": "Once per combat, ignore the first @icon(traps) hit or Air @icon(traps) @icon(push) against you.",
     "aliases": []
   },
   {
     "id": "skill_afterimage",
     "name": "Afterimage",
     "icon": "skill_afterimage",
-    "definition": "The first time each combat you @icon(blink), leave an @icon(illusion) 2 where you started.",
+    "definition": "Once per combat, your first @icon(blink) leaves @icon(illusion) 2 on the tile you Blinked from.",
     "aliases": []
   },
   {
     "id": "skill_deferred_choice",
     "name": "Deferred Choice",
     "icon": "skill_deferred_choice",
-    "definition": "Skip a card reward to save 1 offered card; it replaces 1 card in your next non-boss card reward.",
+    "definition": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card.",
     "aliases": []
   },
   {
@@ -868,28 +787,28 @@
     "id": "skill_plunderers_step",
     "name": "Plunderer's Step",
     "icon": "skill_plunderers_step",
-    "definition": "The first time each combat a card's @icon(move) or @icon(blink) collects loot, gain 1 @icon(card_play).",
+    "definition": "The first @icon(move) or @icon(blink) card that collects loot each combat refunds that card's @icon(card_play).",
     "aliases": []
   },
   {
     "id": "skill_prismatic_instinct",
     "name": "Prismatic Instinct",
     "icon": "skill_prismatic_instinct",
-    "definition": "Once per combat, place any ground on a visible tile within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
+    "definition": "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
     "aliases": []
   },
   {
     "id": "skill_curators_patience",
     "name": "Curator's Patience",
     "icon": "skill_curators_patience",
-    "definition": "After choosing a relic, save 1 unchosen relic for your next relic offer.",
+    "definition": "After choosing a relic, save one unchosen relic for your next relic offer.",
     "aliases": []
   },
   {
     "id": "skill_living_shadow",
     "name": "Living Shadow",
     "icon": "skill_living_shadow",
-    "definition": "Once per turn, when an @icon(illusion) is removed, return your latest non-item discard to hand.",
+    "definition": "Once between turns, when your @icon(illusion) is removed, return your latest non-item discard to hand or draw pile if full.",
     "aliases": []
   },
   {
@@ -917,7 +836,7 @@
     "id": "skill_confluence",
     "name": "Confluence",
     "icon": "skill_confluence",
-    "definition": "Once per combat, @icon(surface_relocate) 1 ground tile within @icon(range) 4.",
+    "definition": "Once per combat, move ground between 2 visible tiles within @icon(range) 4 of you and each other.",
     "aliases": []
   },
   {
@@ -931,49 +850,49 @@
     "id": "skill_long_dawn",
     "name": "Long Dawn",
     "icon": "skill_long_dawn",
-    "definition": "Temporary @icon(illuminate), @icon(vision) and @icon(truesight) you create last 1 more turn.",
+    "definition": "@icon(vision) you gain lasts 1 more turn.",
     "aliases": []
   },
   {
     "id": "skill_sunpath",
     "name": "Sunpath",
     "icon": "skill_sunpath",
-    "definition": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 for 2 turns on your path.",
+    "definition": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 on your path.",
     "aliases": []
   },
   {
     "id": "skill_witchlight",
     "name": "Witchlight",
     "icon": "skill_witchlight",
-    "definition": "Your @icon(illusion) give off @icon(illuminate) 1 while they last.",
+    "definition": "Each of your @icon(illusion|Illusions) creates @icon(illuminate) 1 while that Illusion lasts.",
     "aliases": []
   },
   {
     "id": "skill_dawnbrand",
     "name": "Dawnbrand",
     "icon": "skill_dawnbrand",
-    "definition": "Your first @icon(melee), @icon(ranged), @icon(push) or @icon(pull) hit each turn on an enemy in @icon(illuminate) applies @icon(expose) 1.",
+    "definition": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
     "aliases": []
   },
   {
     "id": "skill_afterglow",
     "name": "Afterglow",
     "icon": "skill_afterglow",
-    "definition": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 for 2 turns on its tile.",
+    "definition": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 on that Illusion's tile.",
     "aliases": []
   },
   {
     "id": "skill_open_sky",
     "name": "Open Sky",
     "icon": "skill_open_sky",
-    "definition": "While you stand in @icon(illuminate), you have @icon(truesight).",
+    "definition": "While you stand in @icon(illuminate), you have @icon(vision).",
     "aliases": []
   },
   {
     "id": "skill_point",
     "name": "Skill Point",
     "icon": "res://assets/art/icons/skill_point.png",
-    "definition": "Earned by leveling; spend them on skills.",
+    "definition": "Earned by leveling up and spent on skills.",
     "aliases": [
       "Skill Points"
     ]
@@ -982,7 +901,7 @@
     "id": "moltshard",
     "name": "Moltshards",
     "icon": "res://assets/art/icons/moltshard.png",
-    "definition": "Won from your first dragon; trade for Embers or reset your skills.",
+    "definition": "Won from your first dragon, then traded for Embers or spent to reset your skills.",
     "aliases": [
       "Moltshard",
       "Shard"
@@ -1022,7 +941,7 @@
     "id": "outcrop",
     "name": "Outcrop",
     "icon": null,
-    "definition": "Attackable terrain that blocks movement.",
+    "definition": "Terrain that blocks movement and can be attacked.",
     "aliases": [
       "Outcrops"
     ]
@@ -1031,28 +950,28 @@
     "id": "wildfire",
     "name": "Wildfire",
     "icon": "wildfire",
-    "definition": "On its beat, each Fire tile sets the next tile in the blaze's direction on Fire.",
+    "definition": "On each Wildfire beat, Fire spreads from each Fire tile to the next tile in the named direction.",
     "aliases": []
   },
   {
     "id": "frostbite",
     "name": "Frostbite",
     "icon": "frostbite",
-    "definition": "On its beat, an Ice hit strikes everyone standing on Ice, Freezing them.",
+    "definition": "On each Frostbite beat, each unit on Ice takes X damage.",
     "aliases": []
   },
   {
     "id": "lightning_storm",
     "name": "Lightning Storm",
     "icon": "lightning_storm",
-    "definition": "On its beat, lightning strikes every Electrified tile.",
+    "definition": "On each Lightning Storm beat, each unit on an Electrified tile takes X damage.",
     "aliases": []
   },
   {
     "id": "upheaval",
     "name": "Upheaval",
     "icon": "upheaval",
-    "definition": "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.",
+    "definition": "On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
     "aliases": [
       "upheaval_mark",
       "Thornwall"
@@ -1062,7 +981,7 @@
     "id": "shadowstep",
     "name": "Shadowstep",
     "icon": "shadowstep",
-    "definition": "On its beat, every enemy hidden in the dark Blinks toward you.",
+    "definition": "On each Shadowstep beat, each hidden enemy Blinks toward you.",
     "aliases": []
   }
 ]

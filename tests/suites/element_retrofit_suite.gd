@@ -29,6 +29,7 @@ static func run(expect: Callable) -> void:
 
 static func run_orders(expect: Callable) -> void:
 	var engine := Combat.new()
+	var panels: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_battlefield_copy.json"))
 	for biome: String in CONTRACT:
 		var row: Dictionary = CONTRACT[biome]
 		for tier: int in [1, 2, 3]:
@@ -43,7 +44,7 @@ static func run_orders(expect: Callable) -> void:
 			expect.call(same(instance["cadence"], cadence), "Warband cadence: " + biome)
 			expect.call(same(instance["dials"], row["dials"]), "Warband dials: " + biome)
 			var order: Dictionary = preload("res://scripts/warband_combat_rules.gd").order_for_objective(state["objective"])
-			expect.call(order["text"] == instance["sentence"], "Warband exact panel sentence: " + biome)
+			expect.call(instance["sentence"] == panels[order["battlefield_instance"]]["sentence"], "Warband exact panel sentence: " + biome)
 			expect.call(Rules.error_for(state, instance).is_empty(), "Warband valid instance: " + biome)
 			var steps: Array[Dictionary]
 			var before: Dictionary = state.duplicate(true)

@@ -142,7 +142,7 @@ func _test_held_approach_and_damage() -> void:
 	expect((combat.enemy_intent_plan(hit,0)["projected_attack"] as Array).has(hit["player"]["pos"]), "A player who stays in front must be shown in Worldspine Claw's damage cells")
 	var before: int = hit["player"]["hp"]
 	hit = BossSuite._resolve_boss_turn(hit)
-	expect(int(hit["player"]["hp"]) == before - 14, "Standing in the displayed Worldspine Claw must take its approved 14 damage")
+	expect(int(hit["player"]["hp"]) == before - 15, "Standing in the displayed Worldspine Claw takes 15 damage")
 	var frozen: Dictionary = combat.enemy_intent_plan(state, 0, {}, true, true)
 	expect((frozen["projected_attack"] as Array).is_empty(), "Disabling the dragon must remove its damage preview")
 
@@ -224,7 +224,7 @@ func _test_swept_dive() -> void:
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
 	var attack_steps: Array = result["steps"].filter(func(step: Dictionary)->bool: return str(step.get("intent_id",""))=="razor_dive" and str(step.get("action_type",""))=="aoe")
 	expect(attack_steps.size()==1 and _same_tiles(attack_steps[0]["tiles"],preview["projected_attack"]),"Dive's rendered impact cells must exactly match its predicted traveled route")
-	expect(state["player"]["hp"]-result["state"]["player"]["hp"] == (6 if expected.has(state["player"]["pos"]) else 0),"Dive applies the approved six damage once on its translated stamp")
+	expect(state["player"]["hp"]-result["state"]["player"]["hp"] == (7 if expected.has(state["player"]["pos"]) else 0),"Dive deals 7 damage once inside the translated stamp")
 	state["terrain"] = [{"id":"dive_blocker","pos":Vector2i(3,3),"hp":99,"max_hp":99}]
 	preview = combat.enemy_intent_plan(state,0)
 	expected = preload("res://scripts/boss_area_rules.gd").at_anchor(stamp, Vector2i(4,3))

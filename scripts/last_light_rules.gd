@@ -40,7 +40,7 @@ static func roster(room: Dictionary) -> Array:
 	return result
 
 ## The Umbra stage whose sight radius is the room's authored radius, so the dark,
-## its board treatment and every Light/Truesight rule are the ordinary ones.
+## its board treatment and every Light/Vision rule are the ordinary ones.
 static func umbra_stage() -> String:
 	var radius: int = int(definition()["sight_radius"])
 	var table: Dictionary = load("res://scripts/combat_engine.gd").UMBRA_RADIUS_BY_STAGE

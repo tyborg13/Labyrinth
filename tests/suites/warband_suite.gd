@@ -226,7 +226,7 @@ static func _golden(expect: Callable) -> void:
 		for seed: int in range(1, LEGACY_GOLDEN_SEEDS + 1):
 			var room: Dictionary = {"type": "combat", "coord": Vector2i(seed % 7, seed % 11), "depth": 1 + seed % 3, "element": "air", "section_index": 0, "section_map_layout_revision": revision, "encounter_biome": "air", "connections": [{"door_dir": Vector2i.UP, "coord": Vector2i(0, -1), "kind": "outward"}]}
 			var layout: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
-			expect.call(var_to_bytes(generator.before_tier_and_cap).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Pre-change full layout golden revision %d seed %d" % [revision, seed])
+			expect.call(generator.legacy_layout_digest() == golden[str(revision)][seed - 1], "Pre-change full layout golden revision %d seed %d" % [revision, seed])
 			room["section_map_layout_revision"] = 6
 			expect.call(Objectives._type_for_room(seed, room) == Objectives.KILL_ALL, "Revision 6 standard always Defeat All")
 	for type: String in ["boss", "guardian"]:
@@ -304,12 +304,6 @@ static func _keep_distance(expect: Callable) -> void:
 	var batch: Dictionary = state.duplicate(true)
 	for index: int in range(1, (batch["enemies"] as Array).size()): batch["enemies"][index]["hp"] = 0
 	expect.call(engine.resolve_enemy_phase_with_steps(batch)["state"]["enemies"][0]["pos"] == Vector2i(4, 1), "Legacy batch API uses the same keep-distance activation")
-	var bleeding: Dictionary = state.duplicate(true)
-	bleeding["enemies"][0]["bleed"] = 2
-	bleeding["enemies"][0]["stoneskin"] = 0
-	bleeding["enemies"][0]["intent"]["actions"] = []
-	var bleeding_result: Dictionary = engine.resolve_enemy_turn_with_steps(bleeding, 0)
-	expect.call(int(bleeding_result["state"]["enemies"][0]["hp"]) == int(bleeding["enemies"][0]["hp"]) - 2 and (bleeding_result["steps"] as Array).any(func(step: Dictionary) -> bool: return step.get("label", "") == "Bleed"), "The keep-distance movement pays and presents ordinary action Bleed")
 	state["grid"][1][4] = "pillar"
 	path = Rules.retreat_path(engine, state, state["enemies"][0])
 	expect.call(path.size() == 2 and Paths.manhattan(path.back(), state["player"]["pos"]) == 3, "Blocked screen route falls back to farthest legal tile")
@@ -392,7 +386,7 @@ static func _titles(expect: Callable) -> void:
 		expect.call(engine._enemy_intent_step_for_player(state, captain, captain["intent"])["actor_name"] == title, "Action caption title: " + biome)
 		expect.call(engine._umbra_marked_enemy_status_step(state, state, {"kind": "status_damage", "actor_key": "enemy_1", "actor_name": "Definition name"}, 1)["actor_name"] == title, "Passive Retaliate/illusion status caption title: " + biome)
 		expect.call(Objectives.title_for_objective(state["objective"]) == "Defeat " + Identity.running_name(title), "Objective lowercase the: " + biome)
-		expect.call(Objectives.description_for_objective(state["objective"]) == "Kill the captain and the rest flee.\nOrder: " + Library.definition("warband")["variants"][biome]["order"]["text"], "Exact Warband tooltip")
+		expect.call(Objectives.description_for_objective(state["objective"]) == "Defeat the captain to make each follower flee.\nOrder: " + Library.definition("warband")["variants"][biome]["order"]["text"], "Exact Warband tooltip")
 		var follower: Dictionary = state["enemies"][1]
 		expect.call(Identity.display_name(follower) == Data.enemy_def(str(follower["type"]))["name"], "Other enemies retain definition names")
 	print("Warband titles: all six instance, caption, objective and initiative paths checked")

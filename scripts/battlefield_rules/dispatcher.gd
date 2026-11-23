@@ -32,6 +32,10 @@ static func repair_saved_rule(engine: RefCounted, state: Dictionary) -> void:
 	for event: Dictionary in state.get("surface_events", []):
 		event.erase("beat_tiles_frozen_at")
 	var rule: String = str(instance.get("rule", ""))
+	_refresh_saved_sentence(state, instance)
+	if rule == "frostbite":
+		_repair_frostbite(engine, state, instance)
+		return
 	if rule == "lightning_storm":
 		# pla-01 retired the Chain dial: no storm Chains, saved ones included.
 		(instance.get("dials", {}) as Dictionary).erase("chain")
@@ -64,6 +68,30 @@ static func repair_saved_rule(engine: RefCounted, state: Dictionary) -> void:
 		instance["at_half_health"]["sentence"] = switch["sentence"]
 	instance["sentence"] = switch.get("sentence", authored["sentence"]) if bool(instance.get("half_health_switched", false)) else authored["sentence"]
 
+static func _refresh_saved_sentence(state: Dictionary, instance: Dictionary) -> void:
+	# Saved instances retain their beat state and dials. Refresh their copy from
+	# the encounter that installed the rule, including an active Health switch.
+	if instance.is_empty(): return
+	var id: String = str(state.get("guardian_id", ""))
+	if id.is_empty(): id = str(state.get("boss_id", ""))
+	var source: Dictionary = instance.get("source", {})
+	if str(source.get("kind", "")) == "room":
+		if instance.get("rule") != "shadowstep" or int(instance.get("dials", {}).get("blink", 0)) != 2: return
+		id = "last_light" if instance.get("dials", {}).get("who") == "all_hidden" else "snare_shadow"
+	elif id.is_empty():
+		var order: Dictionary = preload("res://scripts/warband_combat_rules.gd").order_for_objective(state.get("objective", {}))
+		id = str(order.get("battlefield_instance", ""))
+		if id.is_empty():
+			for enemy: Dictionary in state.get("enemies", []):
+				if int(enemy.get("id", -2)) == int(source.get("id", -1)):
+					id = str(enemy.get("type", ""))
+					break
+	if id not in ["ashen_reaver", "slagmaster", "gallows_roc", "dynamo", "prior", "noctyrax", "snare_shadow", "last_light"]: return
+	var authored: Dictionary = data()["instances"][id]
+	if authored["rule"] != instance.get("rule"): return
+	var copy: Dictionary = authored.get("at_half_health", authored) if bool(instance.get("half_health_switched", false)) else authored
+	instance["sentence"] = copy["sentence"]
+
 static func active(state: Dictionary) -> Dictionary:
 	var instance: Dictionary = state.get("battlefield_rule", {})
 	if instance.is_empty() or int(instance.get("beats_remaining", 1)) <= 0: return {}
@@ -76,6 +104,23 @@ static func clear_dead_source(state: Dictionary) -> void:
 	if not state.get("battlefield_rule", {}).is_empty() and active(state).is_empty():
 		if str(state["battlefield_rule"].get("rule", "")) == "gust": state.erase("wind")
 		state["battlefield_rule"] = {}
+
+# Keep the saved beat state while refreshing the authored Ice rule's wording
+# and the one new dial that replaced a damage-free Freeze.
+static func _repair_frostbite(engine: RefCounted, state: Dictionary, instance: Dictionary) -> void:
+	var source: Dictionary = instance.get("source", {})
+	var actor: Dictionary = engine._surface_actor(state, "enemy", int(source.get("id", -1)))
+	var id: String = str(actor.get("type", ""))
+	var authored: Dictionary = data()["instances"].get(id, {})
+	if str(authored.get("rule", "")) == "frostbite":
+		var copy: Dictionary = authored.get("at_half_health", authored) if bool(instance.get("half_health_switched", false)) else authored
+		instance["sentence"] = copy["sentence"]
+		if id == "rimejaw":
+			instance["dials"]["stagger"] = authored["dials"]["stagger"]
+		if instance.has("at_half_health") and authored.has("at_half_health"):
+			instance["at_half_health"]["sentence"] = authored["at_half_health"]["sentence"]
+	else:
+		instance["sentence"] = str(instance.get("sentence", "")).replace(" and Freezes them.", ".")
 
 static func error_for(state: Dictionary, instance: Dictionary) -> String:
 	var problem: String = _instance_error(state, instance)

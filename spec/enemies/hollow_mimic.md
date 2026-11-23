@@ -9,7 +9,7 @@ Standard shadow skirmisher: 14 HP, initiative 12, 11 Embers; no art, rig or audi
 - Enemy Retaliate lasts until the start of that enemy's next turn, including a
   skipped turn. A melee attack, or another hero attack from an adjacent tile,
   triggers it once per attack, including Detonate. Distant ranged and area attacks do not trigger it.
-  Block and Stoneskin absorb it; Expose adds to it and is spent (pla-01), but Chill and Freeze do not amplify it.
+  Block and Stoneskin absorb Retaliate damage. Expose increases Retaliate damage and is spent.
 - The shared `scripts/retaliate_rules.gd` primitive owns both sides. The existing
   status row shows the Retaliate icon/count, and exact card resolution feeds the
   hero's aimed damage preview. Status and action tooltips share the glossary:

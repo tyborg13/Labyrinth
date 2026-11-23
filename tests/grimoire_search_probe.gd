@@ -9,8 +9,11 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
 const OUTPUT_DIR: String = "user://grimoire_search_probe"
+const FATIGUE_RULES_QUERY: String = "drawing from an empty"
+const VISION_TYPO: String = "visoin"
 const UPHEAVAL_ENTRY: String = "keyword:upheaval"
-const UPHEAVAL_BODY: String = "On its beat, the marked tiles rise as Outcrops, throwing off whoever stands there.\n\nBreak an Outcrop to escape a ring of them." # pla-02 page: tooltip sentence, then how-to-play help.
+const UPHEAVAL_BODY: String = ("On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles."
+	+ "\n\nThe tile stays flat if the unit cannot be moved. Destroy an Outcrop to open a route.")
 
 var _failures: Array[String]
 var _capture_viewport: SubViewport
@@ -106,8 +109,8 @@ func _run_probe() -> void:
 	_expect(str(instance.get("_grimoire_selected_entry")) == "keyword:health_cost", "A one-character second token should keep Health Cost visible while typing through a small first-token typo")
 	await _capture("grimoire_search_v2_incremental_token.png")
 
-	await _set_query(instance, input, "reshuffle")
-	_expect(str(instance.get("_grimoire_selected_entry")) == "combat:fatigue", "Rules-text search should select Fatigue for reshuffle")
+	await _set_query(instance, input, FATIGUE_RULES_QUERY)
+	_expect(str(instance.get("_grimoire_selected_entry")) == "combat:fatigue", "Rules-text search should select Fatigue for '%s'" % FATIGUE_RULES_QUERY)
 	_expect(str((instance.get("_grimoire_detail_title") as Label).text) == "Fatigue", "Rules-text result should populate its detail page")
 	await _capture("grimoire_search_v1_rules.png")
 	var down_event := InputEventAction.new()
@@ -130,8 +133,8 @@ func _run_probe() -> void:
 	_expect(not alias_results.is_empty() and str(alias_results[0].get("match_kind", "")) == "alias", "Alias search should visibly identify a common-term match")
 	await _capture("grimoire_search_v1_alias.png")
 
-	await _set_query(instance, input, "truesigth")
-	_expect(str(instance.get("_grimoire_selected_entry")) == "keyword:truesight", "Small transposition typo should recover Truesight")
+	await _set_query(instance, input, VISION_TYPO)
+	_expect(str(instance.get("_grimoire_selected_entry")) == "keyword:vision", "Small transposition typo should recover Vision")
 	var typo_status: Label = instance.get("_grimoire_search_status") as Label
 	_expect(typo_status != null and typo_status.text.contains("close"), "Typo-only results should be labeled as close matches")
 	await _capture("grimoire_search_v1_typo.png")

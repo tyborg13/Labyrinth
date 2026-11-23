@@ -4,7 +4,10 @@ const DemoBuild = preload("res://scripts/demo_build.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const IceRules = preload("res://scripts/ice_contact_rules.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const RunDeck = preload("res://scripts/run_deck.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const INVALID_TARGET_TILE := Vector2i(-1, -1)
 const INVALID_ROOM_COORD := Vector2i(999, 999)
 
@@ -39,7 +42,7 @@ static func stage_combat_end(combat_engine: RefCounted, run_engine: RefCounted, 
 		combat_id = "%s_c%03d" % [run_identity, int(state.get("analytics", {}).get("combat_counter", 0))]
 	var combat_receipt: Dictionary = {
 		"event_type": "combat_ended", "idempotency_key": AnalyticsStore.combat_ended_key(combat_id),
-		"context": combat_context, "payload": combat_ended(combat_engine, combat, reason),
+		"context": combat_context, "payload": combat_ended(combat_engine, combat, reason, state),
 	}
 	state["progression"] = stage_receipt(state.get("progression", {}), combat_receipt)
 
@@ -132,6 +135,7 @@ static func equipment_loot_ids(combat_state: Dictionary) -> Array:
 
 static func run_started(_run_state: Dictionary, _progression: Dictionary) -> Dictionary:
 	var recovery_marker: Dictionary = ProgressionStore.recovery_marker(_progression)
+	var starting_deck: Array = (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	return {
 		"seed": int(_run_state.get("seed", 0)),
 		"build_kind": "demo" if DemoBuild.is_demo() else "full",
@@ -139,7 +143,8 @@ static func run_started(_run_state: Dictionary, _progression: Dictionary) -> Dic
 		"run_index": int(_run_state.get("run_index", 0)),
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
-		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"starting_deck": starting_deck,
+		"starting_deck_hash": JSON.stringify(starting_deck).sha256_text(),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
 		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
 		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
@@ -206,7 +211,7 @@ static func combat_started(_combat_engine: RefCounted, _run_engine: RefCounted, 
 		"opening_hand": ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array).duplicate(true)
 	}
 
-static func combat_ended(_combat_engine: RefCounted, combat_state: Dictionary, reason: String) -> Dictionary:
+static func combat_ended(_combat_engine: RefCounted, combat_state: Dictionary, reason: String, run_state: Dictionary = {}) -> Dictionary:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	var objective_completion_tile: Vector2i = (
 		(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
@@ -214,6 +219,12 @@ static func combat_ended(_combat_engine: RefCounted, combat_state: Dictionary, r
 		else INVALID_TARGET_TILE
 	)
 	var objective_completion_exit: Dictionary = CombatObjectiveRules.exit_spec_for_target(objective, objective_completion_tile)
+	var award_key: String = RunEngineScript.AWARDED_EQUIPMENT_KEY
+	var awarded: Array = _combat_reward_equipment(run_state)
+	if awarded.is_empty(): awarded = (combat_state.get(award_key, []) as Array).duplicate()
+	var collected: Array = (combat_state.get("collected_equipment", []) as Array).duplicate()
+	for item: String in awarded:
+		if not collected.has(item): collected.append(item)
 	return {
 		"reason": reason,
 		"outcome": _combat_engine.combat_outcome(combat_state),
@@ -236,28 +247,45 @@ static func combat_ended(_combat_engine: RefCounted, combat_state: Dictionary, r
 		"objective_completion_destination": objective_completion_exit.get("coord", INVALID_ROOM_COORD),
 		"room_embers": int(combat_state.get("room_embers", 0)),
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
-		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
+		"collected_equipment": collected,
+		award_key: awarded,
 		"missed_equipment": (combat_state.get("missed_equipment", []) as Array).duplicate(true),
 		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0)),
+		"light_expose_applications": int(combat_state.get("umbra", {}).get("light_expose_applications", 0)),
+		"vision_enemies_revealed": int(combat_state.get("umbra", {}).get("vision_enemies_revealed_total", 0)),
 		"umbra_tiles_illuminated": int((combat_state.get("umbra", {}) as Dictionary).get("tiles_illuminated_total", 0)),
 		"umbra_enemies_revealed": int((combat_state.get("umbra", {}) as Dictionary).get("enemies_revealed_total", 0)),
 		"umbra_movement_interruptions": int((combat_state.get("umbra", {}) as Dictionary).get("movement_interrupted_total", 0)),
 		"umbra_hidden_attack_damage_received": int((combat_state.get("umbra", {}) as Dictionary).get("hidden_attack_damage_received_total", 0))
 	}
 
+static func _combat_reward_equipment(run_state: Dictionary) -> Array:
+	var mode: String = str(run_state.get("mode", ""))
+	if mode not in ["reward", "treasure"]: return []
+	var reward_key: String = "guardian_reward" if mode == "treasure" else "pending_reward"
+	return (run_state.get(reward_key, {}).get(RunEngineScript.AWARDED_EQUIPMENT_KEY, []) as Array).duplicate()
+
 static func reward_offered(_run_engine: RefCounted, _run_state: Dictionary, reason: String) -> Dictionary:
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var offered_cards: Array = reward_state.get("cards", [])
+	var deck_element: String = RunDeck.element(_run_state)
+	var deck_match: Array[bool]
+	for card_id: String in offered_cards:
+		deck_match.append(not deck_element.is_empty() and GameData.card_element(card_id) == deck_element)
 	return {
 		"reason": reason,
 		"reward_kind": "dragon_milestone" if _run_engine.is_dragon_reward(_run_state) else ("guardian_trophy" if not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty() else "combat"),
 		"boss_id": reward_state.get("boss_id", ""),
 		"milestone_id": reward_state.get("milestone_id", ""),
 		"awarded_relic": reward_state.get("relic_id", ""),
+		RunEngineScript.AWARDED_EQUIPMENT_KEY: _combat_reward_equipment(_run_state),
 		"next_descent": bool(reward_state.get("next_descent", false)),
 		"moltshards": int(reward_state.get("moltshards", 0)),
 		"healed_amount": int(reward_state.get("healed_amount", 0)),
 		"offered_relics": (_run_state.get("pending_relics", []) as Array).duplicate(),
-		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
+		"offered_cards": offered_cards,
+		"deck_element": deck_element if not deck_element.is_empty() else null,
+		"deck_match": deck_match,
 		"heal_amount": int(reward_state.get("heal_amount", 0)),
 		"ember_amount": int(reward_state.get("ember_amount", 0))
 	}
@@ -276,3 +304,40 @@ static func reward_choice(choice_kind: String, reward_state: Dictionary, selecte
 		"player_hp_after": player_hp_after
 	}
 
+
+## Ice receipts survive a hit spending Expose before the card finishes. Compare
+## against the net increase per actor so unspent Ice stacks aren't counted twice.
+static func card_play_expose(before: Dictionary, after: Dictionary, events: Array[Dictionary]) -> Dictionary:
+	var ice_by_actor: Dictionary = after.get(IceRules.CARD_EXPOSE_KEY, {})
+	var recorded_by_actor: Dictionary = {}
+	for event: Dictionary in events:
+		if event.get("surface") != "ice" or event.get("kind") != "status_applied" or event.get("status") != "expose" or event.get("trigger") != "entry":
+			continue
+		var actor_key: String = str(event.get("actor_key", ""))
+		recorded_by_actor[actor_key] = int(recorded_by_actor.get(actor_key, 0)) + maxi(0, int(event["amount"]) - int(event.get("expose_before", 0)))
+	var player_delta: int = int(after.get("player", {}).get("expose", 0)) - int(before.get("player", {}).get("expose", 0))
+	var before_by_id: Dictionary = {}
+	for enemy: Dictionary in before.get("enemies", []):
+		before_by_id[int(enemy["id"])] = int(enemy.get("expose", 0))
+	var enemy_total: int = 0
+	for key: String in recorded_by_actor:
+		if key.begins_with("enemy_"): enemy_total += int(recorded_by_actor[key])
+	for enemy: Dictionary in after.get("enemies", []):
+		var id: int = int(enemy["id"])
+		var net: int = int(enemy.get("expose", 0)) - int(before_by_id.get(id, enemy.get("expose", 0)))
+		var actor_key: String = "enemy_%d" % id
+		enemy_total += _net_expose_without_ice(net, int(recorded_by_actor.get(actor_key, 0)), ice_by_actor.get(actor_key, {}))
+	var player_ice: int = int(recorded_by_actor.get("player", 0))
+	return {"player": player_ice + _net_expose_without_ice(player_delta, player_ice, ice_by_actor.get("player", {})), "enemy": enemy_total}
+
+static func _net_expose_without_ice(net: int, applied: int, tracked: Dictionary) -> int:
+	# Checkpoints made before the per-card tracking still have the surface
+	# receipts. If all we know is the total applied, assume it can all remain.
+	var unspent: int = int(tracked["unspent"]) if applied > 0 and int(tracked.get("applied", 0)) == applied else applied
+	return maxi(0, net - unspent)
+
+static func card_play_light_and_vision(printed_card: Dictionary, before_umbra: Dictionary, after_umbra: Dictionary) -> Dictionary:
+	return {
+		"radiance_card": bool(printed_card.get("light_vision_family", false)),
+		"vision_enemies_revealed": maxi(0, int(after_umbra.get("vision_enemies_revealed_total", 0)) - int(before_umbra.get("vision_enemies_revealed_total", 0))),
+	}

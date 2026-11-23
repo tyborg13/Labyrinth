@@ -101,8 +101,9 @@ static func _hero_action_timing(engine: Observer, expect: Callable) -> void:
 static func _enemy_action_timing(engine: Observer, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine, "gust")
 	state["battlefield_rule"]["at_half_health"]["cadence"]["every"] = 1
-	state["enemies"][0]["bleed"] = 2
-	state["enemies"][0]["intent"] = {"id": "bos01_acceptance_fixture", "time": 4, "actions": [HIT, {"type": "block", "amount": 1}]}
+	var strike: Dictionary = HIT.duplicate(true)
+	strike["self_damage"] = 2
+	state["enemies"][0]["intent"] = {"id": "bos01_acceptance_fixture", "time": 4, "actions": [strike, {"type": "block", "amount": 1}]}
 	engine.action_rules.clear()
 	var after: Dictionary = Committed.enemy_turn(engine, state, 0)["state"]
 	var flags: Array = engine.action_rules.map(func(instance: Dictionary) -> bool: return bool(instance.get("half_health_switched", false)))

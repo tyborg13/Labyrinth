@@ -25,7 +25,7 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `veil_blink` (Fade) uses `blink`: it is the existing Blink action.
 - `heal` and `heal_self` are both the player-facing Heal action.
 - `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
-- `burst_terrain` (Rockburst, Worldbreak) and `terrain_burst` (Tharokh's Worldspine pulse) are both the player-facing Terrain Burst: standing terrain erupts and hits the tiles around it.
+- Burst (pla-04, owner-approved playability plan 2026-11-20): one verb and one icon (`burst`). `detonate`, `discharge`, `destroy_illusion` and `burst_terrain` are all the player-facing Burst (destroy the thing, then hit its tile and four orthogonal neighbors), and `kindle` grows an enemy's death Burst. Tharokh's Faultline (`terrain_burst` that consumes its Worldspines) shows the Burst icon through `ActionIcons.action_icon_key`; Craghide's Groundsplit (`terrain_burst` with `guardian_kind`) keeps the `terrain_burst` painting, now named Groundsplit. The retired Detonate, Discharge and Shatter Illusion paintings stay registered (the Cinder Marks topic still uses the Detonate painting) but name no term.
 - `move_away` uses Retreat, which is its own icon identity. Ally-targeted Guard and Heal actions also retain their own identities.
 - `force_area` (Gale Ward, Vortex, Cyclone Seal and other area forces) is the player-facing Push applied to every enemy in an area; `ActionIcons.action_icon_key` returns the Pull icon when the area pulls.
 - `mantle` (player Crystal Mantle cards) and `frost_armor` (Iskaldra's intent) are the same Crystal Mantle layers.
@@ -48,10 +48,10 @@ show the icon alone, without the interim text labels.
 | `self_flag: anchored` | `anchored` | Can't be pushed or pulled |
 | `self_flag: fire_immune_turn` | `fireproof` | Fire doesn't damage you this turn |
 | `convert_surface` | `surface_convert` | Convert Ground: connected surface becomes another |
-| `discharge` | `discharge` | Remove an Electrified network to strike around it |
+| `discharge` | `burst` | Burst an Electrified network (pla-04) |
 | `all_enemies` | `all_enemies` | Sweeping Strike: every visible enemy matching a condition |
 | `illusion_swap` | `illusion_swap` | Trade tiles with one of your illusions |
-| `destroy_illusion` | `shatter_illusion` | Shatter an illusion to blast around it |
+| `destroy_illusion` | `burst` | Burst one of your illusions (pla-04) |
 | `next_attack` (wave 3) | `next_attack` | A charged blade: your next attack this turn gains the bonus (replaced the borrowed Might art, `stat_might.png`) |
 
 Grimoire topics use the new icons where the icon is the topic's concept:

@@ -28,7 +28,7 @@ static func run(tree: SceneTree) -> bool:
 	for y: int in range(3):
 		for x: int in range(4):
 			if Vector2i(x+2,y+2)==Vector2i(4,4):continue
-			enemies.append({"id":1+x+y*4,"type":"crawler","pos":Vector2i(x+2,y+2),"hp":24,"max_hp":30,"block":8,"stoneskin":3,"immobilize":true,"bleed":3,"expose":2,"frost_armor":3,"intent":Data.enemy_def("crawler")["intents"][0]})
+			enemies.append({"id":1+x+y*4,"type":"crawler","pos":Vector2i(x+2,y+2),"hp":24,"max_hp":30,"block":8,"stoneskin":3,"immobilize":true,"expose":2,"frost_armor":3,"intent":Data.enemy_def("crawler")["intents"][0]})
 	state["enemies"]=enemies
 	var p: Dictionary = {"reduced_motion":true}
 	board.set_combat_state(state,[],[],Vector2i(-1,-1),"","",{},{},p)

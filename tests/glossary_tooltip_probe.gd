@@ -10,6 +10,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const BeforeStack = preload("res://tests/glossary_card_stack_before.gd")
 const Glossary = preload("res://scripts/glossary.gd")
+const Grimoire = preload("res://scripts/grimoire_library.gd")
 
 const OUTPUT_DIR: String = "user://glossary_tooltip_probe"
 var VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -19,6 +20,12 @@ const POINTER_PARK := Vector2(8, 8)
 const CARD_SETTLE_SECONDS: float = 0.5
 const FOUR_COLUMN_PROOF_RELIC: String = "witchglass_lantern"
 const OUTER_FLOW_PROOF_RELIC: String = "breaking_wheel"
+const RULES_PROOF_CARD: String = "spark_focus"
+const RULES_PROOF_RELIC: String = "thawing_charm"
+const RULES_PROOF_TOPIC: String = "keyword:push"
+const RULES_PROOF_ENEMY: String = "slag_mortar"
+const RULES_PROOF_INTENT: String = "scatter_shot"
+const RULES_PROOF_TOOLTIP_POSITION := Vector2(1140, 280)
 var _failures: Array[String]
 var _logic_only: bool = false
 var _compare_original_card: bool = false
@@ -58,12 +65,79 @@ func _run() -> void:
 	root.add_child(_viewport)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	await _settle()
-	await _relics()
-	await _card_identity()
+	if OS.get_environment("LABYRINTH_TXT20_PROOF") == "1":
+		await _rules_templates()
+	else:
+		await _relics()
+		await _card_identity()
 	for failure: String in _failures: push_error(failure)
 	print("GLOSSARY_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("GLOSSARY %s RESULT: %s" % ["PROBE LOGIC" if _logic_only else "VISUAL PROOF", "PASS" if _failures.is_empty() else "FAIL"])
 	quit(0 if _failures.is_empty() else 1)
+
+func _rules_templates() -> void:
+	var scene: Control = load("res://scenes/run_scene.tscn").instantiate()
+	_viewport.add_child(scene)
+	await _settle()
+	var state: Dictionary = Fixture.RunEngine.new().create_new_run(Fixture.SEED, ProgressionStore.default_data())
+	state = Grimoire.unlock_entries(state, [RULES_PROOF_TOPIC])["state"]
+	state["relics"] = [RULES_PROOF_RELIC]
+	state["pending_relics"] = []
+	scene.call("_load_run_state", state)
+	scene.call("_close_dialogue")
+	scene.call("_close_large_map")
+	await _settle()
+	var badge: Control = scene.call("_relic_frame_for_id", RULES_PROOF_RELIC) as Control
+	_expect(badge != null, "The live HUD shows Thawing Charm")
+	if badge == null:
+		scene.queue_free()
+		return
+	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
+	badge.mouse_entered.emit()
+	await _settle()
+	_expect(stack.visible and stack._entries.any(func(entry: Dictionary) -> bool: return entry.get("semantic_key", "") == "illuminate" and str(entry["description"]).contains("within 1 tile")), "Thawing Charm's tooltip uses Light 1")
+	await _save("numbered_relic")
+	badge.mouse_exited.emit()
+	var card: CardWidget = load("res://scenes/card_widget.tscn").instantiate()
+	card.position = CARD_POSITION
+	card.custom_minimum_size = CARD_SIZE
+	card.size = CARD_SIZE
+	_viewport.add_child(card)
+	card.configure(RULES_PROOF_CARD)
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(card.display_summary_rows())
+	_expect(entries.any(func(entry: Dictionary) -> bool: return entry["title"] == "Vision" and str(entry["description"]).begins_with("For 2 turns")), "Spark Focus's tooltip uses Vision 2")
+	stack.show_for(card, entries)
+	await _settle()
+	_expect(stack.visible and Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(stack.get_global_rect()), "The card's numbered tooltip stack fits")
+	await _save("numbered_card")
+	stack.hide_stack(true)
+	card.queue_free()
+	scene.call("_open_grimoire_overlay")
+	scene.call("_on_grimoire_entry_pressed", RULES_PROOF_TOPIC)
+	await _settle()
+	var topic: RichTextLabel = scene.get("_grimoire_detail_body")
+	_expect(topic.get_parsed_text().contains("X tiles straight away from the source"), "Grimoire keeps the generic Push amount")
+	await _save("static_grimoire")
+	scene.call("_close_grimoire_overlay")
+	var engine := preload("res://scripts/combat_engine.gd").new()
+	var encounters = preload("res://tests/suites/en02_enemies_suite.gd")
+	var combat: Dictionary = encounters.fixture(engine, RULES_PROOF_ENEMY)
+	combat["enemies"][0]["intent"] = encounters.intent(RULES_PROOF_ENEMY, RULES_PROOF_INTENT)
+	preload("res://tests/suites/en03_enemies_suite.gd").install(scene, combat)
+	scene.call("_close_dialogue")
+	await _settle()
+	var board: Control = scene.get("board_view")
+	var intent: String = board.call("enemy_intent_tooltip", "enemy_1")
+	_expect(intent.contains("1 tile straight away from the source"), "Enemy intent fills the same Push template")
+	var panel: Control = board.call("_make_custom_tooltip", intent)
+	_viewport.add_child(panel)
+	panel.position = RULES_PROOF_TOOLTIP_POSITION
+	await _settle()
+	_expect(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(panel.get_global_rect()), "Numbered enemy intent fits the viewport")
+	await _save("numbered_intent")
+	scene.queue_free()
+	panel.queue_free()
+	await _settle()
 
 func _relics() -> void:
 	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()

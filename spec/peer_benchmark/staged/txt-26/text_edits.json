@@ -1,0 +1,82 @@
+[
+ {
+  "id": "iron_lung",
+  "old": "Pay @term(health_cost) and @kw(empower) costs in @term(stoneskin) first. Each @term(health) costs 2 @kw(stoneskin).",
+  "new": "Pay @term(health_cost) in @term(stoneskin) first, including Health that @kw(empower) costs. Each @term(health) costs 2 @kw(stoneskin)."
+ },
+ {
+  "id": "worldheart",
+  "old": "At turn end, convert up to 2 @term(block) into @term(stoneskin). Deal half the Stoneskin gained to each adjacent enemy, rounded down, up to 4.",
+  "new": "At turn end, spend up to 2 @term(block) to gain 1 @term(stoneskin) per Block spent. Whenever you gain Stoneskin, deal half the amount, rounded down and up to 4, to each adjacent enemy."
+ },
+ {
+  "id": "overflow_censer",
+  "old": "When Fire, Ice or Electrified replaces another of those grounds, place the new ground on each adjacent tile without Fire, Ice or Electrified.",
+  "new": "Whenever you place Fire, Ice or Electrified over another of those grounds, place the new ground on each adjacent tile without Fire, Ice or Electrified."
+ },
+ {
+  "id": "crowncoal_heart",
+  "old": "Once per turn, your single-target hit on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified) places @kw(surface_fire). @kw(burst|Bursting) 2+ @kw(surface_fire) gives 6 @term(stoneskin), once per turn.",
+  "new": "Once per turn, when your single-target attack hits an enemy on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified), place @kw(surface_fire) on that tile. Once per turn, @kw(burst|Bursting) 2+ @kw(surface_fire) gives you 6 @term(stoneskin)."
+ },
+ {
+  "id": "waxen_effigy",
+  "old": "At the start of combat, create an @term(illusion) with @term(health) 2 on the empty tile adjacent to you nearest an enemy.",
+  "new": "At the start of combat, create an @term(illusion) with @term(health) 2 on the empty tile adjacent to you nearest a visible enemy."
+ },
+ {
+  "id": "hollow_puppet",
+  "old": "On enemy @kw(collision), destroy that Illusion and deal its remaining @term(health) to that enemy.",
+  "new": "On enemy @kw(collision), destroy that Illusion and deal damage equal to that Illusion's remaining @term(health) to that enemy."
+ },
+ {
+  "id": "mirror_shard",
+  "old": "When one of your @term(illusion|illusions) is destroyed, deal 3 damage to each enemy adjacent to that illusion.",
+  "new": "Whenever one of your @term(illusion|Illusions) is destroyed, deal 3 damage to each enemy adjacent to that Illusion."
+ },
+ {
+  "id": "frost_prism",
+  "old": "When an Ice card @term(stagger|Staggers) an enemy on @term(surface_ice),",
+  "new": "Whenever an Ice card @term(stagger|Staggers) an enemy on @term(surface_ice),"
+ },
+ {
+  "id": "cold_mirror",
+  "old": "When your Ice card @term(stagger|Staggers) an enemy and you have 4+ @term(block),",
+  "new": "Whenever your Ice card @term(stagger|Staggers) an enemy and you have 4+ @term(block),"
+ },
+ {
+  "id": "rimecatcher_vial",
+  "old": "When your Ice card @term(stagger|Staggers) an enemy on @term(surface_ice), you can move that Ice",
+  "new": "Whenever your Ice card @term(stagger|Staggers) an enemy on @term(surface_ice), you can move that Ice"
+ },
+ {
+  "id": "funeral_bell",
+  "old": "When an enemy with 2 or more different statuses dies,",
+  "new": "Whenever an enemy with 2 or more different statuses dies,"
+ },
+ {
+  "id": "battering_yoke",
+  "old": "When your @kw(push) or @kw(pull) moves an enemy into a blocking enemy,",
+  "new": "Whenever your @kw(push) or @kw(pull) moves an enemy into a blocking enemy,"
+ },
+ {
+  "id": "breaking_wheel",
+  "old": "When an enemy collides, remove the ground.",
+  "new": "Whenever an enemy collides, remove the ground."
+ },
+ {
+  "id": "hollow_die",
+  "old": "When a card grants @icon(vision), create @icon(illuminate) {0.reward0.radius} at you.",
+  "new": "Whenever a card gives you @icon(vision), create @icon(illuminate) {0.reward0.radius} on your tile."
+ },
+ {
+  "id": "worldroot_idol",
+  "old": ", removing that Rubble. The game chooses the tile.",
+  "new": ", removing that Rubble."
+ },
+ {
+  "id": "fivefold_knot",
+  "old": "At 4, add @kw(chain) 1. At 5, each card gives 3 @term(block).",
+  "new": "At 4 families, add @kw(chain) 1. At 5 families, each card gives 3 @term(block)."
+ }
+]

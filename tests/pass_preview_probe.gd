@@ -129,12 +129,14 @@ func _capture_pass_preview_states() -> void:
 	await process_frame
 	await _check_pass_state(instance, viewport, "defiance_umbra", ["+10", "−1 → ?/?", "?"])
 
-	# atk-03 counts a disclosed Crawler's repeat moves through the forecast horizon.
+	# Four Crawler turns: out-of-range Claw, Lunge for 3, and two Skitter
+	# Strikes for 5 each after pla-07 moved Bleed into the hits. No Ice or
+	# Stagger is present, and there is no delayed Bleed row.
 	var repeat_state: Dictionary = _pass_preview_probe_state(base_state, "counted_repeat")
 	_install_pass_preview_probe_state(instance, repeat_state)
 	await process_frame
 	await process_frame
-	await _check_pass_state(instance, viewport, "counted_repeat", ["+10", "−11", "×4", "+2"])
+	await _check_pass_state(instance, viewport, "counted_repeat", ["+10", "−13", "×4"])
 
 	var lethal_state: Dictionary = _pass_preview_probe_state(base_state, "lethal")
 	_install_pass_preview_probe_state(instance, lethal_state)

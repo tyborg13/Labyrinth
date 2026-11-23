@@ -1,6 +1,9 @@
 extends Node
 class_name CombatPacing
 
+signal _playback_frame
+
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const HitStop = preload("res://scripts/combat_hit_stop.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
@@ -116,6 +119,15 @@ func presentation_usec() -> int:
 	_sync_clock()
 	return int(_clock_usec)
 
+func next_playback_frame() -> Signal:
+	var process_frame: Signal = get_tree().process_frame
+	if not process_frame.is_connected(_emit_playback_frame):
+		process_frame.connect(_emit_playback_frame, CONNECT_ONE_SHOT)
+	return _playback_frame
+
+func _emit_playback_frame() -> void:
+	_playback_frame.emit()
+
 func begin_card() -> void:
 	_begin_scope("card")
 
@@ -161,8 +173,8 @@ func observe_hurry_input(event: InputEvent) -> void:
 			# The board turns this release into a click after _input; forget the press once it has.
 			set_deferred("_left_press_in_enemy_turn", false)
 	if _scope != "enemies": return
-	if event is InputEventKey and not event.echo and (event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE):
-		_set_hurry_input(&"space", event.pressed)
+	if KeyBindings.matches(KeyBindings.HURRY, event, true):
+		_set_hurry_input(&"keyboard", event.is_pressed())
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_set_hurry_input(&"mouse", event.pressed)
 	elif event is InputEventJoypadButton and event.button_index == JOY_BUTTON_A:
@@ -329,6 +341,13 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	_leaving_tree = true
+	# The tree can keep processing while a retired RunScene is detached. Drop
+	# both the frame relay and its suspended consumers before that can happen.
+	var process_frame: Signal = get_tree().process_frame
+	if process_frame.is_connected(_emit_playback_frame):
+		process_frame.disconnect(_emit_playback_frame)
+	for connection: Dictionary in _playback_frame.get_connections():
+		_playback_frame.disconnect(connection["callable"])
 	vibration.stop()
 	end_scope()
 	_flash_shader = null
@@ -480,7 +499,7 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	var hits: Array[Dictionary]
 	for entry: Dictionary in presentation.get("floating_texts", []):
 		var key: String = str(entry.get("reaction_actor_key", ""))
-		if str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry):
+		if bool(entry.get(FloatingText.POPUP_ONLY_KEY, false)) or (str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry)):
 			continue
 		var id: String = str(entry.get("screen_layout_key", ""))
 		if id.is_empty(): id = FloatingText.ensure_screen_layout_id(entry)
@@ -492,20 +511,13 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 			if str(death.get("key", "")) == key and bool(death.get("death_animation", false)):
 				killed = true
 		var damage: int = absi(str(entry.get("text", "0")).to_int()) if str(entry.get("reaction", "")) == "hit" or (FloatingText.is_damage_entry(entry) and str(entry.get("reaction","")) != "block") else 0
-		hits.append({"id": id, "actor_key": key, "damage": damage, "killed": killed})
-		var base: Dictionary = entry.duplicate(true)
-		base["screen_layout_id"] = id
-		# animate_entries emits peak-sized glyphs plus a scale. Retained entries
-		# must start from the same library base, never animate that peak again.
-		if FloatingText.is_damage_entry(base): base["font_size"] = FloatingText.DAMAGE_BASE_FONT_SIZE
-		elif FloatingText.is_effect_entry(base): base["font_size"] = FloatingText.EFFECT_BASE_FONT_SIZE
-		if FloatingText.is_popup_entry(base): base.erase("motion_offset")
-		_popups[id] = {"entry": base, "start": clock - int(float(entry.get("animation_progress", 0.0)) * FloatingText.ANIMATION_DURATION_SECONDS * 1000000.0), "sequence": int(entry.get("sequence_index",0))}
+		hits.append({"id": id, "actor_key": key, "damage": int(entry.get(FloatingText.IMPACT_DAMAGE_KEY, damage)), "killed": killed})
+		_retain_popup(entry, id, clock)
 	presentation["combat_feel_owner"] = self
 	presentation["combat_feel_hits"] = hits
 	var texts: Array = []
 	for entry: Dictionary in presentation.get("floating_texts", []):
-		if str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry):
+		if bool(entry.get(FloatingText.POPUP_ONLY_KEY, false)) or (str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry)):
 			texts.append(entry)
 	for id: String in _popups.keys():
 		var popup: Dictionary = _popups[id]
@@ -567,6 +579,16 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	presentation["surface_feedback_events"] = events
 	presentation["surface_feedback_progress"] = progress
 	presentation["combat_feel_surface_frames"] = frames
+
+func _retain_popup(entry: Dictionary, id: String, clock: int) -> void:
+	var base: Dictionary = entry.duplicate(true)
+	base["screen_layout_id"] = id
+	# Retained text starts from the library base glyph size.
+	if FloatingText.is_damage_entry(base): base["font_size"] = FloatingText.DAMAGE_BASE_FONT_SIZE
+	elif FloatingText.is_effect_entry(base): base["font_size"] = FloatingText.EFFECT_BASE_FONT_SIZE
+	if FloatingText.is_popup_entry(base): base.erase("motion_offset")
+	var elapsed: float = float(entry.get("animation_progress", 0.0)) * FloatingText.ANIMATION_DURATION_SECONDS
+	_popups[id] = {"entry": base, "start": clock - int(elapsed * 1000000.0), "sequence": int(entry.get("sequence_index", 0))}
 
 func observe_baseline(state: Dictionary, presentation: Dictionary) -> void:
 	var observed: Dictionary = presentation.duplicate(false)
@@ -638,7 +660,7 @@ func _release_flashes() -> void:
 
 func overlap_defeats(before: Dictionary, after: Dictionary, skip_terrain: bool) -> bool:
 	# Burst journals own a sequential impact timeline, including enemy-phase
-	# Bleed/reaction deaths. Retained dissolves cannot present those events.
+	# Reaction deaths. Retained dissolves cannot present those events.
 	if (after.get("death_burst_events", []) as Array).size() > (before.get("death_burst_events", []) as Array).size():
 		return false
 	if not enemies_active or not (scene.call("_defeated_player_units_between_states", before, after) as Array).is_empty():
@@ -694,6 +716,14 @@ func overlap_surface(before: Dictionary, after: Dictionary, base: Dictionary) ->
 	var shown: Dictionary = base.duplicate(false)
 	shown.erase("surface_feedback_events")
 	shown.erase("surface_feedback_progress")
+	# The retained ground effect bypasses the usual status-number path.
+	var fire_ticks: Array[Dictionary] = preload("res://scripts/status_tick_feedback.gd").enemy_fire_start_losses(scene, events)
+	if not fire_ticks.is_empty():
+		fire_ticks.assign(scene.call("_visible_umbra_floating_texts", before, fire_ticks, true))
+		var clock: int = presentation_usec()
+		for entry: Dictionary in FloatingText.animate_entries(fire_ticks, 0.0, reduced):
+			# The ground beat already owns contact feedback.
+			_retain_popup(entry, FloatingText.ensure_screen_layout_id(entry), clock)
 	scene.call("_render_board_state", after, shown)
 	return true
 

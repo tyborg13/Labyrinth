@@ -39,6 +39,7 @@ func _run() -> void:
 	CoverageSuite.run(_expect)
 	_card_structure()
 	_test_data()
+	_test_numbered_definitions()
 	TooltipSuite.run(_expect)
 	await _test_inline_hover()
 	await _test_stack()
@@ -62,7 +63,14 @@ func _card_structure() -> void:
 		var leading: Array = []
 		if ActionIcons.card_is_rite(card): leading.append("rite")
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
+		if bool(card.get("light_vision_family", false)):
+			for entry: Dictionary in entries:
+				_expect(str(entry["icon"]) not in ["truesight", "dispel_umbra", "radiance"], "Live Light/Vision stacks omit retired terms: " + id)
+			continue
 		var expected: Array = preload("res://tests/fixtures/approved_glossary_structure.gd").entries(id, before)
+		if id == "caltrops":
+			# The historical capture includes a damage panel for a status-only area.
+			expected = expected.filter(func(entry: Dictionary) -> bool: return entry["icon"] != "ranged")
 		_expect(entries.size() == expected.size(), "Keyword panel count unchanged: " + id)
 		for index: int in range(mini(entries.size(), expected.size())):
 			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])
@@ -110,7 +118,8 @@ func _test_data() -> void:
 	_expect(Glossary._missing_definitions.size() == warning_count + 1, "Missing entry with same id does not repeat warning")
 	Glossary._entries["follow_up"] = saved
 	Glossary._missing_definitions.erase("follow_up")
-	_expect(str(Glossary.lookup("Frozen").get("id")) == "freeze", "Existing status alias resolves")
+	for status: String in ["Freeze", "Frozen", "Chilled", "Petrify"]:
+		_expect(Glossary.lookup(status).is_empty(), "Retired status has no glossary entry: " + status)
 	_expect(Glossary.lookup("not_a_concept").is_empty(), "Unknown lookup is empty")
 	_expect(Glossary.ids_in_text("@icon(empower) Health Cost; @icon(empower) Follow-up; @icon(health)") == ["empower", "health_cost", "follow_up", "health"], "Token and keyword first appearance with overlap/dedup")
 	_expect(Glossary.ids_in_text("[color=red]Stagger[/color] misfire timekeeper") == ["stagger"], "Word boundaries and BBCode")
@@ -120,6 +129,24 @@ func _test_data() -> void:
 	_expect(Glossary.ids_in_text("Time @icon(consume) Swap") == ["time", "consume", "swap"], "Authored keywords and explicit tokens still resolve")
 	var many: String = "@icon(health) @icon(block) @icon(stoneskin) @icon(time) @icon(move) @icon(draw) @icon(empower)"
 	_expect(Glossary.ids_in_text(many, Glossary.MAX_RELIC_PANELS) == ["health", "block", "stoneskin", "time", "move", "draw"], "Six panels in appearance order; no more indicator")
+
+func _test_numbered_definitions() -> void:
+	_expect(Glossary.definition("draw") == "Draw X cards.", "The glossary keeps X without a source")
+	_expect(Glossary.fill_amount("X. Expose. @pattern(cross)", 6) == "6. Expose. @pattern(cross)", "Only standalone X is filled")
+	_expect(Glossary.fill_amount("An X-Health Outcrop.", 8) == "An 8-Health Outcrop.", "The displayed amount uses an before eight")
+	_expect(Glossary.fill_amount("An X-Health Outcrop.", 1) == "A 1-Health Outcrop.", "The displayed amount uses a before one")
+	_expect(ActionIcons.token_tooltip(ActionIcons.token_for("health_cost", "−1")).ends_with("Lose 1 Health."), "A signed cost displays the amount lost")
+	var card: Dictionary = GameData.card_def("spark_focus")
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card))
+	_expect(entries.any(func(entry: Dictionary) -> bool: return entry["title"] == "Draw" and entry["description"] == "Draw 1 card."), "Card Draw names the live number and singular noun")
+	_expect(entries.any(func(entry: Dictionary) -> bool: return entry["title"] == "Vision" and entry["description"] == "For 2 turns, each hidden enemy is visible to you."), "Vision uses the duration rather than the adjacent Time icon")
+	var push: Dictionary = {"type": "push", "amount": 2, "damage": 3, "range": 1}
+	var intent: Dictionary = ActionIcons.tokens_for_action(push, {"actor_kind": "enemy"}).back()
+	_expect(ActionIcons.token_tooltip(intent) == ActionIcons.tooltip("push", 2), "Enemy Push fills the same definition as card Push")
+	var charm: Dictionary = GameData.relic_def("thawing_charm")
+	_expect(Glossary.amount_in_text("illuminate", charm["description"]) == 1, "Relic copy supplies its resolved Light radius")
+	_expect(Glossary.amount_in_text("illuminate", "Create Light 1 or Light 2.") == null, "Competing numbers leave a shared tooltip generic")
+	_expect(Glossary.amount_in_text("illuminate", "Create Light 10.") == 10, "A terminal period preserves the full relic number")
 
 func _test_inline_hover() -> void:
 	var label := RichTextLabel.new()
@@ -169,7 +196,7 @@ func _test_stack() -> void:
 	stack.bind_relic(owner, relic)
 	owner.mouse_entered.emit()
 	await _settle()
-	_expect(stack.visible and stack.entry_icon_keys() == ["relic", "health_cost", "empower", "stoneskin", "health"], "Hover displays relic plus deduplicated definitions")
+	_expect(stack.visible and stack.entry_icon_keys() == ["relic", "health_cost", "stoneskin", "health", "empower"], "Hover displays relic plus deduplicated definitions")
 	_expect(str(stack._entries[0]["description"]).ends_with("Used this combat."), "Live badge details preserved")
 	_expect(owner.get_tooltip(Vector2.ZERO).is_empty() and not owner.tooltip_text.is_empty(), "Native popup suppressed without losing controller discovery")
 	_expect(is_equal_approx(stack.get_global_rect().end.x, VIEWPORT_SIZE.x - Stack.SAFE_MARGIN), "Right-edge owned stack clamps to screen")
@@ -225,6 +252,8 @@ func _test_stack() -> void:
 	_expect(stack.visible, "Navigation repins after an outside click")
 	owner.release_focus()
 	owner.tooltip_text = ""
+	stack.show_relic(owner, GameData.relic_def("thawing_charm"))
+	_expect(stack._entries.any(func(entry: Dictionary) -> bool: return entry.get("semantic_key", "") == "illuminate" and str(entry["description"]).contains("within 1 tile")), "The owned relic popup uses the same resolved Light radius")
 	stack.show_relic(owner, {"name": relic["name"], "description": "@icon(health) @icon(block) @icon(stoneskin) @icon(time) @icon(move) @icon(draw) @icon(empower)"})
 	_expect(stack.entry_icon_keys() == ["relic", "health", "block", "stoneskin", "time", "move", "draw"], "Relic shows first six concepts without a more panel")
 	var saved_definition: Dictionary = Glossary._entries["follow_up"]

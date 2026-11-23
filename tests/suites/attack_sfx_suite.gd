@@ -38,13 +38,12 @@ static func run(expect: Callable) -> void:
 	expect.call(router.impact_cue({"type": "melee", "damage": 6}, {}, "war_maul") == "hit.blunt.heavy", "Heavy weapon contact should request the blunt cue")
 	expect.call(router.impact_cue({"type": "ranged", "damage": 3}) == "hit.arcane", "A weaponless neutral spell should request arcane contact")
 	expect.call(router.impact_cue({"type": "melee", "element": "fire"}) == "spell.fire", "Elemental contact should replace the physical impact")
-	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {"freeze": 1}, 3) == "status.shatter", "A frozen target should receive only the shatter impact")
 	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {}, 0, 3) == "hit.blocked", "Fully absorbed contact should receive only the blocked impact")
 	var attacker: Dictionary = {"id": 1, "type": "crawler", "hp": 14, "block": 2}
 	expect.call(_step_cues({"kind": "status_damage", "label": "Retaliate", "action_type": "retaliate"}, attacker, {"hp": 11, "block": 0}) == ["hit.pierce", "block.break"], "Retaliate that breaks Block should sound its own contact on the attacker")
 	expect.call(_step_cues({"kind": "status_damage", "label": "Retaliate", "action_type": "retaliate"}, attacker, {"block": 1}) == ["hit.blocked"], "Retaliate absorbed by Block should sound blocked")
 	expect.call(_step_cues({"kind": "status_damage", "label": "Glass Double", "action_type": "illusion_retort"}, attacker, {"hp": 11}) == ["hit.arcane"], "An illusion retort should sound its own contact on the attacker")
-	expect.call(_step_cues({"kind": "status_damage", "label": "Bleed"}, attacker, {"hp": 11}) == ["status.bleed"], "A Bleed tick keeps its own sound and gains no contact")
+	expect.call(_step_cues({"kind": "status_damage", "label": "Fire"}, attacker, {"hp": 11}) == ["surface.fire"], "Fire status damage uses the ground cue without a contact cue")
 	var fire_entry: Dictionary = {"kind": "surface_damage", "surface": "fire", "actor_kind": "enemy", "id": 1, "trigger": "entry", "sequence": 5}
 	expect.call(_step_cues({"kind": "move", "surface_events": [fire_entry]}, attacker, {"hp": 12}) == ["surface.fire"], "An enemy walking onto Fire should hear the ground burn, not its own claws")
 	var hero_walk := CueRecorder.new()

@@ -1,30 +1,42 @@
 extends RefCounted
 
-## Presentation-only wind for the dragon's resolved push/pull. A pull's final
-## tile is usually adjacent, but its feedback must never become a sword slash.
-const ElementalFx = preload("res://scripts/elemental_spell_fx.gd")
-const RELEASE: float = 0.40
-const CONTACT: float = 0.50
-const FADE_END: float = 0.78
+const Dragon = preload("res://scripts/dragon_presentation.gd")
+const Spell = preload("res://scripts/dragon_spell_presentation.gd")
+const Patterns = preload("res://scripts/committed_pattern_shapes.gd")
+const Paths = preload("res://scripts/path_utils.gd")
+const Throw = preload("res://scripts/displacement_throw.gd")
+const Bursts = preload("res://scripts/tile_burst_fx.gd")
 
 static func handles(effect: Dictionary) -> bool:
-	return str(effect.get("enemy_type", "")) == "vaeloryx" and str(effect.get("kind", "")) in ["push", "pull"] and not bool(effect.get("preview", false)) and not bool(effect.get("umbra_action_clipped", false))
+	if effect.get("enemy_type") != "vaeloryx" or bool(effect.get("preview", false)): return false
+	var kind: String = str(effect.get("kind", ""))
+	# Skyhook carries its pull on the ranged resolver step.
+	return kind in ["push", "pull"] or (kind == "ranged" and effect.get("intent_id") == "skyhook")
 
-static func endpoints(effect: Dictionary, dragon: Vector2, player: Vector2) -> Dictionary:
-	var inward: bool = str(effect.get("kind", "")) == "pull"
-	return {"start": player if inward else dragon, "end": dragon if inward else player}
-
-static func travel_phase(progress: float) -> float:
-	return clampf(inverse_lerp(RELEASE, CONTACT, progress), 0.0, 1.0)
-
-static func draw(canvas: CanvasItem, effect: Dictionary, progress: float, dragon: Vector2, player: Vector2, dragon_floor: Vector2, player_floor: Vector2, tile_width: float, reduced: bool) -> void:
-	var points: Dictionary = endpoints(effect, dragon, player)
-	var ground: Dictionary = endpoints(effect, dragon_floor, player_floor)
-	var t: float = clampf(progress, 0.0, 1.0)
-	if reduced:
-		ElementalFx.release(canvas, "air", points["end"], ground["end"], tile_width * 0.50, 0.65, 0.40)
-	elif t < RELEASE:
-		ElementalFx.release(canvas, "air", points["start"], ground["start"], tile_width * 0.65, t / RELEASE, 0.55)
-	elif t < FADE_END:
-		var alpha: float = 0.85 * (1.0 - smoothstep(CONTACT, FADE_END, t))
-		ElementalFx.travel(canvas, "air", points["start"], points["end"], ground["start"], ground["end"], tile_width, travel_phase(t), alpha)
+static func burst_cue(effect: Dictionary, actor: Dictionary, before: Dictionary, after: Dictionary, reduced: bool, strike: Bursts.StrikeCue) -> Spell.BurstCue:
+	var origin: Vector2i = actor.get("pos", effect.get("umbra_original_from", effect.get("from", Bursts.INVALID)))
+	var target: Vector2i = effect.get("umbra_original_to", effect.get("to", Bursts.INVALID))
+	var target_key: String = str(effect.get("target_key", ""))
+	var losses: Array = effect.get("target_losses", [])
+	if target_key.is_empty() and not losses.is_empty(): target_key = losses[0].get("key", "")
+	if not target_key.is_empty():
+		target = Throw.actors(before).get(target_key, {}).get("pos", target)
+	elif effect.get("player_from") != effect.get("player_to"):
+		target = effect["player_from"]
+	if origin == Bursts.INVALID or target == Bursts.INVALID: return null
+	var front: Vector2i = Patterns.closest_footprint_tile(origin, actor.get("footprint", Vector2i.ONE), target)
+	var line: Array[Vector2i] = Paths._supercover_line(front, target)
+	var target_hit: bool = Bursts.hit_tiles(before, after).has(target) or (effect.get("terrain_losses", []) as Array).any(
+		func(loss: Dictionary) -> bool: return loss.get("tile") == target)
+	var cue := Spell.BurstCue.new()
+	cue.before = before
+	cue.after = after
+	cue.reduced = reduced
+	cue.strike = strike
+	for index: int in line.size():
+		var tile: Vector2i = line[index]
+		var spec: Dictionary = {"name": "air", "center": tile, "tiles": [tile],
+			"contact_hits": {tile: true} if tile == target and target_hit else {}}
+		var progress: float = lerpf(Dragon.RELEASE, Dragon.CONTACT, float(index) / maxi(1, line.size() - 1))
+		cue.schedule.append({"progress": progress, "spec": spec})
+	return cue

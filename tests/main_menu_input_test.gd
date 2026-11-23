@@ -163,7 +163,9 @@ func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
 	var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
 	var chronicle_button: Button = menu.get_node("MenuColumn/ChronicleButton")
+	var grimoire_button: Button = menu.get_node("MenuColumn/GrimoireButton")
 	var settings_button: Button = menu.get_node("MenuColumn/SettingsButton")
+	var quit_button: Button = menu.get_node("MenuColumn/QuitButton")
 	continue_button.grab_focus()
 	await process_frame
 	_expect(continue_button.has_focus(), "Valid-save navigation should begin on Continue Run")
@@ -184,8 +186,14 @@ func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
 	await _push_navigation_down(menu.get_viewport())
 	menu.call("_input", empty_motion)
 	await process_frame
-	_expect(chronicle_button.has_focus(), "Empty-space pointer motion must preserve Chronicle focus between New Game and Settings")
+	_expect(chronicle_button.has_focus(), "Empty-space pointer motion must preserve Chronicle focus between New Game and Grimoire")
 	_expect(bool(chronicle_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Sequential navigation must advance the molten selection to Chronicle")
+
+	await _push_navigation_down(menu.get_viewport())
+	menu.call("_input", empty_motion)
+	await process_frame
+	_expect(grimoire_button.has_focus(), "Empty-space pointer motion must preserve Grimoire focus between Chronicle and Settings")
+	_expect(bool(grimoire_button.get_meta("umbra_selected", false)) and not bool(chronicle_button.get_meta("umbra_selected", false)), "Sequential navigation must advance the molten selection to Grimoire")
 
 	await _push_navigation_down(menu.get_viewport())
 	menu.call("_input", empty_motion)
@@ -231,6 +239,8 @@ func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
 	menu.call("_unhandled_input", navigation_resume)
 	await process_frame
 	_expect(settings_button.has_focus() and not continue_button.has_focus(), "Keyboard/controller handoff from a pointer gap must resume at the last selection instead of Continue Run")
+	await _push_navigation_down(menu.get_viewport())
+	_expect(quit_button.has_focus(), "Sequential navigation reaches Quit after Settings")
 	_stop_menu_music(menu)
 	menu.queue_free()
 	await process_frame

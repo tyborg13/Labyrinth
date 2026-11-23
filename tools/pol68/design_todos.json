@@ -1,0 +1,8 @@
+{
+  "TODO_DESIGN_dialogue_deck": {
+    "shots": ["start", "new_run_opening_dialogue"],
+    "required_bottom_margin_px": 16,
+    "shadow_outside_viewport_px": {"100%": 1.33, "115%": 1.53},
+    "ink_band_inset_shortfall_px": {"100%": 15.33, "115%": 15.23}
+  }
+}

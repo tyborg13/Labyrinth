@@ -1,7 +1,8 @@
 extends RefCounted
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const Keywords = preload("res://scripts/card_keyword_rules.gd")
-const Icons = preload("res://scripts/action_icon_library.gd")
+const Display = preload("res://scripts/card_display_overrides.gd")
 const Defense = preload("res://scripts/defense_relic_rules.gd")
 
 static func index_for_input(scene: Node, controller: bool = false) -> int:
@@ -48,17 +49,17 @@ static func tooltip(scene: Node, index: int) -> String:
 	return _tooltip_for_card(scene, index, card)
 
 static func _tooltip_for_card(scene: Node, index: int, card: Dictionary) -> String:
-	var spec: Dictionary = card.get("empower", {}) as Dictionary
-	var bonus_tokens: Array = Icons.tokens_for_keyword_bonus(card.get("actions", []) as Array, spec)
-	for token: Dictionary in bonus_tokens:
-		# Bonus values are increments: "Stagger +4", "Melee +4".
-		if str(token.get("value", "")).is_valid_int() and int(token["value"]) > 0:
-			token["value"] = "+%d" % int(token["value"])
-	var bonus: String = "repeat this card's first action" if bool(spec.get("repeat_first", false)) else Icons.plain_text_for_tokens(bonus_tokens)
+	var rule: String = str(Display.empower_panel(card, scene._combat_state)["card_tooltip"]).get_slice("\n", 1)
 	var controller: bool = scene.is_inside_tree() and scene._controller_is_active()
 	var charged: bool = scene._hand_card_empowered(index)
-	var instruction: String = ("Charged. Press RS to cancel." if controller else "Charged. Click to cancel.") if charged else ("Press RS" if controller else "Click the seal or press E")
-	return "Empower: %s · %s\n%s" % [Keywords.empower_cost_label(Keywords.empower_cost(card)), bonus, instruction]
+	var instruction: String
+	if charged:
+		instruction = "Charged. Press RS to cancel." if controller else "Charged. Click to cancel."
+	elif controller:
+		instruction = "Press RS"
+	else:
+		instruction = KeyBindings.sentence(KeyBindings.EMPOWER, "Click the seal or press %s", "Click the seal")
+	return "%s\n%s" % [rule, instruction]
 
 static func seal_hint(scene: Node) -> String:
 	# The controller uses InputGlyph art in the existing seal shortcut seat.

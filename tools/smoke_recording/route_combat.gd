@@ -4,7 +4,7 @@ extends RefCounted
 
 const Policy = preload("res://tools/smoke_recording/capture_policy.gd")
 const OPENING_ATTACK: String = "dull_bolt"
-const OPENING_MOVE: String = "shadow_step"
+const OPENING_MOVES: PackedStringArray = ["shadow_step", "guarded_step"]
 const MAX_ACTIONS: int = 65
 const INVALID := Vector2i(-1, -1)
 
@@ -49,8 +49,12 @@ func select_mouse(index: int) -> bool:
 
 func aim(tile: Vector2i) -> void:
 	route.driver.motion(tile_point(tile))
+	var started: int = Engine.get_process_frames()
+	await route.until(func() -> bool: return scene().get("_hovered_board_tile") == tile, "Board hover reached %s" % str(tile), 60)
+	var waited: int = Engine.get_process_frames() - started
+	if waited > route.LAYOUT_FRAMES: print("CAP09 NOTE: hover %s took %d frames" % [tile, waited])
+	if route.failed: print("CAP09 NOTE: hovered %s, board hover %s, pointer %s, aim %s" % [scene().get("_hovered_board_tile"), board().get("_hover_tile"), route.root.get_mouse_position(), tile_point(tile)])
 	await route.frames(route.LAYOUT_FRAMES)
-	route.require(scene().get("_hovered_board_tile") == tile, "Board hover reached %s" % str(tile))
 
 func click_tile(tile: Vector2i) -> void:
 	await route.driver.click(tile_point(tile))
@@ -87,8 +91,12 @@ func opening() -> void:
 	if not route.require(not route.hand().has(OPENING_ATTACK), "Targeted attack committed"): return
 	route.witness("mouse_attack %s %s" % [OPENING_ATTACK, str(target)])
 
-	var movement_index: int = route.hand().find(OPENING_MOVE)
+	var movement_index: int = -1
+	for id: String in OPENING_MOVES:
+		movement_index = route.hand().find(id)
+		if movement_index >= 0: break
 	if not await select_mouse(movement_index): return
+	var movement_id: String = route.hand()[movement_index]
 	var origin: Vector2i = hero()
 	var move_tile: Vector2i = opening_move_target()
 	await aim(move_tile)
@@ -96,7 +104,7 @@ func opening() -> void:
 	await click_tile(move_tile)
 	if not await wait_after_play(): return
 	if not route.require(hero() == move_tile and hero() != origin, "Movement card committed"): return
-	route.witness("mouse_movement_card %s %s" % [OPENING_MOVE, str(move_tile)])
+	route.witness("mouse_movement_card %s %s" % [movement_id, str(move_tile)])
 
 	await hover_enemy_and_threat()
 	if route.failed: return

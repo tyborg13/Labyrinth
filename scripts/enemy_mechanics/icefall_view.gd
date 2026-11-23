@@ -4,7 +4,7 @@ const TileGlow = preload("res://scripts/tile_glow.gd")
 
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Biomes = preload("res://scripts/biome_library.gd")
-const Fx = preload("res://scripts/elemental_spell_fx.gd")
+const TileBurstFx = preload("res://scripts/tile_burst_fx.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
@@ -99,35 +99,38 @@ static func draw_pillar(view: Control, terrain: Dictionary, obstructions: Array)
 	else: view._register_tooltip(rect, pillar_tooltip(terrain))
 	return true
 
-static func draw_effect(view: Control, effect: Dictionary, progress: float) -> bool:
-	if str(effect.get("en02_mechanic", "")) != "icefall_land": return false
-	var reduced: bool = bool(view.presentation.get("reduced_motion", false))
-	var puff_seconds: float = float(effect.get("icefall_puff_seconds", PUFF_SECONDS))
-	var elapsed: float = progress * (FALL_SECONDS + puff_seconds)
-	for tile: Vector2i in effect.get("tiles", []):
-		if not view._board_tile_is_visible_to_player(tile): continue
-		var ground: Vector2 = view._tile_center(tile)
-		var top: Vector2 = ground - Vector2(0, view._tile_height() * 1.45)
-		if not reduced and (str(effect.get("icefall_phase", "")) == "fall" or elapsed < FALL_SECONDS):
-			Fx.travel(view, "ice", top, ground, ground, ground, view._tile_width(), elapsed / FALL_SECONDS, 1.0)
-		else:
-			var t: float = 0.52 if reduced else clampf((elapsed - FALL_SECONDS) / maxf(puff_seconds, 0.001), 0, 1)
-			view._draw_ice_icicle_impact(ground, t, 1.0, reduced)
-	return true
+static func handles_landing(effect: Dictionary) -> bool:
+	return effect.get("en02_mechanic") == "icefall_land"
+
+## The production Seer submits the fall through its cutout's own contact pose.
+static func cutout_strike(step: Dictionary, before: Dictionary, actor: Dictionary, reduced: bool) -> Dictionary:
+	if not handles_landing(step): return {}
+	var action: Script = preload("res://scripts/maquette_cutout_runtime/action.gd")
+	var clip: String = action.clip_for(step, actor)
+	var definition: Dictionary = action.data_for(actor["type"])["clips"][clip]
+	var frames: int = 1 if reduced else action.frames_for(actor["type"], clip)
+	var seconds: float = 0.0 if reduced else float(definition["seconds"]) / frames
+	var cue: TileBurstFx.StrikeCue = TileBurstFx.strike_frame_cue(step, ceili(float(definition["contact"]) * frames), seconds, reduced)
+	if cue == null: return {}
+	return {"cue": cue, "before": before.duplicate(true), "frames": frames, "seconds": seconds}
 
 static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void:
 	var before: Dictionary = state.duplicate(true)
-	var landing: bool = str(step["en02_mechanic"]) == "icefall_land"
+	var landing: bool = handles_landing(step)
+	var strike: TileBurstFx.StrikeCue
 	if landing:
 		var reduced: bool = scene._reduced_motion_enabled()
+		strike = TileBurstFx.strike_cue(step, roundi(FALL_SECONDS * 1000000.0), reduced)
 		var puff_seconds: float = PUFF_SECONDS
 		step["icefall_puff_seconds"] = puff_seconds
 		scene._play_sfx(Sfx.entry_for_enemy_step(step))
 		if not reduced:
 			step["icefall_phase"] = "fall"
-			await scene._play_timed_animation_frames(scene.ATTACK_FRAMES, FALL_SECONDS / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
+			await scene._play_strike_animation_frames(scene.ATTACK_FRAMES, FALL_SECONDS / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
 				var progress: float = (float(frame) / float(scene.ATTACK_FRAMES)) * FALL_SECONDS / (FALL_SECONDS + puff_seconds)
-				scene._render_board_state(state, {"effect": step, "effect_progress": progress}))
+				scene._render_board_state(state, {"effect": step, "effect_progress": progress})
+				scene.board_view.present_sky_strike(strike, false, before, state)
+			, strike)
 	state.clear()
 	state.merge(step["en02_state_after"].duplicate(true), true)
 	if landing:
@@ -135,11 +138,13 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 		var reduced: bool = scene._reduced_motion_enabled()
 		var puff_seconds: float = float(step["icefall_puff_seconds"])
 		var texts: Array[Dictionary] = preload("res://scripts/enemy_mechanics/wind_view.gd").damage_texts(scene, step)
-		await scene._play_timed_animation_frames(1 if reduced else scene.ATTACK_FRAMES, 0.0 if reduced else puff_seconds / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
+		await scene._play_strike_animation_frames(1 if reduced else scene.ATTACK_FRAMES, 0.0 if reduced else puff_seconds / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
 			var t: float = float(frame) / float(1 if reduced else scene.ATTACK_FRAMES)
 			var progress: float = (FALL_SECONDS + t * puff_seconds) / (FALL_SECONDS + puff_seconds)
 			var feedback: Dictionary = {"effect": step, "effect_progress": progress, "floating_texts": FloatingText.animate_entries(texts, t * puff_seconds, reduced)}
-			scene._render_board_state(state, scene._attack_feedback_death_hold_presentation(before, state, feedback)))
+			scene._render_board_state(state, scene._attack_feedback_death_hold_presentation(before, state, feedback))
+			scene.board_view.present_sky_strike(strike, true, before, state)
+		, strike)
 		if not texts.is_empty(): await scene._animate_floating_text_presentation(state, scene._death_hold_presentation(before, state, {"floating_texts": texts}), puff_seconds)
 	if landing: await scene._animate_turn_order_alongside_defeats(before, state)
 	scene._render_board_state(state, {})

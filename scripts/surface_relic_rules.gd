@@ -31,7 +31,7 @@ static func has_effect(state: Dictionary, effect_type: String) -> bool:
 
 static func removal_source(state: Dictionary, effect_type: String) -> Dictionary:
 	var entry: Dictionary = effect(state, effect_type)
-	return Expend.relic_source(state.get("damage_context", {}), entry, GameData.relic_def(str(entry.get("relic_id", ""))))
+	return Expend.relic_source(state.get("damage_context", {}), entry)
 
 static func mode_enabled(action: Dictionary, mode: String) -> bool:
 	return (action.get("_surface_relic_modes", []) as Array).has(mode) or str(action.get("_surface_relic_mode", "")) == mode
@@ -74,7 +74,7 @@ static func action_variants(state: Dictionary, action: Dictionary) -> Array[Dict
 		result.append(_with_mode(action, "swap", "Exchange Chain endpoints"))
 	if action_type in ["melee", "ranged"] and has_effect(state, "rubble_attack_origin") and Surface.unit_on(state, state.get("player", {}) as Dictionary, "rubble"):
 		result.append(_with_mode(action, "remote", "Strike through Worldroot"))
-	if action_type in ["melee", "ranged", "aoe"] and _element(action) == "ice" and has_effect(state, "freeze_relocate_ice"):
+	if ice_spill_available(state, action):
 		for index: int in range(PathUtils.DIRS_4.size()):
 			var spill: Dictionary = action.duplicate(true)
 			spill["_ice_spill_direction"] = PathUtils.DIRS_4[index]
@@ -138,7 +138,7 @@ static func can_prepare(state: Dictionary, action: Dictionary, target: Vector2i)
 		return false
 	if mode_enabled(action, "swap") and int(action.get("chain", 0)) <= 0:
 		return false
-	if action.has("_ice_spill_direction") and (not has_effect(state, "freeze_relocate_ice") or _element(action) != "ice"):
+	if action.has("_ice_spill_direction") and not ice_spill_available(state, action):
 		return false
 	if mode_enabled(action, "remote"):
 		if type not in ["melee", "ranged"] or mode_enabled(action, "cross") or not origin_tiles(state).has(action.get("_origin_tile", INVALID)):
@@ -190,7 +190,7 @@ static func apply_events(engine: RefCounted, before_state: Dictionary, after_sta
 		for event: Dictionary in events:
 			if str(event.get("kind", "")) == "surface_removed" and str(event.get("surface", "")) == "rubble" and str(event.get("reason", "")).contains("detonate"):
 				Surface.place(state, event.get("tile", INVALID), "fire", _source("rubble_detonate"))
-	_frozen_transitions(before_state, state, action, events)
+	_ice_stagger_transitions(state, action, events)
 	if mode_enabled(action, "swap") and has_effect(state, "chain_swap_endpoints"):
 		state = _exchange_endpoints(engine, state, trace)
 	state = _event_rewards(engine, before_state, state, action, target, events, trace)
@@ -231,40 +231,54 @@ static func _transport(state: Dictionary, context: Dictionary) -> void:
 	for entry: Dictionary in moved:
 		Surface.place(state, entry["to"], str(entry["surface"]), _source("transport_surface"))
 
-static func _frozen_transitions(before: Dictionary, state: Dictionary, action: Dictionary, events: Array[Dictionary]) -> void:
-	var direct_deaths: Dictionary = {}
-	var freezes: Dictionary = {}
+static func ice_spill_available(state: Dictionary, action: Dictionary) -> bool:
+	if _element(action) != "ice" or not (_is_direct_attack(action) or str(action.get("type", "")) == "all_enemies"):
+		return false
+	var ground_bonus: Dictionary = action.get("surface_bonus", {}) as Dictionary
+	return (int(action.get("stagger", 0)) > 0 or int(ground_bonus.get("stagger", 0)) > 0) and has_effect(state, "ice_stagger_relocate_ice")
+
+static func targetless_ice_spill_index(engine: RefCounted, state: Dictionary, actions: Array) -> int:
+	var index: int = -1
+	for cursor: int in range(actions.size()):
+		var action: Dictionary = actions[cursor]
+		if engine.player_action_needs_target(action):
+			return -1
+		if index < 0 and ice_spill_available(state, action):
+			index = cursor
+	return index
+
+static func _ice_stagger_transitions(state: Dictionary, action: Dictionary, events: Array[Dictionary]) -> void:
+	var prism: bool = has_effect(state, "ice_stagger_rubble")
+	var direction: Vector2i = action.get("_ice_spill_direction", Vector2i.ZERO)
+	var spill: bool = PathUtils.DIRS_4.has(direction) and ice_spill_available(state, action)
+	if not prism and not spill:
+		return
 	for event: Dictionary in events:
-		if str(event.get("kind", "")) == "actor_death" and str(event.get("source_kind", "")) in ["direct_attack", "detonate"] and bool(event.get("player_card", false)):
-			direct_deaths[int(event.get("id", -1))] = event
-		elif str(event.get("kind", "")) == "status_applied" and str(event.get("status", "")) == "freeze" and str(event.get("actor_kind", "")) == "enemy":
-			freezes[int(event.get("id", -1))] = event
-	for old: Dictionary in before.get("enemies", []):
-		if int(old.get("hp", 0)) <= 0:
+		var ice: Array = event.get("impact_ice_tiles", []) as Array
+		if event.get("kind") != "status_applied" or event.get("status") != "stagger" or event.get("element") != "ice" or ice.is_empty():
 			continue
-		var current: Dictionary = enemy_by_id(state, int(old.get("id", -1)))
-		if current.is_empty():
-			continue
-		var id: int = int(old.get("id", -1))
-		var death: Dictionary = direct_deaths.get(id, {}) as Dictionary
-		var at_death: Dictionary = death.get("unit", {}) as Dictionary
-		if int(at_death.get("freeze", 0)) > 0 and has_effect(state, "frozen_kill_rubble"):
+		var impact: Array = event["impact_tiles"] as Array
+		if prism:
 			var formation: Dictionary = {}
-			for tile: Vector2i in Surface.footprint_tiles(at_death):
-				for direction: Vector2i in CROSS:
-					formation[tile + direction] = true
+			for tile: Vector2i in impact:
+				for offset: Vector2i in CROSS:
+					formation[tile + offset] = true
 			for tile: Vector2i in formation:
-				Surface.place(state, tile, "rubble", _source("frozen_kill_rubble"))
-		if freezes.has(id) and has_effect(state, "freeze_relocate_ice") and action.has("_ice_spill_direction"):
-			var direction: Vector2i = action.get("_ice_spill_direction", Vector2i.ZERO)
-			if not PathUtils.DIRS_4.has(direction) or not Surface.unit_on(before, old, "ice"):
-				continue
-			var footprint: Array[Vector2i] = Surface.footprint_tiles(current)
-			for tile: Vector2i in footprint:
-				var destination: Vector2i = tile + direction
-				if not footprint.has(destination) and Surface.can_place(state, destination):
-					Surface.place(state, destination, "ice", _source("freeze_relocate_ice"))
-					break
+				Surface.place(state, tile, "rubble", _source("ice_stagger_rubble"))
+		if spill:
+			_relocate_impact_ice(state, ice, impact, direction)
+
+static func _relocate_impact_ice(state: Dictionary, ice: Array, impact: Array, direction: Vector2i) -> void:
+	for tile: Vector2i in ice:
+		var destination: Vector2i = tile + direction
+		if not Surface.has_surface(state, tile, "ice") or impact.has(destination) or not Surface.can_place(state, destination):
+			continue
+		if Surface.has_surface(state, destination, "ice"):
+			continue
+		var source: Dictionary = _source("ice_stagger_relocate_ice")
+		Surface.remove(state, tile, "ice", "relocate", source)
+		Surface.place(state, destination, "ice", source)
+		return
 
 static func _exchange_endpoints(engine: RefCounted, state: Dictionary, trace: Dictionary) -> Dictionary:
 	var route: Array = trace.get("chain_hits", trace.get("hits", [])) as Array

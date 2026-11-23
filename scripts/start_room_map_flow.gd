@@ -1,5 +1,6 @@
 extends RefCounted
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Router = preload("res://scripts/input_router.gd")
 const Glyph = preload("res://scripts/input_glyph.gd")
@@ -10,7 +11,7 @@ const Transition = preload("res://scripts/section_transition.gd")
 # Later section thresholds currently have no NPC/narration. The owner supplies
 # any opening script here; an empty script preserves their existing map handoff.
 const TODO_DESIGN_SECTION_START_NARRATION: Dictionary = {}
-const PATH_HINT: String = "Choose your path on the map [M]"
+const PATH_HINT: String = "Choose your path on the map"
 const HINT_ACTION_ROW_GAP: float = 16.0
 const HINT_BOTTOM_GAP: float = 72.0
 const HINT_FONT_SIZE: int = 17
@@ -152,7 +153,7 @@ func refresh_hint(host: Node) -> void:
 		host.get("_context_choice_overlay").item_rect_changed.connect(layout)
 	var router: Node = host.get_node_or_null("/root/InputRouter")
 	var controller: bool = router != null and bool(router.call("using_controller"))
-	_label.text = PATH_HINT.trim_suffix("[M]").strip_edges() if controller else PATH_HINT
+	_label.text = PATH_HINT if controller else KeyBindings.with_mark(PATH_HINT, KeyBindings.MAP)
 	_glyph.visible = controller
 	if controller: _glyph.configure(Router.ACTION_MAP, str(router.call("controller_family")))
 	_hint.show()

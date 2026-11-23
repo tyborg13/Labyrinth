@@ -51,12 +51,10 @@ static func _forecast_grants(engine: RefCounted, state: Dictionary, index: int) 
 			grants[int(step["summon_action_index"])] = {"granted": bool(step.get("granted_card_play", false)), "arrivals": int(step.get("summon_arrivals", 0))}
 	return grants
 
-static func presentation(scene: Control, state: Dictionary, step: Dictionary) -> Dictionary:
+static func presentation(_scene: Control, state: Dictionary, step: Dictionary) -> Dictionary:
 	if not bool(step.get("granted_card_play", false)): return {}
-	# Reuse the existing positive heal float's colour, placement and timing.
-	var floats: Array = scene._floating_texts_for_step({"kind": "heal", "amount": 1, "tile": state["player"]["pos"]})
-	floats[0]["text"] = "+1 Card Play"
-	return {"floating_texts": floats}
+	var entry: Dictionary = preload("res://scripts/floating_combat_text.gd").resource_entry("card_play", state["player"]["pos"], 1, {"offset": -6.0})
+	return {"floating_texts": [entry]}
 
 static func present(scene: Control, state: Dictionary, step: Dictionary) -> void:
 	var feedback: Dictionary = presentation(scene, state, step)

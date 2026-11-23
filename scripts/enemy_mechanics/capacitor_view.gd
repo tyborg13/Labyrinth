@@ -1,5 +1,12 @@
 extends RefCounted
 
+const Action = preload("res://scripts/maquette_cutout_runtime/action.gd")
+const Bursts = preload("res://scripts/tile_burst_fx.gd")
+const Chain = preload("res://scripts/chain_attack_feedback.gd")
+const ChainBolt = preload("res://scripts/chain_bolt_fx.gd")
+const Cutout = preload("res://assets/units/storm_capacitor_cutout/actions.gd")
+const DeferredDeath = preload("res://scripts/enemy_mechanics/deferred_death_view.gd")
+const Shot = preload("res://scripts/shot_fx.gd")
 const Rules = preload("res://scripts/enemy_mechanics/capacitor.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
@@ -14,7 +21,7 @@ const PIP_ROW_OFFSET: float = 10.0
 static var _preview_engine := Combat.new()
 
 static func charge_tooltip(state: Dictionary, unit: Dictionary) -> String:
-	return Icons.tooltip("charge").replace("At 3,", "At %d," % Rules.MAX_CHARGE)
+	return Icons.tooltip("charge").replace("At 3 Charge", "At %d Charge" % Rules.MAX_CHARGE)
 
 static func badges(unit: Dictionary, state: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -46,9 +53,9 @@ static func rows(intent: Dictionary, state: Dictionary = {}, unit: Dictionary = 
 	var token: Dictionary
 	if str(action["type"]) == "gain_charge":
 		var charge: Dictionary = preload("res://scripts/game_data.gd").enemies()["storm_capacitor"]["charge"]
-		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), "At %d Charge it fires Arc Burst; Shock removes %d." % [int(charge["max"]), int(charge["lose_on_shock"])])
+		token = Icons.icon_text_token("charge", "Charge +%d" % int(action["amount"]), "At %d Charge, this enemy's next attack is Arc Lash. Shock removes %d Charge." % [int(charge["max"]), int(charge["lose_on_shock"])])
 	else:
-		token = Icons.icon_text_token("chain", "Arc %d, range %d, %d jumps" % [int(action["damage"]), int(action["first_range"]), int(action["jumps"])], "Hits the nearest target within %d for %d, then jumps to up to %d more beside each hit, losing %d per jump." % [int(action["first_range"]), int(action["damage"]), int(action["jumps"]), int(action["falloff"])])
+		token = Icons.icon_text_token("chain", "Arc %d, Range %d, %d extra hits" % [int(action["damage"]), int(action["first_range"]), int(action["jumps"])], "This enemy hits the nearest target within %d tiles for %d damage, then hits up to %d more, each adjacent to the prior target and taking %d less damage." % [int(action["first_range"]), int(action["damage"]), int(action["jumps"]), int(action["falloff"])])
 	token["glossary_key"] = "charge"
 	return [[token]]
 
@@ -115,15 +122,110 @@ static func queue_grounded(scene: Control, step: Dictionary) -> void:
 		texts.append({"tile": target["tile"], "text": "Grounded", "color": COLOR})
 	if not texts.is_empty(): scene._queue_player_popup_group(texts, 0.0)
 
-static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void:
-	for hit: Dictionary in step.get("chain_hits", []):
-		var effect: Dictionary = {"kind": "chain", "from": hit["from"], "to": hit["to"], "element": "lightning", "actor_key": step["actor_key"]}
+static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: Dictionary = {}) -> void:
+	if Cutout.handles(step, actor):
+		await _animate_cutout_discharge(scene, state, step, actor)
+		return
+	var before: Dictionary = state.duplicate(true)
+	var hits: Array = step.get("chain_hits", [])
+	for index: int in hits.size():
+		var hit: Dictionary = hits[index]
+		var effect: Dictionary = _hop_effect(step, hit)
 		scene._play_sfx(preload("res://scripts/attack_sfx_library.gd").entry_for_enemy_step({"kind": "ranged", "element": "lightning"}))
 		await scene._play_timed_animation_frames(scene.ATTACK_FRAMES, Rules.HOP_SECONDS / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
-			scene._render_board_state(state, {"effect": effect, "effect_progress": float(frame - 1) / float(scene.ATTACK_FRAMES)}, true)
+			var shown: Dictionary = {"effect": effect, "effect_progress": float(frame - 1) / float(scene.ATTACK_FRAMES)}
+			_add_spark_flight(shown, index)
+			scene._render_board_state(state, shown, true)
 		)
 		state.merge(hit["state"].duplicate(true), true)
 		scene._render_board_state(state, {})
 		preload("res://scripts/enemy_mechanics/chain_hit_feedback.gd").submit(scene, state, hit.get("target_losses", []))
+		_present_contacts(scene, before, hits, index, index + 1)
 	scene._apply_animation_step(state, step)
 	scene._render_board_state(state, {})
+
+# The approved cutout still supplies its pose, phase mapping, sound, and hit
+# updates. Use the same rig and tail clocks and attach visuals to completed hops.
+static func _animate_cutout_discharge(scene: Control, state: Dictionary, step: Dictionary, actor: Dictionary) -> void:
+	var clip: String = Action.clip_for(step, actor)
+	var definition: Dictionary = Action.data_for(Cutout.TYPE)["clips"][clip]
+	var seconds: float = float(definition["seconds"])
+	var contact: float = float(definition["contact"])
+	var key: String = str(step["actor_key"])
+	var direction: Vector2i = state["player"]["pos"] - actor["pos"]
+	var reduced: bool = scene._reduced_motion_enabled()
+	var hits: Array = step.get("chain_hits", [])
+	var before: Dictionary = state.duplicate(true)
+	var clock: Dictionary = {"cued_hops": 0, "completed_hops": 0}
+	var count: int = 1 if reduced else Action.frames_for(Cutout.TYPE, clip)
+	scene._set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+	await scene._play_timed_animation_frames(count, 0.0 if reduced else seconds / count, func(frame: int) -> void:
+		var phase: float = 1.0 if reduced else Cutout.phase_at(frame, count, contact)
+		var shown: Dictionary = Cutout.motion_for(key, clip, phase, direction)
+		if phase < contact:
+			scene._render_board_state(state, shown, true)
+		else:
+			_discharge_frame(scene, state, step, before, hits, clock, (phase - contact) * seconds, shown)
+	)
+	var remaining: float = maxf(0.0, hits.size() * Rules.HOP_SECONDS - seconds * (1.0 - contact))
+	if remaining > 0.0:
+		var tail_count: int = maxi(1, ceili(remaining * Action.FPS))
+		await scene._play_timed_animation_frames(tail_count, remaining / tail_count, func(frame: int) -> void:
+			var shown: Dictionary = Cutout.motion_for(key, clip, 1.0, direction)
+			_discharge_frame(scene, state, step, before, hits, clock, seconds * (1.0 - contact) + remaining * float(frame) / tail_count, shown)
+		)
+	var completed: int = clock["completed_hops"]
+	Cutout.finish_hops(scene, state, hits, clock, hits.size())
+	scene._apply_animation_step(state, step)
+	scene._render_board_state(state, {})
+	_present_contacts(scene, before, hits, completed, hits.size())
+
+static func _discharge_frame(scene: Control, state: Dictionary, step: Dictionary, before: Dictionary, hits: Array, clock: Dictionary, elapsed: float, shown: Dictionary) -> void:
+	var completed: int = clock["completed_hops"]
+	Cutout.chain_frame(scene, state, step, hits, clock, elapsed, shown)
+	_add_spark_flight(shown, int(clock["completed_hops"]))
+	scene._render_board_state(state, shown, true)
+	_present_contacts(scene, before, hits, completed, int(clock["completed_hops"]))
+
+static func _hop_effect(step: Dictionary, hit: Dictionary) -> Dictionary:
+	return {"kind": "chain", "from": hit["from"], "to": hit["to"], "element": "lightning", "actor_key": step["actor_key"]}
+
+static func _add_spark_flight(shown: Dictionary, hop: int) -> void:
+	if not shown.has("effect"): return
+	var effect: Dictionary = shown["effect"].duplicate(false)
+	effect["chain_index"] = hop + 1
+	# Capacitor applies its hit at the end of its hop. Map that full window
+	# onto Spark's release-to-contact interval without changing either clock.
+	shown[Shot.ADAPTER_FLIGHT] = {"effect": effect, "progress": float(shown["effect_progress"]) * Chain.HOP_CONTACT}
+
+static func _present_contacts(scene: Control, before: Dictionary, hits: Array, first: int, end: int) -> void:
+	if first == end: return
+	var board: Control = scene.board_view
+	var reduced: bool = scene._reduced_motion_enabled()
+	var specs: Array[Dictionary]
+	var death_tiles: Dictionary
+	for index: int in range(first, end):
+		var prior: Dictionary = before if index == 0 else hits[index - 1]["state"]
+		var after: Dictionary = hits[index]["state"]
+		var events: Array = after.get("death_burst_events", [])
+		for event_index: int in range(prior.get("death_burst_events", []).size(), events.size()):
+			var event: Dictionary = events[event_index]
+			var spec: Dictionary = DeferredDeath.burst_spec(board, event, prior, after)
+			spec["excluded_tiles"] = death_tiles.duplicate()
+			specs.append(spec)
+			for tile: Vector2i in event["tiles"]: death_tiles[tile] = true
+	# Burst and lethal damage numbers share the kill sample in the base
+	# adapter. The Fire cross owns overlapping tiles on that sample.
+	var claimed: Dictionary = death_tiles
+	for index: int in range(first, end):
+		var hit: Dictionary = hits[index]
+		var tile: Vector2i = hit["to"]
+		if claimed.has(tile): continue
+		var prior: Dictionary = before if index == 0 else hits[index - 1]["state"]
+		var impact: Dictionary = Bursts.step_hit_tiles(prior, hit["state"], board._resolved_unit_footprint)
+		specs.append({"name": "lightning", "center": tile, "tiles": [tile], "contact_hits": impact})
+		claimed[tile] = true
+	board.present_tile_bursts(specs, {}, board.combat_state, reduced)
+	for index: int in range(maxi(1, first), end):
+		var hit: Dictionary = hits[index]
+		ChainBolt.present(board, hit["from"], hit["to"], reduced)

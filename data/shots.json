@@ -1,0 +1,1553 @@
+{
+ "headings": 32,
+ "flicker_fps": 12,
+ "spin_fps": 18,
+ "hit_fps": 30,
+ "hit_frames": 8,
+ "reduced_motion_hit_frame": 1,
+ "reduced_motion_seconds": 0.18,
+ "flight_height_tiles": 0.3,
+ "shots": {
+  "arrow": {
+   "hit": "hit_spark",
+   "arc_tiles": 0.12,
+   "ease": 1.0
+  },
+  "spear": {
+   "hit": "hit_spark",
+   "arc_tiles": 0.18,
+   "ease": 1.0
+  },
+  "knife": {
+   "hit": "hit_spark",
+   "arc_tiles": 0.1,
+   "ease": 1.0
+  },
+  "hook": {
+   "hit": "hit_spark",
+   "arc_tiles": 0,
+   "ease": 1.0,
+   "chain": "link",
+   "chain_step_cells": 8.4,
+   "retract": 0.4
+  },
+  "coin": {
+   "hit": "hit_spark",
+   "arc_tiles": 0.55,
+   "ease": 1.0
+  },
+  "die": {
+   "hit": "hit_pale",
+   "arc_tiles": 0.6,
+   "ease": 1.0
+  },
+  "net": {
+   "hit": "hit_puff",
+   "arc_tiles": 0.5,
+   "ease": 1.0
+  },
+  "trap": {
+   "hit": "hit_spark",
+   "arc_tiles": 0.5,
+   "ease": 1.0
+  },
+  "stone": {
+   "hit": "hit_chips",
+   "arc_tiles": 0.35,
+   "ease": 1.0
+  },
+  "rock": {
+   "hit": "hit_chips",
+   "arc_tiles": 0.5,
+   "ease": 1.0
+  },
+  "pale": {
+   "hit": "hit_pale",
+   "arc_tiles": 0,
+   "ease": 1.3
+  },
+  "light": {
+   "hit": "hit_flash",
+   "arc_tiles": 0,
+   "ease": 1.3
+  },
+  "sunlance": {
+   "hit": "hit_flash",
+   "arc_tiles": 0,
+   "ease": 1.6
+  },
+  "lance": {
+   "hit": "hit_glass",
+   "arc_tiles": 0,
+   "ease": 1.4
+  },
+  "needle": {
+   "hit": "hit_glass",
+   "arc_tiles": 0,
+   "ease": 1.4
+  },
+  "blade": {
+   "hit": "hit_gust",
+   "arc_tiles": 0,
+   "ease": 1.2
+  },
+  "shade": {
+   "hit": "hit_gloom",
+   "arc_tiles": 0,
+   "ease": 1.2
+  },
+  "dust": {
+   "hit": "hit_puff",
+   "arc_tiles": 0,
+   "ease": 1.0
+  },
+  "ember": {
+   "hit": "",
+   "arc_tiles": 0.2,
+   "ease": 1.0
+  },
+  "spark": {
+   "hit": "",
+   "arc_tiles": 0,
+   "ease": 0.6
+  }
+ },
+ "shot_for_element": {
+  "none": "pale",
+  "ice": "lance",
+  "earth": "rock",
+  "air": "blade",
+  "shadow": "shade",
+  "fire": "ember",
+  "lightning": "spark"
+ },
+ "shot_for_card": {
+  "chain_lock": "hook",
+  "clockwork_mark": "arrow",
+  "dazzle": "light",
+  "dull_bolt": "pale",
+  "headsmans_toll": "coin",
+  "hurl_spear": "spear",
+  "jaw_trap": "trap",
+  "lantern_shot": "light",
+  "loaded_toss": "die",
+  "lodestone_reversal": "spark",
+  "snake_eyes": "die",
+  "pale_spark": "pale",
+  "pinning_quarrel": "arrow",
+  "refraction": "light",
+  "ricochet_knife": "knife",
+  "sunlance": "sunlance",
+  "throwing_net": "net",
+  "root_snare": "",
+  "locket_chill": "needle"
+ },
+ "count_for_card": {
+  "snake_eyes": 2,
+  "loaded_toss": 2
+ },
+ "shot_for_intent": {
+  "dust_bolt": "dust",
+  "siphon": "shade",
+  "spear_cast": "spear",
+  "hookwind": "hook",
+  "mourning_hook": "hook",
+  "manacle_pin": "hook",
+  "darting_pelt": "stone",
+  "pelt": "stone",
+  "echo": "shade",
+  "shade_bolt": "shade",
+  "veil_needle": "shade",
+  "lash_of_thorns": "",
+  "spore_mark": "rock",
+  "bile_burst": "rock",
+  "executioners_fall": ""
+ },
+ "shot_for_enemy_intent": {
+  "veilbound_acolyte:veil_needle": "shade",
+  "rime_spitter:needle": "needle",
+  "rime_spitter:recover": "needle"
+ },
+ "weapon_motion_replaces_pale": {
+  "bow": "arrow",
+  "repeater": "arrow"
+ },
+ "palette": [
+  "00000000",
+  "6c6a70ff",
+  "a6a6acff",
+  "e6e8ecff",
+  "96643aff",
+  "684024ff",
+  "c4945eff",
+  "98322aff",
+  "5c1c18ff",
+  "d0624cff",
+  "140f0cff",
+  "dca63cff",
+  "9c681cff",
+  "ffe69cff",
+  "3a3840ff",
+  "6a6a76ff",
+  "a2a4b0ff",
+  "dadee6ff",
+  "ffffffff",
+  "6a360cff",
+  "b8701cff",
+  "eeb044ff",
+  "ffe092ff",
+  "fffcecff",
+  "1a3a58ff",
+  "2f6f8fff",
+  "5fb0d0ff",
+  "a8e0f0ff",
+  "eefaffff",
+  "1e3a36ff",
+  "3f7a6eff",
+  "79b8a6ff",
+  "bfe6d6ff",
+  "f2fff8ff",
+  "120a1cff",
+  "2c1646ff",
+  "522c7cff",
+  "8654b4ff",
+  "c69cecff",
+  "3a3026ff",
+  "5e5040ff",
+  "8a7860ff",
+  "b6a286ff",
+  "ded0b4ff",
+  "5a360cff",
+  "faf4e6ff",
+  "d2c8b4ff",
+  "9a8e7cff",
+  "846844ff",
+  "b89868ff",
+  "3a383cff",
+  "30261eff",
+  "584636ff",
+  "866c52ff",
+  "b89a78ff",
+  "080606ff",
+  "3a1208ff",
+  "8a2a10ff",
+  "d0581cff",
+  "f29a3aff",
+  "ffe6a8ff",
+  "2a1a4aff",
+  "5a3a9aff",
+  "9a7ae0ff",
+  "d0c0ffff"
+ ],
+ "sizes": [
+  {
+   "tile_cells": 44,
+   "atlas": "res://assets/art/effects/shots/shot_44.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 50,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 44,
+     "y": 50,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 18,
+     "y": 94,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 10,
+     "y": 112,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 48,
+     "y": 132,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 50,
+     "y": 276,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 56,
+     "y": 426,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 50,
+     "y": 594,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 36,
+     "y": 744,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 34,
+     "y": 852,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 50,
+     "y": 954,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 46,
+     "y": 1104,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 1242,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 16,
+     "y": 1262,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 16,
+     "y": 1278,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 28,
+     "y": 1294,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 1322,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 12,
+     "y": 1342,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 18,
+     "y": 1354,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 14,
+     "y": 1372,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1386,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1420,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1454,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1488,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1522,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1556,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1590,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 34,
+     "y": 1624,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 44,
+     "y": 1658,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 44,
+     "y": 1790,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "0dd6902f7e9123f37ab40dc6142729510d5979c4b05ff9a1872282a6a2b07abb"
+  },
+  {
+   "tile_cells": 52,
+   "atlas": "res://assets/art/effects/shots/shot_52.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 52,
+     "y": 60,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 20,
+     "y": 112,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 12,
+     "y": 132,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 56,
+     "y": 156,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 324,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 504,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 702,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 42,
+     "y": 882,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 40,
+     "y": 1008,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 1128,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 54,
+     "y": 1308,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 22,
+     "y": 1470,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 18,
+     "y": 1492,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 18,
+     "y": 1510,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 34,
+     "y": 1528,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 24,
+     "y": 1562,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 14,
+     "y": 1586,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 22,
+     "y": 1600,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 16,
+     "y": 1622,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1638,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1678,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1718,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1758,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1798,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1838,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1878,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 40,
+     "y": 1918,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 52,
+     "y": 1958,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 52,
+     "y": 2114,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "ba8395c2904cff4ac6e12e5d06e1068651583755453683cafbd7e14de3f16031"
+  },
+  {
+   "tile_cells": 60,
+   "atlas": "res://assets/art/effects/shots/shot_60.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 68,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 68,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 22,
+     "y": 128,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 12,
+     "y": 150,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 174,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 68,
+     "y": 372,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 76,
+     "y": 576,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 68,
+     "y": 804,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 48,
+     "y": 1008,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 46,
+     "y": 1152,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 68,
+     "y": 1290,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 62,
+     "y": 1494,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 26,
+     "y": 1680,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 1706,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 1726,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 38,
+     "y": 1746,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 26,
+     "y": 1784,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 16,
+     "y": 1810,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 24,
+     "y": 1826,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 18,
+     "y": 1850,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 1868,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 1914,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 1960,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 2006,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 2052,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 2098,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 2144,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 46,
+     "y": 2190,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 2236,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 2416,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "d666bd7785ebcbc3e5e32ca4df8b944e6269b0b356ce8221d17e0b37dcaceb84"
+  },
+  {
+   "tile_cells": 68,
+   "atlas": "res://assets/art/effects/shots/shot_68.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 76,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 76,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 26,
+     "y": 142,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 14,
+     "y": 168,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 74,
+     "y": 196,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 76,
+     "y": 418,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 646,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 76,
+     "y": 904,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 54,
+     "y": 1132,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 50,
+     "y": 1294,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 76,
+     "y": 1444,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 70,
+     "y": 1672,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 28,
+     "y": 1882,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 22,
+     "y": 1910,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 22,
+     "y": 1932,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 42,
+     "y": 1954,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 30,
+     "y": 1996,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 18,
+     "y": 2026,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 26,
+     "y": 2044,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 20,
+     "y": 2070,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2090,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2140,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2190,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2240,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2290,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2340,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2390,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 50,
+     "y": 2440,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 2490,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 2688,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "f80bd1948b78b9870f5247f863be3986036ba7070d6e312709cb0ee0fd4ac49e"
+  },
+  {
+   "tile_cells": 76,
+   "atlas": "res://assets/art/effects/shots/shot_76.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 74,
+     "y": 86,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 28,
+     "y": 160,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 16,
+     "y": 188,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 82,
+     "y": 220,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 466,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 96,
+     "y": 724,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 1012,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 60,
+     "y": 1270,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 56,
+     "y": 1450,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 1618,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 78,
+     "y": 1876,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 32,
+     "y": 2110,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 24,
+     "y": 2142,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 24,
+     "y": 2166,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 48,
+     "y": 2190,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 34,
+     "y": 2238,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 2272,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 30,
+     "y": 2292,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 22,
+     "y": 2322,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2344,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2400,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2456,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2512,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2568,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2624,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2680,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 56,
+     "y": 2736,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 74,
+     "y": 2792,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 74,
+     "y": 3014,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "ca79f33fbe8f48da6484b37f2ed9cb46d91222e7b91f2fbb908536e6b90efbad"
+  },
+  {
+   "tile_cells": 84,
+   "atlas": "res://assets/art/effects/shots/shot_84.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 94,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 82,
+     "y": 94,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 30,
+     "y": 176,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 16,
+     "y": 206,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 90,
+     "y": 238,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 94,
+     "y": 508,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 106,
+     "y": 790,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 94,
+     "y": 1108,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 66,
+     "y": 1390,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 62,
+     "y": 1588,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 94,
+     "y": 1774,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 86,
+     "y": 2056,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 34,
+     "y": 2314,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 26,
+     "y": 2348,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 26,
+     "y": 2374,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 52,
+     "y": 2400,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 36,
+     "y": 2452,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 20,
+     "y": 2488,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 32,
+     "y": 2508,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 24,
+     "y": 2540,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2564,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2626,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2688,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2750,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2812,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2874,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2936,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 62,
+     "y": 2998,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 82,
+     "y": 3060,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 82,
+     "y": 3306,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "349d270f8bc48236fd4905ef8f7b1d0a4e6521942eef03c73f022fbb5177e234"
+  },
+  {
+   "tile_cells": 92,
+   "atlas": "res://assets/art/effects/shots/shot_92.png",
+   "shots": {
+    "arrow": {
+     "kind": "heading",
+     "frame_cells": 102,
+     "y": 0,
+     "rows": 1
+    },
+    "spear": {
+     "kind": "heading",
+     "frame_cells": 90,
+     "y": 102,
+     "rows": 1
+    },
+    "hook": {
+     "kind": "heading",
+     "frame_cells": 34,
+     "y": 192,
+     "rows": 1
+    },
+    "link": {
+     "kind": "heading",
+     "frame_cells": 18,
+     "y": 226,
+     "rows": 2
+    },
+    "pale": {
+     "kind": "heading",
+     "frame_cells": 98,
+     "y": 262,
+     "rows": 3
+    },
+    "light": {
+     "kind": "heading",
+     "frame_cells": 102,
+     "y": 556,
+     "rows": 3
+    },
+    "sunlance": {
+     "kind": "heading",
+     "frame_cells": 116,
+     "y": 862,
+     "rows": 3
+    },
+    "lance": {
+     "kind": "heading",
+     "frame_cells": 102,
+     "y": 1210,
+     "rows": 3
+    },
+    "needle": {
+     "kind": "heading",
+     "frame_cells": 72,
+     "y": 1516,
+     "rows": 3
+    },
+    "blade": {
+     "kind": "heading",
+     "frame_cells": 68,
+     "y": 1732,
+     "rows": 3
+    },
+    "shade": {
+     "kind": "heading",
+     "frame_cells": 102,
+     "y": 1936,
+     "rows": 3
+    },
+    "dust": {
+     "kind": "heading",
+     "frame_cells": 94,
+     "y": 2242,
+     "rows": 3
+    },
+    "knife": {
+     "kind": "spin",
+     "frame_cells": 38,
+     "y": 2524,
+     "rows": 1
+    },
+    "coin": {
+     "kind": "spin",
+     "frame_cells": 28,
+     "y": 2562,
+     "rows": 1
+    },
+    "die": {
+     "kind": "spin",
+     "frame_cells": 28,
+     "y": 2590,
+     "rows": 1
+    },
+    "net": {
+     "kind": "progress",
+     "frame_cells": 58,
+     "y": 2618,
+     "rows": 1
+    },
+    "trap": {
+     "kind": "spin",
+     "frame_cells": 40,
+     "y": 2676,
+     "rows": 1
+    },
+    "stone": {
+     "kind": "spin",
+     "frame_cells": 22,
+     "y": 2716,
+     "rows": 1
+    },
+    "rock": {
+     "kind": "spin",
+     "frame_cells": 36,
+     "y": 2738,
+     "rows": 1
+    },
+    "shadow": {
+     "kind": "still",
+     "frame_cells": 26,
+     "y": 2774,
+     "rows": 1
+    },
+    "hit_spark": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 2800,
+     "rows": 1
+    },
+    "hit_glass": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 2868,
+     "rows": 1
+    },
+    "hit_flash": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 2936,
+     "rows": 1
+    },
+    "hit_pale": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 3004,
+     "rows": 1
+    },
+    "hit_gloom": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 3072,
+     "rows": 1
+    },
+    "hit_chips": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 3140,
+     "rows": 1
+    },
+    "hit_puff": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 3208,
+     "rows": 1
+    },
+    "hit_gust": {
+     "kind": "hit",
+     "frame_cells": 68,
+     "y": 3276,
+     "rows": 1
+    },
+    "ember": {
+     "kind": "heading",
+     "frame_cells": 90,
+     "y": 3344,
+     "rows": 3
+    },
+    "spark": {
+     "kind": "heading",
+     "frame_cells": 90,
+     "y": 3614,
+     "rows": 3
+    }
+   },
+   "sha256_pixels": "c684ec02f0126ade80a36d671cf94df35325e7966d49c08cd21a1ed316e4bd25"
+  }
+ ]
+}

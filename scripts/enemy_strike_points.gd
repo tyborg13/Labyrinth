@@ -15,7 +15,7 @@ const MODELS: Dictionary = {
 	"tharokh": preload("res://scripts/tharokh_cutout/renderer.gd"),
 	"vaeloryx": preload("res://scripts/vaeloryx_cutout/renderer.gd"),
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
-const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
+const BESPOKE: Array = ["grave_surgeon", "cinder_droplet", "cinder_ooze", "vyraketh"]
 # Handless/sprite rigs anchor a synthetic arc at their existing source centre
 # (director decision, fx-10).
 const WEAPON_HAND_SOURCE := Vector2(127.5, 127.5)
@@ -47,6 +47,7 @@ const REGISTRY: Dictionary = {
 	"iskaldra": {"kind":"rake", "bone":"talon_near", "point":[Vector2(116,207),Vector2(66,205)], "inner_bone":"arm_near", "window":Vector2(0.30,0.60)},
 	"lightning_wisp": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"acolyte": {"kind":"arc", "window":Vector2(0.33,0.56)},
+	"veilbound_acolyte": {"kind":"sweep", "bone":"strike_hand", "inner_bone":"strike_arm", "window":Vector2(0.34,0.72), "requires_rig":true},
 	# Guardian contact is authored .46, mapped to effect .42. The drive starts
 	# at authored .31, i.e. .31/.46*.42; end .57 maps to .538148 effect time.
 	"ashen_reaver": {"kind":"sweep", "bone":"falchion", "point":[Vector2(34.0,211.0),Vector2(209.5,209.0)], "inner_bone":"falchion", "window":Vector2(0.283043,0.538148), "reason":"The broad cleaver rotates through an overhead cut."},

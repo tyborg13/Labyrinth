@@ -68,6 +68,10 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 						action["tile_filter"] = "passable_without_terrain"
 						action["ignore_line_of_sight"] = true
 					if str(action["type"]) == "icefall_land": action["surface"] = "ice"
+					# The merged Ice rider delays the target on contact with Ice.
+					if str(action["type"]) in ["icefall_land", "ranged"]:
+						action.erase("chilled")
+						action["surface_bonus"] = {"surface": "ice", "subject": "target", "present": true, "stagger": 6.0}
 		expect.call(production[type] == expected, "%s director-owned entry is verbatim" % type)
 		var definition: Dictionary = Data.enemy_def(type)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]:
@@ -241,10 +245,10 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	var hud: PanelContainer = preload("res://scripts/battlefield_rule_hud.gd").new()
 	hud.set_combat_state(herald, engine)
 	expect.call(hud.visible and hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD · 2 BEATS LEFT" and hud.find_child("RuleTitle", true, false).text == "GUST", "Rule panel names Gust and the beats left")
-	expect.call(hud.find_child("RuleSentence", true, false).text == "After each of the Gale Herald's turns, its wind Pushes everyone 1 tile.", "Rule panel shows the instance's approved sentence")
+	expect.call(hud.find_child("RuleSentence", true, false).text == "On each Gust beat, after the Gale Herald's turn, each unit is Pushed 1 tile downwind.", "Rule panel shows the instance's approved sentence")
 	var next_beat: Dictionary = preload("res://scripts/battlefield_rules/dispatcher.gd").forecast(engine, herald)
 	expect.call(hud.find_child("RuleDirection", true, false).visible and hud.find_child("RuleDirection", true, false).heading == WindView.screen_direction(next_beat["direction"]), "Rule panel arrow points where the next beat blows (a pending Call's announcement)")
-	expect.call(hud.tooltip_text == "Gust\nOn its beat, the wind pushes every unit downwind.", "Rule panel tooltip is the Gust glossary entry")
+	expect.call(hud.tooltip_text == "Gust\nOn each Gust beat, each unit is Pushed downwind.", "Rule panel tooltip is the Gust glossary entry")
 	herald["battlefield_rule"]["beats_remaining"] = 1
 	hud.set_combat_state(herald, engine)
 	expect.call(hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD · 1 BEAT LEFT", "One beat left reads in the singular")
@@ -313,10 +317,11 @@ static func _additional_boundaries(engine: RefCounted, expect: Callable) -> void
 	state = fixture(engine)
 	state["room_element"] = "ice"
 	Surfaces.place(state, state["player"]["pos"], "ice")
-	state["player"]["chilled"] = true
+	state["turn_queue"].append(engine._player_actor_entry(0, engine._claim_activation_seq(state)))
 	state["enemies"][0]["icefall_tiles"] = engine._vector2i_values([state["player"]["pos"]])
 	state = engine._resolve_enemy_action(state, 0, intent("hoarfrost_seer", "icefall_land")["actions"][0])
-	expect.call(int(state["player"]["freeze"]) == 1 and Surfaces.element_at(state, state["player"]["pos"]) == "ice", "Elemental-room Icefall Freezes and leaves fresh Ice ground")
+	var hero_slots: Array = (state["turn_queue"] as Array).filter(func(entry: Dictionary) -> bool: return entry.get("kind") == "player")
+	expect.call(hero_slots.size() == 1 and int(hero_slots[0].get("time", 0)) == 6 and Surfaces.element_at(state, state["player"]["pos"]) == "ice", "Icefall applies Stagger 6 to the queued hero on Ice and leaves fresh Ice")
 	state = fixture(engine, "gale_herald")
 	state["room_element"] = "air"
 	state["wind"] = {"direction": Vector2i(1, 0), "rounds_left": 2, "source_id": 1}
@@ -364,11 +369,9 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 		expect.call(WindView.direction_name(axis) == "toward the " + quadrant, "Wind direction words match the isometric screen quadrant for %s" % axis)
 	expect.call(WindView.CHEVRON_STROKE == 2.0 and WindView.GUST_SPEED == 1.5 and WindView.GUST_LENGTH == 2.6 and is_equal_approx(WindView.GUST_FORECAST_ALPHA, 0.4) and is_equal_approx(WindView.GHOST_TINT.a, 0.36) and is_equal_approx(WindView.GHOST_FORECAST_TINT.a, 0.22), "Wind chip arrow, gust streams and landing ghosts use the approved values")
 	var herald_badges: Array[Dictionary] = WindView.status_badges({"type": "gale_herald"})
-	expect.call(herald_badges.size() == 1 and str(herald_badges[0]["icon"]) == "wind" and herald_badges[0]["tooltip"] == "Calls the wind. Defeat it and the wind stops.", "Herald carries the wind sigil with the approved source tooltip")
-	# pla-01: the Anchored chip is a unit trait shared by every anchored enemy (Herald and Roc),
-	# reading the keyword's own sentence, which is true for them: Push, Pull and Wind can't move it.
+	expect.call(herald_badges.size() == 1 and str(herald_badges[0]["icon"]) == "wind" and herald_badges[0]["tooltip"] == "This enemy creates Gust. Gust ends when this enemy dies.", "Herald carries the wind sigil with the approved source tooltip")
 	for anchored_type: String in ["gale_herald", "gallows_roc"]:
-		var anchored_chips: Array[Dictionary] = preload("res://scripts/enemy_mechanics/unit_traits.gd").badges({"type": anchored_type, "hp": 1})
-		expect.call(anchored_chips.size() == 1 and str(anchored_chips[0]["icon"]) == "anchored" and anchored_chips[0]["tooltip"] == "Anchored\nPush, Pull and Wind can't move it.", "Anchored trait chip on " + anchored_type)
-	expect.call(Glossary.definition("icefall") == "These tiles take the hit on this enemy's next turn.", "Icefall aliases the approved Marked keyword")
-	expect.call(Glossary.definition("wind") == "On its beat, the wind pushes every unit downwind.", "Wind icon description uses approved wording")
+		var chips: Array[Dictionary] = preload("res://scripts/enemy_mechanics/unit_traits.gd").badges({"type": anchored_type, "hp": 1})
+		expect.call(chips.size() == 1 and chips[0]["icon"] == "anchored" and chips[0]["tooltip"] == "Anchored\n" + Glossary.definition("anchored"), "Anchored trait chip on " + anchored_type)
+	expect.call(Glossary.definition("icefall") == "Marked tiles show where this enemy acts on its next turn.", "Icefall aliases the approved Marked keyword")
+	expect.call(Glossary.definition("wind") == "On each Gust beat, each unit is Pushed downwind.", "Wind icon description uses approved wording")

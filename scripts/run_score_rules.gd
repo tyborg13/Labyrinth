@@ -236,7 +236,7 @@ static func cause_text(killer: Dictionary, outcome: String, embers: int) -> Stri
 			return "%s took your last breath." % surface.capitalize() if not surface.is_empty() else "The ground itself took your last breath."
 		"trap":
 			var element: String = str(killer.get("element", ""))
-			return "A %s trap took your last breath." % element if not element.is_empty() else "A trap took your last breath."
+			return "%s trap took your last breath." % preload("res://scripts/glossary.gd").with_article(element, true) if not element.is_empty() else "A trap took your last breath."
 	var enemy_type: String = str(killer.get("enemy_type", ""))
 	if enemy_type.is_empty():
 		return UNKNOWN_KILLER
@@ -245,9 +245,10 @@ static func cause_text(killer: Dictionary, outcome: String, embers: int) -> Stri
 	for intent: Dictionary in enemy.get("intents", []):
 		if str(intent.get("id", "")) == str(killer.get("intent_id", "")):
 			intent_name = str(intent.get("name", intent_name))
+	var enemy_name: String = preload("res://scripts/glossary.gd").with_article(str(enemy.get("name", enemy_type)))
 	if intent_name.is_empty():
-		return "Felled by a %s, %d damage." % [str(enemy.get("name", enemy_type)), int(killer.get("damage", 0))]
-	return "Felled by a %s's %s, %d damage." % [str(enemy.get("name", enemy_type)), intent_name, int(killer.get("damage", 0))]
+		return "Felled by %s, %d damage." % [enemy_name, int(killer.get("damage", 0))]
+	return "Felled by %s's %s, %d damage." % [enemy_name, intent_name, int(killer.get("damage", 0))]
 
 static func _read_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):

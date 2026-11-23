@@ -77,9 +77,6 @@ func _hover_tile(scene: Node, tile: Vector2i) -> void:
 func _select(scene: Node, index: int) -> void:
 	await scene.call("_on_card_pressed", index)
 	for frame: int in range(4): await process_frame
-	if int(scene.get("_card_action_choice_index")) == index:
-		await scene.call("_on_card_action_choice_pressed", "play")
-		for frame: int in range(4): await process_frame
 
 # ---------------------------------------------------------------- captures
 
@@ -267,7 +264,7 @@ func _grimoire_stagger() -> void:
 		return
 	scene.call("_open_grimoire_overlay")
 	for frame: int in range(SETTLE_FRAMES): await process_frame
-	# PLA02_GRIMOIRE lists extra pages (r1: Petrify and Push beside Stagger).
+	# PLA02_GRIMOIRE lists extra live pages such as Push and Reflect.
 	var pages: PackedStringArray = ["keyword:stagger"]
 	if not OS.get_environment("PLA02_GRIMOIRE").is_empty(): pages = OS.get_environment("PLA02_GRIMOIRE").split(",")
 	for page: String in pages:

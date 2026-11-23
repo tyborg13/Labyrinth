@@ -16,6 +16,7 @@ const PLAIN_FLOOR_BIOME: String = "vyraketh"
 const BIOMES: Dictionary = {DETONATE: PLAIN_FLOOR_BIOME, DISCHARGE: PLAIN_FLOOR_BIOME, SWAP: PLAIN_FLOOR_BIOME}
 # Fixture positions use the established board patch.
 const HERO := Vector2i(0, 2)
+const DISCHARGE_HERO := Vector2i(1, 2)
 const SWAP_HERO := Vector2i(1, 2)
 const DETONATE_TARGET := Vector2i(1, 1)
 const FIRE_TILES: Array[Vector2i] = Array([Vector2i(1, 1), Vector2i(2, 1)], TYPE_VECTOR2I, "", null)
@@ -23,7 +24,6 @@ const OVERLAP_ENEMY := Vector2i(2, 1)
 const SINGLE_ENEMY := Vector2i(3, 1)
 const NETWORK: Array[Vector2i] = Array([Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(2, 2)], TYPE_VECTOR2I, "", null)
 const ON_NETWORK := Vector2i(1, 1)
-const BESIDE_NETWORK := Vector2i(3, 1)
 const SWAP_LANDING := Vector2i(2, 1)
 const WORLDSPINE_PATCH := Rect2i(0, 0, 5, 5)
 const WORLDSPINE_HERO := Vector2i(0, 3)
@@ -34,14 +34,16 @@ const ILLUSION_CARD: String = "mirror_image"
 
 static func configure(layout: Dictionary, id: String) -> Dictionary:
 	layout["player_start"] = SWAP_HERO if id == SWAP else HERO
-	layout["element"] = {DETONATE: "fire", DISCHARGE: "lightning", SWAP: "none", WORLDSPINE: "earth"}[id]
+	layout["element"] = {DETONATE: "fire", DISCHARGE: "none", SWAP: "none", WORLDSPINE: "earth"}[id]
 	if id in [DISCHARGE, SWAP, WORLDSPINE]:
 		layout["umbra_stage"] = Combat.UMBRA_STAGE_CLEAR
 		layout.erase("umbra")
 	var units: Array = []
 	match id:
 		DETONATE: units = [[ENEMY, OVERLAP_ENEMY], [ENEMY, SINGLE_ENEMY]]
-		DISCHARGE: units = [[ENEMY, ON_NETWORK], [ENEMY, BESIDE_NETWORK]]
+		DISCHARGE:
+			layout["player_start"] = DISCHARGE_HERO
+			units = [[ENEMY, ON_NETWORK]]
 		SWAP: layout["objective"] = {"type": Objectives.REACH_EXIT, "exits": []}
 		WORLDSPINE:
 			layout["player_start"] = WORLDSPINE_HERO

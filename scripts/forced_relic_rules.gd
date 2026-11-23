@@ -4,6 +4,7 @@ extends RefCounted
 # Owning contract: spec/forced_movement.md, relic pool overhaul unit U3.
 const Data = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
+const Constructs = preload("res://scripts/illusion_relic_rules.gd")
 const INVALID := Vector2i(-1, -1)
 const KNOCKED_KEY := "_forced_relic_knocked" # action-local; never saved
 
@@ -66,7 +67,7 @@ static func _damage_party(engine: RefCounted, state: Dictionary, kind: String, i
 		engine._apply_stagger_to_enemy(state, id, full_amount)
 	return {"state": state, "damage": full_amount}
 
-static func resolve_collision(engine: RefCounted, state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
+static func resolve_collision(engine: RefCounted, state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool, protect_mover: bool = false, protected_construct_blockers: bool = false) -> Dictionary:
 	if lost <= 0:
 		return state
 	var base: int = Data.fixed_point_amount(engine.FORCE_COLLISION_DAMAGE_PER_TILE) * lost
@@ -88,7 +89,7 @@ static func resolve_collision(engine: RefCounted, state: Dictionary, kind: Strin
 		if kind == "enemy" and _protected_outcrop(engine, state, blocker):
 			mover_base += Data.fixed_point_amount(int(effect(engine, state, "outcrop_collision_guard").get("damage", 2)))
 			break # One rider per collision, even against two outcrop tiles.
-	var result: Dictionary = _damage_party(engine, state, kind, id, _party_damage(engine, state, kind, id, mover_base, lost))
+	var result: Dictionary = _damage_party(engine, state, kind, id, 0 if protect_mover else _party_damage(engine, state, kind, id, mover_base, lost))
 	state = result["state"]
 	var damage: int = int(result["damage"])
 	var total_damage: int = damage
@@ -101,12 +102,13 @@ static func resolve_collision(engine: RefCounted, state: Dictionary, kind: Strin
 		match blocker_kind:
 			"terrain":
 				var index: int = engine._terrain_index_at_tile(state, blocker.get("tile", INVALID))
-				if index >= 0 and not (kind == "enemy" and _protected_outcrop(engine, state, blocker)):
+				if index >= 0 and not (kind == "enemy" and _protected_outcrop(engine, state, blocker)) and not (protected_construct_blockers and Constructs.owned_outcrop(state["terrain"][index])):
 					state = engine._damage_terrain(state, index, base)
 					dealt = base
 			"enemy", "player", "illusion":
 				var blocker_id: int = int(blocker.get("id", -1))
-				result = _damage_party(engine, state, blocker_kind, blocker_id, _party_damage(engine, state, blocker_kind, blocker_id, base, lost))
+				var blocker_base: int = 0 if blocker_kind == "illusion" and protected_construct_blockers else base
+				result = _damage_party(engine, state, blocker_kind, blocker_id, _party_damage(engine, state, blocker_kind, blocker_id, blocker_base, lost))
 				state = result["state"]
 				dealt = int(result["damage"])
 				hero_involved = hero_involved or blocker_kind == "player"
@@ -149,15 +151,11 @@ static func resolve_collision(engine: RefCounted, state: Dictionary, kind: Strin
 
 static func _break_ground(engine: RefCounted, state: Dictionary, id: int, tile: Vector2i, ground: Dictionary, wheel: Dictionary, blockers: Array[Dictionary]) -> Dictionary:
 	var prior_context: Dictionary = state.get("damage_context", {}) as Dictionary
-	state["damage_context"] = preload("res://scripts/surface_expend_rules.gd").relic_source(prior_context, wheel, Data.relic_def(str(wheel.get("relic_id", ""))))
+	state["damage_context"] = preload("res://scripts/surface_expend_rules.gd").relic_source(prior_context, wheel)
 	var element: String = str(ground.get("elemental", ""))
 	if element == "ice":
-		var action: Dictionary = {"type": "push", "_card_element": "ice", "_collision_freeze_tile": tile}
-		var before: int = int(engine._surface_actor(state, "enemy", id).get("freeze", 0))
-		state = engine._surface_freeze_actor(state, "enemy", id, action)
-		if before == 0 and int(engine._surface_actor(state, "enemy", id).get("freeze", 0)) > 0:
-			state = engine._trigger_status_relics(state, "freeze", action)
-			state = engine._surface_status_light(state, "freeze", tile)
+		# pla-06: the Wheel's Ice rider was Freeze; it is now its own Stagger.
+		engine._apply_stagger_to_enemy(state, id, int(wheel.get("ice_stagger", 6)))
 	elif element == "electrified":
 		var action: Dictionary = {"type": "push", "shock": int(wheel.get("shock", 1))}
 		state = engine._apply_action_keywords_to_enemy(state, engine._enemy_index_for_id(state, id), action, tile)

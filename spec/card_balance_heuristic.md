@@ -57,8 +57,8 @@ These assumptions are baked into the current coefficients:
 - Every enemy `summon_minions` move that brings at least one enemy onto the
   board grants `+1` Card Play on the next hero activation, per move rather than
   per enemy, stacking without a cap. Blocked/capped summons, death spawns,
-  Survive waves grant none. Automatic Guardian replacements were retired in bos-03. Frozen still
-  forfeits these plays. This is encounter-level economy, excluded from intrinsic
+  Survive waves and automatic Guardian replacements grant no Card Plays.
+  This is encounter-level economy, excluded from intrinsic
   card coefficients; compare realized card-play cohorts around summon moves.
 - Card targeting uses one board decision, with automatic riders and combined
   movement approaches. A Push/Pull target is legal anywhere within maximum
@@ -84,25 +84,22 @@ These assumptions are baked into the current coefficients:
 - Fatigue starts at `2` health and increases by `1` health each reshuffle.
 - Rules v5 uses shared board surfaces, with Rubble under one elemental layer.
   Fire deals 2 per actual entry step and 3 per affected actor start, without
-  direct-attack riders. Ice activates Chill on entry or eligible start, never
-  on placement. Chilled adds 2 direct hit damage while supported by Ice.
-  A subsequent Ice attack can Freeze and consume every Ice tile under that actor.
+  direct-attack riders. Ice Exposes 2 a unit on entry or eligible turn start.
+  Placement alone applies no contact effect. The next damaging hit spends Expose.
+  Cards with "On Ice: also Stagger 6" delay eligible targets by up to 6. Dragons
+  take half. Each hero or enemy has one 6 Time cap across sources between its turns.
   Rubble costs 2 movement to leave; a fresh positive allowance permits a first
   adjacent step even when only 1 movement remains. Splitting movement does not
   refresh that exception. Electrified is immediately usable as cardinally
   connected ground or as relay nodes for intrinsic Chain. Ordinary Electrified survives use;
   Stormcoal conductive Fire is consumed.
 - Enemy preview block matters immediately during the player turn.
-- Freeze triples direct damage instead of stacking Chill, skips the next activation, and cannot refresh. Start hazards still resolve; Chill is suppressed during the skipped start.
+- Stagger delays a turn. Shock and Immobilize restrict actions. Expose increases damage taken.
 - Pierce attacks deal HP damage through block and stoneskin without removing
   those defenses.
 - Shock lets the enemy keep movement, but strips non-movement actions for that
   turn.
-- Bleed is one-turn physical pressure: it triggers before the affected actor's
-  resolved move or attack actions, stacks additively by damage, and clears when
-  that actor finishes its next turn.
 - Expose adds damage to the next hit against the target, then clears.
-- Sunder removes block and stoneskin before damage lands.
 - Stoneskin is persistent defense and is valued above temporary block.
 - Permanent levels grant one run-scoped Defiance charge at levels
   `4/8/12/16/20`. A lethal hit spends one charge and restores `25%` max HP.
@@ -121,21 +118,39 @@ These assumptions are baked into the current coefficients:
 - Umbra radius is measured by Manhattan distance from the player: unlimited in
   Clear, then `6/5/4/3/2/1` for Fringe through Eclipse. Hidden enemies cannot
   be directly targeted and do not reveal their intent or turn-order identity.
-  Radiance cards therefore gain encounter-dependent value by revealing tiles,
-  extending vision, granting enemy-only truesight, or reducing Umbra stages.
+  Light reveals tiles within the Light radius and Exposes enemies at turn start.
+  Light placed by cards, relics, and skills lasts the battle. A brazier
+  supplies Light while lit, and a unit aura supplies Light while the unit lives.
+  Temporary Vision reveals enemies while leaving the sight radius unchanged.
+
+### Enemy hit pressure (pla-07)
+
+Skitter Strike, Pelt, Worldspine Claw, Razor Dive, Grave Dive, Crushing Rush,
+Lash of Thorns, and Talon Rake gain 1 printed damage each when their retired
+rider is removed. For comparisons, `enemy_hit_pressure` values one landed hit
+on the hero at the existing per-point damage and Pierce coefficients. The old
+comparison adds the old rider coefficient from the pre-cut scorer. This
+comparison leaves out player-card kill rewards, card tempo, and multi-target
+estimates. Actual enemy damage still uses the normal room and depth scaling.
 
 ### Magic ownership (deck-01)
 
 The scorer has no six-magic-loadout assumption: it scores the intrinsic value
 of a card play against a blank draw, not draw frequency in a fixed deck. All
-owned magic now enters the deck. The starting deck remains 16 cards, including
-Pale Spark ×2, Dull Bolt ×2, and Waning Pulse ×2. Removing a magic copy changes
+owned magic now enters the deck. At deck-01, the starting deck had 16 cards,
+including Pale Spark ×2, Dull Bolt ×2, and Waning Pulse ×2. Removing a magic copy changes
 draw frequency, not that card's printed value. Compare realized results by
 `deck_cards` composition/count and purge source/price in analytics. No card,
 Time, damage, draw, fatigue, or scoring coefficient changes in deck-01. The
 service prices are the director's 50 Embers, then +25 per later paid Scavenger
 purge; Campfire removal replaces its other choices, costs zero Embers, and never
 raises the Scavenger price.
+
+Gear-02 starts new runs with 9 gear cards and 4 spells. Pale Spark, Dull Bolt,
+Waning Pulse, and Buffet each appear once. Lantern Shot enters the deck by
+equipping the Cracked Lantern after the first Umbra victory. Previously saved
+runs keep their loadouts and printed card rules. The early gear rate changes
+acquisition timing. All individual card scores still use the same coefficients.
 
 ### Qualitative Progression Policy
 
@@ -221,8 +236,7 @@ Encounter calibration is also important:
   around `19.6` before summon forcing. Grave surgeons contribute low direct
   damage but can heal or guard the most injured/threatened nearby enemy, so
   their support amounts follow the same depth/sequence support curve as enemy
-  block and healing. Tunnel crawler claw attacks and the Bone Harrier's spear
-  shot now add light one-turn bleed pressure. Depth reduces enemy base
+  block and healing. Depth reduces enemy base
   initiative by up to `4` over time.
 - Specialist enemies enter normal local depth `1-3` pools only in matching
   elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
@@ -239,7 +253,7 @@ Encounter calibration is also important:
 - Warden Bulwark grants its scaled Block amount to every other living enemy,
   never the Warden itself. In multi-enemy rooms this makes the Warden a durable
   protection anchor and increases the encounter-specific value of focus fire,
-  Pierce, Sunder, and broad damage without changing their generic coefficients.
+  Pierce and broad damage without changing their generic coefficients.
 - Chainbound Gaolers enter normal local depth `1-3` pools at low frequency as
   pull/immobilize control anchors without stacking with wardens or boss adds in
   their seeded compositions.
@@ -314,7 +328,7 @@ Encounter calibration is also important:
   delays a detour around a distant blocker instead of taking an early U-shaped
   path. Conservative
   threat unions remain visible, with the exact current route, destination, and
-  projected attack shown separately; exact projections also honor freeze,
+  projected attack shown separately; exact projections also honor
   shock, immobilize, and deterministic lightning-strike tiles.
 - Elemental combat rooms seed `2-3` single-use traps, avoiding the player's
   entry halo. Only the center occupant takes direct damage. The center and four
@@ -393,21 +407,20 @@ These are the current default weights used by `tools/card_heuristic.py`:
   extra-tile retention. A plain 3-health outcrop is worth `1.35`. Placement
   range, the Rubble left on destruction and facing-aimed (`"aim": "facing"`)
   areas receive no separate value.
-- Illuminate: `0.55` per light radius, `0.25` per activation of duration, and
-  `0.06` per placement-range tile
-- An attack-carried Illuminate rider uses the same radius and duration values,
-  but adds no placement-range value because it inherits the attack's stricter
-  enemy, trap, or terrain target and creates Light only after the hit resolves.
-- A movement-carried Illuminate rider also uses the same radius and duration
-  values without separate placement-range value. It creates Light at the
-  movement's actual resolved endpoint, including an endpoint shortened by a
-  hidden collision.
-- Vision: `0.50` per added-radius activation
-- Truesight: `1.40` per activation
-- Dispel Umbra: `2.20` per reduced stage
-- Umbra relevance multiplier: `0.75` for all Radiance-only value, reflecting
-  that only the first depth is guaranteed Clear while some draws still occur
-  outside shadowed combats
+- Lasting Light: `0.55` per radius tile, `0.25` per expected remaining
+  activation (the existing 3-activation horizon) and `0.06` per placement-range
+  tile, multiplied by `0.75` for Umbra relevance. Light attached to movement
+  or an attack inherits that action's placement and has no separate range value.
+  Movement trails retain the existing discount for overlapping placements.
+- Light's Expose 2 uses the existing Expose coefficient and the same horizon.
+  The model expects `0.50` enemy starts in the area per activation at radius 2,
+  scales down linearly for smaller radii and caps at that rate for larger radii.
+  This is a coverage estimate, including overlap, and applies in Clear too.
+- Vision: `1.40` per turn times `0.75` Umbra relevance, using the former
+  enemy-only reveal coefficient. Vision adds no sight radius and contributes
+  no lit tiles.
+- The unlit part of Seek the Light's Blink uses full mobility value. Its
+  additional range uses the existing Light-destination availability discount.
 - Pure move: `0.25` per tile
 - Pure blink: `0.33` per tile
 - Move on an attacking card: `0.08` per tile
@@ -420,10 +433,9 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Rotatable asymmetric AOE orientation bonus: `0.05`
 - Chain extra target bonus: `0.45`
 - Pierce defense bypass: `0.75`
-- Bleed one-turn action pressure: `0.65` per stack
 - Expose next-hit setup: `0.32` per point
-- Sunder defense removal: `0.20` per point
-- Freeze: `4.8`, discounted by `0.30` for a previously activated Ice contact
+- "On Ice: also Stagger N" is `N x 0.30` control at the Ice setup availability
+  (`0.50`, or `0.80` after an earlier painter in the same card).
 - Shock: `2.5`
 - Immobilize one-turn movement lock: `1.7`
 - Push: `0.28` per tile
@@ -438,7 +450,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
   every other actor; the 6-per-turn cap and dragon halving are not modeled)
 - State bonus (`state_bonus`): the damage delta over the printed hit plus
   Stagger at `0.30`/pt, scaled by expected condition availability: target in
-  Light `0.40`, Frozen/Bleeding/Immobilized/Staggered/Shocked `0.30`, at or below
+  Light `0.40`, Exposed/Immobilized/Staggered/Shocked `0.30`, at or below
   half health `0.45`
 - Scale bonus (`scale_bonus`): the damage delta from expected points, capped at
   the card's `max`: `2.5` Stoneskin, or `1.5` independently moved tiles plus the
@@ -478,14 +490,25 @@ Chain already accounts for some of the same targets. Targets are a union.
 
 Local surface conditions use `0.50` availability, or `0.80` when an earlier
 same-card action supplied that surface; geometry still has to overlap. Newly
-painted Ice never increases immediate Freeze availability. Electrified-assisted
+painted Ice under a target counts as an earlier painter for its "On Ice"
+Stagger only when geometry overlaps. Electrified-assisted
 Shock receives `0.35` availability, increased by `0.20` for earlier wiring.
 
-Detonate values the union blast at `1.35` expected targets plus `0.25` per
-additional useful fuel cell, capped at two targets. Fuel expectation is capped
-at `2.5` cells. Each fuel cell costs `0.35` in foregone setup plus a `0.45`
-shared-blast risk cost per Detonate, weighted by availability. A previous-target
-Detonate inherits the initiating attack's reach. Consume-surface rewards use
+Burst values one source's cross at `1.35` expected targets
+(`burst_cross_targets`), one on the fuel tile plus `0.35` from its four
+neighbors. Each additional useful fuel cell adds `0.30`, capped at `2.5`
+targets. Fuel expectation is capped at `2.5` cells; `sources: "hits"` (Plasma
+Arc) expects `1.25`. Each fuel cell costs `0.35` in foregone setup plus a `0.45`
+shared-hazard cost per Burst, weighted by availability. A Burst that always
+covers your tile (a follow-up at a range-1 melee target, a range-0 Burst around
+you without `spare_player`, Worldbreak's adjacent Outcrop) instead pays its
+damage as a Health cost (`health_cost_per_point`) at its availability. A
+previous-target Burst inherits the initiating attack's reach; `leave_surface`
+covers the destroyed tile, or the whole cross with `leave_surface_on: "tiles_hit"`.
+`spare_player` removes the hazard. Discharge's union of crosses expects `1.60`
+targets in a typical two-tile network and pays the shared hazard. Terrain and
+illusion Bursts use `burst_cross_targets`. The powder keg expects `1.40`.
+Consume-surface rewards use
 their ordinary coefficients, weighted by setup availability and charged at least
 one fuel cell. These are conservative initial values to review against seeded
 mixed-element playtests, not a simulation of a prepared perfect board.
@@ -630,15 +653,15 @@ added by the two printed draw riders.
 ## Maintenance Rules
 
 Balance revision `status_payoffs_v1` (crd-08): `state_bonus` conditions
-`bleeding`, `immobilized`, `staggered`, and `shocked` share Frozen's `0.30`
-conditional availability, including when that weight is overridden. Each adds
-its damage delta over the printed hit before impact, per target and per hit.
-Bleeding checks positive Bleed, Immobilized checks the movement lock, and
+`exposed`, `immobilized`, `staggered`, and `shocked` share a `0.30`
+conditional availability, including when that weight is overridden. Each condition adds
+the damage delta over the printed hit before impact, per target and per hit.
+Exposed checks positive Expose, Immobilized checks the movement lock, and
 Shocked checks positive Shock. Staggered checks a positive outstanding delay on
 the enemy's next queued turn (or a pending delay awaiting scheduling); the slot
 owns this marker until activation, independently of the per-player-turn cap.
 This revision adds the supplied payoffs to Spear Thrust (+4 Immobilized),
-Serrated Slip (+4 Bleeding), Hobnail Drive (+3 Staggered), and Jolt (+3 Shocked).
+Serrated Slip (+4 Exposed), Hobnail Drive (+3 Staggered), and Jolt (+3 Shocked).
 Status application, timing, and existing damage/state-delta analytics are
 unchanged; these conditions reuse the per-hit resolver and forecast path.
 
@@ -668,8 +691,9 @@ will drift against stale assumptions.
 
 Balance revision `crd03_gear_v1` (GameData and scorer) records the director's
 fourteen-card data revision. Rime Hack/Frozen Bite/Shatter Swing now cost
-3/2/4 Time and hit for 7/5/10; Frozen Bite rewards a Freeze with one Card Play
-then one draw, and Shatter Swing splashes for 6. Grave Cleave/Blood Price/
+3/2/4 Time and hit for 7/5/10. Frozen Bite grants one Card Play and draws one
+when the target stands on Ice. Shatter Swing Bursts the Ice for 6, sparing you.
+Grave Cleave/Blood Price/
 Tombsplitter cost 4/5/6 and hit for 8/14/14, preserving their riders and Empower.
 Quarry Plating costs 3 for 6 Stoneskin; Shrug Off grants 3 Block before conversion.
 Hoarfrost Wall costs 3 for 8 Block; Cold Shoulder costs 2 for 6 damage and Push 2.
@@ -809,23 +833,27 @@ When reviewing or adding cards:
 
 ### Repeated consuming payoffs
 
-A Flurry copy cannot reuse Fire or Ice consumed by an earlier copy. Ordinary Electrified remains available for every copy. Extra copies receive 35% availability for an additional consuming payoff (and its matching fuel cost), representing a different prepared target or component. An explicit painter earlier in each repeated action sequence restores ordinary availability for Detonate. Ice painting does not activate Chill, so repeated Freeze remains discounted even with fresh paint. Ordinary direct hits and native Chain continue to repeat normally. This is a conservative availability model, not a simulation of an infinite supply of ground.
+A Flurry copy cannot reuse Fire or Ice consumed by an earlier copy. Ordinary
+Electrified remains available for every copy. Extra copies receive 35% availability
+for an additional consuming payoff and matching fuel cost, representing a different
+prepared target or component. An explicit painter earlier in each repeated action
+sequence restores ordinary availability for a Burst. Ordinary direct hits and
+native Chain continue to repeat normally.
 
 ### Rules v5 feedback calibration
 
 Printed direct attack damage across the card pool is 80% of its prior value,
-rounded half up with a minimum of 1. Detonate remains unchanged because it
-already pays for real setup. Root Snare retains Rubble and loses Immobilize;
-its Time is 4. Enemy baseline damage is unchanged.
+rounded half up with a minimum of 1. Burst keeps the printed damage because
+Burst already pays for setup. Root Snare retains Rubble and costs 4 Time.
 
-Surface coefficients rise with the stronger contact payoff: Fire 0.84 follows
-the 3→5 combined entry/start damage; Ice 0.60 reflects +2 Chill and ×3 Frozen;
-Rubble 0.44 credits leaving-cost control after a melee painter; Electrified
-0.45 credits reusable geometry. Freeze value rises to 4.8, still discounted by
-0.30 for activated Ice, and displacement hazard value rises to 0.24 per tile.
+Fire has a coefficient of 0.84 for 5 combined entry and turn-start damage.
+Ice keeps 0.60 for Expose 2 on entry or turn start, about one hit per enemy turn.
+The scorer values each printed Ice Stagger separately. Rubble's 0.44 credits
+the cost of leaving the tile after a melee painter. Electrified's 0.45 credits
+reusable geometry. Displacement hazard is valued at 0.24 per tile.
 Geometry/contact availability remains bounded. Reusable conduction no longer
 receives a repeated-consumption penalty; Fire/Ice consumption still does.
-Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
+Passive Fire damage leaves Expose available for direct damage.
 
 
 ## Optional Guardian cohort
@@ -847,9 +875,8 @@ complementary safe flanks, keeping Guardian approach and strike tiles clear.
 Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
 Cantor/Tender extend one shared network toward the player; Peal fires the
 Lightning Storm beat. Each Guardian installs its own data-authored cadence and
-dials. Frostbite deals zero damage and Freezes occupants of live Ice tiles,
-retaining existing immunities. Roc is
-Anchored in its own wind. Craghide's beat raises owned 2-HP Outcrops, counted by
+dials. Rimejaw's Frostbite Staggers occupants of live Ice tiles by 6.
+Gallows Roc is Anchored in the Roc's wind. Craghide's beat raises owned 2-HP Outcrops, counted by
 Groundsplit. Only hidden Wick Shades Shadowstep; the Lamplighter does not.
 With the owner's area-02 storm update, the retained feedback-3 tuning is Rimejaw HP 34 / Pounce 6; Cantor HP 66 /
 Lay the Choir 6 fresh linked tiles / Broken Rhythm 11 / Wisp cap 2 / Peal 4 with Chain 0 /
@@ -912,9 +939,9 @@ from data. The approved context is in
 | Dragon | Rule and half-Health change | Lieutenants and retained pressure |
 |---|---|---|
 | Vyraketh | Wildfire spreads Fire in all four directions on Cinder Breath; every second source turn at half Health. | HP 52; Cinder Maw 8, Breath 6; one finite Cinder Droplet. Seven-cell Fire renewal retires source-owned spread Fire; Crownfire detonates only remembered marks. The adjacent-heat rider is removed. |
-| Tharokh | Guarded `line_between` Upheaval, length 5 / Health 4, every second hero turn; every hero turn at half Health. | HP 72; two finite Burrow Grubs. Rule Outcrops replace the separate spire kind. Stonewake keeps range 4 with damage 6; Claw damage is 14 and Bedrock damage 10; Claw/Breath pulses and paired raises are removed. Faultline 8 consumes only source-owned stone at radius 1, then keeps shot 4. Flagged lanes preserve their stone and see through it as before. |
-| Iskaldra | Frostbite 3 on Rime Talon; every second source turn at half Health. | Two finite Rime Spitters. Mantle, Shatterstorm and Whiteout's previous-trail replacement remain. Mantle absorbs the beat; Freeze immunity remains. Talon's surviving-trail rider is removed. |
-| Vaeloryx | Clockwise Gust after every source turn, Push 1; Push 2 at half Health. | HP 50; one finite Gust Shrike. Skyhook 4, swept Dive 6, Gale 6 / Push 1, and Eye 8 / inner bite 4 remain. The recorded wake and Gale wake hit are removed. |
+| Tharokh | Guarded `line_between` Upheaval, length 5 / Health 4, every second hero turn; every hero turn at half Health. | HP 72; two finite Burrow Grubs. Rule Outcrops replace the separate spire kind. Stonewake keeps range 4 with damage 6; Claw damage is 15 and Bedrock damage 10; Claw/Breath pulses and paired raises are removed. Faultline 8 consumes only source-owned stone at radius 1, then keeps shot 4. Flagged lanes preserve their stone and see through it as before. |
+| Iskaldra | Frostbite 3 on Rime Talon; every second source turn at half Health. | Two finite Rime Spitters. Mantle, Shatterstorm and Whiteout's previous-trail replacement remain. Mantle absorbs the beat. Talon's surviving-trail rider is removed. |
+| Vaeloryx | Clockwise Gust after every source turn, Push 1; Push 2 at half Health. | HP 50; one finite Gust Shrike. Skyhook 4, swept Dive 7, Gale 6 / Push 1, and Eye 8 / inner bite 4. The recorded wake and Gale wake hit are removed. |
 | Zekarion | Lightning Storm 6 / Chain 0 on Overload; damage 7 at half Health. | HP 62; Skybreak 5 on nine separated scatter tiles, twice per five-slot cycle (Skybreak, Storm Lash, Call Wisps, Skybreak, Overload). Storm Lash 4. Two Wisps and Call Wisps remain. Overload retains shot 3; its neighborhood hit and Lash's charge pulse are removed. |
 | Noctyrax | Void Claw Shadowstep Blinks hidden Veilbound Acolytes 3; no half-Health change. | HP 64; Void Claw 10. Acolytes, Last Eclipse replacement, darkness and braziers remain. The three player-anchored sweeps are removed. |
 
@@ -966,8 +993,8 @@ coefficient. The scorer exposes both contracts in `dragon_feedback_rules` under
 Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
 
 - Retaliate: `0.35` per point (already folds in the chance of a melee hit before
-  your next turn), Bleed rider `0.30` per point, Shock rider `1.0`, Push rider
-  `0.20` per tile. Damage and Bleed count as offense, Shock and Push as control.
+  your next turn), Shock rider `1.0`, Push rider `0.20` per tile. Damage counts
+  as offense, Shock and Push as control.
 - Quicken: `0.40` tempo per Time point for the next card.
 - Next attack: `0.40` per bonus damage point, `0.60` for Pierce, `0.45` per Chain
   hop. `per_tile_moved` expects the card's own Move/Blink tiles plus `1`, capped
@@ -976,7 +1003,7 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
   activations; the only card cost beyond Time and health is the ordinary Exhaust
   penalty. Estimates per activation: Fire damage bonus `amount x 0.45 x 0.60`
   Fire hits; Fire immunity `3 x 0.40 x 0.50` avoided contacts; on-surface turn
-  start rewards at `0.50` availability; freeze rewards at `0.50` freezes; surface
+  start rewards at `0.50` availability; Ice Stagger rewards at `0.50` Ice Staggers; surface
   pulse and adjacent player Outcrop pulse `damage x 0.45 x 0.80` targets; card Time discount
   `amount x 0.45 x 2 cards x 0.80` availability; independent movement `0.25` per
   tile; forced-movement bonus `0.28 x 0.60` forced moves; turn-start rewards at
@@ -984,7 +1011,7 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
   lit attacks; thorns at the Retaliate values. A player Light aura is scored as
   Illuminate with the radius and a 3-activation duration.
 
-### Wave-4 movement, forces, flags, Petrify and Mantle
+### Wave-4 movement, forces, flags, Stagger and Mantle
 
 Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_maneuver.md`;
 tests `tests/test_card_heuristic_maneuver.py`):
@@ -1010,11 +1037,7 @@ tests `tests/test_card_heuristic_maneuver.py`):
   converted at `0.40 - 0.25` per point.
 - Mantle `1.60` defense per layer (a layer cancels one whole direct hit after
   Block and lasts until broken).
-- Petrify `3.60` control (a skipped activation, about Stagger of one enemy
-  cycle, `12 x 0.30`) at ranged playability, minus `block x 0.25 x 0.50` for the
-  Block it grants the enemy. The keyword includes 5 Block by default
-  (`PETRIFY_BLOCK`); an explicit action `block` overrides this scorer default
-  for future variants.
+- A targeted `stagger` action scores `N x 0.30` control at ranged playability.
 - Move riders: `block_per_tile` prices `0.67 x range` tiles of Block;
   `straight_line` keeps `0.75` of the Move's tiles; `trail_light` is Illuminate
   with `1 + 0.35` per extra lit tile; `if_started_on_surface` rewards at `0.25`
@@ -1055,17 +1078,22 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_surfaces.md`)
   a five-tile cross at the Detonate's availability.
 - `convert_surface`: at Ice availability, `damage` over `1.20` expected targets, Shock at
   `2.5 x 1.20` targets, the value of two connected Electrified tiles, minus fuel for `2` Ice
-  tiles. `discharge`: at Electrified availability, `damage` over `1.60` targets, minus fuel
+  tiles. With `source_optional`, the off-Ice share scores the damage and Shock on `1.00`
+  expected target and one Electrified tile. Only the Ice share pays Ice fuel.
+  `discharge`: at Electrified availability, `damage` over `1.60` targets, minus fuel
   for a `2`-tile network.
 - `consume_surface` `per_tile` rewards expect `2` tiles removed (capped at `max`); fuel cost
-  uses the same expected count.
+  uses the same expected count. With `min_consumed: 0`, `base_amount` is guaranteed and
+  counts toward `max`. Only the remaining reward and fuel cost use surface availability.
 - `on_result`: the reward list's board-independent value (no Time or synergy terms) at
-  `0.30` (froze) or `0.35` (killed) availability, times the attack's playability.
-- `frozen_splash`: `N x 0.45 x 0.80` expected neighbors at `0.30` Frozen availability.
+  `0.30` on Ice or `0.35` on a kill
+  availability, times the attack's playability.
 - `all_enemies`: targetless (playability `1.0`); expected targets `0.90` on Fire, `0.80`
-  Chilled, `1.00` in Light, `0.80` on Electrified (`+0.20` after an earlier painter of that
-  surface, `x0.85` with a printed range). Expose per target; an Ice strike on `chilled`
-  adds a full Freeze per target.
+  on Ice, `1.00` in Light, `0.80` on Electrified (`+0.20` after an earlier painter of that
+  surface, `x0.85` with a printed range). Score Expose and Stagger per target.
+  White Silence's `on_ice` strike Staggers each qualifying enemy by 6.
+  The `visible` selector expects `2.00` targets. A target surface bonus adds the difference
+  between the full one-hit value and the base value over the targets expected on that surface.
 - `ignore_los`: `+0.08` playability (capped at `1.0`). `shock_all_hits` adds nothing: Shock is
   already priced per expected target, including Chain and conduction.
 - `meteor_marks`: damage at the range playability `x 0.55` delayed hit rate over the area
@@ -1087,15 +1115,17 @@ the base decoy keeps `0.48` per illusion health point and `0.12` per placement r
 - `illusion_swap`: needs an illusion on the board (`0.55`); a Blink of at most `3` tiles
   (`0.33` per tile, mobility) plus `transfer_block` as `4` Block points moved onto the
   illusion at the illusion-health value.
-- `destroy_illusion`: the blast at `0.55` availability (an illusion on the board) and `1.4`
-  expected targets; its Light rider uses the ordinary Illuminate rider value.
+- `destroy_illusion`: the Burst at `0.55` availability (an illusion on the board) and
+  `burst_cross_targets`, plus the shared hazard. Shattered Reflection's `any_tile` Light
+  happens on every play and is counted once at the ordinary Illuminate rider value.
 - Refraction (`also_hits_near_illusions`): the hit again at its playability against `0.6`
   expected extra targets.
-- `burst_terrain`: the blast at `0.70` availability (crates are common) and `1.3` targets;
-  the Worldbreak variant needs your own adjacent outcrop (`0.40`) and hits a line (`1.5`
-  targets); Stagger at `0.30` per point times availability and targets; the surface rider is
-  scored as an ordinary placed surface.
-- A powder keg adds its burst at `0.45` detonation chance and `1.4` targets to the
+- `burst_terrain`: the Burst at `0.70` availability (crates are common) and
+  `burst_cross_targets`; a Rockburst follow-up also scales by its attack's playability and
+  leaves Rubble on the cross. Worldbreak needs your own adjacent Outcrop (`0.40`) and spares
+  you (without `spare_player`, an adjacent Burst pays its damage as a Health cost). Stagger
+  at `0.30` per point times availability and targets.
+- A powder keg adds its Burst at `0.45` detonation chance and `1.40` targets to the
   ordinary outcrop value.
 - Worldspine scores its four 4-Health Outcrop placements as defense and its
   turn-start pulse as a Rite. Its score stays `6.02`. The former independent
@@ -1139,7 +1169,7 @@ The Thrall follows owner-approved `thrall-rework-v1` (2026-10-30); the Stalker
 retains its protected staged values with the approved removal of Veiled. The
 cadence calculations are authored-weight comparisons, not estimates of uptime. Arc Bolt uses ordinary ranged damage
 scaling and the existing Electrified surface rider. Movement blockers, range,
-line of sight, Shock/Freeze and blocked Blink destinations reduce realized
+line of sight, Shock and blocked Blink destinations reduce realized
 pressure. Enemy kills preserve existing Ember drops without player-card kill
 bonuses. Intrinsic card coefficients are unchanged.
 The matching rows are exported by `tools/card_heuristic.py` under `en03_enemies`.
@@ -1151,7 +1181,7 @@ These are encounter-context rows, mirrored in `tools/card_heuristic.py`
 | Enemy | Base HP / initiative / Embers | Weighted cadence before spawn stagger | Reach and pressure | Comparison / counterplay |
 | --- | --- | --- | --- | --- |
 | Burrow Grub | 12 / 10 / 10 | First choice 14.6; steady activation mean 14.75 including forced Erupt | Gnaw Move 2 + melee 3. Burrow snapshots hero tile; Erupt 6, displaces center and pushes cardinal neighbors, Rubble, self-Expose 2; no exit means center stays and grub surfaces nearby | Frostglass Lancer's baseline HP and cadence, with held positional pressure instead of Ice lanes. Leave mark, push an enemy onto it, punish Expose. |
-| Ember Tick | 6 / 8 / 6 | 12 | Scuttle Move 3 + melee 2; death Burst 4 on eight neighbors, Fire on own tile. Kindle +2, cap +4; breadth-first friendly-fire chains. | Tunnel Crawler's fast cadence, with lower HP and explicit kill-order pressure. Kill at range, place beside allies, Block bursts. |
+| Ember Tick | 6 / 8 / 6 | 12 | Scuttle Move 3 + melee 2; death Burst 4 on its tile and four neighbors, Fire on own tile. Kindle +2, cap +4; breadth-first friendly-fire chains. | Tunnel Crawler's fast cadence, with lower HP and explicit kill-order pressure. Kill at range, place beside allies, Block bursts. |
 
 Burrow's selectable weights are 3 (Time 5) and 2 (Gnaw Time 4).
 Its forced Time-5 Erupt has weight zero: the steady mean is
@@ -1172,8 +1202,8 @@ are encounter comparisons, without new intrinsic card coefficients.
 
 | Enemy | HP / initiative / Embers | Authored weighted cadence | Reach and counterplay | Existing comparison |
 | --- | --- | --- | --- | --- |
-| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect (pla-01) returns a damaging attack from a non-adjacent origin once per Mirror before its Block, including area, Chain and damaging Push/Pull attacks. Use the echo or beam origin where applicable. Adjacent hits, pure status and movement, surfaces and Bursts land. Four-tile Refraction deals 4 ice + Chilled to both teams and returns damage and Chilled to its caster on a bounce. Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Only Anchored prevents Gust. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
-| Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact; ordinary terrain blocks its route and ordinary Push still applies. Move Toward 4 then shared swept_path AoE 4 Air / Push 1; actual held route and existing one-tile reach. Shared Push away from source includes hero; allies block movement without side pushes. Talon Rake Move 2 + melee 3 + Bleed 1; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
+| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect returns a damaging attack from a non-adjacent origin once per Mirror before its Block. Area, Chain and damaging Push or Pull attacks reflect. Adjacent hits, pure status and movement, ground and Bursts land. Four-tile Refraction deals 4 damage to both teams and Staggers targets on Ice by 6. A bounced Refraction returns the damage and rider to the caster. Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Only Anchored prevents Gust. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
+| Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact; ordinary terrain blocks its route and ordinary Push still applies. Move Toward 4 then shared swept_path AoE 4 Air / Push 1; actual held route and existing one-tile reach. Shared Push away from source includes hero; allies block movement without side pushes. Talon Rake Move 2 + melee 4; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
 
 Cadence is `base_initiative + sum(weight*time)/sum(weight)` before spawn
 stagger and legality filtering. Neither entry is added to encounter pools by
@@ -1194,7 +1224,7 @@ overrides only Slag Mortar availability, Lob weight and Brace movement in
 
 | Enemy | HP / base initiative / Embers | Authored mean cadence at local depth 2 | Comparison and positional counterplay |
 | --- | --- | --- | --- |
-| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Thornwall marks three front-line tiles, then on the Weaver's next turn Upheaval raises health-3 Outcrops with ordinary displacement; move before the rise or destroy the Outcrops. Lash 3 + Bleed 1 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
+| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Thornwall marks three front-line tiles, then on the Weaver's next turn Upheaval raises health-3 Outcrops with ordinary displacement; move before the rise or destroy the Outcrops. Lash 4 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
 | Slag Mortar | 18 / 14 / 13 | enc-03, range 2–6: 20 initially (14+6), 19 steady including forced landing: 14+(6+4)/2. Adjacent: 19 (Scatter/Brace both Time 5). | Hoarfrost Seer delayed geometry and Warden 20 / 14 / 12 heavy anchor. Lob snapshots a cross ignoring sight; centre 5, arms 3, then Fire, retaining depth scaling. Leave the cross, push enemies onto it, become adjacent to deny new marks. Adjacent Brace Block 6 without movement; adjacent Scatter ranged 3 + Push 1. The Warband captain retains only its existing keep_distance retreat. |
 
 enc-03 changes Lob weight 3→4, minimum range 3→2, and gates both Brace and
@@ -1221,8 +1251,8 @@ copy mechanic with Echo/Retaliate. No intrinsic card coefficients change.
 
 | Enemy | HP / initiative / Embers | Authored local-depth-2 cadence | Existing comparison | Pressure and counterplay |
 | --- | --- | --- | --- | --- |
-| Storm Capacitor | 22 / 16 / 13 | Three 20-Time Charge turns, then a 21-Time Discharge; mean 20.25 | Stone Warden's durable anchor; Lightning Wisp's electrical reach | Persistent Charge 0–3; nearest target within 4, then eight-neighbour hops for 6/5/4/3. Every tie prefers the hero, then lowest current HP, tile y, tile x. Immobile and anchored; becoming Shocked removes one Charge. Kill before three pips, Shock, or separate units; chain can kill allies under the existing friendly-fire reward rules. |
-| Hollow Mimic | 14 / 12 / 11 | Authored weighted mean 17 | Veilbound Acolyte's ranged pressure; Gloam Stalker's positioning | Echo: 3 shadow damage at range 4, then Retaliate 3 until its next turn. Melee or adjacent hero attacks trigger it once; Block/Stoneskin absorb it without Chill/Freeze/Expose bonuses. Distant ranged/area attacks avoid Retaliate. Shade Bolt 4/range 4; Recede moves away 2 without Block. |
+| Storm Capacitor | 22 / 16 / 13 | Three 20-Time Charge turns, then a 21-Time Discharge; mean 20.25 | Stone Warden's durable anchor; Lightning Wisp's electrical reach | Persistent Charge 0–3; nearest target within 4, then side-adjacent hops for 6/5/4/3. Every tie prefers the hero, then lowest current HP, tile y, tile x. Immobile and anchored; becoming Shocked removes one Charge. Kill before three pips, Shock, or separate units; chain can kill allies under the existing friendly-fire reward rules. |
+| Hollow Mimic | 14 / 12 / 11 | Authored weighted mean 17 | Veilbound Acolyte's ranged pressure; Gloam Stalker's positioning | Echo: 3 shadow damage at range 4, then Retaliate 3 until the Mimic's next turn. Melee or adjacent hero attacks trigger one Retaliate. Block and Stoneskin absorb Retaliate damage. Expose leaves Retaliate damage unchanged. Distant ranged/area attacks avoid Retaliate. Shade Bolt 4/range 4; Recede moves away 2 without Block. |
 
 The scorer's `en06_enemies` context mirrors these assumptions. The director owns
 encounter additions after merge. Existing enemy-action events, source attribution,

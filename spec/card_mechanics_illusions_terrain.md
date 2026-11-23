@@ -58,41 +58,46 @@ board badges with the card name.
   timing. Immobilize and Rooted forbid the swap, as they forbid Changing Winds' `swap`; it is not counted as tiles moved and fires no Blink
   relics. Event `illusion_swapped`.
 - `{"type": "destroy_illusion", "range": R, "damage": N, "illuminate_radius": r,
-  "illuminate_duration": d}` (Shattered Reflection) — click one of your illusions within R.
-  It is destroyed through `_damage_illusion` (actor_death, Living Shadow, Afterglow, Umbra
-  hooks fire normally), then a card blast deals N to each enemy orthogonally next to its tile
-  (footprint-aware, each enemy once), then radius-r Light for d turns on that tile. Event
-  `illusion_shattered`.
+  "illuminate_duration": d, "any_tile"?}` (Shattered Reflection) — click one of your illusions
+  within R (with `any_tile`, any floor tile in range and sight). An illusion there is
+  destroyed through `_damage_illusion` (actor_death, Living Shadow, Afterglow, Umbra hooks fire
+  normally), then it Bursts N (every unit on its cross, you included, each once), then
+  radius-r Light for d turns on the tile, with or without an illusion. Event
+  `illusion_shattered`, then the Burst's `detonate` record.
 - `also_hits_near_illusions: true` on `ranged` (Refraction) — after the attack's planned hits
   (target, Chain, conduction), one extra hit with the same per-hit rules on each other visible
   enemy orthogonally next to any of your illusions; each enemy at most once and never again if
   already hit. The trace carries one `refraction` beam per extra hit, drawn from the illusion.
 
-### Card blasts
+### Card Bursts (pla-04)
 
-Shattered Reflection, Rockburst and Worldbreak deal their damage through
-`IllusionCardRules.blast_action`: an `aoe` with supplied impact tiles resolved by
-`_resolve_board_attack`. Ordinary attack bonuses (first-attack relics, conditional relic
-bonuses), Expose and target modifiers apply and the first attack is marked used; the blast
-hits enemies only (no terrain damage or trap triggers on its tiles), never conducts, and
-does not take or spend next-attack buffs (the outer action is not an attack type). The hand
-chip and hover use the same derived action (`blast_action_for_player_action`).
+Shattered Reflection, Rockburst and Worldbreak Burst (spec/card_mechanics_surfaces.md
+"Burst") through `IllusionCardRules.burst_action` resolved by the shared card Burst resolver
+(`_resolve_board_detonate` with the destroyed tile as its source). Ordinary attack bonuses
+(first-attack relics, conditional relic bonuses), Expose and target modifiers apply and the
+first attack is marked used; the Burst hits each unit on the cross, including your illusions and you unless the card spares you, damages terrain there and triggers traps; it never conducts and does not take or
+spend next-attack buffs (the outer action is not an attack type). The hand chip and hover use
+the same derived action (`blast_action_for_player_action`).
 
 ## Terrain
 
 - `{"type": "burst_terrain", "range": R, "damage": N, "surface"?, "surface_pattern"?}`
   (Rockburst) — click a live terrain piece (crate, box, outcrop, keg, spire) within R and line
   of sight (the target itself never blocks). It is destroyed (its own destroy effects run: an
-  outcrop leaves Rubble, a keg bursts), then the blast hits each enemy next to it, then the
-  card's surface rider is placed with its pattern around the tile. Event `terrain_shattered`.
-- Worldbreak variant `owned_outcrop_only: true, line_damage: N, line_length: L, stagger: S`
-  (range 1) — only an adjacent Outcrop the hero raised. The blast hits each
-  enemy on the L tiles beyond it in the direction hero → outcrop (stopping at a wall) and
-  Staggers them S (wave-2 Stagger).
+  outcrop leaves Rubble, a keg Bursts), then it Bursts N, then the card's surface rider is
+  placed with its pattern around the tile. Event `terrain_shattered`.
+- Rockburst (pla-04) is `ranged` 4 at an enemy, Outcrop or crate, then a `burst_terrain`
+  follow-up (`target: previous_target`, `leave_surface: rubble`): when an Outcrop or crate
+  stood on the target when the attack began (BurstRules board memory), it is destroyed if
+  still standing and Bursts 6, leaving Rubble on each tile hit.
+- Worldbreak variant `owned_outcrop_only: true, damage: N, stagger: S` (range 1) — only an
+  adjacent Outcrop the hero raised. It Bursts N, sparing you, and
+  Staggers each enemy hit S (wave-2 Stagger). The pre-pla-04 line (`line_damage`,
+  `line_length`) is still read for older data.
 - Outcrop `kind: "powder_keg", burst_damage: N` — a keg (terrain kind `powder_keg`, blocks
   movement, not sight, no Rubble). When anything destroys it (`_damage_terrain` reaching 0),
-  it deals N, non-direct, to every actor (hero, illusions, enemies; footprint-aware, once each)
-  on its tile and orthogonal neighbors and N to every terrain piece there, so kegs chain. A
+  it Bursts N, non-direct: every actor (hero, illusions, enemies; footprint-aware, once each)
+  on its cross and N to every terrain piece there, so kegs chain; traps there trigger. A
   hero-placed keg sets `causal_owner: player`; whether a kill refunds a card play follows the
   triggering context (`player_card`), like any other damage. Event `powder_keg_burst`.
 - Worldspine uses the around-target Outcrop pattern. Choose visible floor in
@@ -112,9 +117,8 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
 
 ## Presentation, icons, Grimoire
 
-- Icons (`ActionIconLibrary.ACTION_ICON_ALIASES`): `burst_terrain` → `terrain_burst`;
-  purpose-built `illusion_swap` → `illusion_swap` (Swap Illusion) and `destroy_illusion` →
-  `shatter_illusion` (Shatter Illusion), each leading its card row. See
+- Icons (`ActionIconLibrary.ACTION_ICON_ALIASES`): `burst_terrain` and `destroy_illusion` →
+  `burst` (pla-04); purpose-built `illusion_swap` → `illusion_swap` (Swap Illusion). See
   [icon identity policy](icon_identity_policy.md).
 - Card role emblems: powder kegs follow the attack range rule and Worldspine retains its
   authored ranged-attack role. Other Outcrop raises use block; Empty Husk is illusion. Hall of Mirrors
@@ -124,8 +128,8 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
   a soft warning glow on its lit fuse, and break apart with the wooden box destruction
   sheet (`TERRAIN_DESTRUCTION_SHEET_LAYOUTS.powder_keg`); the burst's fire impact is
   unchanged.
-- Grimoire: `illusion_swap`, `destroy_illusion` → `keyword:illusion`; `burst_terrain` →
-  `combat:outcrops` (bodies cover the new options); `expose_adjacent` → `keyword:expose`;
+- Grimoire: `illusion_swap` → `keyword:illusion`; `destroy_illusion` and `burst_terrain` →
+  `keyword:burst` (pla-04); `expose_adjacent` → `keyword:expose`;
   `surface_ring` teaches its surface.
 - Retorts add a `status_damage` enemy-turn step labelled with the illusion's card name.
 

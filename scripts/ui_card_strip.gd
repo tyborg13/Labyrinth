@@ -32,6 +32,7 @@ var _count := Label.new()
 var _finish := Control.new()
 var _art_material: ShaderMaterial = Surface.texture_material(0.7)
 var _inspection_active: bool = false
+var _name_uses_compact_fallback: bool = false
 
 func _init() -> void:
 	Surface.clear_button_style(self)
@@ -109,14 +110,19 @@ func _layout() -> void:
 	_fit_name()
 	queue_redraw()
 
-# A long name steps down a size or two when that fits it whole, as card titles
-# do. A name too long even then keeps its size and trims.
+# Keep the usual fitting steps. A fixed-width deck row uses 12 px only
+# after the name exhausts those steps.
 func _fit_name() -> void:
 	var font: Font = _name.get_theme_font("font")
+	_name_uses_compact_fallback = false
 	for candidate: int in [15, 14, 13]:
 		Typography.set_label_size(_name, candidate)
 		if font == null or font.get_string_size(_name.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _name.get_theme_font_size("font_size")).x <= _name.size.x:
 			return
+	if is_equal_approx(size.x, Typography.scaled_value(self, LIST_WIDTH)):
+		_name_uses_compact_fallback = true
+		Typography.set_label_size(_name, 12)
+		return
 	Typography.set_label_size(_name, 15)
 
 func _interaction_changed() -> void:

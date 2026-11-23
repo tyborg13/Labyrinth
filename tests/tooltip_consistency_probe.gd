@@ -66,7 +66,7 @@ func _initialize() -> void:
 		surface.add_child(generic_tooltip)
 	var inline_tooltip: Control = generic_source.call(
 		"_make_custom_tooltip",
-		"QUICK WITS\nOnce per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time)."
+		"QUICK WITS\nOnce per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time)."
 	) as Control
 	_require(inline_tooltip != null, "Inline mechanic tooltips should build a framed panel")
 	if inline_tooltip != null:

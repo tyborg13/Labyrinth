@@ -128,7 +128,7 @@ static func _test_threshold_and_cache(expect: Callable) -> void:
 	image.fill(Color(1.0, 1.0, 1.0, LOW_ALPHA))
 	var empty := ImageTexture.create_from_image(image)
 	var recorder := Fixture.Recorder.new()
-	var entry: Dictionary = Fixture.entry("chilled", "compact")
+	var entry: Dictionary = Fixture.entry("shock", "compact")
 	Plates.draw_entry(recorder, entry, empty)
 	Plates.draw_entry(recorder, entry, null)
 	expect.call(recorder.textures.is_empty(), "Status fit omits null and entirely subthreshold textures")
@@ -137,8 +137,8 @@ static func _test_inventory(expect: Callable) -> void:
 	# Traverse actual badge producers, including arbitrary keyword-status icons,
 	# rather than relying solely on the hand-maintained proof sheet inventory.
 	var board := Board.new()
-	board.presentation = {"umbra_truesight_activations": -1}
-	var unit: Dictionary = {"role": "player", "freeze": 1, "petrify": 1, "shock": 1, "immobilize": true, "bleed": 2, "expose": 2, "frost_armor": 2, "chilled": true, "hp": 24, "charge": 2, "burrowed": true}
+	board.presentation = {"umbra_vision_activations": -1}
+	var unit: Dictionary = {"role": "player", "shock": 1, "immobilize": true, "expose": 2, "frost_armor": 2, "hp": 24, "charge": 2, "burrowed": true}
 	var keywords: Array[Dictionary]
 	for icon: String in ["retaliate", "quicken", "next_attack", "ranged"]: keywords.append({"icon": icon})
 	for icon: String in Icons.SELF_FLAG_ICON_KEYS.values(): keywords.append({"icon": icon})
@@ -150,8 +150,6 @@ static func _test_inventory(expect: Callable) -> void:
 	# pla-01 Command chip: a live Warband captain.
 	board.combat_state = {"objective": {"special_type": "warband", "command": {"radius": 2, "damage_bonus": 1}}, "enemies": [{"id": 1, "is_leader": true, "hp": 24}]}
 	for badge: Dictionary in board._unit_status_badges({"id": 1, "type": "crawler", "is_leader": true, "hp": 24}): shown[str(badge["icon"])] = true
-	unit["freeze"] = 0
-	for badge: Dictionary in board._unit_status_badges(unit): shown[str(badge["icon"])] = true
 	for icon: String in shown: expect.call(Fixture.ICON_KEYS.has(icon), "Status fit sheet covers live board icon: " + icon)
 	for icon: String in Fixture.ICON_KEYS: expect.call(shown.has(icon), "Status fit inventory has live board provenance: " + icon)
 	board.free()

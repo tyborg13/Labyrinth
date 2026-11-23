@@ -668,12 +668,17 @@ static func _migrate_run_dictionary(data: Dictionary) -> Dictionary:
 	# Raw legacy-unit fights need unit repair before inserting natural intents.
 	preload("res://scripts/retired_mirror_save_migration.gd").migrate(data, int(data.get("combat_units_schema", 0)) >= 1)
 	_migrate_retired_battlefield_pieces(data)
+	preload("res://scripts/retired_combat_status_migration.gd").migrate(data)
 	if data.get("combat_state", {}) is Dictionary:
 		preload("res://scripts/guardian_combat_rules.gd").migrate_saved_combat(data.get("combat_state", {}))
 	preload("res://scripts/dragon_combat_rules.gd").migrate_save(data)
 	preload("res://scripts/worldspine_save_migration.gd").migrate(data)
-	if data.get("combat_state", {}) is Dictionary:
-		preload("res://scripts/boss_area_rules.gd").migrate_combat(data.get("combat_state", {}))
+	var areas = preload("res://scripts/boss_area_rules.gd")
+	areas.migrate_combat(data.get("combat_state"))
+	for checkpoint: Variant in data.get("pending_combat_checkpoints", []):
+		if checkpoint is Dictionary:
+			areas.migrate_combat(checkpoint.get("state"))
+	preload("res://scripts/umbra_combat_migration.gd").migrate_run(data)
 	return data
 
 static func _migrate_retired_battlefield_pieces(value: Variant) -> void:

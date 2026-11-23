@@ -60,7 +60,7 @@ static func run_visible_terrain(expect: Callable) -> void:
 	var spire := Vector2i(3, 4)
 	expect.call(combat.valid_targets_for_player_action(state, {"type":"melee", "range":1, "damage":5}).has(spire), "Ordinary melee retains its terrain target")
 	expect.call(combat.valid_targets_for_player_action(state, {"type":"ranged", "range":3, "damage":4}).has(spire), "Ordinary ranged retains its terrain target")
-	# Hurricane Palm is an adjacent standalone push (Cleaver Hook became a melee Sunder).
+	# Hurricane Palm is an adjacent standalone push (Cleaver Hack is a melee attack with Pierce).
 	var hook: Dictionary = (combat.card_play_actions("hurricane_palm", state)[0] as Dictionary)
 	expect.call(str(hook.get("type", "")) == "push" and not combat.valid_targets_for_player_action(state, hook).has(spire), "Enemy-only force attacks must not gain terrain targets")
 	scene.free()
@@ -202,10 +202,9 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			covered_melee_cards += 1
 		run_scene.free()
 
-	# Wave 4 added Joust; crd-09 (owner-approved 2026-11-08) made it a plain
-	# move 4 then a required push hit, so it counts as push, not melee.
-	expect.call(covered_card_ids.size() == 19, "Current card data should expose all 19 move/blink-then-attack cards to shortcut coverage")
-	expect.call(covered_melee_cards == 12, "Current card data should expose all 12 move-then-melee cards to prepared-runtime shortcut coverage")
+	# pla-09 makes Tectonic Maul a stationary melee strike. Joust uses Push.
+	expect.call(covered_card_ids.size() == 18, "The shortcut covers all 18 move or blink cards with a targeted follow-up attack")
+	expect.call(covered_melee_cards == 11, "The shortcut covers all 11 move or blink cards with a melee follow-up")
 	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push", "pull"]), "Combined movement cards use melee or directed displacement follow-ups")
 
 
@@ -537,10 +536,9 @@ static func _test_equivalent_preview_cache(expect: Callable) -> void:
 	(selected.get("plans", {}) as Dictionary).clear()
 	scene.call("_mark_preview_selection_changed")
 	expect.call(scene.call("_preview_shortcuts_for_current_action", preview) == first, "Active plan mutation must not alter the retained content snapshot")
-	for bleed: int in [30, 0, 2, 0, 4, 0]:
+	for health: int in [30, 1, 2, 1, 4, 1]:
 		var changed: Dictionary = state.duplicate(true)
-		changed["player"]["bleed"] = bleed
-		changed["player"]["hp"] = 3
+		changed["player"]["hp"] = health
 		var changed_preview: Dictionary = scene.call("_card_preview_from_state", "sidestep_slash", changed, actions, 0)
 		scene.call("_mark_preview_selection_changed")
 		var actual: Dictionary = scene.call("_preview_shortcuts_for_current_action", changed_preview)

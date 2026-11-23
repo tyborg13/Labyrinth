@@ -20,12 +20,14 @@ static func run(expect: Callable) -> void:
 	unowned_purge_checks(engine, expect)
 	_retired_paths(expect)
 	var initial: Dictionary = engine.create_new_run(TEST_SEED, Profile.default_data())
-	expect.call(initial["deck_cards"].size() == 16 and initial["attuned_magic_cards"] == Data.starting_magic_cards(), "Starting deck is still 16 cards with the six authored starter spells")
+	expect.call(initial["deck_cards"].size() == 13 and initial["attuned_magic_cards"] == Data.starting_magic_cards(), "Starting deck contains 13 cards including the four authored starter spells")
 	var rewarded: Dictionary = engine.claim_card_reward(initial, "spark_dart")
-	expect.call(rewarded["deck_cards"].has("spark_dart") and rewarded["deck_cards"].size() == 17 and rewarded["magic_inventory"].is_empty(), "Reward enters deck immediately without a reserve")
+	expect.call(rewarded["deck_cards"].has("spark_dart") and rewarded["deck_cards"].size() == 14 and rewarded["magic_inventory"].is_empty(), "Reward enters deck immediately without a reserve")
 	expect.call(rewarded["notice"] == "Added Spark Dart to your deck.", "Reward notice uses director wording")
 	var legacy: Dictionary = initial.duplicate(true)
 	legacy.erase(Run.MAGIC_DECK_SAVE_VERSION_KEY)
+	legacy.erase(Run.FIRST_COMBAT_WON_KEY)
+	legacy["attuned_magic_cards"] = Data.starting_magic_cards(true)
 	legacy["magic_inventory"] = ["spark_dart", "spark_dart", "frostbolt"]
 	legacy["reward_cards"] = ["spark_dart", "spark_dart", "frostbolt"]
 	var migrated: Dictionary = engine.repair_loaded_run_state(legacy)
@@ -43,6 +45,7 @@ static func run(expect: Callable) -> void:
 		var bought: Dictionary = engine.buy_merchant_item(state, "scavenger", str(offer))
 		expect.call(bought["deck_cards"].has(offer) and bought["magic_inventory"].is_empty(), "Scavenger magic purchase goes directly into deck")
 		break
+	state = engine.grant_magic_to_deck(state, "pale_spark")
 	var purged: Dictionary = engine.purge_magic_card(state, "pale_spark", "scavenger")
 	expect.call(purged["attuned_magic_cards"].count("pale_spark") == 1 and purged["deck_cards"].size() == state["deck_cards"].size() - 1, "Purge removes exactly one owned magic copy")
 	expect.call(purged["notice"] == "Purged Pale Spark.", "Confirmed purge uses the approved notice")
@@ -73,11 +76,11 @@ static func run(expect: Callable) -> void:
 	var none: Dictionary = state.duplicate(true)
 	none["attuned_magic_cards"] = []
 	none = engine.repair_loaded_run_state(none)
-	expect.call(none["attuned_magic_cards"].is_empty() and none["deck_cards"].size() == 10, "Repair never fills purged magic back to six")
+	expect.call(none["attuned_magic_cards"].is_empty() and none["deck_cards"].size() == 9, "Repair never restores purged starter magic")
 	var large: Dictionary = initial.duplicate(true)
 	for _index: int in range(8): large = engine.grant_magic_to_deck(large, "spark_dart")
 	large = engine._repair_equipment_state(large)
-	expect.call(large["attuned_magic_cards"].size() == 14 and large["deck_cards"].size() == 24, "Compiled deck contains all 14 owned magic copies with no cap")
+	expect.call(large["attuned_magic_cards"].size() == 12 and large["deck_cards"].size() == 21, "Compiled deck contains all 12 owned magic copies with no cap")
 	var combat: Dictionary = engine.get("_combat_engine").create_combat(TEST_SEED, initial["current_room_layout"], engine._player_snapshot(large))
 	var combat_cards: Array = []
 	for pile: String in ["draw", "hand", "discard", "burned"]: combat_cards.append_array(combat["deck"].get(pile, []))
@@ -95,7 +98,7 @@ static func run(expect: Callable) -> void:
 	expected_keys.sort()
 	expect.call(sorted_keys == expected_keys, "Magic list sorts by element then name")
 	var grouped: Array[Dictionary] = List.entries(large["attuned_magic_cards"])
-	expect.call(grouped.size() == 4, "Magic list groups all copies of a spell into a single row")
+	expect.call(grouped.size() == 5, "Magic list groups all copies of a spell into a single row")
 	for entry: Dictionary in grouped:
 		if entry["card_id"] == "spark_dart": expect.call(entry["count"] == 8, "Magic row retains exact duplicate count")
 	_reference_copy(expect)

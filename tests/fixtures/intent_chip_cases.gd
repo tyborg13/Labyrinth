@@ -58,7 +58,7 @@ static func movement_stress() -> Dictionary:
 			var tile: Vector2i = STRESS_ORIGIN + Vector2i(x, y)
 			if tile == Rest.FIXTURE_HERO: continue
 			var enemy: Dictionary = Groups._foe("crawler", 1 + x + y * STRESS_COLUMNS, tile)
-			enemy.merge({"max_hp": 30, "block": 8, "stoneskin": 3, "immobilize": true, "bleed": 3, "expose": 2, "frost_armor": 3}, true)
+			enemy.merge({"max_hp": 30, "block": 8, "stoneskin": 3, "immobilize": true, "expose": 2, "frost_armor": 3}, true)
 			enemies.append(enemy)
 	state["enemies"] = enemies
 	return state

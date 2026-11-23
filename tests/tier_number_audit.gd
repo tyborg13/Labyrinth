@@ -203,7 +203,7 @@ func _death_burst(state: Dictionary) -> void:
 	base.erase("difficulty_stats")
 	_require(_loss(base, engine._damage_enemy(base.duplicate(true), 0, int(enemy["hp"]), true)) == dealt, "Last Light does not add to death-burst damage")
 	_compare("Burst badge", "Ember Tick", BurstView.badges(enemy)[0]["count"], dealt)
-	_compare("Burst tooltip", "Ember Tick", BurstView.trait_token(enemy)["value"], "Bursts %d" % dealt)
+	_compare("Burst tooltip", "Ember Tick", BurstView.trait_token(enemy)["value"], "Burst %d" % dealt)
 
 func _trap(source: Dictionary) -> void:
 	if source.is_empty(): return

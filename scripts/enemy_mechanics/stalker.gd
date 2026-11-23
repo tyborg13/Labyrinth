@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TypedArrays = preload("res://scripts/typed_arrays.gd")
+
 const Paths = preload("res://scripts/path_utils.gd")
 const Snapshot = preload("res://scripts/guardian_combat_rules.gd")
 const BLINK_RANGE: int = 4 # Fade and Ambush share the brief's range.
@@ -56,7 +58,7 @@ static func blink(engine: RefCounted, state: Dictionary, index: int, end: Vector
 	state["enemies"][index] = enemy
 	return engine.surface_actor_arrival(state, "enemy", int(enemy["id"]), start)
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	var ambush: bool = bool(action.get("ambush", false))
 	var start: Vector2i = enemy["pos"]
@@ -76,7 +78,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 		strike_context["blocking_terrain_index"] = -1
 		strike_context["trap_attack_index"] = -1
 		if int(state["enemies"][index].get("hp", 0)) > 0 and Paths.manhattan(state["enemies"][index]["pos"], hero) == 1:
-			state = engine._enemy_attack_target(state, index, action, "hits", null, bleed_steps, strike_context)
+			state = engine._enemy_attack_target(state, index, action, "hits", null, TypedArrays.dictionaries([]), strike_context)
 	return state
 
 static func animation_step(engine: RefCounted, before: Dictionary, after: Dictionary, index: int, action: Dictionary, context: Dictionary) -> Dictionary:

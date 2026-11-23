@@ -32,7 +32,7 @@ void fragment() {
 var charged: bool = false
 var blocked: bool = false
 var locked: bool = false
-var hint: String = "E"
+var hint: String = ""
 var show_hint: bool = false
 var _flare: float = 1.0
 var _charge_tween: Tween

@@ -77,24 +77,20 @@ static func _shatter_hover(tree: SceneTree, errors: Array[String]) -> void:
 	card.configure("shatter")
 	viewport.add_child(card)
 	for frame: int in range(Playback.SETTLE_FRAMES): await tree.process_frame
-	var condition: Control = card.find_child("SurfaceCondition", true, false)
-	if condition == null:
-		errors.append("Shatter must expose its Frozen-condition row")
-	else:
-		var checked: Array[String]
-		for child: Control in condition.get_children():
+	var face: Control = card.find_child("SentenceFace", true, false)
+	var ice_controls: int = 0
+	if face != null:
+		for child: Control in face.get_children():
+			if child.tooltip_text != Icons.tooltip("surface_ice"): continue
+			ice_controls += 1
 			var local: Vector2 = card.get_global_transform().affine_inverse() * child.get_global_rect().get_center()
 			var text: String = card.call("_get_tooltip", local)
 			var panel: Control = card._make_custom_tooltip(text)
 			var icon: TextureRect = panel.find_child("TooltipIcon", true, false) if panel != null else null
-			if icon == null or icon.texture != Icons.icon_texture("freeze"):
-				errors.append("Shatter hover must display the snowflake at " + str(child.name))
-			var expected_term: String = "freeze" if child is TextureRect else "if_frozen"
-			if card.get("_native_tooltip_route").get("term") != expected_term:
-				errors.append("Shatter hover must carry the correct loop key at " + str(child.name))
-			_check(errors, panel, "freeze_status", expected_term, {"kind": "hero_card", "id": "shatter"})
-			if child is Label: checked.append(child.text)
-		if checked != ["vs", ":"]: errors.append("Shatter proof must exercise both labels beside the snowflake")
+			if text != Icons.tooltip("surface_ice") or icon == null or icon.texture != Icons.icon_texture("surface_ice"):
+				errors.append("Shatter Ice hover must show the Ice rules and icon")
+			_check(errors, panel, "", "surface_ice", {"kind": "hero_card", "id": "shatter"})
+	if ice_controls != 2: errors.append("Shatter must expose both Ice terms on the sentence face")
 	viewport.queue_free()
 	await tree.process_frame
 

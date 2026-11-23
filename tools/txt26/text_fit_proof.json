@@ -1,0 +1,213 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080",
+    "1280x800"
+  ],
+  "required_images": [
+    {
+      "pattern": "01_1920x1080_iron_lung_worldheart_overflow_censer.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "02_1920x1080_crowncoal_heart_waxen_effigy_hollow_puppet.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "03_1920x1080_mirror_shard_frost_prism_cold_mirror.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "04_1920x1080_rimecatcher_vial_funeral_bell_battering_yoke.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "05_1920x1080_breaking_wheel_hollow_die_worldroot_idol.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "06_1920x1080_fivefold_knot_iron_lung_worldheart.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "01_1280x800_iron_lung_worldheart_overflow_censer.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "02_1280x800_crowncoal_heart_waxen_effigy_hollow_puppet.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "03_1280x800_mirror_shard_frost_prism_cold_mirror.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "04_1280x800_rimecatcher_vial_funeral_bell_battering_yoke.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "05_1280x800_breaking_wheel_hollow_die_worldroot_idol.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "06_1280x800_fivefold_knot_iron_lung_worldheart.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {
+          "rect": [
+            520,
+            448,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    }
+  ]
+}

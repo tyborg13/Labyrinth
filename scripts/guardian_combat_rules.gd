@@ -303,8 +303,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 			# Resolve on the private copy in action order so damage, cleared
 			# surfaces and displacement can alter the next warning. Reuse the
 			# real resolver; a parallel damage model would drift from combat.
-			var bleed_steps: Array[Dictionary]
-			preview_state = engine._resolve_enemy_action(preview_state,enemy_index,geometry,preview_rng,{},bleed_steps,context)
+			preview_state = engine._resolve_enemy_action(preview_state,enemy_index,geometry,preview_rng,{},TypedArrays.dictionaries([]),context)
 			enemy_index = engine._enemy_index_for_id(preview_state,enemy_id)
 			if enemy_index < 0: break
 			plan["enemy_index"] = enemy_index
@@ -350,7 +349,7 @@ static func available_summon_tiles(engine: RefCounted, state: Dictionary, enemy:
 		if is_empty_floor(engine,state,tile): result.append(tile)
 	return result
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator, bleed_steps: Array[Dictionary]) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	var type: String = str(action.get("type",""))
 	var declared: Array[Vector2i] = live_tiles(engine,state,enemy,action)
@@ -390,8 +389,6 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 			Surfaces.record_event(state,{"kind":"guardian_helper_summoned","enemy_id":helper["id"],"enemy_type":helper["type"],"source":engine._surface_source(state,action)})
 			break
 	else:
-		state = engine._trigger_enemy_bleed_for_resolved_action(state,index,action,bleed_steps)
-		if engine._enemy_cannot_continue_after_bleed(state,index): return state
 		if not declared.is_empty():
 			if bool(action.get("replace_previous_trail",false)):
 				for tile: Vector2i in tiles(enemy.get("authored_trail",[])):

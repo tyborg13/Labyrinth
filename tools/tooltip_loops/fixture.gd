@@ -4,6 +4,7 @@ const Runs = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/hero_facing_combat.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const PatchChecks = preload("res://tools/tooltip_loops/patch_checks.gd")
+const Tip13 = preload("res://tools/tooltip_loops/tip13_checks.gd")
 const Tip07 = preload("res://tools/tooltip_loops/tip07_fixture.gd")
 const Tip09 = preload("res://tools/tooltip_loops/tip09_fixture.gd")
 const Tip09Checks = preload("res://tools/tooltip_loops/tip09_checks.gd")
@@ -36,10 +37,12 @@ static func build(id: String) -> Dictionary:
 	var units: Array = []
 	var card: String = ""
 	match id:
-		"burst_ember_tick":
-			units = [["ember_tick", Vector2i(1, 1)], ["crawler", Vector2i(1, 0)]]
+		Tip13.EMBER_TICK:
+			units = [["ember_tick", Tip13.TICK_TILE], ["crawler", Tip13.ADJACENT_TILE], ["crawler", Tip13.DIAGONAL_TILE]]
 			card = "quick_stab"
-			layout["element"] = "fire"
+			layout["element"] = "none"
+			layout["umbra_stage"] = Combat.UMBRA_STAGE_CLEAR
+			layout.erase("umbra")
 		"marked_burrow_grub":
 			units = [["burrow_grub", Vector2i(2, 0)]]
 			layout["player_start"] = GRUB_HERO
@@ -155,6 +158,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	return failures
 
 static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Array[String]:
+	if Tip13.IDS.has(fixture["id"]): return Tip13.validate(fixture, result, Tip06)
 	if Tip10.IDS.has(fixture["id"]): return Tip10Checks.validate(fixture, result)
 	if Tip07.IDS.has(fixture["id"]): return Tip07.validate(fixture, result)
 	if Tip06.IDS.has(fixture["id"]): return Tip06.Checks.validate(fixture, result, Tip06)
@@ -167,10 +171,6 @@ static func _validate_mechanics(fixture: Dictionary, result: Dictionary) -> Arra
 	var before: Dictionary = fixture["state"]
 	var after: Dictionary = result["final"]
 	match fixture["id"]:
-		"burst_ember_tick":
-			if int(after["enemies"][0]["hp"]) > 0: failures.append("Quick Stab must kill the Tick")
-			if int(after["player"]["hp"]) >= int(before["player"]["hp"]) or int(after["enemies"][1]["hp"]) >= int(before["enemies"][1]["hp"]): failures.append("Burst must damage both neighbours")
-			if after.get("surfaces", {}).is_empty(): failures.append("Burst must leave Fire")
 		"marked_burrow_grub":
 			var marked: Dictionary = result["beats"][0]["after"]["enemies"][0]
 			if not bool(marked.get("burrowed", false)) or marked.get("erupt_tile") != GRUB_HERO: failures.append("Burrow must mark the hero's original tile")

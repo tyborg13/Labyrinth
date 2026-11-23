@@ -72,14 +72,14 @@ static func _effects(expect: Callable) -> void:
 		var row: Dictionary = before[Rules.STATE_KEY]["offers"][0]
 		var choices: Array = []
 		if id in ["elemental_gift", "blood_price"]: choices.append(row["spells"][0])
-		if id == "purge": choices = ["pale_spark", "pale_spark"]
+		if id == "purge": choices = ["pale_spark", "dull_bolt"]
 		var result: Dictionary = Rules.choose(engine, before, id, choices)
 		expect.call(bool(result[Rules.STATE_KEY]["resolved"]), id + " resolves the one run choice")
 		expect.call(not bool(before[Rules.STATE_KEY]["resolved"]), id + " leaves caller state immutable")
 		expect.call(Rules.choose(engine, result, id, choices) == result, id + " cannot be applied twice")
 		match id:
 			"elemental_gift", "blood_price":
-				expect.call(result["attuned_magic_cards"].size() == 7 and result["deck_cards"].has(choices[0]) and result["magic_inventory"].is_empty(), id + " puts the chosen spell straight in the deck")
+				expect.call(result["attuned_magic_cards"].size() == before["attuned_magic_cards"].size() + 1 and result["deck_cards"].has(choices[0]) and result["magic_inventory"].is_empty(), id + " puts the chosen spell straight in the deck")
 				if id == "blood_price": expect.call(result["player_max_hp"] == before["player_max_hp"] - 5 and result["player_hp"] <= result["player_max_hp"], "Blood Price charges five max HP and clamps current HP")
 			"armory", "heirloom":
 				var slot: String = Data.equipment_slot(row["item"])
@@ -87,9 +87,9 @@ static func _effects(expect: Callable) -> void:
 				expect.call(result["equipped_equipment"][slot] == row["item"] and not result["equipment_inventory"].has(starter) and not result["collected_equipment"].has(starter), id + " removes the replaced starter completely")
 				for card: String in Data.equipment_cards(starter): expect.call(not result["deck_cards"].has(card), id + " removes starter equipment cards")
 				for card: String in Data.equipment_cards(row["item"]): expect.call(result["deck_cards"].has(card), id + " adds base equipment cards")
-			"purge": expect.call(result["attuned_magic_cards"].size() == 4 and not result["attuned_magic_cards"].has("pale_spark"), "Purge removes exactly two chosen copies")
+			"purge": expect.call(result["attuned_magic_cards"] == ["waning_pulse", "buffet"], "Purge removes exactly the two chosen cards")
 			"focus":
-				expect.call(result["attuned_magic_cards"] == row["spells"] and result["attuned_magic_cards"].size() == 4, "Focus exchanges all six starters for the four upfront spells")
+				expect.call(result["attuned_magic_cards"] == row["spells"] and result["attuned_magic_cards"].size() == 4, "Focus exchanges the starter spells for the four upfront spells")
 			"vitality": expect.call(result["player_max_hp"] == before["player_max_hp"] + 6 and result["player_hp"] == before["player_hp"] + 6 and result["player_hp"] == result["player_max_hp"], "Vitality grants six max and current HP, keeping the run full")
 			"trinket", "pawned_light":
 				expect.call(result["relics"].has(row["relic"]), id + " grants the rolled relic")
@@ -108,7 +108,6 @@ static func _effects(expect: Callable) -> void:
 	expect.call(Rules.choose(engine, purge, "purge", ["pale_spark", "quick_stab"]) == purge, "Purge cannot remove an equipment card")
 	expect.call(Rules.choose(engine, purge, "purge", ["pale_spark"]) == purge, "Incomplete Purge is free and leaves the offer pending")
 	var one_copy: Dictionary = purge.duplicate(true)
-	one_copy["attuned_magic_cards"].erase("pale_spark")
 	expect.call(Rules.starter_spells(one_copy).count("pale_spark") == 1, "Multiplicity regression starts with exactly one remaining copy")
 	expect.call(Rules.choose(engine, one_copy, "purge", ["pale_spark", "pale_spark"]) == one_copy, "Purge refuses two copies when only one remains")
 	var blood: Dictionary = Fixture.force_boon("blood_price")

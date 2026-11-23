@@ -1,0 +1,14 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 56,
+  "required_images": [
+    {"pattern": "hand_*.png", "min_count": 27},
+    {"pattern": "hover_*.png", "min_count": 27},
+    {"pattern": "light_expose_preview.png", "regions": [
+      {"rect": [320, 180, 1280, 600], "min_luma_range": 8, "min_luma_stdev": 2}
+    ]},
+    {"pattern": "vision_hover_preview.png", "regions": [
+      {"rect": [320, 180, 1280, 680], "min_luma_range": 8, "min_luma_stdev": 2}
+    ]}
+  ]
+}

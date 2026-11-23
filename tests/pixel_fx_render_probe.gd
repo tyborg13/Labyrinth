@@ -5,9 +5,6 @@ extends SceneTree
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
 const Spell = preload("res://scripts/elemental_spell_fx.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
-const Board = preload("res://scripts/combat_board_view.gd")
-const Chain = preload("res://scripts/chain_attack_fx.gd")
-const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
 const LineReference = preload("res://tests/pixel_fx_line_reference.gd")
 const OUTPUT: String = "user://probes/pixel_fx_render"
@@ -22,7 +19,7 @@ const MIXED_HALO_ALPHA: float = 0.5
 const BELOW_FLOOR_CELL := Vector2i(100, 180)
 const ABOVE_FLOOR_CELL := Vector2i(100, 272)
 const LINE_PROGRESS: float = 0.52
-const LINE_FIXTURE: Dictionary = {"start": Vector2(300, 500), "end": Vector2(900, 300), "width": 180.0, "key": "pixel-proof",
+const LINE_FIXTURE: Dictionary = {"width": 180.0,
 	"lightning_center": Vector2(600, 400),
 	"lightning_zigzag": [Vector2(300, 500), Vector2(450, 320), Vector2(550, 390), Vector2(900, 300)]}
 const UNIT_COLOR := Color(0.125, 0.25, 0.375, 1.0)
@@ -55,8 +52,7 @@ func _run() -> void:
 	for element: String in Pixel.style()["ramps"]:
 		await _gradient(element)
 	await _cropped_dither()
-	for kind: String in ["conduction", "chain", "lightning"]:
-		await _line_core(kind)
+	await _line_core("lightning")
 	await _line_fade_and_width()
 	for element: String in Fixture.ELEMENTS:
 		await _depth_and_blend(element)
@@ -218,21 +214,10 @@ func _line_core(kind: String) -> void:
 	_viewport.add_child(source)
 	var pixel := Pixel.new()
 	source.add_child(pixel)
-	var board := Board.new()
-	board.size = Fixture.SIZE
-	board.visible = false
-	root.add_child(board)
-	var sample: Dictionary = Fixture.surface_sample("conduction")
-	board.set_combat_state(sample["state"], [], [], Vector2i(-1, -1), "", "", {}, {}, sample["presentation"])
 	pixel.begin(source)
-	if kind == "conduction":
-		pixel.submit("lightning", _draw_conduction, [board, sample["presentation"]], Transform2D.IDENTITY)
-	elif kind == "chain":
-		pixel.submit("lightning", Chain.draw_hop, [LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["width"], LINE_PROGRESS, false], Transform2D.IDENTITY)
-	else:
-		pixel.submit("lightning", Pixel.draw_line_command, [PackedVector2Array(LINE_FIXTURE["lightning_zigzag"]), Color(0.94, 0.96, 1.0, 0.72), Color(0.72, 0.65, 1.0, 0.82)], Transform2D.IDENTITY)
-		pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, false], Transform2D.IDENTITY)
-		pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, true], Transform2D.IDENTITY)
+	pixel.submit("lightning", Pixel.draw_line_command, [PackedVector2Array(LINE_FIXTURE["lightning_zigzag"]), Color(0.94, 0.96, 1.0, 0.72), Color(0.72, 0.65, 1.0, 0.82)], Transform2D.IDENTITY)
+	pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, false], Transform2D.IDENTITY)
+	pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, true], Transform2D.IDENTITY)
 	pixel.finish()
 	await _settle()
 	var image: Image = _viewport.get_texture().get_image()
@@ -276,8 +261,6 @@ func _line_core(kind: String) -> void:
 	scaled.resize(core_image.get_width() * 2, core_image.get_height() * 2, Image.INTERPOLATE_NEAREST)
 	core_capture.blit_rect(scaled, Rect2i(Vector2i.ZERO, scaled.get_size()), lines.get("cell_rect").position * 2)
 	_expect(core_capture.save_png(OUTPUT.path_join(kind + "_core_mask.png")) == OK, "Save actual GPU core coverage")
-	if kind in ["conduction", "chain"]:
-		_expect(_connected(all_core), "%s GPU cores join across segments/tributaries" % kind)
 	await _line_mask(lines, strokes, 0)
 	# Round-3 reference at the identical authored frame. Raster differences and
 	# the newly requested below-floor fade are reported, not exact-byte gated.
@@ -295,7 +278,6 @@ func _line_core(kind: String) -> void:
 			differences += int(image.get_pixel(x, y) != before.get_pixel(x, y))
 	print("PIXEL FX GPU LINE COMPARE %s: %d changed screen cells vs round 3; continuity gated on GPU masks" % [kind, differences])
 	source.queue_free()
-	board.queue_free()
 	await process_frame
 
 func _round3_strokes(pixel: Node2D) -> Array[Dictionary]:
@@ -390,7 +372,3 @@ func _line_fade_and_width() -> void:
 	_expect(_viewport.get_texture().get_image().save_png(OUTPUT.path_join("line_mixed_alpha.png")) == OK, "Save GPU mixed-alpha halo fixture")
 	source.queue_free()
 	await process_frame
-
-func _draw_conduction(canvas: CanvasItem, board: Control, presentation: Dictionary) -> void:
-	for tile: Vector2i in SurfaceDependencies.changed_tiles({}, presentation, {"effect": true}):
-		board.call("_draw_surface_conduction_floor", tile, canvas)

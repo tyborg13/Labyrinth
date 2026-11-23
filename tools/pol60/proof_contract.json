@@ -1,0 +1,233 @@
+{
+  "min_images": 15,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/pack_item_focus.png",
+      "regions": [
+        {
+          "rect": [
+            650,
+            287,
+            430,
+            235
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/pack_gear_focus.png",
+      "regions": [
+        {
+          "rect": [
+            650,
+            287,
+            430,
+            235
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open.png",
+      "regions": [
+        {
+          "rect": [
+            65,
+            55,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_closed.png",
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            330,
+            100
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_strip.png",
+      "regions": [
+        {
+          "rect": [
+            25,
+            20,
+            1870,
+            1000
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/event_grimoire_notice.png",
+      "regions": [
+        {
+          "rect": [
+            540,
+            150,
+            1200,
+            680
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_00.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_04.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_08.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_12.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_16.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/map_open_20.png",
+      "regions": [
+        {
+          "rect": [
+            50,
+            50,
+            1420,
+            715
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/keyword_all_enemies.png",
+      "regions": [
+        {
+          "rect": [
+            760,
+            290,
+            300,
+            160
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/keyword_empower.png",
+      "regions": [
+        {
+          "rect": [
+            760,
+            290,
+            300,
+            160
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*/keyword_follow_up.png",
+      "regions": [
+        {
+          "rect": [
+            760,
+            290,
+            300,
+            160
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

@@ -45,7 +45,7 @@ static func run(expect: Callable) -> void:
 	expect.call(not rules.available(first, true) and rules.undo(first, true).is_empty(), "Tutorial hard gate disables undo without consuming history")
 	expect.call(rules.available(first), "Undo becomes available again when the tutorial gate releases")
 
-	for cause: String in ["trap", "item", "embers", "fire", "ice", "electrified", "bleed"]:
+	for cause: String in ["trap", "item", "embers", "fire", "ice", "electrified"]:
 		var fixture: Dictionary = Fixture._state(engine)
 		match cause:
 			"trap": fixture["traps"] = [{"pos": SECOND_TILE, "element": "fire", "damage": 3}]
@@ -59,10 +59,6 @@ static func run(expect: Callable) -> void:
 		var history := Rules.new()
 		history.record_walk(fixture, safe)
 		expect.call(history.available(safe), "%s fixture begins with a reversible walk" % cause)
-		if cause == "bleed":
-			# Status existed before this walk; the prior safe snapshot is adjusted
-			# solely for constructing a realistic mid-activation damage witness.
-			safe["player"]["bleed"] = 2
 		var committed: Dictionary = engine.apply_player_movement(safe, SECOND_TILE)
 		expect.call(not bool(committed["last_player_movement"]["undo_report"]["reversible"]), "%s walk must fail closed" % cause)
 		history.record_walk(safe, committed)
@@ -125,10 +121,6 @@ static func run(expect: Callable) -> void:
 	blink_before = engine.arm_ghost_stride(blink_before)
 	var blink_after: Dictionary = engine.apply_player_movement(blink_before, FIRST_TILE)
 	expect.call(not bool(blink_after["last_player_movement"]["undo_report"]["reversible"]), "Ghost Stride and its skill consequence are never classified as free walks")
-	var lethal: Dictionary = Fixture._state(engine)
-	lethal["player"]["bleed"] = lethal["player"]["hp"]
-	var killed: Dictionary = engine.apply_player_movement(lethal, FIRST_TILE)
-	expect.call(killed["last_player_movement"]["resolved"] and not killed["last_player_movement"]["undo_report"]["reversible"], "Zero-step Bleed death commits instead of retaining undo")
 	print("MOVEMENT UNDO RULES: completed")
 
 static func _path() -> Array[Vector2i]:

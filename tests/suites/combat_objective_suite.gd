@@ -308,8 +308,8 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 
 static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Callable) -> void:
 	var hud := CombatObjectiveHud.new()
-	# Dragons and guardians share the named top health bar. Ordinary captains
-	# still need their identity in the objective's live detail.
+	# Named objectives identify dragons and guardians in the title. An ordinary
+	# captain still needs its identity in the live detail.
 	for enemy_type: String in ["vyraketh", "zekarion", "ashen_reaver", "storm_cantor", "warden"]:
 		var definition: Dictionary = GameData.enemy_def(enemy_type)
 		var hp: int = int(definition.get("max_hp", 1))
@@ -319,7 +319,7 @@ static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Ca
 		var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false)
 		var title: Label = hud.find_child("ObjectiveTitle", true, false)
 		var facts: String = "%d/%d Health" % [hp, hp]
-		var expected: String = facts if bool(definition.get("boss_bar", false)) else "%s · %s" % [definition["name"], facts]
+		var expected: String = "%s · %s" % [definition["name"], facts] if enemy_type == "warden" else facts
 		expect.call(detail.text == expected and detail.visible, enemy_type + " retains health facts and removes only a redundant boss name")
 		expect.call(title.text == CombatObjectiveRules.hud_title_for_objective(objective).to_upper(), enemy_type + " retains its exact objective title")
 		state["enemies"][0]["hp"] = 0
@@ -327,13 +327,13 @@ static func _test_boss_live_detail_keeps_facts_without_repeating_name(expect: Ca
 		expect.call(detail.text.ends_with("0/%d Health" % hp), enemy_type + " retains the zero-health fact during defeat presentation")
 		state["visible_enemy_ids"] = []
 		hud.set_combat_state(state)
-		expect.call(detail.text == "Leader concealed", enemy_type + " preserves hidden-enemy privacy")
+		expect.call(detail.text == "Leader hidden", enemy_type + " preserves hidden-enemy privacy")
 	var hoarder: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "ember_hoarder", "special_type": "ember_hoarder"}
 	hud.set_combat_state({"objective": hoarder, "enemies": [{"id": 1, "type": "ember_hoarder", "hp": 1, "max_hp": 2}]})
 	expect.call((hud.find_child("ObjectiveLiveDetail", true, false) as Label).text == "Before it escapes · 1/2 Health", "Hoarder live detail keeps its existing non-name copy")
 	var dragon: Dictionary = {"type": CombatObjectiveRules.KILL_LEADER, "leader_id": 1, "leader_type": "zekarion"}
 	var dragon_state: Dictionary = {"objective": dragon, "enemies": []}
-	var dragon_title: String = CombatObjectiveRules.title_for_objective(dragon)
+	var dragon_title: String = "Defeat Zekarion"
 	hud.set_combat_state(dragon_state)
 	expect.call(hud.tooltip_text == dragon_title, "Named leader hover with no description ends at the title")
 	dragon["objective_description"] = "An authored objective sentence."

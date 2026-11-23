@@ -85,8 +85,12 @@ static func run(expect: Callable) -> void:
 		expect.call(preload("res://tests/suites/boss_area_rules_suite.gd").same(combat.enemy_threat_tiles(state,0)["attack"],fixture["before_counterplay"]),boss_id+" removing fuel preserves its announced warning")
 		var result: Dictionary = combat.resolve_enemy_turn_with_steps(state,0)
 		var step: Dictionary = area_step(result,fixture["action"],boss_id)
-		expect.call(not step.is_empty() and preload("res://tests/suites/boss_area_rules_suite.gd").same(step.get("tiles",[]),fixture["before_counterplay"]),boss_id+" resolves exactly the held area after fuel removal")
-		expect.call((int(result["state"]["player"]["hp"])<int(state["player"]["hp"])) == (fixture["before_counterplay"] as Array).has(state["player"]["pos"]),boss_id+" held area hits exactly its marked player")
+		if boss_id == "vyraketh":
+			expect.call(not step.is_empty() and step.get("tiles", []).is_empty(), "Crownfire presents an empty impact after its marked Fire is gone")
+			expect.call(result["state"]["player"]["hp"] == state["player"]["hp"], "A denied Crownfire leaves the hero's Health intact")
+		else:
+			expect.call(not step.is_empty() and preload("res://tests/suites/boss_area_rules_suite.gd").same(step.get("tiles",[]),fixture["before_counterplay"]),boss_id+" resolves exactly the held area after fuel removal")
+			expect.call((int(result["state"]["player"]["hp"])<int(state["player"]["hp"])) == (fixture["before_counterplay"] as Array).has(state["player"]["pos"]),boss_id+" held area hits exactly its marked player")
 		expect.call(Profile.tiles(step)==step.get("tiles",[]),boss_id+" presentation preserves the resolved held footprint")
 	var direct: Dictionary = build_run("vaeloryx")["combat_state"]
 	declare(direct,"skyhook")

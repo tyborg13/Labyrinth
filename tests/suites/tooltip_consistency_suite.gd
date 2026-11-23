@@ -29,10 +29,10 @@ static func run(expect: Callable) -> void:
 	_test_tooltip_entry_modifier_merging(expect)
 	_test_tooltip_entry_base_identity(expect)
 	_test_real_cards_preserve_repeated_icon_semantics(expect)
-	_test_petrify_keyword(expect)
+	_test_stagger_face(expect)
 
 
-static func _test_petrify_keyword(expect: Callable) -> void:
+static func _test_stagger_face(expect: Callable) -> void:
 	var card: Dictionary = GameData.card_def("petrify")
 	var rows: Array = ActionIcons.rows_for_card(card)
 	var tokens: Array = []
@@ -40,10 +40,10 @@ static func _test_petrify_keyword(expect: Callable) -> void:
 		tokens.append_array(row)
 	expect.call(tokens.size() == 2, "Petrify card rows contain exactly two tokens")
 	if tokens.size() == 2:
-		expect.call(tokens[0].get("icon") == "petrify" and tokens[1].get("icon") == "range" and int(tokens[1].get("value", 0)) == 3, "Petrify card rows are the keyword icon followed by range 3")
+		expect.call(tokens[0].get("icon") == "stagger" and int(tokens[0].get("value", 0)) == 6 and tokens[1].get("icon") == "range" and int(tokens[1].get("value", 0)) == 3, "Petrify card rows are the keyword icon followed by range 3")
 	for token: Dictionary in tokens:
 		expect.call(token.get("kind") != "text", "Petrify card rows contain no text tokens")
-	var expected_tip: String = "Petrify\nSkips its next turn and gains 5 Block."
+	var expected_tip: String = ActionIcons.tooltip("stagger", 6)
 	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(rows)
 	var owner := Control.new()
 	var stack := TooltipStack.new()
@@ -51,23 +51,18 @@ static func _test_petrify_keyword(expect: Callable) -> void:
 	root.add_child(owner)
 	root.add_child(stack)
 	stack.show_for(owner, entries)
-	var petrify_entries: int = 0
+	var stagger_entries: int = 0
 	for entry: Dictionary in stack._entries:
-		if str(entry.get("icon", "")) == "petrify":
-			petrify_entries += 1
+		if str(entry.get("icon", "")) == "stagger":
+			stagger_entries += 1
 			expect.call("%s\n%s" % [entry.get("title", ""), entry.get("description", "")] == expected_tip, "Petrify focus stack uses the exact complete keyword tooltip")
-	expect.call(petrify_entries == 1, "Petrify focus stack explains Petrify exactly once")
-	expect.call(stack.entry_count() == 2, "Petrify focus stack contains Petrify and Range without automatic Time or a second Block explanation")
+	expect.call(stagger_entries == 1, "Petrify focus stack explains Stagger exactly once")
+	expect.call(stack.entry_count() == 2, "Petrify focus stack contains Stagger and Range without automatic Time or a second Block explanation")
 	stack.free()
 	owner.free()
-	expect.call(not (card["actions"][0] as Dictionary).has("block"), "Petrify card delegates Block to the keyword")
-	expect.call(card.get("description") == "Petrify an enemy within range 3 (not a dragon). It skips its next turn and gains 5 Block.", "Petrify card uses the decided description")
-	expect.call(Glossary.definition("petrify") == "Skips its next turn and gains 5 Block.", "Petrify glossary uses the complete fixed keyword definition")
-	var body: Array = (Grimoire.entry_map()["combat:petrify"] as Dictionary).get("body", []) as Array
-	# pla-02 r1 (owner): the page is its tooltip sentence; the dragon rule lives on
-	# the dragons' trait chips and the skipped turn shows in the turn order.
-	var page: Array = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla02_grimoire_pages.json"))["pages"]["combat:petrify"]
-	expect.call(body == page and body == [Glossary.definition("petrify")], "Petrify grimoire is its tooltip sentence")
+	expect.call(not (card["actions"][0] as Dictionary).has("block"), "Petrify gives no Block")
+	expect.call(card.get("description") == "Stagger 6 an enemy within Range 3.", "Petrify card uses the decided description")
+	expect.call(Glossary.lookup("petrify").is_empty() and not Grimoire.entry_map().has("combat:petrify"), "The retired Petrify keyword has no glossary or Grimoire entry")
 
 
 static func _test_shared_tooltip_controls(expect: Callable) -> void:
@@ -171,7 +166,7 @@ static func _test_icon_tooltip_panel(expect: Callable) -> void:
 
 static func _test_inline_description_tooltip(expect: Callable) -> void:
 	var panel: PanelContainer = UiTooltipPanel.make_text(
-		"QUICK WITS\nOnce per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time)."
+		"QUICK WITS\nOnce per combat, discard a card to @icon(draw) 1 card. Costs no @icon(card_play) or @icon(time)."
 	)
 	var rich_labels: Array[Node] = panel.find_children("*", "RichTextLabel", true, false)
 	var description: RichTextLabel = rich_labels[0] as RichTextLabel if not rich_labels.is_empty() else null
@@ -212,7 +207,7 @@ static func _test_tooltip_entry_modifier_merging(expect: Callable) -> void:
 	var plain: Dictionary = ActionIcons.token_for("stagger", 4)
 	var empowered: Dictionary = ActionIcons.token_for("stagger", 4, "bonus", "", [{"source": "Empower", "amount": 4}], 0)
 	var relic: Dictionary = ActionIcons.token_for("stagger", 5, "bonus", "", [{"source": "Relic", "amount": 1, "detail": "Fixture relic"}], 4)
-	var expected_tooltip: String = "%s\nModified by:\nEmpower +4" % ActionIcons.tooltip("stagger")
+	var expected_tooltip: String = "%s\nModified by:\nEmpower +4" % ActionIcons.tooltip("stagger", 4)
 	for ordered_tokens: Array in [[plain, empowered], [empowered, plain]]:
 		# A later unrelated entry proves the merged identity keeps its first slot.
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([
@@ -221,16 +216,16 @@ static func _test_tooltip_entry_modifier_merging(expect: Callable) -> void:
 		expect.call(entries.size() == 2 and entries[0]["icon"] == "stagger" and entries[1]["icon"] == "range", "Plain/modified keywords should share one entry at the first occurrence in either order")
 		expect.call(entries[0]["tooltip"] == expected_tooltip, "A modified keyword should win over a plain occurrence in either order")
 		expect.call(entries[0]["semantic_key"] == "stagger\u001f%s" % ActionIcons.tooltip("stagger"), "Modifier text should not be part of the entry's semantic identity")
-		expect.call(entries[0]["title"] == ActionIcons.label("stagger") and entries[0]["description"] == "%s\nModified by:\nEmpower +4" % ActionIcons.description("stagger"), "Merged title and description should be rebuilt from the final tooltip")
+		expect.call(entries[0]["title"] == ActionIcons.label("stagger") and entries[0]["description"] == "%s\nModified by:\nEmpower +4" % ActionIcons.description("stagger", 4), "Merged title and description should be rebuilt from the final tooltip")
 	for ordered_tokens: Array in [[empowered, relic, empowered, relic], [relic, empowered, relic, empowered]]:
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([ordered_tokens])
 		var expected_lines: String = "Empower +4\nRelic +1 · Fixture relic" if ordered_tokens[0] == empowered else "Relic +1 · Fixture relic\nEmpower +4"
 		expect.call(entries.size() == 1, "Different modifiers of the same keyword should share one entry")
-		expect.call(entries[0]["tooltip"] == "%s\nModified by:\n%s" % [ActionIcons.tooltip("stagger"), expected_lines], "Merged modifier lines should retain reading order, exact wording and spacing, and appear once each")
+		expect.call(entries[0]["tooltip"] == "%s\nModified by:\n%s" % [ActionIcons.tooltip("stagger", ordered_tokens[0]["value"]), expected_lines], "Merged modifier lines should retain reading order, exact wording and spacing, and appear once each")
 	var repeated: Dictionary = ActionIcons.token_for("stagger", 4, "bonus", "", [{"source": "Empower", "amount": 4}, {"source": "Empower", "amount": 4}], 0)
 	var repeated_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows([[repeated, repeated]])
 	expect.call(repeated_entries.size() == 1 and repeated_entries[0]["tooltip"] == expected_tooltip, "Identical modifier lines within and across tokens should appear once")
-	expect.call(ActionIcons.token_tooltip(plain) == ActionIcons.tooltip("stagger") and ActionIcons.token_tooltip(empowered) == expected_tooltip, "Building a stack should preserve single-token native tooltip text")
+	expect.call(ActionIcons.token_tooltip(plain) == ActionIcons.tooltip("stagger", 4) and ActionIcons.token_tooltip(empowered) == expected_tooltip, "Building a stack should preserve single-token native tooltip text")
 	expect.call(ActionIcons.token_tooltip(repeated).count("Empower +4") == 2, "Native tooltip modifier lines should remain untouched even when the stack merges them")
 
 
@@ -262,9 +257,8 @@ static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) 
 	for entry: Dictionary in lantern_entries:
 		if str(entry.get("icon", "")) == "time":
 			lantern_time_descriptions.append(str(entry.get("description", "")))
-	expect.call(lantern_time_descriptions.size() == 1, "Lantern Shot should keep only the light-duration Turns panel")
+	expect.call(lantern_time_descriptions.is_empty(), "Lantern Shot has no Light duration panel")
 	expect.call(not lantern_time_descriptions.has(ActionIcons.description("time")), "Lantern Shot should omit the automatic card-cost Time panel")
-	expect.call(lantern_time_descriptions.has(ActionIcons.description("turns")), "Lantern Shot should retain the light-duration Turns explanation")
 
 	var stormstring: Dictionary = GameData.card_def("stormstring_shot")
 	var storm_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(

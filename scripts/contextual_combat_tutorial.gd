@@ -256,8 +256,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_CONFIRM_INTENT: {
 		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 10,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Skitter Strike",
-		"pointer_text": "This crawler will move up to 2 tiles, then hit you for 4 and make you Bleed.",
-		"controller_text": "This crawler will move up to 2 tiles, then hit you for 4 and make you Bleed.",
+		"pointer_text": "This crawler will move up to 2 tiles, then hit you for 5.",
+		"controller_text": "This crawler will move up to 2 tiles, then hit you for 5.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},
@@ -322,8 +322,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_KILL_TARGET: {
 		"id": PHASE_SELECT_KILL_TARGET, "lesson": 5, "lesson_total": 10,
 		"icon": "", "kicker": "LETHAL", "title": "Strike the Wounded Crawler",
-		"pointer_text": "Click the glowing crawler. Follow-up adds 3 after Pale Spark, so Quick Stab deals 9.",
-		"controller_text": "Select the glowing crawler. Follow-up adds 3 after Pale Spark, so Quick Stab deals 9.",
+		"pointer_text": "Click the glowing crawler.",
+		"controller_text": "Select the glowing crawler.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_KILL_CARD: {
@@ -528,8 +528,12 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 		"completed_steps": MILESTONE_ORDER.duplicate() if status == STATUS_COMPLETED else completed,
 	}
 
-static func phase_definition(phase_id: String, map_open: bool = false) -> Dictionary:
+static func phase_definition(phase_id: String, map_open: bool = false, legacy_starter: bool = false) -> Dictionary:
 	var definition: Dictionary = (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
+	if phase_id == PHASE_SELECT_KILL_TARGET and legacy_starter:
+		const LEGACY_FOLLOW_UP_EXPLANATION: String = " Follow-up adds 3 after Pale Spark, so Quick Stab deals 9."
+		definition["pointer_text"] += LEGACY_FOLLOW_UP_EXPLANATION
+		definition["controller_text"] += LEGACY_FOLLOW_UP_EXPLANATION
 	if phase_id == PHASE_CHOOSE_PATH and map_open:
 		definition["pointer_text"] = definition["map_pointer_text"]
 		definition["controller_text"] = definition["map_controller_text"]

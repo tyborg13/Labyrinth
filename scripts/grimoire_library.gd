@@ -1,6 +1,8 @@
 extends RefCounted
 class_name GrimoireLibrary
 
+const CardFaces = preload("res://scripts/card_face_spec.gd")
+
 const GameData = preload("res://scripts/game_data.gd")
 const BoardSurfaces = preload("res://scripts/board_surface_rules.gd")
 const Glossary = preload("res://scripts/glossary.gd")
@@ -62,21 +64,19 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"card_play": "keyword:card_play",
 	"illusion": "keyword:illusion",
 	"illusion_swap": "keyword:illusion",
-	"destroy_illusion": "keyword:illusion",
+	"destroy_illusion": "keyword:burst",
 	"illuminate": "keyword:illuminate",
 	"vision": "keyword:vision",
-	"truesight": "keyword:truesight",
-	"dispel_umbra": "keyword:dispel_umbra",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
 	"surface": "keyword:surface",
-	"detonate": "keyword:detonate",
+	"detonate": "keyword:burst",
 	"consume_surface": "keyword:surface_consume",
 	"surface_relocate": "keyword:surface_relocate",
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
 	"outcrop": "combat:outcrops",
-	"burst_terrain": "combat:outcrops",
+	"burst_terrain": "keyword:burst",
 	"raise_terrain": "combat:outcrops",
 	"terrain_burst": "combat:outcrops",
 	"cinder_marks": "combat:cinder_marks",
@@ -94,11 +94,11 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"cleanse": "combat:cleanse",
 	"convert_block_to_stoneskin": "keyword:stoneskin",
 	"mantle": "combat:crystal_armor",
-	"petrify": "combat:petrify",
+	"stagger": "keyword:stagger",
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md).
 	"surface_adjacent_enemies": "keyword:surface",
 	"convert_surface": "combat:surface_techniques",
-	"discharge": "combat:surface_techniques",
+	"discharge": "keyword:burst",
 	"all_enemies": "combat:sweeping_strikes",
 	"meteor_marks": "combat:cinder_marks"
 }
@@ -110,28 +110,25 @@ const ACTION_TYPE_EXTRA_ENTRY_IDS := {
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
-	"chilled": "keyword:chilled",
-	"bleed": "keyword:bleed",
-	"freeze": "keyword:freeze",
 	"shock": "keyword:shock",
 	"immobilize": "keyword:immobilize",
 	"expose": "keyword:expose",
 	"expose_adjacent": "keyword:expose",
-	"sunder": "keyword:sunder",
 	"chain": "keyword:chain",
 	"pierce": "keyword:pierce",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
 	"stagger": "keyword:stagger",
+	"ice_stagger": "keyword:stagger",
 	"force_mode": "combat:area_force",
 	"trail_light": "keyword:illuminate",
 	"destination_requires_light": "keyword:illuminate",
+	"range_in_light": "keyword:illuminate",
 	"illusion_at_origin": "keyword:illusion",
 	"block_per_tile": "keyword:block",
 	"consume": "combat:surface_techniques",
-	"frozen_splash": "keyword:freeze",
-	"detonate_surface": "keyword:detonate",
-	"leave_surface": "keyword:detonate"
+	"detonate_surface": "keyword:burst",
+	"leave_surface": "keyword:burst"
 }
 
 const LINKED_ENTRY_IDS := {
@@ -187,7 +184,7 @@ static func _entries_ref() -> Array:
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
 	result.append_array(magick_entries())
 	result.append_array(equipment_entries())
-	result.append_array(equipment_radiance_card_entries())
+	result.append_array(equipment_light_vision_card_entries())
 	result.append_array(item_entries())
 	result.append_array(character_entries())
 	result.append_array(omen_entries())
@@ -223,7 +220,7 @@ static func magick_entries() -> Array:
 			"card_id": card_id,
 			"group": _card_element_group(card),
 			"group_title": _card_element_group_title(card),
-			"body": _card_entry_body(card)
+			"body": _card_entry_body(card_id, card)
 		})
 	return result
 
@@ -245,10 +242,10 @@ static func equipment_entries() -> Array:
 		})
 	return result
 
-static func equipment_radiance_card_entries() -> Array:
+static func equipment_light_vision_card_entries() -> Array:
 	var result: Array = []
 	for card_id: String in GameData.cards().keys():
-		if not _is_equipment_radiance_card_id(card_id):
+		if not _is_equipment_light_vision_card_id(card_id):
 			continue
 		var card: Dictionary = GameData.card_def(card_id)
 		var equipment_id: String = _first_equipment_id_for_card(card_id)
@@ -261,7 +258,7 @@ static func equipment_radiance_card_entries() -> Array:
 			"equipment_id": equipment_id,
 			"group": slot,
 			"group_title": str(EQUIPMENT_SLOT_TITLES.get(slot, slot.capitalize())),
-			"body": _card_entry_body(card)
+			"body": _card_entry_body(card_id, card)
 		})
 	return result
 
@@ -277,7 +274,7 @@ static func item_entries() -> Array:
 			"section": SECTION_ITEMS,
 			"title": str(card.get("name", card_id)),
 			"card_id": card_id,
-			"body": _card_entry_body(card)
+			"body": _card_entry_body(card_id, card)
 		})
 	return result
 
@@ -599,30 +596,31 @@ static func entry_ids_for_card_ids(card_ids: Variant) -> Array[String]:
 static func entry_ids_for_card_id(card_id: String) -> Array[String]:
 	return _copy_string_values(_entry_ids_for_card_id_ref(card_id))
 
-static func _entry_ids_for_card_id_ref(card_id: String) -> Array:
-	if _card_entry_ids_cache.has(card_id):
-		return _card_entry_ids_cache.get(card_id, []) as Array
-	var card: Dictionary = GameData.card_def(card_id)
+static func _entry_ids_for_card_id_ref(card_id: String, legacy_starter: bool = false) -> Array:
+	var cache_key: String = "legacy:" + card_id if legacy_starter and GameData.LegacyStarterCards.DEFINITIONS.has(card_id) else card_id
+	if _card_entry_ids_cache.has(cache_key):
+		return _card_entry_ids_cache[cache_key]
+	var card: Dictionary = GameData.card_def(card_id, legacy_starter)
 	if card.is_empty():
-		_card_entry_ids_cache[card_id] = []
+		_card_entry_ids_cache[cache_key] = []
 		return []
 	var wanted: Dictionary = {}
 	if GameData.card_is_item(card_id):
 		wanted[item_entry_id(card_id)] = true
 	elif is_magick_card_id(card_id):
 		wanted[magick_entry_id(card_id)] = true
-	elif _is_equipment_radiance_card_id(card_id):
+	elif _is_equipment_light_vision_card_id(card_id):
 		wanted[equipment_card_entry_id(card_id)] = true
 	_collect_entry_ids_for_card_def(card, wanted)
 	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
-	_card_entry_ids_cache[card_id] = result
+	_card_entry_ids_cache[cache_key] = result
 	return result
 
-static func _collect_entry_ids_for_card_ids(card_ids: Variant, wanted: Dictionary) -> void:
+static func _collect_entry_ids_for_card_ids(card_ids: Variant, wanted: Dictionary, legacy_starter: bool = false) -> void:
 	if typeof(card_ids) != TYPE_ARRAY:
 		return
 	for card_id_var: Variant in card_ids:
-		_add_entry_ids_to_set(wanted, _entry_ids_for_card_id_ref(str(card_id_var)))
+		_add_entry_ids_to_set(wanted, _entry_ids_for_card_id_ref(str(card_id_var), legacy_starter))
 
 static func entry_ids_for_equipment_ids(equipment_ids: Variant) -> Array[String]:
 	if typeof(equipment_ids) != TYPE_ARRAY:
@@ -634,29 +632,30 @@ static func entry_ids_for_equipment_ids(equipment_ids: Variant) -> Array[String]
 static func entry_ids_for_equipment_id(equipment_id: String) -> Array[String]:
 	return _copy_string_values(_entry_ids_for_equipment_id_ref(equipment_id))
 
-static func _entry_ids_for_equipment_id_ref(equipment_id: String) -> Array:
-	if _equipment_entry_ids_cache.has(equipment_id):
-		return _equipment_entry_ids_cache.get(equipment_id, []) as Array
+static func _entry_ids_for_equipment_id_ref(equipment_id: String, legacy_starter: bool = false) -> Array:
+	var cache_key: String = "legacy:" + equipment_id if legacy_starter else equipment_id
+	if _equipment_entry_ids_cache.has(cache_key):
+		return _equipment_entry_ids_cache[cache_key]
 	if GameData.equipment_def(equipment_id).is_empty() or GameData.equipment_slot(equipment_id).is_empty():
-		_equipment_entry_ids_cache[equipment_id] = []
+		_equipment_entry_ids_cache[cache_key] = []
 		return []
 	var wanted: Dictionary = {}
 	wanted[equipment_entry_id(equipment_id)] = true
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
-		for entry_id_var: Variant in _entry_ids_for_card_id_ref(str(card_id_var)):
+		for entry_id_var: Variant in _entry_ids_for_card_id_ref(str(card_id_var), legacy_starter):
 			var entry_id: String = str(entry_id_var)
 			if entry_id.begins_with("magick:") or entry_id.begins_with("item:"):
 				continue
 			wanted[entry_id] = true
 	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
-	_equipment_entry_ids_cache[equipment_id] = result
+	_equipment_entry_ids_cache[cache_key] = result
 	return result
 
-static func _collect_entry_ids_for_equipment_ids(equipment_ids: Variant, wanted: Dictionary) -> void:
+static func _collect_entry_ids_for_equipment_ids(equipment_ids: Variant, wanted: Dictionary, legacy_starter: bool = false) -> void:
 	if typeof(equipment_ids) != TYPE_ARRAY:
 		return
 	for equipment_id_var: Variant in equipment_ids:
-		_add_entry_ids_to_set(wanted, _entry_ids_for_equipment_id_ref(str(equipment_id_var)))
+		_add_entry_ids_to_set(wanted, _entry_ids_for_equipment_id_ref(str(equipment_id_var), legacy_starter))
 
 static func entry_ids_for_npc_ids(npc_ids: Variant) -> Array[String]:
 	if typeof(npc_ids) != TYPE_ARRAY:
@@ -677,8 +676,6 @@ static func entry_ids_for_card_def(card: Dictionary) -> Array[String]:
 
 static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary) -> void:
 	_collect_glossary_keyword("element_" + GameData.card_element_from_def(card), wanted)
-	if bool(card.get("radiance", false)):
-		wanted["keyword:radiance"] = true
 	if bool(card.get("burn", false)):
 		wanted["keyword:exhaust"] = true
 	if bool(card.get("consume_on_play", false)):
@@ -774,6 +771,7 @@ static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictiona
 
 static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}
+	var legacy_starter: bool = bool(combat_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false))
 	if has_upheaval_rule(combat_state):
 		wanted["keyword:upheaval"] = true
 	for tile: Vector2i in BoardSurfaces.tiles(combat_state):
@@ -808,10 +806,10 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 		if not loot_equipment_id.is_empty():
 			equipment_ids.append(loot_equipment_id)
 	equipment_ids.append_array(combat_state.get("collected_equipment", []))
-	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted)
+	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted, legacy_starter)
 	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
 	for pile_name: String in ["hand", "draw", "discard", "burned", "consumed"]:
-		_collect_entry_ids_for_card_ids(deck.get(pile_name, []), wanted)
+		_collect_entry_ids_for_card_ids(deck.get(pile_name, []), wanted, legacy_starter)
 	return _ordered_entry_ids_from_set(wanted)
 
 static func has_upheaval_rule(combat_state: Dictionary) -> bool:
@@ -819,14 +817,15 @@ static func has_upheaval_rule(combat_state: Dictionary) -> bool:
 
 static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}
+	var legacy_starter: bool = bool(run_state.get(GameData.LEGACY_STARTER_CARDS_KEY, false))
 	for card_list_key: String in ["deck_cards", "reward_cards", "attuned_magic_cards", "magic_inventory", "item_inventory", "equipped_items"]:
-		_collect_entry_ids_for_card_ids(run_state.get(card_list_key, []), wanted)
+		_collect_entry_ids_for_card_ids(run_state.get(card_list_key, []), wanted, legacy_starter)
 	var equipment_ids: Array = []
 	equipment_ids.append_array(run_state.get("collected_equipment", []))
 	equipment_ids.append_array(run_state.get("equipment_inventory", []))
 	for equipment_id_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
 		equipment_ids.append(equipment_id_var)
-	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted)
+	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted, legacy_starter)
 	var current_room: Dictionary = _current_room_metadata(run_state)
 	var npc_ids: Array = []
 	for npc_var: Variant in current_room.get("npcs", []):
@@ -837,10 +836,10 @@ static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 			npc_ids.append(npc_id)
 	_add_entry_ids_to_set(wanted, entry_ids_for_npc_ids(npc_ids))
 	var pending_reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
-	_collect_entry_ids_for_card_ids(pending_reward.get("cards", []), wanted)
+	_collect_entry_ids_for_card_ids(pending_reward.get("cards", []), wanted, legacy_starter)
 	for offer_id_var: Variant in _current_merchant_offer_ids(run_state):
 		var offer_id: String = str(offer_id_var)
-		var offer_entries: Array = _entry_ids_for_equipment_id_ref(offer_id) if not GameData.equipment_def(offer_id).is_empty() else _entry_ids_for_card_id_ref(offer_id)
+		var offer_entries: Array = _entry_ids_for_equipment_id_ref(offer_id, legacy_starter) if not GameData.equipment_def(offer_id).is_empty() else _entry_ids_for_card_id_ref(offer_id, legacy_starter)
 		_add_entry_ids_to_set(wanted, offer_entries)
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
 	_add_entry_ids_to_set(wanted, entry_ids_for_combat_state(combat_state))
@@ -869,16 +868,18 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			wanted[type_entry] = true
 		for extra_entry: Variant in ACTION_TYPE_EXTRA_ENTRY_IDS.get(action_type, []):
 			wanted[str(extra_entry)] = true
-		if action_type == "all_enemies" and str(action.get("element", "")) == "ice":
-			wanted["keyword:chilled"] = true
-			wanted["keyword:freeze"] = true
+		if action_type == "all_enemies" and str(action.get("selector", "")) == "on_ice":
+			_collect_surface_entry_ids("ice", wanted)
 		_collect_surface_entry_ids(str(action.get("surface", "")), wanted)
 		for surface_field: String in ["trail_surface", "origin_surface", "consume_center"]:
 			_collect_surface_entry_ids(str(action.get(surface_field, "")), wanted)
 		_collect_surface_entry_ids(str(action.get("surface_ring", "")), wanted)
-		if str(action.get("element", "")) == "ice" and action_type in ["melee", "ranged", "aoe"]:
-			wanted["keyword:chilled"] = true
-			wanted["keyword:freeze"] = true
+		# pla-06: "On Ice: also Stagger N" teaches Ice and Stagger.
+		var ground_bonus: Dictionary = action.get("surface_bonus", {}) as Dictionary if typeof(action.get("surface_bonus", null)) == TYPE_DICTIONARY else {}
+		if not ground_bonus.is_empty():
+			_collect_surface_entry_ids(str(ground_bonus.get("surface", "")), wanted)
+			if int(ground_bonus.get("stagger", 0)) > 0:
+				wanted["keyword:stagger"] = true
 		if int(action.get("illuminate_radius", 0)) > 0:
 			wanted["keyword:illuminate"] = true
 		# Per-hit state and scale bonuses teach the condition they read.
@@ -888,8 +889,6 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			match str((bonus_var as Dictionary).get("state", "")):
 				"light":
 					wanted["keyword:illuminate"] = true
-				"frozen":
-					wanted["keyword:freeze"] = true
 		if typeof(action.get("scale_bonus", null)) == TYPE_DICTIONARY:
 			match str((action["scale_bonus"] as Dictionary).get("per", "")):
 				"stoneskin":
@@ -958,11 +957,15 @@ static func _current_room_metadata(run_state: Dictionary) -> Dictionary:
 	var key: String = "%d,%d" % [coord.x, coord.y]
 	return rooms.get(key, {}) as Dictionary
 
-static func _card_entry_body(card: Dictionary) -> Array:
+static func _card_entry_body(card_id: String, card: Dictionary) -> Array:
 	var body: Array = []
 	var description: String = str(card.get("description", "")).strip_edges()
 	if not description.is_empty():
 		body.append(description)
+	if CardFaces.spec_for(card_id).get("compact_grimoire", false):
+		if not (card.get("rite", {}) as Dictionary).is_empty():
+			body.append("Rite: Exhaust. Lasts for the rest of this combat.")
+		return body
 	var facts: Array = []
 	var rarity: String = str(GameData.card_rarity_from_def(card)).capitalize()
 	if not rarity.is_empty():
@@ -970,8 +973,6 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	var element: String = str(GameData.card_element_from_def(card))
 	if not element.is_empty() and element != "none":
 		facts.append("Element: %s" % element.capitalize())
-	if bool(card.get("radiance", false)):
-		facts.append("School: Radiance")
 	if card.has("time"):
 		facts.append("Time: %d" % int(card.get("time", 0)))
 	if int(card.get("health_cost", 0)) > 0:
@@ -989,8 +990,9 @@ static func _card_entry_body(card: Dictionary) -> Array:
 		notes.append("Spends every current Card Play; repeats actions and Health cost per play, but pays Time once")
 	if typeof(card.get("follow_up", null)) == TYPE_DICTIONARY:
 		notes.append("Follow-up: gains its bonus when another card was already played this turn")
-	if typeof(card.get("empower", null)) == TYPE_DICTIONARY:
-		notes.append("Empower: an optional extra cost chosen while playing it")
+	if typeof(card.get("empower", null)) == TYPE_DICTIONARY and not description.contains("Empower for "):
+		var empower: String = str(ActionIcons.empower_copy(card)["card_tooltip"]).get_slice("\n", 1)
+		notes.append(empower.trim_suffix("."))
 	if bool(card.get("starter", false)):
 		notes.append("Starter card")
 	elif bool(card.get("reward_pool", true)):
@@ -1056,9 +1058,9 @@ static func is_magick_card_id(card_id: String) -> bool:
 		return true
 	return bool(card.get("reward_pool", true))
 
-static func _is_equipment_radiance_card_id(card_id: String) -> bool:
+static func _is_equipment_light_vision_card_id(card_id: String) -> bool:
 	var card: Dictionary = GameData.card_def(card_id)
-	return not card.is_empty() and bool(card.get("radiance", false)) and not is_magick_card_id(card_id) and not _first_equipment_id_for_card(card_id).is_empty()
+	return not card.is_empty() and bool(card.get("light_vision_family", false)) and not is_magick_card_id(card_id) and not _first_equipment_id_for_card(card_id).is_empty()
 
 static func _first_equipment_id_for_card(card_id: String) -> String:
 	for equipment_id_var: Variant in GameData.equipment_ids():
@@ -1085,4 +1087,4 @@ static func _collect_surface_entry_ids(kind: String, wanted: Dictionary) -> void
 	if kind not in ["fire", "ice", "electrified", "rubble"]: return
 	wanted["keyword:surface"] = true
 	wanted["keyword:surface_" + kind] = true
-	if kind == "ice": wanted["keyword:chilled"] = true
+	if kind == "ice": wanted["keyword:expose"] = true

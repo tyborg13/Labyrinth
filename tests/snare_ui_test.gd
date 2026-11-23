@@ -61,7 +61,7 @@ func _run() -> void:
 	root.add_child(rule_hud)
 	var air: Dictionary = Suite.battle("air")
 	rule_hud.set_combat_state(air, combat)
-	_expect(rule_hud.visible and rule_hud.find_child("RuleTitle", true, false).text == "GUST" and rule_hud.find_child("RuleSentence", true, false).text == "After each of your turns, a headwind Pushes everyone 1 tile toward the entry.", "Air Snare rule panel names Gust with its headwind sentence")
+	_expect(rule_hud.visible and rule_hud.find_child("RuleTitle", true, false).text == "GUST" and rule_hud.find_child("RuleSentence", true, false).text == "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the entry.", "Air Snare rule panel names Gust with its battlefield sentence")
 	var headwind: Dictionary = BattlefieldRules.forecast(combat, air)
 	_expect(headwind.get("direction") == air["wind"]["direction"] and rule_hud.find_child("RuleDirection", true, false).heading == WindView.screen_direction(air["wind"]["direction"]), "Headwind panel arrow points toward the entry")
 	_expect(rule_hud.find_child("RuleKicker", true, false).text == "BATTLEFIELD", "The room's own rule has no beat countdown")
@@ -150,7 +150,7 @@ func _run() -> void:
 
 func _check_reward_copy(engine: RefCounted, combat: RefCounted, source: Dictionary) -> void:
 	var line: String = Specials.snare_reward_line()
-	_expect(line == "Normal fight reward, plus 6 Embers per open door.", "Snare uses the approved reward copy")
+	_expect(line == "Normal combat reward, plus 6 Embers per open door.", "Snare uses the approved reward copy")
 	var map: GDScript = preload("res://scripts/section_map_panel.gd")
 	# Director: the map keeps the Snare identity line; the reward line shows before battle and on the reward notice.
 	_expect(map.type_description("special_umbral_snare") == "The doors are sealing. Get out before they close.", "Map room tooltip keeps the Snare identity line")

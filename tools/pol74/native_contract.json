@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080", "840x1444"],
+  "required_images": [
+    {"pattern": "a_magic_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "b_magic_focus.png", "width": 1920, "height": 1080},
+    {"pattern": "c_gear_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "d_item_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "e_pack_gear_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "f_pack_item_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "a_magic_hover_panel_2x.png", "width": 840, "height": 1444},
+    {"pattern": "e_pack_gear_hover_panel_2x.png", "width": 840, "height": 1444}
+  ]
+}

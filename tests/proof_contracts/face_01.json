@@ -1,0 +1,15 @@
+{
+  "min_images": 9,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "hand_rockburst.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_rockburst.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_worldbreak.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_worldbreak.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_immolation.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_immolation.png", "width": 1920, "height": 1080},
+    {"pattern": "hand_worldspine.png", "width": 1920, "height": 1080},
+    {"pattern": "hover_worldspine.png", "width": 1920, "height": 1080},
+    {"pattern": "deck_grid.png", "width": 1920, "height": 1080}
+  ]
+}

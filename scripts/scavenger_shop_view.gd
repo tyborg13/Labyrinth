@@ -33,6 +33,7 @@ const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const ShelfNameSlot = preload("res://scripts/scavenger_shelf_name_slot.gd")
 const Atmosphere = preload("res://scripts/scavenger_atmosphere.gd")
 const ScavengerTradeEffect = preload("res://scripts/scavenger_trade_effect.gd")
+const Burst = preload("res://scripts/acquisition_burst.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
 const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
@@ -43,6 +44,9 @@ const ITEM := "item"
 const MERCHANT_KIND := "scavenger"
 const NATIVE_CARD_SIZE := Vector2(250.0, 352.0)
 const OFFER_CARD_SIZE := Vector2(177.0, 248.0)
+const OFFER_ICON_SIZE := Vector2(112.0, 112.0)
+const OFFER_FOCUS_SCALE := 1.045
+const ENTRY_SCALE := 0.985
 const OFFER_TILE_SIZE := Vector2(196.0, 208.0)
 const SELL_TILE_SIZE := Vector2(244.0, 202.0)
 const SELL_PAGE_SIZE: int = 9
@@ -99,6 +103,8 @@ var _reduced_motion: bool = false
 var _selected_item_id: String = ""
 var _selected_is_sell: bool = false
 var _selected_source: Control
+var _hovered_source: Control
+var _hovered_card_index: int = 0
 var _room_coord: Vector2i = Vector2i(-999, -999)
 var _entry_played_for_room: bool = false
 var _entry_tween: Tween
@@ -141,6 +147,7 @@ var _detail_card_ids: Array[String]
 var _detail_card_index: int = 0
 var _slot_tweens: Dictionary = {}
 var _purchase_effects: Control
+var burst_layer: Burst
 var _pack_mode: bool = false
 var _pack_filter: String = "all"
 var _all_sellable_ids: Array = []
@@ -210,6 +217,7 @@ func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_m
 		_selected_item_id = ""
 		_selected_is_sell = false
 		_selected_source = null
+		_hovered_source = null
 		_sell_page = 0
 		_pack_mode = false
 		_pack_filter = "all"
@@ -288,6 +296,7 @@ func dismiss_immediately() -> void:
 
 func _clear_purchase_effects_if_closed() -> void:
 	if not visible and _canvas != null:
+		if is_instance_valid(burst_layer): burst_layer.clear_gains_for(self)
 		_clear_children(_purchase_effects)
 		_release_closed_inventory()
 
@@ -309,6 +318,7 @@ func _release_closed_inventory() -> void:
 	_clear_children(_detail_card_host)
 	_rendered_detail_card_id = ""
 	_selected_source = null
+	_hovered_source = null
 	_inventory_released = true
 	# Keep the logical selection/page/filter, room entry flag and receipt. The
 	# next configure rebuilds the same view without changing its input or paint.
@@ -336,6 +346,13 @@ func present_purchase(item_id: String, origin: Rect2) -> void:
 func present_sale(item_id: String, origin: Rect2) -> void:
 	_present_trade(item_id, origin, true)
 
+func prepare_bursts() -> void:
+	if not is_instance_valid(burst_layer): return
+	var extent: Vector2 = get_viewport_rect().size
+	var fit: float = minf(extent.x / REFERENCE_SIZE.x, extent.y / REFERENCE_SIZE.y)
+	var card_fit: float = minf(OFFER_CARD_SIZE.x / NATIVE_CARD_SIZE.x, OFFER_CARD_SIZE.y / NATIVE_CARD_SIZE.y)
+	burst_layer.prepare_gains(NATIVE_CARD_SIZE * card_fit * fit, PackedVector2Array([OFFER_ICON_SIZE * fit]), OFFER_FOCUS_SCALE, ENTRY_SCALE)
+
 func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	if not visible or _purchase_effects == null or origin.size.x <= 0.0 or origin.size.y <= 0.0: return
 	var amount: int = _item_price(item_id, selling)
@@ -350,9 +367,13 @@ func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	var parchment: Rect2 = Signage.parchment_rect(_title_panel.size)
 	effect.banner_parchment = Rect2(_title_panel.position + parchment.position, parchment.size)
 	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(12, 12) + _receipt_visual.position + _receipt_visual.size * 0.5
-	effect.currency_destination = _currency_panel.position + _currency_panel.size * 0.5
 	_purchase_effects.add_child(effect)
 	_build_purchase_proxy(effect.proxy, item_id, origin.size)
+	if not selling and is_instance_valid(burst_layer):
+		var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+		var accent: Color = Burst.gain_accent("card" if kind == MAGIC else "equipment" if kind == GEAR else "item", item_id)
+		effect.proxy.z_index += Burst.GAIN_PROXY_Z_OFFSET
+		effect.burst = burst_layer.spawn_gain(self, effect.get_global_transform() * origin, effect.proxy, accent, kind == MAGIC, _reduced_motion)
 
 func _clear_receipt() -> void:
 	if _receipt_tween != null and _receipt_tween.is_valid(): _receipt_tween.kill()
@@ -377,7 +398,7 @@ func _show_receipt(item_id: String, amount: int, selling: bool) -> void:
 	visual.position = (_receipt_visual.size - visual_size) * 0.5
 	visual.size = visual_size
 	_receipt_visual.add_child(visual)
-	_build_purchase_proxy(visual, item_id, visual_size)
+	_build_purchase_proxy(visual, item_id, visual_size, true)
 	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]:
 		control.show()
 		control.modulate = Color.WHITE
@@ -387,7 +408,7 @@ func _show_receipt(item_id: String, amount: int, selling: bool) -> void:
 		_receipt_tween = create_tween()
 		_receipt_tween.tween_property(_currency_panel, "modulate", Color.WHITE, 0.45)
 
-func _build_purchase_proxy(host: Control, item_id: String, visual_size: Vector2) -> void:
+func _build_purchase_proxy(host: Control, item_id: String, visual_size: Vector2, title_thumbnail: bool = false) -> void:
 	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
 	if kind == MAGIC:
 		# Card art/frame textures have transparent cut-outs. A lifted card needs
@@ -400,7 +421,7 @@ func _build_purchase_proxy(host: Control, item_id: String, visual_size: Vector2)
 		backing_style.set_corner_radius_all(10)
 		backing.add_theme_stylebox_override("panel", backing_style)
 		host.add_child(backing)
-		_build_native_scaled_card(host, item_id, visual_size, "PurchasedCard", false)
+		_build_native_scaled_card(host, item_id, visual_size, "PurchasedCard", false, title_thumbnail)
 	else:
 		var icon := TextureRect.new()
 		icon.texture = AssetLoader.load_texture(_icon_path(item_id))
@@ -427,7 +448,7 @@ func semantic_snapshot() -> Dictionary:
 		"selected_item_id": _selected_item_id,
 		"selected_is_sell": _selected_is_sell,
 		"detail_card_ids": _detail_card_ids.duplicate(),
-		"detail_card_index": _detail_card_index,
+		"detail_card_index": _inspection_card_index(),
 		"reduced_motion": _reduced_motion,
 		"pack_mode": _pack_mode,
 		"pack_filter": _pack_filter,
@@ -635,6 +656,8 @@ func _build_detail_content() -> void:
 	_place(_detail_action, Rect2(50, 596, 320, 66))
 	UiTypography.set_button_size(_detail_action, 24)
 	_detail_action.pressed.connect(_on_detail_action)
+	_detail_action.focus_exited.connect(func() -> void:
+		if not _preview_item_id().is_empty(): _sync_detail.call_deferred())
 	_detail_panel.add_child(_detail_action)
 	_detail_card_nav.visible = false
 
@@ -782,6 +805,7 @@ func _set_pack_mode(selling: bool) -> void:
 	_selected_item_id = ""
 	_selected_source = null
 	_selected_is_sell = selling
+	_hovered_source = null
 	_sync_mode()
 	_sync_detail()
 	_update_selection_effects()
@@ -905,7 +929,7 @@ func _retire_offer_child(child: Node, key: String) -> void:
 
 func _refresh_offer_price(source: Control, item_id: String, selling: bool) -> void:
 	var affordable: bool = _offer_is_affordable(item_id, selling)
-	_update_offer_tooltip(source, _offer_tooltip(item_id, selling, affordable))
+	_update_offer_tooltip(source, "" if affordable else _offer_tooltip(item_id, selling, false))
 	source.set_meta("shop_affordable", affordable)
 	var old: Control = source.find_child("ScavengerPriceTag", true, false) as Control
 	var amount: int = _item_price(item_id, selling)
@@ -925,7 +949,8 @@ func _refresh_shelf_tooltips(ids: Array) -> void:
 	# Prices and tint can stay unchanged while the amount still needed changes.
 	for item_id: String in ids:
 		var offer: Control = _live_cached_control(_offer_sources.get("buy:" + item_id))
-		if offer != null: _update_offer_tooltip(offer, _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false)))
+		if offer != null:
+			_update_offer_tooltip(offer, "" if _offer_is_affordable(item_id, false) else _offer_tooltip(item_id, false, false))
 
 func _update_offer_tooltip(offer: Control, text: String) -> void:
 	if offer.tooltip_text == text: return
@@ -962,6 +987,7 @@ func _forget_offer(key: String) -> void:
 
 func _retire_offer_source(source: Variant) -> void:
 	if not is_instance_valid(source): return
+	if source == _hovered_source: _hovered_source = null
 	source.set_meta("shop_offer_retired", true)
 	var tween_key: int = source.get_instance_id()
 	var tween: Tween = _slot_tweens.get(tween_key) as Tween
@@ -1116,7 +1142,7 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	icon_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stack.add_child(icon_center)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(112.0, 112.0)
+	icon.custom_minimum_size = OFFER_ICON_SIZE
 	icon.texture = AssetLoader.load_texture(_icon_path(item_id))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -1180,7 +1206,8 @@ func _build_native_scaled_card(
 	item_id: String,
 	visual_size: Vector2,
 	name_prefix: String,
-	interactive: bool
+	interactive: bool,
+	title_thumbnail: bool = false
 ) -> CardWidget:
 	# CardWidget's art crop, title fitting, and raster nameplate are authored at
 	# 250x352. Keep that complete composition intact, then scale an intermediary
@@ -1203,8 +1230,10 @@ func _build_native_scaled_card(
 	visual_root.add_child(composition_root)
 	var card := CardWidgetScene.instantiate() as CardWidget
 	card.name = "%s_%s" % [name_prefix, item_id]
-	if name_prefix == "MagicCard" and visual_size.x < NATIVE_CARD_SIZE.x:
+	var shelf_title: bool = name_prefix == "MagicCard"
+	if shelf_title and visual_size.x < NATIVE_CARD_SIZE.x:
 		card.set_script(preload("res://scripts/scavenger_miniature_card.gd"))
+	card.set_title_layout(fit, title_thumbnail, self, REFERENCE_SIZE, shelf_title)
 	_place(card, Rect2(Vector2.ZERO, NATIVE_CARD_SIZE))
 	card.configure(item_id, false, false, true, false, interactive, true, GameData.card_def(item_id))
 	CardDisplay.bind(card, _run_state)
@@ -1225,7 +1254,9 @@ func _wire_offer_button(button: Button, item_id: String, selling: bool) -> void:
 	button.set_meta("shop_item_id", item_id)
 	button.set_meta("shop_affordable", affordable)
 	button.set_meta("shop_pointer_hovered", false)
-	button.tooltip_text = _offer_tooltip(item_id, selling, affordable)
+	# Only the unaffordable offer's exact shortfall adds information beyond its tag.
+	if not affordable:
+		button.tooltip_text = _offer_tooltip(item_id, selling, false)
 
 func _add_centered_button_content(button: Button, content: Control) -> void:
 	var center := CenterContainer.new()
@@ -1256,15 +1287,16 @@ func _offer_is_affordable(item_id: String, selling: bool) -> bool:
 	return int(_run_engine.call("held_embers", _run_state)) >= cost
 
 func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
-	var amount: int = _item_price(item_id, selling)
 	if selling:
-		return "%s\nSell value: %d Embers" % [_item_name(item_id), amount]
+		return ""
+	var amount: int = _item_price(item_id, false)
 	if affordable:
 		return "%s\nPrice: %d Embers" % [_item_name(item_id), amount]
 	var held: int = int(_run_engine.call("held_embers", _run_state))
 	return "%s\nPrice: %d Embers — need %d more" % [_item_name(item_id), amount, amount - held]
 
 func _select_item(item_id: String, selling: bool, source: Control) -> void:
+	_hovered_source = null
 	if _intro_open:
 		_intro_open = false
 		_sync_dialogue()
@@ -1335,18 +1367,24 @@ func _hover_item(item_id: String, source: Control) -> void:
 	if source != null:
 		source.set_meta("shop_pointer_hovered", true)
 	_set_offer_emphasis(source, true)
+	_hovered_source = source
+	_hovered_card_index = 0
+	_sync_detail()
 
 func _unhover_item(item_id: String, source: Control) -> void:
 	item_unhovered.emit(MERCHANT_KIND, item_id, source)
 	if source != null:
 		source.set_meta("shop_pointer_hovered", false)
 	_set_offer_emphasis(source, source.has_focus() if source != null else false)
+	if _hovered_source == source:
+		_hovered_source = null
+		_sync_detail()
 
 func _set_offer_emphasis(source: Control, emphasized: bool) -> void:
 	if source == null or bool(source.get_meta("shop_offer_retired", false)):
 		return
 	source.z_index = 10 if emphasized else 0
-	_animate_slot_scale(source, Vector2(1.045, 1.045) if emphasized else Vector2.ONE)
+	_animate_slot_scale(source, Vector2.ONE * OFFER_FOCUS_SCALE if emphasized else Vector2.ONE)
 
 func _update_selection_effects() -> void:
 	for key_var: Variant in _selection_effects.keys():
@@ -1372,10 +1410,27 @@ func _sync_currency() -> void:
 	if _currency_label != null:
 		_currency_panel.call("setup", AssetLoader.load_texture("res://assets/art/icons/ember.png"), str(int(_run_state.get("held_embers", 0))), "EMBERS")
 
+func _preview_item_id() -> String:
+	if not is_instance_valid(_hovered_source) or not _hovered_source.is_visible_in_tree():
+		return ""
+	var item_id: String = str(_hovered_source.get_meta("shop_item_id", ""))
+	return "" if item_id == _selected_item_id else item_id
+
+func _inspection_card_index() -> int:
+	return _detail_card_index if _preview_item_id().is_empty() else _hovered_card_index
+
+func _set_inspection_card_index(index: int) -> void:
+	if _preview_item_id().is_empty():
+		_detail_card_index = index
+	else:
+		_hovered_card_index = index
+
 func _sync_detail() -> void:
 	if _detail_title == null:
 		return
-	if _selected_item_id.is_empty() or _run_engine == null:
+	var preview_id: String = _preview_item_id()
+	var item_id: String = _selected_item_id if preview_id.is_empty() else preview_id
+	if item_id.is_empty() or _run_engine == null:
 		_detail_panel.hide()
 		_detail_title.text = "SELECT A WARE"
 		_detail_card_ids.clear()
@@ -1383,16 +1438,13 @@ func _sync_detail() -> void:
 		_clear_children(_detail_card_host)
 		_rendered_detail_card_id = ""
 		_detail_card_nav.visible = false
+		_detail_action.hide()
 		_detail_action.text = "SELECT AN OFFER"
 		_detail_action.disabled = true
 		_configure_focus_neighbors()
 		return
 	_detail_panel.show()
-	var item_id: String = _selected_item_id
 	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
-	var amount: int = _item_price(item_id, _selected_is_sell)
-	var held: int = int(_run_engine.call("held_embers", _run_state))
-	var affordable: bool = _selected_is_sell or held >= amount
 	_detail_title.text = _item_name(item_id)
 	_detail_card_ids.clear()
 	if kind == GEAR:
@@ -1401,10 +1453,20 @@ func _sync_detail() -> void:
 	else:
 		_detail_card_ids.append(item_id)
 	_render_detail_card()
-	_detail_action.text = "Sell · %d Embers" % amount if _selected_is_sell else "Buy · %d Embers" % amount
+	_sync_detail_action(preview_id.is_empty())
+	_configure_focus_neighbors()
+
+func _sync_detail_action(showing_selection: bool) -> void:
+	# A pointer preview leaves the current trade intact, including an action
+	# that already owns keyboard/controller focus.
+	_detail_action.visible = not _selected_item_id.is_empty() and (showing_selection or _detail_action.has_focus())
+	if not _detail_action.visible:
+		_detail_action.disabled = true
+		return
+	var affordable: bool = _offer_is_affordable(_selected_item_id, _selected_is_sell)
+	_detail_action.text = ("Sell · %d Embers" if _selected_is_sell else "Buy · %d Embers") % _item_price(_selected_item_id, _selected_is_sell)
 	_detail_action.disabled = not affordable
 	_detail_action.tooltip_text = "Sell the selected owned ware." if _selected_is_sell else ("Buy the selected ware." if affordable else "You cannot afford this ware.")
-	_configure_focus_neighbors()
 
 func _render_detail_card() -> void:
 	if _detail_card_host == null:
@@ -1414,8 +1476,9 @@ func _render_detail_card() -> void:
 		_rendered_detail_card_id = ""
 		_detail_card_nav.visible = false
 		return
-	_detail_card_index = clampi(_detail_card_index, 0, _detail_card_ids.size() - 1)
-	var card_id: String = _detail_card_ids[_detail_card_index]
+	var index: int = clampi(_inspection_card_index(), 0, _detail_card_ids.size() - 1)
+	_set_inspection_card_index(index)
+	var card_id: String = _detail_card_ids[index]
 	if card_id != _rendered_detail_card_id:
 		_clear_children(_detail_card_host)
 		_build_native_scaled_card(_detail_card_host, card_id, Vector2(250.0, 352.0), "DetailCard", false)
@@ -1423,14 +1486,14 @@ func _render_detail_card() -> void:
 	var multiple_cards: bool = _detail_card_ids.size() > 1
 	_detail_card_nav.visible = multiple_cards
 	if multiple_cards:
-		_detail_card_counter.text = "%d/%d" % [_detail_card_index + 1, _detail_card_ids.size()]
+		_detail_card_counter.text = "%d/%d" % [index + 1, _detail_card_ids.size()]
 		_detail_card_previous.disabled = false
 		_detail_card_next.disabled = false
 
 func _turn_detail_card(delta: int) -> void:
 	if _detail_card_ids.size() <= 1:
 		return
-	_detail_card_index = posmod(_detail_card_index + delta, _detail_card_ids.size())
+	_set_inspection_card_index(posmod(_inspection_card_index() + delta, _detail_card_ids.size()))
 	_render_detail_card()
 
 func _on_detail_action() -> void:
@@ -1473,7 +1536,7 @@ func _play_entry() -> void:
 		return
 	_canvas.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	var base_scale: Vector2 = _canvas.scale
-	_canvas.scale = base_scale * 0.985
+	_canvas.scale = base_scale * ENTRY_SCALE
 	_portrait.position.x = PORTRAIT_BASE_POSITION.x - 78.0
 	for index: int in range(_animated_groups.size()):
 		var group: Control = _animated_groups[index]

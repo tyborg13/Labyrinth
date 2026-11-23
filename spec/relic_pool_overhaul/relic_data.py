@@ -560,9 +560,9 @@ relic("storm_crown", "Storm Crown", L, "rework", "Transform", ["lightning"], 0, 
       "The rebound doesn't conduct and doesn't count as new hops for Resonant Clapper.", impl=2,
       was="The first Chain attack each turn that hits 3+ different enemies draws 2 and grants 1 card play.")
 relic("black_sun_dial", "Black Sun Dial", L, "rework", "Engine", ["fire", "ice", "lightning", "earth"], 0, 3,
-      "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
+      "Each ground tile you Expend or Burst gives your next attack +3 damage (up to +9).",
       "Nothing without surfaces to spend.",
-      "Each ground tile you Expend gives your next attack +3 damage (up to +9).",
+      "Each ground tile you Expend or Burst gives your next attack +3 damage (up to +9).",
       ["relic:flint_edge", "relic:overflow_censer", "card:magma_vent"],
       "one-sentence rework after owner playtest 13; the riders were cut and the bonus rose to +3 per tile", impl=2,
       was="Once per combat, your first elemental consume on Rubble deals 6 to everyone in a cross and grants 6 Stoneskin.")

@@ -5,6 +5,12 @@ const Settle = preload("res://tests/helpers/card_legibility_settle.gd")
 const DELAY_SECONDS: float = 1.0
 const TWEEN_SECONDS: float = 0.05
 const SUBTITLE_FIXTURE_TEXT: String = "Audit subtitle"
+const SENTENCE_FIXTURE_CARD: String = "worldroot_stride"
+const UNDERSIZED_INLINE_ICON_PX: float = 8.0
+const CAPTION_AND_UNDER_DIAGRAM_CARD: String = "squall_shot"
+const INLINE_PATTERN_CARD: String = "tectonic_maul"
+const UNDERSIZED_CAPTION_FONT_SIZE: int = 8
+const PATTERN_FIXTURE_HEIGHT_PX: float = 14.0
 
 class Unstable extends Control:
 	func _process(_delta: float) -> void:
@@ -46,6 +52,91 @@ static func run(tree: SceneTree, audit: RefCounted, expect: Callable) -> void:
 	expect.call(not never["settled"] and never["elapsed_ms"] >= 3000, "An unsettled ancestor fails at the 3-second cap")
 	unstable.free()
 	await _rules_body_fixtures(tree, expect)
+	await _sentence_face_fixture(tree, audit, expect)
+	await _sentence_caption_and_pattern_fixtures(tree, audit, expect)
+
+static func _sentence_face_fixture(tree: SceneTree, audit: RefCounted, expect: Callable) -> void:
+	var context: Dictionary = {"factory": "scaled", "size": Audit.Card.BASE_CARD_SIZE}
+	var entry: Dictionary = {"id": SENTENCE_FIXTURE_CARD, "definition": Audit.Data.card_def(SENTENCE_FIXTURE_CARD)}
+	var instance: Dictionary = audit.make_card(context, entry)
+	tree.root.add_child(instance["surface"])
+	var widget: CardWidget = instance["widget"]
+	await Settle.wait_for(tree, [widget])
+	var original: Dictionary = widget.sentence_face_plan()
+	expect.call(Audit.floor_errors(Audit.measure(widget)).is_empty(), "The original sentence passes the hand-size floors")
+	var mutated: Dictionary = original.duplicate(true)
+	var icon: Dictionary = {}
+	for line: Dictionary in mutated.get("lines", []):
+		for piece: Dictionary in line["pieces"]:
+			if piece["kind"] == "icon":
+				icon = piece
+				break
+		if not icon.is_empty(): break
+	expect.call(not icon.is_empty(), "Sentence fixture draws an inline icon")
+	if not icon.is_empty():
+		# Install a private copy of the plan so the fixture cannot mutate the
+		# production layout cache or another widget's face.
+		var face: Control = widget.get("_sentence_face")
+		icon["w"] = float(icon["w"]) * UNDERSIZED_INLINE_ICON_PX / float(icon["h"])
+		icon["h"] = UNDERSIZED_INLINE_ICON_PX
+		face.apply(mutated, face.get("_style"))
+		var measured: Dictionary = Audit.measure(widget)
+		var hand_errors: Array = Audit.floor_errors(measured, {"pose": "rest"})
+		var hover_errors: Array = Audit.floor_errors(measured, {"pose": "hovered"})
+		print("SENTENCE INLINE ICON FIXTURE: hand=%s hover=%s" % [hand_errors, hover_errors])
+		expect.call(hand_errors.has("inline icon 8.000 < 12.0"), "Audit identifies the 8 px inline icon below the hand floor")
+		expect.call(hover_errors.has("inline icon 8.000 < 15.0"), "Audit identifies the 8 px inline icon below the hover floor")
+	instance["surface"].free()
+
+static func _sentence_caption_and_pattern_fixtures(tree: SceneTree, audit: RefCounted, expect: Callable) -> void:
+	var context: Dictionary = {"factory": "scaled", "size": Audit.Card.BASE_CARD_SIZE}
+	for card_id: String in [CAPTION_AND_UNDER_DIAGRAM_CARD, INLINE_PATTERN_CARD]:
+		var entry: Dictionary = {"id": card_id, "definition": Audit.Data.card_def(card_id)}
+		var instance: Dictionary = audit.make_card(context, entry)
+		tree.root.add_child(instance["surface"])
+		var widget: CardWidget = instance["widget"]
+		await Settle.wait_for(tree, [widget])
+		var original: Dictionary = widget.sentence_face_plan()
+		var hand_errors: Array = Audit.floor_errors(Audit.measure(widget), {"pose": "rest"})
+		expect.call(not original.is_empty() and hand_errors.is_empty(), "Authored caption and patterns pass hand-size floors: " + card_id)
+		if original.is_empty():
+			instance["surface"].free()
+			continue
+		var face: Control = widget.get("_sentence_face")
+		var style: Dictionary = face.get("_style")
+		var shrunk_pattern: Dictionary = original.duplicate(true)
+		if card_id == CAPTION_AND_UNDER_DIAGRAM_CARD:
+			var baseline: Dictionary = Audit.measure(widget)
+			var shrunk_caption: Dictionary = original.duplicate(true)
+			shrunk_caption["chip"]["text_size"] = UNDERSIZED_CAPTION_FONT_SIZE
+			face.apply(shrunk_caption, style)
+			var measured: Dictionary = Audit.measure(widget)
+			var caption_errors: Array = Audit.floor_errors(measured)
+			print("SENTENCE CAPTION FIXTURE: %s" % [caption_errors])
+			expect.call(caption_errors.any(func(error: String) -> bool: return error.begins_with("chip caption ")), "A shrunken caption fails the caption floor")
+			expect.call(measured["text_px"] == baseline["text_px"], "Shrinking a chip leaves the rules and token measurements intact")
+			var chip_only: Dictionary = original.duplicate(true)
+			chip_only["lines"].clear()
+			face.apply(chip_only, style)
+			expect.call(Audit.sample_errors(Audit.measure(widget), entry, context).has("missing rules content nodes"), "A caption cannot supply missing sentence rules")
+			var under: Dictionary = shrunk_pattern["under"]["items"][0]
+			under["h"] = PATTERN_FIXTURE_HEIGHT_PX
+			face.apply(shrunk_pattern, style)
+			var under_errors: Array = Audit.floor_errors(Audit.measure(widget), {"pose": "rest"})
+			print("SENTENCE UNDER-DIAGRAM FIXTURE: %s" % [under_errors])
+			expect.call(under_errors.has("under-diagram 14.000 < 16.0"), "An under-diagram keeps the 16 px floor at hand size")
+		else:
+			for line: Dictionary in shrunk_pattern["lines"]:
+				for piece: Dictionary in line["pieces"]:
+					if piece["kind"] == "pattern": piece["h"] = PATTERN_FIXTURE_HEIGHT_PX
+			face.apply(shrunk_pattern, style)
+			var measured: Dictionary = Audit.measure(widget)
+			hand_errors = Audit.floor_errors(measured, {"pose": "rest"})
+			var hover_errors: Array = Audit.floor_errors(measured, {"pose": "hovered"})
+			print("SENTENCE INLINE PATTERN FIXTURE: hand=%s hover=%s" % [hand_errors, hover_errors])
+			expect.call(hand_errors.is_empty(), "A 14 px inline pattern passes at hand size")
+			expect.call(hover_errors.has("inline pattern 14.000 < 15.0"), "A 14 px inline pattern fails at hover size")
+		instance["surface"].free()
 
 static func _rules_body_fixtures(tree: SceneTree, expect: Callable) -> void:
 	var live := preload("res://tests/helpers/card_legibility_contexts.gd").new()

@@ -1,0 +1,45 @@
+{
+  "retired": [
+    "truesight",
+    "dispel_umbra",
+    "radiance"
+  ],
+  "definitions": {
+    "illuminate": "Placed Light lasts the battle. Enemies starting a turn in Light are Exposed 2.",
+    "vision": "Vision reveals every hidden enemy while active.",
+    "umbra_eclipse": "Last Eclipse hits you and your illusions only on Marked tiles, then starts Eclipse for X turns.",
+    "skill_long_dawn": "@icon(vision) you gain lasts 1 more turn.",
+    "skill_sunpath": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 on your path.",
+    "skill_afterglow": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 on the illusion's tile.",
+    "skill_open_sky": "While you stand in @icon(illuminate), you have @icon(vision)."
+  },
+  "grimoire_bodies": {
+    "keyword:illuminate": [
+      "Placed Light lasts the battle. Enemies starting a turn in Light are Exposed 2.",
+      "Reveals tiles within the Light radius through the Umbra."
+    ],
+    "keyword:vision": [
+      "Vision reveals every hidden enemy while active."
+    ]
+  },
+  "grimoire_line_updates": {
+    "eclipse": "The darkest Umbra stage: you see only 1 tile around you. Light still reveals.",
+    "umbra_eclipse": "Last Eclipse hits you and your illusions only on Marked tiles, then starts Eclipse for 2 turns."
+  },
+  "relic_descriptions": {
+    "pilgrim_boots": "Gain 1 more @kw(movement) each turn. Moving leaves radius-1 @term(illuminate) on tiles you enter, unless the card attacks. @kw(blink) lights both ends.",
+    "static_soles": "Your first @kw(move) or @kw(blink) each turn leaves @term(surface_electrified) on the starting tile and grants @term(vision) for 2 turns.",
+    "thawing_charm": "Excess healing becomes @term(stoneskin), up to 8 each turn. The first conversion each turn creates radius-1 @term(illuminate) on you.",
+    "phoenix_ember": "Gain 1 @term(defiance). When @kw(defiance) saves you, create @term(illuminate) 3 on your tile, place @term(surface_fire) under every enemy, @kw(draw) 3 and gain 3 @term(card_play|Card Plays).",
+    "cinderbrand_tongs": "Your first card each turn to create new @icon(surface_fire) also creates @icon(illuminate) 1 at the card's target.",
+    "voltaic_tuning_fork": "The first @icon(chain) attack each turn creates @icon(illuminate) {radius} beneath each enemy hit.",
+    "hollow_die": "When a card grants @icon(vision), create @icon(illuminate) {0.reward0.radius} at you.",
+    "moonless_compass": "Once per combat, play separate @icon(move)/@icon(blink) and @icon(illuminate)/@icon(vision) cards in one turn to gain @icon(stoneskin) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+    "dawnbrand_filament": "The first direct attack each turn creates @icon(illuminate) {radius} at the attack's target.",
+    "glowstone_matrix": "Cards that grant @icon(stoneskin) also grant @icon(vision) @icon(time) {action.duration}.",
+    "true_north": "While you have @icon(vision), @icon(ranged) actions gain @icon(range) +{amount}.",
+    "dawnstitch_cord": "The first card each turn that creates @icon(illuminate) or grants @icon(vision) grants @icon(block) {0.reward0.amount}.",
+    "starless_astrolabe": "While you have @icon(vision), applying @icon(stagger) with Ice or applying @icon(shock) creates @icon(illuminate) {radius} beneath that enemy.",
+    "tallow_candle": "At the start of combat, create radius-2 @term(illuminate) on your tile."
+  }
+}

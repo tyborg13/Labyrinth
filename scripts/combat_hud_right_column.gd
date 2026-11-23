@@ -41,7 +41,9 @@ func layout(scene: Control) -> void:
 		return
 	var pass_overlay: Control = scene._pass_preview_overlay
 	_placing = true
-	var piles: Rect2 = scene.draw_pile.get_global_rect().merge(scene.discard_pile.get_global_rect())
+	# The pile row's dock is known before its children receive their first sort.
+	# Reading the child rects here can put Pass over the draw pile for a frame.
+	var piles: Rect2 = scene._combat_pile_dock_rect()
 	# Pass may still be hidden while the opening hand is being fitted. Its
 	# visibility is not a prerequisite for the initiative rail. Measure the same
 	# Layout C dock from the piles and Pass's available geometry instead.

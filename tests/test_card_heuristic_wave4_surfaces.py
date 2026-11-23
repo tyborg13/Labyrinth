@@ -67,17 +67,25 @@ class Wave4SurfaceHeuristicTests(unittest.TestCase):
 
     def test_on_result_reward_is_discounted_by_availability(self):
         plain = score([ranged(5, element='ice')])
-        rewarded = score([ranged(5, element='ice', on_result={'when': 'froze', 'rewards': [{'type': 'draw', 'amount': 2}]})])
+        rewarded = score([ranged(5, element='ice', on_result={'when': 'on_ice', 'rewards': [{'type': 'draw', 'amount': 2}]})])
         self.assertGreater(rewarded.flow, plain.flow)
         self.assertLess(rewarded.flow - plain.flow, 2 * WEIGHTS.draw_per_point)
 
-    def test_selector_strike_is_targetless_and_white_silence_freezes(self):
+    def test_selector_strike_is_targetless_and_white_silence_staggers(self):
         stoke = score([{'type': 'all_enemies', 'selector': 'on_fire', 'damage': 3, 'element': 'fire'}])
         self.assertGreater(stoke.offense, 0.0)
-        silence = score([{'type': 'all_enemies', 'selector': 'chilled', 'damage': 4, 'element': 'ice'}])
-        self.assertAlmostEqual(silence.control, WEIGHTS.freeze_value * WEIGHTS.selector_chilled_targets, places=4)
+        silence = score([{'type': 'all_enemies', 'selector': 'on_ice', 'damage': 6, 'stagger': 6, 'element': 'ice'}])
+        self.assertAlmostEqual(silence.control, 6 * WEIGHTS.stagger_value_per_point * WEIGHTS.selector_on_ice_targets, places=4)
         ranged_glare = score([{'type': 'all_enemies', 'selector': 'in_light', 'range': 4, 'damage': 0, 'expose': 3}])
         self.assertAlmostEqual(ranged_glare.control, 3 * WEIGHTS.expose_value_per_point * WEIGHTS.selector_in_light_targets * WEIGHTS.selector_range_factor, places=4)
+
+    def test_ice_stagger_bonus_is_discounted_by_ice_setup(self):
+        # pla-06: former Freeze cards print "On Ice: also Stagger 6"; a bare Ice hit has no Freeze.
+        plain = score([ranged(4, element='ice')])
+        staggered = score([ranged(4, element='ice', surface_bonus={'surface': 'ice', 'subject': 'target', 'present': True, 'stagger': 6})])
+        self.assertEqual(plain.control, 0.0)
+        self.assertGreater(staggered.control, 0.0)
+        self.assertLess(staggered.control, 6 * WEIGHTS.stagger_value_per_point)
 
     def test_ignore_los_raises_playability_only(self):
         self.assertGreater(score([ranged(5, rng=4, ignore_los=True)]).offense, score([ranged(5, rng=4)]).offense)

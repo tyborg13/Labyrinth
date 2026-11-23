@@ -1,0 +1,430 @@
+{
+  "findings": [
+    {
+      "id": "iron_lung",
+      "frequency": "common",
+      "sentence": "Pay Health Cost and Empower costs in Stoneskin first.",
+      "actual": "Only the Health component is substituted. The Time component is added to the turn bill, and an Exhaust cost also remains an Exhaust.",
+      "references": [
+        "scripts/combat_engine.gd:2073",
+        "scripts/combat_engine.gd:2104",
+        "scripts/combat_engine.gd:2118",
+        "scripts/defense_relic_rules.gd:69"
+      ],
+      "scenario": "At (2,4) with 6 Stoneskin, Empower Overhead Smash against the adjacent crawler at (3,4). The relic promises Stoneskin first for the Empower cost. The card pays base 6 plus 2 Time and keeps all 6 Stoneskin.",
+      "probe": "iron_lung_time"
+    },
+    {
+      "id": "worldheart",
+      "frequency": "common",
+      "sentence": "Deal half the Stoneskin gained to each adjacent enemy, rounded down, up to 4.",
+      "actual": "The damage hook runs when the hero gains Stoneskin from a card or reward as well as on the turn-end conversion named in the preceding sentence.",
+      "references": [
+        "scripts/combat_engine.gd:1736",
+        "scripts/combat_engine.gd:11455",
+        "scripts/combat_engine.gd:11508",
+        "scripts/combat_engine.gd:11747"
+      ],
+      "scenario": "With 0 Block at (2,4) and an enemy at (3,4), play Raise the Anvil on (2,3). The card grants 6 Stoneskin. The adjacent enemy immediately loses 3 Health without ending the turn or converting any Block.",
+      "probe": "worldheart_midturn"
+    },
+    {
+      "id": "eclipse_mantle",
+      "frequency": "common",
+      "sentence": "Your Illusions create Light 2.",
+      "actual": "Light 2 is recalculated from live illusions. A destroyed illusion leaves no source behind. The Light definition says Light reveals for the rest of combat.",
+      "references": [
+        "data/glossary.json:271",
+        "scripts/combat_engine.gd:455",
+        "scripts/combat_engine.gd:1981"
+      ],
+      "scenario": "In Eclipse, Blink with Dust Skip from (2,4) to (2,3). The 2-Health decoy at (2,4) emits Light 2 and reveals (2,6). The crawler on (3,4) destroys the closer decoy with Skitter Strike. The Light disappears and (2,6) becomes hidden while combat continues.",
+      "probe": "eclipse_tether"
+    },
+    {
+      "id": "pilgrim_boots",
+      "frequency": "edge",
+      "sentence": "Blink creates Light at both ends.",
+      "actual": "Both endpoint sources pass through the same attack-card filter as the Move trail. A Blink on a card with an excluded action creates neither source.",
+      "references": [
+        "data/relics.json:72",
+        "scripts/combat_engine.gd:1939",
+        "scripts/combat_engine.gd:1973",
+        "scripts/combat_engine.gd:6688"
+      ],
+      "scenario": "Play Spur Vault from (2,4), Blink to (3,4), then Push the crawler on (4,4). The card completes the Blink and attack. Neither endpoint gains the promised Light.",
+      "probe": "pilgrim_boots_blink"
+    },
+    {
+      "id": "reinforced_shield",
+      "frequency": "edge",
+      "sentence": "While you have Stoneskin, cards that give Block give 3 more.",
+      "actual": "The modifier applies to an action of type Block. The per-tile Block rider on Move grants Block directly.",
+      "references": [
+        "scripts/combat_engine.gd:6510",
+        "scripts/maneuver_rules.gd:657",
+        "data/cards.json:7269",
+        "data/equipment.json:781"
+      ],
+      "scenario": "With 6 Stoneskin and 0 Block, play Catch the Wind from (2,4) to (2,2). Two tiles grant 2 Block. The relic promises 3 more, but the hero ends the card with 2 Block.",
+      "probe": "reinforced_shield_move_block"
+    },
+    {
+      "id": "frost_prism",
+      "frequency": "edge",
+      "sentence": "When an Ice card Staggers an enemy on Ice, leave Rubble on that enemy's tile and each adjacent tile.",
+      "diagram": "cross",
+      "actual": "The printed cross depicts five tiles. The rule unions a cross at every occupied footprint tile, even when a single tile of that footprint is on Ice.",
+      "references": [
+        "scripts/pattern_text.gd:34",
+        "scripts/combat_engine.gd:6229",
+        "scripts/surface_relic_rules.gd:250"
+      ],
+      "scenario": "Tharokh occupies a 2×2 footprint anchored at (4,3), with Ice at the anchor and no walls around the footprint. Play White Silence. Twelve tiles get Rubble, including (6,3), outside the depicted five-tile cross.",
+      "probe": "frost_prism_footprint"
+    },
+    {
+      "id": "overflow_censer",
+      "frequency": "edge",
+      "sentence": "When Fire, Ice or Electrified replaces another of those grounds, place the new ground on each adjacent tile without Fire, Ice or Electrified.",
+      "diagram": "neighbors:origin",
+      "actual": "The spread checks player provenance. Enemy ground replacement does not spread.",
+      "references": [
+        "scripts/board_surface_rules.gd:109",
+        "scripts/combat_engine.gd:12056",
+        "scripts/combat_engine.gd:12076",
+        "data/enemies.json:2866"
+      ],
+      "scenario": "Stand on Ice at (2,4) while Arc Thrall at (3,4) uses Arc Bolt during its activation. All four adjacent tiles lack elemental ground. Arc Bolt replaces the Ice with Electrified. Only the hero tile becomes Electrified.",
+      "probe": "overflow_censer_enemy_overwrite"
+    },
+    {
+      "id": "hourglass_awl",
+      "frequency": "edge",
+      "sentence": "Attacks on cards that cost 6 or more Time gain Pierce.",
+      "actual": "The threshold uses base Time before discounts and surcharges. The relic still supplies Pierce below the threshold after a discount and misses a card raised above the threshold by a surcharge.",
+      "references": [
+        "scripts/game_data.gd:168",
+        "scripts/game_data.gd:1389",
+        "scripts/tempo_rules.gd:52",
+        "scripts/tempo_relic_rules.gd:69",
+        "scripts/combat_engine.gd:2113"
+      ],
+      "scenario": "With Whirling Sash, play Brace and Polar Guard at (2,4), then shoot the crawler at (5,4) with Dull Bolt. The card shows and pays 6 Time and receives no Pierce. In a separate turn, Static Rush reduces Overhead Smash to 4 Time and the attack retains Pierce.",
+      "probe": "hourglass_awl_price"
+    },
+    {
+      "id": "winters_spur",
+      "frequency": "edge",
+      "sentence": "Moving across Ice without turning costs only 1 Movement.",
+      "actual": "The first step pays normal departure cost. A straight continuation subtracts one from normal cost. Rubble can coexist with Ice and increases the cost of leaving the tile.",
+      "references": [
+        "scripts/guardian_relic_rules.gd:38",
+        "scripts/board_surface_rules.gd:88",
+        "scripts/board_surface_rules.gd:170",
+        "scripts/combat_engine.gd:3496"
+      ],
+      "scenario": "Place Ice on (2,4) and (3,4), with Rubble under the Ice at (2,4). Start on (2,4) with 2 Movement and Move straight to (3,4). The single step spends both Movement.",
+      "probe": "winters_spur_rubble"
+    },
+    {
+      "id": "crowncoal_heart",
+      "frequency": "edge",
+      "sentence": "Once per turn, your single-target hit on a tile without Fire, Ice or Electrified places Fire.",
+      "actual": "Only an enemy hit can reach the Fire hook. This excludes a terrain hit even if the hit destroys the terrain and leaves a legal Fire tile.",
+      "references": [
+        "scripts/board_attack_rules.gd:232",
+        "scripts/board_attack_rules.gd:256",
+        "scripts/combat_engine.gd:12506"
+      ],
+      "scenario": "Play Raise the Anvil to make an Outcrop on bare floor at (3,4). Then destroy it with Overhead Smash from (2,4) before using the relic's Fire trigger. The Outcrop is gone and the struck tile remains without Fire.",
+      "probe": "crowncoal_terrain_hit"
+    },
+    {
+      "id": "leaden_pommel",
+      "frequency": "edge",
+      "sentence": "Attacks on cards that cost 5 or more Time gain +1 Stagger.",
+      "actual": "The threshold uses base Time before discounts and surcharges. The relic still supplies +1 Stagger below the threshold after a discount and misses a card raised above the threshold by a surcharge.",
+      "references": [
+        "scripts/game_data.gd:168",
+        "scripts/game_data.gd:1389",
+        "scripts/tempo_rules.gd:52",
+        "scripts/tempo_relic_rules.gd:69",
+        "scripts/board_attack_rules.gd:189"
+      ],
+      "scenario": "With Whirling Sash, play Brace and Polar Guard at (2,4), then shoot the crawler at (5,4) with Dull Bolt. The card shows and pays 6 Time and receives no +1 Stagger. In a separate turn, Static Rush reduces Overhead Smash to 4 Time and the attack retains +1 Stagger.",
+      "probe": "leaden_pommel_price"
+    },
+    {
+      "id": "hobnail_cleats",
+      "frequency": "edge",
+      "sentence": "While you stand on Ice, your Ice cards deal +2 damage.",
+      "actual": "The modifier accepts only the listed attack action types. White Silence uses a separate selector-hit action.",
+      "references": [
+        "data/relics.json:2070",
+        "scripts/combat_engine.gd:6510",
+        "scripts/combat_engine.gd:1812",
+        "scripts/surface_card_rules.gd:387",
+        "scripts/surface_card_rules.gd:468"
+      ],
+      "scenario": "Stand on Ice at (2,4), with a crawler with no Expose on Ice at (3,4). Play White Silence. The target loses the printed 6 Health where the relic promises 8.",
+      "probe": "hobnail_white_silence"
+    },
+    {
+      "id": "waxen_effigy",
+      "frequency": "edge",
+      "sentence": "At the start of combat, create an Illusion with Health 2 on the empty tile adjacent to you nearest an enemy.",
+      "actual": "The sort considers only visible enemies. If none are visible, it chooses the legal adjacent tile nearest the center of the board.",
+      "references": [
+        "scripts/common_relic_rules.gd:16",
+        "scripts/common_relic_rules.gd:26",
+        "scripts/common_relic_rules.gd:39"
+      ],
+      "scenario": "Start Eclipse combat at (2,4), with all adjacent tiles open and the only enemy hidden at (2,1). The nearest tile is (2,3). The illusion appears on the center-facing tile (3,4). No card is played.",
+      "probe": "waxen_effigy_hidden"
+    },
+    {
+      "id": "briar_vambrace",
+      "frequency": "edge",
+      "sentence": "When a card gives you Block, also gain Retaliate 1, once per card.",
+      "actual": "The normal Block action and certain card rewards call the Retaliate hook. Per-tile Block on a Move does not call it.",
+      "references": [
+        "scripts/common_relic_rules.gd:73",
+        "scripts/combat_engine.gd:1731",
+        "scripts/combat_engine.gd:11738",
+        "scripts/maneuver_rules.gd:657",
+        "data/equipment.json:781"
+      ],
+      "scenario": "Play Catch the Wind from (2,4) to (2,2) with no Block or Retaliate. The card grants 2 Block and no Retaliate.",
+      "probe": "briar_vambrace_move_block"
+    },
+    {
+      "id": "copper_shod_staff",
+      "frequency": "edge",
+      "sentence": "For your Lightning cards, your Outcrops and Illusions count as Electrified and take no damage from those cards.",
+      "actual": "The virtual-conductor board is used by the attack planner. Discharge instead enumerates actual Electrified ground, so a construct on bare floor cannot extend its network.",
+      "references": [
+        "scripts/illusion_relic_rules.gd:156",
+        "scripts/illusion_relic_rules.gd:161",
+        "scripts/combat_engine.gd:12355",
+        "scripts/surface_card_rules.gd:367"
+      ],
+      "scenario": "Play Discharge at the only Electrified tile (4,4), with your illusion at (5,4) and a crawler at (5,3). If the illusion tile counted as Electrified for that card, its Burst would reach the crawler. The crawler loses 0 Health.",
+      "probe": "copper_shod_discharge"
+    },
+    {
+      "id": "copper_shod_staff",
+      "frequency": "edge",
+      "sentence": "For your Lightning cards, your Outcrops and Illusions count as Electrified and take no damage from those cards.",
+      "actual": "Ordinary Lightning attack terrain protection does not carry over to the Burst. Discharge damages owned illusions in the affected area.",
+      "references": [
+        "scripts/board_attack_rules.gd:232",
+        "scripts/surface_card_rules.gd:367",
+        "scripts/burst_rules.gd:54",
+        "scripts/combat_engine.gd:12622"
+      ],
+      "scenario": "In the same Discharge setup, the real Electrified tile at (4,4) Bursts into the owned 2-Health illusion at (5,4). The illusion is destroyed despite the promised damage immunity.",
+      "probe": "copper_shod_discharge"
+    },
+    {
+      "id": "hollow_puppet",
+      "frequency": "edge",
+      "sentence": "Your Push and Pull can move your Illusions safely.",
+      "actual": "The aimed attack component is skipped, but wall collision uses the ordinary force damage path. Only a moved illusion hitting an enemy uses the special shatter rule.",
+      "references": [
+        "scripts/illusion_relic_rules.gd:95",
+        "scripts/illusion_relic_rules.gd:112",
+        "scripts/illusion_relic_rules.gd:121",
+        "scripts/combat_engine.gd:7520"
+      ],
+      "scenario": "Play Shield Charge from (2,4), Move to (3,4), and Push your 2-Health illusion at (4,4) two tiles east. It moves to (5,4) and is destroyed by the wall at (6,4).",
+      "probe": "hollow_puppet_wall"
+    },
+    {
+      "id": "toll_late_bell",
+      "frequency": "edge",
+      "sentence": "Your attacks deal +3 damage to each enemy set to act after your next turn on the Turn Clock.",
+      "actual": "The bonus compares against the hypothetical normal-cost next turn, even while an unused Borrowed Hourglass schedules an immediate next turn ahead of the enemy.",
+      "references": [
+        "scripts/tempo_relic_rules.gd:25",
+        "scripts/tempo_relic_rules.gd:32",
+        "scripts/tempo_relic_rules.gd:44",
+        "scripts/tempo_relic_rules.gd:59"
+      ],
+      "scenario": "With Borrowed Hourglass unspent, start at clock 0 and Quick Stab the adjacent crawler scheduled at 5. Leave one Card Play unused. Your next turn is at 0, before the crawler. Quick Stab deals 6 instead of 9.",
+      "probe": "toll_late_bell_extra_turn"
+    },
+    {
+      "id": "briar_throne",
+      "frequency": "edge",
+      "sentence": "Your Retaliate no longer expires and grows by 1 whenever your Retaliate deals damage.",
+      "actual": "The growth hook runs on any active Retaliate reaction, including a rider-only reaction whose damage starts and ends at zero.",
+      "references": [
+        "data/cards.json:6858",
+        "scripts/retaliate_rules.gd:41",
+        "scripts/retaliate_rules.gd:91"
+      ],
+      "scenario": "Play Static Mantle without any prior Retaliate. The adjacent crawler uses Skitter Strike. The Mantle's Shock rider triggers without dealing damage. Retaliate damage still grows from 0 to 1.",
+      "probe": "briar_throne_zero_damage"
+    }
+  ],
+  "borderline": [
+    {
+      "id": "tailwind_fletching",
+      "reason": "Inline Push or Pull, such as Slipstream Cut's rider, gains distance while the damage belongs to the separate Melee attack. Reading the sentence as naming the two native action types makes this consistent. The same distinction applies to Anchor Chain.",
+      "references": [
+        "scripts/game_data.gd:1418",
+        "scripts/combat_engine.gd:6517"
+      ]
+    },
+    {
+      "id": "cold_mirror",
+      "reason": "At 9 Block the hero gets two layers and loses all 9 Block. The rate might suggest keeping a leftover point, while ‘trade your Block’ explicitly describes the entire pool.",
+      "references": [
+        "scripts/combat_engine.gd:11753"
+      ]
+    },
+    {
+      "id": "thunder_relay",
+      "reason": "Survival alone does not override immunity or footprint landing legality. ‘Can swap’ describes an optional technique and normal Swap restrictions still apply.",
+      "references": [
+        "scripts/surface_relic_rules.gd:283"
+      ]
+    },
+    {
+      "id": "storm_crown",
+      "reason": "Dead and reflected targets do not take rebound damage. A dead enemy cannot be hit again. Reflect already explains why the outgoing shot did not land.",
+      "references": [
+        "scripts/illusion_relic_rules.gd:327",
+        "scripts/board_attack_rules.gd:162"
+      ]
+    },
+    {
+      "id": "basalt_calendar",
+      "reason": "The option exists on native ground-fuel Burst actions. Destroying an Illusion, Outcrop or an Electrified network uses separate Burst action types. ‘Instead of Fire’ signals that the text describes the ground-fuel option.",
+      "references": [
+        "scripts/surface_relic_rules.gd:71",
+        "scripts/terrain_card_rules.gd:230",
+        "scripts/surface_card_rules.gd:367"
+      ]
+    },
+    {
+      "id": "coalheart_crucible",
+      "reason": "The global conductor override can also let an enemy Lightning attack conduct through Fire and remove it. The relic text guarantees the player-card interaction and leaves enemy conduction unspecified.",
+      "references": [
+        "scripts/surface_relic_rules.gd:13",
+        "scripts/board_surface_rules.gd:43",
+        "scripts/combat_engine.gd:12381",
+        "scripts/combat_engine.gd:12453",
+        "scripts/board_attack_rules.gd:76"
+      ]
+    },
+    {
+      "id": "black_sun_dial",
+      "reason": "The next attack on the card that grants the buff cannot use it. Code makes the next qualifying attack a later card's attack. Native Expend cards commonly put their removal on or after the hit, so the missing timing detail alone is insufficient.",
+      "references": [
+        "scripts/surface_variety_relic_rules.gd:100",
+        "scripts/tempo_rules.gd:182"
+      ]
+    },
+    {
+      "id": "chorus_mask",
+      "reason": "Quick Stab followed by an elemental card does not qualify. Neutral cards use no element, so ‘whose element differs’ can reasonably require two actual elements.",
+      "references": [
+        "scripts/surface_variety_relic_rules.gd:33",
+        "scripts/surface_variety_relic_rules.gd:81"
+      ]
+    },
+    {
+      "id": "funeral_bell",
+      "reason": "Stagger is tracked as an initiative delay. The spread counts Expose, Shock and Immobilize. The glossary describes Stagger as an action, so Stagger plus one persistent status does not decisively contradict ‘different statuses.’",
+      "references": [
+        "data/glossary.json:250",
+        "scripts/card_keyword_rules.gd:218",
+        "scripts/surface_variety_relic_rules.gd:149"
+      ]
+    },
+    {
+      "id": "fivefold_knot",
+      "reason": "At four elements an existing Chain 2 remains Chain 2. ‘Add Chain 1’ names the keyword and can read as supplying at least Chain 1. Explicit ‘+1 Chain’ elsewhere means a numeric increment.",
+      "references": [
+        "scripts/surface_variety_relic_rules.gd:70",
+        "scripts/surface_variety_relic_rules.gd:90"
+      ]
+    },
+    {
+      "id": "beaconrunner_spurs",
+      "reason": "It recognizes placed, owned sources rather than tethered light, and only paid steps refund. The same placed-source boundary applies to Unclouded Sun. Ownership of a borrowed or tethered source and refunding a free step are both ambiguous.",
+      "references": [
+        "scripts/surface_variety_relic_rules.gd:161",
+        "scripts/combat_engine.gd:443"
+      ]
+    },
+    {
+      "id": "ashen_brand",
+      "reason": "The second sentence could be read across separate Burst actions. Runtime counts overlapping Fire crosses within one Fire-ground Burst, and uses maximum overlap on a large enemy's occupied tiles. Typical single-tile overlaps agree with the copy.",
+      "references": [
+        "scripts/combat_engine.gd:12540",
+        "scripts/combat_engine.gd:12605",
+        "scripts/guardian_relic_rules.gd:33"
+      ]
+    },
+    {
+      "id": "winters_spur",
+      "reason": "With Skate active an Ice step can be free. The explicit wording ‘only 1’ admits the better cost under a separate overriding effect. The expensive Rubble overlap is documented as a finding.",
+      "references": [
+        "scripts/guardian_relic_rules.gd:38"
+      ]
+    },
+    {
+      "id": "resonant_clapper",
+      "reason": "The planned hop index can include a Reflect contact. Whether Chain already ‘hit’ a unit whose shot reflected depends on whether hit names the contact or the damage landing.",
+      "references": [
+        "scripts/combat_engine.gd:12422",
+        "scripts/board_attack_rules.gd:126",
+        "scripts/board_attack_rules.gd:162"
+      ]
+    },
+    {
+      "id": "recoil_plates",
+      "reason": "The new rate replaces base Collision damage. Independent Expose can still increase the hit, as normal.",
+      "references": [
+        "scripts/forced_relic_rules.gd:45",
+        "scripts/forced_relic_rules.gd:56"
+      ]
+    },
+    {
+      "id": "martyrs_gorget",
+      "reason": "A Retaliate hit absorbed by Block or Stoneskin yields only the residual Health loss as Block. ‘Damages an attacker’ can mean Health lost. Counted as ambiguity because the hit still follows ordinary defenses.",
+      "references": [
+        "scripts/retaliate_rules.gd:91",
+        "scripts/defense_relic_rules.gd:111"
+      ]
+    },
+    {
+      "id": "breaking_wheel",
+      "reason": "A stationary enemy blocker can take Collision damage without losing the ground under its own tile. ‘When an enemy collides’ can reasonably refer to the moving party.",
+      "references": [
+        "scripts/forced_relic_rules.gd:81",
+        "scripts/forced_relic_rules.gd:107",
+        "scripts/forced_relic_rules.gd:150"
+      ]
+    },
+    {
+      "id": "mirror_triptych",
+      "reason": "The nearest legal foe is chosen after the player card finishes. A decoy with no reachable foe pays no Health. ‘Up to 3’ and ‘nearest reachable’ cover this normal targeting limit.",
+      "references": [
+        "scripts/illusion_relic_rules.gd:196",
+        "scripts/illusion_relic_rules.gd:257"
+      ]
+    },
+    {
+      "id": "pyre_keepers_urn",
+      "reason": "The card goes to the draw pile if the hand is already capped. This is an ordinary capacity exception. The unit did not establish a repeatable normal turn start at the cap.",
+      "references": [
+        "scripts/defense_relic_rules.gd:170",
+        "scripts/defense_relic_rules.gd:186"
+      ]
+    }
+  ]
+}

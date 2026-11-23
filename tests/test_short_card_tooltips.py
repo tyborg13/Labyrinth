@@ -9,7 +9,11 @@ from marked_glossary_contract import (
     MARKED_DEFINITION, MARKED_METADATA, MARKED_RETIRED,
     marked_metadata_supersession,
 )
-from trap_copy_contract import TRAP_BODY, TRAP_DEFINITION
+from trap_copy_contract import MARKED_DEFINITION, TRAP_BODY, TRAP_DEFINITION
+from burst_glossary_contract import (
+    BURST_DEFINITIONS, BURST_GRIMOIRE_BODIES, BURST_GRIMOIRE_TITLES,
+    BURST_RETIRED, BURST_RETIRED_ENTRIES, PLA07_COPY, burst_metadata_supersession,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 COPY = ROOT / "spec/peer_benchmark/staged/tt-01/tooltips.json"
@@ -19,11 +23,17 @@ PLA01 = json.loads((ROOT / "tests/fixtures/pla01_exception_strip.json").read_tex
 # paragraph) supersede every Grimoire body pinned below.
 PLA02_PAGES = json.loads((ROOT / "tests/fixtures/pla02_grimoire_pages.json").read_text())["pages"]
 HOUSE_STYLE_GRIMOIRE = {
-    "skate": "This turn, stepping onto Ice costs no Movement, and Ice doesn\'t make you Chilled.",
+    "skate": "This turn Ice costs you no Movement and doesn't Expose you.",
     "surface_electrified": "A Lightning hit that touches it spreads to every enemy on connected Electrified tiles. Chain relays through it.",
     "targeting": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and Outcrops block it.",
     "reflect": "Attacks from a non-adjacent tile bounce back to the attacker.",  # pla-01: the rule now matches the tooltip; no exception list.
 }
+PLA08 = json.loads((ROOT / "tests/fixtures/pla08_light_vision_copy.json").read_text())
+TXT20 = json.loads((ROOT / "tests/fixtures/txt20_rules_copy.json").read_text())
+GRIMOIRE_BODIES = dict(TXT20["grimoire_bodies"])
+MARKED_BODY = [MARKED_DEFINITION, *PLA02_PAGES["keyword:marked"][1:]]
+TRAPS_BODY = [TRAP_DEFINITION, *PLA02_PAGES["combat:traps"][1:]]
+PLA08_RETIRED = set(PLA08["retired"])
 UNCHANGED_SHA256 = "17be644b843ba6c56d6fed1fef19d4c98b339b70edf0a8fae91f3f72b2051cd0"
 RETIRED_TERMS = {"dive", "veil", "flurry", "aoe"}  # sta-01/flu-01: keep protected historical copy untouched.
 METADATA_SHA256 = "452541bfabda9d9a177a13e383c14c147a78746c0492e0eace190b58caf3bab2"
@@ -47,8 +57,13 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.superseding["retaliate"] = "Until its next turn, whoever hits this unit up close takes that much damage."
         self.superseding["traps"] = TRAP_DEFINITION
         self.superseding["surface_rubble"] = "Costs 2 Movement to leave."
-        self.superseding["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
+        self.superseding["skate"] = "This turn Ice costs you no Movement and doesn't Expose you."
+        # pla-04: the Burst merge supersedes these definitions.
+        self.superseding.update(BURST_DEFINITIONS)
+        self.superseding.update(PLA08["definitions"])
+        self.superseding.update(TXT20["glossary_definitions"])
         self.superseding.update(PLA01["glossary"])
+        self.superseding.update(marked=MARKED_DEFINITION, traps=TRAP_DEFINITION)
         self.glossary = json.loads((ROOT / "data/glossary.json").read_text())
         self.grimoire = json.loads((ROOT / "data/grimoire.json").read_text())
 
@@ -57,7 +72,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.assertEqual(len(self.copy["entries"]), 107)
         for change in self.copy["entries"]:
             with self.subTest(term=change["id"]):
-                if change["id"] in RETIRED_TERMS | {"worldspines"}:
+                if change["id"] in RETIRED_TERMS | {"worldspines"} | BURST_RETIRED | PLA08_RETIRED:
                     self.assertNotIn(change["id"], by_id)
                 elif change["id"] in MARKED_RETIRED:
                     self.assertNotIn(change["id"], by_id)
@@ -66,13 +81,14 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertEqual(by_id[change["id"]]["definition"], self.superseding.get(change["id"], change["tooltip"]))
         self.assertEqual(by_id["marked"]["definition"], MARKED_DEFINITION)
         expected = json.loads((ROOT / 'tests/goldens/glossary_metadata.json').read_text())
-        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe', 'worldspines'}]
+        expected['metadata'] = [e for e in expected['metadata'] if e['id'] not in {'mirror', 'flurry', 'aoe', 'worldspines'} | PLA08_RETIRED]
         metadata = [{key: value for key, value in entry.items() if key != "definition"}
                     for entry in self.glossary]
-        self.assertEqual(metadata, marked_metadata_supersession(expected['metadata']))
+        self.assertEqual(metadata, burst_metadata_supersession(marked_metadata_supersession(expected['metadata'])))
         unchanged = [entry for entry in self.glossary if entry['id'] in self.copy['unchanged_ids']]
-        self.assertEqual(unchanged, [dict(entry, definition=PLA01["glossary"].get(entry["id"], entry["definition"]))
-                                     for entry in expected['unchanged']])
+        # pla-06: the playability supersessions also cover otherwise unchanged ids (Frostbite).
+        expected_unchanged = [dict(entry, definition=self.superseding.get(entry['id'], entry['definition'])) for entry in expected['unchanged']]
+        self.assertEqual(unchanged, expected_unchanged)
 
     def test_full_rules_retained_in_expected_topics(self):
         entries = {entry["id"]: entry for entry in self.grimoire["entries"]}
@@ -81,18 +97,20 @@ class ShortCardTooltipsTest(unittest.TestCase):
         for change in self.copy["entries"]:
             with self.subTest(term=change["id"]):
                 owner = self.expectations["owners"][change["id"]]
-                if change["id"] in RETIRED_TERMS | MARKED_RETIRED:
+                if change["id"] in RETIRED_TERMS | MARKED_RETIRED | BURST_RETIRED | PLA08_RETIRED or owner in BURST_RETIRED_ENTRIES:
                     self.assertNotIn(owner, entries)
                     if change["id"] in MARKED_RETIRED:
-                        self.assertEqual(entries["keyword:marked"]["body"], PLA02_PAGES["keyword:marked"])
+                        self.assertEqual(entries["keyword:marked"]["body"], MARKED_BODY)
                     continue
                 self.assertIn(owner, entries)
                 if owner in PLA02_PAGES:
-                    self.assertEqual(entries[owner]["body"], PLA02_PAGES[owner])
+                    self.assertEqual(entries[owner]["body"], TRAPS_BODY if owner == "combat:traps" else PLA02_PAGES[owner])
                     continue
                 # bos-02 supersedes two former dragon rules with director-approved
                 # Grimoire bodies. Keep the retention assertion for every other term.
-                if change["id"] in ("gale_force", "worldspines"):
+                if owner in GRIMOIRE_BODIES:
+                    self.assertEqual(entries[owner]["body"], GRIMOIRE_BODIES[owner])
+                elif change["id"] in ("gale_force", "worldspines"):
                     approved = json.loads((ROOT / "tests/fixtures/bos02_feedback1_grimoire.json").read_text())
                     expected = approved["entries"][owner]["body"]
                     if change["id"] == "worldspines":
@@ -108,8 +126,16 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertIn("An Outcrop blocks movement and line of sight", entries[owner]["body"][0])
                 elif change["id"] == "traps":
                     self.assertEqual(entries[owner]["body"], TRAP_BODY)
+                elif owner in BURST_GRIMOIRE_BODIES:
+                    self.assertEqual(entries[owner]["body"], BURST_GRIMOIRE_BODIES[owner])
+                elif owner in PLA08["grimoire_bodies"]:
+                    self.assertEqual(entries[owner]["body"], PLA08["grimoire_bodies"][owner])
                 else:
-                    self.assertIn(UMBRA_AREA_BODY if change["id"] == "umbra" else HOUSE_STYLE_GRIMOIRE.get(change["id"], change["old"]), entries[owner]["body"],
+                    expected = PLA07_COPY["grimoire_paragraphs"].get(change["id"], change["old"])
+                    expected = PLA08["grimoire_line_updates"].get(
+                        change["id"], UMBRA_AREA_BODY if change["id"] == "umbra"
+                        else HOUSE_STYLE_GRIMOIRE.get(change["id"], expected))
+                    self.assertIn(expected, entries[owner]["body"],
                                   "Former full definition must remain in its owning topic")
 
     def test_every_new_entry_schema(self):
@@ -120,7 +146,7 @@ class ShortCardTooltipsTest(unittest.TestCase):
         self.assertEqual(entries["keyword:marked"], {
             "id": "keyword:marked", "section": "keywords", "title": "Marked",
             "icon": "marked",
-            "body": PLA02_PAGES["keyword:marked"], "aliases": MARKED_METADATA["aliases"],
+            "body": MARKED_BODY, "aliases": MARKED_METADATA["aliases"],
         })
         for term in self.expectations["new_terms"]:
             with self.subTest(term=term):
@@ -129,9 +155,13 @@ class ShortCardTooltipsTest(unittest.TestCase):
                     self.assertNotIn(entry_id, entries)
                     self.assertIn(term, by_id)
                     continue
-                if term in RETIRED_TERMS | MARKED_RETIRED:
+                if term in RETIRED_TERMS | MARKED_RETIRED | PLA08_RETIRED | BURST_RETIRED:
                     self.assertNotIn(entry_id, entries)
                     self.assertNotIn(term, by_id)
+                    continue
+                if entry_id in BURST_GRIMOIRE_BODIES:
+                    self.assertEqual(entries[entry_id]["title"], BURST_GRIMOIRE_TITLES.get(entry_id, by_id[term]["name"]))
+                    self.assertEqual(entries[entry_id]["body"], PLA02_PAGES.get(entry_id, TXT20["grimoire_bodies"].get(entry_id, BURST_GRIMOIRE_BODIES[entry_id])))
                     continue
                 self.assertIn(entry_id, entries)
                 entry = entries[entry_id]
@@ -139,13 +169,13 @@ class ShortCardTooltipsTest(unittest.TestCase):
                 self.assertEqual(entry["title"], by_id[term]["name"])
                 icon = term if term in ("skill_point", "moltshard") else by_id[term]["icon"]
                 self.assertEqual(entry["icon"], icon)
-                expected_body = [HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"])]
+                expected_body = [PLA08["grimoire_line_updates"].get(
+                    term, HOUSE_STYLE_GRIMOIRE.get(term, changes[term]["old"]))]
                 facts = json.loads((ROOT / "tests/fixtures/card_panel_grimoire_facts.json").read_text())
                 for fact in facts.values():
                     if fact["owner"] == entry_id and fact["appended"]:
                         expected_body.extend(fact["paragraphs"])
-                expected_body.extend(PLA01["grimoire_appended"].get(entry_id, []))
-                self.assertEqual(entry["body"], PLA02_PAGES.get(entry_id, expected_body))
+                self.assertEqual(entry["body"], PLA02_PAGES.get(entry_id, TXT20["grimoire_bodies"].get(entry_id, expected_body)))
                 if "default" in entry:
                     self.assertIs(type(entry["default"]), bool)
 

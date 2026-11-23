@@ -2,7 +2,6 @@ extends RefCounted
 
 # A retained body canvas plus a shader rim per unit, in original painter order.
 # Every normal body still uses CombatBoardView's original drawing methods/material.
-const Kindle = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 const Sources = preload("res://scripts/board_occlusion_sources.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const ShaderSource = preload("res://scripts/board_occlusion_silhouettes.gdshader")
@@ -82,6 +81,12 @@ func sync() -> void:
 		canvas.set("_unit_outline_actor", unit)
 		# Copy the authoritative geometry without evicting shared shadow meshes.
 		board.call("_copy_resolved_board_layout_to", canvas)
+		if bool(board.get("_pixel_ground_enabled")):
+			var pixel: Node = board.get("_pixel_ground")
+			var occupied: bool = false
+			for footprint_tile: Vector2i in board.call("_unit_footprint_tiles", unit):
+				occupied = occupied or pixel.field.tiles.has(footprint_tile)
+			canvas.call("_sync_pixel_contact_shadow", occupied)
 		preload("res://scripts/displacement_throw.gd").sync_depth(board, canvas, unit, _bindings)
 		retained[key] = true
 		var alive: bool = eligible(board, unit)
@@ -118,7 +123,6 @@ func set_enabled(enabled: bool) -> void:
 		(bodies[key] as Control).visible = enabled
 		if enabled: (bodies[key] as Control).queue_redraw()
 	for tile: Vector2i in (board.get("_scene_render_layers_by_tile") as Dictionary):
-		Kindle.clear_glows((board.get("_scene_render_layers_by_tile") as Dictionary)[tile])
 		board.call("_queue_scene_render_layer_for_tile", tile)
 
 func refresh_tile(tile: Vector2i) -> void:

@@ -11,16 +11,18 @@ const RunScene = preload("res://scripts/run_scene.gd")
 const TooltipConsistency = preload("res://tests/suites/tooltip_consistency_suite.gd")
 const TooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const Data = preload("res://scripts/game_data.gd")
+const PixelGround = preload("res://scripts/board_pixel_surface_layer.gd")
+const LEGACY_GROUND_MODE: String = "off"
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_TILE := Vector2i(4, 4)
 const SETTLE_FRAMES: int = 3
 const TRAP_DAMAGE: int = 7
 const TRAP_COPY: Dictionary = {
-	"fire": "Fire Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_fire) on this tile and each tile next to it.",
-	"ice": "Ice Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_ice) on this tile and each tile next to it.",
-	"lightning": "Lightning Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_electrified) on this tile and each tile next to it.",
-	"earth": "Earth Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nLeaves @term(surface_rubble) on this tile and each tile next to it.",
-	"air": "Air Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\n@kw(push) each unit next to this tile 1 tile away.",
+	"fire": "Fire Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nThe trap leaves @term(surface_fire) on the trap’s tile and each adjacent tile.",
+	"ice": "Ice Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nThe trap leaves @term(surface_ice) on the trap’s tile and each adjacent tile.",
+	"lightning": "Lightning Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nThe trap leaves @term(surface_electrified) on the trap’s tile and each adjacent tile.",
+	"earth": "Earth Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\nThe trap leaves @term(surface_rubble) on the trap’s tile and each adjacent tile.",
+	"air": "Air Trap\nTriggers when entered or attacked.\n7 damage to the unit on this tile.\n@kw(push) each unit adjacent to the trap 1 tile away.",
 }
 const RETAINED_CLOCK_SAMPLES: int = 3
 const PROOF_CURSOR_EDGE_POINTS: Array = [Vector2(0, 0), Vector2(1919, 0), Vector2(0, 1079), Vector2(1919, 1079)]
@@ -41,10 +43,8 @@ func _initialize() -> void:
 func _run() -> void:
 	root.size = PROOF_SIZE
 	root.content_scale_size = PROOF_SIZE
-	var board := Board.new()
-	board.size = Vector2(PROOF_SIZE)
-	root.add_child(board)
-	board.set_process(false)
+	var legacy_board: Board = _mount_legacy_board()
+	var board: Board = _mount_board()
 	var cursor := Cursor.new()
 	root.add_child(cursor)
 	cursor.detail_builder = Callable(board, "_make_custom_tooltip")
@@ -52,9 +52,9 @@ func _run() -> void:
 	var run_scene := RunScene.new()
 	run_scene.set("board_view", board)
 	var copy: Dictionary = {
-		"fire": "Deals 3 damage at turn start and 2 damage when entered.",
-		"ice": "Entering or starting a turn on Ice applies Chilled.",
-		"electrified": "Lightning attacks travel through connected Electrified tiles, hitting enemies on them.",
+		"fire": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+		"ice": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
+		"electrified": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nElectrified tiles also relay Chain.",
 	}
 	for kind: String in ["fire", "ice", "electrified"]:
 		for trapped: bool in [false, true]:
@@ -62,7 +62,9 @@ func _run() -> void:
 			Ground.place(state, PROOF_TILE, "rubble")
 			Ground.place(state, PROOF_TILE, kind)
 			if trapped: state["traps"] = [{"pos": PROOF_TILE, "element": "earth", "damage": TRAP_DAMAGE}]
-			board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": true, "ambient_time_seconds": PROOF_REDUCED_PHASE})
+			var shown: Dictionary = {"reduced_motion": true, "ambient_time_seconds": PROOF_REDUCED_PHASE}
+			board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
+			legacy_board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, shown)
 			await _settle()
 			var mouse: String = board._get_tooltip(board._tile_center(PROOF_TILE))
 			var controller: String = board.controller_tooltip_for_tile(PROOF_TILE)
@@ -70,7 +72,7 @@ func _run() -> void:
 			var entries: Array[Dictionary] = TileTooltip.decode(mouse)
 			_check(entries.size() == (3 if trapped else 2), "One panel per co-located effect")
 			_check(entries[0]["icon"] == "surface_" + kind and entries[0]["description"] == copy[kind], "Elemental first, exact copy")
-			_check(entries[1]["icon"] == "surface_rubble" and entries[1]["description"] == "Walking out of Rubble costs 2 Movement.", "Rubble second, exact copy")
+			_check(entries[1]["icon"] == "surface_rubble" and entries[1]["description"] == "Leaving Rubble costs 2 Movement.", "Rubble second, exact copy")
 			if trapped: _check(entries[2] == _trap_entry("earth"), "Trap last, exact copy and loop metadata")
 			run_scene.set("_combat_state", state)
 			var candidate: Dictionary = run_scene.call("_controller_candidate_for_tile", PROOF_TILE)
@@ -85,7 +87,10 @@ func _run() -> void:
 				await _settle()
 				cursor._layout_detail_panel()
 				_check(Rect2(Vector2.ZERO, Vector2(PROOF_SIZE)).encloses(cursor._detail_panel.get_global_rect()), "Full stack stays on-screen at every edge")
-			var layer: Control = board._scene_render_layers_by_tile[PROOF_TILE]
+			if board._pixel_ground_enabled:
+				var pixel_tile: Control = board._scene_render_layers_by_tile[PROOF_TILE]
+				_check(pixel_tile._surface_rubble_layer == null and pixel_tile._surface_rubble_floor_layer == null, "Pixel ground omits the legacy rubble canvases")
+			var layer: Control = legacy_board._scene_render_layers_by_tile[PROOF_TILE]
 			var rubble: Node2D = layer._surface_rubble_layer
 			var floor: Node2D = layer._surface_rubble_floor_layer
 			_check(rubble.visible, "Retained rubble stays visible")
@@ -102,12 +107,33 @@ func _run() -> void:
 	await _cache_revision_checks(board, engine, run_scene)
 	TooltipConsistency.run(Callable(self, "_check"))
 	await _native_popup_layout(board, engine)
-	await _leaving_and_retention(board, engine)
+	await _leaving_and_retention(legacy_board, engine)
 	run_scene.free()
 	board.free()
+	legacy_board.free()
 	cursor.free()
 	print("BOARD TILE TOOLTIPS: %s checks=%d failures=%d" % ["PASS" if failures.is_empty() else "FAIL", checks, failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func _mount_board() -> Board:
+	var board := Board.new()
+	board.size = Vector2(PROOF_SIZE)
+	root.add_child(board)
+	board.set_process(false)
+	return board
+
+func _mount_legacy_board() -> Board:
+	# The board selects its renderer when it enters the tree. Scope the override
+	# to the fixture that checks legacy layering and retained draw commands.
+	var was_set: bool = OS.has_environment(PixelGround.MODE_ENV)
+	var previous: String = OS.get_environment(PixelGround.MODE_ENV)
+	OS.set_environment(PixelGround.MODE_ENV, LEGACY_GROUND_MODE)
+	var board: Board = _mount_board()
+	if was_set:
+		OS.set_environment(PixelGround.MODE_ENV, previous)
+	else:
+		OS.unset_environment(PixelGround.MODE_ENV)
+	return board
 
 func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void:
 	for element: String in TRAP_COPY:
@@ -121,7 +147,7 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	state["surface_rule_overrides"] = {"conductive_fire": true}
 	board.set_combat_state(state)
 	var entries: Array[Dictionary] = TileTooltip.entries(board, PROOF_TILE)
-	_check(entries.size() == 1 and entries[0]["description"].ends_with("Stormcoal: also conducts Lightning. Attacks conducted through it Expend it."), "Stormcoal remains in Fire's only panel")
+	_check(entries.size() == 1 and entries[0]["description"].ends_with("Stormcoal: Your Lightning cards conduct through Fire and remove that Fire."), "Stormcoal remains in Fire's only panel")
 	Ground.place(state, PROOF_TILE, "rubble")
 	state["terrain"] = [{"id": "proof_outcrop", "kind": "crag_outcrop", "owner_kind": "player", "pos": PROOF_TILE, "hp": 4, "max_hp": 8}]
 	state["meteor_marks"] = [{"tiles": [PROOF_TILE], "damage": 5, "surface": "fire"}]
@@ -135,14 +161,14 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 	rites.start(state, "worldspine", card)
 	board.set_combat_state(state)
 	entries = TileTooltip.entries(board, PROOF_TILE)
-	outcrop["description"] += "\nAt the start of your turn, each enemy next to it takes 3."
+	outcrop["description"] += "\nAt the start of your turn, each enemy adjacent to this Outcrop takes 3 damage."
 	_check(entries.size() == 4 and entries[2] == outcrop, "A player Outcrop gains the exact live Rite line")
 	_check(entries[3]["title"] == "Meteorfall" and entries[3]["description"].contains("5 damage and becomes Fire."), "Marked tile has its own panel")
 	var stacked: Dictionary = state.duplicate(true)
 	rites.start(stacked, "worldspine", card)
 	board.set_combat_state(stacked)
 	entries = TileTooltip.entries(board, PROOF_TILE)
-	_check(str(entries[2]["description"]).ends_with("At the start of your turn, each enemy next to your Outcrops takes 6."), "The one Outcrop line reflects both Rite instances")
+	_check(str(entries[2]["description"]).ends_with("At the start of your turn, each enemy adjacent to your Outcrops takes 6 damage."), "The one Outcrop line reflects both Rite instances")
 	stacked["terrain"][0]["owner_kind"] = "enemy"
 	board.set_combat_state(stacked)
 	entries = TileTooltip.entries(board, PROOF_TILE)
@@ -174,14 +200,9 @@ func _extra_effects(board: Control, engine: RefCounted, run_scene: Node) -> void
 
 func _trap_entry(element: String) -> Dictionary:
 	var entry: Dictionary = TileTooltip.from_text(TRAP_COPY[element], "traps")
-	var diagrams: Dictionary = {
-		"fire": "@pattern(cross) Leaves @term(surface_fire) on these tiles.",
-		"ice": "@pattern(cross) Leaves @term(surface_ice) on these tiles.",
-		"lightning": "@pattern(cross) Leaves @term(surface_electrified) on these tiles.",
-		"earth": "@pattern(cross) Leaves @term(surface_rubble) on these tiles.",
-		"air": "@pattern(neighbors:origin) @kw(push) each unit on these tiles 1 tile away.",
-	}
-	entry["display_description"] = "Triggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [TRAP_DAMAGE, diagrams[element]]
+	# txt-27 approved the display sentences separately from the semantic copy.
+	var wake: String = "@pattern(cross) An Air trap Pushes each adjacent unit 1 tile away instead of leaving ground." if element == "air" else "@pattern(cross) This trap leaves its element as ground on these tiles."
+	entry["display_description"] = "Triggers when entered or attacked.\n%d damage to the unit on this tile.\n%s" % [TRAP_DAMAGE, wake]
 	entry["loop_term"] = "traps"
 	entry["loop_source"] = {"kind": "trap", "element": element}
 	return entry

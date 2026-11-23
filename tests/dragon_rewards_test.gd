@@ -385,7 +385,8 @@ func _test_relics() -> void:
 	state = _relic_fixture(combat, ["eclipse_mantle"])
 	state = combat.apply_player_action(state, {"type":"blink", "range":4}, Vector2i(3,4))
 	expect((state["illusions"] as Array).size() == 1 and int(state["illusions"][0]["hp"]) == 2 and state["illusions"][0]["pos"] == Vector2i(2,3), "Eclipse Mantle leaves a two-health decoy at the Blink origin")
-	expect(combat._illusion_light_radius(state) == 2, "Eclipse Mantle's illusion supplies Light radius two")
+	var decoy_lights: Array[Dictionary] = combat.effective_light_sources(state)
+	expect(decoy_lights.size() == 1 and decoy_lights[0].get("radius") == 2 and decoy_lights[0].get("pos") == Vector2i(2, 3) and not decoy_lights[0].get("tethered", false), "Eclipse Mantle's Illusion creates a lasting Light source at the Blink origin")
 
 func _test_worldheart_secondary_damage() -> void:
 	var combat := Combat.new()

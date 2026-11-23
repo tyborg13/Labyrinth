@@ -77,7 +77,7 @@ static func entry_for_player_action(card: Dictionary, action: Dictionary) -> Dic
 			category = category_for_action(action)
 		var element_id: String = str(action.get("element", action.get("_card_element", card.get("element", "none"))))
 		if str(action.get("type", "")) == "detonate":
-			element_id = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+			element_id = preload("res://scripts/burst_rules.gd").fx_element(action)
 		sfx_id = _default_sfx_id(category, str(action.get("type", "")), element_id)
 	return entry(sfx_id)
 

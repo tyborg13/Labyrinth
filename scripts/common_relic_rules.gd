@@ -62,17 +62,38 @@ static func turn_start(engine: RefCounted, state: Dictionary) -> Dictionary:
 			state = engine._trigger_stoneskin_relics(state, amount)
 	return state
 
-static func block_from_card(engine: RefCounted, state: Dictionary, action: Dictionary) -> void:
-	if int(action.get("amount", 0)) <= 0 or str(action.get("_card_id", "")).is_empty():
-		return
+static func card_block_effects(engine: RefCounted, state: Dictionary, action: Dictionary, amount: int) -> Array[Dictionary]:
+	var active: Array[Dictionary]
+	if amount <= 0 or (not action.has("_card_action_types") and str(action.get("_card_id", "")).is_empty()):
+		return active
 	var payment: Dictionary = state.get("pending_card_payment", {}) as Dictionary
-	if bool(payment.get("block_retaliate_used", false)):
-		return
 	for effect: Dictionary in engine._relic_effects(state):
-		if str(effect.get("type", "")) == "card_block_retaliate":
-			Retaliate.gain(state, {"amount": Data.fixed_point_amount(int(effect.get("amount", 0)))}, Data._relic_effect_source_name(effect))
-			payment["block_retaliate_used"] = true
-	state["pending_card_payment"] = payment
+		var id: String = str(effect.get("relic_id", ""))
+		if payment.get(id, false) or (id == "briar_vambrace" and payment.get("block_retaliate_used", false)):
+			continue
+		if str(effect.get("type", "")) == "card_block_retaliate" or (id == "reinforced_shield" and engine._relic_player_state_condition_met(state, effect)):
+			active.append(effect)
+	return active
+
+static func give_player_block(engine: RefCounted, state: Dictionary, action: Dictionary, amount: int) -> int:
+	var card_block: bool = action.has("_card_action_types") or not str(action.get("_card_id", "")).is_empty()
+	if amount <= 0 or (card_block and preload("res://scripts/defense_relic_rules.gd").has_effect(engine._relic_effects(state), "prevent_card_block")):
+		return 0
+	var payment: Dictionary = state.get("pending_card_payment", {}) as Dictionary
+	for effect: Dictionary in card_block_effects(engine, state, action, amount):
+		var value: int = Data.fixed_point_amount(int(effect.get("amount", 0)))
+		var id: String = str(effect.get("relic_id", ""))
+		if id == "reinforced_shield":
+			amount += value
+		else:
+			Retaliate.gain(state, {"amount": value}, Data._relic_effect_source_name(effect))
+		payment[id] = true
+	if not payment.is_empty():
+		state["pending_card_payment"] = payment
+	var player: Dictionary = engine._normalized_player(state.get("player", {}))
+	player["block"] = int(player.get("block", 0)) + amount
+	state["player"] = player
+	return amount
 
 static func moved_damage(state: Dictionary, action: Dictionary, effect: Dictionary) -> int:
 	var types: Array = action.get("_card_action_types", []) as Array
@@ -89,33 +110,33 @@ static func consume_melee_target(engine: RefCounted, state: Dictionary, action: 
 	var index: int = engine._enemy_index_at_tile(state, tile)
 	if index < 0 or not engine.is_enemy_visible_to_player(state, state["enemies"][index]):
 		return {}
+	var enemy: Dictionary = engine._normalized_enemy(state["enemies"][index])
 	var surface: String = Surface.element_at(state, tile)
+	if surface.is_empty():
+		for occupied: Vector2i in Surface.footprint_tiles(enemy):
+			surface = Surface.element_at(state, occupied)
+			if not surface.is_empty():
+				tile = occupied
+				break
 	if surface.is_empty():
 		return {}
 	for effect: Dictionary in engine._relic_effects(state):
 		if str(effect.get("type", "")) != "melee_consume_elemental_damage":
 			continue
 		var amount: int = Data.fixed_point_amount(int(effect.get("amount", 0)))
-		var was_chilled: bool = bool(state["enemies"][index].get("chilled", false))
-		var source: Dictionary = preload("res://scripts/surface_expend_rules.gd").relic_source(state.get("damage_context", {}), effect, Data.relic_def(str(effect.get("relic_id", ""))))
+		var source: Dictionary = preload("res://scripts/surface_expend_rules.gd").relic_source(state.get("damage_context", {}), effect)
 		Surface.remove(state, tile, "elemental", "consume", source)
-		Surface.sync_chilled(state)
 		var tiles: Array[Vector2i]
 		tiles.append(tile)
 		Surface.record_event(state, {"kind": "attack_consumed_surface", "surface": surface, "tiles": tiles, "bonus_damage": amount, "source": engine._surface_source(state, action)})
-		return {"tile": tile, "surface": surface, "amount": amount, "was_chilled": was_chilled}
+		return {"enemy_id": enemy["id"], "amount": amount}
 	return {}
 
-static func before_melee_hit(state: Dictionary, action: Dictionary, hit: Dictionary, fuel: Dictionary) -> Dictionary:
-	if fuel.is_empty() or str(hit.get("kind_trace", "")) != "actor" or hit["from"] != hit["to"] or hit["to"] != fuel["tile"]:
+static func before_melee_hit(_state: Dictionary, action: Dictionary, hit: Dictionary, fuel: Dictionary) -> Dictionary:
+	if fuel.is_empty() or str(hit.get("kind_trace", "")) != "actor" or hit.get("id") != fuel["enemy_id"]:
 		return action
-	# Preserve the attack-start exposure through this hit; sync after damage.
-	if str(fuel["surface"]) == "ice" and bool(fuel.get("was_chilled", false)):
-		for enemy: Dictionary in state.get("enemies", []):
-			if int(enemy.get("id", -1)) == int(hit.get("id", -2)): enemy["chilled"] = true
 	var result: Dictionary = action.duplicate(true)
 	result["damage"] = int(result.get("damage", 0)) + int(fuel["amount"])
-	result["_skip_surface_freeze"] = str(fuel["surface"]) == "ice"
 	return result
 
 static func blocked_attack(engine: RefCounted, state: Dictionary, attacker_id: int, health_loss: int, block_loss: int) -> Dictionary:
@@ -127,6 +148,6 @@ static func blocked_attack(engine: RefCounted, state: Dictionary, attacker_id: i
 	for effect: Dictionary in engine._relic_effects(state):
 		if str(effect.get("type", "")) == "fully_blocked_attack_status":
 			var rider: Dictionary = {"type": "relic"}
-			rider[str(effect.get("status", "bleed"))] = Data.fixed_point_amount(int(effect.get("amount", 0)))
+			rider[str(effect.get("status", ""))] = Data.fixed_point_amount(int(effect.get("amount", 0)))
 			state = engine._apply_action_keywords_to_enemy(state, index, rider, state["player"]["pos"])
 	return state

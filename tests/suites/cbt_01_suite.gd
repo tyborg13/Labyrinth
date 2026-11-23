@@ -44,11 +44,11 @@ static func _test_support_cards(expect: Callable) -> void:
 		expect.call(targets.has(HERO) and targets[0] != HERO, "%s offers Stay without changing the default target" % id)
 		var after: Dictionary = _resolve(engine, prepared, actions)
 		expect.call(after["player"]["pos"] == HERO, "%s Stay preserves position" % id)
-		var blocks: Dictionary = {"guarded_step": 3, "warded_advance": 7, "trapdoor": 5, "hotfoot": 6}
+		var blocks: Dictionary = {"guarded_step": 5, "warded_advance": 7, "trapdoor": 5, "hotfoot": 6}
 		expect.call(after["player"]["block"] == blocks[id], "%s Stay applies its Block" % id)
 		expect.call(int(after.get("card_stay_sequence", 0)) == 1, "%s records one resolved Stay" % id)
 		if id == "guarded_step":
-			expect.call(int(after.get("card_play_bonus_this_turn", 0)) == int(prepared.get("card_play_bonus_this_turn", 0)) + 1, "Guarded Step preserves its card-play reward")
+			expect.call(int(after.get("card_play_bonus_this_turn", 0)) == int(prepared.get("card_play_bonus_this_turn", 0)), "Guarded Step leaves available Card Plays unchanged")
 		if id == "hotfoot":
 			expect.call(after["deck"]["hand"].size() == before["deck"]["hand"].size(), "Hotfoot never draws on Fire Stay")
 		expect.call(prepared["player"]["block"] == 0 and prepared["player"]["pos"] == HERO, "%s resolution leaves the source state unchanged" % id)
@@ -68,14 +68,13 @@ static func _test_movement_triggers(expect: Callable) -> void:
 	for id: String in ["cinder_trail", "trapdoor"]:
 		var before: Dictionary = fixture(engine, id)
 		before["relics"] = ["pilgrim_boots", "static_soles", "gale_tabi"]
-		before["player"]["bleed"] = 2
 		before["traps"] = [{"id": 90, "pos": HERO, "type": "fire", "damage": 6}]
 		Surface.place(before, HERO, "ice")
 		Maneuver.gain_flag(before, {"flag": "ice_skate"}, "fixture")
 		var actions: Array = engine.card_play_actions(id, before)
 		var movement: Dictionary = actions[actions.size() - 1] if id == "cinder_trail" else actions[0]
 		var after: Dictionary = engine.apply_player_action(before, movement, HERO)
-		expect.call(after["player"]["pos"] == HERO and after["player"]["hp"] == before["player"]["hp"], "%s Stay causes no Bleed, arrival, trap, or collision damage" % id)
+		expect.call(after["player"]["pos"] == HERO and after["player"]["hp"] == before["player"]["hp"], "%s Stay causes no arrival, trap, or collision damage" % id)
 		expect.call(after["enemies"] == before["enemies"], "Stay causes no enemy trail, collision, or movement-trigger effects")
 		expect.call(after["traps"] == before["traps"] and after.get("surfaces", {}) == before.get("surfaces", {}), "%s Stay neither triggers traps nor paints trails" % id)
 		expect.call(after.get("turn_flags", {}) == before.get("turn_flags", {}) and after.get("umbra", {}) == before.get("umbra", {}), "%s Stay does not fire movement relics, light trails, counters, or Skate" % id)
@@ -199,7 +198,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	confirm.pressed = true
 	await scene.call("_input", confirm)
 	var after: Dictionary = scene.get("_combat_state")
-	expect.call(after["player"]["pos"] == HERO and after["player"]["block"] == 3 and after["deck"]["discard"].has("guarded_step"), "Keyboard confirm commits Stay and support effects")
+	expect.call(after["player"]["pos"] == HERO and after["player"]["block"] == 5 and after["deck"]["discard"].has("guarded_step"), "Keyboard confirm commits Stay and support effects")
 	expect.call(int(scene.get("cbt_01_walk_presentations")) == 0, "Move Stay presents no walk animation")
 	expect.call(not preload("res://scripts/movement_target_keyboard.gd").active(scene), "Keyboard targeting ends with its card selection")
 	if router != null:
@@ -369,7 +368,7 @@ static func assert_stay_preview(scene: Node, expect: Callable) -> void:
 	var chips: Array = (board.get("presentation") as Dictionary).get("movement_risk_chips", [])
 	expect.call(chips.any(func(chip: Dictionary) -> bool: return chip.get("label") == "Stay" and chip.get("tile") == HERO), "Hero hover displays the Stay destination chip")
 	var shown: Dictionary = scene.call("_board_display_state")
-	expect.call(shown["player"]["pos"] == HERO and shown["player"]["block"] == 3, "Stay board preview shows Block without moving")
+	expect.call(shown["player"]["pos"] == HERO and shown["player"]["block"] == 5, "Stay board preview shows Block without moving")
 	expect.call((scene.get("_combat_state") as Dictionary)["player"]["block"] == 0, "Hover never commits Block")
 
 static func assert_immolation_preview(scene: Node, expect: Callable) -> void:

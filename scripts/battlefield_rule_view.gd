@@ -111,7 +111,7 @@ static func move_ghosts(view: Control) -> Array[Dictionary]:
 
 static func _ghost(unit: Dictionary, role: String, landing: Vector2i, source_key: String) -> Dictionary:
 	unit.merge({"role": role, "pos": landing, "key": "rule_ghost_%s_%d_%d" % [source_key, landing.x, landing.y], "wind_forecast": false,
-		"hp": 1, "max_hp": 1, "block": 0, "stoneskin": 0, "bleed": 0, "freeze": 0, "shock": 0, "immobilize": false, "intent": {}, "preview": true}, true)
+		"hp": 1, "max_hp": 1, "block": 0, "stoneskin": 0, "freeze": 0, "shock": 0, "immobilize": false, "intent": {}, "preview": true}, true)
 	return unit
 
 static func _due_moves(state: Dictionary) -> Dictionary:

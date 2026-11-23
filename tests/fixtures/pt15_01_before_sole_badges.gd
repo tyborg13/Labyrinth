@@ -19,7 +19,7 @@ static func place_chip(anchor: Vector2, badge: Dictionary, font: Font, obstacles
 	return {"center": left_center if prefer_left else center, "rect": left_rect if prefer_left else rect, "placement": "lower_left" if prefer_left else "lower_right", "above_everything": true}
 
 
-static func layouts(board: Control, badges: Array, with_sole_obstacles: bool = false, placement: Callable = Callable(), diagnostics: Variant = null) -> Array[Dictionary]:
+static func layouts(board: Control, badges: Array, with_sole_obstacles: bool = false, placement: Callable = Callable(), diagnostics: Variant = null, clear_titles: bool = false) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if badges.is_empty(): return result
 	var font: Font = Typography.ui_font()
@@ -38,12 +38,16 @@ static func layouts(board: Control, badges: Array, with_sole_obstacles: bool = f
 	var hud_entries: Array = board.get("_hud_layout_entries_cache")
 	if hud_entries.is_empty(): hud_entries = board.call("_build_hud_layout_data", board.call("_hud_layout_units"))["entries"]
 	var hud_by_key: Dictionary = {}
+	var titles: Array[Rect2]
 	for entry: Dictionary in hud_entries:
 		var actor: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {})
 		if not actor.is_empty() and not (board.call("_umbra_actor_clip_for_unit", actor) as Dictionary).is_empty(): continue
 		var layout: Dictionary = entry.get("layout", {})
 		hud_by_key[str(entry.get("actor_key", ""))] = layout
 		for line: Rect2 in layout.get("line_rects", []): hud_rects.append(line)
+		if clear_titles:
+			var title: Rect2 = _intent_title_rect(layout)
+			if title.has_area(): titles.append(title)
 	for actor: Dictionary in board.call("_hud_layout_units"):
 		if bool(actor.get("death_animation", false)):
 			var death_frame: Rect2 = death_health_rect(board, actor)
@@ -76,6 +80,9 @@ static func layouts(board: Control, badges: Array, with_sole_obstacles: bool = f
 			layout.merge(placement.call(board.call("_unit_center", unit), badge, font, chip_obstacles, result, board.call("_enemy_hud_viewport_bounds"), silhouettes), true)
 		else:
 			layout.merge(place_chip(board.call("_unit_center", unit), badge, font, chip_obstacles, result, board.call("_enemy_hud_viewport_bounds"), silhouettes), true)
+		if clear_titles:
+			if diagnostics is Dictionary: diagnostics[str(badge["key"])]["before_title_center"] = layout["center"]
+			_clear_title_overlap(layout, layout["rect"], titles, result)
 		layout["order_rect"] = order_rect(order_anchor_rect(board, unit), str(badge.get("order", "")), font)
 		result.append(layout)
 	return result

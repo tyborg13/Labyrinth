@@ -10,8 +10,8 @@ const PROOF_WAIT_TIME: int = 4
 const PROOF_ROOM_DEPTH: int = 2
 const HALF_HEALTH_PROOF_MARGIN: int = 1
 const ROOM_COORD := Vector2i(1, 0)
-const TOWARD_SOURCE_SENTENCE: String = "After each of your turns, the Roc's wind Pushes everyone 1 tile toward it."
-const CLOCKWISE_SENTENCE: String = "After each Vaeloryx turn, its wind Pushes everyone 1 tile, then turns a quarter clockwise."
+const TOWARD_SOURCE_SENTENCE: String = "On each Gust beat, after your turn, each unit is Pushed 1 tile in the direction from you to the Roc."
+const CLOCKWISE_SENTENCE: String = "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 1 tile downwind, then Gust turns a quarter clockwise."
 const HALF_HEALTH_SENTENCE: String = "After each of its turns, its wind Pushes everyone 2 tiles, then turns a quarter clockwise."
 const CASES: Array = ["toward_source", "turn_clockwise", "half_health"]
 

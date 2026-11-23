@@ -13,20 +13,6 @@ static func prepare(proof: SceneTree, scene: Node, row: Dictionary) -> Dictionar
 	var started: int = Time.get_ticks_usec()
 	var timings: Dictionary = {}
 	var route: Dictionary = row.duplicate(true)
-	if row["id"] == "freeze_status":
-		var stage: int = Time.get_ticks_usec()
-		var fixture: Dictionary = Fixture.build("freeze_status")
-		timings["fixture_build_usec"] = Time.get_ticks_usec() - stage
-		stage = Time.get_ticks_usec()
-		var result: Dictionary = Fixture.plan(fixture, preload("res://scripts/hero_facing_combat.gd").new())
-		timings["fixture_plan_usec"] = Time.get_ticks_usec() - stage
-		var run: Dictionary = fixture["run"].duplicate(true)
-		run["combat_state"] = result["beats"][0]["after"]
-		stage = Time.get_ticks_usec()
-		scene.call("_load_run_state", run)
-		scene.call("_close_dialogue")
-		timings["load_run_state_usec"] = Time.get_ticks_usec() - stage
-		route["source_match"] = Context.enemy("crawler")
 	var id: String = row["id"]
 	if Fixture.Tip10.IDS.has(id):
 		route["source_match"] = Fixture.Tip10.source(id)

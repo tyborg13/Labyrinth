@@ -6,6 +6,8 @@ signal settings_changed(settings: Dictionary)
 
 const DemoBuild = preload("res://scripts/demo_build.gd")
 const DemoEndPanel = preload("res://scripts/demo_end_panel.gd")
+const KeyBindings = preload("res://scripts/key_bindings.gd")
+const KeyButton = preload("res://scripts/settings_key_button.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -22,10 +24,11 @@ const ROW_HEIGHT: float = 56.0
 # The brief supplies the label/options, but no secondary row copy.
 const COMBAT_SPEED_DETAIL: String = "How quickly enemy turns and card effects play out"
 # Controls rows are data, so later units add rows without code: a label, pointer
-# tokens (a phrase string, or {"key": …} for a keycap) and controller action
+# tokens (a phrase string, or {"key": …, "rebind": …} for a keycap) and controller action
 # names. See spec/settings.md.
 const CONTROLS_DATA_PATH: String = "res://data/controls.json"
 const CONTROLS_NONE_TEXT: String = "—"
+const LISTENING_TEXT: String = "Press a key"
 const ROW_MARGIN_RIGHT: int = 10
 const ROW_SEPARATION: int = 18
 const GOLD := Color("d8a356")
@@ -44,6 +47,14 @@ var _confirmation_panel: PanelContainer
 var _footer_actions: HBoxContainer
 var _back_button: Button
 var _confirmation_cancel: Button
+var _confirmation_confirm: Button
+var _confirmation_title: Label
+var _confirming_key_restore: bool
+var _restore_keys: Button
+var _keycaps: Dictionary = {}
+var _key_pointer_cells: Array[Control]
+var _listening_action: String = ""
+var _rebind_trigger: InputEvent
 var _confirmation_return_focus: Control
 var _confirmation_focus_modes: Dictionary = {}
 var _defer_initial_refresh: bool
@@ -131,6 +142,11 @@ class ControlsKeycap extends "res://scripts/input_glyph.gd":
 		key_text = next_key_text
 		family = InputRouterScript.FAMILY_XBOX
 
+	func set_key_text(next_text: String) -> void:
+		key_text = next_text
+		custom_minimum_size = _scaled_preferred_size()
+		queue_redraw()
+
 	func _glyph_text() -> String:
 		return key_text
 
@@ -169,7 +185,8 @@ func _ready() -> void:
 	_build_surface()
 	if not _defer_initial_refresh: refresh_from_disk()
 	_build_demo_links()
-	preload("res://scripts/controller_gui_navigation.gd").install(self)
+	visibility_changed.connect(_on_panel_visibility_changed)
+	preload("res://scripts/controller_gui_navigation.gd").install(self, func() -> bool: return _listening_action.is_empty())
 
 func defer_initial_refresh() -> void:
 	_defer_initial_refresh = true
@@ -182,6 +199,7 @@ func refresh_from_disk() -> void:
 	apply_saved_settings(SettingsStore.load_settings())
 
 func apply_saved_settings(settings: Dictionary) -> void:
+	_listening_action = ""
 	_settings = settings
 	SettingsStore.apply_settings(_settings, get_window())
 	_sync_controls_from_settings()
@@ -380,7 +398,7 @@ func _build_controls_section() -> Control:
 	var section := _section_shell("CONTROLS", "What each key and button does.")
 	section.name = "ControlsSection"
 	var rows: VBoxContainer = section.get_meta("rows")
-	var pointer_cells: Array[Control]
+	var focus_targets: Array[Control]
 	var controller_cells: Array[Control]
 	# Column headings share the rows' right edge and column gap.
 	var headings_margin := MarginContainer.new()
@@ -398,7 +416,7 @@ func _build_controls_section() -> Control:
 	for heading: Label in [pointer_heading, controller_heading]:
 		heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		headings.add_child(heading)
-	pointer_cells.append(pointer_heading)
+	_key_pointer_cells.append(pointer_heading)
 	controller_cells.append(controller_heading)
 	for entry: Dictionary in controls_entries():
 		var row := ControlsRow.new(_ui_skin)
@@ -410,11 +428,22 @@ func _build_controls_section() -> Control:
 		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		content.add_child(title)
 		var pointer := _controls_cell("PointerBindings")
+		var focus_target: Control = row
 		for token: Variant in entry.get("pointer", []):
 			if token is Dictionary:
-				var keycap := ControlsKeycap.new(str((token as Dictionary).get("key", "")))
+				var keycap := ControlsKeycap.new(str(token.get("key", "")))
 				keycap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-				pointer.add_child(keycap)
+				var action: String = str(token.get("rebind", ""))
+				if KeyBindings.DEFAULT_KEYS.has(action):
+					var button := KeyButton.new(keycap, _ui_skin)
+					button.name = "RebindKey"
+					button.pressed.connect(_listen_for_key.bind(action))
+					_keycaps[action] = button
+					row.focus_mode = Control.FOCUS_NONE
+					focus_target = button
+					pointer.add_child(button)
+				else:
+					pointer.add_child(keycap)
 			else:
 				pointer.add_child(_caption_label(str(token)))
 		var controller := _controls_cell("ControllerBindings")
@@ -426,12 +455,30 @@ func _build_controls_section() -> Control:
 		for cell: HBoxContainer in [pointer, controller]:
 			if cell.get_child_count() == 0: cell.add_child(_caption_label(CONTROLS_NONE_TEXT))
 			content.add_child(cell)
-		pointer_cells.append(pointer)
+		_key_pointer_cells.append(pointer)
 		controller_cells.append(controller)
 		rows.add_child(row)
+		focus_targets.append(focus_target)
+	_restore_keys = Button.new()
+	_restore_keys.name = "RestoreDefaultKeys"
+	_restore_keys.text = "Restore default keys"
+	_restore_keys.disabled = true
+	_style_button(_restore_keys, 0.0)
+	_restore_keys.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_restore_keys.pressed.connect(_show_restore_confirmation.bind(true))
+	rows.add_child(_restore_keys)
+	# Keep the vertical route between adjacent rows when focus moves between a
+	# full-width read-only row and a small button in the keycap column.
+	for index: int in range(1, focus_targets.size()):
+		var above: Control = focus_targets[index - 1]
+		var below: Control = focus_targets[index]
+		above.focus_neighbor_bottom = above.get_path_to(below)
+		below.focus_neighbor_top = below.get_path_to(above)
+	if not focus_targets.is_empty():
+		_restore_keys.focus_neighbor_top = _restore_keys.get_path_to(focus_targets.back())
 	# Glyph sizes and label metrics resolve once the section is in the tree.
 	section.ready.connect(func() -> void:
-		_align_controls_column(pointer_cells)
+		_sync_keycaps()
 		_align_controls_column(controller_cells))
 	return section
 
@@ -457,6 +504,7 @@ func _controls_cell(cell_name: String) -> HBoxContainer:
 func _align_controls_column(cells: Array[Control]) -> void:
 	var width: float = 0.0
 	for cell: Control in cells:
+		cell.custom_minimum_size.x = 0.0
 		width = maxf(width, cell.get_combined_minimum_size().x)
 	for cell: Control in cells:
 		cell.custom_minimum_size.x = width
@@ -483,6 +531,7 @@ func _build_footer() -> Control:
 	confirm_row.add_theme_constant_override("separation", 10)
 	confirm_margin.add_child(confirm_row)
 	var warning := Label.new()
+	_confirmation_title = warning
 	warning.text = "Reset every setting?"
 	warning.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	warning.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -497,6 +546,7 @@ func _build_footer() -> Control:
 	cancel.pressed.connect(_cancel_restore_confirmation)
 	confirm_row.add_child(cancel)
 	var confirm := Button.new()
+	_confirmation_confirm = confirm
 	confirm.text = "Reset All"
 	_style_button(confirm, 138.0, Color("ffcabd"), UiSkin.VARIANT_DESTRUCTIVE)
 	confirm.pressed.connect(_confirm_restore_defaults)
@@ -694,7 +744,88 @@ func _sync_controls_from_settings() -> void:
 	if vibration_button != null:
 		vibration_button.set_pressed_no_signal(SettingsStore.controller_vibration_enabled(_settings))
 		vibration_button.text = "On" if vibration_button.button_pressed else "Off"
+	_sync_keycaps()
 	_syncing = false
+
+func _sync_keycaps() -> void:
+	for action: String in _keycaps:
+		var listening: bool = action == _listening_action
+		var key_label: String = KeyBindings.label(action)
+		var button: Button = _keycaps[action]
+		button.set_binding_text(LISTENING_TEXT if listening else (CONTROLS_NONE_TEXT if key_label.is_empty() else key_label), listening)
+	_align_controls_column(_key_pointer_cells)
+	_restore_keys.disabled = _settings.get(KeyBindings.SETTING, KeyBindings.defaults()) == KeyBindings.defaults()
+
+func _listen_for_key(action: String) -> void:
+	if _confirmation_panel.visible: return
+	_listening_action = action
+	_sync_keycaps()
+
+func _on_panel_visibility_changed() -> void:
+	if not is_visible_in_tree():
+		_listening_action = ""
+		_rebind_trigger = null
+		_sync_keycaps()
+
+func _handle_rebind_input(event: InputEvent) -> bool:
+	# Consume the ending press's release and echoes as well. In particular
+	# an Escape release must not escape the panel or a keycap activate twice.
+	if _matches_rebind_trigger(event):
+		if not event.is_pressed():
+			_rebind_trigger = null
+			return true
+		if event.is_echo(): return true
+		_rebind_trigger = null
+	if _listening_action.is_empty(): return false
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index not in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
+			_finish_key_prompt(event)
+		return true
+	if InputRouterScript.is_controller_event(event):
+		if event is InputEventJoypadButton and event.is_action_pressed("ui_cancel"):
+			_finish_key_prompt(event)
+		return true
+	if not event is InputEventKey: return false
+	if not event.pressed or event.echo: return true
+	var physical: Key = KeyBindings.event_physical_key(event)
+	if physical == KEY_ESCAPE:
+		_finish_key_prompt(event)
+	elif physical in [KEY_BACKSPACE, KEY_DELETE]:
+		_rebind_key(event, KEY_NONE)
+	elif KeyBindings.can_bind(physical):
+		_rebind_key(event, physical)
+	return true
+
+func _matches_rebind_trigger(event: InputEvent) -> bool:
+	if _rebind_trigger == null: return false
+	if _rebind_trigger is InputEventKey:
+		return event is InputEventKey and KeyBindings.event_physical_key(event) == KeyBindings.event_physical_key(_rebind_trigger)
+	return event.is_match(_rebind_trigger, false)
+
+func _is_other_keycap_accept(event: InputEvent) -> bool:
+	# The native accept action also includes Space. Only Enter starts the
+	# keyboard capture, so Space remains available to bind once listening.
+	return (
+		event is InputEventKey and event.is_action("ui_accept")
+		and get_viewport().gui_get_focus_owner() is KeyButton
+		and KeyBindings.event_physical_key(event) not in [KEY_ENTER, KEY_KP_ENTER]
+	)
+
+func _finish_key_prompt(event: InputEvent) -> void:
+	_rebind_trigger = event
+	_listening_action = ""
+	_sync_keycaps()
+
+func _rebind_key(event: InputEvent, physical: Key) -> void:
+	var action: String = _listening_action
+	_rebind_trigger = event
+	_listening_action = ""
+	var bindings: Dictionary = SettingsStore.load_settings()[KeyBindings.SETTING]
+	var conflict: String = KeyBindings.swap_binding(bindings, action, physical)
+	_commit_change(KeyBindings.SETTING, bindings, "Saved automatically")
+	if not conflict.is_empty():
+		_keycaps[action].play_swap_pulse()
+		_keycaps[conflict].play_swap_pulse()
 
 func _select_option_value(option: OptionButton, value: Variant) -> void:
 	if option == null:
@@ -749,7 +880,10 @@ func _commit_change(key: String, value: Variant, status: String) -> void:
 	_sync_controls_from_settings()
 	settings_changed.emit(_settings.duplicate(true))
 
-func _show_restore_confirmation() -> void:
+func _show_restore_confirmation(keys_only: bool = false) -> void:
+	_confirming_key_restore = keys_only
+	_confirmation_title.text = "Restore default keys?" if keys_only else "Reset every setting?"
+	_confirmation_confirm.text = "Restore Keys" if keys_only else "Reset All"
 	_confirmation_panel.visible = true
 	_focus_restore_confirmation()
 	_footer_actions.visible = false
@@ -782,14 +916,26 @@ func _release_confirmation_focus(restore: bool) -> void:
 
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree(): return
+	if _handle_rebind_input(event) or _is_other_keycap_accept(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton and not contains_pointer_position(event.position):
 		# The menu backdrop blocks GUI input. Stop new outside presses before
 		# cursor audio, and let releases through to finish an in-panel drag.
-		if event.pressed: get_viewport().set_input_as_handled()
+		if event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT and _confirmation_panel != null and _confirmation_panel.visible:
+				_cancel_restore_confirmation()
+			get_viewport().set_input_as_handled()
 		return
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null: router.call("record_input_activity", event)
 	if _confirmation_panel != null and _confirmation_panel.visible:
+		# Settings owns Back until its confirmation closes, before the parent
+		# menu can dismiss Settings or keyboard input releases controller focus.
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_cancel_restore_confirmation()
+			get_viewport().set_input_as_handled()
+			return
 		if event is InputEventKey or event is InputEventMouseButton:
 			_release_confirmation_focus(false)
 		elif router != null and bool(router.call("using_controller")) and (event is InputEventJoypadButton or event is InputEventJoypadMotion) and _confirmation_focus_modes.is_empty():
@@ -803,16 +949,16 @@ func _input(event: InputEvent) -> void:
 			slider.value += direction * slider.step
 			get_viewport().set_input_as_handled()
 			return
-	if _confirmation_panel == null or not _confirmation_panel.visible: return
-	if event is InputEventJoypadButton and event.is_action_pressed("ui_cancel"):
-		_cancel_restore_confirmation()
-		get_viewport().set_input_as_handled()
 
 func _cancel_restore_confirmation() -> void:
 	_dismiss_restore_confirmation()
 	_set_save_status("Saved automatically")
 
 func _confirm_restore_defaults() -> void:
+	if _confirming_key_restore:
+		_dismiss_restore_confirmation()
+		_commit_change(KeyBindings.SETTING, KeyBindings.defaults(), "Defaults restored")
+		return
 	_settings = SettingsStore.restore_defaults(get_window())
 	_sync_controls_from_settings()
 	_dismiss_restore_confirmation()

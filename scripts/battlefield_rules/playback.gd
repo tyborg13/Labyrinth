@@ -10,6 +10,7 @@ const CAPTION_ONLY_HOLD_SECONDS: float = 0.6
 const Hits = preload("res://scripts/battlefield_rules/hit_playback.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const Throw = preload("res://scripts/displacement_throw.gd")
+const TileBurstFx = preload("res://scripts/tile_burst_fx.gd")
 
 class CaptionIcon extends TextureRect:
 	static func rect_for(caption: Label) -> Rect2:
@@ -142,11 +143,12 @@ static func _lightning(scene: Control, before: Dictionary, after: Dictionary, be
 		var seconds: float = 0.0 if reduced else CHAIN_JUMP_SECONDS / float(frames) if jump else Fx.animation_frame_seconds(effect, scene.ATTACK_FRAME_SECONDS, false)
 		var duration: float = float(frames) * seconds
 		var contact: float = 0.0 if reduced else preload("res://scripts/chain_attack_feedback.gd").HOP_CONTACT if jump else Fx.feedback_start_progress(effect)
+		var strike: TileBurstFx.StrikeCue = TileBurstFx.strike_frame_cue(effect, ceili(contact * frames), seconds, reduced)
 		var stage_losses: Array[Dictionary] = preload("res://scripts/typed_arrays.gd").dictionaries(stage["losses"])
 		var texts: Array = scene._floating_texts_for_target_losses(stage_losses)
 		groups.append(FloatingText.timeline_group(texts, elapsed + contact * duration))
 		var stage_elapsed: float = elapsed
-		await scene._play_timed_animation_frames(frames, seconds, func(frame: int) -> void:
+		await scene._play_strike_animation_frames(frames, seconds, func(frame: int) -> void:
 			var progress: float = 1.0 if reduced else float(frame) / float(frames)
 			var contacted: bool = reduced or progress >= contact
 			var display: Dictionary = stage["after"] if contacted else stage["before"]
@@ -157,7 +159,8 @@ static func _lightning(scene: Control, before: Dictionary, after: Dictionary, be
 				presentation["impact_actor_keys"] = scene._combat_engine._target_loss_keys(stage_losses)
 				presentation["impact_progress"] = 1.0 if reduced else clampf((progress - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
 			scene._render_board_state(display, scene._death_hold_presentation(before, display, presentation))
-		)
+			if strike != null: scene.board_view.present_sky_strike(strike, contacted, stage["before"], stage["after"])
+		, strike)
 		elapsed += duration
 	# Let all existing hit-number animations finish together; no extra wait per
 	# victim delays Chain's prescribed jump interval.

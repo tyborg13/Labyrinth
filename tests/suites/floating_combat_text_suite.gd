@@ -232,7 +232,7 @@ static func _test_reduced_motion_hold(expect: Callable) -> void:
 	var compound: Array[Dictionary] = FloatingCombatText.animate_entries([
 		base,
 		{"tile": Vector2i(4, 3), "text": "-4 B", "color": Color("90d9ff")},
-		{"tile": Vector2i(4, 3), "text": "Bleed", "color": Color("f1d18b")},
+		{"tile": Vector2i(4, 3), "text": "Fire", "color": Color("f1d18b")},
 	], FloatingCombatText.STAGGER_SECONDS * 2.0 + 0.03, true)
 	expect.call(
 		compound.size() == 3
@@ -276,7 +276,7 @@ static func _test_compound_popups_stagger_per_target(expect: Callable) -> void:
 	var same_target: Array = [
 		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
 		{"tile": Vector2i(5, 3), "text": "-4 B", "color": Color("90d9ff")},
-		{"tile": Vector2i(5, 3), "text": "Bleed", "color": Color("f1d18b")},
+		{"tile": Vector2i(5, 3), "text": "Fire", "color": Color("f1d18b")},
 	]
 	var first_pop: Array[Dictionary] = FloatingCombatText.animate_entries(same_target, 0.05, false)
 	var second_pop: Array[Dictionary] = FloatingCombatText.animate_entries(
@@ -318,16 +318,8 @@ static func _test_compound_popups_stagger_per_target(expect: Callable) -> void:
 
 
 static func _test_overlapping_effect_timeline(expect: Callable) -> void:
-	var draw_entry: Dictionary = {
-		"tile": Vector2i(3, 3),
-		"text": "+1 draw",
-		"color": Color("f1d18b"),
-	}
-	var play_entry: Dictionary = {
-		"tile": Vector2i(3, 3),
-		"text": "+1 play",
-		"color": Color("ffe27a"),
-	}
+	var draw_entry: Dictionary = FloatingCombatText.resource_entry("draw", Vector2i(3, 3), 1)
+	var play_entry: Dictionary = FloatingCombatText.resource_entry("card_play", Vector2i(3, 3), 1)
 	var groups: Array[Dictionary] = [
 		FloatingCombatText.timeline_group([draw_entry], 0.0),
 		FloatingCombatText.timeline_group([play_entry], FloatingCombatText.ACTION_ADVANCE_SECONDS),
@@ -370,9 +362,9 @@ static func _test_damage_entries_are_explicit(expect: Callable) -> void:
 	var after: Dictionary = before.duplicate(true)
 	(after.get("enemies", []) as Array)[0]["hp"] = 7
 	var player_damage: Array = scene.call("_player_damage_floating_texts", before, after)
-	var bleed_damage: Array = scene.call("_floating_texts_for_step", {
+	var fire_damage: Array = scene.call("_floating_texts_for_step", {
 		"kind": "status_damage",
-		"label": "Bleed",
+		"label": "Fire",
 		"tile": Vector2i(2, 4),
 		"amount": 3,
 	})
@@ -383,9 +375,9 @@ static func _test_damage_entries_are_explicit(expect: Callable) -> void:
 		"Direct HP losses should opt into the large damage-number composition"
 	)
 	expect.call(
-		bleed_damage.size() == 1
-		and FloatingCombatText.is_damage_entry(bleed_damage[0] as Dictionary)
-		and str((bleed_damage[0] as Dictionary).get("icon", "")) == "bleed",
+		fire_damage.size() == 1
+		and FloatingCombatText.is_damage_entry(fire_damage[0] as Dictionary)
+		and str((fire_damage[0] as Dictionary).get("icon", "")) == "surface_fire",
 		"Status damage should share the damage dynamics without losing its semantic icon"
 	)
 	var player_effects: Array = scene.call("_floating_texts_for_step", {

@@ -32,7 +32,7 @@ static func validate(fixture: Dictionary, result: Dictionary) -> Array[String]:
 	states.append(before)
 	for beat: Dictionary in beats: states.append(beat["after"])
 	for state: Dictionary in states:
-		if not Setup.Tip06.Checks._plain_room(state) or not state["surfaces"].is_empty():
+		if not Setup.Tip06.Checks.plain_room(state) or not state["surfaces"].is_empty():
 			errors.append(id + ": every beat needs plain floor, clear Umbra and no Light")
 			break
 		if state["enemies"].size() != 1 or not state["illusions"].is_empty():

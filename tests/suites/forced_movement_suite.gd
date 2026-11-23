@@ -298,17 +298,18 @@ static func _test_forecast_matches_commit(combat: CombatEngine, expect: Callable
 
 
 static func _test_collision_is_non_direct(combat: CombatEngine, expect: Callable) -> void:
-	var chilled: Dictionary = _enemy(1, Vector2i(4, 4))
-	chilled["chilled"] = true
-	chilled["expose"] = 3
-	chilled["frost_armor"] = 1
-	chilled["stoneskin"] = 1
-	var state: Dictionary = _state(combat, [chilled], [_crate("slab", Vector2i(5, 4), 10)])
+	var mantled: Dictionary = _enemy(1, Vector2i(4, 4))
+	mantled["type"] = "iskaldra"
+	mantled["footprint"] = Vector2i.ONE
+	mantled["expose"] = 3
+	mantled["frost_armor"] = 1
+	mantled["stoneskin"] = 1
+	var state: Dictionary = _state(combat, [mantled], [_crate("slab", Vector2i(5, 4), 10)])
 	# Displace without a direct hit, so only the collision can touch defenses.
 	var after: Dictionary = combat._move_enemy_in_direction(state.duplicate(true), 0, RIGHT, 1)
 	var enemy: Dictionary = _unit(after, 1)
 	# pla-01: Expose applies to every damaging hit, Collision included (2 + Expose 3).
-	expect.call(int(enemy.get("hp", 0)) == 26 and int(enemy.get("stoneskin", 0)) == 0, "Stoneskin absorbs collision damage; Expose adds to it and Chilled adds nothing")
+	expect.call(int(enemy.get("hp", 0)) == 26 and int(enemy.get("stoneskin", 0)) == 0, "Stoneskin absorbs Collision damage and Expose adds to the damage")
 	expect.call(int(enemy.get("expose", 0)) == 0 and int(enemy.get("frost_armor", 0)) == 1, "Collision spends Expose but never breaks Crystal Mantle")
 	var events: Array = _collisions(state, after)
 	expect.call(events.size() == 1 and int(events[0].get("damage", 0)) == 5, "The collision event (and so its preview marker) carries the Exposed damage")
@@ -485,8 +486,7 @@ static func _test_live_rotate_aim_commits_alternate(tree: SceneTree, expect: Cal
 			payload = event.get("payload", {}) as Dictionary
 	expect.call(int(payload.get("forced_collisions", -1)) == 1 and int(payload.get("collision_damage_dealt", -1)) == 4, "Card-play analytics count the collision and its damage")
 	expect.call(int(instance.get("_selected_card_index")) < 0, "Rotate adds no separate direction decision")
-	# Enemy intent cue under limited Umbra: a crate the player cannot see must
-	# not stop or mark the projected push line.
+	# The focused intent uses the same contact and landing as resolution.
 	var dark: Dictionary = _state(combat, [_enemy(2, Vector2i(1, 4))], [_crate("hidden_crate", Vector2i(6, 4), 10)])
 	dark["umbra"]["stage"] = "heart"
 	dark["umbra"]["light_sources"] = []
@@ -499,7 +499,7 @@ static func _test_live_rotate_aim_commits_alternate(tree: SceneTree, expect: Cal
 	var cue: Dictionary = {}
 	instance.call("_append_enemy_force_intent_preview", cue, threat, dark)
 	var known_force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
-	expect.call(not cue.has("collision_markers") and known_force.get("destination") == Vector2i(7, 4), "The intent cue uses only what the player can see: %s" % str(known_force))
+	expect.call(known_force == real_force and (cue.get("collision_markers", []) as Array).size() == 1, "The intent cue includes the concealed crate's collision: %s" % str(known_force))
 	instance.queue_free()
 	await tree.process_frame
 	await tree.process_frame

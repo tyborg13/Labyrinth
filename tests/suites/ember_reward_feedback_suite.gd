@@ -88,7 +88,8 @@ static func _track_reduced_motion_feedback(host: Node, fx_layer: Control, stats:
 		40,
 		48,
 		true,
-		func(value: int) -> void: completion["value"] = value
+		func(value: int) -> void: completion["value"] = value,
+		func() -> Signal: return host.get_tree().process_frame
 	)
 	completion["done"] = true
 

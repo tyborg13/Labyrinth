@@ -42,10 +42,11 @@ func prepare() -> void:
 	for choice: Button in view.choices:
 		if not choice.available: continue
 		var line: Dictionary = Preview.hover_line(view.cached_preview_lines(choice.choice_id))
-		if line.is_empty() or cache.has(hash(line)): continue
+		var key: int = hash(line)
+		if cache.has(key) or not Preview.can_build_hover_line(line): continue
 		var work: Dictionary = Preview.begin_build(line, view.run_state, false, true)
 		_builds.append(work)
-		cache[hash(line)] = work.stage
+		cache[key] = work.stage
 	if cache.is_empty(): return
 	_preparing = true
 	_preparation_revision += 1
@@ -176,12 +177,11 @@ func show_choice(index: int) -> void:
 		_pending_index = index
 		return
 	var line: Dictionary = Preview.hover_line(view.cached_preview_lines(view.choices[index].choice_id))
-	if line.is_empty(): conceal(); return
+	var key: int = hash(line)
+	if line.is_empty() or not cache.has(key): conceal(); return
 	if line == current_line and current != null and current.visible: return
 	if _fade != null: _fade.kill()
 	if current != null: current.hide()
-	var key: int = hash(line)
-	if not cache.has(key): return
 	current = cache[key]
 	current_line = line
 	current.show()

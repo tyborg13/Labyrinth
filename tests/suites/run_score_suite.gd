@@ -347,7 +347,7 @@ static func _text(expect: Callable) -> void:
 	expect.call(Score.cause_text({"enemy_type": "frostglass_lancer", "intent_id": "glass_lunge", "damage": 6}, "defeat", 0) == "Felled by a Frostglass Lancer's Glass Lunge, 6 damage.", "Approved killer copy uses enemy/intent data")
 	expect.call(Score.cause_text({"cause": "fatigue"}, "defeat", 0) == "Fatigue took your last breath.", "Fatigue cause copy")
 	expect.call(Score.cause_text({"cause": "surface", "surface": "fire"}, "defeat", 0) == "Fire took your last breath.", "Surface cause copy")
-	expect.call(Score.cause_text({"cause": "trap", "element": "ice"}, "defeat", 0) == "A ice trap took your last breath.", "Trap cause follows brief wording literally")
+	expect.call(Score.cause_text({"cause": "trap", "element": "ice"}, "defeat", 0) == "An ice trap took your last breath.", "Trap cause uses the correct article")
 	expect.call(Score.cause_text({}, "defeat", 0) == "The Umbra took your last breath.", "Unknown killer fallback")
 	expect.call(Score.cause_text({"enemy_type": "frostglass_lancer", "damage": 6}, "defeat", 0) == "Felled by a Frostglass Lancer, 6 damage.", "Missing intent fallback")
 	expect.call(Score.cause_text({"cause": "surface"}, "defeat", 0) == "The ground itself took your last breath.", "Missing surface fallback")

@@ -8,6 +8,7 @@ const Measure = preload("res://tests/helpers/card_summary_fit_measure.gd")
 const CAPTURE_CONTEXTS: Array = ["hand_7_hovered", "deck_view"]
 const CAPTURE_VARIANTS: Array = ["base", "upgrade:stat:0:range:0"]
 const HALL_UPGRADE: String = "upgrade:stat:0:health:0"
+const SENTENCE_PROOF_CARD: String = "worldroot_stride"
 var failures: Array[String]
 
 func _initialize() -> void:
@@ -21,6 +22,7 @@ func _argument(name: String, fallback: String = "") -> String:
 
 func _run() -> void:
 	var capture: bool = not OS.get_cmdline_user_args().has("--plan-only")
+	var sentence_proof: bool = OS.get_cmdline_user_args().has("--sentence-face")
 	var phase: String = _argument("--phase", "after")
 	var output: String = _argument("--output", "user://card-01-proof")
 	_expect(not capture or DisplayServer.get_name() != "headless", "Windowed proof requires the design owner's window server")
@@ -34,9 +36,13 @@ func _run() -> void:
 	var viewport: SubViewport = live.workers[0]["viewport"]
 	ViewportProof.verify(self, viewport, _expect)
 	var entries: Array = Audit.definitions().filter(func(e: Dictionary) -> bool:
+		if sentence_proof: return e["id"] == SENTENCE_PROOF_CARD and e["variant"] == "base"
 		return (e["id"] == "worldbreak" and e["variant"] == "base") or (e["id"] == "cloudstep_loop" and CAPTURE_VARIANTS.slice(1).has(e["variant"])) or (e["id"] == "hall_of_mirrors" and ["base", HALL_UPGRADE].has(e["variant"]))
 	)
-	_expect(entries.size() == 4, "Proof contains Worldbreak, upgraded Cloudstep Loop, and base/upgraded Hall of Mirrors")
+	if sentence_proof:
+		_expect(entries.size() == 1, "Sentence proof contains the base card fixture")
+	else:
+		_expect(entries.size() == 4, "Proof contains Worldbreak, upgraded Cloudstep Loop, and base/upgraded Hall of Mirrors")
 	DirAccess.make_dir_recursive_absolute(output)
 	var records: Array = []
 	for context: Dictionary in audit.contexts():
@@ -48,11 +54,14 @@ func _run() -> void:
 			live.configure_face(live.workers[0], entry, context)
 			var settled: Dictionary = await Settle.wait_for(self, faces)
 			_expect(settled["settled"], "Proof settles: " + context["id"])
-			var measured: Dictionary = Measure.measure(faces[0], entry["definition"])
+			var measured: Dictionary = Measure.measure(faces[0], entry["definition"], context)
+			if sentence_proof: _expect(measured["layout"] == "sentence face", "The fixture draws a sentence face")
 			_expect(measured["floor_errors"].is_empty(), "Proof retains text and icon floors")
 			_expect(measured["continuation_errors"].is_empty(), "Proof keeps continuation glyphs with their items")
 			_expect(float(measured["overflow_y"]) <= Audit.EPSILON, "Proof contains every item's complete vertical bounds")
-			if phase == "after":
+			if measured["layout"] == "sentence face":
+				_expect(Measure.fits(measured), "Proof observes sentence face fit for " + entry["id"])
+			elif phase == "after":
 				_expect(float(measured["margin_px"]) + Audit.EPSILON >= Measure.EDGE_INSET_PX, "Proof observes after margin for " + entry["id"])
 			elif entry["id"] != "hall_of_mirrors":
 				_expect(float(measured["margin_px"]) < Measure.EDGE_INSET_PX, "Proof observes the original named overflow for " + entry["id"])

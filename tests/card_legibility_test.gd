@@ -149,7 +149,7 @@ func _run() -> void:
 		var initial_measurements: Array = []
 		for worker: Dictionary in live.workers:
 			var initial: Dictionary = Audit.measure(worker["face"], worker.get("initial_definition", {}))
-			var initial_errors: Array = Audit.floor_errors(initial) if not context["exempt"] else []
+			var initial_errors: Array = Audit.floor_errors(initial, context) if not context["exempt"] else []
 			_expect(initial.get("visible", false) and initial_errors.is_empty(), "%s production face before overrides: %s" % [context["id"], initial_errors])
 			initial["floor_errors"] = initial_errors
 			initial.erase("runs")
@@ -171,7 +171,7 @@ func _run() -> void:
 				var entry: Dictionary = batch_entries[index]
 				var measured: Dictionary = Audit.measure(batch[index], entry["definition"])
 				var errors: Array = Audit.sample_errors(measured, entry, context)
-				var floor_errors: Array = Audit.floor_errors(measured)
+				var floor_errors: Array = Audit.floor_errors(measured, context)
 				measured.merge({"context": context["id"], "definition_source": context["definition_source"], "card": entry["id"], "variant": entry["variant"], "floor_errors": floor_errors, "validation_errors": errors, "exemption": summary["exemption"], "node_path": str(batch[index].get_path()), "settled_frames": settled["stable_frames"]})
 				for role: String in measured["text_px"]:
 					if measured["text_px"][role] != null: Audit._minimum(summary["text_px"], role, measured["text_px"][role])
@@ -179,7 +179,7 @@ func _run() -> void:
 				summary["floor_failure_count"] += int(not floor_errors.is_empty())
 				summary["sample_failure_count"] += int(not errors.is_empty())
 				summary["samples"] += 1
-				summary["overflow_count"] += int(float(measured["overflow_px"]["x"]) > Audit.EPSILON or float(measured["overflow_px"]["y"]) > Audit.EPSILON)
+				summary["overflow_count"] += int(not measured.get("sentence", {}).get("fits", true) or float(measured["overflow_px"]["x"]) > Audit.EPSILON or float(measured["overflow_px"]["y"]) > Audit.EPSILON)
 				summary["shrunk_count"] += int(measured["shrunk"])
 				_expect(errors.is_empty(), "%s/%s/%s: %s" % [context["id"], entry["id"], entry["variant"], errors])
 				measured.erase("runs")
@@ -273,13 +273,17 @@ func _equipment_bounds(audit: RefCounted) -> void:
 	audit.set_meta("equipment_bounds", {"item": widest, "width": maximum.x, "height": maximum.y, "two_card_items": two_card_count, "combat_locked": true, "footer_px": footer_px})
 
 func _write_report(entries: Array, minimums: Array, samples: Array, equipment_bounds: Dictionary) -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var output_index: int = args.find("--output-dir")
+	var output: String = args[output_index + 1] if output_index >= 0 and output_index + 1 < args.size() else OUTPUT_DIR
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	var coverage: Array = []
 	for entry: Dictionary in entries: coverage.append({"card": entry["id"], "variant": entry["variant"], "aliases": entry["aliases"]})
 	var report: Dictionary = {"viewport": [1920, 1080], "ui_scale": 1.0, "text_floor_px": Audit.TEXT_FLOOR, "icon_floor_px": Audit.ICON_FLOOR, "exempt_contexts": Audit.EXEMPT_CONTEXTS, "definitions": entries.size(), "definition_counts": Sources.counts(entries), "coverage": coverage, "equipment_bounds": equipment_bounds, "minimums": minimums, "samples": samples}
-	var file := FileAccess.open(OUTPUT_DIR.path_join("audit.json"), FileAccess.WRITE)
+	report["sentence_icon_floors_px"] = {"hand": Audit.SENTENCE_HAND_ICON_FLOOR, "hover": Audit.SENTENCE_HOVER_ICON_FLOOR}
+	var file := FileAccess.open(output.path_join("audit.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report) + "\n")
-	Sources.write_result(OUTPUT_DIR.path_join("result.md"), entries, minimums, samples.size())
+	Sources.write_result(output.path_join("result.md"), entries, minimums, samples.size())
 
 func _expect(condition: bool, message: String) -> void:
 	checks += 1

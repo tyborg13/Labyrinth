@@ -1,0 +1,320 @@
+{
+  "min_images": 21,
+  "required_images": [
+    {
+      "pattern": "ember_guard.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "cinderweave_guard.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "bottled_gale.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "caltrops.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "meteorfall.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "skybolt.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lodestone_reversal.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lodestone_aimed.png",
+      "regions": [
+        {
+          "rect": [
+            250,
+            170,
+            640,
+            420
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "ember_ward.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "static_ward.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "stone_ward.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "grounding.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "spike_mantle.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "cinder_wall.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "frost_lane.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "lamp_oil.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "earthen_rampart.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "grapple.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "powder_keg.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "thunderstone.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "jaw_trap.png",
+      "regions": [
+        {
+          "rect": [
+            24,
+            144,
+            200,
+            65
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}

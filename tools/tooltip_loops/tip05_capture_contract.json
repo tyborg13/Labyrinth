@@ -1,5 +1,5 @@
 {
-  "min_images": 31,
+  "min_images": 27,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -158,7 +158,7 @@
       ]
     },
     {
-      "pattern": "*freeze_status_middle_1920x1080.png",
+      "pattern": "*stagger_middle_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -244,74 +244,6 @@
     },
     {
       "pattern": "*rule_gust_reduced_motion_1920x1080.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            0,
-            0,
-            1920,
-            1080
-          ],
-          "min_luma_range": 12,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*rule_frostbite_start_1920x1080.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            0,
-            0,
-            1920,
-            1080
-          ],
-          "min_luma_range": 12,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*rule_frostbite_middle_1920x1080.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            0,
-            0,
-            1920,
-            1080
-          ],
-          "min_luma_range": 12,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*rule_frostbite_end_1920x1080.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            0,
-            0,
-            1920,
-            1080
-          ],
-          "min_luma_range": 12,
-          "min_luma_stdev": 2
-        }
-      ]
-    },
-    {
-      "pattern": "*rule_frostbite_reduced_motion_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [

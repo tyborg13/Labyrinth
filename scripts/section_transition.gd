@@ -16,6 +16,7 @@ const Reward = preload("res://scripts/section_transition_reward.gd")
 const SectionArt = preload("res://scripts/run_section_art.gd")
 
 const MapPanel = preload("res://scripts/section_map_panel.gd")
+const MapBackdrop = preload("res://scripts/large_map_backdrop.gd")
 
 const MAP_CROSSFADE_SECONDS: float = 0.40
 const SKIP_CROSSFADE_SECONDS: float = 0.12
@@ -431,7 +432,7 @@ func _prepare_map_arrival() -> void:
 	else:
 		_map_scrim.color = Color.TRANSPARENT
 		_map_background.hide()
-	_map_scrim.modulate.a = 0.0
+	_set_map_fade_alpha(0.0)
 	# Keep the authored text fade independent of the map's background alpha.
 	for item: CanvasItem in [_text_band, _eyebrow, _title]:
 		item.z_index = _map_scrim.z_index + 1
@@ -441,7 +442,7 @@ func _apply_map_arrival(pose: Dictionary) -> void:
 	var progress: float = clampf((elapsed - _arrival_start) / seconds, 0.0, 1.0)
 	var blend: float = float(Tween.interpolate_value(0.0, 1.0, progress * seconds, seconds, Tween.TRANS_CUBIC, Tween.EASE_IN_OUT))
 	_black.modulate.a = 1.0 # Opaque coverage remains behind both presentations.
-	_map_scrim.modulate.a = blend
+	_set_map_fade_alpha(blend)
 	_text_band.modulate.a = float(pose["text_alpha"]) * (1.0 - blend)
 	_eyebrow.modulate.a = _text_band.modulate.a
 	_title.modulate.a = _text_band.modulate.a
@@ -464,10 +465,17 @@ func _apply_map_arrival(pose: Dictionary) -> void:
 	_painting.modulate = Color.WHITE.lerp(MapPanel.BACKGROUND_MODULATE, blend)
 	(_painting.material as ShaderMaterial).set_shader_parameter("strength", 1.0 - blend)
 
+func _set_map_fade_alpha(alpha: float) -> void:
+	if _map_scrim is MapBackdrop:
+		(_map_scrim as MapBackdrop).set_fade_alpha(alpha)
+	else:
+		_map_scrim.modulate.a = alpha
+
 func _restore_map() -> void:
 	if not is_instance_valid(_map_scrim): return
 	_map_scrim.color = _map_color
 	_map_scrim.modulate = _map_modulate
+	_set_map_fade_alpha(_map_modulate.a)
 	_map_scrim.mouse_behavior_recursive = _map_mouse_behavior
 	_map_scrim.focus_behavior_recursive = _map_focus_behavior
 	if is_instance_valid(_map_background): _map_background.visible = _map_background_visible

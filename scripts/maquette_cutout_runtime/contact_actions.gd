@@ -4,6 +4,8 @@ extends RefCounted
 ## clips; this adapter retains their effect, cue and outcome payloads.
 const Action = preload("action.gd")
 const Floating = preload("res://scripts/floating_combat_text.gd")
+const Shot = preload("res://scripts/shot_fx.gd")
+const MIMIC_LATE_RELEASE_FRAME: int = 16
 
 static func handles(step: Dictionary, actor: Dictionary) -> bool:
 	var clips: Array = Action.Presentation.integration_for(str(actor.get("type", ""))).get("contact_playback_clips", [])
@@ -22,6 +24,12 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var contact: float = float(definition["contact"])
 	var reduced: bool = scene._reduced_motion_enabled()
 	var count: int = 1 if reduced else Action.frames_for(type, clip)
+	var intervals: int = maxi(1, count - 1)
+	var contact_frame: int = 1 + ceili(contact * intervals)
+	var shot_id: String = Shot.resolve(step) if Action.is_mimic_bolt(type, clip, step) else ""
+	var flight: Callable
+	if not reduced and not shot_id.is_empty():
+		flight = Shot.adapter_flight(step, shot_id, count, contact_frame, MIMIC_LATE_RELEASE_FRAME)
 	var presented_actor: Dictionary = Action.actor_for(state, key)
 	var origin: Vector2i = presented_actor.get("pos", actor["pos"])
 	var target: Vector2i = step.get("to", state["player"]["pos"])
@@ -32,8 +40,7 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var texts: Array = feedback.get("floating_texts", scene._floating_texts_for_step(step))
 	scene._set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	await scene._play_timed_animation_frames(count, 0.0 if reduced else seconds / count, func(frame: int) -> void:
-		var intervals: int = maxi(1, count - 1)
-		var phase: float = 1.0 if reduced else Action.contact_phase(float(frame - 1) / intervals, ceilf(contact * intervals) / intervals, contact)
+		var phase: float = 1.0 if reduced else Action.contact_phase(float(frame - 1) / intervals, float(contact_frame - 1) / intervals, contact)
 		var shown: Dictionary = {"maquette_explicit_clip": true,
 			type + "_motion": {key: {"clip": clip, "phase": phase, "direction": direction}}}
 		# Trail-only windup light must not publish hit/elemental FX or cues early.
@@ -51,6 +58,8 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 			if feedback.is_empty(): shown["effect"] = step
 			shown["effect_progress"] = lerpf(Action.Fx.feedback_start_progress(step), 1.0, (phase - contact) / maxf(1.0 - contact, 0.000001))
 			shown["floating_texts"] = Floating.animate_entries(texts, elapsed, reduced)
+		elif flight.is_valid():
+			flight.call(shown, frame)
 		if step.has("en06_after"): shown = scene._death_hold_presentation(before_hit, state, shown)
 		scene._render_board_state(state, shown, true)
 	)

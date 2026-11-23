@@ -8,7 +8,7 @@ const PULSE_IN_SECONDS: float = 0.06
 const SETTLE_SECONDS: float = 0.12
 const GAIN_LABEL_RISE: float = 8.0
 
-static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int, from_count: int, to_count: int, reduced_motion: bool, update_count: Callable) -> void:
+static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int, from_count: int, to_count: int, reduced_motion: bool, update_count: Callable, next_frame: Callable) -> void:
 	if stats_label == null:
 		return
 	var values: Array = roll_values(from_count, to_count)
@@ -32,11 +32,13 @@ static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int,
 			next_value_index += 1
 		if next_value_index >= values.size():
 			break
-		await host.get_tree().process_frame
+		await next_frame.call()
 	update_count.call(to_count)
 	# A slow frame can catch the roll up to wall-clock time; the pulse may already be done.
 	if pulse != null and pulse.is_valid() and pulse.is_running():
-		await pulse.finished
+		var finished: Signal = pulse.finished
+		pulse = null
+		await finished
 	if _node_is_alive(gain_label):
 		gain_label.visible = false
 		gain_label.queue_free()

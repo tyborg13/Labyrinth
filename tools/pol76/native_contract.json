@@ -1,0 +1,16 @@
+{
+  "min_images": 10,
+  "expected_sizes": ["1920x1080", "480x1800"],
+  "required_images": [
+    {"pattern": "chronicle_empty.png", "width": 1920, "height": 1080},
+    {"pattern": "chronicle_runs.png", "width": 1920, "height": 1080},
+    {"pattern": "equip_weapon.png", "width": 1920, "height": 1080},
+    {"pattern": "purge_campfire_exhaust.png", "width": 1920, "height": 1080},
+    {"pattern": "purge_campfire_result.png", "width": 1920, "height": 1080},
+    {"pattern": "purge_scavenger_exhaust.png", "width": 1920, "height": 1080},
+    {"pattern": "rail_3_enemies.png", "width": 1920, "height": 1080},
+    {"pattern": "rail_8_enemies.png", "width": 1920, "height": 1080},
+    {"pattern": "rail_3_enemies_2x.png", "width": 480, "height": 1800},
+    {"pattern": "rail_8_enemies_2x.png", "width": 480, "height": 1800}
+  ]
+}

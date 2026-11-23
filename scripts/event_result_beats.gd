@@ -4,7 +4,7 @@ const Preview = preload("res://scripts/event_reward_preview.gd")
 const Gain = preload("res://scripts/event_gain_effect.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
-const Icons = preload("res://scripts/action_icon_library.gd")
+const Burst = preload("res://scripts/acquisition_burst.gd")
 const EmberFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const Sounds = preload("res://scripts/run_sfx_library.gd")
 const Omens = preload("res://scripts/omen_badges.gd")
@@ -13,6 +13,7 @@ const STAGGER_SECONDS: float = 0.25
 const EMBER_CUE: String = "pickup.item"
 const BANE_CUE: String = "omen.bane"
 const BLESSING_CUE: String = "omen.blessing"
+const BURST_LAYER_META := &"gain_burst_layer"
 # Existing combat-board impact waveform (0.09 radians per millisecond).
 const COMBAT_SHAKE_RADIANS_PER_SECOND: float = 90.0
 # The combat atmosphere's existing hurt-edge shape, without its ambient pool.
@@ -94,6 +95,12 @@ func _process(delta: float) -> void:
 static func is_centre_beat(kind: String) -> bool:
 	return kind in ["card", "item", "relic", "equipment", "omen", "defiance", "lose_item", "transform_magic", "reforge"]
 
+static func prepare_bursts(layer: Burst, reference_size: Vector2) -> void:
+	var extent: Vector2 = layer.get_viewport_rect().size
+	var fit: float = minf(extent.x / reference_size.x, extent.y / reference_size.y)
+	var card_size: Vector2 = Preview.Builder.CARD_TOOLTIP_SIZE * fit
+	layer.prepare_gains(card_size, PackedVector2Array([Vector2.ONE * Preview.ICON_SIZE * fit, card_size]))
+
 static func schedule(entries: Array, reduced_motion: bool) -> Array[float]:
 	var result: Array[float]
 	var next_start: float = 0
@@ -155,6 +162,20 @@ func _start_beat(outcome: Dictionary, started_at: float) -> void:
 	effect.arrived.connect(func() -> void:
 		if not _stopped: _pulse(target, kind == "omen"))
 	add_child(effect)
+	_spawn_gain_burst(effect, outcome)
+
+func _spawn_gain_burst(effect: Gain, outcome: Dictionary) -> void:
+	if effect.kind == "lose_item" or (effect.kind == "omen" and effect.tone != "blessing"): return
+	var layer: Burst = view.get_meta(BURST_LAYER_META, null) if view.has_meta(BURST_LAYER_META) else null
+	if not is_instance_valid(layer): return
+	var display: Control = effect.replacement if effect.replacement != null else effect.content
+	var art: Rect2 = display.get_meta("reward_art_rect", Rect2(Vector2.ZERO, display.size))
+	art.position += effect.origin.position + display.position
+	var kind: String = "card" if effect.kind == "transform_magic" else "equipment" if effect.kind == "reforge" else effect.kind
+	var id: String = str(outcome.get("to", outcome.get("id", "")))
+	var accent: Color = Preview._accent(kind, id, Preview._definition(kind, id)) if kind in ["omen", "defiance"] else Burst.gain_accent(kind, id)
+	effect.proxy.z_index += Burst.GAIN_PROXY_Z_OFFSET
+	layer.spawn_gain(view, effect.get_global_transform() * art, effect.proxy, accent, kind == "card", reduced)
 
 func _target_position(target: Dictionary) -> Vector2:
 	var control: Control = target.get("control")
@@ -203,11 +224,6 @@ func _start_embers(amount: int) -> void:
 		_ember_original_modulate = _ember_label.modulate
 		_ember_pulse = EmberFeedback._start_counter_pulse(self, _ember_label, reduced)
 		EmberFeedback._spawn_gain_label(self, self, _ember_label, amount, reduced)
-	if not reduced and amount != 0:
-		var sparks := EmberSparks.new()
-		sparks.origin = view.painting_center()
-		sparks.destination = _target_position(target)
-		add_child(sparks)
 
 func _update_ember() -> void:
 	if _ember_started < 0: return
@@ -263,18 +279,3 @@ func finish() -> void:
 func _exit_tree() -> void:
 	# Scene replacement also cancels external HUD pulses synchronously.
 	if not _stopped: finish()
-
-class EmberSparks extends Control:
-	var origin: Vector2
-	var destination: Vector2
-	var age: float = 0
-	func _ready() -> void: mouse_filter = Control.MOUSE_FILTER_IGNORE
-	func _process(delta: float) -> void:
-		age += delta
-		if age > Gain.FLIGHT_SECONDS: queue_free()
-		queue_redraw()
-	func _draw() -> void:
-		for index: int in range(8):
-			var t: float = clampf((age - index * 0.018) / (Gain.FLIGHT_SECONDS - 7 * 0.018), 0, 1)
-			var point: Vector2 = origin.lerp(destination, t) + Vector2(0, -sin(t * PI) * 105)
-			draw_circle(point, (2 + index % 3) * sin(t * PI), Palette.EMBER)

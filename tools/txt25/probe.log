@@ -1,0 +1,42 @@
+Running task-local command:
+  task: txt-25
+  run: txt-25-1795436084047044000-36407
+  HOME: /private/tmp/labyrinth-godot-home/txt-25-1795436084047044000-36407
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/txt-25-1795436084047044000-36407/godot.log --headless --path . --script tools/txt25/probe_claims.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TXT25 WITNESS F01 PASS {"electrified":["(4, 4)"],"enemy_destination":"(3, 4)"}
+TXT25 WITNESS F02 PASS {"adjacent":"(3, 4)","card":"ember_guard","distant":"(5, 4)","painted":["(3, 4)"]}
+TXT25 WITNESS F03 PASS {"adjacent":"(3, 4)","card":"ember_ward","distant":"(5, 4)","painted":["(3, 4)"]}
+TXT25 WITNESS F04 PASS {"adjacent":"(3, 4)","card":"static_ward","distant":"(5, 4)","painted":["(2, 4)","(3, 4)"]}
+TXT25 WITNESS F05 PASS {"adjacent":"(3, 4)","card":"stone_ward","distant":"(5, 4)","painted":["(3, 4)"]}
+TXT25 WITNESS F06 PASS {"enemy_hp":[38,38],"fire":["(2, 3)","(1, 4)","(3, 4)","(2, 5)"]}
+TXT25 WITNESS F10 PASS {"empty_ground_removed":true,"stoneskin":6}
+TXT25 WITNESS F11 PASS {"empty_ground_removed":true,"stoneskin":4}
+TXT25 WITNESS F07 PASS {"aims":0,"end":["(6, 4)","(2, 1)"],"start":["(3, 4)","(2, 3)"]}
+TXT25 WITNESS F13 PASS {"aim_distance":3,"enemy_hp":37,"hit_distance":5}
+TXT25 WITNESS F14 PASS {"collision_with_fetter_spikes":12,"ordinary_collision":6}
+TXT25 WITNESS F08 PASS {"item_consumed":true,"rubble":true,"tile":"stone"}
+TXT25 WITNESS F09 PASS {"blocks_sight":false,"burst_damage":6,"hp":3,"id":"outcrop_1","kind":"powder_keg","max_hp":3,"owner_id":-1,"owner_kind":"player","pos":"(3, 4)","surface_on_destroy":""}
+TXT25 WITNESS F25 PASS {"enemy_hp":37,"inspection":"Consume. Deal 2 damage at Range 3 and Immobilize.","range":2.0}
+TXT25 WITNESS F12 PASS {"blink_distance":5,"landed":"(7, 4)"}
+TXT25 WITNESS F15 PASS {"enemy_hp":32,"line_of_sight":false}
+TXT25 WITNESS F16 PASS {"enemy_hp":35,"line_of_sight":false}
+TXT25 WITNESS F17 PASS {"aim_distance":4,"enemy_distance":5,"enemy_hp":32,"marks":["(5, 4)","(6, 4)","(7, 4)"]}
+TXT25 WITNESS F18 PASS {"aim_distance":4,"marks":["(5, 4)","(6, 4)","(7, 4)"]}
+TXT25 WITNESS F19 PASS {"aim_distance":4,"mark_at_distance_5":"(7, 4)"}
+TXT25 WITNESS F20 PASS {"affected":["(3, 4)","(4, 4)","(5, 4)","(6, 4)"],"aim":"(4, 4)","card":"cinder_wall","out_of_range":"(5, 4)"}
+TXT25 WITNESS F21 PASS {"affected":["(4, 4)","(5, 4)","(6, 4)"],"aim":"(5, 4)","card":"frost_lane","out_of_range":"(6, 4)"}
+TXT25 WITNESS F22 PASS {"affected":["(4, 4)","(5, 4)","(6, 4)"],"aim":"(5, 4)","card":"lamp_oil","out_of_range":"(6, 4)"}
+TXT25 WITNESS F23 PASS {"aim":"(4, 4)","out_of_range":"(5, 4)","outcrops":["(3, 4)","(4, 4)","(5, 4)"]}
+TXT25 WITNESS F24 PASS {"landed":"(4, 4)","only_adjacent_target":"powder_keg"}
+TXT25 WITNESS CRD28-08-22 PASS {"connected_tile":"electrified","enemy_hp":38,"hidden_before":true}
+TXT25 WITNESS F26 PASS {"aim_distance":1,"enemy_hp":38,"hit_distance":4}
+TXT25 WITNESS CRD28-18 PASS {"enemy_hp":34,"freeze":0,"stagger":6}
+TXT25 WITNESS CANDIDATE-LIGHT PASS {"light_sources":[{"id":1,"owner":"player","pos":"(2, 4)","radius":2,"remaining_activations":-1}]}
+TXT25 WITNESS RESULT: PASS (29 witnesses, 0 failures)

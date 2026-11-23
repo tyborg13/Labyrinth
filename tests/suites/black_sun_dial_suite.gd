@@ -17,8 +17,10 @@ const ECHO_ILLUSION_HEALTH: int = 10
 const TRAP_TILE := Vector2i(3, 3)
 const TRAP_WALL := Vector2i(5, 3)
 const ATTACK := {"type": "ranged", "damage": 1, "range": 5}
-const NON_EXPEND_CONDUCTOR_COPY: String = "Fire conducts Lightning."
-const EXPEND_CARDS := ["spike_mantle", "grounding", "flashsteam", "frost_heave", "plasma_arc", "pyroclasm", "dust_devil", "magma_vent", "cinder_patch"]
+# pla-04: Flashsteam, Frost Heave, Plasma Arc, Pyroclasm, Dust Devil and Magma
+# Vent Burst their ground instead of Expending it; Bursts feed the Dial too.
+const EXPEND_CARDS := ["spike_mantle", "grounding", "cinder_patch"]
+const BURST_CARDS := ["flashsteam", "frost_heave", "plasma_arc", "pyroclasm", "dust_devil", "magma_vent"]
 
 class TrayHarness extends "res://scripts/run_scene.gd":
 	func _layout_header_hud() -> void: pass
@@ -104,6 +106,12 @@ static func _test_expend_cards(engine: Combat, check: Callable) -> void:
 		check.call(engine.final_damage_for_player_action(state, ATTACK) == 1, "Expend during an attacking card cannot boost that card: " + card_id)
 		state = _finish(engine, state, card_id)
 		check.call(engine.final_damage_for_player_action(state, ATTACK) == 4, "Expend bonus becomes eligible after the card finishes: " + card_id)
+	# pla-04: ground your Burst destroys feeds the Dial like ground you Expend.
+	var fired: Dictionary = _state(engine)
+	Surface.place(fired, TARGET, "fire")
+	for action: Dictionary in engine.card_play_actions("pyroclasm", fired):
+		fired = engine.apply_player_action(fired, action, TARGET)
+	check.call(not Surface.has_surface(fired, TARGET, "fire") and Rules.pending_dial_damage(fired) == 3, "A Burst card's destroyed Fire feeds the Dial: %s" % str(BURST_CARDS))
 	var flint: Dictionary = _state(engine, ["black_sun_dial", "flint_edge"])
 	flint["player"]["pos"] = Vector2i(3, 3)
 	Surface.place(flint, TARGET, "fire")
@@ -121,7 +129,8 @@ static func _test_excluded_removals(engine: Combat, check: Callable) -> void:
 			var state: Dictionary = _state(engine)
 			Surface.place(state, TARGET, "fire")
 			var before: Dictionary = state.duplicate(true)
-			var card_id: String = "magma_vent" if tagged else "brace"
+			# pla-04: Magma Vent Bursts now; Grounding still Expends.
+			var card_id: String = "grounding" if tagged else "brace"
 			state["damage_context"] = Expend.card_source({"actor_kind": "player", "card_id": card_id}, Data.card_def(card_id), {})
 			Surface.remove(state, TARGET, "fire", reason)
 			Rules.collect_removals(state, int(before.get("surface_event_sequence", 0)), Data.relic_effects_for_state(state))
@@ -137,14 +146,15 @@ static func _test_excluded_removals(engine: Combat, check: Callable) -> void:
 	var det: Dictionary = _state(engine)
 	Surface.place(det, TARGET, "fire")
 	det = engine.apply_player_action(det, {"type": "detonate", "range": 5, "damage": 1}, TARGET)
-	check.call(Rules.pending_dial_damage(det) == 0, "Real Detonate cannot feed the Dial")
+	# pla-04: ground your Burst destroys feeds the Dial like ground you Expend.
+	check.call(Rules.pending_dial_damage(det) == 3, "A real Burst's destroyed Fire feeds the Dial")
 	var conduction: Dictionary = _state(engine, ["black_sun_dial", "coalheart_crucible"])
 	var original: Dictionary = (Data.relics()["coalheart_crucible"] as Dictionary).duplicate(true)
-	Data.relics()["coalheart_crucible"]["description"] = NON_EXPEND_CONDUCTOR_COPY
+	Data.relics()["coalheart_crucible"]["description"] = ""
 	Surface.place(conduction, TARGET, "fire")
 	conduction = engine.apply_player_action(conduction, {"type": "ranged", "range": 5, "damage": 1, "element": "lightning"}, TARGET)
 	Data.relics()["coalheart_crucible"] = original
-	check.call(Rules.pending_dial_damage(conduction) == 0 and Surface.element_at(conduction, TARGET).is_empty(), "Fire conduction from a non-Expend source cannot feed the Dial")
+	check.call(Rules.pending_dial_damage(conduction) == 3 and Surface.element_at(conduction, TARGET).is_empty(), "Coalheart's Expend feeds the Dial even without a description")
 	var frozen: Dictionary = _state(engine)
 	Surface.place(frozen, TARGET, "ice")
 	frozen = engine.surface_actor_arrival(frozen, "enemy", 1, Vector2i(4, 2))
@@ -177,12 +187,17 @@ static func _test_relic_sources(engine: Combat, check: Callable) -> void:
 				state["grid"][3][5] = "wall"
 				action = {"type": "push", "range": 5, "amount": 1}
 		state = engine.apply_player_action(state, action, TARGET)
-		check.call(Rules.pending_dial_damage(state) == 3, "Expend-tagged removing relic feeds Dial despite a non-Expend triggering card: " + relic_id)
+		# pla-04: Basalt Kiln and Ashen Brand change what a Burst destroys; their
+		# removals feed the Dial as Burst rather than Expend.
+		var expends: bool = relic_id not in ["basalt_calendar", "ashen_brand"]
+		check.call(Rules.pending_dial_damage(state) == 3, "Expend- or Burst-tagged removing relic feeds Dial despite a non-Expend triggering card: " + relic_id)
 		var attributed: bool = false
+		var named: bool = false
 		for event: Dictionary in state.get("surface_events", []):
 			if str(event.get("kind", "")) == "surface_removed" and str((event.get("source", {}) as Dictionary).get("removal_relic_id", "")) == relic_id:
-				attributed = bool(event["source"].get(Expend.KEYWORD, false))
-		check.call(attributed, "Removal identifies its actual Expend relic: " + relic_id)
+				named = true
+				attributed = bool(event["source"].get(Expend.KEYWORD, false)) if expends else bool(event["source"].get("burst", false))
+		check.call(named and attributed, "Removal identifies its actual removing relic and its Expend or Burst identity: " + relic_id)
 	var transport: Dictionary = _state(engine, ["black_sun_dial", "updraft_bottle"])
 	Surface.place(transport, TARGET, "ice")
 	transport = engine.apply_player_action(transport, {"type": "push", "range": 5, "amount": 1, "_card_id": "dust_devil", "_surface_relic_modes": ["transport"]}, TARGET)

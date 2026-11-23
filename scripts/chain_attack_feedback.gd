@@ -3,13 +3,16 @@ extends RefCounted
 const Outcomes = preload("res://scripts/combat_outcome_feedback.gd")
 const AttackFx = preload("res://scripts/attack_fx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
+const ContactBursts = preload("res://scripts/resolved_contact_bursts.gd")
+const ChainBolt = preload("res://scripts/chain_bolt_fx.gd")
 const HOP_SECONDS: float = 0.22
 const HOP_CONTACT: float = 0.42
 const REDUCED_HOP_SECONDS: float = 0.10
+const CONTACT_TILES: String = "chain_contact_tiles"
 
 # Each snapshot comes from the resolver at the moment it actually selected and
 # struck a target. Presentation never predicts another route or reapplies damage.
-static func play(host: Node, before_state: Dictionary, after_state: Dictionary, initial_effect: Dictionary, hits: Array, reduced_motion: bool) -> void:
+static func play(host: Node, before_state: Dictionary, after_state: Dictionary, initial_effect: Dictionary, hits: Array, reduced_motion: bool, split_push_contact: bool = false) -> void:
 	hits = _presentation_beats(hits)
 	_stage_reserved_ground(before_state, after_state, hits)
 	var groups: Array[Dictionary]
@@ -39,12 +42,13 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 		var frame_count: int = AttackFx.animation_frame_count(effect, 12, reduced_motion) if index == 0 else 12
 		var frame_seconds: float = AttackFx.animation_frame_seconds(effect, 0.03, reduced_motion) if index == 0 else (0.12 if str(hit.get("kind", "")) == "relay" else HOP_SECONDS) / float(frame_count)
 		var contact: float = float(host.call("_attack_feedback_start_progress", effect)) if index == 0 else HOP_CONTACT
+		var path_contact: float = contact
 		if reduced_motion:
 			frame_count = 1
 			frame_seconds = REDUCED_HOP_SECONDS
 			contact = 0.0
 		var duration: float = float(frame_count) * frame_seconds
-		var texts: Array = host.call("_player_action_floating_texts", previous_state, hit_state) as Array
+		var texts: Array = host.call("_player_action_floating_texts", previous_state, hit_state, split_push_contact) as Array
 		var start_seconds: float = elapsed + contact * duration
 		groups.append(FloatingText.timeline_group(texts, start_seconds))
 		var traps: Array = host.call("_triggered_traps_between", previous_state, hit_state) as Array
@@ -60,12 +64,21 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 		var hit_keys: Array = host.call("_player_action_impact_actor_keys", previous_state, hit_state) as Array
 		var stage_before: Dictionary = previous_state
 		var stage_after: Dictionary = hit_state
+		var contact_tiles: Array[Vector2i]
+		for branch: Dictionary in hit.get("branches", [hit]):
+			contact_tiles.append(branch["to"])
 		var stage_elapsed: float = elapsed
 		var ground_events: Array[Dictionary] = Outcomes.prepare(_ground_visual_changes(stage_before,stage_after),effect)
+		var path_rows: Dictionary = _floor_path_rows(effect, contact_tiles, path_contact)
+		var ground_contacts: Dictionary = host.call("_begin_chain_contact_step", stage_before, stage_after, ground_events if not path_rows.is_empty() else [])
+		for tile: Vector2i in ground_contacts:
+			path_rows.erase(tile)
 		var ground_sound: Dictionary = {"played":false}
+		var airborne_hop: bool = index > 0 and effect["kind"] == "chain" and hit.get("kind") == "actor" and hit["from"] != hit["to"]
 		await host.call("_play_timed_animation_frames", frame_count, frame_seconds, func(frame_number: int) -> void:
 			var t: float = float(frame_number) / float(frame_count)
 			var contacted: bool = reduced_motion or t >= contact
+			var first_contact: bool = contacted and not ground_sound["played"]
 			var display_state: Dictionary = stage_after if contacted else stage_before
 			var presentation: Dictionary = {
 				"effect": effect, "effect_progress": t,
@@ -74,8 +87,9 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 				"floating_texts": FloatingText.animate_timeline(groups, stage_elapsed + t * duration, reduced_motion),
 			}
 			if contacted:
+				presentation[CONTACT_TILES] = contact_tiles
 				presentation["surface_feedback_events"] = ground_events
-				if not ground_sound["played"]:
+				if first_contact:
 					host.call("_play_outcome_sounds",ground_events,str(initial_effect.get("element","")),traps)
 					ground_sound["played"] = true
 				presentation["surface_feedback_progress"] = clampf((t - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
@@ -85,6 +99,9 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 			_append_trap_feedback(host, presentation, trap_groups, stage_elapsed + t * duration, reduced_motion)
 			# State changes at contact. Do not promise a stable snapshot across it.
 			host.call("_render_board_state", display_state, presentation)
+			_present_floor_rows(host, path_rows, t, display_state, reduced_motion)
+			if first_contact and airborne_hop:
+				ChainBolt.present(host.board_view, hit["from"], hit["to"], reduced_motion)
 		)
 		elapsed += duration
 		previous_state = hit_state
@@ -109,6 +126,31 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 	for group: Dictionary in groups:
 		host.call("_queue_player_popup_group", group.get("entries", []), maxf(0.0, elapsed - float(group.get("start_seconds", 0.0))))
 	host.call("_render_board_state", after_state, host.call("_death_hold_presentation", before_state, after_state, {}, 1.0))
+
+static func _floor_path_rows(effect: Dictionary, contact_tiles: Array[Vector2i], contact: float) -> Dictionary:
+	var starts: Dictionary = {}
+	if effect.get("kind") != "chain": return starts
+	var branches: Array = effect.get("branches", [])
+	if branches.is_empty(): branches = [effect]
+	for branch: Dictionary in branches:
+		var path: Array = branch.get("path", [])
+		var edge_count: int = path.size() - 1
+		for index: int in range(1, edge_count):
+			var tile: Vector2i = path[index]
+			if contact_tiles.has(tile): continue
+			var start: float = (float(index) / edge_count) * contact
+			starts[tile] = minf(start, starts.get(tile, start))
+	return starts
+
+static func _present_floor_rows(host: Node, starts: Dictionary, progress: float, state: Dictionary, reduced: bool) -> void:
+	if starts.is_empty(): return
+	var specs: Array[Dictionary]
+	for tile: Vector2i in starts.keys():
+		if not reduced and progress < float(starts[tile]): continue
+		specs.append(ContactBursts.spec("lightning", tile, false))
+		starts.erase(tile)
+	if not specs.is_empty():
+		host.board_view.present_tile_bursts(specs, state, state, reduced)
 
 static func _append_trap_feedback(host: Node, presentation: Dictionary, groups: Array[Dictionary], elapsed: float, reduced_motion: bool) -> void:
 	var effects: Array = []

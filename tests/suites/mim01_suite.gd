@@ -38,8 +38,8 @@ static func run(expect: Callable) -> void:
 	expect.call(after["player"]["hp"] == hp - 3, "Melee hit triggers enemy Retaliate")
 	var boosted: Dictionary = state()
 	boosted["enemies"][0]["expose"] = TEST_HIT_DAMAGE
-	var boosted_hit: Dictionary = hit(boosted, "melee", {"damage": 0})
-	expect.call(boosted_hit["player"]["hp"] == hp - 3 and boosted_hit["enemies"][0]["hp"] == boosted["enemies"][0]["hp"] - TEST_HIT_DAMAGE, "Retaliate judges the resolved hit after target damage bonuses")
+	var boosted_hit: Dictionary = hit(boosted)
+	expect.call(boosted_hit["player"]["hp"] == hp - 3 and boosted_hit["enemies"][0]["hp"] == boosted["enemies"][0]["hp"] - 2 * TEST_HIT_DAMAGE, "Retaliate judges the resolved hit after target damage bonuses")
 	expect.call(hit(state(DISTANT), "ranged")["player"]["hp"] == hp, "Ranged hit from afar does not trigger Retaliate")
 	expect.call(hit(value, "ranged")["player"]["hp"] == hp - 3, "Adjacent ranged hit triggers Retaliate")
 	var area: Dictionary = {"pattern": [[0, 0], [1, 0]], "rotate": false}
@@ -47,21 +47,19 @@ static func run(expect: Callable) -> void:
 	expect.call(hit(value, "aoe", area)["player"]["hp"] == hp - 3, "Adjacent area hit triggers once")
 	value["player"]["block"] = 1
 	value["player"]["stoneskin"] = 1
-	value["player"]["chilled"] = true
-	value["player"]["freeze"] = 2
 	value["player"]["expose"] = 7
 	after = hit(value)
-	# pla-01: Expose applies to every damaging hit (3 + Expose 7); Chill and Freeze still don't.
-	expect.call(after["player"]["hp"] == hp - 8 and after["player"]["block"] == 0 and after["player"]["stoneskin"] == 0 and int(after["player"].get("expose", 0)) == 0, "Block/Stoneskin absorb Retaliate; Expose adds to it; Chill/Freeze do not")
+	# Retaliate spends Expose before Block and Stoneskin.
+	expect.call(after["player"]["hp"] == hp - 8 and after["player"]["block"] == 0 and after["player"]["stoneskin"] == 0 and int(after["player"].get("expose", 0)) == 0, "Block and Stoneskin absorb Retaliate after Expose adds damage")
 	value = state()
 	var events: Array[Dictionary] = Retaliate.events_between(value, hit(value))
 	expect.call(events.size() == 1 and events[0]["kind"] == "retaliate_triggered" and events[0]["source"]["actor_kind"] == "enemy" and events[0]["source"]["source_kind"] == "retaliate", "Enemy Retaliate reuses the event kind with additive ownership")
 	value["enemies"][0]["intent"] = {"id": "test_wait", "name": "test_wait", "time": 4, "actions": []}
 	after = engine.resolve_enemy_turn_with_steps(value, 0, false, false)["state"]
 	expect.call(not after["enemies"][0].has("retaliate") and hit(after)["player"]["hp"] == hp, "Retaliate clears at the start of its owner's next turn")
-	value["enemies"][0]["freeze"] = 1
+	value["enemies"][0]["shock"] = 1
 	after = engine.resolve_enemy_turn_with_steps(value, 0, false, false)["state"]
-	expect.call(not after["enemies"][0].has("retaliate"), "Skipped frozen turn still clears Retaliate")
+	expect.call(not after["enemies"][0].has("retaliate"), "A turn skipped by Shock still clears Retaliate")
 	value = state()
 	value["enemies"][0].erase("retaliate")
 	var phase: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0, true, false)
@@ -115,7 +113,7 @@ static func _detonate(expect: Callable) -> void:
 	var engine := Combat.new()
 	var before: Dictionary = state()
 	preload("res://scripts/board_surface_rules.gd").place(before, Vector2i(6, 4), "fire", {})
-	var action: Dictionary = engine.card_play_actions("cinder_second", before)[1]
+	var action: Dictionary = engine.card_play_actions("cinder_second", before)[2]
 	var after: Dictionary = engine.apply_player_action(before, action, Vector2i(6, 4))
 	var events: Array[Dictionary] = Retaliate.events_between(before, after)
 	expect.call(after["player"]["hp"] == before["player"]["hp"] - 3 and events.size() == 1 and after["enemies"][0]["hp"] == before["enemies"][0]["hp"] - 4, "Adjacent Cinder Second triggers Retaliate once")

@@ -262,7 +262,8 @@ func route(source: Control, method: String, args: Array, unit: Dictionary, hud: 
 	_queue_canvas(source, canvas, method, retain)
 	return true
 
-const TOP_CANVAS_Z: int = 3
+const HERO_HUD_Z: int = 3
+const TOP_CANVAS_Z: int = HERO_HUD_Z + 1
 
 func route_top(source: Control, method: String, args: Array) -> bool:
 	if source.has_meta("rd03_canvas"): return false
@@ -385,7 +386,9 @@ func _present(record: Dictionary) -> void:
 				tween.parallel().tween_property(child, "modulate", tint, TRANSITION_SECONDS)
 		canvas.set_meta("rd03_tween", tween)
 	if record.hud:
-		canvas.z_index = 2 if source.call("_unit_footprint_tiles", unit).has(focus_tile) else 1
+		# Crowded fallback still paints every enemy HUD beneath the hero HUD.
+		if unit.get("role") == "player": canvas.z_index = HERO_HUD_Z
+		else: canvas.z_index = 2 if source.call("_unit_footprint_tiles", unit).has(focus_tile) else 1
 
 func route_operation(source: Control, method: String, args: Array, direct: Variant = null) -> bool:
 	if source.has_meta("rd03_canvas"): return false

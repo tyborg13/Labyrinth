@@ -37,8 +37,15 @@ func _run() -> void:
 	var menu: Control = preload("res://scenes/main_menu.tscn").instantiate()
 	canvas.add_child(menu)
 	await process_frame
+	var resume: Button = menu.get_node("MenuColumn/ContinueButton")
+	var start: Button = menu.get_node("MenuColumn/StartButton")
 	var button: Button = menu.get_node("MenuColumn/ChronicleButton")
-	_check(button.get_index() == menu.get_node("MenuColumn/StartButton").get_index() + 1 and button.get_index() + 1 == menu.get_node("MenuColumn/SettingsButton").get_index(), "Chronicle menu ordering")
+	var grimoire: Button = menu.get_node("MenuColumn/GrimoireButton")
+	var settings: Button = menu.get_node("MenuColumn/SettingsButton")
+	var quit_button: Button = menu.get_node("MenuColumn/QuitButton")
+	var title_buttons: Array[Button] = [resume, start, button, grimoire, settings, quit_button]
+	for index: int in range(1, title_buttons.size()):
+		_check(title_buttons[index].get_index() == title_buttons[index - 1].get_index() + 1, "Title order places %s directly after %s" % [title_buttons[index].name, title_buttons[index - 1].name])
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.size = Vector2i(1920, 1080)
 	await process_frame
@@ -48,7 +55,9 @@ func _run() -> void:
 	var panel: Control = menu.get_node("ChroniclePanel")
 	_check(panel.visible and panel.get_node("ChronicleFrame").position == Vector2(60, 110) and panel.get_node("ChronicleFrame").size == Vector2(1800, 860), "Chronicle panel opens at approved geometry")
 	_check(panel.get_node("ChronicleFrame/DescentList").size.x == 520, "Chronicle list has approved width")
-	_check(button.position.y - menu.get_node("MenuColumn/StartButton").position.y == 92 and menu.get_node("MenuColumn/SettingsButton").position.y - button.position.y == 92, "Chronicle keeps 92 px menu spacing")
+	_check(button.position.y - start.position.y == 92, "New Game to Chronicle keeps 92 px spacing")
+	_check(grimoire.position.y - button.position.y == 92, "Chronicle to Grimoire keeps 92 px spacing")
+	_check(settings.position.y - grimoire.position.y == 92, "Grimoire to Settings keeps 92 px spacing")
 	_check(panel.find_child("ChronicleEmpty", true, false).text == "Your runs will be written here.", "Chronicle empty body copy")
 	for node_name: String in ["Title", "TitleShadow", "TitleRim", "TitleFaceBlend", "ProfileBlock"]:
 		_check(not menu.get_node(node_name).visible, "Chronicle hides menu heading: " + node_name)
@@ -61,18 +70,19 @@ func _run() -> void:
 	_check(menu.get_node("ProfileBlock").visible == profile_was_visible, "Chronicle close restores the responsive profile visibility")
 	var opened: Array[Dictionary] = Analytics.load_all_events()
 	_check(opened.size() == 1 and opened[0]["event_type"] == "chronicle_opened" and opened[0]["payload"]["records"] == 0, "Chronicle emits one additive local open event")
-	# Validate both navigation steps through the added Chronicle slot.
-	var start: Button = menu.get_node("MenuColumn/StartButton")
+	# Continue has no checkpoint in this fixture. Walk from New Game to Quit.
 	start.grab_focus()
-	var navigate := InputEventKey.new()
-	navigate.keycode = KEY_DOWN
-	navigate.pressed = true
-	menu.get_viewport().push_input(navigate, true)
-	await process_frame
-	_check(button.has_focus(), "Keyboard navigation reaches Chronicle between New Game and Settings")
-	menu.get_viewport().push_input(navigate, true)
-	await process_frame
-	_check(menu.get_node("MenuColumn/SettingsButton").has_focus(), "Keyboard navigation still reaches Settings after Chronicle")
+	for index: int in range(2, title_buttons.size()):
+		var navigate := InputEventKey.new()
+		navigate.keycode = KEY_DOWN
+		navigate.pressed = true
+		canvas.push_input(navigate, true)
+		await process_frame
+		_check(title_buttons[index].has_focus(), "Keyboard navigation reaches %s after %s" % [title_buttons[index].name, title_buttons[index - 1].name])
+		var release := navigate.duplicate() as InputEventKey
+		release.pressed = false
+		canvas.push_input(release, true)
+		await process_frame
 	panel.open(Probe.seeded_profile(), false)
 	await process_frame
 	await process_frame

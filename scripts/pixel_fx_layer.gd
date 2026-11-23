@@ -76,6 +76,30 @@ static func enabled() -> bool:
 static func grid_px(viewport_height: int) -> int:
 	return maxi(1, roundi(float(style()["grid_px_at_1080"]) * viewport_height / 1080.0))
 
+## Return the physical cell size and the closest authored sheet index.
+static func choose_sheet_size(tile_px: float, render_height: int, sheet_tile_widths: PackedInt32Array) -> Vector2i:
+	var cell_px: int = grid_px(render_height)
+	var tile_cells: float = tile_px / cell_px
+	if tile_cells > 96.0:
+		cell_px = ceili(tile_px / 96.0)
+	elif tile_cells < 40.0:
+		cell_px = maxi(1, floori(tile_px / 40.0))
+	tile_cells = tile_px / cell_px
+	var best_index: int = 0
+	var best_distance: float = INF
+	for index: int in sheet_tile_widths.size():
+		var distance: float = absf(sheet_tile_widths[index] - tile_cells)
+		if distance < best_distance:
+			best_distance = distance
+			best_index = index
+	return Vector2i(cell_px, best_index)
+
+static func viewport_pixels(viewport: Viewport) -> Vector2:
+	return viewport.get_visible_rect().size * viewport.get_stretch_transform().get_scale()
+
+static func surface_ramp_id(kind: String) -> String:
+	return str(style()["surface_ramps"].get(kind, kind))
+
 static func ramp_for(element: String) -> PackedColorArray:
 	var ramps: Dictionary = style()["ramps"]
 	var key: String = element if ramps.has(element) else "neutral"
@@ -128,7 +152,7 @@ func begin(source: CanvasItem) -> void:
 	_last_key = null
 	var viewport: Viewport = source.get_viewport()
 	var stretch: Transform2D = viewport.get_stretch_transform()
-	var pixels: Vector2 = viewport.get_visible_rect().size * stretch.get_scale()
+	var pixels: Vector2 = viewport_pixels(viewport)
 	_grid = grid_px(roundi(pixels.y))
 	_resolution = Vector2i(ceili(pixels.x / _grid), ceili(pixels.y / _grid))
 	_pixel_transform = stretch * source.get_global_transform_with_canvas()

@@ -14,6 +14,7 @@
     "test_art_identity_gate": [
       "capacitor"
     ],
+    "test_owner_damage": [],
     "test_capture_director": [],
     "test_capture_production": [],
     "test_card_heuristic_illusions_terrain": [],
@@ -35,6 +36,7 @@
     "test_dragon_rule_measurement": [],
     "test_encounter_measurement": [],
     "test_guardian_rules_measurement": [],
+    "test_ground_electrified_atlas": [],
     "test_godot_sidecars": [
       "capacitor"
     ],

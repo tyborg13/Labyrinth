@@ -1,0 +1,149 @@
+{
+ "frames": 16,
+ "fps": 12,
+ "palette": [
+  "00000000",
+  "5a3a9aff",
+  "8a2a10ff",
+  "9a7ae0ff",
+  "d0581cff",
+  "d0c0ffff",
+  "f29a3aff",
+  "ffd98aff",
+  "ffffffff"
+ ],
+ "rows": {
+  "fire_full_rear_0": 0,
+  "fire_full_front_0": 1,
+  "fire_low_rear_0": 2,
+  "fire_low_front_0": 3,
+  "electrified_rear_0": 4,
+  "electrified_front_0": 5,
+  "electrified_front_quiet_0": 6,
+  "electrified_storm_rear_0": 7,
+  "electrified_storm_front_0": 8,
+  "fire_full_rear_1": 9,
+  "fire_full_front_1": 10,
+  "fire_low_rear_1": 11,
+  "fire_low_front_1": 12,
+  "electrified_rear_1": 13,
+  "electrified_front_1": 14,
+  "electrified_front_quiet_1": 15,
+  "electrified_storm_rear_1": 16,
+  "electrified_storm_front_1": 17
+ },
+ "sizes": [
+  {
+   "tile_cells": [
+    44,
+    22.0
+   ],
+   "frame_cells": [
+    56,
+    44
+   ],
+   "tile_centre_cell": [
+    28,
+    30
+   ],
+   "atlas": "ground_fx_44.png",
+   "sha256_pixels": "17f5c07986d633cce42bdf919363a2f25ace33c6d2d85827f3ad143cbc711e84"
+  },
+  {
+   "tile_cells": [
+    52,
+    26.0
+   ],
+   "frame_cells": [
+    64,
+    50
+   ],
+   "tile_centre_cell": [
+    32,
+    35
+   ],
+   "atlas": "ground_fx_52.png",
+   "sha256_pixels": "c4bfc6d5b430fccca6502572e013508404874ffef41c829f733b5faa1b20bdb2"
+  },
+  {
+   "tile_cells": [
+    60,
+    30.0
+   ],
+   "frame_cells": [
+    72,
+    58
+   ],
+   "tile_centre_cell": [
+    36,
+    40
+   ],
+   "atlas": "ground_fx_60.png",
+   "sha256_pixels": "0478e76415db404224d5d87d8bc74ff813890746e9abda40372ab4cc5371ba37"
+  },
+  {
+   "tile_cells": [
+    68,
+    34.0
+   ],
+   "frame_cells": [
+    80,
+    64
+   ],
+   "tile_centre_cell": [
+    40,
+    45
+   ],
+   "atlas": "ground_fx_68.png",
+   "sha256_pixels": "1ff03e35d5196d55fe03d7374e5a21d1340c9c0efb14d2dabec3230b6f5cf86c"
+  },
+  {
+   "tile_cells": [
+    76,
+    38.0
+   ],
+   "frame_cells": [
+    88,
+    72
+   ],
+   "tile_centre_cell": [
+    44,
+    50
+   ],
+   "atlas": "ground_fx_76.png",
+   "sha256_pixels": "f0dda7e354dad1fb20e798a24b2a1306cc01bf417c3f0b6c498fca3cdd9ff755"
+  },
+  {
+   "tile_cells": [
+    84,
+    42.0
+   ],
+   "frame_cells": [
+    96,
+    80
+   ],
+   "tile_centre_cell": [
+    48,
+    55
+   ],
+   "atlas": "ground_fx_84.png",
+   "sha256_pixels": "a185b5e2499eb440814ce7202f468667b116ada11837b039c2a006d747e1abcb"
+  },
+  {
+   "tile_cells": [
+    92,
+    46.0
+   ],
+   "frame_cells": [
+    104,
+    86
+   ],
+   "tile_centre_cell": [
+    52,
+    60
+   ],
+   "atlas": "ground_fx_92.png",
+   "sha256_pixels": "6b5497a5c164f33f94a5c8f428f6b1883abbf693302ad701a64b60bf558ddb05"
+  }
+ ]
+}

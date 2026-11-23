@@ -74,7 +74,7 @@ static func _identity_buckets(tree: SceneTree, expect: Callable) -> void:
 		var index: int = sequence[step]
 		var option: Dictionary = options[index]
 		var state: Dictionary = BASE.duplicate(true)
-		if step >= 2: state["player_bleed"] = step
+		if step >= 2: state["player_expose"] = step
 		face.configure("quick_stab")
 		Display.bind(face, state, func(source: Dictionary) -> Dictionary: return Data.preview_card_with_mod("quick_stab", option, source), IDENTITY_VARIANTS[index])
 		var expected: Dictionary = Data.preview_card_with_mod("quick_stab", option, state)
@@ -128,20 +128,20 @@ static func _overflow(tree: SceneTree, expect: Callable) -> void:
 		expect.call(Bindings.definition_count() == mini(index + 1, DEFINITION_LIMIT), "Definition cache remains bounded during overflow: " + str(index))
 	var retained: int = calls["count"]
 	# New raw contexts prevent the context-local projection cache from hiding
-	# definition eviction. Bleed changes no dependency for these variants.
+	# definition eviction. Expose changes no dependency for these variants.
 	for index: int in range(8, OVERFLOW_VARIANTS):
 		var state: Dictionary = BASE.duplicate(true)
-		state["player_bleed"] = index + 1
+		state["player_expose"] = index + 1
 		_bind_variant(face, state, index, calls)
 	expect.call(calls["count"] == retained, "Overflow retains exactly the newest 512 definitions across context eviction")
 	var state: Dictionary = BASE.duplicate(true)
-	state["player_bleed"] = OVERFLOW_VARIANTS + 1
+	state["player_expose"] = OVERFLOW_VARIANTS + 1
 	_bind_variant(face, state, 8, calls)
 	expect.call(calls["count"] == retained, "Touching the oldest surviving definition reuses its projection")
-	state["player_bleed"] += 1
+	state["player_expose"] += 1
 	_bind_variant(face, state, 0, calls)
 	expect.call(calls["count"] == retained + 1, "FIFO overflow evicts the oldest definition")
-	state["player_bleed"] += 1
+	state["player_expose"] += 1
 	_bind_variant(face, state, 8, calls)
 	expect.call(calls["count"] == retained + 2, "Reusing a definition does not promote it: insertion order controls eviction")
 	expect.call(Bindings.definition_count() == DEFINITION_LIMIT, "Definition cache stays at 512 after eviction/reinsertion")
@@ -161,7 +161,7 @@ static func _matrix(expect: Callable) -> void:
 	# A fixed gear/relic source, followed by only player/spatial changes, checks
 	# that dependency selection cannot conceal a fresh resolver result.
 	for relics: Array in [[], ["bloodglass_knife"], ["hobnail_cleats"], ["anchor_chain"], ["widow_thread", "true_north", "sunlit_edge"]]:
-		for patch: Dictionary in [{}, {"player_stoneskin": 3}, {"player_block": 3}, {"player_hp": 12}, {"player_bleed": 3}, {"surfaces": {"2,2": {"elemental": "ice"}}}, {"player_pos": Vector2i(3, 2)}, {"illusions": [{"id": 1, "hp": 2, "pos": Vector2i(2, 2)}]}, {"player_truesight": true}, {"umbra": {"light_sources": [{"pos": Vector2i(2, 2), "radius": 2}]}}]:
+		for patch: Dictionary in [{}, {"player_stoneskin": 3}, {"player_block": 3}, {"player_hp": 12}, {"player_expose": 3}, {"surfaces": {"2,2": {"elemental": "ice"}}}, {"player_pos": Vector2i(3, 2)}, {"illusions": [{"id": 1, "hp": 2, "pos": Vector2i(2, 2)}]}, {"player_truesight": true}, {"umbra": {"light_sources": [{"pos": Vector2i(2, 2), "radius": 2}]}}]:
 			var state: Dictionary = BASE.duplicate(true)
 			state["relics"] = relics.duplicate()
 			state.merge(patch, true)

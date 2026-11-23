@@ -30,6 +30,8 @@ static func context(state: Dictionary) -> Dictionary:
 
 static func projection(ctx: Dictionary, card_id: String, resolver: Callable, variant: Variant, compute: Callable) -> Dictionary:
 	var identity: Array = [card_id, Data.cards().get(card_id, {}), variant if variant != null else resolver]
+	if bool(ctx["state"].get(Data.LEGACY_STARTER_CARDS_KEY, false)):
+		identity.append(Data.LEGACY_STARTER_CARDS_KEY)
 	var key: int = hash(identity)
 	var projections: Dictionary = ctx["projections"]
 	var cached: Dictionary = _find(projections, key, identity)

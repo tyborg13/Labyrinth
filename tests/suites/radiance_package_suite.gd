@@ -36,7 +36,7 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	for card_id: String in GameData.cards():
 		if bool((GameData.cards()[card_id] as Dictionary).get("retired", false)):
 			continue
-		if bool(GameData.card_def(card_id).get("radiance", false)):
+		if bool(GameData.card_def(card_id).get("light_vision_family", false)):
 			tagged_ids.append(card_id)
 	tagged_ids.sort()
 	var expected_ids: Array[String] = RADIANCE_CARD_IDS.duplicate()
@@ -45,7 +45,7 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	var reward_radiance_count: int = 0
 	for rarity_cards_var: Variant in GameData.reward_card_pool_by_rarity("", true).values():
 		for card_id_var: Variant in rarity_cards_var as Array:
-			if bool(GameData.card_def(str(card_id_var)).get("radiance", false)):
+			if bool(GameData.card_def(str(card_id_var)).get("light_vision_family", false)):
 				reward_radiance_count += 1
 	expect.call(reward_radiance_count == 25, "The ordinary reward pool should contain 25 Radiance cards after card pool overhaul wave 4")
 	for card_id: String in ["dawnstep", "prism_sight", "trapdoor", "icebound_chains", "spark_focus"]:
@@ -54,9 +54,9 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue
 			var action: Dictionary = action_var as Dictionary
-			if str(action.get("type", "")) in ["vision", "truesight"]:
+			if str(action.get("type", "")) == "vision":
 				found_duration = int(action.get("duration", 0)) == 2
-		expect.call(found_duration, "%s should use the approved two-turn Vision or Truesight duration" % card_id)
+		expect.call(found_duration, "%s should use the approved two-turn Vision duration" % card_id)
 
 static func _test_attack_light_riders(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -93,7 +93,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 			else:
 				state = combat.apply_player_action(state, action)
 		var sources: Array = (state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
-		expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "%s should create two-turn Light after resolving on its selected attack tile" % card_id)
+		expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target and int((sources[0] as Dictionary).get("remaining_activations", 0)) == -1, "%s should create lasting Light after resolving on its selected attack tile" % card_id)
 		expect.call(int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) < hp_before, "%s should still resolve its attack before creating impact Light" % card_id)
 
 	var rider: Dictionary = (GameData.card_def("lantern_shot").get("actions", []) as Array)[0]
@@ -133,7 +133,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 	expect.call(int(((brightglass_result.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 20, "Post-hit Light should not self-prime Brightglass Lens on the same attack")
 
 	var squall_action: Dictionary = (GameData.card_def("squall_shot").get("actions", []) as Array)[0]
-	expect.call(not bool(GameData.card_def("squall_shot").get("radiance", false)) and not squall_action.has("illuminate_radius"), "Squall Shot should retain its AOE-and-push identity without an added Light rider")
+	expect.call(not bool(GameData.card_def("squall_shot").get("light_vision_family", false)) and not squall_action.has("illuminate_radius"), "Squall Shot should retain its AOE-and-push identity without an added Light rider")
 	var synthetic_aoe_rider: Dictionary = squall_action.duplicate(true)
 	synthetic_aoe_rider["illuminate_radius"] = 1
 	synthetic_aoe_rider["illuminate_duration"] = 2
@@ -146,12 +146,12 @@ static func _test_movement_light_rider_uses_resolved_destination(expect: Callabl
 	var card: Dictionary = GameData.card_def("threaded_path")
 	var actions: Array = card.get("actions", []) as Array
 	var move_action: Dictionary = actions[0] as Dictionary
-	expect.call(bool(card.get("radiance", false)), "Threaded Path should carry the Radiance school tag")
-	expect.call(actions.size() == 2 and str(move_action.get("type", "")) == "move" and int(move_action.get("illuminate_radius", 0)) == 1 and int(move_action.get("illuminate_duration", 0)) == 2, "Threaded Path should author destination Light on its movement action without a separate target action")
+	expect.call(bool(card.get("light_vision_family", false)), "Threaded Path should retain its Light/Vision pool eligibility")
+	expect.call(actions.size() == 2 and str(move_action.get("type", "")) == "move" and int(move_action.get("illuminate_radius", 0)) == 1 and not move_action.has("illuminate_duration"), "Threaded Path should author destination Light on its movement action without a separate target action")
 	var move_icons: Array[String]
 	for token_var: Variant in ActionIcons.tokens_for_action(move_action):
 		move_icons.append(str((token_var as Dictionary).get("icon", "")))
-	expect.call(move_icons == ["move", "illuminate", "time"], "Threaded Path should present Move and its destination Light as one action row")
+	expect.call(move_icons == ["move", "illuminate"], "Threaded Path should present Move and its destination Light as one action row")
 
 	var combat := CombatEngine.new()
 	var hidden_room: Dictionary = _room()
@@ -164,7 +164,7 @@ static func _test_movement_light_rider_uses_resolved_destination(expect: Callabl
 	var resolved_destination: Vector2i = (moved.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var sources: Array = (moved.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
 	expect.call(resolved_destination == Vector2i(3, 4), "Threaded Path should stop before a hidden collision")
-	expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == resolved_destination and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "Threaded Path should create two-turn Light where movement actually ends")
+	expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == resolved_destination and int((sources[0] as Dictionary).get("remaining_activations", 0)) == -1, "Threaded Path should create lasting Light where movement actually ends")
 	expect.call((sources[0] as Dictionary).get("pos", Vector2i.ZERO) != selected_destination, "Threaded Path should never leak Light onto an unreachable selected endpoint")
 
 	var trap_room: Dictionary = _room()

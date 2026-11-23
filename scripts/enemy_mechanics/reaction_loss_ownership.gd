@@ -8,28 +8,6 @@ const LOSS_FIELDS: Array = ["hp_loss", "block_loss", "stoneskin_loss"]
 static func _probe_boundary(step: Dictionary, owner: Dictionary) -> void:
 	if owner.has("_resolver_boundary_id"): step["_resolver_boundary_id"] = owner["_resolver_boundary_id"]
 
-# Traced compound actions keep the existing Bleed rules, but present each
-# payment at the boundary that charged it. Ordinary actions retain their payloads.
-static func pay_bleed(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
-	var before: Dictionary = state.duplicate(true)
-	var trace: Dictionary = context["reaction_trace"]
-	var scope: Dictionary = Trace.charge_started(engine, state, trace, int(state["enemies"][index]["id"]))
-	var payments: Array[Dictionary]
-	state = engine._trigger_enemy_bleed_for_resolved_action(state, index, action, payments)
-	var entries: Array[Dictionary] = Trace.charge_finished(engine, state, trace, scope)
-	var moving: bool = engine._enemy_action_is_movement(action)
-	var ordered: Array[Dictionary]
-	if not payments.is_empty():
-		var header: Dictionary = payments[0].duplicate(true)
-		header["traced_bleed"] = true
-		ordered = charge_steps(engine, before, state, entries, header)
-		trace["bleed_paid"] = true
-	if moving: bleed_steps.append_array(ordered)
-	elif not ordered.is_empty(): trace["attack_bleed_steps"] = ordered
-	if not payments.is_empty() and engine._enemy_cannot_continue_after_bleed(state, index): context["bleed_stopped"] = true
-	if not moving and not payments.is_empty(): context["attack_before"] = state.duplicate(true)
-	return state
-
 static func traced_intent(_intent: Dictionary) -> bool:
 	# Tether and Mirror were the only compound tracing adapters.
 	return false
@@ -58,12 +36,10 @@ static func charge_steps(engine: RefCounted, before: Dictionary, after: Dictiona
 	return result
 
 static func separate_movement(context: Dictionary) -> bool:
-	return has_arrival_cascade(context) or bool(context.get("reaction_trace", {}).get("bleed_paid", false))
+	return has_arrival_cascade(context)
 
 static func before_attack_steps(engine: RefCounted, context: Dictionary) -> Array[Dictionary]:
-	var result: Array[Dictionary] = arrival_steps(engine, context)
-	result.append_array(context.get("reaction_trace", {}).get("attack_bleed_steps", []))
-	return result
+	return arrival_steps(engine, context)
 
 static func action_state(after: Dictionary, context: Dictionary) -> Dictionary:
 	return context.get("reaction_trace", {}).get("action_after", after)

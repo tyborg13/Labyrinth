@@ -24,21 +24,26 @@ const IMMUNITY_ICONS: Dictionary = {"shock": "shock", "immobilize": "immobilize"
 const STEADFAST_ICON: String = "stagger"
 const COMMAND_ICON: String = "melee"
 
+static func steadfast_token(unit: Dictionary) -> Dictionary:
+	if not Dragons.is_dragon_boss_id(str(unit.get("type", ""))): return {}
+	return _token(STEADFAST_ICON, STEADFAST, "Takes half Stagger.", "steadfast")
+
 static func tokens(unit: Dictionary, state: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	var type: String = str(unit.get("type", ""))
 	var definition: Dictionary = Data.enemies().get(type, {}) as Dictionary
-	if Dragons.is_dragon_boss_id(type):
-		result.append(_token(STEADFAST_ICON, STEADFAST, "Takes half Stagger.", "steadfast"))
+	var steadfast: Dictionary = steadfast_token(unit)
+	if not steadfast.is_empty():
+		result.append(steadfast)
 	for status_var: Variant in definition.get("status_immunities", []):
 		var status: String = str(status_var)
 		if IMMUNITY_ICONS.has(status):
-			result.append(_token(str(IMMUNITY_ICONS[status]), IMMUNE, "%s doesn't affect it." % Glossary.name_for(status), "immune_" + status))
+			result.append(_token(str(IMMUNITY_ICONS[status]), IMMUNE, "This enemy is immune to %s." % Glossary.name_for(status), "immune_" + status))
 	if bool(definition.get("anchored", false)):
 		result.append(_token("anchored", Glossary.name_for("anchored"), Glossary.definition("anchored"), "anchored"))
 	var command: Dictionary = command_values(unit, state)
 	if not command.is_empty():
-		var token: Dictionary = _token(COMMAND_ICON, COMMAND, "Followers within %d tiles deal +%d damage." % [int(command["radius"]), int(command["bonus"])], "command")
+		var token: Dictionary = _token(COMMAND_ICON, COMMAND, "Followers within %d tiles of the captain deal +%d damage." % [int(command["radius"]), int(command["bonus"])], "command")
 		token["display_tooltip"] = "@pattern(diamond:%d) Followers on these tiles deal +%d damage." % [int(command["radius"]), int(command["bonus"])]
 		result.append(token)
 	return result

@@ -55,12 +55,12 @@ class SurfaceHeuristicTests(unittest.TestCase):
         self.assertEqual(repeat_repaint.offense, 2 * one_repaint.offense)
         self.assertEqual(repeat_repaint.surface_fuel_cost, 2 * one_repaint.surface_fuel_cost)
 
-    def test_freeze_payoff_cannot_refresh_on_every_flurry_copy(self):
+    def test_ice_hit_has_no_implicit_freeze(self):
+        # pla-06: Freeze is cut; only a printed "On Ice: also Stagger N" scores control.
         ice_hit = {'type': 'ranged', 'damage': 4, 'range': 5, 'element': 'ice'}
-        one = self.score([ice_hit])
-        repeat = self.score([ice_hit], flurry=True)
-        self.assertGreater(repeat.control, one.control)
-        self.assertLess(repeat.control, 2 * one.control)
+        self.assertEqual(self.score([ice_hit]).control, 0.0)
+        staggered = dict(ice_hit, surface_bonus={'surface': 'ice', 'subject': 'target', 'present': True, 'stagger': 6})
+        self.assertGreater(self.score([staggered]).control, 0.0)
 
 
 if __name__ == '__main__':

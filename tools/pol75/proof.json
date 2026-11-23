@@ -1,0 +1,23 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 17,
+  "required_images": [
+    {"pattern": "01_pass_click.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "01_pass_key.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "02_health_gain_1.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "02_health_gain_12.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "02_health_loss_1.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "02_health_loss_12.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "03_gear_left.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "03_gear_none.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "03_gear_picked_up.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "04_escape_0.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "04_escape_1.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "04_escape_2.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "05_opening.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "05_dragon_opening.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "05_summon.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "05_reinforcement.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]},
+    {"pattern": "06_reward.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 1080], "min_luma_range": 12, "min_luma_stdev": 3}]}
+  ]
+}

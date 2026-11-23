@@ -11,7 +11,7 @@ const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const CutoutContext = preload("res://scripts/cutout_context.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const EXPECTED_COPY: Dictionary = {
-	"kill_all": "Defeat every enemy.",
+	"kill_all": "Defeat each enemy.",
 	"kill_leader": "Defeat the marked leader. The rest flee.",
 	"survive": "Survive until the marked time.",
 	"reach_exit": "Reach a marked door to escape."
@@ -85,7 +85,9 @@ static func _test_objectives(expect: Callable) -> void:
 		var objective: Dictionary = {"type": "kill_leader", "leader_type": identity}
 		var block: Control = View.build_objective({"objective": objective})
 		expect.call(Rules.description_for_objective(objective).is_empty() and block.find_child("PreBattleObjectiveDescription", true, false) == null, "Dragon/Guardian objectives have no secondary line: " + identity)
-		expect.call((block.find_child("PreBattleObjectiveTitle", true, false) as Label).text == "OBJECTIVE · Defeat " + str(definition["name"]), "Named objective keeps its authored title: " + identity)
+		var name: String = str(definition["name"])
+		var expected_title: String = "OBJECTIVE · Defeat the " + name if bool(definition.get("guardian", false)) else "OBJECTIVE · Defeat " + name.get_slice(",", 0)
+		expect.call((block.find_child("PreBattleObjectiveTitle", true, false) as Label).text == expected_title, "Named objective keeps its authored title: " + identity)
 		block.free()
 
 static func _test_heading_focus(expect: Callable) -> void:

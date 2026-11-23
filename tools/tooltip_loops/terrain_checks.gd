@@ -2,6 +2,9 @@ extends RefCounted
 ## Authoring proof from production retained draw commands, not state presence alone.
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Combat = preload("res://scripts/hero_facing_combat.gd")
+const PixelGround = preload("res://scripts/board_pixel_surface_layer.gd")
+const GroundField = preload("res://scripts/board_pixel_surface_field.gd")
+const GroundStamp = preload("res://scripts/board_ground_fx_stamp.gd")
 const Margin = preload("res://tools/tooltip_loops/sprite_margin.gd")
 const Board = preload("res://tools/tooltip_loops/record_board.gd")
 const LOOP_SIZE := Vector2(282, 168)
@@ -18,6 +21,8 @@ var airborne_above_rock_seen: bool = false
 var observed_surfaces: Dictionary = {}
 
 static func _surface_visible(board: Control, tile: Vector2i, kind: String) -> bool:
+	if bool(board.get("_pixel_ground_enabled")):
+		return _pixel_surface_visible(board.get("_pixel_ground") as PixelGround, tile, kind)
 	var layer: Control = board._scene_render_layers_by_tile.get(tile)
 	var canvases: Array[Control]
 	if is_instance_valid(layer): _canvases(layer, canvases)
@@ -25,6 +30,37 @@ static func _surface_visible(board: Control, tile: Vector2i, kind: String) -> bo
 	for canvas: Control in canvases:
 		var surface_layer: Node2D = canvas.get(field)
 		if is_instance_valid(surface_layer) and surface_layer.is_visible_in_tree(): return true
+	return false
+
+static func _pixel_surface_visible(ground: PixelGround, tile: Vector2i, kind: String) -> bool:
+	var kind_id: int = GroundField.RUBBLE if kind == "rubble" else GroundField.ELEMENT_IDS[kind]
+	if not is_instance_valid(ground) or not GroundField.tile_kind(ground.field.tiles.get(tile, 0), kind_id):
+		return false
+	# Fire and Electrified sheets submit their rear and front stamps through
+	# tile or body painter slots. Their current rows identify what can draw.
+	if kind == "fire" or kind == "electrified":
+		var sheet_row: int = 0 if kind == "fire" else 1
+		for pass_index: int in 2:
+			var stamp: GroundStamp = ground.sheet.stamps.get(Vector3i(tile.x, tile.y, pass_index))
+			if not is_instance_valid(stamp) or not stamp.is_visible_in_tree() or not stamp._cull_bounds.has_area():
+				continue
+			var ink := stamp.material as ShaderMaterial
+			if ink != null and ink.shader != null and ink.get_shader_parameter("atlas") != null:
+				if stamp.rows_at(ground.sheet.tick)[sheet_row] >= 0:
+					return true
+	# The shared floor can also draw decals, including Ice and Rubble. A tile
+	# in the field alone is insufficient without a submitted decal of its kind.
+	var floor: ColorRect = ground._floor
+	if not is_instance_valid(floor) or not floor.is_visible_in_tree() or not floor.get_rect().has_area():
+		return false
+	var material := floor.material as ShaderMaterial
+	if material == null or material.shader == null or material.get_shader_parameter("tile_data") == null \
+			or material.get_shader_parameter("decal_data") == null or material.get_shader_parameter(kind + "_atlas") == null:
+		return false
+	var decals: PackedInt32Array = ground.decals.bins.get(tile, PackedInt32Array())
+	for index: int in decals:
+		if ground.decals.placements[index]["kind"] == kind_id:
+			return true
 	return false
 
 static func _canvases(node: Node, result: Array[Control]) -> void:

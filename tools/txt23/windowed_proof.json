@@ -1,0 +1,14 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*txt23_relic_offers_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 550, 960, 130], "min_luma_range": 20, "min_luma_stdev": 5}
+      ]
+    }
+  ]
+}

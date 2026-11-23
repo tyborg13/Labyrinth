@@ -187,7 +187,6 @@
     "name": "Cracked Lantern",
     "slot": "trinket",
     "rarity": "common",
-    "starter": true,
     "icon_path": "res://assets/art/equipment/cracked_lantern.png",
     "accent": "#8f9499",
     "cards": [

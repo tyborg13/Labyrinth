@@ -2,6 +2,7 @@ extends Button
 
 signal hero_fade_finished
 
+const KeyBindings = preload("res://scripts/key_bindings.gd")
 const Rules = preload("res://scripts/movement_undo_rules.gd")
 const Router = preload("res://scripts/input_router.gd")
 const HudSkin = preload("res://scripts/ui_skin.gd")
@@ -18,6 +19,7 @@ const SOFT_UI_CANCEL_SOUND_ID: String = RunSfxLibrary.MENU_CLOSE_ID
 
 var rules = Rules.new()
 var _host: Control
+var _key_label: Label
 var _trigger_down: bool = false
 var _hero_fade_running: bool = false
 var _hero_fade_coroutine_running: bool = false
@@ -49,20 +51,28 @@ func _init() -> void:
 	row.add_theme_constant_override("separation", 6)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(row)
-	for value: String in ["Undo move", "Z"]:
+	for label_name: String in ["UndoTitle", "UndoKey"]:
 		var label := Label.new()
-		label.name = "UndoKey" if value == "Z" else "UndoTitle"
-		label.text = value
+		label.name = label_name
+		if label_name == "UndoKey":
+			_key_label = label
+		else:
+			label.text = text
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.add_theme_font_override("font", Typography.ui_font())
 		Typography.set_label_size(label, 15)
-		label.add_theme_color_override("font_color", Palette.TEXT_3 if value == "Z" else Palette.TEXT)
+		label.add_theme_color_override("font_color", Palette.TEXT_3 if label == _key_label else Palette.TEXT)
 		row.add_child(label)
 	pressed.connect(request_undo)
 
+func refresh_key() -> void:
+	_key_label.text = KeyBindings.label(KeyBindings.UNDO_WALK)
+	_key_label.visible = not _key_label.text.is_empty()
+
 func configure(host: Control) -> void:
 	_host = host
+	refresh_key()
 	refresh()
 
 func _can_interact() -> bool:
@@ -98,7 +108,11 @@ func place_next_to(meter: Control) -> void:
 	global_position = meter.global_position + Vector2(0.0, meter.size.y + UNDO_BUTTON_GAP)
 
 func consumes_input(event: InputEvent) -> bool:
-	var pressed_now: bool = event.is_action_pressed(Router.ACTION_UNDO_MOVE)
+	# Exact key matching keeps the InputMap extra tied to its modifier chord.
+	var pressed_now: bool = (
+		KeyBindings.pressed(KeyBindings.UNDO_WALK, event)
+		or event.is_action_pressed(Router.ACTION_UNDO_MOVE, false, event is InputEventKey)
+	)
 	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_TRIGGER_LEFT:
 		var was_down: bool = _trigger_down
 		_trigger_down = pressed_now

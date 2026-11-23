@@ -289,6 +289,9 @@ func enter_room(destination: Vector2i) -> void:
 	var destinations: Array[Vector2i] = TypedArrays.vector2i([destination])
 	var rects: Dictionary = map.call("selectable_room_global_rects", destinations)
 	if not require(rects.has(destination), "On-screen route node %s" % str(destination)): return
+	# The route checks screens, not balance: the connecting fights' simple policy
+	# must reach Tharokh whatever the starter deck's strength.
+	run_state()["player_hp"] = run_state()["player_max_hp"]
 	await driver.click((rects[destination] as Rect2).get_center())
 	await until(func() -> bool: return run_state().get("current_room") == destination, "Travel to %s" % str(destination))
 	await frames(LAYOUT_FRAMES)

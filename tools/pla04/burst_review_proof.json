@@ -1,0 +1,12 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "min_images": 6,
+  "required_images": [
+    {"pattern": "burst_death_preview.png"},
+    {"pattern": "burst_crownfire_preview.png"},
+    {"pattern": "burst_faultline_preview.png"},
+    {"pattern": "burst_keg_preview.png"},
+    {"pattern": "empowered_pyroclasm_burst.png"},
+    {"pattern": "shattered_reflection_range.png"}
+  ]
+}

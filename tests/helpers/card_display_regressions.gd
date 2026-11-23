@@ -178,10 +178,10 @@ static func _empower_time(tree: SceneTree, host: Node, expect: Callable) -> void
 	var surcharge: int = int(definition["empower"]["cost"]["time"])
 	var badge: Control = widget.get("_time_badge")
 	expect.call(int(Display.for_card(EMPOWER_CARD, combat).get("time_surcharge", 0)) == surcharge, "Empower projection returns its authored Time surcharge")
-	expect.call(badge.value == int(definition["time"]) + surcharge and badge.tooltip_text.contains("Empower: +%d" % surcharge), "Empower displayed Time and tooltip include the surcharge")
+	expect.call(badge.value == int(definition["time"]) + surcharge and badge.tooltip_text.contains("Empower adds %d Time." % surcharge), "Empower displayed Time and tooltip include the surcharge")
 	combat.erase(Keywords.PLAY_MODIFIERS_KEY)
 	Display.bind(widget, combat)
-	expect.call(badge.value == int(definition["time"]) and not badge.tooltip_text.contains("Empower:"), "Clearing Empower restores the card's displayed Time")
+	expect.call(badge.value == int(definition["time"]) and not badge.tooltip_text.contains("Empower adds"), "Clearing Empower restores the card's displayed Time")
 	widget.free()
 
 static func first_damage(rows: Array) -> int:

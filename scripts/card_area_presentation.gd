@@ -46,7 +46,7 @@ static func tokens(source: Array, action: Dictionary, actions: Array = [], inclu
 		result.append(token)
 	if area_action and include_hit and not has_hit:
 		# Status-only areas expose delivery without inventing a 0-damage value.
-		result.push_front({"icon": delivery, "tone": "neutral"})
+		result.push_front({"icon": delivery, "tone": "neutral", "card_keyword": false, "tooltip": ""})
 	if needs_pierce: result.append({"icon": "pierce", "tone": "neutral"})
 	return result
 

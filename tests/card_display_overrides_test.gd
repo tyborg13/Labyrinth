@@ -96,13 +96,14 @@ func _item_row_rules(audit: RefCounted) -> void:
 			if str(bindings[index]).is_empty(): continue
 			_expect(ItemText.token_number(rows, str(bindings[index])) == matches[index].get_string(), id + ": numeral binds to its base face token " + str(bindings[index]))
 		_expect(Display.rules_text(id, definition, rows) == authored, id + ": unmodified prose is byte-identical")
-	# Long Dawn is an existing root skill. Its real combat duration is the
-	# independent oracle; the unchanged Vision 2 catches global replacement.
-	var duration: int = preload("res://scripts/combat_engine.gd").new()._radiance_duration_for_player(state, int(Data.card_def(RowFixture.CARD)["actions"][0]["duration"]))
-	var expected: String = "Gain Truesight and 2 Vision for %d turns." % duration
+	# Long Dawn extends the same Vision duration in combat and inspection.
+	var base_duration: int = int(Data.card_def(RowFixture.CARD)["actions"][0]["duration"])
+	var duration: int = preload("res://scripts/combat_engine.gd").new().vision_duration_for_player(state, base_duration)
+	var expected: String = "Gain Vision for %d turns." % duration
+	var base_text: String = "Gain Vision for %d turns." % base_duration
 	var tile: Control = host.call("_build_item_card_tile", RowFixture.CARD, "inventory", 0, "txt01/item")
 	host.add_child(tile)
-	_expect(str(tile.find_child("RowSummary", true, false).text) == expected, "Pack row uses Long Dawn's resolved duration without changing Vision or prose")
+	_expect(str(tile.find_child("RowSummary", true, false).text) == expected, "Pack row uses Long Dawn's resolved Vision duration")
 	for source: String in ["equipped", "inventory"]:
 		var row: Control = host.call("_new_item_card_tile", RowFixture.CARD, source, 0, false, false)
 		_expect(str(row.find_child("RowSummary", true, false).text) == expected, source + ": item row shares resolved rules")
@@ -135,7 +136,7 @@ func _item_row_rules(audit: RefCounted) -> void:
 		var rows: Array = face.display_summary_rows()
 		var text: String = Display.rules_text(RowFixture.CARD, face.call("_display_card_def"), rows)
 		_expect(text == "Consume. " + expected, context + ": exact item prose uses resolved values")
-		_expect(ItemText.token_number(rows, "truesight") == str(duration) and ItemText.token_number(rows, "time") == str(duration), context + ": both duration tokens match combat")
+		_expect(ItemText.token_number(rows, "time") == str(duration), context + ": Vision duration matches combat")
 		print("TXT01 %s: %s | face: %s" % [context, text, Icons.plain_text_for_rows(rows).replace("\n", " / ")])
 	await _inspect_rules(audit.graft, choice, "Consume. " + expected)
 	_expect(var_to_bytes(state) == original, "Item text resolution preserves the complete run, RNG, history, analytics and save inputs")
@@ -147,7 +148,7 @@ func _item_row_rules(audit: RefCounted) -> void:
 	host.set("_run_state", clean)
 	var reopened: Control = host.call("_build_item_card_tile", RowFixture.CARD, "inventory", 0, "txt01/item")
 	host.add_child(reopened)
-	_expect(str(reopened.find_child("RowSummary", true, false).text) == "Gain Truesight and 2 Vision for 2 turns.", "Retained Pack row refreshes after removing the skill")
+	_expect(str(reopened.find_child("RowSummary", true, false).text) == base_text, "Retained Pack row refreshes after removing the skill")
 	host.set("_combat_state", state)
 	var combat_row: Control = host.call("_build_item_card_tile_body", RowFixture.CARD)
 	_expect(str(combat_row.find_child("RowSummary", true, false).text) == expected, "Combat item row uses combat's display state")
@@ -163,7 +164,7 @@ func _item_row_rules(audit: RefCounted) -> void:
 	host.call("_open_character_overlay", "equipment")
 	await process_frame
 	var equipped: Control = host.get("_item_equipped_tiles")[0]
-	_expect(str(equipped.find_child("RowSummary", true, false).text) == "Gain Truesight and 2 Vision for 2 turns.", "Reopened equipped column refreshes resolved item text")
+	_expect(str(equipped.find_child("RowSummary", true, false).text) == base_text, "Reopened equipped column refreshes resolved item text")
 	host.call("_close_card_upgrade_overlay")
 	host.set("_combat_state", state)
 	host.call("_open_character_overlay", "equipment")
@@ -177,7 +178,7 @@ func _item_row_rules(audit: RefCounted) -> void:
 	var definition: Dictionary = Data.card_def_for_progression("nail_bomb", modified)
 	var display: Dictionary = Display.for_card("nail_bomb", modified, definition)
 	var text: String = Display.rules_text("nail_bomb", definition, display["summary_rows"])
-	_expect(text == "Consume. Deal %s at range %s and Sunder %s." % [ItemText.token_number(display["summary_rows"], "ranged"), ItemText.token_number(display["summary_rows"], "range"), ItemText.token_number(display["summary_rows"], "sunder")], "Relic and runtime modifiers change only their numeric fields")
+	_expect(text == "Consume. Deal %s damage with Pierce in the area at Range %s." % [ItemText.token_number(display["summary_rows"], "ranged"), ItemText.token_number(display["summary_rows"], "range")], "Relic and runtime modifiers change the numbers in the approved copy")
 	_expect(text != Icons.card_rules_text(Data.card_def("nail_bomb")), "Modifier fixture actually changes the numbers")
 	host.set("_run_state", saved_run)
 	host.set("_combat_state", saved_combat)

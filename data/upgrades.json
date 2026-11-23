@@ -1,22 +1,22 @@
 {
   "card_damage": {
     "name": "Card Damage",
-    "description": "Generated card-part upgrades can increase attack damage."
+    "description": "Card upgrades increase attack damage."
   },
   "card_range": {
     "name": "Card Range",
-    "description": "Generated card-part upgrades can increase Movement, blink, and attack range."
+    "description": "Card upgrades increase Movement, Blink distance and attack Range."
   },
   "card_defense": {
     "name": "Card Defense",
-    "description": "Generated card-part upgrades can increase Block, Stoneskin, healing, and draw."
+    "description": "Card upgrades increase Block, Stoneskin, Heal and Draw."
   },
   "card_status": {
     "name": "Card Status",
-    "description": "Generated card-part upgrades can add or strengthen attack status effects."
+    "description": "Card upgrades add or strengthen attack statuses."
   },
   "card_area": {
     "name": "Card Area",
-    "description": "Generated card-part upgrades can expand AOE patterns."
+    "description": "Card upgrades expand the area."
   }
 }

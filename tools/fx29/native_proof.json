@@ -1,0 +1,56 @@
+{
+  "expected_sizes": [
+    "1920x1080",
+    "3840x480"
+  ],
+  "min_images": 7,
+  "required_images": [
+    {
+      "pattern": "*/release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/flight33.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/flight66.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/arrival.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/arrival_plus100ms.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/arrival_plus233ms.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/strip.png",
+      "width": 3840,
+      "height": 480,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            3840,
+            480
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

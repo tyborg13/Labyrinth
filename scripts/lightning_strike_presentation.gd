@@ -1,5 +1,5 @@
 extends RefCounted
-## Skybreak's existing per-tile sky-bolt geometry, shared by board rule strikes.
+## Skybreak's per-tile strike profile, shared by board rule strikes.
 ## Delivery/contact clocks stay owned by the original playback steps.
 const Dragon = preload("res://scripts/dragon_presentation.gd")
 const ZEKARION_REVEAL: float = 0.38

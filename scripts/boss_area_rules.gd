@@ -3,6 +3,7 @@ extends RefCounted
 ## Both retain the announced shape; ordinary follow-ups keep live targeting.
 const Typed = preload("res://scripts/typed_arrays.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const BurstRules = preload("res://scripts/burst_rules.gd")
 const MOVES: Dictionary = {
 	"tharokh": ["stonewake", "worldspine_claw", "bedrock_breath", "faultline"],
 	"vyraketh": ["cinderfall", "kindle_ground", "cinder_maw", "crownfire"],
@@ -178,6 +179,14 @@ static func stone_fuel(engine: RefCounted, state: Dictionary, action: Dictionary
 		if stone.get("id", stone["pos"]) == held["identity"]: result.append(held["pos"])
 	return result
 
+static func cinder_fuel(state: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	var marked_sources: Dictionary = action.get("area_fuel_sources", {})
+	for tile: Vector2i in Typed.vector2i(action.get("area_fuel_tiles", [])):
+		if Surfaces.has_surface(state, tile, "fire") and marked_sources.get(tile, {}) == Surfaces.surface_at(state, tile).get("elemental_source", {}):
+			result.append(tile)
+	return result
+
 static func pending_tiles(intent: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	for action: Dictionary in intent.get("actions", []):
@@ -223,6 +232,8 @@ static func migrate_combat(value: Variant) -> void:
 		# action carries no announcement to recover from the load-time board.
 		if str(enemy.get("type", "")) == "briar_weaver" and not (intent.get("actions", []) as Array).any(_has_stored_tiles): continue
 		freeze(engine, state, enemy, intent)
+		for action: Dictionary in intent.get("actions", []):
+			_migrate_burst_stamp(action)
 		# Some older saves held tiles without a route. Seal the existing planner's
 		# saved-board offset once, before a hover can re-aim the missing body plan.
 		if not intent.has("committed_plan") and not forecast_signature(intent).is_empty():
@@ -230,3 +241,26 @@ static func migrate_combat(value: Variant) -> void:
 
 static func _has_stored_tiles(action: Dictionary) -> bool:
 	return held(action) or action.has("declared_tiles")
+
+static func _migrate_burst_stamp(action: Dictionary) -> void:
+	var sources: Array[Vector2i]
+	match str(action.get("type", "")):
+		"detonate_cinders":
+			sources.assign(Typed.vector2i(action.get("area_fuel_tiles", [])))
+		"terrain_burst":
+			if not bool(action.get("consume_terrain", true)): return
+			for stone: Dictionary in action.get("area_stone_fuel", []):
+				sources.append(stone["pos"])
+		_:
+			return
+	if sources.is_empty(): return
+	# Trim the saved warning against its original sources. A spent source or
+	# a tile that became inert since announcement still belongs to the stamp.
+	var cross_lookup: Dictionary = {}
+	for source: Vector2i in sources:
+		for offset: Vector2i in BurstRules.OFFSETS:
+			cross_lookup[source + offset] = true
+	var tiles: Array[Vector2i]
+	for tile: Vector2i in shown(action):
+		if cross_lookup.has(tile): tiles.append(tile)
+	action[FIELD] = tiles

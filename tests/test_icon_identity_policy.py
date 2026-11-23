@@ -44,7 +44,6 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:swap": "swap",
     "combat:stances": "anchored",
     "combat:cleanse": "cleanse",
-    "combat:petrify": "petrify",
     # Wave-4 family A topics. Consume is the first and broadest technique.
     "combat:surface_techniques": "surface_consume",
     "combat:sweeping_strikes": "all_enemies",
@@ -72,9 +71,9 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"cinder_marks", "meteor_marks"}),
     # Wards leave a surface under each adjacent enemy: the Shape Ground action.
     frozenset({"surface", "surface_adjacent_enemies"}),
-    # Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
-    # Worldbreak burst terrain like the Worldspine pulse.
-    frozenset({"burst_terrain", "terrain_burst"}),
+    # pla-04: one Burst icon for every destroy-it-to-hit-around-it effect;
+    # Kindle grows an enemy's death Burst (spec/icon_identity_policy.md).
+    frozenset({"kindle", "detonate", "discharge", "destroy_illusion", "burst_terrain"}),
 }
 
 # Temporary placeholders: action types that borrow an existing icon until a

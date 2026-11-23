@@ -62,7 +62,8 @@ class IllusionTerrainHeuristicTests(unittest.TestCase):
 
     def test_own_illusion_actions_depend_on_an_illusion_being_present(self):
         shatter = score([{'type': 'destroy_illusion', 'range': 6, 'damage': 6}])
-        expected = heuristic.immediate_damage_value(6, WEIGHTS.illusion_on_board_availability, WEIGHTS.destroy_illusion_expected_targets, WEIGHTS)
+        # The illusion Bursts its tile and its four neighbors.
+        expected = heuristic.immediate_damage_value(6, WEIGHTS.illusion_on_board_availability, WEIGHTS.burst_cross_targets, WEIGHTS)
         self.assertAlmostEqual(shatter.offense, expected, places=4)
         swap = score([{'type': 'illusion_swap', 'range': 99, 'transfer_block': True}])
         self.assertGreater(swap.mobility, 0.0)
@@ -87,6 +88,13 @@ class IllusionTerrainHeuristicTests(unittest.TestCase):
             3 * WEIGHTS.damage_per_point * WEIGHTS.rite_pulse_targets_per_activation * WEIGHTS.rite_remaining_activations,
             places=4,
         )
+
+    def test_shattered_reflection_scores_guaranteed_light_once(self):
+        cards = heuristic.load_cards(Path(__file__).resolve().parents[1] / 'data/cards.json')
+        card = cards['shattered_reflection']
+        action = card['actions'][0]
+        expected = heuristic.light_value(action['illuminate_radius'], WEIGHTS)
+        self.assertAlmostEqual(heuristic.score_card('shattered_reflection', card, WEIGHTS).radiance, expected)
 
 
 if __name__ == '__main__':

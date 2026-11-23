@@ -111,18 +111,10 @@ static func _test_status_immunities_are_atomic(expect: Callable) -> void:
 		var result: Dictionary = combat.call("_apply_action_keywords_to_enemy", state, _boss_index(state), case["action"], Vector2i(2, 4), true)
 		expect.call(_enemy_status_amount(_boss_from_state(result), str(case["status"])) == 0, "%s rejects its one explicit status immunity" % boss_id)
 	var ice: Dictionary = _boss_combat_state("iskaldra")
-	ice["relics"] = ["rimecatcher_vial", "cold_mirror"]
-	ice["player"]["block"] = 8
 	var boss: Dictionary = _boss_from_state(ice)
-	var footprint: Array[Vector2i] = Surface.footprint_tiles(boss)
-	for tile: Vector2i in footprint:
-		Surface.place(ice, tile, "ice")
-	boss["chilled"] = true
-	ice = combat.call("_surface_freeze_actor", ice, "enemy", int(boss["id"]), {"element": "ice"})
-	expect.call(int(_boss_from_state(ice).get("freeze", 0)) == 0, "Iskaldra rejects a prepared Ice Freeze")
-	for tile: Vector2i in footprint:
-		expect.call(Surface.has_surface(ice, tile, "ice"), "Rejected Freeze must not consume its supporting Ice")
-	expect.call(int(ice["player"]["block"]) == 8 and int(ice["player"].get("stoneskin", 0)) == 0, "Rejected Freeze must not trigger Cold Mirror")
+	var traits = preload("res://scripts/enemy_mechanics/unit_traits.gd")
+	expect.call(traits.tokens(boss).any(func(token: Dictionary) -> bool: return token.get("unit_trait") == "steadfast" and token.get("tooltip") == "Takes half Stagger."), "Iskaldra uses the Steadfast trait")
+	expect.call(combat._apply_stagger_to_enemy(ice, int(boss["id"]), 6) == 3, "Steadfast halves incoming Stagger")
 	for boss_id: String in ["tharokh", "vyraketh"]:
 		var shared: Dictionary = _boss_combat_state(boss_id)
 		var target: Dictionary = _boss_from_state(shared)
@@ -206,7 +198,7 @@ static func _test_noctyrax_minions_make_eclipse_visibility_matter(expect: Callab
 	expect.call(int((after.get("umbra",{}) as Dictionary).get("boss_eclipse_activations",0)) > 0, "Last Eclipse must enter its authored vision phase; helpers need not be hidden to supply pressure")
 	var revealed: Dictionary = after.duplicate(true)
 	var umbra: Dictionary = (revealed.get("umbra", {}) as Dictionary).duplicate(true)
-	umbra["truesight_activations"] = 1
+	umbra["vision_activations"] = 1
 	revealed["umbra"] = umbra
 	for enemy_var: Variant in revealed.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:

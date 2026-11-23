@@ -19,7 +19,6 @@ const Settings = preload("res://scripts/settings_store.gd")
 const STATE_META := &"labyrinth_application_shutdown"
 # Leave time for the watchdog thread and OS process exit under throttling.
 const QUIT_DEADLINE_USEC := 2500000
-const IDLE_PRELOAD_QUIT_GRACE_USEC := 250000
 const WATCHDOG_POLL_MSEC := 5
 const AUDIO_DRAIN_USEC := 100000
 const AUDIO_DRAIN_MIXES := 2
@@ -173,7 +172,6 @@ static func _drain(tree: SceneTree, state: QuitState, scene: Node, reason: Strin
 	await Persistence.flush_in_tree(tree)
 	Persistence.set_application_drained()
 	state.begin_cleanup()
-	var idle_grace_deadline := state.requested_usec + IDLE_PRELOAD_QUIT_GRACE_USEC
 	# Draw pulses stop when the main window is minimized. Resume the loading
 	# continuations from process frames so cancellation releases their state.
 	while true:
@@ -190,7 +188,7 @@ static func _drain(tree: SceneTree, state: QuitState, scene: Node, reason: Strin
 			mixes += 1
 			previous_mix = mix
 		var audio_settled: bool = mixes >= AUDIO_DRAIN_MIXES or Time.get_ticks_usec() - stopped_usec >= AUDIO_DRAIN_USEC
-		var resources_settled := SceneLoads.drain_for_shutdown(tree, Time.get_ticks_usec() < idle_grace_deadline)
+		var resources_settled := SceneLoads.drain_for_shutdown(tree)
 		if audio_settled and resources_settled and not Assets.has_preparation_drains(tree.root): break
 	state.drain_completed = true
 	tree.quit(state.exit_code)
@@ -202,8 +200,8 @@ static func _finish_engine_stop(root: Window, state: QuitState) -> void:
 	var stopped_usec: int = 0
 	if state.requested_usec == 0 and _stop_voices(root):
 		stopped_usec = Time.get_ticks_usec()
-	# After the managed drain, Godot owns any idle token that outlived its grace.
-	# A direct engine stop still gets the bounded cleanup for automation.
+	# Managed quit already collected the tokens. Direct engine stops need the
+	# bounded cleanup for automation.
 	if not state.drain_completed:
 		SceneLoads.finish_shutdown(root)
 	if stopped_usec == 0: return

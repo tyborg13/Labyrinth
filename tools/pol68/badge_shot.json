@@ -1,0 +1,10 @@
+{
+  "default_seed": 7262026,
+  "shots": [
+    {
+      "shot": "header_badges",
+      "scenario": "combat",
+      "flags": ["--equipment-inventory", "undertaker_plate", "--unread-equipment", "undertaker_plate"]
+    }
+  ]
+}

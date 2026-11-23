@@ -1,0 +1,20 @@
+{
+  "glossary_definitions": {
+    "skate": "This turn Ice costs you no Movement and doesn't Expose you."
+  },
+  "grimoire_lines": {
+    "combat:stances": {
+      "0": "Skate: This turn Ice costs you no Movement and doesn't Expose you."
+    },
+    "keyword:skate": {
+      "0": "This turn Ice costs you no Movement and doesn't Expose you."
+    },
+    "combat:surface_techniques": {
+      "1": "Convert: Frost Circuit leaves Electrified with 2 damage and Shock on the chosen tile. On Ice: also on every connected Ice tile."
+    },
+    "combat:sweeping_strikes": {
+      "0": "Some cards strike every enemy you can see. Other cards select only enemies on Fire, Ice or Electrified ground, or in Light. There is no target to choose, and an enemy hidden by the Umbra is never hit.",
+      "2": "Hit every enemy you can see within Range if shown and under any shown condition. No target to choose."
+    }
+  }
+}

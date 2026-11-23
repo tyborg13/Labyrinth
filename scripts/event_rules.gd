@@ -4,6 +4,7 @@ class_name EventRules
 const TypedArrays = preload("res://scripts/typed_arrays.gd")
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RunDeck = preload("res://scripts/run_deck.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
@@ -26,8 +27,8 @@ static func validate_data() -> Array[String]:
 			problems.append("Invalid omen: %s" % id)
 		if typeof(omen.get("effect")) != TYPE_DICTIONARY or str(omen.get("effect", {}).get("type", "")) not in Omens.EFFECT_TYPES:
 			problems.append("Unknown omen effect: %s" % id)
-		elif str(omen["effect"].get("type", "")) == "start_vision_turns" and (not omen["effect"].has("radius") or int(omen["effect"]["radius"]) < 0):
-			problems.append("Invalid omen Vision radius: %s" % id)
+		elif str(omen["effect"].get("type", "")) == "start_vision_turns" and int(omen["effect"].get("amount", 0)) <= 0:
+			problems.append("Invalid omen Vision duration: %s" % id)
 	for id: String in GameData.events():
 		var event: Dictionary = GameData.event_def(id)
 		if str(event.get("title", "")).is_empty() or str(event.get("body", "")).is_empty() or str(event.get("body", "")).split(" ", false).size() > 70:
@@ -110,6 +111,16 @@ static func choice_def(event_id: String, choice_id: String) -> Dictionary:
 	for choice: Dictionary in GameData.event_def(event_id).get("choices", []):
 		if str(choice.get("id", "")) == choice_id: return choice
 	return {}
+
+static func choice_label(state: Dictionary, choice: Dictionary) -> String:
+	var label: String = str(choice["label"])
+	for effect: Dictionary in choice.get("effects", []):
+		if str(effect["type"]) != "embers": continue
+		var amount: int = int(effect["amount"])
+		var scaled: int = DepthRules.event_value(state, "embers", amount)
+		if amount != scaled:
+			label = label.replace("%d Embers" % absi(amount), "%d Embers" % absi(scaled))
+	return label
 
 static func choice_available(state: Dictionary, event_id: String, choice_id: String) -> bool:
 	return not choice_def(event_id, choice_id).is_empty() and choice_block_reason(state, event_id, choice_id).is_empty()
@@ -256,7 +267,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 				var rarities: Dictionary = {}
 				for id: String in GameData.equipment():
 					var gear: Dictionary = GameData.equipment_def(id)
-					if id != old and not engine._run_has_equipment(next, id) and str(gear.get("slot", "")) == slot:
+					if GameData.equipment_is_pool_eligible(id) and id != old and not engine._run_has_equipment(next, id) and str(gear.get("slot", "")) == slot:
 						pool.append(id)
 						rarities[id] = str(gear.get("rarity", "common"))
 				var id: String = _pick_with_rarity_fallback(rng, pool, rarities, [rarity, old_rarity])
@@ -265,12 +276,16 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 					outcomes.append({"type": "embers", "amount": EMPTY_POOL_EMBERS, "substitution_for": type})
 					effect_outcomes.append(outcomes.slice(outcome_start))
 					continue
+				var previous_loadout: Dictionary = next.duplicate(false)
+				next["equipped_equipment"] = (next["equipped_equipment"] as Dictionary).duplicate()
+				next["equipment_grafts"] = (next.get("equipment_grafts", {}) as Dictionary).duplicate()
 				next["equipped_equipment"][slot] = id
 				(next.get("equipment_grafts", {}) as Dictionary).erase(old)
 				(next.get("equipment_grafts", {}) as Dictionary).erase(id)
 				(next.get("collected_equipment", []) as Array).erase(old)
 				if not (next.get("collected_equipment", []) as Array).has(id): next["collected_equipment"].append(id)
 				(next.get("equipment_inventory", []) as Array).erase(id)
+				RunDeck.rebuild(next, previous_loadout)
 				next = engine._mark_loadout_unread(next, "equipment", id)
 				outcomes.append({"type": type, "slot": slot, "from": old, "to": id})
 			"item":
@@ -285,7 +300,13 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 				var key: String = "item_inventory" if not _consumables(next.get("item_inventory", [])).is_empty() else "equipped_items"
 				var id: String = _pick(rng, _consumables(next.get(key, [])))
 				if not id.is_empty():
-					next[key].erase(id)
+					if key == "equipped_items":
+						var equipped: Array = next[key].duplicate()
+						var slot: int = equipped.find(id)
+						equipped.remove_at(slot)
+						RunDeck.set_items(next, equipped, slot)
+					else:
+						next[key].erase(id)
 					outcomes.append({"type": type, "id": id})
 			"transform_magic":
 				var slots: Array[int] = _attuned_slots(next)
@@ -305,10 +326,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 					if id.is_empty():
 						outcomes.append({"type": "nothing_changed", "slot": slot, "from": old})
 						continue
-					next["attuned_magic_cards"][slot] = id
-					var reward_index: int = (next.get("reward_cards", []) as Array).find(old)
-					if reward_index >= 0: next["reward_cards"][reward_index] = id
-					else: next["reward_cards"].append(id)
+					RunDeck.change_magic_slot(next, slot, id)
 					next = engine._mark_loadout_unread(next, "magic", id)
 					outcomes.append({"type": type, "slot": slot, "from": old, "to": id})
 			"omen":
@@ -356,7 +374,7 @@ static func _gear_or_relic(state: Dictionary, effect: Dictionary, rng: RandomNum
 		if type == "relic":
 			if bool(definition.get("exclusive_guardian", false)) or not str(definition.get("exclusive_boss", "")).is_empty() or (state.get("relics", []) as Array).has(id): continue
 		else:
-			if engine._run_has_equipment(state, id) or (effect.has("slot") and str(definition.get("slot", "")) != str(effect["slot"])): continue
+			if not GameData.equipment_is_pool_eligible(id) or engine._run_has_equipment(state, id) or (effect.has("slot") and str(definition.get("slot", "")) != str(effect["slot"])): continue
 		eligible.append(id)
 		rarity_by_id[id] = str(definition.get("rarity", "common"))
 	for index: int in range(GameData.CARD_RARITY_TIERS.find(str(effect["rarity"])), -1, -1):
@@ -455,14 +473,25 @@ static func preview_choice(state: Dictionary, choice_id: String) -> Array[Dictio
 	var choice: Dictionary = choice_def(current_id(owned), choice_id)
 	var result: Array[Dictionary]
 	if str(owned.get("mode", "")) != "event" or str(owned.get("event_state", {}).get("page", "")) != "choices" or not choice_available(owned, current_id(owned), choice_id): return result
-	result.assign(apply_effects(owned, choice.get("effects", []), rng_for(owned, "choice|%s" % choice_id))["outcomes"])
+	var engine: RefCounted = load("res://scripts/run_engine.gd").new()
+	var resolution: Dictionary = apply_effects(owned, choice.get("effects", []), rng_for(owned, "choice|%s" % choice_id), engine)
+	result.assign(resolution["outcomes"])
+	_preview_card_offers(resolution["state"], result, engine)
 	return result
 
 static func preview_lines(state: Dictionary, event_id: String, choice_id: String) -> Array[Dictionary]:
 	var choice: Dictionary = choice_def(event_id, choice_id)
 	var effects: Array = choice.get("effects", [])
-	var resolution: Dictionary = apply_effects(state.duplicate(true), effects, rng_for(state, "choice|%s" % choice_id))
+	var engine: RefCounted = load("res://scripts/run_engine.gd").new()
+	var resolution: Dictionary = apply_effects(state, effects, rng_for(state, "choice|%s" % choice_id), engine)
+	_preview_card_offers(resolution["state"], resolution["outcomes"], engine)
 	return Preview.lines(effects, resolution["effect_outcomes"], effect_lines(state, effects))
+
+static func _preview_card_offers(state: Dictionary, outcomes: Array, engine: RefCounted) -> void:
+	# These are private preview outcomes. The map-event receipt keeps its authored roll.
+	for outcome: Dictionary in outcomes:
+		if str(outcome["type"]) == "card_choice":
+			outcome["cards"] = engine.preview_deferred_card_reward(state, outcome["cards"])
 
 static func choice_effect_lines(state: Dictionary, event_id: String, choice_id: String) -> Array[String]:
 	var lines: Array[String]
@@ -504,7 +533,9 @@ static func outcome_lines(state: Dictionary) -> Array[String]:
 			"relic": lines.append("Gained %s." % str(GameData.relic_def(str(outcome["id"]))["name"]))
 			"equipment": lines.append("Gained %s." % str(GameData.equipment_def(str(outcome["id"]))["name"]))
 			"card", "item": lines.append("Gained %s." % str(GameData.card_def(str(outcome["id"]))["name"]))
-			"card_choice": lines.append("Next: choose 1 of %d spells." % (outcome.get("cards", []) as Array).size())
+			"card_choice":
+				var engine: RefCounted = load("res://scripts/run_engine.gd").new()
+				lines.append("Next: choose 1 of %d spells." % engine.preview_deferred_card_reward(state, outcome.get("cards", [])).size())
 			"lose_item": lines.append("Lost %s." % str(GameData.card_def(str(outcome["id"]))["name"]))
 			"reforge": lines.append("%s became %s." % [GameData.equipment_def(str(outcome["from"]))["name"], GameData.equipment_def(str(outcome["to"]))["name"]])
 			"transform_magic": lines.append("%s became %s." % [GameData.card_def(str(outcome["from"]))["name"], GameData.card_def(str(outcome["to"]))["name"]])

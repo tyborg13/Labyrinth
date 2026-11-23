@@ -4,12 +4,12 @@ extends RefCounted
 const Plates = preload("res://scripts/board_status_plates.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
-const ICON_KEYS: PackedStringArray = ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "ranged", "block", "stoneskin", "stagger", "melee"]
+const ICON_KEYS: PackedStringArray = ["shock", "immobilize", "expose", "vision", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "stagger", "ranged", "block", "stoneskin", "melee"]
 const KINDS: PackedStringArray = ["full", "compact", "plate"]
 const FIXTURE_FRAME := Rect2(100, 100, 140, 24)
 const FIXTURE_LABEL: String = "3"
-const CONTROL_WORDS: Dictionary = {"freeze": "Frozen", "petrify": "Petrified", "shock": "Shocked", "immobilize": "Immobilized", "chilled": "Chilled"}
-const VULNERABLE_ICONS: PackedStringArray = ["chilled", "bleed", "expose"]
+const CONTROL_WORDS: Dictionary = {"shock": "Shocked", "immobilize": "Immobilized"}
+const VULNERABLE_ICONS: PackedStringArray = ["expose"]
 const TRAIT_ICONS: PackedStringArray = ["reflect", "flying", "charge", "burrow", "burst", "wind", "stagger", "melee"]
 
 class Recorder extends RefCounted:

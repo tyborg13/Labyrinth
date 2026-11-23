@@ -50,14 +50,30 @@ static func column(panel_name: String, width: float, title: String, count: Strin
 	content.add_child(section(title, count))
 	return panel
 
-static func scroll_list(panel: PanelContainer, scroll_name: String = "", list_name: String = "") -> VBoxContainer:
+static func scroll_list(panel: PanelContainer, scroll_name: String = "", list_name: String = "", fit_row_focus: bool = false) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	if not scroll_name.is_empty():
 		scroll.name = scroll_name
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	panel.get_node("ColumnContent").add_child(scroll)
+	var host: Control = panel.get_node("ColumnContent")
+	if fit_row_focus:
+		var style: StyleBoxFlat = Surface.row_focus_style
+		var gutter: int = ceili(style.expand_margin_left) + style.shadow_size
+		var inset := StyleBoxEmpty.new()
+		inset.set_content_margin_all(gutter)
+		scroll.add_theme_stylebox_override("panel", inset)
+		# Borrow the existing space between columns and above the list for
+		# the focus stroke. Keep the same position and width for row content.
+		var clip_margin := MarginContainer.new()
+		clip_margin.name = "PackScrollMargin"
+		clip_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		for edge: String in ["left", "right", "top"]:
+			clip_margin.add_theme_constant_override("margin_" + edge, -gutter)
+		host.add_child(clip_margin)
+		host = clip_margin
+	host.add_child(scroll)
 	var list := VBoxContainer.new()
 	if not list_name.is_empty():
 		list.name = list_name
@@ -327,9 +343,13 @@ static func deck_card_id(card_id: String) -> String:
 static func sync_tile(tile: PanelContainer, focused: bool, selected: bool = false) -> void:
 	# A pointer click gives a socket hidden focus; only keyboard/controller focus lights it.
 	focused = focused and (tile.has_focus(true) or not tile.has_meta("character_socket"))
-	var active: bool = focused or bool(tile.get_meta("character_hovered", false)) or bool(tile.get_meta("character_swap_target", false))
-	var feedback: Control = tile.get_node_or_null("CharacterTileFeedback") as Control
+	var highlighted: bool = bool(tile.get_meta("character_hovered", false)) or bool(tile.get_meta("character_swap_target", false))
+	var active: bool = focused or highlighted
+	var feedback: Surface = tile.get_node_or_null("CharacterTileFeedback") as Surface
+	var row_focused: bool = false
 	if feedback != null:
+		row_focused = focused and feedback.uses_row_focus
+		feedback.row_focused = row_focused
 		feedback.visible = active
 	var strip: Button = tile.get_node_or_null("CharacterCardStrip") as Button
 	if strip != null:
@@ -346,13 +366,14 @@ static func sync_tile(tile: PanelContainer, focused: bool, selected: bool = fals
 	if tile.has_meta("character_socket"):
 		tile.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	else:
-		tile.add_theme_stylebox_override("panel", row_style(active or selected))
+		tile.add_theme_stylebox_override("panel", row_style(highlighted or (focused and not row_focused) or selected))
 
-static func tile_feedback(tile: PanelContainer, host: Node) -> void:
+static func tile_feedback(tile: PanelContainer, host: Node, uses_row_focus: bool = false) -> void:
 	clear_native_states(tile)
 	var feedback := Surface.new()
 	feedback.name = "CharacterTileFeedback"
 	feedback.kind = "socket_glow" if tile.has_meta("character_socket") else "highlight"
+	feedback.uses_row_focus = uses_row_focus
 	feedback.visible = false
 	feedback.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tile.add_child(feedback)

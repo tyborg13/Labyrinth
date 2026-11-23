@@ -25,7 +25,7 @@ const BORDER_WIDTH: int = 2
 const ICON_BORDER_CLEARANCE: float = 1.0
 # Board status producers, keyword-status producers, illusions and defenses.
 # Kept exhaustive by the independent live-producer inventory test.
-const BOARD_ICON_KEYS: PackedStringArray = ["freeze", "petrify", "shock", "immobilize", "chilled", "bleed", "expose", "truesight", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "ranged", "block", "stoneskin", "stagger", "melee"]
+const BOARD_ICON_KEYS: PackedStringArray = ["shock", "immobilize", "expose", "vision", "frost_armor", "retaliate", "quicken", "next_attack", "anchored", "skate", "fireproof", "reflect", "flying", "charge", "burrow", "burst", "wind", "stagger", "ranged", "block", "stoneskin", "melee"]
 static var _styles: Dictionary = {}
 static var _icon_visible_bounds: Dictionary = {}
 static var icon_bounds_computations: int = 0
@@ -97,7 +97,7 @@ static func status_entries(badges: Array[Dictionary], fill: Rect2, hero: bool) -
 		var entry: Dictionary = badge.duplicate()
 		entry["rect"] = Rect2(position, Vector2(width, PILL_HEIGHT))
 		entry["tooltip"] = str(badge.get("tooltip", ""))
-		if str(entry["tooltip"]).is_empty(): entry["tooltip"] = Icons.tooltip(str(badge.get("icon", "")))
+		if str(entry["tooltip"]).is_empty(): entry["tooltip"] = Icons.tooltip(str(badge.get("icon", "")), badge.get("count"))
 		result.append(entry)
 		position.x += width + PILL_GAP
 	return result

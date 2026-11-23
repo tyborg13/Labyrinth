@@ -104,7 +104,7 @@ static func apply(state: Dictionary, recipient: String, donor: String, donor_ind
 	room["cleared"] = true
 	rooms[key] = room
 	next["rooms"] = rooms
-	next["deck_cards"] = Data.compile_deck_cards(next.get("equipped_equipment", {}) as Dictionary, next.get("attuned_magic_cards", []) as Array, next.get("equipped_items", []) as Array, next)
+	preload("res://scripts/run_deck.gd").rebuild(next, state)
 	var result: Dictionary = {"recipient": recipient, "donor": donor, "slot": Data.equipment_slot(recipient), "room": next.get("current_room", Vector2i.ZERO), "recipient_equipped": not equipped_slot(next, recipient).is_empty(), "card_id": incoming, "replaced_card_id": str(before[target_index]), "index": target_index, "source": origin, "before_cards": before, "after_cards": Data.equipment_cards(recipient, next)}
 	next["last_graft"] = result
 	room["graft_result"] = result.duplicate(true)

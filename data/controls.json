@@ -5,11 +5,11 @@
   {"id": "move", "label": "Move between tiles and cards", "pointer": ["Mouse"], "controller": ["controller_dpad", "controller_move"]},
   {"id": "hand_toggle", "label": "Switch between hand and board", "pointer": [], "controller": ["controller_hand_toggle"]},
   {"id": "hand_cycle", "label": "Previous or next card", "pointer": [], "controller": ["controller_hand_bumpers"]},
-  {"id": "pass", "label": "Pass the turn", "pointer": ["Pass button", {"key": "P"}], "controller": ["controller_pass"]},
-  {"id": "hurry", "label": "Hurry the enemy turn (hold)", "pointer": [{"key": "Space"}, "Left click"], "controller": ["controller_accept"]},
-  {"id": "empower", "label": "Empower", "pointer": [{"key": "E"}], "controller": ["controller_empower"]},
-  {"id": "undo_walk", "label": "Undo a walk", "pointer": [{"key": "Z"}], "controller": ["combat_undo_move"]},
-  {"id": "enemy_intents", "label": "Show enemy intents", "pointer": [{"key": "I"}], "controller": []},
-  {"id": "map", "label": "Map", "pointer": [{"key": "M"}], "controller": ["controller_map"]},
+  {"id": "pass", "label": "Pass the turn", "pointer": ["Pass button", {"key": "P", "rebind": "pass"}], "controller": ["controller_pass"]},
+  {"id": "hurry", "label": "Hurry the enemy turn (hold)", "pointer": [{"key": "Space", "rebind": "hurry"}, "Left click"], "controller": ["controller_accept"]},
+  {"id": "empower", "label": "Empower", "pointer": [{"key": "E", "rebind": "empower"}], "controller": ["controller_empower"]},
+  {"id": "undo_walk", "label": "Undo a walk", "pointer": [{"key": "Z", "rebind": "undo_walk"}], "controller": ["combat_undo_move"]},
+  {"id": "enemy_intents", "label": "Show enemy intents", "pointer": [{"key": "I", "rebind": "enemy_intents"}], "controller": []},
+  {"id": "map", "label": "Map", "pointer": [{"key": "M", "rebind": "map"}], "controller": ["controller_map"]},
   {"id": "menu", "label": "Menu", "pointer": [{"key": "Esc"}], "controller": ["controller_menu"]}
 ]

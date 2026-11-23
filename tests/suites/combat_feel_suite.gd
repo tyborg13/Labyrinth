@@ -36,9 +36,10 @@ const PROOF_CONTRACT: Dictionary = {
 }
 
 class FixtureOwner:
-	extends Node
+	extends Control
 	var _settings: Dictionary = Settings.default_settings()
 	var _run_state: Dictionary = {"mode": "combat"}
+	var _runtime_performance_instrumentation_enabled: bool = false
 	var _animation_lock: bool = true
 	var _drag_card_index: int = -1
 	var modal: bool = false

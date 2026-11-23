@@ -6,13 +6,8 @@ const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const PROP_PATH: String = "res://assets/props/enemies/bramble_thicket.png"
-const BROWN := Color("3b2a1c")
-const LEAF := Color("6f8f4e")
 const TRANSITION_SECONDS: float = 0.25
-const BRAMBLE_HEIGHT_TILES: float = 0.6 # Director's rise-height reference.
 const CRATE_HEIGHT_RATIO: float = 1.1
-const FLECK_COUNT: int = 3
-const FLECK_SIZE: float = 3.0 # Reuse the approved small leaf-fleck size.
 
 static var _preview_engine := Combat.new()
 
@@ -95,24 +90,8 @@ static func rect(view: Control, tile: Vector2i, texture: Texture2D) -> Rect2:
 	result.position.y = base_y - result.size.y
 	return result
 
-static func fleck_records(base: Vector2, width: float, rise_height: float, progress: float) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	var t: float = clampf(progress, 0.0, 1.0)
-	if t <= 0.0 or t >= 1.0: return result
-	for index: int in range(FLECK_COUNT):
-		var point: Vector2 = base + Vector2(float(index - 1) * width / float(FLECK_COUNT), -rise_height * sin(PI * t))
-		result.append({"pos": point, "color": BROWN if index == 1 else LEAF})
-	return result
-
-static func draw_flecks(view: Control, tile: Vector2i, texture: Texture2D) -> void:
-	if bool(view.presentation.get("reduced_motion", false)) or transition(view.presentation, tile).is_empty(): return
-	var full: Rect2 = full_rect(view, tile, texture)
-	var base := Vector2(full.get_center().x, full.end.y)
-	for fleck: Dictionary in fleck_records(base, full.size.x, view._tile_height() * BRAMBLE_HEIGHT_TILES, float(view.presentation.get("effect_progress", 1.0))):
-		view.draw_line(fleck["pos"], fleck["pos"] + Vector2(0, -FLECK_SIZE), fleck["color"], FLECK_SIZE, true)
-
 static func draw_effect(_view: Control, effect: Dictionary, _progress: float) -> bool:
-	# Paint and flecks draw in the ordinary sorted terrain layer, never over units.
+	# Bramble bodies draw in the ordinary sorted terrain layer, never over units.
 	return str(effect.get("en04_mechanic", "")) in ["grow_bramble", "bramble_expiry"]
 
 static func presentation_for_step(step: Dictionary, progress: float, reduced: bool = false) -> Dictionary:
@@ -129,4 +108,4 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 		scene._render_board_state(state, presentation_for_step(step, 0.0))
 		await scene._play_timed_animation_frames(scene.ATTACK_FRAMES, TRANSITION_SECONDS / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
 			scene._render_board_state(state, presentation_for_step(step, float(frame) / float(scene.ATTACK_FRAMES))))
-	scene._render_board_state(state, {})
+	scene._render_board_state(state, {"contact_bramble_step": step} if reduced else {})

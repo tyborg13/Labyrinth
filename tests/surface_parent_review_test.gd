@@ -16,7 +16,7 @@ func _initialize() -> void:
 	_test_legacy_clear_archives()
 	_test_legacy_guide_has_no_invisible_gate()
 	_test_paid_v4_guide_releases_controls()
-	_test_direct_detonate_shatter_and_passive_exclusion()
+	_test_shatterglass_requires_ice_stagger()
 	for failure: String in failures:
 		push_error(failure)
 	print("Surface parent review checks: %s" % ("PASS" if failures.is_empty() else "%d failures" % failures.size()))
@@ -75,19 +75,17 @@ func _test_paid_v4_guide_releases_controls() -> void:
 	check(migrated["combat_state"]["enemies"][0]["hp"] == 11 and migrated["combat_state"]["cards_played_this_turn"] == 1, "Releasing tutorial controls cannot fabricate a kill or refund its paid card")
 	scene.free()
 
-func _test_direct_detonate_shatter_and_passive_exclusion() -> void:
+func _test_shatterglass_requires_ice_stagger() -> void:
 	var combat: Combat = Combat.new()
 	var state: Dictionary = Base.fixture(combat)
 	state["relics"] = ["frost_prism"]
-	state["enemies"][0]["hp"] = 8
-	state["enemies"][0]["freeze"] = 1
+	state["enemies"][0]["hp"] = 4
 	Ground.place(state, Vector2i(4, 3), "fire")
 	state = combat.apply_player_action(state, {"type": "detonate", "damage": 4, "range": 5, "element": "fire"}, Vector2i(4, 3))
-	check(int(state["enemies"][0]["hp"]) == 0 and Ground.tiles(state, "rubble").size() == 5, "Direct Detonate Frozen kills should retain Shatterglass's direct-attack identity")
+	check(int(state["enemies"][0]["hp"]) == 0 and Ground.tiles(state, "rubble").is_empty(), "A damaging Burst without Ice Stagger does not trigger Shatterglass")
 	state = Base.fixture(combat)
 	state["relics"] = ["frost_prism"]
 	state["enemies"][0]["hp"] = 1
-	state["enemies"][0]["freeze"] = 1
 	Ground.place(state, Vector2i(5, 3), "fire")
 	state = combat.apply_player_action(state, {"type": "push", "damage": 0, "amount": 1, "range": 5, "force_direction": Vector2i.RIGHT}, Vector2i(4, 3))
 	check(int(state["enemies"][0]["hp"]) == 0 and Ground.tiles(state, "rubble").is_empty(), "An entry Fire kill caused by a push is passive damage and must not activate Shatterglass")

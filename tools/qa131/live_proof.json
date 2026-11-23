@@ -1,0 +1,16 @@
+{
+  "min_images": 10,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*area/contact.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*umbra/contact.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*reflect/return.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*reflect/outbound.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*save_shot/in_flight.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*save_shot/resumed.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*save_area/contact.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*save_area/resumed.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*gains/brace.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*gains/crystal_mantle.png", "width": 1920, "height": 1080, "regions": [{"rect": [480, 180, 960, 630], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

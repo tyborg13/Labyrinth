@@ -16,10 +16,16 @@ const RULE_IDS: Array = ["wildfire", "upheaval", "frostbite", "gust", "lightning
 const ROUTING_TURN_LIMIT: int = 24
 
 static func approved_sentences() -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos02_dragon_sentences.json"))
+	return JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_battlefield_copy.json"))
 
 static func acceptance() -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos04_dragon_acceptance.json"))
+	var rows: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/bos04_dragon_acceptance.json"))
+	var copy: Dictionary = approved_sentences()
+	for id: String in rows:
+		rows[id]["sentence"] = copy[id]["sentence"]
+		if rows[id].has("at_half_health"):
+			rows[id]["at_half_health"]["sentence"] = copy[id]["at_half_health_sentence"]
+	return rows
 
 static func run(expect: Callable) -> void:
 	for i: int in range(IDS.size()):
@@ -144,8 +150,7 @@ static func _test_fire_ownership(expect: Callable) -> void:
 	expect.call(not spread.is_empty(), "Wildfire spreads actual Fire")
 	for tile: Vector2i in spread: expect.call(Surfaces.surface_at(state, tile)["elemental_source"]["actor_id"] == owner["actor_id"], "Beat Fire belongs to Vyraketh")
 	expect.call(engine._cinder_fire_entries(state, int(owner["actor_id"])).size() == 1, "Crownfire remembers only its original marks")
-	var steps: Array[Dictionary]
-	state = engine._enemy_detonate_cinders(state, 0, {"damage":8, "element":"fire"}, steps)
+	state = engine._enemy_detonate_cinders(state, 0, {"damage":8, "element":"fire"})
 	for tile: Vector2i in spread: expect.call(Surfaces.has_surface(state, tile, "fire"), "Crownfire leaves spread Fire undetonated")
 	load("res://tests/suites/dragon_pressure_mechanics_suite.gd")._declare(expect, state, "cinder_maw")
 	var renew: Dictionary = load("res://tests/suites/dragon_pressure_mechanics_suite.gd")._action(expect, state, "cinder_marks")

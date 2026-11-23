@@ -1,0 +1,281 @@
+{
+  "_doc": "pla-06 (owner-approved playability plan 2026-11-20, Ice/Freeze/Chilled/Petrify merge): copy that supersedes the protected historical records. Ice Exposes 2 a unit that enters it or starts its turn on it; Chilled, Freeze and Petrify are cut; former Freeze cards print their own Stagger; Petrify is Stagger 6. Loaded with pla04_burst_copy.json by tests/burst_glossary_contract.py.",
+  "relic_descriptions": {
+    "frost_prism": "When your @term(element_ice) attack @term(stagger|Staggers) an enemy on @term(surface_ice), leave @term(surface_rubble) under and beside the struck enemy.",
+    "cold_mirror": "When your @term(element_ice) card @term(stagger|Staggers) an enemy while you have 4+ @term(block), trade all your @kw(block) for 1 @term(frost_armor) layer per 4, up to 2.",
+    "rimecatcher_vial": "When your @term(element_ice) attack @term(stagger|Staggers) an enemy on @term(surface_ice), you can move the Ice 1 tile.",
+    "hobnail_cleats": "@term(surface_ice) doesn't @term(expose) you. While you stand on @term(surface_ice), your @term(element_ice) attacks deal 2 more damage.",
+    "breaking_wheel": "Enemy collision: @kw(surface_consume) the ground. @term(surface_fire): 3 more damage. @term(surface_ice): @kw(stagger) 6. @term(surface_electrified): @term(shock) enemy and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
+    "starless_astrolabe": "While you have @icon(truesight), applying @icon(stagger) with Ice or applying @icon(shock) creates @icon(illuminate) {radius} @icon(time) {duration} beneath that enemy."
+  },
+  "glossary_definitions": {
+    "expose": "This unit takes that much extra damage from the next damaging hit.",
+    "surface_ice": "Units gain Expose 2 when entering Ice or starting a turn on Ice.",
+    "skate": "This turn, Ice costs no Movement and doesn't Expose you.",
+    "element_ice": "Ice is the card element associated with Ice ground.",
+    "frostbite": "Frostbite hits everyone standing on Ice when the battlefield rule triggers."
+  },
+  "glossary_names": {},
+  "glossary_aliases": {},
+  "retired_glossary_terms": [
+    "chilled",
+    "freeze",
+    "petrify"
+  ],
+  "retired_grimoire_entries": [
+    "keyword:chilled",
+    "keyword:freeze",
+    "combat:petrify"
+  ],
+  "grimoire_titles": {},
+  "grimoire_bodies": {
+    "combat:cleanse": [
+      "Cleanse removes the listed statuses from you at once: Bleed, Immobilize or Shock. Removing Immobilize or Shock frees you for the rest of this turn, and a Shock cleanse can be played while Shocked."
+    ],
+    "combat:health_defense": [
+      "Non-piercing damage is applied to Block first, then Stoneskin, then Health.",
+      "Block clears before that actor's turn-start Fire damage. Stoneskin persists and can absorb it.",
+      "Damage hits Block first, then Stoneskin, then Health. Pierce skips Block and Stoneskin."
+    ],
+    "combat:stances": [
+      "Skate: this turn, moving onto Ice costs no Movement and Ice doesn't Expose you.",
+      "Immobilize: for the rest of this turn you can't Move, Blink or Swap, including your own movement.",
+      "Anchored: until your next turn, Push and Pull against you move you 0 tiles and never collide.",
+      "Fireproof: Fire doesn't damage you this turn.",
+      "Active stances appear as badges on your character.",
+      "Push, Pull and Wind don't move it or cause a Collision. Yours lasts until your next turn."
+    ],
+    "combat:surface_techniques": [
+      "Expend: a card that Expends a ground removes the shown ground to gain its effect. A Burst destroys ground instead (see Burst).",
+      "Convert: Frost Circuit turns the chosen Ice tile and all Ice connected to it into Electrified ground, then strikes and Shocks each enemy on the converted tiles.",
+      "Discharge: choose an Electrified tile to Burst it and every Electrified tile connected to it.",
+      "Wards leave a ground beneath each enemy next to you. Ice placed this way Exposes an enemy on entry or at the start of the enemy’s turn."
+    ],
+    "combat:sweeping_strikes": [
+      "Some cards strike every enemy you can see that meets a condition: standing on Fire, Ice or Electrified ground, or in Light. There is no target to choose, and an enemy hidden by the Umbra is never hit.",
+      "Each strike is a direct hit of the card's element. The card can be played only while at least one enemy qualifies.",
+      "Hit every enemy you can see that meets the shown condition, within Range if shown. No target to choose."
+    ],
+    "enemy:frostglass_lancer": [
+      "Ice striker that creates Ice tiles. Refract Guard clears Ice beneath the Lancer."
+    ],
+    "enemy:iskaldra": [
+      "Ice dragon protected by visible Crystal Mantle layers, with Rime Spitters laying Ice around it.",
+      "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3. At half Health, Frostbite hits after every second Iskaldra turn instead. Break Mantle layers to shrink Shatterstorm's reach."
+    ],
+    "keyword:collision": [
+      "When forced movement is stopped by a wall, crate, Outcrop, character or illusion, the target takes 2 damage for each tile it didn't move, and so does whatever it hit. Walls take nothing.",
+      "Block and Stoneskin absorb Collision damage without an Expose bonus.",
+      "A stopped Push or Pull deals 2 damage per lost tile to the target and to its blocker."
+    ],
+    "keyword:element_ice": [
+      "Ice is the card element associated with Ice ground."
+    ],
+    "keyword:retaliate": [
+      "Until the start of your next turn, an enemy whose melee attack hits you takes the Retaliate amount. Block and Stoneskin absorb Retaliate damage without an Expose bonus.",
+      "Melee means a melee attack or any attack made from a tile next to you. Retaliate triggers once per enemy attack. Several Retaliates add their damage and Bleed; Shock and Push use the largest.",
+      "An enemy defeated by Retaliate pays its normal rewards but does not refund a Card Play.",
+      "Until your next turn, each enemy that hits you up close takes that much damage and the listed effects.",
+      "an illusion's Retaliate triggers once per enemy attack."
+    ],
+    "keyword:skate": [
+      "This turn, stepping onto Ice costs no Movement, and Ice doesn't Expose you."
+    ],
+    "keyword:surface_ice": [
+      "Units gain Expose 2 when entering Ice or starting a turn on Ice."
+    ],
+    "keyword:stagger": [
+      "Delays the target's next turn by this much Time.",
+      "Hover a target to preview the delay, capped at 6 Time per enemy each turn."
+    ],
+    "keyword:expose": [
+      "This unit takes that much extra damage from the next damaging hit."
+    ]
+  },
+  "panel_titles": {},
+  "retired_panel_rows": [
+    "shatter",
+    "petrify",
+    "if_frozen",
+    "only_chilled"
+  ],
+  "panel_rows": {
+    "only_ice": {
+      "title": "Ice",
+      "text": "Only enemies standing on Ice are hit.",
+      "legacy": "Each Enemy on Ice\nHits every enemy you can see that stands on Ice. There is no target to choose.",
+      "term": "surface_ice"
+    }
+  },
+  "card_panel_icons": {
+    "frostbolt": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "icebound_chains": [
+      "ranged",
+      "range",
+      "immobilize",
+      "surface_ice",
+      "stagger",
+      "vision",
+      "time"
+    ],
+    "rime_shard": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "cold_grasp": [
+      "melee",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "icicle_lance": [
+      "pierce",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "hush_of_winter": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger",
+      "draw"
+    ],
+    "shatterline": [
+      "ranged",
+      "range",
+      "pierce",
+      "surface_ice",
+      "stagger",
+      "empower",
+      "time"
+    ],
+    "glacier_pin": [
+      "ranged",
+      "range",
+      "immobilize",
+      "surface_ice",
+      "stagger"
+    ],
+    "white_silence": [
+      "surface_ice",
+      "all_enemies",
+      "stagger"
+    ],
+    "threadbare_guard": [
+      "cleanse",
+      "block",
+      "draw"
+    ],
+    "rimeplate_lock": [
+      "stoneskin",
+      "block",
+      "ranged",
+      "range",
+      "immobilize",
+      "surface_ice",
+      "stagger"
+    ],
+    "locket_chill": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "frost_snare": [
+      "consume",
+      "ranged",
+      "range",
+      "immobilize",
+      "surface_ice",
+      "stagger"
+    ],
+    "cold_shoulder": [
+      "melee",
+      "push",
+      "surface_ice",
+      "stagger"
+    ],
+    "frost_nova": [
+      "melee",
+      "surface_ice",
+      "stagger"
+    ],
+    "rime_hack": [
+      "melee",
+      "surface_ice",
+      "stagger"
+    ],
+    "shiver_shot": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger"
+    ],
+    "rimefang": [
+      "ranged",
+      "range",
+      "surface_ice",
+      "stagger",
+      "follow_up"
+    ],
+    "rite_of_hoarfrost": [
+      "rite"
+    ],
+    "frozen_bite": [
+      "melee",
+      "surface_ice",
+      "stagger",
+      "card_play",
+      "draw"
+    ],
+    "hoarfrost_ward": [
+      "block",
+      "surface_ice"
+    ],
+    "petrify": [
+      "stagger",
+      "range"
+    ],
+    "rime_step": [
+      "move",
+      "surface_ice"
+    ],
+    "sleet_squall": [
+      "range",
+      "push",
+      "ranged",
+      "surface_ice",
+      "stagger"
+    ],
+    "smelling_salts": [
+      "consume",
+      "cleanse",
+      "move"
+    ]
+  },
+  "panel_examples": {
+    "cleanse": {
+      "card": "threadbare_guard",
+      "panels": [
+        {
+          "title": "Cleanse",
+          "text": "Remove Immobilize and Shock from yourself."
+        }
+      ]
+    }
+  },
+  "battlefield_sentences": {
+    "oracle": "After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+    "snare_ice": "After each of your turns, Frostbite hits everyone on Ice for 1.",
+    "rimejaw": "After each of your turns, Rimejaw's Frostbite Staggers everyone on Ice by 6.",
+    "iskaldra": "When Iskaldra uses Rime Talon, Frostbite hits everyone on Ice for 3."
+  }
+}

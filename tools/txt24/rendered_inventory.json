@@ -1,0 +1,5435 @@
+{
+	"skills": {
+		"quick_wits": {
+			"name": "Quick Wits",
+			"description": "Once per combat, discard a card to Draw 1 card. Costs no Card Play or Time.",
+			"requirements": "REQUIRES\nNONE · Root skill",
+			"retired": false
+		},
+		"measured_breath": {
+			"name": "Measured Breath",
+			"description": "At turn end, bank up to one unused Card Play for your next turn.",
+			"requirements": "REQUIRES\nNONE · Root skill",
+			"retired": false
+		},
+		"ghost_stride": {
+			"name": "Ghost Stride",
+			"description": "Once per combat, activate to turn your next movement into Blink 2.",
+			"requirements": "REQUIRES\nNONE · Root skill",
+			"retired": false
+		},
+		"discerning_eye": {
+			"name": "Discerning Eye",
+			"description": "Once between bosses, replace each card in a non-boss combat reward.",
+			"requirements": "REQUIRES\nNONE · Root skill",
+			"retired": false
+		},
+		"long_dawn": {
+			"name": "Long Dawn",
+			"description": "Vision you gain lasts 1 more turn.",
+			"requirements": "REQUIRES\nNONE · Root skill",
+			"retired": false
+		},
+		"rehearsed_escape": {
+			"name": "Rehearsed Escape",
+			"description": "Once per combat, activate to discard your next non-item card with Exhaust instead.",
+			"requirements": "REQUIRES\nNEED · Quick Wits",
+			"retired": false
+		},
+		"carry_the_guard": {
+			"name": "Carry the Guard",
+			"description": "Once per combat, activate while you have Block. At the end of your turn, that Block becomes Stoneskin.",
+			"requirements": "REQUIRES\nNEED · Measured Breath",
+			"retired": false
+		},
+		"sure_footed": {
+			"name": "Sure-Footed",
+			"description": "Once per combat, ignore the first Traps hit or Air Traps Push against you.",
+			"requirements": "REQUIRES\nNEED · Ghost Stride",
+			"retired": false
+		},
+		"deferred_choice": {
+			"name": "Deferred Choice",
+			"description": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card.",
+			"requirements": "REQUIRES\nNEED · Discerning Eye",
+			"retired": false
+		},
+		"sunpath": {
+			"name": "Sunpath",
+			"description": "Once per turn, when you Move or Blink 3+ tiles, leave Light 1 on your path.",
+			"requirements": "REQUIRES\nNEED · Long Dawn",
+			"retired": false
+		},
+		"makeshift_tool": {
+			"name": "Makeshift Tool",
+			"description": "Once per combat, activate to discard your next Item instead of using Consume.",
+			"requirements": "REQUIRES\nNEED · Quick Wits",
+			"retired": false
+		},
+		"pain_remembers": {
+			"name": "Pain Remembers",
+			"description": "After your first Health loss each combat, return the next non-item discard to your hand if there's room.",
+			"requirements": "REQUIRES\nNEED · Measured Breath",
+			"retired": false
+		},
+		"afterimage": {
+			"name": "Afterimage",
+			"description": "Once per combat, your first Blink leaves Illusion 2 on the tile you Blinked from.",
+			"requirements": "REQUIRES\nNEED · Ghost Stride",
+			"retired": false
+		},
+		"salvager": {
+			"name": "Salvager",
+			"description": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+			"requirements": "REQUIRES\nNEED · Discerning Eye",
+			"retired": false
+		},
+		"witchlight": {
+			"name": "Witchlight",
+			"description": "Each of your Illusions creates Light 1 while that Illusion lasts.",
+			"requirements": "REQUIRES\nNEED · Long Dawn",
+			"retired": false
+		},
+		"borrowed_time": {
+			"name": "Borrowed Time",
+			"description": "The first card paid for with a banked Card Play each combat adds no Time.",
+			"requirements": "REQUIRES\nNEED · Quick Wits\nNEED · Measured Breath",
+			"retired": false
+		},
+		"last_reserve": {
+			"name": "Last Reserve",
+			"description": "Once per combat, lethal Fatigue leaves you at Health 1.",
+			"requirements": "REQUIRES\nNEED · Carry the Guard\nNEED · Pain Remembers",
+			"retired": false
+		},
+		"plunderers_step": {
+			"name": "Plunderer's Step",
+			"description": "The first Move or Blink card that collects loot each combat refunds that card's Card Play.",
+			"requirements": "REQUIRES\nNEED · Ghost Stride\nNEED · Discerning Eye",
+			"retired": false
+		},
+		"prismatic_instinct": {
+			"name": "Prismatic Instinct",
+			"description": "Once per combat, place Fire, Ice, Electrified or Rubble within Range 4. Costs no Card Play or Time.",
+			"requirements": "REQUIRES\nNEED · Quick Wits\nNEED · Discerning Eye",
+			"retired": false
+		},
+		"dawnbrand": {
+			"name": "Dawnbrand",
+			"description": "The first direct attack each turn against an enemy in Light inflicts Expose 1.",
+			"requirements": "REQUIRES\nNEED · Sunpath",
+			"retired": false
+		},
+		"curators_patience": {
+			"name": "Curator's Patience",
+			"description": "After choosing a relic, save one unchosen relic for your next relic offer.",
+			"requirements": "REQUIRES\nNEED · Quick Wits\nNEED · Deferred Choice",
+			"retired": false
+		},
+		"living_shadow": {
+			"name": "Living Shadow",
+			"description": "Once between turns, when your Illusion is removed, return your latest non-item discard to hand or draw pile if full.",
+			"requirements": "REQUIRES\nNEED · Pain Remembers\nNEED · Afterimage",
+			"retired": false
+		},
+		"true_bearing": {
+			"name": "True Bearing",
+			"description": "Before combat, choose an open starting tile within Range 2 of the entrance.",
+			"requirements": "REQUIRES\nNEED · Sure-Footed\nNEED · Discerning Eye",
+			"retired": false
+		},
+		"layaway": {
+			"name": "Layaway",
+			"description": "Once between bosses, hold 1 ware for the next Scavenger visit. Layaway is unavailable until the ware returns to stock.",
+			"requirements": "",
+			"retired": true
+		},
+		"afterglow": {
+			"name": "Afterglow",
+			"description": "When an Illusion is removed, leave Light 1 on that Illusion's tile.",
+			"requirements": "REQUIRES\nNEED · Witchlight",
+			"retired": false
+		},
+		"encore": {
+			"name": "Encore",
+			"description": "Once per combat, return a non-item card from discard to your hand. Costs no Card Play or Time.",
+			"requirements": "REQUIRES\nNEED · Borrowed Time\nNEED · 8 other skills learned\nLIMIT · One keystone per build",
+			"retired": false
+		},
+		"open_arsenal": {
+			"name": "Open Arsenal",
+			"description": "Equip any equipment in your trinket slot.",
+			"requirements": "REQUIRES\nNEED · Living Shadow\nNEED · 8 other skills learned\nLIMIT · One keystone per build",
+			"retired": false
+		},
+		"confluence": {
+			"name": "Confluence",
+			"description": "Once per combat, move ground between 2 visible tiles within Range 4 of you and each other.",
+			"requirements": "REQUIRES\nNEED · Prismatic Instinct\nNEED · 8 other skills learned\nLIMIT · One keystone per build",
+			"retired": false
+		},
+		"last_door": {
+			"name": "Last Door",
+			"description": "Once between bosses, a non-boss defeat returns you to the previous room at Health 1.",
+			"requirements": "REQUIRES\nNEED · True Bearing\nNEED · 8 other skills learned\nLIMIT · One keystone per build",
+			"retired": false
+		},
+		"open_sky": {
+			"name": "Open Sky",
+			"description": "While you stand in Light, you have Vision.",
+			"requirements": "REQUIRES\nNEED · Dawnbrand\nNEED · Afterglow\nNEED · 8 other skills learned\nLIMIT · One keystone per build",
+			"retired": false
+		}
+	},
+	"boons": {
+		"elemental_gift": "Choose 1 of 3 rare Fire spells.",
+		"armory": "Chain Guard replaces your Splintered Shield.",
+		"heirloom": "Start with your Iron Cleaver, left here last run.",
+		"purge": "Remove 2 starter spells.",
+		"focus": "Swap your 4 starter spells for 4 common Ice spells.",
+		"vitality": "+6 max Health.",
+		"trinket": "While you have Stoneskin, cards that give Block give 3 more.",
+		"blood_price": "Lose 5 max Health. Choose 1 of 5 rare spells.",
+		"pawned_light": "Your Burst can destroy Rubble instead of Fire, leaving Fire on the destroyed tiles. Start at half Health.",
+		"debt": "+120 Embers. Your first Scavenger visit costs 50% more."
+	},
+	"upgrades": {
+		"card_damage": {
+			"name": "Card Damage",
+			"purchasable": false
+		},
+		"card_range": {
+			"name": "Card Range",
+			"purchasable": false
+		},
+		"card_defense": {
+			"name": "Card Defense",
+			"purchasable": false
+		},
+		"card_status": {
+			"name": "Card Status",
+			"purchasable": false
+		},
+		"card_area": {
+			"name": "Card Area",
+			"purchasable": false
+		}
+	},
+	"events": {
+		"lost_cartographer": {
+			"embers": {
+				"label": "Take the purse",
+				"lines": [
+					"Gain 30 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 30
+					}
+				],
+				"preview_matched": true
+			},
+			"survey": {
+				"label": "Study the charts",
+				"lines": [
+					"Reveal what the unknown rooms up to 4 rooms ahead hold."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reveal",
+						"hops": 4.0,
+						"rooms_revealed": 3
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"bloodletters_basin": {
+			"bleed": {
+				"label": "Bleed into the basin",
+				"lines": [
+					"Lose 5 Health.",
+					"Gain Mason's Plumb."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"masons_plumb"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -5
+					},
+					{
+						"type": "relic",
+						"id": "masons_plumb"
+					}
+				],
+				"preview_matched": true
+			},
+			"reach": {
+				"label": "Reach in",
+				"lines": [
+					"Lose 2 Health.",
+					"Gain Millstone Fob."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"millstone_fob"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -2
+					},
+					{
+						"type": "relic",
+						"id": "millstone_fob"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"ossuary_gamblers": {
+			"wager_embers": {
+				"label": "Stake 50 Embers",
+				"lines": [
+					"Pay 50 Embers.",
+					"Gain Cinderweave Mail."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"cinderweave_mail"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -50
+					},
+					{
+						"type": "equipment",
+						"id": "cinderweave_mail"
+					}
+				],
+				"preview_matched": true
+			},
+			"wager_blood": {
+				"label": "Stake a little of yourself",
+				"lines": [
+					"−2 max Health.",
+					"Gain Ember Siphon."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"ember_siphon"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "max_hp",
+						"amount": -2
+					},
+					{
+						"type": "relic",
+						"id": "ember_siphon"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave the circle empty",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"hanged_knight": {
+			"cut": {
+				"label": "Cut him down",
+				"lines": [
+					"Gain Static Spurs.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"static_spurs"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "static_spurs"
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"boots": {
+				"label": "Take what you can reach",
+				"lines": [
+					"Gain Monk's Wraps."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"monks_wraps"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "monks_wraps"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave him swinging",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"whispering_well": {
+			"drink": {
+				"label": "Drink",
+				"lines": [
+					"Heal 8 Health.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"dread"
+				],
+				"hover_description": "Start each combat with 3 Expose.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal",
+						"amount": 0
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"ember": {
+				"label": "Drop an Ember in",
+				"lines": [
+					"Pay 25 Embers.",
+					"Gain Overclock."
+				],
+				"hover_kind": "card",
+				"hover_ids": [
+					"overclock"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -25
+					},
+					{
+						"type": "card",
+						"id": "overclock",
+						"destination": "deck"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"weeping_statue": {
+			"gem": {
+				"label": "Pry out the gem",
+				"lines": [
+					"Gain 80 Embers.",
+					"Bane: Deepening Dark. The The Umbra is one stage deeper in each combat. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"deepening_dark"
+				],
+				"hover_description": "The The Umbra is one stage deeper in each combat.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 80
+					},
+					{
+						"type": "omen",
+						"id": "deepening_dark",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"pray": {
+				"label": "Pray beneath her",
+				"lines": [
+					"Heal 25% of your max Health."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"health"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal_percent",
+						"amount": 0
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"name_collector": {
+			"give": {
+				"label": "Give your name",
+				"lines": [
+					"Gain Rosary of Vows.",
+					"−4 max Health."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"rosary_of_vows"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "relic",
+						"id": "rosary_of_vows"
+					},
+					{
+						"type": "max_hp",
+						"amount": -4
+					}
+				],
+				"preview_matched": true
+			},
+			"false": {
+				"label": "Give a false name",
+				"lines": [
+					"Gain 60 Embers.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"hunted"
+				],
+				"hover_description": "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 60
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"refuse": {
+				"label": "Refuse",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"moth_library": {
+			"search": {
+				"label": "Search the shelves",
+				"lines": [
+					"Choose 1: Overclock, Tempest Form or Thunderline."
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"overclock",
+					"tempest_form",
+					"thunderline"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "card_choice",
+						"cards": [
+							"overclock",
+							"tempest_form",
+							"thunderline"
+						]
+					}
+				],
+				"preview_matched": true
+			},
+			"burn": {
+				"label": "Burn them for warmth",
+				"lines": [
+					"Heal 6 Health."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"health"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal",
+						"amount": 0
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"starving_pilgrim": {
+			"item": {
+				"label": "Give him an item",
+				"lines": [
+					"Lose Quarry Dust.",
+					"+3 max Health."
+				],
+				"hover_kind": "lose_item",
+				"hover_ids": [
+					"grave_dust_satchel"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "lose_item",
+						"id": "grave_dust_satchel"
+					},
+					{
+						"type": "max_hp",
+						"amount": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"embers": {
+				"label": "Give him Embers",
+				"lines": [
+					"Pay 40 Embers.",
+					"Blessing: Ember Tithe. Enemies drop 50% more Embers. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"ember_tithe"
+				],
+				"hover_description": "Enemies drop 50% more Embers.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -40
+					},
+					{
+						"type": "omen",
+						"id": "ember_tithe",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"rob": {
+				"label": "Take his offering bowl",
+				"lines": [
+					"Gain 40 Embers.",
+					"Bane: Deepening Dark. The The Umbra is one stage deeper in each combat. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"deepening_dark"
+				],
+				"hover_description": "The The Umbra is one stage deeper in each combat.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 40
+					},
+					{
+						"type": "omen",
+						"id": "deepening_dark",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"abandoned_forge": {
+			"weapon": {
+				"label": "Reforge your weapon",
+				"lines": [
+					"Your Training Sword becomes Duelist Rapier.",
+					"Lose 3 Health."
+				],
+				"hover_kind": "reforge",
+				"hover_ids": [
+					"training_sword",
+					"duelist_rapier"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reforge",
+						"slot": "weapon",
+						"from": "training_sword",
+						"to": "duelist_rapier"
+					},
+					{
+						"type": "hp",
+						"amount": -3
+					}
+				],
+				"preview_matched": true
+			},
+			"armor": {
+				"label": "Reforge your armor",
+				"lines": [
+					"Your Patched Cloak becomes Stormweave Robe.",
+					"Lose 3 Health."
+				],
+				"hover_kind": "reforge",
+				"hover_ids": [
+					"patched_cloak",
+					"stormweave_robe"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reforge",
+						"slot": "armor",
+						"from": "patched_cloak",
+						"to": "stormweave_robe"
+					},
+					{
+						"type": "hp",
+						"amount": -3
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave the tools in order",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"shrine_last_door": {
+			"kneel": {
+				"label": "Kneel at the threshold",
+				"lines": [
+					"Lose 6 Health.",
+					"Gain 1 Defiance for this run."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -6
+					},
+					{
+						"type": "defiance",
+						"amount": 1
+					}
+				],
+				"preview_matched": true
+			},
+			"candle": {
+				"label": "Take a candle",
+				"lines": [
+					"Blessing: Ember Ward. Start each combat with 6 Block. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"ember_ward"
+				],
+				"hover_description": "Start each combat with 6 Block.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "ember_ward",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"fallen_lantern_bearer": {
+			"lantern": {
+				"label": "Take his lantern",
+				"lines": [
+					"Blessing: Lantern Sight. Start each combat with 3 turns of Vision. (4 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"lantern_sight"
+				],
+				"hover_description": "Start each combat with 3 turns of Vision.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "lantern_sight",
+						"fights": 4
+					}
+				],
+				"preview_matched": true
+			},
+			"satchel": {
+				"label": "Search the satchel",
+				"lines": [
+					"Gain Smelling Salts and Throwing Net."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"smelling_salts",
+					"throwing_net"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "item",
+						"id": "smelling_salts"
+					},
+					{
+						"type": "item",
+						"id": "throwing_net"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave him his light",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"mirror_of_skins": {
+			"hand": {
+				"label": "Take its hand",
+				"lines": [
+					"Guiding Flare becomes Grounding."
+				],
+				"hover_kind": "transform",
+				"hover_ids": [
+					"guiding_flare",
+					"grounding"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "transform_magic",
+						"slot": 0,
+						"from": "guiding_flare",
+						"to": "grounding"
+					}
+				],
+				"preview_matched": true
+			},
+			"trade": {
+				"label": "Let it choose for you",
+				"lines": [
+					"3 spells change: hover to see."
+				],
+				"hover_kind": "transform",
+				"hover_ids": [
+					"dawnstep",
+					"scorch",
+					"guiding_flare",
+					"icicle_lance",
+					"threaded_path",
+					"gale_ward"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "transform_magic",
+						"slot": 1,
+						"from": "dawnstep",
+						"to": "scorch"
+					},
+					{
+						"type": "transform_magic",
+						"slot": 0,
+						"from": "guiding_flare",
+						"to": "icicle_lance"
+					},
+					{
+						"type": "transform_magic",
+						"slot": 2,
+						"from": "threaded_path",
+						"to": "gale_ward"
+					}
+				],
+				"preview_matched": true
+			},
+			"shatter": {
+				"label": "Shatter the glass",
+				"lines": [
+					"Gain 70 Embers.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"hunted"
+				],
+				"hover_description": "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 70
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"sealed_sarcophagus": {
+			"open": {
+				"label": "Push the lid open",
+				"lines": [
+					"Gain Chorus Mask.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"chorus_mask"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "relic",
+						"id": "chorus_mask"
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"reach": {
+				"label": "Reach through the gap",
+				"lines": [
+					"Gain Mossglass Elixir.",
+					"Lose 2 Health."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"mossglass_elixir"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "item",
+						"id": "mossglass_elixir"
+					},
+					{
+						"type": "hp",
+						"amount": -2
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Let it sleep",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"ember_usurer": {
+			"borrow": {
+				"label": "Borrow",
+				"lines": [
+					"Gain 100 Embers.",
+					"Bane: Tithe of Ash. Enemies drop 50% fewer Embers. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"tithe_of_ash"
+				],
+				"hover_description": "Enemies drop 50% fewer Embers.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 100
+					},
+					{
+						"type": "omen",
+						"id": "tithe_of_ash",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"buy": {
+				"label": "Buy from his coat",
+				"lines": [
+					"Pay 75 Embers.",
+					"Gain Reliquary Box."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"reliquary_box"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -75
+					},
+					{
+						"type": "relic",
+						"id": "reliquary_box"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"petrified_pilgrims": {
+			"purses": {
+				"label": "Chip their purses free",
+				"lines": [
+					"Gain 70 Embers.",
+					"Lose 3 Health."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 70
+					},
+					{
+						"type": "hp",
+						"amount": -3
+					}
+				],
+				"preview_matched": true
+			},
+			"touch": {
+				"label": "Touch the foremost pilgrim",
+				"lines": [
+					"Blessing: Stone Vow. Start each combat with 4 Stoneskin. (3 fights)",
+					"−2 max Health."
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"stone_vow"
+				],
+				"hover_description": "Start each combat with 4 Stoneskin.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "stone_vow",
+						"fights": 3
+					},
+					{
+						"type": "max_hp",
+						"amount": -2
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"root_choked_vault": {
+			"tear": {
+				"label": "Tear through the roots",
+				"lines": [
+					"Lose 5 Health.",
+					"Gain Tower Shield."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"tower_shield"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -5
+					},
+					{
+						"type": "equipment",
+						"id": "tower_shield"
+					}
+				],
+				"preview_matched": true
+			},
+			"squeeze": {
+				"label": "Squeeze through the gap",
+				"lines": [
+					"Lose 2 Health.",
+					"Gain War Maul."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"war_maul"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -2
+					},
+					{
+						"type": "equipment",
+						"id": "war_maul"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"cinder_supplicant": {
+			"hand": {
+				"label": "Offer your hand",
+				"lines": [
+					"Lose 4 Health.",
+					"Choose 1: Magma Vent, Immolation or Meteorfall."
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"magma_vent",
+					"immolation",
+					"meteorfall"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -4
+					},
+					{
+						"type": "card_choice",
+						"cards": [
+							"magma_vent",
+							"immolation",
+							"meteorfall"
+						]
+					}
+				],
+				"preview_matched": true
+			},
+			"embers": {
+				"label": "Feed it Embers",
+				"lines": [
+					"Pay 50 Embers.",
+					"Gain Inferno Ritual."
+				],
+				"hover_kind": "card",
+				"hover_ids": [
+					"inferno_ritual"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -50
+					},
+					{
+						"type": "card",
+						"id": "inferno_ritual",
+						"destination": "deck"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"ember_font": {
+			"quench": {
+				"label": "Quench your weapon",
+				"lines": [
+					"Your Training Sword becomes Dawnlight Censer.",
+					"Bane: Kindled. Start each combat standing on Fire. (2 fights)"
+				],
+				"hover_kind": "reforge",
+				"hover_ids": [
+					"training_sword",
+					"dawnlight_censer"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reforge",
+						"slot": "weapon",
+						"from": "training_sword",
+						"to": "dawnlight_censer"
+					},
+					{
+						"type": "omen",
+						"id": "kindled",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"pull": {
+				"label": "Pull a blade from the font",
+				"lines": [
+					"Lose 6 Health.",
+					"Gain Hookspine Halberd."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"hookspine_halberd"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -6
+					},
+					{
+						"type": "equipment",
+						"id": "hookspine_halberd"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"bell_of_the_gale": {
+			"ring": {
+				"label": "Ring it",
+				"lines": [
+					"Blessing: Quickened Blood. Your first turn in each combat has 1 extra Card Play. (3 fights)",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"quickened_blood"
+				],
+				"hover_description": "Your first turn in each combat has 1 extra Card Play.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "quickened_blood",
+						"fights": 3
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"strip": {
+				"label": "Strip its bronze",
+				"lines": [
+					"Gain 45 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 45
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave it to the wind",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"windcut_bridge": {
+			"run": {
+				"label": "Run across",
+				"lines": [
+					"Lose 4 Health.",
+					"Gain Glacier Salts and Mirror Charm.",
+					"Gain Frostwalkers."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"glacier_salts",
+					"mirror_charm"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -4
+					},
+					{
+						"type": "item",
+						"id": "glacier_salts"
+					},
+					{
+						"type": "item",
+						"id": "mirror_charm"
+					},
+					{
+						"type": "equipment",
+						"id": "frostwalkers"
+					}
+				],
+				"preview_matched": true
+			},
+			"crawl": {
+				"label": "Crawl across",
+				"lines": [
+					"Lose 2 Health.",
+					"Gain Hourglass Sand."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"hourglass_sand"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -2
+					},
+					{
+						"type": "item",
+						"id": "hourglass_sand"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"frozen_champion": {
+			"shatter": {
+				"label": "Shatter the ice",
+				"lines": [
+					"Lose 6 Health.",
+					"Gain Grave Greatsword."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"grave_greatsword"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -6
+					},
+					{
+						"type": "equipment",
+						"id": "grave_greatsword"
+					}
+				],
+				"preview_matched": true
+			},
+			"thaw": {
+				"label": "Thaw her with Embers",
+				"lines": [
+					"Pay 60 Embers.",
+					"Gain 1 Defiance for this run."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -60
+					},
+					{
+						"type": "defiance",
+						"amount": 1
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave her watching",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"hoarfrost_spring": {
+			"bathe": {
+				"label": "Bathe",
+				"lines": [
+					"Heal 10 Health.",
+					"Bane: Leaden Limbs. Your first turn in each combat has 1 less Move. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"leaden_limbs"
+				],
+				"hover_description": "Your first turn in each combat has 1 less Move.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal",
+						"amount": 0
+					},
+					{
+						"type": "omen",
+						"id": "leaden_limbs",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"flask": {
+				"label": "Fill a flask",
+				"lines": [
+					"Gain Flash Powder."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"flash_powder"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "item",
+						"id": "flash_powder"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"storm_obelisk": {
+			"grasp": {
+				"label": "Grasp it",
+				"lines": [
+					"Lose 9 Health.",
+					"Gain Vaulting Sigil."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"vaulting_sigil"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -9
+					},
+					{
+						"type": "relic",
+						"id": "vaulting_sigil"
+					}
+				],
+				"preview_matched": true
+			},
+			"shard": {
+				"label": "Chip a shard loose",
+				"lines": [
+					"Lose 2 Health.",
+					"Gain Bone-Ward Charm."
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"bone_ward_charm"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -2
+					},
+					{
+						"type": "item",
+						"id": "bone_ward_charm"
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"tempest_choir": {
+			"join": {
+				"label": "Join the hymn",
+				"lines": [
+					"Lose 3 Health.",
+					"Choose 1: Storm Beacon, Skybolt or Tempest Form."
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"storm_beacon",
+					"skybolt",
+					"tempest_form"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -3
+					},
+					{
+						"type": "card_choice",
+						"cards": [
+							"storm_beacon",
+							"skybolt",
+							"tempest_form"
+						]
+					}
+				],
+				"preview_matched": true
+			},
+			"steal": {
+				"label": "Rob the collection plate",
+				"lines": [
+					"Gain 50 Embers.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"hunted"
+				],
+				"hover_description": "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 50
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"umbral_bargain": {
+			"accept": {
+				"label": "Accept",
+				"lines": [
+					"Gain Phoenix Ember.",
+					"−6 max Health."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"phoenix_ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "relic",
+						"id": "phoenix_ember"
+					},
+					{
+						"type": "max_hp",
+						"amount": -6
+					}
+				],
+				"preview_matched": true
+			},
+			"haggle": {
+				"label": "Haggle",
+				"lines": [
+					"Gain Vaulting Sigil.",
+					"−3 max Health."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"vaulting_sigil"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "relic",
+						"id": "vaulting_sigil"
+					},
+					{
+						"type": "max_hp",
+						"amount": -3
+					}
+				],
+				"preview_matched": true
+			},
+			"refuse": {
+				"label": "Refuse",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"your_own_body": {
+			"search": {
+				"label": "Search it",
+				"lines": [
+					"Gain Thunderstone and Crimson Draught and Mirror Charm.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "item",
+				"hover_ids": [
+					"thunderstone",
+					"crimson_draught",
+					"mirror_charm"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "item",
+						"id": "thunderstone"
+					},
+					{
+						"type": "item",
+						"id": "crimson_draught"
+					},
+					{
+						"type": "item",
+						"id": "mirror_charm"
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"bury": {
+				"label": "Bury it",
+				"lines": [
+					"Lose 4 Health.",
+					"Gain 1 Defiance for this run."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -4
+					},
+					{
+						"type": "defiance",
+						"amount": 1
+					}
+				],
+				"preview_matched": true
+			},
+			"walk": {
+				"label": "Walk on",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"toll_collector": {
+			"pay": {
+				"label": "Pay the toll",
+				"lines": [
+					"Pay 40 Embers.",
+					"Blessing: Ember Ward. Start each combat with 6 Block. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"ember_ward"
+				],
+				"hover_description": "Start each combat with 6 Block.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -40
+					},
+					{
+						"type": "omen",
+						"id": "ember_ward",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"take": {
+				"label": "Take the lockbox",
+				"lines": [
+					"Gain 90 Embers.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"hunted"
+				],
+				"hover_description": "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 90
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"drowned_chapel": {
+			"wade": {
+				"label": "Wade to the altar",
+				"lines": [
+					"Gain Gale Tabi.",
+					"Bane: Leaden Limbs. Your first turn in each combat has 1 less Move. (3 fights)"
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"gale_tabi"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "relic",
+						"id": "gale_tabi"
+					},
+					{
+						"type": "omen",
+						"id": "leaden_limbs",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"wash": {
+				"label": "Wash your wounds",
+				"lines": [
+					"Heal 30% of your max Health.",
+					"Bane: Deepening Dark. The The Umbra is one stage deeper in each combat. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"deepening_dark"
+				],
+				"hover_description": "The The Umbra is one stage deeper in each combat.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal_percent",
+						"amount": 0
+					},
+					{
+						"type": "omen",
+						"id": "deepening_dark",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"patient_surgeon": {
+			"stitches": {
+				"label": "Pay for stitches",
+				"lines": [
+					"Pay 35 Embers.",
+					"Heal 50% of your max Health."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"health"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -35
+					},
+					{
+						"type": "heal_percent",
+						"amount": 0
+					}
+				],
+				"preview_matched": true
+			},
+			"sell": {
+				"label": "Sell him a pint",
+				"lines": [
+					"Lose 5 Health.",
+					"Gain 70 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -5
+					},
+					{
+						"type": "embers",
+						"amount": 70
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"twin_doors": {
+			"warm": {
+				"label": "The warm door",
+				"lines": [
+					"Gain Rime Locket.",
+					"Bane: Kindled. Start each combat standing on Fire. (2 fights)"
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"rime_locket"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "rime_locket"
+					},
+					{
+						"type": "omen",
+						"id": "kindled",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"cold": {
+				"label": "The cold door",
+				"lines": [
+					"Choose 1: Thunderline, Storm Beacon or Discharge.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"thunderline",
+					"storm_beacon",
+					"discharge"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "card_choice",
+						"cards": [
+							"thunderline",
+							"storm_beacon",
+							"discharge"
+						]
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"tinkers_cart": {
+			"trade": {
+				"label": "Leave something, take one",
+				"lines": [
+					"Lose Thunderstone.",
+					"Gain Dawnlight Censer."
+				],
+				"hover_kind": "lose_item",
+				"hover_ids": [
+					"thunderstone"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "lose_item",
+						"id": "thunderstone"
+					},
+					{
+						"type": "equipment",
+						"id": "dawnlight_censer"
+					}
+				],
+				"preview_matched": true
+			},
+			"steal": {
+				"label": "Just take one",
+				"lines": [
+					"Gain Ember Pendant.",
+					"Bane: Hunted. Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health. (2 fights)"
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"ember_pendant"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "ember_pendant"
+					},
+					{
+						"type": "omen",
+						"id": "hunted",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"candle_auction": {
+			"high": {
+				"label": "Bid high",
+				"lines": [
+					"Pay 90 Embers.",
+					"Gain Thunder Relay."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"thunder_relay"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -90
+					},
+					{
+						"type": "relic",
+						"id": "thunder_relay"
+					}
+				],
+				"preview_matched": true
+			},
+			"low": {
+				"label": "Bid low",
+				"lines": [
+					"Pay 40 Embers.",
+					"Gain Recoil Plates."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"recoil_plates"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -40
+					},
+					{
+						"type": "relic",
+						"id": "recoil_plates"
+					}
+				],
+				"preview_matched": true
+			},
+			"sell": {
+				"label": "Sell your paddle",
+				"lines": [
+					"Gain 25 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 25
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"the_sleeper": {
+			"rob": {
+				"label": "Cut its purse",
+				"lines": [
+					"Gain 80 Embers.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"dread"
+				],
+				"hover_description": "Start each combat with 3 Expose.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": 80
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"around": {
+				"label": "Take the long way",
+				"lines": [
+					"Reveal what the unknown rooms up to 3 rooms ahead hold."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reveal",
+						"hops": 3.0,
+						"rooms_revealed": 2
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"ash_confessional": {
+			"some": {
+				"label": "Confess a little",
+				"lines": [
+					"Guiding Flare becomes Chain Bolt.",
+					"Heal 8 Health."
+				],
+				"hover_kind": "transform",
+				"hover_ids": [
+					"guiding_flare",
+					"chain_bolt"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "transform_magic",
+						"slot": 0,
+						"from": "guiding_flare",
+						"to": "chain_bolt"
+					},
+					{
+						"type": "heal",
+						"amount": 0
+					}
+				],
+				"preview_matched": true
+			},
+			"all": {
+				"label": "Confess everything",
+				"lines": [
+					"3 spells change: hover to see.",
+					"−4 max Health."
+				],
+				"hover_kind": "transform",
+				"hover_ids": [
+					"dawnstep",
+					"storm_relay",
+					"threaded_path",
+					"shattered_reflection",
+					"guiding_flare",
+					"inferno_ritual"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "transform_magic",
+						"slot": 1,
+						"from": "dawnstep",
+						"to": "storm_relay"
+					},
+					{
+						"type": "transform_magic",
+						"slot": 2,
+						"from": "threaded_path",
+						"to": "shattered_reflection"
+					},
+					{
+						"type": "transform_magic",
+						"slot": 0,
+						"from": "guiding_flare",
+						"to": "inferno_ritual"
+					},
+					{
+						"type": "max_hp",
+						"amount": -4
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Say nothing",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"last_expedition": {
+			"take": {
+				"label": "Take their gear",
+				"lines": [
+					"Gain Chain Guard.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"chain_guard"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "chain_guard"
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"stay": {
+				"label": "Sit with them",
+				"lines": [
+					"Blessing: Quickened Blood. Your first turn in each combat has 1 extra Card Play. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"quickened_blood"
+				],
+				"hover_description": "Your first turn in each combat has 1 extra Card Play.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "quickened_blood",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"hungry_door": {
+			"item": {
+				"label": "Feed it something",
+				"lines": [
+					"Lose Quarry Dust.",
+					"Gain Static Soles.",
+					"Gain 40 Embers."
+				],
+				"hover_kind": "lose_item",
+				"hover_ids": [
+					"grave_dust_satchel"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "lose_item",
+						"id": "grave_dust_satchel"
+					},
+					{
+						"type": "relic",
+						"id": "static_soles"
+					},
+					{
+						"type": "embers",
+						"amount": 40
+					}
+				],
+				"preview_matched": true
+			},
+			"blood": {
+				"label": "Feed it your blood",
+				"lines": [
+					"Lose 6 Health.",
+					"Gain 110 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -6
+					},
+					{
+						"type": "embers",
+						"amount": 110
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"ember_shaft": {
+			"climb": {
+				"label": "Climb down",
+				"lines": [
+					"Lose 5 Health.",
+					"Gain 90 Embers."
+				],
+				"hover_kind": "gain",
+				"hover_ids": [
+					"ember"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -5
+					},
+					{
+						"type": "embers",
+						"amount": 90
+					}
+				],
+				"preview_matched": true
+			},
+			"offer": {
+				"label": "Throw one in",
+				"lines": [
+					"Pay 20 Embers.",
+					"Blessing: Ember Tithe. Enemies drop 50% more Embers. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"ember_tithe"
+				],
+				"hover_description": "Enemies drop 50% more Embers.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "embers",
+						"amount": -20
+					},
+					{
+						"type": "omen",
+						"id": "ember_tithe",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"blind_scribe": {
+			"longer": {
+				"label": "Make it longer",
+				"lines": [
+					"+4 max Health.",
+					"Bane: Deepening Dark. The The Umbra is one stage deeper in each combat. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"deepening_dark"
+				],
+				"hover_description": "The The Umbra is one stage deeper in each combat.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "max_hp",
+						"amount": 4
+					},
+					{
+						"type": "omen",
+						"id": "deepening_dark",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"better": {
+				"label": "Make it better",
+				"lines": [
+					"Choose 1: Rite of the Mountain, White Silence or Crystal Mantle.",
+					"−2 max Health."
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"rite_of_the_mountain",
+					"white_silence",
+					"crystal_mantle"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "card_choice",
+						"cards": [
+							"rite_of_the_mountain",
+							"white_silence",
+							"crystal_mantle"
+						]
+					},
+					{
+						"type": "max_hp",
+						"amount": -2
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"quarry_mouth": {
+			"dig": {
+				"label": "Dig out the seam",
+				"lines": [
+					"Lose 4 Health.",
+					"Gain Thornmail."
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"thornmail"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -4
+					},
+					{
+						"type": "equipment",
+						"id": "thornmail"
+					}
+				],
+				"preview_matched": true
+			},
+			"press": {
+				"label": "Press your skin to it",
+				"lines": [
+					"Blessing: Stone Vow. Start each combat with 4 Stoneskin. (3 fights)",
+					"−2 max Health."
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"stone_vow"
+				],
+				"hover_description": "Start each combat with 4 Stoneskin.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "stone_vow",
+						"fights": 3
+					},
+					{
+						"type": "max_hp",
+						"amount": -2
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"kiln_of_names": {
+			"fire": {
+				"label": "Fire it",
+				"lines": [
+					"+4 max Health.",
+					"Bane: Kindled. Start each combat standing on Fire. (2 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"kindled"
+				],
+				"hover_description": "Start each combat standing on Fire.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "max_hp",
+						"amount": 4
+					},
+					{
+						"type": "omen",
+						"id": "kindled",
+						"fights": 2
+					}
+				],
+				"preview_matched": true
+			},
+			"smash": {
+				"label": "Smash it",
+				"lines": [
+					"Lose 3 Health.",
+					"Choose 1: Cinder Fusillade, Inferno Ritual or Wildfire Halo."
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"cinder_fusillade",
+					"inferno_ritual",
+					"wildfire_halo"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -3
+					},
+					{
+						"type": "card_choice",
+						"cards": [
+							"cinder_fusillade",
+							"inferno_ritual",
+							"wildfire_halo"
+						]
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"howling_gallery": {
+			"listen": {
+				"label": "Listen",
+				"lines": [
+					"Choose 1: Eye of the Storm, Skybreak Current or Vortex.",
+					"Bane: Dread. Start each combat with 3 Expose. (3 fights)"
+				],
+				"hover_kind": "card_choice",
+				"hover_ids": [
+					"eye_of_the_storm",
+					"skybreak_current",
+					"vortex"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "card_choice",
+						"cards": [
+							"eye_of_the_storm",
+							"skybreak_current",
+							"vortex"
+						]
+					},
+					{
+						"type": "omen",
+						"id": "dread",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"stop": {
+				"label": "Stop your ears",
+				"lines": [
+					"Reveal what the unknown rooms up to 3 rooms ahead hold."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "reveal",
+						"hops": 3.0,
+						"rooms_revealed": 2
+					}
+				],
+				"preview_matched": true
+			}
+		},
+		"glass_lake": {
+			"break": {
+				"label": "Break the ice",
+				"lines": [
+					"Gain Ironshod Sabatons.",
+					"Bane: Leaden Limbs. Your first turn in each combat has 1 less Move. (3 fights)"
+				],
+				"hover_kind": "equipment",
+				"hover_ids": [
+					"ironshod_sabatons"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "equipment",
+						"id": "ironshod_sabatons"
+					},
+					{
+						"type": "omen",
+						"id": "leaden_limbs",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"bow": {
+				"label": "Bow to them",
+				"lines": [
+					"Blessing: Lantern Sight. Start each combat with 3 turns of Vision. (4 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"lantern_sight"
+				],
+				"hover_description": "Start each combat with 3 turns of Vision.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "omen",
+						"id": "lantern_sight",
+						"fights": 4
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"copper_saint": {
+			"halo": {
+				"label": "Take the halo",
+				"lines": [
+					"Lose 6 Health.",
+					"Gain Updraft Bottle."
+				],
+				"hover_kind": "relic",
+				"hover_ids": [
+					"updraft_bottle"
+				],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -6
+					},
+					{
+						"type": "relic",
+						"id": "updraft_bottle"
+					}
+				],
+				"preview_matched": true
+			},
+			"stand": {
+				"label": "Stand in the water",
+				"lines": [
+					"Lose 4 Health.",
+					"Blessing: Quickened Blood. Your first turn in each combat has 1 extra Card Play. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"quickened_blood"
+				],
+				"hover_description": "Your first turn in each combat has 1 extra Card Play.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "hp",
+						"amount": -4
+					},
+					{
+						"type": "omen",
+						"id": "quickened_blood",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Leave",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		},
+		"last_hearth": {
+			"warm": {
+				"label": "Warm your hands",
+				"lines": [
+					"Heal 50% of your max Health.",
+					"Bane: Deepening Dark. The The Umbra is one stage deeper in each combat. (3 fights)"
+				],
+				"hover_kind": "omen",
+				"hover_ids": [
+					"deepening_dark"
+				],
+				"hover_description": "The The Umbra is one stage deeper in each combat.",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "heal_percent",
+						"amount": 0
+					},
+					{
+						"type": "omen",
+						"id": "deepening_dark",
+						"fights": 3
+					}
+				],
+				"preview_matched": true
+			},
+			"coal": {
+				"label": "Take a coal",
+				"lines": [
+					"Gain 1 Defiance for this run.",
+					"−4 max Health."
+				],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [
+					{
+						"type": "defiance",
+						"amount": 1
+					},
+					{
+						"type": "max_hp",
+						"amount": -4
+					}
+				],
+				"preview_matched": true
+			},
+			"leave": {
+				"label": "Walk on",
+				"lines": [],
+				"hover_kind": "",
+				"hover_ids": [],
+				"hover_description": "",
+				"blocked": "",
+				"transaction": [],
+				"preview_matched": true
+			}
+		}
+	},
+	"event_omens": {
+		"ember_ward": {
+			"name": "Ember Ward",
+			"definition": "Start each combat with 6 Block.",
+			"fights": 3.0
+		},
+		"stone_vow": {
+			"name": "Stone Vow",
+			"definition": "Start each combat with 4 Stoneskin.",
+			"fights": 3.0
+		},
+		"quickened_blood": {
+			"name": "Quickened Blood",
+			"definition": "Your first turn in each combat has 1 extra Card Play.",
+			"fights": 3.0
+		},
+		"lantern_sight": {
+			"name": "Lantern Sight",
+			"definition": "Start each combat with 3 turns of Vision.",
+			"fights": 4.0
+		},
+		"ember_tithe": {
+			"name": "Ember Tithe",
+			"definition": "Enemies drop 50% more Embers.",
+			"fights": 3.0
+		},
+		"hunted": {
+			"name": "Hunted",
+			"definition": "Each normal combat gets one more enemy, up to 5; if it can't, its enemies get +20% Health.",
+			"fights": 2.0
+		},
+		"dread": {
+			"name": "Dread",
+			"definition": "Start each combat with 3 Expose.",
+			"fights": 3.0
+		},
+		"leaden_limbs": {
+			"name": "Leaden Limbs",
+			"definition": "Your first turn in each combat has 1 less Move.",
+			"fights": 3.0
+		},
+		"kindled": {
+			"name": "Kindled",
+			"definition": "Start each combat standing on Fire.",
+			"fights": 2.0
+		},
+		"deepening_dark": {
+			"name": "Deepening Dark",
+			"definition": "The The Umbra is one stage deeper in each combat.",
+			"fights": 3.0
+		},
+		"tithe_of_ash": {
+			"name": "Tithe of Ash",
+			"definition": "Enemies drop 50% fewer Embers.",
+			"fights": 3.0
+		}
+	},
+	"enemies": {
+		"crawler": {
+			"name": "Tunnel Crawler",
+			"intents": {
+				"skitter_strike": {
+					"name": "Skitter Strike",
+					"details": "Move 2\nMelee 5",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 5",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 5 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"coil": {
+					"name": "Coil",
+					"details": "Move 2\nBlock 4",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Move 2\nBlock 4",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"lunge": {
+					"name": "Lunge",
+					"details": "Move 3\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"acolyte": {
+			"name": "Dust Acolyte",
+			"intents": {
+				"dust_bolt": {
+					"name": "Dust Bolt",
+					"details": "Ranged 5 · Range 3",
+					"tooltip": "",
+					"inspection": "Ranged 5 · Range 3",
+					"inspection_tooltip": "Ranged\nDeal 5 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"ward_chant": {
+					"name": "Ward Chant",
+					"details": "Move 1\nBlock 4",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Move 1\nBlock 4",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"siphon": {
+					"name": "Siphon",
+					"details": "Move 1\nRanged 4 · Range 2\nHeal 2",
+					"tooltip": "Heal\nRestore 2 Health.",
+					"inspection": "Move 1\nRanged 4 · Range 2\nHeal 2",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nHeal\nRestore 2 Health.",
+					"inspection_note": ""
+				},
+				"dust_advance": {
+					"name": "Dust Advance",
+					"details": "Move 3\nMelee 2",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"harrier": {
+			"name": "Bone Harrier",
+			"intents": {
+				"pelt": {
+					"name": "Pelt",
+					"details": "Pierce 5 · Range 3",
+					"tooltip": "Pierce\nDamage from this attack ignores Block and Stoneskin.",
+					"inspection": "Pierce 5 · Range 3",
+					"inspection_tooltip": "Pierce\nDamage from this attack ignores Block and Stoneskin.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"retreat_step": {
+					"name": "Retreat Step",
+					"details": "Retreat 2\nBlock 3",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Retreat 2\nBlock 3",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"rush": {
+					"name": "Rush",
+					"details": "Move 3\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"darting_pelt": {
+					"name": "Darting Pelt",
+					"details": "Move 1\nRanged 4 · Range 2",
+					"tooltip": "",
+					"inspection": "Move 1\nRanged 4 · Range 2",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"warden": {
+			"name": "Stone Warden",
+			"intents": {
+				"marching_blow": {
+					"name": "Marching Blow",
+					"details": "Move 1\nMelee 9",
+					"tooltip": "",
+					"inspection": "Move 1\nMelee 9",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 9 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"bulwark": {
+					"name": "Bulwark",
+					"details": "Block 6 · → All Allies",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nGrants Block to every other living enemy.",
+					"inspection": "Block 6",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"crushing_step": {
+					"name": "Crushing Step",
+					"details": "Move 2\nMelee 6 · Area",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 6 · Area",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"cinder_ooze": {
+			"name": "Cinder Ooze",
+			"intents": {
+				"smolder_slide": {
+					"name": "Smolder Slide",
+					"details": "Move 1\nMelee 5 · Fire\nSplits 2\nWhen this enemy dies, this\nenemy splits into 2 Cinder\nDroplets within 1 tile.",
+					"tooltip": "Fire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.\nWhen this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.",
+					"inspection": "Move 1\nMelee 5 · Fire",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 5 damage to an adjacent target or a target within the card's Range.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"cinder_bloom": {
+					"name": "Cinder Bloom",
+					"details": "Melee 4 · Area · Fire\nSplits 2\nWhen this enemy dies, this\nenemy splits into 2 Cinder\nDroplets within 1 tile.",
+					"tooltip": "Fire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.\nWhen this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.",
+					"inspection": "Melee 4 · Area · Fire",
+					"inspection_tooltip": "Melee\nDeal 4 damage to an adjacent target or a target within the card's Range.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"slag_shell": {
+					"name": "Slag Shell",
+					"details": "Block 3\nSplits 2\nWhen this enemy dies, this\nenemy splits into 2 Cinder\nDroplets within 1 tile.",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nWhen this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.",
+					"inspection": "Block 3",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"ooze_advance": {
+					"name": "Ooze Advance",
+					"details": "Move 2\nSplits 2\nWhen this enemy dies, this\nenemy splits into 2 Cinder\nDroplets within 1 tile.",
+					"tooltip": "When this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.",
+					"inspection": "Move 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Splits 2\nWhen this enemy dies, this enemy splits into 2 Cinder Droplets within 1 tile.": "splits"
+			}
+		},
+		"cinder_droplet": {
+			"name": "Cinder Droplet",
+			"intents": {
+				"spatter": {
+					"name": "Spatter",
+					"details": "Move 2\nMelee 3 · Fire",
+					"tooltip": "Fire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection": "Move 2\nMelee 3 · Fire",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"hiss_back": {
+					"name": "Hiss Back",
+					"details": "Retreat 1\nBlock 2",
+					"tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Retreat 1\nBlock 2",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"bile_bloomer": {
+			"name": "Shale Bloomer",
+			"intents": {
+				"bile_burst": {
+					"name": "Shale Burst",
+					"details": "Move 1\nMelee 3 · Area · Rubble",
+					"tooltip": "Rubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection": "Move 1\nMelee 3 · Area · Rubble",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.\nRubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"spore_mark": {
+					"name": "Shard Mark",
+					"details": "Ranged 3 · Range 3 · Expose 2 · Rubble",
+					"tooltip": "Expose\nThe next hit that damages an Exposed unit deals 2 more damage.\nRubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection": "Ranged 3 · Range 3 · Expose 2 · Rubble",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nExpose\nThe next hit that damages an Exposed unit deals 2 more damage.\nRubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"pustule_shell": {
+					"name": "Shale Shell",
+					"details": "Stoneskin 2",
+					"tooltip": "Stoneskin\nStoneskin absorbs damage after Block and stays until used up.",
+					"inspection": "Stoneskin 2",
+					"inspection_tooltip": "Stoneskin\nStoneskin absorbs damage after Block and stays until used up.",
+					"inspection_note": ""
+				},
+				"shale_advance": {
+					"name": "Shale Advance",
+					"details": "Move 2",
+					"tooltip": "",
+					"inspection": "Move 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"chainbound_gaoler": {
+			"name": "Chainbound Gaoler",
+			"intents": {
+				"chain_reel": {
+					"name": "Chain Reel",
+					"details": "Melee 4 · Range 3 · Pull 2",
+					"tooltip": "Pull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection": "Melee 4 · Range 3 · Pull 2",
+					"inspection_tooltip": "Melee\nDeal 4 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"manacle_pin": {
+					"name": "Manacle Pin",
+					"details": "Ranged 1 · Range 3 · Immobilize",
+					"tooltip": "Immobilize\nImmobilized units can't Move, Blink or Swap on their next turn.",
+					"inspection": "Ranged 1 · Range 3 · Immobilize",
+					"inspection_tooltip": "Ranged\nDeal 1 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nImmobilize\nImmobilized units can't Move, Blink or Swap on their next turn.",
+					"inspection_note": ""
+				},
+				"cudgel_press": {
+					"name": "Cudgel Press",
+					"details": "Move 1\nMelee 6",
+					"tooltip": "",
+					"inspection": "Move 1\nMelee 6",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"iron_guard": {
+					"name": "Iron Guard",
+					"details": "Move 2\nBlock 5",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Move 2\nBlock 5",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"grave_surgeon": {
+			"name": "Grave Surgeon",
+			"intents": {
+				"triage_suture": {
+					"name": "Triage Suture",
+					"details": "Move 1\nHeal 2 · None",
+					"tooltip": "Heal\nRestore 2 Health.\nNo valid support target.",
+					"inspection": "Move 1\nHeal 2",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nHeal\nRestore 2 Health.",
+					"inspection_note": ""
+				},
+				"saw_jab": {
+					"name": "Saw Jab",
+					"details": "Move 2\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"field_brace": {
+					"name": "Field Brace",
+					"details": "Move 1\nBlock 3 · Expend · → Self",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nRemove Shape Ground from your tile.\nSupport target: Grave Surgeon.",
+					"inspection": "Move 1\nBlock 3 · Expend",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nBlock\nBlock absorbs damage until the start of the holder's next turn.\nRemove Shape Ground from your tile.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"frostglass_lancer": {
+			"name": "Frostglass Lancer",
+			"intents": {
+				"glass_lunge": {
+					"name": "Glass Lunge",
+					"details": "Move 1\nMelee 6 · Area · Ice\nTarget on Ice: · Stagger 6",
+					"tooltip": "Ice\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 1\nMelee 6 · Area · Ice\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"spear_cast": {
+					"name": "Spear Cast",
+					"details": "Ranged 4 · Range 3",
+					"tooltip": "",
+					"inspection": "Ranged 4 · Range 3",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"refract_guard": {
+					"name": "Refract Guard",
+					"details": "Retreat 1\nBlock 4 · Expend",
+					"tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.\nRemove Ice from your tile.",
+					"inspection": "Retreat 1\nBlock 4 · Expend",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.\nRemove Ice from your tile.",
+					"inspection_note": ""
+				},
+				"frost_pin": {
+					"name": "Frost Pin",
+					"details": "Ranged 5 · Range 3\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Ranged 5 · Range 3\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Ranged\nDeal 5 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"spear_advance": {
+					"name": "Spear Advance",
+					"details": "Move 3\nMelee 2",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"tharokh": {
+			"name": "Tharokh, the Worldspine",
+			"intents": {
+				"stonewake": {
+					"name": "Stonewake",
+					"details": "Steadfast\nRanged 6 · Range 4\nArea",
+					"tooltip": "Takes half Stagger.",
+					"inspection": "Ranged 6 · Range 4\nArea",
+					"inspection_tooltip": "Ranged\nDeal 6 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"worldspine_claw": {
+					"name": "Worldspine Claw",
+					"details": "Steadfast\nMove 2\nMelee 15 · Range 1\nArea",
+					"tooltip": "Takes half Stagger.",
+					"inspection": "Move 2\nMelee 15 · Range 1\nArea",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 15 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"bedrock_breath": {
+					"name": "Bedrock Breath",
+					"details": "Steadfast\nRanged 10 · Range 4 · Rubble\nArea",
+					"tooltip": "Takes half Stagger.\nRubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection": "Ranged 10 · Range 4 · Rubble\nArea",
+					"inspection_tooltip": "Ranged\nDeal 10 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nRubble\nLeaving Rubble costs 2 Movement.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"faultline": {
+					"name": "Faultline",
+					"details": "Steadfast\nMarked · Burst 8 · each Worldspine\nRanged 4 · Range 4",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nBurst\nDestroy the target, then deal 8 damage on that tile and each adjacent tile.\nThis enemy Bursts each surviving Worldspine.",
+					"inspection": "Marked · Burst 8 · each Worldspine\nRanged 4 · Range 4",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nBurst\nDestroy the target, then deal 8 damage on that tile and each adjacent tile.\nThis enemy Bursts each surviving Worldspine.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger"
+			}
+		},
+		"vyraketh": {
+			"name": "Vyraketh, the Cinder Crown",
+			"intents": {
+				"kindle_ground": {
+					"name": "Meteorfall",
+					"details": "Steadfast\nMarked · Cinder Marks 7 · Ranged 4 · Fire\nRanged 4 · Range 4",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy leaves Fire on each Marked tile.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection": "Marked · Cinder Marks 7 · Ranged 4 · Fire\nRanged 4 · Range 4",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nThis enemy leaves Fire on each Marked tile.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"cinderfall": {
+					"name": "Cinder Breath",
+					"details": "Steadfast\nRanged 6 · Range 3\nArea",
+					"tooltip": "Takes half Stagger.",
+					"inspection": "Ranged 6 · Range 3\nArea",
+					"inspection_tooltip": "Ranged\nDeal 6 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"crownfire": {
+					"name": "Crownfire",
+					"details": "Steadfast\nMarked · Crownfire 8\nMove 2\nMelee 6",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
+					"inspection": "Marked · Crownfire 8\nMove 2\nMelee 6",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nThis enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.\nMove\nWalk up to 2 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"cinder_maw": {
+					"name": "Cinder Maw",
+					"details": "Steadfast\nMove 2\nMelee 8\nMarked · Cinder Marks 7 · Ranged 3 · Fire",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy leaves Fire on each Marked tile.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection": "Move 2\nMelee 8\nMarked · Cinder Marks 7 · Ranged 3 · Fire",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 8 damage to an adjacent target or a target within the card's Range.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy leaves Fire on each Marked tile.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger"
+			}
+		},
+		"vaeloryx": {
+			"name": "Vaeloryx, the Hollow Gale",
+			"intents": {
+				"skyhook": {
+					"name": "Skyhook",
+					"details": "Steadfast\nMove 2\nRanged 4 · Range 4 · Pull 2",
+					"tooltip": "Takes half Stagger.\nPull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection": "Move 2\nRanged 4 · Range 4 · Pull 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"razor_dive": {
+					"name": "Razor Dive",
+					"details": "Steadfast\nMove 3\nMelee 7 · Range 1\nAlong approach +1",
+					"tooltip": "Takes half Stagger.\nHits every tile within this distance of its path.",
+					"inspection": "Move 3\nMelee 7 · Range 1\nAlong approach +1",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 7 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nHits every tile within this distance of its path.",
+					"inspection_note": ""
+				},
+				"hollow_gale": {
+					"name": "Hollow Gale",
+					"details": "Steadfast\nMelee · Hollow Gale 6 · Range 2 · Push 1",
+					"tooltip": "Takes half Stagger.\nHollow Gale\nThis enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Melee · Hollow Gale 6 · Range 2 · Push 1",
+					"inspection_tooltip": "Hollow Gale\nThis enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"eye_of_storm": {
+					"name": "Eye of the Storm",
+					"details": "Steadfast\nRetreat 3\nMelee 8 · Range 5\n\nMelee 4",
+					"tooltip": "Takes half Stagger.\nRetreat\nThis enemy moves up to 3 tiles away from its target.",
+					"inspection": "Retreat 3\nMelee 8 · Range 5\n\nMelee 4",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 3 tiles away from its target.\nMelee\nDeal 8 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nMelee\nDeal 4 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger",
+				"Immune\nThis enemy is immune to Immobilize.": "immobilize"
+			}
+		},
+		"iskaldra": {
+			"name": "Iskaldra, the Rime Tyrant",
+			"intents": {
+				"crystal_mantle": {
+					"name": "Crystal Mantle",
+					"details": "Steadfast\nCrystal Mantle 2\nRanged 4 · Range 4\nTarget on Ice: · Stagger 6",
+					"tooltip": "Takes half Stagger.\nForms Crystal Mantle. Each direct damaging hit breaks one layer and prevents its damage; ground and damage over time bypass it.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Crystal Mantle 2\nRanged 4 · Range 4\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Forms Crystal Mantle. Each direct damaging hit breaks one layer and prevents its damage; ground and damage over time bypass it.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"shatterstorm": {
+					"name": "Shatterstorm",
+					"details": "Steadfast\nMove 1\nMelee 7 · Range 1\n· · Mantle fuels range",
+					"tooltip": "Takes half Stagger.\nEach remaining layer adds 1 range, up to 4. Break layers to shrink the warning; Shatterstorm spends the rest.",
+					"inspection": "Move 1\nMelee 7 · Range 1\n· · Mantle fuels range",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nMelee\nDeal 7 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nEach remaining layer adds 1 range, up to 4. Break layers to shrink the warning; Shatterstorm spends the rest.",
+					"inspection_note": ""
+				},
+				"whiteout_lance": {
+					"name": "Whiteout Lance",
+					"details": "Steadfast\nMelee 6 · Range 3 · Ice\n\nTarget on Ice: · Stagger 6",
+					"tooltip": "Takes half Stagger.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Melee 6 · Range 3 · Ice\n\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Melee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"rime_talon": {
+					"name": "Rime Talon",
+					"details": "Steadfast\nMove 3\nMelee 10\nTarget on Ice: · Stagger 6",
+					"tooltip": "Takes half Stagger.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 3\nMelee 10\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 10 damage to an adjacent target or a target within the card's Range.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger"
+			}
+		},
+		"noctyrax": {
+			"name": "Noctyrax, the Last Eclipse",
+			"intents": {
+				"night_coil": {
+					"name": "Night Coil",
+					"details": "Steadfast\nRanged 6 · Range 3 · Pull 1\nArea · · Snuff refuge",
+					"tooltip": "Takes half Stagger.\nPull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.\nNight Coil puts out the Marked brazier. Enter that brazier's tile to relight the brazier before Eclipse.",
+					"inspection": "Ranged 6 · Range 3 · Pull 1\nArea · · Snuff refuge",
+					"inspection_tooltip": "Ranged\nDeal 6 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.\nNight Coil puts out the Marked brazier. Enter that brazier's tile to relight the brazier before Eclipse.",
+					"inspection_note": "Braziers relight after Last Procession."
+				},
+				"last_eclipse": {
+					"name": "Last Eclipse",
+					"details": "Steadfast\nMarked · Ranged 8 · Eclipse 2\nSummon · Veilbound Acolyte",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy hits you and your illusions on Marked tiles, then starts Eclipse for 2 turns.\nThis enemy adds Veilbound Acolyte to combat.\nYou gain +1 Card Play next turn.",
+					"inspection": "Marked · Ranged 8 · Eclipse 2\nSummon · Veilbound Acolyte",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nRanged\nDeal 8 damage to a target within Range and line of sight.\nThis enemy hits you and your illusions on Marked tiles, then starts Eclipse for 2 turns.\nThis enemy adds Veilbound Acolyte to combat.",
+					"inspection_note": ""
+				},
+				"void_claw": {
+					"name": "Void Claw",
+					"details": "Steadfast\nMove 2\nMelee 10 · Expose 1",
+					"tooltip": "Takes half Stagger.\nExpose\nThe next hit that damages an Exposed unit deals 1 more damage.",
+					"inspection": "Move 2\nMelee 10 · Expose 1",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 10 damage to an adjacent target or a target within the card's Range.\nExpose\nThe next hit that damages an Exposed unit deals 1 more damage.",
+					"inspection_note": ""
+				},
+				"starless_breath": {
+					"name": "Starless Breath",
+					"details": "Steadfast\nRanged 8 · Range 4 · Pierce\nArea",
+					"tooltip": "Takes half Stagger.\nPierce\nDamage from this attack ignores Block and Stoneskin.",
+					"inspection": "Ranged 8 · Range 4 · Pierce\nArea",
+					"inspection_tooltip": "Ranged\nDeal 8 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPierce\nDamage from this attack ignores Block and Stoneskin.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger"
+			}
+		},
+		"zekarion": {
+			"name": "Zekarion, the Raging Tempest",
+			"intents": {
+				"skybreak": {
+					"name": "Skybreak",
+					"details": "Steadfast\nMarked · Ranged 5 · Lightning Strikes 9 · Electrified",
+					"tooltip": "Takes half Stagger.\nMarked\nMarked tiles are hit on this enemy's next turn.\nThis enemy hits random tiles.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection": "Marked · Ranged 5 · Lightning Strikes 9 · Electrified",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nRanged\nDeal 5 damage to a target within Range and line of sight.\nThis enemy hits random tiles.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"storm_claw": {
+					"name": "Storm Lash",
+					"details": "Steadfast\nMove 1\nRanged 4 · Range 3 · Electrified",
+					"tooltip": "Takes half Stagger.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection": "Move 1\nRanged 4 · Range 3 · Electrified",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"tempest_breath": {
+					"name": "Overload",
+					"details": "Steadfast\nRanged 3 · Range 4\nLightning Storm · Lightning Strikes 6 · each Electrified tile",
+					"tooltip": "Takes half Stagger.\nLightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 6 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+					"inspection": "Ranged 3 · Range 4\nLightning Storm · Lightning Strikes 6 · each Electrified tile",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nLightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 6 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+					"inspection_note": ""
+				},
+				"call_wisps": {
+					"name": "Call Wisps",
+					"details": "Steadfast\nRanged 4 · Range 4\nSummon · Lightning Wisp",
+					"tooltip": "Takes half Stagger.\nThis enemy adds Lightning Wisp to combat.\nYou gain +1 Card Play next turn.",
+					"inspection": "Ranged 4 · Range 4\nSummon · Lightning Wisp",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nThis enemy adds Lightning Wisp to combat.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Steadfast\nTakes half Stagger.": "stagger",
+				"Immune\nThis enemy is immune to Shock.": "shock"
+			}
+		},
+		"veilbound_acolyte": {
+			"name": "Veilbound Acolyte",
+			"intents": {
+				"veil_needle": {
+					"name": "Veil Needle",
+					"details": "Ranged 1 · Range 2",
+					"tooltip": "",
+					"inspection": "Ranged 1 · Range 2",
+					"inspection_tooltip": "Ranged\nDeal 1 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"shroudstep": {
+					"name": "Shroudstep",
+					"details": "Retreat 2",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection": "Retreat 2",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection_note": ""
+				},
+				"closing_shade": {
+					"name": "Closing Shade",
+					"details": "Move 2\nMelee 1",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 1",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 1 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"lightning_wisp": {
+			"name": "Lightning Wisp",
+			"intents": {
+				"spark_dart": {
+					"name": "Spark Dart",
+					"details": "Move 3\nMelee 2",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"static_lash": {
+					"name": "Static Lash",
+					"details": "Move 1\nRanged 3 · Range 2\nElectrified",
+					"tooltip": "Electrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+					"inspection": "Move 1\nRanged 3 · Range 2\nElectrified",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+					"inspection_note": ""
+				},
+				"blinding_arc": {
+					"name": "Capacitor Arc",
+					"details": "Retreat 1\nRanged 4 · Range 2\nif Electrified used: · Shock +1",
+					"tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nif Electrified used:\nShock\nShocked units can only Move or Blink on their next turn.",
+					"inspection": "Retreat 1\nRanged 4 · Range 2\nif Electrified used: · Shock +1",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 1 tile away from its target.\nRanged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nif Electrified used:\nShock\nShocked units can only Move or Blink on their next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"ashen_reaver": {
+			"name": "Ashen Reaver",
+			"intents": {
+				"raking_flame": {
+					"name": "Raking Flame",
+					"details": "Move 1\nRanged · Fire · Range 4\nArea",
+					"tooltip": "Fire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+					"inspection": "Move 1\nRanged · Fire · Range 4\nArea",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"hooked_sweep": {
+					"name": "Hooked Sweep",
+					"details": "Move 2\nMelee 6 · Range 2 · Push 1 · Fire\nArea",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection": "Move 2\nMelee 6 · Range 2 · Push 1 · Fire\nArea",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"executioners_fall": {
+					"name": "Executioner's Fall",
+					"details": "Move 1\nRanged 8 · Range 4 · Fire\nArea · Self: · Expose 3",
+					"tooltip": "Fire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.\nExpose\nThe next hit that damages an Exposed unit deals 3 more damage.",
+					"inspection": "Move 1\nRanged 8 · Range 4 · Fire\nArea · Self: · Expose 3",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 8 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.\nLeaves this ground in the affected area.\nExpose\nThe next hit that damages an Exposed unit deals 3 more damage.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"rimejaw": {
+			"name": "Rimejaw",
+			"intents": {
+				"rime_trail": {
+					"name": "Rime Trail",
+					"details": "Move 2\nIce · Trail\nMelee 3",
+					"tooltip": "Ice\nA unit entering Ice or starting a turn on Ice gains Expose 2.",
+					"inspection": "Move 2\nIce · Trail\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"harrowing_pounce": {
+					"name": "Harrowing Pounce",
+					"details": "Move 3\nMelee 6 · Ice\nTarget on Ice: · Stagger 6",
+					"tooltip": "Ice\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 3\nMelee 6 · Ice\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"frostbite": {
+					"name": "Rime Bite",
+					"details": "Move 2\nMelee 6\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 2\nMelee 6\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"storm_cantor": {
+			"name": "Storm Cantor",
+			"intents": {
+				"lay_the_choir": {
+					"name": "Lay the Choir",
+					"details": "Move 2\nRanged · Electrified · Range 5\n6 linked tiles",
+					"tooltip": "Electrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nExtends existing Electrified toward its target.",
+					"inspection": "Move 2\nRanged · Electrified · Range 5\n6 linked tiles",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nExtends existing Electrified toward its target.",
+					"inspection_note": "Extends the existing electrical network toward its target."
+				},
+				"peal": {
+					"name": "Peal",
+					"details": "Move 1\nLightning Storm · Lightning Strikes 4 · each Electrified tile",
+					"tooltip": "Lightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 4 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+					"inspection": "Move 1\nLightning Storm · Lightning Strikes 4 · each Electrified tile",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nLightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 4 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+					"inspection_note": ""
+				},
+				"broken_rhythm": {
+					"name": "Broken Rhythm",
+					"details": "Move 2\nMelee 11 · Range 2",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 11 · Range 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 11 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"call_the_spark": {
+					"name": "Call the Spark",
+					"details": "Summon · Lightning Wisp",
+					"tooltip": "This enemy adds Lightning Wisp to combat.\nYou gain +1 Card Play next turn.",
+					"inspection": "Summon · Lightning Wisp",
+					"inspection_tooltip": "This enemy adds Lightning Wisp to combat.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"gallows_roc": {
+			"name": "Gallows Roc",
+			"intents": {
+				"hookwind": {
+					"name": "Hookwind",
+					"details": "Move 1\nRanged 3 · Range 4 · Pull 2\nArea",
+					"tooltip": "Pull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection": "Move 1\nRanged 3 · Range 4 · Pull 2\nArea",
+					"inspection_tooltip": "Move\nWalk up to 1 tile.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPull\nMove the target 2 tiles straight toward the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"razor_pinion": {
+					"name": "Razor Pinion",
+					"details": "Move 2\nMelee 6 · Range 2 · Push 2\nArea",
+					"tooltip": "Push\nMove the target 2 tiles straight away from the source, causing a Collision if blocked.",
+					"inspection": "Move 2\nMelee 6 · Range 2 · Push 2\nArea",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 2 tiles straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"grave_dive": {
+					"name": "Grave Dive",
+					"details": "Move 3\nMelee 9",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 9",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 9 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Anchored\nAnchored units can't be moved by Push, Pull or Gust.": "anchored"
+			}
+		},
+		"craghide": {
+			"name": "Craghide",
+			"intents": {
+				"upheaval": {
+					"name": "Crag Heave",
+					"details": "Move 2",
+					"tooltip": "",
+					"inspection": "Move 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.",
+					"inspection_note": ""
+				},
+				"groundsplit": {
+					"name": "Groundsplit",
+					"details": "Marked · Melee 7 · Each Outcrop · within 2",
+					"tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nThis enemy hits each floor tile within the shown distance of a surviving Outcrop.",
+					"inspection": "Marked · Melee 7 · Each Outcrop · within 2",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nMelee\nDeal 7 damage to an adjacent target or a target within the card's Range.\nThis enemy hits each floor tile within the shown distance of a surviving Outcrop.",
+					"inspection_note": ""
+				},
+				"crushing_rush": {
+					"name": "Crushing Rush",
+					"details": "Move 3\nMelee 8",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 8",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 8 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"last_lamplighter": {
+			"name": "Last Lamplighter",
+			"intents": {
+				"snuff": {
+					"name": "Snuff",
+					"details": "Summon · Wick Shade\nSnuff refuge",
+					"tooltip": "This enemy adds Wick Shade to combat.\nYou gain +1 Card Play next turn.\nLasts until Last Procession, including a skipped turn.",
+					"inspection": "Summon · Wick Shade\nSnuff refuge",
+					"inspection_tooltip": "This enemy adds Wick Shade to combat.\nLasts until Last Procession, including a skipped turn.",
+					"inspection_note": "Braziers relight after Last Procession."
+				},
+				"mourning_hook": {
+					"name": "Mourning Hook",
+					"details": "Move 2\nRanged 3 · Range 4 · Pull 1\nArea",
+					"tooltip": "Pull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.",
+					"inspection": "Move 2\nRanged 3 · Range 4 · Pull 1\nArea",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"last_procession": {
+					"name": "Last Procession",
+					"details": "Move 3\nMelee 6\nBraziers relight afterward",
+					"tooltip": "Both braziers relight after this move.",
+					"inspection": "Move 3\nMelee 6",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 6 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": "Relights braziers and dismisses Snuff's Shades."
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"ash_hound": {
+			"name": "Ash Hound",
+			"intents": {
+				"bite": {
+					"name": "Bite",
+					"details": "Move 3\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"circle": {
+					"name": "Flanking Bite",
+					"details": "Move 3\nMelee 2 · Push 1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Move 3\nMelee 2 · Push 1",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"rime_whelp": {
+			"name": "Rime Whelp",
+			"intents": {
+				"bite": {
+					"name": "Bite",
+					"details": "Move 3\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"circle": {
+					"name": "Rime Snap",
+					"details": "Move 2\nMelee 2\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 2\nMelee 2\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"rime_spitter": {
+			"name": "Rime Spitter",
+			"intents": {
+				"needle": {
+					"name": "Rime Needle",
+					"details": "Move 2\nRanged 2 · Range 3\nArea · Ice · At lane end",
+					"tooltip": "Ice\nA unit entering Ice or starting a turn on Ice gains Expose 2.",
+					"inspection": "Move 2\nRanged 2 · Range 3\nArea · Ice · At lane end",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 2 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.",
+					"inspection_note": ""
+				},
+				"recover": {
+					"name": "Frost Spit",
+					"details": "Move 2\nRanged 2 · Range 3\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Move 2\nRanged 2 · Range 3\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 2 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"bell_tender": {
+			"name": "Bell Tender",
+			"intents": {
+				"connector": {
+					"name": "Join the Choir",
+					"details": "Move 2\nRanged · Electrified · Range 4\n2 linked tiles",
+					"tooltip": "Electrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nExtends existing Electrified toward its target.",
+					"inspection": "Move 2\nRanged · Electrified · Range 4\n2 linked tiles",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nExtends existing Electrified toward its target.",
+					"inspection_note": "Extends the existing electrical network toward its target."
+				},
+				"staff_bolt": {
+					"name": "Staff Bolt",
+					"details": "Move 2\nRanged 3 · Range 3",
+					"tooltip": "",
+					"inspection": "Move 2\nRanged 3 · Range 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"roc_fledgling": {
+			"name": "Roc Fledgling",
+			"intents": {
+				"circle": {
+					"name": "Darting Peck",
+					"details": "Move 3\nMelee 2",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"peck": {
+					"name": "Hooked Peck",
+					"details": "Move 2\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"stoneback_mite": {
+			"name": "Stoneback Mite",
+			"intents": {
+				"bite": {
+					"name": "Claw",
+					"details": "Move 2\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"brace": {
+					"name": "Driving Claw",
+					"details": "Move 2\nBlock 1\nMelee 2 · Push 1",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Move 2\nBlock 1\nMelee 2 · Push 1",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nBlock\nBlock absorbs damage until the start of the holder's next turn.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"wick_shade": {
+			"name": "Wick Shade",
+			"intents": {
+				"grasp": {
+					"name": "Grasp",
+					"details": "Move 3\nMelee 2",
+					"tooltip": "",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"drift": {
+					"name": "Hooking Grasp",
+					"details": "Move 2\nMelee 2 · Pull 1",
+					"tooltip": "Pull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.",
+					"inspection": "Move 2\nMelee 2 · Pull 1",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.\nPull\nMove the target 1 tile straight toward the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"snuff": {
+					"name": "Snuff",
+					"details": "Move 2\nSnuff refuge",
+					"tooltip": "Lasts until Last Procession, including a skipped turn.",
+					"inspection": "Move 2\nSnuff refuge",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nLasts until Last Procession, including a skipped turn.",
+					"inspection_note": "Move 2 toward the nearest lit brazier, then put it out if adjacent."
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"hoarfrost_seer": {
+			"name": "Hoarfrost Seer",
+			"intents": {
+				"icefall": {
+					"name": "Icefall",
+					"details": "· Icefall 5 · Range 5",
+					"tooltip": "This enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.",
+					"inspection": "· Icefall 5 · Range 5",
+					"inspection_tooltip": "Icefall\nThis enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"icefall_land": {
+					"name": "Icefall",
+					"details": "Icefall 5 · Ice\nTarget on Ice: · Stagger 6",
+					"tooltip": "Marked tiles take the hit and turn to Ice.",
+					"inspection": "Icefall 5 · Ice\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Marked tiles take the hit and turn to Ice.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"rime_bolt": {
+					"name": "Rime Bolt",
+					"details": "Ranged 3 · Range 4\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Ranged 3 · Range 4\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"withdraw": {
+					"name": "Withdraw",
+					"details": "Retreat 2\nBlock 4",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Retreat 2\nBlock 4",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"gale_herald": {
+			"name": "Gale Herald",
+			"intents": {
+				"call_the_wind": {
+					"name": "Call the Wind",
+					"details": "Gust 2 · Push 1",
+					"tooltip": "Gust\nOn each Gust beat, each unit is Pushed downwind.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Gust 2 · Push 1",
+					"inspection_tooltip": "Gust\nOn each Gust beat, each unit is Pushed downwind.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"gust_bolt": {
+					"name": "Gust Bolt",
+					"details": "Ranged 3 · Range 4 · Push 1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Ranged 3 · Range 4 · Push 1",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"still_air": {
+					"name": "Still Air",
+					"details": "Block 5",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Block 5",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"This enemy creates Gust. Gust ends when this enemy dies.": "wind",
+				"Anchored\nAnchored units can't be moved by Push, Pull or Gust.": "anchored"
+			}
+		},
+		"arc_thrall": {
+			"name": "Arc Thrall",
+			"intents": {
+				"arc_bolt": {
+					"name": "Arc Bolt",
+					"details": "Move 2\nRanged 3 · Range 3 · Electrified",
+					"tooltip": "Electrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection": "Move 2\nRanged 3 · Range 3 · Electrified",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nRanged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nElectrified\nA Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.\nLeaves this ground in the affected area.",
+					"inspection_note": ""
+				},
+				"arc_jab": {
+					"name": "Arc Jab",
+					"details": "Move 2\nMelee 3 · Shock 1",
+					"tooltip": "Shock\nShocked units can only Move or Blink on their next turn.",
+					"inspection": "Move 2\nMelee 3 · Shock 1",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.\nShock\nShocked units can only Move or Blink on their next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"gloam_stalker": {
+			"name": "Gloam Stalker",
+			"intents": {
+				"fade": {
+					"name": "Fade",
+					"details": "Blink 4",
+					"tooltip": "This enemy Blinks behind you, then Ambushes on this enemy’s next turn.",
+					"inspection": "Blink 4",
+					"inspection_tooltip": "This enemy Blinks behind you, then Ambushes on this enemy’s next turn.",
+					"inspection_note": ""
+				},
+				"ambush": {
+					"name": "Ambush",
+					"details": "Melee 7",
+					"tooltip": "",
+					"inspection": "Melee 7",
+					"inspection_tooltip": "Melee\nDeal 7 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"slash": {
+					"name": "Slash",
+					"details": "Move 2\nMelee 4",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 4",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 4 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"burrow_grub": {
+			"name": "Burrow Grub",
+			"intents": {
+				"burrow": {
+					"name": "Burrow",
+					"details": "Burrow",
+					"tooltip": "This enemy Burrows and Marks your tile. Burrowed enemies cannot be targeted.",
+					"inspection": "Burrow",
+					"inspection_tooltip": "Burrow\nThis enemy Burrows and Marks your tile. Burrowed enemies cannot be targeted.",
+					"inspection_note": ""
+				},
+				"erupt": {
+					"name": "Erupt",
+					"details": "Erupt 6 · Push 1 · Rubble · Expose 2",
+					"tooltip": "This enemy emerges on the Marked tile.",
+					"inspection": "Erupt 6 · Push 1 · Rubble · Expose 2\nSelf: · Expose 2",
+					"inspection_tooltip": "Erupt\nThis enemy emerges on the Marked tile.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nRubble\nLeaving Rubble costs 2 Movement.\nExpose\nThe next hit that damages an Exposed unit deals 2 more damage.",
+					"inspection_note": ""
+				},
+				"gnaw": {
+					"name": "Gnaw",
+					"details": "Move 2\nMelee 3",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 3",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 3 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Burrow\nThis enemy Burrows and Marks your tile. Burrowed enemies cannot be targeted.": "burrow"
+			}
+		},
+		"ember_tick": {
+			"name": "Ember Tick",
+			"intents": {
+				"scuttle": {
+					"name": "Scuttle",
+					"details": "Burst 4\n· When this enemy dies,\nthis enemy Bursts 4,\nleaving Fire.\nMove 3\nMelee 2",
+					"tooltip": "When this enemy dies, this enemy Bursts 4, leaving Fire.",
+					"inspection": "Move 3\nMelee 2",
+					"inspection_tooltip": "Move\nWalk up to 3 tiles.\nMelee\nDeal 2 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"kindle": {
+					"name": "Kindle",
+					"details": "Burst 4\n· When this enemy dies,\nthis enemy Bursts 4,\nleaving Fire.\nBurst +2",
+					"tooltip": "When this enemy dies, this enemy Bursts 4, leaving Fire.\nIts Burst deals 2 more.",
+					"inspection": "Burst +2",
+					"inspection_tooltip": "Its Burst deals 2 more.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Burst\nWhen this enemy dies, this enemy Bursts 4, leaving Fire.": "burst"
+			}
+		},
+		"ember_hoarder": {
+			"name": "Ember Hoarder",
+			"intents": {
+				"kindle": {
+					"name": "Kindle",
+					"details": "Burst 4\n· When this enemy dies,\nthis enemy Bursts 4,\nleaving Fire.\nBurst +2",
+					"tooltip": "When this enemy dies, this enemy Bursts 4, leaving Fire.\nIts Burst deals 2 more.",
+					"inspection": "Burst +2",
+					"inspection_tooltip": "Its Burst deals 2 more.",
+					"inspection_note": ""
+				},
+				"scurry": {
+					"name": "Scurry",
+					"details": "Burst 4\n· When this enemy dies,\nthis enemy Bursts 4,\nleaving Fire.\nRetreat 2",
+					"tooltip": "When this enemy dies, this enemy Bursts 4, leaving Fire.\nRetreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection": "Retreat 2",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Burst\nWhen this enemy dies, this enemy Bursts 4, leaving Fire.": "burst"
+			}
+		},
+		"storm_capacitor": {
+			"name": "Storm Capacitor",
+			"intents": {
+				"charge": {
+					"name": "Charge",
+					"details": "Charge +1",
+					"tooltip": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+					"inspection": "Charge +1",
+					"inspection_tooltip": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+					"inspection_note": ""
+				},
+				"discharge": {
+					"name": "Arc Lash",
+					"details": "Arc 6, Range 4, 3 extra hits",
+					"tooltip": "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.",
+					"inspection": "Arc 6, Range 4, 3 extra hits",
+					"inspection_tooltip": "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n0/3": "charge",
+				"Charge\nAt 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\n3/3": "charge"
+			}
+		},
+		"hollow_mimic": {
+			"name": "Hollow Mimic",
+			"intents": {
+				"echo": {
+					"name": "Echo",
+					"details": "Ranged 3 · Range 4\nRetaliate 3",
+					"tooltip": "Retaliate\nUntil the holder's next turn, melee hits and hits from adjacent tiles deal 3 damage back.",
+					"inspection": "Ranged 3 · Range 4\nRetaliate 3",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nRetaliate\nUntil your next turn, each enemy that hits you in melee takes 3 damage.",
+					"inspection_note": ""
+				},
+				"shade_bolt": {
+					"name": "Shade Bolt",
+					"details": "Ranged 4 · Range 4",
+					"tooltip": "",
+					"inspection": "Ranged 4 · Range 4",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"recede": {
+					"name": "Recede",
+					"details": "Retreat 2",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection": "Retreat 2",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"briar_weaver": {
+			"name": "Briar Weaver",
+			"intents": {
+				"thornwall": {
+					"name": "Thornwall",
+					"details": "Marked · Upheaval 3",
+					"tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nUpheaval\nOn each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
+					"inspection": "Marked · Upheaval 3",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nUpheaval\nOn each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
+					"inspection_note": ""
+				},
+				"lash_of_thorns": {
+					"name": "Lash of Thorns",
+					"details": "Ranged 4 · Range 3",
+					"tooltip": "",
+					"inspection": "Ranged 4 · Range 3",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"root_mend": {
+					"name": "Lash of Thorns",
+					"details": "Ranged 4 · Range 3",
+					"tooltip": "",
+					"inspection": "Heal 4",
+					"inspection_tooltip": "Heal\nRestore 4 Health.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"slag_mortar": {
+			"name": "Slag Mortar",
+			"intents": {
+				"lob_slag": {
+					"name": "Lob Slag",
+					"details": "· Marked · Aoe 5 · Fire",
+					"tooltip": "On your tile. On this enemy's next turn, this enemy hits each Marked tile and leaves Fire.",
+					"inspection": "This enemy Marks tiles on your tile. On this enemy's next turn, this enemy will deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nDeal 5 damage on the central tile and 3 damage on each adjacent tile.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+					"inspection_note": ""
+				},
+				"slag_lands": {
+					"name": "Lob Slag",
+					"details": "· Lob Slag · 5 / 3",
+					"tooltip": "Deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection": "Deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_tooltip": "Deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_note": ""
+				},
+				"brace": {
+					"name": "Brace",
+					"details": "Block 6",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Block 6",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"scatter_shot": {
+					"name": "Scatter Shot",
+					"details": "Ranged 3 · Range 2 · Push 1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection": "Ranged 3 · Range 2 · Push 1",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+
+			}
+		},
+		"glacial_mirror": {
+			"name": "Glacial Mirror",
+			"intents": {
+				"refraction": {
+					"name": "Refraction",
+					"details": "Melee 4 · Area · Pierce\nTarget on Ice: · Stagger 6",
+					"tooltip": "Pierce\nDamage from this attack ignores Block and Stoneskin.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection": "Melee 4 · Area · Pierce\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Melee\nDeal 4 damage to an adjacent target or a target within the card's Range.\nPierce\nDamage from this attack ignores Block and Stoneskin.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"crystal_guard": {
+					"name": "Crystal Guard",
+					"details": "Block 6 · → Self",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nSupport target: Glacial Mirror.",
+					"inspection": "Block 6",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"advance": {
+					"name": "Grind Forward",
+					"details": "Move 2",
+					"tooltip": "",
+					"inspection": "Move 2",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Reflect\nAttacks from a non-adjacent tile bounce back to the attacker.": "reflect"
+			}
+		},
+		"gust_shrike": {
+			"name": "Gust Shrike",
+			"intents": {
+				"dive": {
+					"name": "Dive",
+					"details": "Move 4\nMelee 4 · Push 1\nAlong approach +1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nHits every tile within this distance of its path.",
+					"inspection": "Move 4\nMelee 4 · Push 1\nAlong approach +1",
+					"inspection_tooltip": "Move\nWalk up to 4 tiles.\nMelee\nDeal 4 damage to an adjacent target or a target within the card's Range.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nHits every tile within this distance of its path.",
+					"inspection_note": ""
+				},
+				"talon_rake": {
+					"name": "Talon Rake",
+					"details": "Move 2\nMelee 4",
+					"tooltip": "",
+					"inspection": "Move 2\nMelee 4",
+					"inspection_tooltip": "Move\nWalk up to 2 tiles.\nMelee\nDeal 4 damage to an adjacent target or a target within the card's Range.",
+					"inspection_note": ""
+				},
+				"hover": {
+					"name": "Hover",
+					"details": "Retreat 2\nBlock 3",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection": "Retreat 2\nBlock 3",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			},
+			"traits": {
+				"Flying\nFlying units ignore traps, ground and Collision damage.": "flying"
+			}
+		}
+	},
+	"encounter_variants": {
+		"earth": {
+			"captain": "briar_weaver",
+			"order": "Order: After every second Thornmother turn, its marked tiles rise as Outcrops.",
+			"moves": {
+				"thornwall": {
+					"name": "Thornwall",
+					"details": "Marked · Upheaval 3",
+					"tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nUpheaval\nOn each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.\nOrder: After every second Thornmother turn, its marked tiles rise as Outcrops.",
+					"inspection": "Marked · Upheaval 3",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nUpheaval\nOn each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
+					"inspection_note": ""
+				},
+				"lash_of_thorns": {
+					"name": "Lash of Thorns",
+					"details": "Ranged 4 · Range 3",
+					"tooltip": "Order: After every second Thornmother turn, its marked tiles rise as Outcrops.",
+					"inspection": "Ranged 4 · Range 3",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"root_mend": {
+					"name": "Lash of Thorns",
+					"details": "Ranged 4 · Range 3",
+					"tooltip": "Order: After every second Thornmother turn, its marked tiles rise as Outcrops.",
+					"inspection": "Heal 4",
+					"inspection_tooltip": "Heal\nRestore 4 Health.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"fire": {
+			"captain": "slag_mortar",
+			"order": "Order: After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+			"moves": {
+				"lob_slag": {
+					"name": "Lob Slag",
+					"details": "· · Marked · Aoe 5 · Fire",
+					"tooltip": "On your tile and 2 tiles away. On this enemy's next turn, this enemy hits each Marked tile and leaves Fire.",
+					"inspection": "This enemy Marks tiles on your tile and 2 tiles away. On this enemy's next turn, this enemy will deal 5 damage on each central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_tooltip": "Marked\nMarked tiles are hit on this enemy's next turn.\nDeal 5 damage on each central tile and 3 damage on each adjacent tile.\nFire\nA unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+					"inspection_note": ""
+				},
+				"slag_lands": {
+					"name": "Lob Slag",
+					"details": "· Lob Slag · 5 / 3",
+					"tooltip": "Deal 5 damage on the central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection": "Deal 5 damage on each central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_tooltip": "Deal 5 damage on each central tile and 3 damage on each adjacent tile, then leave Fire.",
+					"inspection_note": ""
+				},
+				"brace": {
+					"name": "Brace",
+					"details": "Block 6",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nOrder: After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+					"inspection": "Block 6",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				},
+				"scatter_shot": {
+					"name": "Scatter Shot",
+					"details": "Ranged 3 · Range 2 · Push 1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nOrder: After every second Slagmaster turn, its Fire spreads 1 tile toward you.",
+					"inspection": "Ranged 3 · Range 2 · Push 1",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"air": {
+			"captain": "gale_herald",
+			"order": "Order: After each of the Stormcaller's turns, its wind Pushes everyone 1 tile.",
+			"moves": {
+				"call_the_wind": {
+					"name": "Call the Wind",
+					"details": "Gust 2 · Push 1",
+					"tooltip": "Gust\nOn each Gust beat, each unit is Pushed downwind.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nOrder: After each of the Stormcaller's turns, its wind Pushes everyone 1 tile.",
+					"inspection": "Gust 2 · Push 1",
+					"inspection_tooltip": "Gust\nOn each Gust beat, each unit is Pushed downwind.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"gust_bolt": {
+					"name": "Gust Bolt",
+					"details": "Ranged 3 · Range 4 · Push 1",
+					"tooltip": "Push\nMove the target 1 tile straight away from the source, causing a Collision if blocked.\nOrder: After each of the Stormcaller's turns, its wind Pushes everyone 1 tile.",
+					"inspection": "Ranged 3 · Range 4 · Push 1",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nPush\nMove the target 1 tile straight away from the source, causing a Collision if blocked.",
+					"inspection_note": ""
+				},
+				"still_air": {
+					"name": "Still Air",
+					"details": "Block 5",
+					"tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.\nOrder: After each of the Stormcaller's turns, its wind Pushes everyone 1 tile.",
+					"inspection": "Block 5",
+					"inspection_tooltip": "Block\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"ice": {
+			"captain": "hoarfrost_seer",
+			"order": "Order: After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+			"moves": {
+				"icefall": {
+					"name": "Icefall",
+					"details": "· Icefall 5 · Range 5",
+					"tooltip": "This enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.\nOrder: After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+					"inspection": "· Icefall 5 · Range 5",
+					"inspection_tooltip": "Icefall\nThis enemy hits each Marked tile on this enemy’s next turn, then leaves Ice.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"icefall_land": {
+					"name": "Icefall",
+					"details": "Icefall 5 · Ice\nTarget on Ice: · Stagger 6",
+					"tooltip": "Marked tiles take the hit and turn to Ice.\nOrder: After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+					"inspection": "Icefall 5 · Ice\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Marked tiles take the hit and turn to Ice.\nIce\nA unit entering Ice or starting a turn on Ice gains Expose 2.\nLeaves this ground in the affected area.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"rime_bolt": {
+					"name": "Rime Bolt",
+					"details": "Ranged 3 · Range 4\nTarget on Ice: · Stagger 6",
+					"tooltip": "Target on Ice:\nStagger\nDelay the target's next turn by 6 Time.\nOrder: After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+					"inspection": "Ranged 3 · Range 4\nTarget on Ice: · Stagger 6",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nTarget on Ice:\nStagger\nDelay the target's next turn by 6 Time.",
+					"inspection_note": ""
+				},
+				"withdraw": {
+					"name": "Withdraw",
+					"details": "Retreat 2\nBlock 4",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.\nOrder: After every second Oracle turn, Frostbite hits everyone on Ice for 2.",
+					"inspection": "Retreat 2\nBlock 4",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nBlock\nBlock absorbs damage until the start of the holder's next turn.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"lightning": {
+			"captain": "storm_capacitor",
+			"order": "Order: When the Dynamo discharges, lightning strikes every Electrified tile for 4.",
+			"moves": {
+				"charge": {
+					"name": "Charge",
+					"details": "Charge +1",
+					"tooltip": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.\nOrder: When the Dynamo discharges, lightning strikes every Electrified tile for 4.",
+					"inspection": "Charge +1",
+					"inspection_tooltip": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+					"inspection_note": ""
+				},
+				"discharge": {
+					"name": "Arc Lash",
+					"details": "Arc 6, Range 4, 3 extra hits\nLightning Storm · Lightning Strikes 4 · each Electrified tile",
+					"tooltip": "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.\nLightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 4 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.\nOrder: When the Dynamo discharges, lightning strikes every Electrified tile for 4.",
+					"inspection": "Arc 6, Range 4, 3 extra hits\nLightning Storm · Lightning Strikes 4 · each Electrified tile",
+					"inspection_tooltip": "This enemy hits the nearest target within 4 tiles for 6 damage, then hits up to 3 more, each adjacent to the prior target and taking 1 less damage.\nLightning Storm\nOn each Lightning Storm beat, each unit on an Electrified tile takes 4 damage.\nLightning Strikes\nThis enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"shadow": {
+			"captain": "hollow_mimic",
+			"order": "Order: After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you.",
+			"moves": {
+				"echo": {
+					"name": "Echo",
+					"details": "Ranged 3 · Range 4\nRetaliate 3",
+					"tooltip": "Retaliate\nUntil the holder's next turn, melee hits and hits from adjacent tiles deal 3 damage back.\nOrder: After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you.",
+					"inspection": "Ranged 3 · Range 4\nRetaliate 3",
+					"inspection_tooltip": "Ranged\nDeal 3 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.\nRetaliate\nUntil your next turn, each enemy that hits you in melee takes 3 damage.",
+					"inspection_note": ""
+				},
+				"shade_bolt": {
+					"name": "Shade Bolt",
+					"details": "Ranged 4 · Range 4",
+					"tooltip": "Order: After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you.",
+					"inspection": "Ranged 4 · Range 4",
+					"inspection_tooltip": "Ranged\nDeal 4 damage to a target within Range and line of sight.\nRange\nMaximum distance to the target in tiles, counted without diagonals.",
+					"inspection_note": ""
+				},
+				"recede": {
+					"name": "Recede",
+					"details": "Retreat 2",
+					"tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.\nOrder: After every second Prior turn, its followers hidden in the dark Blink 3 tiles toward you.",
+					"inspection": "Retreat 2",
+					"inspection_tooltip": "Retreat\nThis enemy moves up to 2 tiles away from its target.",
+					"inspection_note": ""
+				}
+			}
+		},
+		"guardians": {
+			"starting_wick_shade": "Stays through Last Procession.",
+			"summoned_wick_shade": "Disappears after Last Procession."
+		},
+		"snare_seal": "Seal · 2\nSeals its door in 2 turns. Kill it to keep the door open. When you escape, each open door pays 6 Embers."
+	},
+	"battlefield": {
+		"stormcaller": {
+			"name": "Gust",
+			"sentence": "On each Gust beat, after the Stormcaller's turn, each unit is Pushed 1 tile downwind.",
+			"half_health": ""
+		},
+		"slagmaster": {
+			"name": "Wildfire",
+			"sentence": "On each Wildfire beat, after every second Slagmaster turn, each Fire tile spreads 1 tile toward you.",
+			"half_health": ""
+		},
+		"oracle": {
+			"name": "Frostbite",
+			"sentence": "On each Frostbite beat, after every second Oracle turn, each unit on Ice takes 2 damage.",
+			"half_health": ""
+		},
+		"dynamo": {
+			"name": "Lightning Storm",
+			"sentence": "On each Lightning Storm beat, when the Dynamo uses Discharge, each unit on Electrified takes 4 damage.",
+			"half_health": ""
+		},
+		"thornmother": {
+			"name": "Upheaval",
+			"sentence": "On each Upheaval beat, after every second Thornmother turn, each Marked tile becomes an Outcrop.",
+			"half_health": ""
+		},
+		"prior": {
+			"name": "Shadowstep",
+			"sentence": "On each Shadowstep beat, after every second Prior turn, each hidden follower Blinks 3 tiles toward you.",
+			"half_health": ""
+		},
+		"snare_earth": {
+			"name": "Upheaval",
+			"sentence": "On each Upheaval beat, after your turn, a Marked tile on the way out becomes an Outcrop.",
+			"half_health": ""
+		},
+		"snare_fire": {
+			"name": "Wildfire",
+			"sentence": "On each Wildfire beat, after your turn, each Fire tile spreads 1 tile away from the entry.",
+			"half_health": ""
+		},
+		"snare_air": {
+			"name": "Gust",
+			"sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the entry.",
+			"half_health": ""
+		},
+		"snare_ice": {
+			"name": "Frostbite",
+			"sentence": "On each Frostbite beat, after your turn, each unit on Ice takes 1 damage.",
+			"half_health": ""
+		},
+		"snare_lightning": {
+			"name": "Lightning Storm",
+			"sentence": "On each Lightning Storm beat, after your turn, each unit on Electrified takes 3 damage.",
+			"half_health": ""
+		},
+		"snare_shadow": {
+			"name": "Shadowstep",
+			"sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you.",
+			"half_health": ""
+		},
+		"last_light": {
+			"name": "Shadowstep",
+			"sentence": "On each Shadowstep beat, after your turn, each hidden enemy Blinks 2 tiles toward you.",
+			"half_health": ""
+		},
+		"gale_herald": {
+			"name": "Gust",
+			"sentence": "On each Gust beat, after the Gale Herald's turn, each unit is Pushed 1 tile downwind.",
+			"half_health": ""
+		},
+		"ashen_reaver": {
+			"name": "Wildfire",
+			"sentence": "On each Wildfire beat, after every second turn of yours, each Fire tile spreads 1 tile toward you.",
+			"half_health": ""
+		},
+		"rimejaw": {
+			"name": "Frostbite",
+			"sentence": "On each Frostbite beat, after your turn, each unit on Ice takes Stagger 6.",
+			"half_health": ""
+		},
+		"storm_cantor": {
+			"name": "Lightning Storm",
+			"sentence": "On each Lightning Storm beat, when the Cantor uses Peal, each unit on Electrified takes 4 damage.",
+			"half_health": ""
+		},
+		"gallows_roc": {
+			"name": "Gust",
+			"sentence": "On each Gust beat, after your turn, each unit is Pushed 1 tile toward the Roc.",
+			"half_health": ""
+		},
+		"craghide": {
+			"name": "Upheaval",
+			"sentence": "On each Upheaval beat, after every second Craghide turn, each Marked tile becomes an Outcrop.",
+			"half_health": ""
+		},
+		"last_lamplighter": {
+			"name": "Shadowstep",
+			"sentence": "On each Shadowstep beat, after your turn, each hidden Wick Shade Blinks 1 tile toward you.",
+			"half_health": ""
+		},
+		"vyraketh": {
+			"name": "Wildfire",
+			"sentence": "On each Wildfire beat, when Vyraketh breathes, each Fire tile spreads to each adjacent tile.",
+			"half_health": "On each Wildfire beat, after every second Vyraketh turn, each Fire tile spreads to each adjacent tile."
+		},
+		"tharokh": {
+			"name": "Upheaval",
+			"sentence": "On each Upheaval beat, after every second turn of yours, each Marked tile becomes an Outcrop.",
+			"half_health": "On each Upheaval beat, after your turn, each Marked tile becomes an Outcrop."
+		},
+		"iskaldra": {
+			"name": "Frostbite",
+			"sentence": "On each Frostbite beat, when Iskaldra uses Rime Talon, each unit on Ice takes 3 damage.",
+			"half_health": "On each Frostbite beat, after every second Iskaldra turn, each unit on Ice takes 3 damage."
+		},
+		"vaeloryx": {
+			"name": "Gust",
+			"sentence": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 1 tile downwind, then Gust turns a quarter clockwise.",
+			"half_health": "On each Gust beat, after Vaeloryx's turn, each unit is Pushed 2 tiles downwind, then Gust turns a quarter clockwise."
+		},
+		"zekarion": {
+			"name": "Lightning Storm",
+			"sentence": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 6 damage.",
+			"half_health": "On each Lightning Storm beat, when Zekarion uses Overload, each unit on Electrified takes 7 damage."
+		},
+		"noctyrax": {
+			"name": "Shadowstep",
+			"sentence": "On each Shadowstep beat, when Noctyrax uses Void Claw, each hidden Veilbound Acolyte Blinks 3 tiles toward you.",
+			"half_health": ""
+		}
+	},
+	"glossary": {
+		"reflect": {
+			"name": "Reflect",
+			"definition": "Attacks from a non-adjacent tile bounce back to the attacker.",
+			"numbered_example": "Attacks from a non-adjacent tile bounce back to the attacker."
+		},
+		"flying": {
+			"name": "Flying",
+			"definition": "Flying units ignore traps, ground and Collision damage.",
+			"numbered_example": "Flying units ignore traps, ground and Collision damage."
+		},
+		"marked": {
+			"name": "Marked",
+			"definition": "Marked tiles are hit on this enemy's next turn.",
+			"numbered_example": "Marked tiles are hit on this enemy's next turn."
+		},
+		"charge": {
+			"name": "Charge",
+			"definition": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge.",
+			"numbered_example": "At 3 Charge, this enemy's next attack is Arc Lash. Shock removes 1 Charge."
+		},
+		"wind": {
+			"name": "Gust",
+			"definition": "On each Gust beat, each unit is Pushed downwind.",
+			"numbered_example": "On each Gust beat, each unit is Pushed downwind."
+		},
+		"splits": {
+			"name": "Splits",
+			"definition": "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles.",
+			"numbered_example": "When this enemy dies, this enemy splits into smaller enemies on adjacent tiles."
+		},
+		"burst": {
+			"name": "Burst",
+			"definition": "Destroy the target, then deal X damage on that tile and each adjacent tile.",
+			"numbered_example": "Destroy the target, then deal 3 damage on that tile and each adjacent tile."
+		},
+		"surface": {
+			"name": "Shape Ground",
+			"definition": "Place the named ground on each tile in the area.",
+			"numbered_example": "Place the named ground on each tile in the area."
+		},
+		"surface_fire": {
+			"name": "Fire",
+			"definition": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3.",
+			"numbered_example": "A unit entering Fire takes 2 damage, and a unit starting on Fire takes 3."
+		},
+		"surface_ice": {
+			"name": "Ice",
+			"definition": "A unit entering Ice or starting a turn on Ice gains Expose 2.",
+			"numbered_example": "A unit entering Ice or starting a turn on Ice gains Expose 2."
+		},
+		"surface_electrified": {
+			"name": "Electrified",
+			"definition": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles.",
+			"numbered_example": "A Lightning card's hit on an Electrified tile also hits each enemy on connected Electrified tiles."
+		},
+		"surface_rubble": {
+			"name": "Rubble",
+			"definition": "Leaving Rubble costs 2 Movement.",
+			"numbered_example": "Leaving Rubble costs 2 Movement."
+		},
+		"surface_consume": {
+			"name": "Expend",
+			"definition": "Remove the named ground from the target's tile to use this effect.",
+			"numbered_example": "Remove the named ground from the target's tile to use this effect."
+		},
+		"surface_relocate": {
+			"name": "Relocate Ground",
+			"definition": "Move the ground on one tile to another open tile.",
+			"numbered_example": "Move the ground on one tile to another open tile."
+		},
+		"melee": {
+			"name": "Melee",
+			"definition": "Deal X damage to an adjacent target or a target within the card's Range.",
+			"numbered_example": "Deal 3 damage to an adjacent target or a target within the card's Range."
+		},
+		"ranged": {
+			"name": "Ranged",
+			"definition": "Deal X damage to a target within Range and line of sight.",
+			"numbered_example": "Deal 3 damage to a target within Range and line of sight."
+		},
+		"pierce": {
+			"name": "Pierce",
+			"definition": "Damage from this attack ignores Block and Stoneskin.",
+			"numbered_example": "Damage from this attack ignores Block and Stoneskin."
+		},
+		"move": {
+			"name": "Move",
+			"definition": "Walk up to X tiles.",
+			"numbered_example": "Walk up to 3 tiles."
+		},
+		"retreat": {
+			"name": "Retreat",
+			"definition": "This enemy moves up to X tiles away from its target.",
+			"numbered_example": "This enemy moves up to 3 tiles away from its target."
+		},
+		"blink": {
+			"name": "Blink",
+			"definition": "Move to a visible open tile up to X tiles away, ignoring intervening tiles.",
+			"numbered_example": "Move to a visible open tile up to 3 tiles away, ignoring intervening tiles."
+		},
+		"range": {
+			"name": "Range",
+			"definition": "Maximum distance to the target in tiles, counted without diagonals.",
+			"numbered_example": "Maximum distance to the target in tiles, counted without diagonals."
+		},
+		"block": {
+			"name": "Block",
+			"definition": "Block absorbs damage until the start of the holder's next turn.",
+			"numbered_example": "Block absorbs damage until the start of the holder's next turn."
+		},
+		"stoneskin": {
+			"name": "Stoneskin",
+			"definition": "Stoneskin absorbs damage after Block and stays until used up.",
+			"numbered_example": "Stoneskin absorbs damage after Block and stays until used up."
+		},
+		"heal": {
+			"name": "Heal",
+			"definition": "Restore X Health.",
+			"numbered_example": "Restore 3 Health."
+		},
+		"draw": {
+			"name": "Draw",
+			"definition": "Draw X cards.",
+			"numbered_example": "Draw 3 cards."
+		},
+		"card_play": {
+			"name": "Card Play",
+			"definition": "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill.",
+			"numbered_example": "Spend 1 Card Play per card, refilling each turn and gaining 1 per kill."
+		},
+		"follow_up": {
+			"name": "Follow-up",
+			"definition": "Gain the Follow-up bonus if you already played a card this turn.",
+			"numbered_example": "Gain the Follow-up bonus if you already played a card this turn."
+		},
+		"empower": {
+			"name": "Empower",
+			"definition": "Pay the Empower cost as you play this card to gain the Empower bonus.",
+			"numbered_example": "Pay the Empower cost as you play this card to gain the Empower bonus."
+		},
+		"stagger": {
+			"name": "Stagger",
+			"definition": "Delay the target's next turn by X Time.",
+			"numbered_example": "Delay the target's next turn by 3 Time."
+		},
+		"time": {
+			"name": "Time",
+			"definition": "Spending Time makes your next turn come later.",
+			"numbered_example": "Spending Time makes your next turn come later."
+		},
+		"illusion": {
+			"name": "Illusion",
+			"definition": "A decoy with X Health that enemies target when at least as close as you.",
+			"numbered_example": "A decoy with 3 Health that enemies target when at least as close as you."
+		},
+		"illuminate": {
+			"name": "Light",
+			"definition": "Light reveals within X tiles for the rest of combat and gives enemies starting in Light Expose 2.",
+			"numbered_example": "Light reveals within 3 tiles for the rest of combat and gives enemies starting in Light Expose 2."
+		},
+		"vision": {
+			"name": "Vision",
+			"definition": "For X turns, each hidden enemy is visible to you.",
+			"numbered_example": "For 3 turns, each hidden enemy is visible to you."
+		},
+		"eclipse": {
+			"name": "Eclipse",
+			"definition": "The darkest Umbra stage, where you see only your tile and each adjacent tile.",
+			"numbered_example": "The darkest Umbra stage, where you see only your tile and each adjacent tile."
+		},
+		"expose": {
+			"name": "Expose",
+			"definition": "The next hit that damages an Exposed unit deals X more damage.",
+			"numbered_example": "The next hit that damages an Exposed unit deals 3 more damage."
+		},
+		"exhaust": {
+			"name": "Exhaust",
+			"definition": "This card leaves your deck until the end of combat.",
+			"numbered_example": "This card leaves your deck until the end of combat."
+		},
+		"consume": {
+			"name": "Consume",
+			"definition": "This item leaves your deck for the rest of the run once played.",
+			"numbered_example": "This item leaves your deck for the rest of the run once played."
+		},
+		"retaliate": {
+			"name": "Retaliate",
+			"definition": "Until the holder's next turn, melee hits and hits from adjacent tiles deal X damage back.",
+			"numbered_example": "Until the holder's next turn, melee hits and hits from adjacent tiles deal 3 damage back."
+		},
+		"quicken": {
+			"name": "Quicken",
+			"definition": "Your next card this turn costs X less Time.",
+			"numbered_example": "Your next card this turn costs 3 less Time."
+		},
+		"rite": {
+			"name": "Rite",
+			"definition": "This card's effect lasts for the rest of combat, and this card Exhausts.",
+			"numbered_example": "This card's effect lasts for the rest of combat, and this card Exhausts."
+		},
+		"next_attack": {
+			"name": "Next Attack",
+			"definition": "Your next attack this turn gains the named bonus.",
+			"numbered_example": "Your next attack this turn gains the named bonus."
+		},
+		"swap": {
+			"name": "Swap",
+			"definition": "Trade places with a visible enemy or one of your illusions.",
+			"numbered_example": "Trade places with a visible enemy or one of your illusions."
+		},
+		"cleanse": {
+			"name": "Cleanse",
+			"definition": "Remove the listed statuses from yourself.",
+			"numbered_example": "Remove the listed statuses from yourself."
+		},
+		"skate": {
+			"name": "Skate",
+			"definition": "This turn, Ice costs you no Movement and doesn't Expose you.",
+			"numbered_example": "This turn, Ice costs you no Movement and doesn't Expose you."
+		},
+		"anchored": {
+			"name": "Anchored",
+			"definition": "Anchored units can't be moved by Push, Pull or Gust.",
+			"numbered_example": "Anchored units can't be moved by Push, Pull or Gust."
+		},
+		"fireproof": {
+			"name": "Fireproof",
+			"definition": "This turn, Fire doesn't damage you.",
+			"numbered_example": "This turn, Fire doesn't damage you."
+		},
+		"surface_convert": {
+			"name": "Convert Ground",
+			"definition": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles.",
+			"numbered_example": "Change the chosen ground into the named ground, then damage each enemy on the changed tiles."
+		},
+		"all_enemies": {
+			"name": "Sweeping Strike",
+			"definition": "Hit each visible enemy that meets the named condition.",
+			"numbered_example": "Hit each visible enemy that meets the named condition."
+		},
+		"illusion_swap": {
+			"name": "Swap Illusion",
+			"definition": "Trade places with one of your illusions.",
+			"numbered_example": "Trade places with one of your illusions."
+		},
+		"shock": {
+			"name": "Shock",
+			"definition": "Shocked units can only Move or Blink on their next turn.",
+			"numbered_example": "Shocked units can only Move or Blink on their next turn."
+		},
+		"immobilize": {
+			"name": "Immobilize",
+			"definition": "Immobilized units can't Move, Blink or Swap on their next turn.",
+			"numbered_example": "Immobilized units can't Move, Blink or Swap on their next turn."
+		},
+		"chain": {
+			"name": "Chain",
+			"definition": "After each hit, hit 1 new target within X tiles, with Electrified tiles as relays.",
+			"numbered_example": "After each hit, hit 1 new target within 3 tiles, with Electrified tiles as relays."
+		},
+		"push": {
+			"name": "Push",
+			"definition": "Move the target X tiles straight away from the source, causing a Collision if blocked.",
+			"numbered_example": "Move the target 3 tiles straight away from the source, causing a Collision if blocked."
+		},
+		"pull": {
+			"name": "Pull",
+			"definition": "Move the target X tiles straight toward the source, causing a Collision if blocked.",
+			"numbered_example": "Move the target 3 tiles straight toward the source, causing a Collision if blocked."
+		},
+		"collision": {
+			"name": "Collision",
+			"definition": "A blocked Push or Pull deals 2 damage per unmoved tile to the mover and blocker.",
+			"numbered_example": "A blocked Push or Pull deals 2 damage per unmoved tile to the mover and blocker."
+		},
+		"health": {
+			"name": "Health",
+			"definition": "At 0 Health, a unit is defeated.",
+			"numbered_example": "At 0 Health, a unit is defeated."
+		},
+		"health_cost": {
+			"name": "Health Cost",
+			"definition": "Lose X Health.",
+			"numbered_example": "Lose 3 Health."
+		},
+		"lightning_strikes": {
+			"name": "Lightning Strikes",
+			"definition": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile.",
+			"numbered_example": "This enemy hits each Marked tile, then leaves Electrified on each Marked tile."
+		},
+		"summon_minions": {
+			"name": "Summon",
+			"definition": "This enemy adds the named enemy to combat.",
+			"numbered_example": "This enemy adds the named enemy to combat."
+		},
+		"raise_terrain": {
+			"name": "Raise Terrain",
+			"definition": "Raise the named terrain, which blocks movement.",
+			"numbered_example": "Raise the named terrain, which blocks movement."
+		},
+		"terrain_burst": {
+			"name": "Groundsplit",
+			"definition": "This enemy damages each unit adjacent to terrain this enemy raised.",
+			"numbered_example": "This enemy damages each unit adjacent to terrain this enemy raised."
+		},
+		"cinder_marks": {
+			"name": "Cinder Marks",
+			"definition": "When this attack lands, each unit on a Marked tile takes X damage, and each Marked tile becomes Fire.",
+			"numbered_example": "When this attack lands, each unit on a Marked tile takes 3 damage, and each Marked tile becomes Fire."
+		},
+		"detonate_cinders": {
+			"name": "Crownfire",
+			"definition": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks.",
+			"numbered_example": "This enemy Bursts the Fire on each tile from this enemy's last Cinder Marks."
+		},
+		"gale_force": {
+			"name": "Hollow Gale",
+			"definition": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile.",
+			"numbered_example": "This enemy damages each unit within 2 tiles, then Pushes each unit hit 1 tile."
+		},
+		"frost_armor": {
+			"name": "Crystal Mantle",
+			"definition": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks.",
+			"numbered_example": "Each Crystal Mantle layer prevents damage from 1 direct hit, then breaks."
+		},
+		"guard_ally": {
+			"name": "Guard Ally",
+			"definition": "This enemy gives X Block to each shown ally.",
+			"numbered_example": "This enemy gives 3 Block to each shown ally."
+		},
+		"heal_ally": {
+			"name": "Heal Ally",
+			"definition": "This enemy restores X Health to the named ally.",
+			"numbered_example": "This enemy restores 3 Health to the named ally."
+		},
+		"umbra_eclipse": {
+			"name": "Last Eclipse",
+			"definition": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for X turns.",
+			"numbered_example": "This enemy hits you and your illusions on Marked tiles, then starts Eclipse for 3 turns."
+		},
+		"ember": {
+			"name": "Embers",
+			"definition": "Currency spent on wares and levels, and dropped when you die.",
+			"numbered_example": "Currency spent on wares and levels, and dropped when you die."
+		},
+		"run": {
+			"name": "The Run",
+			"definition": "One journey through 6 sections, each ending in a dragon.",
+			"numbered_example": "One journey through 6 sections, each ending in a dragon."
+		},
+		"map_rooms": {
+			"name": "Map and Rooms",
+			"definition": "Choose your route through the section's rooms.",
+			"numbered_example": "Choose your route through the section's rooms."
+		},
+		"loadout": {
+			"name": "Character",
+			"definition": "Your gear, magic, items and skills.",
+			"numbered_example": "Your gear, magic, items and skills."
+		},
+		"rewards": {
+			"name": "Rewards",
+			"definition": "After combat, take 1 of 3 cards, or skip to heal 3.",
+			"numbered_example": "After combat, take 1 of 3 cards, or skip to heal 3."
+		},
+		"relics": {
+			"name": "Relics",
+			"definition": "Passive effects that last the whole run.",
+			"numbered_example": "Passive effects that last the whole run."
+		},
+		"combat_board": {
+			"name": "Combat Board",
+			"definition": "The 9×9 grid where combat happens.",
+			"numbered_example": "The 9×9 grid where combat happens."
+		},
+		"turn_clock": {
+			"name": "Turn Clock",
+			"definition": "The unit with the lowest Time acts next, and you act first on a tie.",
+			"numbered_example": "The unit with the lowest Time acts next, and you act first on a tie."
+		},
+		"health_defense": {
+			"name": "Health and Defenses",
+			"definition": "Damage hits Block, then Stoneskin, then Health.",
+			"numbered_example": "Damage hits Block, then Stoneskin, then Health."
+		},
+		"defiance": {
+			"name": "Defiance",
+			"definition": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health.",
+			"numbered_example": "Each Defiance charge saves you from 1 lethal hit and leaves you at 25% Health."
+		},
+		"targeting": {
+			"name": "Targeting",
+			"definition": "Targets must be visible and within Range. Ranged attacks also need line of sight.",
+			"numbered_example": "Targets must be visible and within Range. Ranged attacks also need line of sight."
+		},
+		"fatigue": {
+			"name": "Fatigue",
+			"definition": "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health.",
+			"numbered_example": "Drawing from an empty draw pile shuffles your discard into your draw pile and costs Health."
+		},
+		"traps": {
+			"name": "Traps",
+			"definition": "Traps hit when entered or attacked, then leave ground on these tiles.",
+			"numbered_example": "Traps hit when entered or attacked, then leave ground on these tiles."
+		},
+		"umbra": {
+			"name": "The Umbra",
+			"definition": "Darkness that hides enemies and enemy intents.",
+			"numbered_example": "Darkness that hides enemies and enemy intents."
+		},
+		"element_fire": {
+			"name": "Fire",
+			"definition": "Fire cards place Fire and Burst that Fire.",
+			"numbered_example": "Fire cards place Fire and Burst that Fire."
+		},
+		"element_ice": {
+			"name": "Ice",
+			"definition": "Ice cards place Ice and Burst that Ice.",
+			"numbered_example": "Ice cards place Ice and Burst that Ice."
+		},
+		"element_lightning": {
+			"name": "Lightning",
+			"definition": "Lightning cards place Electrified and spread through Electrified tiles.",
+			"numbered_example": "Lightning cards place Electrified and spread through Electrified tiles."
+		},
+		"element_air": {
+			"name": "Air",
+			"definition": "Air cards Push, Pull and move units.",
+			"numbered_example": "Air cards Push, Pull and move units."
+		},
+		"element_earth": {
+			"name": "Earth",
+			"definition": "Earth cards leave Rubble, raise terrain and give Stoneskin.",
+			"numbered_example": "Earth cards leave Rubble, raise terrain and give Stoneskin."
+		},
+		"skill_quick_wits": {
+			"name": "Quick Wits",
+			"definition": "Once per combat, discard a card to Draw 1 card. Costs no Card Play or Time.",
+			"numbered_example": "Once per combat, discard a card to Draw 1 card. Costs no Card Play or Time."
+		},
+		"skill_measured_breath": {
+			"name": "Measured Breath",
+			"definition": "At turn end, bank up to one unused Card Play for your next turn.",
+			"numbered_example": "At turn end, bank up to one unused Card Play for your next turn."
+		},
+		"skill_ghost_stride": {
+			"name": "Ghost Stride",
+			"definition": "Once per combat, activate to turn your next movement into Blink 2.",
+			"numbered_example": "Once per combat, activate to turn your next movement into Blink 2."
+		},
+		"skill_discerning_eye": {
+			"name": "Discerning Eye",
+			"definition": "Once between bosses, replace each card in a non-boss combat reward.",
+			"numbered_example": "Once between bosses, replace each card in a non-boss combat reward."
+		},
+		"skill_rehearsed_escape": {
+			"name": "Rehearsed Escape",
+			"definition": "Once per combat, activate to discard your next non-item card with Exhaust instead.",
+			"numbered_example": "Once per combat, activate to discard your next non-item card with Exhaust instead."
+		},
+		"skill_makeshift_tool": {
+			"name": "Makeshift Tool",
+			"definition": "Once per combat, activate to discard your next Item instead of using Consume.",
+			"numbered_example": "Once per combat, activate to discard your next Item instead of using Consume."
+		},
+		"skill_carry_the_guard": {
+			"name": "Carry the Guard",
+			"definition": "Once per combat, activate while you have Block. At the end of your turn, that Block becomes Stoneskin.",
+			"numbered_example": "Once per combat, activate while you have Block. At the end of your turn, that Block becomes Stoneskin."
+		},
+		"skill_pain_remembers": {
+			"name": "Pain Remembers",
+			"definition": "After your first Health loss each combat, return the next non-item discard to your hand if there's room.",
+			"numbered_example": "After your first Health loss each combat, return the next non-item discard to your hand if there's room."
+		},
+		"skill_sure_footed": {
+			"name": "Sure-Footed",
+			"definition": "Once per combat, ignore the first Traps hit or Air Traps Push against you.",
+			"numbered_example": "Once per combat, ignore the first Traps hit or Air Traps Push against you."
+		},
+		"skill_afterimage": {
+			"name": "Afterimage",
+			"definition": "Once per combat, your first Blink leaves Illusion 2 on the tile you Blinked from.",
+			"numbered_example": "Once per combat, your first Blink leaves Illusion 2 on the tile you Blinked from."
+		},
+		"skill_deferred_choice": {
+			"name": "Deferred Choice",
+			"definition": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card.",
+			"numbered_example": "Skip a card reward to save 1 offered card. Replace 1 card in your next non-boss reward with that card."
+		},
+		"skill_salvager": {
+			"name": "Salvager",
+			"definition": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+			"numbered_example": "Once between bosses, recover the first equipment drop left uncollected after victory."
+		},
+		"skill_borrowed_time": {
+			"name": "Borrowed Time",
+			"definition": "The first card paid for with a banked Card Play each combat adds no Time.",
+			"numbered_example": "The first card paid for with a banked Card Play each combat adds no Time."
+		},
+		"skill_last_reserve": {
+			"name": "Last Reserve",
+			"definition": "Once per combat, lethal Fatigue leaves you at Health 1.",
+			"numbered_example": "Once per combat, lethal Fatigue leaves you at Health 1."
+		},
+		"skill_plunderers_step": {
+			"name": "Plunderer's Step",
+			"definition": "The first Move or Blink card that collects loot each combat refunds that card's Card Play.",
+			"numbered_example": "The first Move or Blink card that collects loot each combat refunds that card's Card Play."
+		},
+		"skill_prismatic_instinct": {
+			"name": "Prismatic Instinct",
+			"definition": "Once per combat, place Fire, Ice, Electrified or Rubble within Range 4. Costs no Card Play or Time.",
+			"numbered_example": "Once per combat, place Fire, Ice, Electrified or Rubble within Range 4. Costs no Card Play or Time."
+		},
+		"skill_curators_patience": {
+			"name": "Curator's Patience",
+			"definition": "After choosing a relic, save one unchosen relic for your next relic offer.",
+			"numbered_example": "After choosing a relic, save one unchosen relic for your next relic offer."
+		},
+		"skill_living_shadow": {
+			"name": "Living Shadow",
+			"definition": "Once between turns, when your Illusion is removed, return your latest non-item discard to hand or draw pile if full.",
+			"numbered_example": "Once between turns, when your Illusion is removed, return your latest non-item discard to hand or draw pile if full."
+		},
+		"skill_true_bearing": {
+			"name": "True Bearing",
+			"definition": "Before combat, choose an open starting tile within Range 2 of the entrance.",
+			"numbered_example": "Before combat, choose an open starting tile within Range 2 of the entrance."
+		},
+		"skill_encore": {
+			"name": "Encore",
+			"definition": "Once per combat, return a non-item card from discard to your hand. Costs no Card Play or Time.",
+			"numbered_example": "Once per combat, return a non-item card from discard to your hand. Costs no Card Play or Time."
+		},
+		"skill_open_arsenal": {
+			"name": "Open Arsenal",
+			"definition": "Equip any equipment in your trinket slot.",
+			"numbered_example": "Equip any equipment in your trinket slot."
+		},
+		"skill_confluence": {
+			"name": "Confluence",
+			"definition": "Once per combat, move ground between 2 visible tiles within Range 4 of you and each other.",
+			"numbered_example": "Once per combat, move ground between 2 visible tiles within Range 4 of you and each other."
+		},
+		"skill_last_door": {
+			"name": "Last Door",
+			"definition": "Once between bosses, a non-boss defeat returns you to the previous room at Health 1.",
+			"numbered_example": "Once between bosses, a non-boss defeat returns you to the previous room at Health 1."
+		},
+		"skill_long_dawn": {
+			"name": "Long Dawn",
+			"definition": "Vision you gain lasts 1 more turn.",
+			"numbered_example": "Vision you gain lasts 1 more turn."
+		},
+		"skill_sunpath": {
+			"name": "Sunpath",
+			"definition": "Once per turn, when you Move or Blink 3+ tiles, leave Light 1 on your path.",
+			"numbered_example": "Once per turn, when you Move or Blink 3+ tiles, leave Light 1 on your path."
+		},
+		"skill_witchlight": {
+			"name": "Witchlight",
+			"definition": "Each of your Illusions creates Light 1 while that Illusion lasts.",
+			"numbered_example": "Each of your Illusions creates Light 1 while that Illusion lasts."
+		},
+		"skill_dawnbrand": {
+			"name": "Dawnbrand",
+			"definition": "The first direct attack each turn against an enemy in Light inflicts Expose 1.",
+			"numbered_example": "The first direct attack each turn against an enemy in Light inflicts Expose 1."
+		},
+		"skill_afterglow": {
+			"name": "Afterglow",
+			"definition": "When an Illusion is removed, leave Light 1 on that Illusion's tile.",
+			"numbered_example": "When an Illusion is removed, leave Light 1 on that Illusion's tile."
+		},
+		"skill_open_sky": {
+			"name": "Open Sky",
+			"definition": "While you stand in Light, you have Vision.",
+			"numbered_example": "While you stand in Light, you have Vision."
+		},
+		"skill_point": {
+			"name": "Skill Point",
+			"definition": "Earned by leveling up and spent on skills.",
+			"numbered_example": "Earned by leveling up and spent on skills."
+		},
+		"moltshard": {
+			"name": "Moltshards",
+			"definition": "Won from your first dragon, then traded for Embers or spent to reset your skills.",
+			"numbered_example": "Won from your first dragon, then traded for Embers or spent to reset your skills."
+		},
+		"wait": {
+			"name": "Wait",
+			"definition": "Each of your first 2 unused Card Plays adds 5 Time to your next turn.",
+			"numbered_example": "Each of your first 2 unused Card Plays adds 5 Time to your next turn."
+		},
+		"turns": {
+			"name": "Turns",
+			"definition": "How many of your turns this effect lasts.",
+			"numbered_example": "How many of your turns this effect lasts."
+		},
+		"movement": {
+			"name": "Movement",
+			"definition": "Tiles you can walk each turn for free.",
+			"numbered_example": "Tiles you can walk each turn for free."
+		},
+		"item": {
+			"name": "Item",
+			"definition": "A one-use card from your item slots.",
+			"numbered_example": "A one-use card from your item slots."
+		},
+		"outcrop": {
+			"name": "Outcrop",
+			"definition": "Terrain that blocks movement and can be attacked.",
+			"numbered_example": "Terrain that blocks movement and can be attacked."
+		},
+		"wildfire": {
+			"name": "Wildfire",
+			"definition": "On each Wildfire beat, Fire spreads from each Fire tile to the next tile in the named direction.",
+			"numbered_example": "On each Wildfire beat, Fire spreads from each Fire tile to the next tile in the named direction."
+		},
+		"frostbite": {
+			"name": "Frostbite",
+			"definition": "On each Frostbite beat, each unit on Ice takes X damage.",
+			"numbered_example": "On each Frostbite beat, each unit on Ice takes 3 damage."
+		},
+		"lightning_storm": {
+			"name": "Lightning Storm",
+			"definition": "On each Lightning Storm beat, each unit on an Electrified tile takes X damage.",
+			"numbered_example": "On each Lightning Storm beat, each unit on an Electrified tile takes 3 damage."
+		},
+		"upheaval": {
+			"name": "Upheaval",
+			"definition": "On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles.",
+			"numbered_example": "On each Upheaval beat, Marked tiles become Outcrops and move units to free adjacent tiles."
+		},
+		"shadowstep": {
+			"name": "Shadowstep",
+			"definition": "On each Shadowstep beat, each hidden enemy Blinks toward you.",
+			"numbered_example": "On each Shadowstep beat, each hidden enemy Blinks toward you."
+		}
+	}
+}

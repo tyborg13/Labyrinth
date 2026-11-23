@@ -256,10 +256,11 @@ static func _ground(engine: RefCounted, expect: Callable) -> void:
 		Surfaces.place(frost, actor["unit"]["pos"], "ice")
 		frost = engine._surface_contact(frost, actor["kind"], actor["id"], engine.INVALID_TILE, true)
 	Rules.install(engine, frost, Base.rule("frostbite", {"damage": 0}, true))
-	var frozen: Dictionary = compare(engine, frost, expect)
-	for actor: Dictionary in engine._surface_actor_records(frozen):
-		expect.call(int(actor["unit"].get("freeze", 0)) == 1, "BOS01 Frostbite zero Freezes every Chilled unit")
-	expect.call(Surfaces.tiles(frozen, "ice").is_empty(), "BOS01 Frostbite zero expends supporting Ice")
+	var after_frost: Dictionary = compare(engine, frost, expect)
+	for actor: Dictionary in engine._surface_actor_records(after_frost):
+		var before_unit: Dictionary = engine._surface_actor(frost, actor["kind"], actor["id"])
+		expect.call(int(actor["unit"]["hp"]) == int(before_unit["hp"]) and int(actor["unit"].get("expose", 0)) == int(before_unit.get("expose", 0)), "A zero-damage Frostbite without Stagger leaves Health and Expose intact")
+	expect.call(Surfaces.tiles(after_frost, "ice") == Surfaces.tiles(frost, "ice"), "Frostbite leaves Ice in place")
 	var fire: Dictionary = Base.battle(engine)
 	Surfaces.place(fire, Vector2i(3, 5), "fire")
 	Rules.install(engine, fire, Base.rule("wildfire", {"spread": "all"}, true))

@@ -142,7 +142,7 @@ static func _prior(expect: Callable) -> void:
 	state["player"]["pos"] = FIXTURE_PRIOR_NEAR_HERO
 	expect.call(engine.is_enemy_visible_to_player(state, follower) and not Veil.prior_hidden(engine, state, follower), "Prior follower is revealed at distance two")
 	state["player"]["pos"] = FIXTURE_PLAYER
-	state["umbra"] = {"truesight_activations": FIXTURE_REVEAL_ACTIVATIONS}
+	state["umbra"] = {"vision_activations": FIXTURE_REVEAL_ACTIVATIONS}
 	expect.call(engine.is_enemy_visible_to_player(state, follower), "Existing Truesight reveals Prior followers")
 	state["umbra"] = {"light_sources": [{"pos": follower["pos"], "radius": FIXTURE_LIGHT_RADIUS, "remaining_activations": FIXTURE_REVEAL_ACTIVATIONS}]}
 	expect.call(engine.is_enemy_visible_to_player(state, follower), "Existing Light reveals Prior followers")

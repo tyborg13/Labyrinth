@@ -61,20 +61,21 @@ func _run() -> void:
 		if str(step.get("kind", "")) == "erupt": erupt_step = step
 	var rising: Dictionary = preload("res://scripts/enemy_mechanics/burrow_view.gd").rise_state(grub, erupt_step)
 	await _show(rising, {"en01_erupt": {"actor_key": "enemy_1", "progress": PROOF_MIDPOINT}, "en01_erupt_dust": {"actor_key": "enemy_1", "tile": erupt_step["to"], "progress": 0.125 / 0.35}})
-	await _capture("02_grub_erupt_mid", {"rise_progress": PROOF_MIDPOINT, "rise_seconds": 0.25, "push_pending": true, "dust_particle_diameter": preload("res://scripts/enemy_mechanics/burrow_view.gd").DUST_PARTICLE_DIAMETER})
+	await _capture("02_grub_erupt_mid", {"rise_progress": PROOF_MIDPOINT, "rise_seconds": 0.25, "push_pending": true})
 	await _show(eruption["state"])
 	_expect(eruption["state"]["player"]["pos"] == Vector2i(5, 4) and eruption["state"]["enemies"][1]["pos"] == Vector2i(4, 2), "Post-Erupt proof uses actual displaced units")
 	await _capture("03_grub_after_erupt", {"hero_tile": str(eruption["state"]["player"]["pos"]), "expose": 2, "rubble": true})
 
 	var ticks: Dictionary = Suite.fixture(["ember_tick", "ember_tick", "ember_tick", "crawler", "crawler"])
 	for index: int in range(3): ticks["enemies"][index]["pos"] = Vector2i(3 + index, 3)
-	ticks["enemies"][3]["pos"] = Vector2i(3, 4)
+	ticks["player"]["pos"] = Vector2i(3, 4)
+	ticks["enemies"][3]["pos"] = Vector2i(2, 3)
 	ticks["enemies"][4]["pos"] = Vector2i(5, 4)
 	ticks["enemies"][1]["hp"] = 4
 	ticks["enemies"][2]["hp"] = 4
 	ticks["enemies"][0]["intent"] = Data.enemy_def("ember_tick")["intents"][1].duplicate(true)
 	await _show(ticks, {}, Vector2i(3, 3))
-	await _capture("04_ticks_hover_burst_glow", {"hover_tile": "(3, 3)", "glow_tiles": 8, "damage": 4})
+	await _capture("04_ticks_hover_burst_glow", {"hover_tile": "(3, 3)", "glow_tiles": 5, "damage": 4})
 	var kindle_phase: Dictionary = engine.resolve_enemy_turn_with_steps(ticks, 0)
 	var kindled: Dictionary = kindle_phase["state"]
 	var kindle_step: Dictionary = {}

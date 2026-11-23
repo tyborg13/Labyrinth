@@ -72,9 +72,9 @@ static func start_combat(engine: RefCounted, state: Dictionary, snapshot: Dictio
 				player[field] = int(player.get(field, 0)) + value
 				changed = value != 0
 			"start_vision_turns":
-				var old_vision: Array = [state["umbra"].get("vision_bonus", 0), state["umbra"].get("vision_bonus_activations", 0)]
-				state = engine._apply_umbra_vision(state, {"amount": int(effect["radius"]), "duration": value})
-				changed = old_vision != [state["umbra"].get("vision_bonus", 0), state["umbra"].get("vision_bonus_activations", 0)]
+				var old_vision: int = int(state["umbra"].get("vision_activations", 0))
+				state = engine._apply_umbra_vision(state, {"duration": value})
+				changed = old_vision != int(state["umbra"].get("vision_activations", 0))
 			"first_turn_card_plays", "first_turn_movement": pass
 			"start_on_fire":
 				var old_surface: Dictionary = Surfaces.surface_at(state, player["pos"]).duplicate(true)

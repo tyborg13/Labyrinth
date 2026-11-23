@@ -96,6 +96,7 @@ static func action_events(phase_result: Dictionary, context: Dictionary) -> Arra
 			"event_type": "enemy_action_resolved",
 			"context": context,
 			"payload": {
+				"status_riders_retired": true,
 				"action_type": str(step.get("action_type", kind)),
 				"presentation_kind": kind,
 				"no_action_reason": str(step.get("no_action_reason", "")),

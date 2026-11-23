@@ -3,6 +3,8 @@ extends RefCounted
 const MAX_HAND_SIZE: int = 7
 
 const GameData = preload("res://scripts/game_data.gd")
+const COPY_IDS_KEY: String = "equipped_item_copy_ids"
+const NEXT_COPY_ID_KEY: String = "next_equipped_item_copy_id"
 
 static func loot_icon_path(loot: Dictionary) -> String:
 	match str(loot.get("kind", "")):
@@ -40,6 +42,11 @@ static func collect(state: Dictionary, loot: Dictionary) -> void:
 	var equipped: Array = state.get("equipped_items", active_items_from_deck(deck)).duplicate()
 	var inventory: Array = state.get("item_inventory", []).duplicate()
 	if equipped.size() < GameData.item_loadout_limit():
+		var copies: Array = _copy_ids(state, equipped)
+		var copy_id: int = int(state.get(NEXT_COPY_ID_KEY, equipped.size()))
+		copies.append(copy_id)
+		state[COPY_IDS_KEY] = copies
+		state[NEXT_COPY_ID_KEY] = copy_id + 1
 		equipped.append(card_id)
 		var hand: Array = deck.get("hand", []).duplicate()
 		# Keep the ordinary hand cap: the next draw receives a pickup when full.
@@ -63,8 +70,28 @@ static func consume(state: Dictionary, card_id: String) -> void:
 	if not state.has("equipped_items"):
 		return
 	var equipped: Array = state.get("equipped_items", []).duplicate()
-	equipped.erase(card_id)
+	var slot: int = equipped.find(card_id)
+	if slot < 0: return
+	var copies: Array = _copy_ids(state, equipped)
+	state[NEXT_COPY_ID_KEY] = int(state.get(NEXT_COPY_ID_KEY, equipped.size()))
+	copies.remove_at(slot)
+	state[COPY_IDS_KEY] = copies
+	equipped.remove_at(slot)
 	state["equipped_items"] = equipped
+
+static func retained_slots(before: Dictionary, after: Dictionary, previous: Array, equipped: Array) -> Array:
+	if not after.has(COPY_IDS_KEY) or before.get("equipped_items", []) != previous or after.get("equipped_items", []) != equipped:
+		return []
+	var old_ids: Array = _copy_ids(before, previous)
+	var slots: Array = []
+	for copy_id: int in _copy_ids(after, equipped):
+		slots.append(old_ids.find(copy_id))
+	return slots
+
+static func _copy_ids(state: Dictionary, equipped: Array) -> Array:
+	var natural: Array = range(equipped.size())
+	var copies: Array = state.get(COPY_IDS_KEY, natural)
+	return copies.duplicate() if copies.size() == equipped.size() else natural
 
 static func repair_loaded_run(run_state: Dictionary) -> Dictionary:
 	# Restore legacy floor objects without granting anything or replaying a

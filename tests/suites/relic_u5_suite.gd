@@ -10,6 +10,8 @@ const Store = preload("res://scripts/progression_store.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const TARGET := Vector2i(3, 4)
 const NONE := Vector2i(-1, -1)
+# Two fixture hits can trigger Cold Mirror before the per-enemy Stagger cap.
+const MIRROR_TEST_STAGGER: int = 3
 const FIXTURES := {
 	"u5_guard": {"time": 3, "actions": [{"type": "block", "amount": 6}]},
 	"u5_strike": {"time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]},
@@ -27,7 +29,7 @@ const FIXTURES := {
 	"u5_conditional_heal": {"time": 3, "burn": true, "actions": [{"type": "melee", "damage": 1, "range": 1, "rewards": [{"type": "heal", "amount": 1}]}]},
 	"u5_follow_heal": {"time": 3, "burn": true, "actions": [{"type": "block", "amount": 1}], "follow_up": {"append": [{"type": "heal", "amount": 1}]}},
 	"u5_item": {"time": 4, "item": true, "consume_on_play": true, "actions": [{"type": "block", "amount": 1}]},
-	"u5_ice": {"time": 4, "actions": [{"type": "melee", "damage": 1, "range": 1, "element": "ice"}]},
+	"u5_ice": {"time": 4, "actions": [{"type": "melee", "damage": 1, "range": 1, "element": "ice", "surface_bonus": {"surface": "ice", "subject": "target", "stagger": MIRROR_TEST_STAGGER}}]},
 	"u5_force": {"time": 4, "actions": [{"type": "push", "damage": 0, "amount": 1, "range": 1}]},
 	"u5_move_guard": {"time": 4, "actions": [{"type": "move", "range": 1, "block_per_tile": 3}]},
 	"u5_reward_guard": {"time": 4, "actions": [{"type": "melee", "damage": 1, "range": 1, "rewards": [{"type": "block", "amount": 3}]}]}
@@ -143,29 +145,27 @@ static func _test_throne(engine: CombatEngine, expect: Callable) -> void:
 static func _test_mirror(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["cold_mirror"])
 	(s["player"] as Dictionary)["block"] = 11
-	(s["enemies"][0] as Dictionary)["chilled"] = true
+	preload("res://scripts/board_surface_rules.gd").place(s, TARGET, "ice")
 	var action: Dictionary = engine.card_play_actions("u5_ice", s)[0]
 	var preview: Dictionary = engine.apply_player_action(s, action, TARGET)
 	var committed: Dictionary = play(engine, s, "u5_ice", TARGET)
 	expect.call(preview["player"]["block"] == 0 and preview["player"]["frost_armor"] == 2, "Mirror spends all eleven Block for capped two Mantle layers")
 	expect.call(preview["player"] == committed["player"], "Mirror forecast equals commit")
 	(preview["player"] as Dictionary)["block"] = 4
-	(preview["enemies"][0] as Dictionary)["freeze"] = 0
-	(preview["enemies"][0] as Dictionary)["chilled"] = true
 	preview = engine.apply_player_action(resume(preview), action, TARGET)
 	expect.call(preview["player"]["frost_armor"] == 3, "Mirror can trigger again in the same turn after save/resume")
 	for block: int in [0, 3, 4, 7, 8, 20]:
 		var check: Dictionary = state(engine, ["cold_mirror"])
 		(check["player"] as Dictionary)["block"] = block
-		(check["enemies"][0] as Dictionary)["chilled"] = true
+		preload("res://scripts/board_surface_rules.gd").place(check, TARGET, "ice")
 		check = engine.apply_player_action(check, action, TARGET)
 		expect.call(int(check["player"].get("frost_armor", 0)) == mini(block / 4, 2), "Mirror layer threshold for %d Block" % block)
 		expect.call(check["player"]["block"] == (block if block < 4 else 0), "Mirror all-or-nothing Block spend for %d" % block)
-	(s["enemies"][0] as Dictionary)["chilled"] = false
-	expect.call(engine.apply_player_action(s, action, TARGET)["player"]["block"] == 11, "Mirror idle when no Freeze applies")
-	(s["enemies"][0] as Dictionary)["chilled"] = true
-	(s["enemies"][0] as Dictionary)["type"] = "iskaldra"
-	expect.call(engine.apply_player_action(s, action, TARGET)["player"]["block"] == 11, "Mirror idle against Freeze immunity")
+	var capped: Dictionary = preview.duplicate(true)
+	capped["player"]["block"] = 4
+	expect.call(engine.apply_player_action(capped, action, TARGET)["player"]["block"] == 4, "Cold Mirror waits when the enemy reaches the Stagger cap")
+	preload("res://scripts/board_surface_rules.gd").remove(s, TARGET, "ice")
+	expect.call(engine.apply_player_action(s, action, TARGET)["player"]["block"] == 11, "Cold Mirror waits when the card applies no Stagger")
 
 static func _test_lung(engine: CombatEngine, expect: Callable) -> void:
 	for skin: int in [0, 1, 2, 5, 6, 10]:
@@ -196,7 +196,7 @@ static func _test_chalice(engine: CombatEngine, expect: Callable) -> void:
 	var committed: Dictionary = play(engine, resume(s), "u5_strike", TARGET)
 	expect.call(preview["enemies"] == committed["enemies"] and committed["enemies"][0]["hp"] == 35, "Chalice forecast equals saved commit")
 	expect.call(Tempo.next_attack_buffs(committed).is_empty(), "Chalice spends its bonus on the attack")
-	s = engine._lose_player_health(s, 2, true, false, "bleed")
+	s = engine._lose_player_health(s, 2, true, false, "collision")
 	s = engine._lose_player_health(s, 4, true, false, "surface_fire")
 	expect.call(Tempo.bonus_for_action(s, engine.card_play_actions("u5_strike", s)[0])["damage"] == 8, "Chalice accumulates health loss with an eight damage cap")
 	committed = play(engine, s, "u5_double", TARGET)
@@ -219,15 +219,16 @@ static func _test_chalice(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(costs["player"]["hp"] == 27 and Tempo.next_attack_buffs(costs)[0]["damage"] == 6, "Chalice counts both card and Empower health actually paid")
 	var force: Dictionary = play(engine, s, "u5_force", TARGET)
 	expect.call(not Tempo.next_attack_buffs(force).is_empty(), "Chalice waits through a non-damaging shove")
-	var bleeding: Dictionary = state(engine, ["bloodmoon_chalice"])
-	(bleeding["player"] as Dictionary)["bleed"] = 2
-	var bleed_preview: Dictionary = engine.apply_player_action(bleeding, engine.card_play_actions("u5_strike", bleeding)[0], TARGET)
-	var bleed_commit: Dictionary = play(engine, resume(bleeding), "u5_strike", TARGET)
-	expect.call(bleed_commit["enemies"][0]["hp"] == 33 and bleed_commit["player"]["hp"] == 28, "Chalice boosts the hit whose pre-hit Bleed lost health, paying Bleed once")
-	expect.call(bleed_preview["enemies"] == bleed_commit["enemies"], "Chalice pre-hit Bleed forecast equals commit")
-	bleeding = engine._lose_player_health(bleeding, 3, true, false, "collision")
-	bleed_commit = play(engine, bleeding, "u5_strike", TARGET)
-	expect.call(bleed_commit["enemies"][0]["hp"] == 29, "Chalice caps combined earlier health loss and pre-hit Bleed at eight for one attack")
+	var legacy: Dictionary = state(engine, ["bloodmoon_chalice"])
+	legacy["player"]["bleed"] = 2
+	var migrated: Dictionary = preload("res://scripts/progression_store.gd")._migrate_run_dictionary({"combat_state": legacy})["combat_state"]
+	var preview_after_cut: Dictionary = engine.apply_player_action(migrated, engine.card_play_actions("u5_strike", migrated)[0], TARGET)
+	var commit_after_cut: Dictionary = play(engine, resume(migrated), "u5_strike", TARGET)
+	expect.call(commit_after_cut["enemies"][0]["hp"] == 37 and commit_after_cut["player"]["hp"] == 30, "Retired Bleed deals zero pre-hit damage and adds zero Chalice bonus")
+	expect.call(preview_after_cut["enemies"] == commit_after_cut["enemies"], "Chalice forecast agrees with the migrated checkpoint")
+	migrated = engine._lose_player_health(migrated, 3, true, false, "collision")
+	commit_after_cut = play(engine, migrated, "u5_strike", TARGET)
+	expect.call(commit_after_cut["enemies"][0]["hp"] == 31, "Chalice adds six damage for three Health lost to collision")
 
 static func _test_reliquary(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["reliquary_box"])

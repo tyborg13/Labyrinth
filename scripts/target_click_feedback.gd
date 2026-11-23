@@ -13,7 +13,7 @@ const REASON_FRONT_GAP: float = 10.0
 # Director 2026-11-11: a hovered foe's intent popup can hang below its tile, so
 # a reason on that tile drops under the popup, decided once at click time.
 const REASON_POPUP_GAP: float = 8.0
-const ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull", "meteor_marks", "petrify", "detonate", "burst_terrain", "discharge"]
+const ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull", "meteor_marks", "stagger", "detonate", "burst_terrain", "discharge"]
 var host: Node
 var reason_label: Text
 var reason_tile := Vector2i(-1, -1)

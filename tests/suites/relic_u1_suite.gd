@@ -96,16 +96,16 @@ const REPLACEMENTS := {
 const AUTHORED_TEXT := {
   "hourglass_awl": "Attacks on cards that cost 6 or more @term(time) gain @kw(pierce).",
   "iron_buckler": "At the start of your turn, keep up to 3 of your @term(block).",
-  "coffin_nails": "When an enemy attack hits your @term(block) and deals no @term(health) damage, the attacker gains @term(bleed) 1.",
+  "coffin_nails": "When an enemy attack hits your @term(block) and deals no @term(health) damage, the attacker gains @term(expose) 2.",
   "duelist_whetstone": "Attacks on cards that also @kw(move) or @kw(blink) deal 1 more damage per tile you moved this turn, up to 3 more.",
   "flint_edge": "Your @kw(melee) attacks @kw(surface_consume) the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under their target to deal 3 more damage.",
   "recoil_plates": "You take 1 @kw(collision) damage per lost tile instead of 2. Whenever you are part of a @kw(collision), gain 3 @term(block).",
   "millstone_fob": "When an enemy you @kw(push) or @kw(pull) collides, the tile it stopped on becomes @term(surface_rubble).",
-  "tallow_candle": "At the start of combat, create radius-2 @term(illuminate) on your tile for 3 turns.",
+  "tallow_candle": "At the start of combat, create radius-2 @term(illuminate) on your tile.",
   "pocket_sundial": "If your turn ends with no @kw(wait), your next turn comes 2 @term(time) sooner.",
   "leaden_pommel": "Attacks on cards that cost 5 or more @term(time) gain +1 @kw(stagger).",
   "pitch_gloves": "@term(surface_fire) deals you 1 less damage. @kw(surface_fire) you create deals enemies 1 more.",
-  "hobnail_cleats": "@term(surface_ice) doesn't make you @term(chilled). While you stand on @term(surface_ice), your @term(element_ice) attacks deal 2 more damage.",
+  "hobnail_cleats": "@term(surface_ice) doesn't @term(expose) you. While you stand on @term(surface_ice), your @term(element_ice) attacks deal 2 more damage.",
   "grounding_pin": "Your single-target attacks against enemies on @term(surface_electrified) gain +1 @kw(chain).",
   "rubblewalker_greaves": "@term(surface_rubble) doesn't slow you. At the start of your turn, if you stand on @kw(surface_rubble), gain 1 @term(stoneskin).",
   "grave_dirt": "At the start of combat, gain 4 @term(stoneskin).",
@@ -133,13 +133,13 @@ const AUTHORED_TEXT := {
   "overclock_coil": "When you @kw(empower) a card, @kw(quicken) 2.",
   "fetter_spikes": "Enemies with @term(immobilize) take double @kw(collision) damage.",
   "masons_plumb": "Your @kw(outcrop|Outcrops) have 2 more @term(health). An enemy that collides with one of your @kw(outcrop|Outcrops) takes 2 more damage, and the @kw(outcrop) takes none.",
-  "cold_mirror": "When you @term(freeze) an enemy while you have 4 or more @term(block), trade all your @kw(block) for 1 @term(frost_armor) layer per 4, up to 2.",
+  "cold_mirror": "When your @term(element_ice) card @term(stagger|Staggers) an enemy while you have 4+ @term(block), trade all your @kw(block) for 1 @term(frost_armor) layer per 4, up to 2.",
   "vaulting_sigil": "Your @kw(move) can pass through enemies, but not end on one. Each enemy you pass through suffers @kw(stagger) 2.",
   "overflow_censer": "When you place @term(surface_fire), @term(surface_ice) or @term(surface_electrified) over a different one, it also spreads to each tile next to it that has none.",
-  "funeral_bell": "When an enemy dies with 2 or more different statuses, such as @term(bleed) and @term(expose), each enemy next to it gains them.",
+  "funeral_bell": "When an enemy dies with 2 or more different statuses, such as @term(expose) and @term(shock), each adjacent enemy gains the same statuses.",
   "bloodmoon_chalice": "When you lose @term(health) during your turn, your next attack this turn deals 2 more damage per @kw(health) lost, up to 8 more.",
   "glassway_compass": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions) to @kw(swap) with it, skipping the tiles between.",
-  "breaking_wheel": "When an enemy collides on ground, @kw(surface_consume) it. @term(surface_fire): 3 more damage. @term(surface_ice): @term(freeze). @term(surface_electrified): @term(shock) it and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
+  "breaking_wheel": "Enemy collision: @kw(surface_consume) the ground. @term(surface_fire): 3 more damage. @term(surface_ice): @kw(stagger) 6. @term(surface_electrified): @term(shock) enemy and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
   "hollow_puppet": "Your @kw(push) and @kw(pull) can target your @term(illusion|Illusions) harmlessly. An @kw(illusion) that collides with an enemy shatters and deals its remaining @term(health) to it instead.",
   "toll_late_bell": "Enemies set to act after your next turn on the @kw(turn_clock) are late: your attacks deal them 3 more damage.",
   "rosary_of_vows": "At the start of your turn, gain 2 @term(block) for each active @kw(rite) you have.",
@@ -147,7 +147,7 @@ const AUTHORED_TEXT := {
   "echoing_blade": "When a @kw(follow_up) bonus applies, @kw(quicken) 1. Your next card this turn deals 2 more damage.",
   "alchemists_retort": "Your @kw(item|Items)' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
   "storm_crown": "Your @kw(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage, rounded down.",
-  "black_sun_dial": "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9).",
+  "black_sun_dial": "Each ground tile you @kw(surface_consume|Expend) or @kw(burst) gives your next attack +3 damage (up to +9).",
   "fivefold_knot": "Each element you play this combat ties a knot. 3 knots: your attacks @kw(pierce). 4: also @kw(chain) 1. 5: every card grants 3 @term(block).",
   "borrowed_hourglass": "The first time each combat you end your turn with a @term(card_play) unused, take another turn at once. This turn's @term(time) is added to it.",
   "unclouded_sun": "When you @kw(move), the centers of your @term(illuminate|Lights) count as next to each other.",
@@ -190,7 +190,11 @@ static func _test_live_data(expect: Callable) -> void:
 		expect.call(TIERS.has(rarity), "U1 live data/%s: valid rarity" % relic_id)
 		expect.call(str(raw.get("accent", "")) == GameData.relic_rarity_accent(rarity), "U1 live data/%s: rarity accent" % relic_id)
 		expect.call(int(raw.get("condition_tier", 0)) in [1, 2, 3, 4] and int(raw.get("upside_tier", 0)) in [1, 2, 3, 4], "U1 live data/%s: valid design tiers" % relic_id)
-		expect.call((raw.get("build_tags", []) as Array).size() >= 2, "U1 live data/%s: two build tags" % relic_id)
+		var tags: Array = raw.get("build_tags", [])
+		match relic_id:
+			"unclouded_sun": expect.call(tags == ["combo_turn"], "Unclouded Sun retains the approved movement combo tag")
+			"tallow_candle": expect.call(tags == ["setup"], "Tallow Candle retains the approved setup tag")
+			_: expect.call(tags.size() >= 2, "U1 live data/%s: two build tags" % relic_id)
 		var description: String = str(GameData.relic_def(relic_id).get("description", ""))
 		expect.call(not description.is_empty() and not description.contains("{") and InlineIcons.invalid_icon_keys(description).is_empty(), "U1 live data/%s: valid resolved copy and established icons" % relic_id)
 		var icon_exists: bool = FileAccess.file_exists(str(raw.get("icon_path", "")))
@@ -367,15 +371,25 @@ static func _test_authored_copy(expect: Callable) -> void:
 	var approved: Dictionary = {}
 	for row: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/text/relic_rewrite.json")):
 		approved[str(row["id"])] = str(row["description"])
-	# Owner playtest 13 supersedes the historical UX-04 wording for this relic.
-	approved["black_sun_dial"] = "Each ground tile you @kw(surface_consume|Expend) gives your next attack +3 damage (up to +9)."
 	# Flurry retired (flu-01) supersedes the historical wording for this relic.
 	approved["crown_of_surplus"] = "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites) and @kw(item|Items) are excluded."
+	# The retired riders supersede the status mentions in the historical record.
+	approved["coffin_nails"] = str(approved["coffin_nails"]).replace("@term(bleed) 1", "@term(expose) 2")
+	var copy20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_rules_copy.json"))["relic_descriptions"]
+	var copy26: Dictionary = {}
+	for edit: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/txt-26/text_edits.json")):
+		copy26[edit["id"]] = edit
 	for relic_id: String in AUTHORED_TEXT:
-		var text: String = AUTHORED_TEXT[relic_id]
-		expect.call(approved[relic_id] == text, "U1 exact copy/%s: authored text matches the approved UX-04 record" % relic_id)
+		var text: String = str(copy20.get(relic_id, AUTHORED_TEXT[relic_id]))
+		# The listed rollout changes supersede the historical text record.
+		if not copy20.has(relic_id) and relic_id not in ["tallow_candle", "hobnail_cleats", "cold_mirror", "funeral_bell", "breaking_wheel", "black_sun_dial"]:
+			expect.call(approved[relic_id] == text, "U1 exact copy/%s: authored text matches the approved UX-04 record" % relic_id)
+		if copy26.has(relic_id):
+			var edit: Dictionary = copy26[relic_id]
+			text = text.replace(edit["old"], edit["new"])
 		var markup: String = str(GameData.relic_def(relic_id).get("description", ""))
-		expect.call(markup == text, "U1 exact copy/%s: preserve every word, token, number and punctuation mark" % relic_id)
+		var expected: String = GameData._format_relic_description({"description": text, "effects": GameData.relics()[relic_id]["effects"]})
+		expect.call(markup == expected, "U1 exact copy/%s: preserve every word, token, number and punctuation mark" % relic_id)
 	# An inline icon stands alone: letters glued to it ("@icon(stagger)ed",
 	# "@icon(illusion)s") render as a glyph followed by a stray suffix.
 	var glued := RegEx.new()

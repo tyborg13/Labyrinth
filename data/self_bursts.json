@@ -1,0 +1,206 @@
+{
+ "frames": 16,
+ "fps": 30,
+ "reduced_motion_frame": 5,
+ "reduced_motion_seconds": 0.18,
+ "second_on_tile_delay_seconds": 0.2667,
+ "reveal_seconds": {
+  "illusion": 0.1333,
+  "summon": 0.1667
+ },
+ "effect_for_gain": {
+  "block": "block",
+  "stoneskin": "stoneskin",
+  "heal": "heal",
+  "retaliate": "empower",
+  "quicken": "empower",
+  "next_attack": "empower",
+  "mantle": "mantle",
+  "expose": "expose"
+ },
+ "order_on_tile": [
+  "stoneskin",
+  "block",
+  "mantle",
+  "heal",
+  "empower",
+  "expose"
+ ],
+ "palette": [
+  "00000000",
+  "263c54ff",
+  "466c8eff",
+  "84badeff",
+  "101826ff",
+  "eefaffff",
+  "1e1a16ff",
+  "3c362cff",
+  "544639ff",
+  "625a48ff",
+  "82705aff",
+  "8e8668ff",
+  "ac987cff",
+  "beb892ff",
+  "89a15bff",
+  "2e2620ff",
+  "245c34ff",
+  "4c9c50ff",
+  "9ee27eff",
+  "f0ffd8ff",
+  "944410ff",
+  "e08a2aff",
+  "ffcc6aff",
+  "fff6d8ff",
+  "1c2456ff",
+  "38509aff",
+  "6c98deff",
+  "b0dcffff",
+  "fafeffff",
+  "246466ff",
+  "52a49eff",
+  "a2e6d8ff",
+  "f4fffcff",
+  "123438ff",
+  "1a1128ff",
+  "2e1e46ff",
+  "583c7eff",
+  "b08adcff",
+  "0c0814ff",
+  "a86c1cff",
+  "e6ae44ff",
+  "ffde8cff",
+  "fffbe4ff"
+ ],
+ "rows": {
+  "block_rear": 0,
+  "block_front": 1,
+  "stoneskin_rear": 2,
+  "stoneskin_front": 3,
+  "heal_rear": 4,
+  "heal_front": 5,
+  "empower_rear": 6,
+  "empower_front": 7,
+  "mantle_rear": 8,
+  "mantle_front": 9,
+  "illusion_rear": 10,
+  "illusion_front": 11,
+  "summon_rear": 12,
+  "summon_front": 13,
+  "expose_rear": 14,
+  "expose_front": 15
+ },
+ "sizes": [
+  {
+   "tile_cells": [
+    44,
+    22.0
+   ],
+   "frame_cells": [
+    56,
+    55
+   ],
+   "tile_centre_cell": [
+    28,
+    41
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_44.png",
+   "sha256_pixels": "6f2bfdd15ff2b861419e36a76171059b3eadaa1bf7a4a9f39e3f81bc61fa00df"
+  },
+  {
+   "tile_cells": [
+    52,
+    26.0
+   ],
+   "frame_cells": [
+    66,
+    66
+   ],
+   "tile_centre_cell": [
+    33,
+    49
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_52.png",
+   "sha256_pixels": "b2307599f32bce229d51dd49f61a964e8e48acd36b2a47ff5acf2fb53108909f"
+  },
+  {
+   "tile_cells": [
+    60,
+    30.0
+   ],
+   "frame_cells": [
+    74,
+    75
+   ],
+   "tile_centre_cell": [
+    37,
+    56
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_60.png",
+   "sha256_pixels": "5d5230e13a357d069d4b3f1ae38c59aabc37cabc6eacfa5180020bd89c89d0d6"
+  },
+  {
+   "tile_cells": [
+    68,
+    34.0
+   ],
+   "frame_cells": [
+    84,
+    84
+   ],
+   "tile_centre_cell": [
+    42,
+    63
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_68.png",
+   "sha256_pixels": "8f501055113e7048326f017c1b73fd2dcbbb871752581a8df61733e52aa6d95a"
+  },
+  {
+   "tile_cells": [
+    76,
+    38.0
+   ],
+   "frame_cells": [
+    94,
+    94
+   ],
+   "tile_centre_cell": [
+    47,
+    70
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_76.png",
+   "sha256_pixels": "8a2412308be6caed9c62efbc00be5aa7e4d9a5f9c6d4b2b8a5db93241c51cc5d"
+  },
+  {
+   "tile_cells": [
+    84,
+    42.0
+   ],
+   "frame_cells": [
+    104,
+    104
+   ],
+   "tile_centre_cell": [
+    52,
+    78
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_84.png",
+   "sha256_pixels": "a49865582cf1842ba51c4c76be3b26af1ec0b4adbd0a94e6ab135e41a5608537"
+  },
+  {
+   "tile_cells": [
+    92,
+    46.0
+   ],
+   "frame_cells": [
+    114,
+    114
+   ],
+   "tile_centre_cell": [
+    57,
+    85
+   ],
+   "atlas": "res://assets/art/effects/bursts/self_burst_92.png",
+   "sha256_pixels": "3f9205e3c59ca2d16b4567c0d766dc214748ac9a8c2c6c62199026120dd742ba"
+  }
+ ]
+}

@@ -178,10 +178,9 @@ func _capture_grimoire_entries(instance: Node) -> void:
 	if not discovery_ids.has("combat:umbra"):
 		discovery_ids.append("combat:umbra")
 	instance.call("_unlock_grimoire_entries", discovery_ids)
-	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "push it back", "grimoire_umbra.png")
-	await _capture_grimoire_entry(instance, "keyword:radiance", "Radiance", "push back the Umbra", "grimoire_radiance.png")
-	await _capture_grimoire_entry(instance, "keyword:truesight", "Truesight", "counts as visible", "grimoire_truesight.png")
-	await _capture_grimoire_entry(instance, "equipment_card:lantern_shot", "Lantern Shot", "School: Radiance", "grimoire_lantern_shot.png")
+	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "Hidden enemies show no intent", "grimoire_umbra.png")
+	await _capture_grimoire_entry(instance, "keyword:vision", "Vision", "each hidden enemy is visible to you", "grimoire_vision.png")
+	await _capture_grimoire_entry(instance, "equipment_card:lantern_shot", "Lantern Shot", "Light", "grimoire_lantern_shot.png")
 
 func _capture_grimoire_entry(instance: Node, entry_id: String, expected_title: String, expected_body: String, file_name: String) -> void:
 	instance.call("_open_grimoire_overlay")
@@ -211,15 +210,15 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 		"id": 901,
 		"pos": Vector2i(5, 5),
 		"radius": 2,
-		"remaining_activations": 2
+		"remaining_activations": -1
 	}]
-	active_umbra["truesight_activations"] = 2
+	active_umbra["vision_activations"] = 2
 	active_state["umbra"] = active_umbra
 	_set_combat_state(instance, active_state)
 	await _settle_ui()
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	var presentation: Dictionary = board.get("presentation") as Dictionary
-	_assert(int(presentation.get("umbra_truesight_activations", 0)) == 2, "True Sight should expose its remaining activation count to the player HUD")
+	_assert(int(presentation.get("umbra_vision_activations", 0)) == 2, "Vision should expose its remaining activation count to the player HUD")
 	_assert((presentation.get("umbra_light_sources", []) as Array).size() == 1, "Active light sources should be exposed to the board presentation")
 	var source_footprint: Array[Vector2i] = _vector2i_array(board.call("_umbra_light_source_tiles", active_umbra["light_sources"][0]))
 	_assert(source_footprint.size() == 13, "A radius-2 light reach treatment should cover the same 13-tile Manhattan footprint as Illuminate")
@@ -240,8 +239,8 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 		bob_max = maxf(bob_max, center_sample.y)
 	_assert(breath_max - breath_min >= 0.10, "Light orb should visibly breathe through a gentle animated scale range")
 	_assert(bob_max - bob_min >= 2.0, "Light orb should gently bob instead of remaining static on its tile")
-	_assert(_has_board_tooltip_containing(board, "Light Source"), "The glowing light-source marker should have a hover tooltip")
-	_assert(_has_board_tooltip_containing(board, "True Sight"), "The player True Sight badge should have a hover tooltip")
+	_assert(_has_board_tooltip_containing(board, "Light reveals within"), "The glowing light-source marker should have a hover tooltip")
+	_assert(_has_board_tooltip_containing(board, "Vision"), "The player Vision badge should have a hover tooltip")
 	await _save_root_screenshot("%s/active_effect_feedback.png" % OUTPUT_DIR)
 	await create_timer(0.54).timeout
 	RenderingServer.force_draw()
@@ -251,12 +250,12 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 	var expired_state: Dictionary = active_state.duplicate(true)
 	var expired_umbra: Dictionary = (expired_state.get("umbra", {}) as Dictionary).duplicate(true)
 	expired_umbra["light_sources"] = []
-	expired_umbra["truesight_activations"] = 0
+	expired_umbra["vision_activations"] = 0
 	expired_state["umbra"] = expired_umbra
 	expired_state["turn"] = int(active_state.get("turn", 0)) + 1
 	_set_combat_state(instance, expired_state)
 	await process_frame
-	_assert(not (board.get("_umbra_return_start_by_tile") as Dictionary).is_empty(), "Expired light should start a staggered Umbra return instead of snapping")
+	_assert(not (board.get("_umbra_return_start_by_tile") as Dictionary).is_empty(), "Removing a fixture source starts a staggered Umbra return instead of snapping")
 	RenderingServer.force_draw()
 	await process_frame
 	await _save_root_screenshot("%s/umbra_return_start.png" % OUTPUT_DIR)
@@ -321,8 +320,8 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 	var combat := CombatEngine.new()
 	var long_dawn_state: Dictionary = _radiance_visual_state(combat, [], ["long_dawn"])
 	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(3, 4))
-	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "truesight", "duration": 2})
-	_assert(int((long_dawn_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) == 3, "Long Dawn visual fixture should expose its extended duration")
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "vision", "duration": 2})
+	_assert(int((long_dawn_state.get("umbra", {}) as Dictionary).get("vision_activations", 0)) == 3, "Long Dawn visual fixture should expose its extended duration")
 	_set_combat_state(instance, long_dawn_state)
 	await _settle_ui()
 	await _save_root_screenshot("%s/ability_long_dawn.png" % OUTPUT_DIR)
@@ -383,10 +382,10 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 
 	var open_sky_state: Dictionary = _radiance_visual_state(combat, [], ["open_sky"])
 	open_sky_state = combat.apply_player_action(open_sky_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(2, 4))
-	_assert(combat.player_has_truesight(open_sky_state), "Open Sky visual fixture should gain Truesight in Light")
+	_assert(combat.player_has_vision(open_sky_state), "Open Sky visual fixture should gain Vision in Light")
 	_set_combat_state(instance, open_sky_state)
 	await _settle_ui()
-	_assert(bool((board.get("presentation") as Dictionary).get("umbra_truesight_conditional", false)), "Open Sky should expose its conditional Truesight to the live HUD")
+	_assert(bool((board.get("presentation") as Dictionary).get("umbra_vision_conditional", false)), "Open Sky should expose its conditional Vision to the live HUD")
 	await _save_root_screenshot("%s/ability_open_sky.png" % OUTPUT_DIR)
 
 	var chain_state: Dictionary = _radiance_visual_state(combat, ["voltaic_tuning_fork"], [])
@@ -478,7 +477,7 @@ func _capture_card_gallery(instance: Node) -> void:
 	background.anchor_bottom = 1.0
 	gallery.add_child(background)
 	var title := Label.new()
-	title.text = "RADIANCE · LIGHT AGAINST THE UMBRA"
+	title.text = "LIGHT AND VISION"
 	title.position = Vector2(42.0, 18.0)
 	title.size = Vector2(1836.0, 38.0)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

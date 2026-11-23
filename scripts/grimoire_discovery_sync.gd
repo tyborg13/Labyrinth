@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Library = preload("res://scripts/grimoire_library.gd")
+const Data = preload("res://scripts/game_data.gd")
 
 # Only inputs read by entry_ids_for_run_state / entry_ids_for_combat_state and
 # unlock_entries. Store an owned copy so in-place mutations invalidate too.
@@ -33,6 +34,7 @@ func sync(scene: Node) -> void:
 
 static func inputs(run: Dictionary, combat: Dictionary) -> Dictionary:
 	var source: Dictionary = {"has_notice": run.has(Library.NOTICE_KEY)}
+	source["legacy_starter"] = bool(run.get(Data.LEGACY_STARTER_CARDS_KEY, false))
 	for field: String in ["deck_cards", "reward_cards", "attuned_magic_cards", "magic_inventory", "item_inventory", "equipped_items", "collected_equipment", "equipment_inventory", "equipped_equipment", Library.UNLOCKED_KEY, Library.UNREAD_KEY]:
 		source[field] = run.get(field)
 	var progression: Dictionary = run.get("progression", {})
@@ -63,6 +65,7 @@ static func _combat_inputs(combat: Dictionary) -> Dictionary:
 		var values: Variant = deck.get(pile, [])
 		if typeof(values) == TYPE_ARRAY: cards.append_array(values)
 	return {"surfaces": combat.get("surfaces"), "umbra": (combat.get("umbra", {}) as Dictionary).get("stage"),
+		"legacy_starter": bool(combat.get(Data.LEGACY_STARTER_CARDS_KEY, false)),
 		"upheaval": Library.has_upheaval_rule(combat),
 		"traps": not (combat.get("traps", []) as Array).is_empty(), "enemies": enemy_types, "equipment": equipment,
 		"collected": combat.get("collected_equipment"), "cards": _sorted_ids(cards)}

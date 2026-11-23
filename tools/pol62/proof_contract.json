@@ -1,0 +1,21 @@
+{
+  "min_images": 15,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "aim_83_volt_surge.png", "width": 1920, "height": 1080},
+    {"pattern": "aim_83_thunderline.png", "width": 1920, "height": 1080},
+    {"pattern": "aim_84_volt_surge.png", "width": 1920, "height": 1080},
+    {"pattern": "aim_84_thunderline.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_on_00.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_on_02.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_on_04.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_on_06.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_on_08.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_off_00.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_off_02.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_off_04.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_off_06.png", "width": 1920, "height": 1080},
+    {"pattern": "crate_off_08.png", "width": 1920, "height": 1080},
+    {"pattern": "deck.png", "width": 1920, "height": 1080}
+  ]
+}

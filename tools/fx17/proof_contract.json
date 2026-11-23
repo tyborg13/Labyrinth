@@ -1,0 +1,20 @@
+{
+  "min_images": 2,
+  "required_images": [
+    {
+      "pattern": "*contact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [320, 180, 1280, 580], "min_luma_range": 25, "min_luma_stdev": 6},
+        {"rect": [500, 860, 920, 200], "min_luma_range": 30, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*strip.png",
+      "width": 3840,
+      "height": 480,
+      "regions": [{"rect": [0, 0, 3840, 480], "min_luma_range": 25, "min_luma_stdev": 6}]
+    }
+  ]
+}

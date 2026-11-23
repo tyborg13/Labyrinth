@@ -25,19 +25,19 @@ static func run(expect: Callable) -> void:
 	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(2), "Each newly entered burning tile deals two")
 	state = engine._resolve_player_start_of_turn(state)
 	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(5), "Fire own start deals three once after two on entry")
-	# Ice arrival gives Chilled; an Ice hit consumes support and freezes once.
+	# Ice arrival gives Expose; the next hit spends it and leaves the ground.
 	state = fixture(engine)
 	Rules.place(state, Vector2i(4, 3), "ice")
-	expect.call(not bool(state["enemies"][0].get("chilled", false)), "Ice painting does not Chill")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 0, "Ice painting does not apply Expose")
 	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4, 2))
-	expect.call(bool(state["enemies"][0].get("chilled", false)), "Ice entry activates Chill")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 2, "Ice entry applies Expose 2")
 	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"ice"}, Vector2i(4, 3))
-	expect.call(int(state["enemies"][0]["hp"]) == 1000 - 20 - GameData.fixed_point_amount(2), "Pre-hit Chill adds two natural direct damage")
-	expect.call(int(state["enemies"][0]["freeze"]) == 1 and Rules.element_at(state, Vector2i(4, 3)).is_empty(), "Ice hit freezes and consumes Ice")
+	expect.call(int(state["enemies"][0]["hp"]) == 1000 - 20 - GameData.fixed_point_amount(2), "Pre-hit Expose adds two direct damage")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 0 and Rules.has_surface(state, Vector2i(4, 3), "ice"), "Ice hit spends Expose and leaves Ice")
 	Rules.place(state, Vector2i(4, 3), "ice")
 	var turn: Dictionary = engine._resolve_enemy_start_of_turn(state, 0)
 	state = turn["state"]
-	expect.call(bool(turn["skip_all"]) and not bool(state["enemies"][0].get("chilled", false)), "Frozen skipped start suppresses Ice reactivation")
+	expect.call(not bool(turn["skip_all"]) and int(state["enemies"][0].get("expose", 0)) == 2, "The enemy starts its turn and gains Expose 2")
 	# Connected Lightning does not cross an air gap; native Chain may.
 	state = fixture(engine)
 	state["enemies"].append(enemy(2, Vector2i(6, 3)))
@@ -108,8 +108,9 @@ static func _test_large_actors_and_sources(engine: CombatEngine, expect: Callabl
 	for tile: Vector2i in [Vector2i(5,3),Vector2i(6,4)]:
 		Rules.place(state,tile,"ice")
 	state = engine.surface_actor_arrival(state,"enemy",1,Vector2i(4,3))
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 2, "A large actor entering Ice gets one Expose 2")
 	state = engine.apply_player_action(state,{"type":"ranged","damage":20,"range":8,"element":"ice"},Vector2i(5,3))
-	expect.call(int(state["enemies"][0]["freeze"]) == 1 and Rules.tiles(state,"ice").is_empty(),"Freezing a large actor consumes every supporting Ice tile")
+	expect.call(int(state["enemies"][0].get("expose", 0)) == 0 and Rules.tiles(state,"ice").size() == 2, "A large actor's hit spends Expose and leaves both Ice tiles")
 	state = fixture(engine)
 	state["enemies"][0]["hp"] = GameData.fixed_point_amount(1)
 	state["enemies"][0]["pos"] = Vector2i(5,3)
@@ -211,8 +212,8 @@ static func _test_event_tail_and_illusion_contact(engine: CombatEngine, expect: 
 	var target: Dictionary = {"kind": "illusion", "id": 10, "pos": Vector2i(3, 4)}
 	state = engine._damage_actor_target(state, target, 3, false, {"type": "ranged", "element": "ice"})
 	state = engine._apply_action_keywords_to_target(state, target, {"type": "ranged", "element": "ice", "damage": 3}, Vector2i(4, 3))
-	expect.call(int(state["illusions"][0]["hp"]) == 97 - GameData.fixed_point_amount(2), "Ice-supported illusions share Chilled direct-damage vulnerability")
-	expect.call(int(state["illusions"][0].get("freeze", 0)) == 1 and Rules.element_at(state, Vector2i(3, 4)).is_empty(), "An Ice hit on a chilled illusion consumes its supporting Ice")
+	expect.call(int(state["illusions"][0]["hp"]) == 97 - GameData.fixed_point_amount(2), "An illusion on Ice takes its exposed damage once")
+	expect.call(int(state["illusions"][0].get("expose", 0)) == 0 and Rules.has_surface(state, Vector2i(3, 4), "ice"), "A hit on an exposed illusion spends Expose and leaves Ice")
 
 static func _test_real_card_source_survives_saved_ground(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine)
@@ -367,21 +368,9 @@ static func _test_surface_damage_payoffs(engine: CombatEngine, expect: Callable)
 	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"ice"}, Vector2i(4,3))
 	var hp: int = int(state["enemies"][0]["hp"])
 	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"none"}, Vector2i(4,3))
-	expect.call(int(state["enemies"][0]["hp"]) == hp - 60, "Frozen triples the next direct hit without also adding Chilled damage")
+	expect.call(int(state["enemies"][0]["hp"]) == hp - 20, "The Ice hit spends Expose so the second hit deals its printed damage")
 	state = fixture(engine)
-	state["enemies"][0]["freeze"] = 1
+	state["enemies"][0]["expose"] = 2
 	Rules.place(state, Vector2i(4,3), "fire")
 	state = engine._resolve_enemy_start_of_turn(state, 0)["state"]
-	expect.call(int(state["enemies"][0]["hp"]) == 1000 - GameData.fixed_point_amount(3), "Frozen does not multiply passive Fire start damage")
-
-	# Bleed is status damage, even while the character occupies prepared Ice.
-	state = fixture(engine)
-	state["enemies"][0]["bleed"] = 3
-	state["player"]["bleed"] = 3
-	Rules.place(state, Vector2i(4,3), "ice")
-	Rules.place(state, Vector2i(2,3), "ice")
-	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4,2))
-	state = engine.surface_actor_arrival(state, "player", -1, Vector2i(2,2))
-	state = engine._trigger_enemy_bleed_for_action(state, 0, {"type":"melee"})["state"]
-	state = engine._trigger_player_bleed_for_action(state, {"type":"melee"})
-	expect.call(int(state["enemies"][0]["hp"]) == 997 and int(state["player"]["hp"]) == 997, "Chilled never amplifies either side's raw Bleed damage")
+	expect.call(int(state["enemies"][0]["hp"]) == 1000 - GameData.fixed_point_amount(3), "Expose leaves passive Fire start damage unchanged")

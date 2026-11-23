@@ -13,7 +13,7 @@ const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 const ElementData = preload("res://scripts/element_data.gd")
 
-const BALANCE_REVISION: String = "crd18_fire_synergy_v1"
+const BALANCE_REVISION: String = "pla_rollout_2026_11"
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
@@ -33,7 +33,7 @@ const FIXED_POINT_ATTACK_ACTION_TYPES: Array = [
 	"melee", "ranged", "aoe", "push", "pull", "lightning_strikes",
 	"terrain_burst", "detonate", "detonate_cinders", "gale_force", "umbra_eclipse"
 ]
-const STATUS_UPGRADE_FIELDS: Array = ["bleed", "expose", "sunder"]
+const STATUS_UPGRADE_FIELDS: Array = ["expose"]
 const SURFACE_KINDS: Array = ["fire", "ice", "electrified", "rubble"]
 const LEGACY_PROGRESSION_STAT_IDS = [
 	"might",
@@ -69,7 +69,16 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 const CARD_RARITY_TIERS: Array[String] = Array(["common", "rare", "epic", "legendary"], TYPE_STRING, "", null)
 const EQUIPMENT_SLOTS: Array[String] = Array(["weapon", "offhand", "armor", "boots", "trinket"], TYPE_STRING, "", null)
 const ITEM_LOADOUT_LIMIT: int = 2
+const UMBRA_REWARD_EQUIPMENT_ID: String = "cracked_lantern"
+const LEGACY_STARTER_CARDS_KEY: String = "legacy_starter_cards"
+const LegacyStarterCards = preload("res://scripts/legacy_starter_cards.gd")
 const STARTING_MAGIC_CARDS: Array[String] = Array([
+	"pale_spark",
+	"dull_bolt",
+	"waning_pulse",
+	"buffet"
+], TYPE_STRING, "", null)
+const LEGACY_STARTING_MAGIC_CARDS: Array[String] = Array([
 	"pale_spark",
 	"pale_spark",
 	"dull_bolt",
@@ -82,7 +91,7 @@ const STARTING_EQUIPMENT_BY_SLOT := {
 	"offhand": "splintered_shield",
 	"armor": "patched_cloak",
 	"boots": "skirmisher_boots",
-	"trinket": "cracked_lantern"
+	"trinket": ""
 }
 
 static var _cache: Dictionary = {}
@@ -124,8 +133,14 @@ static func upgrades() -> Dictionary:
 static func progression_levels() -> Dictionary:
 	return _load_json_dict(PROGRESSION_LEVELS_PATH)
 
-static func card_def(card_id: String) -> Dictionary:
-	return _scale_card_fixed_point(_raw_card_def(card_id))
+static func card_def(card_id: String, legacy_starter: bool = false) -> Dictionary:
+	return _scale_card_fixed_point(_printed_card_def(card_id, legacy_starter))
+
+static func _printed_card_def(card_id: String, legacy_starter: bool) -> Dictionary:
+	var card: Dictionary = _raw_card_def(card_id)
+	if legacy_starter:
+		card.merge(_duplicate_dict(LegacyStarterCards.DEFINITIONS.get(card_id, {})), true)
+	return card
 
 static func card_def_with_upgrades(card_id: String, card_upgrades: Dictionary) -> Dictionary:
 	var entry: Variant = card_upgrades.get(card_id, "")
@@ -150,11 +165,42 @@ static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> D
 		card["upgrade_count"] = mods.size()
 	return card
 
+const DEFAULT_CARD_TIME_COST: int = 5
+const MIN_CARD_TIME_COST: int = 1
+const MAX_CARD_TIME_COST: int = 10
+
+static func card_time_cost_from_def(card: Dictionary) -> int:
+	if card.has("time"):
+		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST) + int(card.get("_tempo_time_surcharge", 0)) + int(card.get("_item_time_surcharge", 0))
+	return _estimated_card_time_cost(card)
+
+static func _estimated_card_time_cost(card: Dictionary) -> int:
+	var total: int = 1
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		match str(action.get("type", "")):
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "surface", "consume_surface", "illuminate", "vision":
+				total += 1
+			"heal", "illusion", "vision":
+				total += 2
+			"melee", "ranged", "push", "pull":
+				total += 2
+				if int(action.get("damage", 0)) >= 10:
+					total += 1
+			"aoe":
+				total += 3
+			_:
+				total += 1
+	if bool(card.get("burn", false)):
+		total = maxi(1, total - 1)
+	return clampi(total, MIN_CARD_TIME_COST, MAX_CARD_TIME_COST)
+
 static func card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
 	# Meta-progression changes available tactics, never a card's printed numbers.
 	# Run-scoped relics may still transform cards for the current attempt.
-	var card: Dictionary = _raw_card_def(card_id)
-	card = _scale_card_fixed_point(card)
+	var card: Dictionary = card_def(card_id, bool(progression.get(LEGACY_STARTER_CARDS_KEY, false)))
 	# Combat states also carry active Rites; they read exactly like relics.
 	var effects: Array[Dictionary] = relic_effects_for_state(progression)
 	card = _apply_relic_card_effect_list(card, effects)
@@ -172,6 +218,14 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	card = SurfaceVarietyRules.modify_card(card, progression, effects, equipment(), granted)
 	card = DefenseRelicRules.modify_card(card, effects)
 	card = _tag_card_actions_for_combat(card)
+	var priced_effects: Array[Dictionary]
+	for effect: Dictionary in effects:
+		if _card_action_mod_uses_play_time(effect):
+			priced_effects.append(effect)
+	if not priced_effects.is_empty():
+		card["_priced_action_effects"] = priced_effects
+		card["_unpriced_actions"] = card["actions"]
+		card["actions"] = actions_with_play_time_modifiers(card, card["actions"], card_time_cost_from_def(card))
 	return card
 
 static var _enemy_definitions: Dictionary = {}
@@ -261,8 +315,8 @@ static func magic_card_is_purgeable(card_id: String) -> bool:
 		if equipment_cards(equipment_id).has(card_id): return false
 	return true
 
-static func starting_magic_cards() -> Array:
-	return STARTING_MAGIC_CARDS.duplicate()
+static func starting_magic_cards(legacy: bool = false) -> Array:
+	return LEGACY_STARTING_MAGIC_CARDS.duplicate() if legacy else STARTING_MAGIC_CARDS.duplicate()
 
 static func reward_card_pool_by_rarity(element_filter: String = "", elemental_only: bool = false) -> Dictionary:
 	var result: Dictionary = {
@@ -279,7 +333,7 @@ static func reward_card_pool_by_rarity(element_filter: String = "", elemental_on
 			continue
 		var rarity: String = card_rarity_from_def(card)
 		var card_element: String = card_element_from_def(card)
-		if elemental_only and not ElementData.is_elemental(card_element) and not bool(card.get("radiance", false)):
+		if elemental_only and not ElementData.is_elemental(card_element) and not bool(card.get("light_vision_family", false)):
 			continue
 		if not element_filter.is_empty() and card_element != element_filter:
 			continue
@@ -351,6 +405,10 @@ static func equipment_slots() -> Array[String]:
 static func equipment_ids() -> Array:
 	return equipment().keys()
 
+static func equipment_is_pool_eligible(equipment_id: String) -> bool:
+	# The first-Umbra reward stays reserved for victory after ownership ends.
+	return equipment_id != UMBRA_REWARD_EQUIPMENT_ID
+
 static func equipment_def(equipment_id: String) -> Dictionary:
 	return _duplicate_dict(equipment().get(equipment_id, {}))
 
@@ -372,8 +430,11 @@ static func equipment_accent(equipment_id: String) -> String:
 static func equipment_offer_weight(equipment_id: String) -> int:
 	return int(RELIC_RARITY_OFFER_WEIGHTS.get(equipment_rarity(equipment_id), RELIC_RARITY_OFFER_WEIGHTS["common"]))
 
-static func starting_equipped_equipment() -> Dictionary:
-	return STARTING_EQUIPMENT_BY_SLOT.duplicate(true)
+static func starting_equipped_equipment(legacy: bool = false) -> Dictionary:
+	var equipped: Dictionary = STARTING_EQUIPMENT_BY_SLOT.duplicate(true)
+	if legacy:
+		equipped["trinket"] = UMBRA_REWARD_EQUIPMENT_ID
+	return equipped
 
 static func starter_equipment_ids() -> Array:
 	var result: Array = []
@@ -739,7 +800,7 @@ static func status_tick_reduction(_status_id: String) -> int:
 	return 1
 
 static func action_field_uses_fixed_point(action_type: String, field: String) -> bool:
-	if field in ["damage", "self_damage", "bleed", "expose", "sunder"]:
+	if field in ["damage", "self_damage", "expose"]:
 		return action_type in FIXED_POINT_ATTACK_ACTION_TYPES or action_type in ["trap", "all_enemies_damage", "all_enemies_status"]
 	if field == "amount":
 		return action_type in ["block", "stoneskin", "heal", "heal_self", "heal_ally", "guard_ally"]
@@ -864,7 +925,7 @@ static func _relic_reward_display_value(reward: Dictionary, key: String) -> Vari
 			return fixed_point_amount(amount)
 		"all_enemies_status":
 			var status_id: String = str(reward.get("status", ""))
-			return fixed_point_amount(amount) if status_id in ["bleed", "expose", "sunder"] else amount
+			return fixed_point_amount(amount) if status_id == "expose" else amount
 		_:
 			return amount
 
@@ -983,12 +1044,12 @@ static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
 static func _scale_action_fixed_point(action: Dictionary) -> Dictionary:
 	var next_action: Dictionary = action.duplicate(true)
 	var action_type: String = str(next_action.get("type", ""))
-	for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
+	for field: String in ["damage", "self_damage", "expose", "amount", "health"]:
 		if next_action.has(field) and action_field_uses_fixed_point(action_type, field):
 			next_action[field] = int(next_action.get(field, 0)) * FIXED_POINT_SCALE
 	if typeof(next_action.get("surface_bonus", null)) == TYPE_DICTIONARY:
 		var bonus: Dictionary = (next_action["surface_bonus"] as Dictionary).duplicate(true)
-		for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
+		for field: String in ["damage", "self_damage", "expose", "amount", "health"]:
 			if bonus.has(field) and action_field_uses_fixed_point(action_type, field):
 				bonus[field] = int(bonus.get(field, 0)) * FIXED_POINT_SCALE
 		next_action["surface_bonus"] = bonus
@@ -1130,7 +1191,7 @@ static func _status_upgrade_options(action: Dictionary, element: Dictionary) -> 
 	if field not in STATUS_UPGRADE_FIELDS or int(action.get(field, 0)) <= 0:
 		return options
 	for amount: int in [1, 2]:
-		var base_cost: int = 250 if field == "bleed" else 210 if field == "expose" else 170
+		var base_cost: int = 210
 		options.append(_stat_mod(action_index, field, amount, "%s +%d" % [_status_label(field), amount], base_cost * amount * amount, "status"))
 	return options
 
@@ -1187,7 +1248,7 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 		var action_type: String = str(action.get("type", ""))
 		# Mirrors CombatEngine.player_action_needs_target for every wave-4 family:
 		# a card that already asks for a target never gains a second decision.
-		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop", "swap", "petrify", "illusion_swap", "destroy_illusion", "burst_terrain"] or (action_type in ["aoe", "surface", "detonate", "consume_surface", "convert_surface", "discharge", "meteor_marks"] and int(action.get("range", 0)) > 0) or (action_type == "force_area" and str(action.get("center", "self")) == "target"):
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop", "swap", "stagger", "illusion_swap", "destroy_illusion", "burst_terrain"] or (action_type in ["aoe", "surface", "detonate", "consume_surface", "convert_surface", "discharge", "meteor_marks"] and int(action.get("range", 0)) > 0) or (action_type == "force_area" and str(action.get("center", "self")) == "target"):
 			has_targeted_action = true
 			break
 	if not has_targeted_action:
@@ -1236,12 +1297,24 @@ static func _apply_relic_card_effects(card: Dictionary, relic_ids_list: Array) -
 		return card.duplicate(true)
 	return _apply_relic_card_effect_list(card, relic_effects_for_ids(relic_ids_list))
 
+static func _card_action_mod_uses_play_time(effect: Dictionary) -> bool:
+	return str(effect.get("type", "")) == "card_action_mod" and (effect.has("min_time") or effect.has("max_time"))
+
+static func actions_with_play_time_modifiers(card: Dictionary, actions: Array, time: int) -> Array:
+	var priced: Dictionary = card.duplicate(false)
+	priced["time"] = time
+	priced["actions"] = actions
+	for effect: Dictionary in card.get("_priced_action_effects", []):
+		priced = _apply_relic_action_mod(priced, effect)
+	return priced["actions"]
+
 static func _apply_relic_card_effect_list(card: Dictionary, effects: Array[Dictionary]) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
 	for effect: Dictionary in effects:
 		match str(effect.get("type", "")):
 			"card_action_mod":
-				next_card = _apply_relic_action_mod(next_card, effect)
+				if not _card_action_mod_uses_play_time(effect):
+					next_card = _apply_relic_action_mod(next_card, effect)
 			"card_append_action":
 				next_card = _apply_relic_append_action(next_card, effect)
 	return next_card
@@ -1386,7 +1459,7 @@ static func _relic_card_action_types(card: Dictionary) -> Array[String]:
 			result.append(action_type)
 		if not str((action_var as Dictionary).get("surface", "")).is_empty() and not result.has("surface"):
 			result.append("surface")
-		if int((action_var as Dictionary).get("illuminate_radius", 0)) > 0 and not result.has("illuminate"):
+		if (int((action_var as Dictionary).get("illuminate_radius", 0)) > 0 or (action_var as Dictionary).has("trail_light")) and not result.has("illuminate"):
 			result.append("illuminate")
 		if typeof((action_var as Dictionary).get("rewards", null)) == TYPE_ARRAY:
 			for reward_type: String in _relic_card_action_types({"actions": (action_var as Dictionary)["rewards"]}):
@@ -1480,7 +1553,7 @@ static func _apply_card_mod(card: Dictionary, mod: Dictionary) -> Dictionary:
 			action["pattern"] = _pattern_with_added_offsets((action.get("pattern", []) as Array), mod.get("offsets", []) as Array)
 		_:
 			var field: String = str(mod.get("field", ""))
-			if field in ["damage", "range", "amount", "health", "bleed", "expose", "sunder"]:
+			if field in ["damage", "range", "amount", "health", "expose"]:
 				action[field] = int(action.get(field, 0)) + int(mod.get("amount", 0))
 	actions[action_index] = action
 	next_card["actions"] = actions
@@ -1577,18 +1650,11 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
 			value += float(int(action.get("range", 0))) * 0.28
 		"illuminate":
-			var light_duration: int = int(action.get("duration", 1))
-			value += float(int(action.get("radius", action.get("amount", 1)))) * 0.85
-			value += float(int(action.get("range", 0))) * 0.10
-			value += float(3 if light_duration < 0 else maxi(1, light_duration)) * 0.30
+			value += float(int(action.get("radius", 1))) * 0.85
+			value += float(int(action.get("range", 0))) * 0.10 + 0.90
 		"vision":
-			var vision_duration: int = int(action.get("duration", 1))
-			value += float(int(action.get("amount", 0))) * float(3 if vision_duration < 0 else maxi(1, vision_duration)) * 0.75
-		"truesight":
-			var truesight_duration: int = int(action.get("duration", action.get("amount", 1)))
-			value += float(3 if truesight_duration < 0 else maxi(1, truesight_duration)) * 2.2
-		"dispel_umbra":
-			value += float(int(action.get("amount", 1))) * 2.4
+			var duration: int = int(action.get("duration", 1))
+			value += float(3 if duration < 0 else maxi(1, duration)) * 2.2
 		# Wave-3 tempo and reactive actions (spec/card_keywords_wave3.md). Their
 		# bonuses are conditional, so they price below a printed hit.
 		"next_attack":
@@ -1616,9 +1682,7 @@ static func _action_value(action: Dictionary) -> float:
 		"burst_terrain", "destroy_illusion":
 			value += float(int(action.get("damage", 0)) + int(action.get("line_damage", 0))) * 0.95
 			value += float(mini(int(action.get("range", 0)), 8)) * 0.2
-	value += float(int(action.get("bleed", 0))) * 1.05
 	value += float(int(action.get("expose", 0))) * 0.95
-	value += float(int(action.get("sunder", 0))) * 0.70
 	value += float(int(action.get("shock", 0))) * 2.4
 	if bool(action.get("immobilize", false)):
 		value += 1.7

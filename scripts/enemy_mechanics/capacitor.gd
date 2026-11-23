@@ -33,7 +33,7 @@ static func grounded(engine: RefCounted, enemy: Dictionary, before_shock: int, s
 	enemy["intent"] = choose(enemy, engine._scaled_enemy_intents(Data.enemy_def("storm_capacitor")["intents"], int(state.get("room_depth", 1)), state, enemy), state)
 
 # Source is excluded just as it is in the existing enemy Chain resolver.
-# First reach is ordinary Manhattan range; hops include the eight neighbours.
+# First reach is ordinary Manhattan range. Each hop requires a shared side.
 static func targets(engine: RefCounted, state: Dictionary, index: int) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if int(state.get("player", {}).get("hp", 0)) > 0:
@@ -50,9 +50,8 @@ static func nearest(engine: RefCounted, state: Dictionary, index: int, origin: V
 		if visited.has(target["key"]): continue
 		var pair: Dictionary = Footprints.nearest_pair({"pos": origin} if source.is_empty() else source, target["unit"])
 		var tile: Vector2i = pair["to"]
-		var delta: Vector2i = tile - Vector2i(pair["from"])
 		var distance: int = int(pair["distance"])
-		if (maxi(absi(delta.x), absi(delta.y)) > 1 if adjacent else distance > reach): continue
+		if (distance != 1 if adjacent else distance > reach): continue
 		var candidate: Dictionary = target.duplicate(true)
 		candidate["pos"] = tile
 		candidate["from"] = pair["from"]
@@ -85,7 +84,7 @@ static func chain(engine: RefCounted, state: Dictionary, index: int, action: Dic
 		var before: Dictionary = state.duplicate(true)
 		if resolve_hits:
 			if target["kind"] == "enemy":
-				state = engine._damage_enemy(state, engine._enemy_index_for_id(state, int(target["id"])), damage, true, false, false)
+				state = engine._damage_enemy_hit(state, engine._enemy_index_for_id(state, int(target["id"])), damage, false, false)
 			else:
 				state = engine._damage_actor_target(state, target, damage, false, action)
 				state = preload("res://scripts/common_relic_rules.gd").blocked_attack(engine, state, int(state["enemies"][index]["id"]), maxi(0, int(before["player"]["hp"]) - int(state["player"]["hp"])), maxi(0, int(before["player"]["block"]) - int(state["player"]["block"])))
@@ -114,13 +113,11 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 		"attack_action_index": 0, "movement_action_index": -1, "attack_action": action, "projected_attack": tiles,
 		"projected_attack_target": tiles[0] if not tiles.is_empty() else engine.INVALID_TILE, "target_key": "player" if tiles.has(state["player"]["pos"]) else "", "chain_hits": hits, "attack_available": not tiles.is_empty()}
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary) -> Dictionary:
 	match str(action["type"]):
 		"gain_charge": state["enemies"][index]["charge"] = mini(MAX_CHARGE, int(state["enemies"][index].get("charge", 0)) + int(action["amount"]))
 		"reset_charge": state["enemies"][index]["charge"] = 0
 		"chain_discharge":
-			state = engine._trigger_enemy_bleed_for_resolved_action(state, index, {"type": "ranged"}, bleed_steps)
-			if engine._enemy_cannot_continue_after_bleed(state, index): return state
 			var hits: Array[Dictionary] = chain(engine, state, index, action, true)
 			context["chain_hits"] = hits
 			if not hits.is_empty(): state = hits.back()["state"].duplicate(true)
@@ -132,7 +129,7 @@ static func animation_step(engine: RefCounted, before: Dictionary, after: Dictio
 	losses.append_array(engine._enemy_target_losses(before, after))
 	return {"kind": "ranged" if str(action["type"]) == "chain_discharge" else "status", "action_type": action["type"],
 		"actor_key": engine._enemy_key(before["enemies"][index]), "actor_name": Data.enemy_def("storm_capacitor")["name"],
-		"label": "Arc Burst" if str(action["type"]) == "chain_discharge" else "Charge", "element": "lightning", "tile": after["enemies"][index]["pos"],
+		"label": "Arc Lash" if str(action["type"]) == "chain_discharge" else "Charge", "element": "lightning", "tile": after["enemies"][index]["pos"],
 		"chain_hits": context.get("chain_hits", []), "target_losses": losses, "enemy_after": after["enemies"][index].duplicate(true), "en06_after": Snapshots.snapshot(after)}
 
 static func grounded_targets(before: Dictionary, after: Dictionary) -> Array[Dictionary]:

@@ -126,15 +126,13 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 		"attack_available": false, "snuff_brazier_id": int(brazier.get("id", -1)), "snuff_lands": lands,
 		"movement_disabled": movement_disabled, "attack_disabled": attack_disabled}
 
-static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, context: Dictionary) -> Dictionary:
 	var enemy: Dictionary = engine._normalized_enemy(state["enemies"][index])
 	var brazier: Dictionary = target(state, enemy, action)
 	if brazier.is_empty(): return state
 	if not bool(context.get("movement_disabled", false)):
 		var path: Array[Vector2i] = engine._planned_enemy_movement_path(state, enemy, index, action, {}, context, brazier["pos"], true)
 		if path.size() > 1:
-			state = engine._trigger_enemy_bleed_for_resolved_action(state, index, action, bleed_steps)
-			if engine._enemy_cannot_continue_after_bleed(state, index): return state
 			state = engine._move_enemy_along_planned_path(state, index, path, context, int(action.get("range", 0)))
 			engine._log(state, "%s closes in." % engine.EnemyIdentity.display_name(enemy))
 	enemy = state["enemies"][index]

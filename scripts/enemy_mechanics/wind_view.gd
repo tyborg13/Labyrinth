@@ -64,7 +64,7 @@ const GHOST_ROLE: String = "wind_slide_preview"
 const GHOST_TINT := Color(TINT, 0.36)
 const GHOST_FORECAST_TINT := Color(TINT, 0.22)
 const GHOST_HAZE := Color(Palette.STEEL, 0.10)
-const SOURCE_TOOLTIP: String = "Calls the wind. Defeat it and the wind stops."
+const SOURCE_TOOLTIP: String = "This enemy creates Gust. Gust ends when this enemy dies."
 const CARD_ARROW_HEAD_WIDTH_RATIO: float = 0.405
 const CARD_ARROW_HEAD_REACH_RATIO: float = 0.138 + 0.285
 # Construct after script loading: CombatEngine's query dependencies also load this view.
@@ -402,7 +402,7 @@ static func landing_ghosts(view: Control) -> Array[Dictionary]:
 			var key: String = "wind_ghost_%s_%d_%d" % [source["key"], landing.x, landing.y]
 			if emitted.has(key): continue
 			emitted[key] = true
-			source.merge({"role": GHOST_ROLE, "pos": landing, "key": key, "wind_forecast": bool(layer.get("dashed", false)), "hp": 1, "max_hp": 1, "block": 0, "stoneskin": 0, "bleed": 0, "freeze": 0, "shock": 0, "immobilize": false, "intent": {}, "preview": true}, true)
+			source.merge({"role": GHOST_ROLE, "pos": landing, "key": key, "wind_forecast": bool(layer.get("dashed", false)), "hp": 1, "max_hp": 1, "block": 0, "stoneskin": 0, "freeze": 0, "shock": 0, "immobilize": false, "intent": {}, "preview": true}, true)
 			ghosts.append(source)
 	return ghosts
 

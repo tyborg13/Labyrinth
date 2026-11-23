@@ -168,12 +168,12 @@ func attack_family(action: Dictionary, actor: Dictionary = {}, weapon: String = 
 	if not family.is_empty(): return family
 	return "blade" if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing") else "pierce" if str(action.get("physical", "")) == "true" or bool(action.get("physical", false)) else "arcane"
 
-func impact_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "", target_before: Dictionary = {}, hp_loss: int = 1, absorbed: int = 0, collision: bool = false) -> String:
+func impact_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "", _target_before: Dictionary = {}, hp_loss: int = 1, absorbed: int = 0, collision: bool = false) -> String:
 	if hp_loss <= 0 and absorbed > 0: return "hit.blocked"
 	if collision or bool(action.get("collision", false)): return "push.collision"
-	if int(target_before.get("freeze", 0)) > 0 and hp_loss > 0: return "status.shatter"
+
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
-	if str(action.get("type", "")) == "detonate": element = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+	if str(action.get("type", "")) == "detonate": element = preload("res://scripts/burst_rules.gd").fx_element(action)
 	if element in ["umbra", "shadow"]: return "spell.shadow"
 	if element in ["fire", "ice", "lightning", "earth", "air"]: return "spell." + element
 	var family: String = attack_family(action, actor, weapon)
@@ -318,7 +318,7 @@ func trap(traps: Array) -> void:
 func surface(surface_id: String) -> void:
 	request("surface." + ("electric" if surface_id == "electrified" else surface_id))
 func status(status_id: String) -> void:
-	if status_id in ["bleed", "freeze", "shock", "stagger"]: request("status." + status_id)
+	if status_id in ["shock", "stagger"]: request("status." + status_id)
 func light() -> void: request("radiance.light")
 func heal() -> void: request("heal")
 func illusion_spawn() -> void: request("illusion.spawn")
@@ -407,8 +407,7 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		var absorbed: int = int(before.get("block", 0)) + int(before.get("stoneskin", 0)) - int(after.get("block", 0)) - int(after.get("stoneskin", 0))
 		if loss > 0 or absorbed > 0:
 			if str(_action.get("kind", "")) == "status_damage":
-				if str(_action.get("label", "")) == "Bleed": status("bleed")
-				elif str(_action.get("label", "")) == "Fire": surface("fire") # The ground's own short flare, like Bleed's tick; never the 1.1 s spell impact.
+				if str(_action.get("label", "")) == "Fire": surface("fire") # The ground's own short flare.
 				elif RETORT_FAMILIES.has(str(_action.get("action_type", ""))): hit(_action, _actor, _weapon, before, after)
 			elif str(_action.get("kind", "")) != "fatigue" and not _trap_impact_pending: hit(hit_action, _actor, _weapon, before, after, CHAIN_GAIN_DB if chain_hop else 0.0)
 			if _trap_impact_pending and loss >= 5 and key == "player": request("hurt.hero")
@@ -417,7 +416,7 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		if loss < 0: heal()
 		for field: String in ["block", "stoneskin"]:
 			if int(after.get(field, 0)) > int(before.get(field, 0)): request(field + ".gain")
-		for field: String in ["bleed", "freeze", "shock", "stagger"]:
+		for field: String in ["shock", "stagger"]:
 			if int(after.get(field, 0)) > int(before.get(field, 0)): status(field)
 	if not _radiance_played and int(_action.get("illuminate_radius", 0)) > 0 and next_units != _units:
 		light()
@@ -532,7 +531,7 @@ func _unit_snapshot(state: Dictionary) -> Dictionary:
 
 func _audible_unit(unit: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
-	for field: String in ["id", "type", "hp", "block", "stoneskin", "bleed", "freeze", "shock", "stagger"]:
+	for field: String in ["id", "type", "hp", "block", "stoneskin", "freeze", "shock", "stagger"]:
 		if unit.has(field): result[field] = unit[field]
 	return result
 

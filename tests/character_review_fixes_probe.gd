@@ -38,7 +38,7 @@ func _initialize() -> void:
 	await _settle()
 	var dialog: Control = _instance.get("_upgrade_dialog") as Control
 	await _assert_review_header(dialog)
-	_require(dialog.find_child("CloseCharacterOverlay", true, false).get_script() == CloseSocket, "Character uses the shared close socket")
+	_require(dialog.find_child("CloseCharacterOverlay", true, false) is CloseSocket, "Character uses the shared close socket")
 	await _pack_gestures("_equipment_inventory_tiles", "iron_cleaver", "_equipment_drag_id", "01_gear_press.png")
 	await _pack_gestures("_item_inventory_tiles", 0, "_item_drag_card_id", "02_item_press.png")
 	await _deck_dismissal(dialog)

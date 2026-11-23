@@ -14,6 +14,7 @@ const MovementFixture = preload("res://tests/suites/player_movement_suite.gd")
 
 # These coordinates, seed and HP overrides belong only to debug/test fixtures.
 const FIXTURE_HERO_TILE: Vector2i = Vector2i(4, 4)
+const FIXTURE_HERO_NEXT_TO_TICK := Vector2i(3, 4)
 const FIXTURE_GRUB_TILE: Vector2i = Vector2i(2, 4)
 const FIXTURE_SEED: int = 611
 
@@ -160,8 +161,8 @@ static func _test_burst(check: Callable) -> void:
 	state["player"]["block"] = 3
 	state["damage_context"] = {"actor_kind": "player", "player_card": true}
 	var after: Dictionary = engine._damage_enemy(state.duplicate(true), 0, 6)
-	check.call(int(after["player"]["hp"]) == 21 and int(after["player"]["block"]) == 0, "Three bursts hit hero through normal Block")
-	check.call(int(after["enemies"][3]["hp"]) == 12, "Tick bursts damage nearby enemies including diagonals")
+	check.call(int(after["player"]["hp"]) == 29 and int(after["player"]["block"]) == 0, "The adjacent Burst hits hero through normal Block")
+	check.call(int(after["enemies"][3]["hp"]) == 16, "Only the adjacent Burst hits the crawler")
 	var events: Array = after.get("death_burst_events", [])
 	check.call(events.size() == 3 and int(events[0]["id"]) == int(state["enemies"][0]["id"]) and int(events[2]["id"]) == int(state["enemies"][2]["id"]), "Chain bursts resolve breadth-first once per tick")
 	check.call(int(after.get("death_bonus_card_plays_this_turn", 0)) == 1, "Only initiating player-card kill grants card-play bonus")
@@ -209,21 +210,22 @@ static func _test_previews_and_save(check: Callable) -> void:
 	state["enemies"][1]["pos"] = Vector2i(4, 3)
 	var scene := SceneScript.new()
 	var action: Dictionary = {"type": "ranged", "range": 5, "damage": 6}
+	state["player"]["pos"] = FIXTURE_HERO_NEXT_TO_TICK
 	var preview: Dictionary = scene._preview_damage_for_action(state, action, Vector2i(3, 3))
 	check.call(int(preview.get("player", {}).get("hp_loss", 0)) == 4, "Lethal card preview includes tick burst damage to hero")
 	check.call(int(preview.get("enemy_2", {}).get("hp_loss", 0)) == 4, "Lethal card preview includes tick burst damage to another enemy")
 	check.call(bool(preview.get("enemy_1", {}).get("lethal", false)), "Lethal tick preview uses actual damage")
 	var board := Board.new()
 	var badges: Array[Dictionary] = board._unit_status_badges(state["enemies"][0])
-	check.call(badges.any(func(badge: Dictionary) -> bool: return str(badge.get("icon", "")) == "burst" and int(badge.get("count", 0)) == 4 and not badge.has("label") and str(badge.get("tooltip", "")) == "Bursts\nWhen it dies, it hits every unit next to it and leaves Fire.\n4 damage"), "Every living tick shows its total Burst badge")
+	check.call(badges.any(func(badge: Dictionary) -> bool: return str(badge.get("icon", "")) == "burst" and int(badge.get("count", 0)) == 4 and not badge.has("label") and str(badge.get("tooltip", "")) == "Burst\nWhen this enemy dies, this enemy Bursts 4, leaving Fire."), "Every living tick shows its total Burst badge")
 	check.call(not board._intent_rows_for_unit({}, Data.enemy_def("burrow_grub")["intents"][0]).is_empty(), "Burrow has visible intent rows")
 	check.call(not board._intent_rows_for_unit({}, Data.enemy_def("ember_tick")["intents"][1]).is_empty(), "Kindle has visible intent rows")
 	board.combat_state = state
 	board.presentation = {"umbra_visible_tiles": [FIXTURE_HERO_TILE]}
 	board.set("_hover_tile", state["enemies"][0]["pos"])
-	check.call(preload("res://scripts/enemy_mechanics/death_burst_view.gd").focused_tiles(board).is_empty(), "Hovering a hidden tile never reveals an unknown tick burst ring")
+	check.call(preload("res://scripts/enemy_mechanics/death_burst_view.gd").focused_tiles(board).is_empty(), "Hovering a hidden tile never reveals an unknown Tick Burst")
 	board.presentation["umbra_visible_tiles"].append(state["enemies"][0]["pos"])
-	check.call(preload("res://scripts/enemy_mechanics/death_burst_view.gd").focused_tiles(board).size() == 8, "A visible hovered tick shows its eight actual burst tiles")
+	check.call(preload("res://scripts/enemy_mechanics/death_burst_view.gd").focused_tiles(board).size() == 5, "A visible hovered Tick shows its five Burst tiles")
 	board.free()
 	scene.free()
 	var buried: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(), 0)["state"]
@@ -264,16 +266,18 @@ static func _test_interruptions_and_normal_attacks(check: Callable) -> void:
 	var fire: Dictionary = fixture(["ember_tick"])
 	fire["room_element"] = "fire"
 	fire["enemies"][0]["pos"] = Vector2i(3, 3)
+	fire["player"]["pos"] = FIXTURE_HERO_NEXT_TO_TICK
 	fire["player"]["block"] = 2
 	fire = engine._damage_enemy(fire, 0, 6)
 	check.call(int(fire["player"]["hp"]) == 28, "Fire room Burst honors normal Block")
 
-	var bleeding: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(), 0)["state"]
-	bleeding["enemies"][0]["bleed"] = 12
-	var canceled: Dictionary = engine.resolve_enemy_turn_with_steps(bleeding, 0)
-	bleeding = canceled["state"]
+	var pending_erupt: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(), 0)["state"]
+	var lethal_area: Dictionary = {"type": "aoe", "damage": int(pending_erupt["enemies"][0]["hp"]), "range": 5, "radius": 1}
+	var defeated: Dictionary = engine.apply_player_action(pending_erupt, lethal_area, FIXTURE_GRUB_TILE)
+	var canceled: Dictionary = engine.resolve_enemy_turn_with_steps(defeated, 0)
+	var after_death: Dictionary = canceled["state"]
 	check.call(not (canceled["steps"] as Array).any(func(step: Dictionary) -> bool: return str(step.get("kind", "")) == "erupt"), "Canceled Erupt never emits a rising-body animation")
-	check.call(int(bleeding["enemies"][0]["hp"]) == 0 and not bleeding["enemies"][0].has("erupt_tile") and int(bleeding["player"]["hp"]) == 30, "Lethal area-applied Bleed cancels Erupt and removes mark before impact")
+	check.call(int(after_death["enemies"][0]["hp"]) == 0 and not after_death["enemies"][0].has("erupt_tile") and int(after_death["player"]["hp"]) == 30, "Lethal area damage cancels Erupt and clears the mark")
 	var retaliating: Dictionary = engine.resolve_enemy_turn_with_steps(fixture(), 0)["state"]
 	preload("res://scripts/retaliate_rules.gd").gain(retaliating, {"amount": 3}, "Test fixture")
 	retaliating = engine.resolve_enemy_turn_with_steps(retaliating, 0)["state"]

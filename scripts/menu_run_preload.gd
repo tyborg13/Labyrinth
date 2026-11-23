@@ -1,7 +1,7 @@
 extends RefCounted
 ## Tracks accepted engine loads through startup, title idle and the cover.
 ## The idle request belongs to the root, even if the title leaves the tree.
-## The cover can claim it later, and shutdown attempts to drain it.
+## The cover can claim it later, and managed quit waits to collect it.
 
 const PipelinePrewarm = preload("res://scripts/canvas_pipeline_prewarm.gd")
 const RUN_SCENE_PATH := "res://scenes/run_scene.tscn"
@@ -149,20 +149,17 @@ static func _reap_abandoned(tree: SceneTree, path: String, request: Request) -> 
 			return
 		await tree.process_frame
 
-static func drain_for_shutdown(tree: SceneTree, wait_for_idle_preload: bool = true) -> bool:
+static func drain_for_shutdown(tree: SceneTree) -> bool:
 	var pending := _pending(tree)
-	var settled := true
 	for path: String in pending.keys():
 		var request: Request = pending[path]
-		if request.idle:
-			if not wait_for_idle_preload: continue
-			if request.status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-				status_for(tree, path)
-				settled = false
-				continue
+		if request.idle and request.status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			# Keep GDScript alive until the worker finishes compiling the scene.
+			# Collect the token on a later frame after observing terminal status.
+			status_for(tree, path)
+			continue
 		_take_pending(tree, path)
-		if pending.has(path): settled = false
-	return settled
+	return pending.is_empty()
 
 static func finish_shutdown(root: Window) -> void:
 	var pending: Dictionary = root.get_meta(REQUESTS_META, {})

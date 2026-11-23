@@ -1,0 +1,13 @@
+{
+  "expected_sizes": ["1920x1080", "3840x480"],
+  "min_images": 7,
+  "required_images": [
+    {"pattern": "*/outbound33.png", "width": 1920, "height": 1080},
+    {"pattern": "*/outbound66.png", "width": 1920, "height": 1080},
+    {"pattern": "*/flash.png", "width": 1920, "height": 1080},
+    {"pattern": "*/return33.png", "width": 1920, "height": 1080},
+    {"pattern": "*/return66.png", "width": 1920, "height": 1080},
+    {"pattern": "*/return_contact.png", "width": 1920, "height": 1080},
+    {"pattern": "*/strip.png", "width": 3840, "height": 480, "regions": [{"rect": [0, 0, 3840, 480], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

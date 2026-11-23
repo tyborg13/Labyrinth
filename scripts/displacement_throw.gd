@@ -114,7 +114,7 @@ static func animate_rise(scene: Control, before: Dictionary, after: Dictionary, 
 		if elapsed >= duration or reduced: break
 		await scene.get_tree().process_frame
 
-static func animate(scene: Control, before: Dictionary, after: Dictionary, flights: Array[Dictionary], base: Dictionary = {}, first_frame: Callable = Callable(), companion: Callable = Callable()) -> void:
+static func animate(scene: Control, before: Dictionary, after: Dictionary, flights: Array[Dictionary], base: Dictionary = {}, first_frame: Callable = Callable(), companion: Callable = Callable(), split_push_contact: bool = false) -> void:
 	var reduced: bool = scene._reduced_motion_enabled()
 	var events: Array[Dictionary] = Outcome.prepare(scene._surface_events_between(before, after))
 	var departure: Array[Dictionary]
@@ -124,7 +124,7 @@ static func animate(scene: Control, before: Dictionary, after: Dictionary, fligh
 	for event: Dictionary in events:
 		if landing_tiles.has(event.get("tile")) and str(event.get("kind", "")) != "terrain_created": arrival.append(event)
 		else: departure.append(event)
-	var texts: Array[Dictionary] = scene._player_action_floating_texts(before, after)
+	var texts: Array[Dictionary] = scene._player_action_floating_texts(before, after, split_push_contact)
 	var flight_keys: Array
 	for path: Dictionary in flights: flight_keys.append(path["actor_key"])
 	var departure_texts: Array[Dictionary]

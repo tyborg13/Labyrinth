@@ -50,8 +50,8 @@ static func _test_quick_wits(expect: Callable) -> void:
 
 static func _test_rehearsed_escape_and_pain_remembers(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = _state(combat, ["rehearsed_escape", "pain_remembers"], ["patch_up", "quick_stab"])
-	state["deck"] = _deck(["patch_up"], ["quick_stab"], [])
+	var state: Dictionary = _state(combat, ["rehearsed_escape", "pain_remembers"], ["field_suture", "quick_stab"])
+	state["deck"] = _deck(["field_suture"], ["quick_stab"], [])
 	state = combat._damage_player(state, GameData.fixed_point_amount(1), true)
 	expect.call(_skill_event_count(combat, state, "pain_remembers") == 0, "Priming Pain Remembers should not emit an activation event")
 	state = combat.arm_rehearsed_escape(state)
@@ -59,14 +59,14 @@ static func _test_rehearsed_escape_and_pain_remembers(expect: Callable) -> void:
 	expect.call(not combat.skill_was_used(state, "rehearsed_escape"), "Rehearsed Escape should spend its charge only when it preserves a card")
 	state = combat.finish_player_card(state, 0)
 	var deck: Dictionary = state.get("deck", {}) as Dictionary
-	expect.call(not (deck.get("burned", []) as Array).has("patch_up"), "Rehearsed Escape should prevent the first non-item burn")
-	expect.call((deck.get("hand", []) as Array).has("patch_up"), "Pain Remembers should return the next discarded non-item after health loss")
+	expect.call(not (deck.get("burned", []) as Array).has("field_suture"), "Rehearsed Escape should prevent the first non-item burn")
+	expect.call((deck.get("hand", []) as Array).has("field_suture"), "Pain Remembers should return the next discarded non-item after health loss")
 	expect.call(combat.skill_was_used(state, "rehearsed_escape") and combat.skill_was_used(state, "pain_remembers"), "Both linked defensive skills should spend their own combat charge")
 	expect.call(_skill_event_count(combat, state, "pain_remembers") == 1, "Pain Remembers should emit one activation event when the recall resolves")
-	var declined_state: Dictionary = _state(combat, ["rehearsed_escape"], ["patch_up"])
-	declined_state["deck"] = _deck(["patch_up"], [], [])
+	var declined_state: Dictionary = _state(combat, ["rehearsed_escape"], ["field_suture"])
+	declined_state["deck"] = _deck(["field_suture"], [], [])
 	declined_state = combat.finish_player_card(declined_state, 0)
-	expect.call((((declined_state.get("deck", {}) as Dictionary).get("burned", []) as Array).has("patch_up")), "Declining to arm Rehearsed Escape should preserve intentional combat-deck thinning")
+	expect.call((((declined_state.get("deck", {}) as Dictionary).get("burned", []) as Array).has("field_suture")), "Declining to arm Rehearsed Escape should preserve intentional combat-deck thinning")
 	expect.call(not combat.skill_was_used(declined_state, "rehearsed_escape"), "Declining Rehearsed Escape should preserve its charge")
 	var no_burn_state: Dictionary = _state(combat, ["rehearsed_escape"], ["quick_stab"])
 	no_burn_state["deck"] = _deck(["quick_stab"], [], [])
@@ -368,11 +368,10 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var long_dawn_state: Dictionary = _state(combat, ["long_dawn"], ["quick_stab"])
 	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(3, 4))
-	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "vision", "amount": 1, "duration": 2})
-	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "truesight", "duration": 2})
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "vision", "duration": 2})
 	var long_dawn_umbra: Dictionary = long_dawn_state.get("umbra", {}) as Dictionary
-	expect.call(int(((long_dawn_umbra.get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == 3, "Long Dawn should extend temporary Light from two turns to three")
-	expect.call(int(long_dawn_umbra.get("vision_bonus_activations", 0)) == 3 and int(long_dawn_umbra.get("truesight_activations", 0)) == 3, "Long Dawn should extend temporary Vision and Truesight through the same central duration rule")
+	expect.call(int(((long_dawn_umbra.get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == -1, "Long Dawn leaves Light lasting")
+	expect.call(int(long_dawn_umbra.get("vision_activations", 0)) == 3, "Long Dawn extends Vision by one turn")
 	var permanent_state: Dictionary = _state(combat, ["long_dawn"], ["quick_stab"])
 	permanent_state = combat.apply_player_action(permanent_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": -1}, Vector2i(3, 4))
 	expect.call(int((((permanent_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == -1, "Long Dawn should leave permanent Light permanent")
@@ -382,7 +381,7 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	var sunpath_sources: Array = (sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
 	expect.call(sunpath_sources.size() == 3, "Sunpath should leave one Light source on every entered tile of a three-tile Move")
 	for source_var: Variant in sunpath_sources:
-		expect.call(int((source_var as Dictionary).get("remaining_activations", 0)) == 3, "Sunpath Light should participate in Long Dawn's duration extension")
+		expect.call(int((source_var as Dictionary).get("remaining_activations", 0)) == -1, "Sunpath places lasting Light along its path")
 	var source_count_before_second_move: int = sunpath_sources.size()
 	sunpath_state = combat.apply_player_action(sunpath_state, {"type": "move", "range": 4}, Vector2i(2, 4))
 	expect.call(((sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == source_count_before_second_move, "Sunpath should trigger only on the first qualifying movement each turn")
@@ -413,10 +412,10 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	expect.call(afterglow_sources.size() == 1 and (afterglow_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Afterglow should leave Light at an illusion's final tile when it is removed")
 
 	var open_sky_state: Dictionary = _state(combat, ["open_sky"], ["quick_stab"])
-	expect.call(not bool(combat.call("_player_has_truesight", open_sky_state)), "Open Sky should not grant Truesight outside Light")
+	expect.call(not bool(combat.call("_player_has_vision", open_sky_state)), "Open Sky should not grant Vision outside Light")
 	var player_pos: Vector2i = (open_sky_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	open_sky_state = combat.apply_player_action(open_sky_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, player_pos)
-	expect.call(bool(combat.call("_player_has_truesight", open_sky_state)), "Open Sky should grant Truesight while the player stands in Light")
+	expect.call(bool(combat.call("_player_has_vision", open_sky_state)), "Open Sky should grant Vision while the player stands in Light")
 
 static func _state(combat: CombatEngine, skills: Array, cards: Array) -> Dictionary:
 	return combat.create_combat(501, _room(), {

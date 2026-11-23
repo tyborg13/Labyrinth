@@ -1,0 +1,42 @@
+{
+  "min_images": 2,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "01_1920x1080_worldheart_crowncoal_heart_iron_lung.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "02_1920x1080_hollow_puppet_overflow_censer_waxen_effigy.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            840,
+            604,
+            240,
+            80
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+Running task-local command:
+  task: txt-25
+  run: txt-25-1795436424501143000-39521
+  HOME: /private/tmp/labyrinth-godot-home/txt-25-1795436424501143000-39521
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/txt-25-1795436424501143000-39521/godot.log --headless --path . --script tools/txt25/dump_cards.gd -- tools/txt25/inventory.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TXT25 INVENTORY: 305 live cards, 4 retired IDs, 952 catalog panels, 40 hand differences, 22 item variants
+TXT25 LEGACY: 8 resumable starter variants

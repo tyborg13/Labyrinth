@@ -27,9 +27,9 @@ func _run() -> void:
 		starts.append({"cue": cue, "result": result, "time": bank.now_ms()})
 	)
 	bank.play("hit.blade.light")
-	bank.play("status.freeze")
+	bank.play("status.shock")
 	_expect(starts.size() == 2 and starts.all(func(row: Dictionary) -> bool: return row["result"] == "played" and row["time"] == FIXTURE_CLOCK_MS), "A hit and its status layer both start on their triggering frame")
-	for cue: String in ["hit.blade.light", "status.freeze"]:
+	for cue: String in ["hit.blade.light", "status.shock"]:
 		_expect((bank.cues[cue]["voices"] as Array).any(func(player: AudioStreamPlayer) -> bool: return player.playing), cue + " starts a real in-tree AudioStreamPlayer")
 	starts.clear()
 	var router := Router.new(bank)
@@ -83,8 +83,8 @@ func _run() -> void:
 	var previous: int = bank.cues["move.blink"]["last_ms"]
 	bank.play("move.blink", {"peak_climax_ms": 500.0})
 	_expect(starts.is_empty() and bank.cues["move.blink"]["last_ms"] == previous, "Future peak does not consume cooldown")
-	bank.play("status.freeze")
-	_expect(starts.size() == 1 and starts[0]["cue"] == "status.freeze", "Unrelated cue starts while an aligned call waits")
+	bank.play("status.shock")
+	_expect(starts.size() == 1 and starts[0]["cue"] == "status.shock", "Unrelated cue starts while an aligned call waits")
 	_expect(not bank._peak_pending.is_empty(), "Future alignment creates a pending call")
 	if not bank._peak_pending.is_empty():
 		var remaining: float = bank._peak_pending[0]["selected"]["remaining_ms"]

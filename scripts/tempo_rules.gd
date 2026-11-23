@@ -191,7 +191,7 @@ static func is_forced_movement_only(action: Dictionary) -> bool:
 
 static func eligible_buffs(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	if action.has("_enemy_id") or bool(action.get("_movement_pool", false)):
+	if action.has("_enemy_id") or bool(action.get("_movement_pool", false)) or bool(action.get("status_only", false)):
 		return result
 	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES or is_forced_movement_only(action):
 		return result
@@ -252,7 +252,7 @@ static func apply_next_attack_in_place(state: Dictionary, resolved: Dictionary) 
 		resolved["pierce"] = true
 	resolved[APPLIED_KEY] = bonus
 
-## Bleed is paid before a valid hit. The health-loss relic may change the
+## The health-loss relic may change the
 ## pending pool after target validation but before its first consumption.
 static func refresh_next_attack_in_place(state: Dictionary, resolved: Dictionary) -> void:
 	var previous: Dictionary = resolved.get(APPLIED_KEY, {}) as Dictionary
@@ -264,6 +264,8 @@ static func refresh_next_attack_in_place(state: Dictionary, resolved: Dictionary
 
 ## Called once when a buffed attack actually resolves.
 static func consume_next_attack(state: Dictionary, action: Dictionary) -> void:
+	if bool(action.get("status_only", false)):
+		return
 	var bonus: Dictionary = action.get(APPLIED_KEY, {}) as Dictionary if typeof(action.get(APPLIED_KEY, null)) == TYPE_DICTIONARY else {}
 	if bonus.is_empty():
 		return

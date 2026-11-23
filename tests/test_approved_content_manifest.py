@@ -32,8 +32,12 @@ def check_animated_sheets(test, manifest):
 def check_pins(test, manifest, root=ROOT):
     expected = manifest["files"]
     scopes = manifest["approval_source"]["inventory_scopes"]
-    actual = {path.relative_to(root).as_posix() for base, suffixes in scopes.items()
-              for path in (root / base).rglob("*") if path.is_file() and path.suffix in suffixes}
+    actual = set()
+    for base, suffixes in scopes.items():
+        scope = root / base
+        paths = (scope,) if scope.is_file() else scope.rglob("*")
+        actual.update(path.relative_to(root).as_posix() for path in paths
+                      if path.is_file() and path.suffix in suffixes)
     test.assertEqual(actual, set(expected), "Approved asset inventory mismatch (owner approval required)")
     for name, digest in expected.items():
         data = (root / name).read_bytes()

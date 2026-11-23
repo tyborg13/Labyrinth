@@ -172,7 +172,7 @@ static func _test_card_faces_and_forecasts(engine: Combat, expect: Callable) -> 
 	scene.set("_combat_state", s)
 	var keg: Dictionary = engine.card_def("powder_keg", s)
 	var cost: Dictionary = ActionIcons.cost_rows_for_card(keg)[0][0]
-	expect.call(cost["icon"] == "exhaust" and str(cost.get("tooltip", "")).contains("Once per combat"), "Ledger face reuses Exhaust with once-per-combat tooltip")
+	expect.call(cost["icon"] == "exhaust" and cost.get("tooltip") == "This item can be used once per combat and returns next combat.", "Ledger face reuses Exhaust with once-per-combat tooltip")
 	expect.call(not ActionIcons.card_rules_text(keg).contains("Consume"), "Ledger derived rules label agrees with Exhaust")
 	var healing_cost: Dictionary = ActionIcons.cost_rows_for_card(engine.card_def("crimson_draught", s))[0][0]
 	expect.call(healing_cost["icon"] == "consume", "Healing face keeps Consume")
@@ -181,9 +181,9 @@ static func _test_card_faces_and_forecasts(engine: Combat, expect: Callable) -> 
 	var blast_value: String = ""
 	for row: Array in display.get("summary_rows", []):
 		for token: Dictionary in row:
-			if str(token.get("icon", "")) == "detonate":
+			if str(token.get("icon", "")) == "burst":
 				blast_value = str(token.get("value", ""))
-	expect.call(blast_value == "9", "Retort keg card face prints its nine-damage blast")
+	expect.call(blast_value == "9", "Retort keg card face prints its nine-damage Burst")
 	var actions: Array = engine.card_play_actions("throwing_net", s)
 	var action: Dictionary = actions[0]
 	var forecast: Dictionary = scene.call("_preview_damage_for_action", s, action, TARGET)
@@ -222,6 +222,7 @@ static func _test_card_faces_and_forecasts(engine: Combat, expect: Callable) -> 
 static func _test_free_card_sequences(engine: Combat, expect: Callable) -> void:
 	var tempo := preload("res://scripts/tempo_rules.gd")
 	var s: Dictionary = state(engine, ["quick_draw_bandolier"], ["throwing_net", "whetstone", "quick_stab", "quick_stab"])
+	s[Data.LEGACY_STARTER_CARDS_KEY] = true
 	s = play(engine, s, "throwing_net", TARGET)
 	s = resume(play(engine, s, "whetstone"))
 	var action: Dictionary = engine.card_play_actions("quick_stab", s)[0]
@@ -231,9 +232,11 @@ static func _test_free_card_sequences(engine: Combat, expect: Callable) -> void:
 	expect.call(forecast["enemies"] == committed["enemies"] and committed["enemies"][0]["hp"] == 27, "Whetstone after a free item previews and commits thirteen damage")
 	expect.call(engine.final_damage_for_player_action(committed, engine.card_play_actions("quick_stab", committed)[0]) == 9, "The following Quick Stab keeps Follow-up and spends Whetstone once")
 	var rite: Dictionary = state(engine, ["liturgy_of_ash"], ["rite_of_the_mountain", "quick_stab"])
+	rite[Data.LEGACY_STARTER_CARDS_KEY] = true
 	rite = play(engine, rite, "rite_of_the_mountain")
 	expect.call(rite["cards_played_this_turn"] == 0 and bool(engine.card_play_actions("quick_stab", rite)[0].get("_follow_up_active", false)), "Liturgy's free Rite activates Follow-up on the next attack")
 	var echo: Dictionary = state(engine, ["quick_draw_bandolier", "echoing_blade"], ["throwing_net", "quick_stab", "thunderstone", "quick_stab"])
+	echo[Data.LEGACY_STARTER_CARDS_KEY] = true
 	echo = play(engine, echo, "throwing_net", TARGET)
 	echo = play(engine, echo, "quick_stab", TARGET)
 	echo = resume(echo)
@@ -243,11 +246,13 @@ static func _test_free_card_sequences(engine: Combat, expect: Callable) -> void:
 	committed = play(engine, echo, "thunderstone", TARGET)
 	expect.call(forecast["enemies"] == committed["enemies"] and tempo.next_attack_buffs(committed).is_empty(), "Echoing Blade's free-item preview equals commit and expires at card finish")
 	var idle: Dictionary = state(engine, ["quick_draw_bandolier", "echoing_blade"], ["throwing_net", "quick_stab", "bone_ward_charm", "quick_stab"])
+	idle[Data.LEGACY_STARTER_CARDS_KEY] = true
 	idle = play(engine, idle, "throwing_net", TARGET)
 	idle = play(engine, idle, "quick_stab", TARGET)
 	idle = play(engine, idle, "bone_ward_charm")
 	expect.call(tempo.next_attack_buffs(idle).is_empty() and engine.final_damage_for_player_action(idle, engine.card_play_actions("quick_stab", idle)[0]) == 9, "Echoing Blade expires on the next free card even when it has no attack")
 	var moved: Dictionary = state(engine, ["quick_draw_bandolier", "duelist_whetstone"], ["throwing_net", "sidestep_slash", "quick_stab"])
+	moved[Data.LEGACY_STARTER_CARDS_KEY] = true
 	moved = play(engine, moved, "throwing_net", TARGET)
 	moved = engine.prepare_player_card(moved, 0)
 	var actions: Array = engine.card_play_actions("sidestep_slash", moved)

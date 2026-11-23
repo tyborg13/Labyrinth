@@ -49,7 +49,7 @@
     },
     "heirloom": {
       "name": "Heirloom",
-      "text": "Start with your <Item>, left here last run."
+      "text": "Start with the <Item> you left here."
     },
     "purge": {
       "name": "Purge",
@@ -58,7 +58,7 @@
     },
     "focus": {
       "name": "Focus",
-      "text": "Swap your 6 starter spells for 4 common <Element> spells.",
+      "text": "Swap your <Starter count> starter spells for 4 common <Element> spells.",
       "rarity": "common",
       "count": 4
     },

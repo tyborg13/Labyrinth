@@ -8,10 +8,11 @@ const Burst = preload("res://scripts/enemy_mechanics/death_burst_view.gd")
 const CHAIN_START := Vector2i(3, 3)
 const WITNESS_TILE := Vector2i(5, 4)
 const CHAIN_HP: int = 4
-const BLEED_DAMAGE: int = 6
+const TRIGGER_DAMAGE: int = 6
 const RETALIATE_DAMAGE: int = 6
 const HIDDEN_SOURCE := Vector2i(3, 3)
-const VISIBLE_TARGET := Vector2i(4, 4)
+const VISIBLE_TARGET := Vector2i(3, 4)
+const HIDDEN_PROOF_HERO := Vector2i(3, 5)
 
 class PlaybackScene extends "res://scripts/run_scene.gd":
 	var recording: bool = false
@@ -42,7 +43,7 @@ static func run(check: Callable) -> bool:
 	_traced_journal_ownership(check)
 	for reduced: bool in [false, true]:
 		Live.set_reduced_motion(scene, reduced)
-		for trigger: String in ["bleed", "hidden_bleed", "retaliate"]:
+		for trigger: String in ["fire", "hidden_fire", "retaliate"]:
 			await _enemy_phase(scene, trigger, reduced, check)
 		await _player_phase(scene, reduced, check)
 		await _hidden_cascade(scene, reduced, check)
@@ -61,13 +62,13 @@ static func _chain() -> Dictionary:
 static func _traced_journal_ownership(check: Callable) -> void:
 	var before: Dictionary = _chain()
 	var engine := Combat.new()
-	var after: Dictionary = engine._damage_enemy(before.duplicate(true), 0, BLEED_DAMAGE)
+	var after: Dictionary = engine._damage_enemy(before.duplicate(true), 0, TRIGGER_DAMAGE)
 	var header: Dictionary = engine._enemy_status_damage_step({"actor_key": "enemy_1"}, before, after)
-	check.call(header.has("death_burst_events_after"), "Legacy status retains its newly resolved Burst journal")
+	check.call(header.has("death_burst_events_after"), "Ground damage retains the newly resolved Burst journal")
 	var entries: Array[Dictionary]
 	entries.append({"source": {"action_type": "charge"}, "after": preload("res://scripts/reaction_presentation_trace.gd").snapshot(before), "losses": {"enemy_losses": [], "target_losses": [], "terrain_losses": []}, "sequence": 0})
 	var steps: Array[Dictionary] = preload("res://scripts/enemy_mechanics/reaction_loss_ownership.gd").charge_steps(engine, before, after, entries, header)
-	check.call(steps.size() == 1 and bool(steps[0]["traced_charge"]) and not steps[0].has("death_burst_events_after"), "Explicit traced cascades keep sole ownership; Bleed header cannot replay their journal")
+	check.call(steps.size() == 1 and bool(steps[0]["traced_charge"]) and not steps[0].has("death_burst_events_after"), "Explicit traced cascades keep sole ownership; the status header cannot replay the Burst journal")
 
 static func _install(scene: PlaybackScene, state: Dictionary) -> void:
 	Live.install(scene, state.duplicate(true))
@@ -76,9 +77,13 @@ static func _install(scene: PlaybackScene, state: Dictionary) -> void:
 
 static func _enemy_phase(scene: PlaybackScene, trigger: String, reduced: bool, check: Callable) -> void:
 	var state: Dictionary = _chain()
-	if trigger in ["bleed", "hidden_bleed"]: state["enemies"][0]["bleed"] = BLEED_DAMAGE
-	else: state["retaliate"] = {"amount": RETALIATE_DAMAGE}
-	if trigger == "hidden_bleed": state["umbra"] = {"stage": "eclipse"}
+	if trigger in ["fire", "hidden_fire"]:
+		state["enemies"][0]["hp"] = 1
+		preload("res://scripts/board_surface_rules.gd").place(state, CHAIN_START, "fire")
+	else:
+		state["player"]["pos"] = CHAIN_START + Vector2i.DOWN
+		state["retaliate"] = {"amount": RETALIATE_DAMAGE}
+	if trigger == "hidden_fire": state["umbra"] = {"stage": "eclipse"}
 	var original: Dictionary = state.duplicate(true)
 	var phase: Dictionary = Combat.new().resolve_enemy_turn_with_steps(state, 0)
 	var events: Array = phase["state"].get("death_burst_events", [])
@@ -111,7 +116,7 @@ static func _enemy_phase(scene: PlaybackScene, trigger: String, reduced: bool, c
 
 static func _player_phase(scene: PlaybackScene, reduced: bool, check: Callable) -> void:
 	var before: Dictionary = _chain()
-	var after: Dictionary = Combat.new().apply_player_action(before, {"type": "ranged", "damage": BLEED_DAMAGE, "range": 5}, CHAIN_START)
+	var after: Dictionary = Combat.new().apply_player_action(before, {"type": "ranged", "damage": TRIGGER_DAMAGE, "range": 5}, CHAIN_START)
 	_install(scene, before)
 	var pacing: Node = scene.get("_combat_pacing")
 	pacing.begin_card()
@@ -125,11 +130,12 @@ static func _player_phase(scene: PlaybackScene, reduced: bool, check: Callable) 
 
 static func _hidden_cascade(scene: PlaybackScene, reduced: bool, check: Callable) -> void:
 	var before: Dictionary = _chain()
-	# Eclipse sight is one tile: the diagonal source is concealed.
+	# The witness is next to the Burst and visible to the hero in Eclipse.
 	before["umbra"] = {"stage": "eclipse"}
-	before["player"]["pos"] = VISIBLE_TARGET
+	before["player"]["pos"] = HIDDEN_PROOF_HERO
+	before["enemies"][3]["pos"] = VISIBLE_TARGET
 	var engine := Combat.new()
-	var after: Dictionary = engine._damage_enemy(before.duplicate(true), 0, BLEED_DAMAGE)
+	var after: Dictionary = engine._damage_enemy(before.duplicate(true), 0, TRIGGER_DAMAGE)
 	var event: Dictionary = after["death_burst_events"][0]
 	check.call(not engine.is_tile_visible_to_player(after, HIDDEN_SOURCE) and engine.is_tile_visible_to_player(after, VISIBLE_TARGET), "Hidden fixture conceals source and exposes victim")
 	var step: Dictionary = {"kind": "status_damage", "action_type": "death_burst", "actor_key": "enemy_1", "hidden_by_umbra": true, "tile": Vector2i(-1, -1), "cascade": event, "reaction_after": preload("res://scripts/reaction_presentation_trace.gd").snapshot(after), "target_losses": [], "enemy_losses": [], "impact_actor_keys": ["player"]}

@@ -28,6 +28,9 @@ const EARLIER_RUN_ID: String = "run_fixture_earlier"
 const DISK_RUN_ID: String = "run_fixture_disk"
 const VICTORY_RUN_ID: String = "run_fixture_victory"
 const DRAGON_RETRY_RUN_ID: String = "run_fixture_dragon_retry"
+const REWARD_VIEWPORT := Vector2i(1920, 1080)
+const REWARD_REFERENCE_FIT := Vector2(1920.0, 738.0)
+const REWARD_LAYOUT_FRAMES: int = 4
 
 class DepartureHost extends TerminalCrash.Host:
 	func _ready() -> void: pass
@@ -119,6 +122,7 @@ func _initialize() -> void:
 	await _test_confirmed_heirloom_departure(base_run)
 	await _test_cancelled_room_travel()
 	await _test_cancelled_loading_preparation()
+	if not base_run.is_empty(): await _test_reward_continue_board_fit(base_run)
 	_run_scene.free()
 	ProgressionStore.clear_saved_run()
 	print("SAVE NAMESPACE: %s" % user_namespace)
@@ -679,6 +683,29 @@ func _test_room_and_reward_boundaries(base_run: Dictionary) -> void:
 	if not moves.is_empty():
 		var moved: Dictionary = _run_engine.move_to_pre_battle(new_run, moves[0])
 		_assert_run_resume("room/move_commit", moved)
+
+func _test_reward_continue_board_fit(base_run: Dictionary) -> void:
+	var combat: Dictionary = base_run["combat_state"].duplicate(true)
+	for enemy: Dictionary in combat["enemies"]:
+		enemy["hp"] = 0
+	var reward: Dictionary = _run_engine.finish_combat(base_run, combat)
+	ProgressionStore.save_run_state(reward)
+	SettingsStore.save_settings(SettingsStore.default_settings().merged({"ui_scale": 1.0}, true))
+	var viewport := SubViewport.new()
+	viewport.size = REWARD_VIEWPORT
+	root.add_child(viewport)
+	var scene := (load("res://scenes/run_scene.tscn") as PackedScene).instantiate() as Control
+	root.set_meta("labyrinth_resume_saved_run", true)
+	viewport.add_child(scene)
+	for frame: int in range(REWARD_LAYOUT_FRAMES):
+		await process_frame
+	var board: Control = scene.get("board_view")
+	var fit: Rect2 = board.get("presentation").get("board_fit_rect", Rect2())
+	var restored: Dictionary = scene.get("_run_state")
+	_assert(restored.get("mode") == "reward" and fit.size.is_equal_approx(REWARD_REFERENCE_FIT),
+		"Continue should restore the live post-combat reward fit, got %s" % fit.size)
+	viewport.queue_free()
+	await process_frame
 
 func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	var defeat_combat: Dictionary = (base_run.get("combat_state", {}) as Dictionary).duplicate(true)

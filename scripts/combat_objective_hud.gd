@@ -68,9 +68,10 @@ func set_combat_state(state: Dictionary) -> bool:
 		return changed
 	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
-	var title_text: String = CombatObjectiveRules.hud_title_for_objective(objective).to_upper()
+	var title: String = CombatObjectiveRules.hud_title_for_objective(objective)
+	var title_text: String = title.to_upper()
 	var detail_text: String = _live_detail(state, objective)
-	var next_tooltip: String = CombatObjectiveRules.title_for_objective(objective)
+	var next_tooltip: String = title
 	var description: String = CombatObjectiveRules.description_for_objective(objective).strip_edges()
 	if not description.is_empty():
 		next_tooltip += "\n" + description
@@ -83,7 +84,7 @@ func set_combat_state(state: Dictionary) -> bool:
 	_title.text = title_text
 	_detail.text = detail_text
 	_detail.visible = not detail_text.is_empty()
-	_intro_title.text = CombatObjectiveRules.title_for_objective(objective).to_upper()
+	_intro_title.text = title_text
 	tooltip_text = next_tooltip
 	return true
 
@@ -452,7 +453,7 @@ func opening_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
 	var jobs: Array[Dictionary]
 	var objective: Dictionary = state.get("objective", {})
 	if objective.is_empty() or _intro_title == null: return jobs
-	var title: String = CombatObjectiveRules.title_for_objective(objective).to_upper()
+	var title: String = CombatObjectiveRules.hud_title_for_objective(objective).to_upper()
 	var oversampling: float = get_viewport().get_oversampling()
 	var title_font: Font = _intro_title.get_theme_font("font")
 	var title_sizes: Dictionary = {}
@@ -468,7 +469,7 @@ func opening_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
 	for requested: int in range(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE + 1):
 		jobs.append(Glyphs.text_request(_intro_kicker.text, _intro_kicker.get_theme_font("font"), requested, _intro_kicker.get_theme_constant("outline_size"), _intro_kicker.get_theme_constant("shadow_outline_size"), oversampling, _intro_kicker.language))
 	var kicker: Label = _title.get_parent().get_child(0) as Label
-	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": CombatObjectiveRules.hud_title_for_objective(objective).to_upper()}, {"label": _detail, "text": _live_detail(state, objective)}]:
+	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": title}, {"label": _detail, "text": _live_detail(state, objective)}]:
 		var label: Label = entry["label"]
 		jobs.append(Glyphs.text_request(str(entry["text"]) + (" …" if label.clip_text else ""), label.get_theme_font("font"), label.get_theme_font_size("font_size"), label.get_theme_constant("outline_size"), label.get_theme_constant("shadow_outline_size"), oversampling, label.language))
 	return jobs
@@ -520,20 +521,23 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 		CombatObjectiveRules.KILL_LEADER:
 			var leader_id: int = int(objective.get("leader_id", -1))
 			if filters_hidden_enemies and not visible_enemy_ids.has(leader_id):
-				return "Leader concealed"
+				return "Leader hidden"
 			for enemy_var: Variant in state.get("enemies", []):
 				if typeof(enemy_var) != TYPE_DICTIONARY:
 					continue
 				var enemy: Dictionary = enemy_var
 				if int(enemy.get("id", -2)) != leader_id:
 					continue
-				var enemy_name: String = "Before it escapes" if str(objective.get("special_type", "")) == "ember_hoarder" else preload("res://scripts/enemy_identity.gd").display_name(enemy)
 				var hp: int = maxi(0, int(enemy.get("hp", 0)))
-				# The named boss bar and objective title already identify this foe.
-				# Keep live health facts; ordinary leaders still need their name here.
-				if bool(GameData.enemy_property(str(enemy.get("type", "")), "boss_bar", false)):
-					return "%d/%d Health" % [hp, int(enemy.get("max_hp", hp))]
-				return "%s · %d/%d Health" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
+				var health: String = "%d/%d Health" % [hp, int(enemy.get("max_hp", hp))]
+				var special: String = str(objective.get("special_type", ""))
+				if special == "ember_hoarder":
+					return "Before it escapes · " + health
+				var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+				if special == "warband" or bool(definition.get("guardian", false)) or bool(definition.get("boss_bar", false)):
+					return health
+				# The generic Defeat the Leader title leaves identification to the subtitle.
+				return "%s · %s" % [preload("res://scripts/enemy_identity.gd").display_name(enemy, definition), health]
 			return "The leader has fallen"
 		CombatObjectiveRules.SURVIVE:
 			var current_clock: int = int(state.get("initiative_clock", 0))

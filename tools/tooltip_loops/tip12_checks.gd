@@ -9,7 +9,7 @@ const CardScene = Routes.CardScene
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const Grimoire = preload("res://scripts/grimoire_library.gd")
 const TooltipButton = preload("res://scripts/ui_tooltip_button.gd")
-const KEYWORD_CARDS: Dictionary = {"empower": "bloody_lunge", "follow_up": "quick_stab"}
+const KEYWORD_CARDS: Dictionary = {"empower": "blood_price", "follow_up": "main_gauche"}
 const RETIRED_TERMS: Array = ["immobilize", "block", "empower", "follow_up"]
 
 var _errors: Array[String]

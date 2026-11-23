@@ -28,7 +28,7 @@ static func run(expect: Callable) -> void:
 	_test_player_outcrops(expect)
 	_test_outcrops_preserve_routes(expect)
 	_test_authored_sideways_force(expect)
-	_test_self_centered_radiance_actions(expect)
+	_test_self_centered_light_actions(expect)
 	_test_zero_damage_area_row(expect)
 	_test_wave2_follow_up_and_empower_cards(expect)
 	_test_wave2_stagger_cards(expect)
@@ -134,7 +134,7 @@ static func _test_zero_damage_area_row(expect: Callable) -> void:
 	for token: Dictionary in tokens:
 		icons.append(str(token.get("icon", "")))
 	# txt-02 keeps the delivery icon on status-only areas, without a damage value.
-	expect.call(icons == ["ranged", "range", "aoe_pattern", "bleed", "surface_rubble"], "Zero-damage areas show Ranged delivery, placement, red tiles and statuses: %s" % str(icons))
+	expect.call(icons == ["ranged", "range", "aoe_pattern", "expose", "surface_rubble"], "Zero-damage areas show Ranged delivery, placement, red tiles and statuses: %s" % str(icons))
 	for token: Dictionary in tokens:
 		if str(token.get("icon", "")) == "ranged":
 			expect.call(not token.has("value"), "A zero-damage area's Ranged delivery chip has no damage value: %s" % str(token))
@@ -223,7 +223,7 @@ static func _test_authored_sideways_force(expect: Callable) -> void:
 	expect.call(str(push_token.get("icon", "")) == "push" and ActionIcons.token_tooltip(push_token).contains("any open direction"), "Crosswind's push chip explains its free direction")
 
 
-static func _test_self_centered_radiance_actions(expect: Callable) -> void:
+static func _test_self_centered_light_actions(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _state(combat, "sun_flash", [Vector2i(3, 4)])
 	for card_id: String in ["sun_flash", "censer_swing", "blessed_salve"]:
@@ -235,15 +235,15 @@ static func _test_self_centered_radiance_actions(expect: Callable) -> void:
 		expect.call(_same_tiles(combat.valid_targets_for_player_action(state, light), [PLAYER]), "%s's range-0 Light has exactly the hero's tile as its target" % card_id)
 		var lit: Dictionary = combat.apply_player_action(state, light, PLAYER)
 		var sources: Array = (lit.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
-		expect.call(sources.size() == 1 and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == PLAYER and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "%s leaves two-turn Light where the hero stands" % card_id)
+		expect.call(sources.size() == 1 and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == PLAYER and int((sources[0] as Dictionary).get("remaining_activations", 0)) == -1, "%s leaves lasting Light where the hero stands" % card_id)
 		var light_icons: Array[String] = []
 		for token: Dictionary in ActionIcons.tokens_for_action(light):
 			light_icons.append(str(token.get("icon", "")))
-		expect.call(light_icons == ["illuminate", "time"], "%s shows Light radius and duration without a range-0 chip: %s" % [card_id, str(light_icons)])
+		expect.call(light_icons == ["illuminate"], "%s shows only the Light radius chip: %s" % [card_id, str(light_icons)])
 	for card_id: String in ["vigil", "incense_haze", "seekers_mark", "seers_candle"]:
 		for action: Dictionary in combat.card_play_actions(card_id, state):
-			if str(action.get("type", "")) in ["vision", "truesight"]:
-				expect.call(not combat.player_action_needs_target(action), "%s grants its Umbra sight without a target" % card_id)
+			if str(action.get("type", "")) == "vision":
+				expect.call(not combat.player_action_needs_target(action), "%s grants Vision without a target" % card_id)
 
 
 # ---------------------------------------------------------------- waves 2 and 3
@@ -346,6 +346,7 @@ static func _row_values(card_id: String) -> Array[String]:
 static func _test_wave2_follow_up_and_empower_cards(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _queued_state(combat, ["quick_stab"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
+	state[GameData.LEGACY_STARTER_CARDS_KEY] = true
 	var first: Dictionary = (_card_actions(combat, state)["actions"] as Array)[0]
 	expect.call(int(first.get("damage", 0)) == 6 and not bool(first.get("_follow_up_active", false)), "Quick Stab opens a turn for its printed 6")
 	var second_state: Dictionary = state.duplicate(true)
@@ -384,14 +385,15 @@ static func _test_wave2_stagger_cards(expect: Callable) -> void:
 	var after: Dictionary = _play_first(combat, state, [Vector2i(3, 4)])
 	expect.call(_hp(after, 1) == 46 and _hp(after, 2) == 46 and _hp(after, 3) == 60, "Tombsplitter hits the first two tiles in its line for 14")
 	expect.call(_queue_time(after, 1) == _queue_time(state, 1) + 3 and _queue_time(after, 2) == _queue_time(state, 2) + 3 and _queue_time(after, 3) == _queue_time(state, 3), "Tombsplitter staggers each enemy it hits by 3")
-	var maul_state: Dictionary = _queued_state(combat, ["tectonic_maul"], [{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 60, "max_hp": 60}])
-	var maul_after: Dictionary = _play_first(combat, maul_state, [Vector2i(3, 4), Vector2i(4, 4)])
-	expect.call(_hp(maul_after, 1) == 49 and _queue_time(maul_after, 1) == _queue_time(maul_state, 1) + 3, "Tectonic Maul moves, strikes for 11 and staggers 3")
-	expect.call(Surface.has_rubble(maul_after, Vector2i(4, 4)) and Surface.has_rubble(maul_after, Vector2i(5, 4)), "Tectonic Maul leaves its Rubble cross at the impact")
+	var maul_target: Vector2i = PLAYER + Vector2i.RIGHT
+	var maul_state: Dictionary = _queued_state(combat, ["tectonic_maul"], [{"id": 1, "type": "crawler", "pos": maul_target, "hp": 60, "max_hp": 60}])
+	var maul_after: Dictionary = _play_first(combat, maul_state, [maul_target])
+	expect.call(_hp(maul_after, 1) == 47 and _queue_time(maul_after, 1) == _queue_time(maul_state, 1) + 3, "Tectonic Maul strikes for 13 and staggers 3")
+	expect.call(Surface.has_rubble(maul_after, maul_target) and Surface.has_rubble(maul_after, maul_target + Vector2i.RIGHT), "Tectonic Maul leaves its Rubble cross at the impact")
 	var rubble_state: Dictionary = maul_state.duplicate(true)
-	Surface.place(rubble_state, Vector2i(4, 4), "rubble")
-	var rubble_after: Dictionary = _play_first(combat, rubble_state, [Vector2i(3, 4), Vector2i(4, 4)])
-	expect.call(_hp(rubble_after, 1) == 45, "Tectonic Maul deals 15 to a target already on Rubble")
+	Surface.place(rubble_state, maul_target, "rubble")
+	var rubble_after: Dictionary = _play_first(combat, rubble_state, [maul_target])
+	expect.call(_hp(rubble_after, 1) == 43, "Tectonic Maul deals 17 to a target already on Rubble")
 	var net_state: Dictionary = _queued_state(combat, ["throwing_net"], [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 60, "max_hp": 60}])
 	var netted: Dictionary = _play_first(combat, net_state, [Vector2i(5, 4)])
 	expect.call(_hp(netted, 1) == 60 and bool(((netted.get("enemies", []) as Array)[0] as Dictionary).get("immobilize", false)) and _queue_time(netted, 1) == _queue_time(net_state, 1) + 3, "Throwing Net's zero-damage throw still Immobilizes and staggers 3")
@@ -433,7 +435,7 @@ static func _test_wave2_light_state_bonuses(expect: Callable) -> void:
 	var cases: Array = [
 		["hallowed_strike", Vector2i(3, 4), 6, 10, 0, 0],
 		["sunlance", Vector2i(6, 4), 4, 7, 0, 0],
-		["dazzle", Vector2i(5, 4), 2, 2, 0, 3],
+		["dazzle", Vector2i(5, 4), 3, 3, 0, 3],
 		["blinding_bash", Vector2i(3, 4), 4, 4, 0, 3],
 	]
 	for case_var: Variant in cases:
@@ -489,7 +491,7 @@ static func _test_wave3_reactive_and_tempo_cards(expect: Callable) -> void:
 		expect.call(_hp(struck, 1) == 40 - int(case[2]), "%s's Retaliate answers an enemy melee hit" % str(case[0]))
 	var mail: Dictionary = _play_first(combat, _queued_state(combat, ["barbed_mail"], enemies), [])
 	var mailed: Dictionary = combat._resolve_enemy_action(mail.duplicate(true), 0, {"type": "melee", "damage": 3, "range": 1})
-	expect.call(_hp(mailed, 1) == 37 and int(((mailed.get("enemies", []) as Array)[0] as Dictionary).get("bleed", 0)) == 1, "Barbed Mail retaliates 3 with Bleed 1")
+	expect.call(_hp(mailed, 1) == 36, "Barbed Mail retaliates 4")
 	var mantle: Dictionary = _play_first(combat, _queued_state(combat, ["static_mantle"], enemies), [])
 	var shocked: Dictionary = combat._resolve_enemy_action(mantle.duplicate(true), 0, {"type": "melee", "damage": 3, "range": 1})
 	expect.call(int(((shocked.get("enemies", []) as Array)[0] as Dictionary).get("shock", 0)) > 0 and _hp(shocked, 1) == 40, "Static Mantle Shocks a melee attacker without damage")
@@ -508,7 +510,7 @@ static func _test_wave3_reactive_and_tempo_cards(expect: Callable) -> void:
 	var stone: Dictionary = _play_first(combat, _queued_state(combat, ["whetstone", "quick_stab"], enemies), [])
 	var stab: Dictionary = (_card_actions(combat, stone)["actions"] as Array)[0]
 	var buffed: Dictionary = combat._resolved_surface_action(stone, stab)
-	expect.call(combat.final_damage_for_player_action(stone, stab) == 13 and bool(buffed.get("pierce", false)), "Whetstone's next attack deals 4 more and Pierces (Quick Stab with Follow-up: 9 + 4)")
+	expect.call(combat.final_damage_for_player_action(stone, stab) == 10 and bool(buffed.get("pierce", false)), "Whetstone's next attack deals 4 more and Pierces (Quick Stab: 6 + 4)")
 	var oath: Dictionary = _play_first(combat, _queued_state(combat, ["sworn_oath", "hurl_spear"], [{"id": 1, "type": "crawler", "pos": Vector2i(6, 4), "hp": 40, "max_hp": 40}]), [])
 	var after_oath: Dictionary = _play_first(combat, oath, [Vector2i(6, 4)])
 	expect.call(_hp(after_oath, 1) == 31 and TempoRules.next_attack_buffs(after_oath).is_empty(), "Sworn Oath's +3 lands on the next attack and is consumed")
@@ -516,13 +518,13 @@ static func _test_wave3_reactive_and_tempo_cards(expect: Callable) -> void:
 	expect.call((gate.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 5) and TempoRules.next_attack_buffs(gate).size() == 1, "Shadow Gate blinks 4 and readies a next-attack bonus")
 	var dash: Dictionary = _play_first(combat, _queued_state(combat, ["headlong", "quick_stab"], [{"id": 1, "type": "crawler", "pos": Vector2i(7, 4), "hp": 40, "max_hp": 40}]), [Vector2i(6, 4)])
 	var dash_stab: Dictionary = (_card_actions(combat, dash)["actions"] as Array)[0]
-	expect.call(combat.final_damage_for_player_action(dash, dash_stab) == 9 + 4, "Headlong's 4-tile run adds +4 to the next attack")
+	expect.call(combat.final_damage_for_player_action(dash, dash_stab) == 6 + 4, "Headlong's 4-tile run adds +4 to the next attack")
 
 
 static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var card: Dictionary = GameData.card_def("thorn_crown_pact")
-	expect.call(ActionIcons.card_is_rite(card) and ActionIcons.card_rules_text(card).contains("Health cost %d" % int(card.get("health_cost", 0))), "Thorn Crown Pact renders Rite text with its health cost")
+	expect.call(ActionIcons.card_is_rite(card) and ActionIcons.card_rules_text(card).contains("%d Health" % int(card.get("health_cost", 0))), "Thorn Crown Pact renders Rite text with its health cost")
 	var state: Dictionary = _queued_state(combat, ["thorn_crown_pact"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
 	var started: Array = _card_actions(combat, state)["actions"]
 	expect.call(started.size() == 1 and str((started[0] as Dictionary).get("type", "")) == "rite" and not combat.player_action_needs_target(started[0] as Dictionary), "A Rite plays as one targetless step")
@@ -530,7 +532,7 @@ static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 	expect.call(int((after.get("player", {}) as Dictionary).get("hp", 0)) == 30 - int(card.get("health_cost", 0)) and int(after.get("player_turn_time_spent", 0)) == int(card.get("time", 0)), "Thorn Crown Pact pays its printed health cost and Time")
 	expect.call(((after.get("deck", {}) as Dictionary).get("burned", []) as Array).has("thorn_crown_pact") and RiteRules.active_rites(after).size() == 1, "The Rite exhausts and stays active for the combat")
 	var struck: Dictionary = combat._resolve_enemy_action(after.duplicate(true), 0, {"type": "melee", "damage": 3, "range": 1})
-	expect.call(_hp(struck, 1) == 37 and int(((struck.get("enemies", []) as Array)[0] as Dictionary).get("bleed", 0)) == 1, "Thorns answer every melee hit with 3 and Bleed 1")
+	expect.call(_hp(struck, 1) == 36, "Thorns answer every melee hit with 4")
 	for rite_id: String in ["rite_of_the_pyre", "salamander_heart", "rite_of_hoarfrost", "rite_of_the_storm", "tempest_form", "rite_of_tailwinds", "rite_of_the_mountain", "rite_of_noon"]:
 		var rite_state: Dictionary = _play_first(combat, _queued_state(combat, [rite_id], [{"id": 1, "type": "crawler", "pos": Vector2i(6, 4), "hp": 40, "max_hp": 40}]), [])
 		expect.call(RiteRules.active_rites(rite_state).size() == 1 and not RiteRules.effects(rite_state).is_empty(), "%s starts a Rite with live effects" % rite_id)
@@ -549,8 +551,8 @@ static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 
 static func _test_wave23_grimoire_unlocks(expect: Callable) -> void:
 	var expected: Dictionary = {
-		"quick_stab": ["keyword:follow_up"],
-		"bloody_lunge": ["keyword:empower", "keyword:health_cost"],
+		"main_gauche": ["keyword:follow_up"],
+		"blood_price": ["keyword:empower", "keyword:health_cost"],
 		"tombsplitter": ["keyword:stagger"],
 		"dazzle": ["keyword:stagger", "keyword:illuminate"],
 		"sunlance": ["keyword:illuminate"],
@@ -559,8 +561,8 @@ static func _test_wave23_grimoire_unlocks(expect: Callable) -> void:
 		"deflect": ["keyword:retaliate"],
 		"galvanize": ["keyword:quicken"],
 		"whetstone": ["keyword:next_attack", "keyword:pierce"],
-		"thorn_crown_pact": ["keyword:rite", "keyword:retaliate", "keyword:bleed", "keyword:health_cost"],
-		"rite_of_hoarfrost": ["keyword:rite", "keyword:freeze", "keyword:block", "keyword:draw"],
+		"thorn_crown_pact": ["keyword:rite", "keyword:retaliate", "keyword:health_cost"],
+		"rite_of_hoarfrost": ["keyword:rite", "keyword:stagger", "keyword:block", "keyword:draw"],
 		"salamander_heart": ["keyword:surface_fire", "keyword:stoneskin"],
 		"rite_of_tailwinds": ["keyword:move", "keyword:push", "keyword:pull"],
 		"rite_of_noon": ["keyword:illuminate"],
@@ -657,12 +659,21 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 		expect.call(not card.is_empty() and not bool(card.get("retired", false)), "%s is a live card" % card_id)
 		var display: Dictionary = scene.call("_card_widget_display", card_id, state)
 		var rows: Array = display.get("summary_rows", [])
+		if card_id == "thorn_crown_pact":
+			var face: Dictionary = preload("res://scripts/card_face_spec.gd").spec_for(card_id)
+			var terms: Array = (face["sentence"] as Array).filter(func(segment: Dictionary) -> bool: return segment.has("term"))
+			expect.call(terms.map(func(segment: Dictionary) -> String: return str(segment["term"])) == ["rite", "health_cost", "retaliate"], "Thorn Crown Pact shows Rite, Health cost and Retaliate in the hand sentence")
+			expect.call(int(terms[1]["number"]) == int(card["health_cost"]) and int(terms[2]["number"]) == 4, "Thorn Crown Pact prints the Health cost and Retaliate 4")
+			continue
 		if ActionIcons.card_is_rite(card):
 			var rite_row: Array = rows[0] as Array if not rows.is_empty() else []
 			var health_shown: bool = false
 			for token_var: Variant in rite_row:
 				health_shown = health_shown or str((token_var as Dictionary).get("icon", "")) == "health_cost"
-			expect.call(rows.size() == 2 and not rite_row.is_empty() and str((rite_row[0] as Dictionary).get("icon", "")) == "rite" and health_shown == (int(card.get("health_cost", 0)) > 0) and str(card.get("description", "")).begins_with("Rite:"), "%s shows its Rite keyword row in the hand" % card_id)
+			var description: String = str(card.get("description", ""))
+			var health_cost: int = int(card.get("health_cost", 0))
+			var named_rite: bool = description.begins_with("Rite.") or description.begins_with("Rite:") or description.begins_with("Rite (%d Health):" % health_cost)
+			expect.call(rows.size() == 2 and not rite_row.is_empty() and str((rite_row[0] as Dictionary).get("icon", "")) == "rite" and health_shown == (health_cost > 0) and named_rite, "%s shows the Rite keyword row in the hand" % card_id)
 			expect.call(rows.size() == 2 and str(((rows[1] as Array)[0] as Dictionary).get("kind", "")) == "rules_text" and str(((rows[1] as Array)[0] as Dictionary).get("value", "")) == ActionIcons.rite_face_rules_text(card), "%s shows its Rite rules text below the keyword row" % card_id)
 			continue
 		expect.call(not rows.is_empty(), "%s shows icon rows in the hand" % card_id)
@@ -676,6 +687,7 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 		expect.call(keyword_segments.has("follow_up") == card.has("follow_up") and keyword_segments.has("empower") == card.has("empower"), "%s shows exactly its Follow-up / Empower segments: %s" % [card_id, str(keyword_segments)])
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", state) as Dictionary).get("summary_rows", [])) == 6, "The hand shows Quick Stab's printed 6 before any card is played")
 	var warm: Dictionary = state.duplicate(true)
+	warm[GameData.LEGACY_STARTER_CARDS_KEY] = true
 	warm["turn_flags"]["cards_finished"] = 1
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", warm) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Quick Stab's Follow-up 9 after a card")
 	var armored: Dictionary = state.duplicate(true)
@@ -708,7 +720,7 @@ const WAVE4_ROLE_EMBLEMS: Dictionary = {
 	"empty_husk": "illusion", "shrug_off": "block", "catch_the_wind": "mobility", "windbreak": "block",
 	"cloudstep_loop": "mobility", "glide": "mobility", "rime_step": "mobility", "cinder_trail": "mobility",
 	"hotfoot": "block", "sunpath_stride": "mobility", "seek_the_light": "mobility", "unsealed_gale": "attack_melee",
-	"headsmans_toll": "attack_ranged", "powder_keg": "attack_ranged", "flash_powder": "attack_ranged", "bottled_gale": "attack_melee",
+	"headsmans_toll": "attack_ranged", "powder_keg": "attack_ranged", "flash_powder": "", "bottled_gale": "attack_melee",
 	"thunderstone": "attack_ranged", "smelling_salts": "mobility",
 }
 
@@ -736,19 +748,19 @@ static func _test_wave4_hand_rows_roles_and_grimoire(expect: Callable) -> void:
 	var expected: Dictionary = {
 		"stoke": ["combat:sweeping_strikes"],
 		"frost_circuit": ["combat:surface_techniques", "keyword:surface_electrified", "keyword:shock"],
-		"discharge": ["combat:surface_techniques", "keyword:surface_electrified"],
-		"pyroclasm": ["combat:surface_techniques"],
+		"discharge": ["keyword:burst", "keyword:surface_electrified"],
+		"pyroclasm": ["keyword:burst"],
 		"meteorfall": ["combat:cinder_marks"],
 		"vortex": ["combat:area_force"],
 		"changing_winds": ["combat:swap"],
 		"rooted_stance": ["combat:stances", "keyword:stoneskin"],
 		"threadbare_guard": ["combat:cleanse", "keyword:block"],
-		"petrify": ["combat:petrify"],
+		"petrify": ["keyword:stagger"],
 		"crystal_mantle": ["combat:crystal_armor"],
 		"empty_husk": ["keyword:illusion"],
 		"mirror_feint": ["keyword:illusion", "keyword:expose"],
-		"shattered_reflection": ["keyword:illusion", "keyword:illuminate"],
-		"rockburst": ["combat:outcrops"],
+		"shattered_reflection": ["keyword:burst", "keyword:illuminate"],
+		"rockburst": ["keyword:burst"],
 		"powder_keg": ["combat:outcrops"],
 		"sleet_squall": ["keyword:push"],
 		"shadow_gate": ["keyword:next_attack", "keyword:blink"],
@@ -772,8 +784,9 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	var foe: Array = [{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 40, "max_hp": 40}]
 	var mantled: Dictionary = _play_first(combat, _queued_state(combat, ["crystal_mantle"], foe), [])
 	expect.call(int((mantled.get("player", {}) as Dictionary).get("frost_armor", 0)) == 3, "Crystal Mantle grants 3 Mantle layers")
-	var petrified: Dictionary = _play_first(combat, _queued_state(combat, ["petrify"], foe), [Vector2i(4, 4)])
-	expect.call(_enemy_field(petrified, 1, "block") == 5 and _enemy_field(petrified, 1, "petrify") > 0, "Petrify grants its target 5 Block and a skipped turn")
+	var before_petrify: Dictionary = _queued_state(combat, ["petrify"], foe)
+	var petrified: Dictionary = _play_first(combat, before_petrify, [Vector2i(4, 4)])
+	expect.call(int(combat.stagger_delays_between(before_petrify, petrified).get(1, 0)) == 6 and _enemy_field(petrified, 1, "block") == 0, "The Petrify card Staggers 6 and grants no Block")
 	var hearth: Dictionary = _queued_state(combat, ["immolation"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
 	Surface.place(hearth, Vector2i(3, 4), "fire")
 	var burned: Dictionary = _play_first(combat, hearth, [])
@@ -782,8 +795,8 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	# chip and the printed rules text to agree with it.
 	var skybolt_damage: int = int(((GameData.card_def("skybolt").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))
 	expect.call(skybolt_damage > 0 and str(GameData.card_def("skybolt").get("description", "")).begins_with("Exhaust. Deal %d " % skybolt_damage), "Skybolt's rules text prints Exhaust and its data damage %d (bal-01)" % skybolt_damage)
-	for pair: Array in [["vortex", "pull=2"], ["discharge", "ranged=5"], ["skybolt", "ranged=%d" % skybolt_damage]]:
+	for pair: Array in [["vortex", "pull=2"], ["discharge", "burst=7"], ["skybolt", "ranged=%d" % skybolt_damage]]:
 		expect.call(_row_values(str(pair[0])).has(str(pair[1])), "%s shows its tuned %s chip: %s" % [str(pair[0]), str(pair[1]), str(_row_values(str(pair[0])))])
 	var keg: Dictionary = (GameData.card_def("powder_keg").get("actions", []) as Array)[0]
-	expect.call(int(keg.get("burst_damage", 0)) == 6 and str(GameData.card_def("powder_keg").get("description", "")).contains("deals 6"), "Powder Keg bursts for 6, as printed")
+	expect.call(int(keg.get("burst_damage", 0)) == 6 and str(GameData.card_def("powder_keg").get("description", "")).contains("Bursts 6"), "Powder Keg Bursts for 6, as printed")
 

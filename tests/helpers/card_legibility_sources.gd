@@ -23,9 +23,9 @@ static func contract(id: String) -> Dictionary:
 		"reward_offers":
 			return _source("both", "scripts/run_scene.gd: _add_reward_choice_card -> widget.configure(..., _card_def(card_id) if definition.is_empty() else definition)")
 		"grimoire", "grimoire_equipment":
-			return _source("both", "scripts/run_scene.gd: _populate_grimoire_card_detail / _populate_grimoire_equipment_detail -> _build_card_preview_widget -> _item_preview_builder().card_preview; definition_resolver = _card_def -> GameData.card_def_for_progression")
+			return _source("both", "scripts/run_scene.gd: _populate_grimoire_card_detail / _populate_grimoire_equipment_detail -> _build_card_preview_widget -> _item_preview_builder().card_preview with the current run display state")
 		"card_tooltip", "equipment_tooltip":
-			return _source("both", "scripts/run_scene.gd: _build_card_tooltip_panel / _build_equipment_tooltip_panel -> _item_preview_builder; scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id)); definition_resolver = RunScene._card_def")
+			return _source("both", "scripts/run_scene.gd: _build_card_tooltip_panel / _build_equipment_tooltip_panel -> _item_preview_builder; scripts/item_preview_builders.gd: card_definition -> GameData.card_def_for_progression with the normalised run display state")
 		"chronicle_card", "chronicle_equipment":
 			return _source("both", "scripts/chronicle_panel.gd: _build_detail -> _tooltip_host.definitions[id] = Rules.card_definition(id, record.deck_card_definitions); scripts/item_preview_builders.gd: card_preview -> widget.configure(..., card_definition(id))")
 		"pile_dialog":

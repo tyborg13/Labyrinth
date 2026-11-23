@@ -16,6 +16,19 @@ const ICONLESS_SKILLS: Array[String] = [
 	"salvager",
 ]
 
+# txt-20 keeps these two approved descriptions in plain prose.
+const ICONLESS_RELICS: Array[String] = ["overflow_censer", "funeral_bell"]
+const MIN_SKILL_ICON_COUNT: int = 47
+# The first mention carries the concept. Repeated nouns, the source Blink
+# verb, and the ordinary ground-moving verb stay in the approved prose.
+const SKILL_PLAIN_PHRASES: Dictionary = {
+	"carry_the_guard": "that Block",
+	"afterimage": "you Blinked from",
+	"witchlight": "that Illusion",
+	"afterglow": "that Illusion's tile",
+	"confluence": "move ground",
+}
+
 const DEDICATED_ICON_TERM_PATTERNS: Array = [
 	{"label": "Fire", "pattern": "(?i)\\bfire\\b"},
 	{"label": "Ice", "pattern": "(?i)\\bice\\b"},
@@ -45,7 +58,6 @@ const DEDICATED_ICON_TERM_PATTERNS: Array = [
 	{"label": "Truesight", "pattern": "(?i)\\btruesight\\b"},
 	{"label": "Umbra", "pattern": "(?i)\\bumbra\\b"},
 	{"label": "Burn", "pattern": "(?i)\\bburn(?:s|ed|ing)?\\b"},
-	{"label": "Bleed", "pattern": "(?i)\\bbleed(?:s|ing)?\\b"},
 	{"label": "Expose", "pattern": "(?i)\\bexpose(?:s|d)?\\b"},
 	{"label": "Freeze", "pattern": "(?i)\\b(?:freeze|freezes|freezing|frozen)\\b"},
 	{"label": "Shock", "pattern": "(?i)\\bshock(?:s|ed|ing)?\\b"},
@@ -70,13 +82,37 @@ static func run(expect: Callable) -> void:
 	var txt13: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt13_approved_copy.json"))
 	for relic_id: String in txt13["relic_descriptions"]:
 		approved[relic_id]["description"] = txt13["relic_descriptions"][relic_id]
+	# pla-04: Burst replaces Detonate/Expend in the Fire and Rubble relics.
+	var pla04: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla04_burst_copy.json"))
+	for relic_id: String in pla04["relic_descriptions"]:
+		approved[relic_id]["description"] = pla04["relic_descriptions"][relic_id]
+	var pla06: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla06_ice_copy.json"))
+	for relic_id: String in pla06["relic_descriptions"]:
+		approved[relic_id]["description"] = pla06["relic_descriptions"][relic_id]
+	var pla07: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla07_status_copy.json"))
+	for relic_id: String in pla07["relic_descriptions"]:
+		approved[relic_id]["description"] = pla07["relic_descriptions"][relic_id]
+	var pla08: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/pla08_light_vision_copy.json"))
+	for relic_id: String in pla08["relic_descriptions"]:
+		if approved.has(relic_id):
+			approved[relic_id]["description"] = pla08["relic_descriptions"][relic_id]
 	# txt-02 retires Area Attack wording; retain the protected historical record.
 	approved["cragbound_gauntlet"]["description"] = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
+	var txt20: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/txt20_rules_copy.json"))
+	for relic_id: String in txt20["relic_descriptions"]:
+		approved[relic_id]["description"] = txt20["relic_descriptions"][relic_id]
+	# txt-26: the director's relic text edits apply on top of the txt-20 record
+	# (tests/text_budget_test.py reads the same edits).
+	var txt26: Array = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/txt-26/text_edits.json"))
+	for edit: Dictionary in txt26:
+		var edited_id: String = str(edit["id"])
+		if approved.has(edited_id) and str(approved[edited_id]["description"]).contains(str(edit["old"])):
+			approved[edited_id]["description"] = str(approved[edited_id]["description"]).replace(str(edit["old"]), str(edit["new"]))
 	var relic_icon_count: int = 0
 	for relic_id: String in GameData.relic_ids():
 		var description: String = str(GameData.relic_def(relic_id).get("description", ""))
 		relic_icon_count += InlineIconText.concept_keys(description).size()
-		expect.call(InlineIconText.has_icons(description), "%s relic rules should use at least one established mechanic token" % relic_id)
+		expect.call(InlineIconText.has_icons(description) == (relic_id not in ICONLESS_RELICS), "%s relic rules retain the approved concept markup" % relic_id)
 		expect.call(description == approved[relic_id]["description"], "Relic %s preserves every approved word and explicit concept token" % relic_id)
 		expect.call(InlineIconText.invalid_icon_keys(description).is_empty(), "Relic %s resolves every explicit concept" % relic_id)
 	expect.call(relic_icon_count >= 180, "The full relic audit should retain broad explicit-concept coverage")
@@ -89,10 +125,10 @@ static func run(expect: Callable) -> void:
 		skill_icon_count += icon_keys.size()
 		if icon_keys.is_empty():
 			iconless_skills.append(skill_id)
-		_audit_description(expect, "ability %s" % skill_id, description)
+		_audit_description(expect, skill_id, description)
 	iconless_skills.sort()
 	expect.call(iconless_skills == ICONLESS_SKILLS, "Only abilities without an exact card-action concept should remain text-only: %s" % str(iconless_skills))
-	expect.call(skill_icon_count >= 50, "The full ability audit should retain broad inline-icon coverage")
+	expect.call(skill_icon_count >= MIN_SKILL_ICON_COUNT, "The full ability audit should retain broad inline-icon coverage")
 
 	_test_concept_tokens(expect)
 	_test_token_syntax(expect)
@@ -107,9 +143,12 @@ static func run(expect: Callable) -> void:
 	rendered.free()
 
 
-static func _audit_description(expect: Callable, source: String, description: String) -> void:
+static func _audit_description(expect: Callable, skill_id: String, description: String) -> void:
+	var source: String = "ability " + skill_id
 	expect.call(InlineIconText.invalid_icon_keys(description).is_empty(), "%s should resolve every inline icon key" % source)
 	var plain_source: String = _without_icon_tokens(description)
+	if SKILL_PLAIN_PHRASES.has(skill_id):
+		plain_source = plain_source.replace(SKILL_PLAIN_PHRASES[skill_id], "")
 	plain_source = plain_source.replace("draw pile", "pile").replace("Draw pile", "Pile")
 	for pattern_def: Dictionary in DEDICATED_ICON_TERM_PATTERNS:
 		var regex := RegEx.new()

@@ -57,7 +57,7 @@ func _run() -> void:
 			first.grab_focus()
 			await _joy(JOY_BUTTON_A)
 			await _settle()
-			_expect(not Boons.pending(scene.get("_run_state")) and (scene.get("_run_state") as Dictionary)["attuned_magic_cards"].size() == 7, "Controller accepts one spell into the live deck")
+			_expect(not Boons.pending(scene.get("_run_state")) and (scene.get("_run_state") as Dictionary)["attuned_magic_cards"].size() == GameData.starting_magic_cards().size() + 1, "Controller accepts one spell into the live deck")
 			_expect(scene.get("_dialogue_text_label").get_parsed_text() == Boons.definitions()["dialogue"]["taken"], "Taking uses exact confirmation copy")
 			scene.call("_complete_current_dialogue_line")
 			scene.call("_advance_dialogue")
@@ -179,6 +179,11 @@ func _terminal_resume_wallet(scene: Node) -> void:
 
 func _purge_selection(scene: Node) -> void:
 	var state: Dictionary = Fixture.state()
+	# Exercise independent selection of duplicate copies on a resumed old deck.
+	state.erase(RunEngine.FIRST_COMBAT_WON_KEY)
+	state["attuned_magic_cards"] = GameData.starting_magic_cards(true)
+	state["equipped_equipment"] = GameData.starting_equipped_equipment(true)
+	state["deck_cards"] = GameData.compile_deck_cards(state["equipped_equipment"], state["attuned_magic_cards"])
 	ProgressionStore.save_data(state["progression"])
 	scene.call("_load_run_state", state)
 	scene.call("_speak_to_emaciated_man")

@@ -1,35 +1,34 @@
 {
   "_doc": "pla-01 exception strip (director 2026-11-20): short glossary copy that supersedes the tt-01/tt-02/trp-01 fixtures, and the Grimoire lines that now hold the detail cut from tooltips. Read by tests/test_short_card_tooltips.py, tests/short_card_tooltips_test.gd, tests/text_budget_test.py and tests/test_card_panel_text.py; the historical fixtures stay untouched.",
   "glossary": {
-    "traps": "Trigger when entered or attacked, hitting the unit on them and spreading their element around them.",
-    "summon_minions": "Calls the shown enemy into the fight.",
-    "lightning_storm": "On its beat, lightning strikes every Electrified tile.",
-    "guard_ally": "Gives Block to the shown allies.",
-    "heal_ally": "Heals the shown ally.",
-    "health_cost": "Lose that much Health.",
-    "all_enemies": "Hits every visible enemy that meets the shown condition.",
+    "traps": "Traps hit when entered or attacked, then leave ground on that tile and each adjacent tile.",
+    "summon_minions": "This enemy adds the named enemy to combat.",
+    "lightning_storm": "On each Lightning Storm beat, each unit on an Electrified tile takes X damage.",
+    "guard_ally": "This enemy gives X Block to each shown ally.",
+    "heal_ally": "This enemy restores X Health to the named ally.",
+    "health_cost": "Lose X Health.",
+    "all_enemies": "Hit each visible enemy that meets the named condition.",
     "reflect": "Attacks from a non-adjacent tile bounce back to the attacker.",
-    "skill_measured_breath": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn.",
-    "skill_confluence": "Once per combat, @icon(surface_relocate) 1 ground tile within @icon(range) 4."
+    "skill_measured_breath": "At turn end, bank up to one unused @icon(card_play) for your next turn.",
+    "skill_confluence": "Once per combat, move ground between 2 visible tiles within @icon(range) 4 of you and each other."
   },
   "grimoire_appended": {
     "keyword:marked": [
-      "A buried Burrow Grub can't be moved, but attacks that hit an area still hit it.",
-      "If a Burrow Grub's mark is blocked, it erupts on the nearest free tile."
+      "Burrowed enemies cannot be targeted or moved. Area attacks hit Burrowed enemies. A Burrow Grub emerges on the Marked tile or the nearest open tile."
     ],
     "keyword:burst": [
-      "Kindle adds to its Burst damage, up to 4 more."
+      "Kindle adds up to 4 damage to the Ember Tick's Burst."
     ],
     "keyword:blink": [
-      "A Gloam Stalker's Fade lands next to you when the tile behind you is blocked."
+      "A Gloam Stalker's Fade lands on another adjacent tile if the tile behind you is blocked."
     ],
     "combat:boss_eclipse": [
-      "Braziers still relight, and Snuff's Shades still leave, even when the enemy's turn is skipped."
+      "Braziers still relight and Shades from Snuff still leave when the enemy's turn is skipped."
     ]
   },
   "card_panel_text": {
-    "meteorfall": "At your next turn, the marked tiles take the damage and turn to Fire.",
-    "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": "Creates one illusion on each empty tile next to you.",
-    "illusion_nearby": "Also hits each other enemy next to one of your illusions."
+    "meteorfall": "Next turn before you Draw, deal {n} damage and leave Fire on each Marked tile.",
+    "unchanged_creates_one_illusion_on_each_empty_tile_next_to_you_up_to_four": "Create 1 Illusion on each empty tile adjacent to you.",
+    "illusion_nearby": "This attack also hits each other enemy adjacent to one of your Illusions once."
   }
 }

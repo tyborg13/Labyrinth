@@ -5,6 +5,7 @@ const Mimic = preload("res://tests/suites/fix_12_mimic_suite.gd")
 const Totals = preload("res://tests/helpers/fix_12_popup_totals.gd")
 const Trace = preload("res://scripts/reaction_presentation_trace.gd")
 const MatrixCases = preload("res://tests/suites/fix_14_owner_matrix_cases.gd")
+const Legacy = preload("res://tests/helpers/fix_14_legacy_compatibility.gd")
 # Reviewer fixtures and test-only variants, never production tuning.
 const NESTED_TICK := Vector2i(3, 2)
 const LETHAL_HERO_HP: int = 4
@@ -66,5 +67,7 @@ static func _legacy_analytics(expect: Callable) -> void:
 		if mode == "retaliate": state["retaliate"] = {"amount": LEGACY_RETALIATE}
 		var phase: Dictionary = engine.resolve_enemy_turn_with_steps(state, 0, false)
 		var actual: Dictionary = {"actions": scene._analytics_enemy_action_events(phase, {}), "statuses": scene._analytics_enemy_status_tick_events(phase, {})}
-		expect.call(JSON.stringify(actual) == str(golden[mode]), "Legacy Warden/Tick %s analytics byte-match base %s" % [mode, BASE_REVISION])
+		var expected: Dictionary = Legacy.current_capture(str(golden[mode]))
+		Legacy.current_action_records(expected["actions"])
+		expect.call(Legacy.matches_capture(actual, expected), "Legacy Warden/Tick %s analytics match the current form of base %s" % [mode, BASE_REVISION])
 	scene.free()

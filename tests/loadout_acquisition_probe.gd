@@ -150,7 +150,7 @@ func _capture_acquisitions() -> void:
 	await process_frame
 
 func _capture_named_phase(instance: Node, kind: String, phase: String) -> void:
-	var expected_node_name: String = "LoadoutAcquisitionBurst" if phase == "flair" else "LoadoutAcquisitionBeam"
+	var expected_node_name: String = "AcquisitionBurst" if phase == "flair" else "LoadoutAcquisitionBeam"
 	if instance.find_child(expected_node_name, true, false) == null:
 		_fail("%s %s should render %s" % [kind, phase, expected_node_name])
 	await _save_root_screenshot("%s/%s_%s.png" % [OUTPUT_DIR, kind, phase])

@@ -1,0 +1,343 @@
+extends SceneTree
+
+const Card := preload("res://scripts/card_widget.gd")
+const Data := preload("res://scripts/game_data.gd")
+const Run := preload("res://scripts/run_engine.gd")
+const Settings := preload("res://scripts/settings_store.gd")
+const Store := preload("res://scripts/progression_store.gd")
+const Typography := preload("res://scripts/ui_typography.gd")
+
+const SIZE := Vector2i(1920, 1080)
+const PANEL_RECT := Rect2i(1475, 156, 420, 722)
+const NEUTRAL_POINTER := Vector2(600, 950)
+const ENTRY_SETTLE_SECONDS := 0.8
+const HOVER_SETTLE_SECONDS := 0.8
+const CROP_SCALE := 2
+const FIXTURE_SEED := 73491
+const FIXTURE_EMBERS := 720
+const UNAFFORDABLE_EMBERS := 0
+const MAGIC := "flashsteam"
+const GEAR := "undertaker_plate"
+const ITEM := "crimson_draught"
+const STOCK := [MAGIC, "icicle_lance", "dawnstep", GEAR, "dust_tabi", "duelist_rapier",
+	ITEM, "nail_bomb", "jaw_trap"]
+
+var _viewport: SubViewport
+var _scene: Node
+var _shop: Control
+var _panel: Control
+var _headless: bool
+var _before: bool
+var _directory: String
+var _failed: bool = false
+var _pointer := Vector2.ZERO
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+func _run() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	var args := OS.get_cmdline_user_args()
+	_before = args.has("--before")
+	_directory = args[args.find("--output") + 1]
+	_headless = DisplayServer.get_name() == "headless"
+	if _headless:
+		print("POL74 HEADLESS SEMANTICS ONLY")
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
+	elif DirAccess.make_dir_recursive_absolute(_directory) != OK:
+		_finish("Could not create the capture directory.")
+		return
+
+	root.mode = Window.MODE_WINDOWED
+	root.size = SIZE
+	root.content_scale_size = SIZE
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_factor = 1.0
+	Settings.set_storage_path("user://pol74-settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings.merge({"display_mode": Settings.DISPLAY_WINDOWED, "ui_scale": 1.0, "reduced_motion": false}, true)
+	Settings.save_settings(settings)
+	Store.set_storage_path("user://pol74-progression.json")
+	Store.set_run_storage_path("user://pol74-run.save")
+
+	var engine := Run.new()
+	var state := _fixture(engine)
+	if state.is_empty():
+		_finish("Could not find a Scavenger room for the fixture.")
+		return
+	_viewport = SubViewport.new()
+	_viewport.size = SIZE
+	_viewport.msaa_2d = int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d")) as Viewport.MSAA
+	_viewport.gui_embed_subwindows = true
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_viewport)
+	_scene = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_viewport.add_child(_scene)
+	await _frames()
+	_viewport.notify_mouse_entered()
+	_scene.call("_load_run_state", state)
+	_scene.call("_close_dialogue")
+	await create_timer(ENTRY_SETTLE_SECONDS).timeout
+	_shop = _scene.get("_scavenger_shop_view") as Control
+	if _shop == null or not _shop.is_visible_in_tree():
+		_finish("The live run did not open the Scavenger shop.")
+		return
+	_panel = _shop.find_child("ScavengerDetailPanel", true, false) as Control
+	if not _expect(_panel != null and _viewport.size == SIZE
+			and is_equal_approx(Typography.ui_scale(_shop), 1.0),
+			"The production shop is in a 1920x1080 viewport at 100% UI scale."):
+		_finish("")
+		return
+
+	var magic := _offer(MAGIC)
+	var gear := _offer(GEAR)
+	var item := _offer(ITEM)
+	if magic == null or gear == null or item == null:
+		_finish("Expected Flashsteam, Undertaker Plate and Crimson Draught in Browse.")
+		return
+	var shelf_card: Card = magic.find_child("MagicCard_" + MAGIC, true, false) as Card
+	_expect(shelf_card != null and is_equal_approx(_width(shelf_card), 250.0 * 248.0 / 352.0),
+		"At rest the Magic face fits the existing 177x248 shelf box.")
+	await _neutral()
+	await _hover_case("a_magic_hover", MAGIC, magic, true)
+	await _neutral()
+	_expect(not _panel.is_visible_in_tree(), "Pointer exit clears an unselected preview.")
+	gear.grab_focus()
+	await _key(KEY_UP)
+	_expect(magic.has_focus() and not magic.is_hovered(), "Keyboard reached Flashsteam with the pointer off the wares.")
+	await _record("b_magic_focus", MAGIC, magic)
+	await _click(_shop.get("_mode_buy") as Control)
+	await _neutral()
+	await _hover_case("c_gear_hover", GEAR, gear)
+	await _neutral()
+	await _hover_case("d_item_hover", ITEM, item)
+	await _neutral()
+	# The production catalog excludes owned gear from Browse stock.
+	state["equipment_inventory"] = [GEAR]
+	_scene.call("_load_run_state", state)
+	_scene.call("_close_dialogue")
+	await create_timer(ENTRY_SETTLE_SECONDS).timeout
+	await _click(_shop.get("_mode_sell") as Control)
+	await _neutral()
+
+	var sell_gear := _offer(GEAR, true)
+	var sell_item := _offer(ITEM, true)
+	if sell_gear == null or sell_item == null:
+		_finish("Expected Undertaker Plate and Crimson Draught in Your Pack.")
+		return
+	var sell_tag: Label = sell_gear.find_child("PriceTagValue", true, false) as Label
+	_expect(sell_tag != null and sell_tag.text == "+126", "Undertaker Plate keeps its +126 tag.")
+	await _hover_case("e_pack_gear_hover", GEAR, sell_gear, true)
+	await _neutral()
+	await _hover_case("f_pack_item_hover", ITEM, sell_item)
+	await _neutral()
+	_expect(not _panel.is_visible_in_tree(), "Leaving a pack hover clears the unselected panel.")
+	if not _before:
+		await _check_after(sell_gear, sell_item)
+		await _check_shortfall(engine)
+	_finish("")
+
+func _fixture(engine: Run) -> Dictionary:
+	var progression := Store.set_embers(Store.default_data(), FIXTURE_EMBERS)
+	var state := engine.create_new_run(FIXTURE_SEED, progression)
+	for radius: int in range(1, Run.MAX_DEPTH + 1):
+		for x: int in range(-radius, radius + 1):
+			for y: int in range(-radius, radius + 1):
+				if maxi(absi(x), absi(y)) != radius:
+					continue
+				var coord := Vector2i(x, y)
+				var room := engine.room_metadata(state, coord).duplicate(true)
+				if room.get("type") != Run.MERCHANT_SCAVENGER:
+					continue
+				room.merge({"revealed": true, "visited": true, "cleared": true, Run.MERCHANT_STOCK_KEY: STOCK}, true)
+				state["rooms"]["%d,%d" % [x, y]] = room
+				state["current_room"] = coord
+				state["current_room_layout"] = engine._display_layout_for_room(FIXTURE_SEED, room, Vector2i.RIGHT)
+				state.merge({"mode": "room", "combat_state": {}, "pending_reward": {}, "pending_relics": [],
+					"held_embers": FIXTURE_EMBERS, "unbanked_embers": FIXTURE_EMBERS,
+					"equipment_inventory": [], "item_inventory": [ITEM]}, true)
+				return state
+	return {}
+
+func _offer(id: String, selling: bool = false) -> Button:
+	var sources: Dictionary = _shop.get("_offer_sources")
+	return sources.get(("sell:" if selling else "buy:") + id) as Button
+
+func _hover_case(stem: String, id: String, offer: Button, crop: bool = false) -> void:
+	var hover_target: Control = offer
+	if id == MAGIC:
+		hover_target = offer.find_child("MagicCard_" + MAGIC, true, false) as Control
+	_move(_center(hover_target))
+	await create_timer(HOVER_SETTLE_SECONDS).timeout
+	_expect(_viewport.gui_get_hovered_control() == offer, "%s uses the actual hovered ware." % stem)
+	await _record(stem, id, offer, crop)
+
+func _record(stem: String, id: String, offer: Button, crop: bool = false) -> void:
+	var shown := _panel.is_visible_in_tree()
+	var title: Label = _panel.find_child("ScavengerDetailTitle", true, false) as Label
+	var card := _panel_card()
+	var navigator: Control = _panel.find_child("ScavengerGrantedCardNavigator", true, false) as Control
+	var card_ids: Array = _shop.semantic_snapshot()["detail_card_ids"]
+	var action: Button = _shop.get("_detail_action")
+	var width := _width(card) if card != null else 0.0
+	var tooltip := offer.get_tooltip(offer.size * 0.5)
+	var selling: bool = _shop.get("_pack_mode")
+	var duplicate_tooltip := "%s\n%s: %d Embers" % [
+		_shop.call("_item_name", id), "Sell value" if selling else "Price", _shop.call("_item_price", id, selling),
+	]
+	var popup := _has_tooltip_label(_viewport, duplicate_tooltip)
+	print("POL74 CASE ", JSON.stringify({
+		"case": stem, "panel": shown, "title": title.text if shown else "",
+		"card": card.card_id if card != null else "", "width": width,
+		"cards": card_ids, "navigator": navigator.is_visible_in_tree(),
+		"action": action.text if action.is_visible_in_tree() else "", "tooltip": tooltip, "native_popup": popup,
+	}))
+	var expected_panel := not _before or stem == "b_magic_focus"
+	_expect(shown == expected_panel, "%s panel visibility matches its revision." % stem)
+	if expected_panel:
+		_expect(_matches_panel(id) and width >= Card.MIN_READABLE_CARD_SIZE.x,
+			"%s shows the expected readable card." % stem)
+		_expect(navigator.is_visible_in_tree() == (id == GEAR), "%s preserves granted-card navigation." % stem)
+	if not _before:
+		_expect(tooltip.is_empty() and not popup, "%s exposes no duplicate tooltip on the ware." % stem)
+		if stem.begins_with("e_") or stem.begins_with("f_"):
+			_expect(not action.is_visible_in_tree(), "%s previews without selecting a sale." % stem)
+	else:
+		_expect(popup == offer.is_hovered(), "%s reproduces the base native tooltip on pointer hover only." % stem)
+	if crop:
+		var panel_rect := Rect2i(_panel.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, _panel.size))
+		_expect(panel_rect == PANEL_RECT, "%s keeps the authored inspection rectangle." % stem)
+	if _headless:
+		return
+	await RenderingServer.frame_post_draw
+	var image := _viewport.get_texture().get_image()
+	if not _expect(image != null and image.get_size() == SIZE, "Read exact-size pixels for " + stem):
+		return
+	_save(image, stem)
+	if crop:
+		var enlarged := image.get_region(PANEL_RECT)
+		enlarged.resize(PANEL_RECT.size.x * CROP_SCALE, PANEL_RECT.size.y * CROP_SCALE, Image.INTERPOLATE_NEAREST)
+		_save(enlarged, stem + "_panel_2x")
+
+func _check_after(gear: Button, item: Button) -> void:
+	item.grab_focus()
+	await _key(KEY_RIGHT)
+	_expect(gear.has_focus() and _matches_panel(GEAR), "Keyboard focus inspects Gear in Your Pack without hover.")
+	await _joy(JOY_BUTTON_DPAD_LEFT)
+	_expect(item.has_focus() and _matches_panel(ITEM), "Controller focus inspects Items in Your Pack without hover.")
+	await _click(gear)
+	_expect(_matches_panel(GEAR), "Click selects Gear in Your Pack.")
+	var next: Button = _shop.get("_detail_card_next")
+	await _click(next)
+	var second := str(Data.equipment_cards(GEAR)[1])
+	_expect(_panel_card() != null and _panel_card().card_id == second, "The selected ware's navigator opens its second card.")
+	var action: Button = _shop.get("_detail_action")
+	var sell_value: int = _shop.call("_item_price", GEAR, true)
+	_expect(action.text == "Sell · %d Embers" % sell_value, "The selected pack ware shows Sell with its Ember value.")
+	_move(_center(item))
+	await _frames()
+	_expect(_matches_panel(ITEM), "Hover can inspect an Item while a Gear ware is selected.")
+	await _neutral()
+	var restored := _panel_card()
+	_expect(restored != null and restored.card_id == second and action.is_visible_in_tree(),
+		"Pointer exit restores click selection and its granted-card page.")
+
+func _check_shortfall(engine: Run) -> void:
+	await _click(_shop.get("_mode_buy") as Control)
+	await _neutral()
+	var state: Dictionary = engine.set_held_embers(_scene.get("_run_state"), UNAFFORDABLE_EMBERS)
+	_shop.configure(state, engine, false)
+	await _frames()
+	var offer := _offer(MAGIC)
+	_expect(offer != null and offer.tooltip_text == "Flashsteam\nPrice: 175 Embers — need 175 more",
+		"The unaffordable offer retains its authored shortfall tooltip.")
+
+func _panel_card() -> Card:
+	for node: Node in _panel.find_children("DetailCard_*", "", true, false):
+		if node is Card and node.is_visible_in_tree():
+			return node
+	return null
+
+func _has_tooltip_label(node: Node, tooltip: String) -> bool:
+	if node is Label and node.is_visible_in_tree() and node.text == tooltip:
+		return true
+	for child: Node in node.get_children(true):
+		if _has_tooltip_label(child, tooltip):
+			return true
+	return false
+
+func _matches_panel(id: String) -> bool:
+	var card := _panel_card()
+	var gear_cards: Array = Data.equipment_cards(id) if id == GEAR else []
+	var definition: Dictionary = Data.equipment_def(id) if id == GEAR else Data.card_def(id)
+	var title: Label = _shop.get("_detail_title")
+	return card != null and title.text == str(definition["name"]) and card.card_id == (gear_cards.front() if id == GEAR else id)
+
+func _center(control: Control) -> Vector2:
+	return control.get_global_transform_with_canvas() * (control.size * 0.5)
+
+func _width(control: Control) -> float:
+	return (control.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, control.size)).size.x
+
+func _neutral() -> void:
+	_move(NEUTRAL_POINTER)
+	await _frames()
+
+func _move(position: Vector2) -> void:
+	var event := InputEventMouseMotion.new()
+	event.position = position
+	event.global_position = position
+	event.relative = position - _pointer
+	_pointer = position
+	_viewport.push_input(event, true)
+
+func _click(control: Control) -> void:
+	var point := _center(control)
+	_move(point)
+	await _frames()
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = point
+		event.global_position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await _frames()
+
+func _key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await _frames()
+
+func _joy(button: JoyButton) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await _frames()
+
+func _frames() -> void:
+	await process_frame
+	await process_frame
+
+func _save(image: Image, stem: String) -> void:
+	var path := _directory.path_join(stem + ".png")
+	if _expect(image.save_png(path) == OK, "Saved " + stem):
+		print(path)
+
+func _expect(ok: bool, message: String) -> bool:
+	if not ok:
+		_failed = true
+		print("POL74 CHECK FAIL: " + message)
+	return ok
+
+func _finish(error: String) -> void:
+	if not error.is_empty():
+		_expect(false, error)
+	print("POL74 SHOP READABILITY %s: %s" % ["BEFORE" if _before else "AFTER", "FAIL" if _failed else "PASS"])
+	quit(1 if _failed else 0)

@@ -5,7 +5,10 @@ import unittest
 from pathlib import Path
 
 from marked_glossary_contract import MARKED_DEFINITION, MARKED_RETIRED, marked_glossary_supersession
-from trap_copy_contract import TRAP_DEFINITION
+from trap_copy_contract import MARKED_DEFINITION as TXT27_MARKED_DEFINITION, TRAP_DEFINITION
+from burst_glossary_contract import BURST_ALIASES, BURST_DEFINITIONS, BURST_NAMES, BURST_RETIRED
+
+from burst_glossary_contract import PLAYABILITY_COPY as PLA04_COPY  # pla-04 + pla-06 supersessions
 
 ROOT = Path(__file__).resolve().parents[1]
 # Read the renderer's grammar rather than maintaining a narrower Python copy.
@@ -20,10 +23,13 @@ def syntax_pattern(name):
 TOKEN = syntax_pattern("TOKEN_PATTERN")
 TOKEN_START = syntax_pattern("TOKEN_START_PATTERN")
 FLURRY_RETIREMENT = json.loads((ROOT / "tests/fixtures/flurry_retirement_copy.json").read_text())
+PLA08_COPY = json.loads((ROOT / "tests/fixtures/pla08_light_vision_copy.json").read_text())
+TXT20_COPY = json.loads((ROOT / "tests/fixtures/txt20_rules_copy.json").read_text())
 TXT13_APPROVED_COPY = json.loads((ROOT / "tests/fixtures/txt13_approved_copy.json").read_text())
 # sta-01 and flu-01 supersede these records; keep protected design sources verbatim.
 RETIRED_TERMS = {"dive", "veil", "aoe", *FLURRY_RETIREMENT["retired_glossary_ids"]}
 TEXT_ONLY = {"wait", "turns", "movement", "item", "outcrop"}
+ROLLOUT_PRONOUN = re.compile(r"\b(?:it|its|they|them|their)\b", re.IGNORECASE)
 
 
 def read(path):
@@ -97,29 +103,43 @@ class TextBudgetTest(unittest.TestCase):
         short_copy["marked"] = MARKED_DEFINITION
         short_copy.update(TXT13_APPROVED_COPY["glossary_definitions"])
         short_copy["surface_rubble"] = "Costs 2 Movement to leave."
-        short_copy["skate"] = "This turn, Ice costs no Movement and doesn't Chill you."
-        # pla-01 (exception strip) shortens these definitions; every rewrite only cuts words.
-        short_copy.update(read("tests/fixtures/pla01_exception_strip.json")["glossary"])
+        short_copy["skate"] = "This turn Ice costs you no Movement and doesn't Expose you."
         # spl-01 (owner APPROVED 2026-11-16) adds the Splits keyword, after the historical director source.
         live["splits"] = {"id": "splits", "name": "Splits", "aliases": ["split"],
                           "definition": "When it dies, it splits into smaller enemies next to it."}
         # trn-01 (owner APPROVED 2026-11-19, worldspine-outcrop-1): Worldspine raises ordinary Outcrops, so its
         # separate glossary entry is retired in favour of the one Outcrop entry.
         live.pop("worldspines")
+        # pla-04 (owner-approved playability plan 2026-11-20): one Burst entry
+        # replaces Detonate, Discharge and Shatter Illusion; Terrain Burst's
+        # remaining enemy use is Groundsplit; Arc Burst is Arc Lash.
+        for key in BURST_RETIRED:
+            live.pop(key)
+        for key, name in BURST_NAMES.items():
+            live[key] = dict(live[key], name=name, aliases=BURST_ALIASES[key], current_name=name)
+        short_copy.update(BURST_DEFINITIONS)
+        for key in PLA08_COPY["retired"]:
+            live.pop(key)
+        short_copy.update(PLA08_COPY["definitions"])
+        short_copy.update(TXT20_COPY["glossary_definitions"])
+        short_copy.update(read("tests/fixtures/pla01_exception_strip.json")["glossary"])
+        short_copy.update(marked=TXT27_MARKED_DEFINITION, traps=TRAP_DEFINITION)
         self.assertEqual(set(self.glossary), set(live))
-        self.assertEqual(len(live), 139)
+        self.assertEqual(len(live), 128)
         for key, source in live.items():
             with self.subTest(entry=key):
                 actual = self.glossary[key]
                 self.assertEqual(actual["name"], source["name"])
                 self.assertEqual(actual["definition"], short_copy.get(key, source["definition"]))
+                if key in PLA08_COPY["definitions"]:
+                    self.assertIsNone(ROLLOUT_PRONOUN.search(actual["definition"]))
                 self.assertTrue(set(source["aliases"]).issubset(actual["aliases"]))
                 if source.get("current_name") and source["current_name"] != source["name"]:
                     self.assertIn(source["current_name"], actual["aliases"])
                 # trp-01 explicitly replaces the former short copy with this
                 # exact approved definition; every other term keeps its budget.
                 if key == "traps":
-                    self.assertEqual(words(actual["definition"]), words(TRAP_DEFINITION))
+                    self.assertLessEqual(words(actual["definition"]), words(TRAP_DEFINITION))
                 else:
                     self.assertLessEqual(words(actual["definition"]), 20)
                 self.assertEqual(actual["icon"] is None, key in TEXT_ONLY)
@@ -130,23 +150,42 @@ class TextBudgetTest(unittest.TestCase):
     def test_relics_match_approved_copy_and_budget(self):
         relics = read("data/relics.json")
         txt13 = TXT13_APPROVED_COPY["relic_descriptions"]
-        superseded = FLURRY_RETIREMENT["relic_descriptions"] | txt13
+        superseded = FLURRY_RETIREMENT["relic_descriptions"] | txt13 | PLA04_COPY["relic_descriptions"] | PLA08_COPY["relic_descriptions"]
+        edits = {edit["id"]: edit for edit in read("spec/peer_benchmark/staged/txt-26/text_edits.json")}
+
+        def apply_director_edit(relic_id, description):
+            edit = edits.get(relic_id)
+            if edit:
+                self.assertIn(edit["old"], description)
+                return description.replace(edit["old"], edit["new"], 1)
+            return description
+
         active = retired = 0
         for source in read("spec/peer_benchmark/staged/text/relic_rewrite.json"):
             with self.subTest(relic=source["id"]):
                 actual = relics[source["id"]]
                 self.assertEqual(actual["name"], source["name"])
                 description = superseded.get(source["id"], source["description"])
-                if source["id"] == "cragbound_gauntlet":
+                if source["id"] == "cragbound_gauntlet" and source["id"] not in TXT20_COPY["relic_descriptions"]:
                     description = "Your @kw(element_earth) @kw(ranged) attacks and attacks that hit an area also raise a 3-@term(health) @kw(outcrop) on an empty floor target."
-                self.assertEqual(actual["description"], description)
+                expected = TXT20_COPY["relic_descriptions"].get(source["id"], description)
+                expected = apply_director_edit(source["id"], expected)
+                self.assertEqual(actual["description"], expected)
+                is_rollout_copy = source["id"] in PLA08_COPY["relic_descriptions"]
+                if is_rollout_copy:
+                    self.assertIsNone(ROLLOUT_PRONOUN.search(actual["description"]))
+                if is_rollout_copy or not source.get("retired_redirect_to"):
+                    # TXT-26 approves exact text beyond the historical budget
+                    # for some relics. Only those approved edits can raise it.
+                    budget = max(25, words(expected)) if source["id"] in edits else 25
+                    self.assertLessEqual(words(actual["description"]), budget)
                 if source.get("retired_redirect_to"):
                     retired += 1
                     self.assertTrue(actual["retired"])
-                    self.assertEqual(actual["description"], txt13.get(source["id"], source["current_description"]))
+                    retired_copy = superseded.get(source["id"], source["current_description"])
+                    self.assertEqual(actual["description"], apply_director_edit(source["id"], retired_copy))
                 else:
                     active += 1
-                    self.assertLessEqual(words(actual["description"]), 25)
         self.assertEqual((active, retired), (100, 12))
 
     def test_every_explicit_concept_resolves(self):

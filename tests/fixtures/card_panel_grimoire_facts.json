@@ -38,7 +38,7 @@
   "crystal_mantle": {
     "owner": "combat:crystal_armor",
     "paragraphs": [
-      "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and Health costs bypass it. Your layers last until broken or the combat ends."
+      "Crystal Mantle cards give you the same layers. Each direct hit against you breaks one layer instead of dealing damage. Fire, collisions, traps and Health costs bypass Crystal Mantle. Your layers last until broken or the combat ends."
     ],
     "appended": false
   },

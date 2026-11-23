@@ -266,7 +266,7 @@ static func _test_legacy(expect: Callable) -> void:
 		for seed: int in range(1, LEGACY_SEEDS + 1):
 			var room: Dictionary = {"type": "combat", "coord": Vector2i(seed % 7, seed % 11), "depth": 1 + seed % 3, "element": "air", "section_index": 0, "section_map_layout_revision": revision, "encounter_biome": "air", "connections": [{"door_dir": Vector2i.UP, "coord": Vector2i(0, -1), "kind": "outward"}]}
 			var layout: Dictionary = generator.generate_room(seed, room, Vector2i.UP)
-			expect.call(var_to_bytes(generator.before_tier_and_cap).hex_encode().sha256_text() == golden[str(revision)][seed - 1], "Missing-k room keeps pre-change complete layout revision %d seed %d" % [revision, seed])
+			expect.call(generator.legacy_layout_digest() == golden[str(revision)][seed - 1], "Missing-k room keeps pre-change complete layout revision %d seed %d" % [revision, seed])
 			expect.call(not layout.has("encounter_tier"), "Missing-k room preserves its original metadata keys")
 	print("Encounter legacy differential: 64 seeds; legacy/revision-3 runtime states and 128 revision-4/5 missing-k full-layout goldens checked")
 

@@ -16,7 +16,6 @@ func _run_status_checks() -> void:
 	preload("res://tests/suites/board_status_feedback_suite.gd").run(_assert)
 	await preload("res://tests/suites/board_status_cache_suite.gd").run(_assert)
 	preload("res://tests/suites/board_hud_group_suite.gd").run(_assert)
-	_test_bleed_status_badges_and_trigger_floats()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_unit_hud_stacks_above_sprite_art()

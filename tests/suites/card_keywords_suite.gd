@@ -36,7 +36,7 @@ static func fixture_cards() -> Dictionary:
 		"kwtest_empower_exhaust": _card("KW Empower Exhaust", 3, [{"type": "ranged", "damage": 3, "range": 4, "element": "none"}], {"empower": {"cost": {"exhaust": true}, "mods": [{"action": 0, "add": {"damage": 2}}]}}),
 		"kwtest_empower_block": _card("KW Empower Block", 2, [{"type": "block", "amount": 4}], {"empower": {"cost": {"time": 1}, "mods": [{"action": 0, "set": {"amount": 7}}]}}),
 		"kwtest_light_strike": _card("KW Light Strike", 3, [melee.call(4, {"state_bonus": [{"state": "light", "damage": 3, "stagger": 2}]})]),
-		"kwtest_frozen_strike": _card("KW Frozen Strike", 3, [melee.call(4, {"state_bonus": [{"state": "frozen", "damage": 4}]})]),
+		"kwtest_exposed_strike": _card("KW Exposed Strike", 3, [melee.call(4, {"state_bonus": [{"state": "exposed", "damage": 4}]})]),
 		"kwtest_execute_strike": _card("KW Execute Strike", 5, [melee.call(10, {"state_bonus": [{"state": "half_hp", "damage": 5}]})]),
 		"kwtest_stonefist": _card("KW Stonefist", 4, [melee.call(5, {"scale_bonus": {"per": "stoneskin", "damage": 1, "max": 6}})]),
 		"kwtest_lance": _card("KW Lance", 4, [melee.call(4, {"range": 3, "scale_bonus": {"per": "tiles_moved", "damage": 1, "max": 5}})]),
@@ -162,7 +162,7 @@ static func _test_rules_helpers(expect: Callable) -> void:
 	expect.call(CardKeywordRules.stagger_delay("crawler", 3, 0) == 3, "Stagger delays an ordinary enemy by its full value")
 	for dragon: String in ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]:
 		expect.call(CardKeywordRules.stagger_delay(dragon, 3, 0) == 1, "%s takes half Stagger, rounded down" % dragon)
-	expect.call(CardKeywordRules.stagger_delay("crawler", 4, 4) == 2, "Stagger cannot exceed 6 per enemy per player turn")
+	expect.call(CardKeywordRules.stagger_delay("crawler", 4, 4) == 2, "Stagger cannot exceed 6 between the target enemy's turns")
 	expect.call(CardKeywordRules.stagger_delay("crawler", 3, 6) == 0, "A capped enemy takes no further Stagger this turn")
 	expect.call(CardKeywordRules.empower_cost_label({"time": 2}) == "+2 Time" and CardKeywordRules.empower_cost_label({"health": 1}) == "1 Health" and CardKeywordRules.empower_cost_label({"exhaust": true}) == "Exhaust", "Empower cost labels name each cost")
 
@@ -230,11 +230,16 @@ static func _test_stagger_boss_half_and_turn_cap(expect: Callable) -> void:
 	var first: int = combat._apply_stagger_to_enemy(capped, 1, 4)
 	var second: int = combat._apply_stagger_to_enemy(capped, 1, 4)
 	var third: int = combat._apply_stagger_to_enemy(capped, 1, 2)
-	expect.call(first == 4 and second == 2 and third == 0, "Stagger stacks to at most 6 per enemy per player turn")
+	expect.call(first == 4 and second == 2 and third == 0, "Stagger stacks to at most 6 between the target enemy's turns")
 	expect.call(_queue_time(capped, 1) == capped_before + 6, "The capped delay is applied to the queued turn")
 	var next_turn: Dictionary = capped.duplicate(true)
 	next_turn["turn_flags"] = {}
-	expect.call(combat._apply_stagger_to_enemy(next_turn, 1, 2) == 2, "The Stagger cap resets with the player's turn flags")
+	expect.call(combat._apply_stagger_to_enemy(next_turn, 1, 2) == 0, "The enemy retains its Stagger cap across a player turn boundary")
+	next_turn["turn_queue"] = [_queue_entry(next_turn, 1)]
+	var activated: Dictionary = combat._pop_next_actor(next_turn)
+	expect.call(int(activated["entry"].get("enemy_id", -1)) == 1, "The staggered enemy activates at its delayed slot")
+	combat._schedule_enemy_after_turn(activated["state"], activated["state"]["enemies"][0], 0)
+	expect.call(combat._apply_stagger_to_enemy(activated["state"], 1, 2) == 2, "The enemy's next turn starts a fresh Stagger allowance")
 	var dead: Dictionary = state.duplicate(true)
 	(dead["enemies"][0] as Dictionary)["hp"] = 0
 	expect.call(combat._apply_stagger_to_enemy(dead, 1, 3) == 0, "A defeated enemy is not staggered")
@@ -344,18 +349,14 @@ static func _test_state_bonuses(expect: Callable) -> void:
 	var lit_result: Dictionary = _play(combat, lit, 0, [NEAR_TILE])
 	expect.call(_hp(lit_result["resolved"], 1) == 33 and _queue_time(lit_result["resolved"], 1) == _queue_time(lit, 1) + 2, "A target in Light takes the bonus damage and Stagger")
 	expect.call(_hp((lit_result["previews"] as Array)[0], 1) == _hp(lit_result["resolved"], 1), "Light bonus preview damage equals resolved damage")
-	# Frozen
-	var warm: Dictionary = _state(combat, ["kwtest_frozen_strike"])
-	var warm_result: Dictionary = _play(combat, warm, 0, [NEAR_TILE])
-	expect.call(_hp(warm_result["resolved"], 1) == 36, "An unfrozen target gains no Frozen bonus")
-	var frozen: Dictionary = warm.duplicate(true)
-	(frozen["enemies"][0] as Dictionary)["freeze"] = 1
-	var frozen_result: Dictionary = _play(combat, frozen, 0, [NEAR_TILE])
-	var frozen_loss: int = 40 - _hp(frozen_result["resolved"], 1)
-	var plain_frozen: Dictionary = frozen.duplicate(true)
-	var plain_action: Dictionary = {"type": "melee", "damage": 4, "range": 1, "element": "none"}
-	var plain_loss: int = 40 - _hp(combat.apply_player_action(plain_frozen, plain_action, NEAR_TILE), 1)
-	expect.call(frozen_loss > plain_loss and _hp((frozen_result["previews"] as Array)[0], 1) == _hp(frozen_result["resolved"], 1), "A Frozen target takes the bonus, matching its preview")
+	# Expose adds its own damage before the card's conditional bonus.
+	var plain: Dictionary = _state(combat, ["kwtest_exposed_strike"])
+	var plain_result: Dictionary = _play(combat, plain, 0, [NEAR_TILE])
+	expect.call(_hp(plain_result["resolved"], 1) == 36, "A target without Expose takes only the printed damage")
+	var exposed: Dictionary = plain.duplicate(true)
+	(exposed["enemies"][0] as Dictionary)["expose"] = 2
+	var exposed_result: Dictionary = _play(combat, exposed, 0, [NEAR_TILE])
+	expect.call(_hp(exposed_result["resolved"], 1) == 30 and _hp((exposed_result["previews"] as Array)[0], 1) == 30, "The payoff adds 4 to damage against an Exposed target, matching preview")
 	# Half health
 	var healthy: Dictionary = _state(combat, ["kwtest_execute_strike"])
 	var healthy_result: Dictionary = _play(combat, healthy, 0, [NEAR_TILE])
@@ -437,14 +438,14 @@ static func _test_icon_rows_and_grimoire(expect: Callable) -> void:
 	var light_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_light_strike").get("actions", []))
 	var light_row: Array = light_rows[light_rows.size() - 1] as Array
 	expect.call(str((light_row[0] as Dictionary).get("kind", "")) == "surface_condition" and str((light_row[0] as Dictionary).get("icon", "")) == "illuminate" and light_row.size() == 3, "A Light state bonus shows a condition token with its damage and Stagger")
-	var frozen_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_frozen_strike").get("actions", []))
-	expect.call(str(((frozen_rows[frozen_rows.size() - 1] as Array)[0] as Dictionary).get("icon", "")) == "freeze", "The Frozen condition uses the Freeze icon")
+	var exposed_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_exposed_strike").get("actions", []))
+	expect.call(str(((exposed_rows[exposed_rows.size() - 1] as Array)[0] as Dictionary).get("icon", "")) == "expose", "The Exposed condition uses the Expose icon")
 	var execute_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_execute_strike").get("actions", []))
 	expect.call(str(((execute_rows[execute_rows.size() - 1] as Array)[0] as Dictionary).get("icon", "")) == "health", "The half-health condition uses the Health icon")
 	# Card faces use compact condition labels; plain text and tooltips keep the full condition.
 	var light_condition: Dictionary = light_row[0] as Dictionary
 	expect.call(str(light_condition.get("prefix", "")) == "in" and ActionIcons.plain_text_for_tokens(light_row).begins_with("if Target in Light:") and ActionIcons.token_tooltip(light_condition).begins_with("If Target in Light"), "The Light condition reads 'in [Light]:' on the card face and keeps its full text")
-	expect.call(str(((frozen_rows[frozen_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "vs" and str(((execute_rows[execute_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "≤½", "Frozen reads 'vs [Freeze]:' and half health '≤½ [Health]:' on the card face")
+	expect.call(str(((exposed_rows[exposed_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "vs" and str(((execute_rows[execute_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "≤½", "Expose reads 'vs [Expose]:' and half health '≤½ [Health]:' on the card face")
 	var ground_row: Array = ActionIcons.tokens_for_surface_bonus({"type": "melee", "damage": 11, "range": 1, "surface_bonus": {"surface": "rubble", "subject": "target", "present": true, "damage": 4}})
 	expect.call(str((ground_row[0] as Dictionary).get("prefix", "")) == "on" and ActionIcons.plain_text_for_tokens(ground_row).begins_with("Target on Rubble:"), "A target ground condition reads 'on [ground]:' and keeps 'Target on' in its text")
 	expect.call(str((ground_row[1] as Dictionary).get("icon", "")) == "melee", "A melee ground bonus repeats the melee damage icon")
@@ -525,7 +526,7 @@ static func _test_live_time_badge_surcharge(tree: SceneTree, expect: Callable) -
 	await tree.process_frame
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
 	var badge: Control = widget.get("_time_badge") as Control
-	expect.call(badge != null and int(badge.get("value")) == 6 and str(badge.tooltip_text).contains("Empower: +2"), "The selected card's Time badge shows printed Time plus the Empower surcharge")
+	expect.call(badge != null and int(badge.get("value")) == 6 and str(badge.tooltip_text).contains("Empower adds 2 Time."), "The selected card's Time badge shows printed Time plus the Empower surcharge")
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	expect.call(badge != null and int(badge.get("value")) == 4 and not str(badge.tooltip_text).contains("Empower"), "Clearing the surcharge restores the printed Time badge")
 	widget.queue_free()
@@ -584,7 +585,7 @@ static func _test_live_targetless_empower_confirmation(tree: SceneTree, expect: 
 	expect.call(tracker.is_empty(), "Targetless Empower uses the card seal without a tracker grid slot")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button == null and str((instance.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal").tooltip_text).begins_with("Empower: +1 Time"), "The seal tooltip names the cost and the old command is absent")
+	expect.call(button == null and str((instance.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal").tooltip_text).begins_with("Empower for +1 Time"), "The seal tooltip names the cost and the old command is absent")
 	expect.call(int((instance.call("_turn_order_card_time_preview") as Dictionary).get("time", 0)) == 2, "The Time preview starts at the printed Time")
 	await instance.call("_toggle_pending_empower")
 	await tree.process_frame

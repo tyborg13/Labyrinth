@@ -8,13 +8,13 @@ const Playback = preload("res://tests/helpers/brs02_playback_scene.gd")
 const HERO_HP: int = 60
 const SOURCE := Vector2i(3, 3)
 const HERO := Vector2i(4, 4)
-const BLEED: int = 3
 const CHAIN_HP: int = 4
 const TRIGGER_DAMAGE: int = 6
 const WITNESS := Vector2i(5, 4)
 const DIRECTOR_SEED: int = 83
-# Keep the fourth Hoarder Tick away from the two Bursts that reach the hero.
-const DIRECTOR_TICK_OFFSETS: Array = [Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, -1), Vector2i(-3, 0)]
+# Only the first and third Burst crosses reach the hero.
+const DIRECTOR_TICK_OFFSETS: Array = [Vector2i.RIGHT, Vector2i(2, 0), Vector2i.UP, Vector2i(-3, 0)]
+const RETALIATE_HERO_TILE := SOURCE + Vector2i.DOWN
 const FORCE_WITNESS := Vector2i(5, 3)
 const ERUPT_ORIGIN := Vector2i(2, 3)
 const ERUPT_CENTER := Vector2i(3, 3)
@@ -55,9 +55,9 @@ func _run() -> void:
 		if _motion_part != MOTION_PART_ALL and int(reduced) != _motion_part: continue
 		Live.set_reduced_motion(scene, reduced)
 		if not OS.get_cmdline_user_args().has("--feedback-only"):
-			await _bleed(scene, reduced)
+			await _activation_fire(scene, reduced)
 			await _director_pass(scene, reduced)
-			for route: String in ["fire", "retaliate", "hidden_bleed", "player_card"]:
+			for route: String in ["fire", "retaliate", "hidden_fire", "player_card"]:
 				await _route(scene, route, reduced)
 			await _hidden_cascades(scene, reduced)
 			await _trap_cascade(scene, reduced)
@@ -85,7 +85,7 @@ func _force_long_frames() -> bool:
 func _finish_proof(_scene: Playback) -> void:
 	pass
 
-func _bleed(scene: Playback, reduced: bool) -> void:
+func _activation_fire(scene: Playback, reduced: bool) -> void:
 	var before: Dictionary = Fixture.fixture(["ember_tick", "ember_tick", "ember_tick", "crawler"])
 	before["player"]["hp"] = HERO_HP
 	before["player"]["max_hp"] = HERO_HP
@@ -93,13 +93,13 @@ func _bleed(scene: Playback, reduced: bool) -> void:
 	for index: int in range(3):
 		before["enemies"][index]["pos"] = SOURCE + Vector2i(index, 0)
 		before["enemies"][index]["hp"] = 1
-		before["enemies"][index]["bleed"] = BLEED
+		preload("res://scripts/board_surface_rules.gd").place(before, before["enemies"][index]["pos"], "fire")
 	before["enemies"][3]["pos"] = Vector2i(5, 4)
 	var phase: Dictionary = Combat.new().resolve_enemy_turn_with_steps(before, 0)
 	var after: Dictionary = phase["state"]
 	Live.install(scene, before.duplicate(true))
 	scene.set("_animation_lock", true)
-	scene.begin_recording("bleed reduced=%s" % reduced)
+	scene.begin_recording("activation_fire reduced=%s" % reduced)
 	scene._render_board_state(before, {})
 	var animated: Dictionary = before.duplicate(true)
 	var pacing: Node = scene.get("_combat_pacing")
@@ -108,11 +108,12 @@ func _bleed(scene: Playback, reduced: bool) -> void:
 	await pacing.finish_enemies()
 	scene._render_board_state(after, {})
 	scene.recording = false
-	_check_path(scene.samples, before, after, "bleed reduced=%s" % reduced)
+	_check_path(scene.samples, before, after, "activation_fire reduced=%s" % reduced)
 
 func _director_pass(scene: Playback, reduced: bool) -> void:
 	var engine := preload("res://scripts/run_engine.gd").new()
-	var run: Dictionary = preload("res://tools/hoarder_inspection.gd").build(engine, Combat.new(), engine.create_new_run(DIRECTOR_SEED, preload("res://scripts/progression_store.gd").default_data()), {"hoarder_biome": "fire", "hoarder_tier": 2, "hoarder_case": "encounter", "seed": DIRECTOR_SEED})
+	var combat := Combat.new()
+	var run: Dictionary = preload("res://tools/hoarder_inspection.gd").build(engine, combat, engine.create_new_run(DIRECTOR_SEED, preload("res://scripts/progression_store.gd").default_data()), {"hoarder_biome": "fire", "hoarder_tier": 2, "hoarder_case": "encounter", "seed": DIRECTOR_SEED})
 	var before: Dictionary = run["combat_state"]
 	before["player"]["hp"] = HERO_HP
 	before["player"]["max_hp"] = HERO_HP
@@ -128,8 +129,7 @@ func _director_pass(scene: Playback, reduced: bool) -> void:
 		enemy["pos"] = tile
 		before["grid"][tile.y][tile.x] = "stone"
 		enemy["hp"] = 1
-		enemy["bleed"] = BLEED
-		enemy["bleed_stacks"] = BLEED
+		preload("res://scripts/board_surface_rules.gd").place(before, tile, "fire")
 	scene._load_run_state(run)
 	scene.set("_animation_lock", false)
 	if bool(scene.get("_dialogue_active")): scene._close_dialogue()
@@ -145,7 +145,14 @@ func _director_pass(scene: Playback, reduced: bool) -> void:
 	scene.recording = false
 	_expect(after.get("death_burst_events", []).size() == brood.size(), "Director pass resolves a Burst for every Tick")
 	_expect(int(after["player"]["hp"]) == 52, "Director pass retains the true 52 Health result")
-	_check_path(scene.samples, before, after, "director_pass reduced=%s" % reduced)
+	# A cross leaves some Ticks alive to take Fire on their own activations.
+	# The surface journal records their real losses between Burst snapshots.
+	var activation_fire: Array[Dictionary]
+	for event: Dictionary in combat._surface_events_since(before, after):
+		if event.get("kind") == "surface_damage" and event.get("surface") == "fire" and event.get("trigger") == "start" \
+				and int(event["health_lost"]) > 0 and combat.is_tile_visible_to_player(before, event["tile"]):
+			activation_fire.append(event)
+	_check_path(scene.samples, before, after, "director_pass reduced=%s" % reduced, activation_fire)
 
 func _route(scene: Playback, route: String, reduced: bool) -> void:
 	var before: Dictionary = Fixture.fixture(["ember_tick", "ember_tick", "ember_tick", "crawler"])
@@ -157,9 +164,11 @@ func _route(scene: Playback, route: String, reduced: bool) -> void:
 	before["enemies"][3]["pos"] = WITNESS
 	match route:
 		"fire": preload("res://scripts/board_surface_rules.gd").place(before, SOURCE, "fire")
-		"retaliate": before["retaliate"] = {"amount": TRIGGER_DAMAGE}
-		"hidden_bleed":
-			before["enemies"][0]["bleed"] = BLEED
+		"retaliate":
+			before["player"]["pos"] = RETALIATE_HERO_TILE
+			before["retaliate"] = {"amount": TRIGGER_DAMAGE}
+		"hidden_fire":
+			preload("res://scripts/board_surface_rules.gd").place(before, SOURCE, "fire")
 			before["umbra"] = {"stage": "eclipse"}
 	var original: Dictionary = before.duplicate(true)
 	var action: Dictionary = {"type": "ranged", "range": 5, "damage": TRIGGER_DAMAGE}
@@ -402,7 +411,7 @@ func _trap_cascade(scene: Playback, reduced: bool) -> void:
 	_expect(animated["player"] == after["player"] and animated["enemies"] == after["enemies"], label + " playback settles the true actors")
 	_check_path(scene.samples, before, after, label)
 
-func _check_path(samples: Array[Dictionary], before: Dictionary, after: Dictionary, label: String) -> void:
+func _check_path(samples: Array[Dictionary], before: Dictionary, after: Dictionary, label: String, activation_fire: Array = []) -> void:
 	var path: Array[Dictionary]
 	path.append(_health(before))
 	var events: Array = after.get("death_burst_events", [])
@@ -445,10 +454,11 @@ func _check_path(samples: Array[Dictionary], before: Dictionary, after: Dictiona
 				popups[str(text.get("screen_layout_key", ""))] = absi(str(text.get("text", "0")).to_int())
 		var actual_damage: Array[int]
 		for amount: int in popups.values(): actual_damage.append(amount)
-		# The initiating card/Bleed/attack has its existing feedback owner.
-		# Check only Bursts here; a missing unrelated legacy trigger popup is
-		# outside this regression. A duplicate trigger still remains and fails.
-		if path.size() > 2:
+		# Director Pass checks its activation Fire alongside Bursts. The
+		# other routes keep the one initiating hit owned by legacy feedback.
+		for event: Dictionary in activation_fire:
+			if event["actor_key"] == key: damage.append(int(event["health_lost"]))
+		if activation_fire.is_empty() and path.size() > 2:
 			var primary_loss: int = int(path[0][key]) - int(path[1][key])
 			if primary_loss > 0: actual_damage.erase(primary_loss)
 		damage.sort()

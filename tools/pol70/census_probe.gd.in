@@ -1,0 +1,348 @@
+extends "census.gd"
+## Extend the candidate 4 census with title metrics and the pol-68 rectangles.
+
+const Geometry = preload("census_geometry.gd")
+const Motion = preload("title_motion.gd")
+const CardFace = preload("res://scripts/card_widget.gd")
+const Data = preload("res://scripts/game_data.gd")
+const Measurements = preload("res://scripts/card_summary_measurements.gd")
+const FLOOR_PX: float = 14.0
+const TOP_COUNT: int = 10
+const CROP_PADDING_PX: int = 6
+const CROP_ZOOM: int = 2
+const GRAFT_TITLE_PARENT: String = "Graftwright"
+var _navigation_error: String = ""
+var _frame: Image
+
+
+class FixtureShelfEngine extends RunEngine:
+	var fixture_ids: Array[String]
+
+	func merchant_offer_ids(run_state: Dictionary, merchant_kind: String) -> Array:
+		var offers: Array = super.merchant_offer_ids(run_state, merchant_kind)
+		if merchant_kind != MERCHANT_SCAVENGER:
+			return offers
+		# The fixture shows equipment-granted spells too. Use the real shelf
+		# builder and leave the ordinary stock rules and saved state alone.
+		var next: int = 0
+		for index: int in range(offers.size()):
+			if merchant_item_kind(str(offers[index])) == MERCHANT_ITEM_KIND_MAGIC:
+				offers[index] = fixture_ids[next]
+				next += 1
+				if next == fixture_ids.size():
+					break
+		return offers
+
+
+func _settle(input: RefCounted) -> Image:
+	var shot: Dictionary = JSON.parse_string(_options["--shot"])
+	match str(shot["shot"]):
+		"scavenger_long_names":
+			var shop: Control = _screen.get("_scavenger_shop_view")
+			var engine := FixtureShelfEngine.new()
+			engine.fixture_ids.assign(shot["shelf_cards"])
+			shop.call("configure", _screen.get("_run_state"), engine, _screen.call("_reduced_motion_enabled"))
+		"scavenger_receipt":
+			_navigation_error = await _buy_receipt(input, str(shot["card_id"]))
+		"draw_pile":
+			if not await input._click(_screen.get("draw_pile")) or not await input._wait(
+				func() -> bool: return input._visible(_screen.get("_pile_scrim"))
+			):
+				_navigation_error = "Draw pile did not open."
+		"grimoire_card":
+			var panel: Control = _screen.get("_grimoire_scrim")
+			var search: LineEdit = panel.find_child("GrimoireSearchInput", true, false)
+			if search == null:
+				_navigation_error = "Grimoire search is missing."
+			else:
+				search.text = str(Data.card_def(shot["card_id"])["name"])
+				search.text_changed.emit(search.text)
+				var found: bool = await input._wait(
+					func() -> bool: return not panel.get("_grimoire_search_result_buttons").is_empty()
+				)
+				if found:
+					search.text_submitted.emit(search.text)
+				if not found or not await input._wait(func() -> bool: return panel.get("_grimoire_selected_entry") == shot["unlock"]):
+					_navigation_error = "Grimoire card result did not open."
+		"event_card", "event_transform":
+			var view: Control = _screen.get("_event_view")
+			var choice: Control = view.get("choices")[int(shot["choice_index"])]
+			await input._move(input._rect(choice).get_center())
+			if not await input._wait(func() -> bool: return not _cards(view).is_empty()):
+				_navigation_error = "Event choice did not show a card preview."
+			if shot["shot"] == "event_transform":
+				_event_tooltip_state(input, choice)
+	_frame = await super._settle(input)
+	if shot["shot"] == "event_transform":
+		var view: Control = _screen.get("_event_view")
+		var choice: Control = view.get("choices")[int(shot["choice_index"])]
+		var popups: Array[Dictionary]
+		for child: Node in choice.get_children(true):
+			if child is PopupPanel and child.visible:
+				popups.append({"name": str(child.name), "position": [child.position.x, child.position.y],
+					"size": [child.size.x, child.size.y]})
+		_result["event_tooltip"]["popups"] = popups
+		print("POL70 EVENT TOOLTIP: ", JSON.stringify(_result["event_tooltip"]))
+	if _navigation_error.is_empty() and shot.has("motion_card"):
+		var path: String = ""
+		if shot.get("motion_strip", false):
+			path = str(_options["--png"]).get_basename() + "_hover_strip.png"
+		var motion := Motion.new(self, input, _screen, _viewport, _headless)
+		_result["motion"] = await motion.run(str(shot["motion_card"]), path)
+		_navigation_error = str(_result["motion"].get("error", ""))
+	if _navigation_error.is_empty() and shot.has("shelf_cards"):
+		_navigation_error = await _prove_shelf_motion(input, shot["shelf_cards"])
+	return _frame
+
+
+func _prove_shelf_motion(input: RefCounted, ids: Array) -> String:
+	var shop: Control = _screen.get("_scavenger_shop_view")
+	var measurements: Array[Dictionary]
+	for id: String in ids:
+		var offer: Control = input._find(shop, "MagicOffer_" + id)
+		var card: CardFace = input._find(offer, "MagicCard_" + id) as CardFace
+		if card == null or not card.is_visible_in_tree():
+			return "Shelf fixture did not present " + id
+		var source: int = card.title_label.get_theme_font_size("font_size")
+		var tracked: bool = card.has_method("set_title_layout")
+		if tracked:
+			var title: Dictionary = _title_metrics(card)
+			if title["step"] != 5 or not title["fits"] or title["ellipsis"]:
+				return "Fixture shelf name did not fit at step 5: " + id
+		var start_count: int = int(card.get("_title_fit_count")) if tracked else 0
+		var peak_scale: float = 1.0
+		var frames: int = 0
+		var stable: bool = true
+		for entering: bool in [true, false]:
+			input._dispatch_motion(input._rect(offer).get_center() if entering else Motion.NEUTRAL_POINT)
+			var settled: bool = false
+			for frame: int in Motion.MAX_FRAMES:
+				await process_frame
+				frames += 1
+				peak_scale = maxf(peak_scale, offer.scale.y)
+				stable = stable and card.title_label.get_theme_font_size("font_size") == source
+				var tween: Tween = shop.get("_slot_tweens").get(offer.get_instance_id())
+				if bool(offer.get_meta("shop_pointer_hovered", false)) == entering and tween != null and not tween.is_running():
+					settled = true
+					break
+			if not settled:
+				return "Shelf hover did not settle for " + id
+		var refits: int = int(card.get("_title_fit_count")) - start_count if tracked else -1
+		measurements.append({"id": id, "source_px": source, "frames": frames, "stable": stable,
+			"refits": refits, "peak_scale": peak_scale})
+		if peak_scale <= 1.0 or (tracked and (not stable or refits != 0)):
+			return "Shelf hover changed title fit or failed to lift for " + id
+	_result["shelf_motion"] = measurements
+	return ""
+
+
+func _buy_receipt(input: RefCounted, id: String) -> String:
+	var shop: Control = _screen.get("_scavenger_shop_view")
+	var action: Button = input._find(shop, "ScavengerTradeActionButton")
+	var entered: bool = await input._wait(func() -> bool:
+		var tween: Tween = shop.get("_entry_tween")
+		return tween == null or not tween.is_running()
+	)
+	var starting_embers: int = int(_screen.get("_run_state").get("held_embers", 0))
+	if not entered or not await input._click(input._find(shop, "MagicOffer_" + id)):
+		return "Scavenger offer was unavailable after its entrance."
+	if not await input._wait(func() -> bool:
+		return shop.get("_selected_item_id") == id and action.is_visible_in_tree() and not action.disabled
+	):
+		return "Scavenger did not select the requested ware and enable Buy."
+	await input._move(input._rect(action).get_center())
+	if not await input._wait(func() -> bool:
+		var hovered: Control = _viewport.gui_get_hovered_control()
+		return hovered == action or (hovered != null and action.is_ancestor_of(hovered))
+	):
+		return "The Buy control never owned the pointer after selection."
+	if not await input._click(action):
+		return "Scavenger Buy stopped accepting input."
+	var purchased: bool = await input._wait(func() -> bool:
+		var card: CardFace = _receipt_card(shop)
+		return card != null and card.card_id == id and int(_screen.get("_run_state").get("held_embers", 0)) < starting_embers
+	)
+	print("POL70 RECEIPT: card=%s selected=%s embers=%d->%d" % [
+		id, shop.get("_selected_item_id"), starting_embers, _screen.get("_run_state").get("held_embers", 0),
+	])
+	return "" if purchased else "Scavenger did not commit the purchase and show its receipt."
+
+
+func _event_tooltip_state(input: RefCounted, choice: Control) -> void:
+	var local: Vector2 = choice.get_global_transform_with_canvas().affine_inverse() * input._pointer
+	_result["event_tooltip"] = {
+		"pointer": [input._pointer.x, input._pointer.y],
+		"choice": str(choice.name), "hovered": choice.get("hovered"), "focused": choice.has_focus(),
+		"tooltip": choice.get_tooltip(local),
+	}
+
+
+func _finish(error: String) -> void:
+	if error.is_empty():
+		error = _navigation_error
+	if error.is_empty():
+		var shot: Dictionary = JSON.parse_string(_options["--shot"])
+		var name: String = shot["shot"]
+		_result["geometry"] = Geometry.viewport_geometry(_viewport)
+		_result["control_rects"] = Geometry.control_rects(_viewport, _capture_tree)
+		var titles: Array[Dictionary]
+		var cards: Array[CardFace] = _cards(_capture_tree)
+		var relevant: Array[CardFace]
+		for card: CardFace in cards:
+			titles.append(_title_metrics(card))
+			if _in_context(card, name):
+				relevant.append(card)
+		_result["titles"] = titles
+		var context_titles: Array[Dictionary]
+		for card: CardFace in relevant:
+			context_titles.append(_title_metrics(card))
+		_result["context_titles"] = context_titles
+		if relevant.is_empty():
+			error = "No full card faces found for %s." % name
+		else:
+			if shot.get("titles_crop", false):
+				error = _crop(relevant)
+			if shot.get("measure_names", false):
+				_result.merge(_catalog(relevant))
+	super._finish(error)
+
+
+func _cards(node: Node) -> Array[CardFace]:
+	var cards: Array[CardFace]
+	_collect_cards(node, cards)
+	return cards
+
+
+func _collect_cards(node: Node, cards: Array[CardFace]) -> void:
+	if node.is_queued_for_deletion() or node is SubViewport and node != _viewport:
+		return
+	if node is CanvasItem and not node.is_visible_in_tree() or node is CanvasLayer and not node.visible:
+		return
+	if node is CardFace and not node.card_id.is_empty():
+		cards.append(node)
+	for child: Node in node.get_children():
+		_collect_cards(child, cards)
+
+
+func _in_context(card: CardFace, shot: String) -> bool:
+	var path: String = str(card.get_path())
+	match shot:
+		"combat", "boss", "long_hand", "motion_long", "motion_short":
+			return path.contains("/HandBox/")
+		"scavenger", "scavenger_long_names":
+			return str(card.name).begins_with("MagicCard_")
+		"scavenger_receipt":
+			return card == _receipt_card(_screen.get("_scavenger_shop_view"))
+		"graftwright_confirm":
+			return path.contains(GRAFT_TITLE_PARENT)
+		"draw_pile":
+			return str(path).contains("Pile")
+		"grimoire_card":
+			return str(path).contains("Grimoire")
+		"event_card", "event_transform":
+			return path.contains("/EventHoverPreview/")
+		_:
+			return not path.contains("/HandBox/")
+
+
+func _receipt_card(shop: Control) -> CardFace:
+	var receipt: Control = shop.get("_receipt_visual")
+	var cards: Array[CardFace] = _cards(receipt)
+	return cards[0] if not cards.is_empty() else null
+
+
+func _title_metrics(card: CardFace) -> Dictionary:
+	var title: Label = card.title_label
+	var transform: Transform2D = title.get_global_transform_with_canvas()
+	var source: int = title.get_theme_font_size("font_size")
+	var available: float = card._title_nameplate_width()
+	var font: Font = title.get_theme_font("font")
+	var spacing: int = font.spacing_glyph if font is FontVariation else 0
+	var width: float = Measurements.text_width(font, source, title.text)
+	var step: int = int(card.get("_title_fit_step")) if card.has_method("set_title_layout") else 0
+	return {
+		"id": card.card_id, "name": title.text, "path": str(title.get_path()),
+		"source_px": source, "px": source * transform.y.length(),
+		"width_px": width * transform.x.length(),
+		"available_px": available * transform.x.length(),
+		"row_px": title.size.y * transform.y.length(),
+		"line_px": Measurements.text_height(font, source) * transform.y.length(),
+		"step": step, "spacing": spacing, "fits": width <= available,
+		"ellipsis": title.text_overrun_behavior != TextServer.OVERRUN_NO_TRIMMING,
+	}
+
+
+func _catalog(cards: Array[CardFace]) -> Dictionary:
+	# Use the narrowest nameplate in this live context (the hand has
+	# watch occlusion). Reuse its real font, scale, fitting and insets.
+	var card: CardFace = cards[0]
+	for candidate: CardFace in cards:
+		if candidate._title_nameplate_width() < card._title_nameplate_width():
+			card = candidate
+	var title: Label = card.title_label
+	var original: String = title.text
+	var font: Font = preload("res://scripts/ui_typography.gd").ui_font()
+	var transform: Transform2D = title.get_global_transform_with_canvas()
+	var scale_x: float = transform.x.length()
+	var floor_source: int = ceili(FLOOR_PX / transform.y.length())
+	var pool: Array[String]
+	for id: String in Data.cards():
+		if not bool(Data.cards()[id].get("retired", false)):
+			pool.append(id)
+	pool.sort()
+	var rows: Array[Dictionary]
+	var TODO_DESIGN_title_fit: Array[Dictionary]
+	var steps: Dictionary = {}
+	for id: String in pool:
+		var definition: Dictionary = Data.card_def(id)
+		title.text = str(definition.get("name", id))
+		card._fit_title_label(card._base_title_size())
+		var row: Dictionary = _title_metrics(card)
+		row["id"] = id
+		row["floor_width_px"] = Measurements.text_width(font, floor_source, title.text) * scale_x
+		if row["step"] == 5:
+			row["next_size_fits"] = card.call("_full_title_fits", title.get_theme_font("font"), int(row["source_px"]) + 1,
+				card._title_nameplate_width(), title.custom_minimum_size.y)
+		rows.append(row)
+		var step: int = row["step"]
+		steps[step] = int(steps.get(step, 0)) + 1
+		if step == 4:
+			TODO_DESIGN_title_fit.append(row)
+	title.text = original
+	card._fit_title_label(card._base_title_size())
+	var floor_sorted: Array[Dictionary]
+	floor_sorted.assign(rows)
+	floor_sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if a.floor_width_px == b.floor_width_px: return a.id < b.id
+		return a.floor_width_px > b.floor_width_px)
+	return {"catalog_size": rows.size(), "catalog": rows, "step_counts": steps,
+		"longest_at_floor": floor_sorted.slice(0, TOP_COUNT),
+		"TODO_DESIGN_title_fit": TODO_DESIGN_title_fit}
+
+
+func _crop(cards: Array[CardFace]) -> String:
+	var region := Rect2()
+	for card: CardFace in cards:
+		var title: Label = card.title_label
+		var rect: Rect2 = title.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, title.size)
+		region = rect if region == Rect2() else region.merge(rect)
+	region = region.grow(CROP_PADDING_PX).intersection(_viewport.get_visible_rect())
+	var start := Vector2i(region.position.floor())
+	var end := Vector2i(region.end.ceil())
+	var crop_rect := Rect2i(start, end - start)
+	_result["crop_size"] = [crop_rect.size.x * CROP_ZOOM, crop_rect.size.y * CROP_ZOOM]
+	if _headless:
+		return ""
+	if _frame == null or _frame.get_size() != _viewport.size:
+		return "Could not read the exact-size frame for its crop."
+	var crop: Image = _frame.get_region(crop_rect)
+	crop.resize(crop.get_width() * CROP_ZOOM, crop.get_height() * CROP_ZOOM, Image.INTERPOLATE_NEAREST)
+	var hash_context := HashingContext.new()
+	hash_context.start(HashingContext.HASH_SHA256)
+	hash_context.update(crop.get_data())
+	_result["crop_pixels_sha256"] = hash_context.finish().hex_encode()
+	var path: String = str(_options["--png"]).get_basename() + "_titles_2x.png"
+	if crop.save_png(path) != OK:
+		return "Could not save " + path
+	print(path)
+	return ""
